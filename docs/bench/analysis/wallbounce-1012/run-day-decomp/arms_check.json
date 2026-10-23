@@ -1,0 +1,172 @@
+{
+ "format": "shibuya.bench/1-0/arms-check/1",
+ "how": "arms_check.py: byte-check の 19 構成に無い腕を 300 体・seed 1・1 日・世界資産で。1-0 の側は SHIBUYA_SYSTEMS_CHECK=3(書きの検査+段 B(3 tick ごと)+番兵の scratch)。HEAD の側は本体の src",
+ "rows": [
+  {
+   "arm": "attendance",
+   "kw": {
+    "vocab_version": "v3",
+    "attendance_rate": 0.7
+   },
+   "checked_ok": true,
+   "final_1_0": "f4466eb1ac04d48f",
+   "final_head": "f4466eb1ac04d48f",
+   "calls_1_0": 3062,
+   "calls_head": 3062,
+   "same": true
+  },
+  {
+   "arm": "census",
+   "kw": {
+    "vocab_version": "v3",
+    "census_out": "data/runs/1-0_final/census_arm"
+   },
+   "checked_ok": true,
+   "final_1_0": "f4466eb1ac04d48f",
+   "final_head": "f4466eb1ac04d48f",
+   "calls_1_0": 3062,
+   "calls_head": 3062,
+   "same": true
+  },
+  {
+   "arm": "classical_per_hour",
+   "kw": {
+    "vocab_version": "v3",
+    "policy": "classical",
+    "chooser": "classical",
+    "meal_gate": "per_hour"
+   },
+   "checked_ok": true,
+   "final_1_0": "d5e4951df34c4244",
+   "final_head": "d5e4951df34c4244",
+   "calls_1_0": 3550,
+   "calls_head": 3550,
+   "same": true
+  },
+  {
+   "arm": "conv3",
+   "kw": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "conv_max_participants": 3
+   },
+   "checked_ok": true,
+   "final_1_0": "3a3cae2b97a67d35",
+   "final_head": "3a3cae2b97a67d35",
+   "calls_1_0": 3062,
+   "calls_head": 3062,
+   "same": true
+  },
+  {
+   "arm": "delay2",
+   "kw": {
+    "vocab_version": "v3",
+    "response_delay": 2
+   },
+   "checked_ok": true,
+   "final_1_0": "f4466eb1ac04d48f",
+   "final_head": "f4466eb1ac04d48f",
+   "calls_1_0": 3062,
+   "calls_head": 3062,
+   "same": true
+  },
+  {
+   "arm": "familiarity",
+   "kw": {
+    "vocab_version": "v3",
+    "familiarity": "on"
+   },
+   "checked_ok": true,
+   "final_1_0": "d605bf369c01becf",
+   "final_head": "d605bf369c01becf",
+   "calls_1_0": 3062,
+   "calls_head": 3062,
+   "same": true
+  },
+  {
+   "arm": "home_meal_plan",
+   "kw": {
+    "vocab_version": "v3",
+    "home_meal": "plan",
+    "meal_sleep_defer": "on"
+   },
+   "checked_ok": true,
+   "final_1_0": "2a41bbbc6b4b60da",
+   "final_head": "2a41bbbc6b4b60da",
+   "calls_1_0": 3022,
+   "calls_head": 3022,
+   "same": true
+  },
+  {
+   "arm": "move_target",
+   "kw": {
+    "vocab_version": "v3",
+    "mock_move_target_p": 0.3,
+    "mock_out_of_cell_target_p": 0.3
+   },
+   "checked_ok": true,
+   "final_1_0": "9d181b05abab6235",
+   "final_head": "9d181b05abab6235",
+   "calls_1_0": 3127,
+   "calls_head": 3127,
+   "same": true
+  },
+  {
+   "arm": "no_presence",
+   "kw": {
+    "vocab_version": "v3",
+    "plan_executor": false
+   },
+   "checked_ok": true,
+   "final_1_0": "e0d2516fc4156bb3",
+   "final_head": "e0d2516fc4156bb3",
+   "calls_1_0": 5651,
+   "calls_head": 5651,
+   "same": true
+  },
+  {
+   "arm": "store_wom",
+   "kw": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "store_memory": "on",
+    "wom_source": "reason-target"
+   },
+   "checked_ok": true,
+   "final_1_0": "6dfdb2e57522e68f",
+   "final_head": "6dfdb2e57522e68f",
+   "calls_1_0": 3062,
+   "calls_head": 3062,
+   "same": true
+  },
+  {
+   "arm": "v2_edge_plateau",
+   "kw": {
+    "vocab_version": "v2",
+    "geometry": "edge",
+    "area_source": "plateau"
+   },
+   "checked_ok": true,
+   "final_1_0": "872e5f1346ae8fb2",
+   "final_head": "872e5f1346ae8fb2",
+   "calls_1_0": 2508,
+   "calls_head": 2508,
+   "same": true
+  },
+  {
+   "arm": "walk_exit",
+   "kw": {
+    "vocab_version": "v3",
+    "exit_mode": "walk_to_platform"
+   },
+   "checked_ok": true,
+   "final_1_0": "a51e9e5de8e4e429",
+   "final_head": "a51e9e5de8e4e429",
+   "calls_1_0": 3125,
+   "calls_head": 3125,
+   "same": true
+  }
+ ],
+ "all_ok": true
+}

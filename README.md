@@ -8,12 +8,12 @@
 
 第一目標は **「世界そのものがプロダクト」**。現実整合アンカーの台帳を育て、**どこが現実から歪んでいるかを宣言する**ことを開発の実務とする。研究観測(相互作用・組織形成・語彙創発)や事業利用は、その世界の上で走るアプリケーション。
 
-> 設計の背骨は 1 行で言える: **状態と集約はエンジン、意思決定と発話だけ LLM**。
+> 設計の背骨は 1 行で言える: **世界の状態と集約と破れない法則はエンジン。知覚・記憶の強さ・変化の検出は System 1(コード)、日常の判断は判断モデル、会話とよく考える判断は LLM**(2026-10-12 ユーザー決定 K2。正は [CLAUDE.md §3](CLAUDE.md))。
 > 世界の変化はエージェントの行動の結果として起こす(棚が減るのは、店員が補充行動をしたから)。
 
 - 5 分で全体像: [docs/design/v2-architecture-overview-simple.md](docs/design/v2-architecture-overview-simple.md)(開発者向け詳細は [detailed](docs/design/v2-architecture-overview-detailed.md))
 - 正典: [決定台帳 v2-redesign.md](docs/design/v2-redesign.md)・[方法論 v2-methodology.md](docs/design/v2-methodology.md)・[運用規律 CLAUDE.md](CLAUDE.md)
-- 現況: [STATUS.md](STATUS.md)(索引)・[IMPLEMENTED.md](IMPLEMENTED.md)(完了 40 項)・[PENDING.md](PENDING.md)(判断待ち)
+- 現況: [STATUS.md](STATUS.md)(索引)・[IMPLEMENTED.md](IMPLEMENTED.md)(完了 89 項)・[PENDING.md](PENDING.md)(判断待ち)
 - リサーチ答申 100 本超の索引: [docs/research/INDEX.md](docs/research/INDEX.md)(出典の一次確認の等級つき)
 
 ## 実証済みのこと
@@ -28,8 +28,8 @@
 | 決定論 | テープ再生で checkpoint 4 点 × 5 ハッシュ全一致(`8f8ee7e8`)。vLLM のバッチ不変性 ON で温度 0 の出力・logprobs とも **32/32 一致**(OFF では 3/32・0/32) | 同上・[B14](docs/bench/b14_batch_invariance/README.md) |
 | 事前登録した holdout | KDDI 滞在人口(封印データ)への照合を**開封前に**腕・指標・合格線・予想まで登録し、3 seed で開封 → **0/4 不合格**。落ち方: ピーク時刻(sim 10〜13 時 vs 実データ 15〜18 時)と来街者比(最大差 0.395)。エリア構成の JSD だけは同値検定で合格 | [prereg_arms_v1](docs/bench/c7/prereg_arms_v1.md)・[c7_holdout_compare](docs/bench/c7/holdout/c7-day-4/c7_holdout_compare.md) |
 | seed 差 | 同構成で seed だけ違う 2 ランの在圏差は 中央値 0.54%・最大 4.49%(05 時)。エリア別 24 h シェアの JSD 0.000162 bits = 合格線の **1/75** → holdout の外れは seed でなく**構造**に帰属できる | [c7-day-4_seed1_vs_seed2](docs/bench/c7/ensemble/c7-day-4_seed1_vs_seed2.md) |
-| 経済 | 6 部門 15 科目の台帳。faucet/sink を全登録し、日次センサスの残差 0 | [build-report-C7](docs/ops/build-report-C7.md) |
-| テスト | `def test_` 2,298 本・層契約 lint・秘密スキャン・CI | [tests/](tests/)・[.github/workflows/ci.yml](.github/workflows/ci.yml) |
+| 経済 | 6 部門 15 科目の台帳。faucet/sink を全登録し、流れの表と純資産の一致(T3)を検算(「残差 0」は RESIDUAL 科目の和なので自明=第333 訂正) | [build-report-C7](docs/ops/build-report-C7.md) |
+| テスト | `def test_` 3,190 本(2026-10-13)・層契約 lint・秘密スキャン・CI(CI-0 静的 / CI-1 data 不要 / CI-2 夜間) | [tests/](tests/)・[.github/workflows/ci.yml](.github/workflows/ci.yml) |
 
 ### ablation で分かったこと(5,000 体 × 1 日・実 LLM・切替口は既定不変)
 
@@ -120,10 +120,7 @@ flowchart LR
 
 ## 次にやること
 
-- **判断層**: 速い判断(閉じた出力=選ぶ)と遅い思考(開いた出力=生成)の二層認知。LLM を呼ぶかどうかも葛藤・驚き(予測誤差)で決める門番に任せ、思考の量を人の錨に近づける。
-- **記憶・習慣・関係**: 設計済みの ACT-R 型の基底活性を実装し、関係の強さを相互作用の記憶から導く。
-- **複数日ランと再開**: `resume == straight`(途中再開と通しの完全一致)を最初の受入条件にする。
-- **事前登録 v2**: 未開封の holdout 層で次の主張を立てる(来街者の作り直しと同時)。
+正は [実装の計画 10-12](docs/design/v2-implementation-plan-2026-10-12.md)(第 0〜7 期)。GPU 不要の第 0〜5 期を先に進める(第 0 期 版上げ 1 回目と第 1 期 1-0 `run_day` の分解は完了)。順は 第 1 期 土台の器(時計・出来事の記録・規則の表・権利台帳・知覚の分離・記憶の器・道具の台帳・候補の口・お金の基本操作)→ 第 2 期 経済・近接・複数日・鉄道の実ダイヤ → 第 3 期 カレンダー・反実仮想の器・ビューアの最小 → 第 4 期 ペルソナと人口の作り直し → 第 5 期 空間 → 第 6 期(GPU)。再開(`resume == straight`)は 10d で済み。進め方は [回答 10-13b §0](docs/design/v2-answers-2026-10-13b.md)(自律運転)。
 
 ## リポジトリの地図
 
@@ -142,13 +139,17 @@ flowchart LR
 
 Python 3.12 以上。GPU なしで動くもの(ビルド・mock ラン・テープ再生・図・テスト)と、GPU が要るもの(実 LLM ラン=自前の vLLM 艦隊)を分けている。
 
+Windows(PowerShell)の例。Linux/macOS では `.venv/bin/python` に読み替える。祝日の表は `tests/fixtures/calendar/` の写しが試験のときに自動で `data/calendar/` へ置かれるので、取り出したばかりの状態でも試験は回る(第333)。
+
 ```powershell
 python -m venv .venv
 .venv\Scripts\python.exe -m pip install -e ".[dev]"
 .venv\Scripts\lint-imports.exe          # 層契約(実装計画書 §3)
 .venv\Scripts\python.exe -m pytest -q   # 単体・性質テスト(GPU 不要)
-git config core.hooksPath .githooks      # コミット前の秘密スキャン(CLAUDE.md §7)
+git config core.hooksPath .githooks      # コミット前の検査(秘密スキャン・道筋・ステージの突き合わせ=CLAUDE.md §7)
 ```
+
+**コミットの前(第330・CLAUDE.md §7)**: 入れるはずのファイルの一覧を 1 行 1 パスで作り(改行は何でもよい=道具が正規化する)、明示パスで `git add` したあと、`python tools/commit_check.py --expect <一覧>` で「一覧=ステージ」を確かめてから `git commit`。一覧を `COMMIT_EXPECT` に入れておけば `.githooks/pre-commit` が同じ検査をして、足りない/余計なファイルがあれば commit を止める(第329 の事故=一覧の CRLF で `git add` が 1 本にしか効かず 4 commit が空だった、の再発防止)。一覧が無いときも、記録してはいけない道筋(絶対パス・ユーザー名・サーバー名)の検査は毎回かかる。改行は `.gitattributes`(`* text=auto eol=lf`)で LF に固定している。
 
 - 実 LLM ランは vLLM(検証は 0.28.0)を `VLLM_BATCH_INVARIANT=1` で起動する。再現性を主張するランは必ず ON(B14)。艦隊の起動と事故の型は [docs/ops/v2-server-lessons.md](docs/ops/v2-server-lessons.md)。
 - 工程 C0〜C8 の手順と無人運転の規律は [実装計画書 §9](docs/design/v2-implementation-plan.md)。

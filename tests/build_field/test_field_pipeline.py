@@ -16,30 +16,25 @@ import pytest
 
 from shibuya.build import run as build_run
 from shibuya.build.geo import common as C
+from tests import _data_ids as D
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = REPO_ROOT / "data"
 OSM = DATA_DIR / "realworld" / "osm" / "shibuya_osm_wide_v8.json"
 KASYO = DATA_DIR / "realworld" / "road_census_r3" / "kasyo13.csv"
 
-pytestmark = pytest.mark.skipif(
-    not (OSM.exists() and KASYO.exists()), reason="data/ absent (CI)"
-)
+#: 〔第 2 期 2-3b〕W12 1.2.0 は実ダイヤの入力(ユーザー提供の時刻表の読み取り・ODPT の静的データ版 1)も読む。
+pytestmark = pytest.mark.requires_data(*D.ids_of(OSM, KASYO), "user_timetables", "odpt_static")
 
 #: 実データで**現に落ちる**ゲート(理由つき)。増減したら気づけるように固定する。
 KNOWN_FAILING_GATES: dict[tuple[str, str], str] = {
-    ("W10", "primary_secondary_sections_matched"): (
-        "段 1c の対応表は診断として作るが既定 OFF(親決定)=当てた辺 0。当てうる辺は 190/202"
-        "(段 1c′ の Q7+Q9 の絞り込みでは 202/202・ゲート primary_secondary_sections_matchable*)"
-    ),
+    # ("W10", "primary_secondary_sections_matched") は第330 B4(ON+Q7 が既定)で 202/202=PASS になった。
     ("W10", "calibration_max_abs_residual_db"): (
         "遮音壁を見ない(ΔL=0)ため高速3号の点が過大・路線中央値が点の実区間と一致しない"
     ),
     # ("W13", "days_with_missing_hours") は 2026-09-08 に etrn 時別値の補完で解消(親レーン)。
-    ("W9", "shadow_bytes_per_day_le_10mb"): (
-        "D-W10 の 8.6MB/日 は 239,028点前提。街路格子は W10 と同じ 356,732点なので"
-        "288面×44,592B=12.84MB。点を間引いて予算に合わせることはしない(可視性レーン)"
-    ),
+    # ("W9", "shadow_bytes_per_day_le_10mb") は第 2 期 2-4 で宣言を実測に合わせた(≤13,000,000 B/日・ゲートの名は
+    # shadow_bytes_per_day_le_budget)=PASS。旧の理由: D-W10 の 8.6MB/日 は 239,028点前提・街路格子は 356,732点で 12.84MB。
 }
 
 
@@ -117,6 +112,9 @@ def test_w7_plan_spec(built):
     )
     assert handled >= before["value"] > 0
     assert _gate(manifest, "W7", "osm_opening_hours_candidates")["value"] == 565
+    # 〔改訂(第330 B6)〕PH(祝日)の規則は列 holiday_content に拾う(週表 content は不変)
+    hol = C.read_parquet_columns(out / "w7_plan_spec.parquet", ["holiday_content"])["holiday_content"]
+    assert len(hol) == 2337 and _gate(manifest, "W7", "holiday_rule_poi")["value"] == sum(1 for h in hol if h) > 0
     notes = _header(manifest, "W7")["notes"]
     assert notes["osm_parse_rate"] >= 0.90
     srcs = notes["src_counts"]
@@ -220,7 +218,11 @@ def test_w12_external_nodes(built):
     nodes = C.read_parquet_columns(out / "w12_external_nodes.parquet")
     assert all(c >= 1 for c in nodes["n_attached_cells"])
     tt = C.read_parquet_columns(out / "w12_timetables.parquet")
-    assert set(tt["source"]) == {"real", "equal_interval_expedient"}
+    # 〔第 2 期 2-3b〕全 8 線が実ダイヤ(等間隔の行 0)。旧: {"real", "equal_interval_expedient"}
+    assert set(tt["source"]) == {
+        "real", "real_odpt_open_metro_2026-09", "real_user_pdf_jr_east", "real_user_pdf_tokyu",
+        "real_odpt_challenge_keio",
+    }
     assert set(tt["calendar"]) == {"Weekday", "SaturdayHoliday"}
     weights = C.read_parquet_columns(out / "w12_generation_weights.parquet")
     assert abs(sum(weights["weight"]) - 1.0) < 1e-9
@@ -231,15 +233,12 @@ def test_w12_external_nodes(built):
     assert ratios["SaturdayHoliday"] != ratios["Weekday"]
     assert header["notes"]["metro_peak_am_trains_holiday"] > 0
     assert header["notes"]["pm_peak_assumed_equal_to_am"] is True
-    # 等間隔ダイヤの本数が曜日種別で実際に変わる(比の分岐が効いている)
-    exp_rows = [
-        (c, d)
-        for c, d, src in zip(tt["calendar"], tt["departure_min"], tt["source"])
-        if src == "equal_interval_expedient"
-    ]
-    n_weekday = sum(1 for c, _d in exp_rows if c == "Weekday")
-    n_holiday = sum(1 for c, _d in exp_rows if c == "SaturdayHoliday")
-    assert n_weekday > 0 and n_holiday > 0 and n_weekday != n_holiday
+    # 〔第 2 期 2-3b〕等間隔で残る線 0・線ごとに土休 ≦ 平日(第330 §6 の欠陥=等間隔の推定で土休 > 平日が消えた)。
+    # 旧: 等間隔ダイヤの本数が曜日種別で変わる(比の分岐の検査)は等間隔の道の単体試験(test_w12_pm_peak_switch)へ。
+    assert _gate(manifest, "W12", "equal_interval_lines_remaining")["value"] == 0
+    assert _gate(manifest, "W12", "lines_holiday_gt_weekday")["value"] == 0
+    assert "equal_interval_expedient" not in set(tt["source"])
+    assert (out / "w12_timetable_versions.json").exists()
     # 初終発の妥当域(04:30-01:30)
     assert 270 <= min(tt["departure_min"]) <= 330
     assert 1410 <= max(tt["departure_min"]) <= 1530
@@ -247,9 +246,11 @@ def test_w12_external_nodes(built):
 
 def test_w13_weather(built):
     out, manifest, _dt = built
-    assert _gate(manifest, "W13", "weather_days")["value"] == 35
+    # 〔改訂(第330 B5)〕年間化=窓 2025-09-01〜2026-08-31 の 365 日
+    assert _gate(manifest, "W13", "weather_days")["value"] == 365
     days = C.read_parquet_columns(out / "w13_weather_days.parquet")
-    assert len(days["date"]) == 35
+    assert len(days["date"]) == 365
+    assert days["date"][0] == "2025-09-01" and days["date"][-1] == "2026-08-31"
     assert set(days["weekday_kind"]) == {"平日", "土休"}
     assert "2026-08-11" in days["date"]
     idx = days["date"].index("2026-08-11")
@@ -258,8 +259,15 @@ def test_w13_weather(built):
     assert set(hourly["daylight"]) <= {"夜明け前", "日中", "日没後"}
     assert set(hourly["weather"]) <= {"晴", "薄曇", "曇", "小雨", "雨"}
     header = _header(manifest, "W13")
-    assert header["notes"]["candidate_days"] == 35
-    assert "未取得" in header["notes"]["candidate_set_note"]
+    assert header["notes"]["candidate_days"] == 365
+    assert header["notes"]["window"] == ["2025-09-01", "2026-08-31"]
+    # 季節 × 平日/土休 × 天候型の表(報告だけのゲート)
+    table = header["notes"]["season_weekday_type_counts"]
+    assert set(table) == {"春", "夏", "秋", "冬"}
+    assert sum(n for se in table.values() for k in se.values() for n in k.values()) == 365
+    for g in ("earliest_sunrise_month", "latest_sunrise_month", "longest_day_near_june_solstice"):
+        assert _gate(manifest, "W13", g)["pass"], g
+    assert set(hourly["src"]) <= {"etrn_10min", "etrn_10min+hourly", "etrn_hourly"}
 
 
 def test_headers_declare_expedients_and_catalog(built):

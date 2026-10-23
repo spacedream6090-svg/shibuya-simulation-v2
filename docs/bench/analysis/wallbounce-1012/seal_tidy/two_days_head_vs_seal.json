@@ -1,0 +1,34 @@
+{
+ "agents": 5000,
+ "seed": 1,
+ "days": 2,
+ "tool": "mr65/tools/arms_mr65.py side --arms default --days 2",
+ "configs": {
+  "v3_mem_rel": {
+   "final": [
+    "31c9b19409e18b2f",
+    "31c9b19409e18b2f"
+   ],
+   "calls": [
+    145675,
+    145675
+   ],
+   "fields_compared": 19,
+   "moved": [],
+   "tape_columns_same": true
+  },
+  "w6_v3_default": {
+   "final": [
+    "b346bb6e3ecc60af",
+    "b346bb6e3ecc60af"
+   ],
+   "calls": [
+    138946,
+    138946
+   ],
+   "fields_compared": 19,
+   "moved": [],
+   "tape_columns_same": true
+  }
+ }
+}

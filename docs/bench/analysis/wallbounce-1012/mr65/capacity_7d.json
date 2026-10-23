@@ -1,0 +1,379 @@
+{
+ "config": "v3_mem_rel+store_memory",
+ "arms": {
+  "model": "m1",
+  "people": "memory"
+ },
+ "agents": 5000,
+ "seed": 1,
+ "days": 7,
+ "final": "91d5a09dcec3a6c5",
+ "calls": 501379,
+ "start_check_waived": [
+  "複数日が連続する平日に収まらない(5 日目=2026-07-18)"
+ ],
+ "test_only": true,
+ "per_day": [
+  {
+   "day": 0,
+   "width": 128,
+   "width_max": 512,
+   "rows": 62764,
+   "episode_rows": 53549,
+   "person_rows": 9215,
+   "episode_per_agent_max": 57,
+   "person_per_agent_max": 16,
+   "episode_per_agent_p99": 26.0,
+   "person_per_agent_p99": 15.0,
+   "rows_resized": 0,
+   "forgotten": 0,
+   "evicted_by_a": 0,
+   "annotations": 328,
+   "store_bytes_rows": 47360000,
+   "row_bytes": 74,
+   "peak_ws_bytes_nondeterministic": 492638208,
+   "wall_s_nondeterministic": 75.1,
+   "m1_counts": {
+    "touched": 70467,
+    "new_rows": 53903,
+    "cleared": 0,
+    "seeded": 8861,
+    "grown": 0,
+    "forgotten": 0,
+    "evicted_by_a": 0
+   },
+   "shops": {
+    "width": 32,
+    "cap": 256,
+    "rows": 20179,
+    "agents_with_rows": 4815,
+    "per_agent_max": 14,
+    "row_bytes": 23,
+    "counts": {
+     "grown": 0,
+     "evicted_by_a": 0,
+     "written": 27969
+    }
+   }
+  },
+  {
+   "day": 1,
+   "width": 128,
+   "width_max": 512,
+   "rows": 104734,
+   "episode_rows": 95191,
+   "person_rows": 9543,
+   "episode_per_agent_max": 88,
+   "person_per_agent_max": 16,
+   "episode_per_agent_p99": 41.01000000000022,
+   "person_per_agent_p99": 15.0,
+   "rows_resized": 0,
+   "forgotten": 0,
+   "evicted_by_a": 0,
+   "annotations": 643,
+   "store_bytes_rows": 47360000,
+   "row_bytes": 74,
+   "peak_ws_bytes_nondeterministic": 492638208,
+   "wall_s_nondeterministic": 161.8,
+   "m1_counts": {
+    "touched": 142552,
+    "new_rows": 95873,
+    "cleared": 0,
+    "seeded": 8861,
+    "grown": 0,
+    "forgotten": 0,
+    "evicted_by_a": 0
+   },
+   "shops": {
+    "width": 32,
+    "cap": 256,
+    "rows": 33928,
+    "agents_with_rows": 4822,
+    "per_agent_max": 21,
+    "row_bytes": 23,
+    "counts": {
+     "grown": 0,
+     "evicted_by_a": 0,
+     "written": 51658
+    }
+   }
+  },
+  {
+   "day": 2,
+   "width": 128,
+   "width_max": 512,
+   "rows": 139628,
+   "episode_rows": 129745,
+   "person_rows": 9883,
+   "episode_per_agent_max": 97,
+   "person_per_agent_max": 17,
+   "episode_per_agent_p99": 55.0,
+   "person_per_agent_p99": 15.0,
+   "rows_resized": 0,
+   "forgotten": 0,
+   "evicted_by_a": 0,
+   "annotations": 982,
+   "store_bytes_rows": 47360000,
+   "row_bytes": 74,
+   "peak_ws_bytes_nondeterministic": 492638208,
+   "wall_s_nondeterministic": 252.2,
+   "m1_counts": {
+    "touched": 213935,
+    "new_rows": 130767,
+    "cleared": 0,
+    "seeded": 8861,
+    "grown": 0,
+    "forgotten": 0,
+    "evicted_by_a": 0
+   },
+   "shops": {
+    "width": 32,
+    "cap": 256,
+    "rows": 45092,
+    "agents_with_rows": 4822,
+    "per_agent_max": 30,
+    "row_bytes": 23,
+    "counts": {
+     "grown": 0,
+     "evicted_by_a": 0,
+     "written": 73921
+    }
+   }
+  },
+  {
+   "day": 3,
+   "width": 128,
+   "width_max": 512,
+   "rows": 171302,
+   "episode_rows": 161078,
+   "person_rows": 10224,
+   "episode_per_agent_max": 102,
+   "person_per_agent_max": 17,
+   "episode_per_agent_p99": 67.01000000000022,
+   "person_per_agent_p99": 15.0,
+   "rows_resized": 0,
+   "forgotten": 0,
+   "evicted_by_a": 0,
+   "annotations": 1311,
+   "store_bytes_rows": 47360000,
+   "row_bytes": 74,
+   "peak_ws_bytes_nondeterministic": 492638208,
+   "wall_s_nondeterministic": 342.0,
+   "m1_counts": {
+    "touched": 285413,
+    "new_rows": 162441,
+    "cleared": 0,
+    "seeded": 8861,
+    "grown": 0,
+    "forgotten": 0,
+    "evicted_by_a": 0
+   },
+   "shops": {
+    "width": 64,
+    "cap": 256,
+    "rows": 55240,
+    "agents_with_rows": 4822,
+    "per_agent_max": 35,
+    "row_bytes": 23,
+    "counts": {
+     "grown": 1,
+     "evicted_by_a": 0,
+     "written": 95740
+    }
+   }
+  },
+  {
+   "day": 4,
+   "width": 128,
+   "width_max": 512,
+   "rows": 196089,
+   "episode_rows": 185547,
+   "person_rows": 10542,
+   "episode_per_agent_max": 106,
+   "person_per_agent_max": 17,
+   "episode_per_agent_p99": 77.0,
+   "person_per_agent_p99": 15.0,
+   "rows_resized": 0,
+   "forgotten": 0,
+   "evicted_by_a": 0,
+   "annotations": 1623,
+   "store_bytes_rows": 47360000,
+   "row_bytes": 74,
+   "peak_ws_bytes_nondeterministic": 527269888,
+   "wall_s_nondeterministic": 424.1,
+   "m1_counts": {
+    "touched": 348018,
+    "new_rows": 187228,
+    "cleared": 0,
+    "seeded": 8861,
+    "grown": 0,
+    "forgotten": 0,
+    "evicted_by_a": 0
+   },
+   "shops": {
+    "width": 64,
+    "cap": 256,
+    "rows": 63374,
+    "agents_with_rows": 4822,
+    "per_agent_max": 40,
+    "row_bytes": 23,
+    "counts": {
+     "grown": 1,
+     "evicted_by_a": 0,
+     "written": 114422
+    }
+   }
+  },
+  {
+   "day": 5,
+   "width": 128,
+   "width_max": 512,
+   "rows": 219899,
+   "episode_rows": 209003,
+   "person_rows": 10896,
+   "episode_per_agent_max": 115,
+   "person_per_agent_max": 17,
+   "episode_per_agent_p99": 84.0,
+   "person_per_agent_p99": 15.0,
+   "rows_resized": 0,
+   "forgotten": 0,
+   "evicted_by_a": 0,
+   "annotations": 1957,
+   "store_bytes_rows": 47360000,
+   "row_bytes": 74,
+   "peak_ws_bytes_nondeterministic": 541782016,
+   "wall_s_nondeterministic": 508.6,
+   "m1_counts": {
+    "touched": 412218,
+    "new_rows": 211038,
+    "cleared": 0,
+    "seeded": 8861,
+    "grown": 0,
+    "forgotten": 0,
+    "evicted_by_a": 0
+   },
+   "shops": {
+    "width": 64,
+    "cap": 256,
+    "rows": 71097,
+    "agents_with_rows": 4822,
+    "per_agent_max": 42,
+    "row_bytes": 23,
+    "counts": {
+     "grown": 1,
+     "evicted_by_a": 0,
+     "written": 133237
+    }
+   }
+  },
+  {
+   "day": 6,
+   "width": 256,
+   "width_max": 512,
+   "rows": 244299,
+   "episode_rows": 233046,
+   "person_rows": 11253,
+   "episode_per_agent_max": 135,
+   "person_per_agent_max": 18,
+   "episode_per_agent_p99": 93.01000000000022,
+   "person_per_agent_p99": 15.0,
+   "rows_resized": 1,
+   "forgotten": 0,
+   "evicted_by_a": 0,
+   "annotations": 2290,
+   "store_bytes_rows": 94720000,
+   "row_bytes": 74,
+   "peak_ws_bytes_nondeterministic": 603639808,
+   "wall_s_nondeterministic": 599.4,
+   "m1_counts": {
+    "touched": 482074,
+    "new_rows": 235438,
+    "cleared": 0,
+    "seeded": 8861,
+    "grown": 1,
+    "forgotten": 0,
+    "evicted_by_a": 0
+   },
+   "shops": {
+    "width": 64,
+    "cap": 256,
+    "rows": 78970,
+    "agents_with_rows": 4822,
+    "per_agent_max": 45,
+    "row_bytes": 23,
+    "counts": {
+     "grown": 1,
+     "evicted_by_a": 0,
+     "written": 153492
+    }
+   }
+  }
+ ],
+ "end": {
+  "day": 7,
+  "width": 256,
+  "width_max": 512,
+  "rows": 244299,
+  "episode_rows": 233046,
+  "person_rows": 11253,
+  "episode_per_agent_max": 135,
+  "person_per_agent_max": 18,
+  "episode_per_agent_p99": 93.01000000000022,
+  "person_per_agent_p99": 15.0,
+  "rows_resized": 1,
+  "forgotten": 0,
+  "evicted_by_a": 0,
+  "annotations": 2290,
+  "store_bytes_rows": 94720000,
+  "row_bytes": 74,
+  "peak_ws_bytes_nondeterministic": 727699456,
+  "wall_s_nondeterministic": 600.4,
+  "m1_counts": {
+   "touched": 482074,
+   "new_rows": 235438,
+   "cleared": 0,
+   "seeded": 8861,
+   "grown": 1,
+   "forgotten": 0,
+   "evicted_by_a": 0
+  },
+  "shops": {
+   "width": 64,
+   "cap": 256,
+   "rows": 78970,
+   "agents_with_rows": 4822,
+   "per_agent_max": 45,
+   "row_bytes": 23,
+   "counts": {
+    "grown": 1,
+    "evicted_by_a": 0,
+    "written": 153492
+   }
+  }
+ },
+ "budget_estimate": {
+  "n_full": 390067,
+  "by_kind_max_width": {
+   "episode": {
+    "max_rows": 256,
+    "row_bytes": 74,
+    "bytes_390k": 7389429248
+   },
+   "person": {
+    "max_rows": 256,
+    "row_bytes": 74,
+    "bytes_390k": 7389429248
+   },
+   "shop": {
+    "max_rows": 256,
+    "row_bytes": 23,
+    "bytes_390k": 2296714496
+   }
+  },
+  "store_width_max_bytes_390k": 14778858496,
+  "measured_width_bytes_390k": 7389429248,
+  "measured_shop_width_bytes_390k": 574178624,
+  "per_agent_scale_bytes_390k": 3120536
+ },
+ "note": "39 万体の見積りは器の行の幅 × 行のバイト × 体の数(注釈・埋め込み・Python の dict の重さは含まない=推測)"
+}

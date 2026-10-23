@@ -1,0 +1,129 @@
+{
+ "base": "v3_mem_rel",
+ "kw": {
+  "vocab_version": "v3",
+  "memory": "on",
+  "relations": "on"
+ },
+ "agents": 5000,
+ "seed": 1,
+ "sim_days": 2,
+ "ok": true,
+ "checks": {
+  "straight_reserve_equals_sweep": {
+   "final": true,
+   "calls": true,
+   "checkpoints": true,
+   "boundary_digest": true,
+   "boundaries": true
+  },
+  "split_1440_equals_straight": {
+   "final": true,
+   "checkpoints_after_stop": true,
+   "calls_sum": true,
+   "first_arm": "sweep",
+   "resume_arm": "reserve",
+   "n_checkpoints_after_stop": 4
+  },
+  "split_750_equals_straight": {
+   "final": true,
+   "checkpoints_after_stop": true,
+   "calls_sum": true,
+   "first_arm": "sweep",
+   "resume_arm": "reserve",
+   "n_checkpoints_after_stop": 6
+  }
+ },
+ "runs": {
+  "straight_sweep": {
+   "wall_s": 117.9,
+   "run": {
+    "final": "31c9b19409e18b2fc6949969c0f1e8cc669c5513d3ecb5e5491c2a77afdfa400",
+    "calls": 145675,
+    "body_arm": "sweep",
+    "boundary_digest": "2295679dd3695b2969bcdb48b4a749314ffd91cd5baf6595a4706418bf66ef54",
+    "boundaries": {
+     "hunger": 48308,
+     "fatigue": 273714,
+     "thermal": 109156
+    },
+    "agent_evals": 14400000,
+    "felt_evals": 2880000,
+    "reservations": 0,
+    "felt_reservations": 0,
+    "felt_tables": 0
+   }
+  },
+  "straight_reserve": {
+   "wall_s": 119.8,
+   "run": {
+    "final": "31c9b19409e18b2fc6949969c0f1e8cc669c5513d3ecb5e5491c2a77afdfa400",
+    "calls": 145675,
+    "body_arm": "reserve",
+    "boundary_digest": "2295679dd3695b2969bcdb48b4a749314ffd91cd5baf6595a4706418bf66ef54",
+    "boundaries": {
+     "hunger": 48308,
+     "fatigue": 273714,
+     "thermal": 109156
+    },
+    "agent_evals": 825787,
+    "felt_evals": 177250,
+    "reservations": 814703,
+    "felt_reservations": 131965,
+    "felt_tables": 2
+   }
+  },
+  "split_1440": {
+   "stop": 1440,
+   "first": {
+    "calls": 67794,
+    "body_arm": "sweep"
+   },
+   "state_T": 1440,
+   "wall_s": 121.2,
+   "run": {
+    "final": "31c9b19409e18b2fc6949969c0f1e8cc669c5513d3ecb5e5491c2a77afdfa400",
+    "calls": 77881,
+    "body_arm": "reserve",
+    "boundary_digest": "1b1ec842d7c109b471b3a357801a47978936d885bc176af8d308b8358b8dca2c",
+    "boundaries": {
+     "hunger": 22233,
+     "fatigue": 125693,
+     "thermal": 65113
+    },
+    "agent_evals": 406654,
+    "felt_evals": 101575,
+    "reservations": 401004,
+    "felt_reservations": 73816,
+    "felt_tables": 1
+   }
+  },
+  "split_750": {
+   "stop": 750,
+   "first": {
+    "calls": 29550,
+    "body_arm": "sweep"
+   },
+   "state_T": 750,
+   "wall_s": 123.4,
+   "run": {
+    "final": "31c9b19409e18b2fc6949969c0f1e8cc669c5513d3ecb5e5491c2a77afdfa400",
+    "calls": 116125,
+    "body_arm": "reserve",
+    "boundary_digest": "b8498d76f8283e1cfabc04f71f1f83fe41b43eba27b92bf4cac800a1a8ee0f7b",
+    "boundaries": {
+     "hunger": 34113,
+     "fatigue": 194662,
+     "thermal": 85915
+    },
+    "agent_evals": 623631,
+    "felt_evals": 146484,
+    "reservations": 617267,
+    "felt_reservations": 101199,
+    "felt_tables": 2
+   }
+  }
+ },
+ "final": "31c9b19409e18b2f",
+ "n_checkpoints": 8
+}

@@ -1,0 +1,1819 @@
+{
+ "schema": "shibuya.bench/prox22/reread_11c/1",
+ "source": [
+  "r11c_v2.json"
+ ],
+ "check_cell_head_equals_worktree": {},
+ "check_all_equal": false,
+ "tables": {
+  "distance/node": {
+   "mock": {
+    "conv_open_share_gt_2m": {
+     "off": 0.0129,
+     "rel_on": 0.0299,
+     "rel_copresent": 0.0282
+    },
+    "conv_open_share_gt_10m": {
+     "off": 0.0065,
+     "rel_on": 0.0249,
+     "rel_copresent": 0.0235
+    },
+    "conv_open_max_m": {
+     "off": 80.833,
+     "rel_on": 80.833,
+     "rel_copresent": 80.833
+    },
+    "conv_open_pairs": {
+     "off": 155,
+     "rel_on": 201,
+     "rel_copresent": 213
+    },
+    "pairs_2m_diff_cell_per_tick": {
+     "off": 13.701,
+     "rel_on": 25.637,
+     "rel_copresent": 26.44
+    },
+    "chance_near_first_rows": {
+     "rel_on": 1156
+    },
+    "chance_partner_share_0m": {
+     "rel_on": 0.9787
+    },
+    "acq_wake_calls": {
+     "rel_on": 9593
+    },
+    "acq_appear_distance_p50": {
+     "rel_on": 2.154
+    },
+    "sessions_off": {
+     "off": 155
+    },
+    "sessions_rel_on": {
+     "rel_on": 201
+    },
+    "copresent_events_written": {
+     "rel_copresent": 4769
+    },
+    "copresent_active_share_0m": {
+     "rel_copresent": 0.9868
+    },
+    "instant_group_walk_share": {
+     "off": 0.262344
+    },
+    "cowalk_5min_share": {
+     "off": 0.10566
+    },
+    "b5_items_per_render(rel_on)": {
+     "rel_on": 2.7902
+    },
+    "b5_share_le_2m(rel_on)": {
+     "rel_on": 0.9417
+    },
+    "b5_share_gt_10m(rel_on)": {
+     "rel_on": 0.005
+    },
+    "b5_acquainted_items(rel_on)": {
+     "rel_on": 23268
+    },
+    "b5_unit_max_in_room": {
+     "off": 30,
+     "rel_on": 30,
+     "rel_copresent": 30
+    },
+    "b5_unit_max_in_room_raw": {
+     "off": 30,
+     "rel_on": 30,
+     "rel_copresent": 30
+    },
+    "b5_seated_out_of_store_cell": {
+     "off": 9589,
+     "rel_on": 11171,
+     "rel_copresent": 11385
+    },
+    "same_xy_max": {
+     "off": 231,
+     "rel_on": 184,
+     "rel_copresent": 188
+    },
+    "conv_lost_under_distance": {
+     "off": {},
+     "rel_on": {},
+     "rel_copresent": {}
+    },
+    "session_increase_rel_on_over_off": 0.2968,
+    "checkpoints": {
+     "off": {
+      "final16": "07f6c1479770b9fe",
+      "llm_calls": 65300,
+      "sessions": 155
+     },
+     "rel_on": {
+      "final16": "26996cd9a2538f59",
+      "llm_calls": 76580,
+      "sessions": 201
+     },
+     "rel_copresent": {
+      "final16": "007f3be2762b47cb",
+      "llm_calls": 76596,
+      "sessions": 213
+     }
+    },
+    "b5_unit_occupancy": {
+     "off": {
+      "unit_ticks_hist": {
+       "1": 44411,
+       "2-4": 19315,
+       "5-9": 8915,
+       "10-49": 5256,
+       "50-99": 0,
+       "100-499": 0,
+       "500-999": 0,
+       "1000+": 0
+      },
+      "max_in_room": 30,
+      "max_poi": 740,
+      "max_tick": 535,
+      "units_occupied_max": 115,
+      "top_units": [
+       {
+        "poi": 740,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 186,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 23,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 355,
+        "eatery": true
+       },
+       {
+        "poi": 1996,
+        "max_in_room": 27,
+        "capacity": 4,
+        "cell": 293,
+        "eatery": true
+       },
+       {
+        "poi": 996,
+        "max_in_room": 26,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 694,
+        "max_in_room": 25,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 341,
+        "max_in_room": 23,
+        "capacity": 4,
+        "cell": 303,
+        "eatery": true
+       },
+       {
+        "poi": 1409,
+        "max_in_room": 22,
+        "capacity": 4,
+        "cell": 396,
+        "eatery": true
+       },
+       {
+        "poi": 135,
+        "max_in_room": 21,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": false
+       },
+       {
+        "poi": 182,
+        "max_in_room": 21,
+        "capacity": 4,
+        "cell": 56,
+        "eatery": true
+       }
+      ],
+      "max_in_room_raw_poi_ref": 30,
+      "seated_agent_ticks": 236180,
+      "seated_out_of_store_cell_agent_ticks": 9589
+     },
+     "rel_on": {
+      "unit_ticks_hist": {
+       "1": 46453,
+       "2-4": 20820,
+       "5-9": 8293,
+       "10-49": 5890,
+       "50-99": 0,
+       "100-499": 0,
+       "500-999": 0,
+       "1000+": 0
+      },
+      "max_in_room": 30,
+      "max_poi": 740,
+      "max_tick": 522,
+      "units_occupied_max": 126,
+      "top_units": [
+       {
+        "poi": 186,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 740,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 996,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 1688,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 293,
+        "eatery": true
+       },
+       {
+        "poi": 1996,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 293,
+        "eatery": true
+       },
+       {
+        "poi": 23,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 355,
+        "eatery": true
+       },
+       {
+        "poi": 341,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 303,
+        "eatery": true
+       },
+       {
+        "poi": 1783,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 238,
+        "eatery": true
+       },
+       {
+        "poi": 694,
+        "max_in_room": 27,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 1954,
+        "max_in_room": 27,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       }
+      ],
+      "max_in_room_raw_poi_ref": 30,
+      "seated_agent_ticks": 256049,
+      "seated_out_of_store_cell_agent_ticks": 11171
+     },
+     "rel_copresent": {
+      "unit_ticks_hist": {
+       "1": 47393,
+       "2-4": 20932,
+       "5-9": 8155,
+       "10-49": 5836,
+       "50-99": 0,
+       "100-499": 0,
+       "500-999": 0,
+       "1000+": 0
+      },
+      "max_in_room": 30,
+      "max_poi": 740,
+      "max_tick": 522,
+      "units_occupied_max": 128,
+      "top_units": [
+       {
+        "poi": 186,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 740,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 996,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 1688,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 293,
+        "eatery": true
+       },
+       {
+        "poi": 1996,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 293,
+        "eatery": true
+       },
+       {
+        "poi": 23,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 355,
+        "eatery": true
+       },
+       {
+        "poi": 341,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 303,
+        "eatery": true
+       },
+       {
+        "poi": 694,
+        "max_in_room": 27,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 733,
+        "max_in_room": 27,
+        "capacity": 4,
+        "cell": 239,
+        "eatery": true
+       },
+       {
+        "poi": 1954,
+        "max_in_room": 26,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       }
+      ],
+      "max_in_room_raw_poi_ref": 30,
+      "seated_agent_ticks": 255173,
+      "seated_out_of_store_cell_agent_ticks": 11385
+     }
+    },
+    "conversation_lost_detail": {
+     "off": {
+      "pairs": 155,
+      "by_pair_class": {
+       "outdoor": 101,
+       "one_indoor": 37,
+       "both_indoor": 17
+      },
+      "lost_under_distance_by_pair_class": {},
+      "lost_under_distance_by_categories": {},
+      "over_d_and_not_same_unit": 0,
+      "reach_by_unit_only": 2,
+      "joins": 0,
+      "joins_not_reachable": 0
+     },
+     "rel_on": {
+      "pairs": 201,
+      "by_pair_class": {
+       "outdoor": 127,
+       "both_indoor": 36,
+       "one_indoor": 38
+      },
+      "lost_under_distance_by_pair_class": {},
+      "lost_under_distance_by_categories": {},
+      "over_d_and_not_same_unit": 0,
+      "reach_by_unit_only": 6,
+      "joins": 0,
+      "joins_not_reachable": 0
+     },
+     "rel_copresent": {
+      "pairs": 213,
+      "by_pair_class": {
+       "outdoor": 126,
+       "both_indoor": 43,
+       "one_indoor": 44
+      },
+      "lost_under_distance_by_pair_class": {},
+      "lost_under_distance_by_categories": {},
+      "over_d_and_not_same_unit": 0,
+      "reach_by_unit_only": 6,
+      "joins": 0,
+      "joins_not_reachable": 0
+     }
+    }
+   },
+   "classical": {
+    "conv_open_share_gt_2m": {
+     "off": null,
+     "rel_on": 0.0088,
+     "rel_copresent": 0.0092
+    },
+    "conv_open_share_gt_10m": {
+     "off": null,
+     "rel_on": 0.0059,
+     "rel_copresent": 0.0031
+    },
+    "conv_open_max_m": {
+     "off": null,
+     "rel_on": 31.36,
+     "rel_copresent": 36.842
+    },
+    "conv_open_pairs": {
+     "off": 0,
+     "rel_on": 341,
+     "rel_copresent": 325
+    },
+    "pairs_2m_diff_cell_per_tick": {
+     "off": 2.143,
+     "rel_on": 3.591,
+     "rel_copresent": 3.824
+    },
+    "chance_near_first_rows": {
+     "rel_on": 11
+    },
+    "chance_partner_share_0m": {
+     "rel_on": 0.9841
+    },
+    "acq_wake_calls": {
+     "rel_on": 35232
+    },
+    "acq_appear_distance_p50": {
+     "rel_on": 0.0
+    },
+    "sessions_off": {
+     "off": 0
+    },
+    "sessions_rel_on": {
+     "rel_on": 341
+    },
+    "copresent_events_written": {
+     "rel_copresent": 29301
+    },
+    "copresent_active_share_0m": {
+     "rel_copresent": 0.9966
+    },
+    "instant_group_walk_share": {
+     "off": 0.206107
+    },
+    "cowalk_5min_share": {
+     "off": 0.037221
+    },
+    "b5_items_per_render(rel_on)": {
+     "rel_on": 5.0104
+    },
+    "b5_share_le_2m(rel_on)": {
+     "rel_on": 0.9327
+    },
+    "b5_share_gt_10m(rel_on)": {
+     "rel_on": 0.0024
+    },
+    "b5_acquainted_items(rel_on)": {
+     "rel_on": 389993
+    },
+    "b5_unit_max_in_room": {
+     "off": 30,
+     "rel_on": 30,
+     "rel_copresent": 30
+    },
+    "b5_unit_max_in_room_raw": {
+     "off": 30,
+     "rel_on": 30,
+     "rel_copresent": 30
+    },
+    "b5_seated_out_of_store_cell": {
+     "off": 28346,
+     "rel_on": 44556,
+     "rel_copresent": 44979
+    },
+    "same_xy_max": {
+     "off": 509,
+     "rel_on": 467,
+     "rel_copresent": 467
+    },
+    "conv_lost_under_distance": {
+     "off": {},
+     "rel_on": {},
+     "rel_copresent": {}
+    },
+    "session_increase_rel_on_over_off": null,
+    "checkpoints": {
+     "off": {
+      "final16": "4bc7108a3f595949",
+      "llm_calls": 94167,
+      "sessions": 0
+     },
+     "rel_on": {
+      "final16": "55123c5370943982",
+      "llm_calls": 133151,
+      "sessions": 341
+     },
+     "rel_copresent": {
+      "final16": "74e3c0a9942676b5",
+      "llm_calls": 132392,
+      "sessions": 325
+     }
+    },
+    "b5_unit_occupancy": {
+     "off": {
+      "unit_ticks_hist": {
+       "1": 85307,
+       "2-4": 37215,
+       "5-9": 6489,
+       "10-49": 3658,
+       "50-99": 0,
+       "100-499": 0,
+       "500-999": 0,
+       "1000+": 0
+      },
+      "max_in_room": 30,
+      "max_poi": 740,
+      "max_tick": 430,
+      "units_occupied_max": 233,
+      "top_units": [
+       {
+        "poi": 186,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 553,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 512,
+        "eatery": true
+       },
+       {
+        "poi": 694,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 740,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 1913,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 328,
+        "eatery": true
+       },
+       {
+        "poi": 1954,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       },
+       {
+        "poi": 1956,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       },
+       {
+        "poi": 341,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 303,
+        "eatery": true
+       },
+       {
+        "poi": 1630,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 312,
+        "eatery": true
+       },
+       {
+        "poi": 183,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       }
+      ],
+      "max_in_room_raw_poi_ref": 30,
+      "seated_agent_ticks": 315512,
+      "seated_out_of_store_cell_agent_ticks": 28346
+     },
+     "rel_on": {
+      "unit_ticks_hist": {
+       "1": 91056,
+       "2-4": 42525,
+       "5-9": 7554,
+       "10-49": 4265,
+       "50-99": 0,
+       "100-499": 0,
+       "500-999": 0,
+       "1000+": 0
+      },
+      "max_in_room": 30,
+      "max_poi": 740,
+      "max_tick": 430,
+      "units_occupied_max": 251,
+      "top_units": [
+       {
+        "poi": 186,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 740,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 1954,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       },
+       {
+        "poi": 1956,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       },
+       {
+        "poi": 341,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 303,
+        "eatery": true
+       },
+       {
+        "poi": 553,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 512,
+        "eatery": true
+       },
+       {
+        "poi": 694,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 759,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 516,
+        "eatery": true
+       },
+       {
+        "poi": 1630,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 312,
+        "eatery": true
+       },
+       {
+        "poi": 1935,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 328,
+        "eatery": true
+       }
+      ],
+      "max_in_room_raw_poi_ref": 30,
+      "seated_agent_ticks": 366592,
+      "seated_out_of_store_cell_agent_ticks": 44556
+     },
+     "rel_copresent": {
+      "unit_ticks_hist": {
+       "1": 91152,
+       "2-4": 42798,
+       "5-9": 7307,
+       "10-49": 4310,
+       "50-99": 0,
+       "100-499": 0,
+       "500-999": 0,
+       "1000+": 0
+      },
+      "max_in_room": 30,
+      "max_poi": 740,
+      "max_tick": 430,
+      "units_occupied_max": 249,
+      "top_units": [
+       {
+        "poi": 186,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 740,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 1954,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       },
+       {
+        "poi": 1956,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       },
+       {
+        "poi": 341,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 303,
+        "eatery": true
+       },
+       {
+        "poi": 553,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 512,
+        "eatery": true
+       },
+       {
+        "poi": 694,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 759,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 516,
+        "eatery": true
+       },
+       {
+        "poi": 1630,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 312,
+        "eatery": true
+       },
+       {
+        "poi": 1935,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 328,
+        "eatery": true
+       }
+      ],
+      "max_in_room_raw_poi_ref": 30,
+      "seated_agent_ticks": 366252,
+      "seated_out_of_store_cell_agent_ticks": 44979
+     }
+    },
+    "conversation_lost_detail": {
+     "off": {
+      "pairs": 0,
+      "by_pair_class": {},
+      "lost_under_distance_by_pair_class": {},
+      "lost_under_distance_by_categories": {},
+      "over_d_and_not_same_unit": 0,
+      "reach_by_unit_only": 0,
+      "joins": 0,
+      "joins_not_reachable": 0
+     },
+     "rel_on": {
+      "pairs": 341,
+      "by_pair_class": {
+       "both_indoor": 324,
+       "outdoor": 9,
+       "one_indoor": 8
+      },
+      "lost_under_distance_by_pair_class": {},
+      "lost_under_distance_by_categories": {},
+      "over_d_and_not_same_unit": 0,
+      "reach_by_unit_only": 3,
+      "joins": 0,
+      "joins_not_reachable": 0
+     },
+     "rel_copresent": {
+      "pairs": 325,
+      "by_pair_class": {
+       "both_indoor": 306,
+       "outdoor": 11,
+       "one_indoor": 8
+      },
+      "lost_under_distance_by_pair_class": {},
+      "lost_under_distance_by_categories": {},
+      "over_d_and_not_same_unit": 0,
+      "reach_by_unit_only": 3,
+      "joins": 0,
+      "joins_not_reachable": 0
+     }
+    }
+   }
+  },
+  "cell/node": {
+   "mock": {
+    "conv_open_share_gt_2m": {
+     "off": 0.3175,
+     "rel_on": 0.4116,
+     "rel_copresent": 0.3916
+    },
+    "conv_open_share_gt_10m": {
+     "off": 0.1706,
+     "rel_on": 0.2957,
+     "rel_copresent": 0.2832
+    },
+    "conv_open_max_m": {
+     "off": 69.032,
+     "rel_on": 92.959,
+     "rel_copresent": 92.959
+    },
+    "conv_open_pairs": {
+     "off": 211,
+     "rel_on": 328,
+     "rel_copresent": 286
+    },
+    "pairs_2m_diff_cell_per_tick": {
+     "off": 11.099,
+     "rel_on": 21.523,
+     "rel_copresent": 11.934
+    },
+    "chance_near_first_rows": {
+     "rel_on": 1094
+    },
+    "chance_partner_share_0m": {
+     "rel_on": 1.0
+    },
+    "acq_wake_calls": {
+     "rel_on": 10953
+    },
+    "acq_appear_distance_p50": {
+     "rel_on": 27.997
+    },
+    "sessions_off": {
+     "off": 211
+    },
+    "sessions_rel_on": {
+     "rel_on": 328
+    },
+    "copresent_events_written": {
+     "rel_copresent": 4251
+    },
+    "copresent_active_share_0m": {
+     "rel_copresent": 0.9989
+    },
+    "instant_group_walk_share": {
+     "off": 0.262072
+    },
+    "cowalk_5min_share": {
+     "off": 0.105687
+    },
+    "b5_items_per_render(rel_on)": {
+     "rel_on": 3.2071
+    },
+    "b5_share_le_2m(rel_on)": {
+     "rel_on": 0.7975
+    },
+    "b5_share_gt_10m(rel_on)": {
+     "rel_on": 0.1508
+    },
+    "b5_acquainted_items(rel_on)": {
+     "rel_on": 39241
+    },
+    "b5_unit_max_in_room": {
+     "off": 30,
+     "rel_on": 30,
+     "rel_copresent": 30
+    },
+    "b5_unit_max_in_room_raw": {
+     "off": 30,
+     "rel_on": 30,
+     "rel_copresent": 30
+    },
+    "b5_seated_out_of_store_cell": {
+     "off": 9859,
+     "rel_on": 12772,
+     "rel_copresent": 12268
+    },
+    "same_xy_max": {
+     "off": 245,
+     "rel_on": 172,
+     "rel_copresent": 168
+    },
+    "conv_lost_under_distance": {
+     "off": {
+      "outdoor": 41,
+      "one_indoor": 23,
+      "both_indoor": 1
+     },
+     "rel_on": {
+      "one_indoor": 29,
+      "outdoor": 95,
+      "both_indoor": 7
+     },
+     "rel_copresent": {
+      "one_indoor": 25,
+      "outdoor": 77,
+      "both_indoor": 6
+     }
+    },
+    "session_increase_rel_on_over_off": 0.5545,
+    "checkpoints": {
+     "off": {
+      "final16": "f1d3d244ac8b13bf",
+      "llm_calls": 65953,
+      "sessions": 211
+     },
+     "rel_on": {
+      "final16": "62750d3a4d4a2c3a",
+      "llm_calls": 79810,
+      "sessions": 328
+     },
+     "rel_copresent": {
+      "final16": "2c517d725570b4af",
+      "llm_calls": 79877,
+      "sessions": 286
+     }
+    },
+    "b5_unit_occupancy": {
+     "off": {
+      "unit_ticks_hist": {
+       "1": 45888,
+       "2-4": 19641,
+       "5-9": 8874,
+       "10-49": 5387,
+       "50-99": 0,
+       "100-499": 0,
+       "500-999": 0,
+       "1000+": 0
+      },
+      "max_in_room": 30,
+      "max_poi": 740,
+      "max_tick": 533,
+      "units_occupied_max": 123,
+      "top_units": [
+       {
+        "poi": 740,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 186,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 996,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 23,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 355,
+        "eatery": true
+       },
+       {
+        "poi": 1996,
+        "max_in_room": 26,
+        "capacity": 4,
+        "cell": 293,
+        "eatery": true
+       },
+       {
+        "poi": 341,
+        "max_in_room": 23,
+        "capacity": 4,
+        "cell": 303,
+        "eatery": true
+       },
+       {
+        "poi": 694,
+        "max_in_room": 22,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 1409,
+        "max_in_room": 22,
+        "capacity": 4,
+        "cell": 396,
+        "eatery": true
+       },
+       {
+        "poi": 1954,
+        "max_in_room": 22,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       },
+       {
+        "poi": 182,
+        "max_in_room": 21,
+        "capacity": 4,
+        "cell": 56,
+        "eatery": true
+       }
+      ],
+      "max_in_room_raw_poi_ref": 30,
+      "seated_agent_ticks": 239920,
+      "seated_out_of_store_cell_agent_ticks": 9859
+     },
+     "rel_on": {
+      "unit_ticks_hist": {
+       "1": 46111,
+       "2-4": 21685,
+       "5-9": 8366,
+       "10-49": 6070,
+       "50-99": 0,
+       "100-499": 0,
+       "500-999": 0,
+       "1000+": 0
+      },
+      "max_in_room": 30,
+      "max_poi": 1996,
+      "max_tick": 514,
+      "units_occupied_max": 131,
+      "top_units": [
+       {
+        "poi": 186,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 740,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 996,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 1688,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 293,
+        "eatery": true
+       },
+       {
+        "poi": 1996,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 293,
+        "eatery": true
+       },
+       {
+        "poi": 2023,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 293,
+        "eatery": true
+       },
+       {
+        "poi": 694,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 23,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 355,
+        "eatery": true
+       },
+       {
+        "poi": 135,
+        "max_in_room": 25,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": false
+       },
+       {
+        "poi": 733,
+        "max_in_room": 25,
+        "capacity": 4,
+        "cell": 239,
+        "eatery": true
+       }
+      ],
+      "max_in_room_raw_poi_ref": 30,
+      "seated_agent_ticks": 265096,
+      "seated_out_of_store_cell_agent_ticks": 12772
+     },
+     "rel_copresent": {
+      "unit_ticks_hist": {
+       "1": 46239,
+       "2-4": 22074,
+       "5-9": 8275,
+       "10-49": 5856,
+       "50-99": 0,
+       "100-499": 0,
+       "500-999": 0,
+       "1000+": 0
+      },
+      "max_in_room": 30,
+      "max_poi": 1996,
+      "max_tick": 514,
+      "units_occupied_max": 131,
+      "top_units": [
+       {
+        "poi": 740,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 996,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 1688,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 293,
+        "eatery": true
+       },
+       {
+        "poi": 1783,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 238,
+        "eatery": true
+       },
+       {
+        "poi": 1996,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 293,
+        "eatery": true
+       },
+       {
+        "poi": 2023,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 293,
+        "eatery": true
+       },
+       {
+        "poi": 186,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 694,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 23,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 355,
+        "eatery": true
+       },
+       {
+        "poi": 733,
+        "max_in_room": 26,
+        "capacity": 4,
+        "cell": 239,
+        "eatery": true
+       }
+      ],
+      "max_in_room_raw_poi_ref": 30,
+      "seated_agent_ticks": 262605,
+      "seated_out_of_store_cell_agent_ticks": 12268
+     }
+    },
+    "conversation_lost_detail": {
+     "off": {
+      "pairs": 211,
+      "by_pair_class": {
+       "outdoor": 136,
+       "one_indoor": 53,
+       "both_indoor": 22
+      },
+      "lost_under_distance_by_pair_class": {
+       "outdoor": 41,
+       "one_indoor": 23,
+       "both_indoor": 1
+      },
+      "lost_under_distance_by_categories": {
+       "moving|stationary_other": 24,
+       "in_store|stationary_other": 15,
+       "stationary_other|stationary_other": 17,
+       "at_work|stationary_other": 1,
+       "at_work|moving": 6,
+       "at_work|in_store": 1,
+       "in_store|moving": 1
+      },
+      "over_d_and_not_same_unit": 65,
+      "reach_by_unit_only": 2,
+      "joins": 0,
+      "joins_not_reachable": 0
+     },
+     "rel_on": {
+      "pairs": 328,
+      "by_pair_class": {
+       "one_indoor": 63,
+       "outdoor": 215,
+       "both_indoor": 50
+      },
+      "lost_under_distance_by_pair_class": {
+       "one_indoor": 29,
+       "outdoor": 95,
+       "both_indoor": 7
+      },
+      "lost_under_distance_by_categories": {
+       "in_store|moving": 3,
+       "moving|stationary_other": 34,
+       "stationary_other|stationary_other": 61,
+       "in_store|stationary_other": 23,
+       "at_work|in_store": 2,
+       "at_work|at_work": 3,
+       "at_work|moving": 2,
+       "at_work|stationary_other": 1,
+       "at_home|in_store": 1,
+       "at_home|at_home": 1
+      },
+      "over_d_and_not_same_unit": 131,
+      "reach_by_unit_only": 4,
+      "joins": 0,
+      "joins_not_reachable": 0
+     },
+     "rel_copresent": {
+      "pairs": 286,
+      "by_pair_class": {
+       "one_indoor": 57,
+       "outdoor": 188,
+       "both_indoor": 41
+      },
+      "lost_under_distance_by_pair_class": {
+       "one_indoor": 25,
+       "outdoor": 77,
+       "both_indoor": 6
+      },
+      "lost_under_distance_by_categories": {
+       "in_store|moving": 2,
+       "moving|stationary_other": 28,
+       "stationary_other|stationary_other": 49,
+       "in_store|stationary_other": 19,
+       "at_work|in_store": 3,
+       "at_work|at_work": 2,
+       "at_work|moving": 2,
+       "at_work|stationary_other": 2,
+       "at_home|in_store": 1
+      },
+      "over_d_and_not_same_unit": 108,
+      "reach_by_unit_only": 4,
+      "joins": 0,
+      "joins_not_reachable": 0
+     }
+    }
+   },
+   "classical": {
+    "conv_open_share_gt_2m": {
+     "off": null,
+     "rel_on": 0.4029,
+     "rel_copresent": 0.398
+    },
+    "conv_open_share_gt_10m": {
+     "off": null,
+     "rel_on": 0.3395,
+     "rel_copresent": 0.3549
+    },
+    "conv_open_max_m": {
+     "off": null,
+     "rel_on": 119.925,
+     "rel_copresent": 119.925
+    },
+    "conv_open_pairs": {
+     "off": 0,
+     "rel_on": 489,
+     "rel_copresent": 510
+    },
+    "pairs_2m_diff_cell_per_tick": {
+     "off": 2.143,
+     "rel_on": 2.606,
+     "rel_copresent": 2.842
+    },
+    "chance_near_first_rows": {
+     "rel_on": 2
+    },
+    "chance_partner_share_0m": {
+     "rel_on": 1.0
+    },
+    "acq_wake_calls": {
+     "rel_on": 38867
+    },
+    "acq_appear_distance_p50": {
+     "rel_on": 28.255
+    },
+    "sessions_off": {
+     "off": 0
+    },
+    "sessions_rel_on": {
+     "rel_on": 489
+    },
+    "copresent_events_written": {
+     "rel_copresent": 27020
+    },
+    "copresent_active_share_0m": {
+     "rel_copresent": 0.9986
+    },
+    "instant_group_walk_share": {
+     "off": 0.206107
+    },
+    "cowalk_5min_share": {
+     "off": 0.037221
+    },
+    "b5_items_per_render(rel_on)": {
+     "rel_on": 6.0214
+    },
+    "b5_share_le_2m(rel_on)": {
+     "rel_on": 0.7118
+    },
+    "b5_share_gt_10m(rel_on)": {
+     "rel_on": 0.2384
+    },
+    "b5_acquainted_items(rel_on)": {
+     "rel_on": 495585
+    },
+    "b5_unit_max_in_room": {
+     "off": 30,
+     "rel_on": 30,
+     "rel_copresent": 30
+    },
+    "b5_unit_max_in_room_raw": {
+     "off": 30,
+     "rel_on": 30,
+     "rel_copresent": 30
+    },
+    "b5_seated_out_of_store_cell": {
+     "off": 28346,
+     "rel_on": 44269,
+     "rel_copresent": 44233
+    },
+    "same_xy_max": {
+     "off": 509,
+     "rel_on": 461,
+     "rel_copresent": 461
+    },
+    "conv_lost_under_distance": {
+     "off": {},
+     "rel_on": {
+      "both_indoor": 120,
+      "outdoor": 53,
+      "one_indoor": 22
+     },
+     "rel_copresent": {
+      "both_indoor": 122,
+      "outdoor": 54,
+      "one_indoor": 22
+     }
+    },
+    "session_increase_rel_on_over_off": null,
+    "checkpoints": {
+     "off": {
+      "final16": "4bc7108a3f595949",
+      "llm_calls": 94167,
+      "sessions": 0
+     },
+     "rel_on": {
+      "final16": "11700c37e65f6303",
+      "llm_calls": 136755,
+      "sessions": 489
+     },
+     "rel_copresent": {
+      "final16": "8a1502a77e1b011b",
+      "llm_calls": 137061,
+      "sessions": 510
+     }
+    },
+    "b5_unit_occupancy": {
+     "off": {
+      "unit_ticks_hist": {
+       "1": 85307,
+       "2-4": 37215,
+       "5-9": 6489,
+       "10-49": 3658,
+       "50-99": 0,
+       "100-499": 0,
+       "500-999": 0,
+       "1000+": 0
+      },
+      "max_in_room": 30,
+      "max_poi": 740,
+      "max_tick": 430,
+      "units_occupied_max": 233,
+      "top_units": [
+       {
+        "poi": 186,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 553,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 512,
+        "eatery": true
+       },
+       {
+        "poi": 694,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 740,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 1913,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 328,
+        "eatery": true
+       },
+       {
+        "poi": 1954,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       },
+       {
+        "poi": 1956,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       },
+       {
+        "poi": 341,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 303,
+        "eatery": true
+       },
+       {
+        "poi": 1630,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 312,
+        "eatery": true
+       },
+       {
+        "poi": 183,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       }
+      ],
+      "max_in_room_raw_poi_ref": 30,
+      "seated_agent_ticks": 315512,
+      "seated_out_of_store_cell_agent_ticks": 28346
+     },
+     "rel_on": {
+      "unit_ticks_hist": {
+       "1": 92758,
+       "2-4": 41937,
+       "5-9": 7417,
+       "10-49": 4291,
+       "50-99": 0,
+       "100-499": 0,
+       "500-999": 0,
+       "1000+": 0
+      },
+      "max_in_room": 30,
+      "max_poi": 740,
+      "max_tick": 430,
+      "units_occupied_max": 241,
+      "top_units": [
+       {
+        "poi": 183,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 186,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 740,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 1935,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 328,
+        "eatery": true
+       },
+       {
+        "poi": 1954,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       },
+       {
+        "poi": 1956,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       },
+       {
+        "poi": 341,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 303,
+        "eatery": true
+       },
+       {
+        "poi": 553,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 512,
+        "eatery": true
+       },
+       {
+        "poi": 694,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 759,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 516,
+        "eatery": true
+       }
+      ],
+      "max_in_room_raw_poi_ref": 30,
+      "seated_agent_ticks": 367761,
+      "seated_out_of_store_cell_agent_ticks": 44269
+     },
+     "rel_copresent": {
+      "unit_ticks_hist": {
+       "1": 93566,
+       "2-4": 42498,
+       "5-9": 7351,
+       "10-49": 4461,
+       "50-99": 0,
+       "100-499": 0,
+       "500-999": 0,
+       "1000+": 0
+      },
+      "max_in_room": 30,
+      "max_poi": 740,
+      "max_tick": 430,
+      "units_occupied_max": 241,
+      "top_units": [
+       {
+        "poi": 183,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 186,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 740,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 43,
+        "eatery": true
+       },
+       {
+        "poi": 1935,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 328,
+        "eatery": true
+       },
+       {
+        "poi": 1954,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       },
+       {
+        "poi": 1956,
+        "max_in_room": 30,
+        "capacity": 4,
+        "cell": 242,
+        "eatery": true
+       },
+       {
+        "poi": 341,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 303,
+        "eatery": true
+       },
+       {
+        "poi": 553,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 512,
+        "eatery": true
+       },
+       {
+        "poi": 694,
+        "max_in_room": 29,
+        "capacity": 4,
+        "cell": 30,
+        "eatery": true
+       },
+       {
+        "poi": 759,
+        "max_in_room": 28,
+        "capacity": 4,
+        "cell": 516,
+        "eatery": true
+       }
+      ],
+      "max_in_room_raw_poi_ref": 30,
+      "seated_agent_ticks": 370649,
+      "seated_out_of_store_cell_agent_ticks": 44233
+     }
+    },
+    "conversation_lost_detail": {
+     "off": {
+      "pairs": 0,
+      "by_pair_class": {},
+      "lost_under_distance_by_pair_class": {},
+      "lost_under_distance_by_categories": {},
+      "over_d_and_not_same_unit": 0,
+      "reach_by_unit_only": 0,
+      "joins": 0,
+      "joins_not_reachable": 0
+     },
+     "rel_on": {
+      "pairs": 489,
+      "by_pair_class": {
+       "both_indoor": 388,
+       "outdoor": 69,
+       "one_indoor": 32
+      },
+      "lost_under_distance_by_pair_class": {
+       "both_indoor": 120,
+       "outdoor": 53,
+       "one_indoor": 22
+      },
+      "lost_under_distance_by_categories": {
+       "at_work|at_work": 85,
+       "stationary_other|stationary_other": 27,
+       "moving|stationary_other": 26,
+       "in_store|stationary_other": 10,
+       "at_work|in_store": 32,
+       "at_work|moving": 9,
+       "in_store|moving": 3,
+       "in_store|in_store": 3
+      },
+      "over_d_and_not_same_unit": 195,
+      "reach_by_unit_only": 2,
+      "joins": 0,
+      "joins_not_reachable": 0
+     },
+     "rel_copresent": {
+      "pairs": 510,
+      "by_pair_class": {
+       "both_indoor": 412,
+       "outdoor": 62,
+       "one_indoor": 36
+      },
+      "lost_under_distance_by_pair_class": {
+       "both_indoor": 122,
+       "outdoor": 54,
+       "one_indoor": 22
+      },
+      "lost_under_distance_by_categories": {
+       "at_work|at_work": 96,
+       "stationary_other|stationary_other": 31,
+       "moving|stationary_other": 23,
+       "in_store|stationary_other": 11,
+       "at_work|in_store": 23,
+       "at_work|moving": 6,
+       "in_store|moving": 4,
+       "at_school|at_work": 1,
+       "in_store|in_store": 2,
+       "at_work|stationary_other": 1
+      },
+      "over_d_and_not_same_unit": 198,
+      "reach_by_unit_only": 5,
+      "joins": 0,
+      "joins_not_reachable": 0
+     }
+    }
+   }
+  }
+ }
+}

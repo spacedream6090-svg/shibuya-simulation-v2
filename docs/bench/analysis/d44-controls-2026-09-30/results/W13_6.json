@@ -1,0 +1,41 @@
+{
+ "key": "W13#6",
+ "control": "時別=平均(気温・湿度・風)/合計(降水・日照)(宣言)vs 気温・湿度・風だけ正時の 10 分値",
+ "metric": "時別の体感温度段階(WBGT 段階・5 語+欠測)の分布(既存 S-W15-TEMP と同じ形)",
+ "variants": [
+  {
+   "name": "気温・湿度・風だけ正時の 10 分値",
+   "jsd_bits": 7.617356633516422e-05,
+   "null_p95": 0.004020313129488301,
+   "detected": false,
+   "tvd": 0.0035714285714285657,
+   "n_declared": 840.0,
+   "n_control": 840.0,
+   "n_bins": 5,
+   "declared": {
+    "やや暑い": 425,
+    "暑い": 230,
+    "厳しい暑さ": 119,
+    "危険な暑さ": 30,
+    "快適": 36
+   },
+   "control": {
+    "やや暑い": 425,
+    "暑い": 233,
+    "厳しい暑さ": 119,
+    "危険な暑さ": 27,
+    "快適": 36
+   }
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.08357200003229082,
+ "outputs_changed": [
+  "w13_weather_days.parquet",
+  "w13_weather_hourly.parquet"
+ ],
+ "seconds_wall_row": 0.89,
+ "measured_at": "2026-09-30"
+}

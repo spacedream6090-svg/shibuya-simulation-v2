@@ -1,0 +1,27 @@
+{
+ "key": "W12#6",
+ "control": "オフピーク比=メトロ実ダイヤから(宣言)vs 比 1.0(一様)",
+ "metric": "便の (路線 × 曜日種別 × 時) の分布",
+ "variants": [
+  {
+   "name": "比 1.0",
+   "jsd_bits": 0.017736847945337867,
+   "null_p95": 0.013897460862228917,
+   "detected": true,
+   "tvd": 0.13754453269170544,
+   "n_declared": 9574.0,
+   "n_control": 11652.0,
+   "n_bins": 320
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 0.06975600006990135,
+ "outputs_changed": [
+  "w12_timetables.parquet"
+ ],
+ "notes": [],
+ "seconds_wall_row": 0.94,
+ "measured_at": "2026-09-30"
+}

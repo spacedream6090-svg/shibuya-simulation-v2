@@ -1,0 +1,41 @@
+{
+ "key": "W13#3",
+ "control": "日射=日照率と太陽高度からの推定(宣言)vs 日照率だけ(SR=0.9×日照率・太陽高度を見ない)",
+ "metric": "時別の体感温度段階(WBGT 段階・5 語+欠測)の分布(既存 S-W15-TEMP と同じ形)",
+ "variants": [
+  {
+   "name": "日照率だけ(SR=0.9×日照率・太陽高度を見ない)",
+   "jsd_bits": 0.0013759806012739661,
+   "null_p95": 0.004020313129488301,
+   "detected": false,
+   "tvd": 0.03333333333333334,
+   "n_declared": 840.0,
+   "n_control": 840.0,
+   "n_bins": 5,
+   "declared": {
+    "やや暑い": 425,
+    "暑い": 230,
+    "厳しい暑さ": 119,
+    "危険な暑さ": 30,
+    "快適": 36
+   },
+   "control": {
+    "やや暑い": 415,
+    "暑い": 214,
+    "厳しい暑さ": 143,
+    "危険な暑さ": 34,
+    "快適": 34
+   }
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.06770310003776103,
+ "outputs_changed": [
+  "w13_weather_days.parquet",
+  "w13_weather_hourly.parquet"
+ ],
+ "seconds_wall_row": 0.83,
+ "measured_at": "2026-09-30"
+}

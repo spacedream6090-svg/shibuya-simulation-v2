@@ -39,6 +39,23 @@ D-58「テープ繰り延べ行」(2026-09-10・自前規約は実装計画書 �
     旧テープ(版1/2)を読むときは空で埋める。記憶 on のランは B5 に行が増える=prompt_hash が変わる
     =新版テープ(旧テープの再生は全行 miss=宣言)。
 
+**版4**(``shibuya.tape/4``・10e(E5)・A8・K1)= 版3 の 14 列に**末尾 7 列を追加**(版を 1 回で上げるために 4 つを束ねた):
+      recalled_first_tick(list<int64>)/ recalled_kind(list<int32>)/ recalled_object(list<int64>):
+          引いた記憶の同定。``recalled_rows`` と同じ並びで、その記憶が**最初に書かれた時刻**(通しの T)・種類・対象
+          (``mem_object`` の符号化・店の行は POI)。行番号は追い出しで再利用されるので行番号だけでは後から辿れない。
+      recalled_source(list<string>): 記憶の出どころの欄の**予約**(記憶の作り直しまでは空)。
+      acquaintance_ids(list<int32>): 「(知人)」の印を見せた相手の体 id(B5 の本文に出た順・重複なし)。
+      b5_text(string): 本人ブロック B5 の本文を**列に直接**(K1)。
+      b6_block_id(string): 本人ブロック B6 の本文は ``blocks.parquet`` に **intern** して、その ``block_id``(K1)。
+    **鍵に日**(A8 の 1): 鍵の ``tick`` は 10a から通しの時刻 T(= 日 × 1 日の tick 数 + 日の中の tick)=日が入って
+    いる(版 4 で確かめた・列は足さない)。旧テープ(版1〜3)は「日=0」として読める(T = 日の中の tick)。
+    新しい 7 列は既定値(空の list・空文字)で埋める。B5・B6 は ``prompt_hash`` の材料なので、``prompt_hash`` の鍵は不変。
+
+**腕の列**(第 1 期 1-6 M0・版 4 の中=回答 10-13b §3 1-6)= 腕を立てたランだけ末尾に足す列(``ARM_COLUMNS``・
+``TapeWriter.arm_columns``)。既定のランは足さない(列は版 4 の 21 列のまま)。列の無いテープを読むときは空で埋める。
+      recalled_event_ids(list<string>): ``recalled_rows`` と同じ並びの、見せた記憶の行の目印 ``"t_ns:seq"``
+          (記憶の器 ``engine.memory_store``・腕 ``--memory-store events``・器の外の行は空文字)。
+
 逐次ループ宣言(P4)
 - ``TapeWriter.append`` / ``flush``: 1呼ごとの Python 呼び出しと、バッファ行数ぶんの
   列組み立てループ(LLM 呼び出し自体が 1件/呼で、1呼=数十〜数百 ms のため律速にならない)。
@@ -56,7 +73,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable, Iterator, Mapping
+from types import MappingProxyType
+from typing import Any, Callable, Iterable, Iterator, Mapping
+
+import json
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -66,6 +86,8 @@ from shibuya.core.hashing import blake3_hex
 __all__ = [
     "CALLS_FILENAME",
     "BLOCKS_FILENAME",
+    "RUN_META_FILENAME",
+    "read_run_meta",
     "TAPE_COMPRESSION",
     "CALLS_SCHEMA",
     "CALLS_SCHEMA_V1_NAMES",
@@ -80,15 +102,29 @@ __all__ = [
     "Tape",
     "Replay",
     "block_id_for",
+    "tape_v4_fields",
+    "CALLS_SCHEMA_V4_DEFAULTS",
+    "ARM_COLUMNS",
 ]
 
 CALLS_FILENAME = "calls.parquet"
 BLOCKS_FILENAME = "blocks.parquet"
+#: テープの脇の meta(検収後 P3・10a)。録画のランの設定のうち再生で突き合わせる値を置く
+#: (今は ``response_delay`` だけ)。``calls.parquet`` の列とテープの版は変えない。
+RUN_META_FILENAME = "run_meta.json"
+
+
+def read_run_meta(path: str | Path) -> dict[str, Any]:
+    """テープの脇の meta を読む(無ければ空 dict=10a より前の録画)。"""
+    p = Path(path) / RUN_META_FILENAME
+    if not p.is_file():
+        return {}
+    return dict(json.loads(p.read_text(encoding="utf-8")))
 TAPE_COMPRESSION = "zstd"
 BLOCK_ID_BYTES = 16
 
-#: テープのスキーマ版(Parquet のスキーマ metadata に入る)。D-58 で 1 → 2・6b で 2 → 3。
-TAPE_SCHEMA_VERSION = "shibuya.tape/3"
+#: テープのスキーマ版(Parquet のスキーマ metadata に入る)。D-58 で 1 → 2・6b で 2 → 3・10e(E5)で 3 → 4。
+TAPE_SCHEMA_VERSION = "shibuya.tape/4"
 TAPE_SCHEMA_METADATA_KEY = b"shibuya.tape.schema"
 
 #: 版1 の列(**この 10 列は順序ごと不変**=版2 は末尾に足すだけ)。
@@ -123,6 +159,14 @@ CALLS_SCHEMA = pa.schema(
         pa.field("observed_tick", pa.int64(), nullable=False),
         # ---- 版3(6b・M11 (c))。旧テープには無い=読むときは空へ落とす ----
         pa.field("recalled_rows", pa.list_(pa.int32()), nullable=False),
+        # ---- 版4(10e・E5・A8・K1)。旧テープには無い=読むときは空へ落とす ----
+        pa.field("recalled_first_tick", pa.list_(pa.int64()), nullable=False),
+        pa.field("recalled_kind", pa.list_(pa.int32()), nullable=False),
+        pa.field("recalled_object", pa.list_(pa.int64()), nullable=False),
+        pa.field("recalled_source", pa.list_(pa.string()), nullable=False),
+        pa.field("acquaintance_ids", pa.list_(pa.int32()), nullable=False),
+        pa.field("b5_text", pa.string(), nullable=False),
+        pa.field("b6_block_id", pa.string(), nullable=False),
     ],
     metadata={TAPE_SCHEMA_METADATA_KEY: TAPE_SCHEMA_VERSION.encode("utf-8")},
 )
@@ -137,6 +181,23 @@ CALLS_SCHEMA_V2_DEFAULTS: Mapping[str, Any] = {
 CALLS_SCHEMA_V3_DEFAULTS: Mapping[str, Any] = {
     "recalled_rows": [],
 }
+#: 版4 で足した列と「旧テープを読むときの既定値」(list の列は空・文字列の列は空文字)。
+CALLS_SCHEMA_V4_DEFAULTS: Mapping[str, Any] = {
+    "recalled_first_tick": [],
+    "recalled_kind": [],
+    "recalled_object": [],
+    "recalled_source": [],
+    "acquaintance_ids": [],
+    "b5_text": "",
+    "b6_block_id": "",
+}
+#: 〔第 1 期 1-6 M0〕腕の列(版 4 の中で足す=回答 10-13b §3 1-6)。**腕を立てたランだけ** ``calls.parquet`` の末尾に足す
+#: (既定のランの列は版 4 の 21 列のまま=byte-check の ``calls_column_names`` は動かない)。名 → (Arrow の欄, 列の無い
+#: テープを読むときの値)。``recalled_event_ids``: ``recalled_rows`` と同じ並びの、見せた記憶の行の目印 ``"t_ns:seq"``
+#: (記憶の器の外の行=店の評価の行は空文字・``engine.memory_store``・腕 ``--memory-store events``)。
+ARM_COLUMNS: Mapping[str, tuple[Any, Any]] = MappingProxyType({
+    "recalled_event_ids": (pa.field("recalled_event_ids", pa.list_(pa.string()), nullable=False), ()),
+})
 
 BLOCKS_SCHEMA = pa.schema(
     [
@@ -190,6 +251,26 @@ def block_id_for(text: str) -> str:
     return blake3_hex(text.encode("utf-8"), length=BLOCK_ID_BYTES)
 
 
+def tape_v4_fields(src: Any, tape: Any) -> dict[str, Any]:
+    """テープ版 4(10e・E5)の 7 列の値を、描画の出力(``RenderedPrompt``)か艦隊の呼(``LLMCall``)から作る。
+
+    B6 の本文は ``tape.intern_block`` でブロック表に入れて ``block_id`` を返す(同じ本文は 1 回だけ保存)。
+    ``recalled_source`` は予約(記憶の作り直しまでは空)。
+    """
+    from shibuya.perception.channels import estimate_tokens
+
+    b6 = str(getattr(src, "b6_text", "") or "")
+    return {
+        "recalled_first_tick": tuple(int(x) for x in getattr(src, "recalled_first_tick", ())),
+        "recalled_kind": tuple(int(x) for x in getattr(src, "recalled_kind", ())),
+        "recalled_object": tuple(int(x) for x in getattr(src, "recalled_object", ())),
+        "recalled_source": (),
+        "acquaintance_ids": tuple(int(x) for x in getattr(src, "acquaintance_ids", ())),
+        "b5_text": str(getattr(src, "b5_text", "") or ""),
+        "b6_block_id": tape.intern_block(b6, estimate_tokens(b6)) if (b6 and tape is not None) else "",
+    }
+
+
 @dataclass(frozen=True)
 class TapeRow:
     """1呼=1行(``deferred=1`` なら「答えの返らなかった 1 呼」=D-58)。
@@ -217,6 +298,15 @@ class TapeRow:
     observed_tick: int = -1
     #: 版3(6b): B5「記憶」行に載せた記憶の行番号(記憶の無いラン=空)。
     recalled_rows: tuple[int, ...] = ()
+    #: 版4(10e・E5): 引いた記憶の同定(``recalled_rows`` と同じ並び)・出どころの予約(空)・知人の id・B5 の本文・
+    #: B6 の ``block_id``。
+    recalled_first_tick: tuple[int, ...] = ()
+    recalled_kind: tuple[int, ...] = ()
+    recalled_object: tuple[int, ...] = ()
+    recalled_source: tuple[str, ...] = ()
+    acquaintance_ids: tuple[int, ...] = ()
+    b5_text: str = ""
+    b6_block_id: str = ""
 
     @property
     def key(self) -> tuple[int, int, int, str]:
@@ -240,15 +330,34 @@ class TapeWriter:
 
     path: Path
     flush_rows: int = 4_096
+    #: テープの脇の meta(``RUN_META_FILENAME``)。空なら書かない。
+    run_meta: dict[str, Any] = field(default_factory=dict)
     _rows: list[TapeRow] = field(default_factory=list, init=False, repr=False)
     _blocks: dict[str, tuple[str, int]] = field(default_factory=dict, init=False, repr=False)
     _writer: pq.ParquetWriter | None = field(default=None, init=False, repr=False)
     _n_written: int = field(default=0, init=False, repr=False)
     _n_deferred: int = field(default=0, init=False, repr=False)
+    #: 〔第 1 期 1-6 M0〕腕の列の値を作る口(名 → 行 → 値・名は ``ARM_COLUMNS`` の中)。組み立てが最初の行の前に置く。
+    #: 空なら列を足さない(既定=版 4 の 21 列のまま)。値は ``append`` のときに作る(行と同じ順)。
+    arm_columns: dict[str, Callable[[TapeRow], Any]] = field(default_factory=dict)
+    _arm_values: list[tuple[Any, ...]] = field(default_factory=list, init=False, repr=False)
 
     def __post_init__(self) -> None:
         self.path = Path(self.path)
         self.path.mkdir(parents=True, exist_ok=True)
+
+    def _arm_names(self) -> list[str]:
+        bad = sorted(n for n in self.arm_columns if n not in ARM_COLUMNS)
+        if bad:
+            raise ValueError(f"テープの腕の列は {tuple(ARM_COLUMNS)} の中だけ(いま {bad})")
+        return [n for n in ARM_COLUMNS if n in self.arm_columns]
+
+    def calls_schema(self) -> pa.Schema:
+        """このテープの ``calls.parquet`` のスキーマ(腕の列を立てたランだけ末尾に足す・版の印は ``shibuya.tape/4`` のまま)。"""
+        names = self._arm_names()
+        if not names:
+            return CALLS_SCHEMA
+        return pa.schema(list(CALLS_SCHEMA) + [ARM_COLUMNS[n][0] for n in names], metadata=CALLS_SCHEMA.metadata)
 
     # ---- ブロック intern ----
     def intern_block(self, text: str, tokens: int = -1) -> str:
@@ -276,6 +385,8 @@ class TapeWriter:
     def append(self, row: TapeRow) -> None:
         """1呼を追加する(応答行でも**繰り延べ行**でも同じ口)。"""
         self._rows.append(row)
+        if self.arm_columns:  # 1-6 M0: 腕の列の値(行と同じ順)
+            self._arm_values.append(tuple(self.arm_columns[n](row) for n in self._arm_names()))
         if row.deferred:
             self._n_deferred += 1
         if len(self._rows) >= self.flush_rows:
@@ -289,8 +400,7 @@ class TapeWriter:
         """バッファを Parquet へ書き出す。"""
         if not self._rows:
             return
-        table = pa.Table.from_pydict(
-            {
+        cols: dict[str, list[Any]] = {
                 "call_id": [r.call_id for r in self._rows],
                 "agent_id": [int(r.agent_id) for r in self._rows],
                 "tick": [int(r.tick) for r in self._rows],
@@ -307,16 +417,26 @@ class TapeWriter:
                 "recalled_rows": [
                     [int(x) for x in getattr(r, "recalled_rows", ())] for r in self._rows
                 ],
-            },
-            schema=CALLS_SCHEMA,
-        )
+                "recalled_first_tick": [[int(x) for x in getattr(r, "recalled_first_tick", ())] for r in self._rows],
+                "recalled_kind": [[int(x) for x in getattr(r, "recalled_kind", ())] for r in self._rows],
+                "recalled_object": [[int(x) for x in getattr(r, "recalled_object", ())] for r in self._rows],
+                "recalled_source": [[str(x) for x in getattr(r, "recalled_source", ())] for r in self._rows],
+                "acquaintance_ids": [[int(x) for x in getattr(r, "acquaintance_ids", ())] for r in self._rows],
+                "b5_text": [str(getattr(r, "b5_text", "")) for r in self._rows],
+                "b6_block_id": [str(getattr(r, "b6_block_id", "")) for r in self._rows],
+        }
+        schema = self.calls_schema()
+        for j, name in enumerate(self._arm_names()):  # 1-6 M0: 腕の列(立てたランだけ・列の数ぶん)
+            cols[name] = [list(v[j]) for v in self._arm_values]
+        table = pa.Table.from_pydict(cols, schema=schema)
         if self._writer is None:
             self._writer = pq.ParquetWriter(
-                self.path / CALLS_FILENAME, CALLS_SCHEMA, compression=TAPE_COMPRESSION
+                self.path / CALLS_FILENAME, schema, compression=TAPE_COMPRESSION
             )
         self._writer.write_table(table)
         self._n_written += len(self._rows)
         self._rows.clear()
+        self._arm_values.clear()
 
     def close(self) -> None:
         """バッファを吐き、ブロック表を書いて閉じる。"""
@@ -326,7 +446,7 @@ class TapeWriter:
             self._writer = None
         elif not (self.path / CALLS_FILENAME).exists():
             pq.write_table(
-                CALLS_SCHEMA.empty_table(),
+                self.calls_schema().empty_table(),
                 self.path / CALLS_FILENAME,
                 compression=TAPE_COMPRESSION,
             )
@@ -340,6 +460,11 @@ class TapeWriter:
             schema=BLOCKS_SCHEMA,
         )
         pq.write_table(blocks, self.path / BLOCKS_FILENAME, compression=TAPE_COMPRESSION)
+        if self.run_meta:
+            (self.path / RUN_META_FILENAME).write_text(
+                json.dumps(self.run_meta, ensure_ascii=False, sort_keys=True) + "\n",
+                encoding="utf-8", newline="\n",
+            )
 
     def __enter__(self) -> "TapeWriter":
         return self
@@ -369,6 +494,8 @@ class Tape:
         self._block_text: dict[str, str] = dict(
             zip(self.blocks.column("block_id").to_pylist(), self.blocks.column("text").to_pylist())
         )
+        #: テープの脇の meta(無ければ空 dict)。
+        self.run_meta: dict[str, Any] = read_run_meta(self.path)
 
     def __len__(self) -> int:
         return self.calls.num_rows
@@ -384,6 +511,8 @@ class Tape:
         raw = meta.get(TAPE_SCHEMA_METADATA_KEY)
         if raw:
             return raw.decode("utf-8")
+        if all(n in self.calls.column_names for n in CALLS_SCHEMA_V4_DEFAULTS):
+            return "shibuya.tape/4"
         if all(n in self.calls.column_names for n in CALLS_SCHEMA_V3_DEFAULTS):
             return "shibuya.tape/3"
         has_v2 = all(n in self.calls.column_names for n in CALLS_SCHEMA_V2_DEFAULTS)
@@ -404,6 +533,12 @@ class Tape:
             return self.calls.column(name).to_pylist()
         if name in CALLS_SCHEMA_V3_DEFAULTS:
             return [list(CALLS_SCHEMA_V3_DEFAULTS[name]) for _ in range(self.calls.num_rows)]
+        if name in CALLS_SCHEMA_V4_DEFAULTS:  # 10e(E5): 旧テープ(版1〜3)は空で読む
+            d = CALLS_SCHEMA_V4_DEFAULTS[name]
+            return [list(d) if isinstance(d, list) else d for _ in range(self.calls.num_rows)]
+        if name in ARM_COLUMNS:  # 1-6 M0: 腕の列の無いテープ(既定のラン)は空で読む
+            d = ARM_COLUMNS[name][1]
+            return [list(d) if isinstance(d, (list, tuple)) else d for _ in range(self.calls.num_rows)]
         return [CALLS_SCHEMA_V2_DEFAULTS[name]] * self.calls.num_rows
 
     def rows(self) -> Iterator[TapeRow]:
@@ -425,6 +560,13 @@ class Tape:
                 deferred_reason=cols["deferred_reason"][i],
                 observed_tick=cols["observed_tick"][i],
                 recalled_rows=tuple(cols["recalled_rows"][i]),
+                recalled_first_tick=tuple(cols["recalled_first_tick"][i]),
+                recalled_kind=tuple(cols["recalled_kind"][i]),
+                recalled_object=tuple(cols["recalled_object"][i]),
+                recalled_source=tuple(cols["recalled_source"][i]),
+                acquaintance_ids=tuple(cols["acquaintance_ids"][i]),
+                b5_text=cols["b5_text"][i],
+                b6_block_id=cols["b6_block_id"][i],
             )
 
 

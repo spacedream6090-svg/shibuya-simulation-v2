@@ -17,6 +17,8 @@ from pathlib import Path
 
 import pytest
 
+from tests import _data_ids as D
+
 from shibuya.build import run as build_run
 from shibuya.build.geo import common as C
 
@@ -136,13 +138,13 @@ def test_refuses_to_overwrite_the_promoted_output_unless_the_stage_is_explicit(
 
 def test_the_protected_md5_is_the_promoted_w17_golden_key():
     """安全弁の md5 は golden 表の鍵(W17 v2・第168 昇格)と同じ値。実資産があれば当たることも見る。"""
-    assert build_run.PROTECTED_OUTPUTS["W17"]["w17_schedule.parquet"] == ("3113e9ba7abb",)
+    # 〔第 4 期 4-3 段 10〕差し替えの世界の W17(02114fb577f3)を足した(前の値は ("3113e9ba7abb",)=記録 pop43)
+    keys = build_run.PROTECTED_OUTPUTS["W17"]["w17_schedule.parquet"]
+    assert keys == ("3113e9ba7abb", "02114fb577f3")
     real = REPO_ROOT / "data" / "world" / "v2"
     p = real / "w17_schedule.parquet"
-    if not p.exists():
-        pytest.skip("実世界資産が無い")
-    if not hashlib.md5(p.read_bytes()).hexdigest().startswith("3113e9ba7abb"):
-        pytest.skip("実 W17 が昇格版ではない")
+    D.skip_unless("world_v2:w17_schedule.parquet")
+    D.skip_unless("w17_promoted", have=hashlib.md5(p.read_bytes()).hexdigest().startswith(keys))
     # 読むだけの関数(何も走らせない)
     assert build_run.protected_output_hits(real, ["W17"], set())
     assert build_run.protected_output_hits(real, ["W17"], {"W17"}) == []

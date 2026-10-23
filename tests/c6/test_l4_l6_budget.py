@@ -178,6 +178,11 @@ def test_fleet_smoke_unlimited_defaults_the_queue_to_the_agent_count(tmp_path):
 
     既定=体数(300)にするので受理待ちあふれの繰り延べは 0・警告なし・manifest に注記。枠を明示すれば
     従来どおり(32 なら繰り延べが出る)。同期の経路(mock)は触らない。
+
+    〔第337〕刻み 0 の一斉の起床(体数ぶん)だけを見る(``ticks=1``・前は 24 刻み)。待っている体にも新しい起床で呼びを
+    送る(``systems/decide.py`` の艦隊の経路・``n_fleet_resent``)ので、刻みが進むと 1 体の 2 本目が枠を食う=D-55 の前提
+    (1 体 1 本)の既存の穴。旧値の腕では 24 刻みの中で誰も跨がなかった偶然で通っていた(240 刻みでは validation 39,563・
+    w17 31,787)。穴は台帳 ``DOC-fleet-resend-while-waiting`` に宣言・直しは判断待ち(記録 meal_w17/README.md §12)。
     """
     from shibuya.llm.fleet import FleetClient
     from shibuya.manifest.schema import Mode
@@ -197,7 +202,7 @@ def test_fleet_smoke_unlimited_defaults_the_queue_to_the_agent_count(tmp_path):
 
                 with _w.catch_warnings():
                     _w.simplefilter("error", RuntimeWarning)
-                    res = cli.run(n_agents=300, seed=1, ticks=24, world_dir=None, fleet=client,
+                    res = cli.run(n_agents=300, seed=1, ticks=1, world_dir=None, fleet=client,
                                   sleep_suppression=False, tape_path=tmp_path / label)
             finally:
                 client.close()

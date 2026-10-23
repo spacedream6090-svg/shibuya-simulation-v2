@@ -1,0 +1,3657 @@
+{
+ "format": "shibuya.bench/1-0/local-assignment/1",
+ "head": "ee3abc7",
+ "n_locals": 450,
+ "n_params": 113,
+ "unassigned": [],
+ "kinds": {
+  "box:buffers": 1,
+  "box:cfg": 85,
+  "box:day": 6,
+  "box:fx": 12,
+  "box:layers": 19,
+  "box:llm": 5,
+  "box:scratch": 34,
+  "box:soa": 2,
+  "box:stats": 36,
+  "build": 105,
+  "ctx": 2,
+  "end": 25,
+  "fn": 16,
+  "tick": 86,
+  "tick/end": 16
+ },
+ "same_name_temporaries": [
+  "_h",
+  "_k",
+  "a",
+  "c_",
+  "cond",
+  "d",
+  "i",
+  "item",
+  "k",
+  "p",
+  "res",
+  "s",
+  "t",
+  "t0",
+  "v",
+  "x"
+ ],
+ "locals": {
+  "GroupNormMeter": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build:import(組み立ての中の import)"
+  },
+  "_": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_AWBC": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build:import(同上)"
+  },
+  "_ablated": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_acq_sel": {
+   "param": false,
+   "systems": [
+    "decide"
+   ],
+   "to": "tick:decide(系の局所)"
+  },
+  "_act_hash": {
+   "param": false,
+   "systems": [
+    "checkpoint"
+   ],
+   "to": "tick:checkpoint(系の局所)"
+  },
+  "_act_hash_now": {
+   "param": false,
+   "systems": [],
+   "to": "fn:engine/systems/state_io.py:act_hash_now"
+  },
+  "_ad": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "_agents_h": {
+   "param": false,
+   "systems": [
+    "checkpoint"
+   ],
+   "to": "tick:checkpoint(系の局所)"
+  },
+  "_anc": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_anc_md5": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_b3_words": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build:差し込み(同上)"
+  },
+  "_bodies_now": {
+   "param": false,
+   "systems": [],
+   "to": "fn:engine/systems/state_io.py:bodies_now"
+  },
+  "_bundle": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_by": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "_c": {
+   "param": false,
+   "systems": [
+    "observe"
+   ],
+   "to": "tick:observe(系の局所)"
+  },
+  "_call_args": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_call_layer": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide"
+   ],
+   "to": "box:cfg.call_layer"
+  },
+  "_calls_r": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_classical_acq": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build:差し込み(組み立ての中の入れ子の def のまま=捕まえる物の同一性・草案 §3-3 の 6)"
+  },
+  "_classical_partner": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build:差し込み(同上)"
+  },
+  "_close_day_midrun": {
+   "param": false,
+   "systems": [
+    "day_close"
+   ],
+   "to": "fn:engine/systems/state_io.py:close_day_midrun"
+  },
+  "_code": {
+   "param": false,
+   "systems": [
+    "phase_c"
+   ],
+   "to": "tick:phase_c(系の局所)"
+  },
+  "_cs": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "_d": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_day_record": {
+   "param": false,
+   "systems": [
+    "close_final"
+   ],
+   "to": "fn:engine/systems/state_io.py:day_record"
+  },
+  "_diff": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_dt_ckpt": {
+   "param": false,
+   "systems": [
+    "checkpoint"
+   ],
+   "to": "tick:checkpoint(系の局所)"
+  },
+  "_ea": {
+   "param": false,
+   "systems": [
+    "body"
+   ],
+   "to": "tick:body(系の局所)"
+  },
+  "_ed": {
+   "param": false,
+   "systems": [
+    "body"
+   ],
+   "to": "tick:body(系の局所)"
+  },
+  "_ef": {
+   "param": false,
+   "systems": [
+    "body"
+   ],
+   "to": "tick:body(系の局所)"
+  },
+  "_elig": {
+   "param": false,
+   "systems": [
+    "relations_wake"
+   ],
+   "to": "tick:relations_wake(系の局所)"
+  },
+  "_emodel": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_env": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_env_fields": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "box:fx.env_fields"
+  },
+  "_eod_hashes": {
+   "param": false,
+   "systems": [
+    "close_final"
+   ],
+   "to": "fn:engine/systems/state_io.py:eod_hashes"
+  },
+  "_es": {
+   "param": false,
+   "systems": [
+    "body"
+   ],
+   "to": "tick:body(系の局所)"
+  },
+  "_exp": {
+   "param": false,
+   "systems": [
+    "familiarity",
+    "memory"
+   ],
+   "to": "box:scratch.exposures"
+  },
+  "_fam_has_renderer": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_fam_renderer": {
+   "param": false,
+   "systems": [
+    "build",
+    "memory",
+    "report"
+   ],
+   "to": "box:layers.renderer"
+  },
+  "_fp": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "box:cfg.fp"
+  },
+  "_fs": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "_full": {
+   "param": false,
+   "systems": [
+    "checkpoint"
+   ],
+   "to": "tick:checkpoint(系の局所)"
+  },
+  "_full_bytes": {
+   "param": false,
+   "systems": [
+    "checkpoint"
+   ],
+   "to": "tick:checkpoint(系の局所)"
+  },
+  "_full_r": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_h": {
+   "param": false,
+   "systems": [
+    "arbiter",
+    "build"
+   ],
+   "to": "tick/end:系ごとの別の一時(arbiter,build)"
+  },
+  "_ha": {
+   "param": false,
+   "systems": [
+    "home_meal"
+   ],
+   "to": "tick:home_meal(系の局所)"
+  },
+  "_has_work": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_hash_owners": {
+   "param": false,
+   "systems": [
+    "build",
+    "checkpoint"
+   ],
+   "to": "fn:engine/systems/state_io.py:hash_owners"
+  },
+  "_hr": {
+   "param": false,
+   "systems": [
+    "home_meal"
+   ],
+   "to": "tick:home_meal(系の局所)"
+  },
+  "_hs": {
+   "param": false,
+   "systems": [
+    "home_meal"
+   ],
+   "to": "tick:home_meal(系の局所)"
+  },
+  "_init": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_json": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(報告の中の import)"
+  },
+  "_k": {
+   "param": false,
+   "systems": [
+    "observe",
+    "phase_c",
+    "report"
+   ],
+   "to": "tick/end:系ごとの別の一時(observe,phase_c,report)"
+  },
+  "_kc": {
+   "param": false,
+   "systems": [
+    "observe"
+   ],
+   "to": "tick:observe(系の局所)"
+  },
+  "_ledger_close": {
+   "param": false,
+   "systems": [
+    "close_final"
+   ],
+   "to": "fn:engine/systems/state_io.py:ledger_close"
+  },
+  "_lv": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "_m": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_memo": {
+   "param": false,
+   "systems": [
+    "checkpoint"
+   ],
+   "to": "tick:checkpoint(系の局所)"
+  },
+  "_money_now": {
+   "param": false,
+   "systems": [],
+   "to": "fn:engine/systems/state_io.py:money_now"
+  },
+  "_n": {
+   "param": false,
+   "systems": [
+    "phase_c"
+   ],
+   "to": "tick:phase_c(系の局所)"
+  },
+  "_nr": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "_ok": {
+   "param": false,
+   "systems": [
+    "observe"
+   ],
+   "to": "tick:observe(系の局所)"
+  },
+  "_onoff": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build:_onoff(組み立ての中の検査)"
+  },
+  "_owners": {
+   "param": false,
+   "systems": [
+    "checkpoint"
+   ],
+   "to": "tick:checkpoint(系の局所)"
+  },
+  "_pa": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_pres0": {
+   "param": false,
+   "systems": [
+    "presence"
+   ],
+   "to": "tick:presence(系の局所)"
+  },
+  "_prior_doc": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_prior_md5": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_psr": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "_pst_now": {
+   "param": false,
+   "systems": [
+    "build",
+    "checkpoint"
+   ],
+   "to": "fn:engine/systems/state_io.py:pst_now"
+  },
+  "_q25_renderer": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_read_seconds": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:stats.read_seconds"
+  },
+  "_rebuild_derived": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "fn:engine/systems/state_io.py:rebuild_derived"
+  },
+  "_receive_arrivals": {
+   "param": false,
+   "systems": [
+    "llm_receive"
+   ],
+   "to": "fn:engine/systems/llm_io.py:receive_arrivals"
+  },
+  "_relay_tables": {
+   "param": false,
+   "systems": [
+    "build",
+    "day_head"
+   ],
+   "to": "fn:engine/systems/state_io.py:relay_tables"
+  },
+  "_restore_seconds": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:stats.restore_seconds"
+  },
+  "_resuming": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_revert": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の関数の中の入れ子の def)"
+  },
+  "_rr": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "_rtd": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_save_state": {
+   "param": false,
+   "systems": [
+    "close_final",
+    "day_close",
+    "drain"
+   ],
+   "to": "fn:engine/systems/state_io.py:save_state"
+  },
+  "_sc": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "_session_partners": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build:差し込み(同上)"
+  },
+  "_start_day": {
+   "param": false,
+   "systems": [
+    "day_head"
+   ],
+   "to": "fn:engine/systems/state_io.py:start_day"
+  },
+  "_state_mode": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_stopped": {
+   "param": false,
+   "systems": [
+    "close_final",
+    "drain",
+    "report"
+   ],
+   "to": "box:cfg.stopped(性質)"
+  },
+  "_t_r": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_t_read": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_t_rel": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_tk": {
+   "param": false,
+   "systems": [
+    "observe"
+   ],
+   "to": "tick:observe(系の局所)"
+  },
+  "_ts": {
+   "param": false,
+   "systems": [
+    "observe"
+   ],
+   "to": "tick:observe(系の局所)"
+  },
+  "_utter": {
+   "param": false,
+   "systems": [
+    "decide"
+   ],
+   "to": "fn:engine/systems/llm_io.py:utter"
+  },
+  "_v": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "_w17_weekday": {
+   "param": false,
+   "systems": [],
+   "to": "fn:engine/systems/state_io.py:w17_weekday"
+  },
+  "_wd0": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_wk": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "_wr": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "_ws": {
+   "param": false,
+   "systems": [
+    "close_final"
+   ],
+   "to": "end:close_final(系の局所)"
+  },
+  "a": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "decide"
+   ],
+   "to": "tick/end:系ごとの別の一時(apply_responses,decide)"
+  },
+  "a_agent": {
+   "param": false,
+   "systems": [
+    "relations_wake"
+   ],
+   "to": "tick:relations_wake(系の局所)"
+  },
+  "a_class": {
+   "param": false,
+   "systems": [
+    "relations_wake"
+   ],
+   "to": "tick:relations_wake(系の局所)"
+  },
+  "a_cond": {
+   "param": false,
+   "systems": [
+    "relations_wake"
+   ],
+   "to": "tick:relations_wake(系の局所)"
+  },
+  "act": {
+   "param": false,
+   "systems": [
+    "decide"
+   ],
+   "to": "tick:decide(系の局所)"
+  },
+  "act_layer": {
+   "param": false,
+   "systems": [
+    "activity_intent",
+    "apply_responses",
+    "build",
+    "checkpoint",
+    "detect",
+    "perceive_prepare",
+    "phase_a",
+    "presence",
+    "report"
+   ],
+   "to": "box:layers.act_layer"
+  },
+  "act_now": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "activity": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "activity_on": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.activity_on"
+  },
+  "activity_region": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.activity_region"
+  },
+  "ag": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "agents": {
+   "param": false,
+   "systems": [
+    "activity_intent",
+    "apply_responses",
+    "arbiter",
+    "body",
+    "build",
+    "checkpoint",
+    "conversation",
+    "decide",
+    "detect",
+    "energy_after",
+    "familiarity",
+    "home_meal",
+    "memory",
+    "observe",
+    "perceive_prepare",
+    "phase_a",
+    "phase_c",
+    "plan_boundary",
+    "presence",
+    "relations_wake",
+    "report",
+    "wake_filter"
+   ],
+   "to": "box:soa.agents"
+  },
+  "agents_in_order": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "agg": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "ak": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "applied_activity": {
+   "param": false,
+   "systems": [
+    "activity_intent",
+    "apply_responses",
+    "build"
+   ],
+   "to": "box:scratch.applied_activity"
+  },
+  "applied_now": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "build",
+    "conversation"
+   ],
+   "to": "box:scratch.applied_now"
+  },
+  "arbiter": {
+   "param": false,
+   "systems": [
+    "arbiter",
+    "build",
+    "decide",
+    "observe",
+    "report"
+   ],
+   "to": "box:layers.arbiter"
+  },
+  "area_sha": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "area_source": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.area_source"
+  },
+  "arrival_intents": {
+   "param": false,
+   "systems": [
+    "phase_a"
+   ],
+   "to": "tick:phase_a(系の局所)"
+  },
+  "asleep": {
+   "param": false,
+   "systems": [
+    "arbiter"
+   ],
+   "to": "tick:arbiter(系の局所)"
+  },
+  "asleep_now": {
+   "param": false,
+   "systems": [
+    "arbiter"
+   ],
+   "to": "tick:arbiter(系の局所)"
+  },
+  "assets": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "attendance_rate": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.attendance_rate"
+  },
+  "attention_on": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "build",
+    "conversation",
+    "phase_c",
+    "report"
+   ],
+   "to": "box:cfg.attention_on"
+  },
+  "awake_sum": {
+   "param": false,
+   "systems": [
+    "arbiter",
+    "build",
+    "report"
+   ],
+   "to": "box:stats.awake_sum"
+  },
+  "awake_ticks": {
+   "param": false,
+   "systems": [
+    "arbiter",
+    "build",
+    "report"
+   ],
+   "to": "box:stats.awake_ticks"
+  },
+  "b_agent": {
+   "param": false,
+   "systems": [
+    "build",
+    "plan_boundary"
+   ],
+   "to": "box:day.b_agent"
+  },
+  "b_cell": {
+   "param": false,
+   "systems": [
+    "build",
+    "plan_boundary"
+   ],
+   "to": "box:day.b_cell"
+  },
+  "b_code": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "b_cond": {
+   "param": false,
+   "systems": [
+    "build",
+    "plan_boundary"
+   ],
+   "to": "box:day.b_cond"
+  },
+  "b_named": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "b_slot": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "b_start": {
+   "param": false,
+   "systems": [
+    "build",
+    "plan_boundary"
+   ],
+   "to": "box:day.b_start"
+  },
+  "b_tick": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "box:day.b_tick"
+  },
+  "bridge": {
+   "param": false,
+   "systems": [
+    "build",
+    "close_final",
+    "decide",
+    "observe",
+    "report"
+   ],
+   "to": "box:layers.bridge"
+  },
+  "budget": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "budget_mode": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "budget_mode_enum": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.budget_mode_enum"
+  },
+  "c_": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide"
+   ],
+   "to": "tick/end:系ごとの別の一時(build,decide)"
+  },
+  "c_agent": {
+   "param": false,
+   "systems": [
+    "wake_assemble",
+    "wake_sources"
+   ],
+   "to": "box:scratch.c_agent"
+  },
+  "c_class": {
+   "param": false,
+   "systems": [
+    "wake_assemble",
+    "wake_sources"
+   ],
+   "to": "box:scratch.c_class"
+  },
+  "c_cond": {
+   "param": false,
+   "systems": [
+    "wake_assemble",
+    "wake_sources"
+   ],
+   "to": "box:scratch.c_cond"
+  },
+  "calendar": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:fx.calendar"
+  },
+  "calls": {
+   "param": false,
+   "systems": [
+    "decide"
+   ],
+   "to": "tick:decide(系の局所)"
+  },
+  "calls_by_cond": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide",
+    "report"
+   ],
+   "to": "box:stats.calls_by_cond"
+  },
+  "cands": {
+   "param": false,
+   "systems": [
+    "arbiter",
+    "observe",
+    "wake_assemble"
+   ],
+   "to": "box:scratch.cands"
+  },
+  "cell": {
+   "param": false,
+   "systems": [
+    "decide"
+   ],
+   "to": "tick:decide(系の局所)"
+  },
+  "cell_now": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "census_out": {
+   "param": true,
+   "systems": [],
+   "to": "box:cfg.census_out"
+  },
+  "checkpoint_detail": {
+   "param": true,
+   "systems": [
+    "checkpoint"
+   ],
+   "to": "box:cfg.checkpoint_detail"
+  },
+  "checkpoint_every": {
+   "param": true,
+   "systems": [
+    "checkpoint",
+    "close_final"
+   ],
+   "to": "box:cfg.checkpoint_every"
+  },
+  "chooser": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.chooser"
+  },
+  "classical_habit_p": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.classical_habit_p"
+  },
+  "classical_policy": {
+   "param": false,
+   "systems": [
+    "body",
+    "build",
+    "decide",
+    "report"
+   ],
+   "to": "box:layers.classical"
+  },
+  "classical_social": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "classical_tau": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.classical_tau"
+  },
+  "cls": {
+   "param": false,
+   "systems": [
+    "decide"
+   ],
+   "to": "tick:decide(系の局所)"
+  },
+  "codes": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "cond": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "decide"
+   ],
+   "to": "tick/end:系ごとの別の一時(apply_responses,decide)"
+  },
+  "consumed": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "conv": {
+   "param": false,
+   "systems": [
+    "activity_intent",
+    "apply_responses",
+    "build",
+    "conversation",
+    "decide",
+    "memory",
+    "observe",
+    "report",
+    "wake_sources"
+   ],
+   "to": "box:layers.conv"
+  },
+  "conv_max_participants": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "conversations": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "d": {
+   "param": false,
+   "systems": [
+    "decide",
+    "report"
+   ],
+   "to": "tick/end:系ごとの別の一時(decide,report)"
+  },
+  "d_": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "d_agent": {
+   "param": false,
+   "systems": [
+    "detect",
+    "wake_assemble",
+    "wake_filter"
+   ],
+   "to": "box:scratch.det_agent"
+  },
+  "d_class": {
+   "param": false,
+   "systems": [
+    "detect",
+    "wake_assemble",
+    "wake_filter"
+   ],
+   "to": "box:scratch.det_class"
+  },
+  "d_cond": {
+   "param": false,
+   "systems": [
+    "detect",
+    "wake_assemble",
+    "wake_filter"
+   ],
+   "to": "box:scratch.det_cond"
+  },
+  "daily_records": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:stats.daily_records"
+  },
+  "day_heads": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:stats.day_heads"
+  },
+  "day_index": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.day_index"
+  },
+  "decision": {
+   "param": false,
+   "systems": [
+    "arbiter",
+    "decide",
+    "observe"
+   ],
+   "to": "box:scratch.decision"
+  },
+  "declarations": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "derive_rule": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.derive_rule"
+  },
+  "det": {
+   "param": false,
+   "systems": [
+    "detect"
+   ],
+   "to": "tick:detect(系の局所)"
+  },
+  "detector": {
+   "param": false,
+   "systems": [
+    "build",
+    "detect"
+   ],
+   "to": "box:layers.detector"
+  },
+  "diag_rows": {
+   "param": false,
+   "systems": [
+    "build",
+    "observe",
+    "report"
+   ],
+   "to": "box:stats.diag_rows"
+  },
+  "done": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "due": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "e_agent": {
+   "param": false,
+   "systems": [
+    "detect",
+    "relations_wake",
+    "wake_assemble",
+    "wake_filter"
+   ],
+   "to": "box:scratch.e_agent"
+  },
+  "e_class": {
+   "param": false,
+   "systems": [
+    "detect",
+    "relations_wake",
+    "wake_assemble",
+    "wake_filter"
+   ],
+   "to": "box:scratch.e_class"
+  },
+  "e_cond": {
+   "param": false,
+   "systems": [
+    "detect",
+    "relations_wake",
+    "wake_assemble",
+    "wake_filter"
+   ],
+   "to": "box:scratch.e_cond"
+  },
+  "eatery": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.eatery"
+  },
+  "effective_budget": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "energy_layer": {
+   "param": false,
+   "systems": [
+    "body",
+    "build",
+    "energy_after",
+    "home_meal",
+    "phase_c",
+    "report"
+   ],
+   "to": "box:layers.energy"
+  },
+  "energy_on": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.energy_on"
+  },
+  "energy_rate": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.energy_rate"
+  },
+  "env_seed": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "box:cfg.env_seed"
+  },
+  "environment_seed": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "ev_class": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "exit_mode": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.exit_mode"
+  },
+  "f_agent": {
+   "param": false,
+   "systems": [
+    "wake_assemble",
+    "wake_filter"
+   ],
+   "to": "box:scratch.f_agent"
+  },
+  "f_class": {
+   "param": false,
+   "systems": [
+    "wake_assemble",
+    "wake_filter"
+   ],
+   "to": "box:scratch.f_class"
+  },
+  "f_cond": {
+   "param": false,
+   "systems": [
+    "wake_assemble",
+    "wake_filter"
+   ],
+   "to": "box:scratch.f_cond"
+  },
+  "f_exempt": {
+   "param": false,
+   "systems": [
+    "wake_assemble",
+    "wake_filter"
+   ],
+   "to": "box:scratch.f_exempt"
+  },
+  "f_since": {
+   "param": false,
+   "systems": [
+    "wake_assemble",
+    "wake_filter"
+   ],
+   "to": "box:scratch.f_since"
+  },
+  "fam_layer": {
+   "param": false,
+   "systems": [
+    "build",
+    "familiarity",
+    "memory",
+    "phase_c",
+    "report"
+   ],
+   "to": "box:layers.fam_layer"
+  },
+  "familiarity": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "familiarity_k": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.familiarity_k"
+  },
+  "familiarity_on": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.familiarity_on"
+  },
+  "field_rows": {
+   "param": false,
+   "systems": [
+    "detect",
+    "perceive_prepare"
+   ],
+   "to": "box:scratch.field_rows"
+  },
+  "finished": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "fleet": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:fx.fleet"
+  },
+  "fleet_bridge": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide",
+    "drain",
+    "report"
+   ],
+   "to": "box:layers.fleet_bridge"
+  },
+  "fleet_debug_dir": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "fleet_deferred": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide",
+    "drain",
+    "wake_filter"
+   ],
+   "to": "box:llm.fleet_deferred"
+  },
+  "fleet_inflight": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide",
+    "drain",
+    "report"
+   ],
+   "to": "box:llm.fleet_inflight"
+  },
+  "fleet_wait_s": {
+   "param": true,
+   "systems": [],
+   "to": "box:cfg.fleet_wait_s"
+  },
+  "fleet_waiting": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide"
+   ],
+   "to": "box:llm.fleet_waiting"
+  },
+  "focus_request": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "build",
+    "phase_c"
+   ],
+   "to": "box:buffers.focus_request"
+  },
+  "frozen_sources_map": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:stats.frozen_sources_map"
+  },
+  "geom": {
+   "param": false,
+   "systems": [
+    "build",
+    "phase_c"
+   ],
+   "to": "box:fx.geom"
+  },
+  "geometry": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.geometry"
+  },
+  "geometry_hops": {
+   "param": false,
+   "systems": [
+    "build",
+    "phase_c",
+    "report"
+   ],
+   "to": "box:stats.geometry_hops"
+  },
+  "geometry_jammed": {
+   "param": false,
+   "systems": [
+    "build",
+    "phase_c",
+    "report"
+   ],
+   "to": "box:stats.geometry_jammed"
+  },
+  "got": {
+   "param": false,
+   "systems": [
+    "plan_boundary"
+   ],
+   "to": "tick:plan_boundary(系の局所)"
+  },
+  "group_norms": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "group_norms_on": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "h": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "hi": {
+   "param": false,
+   "systems": [
+    "plan_boundary"
+   ],
+   "to": "tick:plan_boundary(系の局所)"
+  },
+  "holiday_csv": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "home_meal": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.home_meal"
+  },
+  "hun": {
+   "param": false,
+   "systems": [
+    "decide"
+   ],
+   "to": "tick:decide(系の局所)"
+  },
+  "hunger_model": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.hunger_model"
+  },
+  "hunger_words": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.hunger_words"
+  },
+  "i": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "decide",
+    "report"
+   ],
+   "to": "tick/end:系ごとの別の一時(apply_responses,decide,report)"
+  },
+  "intent_layer": {
+   "param": false,
+   "systems": [
+    "activity_intent",
+    "apply_responses",
+    "build",
+    "checkpoint",
+    "detect",
+    "phase_a",
+    "report"
+   ],
+   "to": "box:layers.intent_layer"
+  },
+  "intent_max_ticks": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.intent_max_ticks"
+  },
+  "intent_mode": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.intent_mode"
+  },
+  "intents": {
+   "param": false,
+   "systems": [
+    "observe",
+    "phase_a",
+    "phase_b"
+   ],
+   "to": "box:scratch.intents"
+  },
+  "intero_cross": {
+   "param": false,
+   "systems": [
+    "build",
+    "detect",
+    "report"
+   ],
+   "to": "box:stats.intero_cross"
+  },
+  "invitee": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "invitees": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "inviter": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "inviters": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "is_deferred": {
+   "param": false,
+   "systems": [
+    "drain"
+   ],
+   "to": "end:drain(系の局所)"
+  },
+  "item": {
+   "param": false,
+   "systems": [
+    "decide",
+    "drain"
+   ],
+   "to": "tick/end:系ごとの別の一時(decide,drain)"
+  },
+  "j": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "k": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "build",
+    "plan_boundary",
+    "report"
+   ],
+   "to": "tick/end:系ごとの別の一時(apply_responses,build,plan_boundary,report)"
+  },
+  "keep": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "kept_agents": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "l4_scale": {
+   "param": true,
+   "systems": [
+    "report"
+   ],
+   "to": "box:cfg.l4_scale"
+  },
+  "landmarks": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "lane": {
+   "param": true,
+   "systems": [
+    "build",
+    "decide"
+   ],
+   "to": "box:cfg.lane"
+  },
+  "last_act": {
+   "param": false,
+   "systems": [
+    "decide"
+   ],
+   "to": "tick:decide(系の局所)"
+  },
+  "layer_counts": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide",
+    "phase_a",
+    "plan_boundary",
+    "presence",
+    "report"
+   ],
+   "to": "box:stats.layer_counts"
+  },
+  "leave_closed": {
+   "param": false,
+   "systems": [
+    "build",
+    "conversation",
+    "report"
+   ],
+   "to": "box:stats.leave_closed"
+  },
+  "leave_counts": {
+   "param": false,
+   "systems": [
+    "build",
+    "phase_c",
+    "report"
+   ],
+   "to": "box:stats.leave_counts"
+  },
+  "leave_effect": {
+   "param": true,
+   "systems": [
+    "build",
+    "conversation",
+    "phase_c",
+    "report"
+   ],
+   "to": "box:cfg.leave_effect"
+  },
+  "led_decls": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "led_measured": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "ledger": {
+   "param": true,
+   "systems": [
+    "build",
+    "close_final",
+    "phase_c",
+    "report"
+   ],
+   "to": "box:layers.ledger"
+  },
+  "ledger_growth": {
+   "param": false,
+   "systems": [
+    "close_final",
+    "report"
+   ],
+   "to": "box:stats.ledger_growth"
+  },
+  "llm": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "llm_intents": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "phase_a"
+   ],
+   "to": "box:scratch.llm_intents"
+  },
+  "lo": {
+   "param": false,
+   "systems": [
+    "plan_boundary"
+   ],
+   "to": "tick:plan_boundary(系の局所)"
+  },
+  "log_decls": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "meal_gate": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "meal_sleep_defer": {
+   "param": true,
+   "systems": [
+    "body",
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.meal_sleep_defer"
+  },
+  "measured": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "mem_layer": {
+   "param": false,
+   "systems": [
+    "build",
+    "memory",
+    "phase_c",
+    "report"
+   ],
+   "to": "box:layers.mem_layer"
+  },
+  "memory": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "memory_n": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.memory_n"
+  },
+  "memory_on": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.memory_on"
+  },
+  "memory_tau": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "mock_move_target_p": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.mock_move_target_p"
+  },
+  "mock_out_of_cell_target_p": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.mock_out_of_cell_target_p"
+  },
+  "mode": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "box:cfg.mode"
+  },
+  "move_dest": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "move_search_radius": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.move_search_radius"
+  },
+  "mutual": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "n_agents": {
+   "param": true,
+   "systems": [
+    "arbiter",
+    "build",
+    "relations_wake",
+    "report"
+   ],
+   "to": "box:cfg.n_agents"
+  },
+  "n_cells": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "n_fleet_reinjected": {
+   "param": false,
+   "systems": [
+    "build",
+    "report",
+    "wake_filter"
+   ],
+   "to": "box:stats.n_fleet_reinjected"
+  },
+  "n_fleet_resent": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide",
+    "report"
+   ],
+   "to": "box:stats.n_fleet_resent"
+  },
+  "n_late": {
+   "param": false,
+   "systems": [
+    "drain"
+   ],
+   "to": "end:drain(系の局所)"
+  },
+  "n_outside_calls": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide",
+    "report"
+   ],
+   "to": "box:stats.n_outside_calls"
+  },
+  "n_parse_errors": {
+   "param": false,
+   "systems": [
+    "decide",
+    "observe"
+   ],
+   "to": "box:scratch.parse_errors"
+  },
+  "n_parse_errors_fleet": {
+   "param": false,
+   "systems": [
+    "decide",
+    "llm_receive"
+   ],
+   "to": "box:scratch.n_parse_errors_fleet"
+  },
+  "n_undefined": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "observe"
+   ],
+   "to": "box:scratch.n_undefined"
+  },
+  "n_undefined_total": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "build"
+   ],
+   "to": "box:stats.n_undefined_total"
+  },
+  "near_order": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.near_order"
+  },
+  "near_tiebreak": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.near_tiebreak"
+  },
+  "new_area": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "norm_meter": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "build",
+    "observe",
+    "phase_c",
+    "report"
+   ],
+   "to": "box:layers.norm_meter"
+  },
+  "occ_counts": {
+   "param": false,
+   "systems": [
+    "build",
+    "observe",
+    "report"
+   ],
+   "to": "box:stats.occ_counts"
+  },
+  "occ_kind": {
+   "param": false,
+   "systems": [
+    "build",
+    "observe",
+    "report"
+   ],
+   "to": "box:stats.occ_kind"
+  },
+  "occ_ticks": {
+   "param": false,
+   "systems": [
+    "build",
+    "observe",
+    "report"
+   ],
+   "to": "box:stats.occ_ticks"
+  },
+  "occ_transit": {
+   "param": false,
+   "systems": [
+    "build",
+    "observe",
+    "report"
+   ],
+   "to": "box:stats.occ_transit"
+  },
+  "occupancy_every": {
+   "param": true,
+   "systems": [
+    "observe"
+   ],
+   "to": "box:cfg.occupancy_every"
+  },
+  "occupancy_path": {
+   "param": true,
+   "systems": [
+    "report"
+   ],
+   "to": "box:cfg.occupancy_path"
+  },
+  "opened": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "order": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "origin": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "outcome": {
+   "param": false,
+   "systems": [
+    "conversation",
+    "familiarity",
+    "memory",
+    "observe",
+    "phase_c"
+   ],
+   "to": "box:scratch.outcome"
+  },
+  "outside_mask": {
+   "param": false,
+   "systems": [
+    "arbiter"
+   ],
+   "to": "tick:arbiter(系の局所)"
+  },
+  "outside_now": {
+   "param": false,
+   "systems": [
+    "arbiter",
+    "decide"
+   ],
+   "to": "box:scratch.outside_now"
+  },
+  "outside_suppression": {
+   "param": true,
+   "systems": [
+    "arbiter",
+    "relations_wake",
+    "report"
+   ],
+   "to": "box:cfg.outside_suppression"
+  },
+  "p": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "conversation"
+   ],
+   "to": "tick/end:系ごとの別の一時(apply_responses,conversation)"
+  },
+  "p_agent": {
+   "param": false,
+   "systems": [
+    "plan_boundary",
+    "wake_assemble",
+    "wake_filter"
+   ],
+   "to": "box:scratch.p_agent"
+  },
+  "p_class": {
+   "param": false,
+   "systems": [
+    "plan_boundary",
+    "wake_assemble",
+    "wake_filter"
+   ],
+   "to": "box:scratch.p_class"
+  },
+  "p_cond": {
+   "param": false,
+   "systems": [
+    "plan_boundary",
+    "wake_assemble",
+    "wake_filter"
+   ],
+   "to": "box:scratch.p_cond"
+  },
+  "p_notice_ablation": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.p_notice_ablation"
+  },
+  "p_notice_d50_scale": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.p_notice_d50_scale"
+  },
+  "p_see_activity": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "p_see_activity_identity": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.p_see_activity_identity"
+  },
+  "p_see_activity_table": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.p_see_activity_table"
+  },
+  "parent_run": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.parent_run"
+  },
+  "parsed_targets": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "payloads": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "peak_backlog": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide",
+    "report"
+   ],
+   "to": "box:stats.peak_backlog"
+  },
+  "peak_intents": {
+   "param": false,
+   "systems": [
+    "build",
+    "phase_a",
+    "report"
+   ],
+   "to": "box:stats.peak_intents"
+  },
+  "peak_pending": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide",
+    "report"
+   ],
+   "to": "box:stats.peak_pending"
+  },
+  "pending": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "build",
+    "decide",
+    "drain",
+    "observe"
+   ],
+   "to": "box:llm.pending"
+  },
+  "per_action_total": {
+   "param": false,
+   "systems": [
+    "build",
+    "phase_c",
+    "report"
+   ],
+   "to": "box:stats.per_action_total"
+  },
+  "perception": {
+   "param": false,
+   "systems": [
+    "build",
+    "perceive_prepare",
+    "report"
+   ],
+   "to": "box:fx.perception"
+  },
+  "phase": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "arbiter",
+    "build",
+    "checkpoint",
+    "decide",
+    "detect",
+    "phase_a",
+    "phase_b",
+    "phase_c",
+    "plan_boundary",
+    "presence",
+    "report"
+   ],
+   "to": "box:stats.phase"
+  },
+  "plan": {
+   "param": false,
+   "systems": [
+    "conversation",
+    "memory",
+    "observe",
+    "phase_b",
+    "phase_c"
+   ],
+   "to": "box:scratch.plan"
+  },
+  "plan_exec_on": {
+   "param": false,
+   "systems": [
+    "arbiter",
+    "build",
+    "relations_wake",
+    "report"
+   ],
+   "to": "box:cfg.plan_exec_on"
+  },
+  "plan_executor": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "plan_sleep": {
+   "param": true,
+   "systems": [
+    "build",
+    "plan_boundary",
+    "report"
+   ],
+   "to": "box:cfg.plan_sleep"
+  },
+  "poi_resolver": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "build",
+    "report"
+   ],
+   "to": "box:layers.poi_resolver"
+  },
+  "poi_target": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.poi_target"
+  },
+  "policy": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.policy"
+  },
+  "pop": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "pop_seed": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "box:cfg.pop_seed"
+  },
+  "population": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "population_seed": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "presence": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide",
+    "observe",
+    "plan_boundary",
+    "presence",
+    "report",
+    "wake_filter"
+   ],
+   "to": "box:layers.presence"
+  },
+  "prev_sessions": {
+   "param": false,
+   "systems": [
+    "build",
+    "observe"
+   ],
+   "to": "box:stats.prev_sessions"
+  },
+  "prev_tape_misses": {
+   "param": false,
+   "systems": [
+    "build",
+    "observe"
+   ],
+   "to": "box:stats.prev_tape_misses"
+  },
+  "processes": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "processes_disabled": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "processes_enabled": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "queue_service": {
+   "param": true,
+   "systems": [
+    "phase_c"
+   ],
+   "to": "box:cfg.queue_service"
+  },
+  "raw": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "raw_bytes": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "refractory_scale": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "refractory_scale_norm": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.refractory_scale_norm"
+  },
+  "refractory_table": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide"
+   ],
+   "to": "box:cfg.refractory_table"
+  },
+  "rel_acq_wake": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "rel_acq_wake_on": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "rel_copresent": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "rel_copresent_on": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "rel_d": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "rel_init_density": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "rel_invite": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "rel_invite_on": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "rel_k": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "rel_layer": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "build",
+    "conversation",
+    "decide",
+    "relations_wake",
+    "report"
+   ],
+   "to": "box:layers.rel_layer"
+  },
+  "rel_tau": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "rel_tenure_hash": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "rel_tenure_weeks": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "relations": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "relations_on": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "rendered": {
+   "param": false,
+   "systems": [
+    "decide"
+   ],
+   "to": "tick:decide(系の局所)"
+  },
+  "renderer": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "renderer_obj": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:fx.renderer_obj"
+  },
+  "replay": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "replay_inbox": {
+   "param": false,
+   "systems": [
+    "build",
+    "decide",
+    "drain"
+   ],
+   "to": "box:llm.replay_inbox"
+  },
+  "report_precondition": {
+   "param": true,
+   "systems": [
+    "phase_c"
+   ],
+   "to": "box:cfg.report_precondition"
+  },
+  "res": {
+   "param": false,
+   "systems": [
+    "decide",
+    "drain"
+   ],
+   "to": "tick/end:系ごとの別の一時(decide,drain)"
+  },
+  "response_delay": {
+   "param": true,
+   "systems": [
+    "build",
+    "llm_receive",
+    "report"
+   ],
+   "to": "box:cfg.response_delay"
+  },
+  "result": {
+   "param": false,
+   "systems": [
+    "END",
+    "build",
+    "checkpoint",
+    "close_final",
+    "decide",
+    "drain",
+    "phase_c",
+    "report"
+   ],
+   "to": "box:stats.result"
+  },
+  "resume_from": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "reverted": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "role_code_table": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build:import(同上)"
+  },
+  "role_words": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.role_words"
+  },
+  "run_id": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.run_id"
+  },
+  "runner": {
+   "param": false,
+   "systems": [
+    "build",
+    "checkpoint",
+    "close_final",
+    "memory",
+    "perceive_prepare",
+    "phase_c",
+    "report",
+    "wake_sources",
+    "world"
+   ],
+   "to": "box:layers.runner"
+  },
+  "s": {
+   "param": false,
+   "systems": [
+    "conversation",
+    "report"
+   ],
+   "to": "tick/end:系ごとの別の一時(conversation,report)"
+  },
+  "s_agent": {
+   "param": false,
+   "systems": [
+    "wake_assemble",
+    "wake_sources"
+   ],
+   "to": "box:scratch.s_agent"
+  },
+  "s_class": {
+   "param": false,
+   "systems": [
+    "wake_assemble",
+    "wake_sources"
+   ],
+   "to": "box:scratch.s_class"
+  },
+  "s_cond": {
+   "param": false,
+   "systems": [
+    "wake_assemble",
+    "wake_sources"
+   ],
+   "to": "box:scratch.s_cond"
+  },
+  "s_join": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "salient_rate_per_10k": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "salt": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "build",
+    "phase_b"
+   ],
+   "to": "box:cfg.salt"
+  },
+  "same_cell": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "schedule": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "build",
+    "checkpoint",
+    "phase_c",
+    "plan_boundary",
+    "report"
+   ],
+   "to": "box:fx.schedule"
+  },
+  "schedule_hash": {
+   "param": false,
+   "systems": [
+    "build",
+    "checkpoint"
+   ],
+   "to": "box:fx.schedule_hash"
+  },
+  "school_holidays": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "seat_area_eatery_m2": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.seat_area_eatery_m2"
+  },
+  "seat_area_retail_m2": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.seat_area_retail_m2"
+  },
+  "seat_area_table": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "seed": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "box:cfg.seed"
+  },
+  "sel": {
+   "param": false,
+   "systems": [
+    "decide"
+   ],
+   "to": "tick:decide(系の局所)"
+  },
+  "signage": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.signage"
+  },
+  "signage_p_see": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.signage_p_see"
+  },
+  "sim_days": {
+   "param": true,
+   "systems": [
+    "build",
+    "close_final",
+    "report"
+   ],
+   "to": "box:cfg.sim_days"
+  },
+  "sleep_counts": {
+   "param": false,
+   "systems": [
+    "build",
+    "observe",
+    "plan_boundary",
+    "report"
+   ],
+   "to": "box:stats.sleep_counts"
+  },
+  "sleep_suppression": {
+   "param": true,
+   "systems": [
+    "arbiter",
+    "relations_wake",
+    "report"
+   ],
+   "to": "box:cfg.sleep_suppression"
+  },
+  "space": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "build",
+    "phase_a",
+    "phase_b"
+   ],
+   "to": "box:fx.space"
+  },
+  "stale": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "start_check": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:fx.start_check"
+  },
+  "start_given": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "start_sim_datetime": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "state_files": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:stats.state_files"
+  },
+  "state_out": {
+   "param": true,
+   "systems": [
+    "build",
+    "close_final",
+    "day_close"
+   ],
+   "to": "box:cfg.state_out"
+  },
+  "stop_at_tick": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "store_decay": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "store_memory": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "store_memory_n": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "store_memory_on": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.store_memory_on"
+  },
+  "store_recall_scope": {
+   "param": true,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.store_recall_scope"
+  },
+  "store_sigma": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "store_sigma_table": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "store_signage": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "store_signage_on": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.store_signage_on"
+  },
+  "store_wom": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "store_wom_on": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:cfg.store_wom_on"
+  },
+  "suffix": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "sys_txt": {
+   "param": false,
+   "systems": [
+    "decide"
+   ],
+   "to": "tick:decide(系の局所)"
+  },
+  "t": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "drain",
+    "report"
+   ],
+   "to": "tick/end:系ごとの別の一時(apply_responses,drain,report)"
+  },
+  "t0": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "arbiter",
+    "checkpoint",
+    "decide",
+    "detect",
+    "phase_a",
+    "phase_b",
+    "phase_c",
+    "plan_boundary",
+    "presence",
+    "relations_wake"
+   ],
+   "to": "tick/end:系ごとの別の一時(apply_responses,arbiter,checkpoint,decide,detect,phase_a,phase_b,phase_c,plan_boundary,presence,relations_wake)"
+  },
+  "t_apply": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "t_begin": {
+   "param": false,
+   "systems": [
+    "build",
+    "loop_head",
+    "report"
+   ],
+   "to": "box:cfg.t_begin"
+  },
+  "t_end": {
+   "param": false,
+   "systems": [
+    "build",
+    "close_final",
+    "drain",
+    "loop_head",
+    "report"
+   ],
+   "to": "box:cfg.t_end"
+  },
+  "t_start": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:stats.t_start"
+  },
+  "talk": {
+   "param": false,
+   "systems": [
+    "conversation"
+   ],
+   "to": "tick:conversation(系の局所)"
+  },
+  "talk_stats": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "build",
+    "report"
+   ],
+   "to": "box:stats.talk_stats"
+  },
+  "tape_path": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "tape_writer": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "td": {
+   "param": false,
+   "systems": [
+    "arbiter",
+    "day_close",
+    "day_head",
+    "decide",
+    "loop_head",
+    "plan_boundary"
+   ],
+   "to": "ctx:T/td(進行役の TickCtx)"
+  },
+  "tgt_hint": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "tgt_person": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "tgt_poi": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "tick": {
+   "param": false,
+   "systems": [
+    "activity_intent",
+    "apply_responses",
+    "arbiter",
+    "body",
+    "checkpoint",
+    "conversation",
+    "day_close",
+    "day_head",
+    "decide",
+    "detect",
+    "energy_after",
+    "familiarity",
+    "home_meal",
+    "llm_receive",
+    "loop_head",
+    "memory",
+    "observe",
+    "perceive_prepare",
+    "phase_a",
+    "phase_b",
+    "phase_c",
+    "plan_boundary",
+    "presence",
+    "relations_wake",
+    "wake_assemble",
+    "wake_sources",
+    "world"
+   ],
+   "to": "ctx:T/td(進行役の TickCtx)"
+  },
+  "tick_seconds": {
+   "param": true,
+   "systems": [
+    "build",
+    "decide",
+    "drain",
+    "energy_after",
+    "perceive_prepare",
+    "phase_a",
+    "plan_boundary",
+    "presence",
+    "report"
+   ],
+   "to": "box:cfg.tick_seconds"
+  },
+  "ticks": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "box:cfg.ticks"
+  },
+  "to_bed": {
+   "param": false,
+   "systems": [
+    "plan_boundary"
+   ],
+   "to": "tick:plan_boundary(系の局所)"
+  },
+  "total_ticks": {
+   "param": false,
+   "systems": [
+    "build",
+    "checkpoint",
+    "close_final",
+    "day_close",
+    "drain"
+   ],
+   "to": "box:cfg.total_ticks"
+  },
+  "tpd": {
+   "param": false,
+   "systems": [
+    "build",
+    "close_final",
+    "day_close",
+    "day_head",
+    "drain",
+    "loop_head"
+   ],
+   "to": "box:cfg.tpd"
+  },
+  "usr_txt": {
+   "param": false,
+   "systems": [
+    "decide"
+   ],
+   "to": "tick:decide(系の局所)"
+  },
+  "v": {
+   "param": false,
+   "systems": [
+    "build",
+    "plan_boundary",
+    "report"
+   ],
+   "to": "tick/end:系ごとの別の一時(build,plan_boundary,report)"
+  },
+  "v3_hints": {
+   "param": false,
+   "systems": [
+    "apply_responses",
+    "build"
+   ],
+   "to": "box:cfg.v3_hints"
+  },
+  "var": {
+   "param": false,
+   "systems": [
+    "report"
+   ],
+   "to": "end:report(系の局所)"
+  },
+  "vocab_version": {
+   "param": true,
+   "systems": [
+    "apply_responses",
+    "build",
+    "phase_c",
+    "report"
+   ],
+   "to": "box:cfg.vocab_version"
+  },
+  "w17_substituted": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:day.w17_substituted"
+  },
+  "walkable": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:fx.walkable"
+  },
+  "walkable_sources": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "wander_intents": {
+   "param": false,
+   "systems": [
+    "phase_a"
+   ],
+   "to": "tick:phase_a(系の局所)"
+  },
+  "weather_perturb": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "weekly": {
+   "param": false,
+   "systems": [
+    "build"
+   ],
+   "to": "box:fx.weekly"
+  },
+  "wmask": {
+   "param": false,
+   "systems": [
+    "apply_responses"
+   ],
+   "to": "tick:apply_responses(系の局所)"
+  },
+  "wom_ex": {
+   "param": false,
+   "systems": [
+    "build",
+    "report"
+   ],
+   "to": "box:layers.wom"
+  },
+  "wom_source": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "world": {
+   "param": true,
+   "systems": [
+    "apply_responses",
+    "build",
+    "checkpoint",
+    "detect",
+    "observe",
+    "perceive_prepare",
+    "phase_b",
+    "phase_c",
+    "plan_boundary",
+    "report"
+   ],
+   "to": "box:soa.world"
+  },
+  "world_dir": {
+   "param": true,
+   "systems": [
+    "build"
+   ],
+   "to": "build"
+  },
+  "x": {
+   "param": false,
+   "systems": [
+    "build",
+    "wake_filter"
+   ],
+   "to": "tick/end:系ごとの別の一時(build,wake_filter)"
+  },
+  "percepts": {
+   "param": false,
+   "systems": [
+    "decide"
+   ],
+   "to": "box:scratch.percepts",
+   "note": "第 1 期 1-2 で足した欄(HEAD の run_day の局所ではない=n_locals と kinds は HEAD のまま)。知覚の事実 Percept を decide が書く"
+  },
+  "near_index": {
+   "param": false,
+   "systems": [
+    "perceive_prepare"
+   ],
+   "to": "box:scratch.near_index",
+   "note": "第 2 期 2-2 段 11a で足した欄(HEAD の run_day の局所ではない=n_locals と kinds は HEAD のまま)。近傍の索引 SpatialIndex を perceive_prepare が書く(腕 --proximity distance の刻みだけ・既定 None)"
+  }
+ }
+}

@@ -1,0 +1,208 @@
+{
+ "a": {
+  "label": "head",
+  "kw": {},
+  "src": "写し"
+ },
+ "b": {
+  "label": "cp2",
+  "kw": {},
+  "src": "写し"
+ },
+ "note": "",
+ "keys": [
+  "final",
+  "calls",
+  "blocks_rows",
+  "blocks_sha",
+  "calls_rows",
+  "calls_column_names",
+  "calls_columns_sha",
+  "action_usage_total",
+  "action_usage_sha",
+  "calls_by_condition",
+  "salient_events",
+  "collapse",
+  "noticed",
+  "dispatches",
+  "arrived",
+  "mean_delay_min",
+  "meals",
+  "behavior_last",
+  "full_last",
+  "end_of_day",
+  "start_sim_datetime",
+  "replay_date",
+  "calendar_weekday",
+  "rng_scheme",
+  "frozen_sources"
+ ],
+ "rows": {
+  "w6_v3_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources"
+   ],
+   "moved": {
+    "full_last": {
+     "a": "7ee0964d77eaa3f1b5c9cd923b9b4e6129046b24cd8057cd8236263f25ca0651",
+     "b": "db2f3d5b5f412d1bf9fc9d435b8a9a9d757be67af8b7e699378de6721fe4663f"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "c38c619005d833127253411b6519d22943e63a60f2b09564398d086dcba043cc",
+      "full_hash": "c8711c89c16933c37153ad23734440f29e3c799963cd5c6b4452e9dc9b54d6d0",
+      "full_external_bytes": 3428720
+     },
+     "b": {
+      "behavior_hash": "c38c619005d833127253411b6519d22943e63a60f2b09564398d086dcba043cc",
+      "full_hash": "872dc37e1fff5f2ef5a721f9ec385bee6f9c23f1ea5154cd0fe8ab34a29e50cd",
+      "full_external_bytes": 3428714
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v3_activity_off": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources"
+   ],
+   "moved": {},
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v1_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources"
+   ],
+   "moved": {},
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "v3_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources"
+   ],
+   "moved": {
+    "full_last": {
+     "a": "0f8bc91d4eb5a62b7d86a2105f4f38f8dece4327ae683adc759237e80f3a6363",
+     "b": "ecbba0652569c7e656429ab2c95cb10a83de64c8104b808123695156b233daf7"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "ccb71e5075710f33df9f5639c3af97bc3f583240eb0ba7662c50939e7f1f0f56",
+      "full_hash": "7ba9925f1c2c48a72b884ca2d19a68c2d88ebb46b848852050032fc88c207d4e",
+      "full_external_bytes": 3849673
+     },
+     "b": {
+      "behavior_hash": "ccb71e5075710f33df9f5639c3af97bc3f583240eb0ba7662c50939e7f1f0f56",
+      "full_hash": "2020408d2d67214bd6046bc6842d10700694daa40a2d0294dc0ea965dc9e4ad9",
+      "full_external_bytes": 3849667
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  }
+ }
+}

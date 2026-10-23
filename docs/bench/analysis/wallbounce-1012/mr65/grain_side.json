@@ -1,0 +1,387 @@
+{
+ "agents": 5000,
+ "seed": 1,
+ "days": 2,
+ "runs": {
+  "base": {
+   "v3_mem_rel": {
+    "config": "v3_mem_rel",
+    "arm_env": {
+     "SHIBUYA_MEMORY_STORE": "events"
+    },
+    "final": "31c9b19409e18b2f",
+    "calls": 145675,
+    "blocks_sha": "dc81ff0164a39b5d",
+    "calls_column_names": [
+     "call_id",
+     "agent_id",
+     "tick",
+     "wake_class",
+     "prompt_hash",
+     "block_ids",
+     "params_hash",
+     "response",
+     "tokens_in",
+     "tokens_out",
+     "deferred",
+     "deferred_reason",
+     "observed_tick",
+     "recalled_rows",
+     "recalled_first_tick",
+     "recalled_kind",
+     "recalled_object",
+     "recalled_source",
+     "acquaintance_ids",
+     "b5_text",
+     "b6_block_id",
+     "recalled_event_ids"
+    ],
+    "calls_columns_sha": {
+     "call_id": "eb4f95d24e196462",
+     "agent_id": "796edce57ba0ef2e",
+     "tick": "a463581ac6a96c82",
+     "wake_class": "24af7618efa268cc",
+     "prompt_hash": "f2ad01ff3f094295",
+     "block_ids": "05fefba7a017048f",
+     "params_hash": "27ee7251970e2a02",
+     "response": "0b07389ebc271fce",
+     "tokens_in": "cfb7be7e4acf595e",
+     "tokens_out": "25c52c1adb574655",
+     "deferred": "57e7814723542657",
+     "deferred_reason": "c0a66c903ca9f11c",
+     "observed_tick": "d19765640c188f74",
+     "recalled_rows": "b32229b1dd988b59",
+     "recalled_first_tick": "1de513f457ec582d",
+     "recalled_kind": "f3e9461ce4975c54",
+     "recalled_object": "9cc676de3d0d4adb",
+     "recalled_source": "951f146dd41575e9",
+     "acquaintance_ids": "2dc0ac34823344a5",
+     "b5_text": "79943f718635d6e6",
+     "b6_block_id": "0afc4b57cc52a1e4",
+     "recalled_event_ids": "15da0a28a27db667"
+    },
+    "action_usage_sha": "3768812a64ac5a88",
+    "salient_events": 10,
+    "noticed": 486,
+    "meals": 7785,
+    "behavior_last": "31c9b19409e18b2fc6949969c0f1e8cc669c5513d3ecb5e5491c2a77afdfa400",
+    "full_last": "18ec26bbe449579340b9254f64c60b51f68f0b1a9651284977253ddbc260b8c4",
+    "memory_store": {
+     "arm": "events",
+     "n_rows": 128,
+     "row_bytes": 32,
+     "legacy_row_bytes": 14,
+     "rows": 97878,
+     "agents_with_rows": 4822,
+     "origins": {
+      "log": 97878,
+      "legacy": 0
+     },
+     "annotations": 699,
+     "shown_rows_live": 81482,
+     "tape_pending": 0,
+     "counts": {
+      "log_events": 145073,
+      "merged": 47195,
+      "new_rows": 97878,
+      "recall_calls": 140836,
+      "remember": 145073,
+      "shown_calls": 145675,
+      "shown_rows": 264270,
+      "tape_rows": 145675
+     },
+     "targets_log_live": 97878,
+     "targets_log_gone": 0
+    },
+    "events_days": [
+     {
+      "rows": 125988,
+      "bytes": 9071136,
+      "live_rows": 125988,
+      "by_cause": {
+       "llm_call": 53014,
+       "process": 72974
+      }
+     },
+     {
+      "rows": 121669,
+      "bytes": 8760168,
+      "live_rows": 247657,
+      "by_cause": {
+       "llm_call": 57067,
+       "process": 64602
+      }
+     }
+    ],
+    "relations": {
+     "edges_live_total": 8859,
+     "agents_with_edges": 1833,
+     "kinds": {
+      "household": 2,
+      "work": 5680,
+      "school": 3072,
+      "acquaintance": 105
+     },
+     "dunbar_layers": {
+      "agents_with_5_or_more": 798,
+      "agents_with_15": 50
+     },
+     "edges_live_per_agent": {
+      "p0": 0.0,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 7.0,
+      "p99": 14.01,
+      "p100": 15.0,
+      "mean": 1.7718
+     }
+    },
+    "recall": {
+     "calls": 145675,
+     "calls:ACQUAINTANCE": 5413,
+     "calls:ACTIVITY_EXPIRY": 42232,
+     "calls:CELL_BLOCK": 11754,
+     "calls:CONVERSATION_TURN": 6230,
+     "calls:INTEROCEPTION": 45271,
+     "calls:PLAN_GENERAL": 12286,
+     "calls:PLAN_TRANSIT": 13974,
+     "calls:PLAN_WORKING": 8515,
+     "calls_empty_table": 4839,
+     "calls_filled": 33189,
+     "calls_zero": 4843,
+     "filled_rows": 38559,
+     "recalled_kind:board": 18926,
+     "recalled_kind:buy": 25390,
+     "recalled_kind:eat": 26961,
+     "recalled_kind:help": 29154,
+     "recalled_kind:move": 21762,
+     "recalled_kind:notice": 444,
+     "recalled_kind:queue": 25196,
+     "recalled_kind:report": 31854,
+     "recalled_kind:signage": 34200,
+     "recalled_kind:sleep": 30011,
+     "recalled_kind:talk": 20373,
+     "recalled_rows": 264271,
+     "recalled_rows:ACQUAINTANCE": 10343,
+     "recalled_rows:ACTIVITY_EXPIRY": 81170,
+     "recalled_rows:CELL_BLOCK": 21291,
+     "recalled_rows:CONVERSATION_TURN": 16832,
+     "recalled_rows:INTEROCEPTION": 83611,
+     "recalled_rows:PLAN_GENERAL": 20647,
+     "recalled_rows:PLAN_TRANSIT": 18105,
+     "recalled_rows:PLAN_WORKING": 12272,
+     "rows_candidate": 579776,
+     "rows_candidate_below_tau": 246652,
+     "rows_used": 1873166,
+     "rows_used_below_tau": 1253760
+    },
+    "topk_m1_vs_m0": {},
+    "wall_s": 193.44,
+    "steps": 2880,
+    "wall_ms_per_step": 67.166,
+    "arm": "base"
+   }
+  },
+  "grain": {
+   "v3_mem_rel": {
+    "config": "v3_mem_rel",
+    "arm_env": {
+     "SHIBUYA_MEMORY_STORE": "events",
+     "SHIBUYA_MEMORY_GRAIN": "day"
+    },
+    "final": "31c9b19409e18b2f",
+    "calls": 145675,
+    "blocks_sha": "dc81ff0164a39b5d",
+    "calls_column_names": [
+     "call_id",
+     "agent_id",
+     "tick",
+     "wake_class",
+     "prompt_hash",
+     "block_ids",
+     "params_hash",
+     "response",
+     "tokens_in",
+     "tokens_out",
+     "deferred",
+     "deferred_reason",
+     "observed_tick",
+     "recalled_rows",
+     "recalled_first_tick",
+     "recalled_kind",
+     "recalled_object",
+     "recalled_source",
+     "acquaintance_ids",
+     "b5_text",
+     "b6_block_id",
+     "recalled_event_ids"
+    ],
+    "calls_columns_sha": {
+     "call_id": "eb4f95d24e196462",
+     "agent_id": "796edce57ba0ef2e",
+     "tick": "a463581ac6a96c82",
+     "wake_class": "24af7618efa268cc",
+     "prompt_hash": "f2ad01ff3f094295",
+     "block_ids": "05fefba7a017048f",
+     "params_hash": "27ee7251970e2a02",
+     "response": "0b07389ebc271fce",
+     "tokens_in": "cfb7be7e4acf595e",
+     "tokens_out": "25c52c1adb574655",
+     "deferred": "57e7814723542657",
+     "deferred_reason": "c0a66c903ca9f11c",
+     "observed_tick": "d19765640c188f74",
+     "recalled_rows": "b32229b1dd988b59",
+     "recalled_first_tick": "1de513f457ec582d",
+     "recalled_kind": "f3e9461ce4975c54",
+     "recalled_object": "9cc676de3d0d4adb",
+     "recalled_source": "951f146dd41575e9",
+     "acquaintance_ids": "2dc0ac34823344a5",
+     "b5_text": "79943f718635d6e6",
+     "b6_block_id": "0afc4b57cc52a1e4",
+     "recalled_event_ids": "9a7fe2a35b7cdc72"
+    },
+    "action_usage_sha": "3768812a64ac5a88",
+    "salient_events": 10,
+    "noticed": 486,
+    "meals": 7785,
+    "behavior_last": "31c9b19409e18b2fc6949969c0f1e8cc669c5513d3ecb5e5491c2a77afdfa400",
+    "full_last": "fa6b862b1f086e79a1307cbb5d6d50b714e5cce4c13749b3649a084f2f7ca3ec",
+    "memory_store": {
+     "arm": "events",
+     "n_rows": 128,
+     "row_bytes": 32,
+     "legacy_row_bytes": 14,
+     "rows": 97878,
+     "agents_with_rows": 4822,
+     "origins": {
+      "log": 97878,
+      "legacy": 0
+     },
+     "annotations": 699,
+     "shown_rows_live": 81482,
+     "tape_pending": 0,
+     "counts": {
+      "log_events": 108546,
+      "merged": 47195,
+      "new_rows": 97878,
+      "pointer_kept": 36527,
+      "recall_calls": 140836,
+      "remember": 145073,
+      "shown_calls": 145675,
+      "shown_rows": 264270,
+      "tape_rows": 145675
+     },
+     "targets_log_live": 97878,
+     "targets_log_gone": 0,
+     "mr65": {
+      "arms": {
+       "model": "m0",
+       "cue": "id",
+       "people": "table",
+       "embed_model": null,
+       "grain": "day",
+       "env_at_summary": {
+        "model": "m0",
+        "cue": "id",
+        "people": "table",
+        "embed_model": "ruri-v3-30m",
+        "grain": "day",
+        "rate_seed": 1
+       }
+      },
+      "rows_per_agent_max": 71,
+      "uncapped": false,
+      "played_along_share": null
+     }
+    },
+    "events_days": [
+     {
+      "rows": 109437,
+      "bytes": 7879464,
+      "live_rows": 109437,
+      "by_cause": {
+       "llm_call": 40806,
+       "process": 68631
+      }
+     },
+     {
+      "rows": 101693,
+      "bytes": 7321896,
+      "live_rows": 211130,
+      "by_cause": {
+       "llm_call": 41681,
+       "process": 60012
+      }
+     }
+    ],
+    "relations": {
+     "edges_live_total": 8859,
+     "agents_with_edges": 1833,
+     "kinds": {
+      "household": 2,
+      "work": 5680,
+      "school": 3072,
+      "acquaintance": 105
+     },
+     "dunbar_layers": {
+      "agents_with_5_or_more": 798,
+      "agents_with_15": 50
+     },
+     "edges_live_per_agent": {
+      "p0": 0.0,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 7.0,
+      "p99": 14.01,
+      "p100": 15.0,
+      "mean": 1.7718
+     }
+    },
+    "recall": {
+     "calls": 145675,
+     "calls:ACQUAINTANCE": 5413,
+     "calls:ACTIVITY_EXPIRY": 42232,
+     "calls:CELL_BLOCK": 11754,
+     "calls:CONVERSATION_TURN": 6230,
+     "calls:INTEROCEPTION": 45271,
+     "calls:PLAN_GENERAL": 12286,
+     "calls:PLAN_TRANSIT": 13974,
+     "calls:PLAN_WORKING": 8515,
+     "calls_empty_table": 4839,
+     "calls_filled": 33189,
+     "calls_zero": 4843,
+     "filled_rows": 38559,
+     "recalled_kind:board": 18926,
+     "recalled_kind:buy": 25390,
+     "recalled_kind:eat": 26961,
+     "recalled_kind:help": 29154,
+     "recalled_kind:move": 21762,
+     "recalled_kind:notice": 444,
+     "recalled_kind:queue": 25196,
+     "recalled_kind:report": 31854,
+     "recalled_kind:signage": 34200,
+     "recalled_kind:sleep": 30011,
+     "recalled_kind:talk": 20373,
+     "recalled_rows": 264271,
+     "recalled_rows:ACQUAINTANCE": 10343,
+     "recalled_rows:ACTIVITY_EXPIRY": 81170,
+     "recalled_rows:CELL_BLOCK": 21291,
+     "recalled_rows:CONVERSATION_TURN": 16832,
+     "recalled_rows:INTEROCEPTION": 83611,
+     "recalled_rows:PLAN_GENERAL": 20647,
+     "recalled_rows:PLAN_TRANSIT": 18105,
+     "recalled_rows:PLAN_WORKING": 12272,
+     "rows_candidate": 579776,
+     "rows_candidate_below_tau": 246652,
+     "rows_used": 1873166,
+     "rows_used_below_tau": 1253760
+    },
+    "topk_m1_vs_m0": {},
+    "wall_s": 190.86,
+    "steps": 2880,
+    "wall_ms_per_step": 66.269,
+    "arm": "grain"
+   }
+  }
+ }
+}

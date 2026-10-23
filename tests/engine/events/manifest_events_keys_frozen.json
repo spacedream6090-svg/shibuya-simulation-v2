@@ -1,0 +1,23 @@
+{
+ "note": "第 1 期 1-3: manifest の日次の記録(daily の各行)の末尾に足した欄 events の鍵(凍結。T0 の manifest_keys_frozen.json と同じ方式。鍵を足したら理由を記録に書いて更新する)。manifest の一番上の鍵は 1-3 で足していない(tests/engine/time/manifest_keys_frozen.json のまま)",
+ "daily_keys_before_1_3": [
+  "day",
+  "end_T",
+  "money",
+  "bodies",
+  "calls_by_model",
+  "clock_kind",
+  "step_seconds",
+  "bridges_count"
+ ],
+ "events_keys": [
+  "on",
+  "rows",
+  "bytes",
+  "by_what",
+  "by_cause",
+  "live_rows",
+  "live_bytes",
+  "evicted"
+ ]
+}

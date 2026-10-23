@@ -39,6 +39,7 @@ from shibuya.engine.tape import (
 from shibuya.llm.fleet import FleetClient, FleetConfig, Outcome
 from shibuya.manifest.schema import Mode
 from shibuya.world.state import World
+from tests import golden_env as GE
 
 from tests.engine.test_tape_wiring import BoomLLM
 from tests.llm.test_fleet import FakeVLLM
@@ -147,6 +148,44 @@ def test_queue_full_run_replays_bit_for_bit(fleet_servers, tmp_path):
 
     assert_same_run(rec, rep)
     assert rep.bridge_counters["tape_deferred"] == float(len(deferred_rows))
+
+
+@pytest.mark.parametrize("case", ["queue_full", "timeout"])
+def test_t2_fleet_record_equals_replay_on_the_default_final(fleet_servers, tmp_path, case, monkeypatch):
+    """10e(E1・検収 R1・T2): 艦隊で録ったランとその再生が、既定の final(behavior-hash)で全 checkpoint 一致する。
+
+    検収役の設定(偽 vLLM 2 台・合成世界 120 体・語彙 v3・checkpoint 4 tick ごと)。キュー満杯は 40 tick、タイムアウトは
+    12 tick(終わりに未回答が残る)。陽性対照: 再生の到着待ち(O96)を behavior-hash に戻すと食い違う(検収で見つけた欠陥)。
+    """
+    from shibuya.engine import state_ledger as SL
+
+    if case == "queue_full":
+        for srv in fleet_servers:
+            srv.total_delay_s = 0.02
+        client = make_client(fleet_servers, per_replica_in_flight=4, queue_capacity=8)
+        ticks, wait, extra = 40, 2.0, {"budget": 30.0}
+    else:
+        for srv in fleet_servers:
+            srv.total_delay_s = 1.0
+        client = make_client(fleet_servers, e2e_timeout_s=0.2, ttft_timeout_s=0.2)
+        ticks, wait, extra = 12, 1.0, {}
+    kw = dict(common(ticks), vocab_version="v3", checkpoint_every=4, **extra)
+    rec = run_day(fleet=client, tape_path=tmp_path / "t", fleet_wait_s=wait, **kw)
+    rep = run_day(mode="replay", replay=tmp_path / "t", llm=BoomLLM(), **kw)
+    assert len(rec.checkpoints) == ticks // 4 and rep.tape_miss_count == 0 and rep.llm_calls == rec.llm_calls
+    assert [c.combined for c in rep.checkpoints] == [c.combined for c in rec.checkpoints]
+    assert rep.final_hash == rec.final_hash
+    # 陽性対照: replay_inbox を behavior-hash の項に戻すと、在途の呼のある checkpoint で食い違う
+    real = SL.behavior_items
+    monkeypatch.setattr(SL, "behavior_items", lambda: real() + (("O96", "run_day.replay_inbox"),))
+    rec2 = run_day(fleet=make_client(fleet_servers, **({"per_replica_in_flight": 4, "queue_capacity": 8}
+                                                        if case == "queue_full" else
+                                                        {"e2e_timeout_s": 0.2, "ttft_timeout_s": 0.2})),
+                   tape_path=tmp_path / "t2", fleet_wait_s=wait, **kw)
+    rep2 = run_day(mode="replay", replay=tmp_path / "t2", llm=BoomLLM(), **kw)
+    # 〔第330・RET〕legacy_combined は消した=同じ式を試験の側で組む(GE.soa_combined)
+    assert [GE.soa_combined(c) for c in rep2.checkpoints] == [GE.soa_combined(c) for c in rec2.checkpoints]
+    assert [c.combined for c in rep2.checkpoints] != [c.combined for c in rec2.checkpoints]
 
 
 def test_timeout_run_replays_bit_for_bit(fleet_servers, tmp_path):

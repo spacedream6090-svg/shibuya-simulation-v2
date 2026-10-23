@@ -1,0 +1,1634 @@
+{
+ "files": 99,
+ "check": [],
+ "unresolved": [
+  {
+   "site": "agents/state.py:772",
+   "allowed_by": "AgentState.__getattr__ の転送。読み手は呼び手の側の属性の読みとして数える"
+  },
+  {
+   "site": "engine/run.py:430",
+   "allowed_by": "内受容の段の跨ぎの診断の数え(_count_intero_crossings)。読むのは段の 3 列(どれも behavior)"
+  },
+  {
+   "site": "engine/state_hashes.py:175",
+   "allowed_by": "ハッシュの直列化の書き手が dataclass の欄を読む(SoA の列ではない・状態を読んで挙動を決めない)"
+  },
+  {
+   "site": "perception/state.py:117",
+   "allowed_by": "PerceptionState.__getattr__ の転送。同上"
+  }
+ ],
+ "columns": {
+  "agents.cell": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 85,
+   "loose": 94,
+   "strict_sites": [
+    "engine/activity.py:443",
+    "engine/activity.py:450",
+    "engine/activity.py:469",
+    "engine/change_detect.py:375",
+    "engine/classical.py:369",
+    "engine/classical.py:422",
+    "engine/classical.py:493",
+    "engine/classical.py:514",
+    "engine/classical.py:537",
+    "engine/classical.py:611",
+    "engine/commit.py:576",
+    "engine/commit.py:685",
+    "engine/commit.py:735",
+    "engine/commit.py:812",
+    "engine/commit.py:819",
+    "engine/commit.py:841",
+    "engine/commit.py:879",
+    "engine/conversation.py:788",
+    "engine/familiarity.py:251",
+    "engine/intent.py:133",
+    "engine/intent.py:195",
+    "engine/memory.py:354",
+    "engine/memory.py:609",
+    "engine/memory.py:657",
+    "engine/memory.py:753",
+    "engine/norm_meter.py:136",
+    "engine/norm_meter.py:234",
+    "engine/norm_meter.py:303",
+    "engine/poi_target.py:276",
+    "engine/poi_target.py:424"
+   ],
+   "allow": []
+  },
+  "agents.node": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 21,
+   "loose": 21,
+   "strict_sites": [
+    "engine/poi_target.py:520",
+    "engine/poi_target.py:652",
+    "engine/resolve.py:1432",
+    "engine/resolve.py:1479",
+    "engine/resolve.py:1499",
+    "engine/resolve.py:1506",
+    "engine/resolve.py:1553",
+    "engine/resolve.py:1554",
+    "engine/resolve.py:1560",
+    "engine/resolve.py:1628",
+    "engine/resolve.py:1664",
+    "engine/resolve.py:1665",
+    "engine/resolve.py:1707",
+    "engine/resolve.py:1710",
+    "engine/resolve.py:1854",
+    "engine/resolve.py:1920",
+    "engine/resolve.py:2006",
+    "engine/resolve.py:2822",
+    "engine/resolve.py:2998",
+    "engine/resolve.py:726",
+    "engine/resolve.py:727"
+   ],
+   "allow": []
+  },
+  "agents.band": {
+   "behavior": "no",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 1,
+   "loose": 1,
+   "strict_sites": [
+    "world/assets.py:368"
+   ],
+   "allow": [
+    {
+     "path": "world/assets.py",
+     "contains": "cells[\"band\"]",
+     "reason": "資産の表(W2 の parquet)の列 band を読む行。SoA の agents.band ではない(材料 §2-4 の誤検出 1)"
+    }
+   ]
+  },
+  "agents.xy": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 14,
+   "loose": 17,
+   "strict_sites": [
+    "engine/norm_meter.py:227",
+    "engine/norm_meter.py:328",
+    "engine/processes/crowd.py:278",
+    "engine/processes/salient.py:215",
+    "engine/processes/salient.py:318",
+    "engine/processes/salient.py:405",
+    "engine/relations.py:858",
+    "engine/relations.py:955",
+    "engine/resolve.py:1737",
+    "engine/resolve.py:1776",
+    "engine/resolve.py:1810",
+    "engine/resolve.py:2486",
+    "engine/run.py:3764",
+    "perception/renderer.py:1252"
+   ],
+   "allow": []
+  },
+  "agents.path_next_node": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 7,
+   "loose": 7,
+   "strict_sites": [
+    "engine/resolve.py:1429",
+    "engine/resolve.py:1432",
+    "engine/resolve.py:1494",
+    "engine/resolve.py:1499",
+    "engine/resolve.py:1506",
+    "engine/resolve.py:1561",
+    "engine/resolve.py:1710"
+   ],
+   "allow": []
+  },
+  "agents.target_node": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 9,
+   "loose": 9,
+   "strict_sites": [
+    "engine/commit.py:554",
+    "engine/commit.py:560",
+    "engine/norm_meter.py:302",
+    "engine/processes/crowd.py:267",
+    "engine/processes/crowd.py:277",
+    "engine/processes/salient.py:404",
+    "engine/resolve.py:1495",
+    "engine/resolve.py:1804",
+    "engine/resolve.py:903"
+   ],
+   "allow": []
+  },
+  "agents.kind": {
+   "behavior": "behavior",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 14,
+   "loose": 41,
+   "strict_sites": [
+    "core/serialize.py:120",
+    "engine/classical.py:352",
+    "engine/norm_meter.py:177",
+    "engine/poi_target.py:347",
+    "engine/poi_target.py:635",
+    "engine/poi_target.py:697",
+    "engine/processes/civic.py:311",
+    "engine/processes/goods_flow.py:209",
+    "engine/processes/opening.py:152",
+    "engine/processes/opening.py:168",
+    "engine/run.py:1656",
+    "engine/run.py:3861",
+    "perception/renderer.py:169",
+    "world/assets.py:1222"
+   ],
+   "allow": []
+  },
+  "agents.age": {
+   "behavior": "behavior",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 9,
+   "loose": 12,
+   "strict_sites": [
+    "engine/classical.py:511",
+    "engine/classical.py:534",
+    "engine/energy.py:930",
+    "engine/resolve.py:1171",
+    "engine/resolve.py:1182",
+    "engine/resolve.py:1201",
+    "engine/resolve.py:1203",
+    "engine/resolve.py:1234",
+    "engine/resolve.py:514"
+   ],
+   "allow": []
+  },
+  "agents.sex": {
+   "behavior": "behavior",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 9,
+   "loose": 12,
+   "strict_sites": [
+    "engine/classical.py:511",
+    "engine/classical.py:534",
+    "engine/energy.py:931",
+    "engine/resolve.py:1171",
+    "engine/resolve.py:1182",
+    "engine/resolve.py:1201",
+    "engine/resolve.py:1203",
+    "engine/resolve.py:1234",
+    "engine/resolve.py:516"
+   ],
+   "allow": []
+  },
+  "agents.hunger": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 15,
+   "loose": 16,
+   "strict_sites": [
+    "engine/change_detect.py:305",
+    "engine/change_detect.py:308",
+    "engine/classical.py:454",
+    "engine/classical.py:478",
+    "engine/classical.py:487",
+    "engine/energy.py:894",
+    "engine/poi_target.py:524",
+    "engine/poi_target.py:653",
+    "engine/resolve.py:1179",
+    "engine/resolve.py:1285",
+    "engine/resolve.py:534",
+    "engine/run.py:3451",
+    "engine/store_choice.py:173",
+    "perception/renderer.py:1796",
+    "perception/renderer.py:2374"
+   ],
+   "allow": []
+  },
+  "agents.fatigue": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 5,
+   "loose": 5,
+   "strict_sites": [
+    "engine/change_detect.py:305",
+    "engine/change_detect.py:308",
+    "engine/resolve.py:534",
+    "perception/renderer.py:1796",
+    "perception/renderer.py:2374"
+   ],
+   "allow": []
+  },
+  "agents.thermal": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 5,
+   "loose": 5,
+   "strict_sites": [
+    "engine/change_detect.py:305",
+    "engine/change_detect.py:308",
+    "engine/resolve.py:534",
+    "perception/renderer.py:1796",
+    "perception/renderer.py:2374"
+   ],
+   "allow": []
+  },
+  "agents.hunger_stage": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 3,
+   "loose": 3,
+   "strict_sites": [
+    "engine/change_detect.py:305",
+    "engine/change_detect.py:308",
+    "engine/resolve.py:534"
+   ],
+   "allow": []
+  },
+  "agents.fatigue_stage": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 3,
+   "loose": 3,
+   "strict_sites": [
+    "engine/change_detect.py:305",
+    "engine/change_detect.py:308",
+    "engine/resolve.py:534"
+   ],
+   "allow": []
+  },
+  "agents.thermal_stage": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 3,
+   "loose": 3,
+   "strict_sites": [
+    "engine/change_detect.py:305",
+    "engine/change_detect.py:308",
+    "engine/resolve.py:534"
+   ],
+   "allow": []
+  },
+  "agents.money": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 10,
+   "loose": 31,
+   "strict_sites": [
+    "cli.py:1299",
+    "engine/poi_target.py:311",
+    "engine/resolve.py:2021",
+    "engine/resolve.py:2170",
+    "engine/resolve.py:2317",
+    "engine/resolve.py:2930",
+    "engine/run.py:2422",
+    "engine/run.py:2902",
+    "engine/run.py:4303",
+    "engine/store_choice.py:172"
+   ],
+   "allow": []
+  },
+  "agents.holdings": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 2,
+   "loose": 4,
+   "strict_sites": [
+    "engine/processes/goods_flow.py:473",
+    "engine/resolve.py:2711"
+   ],
+   "allow": []
+  },
+  "agents.activity": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 46,
+   "loose": 63,
+   "strict_sites": [
+    "engine/activity.py:101",
+    "engine/activity.py:363",
+    "engine/activity.py:441",
+    "engine/classical.py:420",
+    "engine/classical.py:474",
+    "engine/classical.py:530",
+    "engine/classical.py:705",
+    "engine/commit.py:554",
+    "engine/energy.py:895",
+    "engine/intent.py:241",
+    "engine/intent.py:339",
+    "engine/intent.py:372",
+    "engine/intent.py:395",
+    "engine/intent.py:432",
+    "engine/norm_meter.py:234",
+    "engine/norm_meter.py:301",
+    "engine/presence.py:1259",
+    "engine/presence.py:1315",
+    "engine/presence.py:1411",
+    "engine/presence.py:1496",
+    "engine/presence.py:1555",
+    "engine/presence.py:1744",
+    "engine/processes/crowd.py:267",
+    "engine/processes/salient.py:410",
+    "engine/resolve.py:1075",
+    "engine/resolve.py:1127",
+    "engine/resolve.py:1134",
+    "engine/resolve.py:1149",
+    "engine/resolve.py:1495",
+    "engine/resolve.py:1804"
+   ],
+   "allow": []
+  },
+  "agents.plan_cursor": {
+   "behavior": "no",
+   "restore": "discardable",
+   "dead": true,
+   "strict": 0,
+   "loose": 0,
+   "strict_sites": [],
+   "allow": []
+  },
+  "agents.talk_partner": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 2,
+   "loose": 2,
+   "strict_sites": [
+    "engine/memory.py:355",
+    "engine/run.py:2872"
+   ],
+   "allow": []
+  },
+  "agents.invocation_distance": {
+   "behavior": "no",
+   "restore": "discardable",
+   "dead": true,
+   "strict": 0,
+   "loose": 0,
+   "strict_sites": [],
+   "allow": []
+  },
+  "agents.transit_state": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 38,
+   "loose": 39,
+   "strict_sites": [
+    "engine/activity.py:442",
+    "engine/classical.py:474",
+    "engine/classical.py:529",
+    "engine/energy.py:896",
+    "engine/intent.py:242",
+    "engine/intent.py:396",
+    "engine/intent.py:431",
+    "engine/norm_meter.py:137",
+    "engine/norm_meter.py:235",
+    "engine/norm_meter.py:304",
+    "engine/presence.py:1260",
+    "engine/presence.py:1277",
+    "engine/presence.py:1279",
+    "engine/presence.py:1309",
+    "engine/presence.py:1409",
+    "engine/presence.py:1442",
+    "engine/presence.py:1554",
+    "engine/presence.py:1584",
+    "engine/presence.py:1716",
+    "engine/presence.py:1756",
+    "engine/processes/civic.py:313",
+    "engine/processes/civic.py:472",
+    "engine/processes/rail.py:642",
+    "engine/processes/rail.py:664",
+    "engine/processes/rail.py:711",
+    "engine/resolve.py:1150",
+    "engine/resolve.py:1910",
+    "engine/resolve.py:2003",
+    "engine/resolve.py:2132",
+    "engine/resolve.py:2852"
+   ],
+   "allow": []
+  },
+  "agents.transit_ref": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 3,
+   "loose": 3,
+   "strict_sites": [
+    "engine/processes/civic.py:496",
+    "engine/processes/rail.py:665",
+    "engine/resolve.py:2133"
+   ],
+   "allow": []
+  },
+  "agents.board_line": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 6,
+   "loose": 6,
+   "strict_sites": [
+    "engine/presence.py:1445",
+    "engine/presence.py:1459",
+    "engine/resolve.py:1397",
+    "engine/resolve.py:1582",
+    "engine/resolve.py:2000",
+    "engine/resolve.py:2041"
+   ],
+   "allow": []
+  },
+  "agents.board_since": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 4,
+   "loose": 4,
+   "strict_sites": [
+    "engine/resolve.py:1864",
+    "engine/resolve.py:2003",
+    "engine/resolve.py:2020",
+    "engine/resolve.py:2042"
+   ],
+   "allow": []
+  },
+  "agents.sleep_pending": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 6,
+   "loose": 6,
+   "strict_sites": [
+    "engine/commit.py:868",
+    "engine/intent.py:243",
+    "engine/intent.py:433",
+    "engine/resolve.py:1405",
+    "engine/resolve.py:1588",
+    "engine/resolve.py:772"
+   ],
+   "allow": []
+  },
+  "agents.intent_action": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 14,
+   "loose": 14,
+   "strict_sites": [
+    "engine/intent.py:178",
+    "engine/intent.py:221",
+    "engine/intent.py:260",
+    "engine/intent.py:305",
+    "engine/intent.py:315",
+    "engine/intent.py:371",
+    "engine/intent.py:428",
+    "engine/presence.py:1415",
+    "engine/resolve.py:1071",
+    "engine/resolve.py:1094",
+    "engine/resolve.py:1411",
+    "engine/resolve.py:1462",
+    "engine/resolve.py:2416",
+    "perception/renderer.py:1845"
+   ],
+   "allow": []
+  },
+  "agents.intent_target": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 4,
+   "loose": 4,
+   "strict_sites": [
+    "engine/intent.py:194",
+    "engine/intent.py:261",
+    "engine/memory.py:358",
+    "perception/renderer.py:1852"
+   ],
+   "allow": []
+  },
+  "agents.intent_kind": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 4,
+   "loose": 4,
+   "strict_sites": [
+    "engine/intent.py:193",
+    "engine/intent.py:262",
+    "engine/memory.py:357",
+    "perception/renderer.py:1851"
+   ],
+   "allow": []
+  },
+  "agents.intent_since": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 2,
+   "loose": 2,
+   "strict_sites": [
+    "engine/intent.py:263",
+    "engine/intent.py:438"
+   ],
+   "allow": []
+  },
+  "agents.poi_ref": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 15,
+   "loose": 15,
+   "strict_sites": [
+    "engine/classical.py:419",
+    "engine/classical.py:430",
+    "engine/classical.py:704",
+    "engine/memory.py:363",
+    "engine/memory.py:364",
+    "engine/memory.py:679",
+    "engine/memory.py:723",
+    "engine/memory.py:739",
+    "engine/memory.py:743",
+    "engine/norm_meter.py:139",
+    "engine/presence.py:1340",
+    "engine/presence.py:1412",
+    "engine/processes/crowd.py:228",
+    "engine/processes/crowd.py:235",
+    "engine/resolve.py:2539"
+   ],
+   "allow": []
+  },
+  "agents.poi_since": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 1,
+   "loose": 1,
+   "strict_sites": [
+    "engine/processes/crowd.py:231"
+   ],
+   "allow": []
+  },
+  "agents.queue_poi": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 9,
+   "loose": 9,
+   "strict_sites": [
+    "engine/memory.py:366",
+    "engine/memory.py:680",
+    "engine/norm_meter.py:139",
+    "engine/presence.py:1344",
+    "engine/presence.py:1413",
+    "engine/processes/crowd.py:238",
+    "engine/processes/crowd.py:247",
+    "engine/resolve.py:2542",
+    "engine/resolve.py:2900"
+   ],
+   "allow": []
+  },
+  "agents.queue_since": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 2,
+   "loose": 2,
+   "strict_sites": [
+    "engine/processes/crowd.py:242",
+    "engine/resolve.py:2904"
+   ],
+   "allow": []
+  },
+  "agents.refractory_until": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 3,
+   "loose": 3,
+   "strict_sites": [
+    "engine/resolve.py:818",
+    "engine/run.py:3373",
+    "engine/run.py:3425"
+   ],
+   "allow": []
+  },
+  "agents.wake_pending_class": {
+   "behavior": "no",
+   "restore": "discardable",
+   "dead": true,
+   "strict": 0,
+   "loose": 0,
+   "strict_sites": [],
+   "allow": []
+  },
+  "agents.last_action": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 5,
+   "loose": 5,
+   "strict_sites": [
+    "engine/intent.py:394",
+    "engine/memory.py:367",
+    "engine/memory.py:668",
+    "engine/presence.py:1474",
+    "engine/run.py:3452"
+   ],
+   "allow": []
+  },
+  "agents.last_result": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 12,
+   "loose": 13,
+   "strict_sites": [
+    "engine/activity.py:306",
+    "engine/intent.py:338",
+    "engine/intent.py:393",
+    "engine/intent.py:417",
+    "engine/intent.py:422",
+    "engine/intent.py:447",
+    "engine/memory.py:368",
+    "engine/memory.py:669",
+    "engine/norm_meter.py:175",
+    "engine/presence.py:1474",
+    "engine/presence.py:1480",
+    "engine/run.py:3689"
+   ],
+   "allow": []
+  },
+  "agents.last_result_tick": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 8,
+   "loose": 9,
+   "strict_sites": [
+    "engine/activity.py:305",
+    "engine/intent.py:337",
+    "engine/intent.py:392",
+    "engine/intent.py:416",
+    "engine/intent.py:448",
+    "engine/memory.py:666",
+    "engine/norm_meter.py:176",
+    "perception/renderer.py:2504"
+   ],
+   "allow": []
+  },
+  "agents.fail_streak": {
+   "behavior": "no",
+   "restore": "unknown",
+   "dead": false,
+   "strict": 0,
+   "loose": 0,
+   "strict_sites": [],
+   "allow": []
+  },
+  "agents.edge_id": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 5,
+   "loose": 5,
+   "strict_sites": [
+    "engine/resolve.py:1432",
+    "engine/resolve.py:1499",
+    "engine/resolve.py:1506",
+    "engine/resolve.py:1563",
+    "engine/resolve.py:1710"
+   ],
+   "allow": []
+  },
+  "agents.edge_s": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 5,
+   "loose": 5,
+   "strict_sites": [
+    "engine/resolve.py:1432",
+    "engine/resolve.py:1499",
+    "engine/resolve.py:1506",
+    "engine/resolve.py:1562",
+    "engine/resolve.py:1710"
+   ],
+   "allow": []
+  },
+  "agents.focus_target": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 4,
+   "loose": 4,
+   "strict_sites": [
+    "engine/resolve.py:1622",
+    "engine/resolve.py:1626",
+    "engine/resolve.py:1809",
+    "perception/renderer.py:1130"
+   ],
+   "allow": []
+  },
+  "agents.focus_ttl": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 2,
+   "loose": 2,
+   "strict_sites": [
+    "engine/resolve.py:1805",
+    "engine/resolve.py:1812"
+   ],
+   "allow": []
+  },
+  "agents.weight_kg": {
+   "behavior": "behavior",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 2,
+   "loose": 2,
+   "strict_sites": [
+    "engine/energy.py:988",
+    "engine/resolve.py:1182"
+   ],
+   "allow": []
+  },
+  "agents.eer_kcal": {
+   "behavior": "behavior",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 8,
+   "loose": 8,
+   "strict_sites": [
+    "engine/energy.py:909",
+    "engine/resolve.py:1153",
+    "engine/resolve.py:1156",
+    "engine/resolve.py:1176",
+    "engine/resolve.py:1204",
+    "engine/resolve.py:1209",
+    "engine/resolve.py:1237",
+    "engine/resolve.py:1241"
+   ],
+   "allow": []
+  },
+  "agents.since_meal_kcal": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 4,
+   "loose": 4,
+   "strict_sites": [
+    "engine/resolve.py:1156",
+    "engine/resolve.py:1176",
+    "engine/resolve.py:1209",
+    "engine/resolve.py:1241"
+   ],
+   "allow": []
+  },
+  "agents.energy_balance": {
+   "behavior": "diag",
+   "restore": "required",
+   "dead": false,
+   "strict": 1,
+   "loose": 1,
+   "strict_sites": [
+    "engine/energy.py:908"
+   ],
+   "allow": [
+    {
+     "path": "engine/energy.py",
+     "contains": "bal = np.asarray(r.energy_balance",
+     "reason": "EnergyLayer.summary(日次センサスと要約)だけ=診断"
+    }
+   ]
+  },
+  "agents.plan_activity": {
+   "behavior": "no",
+   "restore": "unknown",
+   "dead": false,
+   "strict": 0,
+   "loose": 0,
+   "strict_sites": [],
+   "allow": []
+  },
+  "agents.plan_flags": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 3,
+   "loose": 3,
+   "strict_sites": [
+    "engine/presence.py:1583",
+    "engine/resolve.py:2069",
+    "engine/resolve.py:2418"
+   ],
+   "allow": []
+  },
+  "agents.activity_until": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 6,
+   "loose": 6,
+   "strict_sites": [
+    "engine/activity.py:359",
+    "engine/activity.py:385",
+    "engine/activity.py:399",
+    "engine/activity.py:440",
+    "engine/activity.py:471",
+    "engine/resolve.py:1137"
+   ],
+   "allow": []
+  },
+  "agents.activity_kind": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 6,
+   "loose": 6,
+   "strict_sites": [
+    "engine/activity.py:344",
+    "engine/activity.py:439",
+    "engine/resolve.py:1133",
+    "engine/resolve.py:1151",
+    "perception/renderer.py:1572",
+    "perception/renderer.py:1588"
+   ],
+   "allow": []
+  },
+  "agents.fam_thing": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 9,
+   "loose": 9,
+   "strict_sites": [
+    "engine/familiarity.py:199",
+    "engine/familiarity.py:214",
+    "engine/familiarity.py:217",
+    "engine/familiarity.py:218",
+    "engine/familiarity.py:335",
+    "engine/familiarity.py:366",
+    "engine/familiarity.py:384",
+    "engine/familiarity.py:395",
+    "engine/poi_target.py:303"
+   ],
+   "allow": []
+  },
+  "agents.fam_first": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 2,
+   "loose": 2,
+   "strict_sites": [
+    "engine/familiarity.py:187",
+    "engine/familiarity.py:351"
+   ],
+   "allow": []
+  },
+  "agents.fam_last": {
+   "behavior": "no",
+   "restore": "required",
+   "dead": false,
+   "strict": 0,
+   "loose": 0,
+   "strict_sites": [],
+   "allow": []
+  },
+  "agents.fam_visits": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 5,
+   "loose": 5,
+   "strict_sites": [
+    "engine/familiarity.py:186",
+    "engine/familiarity.py:220",
+    "engine/familiarity.py:349",
+    "engine/familiarity.py:368",
+    "engine/poi_target.py:304"
+   ],
+   "allow": []
+  },
+  "agents.fam_exposures": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 4,
+   "loose": 4,
+   "strict_sites": [
+    "engine/familiarity.py:186",
+    "engine/familiarity.py:221",
+    "engine/familiarity.py:350",
+    "engine/familiarity.py:369"
+   ],
+   "allow": []
+  },
+  "agents.mem_kind": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 11,
+   "loose": 11,
+   "strict_sites": [
+    "engine/memory.py:333",
+    "engine/memory.py:445",
+    "engine/memory.py:516",
+    "engine/memory.py:764",
+    "engine/memory.py:780",
+    "engine/memory.py:791",
+    "engine/memory.py:840",
+    "engine/memory.py:844",
+    "engine/memory.py:845",
+    "engine/memory.py:872",
+    "engine/memory.py:873"
+   ],
+   "allow": []
+  },
+  "agents.mem_tick": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 5,
+   "loose": 5,
+   "strict_sites": [
+    "engine/memory.py:309",
+    "engine/memory.py:351",
+    "engine/memory.py:536",
+    "engine/memory.py:782",
+    "engine/memory.py:885"
+   ],
+   "allow": []
+  },
+  "agents.mem_last": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 3,
+   "loose": 3,
+   "strict_sites": [
+    "engine/memory.py:403",
+    "engine/memory.py:485",
+    "engine/memory.py:886"
+   ],
+   "allow": []
+  },
+  "agents.mem_cell": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 4,
+   "loose": 4,
+   "strict_sites": [
+    "engine/memory.py:376",
+    "engine/memory.py:403",
+    "engine/memory.py:485",
+    "engine/memory.py:884"
+   ],
+   "allow": []
+  },
+  "agents.mem_partner": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 6,
+   "loose": 6,
+   "strict_sites": [
+    "engine/memory.py:372",
+    "engine/memory.py:403",
+    "engine/memory.py:485",
+    "engine/memory.py:517",
+    "engine/memory.py:846",
+    "engine/memory.py:882"
+   ],
+   "allow": []
+  },
+  "agents.mem_object": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 6,
+   "loose": 6,
+   "strict_sites": [
+    "engine/memory.py:369",
+    "engine/memory.py:444",
+    "engine/memory.py:518",
+    "engine/memory.py:765",
+    "engine/memory.py:846",
+    "engine/memory.py:883"
+   ],
+   "allow": []
+  },
+  "agents.mem_result": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 9,
+   "loose": 9,
+   "strict_sites": [
+    "engine/memory.py:378",
+    "engine/memory.py:403",
+    "engine/memory.py:485",
+    "engine/memory.py:519",
+    "engine/memory.py:792",
+    "engine/memory.py:847",
+    "engine/memory.py:875",
+    "engine/memory.py:876",
+    "engine/memory.py:899"
+   ],
+   "allow": []
+  },
+  "agents.mem_importance": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 4,
+   "loose": 4,
+   "strict_sites": [
+    "engine/memory.py:310",
+    "engine/memory.py:352",
+    "engine/memory.py:827",
+    "engine/memory.py:832"
+   ],
+   "allow": []
+  },
+  "agents.mem_n": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 7,
+   "loose": 7,
+   "strict_sites": [
+    "engine/memory.py:309",
+    "engine/memory.py:351",
+    "engine/memory.py:534",
+    "engine/memory.py:782",
+    "engine/memory.py:828",
+    "engine/memory.py:849",
+    "engine/memory.py:887"
+   ],
+   "allow": []
+  },
+  "agents.sm_poi": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 12,
+   "loose": 12,
+   "strict_sites": [
+    "engine/memory.py:346",
+    "engine/memory.py:431",
+    "engine/store_choice.py:144",
+    "engine/store_choice.py:150",
+    "engine/store_memory.py:232",
+    "engine/store_memory.py:290",
+    "engine/store_memory.py:328",
+    "engine/store_memory.py:363",
+    "engine/store_memory.py:367",
+    "engine/store_memory.py:382",
+    "engine/store_memory.py:397",
+    "engine/store_memory.py:413"
+   ],
+   "allow": []
+  },
+  "agents.sm_valence": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 2,
+   "loose": 2,
+   "strict_sites": [
+    "engine/store_memory.py:303",
+    "engine/store_memory.py:344"
+   ],
+   "allow": []
+  },
+  "agents.sm_precision": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 6,
+   "loose": 6,
+   "strict_sites": [
+    "engine/memory.py:432",
+    "engine/store_choice.py:151",
+    "engine/store_memory.py:304",
+    "engine/store_memory.py:356",
+    "engine/store_memory.py:368",
+    "engine/store_memory.py:403"
+   ],
+   "allow": []
+  },
+  "agents.sm_first": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 2,
+   "loose": 2,
+   "strict_sites": [
+    "engine/store_memory.py:306",
+    "engine/store_memory.py:335"
+   ],
+   "allow": []
+  },
+  "agents.sm_last": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 4,
+   "loose": 4,
+   "strict_sites": [
+    "engine/memory.py:486",
+    "engine/store_memory.py:307",
+    "engine/store_memory.py:330",
+    "engine/store_memory.py:346"
+   ],
+   "allow": []
+  },
+  "agents.sm_n": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 4,
+   "loose": 4,
+   "strict_sites": [
+    "engine/store_memory.py:305",
+    "engine/store_memory.py:334",
+    "engine/store_memory.py:370",
+    "engine/store_memory.py:434"
+   ],
+   "allow": []
+  },
+  "agents.sm_source": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 6,
+   "loose": 6,
+   "strict_sites": [
+    "engine/memory.py:487",
+    "engine/store_choice.py:152",
+    "engine/store_memory.py:235",
+    "engine/store_memory.py:308",
+    "engine/store_memory.py:369",
+    "engine/store_memory.py:402"
+   ],
+   "allow": []
+  },
+  "agents.rel_partner": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 10,
+   "loose": 10,
+   "strict_sites": [
+    "engine/relations.py:1051",
+    "engine/relations.py:1073",
+    "engine/relations.py:709",
+    "engine/relations.py:765",
+    "engine/relations.py:781",
+    "engine/relations.py:789",
+    "engine/relations.py:800",
+    "engine/relations.py:850",
+    "engine/relations.py:924",
+    "engine/relations.py:976"
+   ],
+   "allow": []
+  },
+  "agents.rel_kind": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 7,
+   "loose": 7,
+   "strict_sites": [
+    "engine/relations.py:1060",
+    "engine/relations.py:1085",
+    "engine/relations.py:733",
+    "engine/relations.py:735",
+    "engine/relations.py:781",
+    "engine/relations.py:976",
+    "engine/relations.py:980"
+   ],
+   "allow": []
+  },
+  "agents.rel_sign": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 4,
+   "loose": 4,
+   "strict_sites": [
+    "engine/relations.py:1086",
+    "engine/relations.py:736",
+    "engine/relations.py:782",
+    "engine/relations.py:977"
+   ],
+   "allow": []
+  },
+  "agents.rel_first": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 6,
+   "loose": 6,
+   "strict_sites": [
+    "engine/relations.py:1020",
+    "engine/relations.py:1053",
+    "engine/relations.py:737",
+    "engine/relations.py:764",
+    "engine/relations.py:793",
+    "engine/relations.py:977"
+   ],
+   "allow": []
+  },
+  "agents.rel_last": {
+   "behavior": "no",
+   "restore": "required",
+   "dead": false,
+   "strict": 0,
+   "loose": 0,
+   "strict_sites": [],
+   "allow": []
+  },
+  "agents.rel_n": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 7,
+   "loose": 7,
+   "strict_sites": [
+    "engine/relations.py:1020",
+    "engine/relations.py:1052",
+    "engine/relations.py:1103",
+    "engine/relations.py:738",
+    "engine/relations.py:764",
+    "engine/relations.py:793",
+    "engine/relations.py:975"
+   ],
+   "allow": []
+  },
+  "cells.density": {
+   "behavior": "behavior",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 10,
+   "loose": 10,
+   "strict_sites": [
+    "engine/change_detect.py:158",
+    "engine/processes/crowd.py:271",
+    "engine/processes/goods_flow.py:578",
+    "engine/processes/salient.py:344",
+    "engine/resolve.py:1512",
+    "engine/resolve.py:1557",
+    "engine/run.py:3860",
+    "perception/renderer.py:1211",
+    "world/state.py:217",
+    "world/state.py:236"
+   ],
+   "allow": []
+  },
+  "cells.density_stage": {
+   "behavior": "behavior",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 2,
+   "loose": 2,
+   "strict_sites": [
+    "engine/presence.py:1738",
+    "engine/processes/salient.py:484"
+   ],
+   "allow": []
+  },
+  "cells.noise_stage": {
+   "behavior": "behavior",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 3,
+   "loose": 5,
+   "strict_sites": [
+    "perception/renderer.py:1219",
+    "perception/renderer.py:1220",
+    "world/state.py:418"
+   ],
+   "allow": []
+  },
+  "cells.open_count": {
+   "behavior": "no",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 0,
+   "loose": 0,
+   "strict_sites": [],
+   "allow": []
+  },
+  "cells.b4_hash": {
+   "behavior": "no",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 1,
+   "loose": 1,
+   "strict_sites": [
+    "world/state.py:221"
+   ],
+   "allow": [
+    {
+     "path": "world/state.py",
+     "contains": "return self.cells.b4_hash",
+     "reason": "プロパティ World.b4_hash の中の読み。プロパティの呼び手は 0(材料 §2-4 の誤検出 2)"
+    }
+   ]
+  },
+  "pois.cell": {
+   "behavior": "behavior",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 85,
+   "loose": 94,
+   "strict_sites": [
+    "engine/activity.py:443",
+    "engine/activity.py:450",
+    "engine/activity.py:469",
+    "engine/change_detect.py:375",
+    "engine/classical.py:369",
+    "engine/classical.py:422",
+    "engine/classical.py:493",
+    "engine/classical.py:514",
+    "engine/classical.py:537",
+    "engine/classical.py:611",
+    "engine/commit.py:576",
+    "engine/commit.py:685",
+    "engine/commit.py:735",
+    "engine/commit.py:812",
+    "engine/commit.py:819",
+    "engine/commit.py:841",
+    "engine/commit.py:879",
+    "engine/conversation.py:788",
+    "engine/familiarity.py:251",
+    "engine/intent.py:133",
+    "engine/intent.py:195",
+    "engine/memory.py:354",
+    "engine/memory.py:609",
+    "engine/memory.py:657",
+    "engine/memory.py:753",
+    "engine/norm_meter.py:136",
+    "engine/norm_meter.py:234",
+    "engine/norm_meter.py:303",
+    "engine/poi_target.py:276",
+    "engine/poi_target.py:424"
+   ],
+   "allow": []
+  },
+  "pois.node": {
+   "behavior": "behavior",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 21,
+   "loose": 21,
+   "strict_sites": [
+    "engine/poi_target.py:520",
+    "engine/poi_target.py:652",
+    "engine/resolve.py:1432",
+    "engine/resolve.py:1479",
+    "engine/resolve.py:1499",
+    "engine/resolve.py:1506",
+    "engine/resolve.py:1553",
+    "engine/resolve.py:1554",
+    "engine/resolve.py:1560",
+    "engine/resolve.py:1628",
+    "engine/resolve.py:1664",
+    "engine/resolve.py:1665",
+    "engine/resolve.py:1707",
+    "engine/resolve.py:1710",
+    "engine/resolve.py:1854",
+    "engine/resolve.py:1920",
+    "engine/resolve.py:2006",
+    "engine/resolve.py:2822",
+    "engine/resolve.py:2998",
+    "engine/resolve.py:726",
+    "engine/resolve.py:727"
+   ],
+   "allow": []
+  },
+  "pois.stock": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 8,
+   "loose": 8,
+   "strict_sites": [
+    "cli.py:287",
+    "engine/poi_target.py:420",
+    "engine/processes/goods_flow.py:167",
+    "engine/resolve.py:2167",
+    "engine/resolve.py:2215",
+    "engine/resolve.py:2934",
+    "engine/run.py:3581",
+    "engine/run.py:4305"
+   ],
+   "allow": []
+  },
+  "pois.price": {
+   "behavior": "behavior",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 6,
+   "loose": 8,
+   "strict_sites": [
+    "cli.py:287",
+    "engine/poi_target.py:300",
+    "engine/resolve.py:2166",
+    "engine/resolve.py:2316",
+    "engine/resolve.py:2929",
+    "perception/renderer.py:2515"
+   ],
+   "allow": []
+  },
+  "pois.revenue": {
+   "behavior": "diag",
+   "restore": "required",
+   "dead": false,
+   "strict": 1,
+   "loose": 1,
+   "strict_sites": [
+    "engine/run.py:4304"
+   ],
+   "allow": [
+    {
+     "path": "engine/run.py",
+     "contains": "result.revenue_end =",
+     "reason": "保存則の検査とラン要約の値(RunResult.revenue_end)だけ=診断"
+    }
+   ]
+  },
+  "pois.capacity": {
+   "behavior": "behavior",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 1,
+   "loose": 5,
+   "strict_sites": [
+    "engine/run.py:3581"
+   ],
+   "allow": []
+  },
+  "pois.open_from": {
+   "behavior": "behavior",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 3,
+   "loose": 3,
+   "strict_sites": [
+    "perception/renderer.py:1546",
+    "perception/renderer.py:2523",
+    "world/state.py:393"
+   ],
+   "allow": []
+  },
+  "pois.open_to": {
+   "behavior": "behavior",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 2,
+   "loose": 2,
+   "strict_sites": [
+    "perception/renderer.py:1547",
+    "world/state.py:393"
+   ],
+   "allow": []
+  },
+  "pois.open_now": {
+   "behavior": "behavior",
+   "restore": "required",
+   "dead": false,
+   "strict": 4,
+   "loose": 4,
+   "strict_sites": [
+    "engine/processes/opening.py:181",
+    "engine/processes/opening.py:222",
+    "engine/processes/opening.py:238",
+    "world/state.py:389"
+   ],
+   "allow": []
+  },
+  "perception.heading": {
+   "behavior": "no",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 1,
+   "loose": 1,
+   "strict_sites": [
+    "engine/processes/salient.py:213"
+   ],
+   "allow": [
+    {
+     "path": "engine/processes/salient.py",
+     "contains": "heading = np.asarray(self.pstate.heading)",
+     "reason": "顕著行為の p_notice が読む。値は事象の直前に毎回貼り直す派生の値なので状態としては入れない(親の宣言)"
+    }
+   ]
+  },
+  "perception.task_flag": {
+   "behavior": "no",
+   "restore": "derivable",
+   "dead": false,
+   "strict": 1,
+   "loose": 1,
+   "strict_sites": [
+    "engine/processes/salient.py:214"
+   ],
+   "allow": [
+    {
+     "path": "engine/processes/salient.py",
+     "contains": "task = np.asarray(self.pstate.task_flag)",
+     "reason": "同上(heading と同じ扱い・親の宣言)"
+    }
+   ]
+  },
+  "perception.last_b2_hash": {
+   "behavior": "no",
+   "restore": "discardable",
+   "dead": true,
+   "strict": 0,
+   "loose": 0,
+   "strict_sites": [],
+   "allow": []
+  },
+  "perception.last_b4_hash": {
+   "behavior": "no",
+   "restore": "discardable",
+   "dead": true,
+   "strict": 0,
+   "loose": 0,
+   "strict_sites": [],
+   "allow": []
+  },
+  "perception.invocation_distance": {
+   "behavior": "no",
+   "restore": "discardable",
+   "dead": true,
+   "strict": 0,
+   "loose": 0,
+   "strict_sites": [],
+   "allow": []
+  }
+ }
+}

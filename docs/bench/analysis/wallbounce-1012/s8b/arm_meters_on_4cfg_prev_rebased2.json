@@ -1,0 +1,215 @@
+{
+ "arm": "on",
+ "agents": 5000,
+ "seed": 1,
+ "runs": {
+  "w6_v3_default": {
+   "final": "dd01303cacd10bff",
+   "calls": 65597,
+   "action_usage_total": 291935,
+   "speech_port": {
+    "schema": "shibuya.engine.speech/port/1",
+    "arm": "on",
+    "port": "speech",
+    "reach": "session",
+    "via": "対面",
+    "field_line": "2行目末尾に ひと言:<20字内|なし>",
+    "heard_ttl_steps": 5,
+    "heard_max_per_addressee": 3,
+    "mock_utterance": "こんにちは",
+    "turns": 3592,
+    "silent": 0,
+    "no_session": 0,
+    "to_inviter": 2540,
+    "said": 3592,
+    "events": 3592,
+    "zero_mora": 0,
+    "posted": 3592,
+    "delivered": 1159,
+    "all_imperative": 0,
+    "dropped_budget": 0,
+    "expired": 2223,
+    "overflow": 0,
+    "wom_passed": 0,
+    "pending": 210
+   },
+   "by_kind": {
+    "session": {
+     "posted": 1052,
+     "delivered": 853,
+     "pending": 23,
+     "not_delivered_rate": 0.1892
+    },
+    "invite": {
+     "posted": 2540,
+     "delivered": 306,
+     "pending": 187,
+     "not_delivered_rate": 0.8795
+    },
+    "all": {
+     "posted": 3592,
+     "delivered": 1159,
+     "pending": 210,
+     "not_delivered_rate": 0.6773
+    }
+   },
+   "wall_s": 48.7
+  },
+  "w6_v1_default": {
+   "final": "116cff157969c3a9",
+   "calls": 51835,
+   "action_usage_total": 180082,
+   "speech_port": {
+    "schema": "shibuya.engine.speech/port/1",
+    "arm": "on",
+    "port": "speech",
+    "reach": "session",
+    "via": "対面",
+    "field_line": "2行目末尾に ひと言:<20字内|なし>",
+    "heard_ttl_steps": 5,
+    "heard_max_per_addressee": 3,
+    "mock_utterance": "こんにちは",
+    "turns": 2540,
+    "silent": 513,
+    "no_session": 0,
+    "to_inviter": 1480,
+    "said": 2027,
+    "events": 2027,
+    "zero_mora": 0,
+    "posted": 2027,
+    "delivered": 602,
+    "all_imperative": 0,
+    "dropped_budget": 0,
+    "expired": 1256,
+    "overflow": 0,
+    "wom_passed": 0,
+    "pending": 169
+   },
+   "by_kind": {
+    "session": {
+     "posted": 547,
+     "delivered": 427,
+     "pending": 19,
+     "not_delivered_rate": 0.2194
+    },
+    "invite": {
+     "posted": 1480,
+     "delivered": 175,
+     "pending": 150,
+     "not_delivered_rate": 0.8818
+    },
+    "all": {
+     "posted": 2027,
+     "delivered": 602,
+     "pending": 169,
+     "not_delivered_rate": 0.703
+    }
+   },
+   "wall_s": 33.1
+  },
+  "v3_mem_rel": {
+   "final": "d7da8a804d7c0570",
+   "calls": 69111,
+   "action_usage_total": 298472,
+   "speech_port": {
+    "schema": "shibuya.engine.speech/port/1",
+    "arm": "on",
+    "port": "speech",
+    "reach": "session",
+    "via": "対面",
+    "field_line": "2行目末尾に ひと言:<20字内|なし>",
+    "heard_ttl_steps": 5,
+    "heard_max_per_addressee": 3,
+    "mock_utterance": "こんにちは",
+    "turns": 3897,
+    "silent": 0,
+    "no_session": 0,
+    "to_inviter": 2802,
+    "said": 3897,
+    "events": 3897,
+    "zero_mora": 0,
+    "posted": 3897,
+    "delivered": 1250,
+    "all_imperative": 0,
+    "dropped_budget": 0,
+    "expired": 2463,
+    "overflow": 0,
+    "wom_passed": 0,
+    "pending": 184
+   },
+   "by_kind": {
+    "session": {
+     "posted": 1095,
+     "delivered": 896,
+     "pending": 21,
+     "not_delivered_rate": 0.1817
+    },
+    "invite": {
+     "posted": 2802,
+     "delivered": 354,
+     "pending": 163,
+     "not_delivered_rate": 0.8737
+    },
+    "all": {
+     "posted": 3897,
+     "delivered": 1250,
+     "pending": 184,
+     "not_delivered_rate": 0.6792
+    }
+   },
+   "wall_s": 63.1
+  },
+  "v3_classical_mem_rel": {
+   "final": "98e6703936daa5b9",
+   "calls": 106565,
+   "action_usage_total": 461935,
+   "speech_port": {
+    "schema": "shibuya.engine.speech/port/1",
+    "arm": "on",
+    "port": "speech",
+    "reach": "session",
+    "via": "対面",
+    "field_line": "2行目末尾に ひと言:<20字内|なし>",
+    "heard_ttl_steps": 5,
+    "heard_max_per_addressee": 3,
+    "mock_utterance": "こんにちは",
+    "turns": 1287,
+    "silent": 0,
+    "no_session": 0,
+    "to_inviter": 201,
+    "said": 1287,
+    "events": 1287,
+    "zero_mora": 0,
+    "posted": 1287,
+    "delivered": 1123,
+    "all_imperative": 0,
+    "dropped_budget": 0,
+    "expired": 153,
+    "overflow": 0,
+    "wom_passed": 0,
+    "pending": 11
+   },
+   "by_kind": {
+    "session": {
+     "posted": 1086,
+     "delivered": 930,
+     "pending": 11,
+     "not_delivered_rate": 0.1436
+    },
+    "invite": {
+     "posted": 201,
+     "delivered": 193,
+     "pending": 0,
+     "not_delivered_rate": 0.0398
+    },
+    "all": {
+     "posted": 1287,
+     "delivered": 1123,
+     "pending": 11,
+     "not_delivered_rate": 0.1274
+    }
+   },
+   "wall_s": 92.7
+  }
+ }
+}

@@ -15,7 +15,8 @@
     サイドカー JSON に一致を記録する(``yardstick_check``)。
 
 **KDDI holdout は開かない**(封印 ``data/world/v2/w19_freeze.json``)。現実側の数値は全て
-``docs/bench/anchors/presence_anchors_v0.json``(source/tag/verified_by つき)から読む。
+``docs/bench/anchors/presence_calib_anchors_v0.json``・``presence_validation_anchors_v0.json``〔第 2 期 2-4 V6=前は 1 本〕
+(source/tag/verified_by つき)から読む。
 
 例::
 
@@ -44,7 +45,8 @@ import _style as st  # noqa: E402
 DEFAULT_RUNS_DIR = "data/server_retrieval/2026-09-16/v2_data/runs"
 DEFAULT_WORLD = "data/world/v2"
 DEFAULT_AXES = "tools/c7/area_axes_v0.json"
-DEFAULT_ANCHORS = "docs/bench/anchors/presence_anchors_v0.json"
+#: 〔第 2 期 2-4 V6〕錨は較正側と検証側の 2 本(前は 1 本 presence_anchors_v0.json)。図は両方の錨を使う=既定は 2 本を合わせる。
+DEFAULT_ANCHORS = "docs/bench/anchors/presence_calib_anchors_v0.json+docs/bench/anchors/presence_validation_anchors_v0.json"
 DEFAULT_YARDSTICK = ("docs/bench/c7/yardstick/after_c7-day-4_vs_c7-day-3/"
                      "presence_yardstick.json")
 DEFAULT_OUT = "docs/bench/figures"
@@ -91,8 +93,9 @@ def load_presence(runs_dir: str | Path = DEFAULT_RUNS_DIR,
             "path": st.rel(path),
         }
 
-    doc = json.loads(Path(anchors_path).read_text(encoding="utf-8"))
-    a = doc["anchors"]
+    a: dict = {}
+    for part in str(anchors_path).split("+"):  # 〔2-4 V6〕「+」でつないだ道筋は錨を合わせる
+        a.update(json.loads(Path(part).read_text(encoding="utf-8"))["anchors"])
     anchors = {
         "pt_area_daytime_peak": {
             "value": float(a["pt_area_daytime_peak"]["value"]),

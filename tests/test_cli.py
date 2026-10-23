@@ -120,7 +120,7 @@ def test_wallet_ledger_substitutes_the_amounts_but_keeps_the_transfer_path():
     assert int(cash.sum()) == 0
 
 
-@pytest.mark.skipif(not _HAS_POP, reason="data/world/v2/w16_population.parquet が無い")
+@pytest.mark.requires_data("world_v2:w16_population.parquet")
 def test_wallets_come_from_the_anchor_table_and_are_deterministic():
     """W16 母集団の種別 → ``anchors.initial_wallets``(対数正規)・同 seed 同結果。"""
     world = World.load(WORLD_DIR)
@@ -135,7 +135,7 @@ def test_wallets_come_from_the_anchor_table_and_are_deterministic():
     assert int(np.median(a)) > 10_000
 
 
-@pytest.mark.skipif(not _HAS_POP, reason="data/world/v2/w16_population.parquet が無い")
+@pytest.mark.requires_data("world_v2:w16_population.parquet")
 def test_wallets_are_not_used_for_a_synthetic_world():
     """実データの母集団を合成小世界へ載せない(engine の判断と同じ)。"""
     small = World.synthetic(n_cells=16, seed=3)

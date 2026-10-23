@@ -1,0 +1,36 @@
+{
+ "key": "W7#7",
+ "control": "PH 規則を無視(宣言)vs 当てる(再生日 2026-07-28 は祝日表に無い)",
+ "metric": "再生日の営業中 POI×時の分布",
+ "variants": [
+  {
+   "name": "PH を当てる(再生日=祝日でない→対照=宣言)",
+   "jsd_bits": 0.0,
+   "null_p95": 0.00034936061079824597,
+   "detected": false,
+   "tvd": 0.0,
+   "n_declared": 392616.0,
+   "n_control": 392616.0,
+   "n_bins": 336
+  },
+  {
+   "name": "参考: 再生日が祝日だったら(PH 規則のある POI 40 件をその曜日へ)",
+   "jsd_bits": 2.976903828742571e-06,
+   "null_p95": 0.00041124794590418956,
+   "detected": false,
+   "tvd": 0.0008543122711928857,
+   "n_declared": 56088.0,
+   "n_control": 56088.0,
+   "n_bins": 48,
+   "primary": false
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.2509367000311613,
+ "replay_date": "2026-07-28",
+ "replay_is_holiday": false,
+ "seconds_wall_row": 0.29,
+ "measured_at": "2026-09-30"
+}

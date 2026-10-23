@@ -1,0 +1,291 @@
+"""engine.events.vocab — 出来事の記録の語彙表(第 1 期 1-3・CP12・5W1H の ``what``)。**閉じた表**。
+
+決定(口の約束 1-3 の〔空欄 1〕=親案どおり・回答 10-13b §3): ``what`` の最初の中身は 4 つの族。
+
+| 族 | 中身 | 正(写しの元) |
+|---|---|---|
+| ``行為`` | 行為 12 語 | ``llm.contract.ACTION_VOCAB_V3``(語彙 v3 の横断語=import して使う) |
+| ``過程`` | 世界過程の名 18 個+区切りの名 2 個 | ``engine.processes.runner.PROCESS_ORDER``(写し)+``BOUNDARY_PROCESSES`` |
+| ``金`` | お金の科目 15 個 | ``economy.accounts.ACCOUNT_NAMES``(写し) |
+| ``物`` | 物の出入り 8 個 | ``economy.goods.GOODS_CODE_NAMES``(写し) |
+
+- 語は ``族:語``(``"行為:移動"``・``"過程:rail"``・``"金:賃金"``・``"物:販売"``)。族を付けるのは、``金`` と ``物`` に
+  同じ語「域外仕入」があるため(族が無いと 1 語で 2 つの意味になる)。
+- ``金`` と ``物`` の写し: engine は economy を import できない(層の契約 ``economy > engine``)。値の二重定義の食い違いは
+  試験 ``tests/engine/events/test_e_vocab_is_closed.py`` が economy の表と突き合わせて落とす。``過程`` の写しも同じ
+  試験が ``PROCESS_ORDER`` と突き合わせる(runner を import すると世界過程の全モジュールを読む=語彙表を軽く保つ)。
+- 区切りの名(``day_close``・``checkpoint``)は E(診断)の行の過程の名(口の約束 1-3 の〔空欄 2〕=日の締めと
+  checkpoint)。``Process("day_close")`` の名にも使う。**仮採用**(区切りの名を「過程」の族に入れた=発注の
+  ``Process("day_close")`` の形に合わせた・未リサーチ(expedient))。
+- 表の外の語は ``Event`` を作るときに ``ValueError``(``code_of``)。語を足すのは版上げ(試験の数も変わる)。
+- 〔第 1 期 1-5〕語を 1 つ足した: ``行為:許可のない行動``(``ACT_EXTRA_WORDS``・権利に反する行動を止めずに記録する=
+  決定 10-12 §1-4・CP3)。行為 12 語の写し(``ACT_WORDS``=語彙 v3)には入れない(判断の語ではなく、行為を権利台帳で
+  見た分け)。**表の末尾に足した**=1-3 の 55 語のコードは動かない。原因の名に検査の名 ``rights``(``CHECK_PROCESSES``)
+  を足した(``Process("rights")`` の名。``過程:rights`` の語は足していない=検査は自分の行を書かない)。版
+  ``events-vocab/1-5``。
+- 〔第 1 期 1-7〕族を 1 つ足した: ``道具``(道具を使った出来事=決定 10-12 §4-4 CT0 の共通の決まり 5「使用は全部、出来事の
+  記録へ」)。語は道具の台帳の名の写し(``TOOL_WORDS``=``engine.tools.registry`` の名・一致は試験が見る)で、C0 は
+  ``道具:看板``(看板を読んだ出来事=腕 ``SHIBUYA_TOOL_EVENTS``・既定 off・``engine.tools.record``)だけ。**表の末尾に足した**
+  =1-5 までの 56 語のコードは動かない。原因の名に知覚の名 ``perception``(``PERCEPTION_PROCESSES``=System 1 の知覚・
+  ``過程:`` の語ではない)を足した。版 ``events-vocab/1-7``。
+- 〔第 1 期 1-8b〕語を 1 つ足した: ``行為:発話``(``SPEECH_WORDS``=発話の口 ``engine.speech`` が会話の番の「ひと言」を 1 回だけ
+  書く=``whom``=届け先・``via``=道具・``how_much``=本文のモーラ数)。判断の語彙(v3 の 12 語)の外=``ACT_WORDS`` には入れない。
+  **表の末尾(1-7 の ``道具:看板`` の後ろ)に別の組で足した**=1-7 までの 57 語のコード(``道具:看板``=56)は動かない。
+  版 ``events-vocab/1-8b``。
+- 〔第 2 期 2-1〕金の族に科目の名でない語を 2 つ足した: ``金:引き出し``(ATM・銀行で下ろす=銀行 → 世帯の現金)・``金:カード``
+  (口座の決済=カード・電子マネー・IC の引き落とし)。どちらも科目は預金純増(``MONEY_EXTRA_WORDS``=``economy.ops.MONEY_EXTRA_WHAT``
+  の写し・試験が突き合わせる)。``金:賃金``・``金:税`` は 1-3 の科目の語にもうある。**表の末尾(1-8b の ``行為:発話`` の後ろ)に
+  別の組で足した**=1-8b までの 58 語のコード(``行為:発話``=57)は動かない(``金:引き出し``=58・``金:カード``=59)。原因の名に
+  経済の段階 2 の過程の名 ``payroll``・``atm``・``register``(``ECONOMY_PROCESSES``)を末尾(1-7 の ``perception`` の後ろ)に足した
+  (``Process(name)`` の名だけ・``過程`` の族の語ではない=1-5 の ``rights`` と同じ)。版 ``events-vocab/2-1``。
+- 〔第 3 期 3-3〕族を 1 つ足した: ``実験``(反実仮想の申込書の改変=決定 10-12 §4-5 CP5・CP6・CP12)。語は ``改変``(申込書の決定が
+  世界に入った=原因は実験の条件・口は ``engine.experiment.gate.admit`` だけ)と ``届いた情報``(外での決定が境界を越えて届いた=
+  告知の宛先ごとに 1 行・``via``=道具・``received_ns``=届いた時刻)。**表の末尾(2-1 の ``金:カード`` の後ろ)に足した**=2-1
+  までの 60 語のコード(``金:カード``=59)は動かない(``実験:改変``=60・``実験:届いた情報``=61)。版 ``events-vocab/3-3``。
+  **仮採用**(族の名と語は実行役の構成=未リサーチ(expedient)・10-13b §0-3)。
+- 〔第 2 期 2-3〕体の出来事(記憶が書く出来事=腕 ``--memory-store events`` のランだけ ``engine.events.body`` が書く)の語を 3 つ
+  足した: ``行為:会話の始まり``・``行為:会話の終わり``(``CONVERSATION_WORDS``=会話のセッションが開いた/閉じた)と、族を 1 つ
+  足して ``知覚:気づき``(``FAMILY_PERCEPT``・``PERCEPT_WORDS``=顕著行為に気づいた)。行為の成否は今の行為 12 語(結果の番号は
+  ``how_much``)、会話の番は ``行為:会話``、強い看板の初見は 1-7 の ``道具:看板``。**表の末尾(3-3 の ``実験:届いた情報`` の後ろ)に
+  別の組で足した**=3-3 までの 62 語のコードは動かない(``行為:会話の始まり``=62・``行為:会話の終わり``=63・``知覚:気づき``=64)。
+  原因の名に体の過程の名 ``resolve``(行為の解決=エンジンの続き)・``conversation``(会話の始まりと終わり=エンジン)
+  (``BODY_PROCESSES``)を末尾(2-1 の ``register`` の後ろ)に足した(``Process(name)`` の名だけ)。版 ``events-vocab/2-3``
+  (3-3 の後=版の文字列は段の名)。
+- 〔第 6 期 6-4 C1〕族を 1 つ足した: ``連絡``(連絡の道具 C1=決定 10-12 §4-4 CT0 の共通の決まり 5「使用は全部、出来事の記録へ」・
+  CT9)。語は ``CONTACT_WORDS`` の 15 語(送った・届いた・読んだ・後で・無視・預かった・スマホを見た・顔を上げた・電話をかけた・着信・
+  出た・出ない・不通・切った・通話の終わり=``engine.contact.layer`` が書く・腕 ``--contact c1`` のランだけ)。通話の発話は
+  1-8b の ``行為:発話``(via=通話)。原因の名に網の名 ``contact``(``CONTACT_PROCESSES``=届く・網が預かる・着信・不通=エンジン)を
+  末尾(2-3 の ``conversation`` の後ろ)に足した(``Process(name)`` の名だけ)。**表の末尾(2-3 の ``知覚:気づき`` の後ろ)に
+  足した**=2-3 までの 65 語のコードは動かない(``連絡:送った``=65 〜 ``連絡:通話の終わり``=79)。版 ``events-vocab/6-4``。
+  **仮採用**(族の名と語は実装役の構成=未リサーチ(expedient)・10-13b §0-3)。〔検収 M3〕記録の量を畳むため「既読」の語は
+  置かない(送った側の既読は ``連絡:読んだ`` の whom から作れる)・その位置に「預かった」(電源の切れた相手の分を網が預かった=
+  グループの「届いた」を「送った」の 1 行に畳んだときの例外の行)。
+- 〔第 6 期 6-2 カレンダー 2〕族を 1 つ足した: ``約束``(会話とメッセージから生まれる予定=決定 10-12 §4-1 CA3「変更は最新値と、
+  出来事の記録への 1 行」・CA4・CA7)。語は ``PROMISE_WORDS`` の 13 語(誘った・受けた・仮で受けた・断った・書いた・時刻を変えた・
+  場所を変えた・確かさを変えた・取り消した・拒んだ・出発した・行かない・知らせ=``engine.calendar2.layer`` が書く・腕
+  ``--calendar-2 arm`` のランだけ)。原因の名に予定の道具の名 ``calendar2``(``CALENDAR2_PROCESSES``=壊れた予定を拒む・アプリの
+  知らせとアラームが鳴る=道具の性質)を末尾(6-4 の ``contact`` の後ろ)に足した。**表の末尾(6-4 の ``連絡:通話の終わり`` の
+  後ろ)に足した**=6-4 までの 80 語のコードは動かない(``約束:誘った``=80 〜 ``約束:知らせ``=92)。版 ``events-vocab/6-2-ca2``。
+  **仮採用**(族の名と語は実装役の構成=未リサーチ(expedient)・10-13b §0-3)。
+- 〔第 6 期 6-2 カレンダー 3〕族を 1 つ足した: ``勤務``(雇い主がシフトを組む・働く人が書く・休みの申し出と返事・遅れの連絡=決定
+  10-12 §4-1 CA1・§4-4 CT1 の C3)。語は ``WORK_WORDS`` の 8 語(枠を決めた・書いた・休みを申し出た・受けた・断った・休みにした・
+  遅れると伝えた・知らせ=``engine.calendar3.layer`` が書く・腕 ``--calendar-3 arm`` のランだけ)。送る・読む・電話は C1 の語
+  (族 ``連絡``)。原因の名に勤務の予定の道具の名 ``calendar3``(``CALENDAR3_PROCESSES``=アプリの知らせが鳴る=道具の性質)を末尾
+  (6-2 の ``calendar2`` の後ろ)に足した。**表の末尾(``約束:知らせ`` の後ろ)に足した**=カレンダー 2 までの 93 語のコードは
+  動かない(``勤務:枠を決めた``=93 〜 ``勤務:知らせ``=100)。版 ``events-vocab/6-2-ca3``。**仮採用**(族の名と語は実装役の構成=
+  未リサーチ(expedient)・10-13b §0-3)。
+- 〔第 6 期 6-6 ② 第 1 部〕族を 1 つ足した: ``仕事``(店の仕事を働く人の体へ=決定 10-12 §1-5 の ②)。語は ``DUTY_WORDS`` の 4 語
+  (開けた・閉めた・補充した・捨てた=``engine.duties.layer`` が書く・腕 ``--duties arm`` のランだけ・どれも本人の語=原因は判断の
+  呼び)。道具の名は足さない(担当の居ない店のつなぎは今の世界過程の ActualLog の行=族 ``過程``)。**表の末尾(``勤務:知らせ`` の
+  後ろ)に足した**=カレンダー 3 までの 101 語のコードは動かない(``仕事:開けた``=101 〜 ``仕事:捨てた``=104)。版
+  ``events-vocab/6-6-w1``(並行の段と取り込みで親が合わせる)。**仮採用**(族の名と語は実装役の構成=未リサーチ(expedient)・
+  10-13b §0-3)。
+- 〔第 6 期 6-4 連絡の道具の残り(C2)〕族 ``連絡`` に語を 13 足した(``CONTACT_EXTRA_WORDS``=充電・連絡先の交換・グループ・
+  ビデオ通話・店の番号・電池の知らせ=``engine.contact.layer`` が書く・腕 c1 のランだけ)。**表の末尾(``勤務:知らせ`` の後ろ)に
+  別の組で足した**=カレンダー 3 までの 101 語のコードは動かない(``連絡:充電した``=105 〜 ``連絡:電池の知らせ``=117(仕事の 4 語 101〜104 の後ろ=取り込みで親が付け直した))。
+  ``via`` の語の末尾に ``ビデオ通話`` を足した(前の語のコードは動かない)。版 ``events-vocab/6-4-c2``。**仮採用**(語は実装役の
+  構成=未リサーチ(expedient)・10-13b §0-3)。
+
+``via``(CT9 の道具の欄)の語: 対面・通話・メッセージ・グループ・SNS・無し(決定 10-12 §4-4 CT9 (b) の 5 つ+無し)・〔C2〕ビデオ通話。
+``where`` の種類: セル・ノード・POI(口の約束 1-3)。
+
+逐次ループ宣言: なし(表を作るのは import のときに 1 回)。
+"""
+
+from __future__ import annotations
+
+from types import MappingProxyType
+from typing import Mapping, Final
+
+from shibuya.llm.contract import ACTION_VOCAB_V3
+
+__all__ = [
+    "FAMILY_ACT", "FAMILY_PROCESS", "FAMILY_MONEY", "FAMILY_GOODS", "FAMILY_TOOL", "FAMILY_EXPERIMENT", "FAMILIES",
+    "ACT_WORDS", "WORLD_PROCESSES", "BOUNDARY_PROCESSES", "PROCESS_NAMES", "MONEY_WORDS", "GOODS_WORDS",
+    "ACT_EXTRA_WORDS", "CHECK_PROCESSES", "PERCEPTION_PROCESSES", "CAUSE_PROCESS_NAMES", "TOOL_WORDS", "SPEECH_WORDS",
+    "MONEY_EXTRA_WORDS", "ECONOMY_PROCESSES", "EXPERIMENT_WORDS", "FAMILY_PERCEPT", "CONVERSATION_WORDS",
+    "PERCEPT_WORDS", "BODY_PROCESSES", "FAMILY_CONTACT", "CONTACT_WORDS", "CONTACT_PROCESSES", "CONTACT_EXTRA_WORDS",
+    "FAMILY_PROMISE", "PROMISE_WORDS", "CALENDAR2_PROCESSES",
+    "FAMILY_WORK", "WORK_WORDS", "CALENDAR3_PROCESSES", "FAMILY_DUTY", "DUTY_WORDS",
+    "VOCAB", "VOCAB_CODES", "VOCAB_VERSION", "word", "code_of", "family_of",
+    "VIA_WORDS", "VIA_NONE", "VIA_CODES", "WHERE_KINDS",
+]
+
+#: 表の版(語を足したら上げる)。
+VOCAB_VERSION: Final[str] = "events-vocab/6-4-c2"
+
+FAMILY_ACT: Final[str] = "行為"
+FAMILY_PROCESS: Final[str] = "過程"
+FAMILY_MONEY: Final[str] = "金"
+FAMILY_GOODS: Final[str] = "物"
+#: 〔1-7〕道具を使った出来事の族(族の並びの末尾)。
+FAMILY_TOOL: Final[str] = "道具"
+#: 〔3-3〕反実仮想の申込書の改変の族(族の並びの末尾)。
+FAMILY_EXPERIMENT: Final[str] = "実験"
+#: 〔2-3〕体の知覚の出来事の族(族の並びの末尾=3-3 の実験の後ろ)。
+FAMILY_PERCEPT: Final[str] = "知覚"
+#: 〔第 6 期 6-4 C1〕連絡の道具の出来事の族(族の並びの末尾=2-3 の知覚の後ろ)。
+FAMILY_CONTACT: Final[str] = "連絡"
+#: 〔第 6 期 6-2 カレンダー 2〕会話とメッセージから生まれる予定の族(族の並びの末尾=6-4 の連絡の後ろ)。
+FAMILY_PROMISE: Final[str] = "約束"
+#: 〔第 6 期 6-2 カレンダー 3〕雇い主のシフトと職場の連絡から生まれる勤務の予定の族(族の並びの末尾=約束の後ろ)。
+FAMILY_WORK: Final[str] = "勤務"
+#: 〔第 6 期 6-6 ② 第 1 部〕店の仕事(開閉店・補充・廃棄)を働く人の体がした出来事の族(族の並びの末尾=勤務の後ろ)。
+FAMILY_DUTY: Final[str] = "仕事"
+FAMILIES: Final[tuple[str, ...]] = (FAMILY_ACT, FAMILY_PROCESS, FAMILY_MONEY, FAMILY_GOODS, FAMILY_TOOL,
+                                    FAMILY_EXPERIMENT, FAMILY_PERCEPT, FAMILY_CONTACT, FAMILY_PROMISE, FAMILY_WORK,
+                                    FAMILY_DUTY)
+
+#: 行為 12 語(語彙 v3 の横断語・並びは v3 の表のまま)。
+ACT_WORDS: Final[tuple[str, ...]] = tuple(ACTION_VOCAB_V3)
+
+#: 世界過程の名(``engine.processes.runner.PROCESS_ORDER`` の写し・並びも同じ)。
+WORLD_PROCESSES: Final[tuple[str, ...]] = (
+    "environment", "rail", "opening", "crowd", "traffic",
+    "delivery_inbound", "shelf", "waste", "street_cleaning",
+    "last_mile", "bus_taxi", "road_works", "hotel", "infra", "press", "large_event", "dispatch",
+    "salient",
+)
+#: E(診断)の区切りの名(日の締め・checkpoint)。
+BOUNDARY_PROCESSES: Final[tuple[str, ...]] = ("day_close", "checkpoint")
+#: 世界過程と区切りの名(``過程`` の族の語)。
+PROCESS_NAMES: Final[tuple[str, ...]] = WORLD_PROCESSES + BOUNDARY_PROCESSES
+#: 〔1-5〕検査の名(``Process(name)`` の名だけ・``過程`` の族の語ではない)。``rights``=権利台帳の検査(許可のない行動)。
+CHECK_PROCESSES: Final[tuple[str, ...]] = ("rights",)
+#: 〔1-7〕知覚の名(``Process(name)`` の名だけ・``過程`` の族の語ではない)。``perception``=System 1 の知覚(看板を読んだ出来事の原因)。
+PERCEPTION_PROCESSES: Final[tuple[str, ...]] = ("perception",)
+#: 〔2-1〕経済の段階 2 の過程の名(``Process(name)`` の名だけ)。``payroll``=給料日の賃金・``atm``=ATM の引き出し・
+#: ``register``=レジの消費税(``engine.economy_stage2.CAUSE_NAMES`` と同じ)。末尾に足した(前の名の番号は動かない)。
+ECONOMY_PROCESSES: Final[tuple[str, ...]] = ("payroll", "atm", "register")
+#: 〔2-3〕体の出来事の過程の名(``Process(name)`` の名だけ)。``resolve``=行為の解決(この刻みに判断の呼の無い行為の成否=
+#: エンジンの続き・移動の到着)・``conversation``=会話の始まりと終わり(エンジンの会話の門と締め)。末尾に足した。
+BODY_PROCESSES: Final[tuple[str, ...]] = ("resolve", "conversation")
+#: 〔第 6 期 6-4 C1〕網の名(``Process(name)`` の名だけ)。``contact``=メッセージが届く・既読の印・着信・不通(エンジン=道具と網の
+#: 性質)。末尾に足した(前の名の番号は動かない)。
+CONTACT_PROCESSES: Final[tuple[str, ...]] = ("contact",)
+#: 〔第 6 期 6-2 カレンダー 2〕予定の道具の名(``Process(name)`` の名だけ)。``calendar2``=壊れた予定を拒む・アプリの知らせと
+#: アラームが鳴る(道具の性質=エンジン)。末尾に足した(前の名の番号は動かない)。
+CALENDAR2_PROCESSES: Final[tuple[str, ...]] = ("calendar2",)
+#: 〔第 6 期 6-2 カレンダー 3〕勤務の予定の道具の名(``Process(name)`` の名だけ)。``calendar3``=勤務の行のアプリの知らせが鳴る
+#: (道具の性質=エンジン)。末尾に足した(前の名の番号は動かない)。
+CALENDAR3_PROCESSES: Final[tuple[str, ...]] = ("calendar3",)
+#: ``Process(name)`` の名に使える名(世界過程+区切り+検査+知覚+〔2-1〕経済の段階 2+〔2-3〕体の出来事+〔6-4〕網+〔6-2〕予定の道具
+#: +〔6-2 カレンダー 3〕勤務の予定の道具)。
+CAUSE_PROCESS_NAMES: Final[tuple[str, ...]] = (PROCESS_NAMES + CHECK_PROCESSES + PERCEPTION_PROCESSES + ECONOMY_PROCESSES
+                                                + BODY_PROCESSES + CONTACT_PROCESSES + CALENDAR2_PROCESSES
+                                                + CALENDAR3_PROCESSES)
+
+#: お金の科目(``economy.accounts.ACCOUNT_NAMES`` の写し・並びも同じ)。
+MONEY_WORDS: Final[tuple[str, ...]] = (
+    "消費支出", "賃金", "域外仕入", "税", "利子", "家賃", "預金純増",
+    "来街者持込", "持ち出し", "参入資本", "配当/内部留保", "減価償却",
+    "残差科目", "退蔵項", "逸脱比例コスト",
+)
+#: 物の出入り(``economy.goods.GOODS_CODE_NAMES`` の写し・並びも同じ)。
+GOODS_WORDS: Final[tuple[str, ...]] = (
+    "域外仕入", "持込物", "販売", "廃棄ビンへ", "消費", "廃棄搬出", "返品/域外出荷", "棚卸差異",
+)
+
+
+def word(family: str, w: str) -> str:
+    """族と語 → 表の語(``"過程:rail"``)。表の外なら ``ValueError``。"""
+    q = f"{family}:{w}"
+    if q not in VOCAB_CODES:
+        raise ValueError(f"出来事の語彙表の外: {q!r}(族は {FAMILIES})")
+    return q
+
+
+#: 〔1-5〕行為の族に足した語(判断の語彙の外=行為を権利台帳で見た分け)。表の末尾に置く(1-3 の語のコードを動かさない)。
+ACT_EXTRA_WORDS: Final[tuple[str, ...]] = ("許可のない行動",)
+#: 〔1-7〕道具の族の語(道具の台帳の名の写し=``engine.tools.registry.SIGNBOARD``)。表の末尾に置く(1-5 までの語のコードを動かさない)。
+TOOL_WORDS: Final[tuple[str, ...]] = ("看板",)
+#: 〔1-8b〕行為の族の語 ``発話``(発話の口が書く会話の番の「ひと言」)。1-7 の ``TOOL_WORDS`` の後ろの別の組(1-7 までの語の
+#: コードを動かさない=``道具:看板``=56・``行為:発話``=57)。
+SPEECH_WORDS: Final[tuple[str, ...]] = ("発話",)
+#: 〔2-1〕金の族に足した科目の名でない語(``economy.ops.MONEY_EXTRA_WHAT`` の写し・並びも同じ)。1-8b の ``SPEECH_WORDS`` の後ろの
+#: 別の組(1-8b までの語のコードを動かさない=``金:引き出し``=58・``金:カード``=59)。
+MONEY_EXTRA_WORDS: Final[tuple[str, ...]] = ("引き出し", "カード")
+#: 〔3-3〕実験の族の語(``改変``=申込書の決定が世界に入った・``届いた情報``=外での決定が境界を越えて届いた)。2-1 の
+#: ``MONEY_EXTRA_WORDS`` の後ろの別の組(2-1 までの語のコードを動かさない=``実験:改変``=60・``実験:届いた情報``=61)。
+EXPERIMENT_WORDS: Final[tuple[str, ...]] = ("改変", "届いた情報")
+#: 〔2-3〕行為の族の語(会話のセッションの始まりと終わり=体の出来事)。3-3 の ``EXPERIMENT_WORDS`` の後ろの別の組。
+CONVERSATION_WORDS: Final[tuple[str, ...]] = ("会話の始まり", "会話の終わり")
+#: 〔2-3〕知覚の族の語(顕著行為に気づいた=体の出来事)。``CONVERSATION_WORDS`` の後ろ。
+PERCEPT_WORDS: Final[tuple[str, ...]] = ("気づき",)
+#: 〔第 6 期 6-4 C1〕連絡の族の語(``engine.contact.layer`` が書く・腕 c1 のランだけ)。2-3 の ``PERCEPT_WORDS`` の後ろ。
+CONTACT_WORDS: Final[tuple[str, ...]] = (
+    "送った", "届いた", "読んだ", "後で", "無視", "預かった", "スマホを見た", "顔を上げた", "電話をかけた", "着信", "出た", "出ない",
+    "不通", "切った", "通話の終わり",
+)
+#: 〔第 6 期 6-2 カレンダー 2〕約束の族の語(``engine.calendar2.layer`` が書く・腕 ``--calendar-2 arm`` のランだけ)。6-4 の
+#: ``CONTACT_WORDS`` の後ろ。本人の語=誘った・受けた・仮で受けた・断った・書いた・時刻を変えた・場所を変えた・確かさを変えた・
+#: 取り消した・出発した・行かない(原因=判断の呼び)/道具の語=拒んだ(壊れた予定)・知らせ(アプリの知らせとアラーム)。
+PROMISE_WORDS: Final[tuple[str, ...]] = (
+    "誘った", "受けた", "仮で受けた", "断った", "書いた", "時刻を変えた", "場所を変えた", "確かさを変えた", "取り消した",
+    "拒んだ", "出発した", "行かない", "知らせ",
+)
+#: 〔第 6 期 6-2 カレンダー 3〕勤務の族の語(``engine.calendar3.layer`` が書く・腕 ``--calendar-3 arm`` のランだけ)。カレンダー 2 の
+#: ``PROMISE_WORDS`` の後ろ。本人の語=枠を決めた(雇い主)・書いた・休みを申し出た・受けた・断った(雇い主)・休みにした・
+#: 遅れると伝えた(原因=判断の呼び)/道具の語=知らせ(勤務の行のアプリの知らせ)。
+WORK_WORDS: Final[tuple[str, ...]] = (
+    "枠を決めた", "書いた", "休みを申し出た", "受けた", "断った", "休みにした", "遅れると伝えた", "知らせ",
+)
+#: 〔第 6 期 6-6 ② 第 1 部〕仕事の族の語(``engine.duties.layer`` が書く・腕 ``--duties arm`` のランだけ)。カレンダー 3 の
+#: ``WORK_WORDS`` の後ろ。どれも本人の語(原因=判断の呼び)=店を開けた・店を閉めた・棚に補充した・売れ残りを捨てた。
+DUTY_WORDS: Final[tuple[str, ...]] = ("開けた", "閉めた", "補充した", "捨てた")
+#: 〔第 6 期 6-4 連絡の道具の残り(C2)〕連絡の族に足した語(``engine.contact.layer`` が書く・腕 c1 のランだけ)。カレンダー 3 の
+#: ``WORK_WORDS`` の後ろの別の組(カレンダー 3 までの 101 語のコードを動かさない=仕事の 4 語の後ろ=``連絡:充電した``=105 〜)。本人の語=充電した・
+#: 充電をやめた(充電=CT0 の共通の決まり 2)・交換を持ちかけた・交換に応じた・交換を断った(連絡先の交換=CT5)・グループを作った・
+#: グループに招いた・グループに入った・招待を断った・グループを抜けた(グループ=CT5)・ビデオ通話をかけた(C2)・番号を調べた(店の
+#: 番号=CT5)/道具の語=電池の知らせ(電池が少ない・充電が終わった=道具の性質)。
+CONTACT_EXTRA_WORDS: Final[tuple[str, ...]] = (
+    "充電した", "充電をやめた", "交換を持ちかけた", "交換に応じた", "交換を断った", "グループを作った", "グループに招いた",
+    "グループに入った", "招待を断った", "グループを抜けた", "ビデオ通話をかけた", "番号を調べた", "電池の知らせ",
+)
+
+#: 表の全部(1-3 の 55 語は族の順 → 族の中の順・その後ろに 1-5 で足した語・その後ろに 1-7 で足した語・その後ろに 1-8b で
+#: 足した語・その後ろに 2-1 で足した金の 2 語・その後ろに 3-3 で足した実験の 2 語・その後ろに 2-3 で足した体の出来事の 3 語)。コードはこの並びの位置(記録の列に入る int16)。
+VOCAB: Final[tuple[str, ...]] = (
+    tuple(f"{FAMILY_ACT}:{w}" for w in ACT_WORDS)
+    + tuple(f"{FAMILY_PROCESS}:{w}" for w in PROCESS_NAMES)
+    + tuple(f"{FAMILY_MONEY}:{w}" for w in MONEY_WORDS)
+    + tuple(f"{FAMILY_GOODS}:{w}" for w in GOODS_WORDS)
+    + tuple(f"{FAMILY_ACT}:{w}" for w in ACT_EXTRA_WORDS)
+    + tuple(f"{FAMILY_TOOL}:{w}" for w in TOOL_WORDS)
+    + tuple(f"{FAMILY_ACT}:{w}" for w in SPEECH_WORDS)
+    + tuple(f"{FAMILY_MONEY}:{w}" for w in MONEY_EXTRA_WORDS)
+    + tuple(f"{FAMILY_EXPERIMENT}:{w}" for w in EXPERIMENT_WORDS)
+    + tuple(f"{FAMILY_ACT}:{w}" for w in CONVERSATION_WORDS)
+    + tuple(f"{FAMILY_PERCEPT}:{w}" for w in PERCEPT_WORDS)
+    + tuple(f"{FAMILY_CONTACT}:{w}" for w in CONTACT_WORDS)
+    + tuple(f"{FAMILY_PROMISE}:{w}" for w in PROMISE_WORDS)
+    + tuple(f"{FAMILY_WORK}:{w}" for w in WORK_WORDS)
+    + tuple(f"{FAMILY_DUTY}:{w}" for w in DUTY_WORDS)
+    + tuple(f"{FAMILY_CONTACT}:{w}" for w in CONTACT_EXTRA_WORDS)
+)
+VOCAB_CODES: Final[Mapping[str, int]] = MappingProxyType({w: i for i, w in enumerate(VOCAB)})  # 検収 L7: 実行時に語を足せない
+assert len(VOCAB_CODES) == len(VOCAB), "語彙表に同じ語が 2 回ある"
+
+
+def code_of(what: str) -> int:
+    """表の語 → コード。表の外なら ``ValueError``(閉じた表)。"""
+    try:
+        return VOCAB_CODES[what]
+    except (KeyError, TypeError):
+        raise ValueError(f"出来事の語彙表の外: {what!r}(表は {len(VOCAB)} 語・形は '族:語')") from None
+
+
+def family_of(what: str) -> str:
+    """表の語の族(``"金:賃金"`` → ``"金"``)。"""
+    code_of(what)
+    return what.split(":", 1)[0]
+
+
+#: CT9 の道具の欄(届いた経路)。``無し`` は道具を使わない出来事(世界過程・区切り・本人だけの行為)。
+#: 〔第 6 期 6-4 C2〕末尾に ``ビデオ通話`` を足した(前の語のコードは動かない=記録の列の値は前のまま)。
+VIA_WORDS: Final[tuple[str, ...]] = ("対面", "通話", "メッセージ", "グループ", "SNS", "無し", "ビデオ通話")
+VIA_NONE: Final[str] = "無し"
+VIA_CODES: Final[Mapping[str, int]] = MappingProxyType({w: i for i, w in enumerate(VIA_WORDS)})
+
+#: ``where`` の種類(セル・歩行網のノード・POI)。
+WHERE_KINDS: Final[tuple[str, ...]] = ("cell", "node", "poi")

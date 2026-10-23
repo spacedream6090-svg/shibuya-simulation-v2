@@ -1,0 +1,106 @@
+{
+ "schema": "shibuya.bench/wallbounce-1003/10a-b56/1",
+ "arm": "default",
+ "args": {
+  "vocab_version": "v3",
+  "activity": true
+ },
+ "agents": 5000,
+ "seed": 1,
+ "final_hash": "993276d5e5bb5cbe",
+ "llm_calls": 69978,
+ "tape": {
+  "calls_rows": 69978,
+  "calls_bytes": 4267650,
+  "blocks_rows": 5394,
+  "blocks_bytes": 197898,
+  "total_bytes": 4465548,
+  "bytes_per_call": 63.81,
+  "calls_bytes_per_call": 60.99,
+  "compression": "zstd(TAPE_COMPRESSION)",
+  "column_names": [
+   "call_id",
+   "agent_id",
+   "tick",
+   "wake_class",
+   "prompt_hash",
+   "block_ids",
+   "params_hash",
+   "response",
+   "tokens_in",
+   "tokens_out",
+   "deferred",
+   "deferred_reason",
+   "observed_tick",
+   "recalled_rows"
+  ]
+ },
+ "renders": 69978,
+ "renders_equal_rows": true,
+ "b5_bytes": {
+  "n": 69978,
+  "mean": 344.1,
+  "p50": 343.0,
+  "p95": 395.0,
+  "max": 466,
+  "min": 261,
+  "sum": 24080336
+ },
+ "b6_bytes": {
+  "n": 69978,
+  "mean": 222.6,
+  "p50": 209.0,
+  "p95": 274.0,
+  "max": 317,
+  "min": 179,
+  "sum": 15579168
+ },
+ "b5_plus_b6_bytes": {
+  "n": 69978,
+  "mean": 566.7,
+  "p50": 567.0,
+  "p95": 636.0,
+  "max": 722,
+  "min": 452,
+  "sum": 39659504
+ },
+ "prompt_text_bytes": {
+  "n": 69978,
+  "mean": 5169.7,
+  "p50": 5168.0,
+  "p95": 5291.0,
+  "max": 5440,
+  "min": 4848,
+  "sum": 361762436
+ },
+ "b56_share_of_prompt": 0.1096,
+ "unique_b5": {
+  "n": 60005,
+  "bytes": 20728562
+ },
+ "unique_b6": {
+  "n": 2799,
+  "bytes": 738905
+ },
+ "compressed": {
+  "zstd": {
+   "calls_rewritten_bytes": 3604907,
+   "b56_only_table_bytes": 1594293,
+   "calls_plus_b56_bytes": 5198991,
+   "increment_bytes": 1594084,
+   "increment_per_call": 22.78
+  },
+  "gzip": {
+   "calls_rewritten_bytes": 3818446,
+   "b56_only_table_bytes": 1303250,
+   "calls_plus_b56_bytes": 5121487,
+   "increment_bytes": 1303041,
+   "increment_per_call": 18.62
+  }
+ },
+ "gzip_concat_b56": {
+  "raw_bytes": 39799459,
+  "gzip6_bytes": 1441817
+ },
+ "wall_s_reference": 50.0
+}

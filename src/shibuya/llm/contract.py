@@ -43,6 +43,8 @@ from dataclasses import dataclass, replace
 from enum import IntEnum
 from typing import Final, Mapping
 
+from shibuya.core.time_consts import MINUTES_PER_HOUR
+
 __all__ = [
     "REASON_MAX_CHARS",
     "COMMENT_MAX_CHARS",
@@ -109,6 +111,8 @@ __all__ = [
     "TARGET_WANDER",
     "TARGET_BASE_WORDS_V3",
     "TARGET_PLACEHOLDERS_V3",
+    "SPEECH_FIELD_LINE",
+    "append_comment",
 ]
 
 #: 行動契約書 §1「理由: <40字以内・1文>」。
@@ -894,6 +898,20 @@ def format_two_line_v3(
     return f"理由: {reason}\n行動: {action} 対象: {target} 活動: {activity} まで: {until}"
 
 
+# ------------------------------------------------------------------ 第 1 期 1-8b 発話の口(会話の番の「ひと言」の欄)
+#: 〔1-8b〕会話の番の呼び出しだけ B6 の末尾に足す出力の欄の指示(語彙 v3=出力形に ひと言 が無い版・腕 ``--speech-port on``)。
+#: 欄の書き方は v1 の出力規約の ひと言 の断片(20 字以内・または なし)の短い形=中身を誘導しない(Q57)・根拠の札を書かせない
+#: (MR11)。B6 の枠 80 tok のため 10 tok に縮めた(親の判断)。5 ラベル(理由・行動・対象・活動・まで)は変えず、2 行目の最後に
+#: 足す(B0 の「2 行だけ」と合わせる)。``perception.renderer.SPEECH_FIELD_LINE`` と同じ文字列(層契約により二重定義=試験で
+#: 守る)。mock と古典の方策はこの行がプロンプトにあるときだけ ひと言 の欄を足す(``append_comment``)。
+SPEECH_FIELD_LINE: Final[str] = "2行目末尾に ひと言:<20字内|なし>"
+
+
+def append_comment(text: str, comment: str) -> str:
+    """〔1-8b〕応答の 2 行目の最後に ``ひと言:`` の欄を足す(mock と古典の方策の発話=発話の口の入口)。"""
+    return f"{text} ひと言: {comment}"
+
+
 def is_role_action(word: str, vocab_version: str = DEFAULT_VOCAB_VERSION) -> bool:
     """§2.2 の役割語か(``"v3"`` では 並ぶ は横断語=役割語ではない)。"""
     if str(vocab_version) == "v3":
@@ -1224,7 +1242,7 @@ def parse_until(text: str | None) -> Until:
         h, mins = m.group(1), m.group(2) or "0"
         if len(h) > 4 or len(mins) > 6:
             return Until(UntilKind.MINUTES, UNTIL_MAX_MINUTES)
-        return Until(UntilKind.MINUTES, min(int(h) * 60 + int(mins), UNTIL_MAX_MINUTES))
+        return Until(UntilKind.MINUTES, min(int(h) * MINUTES_PER_HOUR + int(mins), UNTIL_MAX_MINUTES))
     m = _UNTIL_MINUTES_RE.search(t)
     if m:
         digits = m.group(1)
@@ -1234,7 +1252,7 @@ def parse_until(text: str | None) -> Until:
     if m:
         hh, mm = int(m.group(1)), int(m.group(2))
         if hh <= 23 and mm <= 59:
-            return Until(UntilKind.CLOCK, hh * 60 + mm)
+            return Until(UntilKind.CLOCK, hh * MINUTES_PER_HOUR + mm)
         return DEFAULT_UNTIL
     if "次の予定" in t:
         return Until(UntilKind.NEXT_SCHEDULE)

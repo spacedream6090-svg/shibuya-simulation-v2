@@ -1,0 +1,33 @@
+{
+ "schema": "shibuya.bench/prox22/resume/1",
+ "config": {
+  "n_agents": 1000,
+  "seed": 1,
+  "vocab_version": "v3",
+  "memory": "on",
+  "relations": "on",
+  "rel_copresent": "on",
+  "checkpoint_every": 60,
+  "proximity": "distance",
+  "d_m": 2.0,
+  "stop_at": 750
+ },
+ "straight": {
+  "final16": "e0a62eafaeb05e57",
+  "llm_calls": 11810
+ },
+ "first_half": {
+  "llm_calls": 4710
+ },
+ "resumed": {
+  "final16": "e0a62eafaeb05e57",
+  "llm_calls": 7100
+ },
+ "final_equal": true,
+ "calls_equal": true,
+ "checkpoints_after_stop": 12,
+ "checkpoint_hashes_equal": true,
+ "acq_notice_draws": 141,
+ "acq_noticed": 55,
+ "all_equal": true
+}

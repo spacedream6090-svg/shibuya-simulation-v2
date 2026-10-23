@@ -1,0 +1,1931 @@
+{
+ "schema": "shibuya.bench/wave2-2026-09-30/w10_ruler/1",
+ "self_check": {
+  "passed": true,
+  "cases": 7
+ },
+ "expedient": "物差しの構成(代表点 estat/road_facing・半径 25/50/100 m・代表値 max/road・道路種別→階級の表)は未リサーチ(expedient)。build/field/w10_ruler.py の docstring。",
+ "radii_m": [
+  25.0,
+  50.0,
+  100.0
+ ],
+ "representatives": [
+  "estat",
+  "road_facing"
+ ],
+ "statistics": [
+  "max",
+  "road"
+ ],
+ "measured_road_klasses": {
+  "1": [],
+  "2": [],
+  "3": [
+   "primary",
+   "secondary"
+  ],
+  "4": [
+   "primary",
+   "secondary"
+  ],
+  "6": [
+   "primary",
+   "secondary"
+  ]
+ },
+ "off": {
+  "switches": {
+   "USE_ROAD_NAME_MATCH": false,
+   "ROAD_NAME_REQUIRE_NAMED_SAME_CLASS": false,
+   "ROAD_NAME_REQUIRE_SAME_BAND": false
+  },
+  "outputs_sha256": {
+   "w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+   "w10_noise_day.npy": "6f3e3b0f2b4c674f9315de409aa56f278c3a7d1688571987e35762b1643fc788",
+   "w10_noise_night.npy": "4d682d3ac1eba0c484655ac6293a24cc97773b5fad61bfb4302e24e3c72dae51",
+   "w10_noise_stage_day.npy": "d4d02af1a770016f78f6eb7a6ed9e30f145353133d9948bbd0699b03de9fffe1",
+   "w10_noise_stage_night.npy": "33ba443230ecb0507eb5acd558392ed17ef56b73ec0c7d9932746d571db88ed2",
+   "w10_edge_section.parquet": "c4c93313aa89aa19082e652966ce5b53a41e165b115e43a89c1a9f66e8e4ee66"
+  },
+  "gates": {
+   "street_points": {
+    "value": 356732,
+    "expected": null,
+    "pass": true
+   },
+   "street_points_have_band": {
+    "value": 3,
+    "expected": 3,
+    "pass": true
+   },
+   "noise_arrays_len": {
+    "value": 356732,
+    "expected": 356732,
+    "pass": true
+   },
+   "primary_secondary_sections_matched": {
+    "value": 0,
+    "expected": 202,
+    "pass": false
+   },
+   "road_edges_with_census_traffic": {
+    "value": 0,
+    "expected": null,
+    "pass": true
+   },
+   "primary_secondary_sections_matchable": {
+    "value": 190,
+    "expected": null,
+    "pass": true
+   },
+   "primary_secondary_sections_matchable_q7_q9": {
+    "value": 202,
+    "expected": null,
+    "pass": true
+   },
+   "road_edges_with_traffic": {
+    "value": 2493,
+    "expected": 2493,
+    "pass": true
+   },
+   "points_with_at_least_one_source": {
+    "value": 356732,
+    "expected": 356732,
+    "pass": true
+   },
+   "calibration_points_evaluable": {
+    "value": 6,
+    "expected": null,
+    "pass": true
+   },
+   "calibration_max_abs_residual_db": {
+    "value": 7.3,
+    "expected": null,
+    "pass": false
+   }
+  },
+  "equals_promoted_manifest": true,
+  "ruler_rows": [
+   {
+    "no": "61",
+    "status": "NO_BOUNDARY",
+    "address_form": "CHOME",
+    "chome": null,
+    "ward": "目黒区",
+    "road_kind": "4",
+    "measured_klasses": [
+     "primary",
+     "secondary"
+    ],
+    "measured_day_db": 64.0,
+    "measured_night_db": 60.0
+   },
+   {
+    "no": "75",
+    "status": "NO_BOUNDARY",
+    "address_form": "CHOME",
+    "chome": null,
+    "ward": "世田谷区",
+    "road_kind": "2",
+    "measured_klasses": [],
+    "measured_day_db": 64.0,
+    "measured_night_db": 63.0
+   },
+   {
+    "no": "78",
+    "status": "OK",
+    "address_form": "CHOME",
+    "chome": "神宮前五丁目",
+    "ward": "渋谷区",
+    "road_kind": "3",
+    "measured_klasses": [
+     "primary",
+     "secondary"
+    ],
+    "measured_day_db": 68.0,
+    "measured_night_db": 66.0,
+    "estat_xy": [
+     590.4,
+     573.1
+    ],
+    "rep_xy": {
+     "estat": [
+      590.4,
+      573.1
+     ],
+     "road_facing": [
+      732.5,
+      812.5
+     ]
+    },
+    "values": {
+     "estat": {
+      "25": {
+       "n": 131,
+       "road_dist_m": 264.641,
+       "road_beyond_band": true,
+       "max_day": 70.0,
+       "max_night": 66.0,
+       "road_day": 64.0,
+       "road_night": 60.0
+      },
+      "50": {
+       "n": 673,
+       "road_dist_m": 233.891,
+       "road_beyond_band": true,
+       "max_day": 73.0,
+       "max_night": 69.0,
+       "road_day": 67.0,
+       "road_night": 63.0
+      },
+      "100": {
+       "n": 2268,
+       "road_dist_m": 192.27,
+       "road_beyond_band": true,
+       "max_day": 73.0,
+       "max_night": 69.0,
+       "road_day": 62.0,
+       "road_night": 58.0
+      }
+     },
+     "road_facing": {
+      "25": {
+       "n": 265,
+       "road_dist_m": 0.07,
+       "road_beyond_band": false,
+       "max_day": 79.0,
+       "max_night": 75.0,
+       "road_day": 77.0,
+       "road_night": 73.0
+      },
+      "50": {
+       "n": 778,
+       "road_dist_m": 0.015,
+       "road_beyond_band": false,
+       "max_day": 79.0,
+       "max_night": 75.0,
+       "road_day": 78.0,
+       "road_night": 74.0
+      },
+      "100": {
+       "n": 2640,
+       "road_dist_m": 0.015,
+       "road_beyond_band": false,
+       "max_day": 79.0,
+       "max_night": 75.0,
+       "road_day": 78.0,
+       "road_night": 74.0
+      }
+     }
+    },
+    "diff": {
+     "estat": {
+      "max": {
+       "25": [
+        2.0,
+        0.0
+       ],
+       "50": [
+        5.0,
+        3.0
+       ],
+       "100": [
+        5.0,
+        3.0
+       ]
+      },
+      "road": {
+       "25": [
+        -4.0,
+        -6.0
+       ],
+       "50": [
+        -1.0,
+        -3.0
+       ],
+       "100": [
+        -6.0,
+        -8.0
+       ]
+      }
+     },
+     "road_facing": {
+      "max": {
+       "25": [
+        11.0,
+        9.0
+       ],
+       "50": [
+        11.0,
+        9.0
+       ],
+       "100": [
+        11.0,
+        9.0
+       ]
+      },
+      "road": {
+       "25": [
+        9.0,
+        7.0
+       ],
+       "50": [
+        10.0,
+        8.0
+       ],
+       "100": [
+        10.0,
+        8.0
+       ]
+      }
+     }
+    },
+    "road_dist_m": {
+     "estat": {
+      "25": 264.641,
+      "50": 233.891,
+      "100": 192.27
+     },
+     "road_facing": {
+      "25": 0.07,
+      "50": 0.015,
+      "100": 0.015
+     }
+    },
+    "road_beyond_band": {
+     "estat": {
+      "25": true,
+      "50": true,
+      "100": true
+     },
+     "road_facing": {
+      "25": false,
+      "50": false,
+      "100": false
+     }
+    },
+    "error": {
+     "area_m2": 257659.9,
+     "equivalent_radius_m": 286.4,
+     "estat_to_centroid_m": 0.3,
+     "estat_inside_polygon": true,
+     "estat_to_road_facing_m": 278.4,
+     "gl_points_in_chome": 19919,
+     "measured_road_points_in_chome": 1175,
+     "measured_road_day_pct": {
+      "5": 75.0,
+      "50": 77.0,
+      "95": 79.0
+     },
+     "measured_road_night_pct": {
+      "5": 71.0,
+      "50": 73.0,
+      "95": 75.0
+     }
+    },
+    "rep_edge": {
+     "estat": {
+      "klass": "residential",
+      "census_route": "",
+      "traffic_from_census": false
+     },
+     "road_facing": {
+      "klass": "secondary",
+      "census_route": "6:413:赤坂杉並線",
+      "traffic_from_census": false
+     }
+    }
+   },
+   {
+    "no": "79",
+    "status": "OK",
+    "address_form": "TOWN",
+    "chome": "鉢山町",
+    "ward": "渋谷区",
+    "road_kind": "4",
+    "measured_klasses": [
+     "primary",
+     "secondary"
+    ],
+    "measured_day_db": 67.0,
+    "measured_night_db": 66.0,
+    "estat_xy": [
+     -212.2,
+     -892.0
+    ],
+    "rep_xy": {
+     "estat": [
+      -212.2,
+      -892.0
+     ],
+     "road_facing": [
+      -310.0,
+      -992.5
+     ]
+    },
+    "values": {
+     "estat": {
+      "25": {
+       "n": 0,
+       "road_dist_m": null,
+       "road_beyond_band": null,
+       "max_day": null,
+       "max_night": null,
+       "road_day": null,
+       "road_night": null
+      },
+      "50": {
+       "n": 269,
+       "road_dist_m": 113.724,
+       "road_beyond_band": true,
+       "max_day": 67.0,
+       "max_night": 63.0,
+       "road_day": 57.0,
+       "road_night": 53.0
+      },
+      "100": {
+       "n": 1825,
+       "road_dist_m": 44.518,
+       "road_beyond_band": true,
+       "max_day": 73.0,
+       "max_night": 69.0,
+       "road_day": 60.0,
+       "road_night": 56.0
+      }
+     },
+     "road_facing": {
+      "25": {
+       "n": 276,
+       "road_dist_m": 0.054,
+       "road_beyond_band": false,
+       "max_day": 82.0,
+       "max_night": 79.0,
+       "road_day": 81.0,
+       "road_night": 78.0
+      },
+      "50": {
+       "n": 705,
+       "road_dist_m": 0.044,
+       "road_beyond_band": false,
+       "max_day": 83.0,
+       "max_night": 80.0,
+       "road_day": 79.0,
+       "road_night": 76.0
+      },
+      "100": {
+       "n": 2326,
+       "road_dist_m": 0.002,
+       "road_beyond_band": false,
+       "max_day": 83.0,
+       "max_night": 80.0,
+       "road_day": 79.0,
+       "road_night": 76.0
+      }
+     }
+    },
+    "diff": {
+     "estat": {
+      "max": {
+       "25": null,
+       "50": [
+        0.0,
+        -3.0
+       ],
+       "100": [
+        6.0,
+        3.0
+       ]
+      },
+      "road": {
+       "25": null,
+       "50": [
+        -10.0,
+        -13.0
+       ],
+       "100": [
+        -7.0,
+        -10.0
+       ]
+      }
+     },
+     "road_facing": {
+      "max": {
+       "25": [
+        15.0,
+        13.0
+       ],
+       "50": [
+        16.0,
+        14.0
+       ],
+       "100": [
+        16.0,
+        14.0
+       ]
+      },
+      "road": {
+       "25": [
+        14.0,
+        12.0
+       ],
+       "50": [
+        12.0,
+        10.0
+       ],
+       "100": [
+        12.0,
+        10.0
+       ]
+      }
+     }
+    },
+    "road_dist_m": {
+     "estat": {
+      "25": null,
+      "50": 113.724,
+      "100": 44.518
+     },
+     "road_facing": {
+      "25": 0.054,
+      "50": 0.044,
+      "100": 0.002
+     }
+    },
+    "road_beyond_band": {
+     "estat": {
+      "25": null,
+      "50": true,
+      "100": true
+     },
+     "road_facing": {
+      "25": false,
+      "50": false,
+      "100": false
+     }
+    },
+    "error": {
+     "area_m2": 107842.0,
+     "equivalent_radius_m": 185.3,
+     "estat_to_centroid_m": 0.3,
+     "estat_inside_polygon": true,
+     "estat_to_road_facing_m": 140.3,
+     "gl_points_in_chome": 7159,
+     "measured_road_points_in_chome": 504,
+     "measured_road_day_pct": {
+      "5": 78.0,
+      "50": 79.0,
+      "95": 81.0
+     },
+     "measured_road_night_pct": {
+      "5": 75.0,
+      "50": 75.0,
+      "95": 78.0
+     }
+    },
+    "rep_edge": {
+     "estat": {
+      "klass": "service",
+      "census_route": "",
+      "traffic_from_census": false
+     },
+     "road_facing": {
+      "klass": "primary",
+      "census_route": "4:317:環状六号線",
+      "traffic_from_census": false
+     }
+    }
+   },
+   {
+    "no": "80",
+    "status": "OUTSIDE_WORLD",
+    "address_form": "CHOME",
+    "chome": "広尾五丁目",
+    "ward": "渋谷区",
+    "road_kind": "4",
+    "measured_klasses": [
+     "primary",
+     "secondary"
+    ],
+    "measured_day_db": 67.0,
+    "measured_night_db": 65.0,
+    "estat_xy": [
+     1797.0,
+     -1130.7
+    ]
+   },
+   {
+    "no": "81",
+    "status": "OUTSIDE_WORLD",
+    "address_form": "CHOME",
+    "chome": "本町一丁目",
+    "ward": "渋谷区",
+    "road_kind": "4",
+    "measured_klasses": [
+     "primary",
+     "secondary"
+    ],
+    "measured_day_db": 65.0,
+    "measured_night_db": 61.0,
+    "estat_xy": [
+     -1609.8,
+     2375.7
+    ]
+   },
+   {
+    "no": "82",
+    "status": "OK",
+    "address_form": "CHOME",
+    "chome": "東三丁目",
+    "ward": "渋谷区",
+    "road_kind": "5",
+    "measured_klasses": [
+     "primary",
+     "secondary",
+     "tertiary",
+     "residential",
+     "unclassified",
+     "living_street",
+     "service"
+    ],
+    "measured_day_db": 66.0,
+    "measured_night_db": 64.0,
+    "estat_xy": [
+     891.2,
+     -997.4
+    ],
+    "rep_xy": {
+     "estat": [
+      891.2,
+      -997.4
+     ],
+     "road_facing": [
+      880.0,
+      -997.5
+     ]
+    },
+    "values": {
+     "estat": {
+      "25": {
+       "n": 59,
+       "road_dist_m": 0.074,
+       "road_beyond_band": false,
+       "max_day": 69.0,
+       "max_night": 66.0,
+       "road_day": 69.0,
+       "road_night": 65.0
+      },
+      "50": {
+       "n": 686,
+       "road_dist_m": 0.05,
+       "road_beyond_band": false,
+       "max_day": 80.0,
+       "max_night": 77.0,
+       "road_day": 69.0,
+       "road_night": 65.0
+      },
+      "100": {
+       "n": 2306,
+       "road_dist_m": 0.001,
+       "road_beyond_band": false,
+       "max_day": 82.0,
+       "max_night": 79.0,
+       "road_day": 81.0,
+       "road_night": 78.0
+      }
+     },
+     "road_facing": {
+      "25": {
+       "n": 108,
+       "road_dist_m": 0.074,
+       "road_beyond_band": false,
+       "max_day": 73.0,
+       "max_night": 70.0,
+       "road_day": 69.0,
+       "road_night": 65.0
+      },
+      "50": {
+       "n": 725,
+       "road_dist_m": 0.046,
+       "road_beyond_band": false,
+       "max_day": 81.0,
+       "max_night": 78.0,
+       "road_day": 72.0,
+       "road_night": 68.0
+      },
+      "100": {
+       "n": 2290,
+       "road_dist_m": 0.001,
+       "road_beyond_band": false,
+       "max_day": 82.0,
+       "max_night": 79.0,
+       "road_day": 81.0,
+       "road_night": 78.0
+      }
+     }
+    },
+    "diff": {
+     "estat": {
+      "max": {
+       "25": [
+        3.0,
+        2.0
+       ],
+       "50": [
+        14.0,
+        13.0
+       ],
+       "100": [
+        16.0,
+        15.0
+       ]
+      },
+      "road": {
+       "25": [
+        3.0,
+        1.0
+       ],
+       "50": [
+        3.0,
+        1.0
+       ],
+       "100": [
+        15.0,
+        14.0
+       ]
+      }
+     },
+     "road_facing": {
+      "max": {
+       "25": [
+        7.0,
+        6.0
+       ],
+       "50": [
+        15.0,
+        14.0
+       ],
+       "100": [
+        16.0,
+        15.0
+       ]
+      },
+      "road": {
+       "25": [
+        3.0,
+        1.0
+       ],
+       "50": [
+        6.0,
+        4.0
+       ],
+       "100": [
+        15.0,
+        14.0
+       ]
+      }
+     }
+    },
+    "road_dist_m": {
+     "estat": {
+      "25": 0.074,
+      "50": 0.05,
+      "100": 0.001
+     },
+     "road_facing": {
+      "25": 0.074,
+      "50": 0.046,
+      "100": 0.001
+     }
+    },
+    "road_beyond_band": {
+     "estat": {
+      "25": false,
+      "50": false,
+      "100": false
+     },
+     "road_facing": {
+      "25": false,
+      "50": false,
+      "100": false
+     }
+    },
+    "error": {
+     "area_m2": 131320.8,
+     "equivalent_radius_m": 204.5,
+     "estat_to_centroid_m": 0.3,
+     "estat_inside_polygon": true,
+     "estat_to_road_facing_m": 11.2,
+     "gl_points_in_chome": 6982,
+     "measured_road_points_in_chome": 5123,
+     "measured_road_day_pct": {
+      "5": 60.0,
+      "50": 67.0,
+      "95": 80.0
+     },
+     "measured_road_night_pct": {
+      "5": 56.0,
+      "50": 63.0,
+      "95": 77.0
+     }
+    },
+    "rep_edge": {
+     "estat": {
+      "klass": "residential",
+      "census_route": "",
+      "traffic_from_census": false
+     },
+     "road_facing": {
+      "klass": "residential",
+      "census_route": "",
+      "traffic_from_census": false
+     }
+    }
+   }
+  ],
+  "ruler_summary": {
+   "estat/max/r25": {
+    "n": 2,
+    "mean_day": 2.5,
+    "mean_night": 1.0,
+    "mean_abs_day": 2.5,
+    "mean_abs_night": 1.0
+   },
+   "estat/max/r50": {
+    "n": 3,
+    "mean_day": 6.33,
+    "mean_night": 4.33,
+    "mean_abs_day": 6.33,
+    "mean_abs_night": 6.33
+   },
+   "estat/max/r100": {
+    "n": 3,
+    "mean_day": 9.0,
+    "mean_night": 7.0,
+    "mean_abs_day": 9.0,
+    "mean_abs_night": 7.0
+   },
+   "estat/road/r25": {
+    "n": 2,
+    "mean_day": -0.5,
+    "mean_night": -2.5,
+    "mean_abs_day": 3.5,
+    "mean_abs_night": 3.5
+   },
+   "estat/road/r50": {
+    "n": 3,
+    "mean_day": -2.67,
+    "mean_night": -5.0,
+    "mean_abs_day": 4.67,
+    "mean_abs_night": 5.67
+   },
+   "estat/road/r100": {
+    "n": 3,
+    "mean_day": 0.67,
+    "mean_night": -1.33,
+    "mean_abs_day": 9.33,
+    "mean_abs_night": 10.67
+   },
+   "estat/road_within_band/r25": {
+    "n": 1,
+    "mean_day": 3.0,
+    "mean_night": 1.0,
+    "mean_abs_day": 3.0,
+    "mean_abs_night": 1.0
+   },
+   "estat/road_within_band/r50": {
+    "n": 1,
+    "mean_day": 3.0,
+    "mean_night": 1.0,
+    "mean_abs_day": 3.0,
+    "mean_abs_night": 1.0
+   },
+   "estat/road_within_band/r100": {
+    "n": 1,
+    "mean_day": 15.0,
+    "mean_night": 14.0,
+    "mean_abs_day": 15.0,
+    "mean_abs_night": 14.0
+   },
+   "road_facing/max/r25": {
+    "n": 3,
+    "mean_day": 11.0,
+    "mean_night": 9.33,
+    "mean_abs_day": 11.0,
+    "mean_abs_night": 9.33
+   },
+   "road_facing/max/r50": {
+    "n": 3,
+    "mean_day": 14.0,
+    "mean_night": 12.33,
+    "mean_abs_day": 14.0,
+    "mean_abs_night": 12.33
+   },
+   "road_facing/max/r100": {
+    "n": 3,
+    "mean_day": 14.33,
+    "mean_night": 12.67,
+    "mean_abs_day": 14.33,
+    "mean_abs_night": 12.67
+   },
+   "road_facing/road/r25": {
+    "n": 3,
+    "mean_day": 8.67,
+    "mean_night": 6.67,
+    "mean_abs_day": 8.67,
+    "mean_abs_night": 6.67
+   },
+   "road_facing/road/r50": {
+    "n": 3,
+    "mean_day": 9.33,
+    "mean_night": 7.33,
+    "mean_abs_day": 9.33,
+    "mean_abs_night": 7.33
+   },
+   "road_facing/road/r100": {
+    "n": 3,
+    "mean_day": 12.33,
+    "mean_night": 10.67,
+    "mean_abs_day": 12.33,
+    "mean_abs_night": 10.67
+   },
+   "road_facing/road_within_band/r25": {
+    "n": 3,
+    "mean_day": 8.67,
+    "mean_night": 6.67,
+    "mean_abs_day": 8.67,
+    "mean_abs_night": 6.67
+   },
+   "road_facing/road_within_band/r50": {
+    "n": 3,
+    "mean_day": 9.33,
+    "mean_night": 7.33,
+    "mean_abs_day": 9.33,
+    "mean_abs_night": 7.33
+   },
+   "road_facing/road_within_band/r100": {
+    "n": 3,
+    "mean_day": 12.33,
+    "mean_night": 10.67,
+    "mean_abs_day": 12.33,
+    "mean_abs_night": 10.67
+   }
+  }
+ },
+ "onq7": {
+  "switches": {
+   "USE_ROAD_NAME_MATCH": true,
+   "ROAD_NAME_REQUIRE_NAMED_SAME_CLASS": true,
+   "ROAD_NAME_REQUIRE_SAME_BAND": false
+  },
+  "outputs_sha256": {
+   "w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+   "w10_noise_day.npy": "022121e08d508d5db39b9a9da9021bce4ad0ec697f6ed55302d7949327a44b27",
+   "w10_noise_night.npy": "f8cccfd4376613e110b67c9bdfc1e41761025239165d5aa2a03a3933b72b835b",
+   "w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+   "w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+   "w10_edge_section.parquet": "6bd90df450347d186a1fccb8669b8772d8af8bf0e7d5a2d2a66d176c2b991f27"
+  },
+  "gates": {
+   "street_points": {
+    "value": 356732,
+    "expected": null,
+    "pass": true
+   },
+   "street_points_have_band": {
+    "value": 3,
+    "expected": 3,
+    "pass": true
+   },
+   "noise_arrays_len": {
+    "value": 356732,
+    "expected": 356732,
+    "pass": true
+   },
+   "primary_secondary_sections_matched": {
+    "value": 202,
+    "expected": 202,
+    "pass": true
+   },
+   "road_edges_with_census_traffic": {
+    "value": 225,
+    "expected": null,
+    "pass": true
+   },
+   "primary_secondary_sections_matchable": {
+    "value": 202,
+    "expected": null,
+    "pass": true
+   },
+   "primary_secondary_sections_matchable_q7_q9": {
+    "value": 202,
+    "expected": null,
+    "pass": true
+   },
+   "road_edges_with_traffic": {
+    "value": 2493,
+    "expected": 2493,
+    "pass": true
+   },
+   "points_with_at_least_one_source": {
+    "value": 356732,
+    "expected": 356732,
+    "pass": true
+   },
+   "calibration_points_evaluable": {
+    "value": 6,
+    "expected": null,
+    "pass": true
+   },
+   "calibration_max_abs_residual_db": {
+    "value": 7.3,
+    "expected": null,
+    "pass": false
+   }
+  },
+  "refine": {
+   "applied_edges": 225,
+   "primary_secondary_applied": 202,
+   "primary_secondary_gate_pass": true,
+   "applied_klass_tier_mismatch": 0,
+   "applied_mismatch_detail": {},
+   "applied_ratio_to_klass_default_max": 10.0,
+   "applied_by_route": {
+    "4:305:芝新宿王子線": 94,
+    "4:317:環状六号線": 33,
+    "6:412:霞ヶ関渋谷線": 23,
+    "6:413:赤坂杉並線": 44,
+    "6:423:渋谷経堂線": 8,
+    "6:432:淀橋渋谷本町線": 23
+   },
+   "day_db_percentiles": {
+    "5": 55.9,
+    "25": 62.8,
+    "50": 66.4,
+    "75": 70.1,
+    "95": 78.1
+   },
+   "night_db_percentiles": {
+    "5": 51.9,
+    "25": 58.8,
+    "50": 62.4,
+    "75": 66.1,
+    "95": 74.4
+   },
+   "cells_total": 520,
+   "cells_stage_changed_vs_off": {
+    "day": 27,
+    "night": 22
+   },
+   "cell_day_transitions": {
+    "うるさい->静か": 1,
+    "うるさい->騒がしい": 6,
+    "普通->うるさい": 2,
+    "普通->静か": 1,
+    "普通->騒がしい": 3,
+    "静か->普通": 1,
+    "騒がしい->うるさい": 10,
+    "騒がしい->普通": 3
+   },
+   "cell_night_transitions": {
+    "うるさい->普通": 1,
+    "うるさい->騒がしい": 3,
+    "普通->騒がしい": 3,
+    "騒がしい->うるさい": 15
+   },
+   "calibration_residuals": {
+    "61": [
+     5.1,
+     4.5
+    ],
+    "75": [
+     7.3,
+     6.4
+    ],
+    "78": [
+     -1.1,
+     -0.6
+    ],
+    "79": [
+     1.0,
+     -1.2
+    ],
+    "80": [
+     -0.1,
+     -1.4
+    ],
+    "81": [
+     -3.1,
+     -3.8
+    ],
+    "82": [
+     null,
+     null
+    ]
+   }
+  },
+  "noise_outputs_differ_from_off": {
+   "w10_street_points.parquet": false,
+   "w10_noise_day.npy": true,
+   "w10_noise_night.npy": true,
+   "w10_noise_stage_day.npy": true,
+   "w10_noise_stage_night.npy": true,
+   "w10_edge_section.parquet": true
+  },
+  "ruler_rows": [
+   {
+    "no": "61",
+    "status": "NO_BOUNDARY",
+    "address_form": "CHOME",
+    "chome": null,
+    "ward": "目黒区",
+    "road_kind": "4",
+    "measured_klasses": [
+     "primary",
+     "secondary"
+    ],
+    "measured_day_db": 64.0,
+    "measured_night_db": 60.0
+   },
+   {
+    "no": "75",
+    "status": "NO_BOUNDARY",
+    "address_form": "CHOME",
+    "chome": null,
+    "ward": "世田谷区",
+    "road_kind": "2",
+    "measured_klasses": [],
+    "measured_day_db": 64.0,
+    "measured_night_db": 63.0
+   },
+   {
+    "no": "78",
+    "status": "OK",
+    "address_form": "CHOME",
+    "chome": "神宮前五丁目",
+    "ward": "渋谷区",
+    "road_kind": "3",
+    "measured_klasses": [
+     "primary",
+     "secondary"
+    ],
+    "measured_day_db": 68.0,
+    "measured_night_db": 66.0,
+    "estat_xy": [
+     590.4,
+     573.1
+    ],
+    "rep_xy": {
+     "estat": [
+      590.4,
+      573.1
+     ],
+     "road_facing": [
+      732.5,
+      812.5
+     ]
+    },
+    "values": {
+     "estat": {
+      "25": {
+       "n": 131,
+       "road_dist_m": 264.641,
+       "road_beyond_band": true,
+       "max_day": 70.0,
+       "max_night": 66.0,
+       "road_day": 64.0,
+       "road_night": 60.0
+      },
+      "50": {
+       "n": 673,
+       "road_dist_m": 233.891,
+       "road_beyond_band": true,
+       "max_day": 73.0,
+       "max_night": 69.0,
+       "road_day": 67.0,
+       "road_night": 63.0
+      },
+      "100": {
+       "n": 2268,
+       "road_dist_m": 192.27,
+       "road_beyond_band": true,
+       "max_day": 73.0,
+       "max_night": 69.0,
+       "road_day": 62.0,
+       "road_night": 58.0
+      }
+     },
+     "road_facing": {
+      "25": {
+       "n": 265,
+       "road_dist_m": 0.07,
+       "road_beyond_band": false,
+       "max_day": 80.0,
+       "max_night": 77.0,
+       "road_day": 79.0,
+       "road_night": 75.0
+      },
+      "50": {
+       "n": 778,
+       "road_dist_m": 0.015,
+       "road_beyond_band": false,
+       "max_day": 81.0,
+       "max_night": 77.0,
+       "road_day": 80.0,
+       "road_night": 76.0
+      },
+      "100": {
+       "n": 2640,
+       "road_dist_m": 0.015,
+       "road_beyond_band": false,
+       "max_day": 81.0,
+       "max_night": 77.0,
+       "road_day": 80.0,
+       "road_night": 76.0
+      }
+     }
+    },
+    "diff": {
+     "estat": {
+      "max": {
+       "25": [
+        2.0,
+        0.0
+       ],
+       "50": [
+        5.0,
+        3.0
+       ],
+       "100": [
+        5.0,
+        3.0
+       ]
+      },
+      "road": {
+       "25": [
+        -4.0,
+        -6.0
+       ],
+       "50": [
+        -1.0,
+        -3.0
+       ],
+       "100": [
+        -6.0,
+        -8.0
+       ]
+      }
+     },
+     "road_facing": {
+      "max": {
+       "25": [
+        12.0,
+        11.0
+       ],
+       "50": [
+        13.0,
+        11.0
+       ],
+       "100": [
+        13.0,
+        11.0
+       ]
+      },
+      "road": {
+       "25": [
+        11.0,
+        9.0
+       ],
+       "50": [
+        12.0,
+        10.0
+       ],
+       "100": [
+        12.0,
+        10.0
+       ]
+      }
+     }
+    },
+    "road_dist_m": {
+     "estat": {
+      "25": 264.641,
+      "50": 233.891,
+      "100": 192.27
+     },
+     "road_facing": {
+      "25": 0.07,
+      "50": 0.015,
+      "100": 0.015
+     }
+    },
+    "road_beyond_band": {
+     "estat": {
+      "25": true,
+      "50": true,
+      "100": true
+     },
+     "road_facing": {
+      "25": false,
+      "50": false,
+      "100": false
+     }
+    },
+    "error": {
+     "area_m2": 257659.9,
+     "equivalent_radius_m": 286.4,
+     "estat_to_centroid_m": 0.3,
+     "estat_inside_polygon": true,
+     "estat_to_road_facing_m": 278.4,
+     "gl_points_in_chome": 19919,
+     "measured_road_points_in_chome": 1175,
+     "measured_road_day_pct": {
+      "5": 77.0,
+      "50": 79.0,
+      "95": 80.0
+     },
+     "measured_road_night_pct": {
+      "5": 74.0,
+      "50": 75.0,
+      "95": 77.0
+     }
+    },
+    "rep_edge": {
+     "estat": {
+      "klass": "residential",
+      "census_route": "",
+      "traffic_from_census": false
+     },
+     "road_facing": {
+      "klass": "secondary",
+      "census_route": "6:413:赤坂杉並線",
+      "traffic_from_census": true
+     }
+    }
+   },
+   {
+    "no": "79",
+    "status": "OK",
+    "address_form": "TOWN",
+    "chome": "鉢山町",
+    "ward": "渋谷区",
+    "road_kind": "4",
+    "measured_klasses": [
+     "primary",
+     "secondary"
+    ],
+    "measured_day_db": 67.0,
+    "measured_night_db": 66.0,
+    "estat_xy": [
+     -212.2,
+     -892.0
+    ],
+    "rep_xy": {
+     "estat": [
+      -212.2,
+      -892.0
+     ],
+     "road_facing": [
+      -310.0,
+      -992.5
+     ]
+    },
+    "values": {
+     "estat": {
+      "25": {
+       "n": 0,
+       "road_dist_m": null,
+       "road_beyond_band": null,
+       "max_day": null,
+       "max_night": null,
+       "road_day": null,
+       "road_night": null
+      },
+      "50": {
+       "n": 269,
+       "road_dist_m": 113.724,
+       "road_beyond_band": true,
+       "max_day": 67.0,
+       "max_night": 63.0,
+       "road_day": 57.0,
+       "road_night": 53.0
+      },
+      "100": {
+       "n": 1825,
+       "road_dist_m": 44.518,
+       "road_beyond_band": true,
+       "max_day": 73.0,
+       "max_night": 69.0,
+       "road_day": 60.0,
+       "road_night": 56.0
+      }
+     },
+     "road_facing": {
+      "25": {
+       "n": 276,
+       "road_dist_m": 0.054,
+       "road_beyond_band": false,
+       "max_day": 82.0,
+       "max_night": 79.0,
+       "road_day": 81.0,
+       "road_night": 78.0
+      },
+      "50": {
+       "n": 705,
+       "road_dist_m": 0.044,
+       "road_beyond_band": false,
+       "max_day": 84.0,
+       "max_night": 80.0,
+       "road_day": 80.0,
+       "road_night": 76.0
+      },
+      "100": {
+       "n": 2326,
+       "road_dist_m": 0.002,
+       "road_beyond_band": false,
+       "max_day": 84.0,
+       "max_night": 80.0,
+       "road_day": 79.0,
+       "road_night": 76.0
+      }
+     }
+    },
+    "diff": {
+     "estat": {
+      "max": {
+       "25": null,
+       "50": [
+        0.0,
+        -3.0
+       ],
+       "100": [
+        6.0,
+        3.0
+       ]
+      },
+      "road": {
+       "25": null,
+       "50": [
+        -10.0,
+        -13.0
+       ],
+       "100": [
+        -7.0,
+        -10.0
+       ]
+      }
+     },
+     "road_facing": {
+      "max": {
+       "25": [
+        15.0,
+        13.0
+       ],
+       "50": [
+        17.0,
+        14.0
+       ],
+       "100": [
+        17.0,
+        14.0
+       ]
+      },
+      "road": {
+       "25": [
+        14.0,
+        12.0
+       ],
+       "50": [
+        13.0,
+        10.0
+       ],
+       "100": [
+        12.0,
+        10.0
+       ]
+      }
+     }
+    },
+    "road_dist_m": {
+     "estat": {
+      "25": null,
+      "50": 113.724,
+      "100": 44.518
+     },
+     "road_facing": {
+      "25": 0.054,
+      "50": 0.044,
+      "100": 0.002
+     }
+    },
+    "road_beyond_band": {
+     "estat": {
+      "25": null,
+      "50": true,
+      "100": true
+     },
+     "road_facing": {
+      "25": false,
+      "50": false,
+      "100": false
+     }
+    },
+    "error": {
+     "area_m2": 107842.0,
+     "equivalent_radius_m": 185.3,
+     "estat_to_centroid_m": 0.3,
+     "estat_inside_polygon": true,
+     "estat_to_road_facing_m": 140.3,
+     "gl_points_in_chome": 7159,
+     "measured_road_points_in_chome": 504,
+     "measured_road_day_pct": {
+      "5": 77.2,
+      "50": 79.0,
+      "95": 81.0
+     },
+     "measured_road_night_pct": {
+      "5": 74.0,
+      "50": 76.0,
+      "95": 78.0
+     }
+    },
+    "rep_edge": {
+     "estat": {
+      "klass": "service",
+      "census_route": "",
+      "traffic_from_census": false
+     },
+     "road_facing": {
+      "klass": "primary",
+      "census_route": "4:317:環状六号線",
+      "traffic_from_census": true
+     }
+    }
+   },
+   {
+    "no": "80",
+    "status": "OUTSIDE_WORLD",
+    "address_form": "CHOME",
+    "chome": "広尾五丁目",
+    "ward": "渋谷区",
+    "road_kind": "4",
+    "measured_klasses": [
+     "primary",
+     "secondary"
+    ],
+    "measured_day_db": 67.0,
+    "measured_night_db": 65.0,
+    "estat_xy": [
+     1797.0,
+     -1130.7
+    ]
+   },
+   {
+    "no": "81",
+    "status": "OUTSIDE_WORLD",
+    "address_form": "CHOME",
+    "chome": "本町一丁目",
+    "ward": "渋谷区",
+    "road_kind": "4",
+    "measured_klasses": [
+     "primary",
+     "secondary"
+    ],
+    "measured_day_db": 65.0,
+    "measured_night_db": 61.0,
+    "estat_xy": [
+     -1609.8,
+     2375.7
+    ]
+   },
+   {
+    "no": "82",
+    "status": "OK",
+    "address_form": "CHOME",
+    "chome": "東三丁目",
+    "ward": "渋谷区",
+    "road_kind": "5",
+    "measured_klasses": [
+     "primary",
+     "secondary",
+     "tertiary",
+     "residential",
+     "unclassified",
+     "living_street",
+     "service"
+    ],
+    "measured_day_db": 66.0,
+    "measured_night_db": 64.0,
+    "estat_xy": [
+     891.2,
+     -997.4
+    ],
+    "rep_xy": {
+     "estat": [
+      891.2,
+      -997.4
+     ],
+     "road_facing": [
+      880.0,
+      -997.5
+     ]
+    },
+    "values": {
+     "estat": {
+      "25": {
+       "n": 59,
+       "road_dist_m": 0.074,
+       "road_beyond_band": false,
+       "max_day": 69.0,
+       "max_night": 65.0,
+       "road_day": 69.0,
+       "road_night": 65.0
+      },
+      "50": {
+       "n": 686,
+       "road_dist_m": 0.05,
+       "road_beyond_band": false,
+       "max_day": 78.0,
+       "max_night": 75.0,
+       "road_day": 69.0,
+       "road_night": 65.0
+      },
+      "100": {
+       "n": 2306,
+       "road_dist_m": 0.001,
+       "road_beyond_band": false,
+       "max_day": 81.0,
+       "max_night": 77.0,
+       "road_day": 80.0,
+       "road_night": 76.0
+      }
+     },
+     "road_facing": {
+      "25": {
+       "n": 108,
+       "road_dist_m": 0.074,
+       "road_beyond_band": false,
+       "max_day": 71.0,
+       "max_night": 67.0,
+       "road_day": 69.0,
+       "road_night": 65.0
+      },
+      "50": {
+       "n": 725,
+       "road_dist_m": 0.046,
+       "road_beyond_band": false,
+       "max_day": 79.0,
+       "max_night": 76.0,
+       "road_day": 71.0,
+       "road_night": 67.0
+      },
+      "100": {
+       "n": 2290,
+       "road_dist_m": 0.001,
+       "road_beyond_band": false,
+       "max_day": 81.0,
+       "max_night": 77.0,
+       "road_day": 80.0,
+       "road_night": 76.0
+      }
+     }
+    },
+    "diff": {
+     "estat": {
+      "max": {
+       "25": [
+        3.0,
+        1.0
+       ],
+       "50": [
+        12.0,
+        11.0
+       ],
+       "100": [
+        15.0,
+        13.0
+       ]
+      },
+      "road": {
+       "25": [
+        3.0,
+        1.0
+       ],
+       "50": [
+        3.0,
+        1.0
+       ],
+       "100": [
+        14.0,
+        12.0
+       ]
+      }
+     },
+     "road_facing": {
+      "max": {
+       "25": [
+        5.0,
+        3.0
+       ],
+       "50": [
+        13.0,
+        12.0
+       ],
+       "100": [
+        15.0,
+        13.0
+       ]
+      },
+      "road": {
+       "25": [
+        3.0,
+        1.0
+       ],
+       "50": [
+        5.0,
+        3.0
+       ],
+       "100": [
+        14.0,
+        12.0
+       ]
+      }
+     }
+    },
+    "road_dist_m": {
+     "estat": {
+      "25": 0.074,
+      "50": 0.05,
+      "100": 0.001
+     },
+     "road_facing": {
+      "25": 0.074,
+      "50": 0.046,
+      "100": 0.001
+     }
+    },
+    "road_beyond_band": {
+     "estat": {
+      "25": false,
+      "50": false,
+      "100": false
+     },
+     "road_facing": {
+      "25": false,
+      "50": false,
+      "100": false
+     }
+    },
+    "error": {
+     "area_m2": 131320.8,
+     "equivalent_radius_m": 204.5,
+     "estat_to_centroid_m": 0.3,
+     "estat_inside_polygon": true,
+     "estat_to_road_facing_m": 11.2,
+     "gl_points_in_chome": 6982,
+     "measured_road_points_in_chome": 5123,
+     "measured_road_day_pct": {
+      "5": 60.0,
+      "50": 67.0,
+      "95": 79.0
+     },
+     "measured_road_night_pct": {
+      "5": 56.0,
+      "50": 63.0,
+      "95": 75.0
+     }
+    },
+    "rep_edge": {
+     "estat": {
+      "klass": "residential",
+      "census_route": "",
+      "traffic_from_census": false
+     },
+     "road_facing": {
+      "klass": "residential",
+      "census_route": "",
+      "traffic_from_census": false
+     }
+    }
+   }
+  ],
+  "ruler_summary": {
+   "estat/max/r25": {
+    "n": 2,
+    "mean_day": 2.5,
+    "mean_night": 0.5,
+    "mean_abs_day": 2.5,
+    "mean_abs_night": 0.5
+   },
+   "estat/max/r50": {
+    "n": 3,
+    "mean_day": 5.67,
+    "mean_night": 3.67,
+    "mean_abs_day": 5.67,
+    "mean_abs_night": 5.67
+   },
+   "estat/max/r100": {
+    "n": 3,
+    "mean_day": 8.67,
+    "mean_night": 6.33,
+    "mean_abs_day": 8.67,
+    "mean_abs_night": 6.33
+   },
+   "estat/road/r25": {
+    "n": 2,
+    "mean_day": -0.5,
+    "mean_night": -2.5,
+    "mean_abs_day": 3.5,
+    "mean_abs_night": 3.5
+   },
+   "estat/road/r50": {
+    "n": 3,
+    "mean_day": -2.67,
+    "mean_night": -5.0,
+    "mean_abs_day": 4.67,
+    "mean_abs_night": 5.67
+   },
+   "estat/road/r100": {
+    "n": 3,
+    "mean_day": 0.33,
+    "mean_night": -2.0,
+    "mean_abs_day": 9.0,
+    "mean_abs_night": 10.0
+   },
+   "estat/road_within_band/r25": {
+    "n": 1,
+    "mean_day": 3.0,
+    "mean_night": 1.0,
+    "mean_abs_day": 3.0,
+    "mean_abs_night": 1.0
+   },
+   "estat/road_within_band/r50": {
+    "n": 1,
+    "mean_day": 3.0,
+    "mean_night": 1.0,
+    "mean_abs_day": 3.0,
+    "mean_abs_night": 1.0
+   },
+   "estat/road_within_band/r100": {
+    "n": 1,
+    "mean_day": 14.0,
+    "mean_night": 12.0,
+    "mean_abs_day": 14.0,
+    "mean_abs_night": 12.0
+   },
+   "road_facing/max/r25": {
+    "n": 3,
+    "mean_day": 10.67,
+    "mean_night": 9.0,
+    "mean_abs_day": 10.67,
+    "mean_abs_night": 9.0
+   },
+   "road_facing/max/r50": {
+    "n": 3,
+    "mean_day": 14.33,
+    "mean_night": 12.33,
+    "mean_abs_day": 14.33,
+    "mean_abs_night": 12.33
+   },
+   "road_facing/max/r100": {
+    "n": 3,
+    "mean_day": 15.0,
+    "mean_night": 12.67,
+    "mean_abs_day": 15.0,
+    "mean_abs_night": 12.67
+   },
+   "road_facing/road/r25": {
+    "n": 3,
+    "mean_day": 9.33,
+    "mean_night": 7.33,
+    "mean_abs_day": 9.33,
+    "mean_abs_night": 7.33
+   },
+   "road_facing/road/r50": {
+    "n": 3,
+    "mean_day": 10.0,
+    "mean_night": 7.67,
+    "mean_abs_day": 10.0,
+    "mean_abs_night": 7.67
+   },
+   "road_facing/road/r100": {
+    "n": 3,
+    "mean_day": 12.67,
+    "mean_night": 10.67,
+    "mean_abs_day": 12.67,
+    "mean_abs_night": 10.67
+   },
+   "road_facing/road_within_band/r25": {
+    "n": 3,
+    "mean_day": 9.33,
+    "mean_night": 7.33,
+    "mean_abs_day": 9.33,
+    "mean_abs_night": 7.33
+   },
+   "road_facing/road_within_band/r50": {
+    "n": 3,
+    "mean_day": 10.0,
+    "mean_night": 7.67,
+    "mean_abs_day": 10.0,
+    "mean_abs_night": 7.67
+   },
+   "road_facing/road_within_band/r100": {
+    "n": 3,
+    "mean_day": 12.67,
+    "mean_night": 10.67,
+    "mean_abs_day": 12.67,
+    "mean_abs_night": 10.67
+   }
+  }
+ },
+ "centerline_offset": {
+  "61": {
+   "centerline_minus_roadside_db": [
+    4.6,
+    4.6
+   ],
+   "roadside_distance_from_centerline_m": 6.4,
+   "beyond_street_grid_buffer_8m": false
+  },
+  "75": {
+   "centerline_minus_roadside_db": [
+    8.0,
+    8.0
+   ],
+   "roadside_distance_from_centerline_m": 13.3,
+   "beyond_street_grid_buffer_8m": true
+  },
+  "78": {
+   "centerline_minus_roadside_db": [
+    8.9,
+    8.9
+   ],
+   "roadside_distance_from_centerline_m": 16.0,
+   "beyond_street_grid_buffer_8m": true
+  },
+  "79": {
+   "centerline_minus_roadside_db": [
+    6.4,
+    6.4
+   ],
+   "roadside_distance_from_centerline_m": 10.7,
+   "beyond_street_grid_buffer_8m": true
+  },
+  "80": {
+   "centerline_minus_roadside_db": [
+    6.2,
+    6.2
+   ],
+   "roadside_distance_from_centerline_m": 14.0,
+   "beyond_street_grid_buffer_8m": true
+  },
+  "81": {
+   "centerline_minus_roadside_db": [
+    5.7,
+    5.7
+   ],
+   "roadside_distance_from_centerline_m": 9.0,
+   "beyond_street_grid_buffer_8m": true
+  }
+ }
+}

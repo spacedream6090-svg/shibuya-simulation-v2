@@ -86,6 +86,7 @@ from shibuya.agents.state import N_WAKE_CONDITIONS, REFRACTORY_MINUTES
 from shibuya.core.hashing import wake_tiebreak_array
 from shibuya.core.types import DEFERRAL_CLASSES, EventClass
 from shibuya.engine.scheduler import DIAG_COLUMNS, DeferralQueue
+from shibuya.core.time_consts import STEPS_PER_DAY
 
 __all__ = [
     "T_MAX_TICKS",
@@ -123,7 +124,7 @@ L4_REFERENCE_AGENTS: Final[int] = 400_000
 #: 3 段目(D-99 (a′)・D-110・ユーザー決定 09-25)で L4 は**制御目標ではなく監査線**になった=
 #: 既定(CLI・``cli.run``)は無制限で、ランごとに総呼数とこの線の超過の有無を manifest に書く。
 L4_LINE_PER_AGENT_DAY: Final[float] = float(L4_CALLS_PER_DAY) / float(L4_REFERENCE_AGENTS)
-_TICKS_PER_DAY: Final[int] = 1_440
+_TICKS_PER_DAY: Final[int] = STEPS_PER_DAY
 
 #: 不応期[tick](= 分。tick_seconds=60 なので 1 分 = 1 tick)。
 #: **参照用の写し**: アービタは ``refractory_until``(体×条件の「次に起床してよい tick」)

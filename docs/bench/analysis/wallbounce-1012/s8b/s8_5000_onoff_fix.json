@@ -1,0 +1,275 @@
+{
+ "what": "腕 --speech-port on・記憶と関係 on・mock 5,000 体・1 日・seed 1・世界 data/world/v2(W21)・語彙 v3。head=本体 6f07eff の写し(HEAD_TREE_FILES+data へのつなぎ)=直す前・wt=作業木=直した後。道具 tools/run_s8_onoff.py・1 本ずつ・壁時計は参考",
+ "compare": {
+  "s8_wt_on_off": {
+   "a": {
+    "label": "s8_wt_on",
+    "events": "on",
+    "final": "608559eeb58c98f0eb1d32d864b2a4c42f4f9752db27b9ee2174ed2b5b40f00d",
+    "speech_rows": 2869,
+    "wall_s": 54.2
+   },
+   "b": {
+    "label": "s8_wt_off",
+    "events": "off",
+    "final": "608559eeb58c98f0eb1d32d864b2a4c42f4f9752db27b9ee2174ed2b5b40f00d",
+    "speech_rows": 0,
+    "wall_s": 54.6
+   },
+   "final_same": true,
+   "checkpoints_behavior_same": true,
+   "n_checkpoints": 4,
+   "first_checkpoint_differ": null,
+   "meter_same": true,
+   "meter_moved": {},
+   "note": "直した後: 記録 on vs off"
+  },
+  "s8_head_on_off": {
+   "a": {
+    "label": "s8_head_on",
+    "events": "on",
+    "final": "765210c893882d8cf2ae5bf2dd25cfb250b09625cedf10f7ab24b8309c0416bb",
+    "speech_rows": 2869,
+    "wall_s": 55.9
+   },
+   "b": {
+    "label": "s8_head_off",
+    "events": "off",
+    "final": "608559eeb58c98f0eb1d32d864b2a4c42f4f9752db27b9ee2174ed2b5b40f00d",
+    "speech_rows": 0,
+    "wall_s": 55.0
+   },
+   "final_same": false,
+   "checkpoints_behavior_same": false,
+   "n_checkpoints": 4,
+   "first_checkpoint_differ": 359,
+   "meter_same": true,
+   "meter_moved": {},
+   "note": "直す前(6f07eff): 記録 on vs off"
+  },
+  "s8_head_wt_on": {
+   "a": {
+    "label": "s8_head_on",
+    "events": "on",
+    "final": "765210c893882d8cf2ae5bf2dd25cfb250b09625cedf10f7ab24b8309c0416bb",
+    "speech_rows": 2869,
+    "wall_s": 55.9
+   },
+   "b": {
+    "label": "s8_wt_on",
+    "events": "on",
+    "final": "608559eeb58c98f0eb1d32d864b2a4c42f4f9752db27b9ee2174ed2b5b40f00d",
+    "speech_rows": 2869,
+    "wall_s": 54.2
+   },
+   "final_same": false,
+   "checkpoints_behavior_same": false,
+   "n_checkpoints": 4,
+   "first_checkpoint_differ": 359,
+   "meter_same": true,
+   "meter_moved": {},
+   "note": "記録 on: 直す前 vs 直した後"
+  },
+  "s8_head_wt_off": {
+   "a": {
+    "label": "s8_head_off",
+    "events": "off",
+    "final": "608559eeb58c98f0eb1d32d864b2a4c42f4f9752db27b9ee2174ed2b5b40f00d",
+    "speech_rows": 0,
+    "wall_s": 55.0
+   },
+   "b": {
+    "label": "s8_wt_off",
+    "events": "off",
+    "final": "608559eeb58c98f0eb1d32d864b2a4c42f4f9752db27b9ee2174ed2b5b40f00d",
+    "speech_rows": 0,
+    "wall_s": 54.6
+   },
+   "final_same": true,
+   "checkpoints_behavior_same": true,
+   "n_checkpoints": 4,
+   "first_checkpoint_differ": null,
+   "meter_same": true,
+   "meter_moved": {},
+   "note": "記録 off: 直す前 vs 直した後"
+  }
+ },
+ "runs": {
+  "s8_wt_on": {
+   "label": "s8_wt_on",
+   "events": "on",
+   "final": "608559eeb58c98f0eb1d32d864b2a4c42f4f9752db27b9ee2174ed2b5b40f00d",
+   "wall_s": 54.2,
+   "checkpoints_behavior": [
+    [
+     359,
+     "c644683b1f61dfb8e6bc6e4d3f77c379b3dee25e2f01b0fa639b8e7c775fb803"
+    ],
+    [
+     719,
+     "51ff93e0b0b6f1f74703ee6f5d1704071179b926814da87989579db04f776666"
+    ],
+    [
+     1079,
+     "0058d1f1e73ac48f16534033029c83be2659fba37adcaaf711aea84c991e8fa7"
+    ],
+    [
+     1439,
+     "608559eeb58c98f0eb1d32d864b2a4c42f4f9752db27b9ee2174ed2b5b40f00d"
+    ]
+   ],
+   "speech_rows": 2869,
+   "cause_inputs": 639,
+   "cause_inputs_speech": 639,
+   "mark_table_rows_end": 147,
+   "inbox_rows_end": 147,
+   "meter": {
+    "turns": 2869,
+    "silent": 0,
+    "no_session": 0,
+    "to_inviter": 2225,
+    "said": 2869,
+    "zero_mora": 0,
+    "posted": 2869,
+    "delivered": 2584,
+    "all_imperative": 0,
+    "dropped_budget": 0,
+    "expired": 138,
+    "overflow": 0,
+    "wom_passed": 0
+   }
+  },
+  "s8_wt_off": {
+   "label": "s8_wt_off",
+   "events": "off",
+   "final": "608559eeb58c98f0eb1d32d864b2a4c42f4f9752db27b9ee2174ed2b5b40f00d",
+   "wall_s": 54.6,
+   "checkpoints_behavior": [
+    [
+     359,
+     "c644683b1f61dfb8e6bc6e4d3f77c379b3dee25e2f01b0fa639b8e7c775fb803"
+    ],
+    [
+     719,
+     "51ff93e0b0b6f1f74703ee6f5d1704071179b926814da87989579db04f776666"
+    ],
+    [
+     1079,
+     "0058d1f1e73ac48f16534033029c83be2659fba37adcaaf711aea84c991e8fa7"
+    ],
+    [
+     1439,
+     "608559eeb58c98f0eb1d32d864b2a4c42f4f9752db27b9ee2174ed2b5b40f00d"
+    ]
+   ],
+   "speech_rows": 0,
+   "cause_inputs": 0,
+   "cause_inputs_speech": 0,
+   "mark_table_rows_end": 0,
+   "inbox_rows_end": 147,
+   "meter": {
+    "turns": 2869,
+    "silent": 0,
+    "no_session": 0,
+    "to_inviter": 2225,
+    "said": 2869,
+    "zero_mora": 0,
+    "posted": 2869,
+    "delivered": 2584,
+    "all_imperative": 0,
+    "dropped_budget": 0,
+    "expired": 138,
+    "overflow": 0,
+    "wom_passed": 0
+   }
+  },
+  "s8_head_on": {
+   "label": "s8_head_on",
+   "events": "on",
+   "final": "765210c893882d8cf2ae5bf2dd25cfb250b09625cedf10f7ab24b8309c0416bb",
+   "wall_s": 55.9,
+   "checkpoints_behavior": [
+    [
+     359,
+     "6ea133c0aeddfb4fe2e5cc19bce4377daf37cba3bc2b64e71cda13469a2d7bf6"
+    ],
+    [
+     719,
+     "5a6fd13da7e9d33c1d31eadb183a70d5870d2ba2c951635a0c75c97f76273764"
+    ],
+    [
+     1079,
+     "67b86fd52176bd64c40048e031312723601589c7201c2de1bb985ae07796bff7"
+    ],
+    [
+     1439,
+     "765210c893882d8cf2ae5bf2dd25cfb250b09625cedf10f7ab24b8309c0416bb"
+    ]
+   ],
+   "speech_rows": 2869,
+   "cause_inputs": 639,
+   "cause_inputs_speech": 639,
+   "mark_table_rows_end": 0,
+   "inbox_rows_end": 147,
+   "meter": {
+    "turns": 2869,
+    "silent": 0,
+    "no_session": 0,
+    "to_inviter": 2225,
+    "said": 2869,
+    "zero_mora": 0,
+    "posted": 2869,
+    "delivered": 2584,
+    "all_imperative": 0,
+    "dropped_budget": 0,
+    "expired": 138,
+    "overflow": 0,
+    "wom_passed": 0
+   }
+  },
+  "s8_head_off": {
+   "label": "s8_head_off",
+   "events": "off",
+   "final": "608559eeb58c98f0eb1d32d864b2a4c42f4f9752db27b9ee2174ed2b5b40f00d",
+   "wall_s": 55.0,
+   "checkpoints_behavior": [
+    [
+     359,
+     "c644683b1f61dfb8e6bc6e4d3f77c379b3dee25e2f01b0fa639b8e7c775fb803"
+    ],
+    [
+     719,
+     "51ff93e0b0b6f1f74703ee6f5d1704071179b926814da87989579db04f776666"
+    ],
+    [
+     1079,
+     "0058d1f1e73ac48f16534033029c83be2659fba37adcaaf711aea84c991e8fa7"
+    ],
+    [
+     1439,
+     "608559eeb58c98f0eb1d32d864b2a4c42f4f9752db27b9ee2174ed2b5b40f00d"
+    ]
+   ],
+   "speech_rows": 0,
+   "cause_inputs": 0,
+   "cause_inputs_speech": 0,
+   "mark_table_rows_end": 0,
+   "inbox_rows_end": 147,
+   "meter": {
+    "turns": 2869,
+    "silent": 0,
+    "no_session": 0,
+    "to_inviter": 2225,
+    "said": 2869,
+    "zero_mora": 0,
+    "posted": 2869,
+    "delivered": 2584,
+    "all_imperative": 0,
+    "dropped_budget": 0,
+    "expired": 138,
+    "overflow": 0,
+    "wom_passed": 0
+   }
+  }
+ }
+}

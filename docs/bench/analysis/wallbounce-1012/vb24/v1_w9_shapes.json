@@ -1,0 +1,98 @@
+{
+ "2026-07-13": {
+  "file_bytes": 12842624,
+  "planes": 288,
+  "bytes_per_plane": 44592,
+  "A_now": 12842496,
+  "night_planes_all_ones": 117,
+  "B1_daylight_only": 7625232,
+  "B2_zlib6": 3044017,
+  "B3_daylight_zlib6": 3037194,
+  "zlib_compress_s": 0.529,
+  "zlib_decompress_s": 0.032
+ },
+ "2026-07-14": {
+  "file_bytes": 12842624,
+  "planes": 288,
+  "bytes_per_plane": 44592,
+  "A_now": 12842496,
+  "night_planes_all_ones": 117,
+  "B1_daylight_only": 7625232,
+  "B2_zlib6": 3042757,
+  "B3_daylight_zlib6": 3036051,
+  "zlib_compress_s": 0.531,
+  "zlib_decompress_s": 0.032
+ },
+ "2026-07-15": {
+  "file_bytes": 12842624,
+  "planes": 288,
+  "bytes_per_plane": 44592,
+  "A_now": 12842496,
+  "night_planes_all_ones": 117,
+  "B1_daylight_only": 7625232,
+  "B2_zlib6": 3041389,
+  "B3_daylight_zlib6": 3034715,
+  "zlib_compress_s": 0.538,
+  "zlib_decompress_s": 0.032
+ },
+ "2026-07-16": {
+  "file_bytes": 12842624,
+  "planes": 288,
+  "bytes_per_plane": 44592,
+  "A_now": 12842496,
+  "night_planes_all_ones": 117,
+  "B1_daylight_only": 7625232,
+  "B2_zlib6": 3040241,
+  "B3_daylight_zlib6": 3032744,
+  "zlib_compress_s": 0.698,
+  "zlib_decompress_s": 0.033
+ },
+ "2026-07-17": {
+  "file_bytes": 12842624,
+  "planes": 288,
+  "bytes_per_plane": 44592,
+  "A_now": 12842496,
+  "night_planes_all_ones": 118,
+  "B1_daylight_only": 7580640,
+  "B2_zlib6": 3036746,
+  "B3_daylight_zlib6": 3028308,
+  "zlib_compress_s": 0.65,
+  "zlib_decompress_s": 0.032
+ },
+ "2026-07-18": {
+  "file_bytes": 12842624,
+  "planes": 288,
+  "bytes_per_plane": 44592,
+  "A_now": 12842496,
+  "night_planes_all_ones": 118,
+  "B1_daylight_only": 7580640,
+  "B2_zlib6": 3035406,
+  "B3_daylight_zlib6": 3026978,
+  "zlib_compress_s": 0.653,
+  "zlib_decompress_s": 0.033
+ },
+ "2026-07-19": {
+  "file_bytes": 12842624,
+  "planes": 288,
+  "bytes_per_plane": 44592,
+  "A_now": 12842496,
+  "night_planes_all_ones": 119,
+  "B1_daylight_only": 7536048,
+  "B2_zlib6": 3030177,
+  "B3_daylight_zlib6": 3021788,
+  "zlib_compress_s": 0.645,
+  "zlib_decompress_s": 0.032
+ },
+ "2026-07-28": {
+  "file_bytes": 12842624,
+  "planes": 288,
+  "bytes_per_plane": 44592,
+  "A_now": 12842496,
+  "night_planes_all_ones": 121,
+  "B1_daylight_only": 7446864,
+  "B2_zlib6": 3009416,
+  "B3_daylight_zlib6": 3001775,
+  "zlib_compress_s": 0.641,
+  "zlib_decompress_s": 0.034
+ }
+}

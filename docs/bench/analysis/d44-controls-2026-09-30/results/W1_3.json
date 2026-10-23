@@ -1,0 +1,46 @@
+{
+ "key": "W1#3",
+ "control": "完全一致→部分一致(宣言)vs 完全一致だけ",
+ "metric": "floorguide 22 本の結線の状態(両端/片端/無し)と W11 構内グラフの次数分布",
+ "variants": [
+  {
+   "name": "floorguide 結線の状態",
+   "jsd_bits": 0.5757993983191749,
+   "null_p95": 0.0,
+   "detected": true,
+   "tvd": 0.7727272727272727,
+   "n_declared": 22.0,
+   "n_control": 22.0,
+   "n_bins": 4,
+   "declared": {
+    "ao_bo": 22
+   },
+   "control": {
+    "ao_bx": 9,
+    "ao_bo": 5,
+    "ax_bx": 3,
+    "ax_bo": 5
+   }
+  },
+  {
+   "name": "W11 構内グラフの次数",
+   "jsd_bits": 0.0,
+   "null_p95": 0.04759685621988901,
+   "detected": false,
+   "tvd": 0.0,
+   "n_declared": 60.0,
+   "n_control": 60.0,
+   "n_bins": 4
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 0.19050240004435182,
+ "outputs_changed": [
+  "w11_floorguide_connections.parquet",
+  "w1_floorguide_links.parquet"
+ ],
+ "seconds_wall_row": 0.93,
+ "measured_at": "2026-09-30"
+}

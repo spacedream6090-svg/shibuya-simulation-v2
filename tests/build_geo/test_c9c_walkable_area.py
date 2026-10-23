@@ -23,6 +23,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from tests import _data_ids as D
+
 _REPO = Path(__file__).resolve().parents[2]
 _SPEC = importlib.util.spec_from_file_location(
     "shibuya_tools_walkable_area", _REPO / "tools" / "build_geo" / "walkable_area.py"
@@ -166,9 +168,7 @@ def test_gate_ii_fails_when_the_median_leaves_the_band():
 
 # ================================================================ (vii) 実データ
 @pytest.mark.slow
-@pytest.mark.skipif(
-    not (WORLD / "c9c_walkable_area.parquet").exists(), reason="C9c-1 資産が無い"
-)
+@pytest.mark.requires_data("world_v2:c9c_walkable_area.parquet")
 def test_real_asset_header_records_the_three_gates():
     """出荷済み資産のヘッダに S7 の 3 ゲートが値つきで載っている。"""
     import pyarrow.parquet as pq
@@ -261,7 +261,7 @@ def test_default_covered_min_frac_is_declared():
 
 # ================================================================ (x) 実データ
 @pytest.mark.slow
-@pytest.mark.skipif(not GML.exists(), reason="PLATEAU 生 GML が無い")
+@pytest.mark.requires_data(D.id_of(GML))
 def test_gml_reader_reproduces_the_advisory_counts_and_areas():
     """答申 a8(地物数・LOD3 の内訳)と a9(区全域の面積)を**地物単位の数え方**で再現する。"""
     crs = json.loads((WORLD / "world_crs.json").read_text(encoding="utf-8"))
@@ -284,7 +284,7 @@ def test_gml_reader_reproduces_the_advisory_counts_and_areas():
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(not GML.exists(), reason="PLATEAU 生 GML が無い")
+@pytest.mark.requires_data(D.id_of(GML))
 def test_ring_dedup_removes_the_sixfold_repetition():
     """LOD3 の環は 6 重。畳むと環数も面積も減る(答申の 897,556 m² は重複込み)。"""
     crs = json.loads((WORLD / "world_crs.json").read_text(encoding="utf-8"))
@@ -302,7 +302,7 @@ def test_ring_dedup_removes_the_sixfold_repetition():
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(not GML.exists(), reason="PLATEAU 生 GML が無い")
+@pytest.mark.requires_data(D.id_of(GML))
 def test_build_is_deterministic_and_refuses_to_overwrite(tmp_path):
     res1 = WA.build(PLATEAU, WORLD, tmp_path)
     res2 = WA.build(PLATEAU, WORLD, tmp_path / "again")
@@ -312,7 +312,7 @@ def test_build_is_deterministic_and_refuses_to_overwrite(tmp_path):
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(not GML.exists(), reason="PLATEAU 生 GML が無い")
+@pytest.mark.requires_data(D.id_of(GML))
 def test_default_build_has_no_cell_above_its_own_area(tmp_path):
     """**物理検査**: 100 m セルに 10,000 m² を超える道路面は入らない。
 
@@ -328,7 +328,7 @@ def test_default_build_has_no_cell_above_its_own_area(tmp_path):
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(not (PLATEAU / "tran_lod3.npz").exists(), reason="PLATEAU npz が無い")
+@pytest.mark.requires_data("plateau:tran_lod3.npz")
 def test_npz_source_still_builds(tmp_path):
     """``--source npz``(GML の無い環境用)も動く。値は LOD3 + clip_rect の部分集合。"""
     res = WA.build(PLATEAU, WORLD, tmp_path, source="npz")

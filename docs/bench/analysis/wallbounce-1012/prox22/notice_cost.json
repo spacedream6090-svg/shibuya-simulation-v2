@@ -1,0 +1,44 @@
+{
+ "schema": "shibuya.bench/prox22/notice_cost/1",
+ "note": "腕 distance・d=2 m・語彙 v3・記憶 on・関係 on・seed 1。vector=philox_array でまとめて引く(いまの形)・loop=同じ組を 1 組ずつ stream で引く(前の形)。値は全刻みで同じ(違えば止まる)。壁時計は決定論でない",
+ "rows": {
+  "mock": {
+   "agents": 5000,
+   "final16": "5f84247709e64a5c",
+   "llm_calls": 68171,
+   "steps_with_draws": 1042,
+   "draws_total": 97282,
+   "draws_per_step_mean": 93.4,
+   "draws_per_step_max": 209,
+   "vector_ms_per_step_mean": 0.3368,
+   "vector_ms_per_step_p95": 0.3875,
+   "vector_ms_per_step_max": 2.0448,
+   "vector_s_per_day": 0.351,
+   "loop_ms_per_step_mean": 1.2756,
+   "loop_ms_per_step_p95": 2.4912,
+   "loop_ms_per_step_max": 5.7457,
+   "loop_s_per_day": 1.329,
+   "values_equal": true,
+   "run_wall_s_nondeterministic": 57.8
+  },
+  "classical": {
+   "agents": 5000,
+   "final16": "c61196ce5af5e1dc",
+   "llm_calls": 105426,
+   "steps_with_draws": 1035,
+   "draws_total": 149010,
+   "draws_per_step_mean": 144.0,
+   "draws_per_step_max": 369,
+   "vector_ms_per_step_mean": 0.3518,
+   "vector_ms_per_step_p95": 0.4116,
+   "vector_ms_per_step_max": 1.5362,
+   "vector_s_per_day": 0.364,
+   "loop_ms_per_step_mean": 1.9494,
+   "loop_ms_per_step_p95": 4.0216,
+   "loop_ms_per_step_max": 10.2021,
+   "loop_s_per_day": 2.018,
+   "values_equal": true,
+   "run_wall_s_nondeterministic": 83.5
+  }
+ }
+}

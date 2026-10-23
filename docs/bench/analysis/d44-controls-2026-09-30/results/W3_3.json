@@ -1,0 +1,38 @@
+{
+ "key": "W3#3",
+ "control": "丸め前に min(D, Dᵀ) で対称化(宣言)vs 対称化しない",
+ "metric": "セル間距離(対角以外の全順序対)の 10 m 階級分布",
+ "variants": [
+  {
+   "name": "対称化しない・10 m 階級",
+   "jsd_bits": 9.695414051481342e-07,
+   "null_p95": 0.0005510695752150157,
+   "detected": false,
+   "tvd": 0.0007818289610197104,
+   "n_declared": 269880.0,
+   "n_control": 269880.0,
+   "n_bins": 376,
+   "entries_differ": 5278
+  },
+  {
+   "name": "対称化しない・1 m 階級(参考)",
+   "jsd_bits": 9.357580072989237e-05,
+   "null_p95": 0.0046544100828242105,
+   "detected": false,
+   "tvd": 0.007399585000741071,
+   "n_declared": 269880.0,
+   "n_control": 269880.0,
+   "n_bins": 3759,
+   "primary": false
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.44983260007575154,
+ "checks": {
+  "declared_recomputed_equals_asset": true
+ },
+ "seconds_wall_row": 4.01,
+ "measured_at": "2026-09-30"
+}

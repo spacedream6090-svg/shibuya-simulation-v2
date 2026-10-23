@@ -7,6 +7,11 @@
   (c) バンドが UG(地下街)= 常に日陰(expedient)
 
 出力は ``np.packbits`` した (288, ceil(N/8)) uint8。D-W10 の宣言予算は **≤10MB/再生日**。
+〔改訂(第 2 期 2-4・仮採用=親の判断待ち)〕宣言を実測に合わせて **≤13,000,000 B/再生日** に直した
+(:data:`BUDGET_BYTES_PER_DAY`・ゲート ``shadow_bytes_per_day_le_budget``)。8.6MB/日 は 239,028 点の前提で、
+点の集合は W10 と同じ 356,732 点=288 面 × 44,592 B=12,842,496 B(ファイル 12,842,624 B)。点を間引いて予算に
+合わせることはしない(前からの方針)。影の形を縮める案(昼の面だけ・zlib)は記録
+``docs/bench/analysis/wallbounce-1012/vb24/README.md`` の V1 に比べた。
 
 太陽位置は W13(``field.w13_weather``)の NOAA 近似を**そのまま輸入**する
 (``_solar_terms`` から赤緯・均時差を取り、同じ時角の式で高度と方位を出す)。
@@ -17,7 +22,12 @@ expedient
 - UG は常時日陰・DECK は GL と同じ扱い(デッキ床高が未取得)。
 - 遮蔽は W8 と同じ 2.5m ラスタ(建物頂部高さ場)。
 - 大気差・地形の遠方遮蔽(尾根越し)は見ない(ラスタ内の地盤高だけを見る)。
-- 再生日 = W13 ``w13_weather_days.parquet`` の**先頭日**(D-W15 の再生候補日の選定は未決)。
+- 〔改訂(第330 B5)〕影を作る日 = 定数 :data:`SHADOW_DATES`(旧は W13 の**先頭日**=W13 の窓を変えると
+  黙って別の日の影になった)。影は暦の日付で決まる(太陽の位置=答え 10-12b 1-3)。先頭の日を「主の日」
+  とし、面ごとの表 ``w9_shadow_planes.parquet`` と W20 の正午の図は主の日の値を出す(ほかの日は notes)。
+- 〔改訂(第330 B5)〕古い出力の規則: エンジンは ``w9_shadow_*.npy`` を glob して影のある日を拾うので、
+  本段階は ``out`` にある ``w9_shadow_<日付>.npy`` のうち :data:`SHADOW_DATES` に無いものを**消す**
+  (残すと前の構築の日が黙って影ありの日になる)。消したことはヘッダに書かない(再構築のバイト一致のため)。
 """
 
 from __future__ import annotations
@@ -32,6 +42,7 @@ from numba import njit, prange
 from ..field.w13_weather import LAT, LON, TZ_OFFSET_MIN, _solar_terms, solar_elevation_deg
 from ..geo import common as C
 from .w8_visibility import EYE_M, RASTER_M, STEP_M, _dem_sample, build_scene
+from shibuya.core.time_consts import MINUTES_PER_HOUR
 
 STAGE = "W9"
 STAGE_VERSION = "1.0.0"
@@ -42,8 +53,19 @@ N_PLANES = 288
 PLANE_MIN = 5
 #: 影の最大追跡距離 [m](expedient)。
 SHADOW_MAX_M = 300.0
-#: D-W10 の宣言予算 [byte/再生日]。
-BUDGET_BYTES_PER_DAY = 10_000_000
+#: D-W10 の宣言予算 [byte/再生日]。〔改訂(第 2 期 2-4・仮採用)〕10_000_000(239,028 点の前提)→ 13_000_000
+#: (356,732 点 × 288 面のビット表=12,842,624 B/日の実測に約 1.2% の余白)。ゲートの名は値を持たない形にした。
+BUDGET_BYTES_PER_DAY = 13_000_000
+#: 〔改訂(第330 B5・B6・ACT)〕影を作る日の一覧(先頭=主の日)。先頭の 2026-07-28 は 10e より前と同じ日(旧値の再現用・
+#: 面ごとの表と W20 の正午の図はこの日)。〔改訂(第330 ACT)〕版上げ 1 回目の活性化で既定の開始日 2026-07-13(月)からの
+#: 平日 5 日(07-13〜07-17)を足した(ユーザーの答え 10-12b 1-3・1-4=影は暦の日付で引く・ランで使う日だけ作る)。
+#: エンジンは暦の日付の影を読み、無い日は近い日の影を読んで警告する(``engine/processes/environment.py``)。
+#: 〔改訂(第 2 期 2-3)〕複数日の mock(10g)の 7 日の窓=開始日 2026-07-13(月)〜07-19(日)に広げた(土日の 07-18・07-19 を
+#: 足した)。窓の中の日は暦の日付の影を読む(近い日の影=つなぎ ``BR-SHADOW-NEAREST-DAY`` は窓の外の日だけ)。資産は
+#: ``data/world/v2_stage_2-3/`` に組み、活性化(本体の資産の差し替え)は版上げ 2 回目(2-4)。
+SHADOW_DATES: tuple[str, ...] = (
+    "2026-07-28", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-18", "2026-07-19",
+)
 
 
 def sun_vector(date: dt.date, local_min: float) -> tuple[float, float, float]:
@@ -52,7 +74,7 @@ def sun_vector(date: dt.date, local_min: float) -> tuple[float, float, float]:
 
     W13 の ``_solar_terms`` をそのまま使う(赤緯・均時差の定義を1本にする)。
     """
-    hour_utc = (local_min - TZ_OFFSET_MIN) / 60.0
+    hour_utc = (local_min - TZ_OFFSET_MIN) / MINUTES_PER_HOUR
     decl, eqtime = _solar_terms(date, hour_utc)
     true_solar_min = local_min + eqtime + 4.0 * LON - TZ_OFFSET_MIN
     ha = math.radians(true_solar_min / 4.0 - 180.0)
@@ -119,6 +141,63 @@ def _shadow_plane(
         out[i] = shadow
 
 
+def remove_stale_shadows(out: Any, dates: tuple[str, ...]) -> list[str]:
+    """``out`` の ``w9_shadow_<日付>.npy`` のうち ``dates`` に無い日のファイルを消し、消した名前を返す。
+
+    エンジンは ``w9_shadow_*.npy`` を glob して影のある日を拾うので、前の構築の日を残さない(第330 B5)。
+    面の表 ``w9_shadow_planes.parquet`` は名前の形が違うので対象外。
+    """
+    removed: list[str] = []
+    for old in sorted(out.glob("w9_shadow_*.npy")):
+        if old.name[len("w9_shadow_") : -len(".npy")] not in dates:
+            old.unlink()
+            removed.append(old.name)
+    return removed
+
+
+def _shadow_day(
+    date: dt.date,
+    n_pts: int,
+    vx: np.ndarray,
+    vy: np.ndarray,
+    vz: np.ndarray,
+    forced_ug: np.ndarray,
+    scene: Any,
+) -> dict[str, Any]:
+    """1 日ぶんの 288 面(5 分刻み)。夜の面は全ビット 1。"""
+    planes = np.zeros((N_PLANES, (n_pts + 7) // 8), dtype=np.uint8)
+    flags = np.empty(n_pts, dtype=np.uint8)
+    elevations: list[float] = []
+    azimuths: list[float] = []
+    fractions: list[float] = []
+    n_night = 0
+    for p in range(N_PLANES):
+        local_min = p * PLANE_MIN + PLANE_MIN / 2.0
+        elev, az, tan_e = sun_vector(date, local_min)
+        elevations.append(round(elev, 3))
+        azimuths.append(round(az, 3))
+        if elev <= 0.0:
+            planes[p] = all_shadow_plane(n_pts)
+            fractions.append(1.0)
+            n_night += 1
+            continue
+        az_r = math.radians(az)
+        ux = math.sin(az_r)
+        uy = math.cos(az_r)
+        _shadow_plane(
+            vx, vy, vz, forced_ug, ux, uy, tan_e,
+            scene.ground_z, scene.top_z, scene.owner,
+            scene.x0, scene.y0, scene.pitch, scene.nx, scene.ny,
+            STEP_M, SHADOW_MAX_M, scene.max_top_z, flags,
+        )
+        planes[p] = np.packbits(flags)
+        fractions.append(float(flags.mean()))
+    return {
+        "planes": planes, "elevations": elevations, "azimuths": azimuths,
+        "fractions": fractions, "n_night": n_night,
+    }
+
+
 def run(ctx: C.Ctx) -> C.StageResult:
     osm_p = ctx.osm()
     terrain_p = ctx.path("plateau", "terrain.npz")
@@ -165,38 +244,26 @@ def run(ctx: C.Ctx) -> C.StageResult:
     forced_ug = (band == "UG").astype(np.uint8)
 
     days = C.read_parquet_columns(days_p, ["date", "weather_type", "stratum"])
-    date_str = str(days["date"][0])
-    date = dt.date.fromisoformat(date_str)
+    w13_row = {str(d): i for i, d in enumerate(days["date"])}
+    if not SHADOW_DATES or len(set(SHADOW_DATES)) != len(SHADOW_DATES):
+        raise ValueError(f"SHADOW_DATES が空か重複: {SHADOW_DATES}")
+    # 古い出力の規則(docstring): 一覧に無い日の影のファイルを消す
+    remove_stale_shadows(ctx.out, SHADOW_DATES)
 
-    planes = np.zeros((N_PLANES, (n_pts + 7) // 8), dtype=np.uint8)
-    flags = np.empty(n_pts, dtype=np.uint8)
-    elevations: list[float] = []
-    azimuths: list[float] = []
-    fractions: list[float] = []
-    n_night = 0
-    for p in range(N_PLANES):
-        local_min = p * PLANE_MIN + PLANE_MIN / 2.0
-        elev, az, tan_e = sun_vector(date, local_min)
-        elevations.append(round(elev, 3))
-        azimuths.append(round(az, 3))
-        if elev <= 0.0:
-            planes[p] = all_shadow_plane(n_pts)
-            fractions.append(1.0)
-            n_night += 1
-            continue
-        az_r = math.radians(az)
-        ux = math.sin(az_r)
-        uy = math.cos(az_r)
-        _shadow_plane(
-            vx, vy, vz, forced_ug, ux, uy, tan_e,
-            scene.ground_z, scene.top_z, scene.owner,
-            scene.x0, scene.y0, scene.pitch, scene.nx, scene.ny,
-            STEP_M, SHADOW_MAX_M, scene.max_top_z, flags,
+    per_date: dict[str, dict[str, Any]] = {}
+    for date_str in SHADOW_DATES:
+        date = dt.date.fromisoformat(date_str)
+        per_date[date_str] = _shadow_day(
+            date, n_pts, vx, vy, vz, forced_ug, scene
         )
-        planes[p] = np.packbits(flags)
-        fractions.append(float(flags.mean()))
+    date_str = SHADOW_DATES[0]
+    planes = per_date[date_str]["planes"]
+    elevations = per_date[date_str]["elevations"]
+    azimuths = per_date[date_str]["azimuths"]
+    fractions = per_date[date_str]["fractions"]
+    n_night = per_date[date_str]["n_night"]
 
-    noon_plane = (12 * 60) // PLANE_MIN
+    noon_plane = (12 * MINUTES_PER_HOUR) // PLANE_MIN
     day_planes = [i for i, e in enumerate(elevations) if e > 0.0]
 
     params: dict[str, Any] = {
@@ -212,6 +279,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
         "lon": LON,
         "tz_offset_min": TZ_OFFSET_MIN,
         "ug_always_shadow": True,
+        "shadow_dates": list(SHADOW_DATES),
     }
     res = C.StageResult(
         stage=STAGE,
@@ -225,12 +293,24 @@ def run(ctx: C.Ctx) -> C.StageResult:
             "UG は常時日陰・DECK は GL と同じ扱い(デッキ床高が未取得)",
             "遮蔽は W8 と同じ 2.5m ラスタ(建物頂部高さ場)",
             "大気差・遠方地形の尾根越し遮蔽を見ない",
-            "再生日=W13 の先頭日(D-W15 の候補日選定は未決)",
+            "影を作る日=定数 SHADOW_DATES(第330 B5・先頭=主の日・D-W15 の候補日選定は未決)",
         ],
         notes={
             "replay_date": date_str,
-            "replay_day_weather_type": str(days["weather_type"][0]),
-            "replay_day_stratum": str(days["stratum"][0]),
+            "shadow_dates": list(SHADOW_DATES),
+            "replay_day_weather_type": (
+                str(days["weather_type"][w13_row[date_str]]) if date_str in w13_row else ""
+            ),
+            "replay_day_stratum": str(days["stratum"][w13_row[date_str]]) if date_str in w13_row else "",
+            "per_date": {
+                d: {
+                    "planes_daylight": sum(1 for e in v["elevations"] if e > 0.0),
+                    "solar_elev_at_noon_deg": v["elevations"][(12 * MINUTES_PER_HOUR) // PLANE_MIN],
+                    "shadow_fraction_noon": round(v["fractions"][(12 * MINUTES_PER_HOUR) // PLANE_MIN], 5),
+                    "in_w13_window": d in w13_row,
+                }
+                for d, v in per_date.items()
+            },
             "points": n_pts,
             "points_by_band": {b: int((band == b).sum()) for b in sorted(set(band.tolist()))},
             "planes_night_all_shadow": n_night,
@@ -250,7 +330,8 @@ def run(ctx: C.Ctx) -> C.StageResult:
             ),
         },
     )
-    res.outputs.append(C.write_npy(ctx.out, f"w9_shadow_{date_str}.npy", planes))
+    for d in SHADOW_DATES:
+        res.outputs.append(C.write_npy(ctx.out, f"w9_shadow_{d}.npy", per_date[d]["planes"]))
     res.outputs.append(
         C.write_parquet(
             ctx.out,
@@ -266,8 +347,9 @@ def run(ctx: C.Ctx) -> C.StageResult:
     )
     shadow_bytes = res.outputs[0]["bytes"]
     night_ok = all(
-        int(np.unpackbits(planes[p])[:n_pts].sum()) == n_pts
-        for p, e in enumerate(elevations)
+        int(np.unpackbits(v["planes"][p])[:n_pts].sum()) == n_pts
+        for v in per_date.values()
+        for p, e in enumerate(v["elevations"])
         if e <= 0.0
     )
     res.gates = [
@@ -276,12 +358,13 @@ def run(ctx: C.Ctx) -> C.StageResult:
         C.Gate("bits_per_plane_cover_points", int(planes.shape[1]) * 8 >= n_pts, True),
         C.Gate("night_planes_all_shadow", night_ok, True),
         C.Gate(
-            "shadow_bytes_per_day_le_10mb",
+            "shadow_bytes_per_day_le_budget",  # 〔2-4〕旧名 shadow_bytes_per_day_le_10mb(宣言の値を名に持たない形に)
             int(shadow_bytes),
             BUDGET_BYTES_PER_DAY,
             passed=shadow_bytes <= BUDGET_BYTES_PER_DAY,
         ),
         C.Gate("shadow_fraction_noon", round(fractions[noon_plane], 5), None),
         C.Gate("daylight_planes", len(day_planes), None),
+        C.Gate("shadow_days", len(SHADOW_DATES), None),
     ]
     return res

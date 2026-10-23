@@ -9,6 +9,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from tests import _time_gates as TG
+
 from shibuya.agents.state import Activity, ResultCode
 from shibuya.engine import growth_decl as GD
 from shibuya.engine.run import DIAG_RUN_COLUMNS, main, run_day
@@ -117,8 +119,9 @@ def test_w2_five_thousand_agents_one_sim_day_under_ten_minutes():
     calls_per_agent = res.llm_calls / res.n_agents
     print(f"  [W2] {res.wall_seconds:.2f}s / 600s ・ [P2] {res.movement_ms_per_tick:.3f} ms/tick "
           f"/ 5 ms ・ [L4] {calls_per_agent:.2f} 呼/体/日 / 10")
-    assert res.wall_seconds <= W2_LIMIT_SECONDS
-    assert res.movement_ms_per_tick <= P2_LIMIT_MS
+    assert TG.check(res.wall_seconds <= W2_LIMIT_SECONDS, f"W2 {res.wall_seconds:.2f}s(上限 {W2_LIMIT_SECONDS}s)")
+    assert TG.check(res.movement_ms_per_tick <= P2_LIMIT_MS,
+                    f"P2 {res.movement_ms_per_tick:.3f} ms/tick(上限 {P2_LIMIT_MS} ms)")
     assert res.conserved and res.min_stock >= 0
     assert res.growth_report is not None and res.growth_report.ok
     # L4: 平均 10 呼/体/日 の制御目標(超過しない)
@@ -130,4 +133,5 @@ def test_w2_five_thousand_agents_one_sim_day_under_ten_minutes():
 def test_p2_movement_and_density_under_5ms_at_5000_agents():
     res = run_day(n_agents=5_000, seed=2, ticks=480, checkpoint_every=480, n_cells=139)
     print(f"\n[P2] 移動+密度更新 {res.movement_ms_per_tick:.4f} ms/tick @5,000体 (上限 5 ms)")
-    assert res.movement_ms_per_tick <= P2_LIMIT_MS
+    assert TG.check(res.movement_ms_per_tick <= P2_LIMIT_MS,
+                    f"P2 {res.movement_ms_per_tick:.4f} ms/tick @5,000体(上限 {P2_LIMIT_MS} ms)")

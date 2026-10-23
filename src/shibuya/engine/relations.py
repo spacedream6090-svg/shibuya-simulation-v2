@@ -59,6 +59,17 @@ A と強さ(M12 (a)・D-93 (a))::
        その当たりだけの配列演算。抽選は会話の行 × k の配列演算(起点の控えは会話の行の数ぶん)。
     SoA の外(腕だけ): 同席=欄ごとの始まりの tick int32+日 int16(体あたり 90 B)・知人出現=同一相手の不応期
     int32(体あたり 60 B)・前 tick のセル int32(4 B)・相手に選ばれた回数 int64(8 B)。
+    〔第 1 期 1-7 CT5〕個人の連絡先の手段ごとの印 ``contact_flags``(体 × k の uint8=体あたり k B・``--relations on`` の
+    ランだけ)。
+
+〔第 1 期 1-7 CT5〕個人の連絡先の手段ごとの印(決定 10-12 §4-4 CT5 (c)・``engine.tools.contacts``)
+    ``contact_flags``(体 × k・欄の位置は ``rel_*`` の列と同じ)。既存の ``rel_*`` の列と書き方は変えない。中身は
+    ``_contact_flags`` に置き、``contact_flags`` は読み取り専用の view を返す property(口の外から書けない・付け替えられない=
+    検収 L1。``_contact_flags`` の付け替えと消去も ``__setattr__``/``__delattr__`` で止める)。書くのは
+    :meth:`RelationLayer._write_contacts` の 1 つだけ(呼ぶのは初めの辺=:meth:`seed_initial`・欄の相手が替わった=
+    :meth:`_reset_slots`・再開の作り直し=:meth:`rebuild_contacts`=試験の AST)。家族(世帯の辺)と職場(職場の辺)は
+    初めから印あり。C0 では誰も読まない(C1 で使う)=印は辺の種別の写像そのもの(状態台帳の行 ``CT5``=軸 1 diag・
+    軸 2 derivable・中身は hash_skip)。
 """
 
 from __future__ import annotations
@@ -73,6 +84,8 @@ import numpy as np
 from shibuya.agents.state import REL_EMPTY, WAKE_CONDITION_CLASS, ResultCode, WakeCondition
 from shibuya.core.hashing import relation_invite_key_array
 from shibuya.engine import resolve as R
+from shibuya.engine.tools import contacts as _CT
+from shibuya.core.time_consts import MINUTES_PER_DAY
 
 __all__ = [
     "REL_K",
@@ -81,6 +94,11 @@ __all__ = [
     "REL_KIND_NAMES",
     "REL_D",
     "REL_TAU",
+    "REL_TAU_V1",
+    "REL_TAU_BY_TENURE_HASH",
+    "REL_TENURE_HASHES",
+    "DEFAULT_REL_TENURE_HASH",
+    "check_rel_tenure_hash",
     "REL_S",
     "REL_TENURE_WEEKS",
     "REL_SLOT_MIN",
@@ -117,12 +135,28 @@ REL_D: Final[float] = 0.5
 #: 切り下げて **−2.346**(=ラン開始時に中央 15 本が残る値・感度 ±0.5)。8a の −1.1(A が 13 段の階段)・8b の 0.704
 #: (n を 15 分枠で数えた=会話 1 回の辺と単位が違った)は置き換え。過程と τ の曲線は記録
 #: ``docs/bench/analysis/c10-relations-2026-09-28/`` §8b′。
-REL_TAU: Final[float] = -2.346
+REL_TAU_V1: Final[float] = -2.346
+#: 第2波 §2A 項 2(Q111 の解析で見つかった欠陥の修正): 在職期間の U を同点の順のハッシュと独立にした(``v2``)
+#: うえで、8b′ と同じ手順(全母集団・``initial_edges(tau=None)``・ラン開始時の「体ごとの 15 番目の辺の A」の
+#: 中央値を小数 3 桁で切り下げ)で再逆算した値。値と手順は記録 ``docs/bench/analysis/wave2-2026-09-30/`` §2A-2。
+REL_TAU_V2: Final[float] = -2.322
+#: 在職期間のハッシュの版 → 既定の τ_rel(``v1``=旧=−2.346 のまま・``v2``=修正後の再逆算)。
+REL_TAU_BY_TENURE_HASH: Final[dict[str, float]] = {"v2": REL_TAU_V2, "v1": REL_TAU_V1}
+#: 既定の τ_rel(既定の在職期間ハッシュ ``v2`` の値)。
+REL_TAU: Final[float] = REL_TAU_V2
 #: 強さ P のロジスティックの幅(M17 の宣言と同じ)。
 REL_S: Final[float] = 0.25
 #: 初期辺の**在職期間 T_uv の上限**[週](第299 Q89/Q90): 辺ごとに組の hash で 1〜13 週に一様に散らす
 #: (expedient・感度腕 26 週)。n=共在のあった日数/週 × T_uv(第300 訂正=1 日 1 本)・first=−T_uv。
 REL_TENURE_WEEKS: Final[float] = 13.0
+#: 在職期間 T_uv のハッシュの版(第2波 §2A 項 2)。``v2``(既定)=同点の順のハッシュ ``_pair_mix(元 id_u, 元 id_v)``
+#: と独立な混ぜ合わせ(向きのない組の ``_pair_mix`` にもう 1 段 splitmix64 を塩つきでかける)/ ``v1``=旧
+#: (``_pair_mix(min, max)``=元 id_u < 元 id_v の辺で同点の順と同じ値=同点の多い組で在職の短い相手ほど選ばれる欠陥・
+#: 旧 golden の再現用)。
+REL_TENURE_HASHES: Final[tuple[str, ...]] = ("v2", "v1")
+DEFAULT_REL_TENURE_HASH: Final[str] = "v2"
+#: v2 の塩(未リサーチ=expedient・値そのものに意味はない=黄金比の 64 bit 表現と異なる定数なら何でもよい)。
+_TENURE_SALT_V2: Final[int] = 0xD1B54A32D192ED03
 #: 共在を数える時間の枠[分](週 7 日 × 96 枠)。
 REL_SLOT_MIN: Final[int] = 15
 #: 1 辺の実バイト(4+1+1+4+4+2)と宣言バイト(同じ)。
@@ -146,13 +180,15 @@ _ACQ: Final[int] = int(WakeCondition.ACQUAINTANCE)
 #: W17 が **1 日ぶんしか無い**(全体が曜日 0 だけ=実資産の事実)とき、その日を「代表日」として「共在のあった
 #: 日数/週」に直す日数(世帯 7・職場 5・学校 5=宣言・expedient)。複数の曜日がある表では共在のあった曜日の数。
 REL_DAYS_PER_WEEK: Final[dict[int, int]] = {1: 7, 2: 5, 3: 5}
-_SLOTS_PER_DAY: Final[int] = 1440 // REL_SLOT_MIN
+_SLOTS_PER_DAY: Final[int] = MINUTES_PER_DAY // REL_SLOT_MIN
 _SLOTS: Final[int] = 7 * _SLOTS_PER_DAY
 _TALK: Final[int] = 7
 #: 招待の層の外(k=50 の腕の 16 番目以降の辺)は「残り」の層に入れる(宣言)。
 _REST_SHARE: Final[float] = 1.0 - sum(s for _, s in REL_INVITE_LAYERS)
 _HELP: Final[int] = 9
 _SIGN_LABEL: Final[dict[int, str]] = {1: "+1", 0: "0", -1: "-1"}
+#: 〔1-7 CT5・検収 L1〕付け替えと消去を止める属性(連絡先の印の中身)。
+_CONTACT_GUARDED: Final[frozenset[str]] = frozenset({"_contact_flags"})
 _SIGN_OF_RESULT: Final[dict[int, int]] = {
     int(ResultCode.OK): 1, int(ResultCode.REFUSED): -1, int(ResultCode.PARTNER_BUSY): 0,
     int(ResultCode.PARTNER_GONE): 0,
@@ -278,10 +314,10 @@ def _last_copresence(su: np.ndarray, sv: np.ndarray, day_index: int, daily: bool
     """
     both = (su == sv) & (su >= 0)
     if not bool(both.any()):
-        return -7 * 1440
+        return -7 * MINUTES_PER_DAY
     if daily:
         j = int(np.flatnonzero(both[:_SLOTS_PER_DAY])[-1]) if bool(both[:_SLOTS_PER_DAY].any()) else -1
-        return (j + 1) * REL_SLOT_MIN - 1440 if j >= 0 else -7 * 1440
+        return (j + 1) * REL_SLOT_MIN - MINUTES_PER_DAY if j >= 0 else -7 * MINUTES_PER_DAY
     start = (int(day_index) % 7) * _SLOTS_PER_DAY
     # ランの日の 0 時から過去へ 1 週ぶん遡る並び(逐次なし=配列の回転)
     order = (start - 1 - np.arange(_SLOTS)) % _SLOTS
@@ -296,14 +332,14 @@ _LAST_CHUNK: Final[int] = 4_096
 def _last_copresence_many(sl_u: np.ndarray, sl_v: np.ndarray, day_index: int, daily: bool) -> np.ndarray:
     """``_last_copresence`` の配列版(辺の塊ごと・同じ値)。``sl_u``/``sl_v`` は ``(辺, 7×96)``。"""
     both = (sl_u == sl_v) & (sl_u >= 0)
-    out = np.full(both.shape[0], -7 * 1440, dtype=np.int64)
+    out = np.full(both.shape[0], -7 * MINUTES_PER_DAY, dtype=np.int64)
     if both.shape[0] == 0:
         return out
     if daily:
         b = both[:, :_SLOTS_PER_DAY]
         has = b.any(axis=1)
         j = _SLOTS_PER_DAY - 1 - np.argmax(b[:, ::-1], axis=1)
-        return np.where(has, (j + 1) * REL_SLOT_MIN - 1440, out)
+        return np.where(has, (j + 1) * REL_SLOT_MIN - MINUTES_PER_DAY, out)
     start = (int(day_index) % 7) * _SLOTS_PER_DAY
     order = (start - 1 - np.arange(_SLOTS)) % _SLOTS
     bo = both[:, order]
@@ -337,24 +373,56 @@ def _weekly64(weekly: Any) -> Any:
     )
 
 
-def _tenure_weeks(src_u: np.ndarray, src_v: np.ndarray, tenure_weeks: float) -> np.ndarray:
-    """辺の在職期間 T_uv[週]=1 + (上限 − 1) × U(組)。U=元 id の**向きのない組**の混ぜ合わせ(u→v と v→u で同じ)。"""
+def check_rel_tenure_hash(version: str) -> str:
+    """在職期間のハッシュの版を検める(関係の部品の単体の口・〔第 2 部〕ランの口の切替口 --rel-tenure-hash は消した)。"""
+    if str(version) not in REL_TENURE_HASHES:
+        raise ValueError(f"rel_tenure_hash は {REL_TENURE_HASHES} のどれか(いま {version!r})")
+    return str(version)
+
+
+def _splitmix64(x: np.ndarray) -> np.ndarray:
+    """uint64 → uint64(splitmix64 の 1 段=加算と仕上げ・全単射)。"""
+    with np.errstate(over="ignore"):
+        z = np.asarray(x, dtype=np.uint64) + np.uint64(0x9E3779B97F4A7C15)
+        z = (z ^ (z >> np.uint64(30))) * np.uint64(0xBF58476D1CE4E5B9)
+        z = (z ^ (z >> np.uint64(27))) * np.uint64(0x94D049BB133111EB)
+        z ^= z >> np.uint64(31)
+    return z
+
+
+def _tenure_unit(src_u: np.ndarray, src_v: np.ndarray, version: str = DEFAULT_REL_TENURE_HASH) -> np.ndarray:
+    """在職期間の U ∈ [0, 1)(元 id の**向きのない組**の混ぜ合わせ=u→v と v→u で同じ)。
+
+    ``v1``(旧)= ``_pair_mix(min, max)``。元 id_u < 元 id_v の辺では同点の順(``_pair_mix(元 id_u, 元 id_v)``)と
+    同じ値になる=欠陥(第2波 §2A 項 2)。``v2`` = その値に塩を排他的論理和してから splitmix64 をもう 1 段
+    (全単射の非線形の混ぜ=同点の順との順位相関が消える)。
+    """
     lo = np.minimum(src_u, src_v)
     hi = np.maximum(src_u, src_v)
     x = _pair_mix(lo, hi)
-    unit = (x >> np.uint64(11)).astype(np.float64) / float(1 << 53)  # [0, 1)
+    if check_rel_tenure_hash(version) == "v2":
+        x = _splitmix64(x ^ np.uint64(_TENURE_SALT_V2))
+    return (x >> np.uint64(11)).astype(np.float64) / float(1 << 53)  # [0, 1)
+
+
+def _tenure_weeks(src_u: np.ndarray, src_v: np.ndarray, tenure_weeks: float,
+                  version: str = DEFAULT_REL_TENURE_HASH) -> np.ndarray:
+    """辺の在職期間 T_uv[週]=1 + (上限 − 1) × U(組)。U=:func:`_tenure_unit`(u→v と v→u で同じ)。"""
+    unit = _tenure_unit(src_u, src_v, version)
     return 1.0 + (float(tenure_weeks) - 1.0) * unit
 
 
 def initial_edges(pop: Any, weekly: Any, n_agents: int, *, k: int = REL_K, day_index: int = 0,
                   density: float = 1.0, minutes_per_tick: float = 1.0, d: float = REL_D,
                   tau: float | None = REL_TAU, tiebreak: str = "hash",
-                  tenure_weeks: float = REL_TENURE_WEEKS) -> InitialEdges:
+                  tenure_weeks: float = REL_TENURE_WEEKS,
+                  tenure_hash: str = DEFAULT_REL_TENURE_HASH) -> InitialEdges:
     """W16(世帯・組織・学校セル)+W17(共在)→ 初期辺(有向・体ごとに上位 k − 世帯)。
 
     ``tau`` が数なら A ≥ τ の辺だけ返す(``None`` なら全部=τ の逆算に使う)。逐次ループ宣言 1。
     ``tiebreak``: 共在の分が同じ相手の順(:data:`REL_TIEBREAKS`・既定 ``hash``)。
     ``tenure_weeks``: 在職期間 T_uv の上限[週](第299 Q89/Q90・既定 13・感度 26)。
+    ``tenure_hash``: 在職期間のハッシュの版(:data:`REL_TENURE_HASHES`・既定 ``v2``=同点の順と独立・``v1``=旧)。
     """
     if not (math.isfinite(float(tenure_weeks)) and float(tenure_weeks) >= 1.0):
         raise ValueError(f"tenure_weeks は 1 以上(いま {tenure_weeks})")
@@ -362,9 +430,11 @@ def initial_edges(pop: Any, weekly: Any, n_agents: int, *, k: int = REL_K, day_i
         raise ValueError(f"rel_init_density は {REL_INIT_DENSITIES} のどれか(いま {density})")
     if tiebreak not in REL_TIEBREAKS:
         raise ValueError(f"tiebreak は {REL_TIEBREAKS} のどれか(いま {tiebreak!r})")
+    check_rel_tenure_hash(tenure_hash)
     m = min(int(n_agents), int(pop.n))
     audit: dict[str, Any] = {"density": float(density), "k": int(k), "slot_minutes": REL_SLOT_MIN,
-                             "tiebreak": str(tiebreak), "tenure_weeks": float(tenure_weeks)}
+                             "tiebreak": str(tiebreak), "tenure_weeks": float(tenure_weeks),
+                             "tenure_hash": str(tenure_hash)}
     empty = np.zeros(0, dtype=np.int64)
     if m == 0 or weekly is None:
         audit["reason"] = "no_population_or_schedule"
@@ -464,10 +534,10 @@ def initial_edges(pop: Any, weekly: Any, n_agents: int, *, k: int = REL_K, day_i
     audit["capped_out"] = int(np.count_nonzero(~cap))
     u, v, kind, mn, bk = u[cap], v[cap], kind[cap], mn[cap], bk[cap]
     # 第299 Q89/Q90+第300 訂正: 在職期間 T_uv(組の hash で 1〜上限 週)・n=共在のあった日数/週 × T_uv・first=−T_uv
-    tw = _tenure_weeks(src_id[u], src_id[v], float(tenure_weeks))
+    tw = _tenure_weeks(src_id[u], src_id[v], float(tenure_weeks), str(tenure_hash))
     n = np.minimum(65_535, np.round(bk * tw)).astype(np.int64)
     n = np.maximum(n, 1)
-    first = -np.round(tw * 7.0 * 1440.0 / float(minutes_per_tick)).astype(np.int64)
+    first = -np.round(tw * 7.0 * float(MINUTES_PER_DAY) / float(minutes_per_tick)).astype(np.int64)
     A0 = _activation(n, first, 0, minutes_per_tick, d)
     audit["edges_before_tau"] = int(u.size)
     if tau is not None:
@@ -476,7 +546,7 @@ def initial_edges(pop: Any, weekly: Any, n_agents: int, *, k: int = REL_K, day_i
         u, v, kind, mn, n, first, A0 = u[live], v[live], kind[live], mn[live], n[live], first[live], A0[live]
     # 直近の共在(ランの日の前へ遡る)=書く辺だけ・辺の塊ごとの配列演算(逐次ループ宣言 1b: 塊の数ぶん=
     # 辺数/4,096・ラン開始時に 1 回)
-    last = np.full(u.size, -7 * 1440, dtype=np.int64)
+    last = np.full(u.size, -7 * MINUTES_PER_DAY, dtype=np.int64)
     need = np.unique(np.concatenate([u, v])) if u.size else empty
     if need.size:
         sl = slot_cells(weekly, need)
@@ -583,6 +653,9 @@ class RelationLayer:
         # ---- 8b: 同セルの辺の集め(同じ tick の同席と知人出現で共有) ----
         self._hits: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
         self._hits_tick = -1
+        # ---- 第 2 期 2-2(腕 --proximity distance): 体 × k の辺の見え方(同じ刻みの同席と知人出現で共有=検収 M2) ----
+        self._ev: tuple[np.ndarray, ...] | None = None
+        self._ev_step = -1
         self._co_minutes = float(REL_COPRESENT_MINUTES)
         self._co_meters = float(REL_COPRESENT_METERS)
         # ---- 8b(R7 (a) 知人出現): 同一相手の不応期(体 × k)・前 tick のセル・この tick の候補 ----
@@ -592,6 +665,27 @@ class RelationLayer:
         self._acq_pending: tuple[np.ndarray, np.ndarray] = (np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int64))
         #: 壁時計(決定論でない・manifest の ``wall_seconds_nondeterministic``)。
         self.wall: Counter = Counter()
+        #: 〔第 1 期 1-7 CT5〕個人の連絡先の手段ごとの印の中身(体 × k・``engine.tools.contacts.MEANS`` のビット)。書くのは
+        #: ``_write_contacts`` だけ・読むのは ``contact_flags``(読み取り専用の view)。C0 では誰も読まない(状態台帳の行 CT5)。
+        self._contact_flags = np.zeros((self.n, self.k), dtype=_CT.FLAG_DTYPE)
+
+    # ------------------------------------------------------------------ 1-7 CT5(検収 L1): 実行時の守り
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name in _CONTACT_GUARDED and name in self.__dict__:
+            raise AttributeError(f"RelationLayer の {name} は付け替えられない(連絡先の印を書く口は _write_contacts だけ)")
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        if name in _CONTACT_GUARDED:
+            raise AttributeError(f"RelationLayer の {name} は消せない(連絡先の印を書く口は _write_contacts だけ)")
+        object.__delattr__(self, name)
+
+    @property
+    def contact_flags(self) -> np.ndarray:
+        """連絡先の印(体 × k の読み取り専用の view=口の外から書けない。書く口は ``_write_contacts``)。"""
+        v = self._contact_flags.view()
+        v.flags.writeable = False
+        return v
 
     @property
     def copresent_on(self) -> bool:
@@ -616,6 +710,8 @@ class RelationLayer:
         ok = slot < self.k
         R.write_relations(agents, u[ok], slot[ok], init.v[ok], init.kind[ok], np.zeros(int(ok.sum())),
                           init.first[ok], init.last[ok], init.n[ok])
+        # 1-7 CT5: 家族(世帯の辺)と職場(職場の辺)は初めから連絡先の印あり(ほかの種別は 0)
+        self._write_contacts(u[ok], slot[ok], _CT.flags_from_kinds(init.kind[ok]))
         self.stats["init_edges"] += int(ok.sum())
         for kd, c in Counter(init.kind[ok].tolist()).items():  # 種別の数ぶん(≤ 5)
             self.stats[f"init_edges:{REL_KIND_NAMES[int(kd)]}"] += int(c)
@@ -700,8 +796,34 @@ class RelationLayer:
             self._co_active = self._co_active[~np.isin(self._co_active, f)]
         if self._acq_until is not None:
             self._acq_until[a, slot] = -1
+        # 1-7 CT5: 新しい相手の連絡先は知らない(交換は本人の行動=C1)
+        self._write_contacts(a, slot, 0)
+
+    # ------------------------------------------------------------------ 1-7 CT5: 連絡先の印(書く口は 1 つ)
+    def _write_contacts(self, a: np.ndarray, slot: np.ndarray, flags: Any) -> None:
+        """連絡先の印の欄 ``(a, slot)`` に ``flags`` を書く。**印を書く口はこれ 1 つ**(呼ぶのは ``seed_initial``・
+        ``_reset_slots``・``rebuild_contacts`` だけ=試験の AST)。"""
+        self._contact_flags[np.asarray(a, dtype=np.int64), np.asarray(slot, dtype=np.int64)] = flags
+
+    def contact_tally(self, agents: Any) -> dict[str, Any]:
+        """manifest の ``tools.contact_flags``(印を持つ辺の数・手段ごと・種別ごと=``engine.tools.contacts.tally``)。読むだけ。"""
+        r = agents.registry
+        return {**_CT.tally(self._contact_flags, r.rel_kind, r.rel_partner), "means": list(_CT.MEANS)}
+
+    def rebuild_contacts(self, agents: Any) -> None:
+        """再開: 戻した辺の種別から連絡先の印を作り直す(C0 では印は種別の写像そのもの=通しのランと同じ値)。"""
+        r = agents.registry
+        kind = np.asarray(r.rel_kind)
+        rows, cols = np.indices(kind.shape)
+        self._write_contacts(rows.reshape(-1), cols.reshape(-1),
+                             _CT.flags_from_kinds(kind, np.asarray(r.rel_partner)).reshape(-1))
 
     # ------------------------------------------------------------------ 読み口
+    def _partner_rows(self, agents: Any, agent_ids: np.ndarray) -> np.ndarray:
+        """〔第 6 期 6-5〕体の配列 → ``(体, 幅)`` の辺の相手(空は −1)。既定=``rel_partner`` の写し(幅=k)。人も記憶の一つの腕
+        (``engine.relations_people``)は器の人の行(幅=器の行の幅)。"""
+        return agents.registry.rel_partner[np.asarray(agent_ids, dtype=np.int64)].astype(np.int64)
+
     def activation(self, agents: Any, agent_ids: np.ndarray, tick: int) -> np.ndarray:
         """体の配列 → ``(体, k)`` の A(空の辺は −inf)。"""
         r = agents.registry
@@ -772,7 +894,7 @@ class RelationLayer:
 
     def choose_talk_partners(self, agents: Any, tick: int, a: np.ndarray, fallback: np.ndarray,
                              named_ok: np.ndarray, condition: np.ndarray, *,
-                             record_origin: bool = True) -> tuple[np.ndarray, np.ndarray]:
+                             record_origin: bool = True, proximity: Any = None) -> tuple[np.ndarray, np.ndarray]:
         """会話の相手(R5・R12・D-31 (b))と起点(招待/偶然/知人出現)。配列演算(体 × k)。
 
         - 名指し(``named_ok``)の行は相手を変えない(起点だけ付ける)。
@@ -781,6 +903,10 @@ class RelationLayer:
           とき)から、:func:`_layer_weights` の重みで seed つきに引く。同セルに辺が無ければ ``fallback`` のまま
           (従来どおり=D-31 (a))。
         - 起点: 起床が知人出現 → ``acquaintance``・相手が 2 m 内の知人 → ``chance``・それ以外 → ``invite``。
+
+        〔第 2 期 2-2 段 11a〕``proximity``(腕 ``--proximity distance`` の ``engine.proximity.ProximityRule``)を渡すと、
+        「同セルの辺」と「2 m 内の知人」をどちらも「届く辺の相手」(同じ層・距離 ≤ d、または同じ B5 の単位)に替える
+        (届く知人が居ればその中から=偶然)。``None``(既定)は今のまま。
 
         Returns: ``(相手, 起点の索引)``。起点は :attr:`origin_of` にも控える(run が招待の計数に使う・
         ``record_origin=False``=classical 方策の呼の時点の選び=控えない)。
@@ -792,17 +918,22 @@ class RelationLayer:
         if a.size == 0:
             return fb.copy(), np.zeros(0, dtype=np.int64)
         r = agents.registry
-        p = r.rel_partner[a].astype(np.int64)
+        p = self._partner_rows(agents, a)  # 〔6-5〕読み口(既定は rel_partner の写し=人も記憶の腕は器の人の行)
+        width = int(p.shape[1])
         A = self.activation(agents, a, tick)
         rank = _rank_live(A, self.tau)
         live = rank >= 0
-        cell = np.asarray(r.cell, dtype=np.int64)
-        ca = cell[a]
         pp = np.where(live, p, 0)
-        in_cell = live & (cell[pp] == ca[:, None]) & (ca[:, None] >= 0)
-        xy = np.asarray(r.xy, dtype=np.float64)
-        d2 = ((xy[pp] - xy[a][:, None, :]) ** 2).sum(axis=-1)
-        near = in_cell & (d2 <= float(R.TALK_OPEN_METERS) ** 2)
+        if proximity is not None and proximity.is_distance:  # 第 2 期 2-2: 届く辺の相手(同セルと 2 m を 1 つに)
+            in_cell = live & proximity.reach(agents, a[:, None], pp)
+            near = in_cell
+        else:
+            cell = np.asarray(r.cell, dtype=np.int64)
+            ca = cell[a]
+            in_cell = live & (cell[pp] == ca[:, None]) & (ca[:, None] >= 0)
+            xy = np.asarray(r.xy, dtype=np.float64)
+            d2 = ((xy[pp] - xy[a][:, None, :]) ** 2).sum(axis=-1)
+            near = in_cell & (d2 <= float(R.TALK_OPEN_METERS) ** 2)
         has_near = near.any(axis=1)
         cand = np.where(has_near[:, None], near, in_cell)
         fb_is_edge = ((p == fb[:, None]) & in_cell).any(axis=1)
@@ -816,9 +947,9 @@ class RelationLayer:
             u = (key >> np.uint64(11)).astype(np.float64) / float(1 << 53)
             cum = np.cumsum(np.concatenate([w[pick], w_rest[pick][:, None]], axis=1), axis=1)
             idx = (cum < (u * cum[:, -1])[:, None]).sum(axis=1)
-            idx = np.minimum(idx, self.k)
+            idx = np.minimum(idx, width)
             rows = np.flatnonzero(pick)
-            got_edge = idx < self.k
+            got_edge = idx < width
             out[rows[got_edge]] = p[rows[got_edge], idx[got_edge]]
             r_edge = rank[rows[got_edge], idx[got_edge]]
             for name, sel in (("inner", r_edge < 5), ("next", (r_edge >= 5) & (r_edge < 15)),
@@ -875,6 +1006,45 @@ class RelationLayer:
         self._hits_tick = int(tick)
         return self._hits
 
+    @staticmethod
+    def _edges(agents: Any) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """空でない辺の欄 ``(体, 欄, 相手)``(体の昇順 → 欄の昇順)。第 2 期 2-2(腕 distance)の材料。"""
+        p = np.asarray(agents.registry.rel_partner)
+        a, j = np.nonzero(p != REL_EMPTY)
+        return a.astype(np.int64), j.astype(np.int64), p[a, j].astype(np.int64)
+
+    def _edge_view(self, agents: Any, tick: int, proximity: Any) -> tuple[np.ndarray, ...]:
+        """〔第 2 期 2-2 段 11a・検収 M2〕いまの辺の見え方 ``(体, 欄, 相手, 気づく範囲, 距離, 届く)``(舞台の中の辺だけ)。
+
+        体 × k の辺を刻みに 1 回だけなめる(``ProximityRule.edge_view``)。同じ刻みの 2 回目(同席の後の知人出現)は控えを
+        返す(今の道の ``_same_cell_hits`` と同じ形=同じ刻みの中で位置が動かない系の中でだけ呼ぶ)。
+        逐次ループ宣言: なし(体 × k の 1 回の集めと、打ち切りの中の辺だけの距離の配列演算・毎刻み)。
+        """
+        if self._ev_step == int(tick) and self._ev is not None:
+            return self._ev
+        a, j, v = self._edges(agents)
+        cell = np.asarray(agents.registry.cell)
+        on = (cell[a] >= 0) & (cell[v] >= 0)            # 舞台の外の体の辺は範囲の外で届かない(先に落とす=答えは同じ)
+        a, j, v = a[on], j[on], v[on]
+        inr, dist, reach = proximity.edge_view(agents, a, v)
+        self._ev = (a, j, v, inr, dist, reach)
+        self._ev_step = int(tick)
+        return self._ev
+
+    def aware_of(self, agents: Any, agent_id: int, ids: Any, tick: int) -> np.ndarray:
+        """〔第 2 期 2-2・検収 L1〕体 ``agent_id`` が相手 ``ids`` に気づいている(気づいた印か起床の後の不応期が切れていない)か。
+
+        読むだけ(描画の B5 の近接行の知人が読む=描画ごとに引き直さない)。辺に居ない相手・知人出現の起床が無いランは偽。
+        逐次ループ宣言: なし(相手の数 × k の配列演算)。
+        """
+        ids = np.atleast_1d(np.asarray(ids, dtype=np.int64))
+        if self._acq_until is None or ids.size == 0:
+            return np.zeros(ids.size, dtype=bool)
+        i = int(agent_id)
+        p = np.asarray(agents.registry.rel_partner)[i].astype(np.int64)
+        on = (p[None, :] == ids[:, None]) & (p[None, :] != REL_EMPTY)
+        return (on & (self._acq_until[i].astype(np.int64)[None, :] > int(tick))).any(axis=1)
+
     # ------------------------------------------------------------------ 8b: 同席(Q91)
     def enable_copresent(self, *, minutes: float = REL_COPRESENT_MINUTES,
                          meters: float = REL_COPRESENT_METERS) -> None:
@@ -886,21 +1056,27 @@ class RelationLayer:
         self._co_minutes = float(minutes)
         self._co_meters = float(meters)
 
-    def copresent_step(self, agents: Any, tick: int) -> None:
+    def copresent_step(self, agents: Any, tick: int, *, proximity: Any = None) -> None:
         """同じセル・2 m 内に辺の相手が居る欄を数え、連続 5 分で 1 本(相手ごと 1 日 1 本)を辺に書く。
 
         書く=``n``+1・``last``=tick・符号は +0(同席のみ=0・R-36 §2-5 C)。表に居ない同席者は書かない。
+        〔第 2 期 2-2 段 11a〕``proximity``(腕 ``--proximity distance``)を渡すと「同じセル・2 m 内」を「届く」(同じ層・
+        距離 ≤ d、または同じ B5 の単位)に替える(辺の見え方は知人出現と共有=:meth:`_edge_view`)。``None``(既定)は今のまま。
         逐次ループ宣言: なし(同セルの辺の集め 1 回+その当たりだけの配列演算・毎 tick)。
         """
         if self._co_since is None:
             return
         r = agents.registry
-        a, j, v = self._same_cell_hits(agents, tick)
-        if a.size:
-            xy = np.asarray(r.xy, dtype=np.float64)
-            dd = xy[v] - xy[a]
-            near = (dd * dd).sum(axis=1) <= self._co_meters ** 2
-            a, j = a[near], j[near]
+        if proximity is not None and proximity.is_distance:
+            ea, ej, _ev, _inr, _d, reach = self._edge_view(agents, tick, proximity)
+            a, j = ea[reach], ej[reach]
+        else:
+            a, j, v = self._same_cell_hits(agents, tick)
+            if a.size:
+                xy = np.asarray(r.xy, dtype=np.float64)
+                dd = xy[v] - xy[a]
+                near = (dd * dd).sum(axis=1) <= self._co_meters ** 2
+                a, j = a[near], j[near]
         flat = a * self.k + j                       # 体の昇順 → 欄の昇順(nonzero の並び)=整列済み
         old = self._co_active
         gone = old[~np.isin(old, flat, assume_unique=True)]
@@ -910,7 +1086,7 @@ class RelationLayer:
         self._co_active = flat
         if flat.size == 0:
             return
-        day = int(int(tick) * self.minutes_per_tick // 1440)
+        day = int(int(tick) * self.minutes_per_tick // MINUTES_PER_DAY)
         run = (int(tick) - self._co_since[flat].astype(np.int64) + 1) * self.minutes_per_tick
         fire = (run >= self._co_minutes) & (self._co_day[flat] != day)
         if not bool(fire.any()):
@@ -932,11 +1108,14 @@ class RelationLayer:
         self._acq_pair_ticks = int(round(float(pair_refractory_min) / self.minutes_per_tick))
 
     def acquaintance_candidates(self, agents: Any, tick: int,
-                                eligible: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+                                eligible: np.ndarray | None = None, *,
+                                proximity: Any = None) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """知人(A ≥ τ)が同セルに**現れた** tick(前 tick は同セルでなかった)の起床候補(1 体 1 件・最強の相手)。
 
         ``eligible``=候補にしてよい体(起きていて舞台に居る=アービタが落とさない体)。前 tick のセルは全体で持つ。
         同一相手の不応期 60 分で落とす。1 tick 目は「前 tick」が無いので出さない(宣言)。
+        〔第 2 期 2-2 段 11a〕``proximity``(腕 ``--proximity distance``)を渡すと「同セルに現れた」を「新しく気づいた」に
+        替える(:meth:`_acq_notice`)。``None``(既定)は今のまま。
         逐次ループ宣言: なし(同セルの辺の集め 1 回+その当たりだけの配列演算・毎 tick)。
         """
         empty = (np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int8), np.zeros(0, dtype=np.int64))
@@ -946,6 +1125,9 @@ class RelationLayer:
         r = agents.registry
         prev = self._prev_cell
         self._prev_cell = np.array(r.cell, copy=True)
+        if proximity is not None and proximity.is_distance:
+            a_n, j_n = self._acq_notice(agents, tick, proximity, first=prev is None, eligible=eligible)
+            return self._acq_finish(agents, tick, a_n, j_n)
         if prev is None:
             return empty
         a, j, v = self._same_cell_hits(agents, tick)
@@ -962,6 +1144,52 @@ class RelationLayer:
         ok = self._acq_until[a, j] <= int(tick)
         self.stats["acq_pair_refractory"] += int(np.count_nonzero(~ok))
         a, j = a[ok], j[ok]
+        return self._acq_finish(agents, tick, a, j)
+
+    def _acq_notice(self, agents: Any, tick: int, proximity: Any, *, first: bool,
+                    eligible: np.ndarray | None) -> tuple[np.ndarray, np.ndarray]:
+        """〔第 2 期 2-2 段 11a〕知人に**新しく気づいた**辺 ``(体, 欄)``(腕 ``--proximity distance``・B4)。
+
+        気づく範囲(舞台の中・同じ層・距離 ≤ 100 m)の辺のうち、まだ気づいていない欄だけ p(d)(R-62 の 2 点の
+        ロジスティック)で引く(10c の counter の流れ=用途名 ``proximity.notice``・鍵=時刻の鍵・体・相手)。辺の見え方は
+        同席と共有する(:meth:`_edge_view`)。気づいた欄は「次の刻みまで気づいている」印を同一相手の不応期の
+        配列 ``_acq_until`` に置く(``max(今の値, T+2)``)=範囲の中に居る間は毎刻み印が延びる=引き直さない。範囲の外に
+        出た欄は印が切れ、次に範囲に入ったら引き直す。不応期(起床の後 60 分)の欄も「気づいている」と同じに扱う
+        (起床の後 60 分は同じ相手で起きない=今と同じ)。1 刻み目は印だけ置いて出さない(今と同じ宣言)。
+        逐次ループ宣言: 抽選は引く組の数ぶん(``ProximityRule.notice_u``=範囲の中で、まだ気づいていない辺の数)。ほかは
+        配列演算(毎刻み)。
+        """
+        from shibuya.engine.proximity import notice_p
+
+        z = np.zeros(0, dtype=np.int64)
+        ea, ej, ev, inr, dist, _reach = self._edge_view(agents, tick, proximity)
+        a, j, v, dist = ea[inr], ej[inr], ev[inr], dist[inr]
+        if a.size == 0:
+            return z, z
+        T = int(tick)
+        until = self._acq_until[a, j].astype(np.int64)
+        aware = until > T
+        hit = np.zeros(a.size, dtype=bool)
+        fresh = np.flatnonzero(~aware)
+        if fresh.size:
+            hit[fresh] = proximity.notice_u(T, a[fresh], v[fresh]) < notice_p(dist[fresh])
+        self.stats["acq_notice_draws"] += int(fresh.size)
+        self.stats["acq_noticed"] += int(np.count_nonzero(hit))
+        seen = aware | hit
+        self._acq_until[a[seen], j[seen]] = np.maximum(until[seen], T + 2).astype(self._acq_until.dtype)
+        if first:
+            return z, z
+        if eligible is not None:
+            hit &= np.asarray(eligible, dtype=bool)[a]
+        a, j = a[hit], j[hit]
+        self.stats["acq_appear"] += int(a.size)
+        return a, j
+
+    def _acq_finish(self, agents: Any, tick: int, a: np.ndarray,
+                    j: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """知人出現の候補の仕上げ(生きている辺だけ・1 体 1 件=最強の相手・控え)。今の道と第 2 期 2-2 の腕が共有する。"""
+        empty = (np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int8), np.zeros(0, dtype=np.int64))
+        r = agents.registry
         A = _activation(r.rel_n[a, j], r.rel_first[a, j], tick, self.minutes_per_tick, self.d)
         live = A >= self.tau
         self.stats["acq_not_live"] += int(np.count_nonzero(~live))
@@ -1000,7 +1228,7 @@ class RelationLayer:
             A = np.log(n / (1.0 - self.d)) - self.d * np.log(L + 1.0)
             Lstar = np.exp((np.log(n / (1.0 - self.d)) - self.tau) / self.d) - 1.0
         live = used & (A >= self.tau)
-        rem = (Lstar - L) / 1440.0
+        rem = (Lstar - L) / MINUTES_PER_DAY
         out: dict[str, Any] = {}
         kind = r.rel_kind.astype(np.int64)
         for name, sel in (("initial", live & (kind != REL_KINDS["acquaintance"])),

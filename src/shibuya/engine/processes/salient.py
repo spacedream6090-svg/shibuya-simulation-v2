@@ -29,13 +29,15 @@
     **親の判断待ち**として報告する。
 
 expedient(本モジュール分)
-- 「倒れる」の発生率 = **10,000 体あたり 3.0 件/日**(出典なし。東京消防庁の出場件数
-  935,373 件/年(台帳 W3)を都人口で割ると 10,000 人・日あたり ≈ 1.8 件だが、
-  救急要請と「路上で倒れる」は同義でないので、同じ桁の丸い値を置いた)。
 - 事象の座標 = そのセルの代表ノード座標。
 - ``task_flag``: 会話中=``TALKING``・それ以外=``FREE``(歩きスマホは C4 では立てない)。
 - ``density_class``: セル密度段(``density_stage``)を 疎/中/密 の 3 値へ畳む(境界 2 と 4)。
 - 夜間 = 日の入-日の出(``EnvironmentProcess`` が持つ昼夜)。無ければ 18:00-06:00。
+
+〔第 3 期 3-5〕「倒れる」(体の急変=顕著行為の引き金)は本人の体の層 ``engine.body`` へ移した: 発生率
+``COLLAPSE_PER_10K_PER_DAY``(1 万体あたり 1 日 3.0 件・出典なし=expedient・宣言は ``engine.body.rules.BODY_EXPEDIENTS``・
+名はここから写して出す)とポアソンの引き方は ``BodyModel.collapse_draw``(口を通す=〔検収 L2〕・乱数の流れと引く順は前と同じ)。本モジュールは
+倒れた体を事象にし、出動と ``p_notice`` の到達判定につなぐ。
 """
 
 from __future__ import annotations
@@ -46,12 +48,15 @@ from typing import Final, Sequence
 import numpy as np
 
 from shibuya.agents.state import Activity, AgentState, WakeCondition
-from shibuya.core.rng import stream
+from shibuya.core.rng import run_tick_key, stream
 from shibuya.engine import resolve as R
+from shibuya.engine.body.model import BodyModel as _BodyModel
+from shibuya.engine.body.rules import COLLAPSE_PER_10K_PER_DAY  # 〔第 3 期 3-5〕体の層へ移した値(同じ名で写して出す)
 from shibuya.perception import attention as AT
 from shibuya.perception import p_notice as PN
 from shibuya.perception.state import PerceptionState, heading_from_vector
 from shibuya.world.state import World
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "COLLAPSE_PER_10K_PER_DAY",
@@ -62,8 +67,8 @@ __all__ = [
     "SalientProcess",
 ]
 
-#: 「倒れる」の発生率[件/10,000体/日](expedient)。
-COLLAPSE_PER_10K_PER_DAY: Final[float] = 3.0
+#: 10c: counter の「倒れる」の乱数の用途名(10e より前の stateful の ``world.salient`` と別の名=列が重ならない)。
+SALIENT_COUNTER_DOMAIN: Final[str] = "world.salient.counter"
 #: ablation の id(``AB-PNOTICE-A0`` … ``A4``。A4=完成形=既定)。
 ABLATION_IDS: Final[tuple[str, ...]] = tuple(f"AB-PNOTICE-A{k}" for k in range(5))
 
@@ -102,6 +107,11 @@ class SalientEvent:
 
 class SalientProcess:
     """顕著行為の生成・``p_notice`` による到達判定・B4 行の組み立て。
+
+    乱数(10c の counter・〔第330・RET〕10e より前の ``stateful``=日の頭の Generator は消した):
+        「倒れる」の乱数を毎 tick ``stream(seed, SALIENT_COUNTER_DOMAIN, 0, 鍵の時刻)`` から作る
+        (``rng`` は常に ``None``=再開で保存するものが無い。鍵の時刻は ``run_tick_key(day_index, T)``)。
+        選ばれた体は id の昇順に並べ直してから出動を呼ぶ(出動の k を決まった順にするため)。
 
     Attributes:
         events: この tick の事象。
@@ -157,7 +167,9 @@ class SalientProcess:
             COLLAPSE_PER_10K_PER_DAY if rate_per_10k_per_day is None
             else rate_per_10k_per_day
         )
-        self.rng = stream(master_seed, "world.salient", int(day_index))
+        #: 〔第330・RET〕常に ``None``(状態を持つ乱数 stateful は消した)。状態台帳 O46 の道筋 ``runner.salient.rng`` は
+        #: behavior-hash の外の状態の行の定義に入っている(「無い」の印)ので、行と一緒に消すと final が動く=残した。
+        self.rng: None = None
         self.events: list[SalientEvent] = []
         self.cell_lines: dict[int, tuple[str, ...]] = {}
         self.noticed_agents = np.zeros(0, dtype=np.int64)
@@ -174,6 +186,7 @@ class SalientProcess:
         self._cell_index_tick = -1
         self._order = np.zeros(0, dtype=np.int64)
         self._start = np.zeros(world.n_cells + 1, dtype=np.int64)
+
 
     @property
     def active(self) -> bool:
@@ -243,6 +256,7 @@ class SalientProcess:
                 seed=self.master_seed,
                 event_id=ev_id,
                 tick=int(tick),
+
                 params=self.params,
                 already_noticed=already[cand],
                 counters=self.budget.counters,
@@ -302,18 +316,17 @@ class SalientProcess:
 
     # ------------------------------------------------------------------ 事象の源
     def _collapse_events(self, tick: int) -> list[SalientEvent]:
-        per_tick = (
-            self.rate * (self.agents.n / 10_000.0) / (86_400.0 / max(1, self.tick_seconds))
+        g = stream(
+            self.master_seed, SALIENT_COUNTER_DOMAIN,
+            0, run_tick_key(self.day_index, int(tick), self.tick_seconds),
         )
-        n = int(self.rng.poisson(max(0.0, per_tick)))
-        if n <= 0:
+        # 〔第 3 期 3-5〕体の急変の引き方は本人の体の層の口(ポアソン → 在圏の体から重複なし・前と同じ乱数の引き方)。
+        # 体の id の昇順(出動の k=同じ T・同じセルの何番目か を決まった順で数える)
+        who = _BodyModel.collapse_draw(g, self.rate, self.agents.n, self.tick_seconds, self.agents.registry.cell)
+        if who.size == 0:
             return []
-        inside = np.flatnonzero(np.asarray(self.agents.registry.cell) >= 0)
-        if inside.size == 0:
-            return []
-        who = self.rng.choice(inside, size=min(n, inside.size), replace=False)
         out: list[SalientEvent] = []
-        for a in np.atleast_1d(who):  # 逐次: 事象数ぶん(≈0-1/tick)
+        for a in who:  # 逐次: 事象数ぶん(≈0-1/tick)
             cell = int(self.agents.registry.cell[int(a)])
             xy = np.asarray(self.agents.registry.xy, dtype=np.float64)[int(a)]
             out.append(
@@ -420,8 +433,8 @@ class SalientProcess:
                 return bool(env.is_night(int(tick)))
             except Exception:  # pragma: no cover - 環境過程が休んでいるとき
                 pass
-        minute = int(int(tick) * self.tick_seconds // 60) % 1_440
-        return minute >= 18 * 60 or minute < 6 * 60
+        minute = int(int(tick) * self.tick_seconds // SECONDS_PER_MINUTE) % MINUTES_PER_DAY
+        return minute >= 18 * MINUTES_PER_HOUR or minute < 6 * MINUTES_PER_HOUR
 
     # ------------------------------------------------------------------ 診断
     def counters(self) -> dict[str, float]:

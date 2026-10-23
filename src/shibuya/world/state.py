@@ -33,10 +33,12 @@ from typing import Final, Iterator
 
 import numpy as np
 
+from shibuya.core import write_permit as _WP
 from shibuya.core.hashing import blake3_hex
 from shibuya.core.soa import Registry
 from shibuya.world.assets import WorldAssets, load_assets, synthetic_assets
 from shibuya.world.graph import WalkGraph
+from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, STEPS_PER_DAY
 
 __all__ = [
     "DENSITY_STAGE_EDGES",
@@ -389,7 +391,7 @@ class World:
         now = self.pois.open_now
         if now.size and bool(np.any(now >= 0)):
             return np.asarray(now > 0)
-        t = int(tick) % 1_440
+        t = int(tick) % STEPS_PER_DAY
         return (self.pois.open_from <= t) & (t < self.pois.open_to)
 
     def open_count_per_cell(self, tick: int) -> np.ndarray:
@@ -418,7 +420,7 @@ class World:
         dyn = self.cells.noise_stage
         if dyn.size and bool(np.any(dyn)):
             return np.asarray(dyn, dtype=np.uint8)
-        hour = int(int(tick) * int(tick_seconds) // 3_600) % 24
+        hour = int(int(tick) * int(tick_seconds) // SECONDS_PER_HOUR) % HOURS_PER_DAY
         return self.assets.noise_stage_for_hour(hour)
 
     # ---- 書き込みガード ----
@@ -434,10 +436,13 @@ class World:
         self._frozen = True
 
     def thaw(self) -> None:
-        """全配列を書き込み可能に戻す(``writable`` 以外から呼ばない)。"""
-        for reg in (self.cells, self.pois):
-            for arr in reg.arrays.values():
-                arr.flags.writeable = True
+        """全配列を書き込み可能に戻す(``writable`` 以外から呼ばない)。
+
+        1-0 段 A: 系の許可(``core.write_permit``)があれば許可の列だけを解く(``AgentState.thaw`` と同じ)。
+        """
+        for place, reg in (("cells", self.cells), ("pois", self.pois)):
+            for name, arr in reg.arrays.items():
+                arr.flags.writeable = _WP.allows(place, name)
         self._frozen = False
 
     @contextmanager

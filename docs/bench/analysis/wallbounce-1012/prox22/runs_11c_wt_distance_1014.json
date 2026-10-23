@@ -1,0 +1,4218 @@
+{
+ "schema": "shibuya.bench/prox22/runs/1",
+ "label": "wt",
+ "src": "写し",
+ "base": {
+  "agents": 5000,
+  "seed": 1,
+  "sample": "stratified (rel8b_measure.stratified_sample)",
+  "vocab": "v3",
+  "memory": "on",
+  "hunger": "energy (cli default)",
+  "l4": "unlimited (cli default)",
+  "d": 2.0
+ },
+ "rows": [
+  {
+   "policy": "mock",
+   "arm": "off",
+   "geometry": "node",
+   "mode": "distance",
+   "d": 2.0,
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "node"
+   },
+   "final_hash": "53c46510ab53b2f726822b875ff6e22a09d2b1f6f621e5d40fdd3e2264bb82b7",
+   "final16": "53c46510ab53b2f7",
+   "llm_calls": 65398,
+   "wall_seconds_nondeterministic": 62.92,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 2779,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4343,
+    "PLAN_GENERAL": 6095,
+    "PLAN_TRANSIT": 7160,
+    "INTEROCEPTION": 19758,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 5867,
+    "ACTIVITY_EXPIRY": 19396
+   },
+   "sessions_opened": 158,
+   "relations_counts": {},
+   "relations_origins": null,
+   "proximity_manifest": {
+    "schema": "shibuya.proximity/3",
+    "mode": "distance",
+    "d_m": 2.0,
+    "d_arms": [
+     1.0,
+     2.0,
+     2.5
+    ],
+    "leave_m": 3.0,
+    "b5_radius_m": 10.3,
+    "b5_radius_source": "Fotios, Yang & Uttley 2015 の他の歩行者を注視する距離の中央値(docs/research/v2-p-notice-research.md)・仮採用(10-13b §0-3)",
+    "notice": {
+     "d75_m": 10.4,
+     "d25_m": 23.5,
+     "d50_m": 16.95,
+     "scale_m": 5.9621,
+     "cutoff_m": 100.0,
+     "source": "R-62(docs/research/v2-r62-field-of-view-anchors.md §1-2・Loftus & Harley 2005)・R-79 §8-1(曲線の再計算)",
+     "rng": "core.rng.philox_array(seed, 'proximity.notice', k19_counter_array(時刻の鍵, 体, 相手))・1 語(stream(…, *k19_counters(…)).random() と同じ値)"
+    },
+    "unit_source": "agents.poi_ref(在席中の POI の区画 id)∧ 体のセル == その POI のセル(world.pois.cell)",
+    "index_cell_m": 2.5,
+    "position_source": "node 幾何の xy(立っている体は node の座標)",
+    "marks": {
+     "B6": "暫定・node 座標(位置の出どころ=node の座標。edge 幾何でも立ち止まった体は node・建物の中は仮想空間の距離は測れない=在席中の体の xy は店に入る前のノードのまま=B5 の単位で距離を見ない)",
+     "B8": "暫定・node の歩く速さ(1 刻み 1 node=0.41 m/s に基づく量=移動中の分・群れ歩き・同行)"
+    },
+    "index_builds": 1440,
+    "indexed_max": 3534,
+    "unit_occupancy_max": 30,
+    "units_occupied_max": 122,
+    "unit_occupancy_hist": {
+     "1": 45401,
+     "2-4": 19625,
+     "5-9": 8484,
+     "10-49": 5061,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    }
+   },
+   "conversation_open": {
+    "pairs": 158,
+    "same_cell": 158,
+    "reach_under_distance_d": 158,
+    "reach_by_unit_only": 3,
+    "over_d_and_not_same_unit": 0,
+    "distance": {
+     "n": 158,
+     "0m": 155,
+     "(0,2]": 0,
+     "(2,10]": 1,
+     "(10,50]": 1,
+     "(50,100]": 1,
+     ">100": 0,
+     "share_0m": 0.981,
+     "share_le_2m": 0.981,
+     "share_gt_2m": 0.019,
+     "share_gt_10m": 0.0127,
+     "quantiles": {
+      "n": 158,
+      "mean": 0.833,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "p99": 22.362,
+      "max": 80.833
+     }
+    },
+    "by_pair_class": {
+     "outdoor": 92,
+     "one_indoor": 45,
+     "both_indoor": 21
+    },
+    "lost_under_distance_by_pair_class": {},
+    "by_categories": {
+     "stationary_other|stationary_other": 90,
+     "in_store|stationary_other": 37,
+     "at_work|stationary_other": 8,
+     "moving|stationary_other": 2,
+     "at_work|in_store": 6,
+     "at_work|at_work": 7,
+     "in_store|in_store": 8
+    },
+    "lost_under_distance_by_categories": {},
+    "joins": 0,
+    "joins_not_reachable": 0
+   },
+   "chance": {
+    "rows_origin_chance": 0,
+    "partner_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": null,
+     "share_le_2m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 0,
+    "0m": 0,
+    "(0,2]": 0,
+    "(2,10]": 0,
+    "(10,50]": 0,
+    "(50,100]": 0,
+    ">100": 0,
+    "share_0m": null,
+    "share_le_2m": null,
+    "share_gt_2m": null,
+    "share_gt_10m": null,
+    "quantiles": {
+     "n": 0
+    }
+   },
+   "copresent": {
+    "active_slot_ticks": 0,
+    "active_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": null,
+     "share_le_2m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 65398,
+    "items_per_render_mean": 2.5412,
+    "items_per_render_hist": {
+     "0": 5972,
+     "1": 4535,
+     "2": 3021,
+     "3": 51870
+    },
+    "distance": {
+     "n": 166187,
+     "0m": 159698,
+     "(0,2]": 216,
+     "(2,10]": 5750,
+     "(10,50]": 414,
+     "(50,100]": 108,
+     ">100": 1,
+     "share_0m": 0.961,
+     "share_le_2m": 0.9623,
+     "share_gt_2m": 0.0377,
+     "share_gt_10m": 0.0031
+    },
+    "items": 166187,
+    "acquainted_items": 0,
+    "items_beyond_10_3m": 360
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 61019270,
+    "zero_distance": 60998289,
+    "diff_cell": 15631,
+    "diff_cell_per_tick": 10.855,
+    "diff_cell_both_awake_per_tick": 10.855,
+    "diff_cell_max_tick": 163,
+    "diff_band": 168
+   },
+   "b5_unit_occupancy": {
+    "unit_ticks_hist": {
+     "1": 46221,
+     "2-4": 20001,
+     "5-9": 8587,
+     "10-49": 5352,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    },
+    "max_in_room": 30,
+    "max_poi": 740,
+    "max_tick": 533,
+    "units_occupied_max": 124,
+    "top_units": [
+     {
+      "poi": 186,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 740,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 23,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 355,
+      "eatery": true
+     },
+     {
+      "poi": 996,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 146,
+      "max_in_room": 23,
+      "capacity": 4,
+      "cell": 251,
+      "eatery": false
+     },
+     {
+      "poi": 182,
+      "max_in_room": 23,
+      "capacity": 4,
+      "cell": 56,
+      "eatery": true
+     },
+     {
+      "poi": 341,
+      "max_in_room": 23,
+      "capacity": 4,
+      "cell": 303,
+      "eatery": true
+     },
+     {
+      "poi": 694,
+      "max_in_room": 23,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 1409,
+      "max_in_room": 21,
+      "capacity": 4,
+      "cell": 396,
+      "eatery": true
+     },
+     {
+      "poi": 1996,
+      "max_in_room": 21,
+      "capacity": 4,
+      "cell": 293,
+      "eatery": true
+     }
+    ],
+    "max_in_room_raw_poi_ref": 30,
+    "seated_agent_ticks": 238677,
+    "seated_out_of_store_cell_agent_ticks": 9657
+   },
+   "same_xy_max": {
+    "agents_at_one_point_max": 225,
+    "tick": 1049
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.263395,
+    "cowalk_share": 0.105359,
+    "cowalk_episodes_5min": 3196
+   }
+  },
+  {
+   "policy": "mock",
+   "arm": "off",
+   "geometry": "edge",
+   "mode": "distance",
+   "d": 2.0,
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "edge"
+   },
+   "final_hash": "88929bcb7407bda1774d58bff1bf27d1b60eb89b30be6fc8fe0057b72e15dda6",
+   "final16": "88929bcb7407bda1",
+   "llm_calls": 62708,
+   "wall_seconds_nondeterministic": 63.96,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 2859,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4194,
+    "PLAN_GENERAL": 5993,
+    "PLAN_TRANSIT": 6992,
+    "INTEROCEPTION": 19303,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 4797,
+    "ACTIVITY_EXPIRY": 18570
+   },
+   "sessions_opened": 162,
+   "relations_counts": {},
+   "relations_origins": null,
+   "proximity_manifest": {
+    "schema": "shibuya.proximity/3",
+    "mode": "distance",
+    "d_m": 2.0,
+    "d_arms": [
+     1.0,
+     2.0,
+     2.5
+    ],
+    "leave_m": 3.0,
+    "b5_radius_m": 10.3,
+    "b5_radius_source": "Fotios, Yang & Uttley 2015 の他の歩行者を注視する距離の中央値(docs/research/v2-p-notice-research.md)・仮採用(10-13b §0-3)",
+    "notice": {
+     "d75_m": 10.4,
+     "d25_m": 23.5,
+     "d50_m": 16.95,
+     "scale_m": 5.9621,
+     "cutoff_m": 100.0,
+     "source": "R-62(docs/research/v2-r62-field-of-view-anchors.md §1-2・Loftus & Harley 2005)・R-79 §8-1(曲線の再計算)",
+     "rng": "core.rng.philox_array(seed, 'proximity.notice', k19_counter_array(時刻の鍵, 体, 相手))・1 語(stream(…, *k19_counters(…)).random() と同じ値)"
+    },
+    "unit_source": "agents.poi_ref(在席中の POI の区画 id)∧ 体のセル == その POI のセル(world.pois.cell)",
+    "index_cell_m": 2.5,
+    "position_source": "edge 幾何の xy(立っている体は node の座標)",
+    "marks": {
+     "B6": "暫定・node 座標(位置の出どころ=node の座標。edge 幾何でも立ち止まった体は node・建物の中は仮想空間の距離は測れない=在席中の体の xy は店に入る前のノードのまま=B5 の単位で距離を見ない)"
+    },
+    "index_builds": 1440,
+    "indexed_max": 3435,
+    "unit_occupancy_max": 30,
+    "units_occupied_max": 122,
+    "unit_occupancy_hist": {
+     "1": 43058,
+     "2-4": 17873,
+     "5-9": 8682,
+     "10-49": 4545,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    }
+   },
+   "conversation_open": {
+    "pairs": 162,
+    "same_cell": 162,
+    "reach_under_distance_d": 162,
+    "reach_by_unit_only": 0,
+    "over_d_and_not_same_unit": 0,
+    "distance": {
+     "n": 162,
+     "0m": 162,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": 1.0,
+     "share_le_2m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0,
+     "quantiles": {
+      "n": 162,
+      "mean": 0.0,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+     }
+    },
+    "by_pair_class": {
+     "outdoor": 104,
+     "one_indoor": 42,
+     "both_indoor": 16
+    },
+    "lost_under_distance_by_pair_class": {},
+    "by_categories": {
+     "stationary_other|stationary_other": 104,
+     "at_work|stationary_other": 11,
+     "in_store|stationary_other": 29,
+     "at_work|at_work": 8,
+     "at_work|in_store": 5,
+     "at_home|at_work": 1,
+     "in_store|in_store": 1,
+     "in_store|moving": 2,
+     "at_home|at_home": 1
+    },
+    "lost_under_distance_by_categories": {},
+    "joins": 0,
+    "joins_not_reachable": 0
+   },
+   "chance": {
+    "rows_origin_chance": 0,
+    "partner_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": null,
+     "share_le_2m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 0,
+    "0m": 0,
+    "(0,2]": 0,
+    "(2,10]": 0,
+    "(10,50]": 0,
+    "(50,100]": 0,
+    ">100": 0,
+    "share_0m": null,
+    "share_le_2m": null,
+    "share_gt_2m": null,
+    "share_gt_10m": null,
+    "quantiles": {
+     "n": 0
+    }
+   },
+   "copresent": {
+    "active_slot_ticks": 0,
+    "active_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": null,
+     "share_le_2m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 62708,
+    "items_per_render_mean": 2.5624,
+    "items_per_render_hist": {
+     "0": 5751,
+     "1": 3820,
+     "2": 2548,
+     "3": 50589
+    },
+    "distance": {
+     "n": 160683,
+     "0m": 158310,
+     "(0,2]": 264,
+     "(2,10]": 1802,
+     "(10,50]": 236,
+     "(50,100]": 71,
+     ">100": 0,
+     "share_0m": 0.9852,
+     "share_le_2m": 0.9869,
+     "share_gt_2m": 0.0131,
+     "share_gt_10m": 0.0019
+    },
+    "items": 160683,
+    "acquainted_items": 0,
+    "items_beyond_10_3m": 219
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 74925472,
+    "zero_distance": 74889122,
+    "diff_cell": 2695,
+    "diff_cell_per_tick": 1.872,
+    "diff_cell_both_awake_per_tick": 1.869,
+    "diff_cell_max_tick": 82,
+    "diff_band": 503
+   },
+   "b5_unit_occupancy": {
+    "unit_ticks_hist": {
+     "1": 43880,
+     "2-4": 18143,
+     "5-9": 8806,
+     "10-49": 4832,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    },
+    "max_in_room": 30,
+    "max_poi": 740,
+    "max_tick": 536,
+    "units_occupied_max": 124,
+    "top_units": [
+     {
+      "poi": 186,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 740,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 23,
+      "max_in_room": 27,
+      "capacity": 4,
+      "cell": 355,
+      "eatery": true
+     },
+     {
+      "poi": 996,
+      "max_in_room": 26,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 135,
+      "max_in_room": 24,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": false
+     },
+     {
+      "poi": 1057,
+      "max_in_room": 24,
+      "capacity": 4,
+      "cell": 58,
+      "eatery": true
+     },
+     {
+      "poi": 1954,
+      "max_in_room": 23,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 182,
+      "max_in_room": 22,
+      "capacity": 4,
+      "cell": 56,
+      "eatery": true
+     },
+     {
+      "poi": 694,
+      "max_in_room": 22,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 1409,
+      "max_in_room": 21,
+      "capacity": 4,
+      "cell": 396,
+      "eatery": true
+     }
+    ],
+    "max_in_room_raw_poi_ref": 30,
+    "seated_agent_ticks": 223537,
+    "seated_out_of_store_cell_agent_ticks": 8156
+   },
+   "same_xy_max": {
+    "agents_at_one_point_max": 234,
+    "tick": 1040
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.019187,
+    "cowalk_share": 0.000374,
+    "cowalk_episodes_5min": 11
+   }
+  },
+  {
+   "policy": "mock",
+   "arm": "rel_on",
+   "geometry": "node",
+   "mode": "distance",
+   "d": 2.0,
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "node",
+    "relations": "on"
+   },
+   "final_hash": "d48d159f04aa1f5fb7c6ce6dccced9351c4d68aeba519eb5229aa9bd1473c622",
+   "final16": "d48d159f04aa1f5f",
+   "llm_calls": 76895,
+   "wall_seconds_nondeterministic": 74.67,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 3612,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4348,
+    "PLAN_GENERAL": 6155,
+    "PLAN_TRANSIT": 7235,
+    "INTEROCEPTION": 19728,
+    "ACQUAINTANCE": 9525,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 6410,
+    "ACTIVITY_EXPIRY": 19882
+   },
+   "sessions_opened": 217,
+   "relations_counts": {
+    "acq_agent_refractory": 1662,
+    "acq_appear": 12768,
+    "acq_candidates": 11814,
+    "acq_not_live": 42,
+    "acq_notice_draws": 377203,
+    "acq_noticed": 12994,
+    "acq_woken": 9525,
+    "events": 507,
+    "events:sign+1": 435,
+    "events:sign0": 72,
+    "invite_fallback_only": 5147,
+    "invite_named": 0,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 543,
+    "invite_pick:near_first": 1152,
+    "invite_pick:next": 609,
+    "invite_pick:rest": 0
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 1985,
+     "accepted": 146,
+     "declined": 1836,
+     "expired": 3,
+     "rejected": 117,
+     "accept_rate": 0.0736
+    },
+    "chance": {
+     "invites": 511,
+     "accepted": 39,
+     "declined": 471,
+     "expired": 1,
+     "rejected": 171,
+     "accept_rate": 0.0763
+    },
+    "acquaintance": {
+     "invites": 462,
+     "accepted": 32,
+     "declined": 429,
+     "expired": 0,
+     "rejected": 77,
+     "accept_rate": 0.0693
+    }
+   },
+   "proximity_manifest": {
+    "schema": "shibuya.proximity/3",
+    "mode": "distance",
+    "d_m": 2.0,
+    "d_arms": [
+     1.0,
+     2.0,
+     2.5
+    ],
+    "leave_m": 3.0,
+    "b5_radius_m": 10.3,
+    "b5_radius_source": "Fotios, Yang & Uttley 2015 の他の歩行者を注視する距離の中央値(docs/research/v2-p-notice-research.md)・仮採用(10-13b §0-3)",
+    "notice": {
+     "d75_m": 10.4,
+     "d25_m": 23.5,
+     "d50_m": 16.95,
+     "scale_m": 5.9621,
+     "cutoff_m": 100.0,
+     "source": "R-62(docs/research/v2-r62-field-of-view-anchors.md §1-2・Loftus & Harley 2005)・R-79 §8-1(曲線の再計算)",
+     "rng": "core.rng.philox_array(seed, 'proximity.notice', k19_counter_array(時刻の鍵, 体, 相手))・1 語(stream(…, *k19_counters(…)).random() と同じ値)"
+    },
+    "unit_source": "agents.poi_ref(在席中の POI の区画 id)∧ 体のセル == その POI のセル(world.pois.cell)",
+    "index_cell_m": 2.5,
+    "position_source": "node 幾何の xy(立っている体は node の座標)",
+    "marks": {
+     "B6": "暫定・node 座標(位置の出どころ=node の座標。edge 幾何でも立ち止まった体は node・建物の中は仮想空間の距離は測れない=在席中の体の xy は店に入る前のノードのまま=B5 の単位で距離を見ない)",
+     "B8": "暫定・node の歩く速さ(1 刻み 1 node=0.41 m/s に基づく量=移動中の分・群れ歩き・同行)"
+    },
+    "index_builds": 1440,
+    "indexed_max": 3615,
+    "unit_occupancy_max": 30,
+    "units_occupied_max": 126,
+    "unit_occupancy_hist": {
+     "1": 48243,
+     "2-4": 20771,
+     "5-9": 8008,
+     "10-49": 5888,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    }
+   },
+   "conversation_open": {
+    "pairs": 217,
+    "same_cell": 217,
+    "reach_under_distance_d": 217,
+    "reach_by_unit_only": 5,
+    "over_d_and_not_same_unit": 0,
+    "distance": {
+     "n": 217,
+     "0m": 212,
+     "(0,2]": 0,
+     "(2,10]": 1,
+     "(10,50]": 3,
+     "(50,100]": 1,
+     ">100": 0,
+     "share_0m": 0.977,
+     "share_le_2m": 0.977,
+     "share_gt_2m": 0.023,
+     "share_gt_10m": 0.0184,
+     "quantiles": {
+      "n": 217,
+      "mean": 0.817,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "p99": 29.591,
+      "max": 80.833
+     }
+    },
+    "by_pair_class": {
+     "outdoor": 132,
+     "both_indoor": 51,
+     "one_indoor": 34
+    },
+    "lost_under_distance_by_pair_class": {},
+    "by_categories": {
+     "stationary_other|stationary_other": 126,
+     "at_work|at_work": 34,
+     "in_store|stationary_other": 31,
+     "at_home|at_home": 2,
+     "in_store|in_store": 7,
+     "at_work|stationary_other": 3,
+     "at_work|in_store": 8,
+     "moving|stationary_other": 6
+    },
+    "lost_under_distance_by_categories": {},
+    "joins": 0,
+    "joins_not_reachable": 0
+   },
+   "chance": {
+    "rows_origin_chance": 711,
+    "partner_distance": {
+     "n": 711,
+     "0m": 694,
+     "(0,2]": 4,
+     "(2,10]": 1,
+     "(10,50]": 11,
+     "(50,100]": 1,
+     ">100": 0,
+     "share_0m": 0.9761,
+     "share_le_2m": 0.9817,
+     "share_gt_2m": 0.0183,
+     "share_gt_10m": 0.0169
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 11814,
+    "0m": 5501,
+    "(0,2]": 24,
+    "(2,10]": 1504,
+    "(10,50]": 4686,
+    "(50,100]": 99,
+    ">100": 0,
+    "share_0m": 0.4656,
+    "share_le_2m": 0.4677,
+    "share_gt_2m": 0.5323,
+    "share_gt_10m": 0.405,
+    "quantiles": {
+     "n": 11814,
+     "mean": 9.777,
+     "p10": 0.0,
+     "p50": 2.154,
+     "p90": 28.332,
+     "p99": 48.195,
+     "max": 96.019
+    }
+   },
+   "copresent": {
+    "active_slot_ticks": 0,
+    "active_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": null,
+     "share_le_2m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 76895,
+    "items_per_render_mean": 2.7944,
+    "items_per_render_hist": {
+     "0": 6180,
+     "1": 5502,
+     "2": 3806,
+     "3": 48008,
+     "4": 10301,
+     "5": 2269,
+     "6": 653,
+     "7": 138,
+     "8": 38
+    },
+    "distance": {
+     "n": 214875,
+     "0m": 201453,
+     "(0,2]": 385,
+     "(2,10]": 11956,
+     "(10,50]": 950,
+     "(50,100]": 130,
+     ">100": 1,
+     "share_0m": 0.9375,
+     "share_le_2m": 0.9393,
+     "share_gt_2m": 0.0607,
+     "share_gt_10m": 0.005
+    },
+    "items": 214875,
+    "acquainted_items": 23629,
+    "items_beyond_10_3m": 604
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 53861845,
+    "zero_distance": 53779304,
+    "diff_cell": 64603,
+    "diff_cell_per_tick": 44.863,
+    "diff_cell_both_awake_per_tick": 44.863,
+    "diff_cell_max_tick": 243,
+    "diff_band": 535
+   },
+   "b5_unit_occupancy": {
+    "unit_ticks_hist": {
+     "1": 49107,
+     "2-4": 21186,
+     "5-9": 8118,
+     "10-49": 6185,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    },
+    "max_in_room": 30,
+    "max_poi": 740,
+    "max_tick": 519,
+    "units_occupied_max": 129,
+    "top_units": [
+     {
+      "poi": 186,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 740,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 996,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 1996,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 293,
+      "eatery": true
+     },
+     {
+      "poi": 341,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 303,
+      "eatery": true
+     },
+     {
+      "poi": 694,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 2023,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 293,
+      "eatery": true
+     },
+     {
+      "poi": 23,
+      "max_in_room": 27,
+      "capacity": 4,
+      "cell": 355,
+      "eatery": true
+     },
+     {
+      "poi": 1783,
+      "max_in_room": 27,
+      "capacity": 4,
+      "cell": 238,
+      "eatery": true
+     },
+     {
+      "poi": 135,
+      "max_in_room": 25,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": false
+     }
+    ],
+    "max_in_room_raw_poi_ref": 30,
+    "seated_agent_ticks": 263483,
+    "seated_out_of_store_cell_agent_ticks": 11884
+   },
+   "same_xy_max": {
+    "agents_at_one_point_max": 186,
+    "tick": 1049
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.263441,
+    "cowalk_share": 0.096305,
+    "cowalk_episodes_5min": 3010
+   }
+  },
+  {
+   "policy": "mock",
+   "arm": "rel_on",
+   "geometry": "edge",
+   "mode": "distance",
+   "d": 2.0,
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "edge",
+    "relations": "on"
+   },
+   "final_hash": "a2a800cf45c129e4c1633bac99bc3bd504d71799c02701a862bb1f6c25e9b903",
+   "final16": "a2a800cf45c129e4",
+   "llm_calls": 71288,
+   "wall_seconds_nondeterministic": 73.52,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 3653,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4181,
+    "PLAN_GENERAL": 5995,
+    "PLAN_TRANSIT": 6953,
+    "INTEROCEPTION": 19033,
+    "ACQUAINTANCE": 7989,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 4862,
+    "ACTIVITY_EXPIRY": 18622
+   },
+   "sessions_opened": 209,
+   "relations_counts": {
+    "acq_agent_refractory": 1111,
+    "acq_appear": 11085,
+    "acq_candidates": 9745,
+    "acq_not_live": 40,
+    "acq_notice_draws": 290077,
+    "acq_noticed": 11311,
+    "acq_woken": 7989,
+    "events": 484,
+    "events:sign+1": 414,
+    "events:sign0": 70,
+    "invite_fallback_only": 4429,
+    "invite_named": 0,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 644,
+    "invite_pick:near_first": 1311,
+    "invite_pick:next": 667,
+    "invite_pick:rest": 0
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 1992,
+     "accepted": 143,
+     "declined": 1849,
+     "expired": 0,
+     "rejected": 116,
+     "accept_rate": 0.0718
+    },
+    "chance": {
+     "invites": 598,
+     "accepted": 36,
+     "declined": 562,
+     "expired": 0,
+     "rejected": 171,
+     "accept_rate": 0.0602
+    },
+    "acquaintance": {
+     "invites": 464,
+     "accepted": 30,
+     "declined": 433,
+     "expired": 1,
+     "rejected": 68,
+     "accept_rate": 0.0647
+    }
+   },
+   "proximity_manifest": {
+    "schema": "shibuya.proximity/3",
+    "mode": "distance",
+    "d_m": 2.0,
+    "d_arms": [
+     1.0,
+     2.0,
+     2.5
+    ],
+    "leave_m": 3.0,
+    "b5_radius_m": 10.3,
+    "b5_radius_source": "Fotios, Yang & Uttley 2015 の他の歩行者を注視する距離の中央値(docs/research/v2-p-notice-research.md)・仮採用(10-13b §0-3)",
+    "notice": {
+     "d75_m": 10.4,
+     "d25_m": 23.5,
+     "d50_m": 16.95,
+     "scale_m": 5.9621,
+     "cutoff_m": 100.0,
+     "source": "R-62(docs/research/v2-r62-field-of-view-anchors.md §1-2・Loftus & Harley 2005)・R-79 §8-1(曲線の再計算)",
+     "rng": "core.rng.philox_array(seed, 'proximity.notice', k19_counter_array(時刻の鍵, 体, 相手))・1 語(stream(…, *k19_counters(…)).random() と同じ値)"
+    },
+    "unit_source": "agents.poi_ref(在席中の POI の区画 id)∧ 体のセル == その POI のセル(world.pois.cell)",
+    "index_cell_m": 2.5,
+    "position_source": "edge 幾何の xy(立っている体は node の座標)",
+    "marks": {
+     "B6": "暫定・node 座標(位置の出どころ=node の座標。edge 幾何でも立ち止まった体は node・建物の中は仮想空間の距離は測れない=在席中の体の xy は店に入る前のノードのまま=B5 の単位で距離を見ない)"
+    },
+    "index_builds": 1440,
+    "indexed_max": 3410,
+    "unit_occupancy_max": 30,
+    "units_occupied_max": 110,
+    "unit_occupancy_hist": {
+     "1": 42312,
+     "2-4": 19990,
+     "5-9": 8141,
+     "10-49": 5534,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    }
+   },
+   "conversation_open": {
+    "pairs": 209,
+    "same_cell": 209,
+    "reach_under_distance_d": 209,
+    "reach_by_unit_only": 1,
+    "over_d_and_not_same_unit": 0,
+    "distance": {
+     "n": 209,
+     "0m": 208,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 1,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": 0.9952,
+     "share_le_2m": 0.9952,
+     "share_gt_2m": 0.0048,
+     "share_gt_10m": 0.0048,
+     "quantiles": {
+      "n": 209,
+      "mean": 0.136,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "p99": 0.0,
+      "max": 28.332
+     }
+    },
+    "by_pair_class": {
+     "outdoor": 117,
+     "both_indoor": 50,
+     "one_indoor": 42
+    },
+    "lost_under_distance_by_pair_class": {},
+    "by_categories": {
+     "stationary_other|stationary_other": 117,
+     "at_work|at_work": 32,
+     "at_work|in_store": 12,
+     "at_work|stationary_other": 11,
+     "in_store|stationary_other": 31,
+     "at_home|at_home": 1,
+     "in_store|in_store": 4,
+     "at_home|at_work": 1
+    },
+    "lost_under_distance_by_categories": {},
+    "joins": 0,
+    "joins_not_reachable": 0
+   },
+   "chance": {
+    "rows_origin_chance": 800,
+    "partner_distance": {
+     "n": 800,
+     "0m": 798,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 2,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": 0.9975,
+     "share_le_2m": 0.9975,
+     "share_gt_2m": 0.0025,
+     "share_gt_10m": 0.0025
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 9745,
+    "0m": 6278,
+    "(0,2]": 220,
+    "(2,10]": 999,
+    "(10,50]": 2174,
+    "(50,100]": 74,
+    ">100": 0,
+    "share_0m": 0.6442,
+    "share_le_2m": 0.6668,
+    "share_gt_2m": 0.3332,
+    "share_gt_10m": 0.2307,
+    "quantiles": {
+     "n": 9745,
+     "mean": 5.892,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 21.509,
+     "p99": 48.195,
+     "max": 76.474
+    }
+   },
+   "copresent": {
+    "active_slot_ticks": 0,
+    "active_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": null,
+     "share_le_2m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 71288,
+    "items_per_render_mean": 2.8614,
+    "items_per_render_hist": {
+     "0": 6366,
+     "1": 4509,
+     "2": 3208,
+     "3": 42861,
+     "4": 9974,
+     "5": 2631,
+     "6": 1091,
+     "7": 414,
+     "8": 139,
+     "9": 82,
+     "10": 13
+    },
+    "distance": {
+     "n": 203983,
+     "0m": 198018,
+     "(0,2]": 878,
+     "(2,10]": 4603,
+     "(10,50]": 379,
+     "(50,100]": 100,
+     ">100": 5,
+     "share_0m": 0.9708,
+     "share_le_2m": 0.9751,
+     "share_gt_2m": 0.0249,
+     "share_gt_10m": 0.0024
+    },
+    "items": 203983,
+    "acquainted_items": 28375,
+    "items_beyond_10_3m": 328
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 63311135,
+    "zero_distance": 63270317,
+    "diff_cell": 1488,
+    "diff_cell_per_tick": 1.033,
+    "diff_cell_both_awake_per_tick": 1.031,
+    "diff_cell_max_tick": 80,
+    "diff_band": 599
+   },
+   "b5_unit_occupancy": {
+    "unit_ticks_hist": {
+     "1": 43027,
+     "2-4": 20365,
+     "5-9": 8255,
+     "10-49": 5816,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    },
+    "max_in_room": 30,
+    "max_poi": 740,
+    "max_tick": 535,
+    "units_occupied_max": 111,
+    "top_units": [
+     {
+      "poi": 186,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 740,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 694,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 1954,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 182,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 56,
+      "eatery": true
+     },
+     {
+      "poi": 996,
+      "max_in_room": 27,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 23,
+      "max_in_room": 26,
+      "capacity": 4,
+      "cell": 355,
+      "eatery": true
+     },
+     {
+      "poi": 1057,
+      "max_in_room": 26,
+      "capacity": 4,
+      "cell": 58,
+      "eatery": true
+     },
+     {
+      "poi": 733,
+      "max_in_room": 25,
+      "capacity": 4,
+      "cell": 239,
+      "eatery": true
+     },
+     {
+      "poi": 341,
+      "max_in_room": 22,
+      "capacity": 4,
+      "cell": 303,
+      "eatery": true
+     }
+    ],
+    "max_in_room_raw_poi_ref": 30,
+    "seated_agent_ticks": 242283,
+    "seated_out_of_store_cell_agent_ticks": 9313
+   },
+   "same_xy_max": {
+    "agents_at_one_point_max": 205,
+    "tick": 1030
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.018297,
+    "cowalk_share": 0.000226,
+    "cowalk_episodes_5min": 11
+   }
+  },
+  {
+   "policy": "mock",
+   "arm": "rel_copresent",
+   "geometry": "node",
+   "mode": "distance",
+   "d": 2.0,
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "node",
+    "relations": "on",
+    "rel_copresent": "on"
+   },
+   "final_hash": "40e0ed56e5de44c7f3dbd7c5e8c8c9ae900358367b77bcd2d04437ad33e711fa",
+   "final16": "40e0ed56e5de44c7",
+   "llm_calls": 77286,
+   "wall_seconds_nondeterministic": 74.81,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 3683,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4349,
+    "PLAN_GENERAL": 6141,
+    "PLAN_TRANSIT": 7224,
+    "INTEROCEPTION": 19804,
+    "ACQUAINTANCE": 9747,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 6519,
+    "ACTIVITY_EXPIRY": 19819
+   },
+   "sessions_opened": 219,
+   "relations_counts": {
+    "acq_agent_refractory": 1659,
+    "acq_appear": 13011,
+    "acq_candidates": 12023,
+    "acq_not_live": 38,
+    "acq_notice_draws": 362174,
+    "acq_noticed": 13233,
+    "acq_woken": 9747,
+    "copresent_events": 4792,
+    "copresent_events:acquaintance": 258,
+    "copresent_events:household": 198,
+    "copresent_events:school": 756,
+    "copresent_events:work": 3580,
+    "events": 517,
+    "events:sign+1": 438,
+    "events:sign0": 79,
+    "invite_fallback_only": 5124,
+    "invite_named": 0,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 618,
+    "invite_pick:near_first": 1245,
+    "invite_pick:next": 627,
+    "invite_pick:rest": 0
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 1951,
+     "accepted": 144,
+     "declined": 1807,
+     "expired": 0,
+     "rejected": 116,
+     "accept_rate": 0.0738
+    },
+    "chance": {
+     "invites": 559,
+     "accepted": 46,
+     "declined": 513,
+     "expired": 0,
+     "rejected": 185,
+     "accept_rate": 0.0823
+    },
+    "acquaintance": {
+     "invites": 495,
+     "accepted": 29,
+     "declined": 465,
+     "expired": 0,
+     "rejected": 87,
+     "accept_rate": 0.0586
+    }
+   },
+   "proximity_manifest": {
+    "schema": "shibuya.proximity/3",
+    "mode": "distance",
+    "d_m": 2.0,
+    "d_arms": [
+     1.0,
+     2.0,
+     2.5
+    ],
+    "leave_m": 3.0,
+    "b5_radius_m": 10.3,
+    "b5_radius_source": "Fotios, Yang & Uttley 2015 の他の歩行者を注視する距離の中央値(docs/research/v2-p-notice-research.md)・仮採用(10-13b §0-3)",
+    "notice": {
+     "d75_m": 10.4,
+     "d25_m": 23.5,
+     "d50_m": 16.95,
+     "scale_m": 5.9621,
+     "cutoff_m": 100.0,
+     "source": "R-62(docs/research/v2-r62-field-of-view-anchors.md §1-2・Loftus & Harley 2005)・R-79 §8-1(曲線の再計算)",
+     "rng": "core.rng.philox_array(seed, 'proximity.notice', k19_counter_array(時刻の鍵, 体, 相手))・1 語(stream(…, *k19_counters(…)).random() と同じ値)"
+    },
+    "unit_source": "agents.poi_ref(在席中の POI の区画 id)∧ 体のセル == その POI のセル(world.pois.cell)",
+    "index_cell_m": 2.5,
+    "position_source": "node 幾何の xy(立っている体は node の座標)",
+    "marks": {
+     "B6": "暫定・node 座標(位置の出どころ=node の座標。edge 幾何でも立ち止まった体は node・建物の中は仮想空間の距離は測れない=在席中の体の xy は店に入る前のノードのまま=B5 の単位で距離を見ない)",
+     "B8": "暫定・node の歩く速さ(1 刻み 1 node=0.41 m/s に基づく量=移動中の分・群れ歩き・同行)"
+    },
+    "index_builds": 1440,
+    "indexed_max": 3612,
+    "unit_occupancy_max": 30,
+    "units_occupied_max": 125,
+    "unit_occupancy_hist": {
+     "1": 47044,
+     "2-4": 21215,
+     "5-9": 7998,
+     "10-49": 5987,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    }
+   },
+   "conversation_open": {
+    "pairs": 219,
+    "same_cell": 218,
+    "reach_under_distance_d": 219,
+    "reach_by_unit_only": 5,
+    "over_d_and_not_same_unit": 0,
+    "distance": {
+     "n": 219,
+     "0m": 213,
+     "(0,2]": 1,
+     "(2,10]": 1,
+     "(10,50]": 3,
+     "(50,100]": 1,
+     ">100": 0,
+     "share_0m": 0.9726,
+     "share_le_2m": 0.9772,
+     "share_gt_2m": 0.0228,
+     "share_gt_10m": 0.0183,
+     "quantiles": {
+      "n": 219,
+      "mean": 0.905,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "p99": 33.351,
+      "max": 80.833
+     }
+    },
+    "by_pair_class": {
+     "outdoor": 129,
+     "both_indoor": 50,
+     "one_indoor": 40
+    },
+    "lost_under_distance_by_pair_class": {},
+    "by_categories": {
+     "stationary_other|stationary_other": 126,
+     "at_work|at_work": 29,
+     "in_store|stationary_other": 30,
+     "at_home|at_home": 1,
+     "in_store|in_store": 9,
+     "at_work|stationary_other": 9,
+     "at_work|in_store": 11,
+     "moving|stationary_other": 3,
+     "in_store|moving": 1
+    },
+    "lost_under_distance_by_categories": {},
+    "joins": 0,
+    "joins_not_reachable": 0
+   },
+   "chance": {
+    "rows_origin_chance": 776,
+    "partner_distance": {
+     "n": 776,
+     "0m": 759,
+     "(0,2]": 6,
+     "(2,10]": 2,
+     "(10,50]": 8,
+     "(50,100]": 1,
+     ">100": 0,
+     "share_0m": 0.9781,
+     "share_le_2m": 0.9858,
+     "share_gt_2m": 0.0142,
+     "share_gt_10m": 0.0116
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 12023,
+    "0m": 5562,
+    "(0,2]": 39,
+    "(2,10]": 1582,
+    "(10,50]": 4744,
+    "(50,100]": 96,
+    ">100": 0,
+    "share_0m": 0.4626,
+    "share_le_2m": 0.4659,
+    "share_gt_2m": 0.5341,
+    "share_gt_10m": 0.4026,
+    "quantiles": {
+     "n": 12023,
+     "mean": 9.791,
+     "p10": 0.0,
+     "p50": 2.154,
+     "p90": 28.523,
+     "p99": 48.195,
+     "max": 76.474
+    }
+   },
+   "copresent": {
+    "active_slot_ticks": 606322,
+    "active_distance": {
+     "n": 606322,
+     "0m": 594614,
+     "(0,2]": 2383,
+     "(2,10]": 1829,
+     "(10,50]": 6549,
+     "(50,100]": 947,
+     ">100": 0,
+     "share_0m": 0.9807,
+     "share_le_2m": 0.9846,
+     "share_gt_2m": 0.0154,
+     "share_gt_10m": 0.0124
+    },
+    "events_written": 4792
+   },
+   "b5_near": {
+    "renders": 77286,
+    "items_per_render_mean": 2.8029,
+    "items_per_render_hist": {
+     "0": 6295,
+     "1": 5423,
+     "2": 3765,
+     "3": 48031,
+     "4": 10451,
+     "5": 2417,
+     "6": 697,
+     "7": 157,
+     "8": 43,
+     "9": 7
+    },
+    "distance": {
+     "n": 216623,
+     "0m": 203076,
+     "(0,2]": 497,
+     "(2,10]": 12006,
+     "(10,50]": 903,
+     "(50,100]": 139,
+     ">100": 2,
+     "share_0m": 0.9375,
+     "share_le_2m": 0.9398,
+     "share_gt_2m": 0.0602,
+     "share_gt_10m": 0.0048
+    },
+    "items": 216623,
+    "acquainted_items": 24293,
+    "items_beyond_10_3m": 588
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 53715662,
+    "zero_distance": 53646825,
+    "diff_cell": 53884,
+    "diff_cell_per_tick": 37.419,
+    "diff_cell_both_awake_per_tick": 37.419,
+    "diff_cell_max_tick": 240,
+    "diff_band": 531
+   },
+   "b5_unit_occupancy": {
+    "unit_ticks_hist": {
+     "1": 47847,
+     "2-4": 21637,
+     "5-9": 8119,
+     "10-49": 6278,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    },
+    "max_in_room": 30,
+    "max_poi": 740,
+    "max_tick": 519,
+    "units_occupied_max": 126,
+    "top_units": [
+     {
+      "poi": 186,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 740,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 996,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 1996,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 293,
+      "eatery": true
+     },
+     {
+      "poi": 341,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 303,
+      "eatery": true
+     },
+     {
+      "poi": 694,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 733,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 239,
+      "eatery": true
+     },
+     {
+      "poi": 1688,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 293,
+      "eatery": true
+     },
+     {
+      "poi": 1783,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 238,
+      "eatery": true
+     },
+     {
+      "poi": 2023,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 293,
+      "eatery": true
+     }
+    ],
+    "max_in_room_raw_poi_ref": 30,
+    "seated_agent_ticks": 264985,
+    "seated_out_of_store_cell_agent_ticks": 12191
+   },
+   "same_xy_max": {
+    "agents_at_one_point_max": 184,
+    "tick": 1045
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.263313,
+    "cowalk_share": 0.097544,
+    "cowalk_episodes_5min": 3215
+   }
+  },
+  {
+   "policy": "mock",
+   "arm": "rel_copresent",
+   "geometry": "edge",
+   "mode": "distance",
+   "d": 2.0,
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "edge",
+    "relations": "on",
+    "rel_copresent": "on"
+   },
+   "final_hash": "17f999ea7227c6e366154c5682e738a8dc5fd8e2608bd5e486231e9362154120",
+   "final16": "17f999ea7227c6e3",
+   "llm_calls": 71492,
+   "wall_seconds_nondeterministic": 73.02,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 3636,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4169,
+    "PLAN_GENERAL": 5991,
+    "PLAN_TRANSIT": 6957,
+    "INTEROCEPTION": 19096,
+    "ACQUAINTANCE": 8032,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 4895,
+    "ACTIVITY_EXPIRY": 18716
+   },
+   "sessions_opened": 196,
+   "relations_counts": {
+    "acq_agent_refractory": 1111,
+    "acq_appear": 11163,
+    "acq_candidates": 9794,
+    "acq_not_live": 28,
+    "acq_notice_draws": 285044,
+    "acq_noticed": 11387,
+    "acq_woken": 8032,
+    "copresent_events": 6062,
+    "copresent_events:acquaintance": 193,
+    "copresent_events:household": 204,
+    "copresent_events:school": 1077,
+    "copresent_events:work": 4588,
+    "events": 459,
+    "events:sign+1": 390,
+    "events:sign0": 69,
+    "invite_fallback_only": 4376,
+    "invite_named": 0,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 691,
+    "invite_pick:near_first": 1361,
+    "invite_pick:next": 670,
+    "invite_pick:rest": 0
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 1991,
+     "accepted": 131,
+     "declined": 1860,
+     "expired": 0,
+     "rejected": 108,
+     "accept_rate": 0.0658
+    },
+    "chance": {
+     "invites": 648,
+     "accepted": 31,
+     "declined": 616,
+     "expired": 1,
+     "rejected": 170,
+     "accept_rate": 0.0478
+    },
+    "acquaintance": {
+     "invites": 463,
+     "accepted": 34,
+     "declined": 427,
+     "expired": 1,
+     "rejected": 69,
+     "accept_rate": 0.0734
+    }
+   },
+   "proximity_manifest": {
+    "schema": "shibuya.proximity/3",
+    "mode": "distance",
+    "d_m": 2.0,
+    "d_arms": [
+     1.0,
+     2.0,
+     2.5
+    ],
+    "leave_m": 3.0,
+    "b5_radius_m": 10.3,
+    "b5_radius_source": "Fotios, Yang & Uttley 2015 の他の歩行者を注視する距離の中央値(docs/research/v2-p-notice-research.md)・仮採用(10-13b §0-3)",
+    "notice": {
+     "d75_m": 10.4,
+     "d25_m": 23.5,
+     "d50_m": 16.95,
+     "scale_m": 5.9621,
+     "cutoff_m": 100.0,
+     "source": "R-62(docs/research/v2-r62-field-of-view-anchors.md §1-2・Loftus & Harley 2005)・R-79 §8-1(曲線の再計算)",
+     "rng": "core.rng.philox_array(seed, 'proximity.notice', k19_counter_array(時刻の鍵, 体, 相手))・1 語(stream(…, *k19_counters(…)).random() と同じ値)"
+    },
+    "unit_source": "agents.poi_ref(在席中の POI の区画 id)∧ 体のセル == その POI のセル(world.pois.cell)",
+    "index_cell_m": 2.5,
+    "position_source": "edge 幾何の xy(立っている体は node の座標)",
+    "marks": {
+     "B6": "暫定・node 座標(位置の出どころ=node の座標。edge 幾何でも立ち止まった体は node・建物の中は仮想空間の距離は測れない=在席中の体の xy は店に入る前のノードのまま=B5 の単位で距離を見ない)"
+    },
+    "index_builds": 1440,
+    "indexed_max": 3407,
+    "unit_occupancy_max": 30,
+    "units_occupied_max": 112,
+    "unit_occupancy_hist": {
+     "1": 43307,
+     "2-4": 18623,
+     "5-9": 8228,
+     "10-49": 5715,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    }
+   },
+   "conversation_open": {
+    "pairs": 196,
+    "same_cell": 196,
+    "reach_under_distance_d": 196,
+    "reach_by_unit_only": 0,
+    "over_d_and_not_same_unit": 0,
+    "distance": {
+     "n": 196,
+     "0m": 196,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": 1.0,
+     "share_le_2m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0,
+     "quantiles": {
+      "n": 196,
+      "mean": 0.0,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+     }
+    },
+    "by_pair_class": {
+     "outdoor": 111,
+     "both_indoor": 45,
+     "one_indoor": 40
+    },
+    "lost_under_distance_by_pair_class": {},
+    "by_categories": {
+     "stationary_other|stationary_other": 110,
+     "at_work|at_work": 27,
+     "at_work|in_store": 12,
+     "at_work|stationary_other": 10,
+     "in_store|stationary_other": 30,
+     "at_home|at_home": 1,
+     "in_store|in_store": 4,
+     "at_home|at_work": 1,
+     "moving|stationary_other": 1
+    },
+    "lost_under_distance_by_categories": {},
+    "joins": 0,
+    "joins_not_reachable": 0
+   },
+   "chance": {
+    "rows_origin_chance": 846,
+    "partner_distance": {
+     "n": 846,
+     "0m": 844,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 2,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": 0.9976,
+     "share_le_2m": 0.9976,
+     "share_gt_2m": 0.0024,
+     "share_gt_10m": 0.0024
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 9794,
+    "0m": 6431,
+    "(0,2]": 211,
+    "(2,10]": 952,
+    "(10,50]": 2130,
+    "(50,100]": 70,
+    ">100": 0,
+    "share_0m": 0.6566,
+    "share_le_2m": 0.6782,
+    "share_gt_2m": 0.3218,
+    "share_gt_10m": 0.2246,
+    "quantiles": {
+     "n": 9794,
+     "mean": 5.714,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 20.956,
+     "p99": 47.898,
+     "max": 76.474
+    }
+   },
+   "copresent": {
+    "active_slot_ticks": 792931,
+    "active_distance": {
+     "n": 792931,
+     "0m": 791714,
+     "(0,2]": 312,
+     "(2,10]": 36,
+     "(10,50]": 699,
+     "(50,100]": 170,
+     ">100": 0,
+     "share_0m": 0.9985,
+     "share_le_2m": 0.9989,
+     "share_gt_2m": 0.0011,
+     "share_gt_10m": 0.0011
+    },
+    "events_written": 6062
+   },
+   "b5_near": {
+    "renders": 71492,
+    "items_per_render_mean": 2.8766,
+    "items_per_render_hist": {
+     "0": 6341,
+     "1": 4449,
+     "2": 3196,
+     "3": 42755,
+     "4": 10184,
+     "5": 2769,
+     "6": 1053,
+     "7": 441,
+     "8": 192,
+     "9": 94,
+     "10": 18
+    },
+    "distance": {
+     "n": 205654,
+     "0m": 199897,
+     "(0,2]": 872,
+     "(2,10]": 4381,
+     "(10,50]": 403,
+     "(50,100]": 98,
+     ">100": 3,
+     "share_0m": 0.972,
+     "share_le_2m": 0.9762,
+     "share_gt_2m": 0.0238,
+     "share_gt_10m": 0.0025
+    },
+    "items": 205654,
+    "acquainted_items": 29374,
+    "items_beyond_10_3m": 341
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 64173366,
+    "zero_distance": 64132731,
+    "diff_cell": 2664,
+    "diff_cell_per_tick": 1.85,
+    "diff_cell_both_awake_per_tick": 1.847,
+    "diff_cell_max_tick": 80,
+    "diff_band": 619
+   },
+   "b5_unit_occupancy": {
+    "unit_ticks_hist": {
+     "1": 44082,
+     "2-4": 18960,
+     "5-9": 8333,
+     "10-49": 6003,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    },
+    "max_in_room": 30,
+    "max_poi": 740,
+    "max_tick": 535,
+    "units_occupied_max": 113,
+    "top_units": [
+     {
+      "poi": 186,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 740,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 996,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 694,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 1954,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 182,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 56,
+      "eatery": true
+     },
+     {
+      "poi": 23,
+      "max_in_room": 26,
+      "capacity": 4,
+      "cell": 355,
+      "eatery": true
+     },
+     {
+      "poi": 1057,
+      "max_in_room": 26,
+      "capacity": 4,
+      "cell": 58,
+      "eatery": true
+     },
+     {
+      "poi": 733,
+      "max_in_room": 24,
+      "capacity": 4,
+      "cell": 239,
+      "eatery": true
+     },
+     {
+      "poi": 1847,
+      "max_in_room": 23,
+      "capacity": 4,
+      "cell": 290,
+      "eatery": true
+     }
+    ],
+    "max_in_room_raw_poi_ref": 30,
+    "seated_agent_ticks": 244076,
+    "seated_out_of_store_cell_agent_ticks": 9112
+   },
+   "same_xy_max": {
+    "agents_at_one_point_max": 206,
+    "tick": 1049
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.017393,
+    "cowalk_share": 0.000175,
+    "cowalk_episodes_5min": 9
+   }
+  },
+  {
+   "policy": "classical",
+   "arm": "off",
+   "geometry": "node",
+   "mode": "distance",
+   "d": 2.0,
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "node",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "40365ccb63d957ea3ce4844236578a90e81b1411ab17e5093f43d334fe397b5f",
+   "final16": "40365ccb63d957ea",
+   "llm_calls": 94628,
+   "wall_seconds_nondeterministic": 89.67,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 0,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4562,
+    "PLAN_GENERAL": 6573,
+    "PLAN_TRANSIT": 7731,
+    "INTEROCEPTION": 24692,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 9701,
+    "ACTIVITY_EXPIRY": 41369
+   },
+   "sessions_opened": 0,
+   "relations_counts": {},
+   "relations_origins": null,
+   "proximity_manifest": {
+    "schema": "shibuya.proximity/3",
+    "mode": "distance",
+    "d_m": 2.0,
+    "d_arms": [
+     1.0,
+     2.0,
+     2.5
+    ],
+    "leave_m": 3.0,
+    "b5_radius_m": 10.3,
+    "b5_radius_source": "Fotios, Yang & Uttley 2015 の他の歩行者を注視する距離の中央値(docs/research/v2-p-notice-research.md)・仮採用(10-13b §0-3)",
+    "notice": {
+     "d75_m": 10.4,
+     "d25_m": 23.5,
+     "d50_m": 16.95,
+     "scale_m": 5.9621,
+     "cutoff_m": 100.0,
+     "source": "R-62(docs/research/v2-r62-field-of-view-anchors.md §1-2・Loftus & Harley 2005)・R-79 §8-1(曲線の再計算)",
+     "rng": "core.rng.philox_array(seed, 'proximity.notice', k19_counter_array(時刻の鍵, 体, 相手))・1 語(stream(…, *k19_counters(…)).random() と同じ値)"
+    },
+    "unit_source": "agents.poi_ref(在席中の POI の区画 id)∧ 体のセル == その POI のセル(world.pois.cell)",
+    "index_cell_m": 2.5,
+    "position_source": "node 幾何の xy(立っている体は node の座標)",
+    "marks": {
+     "B6": "暫定・node 座標(位置の出どころ=node の座標。edge 幾何でも立ち止まった体は node・建物の中は仮想空間の距離は測れない=在席中の体の xy は店に入る前のノードのまま=B5 の単位で距離を見ない)",
+     "B8": "暫定・node の歩く速さ(1 刻み 1 node=0.41 m/s に基づく量=移動中の分・群れ歩き・同行)"
+    },
+    "index_builds": 1440,
+    "indexed_max": 3991,
+    "unit_occupancy_max": 30,
+    "units_occupied_max": 223,
+    "unit_occupancy_hist": {
+     "1": 82945,
+     "2-4": 35191,
+     "5-9": 6264,
+     "10-49": 3768,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    }
+   },
+   "conversation_open": {
+    "pairs": 0,
+    "same_cell": 0,
+    "reach_under_distance_d": 0,
+    "reach_by_unit_only": 0,
+    "over_d_and_not_same_unit": 0,
+    "distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": null,
+     "share_le_2m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null,
+     "quantiles": {
+      "n": 0
+     }
+    },
+    "by_pair_class": {},
+    "lost_under_distance_by_pair_class": {},
+    "by_categories": {},
+    "lost_under_distance_by_categories": {},
+    "joins": 0,
+    "joins_not_reachable": 0
+   },
+   "chance": {
+    "rows_origin_chance": 0,
+    "partner_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": null,
+     "share_le_2m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 0,
+    "0m": 0,
+    "(0,2]": 0,
+    "(2,10]": 0,
+    "(10,50]": 0,
+    "(50,100]": 0,
+    ">100": 0,
+    "share_0m": null,
+    "share_le_2m": null,
+    "share_gt_2m": null,
+    "share_gt_10m": null,
+    "quantiles": {
+     "n": 0
+    }
+   },
+   "copresent": {
+    "active_slot_ticks": 0,
+    "active_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": null,
+     "share_le_2m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 94628,
+    "items_per_render_mean": 2.4125,
+    "items_per_render_hist": {
+     "0": 11332,
+     "1": 8089,
+     "2": 5422,
+     "3": 69785
+    },
+    "distance": {
+     "n": 228288,
+     "0m": 214667,
+     "(0,2]": 579,
+     "(2,10]": 12070,
+     "(10,50]": 874,
+     "(50,100]": 93,
+     ">100": 5,
+     "share_0m": 0.9403,
+     "share_le_2m": 0.9429,
+     "share_gt_2m": 0.0571,
+     "share_gt_10m": 0.0043
+    },
+    "items": 228288,
+    "acquainted_items": 0,
+    "items_beyond_10_3m": 389
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 133189749,
+    "zero_distance": 133177375,
+    "diff_cell": 3543,
+    "diff_cell_per_tick": 2.46,
+    "diff_cell_both_awake_per_tick": 2.46,
+    "diff_cell_max_tick": 44,
+    "diff_band": 797
+   },
+   "b5_unit_occupancy": {
+    "unit_ticks_hist": {
+     "1": 84276,
+     "2-4": 36293,
+     "5-9": 6511,
+     "10-49": 3916,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    },
+    "max_in_room": 30,
+    "max_poi": 553,
+    "max_tick": 459,
+    "units_occupied_max": 228,
+    "top_units": [
+     {
+      "poi": 186,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 341,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 303,
+      "eatery": true
+     },
+     {
+      "poi": 553,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 512,
+      "eatery": true
+     },
+     {
+      "poi": 694,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 740,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 1954,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 1956,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 1630,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 312,
+      "eatery": true
+     },
+     {
+      "poi": 759,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 516,
+      "eatery": true
+     },
+     {
+      "poi": 1409,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 396,
+      "eatery": true
+     }
+    ],
+    "max_in_room_raw_poi_ref": 30,
+    "seated_agent_ticks": 316328,
+    "seated_out_of_store_cell_agent_ticks": 29541
+   },
+   "same_xy_max": {
+    "agents_at_one_point_max": 504,
+    "tick": 699
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.206076,
+    "cowalk_share": 0.035659,
+    "cowalk_episodes_5min": 1398
+   }
+  },
+  {
+   "policy": "classical",
+   "arm": "off",
+   "geometry": "edge",
+   "mode": "distance",
+   "d": 2.0,
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "edge",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "4139fbad77aec12e3c07a89c28be58694d3ced70e835f65d046e8d2c1d43faca",
+   "final16": "4139fbad77aec12e",
+   "llm_calls": 94688,
+   "wall_seconds_nondeterministic": 93.92,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 0,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4562,
+    "PLAN_GENERAL": 6573,
+    "PLAN_TRANSIT": 7731,
+    "INTEROCEPTION": 23449,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 9824,
+    "ACTIVITY_EXPIRY": 42549
+   },
+   "sessions_opened": 0,
+   "relations_counts": {},
+   "relations_origins": null,
+   "proximity_manifest": {
+    "schema": "shibuya.proximity/3",
+    "mode": "distance",
+    "d_m": 2.0,
+    "d_arms": [
+     1.0,
+     2.0,
+     2.5
+    ],
+    "leave_m": 3.0,
+    "b5_radius_m": 10.3,
+    "b5_radius_source": "Fotios, Yang & Uttley 2015 の他の歩行者を注視する距離の中央値(docs/research/v2-p-notice-research.md)・仮採用(10-13b §0-3)",
+    "notice": {
+     "d75_m": 10.4,
+     "d25_m": 23.5,
+     "d50_m": 16.95,
+     "scale_m": 5.9621,
+     "cutoff_m": 100.0,
+     "source": "R-62(docs/research/v2-r62-field-of-view-anchors.md §1-2・Loftus & Harley 2005)・R-79 §8-1(曲線の再計算)",
+     "rng": "core.rng.philox_array(seed, 'proximity.notice', k19_counter_array(時刻の鍵, 体, 相手))・1 語(stream(…, *k19_counters(…)).random() と同じ値)"
+    },
+    "unit_source": "agents.poi_ref(在席中の POI の区画 id)∧ 体のセル == その POI のセル(world.pois.cell)",
+    "index_cell_m": 2.5,
+    "position_source": "edge 幾何の xy(立っている体は node の座標)",
+    "marks": {
+     "B6": "暫定・node 座標(位置の出どころ=node の座標。edge 幾何でも立ち止まった体は node・建物の中は仮想空間の距離は測れない=在席中の体の xy は店に入る前のノードのまま=B5 の単位で距離を見ない)"
+    },
+    "index_builds": 1440,
+    "indexed_max": 3991,
+    "unit_occupancy_max": 30,
+    "units_occupied_max": 238,
+    "unit_occupancy_hist": {
+     "1": 83483,
+     "2-4": 33195,
+     "5-9": 5475,
+     "10-49": 3468,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    }
+   },
+   "conversation_open": {
+    "pairs": 0,
+    "same_cell": 0,
+    "reach_under_distance_d": 0,
+    "reach_by_unit_only": 0,
+    "over_d_and_not_same_unit": 0,
+    "distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": null,
+     "share_le_2m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null,
+     "quantiles": {
+      "n": 0
+     }
+    },
+    "by_pair_class": {},
+    "lost_under_distance_by_pair_class": {},
+    "by_categories": {},
+    "lost_under_distance_by_categories": {},
+    "joins": 0,
+    "joins_not_reachable": 0
+   },
+   "chance": {
+    "rows_origin_chance": 0,
+    "partner_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": null,
+     "share_le_2m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 0,
+    "0m": 0,
+    "(0,2]": 0,
+    "(2,10]": 0,
+    "(10,50]": 0,
+    "(50,100]": 0,
+    ">100": 0,
+    "share_0m": null,
+    "share_le_2m": null,
+    "share_gt_2m": null,
+    "share_gt_10m": null,
+    "quantiles": {
+     "n": 0
+    }
+   },
+   "copresent": {
+    "active_slot_ticks": 0,
+    "active_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": null,
+     "share_le_2m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 94688,
+    "items_per_render_mean": 2.3965,
+    "items_per_render_hist": {
+     "0": 13287,
+     "1": 6471,
+     "2": 4345,
+     "3": 70585
+    },
+    "distance": {
+     "n": 226916,
+     "0m": 221072,
+     "(0,2]": 681,
+     "(2,10]": 4615,
+     "(10,50]": 459,
+     "(50,100]": 89,
+     ">100": 0,
+     "share_0m": 0.9742,
+     "share_le_2m": 0.9772,
+     "share_gt_2m": 0.0228,
+     "share_gt_10m": 0.0024
+    },
+    "items": 226916,
+    "acquainted_items": 0,
+    "items_beyond_10_3m": 268
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 161236121,
+    "zero_distance": 161192429,
+    "diff_cell": 498,
+    "diff_cell_per_tick": 0.346,
+    "diff_cell_both_awake_per_tick": 0.346,
+    "diff_cell_max_tick": 14,
+    "diff_band": 464
+   },
+   "b5_unit_occupancy": {
+    "unit_ticks_hist": {
+     "1": 84935,
+     "2-4": 34301,
+     "5-9": 5696,
+     "10-49": 3593,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    },
+    "max_in_room": 30,
+    "max_poi": 341,
+    "max_tick": 466,
+    "units_occupied_max": 243,
+    "top_units": [
+     {
+      "poi": 186,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 341,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 303,
+      "eatery": true
+     },
+     {
+      "poi": 1913,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 328,
+      "eatery": true
+     },
+     {
+      "poi": 1954,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 1956,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 694,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 183,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 553,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 512,
+      "eatery": true
+     },
+     {
+      "poi": 740,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 2210,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 155,
+      "eatery": true
+     }
+    ],
+    "max_in_room_raw_poi_ref": 30,
+    "seated_agent_ticks": 300092,
+    "seated_out_of_store_cell_agent_ticks": 30037
+   },
+   "same_xy_max": {
+    "agents_at_one_point_max": 520,
+    "tick": 700
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.012463,
+    "cowalk_share": 4.6e-05,
+    "cowalk_episodes_5min": 2
+   }
+  },
+  {
+   "policy": "classical",
+   "arm": "rel_on",
+   "geometry": "node",
+   "mode": "distance",
+   "d": 2.0,
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "node",
+    "policy": "classical",
+    "chooser": "classical",
+    "relations": "on"
+   },
+   "final_hash": "4950f18449673c3e41c726ef3a14fd822bb504482f5bfbdb6bdb7b1362f080ff",
+   "final16": "4950f18449673c3e",
+   "llm_calls": 134808,
+   "wall_seconds_nondeterministic": 132.88,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 2244,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4562,
+    "PLAN_GENERAL": 6574,
+    "PLAN_TRANSIT": 7727,
+    "INTEROCEPTION": 26116,
+    "ACQUAINTANCE": 36274,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 10417,
+    "ACTIVITY_EXPIRY": 40894
+   },
+   "sessions_opened": 349,
+   "relations_counts": {
+    "acq_agent_refractory": 19822,
+    "acq_appear": 87130,
+    "acq_candidates": 59081,
+    "acq_not_live": 300,
+    "acq_notice_draws": 836442,
+    "acq_noticed": 87366,
+    "acq_woken": 36274,
+    "events": 714,
+    "events:sign+1": 698,
+    "events:sign0": 16,
+    "invite_fallback_only": 26,
+    "invite_named": 464,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 4,
+    "invite_pick:near_first": 13,
+    "invite_pick:next": 9,
+    "invite_pick:rest": 0
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 2,
+     "accepted": 2,
+     "declined": 0,
+     "expired": 0,
+     "rejected": 6,
+     "accept_rate": 1.0
+    },
+    "chance": {
+     "invites": 225,
+     "accepted": 207,
+     "declined": 17,
+     "expired": 1,
+     "rejected": 49,
+     "accept_rate": 0.92
+    },
+    "acquaintance": {
+     "invites": 178,
+     "accepted": 140,
+     "declined": 37,
+     "expired": 1,
+     "rejected": 24,
+     "accept_rate": 0.7865
+    }
+   },
+   "proximity_manifest": {
+    "schema": "shibuya.proximity/3",
+    "mode": "distance",
+    "d_m": 2.0,
+    "d_arms": [
+     1.0,
+     2.0,
+     2.5
+    ],
+    "leave_m": 3.0,
+    "b5_radius_m": 10.3,
+    "b5_radius_source": "Fotios, Yang & Uttley 2015 の他の歩行者を注視する距離の中央値(docs/research/v2-p-notice-research.md)・仮採用(10-13b §0-3)",
+    "notice": {
+     "d75_m": 10.4,
+     "d25_m": 23.5,
+     "d50_m": 16.95,
+     "scale_m": 5.9621,
+     "cutoff_m": 100.0,
+     "source": "R-62(docs/research/v2-r62-field-of-view-anchors.md §1-2・Loftus & Harley 2005)・R-79 §8-1(曲線の再計算)",
+     "rng": "core.rng.philox_array(seed, 'proximity.notice', k19_counter_array(時刻の鍵, 体, 相手))・1 語(stream(…, *k19_counters(…)).random() と同じ値)"
+    },
+    "unit_source": "agents.poi_ref(在席中の POI の区画 id)∧ 体のセル == その POI のセル(world.pois.cell)",
+    "index_cell_m": 2.5,
+    "position_source": "node 幾何の xy(立っている体は node の座標)",
+    "marks": {
+     "B6": "暫定・node 座標(位置の出どころ=node の座標。edge 幾何でも立ち止まった体は node・建物の中は仮想空間の距離は測れない=在席中の体の xy は店に入る前のノードのまま=B5 の単位で距離を見ない)",
+     "B8": "暫定・node の歩く速さ(1 刻み 1 node=0.41 m/s に基づく量=移動中の分・群れ歩き・同行)"
+    },
+    "index_builds": 1440,
+    "indexed_max": 3991,
+    "unit_occupancy_max": 30,
+    "units_occupied_max": 236,
+    "unit_occupancy_hist": {
+     "1": 90967,
+     "2-4": 40672,
+     "5-9": 7125,
+     "10-49": 4224,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    }
+   },
+   "conversation_open": {
+    "pairs": 349,
+    "same_cell": 349,
+    "reach_under_distance_d": 349,
+    "reach_by_unit_only": 1,
+    "over_d_and_not_same_unit": 0,
+    "distance": {
+     "n": 349,
+     "0m": 345,
+     "(0,2]": 3,
+     "(2,10]": 0,
+     "(10,50]": 1,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": 0.9885,
+     "share_le_2m": 0.9971,
+     "share_gt_2m": 0.0029,
+     "share_gt_10m": 0.0029,
+     "quantiles": {
+      "n": 349,
+      "mean": 0.091,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "p99": 0.822,
+      "max": 26.501
+     }
+    },
+    "by_pair_class": {
+     "both_indoor": 331,
+     "outdoor": 6,
+     "one_indoor": 12
+    },
+    "lost_under_distance_by_pair_class": {},
+    "by_categories": {
+     "in_store|in_store": 10,
+     "at_work|at_work": 274,
+     "stationary_other|stationary_other": 6,
+     "at_work|in_store": 43,
+     "at_work|moving": 4,
+     "at_home|at_home": 4,
+     "in_store|stationary_other": 6,
+     "in_store|moving": 2
+    },
+    "lost_under_distance_by_categories": {},
+    "joins": 0,
+    "joins_not_reachable": 0
+   },
+   "chance": {
+    "rows_origin_chance": 275,
+    "partner_distance": {
+     "n": 275,
+     "0m": 273,
+     "(0,2]": 2,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": 0.9927,
+     "share_le_2m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 59081,
+    "0m": 35075,
+    "(0,2]": 191,
+    "(2,10]": 5791,
+    "(10,50]": 17630,
+    "(50,100]": 394,
+    ">100": 0,
+    "share_0m": 0.5937,
+    "share_le_2m": 0.5969,
+    "share_gt_2m": 0.4031,
+    "share_gt_10m": 0.3051,
+    "quantiles": {
+     "n": 59081,
+     "mean": 7.887,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 28.461,
+     "p99": 45.119,
+     "max": 80.433
+    }
+   },
+   "copresent": {
+    "active_slot_ticks": 0,
+    "active_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": null,
+     "share_le_2m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 134808,
+    "items_per_render_mean": 5.0262,
+    "items_per_render_hist": {
+     "0": 12672,
+     "1": 10509,
+     "2": 7874,
+     "3": 50000,
+     "4": 7599,
+     "5": 4455,
+     "6": 3802,
+     "7": 3872,
+     "8": 4165,
+     "9": 4084,
+     "10": 4257,
+     "11": 4210,
+     "12": 4239,
+     "13": 3995,
+     "14": 3390,
+     "15": 2717,
+     "16": 1877,
+     "17": 915,
+     "18": 176
+    },
+    "distance": {
+     "n": 677573,
+     "0m": 632834,
+     "(0,2]": 1629,
+     "(2,10]": 41618,
+     "(10,50]": 1326,
+     "(50,100]": 164,
+     ">100": 2,
+     "share_0m": 0.934,
+     "share_le_2m": 0.9364,
+     "share_gt_2m": 0.0636,
+     "share_gt_10m": 0.0022
+    },
+    "items": 677573,
+    "acquainted_items": 395990,
+    "items_beyond_10_3m": 649
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 115287969,
+    "zero_distance": 115260117,
+    "diff_cell": 4050,
+    "diff_cell_per_tick": 2.812,
+    "diff_cell_both_awake_per_tick": 2.812,
+    "diff_cell_max_tick": 42,
+    "diff_band": 594
+   },
+   "b5_unit_occupancy": {
+    "unit_ticks_hist": {
+     "1": 92334,
+     "2-4": 41894,
+     "5-9": 7412,
+     "10-49": 4375,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    },
+    "max_in_room": 30,
+    "max_poi": 1956,
+    "max_tick": 555,
+    "units_occupied_max": 239,
+    "top_units": [
+     {
+      "poi": 186,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 740,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 1935,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 328,
+      "eatery": true
+     },
+     {
+      "poi": 1954,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 1956,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 553,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 512,
+      "eatery": true
+     },
+     {
+      "poi": 694,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 341,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 303,
+      "eatery": true
+     },
+     {
+      "poi": 759,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 516,
+      "eatery": true
+     },
+     {
+      "poi": 1630,
+      "max_in_room": 27,
+      "capacity": 4,
+      "cell": 312,
+      "eatery": true
+     }
+    ],
+    "max_in_room_raw_poi_ref": 30,
+    "seated_agent_ticks": 369284,
+    "seated_out_of_store_cell_agent_ticks": 45802
+   },
+   "same_xy_max": {
+    "agents_at_one_point_max": 473,
+    "tick": 729
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.214562,
+    "cowalk_share": 0.034039,
+    "cowalk_episodes_5min": 1685
+   }
+  },
+  {
+   "policy": "classical",
+   "arm": "rel_on",
+   "geometry": "edge",
+   "mode": "distance",
+   "d": 2.0,
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "edge",
+    "policy": "classical",
+    "chooser": "classical",
+    "relations": "on"
+   },
+   "final_hash": "00c043e3dcc0d239cc9bc85413756703ba2f884673bd2eeb135f7a79bbeba3c5",
+   "final16": "00c043e3dcc0d239",
+   "llm_calls": 139683,
+   "wall_seconds_nondeterministic": 140.93,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 2650,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4562,
+    "PLAN_GENERAL": 6569,
+    "PLAN_TRANSIT": 7725,
+    "INTEROCEPTION": 24983,
+    "ACQUAINTANCE": 38637,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 11310,
+    "ACTIVITY_EXPIRY": 43247
+   },
+   "sessions_opened": 419,
+   "relations_counts": {
+    "acq_agent_refractory": 19784,
+    "acq_appear": 100618,
+    "acq_candidates": 62331,
+    "acq_not_live": 311,
+    "acq_notice_draws": 555196,
+    "acq_noticed": 100866,
+    "acq_woken": 38637,
+    "events": 859,
+    "events:sign+1": 838,
+    "events:sign0": 21,
+    "invite_fallback_only": 8,
+    "invite_named": 582,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 5,
+    "invite_pick:near_first": 5,
+    "invite_pick:next": 0,
+    "invite_pick:rest": 0
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 0,
+     "accepted": 0,
+     "declined": 0,
+     "expired": 0,
+     "rejected": 11,
+     "accept_rate": 0.0
+    },
+    "chance": {
+     "invites": 243,
+     "accepted": 225,
+     "declined": 18,
+     "expired": 0,
+     "rejected": 83,
+     "accept_rate": 0.9259
+    },
+    "acquaintance": {
+     "invites": 232,
+     "accepted": 194,
+     "declined": 37,
+     "expired": 0,
+     "rejected": 27,
+     "accept_rate": 0.8362
+    }
+   },
+   "proximity_manifest": {
+    "schema": "shibuya.proximity/3",
+    "mode": "distance",
+    "d_m": 2.0,
+    "d_arms": [
+     1.0,
+     2.0,
+     2.5
+    ],
+    "leave_m": 3.0,
+    "b5_radius_m": 10.3,
+    "b5_radius_source": "Fotios, Yang & Uttley 2015 の他の歩行者を注視する距離の中央値(docs/research/v2-p-notice-research.md)・仮採用(10-13b §0-3)",
+    "notice": {
+     "d75_m": 10.4,
+     "d25_m": 23.5,
+     "d50_m": 16.95,
+     "scale_m": 5.9621,
+     "cutoff_m": 100.0,
+     "source": "R-62(docs/research/v2-r62-field-of-view-anchors.md §1-2・Loftus & Harley 2005)・R-79 §8-1(曲線の再計算)",
+     "rng": "core.rng.philox_array(seed, 'proximity.notice', k19_counter_array(時刻の鍵, 体, 相手))・1 語(stream(…, *k19_counters(…)).random() と同じ値)"
+    },
+    "unit_source": "agents.poi_ref(在席中の POI の区画 id)∧ 体のセル == その POI のセル(world.pois.cell)",
+    "index_cell_m": 2.5,
+    "position_source": "edge 幾何の xy(立っている体は node の座標)",
+    "marks": {
+     "B6": "暫定・node 座標(位置の出どころ=node の座標。edge 幾何でも立ち止まった体は node・建物の中は仮想空間の距離は測れない=在席中の体の xy は店に入る前のノードのまま=B5 の単位で距離を見ない)"
+    },
+    "index_builds": 1440,
+    "indexed_max": 3991,
+    "unit_occupancy_max": 30,
+    "units_occupied_max": 244,
+    "unit_occupancy_hist": {
+     "1": 91604,
+     "2-4": 39302,
+     "5-9": 6594,
+     "10-49": 3949,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    }
+   },
+   "conversation_open": {
+    "pairs": 419,
+    "same_cell": 419,
+    "reach_under_distance_d": 419,
+    "reach_by_unit_only": 0,
+    "over_d_and_not_same_unit": 0,
+    "distance": {
+     "n": 419,
+     "0m": 419,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": 1.0,
+     "share_le_2m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0,
+     "quantiles": {
+      "n": 419,
+      "mean": 0.0,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+     }
+    },
+    "by_pair_class": {
+     "both_indoor": 401,
+     "outdoor": 8,
+     "one_indoor": 10
+    },
+    "lost_under_distance_by_pair_class": {},
+    "by_categories": {
+     "at_work|at_work": 328,
+     "stationary_other|stationary_other": 7,
+     "at_work|in_store": 64,
+     "in_store|stationary_other": 7,
+     "moving|stationary_other": 1,
+     "in_store|in_store": 7,
+     "at_work|moving": 3,
+     "at_school|at_work": 1,
+     "at_home|at_home": 1
+    },
+    "lost_under_distance_by_categories": {},
+    "joins": 0,
+    "joins_not_reachable": 0
+   },
+   "chance": {
+    "rows_origin_chance": 328,
+    "partner_distance": {
+     "n": 328,
+     "0m": 328,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": 1.0,
+     "share_le_2m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 62331,
+    "0m": 41191,
+    "(0,2]": 1822,
+    "(2,10]": 6875,
+    "(10,50]": 12308,
+    "(50,100]": 135,
+    ">100": 0,
+    "share_0m": 0.6608,
+    "share_le_2m": 0.6901,
+    "share_gt_2m": 0.3099,
+    "share_gt_10m": 0.1996,
+    "quantiles": {
+     "n": 62331,
+     "mean": 4.973,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 19.249,
+     "p99": 38.978,
+     "max": 78.95
+    }
+   },
+   "copresent": {
+    "active_slot_ticks": 0,
+    "active_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": null,
+     "share_le_2m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 139683,
+    "items_per_render_mean": 5.8732,
+    "items_per_render_hist": {
+     "0": 16884,
+     "1": 8906,
+     "2": 5640,
+     "3": 43371,
+     "4": 5936,
+     "5": 4067,
+     "6": 3884,
+     "7": 3904,
+     "8": 4071,
+     "9": 4669,
+     "10": 5372,
+     "11": 5707,
+     "12": 5751,
+     "13": 5874,
+     "14": 5328,
+     "15": 4364,
+     "16": 3152,
+     "17": 2017,
+     "18": 786
+    },
+    "distance": {
+     "n": 820391,
+     "0m": 795223,
+     "(0,2]": 4289,
+     "(2,10]": 19798,
+     "(10,50]": 938,
+     "(50,100]": 139,
+     ">100": 4,
+     "share_0m": 0.9693,
+     "share_le_2m": 0.9745,
+     "share_gt_2m": 0.0255,
+     "share_gt_10m": 0.0013
+    },
+    "items": 820391,
+    "acquainted_items": 540382,
+    "items_beyond_10_3m": 519
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 147934065,
+    "zero_distance": 147876307,
+    "diff_cell": 227,
+    "diff_cell_per_tick": 0.158,
+    "diff_cell_both_awake_per_tick": 0.158,
+    "diff_cell_max_tick": 13,
+    "diff_band": 179
+   },
+   "b5_unit_occupancy": {
+    "unit_ticks_hist": {
+     "1": 93048,
+     "2-4": 40576,
+     "5-9": 6825,
+     "10-49": 4103,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    },
+    "max_in_room": 30,
+    "max_poi": 341,
+    "max_tick": 466,
+    "units_occupied_max": 249,
+    "top_units": [
+     {
+      "poi": 186,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 341,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 303,
+      "eatery": true
+     },
+     {
+      "poi": 740,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 1935,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 328,
+      "eatery": true
+     },
+     {
+      "poi": 1954,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 1956,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 183,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 694,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 1913,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 328,
+      "eatery": true
+     },
+     {
+      "poi": 553,
+      "max_in_room": 27,
+      "capacity": 4,
+      "cell": 512,
+      "eatery": true
+     }
+    ],
+    "max_in_room_raw_poi_ref": 30,
+    "seated_agent_ticks": 358742,
+    "seated_out_of_store_cell_agent_ticks": 47441
+   },
+   "same_xy_max": {
+    "agents_at_one_point_max": 497,
+    "tick": 718
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.01485,
+    "cowalk_share": 8.1e-05,
+    "cowalk_episodes_5min": 8
+   }
+  },
+  {
+   "policy": "classical",
+   "arm": "rel_copresent",
+   "geometry": "node",
+   "mode": "distance",
+   "d": 2.0,
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "node",
+    "policy": "classical",
+    "chooser": "classical",
+    "relations": "on",
+    "rel_copresent": "on"
+   },
+   "final_hash": "ce21a33045a37e9980530b51dfe9693b64af6585d63f02d44fea5ecbe1ccbcd7",
+   "final16": "ce21a33045a37e99",
+   "llm_calls": 134772,
+   "wall_seconds_nondeterministic": 131.44,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 2287,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4562,
+    "PLAN_GENERAL": 6573,
+    "PLAN_TRANSIT": 7727,
+    "INTEROCEPTION": 26104,
+    "ACQUAINTANCE": 36081,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 10505,
+    "ACTIVITY_EXPIRY": 40933
+   },
+   "sessions_opened": 360,
+   "relations_counts": {
+    "acq_agent_refractory": 19776,
+    "acq_appear": 86735,
+    "acq_candidates": 58898,
+    "acq_not_live": 126,
+    "acq_notice_draws": 836922,
+    "acq_noticed": 86971,
+    "acq_woken": 36081,
+    "copresent_events": 29621,
+    "copresent_events:acquaintance": 26,
+    "copresent_events:household": 206,
+    "copresent_events:school": 6348,
+    "copresent_events:work": 23041,
+    "events": 733,
+    "events:sign+1": 720,
+    "events:sign0": 13,
+    "invite_fallback_only": 27,
+    "invite_named": 469,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 4,
+    "invite_pick:near_first": 15,
+    "invite_pick:next": 11,
+    "invite_pick:rest": 0
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 1,
+     "accepted": 1,
+     "declined": 0,
+     "expired": 0,
+     "rejected": 5,
+     "accept_rate": 1.0
+    },
+    "chance": {
+     "invites": 232,
+     "accepted": 210,
+     "declined": 21,
+     "expired": 1,
+     "rejected": 51,
+     "accept_rate": 0.9052
+    },
+    "acquaintance": {
+     "invites": 183,
+     "accepted": 149,
+     "declined": 34,
+     "expired": 0,
+     "rejected": 19,
+     "accept_rate": 0.8142
+    }
+   },
+   "proximity_manifest": {
+    "schema": "shibuya.proximity/3",
+    "mode": "distance",
+    "d_m": 2.0,
+    "d_arms": [
+     1.0,
+     2.0,
+     2.5
+    ],
+    "leave_m": 3.0,
+    "b5_radius_m": 10.3,
+    "b5_radius_source": "Fotios, Yang & Uttley 2015 の他の歩行者を注視する距離の中央値(docs/research/v2-p-notice-research.md)・仮採用(10-13b §0-3)",
+    "notice": {
+     "d75_m": 10.4,
+     "d25_m": 23.5,
+     "d50_m": 16.95,
+     "scale_m": 5.9621,
+     "cutoff_m": 100.0,
+     "source": "R-62(docs/research/v2-r62-field-of-view-anchors.md §1-2・Loftus & Harley 2005)・R-79 §8-1(曲線の再計算)",
+     "rng": "core.rng.philox_array(seed, 'proximity.notice', k19_counter_array(時刻の鍵, 体, 相手))・1 語(stream(…, *k19_counters(…)).random() と同じ値)"
+    },
+    "unit_source": "agents.poi_ref(在席中の POI の区画 id)∧ 体のセル == その POI のセル(world.pois.cell)",
+    "index_cell_m": 2.5,
+    "position_source": "node 幾何の xy(立っている体は node の座標)",
+    "marks": {
+     "B6": "暫定・node 座標(位置の出どころ=node の座標。edge 幾何でも立ち止まった体は node・建物の中は仮想空間の距離は測れない=在席中の体の xy は店に入る前のノードのまま=B5 の単位で距離を見ない)",
+     "B8": "暫定・node の歩く速さ(1 刻み 1 node=0.41 m/s に基づく量=移動中の分・群れ歩き・同行)"
+    },
+    "index_builds": 1440,
+    "indexed_max": 3991,
+    "unit_occupancy_max": 30,
+    "units_occupied_max": 248,
+    "unit_occupancy_hist": {
+     "1": 92001,
+     "2-4": 41085,
+     "5-9": 6942,
+     "10-49": 4233,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    }
+   },
+   "conversation_open": {
+    "pairs": 360,
+    "same_cell": 360,
+    "reach_under_distance_d": 360,
+    "reach_by_unit_only": 1,
+    "over_d_and_not_same_unit": 0,
+    "distance": {
+     "n": 360,
+     "0m": 356,
+     "(0,2]": 3,
+     "(2,10]": 0,
+     "(10,50]": 1,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": 0.9889,
+     "share_le_2m": 0.9972,
+     "share_gt_2m": 0.0028,
+     "share_gt_10m": 0.0028,
+     "quantiles": {
+      "n": 360,
+      "mean": 0.089,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "p99": 0.648,
+      "max": 26.501
+     }
+    },
+    "by_pair_class": {
+     "both_indoor": 344,
+     "outdoor": 7,
+     "one_indoor": 9
+    },
+    "lost_under_distance_by_pair_class": {},
+    "by_categories": {
+     "in_store|in_store": 8,
+     "at_work|at_work": 277,
+     "stationary_other|stationary_other": 7,
+     "at_work|in_store": 55,
+     "at_work|moving": 3,
+     "at_home|at_home": 4,
+     "in_store|stationary_other": 3,
+     "in_store|moving": 3
+    },
+    "lost_under_distance_by_categories": {},
+    "joins": 0,
+    "joins_not_reachable": 0
+   },
+   "chance": {
+    "rows_origin_chance": 284,
+    "partner_distance": {
+     "n": 284,
+     "0m": 282,
+     "(0,2]": 2,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": 0.993,
+     "share_le_2m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 58898,
+    "0m": 35115,
+    "(0,2]": 152,
+    "(2,10]": 5807,
+    "(10,50]": 17443,
+    "(50,100]": 381,
+    ">100": 0,
+    "share_0m": 0.5962,
+    "share_le_2m": 0.5988,
+    "share_gt_2m": 0.4012,
+    "share_gt_10m": 0.3026,
+    "quantiles": {
+     "n": 58898,
+     "mean": 7.831,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 28.373,
+     "p99": 45.115,
+     "max": 80.433
+    }
+   },
+   "copresent": {
+    "active_slot_ticks": 7893919,
+    "active_distance": {
+     "n": 7893919,
+     "0m": 7865988,
+     "(0,2]": 6995,
+     "(2,10]": 4149,
+     "(10,50]": 13347,
+     "(50,100]": 3340,
+     ">100": 100,
+     "share_0m": 0.9965,
+     "share_le_2m": 0.9973,
+     "share_gt_2m": 0.0027,
+     "share_gt_10m": 0.0021
+    },
+    "events_written": 29621
+   },
+   "b5_near": {
+    "renders": 134772,
+    "items_per_render_mean": 5.0153,
+    "items_per_render_hist": {
+     "0": 12979,
+     "1": 10772,
+     "2": 7672,
+     "3": 49705,
+     "4": 7518,
+     "5": 4470,
+     "6": 3862,
+     "7": 3803,
+     "8": 4116,
+     "9": 4094,
+     "10": 4273,
+     "11": 4277,
+     "12": 4232,
+     "13": 3898,
+     "14": 3395,
+     "15": 2653,
+     "16": 1914,
+     "17": 980,
+     "18": 159
+    },
+    "distance": {
+     "n": 675926,
+     "0m": 631950,
+     "(0,2]": 1508,
+     "(2,10]": 40962,
+     "(10,50]": 1332,
+     "(50,100]": 172,
+     ">100": 2,
+     "share_0m": 0.9349,
+     "share_le_2m": 0.9372,
+     "share_gt_2m": 0.0628,
+     "share_gt_10m": 0.0022
+    },
+    "items": 675926,
+    "acquainted_items": 395544,
+    "items_beyond_10_3m": 685
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 115152910,
+    "zero_distance": 115127058,
+    "diff_cell": 5021,
+    "diff_cell_per_tick": 3.487,
+    "diff_cell_both_awake_per_tick": 3.487,
+    "diff_cell_max_tick": 42,
+    "diff_band": 666
+   },
+   "b5_unit_occupancy": {
+    "unit_ticks_hist": {
+     "1": 93400,
+     "2-4": 42360,
+     "5-9": 7196,
+     "10-49": 4378,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    },
+    "max_in_room": 30,
+    "max_poi": 1956,
+    "max_tick": 555,
+    "units_occupied_max": 251,
+    "top_units": [
+     {
+      "poi": 186,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 740,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 1935,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 328,
+      "eatery": true
+     },
+     {
+      "poi": 1954,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 1956,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 553,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 512,
+      "eatery": true
+     },
+     {
+      "poi": 694,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 341,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 303,
+      "eatery": true
+     },
+     {
+      "poi": 759,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 516,
+      "eatery": true
+     },
+     {
+      "poi": 1630,
+      "max_in_room": 27,
+      "capacity": 4,
+      "cell": 312,
+      "eatery": true
+     }
+    ],
+    "max_in_room_raw_poi_ref": 30,
+    "seated_agent_ticks": 370452,
+    "seated_out_of_store_cell_agent_ticks": 45704
+   },
+   "same_xy_max": {
+    "agents_at_one_point_max": 473,
+    "tick": 729
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.214593,
+    "cowalk_share": 0.03357,
+    "cowalk_episodes_5min": 1660
+   }
+  },
+  {
+   "policy": "classical",
+   "arm": "rel_copresent",
+   "geometry": "edge",
+   "mode": "distance",
+   "d": 2.0,
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "edge",
+    "policy": "classical",
+    "chooser": "classical",
+    "relations": "on",
+    "rel_copresent": "on"
+   },
+   "final_hash": "c6e08dafc94b74d41681c9130ffce1dcb3284e0c94ff6486039d4e6e37752d8d",
+   "final16": "c6e08dafc94b74d4",
+   "llm_calls": 139319,
+   "wall_seconds_nondeterministic": 140.26,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 2695,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4562,
+    "PLAN_GENERAL": 6573,
+    "PLAN_TRANSIT": 7723,
+    "INTEROCEPTION": 24912,
+    "ACQUAINTANCE": 38175,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 11471,
+    "ACTIVITY_EXPIRY": 43208
+   },
+   "sessions_opened": 427,
+   "relations_counts": {
+    "acq_agent_refractory": 19700,
+    "acq_appear": 99544,
+    "acq_candidates": 61698,
+    "acq_not_live": 119,
+    "acq_notice_draws": 556199,
+    "acq_noticed": 99783,
+    "acq_woken": 38175,
+    "copresent_events": 33851,
+    "copresent_events:acquaintance": 38,
+    "copresent_events:household": 202,
+    "copresent_events:school": 7332,
+    "copresent_events:work": 26279,
+    "events": 863,
+    "events:sign+1": 854,
+    "events:sign0": 9,
+    "invite_fallback_only": 10,
+    "invite_named": 601,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 4,
+    "invite_pick:near_first": 4,
+    "invite_pick:next": 0,
+    "invite_pick:rest": 0
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 2,
+     "accepted": 2,
+     "declined": 0,
+     "expired": 0,
+     "rejected": 19,
+     "accept_rate": 1.0
+    },
+    "chance": {
+     "invites": 264,
+     "accepted": 234,
+     "declined": 29,
+     "expired": 0,
+     "rejected": 83,
+     "accept_rate": 0.8864
+    },
+    "acquaintance": {
+     "invites": 229,
+     "accepted": 191,
+     "declined": 36,
+     "expired": 0,
+     "rejected": 28,
+     "accept_rate": 0.8341
+    }
+   },
+   "proximity_manifest": {
+    "schema": "shibuya.proximity/3",
+    "mode": "distance",
+    "d_m": 2.0,
+    "d_arms": [
+     1.0,
+     2.0,
+     2.5
+    ],
+    "leave_m": 3.0,
+    "b5_radius_m": 10.3,
+    "b5_radius_source": "Fotios, Yang & Uttley 2015 の他の歩行者を注視する距離の中央値(docs/research/v2-p-notice-research.md)・仮採用(10-13b §0-3)",
+    "notice": {
+     "d75_m": 10.4,
+     "d25_m": 23.5,
+     "d50_m": 16.95,
+     "scale_m": 5.9621,
+     "cutoff_m": 100.0,
+     "source": "R-62(docs/research/v2-r62-field-of-view-anchors.md §1-2・Loftus & Harley 2005)・R-79 §8-1(曲線の再計算)",
+     "rng": "core.rng.philox_array(seed, 'proximity.notice', k19_counter_array(時刻の鍵, 体, 相手))・1 語(stream(…, *k19_counters(…)).random() と同じ値)"
+    },
+    "unit_source": "agents.poi_ref(在席中の POI の区画 id)∧ 体のセル == その POI のセル(world.pois.cell)",
+    "index_cell_m": 2.5,
+    "position_source": "edge 幾何の xy(立っている体は node の座標)",
+    "marks": {
+     "B6": "暫定・node 座標(位置の出どころ=node の座標。edge 幾何でも立ち止まった体は node・建物の中は仮想空間の距離は測れない=在席中の体の xy は店に入る前のノードのまま=B5 の単位で距離を見ない)"
+    },
+    "index_builds": 1440,
+    "indexed_max": 3991,
+    "unit_occupancy_max": 30,
+    "units_occupied_max": 255,
+    "unit_occupancy_hist": {
+     "1": 92124,
+     "2-4": 38813,
+     "5-9": 6496,
+     "10-49": 3977,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    }
+   },
+   "conversation_open": {
+    "pairs": 427,
+    "same_cell": 427,
+    "reach_under_distance_d": 427,
+    "reach_by_unit_only": 0,
+    "over_d_and_not_same_unit": 0,
+    "distance": {
+     "n": 427,
+     "0m": 427,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": 1.0,
+     "share_le_2m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0,
+     "quantiles": {
+      "n": 427,
+      "mean": 0.0,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+     }
+    },
+    "by_pair_class": {
+     "both_indoor": 406,
+     "outdoor": 9,
+     "one_indoor": 12
+    },
+    "lost_under_distance_by_pair_class": {},
+    "by_categories": {
+     "at_work|at_work": 327,
+     "stationary_other|stationary_other": 8,
+     "at_work|in_store": 70,
+     "in_store|stationary_other": 6,
+     "moving|stationary_other": 1,
+     "in_store|in_store": 6,
+     "at_work|moving": 6,
+     "at_school|at_work": 1,
+     "at_home|at_home": 2
+    },
+    "lost_under_distance_by_categories": {},
+    "joins": 0,
+    "joins_not_reachable": 0
+   },
+   "chance": {
+    "rows_origin_chance": 348,
+    "partner_distance": {
+     "n": 348,
+     "0m": 348,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share_0m": 1.0,
+     "share_le_2m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 61698,
+    "0m": 40913,
+    "(0,2]": 1664,
+    "(2,10]": 6730,
+    "(10,50]": 12243,
+    "(50,100]": 148,
+    ">100": 0,
+    "share_0m": 0.6631,
+    "share_le_2m": 0.6901,
+    "share_gt_2m": 0.3099,
+    "share_gt_10m": 0.2008,
+    "quantiles": {
+     "n": 61698,
+     "mean": 5.015,
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 19.461,
+     "p99": 38.978,
+     "max": 78.95
+    }
+   },
+   "copresent": {
+    "active_slot_ticks": 11072635,
+    "active_distance": {
+     "n": 11072635,
+     "0m": 11064288,
+     "(0,2]": 3902,
+     "(2,10]": 116,
+     "(10,50]": 3190,
+     "(50,100]": 1077,
+     ">100": 62,
+     "share_0m": 0.9992,
+     "share_le_2m": 0.9996,
+     "share_gt_2m": 0.0004,
+     "share_gt_10m": 0.0004
+    },
+    "events_written": 33851
+   },
+   "b5_near": {
+    "renders": 139319,
+    "items_per_render_mean": 5.8601,
+    "items_per_render_hist": {
+     "0": 16656,
+     "1": 9078,
+     "2": 5877,
+     "3": 43328,
+     "4": 5627,
+     "5": 3874,
+     "6": 3863,
+     "7": 3887,
+     "8": 4328,
+     "9": 4835,
+     "10": 5459,
+     "11": 5642,
+     "12": 5678,
+     "13": 5742,
+     "14": 5381,
+     "15": 4222,
+     "16": 2989,
+     "17": 2076,
+     "18": 777
+    },
+    "distance": {
+     "n": 816420,
+     "0m": 791755,
+     "(0,2]": 4089,
+     "(2,10]": 19489,
+     "(10,50]": 941,
+     "(50,100]": 142,
+     ">100": 4,
+     "share_0m": 0.9698,
+     "share_le_2m": 0.9748,
+     "share_gt_2m": 0.0252,
+     "share_gt_10m": 0.0013
+    },
+    "items": 816420,
+    "acquainted_items": 537416,
+    "items_beyond_10_3m": 514
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 148955748,
+    "zero_distance": 148899997,
+    "diff_cell": 218,
+    "diff_cell_per_tick": 0.151,
+    "diff_cell_both_awake_per_tick": 0.151,
+    "diff_cell_max_tick": 13,
+    "diff_band": 172
+   },
+   "b5_unit_occupancy": {
+    "unit_ticks_hist": {
+     "1": 93556,
+     "2-4": 40081,
+     "5-9": 6739,
+     "10-49": 4137,
+     "50-99": 0,
+     "100-499": 0,
+     "500-999": 0,
+     "1000+": 0
+    },
+    "max_in_room": 30,
+    "max_poi": 341,
+    "max_tick": 466,
+    "units_occupied_max": 258,
+    "top_units": [
+     {
+      "poi": 186,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 341,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 303,
+      "eatery": true
+     },
+     {
+      "poi": 740,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 1935,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 328,
+      "eatery": true
+     },
+     {
+      "poi": 1954,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 1956,
+      "max_in_room": 30,
+      "capacity": 4,
+      "cell": 242,
+      "eatery": true
+     },
+     {
+      "poi": 183,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 43,
+      "eatery": true
+     },
+     {
+      "poi": 694,
+      "max_in_room": 29,
+      "capacity": 4,
+      "cell": 30,
+      "eatery": true
+     },
+     {
+      "poi": 1913,
+      "max_in_room": 28,
+      "capacity": 4,
+      "cell": 328,
+      "eatery": true
+     },
+     {
+      "poi": 553,
+      "max_in_room": 27,
+      "capacity": 4,
+      "cell": 512,
+      "eatery": true
+     }
+    ],
+    "max_in_room_raw_poi_ref": 30,
+    "seated_agent_ticks": 358495,
+    "seated_out_of_store_cell_agent_ticks": 47889
+   },
+   "same_xy_max": {
+    "agents_at_one_point_max": 498,
+    "tick": 718
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.014451,
+    "cowalk_share": 2.2e-05,
+    "cowalk_episodes_5min": 2
+   }
+  }
+ ]
+}

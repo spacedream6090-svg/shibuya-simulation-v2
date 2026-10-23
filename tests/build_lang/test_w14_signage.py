@@ -99,13 +99,12 @@ def test_opening_hours_japanese(content: str, hours: str, closed: str):
     assert W14.format_opening_hours(content) == (hours, closed)
 
 
+@pytest.mark.requires_data("world_v2:w7_plan_spec.parquet")
 def test_opening_hours_phrase_stays_short(capsys):
     """**実資産**: 圧縮後の営業時間表現が 45 字の本文に収まる長さに落ちている。"""
     import re
     import statistics
 
-    if not (DATA_DIR / "w7_plan_spec.parquet").exists():
-        pytest.skip("data/world/v2 が無い")
     hs = [
         re.search(r"営業時間: (.*)", p.user).group(1)
         for p in W14.build_prompts(DATA_DIR)
@@ -297,9 +296,7 @@ def test_property_unknown_katakana_is_always_caught(word: str):
 
 
 # ---------------------------------------------------------------- 実データ
-@pytest.mark.skipif(
-    not (DATA_DIR / "w7_plan_spec.parquet").exists(), reason="data/world/v2 が無い"
-)
+@pytest.mark.requires_data("world_v2:w7_plan_spec.parquet")
 def test_real_data_prompt_count_and_sha(capsys):
     """実資産で 2,337 件・プロンプト SHA・平均トークンを出す(§1 W14 の呼数)。"""
     from shibuya.perception.channels import estimate_tokens

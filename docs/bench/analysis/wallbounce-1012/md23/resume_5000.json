@@ -1,0 +1,40 @@
+{
+ "default": {
+  "config": "default",
+  "arms": {},
+  "agents": 5000,
+  "seed": 1,
+  "straight_final": "3995d83df61363f1",
+  "resumed_final": "3995d83df61363f1",
+  "same_final": true,
+  "checkpoints_after_boundary_same": true,
+  "n_checkpoints_compared": 4,
+  "state_file": "state-T00001440.npz",
+  "calls": [
+   148839,
+   148839
+  ],
+  "wall_s_nondeterministic": 188.3
+ },
+ "d": {
+  "config": "d",
+  "arms": {
+   "memory_store": "events",
+   "proximity": "distance",
+   "economy_stage2": "on"
+  },
+  "agents": 5000,
+  "seed": 1,
+  "straight_final": "0c6487db123033e5",
+  "resumed_final": "0c6487db123033e5",
+  "same_final": true,
+  "checkpoints_after_boundary_same": true,
+  "n_checkpoints_compared": 4,
+  "state_file": "state-T00001440.npz",
+  "calls": [
+   146325,
+   146325
+  ],
+  "wall_s_nondeterministic": 228.3
+ }
+}
