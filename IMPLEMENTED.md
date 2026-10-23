@@ -394,6 +394,14 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #126 第 5 期 段 1b 抽出のランの密度の推定(neighborhood)=版上げ 4 回目(`--space nav1` 既定・`legacy` は旧値の再現だけ)(第337・2026-10-23・実装役 Opus 5.5・親検収=段 1 の検収役の H1 を受けた段)
+
+- 正典: 段 1(#124)の再検収 H1・[指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §1-6(係数で持たない)・§1-9(計測した候補から選ぶ)・回答 10-13b §0-6・§0-7・CLAUDE.md §4(expedient は 5,000 体のスクリーニング)。記録 [sp1b](docs/bench/analysis/spatial-2026-10/sp1b/README.md)(第 1 段階の表と第 2 段階)。取り込み `b02c257`。安定版のタグ `stable-v2-before-space-1`(戻す=`git checkout stable-v2-before-space-1`=既定が legacy に戻る・資産は足すだけなので残してよい)。
+- **第 1 段階(測る)**: 腕 `SHIBUYA_NAV1_DENSITY {cell,neighborhood,unscaled}`(分子=面の上に居て建物の中でない体は共通・Fruin の境と Kladek の式は不変)を 19 構成 × 1 日で測った(進めない体刻み・速さ 0 のセル・最大 人/m²・段 5・段の変化・CELL_BLOCK・呼数・食事)。neighborhood=セル+面が 8 連結で接する同じ層の近傍(組 947・近傍の面積の中央値 8,721 m²・500 m² 未満のセル 50 → 20)。結果: cell は H1 が残る(帰無腕 284,557・v1/v2/activity_off 1.5〜2 万)・neighborhood はほぼ 0(帰無腕 136=孤立した断片のセル 392・derive 18・他 0)で段の変化 0.6〜1.8 千/日・unscaled は段 0 のみ(5,000 体では混み具合の仕組みが止まる・39 万体でだけ正しい)。
+- **第 2 段階(既定へ)**: 親が neighborhood を選び(偏り=局所の混みを薄める向き=宣言・近傍の決め方は宣言・孤立の断片 20 セルは cell のまま=既知の残り)、既定を `nav1`+`neighborhood` に。変化検出(CELL_BLOCK)の密度も nav1 では同じ推定に(密度を 1 つに・legacy は不変)。golden の張り替え(段 1 で戻した分+slow の K19・前の値は legacy で出る)。台帳: `DOC-nav1-density-sample-jam` を removed・`BR-NAV1-DENSITY-SAMPLE-SCALE` を neighborhood の形に・cell/unscaled の腕の行・`--space legacy` の切替口の行(next-bump)。
+- **結果**(5,000 体・W21): legacy は 19/19 で HEAD と 25 欄同じ。既定(nav1+neighborhood)は動いた量を記録(legacy 比と段 1 の cell 比)・3-4-5 0・2 日・再開=通し・段 B 0・記録 on/off 同じ・性能 刻みあたり +2 割・最大の作業集合 不変。
+- 検収: 親(段 1 の検収役の H1 と第 1 段階の表に基づく)。全体試験 6,207 passed。仮採用: PENDING §1-1b 仮-49。次=段 2(建物の中)・切替口の削除の束(PENDING §5)。
+
 ### #125 第 6 期 6-4 連絡の道具の残り=充電を本人の行動に・CT4 の習慣・CT5 の交換とグループ・C2 ビデオ通話・C1 の限界 2 件・C6 の行(腕 `--contact c1` の中・既定 off=結果不変・GPU の前に mock で)(第337・2026-10-22〜23・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §4-4(CT0 共通の決まり 2・3=持ち物は本人の行動と物理で動く/CT4 範囲の外にいる人=習慣はその人自身の過去の判断から・記録が少ない/大事な誘い/驚きは判断モデルへ・状態ごと/CT5 連絡先=関係の記憶に手段の印・調べる/保存/交換は本人・グループ/CT1 C2 ビデオ通話/C6)・10-03 §7-3・[実装の計画](docs/design/v2-implementation-plan-2026-10-12.md) 6-4・回答 2-1。記録 [ct_c2](docs/bench/analysis/wallbounce-1012/ct_c2/README.md)([review.md](docs/bench/analysis/wallbounce-1012/ct_c2/review.md))。取り込み `f9229c2`。C1 は #116・C3 は #121(ca3)。C4(SNS・検索・口コミ)はリサーチ C8・C10 の後・C5(掲示・サイネージ)は 6-6 ② の後。
