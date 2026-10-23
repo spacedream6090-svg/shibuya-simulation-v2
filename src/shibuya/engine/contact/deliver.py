@@ -11,11 +11,13 @@
   届いた出来事の記録の id は行に持たない(〔1-3 の (1) の直し〕層の診断の表 ``ContactLayer._ct_event_of``=記録 on/off で行が同じ)。
 - ``_unseen``: 体 → ``[まだ System 1 に入れていない届いた数, 最初に届いた時刻]``(通知の刺激の素=その刻みに 1 回の刺激)。
 - ``_sent``: メッセージの番号 → ``[送った人, 道具, 送った時刻, 届け先の数, 読んだ数]``(既読の印=道具の性質)。
-- ``_held``: 電源の切れた体 → 網が預かっているメッセージ(電源が入ったら届く=〔つなぎ BR-CT1-CHARGE-AT-HOME〕家で充電して電源が
-  入った刻みに :meth:`Mailbox.release_held`)。
+- ``_held``: 電源の切れた体 → 網が預かっているメッセージ(電源が入ったら届く=〔C2〕本人が充電器に差して電源が入った刻みに
+  :meth:`Mailbox.release_held`)。
+- 〔C2〕``_by_sender``: 送った人 → まだ開いている送ったメッセージの番号(既読の印を送った側の候補の文脈に載せる=:meth:`receipts`)。
 - ``_pending``: 予約の鍵 → 窓の境目で届ける事象(送信=打ち終わり・着信)の行 ``[種類, 頼んだ時刻, 境目の時刻, …]``。進行役の待ち行列は捨ててよい(状態台帳の行 BW)=予約の
   中身はここに持ち、再開では組み立ての後の結び(``ContactLayer.bind_queue``)が待ち行列に入れ直す。
-- ``_ringing``: 着信中の体 → ``[かけた人, 鳴った時刻, かけた時刻]``・``_calling``: かけた体 → ``[相手, かけた時刻, 段 0=予約/1=鳴っている]``。
+- ``_ringing``: 着信中の体 → ``[かけた人, 鳴った時刻, かけた時刻, ビデオ 0/1]``・``_calling``: かけた体 → ``[相手, かけた時刻,
+  段 0=予約/1=鳴っている, ビデオ 0/1]``(〔C2〕末尾にビデオ通話の印)。
 - ``_next``: ``[次のメッセージの番号, 次の予約の鍵]``。
 
 届け方(エンジンの規則=物理と道具の性質だけ):
@@ -42,17 +44,20 @@ from typing import Any, Final, Iterable, Sequence
 from shibuya.core.time_consts import SECONDS_PER_DAY
 from shibuya.engine.batching import BOUNDARY
 from shibuya.engine.contact.arm import LEDGER_ARM
+from shibuya.perception import contact_view as _CV
 
 __all__ = [
-    "VIA_MESSAGE", "VIA_GROUP", "VIA_CALL", "VIAS", "KIND_RING", "KIND_SEND", "RANK_RING", "RANK_SEND",
+    "VIA_MESSAGE", "VIA_GROUP", "VIA_CALL", "VIA_VIDEO", "VIAS", "KIND_RING", "KIND_SEND", "RANK_RING", "RANK_SEND",
     "RING_DELIVERY", "SEND_DELIVERY", "MAIL_KEEP_S", "P_SEND", "P_RING", "Mailbox", "OUTSIDE_ORIGIN", "senders_of",
 ]
 
 VIA_MESSAGE: Final[str] = "メッセージ"
 VIA_GROUP: Final[str] = "グループ"
 VIA_CALL: Final[str] = "通話"
-#: 道具のコード(行の欄)→ 語(1-3 の ``Event.via`` の語)。
-VIAS: Final[tuple[str, ...]] = (VIA_MESSAGE, VIA_GROUP, VIA_CALL)
+#: 〔第 6 期 6-4 C2〕ビデオ通話(1-3 の ``VIA_WORDS`` の末尾に足した語=定義は ``perception.contact_view.VIA_VIDEO`` の 1 か所)。
+VIA_VIDEO: Final[str] = _CV.VIA_VIDEO
+#: 道具のコード(行の欄)→ 語(1-3 の ``Event.via`` の語)。〔C2〕末尾にビデオ通話(前のコードは動かない)。
+VIAS: Final[tuple[str, ...]] = (VIA_MESSAGE, VIA_GROUP, VIA_CALL, VIA_VIDEO)
 
 #: 進行役の待ち行列の種類(着信・送信=打ち終わり)と順位(同じ時刻の刻みの事象=順位 0 より前)。
 KIND_RING: Final[int] = 40
@@ -88,6 +93,7 @@ class Mailbox:
         self._ringing: dict[int, list[int]] = {}
         self._calling: dict[int, list[int]] = {}
         self._next: list[int] = [0, 0]
+        self._by_sender: dict[int, list[int]] = {}
 
     # ------------------------------------------------------------------ 予約(窓の境目)
     def new_message_id(self) -> int:
@@ -116,6 +122,7 @@ class Mailbox:
         got: list[int] = []
         held: list[int] = []
         self._sent[int(msg)] = [int(sender), int(via), int(t_send), len(recipients), 0]
+        self._by_sender.setdefault(int(sender), []).append(int(msg))
         for r in recipients:  # 逐次ループ宣言: 届け先の数ぶん
             row = [int(msg), int(sender), int(group), int(via), int(t_send), int(t_send), -1, int(mora), str(text)]
             if bool(on(int(r))):
@@ -183,7 +190,26 @@ class Mailbox:
                 del self._inbox[a]
         for m in [m for m, s in self._sent.items() if s[4] >= s[3] or int(s[2]) < cut]:
             del self._sent[m]
+        for s in list(self._by_sender):  # 逐次: 送った人の数ぶん(日に 1 回)=落とした送った行を索引からも落とす
+            keep = [m for m in self._by_sender[s] if m in self._sent]
+            if keep:
+                self._by_sender[s] = keep
+            else:
+                del self._by_sender[s]
         return n
+
+    def receipts(self, sender: int) -> tuple[int, int, int]:
+        """〔C2〕既読の印(道具の性質=送った側の画面に出る): 送った人のまだ開いている送ったメッセージの ``(通数, 既読の延べ,
+        届け先の延べ)``。逐次ループ宣言: その人の開いている送った行の数ぶん。"""
+        n = r = to = 0
+        for m in self._by_sender.get(int(sender), ()):
+            s = self._sent.get(int(m))
+            if s is None:
+                continue
+            n += 1
+            r += int(s[4])
+            to += int(s[3])
+        return n, r, to
 
     # ------------------------------------------------------------------ 電話
     def ringing_of(self, callee: int) -> list[int] | None:
@@ -192,11 +218,11 @@ class Mailbox:
     def calling_of(self, caller: int) -> list[int] | None:
         return self._calling.get(int(caller))
 
-    def start_calling(self, caller: int, callee: int, t_call: int) -> None:
-        self._calling[int(caller)] = [int(callee), int(t_call), 0]
+    def start_calling(self, caller: int, callee: int, t_call: int, video: int = 0) -> None:
+        self._calling[int(caller)] = [int(callee), int(t_call), 0, int(video)]
 
-    def ring(self, caller: int, callee: int, t_ring: int, t_call: int) -> None:
-        self._ringing[int(callee)] = [int(caller), int(t_ring), int(t_call)]
+    def ring(self, caller: int, callee: int, t_ring: int, t_call: int, video: int = 0) -> None:
+        self._ringing[int(callee)] = [int(caller), int(t_ring), int(t_call), int(video)]
         c = self._calling.get(int(caller))
         if c is not None:
             c[2] = 1

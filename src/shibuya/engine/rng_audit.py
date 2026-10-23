@@ -262,6 +262,8 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     # 連絡の判断の仮のモデルの選び(0 語目を空け刻みの鍵・体・判断の番号=k19_counters・1 語だけ引く)
     ("engine/contact/device.py", "Devices.__init__", "contact.device"),
     ("engine/contact/port.py", "ContactPort._draw", "contact.mock"),
+    # 〔第 6 期 6-4 C2〕習慣で答えられるときに判断の口へ戻すか(0 語目を空け刻みの鍵・体・判断の通し番号=k19_counters・1 語だけ引く)
+    ("engine/contact/port.py", "habit_recheck_u", "contact.habit"),
     # 〔第 6 期 6-2 カレンダー 2〕予定の判断の仮のモデルの選び(0 語目を空け刻みの鍵・体・判断の番号=k19_counters・1 語だけ引く)
     ("engine/calendar2/port.py", "Calendar2Port._draw", "calendar2.mock"),
     # 〔第 6 期 6-2 カレンダー 3〕勤務の判断の仮のモデルの選び(0 語目を空け刻みの鍵・体・判断の番号=k19_counters・1 語だけ引く)

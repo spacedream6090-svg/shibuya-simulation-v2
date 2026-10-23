@@ -110,7 +110,8 @@ def test_ledger_has_187_rows_in_two_axes():
     # 〔第 6 期 6-2 カレンダー 3〕その後(TXD の後)に雇い主・祝日の腕の行 CA3S・CA3P・CA3G・CA3M・CA3Q(腕 calendar-3)を足して 149・240
     # 〔第 6 期 6-6 ② 第 1 部〕その後(CA3Q の後)に店の仕事の腕の行 DUS・DUG・DUM・DUQ(腕 duties)を足して 153・244
     # 〔第 5 期 空間の段 1〕ナビメッシュの位置と経路の 8 列(nav_*・space nav1)を足して agents 82・soa 99・total 252
-    assert c == {"agents": 82, "cells": 5, "pois": 9, "perception": 3, "external": 153, "soa": 99, "total": 252}
+    # 〔第 6 期 6-4 C2〕連絡の道具の腕の行 CT1B(宛先の帳)・CT1H(習慣の表)を CT1Q の後ろに足して external 155・total 254
+    assert c == {"agents": 82, "cells": 5, "pois": 9, "perception": 3, "external": 155, "soa": 99, "total": 254}
     assert SL.LEDGER_VERSION == "state-ledger/10e-ret"
     keys = [r.key for r in SL.LEDGER]
     assert len(set(keys)) == len(keys)
@@ -122,6 +123,7 @@ def test_ledger_has_187_rows_in_two_axes():
                                                                                      "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A",
                                                                                      "CT1AS", "CT1I", "CT1IS", "CT1C",
                                                                                      "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q",
+                                                                                     "CT1B", "CT1H",
                                                                                      "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q",
                                                                                      "TXD",
                                                                                      "CA3S", "CA3P", "CA3G", "CA3M", "CA3Q",
@@ -143,7 +145,7 @@ def test_ledger_has_187_rows_in_two_axes():
     # 腕の行(1-8b の 2 行+2-3 の M0L+〔第 6 期 6-5〕M0M・M0C・〔検収 M4〕M0S+〔第 6 期 6-2〕C1B・C1BM)
     # 〔第 6 期 6-3〕その後に TCR・TCC・T3M・T4W
     assert [r.key for r in SL.LEDGER if r.arm] == ["S8", "S8M", "S8E", "M0L", "M0M", "M0C", "M0S", "C1B", "C1BM",
-                                                   "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A", "CT1AS", "CT1I", "CT1IS", "CT1C", "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q",  # 〔6-4 C1〕
+                                                   "TCR", "TCC", "T3M", "T4W", "CT1D", "CT1A", "CT1AS", "CT1I", "CT1IS", "CT1C", "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q", "CT1B", "CT1H",  # 〔6-4 C1〕・〔C2〕
                                                    "CA2B", "CA2O", "CA2G", "CA2M", "CA2Q",  # 〔6-2 カレンダー 2〕
                                                    "TXD",  # 〔第 4 期 4-2〕店の預かり消費税(腕 rules-42)
                                                    "CA3S", "CA3P", "CA3G", "CA3M", "CA3Q",  # 〔6-2 カレンダー 3〕

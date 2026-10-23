@@ -188,6 +188,11 @@ def test_m2_a_forged_llm_call_is_caught_by_the_issued_check(monkeypatch):
 
 
 _PERSON = {"W_SENT", "W_READ", "W_LATER", "W_IGNORE", "W_LOOK", "W_UP", "W_DIAL", "W_ANSWER", "W_DECLINE", "W_HANG"}
+# 〔第 6 期 6-4 C2〕足した本人の語(充電・交換・グループ・ビデオ通話・店の番号)も同じ規則で見る
+_PERSON |= {"W_CHARGE", "W_UNPLUG", "W_EXCH_ASK", "W_EXCH_OK", "W_EXCH_NO", "W_GMAKE", "W_GINVITE", "W_GJOIN", "W_GREFUSE",
+            "W_GLEAVE", "W_VIDEO_DIAL", "W_LOOKUP"}
+#: 〔C2〕判断の口の答えを返す口(判断の口か CT4 の習慣=本人の過去の選びから作った答え)。
+_DECIDE_FUNCS = {"_decide", "_habit_or_decide"}
 #: 判断の答えを予約や控えから作り直してよい関数(送った=予約の行の call_id・主の判断の候補で選んだ=判断の系が渡した call_id・
 #: 通話の終わり=切った判断の call_id の控えか会話の過程)。
 _REBUILD_OK = {"_send_now", "_take_main_looks", "_call_ended"}
@@ -207,7 +212,7 @@ def _cause_problems(src: str) -> list[str]:
                         names += [e.id for e in t.elts if isinstance(e, ast.Name)]
                 if "cause" in names:
                     v = node.value
-                    ok = (isinstance(v, ast.Call) and isinstance(v.func, ast.Attribute) and v.func.attr == "_decide")
+                    ok = (isinstance(v, ast.Call) and isinstance(v.func, ast.Attribute) and v.func.attr in _DECIDE_FUNCS)
                     ok = ok or fn.name in _REBUILD_OK
                     if not ok:
                         bad.append(f"{fn.name}: cause を判断の口の外から作った(行 {node.lineno})")

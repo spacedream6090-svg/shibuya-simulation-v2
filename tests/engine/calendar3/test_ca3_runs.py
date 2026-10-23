@@ -549,11 +549,38 @@ def test_seven_days_with_the_trial_mark_compose_once_on_friday(with_roster):
                            issued=r.calendar3_layer.issued_keys())["violations"] == 0
     # 〔つなぎ BR-CT1-CHARGE-AT-HOME〕家で充電する=7 日でも電池 0 の体が残らず、金曜の知らせが C1 の口を通る(控えに残る 0・
     # 電源が無くて送れない 0=充電の前は 80 体全員が電池 0 で控え 39・送れない 338)
+    # 〔第 6 期 6-4 C2〕つなぎを外し、充電は本人の判断になった(仮のモデルは一様)=電源の切れた体が 0 になるとは限らない。本人が
+    # 充電して(差した体だけ電池が増える)、80 体全員が電池 0 にはならず、金曜の知らせが C1 の口を通る
     dev = r.run_manifest_fields()["contact_c1"]["devices"]
-    assert dev["battery_zero"] == 0 and dev["off"] == 0
-    assert r.contact_layer._meter.get("charge:agent_steps", 0) > 0
-    assert r.contact_layer._meter.get("c3:cannot_send:device_off", 0) == 0 and m["live"]["wait"] == 0
+    assert dev["off"] < 80 and dev["battery_zero"] < 80
+    assert r.contact_layer._meter.get("charge:plugged", 0) > 0 and r.contact_layer._meter.get("charge:agent_steps", 0) > 0
     assert m["contacts"].get("received:シフトの知らせ", 0) > 0 and m["rows"]["written"] > 0
+
+
+def test_seven_days_negative_control_no_charge_decision(with_roster, monkeypatch):
+    """〔第 6 期 6-4 C2 検収 L10〕負の対照: 充電の判断を「このまま」に固定すると、7 日で誰も充電せず(電池が増えない)、電源の切れた体と
+    電源が無くて送れない C3 の連絡が、本人が充電するランより多い。"""
+    from shibuya.engine.contact import port as CP
+
+    kw = dict(KW, sim_days=7, start_sim_datetime="2026-07-27")
+    with ca3():
+        r = run_day(**kw)
+    real = CP.ContactPort._pick
+
+    def never(self, ctx, presented):
+        for c in presented:
+            if c.kind == CP.K_NO_CHARGE:
+                return c.id
+        return real(self, ctx, presented)
+
+    monkeypatch.setattr(CP.ContactPort, "_pick", never)
+    with ca3():
+        r0 = run_day(**kw)
+    m, m0 = r.contact_layer._meter, r0.contact_layer._meter
+    assert m0.get("charge:plugged", 0) == 0 and m0.get("charge:agent_steps", 0) == 0 and m0.get("charge:declined", 0) > 0
+    d, d0 = r.run_manifest_fields()["contact_c1"]["devices"], r0.run_manifest_fields()["contact_c1"]["devices"]
+    assert d0["off"] > d["off"]
+    assert m0.get("c3:cannot_send:device_off", 0) >= m.get("c3:cannot_send:device_off", 0)
 
 
 # ================================================================= 〔検収 L1・L7〕

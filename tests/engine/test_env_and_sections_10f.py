@@ -142,7 +142,9 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 〔第 5 期 空間の段 1〕manifest の末尾の ``space`` の設定の子 10(requested・effective・reason・schema・slope_model・
 #: turn_weight_mode・turn_weight_m・climb_weight_m_per_m・navmesh・expedients)を足した(前 ``91c11fdf…bd1f085e`` →
 #: ``30242fe6…1f1d5ec7``=この 10 本を外すと前の値に戻る・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md)。
-CONFIG_PATHS_SHA256 = "30242fe64e1df592dd1b0bf2e68b7e13b259d416a6f8ef8fbadc7ea41f1d5ec7"
+#: 〔第 6 期 6-4 C2〕``contact_c1`` の設定の子 ``c2``(習慣・充電・交換・ビデオの設定=腕 c1 のランだけ出る節)を足した
+#: (前 ``30242fe6…1f1d5ec7`` → ``94d2cc0c…7e481ffa``=この 1 本を外すと前の値に戻る・記録 docs/bench/analysis/wallbounce-1012/ct_c2/README.md)。
+CONFIG_PATHS_SHA256 = "94d2cc0c8a3e0ebb52622d32f5449353aa9263c2ef39cef917c6d5f47e481ffa"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 

@@ -24,20 +24,31 @@ from typing import Final
 from shibuya.engine.contact.arm import LEDGER_ARM
 from shibuya.engine.conversation import ConversationManager
 from shibuya.engine.speech.port import SpeechPort
+from shibuya.perception import contact_view as _CV
 
-__all__ = ["CallManager", "CallSpeechPort", "VIA_CALL"]
+__all__ = ["CallManager", "CallSpeechPort", "VIA_CALL", "VIA_VIDEO"]
 
 #: 通話の道具の語(1-3 の ``Event.via``=CT9)。
 VIA_CALL: Final[str] = "通話"
+#: 〔第 6 期 6-4 C2〕ビデオ通話の道具の語(定義は ``perception.contact_view.VIA_VIDEO`` の 1 か所)。
+VIA_VIDEO: Final[str] = _CV.VIA_VIDEO
 
 
 class CallManager(ConversationManager):
-    """電話の会話(対面の会話の仕組みそのまま・場所が違うだけ)。"""
+    """電話の会話(対面の会話の仕組みそのまま・場所が違うだけ)。
+
+    〔第 6 期 6-4 C2〕ビデオ通話は同じ器の種類違い: ``_video``=ビデオ通話のセッションの番号 → 1(状態台帳の腕の行 ``CT1K``・
+    通話の終わりで落とす)。違うのは道具の語(via=ビデオ通話)・目の向き(画面=相手の顔)・電池の減り(``device.USE_VIDEO``)だけ。
+    """
 
     LEDGER_ARM: Final[str] = LEDGER_ARM
 
     def __init__(self, master_seed: int | str) -> None:
         super().__init__(master_seed, max_participants=2)
+        self._video: dict[int, int] = {}
+
+    def is_video(self, session_id: int) -> bool:
+        return bool(self._video.get(int(session_id), 0))
 
 
 class CallSpeechPort(SpeechPort):

@@ -192,14 +192,17 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # 〔第 6 期 6-2 カレンダー 2〕腕 arm: 到着した会話の番の控え(系 calendar_2 が同じ刻みに読む)
                " CA2G:calendar2._turns"
                # 〔第 6 期 6-6 ② 第 1 部〕腕 --duties arm: 到着した判断の役割語の控え(系 duties が同じ刻みに読む)
-               " DUG:duties._role_asks",
+               " DUG:duties._role_asks"
+               # 〔第 6 期 6-4 C2〕腕 c1: 対面の会話の番の控え(連絡先の交換の機会=系 contact が同じ刻みに読む)
+               " CT1G:contact._face_turns",
          scratch_w="n_parse_errors_fleet", calls_llm="receive",
          tally="phase", reads="cfg.fleet_wait_s cfg.store_wom_on cfg.tick_seconds "
                "cfg.vocab_version layers.conv layers.fleet_bridge layers.mem_layer layers.speech layers.wom "
                "llm.fleet_deferred llm.fleet_inflight llm.fleet_waiting llm.pending llm.replay_inbox "
                "runstats.phase scratch.n_parse_errors_fleet soa.agents "
                "layers.talk_clock "  # 〔第 6 期 6-3 T2〕会話の時計(腕 mora のランだけ)
-               "layers.calendar2",  # 〔第 6 期 6-2 カレンダー 2〕会話の番の控え(腕 arm のランだけ)
+               "layers.calendar2 "  # 〔第 6 期 6-2 カレンダー 2〕会話の番の控え(腕 arm のランだけ)
+               "layers.contact",  # 〔第 6 期 6-4 C2〕対面の会話の番の控え(腕 c1 のランだけ)
          origin=f"L5(遅れ 1)・L11 前半(遅れ 2)・run.py:3668・3890-3891 @{_E}"),
     make("apply_responses", "判断", "tick", _JG.sys_apply_responses,
          resolve_ops="revert_conversation set_conversing talk_within_reach",
@@ -301,7 +304,9 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                # 〔第 6 期 6-2 カレンダー 2〕腕 arm: 会話の番の控え(系 calendar_2 が同じ刻みに読む)
                " CA2G:calendar2._turns"
                # 〔第 6 期 6-6 ② 第 1 部〕腕 --duties arm: 判断の役割語の控え(系 duties が同じ刻みに読む)
-               " DUG:duties._role_asks",
+               " DUG:duties._role_asks"
+               # 〔第 6 期 6-4 C2〕腕 c1: 対面の会話の番の控え(連絡先の交換の機会=系 contact が同じ刻みに読む)
+               " CT1G:contact._face_turns",
          # 第 1 期 1-2: 描いた知覚の事実 ``percepts``(``TickScratch`` の欄・状態台帳の行 P)
          scratch_r="decision outside_now n_parse_errors_fleet", scratch_w="parse_errors percepts",
          tally="calls_by_cond layer_counts n_fleet_resent n_outside_calls peak_backlog peak_pending phase result",
@@ -315,7 +320,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "runstats.result scratch.decision scratch.n_parse_errors_fleet scratch.outside_now "
                "scratch.parse_errors scratch.percepts soa.agents fx.tools "
                "layers.talk_clock "  # 〔第 6 期 6-3 T2〕会話の時計(腕 mora のランだけ)
-               "layers.calendar2",  # 〔第 6 期 6-2 カレンダー 2〕会話の番の控え(腕 arm のランだけ)
+               "layers.calendar2 "  # 〔第 6 期 6-2 カレンダー 2〕会話の番の控え(腕 arm のランだけ)
+               "layers.contact",  # 〔第 6 期 6-4 C2〕対面の会話の番の控え(腕 c1 のランだけ)
          origin=f"L14・run.py:4002-4127 @{_E}"),
     make("phase_a", "行為の解決", "tick", _AC.sys_phase_a,
          resolve_ops="intent_kept_by",
@@ -379,7 +385,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "CA2G:calendar2._turns "  # 〔第 6 期 6-2 カレンダー 2〕通話の番とメッセージを送る判断の控え(腕 arm のランだけ)
                "CA3G:calendar3._reads",  # 〔第 6 期 6-2 カレンダー 3〕読む判断で読んだ C3 の連絡の控え(腕 arm のランだけ)
          scratch_r="decision",
-         when="contact", reads="layers.contact layers.conv layers.runner scratch.decision soa.agents soa.world",
+         when="contact", reads="layers.contact layers.conv layers.runner scratch.decision soa.agents soa.world "
+                               "layers.calendar2",  # 〔C2 検収 L1〕大事な誘いの口(offer_probe=カレンダー 2 の誘いを読む)
          origin="第 6 期 6-4 C1(新設・HEAD の区間なし)"),
     # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日(腕 arm のランだけ立つ・連絡の系の後=その刻みに読んだ C3 の連絡が控えに積まれた後・
     # カレンダー 2 の系の前=C3 の連絡を送る判断の会話の番の控えをカレンダー 2 が同じ刻みに読む)。書くのは持ち主 calendar3(状態台帳の

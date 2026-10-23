@@ -47,6 +47,11 @@ def utter(b: Any, agent_id: int, t_now: int, action: Any, comment: str, reason: 
         # 会話の番の控え(誘い・返事・書くの判断は系 calendar_2 が同じ刻みにする=控えるだけ・世界の状態は書かない)
         cal2.note_turn(f"f:{int(s.session_id)}", int(agent_id), int(t_now),
                        call_id or f"f:{int(s.session_id)}:{int(s.blocks)}", s.participants)
+    contact = getattr(b.layers, "contact", None)  # 〔第 6 期 6-4 C2〕腕 c1 のランだけ(既定 None=今の道)
+    if contact is not None and s is not None:
+        # 対面の会話の番の控え(連絡先の交換の機会=その体の最初の番・判断は系 contact が同じ刻みにする=控えるだけ)
+        contact.note_face_turn(f"f:{int(s.session_id)}", int(agent_id), int(t_now), call_id or "", s.participants,
+                               int(s.calls.get(int(agent_id), 0)))
     talk_clock = getattr(b.layers, "talk_clock", None)  # 〔第 6 期 6-3 T2〕腕 --talk-clock mora のランだけ(既定 None=今の 1 ターンの長さの表)
     if talk_clock is not None:
         # 会話の時計: 発言の長さ=モーラ数 × 話す速さ・発言の事象を窓の待ち行列に時刻順に置く(世界の状態は書かない=計器)

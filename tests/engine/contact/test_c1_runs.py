@@ -102,12 +102,14 @@ def test_arm_rows_enter_the_hashes_only_when_the_owner_exists():
     owners = {"contact": None}
     assert SL.arm_items(owners, behavior=True) == () and SL.arm_items(owners, behavior=False) == ()
     keys = {r.key for r in SL.arm_rows() if r.arm == "contact-c1"}
-    assert keys == {"CT1D", "CT1A", "CT1AS", "CT1I", "CT1IS", "CT1C", "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q"}
+    assert keys == {"CT1D", "CT1A", "CT1AS", "CT1I", "CT1IS", "CT1C", "CT1K", "CT1S", "CT1M", "CT1G", "CT1Q",
+                    "CT1B", "CT1H"}  # 〔C2〕宛先の帳・習慣の表
     for r in SL.arm_rows():
         if r.arm == "contact-c1":
             assert r.items and all(it.startswith("contact.") for it in r.items), r.key
     beh = {r.key for r in SL.arm_rows() if r.arm == "contact-c1" and r.behavior == SL.BEHAVIOR}
-    assert beh == {"CT1D", "CT1A", "CT1I", "CT1C", "CT1K", "CT1S", "CT1G"}  # 〔検収 M1・M5〕CT1G
+    # 〔検収 M1・M5〕CT1G・〔C2〕既読の印を候補の文に載せた CT1IS と宛先の帳 CT1B・習慣の表 CT1H
+    assert beh == {"CT1D", "CT1A", "CT1I", "CT1IS", "CT1C", "CT1K", "CT1S", "CT1G", "CT1B", "CT1H"}
     # 〔1-3 の (1) の直し〕出来事の id の診断の表は diag・required の行 CT1Q(behavior の行には無い)
     q = SL.row("CT1Q")
     assert (q.behavior, q.restore) == (SL.DIAG, SL.REQUIRED)

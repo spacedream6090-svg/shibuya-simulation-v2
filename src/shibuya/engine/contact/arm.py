@@ -12,6 +12,10 @@ final・テープ・描画・manifest の既存の欄は今のまま)。``c1`` �
   の文のまま=仮採用(検証に合う構造は 3 つを比べて選ぶ)。
 - ``SHIBUYA_CONTACT_SEND`` = ``b``(既定)/``c``: 送る文(CT2 の既定 (b)=文は LLM の口=mock では定型の文・比べる腕 (c)=判断の
   選択の言葉をそのまま送る)。
+- 〔第 6 期 6-4 C2〕``SHIBUYA_CONTACT_HABIT`` = ``off``(既定)/``on``: CT4 の習慣(本人の過去の連絡の判断から作る「今読む/後で/
+  無視」「返す/スタンプ/返さない」の習慣=``engine.contact.habit``)で答えるか。既定 off=判断の口だけ(習慣の表を作らない)。
+  〔検収 M3〕腕 c1 の参照値(final)は習慣 off でも C2 の充電・ビデオ通話・交換・グループ・既読の文で C1 の値から動く(記録
+  ct_c2/README.md §0)。on のときだけ設定の指紋の ``contact`` に ``habit`` の鍵を足す。
 
 逐次ループ宣言: なし。
 """
@@ -24,7 +28,7 @@ from typing import Any, Final
 __all__ = [
     "ENV", "ARM_OFF", "ARM_C1", "ARMS", "ENV_UNNOTICED", "UNNOTICED_ARMS", "DEFAULT_UNNOTICED", "ENV_SEND",
     "SEND_ARMS", "DEFAULT_SEND", "FP_KEY", "LEDGER_ARM", "arm", "set_arm", "is_on", "unnoticed", "set_unnoticed",
-    "send", "set_send", "config",
+    "send", "set_send", "config", "ENV_HABIT", "HABIT_ARMS", "DEFAULT_HABIT", "habit", "set_habit", "habit_on",
 ]
 
 ENV: Final[str] = "SHIBUYA_CONTACT"
@@ -42,6 +46,11 @@ ENV_SEND: Final[str] = "SHIBUYA_CONTACT_SEND"
 SEND_ARMS: Final[tuple[str, ...]] = ("b", "c")
 DEFAULT_SEND: Final[str] = "b"
 
+ENV_HABIT: Final[str] = "SHIBUYA_CONTACT_HABIT"
+#: CT4 の習慣の腕(off=判断の口だけ・on=記録が閾値以上の体は習慣で答える)。
+HABIT_ARMS: Final[tuple[str, ...]] = ("off", "on")
+DEFAULT_HABIT: Final[str] = "off"
+
 #: 設定の指紋(``engine.resume.fingerprint``)に足す鍵(腕 c1 のときだけ=既定のランの指紋は今のまま)。
 FP_KEY: Final[str] = "contact"
 #: 状態台帳の腕の行の腕の名(``LedgerRow.arm``・持ち主のクラスの定数 ``LEDGER_ARM`` と照合)。
@@ -58,6 +67,7 @@ def _env(name: str, default: str, allowed: tuple[str, ...]) -> str:
 _ARM: str = _env(ENV, ARM_OFF, ARMS)
 _UNNOTICED: str = _env(ENV_UNNOTICED, DEFAULT_UNNOTICED, UNNOTICED_ARMS)
 _SEND: str = _env(ENV_SEND, DEFAULT_SEND, SEND_ARMS)
+_HABIT: str = _env(ENV_HABIT, DEFAULT_HABIT, HABIT_ARMS)
 
 
 def arm() -> str:
@@ -101,8 +111,28 @@ def set_send(name: str) -> None:
     _SEND = str(name)
 
 
+def habit() -> str:
+    """CT4 の習慣の腕(``off``・``on``)。"""
+    return _HABIT
+
+
+def habit_on() -> bool:
+    return _HABIT == "on"
+
+
+def set_habit(name: str) -> None:
+    global _HABIT
+    if str(name) not in HABIT_ARMS:
+        raise ValueError(f"{ENV_HABIT} は {HABIT_ARMS} のどれか(いま {name!r})")
+    _HABIT = str(name)
+
+
 def config() -> dict[str, Any] | None:
-    """設定の指紋と manifest の設定の子に出す腕の組(腕 off は ``None``=指紋に何も足さない)。"""
+    """設定の指紋と manifest の設定の子に出す腕の組(腕 off は ``None``=指紋に何も足さない)。〔C2〕習慣の腕は on のときだけ
+    ``habit`` の鍵を足す(off は C1 の指紋のまま)。"""
     if not is_on():
         return None
-    return {"arm": _ARM, "unnoticed": _UNNOTICED, "send": _SEND}
+    out: dict[str, Any] = {"arm": _ARM, "unnoticed": _UNNOTICED, "send": _SEND}
+    if habit_on():
+        out["habit"] = _HABIT
+    return out

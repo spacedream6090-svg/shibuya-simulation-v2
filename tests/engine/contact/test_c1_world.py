@@ -15,7 +15,7 @@ from __future__ import annotations
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.engine.contact.layer import W_DIAL, W_RING, audit_causes
+from shibuya.engine.contact.layer import W_DIAL, W_RING, W_VIDEO_DIAL, audit_causes
 from shibuya.perception import contact_view as CV
 
 from tests.engine.contact._c1 import STEP_NS, WORLD, c1
@@ -65,13 +65,15 @@ def test_world_ring_arrives_at_the_window_boundary(world_runs):
     evs = list(r.event_log.events())
     # 〔第 4 期 4-3 段 10〕同じ組が 1 日に 2 回以上かけることがある(差し替えの世界の 5,000 体で 1 組)=組ごとにかけた時刻の集まり
     # で見る(前は組ごとに最後の 1 回だけを持っていた)
+    # 〔第 6 期 6-4 C2 検収 M1〕ビデオ通話のかけた語(W_VIDEO_DIAL)も集め、(かけた人・相手・via)で突き合わせる
     dial: dict[tuple, set] = {}
     for e in evs:
-        if e.what == W_DIAL:
-            dial.setdefault((e.who, e.whom), set()).add(e.t_ns)
+        if e.what in (W_DIAL, W_VIDEO_DIAL):
+            dial.setdefault((e.who, e.whom, e.via), set()).add(e.t_ns)
     rings = [e for e in evs if e.what == W_RING]
+    assert {e.via for e in rings} <= {"通話", "ビデオ通話"}
     for e in rings:  # かけた刻みの次の窓の頭(幅=刻み 60 秒)
-        t_calls = dial.get((e.whom, e.who), set())
+        t_calls = dial.get((e.whom, e.who, e.via), set())
         assert (e.t_ns - STEP_NS) in t_calls, (e.t_ns, sorted(t_calls))
     assert r.run_manifest_fields()["batching"]["boundary_events"] >= len(rings)
 

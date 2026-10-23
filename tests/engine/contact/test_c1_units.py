@@ -279,7 +279,7 @@ def test_length_cap_is_only_a_safety_device():
     t, capped = P.cap_text("あ" * (P.MESSAGE_MAX_CHARS + 5))
     assert capped and len(t) == P.MESSAGE_MAX_CHARS
     assert P.cap_text("こんにちは") == ("こんにちは", False)
-    assert P.habit_answer(0, "notice") is None  # 習慣は本段では作らない=判断の口に戻す
+    # 〔第 6 期 6-4 C2〕習慣の口 habit_answer は消した(CT4 の習慣は engine.contact.habit=腕 SHIBUYA_CONTACT_HABIT・試験 test_c2_habit.py)
 
 
 # ================================================================= 負の対照の監査(エンジンは時刻も回数も決めない)

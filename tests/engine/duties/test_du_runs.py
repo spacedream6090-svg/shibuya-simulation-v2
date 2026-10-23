@@ -431,9 +431,9 @@ def test_audit_catches_forged_causes(day_run):
 
 
 def test_vocabulary_is_closed_and_appended():
-    assert V.VOCAB_VERSION == "events-vocab/6-6-w1"
+    assert V.VOCAB_VERSION == "events-vocab/6-4-c2"  # 〔取り込み〕6-4 C2 が後に着地=版の文字列は最後の段・仕事の 4 語のコードは不変
     assert V.FAMILIES[-1] == V.FAMILY_DUTY == "仕事"
-    assert V.VOCAB[-4:] == tuple(f"仕事:{w}" for w in V.DUTY_WORDS)
+    assert V.VOCAB[-17:-13] == tuple(f"仕事:{w}" for w in V.DUTY_WORDS)  # 後ろに連絡の 13 語(C2・105〜117)
     assert V.code_of("仕事:開けた") == 101 and V.code_of("仕事:捨てた") == 104
     assert V.code_of("勤務:知らせ") == 100  # 前の語のコードは動かない
     with pytest.raises(ValueError):

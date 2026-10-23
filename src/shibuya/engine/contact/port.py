@@ -27,11 +27,18 @@ TM1(出るかは本人)・回答 2-1(GPU の前は仮のモデル=mock)。口の
   | 着信に気づいた | 出る(できること)・出ない(続ける) |
   | かけて鳴らしている | 待つ(続ける)・切る(できること) |
   | 通話の番 | 話す(続ける)・切る(できること) |
+  | 〔C2〕充電(家で電池が少ない・満充電の知らせ) | 充電する(できること)・このまま(続ける)/充電をやめる(できること)・そのまま(続ける) |
+  | 〔C2〕対面の会話の自分の最初の番 | 相手と連絡先を交換する(できること)・交換しない(続ける)/持ちかけられた側: 交換する・断る |
+  | 〔C2〕画面(足した候補) | ビデオ通話をかける・グループを作る・グループに招く・グループを抜ける・店の番号を調べる(どれも宛先・グループ・
+    番号があるとき) |
+  | 〔C2〕招待 | 入る(できること)・断る(続ける) |
 
 - :class:`MockTextPort`(文の口=LLM の口の代わり): 定型の文 1 つ(``llm.mock.MOCK_UTTERANCE``=中身を誘導しない配管)。
   腕 (c) は選んだ候補の見せ方の文をそのまま送る(``engine.contact.layer``)。長さの上限 ``MESSAGE_MAX_CHARS`` は安全装置だけ
   (当たったら切って計器に数える)。
-- :func:`habit_answer`(CT4 の習慣の口): 本段は作らない=いつも ``None``(判断の口に戻す)。
+- 〔C2〕CT4 の習慣(``engine.contact.habit``・腕 ``SHIBUYA_CONTACT_HABIT``): 習慣で答えた選びの原因は判断の種類
+  ``P_HABIT_NOTICE``・``P_HABIT_REPLY``(通し番号の下の 4 ビット)の呼びの id(源=経験・判断モデルの呼び数には数えない)。ときどき
+  判断の口へ戻すかは :func:`habit_recheck_u`(乱数の用途名 ``contact.habit``=動きの側・鍵=刻みの鍵・体・その刻みのその体の通し番号)。
 
 **未リサーチ(expedient)**(つなぎの台帳 ``DOC-ct-c1-port-*``): 候補の語と源の当て方・スタンプの一覧の 4 語・定型の文・長さの上限
 1,000 字・mock の一様な選び方(判断モデルの代わり=結果の数は振る舞いのモデルではない)。
@@ -61,11 +68,14 @@ from shibuya.engine.decision.port import (
 from shibuya.llm.mock import MOCK_UTTERANCE
 
 __all__ = [
+    "HABIT_DOMAIN", "P_CHARGE", "P_EXCHANGE", "P_GROUPS", "P_HABIT_NOTICE", "P_HABIT_REPLY", "K_CHARGE", "K_NO_CHARGE",
+    "K_UNPLUG", "K_KEEP_PLUGGED", "K_EXCHANGE", "K_NO_EXCHANGE", "K_EXCH_YES", "K_EXCH_NO", "K_VIDEO", "K_MAKE_GROUP",
+    "K_INVITE", "K_LEAVE", "K_JOIN", "K_REFUSE", "K_LOOKUP", "habit_recheck_u",
     "MOCK_DOMAIN", "PRESENT_DOMAIN", "STAMPS", "MOCK_TEXT", "MESSAGE_MAX_CHARS", "PURPOSES",
     "P_NOTICE", "P_IDLE", "P_SCREEN", "P_WHOM", "P_GROUP", "P_REPLY", "P_STAMP", "P_RING", "P_WAIT", "P_TURN",
     "K_READ_NOW", "K_LATER", "K_IGNORE", "K_LOOK", "K_STAY", "K_READ", "K_SEND", "K_SEND_GROUP", "K_CALL", "K_KEEP",
     "K_UP", "K_TO", "K_GROUP", "K_REPLY", "K_STAMP", "K_NOREPLY", "K_STAMP_ITEM", "K_ANSWER", "K_DECLINE", "K_WAIT",
-    "K_HANG", "K_TALK", "cand", "ContactPort", "MockTextPort", "habit_answer", "call_id_of", "step_of_call_id",
+    "K_HANG", "K_TALK", "cand", "ContactPort", "MockTextPort", "call_id_of", "step_of_call_id",
     "cap_text", "PROVISIONAL_VALUES", "MAX_DECISIONS_PER_STEP", "serial_of", "purpose_of_serial", "parse_call_id",
     "ARBITRATION",
 ]
@@ -74,6 +84,8 @@ __all__ = [
 MOCK_DOMAIN: Final[str] = "contact.mock"
 #: 候補の提示の並べ替えの乱数の用途名(動きの側)。
 PRESENT_DOMAIN: Final[str] = "contact.present"
+#: 〔C2〕習慣で答えられるときも判断の口へ戻すかの乱数の用途名(動きの側)。
+HABIT_DOMAIN: Final[str] = "contact.habit"
 
 #: スタンプの一覧(判断が一覧から選ぶ=CT2)。
 STAMPS: Final[tuple[str, ...]] = ("了解", "ありがとう", "おつかれさま", "おやすみ")
@@ -84,9 +96,15 @@ MESSAGE_MAX_CHARS: Final[int] = 1000
 
 # ---- 判断の種類(乱数の鍵とテープの形でない call_id に入る番号) ----
 P_NOTICE, P_IDLE, P_SCREEN, P_WHOM, P_GROUP, P_REPLY, P_STAMP, P_RING, P_WAIT, P_TURN = range(1, 11)
+#: 〔C2〕充電する/やめる・連絡先の交換(持ちかける/応じる)・招待に答える・習慣で答えた(通知・返事)=判断の種類 11〜15
+#: (通し番号の下の 4 ビットに入る最後の 5 つ)。〔検収 L9〕これで 4 ビット(1〜15)が埋まった=次に判断の種類を足す段は通し番号の
+#: 形(k × 16+種類)を変える(たとえば × 32=call_id とテープの形が変わる=腕のランの final が動く)。
+P_CHARGE, P_EXCHANGE, P_GROUPS, P_HABIT_NOTICE, P_HABIT_REPLY = range(11, 16)
 PURPOSES: Final = MappingProxyType({
     P_NOTICE: "notice", P_IDLE: "idle", P_SCREEN: "screen", P_WHOM: "whom", P_GROUP: "group", P_REPLY: "reply",
     P_STAMP: "stamp", P_RING: "ring", P_WAIT: "wait", P_TURN: "turn",
+    P_CHARGE: "charge", P_EXCHANGE: "exchange", P_GROUPS: "invite_answer", P_HABIT_NOTICE: "habit_notice",
+    P_HABIT_REPLY: "habit_reply",
 })
 #: 1 体 1 刻みの連絡の判断の数の上限(通し番号がぶつからない形の安全装置=当たったら ``ValueError``)。
 MAX_DECISIONS_PER_STEP: Final[int] = 1 << 14
@@ -104,12 +122,18 @@ K_TO, K_GROUP = "宛先", "グループ"
 K_REPLY, K_STAMP, K_NOREPLY, K_STAMP_ITEM = "返す", "スタンプを送る", "返さない", "スタンプ"
 K_ANSWER, K_DECLINE = "出る", "出ない"
 K_WAIT, K_HANG, K_TALK = "待つ", "切る", "話す"
+# 〔C2〕
+K_CHARGE, K_NO_CHARGE, K_UNPLUG, K_KEEP_PLUGGED = "充電する", "このまま", "充電をやめる", "そのまま"
+K_EXCHANGE, K_NO_EXCHANGE, K_EXCH_YES, K_EXCH_NO = "連絡先を交換する", "交換しない", "交換する", "断る"
+K_VIDEO, K_MAKE_GROUP, K_INVITE, K_LEAVE = "ビデオ通話をかける", "グループを作る", "グループに招く", "グループを抜ける"
+K_JOIN, K_REFUSE, K_LOOKUP = "グループに入る", "招待を断る", "店の番号を調べる"
 
 #: 本モジュールの仮の値の宣言(つなぎの台帳 DOC-ct-c1-port-* と 1 対 1)。
 PROVISIONAL_VALUES: Final[tuple[str, ...]] = (
     "判断の候補の語と源の当て方(今読む/後で/無視・スマホを見る・画面の 6 つ・宛先・返す・出る/出ない・待つ/切る・話す/切る)",
     "仮のモデル(mock)は候補を語と id の順に並べ乱数の余りで一様に選ぶ(判断モデルの代わり)",
     "スタンプの一覧 4 語・文の口の定型の文(MOCK_UTTERANCE)・長さの上限 1,000 字(安全装置だけ)",
+    "〔C2〕充電・連絡先の交換・グループ・ビデオ通話・店の番号を調べるの候補の語と源の当て方(仮のモデルは一様)",
 )
 
 _SOURCE_OF: Final = MappingProxyType({
@@ -121,6 +145,11 @@ _SOURCE_OF: Final = MappingProxyType({
     K_REPLY: SOURCE_AFFORDANCE, K_STAMP: SOURCE_AFFORDANCE, K_NOREPLY: SOURCE_CONTINUE, K_STAMP_ITEM: SOURCE_AFFORDANCE,
     K_ANSWER: SOURCE_AFFORDANCE, K_DECLINE: SOURCE_CONTINUE,
     K_WAIT: SOURCE_CONTINUE, K_HANG: SOURCE_AFFORDANCE, K_TALK: SOURCE_CONTINUE,
+    K_CHARGE: SOURCE_AFFORDANCE, K_NO_CHARGE: SOURCE_CONTINUE, K_UNPLUG: SOURCE_AFFORDANCE,
+    K_KEEP_PLUGGED: SOURCE_CONTINUE, K_EXCHANGE: SOURCE_AFFORDANCE, K_NO_EXCHANGE: SOURCE_CONTINUE,
+    K_EXCH_YES: SOURCE_AFFORDANCE, K_EXCH_NO: SOURCE_CONTINUE, K_VIDEO: SOURCE_AFFORDANCE,
+    K_MAKE_GROUP: SOURCE_AFFORDANCE, K_INVITE: SOURCE_AFFORDANCE, K_LEAVE: SOURCE_AFFORDANCE, K_JOIN: SOURCE_AFFORDANCE,
+    K_REFUSE: SOURCE_CONTINUE, K_LOOKUP: SOURCE_AFFORDANCE,
 })
 
 
@@ -227,6 +256,8 @@ class MockTextPort:
         return MOCK_TEXT
 
 
-def habit_answer(agent: int, situation: str) -> str | None:
-    """CT4 の習慣の口(本人の過去の判断から作る=本段は作らない)。いつも ``None``=判断の口に戻す。"""
-    return None
+def habit_recheck_u(seed: int | str, step_key: int, agent: int, serial: int) -> float:
+    """〔C2〕習慣で答えられるときに判断の口へ戻すかの一様乱数(用途名 ``contact.habit``・0 語目を空け 1〜3 語目に刻みの鍵・体・
+    その刻みのその体の通し番号=k19_counters・1 語だけ引く)。"""
+    v = int(stream(seed, HABIT_DOMAIN, *k19_counters(int(step_key), int(agent), int(serial))).integers(0, 1 << 31))
+    return v / float(1 << 31)

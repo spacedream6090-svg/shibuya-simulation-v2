@@ -31,17 +31,20 @@ def test_vocab_size_and_uniqueness():
     # 〔第 6 期 6-4 C1〕族 連絡の 15 語をその後ろに足した(2-3 までの 65 語のコードは動かない)
     # 〔第 6 期 6-2 カレンダー 2〕族 約束の 13 語をその後ろに足した(6-4 までの 80 語のコードは動かない)
     # 〔第 6 期 6-2 カレンダー 3〕族 勤務の 8 語をその後ろに足した(カレンダー 2 までの 93 語のコードは動かない)
-    # 〔第 6 期 6-6 ② 第 1 部〕族 仕事の 4 語をその後ろに足した(カレンダー 3 までの 101 語のコードは動かない)
-    assert len(V.VOCAB) == 12 + (18 + 2) + 15 + 8 + 1 + 1 + 1 + 2 + 2 + 3 + 15 + 13 + 8 + 4 == 105
-    assert V.VOCAB[-4:] == tuple(f"仕事:{w}" for w in V.DUTY_WORDS)
-    assert V.code_of("仕事:開けた") == 101 and V.code_of("仕事:捨てた") == 104
-    assert V.VOCAB[-12:-4] == tuple(f"勤務:{w}" for w in V.WORK_WORDS)
+    # 〔第 6 期 6-6 ② 第 1 部〕族 仕事の 4 語を末尾に足した(101〜104)。〔第 6 期 6-4 C2〕連絡の族の 13 語をその後ろの別の組で
+    # 足した(105〜117=取り込みで親が付け直した)。カレンダー 3 までの 101 語のコードは動かない
+    assert len(V.VOCAB) == 12 + (18 + 2) + 15 + 8 + 1 + 1 + 1 + 2 + 2 + 3 + 15 + 13 + 8 + 4 + 13 == 118
+    assert V.VOCAB[-13:] == tuple(f"連絡:{w}" for w in V.CONTACT_EXTRA_WORDS)  # 〔C2〕
+    assert V.VOCAB[105] == "連絡:充電した" and V.VOCAB[117] == "連絡:電池の知らせ"
+    assert V.VOCAB[-17:-13] == tuple(f"仕事:{w}" for w in V.DUTY_WORDS)
+    assert V.code_of("仕事:開けた") == 101 and V.code_of("仕事:捨てた") == 104 and V.VOCAB[100] == "勤務:知らせ"
+    assert V.VOCAB[-25:-17] == tuple(f"勤務:{w}" for w in V.WORK_WORDS)
     assert V.code_of("勤務:枠を決めた") == 93 and V.code_of("勤務:知らせ") == 100
-    assert V.VOCAB[-25:-12] == tuple(f"約束:{w}" for w in V.PROMISE_WORDS)
+    assert V.VOCAB[-38:-25] == tuple(f"約束:{w}" for w in V.PROMISE_WORDS)
     assert V.code_of("約束:誘った") == 80 and V.code_of("約束:知らせ") == 92
-    assert V.VOCAB[-50:-40] == ("行為:許可のない行動", "道具:看板", "行為:発話", "金:引き出し", "金:カード", "実験:改変",
+    assert V.VOCAB[-63:-53] == ("行為:許可のない行動", "道具:看板", "行為:発話", "金:引き出し", "金:カード", "実験:改変",
                                 "実験:届いた情報", "行為:会話の始まり", "行為:会話の終わり", "知覚:気づき")
-    assert V.VOCAB[-40:-25] == tuple(f"連絡:{w}" for w in V.CONTACT_WORDS)
+    assert V.VOCAB[-53:-38] == tuple(f"連絡:{w}" for w in V.CONTACT_WORDS)
     assert V.code_of("連絡:送った") == 65 and V.code_of("連絡:通話の終わり") == 79
     assert V.code_of("行為:会話の始まり") == 62 and V.code_of("知覚:気づき") == 64
     assert V.code_of("道具:看板") == 56 and V.code_of("行為:発話") == 57  # 1-7・1-8b の語のコードは動かない
@@ -51,7 +54,7 @@ def test_vocab_size_and_uniqueness():
     assert all(w.split(":", 1)[0] in V.FAMILIES for w in V.VOCAB)
     # 族を付けた理由: 金と物に同じ語(域外仕入)がある
     assert "金:域外仕入" in V.VOCAB_CODES and "物:域外仕入" in V.VOCAB_CODES
-    assert V.VOCAB_VERSION == "events-vocab/6-6-w1"  # 〔第 6 期 6-6 ② 第 1 部〕版を上げた(前 events-vocab/6-2-ca3=版の文字列は段の名)
+    assert V.VOCAB_VERSION == "events-vocab/6-4-c2"  # 〔第 6 期 6-4 C2〕版を上げた(前 events-vocab/6-2-ca3=版の文字列は段の名)
     assert V.CAUSE_PROCESS_NAMES[-3] == "contact"  # 〔6-4 C1〕網の名(前の名の番号は動かない)
     assert V.CAUSE_PROCESS_NAMES[-2] == "calendar2"  # 〔6-2 カレンダー 2〕予定の道具の名
     assert V.CAUSE_PROCESS_NAMES[-1] == "calendar3"  # 〔6-2 カレンダー 3〕勤務の予定の道具の名は末尾
@@ -95,7 +98,8 @@ def test_process_names_are_closed():
 
 
 def test_via_and_where_are_closed():
-    assert V.VIA_WORDS == ("対面", "通話", "メッセージ", "グループ", "SNS", "無し")  # CT9 (b) の 5 つ+無し
+    # CT9 (b) の 5 つ+無し・〔第 6 期 6-4 C2〕末尾にビデオ通話(前の語のコードは動かない)
+    assert V.VIA_WORDS == ("対面", "通話", "メッセージ", "グループ", "SNS", "無し", "ビデオ通話")
     assert V.WHERE_KINDS == ("cell", "node", "poi")
     for via in V.VIA_WORDS:
         EV.Event(t_ns=0, who="engine", what="過程:rail", via=via, cause=EV.Process("rail"))

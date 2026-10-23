@@ -337,6 +337,12 @@ class Calendar2Layer:
         self._turns.append([str(key), int(agent), int(step), str(call_id or ""),
                             sorted({int(p) for p in partners if int(p) != int(agent)})])
 
+    def offer_waiting(self, agent: int) -> bool:
+        """〔第 6 期 6-4 C2〕体に返事待ちの誘い(会話・メッセージで届いた=宛先にその体があり、まだ返事をしていない)があるか。
+        読むだけ(連絡の道具の習慣を判断の口へ戻す条件「大事な誘い」=決定 10-12 §4-4 CT4)。逐次: 生きている誘いの数ぶん。"""
+        a = int(agent)
+        return any(a in off["to"] and a not in off["answers"] for off in self._offers.values())
+
     def write_initial(self, T: int, t_ns: int) -> int:
         """〔CA2 (c)〕ランの始まりに本人が自分の予定を書く口。仮のモデルは空で始める(つなぎ ``DOC-ca2-initial-empty``)。
         書いた行の数を返す(本段は 0)。統計(錨)は読まない=検証にだけ使う。"""

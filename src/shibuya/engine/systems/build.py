@@ -1456,8 +1456,15 @@ def build(_call_args: dict[str, Any]) -> Any:
             step_seconds=int(tick_seconds), events=events, agents=agents, world=world,
             groups=_tools_fx.groups, rel_layer=rel_layer, conv=conv,
             remember_link=bool(_m0s is not None and events.enabled), renderer=_fam_renderer,
-            home_cell=np.asarray(schedule.home_cell),  # 〔つなぎ BR-CT1-CHARGE-AT-HOME〕家での充電(住まいのセル)
+            home_cell=np.asarray(schedule.home_cell),  # 〔C2〕充電器のある家(住まいのセル)
+            # 〔C2〕習慣の状態「勤務中」(勤め先のセル)・店の番号の場所の表(本段は空欄)
+            work_cell=(np.asarray(schedule.work_cell) if getattr(schedule, "work_cell", None) is not None else None),
+            phones=_tools_fx.phones,
         )
+        # 〔C2〕メッセージ・ビデオ通話・充電器・店の番号を調べる・郵便・置き手紙の道具の行(腕 c1 のランの台帳だけ=既定は今のまま)
+        from shibuya.engine.contact.tools import register_into as _ct_register_tools
+
+        _ct_register_tools(_tools_fx.registry)
         if _fam_renderer is not None and hasattr(_fam_renderer, "contact_fn"):
             _fam_renderer.contact_fn = contact_layer.percept_hook
         if decision_layer is not None:  # 〔検収 M5 (i)〕腕 port: 暇なときの「スマホを見る」は主の判断の候補
@@ -1478,6 +1485,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         )
         if contact_layer is not None:
             contact_layer.turn_sink = calendar2_layer.note_turn
+            contact_layer.offer_probe = calendar2_layer.offer_waiting  # 〔C2〕大事な誘い(習慣を判断の口へ戻す条件)
 
     # ---- 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日(腕 arm のランだけ・既定 None=系 calendar_3 が立たない=今の道)。雇い主の口の表
     # (権利台帳の雇用の行・W20 の表・役割の語=導出)を作り、C1 の口に送った/読んだメッセージの控えの口を挿す。C1 とカレンダー 2 の

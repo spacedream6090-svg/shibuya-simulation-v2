@@ -287,9 +287,11 @@ PATHS: Final[dict[str, str]] = {
     # 子の鍵は engine.contact.layer の CONFIG_KEYS・OBSERVED_KEYS と同じ=試験が突き合わせる ----
     **_mixed("contact_c1", config=(
         "schema", "arm", "unnoticed_arm", "send_arm", "contacts_source", "queue_kinds", "notice_min_level", "device",
-        "attention", "port", "stamps", "mock_text", "message_max_chars", "chat_silence_steps", "provisional"),
+        "attention", "port", "stamps", "mock_text", "message_max_chars", "chat_silence_steps", "provisional",
+        "c2"),  # 〔第 6 期 6-4 C2〕習慣・充電・交換・ビデオの設定
         observed=("meter", "decisions", "read_delay_minutes", "call_steps", "screen_minutes", "chats", "calls", "mail",
-                  "devices", "attention_now", "salient", "remembered", "bodiless_dropped", "rendered")),
+                  "devices", "attention_now", "salient", "remembered", "bodiless_dropped", "rendered",
+                  "habit", "exchange", "charge", "video")),  # 〔C2〕内訳(計器)
     # ---- 〔第 6 期 6-2 カレンダー 2〕会話とメッセージから生まれる予定(腕 arm のランだけ欄が立つ)。形の版・腕・口・置き場所の
     # 性質・行の種類・確かさの語・候補の作り方・思い出しの形・5 分前の分・仲裁・仮の値の宣言=設定/計器・判断の数・約束の数・返事の
     # 割合・初めの予定・忘れた割合・到着・計画一致率・不可能な予定・読むまでの時間(C1 を読むだけ)・範囲外の計画・実行意図・拒んだ

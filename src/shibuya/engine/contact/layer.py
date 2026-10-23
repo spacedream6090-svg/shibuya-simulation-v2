@@ -50,9 +50,30 @@
 気づかない・判断は刻みの頭の時刻・暇の判断の時(暇な活動に入った刻みと、暇な間に起きた刻み)・1 体 1 刻みに通知の刺激 1 回
 (まとめて 1 回震える)・読むとその体の未読を全部読む。
 
+〔第 6 期 6-4 連絡の道具の残り(C2)〕(記録 ``docs/bench/analysis/wallbounce-1012/ct_c2/README.md``・腕 c1 の中だけ):
+
+- **充電は本人の行動**(CT0 の共通の決まり 2・3): 道具が「電池が少ない」(``device.LOW_ALERTS``)と満充電を知らせる(System 1 の
+  通知と同じ刺激の段・道具の語 ``電池の知らせ``)。充電する/このまま・充電をやめる/そのままは本人の判断(判断の種類 ``P_CHARGE``)。
+  機会=家に居て充電器に差していない体が (a) 電池の知らせに気づいた刻み (b) 電池が少ないと知っていて家に着いた・起きた・寝た
+  刻み/満充電の知らせに気づいた刻み(やめるか)。仲裁=主の判断が先(次の刻みに回す)。差した体の電池は物理で増える・家を離れたら
+  抜ける(物理)。カレンダー 3 のつなぎ ``BR-CT1-CHARGE-AT-HOME`` は外した。
+- **CT4 の習慣**(腕 ``SHIBUYA_CONTACT_HABIT=on`` だけ・``engine.contact.habit``): 通知に気づいた(今読む/後で/無視)と読んだ後
+  (返す/スタンプ/返さない)を、その体のその状態の記録が閾値以上なら習慣で答える。判断の口へ戻す=記録が少ない・大事な誘い
+  (カレンダー 2 の誘いが届いている=``offer_probe``)・驚き(その刻みに起床条件 (i) で起きた=割り込みと同じ入口)・ときどき
+  (乱数の用途名 ``contact.habit``)。文は文の口(LLM)のまま。
+- **CT5 連絡先の交換とグループ**: 対面の会話の自分の最初の番(会話の番の口 :meth:`note_face_turn`)に、本人が「連絡先を交換する」を
+  選べる(相手も応じる/断るを選ぶ=両方の判断)→ 両方の帳(``ContactBook``)にメッセージの印。グループを作る/招く/抜ける・招待に
+  入る/断るは本人の判断(画面の候補)。店の番号を調べるは場所の表に番号のある POI だけ(本段は空欄=誰も調べられない)。
+- **C2 ビデオ通話**: 電話の器の種類違い(``CallManager._video``)。かける(画面の候補)・出るは本人・目の向き=画面(相手の顔)・
+  関心の的=通話・電池は ``USE_VIDEO``・発話は ``Utterance``(via=ビデオ通話)で 1 回だけ記録・知覚の事実は ``tool_state`` の
+  ``call_via``(Percept の形と版は変えない)。
+- **C1 の限界 2 件**: 既読の印(``Mailbox.receipts``=送ったメッセージの既読の数)を画面の判断の候補の文に載せる・道具の台帳に
+  メッセージ・ビデオ通話・充電器・店の番号を調べる・郵便・置き手紙の行(``engine.contact.tools``=腕 c1 のランだけ足す)。
+
 逐次ループ宣言(新設・P4): 系 ``contact`` は (a) その刻みに判断する体の数ぶん(新しく届いた・鳴っている・画面を見ている・暇に
 なった体=送った数と見ている数で決まる・体の数に比例しない)・(b) 生きている通話とチャットの数ぶん・(c) 顕著行為の数ぶん。
-窓の境目の処理は予約の数ぶん。体ごとの物理(電池)と向きの置き直しは配列演算。
+窓の境目の処理は予約の数ぶん。体ごとの物理(電池)と向きの置き直しは配列演算。〔C2〕(d) 充電の機会の体の数ぶん(電池が少ない体の
+状態の境目=体の数に比例しない)・(e) その刻みの対面の会話の番の数ぶん(交換)。
 """
 
 from __future__ import annotations
@@ -71,12 +92,14 @@ from shibuya.engine.contact import arm as _ARM
 from shibuya.engine.contact import attention as _AT
 from shibuya.engine.contact import device as _DV
 from shibuya.engine.contact import deliver as _DL
+from shibuya.engine.contact import habit as _HB
 from shibuya.engine.contact import port as _P
+from shibuya.engine.contact import tools as _TL
 from shibuya.engine.contact.book import ContactBook
 from shibuya.engine.contact.calls import CallManager, CallSpeechPort
 from shibuya.engine.contact.chat_state import CHAT_SILENCE_STEPS, ChatBook, group_key, pair_key
 from shibuya.engine.conversation import ConvState
-from shibuya.engine.decision.port import SOURCE_AFFORDANCE, Candidate, DecisionContext
+from shibuya.engine.decision.port import SOURCE_AFFORDANCE, SOURCE_EXPERIENCE, Candidate, DecisionContext
 from shibuya.engine.events import vocab as V
 from shibuya.engine.events.log import Event, LlmCall, Process
 from shibuya.engine.speech.port import SpeechContext, Utterance
@@ -87,7 +110,8 @@ from shibuya.perception.contact_view import DeviceView
 __all__ = [
     "SCHEMA", "CONFIG_KEYS", "OBSERVED_KEYS", "W_SENT", "W_DELIVERED", "W_READ", "W_LATER", "W_IGNORE", "W_HELD",
     "W_LOOK", "W_UP", "W_DIAL", "W_RING", "W_ANSWER", "W_DECLINE", "W_UNREACHABLE", "W_HANG", "W_CALL_END",
-    "PERSON_WORDS", "ENGINE_WORDS", "WORD_PURPOSES", "ContactLayer", "sys_contact", "manifest_fields", "audit_causes",
+    "PERSON_WORDS", "ENGINE_WORDS", "WORD_PURPOSES", "W_CHARGE", "W_UNPLUG", "W_EXCH_ASK", "W_EXCH_OK", "W_EXCH_NO",
+    "W_GMAKE", "W_GINVITE", "W_GJOIN", "W_GREFUSE", "W_GLEAVE", "W_VIDEO_DIAL", "W_LOOKUP", "W_BATTERY", "ContactLayer", "sys_contact", "manifest_fields", "audit_causes",
     "issued_key", "GatedSalient",
 ]
 
@@ -110,17 +134,40 @@ W_DECLINE = V.word(V.FAMILY_CONTACT, "出ない")
 W_UNREACHABLE = V.word(V.FAMILY_CONTACT, "不通")
 W_HANG = V.word(V.FAMILY_CONTACT, "切った")
 W_CALL_END = V.word(V.FAMILY_CONTACT, "通話の終わり")
+# 〔C2〕
+W_CHARGE = V.word(V.FAMILY_CONTACT, "充電した")
+W_UNPLUG = V.word(V.FAMILY_CONTACT, "充電をやめた")
+W_EXCH_ASK = V.word(V.FAMILY_CONTACT, "交換を持ちかけた")
+W_EXCH_OK = V.word(V.FAMILY_CONTACT, "交換に応じた")
+W_EXCH_NO = V.word(V.FAMILY_CONTACT, "交換を断った")
+W_GMAKE = V.word(V.FAMILY_CONTACT, "グループを作った")
+W_GINVITE = V.word(V.FAMILY_CONTACT, "グループに招いた")
+W_GJOIN = V.word(V.FAMILY_CONTACT, "グループに入った")
+W_GREFUSE = V.word(V.FAMILY_CONTACT, "招待を断った")
+W_GLEAVE = V.word(V.FAMILY_CONTACT, "グループを抜けた")
+W_VIDEO_DIAL = V.word(V.FAMILY_CONTACT, "ビデオ通話をかけた")
+W_LOOKUP = V.word(V.FAMILY_CONTACT, "番号を調べた")
+W_BATTERY = V.word(V.FAMILY_CONTACT, "電池の知らせ")
 #: 本人の判断の語(原因は LlmCall でなければならない=負の対照の監査)。
 PERSON_WORDS: Final[frozenset[str]] = frozenset({W_SENT, W_READ, W_LATER, W_IGNORE, W_LOOK, W_UP, W_DIAL, W_ANSWER,
-                                                 W_DECLINE, W_HANG})
-#: 届く(網=エンジン)の語(原因は過程 contact)。
-ENGINE_WORDS: Final[frozenset[str]] = frozenset({W_DELIVERED, W_HELD, W_RING, W_UNREACHABLE})
+                                                 W_DECLINE, W_HANG, W_CHARGE, W_UNPLUG, W_EXCH_ASK, W_EXCH_OK, W_EXCH_NO,
+                                                 W_GMAKE, W_GINVITE, W_GJOIN, W_GREFUSE, W_GLEAVE, W_VIDEO_DIAL,
+                                                 W_LOOKUP})
+#: 届く(網=エンジン)の語(原因は過程 contact)。〔C2〕電池の知らせ=道具の性質。
+ENGINE_WORDS: Final[frozenset[str]] = frozenset({W_DELIVERED, W_HELD, W_RING, W_UNREACHABLE, W_BATTERY})
 #: 本人の語 → 合う判断の種類(監査の突き合わせ=〔検収 M2〕)。「スマホを見た」は主の判断の呼び(候補)でもよい。
 WORD_PURPOSES: Final[Mapping[str, frozenset[int]]] = MappingProxyType({
-    W_SENT: frozenset({_P.P_WHOM, _P.P_GROUP, _P.P_REPLY, _P.P_STAMP}), W_READ: frozenset({_P.P_NOTICE, _P.P_SCREEN}),
-    W_LATER: frozenset({_P.P_NOTICE}), W_IGNORE: frozenset({_P.P_NOTICE}), W_LOOK: frozenset({_P.P_IDLE}),
+    W_SENT: frozenset({_P.P_WHOM, _P.P_GROUP, _P.P_REPLY, _P.P_STAMP, _P.P_HABIT_REPLY}),
+    W_READ: frozenset({_P.P_NOTICE, _P.P_SCREEN, _P.P_HABIT_NOTICE}),
+    W_LATER: frozenset({_P.P_NOTICE, _P.P_HABIT_NOTICE}), W_IGNORE: frozenset({_P.P_NOTICE, _P.P_HABIT_NOTICE}),
+    W_LOOK: frozenset({_P.P_IDLE}),
     W_UP: frozenset({_P.P_SCREEN}), W_DIAL: frozenset({_P.P_WHOM}), W_ANSWER: frozenset({_P.P_RING}),
     W_DECLINE: frozenset({_P.P_RING}), W_HANG: frozenset({_P.P_WAIT, _P.P_TURN}),
+    # 〔C2〕
+    W_CHARGE: frozenset({_P.P_CHARGE}), W_UNPLUG: frozenset({_P.P_CHARGE}), W_EXCH_ASK: frozenset({_P.P_EXCHANGE}),
+    W_EXCH_OK: frozenset({_P.P_EXCHANGE}), W_EXCH_NO: frozenset({_P.P_EXCHANGE}), W_GMAKE: frozenset({_P.P_WHOM}),
+    W_GINVITE: frozenset({_P.P_WHOM}), W_GJOIN: frozenset({_P.P_GROUPS}), W_GREFUSE: frozenset({_P.P_GROUPS}),
+    W_GLEAVE: frozenset({_P.P_GROUP}), W_VIDEO_DIAL: frozenset({_P.P_WHOM}), W_LOOKUP: frozenset({_P.P_WHOM}),
 })
 #: 発行した判断の呼びの控えの詰め方(刻み 23 ビット・体 22 ビット・通し番号 18 ビット)。主の判断の候補で選んだ
 #: 「スマホを見る」は通し番号 0 で控える。
@@ -134,7 +181,7 @@ def issued_key(step: int, agent: int, serial: int) -> int:
         raise ValueError(f"判断の呼びの控えの範囲の外: 刻み {t}・体 {a}・通し番号 {c}")
     return (t << _ISS_T_SHIFT) | (a << _ISS_A_SHIFT) | c
 _P_CONTACT: Final[Process] = Process("contact")
-#: 範囲の外に居る体の ``transit_state``(〔つなぎ BR-CT1-CHARGE-AT-HOME〕住まいが範囲の外の体の家での充電)。
+#: 範囲の外に居る体の ``transit_state``(〔C2〕住まいが範囲の外の体は範囲の外に居る刻みが家=充電器のある所)。
 _TRANSIT_OUTSIDE: Final[int] = 2
 _P_CONV: Final[Process] = Process("conversation")
 _P_PERCEPTION: Final[Process] = Process("perception")
@@ -144,15 +191,17 @@ _W_NOTICE: Final[str] = V.word(V.FAMILY_PERCEPT, "気づき")
 NOTICE_MIN_LEVEL: Final[tuple[int, int, int, int]] = (_DV.LEVEL_WEAK, _DV.LEVEL_WEAK, _DV.LEVEL_STRONG, _DV.LEVEL_STRONG)
 
 _NOTICE_MSG, _NOTICE_RING = 0, 1
-_NOTICE_KIND_WORDS: Final[tuple[str, str]] = ("メッセージ", "着信")
+#: 〔C2〕道具の知らせ(電池が少ない・満充電)=通知と同じ刺激の段。
+_NOTICE_LOW, _NOTICE_FULL = 2, 3
+_NOTICE_KIND_WORDS: Final[tuple[str, ...]] = ("メッセージ", "着信", "電池が少ない", "充電完了")
 
 #: manifest の ``contact_c1`` の設定の子と観測の子(``engine.manifest_sections`` の混ざった辞書)。
 CONFIG_KEYS: Final[tuple[str, ...]] = (
     "schema", "arm", "unnoticed_arm", "send_arm", "contacts_source", "queue_kinds", "notice_min_level", "device",
-    "attention", "port", "stamps", "mock_text", "message_max_chars", "chat_silence_steps", "provisional")
+    "attention", "port", "stamps", "mock_text", "message_max_chars", "chat_silence_steps", "provisional", "c2")
 OBSERVED_KEYS: Final[tuple[str, ...]] = (
     "meter", "decisions", "read_delay_minutes", "call_steps", "screen_minutes", "chats", "calls", "mail", "devices",
-    "attention_now", "salient", "remembered", "bodiless_dropped", "rendered")
+    "attention_now", "salient", "remembered", "bodiless_dropped", "rendered", "habit", "exchange", "charge", "video")
 
 
 @dataclass(frozen=True)
@@ -173,7 +222,8 @@ class ContactLayer:
     def __init__(self, *, n_agents: int, seed: int | str, population_seed: int | str, day_key0: int,
                  step_seconds: int, events: Any, agents: Any, world: Any, groups: Any = None, rel_layer: Any = None,
                  conv: Any = None, remember_link: bool = False, unnoticed_arm: str | None = None,
-                 send_arm: str | None = None, renderer: Any = None, home_cell: Any = None) -> None:
+                 send_arm: str | None = None, renderer: Any = None, home_cell: Any = None, work_cell: Any = None,
+                 phones: Any = None, habit: bool | None = None) -> None:
         n = int(n_agents)
         self.n = n
         self.step_seconds = int(step_seconds)
@@ -188,8 +238,15 @@ class ContactLayer:
         self.conv = conv
         self.renderer = renderer
         self.remember_link = bool(remember_link)
-        #: 〔つなぎ BR-CT1-CHARGE-AT-HOME〕体 → 住まいのセル(−1=範囲の外)。``None``=充電なし(住まいの表の無い呼び手)。
+        #: 〔C2〕体 → 住まいのセル(−1=範囲の外)=充電器のある家。``None``=家が無い(住まいの表の無い呼び手=充電できない)。
         self.home_cell = None if home_cell is None else np.asarray(home_cell, dtype=np.int64)[:n].copy()
+        #: 〔C2〕体 → 勤め先のセル(習慣の状態「勤務中」)。``None``=勤務中の状態は無い。
+        self.work_cell = None if work_cell is None else np.asarray(work_cell, dtype=np.int64)[:n].copy()
+        #: 〔C2〕CT4 の習慣の腕(組み立てのときに読む)。
+        self.habit_on = bool(_ARM.habit_on() if habit is None else habit)
+        #: 〔C2〕店の番号の場所の表(``engine.tools.places.PhoneTable``・本段は空欄)とセル → 番号のある POI(組み立てで 1 回)。
+        self.phones = phones
+        self._lookup_cells: dict[int, tuple[int, ...]] = self._lookup_table(world, phones)
         # ---- 子の持ち主(状態台帳の腕の行) ----
         self.dev = _DV.Devices(n, population_seed)
         self.attn = _AT.Attention(n)
@@ -207,6 +264,8 @@ class ContactLayer:
         self.port = _P.ContactPort(seed=seed, day_key0=int(day_key0), step_seconds=self.step_seconds)
         self.text = _P.MockTextPort()
         self.book = ContactBook(n, groups=groups, rel_layer=rel_layer)
+        #: 〔C2〕CT4 の習慣の表(腕 off のランは空のまま=記録の無い体は習慣が無い)。
+        self.habit = _HB.HabitBook()
         # ---- 窓の境目の結び(作業の値=組み立ての後に結ぶ) ----
         self._queue: Any = None
         self._seq_key: dict[int, int] = {}
@@ -245,6 +304,22 @@ class ContactLayer:
         #: ``note_read`` を挿す=参照・既定 None=今の道)。控えるだけ(読んだ中身を使うのは系 calendar_3)。
         self.sent_sink: Callable[..., None] | None = None
         self.read_sink: Callable[..., None] | None = None
+        #: 〔C2〕大事な誘いの口(腕 --calendar-2 arm のランだけ組み立てが ``Calendar2Layer.offer_waiting`` を挿す=体に返事待ちの
+        #: 誘いが届いているか・読むだけ・既定 None=誘いは無い)。習慣を判断の口へ戻す条件。
+        self.offer_probe: Callable[[int], bool] | None = None
+        # ---- 〔C2〕系の間を渡す値(腕の行 CT1G): 対面の会話の番の控え・仲裁で次の刻みに回した充電の判断 ----
+        self._face_turns: list[list[Any]] = []
+        self._defer_charge: list[int] = []
+        #: 〔検収 L2〕主の判断が先で次の刻みに回した交換 ``[["ask", 体, 相手の列] | ["answer", 持ちかけた体, 相手]]``。
+        self._defer_exchange: list[list[Any]] = []
+        # ---- 〔C2〕刻みの中の作業の値(刻みの頭で置き直す) ----
+        self._interrupted: np.ndarray = np.zeros(n, dtype=bool)
+        self._at_home: np.ndarray = np.zeros(n, dtype=bool)
+        self._state_now: np.ndarray | None = None
+        self._alert_now: dict[int, int] = {}
+        self._alert_noticed: dict[int, int] = {}
+        self._charge_opp: list[int] = []
+        self._low_now: np.ndarray = np.zeros(n, dtype=bool)
 
     # ================================================================== 小さな口
     def _bump(self, key: str, n: int = 1) -> None:
@@ -270,15 +345,44 @@ class ContactLayer:
             self._bump(f"events:{what}")
         return None if eid is None else (int(eid[0]), int(eid[1]))
 
-    def _charge_at_home(self, t_ns: int, cells: np.ndarray, sleeping: np.ndarray, agents: Any) -> None:
-        """〔つなぎ BR-CT1-CHARGE-AT-HOME・外す段=判断モデルの段 6-6〕家に居る体の電池を増やす(エンジン規則=充電が本人の行動に
-        なるまで)。家に居る=住まいのセルに居る(範囲の中)か、住まいが範囲の外の体が範囲の外で寝ている(住まいの場所が無い=宣言)。
-        職場では増えない。電源が入った体には網が預かっていたメッセージを届ける(出来事 ``連絡:届いた``=原因 過程 contact)。"""
+    @staticmethod
+    def _lookup_table(world: Any, phones: Any) -> dict[int, tuple[int, ...]]:
+        """〔C2〕セル → 場所の表に番号のある POI(番号の昇順)。表が空なら空(本段=誰も調べられない)。"""
+        if phones is None or len(phones) == 0 or world is None or getattr(world, "pois", None) is None:
+            return {}
+        cell = np.asarray(world.pois.cell, dtype=np.int64)
+        out: dict[int, list[int]] = {}
+        for poi in range(cell.size):  # 逐次: POI の数ぶん(組み立てで 1 回・表があるときだけ)
+            if phones.phone_of(int(poi)) is not None and int(cell[poi]) >= 0:
+                out.setdefault(int(cell[poi]), []).append(int(poi))
+        return {k: tuple(v) for k, v in out.items()}
+
+    def _home_mask(self, cells: np.ndarray, agents: Any) -> np.ndarray:
+        """家(充電器のある所)に居る体=住まいのセルに居る(範囲の中)か、住まいが範囲の外の体が範囲の外に居る刻み(〔親の判断
+        2026-10-23=問い 1〕範囲の外の活動は作っていない=「寝ている」が立たないので、カレンダー 3 の「範囲の外で寝ている刻み」は
+        空振りだった。充電する/やめるは本人の判断のまま=過大に出る向きは判断の呼びで抑える・外す段=境界の層(外の人の段))。
+        住まいの表が無ければ誰も家に居ない。"""
         home = self.home_cell
+        if home is None:
+            return np.zeros(self.n, dtype=bool)
         transit = np.asarray(agents.registry.transit_state, dtype=np.int64)
         inside_home = (home >= 0) & (cells == home) & (transit == 0)
-        outside_home = (home < 0) & (transit == _TRANSIT_OUTSIDE) & sleeping
-        n, back = self.dev.charge(inside_home | outside_home, self.step_seconds)
+        outside_home = (home < 0) & (transit == _TRANSIT_OUTSIDE)
+        return inside_home | outside_home
+
+    def _battery_physics(self, T: int, t_ns: int, act: np.ndarray, cells: np.ndarray, sleeping: np.ndarray,
+                         agents: Any, b0: np.ndarray) -> None:
+        """〔C2〕充電の物理と道具の知らせ(電池の減りの後): 家を離れた体は抜ける・差した体の電池が増える・電源が入った体に網の
+        預かりを届ける・閾値を下に越えた体と満充電の体に道具が知らせる(出来事 ``電池の知らせ``=原因 過程 contact)・充電の判断の
+        機会(電池が少ないと知っていて家に着いた・起きた・寝た刻み)を置く。"""
+        dv = self.dev
+        at_home = self._home_mask(cells, agents)
+        self._at_home = at_home
+        left = np.flatnonzero(dv._plugged & ~at_home).astype(np.int64)
+        if left.size:  # 充電器は家にある=家を離れたら抜ける(物理)
+            dv.unplug(left)
+            self._bump("charge:unplugged_left_home", int(left.size))
+        n, back, full = dv.charge_plugged(self.step_seconds)
         if n:
             self._bump("charge:agent_steps", n)
         if back.size:
@@ -289,6 +393,35 @@ class ContactLayer:
                 if eid is not None:
                     self._ct_event_of.setdefault(int(a), []).append([int(msg), int(eid[0]), int(eid[1])])
                 self._bump("held_released")
+        low = dv.low_alerts(b0)
+        alerts: dict[int, int] = {}
+        for a in low.tolist():  # 逐次: 閾値を越えた体の数ぶん
+            alerts[int(a)] = _NOTICE_LOW
+            self._log(t_ns, int(a), W_BATTERY, _P_CONTACT,
+                      how_much=int(round(float(dv._battery[int(a)]) * 100.0)))
+        for a in full.tolist():  # 逐次: 満充電になった体の数ぶん
+            alerts[int(a)] = _NOTICE_FULL
+            self._log(t_ns, int(a), W_BATTERY, _P_CONTACT, how_much=100)
+        if low.size:
+            self._bump("charge:low_alerts", int(low.size))
+        if full.size:
+            self._bump("charge:full_alerts", int(full.size))
+        self._alert_now = alerts
+        self._alert_noticed = {}
+        # 画面を見ている体は電池の表示を見る(本人は自分の持ち物を知っている)
+        seen = (self.attn._gaze == _AT.GAZE_SCREEN) & dv._on & (dv._battery <= np.float32(_DV.LOW_ALERTS[0]))
+        if bool(seen.any()):
+            dv.know_low(np.flatnonzero(seen))
+        # 充電の判断の機会 (a): 状態の境目=電池が少ないと知っていて家に着いた・起きた・寝た。〔検収 L6〕(b) は本人の判断のたび
+        # (_charge_decisions=家に居て電池が閾値の下の体がその刻みに主の判断か連絡の判断をしたとき)
+        prev = self.attn._prev_act.astype(np.int64)
+        slp = int(Activity.SLEEPING)
+        onset = (at_home & ~dv._home_prev) | (sleeping & (prev >= 0) & (prev != slp)) | (~sleeping & (prev == slp))
+        dv._home_prev[:] = at_home
+        low_now = ~dv._on | (dv._battery <= np.float32(_DV.LOW_ALERTS[0]))
+        self._low_now = low_now
+        opp = at_home & ~dv._plugged & dv._low_known & low_now & onset
+        self._charge_opp = np.flatnonzero(opp).astype(np.int64).tolist()
 
     def _screen_end(self, a: Any, t_ns: int, reason: str) -> None:
         """視線を画面から前に戻す(本人の判断・寝た・電池が切れた・電話を耳に当てた)。画面を見ていた長さ[分]を数える。"""
@@ -304,8 +437,7 @@ class ContactLayer:
 
     def _decide(self, T: int, t_ns: int, a: int, purpose: int, cands: Sequence[Candidate]) -> tuple[Candidate, LlmCall]:
         """本人の判断 1 回(候補の口 J0 の形・仮のモデル)。選んだ候補と原因(LlmCall)を返す。"""
-        if _P.habit_answer(a, _P.PURPOSES[purpose]) is None:  # CT4: 習慣は本段では作らない=判断の口に戻す
-            self._bump("habit_fallbacks")
+        self._bump("habit_fallbacks")  # 判断の口を通った連絡の判断(習慣で答えたものは数えない=〔C2〕_habit_or_decide)
         k = self._codes.get(a, 0) + 1
         self._codes[a] = k
         serial = _P.serial_of(purpose, k)
@@ -343,6 +475,165 @@ class ContactLayer:
     def model_calls(self) -> tuple[int, int]:
         """連絡の呼び数 ``(判断の呼び=判断モデル, 文の口=LLM)``(manifest と日次の記録の calls_by_model)。"""
         return int(self._issued_n[1]), int(self._issued_n[2])
+
+    # ================================================================== 〔C2〕CT4 の習慣
+    def _habit_or_decide(self, T: int, t_ns: int, a: int, kind: str, purpose: int, habit_purpose: int,
+                         cands: Sequence[Candidate], *, important: bool = False) -> tuple[Candidate, LlmCall]:
+        """習慣で答えるか判断の口へ戻す(CT4)。腕 off は判断の口だけ(表も作らない)。〔問い 2〕習慣で答えるのは範囲の外に居る体
+        (セル −1)だけ・範囲の中の体はいつも判断の口(選びは数える=計器 ``habit:in_range:*``)。習慣の答えの原因は判断の種類
+        ``habit_purpose`` の呼びの id(源=経験・判断モデルの呼び数に数えない)。選んだ語はどちらの道でも習慣の表に数える。"""
+        if not self.habit_on:
+            return self._decide(T, t_ns, a, purpose, cands)
+        st = int(self._state_now[a]) if self._state_now is not None else _HB.STATE_OTHER
+        sw = _HB.STATE_WORDS[st]
+        if int(self.agents.registry.cell[a]) >= 0:  # 〔親の判断 2026-10-23=問い 2〕範囲の中の体はいつも判断の口へ(CT4=範囲の外の人)
+            self._bump(f"habit:in_range:{kind}")
+            c, cause = self._decide(T, t_ns, a, purpose, cands)
+            self.habit.note(a, st, kind, c.kind)  # 本人の過去の選びとして数える(使うのは範囲の外に居るときだけ)
+            return c, cause
+        reason = ""
+        word = self.habit.answer(a, st, kind)
+        if word is None:
+            reason = "few_records"
+        elif important:
+            reason = "offer"
+        elif bool(self._interrupted[a]):
+            reason = "surprise"
+        else:
+            k = self._codes.get(a, 0) + 1
+            self._codes[a] = k
+            serial = _P.serial_of(habit_purpose, k)
+            if _P.habit_recheck_u(self.port.seed, self.port.step_key(T), a, serial) < _HB.HABIT_RECHECK_SHARE:
+                reason = "recheck"
+            else:
+                c = next(x for x in cands if x.kind == word)
+                order = sorted(cands, key=lambda x: (x.kind, x.id))
+                basis = tuple(sorted({b for x in cands for b in x.basis}))
+                self._issue(T, a, serial)
+                self.habit.note(a, st, kind, word)
+                self._bump(f"habit:answered:{kind}")
+                self._bump(f"habit:answered:{sw}:{kind}")
+                self._bump(f"habit:word:{kind}:{word}")
+                return c, LlmCall(_P.call_id_of(T, a, serial), basis, source=SOURCE_EXPERIENCE,
+                                  number=order.index(c) + 1)
+        self._bump(f"habit:back:{reason}")
+        self._bump(f"habit:back:{sw}:{kind}")
+        c, cause = self._decide(T, t_ns, a, purpose, cands)
+        self.habit.note(a, st, kind, c.kind)
+        return c, cause
+
+    def _important(self, a: int) -> bool:
+        """大事な誘い(カレンダー 2 の返事待ちの誘いが届いている)か。口の無いランは偽。"""
+        return bool(self.offer_probe(int(a))) if self.offer_probe is not None else False
+
+    # ================================================================== 〔C2〕CT5 対面の会話の番(連絡先の交換)
+    def note_face_turn(self, key: str, agent: int, step: int, call_id: str, partners: Iterable[int],
+                       n_turns: int) -> None:
+        """対面の会話の番の控え(``engine.systems.llm_io.utter`` が呼ぶ=控えるだけ・同じ刻みの系 contact が読む)。
+        ``n_turns``=その会話でその体が話した番の数(交換の機会はその体の最初の番)。"""
+        self._face_turns.append([str(key), int(agent), int(step), str(call_id or ""),
+                                 sorted({int(p) for p in partners if int(p) != int(agent)}), int(n_turns)])
+
+    def _face_turn_decisions(self, T: int, t_ns: int, sleeping: np.ndarray, main_now: set[int] = frozenset()) -> None:
+        """対面の会話の自分の最初の番で、まだメッセージの連絡先の無い相手と交換するか(本人)→ 相手が応じるか(相手)。
+        〔検収 L2〕仲裁=主の判断が先(その刻みに主の判断の呼びのあった体は持ちかける/応じるを次の刻みに回す=例外にしない)。"""
+        work: list[list[Any]] = list(self._defer_exchange)
+        self._defer_exchange = []
+        turns, self._face_turns = self._face_turns, []
+        for _key, a, _st, _cid, partners, n_turns in turns:  # 逐次ループ宣言 (e): その刻みの対面の会話の番の数ぶん
+            if int(n_turns) != 1:
+                continue
+            self._bump("exchange:opportunities")
+            work.append(["ask", int(a), [int(b) for b in partners]])
+        for item in work:  # 逐次: その刻みの交換の機会と回した交換の数ぶん
+            if item[0] == "ask":
+                self._exchange_ask(T, t_ns, sleeping, main_now, int(item[1]), list(item[2]))
+            else:
+                self._exchange_answer(T, t_ns, sleeping, main_now, int(item[1]), int(item[2]))
+
+    def _exchange_ask(self, T: int, t_ns: int, sleeping: np.ndarray, main_now: set[int], a: int,
+                      partners: list[int]) -> None:
+        if not (0 <= a < self.n) or bool(sleeping[a]) or not bool(self.dev._on[a]):
+            self._bump("exchange:no_phone")
+            return
+        if a in main_now:
+            self._defer_exchange.append(["ask", a, partners])
+            self._bump("arbitration:exchange")
+            return
+        have = set(self.book.personal(self.agents, a, _CT.MESSAGE, T))
+        others = [int(b) for b in partners if 0 <= int(b) < self.n and int(b) not in have
+                  and bool(self.dev._on[int(b)]) and not bool(sleeping[int(b)])]
+        if not others:
+            self._bump("exchange:all_known")
+            return
+        cands = [_P.cand(_P.K_EXCHANGE, f"P-{b} と{_P.K_EXCHANGE}", id=f"exch:{b}") for b in others]
+        cands.append(_P.cand(_P.K_NO_EXCHANGE))
+        c, cause = self._decide(T, t_ns, a, _P.P_EXCHANGE, cands)
+        if c.kind != _P.K_EXCHANGE:
+            self._bump("exchange:not_asked")
+            return
+        b = int(c.id.split(":", 1)[1])
+        self._log(t_ns, a, W_EXCH_ASK, cause, whom=b, via=V.VIA_WORDS[0])
+        self._bump("exchange:asked")
+        self._exchange_answer(T, t_ns, sleeping, main_now, a, b)
+
+    def _exchange_answer(self, T: int, t_ns: int, sleeping: np.ndarray, main_now: set[int], a: int, b: int) -> None:
+        if bool(sleeping[b]) or not bool(self.dev._on[b]):
+            self._bump("exchange:answer_lost")
+            return
+        if b in main_now:
+            self._defer_exchange.append(["answer", a, b])
+            self._bump("arbitration:exchange")
+            return
+        c, cause = self._decide(T, t_ns, b, _P.P_EXCHANGE, [_P.cand(_P.K_EXCH_YES), _P.cand(_P.K_EXCH_NO)])
+        if c.kind == _P.K_EXCH_YES:  # 相手の判断(応じる/断る)
+            self.book.add_contact(a, b, _CT.MESSAGE)
+            self.book.add_contact(b, a, _CT.MESSAGE)
+            self._log(t_ns, b, W_EXCH_OK, cause, whom=a, via=V.VIA_WORDS[0])
+            self._bump("exchange:done")
+        else:
+            self._log(t_ns, b, W_EXCH_NO, cause, whom=a, via=V.VIA_WORDS[0])
+            self._bump("exchange:refused")
+
+    # ================================================================== 〔C2〕充電(本人の行動)
+    def _charge_decisions(self, T: int, t_ns: int, main_now: set[int]) -> None:
+        """充電する/このまま(家で電池が少ない・知らせに気づいた/状態の境目・仲裁で回した体・〔検収 L6〕家に居て電池が閾値の下の体が
+        この刻みに判断したとき=主の判断か連絡の判断のたびに候補を出す=発注の「家にいて充電器がある刻み」)と、充電をやめる/そのまま
+        (満充電の知らせに気づいた体)。主の判断が先の体は次の刻みに回す(やめるは回さない=差したまま)。"""
+        dv = self.dev
+        deferred, self._defer_charge = self._defer_charge, []
+        noticed_low = [a for a, k in self._alert_noticed.items() if k == _NOTICE_LOW and bool(self._at_home[a])]
+        thinking = set(main_now) | {int(a) for a, k in self._codes.items() if int(k) > 0}
+        each = [a for a in thinking if bool(self._at_home[a]) and bool(self._low_now[a]) and not bool(dv._plugged[a])]
+        if each:
+            self._bump("charge:opportunities_on_thinking", len(each))
+        todo = sorted(set(self._charge_opp) | set(noticed_low) | set(deferred) | set(each))
+        for a in todo:  # 逐次ループ宣言 (d): 充電の機会の体の数ぶん
+            if not bool(self._at_home[a]) or bool(dv._plugged[a]):
+                continue
+            if a in main_now:
+                self._defer_charge.append(int(a))
+                self._bump("arbitration:charge")
+                continue
+            c, cause = self._decide(T, t_ns, a, _P.P_CHARGE, [_P.cand(_P.K_CHARGE), _P.cand(_P.K_NO_CHARGE)])
+            if c.kind == _P.K_CHARGE:
+                dv.plug([a])
+                self._log(t_ns, a, W_CHARGE, cause, how_much=int(round(float(dv._battery[a]) * 100.0)))
+                self._bump("charge:plugged")
+            else:
+                self._bump("charge:declined")
+        full = sorted(a for a, k in self._alert_noticed.items() if k == _NOTICE_FULL and bool(dv._plugged[a]))
+        for a in full:  # 逐次: 満充電の知らせに気づいた体の数ぶん
+            if a in main_now:
+                self._bump("arbitration:unplug")
+                continue
+            c, cause = self._decide(T, t_ns, a, _P.P_CHARGE, [_P.cand(_P.K_UNPLUG), _P.cand(_P.K_KEEP_PLUGGED)])
+            if c.kind == _P.K_UNPLUG:
+                dv.unplug([a])
+                self._log(t_ns, a, W_UNPLUG, cause, how_much=100)
+                self._bump("charge:unplugged")
+            else:
+                self._bump("charge:kept")
 
     # ================================================================== 主の判断の口(〔検収 M5 (i)〕)
     def offer_main(self, ctx: DecisionContext, cands: Sequence[Candidate]) -> tuple[Candidate, ...]:
@@ -463,20 +754,23 @@ class ContactLayer:
         self.chats.on_message(key, int(sender), [int(x) for x in to], t // self.step_ns)
 
     def _ring_now(self, t: int, row: list[Any]) -> None:
-        """着信(窓の境目で届く)。row=[種類, 頼んだ時刻, 境目, かけた人, 相手, かけた時刻]。"""
-        _k, _t_req, _due, caller, callee, t_call = row
+        """着信(窓の境目で届く)。row=[種類, 頼んだ時刻, 境目, かけた人, 相手, かけた時刻, ビデオ 0/1]。"""
+        _k, _t_req, _due, caller, callee, t_call, video = row
+        via = _DL.VIA_VIDEO if int(video) else _DL.VIA_CALL
         c = self.mail.calling_of(int(caller))
         if c is None or int(c[0]) != int(callee):  # 鳴る前に切った
             self._bump("ring_after_hangup")
             return
         busy = self.calls.is_busy(int(callee)) or self.mail.ringing_of(int(callee)) is not None
         if not bool(self.dev._on[int(callee)]) or busy:
-            self._log(t, int(caller), W_UNREACHABLE, _P_CONTACT, whom=int(callee), via=_DL.VIA_CALL)
+            self._log(t, int(caller), W_UNREACHABLE, _P_CONTACT, whom=int(callee), via=via)
             self.mail.stop_ringing(int(caller), int(callee))
             self._bump("unreachable_busy" if busy else "unreachable_off")
             return
-        self.mail.ring(int(caller), int(callee), t, int(t_call))
-        self._log(t, int(callee), W_RING, _P_CONTACT, whom=int(caller), via=_DL.VIA_CALL, received_ns=t)
+        self.mail.ring(int(caller), int(callee), t, int(t_call), int(video))
+        self._log(t, int(callee), W_RING, _P_CONTACT, whom=int(caller), via=via, received_ns=t)
+        if int(video):
+            self._bump("video:rings")
         self._bump("rings")
         self._bump("ring_delay_ns_sum", t - int(t_call))
 
@@ -493,8 +787,10 @@ class ContactLayer:
         ring = self.mail.ringing_of(a)
         in_call = self.calls.session_of(a)
         partner = None
+        call_via = None
         if in_call is not None and in_call.state is ConvState.PARTICIPATING:
             partner = next((q for q in in_call.participants if q != a), None)
+            call_via = _DL.VIA_VIDEO if self.calls.is_video(in_call.session_id) else _DL.VIA_CALL
         view = DeviceView(
             battery_pct=dv["battery_pct"], on=dv["on"], manner=dv["manner"], place=dv["place"],
             earphones=dv["earphones"], signal=True,
@@ -504,8 +800,11 @@ class ContactLayer:
             unread=self.mail.unread_count(a) if screen else None,
             ringing_from=(int(ring[0]) if screen else -1) if (ring is not None and fresh and int(nt[1]) == _NOTICE_RING)
             else None,
+            ringing_via=(_DL.VIA_VIDEO if int(ring[3]) else _DL.VIA_CALL)
+            if (ring is not None and fresh and int(nt[1]) == _NOTICE_RING) else None,
             in_call_with=partner,
             chats=self.chats.partners_of(a) if screen else None,
+            call_via=call_via,
         )
         return _AT.coarsen(p, gaze, focus, unnoticed_arm=self.unnoticed_arm, device_view=view)
 
@@ -518,18 +817,26 @@ class ContactLayer:
         sleeping = act == int(Activity.SLEEPING)
         # ---- 1. 物理(電池) ----
         in_call = np.zeros(self.n, dtype=bool)
+        in_video = np.zeros(self.n, dtype=bool)
         for s in self.calls.sessions.values():  # 逐次: 生きている通話の数ぶん
             if s.state is ConvState.PARTICIPATING:
-                in_call[[p for p in s.participants if p < self.n]] = True
-        for caller, _c in self.mail.calling_items():  # 呼び出し中も通話に心が向く
+                ps = [p for p in s.participants if p < self.n]
+                in_call[ps] = True
+                if self.calls.is_video(s.session_id):
+                    in_video[ps] = True
+        for caller, c in self.mail.calling_items():  # 呼び出し中も通話に心が向く
             in_call[int(caller)] = True
+            if int(c[3]):
+                in_video[int(caller)] = True
         screen = self.attn._gaze == _AT.GAZE_SCREEN
-        use = np.where(in_call, _DV.USE_CALL, np.where(screen, _DV.USE_SCREEN, _DV.USE_STANDBY))
+        use = np.where(in_video, _DV.USE_VIDEO,
+                       np.where(in_call, _DV.USE_CALL, np.where(screen, _DV.USE_SCREEN, _DV.USE_STANDBY)))
+        b0 = self.dev._battery.copy()
         off_now = self.dev.drain(use, self.step_seconds)
         if off_now:
             self._bump("devices_off", off_now)
-        if self.home_cell is not None:  # 〔つなぎ BR-CT1-CHARGE-AT-HOME〕家に居る体の充電(エンジン規則)・電源が入った体に預かりを届ける
-            self._charge_at_home(t_ns, cells, sleeping, agents)
+        # 〔C2〕充電の物理(家を離れたら抜ける・差した体が増える・電源が入れば預かりを届ける)と道具の知らせ・充電の機会
+        self._battery_physics(T, t_ns, act, cells, sleeping, agents, b0)
         dead = np.flatnonzero(screen & ~self.dev._on).astype(np.int64)
         if dead.size:  # 電池が切れた=画面が消えた(物理)
             self._screen_end(dead, t_ns, "battery")
@@ -544,6 +851,9 @@ class ContactLayer:
         idle_onset = self.attn.idle_onset(act)
         # ---- 3. 周りの出来事の門(顕著行為)と記憶に残ったか ----
         interrupted = np.zeros(self.n, dtype=bool)
+        self._interrupted = interrupted
+        if self.habit_on:  # 〔C2〕習慣の状態(勤務中・家・移動中・ほか)=本人の今の活動と場所から
+            self._state_now = _HB.states_of(act, cells, agents.registry.transit_state, self._at_home, self.work_cell)
         sel = getattr(decision, "selected", None) if decision is not None else None
         sel_agents = np.zeros(0, dtype=np.int64)
         if sel is not None and len(sel):
@@ -561,12 +871,14 @@ class ContactLayer:
         # ---- 5. 本人の判断(仲裁=主の判断が先: その刻みに主の判断の呼びのあった体は連絡の判断をしない) ----
         main_now = set(int(a) for a in sel_agents.tolist())
         self._take_main_looks(T, t_ns, sleeping)
+        self._face_turn_decisions(T, t_ns, sleeping, main_now)  # 〔C2〕交換(〔検収 L2〕主の判断が先=次の刻みに回す)
         self._calls_turns(T, t_ns, main_now)
         self._ring_decisions(T, t_ns, sleeping, main_now)
         self._caller_decisions(T, t_ns, main_now)
         idle_sel = set(int(a) for a in sel_agents.tolist() if int(act[int(a)]) in _AT.IDLE_ACTIVITIES)
         idle = [] if self.main_offer else sorted(set(int(a) for a in idle_onset.tolist()) | idle_sel)
         self._person_decisions(T, t_ns, sleeping, idle, notice_msg, main_now)
+        self._charge_decisions(T, t_ns, main_now)  # 〔C2〕充電は本人の判断(〔検収 L6〕この刻みの判断の後=判断のたびの候補)
         # ---- 6. チャットと通話を 1 刻み進める・日の頭の掃除 ----
         self.chats.step(T)
         for s in self.calls.step(T):  # 逐次: この刻みに終わった通話の数ぶん
@@ -577,6 +889,7 @@ class ContactLayer:
         for s in self.calls.sessions.values():  # 逐次: 生きている通話の数ぶん
             if s.state is ConvState.PARTICIPATING:
                 in_call2[[p for p in s.participants if p < self.n]] = True
+        self._face_turns = []  # 〔C2〕この刻みの番の控えは読んだ(刻みの境目では空)
         for caller, _c in self.mail.calling_items():  # 呼び出し中も通話に心が向く
             in_call2[int(caller)] = True
         in_talk = np.zeros(self.n, dtype=bool)
@@ -628,11 +941,13 @@ class ContactLayer:
         """新しく届いたメッセージと鳴っている電話の刺激 → 気づいた体。画面を見ていない体でメッセージに気づいた体の集合を返す。"""
         unseen = self.mail.take_unseen()
         ringing = self.mail.ringing_items()
-        who = sorted({a for a, _n, _t in unseen} | {int(a) for a, _r in ringing})
+        alerts = self._alert_now
+        who = sorted({a for a, _n, _t in unseen} | {int(a) for a, _r in ringing} | set(alerts))
         out: set[int] = set()
         if not who:
             return out
-        kind = {a: _NOTICE_MSG for a, _n, _t in unseen}
+        kind = dict(alerts)  # 〔C2〕道具の知らせ(電池が少ない・満充電)=メッセージと着信より弱い印
+        kind.update({a: _NOTICE_MSG for a, _n, _t in unseen})
         for a, _r in ringing:
             kind[int(a)] = _NOTICE_RING  # 鳴っている電話は毎刻みの刺激(メッセージより強い印)
         ag = np.asarray(who, dtype=np.int64)
@@ -648,6 +963,11 @@ class ContactLayer:
             self._bump(f"stimulus_state:{'マナー' if bool(manner[i]) else '音'}・{_DV.PLACE_WORDS[int(place[i])]}"
                        f":{_DV.LEVEL_WORDS[int(level[i])]}")
             if bool(noticed[i]):
+                if a in alerts:  # 〔C2〕道具の知らせに気づいた(電池が少ないと知る・充電の判断の機会)
+                    self._alert_noticed[int(a)] = int(alerts[a])
+                    if alerts[a] == _NOTICE_LOW:
+                        self.dev.know_low([int(a)])
+                    self._bump(f"charge:alert_noticed:{_NOTICE_KIND_WORDS[int(alerts[a])]}")
                 self.attn.note_notice(a, t_ns, int(kind[a]), int(level[i]), int(bits[i]))
                 self._bump("noticed")
                 self._bump(f"noticed:{_AT.FOCUS_WORDS[int(focus[i])]}")
@@ -682,16 +1002,20 @@ class ContactLayer:
                 ctx = SpeechContext(step=int(T), call_id=cause.call_id,
                                     cell=int(self.agents.registry.cell[a]), input_event_ids=basis,
                                     session=int(s.session_id))
+                video = self.calls.is_video(s.session_id)
                 self.speech.say(ctx, Utterance(speaker=a, t_ns=int(t_ns), text=text, addressees=(int(partner),),
-                                               via=_DL.VIA_CALL))
+                                               via=_DL.VIA_VIDEO if video else _DL.VIA_CALL))
+                if video:
+                    self._bump("video:turns")
                 self.calls.utterance(a, T)
                 self._bump("call_turns")
                 if self.turn_sink is not None:  # 〔6-2 カレンダー 2〕通話の番の控え(腕のランだけ)
                     self.turn_sink(f"c:{int(s.session_id)}", a, T, cause.call_id, s.participants)
             else:
                 self._hangup[int(s.session_id)] = cause.call_id
+                via = _DL.VIA_VIDEO if self.calls.is_video(s.session_id) else _DL.VIA_CALL
                 self.calls.close_now(a, T, "退去")
-                self._log(t_ns, a, W_HANG, cause, whom=int(partner), via=_DL.VIA_CALL)
+                self._log(t_ns, a, W_HANG, cause, whom=int(partner), via=via)
                 self._bump("call_hangups")
 
     def _ring_decisions(self, T: int, t_ns: int, sleeping: np.ndarray, main_now: set[int] = frozenset()) -> None:
@@ -703,22 +1027,31 @@ class ContactLayer:
             if int(callee) in main_now:
                 self._bump("arbitration:ring")
                 continue
-            caller, t_ring = int(r[0]), int(r[1])
-            c, cause = self._decide(T, t_ns, int(callee), _P.P_RING, [_P.cand(_P.K_ANSWER), _P.cand(_P.K_DECLINE)])
+            caller, t_ring, video = int(r[0]), int(r[1]), int(r[3])
+            via = _DL.VIA_VIDEO if video else _DL.VIA_CALL
+            ring_text = "ビデオ通話に出る" if video else _P.K_ANSWER
+            c, cause = self._decide(T, t_ns, int(callee), _P.P_RING,
+                                    [_P.cand(_P.K_ANSWER, ring_text), _P.cand(_P.K_DECLINE)])
             self.mail.stop_ringing(caller, int(callee))
             if c.kind == _P.K_ANSWER:
                 s = self.calls.invite(caller, int(callee), T, -1, same_cell=True, partner_idle=True, answered=True)
                 if s is None:  # 話し中(1 人 1 会話の門)
-                    self._log(t_ns, caller, W_UNREACHABLE, _P_CONTACT, whom=int(callee), via=_DL.VIA_CALL)
+                    self._log(t_ns, caller, W_UNREACHABLE, _P_CONTACT, whom=int(callee), via=via)
                     self._bump("unreachable_busy")
                     continue
-                self._log(t_ns, int(callee), W_ANSWER, cause, whom=caller, via=_DL.VIA_CALL, received_ns=int(t_ns),
+                self._log(t_ns, int(callee), W_ANSWER, cause, whom=caller, via=via, received_ns=int(t_ns),
                           read_ns=int(t_ns))
                 self.dev.take_out([int(callee)])
-                self._screen_end([int(callee)], t_ns, "answer")  # 耳に当てる=画面から目を離す
+                if video:  # 〔C2〕ビデオ通話=画面で相手の顔を見る(目の向き=画面・関心の的=通話)
+                    self.calls._video[int(s.session_id)] = 1
+                    if int(self.attn._gaze[int(callee)]) != _AT.GAZE_SCREEN:
+                        self.attn.look_at_screen([int(callee)], t_ns)
+                    self._bump("video:answered")
+                else:
+                    self._screen_end([int(callee)], t_ns, "answer")  # 耳に当てる=画面から目を離す
                 self._bump("answered")
             else:
-                self._log(t_ns, int(callee), W_DECLINE, cause, whom=caller, via=_DL.VIA_CALL)
+                self._log(t_ns, int(callee), W_DECLINE, cause, whom=caller, via=via)
                 self._bump("declined")
 
     def _caller_decisions(self, T: int, t_ns: int, main_now: set[int] = frozenset()) -> None:
@@ -733,7 +1066,8 @@ class ContactLayer:
             ch, cause = self._decide(T, t_ns, int(caller), _P.P_WAIT, [_P.cand(_P.K_WAIT), _P.cand(_P.K_HANG)])
             if ch.kind == _P.K_HANG:
                 self.mail.stop_ringing(int(caller), callee)
-                self._log(t_ns, int(caller), W_HANG, cause, whom=callee, via=_DL.VIA_CALL)
+                self._log(t_ns, int(caller), W_HANG, cause, whom=callee,
+                          via=_DL.VIA_VIDEO if int(c[3]) else _DL.VIA_CALL)
                 self._bump("hung_up_waiting")
                 self._bump("missed")
 
@@ -785,8 +1119,9 @@ class ContactLayer:
 
     def _notice_decision(self, T: int, t_ns: int, a: int) -> None:
         basis = self._unread_basis(a)
-        c, cause = self._decide(T, t_ns, a, _P.P_NOTICE,
-                                [_P.cand(_P.K_READ_NOW, basis=basis), _P.cand(_P.K_LATER), _P.cand(_P.K_IGNORE)])
+        c, cause = self._habit_or_decide(
+            T, t_ns, a, "notice", _P.P_NOTICE, _P.P_HABIT_NOTICE,
+            [_P.cand(_P.K_READ_NOW, basis=basis), _P.cand(_P.K_LATER), _P.cand(_P.K_IGNORE)], important=self._important(a))
         if c.kind == _P.K_READ_NOW:
             self.dev.take_out([a])
             self.attn.look_at_screen([a], t_ns)
@@ -811,19 +1146,39 @@ class ContactLayer:
             self._bump("idle_looks")
 
     def _screen_decision(self, T: int, t_ns: int, a: int) -> None:
+        invites = self.book.invites_of(a)
+        if invites:  # 〔C2〕招待に答える(画面を見たときに 1 つ=古い順)
+            self._invite_answer(T, t_ns, a, int(invites[0]))
         cands = []
         if self.mail.unread_count(a):
             cands.append(_P.cand(_P.K_READ, basis=self._unread_basis(a)))
         msg_to = self.book.personal(self.agents, a, _CT.MESSAGE, T)
         call_to = self.book.personal(self.agents, a, _CT.CALL, T)
         groups = self.book.groups_of(a)
+        made = self.book.made_groups_of(a)
+        invitable = [(g, b) for g in made for b in msg_to
+                     if b not in self.book.members(g) and g not in self.book.invites_of(b)]
+        lookup = self._lookup_here(a)
         if msg_to:
             cands.append(_P.cand(_P.K_SEND))
         if groups:
             cands.append(_P.cand(_P.K_SEND_GROUP))
         if call_to:
             cands.append(_P.cand(_P.K_CALL))
-        cands += [_P.cand(_P.K_KEEP), _P.cand(_P.K_UP)]
+            cands.append(_P.cand(_P.K_VIDEO))  # 〔C2〕ビデオ通話(電話の連絡先と同じ相手)
+        if msg_to:
+            cands.append(_P.cand(_P.K_MAKE_GROUP))  # 〔C2〕友人のグループ(本人たちが作る)
+        if invitable:
+            cands.append(_P.cand(_P.K_INVITE))
+        if made:
+            cands.append(_P.cand(_P.K_LEAVE))
+        if lookup:
+            cands.append(_P.cand(_P.K_LOOKUP))
+        n_live, n_read, n_to = self.mail.receipts(a)  # 〔C2 C1 の限界〕既読の印(道具の性質=送った側の画面に出る)
+        keep_text = (f"{_P.K_KEEP}(送ったメッセージ {n_live} 通・既読 {n_read}/{n_to})" if n_live else None)
+        if n_live:
+            self._bump("receipts:shown")
+        cands += [_P.cand(_P.K_KEEP, keep_text), _P.cand(_P.K_UP)]
         c, cause = self._decide(T, t_ns, a, _P.P_SCREEN, cands)
         self._bump("screen_steps")
         if c.kind == _P.K_READ:
@@ -834,6 +1189,16 @@ class ContactLayer:
             self._compose_group(T, t_ns, a, groups)
         elif c.kind == _P.K_CALL:
             self._dial(T, t_ns, a, call_to)
+        elif c.kind == _P.K_VIDEO:
+            self._dial(T, t_ns, a, call_to, video=True)
+        elif c.kind == _P.K_MAKE_GROUP:
+            self._make_group(T, t_ns, a, msg_to)
+        elif c.kind == _P.K_INVITE:
+            self._invite(T, t_ns, a, invitable)
+        elif c.kind == _P.K_LEAVE:
+            self._leave(T, t_ns, a, made)
+        elif c.kind == _P.K_LOOKUP:
+            self._lookup(T, t_ns, a, lookup)
         elif c.kind == _P.K_UP:
             self._screen_end([a], t_ns, "decided")
             self.dev.put_back([a])
@@ -860,8 +1225,9 @@ class ContactLayer:
             self._reply_decision(T, t_ns, a, kind, key)
 
     def _reply_decision(self, T: int, t_ns: int, a: int, kind: str, key: int) -> None:
-        c, cause = self._decide(T, t_ns, a, _P.P_REPLY,
-                                [_P.cand(_P.K_REPLY), _P.cand(_P.K_STAMP), _P.cand(_P.K_NOREPLY)])
+        c, cause = self._habit_or_decide(T, t_ns, a, "reply", _P.P_REPLY, _P.P_HABIT_REPLY,
+                                         [_P.cand(_P.K_REPLY), _P.cand(_P.K_STAMP), _P.cand(_P.K_NOREPLY)],
+                                         important=self._important(a))
         if c.kind == _P.K_NOREPLY:
             self._bump("no_reply")
             return
@@ -916,19 +1282,82 @@ class ContactLayer:
             key = group_key(int(group)) if int(group) >= 0 else pair_key(int(a), int(to[0]))
             self.turn_sink(key, int(a), int(T), cause.call_id, u.addressees)
 
-    def _dial(self, T: int, t_ns: int, a: int, to: tuple[int, ...]) -> None:
+    def _dial(self, T: int, t_ns: int, a: int, to: tuple[int, ...], video: bool = False) -> None:
         cands = [_P.cand(_P.K_TO, f"P-{b}", id=f"to:{b}") for b in to]
         c, cause = self._decide(T, t_ns, a, _P.P_WHOM, cands)
         b = int(c.id.split(":", 1)[1])
-        self._place_call(T, t_ns, a, b, cause)
+        self._place_call(T, t_ns, a, b, cause, video=video)
 
-    def _place_call(self, T: int, t_ns: int, a: int, b: int, cause: LlmCall) -> None:
-        """電話をかける(本人の判断の答え ``cause`` の後=呼び出しの予約・着信は窓の境目)。"""
-        self.mail.start_calling(a, b, t_ns)
-        self._log(t_ns, a, W_DIAL, cause, whom=b, via=_DL.VIA_CALL)
-        self._reserve(_DL.P_RING, int(t_ns), [int(a), int(b), int(t_ns)])
-        self._screen_end([a], t_ns, "dial")  # 耳に当てる
-        self._bump("calls_placed")
+    def _place_call(self, T: int, t_ns: int, a: int, b: int, cause: LlmCall, video: bool = False) -> None:
+        """電話をかける(本人の判断の答え ``cause`` の後=呼び出しの予約・着信は窓の境目)。〔C2〕ビデオ通話は画面を見たまま。"""
+        self.mail.start_calling(a, b, t_ns, int(video))
+        if video:
+            self._log(t_ns, a, W_VIDEO_DIAL, cause, whom=b, via=_DL.VIA_VIDEO)
+        else:
+            self._log(t_ns, a, W_DIAL, cause, whom=b, via=_DL.VIA_CALL)
+        self._reserve(_DL.P_RING, int(t_ns), [int(a), int(b), int(t_ns), int(video)])
+        if video:
+            self._bump("video:placed")
+        else:
+            self._screen_end([a], t_ns, "dial")  # 耳に当てる
+            self._bump("calls_placed")
+
+    # ---------------------------------------------------------------- 〔C2〕グループ・店の番号
+    def _invite_answer(self, T: int, t_ns: int, a: int, g: int) -> None:
+        cands = [_P.cand(_P.K_JOIN, f"{self.book.group_kind(g)}のグループに入る", id=f"join:{g}"),
+                 _P.cand(_P.K_REFUSE, id=f"refuse:{g}")]
+        c, cause = self._decide(T, t_ns, a, _P.P_GROUPS, cands)
+        join = c.kind == _P.K_JOIN
+        self.book.answer_invite(g, a, join)
+        self._log(t_ns, a, W_GJOIN if join else W_GREFUSE, cause, whom=f"group:{int(g)}", via=_DL.VIA_GROUP)
+        self._bump("group:joined" if join else "group:refused")
+
+    def _make_group(self, T: int, t_ns: int, a: int, to: tuple[int, ...]) -> None:
+        cands = [_P.cand(_P.K_TO, f"P-{b}", id=f"to:{b}") for b in to]
+        c, cause = self._decide(T, t_ns, a, _P.P_WHOM, cands)
+        b = int(c.id.split(":", 1)[1])
+        g = self.book.make_group(a)
+        self.book.invite(g, b)
+        self._log(t_ns, a, W_GMAKE, cause, whom=f"group:{int(g)}", via=_DL.VIA_GROUP)
+        self._log(t_ns, a, W_GINVITE, cause, whom=b, via=_DL.VIA_GROUP, how_much=int(g))
+        self._bump("group:made")
+        self._bump("group:invited")
+
+    def _invite(self, T: int, t_ns: int, a: int, pairs: Sequence[tuple[int, int]]) -> None:
+        gs = sorted({int(g) for g, _b in pairs})
+        cg, _c = self._decide(T, t_ns, a, _P.P_GROUP,
+                              [_P.cand(_P.K_GROUP, f"{self.book.group_kind(g)}のグループ", id=f"group:{g}") for g in gs])
+        g = int(cg.id.split(":", 1)[1])
+        to = sorted({int(b) for gg, b in pairs if int(gg) == g})
+        c, cause = self._decide(T, t_ns, a, _P.P_WHOM, [_P.cand(_P.K_TO, f"P-{b}", id=f"to:{b}") for b in to])
+        b = int(c.id.split(":", 1)[1])
+        if self.book.invite(g, b):
+            self._log(t_ns, a, W_GINVITE, cause, whom=b, via=_DL.VIA_GROUP, how_much=int(g))
+            self._bump("group:invited")
+
+    def _leave(self, T: int, t_ns: int, a: int, made: Sequence[int]) -> None:
+        cands = [_P.cand(_P.K_GROUP, f"{self.book.group_kind(g)}のグループ", id=f"group:{g}") for g in made]
+        c, cause = self._decide(T, t_ns, a, _P.P_GROUP, cands)
+        g = int(c.id.split(":", 1)[1])
+        if self.book.leave(g, a):
+            self._log(t_ns, a, W_GLEAVE, cause, whom=f"group:{int(g)}", via=_DL.VIA_GROUP)
+            self._bump("group:left")
+
+    def _lookup_here(self, a: int) -> tuple[int, ...]:
+        """今いるセルの、場所の表に番号のある POI のうちまだ保存していないもの(表が空欄の間は空)。"""
+        if not self._lookup_cells:
+            return ()
+        here = self._lookup_cells.get(int(self.agents.registry.cell[int(a)]), ())
+        saved = set(self.book.places_of(a))
+        return tuple(p for p in here if p not in saved)
+
+    def _lookup(self, T: int, t_ns: int, a: int, pois: Sequence[int]) -> None:
+        cands = [_P.cand(_P.K_TO, f"店 {p}", id=f"poi:{p}") for p in pois]
+        c, cause = self._decide(T, t_ns, a, _P.P_WHOM, cands)
+        poi = int(c.id.split(":", 1)[1])
+        if self.book.save_place(a, poi):
+            self._log(t_ns, a, W_LOOKUP, cause, whom=f"poi:{poi}")
+            self._bump("lookup:saved")
 
     def workplace_send(self, T: int, t_ns: int, a: int, target: int, *, groups: Sequence[int] = (),
                        words: str = "") -> tuple[str, str] | None:
@@ -967,11 +1396,15 @@ class ContactLayer:
 
     def _call_ended(self, T: int, t_ns: int, s: Any) -> None:
         cid = self._hangup.pop(int(s.session_id), None)
+        video = bool(self.calls._video.pop(int(s.session_id), 0))
+        if video:
+            self._bump("video:ended")
         for p in s.participants:  # 逐次: 参加者の数ぶん(2)
             other = next((q for q in s.participants if q != p), None)
             cause = LlmCall(cid) if cid is not None else _P_CONV
-            self._log(t_ns, int(p), W_CALL_END, cause, whom=other, via=_DL.VIA_CALL)
-            self.dev.put_back([int(p)])
+            self._log(t_ns, int(p), W_CALL_END, cause, whom=other, via=_DL.VIA_VIDEO if video else _DL.VIA_CALL)
+            if not video:  # ビデオ通話の後は画面を見たまま(顔を上げるのは本人の判断)
+                self.dev.put_back([int(p)])
         self._bump(f"calls_closed:{s.close_reason}")
         self._hist_add("call_steps", int(T) - int(s.opened_tick))
 
@@ -991,7 +1424,7 @@ class ContactLayer:
                        "earphone_db": _DV.EARPHONE_DB, "snr_clear_db": _DV.SNR_CLEAR_DB,
                        "snr_detect_db": _DV.SNR_DETECT_DB, "noise_stage_db": list(_DV.NOISE_STAGE_DB),
                        "drain_per_hour": list(_DV.DRAIN_PER_HOUR),
-                       # 〔つなぎ BR-CT1-CHARGE-AT-HOME〕家での充電の速さ(住まいの表の無いランは null=充電なし)
+                       # 〔C2〕充電器に差した体の電池の増え方(住まいの表の無いランは null=家が無い=充電できない)
                        "charge_per_hour": None if self.home_cell is None else _DV.CHARGE_PER_HOUR, "shares0": {
                            "manner": _DV.MANNER_SHARE0, "bag": _DV.BAG_SHARE0, "earphones": _DV.EARPHONE_SHARE0}},
             "attention": {"peripheral_range_m": _AT.PERIPHERAL_RANGE_M,
@@ -1000,7 +1433,18 @@ class ContactLayer:
             "port": self.port.name, "stamps": list(_P.STAMPS), "mock_text": _P.MOCK_TEXT,
             "message_max_chars": _P.MESSAGE_MAX_CHARS,
             "chat_silence_steps": int(CHAT_SILENCE_STEPS),
-            "provisional": list(_DV.PROVISIONAL_VALUES + _AT.PROVISIONAL_VALUES + _P.PROVISIONAL_VALUES),
+            "provisional": list(_DV.PROVISIONAL_VALUES + _AT.PROVISIONAL_VALUES + _P.PROVISIONAL_VALUES
+                                + _HB.PROVISIONAL_VALUES),
+            "c2": {
+                "habit_arm": "on" if self.habit_on else "off", "habit_min_records": _HB.HABIT_MIN_RECORDS,
+                "habit_recheck_share": _HB.HABIT_RECHECK_SHARE, "habit_states": list(_HB.STATE_WORDS),
+                "habit_kinds": {k: list(v) for k, v in _HB.HABIT_KINDS.items()},
+                "low_alerts": list(_DV.LOW_ALERTS), "chargers_at_home": _DV.CHARGERS_AT_HOME,
+                "charge_per_hour": _DV.CHARGE_PER_HOUR, "video_drain_per_hour": _DV.DRAIN_PER_HOUR[_DV.USE_VIDEO],
+                "exchange_opportunity": "first_turn_of_face_conversation", "exchange_means": "メッセージ",
+                "tools": list(_TL.CONTACT_TOOL_NAMES), "place_numbers": 0 if self.phones is None else len(self.phones),
+                "offer_probe": self.offer_probe is not None,
+            },
         }
         obs = {
             "meter": m, "decisions": dec,
@@ -1011,9 +1455,20 @@ class ContactLayer:
             "calls": {k: int(v) for k, v in self.calls.counters().items()},
             "mail": self.mail.mail_counts(), "devices": self.dev.summary(), "attention_now": self.attn.summary(),
             "salient": sal, "remembered": rem if self.remember_link else None,
-            "bodiless_dropped": int(self.book.bodiless_dropped),
+            "bodiless_dropped": self.book.dropped_count(),
             "rendered": None if self.renderer is None else {k: int(getattr(self.renderer, k, 0)) for k in (
                 "contact_lines", "contact_lines_over_budget", "contact_unnoticed_renders")},
+            # 〔C2〕内訳(計器=合否なし)
+            "habit": ({"meter": {k: v for k, v in m.items() if k.startswith("habit:")}, "book": self.habit.tally()}
+                      if self.habit_on else None),
+            "exchange": {"meter": {k: v for k, v in m.items() if k.startswith(("exchange:", "group:", "lookup:"))},
+                         "book": self.book.tally()},
+            "charge": {"meter": {k: v for k, v in m.items()
+                                 if k.startswith(("charge:", "arbitration:charge", "arbitration:unplug", "devices_off",
+                                                  "held_released"))},
+                       "plugged_now": int(np.count_nonzero(self.dev._plugged)),
+                       "off_now": int(np.count_nonzero(~self.dev._on))},
+            "video": {k: v for k, v in m.items() if k.startswith("video:")},
         }
         return {**cfg, **obs}
 

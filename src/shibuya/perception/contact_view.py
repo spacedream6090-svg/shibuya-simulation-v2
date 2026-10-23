@@ -24,7 +24,8 @@ from typing import Callable, Final
 
 __all__ = [
     "GAZE_WORDS", "FOCUS_WORDS", "AttentionView", "DeviceView", "B2_PERIPHERAL_LINE", "B5_PERIPHERAL_NEAR_LINE",
-    "B6_NOTICE_LINE", "B6_RING_LINE", "B6_UNREAD_LINE", "B6_CALL_LINE", "B6_UNNOTICED_LINE", "people_hint_word",
+    "B6_NOTICE_LINE", "B6_RING_LINE", "B6_UNREAD_LINE", "B6_CALL_LINE", "B6_VIDEO_LINE", "B6_VIDEO_RING_LINE",
+    "B6_UNNOTICED_LINE", "VIA_VIDEO", "people_hint_word",
     "contact_lines",
 ]
 
@@ -39,6 +40,11 @@ B6_NOTICE_LINE: Final[str] = "[B6 通知] {kind}の通知({level}・{channels})�
 B6_RING_LINE: Final[str] = "[B6 着信] {who}からの電話が鳴っている。"
 B6_UNREAD_LINE: Final[str] = "[B6 画面] 未読 {n} 件。"
 B6_CALL_LINE: Final[str] = "[B6 通話] {person}と通話中。"
+#: 〔第 6 期 6-4 C2〕ビデオ通話の道具の語(1-3 の ``VIA_WORDS`` の末尾と同じ文字列・engine.contact はここから読む=1 か所)。
+VIA_VIDEO: Final[str] = "ビデオ通話"
+#: 〔C2〕ビデオ通話中(相手の顔が見える)・ビデオ通話の着信。
+B6_VIDEO_LINE: Final[str] = "[B6 通話] {person}とビデオ通話中(画面に相手の顔が見える)。"
+B6_VIDEO_RING_LINE: Final[str] = "[B6 着信] {who}からのビデオ通話が鳴っている。"
 B6_UNNOTICED_LINE: Final[str] = "[B6 周り] 周りで何かあったようだ(注意は向いていない)。"
 
 
@@ -83,6 +89,10 @@ class DeviceView:
     ringing_from: int | None
     in_call_with: int | None
     chats: tuple[int, ...] | None
+    #: 〔C2〕通話の道具(``通話``・``ビデオ通話``=相手の顔が見える)。通話していなければ ``None``。
+    call_via: str | None = None
+    #: 〔C2 検収 L8〕鳴っている着信の道具(``通話``・``ビデオ通話``)。鳴っていなければ ``None``。
+    ringing_via: str | None = None
 
 
 def people_hint_word(n: int) -> str:
@@ -103,10 +113,11 @@ def contact_lines(att: AttentionView | None, dev: DeviceView | None,
     out: list[str] = []
     if dev is not None:
         if dev.in_call_with is not None and int(dev.in_call_with) >= 0:
-            out.append(B6_CALL_LINE.format(person=person_word(int(dev.in_call_with))))
+            line = B6_VIDEO_LINE if dev.call_via == VIA_VIDEO else B6_CALL_LINE
+            out.append(line.format(person=person_word(int(dev.in_call_with))))
         if dev.ringing_from is not None:
             who = person_word(int(dev.ringing_from)) if int(dev.ringing_from) >= 0 else "誰か"
-            out.append(B6_RING_LINE.format(who=who))
+            out.append((B6_VIDEO_RING_LINE if dev.ringing_via == VIA_VIDEO else B6_RING_LINE).format(who=who))
         if dev.notice_kind is not None and dev.notice_level is not None:
             out.append(B6_NOTICE_LINE.format(kind=dev.notice_kind, level=dev.notice_level,
                                              channels="・".join(dev.notice_channels) or "画面"))

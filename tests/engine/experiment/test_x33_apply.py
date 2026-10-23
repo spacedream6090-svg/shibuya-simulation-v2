@@ -264,7 +264,7 @@ def test_vocabulary_has_the_two_words():
 
     assert V.code_of(AP.WHAT_DECISION) == 60 and V.code_of(AP.WHAT_NOTICE) == 61  # 2-1 の金の 2 語(58・59)の後ろ
     # 〔第 2 期 2-3〕その後ろに体の出来事の 3 語を足して版を events-vocab/2-3 にした(60・61 は動かない)
-    assert V.family_of(AP.WHAT_NOTICE) == "実験" and V.VOCAB_VERSION == "events-vocab/6-6-w1"  # 〔第 6 期 6-4 C1〕連絡の族の 15 語を表の末尾に足して版を上げた(前 events-vocab/2-3・前の語のコードは動かない)・〔第 6 期 6-2 カレンダー 2〕約束の族の 13 語をその後ろに足して版を上げた(前 events-vocab/6-4)・〔第 6 期 6-2 カレンダー 3〕勤務の族の 8 語をその後ろに足して版を上げた(前 events-vocab/6-2-ca2)・〔第 6 期 6-6 ② 第 1 部〕仕事の族の 4 語をその後ろに足して版を上げた(前 events-vocab/6-2-ca3)
+    assert V.family_of(AP.WHAT_NOTICE) == "実験" and V.VOCAB_VERSION == "events-vocab/6-4-c2"  # 〔第 6 期 6-4 C1〕連絡の族の 15 語を表の末尾に足して版を上げた(前 events-vocab/2-3・前の語のコードは動かない)・〔第 6 期 6-2 カレンダー 2〕約束の族の 13 語をその後ろに足して版を上げた(前 events-vocab/6-4)・〔第 6 期 6-2 カレンダー 3〕勤務の族の 8 語をその後ろに足して版を上げた(前 events-vocab/6-2-ca2)・〔第 6 期 6-4 C2〕連絡の族に 13 語をその後ろに足して版を上げた(前 events-vocab/6-2-ca3)
 
 
 def test_module_tables_are_read_only():

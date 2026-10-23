@@ -494,6 +494,8 @@ MOTION_RNG_DOMAINS: dict[str, str] = {
     "talk.jitter": "〔第 6 期 6-3 T2〕発言ごとの話す速さの揺れ(engine.speech_clock・腕 --talk-clock mora のランだけ・計器)",
     "contact.mock": "〔第 6 期 6-4 C1〕連絡の本人の判断の仮のモデルの選び(engine.contact.port・腕 c1 のランだけ)",
     "contact.present": "〔第 6 期 6-4 C1〕連絡の判断の候補の提示の並べ替え(同上)",
+    "contact.habit": "〔第 6 期 6-4 C2〕習慣で答えられるときも判断の口へ戻すか(engine.contact.port・腕 c1 と"
+                     " SHIBUYA_CONTACT_HABIT=on のランだけ)",
     "calendar2.mock": "〔第 6 期 6-2 カレンダー 2〕予定の本人の判断の仮のモデルの選び(engine.calendar2.port・腕 arm のランだけ)",
     "calendar2.present": "〔第 6 期 6-2 カレンダー 2〕予定の判断の候補の提示の並べ替え(同上)",
     "calendar3.mock": "〔第 6 期 6-2 カレンダー 3〕雇い主と働く人の勤務の判断の仮のモデルの選び(engine.calendar3.port・腕 arm のランだけ)",
