@@ -94,3 +94,51 @@
 4. **接続できない 3 ドメイン**: shibuyastream.jp・shibuyastream.pictona.jp・shibuyacast.jp は curl が「Could not connect to server」(他の 14 ドメインはつながる)。手元のネットワークの制限(サンドボックスなど)か相手の拒否かは分からない。サンドボックスの外し方は試していない。
 5. **一覧の外の置き場**(どれも触っていない): `stg.tokyu-plaza.com`(東急プラザの頁が指す検証用とみられる PDF)・`shibuya.hands.net` と `shibuya.tokyu-hands.co.jp`(ハンズの階の図)・`loft-images.s3…amazonaws.com`(ロフトの画像)・`hub.arcgis.com`(区のデータ)。
 6. **OpenPOI の中身の変化**: 今の OpenPOI は渋谷区の食品等営業許可と厚労省の食品衛生申請等システムを中に持つ(R-76 の時点の説明と違う)。R-76 案 B(照合・診断に置く)と「区の許可を直接取る」の関係を見直すか。
+
+## §7 2026-10-25 の続き(回答 10-25 §2-1)
+
+> 取得役(Opus 5.5)・2026-10-25 12:48〜12:59 UTC。発注=回答 10-25 §2-1 で承認された 3 件(R-119 #11・#15・#17)だけ。許可の根拠は CLAUDE.md §7 の 2026-10-25 の文。置き場は今までと同じ `data/spatial/<材料名>/`・索引 `data/spatial/index.csv` に 50 行を足した(列は §5 のとおり・101 行に)・取得ログ `_fetch_log.jsonl` は 78 行に。台帳は [その 20](../../../../data-license-ledger.md) に 14 行。pip・展開・git の操作はしていない。
+
+### 7-1 取った/取らなかった
+
+| R-119 # | 材料 | 結果 | 置き場(data/spatial/)・大きさ・md5 | 取得(UTC) |
+|---|---|---|---|---|
+| 11 | 区部点群の規約の PDF | **取った** | tokyo_pointcloud_23ku/license.pdf 504,944 B `f210eee95972df2b41b23f544b5e4a04` | 12:49 |
+| 11 | 区部点群の索引図の zip(geospatial.jp) | **取らず**(4 回とも 500) | 転送先 `fs_download/…?preview=False` が 500(CloudFront の Error・12,692 B の HTML)。HEAD 3 回(12:48:31〜32Z)と GET 1 回(12:48:39Z)。10-21 の 3 回と合わせて 7 回 | — |
+| 11 | 図郭の索引の代わり(ベクトルタイル `lp`) | **取った** | tokyo_pointcloud_23ku/lp_tiles/ の z14 4 枚(計 23,089 B・md5 は index.csv)。層 `lp2` の地物=1/500 図郭の形・`MESH_NO`・LAS の zip の URL(`gic-tokyo.s3…/2024/dig/lp/<MESH_NO>.zip`)。集計 lp_mesh_selected_520cells.json 27,879 B `4261c2d962928758fc8a4114a94a0cd4` | 12:50〜12:52 |
+| 11 | **LAS の zip** | **取らず(5 GB 超・見積りだけ)** | 520 セル(`w2_cells.parquet` の 453 の (ix, iy)・100 m 格子・原点 35.6595, 139.70062)に重なる図郭は **62**(どのセルの中心も 62 図郭のどれかに入る)。各 zip に HEAD だけ=**合計 7,204,230,896 B**(1 本 91.9〜174.5 MB・平均 116.2 MB・Last-Modified 2024-09-10)。下の 7-2 | — |
+| 15 | 区オープンデータ 11 一覧の実体 | **取った** | shibuya_opendata/<一覧>/ に `layer0_query_pages.jsonl`(応答そのまま)・`layer0_merged.geojson`(つないだもの)・`layer0_meta.json`(列の定義)・`featureserver_meta.json`。42 ファイル・145,259,616 B(応答だけで 70,583,725 B)。件数は 7-3 | 12:53〜12:57 |
+| 15 | 自転車・自動二輪車等駐車場一覧 | **取らず** | ハブの license 欄が `none`(licenseInfo も空)=承認の「CC BY」に当たると言えない(問い 3) | — |
+| 17 | 3dcel 渋谷駅地下の点群の zip | **取った・展開していない** | 3dcel_underground_pointcloud/ShibuyaUnderground.zip 436,940,212 B `ab8567e6c9b277acedc3d84abfed228a`(HEAD の Content-Length と一致)。zip の中の一覧だけ読んだ=ShibuyaUnderground.pts 1 本 1,574,590,503 B(2017-05-11)・実行ファイルなし(zip_listing.json 141 B) | 12:58〜12:59 |
+
+- 今回の合計: 50 ファイル・582,755,881 B(#11 6 本 555,912 B・#15 42 本 145,259,616 B・#17 2 本 436,940,353 B)。data/spatial/ の合計は 2,656,363,241 B(103 ファイル)。
+
+### 7-2 点群(#11)の見積り(取る前に止めた)
+
+| 範囲の取り方 | 図郭 | 合計(HEAD の Content-Length) |
+|---|---|---|
+| 520 セルに重なる全部(発注の範囲) | 62 | 7,204,230,896 B |
+| 世界の bbox(本書の冒頭・OSM v8 meta.bbox)に重なるもの | 48 | 5,606,719,429 B |
+| セルが 10 以上重なるもの(縁の図郭を落とす・expedient) | 43 | 5,023,529,170 B |
+
+- どの取り方でも 5 GB を超える。R-119 の見積り(W1 で 40〜50 図郭・8〜10 GB・推測)より 1 本が小さい(平均 116 MB に対し CKAN の説明は約 200 MB)。空き容量は 363 GB。
+- 図郭の決め方: lp タイルの図郭の形(経緯度)と、各セルの 100 m 四方の箱(`common.py` の原点と 1 度あたりのメートルで経緯度に戻したもの)の重なり。図郭の一覧と各 zip の URL・大きさ・Last-Modified・ETag は lp_mesh_selected_520cells.json。
+- 規約の PDF の中身は台帳 その 20 のとおり(免責・禁止事項・管轄。CC BY の表記は CKAN の側)。
+
+### 7-3 区オープンデータ(#15)の件数
+
+食品等営業許可・届出一覧 39,545(R-119 の 39,304 より 241 多い=その後の更新とみられる)・診療所と歯科診療所 2,011・病院 14・薬局 261・助産所 27・施術所 1,543・店舗販売業と高度管理医療機器販売業・貸与業 883・商店会 61・公衆トイレ 80・駐輪場の入出庫台数記録 NCD 運営 3,212/サイカパーキング運営 432(この 2 つは表で、地物の形は無い)。どれも `returnCountOnly` の数と取れた数が一致し、ID の重複は 0。座標は outSR=4326(WGS84 経緯度)で取った(サービスの元の座標系は Web メルカトル 3857)。
+
+### 7-4 転送先で止まったもの・取り方を変えたもの
+
+- **ハブの CSV の口**: `city-shibuya-data.opendata.arcgis.com/api/download/v1/items/<id>/csv?layers=0` は 302 で `services3.arcgis.com/…/replicafilescache/<名>.csv` へ(一覧の中)。ところがその CSV がさらに 302 で `stg-arcgisazurecdataprod3.az.arcgis.com`(Azure の書き出し置き場・署名つきの URL)へ転送した=**一覧の外なので取らなかった**(9 一覧とも同じ。ログに 9 行)。代わりに同じ `services3.arcgis.com` の FeatureServer の `query`(GeoJSON・1,000 件ずつ)で取った。中身は同じ層の全行(列の名前は日本語のまま・食品の一覧の日付の列は文字列。列の型は layer0_meta.json)。CSV と同じ並びかは確かめていない。
+- `hub.arcgis.com`(`/datasets/<id>_0.csv` の 301 の先)は今回は触っていない。
+- 索引図の zip(geospatial.jp の `fs_download`)は 500 のまま=7-1 のとおり。
+
+### 7-5 問い
+
+1. **点群の LAS の zip(7.2 GB・62 図郭)**: 5 GB を超えたので取っていない。全部取るか、範囲を絞るか(世界の bbox の 48 図郭 5.6 GB・セル 10 以上の 43 図郭 5.0 GB ほか)。集計(展開した生データを残さない)には laspy か PDAL が要る(§7 では「入れる前に聞く」)。
+2. **駐輪場の入出庫台数記録(2 一覧)**: 発注の「駐輪場」として取ったが、R-92 §2-8 はこれを封印(holdout)の候補に挙げている(「未取得で誰も見ていない」)。中身は開かず、件数と md5 だけを記録し、index.csv の role に「holdout 候補(未開封)」と書いた。封印にするか、照合の入力にするか(封印にするなら、較正と検収で開かない取り決めが要る)。
+3. **自転車・自動二輪車等駐車場一覧**: ハブの license 欄が `none` なので取っていない。区に確かめるか、取らないままにするか。
+4. **区部点群の索引図(PDF の zip・64,888,110 B)**: geospatial.jp の転送先が 7 回とも 500。図郭は lp タイルで決められたので、段 1 には要らない見込み。要るならユーザーが手で取るか、G 空間情報センターに知らせるか。
+5. 注: `data/spatial/index.csv` の改行は、前回の 51 行と同じ CRLF(Python の csv の既定)のまま足した。台帳と本書は LF。
