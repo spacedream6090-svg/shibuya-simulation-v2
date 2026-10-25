@@ -394,6 +394,12 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #127 5070 の夜間ランの仕組み `tools/night5070/`(回答 10-25 §6-0・運用の道具=src/ 不変・第339・2026-10-25・実装役 Opus 5.5・別の検収役 1・親検収)
+
+- 正典: [回答 10-25](docs/design/v2-answers-2026-10-25.md) §6-0(1 コマンドの起動・タスクの登録・朝の要約)・§6-2(E1〜E8)・§6-7(計測の分離)。手順書 [docs/ops/night5070-runbook.md](docs/ops/night5070-runbook.md)。取り込み `3505eec`(作業木 `stage/night5070`・tools/・tests/tools/・docs/ops/ の新規 6 本だけ)。
+- **中身**: `night_run.py --experiment E1 [--dry-run] [--deadline-hours] [--start-at]`=艦隊を立てる(前に stop・served-model-name の照合)→ 健全性の 1 呼 → 実験のコマンド列 → 計測の分離の一覧 36 欄(取れないものは「未計測」と予定の出所)→ 艦隊を落とす(失敗は rc 4)→ 朝の要約。どの失敗でも要約と NIGHT_DONE を書く・ラン中は Windows のスリープを止める。`register_task.py --at HH:MM --experiment E [--wake] [--daily] [--print-only]`=XML(電池の条件 false・StartWhenAvailable・上限 10 h と締め切りの連動・隠し窓の powershell)を schtasks へ。`experiments.json`=E1〜E8 の定義(艦隊の起動の穴 `WSL_DISTRO`・`MODEL` ほかは R-123 の後に親が埋める・所要時間は R-123 §5)。大きな出力は `data/night5070/`、要約は `docs/bench/night5070/`。
+- 検収: 別の検収役 1(条件つき受入=高 2・中 6・低 5 → 14 件を直した)+親(32 passed・dry-run rc 0・XML の条件・src 差分 0・LF・識別子)。E1 は 2-7 の直しの前は「動くかどうかの確認」だけ(呼数は参考値の印)。残り: WSL の導入(ユーザー)と許可 P1〜P7(R-123)・tmux の過程が WSL に残るか(最初の夜)・E5〜E7 の口(腕の引数)は空欄。
+
 ### #126 第 5 期 段 1b 抽出のランの密度の推定(neighborhood)=版上げ 4 回目(`--space nav1` 既定・`legacy` は旧値の再現だけ)(第337・2026-10-23・実装役 Opus 5.5・親検収=段 1 の検収役の H1 を受けた段)
 
 - 正典: 段 1(#124)の再検収 H1・[指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md) §1-6(係数で持たない)・§1-9(計測した候補から選ぶ)・回答 10-13b §0-6・§0-7・CLAUDE.md §4(expedient は 5,000 体のスクリーニング)。記録 [sp1b](docs/bench/analysis/spatial-2026-10/sp1b/README.md)(第 1 段階の表と第 2 段階)。取り込み `b02c257`。安定版のタグ `stable-v2-before-space-1`(戻す=`git checkout stable-v2-before-space-1`=既定が legacy に戻る・資産は足すだけなので残してよい)。
