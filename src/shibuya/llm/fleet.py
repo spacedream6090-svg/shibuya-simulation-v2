@@ -358,6 +358,16 @@ class LLMCall:
     params_extra: Mapping[str, Any] = field(default_factory=dict)
     #: テープ版 3(記憶 第 1 段 6b): 描画の B5「記憶」行に載せた記憶の行番号(記憶の無いラン=空)。
     recalled_rows: tuple[int, ...] = ()
+    #: テープ版 4(10e・E5・A8): 引いた記憶の同定(``recalled_rows`` と同じ並び)。最初に書かれた時刻(通しの T)・
+    #: 種類(``memory.EVENT_KINDS``・店の行は ``STORE_ITEM_KIND``)・対象(``mem_object`` の符号化・店の行は POI)。
+    recalled_first_tick: tuple[int, ...] = ()
+    recalled_kind: tuple[int, ...] = ()
+    recalled_object: tuple[int, ...] = ()
+    #: テープ版 4: 「(知人)」の印を見せた相手の体 id(B5 の本文に出た順・重複なし)。
+    acquaintance_ids: tuple[int, ...] = ()
+    #: テープ版 4(K1): 本人ブロックの本文(B5 は列に直接・B6 はブロック表に intern)。
+    b5_text: str = ""
+    b6_text: str = ""
 
     @property
     def block_ids(self) -> tuple[str, ...]:
@@ -680,6 +690,14 @@ class FleetTapeRow:
     observed_tick: int = -1
     #: テープ版 3(記憶 第 1 段 6b): B5「記憶」行に載せた記憶の行番号。
     recalled_rows: tuple[int, ...] = ()
+    #: テープ版 4(10e・E5): ``engine.tape.TapeRow`` と同じ欄(引いた記憶の同定・知人の id・出どころの予約・B5・B6)。
+    recalled_first_tick: tuple[int, ...] = ()
+    recalled_kind: tuple[int, ...] = ()
+    recalled_object: tuple[int, ...] = ()
+    recalled_source: tuple[str, ...] = ()
+    acquaintance_ids: tuple[int, ...] = ()
+    b5_text: str = ""
+    b6_block_id: str = ""
 
 
 # ---------------------------------------------------------------- 診断
@@ -1798,9 +1816,24 @@ class FleetBridge:
                 deferred_reason="",
                 observed_tick=int(now_tick),
                 recalled_rows=tuple(getattr(call, "recalled_rows", ())),
+                **self._tape_v4(call),
             )
         )
         self.n_tape_rows += 1
+
+    def _tape_v4(self, call: LLMCall) -> dict[str, Any]:
+        """テープ版 4(10e・E5)の列。B6 の本文はブロック表に intern する(``engine.tape.tape_v4_fields`` と同じ形)。"""
+        b6 = str(getattr(call, "b6_text", "") or "")
+        return {
+            "recalled_first_tick": tuple(int(x) for x in getattr(call, "recalled_first_tick", ())),
+            "recalled_kind": tuple(int(x) for x in getattr(call, "recalled_kind", ())),
+            "recalled_object": tuple(int(x) for x in getattr(call, "recalled_object", ())),
+            "recalled_source": (),
+            "acquaintance_ids": tuple(int(x) for x in getattr(call, "acquaintance_ids", ())),
+            "b5_text": str(getattr(call, "b5_text", "") or ""),
+            "b6_block_id": (self.tape.intern_block(b6, estimate_tokens(b6))  # type: ignore[union-attr]
+                            if b6 and self.tape is not None else ""),
+        }
 
     def _record_deferred(self, d: Deferred, now_tick: int = -1) -> None:
         """**繰り延べ行**を 1 行書く(D-58)。
@@ -1834,6 +1867,7 @@ class FleetBridge:
                 deferred_reason=d.outcome.value,
                 observed_tick=int(now_tick),
                 recalled_rows=tuple(getattr(call, "recalled_rows", ())),
+                **self._tape_v4(call),
             )
         )
         self.n_tape_rows += 1

@@ -1,0 +1,3296 @@
+{
+ "schema": "shibuya.bench/proximity-edge/runs/1",
+ "base": {
+  "agents": 5000,
+  "seed": 1,
+  "sample": "stratified (rel8b_measure.stratified_sample)",
+  "vocab": "v3",
+  "memory": "on",
+  "hunger": "energy (cli default)",
+  "l4": "unlimited (cli default)"
+ },
+ "rows": [
+  {
+   "policy": "mock",
+   "geometry": "node",
+   "arm": "off",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "node"
+   },
+   "final_hash": "35b23703da1d209c56f68cf5e78ac65331a536362992a51cb81a1fb27ba032a1",
+   "final16": "35b23703da1d209c",
+   "llm_calls": 71400,
+   "wall_seconds_nondeterministic": 58.38,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 3737,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4336,
+    "PLAN_GENERAL": 6130,
+    "PLAN_TRANSIT": 7174,
+    "INTEROCEPTION": 23576,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 5880,
+    "ACTIVITY_EXPIRY": 20567
+   },
+   "sessions_opened": 255,
+   "conversation_counters": {
+    "sessions_opened": 255,
+    "sessions_active": 0,
+    "sessions_closed": 255,
+    "conv_invites": 2767,
+    "conv_accepted": 255,
+    "conv_declined": 2511,
+    "conv_pending_expired": 0,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 121,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3717,
+    "conv_target_absent": 2104
+   },
+   "relations_counts": {},
+   "relations_origins": null,
+   "chance": {
+    "rows_origin_chance": 0,
+    "partner_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": null,
+      "(0,2]": null,
+      "(2,10]": null,
+      "(10,50]": null,
+      "(50,100]": null,
+      ">100": null
+     },
+     "share_le_2m": null,
+     "share_le_10m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 0,
+    "0m": 0,
+    "(0,2]": 0,
+    "(2,10]": 0,
+    "(10,50]": 0,
+    "(50,100]": 0,
+    ">100": 0,
+    "share": {
+     "0m": null,
+     "(0,2]": null,
+     "(2,10]": null,
+     "(10,50]": null,
+     "(50,100]": null,
+     ">100": null
+    },
+    "share_le_2m": null,
+    "share_le_10m": null,
+    "share_gt_2m": null,
+    "share_gt_10m": null,
+    "quantiles": {
+     "n": 0
+    }
+   },
+   "copresent": {
+    "same_cell_edge_slot_ticks": 0,
+    "active_2m_slot_ticks": 0,
+    "active_2m_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": null,
+      "(0,2]": null,
+      "(2,10]": null,
+      "(10,50]": null,
+      "(50,100]": null,
+      ">100": null
+     },
+     "share_le_2m": null,
+     "share_le_10m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 71400,
+    "items_per_render_hist": {
+     "0": 2698,
+     "1": 3347,
+     "2": 2775,
+     "3": 62580
+    },
+    "items_per_render_mean": 2.754,
+    "distance": {
+     "n": 196637,
+     "0m": 172843,
+     "(0,2]": 170,
+     "(2,10]": 6407,
+     "(10,50]": 13543,
+     "(50,100]": 3642,
+     ">100": 32,
+     "share": {
+      "0m": 0.879,
+      "(0,2]": 0.0009,
+      "(2,10]": 0.0326,
+      "(10,50]": 0.0689,
+      "(50,100]": 0.0185,
+      ">100": 0.0002
+     },
+     "share_le_2m": 0.8799,
+     "share_le_10m": 0.9124,
+     "share_gt_2m": 0.1201,
+     "share_gt_10m": 0.0876
+    },
+    "renders_all_listed_at_0m": 56821,
+    "check_render_distance_mismatch": 0
+   },
+   "conversation_open": {
+    "pairs": 255,
+    "same_cell": 255,
+    "n_moving_in_pair_at_open": {
+     "0": 213,
+     "1": 42
+    },
+    "distance": {
+     "n": 255,
+     "0m": 167,
+     "(0,2]": 0,
+     "(2,10]": 34,
+     "(10,50]": 44,
+     "(50,100]": 9,
+     ">100": 1,
+     "share": {
+      "0m": 0.6549,
+      "(0,2]": 0.0,
+      "(2,10]": 0.1333,
+      "(10,50]": 0.1725,
+      "(50,100]": 0.0353,
+      ">100": 0.0039
+     },
+     "share_le_2m": 0.6549,
+     "share_le_10m": 0.7882,
+     "share_gt_2m": 0.3451,
+     "share_gt_10m": 0.2118,
+     "quantiles": {
+      "n": 255,
+      "mean": 8.725,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 37.721,
+      "p99": 78.954,
+      "max": 108.428
+     }
+    }
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 60150379,
+    "zero_distance": 60119832,
+    "same_cell": 60126857,
+    "same_cell_both_awake": 58837269,
+    "diff_cell": 23522,
+    "diff_cell_both_awake": 23522,
+    "diff_cell_per_tick": 16.335,
+    "diff_cell_both_awake_per_tick": 16.335,
+    "diff_cell_max_tick": 200,
+    "by_moving_state": {
+     "both_stationary": 59134377,
+     "both_stationary_zero_dist": 59124429,
+     "one_moving": 908964,
+     "one_moving_zero_dist": 894456,
+     "both_moving": 107038,
+     "both_moving_zero_dist": 100947
+    }
+   },
+   "q155_walkers": {
+    "moving_in_stage_minutes": 248440,
+    "moving_zero_disp": 17050,
+    "moving_positive_disp(=meter walker def)": 231390,
+    "mean_disp_m_per_walker_minute": 24.51,
+    "moving_with_target_minutes": 248440,
+    "moving_with_target_zero_disp": 17050,
+    "trip_starts": 13606,
+    "minutes_per_trip": 18.26
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.281296,
+    "instant_walker_minutes": 231390,
+    "cowalk_share": 0.11472,
+    "cowalk_episodes_5min": 3818,
+    "cowalk_moving_minutes": 248440
+   },
+   "geometry_hops": 0,
+   "geometry_jammed": 0
+  },
+  {
+   "policy": "mock",
+   "geometry": "edge",
+   "arm": "off",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "edge"
+   },
+   "final_hash": "d4bb29a897795771c7dcc73312bf058ecb8b5588fc43e1da0f1aa8e9fa375174",
+   "final16": "d4bb29a897795771",
+   "llm_calls": 67689,
+   "wall_seconds_nondeterministic": 58.52,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 3303,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4201,
+    "PLAN_GENERAL": 5982,
+    "PLAN_TRANSIT": 6984,
+    "INTEROCEPTION": 23037,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 4464,
+    "ACTIVITY_EXPIRY": 19718
+   },
+   "sessions_opened": 206,
+   "conversation_counters": {
+    "sessions_opened": 206,
+    "sessions_active": 0,
+    "sessions_closed": 206,
+    "conv_invites": 2591,
+    "conv_accepted": 206,
+    "conv_declined": 2383,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 122,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 3496,
+    "conv_target_absent": 1984
+   },
+   "relations_counts": {},
+   "relations_origins": null,
+   "chance": {
+    "rows_origin_chance": 0,
+    "partner_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": null,
+      "(0,2]": null,
+      "(2,10]": null,
+      "(10,50]": null,
+      "(50,100]": null,
+      ">100": null
+     },
+     "share_le_2m": null,
+     "share_le_10m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 0,
+    "0m": 0,
+    "(0,2]": 0,
+    "(2,10]": 0,
+    "(10,50]": 0,
+    "(50,100]": 0,
+    ">100": 0,
+    "share": {
+     "0m": null,
+     "(0,2]": null,
+     "(2,10]": null,
+     "(10,50]": null,
+     "(50,100]": null,
+     ">100": null
+    },
+    "share_le_2m": null,
+    "share_le_10m": null,
+    "share_gt_2m": null,
+    "share_gt_10m": null,
+    "quantiles": {
+     "n": 0
+    }
+   },
+   "copresent": {
+    "same_cell_edge_slot_ticks": 0,
+    "active_2m_slot_ticks": 0,
+    "active_2m_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": null,
+      "(0,2]": null,
+      "(2,10]": null,
+      "(10,50]": null,
+      "(50,100]": null,
+      ">100": null
+     },
+     "share_le_2m": null,
+     "share_le_10m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 67689,
+    "items_per_render_hist": {
+     "0": 3032,
+     "1": 3658,
+     "2": 2992,
+     "3": 58007
+    },
+    "items_per_render_mean": 2.7133,
+    "distance": {
+     "n": 183663,
+     "0m": 169465,
+     "(0,2]": 278,
+     "(2,10]": 2093,
+     "(10,50]": 8656,
+     "(50,100]": 3039,
+     ">100": 132,
+     "share": {
+      "0m": 0.9227,
+      "(0,2]": 0.0015,
+      "(2,10]": 0.0114,
+      "(10,50]": 0.0471,
+      "(50,100]": 0.0165,
+      ">100": 0.0007
+     },
+     "share_le_2m": 0.9242,
+     "share_le_10m": 0.9356,
+     "share_gt_2m": 0.0758,
+     "share_gt_10m": 0.0644
+    },
+    "renders_all_listed_at_0m": 57574,
+    "check_render_distance_mismatch": 0
+   },
+   "conversation_open": {
+    "pairs": 206,
+    "same_cell": 206,
+    "n_moving_in_pair_at_open": {
+     "0": 197,
+     "1": 9
+    },
+    "distance": {
+     "n": 206,
+     "0m": 177,
+     "(0,2]": 0,
+     "(2,10]": 1,
+     "(10,50]": 14,
+     "(50,100]": 14,
+     ">100": 0,
+     "share": {
+      "0m": 0.8592,
+      "(0,2]": 0.0,
+      "(2,10]": 0.0049,
+      "(10,50]": 0.068,
+      "(50,100]": 0.068,
+      ">100": 0.0
+     },
+     "share_le_2m": 0.8592,
+     "share_le_10m": 0.8641,
+     "share_gt_2m": 0.1408,
+     "share_gt_10m": 0.1359,
+     "quantiles": {
+      "n": 206,
+      "mean": 6.742,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 34.742,
+      "p99": 77.751,
+      "max": 80.753
+     }
+    }
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 68865944,
+    "zero_distance": 68826215,
+    "same_cell": 68865218,
+    "same_cell_both_awake": 67509095,
+    "diff_cell": 726,
+    "diff_cell_both_awake": 722,
+    "diff_cell_per_tick": 0.504,
+    "diff_cell_both_awake_per_tick": 0.501,
+    "diff_cell_max_tick": 84,
+    "by_moving_state": {
+     "both_stationary": 68150623,
+     "both_stationary_zero_dist": 68142933,
+     "one_moving": 705419,
+     "one_moving_zero_dist": 675376,
+     "both_moving": 9902,
+     "both_moving_zero_dist": 7906
+    }
+   },
+   "q155_walkers": {
+    "moving_in_stage_minutes": 119670,
+    "moving_zero_disp": 18884,
+    "moving_positive_disp(=meter walker def)": 100786,
+    "mean_disp_m_per_walker_minute": 65.31,
+    "moving_with_target_minutes": 119670,
+    "moving_with_target_zero_disp": 18884,
+    "trip_starts": 18359,
+    "minutes_per_trip": 6.518
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.022711,
+    "instant_walker_minutes": 100786,
+    "cowalk_share": 0.000919,
+    "cowalk_episodes_5min": 16,
+    "cowalk_moving_minutes": 119670
+   },
+   "geometry_hops": 13290,
+   "geometry_jammed": 0
+  },
+  {
+   "policy": "mock",
+   "geometry": "node",
+   "arm": "rel_on",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "node",
+    "relations": "on"
+   },
+   "final_hash": "0fe0e65bd3f67cb4e4f71b3648c7372d78ca7693634e005c8187e8820130d35f",
+   "final16": "0fe0e65bd3f67cb4",
+   "llm_calls": 85110,
+   "wall_seconds_nondeterministic": 70.82,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 5171,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4371,
+    "PLAN_GENERAL": 6175,
+    "PLAN_TRANSIT": 7214,
+    "INTEROCEPTION": 23391,
+    "ACQUAINTANCE": 11949,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 6385,
+    "ACTIVITY_EXPIRY": 20454
+   },
+   "sessions_opened": 327,
+   "conversation_counters": {
+    "sessions_opened": 327,
+    "sessions_active": 0,
+    "sessions_closed": 327,
+    "conv_invites": 3947,
+    "conv_accepted": 327,
+    "conv_declined": 3616,
+    "conv_pending_expired": 3,
+    "conv_pending_open": 1,
+    "conv_invite_refractory_blocked": 345,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 5119,
+    "conv_target_absent": 1698
+   },
+   "relations_counts": {
+    "acq_agent_refractory": 2023,
+    "acq_appear": 19345,
+    "acq_candidates": 14441,
+    "acq_not_live": 112,
+    "acq_pair_refractory": 2694,
+    "acq_woken": 11949,
+    "events": 735,
+    "events:sign+1": 651,
+    "events:sign0": 84,
+    "invite_fallback_only": 4731,
+    "invite_named": 0,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 833,
+    "invite_pick:near_first": 1135,
+    "invite_pick:next": 904,
+    "invite_pick:rest": 349
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 2661,
+     "accepted": 203,
+     "declined": 2456,
+     "expired": 2,
+     "rejected": 232,
+     "accept_rate": 0.0763
+    },
+    "chance": {
+     "invites": 515,
+     "accepted": 58,
+     "declined": 457,
+     "expired": 0,
+     "rejected": 178,
+     "accept_rate": 0.1126
+    },
+    "acquaintance": {
+     "invites": 771,
+     "accepted": 66,
+     "declined": 703,
+     "expired": 1,
+     "rejected": 114,
+     "accept_rate": 0.0856
+    }
+   },
+   "chance": {
+    "rows_origin_chance": 715,
+    "partner_distance": {
+     "n": 715,
+     "0m": 714,
+     "(0,2]": 1,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": 0.9986,
+      "(0,2]": 0.0014,
+      "(2,10]": 0.0,
+      "(10,50]": 0.0,
+      "(50,100]": 0.0,
+      ">100": 0.0
+     },
+     "share_le_2m": 1.0,
+     "share_le_10m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 14441,
+    "0m": 2905,
+    "(0,2]": 49,
+    "(2,10]": 1022,
+    "(10,50]": 7639,
+    "(50,100]": 2744,
+    ">100": 82,
+    "share": {
+     "0m": 0.2012,
+     "(0,2]": 0.0034,
+     "(2,10]": 0.0708,
+     "(10,50]": 0.529,
+     "(50,100]": 0.19,
+     ">100": 0.0057
+    },
+    "share_le_2m": 0.2046,
+    "share_le_10m": 0.2753,
+    "share_gt_2m": 0.7954,
+    "share_gt_10m": 0.7247,
+    "quantiles": {
+     "n": 14441,
+     "mean": 29.544,
+     "p10": 0.0,
+     "p50": 28.255,
+     "p90": 65.533,
+     "p99": 95.302,
+     "max": 127.717
+    }
+   },
+   "copresent": {
+    "same_cell_edge_slot_ticks": 0,
+    "active_2m_slot_ticks": 0,
+    "active_2m_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": null,
+      "(0,2]": null,
+      "(2,10]": null,
+      "(10,50]": null,
+      "(50,100]": null,
+      ">100": null
+     },
+     "share_le_2m": null,
+     "share_le_10m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 85110,
+    "items_per_render_hist": {
+     "0": 2651,
+     "1": 3498,
+     "2": 3050,
+     "3": 51910,
+     "4": 16791,
+     "5": 5161,
+     "6": 1461,
+     "7": 452,
+     "8": 121,
+     "9": 13,
+     "10": 2
+    },
+    "items_per_render_mean": 3.188,
+    "distance": {
+     "n": 271332,
+     "0m": 215117,
+     "(0,2]": 428,
+     "(2,10]": 14381,
+     "(10,50]": 32268,
+     "(50,100]": 8978,
+     ">100": 160,
+     "share": {
+      "0m": 0.7928,
+      "(0,2]": 0.0016,
+      "(2,10]": 0.053,
+      "(10,50]": 0.1189,
+      "(50,100]": 0.0331,
+      ">100": 0.0006
+     },
+     "share_le_2m": 0.7944,
+     "share_le_10m": 0.8474,
+     "share_gt_2m": 0.2056,
+     "share_gt_10m": 0.1526
+    },
+    "renders_all_listed_at_0m": 53251,
+    "check_render_distance_mismatch": 0
+   },
+   "conversation_open": {
+    "pairs": 327,
+    "same_cell": 327,
+    "n_moving_in_pair_at_open": {
+     "0": 276,
+     "1": 50,
+     "2": 1
+    },
+    "distance": {
+     "n": 327,
+     "0m": 201,
+     "(0,2]": 0,
+     "(2,10]": 41,
+     "(10,50]": 71,
+     "(50,100]": 14,
+     ">100": 0,
+     "share": {
+      "0m": 0.6147,
+      "(0,2]": 0.0,
+      "(2,10]": 0.1254,
+      "(10,50]": 0.2171,
+      "(50,100]": 0.0428,
+      ">100": 0.0
+     },
+     "share_le_2m": 0.6147,
+     "share_le_10m": 0.7401,
+     "share_gt_2m": 0.3853,
+     "share_gt_10m": 0.2599,
+     "quantiles": {
+      "n": 327,
+      "mean": 9.691,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 37.822,
+      "p99": 74.098,
+      "max": 90.609
+     }
+    }
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 49808916,
+    "zero_distance": 49740642,
+    "same_cell": 49776198,
+    "same_cell_both_awake": 48509233,
+    "diff_cell": 32718,
+    "diff_cell_both_awake": 32718,
+    "diff_cell_per_tick": 22.721,
+    "diff_cell_both_awake_per_tick": 22.721,
+    "diff_cell_max_tick": 136,
+    "by_moving_state": {
+     "both_stationary": 48590233,
+     "both_stationary_zero_dist": 48551895,
+     "one_moving": 1112282,
+     "one_moving_zero_dist": 1089011,
+     "both_moving": 106401,
+     "both_moving_zero_dist": 99736
+    }
+   },
+   "q155_walkers": {
+    "moving_in_stage_minutes": 256966,
+    "moving_zero_disp": 21013,
+    "moving_positive_disp(=meter walker def)": 235953,
+    "mean_disp_m_per_walker_minute": 24.48,
+    "moving_with_target_minutes": 256966,
+    "moving_with_target_zero_disp": 21013,
+    "trip_starts": 14794,
+    "minutes_per_trip": 17.37
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.27191,
+    "instant_walker_minutes": 235953,
+    "cowalk_share": 0.097951,
+    "cowalk_episodes_5min": 3751,
+    "cowalk_moving_minutes": 256966
+   },
+   "geometry_hops": 0,
+   "geometry_jammed": 0
+  },
+  {
+   "policy": "mock",
+   "geometry": "edge",
+   "arm": "rel_on",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "edge",
+    "relations": "on"
+   },
+   "final_hash": "2392eee1b7272fbb1c921448532d501c848f11654da32b467d677b2642b698ad",
+   "final16": "2392eee1b7272fbb",
+   "llm_calls": 79818,
+   "wall_seconds_nondeterministic": 69.67,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 4503,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4217,
+    "PLAN_GENERAL": 6013,
+    "PLAN_TRANSIT": 7007,
+    "INTEROCEPTION": 22566,
+    "ACQUAINTANCE": 10621,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 5146,
+    "ACTIVITY_EXPIRY": 19745
+   },
+   "sessions_opened": 280,
+   "conversation_counters": {
+    "sessions_opened": 280,
+    "sessions_active": 0,
+    "sessions_closed": 280,
+    "conv_invites": 3588,
+    "conv_accepted": 280,
+    "conv_declined": 3306,
+    "conv_pending_expired": 0,
+    "conv_pending_open": 1,
+    "conv_invite_refractory_blocked": 279,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 4654,
+    "conv_target_absent": 1798
+   },
+   "relations_counts": {
+    "acq_agent_refractory": 2214,
+    "acq_appear": 16467,
+    "acq_candidates": 13330,
+    "acq_not_live": 89,
+    "acq_pair_refractory": 1101,
+    "acq_woken": 10621,
+    "events": 651,
+    "events:sign+1": 561,
+    "events:sign0": 90,
+    "invite_fallback_only": 4775,
+    "invite_named": 0,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 763,
+    "invite_pick:near_first": 1320,
+    "invite_pick:next": 797,
+    "invite_pick:rest": 117
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 2324,
+     "accepted": 174,
+     "declined": 2150,
+     "expired": 0,
+     "rejected": 167,
+     "accept_rate": 0.0749
+    },
+    "chance": {
+     "invites": 612,
+     "accepted": 58,
+     "declined": 554,
+     "expired": 0,
+     "rejected": 195,
+     "accept_rate": 0.0948
+    },
+    "acquaintance": {
+     "invites": 652,
+     "accepted": 48,
+     "declined": 602,
+     "expired": 0,
+     "rejected": 91,
+     "accept_rate": 0.0736
+    }
+   },
+   "chance": {
+    "rows_origin_chance": 833,
+    "partner_distance": {
+     "n": 833,
+     "0m": 833,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": 1.0,
+      "(0,2]": 0.0,
+      "(2,10]": 0.0,
+      "(10,50]": 0.0,
+      "(50,100]": 0.0,
+      ">100": 0.0
+     },
+     "share_le_2m": 1.0,
+     "share_le_10m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 13330,
+    "0m": 3762,
+    "(0,2]": 263,
+    "(2,10]": 1047,
+    "(10,50]": 6182,
+    "(50,100]": 1924,
+    ">100": 152,
+    "share": {
+     "0m": 0.2822,
+     "(0,2]": 0.0197,
+     "(2,10]": 0.0785,
+     "(10,50]": 0.4638,
+     "(50,100]": 0.1443,
+     ">100": 0.0114
+    },
+    "share_le_2m": 0.302,
+    "share_le_10m": 0.3805,
+    "share_gt_2m": 0.698,
+    "share_gt_10m": 0.6195,
+    "quantiles": {
+     "n": 13330,
+     "mean": 24.55,
+     "p10": 0.0,
+     "p50": 19.363,
+     "p90": 59.313,
+     "p99": 101.077,
+     "max": 157.659
+    }
+   },
+   "copresent": {
+    "same_cell_edge_slot_ticks": 0,
+    "active_2m_slot_ticks": 0,
+    "active_2m_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": null,
+      "(0,2]": null,
+      "(2,10]": null,
+      "(10,50]": null,
+      "(50,100]": null,
+      ">100": null
+     },
+     "share_le_2m": null,
+     "share_le_10m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 79818,
+    "items_per_render_hist": {
+     "0": 2936,
+     "1": 3696,
+     "2": 3438,
+     "3": 49314,
+     "4": 14677,
+     "5": 3844,
+     "6": 1213,
+     "7": 488,
+     "8": 175,
+     "9": 33,
+     "10": 2,
+     "11": 2
+    },
+    "items_per_render_mean": 3.118,
+    "distance": {
+     "n": 248875,
+     "0m": 207287,
+     "(0,2]": 1474,
+     "(2,10]": 7909,
+     "(10,50]": 24662,
+     "(50,100]": 7238,
+     ">100": 305,
+     "share": {
+      "0m": 0.8329,
+      "(0,2]": 0.0059,
+      "(2,10]": 0.0318,
+      "(10,50]": 0.0991,
+      "(50,100]": 0.0291,
+      ">100": 0.0012
+     },
+     "share_le_2m": 0.8388,
+     "share_le_10m": 0.8706,
+     "share_gt_2m": 0.1612,
+     "share_gt_10m": 0.1294
+    },
+    "renders_all_listed_at_0m": 57676,
+    "check_render_distance_mismatch": 0
+   },
+   "conversation_open": {
+    "pairs": 280,
+    "same_cell": 280,
+    "n_moving_in_pair_at_open": {
+     "0": 272,
+     "1": 8
+    },
+    "distance": {
+     "n": 280,
+     "0m": 224,
+     "(0,2]": 0,
+     "(2,10]": 1,
+     "(10,50]": 37,
+     "(50,100]": 17,
+     ">100": 1,
+     "share": {
+      "0m": 0.8,
+      "(0,2]": 0.0,
+      "(2,10]": 0.0036,
+      "(10,50]": 0.1321,
+      "(50,100]": 0.0607,
+      ">100": 0.0036
+     },
+     "share_le_2m": 0.8,
+     "share_le_10m": 0.8036,
+     "share_gt_2m": 0.2,
+     "share_gt_10m": 0.1964,
+     "quantiles": {
+      "n": 280,
+      "mean": 8.259,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 37.062,
+      "p99": 72.495,
+      "max": 100.035
+     }
+    }
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 60817885,
+    "zero_distance": 60766425,
+    "same_cell": 60815347,
+    "same_cell_both_awake": 59474128,
+    "diff_cell": 2538,
+    "diff_cell_both_awake": 2534,
+    "diff_cell_per_tick": 1.762,
+    "diff_cell_both_awake_per_tick": 1.76,
+    "diff_cell_max_tick": 149,
+    "by_moving_state": {
+     "both_stationary": 60108630,
+     "both_stationary_zero_dist": 60100010,
+     "one_moving": 700242,
+     "one_moving_zero_dist": 659416,
+     "both_moving": 9013,
+     "both_moving_zero_dist": 6999
+    }
+   },
+   "q155_walkers": {
+    "moving_in_stage_minutes": 119760,
+    "moving_zero_disp": 19210,
+    "moving_positive_disp(=meter walker def)": 100550,
+    "mean_disp_m_per_walker_minute": 64.58,
+    "moving_with_target_minutes": 119760,
+    "moving_with_target_zero_disp": 19210,
+    "trip_starts": 18483,
+    "minutes_per_trip": 6.479
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.021164,
+    "instant_walker_minutes": 100550,
+    "cowalk_share": 0.000551,
+    "cowalk_episodes_5min": 16,
+    "cowalk_moving_minutes": 119760
+   },
+   "geometry_hops": 13379,
+   "geometry_jammed": 0
+  },
+  {
+   "policy": "mock",
+   "geometry": "node",
+   "arm": "rel_copresent",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "node",
+    "relations": "on",
+    "rel_copresent": "on"
+   },
+   "final_hash": "b2b4a6acf4d7000681f5e2d820e4178e773173ebbebacc23860e89185b7f6378",
+   "final16": "b2b4a6acf4d70006",
+   "llm_calls": 85269,
+   "wall_seconds_nondeterministic": 68.94,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 5253,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4363,
+    "PLAN_GENERAL": 6168,
+    "PLAN_TRANSIT": 7231,
+    "INTEROCEPTION": 23384,
+    "ACQUAINTANCE": 11965,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 6383,
+    "ACTIVITY_EXPIRY": 20522
+   },
+   "sessions_opened": 335,
+   "conversation_counters": {
+    "sessions_opened": 335,
+    "sessions_active": 0,
+    "sessions_closed": 335,
+    "conv_invites": 3986,
+    "conv_accepted": 335,
+    "conv_declined": 3648,
+    "conv_pending_expired": 3,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 347,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 5130,
+    "conv_target_absent": 1751
+   },
+   "relations_counts": {
+    "acq_agent_refractory": 2064,
+    "acq_appear": 19540,
+    "acq_candidates": 14495,
+    "acq_not_live": 107,
+    "acq_pair_refractory": 2833,
+    "acq_woken": 11965,
+    "copresent_events": 4211,
+    "copresent_events:acquaintance": 211,
+    "copresent_events:household": 200,
+    "copresent_events:school": 699,
+    "copresent_events:work": 3101,
+    "events": 767,
+    "events:sign+1": 665,
+    "events:sign0": 102,
+    "invite_fallback_only": 4796,
+    "invite_named": 0,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 856,
+    "invite_pick:near_first": 1094,
+    "invite_pick:next": 866,
+    "invite_pick:rest": 363
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 2688,
+     "accepted": 210,
+     "declined": 2476,
+     "expired": 2,
+     "rejected": 242,
+     "accept_rate": 0.0781
+    },
+    "chance": {
+     "invites": 508,
+     "accepted": 56,
+     "declined": 452,
+     "expired": 0,
+     "rejected": 168,
+     "accept_rate": 0.1102
+    },
+    "acquaintance": {
+     "invites": 790,
+     "accepted": 69,
+     "declined": 720,
+     "expired": 1,
+     "rejected": 108,
+     "accept_rate": 0.0873
+    }
+   },
+   "chance": {
+    "rows_origin_chance": 701,
+    "partner_distance": {
+     "n": 701,
+     "0m": 700,
+     "(0,2]": 1,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": 0.9986,
+      "(0,2]": 0.0014,
+      "(2,10]": 0.0,
+      "(10,50]": 0.0,
+      "(50,100]": 0.0,
+      ">100": 0.0
+     },
+     "share_le_2m": 1.0,
+     "share_le_10m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 14495,
+    "0m": 2979,
+    "(0,2]": 57,
+    "(2,10]": 950,
+    "(10,50]": 7577,
+    "(50,100]": 2851,
+    ">100": 81,
+    "share": {
+     "0m": 0.2055,
+     "(0,2]": 0.0039,
+     "(2,10]": 0.0655,
+     "(10,50]": 0.5227,
+     "(50,100]": 0.1967,
+     ">100": 0.0056
+    },
+    "share_le_2m": 0.2095,
+    "share_le_10m": 0.275,
+    "share_gt_2m": 0.7905,
+    "share_gt_10m": 0.725,
+    "quantiles": {
+     "n": 14495,
+     "mean": 29.75,
+     "p10": 0.0,
+     "p50": 28.454,
+     "p90": 65.709,
+     "p99": 95.302,
+     "max": 127.717
+    }
+   },
+   "copresent": {
+    "same_cell_edge_slot_ticks": 901734,
+    "active_2m_slot_ticks": 517949,
+    "active_2m_distance": {
+     "n": 517949,
+     "0m": 517675,
+     "(0,2]": 274,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": 0.9995,
+      "(0,2]": 0.0005,
+      "(2,10]": 0.0,
+      "(10,50]": 0.0,
+      "(50,100]": 0.0,
+      ">100": 0.0
+     },
+     "share_le_2m": 1.0,
+     "share_le_10m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    },
+    "events_written": 4211
+   },
+   "b5_near": {
+    "renders": 85269,
+    "items_per_render_hist": {
+     "0": 2616,
+     "1": 3630,
+     "2": 3155,
+     "3": 51735,
+     "4": 16836,
+     "5": 5201,
+     "6": 1498,
+     "7": 445,
+     "8": 136,
+     "9": 17
+    },
+    "items_per_render_mean": 3.188,
+    "distance": {
+     "n": 271838,
+     "0m": 215201,
+     "(0,2]": 442,
+     "(2,10]": 14326,
+     "(10,50]": 32423,
+     "(50,100]": 9277,
+     ">100": 169,
+     "share": {
+      "0m": 0.7917,
+      "(0,2]": 0.0016,
+      "(2,10]": 0.0527,
+      "(10,50]": 0.1193,
+      "(50,100]": 0.0341,
+      ">100": 0.0006
+     },
+     "share_le_2m": 0.7933,
+     "share_le_10m": 0.846,
+     "share_gt_2m": 0.2067,
+     "share_gt_10m": 0.154
+    },
+    "renders_all_listed_at_0m": 53243,
+    "check_render_distance_mismatch": 0
+   },
+   "conversation_open": {
+    "pairs": 335,
+    "same_cell": 335,
+    "n_moving_in_pair_at_open": {
+     "0": 279,
+     "1": 53,
+     "2": 3
+    },
+    "distance": {
+     "n": 335,
+     "0m": 200,
+     "(0,2]": 0,
+     "(2,10]": 48,
+     "(10,50]": 68,
+     "(50,100]": 19,
+     ">100": 0,
+     "share": {
+      "0m": 0.597,
+      "(0,2]": 0.0,
+      "(2,10]": 0.1433,
+      "(10,50]": 0.203,
+      "(50,100]": 0.0567,
+      ">100": 0.0
+     },
+     "share_le_2m": 0.597,
+     "share_le_10m": 0.7403,
+     "share_gt_2m": 0.403,
+     "share_gt_10m": 0.2597,
+     "quantiles": {
+      "n": 335,
+      "mean": 10.403,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 37.822,
+      "p99": 77.03,
+      "max": 90.609
+     }
+    }
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 49514743,
+    "zero_distance": 49447333,
+    "same_cell": 49477889,
+    "same_cell_both_awake": 48204728,
+    "diff_cell": 36854,
+    "diff_cell_both_awake": 36854,
+    "diff_cell_per_tick": 25.593,
+    "diff_cell_both_awake_per_tick": 25.593,
+    "diff_cell_max_tick": 168,
+    "by_moving_state": {
+     "both_stationary": 48294193,
+     "both_stationary_zero_dist": 48257858,
+     "one_moving": 1115075,
+     "one_moving_zero_dist": 1090694,
+     "both_moving": 105475,
+     "both_moving_zero_dist": 98781
+    }
+   },
+   "q155_walkers": {
+    "moving_in_stage_minutes": 257687,
+    "moving_zero_disp": 21180,
+    "moving_positive_disp(=meter walker def)": 236507,
+    "mean_disp_m_per_walker_minute": 24.5,
+    "moving_with_target_minutes": 257687,
+    "moving_with_target_zero_disp": 21180,
+    "trip_starts": 14899,
+    "minutes_per_trip": 17.296
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.271671,
+    "instant_walker_minutes": 236507,
+    "cowalk_share": 0.09775,
+    "cowalk_episodes_5min": 3686,
+    "cowalk_moving_minutes": 257687
+   },
+   "geometry_hops": 0,
+   "geometry_jammed": 0
+  },
+  {
+   "policy": "mock",
+   "geometry": "edge",
+   "arm": "rel_copresent",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "edge",
+    "relations": "on",
+    "rel_copresent": "on"
+   },
+   "final_hash": "637954c3dab3cc9326f9e06b8427e0a2f3d190faf227dd92ace52ee3a944620b",
+   "final16": "637954c3dab3cc93",
+   "llm_calls": 79965,
+   "wall_seconds_nondeterministic": 67.83,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 4516,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4210,
+    "PLAN_GENERAL": 6009,
+    "PLAN_TRANSIT": 7014,
+    "INTEROCEPTION": 22530,
+    "ACQUAINTANCE": 10755,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 5224,
+    "ACTIVITY_EXPIRY": 19707
+   },
+   "sessions_opened": 277,
+   "conversation_counters": {
+    "sessions_opened": 277,
+    "sessions_active": 0,
+    "sessions_closed": 277,
+    "conv_invites": 3621,
+    "conv_accepted": 277,
+    "conv_declined": 3341,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 264,
+    "conv_target_named": 0,
+    "conv_fallback_same_batch": 4672,
+    "conv_target_absent": 1788
+   },
+   "relations_counts": {
+    "acq_agent_refractory": 2378,
+    "acq_appear": 16923,
+    "acq_candidates": 13621,
+    "acq_not_live": 83,
+    "acq_pair_refractory": 1209,
+    "acq_woken": 10755,
+    "copresent_events": 5604,
+    "copresent_events:acquaintance": 217,
+    "copresent_events:household": 200,
+    "copresent_events:school": 977,
+    "copresent_events:work": 4210,
+    "events": 639,
+    "events:sign+1": 552,
+    "events:sign0": 87,
+    "invite_fallback_only": 4796,
+    "invite_named": 0,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 774,
+    "invite_pick:near_first": 1305,
+    "invite_pick:next": 775,
+    "invite_pick:rest": 115
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 2358,
+     "accepted": 166,
+     "declined": 2191,
+     "expired": 1,
+     "rejected": 153,
+     "accept_rate": 0.0704
+    },
+    "chance": {
+     "invites": 613,
+     "accepted": 58,
+     "declined": 554,
+     "expired": 1,
+     "rejected": 208,
+     "accept_rate": 0.0946
+    },
+    "acquaintance": {
+     "invites": 650,
+     "accepted": 53,
+     "declined": 596,
+     "expired": 0,
+     "rejected": 85,
+     "accept_rate": 0.0815
+    }
+   },
+   "chance": {
+    "rows_origin_chance": 845,
+    "partner_distance": {
+     "n": 845,
+     "0m": 845,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": 1.0,
+      "(0,2]": 0.0,
+      "(2,10]": 0.0,
+      "(10,50]": 0.0,
+      "(50,100]": 0.0,
+      ">100": 0.0
+     },
+     "share_le_2m": 1.0,
+     "share_le_10m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 13621,
+    "0m": 3715,
+    "(0,2]": 272,
+    "(2,10]": 1080,
+    "(10,50]": 6439,
+    "(50,100]": 1973,
+    ">100": 142,
+    "share": {
+     "0m": 0.2727,
+     "(0,2]": 0.02,
+     "(2,10]": 0.0793,
+     "(10,50]": 0.4727,
+     "(50,100]": 0.1448,
+     ">100": 0.0104
+    },
+    "share_le_2m": 0.2927,
+    "share_le_10m": 0.372,
+    "share_gt_2m": 0.7073,
+    "share_gt_10m": 0.628,
+    "quantiles": {
+     "n": 13621,
+     "mean": 24.795,
+     "p10": 0.0,
+     "p50": 20.086,
+     "p90": 60.588,
+     "p99": 100.533,
+     "max": 141.058
+    }
+   },
+   "copresent": {
+    "same_cell_edge_slot_ticks": 828510,
+    "active_2m_slot_ticks": 696069,
+    "active_2m_distance": {
+     "n": 696069,
+     "0m": 695602,
+     "(0,2]": 467,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": 0.9993,
+      "(0,2]": 0.0007,
+      "(2,10]": 0.0,
+      "(10,50]": 0.0,
+      "(50,100]": 0.0,
+      ">100": 0.0
+     },
+     "share_le_2m": 1.0,
+     "share_le_10m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    },
+    "events_written": 5604
+   },
+   "b5_near": {
+    "renders": 79965,
+    "items_per_render_hist": {
+     "0": 2905,
+     "1": 3685,
+     "2": 3491,
+     "3": 49468,
+     "4": 14617,
+     "5": 3831,
+     "6": 1298,
+     "7": 457,
+     "8": 163,
+     "9": 45,
+     "10": 3,
+     "11": 2
+    },
+    "items_per_render_mean": 3.1194,
+    "distance": {
+     "n": 249442,
+     "0m": 207058,
+     "(0,2]": 1536,
+     "(2,10]": 8010,
+     "(10,50]": 25126,
+     "(50,100]": 7438,
+     ">100": 274,
+     "share": {
+      "0m": 0.8301,
+      "(0,2]": 0.0062,
+      "(2,10]": 0.0321,
+      "(10,50]": 0.1007,
+      "(50,100]": 0.0298,
+      ">100": 0.0011
+     },
+     "share_le_2m": 0.8362,
+     "share_le_10m": 0.8684,
+     "share_gt_2m": 0.1638,
+     "share_gt_10m": 0.1316
+    },
+    "renders_all_listed_at_0m": 57611,
+    "check_render_distance_mismatch": 0
+   },
+   "conversation_open": {
+    "pairs": 277,
+    "same_cell": 277,
+    "n_moving_in_pair_at_open": {
+     "0": 266,
+     "1": 11
+    },
+    "distance": {
+     "n": 277,
+     "0m": 226,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 38,
+     "(50,100]": 13,
+     ">100": 0,
+     "share": {
+      "0m": 0.8159,
+      "(0,2]": 0.0,
+      "(2,10]": 0.0,
+      "(10,50]": 0.1372,
+      "(50,100]": 0.0469,
+      ">100": 0.0
+     },
+     "share_le_2m": 0.8159,
+     "share_le_10m": 0.8159,
+     "share_gt_2m": 0.1841,
+     "share_gt_10m": 0.1841,
+     "quantiles": {
+      "n": 277,
+      "mean": 6.947,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 32.221,
+      "p99": 68.33,
+      "max": 78.4
+     }
+    }
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 60196182,
+    "zero_distance": 60145929,
+    "same_cell": 60193400,
+    "same_cell_both_awake": 58845673,
+    "diff_cell": 2782,
+    "diff_cell_both_awake": 2778,
+    "diff_cell_per_tick": 1.932,
+    "diff_cell_both_awake_per_tick": 1.929,
+    "diff_cell_max_tick": 160,
+    "by_moving_state": {
+     "both_stationary": 59488538,
+     "both_stationary_zero_dist": 59480135,
+     "one_moving": 698637,
+     "one_moving_zero_dist": 658859,
+     "both_moving": 9007,
+     "both_moving_zero_dist": 6935
+    }
+   },
+   "q155_walkers": {
+    "moving_in_stage_minutes": 120638,
+    "moving_zero_disp": 19221,
+    "moving_positive_disp(=meter walker def)": 101417,
+    "mean_disp_m_per_walker_minute": 64.61,
+    "moving_with_target_minutes": 120638,
+    "moving_with_target_zero_disp": 19221,
+    "trip_starts": 18523,
+    "minutes_per_trip": 6.513
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.021841,
+    "instant_walker_minutes": 101417,
+    "cowalk_share": 0.000531,
+    "cowalk_episodes_5min": 15,
+    "cowalk_moving_minutes": 120638
+   },
+   "geometry_hops": 13354,
+   "geometry_jammed": 0
+  },
+  {
+   "policy": "classical",
+   "geometry": "node",
+   "arm": "off",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "node",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "424733dd1fe6cc0e1af5d54a3c0d3638f21b46f49e10b36a6068acaf9100bb9c",
+   "final16": "424733dd1fe6cc0e",
+   "llm_calls": 102616,
+   "wall_seconds_nondeterministic": 92.81,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 4709,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4559,
+    "PLAN_GENERAL": 6577,
+    "PLAN_TRANSIT": 7732,
+    "INTEROCEPTION": 27879,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 9214,
+    "ACTIVITY_EXPIRY": 41946
+   },
+   "sessions_opened": 707,
+   "conversation_counters": {
+    "sessions_opened": 707,
+    "sessions_active": 0,
+    "sessions_closed": 707,
+    "conv_invites": 777,
+    "conv_accepted": 707,
+    "conv_declined": 68,
+    "conv_pending_expired": 1,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 47,
+    "conv_target_named": 944,
+    "conv_fallback_same_batch": 0,
+    "conv_target_absent": 7
+   },
+   "relations_counts": {},
+   "relations_origins": null,
+   "chance": {
+    "rows_origin_chance": 0,
+    "partner_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": null,
+      "(0,2]": null,
+      "(2,10]": null,
+      "(10,50]": null,
+      "(50,100]": null,
+      ">100": null
+     },
+     "share_le_2m": null,
+     "share_le_10m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 0,
+    "0m": 0,
+    "(0,2]": 0,
+    "(2,10]": 0,
+    "(10,50]": 0,
+    "(50,100]": 0,
+    ">100": 0,
+    "share": {
+     "0m": null,
+     "(0,2]": null,
+     "(2,10]": null,
+     "(10,50]": null,
+     "(50,100]": null,
+     ">100": null
+    },
+    "share_le_2m": null,
+    "share_le_10m": null,
+    "share_gt_2m": null,
+    "share_gt_10m": null,
+    "quantiles": {
+     "n": 0
+    }
+   },
+   "copresent": {
+    "same_cell_edge_slot_ticks": 0,
+    "active_2m_slot_ticks": 0,
+    "active_2m_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": null,
+      "(0,2]": null,
+      "(2,10]": null,
+      "(10,50]": null,
+      "(50,100]": null,
+      ">100": null
+     },
+     "share_le_2m": null,
+     "share_le_10m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 102616,
+    "items_per_render_hist": {
+     "0": 3412,
+     "1": 4326,
+     "2": 4339,
+     "3": 90539
+    },
+    "items_per_render_mean": 2.7737,
+    "distance": {
+     "n": 284621,
+     "0m": 232183,
+     "(0,2]": 535,
+     "(2,10]": 12734,
+     "(10,50]": 31190,
+     "(50,100]": 7879,
+     ">100": 100,
+     "share": {
+      "0m": 0.8158,
+      "(0,2]": 0.0019,
+      "(2,10]": 0.0447,
+      "(10,50]": 0.1096,
+      "(50,100]": 0.0277,
+      ">100": 0.0004
+     },
+     "share_le_2m": 0.8176,
+     "share_le_10m": 0.8624,
+     "share_gt_2m": 0.1824,
+     "share_gt_10m": 0.1376
+    },
+    "renders_all_listed_at_0m": 74280,
+    "check_render_distance_mismatch": 0
+   },
+   "conversation_open": {
+    "pairs": 707,
+    "same_cell": 707,
+    "n_moving_in_pair_at_open": {
+     "0": 645,
+     "1": 60,
+     "2": 2
+    },
+    "distance": {
+     "n": 707,
+     "0m": 550,
+     "(0,2]": 1,
+     "(2,10]": 31,
+     "(10,50]": 101,
+     "(50,100]": 24,
+     ">100": 0,
+     "share": {
+      "0m": 0.7779,
+      "(0,2]": 0.0014,
+      "(2,10]": 0.0438,
+      "(10,50]": 0.1429,
+      "(50,100]": 0.0339,
+      ">100": 0.0
+     },
+     "share_le_2m": 0.7793,
+     "share_le_10m": 0.8232,
+     "share_gt_2m": 0.2207,
+     "share_gt_10m": 0.1768,
+     "quantiles": {
+      "n": 707,
+      "mean": 6.387,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 26.735,
+      "p99": 72.292,
+      "max": 82.473
+     }
+    }
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 132151873,
+    "zero_distance": 132135921,
+    "same_cell": 132145249,
+    "same_cell_both_awake": 130881592,
+    "diff_cell": 6624,
+    "diff_cell_both_awake": 6624,
+    "diff_cell_per_tick": 4.6,
+    "diff_cell_both_awake_per_tick": 4.6,
+    "diff_cell_max_tick": 42,
+    "by_moving_state": {
+     "both_stationary": 131152622,
+     "both_stationary_zero_dist": 131147125,
+     "one_moving": 892668,
+     "one_moving_zero_dist": 886213,
+     "both_moving": 106583,
+     "both_moving_zero_dist": 102583
+    }
+   },
+   "q155_walkers": {
+    "moving_in_stage_minutes": 354666,
+    "moving_zero_disp": 35630,
+    "moving_positive_disp(=meter walker def)": 319036,
+    "mean_disp_m_per_walker_minute": 26.78,
+    "moving_with_target_minutes": 354666,
+    "moving_with_target_zero_disp": 35630,
+    "trip_starts": 29495,
+    "minutes_per_trip": 12.025
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.207143,
+    "instant_walker_minutes": 319036,
+    "cowalk_share": 0.037196,
+    "cowalk_episodes_5min": 1495,
+    "cowalk_moving_minutes": 354666
+   },
+   "geometry_hops": 0,
+   "geometry_jammed": 0
+  },
+  {
+   "policy": "classical",
+   "geometry": "edge",
+   "arm": "off",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "edge",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "final_hash": "27eb73a0f64f1459a62b6dd6894198df29c88c389279a71eba1d2ba5472eda13",
+   "final16": "27eb73a0f64f1459",
+   "llm_calls": 103573,
+   "wall_seconds_nondeterministic": 96.19,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 4009,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4559,
+    "PLAN_GENERAL": 6578,
+    "PLAN_TRANSIT": 7727,
+    "INTEROCEPTION": 27231,
+    "ACQUAINTANCE": 0,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 9791,
+    "ACTIVITY_EXPIRY": 43678
+   },
+   "sessions_opened": 641,
+   "conversation_counters": {
+    "sessions_opened": 641,
+    "sessions_active": 0,
+    "sessions_closed": 641,
+    "conv_invites": 715,
+    "conv_accepted": 641,
+    "conv_declined": 69,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 45,
+    "conv_target_named": 822,
+    "conv_fallback_same_batch": 1,
+    "conv_target_absent": 7
+   },
+   "relations_counts": {},
+   "relations_origins": null,
+   "chance": {
+    "rows_origin_chance": 0,
+    "partner_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": null,
+      "(0,2]": null,
+      "(2,10]": null,
+      "(10,50]": null,
+      "(50,100]": null,
+      ">100": null
+     },
+     "share_le_2m": null,
+     "share_le_10m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 0,
+    "0m": 0,
+    "(0,2]": 0,
+    "(2,10]": 0,
+    "(10,50]": 0,
+    "(50,100]": 0,
+    ">100": 0,
+    "share": {
+     "0m": null,
+     "(0,2]": null,
+     "(2,10]": null,
+     "(10,50]": null,
+     "(50,100]": null,
+     ">100": null
+    },
+    "share_le_2m": null,
+    "share_le_10m": null,
+    "share_gt_2m": null,
+    "share_gt_10m": null,
+    "quantiles": {
+     "n": 0
+    }
+   },
+   "copresent": {
+    "same_cell_edge_slot_ticks": 0,
+    "active_2m_slot_ticks": 0,
+    "active_2m_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": null,
+      "(0,2]": null,
+      "(2,10]": null,
+      "(10,50]": null,
+      "(50,100]": null,
+      ">100": null
+     },
+     "share_le_2m": null,
+     "share_le_10m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 103573,
+    "items_per_render_hist": {
+     "0": 4070,
+     "1": 5508,
+     "2": 5285,
+     "3": 88710
+    },
+    "items_per_render_mean": 2.7247,
+    "distance": {
+     "n": 282208,
+     "0m": 241010,
+     "(0,2]": 708,
+     "(2,10]": 4913,
+     "(10,50]": 25185,
+     "(50,100]": 10021,
+     ">100": 371,
+     "share": {
+      "0m": 0.854,
+      "(0,2]": 0.0025,
+      "(2,10]": 0.0174,
+      "(10,50]": 0.0892,
+      "(50,100]": 0.0355,
+      ">100": 0.0013
+     },
+     "share_le_2m": 0.8565,
+     "share_le_10m": 0.8739,
+     "share_gt_2m": 0.1435,
+     "share_gt_10m": 0.1261
+    },
+    "renders_all_listed_at_0m": 80348,
+    "check_render_distance_mismatch": 0
+   },
+   "conversation_open": {
+    "pairs": 641,
+    "same_cell": 641,
+    "n_moving_in_pair_at_open": {
+     "0": 620,
+     "1": 21
+    },
+    "distance": {
+     "n": 641,
+     "0m": 543,
+     "(0,2]": 0,
+     "(2,10]": 11,
+     "(10,50]": 66,
+     "(50,100]": 20,
+     ">100": 1,
+     "share": {
+      "0m": 0.8471,
+      "(0,2]": 0.0,
+      "(2,10]": 0.0172,
+      "(10,50]": 0.103,
+      "(50,100]": 0.0312,
+      ">100": 0.0016
+     },
+     "share_le_2m": 0.8471,
+     "share_le_10m": 0.8643,
+     "share_gt_2m": 0.1529,
+     "share_gt_10m": 0.1357,
+     "quantiles": {
+      "n": 641,
+      "mean": 5.454,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 21.618,
+      "p99": 71.044,
+      "max": 105.561
+     }
+    }
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 158987930,
+    "zero_distance": 158940189,
+    "same_cell": 158987705,
+    "same_cell_both_awake": 157658991,
+    "diff_cell": 225,
+    "diff_cell_both_awake": 225,
+    "diff_cell_per_tick": 0.156,
+    "diff_cell_both_awake_per_tick": 0.156,
+    "diff_cell_max_tick": 16,
+    "by_moving_state": {
+     "both_stationary": 158009899,
+     "both_stationary_zero_dist": 158009506,
+     "one_moving": 964793,
+     "one_moving_zero_dist": 920275,
+     "both_moving": 13238,
+     "both_moving_zero_dist": 10408
+    }
+   },
+   "q155_walkers": {
+    "moving_in_stage_minutes": 227628,
+    "moving_zero_disp": 47237,
+    "moving_positive_disp(=meter walker def)": 180391,
+    "mean_disp_m_per_walker_minute": 65.49,
+    "moving_with_target_minutes": 227628,
+    "moving_with_target_zero_disp": 47237,
+    "trip_starts": 45329,
+    "minutes_per_trip": 5.022
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.013493,
+    "instant_walker_minutes": 180391,
+    "cowalk_share": 7e-05,
+    "cowalk_episodes_5min": 4,
+    "cowalk_moving_minutes": 227628
+   },
+   "geometry_hops": 12640,
+   "geometry_jammed": 0
+  },
+  {
+   "policy": "classical",
+   "geometry": "node",
+   "arm": "rel_on",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "node",
+    "policy": "classical",
+    "chooser": "classical",
+    "relations": "on"
+   },
+   "final_hash": "a377d8f4c9d9c5fc69e60bf9a8c232e80a2f5f813d53fc93ddf8ba1d59e00747",
+   "final16": "a377d8f4c9d9c5fc",
+   "llm_calls": 142542,
+   "wall_seconds_nondeterministic": 132.18,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 6310,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4560,
+    "PLAN_GENERAL": 6568,
+    "PLAN_TRANSIT": 7711,
+    "INTEROCEPTION": 28960,
+    "ACQUAINTANCE": 39557,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 9311,
+    "ACTIVITY_EXPIRY": 39565
+   },
+   "sessions_opened": 944,
+   "conversation_counters": {
+    "sessions_opened": 944,
+    "sessions_active": 1,
+    "sessions_closed": 943,
+    "conv_invites": 1047,
+    "conv_accepted": 944,
+    "conv_declined": 101,
+    "conv_pending_expired": 1,
+    "conv_pending_open": 1,
+    "conv_invite_refractory_blocked": 76,
+    "conv_target_named": 1260,
+    "conv_fallback_same_batch": 1,
+    "conv_target_absent": 8
+   },
+   "relations_counts": {
+    "acq_agent_refractory": 19389,
+    "acq_appear": 117663,
+    "acq_candidates": 61144,
+    "acq_not_live": 693,
+    "acq_pair_refractory": 15631,
+    "acq_woken": 39557,
+    "events": 1965,
+    "events:sign+1": 1888,
+    "events:sign0": 77,
+    "invite_fallback_only": 590,
+    "invite_named": 1260,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 459,
+    "invite_pick:near_first": 545,
+    "invite_pick:next": 238,
+    "invite_pick:rest": 113
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 545,
+     "accepted": 492,
+     "declined": 51,
+     "expired": 1,
+     "rejected": 137,
+     "accept_rate": 0.9028
+    },
+    "chance": {
+     "invites": 211,
+     "accepted": 199,
+     "declined": 12,
+     "expired": 0,
+     "rejected": 105,
+     "accept_rate": 0.9431
+    },
+    "acquaintance": {
+     "invites": 291,
+     "accepted": 253,
+     "declined": 38,
+     "expired": 0,
+     "rejected": 25,
+     "accept_rate": 0.8694
+    }
+   },
+   "chance": {
+    "rows_origin_chance": 863,
+    "partner_distance": {
+     "n": 863,
+     "0m": 860,
+     "(0,2]": 3,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": 0.9965,
+      "(0,2]": 0.0035,
+      "(2,10]": 0.0,
+      "(10,50]": 0.0,
+      "(50,100]": 0.0,
+      ">100": 0.0
+     },
+     "share_le_2m": 1.0,
+     "share_le_10m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 61144,
+    "0m": 16428,
+    "(0,2]": 387,
+    "(2,10]": 5142,
+    "(10,50]": 27060,
+    "(50,100]": 11103,
+    ">100": 1024,
+    "share": {
+     "0m": 0.2687,
+     "(0,2]": 0.0063,
+     "(2,10]": 0.0841,
+     "(10,50]": 0.4426,
+     "(50,100]": 0.1816,
+     ">100": 0.0167
+    },
+    "share_le_2m": 0.275,
+    "share_le_10m": 0.3591,
+    "share_gt_2m": 0.725,
+    "share_gt_10m": 0.6409,
+    "quantiles": {
+     "n": 61144,
+     "mean": 27.639,
+     "p10": 0.0,
+     "p50": 28.098,
+     "p90": 64.053,
+     "p99": 104.874,
+     "max": 130.318
+    }
+   },
+   "copresent": {
+    "same_cell_edge_slot_ticks": 0,
+    "active_2m_slot_ticks": 0,
+    "active_2m_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": null,
+      "(0,2]": null,
+      "(2,10]": null,
+      "(10,50]": null,
+      "(50,100]": null,
+      ">100": null
+     },
+     "share_le_2m": null,
+     "share_le_10m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 142542,
+    "items_per_render_hist": {
+     "0": 3341,
+     "1": 4668,
+     "2": 4801,
+     "3": 59475,
+     "4": 13275,
+     "5": 4962,
+     "6": 3884,
+     "7": 4025,
+     "8": 4042,
+     "9": 4428,
+     "10": 4586,
+     "11": 4956,
+     "12": 5617,
+     "13": 5594,
+     "14": 5204,
+     "15": 4240,
+     "16": 3023,
+     "17": 1609,
+     "18": 812
+    },
+    "items_per_render_mean": 6.0443,
+    "distance": {
+     "n": 861567,
+     "0m": 611682,
+     "(0,2]": 1901,
+     "(2,10]": 45323,
+     "(10,50]": 144104,
+     "(50,100]": 53983,
+     ">100": 4574,
+     "share": {
+      "0m": 0.71,
+      "(0,2]": 0.0022,
+      "(2,10]": 0.0526,
+      "(10,50]": 0.1673,
+      "(50,100]": 0.0627,
+      ">100": 0.0053
+     },
+     "share_le_2m": 0.7122,
+     "share_le_10m": 0.7648,
+     "share_gt_2m": 0.2878,
+     "share_gt_10m": 0.2352
+    },
+    "renders_all_listed_at_0m": 62072,
+    "check_render_distance_mismatch": 0
+   },
+   "conversation_open": {
+    "pairs": 944,
+    "same_cell": 944,
+    "n_moving_in_pair_at_open": {
+     "0": 864,
+     "1": 79,
+     "2": 1
+    },
+    "distance": {
+     "n": 944,
+     "0m": 653,
+     "(0,2]": 6,
+     "(2,10]": 58,
+     "(10,50]": 172,
+     "(50,100]": 54,
+     ">100": 1,
+     "share": {
+      "0m": 0.6917,
+      "(0,2]": 0.0064,
+      "(2,10]": 0.0614,
+      "(10,50]": 0.1822,
+      "(50,100]": 0.0572,
+      ">100": 0.0011
+     },
+     "share_le_2m": 0.6981,
+     "share_le_10m": 0.7595,
+     "share_gt_2m": 0.3019,
+     "share_gt_10m": 0.2405,
+     "quantiles": {
+      "n": 944,
+      "mean": 9.326,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 37.211,
+      "p99": 78.238,
+      "max": 107.24
+     }
+    }
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 109843702,
+    "zero_distance": 109813391,
+    "same_cell": 109840552,
+    "same_cell_both_awake": 108603716,
+    "diff_cell": 3150,
+    "diff_cell_both_awake": 3150,
+    "diff_cell_per_tick": 2.188,
+    "diff_cell_both_awake_per_tick": 2.188,
+    "diff_cell_max_tick": 25,
+    "by_moving_state": {
+     "both_stationary": 108523820,
+     "both_stationary_zero_dist": 108510139,
+     "one_moving": 1189527,
+     "one_moving_zero_dist": 1177629,
+     "both_moving": 130355,
+     "both_moving_zero_dist": 125623
+    }
+   },
+   "q155_walkers": {
+    "moving_in_stage_minutes": 393880,
+    "moving_zero_disp": 45380,
+    "moving_positive_disp(=meter walker def)": 348500,
+    "mean_disp_m_per_walker_minute": 26.92,
+    "moving_with_target_minutes": 393880,
+    "moving_with_target_zero_disp": 45380,
+    "trip_starts": 35146,
+    "minutes_per_trip": 11.207
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.218967,
+    "instant_walker_minutes": 348500,
+    "cowalk_share": 0.034439,
+    "cowalk_episodes_5min": 1639,
+    "cowalk_moving_minutes": 393880
+   },
+   "geometry_hops": 0,
+   "geometry_jammed": 0
+  },
+  {
+   "policy": "classical",
+   "geometry": "edge",
+   "arm": "rel_on",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "edge",
+    "policy": "classical",
+    "chooser": "classical",
+    "relations": "on"
+   },
+   "final_hash": "3f6915157a36bc3837fe0e260dc588049e9e319ac6444c32aa4929c9c1d77d18",
+   "final16": "3f6915157a36bc38",
+   "llm_calls": 149371,
+   "wall_seconds_nondeterministic": 143.24,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 6176,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4560,
+    "PLAN_GENERAL": 6573,
+    "PLAN_TRANSIT": 7722,
+    "INTEROCEPTION": 28229,
+    "ACQUAINTANCE": 43383,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 10399,
+    "ACTIVITY_EXPIRY": 42329
+   },
+   "sessions_opened": 987,
+   "conversation_counters": {
+    "sessions_opened": 987,
+    "sessions_active": 1,
+    "sessions_closed": 986,
+    "conv_invites": 1098,
+    "conv_accepted": 987,
+    "conv_declined": 106,
+    "conv_pending_expired": 2,
+    "conv_pending_open": 1,
+    "conv_invite_refractory_blocked": 92,
+    "conv_target_named": 1279,
+    "conv_fallback_same_batch": 4,
+    "conv_target_absent": 8
+   },
+   "relations_counts": {
+    "acq_agent_refractory": 23692,
+    "acq_appear": 136926,
+    "acq_candidates": 69601,
+    "acq_not_live": 780,
+    "acq_pair_refractory": 16517,
+    "acq_woken": 43383,
+    "events": 2086,
+    "events:sign+1": 1974,
+    "events:sign0": 112,
+    "invite_fallback_only": 601,
+    "invite_named": 1279,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 538,
+    "invite_pick:near_first": 690,
+    "invite_pick:next": 274,
+    "invite_pick:rest": 85
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 513,
+     "accepted": 467,
+     "declined": 44,
+     "expired": 1,
+     "rejected": 105,
+     "accept_rate": 0.9103
+    },
+    "chance": {
+     "invites": 279,
+     "accepted": 258,
+     "declined": 20,
+     "expired": 1,
+     "rejected": 115,
+     "accept_rate": 0.9247
+    },
+    "acquaintance": {
+     "invites": 306,
+     "accepted": 262,
+     "declined": 42,
+     "expired": 0,
+     "rejected": 39,
+     "accept_rate": 0.8562
+    }
+   },
+   "chance": {
+    "rows_origin_chance": 1089,
+    "partner_distance": {
+     "n": 1089,
+     "0m": 1081,
+     "(0,2]": 8,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": 0.9927,
+      "(0,2]": 0.0073,
+      "(2,10]": 0.0,
+      "(10,50]": 0.0,
+      "(50,100]": 0.0,
+      ">100": 0.0
+     },
+     "share_le_2m": 1.0,
+     "share_le_10m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 69601,
+    "0m": 18483,
+    "(0,2]": 1652,
+    "(2,10]": 7198,
+    "(10,50]": 31960,
+    "(50,100]": 9708,
+    ">100": 600,
+    "share": {
+     "0m": 0.2656,
+     "(0,2]": 0.0237,
+     "(2,10]": 0.1034,
+     "(10,50]": 0.4592,
+     "(50,100]": 0.1395,
+     ">100": 0.0086
+    },
+    "share_le_2m": 0.2893,
+    "share_le_10m": 0.3927,
+    "share_gt_2m": 0.7107,
+    "share_gt_10m": 0.6073,
+    "quantiles": {
+     "n": 69601,
+     "mean": 23.48,
+     "p10": 0.0,
+     "p50": 18.537,
+     "p90": 57.483,
+     "p99": 97.193,
+     "max": 205.346
+    }
+   },
+   "copresent": {
+    "same_cell_edge_slot_ticks": 0,
+    "active_2m_slot_ticks": 0,
+    "active_2m_distance": {
+     "n": 0,
+     "0m": 0,
+     "(0,2]": 0,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": null,
+      "(0,2]": null,
+      "(2,10]": null,
+      "(10,50]": null,
+      "(50,100]": null,
+      ">100": null
+     },
+     "share_le_2m": null,
+     "share_le_10m": null,
+     "share_gt_2m": null,
+     "share_gt_10m": null
+    },
+    "events_written": null
+   },
+   "b5_near": {
+    "renders": 149371,
+    "items_per_render_hist": {
+     "0": 3792,
+     "1": 5556,
+     "2": 5583,
+     "3": 56964,
+     "4": 10813,
+     "5": 4748,
+     "6": 4157,
+     "7": 3985,
+     "8": 4144,
+     "9": 4558,
+     "10": 5183,
+     "11": 6413,
+     "12": 7129,
+     "13": 6892,
+     "14": 6267,
+     "15": 5448,
+     "16": 4155,
+     "17": 2495,
+     "18": 1089
+    },
+    "items_per_render_mean": 6.5414,
+    "distance": {
+     "n": 977089,
+     "0m": 807459,
+     "(0,2]": 4288,
+     "(2,10]": 24902,
+     "(10,50]": 107952,
+     "(50,100]": 31184,
+     ">100": 1304,
+     "share": {
+      "0m": 0.8264,
+      "(0,2]": 0.0044,
+      "(2,10]": 0.0255,
+      "(10,50]": 0.1105,
+      "(50,100]": 0.0319,
+      ">100": 0.0013
+     },
+     "share_le_2m": 0.8308,
+     "share_le_10m": 0.8563,
+     "share_gt_2m": 0.1692,
+     "share_gt_10m": 0.1437
+    },
+    "renders_all_listed_at_0m": 78371,
+    "check_render_distance_mismatch": 0
+   },
+   "conversation_open": {
+    "pairs": 987,
+    "same_cell": 987,
+    "n_moving_in_pair_at_open": {
+     "0": 952,
+     "1": 35
+    },
+    "distance": {
+     "n": 987,
+     "0m": 812,
+     "(0,2]": 0,
+     "(2,10]": 14,
+     "(10,50]": 104,
+     "(50,100]": 57,
+     ">100": 0,
+     "share": {
+      "0m": 0.8227,
+      "(0,2]": 0.0,
+      "(2,10]": 0.0142,
+      "(10,50]": 0.1054,
+      "(50,100]": 0.0578,
+      ">100": 0.0
+     },
+     "share_le_2m": 0.8227,
+     "share_le_10m": 0.8369,
+     "share_gt_2m": 0.1773,
+     "share_gt_10m": 0.1631,
+     "quantiles": {
+      "n": 987,
+      "mean": 6.982,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 33.039,
+      "p99": 77.412,
+      "max": 98.289
+     }
+    }
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 143440882,
+    "zero_distance": 143376038,
+    "same_cell": 143440338,
+    "same_cell_both_awake": 142108245,
+    "diff_cell": 544,
+    "diff_cell_both_awake": 544,
+    "diff_cell_per_tick": 0.378,
+    "diff_cell_both_awake_per_tick": 0.378,
+    "diff_cell_max_tick": 13,
+    "by_moving_state": {
+     "both_stationary": 142129461,
+     "both_stationary_zero_dist": 142127801,
+     "one_moving": 1294000,
+     "one_moving_zero_dist": 1234747,
+     "both_moving": 17421,
+     "both_moving_zero_dist": 13490
+    }
+   },
+   "q155_walkers": {
+    "moving_in_stage_minutes": 266556,
+    "moving_zero_disp": 56803,
+    "moving_positive_disp(=meter walker def)": 209753,
+    "mean_disp_m_per_walker_minute": 64.94,
+    "moving_with_target_minutes": 266556,
+    "moving_with_target_zero_disp": 56803,
+    "trip_starts": 54388,
+    "minutes_per_trip": 4.901
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.015394,
+    "instant_walker_minutes": 209753,
+    "cowalk_share": 9.8e-05,
+    "cowalk_episodes_5min": 5,
+    "cowalk_moving_minutes": 266556
+   },
+   "geometry_hops": 12707,
+   "geometry_jammed": 0
+  },
+  {
+   "policy": "classical",
+   "geometry": "node",
+   "arm": "rel_copresent",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "node",
+    "policy": "classical",
+    "chooser": "classical",
+    "relations": "on",
+    "rel_copresent": "on"
+   },
+   "final_hash": "d0d57e29056fc2289536b1b6bf81ac87aef3ab0e3b7ca9697e5c82ce23e3b7a9",
+   "final16": "d0d57e29056fc228",
+   "llm_calls": 143012,
+   "wall_seconds_nondeterministic": 149.14,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 6137,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4561,
+    "PLAN_GENERAL": 6571,
+    "PLAN_TRANSIT": 7723,
+    "INTEROCEPTION": 28960,
+    "ACQUAINTANCE": 39989,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 9560,
+    "ACTIVITY_EXPIRY": 39511
+   },
+   "sessions_opened": 920,
+   "conversation_counters": {
+    "sessions_opened": 920,
+    "sessions_active": 0,
+    "sessions_closed": 920,
+    "conv_invites": 1016,
+    "conv_accepted": 920,
+    "conv_declined": 95,
+    "conv_pending_expired": 1,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 79,
+    "conv_target_named": 1234,
+    "conv_fallback_same_batch": 6,
+    "conv_target_absent": 10
+   },
+   "relations_counts": {
+    "acq_agent_refractory": 19743,
+    "acq_appear": 118452,
+    "acq_candidates": 61868,
+    "acq_not_live": 326,
+    "acq_pair_refractory": 15833,
+    "acq_woken": 39989,
+    "copresent_events": 27455,
+    "copresent_events:acquaintance": 472,
+    "copresent_events:household": 204,
+    "copresent_events:school": 6097,
+    "copresent_events:work": 20682,
+    "events": 1914,
+    "events:sign+1": 1840,
+    "events:sign0": 74,
+    "invite_fallback_only": 573,
+    "invite_named": 1234,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 449,
+    "invite_pick:near_first": 574,
+    "invite_pick:next": 247,
+    "invite_pick:rest": 111
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 529,
+     "accepted": 480,
+     "declined": 49,
+     "expired": 0,
+     "rejected": 129,
+     "accept_rate": 0.9074
+    },
+    "chance": {
+     "invites": 222,
+     "accepted": 202,
+     "declined": 20,
+     "expired": 0,
+     "rejected": 129,
+     "accept_rate": 0.9099
+    },
+    "acquaintance": {
+     "invites": 265,
+     "accepted": 238,
+     "declined": 26,
+     "expired": 1,
+     "rejected": 24,
+     "accept_rate": 0.8981
+    }
+   },
+   "chance": {
+    "rows_origin_chance": 925,
+    "partner_distance": {
+     "n": 925,
+     "0m": 912,
+     "(0,2]": 13,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": 0.9859,
+      "(0,2]": 0.0141,
+      "(2,10]": 0.0,
+      "(10,50]": 0.0,
+      "(50,100]": 0.0,
+      ">100": 0.0
+     },
+     "share_le_2m": 1.0,
+     "share_le_10m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 61868,
+    "0m": 16755,
+    "(0,2]": 416,
+    "(2,10]": 5158,
+    "(10,50]": 27315,
+    "(50,100]": 11122,
+    ">100": 1102,
+    "share": {
+     "0m": 0.2708,
+     "(0,2]": 0.0067,
+     "(2,10]": 0.0834,
+     "(10,50]": 0.4415,
+     "(50,100]": 0.1798,
+     ">100": 0.0178
+    },
+    "share_le_2m": 0.2775,
+    "share_le_10m": 0.3609,
+    "share_gt_2m": 0.7225,
+    "share_gt_10m": 0.6391,
+    "quantiles": {
+     "n": 61868,
+     "mean": 27.661,
+     "p10": 0.0,
+     "p50": 27.583,
+     "p90": 64.148,
+     "p99": 104.895,
+     "max": 130.318
+    }
+   },
+   "copresent": {
+    "same_cell_edge_slot_ticks": 10335604,
+    "active_2m_slot_ticks": 7235511,
+    "active_2m_distance": {
+     "n": 7235511,
+     "0m": 7222712,
+     "(0,2]": 12799,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": 0.9982,
+      "(0,2]": 0.0018,
+      "(2,10]": 0.0,
+      "(10,50]": 0.0,
+      "(50,100]": 0.0,
+      ">100": 0.0
+     },
+     "share_le_2m": 1.0,
+     "share_le_10m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    },
+    "events_written": 27455
+   },
+   "b5_near": {
+    "renders": 143012,
+    "items_per_render_hist": {
+     "0": 3279,
+     "1": 4602,
+     "2": 4678,
+     "3": 59728,
+     "4": 12909,
+     "5": 4864,
+     "6": 4056,
+     "7": 3948,
+     "8": 4156,
+     "9": 4574,
+     "10": 4918,
+     "11": 4962,
+     "12": 5431,
+     "13": 5744,
+     "14": 5437,
+     "15": 4178,
+     "16": 2915,
+     "17": 1824,
+     "18": 809
+    },
+    "items_per_render_mean": 6.084,
+    "distance": {
+     "n": 870088,
+     "0m": 618786,
+     "(0,2]": 2151,
+     "(2,10]": 44615,
+     "(10,50]": 145314,
+     "(50,100]": 54575,
+     ">100": 4647,
+     "share": {
+      "0m": 0.7112,
+      "(0,2]": 0.0025,
+      "(2,10]": 0.0513,
+      "(10,50]": 0.167,
+      "(50,100]": 0.0627,
+      ">100": 0.0053
+     },
+     "share_le_2m": 0.7136,
+     "share_le_10m": 0.7649,
+     "share_gt_2m": 0.2864,
+     "share_gt_10m": 0.2351
+    },
+    "renders_all_listed_at_0m": 62385,
+    "check_render_distance_mismatch": 0
+   },
+   "conversation_open": {
+    "pairs": 920,
+    "same_cell": 920,
+    "n_moving_in_pair_at_open": {
+     "0": 831,
+     "1": 88,
+     "2": 1
+    },
+    "distance": {
+     "n": 920,
+     "0m": 634,
+     "(0,2]": 5,
+     "(2,10]": 50,
+     "(10,50]": 182,
+     "(50,100]": 49,
+     ">100": 0,
+     "share": {
+      "0m": 0.6891,
+      "(0,2]": 0.0054,
+      "(2,10]": 0.0543,
+      "(10,50]": 0.1978,
+      "(50,100]": 0.0533,
+      ">100": 0.0
+     },
+     "share_le_2m": 0.6946,
+     "share_le_10m": 0.7489,
+     "share_gt_2m": 0.3054,
+     "share_gt_10m": 0.2511,
+     "quantiles": {
+      "n": 920,
+      "mean": 9.417,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 36.709,
+      "p99": 81.115,
+      "max": 97.225
+     }
+    }
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 109680958,
+    "zero_distance": 109648961,
+    "same_cell": 109677299,
+    "same_cell_both_awake": 108439406,
+    "diff_cell": 3659,
+    "diff_cell_both_awake": 3659,
+    "diff_cell_per_tick": 2.541,
+    "diff_cell_both_awake_per_tick": 2.541,
+    "diff_cell_max_tick": 25,
+    "by_moving_state": {
+     "both_stationary": 108351404,
+     "both_stationary_zero_dist": 108336307,
+     "one_moving": 1200852,
+     "one_moving_zero_dist": 1188777,
+     "both_moving": 128702,
+     "both_moving_zero_dist": 123877
+    }
+   },
+   "q155_walkers": {
+    "moving_in_stage_minutes": 393021,
+    "moving_zero_disp": 45269,
+    "moving_positive_disp(=meter walker def)": 347752,
+    "mean_disp_m_per_walker_minute": 26.89,
+    "moving_with_target_minutes": 393021,
+    "moving_with_target_zero_disp": 45269,
+    "trip_starts": 35104,
+    "minutes_per_trip": 11.196
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.219737,
+    "instant_walker_minutes": 347752,
+    "cowalk_share": 0.034151,
+    "cowalk_episodes_5min": 1611,
+    "cowalk_moving_minutes": 393021
+   },
+   "geometry_hops": 0,
+   "geometry_jammed": 0
+  },
+  {
+   "policy": "classical",
+   "geometry": "edge",
+   "arm": "rel_copresent",
+   "args": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "geometry": "edge",
+    "policy": "classical",
+    "chooser": "classical",
+    "relations": "on",
+    "rel_copresent": "on"
+   },
+   "final_hash": "0884a0bb477be4715c82b8c5a70e47ec28769a0af26d51f21d2e6df9639d9395",
+   "final16": "0884a0bb477be471",
+   "llm_calls": 148897,
+   "wall_seconds_nondeterministic": 158.39,
+   "calls_by_condition": {
+    "CONVERSATION_TURN": 5895,
+    "PLAN_SLEEPING": 0,
+    "PLAN_WORKING": 4561,
+    "PLAN_GENERAL": 6573,
+    "PLAN_TRANSIT": 7717,
+    "INTEROCEPTION": 28199,
+    "ACQUAINTANCE": 42864,
+    "PROXIMITY_SWAP": 0,
+    "BEING_WATCHED": 0,
+    "OVERHEARD": 0,
+    "CELL_BLOCK": 10699,
+    "ACTIVITY_EXPIRY": 42389
+   },
+   "sessions_opened": 936,
+   "conversation_counters": {
+    "sessions_opened": 936,
+    "sessions_active": 2,
+    "sessions_closed": 934,
+    "conv_invites": 1054,
+    "conv_accepted": 936,
+    "conv_declined": 113,
+    "conv_pending_expired": 3,
+    "conv_pending_open": 0,
+    "conv_invite_refractory_blocked": 96,
+    "conv_target_named": 1264,
+    "conv_fallback_same_batch": 3,
+    "conv_target_absent": 9
+   },
+   "relations_counts": {
+    "acq_agent_refractory": 23696,
+    "acq_appear": 135371,
+    "acq_candidates": 69045,
+    "acq_not_live": 251,
+    "acq_pair_refractory": 16122,
+    "acq_woken": 42864,
+    "copresent_events": 33788,
+    "copresent_events:acquaintance": 481,
+    "copresent_events:household": 202,
+    "copresent_events:school": 7244,
+    "copresent_events:work": 25861,
+    "events": 1986,
+    "events:sign+1": 1872,
+    "events:sign0": 114,
+    "invite_fallback_only": 608,
+    "invite_named": 1264,
+    "invite_pick:beyond": 0,
+    "invite_pick:inner": 531,
+    "invite_pick:near_first": 654,
+    "invite_pick:next": 235,
+    "invite_pick:rest": 92
+   },
+   "relations_origins": {
+    "invite": {
+     "invites": 508,
+     "accepted": 458,
+     "declined": 50,
+     "expired": 0,
+     "rejected": 129,
+     "accept_rate": 0.9016
+    },
+    "chance": {
+     "invites": 269,
+     "accepted": 243,
+     "declined": 22,
+     "expired": 3,
+     "rejected": 128,
+     "accept_rate": 0.9033
+    },
+    "acquaintance": {
+     "invites": 277,
+     "accepted": 235,
+     "declined": 41,
+     "expired": 0,
+     "rejected": 32,
+     "accept_rate": 0.8484
+    }
+   },
+   "chance": {
+    "rows_origin_chance": 1056,
+    "partner_distance": {
+     "n": 1056,
+     "0m": 1048,
+     "(0,2]": 8,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": 0.9924,
+      "(0,2]": 0.0076,
+      "(2,10]": 0.0,
+      "(10,50]": 0.0,
+      "(50,100]": 0.0,
+      ">100": 0.0
+     },
+     "share_le_2m": 1.0,
+     "share_le_10m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    }
+   },
+   "acquaintance_appear_distance": {
+    "n": 69045,
+    "0m": 18210,
+    "(0,2]": 1691,
+    "(2,10]": 7274,
+    "(10,50]": 31773,
+    "(50,100]": 9504,
+    ">100": 593,
+    "share": {
+     "0m": 0.2637,
+     "(0,2]": 0.0245,
+     "(2,10]": 0.1054,
+     "(10,50]": 0.4602,
+     "(50,100]": 0.1376,
+     ">100": 0.0086
+    },
+    "share_le_2m": 0.2882,
+    "share_le_10m": 0.3936,
+    "share_gt_2m": 0.7118,
+    "share_gt_10m": 0.6064,
+    "quantiles": {
+     "n": 69045,
+     "mean": 23.385,
+     "p10": 0.0,
+     "p50": 18.394,
+     "p90": 56.897,
+     "p99": 97.018,
+     "max": 165.569
+    }
+   },
+   "copresent": {
+    "same_cell_edge_slot_ticks": 11640870,
+    "active_2m_slot_ticks": 10677773,
+    "active_2m_distance": {
+     "n": 10677773,
+     "0m": 10672647,
+     "(0,2]": 5126,
+     "(2,10]": 0,
+     "(10,50]": 0,
+     "(50,100]": 0,
+     ">100": 0,
+     "share": {
+      "0m": 0.9995,
+      "(0,2]": 0.0005,
+      "(2,10]": 0.0,
+      "(10,50]": 0.0,
+      "(50,100]": 0.0,
+      ">100": 0.0
+     },
+     "share_le_2m": 1.0,
+     "share_le_10m": 1.0,
+     "share_gt_2m": 0.0,
+     "share_gt_10m": 0.0
+    },
+    "events_written": 33788
+   },
+   "b5_near": {
+    "renders": 148897,
+    "items_per_render_hist": {
+     "0": 3851,
+     "1": 5610,
+     "2": 5582,
+     "3": 56899,
+     "4": 10562,
+     "5": 4477,
+     "6": 3950,
+     "7": 3993,
+     "8": 4263,
+     "9": 4664,
+     "10": 5258,
+     "11": 6172,
+     "12": 6987,
+     "13": 6819,
+     "14": 6276,
+     "15": 5568,
+     "16": 4016,
+     "17": 2748,
+     "18": 1202
+    },
+    "items_per_render_mean": 6.5602,
+    "distance": {
+     "n": 976790,
+     "0m": 808787,
+     "(0,2]": 4373,
+     "(2,10]": 25089,
+     "(10,50]": 107046,
+     "(50,100]": 30028,
+     ">100": 1467,
+     "share": {
+      "0m": 0.828,
+      "(0,2]": 0.0045,
+      "(2,10]": 0.0257,
+      "(10,50]": 0.1096,
+      "(50,100]": 0.0307,
+      ">100": 0.0015
+     },
+     "share_le_2m": 0.8325,
+     "share_le_10m": 0.8582,
+     "share_gt_2m": 0.1675,
+     "share_gt_10m": 0.1418
+    },
+    "renders_all_listed_at_0m": 78695,
+    "check_render_distance_mismatch": 0
+   },
+   "conversation_open": {
+    "pairs": 936,
+    "same_cell": 936,
+    "n_moving_in_pair_at_open": {
+     "0": 896,
+     "1": 40
+    },
+    "distance": {
+     "n": 936,
+     "0m": 760,
+     "(0,2]": 0,
+     "(2,10]": 22,
+     "(10,50]": 101,
+     "(50,100]": 50,
+     ">100": 3,
+     "share": {
+      "0m": 0.812,
+      "(0,2]": 0.0,
+      "(2,10]": 0.0235,
+      "(10,50]": 0.1079,
+      "(50,100]": 0.0534,
+      ">100": 0.0032
+     },
+     "share_le_2m": 0.812,
+     "share_le_10m": 0.8355,
+     "share_gt_2m": 0.188,
+     "share_gt_10m": 0.1645,
+     "quantiles": {
+      "n": 936,
+      "mean": 7.112,
+      "p10": 0.0,
+      "p50": 0.0,
+      "p90": 32.707,
+      "p99": 73.56,
+      "max": 109.633
+     }
+    }
+   },
+   "pairs_2m": {
+    "ticks": 1440,
+    "ticks_skipped": 0,
+    "total": 143983254,
+    "zero_distance": 143919483,
+    "same_cell": 143982917,
+    "same_cell_both_awake": 142649940,
+    "diff_cell": 337,
+    "diff_cell_both_awake": 337,
+    "diff_cell_per_tick": 0.234,
+    "diff_cell_both_awake_per_tick": 0.234,
+    "diff_cell_max_tick": 13,
+    "by_moving_state": {
+     "both_stationary": 142679088,
+     "both_stationary_zero_dist": 142677654,
+     "one_moving": 1286673,
+     "one_moving_zero_dist": 1228384,
+     "both_moving": 17493,
+     "both_moving_zero_dist": 13445
+    }
+   },
+   "q155_walkers": {
+    "moving_in_stage_minutes": 265482,
+    "moving_zero_disp": 56551,
+    "moving_positive_disp(=meter walker def)": 208931,
+    "mean_disp_m_per_walker_minute": 64.94,
+    "moving_with_target_minutes": 265482,
+    "moving_with_target_zero_disp": 56551,
+    "trip_starts": 54052,
+    "minutes_per_trip": 4.912
+   },
+   "group_norms": {
+    "instant_grouped_share": 0.015933,
+    "instant_walker_minutes": 208931,
+    "cowalk_share": 0.000113,
+    "cowalk_episodes_5min": 6,
+    "cowalk_moving_minutes": 265482
+   },
+   "geometry_hops": 12656,
+   "geometry_jammed": 0
+  }
+ ]
+}

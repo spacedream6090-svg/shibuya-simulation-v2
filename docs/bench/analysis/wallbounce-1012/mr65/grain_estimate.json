@@ -1,0 +1,40 @@
+{
+ "agents": 5000,
+ "days": 2,
+ "row_bytes": 72,
+ "cause_row_bytes": 39,
+ "retention_days": 7,
+ "n_full": 390067,
+ "declared_cap_bytes": 268435456,
+ "world_rows_subtracted": true,
+ "arms": {
+  "base": {
+   "v3_mem_rel": {
+    "rows_per_day": [
+     72048,
+     73761
+    ],
+    "rows_per_agent_day": 14.581,
+    "llm_cause_share": 0.6386,
+    "bytes_per_agent_day": 1413.0,
+    "full_7d_bytes_estimate": 3858111739,
+    "full_7d_gib_estimate": 3.593,
+    "over_declared_cap": true
+   }
+  },
+  "grain": {
+   "v3_mem_rel": {
+    "rows_per_day": [
+     55497,
+     53785
+    ],
+    "rows_per_agent_day": 10.928,
+    "llm_cause_share": 0.5996,
+    "bytes_per_agent_day": 1042.4,
+    "full_7d_bytes_estimate": 2846169893,
+    "full_7d_gib_estimate": 2.651,
+    "over_declared_cap": true
+   }
+  }
+ }
+}

@@ -1,0 +1,2689 @@
+{
+ "note": "第 6 期 6-4 C2 の腕 c1・mock・5,000 体・seed 1・世界 data/world/v2(W21)・道具 tools/run_c2.py。runs=親の判断(問い 1・2)の前のコード・runs_after_q=親の判断の後(最後のコード)・alt_home_2d=問い 1 の材料の差し替え(後のコードの q_off_2d と同じ final)・stage_b=SHIBUYA_SYSTEMS_CHECK=1 の 5,000 体 1 日(問い 1・2 の前のコード)・runs_after_review=独立検収の直しの後(最後のコード・習慣 off)",
+ "runs": {
+  "c2_off_1d": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "world": "data/world/v2",
+   "days": 1,
+   "habit": "off",
+   "events": "on",
+   "final": "ad6577741dc44a3060eec0d16346706f92e37837d6161c6804d921d81920bb7c",
+   "wall_s": 90.7,
+   "checkpoints_behavior": [
+    [
+     359,
+     "079d93d46321f484ec4a882bb706120ea0168679916143b0896d811f5224a2ac"
+    ],
+    [
+     719,
+     "564e86a78378a1bd91a0da99a251baa77a1e89b8e120439cd45359ac4d21bf89"
+    ],
+    [
+     1079,
+     "dbb49c5b058570f0ddefac56a1f6e87d1976204851865bffd9755eb4678b7e52"
+    ],
+    [
+     1439,
+     "ad6577741dc44a3060eec0d16346706f92e37837d6161c6804d921d81920bb7c"
+    ]
+   ],
+   "contact_rows": 98553,
+   "contact_rows_by_what": {
+    "連絡:グループに入った": 181,
+    "連絡:グループに招いた": 496,
+    "連絡:グループを作った": 399,
+    "連絡:グループを抜けた": 286,
+    "連絡:スマホを見た": 9296,
+    "連絡:ビデオ通話をかけた": 37,
+    "連絡:交換に応じた": 70,
+    "連絡:交換を持ちかけた": 126,
+    "連絡:交換を断った": 56,
+    "連絡:出た": 23,
+    "連絡:出ない": 31,
+    "連絡:切った": 36,
+    "連絡:届いた": 536,
+    "連絡:後で": 10147,
+    "連絡:招待を断った": 167,
+    "連絡:無視": 10398,
+    "連絡:着信": 68,
+    "連絡:読んだ": 20017,
+    "連絡:送った": 25446,
+    "連絡:通話の終わり": 46,
+    "連絡:電池の知らせ": 98,
+    "連絡:電話をかけた": 31,
+    "連絡:預かった": 1087,
+    "連絡:顔を上げた": 19475
+   },
+   "via": {
+    "グループ": 67791,
+    "ビデオ通話": 152,
+    "メッセージ": 1369,
+    "対面": 252,
+    "無し": 28869,
+    "通話": 120
+   },
+   "audit": {
+    "events": 98553,
+    "violations": 0,
+    "examples": []
+   },
+   "issued": 157636,
+   "calls_by_model": {
+    "judge_model": 157636,
+    "llm": 82423,
+    "contact": {
+     "judge_model": 157636,
+     "llm": 18851
+    }
+   },
+   "c2": {
+    "c2": {
+     "habit_arm": "off",
+     "habit_min_records": 5,
+     "habit_recheck_share": 0.1,
+     "habit_states": [
+      "勤務中",
+      "家",
+      "移動中",
+      "ほか"
+     ],
+     "habit_kinds": {
+      "notice": [
+       "今読む",
+       "後で",
+       "無視"
+      ],
+      "reply": [
+       "返す",
+       "スタンプを送る",
+       "返さない"
+      ]
+     },
+     "low_alerts": [
+      0.2,
+      0.1
+     ],
+     "chargers_at_home": 1,
+     "charge_per_hour": 0.5,
+     "video_drain_per_hour": 0.2,
+     "exchange_opportunity": "first_turn_of_face_conversation",
+     "exchange_means": "メッセージ",
+     "tools": [
+      "メッセージ",
+      "ビデオ通話",
+      "充電器",
+      "店の番号を調べる",
+      "郵便",
+      "置き手紙"
+     ],
+     "place_numbers": 0,
+     "offer_probe": false
+    },
+    "habit": null,
+    "exchange": {
+     "meter": {
+      "exchange:all_known": 39,
+      "exchange:asked": 126,
+      "exchange:done": 70,
+      "exchange:not_asked": 124,
+      "exchange:opportunities": 289,
+      "exchange:refused": 56,
+      "group:invited": 496,
+      "group:joined": 181,
+      "group:left": 286,
+      "group:made": 399,
+      "group:refused": 167
+     },
+     "book": {
+      "exchanged_pairs": 140,
+      "agents_with_exchanged": 137,
+      "made_groups": 399,
+      "made_group_sizes": {
+       "0": 167,
+       "1": 170,
+       "2": 62
+      },
+      "invites_waiting": 148,
+      "saved_places": 0
+     }
+    },
+    "charge": {
+     "meter": {
+      "charge:alert_noticed:電池が少ない": 98,
+      "charge:low_alerts": 98,
+      "devices_off": 23
+     },
+     "plugged_now": 0,
+     "off_now": 23
+    },
+    "video": {
+     "video:answered": 14,
+     "video:ended": 14,
+     "video:placed": 37,
+     "video:rings": 37,
+     "video:turns": 12
+    },
+    "devices": {
+     "battery_min": 0.0,
+     "battery_mean": 0.736,
+     "off": 23,
+     "battery_zero": 23,
+     "manner": 2509,
+     "bag_home": 2508,
+     "earphones": 956,
+     "in_hand": 45,
+     "plugged": 0,
+     "low_known": 53
+    }
+   },
+   "tools": [
+    "看板",
+    "掲示",
+    "電話",
+    "連絡先",
+    "グループ",
+    "乗換案内",
+    "地図",
+    "時計",
+    "天気予報",
+    "メッセージ",
+    "ビデオ通話",
+    "充電器",
+    "店の番号を調べる",
+    "郵便",
+    "置き手紙"
+   ],
+   "systems_check": ""
+  },
+  "c2_on_1d": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "world": "data/world/v2",
+   "days": 1,
+   "habit": "on",
+   "events": "on",
+   "final": "7492082b0b68c5980accf659401f004f61a49964ee179b6c6921e5a277169f87",
+   "wall_s": 89.6,
+   "checkpoints_behavior": [
+    [
+     359,
+     "0a1eb844b13f77628696d02baf7ffceff3a168717a6c5637bde63b53577c0603"
+    ],
+    [
+     719,
+     "9c869e81ef0f7d35a82a3e693e0a5e188386ec1448cdba658c55023a06a12b37"
+    ],
+    [
+     1079,
+     "55e9260b03bcb9ab6fa3476f3cea2bd62e77d3da44fc92ab8666a6750f251feb"
+    ],
+    [
+     1439,
+     "7492082b0b68c5980accf659401f004f61a49964ee179b6c6921e5a277169f87"
+    ]
+   ],
+   "contact_rows": 97184,
+   "contact_rows_by_what": {
+    "連絡:グループに入った": 165,
+    "連絡:グループに招いた": 530,
+    "連絡:グループを作った": 412,
+    "連絡:グループを抜けた": 284,
+    "連絡:スマホを見た": 9291,
+    "連絡:ビデオ通話をかけた": 29,
+    "連絡:交換に応じた": 70,
+    "連絡:交換を持ちかけた": 126,
+    "連絡:交換を断った": 56,
+    "連絡:出た": 19,
+    "連絡:出ない": 25,
+    "連絡:切った": 29,
+    "連絡:届いた": 579,
+    "連絡:後で": 13082,
+    "連絡:招待を断った": 191,
+    "連絡:無視": 11908,
+    "連絡:着信": 54,
+    "連絡:読んだ": 16713,
+    "連絡:送った": 23891,
+    "連絡:通話の終わり": 38,
+    "連絡:電池の知らせ": 62,
+    "連絡:電話をかけた": 25,
+    "連絡:預かった": 1856,
+    "連絡:顔を上げた": 17749
+   },
+   "via": {
+    "グループ": 68127,
+    "ビデオ通話": 123,
+    "メッセージ": 1484,
+    "対面": 252,
+    "無し": 27102,
+    "通話": 96
+   },
+   "audit": {
+    "events": 97184,
+    "violations": 0,
+    "examples": []
+   },
+   "issued": 147499,
+   "calls_by_model": {
+    "judge_model": 108870,
+    "llm": 82146,
+    "contact": {
+     "judge_model": 108870,
+     "llm": 18574
+    }
+   },
+   "c2": {
+    "c2": {
+     "habit_arm": "on",
+     "habit_min_records": 5,
+     "habit_recheck_share": 0.1,
+     "habit_states": [
+      "勤務中",
+      "家",
+      "移動中",
+      "ほか"
+     ],
+     "habit_kinds": {
+      "notice": [
+       "今読む",
+       "後で",
+       "無視"
+      ],
+      "reply": [
+       "返す",
+       "スタンプを送る",
+       "返さない"
+      ]
+     },
+     "low_alerts": [
+      0.2,
+      0.1
+     ],
+     "chargers_at_home": 1,
+     "charge_per_hour": 0.5,
+     "video_drain_per_hour": 0.2,
+     "exchange_opportunity": "first_turn_of_face_conversation",
+     "exchange_means": "メッセージ",
+     "tools": [
+      "メッセージ",
+      "ビデオ通話",
+      "充電器",
+      "店の番号を調べる",
+      "郵便",
+      "置き手紙"
+     ],
+     "place_numbers": 0,
+     "offer_probe": false
+    },
+    "habit": {
+     "meter": {
+      "habit:answered:notice": 26658,
+      "habit:answered:reply": 11971,
+      "habit:answered:ほか:notice": 19779,
+      "habit:answered:ほか:reply": 9093,
+      "habit:answered:勤務中:notice": 2165,
+      "habit:answered:勤務中:reply": 1014,
+      "habit:answered:家:notice": 13,
+      "habit:answered:家:reply": 1,
+      "habit:answered:移動中:notice": 4701,
+      "habit:answered:移動中:reply": 1863,
+      "habit:back:few_records": 7508,
+      "habit:back:recheck": 4093,
+      "habit:back:ほか:notice": 4376,
+      "habit:back:ほか:reply": 2880,
+      "habit:back:勤務中:notice": 760,
+      "habit:back:勤務中:reply": 502,
+      "habit:back:家:notice": 34,
+      "habit:back:家:reply": 21,
+      "habit:back:移動中:notice": 1689,
+      "habit:back:移動中:reply": 1339,
+      "habit:word:notice:今読む": 6153,
+      "habit:word:notice:後で": 10888,
+      "habit:word:notice:無視": 9617,
+      "habit:word:reply:スタンプを送る": 3765,
+      "habit:word:reply:返さない": 1933,
+      "habit:word:reply:返す": 6273
+     },
+     "book": {
+      "agents": 836,
+      "勤務中:notice": {
+       "records": 2925,
+       "agents_over_min": 86,
+       "by_word": {
+        "今読む": 825,
+        "後で": 1500,
+        "無視": 600
+       }
+      },
+      "勤務中:reply": {
+       "records": 1516,
+       "agents_over_min": 52,
+       "by_word": {
+        "返す": 968,
+        "スタンプを送る": 297,
+        "返さない": 251
+       }
+      },
+      "家:notice": {
+       "records": 47,
+       "agents_over_min": 2,
+       "by_word": {
+        "今読む": 13,
+        "後で": 9,
+        "無視": 25
+       }
+      },
+      "家:reply": {
+       "records": 22,
+       "agents_over_min": 1,
+       "by_word": {
+        "返す": 7,
+        "スタンプを送る": 12,
+        "返さない": 3
+       }
+      },
+      "移動中:notice": {
+       "records": 6390,
+       "agents_over_min": 174,
+       "by_word": {
+        "今読む": 1546,
+        "後で": 3014,
+        "無視": 1830
+       }
+      },
+      "移動中:reply": {
+       "records": 3202,
+       "agents_over_min": 127,
+       "by_word": {
+        "返す": 1224,
+        "スタンプを送る": 1357,
+        "返さない": 621
+       }
+      },
+      "ほか:notice": {
+       "records": 24155,
+       "agents_over_min": 382,
+       "by_word": {
+        "今読む": 6143,
+        "後で": 8559,
+        "無視": 9453
+       }
+      },
+      "ほか:reply": {
+       "records": 11973,
+       "agents_over_min": 250,
+       "by_word": {
+        "返す": 5702,
+        "スタンプを送る": 3687,
+        "返さない": 2584
+       }
+      }
+     }
+    },
+    "exchange": {
+     "meter": {
+      "exchange:all_known": 39,
+      "exchange:asked": 126,
+      "exchange:done": 70,
+      "exchange:not_asked": 124,
+      "exchange:opportunities": 289,
+      "exchange:refused": 56,
+      "group:invited": 530,
+      "group:joined": 165,
+      "group:left": 284,
+      "group:made": 412,
+      "group:refused": 191
+     },
+     "book": {
+      "exchanged_pairs": 140,
+      "agents_with_exchanged": 137,
+      "made_groups": 412,
+      "made_group_sizes": {
+       "0": 174,
+       "1": 183,
+       "2": 55
+      },
+      "invites_waiting": 174,
+      "saved_places": 0
+     }
+    },
+    "charge": {
+     "meter": {
+      "charge:alert_noticed:電池が少ない": 62,
+      "charge:low_alerts": 62,
+      "devices_off": 21
+     },
+     "plugged_now": 0,
+     "off_now": 21
+    },
+    "video": {
+     "video:answered": 12,
+     "video:ended": 12,
+     "video:placed": 29,
+     "video:rings": 29,
+     "video:turns": 11
+    },
+    "devices": {
+     "battery_min": 0.0,
+     "battery_mean": 0.7385,
+     "off": 21,
+     "battery_zero": 21,
+     "manner": 2509,
+     "bag_home": 2508,
+     "earphones": 956,
+     "in_hand": 49,
+     "plugged": 0,
+     "low_known": 36
+    }
+   },
+   "tools": [
+    "看板",
+    "掲示",
+    "電話",
+    "連絡先",
+    "グループ",
+    "乗換案内",
+    "地図",
+    "時計",
+    "天気予報",
+    "メッセージ",
+    "ビデオ通話",
+    "充電器",
+    "店の番号を調べる",
+    "郵便",
+    "置き手紙"
+   ],
+   "systems_check": ""
+  },
+  "c2_on_1d_evoff": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "world": "data/world/v2",
+   "days": 1,
+   "habit": "on",
+   "events": "off",
+   "final": "7492082b0b68c5980accf659401f004f61a49964ee179b6c6921e5a277169f87",
+   "wall_s": 78.0,
+   "checkpoints_behavior": [
+    [
+     359,
+     "0a1eb844b13f77628696d02baf7ffceff3a168717a6c5637bde63b53577c0603"
+    ],
+    [
+     719,
+     "9c869e81ef0f7d35a82a3e693e0a5e188386ec1448cdba658c55023a06a12b37"
+    ],
+    [
+     1079,
+     "55e9260b03bcb9ab6fa3476f3cea2bd62e77d3da44fc92ab8666a6750f251feb"
+    ],
+    [
+     1439,
+     "7492082b0b68c5980accf659401f004f61a49964ee179b6c6921e5a277169f87"
+    ]
+   ],
+   "contact_rows": 0,
+   "contact_rows_by_what": {},
+   "via": {},
+   "audit": {
+    "events": 0,
+    "violations": 0,
+    "examples": []
+   },
+   "issued": 147499,
+   "calls_by_model": {
+    "judge_model": 108870,
+    "llm": 82146,
+    "contact": {
+     "judge_model": 108870,
+     "llm": 18574
+    }
+   },
+   "c2": {
+    "c2": {
+     "habit_arm": "on",
+     "habit_min_records": 5,
+     "habit_recheck_share": 0.1,
+     "habit_states": [
+      "勤務中",
+      "家",
+      "移動中",
+      "ほか"
+     ],
+     "habit_kinds": {
+      "notice": [
+       "今読む",
+       "後で",
+       "無視"
+      ],
+      "reply": [
+       "返す",
+       "スタンプを送る",
+       "返さない"
+      ]
+     },
+     "low_alerts": [
+      0.2,
+      0.1
+     ],
+     "chargers_at_home": 1,
+     "charge_per_hour": 0.5,
+     "video_drain_per_hour": 0.2,
+     "exchange_opportunity": "first_turn_of_face_conversation",
+     "exchange_means": "メッセージ",
+     "tools": [
+      "メッセージ",
+      "ビデオ通話",
+      "充電器",
+      "店の番号を調べる",
+      "郵便",
+      "置き手紙"
+     ],
+     "place_numbers": 0,
+     "offer_probe": false
+    },
+    "habit": {
+     "meter": {
+      "habit:answered:notice": 26658,
+      "habit:answered:reply": 11971,
+      "habit:answered:ほか:notice": 19779,
+      "habit:answered:ほか:reply": 9093,
+      "habit:answered:勤務中:notice": 2165,
+      "habit:answered:勤務中:reply": 1014,
+      "habit:answered:家:notice": 13,
+      "habit:answered:家:reply": 1,
+      "habit:answered:移動中:notice": 4701,
+      "habit:answered:移動中:reply": 1863,
+      "habit:back:few_records": 7508,
+      "habit:back:recheck": 4093,
+      "habit:back:ほか:notice": 4376,
+      "habit:back:ほか:reply": 2880,
+      "habit:back:勤務中:notice": 760,
+      "habit:back:勤務中:reply": 502,
+      "habit:back:家:notice": 34,
+      "habit:back:家:reply": 21,
+      "habit:back:移動中:notice": 1689,
+      "habit:back:移動中:reply": 1339,
+      "habit:word:notice:今読む": 6153,
+      "habit:word:notice:後で": 10888,
+      "habit:word:notice:無視": 9617,
+      "habit:word:reply:スタンプを送る": 3765,
+      "habit:word:reply:返さない": 1933,
+      "habit:word:reply:返す": 6273
+     },
+     "book": {
+      "agents": 836,
+      "勤務中:notice": {
+       "records": 2925,
+       "agents_over_min": 86,
+       "by_word": {
+        "今読む": 825,
+        "後で": 1500,
+        "無視": 600
+       }
+      },
+      "勤務中:reply": {
+       "records": 1516,
+       "agents_over_min": 52,
+       "by_word": {
+        "返す": 968,
+        "スタンプを送る": 297,
+        "返さない": 251
+       }
+      },
+      "家:notice": {
+       "records": 47,
+       "agents_over_min": 2,
+       "by_word": {
+        "今読む": 13,
+        "後で": 9,
+        "無視": 25
+       }
+      },
+      "家:reply": {
+       "records": 22,
+       "agents_over_min": 1,
+       "by_word": {
+        "返す": 7,
+        "スタンプを送る": 12,
+        "返さない": 3
+       }
+      },
+      "移動中:notice": {
+       "records": 6390,
+       "agents_over_min": 174,
+       "by_word": {
+        "今読む": 1546,
+        "後で": 3014,
+        "無視": 1830
+       }
+      },
+      "移動中:reply": {
+       "records": 3202,
+       "agents_over_min": 127,
+       "by_word": {
+        "返す": 1224,
+        "スタンプを送る": 1357,
+        "返さない": 621
+       }
+      },
+      "ほか:notice": {
+       "records": 24155,
+       "agents_over_min": 382,
+       "by_word": {
+        "今読む": 6143,
+        "後で": 8559,
+        "無視": 9453
+       }
+      },
+      "ほか:reply": {
+       "records": 11973,
+       "agents_over_min": 250,
+       "by_word": {
+        "返す": 5702,
+        "スタンプを送る": 3687,
+        "返さない": 2584
+       }
+      }
+     }
+    },
+    "exchange": {
+     "meter": {
+      "exchange:all_known": 39,
+      "exchange:asked": 126,
+      "exchange:done": 70,
+      "exchange:not_asked": 124,
+      "exchange:opportunities": 289,
+      "exchange:refused": 56,
+      "group:invited": 530,
+      "group:joined": 165,
+      "group:left": 284,
+      "group:made": 412,
+      "group:refused": 191
+     },
+     "book": {
+      "exchanged_pairs": 140,
+      "agents_with_exchanged": 137,
+      "made_groups": 412,
+      "made_group_sizes": {
+       "0": 174,
+       "1": 183,
+       "2": 55
+      },
+      "invites_waiting": 174,
+      "saved_places": 0
+     }
+    },
+    "charge": {
+     "meter": {
+      "charge:alert_noticed:電池が少ない": 62,
+      "charge:low_alerts": 62,
+      "devices_off": 21
+     },
+     "plugged_now": 0,
+     "off_now": 21
+    },
+    "video": {
+     "video:answered": 12,
+     "video:ended": 12,
+     "video:placed": 29,
+     "video:rings": 29,
+     "video:turns": 11
+    },
+    "devices": {
+     "battery_min": 0.0,
+     "battery_mean": 0.7385,
+     "off": 21,
+     "battery_zero": 21,
+     "manner": 2509,
+     "bag_home": 2508,
+     "earphones": 956,
+     "in_hand": 49,
+     "plugged": 0,
+     "low_known": 36
+    }
+   },
+   "tools": [
+    "看板",
+    "掲示",
+    "電話",
+    "連絡先",
+    "グループ",
+    "乗換案内",
+    "地図",
+    "時計",
+    "天気予報",
+    "メッセージ",
+    "ビデオ通話",
+    "充電器",
+    "店の番号を調べる",
+    "郵便",
+    "置き手紙"
+   ],
+   "systems_check": ""
+  },
+  "c2_off_2d": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "world": "data/world/v2",
+   "days": 2,
+   "habit": "off",
+   "events": "on",
+   "final": "959dead471ad3d5ee76225b79a2f28901b15ea9da5d1fdea97492b445e4462e0",
+   "wall_s": 174.2,
+   "checkpoints_behavior": [
+    [
+     359,
+     "079d93d46321f484ec4a882bb706120ea0168679916143b0896d811f5224a2ac"
+    ],
+    [
+     719,
+     "564e86a78378a1bd91a0da99a251baa77a1e89b8e120439cd45359ac4d21bf89"
+    ],
+    [
+     1079,
+     "dbb49c5b058570f0ddefac56a1f6e87d1976204851865bffd9755eb4678b7e52"
+    ],
+    [
+     1439,
+     "ad6577741dc44a3060eec0d16346706f92e37837d6161c6804d921d81920bb7c"
+    ],
+    [
+     1799,
+     "939bb76e77d8fa893062c0d397d7122f860ea4eca910de1a61e4fbe7522efedf"
+    ],
+    [
+     2159,
+     "3818349c0c33334581b130fd48de8bcabb7cdbc03ae32185704cd09a58a47ef7"
+    ],
+    [
+     2519,
+     "3cb8734d02b4870c1ff74e758f4cea0831370bccafda39a780552faa9c8fb07b"
+    ],
+    [
+     2879,
+     "959dead471ad3d5ee76225b79a2f28901b15ea9da5d1fdea97492b445e4462e0"
+    ]
+   ],
+   "contact_rows": 173258,
+   "contact_rows_by_what": {
+    "連絡:グループに入った": 553,
+    "連絡:グループに招いた": 1509,
+    "連絡:グループを作った": 1182,
+    "連絡:グループを抜けた": 899,
+    "連絡:スマホを見た": 20211,
+    "連絡:ビデオ通話をかけた": 47,
+    "連絡:交換に応じた": 116,
+    "連絡:交換を持ちかけた": 237,
+    "連絡:交換を断った": 121,
+    "連絡:充電した": 1,
+    "連絡:出た": 29,
+    "連絡:出ない": 39,
+    "連絡:切った": 55,
+    "連絡:届いた": 1537,
+    "連絡:後で": 15953,
+    "連絡:招待を断った": 564,
+    "連絡:無視": 16193,
+    "連絡:着信": 95,
+    "連絡:読んだ": 31793,
+    "連絡:送った": 42015,
+    "連絡:通話の終わり": 58,
+    "連絡:電池の知らせ": 286,
+    "連絡:電話をかけた": 48,
+    "連絡:預かった": 3530,
+    "連絡:顔を上げた": 36187
+   },
+   "via": {
+    "グループ": 111792,
+    "ビデオ通話": 188,
+    "メッセージ": 3936,
+    "対面": 474,
+    "無し": 56685,
+    "通話": 183
+   },
+   "audit": {
+    "events": 173258,
+    "violations": 0,
+    "examples": []
+   },
+   "issued": 281461,
+   "calls_by_model": {
+    "judge_model": 281461,
+    "llm": 170316,
+    "contact": {
+     "judge_model": 281461,
+     "llm": 31495
+    }
+   },
+   "c2": {
+    "c2": {
+     "habit_arm": "off",
+     "habit_min_records": 5,
+     "habit_recheck_share": 0.1,
+     "habit_states": [
+      "勤務中",
+      "家",
+      "移動中",
+      "ほか"
+     ],
+     "habit_kinds": {
+      "notice": [
+       "今読む",
+       "後で",
+       "無視"
+      ],
+      "reply": [
+       "返す",
+       "スタンプを送る",
+       "返さない"
+      ]
+     },
+     "low_alerts": [
+      0.2,
+      0.1
+     ],
+     "chargers_at_home": 1,
+     "charge_per_hour": 0.5,
+     "video_drain_per_hour": 0.2,
+     "exchange_opportunity": "first_turn_of_face_conversation",
+     "exchange_means": "メッセージ",
+     "tools": [
+      "メッセージ",
+      "ビデオ通話",
+      "充電器",
+      "店の番号を調べる",
+      "郵便",
+      "置き手紙"
+     ],
+     "place_numbers": 0,
+     "offer_probe": false
+    },
+    "habit": null,
+    "exchange": {
+     "meter": {
+      "exchange:all_known": 61,
+      "exchange:asked": 237,
+      "exchange:done": 116,
+      "exchange:no_phone": 2,
+      "exchange:not_asked": 260,
+      "exchange:opportunities": 560,
+      "exchange:refused": 121,
+      "group:invited": 1509,
+      "group:joined": 553,
+      "group:left": 899,
+      "group:made": 1182,
+      "group:refused": 564
+     },
+     "book": {
+      "exchanged_pairs": 232,
+      "agents_with_exchanged": 228,
+      "made_groups": 1182,
+      "made_group_sizes": {
+       "0": 483,
+       "1": 564,
+       "2": 133,
+       "3": 2
+      },
+      "invites_waiting": 392,
+      "saved_places": 0
+     }
+    },
+    "charge": {
+     "meter": {
+      "charge:agent_steps": 61,
+      "charge:alert_noticed:電池が少ない": 281,
+      "charge:declined": 1,
+      "charge:low_alerts": 286,
+      "charge:plugged": 1,
+      "charge:unplugged_left_home": 1,
+      "devices_off": 108
+     },
+     "plugged_now": 0,
+     "off_now": 108
+    },
+    "video": {
+     "video:answered": 16,
+     "video:ended": 16,
+     "video:placed": 47,
+     "video:rings": 47,
+     "video:turns": 14
+    },
+    "devices": {
+     "battery_min": 0.0,
+     "battery_mean": 0.4791,
+     "off": 108,
+     "battery_zero": 108,
+     "manner": 2509,
+     "bag_home": 2508,
+     "earphones": 956,
+     "in_hand": 67,
+     "plugged": 0,
+     "low_known": 155
+    }
+   },
+   "tools": [
+    "看板",
+    "掲示",
+    "電話",
+    "連絡先",
+    "グループ",
+    "乗換案内",
+    "地図",
+    "時計",
+    "天気予報",
+    "メッセージ",
+    "ビデオ通話",
+    "充電器",
+    "店の番号を調べる",
+    "郵便",
+    "置き手紙"
+   ],
+   "systems_check": ""
+  },
+  "c2_on_2d": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "world": "data/world/v2",
+   "days": 2,
+   "habit": "on",
+   "events": "on",
+   "final": "3d54308df4c12d53972fd0135202735148e48020a4f2771ed6c48422822c5846",
+   "wall_s": 176.1,
+   "checkpoints_behavior": [
+    [
+     359,
+     "0a1eb844b13f77628696d02baf7ffceff3a168717a6c5637bde63b53577c0603"
+    ],
+    [
+     719,
+     "9c869e81ef0f7d35a82a3e693e0a5e188386ec1448cdba658c55023a06a12b37"
+    ],
+    [
+     1079,
+     "55e9260b03bcb9ab6fa3476f3cea2bd62e77d3da44fc92ab8666a6750f251feb"
+    ],
+    [
+     1439,
+     "7492082b0b68c5980accf659401f004f61a49964ee179b6c6921e5a277169f87"
+    ],
+    [
+     1799,
+     "0ab61fb0f8153c0c501b08cfc72687083027229bc2716fcf1dd82dfef8c150cd"
+    ],
+    [
+     2159,
+     "dd3ce5eaaed8d01d1525fb4afa7e9133c42a36becc2b81cebf1011912c3f9d99"
+    ],
+    [
+     2519,
+     "65aa062fe080049571067c5f809e4f425c703efef3cd2f9bc84a7c9349735629"
+    ],
+    [
+     2879,
+     "3d54308df4c12d53972fd0135202735148e48020a4f2771ed6c48422822c5846"
+    ]
+   ],
+   "contact_rows": 169967,
+   "contact_rows_by_what": {
+    "連絡:グループに入った": 561,
+    "連絡:グループに招いた": 1544,
+    "連絡:グループを作った": 1160,
+    "連絡:グループを抜けた": 885,
+    "連絡:スマホを見た": 20263,
+    "連絡:ビデオ通話をかけた": 39,
+    "連絡:交換に応じた": 115,
+    "連絡:交換を持ちかけた": 236,
+    "連絡:交換を断った": 121,
+    "連絡:充電した": 2,
+    "連絡:出た": 23,
+    "連絡:出ない": 33,
+    "連絡:切った": 49,
+    "連絡:届いた": 1578,
+    "連絡:後で": 20126,
+    "連絡:招待を断った": 603,
+    "連絡:無視": 18401,
+    "連絡:着信": 82,
+    "連絡:読んだ": 26264,
+    "連絡:送った": 38700,
+    "連絡:通話の終わり": 46,
+    "連絡:電池の知らせ": 209,
+    "連絡:電話をかけた": 43,
+    "連絡:預かった": 5670,
+    "連絡:顔を上げた": 33214
+   },
+   "via": {
+    "グループ": 111439,
+    "ビデオ通話": 156,
+    "メッセージ": 4053,
+    "対面": 472,
+    "無し": 53688,
+    "通話": 159
+   },
+   "audit": {
+    "events": 169967,
+    "violations": 0,
+    "examples": []
+   },
+   "issued": 263209,
+   "calls_by_model": {
+    "judge_model": 203212,
+    "llm": 168566,
+    "contact": {
+     "judge_model": 203212,
+     "llm": 29745
+    }
+   },
+   "c2": {
+    "c2": {
+     "habit_arm": "on",
+     "habit_min_records": 5,
+     "habit_recheck_share": 0.1,
+     "habit_states": [
+      "勤務中",
+      "家",
+      "移動中",
+      "ほか"
+     ],
+     "habit_kinds": {
+      "notice": [
+       "今読む",
+       "後で",
+       "無視"
+      ],
+      "reply": [
+       "返す",
+       "スタンプを送る",
+       "返さない"
+      ]
+     },
+     "low_alerts": [
+      0.2,
+      0.1
+     ],
+     "chargers_at_home": 1,
+     "charge_per_hour": 0.5,
+     "video_drain_per_hour": 0.2,
+     "exchange_opportunity": "first_turn_of_face_conversation",
+     "exchange_means": "メッセージ",
+     "tools": [
+      "メッセージ",
+      "ビデオ通話",
+      "充電器",
+      "店の番号を調べる",
+      "郵便",
+      "置き手紙"
+     ],
+     "place_numbers": 0,
+     "offer_probe": false
+    },
+    "habit": {
+     "meter": {
+      "habit:answered:notice": 41349,
+      "habit:answered:reply": 18648,
+      "habit:answered:ほか:notice": 31366,
+      "habit:answered:ほか:reply": 13885,
+      "habit:answered:勤務中:notice": 3049,
+      "habit:answered:勤務中:reply": 1584,
+      "habit:answered:家:notice": 69,
+      "habit:answered:家:reply": 12,
+      "habit:answered:移動中:notice": 6865,
+      "habit:answered:移動中:reply": 3167,
+      "habit:back:few_records": 11358,
+      "habit:back:recheck": 6496,
+      "habit:back:ほか:notice": 6420,
+      "habit:back:ほか:reply": 4333,
+      "habit:back:勤務中:notice": 1204,
+      "habit:back:勤務中:reply": 816,
+      "habit:back:家:notice": 72,
+      "habit:back:家:reply": 38,
+      "habit:back:移動中:notice": 2542,
+      "habit:back:移動中:reply": 2429,
+      "habit:word:notice:今読む": 9580,
+      "habit:word:notice:後で": 16803,
+      "habit:word:notice:無視": 14966,
+      "habit:word:reply:スタンプを送る": 6468,
+      "habit:word:reply:返さない": 3096,
+      "habit:word:reply:返す": 9084
+     },
+     "book": {
+      "agents": 1069,
+      "勤務中:notice": {
+       "records": 4253,
+       "agents_over_min": 137,
+       "by_word": {
+        "今読む": 1293,
+        "後で": 1937,
+        "無視": 1023
+       }
+      },
+      "勤務中:reply": {
+       "records": 2400,
+       "agents_over_min": 84,
+       "by_word": {
+        "返す": 1279,
+        "スタンプを送る": 630,
+        "返さない": 491
+       }
+      },
+      "家:notice": {
+       "records": 141,
+       "agents_over_min": 6,
+       "by_word": {
+        "今読む": 28,
+        "後で": 30,
+        "無視": 83
+       }
+      },
+      "家:reply": {
+       "records": 50,
+       "agents_over_min": 2,
+       "by_word": {
+        "返す": 25,
+        "スタンプを送る": 17,
+        "返さない": 8
+       }
+      },
+      "移動中:notice": {
+       "records": 9407,
+       "agents_over_min": 264,
+       "by_word": {
+        "今読む": 2394,
+        "後で": 4282,
+        "無視": 2731
+       }
+      },
+      "移動中:reply": {
+       "records": 5596,
+       "agents_over_min": 235,
+       "by_word": {
+        "返す": 2028,
+        "スタンプを送る": 2436,
+        "返さない": 1132
+       }
+      },
+      "ほか:notice": {
+       "records": 37786,
+       "agents_over_min": 535,
+       "by_word": {
+        "今読む": 9345,
+        "後で": 13877,
+        "無視": 14564
+       }
+      },
+      "ほか:reply": {
+       "records": 18218,
+       "agents_over_min": 386,
+       "by_word": {
+        "返す": 8367,
+        "スタンプを送る": 5936,
+        "返さない": 3915
+       }
+      }
+     }
+    },
+    "exchange": {
+     "meter": {
+      "exchange:all_known": 60,
+      "exchange:asked": 236,
+      "exchange:done": 115,
+      "exchange:no_phone": 2,
+      "exchange:not_asked": 262,
+      "exchange:opportunities": 560,
+      "exchange:refused": 121,
+      "group:invited": 1544,
+      "group:joined": 561,
+      "group:left": 885,
+      "group:made": 1160,
+      "group:refused": 603
+     },
+     "book": {
+      "exchanged_pairs": 230,
+      "agents_with_exchanged": 226,
+      "made_groups": 1160,
+      "made_group_sizes": {
+       "0": 478,
+       "1": 529,
+       "2": 152,
+       "3": 1
+      },
+      "invites_waiting": 380,
+      "saved_places": 0
+     }
+    },
+    "charge": {
+     "meter": {
+      "arbitration:charge": 1,
+      "charge:agent_steps": 87,
+      "charge:alert_noticed:電池が少ない": 207,
+      "charge:declined": 3,
+      "charge:low_alerts": 209,
+      "charge:plugged": 2,
+      "charge:unplugged_left_home": 1,
+      "devices_off": 78
+     },
+     "plugged_now": 1,
+     "off_now": 78
+    },
+    "video": {
+     "video:answered": 13,
+     "video:ended": 13,
+     "video:placed": 39,
+     "video:rings": 39,
+     "video:turns": 12
+    },
+    "devices": {
+     "battery_min": 0.0,
+     "battery_mean": 0.4828,
+     "off": 78,
+     "battery_zero": 78,
+     "manner": 2509,
+     "bag_home": 2508,
+     "earphones": 956,
+     "in_hand": 63,
+     "plugged": 1,
+     "low_known": 113
+    }
+   },
+   "tools": [
+    "看板",
+    "掲示",
+    "電話",
+    "連絡先",
+    "グループ",
+    "乗換案内",
+    "地図",
+    "時計",
+    "天気予報",
+    "メッセージ",
+    "ビデオ通話",
+    "充電器",
+    "店の番号を調べる",
+    "郵便",
+    "置き手紙"
+   ],
+   "systems_check": ""
+  }
+ },
+ "resume": {
+  "mode": "resume",
+  "agents": 5000,
+  "seed": 1,
+  "days": 2,
+  "habit": "on",
+  "stop": 2160,
+  "state_file": "state-T00002160.npz",
+  "straight": {
+   "final": "3d54308df4c12d53972fd0135202735148e48020a4f2771ed6c48422822c5846",
+   "wall_s": 171.2
+  },
+  "resumed": {
+   "final": "3d54308df4c12d53972fd0135202735148e48020a4f2771ed6c48422822c5846",
+   "wall_s": 54.7
+  },
+  "final_same": true,
+  "checkpoints_after_stop_same": true,
+  "n_checkpoints_after_stop": 2,
+  "manifest_same": {
+   "habit.book": true,
+   "exchange.book": true,
+   "devices": true,
+   "mail": true,
+   "chats.live": true,
+   "charge.plugged_now": true
+  }
+ },
+ "alt_home_2d": {
+  "final": "9bd558cbf33b76dfe2662436712579fbbf2dd4922ad060e1fdc5722d17825e8a",
+  "charge": {
+   "meter": {
+    "charge:agent_steps": 10596,
+    "charge:alert_noticed:充電完了": 74,
+    "charge:alert_noticed:電池が少ない": 286,
+    "charge:declined": 154,
+    "charge:full_alerts": 75,
+    "charge:kept": 35,
+    "charge:low_alerts": 291,
+    "charge:plugged": 132,
+    "charge:power_on": 34,
+    "charge:unplugged": 39,
+    "charge:unplugged_left_home": 56,
+    "devices_off": 62,
+    "held_released": 8666
+   },
+   "plugged_now": 37,
+   "off_now": 28
+  },
+  "devices": {
+   "battery_min": 0.0,
+   "battery_mean": 0.4933,
+   "off": 28,
+   "battery_zero": 28,
+   "manner": 2509,
+   "bag_home": 2508,
+   "earphones": 956,
+   "in_hand": 51,
+   "plugged": 37,
+   "low_known": 56
+  }
+ },
+ "runs_after_q": {
+  "q_off_2d": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "world": "data/world/v2",
+   "days": 2,
+   "habit": "off",
+   "events": "on",
+   "final": "9bd558cbf33b76dfe2662436712579fbbf2dd4922ad060e1fdc5722d17825e8a",
+   "wall_s": 204.2,
+   "checkpoints_behavior": [
+    [
+     359,
+     "02145a2322474e20a41baa5be80e4720aa50805ac4b4429ace7f36c02236d56a"
+    ],
+    [
+     719,
+     "374ca77cec11711feab6b45651cc0113f0147f7336257cfe160288c893ba159f"
+    ],
+    [
+     1079,
+     "4d11ed6c97485c56dfad1c06afe138418a5fd39da72d8d7da415409a4504f512"
+    ],
+    [
+     1439,
+     "956834e070f783b9911e49181f4b65119de7aa71bc936120ec2199e7713cc9fe"
+    ],
+    [
+     1799,
+     "1e46036ec978334551608a21aa909f9893ba213cbf17e0f19a16e67dc9a76265"
+    ],
+    [
+     2159,
+     "b08f3f28605b2e32a28247505c43c6eec3d2179bf27b8954140ed4f9e479a204"
+    ],
+    [
+     2519,
+     "0a5c9b11380ca8d0e107bbce3ac8fb821793f6d83417d89b890e0d68f575134f"
+    ],
+    [
+     2879,
+     "9bd558cbf33b76dfe2662436712579fbbf2dd4922ad060e1fdc5722d17825e8a"
+    ]
+   ],
+   "contact_rows": 213738,
+   "contact_rows_by_what": {
+    "連絡:グループに入った": 587,
+    "連絡:グループに招いた": 1606,
+    "連絡:グループを作った": 1241,
+    "連絡:グループを抜けた": 955,
+    "連絡:スマホを見た": 20279,
+    "連絡:ビデオ通話をかけた": 56,
+    "連絡:交換に応じた": 116,
+    "連絡:交換を持ちかけた": 237,
+    "連絡:交換を断った": 121,
+    "連絡:充電した": 132,
+    "連絡:充電をやめた": 39,
+    "連絡:出た": 33,
+    "連絡:出ない": 45,
+    "連絡:切った": 63,
+    "連絡:届いた": 10279,
+    "連絡:後で": 18454,
+    "連絡:招待を断った": 603,
+    "連絡:無視": 18697,
+    "連絡:着信": 109,
+    "連絡:読んだ": 36582,
+    "連絡:送った": 47754,
+    "連絡:通話の終わり": 66,
+    "連絡:電池の知らせ": 366,
+    "連絡:電話をかけた": 53,
+    "連絡:預かった": 16548,
+    "連絡:顔を上げた": 38717
+   },
+   "via": {
+    "グループ": 149171,
+    "ビデオ通話": 224,
+    "メッセージ": 4135,
+    "対面": 474,
+    "無し": 59533,
+    "通話": 201
+   },
+   "audit": {
+    "events": 213738,
+    "violations": 0,
+    "examples": []
+   },
+   "issued": 308791,
+   "calls_by_model": {
+    "judge_model": 308791,
+    "llm": 174410,
+    "contact": {
+     "judge_model": 308791,
+     "llm": 35589
+    }
+   },
+   "c2": {
+    "c2": {
+     "habit_arm": "off",
+     "habit_min_records": 5,
+     "habit_recheck_share": 0.1,
+     "habit_states": [
+      "勤務中",
+      "家",
+      "移動中",
+      "ほか"
+     ],
+     "habit_kinds": {
+      "notice": [
+       "今読む",
+       "後で",
+       "無視"
+      ],
+      "reply": [
+       "返す",
+       "スタンプを送る",
+       "返さない"
+      ]
+     },
+     "low_alerts": [
+      0.2,
+      0.1
+     ],
+     "chargers_at_home": 1,
+     "charge_per_hour": 0.5,
+     "video_drain_per_hour": 0.2,
+     "exchange_opportunity": "first_turn_of_face_conversation",
+     "exchange_means": "メッセージ",
+     "tools": [
+      "メッセージ",
+      "ビデオ通話",
+      "充電器",
+      "店の番号を調べる",
+      "郵便",
+      "置き手紙"
+     ],
+     "place_numbers": 0,
+     "offer_probe": false
+    },
+    "habit": null,
+    "exchange": {
+     "meter": {
+      "exchange:all_known": 61,
+      "exchange:asked": 237,
+      "exchange:done": 116,
+      "exchange:no_phone": 2,
+      "exchange:not_asked": 260,
+      "exchange:opportunities": 560,
+      "exchange:refused": 121,
+      "group:invited": 1606,
+      "group:joined": 587,
+      "group:left": 955,
+      "group:made": 1241,
+      "group:refused": 603
+     },
+     "book": {
+      "exchanged_pairs": 232,
+      "agents_with_exchanged": 228,
+      "made_groups": 1241,
+      "made_group_sizes": {
+       "0": 511,
+       "1": 589,
+       "2": 139,
+       "3": 2
+      },
+      "invites_waiting": 416,
+      "saved_places": 0
+     }
+    },
+    "charge": {
+     "meter": {
+      "charge:agent_steps": 10596,
+      "charge:alert_noticed:充電完了": 74,
+      "charge:alert_noticed:電池が少ない": 286,
+      "charge:declined": 154,
+      "charge:full_alerts": 75,
+      "charge:kept": 35,
+      "charge:low_alerts": 291,
+      "charge:plugged": 132,
+      "charge:power_on": 34,
+      "charge:unplugged": 39,
+      "charge:unplugged_left_home": 56,
+      "devices_off": 62,
+      "held_released": 8666
+     },
+     "plugged_now": 37,
+     "off_now": 28
+    },
+    "video": {
+     "video:answered": 19,
+     "video:ended": 19,
+     "video:placed": 56,
+     "video:rings": 56,
+     "video:turns": 16
+    },
+    "devices": {
+     "battery_min": 0.0,
+     "battery_mean": 0.4933,
+     "off": 28,
+     "battery_zero": 28,
+     "manner": 2509,
+     "bag_home": 2508,
+     "earphones": 956,
+     "in_hand": 51,
+     "plugged": 37,
+     "low_known": 56
+    }
+   },
+   "tools": [
+    "看板",
+    "掲示",
+    "電話",
+    "連絡先",
+    "グループ",
+    "乗換案内",
+    "地図",
+    "時計",
+    "天気予報",
+    "メッセージ",
+    "ビデオ通話",
+    "充電器",
+    "店の番号を調べる",
+    "郵便",
+    "置き手紙"
+   ],
+   "systems_check": ""
+  },
+  "q_on_2d": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "world": "data/world/v2",
+   "days": 2,
+   "habit": "on",
+   "events": "on",
+   "final": "49735ea090be919cac8930890d9bc754350b699bd28a846589bfcea1f4e9ed93",
+   "wall_s": 216.0,
+   "checkpoints_behavior": [
+    [
+     359,
+     "54d4ae2a489974dcc8d81fc6375fa1aa2051f5388d208ebd8c0902ca1da48160"
+    ],
+    [
+     719,
+     "c9a0f67e2faf644339358599373bbc11faee299cabf02382c589b0529c8b9ed7"
+    ],
+    [
+     1079,
+     "b4f44eff01a96bee01390b8f1dc31e7f2c1652759548d7f6ede210e91b69cbf9"
+    ],
+    [
+     1439,
+     "d9ddccc8ccef8f7a943cd28c2a8a6711ec80b8ab33f2726211b898fddff6a8ae"
+    ],
+    [
+     1799,
+     "dcef17177f16fee6161f73deecddf29d75fc0c4dce2563c408fefb678bbd5086"
+    ],
+    [
+     2159,
+     "cf8f70d440c7190a93ec995fa99d43a01492735930c5e62a734e252f361a1a76"
+    ],
+    [
+     2519,
+     "47f71c793d1fa4ecd9ed65ff9fdc7f15c39c797b0893314c67c44a068e2f6a76"
+    ],
+    [
+     2879,
+     "49735ea090be919cac8930890d9bc754350b699bd28a846589bfcea1f4e9ed93"
+    ]
+   ],
+   "contact_rows": 216539,
+   "contact_rows_by_what": {
+    "連絡:グループに入った": 688,
+    "連絡:グループに招いた": 1695,
+    "連絡:グループを作った": 1239,
+    "連絡:グループを抜けた": 970,
+    "連絡:スマホを見た": 20282,
+    "連絡:ビデオ通話をかけた": 53,
+    "連絡:不通": 1,
+    "連絡:交換に応じた": 116,
+    "連絡:交換を持ちかけた": 237,
+    "連絡:交換を断った": 121,
+    "連絡:充電した": 123,
+    "連絡:充電をやめた": 35,
+    "連絡:出た": 31,
+    "連絡:出ない": 42,
+    "連絡:切った": 58,
+    "連絡:届いた": 8464,
+    "連絡:後で": 20570,
+    "連絡:招待を断った": 669,
+    "連絡:無視": 19250,
+    "連絡:着信": 102,
+    "連絡:読んだ": 37105,
+    "連絡:送った": 49688,
+    "連絡:通話の終わり": 62,
+    "連絡:電池の知らせ": 344,
+    "連絡:電話をかけた": 49,
+    "連絡:預かった": 15672,
+    "連絡:顔を上げた": 38873
+   },
+   "via": {
+    "グループ": 151766,
+    "ビデオ通話": 212,
+    "メッセージ": 4244,
+    "対面": 474,
+    "無し": 59657,
+    "通話": 186
+   },
+   "audit": {
+    "events": 216539,
+    "violations": 0,
+    "examples": []
+   },
+   "issued": 312444,
+   "calls_by_model": {
+    "judge_model": 277906,
+    "llm": 177040,
+    "contact": {
+     "judge_model": 277906,
+     "llm": 38219
+    }
+   },
+   "c2": {
+    "c2": {
+     "habit_arm": "on",
+     "habit_min_records": 5,
+     "habit_recheck_share": 0.1,
+     "habit_states": [
+      "勤務中",
+      "家",
+      "移動中",
+      "ほか"
+     ],
+     "habit_kinds": {
+      "notice": [
+       "今読む",
+       "後で",
+       "無視"
+      ],
+      "reply": [
+       "返す",
+       "スタンプを送る",
+       "返さない"
+      ]
+     },
+     "low_alerts": [
+      0.2,
+      0.1
+     ],
+     "chargers_at_home": 1,
+     "charge_per_hour": 0.5,
+     "video_drain_per_hour": 0.2,
+     "exchange_opportunity": "first_turn_of_face_conversation",
+     "exchange_means": "メッセージ",
+     "tools": [
+      "メッセージ",
+      "ビデオ通話",
+      "充電器",
+      "店の番号を調べる",
+      "郵便",
+      "置き手紙"
+     ],
+     "place_numbers": 0,
+     "offer_probe": false
+    },
+    "habit": {
+     "meter": {
+      "habit:answered:notice": 22025,
+      "habit:answered:reply": 12513,
+      "habit:answered:ほか:notice": 99,
+      "habit:answered:ほか:reply": 80,
+      "habit:answered:家:notice": 21885,
+      "habit:answered:家:reply": 12409,
+      "habit:answered:移動中:notice": 41,
+      "habit:answered:移動中:reply": 24,
+      "habit:back:few_records": 4846,
+      "habit:back:recheck": 3741,
+      "habit:back:ほか:notice": 37,
+      "habit:back:ほか:reply": 40,
+      "habit:back:家:notice": 4825,
+      "habit:back:家:reply": 3626,
+      "habit:back:移動中:notice": 16,
+      "habit:back:移動中:reply": 43,
+      "habit:in_range:notice": 31629,
+      "habit:in_range:reply": 20883,
+      "habit:word:notice:今読む": 6509,
+      "habit:word:notice:後で": 8417,
+      "habit:word:notice:無視": 7099,
+      "habit:word:reply:スタンプを送る": 3386,
+      "habit:word:reply:返さない": 2783,
+      "habit:word:reply:返す": 6344
+     },
+     "book": {
+      "agents": 1067,
+      "勤務中:notice": {
+       "records": 4794,
+       "agents_over_min": 138,
+       "by_word": {
+        "今読む": 1590,
+        "後で": 1585,
+        "無視": 1619
+       }
+      },
+      "勤務中:reply": {
+       "records": 2978,
+       "agents_over_min": 109,
+       "by_word": {
+        "返す": 1010,
+        "スタンプを送る": 999,
+        "返さない": 969
+       }
+      },
+      "家:notice": {
+       "records": 26930,
+       "agents_over_min": 418,
+       "by_word": {
+        "今読む": 8171,
+        "後で": 10044,
+        "無視": 8715
+       }
+      },
+      "家:reply": {
+       "records": 16204,
+       "agents_over_min": 289,
+       "by_word": {
+        "返す": 7561,
+        "スタンプを送る": 4595,
+        "返さない": 4048
+       }
+      },
+      "移動中:notice": {
+       "records": 9793,
+       "agents_over_min": 281,
+       "by_word": {
+        "今読む": 3267,
+        "後で": 3249,
+        "無視": 3277
+       }
+      },
+      "移動中:reply": {
+       "records": 7223,
+       "agents_over_min": 273,
+       "by_word": {
+        "返す": 2385,
+        "スタンプを送る": 2402,
+        "返さない": 2436
+       }
+      },
+      "ほか:notice": {
+       "records": 17015,
+       "agents_over_min": 355,
+       "by_word": {
+        "今読む": 5684,
+        "後で": 5692,
+        "無視": 5639
+       }
+      },
+      "ほか:reply": {
+       "records": 10700,
+       "agents_over_min": 289,
+       "by_word": {
+        "返す": 3667,
+        "スタンプを送る": 3542,
+        "返さない": 3491
+       }
+      }
+     }
+    },
+    "exchange": {
+     "meter": {
+      "exchange:all_known": 60,
+      "exchange:asked": 237,
+      "exchange:done": 116,
+      "exchange:no_phone": 1,
+      "exchange:not_asked": 262,
+      "exchange:opportunities": 560,
+      "exchange:refused": 121,
+      "group:invited": 1695,
+      "group:joined": 688,
+      "group:left": 970,
+      "group:made": 1239,
+      "group:refused": 669
+     },
+     "book": {
+      "exchanged_pairs": 232,
+      "agents_with_exchanged": 228,
+      "made_groups": 1239,
+      "made_group_sizes": {
+       "0": 476,
+       "1": 569,
+       "2": 194
+      },
+      "invites_waiting": 338,
+      "saved_places": 0
+     }
+    },
+    "charge": {
+     "meter": {
+      "charge:agent_steps": 10090,
+      "charge:alert_noticed:充電完了": 67,
+      "charge:alert_noticed:電池が少ない": 274,
+      "charge:declined": 142,
+      "charge:full_alerts": 69,
+      "charge:kept": 32,
+      "charge:low_alerts": 275,
+      "charge:plugged": 123,
+      "charge:power_on": 25,
+      "charge:unplugged": 35,
+      "charge:unplugged_left_home": 56,
+      "devices_off": 48,
+      "held_released": 6813
+     },
+     "plugged_now": 32,
+     "off_now": 23
+    },
+    "video": {
+     "video:answered": 18,
+     "video:ended": 18,
+     "video:placed": 53,
+     "video:rings": 53,
+     "video:turns": 14
+    },
+    "devices": {
+     "battery_min": 0.0,
+     "battery_mean": 0.4919,
+     "off": 23,
+     "battery_zero": 23,
+     "manner": 2509,
+     "bag_home": 2508,
+     "earphones": 956,
+     "in_hand": 53,
+     "plugged": 32,
+     "low_known": 56
+    }
+   },
+   "tools": [
+    "看板",
+    "掲示",
+    "電話",
+    "連絡先",
+    "グループ",
+    "乗換案内",
+    "地図",
+    "時計",
+    "天気予報",
+    "メッセージ",
+    "ビデオ通話",
+    "充電器",
+    "店の番号を調べる",
+    "郵便",
+    "置き手紙"
+   ],
+   "systems_check": ""
+  },
+  "q_on_1d": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "world": "data/world/v2",
+   "days": 1,
+   "habit": "on",
+   "events": "on",
+   "final": "d9ddccc8ccef8f7a943cd28c2a8a6711ec80b8ab33f2726211b898fddff6a8ae",
+   "wall_s": 88.9,
+   "checkpoints_behavior": [
+    [
+     359,
+     "54d4ae2a489974dcc8d81fc6375fa1aa2051f5388d208ebd8c0902ca1da48160"
+    ],
+    [
+     719,
+     "c9a0f67e2faf644339358599373bbc11faee299cabf02382c589b0529c8b9ed7"
+    ],
+    [
+     1079,
+     "b4f44eff01a96bee01390b8f1dc31e7f2c1652759548d7f6ede210e91b69cbf9"
+    ],
+    [
+     1439,
+     "d9ddccc8ccef8f7a943cd28c2a8a6711ec80b8ab33f2726211b898fddff6a8ae"
+    ]
+   ],
+   "contact_rows": 103879,
+   "contact_rows_by_what": {
+    "連絡:グループに入った": 232,
+    "連絡:グループに招いた": 570,
+    "連絡:グループを作った": 428,
+    "連絡:グループを抜けた": 320,
+    "連絡:スマホを見た": 9302,
+    "連絡:ビデオ通話をかけた": 36,
+    "連絡:交換に応じた": 70,
+    "連絡:交換を持ちかけた": 126,
+    "連絡:交換を断った": 56,
+    "連絡:充電した": 18,
+    "連絡:充電をやめた": 8,
+    "連絡:出た": 23,
+    "連絡:出ない": 31,
+    "連絡:切った": 34,
+    "連絡:届いた": 814,
+    "連絡:後で": 11674,
+    "連絡:招待を断った": 214,
+    "連絡:無視": 10624,
+    "連絡:着信": 66,
+    "連絡:読んだ": 20268,
+    "連絡:送った": 26439,
+    "連絡:通話の終わり": 46,
+    "連絡:電池の知らせ": 80,
+    "連絡:電話をかけた": 30,
+    "連絡:預かった": 2832,
+    "連絡:顔を上げた": 19538
+   },
+   "via": {
+    "グループ": 72900,
+    "ビデオ通話": 149,
+    "メッセージ": 1515,
+    "対面": 252,
+    "無し": 28946,
+    "通話": 117
+   },
+   "audit": {
+    "events": 103879,
+    "violations": 0,
+    "examples": []
+   },
+   "issued": 160288,
+   "calls_by_model": {
+    "judge_model": 142834,
+    "llm": 83817,
+    "contact": {
+     "judge_model": 142834,
+     "llm": 20245
+    }
+   },
+   "c2": {
+    "c2": {
+     "habit_arm": "on",
+     "habit_min_records": 5,
+     "habit_recheck_share": 0.1,
+     "habit_states": [
+      "勤務中",
+      "家",
+      "移動中",
+      "ほか"
+     ],
+     "habit_kinds": {
+      "notice": [
+       "今読む",
+       "後で",
+       "無視"
+      ],
+      "reply": [
+       "返す",
+       "スタンプを送る",
+       "返さない"
+      ]
+     },
+     "low_alerts": [
+      0.2,
+      0.1
+     ],
+     "chargers_at_home": 1,
+     "charge_per_hour": 0.5,
+     "video_drain_per_hour": 0.2,
+     "exchange_opportunity": "first_turn_of_face_conversation",
+     "exchange_means": "メッセージ",
+     "tools": [
+      "メッセージ",
+      "ビデオ通話",
+      "充電器",
+      "店の番号を調べる",
+      "郵便",
+      "置き手紙"
+     ],
+     "place_numbers": 0,
+     "offer_probe": false
+    },
+    "habit": {
+     "meter": {
+      "habit:answered:notice": 11227,
+      "habit:answered:reply": 6227,
+      "habit:answered:ほか:notice": 21,
+      "habit:answered:ほか:reply": 6,
+      "habit:answered:家:notice": 11186,
+      "habit:answered:家:reply": 6207,
+      "habit:answered:移動中:notice": 20,
+      "habit:answered:移動中:reply": 14,
+      "habit:back:few_records": 3275,
+      "habit:back:recheck": 1875,
+      "habit:back:ほか:notice": 22,
+      "habit:back:ほか:reply": 15,
+      "habit:back:家:notice": 2956,
+      "habit:back:家:reply": 2133,
+      "habit:back:移動中:notice": 9,
+      "habit:back:移動中:reply": 15,
+      "habit:in_range:notice": 18399,
+      "habit:in_range:reply": 11878,
+      "habit:word:notice:今読む": 3217,
+      "habit:word:notice:後で": 4588,
+      "habit:word:notice:無視": 3422,
+      "habit:word:reply:スタンプを送る": 1562,
+      "habit:word:reply:返さない": 1506,
+      "habit:word:reply:返す": 3159
+     },
+     "book": {
+      "agents": 834,
+      "勤務中:notice": {
+       "records": 2709,
+       "agents_over_min": 82,
+       "by_word": {
+        "今読む": 911,
+        "後で": 870,
+        "無視": 928
+       }
+      },
+      "勤務中:reply": {
+       "records": 1716,
+       "agents_over_min": 67,
+       "by_word": {
+        "返す": 561,
+        "スタンプを送る": 583,
+        "返さない": 572
+       }
+      },
+      "家:notice": {
+       "records": 14198,
+       "agents_over_min": 281,
+       "by_word": {
+        "今読む": 4243,
+        "後で": 5533,
+        "無視": 4422
+       }
+      },
+      "家:reply": {
+       "records": 8379,
+       "agents_over_min": 185,
+       "by_word": {
+        "返す": 3843,
+        "スタンプを送る": 2294,
+        "返さない": 2242
+       }
+      },
+      "移動中:notice": {
+       "records": 5767,
+       "agents_over_min": 180,
+       "by_word": {
+        "今読む": 1902,
+        "後で": 1920,
+        "無視": 1945
+       }
+      },
+      "移動中:reply": {
+       "records": 3903,
+       "agents_over_min": 155,
+       "by_word": {
+        "返す": 1261,
+        "スタンプを送る": 1312,
+        "返さない": 1330
+       }
+      },
+      "ほか:notice": {
+       "records": 9939,
+       "agents_over_min": 231,
+       "by_word": {
+        "今読む": 3259,
+        "後で": 3351,
+        "無視": 3329
+       }
+      },
+      "ほか:reply": {
+       "records": 6270,
+       "agents_over_min": 179,
+       "by_word": {
+        "返す": 2142,
+        "スタンプを送る": 2054,
+        "返さない": 2074
+       }
+      }
+     }
+    },
+    "exchange": {
+     "meter": {
+      "exchange:all_known": 39,
+      "exchange:asked": 126,
+      "exchange:done": 70,
+      "exchange:not_asked": 124,
+      "exchange:opportunities": 289,
+      "exchange:refused": 56,
+      "group:invited": 570,
+      "group:joined": 232,
+      "group:left": 320,
+      "group:made": 428,
+      "group:refused": 214
+     },
+     "book": {
+      "exchanged_pairs": 140,
+      "agents_with_exchanged": 137,
+      "made_groups": 428,
+      "made_group_sizes": {
+       "0": 164,
+       "1": 188,
+       "2": 76
+      },
+      "invites_waiting": 124,
+      "saved_places": 0
+     }
+    },
+    "charge": {
+     "meter": {
+      "charge:agent_steps": 1569,
+      "charge:alert_noticed:充電完了": 11,
+      "charge:alert_noticed:電池が少ない": 69,
+      "charge:declined": 41,
+      "charge:full_alerts": 11,
+      "charge:kept": 3,
+      "charge:low_alerts": 69,
+      "charge:plugged": 18,
+      "charge:power_on": 1,
+      "charge:unplugged": 8,
+      "charge:unplugged_left_home": 1,
+      "devices_off": 7,
+      "held_released": 220
+     },
+     "plugged_now": 9,
+     "off_now": 6
+    },
+    "video": {
+     "video:answered": 14,
+     "video:ended": 14,
+     "video:placed": 36,
+     "video:rings": 36,
+     "video:turns": 12
+    },
+    "devices": {
+     "battery_min": 0.0,
+     "battery_mean": 0.7387,
+     "off": 6,
+     "battery_zero": 6,
+     "manner": 2509,
+     "bag_home": 2508,
+     "earphones": 956,
+     "in_hand": 54,
+     "plugged": 9,
+     "low_known": 25
+    }
+   },
+   "tools": [
+    "看板",
+    "掲示",
+    "電話",
+    "連絡先",
+    "グループ",
+    "乗換案内",
+    "地図",
+    "時計",
+    "天気予報",
+    "メッセージ",
+    "ビデオ通話",
+    "充電器",
+    "店の番号を調べる",
+    "郵便",
+    "置き手紙"
+   ],
+   "systems_check": ""
+  }
+ },
+ "stage_b": {
+  "final": "7492082b0b68c5980accf659401f004f61a49964ee179b6c6921e5a277169f87",
+  "wall_s": 25656.8,
+  "contact_rows": 97184,
+  "audit": {
+   "events": 97184,
+   "violations": 0,
+   "examples": []
+  },
+  "systems_check": "1"
+ },
+ "runs_after_review": {
+  "r_off_1d": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "world": "data/world/v2",
+   "days": 1,
+   "habit": "off",
+   "events": "on",
+   "final": "edc3d0dc5d1778fa7967efaa7f02aabcd72086433653f8ec939fd5d2c4003c1e",
+   "wall_s": 89.2,
+   "checkpoints_behavior": [
+    [
+     359,
+     "c7c960ddba5988a2be8bbb7fa9bf9fb599f89806aa5c90491c19488ca799202d"
+    ],
+    [
+     719,
+     "d6f85d147c070e27f6a1e954b21fbe179aa6b9c7570a270ad54189bdb5c37255"
+    ],
+    [
+     1079,
+     "834a9e37e153d4a88e9e27f06a7e067af5b193d0b2765bec344f7e750d631ae6"
+    ],
+    [
+     1439,
+     "edc3d0dc5d1778fa7967efaa7f02aabcd72086433653f8ec939fd5d2c4003c1e"
+    ]
+   ],
+   "contact_rows": 102737,
+   "contact_rows_by_what": {
+    "連絡:グループに入った": 150,
+    "連絡:グループに招いた": 468,
+    "連絡:グループを作った": 364,
+    "連絡:グループを抜けた": 232,
+    "連絡:スマホを見た": 9296,
+    "連絡:ビデオ通話をかけた": 37,
+    "連絡:交換に応じた": 66,
+    "連絡:交換を持ちかけた": 121,
+    "連絡:交換を断った": 55,
+    "連絡:充電した": 51,
+    "連絡:充電をやめた": 19,
+    "連絡:出た": 25,
+    "連絡:出ない": 34,
+    "連絡:切った": 39,
+    "連絡:届いた": 478,
+    "連絡:後で": 10656,
+    "連絡:招待を断った": 156,
+    "連絡:無視": 10944,
+    "連絡:着信": 74,
+    "連絡:読んだ": 21154,
+    "連絡:送った": 26765,
+    "連絡:通話の終わり": 50,
+    "連絡:電池の知らせ": 106,
+    "連絡:電話をかけた": 37,
+    "連絡:預かった": 1335,
+    "連絡:顔を上げた": 20025
+   },
+   "via": {
+    "グループ": 71446,
+    "ビデオ通話": 152,
+    "メッセージ": 1256,
+    "対面": 242,
+    "無し": 29497,
+    "通話": 144
+   },
+   "audit": {
+    "events": 102737,
+    "violations": 0,
+    "examples": []
+   },
+   "issued": 163486,
+   "calls_by_model": {
+    "judge_model": 163486,
+    "llm": 83363,
+    "contact": {
+     "judge_model": 163486,
+     "llm": 19791
+    }
+   },
+   "c2": {
+    "c2": {
+     "habit_arm": "off",
+     "habit_min_records": 5,
+     "habit_recheck_share": 0.1,
+     "habit_states": [
+      "勤務中",
+      "家",
+      "移動中",
+      "ほか"
+     ],
+     "habit_kinds": {
+      "notice": [
+       "今読む",
+       "後で",
+       "無視"
+      ],
+      "reply": [
+       "返す",
+       "スタンプを送る",
+       "返さない"
+      ]
+     },
+     "low_alerts": [
+      0.2,
+      0.1
+     ],
+     "chargers_at_home": 1,
+     "charge_per_hour": 0.5,
+     "video_drain_per_hour": 0.2,
+     "exchange_opportunity": "first_turn_of_face_conversation",
+     "exchange_means": "メッセージ",
+     "tools": [
+      "メッセージ",
+      "ビデオ通話",
+      "充電器",
+      "店の番号を調べる",
+      "郵便",
+      "置き手紙"
+     ],
+     "place_numbers": 0,
+     "offer_probe": false
+    },
+    "habit": null,
+    "exchange": {
+     "meter": {
+      "exchange:all_known": 36,
+      "exchange:asked": 121,
+      "exchange:done": 66,
+      "exchange:not_asked": 132,
+      "exchange:opportunities": 289,
+      "exchange:refused": 55,
+      "group:invited": 468,
+      "group:joined": 150,
+      "group:left": 232,
+      "group:made": 364,
+      "group:refused": 156
+     },
+     "book": {
+      "exchanged_pairs": 132,
+      "agents_with_exchanged": 132,
+      "made_groups": 211,
+      "made_ever": 364,
+      "made_group_sizes": {
+       "1": 140,
+       "2": 71
+      },
+      "invites_waiting": 63,
+      "saved_places": 0
+     }
+    },
+    "charge": {
+     "meter": {
+      "charge:agent_steps": 4149,
+      "charge:alert_noticed:充電完了": 31,
+      "charge:alert_noticed:電池が少ない": 75,
+      "charge:declined": 55,
+      "charge:full_alerts": 31,
+      "charge:kept": 12,
+      "charge:low_alerts": 75,
+      "charge:opportunities_on_thinking": 101,
+      "charge:plugged": 51,
+      "charge:unplugged": 19,
+      "charge:unplugged_left_home": 12,
+      "devices_off": 5
+     },
+     "plugged_now": 20,
+     "off_now": 5
+    },
+    "video": {
+     "video:answered": 14,
+     "video:ended": 14,
+     "video:placed": 37,
+     "video:rings": 37,
+     "video:turns": 13
+    },
+    "devices": {
+     "battery_min": 0.0,
+     "battery_mean": 0.7431,
+     "off": 5,
+     "battery_zero": 5,
+     "manner": 2509,
+     "bag_home": 2508,
+     "earphones": 956,
+     "in_hand": 46,
+     "plugged": 20,
+     "low_known": 7
+    }
+   },
+   "tools": [
+    "看板",
+    "掲示",
+    "電話",
+    "連絡先",
+    "グループ",
+    "乗換案内",
+    "地図",
+    "時計",
+    "天気予報",
+    "メッセージ",
+    "ビデオ通話",
+    "充電器",
+    "店の番号を調べる",
+    "郵便",
+    "置き手紙"
+   ],
+   "systems_check": ""
+  },
+  "r_off_2d": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "world": "data/world/v2",
+   "days": 2,
+   "habit": "off",
+   "events": "on",
+   "final": "f1f0f828a34303971bd483d54f2da3ec322e75c3291fbcb8d135f744d5bf93bb",
+   "wall_s": 235.7,
+   "checkpoints_behavior": [
+    [
+     359,
+     "c7c960ddba5988a2be8bbb7fa9bf9fb599f89806aa5c90491c19488ca799202d"
+    ],
+    [
+     719,
+     "d6f85d147c070e27f6a1e954b21fbe179aa6b9c7570a270ad54189bdb5c37255"
+    ],
+    [
+     1079,
+     "834a9e37e153d4a88e9e27f06a7e067af5b193d0b2765bec344f7e750d631ae6"
+    ],
+    [
+     1439,
+     "edc3d0dc5d1778fa7967efaa7f02aabcd72086433653f8ec939fd5d2c4003c1e"
+    ],
+    [
+     1799,
+     "fb548a41b2ca1469e9562134d372606387b9896ec1d719feb7d34cfa99ab02b8"
+    ],
+    [
+     2159,
+     "650157030e0c33c258fef95713a6dccb5d85ded05b310990feb4a787515b78f2"
+    ],
+    [
+     2519,
+     "7112486f251fcaf7b347dc052b3d140582aa8522479d2f65abb955acde5bfe29"
+    ],
+    [
+     2879,
+     "f1f0f828a34303971bd483d54f2da3ec322e75c3291fbcb8d135f744d5bf93bb"
+    ]
+   ],
+   "contact_rows": 246135,
+   "contact_rows_by_what": {
+    "連絡:グループに入った": 644,
+    "連絡:グループに招いた": 1759,
+    "連絡:グループを作った": 1254,
+    "連絡:グループを抜けた": 919,
+    "連絡:スマホを見た": 20265,
+    "連絡:ビデオ通話をかけた": 51,
+    "連絡:交換に応じた": 117,
+    "連絡:交換を持ちかけた": 228,
+    "連絡:交換を断った": 111,
+    "連絡:充電した": 192,
+    "連絡:充電をやめた": 60,
+    "連絡:出た": 30,
+    "連絡:出ない": 45,
+    "連絡:切った": 58,
+    "連絡:届いた": 11067,
+    "連絡:後で": 22810,
+    "連絡:招待を断った": 631,
+    "連絡:無視": 22932,
+    "連絡:着信": 104,
+    "連絡:読んだ": 45178,
+    "連絡:送った": 57829,
+    "連絡:通話の終わり": 60,
+    "連絡:電池の知らせ": 406,
+    "連絡:電話をかけた": 53,
+    "連絡:預かった": 16297,
+    "連絡:顔を上げた": 43035
+   },
+   "via": {
+    "グループ": 176808,
+    "ビデオ通話": 197,
+    "メッセージ": 4512,
+    "対面": 456,
+    "無し": 63958,
+    "通話": 204
+   },
+   "audit": {
+    "events": 246135,
+    "violations": 0,
+    "examples": []
+   },
+   "issued": 354589,
+   "calls_by_model": {
+    "judge_model": 354589,
+    "llm": 181611,
+    "contact": {
+     "judge_model": 354589,
+     "llm": 42790
+    }
+   },
+   "c2": {
+    "c2": {
+     "habit_arm": "off",
+     "habit_min_records": 5,
+     "habit_recheck_share": 0.1,
+     "habit_states": [
+      "勤務中",
+      "家",
+      "移動中",
+      "ほか"
+     ],
+     "habit_kinds": {
+      "notice": [
+       "今読む",
+       "後で",
+       "無視"
+      ],
+      "reply": [
+       "返す",
+       "スタンプを送る",
+       "返さない"
+      ]
+     },
+     "low_alerts": [
+      0.2,
+      0.1
+     ],
+     "chargers_at_home": 1,
+     "charge_per_hour": 0.5,
+     "video_drain_per_hour": 0.2,
+     "exchange_opportunity": "first_turn_of_face_conversation",
+     "exchange_means": "メッセージ",
+     "tools": [
+      "メッセージ",
+      "ビデオ通話",
+      "充電器",
+      "店の番号を調べる",
+      "郵便",
+      "置き手紙"
+     ],
+     "place_numbers": 0,
+     "offer_probe": false
+    },
+    "habit": null,
+    "exchange": {
+     "meter": {
+      "exchange:all_known": 68,
+      "exchange:asked": 228,
+      "exchange:done": 117,
+      "exchange:no_phone": 1,
+      "exchange:not_asked": 263,
+      "exchange:opportunities": 560,
+      "exchange:refused": 111,
+      "group:invited": 1759,
+      "group:joined": 644,
+      "group:left": 919,
+      "group:made": 1254,
+      "group:refused": 631
+     },
+     "book": {
+      "exchanged_pairs": 234,
+      "agents_with_exchanged": 227,
+      "made_groups": 721,
+      "made_ever": 1254,
+      "made_group_sizes": {
+       "1": 464,
+       "2": 256,
+       "3": 1
+      },
+      "invites_waiting": 150,
+      "saved_places": 0
+     }
+    },
+    "charge": {
+     "meter": {
+      "arbitration:charge": 1,
+      "arbitration:unplug": 1,
+      "charge:agent_steps": 15533,
+      "charge:alert_noticed:充電完了": 115,
+      "charge:alert_noticed:電池が少ない": 285,
+      "charge:declined": 172,
+      "charge:full_alerts": 115,
+      "charge:kept": 54,
+      "charge:low_alerts": 291,
+      "charge:opportunities_on_thinking": 288,
+      "charge:plugged": 192,
+      "charge:power_on": 24,
+      "charge:unplugged": 60,
+      "charge:unplugged_left_home": 88,
+      "devices_off": 40,
+      "held_released": 9366
+     },
+     "plugged_now": 44,
+     "off_now": 16
+    },
+    "video": {
+     "video:answered": 15,
+     "video:ended": 15,
+     "video:placed": 51,
+     "video:rings": 51,
+     "video:turns": 15
+    },
+    "devices": {
+     "battery_min": 0.0,
+     "battery_mean": 0.4962,
+     "off": 16,
+     "battery_zero": 16,
+     "manner": 2509,
+     "bag_home": 2508,
+     "earphones": 956,
+     "in_hand": 55,
+     "plugged": 44,
+     "low_known": 26
+    }
+   },
+   "tools": [
+    "看板",
+    "掲示",
+    "電話",
+    "連絡先",
+    "グループ",
+    "乗換案内",
+    "地図",
+    "時計",
+    "天気予報",
+    "メッセージ",
+    "ビデオ通話",
+    "充電器",
+    "店の番号を調べる",
+    "郵便",
+    "置き手紙"
+   ],
+   "systems_check": ""
+  }
+ }
+}

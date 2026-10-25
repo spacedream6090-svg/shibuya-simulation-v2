@@ -1,0 +1,35 @@
+{
+ "how": "10e/two_day_check_act.py one(5,000 体・seed 1・sim_days=2・既定 v3・テープつき)。head=本体 HEAD 136fdbb の src の写し・p12=作業木の src",
+ "same": [
+  "kw",
+  "start_sim_datetime",
+  "calendar_weekday",
+  "calendar_days",
+  "weather_scheme",
+  "weather_perturbed",
+  "weather_days",
+  "weather_warnings",
+  "w13_rows_of_replay_dates",
+  "final",
+  "calls",
+  "calls_sha",
+  "blocks_sha"
+ ],
+ "moved": [],
+ "head": {
+  "final": "912446bd2b42b6ab",
+  "calls": 140913,
+  "calls_sha": "cb330e76b4b8a573",
+  "blocks_sha": "7f09f3dc78d84ac4",
+  "src_is_worktree": false,
+  "wall_s": 81.8
+ },
+ "p12": {
+  "final": "912446bd2b42b6ab",
+  "calls": 140913,
+  "calls_sha": "cb330e76b4b8a573",
+  "blocks_sha": "7f09f3dc78d84ac4",
+  "src_is_worktree": true,
+  "wall_s": 82.4
+ }
+}

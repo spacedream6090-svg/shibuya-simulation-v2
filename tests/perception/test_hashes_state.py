@@ -55,8 +55,9 @@ def test_m12_two_bytes_for_p_notice_state():
     rep = st.budget_report()
     per_field = {f.name: f.declared_bytes_per_entity for f in rep.fields}
     assert per_field["heading"] + per_field["task_flag"] == 2
-    assert per_field["last_b2_hash"] + per_field["last_b4_hash"] == 16
-    assert st.declared_bytes_per_agent == 18 <= PERCEPTION_BYTE_CAP
+    # 10e(E1・A4): 死蔵の last_b2_hash・last_b4_hash(16 B/体)は消した
+    assert "last_b2_hash" not in per_field and "last_b4_hash" not in per_field
+    assert st.declared_bytes_per_agent == 2 <= PERCEPTION_BYTE_CAP
     assert rep.within_cap
     for f in rep.fields:
         assert f.within_budget, f.name
@@ -65,13 +66,14 @@ def test_m12_two_bytes_for_p_notice_state():
 
 
 def test_invocation_distance_is_not_double_declared_by_default():
-    """``agents.state`` が既に持つので既定では宣言しない(M12 の二重計上を避ける)。"""
+    """既定では宣言しない(単体ベンチの逃げ道だけ)。〔10e(E1・Q9)〕``agents.state`` の死蔵の
+    ``invocation_distance`` は消した(どちらの SoA にも既定では無い)。"""
     from shibuya.agents.state import AgentState
 
-    assert "invocation_distance" in dict(AgentState(2).registry.arrays)
+    assert "invocation_distance" not in dict(AgentState(2).registry.arrays)
     assert "invocation_distance" not in dict(PerceptionState(2).registry.arrays)
     standalone = PerceptionState(2, include_invocation_distance=True)
-    assert standalone.declared_bytes_per_agent == 20 <= PERCEPTION_BYTE_CAP
+    assert standalone.declared_bytes_per_agent == 4 <= PERCEPTION_BYTE_CAP
 
 
 def test_write_guard():

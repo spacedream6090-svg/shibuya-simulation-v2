@@ -1,0 +1,35 @@
+{
+ "key": "W6#2",
+ "control": "自身の格子×束縛ノードのバンド・欠けたらノードのセル(宣言)vs 格子だけ(バンド GL・欠けは『セル表に無い』)",
+ "metric": "POI・組織のセル分布",
+ "variants": [
+  {
+   "name": "POI: 格子だけ(バンド GL)",
+   "jsd_bits": 0.03286716045094977,
+   "null_p95": 0.06022092820708934,
+   "detected": false,
+   "tvd": 0.04792468977321352,
+   "n_declared": 2337.0,
+   "n_control": 2337.0,
+   "n_bins": 317,
+   "n_changed": 115
+  },
+  {
+   "name": "組織: 格子だけ(バンド GL)",
+   "jsd_bits": 0.050491755503937204,
+   "null_p95": 0.014676344740972682,
+   "detected": true,
+   "tvd": 0.06412074554294976,
+   "n_declared": 9872.0,
+   "n_control": 9872.0,
+   "n_bins": 356,
+   "n_changed": 633
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 0.33714219997636974,
+ "seconds_wall_row": 0.34,
+ "measured_at": "2026-09-30"
+}

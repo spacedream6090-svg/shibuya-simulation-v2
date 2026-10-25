@@ -191,9 +191,7 @@ def test_assets_flags():
 
 
 # ---------------------------------------------------------------- 実データ
-@pytest.mark.skipif(
-    not Path("data/world/v2/w8_t1_cell.parquet").exists(), reason="data/world/v2 が無い"
-)
+@pytest.mark.requires_data("world_v2:w8_t1_cell.parquet")
 def test_real_assets_load_without_frozen_files(capsys):
     """実資産には凍結ファイルがまだ無い=従来の合成文のまま(結線が既定を変えない)。"""
     d = Path("data/world/v2")
@@ -220,9 +218,7 @@ def test_real_assets_load_without_frozen_files(capsys):
         )
 
 
-@pytest.mark.skipif(
-    not Path("data/world/v2/w8_t1_cell.parquet").exists(), reason="data/world/v2 が無い"
-)
+@pytest.mark.requires_data("world_v2:w8_t1_cell.parquet")
 def test_real_assets_with_max_length_frozen_text_stay_within_budget(capsys):
     """**実資産 520 セル**に枠いっぱいの凍結文を入れても B2 150 / セル群 250 に収まる。
 
@@ -258,9 +254,7 @@ def test_real_assets_with_max_length_frozen_text_stay_within_budget(capsys):
     assert worst_cell <= T.GROUP_TOKEN_BUDGET["cell"]
 
 
-@pytest.mark.skipif(
-    not Path("data/world/v2/w8_t1_cell.parquet").exists(), reason="data/world/v2 が無い"
-)
+@pytest.mark.requires_data("world_v2:w8_t1_cell.parquet")
 def test_w15_token_cap_derivation_still_holds(capsys):
     """``w15_cell_static.TOKEN_CAP`` の導出を実資産で再測する。
 

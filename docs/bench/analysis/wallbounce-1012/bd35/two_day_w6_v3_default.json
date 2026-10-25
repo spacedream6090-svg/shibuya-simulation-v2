@@ -1,0 +1,127 @@
+{
+ "base": "w6_v3_default",
+ "kw": {
+  "vocab_version": "v3"
+ },
+ "agents": 5000,
+ "seed": 1,
+ "sim_days": 2,
+ "ok": true,
+ "checks": {
+  "straight_reserve_equals_sweep": {
+   "final": true,
+   "calls": true,
+   "checkpoints": true,
+   "boundary_digest": true,
+   "boundaries": true
+  },
+  "split_1440_equals_straight": {
+   "final": true,
+   "checkpoints_after_stop": true,
+   "calls_sum": true,
+   "first_arm": "sweep",
+   "resume_arm": "reserve",
+   "n_checkpoints_after_stop": 4
+  },
+  "split_750_equals_straight": {
+   "final": true,
+   "checkpoints_after_stop": true,
+   "calls_sum": true,
+   "first_arm": "sweep",
+   "resume_arm": "reserve",
+   "n_checkpoints_after_stop": 6
+  }
+ },
+ "runs": {
+  "straight_sweep": {
+   "wall_s": 89.4,
+   "run": {
+    "final": "b346bb6e3ecc60af57f507fd2bd9c3b5461fe57751b7c93e80a0051c52ad0158",
+    "calls": 138946,
+    "body_arm": "sweep",
+    "boundary_digest": "7dfc2a11afbbe42489ee25c4bf566796f871a7c474893837f17547a7067ff583",
+    "boundaries": {
+     "hunger": 48325,
+     "fatigue": 272655,
+     "thermal": 109180
+    },
+    "agent_evals": 14400000,
+    "felt_evals": 2880000,
+    "reservations": 0,
+    "felt_reservations": 0,
+    "felt_tables": 0
+   }
+  },
+  "straight_reserve": {
+   "wall_s": 89.1,
+   "run": {
+    "final": "b346bb6e3ecc60af57f507fd2bd9c3b5461fe57751b7c93e80a0051c52ad0158",
+    "calls": 138946,
+    "body_arm": "reserve",
+    "boundary_digest": "7dfc2a11afbbe42489ee25c4bf566796f871a7c474893837f17547a7067ff583",
+    "boundaries": {
+     "hunger": 48325,
+     "fatigue": 272655,
+     "thermal": 109180
+    },
+    "agent_evals": 817041,
+    "felt_evals": 176762,
+    "reservations": 805480,
+    "felt_reservations": 131606,
+    "felt_tables": 2
+   }
+  },
+  "split_1440": {
+   "stop": 1440,
+   "first": {
+    "calls": 64528,
+    "body_arm": "sweep"
+   },
+   "state_T": 1440,
+   "wall_s": 90.9,
+   "run": {
+    "final": "b346bb6e3ecc60af57f507fd2bd9c3b5461fe57751b7c93e80a0051c52ad0158",
+    "calls": 74418,
+    "body_arm": "reserve",
+    "boundary_digest": "05b99faab6dc312395eee2a242f6278bd9c5d1bdc9f0cb45cc45e7dae6123412",
+    "boundaries": {
+     "hunger": 22271,
+     "fatigue": 125263,
+     "thermal": 65193
+    },
+    "agent_evals": 402304,
+    "felt_evals": 101480,
+    "reservations": 396353,
+    "felt_reservations": 73758,
+    "felt_tables": 1
+   }
+  },
+  "split_750": {
+   "stop": 750,
+   "first": {
+    "calls": 27974,
+    "body_arm": "sweep"
+   },
+   "state_T": 750,
+   "wall_s": 92.1,
+   "run": {
+    "final": "b346bb6e3ecc60af57f507fd2bd9c3b5461fe57751b7c93e80a0051c52ad0158",
+    "calls": 110972,
+    "body_arm": "reserve",
+    "boundary_digest": "3d0cedb849d2e9fc59065d40c4e9a636af8b586f3d809e927ddd6ed0c124993b",
+    "boundaries": {
+     "hunger": 34151,
+     "fatigue": 194265,
+     "thermal": 85962
+    },
+    "agent_evals": 617305,
+    "felt_evals": 146090,
+    "reservations": 610497,
+    "felt_reservations": 100934,
+    "felt_tables": 2
+   }
+  }
+ },
+ "final": "b346bb6e3ecc60af",
+ "n_checkpoints": 8
+}

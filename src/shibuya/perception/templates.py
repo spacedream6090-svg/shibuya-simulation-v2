@@ -748,11 +748,15 @@ GROUND_WORDS: Final[Mapping[int, str]] = {
 GROUND_NO_STREET: Final[str] = "足元は建物の中の床です。通行できます。"
 
 
-def template_sha256() -> str:
+def template_sha256(hunger_draw_min_stage: int | None = None) -> str:
     """テンプレ全体の版ハッシュ(§1 条5「ハッシュで版管理」)。
 
     ``sha256_cbor``(CBOR 正準符号化 → SHA-256)を、版・ブロック順・予算・語彙・行テンプレを
     含む辞書に掛ける。**この値が変わる変更 = 改版**(delta+感度試験が要る)。
+
+    ``hunger_draw_min_stage``(第2波 §2B 項 4 の直し): 描画に**実際に使った**空腹の語の段の下限。``None``(既定)
+    は定数 ``HUNGER_WORD_DRAW_MIN_STAGE`` =既存の凍結値のまま。``--hunger-words all`` のランは 0 を渡し、
+    その腕の文面の指紋を manifest に載せる。
     """
     payload = {
         "version": TEMPLATE_VERSION,
@@ -785,7 +789,9 @@ def template_sha256() -> str:
             "memory_store_heard": {str(k): v for k, v in MEMORY_STORE_HEARD_WORDS.items()},
             "memory_store_item_max_tokens": MEMORY_STORE_ITEM_MAX_TOKENS,
             "near_person_marks": list(NEAR_PERSON_MARKS),
-            "hunger_draw_min_stage": HUNGER_WORD_DRAW_MIN_STAGE,
+            "hunger_draw_min_stage": (
+                HUNGER_WORD_DRAW_MIN_STAGE if hunger_draw_min_stage is None else int(hunger_draw_min_stage)
+            ),
             "ground": {str(k): v for k, v in GROUND_WORDS.items()},
             "ground_no_street": GROUND_NO_STREET,
             "options": list(DEFAULT_OPTIONS),

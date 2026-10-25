@@ -1,0 +1,26 @@
+{
+ "key": "W2#2",
+ "control": "端点の一方でも数える(宣言・重複計上)vs 両端点で按分(0.5 ずつ)",
+ "metric": "セルの n_edges の分布(セル上の重み)",
+ "variants": [
+  {
+   "name": "両端点で按分",
+   "jsd_bits": 0.002853985287740614,
+   "null_p95": 0.032114676275074666,
+   "detected": false,
+   "tvd": 0.04902022890983116,
+   "n_declared": 6820.0,
+   "n_control": 4944.0,
+   "n_bins": 520
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.2727512000128627,
+ "checks": {
+  "declared_recomputed_equals_asset": true
+ },
+ "seconds_wall_row": 0.27,
+ "measured_at": "2026-09-30"
+}

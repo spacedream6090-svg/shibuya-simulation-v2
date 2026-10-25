@@ -1,0 +1,587 @@
+{
+ "schema": "pop41.checks_on_off/1",
+ "note": "W21 の計器(w21_checks.json)の分布の食い違いの要約。on=既定(詰め on)・off=比べる腕。構築に使った表なので点検だけ(合否なし)。検収の直しの後(w21_build_hash ca823451…)",
+ "anneal": {
+  "on": {
+   "accepted": 50996,
+   "error_after": 2363.074,
+   "error_before": 4993.711,
+   "iterations": 400000,
+   "proposed": 381766
+  },
+  "off": {
+   "accepted": 0,
+   "error_after": 4993.711,
+   "error_before": 4993.711,
+   "iterations": 0,
+   "proposed": 0
+  },
+  "floor_stage_aggregate": {
+   "age16_sex": 682.1,
+   "marital3_sex": 1503.7
+  }
+ },
+ "distribution": {
+  "attr_emp_status": {
+   "on": {
+    "srmse_mean": 0.068545,
+    "srmse_max": 0.629522,
+    "jsd_mean": 0.006133,
+    "jsd_max": 0.176569,
+    "abs_error_sum": 784.86,
+    "stage_srmse": 0.002827,
+    "stage_jsd": 1e-05,
+    "sim_total": 27064.0,
+    "target_total": 27064.0
+   },
+   "off": {
+    "srmse_mean": 0.06557,
+    "srmse_max": 0.40548,
+    "jsd_mean": 0.005017,
+    "jsd_max": 0.096879,
+    "abs_error_sum": 818.107,
+    "stage_srmse": 0.001828,
+    "stage_jsd": 8e-06,
+    "sim_total": 27100.0,
+    "target_total": 27100.0
+   }
+  },
+  "attr_industry_major": {
+   "on": {
+    "srmse_mean": 0.445162,
+    "srmse_max": 3.912304,
+    "jsd_mean": 0.051191,
+    "jsd_max": 0.680364,
+    "abs_error_sum": 3676.997,
+    "stage_srmse": 0.024703,
+    "stage_jsd": 0.000127,
+    "sim_total": 27064.0,
+    "target_total": 27064.0
+   },
+   "off": {
+    "srmse_mean": 0.444426,
+    "srmse_max": 3.075762,
+    "jsd_mean": 0.052499,
+    "jsd_max": 0.74039,
+    "abs_error_sum": 3740.143,
+    "stage_srmse": 0.019915,
+    "stage_jsd": 7.4e-05,
+    "sim_total": 27100.0,
+    "target_total": 27100.0
+   }
+  },
+  "attr_labour_status": {
+   "on": {
+    "srmse_mean": 0.089963,
+    "srmse_max": 0.942111,
+    "jsd_mean": 0.009379,
+    "jsd_max": 0.225656,
+    "abs_error_sum": 1318.97,
+    "stage_srmse": 0.006434,
+    "stage_jsd": 7e-06,
+    "sim_total": 39401.0,
+    "target_total": 39401.0
+   },
+   "off": {
+    "srmse_mean": 0.081757,
+    "srmse_max": 0.847347,
+    "jsd_mean": 0.006602,
+    "jsd_max": 0.204421,
+    "abs_error_sum": 1351.152,
+    "stage_srmse": 0.004563,
+    "stage_jsd": 1e-05,
+    "sim_total": 39401.0,
+    "target_total": 39401.0
+   }
+  },
+  "attr_occupation_major": {
+   "on": {
+    "srmse_mean": 0.251525,
+    "srmse_max": 2.131119,
+    "jsd_mean": 0.023394,
+    "jsd_max": 0.315293,
+    "abs_error_sum": 2082.644,
+    "stage_srmse": 0.015095,
+    "stage_jsd": 5.5e-05,
+    "sim_total": 27064.0,
+    "target_total": 27064.0
+   },
+   "off": {
+    "srmse_mean": 0.279376,
+    "srmse_max": 2.20794,
+    "jsd_mean": 0.026789,
+    "jsd_max": 0.357615,
+    "abs_error_sum": 2116.122,
+    "stage_srmse": 0.009646,
+    "stage_jsd": 2.9e-05,
+    "sim_total": 27100.0,
+    "target_total": 27100.0
+   }
+  },
+  "attr_residence_period": {
+   "on": {
+    "srmse_mean": 0.179732,
+    "srmse_max": 1.489067,
+    "jsd_mean": 0.020255,
+    "jsd_max": 0.469908,
+    "abs_error_sum": 2679.149,
+    "stage_srmse": 0.015215,
+    "stage_jsd": 4.4e-05,
+    "sim_total": 42642.0,
+    "target_total": 42642.0
+   },
+   "off": {
+    "srmse_mean": 0.166548,
+    "srmse_max": 1.433718,
+    "jsd_mean": 0.017104,
+    "jsd_max": 0.46802,
+    "abs_error_sum": 2874.223,
+    "stage_srmse": 0.016603,
+    "stage_jsd": 4.6e-05,
+    "sim_total": 42642.0,
+    "target_total": 42642.0
+   }
+  },
+  "attr_school_kind": {
+   "on": {
+    "srmse_mean": 0.123635,
+    "srmse_max": 0.690034,
+    "jsd_mean": 0.013395,
+    "jsd_max": 0.119729,
+    "abs_error_sum": 1828.057,
+    "stage_srmse": 0.056815,
+    "stage_jsd": 0.001027,
+    "sim_total": 42642.0,
+    "target_total": 42642.0
+   },
+   "off": {
+    "srmse_mean": 0.134644,
+    "srmse_max": 0.885797,
+    "jsd_mean": 0.013673,
+    "jsd_max": 0.13229,
+    "abs_error_sum": 2133.599,
+    "stage_srmse": 0.065622,
+    "stage_jsd": 0.001179,
+    "sim_total": 42642.0,
+    "target_total": 42642.0
+   }
+  },
+  "attr_school_place": {
+   "on": {
+    "srmse_mean": 0.37554,
+    "srmse_max": 1.815217,
+    "jsd_mean": 0.065774,
+    "jsd_max": 0.630781,
+    "abs_error_sum": 358.976,
+    "stage_srmse": 0.068254,
+    "stage_jsd": 0.000939,
+    "sim_total": 1552.0,
+    "target_total": 1547.0
+   },
+   "off": {
+    "srmse_mean": 0.34485,
+    "srmse_max": 1.725272,
+    "jsd_mean": 0.068508,
+    "jsd_max": 0.626383,
+    "abs_error_sum": 249.201,
+    "stage_srmse": 0.043149,
+    "stage_jsd": 0.000517,
+    "sim_total": 1541.0,
+    "target_total": 1538.0
+   }
+  },
+  "attr_workplace_kind": {
+   "on": {
+    "srmse_mean": 0.126942,
+    "srmse_max": 0.690464,
+    "jsd_mean": 0.008367,
+    "jsd_max": 0.167311,
+    "abs_error_sum": 1596.593,
+    "stage_srmse": 0.00322,
+    "stage_jsd": 2e-06,
+    "sim_total": 27064.0,
+    "target_total": 27064.0
+   },
+   "off": {
+    "srmse_mean": 0.156021,
+    "srmse_max": 1.083011,
+    "jsd_mean": 0.015714,
+    "jsd_max": 0.347377,
+    "abs_error_sum": 1605.341,
+    "stage_srmse": 0.003098,
+    "stage_jsd": 2e-06,
+    "sim_total": 27100.0,
+    "target_total": 27100.0
+   }
+  },
+  "t03_age16_sex": {
+   "on": {
+    "srmse_mean": 0.172061,
+    "srmse_max": 2.149777,
+    "jsd_mean": 0.032892,
+    "jsd_max": 0.62354,
+    "abs_error_sum": 855.704,
+    "stage_srmse": 0.026386,
+    "stage_jsd": 0.000288,
+    "sim_total": 42642.0,
+    "target_total": 42684.347
+   },
+   "off": {
+    "srmse_mean": 0.208361,
+    "srmse_max": 2.121981,
+    "jsd_mean": 0.032716,
+    "jsd_max": 0.559463,
+    "abs_error_sum": 1901.935,
+    "stage_srmse": 0.026386,
+    "stage_jsd": 0.000288,
+    "sim_total": 42642.0,
+    "target_total": 42684.347
+   }
+  },
+  "t04_marital3_sex": {
+   "on": {
+    "srmse_mean": 0.077419,
+    "srmse_max": 0.371713,
+    "jsd_mean": 0.003713,
+    "jsd_max": 0.060107,
+    "abs_error_sum": 1507.37,
+    "stage_srmse": 0.041042,
+    "stage_jsd": 0.000311,
+    "sim_total": 39401.0,
+    "target_total": 39345.909
+   },
+   "off": {
+    "srmse_mean": 0.149985,
+    "srmse_max": 1.289721,
+    "jsd_mean": 0.016328,
+    "jsd_max": 0.386815,
+    "abs_error_sum": 3091.776,
+    "stage_srmse": 0.041042,
+    "stage_jsd": 0.000311,
+    "sim_total": 39401.0,
+    "target_total": 39345.909
+   }
+  },
+  "t05_2_household_size": {
+   "on": {
+    "srmse_mean": 0.033066,
+    "srmse_max": 0.450712,
+    "jsd_mean": 0.004435,
+    "jsd_max": 0.089781,
+    "abs_error_sum": 165.07,
+    "stage_srmse": 0.003181,
+    "stage_jsd": 6.6e-05,
+    "sim_total": 27751.0,
+    "target_total": 27751.341
+   },
+   "off": {
+    "srmse_mean": 0.033066,
+    "srmse_max": 0.450712,
+    "jsd_mean": 0.004435,
+    "jsd_max": 0.089781,
+    "abs_error_sum": 165.07,
+    "stage_srmse": 0.003181,
+    "stage_jsd": 6.6e-05,
+    "sim_total": 27751.0,
+    "target_total": 27751.341
+   }
+  },
+  "t06_1_family_group": {
+   "on": {
+    "srmse_mean": 0.034934,
+    "srmse_max": 0.440678,
+    "jsd_mean": 0.005376,
+    "jsd_max": 0.10349,
+    "abs_error_sum": 108.006,
+    "stage_srmse": 0.002555,
+    "stage_jsd": 8e-06,
+    "sim_total": 27751.0,
+    "target_total": 27751.341
+   },
+   "off": {
+    "srmse_mean": 0.034934,
+    "srmse_max": 0.440678,
+    "jsd_mean": 0.005376,
+    "jsd_max": 0.10349,
+    "abs_error_sum": 108.006,
+    "stage_srmse": 0.002555,
+    "stage_jsd": 8e-06,
+    "sim_total": 27751.0,
+    "target_total": 27751.341
+   }
+  },
+  "t07_1_tenure": {
+   "on": {
+    "srmse_mean": 0.023944,
+    "srmse_max": 0.440141,
+    "jsd_mean": 0.001495,
+    "jsd_max": 0.030941,
+    "abs_error_sum": 52.541,
+    "stage_srmse": 0.00038,
+    "stage_jsd": 0.0,
+    "sim_total": 27751.0,
+    "target_total": 27751.341
+   },
+   "off": {
+    "srmse_mean": 0.023944,
+    "srmse_max": 0.440141,
+    "jsd_mean": 0.001495,
+    "jsd_max": 0.030941,
+    "abs_error_sum": 52.541,
+    "stage_srmse": 0.00038,
+    "stage_jsd": 0.0,
+    "sim_total": 27751.0,
+    "target_total": 27751.341
+   }
+  },
+  "t08_1_building_type": {
+   "on": {
+    "srmse_mean": 0.024458,
+    "srmse_max": 0.34212,
+    "jsd_mean": 0.002076,
+    "jsd_max": 0.064553,
+    "abs_error_sum": 71.118,
+    "stage_srmse": 0.000654,
+    "stage_jsd": 0.0,
+    "sim_total": 27751.0,
+    "target_total": 27751.341
+   },
+   "off": {
+    "srmse_mean": 0.024458,
+    "srmse_max": 0.34212,
+    "jsd_mean": 0.002076,
+    "jsd_max": 0.064553,
+    "abs_error_sum": 71.118,
+    "stage_srmse": 0.000654,
+    "stage_jsd": 0.0,
+    "sim_total": 27751.0,
+    "target_total": 27751.341
+   }
+  }
+ },
+ "uniqueness": {
+  "attribute_tuple_columns": [
+   "sex",
+   "age",
+   "marital",
+   "relation",
+   "chome_key",
+   "labour_status",
+   "emp_status",
+   "industry_major",
+   "occupation_major",
+   "workplace_kind",
+   "school_kind",
+   "residence_period"
+  ],
+  "attribute_tuple_distinct": 40093,
+  "attribute_tuple_shared_share": 0.10499,
+  "household_member_duplicates": 0,
+  "households_with_two_or_more_spouses": 0,
+  "households_without_exactly_one_head": 0,
+  "person_id_duplicates": 0,
+  "synthetic": 0
+ },
+ "family": {
+  "child_spouses_gap_under_15": 0,
+  "children_older_than_a_parent": 0,
+  "children_parent_gap_under_15": 0,
+  "couples": 6726,
+  "grandchildren": 64,
+  "grandchildren_gap_under_30": 0,
+  "grandparents": 4,
+  "grandparents_gap_under_30": 0,
+  "heads_under_15": 0,
+  "husband_minus_wife": {
+   "histogram": [
+    86,
+    190,
+    397,
+    840,
+    856,
+    1433,
+    1415,
+    1026,
+    483
+   ],
+   "histogram_bins": [
+    -100,
+    -10,
+    -5,
+    -2,
+    0,
+    1,
+    3,
+    6,
+    11,
+    100
+   ],
+   "mean": 2.539,
+   "quantiles_10_50_90": [
+    -2,
+    2,
+    9
+   ]
+  },
+  "parents_gap_under_15": 0,
+  "parents_younger_than_head": 0
+ },
+ "overlap": {
+  "note_dispatched": "経済センサスは派遣先でなく派遣元の所属で数える(R-109 の 16,526 人=区全体・引)",
+  "note_transport": "乗務員と鉄道業の従業者の重なりの手がかり(乗務員は段 4・W16 は v1 の在庫 1,258)",
+  "note_working_in_ward": "この人数は従業地の就業者(第11-1表 375,270=区全体)と経済センサスの席(段 4)の両方に入る=二重に数えない",
+  "residents_dispatched": 721,
+  "residents_in_transport_H": 529,
+  "residents_working_at_home_or_in_ward": 13688
+ },
+ "unknown_allocated": {
+  "age": 6246.405,
+  "emp_status": 358.738,
+  "family_type": 0.03,
+  "industry_major(分類不能 T は区分のまま)": 0.0,
+  "labour_status": 11410.932,
+  "marital": 3965.028,
+  "residence_period": 16925.219,
+  "school": 1.0,
+  "school_place": 45.227,
+  "tenure": 0.0,
+  "workplace_kind": 589.307
+ },
+ "blanks": {
+  "duty_role": 42642,
+  "emp_status": 15578,
+  "employment_status": 15578,
+  "industry_key": 17419,
+  "industry_major": 15578,
+  "labour_status": 3241,
+  "marital": 3241,
+  "nationality_group": 42642,
+  "occupation_major": 15578,
+  "residence_period": 0,
+  "school_kind": 0,
+  "school_place": 41090,
+  "workplace_kind": 15578
+ },
+ "placement": {
+  "by_any_building": 0,
+  "by_class": 21744,
+  "by_covered_area": 1524,
+  "class_fallback": 5022,
+  "unplaced": 0
+ },
+ "draw_fallbacks": {
+  "composition_truncated": 0,
+  "spouse_same_age": 0,
+  "window_empty": 0,
+  "window_no_weight": 0
+ },
+ "foreign_by_chome": {
+  "abs_error_sum": 8.705,
+  "sim_total": 3559,
+  "target_total": 3559.193
+ },
+ "commuters_w16": {
+  "available": true,
+  "employment_status": {
+   "non_regular": 43617,
+   "regular": 138341,
+   "self_employed": 33814
+  },
+  "industry_key": {
+   "": 8856,
+   "AM": 5599,
+   "CN": 8410,
+   "CS": 223,
+   "ED": 9828,
+   "FB": 13550,
+   "FI": 7282,
+   "IT": 36393,
+   "LS": 5568,
+   "MF": 11628,
+   "MW": 9612,
+   "PS": 20204,
+   "RE": 19394,
+   "SV": 20912,
+   "TR": 4921,
+   "WR": 33392
+  },
+  "n": 215772,
+  "note": "W16 の通勤者(複製を含む)の年齢と男女に従業地の表の関数をかけた分布。資産には書かない(段 7 で外の人を作るときに使う)",
+  "occupation_major": {
+   "A": 7482,
+   "B": 55394,
+   "C": 67692,
+   "D": 38493,
+   "E": 20402,
+   "F": 3334,
+   "G": 95,
+   "H": 6735,
+   "I": 1868,
+   "J": 3808,
+   "K": 5543,
+   "L": 4926
+  }
+ },
+ "students_in": {
+  "age16": [
+   0,
+   423,
+   560,
+   5020,
+   3554,
+   290,
+   70,
+   22,
+   12,
+   16,
+   9,
+   6,
+   5,
+   4,
+   6,
+   3
+  ],
+  "blank_note": "外から来る通学者の通学地・居住期間・仕事は空欄(表が無い)",
+  "male_share": 0.3719,
+  "n": 10000,
+  "school_kind": {
+   "elementary": 715,
+   "graduate": 1765,
+   "high": 2285,
+   "junior_college": 2060,
+   "junior_high": 650,
+   "university": 2525
+  },
+  "table_total": 31560.0
+ },
+ "w16_employment_of_residents": {
+  "家族従業者": 490,
+  "役員": 3920,
+  "正規": 14060,
+  "自営業主": 3636,
+  "非就業": 15578,
+  "非正規": 4958
+ },
+ "counts": {
+  "foreign_persons": 3559,
+  "general_households": 27751,
+  "households": 28290,
+  "institution_persons": 539,
+  "persons": 42642,
+  "stage_chome": 42
+ },
+ "ratios": {
+  "r_foreign": 1.8910845588235294,
+  "r_hh": 1.0143938180653427,
+  "r_institution": 1.03743961352657,
+  "r_pop": 0.9792646473923972
+ },
+ "ipf_residual": {
+  "age16_sex": 3.101685548735065e-11,
+  "hh_group": 4.0925997370599105e-10,
+  "hh_size": 4.015339384771591e-10,
+  "household_cells": 9.792767411910178e-10,
+  "marital3_sex": 2.2145273023624408e-10
+ },
+ "w21_build_hash": "ca823451cad3f57b5a2636b65a6cc94806e9a62f9b7a9b7dd6546370c97f00c0"
+}

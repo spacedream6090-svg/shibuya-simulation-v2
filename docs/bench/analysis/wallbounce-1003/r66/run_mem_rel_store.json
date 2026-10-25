@@ -1,0 +1,235 @@
+{
+ "schema": "shibuya.bench/wallbounce-1003/r66-run/1",
+ "arm": "mem_rel_store",
+ "args": {
+  "vocab_version": "v3",
+  "activity": true,
+  "memory": "on",
+  "relations": "on",
+  "store_memory": "on"
+ },
+ "agents": 5000,
+ "seed": 1,
+ "final_hash": "1e28c8ce3f80d888",
+ "llm_calls": 72930,
+ "renders": 72930,
+ "token_rule": "renderer の概算(ブロックごとに 文字数 // 2・最低 1)。tokenizer は使っていない",
+ "per_block": {
+  "B0": {
+   "chars_mean": 1413.0,
+   "bytes_mean": 3711.0,
+   "est_tok_mean": 706.0,
+   "est_tok_share": 0.6735,
+   "distinct": 1
+  },
+  "B1": {
+   "chars_mean": 17.99,
+   "bytes_mean": 41.98,
+   "est_tok_mean": 8.99,
+   "est_tok_share": 0.0086,
+   "distinct": 5
+  },
+  "B2": {
+   "chars_mean": 190.78,
+   "bytes_mean": 434.31,
+   "est_tok_mean": 95.23,
+   "est_tok_share": 0.0908,
+   "distinct": 489
+  },
+  "B3": {
+   "chars_mean": 61.98,
+   "bytes_mean": 138.42,
+   "est_tok_mean": 30.77,
+   "est_tok_share": 0.0294,
+   "distinct": 283
+  },
+  "B4": {
+   "chars_mean": 85.69,
+   "bytes_mean": 206.81,
+   "est_tok_mean": 42.35,
+   "est_tok_share": 0.0404,
+   "distinct": 24
+  },
+  "B4b": {
+   "chars_mean": 29.5,
+   "bytes_mean": 62.91,
+   "est_tok_mean": 14.31,
+   "est_tok_share": 0.0137,
+   "distinct": 4704
+  },
+  "B5": {
+   "chars_mean": 213.55,
+   "bytes_mean": 448.0,
+   "est_tok_mean": 106.52,
+   "est_tok_share": 0.1016,
+   "distinct": 69142
+  },
+  "B6": {
+   "chars_mean": 88.58,
+   "bytes_mean": 222.71,
+   "est_tok_mean": 44.05,
+   "est_tok_share": 0.042,
+   "distinct": 3028
+  }
+ },
+ "groups": {
+  "shared_static": {
+   "est_tok_mean": 745.77,
+   "chars_mean": 1492.98,
+   "est_tok_share": 0.7115,
+   "chars_share": 0.7106
+  },
+  "cell": {
+   "est_tok_mean": 151.89,
+   "chars_mean": 305.98,
+   "est_tok_share": 0.1449,
+   "chars_share": 0.1456
+  },
+  "individual": {
+   "est_tok_mean": 150.57,
+   "chars_mean": 302.12,
+   "est_tok_share": 0.1436,
+   "chars_share": 0.1438
+  }
+ },
+ "prompt_est_tok": {
+  "n": 72930,
+  "mean": 1048.23,
+  "p50": 1048.0,
+  "p95": 1080.0,
+  "max": 1135.0,
+  "sum": 76447198.0
+ },
+ "prompt_chars": {
+  "n": 72930,
+  "mean": 2108.08,
+  "p50": 2108.0,
+  "p95": 2172.0,
+  "max": 2280.0,
+  "sum": 153742023.0
+ },
+ "cell_list_lines": {
+  "list_chars_mean": 159.2,
+  "cell_chars_mean": 307.98,
+  "list_fraction": 0.5169,
+  "tags": [
+   "[B2 可視]",
+   "[B2 看板]",
+   "[B2 地物]",
+   "[B4 顕著]",
+   "[B4b"
+  ]
+ },
+ "prefix_within_tick": {
+  "depth1_B0": {
+   "distinct_per_tick_mean": 1.0,
+   "reuse_rate_within_tick": 0.982
+  },
+  "depth2_B1": {
+   "distinct_per_tick_mean": 3.44,
+   "reuse_rate_within_tick": 0.9381
+  },
+  "depth3_B2": {
+   "distinct_per_tick_mean": 34.1,
+   "reuse_rate_within_tick": 0.3871
+  },
+  "depth4_B3": {
+   "distinct_per_tick_mean": 34.1,
+   "reuse_rate_within_tick": 0.3871
+  },
+  "depth5_B4": {
+   "distinct_per_tick_mean": 34.1,
+   "reuse_rate_within_tick": 0.3871
+  },
+  "depth6_B4b": {
+   "distinct_per_tick_mean": 34.1,
+   "reuse_rate_within_tick": 0.3871
+  }
+ },
+ "timing": {
+  "render_us": {
+   "n": 72930,
+   "mean": 453.25,
+   "p50": 420.3000571578741,
+   "p95": 689.5000115036964,
+   "max": 37345.09996138513,
+   "sum": 33055718.91006548
+  },
+  "render_s_total": 33.056,
+  "prepare_tick_ms": {
+   "n": 1440,
+   "mean": 1.84,
+   "p50": 1.8981000175699592,
+   "p95": 3.1045950017869473,
+   "max": 29.014999978244305,
+   "sum": 2649.207894690335
+  },
+  "prepare_tick_s_total": 2.649,
+  "detect_ms": {
+   "n": 1440,
+   "mean": 0.27,
+   "p50": 0.15630002599209547,
+   "p95": 0.22273494978435335,
+   "max": 155.47989995684475,
+   "sum": 389.73670406267047
+  },
+  "calls_per_tick": {
+   "n": 1440,
+   "mean": 50.65,
+   "p50": 35.0,
+   "p95": 155.04999999999995,
+   "max": 2043.0,
+   "sum": 72930.0
+  },
+  "note": "壁時計は参考(Windows の手元機・他のプロセスと同居)"
+ },
+ "change_detect": {
+  "ticks": 1440,
+  "changed_cells_per_tick": {
+   "n": 1440,
+   "mean": 39.34,
+   "p50": 45.0,
+   "p95": 70.0,
+   "max": 520.0,
+   "sum": 56652.0
+  },
+  "cell_wake_agents_per_tick": {
+   "n": 1440,
+   "mean": 183.59,
+   "p50": 155.0,
+   "p95": 493.0,
+   "max": 3438.0,
+   "sum": 264376.0
+  },
+  "ticks_with_change": 1401
+ },
+ "micro_after_run": {
+  "n": 967,
+  "render_cached_us": {
+   "n": 967,
+   "mean": 344.85,
+   "p50": 353.8000164553523,
+   "p95": 426.5899886377155,
+   "max": 825.9000023826957,
+   "sum": 333470.09867429733
+  },
+  "render_uncached_cell_us": {
+   "n": 967,
+   "mean": 338.85,
+   "p50": 316.8999683111906,
+   "p95": 457.5499915517866,
+   "max": 883.0999722704291,
+   "sum": 327663.99811953306
+  },
+  "cell_part_build_us": {
+   "n": 967,
+   "mean": 20.96,
+   "p50": 20.699924789369106,
+   "p95": 23.969984613358967,
+   "max": 41.60008393228054,
+   "sum": 20267.800777219236
+  },
+  "prepare_tick_ms_repeat": 0.221
+ },
+ "wall_s_reference": 66.5
+}

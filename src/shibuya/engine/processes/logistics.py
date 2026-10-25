@@ -24,10 +24,11 @@ from typing import Final
 
 import numpy as np
 
-from shibuya.core.rng import stream
+from shibuya.core.rng import k19_counters, stream
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "PARCELS_PER_DAY_WARD",
@@ -45,7 +46,6 @@ __all__ = [
 
 _SCHEDULED: Final[int] = DEVIATION_CODES[DeviationVocab.SCHEDULED]
 _REPLACEMENT: Final[int] = DEVIATION_CODES[DeviationVocab.REPLACEMENT]
-MINUTES_PER_DAY: Final[int] = 1_440
 
 #: 渋谷区への按分後の宅配個数[個/日](台帳 W2 の「≈2.7万個/日」・expedient)。
 PARCELS_PER_DAY_WARD: Final[int] = 27_000
@@ -62,16 +62,16 @@ PARCEL_HOUR_CURVE: Final[tuple[tuple[int, float], ...]] = (
 #: バスの運行間隔[分](expedient)。
 BUS_HEADWAY_MIN: Final[int] = 10
 #: バスの運行帯[分](06:00-23:00・expedient)。
-BUS_SERVICE_WINDOW: Final[tuple[int, int]] = (6 * 60, 23 * 60)
+BUS_SERVICE_WINDOW: Final[tuple[int, int]] = (6 * MINUTES_PER_HOUR, 23 * MINUTES_PER_HOUR)
 
 #: 道路占用の時間帯[分](22:00-05:00・expedient)。
-ROADWORK_WINDOW: Final[tuple[int, int]] = (22 * 60, 5 * 60)
+ROADWORK_WINDOW: Final[tuple[int, int]] = (22 * MINUTES_PER_HOUR, 5 * MINUTES_PER_HOUR)
 #: 1 晩に立つ工事件数(expedient)。
 ROADWORKS_PER_NIGHT: Final[int] = 6
 
 
 def _minute(tick: int, tick_seconds: int) -> int:
-    return int(int(tick) * int(tick_seconds) // 60) % MINUTES_PER_DAY
+    return int(int(tick) * int(tick_seconds) // SECONDS_PER_MINUTE) % MINUTES_PER_DAY
 
 
 class LastMileProcess:
@@ -124,6 +124,10 @@ class LastMileProcess:
         self._cum = 0
         _ = stream(master_seed, "world.delivery_last_mile", int(day_index))  # 予約(再配達=Phase 3)
 
+    def relay_day(self) -> None:
+        """10d(親の答え 5): 日の頭でその日の配達済みを 0 に戻す(``parcels_per_cell`` は「その日の予定」・乱数は使わない)。"""
+        self.delivered[:] = 0
+
     @property
     def active(self) -> bool:
         return self.parcels_today > 0 and self.world.n_cells > 0
@@ -132,9 +136,9 @@ class LastMileProcess:
         if not self.active:
             return
         minute = _minute(tick, self.tick_seconds)
-        hour = minute // 60
+        hour = minute // MINUTES_PER_HOUR
         weight = self._hours.get(hour)
-        if weight is None or minute % 60:
+        if weight is None or minute % MINUTES_PER_HOUR:
             return
         want = np.floor(self.parcels_per_cell * float(weight)).astype(np.int64)
         room = np.maximum(0, self.parcels_per_cell - self.delivered)
@@ -250,8 +254,8 @@ class BusTaxiProcess:
             return "バス・タクシー: 停留所データが無い(休む)"
         return (
             f"バス・タクシー: 停留所 {self.stop_cell.size} / 到着 {self.n_arrivals:,} "
-            f"(等間隔 {self.headway} 分・{BUS_SERVICE_WINDOW[0] // 60:02d}:00-"
-            f"{BUS_SERVICE_WINDOW[1] // 60:02d}:00=expedient・乗降なし)"
+            f"(等間隔 {self.headway} 分・{BUS_SERVICE_WINDOW[0] // MINUTES_PER_HOUR:02d}:00-"
+            f"{BUS_SERVICE_WINDOW[1] // MINUTES_PER_HOUR:02d}:00=expedient・乗降なし)"
         )
 
 
@@ -287,17 +291,29 @@ class RoadWorksProcess:
         self.n_started = 0
         self.n_finished = 0
         edge_cell = getattr(passets, "edge_cell", None)
-        n_edges = 0 if edge_cell is None else int(np.asarray(edge_cell).size)
-        g = stream(master_seed, "world.road_works", int(day_index))
-        k = min(int(n_works), n_edges)
-        self.planned_edges = (
-            np.sort(g.choice(n_edges, size=k, replace=False)).astype(np.int64)
-            if k > 0 else np.zeros(0, dtype=np.int64)
-        )
+        self.master_seed = master_seed
+        self.n_works = int(n_works)
+        self._plan(int(day_index))
         self.edge_cell = (
             np.zeros(0, dtype=np.int64) if edge_cell is None
             else np.asarray(edge_cell, dtype=np.int64)
         )
+
+    def _plan(self, day_key: int) -> None:
+        """その日の工事の辺(日の鍵の乱数・10a #20)。"""
+        edge_cell = getattr(self.assets, "edge_cell", None)
+        n_edges = 0 if edge_cell is None else int(np.asarray(edge_cell).size)
+        # 10e(E4・K19・U2): counter は日の鍵を 1 語目に置く(次の日の流れの頭と重ならない)
+        g = stream(self.master_seed, "world.road_works", *k19_counters(int(day_key)))
+        k = min(int(self.n_works), n_edges)
+        self.planned_edges = (
+            np.sort(g.choice(n_edges, size=k, replace=False)).astype(np.int64)
+            if k > 0 else np.zeros(0, dtype=np.int64)
+        )
+
+    def relay_day(self, day_key: int) -> None:
+        """10d(親の答え 5): 日の頭でその日の日の鍵から工事の辺を引き直す(いま塞いでいる辺はその夜の終わりまで続く)。"""
+        self._plan(int(day_key))
 
     @property
     def active(self) -> bool:

@@ -1,0 +1,31 @@
+{
+ "key": "W3#1",
+ "control": "代表ノード間の最短路(宣言)vs セル内ノード対の最短路の中央値",
+ "metric": "セル間距離(上三角)の 10 m 階級分布",
+ "variants": [
+  {
+   "name": "ノード対の中央値",
+   "jsd_bits": 0.0007475432818183843,
+   "null_p95": 0.0011036899571426108,
+   "detected": false,
+   "tvd": 0.021817103898028753,
+   "n_declared": 134940.0,
+   "n_control": 134940.0,
+   "n_bins": 376,
+   "mean_abs_diff_m": 24.217111308729805,
+   "share_pairs_abs_diff_ge_10m": 0.605520972283978
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 1.6408411000156775,
+ "checks": {
+  "declared_recomputed_equals_asset": true
+ },
+ "notes": [
+  "分布の JSD は対ごとの入れ替えを見ない(対ごとの差は mean_abs_diff_m・share_pairs_abs_diff_ge_10m に記録)"
+ ],
+ "seconds_wall_row": 4.01,
+ "measured_at": "2026-09-30"
+}

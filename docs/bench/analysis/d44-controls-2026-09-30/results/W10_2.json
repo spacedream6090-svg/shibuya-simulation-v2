@@ -1,0 +1,32 @@
+{
+ "key": "W10#2",
+ "control": "昼間 12 h・残り 12 h を各一様(宣言)vs 残り 12 h を昼に近い 4 時間(19-21・6 時)へ 1.5 倍・深夜 8 時間を 0.75 倍(総量は同じ)",
+ "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+ "variants": [
+  {
+   "name": "夜の配分を寄せる",
+   "jsd_bits": 0.009499661251712614,
+   "null_p95": 0.001774917408448474,
+   "detected": true,
+   "tvd": 0.06476010001906193,
+   "n_declared": 713464.0,
+   "n_control": 713464.0,
+   "n_bins": 4168,
+   "share_points_stage_changed_day": 0.028932083468822534,
+   "share_points_stage_changed_night": 0.17472500364419227
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 10.407246100017801,
+ "outputs_changed": [
+  "w10_noise_day.npy",
+  "w10_noise_night.npy",
+  "w10_noise_stage_day.npy",
+  "w10_noise_stage_night.npy"
+ ],
+ "notes": [],
+ "seconds_wall_row": 12.66,
+ "measured_at": "2026-09-30"
+}

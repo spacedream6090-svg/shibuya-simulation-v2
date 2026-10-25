@@ -1,0 +1,67 @@
+{
+ "rule": "engine.tools.places.osm_phone_of(phone → contact:phone)",
+ "files": {
+  "poi_tags_overpass_20260928.json": {
+   "elements": 3516,
+   "with_phone": 575,
+   "by_tag": {
+    "contact:phone": 100,
+    "phone": 476
+   },
+   "by_type": {
+    "node": 547,
+    "relation": 1,
+    "way": 27
+   },
+   "by_main_key": {
+    "amenity": 366,
+    "craft": 3,
+    "healthcare": 1,
+    "leisure": 6,
+    "office": 30,
+    "shop": 157,
+    "tourism": 12
+   },
+   "share": 0.1635
+  },
+  "poi_opening_hours_overpass_20260907.json": {
+   "elements": 2164,
+   "with_phone": 457,
+   "by_tag": {
+    "contact:phone": 81,
+    "phone": 377
+   },
+   "by_type": {
+    "node": 439,
+    "way": 18
+   },
+   "by_main_key": {
+    "amenity": 300,
+    "shop": 157
+   },
+   "share": 0.2112
+  },
+  "shibuya_osm_wide_v8.json:pois": {
+   "elements": 2337,
+   "with_phone": 0,
+   "poi_keys": [
+    "building",
+    "cat",
+    "floor",
+    "id",
+    "name",
+    "node",
+    "x",
+    "y"
+   ]
+  }
+ },
+ "w6_match": {
+  "w6_rows": 2337,
+  "same_name_at_same_row": 2337,
+  "osm_id_rows": 2327,
+  "non_osm_rows": 10,
+  "matched_in_poi_tags_20260928": 2259,
+  "matched_with_phone": 477
+ }
+}

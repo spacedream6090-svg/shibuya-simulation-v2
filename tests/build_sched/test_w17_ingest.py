@@ -231,10 +231,7 @@ def test_cli_runs_and_accepts_shard(world_dir: Path, data_dir: Path, capsys):
 
 # ---------------------------------------------------------------- 実データ(skipif)
 @pytest.mark.slow
-@pytest.mark.skipif(
-    not (REAL_POPULATION.exists() and REAL_POOL.exists()),
-    reason="実資産(w16_population.parquet / persona_pool_v2)が無い",
-)
+@pytest.mark.requires_data("world_v2:w16_population.parquet", "persona_pool:meta.json")
 def test_real_population_prompts(tmp_path: Path):
     """実データ: 件数=体数・平均入力トークン・プロンプト SHA を測って報告する。"""
     t0 = time.perf_counter()

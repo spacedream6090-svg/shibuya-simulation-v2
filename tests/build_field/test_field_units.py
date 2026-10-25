@@ -13,6 +13,7 @@ from __future__ import annotations
 import datetime as dt
 import inspect
 import math
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -67,6 +68,19 @@ def test_parse_opening_hours_off():
     got = w7.parse_opening_hours("Mo,Tu,Fr,Sa 17:00-24:00; We off; Th off; Su 04:00-23:00; PH off")
     assert got[2] == [] and got[3] == []
     assert got[6] == [(240, 1380)]
+
+
+def test_parse_holiday_hours():
+    """〔改訂(第330 B6)〕PH(祝日)の規則を祝日の 1 日ぶんの区間として拾う(週表は変えない)。"""
+    assert w7.parse_holiday_hours("Mo-Fr 07:00-21:00; Sa 08:00-20:00; Su,PH 08:00-19:00") == [(480, 1140)]
+    assert w7.parse_holiday_hours("Mo,Tu,Fr,Sa 17:00-24:00; We off; Th off; Su 04:00-23:00; PH off") == []
+    assert w7.parse_holiday_hours("Mo-Su,PH 00:00-24:00") == [(0, 1440)]
+    assert w7.parse_holiday_hours("Mo-Fr 10:00-20:00") is None  # PH の規則が無い
+    assert w7.parse_holiday_hours("24/7") is None
+    assert w7.parse_holiday_hours("PH 10:00-12:00,13:00-18:00") == [(600, 720), (780, 1080)]
+    # 週表の読み方は今と同じ(PH は週表に入らない)
+    assert w7.parse_opening_hours("Mo-Fr 07:00-21:00; Sa 08:00-20:00; Su,PH 08:00-19:00")[6] == [(480, 1140)]
+    assert w7.INPUT_FILES[-1] == ("calendar", "syukujitsu.csv")
 
 
 @pytest.mark.parametrize(
@@ -469,6 +483,29 @@ def test_equal_interval_departures_headways():
     assert w12.equal_interval_departures(0, 0.5, 300, 1400) == []
 
 
+@pytest.mark.parametrize("tph", [18, 19, 24, 27])
+def test_equal_interval_departures_hourly_count_equals_declared(tph):
+    """〔改訂(第330)・答え 10-12b 1-1〕1 時間の本数=宣言(60 の約数でない本数でも)。
+
+    旧は間隔を整数分に丸めて積んだので 18→20・19→20・24→30・27→30 本/時になっていた。
+    間隔が一定の時間帯(比 1.0)は、どの 1 時間も宣言の本数ちょうど。
+    """
+    deps = w12.equal_interval_departures(tph, 1.0, 300, 1440)
+    mins = [w12._minute(d) for d in deps]
+    assert mins == sorted(mins) and len(set(mins)) == len(mins)
+    per_hour = Counter(m // 60 for m in mins)
+    assert all(per_hour[h] == tph for h in range(5, 24)), dict(per_hour)
+    # ピークとオフピークが入れ替わる日: ピークの真ん中の時(8 時台・18 時台)は宣言どおり、
+    # 境の時(7・9・17・19 時台)は入る時刻の端数で宣言から 1 本までずれうる(小数で積む規則)
+    deps2 = w12.equal_interval_departures(tph, 0.5, 300, 1440)
+    ph = Counter(w12._minute(d) // 60 for d in deps2)
+    assert ph[8] == tph and ph[18] == tph
+    assert all(tph - 1 <= ph[h] <= tph for h in (7, 9, 17, 19)), dict(ph)
+    # オフピーク(比 0.5)の真ん中の時は宣言 × 比(端数は前後の時に振り分く=合計で合う)
+    assert all(abs(ph[h] - tph * 0.5) <= 1 for h in range(11, 16)), dict(ph)
+    assert abs(sum(ph[h] for h in range(10, 17)) - 7 * tph * 0.5) <= 1
+
+
 def test_equal_interval_departures_pm_peak_defaults_to_am():
     """D-W14 の本数表は朝ピークのみ=夕ピークは朝と同数に置く(明示の既定値)。"""
     am_only = w12.equal_interval_departures(20, 0.5, 300, 1400)
@@ -563,10 +600,61 @@ def test_daylight_phase_vocabulary():
 
 
 def test_weekday_kind_holiday():
-    assert w13.weekday_kind(dt.date(2026, 8, 11)) == "土休"  # 山の日(火曜)
-    assert w13.weekday_kind(dt.date(2026, 8, 12)) == "平日"
-    assert w13.weekday_kind(dt.date(2026, 8, 15)) == "土休"  # 土曜
-    assert w13.weekday_kind(dt.date(2026, 7, 20)) == "土休"  # 海の日
+    # 〔改訂(第330 B5)〕祝日は内閣府の CSV の表を渡す(手書きの 2 行をやめた)
+    hol = {"2026-07-20": "海の日", "2026-08-11": "山の日"}
+    assert w13.weekday_kind(dt.date(2026, 8, 11), hol) == "土休"  # 山の日(火曜)
+    assert w13.weekday_kind(dt.date(2026, 8, 12), hol) == "平日"
+    assert w13.weekday_kind(dt.date(2026, 8, 15), hol) == "土休"  # 土曜
+    assert w13.weekday_kind(dt.date(2026, 7, 20), hol) == "土休"  # 海の日
+    assert w13.weekday_kind(dt.date(2026, 7, 20), {}) == "平日"  # 表に無ければ平日(月曜)
+
+
+def test_w13_window_constant_and_inputs():
+    """〔改訂(第330 B5)〕窓は定数・入力は窓の名前の CSV 2 本と祝日 CSV だけ(rglob をやめた)。"""
+    assert w13.WINDOW == ("2025-09-01", "2026-08-31")
+    assert len(w13.window_dates()) == 365
+    assert w13.INPUT_FILES == (
+        ("realworld", "jma_etrn", "tokyo47662_10min_2025-09-01_2026-08-31.csv"),
+        ("realworld", "jma_etrn", "tokyo47662_hourly_2025-09-01_2026-08-31.csv"),
+        ("calendar", "syukujitsu.csv"),
+    )
+    src = inspect.getsource(w13)
+    assert "rglob" not in src.replace("``rglob``", "") and "realworld_live" not in src.replace(
+        "data/realworld_live は読まない", ""
+    )
+
+
+def test_season_of_matches_the_engine_calendar():
+    """build は engine を import しない。表の写しがエンジンの気象庁の区分と一致すること。"""
+    from shibuya.engine import calendar as ecal
+
+    assert dict(C.SEASON_OF_MONTH) == dict(ecal.SEASON_OF_MONTH)
+    assert w13.season_of(dt.date(2026, 2, 28)) == "冬" and w13.season_of(dt.date(2025, 9, 1)) == "秋"
+
+
+def test_read_etrn_10min_csv_buckets_like_the_amedas_json(tmp_path):
+    """観測の時刻の時で畳む(01:00=1 時台)・24:00 は翌日の 0 時台・夜の日照の空欄=0・窓の外は捨てる。"""
+    p = tmp_path / "t.csv"
+    rows = ["date,time,pressure_local_hpa,pressure_sea_hpa,precip_mm,temp_c,rh_pct,wind_ms,wind_dir,gust_ms,gust_dir,sunshine_min"]
+    rows += ["2025-09-01,00:10,1,1,--,20.0,80,1.0,北,2,北,", "2025-09-01,00:50,1,1,0.5,22.0,90,×,北,2,北,",
+             "2025-09-01,01:00,1,1,--,30.0,70,2.0,北,2,北,", "2025-09-01,24:00,1,1,--,25.0,60,3.0,北,2,北,",
+             "2026-08-31,24:00,1,1,--,99.0,60,3.0,北,2,北,", "2025-09-01,12:00,1,1,--,31.0,50,1.0,北,2,北,7"]
+    p.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    got, outside = w13.read_etrn_10min_csv(p, ("2025-09-01", "2026-08-31"))
+    assert outside == 1  # 2026-08-31 24:00 = 2026-09-01 0 時台=窓の外
+    h0 = got[("2025-09-01", 0)]
+    assert h0["temp_c"] == 21.0 and h0["precip_mm"] == 0.5 and h0["wind_ms"] == 1.0  # × は平均から外す
+    assert h0["sunshine_h"] == 0.0 and h0["n_samples"] == 2.0
+    assert got[("2025-09-01", 1)]["temp_c"] == 30.0
+    assert got[("2025-09-02", 0)]["temp_c"] == 25.0  # 24:00 → 翌日の 0 時台
+    assert got[("2025-09-01", 12)]["sunshine_h"] == pytest.approx(7 / 60)
+
+
+def test_read_holidays_csv(tmp_path):
+    p = tmp_path / "h.csv"
+    text = "国民の祝日・休日月日,国民の祝日・休日名称\r\n2026/7/20,海の日\r\n2026/8/11,山の日\r\n"
+    p.write_bytes(text.encode("cp932"))
+    assert C.read_holidays_csv(p) == {"2026-07-20": "海の日", "2026-08-11": "山の日"}
 
 
 def test_day_weather_type_rules():

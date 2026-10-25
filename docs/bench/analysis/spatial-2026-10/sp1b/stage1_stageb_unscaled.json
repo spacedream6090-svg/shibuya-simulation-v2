@@ -1,0 +1,1 @@
+{"what": "stageb", "rows": [{"negative": false, "ok": true, "final": "845bee0f9d785455", "effective": "nav1"}, {"negative": true, "ok": false, "error": "1-0 段 B: 宣言の外の変化 1013 件(先頭 [(62, 'phase_c', 'agents.nav_t'), (63, 'phase_c', 'agents.nav_t'), (64, 'phase_c', 'agents.nav_t'), (65, 'phase_c', 'agents.nav_t'), (66, 'phase_c', 'agents.nav_t')])"}], "pass": true}

@@ -1,0 +1,20 @@
+{
+ "n_common": 65,
+ "n_same": 65,
+ "keys": [
+  "final",
+  "calls",
+  "calls_by_condition",
+  "calls_by_hour",
+  "suppressed",
+  "sleep_suppressed",
+  "outside_suppressed",
+  "candidates",
+  "merged",
+  "conversation_sessions",
+  "arbiter"
+ ],
+ "differ": {},
+ "a": "rows_run1",
+ "b": "rows"
+}

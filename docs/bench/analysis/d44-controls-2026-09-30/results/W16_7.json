@@ -1,0 +1,40 @@
+{
+ "key": "W16#7",
+ "control": "従業者の年齢目標=区の 15 歳以上の分布(宣言)vs 1 階級(5 歳)上/下へずらす",
+ "metric": "通勤者(kind 0)の年齢階級の分布",
+ "variants": [
+  {
+   "name": "+5 歳",
+   "jsd_bits": 0.026610681058402925,
+   "null_p95": 3.506673467333418e-05,
+   "detected": true,
+   "tvd": 0.11172441280611015,
+   "n_declared": 215772.0,
+   "n_control": 215772.0,
+   "n_bins": 13
+  },
+  {
+   "name": "−5 歳",
+   "jsd_bits": 0.07274731108000605,
+   "null_p95": 3.506673467333418e-05,
+   "detected": true,
+   "tvd": 0.15892238103182985,
+   "n_declared": 215772.0,
+   "n_control": 215772.0,
+   "n_bins": 13
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 25.932840800029226,
+ "outputs_changed": [
+  "w16_cohorts.json",
+  "w16_duty_roster.parquet",
+  "w16_gates.json",
+  "w16_population.parquet"
+ ],
+ "notes": [],
+ "seconds_wall_row": 27.33,
+ "measured_at": "2026-09-30"
+}

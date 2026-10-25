@@ -31,6 +31,7 @@ import numpy as np
 
 from shibuya.agents.state import Activity, WakeCondition
 from shibuya.core.hashing import blake3_hex
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     "WEEKLY_FILE",
@@ -58,7 +59,6 @@ __all__ = [
 WEEKLY_FILE: Final[str] = "w17_schedule.parquet"
 
 N_DAYS: Final[int] = 7
-MINUTES_PER_DAY: Final[int] = 1_440
 
 # --- 語彙(``build.sched.vocab`` の**二重定義**・テストが一致を機械検査)--------------
 ACTIVITY_WORDS: Final[tuple[str, ...]] = (
@@ -559,7 +559,7 @@ def apply_to_mock_schedule(mock, weekly: WeeklySchedule, day_index: int = 0):
     home = np.asarray(mock.home_cell).copy()
     work = np.asarray(mock.work_cell).copy()
     home_at = weekly.target_cell_at(day_index, 0, home)  # 0:00 の居場所=自宅相当
-    work_at = weekly.target_cell_at(day_index, 12 * 60, work)  # 正午の行き先
+    work_at = weekly.target_cell_at(day_index, 12 * MINUTES_PER_HOUR, work)  # 正午の行き先
     home[:n] = np.where(home_at[:n] >= 0, home_at[:n], home[:n])
     work[:n] = np.where(work_at[:n] >= 0, work_at[:n], work[:n])
     out = dataclasses.replace(

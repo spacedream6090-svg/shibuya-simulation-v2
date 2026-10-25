@@ -1,0 +1,34 @@
+{
+ "schema": "shibuya.bench/wallbounce-1003/10a/response-delay/1",
+ "how": "偽 vLLM(pair_talk)・合成世界 2 セル・200 体 × 600 tick・fleet_wait_s=10・stub レンダラ・過程なし",
+ "runs": [
+  {
+   "response_delay": 1,
+   "llm_calls": 414,
+   "conversation_turn_calls": 52,
+   "utterances": 51,
+   "utterance_tick_minus_fire_tick": {
+    "1": 51
+   },
+   "fleet_resent": 0.0,
+   "sessions_opened": 6,
+   "conv_invites": 131,
+   "conv_accepted": 6,
+   "final": "066ada7a8421b620"
+  },
+  {
+   "response_delay": 2,
+   "llm_calls": 414,
+   "conversation_turn_calls": 57,
+   "utterances": 57,
+   "utterance_tick_minus_fire_tick": {
+    "1": 57
+   },
+   "fleet_resent": 0.0,
+   "sessions_opened": 7,
+   "conv_invites": 138,
+   "conv_accepted": 7,
+   "final": "79821d778ea4addf"
+  }
+ ]
+}

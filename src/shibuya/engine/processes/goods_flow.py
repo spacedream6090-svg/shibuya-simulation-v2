@@ -46,10 +46,12 @@ from typing import Final
 import numpy as np
 
 from shibuya.agents.state import AgentKind, AgentState
-from shibuya.core.rng import stream
+from shibuya.core.rng import k19_counters, stream
 from shibuya.engine import resolve as R
+from shibuya.engine.events.log import Process
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "REORDER_FILL_RATIO",
@@ -74,26 +76,27 @@ _REPLACEMENT: Final[int] = DEVIATION_CODES[DeviationVocab.REPLACEMENT]
 _SKIPPED: Final[int] = DEVIATION_CODES[DeviationVocab.SKIPPED]
 _DELAY: Final[int] = DEVIATION_CODES[DeviationVocab.DELAY]
 
-MINUTES_PER_DAY: Final[int] = 1_440
 
 #: 補充点 = 棚容量のこの割合を割ったら補充する(expedient)。
 #: 小売の実務は「棚は満杯を目指す」(発注点は満杯の直下)なので 0.95 を置く。
 #: **感度が高い**: 0.80 にすると 5,000 体・1 日では補充が 1 件も立たない
 #: (5,000 体 = 実渋谷の昼間人口の約 1%=購買による棚の減りが小さすぎる)。``AB-SHELF-REORDER``。
 REORDER_FILL_RATIO: Final[float] = 0.95
+#: 〔第 1 期 1-9〕補充の代金(域外仕入=店舗 → 外界)の原因(1-3 の原因=過程 ``shelf``・10b-prep §3-2 の E5)。
+RESTOCK_CAUSE: Final[Process] = Process("shelf")
 #: 補充を評価する刻み[分](expedient・正規化規約⑨と同じ)。
 RESTOCK_STEP_MINUTES: Final[int] = 5
 #: engine_rule フォールバックを回す時刻[分](10:00・expedient)。
 #: 行動契約書 §2.2 の補充は前提に「**営業中**」を含むので、開店前(05:00)に置くと
 #: ``open_mask`` で全件落ちて 1 件も動かない。既定の開店時刻に合わせた。
-RESTOCK_FALLBACK_MINUTE: Final[int] = 10 * 60
+RESTOCK_FALLBACK_MINUTE: Final[int] = 10 * MINUTES_PER_HOUR
 #: フォールバックの conf(台帳の ``shelf_stock_restock`` は executor=llm_agent で conf 欄が空。
 #: 「担い手が居ないときエンジンが代打する」行が台帳に無い=**設計の欠落として親へ報告**。
 #: 値は ``store_opening`` の 0.5 に揃えた=expedient)。
 RESTOCK_FALLBACK_CONF: Final[float] = 0.5
 
 #: 納品の時間帯[分](05:00-08:00・expedient)。
-DELIVERY_WINDOW: Final[tuple[int, int]] = (5 * 60, 8 * 60)
+DELIVERY_WINDOW: Final[tuple[int, int]] = (5 * MINUTES_PER_HOUR, 8 * MINUTES_PER_HOUR)
 #: 納品ロット = 補充ロットの何倍か(expedient)。
 DELIVERY_LOT_FACTOR: Final[int] = 2
 #: 遅延する便の割合(expedient)。
@@ -103,24 +106,24 @@ DELIVERY_DELAY_P: Final[float] = 1.0 / 6.0
 DELIVERY_DELAY_MAX_MIN: Final[int] = 30
 
 #: 廃棄物収集の時間帯[分](06:00-10:00・expedient)。
-COLLECT_WINDOW: Final[tuple[int, int]] = (6 * 60, 10 * 60)
+COLLECT_WINDOW: Final[tuple[int, int]] = (6 * MINUTES_PER_HOUR, 10 * MINUTES_PER_HOUR)
 #: 売れ残りをビンへ落とす時刻[分](05:00・expedient)。
 #: 収集の窓(06:00-10:00)より**前**に置く——実務でも廃棄は朝の収集便に合わせて出す。
 #: 23:00(閉店時)に置くと 1 日ランでは翌朝まで回収されず、検算②の当日 sink が常に 0 になる。
-WASTE_TO_BIN_MINUTE: Final[int] = 5 * 60
+WASTE_TO_BIN_MINUTE: Final[int] = 5 * MINUTES_PER_HOUR
 #: 世帯が所持を消費する時刻[分](19:00・expedient)。
-HOUSEHOLD_CONSUME_MINUTE: Final[int] = 19 * 60
+HOUSEHOLD_CONSUME_MINUTE: Final[int] = 19 * MINUTES_PER_HOUR
 
 #: 街路ごみの発生[g/人/tick](expedient・原単位は空欄)。
 LITTER_G_PER_PERSON_TICK: Final[float] = 0.05
 #: 街路清掃のシフト[分](早朝と昼過ぎ・expedient)。
-CLEANING_WINDOWS: Final[tuple[tuple[int, int], ...]] = ((5 * 60, 7 * 60), (13 * 60, 15 * 60))
+CLEANING_WINDOWS: Final[tuple[tuple[int, int], ...]] = ((5 * MINUTES_PER_HOUR, 7 * MINUTES_PER_HOUR), (13 * MINUTES_PER_HOUR, 15 * MINUTES_PER_HOUR))
 #: 1 tick に掃くセル数(expedient)。
 CELLS_PER_SWEEP_TICK: Final[int] = 8
 
 
 def _minute(tick: int, tick_seconds: int) -> int:
-    return int(int(tick) * int(tick_seconds) // 60) % MINUTES_PER_DAY
+    return int(int(tick) * int(tick_seconds) // SECONDS_PER_MINUTE) % MINUTES_PER_DAY
 
 
 def _best_slot(shelf: np.ndarray, poi_sku: np.ndarray, stores: np.ndarray) -> np.ndarray:
@@ -180,6 +183,9 @@ class ShelfRestockProcess:
         self.units_restocked = 0
         self.yen_paid = 0
         self._acted_today = np.zeros(n, dtype=bool)
+        #: 〔第 6 期 6-6 ② 第 1 部〕店の仕事の持ち主(腕 ``--duties arm`` のランだけ組み立てが挿す・参照・既定 None=今の道)。
+        #: 挿してあればその店の雇用の行を持つ体が店に居て起きている店の補充はこの過程がしない(本人の判断=:meth:`restock_by_staff`)。
+        self.duties = None
 
     @property
     def active(self) -> bool:
@@ -236,7 +242,13 @@ class ShelfRestockProcess:
         engine_rows = (~present) & (~self._acted_today[low]) if fallback_now else np.zeros(
             low.size, dtype=bool
         )
-        act = present | engine_rows
+        # 〔第 6 期 6-6 ② 第 1 部〕腕 --duties arm: その店の雇用の行を持つ体が店に居て起きている店は本人の判断に任せる(役割行動の
+        # 代打をしない)。〔検収 M4〕「居る」は開閉と同じ判定(店のセルに居て起きている=種別を見ない)。ほかの店はフォールバック
+        # 時刻のつなぎ(今日まだ補充していない店=二重の補充は _acted_today が防ぐ)
+        if self.duties is not None:
+            present = self.duties.staffed_now(low)
+            engine_rows = (~present) & (~self._acted_today[low]) if fallback_now else np.zeros(low.size, dtype=bool)
+        act = engine_rows if self.duties is not None else (present | engine_rows)
         rows = low[act]
         if rows.size == 0:
             return
@@ -261,7 +273,7 @@ class ShelfRestockProcess:
         slot = _best_slot(goods.shelf, goods.poi_sku, stores)
         cost = np.asarray(goods.unit_cost, dtype=np.int64)[stores] * q
         ok = np.asarray(
-            R.restock(self.world, self.ledger, stores, q, int(tick), slot=slot), dtype=bool
+            R.restock(self.world, self.ledger, stores, q, int(tick), slot=slot, cause=RESTOCK_CAUSE), dtype=bool
         )
         self.n_rejected += int((~ok).sum())  # 店舗の現金不足(域外仕入が払えない)
         if ok.any():
@@ -270,6 +282,8 @@ class ShelfRestockProcess:
             self.backroom[done] -= q[ok]
             self.units_restocked += int(q[ok].sum())
             self._acted_today[done] = True
+            if self.duties is not None:  # 〔第 6 期 6-6 ② 第 1 部〕つなぎが代わりにした店(計器=カバー率の分母)
+                self.duties.note_bridge("restock", done)
             by_staff = present[act][live][ok]
             self.n_role_actions += int(np.count_nonzero(by_staff))
             self.n_fallback += int(np.count_nonzero(~by_staff))
@@ -279,6 +293,54 @@ class ShelfRestockProcess:
                     np.full(done.size, int(tick), dtype=np.int64),
                     np.where(by_staff, _SCHEDULED, _REPLACEMENT).astype(np.int8),
                 )
+
+    # ------------------------------------------------------------------ 〔第 6 期 6-6 ② 第 1 部〕担当の体の補充
+    def restock_by_staff(self, stores, step: int) -> tuple[np.ndarray, np.ndarray]:
+        """担当の体が選んだ補充(品出し)を実行する(呼ぶのは系 ``duties``=腕 arm のランだけ)。量は :meth:`step` の役割行動と
+        同じ(満杯までの差とバックヤードの小さい方・その店で一番減っている棚)・代金は域外仕入(原因=過程 shelf=今と同じ)・
+        ActualLog は ``SCHEDULED``(バックヤードが空なら ``SKIPPED``)。返り値は店ごとの (できたか, 個数)。"""
+        s = np.asarray(stores, dtype=np.int64).ravel()
+        done = np.zeros(s.size, dtype=bool)
+        got = np.zeros(s.size, dtype=np.int64)
+        if not self.active or s.size == 0:
+            return done, got
+        goods = self.ledger.goods
+        stock = goods.aggregate_stock()
+        want = np.maximum(0, self.capacity[s] - stock[s])
+        qty = np.minimum(want, self.backroom[s])
+        empty = qty <= 0
+        if empty.any():
+            self.n_no_backroom += int(empty.sum())
+            if self.log is not None:
+                self.log.append_many(
+                    self.process_ids[0], s[empty],
+                    np.full(int(empty.sum()), int(step), dtype=np.int64),
+                    np.full(int(empty.sum()), _SKIPPED, dtype=np.int8),
+                )
+        live = np.flatnonzero(~empty)
+        if live.size == 0:
+            return done, got
+        st, q = s[live], qty[live]
+        slot = _best_slot(goods.shelf, goods.poi_sku, st)
+        cost = np.asarray(goods.unit_cost, dtype=np.int64)[st] * q
+        ok = np.asarray(R.restock(self.world, self.ledger, st, q, int(step), slot=slot, cause=RESTOCK_CAUSE), dtype=bool)
+        self.n_rejected += int((~ok).sum())
+        if ok.any():
+            self.yen_paid += int(cost[ok].sum())
+            fin = st[ok]
+            self.backroom[fin] -= q[ok]
+            self.units_restocked += int(q[ok].sum())
+            self._acted_today[fin] = True
+            self.n_role_actions += int(fin.size)
+            if self.log is not None:
+                self.log.append_many(
+                    self.process_ids[0], fin,
+                    np.full(fin.size, int(step), dtype=np.int64),
+                    np.full(fin.size, _SCHEDULED, dtype=np.int8),
+                )
+            done[live[ok]] = True
+            got[live[ok]] = q[ok]
+        return done, got
 
     # ------------------------------------------------------------------ 診断
     def counters(self) -> dict[str, float]:
@@ -331,9 +393,18 @@ class DeliveryInboundProcess:
         self.shelf = shelf
         self.tick_seconds = int(tick_seconds)
         self.log = actual_log
-        self.day_index = int(day_index)
-        n = world.n_poi
-        g = stream(master_seed, "world.delivery_inbound", int(day_index))
+        self.master_seed = master_seed
+        self._plan(int(day_index))
+        self.n_runs = 0
+        self.n_delayed = 0
+        self.units_delivered = 0
+
+    def _plan(self, day_key: int) -> None:
+        """その日の納品の時刻と遅れ(日の鍵の乱数・10a #20)。"""
+        self.day_index = int(day_key)
+        n = self.world.n_poi
+        # 10e(E4・K19・U2): counter は日の鍵を 1 語目に置く(次の日の流れの頭と重ならない)
+        g = stream(self.master_seed, "world.delivery_inbound", *k19_counters(int(day_key)))
         lo, hi = DELIVERY_WINDOW
         self.plan_minute = (
             g.integers(lo, hi, size=n).astype(np.int64) if n else np.zeros(0, np.int64)
@@ -344,9 +415,10 @@ class DeliveryInboundProcess:
             DELIVERY_DELAY_MAX_MIN,
         )
         self.delay_minute = np.where(delayed, draw, 0).astype(np.int64)
-        self.n_runs = 0
-        self.n_delayed = 0
-        self.units_delivered = 0
+
+    def relay_day(self, day_key: int) -> None:
+        """10d(親の答え 5): 日の頭でその日の日の鍵(暦の口の ``day_key(日)``)から納品の時刻と遅れを引き直す。"""
+        self._plan(int(day_key))
 
     @property
     def active(self) -> bool:
@@ -389,7 +461,7 @@ class DeliveryInboundProcess:
         return (
             f"納品: 便 {self.n_runs:,}(遅延 {self.n_delayed:,}) / 入荷枠 "
             f"{self.units_delivered:,} 個 "
-            f"(窓 {DELIVERY_WINDOW[0] // 60:02d}:00-{DELIVERY_WINDOW[1] // 60:02d}:00=expedient)"
+            f"(窓 {DELIVERY_WINDOW[0] // MINUTES_PER_HOUR:02d}:00-{DELIVERY_WINDOW[1] // MINUTES_PER_HOUR:02d}:00=expedient)"
         )
 
 
@@ -430,6 +502,9 @@ class WasteCollectionProcess:
         #: 第304 Q135: 世帯の消費で廃棄 sink へ入った質量[g](``goods.consume_many`` が足す分と同じ・報告だけ)。
         self.consumed_g = 0.0
         self._cursor = 0
+        #: 〔第 6 期 6-6 ② 第 1 部〕店の仕事の持ち主(腕 ``--duties arm`` のランだけ組み立てが挿す・参照・既定 None=今の道)。
+        #: 挿してあれば、前の売れ残りの時刻から担当の体が捨てた店(``duties.binned_mask()``)はこの過程が捨てない。
+        self.duties = None
 
     @property
     def active(self) -> bool:
@@ -459,6 +534,9 @@ class WasteCollectionProcess:
         sku = np.asarray(goods.poi_sku, dtype=np.int64)
         per = np.where(sku >= 0, rate[np.maximum(sku, 0)], 0.0)
         qty = np.floor(shelf * per).astype(np.int64)
+        if self.duties is not None:
+            # 〔第 6 期 6-6 ② 第 1 部〕担当の体が閉店の作業で捨てた店は捨てない(担当の居ない店・捨てなかった店は今のつなぎ)
+            qty[np.asarray(self.duties.binned_mask(), dtype=bool)] = 0
         rows, cols = np.nonzero(qty > 0)
         if rows.size == 0:
             return
@@ -466,6 +544,43 @@ class WasteCollectionProcess:
             self.world, self.ledger, rows, qty[rows, cols], tick, slot=cols
         )
         self.n_bin_rows += int(np.count_nonzero(np.asarray(ok)))
+        if self.duties is not None:  # 〔第 6 期 6-6 ② 第 1 部〕つなぎが捨てた行(計器=カバー率の分母)
+            self.duties.note_bridge("discard_rows", rows[np.asarray(ok, dtype=bool)])
+
+    # ---- 〔第 6 期 6-6 ② 第 1 部〕担当の体の閉店の作業: 売れ残り → ビン ----
+    def leftovers_of(self, stores) -> np.ndarray:
+        """店ごとの売れ残りの量(:meth:`_sell_leftovers_to_bin` と同じ式=棚 × SKU の廃棄率の切り捨ての和)。"""
+        s = np.asarray(stores, dtype=np.int64).ravel()
+        if not self.active or s.size == 0:
+            return np.zeros(s.size, dtype=np.int64)
+        goods = self.ledger.goods
+        shelf = np.asarray(goods.shelf, dtype=np.int64)[s]
+        rate = np.asarray(goods.sku.waste_rate, dtype=np.float64)
+        sku = np.asarray(goods.poi_sku, dtype=np.int64)[s]
+        per = np.where(sku >= 0, rate[np.maximum(sku, 0)], 0.0)
+        return np.floor(shelf * per).astype(np.int64).sum(axis=1)
+
+    def bin_by_staff(self, stores, step: int) -> tuple[np.ndarray, int]:
+        """担当の体が選んだ「売れ残りを捨てる」を実行する(呼ぶのは系 ``duties``=腕 arm のランだけ)。量は 05:00 のつなぎと
+        同じ式・棚 → ビン(``resolve.discard_to_bin``)。返り値は (店ごとの捨てた個数, 捨てた行=店 × 棚の数)。``n_bin_rows`` は
+        つなぎの行だけを数える(担当の体の分は持ち主の計器)。"""
+        s = np.asarray(stores, dtype=np.int64).ravel()
+        out = np.zeros(s.size, dtype=np.int64)
+        if not self.active or s.size == 0:
+            return out, 0
+        goods = self.ledger.goods
+        shelf = np.asarray(goods.shelf, dtype=np.int64)[s]
+        rate = np.asarray(goods.sku.waste_rate, dtype=np.float64)
+        sku = np.asarray(goods.poi_sku, dtype=np.int64)[s]
+        per = np.where(sku >= 0, rate[np.maximum(sku, 0)], 0.0)
+        qty = np.floor(shelf * per).astype(np.int64)
+        rows, cols = np.nonzero(qty > 0)
+        if rows.size == 0:
+            return out, 0
+        ok = np.asarray(R.discard_to_bin(self.world, self.ledger, s[rows], qty[rows, cols], int(step), slot=cols),
+                        dtype=bool)
+        np.add.at(out, rows[ok], qty[rows, cols][ok])
+        return out, int(np.count_nonzero(ok))
 
     # ---- C 類排出: 世帯の消費(所持 → sink) ----
     def _household_consumption(self, tick: int) -> None:

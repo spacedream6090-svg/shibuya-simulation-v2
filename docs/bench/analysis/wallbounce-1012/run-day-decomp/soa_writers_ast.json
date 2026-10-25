@@ -1,0 +1,2411 @@
+{
+ "source": "src/shibuya @ HEAD 0389689",
+ "n_columns": 91,
+ "n_columns_with_writer": 87,
+ "columns_no_static_writer": [
+  "fatigue_stage",
+  "invocation_distance",
+  "noise_stage",
+  "thermal_stage"
+ ],
+ "columns_multi_file_writers": {
+  "activity_until": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "board_line": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "board_since": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "cell": [
+   "agents/state.py",
+   "engine/resolve.py",
+   "world/state.py"
+  ],
+  "edge_id": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "fam_first": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "fam_last": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "fam_thing": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "focus_target": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "intent_action": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "intent_since": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "intent_target": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "last_action": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "last_result_tick": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "node": [
+   "agents/state.py",
+   "engine/resolve.py",
+   "world/state.py"
+  ],
+  "open_now": [
+   "engine/resolve.py",
+   "world/state.py"
+  ],
+  "path_next_node": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "plan_activity": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "poi_ref": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "poi_since": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "queue_poi": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "queue_since": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "rel_partner": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "sex": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "sm_first": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "sm_last": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "sm_poi": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "stock": [
+   "engine/resolve.py",
+   "world/state.py"
+  ],
+  "talk_partner": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "target_node": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ],
+  "transit_ref": [
+   "agents/state.py",
+   "engine/resolve.py"
+  ]
+ },
+ "by_file": {
+  "agents/state.py": [
+   "activity_until",
+   "board_line",
+   "board_since",
+   "cell",
+   "edge_id",
+   "fam_first",
+   "fam_last",
+   "fam_thing",
+   "focus_target",
+   "intent_action",
+   "intent_since",
+   "intent_target",
+   "last_action",
+   "last_result_tick",
+   "node",
+   "path_next_node",
+   "plan_activity",
+   "poi_ref",
+   "poi_since",
+   "queue_poi",
+   "queue_since",
+   "rel_partner",
+   "sex",
+   "sm_first",
+   "sm_last",
+   "sm_poi",
+   "talk_partner",
+   "target_node",
+   "transit_ref"
+  ],
+  "engine/resolve.py": [
+   "activity",
+   "activity_kind",
+   "activity_until",
+   "age",
+   "b4_hash",
+   "band",
+   "board_line",
+   "board_since",
+   "cell",
+   "density",
+   "density_stage",
+   "edge_id",
+   "edge_s",
+   "eer_kcal",
+   "energy_balance",
+   "fail_streak",
+   "fam_exposures",
+   "fam_first",
+   "fam_last",
+   "fam_thing",
+   "fam_visits",
+   "fatigue",
+   "focus_target",
+   "focus_ttl",
+   "heading",
+   "holdings",
+   "hunger",
+   "hunger_stage",
+   "intent_action",
+   "intent_kind",
+   "intent_since",
+   "intent_target",
+   "kind",
+   "last_action",
+   "last_result",
+   "last_result_tick",
+   "mem_cell",
+   "mem_importance",
+   "mem_kind",
+   "mem_last",
+   "mem_n",
+   "mem_object",
+   "mem_partner",
+   "mem_result",
+   "mem_tick",
+   "money",
+   "node",
+   "open_count",
+   "open_now",
+   "path_next_node",
+   "plan_activity",
+   "plan_flags",
+   "poi_ref",
+   "poi_since",
+   "queue_poi",
+   "queue_since",
+   "refractory_until",
+   "rel_first",
+   "rel_kind",
+   "rel_last",
+   "rel_n",
+   "rel_partner",
+   "rel_sign",
+   "revenue",
+   "sex",
+   "since_meal_kcal",
+   "sleep_pending",
+   "sm_first",
+   "sm_last",
+   "sm_n",
+   "sm_poi",
+   "sm_precision",
+   "sm_source",
+   "sm_valence",
+   "stock",
+   "talk_partner",
+   "target_node",
+   "task_flag",
+   "thermal",
+   "transit_ref",
+   "transit_state",
+   "weight_kg",
+   "xy"
+  ],
+  "world/state.py": [
+   "capacity",
+   "cell",
+   "node",
+   "open_from",
+   "open_now",
+   "open_to",
+   "price",
+   "stock"
+  ]
+ },
+ "by_func": {
+  "agents/state.py:AgentState.__init__": [
+   "activity_until",
+   "board_line",
+   "board_since",
+   "cell",
+   "edge_id",
+   "fam_first",
+   "fam_last",
+   "fam_thing",
+   "focus_target",
+   "intent_action",
+   "intent_since",
+   "intent_target",
+   "last_action",
+   "last_result_tick",
+   "node",
+   "path_next_node",
+   "plan_activity",
+   "poi_ref",
+   "poi_since",
+   "queue_poi",
+   "queue_since",
+   "rel_partner",
+   "sex",
+   "sm_first",
+   "sm_last",
+   "sm_poi",
+   "talk_partner",
+   "target_node",
+   "transit_ref"
+  ],
+  "engine/resolve.py:_advance_focus": [
+   "focus_target",
+   "focus_ttl"
+  ],
+  "engine/resolve.py:_apply_alight": [
+   "activity",
+   "node",
+   "target_node",
+   "transit_ref",
+   "transit_state"
+  ],
+  "engine/resolve.py:_apply_board": [
+   "activity",
+   "board_line",
+   "board_since",
+   "target_node"
+  ],
+  "engine/resolve.py:_apply_buy": [
+   "activity",
+   "queue_poi",
+   "queue_since"
+  ],
+  "engine/resolve.py:_apply_eat": [
+   "activity",
+   "queue_poi",
+   "queue_since"
+  ],
+  "engine/resolve.py:_apply_engine_step": [
+   "activity",
+   "board_line",
+   "board_since",
+   "edge_id",
+   "edge_s",
+   "node",
+   "path_next_node",
+   "sleep_pending",
+   "target_node"
+  ],
+  "engine/resolve.py:_apply_leave": [
+   "activity",
+   "talk_partner"
+  ],
+  "engine/resolve.py:_apply_move": [
+   "activity",
+   "target_node"
+  ],
+  "engine/resolve.py:_apply_rest": [
+   "activity",
+   "fatigue"
+  ],
+  "engine/resolve.py:_apply_sleep": [
+   "activity",
+   "target_node"
+  ],
+  "engine/resolve.py:_apply_talk": [
+   "activity",
+   "talk_partner"
+  ],
+  "engine/resolve.py:_apply_wait": [
+   "activity"
+  ],
+  "engine/resolve.py:_board_riders": [
+   "activity",
+   "board_line",
+   "board_since",
+   "money",
+   "node",
+   "poi_ref",
+   "queue_poi",
+   "target_node",
+   "transit_ref",
+   "transit_state"
+  ],
+  "engine/resolve.py:_clear_focus": [
+   "focus_target",
+   "focus_ttl"
+  ],
+  "engine/resolve.py:_clear_intent_fields": [
+   "intent_action",
+   "intent_kind",
+   "intent_since",
+   "intent_target"
+  ],
+  "engine/resolve.py:_complete_buy": [
+   "activity",
+   "holdings",
+   "hunger",
+   "money",
+   "poi_ref",
+   "poi_since",
+   "queue_poi",
+   "revenue",
+   "stock"
+  ],
+  "engine/resolve.py:_complete_eat": [
+   "activity",
+   "hunger",
+   "money",
+   "poi_ref",
+   "poi_since",
+   "queue_poi",
+   "revenue"
+  ],
+  "engine/resolve.py:_energy_meal": [
+   "energy_balance",
+   "hunger",
+   "since_meal_kcal"
+  ],
+  "engine/resolve.py:_energy_snack": [
+   "energy_balance",
+   "hunger",
+   "since_meal_kcal"
+  ],
+  "engine/resolve.py:_enter_board_queue": [
+   "activity",
+   "board_line",
+   "board_since",
+   "target_node"
+  ],
+  "engine/resolve.py:_fail": [
+   "fail_streak",
+   "last_result",
+   "last_result_tick"
+  ],
+  "engine/resolve.py:_ok": [
+   "fail_streak",
+   "last_result",
+   "last_result_tick"
+  ],
+  "engine/resolve.py:_serve_board_queue": [
+   "activity",
+   "board_line",
+   "board_since"
+  ],
+  "engine/resolve.py:_serve_poi_queue": [
+   "activity",
+   "queue_poi",
+   "queue_since"
+  ],
+  "engine/resolve.py:_set_focus": [
+   "focus_target",
+   "focus_ttl"
+  ],
+  "engine/resolve.py:_settle_approach": [
+   "focus_target",
+   "focus_ttl"
+  ],
+  "engine/resolve.py:advance_body": [
+   "fatigue",
+   "hunger"
+  ],
+  "engine/resolve.py:apply": [
+   "band",
+   "board_line",
+   "board_since",
+   "cell",
+   "density",
+   "density_stage",
+   "edge_id",
+   "edge_s",
+   "fail_streak",
+   "last_action",
+   "last_result",
+   "last_result_tick",
+   "node",
+   "open_count",
+   "path_next_node",
+   "sleep_pending",
+   "xy"
+  ],
+  "engine/resolve.py:apply_detection": [
+   "b4_hash"
+  ],
+  "engine/resolve.py:balk_queue": [
+   "activity",
+   "fail_streak",
+   "last_result",
+   "last_result_tick",
+   "queue_poi",
+   "queue_since"
+  ],
+  "engine/resolve.py:begin_exit_walk": [
+   "activity",
+   "board_line",
+   "board_since",
+   "target_node"
+  ],
+  "engine/resolve.py:begin_planned_sleep": [
+   "activity",
+   "board_line",
+   "board_since",
+   "sleep_pending",
+   "target_node"
+  ],
+  "engine/resolve.py:clear_board_intent": [
+   "board_line",
+   "board_since"
+  ],
+  "engine/resolve.py:clear_refractory": [
+   "refractory_until"
+  ],
+  "engine/resolve.py:discard_to_bin": [
+   "stock"
+  ],
+  "engine/resolve.py:energy_home_meal": [
+   "hunger_stage"
+  ],
+  "engine/resolve.py:fail_intent": [
+   "activity",
+   "fail_streak",
+   "last_action",
+   "last_result",
+   "last_result_tick",
+   "target_node"
+  ],
+  "engine/resolve.py:initialize": [
+   "activity",
+   "age",
+   "band",
+   "cell",
+   "density",
+   "density_stage",
+   "fatigue",
+   "hunger",
+   "kind",
+   "money",
+   "node",
+   "open_count",
+   "sex",
+   "thermal",
+   "xy"
+  ],
+  "engine/resolve.py:initialize_energy": [
+   "eer_kcal",
+   "energy_balance",
+   "hunger",
+   "hunger_stage",
+   "since_meal_kcal",
+   "weight_kg"
+  ],
+  "engine/resolve.py:join_conversation": [
+   "activity",
+   "last_result",
+   "last_result_tick",
+   "talk_partner"
+  ],
+  "engine/resolve.py:place_at_external": [
+   "activity",
+   "board_line",
+   "board_since",
+   "cell",
+   "node",
+   "target_node",
+   "transit_ref",
+   "transit_state"
+  ],
+  "engine/resolve.py:rail_arrive": [
+   "activity",
+   "band",
+   "cell",
+   "node",
+   "target_node",
+   "transit_ref",
+   "transit_state",
+   "xy"
+  ],
+  "engine/resolve.py:rail_depart": [
+   "activity",
+   "cell",
+   "node",
+   "target_node",
+   "transit_ref",
+   "transit_state"
+  ],
+  "engine/resolve.py:relabel_intent_failure": [
+   "last_action"
+  ],
+  "engine/resolve.py:release_indoor": [
+   "activity",
+   "poi_ref",
+   "poi_since"
+  ],
+  "engine/resolve.py:request_open_close": [
+   "fail_streak",
+   "last_result",
+   "last_result_tick",
+   "open_now"
+  ],
+  "engine/resolve.py:restock": [
+   "stock"
+  ],
+  "engine/resolve.py:revert_conversation": [
+   "activity",
+   "talk_partner"
+  ],
+  "engine/resolve.py:set_activity": [
+   "activity_kind",
+   "activity_until"
+  ],
+  "engine/resolve.py:set_activity_until": [
+   "activity_until"
+  ],
+  "engine/resolve.py:set_conversing": [
+   "activity",
+   "talk_partner"
+  ],
+  "engine/resolve.py:set_initial_activity": [
+   "activity"
+  ],
+  "engine/resolve.py:set_intent": [
+   "intent_action",
+   "intent_kind",
+   "intent_since",
+   "intent_target"
+  ],
+  "engine/resolve.py:set_notice_state": [
+   "heading",
+   "task_flag"
+  ],
+  "engine/resolve.py:set_open_flags": [
+   "open_now"
+  ],
+  "engine/resolve.py:set_plan_state": [
+   "plan_activity",
+   "plan_flags"
+  ],
+  "engine/resolve.py:set_thermal": [
+   "thermal"
+  ],
+  "engine/resolve.py:sync_transit_activity": [
+   "activity"
+  ],
+  "engine/resolve.py:wake_from_plan": [
+   "activity",
+   "sleep_pending"
+  ],
+  "engine/resolve.py:write_familiarity": [
+   "fam_exposures",
+   "fam_first",
+   "fam_last",
+   "fam_thing",
+   "fam_visits"
+  ],
+  "engine/resolve.py:write_memory": [
+   "mem_cell",
+   "mem_importance",
+   "mem_kind",
+   "mem_last",
+   "mem_n",
+   "mem_object",
+   "mem_partner",
+   "mem_result",
+   "mem_tick"
+  ],
+  "engine/resolve.py:write_relations": [
+   "rel_first",
+   "rel_kind",
+   "rel_last",
+   "rel_n",
+   "rel_partner",
+   "rel_sign"
+  ],
+  "engine/resolve.py:write_store_memory": [
+   "sm_first",
+   "sm_last",
+   "sm_n",
+   "sm_poi",
+   "sm_precision",
+   "sm_source",
+   "sm_valence"
+  ],
+  "world/state.py:World.__init__": [
+   "capacity",
+   "cell",
+   "node",
+   "open_from",
+   "open_now",
+   "open_to",
+   "price",
+   "stock"
+  ]
+ },
+ "columns": {
+  "activity": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:_board_riders": [
+     2108
+    ],
+    "engine/resolve.py:_apply_alight": [
+     2145
+    ],
+    "engine/resolve.py:_complete_buy": [
+     2273
+    ],
+    "engine/resolve.py:_complete_eat": [
+     2370
+    ],
+    "engine/resolve.py:_apply_wait": [
+     2421
+    ],
+    "engine/resolve.py:_apply_talk": [
+     2516
+    ],
+    "engine/resolve.py:_apply_leave": [
+     2536,
+     2553
+    ],
+    "engine/resolve.py:_apply_rest": [
+     2595
+    ],
+    "engine/resolve.py:_apply_sleep": [
+     2628
+    ],
+    "engine/resolve.py:initialize": [
+     526
+    ],
+    "engine/resolve.py:set_initial_activity": [
+     568
+    ],
+    "engine/resolve.py:join_conversation": [
+     1022
+    ],
+    "engine/resolve.py:fail_intent": [
+     1077
+    ],
+    "engine/resolve.py:_apply_engine_step": [
+     1577,
+     1591,
+     1600
+    ],
+    "engine/resolve.py:_apply_move": [
+     1671
+    ],
+    "engine/resolve.py:_enter_board_queue": [
+     1867
+    ],
+    "engine/resolve.py:_serve_board_queue": [
+     2034,
+     2048
+    ],
+    "engine/resolve.py:revert_conversation": [
+     2438
+    ],
+    "engine/resolve.py:set_conversing": [
+     2457,
+     2458
+    ],
+    "engine/resolve.py:place_at_external": [
+     2805
+    ],
+    "engine/resolve.py:rail_arrive": [
+     2824
+    ],
+    "engine/resolve.py:rail_depart": [
+     2841
+    ],
+    "engine/resolve.py:release_indoor": [
+     2867
+    ],
+    "engine/resolve.py:_serve_poi_queue": [
+     2916,
+     2945
+    ],
+    "engine/resolve.py:balk_queue": [
+     3052
+    ],
+    "engine/resolve.py:begin_planned_sleep": [
+     717,
+     733,
+     741
+    ],
+    "engine/resolve.py:wake_from_plan": [
+     772
+    ],
+    "engine/resolve.py:_apply_board": [
+     1968
+    ],
+    "engine/resolve.py:_apply_buy": [
+     2186
+    ],
+    "engine/resolve.py:_apply_eat": [
+     2331
+    ],
+    "engine/resolve.py:sync_transit_activity": [
+     2855
+    ],
+    "engine/resolve.py:begin_exit_walk": [
+     3013,
+     3022,
+     3027
+    ]
+   },
+   "n_writer_funcs": 32,
+   "n_files": 1
+  },
+  "activity_kind": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:set_activity": [
+     868
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "activity_until": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     747
+    ],
+    "engine/resolve.py:set_activity": [
+     867
+    ],
+    "engine/resolve.py:set_activity_until": [
+     878
+    ]
+   },
+   "n_writer_funcs": 3,
+   "n_files": 2
+  },
+  "age": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:initialize": [
+     516
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "b4_hash": {
+   "places": [
+    "cells"
+   ],
+   "writers": {
+    "engine/resolve.py:apply_detection": [
+     784
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "band": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:initialize": [
+     509
+    ],
+    "engine/resolve.py:rail_arrive": [
+     2822
+    ],
+    "engine/resolve.py:apply": [
+     1484,
+     1510
+    ]
+   },
+   "n_writer_funcs": 3,
+   "n_files": 1
+  },
+  "board_line": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     730
+    ],
+    "engine/resolve.py:_board_riders": [
+     2115
+    ],
+    "engine/resolve.py:_apply_engine_step": [
+     1603
+    ],
+    "engine/resolve.py:_enter_board_queue": [
+     1866,
+     1880
+    ],
+    "engine/resolve.py:_apply_board": [
+     1962
+    ],
+    "engine/resolve.py:_serve_board_queue": [
+     2032,
+     2046,
+     2061
+    ],
+    "engine/resolve.py:place_at_external": [
+     2806
+    ],
+    "engine/resolve.py:clear_board_intent": [
+     3039
+    ],
+    "engine/resolve.py:begin_planned_sleep": [
+     720,
+     736,
+     744
+    ],
+    "engine/resolve.py:begin_exit_walk": [
+     3011,
+     3018
+    ],
+    "engine/resolve.py:apply": [
+     1400
+    ]
+   },
+   "n_writer_funcs": 11,
+   "n_files": 2
+  },
+  "board_since": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     731
+    ],
+    "engine/resolve.py:_board_riders": [
+     2116
+    ],
+    "engine/resolve.py:_apply_engine_step": [
+     1604
+    ],
+    "engine/resolve.py:_enter_board_queue": [
+     1870,
+     1881
+    ],
+    "engine/resolve.py:_apply_board": [
+     1963
+    ],
+    "engine/resolve.py:_serve_board_queue": [
+     2033,
+     2047,
+     2062
+    ],
+    "engine/resolve.py:place_at_external": [
+     2807
+    ],
+    "engine/resolve.py:clear_board_intent": [
+     3040
+    ],
+    "engine/resolve.py:begin_planned_sleep": [
+     721,
+     737,
+     745
+    ],
+    "engine/resolve.py:begin_exit_walk": [
+     3012,
+     3019,
+     3026
+    ],
+    "engine/resolve.py:apply": [
+     1401
+    ]
+   },
+   "n_writer_funcs": 11,
+   "n_files": 2
+  },
+  "capacity": {
+   "places": [
+    "pois"
+   ],
+   "writers": {
+    "world/state.py:World.__init__": [
+     159
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "cell": {
+   "places": [
+    "agents",
+    "pois"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     722
+    ],
+    "engine/resolve.py:initialize": [
+     506
+    ],
+    "engine/resolve.py:place_at_external": [
+     2802
+    ],
+    "engine/resolve.py:rail_arrive": [
+     2821
+    ],
+    "engine/resolve.py:rail_depart": [
+     2838
+    ],
+    "engine/resolve.py:apply": [
+     1483,
+     1509
+    ],
+    "world/state.py:World.__init__": [
+     155
+    ]
+   },
+   "n_writer_funcs": 7,
+   "n_files": 3
+  },
+  "density": {
+   "places": [
+    "cells"
+   ],
+   "writers": {
+    "engine/resolve.py:initialize": [
+     540
+    ],
+    "engine/resolve.py:apply": [
+     1488,
+     1512
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 1
+  },
+  "density_stage": {
+   "places": [
+    "cells"
+   ],
+   "writers": {
+    "engine/resolve.py:initialize": [
+     541
+    ],
+    "engine/resolve.py:apply": [
+     1489,
+     1513
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 1
+  },
+  "edge_id": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     741
+    ],
+    "engine/resolve.py:_apply_engine_step": [
+     1572
+    ],
+    "engine/resolve.py:apply": [
+     1438,
+     1505
+    ]
+   },
+   "n_writer_funcs": 3,
+   "n_files": 2
+  },
+  "edge_s": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:_apply_engine_step": [
+     1571
+    ],
+    "engine/resolve.py:apply": [
+     1437,
+     1504
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 1
+  },
+  "eer_kcal": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:initialize_energy": [
+     1174
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "energy_balance": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:_energy_meal": [
+     1209
+    ],
+    "engine/resolve.py:initialize_energy": [
+     1176
+    ],
+    "engine/resolve.py:_energy_snack": [
+     1240
+    ]
+   },
+   "n_writer_funcs": 3,
+   "n_files": 1
+  },
+  "fail_streak": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:_ok": [
+     1527
+    ],
+    "engine/resolve.py:_fail": [
+     1539
+    ],
+    "engine/resolve.py:fail_intent": [
+     1075
+    ],
+    "engine/resolve.py:balk_queue": [
+     3055
+    ],
+    "engine/resolve.py:apply": [
+     1466
+    ],
+    "engine/resolve.py:request_open_close": [
+     3100
+    ]
+   },
+   "n_writer_funcs": 6,
+   "n_files": 1
+  },
+  "fam_exposures": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_familiarity": [
+     933
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "fam_first": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     750
+    ],
+    "engine/resolve.py:write_familiarity": [
+     930
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 2
+  },
+  "fam_last": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     751
+    ],
+    "engine/resolve.py:write_familiarity": [
+     931
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 2
+  },
+  "fam_thing": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     749
+    ],
+    "engine/resolve.py:write_familiarity": [
+     929
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 2
+  },
+  "fam_visits": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_familiarity": [
+     932
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "fatigue": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:_apply_rest": [
+     2596
+    ],
+    "engine/resolve.py:initialize": [
+     528
+    ],
+    "engine/resolve.py:advance_body": [
+     1127,
+     1130,
+     1144
+    ]
+   },
+   "n_writer_funcs": 3,
+   "n_files": 1
+  },
+  "fatigue_stage": {
+   "places": [
+    "agents"
+   ],
+   "writers": {},
+   "n_writer_funcs": 0,
+   "n_files": 0
+  },
+  "focus_target": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     743
+    ],
+    "engine/resolve.py:_clear_focus": [
+     1749
+    ],
+    "engine/resolve.py:_set_focus": [
+     1784
+    ],
+    "engine/resolve.py:_settle_approach": [
+     1636
+    ],
+    "engine/resolve.py:_advance_focus": [
+     1815
+    ]
+   },
+   "n_writer_funcs": 5,
+   "n_files": 2
+  },
+  "focus_ttl": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:_clear_focus": [
+     1750
+    ],
+    "engine/resolve.py:_set_focus": [
+     1785
+    ],
+    "engine/resolve.py:_advance_focus": [
+     1809,
+     1816
+    ],
+    "engine/resolve.py:_settle_approach": [
+     1637
+    ]
+   },
+   "n_writer_funcs": 4,
+   "n_files": 1
+  },
+  "heading": {
+   "places": [
+    "perception"
+   ],
+   "writers": {
+    "engine/resolve.py:set_notice_state": [
+     2762,
+     2767
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "holdings": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:_complete_buy": [
+     2265
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "hunger": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:_energy_meal": [
+     1210
+    ],
+    "engine/resolve.py:initialize": [
+     527
+    ],
+    "engine/resolve.py:initialize_energy": [
+     1177
+    ],
+    "engine/resolve.py:_energy_snack": [
+     1241
+    ],
+    "engine/resolve.py:_complete_buy": [
+     2267
+    ],
+    "engine/resolve.py:_complete_eat": [
+     2364
+    ],
+    "engine/resolve.py:advance_body": [
+     1126,
+     1157
+    ]
+   },
+   "n_writer_funcs": 7,
+   "n_files": 1
+  },
+  "hunger_stage": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:initialize_energy": [
+     1181
+    ],
+    "engine/resolve.py:energy_home_meal": [
+     1287
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 1
+  },
+  "intent_action": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     732
+    ],
+    "engine/resolve.py:_clear_intent_fields": [
+     884
+    ],
+    "engine/resolve.py:set_intent": [
+     1044
+    ]
+   },
+   "n_writer_funcs": 3,
+   "n_files": 2
+  },
+  "intent_kind": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:_clear_intent_fields": [
+     886
+    ],
+    "engine/resolve.py:set_intent": [
+     1046
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 1
+  },
+  "intent_since": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     734
+    ],
+    "engine/resolve.py:_clear_intent_fields": [
+     887
+    ],
+    "engine/resolve.py:set_intent": [
+     1047
+    ]
+   },
+   "n_writer_funcs": 3,
+   "n_files": 2
+  },
+  "intent_target": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     733
+    ],
+    "engine/resolve.py:_clear_intent_fields": [
+     885
+    ],
+    "engine/resolve.py:set_intent": [
+     1045
+    ]
+   },
+   "n_writer_funcs": 3,
+   "n_files": 2
+  },
+  "invocation_distance": {
+   "places": [
+    "perception"
+   ],
+   "writers": {},
+   "n_writer_funcs": 0,
+   "n_files": 0
+  },
+  "kind": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:initialize": [
+     513
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "last_action": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     728
+    ],
+    "engine/resolve.py:fail_intent": [
+     1072
+    ],
+    "engine/resolve.py:relabel_intent_failure": [
+     1095,
+     1097
+    ],
+    "engine/resolve.py:apply": [
+     1449,
+     1458
+    ]
+   },
+   "n_writer_funcs": 4,
+   "n_files": 2
+  },
+  "last_result": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:_ok": [
+     1525
+    ],
+    "engine/resolve.py:_fail": [
+     1537
+    ],
+    "engine/resolve.py:join_conversation": [
+     1024
+    ],
+    "engine/resolve.py:fail_intent": [
+     1073
+    ],
+    "engine/resolve.py:balk_queue": [
+     3053
+    ],
+    "engine/resolve.py:apply": [
+     1459
+    ],
+    "engine/resolve.py:request_open_close": [
+     3099,
+     3102
+    ]
+   },
+   "n_writer_funcs": 7,
+   "n_files": 1
+  },
+  "last_result_tick": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     727
+    ],
+    "engine/resolve.py:_ok": [
+     1526
+    ],
+    "engine/resolve.py:_fail": [
+     1538
+    ],
+    "engine/resolve.py:join_conversation": [
+     1025
+    ],
+    "engine/resolve.py:fail_intent": [
+     1074
+    ],
+    "engine/resolve.py:balk_queue": [
+     3054
+    ],
+    "engine/resolve.py:request_open_close": [
+     3103
+    ],
+    "engine/resolve.py:apply": [
+     1460
+    ]
+   },
+   "n_writer_funcs": 8,
+   "n_files": 2
+  },
+  "mem_cell": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_memory": [
+     955
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "mem_importance": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_memory": [
+     959
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "mem_kind": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_memory": [
+     952
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "mem_last": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_memory": [
+     954
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "mem_n": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_memory": [
+     960
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "mem_object": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_memory": [
+     957
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "mem_partner": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_memory": [
+     956
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "mem_result": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_memory": [
+     958
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "mem_tick": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_memory": [
+     953
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "money": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:_complete_buy": [
+     2233
+    ],
+    "engine/resolve.py:_complete_eat": [
+     2360
+    ],
+    "engine/resolve.py:initialize": [
+     522,
+     525
+    ],
+    "engine/resolve.py:_board_riders": [
+     2099
+    ]
+   },
+   "n_writer_funcs": 4,
+   "n_files": 1
+  },
+  "node": {
+   "places": [
+    "agents",
+    "pois"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     723
+    ],
+    "engine/resolve.py:_board_riders": [
+     2111
+    ],
+    "engine/resolve.py:_apply_alight": [
+     2149
+    ],
+    "engine/resolve.py:initialize": [
+     508
+    ],
+    "engine/resolve.py:_apply_engine_step": [
+     1556,
+     1569
+    ],
+    "engine/resolve.py:place_at_external": [
+     2803
+    ],
+    "engine/resolve.py:rail_arrive": [
+     2820
+    ],
+    "engine/resolve.py:rail_depart": [
+     2839
+    ],
+    "engine/resolve.py:apply": [
+     1435,
+     1502
+    ],
+    "world/state.py:World.__init__": [
+     156
+    ]
+   },
+   "n_writer_funcs": 10,
+   "n_files": 3
+  },
+  "noise_stage": {
+   "places": [
+    "cells"
+   ],
+   "writers": {},
+   "n_writer_funcs": 0,
+   "n_files": 0
+  },
+  "open_count": {
+   "places": [
+    "cells"
+   ],
+   "writers": {
+    "engine/resolve.py:initialize": [
+     542
+    ],
+    "engine/resolve.py:apply": [
+     1516
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 1
+  },
+  "open_from": {
+   "places": [
+    "pois"
+   ],
+   "writers": {
+    "world/state.py:World.__init__": [
+     160
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "open_now": {
+   "places": [
+    "pois"
+   ],
+   "writers": {
+    "engine/resolve.py:set_open_flags": [
+     2782,
+     2786
+    ],
+    "engine/resolve.py:request_open_close": [
+     3097
+    ],
+    "world/state.py:World.__init__": [
+     162
+    ]
+   },
+   "n_writer_funcs": 3,
+   "n_files": 2
+  },
+  "open_to": {
+   "places": [
+    "pois"
+   ],
+   "writers": {
+    "world/state.py:World.__init__": [
+     161
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "path_next_node": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     724
+    ],
+    "engine/resolve.py:_apply_engine_step": [
+     1570
+    ],
+    "engine/resolve.py:apply": [
+     1436,
+     1503
+    ]
+   },
+   "n_writer_funcs": 3,
+   "n_files": 2
+  },
+  "plan_activity": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     745
+    ],
+    "engine/resolve.py:set_plan_state": [
+     607,
+     609
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 2
+  },
+  "plan_flags": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:set_plan_state": [
+     613,
+     615,
+     618,
+     620,
+     624,
+     626
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "poi_ref": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     735
+    ],
+    "engine/resolve.py:_board_riders": [
+     2113
+    ],
+    "engine/resolve.py:_complete_buy": [
+     2276
+    ],
+    "engine/resolve.py:_complete_eat": [
+     2372
+    ],
+    "engine/resolve.py:release_indoor": [
+     2865
+    ]
+   },
+   "n_writer_funcs": 5,
+   "n_files": 2
+  },
+  "poi_since": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     736
+    ],
+    "engine/resolve.py:_complete_buy": [
+     2277
+    ],
+    "engine/resolve.py:_complete_eat": [
+     2373
+    ],
+    "engine/resolve.py:release_indoor": [
+     2866
+    ]
+   },
+   "n_writer_funcs": 4,
+   "n_files": 2
+  },
+  "price": {
+   "places": [
+    "pois"
+   ],
+   "writers": {
+    "world/state.py:World.__init__": [
+     158
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "queue_poi": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     737
+    ],
+    "engine/resolve.py:_board_riders": [
+     2114
+    ],
+    "engine/resolve.py:_complete_buy": [
+     2278
+    ],
+    "engine/resolve.py:_complete_eat": [
+     2374
+    ],
+    "engine/resolve.py:_serve_poi_queue": [
+     2914,
+     2943
+    ],
+    "engine/resolve.py:balk_queue": [
+     3050
+    ],
+    "engine/resolve.py:_apply_buy": [
+     2187
+    ],
+    "engine/resolve.py:_apply_eat": [
+     2332
+    ]
+   },
+   "n_writer_funcs": 8,
+   "n_files": 2
+  },
+  "queue_since": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     738
+    ],
+    "engine/resolve.py:_serve_poi_queue": [
+     2915,
+     2944,
+     2957
+    ],
+    "engine/resolve.py:balk_queue": [
+     3051
+    ],
+    "engine/resolve.py:_apply_buy": [
+     2188
+    ],
+    "engine/resolve.py:_apply_eat": [
+     2333
+    ]
+   },
+   "n_writer_funcs": 5,
+   "n_files": 2
+  },
+  "refractory_until": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:clear_refractory": [
+     849
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "rel_first": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_relations": [
+     1003
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "rel_kind": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_relations": [
+     1001
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "rel_last": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_relations": [
+     1004
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "rel_n": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_relations": [
+     1005
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "rel_partner": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     757
+    ],
+    "engine/resolve.py:write_relations": [
+     1000
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 2
+  },
+  "rel_sign": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_relations": [
+     1002
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "revenue": {
+   "places": [
+    "pois"
+   ],
+   "writers": {
+    "engine/resolve.py:_complete_buy": [
+     2264
+    ],
+    "engine/resolve.py:_complete_eat": [
+     2362
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 1
+  },
+  "sex": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     739
+    ],
+    "engine/resolve.py:initialize": [
+     518
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 2
+  },
+  "since_meal_kcal": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:_energy_meal": [
+     1206
+    ],
+    "engine/resolve.py:initialize_energy": [
+     1175
+    ],
+    "engine/resolve.py:_energy_snack": [
+     1239
+    ]
+   },
+   "n_writer_funcs": 3,
+   "n_files": 1
+  },
+  "sleep_pending": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:_apply_engine_step": [
+     1593,
+     1605
+    ],
+    "engine/resolve.py:begin_planned_sleep": [
+     719,
+     735,
+     743
+    ],
+    "engine/resolve.py:wake_from_plan": [
+     775
+    ],
+    "engine/resolve.py:apply": [
+     1408
+    ]
+   },
+   "n_writer_funcs": 4,
+   "n_files": 1
+  },
+  "sm_first": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     754
+    ],
+    "engine/resolve.py:write_store_memory": [
+     981
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 2
+  },
+  "sm_last": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     755
+    ],
+    "engine/resolve.py:write_store_memory": [
+     982
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 2
+  },
+  "sm_n": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_store_memory": [
+     983
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "sm_poi": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     753
+    ],
+    "engine/resolve.py:write_store_memory": [
+     978
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 2
+  },
+  "sm_precision": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_store_memory": [
+     980
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "sm_source": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_store_memory": [
+     984
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "sm_valence": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:write_store_memory": [
+     979
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "stock": {
+   "places": [
+    "pois"
+   ],
+   "writers": {
+    "engine/resolve.py:_complete_buy": [
+     2257,
+     2262
+    ],
+    "engine/resolve.py:restock": [
+     2659
+    ],
+    "engine/resolve.py:discard_to_bin": [
+     2688
+    ],
+    "world/state.py:World.__init__": [
+     157
+    ]
+   },
+   "n_writer_funcs": 4,
+   "n_files": 2
+  },
+  "talk_partner": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     726
+    ],
+    "engine/resolve.py:_apply_talk": [
+     2517
+    ],
+    "engine/resolve.py:_apply_leave": [
+     2537,
+     2554
+    ],
+    "engine/resolve.py:join_conversation": [
+     1023
+    ],
+    "engine/resolve.py:revert_conversation": [
+     2439
+    ],
+    "engine/resolve.py:set_conversing": [
+     2459,
+     2460
+    ]
+   },
+   "n_writer_funcs": 6,
+   "n_files": 2
+  },
+  "target_node": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     725
+    ],
+    "engine/resolve.py:_board_riders": [
+     2112
+    ],
+    "engine/resolve.py:_apply_alight": [
+     2150
+    ],
+    "engine/resolve.py:_apply_sleep": [
+     2629
+    ],
+    "engine/resolve.py:fail_intent": [
+     1078
+    ],
+    "engine/resolve.py:_apply_engine_step": [
+     1578,
+     1592,
+     1601
+    ],
+    "engine/resolve.py:_apply_move": [
+     1674
+    ],
+    "engine/resolve.py:_enter_board_queue": [
+     1868
+    ],
+    "engine/resolve.py:place_at_external": [
+     2804
+    ],
+    "engine/resolve.py:rail_arrive": [
+     2825
+    ],
+    "engine/resolve.py:rail_depart": [
+     2840
+    ],
+    "engine/resolve.py:begin_planned_sleep": [
+     718,
+     734,
+     742
+    ],
+    "engine/resolve.py:_apply_board": [
+     1969
+    ],
+    "engine/resolve.py:begin_exit_walk": [
+     3014,
+     3023,
+     3028
+    ]
+   },
+   "n_writer_funcs": 14,
+   "n_files": 2
+  },
+  "task_flag": {
+   "places": [
+    "perception"
+   ],
+   "writers": {
+    "engine/resolve.py:set_notice_state": [
+     2763,
+     2768
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "thermal": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:initialize": [
+     529
+    ],
+    "engine/resolve.py:set_thermal": [
+     2742
+    ]
+   },
+   "n_writer_funcs": 2,
+   "n_files": 1
+  },
+  "thermal_stage": {
+   "places": [
+    "agents"
+   ],
+   "writers": {},
+   "n_writer_funcs": 0,
+   "n_files": 0
+  },
+  "transit_ref": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "agents/state.py:AgentState.__init__": [
+     729
+    ],
+    "engine/resolve.py:_board_riders": [
+     2110
+    ],
+    "engine/resolve.py:_apply_alight": [
+     2148
+    ],
+    "engine/resolve.py:place_at_external": [
+     2801
+    ],
+    "engine/resolve.py:rail_arrive": [
+     2819
+    ],
+    "engine/resolve.py:rail_depart": [
+     2837
+    ]
+   },
+   "n_writer_funcs": 6,
+   "n_files": 2
+  },
+  "transit_state": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:_board_riders": [
+     2109
+    ],
+    "engine/resolve.py:_apply_alight": [
+     2146
+    ],
+    "engine/resolve.py:place_at_external": [
+     2800
+    ],
+    "engine/resolve.py:rail_arrive": [
+     2818
+    ],
+    "engine/resolve.py:rail_depart": [
+     2836
+    ]
+   },
+   "n_writer_funcs": 5,
+   "n_files": 1
+  },
+  "weight_kg": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:initialize_energy": [
+     1173
+    ]
+   },
+   "n_writer_funcs": 1,
+   "n_files": 1
+  },
+  "xy": {
+   "places": [
+    "agents"
+   ],
+   "writers": {
+    "engine/resolve.py:initialize": [
+     510
+    ],
+    "engine/resolve.py:rail_arrive": [
+     2823
+    ],
+    "engine/resolve.py:apply": [
+     1487,
+     1511
+    ]
+   },
+   "n_writer_funcs": 3,
+   "n_files": 1
+  }
+ }
+}

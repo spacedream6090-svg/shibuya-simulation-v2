@@ -1,11 +1,20 @@
 """economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロー行列。
 
+〔第 1 期 1-9・CP2 の段階 1〕帳簿の口(``transfer``・``transfer_many``・``purchase_many``・``endow_households``・
+``endow_stores``・``depreciate``)は検査(行ごとの ``TransferStatus``)までをここで行い、通った行を基本操作
+``economy.ops.transfer``(お金の「移す」の 1 つ)に渡す。**残高・流れの表・生ログを書くのは ``ops.transfer`` だけ**
+(旧 ``_apply_cash``・``_record`` は ``ops.transfer`` の中に移した=値は不変)。口は ``cause``(1-3 の原因)を受け取り、
+渡された行は出来事を書いて生ログの目印の列(``_raw_event_t_ns``・``_raw_event_seq``)に id を入れる。
+K17(回答 10-13b §3): 生ログの輪の容量を ``TRANSFERS_PER_AGENT_PER_DAY`` = 6.5 行/体/日(実測 4.07 の 1.5 倍以上)に
+広げた。溢れたら古い行を上書きして続け、溢れた行の数を計器(``meter.overflow``・manifest の ``economy.raw_overflow``)に出す。
+
 正典(境界・経済設計書 §2.3)
 - 「``transfer(payer, payee, amount, account_code)`` **単一API**・残高の直接代入は
   **静的に禁止**」。本実装の強制は二重:
   (a) 台帳が持つ配列は既定で ``writeable=False``(``_open`` の中でだけ書ける)。
   (b) ``tests/economy/test_single_write_path.py`` の AST 検査
-      (``_lines`` に触れてよいのは本ファイルだけ・``_open`` を呼べるのも本ファイルだけ)。
+      (``_lines`` に触れてよいのは本ファイルと ``economy/ops.py`` だけ・``_open`` を呼べるのは本ファイルだけ)。
+      〔1-9〕書き手を基本操作 ``ops.transfer`` 1 つに縛る検査は ``tests/economy/cp2/test_cp2_transfer_only_writer.py``。
 - 「**検算2本**(Caiani 2016): ①四重記入=取引フロー行列の行和・列和が0(開発時テスト)
   ②全主体の純資産合計=実物資産(在庫+固定資産)の価額が毎期成立(主検算・O(N)総和)」
   → 検査の実装は ``economy.checks``(本モジュールは素材=行列とスナップショットを持つ)。
@@ -24,7 +33,7 @@
         **resolve の ``writable()`` ブロックの外から transfer を呼ぶと ValueError**
         (= 書き込み口が resolve 1本であることの機械強制)。
         ただし ``np.add.at`` は ``writeable=False`` を**無視して書けてしまう**
-        (numpy 2.5.3 実測・親へ報告)ので、``_apply_cash`` がフラグを自前で検査する。
+        (numpy 2.5.3 実測・親へ報告)ので、``ops.transfer`` がフラグを自前で検査する(1-9 で ``_apply_cash`` から移した)。
     店舗以下の現金・預金・在庫評価額・固定資産・借入は台帳が持つ。
 
 逐次ループ宣言(P4)
@@ -37,9 +46,11 @@ expedient(本モジュール分)
 - 同一支払者が同じ ``transfer_many`` に複数行で現れたときの判定は**行順の前置和**
   (最初に残高が尽きた行以降は同一支払者の後続行も不足扱い)。金額は行内で増加するので
   結果は行順にのみ依存し、決定論。
-- 生ログの1行 24 B・容量は **N 比例**(``raw_capacity_for`` = 3.0 行/体/日 × N × 保持日数・
+- 生ログの1行 24 B・容量は **N 比例**(``raw_capacity_for`` = 6.5 行/体/日 × N × 保持日数・
   下限 16,384 行)。保持窓を超えた日は先頭を進める。**D-53(2026-09-10)まで固定 262,144 行**
   だったので、cap(= 容量 × 24 B)が N に比例せず 390,067 体で「宣言だけで cap 超過」になった。
+  〔1-9・K17〕係数は 3.0 → 6.5(5,000 体 mock 1 日の実測 4.07 行/体/日で 16,384 行の輪から 3,978 行が落ちていた=
+  10b-prep #20)。目印の列 2 本(12 B/行)は別の宣言 ``transfer_log_event_ids``。
 - 貨幣供給量 M = 世帯+店舗+雇用主の(現金+預金)。設計書は「貨幣供給量」としか書いていない
   ので、銀行の手元現金と外界の相手勘定を除く定義を自前で置いた。
 """
@@ -66,10 +77,17 @@ from shibuya.economy.accounts import (
     Sector,
     is_allowed,
 )
+from shibuya.economy import ops as _OPS
 from shibuya.engine.ledger_api import EntityRef, TransferStatus
+from shibuya.core.time_consts import NS_PER_SECOND, NS_PER_STEP, STEPS_PER_DAY
 
 __all__ = [
     "RAW_ROW_BYTES",
+    "RAW_LINK_BYTES",
+    "TRANSFERS_PER_AGENT_PER_DAY",
+    "MEASURED_TRANSFERS_PER_AGENT_DAY",
+    "K17_MARGIN",
+    "event_ids_declaration",
     "DEFAULT_RAW_CAPACITY",
     "MIN_RAW_CAPACITY",
     "DEFAULT_RETENTION_DAYS",
@@ -87,7 +105,10 @@ __all__ = [
 DEFAULT_ASSETS_DIR: Final[str] = "data/world/v2"
 
 #: 生ログ 1 行のバイト(tick4+部門1+索引4+部門1+索引4+金額8+科目1 = 23 → 24 に切り上げ)。
+#: 〔第 2 期 2-1〕支払いの方法の列 ``_raw_method``(int8=1 B)を足した=23+1=24(切り上げの空きの 1 B に入る・値は不変)。
 RAW_ROW_BYTES: Final[int] = 24
+#: 〔1-9〕生ログ 1 行の目印の列のバイト(出来事の id=t_ns 8+seq 4)。宣言は ``transfer_log_event_ids``(1-3 の L8)。
+RAW_LINK_BYTES: Final[int] = 12
 #: 生ログのリングバッファ容量[行]の**据え置き既定**(``raw_capacity_for`` を使わない
 #: 単体呼び出し=モジュール関数 ``growth_declarations()`` の既定値だけに残る・expedient)。
 DEFAULT_RAW_CAPACITY: Final[int] = 262_144
@@ -98,36 +119,46 @@ DEFAULT_RAW_CAPACITY: Final[int] = 262_144
 MIN_RAW_CAPACITY: Final[int] = 16_384
 #: 生ログの保持窓[日](D-R2-6 「保持窓 N 日で退避」)。
 DEFAULT_RETENTION_DAYS: Final[int] = 1
-#: 1 体あたりの想定 transfer 行数/日(成長宣言の係数・expedient)。
-TRANSFERS_PER_AGENT_PER_DAY: Final[float] = 3.0
+#: 1 体あたりの想定 transfer 行数/日(成長宣言の係数・輪の容量の係数)。
+#: 〔1-9・K17=回答 10-13b §3〕3.0 → **6.5**(実測 4.07 行/体/日=10b-prep #20 の 1.5 倍以上=6.105 以上)。
+#: 実測の値は 5,000 体 mock 1 日の 1 本だけ=係数そのものは expedient(39 万体の実測は無い)。
+#: 〔第 2 期 2-4 V4〕経済の段階 2 を既定 on にしたので、既定のランの係数は ``economy.stage2.STAGE2_TRANSFERS_PER_AGENT_PER_DAY``
+#: (16.0・``cli.build_ledger_bundle`` が渡す)。この値は切替口 off のランと係数を渡さない台帳の組み立ての既定。
+TRANSFERS_PER_AGENT_PER_DAY: Final[float] = 6.5
+#: K17 の根拠の実測(5,000 体 mock 1 日の生ログの行 ÷ 体数)と余裕の倍率(宣言の下限=実測 × 倍率)。
+MEASURED_TRANSFERS_PER_AGENT_DAY: Final[float] = 4.07
+K17_MARGIN: Final[float] = 1.5
 #: bbox 内で貨幣を保有する部門(貨幣供給量 M の定義・expedient)。
 INSIDE_SECTORS: Final[tuple[Sector, ...]] = (Sector.HOUSEHOLD, Sector.STORE, Sector.EMPLOYER)
 
 _N_SECTORS: Final[int] = len(Sector)
 _N_CODES: Final[int] = len(AccountCode)
-_TICKS_PER_DAY: Final[int] = 1_440
+_TICKS_PER_DAY: Final[int] = STEPS_PER_DAY
 
 
 def raw_capacity_for(
-    n_households: int, retention_days: int = DEFAULT_RETENTION_DAYS
+    n_households: int, retention_days: int = DEFAULT_RETENTION_DAYS, *, rate: float | None = None
 ) -> int:
     """生ログのリングバッファ容量[行]を **N から**決める(D-53・2026-09-10)。
 
-    D-R2-6 の宣言は ``per_day_growth="O(N)"`` × ``72 B/体/日``(3.0 取引 × 24 B)・保持窓
-    ``retention_days`` 日なので、**宣言投影 = 72 × N × 日数**。容量が固定(旧 262,144 行)だと
-    cap = 6.29 MB が N に比例せず、390,067 体では宣言投影 28.1 MB > cap =
-    ``core.growth.check_growth`` の ``declared_over_cap``(宣言だけで cap 超過=失敗)になる。
-    容量を N 比例にして **cap(= 容量 × 24 B)= 宣言投影** に揃える。
+    D-R2-6 の宣言は ``per_day_growth="O(N)"`` × ``156 B/体/日``(6.5 取引 × 24 B・〔1-9・K17〕前は 3.0 取引=72 B)・
+    保持窓 ``retention_days`` 日なので、**宣言投影 = 156 × N × 日数**。容量が固定(旧 262,144 行)だと
+    cap が N に比例せず ``core.growth.check_growth`` の ``declared_over_cap``(宣言だけで cap 超過=失敗)になる。
+    容量を N 比例にして **cap(= 容量 × 24 B)≥ 宣言投影** に揃える(6.5 × N が整数でない奇数の N では 1 日ぶんを
+    切り上げる=1 日あたり 1 行未満だけ cap が大きい。日数には比例=1 日ぶんの切り上げ × 日数)。
 
     Args:
         n_households: 世帯数(= 個体数 N・``check_growth(n_entities=…)`` と同じ N)。
         retention_days: 生ログの保持窓[日]。
+        rate: 〔2-1〕行/体/日の係数(既定 ``None``=``TRANSFERS_PER_AGENT_PER_DAY``。経済の段階 2 の腕のランは
+            ``economy.stage2.STAGE2_TRANSFERS_PER_AGENT_PER_DAY``)。
 
     Returns:
         行数(下限 ``MIN_RAW_CAPACITY``)。
     """
-    need = TRANSFERS_PER_AGENT_PER_DAY * max(0, int(n_households)) * max(0, int(retention_days))
-    return max(int(MIN_RAW_CAPACITY), int(math.ceil(need)))
+    r = float(TRANSFERS_PER_AGENT_PER_DAY if rate is None else rate)
+    per_day = int(math.ceil(r * max(0, int(n_households))))
+    return max(int(MIN_RAW_CAPACITY), per_day * max(0, int(retention_days)))
 
 
 @dataclass(frozen=True)
@@ -207,6 +238,7 @@ class Ledger:
         *,
         raw_capacity: int | None = None,
         retention_days: int = DEFAULT_RETENTION_DAYS,
+        rows_per_agent_day: float | None = None,
     ) -> None:
         """
         Args:
@@ -246,7 +278,7 @@ class Ledger:
         # 生ログ(リングバッファ)。容量は **N 比例**(D-53)= 宣言投影と等値の cap になる。
         self.retention_days = int(retention_days)
         self.raw_capacity = (
-            raw_capacity_for(int(n_households), self.retention_days)
+            raw_capacity_for(int(n_households), self.retention_days, rate=rows_per_agent_day)
             if raw_capacity is None
             else int(raw_capacity)
         )
@@ -262,12 +294,146 @@ class Ledger:
         self._raw_head = 0  # 保持窓の先頭(通し番号)
         self._day_marks: list[tuple[int, int]] = [(0, 0)]
         self.n_raw_dropped = 0
+        # 〔1-9〕生ログの行の目印の列(出来事の id=(t_ns, seq)・出来事を書かなかった行は -1)。状態台帳の行 A(diag・
+        # discardable)。宣言の係数(K17 の容量の係数)は作ったときの値を控える(manifest の economy に出す)。
+        self._raw_event_t_ns = np.full(cap, _OPS.NO_EVENT, dtype=np.int64)
+        self._raw_event_seq = np.full(cap, _OPS.NO_EVENT, dtype=np.int32)
+        # 〔第 2 期 2-1〕生ログの支払いの方法の列(0=現金・1=口座。状態台帳の行 EM=diag・discardable)。腕の無いランは全部 0。
+        self._raw_method = np.zeros(cap, dtype=np.int8)
+        # 〔2-1〕経済の段階 2 の腕のランは係数を渡す(cli.build_ledger_bundle)=容量・宣言・manifest の値がそろう
+        self.raw_rows_per_agent_day = float(TRANSFERS_PER_AGENT_PER_DAY if rows_per_agent_day is None
+                                            else rows_per_agent_day)
+        #: 〔1-9〕出来事の記録(1-3 の EventLog・``attach_events`` で挿す)と刻みの幅[ns](口の刻み → t_ns)。
+        self._events = None
+        self._step_ns = int(NS_PER_STEP)
+        #: 〔1-9〕transfer の計器(行・額・原因の無い行・出来事の行・溢れ・日の締めの検算)。
+        self.meter = _OPS.TransferMeter()
+        #: 〔第 2 期 2-1〕経済の段階 2 の腕(``economy.stage2.MoneyStage2``・``attach_stage2`` で挿す=状態台帳の行 EC)・
+        #: 段階 2 の組(``accounts.STAGE2_PAIRS``)を許すか・信用の器(``economy.credit.CreditBook``・行 CR)。腕の無いランは
+        #: どれも空(既定の値は不変)。
+        self.stage2 = None
+        self.credit = None
 
         #: 却下の計数(``TransferStatus`` 別・診断行の素材)。
         self.rejections: dict[int, int] = {int(s): 0 for s in TransferStatus}
         self.n_transfers = 0
         self._depth = 0
         self.freeze()
+
+    # ---------------------------------------------------------------- 〔1-9〕出来事の記録
+    def attach_events(self, sink, step_seconds: int | None = None) -> None:  # noqa: ANN001
+        """1-3 の出来事の記録の口を挿す(原因を渡した transfer の行が出来事を書き、生ログに目印を付ける)。
+
+        economy は ``engine.events`` を import できない(層の契約)ので、口は engine の側が作る
+        (``engine.events.links.MoneyEventLink``・``LedgerBundle.attach_events`` が作って挿す)。
+
+        Args:
+            sink: 出来事を書く口(``MoneyEventLink``=呼べる物と ``enabled``)。``None`` で外す。
+            step_seconds: 刻みの幅[秒](口の刻みの番号 → 通しの時刻 ``t_ns``)。``None`` なら今のまま。
+        """
+        self._events = sink
+        if step_seconds is not None:
+            if int(step_seconds) <= 0:
+                raise ValueError("step_seconds は正")
+            self._step_ns = int(step_seconds) * NS_PER_SECOND
+
+    def _t_ns(self, step: int) -> int:
+        """口の刻みの番号 → 通しの時刻[ns](刻みの頭)。"""
+        return int(step) * self._step_ns
+
+    def raw_position(self) -> int:
+        """生ログの次に書く通し番号(``TransferId.first`` と同じ数え方)。"""
+        return int(self._raw_pos)
+
+    def raw_event_ids(self) -> tuple[np.ndarray, np.ndarray]:
+        """保持窓内の生ログの行の目印 ``(t_ns, seq)``(``raw_rows`` と同じ並び・出来事の無い行は -1)。"""
+        cap = self._raw_tick.size
+        n = int(self._raw_pos - self._raw_head)
+        if n <= 0:
+            return np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int32)
+        slot = (self._raw_head + np.arange(n, dtype=np.int64)) % cap
+        return self._raw_event_t_ns[slot].copy(), self._raw_event_seq[slot].copy()
+
+    def event_ids_between(self, first: int, last: int) -> tuple[np.ndarray, np.ndarray]:
+        """通し番号 ``[first, last)`` の行の目印(輪から落ちた行は -1)。"""
+        pos = np.arange(int(first), int(last), dtype=np.int64)
+        t = np.full(pos.size, _OPS.NO_EVENT, dtype=np.int64)
+        s = np.full(pos.size, _OPS.NO_EVENT, dtype=np.int32)
+        live = pos >= self._raw_head
+        if live.any():
+            slot = pos[live] % self._raw_tick.size
+            t[live] = self._raw_event_t_ns[slot]
+            s[live] = self._raw_event_seq[slot]
+        return t, s
+
+    def raw_methods(self) -> np.ndarray:
+        """〔2-1〕保持窓内の生ログの行の支払いの方法(``raw_rows`` と同じ並び・0=現金・1=口座)。"""
+        cap = self._raw_tick.size
+        n = int(self._raw_pos - self._raw_head)
+        if n <= 0:
+            return np.zeros(0, dtype=np.int8)
+        slot = (self._raw_head + np.arange(n, dtype=np.int64)) % cap
+        return self._raw_method[slot].copy()
+
+    def economy_record(self) -> dict[str, object]:
+        """manifest の ``economy`` の欄(K17 の容量と溢れ・transfer の計器)。〔2-1〕段階 2 の腕のランだけ末尾に ``stage2``。"""
+        m = self.meter
+        out: dict[str, object] = {
+            "raw_capacity": int(self.raw_capacity),
+            "raw_rows_per_agent_day": float(self.raw_rows_per_agent_day),
+            "raw_row_bytes": int(RAW_ROW_BYTES),
+            "raw_link_bytes": int(RAW_LINK_BYTES),
+            "raw_overflow": int(m.overflow),
+            "raw_overflow_policy": "上書きして数える(止めない)",
+            "transfers_total": int(m.rows),
+            "transfers_amount": int(m.amount),
+            "transfers_uncaused": int(m.uncaused),
+            "transfer_events": int(m.events),
+        }
+        if self.stage2 is not None:
+            out["stage2"] = self.stage2.manifest_record(
+                self, credit=None if self.credit is None else self.credit.record())
+        return out
+
+    # ---------------------------------------------------------------- 〔第 2 期 2-1〕経済の段階 2 の腕(口は委ねるだけ)
+    def attach_stage2(self, plan) -> None:  # noqa: ANN001
+        """経済の段階 2 の腕(``--economy-stage2 on``)を挿す。``plan`` は engine の側の組み立ての物
+        (``engine.economy_stage2.Stage2Plan``=部品・体の種別・労働時間・ATM の表・給料日の規則・雇用の行の読み口・原因)。
+        世帯の初期の財布(``endow_households``)より前に呼ぶ。中身は ``economy.stage2.MoneyStage2``。"""
+        from shibuya.economy import credit as _CR
+        from shibuya.economy import stage2 as _S2
+
+        if self.stage2 is not None:
+            raise ValueError("経済の段階 2 の腕はもう挿してある")
+        self.stage2 = _S2.MoneyStage2(plan, n_households=self.sizes[0], n_employers=self.sizes[2],
+                                      n_stores=self.sizes[1])  # 〔第 4 期 4-2〕店の預かり消費税の口の数
+        self.credit = _CR.CreditBook(capacity=0)
+
+    @property
+    def _stage2_pairs(self) -> bool:
+        """段階 2 の組(``accounts.STAGE2_PAIRS``)を許すか=腕を挿した台帳だけ(〔2-1・検収 L1〕書けない形=挿したかから導く)。"""
+        return self.stage2 is not None
+
+    def can_pay_many(self, buyers: np.ndarray, amounts: np.ndarray) -> np.ndarray:
+        """〔2-1〕払えるか(現金か口座のどちらかで足りるか)。読むだけ。腕の無いランは呼ばない。"""
+        return self.stage2.can_pay(self, buyers, amounts)
+
+    def withdraw_many(self, holders: np.ndarray, step: int, *, cause=None, wanted=None,  # noqa: ANN001
+                      call_ids=None) -> np.ndarray:  # noqa: ANN001
+        """〔2-1〕ATM・銀行の支店で本人が下ろす(額と下ろすかの規則は ``MoneyStage2.withdraw``)。下ろした額(行ごと・0=下ろさない)。
+
+        ``cause`` は 1-3 の原因(呼の無い行)・``wanted`` は判断の口が「お金を下ろす」を選んだ行(規則を通さない)・
+        ``call_ids`` は行ごとのこの刻みの判断の呼の id(〔検収 A1〕呼のある行の原因は ``LlmCall(call_id)``)。
+        """
+        return self.stage2.withdraw(self, holders, step, cause=cause, wanted=wanted, call_ids=call_ids)
+
+    def note_calls_many(self, agents: np.ndarray, call_ids: np.ndarray, pay: np.ndarray) -> None:
+        """〔2-1・検収 A1〕金に触れる行為の LLM の呼の id と支払いの方法の答えを体ごとに控える(``MoneyStage2.note_calls``)。"""
+        self.stage2.note_calls(agents, call_ids, pay)
+
+    def pay_fares_many(self, riders: np.ndarray, fare: int, step: int, *, cause=None) -> np.ndarray:  # noqa: ANN001
+        """〔2-1〕運賃(IC=口座が既定・口座が足りなければ現金)。行ごとの ``TransferStatus``。"""
+        return self.stage2.pay_fares(self, riders, fare, step, cause=cause)
 
     # ---------------------------------------------------------------- 書き込みガード
     @property
@@ -311,8 +477,13 @@ class Ledger:
                 self.freeze()
 
     @contextmanager
-    def unlocked(self) -> Iterator["Ledger"]:
-        """外部(resolve・economy の一括操作)が窓を開けたまま複数回呼ぶための公開版。"""
+    def _unlocked(self) -> Iterator["Ledger"]:
+        """基本操作 ``economy.ops.transfer`` が台帳の配列を書く窓(``_open`` と同じ・再入可)。
+
+        〔1-9・検収 M2〕前は公開の ``unlocked`` だった(``with led.unlocked(): led.balance(...)[i] = x`` で transfer の外から
+        残高を書けた)。内部の名にし、**呼んでよいのは ``economy/ops.py`` の ``transfer`` だけ**=AST の試験
+        ``tests/economy/cp2/test_cp2_write_window.py``(別名・属性の鎖・``getattr`` の文字列も見る)。
+        """
         with self._open():
             yield self
 
@@ -418,14 +589,19 @@ class Ledger:
         amount: int,
         code: int,
         tick: int,
+        *,
+        cause=None,  # noqa: ANN001
     ) -> TransferStatus:
         """**単一API**(§2.3)。1件の資金移動。業務上の失敗は例外にせず戻り値で返す。
+
+        〔1-9〕検査に通った行は基本操作 ``ops.transfer`` が書く(値は不変)。
 
         Args:
             payer / payee: ``EntityRef(部門, 索引)``。
             amount: 金額[円](正の整数のみ)。
             code: ``AccountCode``。
-            tick: 現在 tick(生ログの時刻)。
+            tick: 現在の刻み(生ログの時刻)。
+            cause: 1-3 の原因(渡すと出来事を書き、生ログの行に目印を付ける)。
 
         Returns:
             ``TransferStatus``。
@@ -438,10 +614,8 @@ class Ledger:
             return status
         amt = int(amount)
         c = AccountCode(int(code))
-        with self._open():
-            self._apply_cash(ps, np.array([pi]), qs, np.array([qi]), np.array([amt], np.int64), c)
-            self._record(int(tick), ps, np.array([pi]), qs, np.array([qi]),
-                         np.array([amt], np.int64), c)
+        _OPS.transfer(self, (ps, np.array([pi])), (qs, np.array([qi])), np.array([amt], np.int64),
+                      _OPS.what_of(c), cause, self._t_ns(tick))
         return TransferStatus.OK
 
     def transfer_many(
@@ -453,8 +627,16 @@ class Ledger:
         amounts: np.ndarray,
         code: int,
         tick: int,
+        *,
+        cause=None,  # noqa: ANN001
+        method: int = _OPS.METHOD_CASH,
+        what: str | None = None,
     ) -> np.ndarray:
         """ベクトル版(P4: 個体数ぶんの Python ループを作らない)。
+
+        〔1-9〕検査に通った行は基本操作 ``ops.transfer`` が書く(値は不変)。``cause`` は 1-3 の原因。
+        〔2-1〕``method``=支払いの方法(``ops.METHOD_ACCOUNT`` では口座の脚の払い手の残高の検査を預金で見る)・``what``=科目の名で
+        ない金の語(``ops.MONEY_EXTRA_WHAT``・科目と合うこと)。どちらも既定は今のまま。
 
         Returns:
             行ごとの ``TransferStatus`` を並べた ``int8`` 配列。
@@ -475,6 +657,9 @@ class Ledger:
             self.rejections[int(head)] += p.size
             return out
         c = AccountCode(int(code))
+        word = _OPS.what_of(c) if what is None else str(what)
+        if _OPS.code_of_what(word) != c:
+            raise ValueError(f"金の語 {word!r} は科目 {ACCOUNT_NAMES[int(c)]} と合わない")
 
         bad = a <= 0
         out[bad] = int(TransferStatus.BAD_AMOUNT)
@@ -484,7 +669,8 @@ class Ledger:
 
         live = out == int(TransferStatus.OK)
         if Sector(ps) not in UNCONSTRAINED_SECTORS and live.any():
-            cash = self._lines[int(BalanceLine.CASH)][ps]
+            acct = int(method) == _OPS.METHOD_ACCOUNT and ps == _OPS.ACCOUNT_SECTOR
+            cash = self._lines[int(BalanceLine.DEPOSIT if acct else BalanceLine.CASH)][ps]
             need = self._running_need(p[live], a[live])
             short = need > cash[p[live]].astype(np.int64)
             idx = np.flatnonzero(live)[short]
@@ -498,22 +684,43 @@ class Ledger:
                     self.rejections[int(s)] += n
         if not live.any():
             return out
-        with self._open():
-            self._apply_cash(ps, p[live], qs, q[live], a[live], c)
-            self._record(int(tick), ps, p[live], qs, q[live], a[live], c)
+        if isinstance(cause, list):  # 〔2-1・検収 A1〕行ごとの原因は通った行の分だけ
+            if len(cause) != p.size:
+                raise ValueError(f"行ごとの原因の数が行数と違う: {len(cause)} / {p.size}")
+            cause = [cause[i] for i in np.flatnonzero(live).tolist()]
+        _OPS.transfer(self, (ps, p[live]), (qs, q[live]), a[live], word, cause, self._t_ns(tick), method=int(method))
         return out
 
     # ---------------------------------------------------------------- 便利な入口
     def purchase_many(
-        self, buyers: np.ndarray, stores: np.ndarray, amounts: np.ndarray, tick: int
+        self, buyers: np.ndarray, stores: np.ndarray, amounts: np.ndarray, tick: int, *, cause=None  # noqa: ANN001
     ) -> np.ndarray:
-        """購入の金の脚(世帯→店舗・消費支出)。engine から呼ばれる唯一の購入口。"""
+        """購入の金の脚(世帯→店舗・消費支出)。engine から呼ばれる唯一の購入口。
+
+        〔2-1〕段階 2 の腕で支払い(payment)か税(tax)の部品が動くランは ``MoneyStage2.purchase``(支払いの方法=本人の選び・
+        レジの消費税)に委ねる。腕の無いランは今のまま。
+        """
+        if self.stage2 is not None:
+            if cause is None:  # 〔2-1・検収 A1〕購入・食事の行の原因=その体の金に触れる行為の呼 LlmCall(call_id)
+                cause = self.stage2.purchase_causes(buyers)
+            if self.stage2.handles_purchase:
+                return self.stage2.purchase(self, buyers, stores, amounts, tick, cause=cause)
         return self.transfer_many(
             int(Sector.HOUSEHOLD), buyers, int(Sector.STORE), stores,
-            amounts, int(AccountCode.CONSUMPTION), tick,
+            amounts, int(AccountCode.CONSUMPTION), tick, cause=cause,
         )
 
-    def endow_households(self, amounts: np.ndarray, tick: int = 0) -> np.ndarray:
+    def last_purchase_tax(self, n: int) -> np.ndarray:
+        """〔第 2 期 2-4 V4〕直前の :meth:`purchase_many` の行ごとのレジの税[円](段階 2 が購入を委ねられたランだけ・ほかは 0)。
+
+        ``engine.resolve`` が店の売上の写し ``pois.revenue`` を税抜きにするのに読む(帳簿の店の現金は税を政府へ移した後の額)。
+        """
+        s2 = self.stage2
+        if s2 is None or not s2.handles_purchase:
+            return np.zeros(int(n), dtype=np.int64)
+        return s2.last_purchase_tax(int(n))
+
+    def endow_households(self, amounts: np.ndarray, tick: int = 0, *, cause=None) -> np.ndarray:  # noqa: ANN001
         """初期財布(外界→世帯・来街者持込)。**直接代入ではなく transfer**(ex nihilo 禁止)。
 
         expedient: 居住者の初期現金も「来街者持込」科目で入れる。設計書 §2.2 の 12 科目に
@@ -521,14 +728,17 @@ class Ledger:
         """
         a = np.asarray(amounts, dtype=np.int64).ravel()
         idx = np.arange(a.size, dtype=np.int64)
-        return self.transfer_many(
+        out = self.transfer_many(
             int(Sector.ROW), np.zeros(a.size, dtype=np.int64),
             int(Sector.HOUSEHOLD), idx, a,
-            int(AccountCode.CARRY_IN), tick,
+            int(AccountCode.CARRY_IN), tick, cause=cause,
         )
+        if self.stage2 is not None:  # 〔2-1〕段階 2 の腕: 世帯の初期の預金(来街者は visitors の部品のとき)を口座へ
+            self.stage2.endow(self, tick)
+        return out
 
     def endow_stores(
-        self, cash: np.ndarray, tick: int = 0, *, payer: Sector = Sector.ROW
+        self, cash: np.ndarray, tick: int = 0, *, payer: Sector = Sector.ROW, cause=None  # noqa: ANN001
     ) -> np.ndarray:
         """店舗の参入資本(創業者預金・銀行貸出・外界のいずれか由来=ex nihilo 禁止)。"""
         a = np.asarray(cash, dtype=np.int64).ravel()
@@ -536,13 +746,16 @@ class Ledger:
         return self.transfer_many(
             int(payer), np.zeros(a.size, dtype=np.int64),
             int(Sector.STORE), idx, a,
-            int(AccountCode.ENTRY_CAPITAL), tick,
+            int(AccountCode.ENTRY_CAPITAL), tick, cause=cause,
         )
 
-    def depreciate(self, sector: int, index: np.ndarray, amount: np.ndarray, tick: int) -> None:
+    def depreciate(
+        self, sector: int, index: np.ndarray, amount: np.ndarray, tick: int, *, cause=None  # noqa: ANN001
+    ) -> None:
         """減価償却(**自己ループ**・現金は動かない)。固定資産と純資産だけが減る。
 
         設計書の 12 科目に入っているが相手方が無い(親へ報告した食い違い #1)。
+        〔1-9〕通った行は基本操作 ``ops.transfer`` が自己ループ(src=dst)として書く(値は不変)。
         """
         s = int(sector)
         i = np.asarray(index, dtype=np.int64).ravel()
@@ -552,10 +765,8 @@ class Ledger:
         keep = (a > 0) & (i >= 0) & (i < self.sizes[s])
         if not keep.any():
             return
-        with self._open():
-            np.add.at(self._lines[int(BalanceLine.FIXED_ASSET)][s], i[keep], -a[keep])
-            self._flow[s, s, int(AccountCode.DEPRECIATION)] += int(a[keep].sum())
-            self._record(int(tick), s, i[keep], s, i[keep], a[keep], AccountCode.DEPRECIATION)
+        _OPS.transfer(self, (s, i[keep]), (s, i[keep]), a[keep], _OPS.what_of(AccountCode.DEPRECIATION), cause,
+                      self._t_ns(tick))
 
     def revalue_inventory(self, sector: int, values: np.ndarray) -> None:
         """在庫評価額[円]の書き換え(**金は動かない**ので transfer ではない)。
@@ -583,7 +794,13 @@ class Ledger:
             return TransferStatus.BAD_ENTITY
         if c == AccountCode.ENTRY_CAPITAL and Sector(ps) not in ENTRY_CAPITAL_PAYERS:
             return TransferStatus.EX_NIHILO
-        if not is_allowed(int(c), ps, qs):
+        if c == AccountCode.DEPRECIATION:
+            # 〔1-9・検収 M1・宣言つきの直し〕減価償却は自己ループ(固定資産だけが減る・現金は動かない)で、入口は
+            # ``depreciate`` だけ。汎用の口(``transfer``・``transfer_many``)に渡すと HEAD は現金の脚で動かしていた
+            # (別の口なら現金が移り・同じ口なら差し引き 0 で取引の件数だけ増える=accounts の「現金を動かさない」に反する
+            # 潜在の欠陥)。行の状態 FORBIDDEN_PAIR で返す(例外にしない)。engine からの呼び手は無い=到達しない入力。
+            return TransferStatus.FORBIDDEN_PAIR
+        if not is_allowed(int(c), ps, qs, stage2=self._stage2_pairs):  # 〔2-1〕段階 2 の腕のランだけ段階 2 の組も
             return TransferStatus.FORBIDDEN_PAIR
         return TransferStatus.OK
 
@@ -616,79 +833,6 @@ class Ledger:
         running[order] = running_sorted
         return running
 
-    def _apply_cash(
-        self,
-        ps: int,
-        p: np.ndarray,
-        qs: int,
-        q: np.ndarray,
-        a: np.ndarray,
-        code: AccountCode,
-    ) -> None:
-        """現金の脚(+ 預金純増なら預金・借入の脚)を適用する。**唯一の残高書き込み点**。
-
-        Raises:
-            ValueError: 採用した外部配列(``agents.money``)が読み取り専用のとき
-                = resolve の書き込み窓の外から呼ばれたとき。**numpy の
-                ``np.add.at`` は ``writeable=False`` を無視して書けてしまう**
-                (numpy 2.5 実測)ので、フラグを自前で検査する。
-        """
-        cash_p = self._lines[int(BalanceLine.CASH)][ps]
-        cash_q = self._lines[int(BalanceLine.CASH)][qs]
-        for arr, sector in ((cash_p, ps), (cash_q, qs)):
-            if not arr.flags.writeable:
-                raise ValueError(
-                    f"部門 {Sector(sector).name} の現金配列が読み取り専用: "
-                    "resolve の writable ブロックの外から transfer を呼んでいる"
-                )
-        np.add.at(cash_p, p, (-a).astype(cash_p.dtype))
-        np.add.at(cash_q, q, a.astype(cash_q.dtype))
-        if code == AccountCode.DEPOSIT_NET:
-            # 四重記入の2脚目: 現金↔預金の振替(銀行側は預金負債=借入行)
-            dep = self._lines[int(BalanceLine.DEPOSIT)]
-            loan = self._lines[int(BalanceLine.LOAN)]
-            if Sector(qs) == Sector.BANK:  # 預入
-                np.add.at(dep[ps], p, a)
-                np.add.at(loan[qs], q, a)
-            else:  # 引出(銀行 → 預金者)
-                np.add.at(dep[qs], q, -a)
-                np.add.at(loan[ps], p, -a)
-        total = int(a.sum())
-        self._flow[ps, qs, int(code)] += total
-        self._last_change_day[ps][p] = np.int32(self._day)
-        self._last_change_day[qs][q] = np.int32(self._day)
-        self.n_transfers += int(a.size)
-
-    def _record(
-        self,
-        tick: int,
-        ps: int,
-        p: np.ndarray,
-        qs: int,
-        q: np.ndarray,
-        a: np.ndarray,
-        code: AccountCode,
-    ) -> None:
-        """生ログ(リングバッファ)へ追記。D-R2-6: 保持窓を超えた分は日次集約行に畳む。"""
-        k = int(a.size)
-        if k == 0:
-            return
-        cap = self._raw_tick.size
-        pos = self._raw_pos + np.arange(k, dtype=np.int64)
-        slot = pos % cap
-        self._raw_tick[slot] = np.int32(tick)
-        self._raw_ps[slot] = np.int8(ps)
-        self._raw_pi[slot] = p.astype(np.int32)
-        self._raw_qs[slot] = np.int8(qs)
-        self._raw_qi[slot] = q.astype(np.int32)
-        self._raw_amt[slot] = a
-        self._raw_code[slot] = np.int8(int(code))
-        self._raw_pos += k
-        if self._raw_pos - self._raw_head > cap:
-            dropped = (self._raw_pos - self._raw_head) - cap
-            self._raw_head += dropped
-            self.n_raw_dropped += int(dropped)
-
     def raw_rows(self) -> np.ndarray:
         """保持窓内の生ログ ``(n, 7)``(tick・支払部門・支払索引・受取部門・受取索引・金額・科目)。"""
         cap = self._raw_tick.size
@@ -714,8 +858,14 @@ class Ledger:
         """日次の畳み込み(D-R2-6)。取引行列を集約行へ積み、生ログの保持窓を進める。
 
         逐次ループ宣言3: 部門×科目(90)の総和。
+
+        〔第 2 期 2-1〕段階 2 の腕のランは締めの前に給料日の賃金(``MoneyStage2.before_close``)を払う。締めの後に保存則の
+        検算(``checks.conservation_check``=登録の faucet − sink = 部門の残高の合計の変化・残差の科目 residual=0)を
+        腕の有無によらず計器の日の欄(``meter.last_day["conservation"]``)に置く(記録だけ・締めは止めない)。
         """
         d = self._day if day is None else int(day)
+        if self.stage2 is not None:
+            self.stage2.before_close(self, d)
         snap_now = self._financial_snapshot()
         close = DayClose(
             day=d,
@@ -726,6 +876,8 @@ class Ledger:
             raw_rows_kept=int(self._raw_pos - self._raw_head),
         )
         self._flow_daily.append(close.flow)
+        # 〔1-9〕新しい検算 1 本: その日の transfer の額の和=流れの表の和(起点からの増え)。計器だけ(締めは止めない)
+        self.meter.close_day(d, int(self._flow.sum()))
         self._flow[:] = 0
         self._snap = snap_now
         self._day = d + 1
@@ -738,6 +890,11 @@ class Ledger:
                 self._raw_head = marked_pos
         self._day_marks = [m for m in self._day_marks if m[0] > cutoff_day]
         self._last_close = close
+        from shibuya.economy import checks as _CK  # 循環を避ける(checks は ledger を読まない・型だけ)
+
+        self.meter.last_day["conservation"] = _CK.conservation_check(close)
+        if self.stage2 is not None:
+            self.meter.last_day["stage2"] = self.stage2.day_record(self, d)
         return close
 
     def cumulative_close(self) -> DayClose:
@@ -811,7 +968,7 @@ class Ledger:
         )
         own += sum(int(a.nbytes) for a in self._last_change_day)
         own += int(self._flow.nbytes) + sum(int(f.nbytes) for f in self._flow_daily)
-        own += self._raw_tick.size * RAW_ROW_BYTES
+        own += self._raw_tick.size * (RAW_ROW_BYTES + RAW_LINK_BYTES)  # 〔1-9〕目印の列 12 B/行
         return own
 
     # ---------------------------------------------------------------- D-R2-6
@@ -822,16 +979,29 @@ class Ledger:
         ``LedgerBundle`` 経由でこの 2 本を受け取る(依存逆転)。
         """
         decls = growth_declarations(
-            raw_capacity=self.raw_capacity, retention_days=self.retention_days
+            raw_capacity=self.raw_capacity, retention_days=self.retention_days,
+            rows_per_agent_day=self.raw_rows_per_agent_day,
         )
-        return {k: decls[k] for k in ("transfer_log", "flow_matrix_daily")}
+        out = {k: decls[k] for k in ("transfer_log", "flow_matrix_daily")}
+        out["transfer_log_event_ids"] = event_ids_declaration(
+            raw_capacity=self.raw_capacity, retention_days=self.retention_days,
+            rows_per_agent_day=self.raw_rows_per_agent_day,
+        )
+        if self.stage2 is not None:  # 〔2-1〕経済の段階 2 の腕のランだけ(体あたりの定常バイト・伸びない)
+            out["economy_stage2"] = self.stage2.growth_declaration(employers=self.sizes[2])
+        return out
 
     def growth_measured(self) -> Mapping[str, int]:
-        """D-R2-6 の**実測増分バイト**(保持窓の中に残っている生ログ+集約行)。"""
-        return {
-            "transfer_log": int(self._raw_pos - self._raw_head) * RAW_ROW_BYTES,
+        """D-R2-6 の**実測増分バイト**(保持窓の中に残っている生ログ+集約行・〔1-9〕目印の列)。"""
+        live = int(self._raw_pos - self._raw_head)
+        out = {
+            "transfer_log": live * RAW_ROW_BYTES,
             "flow_matrix_daily": sum(int(f.nbytes) for f in self._flow_daily),
+            "transfer_log_event_ids": live * RAW_LINK_BYTES,
         }
+        if self.stage2 is not None:  # 〔2-1〕定常サイズ(伸びない)=実測の増分は 0
+            out["economy_stage2"] = 0
+        return out
 
     def summary(self) -> str:
         cash = self.sector_totals(BalanceLine.CASH)
@@ -850,7 +1020,8 @@ class Ledger:
 
 
 def growth_declarations(
-    *, raw_capacity: int = DEFAULT_RAW_CAPACITY, retention_days: int = DEFAULT_RETENTION_DAYS
+    *, raw_capacity: int = DEFAULT_RAW_CAPACITY, retention_days: int = DEFAULT_RETENTION_DAYS,
+    rows_per_agent_day: float = TRANSFERS_PER_AGENT_PER_DAY,
 ) -> Mapping[str, GrowthDeclaration]:
     """金の台帳の状態成長宣言(D-R2-6 の 5 欄)。
 
@@ -859,8 +1030,8 @@ def growth_declarations(
 
     ``raw_capacity`` は ``transfer_log`` の cap(= 容量 × 24 B)になる。台帳インスタンスから
     呼ぶとき(``Ledger.growth_declarations``)は **N 比例**の実容量が入るので
-    cap = 宣言投影(72 B/体/日 × N × 保持日数)と等値になる(D-53)。引数を省いた単体呼び出しは
-    据え置きの ``DEFAULT_RAW_CAPACITY``(6.29 MB)= **N を知らない場面の目安**。
+    cap ≥ 宣言投影(156 B/体/日 × N × 保持日数・〔1-9・K17〕前は 72 B)になる(D-53・奇数の N では切り上げの 1 行ぶん
+    だけ大きい)。引数を省いた単体呼び出しは据え置きの ``DEFAULT_RAW_CAPACITY``(6.29 MB)= **N を知らない場面の目安**。
     """
     rows = (
         GrowthDeclaration(
@@ -868,7 +1039,7 @@ def growth_declarations(
             per_agent_bytes=0,
             per_cell_bytes=0,
             per_day_growth="O(N)",
-            per_day_growth_coef=float(TRANSFERS_PER_AGENT_PER_DAY * RAW_ROW_BYTES),
+            per_day_growth_coef=float(rows_per_agent_day * RAW_ROW_BYTES),
             retention=Retention(days=retention_days, target="日次取引フロー行列(flow_daily)へ集約"),
             worst_case_ops_per_tick=0,
             cap=int(raw_capacity) * RAW_ROW_BYTES,
@@ -877,12 +1048,13 @@ def growth_declarations(
             note=(
                 "境界・経済設計書 §2.3 の取引ログ。1 行 24 B・リングバッファで有界化し、"
                 "日次で取引フロー行列へ畳む(D-R2-6 の ActualLog 規律を金の台帳へ適用)。"
-                "容量は N 比例(raw_capacity_for・D-53 2026-09-10)なので cap は 72 B/体/日 × N ×"
-                " 保持日数と等値。"
+                "容量は N 比例(raw_capacity_for・D-53 2026-09-10)なので cap は 156 B/体/日 × N ×"
+                " 保持日数以上(〔1-9・K17〕6.5 行/体/日=実測 4.07 の 1.5 倍以上。前は 3.0 行=72 B)。"
+                "溢れたら上書きして数える(manifest の economy.raw_overflow)。"
             ),
             unit="transfer",
             bytes_per_unit=RAW_ROW_BYTES,
-            growth_per_simday=TRANSFERS_PER_AGENT_PER_DAY,
+            growth_per_simday=float(rows_per_agent_day),
         ),
         GrowthDeclaration(
             name="flow_matrix_daily",
@@ -921,3 +1093,32 @@ def growth_declarations(
         ),
     )
     return {d.name: d for d in rows}
+
+
+def event_ids_declaration(
+    *, raw_capacity: int = DEFAULT_RAW_CAPACITY, retention_days: int = DEFAULT_RETENTION_DAYS,
+    rows_per_agent_day: float = TRANSFERS_PER_AGENT_PER_DAY,
+) -> GrowthDeclaration:
+    """〔1-9〕生ログの行の目印の列(出来事の id=t_ns 8 B+seq 4 B=12 B/行)の成長宣言(1-3 の L8)。
+
+    輪と同じ容量・保持窓(列は輪の行ごとに 1 つ)。軸 1 diag・軸 2 discardable(状態台帳の行 A)。
+    """
+    return GrowthDeclaration(
+        name="transfer_log_event_ids",
+        per_agent_bytes=0,
+        per_cell_bytes=0,
+        per_day_growth="O(N)",
+        per_day_growth_coef=float(rows_per_agent_day * RAW_LINK_BYTES),
+        retention=Retention(days=retention_days, target="生ログの輪と同じ(行と一緒に上書き・畳む)"),
+        worst_case_ops_per_tick=0,
+        cap=int(raw_capacity) * RAW_LINK_BYTES,
+        cap_budget_row="S1/M8(親が割当・要 delta)",
+        mechanism=True,
+        note=(
+            "第 1 期 1-9: 金の生ログの行ごとの出来事の id(1-3 の EventLog の (t_ns, seq))。出来事を書かなかった行は -1。"
+            "容量は輪と同じ(raw_capacity_for=6.5 行/体/日 × N × 保持日数)。"
+        ),
+        unit="transfer",
+        bytes_per_unit=RAW_LINK_BYTES,
+        growth_per_simday=float(rows_per_agent_day),
+    )

@@ -130,6 +130,7 @@ def b4_block_raw(
     noise_stage: np.ndarray | None = None,
     flow: np.ndarray | None = None,
     salient_digest: np.ndarray | None = None,
+    los_stage: np.ndarray | None = None,
 ) -> np.ndarray:
     """セル動的ブロック B4 の**描画欄** ``(n_cells, 4)`` int32(``B4_FIELD_COLUMNS`` の順)。
 
@@ -146,6 +147,8 @@ def b4_block_raw(
         noise_stage: 騒音段(None なら ``world.noise_stage_for_tick(tick)``)。
         flow: 流れ 0-2(None なら 0)。
         salient_digest: 顕著行為ダイジェスト(None なら 0)。
+        los_stage: 〔段 5-1b〕密度の段(Fruin の LOS)を外から渡す(nav1 のラン=``world.cells.density_stage``=
+            ``NavSpace.per_m2`` の推定と同じ値)。None(legacy)なら ``density ÷ walkable_area_m2`` から。
 
     Note:
         **営業中POI数は欄から外した**。店が開いても B4 の描画バイトは変わらない
@@ -154,11 +157,14 @@ def b4_block_raw(
         顕著行為の到達)にも営業中POI数は無い。
     """
     n = world.n_cells
-    area = DEFAULT_WALKABLE_AREA_M2 if walkable_area_m2 is None else walkable_area_m2
-    per_m2 = np.asarray(world.cells.density, dtype=np.float64) / np.maximum(
-        np.asarray(area, dtype=np.float64), 1.0
-    )
-    los = PN.peg_stage_array(per_m2, PT.DENSITY_LOS_EDGES_PER_M2)
+    if los_stage is not None:
+        los = np.asarray(los_stage, dtype=np.uint8)
+    else:
+        area = DEFAULT_WALKABLE_AREA_M2 if walkable_area_m2 is None else walkable_area_m2
+        per_m2 = np.asarray(world.cells.density, dtype=np.float64) / np.maximum(
+            np.asarray(area, dtype=np.float64), 1.0
+        )
+        los = PN.peg_stage_array(per_m2, PT.DENSITY_LOS_EDGES_PER_M2)
     ns = world.noise_stage_for_tick(tick) if noise_stage is None else np.asarray(noise_stage)
     fl = np.zeros(n, dtype=np.uint8) if flow is None else np.asarray(flow)
     sal = np.zeros(n, dtype=np.int32) if salient_digest is None else np.asarray(salient_digest)
@@ -271,6 +277,9 @@ class ChangeDetector:
         self.n_agents = int(n_agents)
         self.n_cells = int(n_cells)
         self.walkable_area_m2 = walkable_area_m2
+        #: 〔段 5-1b〕nav1 のランでは B4 の密度の段を ``world.cells.density_stage``(``NavSpace.per_m2`` の推定)から取る
+        #: (組み立てが True にする・legacy は False=今の ``density ÷ walkable_area_m2``)
+        self.los_from_stage = False
         self._prev_raw: np.ndarray | None = None
         # scratch(1 tick ごとの確保を避ける=Windows のページフォルトが P6 を食う)
         self._b1 = np.empty(self.n_agents, dtype=bool)
@@ -288,7 +297,8 @@ class ChangeDetector:
         self, world: World, tick: int, field_rows: np.ndarray | None = None
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         if field_rows is None:
-            raw = b4_block_raw(world, tick, walkable_area_m2=self.walkable_area_m2)
+            raw = b4_block_raw(world, tick, walkable_area_m2=self.walkable_area_m2,
+                               los_stage=world.cells.density_stage if self.los_from_stage else None)
         else:
             raw = np.ascontiguousarray(np.asarray(field_rows, dtype=np.int32))
         if self._prev_raw is None or self._prev_raw.shape != raw.shape:
@@ -344,6 +354,48 @@ class ChangeDetector:
             out.append(B5Crossing(var, stage_field, idx, new))
         return tuple(out)
 
+    # ---- (ii) 内受容(〔第 6 期 6-3 T3〕変化の印の体だけ) ----
+    def _interoception_scoped(self, agents: AgentState, idx: np.ndarray) -> tuple[B5Crossing, ...]:
+        """``_interoception`` と同じ判定を体の配列 ``idx``(昇順)だけに通す(``engine.step_scope`` の腕 changed)。
+
+        ``idx`` が「判定の結果が変わりうる体」を全部含めば、全員を見る版と同じ結果(同じ体・同じ昇順・同じ新しい段)。
+        作業の配列は持ち回さない(印の数ぶんの一時の配列)。逐次ループ宣言: 内受容 3 変数 × 段の境目 3 つ(体数に比例しない)。
+        """
+        edges = INTERO_UP_EDGES
+        ups: list[np.ndarray] = []
+        dns: list[np.ndarray] = []
+        hits: list[np.ndarray] = []
+        stages: list[np.ndarray] = []
+        for value_field, stage_field in INTERO_VARS:  # 逐次: 3 変数
+            v = agents.registry.field(value_field)[idx]
+            p = agents.registry.field(stage_field).view(np.uint8)[idx]
+            up = np.zeros(idx.size, dtype=bool)
+            dn = np.zeros(idx.size, dtype=bool)
+            for k, e in enumerate(edges):  # 逐次: 段の境目 3 つ
+                up |= (p == k) & (v >= e)
+                dn |= (p == k + 1) & (v < e - INTERO_HYSTERESIS)
+            ups.append(up)
+            dns.append(dn)
+            hits.append(up | dn)
+            stages.append(p)
+        any_ = hits[0] | hits[1] | hits[2]
+        if not any_.any():
+            return tuple(
+                B5Crossing(var, sf, np.empty(0, dtype=np.int64), np.empty(0, dtype=np.uint8))
+                for var, (_, sf) in enumerate(INTERO_VARS)
+            )
+        sel = np.flatnonzero(any_)
+        out: list[B5Crossing] = []
+        for var, (_, stage_field) in enumerate(INTERO_VARS):  # 逐次: 3 変数
+            sub = sel[hits[var][sel]]
+            new = (
+                stages[var][sub].astype(np.int16)
+                + ups[var][sub].astype(np.int16)
+                - dns[var][sub].astype(np.int16)
+            ).astype(np.uint8)
+            out.append(B5Crossing(var, stage_field, idx[sub].astype(np.int64), new))
+        return tuple(out)
+
     # ---- 本体 ----
     def detect(
         self,
@@ -352,6 +404,7 @@ class ChangeDetector:
         tick: int,
         *,
         field_rows: np.ndarray | None = None,
+        scope: np.ndarray | None = None,
     ) -> DetectResult:
         """1 tick 分の変化検出(**書き込みなし**)。
 
@@ -363,6 +416,8 @@ class ChangeDetector:
                 それを渡す**(``engine.run`` はそうする)= 検出器と描画が同じ 1 本の欄を見る
                 =「起床条件 (i) が鳴らないのに文面が変わる」取りこぼしが構造的に 0 になる。
                 None なら ``b4_block_raw`` が world から作る(単体運転・ベンチ用)。
+            scope: 〔第 6 期 6-3 T3〕内受容の判定を通す体(昇順の int64・``engine.step_scope`` の変化の印)。None(既定)は
+                全員(今の道)。セルの起床は絞らない。
 
         Returns:
             ``DetectResult``。
@@ -376,7 +431,8 @@ class ChangeDetector:
             cell_agents = self._wake_buf[:k].copy()
         else:
             cell_agents = np.empty(0, dtype=np.int64)
-        crossings = self._interoception(agents)
+        crossings = (self._interoception(agents) if scope is None
+                     else self._interoception_scoped(agents, np.asarray(scope, dtype=np.int64)))
         return DetectResult(
             tick=int(tick),
             changed_cells=changed_cells,

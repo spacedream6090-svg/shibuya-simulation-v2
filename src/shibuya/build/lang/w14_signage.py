@@ -43,6 +43,7 @@ import pyarrow as pa
 
 from ..geo import common as C
 from . import common as L
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 STAGE = "W14"
 STAGE_VERSION = "1.0.0"
@@ -141,9 +142,9 @@ USER_TEMPLATE: Final[str] = "\n".join(
 def _fmt_hm(minute: int) -> str:
     """分(0時からの通算)→「10時」/「10時30分」。24 時以降は「翌2時」。"""
     m = int(minute)
-    day_over = m >= 1440
-    m = m % 1440
-    h, mi = divmod(m, 60)
+    day_over = m >= MINUTES_PER_DAY
+    m = m % MINUTES_PER_DAY
+    h, mi = divmod(m, MINUTES_PER_HOUR)
     body = f"{h}時" if mi == 0 else f"{h}時{mi}分"
     return ("翌" + body) if day_over else body
 
@@ -158,7 +159,7 @@ def _fmt_first_interval(intervals: list[list[int]]) -> str:
     if not intervals:
         return ""
     a, b = int(intervals[0][0]), int(intervals[0][1])
-    if a == 0 and b >= 1440:
+    if a == 0 and b >= MINUTES_PER_DAY:
         return "24時間"
     return f"{_fmt_hm(a)}から{_fmt_hm(b)}"
 

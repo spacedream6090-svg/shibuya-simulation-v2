@@ -1,0 +1,2209 @@
+{
+ "ubld": {
+  "name": "渋谷駅周辺エリア",
+  "group_name": "Storey_B1～B3",
+  "n_rooms": 3,
+  "lodType": "4.1",
+  "src_codes": {
+   "geometrySrcDescLod4": "000",
+   "srcScaleLod4": "3",
+   "publicSurveySrcDescLod4": "018",
+   "thematicSrcDesc": "000"
+  },
+  "src_decoded": {
+   "geometrySrcDescLod4": "公共測量成果",
+   "srcScaleLod4": "地図情報レベル500",
+   "publicSurveySrcDescLod4": "LidarSLAM計測の測量成果"
+  },
+  "attributes_on_rooms_doors_installations": [],
+  "floor_rings_unique": 2840,
+  "floor_area_unique_m2_by_room": {
+   "0": 157.0,
+   "1": 25.5,
+   "2": 14580.4
+  },
+  "floor_area_unique_m2_total": 14762.9,
+  "floor_area_by_abs_height_0p5m": {
+   "1.0": 635.9,
+   "1.5": 356.6,
+   "2.0": 1404.4,
+   "2.5": 96.0,
+   "3.0": 140.8,
+   "3.5": 69.7,
+   "4.0": 332.1,
+   "4.5": 2312.2,
+   "5.0": 2148.9,
+   "5.5": 618.3,
+   "6.0": 285.8,
+   "6.5": 52.5,
+   "7.0": 754.1,
+   "7.5": 53.7,
+   "8.0": 71.1,
+   "8.5": 1108.0,
+   "9.0": 487.6,
+   "9.5": 1131.3,
+   "10.0": 648.4,
+   "10.5": 1132.9,
+   "11.0": 164.4,
+   "11.5": 215.9,
+   "12.0": 104.4,
+   "12.5": 54.7,
+   "13.0": 62.3,
+   "13.5": 134.9,
+   "14.5": 97.9
+  },
+  "room_z_abs": {
+   "0": [
+    10.59,
+    10.81
+   ],
+   "1": [
+    10.77,
+    10.83
+   ],
+   "2": [
+    1.01,
+    17.42
+   ]
+  },
+  "doors": {
+   "total": 188,
+   "in_WallSurface": 0,
+   "in_InteriorWallSurface": 188
+  },
+  "closure_surfaces": 218,
+  "int_installations": 5,
+  "terrain_check_origin_abs_m": 15.141687713861465,
+  "extent_local_m": [
+   -190.4,
+   -127.8,
+   219.7,
+   203.9
+  ],
+  "z_abs_range": [
+   0.9,
+   17.97
+  ],
+  "near_ground_vertex_clusters_10m": 154,
+  "osm_station_entrances_total": 45,
+  "osm_station_entrances_within_15m_of_floor": 24,
+  "osm_station_entrances_near_list": [
+   {
+    "kind": "subway_entrance",
+    "d_m": 1.2
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 1.0
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 0.9
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 1.1
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 1.8
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 5.2
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 4.7
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 2.6
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 1.7
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 1.4
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 1.4
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 2.0
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 0.8
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 6.3
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 1.1
+   },
+   {
+    "kind": "train_station_entrance",
+    "d_m": 1.8
+   },
+   {
+    "kind": "train_station_entrance",
+    "d_m": 11.6
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 11.2
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 10.6
+   },
+   {
+    "kind": "train_station_entrance",
+    "d_m": 8.9
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 2.4
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 3.5
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 5.7
+   },
+   {
+    "kind": "subway_entrance",
+    "d_m": 0.1
+   }
+  ],
+  "floor_union_footprint_m2_2m_grid": 13312,
+  "floor_by_height_band": {
+   "abs<3m": {
+    "footprint_m2": 2532,
+    "extent_local_m": [
+     142,
+     -128,
+     218,
+     158
+    ],
+    "named_roads_over_floor": {
+     "明治通り": 6
+    }
+   },
+   "3-7m": {
+    "footprint_m2": 5904,
+    "extent_local_m": [
+     -128,
+     -58,
+     188,
+     168
+    ],
+    "named_roads_over_floor": {
+     "道玄坂": 14,
+     "旧大山街道": 5,
+     "文化村通り": 5,
+     "神宮通り": 3,
+     "渋谷センター街": 2,
+     "明治通り": 2
+    }
+   },
+   "7-12m": {
+    "footprint_m2": 5764,
+    "extent_local_m": [
+     -190,
+     -102,
+     192,
+     202
+    ],
+    "named_roads_over_floor": {
+     "道玄坂": 19,
+     "文化村通り": 7,
+     "渋谷センター街": 6,
+     "旧大山街道": 6,
+     "神宮通り": 6
+    }
+   },
+   "12m+": {
+    "footprint_m2": 544,
+    "extent_local_m": [
+     -66,
+     -66,
+     190,
+     52
+    ],
+    "named_roads_over_floor": {}
+   }
+  },
+  "osm_buildings_above_floor_top15": [
+   {
+    "kind": "station",
+    "overlap_m2": 552
+   },
+   {
+    "kind": "generic",
+    "overlap_m2": 432
+   },
+   {
+    "kind": "house?",
+    "overlap_m2": 120
+   },
+   {
+    "kind": "station",
+    "overlap_m2": 84
+   },
+   {
+    "kind": "house?",
+    "overlap_m2": 44
+   },
+   {
+    "kind": "house?",
+    "overlap_m2": 36
+   },
+   {
+    "kind": "house?",
+    "overlap_m2": 28
+   },
+   {
+    "kind": "house?",
+    "overlap_m2": 24
+   },
+   {
+    "kind": "house?",
+    "overlap_m2": 20
+   },
+   {
+    "kind": "house?",
+    "overlap_m2": 20
+   },
+   {
+    "kind": "house?",
+    "overlap_m2": 16
+   },
+   {
+    "kind": "house?",
+    "overlap_m2": 16
+   },
+   {
+    "kind": "retail",
+    "overlap_m2": 12
+   },
+   {
+    "kind": "generic",
+    "overlap_m2": 12
+   },
+   {
+    "kind": "house?",
+    "overlap_m2": 12
+   }
+  ],
+  "floor_under_osm_buildings_m2": 1436,
+  "osm_underground_edges_len_m": 5031.0,
+  "osm_underground_edges_len_on_ubld_floor_m": 1831.1,
+  "osm_subway_lines_touching_floor_n": 3,
+  "_seconds": 2.2
+ },
+ "_meta": {
+  "bbox_w1": [
+   35.6505,
+   139.6905,
+   35.6685,
+   139.7115
+  ],
+  "w1_mesh": [
+   "53393585",
+   "53393586",
+   "53393595",
+   "53393596",
+   "53394505",
+   "53394506"
+  ],
+  "origin": [
+   35.6595,
+   139.70062
+  ],
+  "ground0": 15.18
+ },
+ "brid": {
+  "n_all_files": 76,
+  "n_files": 8,
+  "n_in_w1": 39,
+  "function_in_w1": {
+   "99 不明": 30,
+   "07 横断歩道橋": 6,
+   "01 道路橋": 3
+  },
+  "lodType_in_w1": {
+   "2.1": 39
+  },
+  "named_in_w1": 0,
+  "guess_osm_in_w1": {
+   "rail": 2,
+   "none": 10,
+   "pedestrian": 21,
+   "mixed": 6
+  },
+  "cross_function_x_guess_in_w1": {
+   "99 不明 | rail": 2,
+   "99 不明 | none": 9,
+   "99 不明 | pedestrian": 16,
+   "99 不明 | mixed": 3,
+   "07 横断歩道橋 | mixed": 1,
+   "01 道路橋 | mixed": 2,
+   "01 道路橋 | none": 1,
+   "07 横断歩道橋 | pedestrian": 5
+  },
+  "bridges_in_w1": [
+   {
+    "file": "53393585",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": -560.1,
+    "y": -496.3,
+    "size_m": [
+     206.4,
+     222.6
+    ],
+    "h_range_m": [
+     33.76,
+     44.36
+    ],
+    "osm_layer_ge1_edges_in_bbox": {},
+    "osm_rail_in_bbox": 2,
+    "guess_osm": "rail"
+   },
+   {
+    "file": "53393585",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": -421.2,
+    "y": -395.2,
+    "size_m": [
+     122.7,
+     54.4
+    ],
+    "h_range_m": [
+     32.27,
+     43.93
+    ],
+    "osm_layer_ge1_edges_in_bbox": {},
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "none"
+   },
+   {
+    "file": "53393585",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": -333.1,
+    "y": -377.5,
+    "size_m": [
+     81.3,
+     42.2
+    ],
+    "h_range_m": [
+     31.64,
+     41.46
+    ],
+    "osm_layer_ge1_edges_in_bbox": {},
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "none"
+   },
+   {
+    "file": "53393585",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": -217.4,
+    "y": -337.2,
+    "size_m": [
+     223.8,
+     101.8
+    ],
+    "h_range_m": [
+     22.26,
+     38.17
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "steps": 1,
+     "pedestrian": 1
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393585",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": -177.1,
+    "y": -302.3,
+    "size_m": [
+     32.2,
+     49.2
+    ],
+    "h_range_m": [
+     29.53,
+     39.22
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "steps": 1,
+     "pedestrian": 1
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393585",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": -394.2,
+    "y": -405.0,
+    "size_m": [
+     108.4,
+     37.9
+    ],
+    "h_range_m": [
+     34.4,
+     44.39
+    ],
+    "osm_layer_ge1_edges_in_bbox": {},
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "none"
+   },
+   {
+    "file": "53393585",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": -522.9,
+    "y": -430.2,
+    "size_m": [
+     104.5,
+     91.6
+    ],
+    "h_range_m": [
+     34.91,
+     50.2
+    ],
+    "osm_layer_ge1_edges_in_bbox": {},
+    "osm_rail_in_bbox": 2,
+    "guess_osm": "rail"
+   },
+   {
+    "file": "53393586",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 392.5,
+    "y": -336.8,
+    "size_m": [
+     44.7,
+     24.1
+    ],
+    "h_range_m": [
+     12.28,
+     21.17
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "footway": 1,
+     "steps": 1,
+     "residential": 1
+    },
+    "osm_rail_in_bbox": 2,
+    "guess_osm": "mixed"
+   },
+   {
+    "file": "53393586",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 155.3,
+    "y": -160.8,
+    "size_m": [
+     52.7,
+     29.0
+    ],
+    "h_range_m": [
+     14.31,
+     23.87
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "pedestrian": 3
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393586",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 5.4,
+    "y": -162.0,
+    "size_m": [
+     39.7,
+     52.3
+    ],
+    "h_range_m": [
+     15.98,
+     27.12
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "footway": 6
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393586",
+    "in_w1": true,
+    "function": "07 横断歩道橋",
+    "lodType": "2.1",
+    "name": null,
+    "x": 258.8,
+    "y": -163.9,
+    "size_m": [
+     295.4,
+     78.8
+    ],
+    "h_range_m": [
+     12.08,
+     31.69
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "unclassified": 1,
+     "steps": 13,
+     "pedestrian": 17,
+     "footway": 17,
+     "corridor": 1
+    },
+    "osm_rail_in_bbox": 14,
+    "guess_osm": "mixed"
+   },
+   {
+    "file": "53393586",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 294.0,
+    "y": -301.2,
+    "size_m": [
+     30.8,
+     29.8
+    ],
+    "h_range_m": [
+     14.6,
+     26.69
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "unclassified": 1,
+     "pedestrian": 2
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "mixed"
+   },
+   {
+    "file": "53393586",
+    "in_w1": true,
+    "function": "01 道路橋",
+    "lodType": "2.1",
+    "name": null,
+    "x": 505.4,
+    "y": -575.4,
+    "size_m": [
+     127.8,
+     174.0
+    ],
+    "h_range_m": [
+     13.4,
+     23.88
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "tertiary": 2,
+     "unclassified": 1,
+     "service": 7,
+     "footway": 4
+    },
+    "osm_rail_in_bbox": 6,
+    "guess_osm": "mixed"
+   },
+   {
+    "file": "53393586",
+    "in_w1": true,
+    "function": "01 道路橋",
+    "lodType": "2.1",
+    "name": null,
+    "x": 596.4,
+    "y": -134.8,
+    "size_m": [
+     291.7,
+     41.4
+    ],
+    "h_range_m": [
+     21.09,
+     35.0
+    ],
+    "osm_layer_ge1_edges_in_bbox": {},
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "none"
+   },
+   {
+    "file": "53393586",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 65.3,
+    "y": -220.7,
+    "size_m": [
+     124.8,
+     62.6
+    ],
+    "h_range_m": [
+     9.65,
+     27.39
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "pedestrian": 7,
+     "footway": 2,
+     "steps": 3
+    },
+    "osm_rail_in_bbox": 2,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393586",
+    "in_w1": true,
+    "function": "01 道路橋",
+    "lodType": "2.1",
+    "name": null,
+    "x": 434.2,
+    "y": -671.8,
+    "size_m": [
+     87.9,
+     138.0
+    ],
+    "h_range_m": [
+     15.35,
+     25.06
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "tertiary": 2,
+     "footway": 2
+    },
+    "osm_rail_in_bbox": 6,
+    "guess_osm": "mixed"
+   },
+   {
+    "file": "53393586",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 217.2,
+    "y": -205.9,
+    "size_m": [
+     15.0,
+     14.1
+    ],
+    "h_range_m": [
+     14.44,
+     23.95
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "pedestrian": 2,
+     "steps": 1,
+     "footway": 1
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393586",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 32.5,
+    "y": -237.1,
+    "size_m": [
+     175.0,
+     85.6
+    ],
+    "h_range_m": [
+     12.37,
+     30.21
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "steps": 3,
+     "pedestrian": 7,
+     "footway": 2
+    },
+    "osm_rail_in_bbox": 2,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393586",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 188.5,
+    "y": -225.7,
+    "size_m": [
+     15.0,
+     14.8
+    ],
+    "h_range_m": [
+     21.65,
+     32.65
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "pedestrian": 1,
+     "corridor": 1
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393586",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 244.9,
+    "y": -181.8,
+    "size_m": [
+     127.6,
+     46.1
+    ],
+    "h_range_m": [
+     12.02,
+     27.55
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "unclassified": 1,
+     "steps": 7,
+     "pedestrian": 10,
+     "footway": 8
+    },
+    "osm_rail_in_bbox": 4,
+    "guess_osm": "mixed"
+   },
+   {
+    "file": "53393586",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 215.8,
+    "y": -139.7,
+    "size_m": [
+     67.6,
+     42.4
+    ],
+    "h_range_m": [
+     14.69,
+     25.65
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "steps": 2,
+     "pedestrian": 9,
+     "footway": 2
+    },
+    "osm_rail_in_bbox": 4,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393595",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": -126.7,
+    "y": -93.1,
+    "size_m": [
+     84.0,
+     49.4
+    ],
+    "h_range_m": [
+     16.09,
+     31.95
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "footway": 5
+    },
+    "osm_rail_in_bbox": 2,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393595",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": -65.9,
+    "y": 175.9,
+    "size_m": [
+     17.8,
+     16.3
+    ],
+    "h_range_m": [
+     32.27,
+     37.68
+    ],
+    "osm_layer_ge1_edges_in_bbox": {},
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "none"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "07 横断歩道橋",
+    "lodType": "2.1",
+    "name": null,
+    "x": 506.7,
+    "y": 88.1,
+    "size_m": [
+     31.8,
+     34.8
+    ],
+    "h_range_m": [
+     33.82,
+     40.23
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "footway": 1,
+     "steps": 2
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 399.5,
+    "y": -92.4,
+    "size_m": [
+     84.8,
+     68.1
+    ],
+    "h_range_m": [
+     21.46,
+     33.16
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "footway": 1,
+     "steps": 2
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 8.4,
+    "y": 460.7,
+    "size_m": [
+     8.2,
+     27.4
+    ],
+    "h_range_m": [
+     24.1,
+     27.21
+    ],
+    "osm_layer_ge1_edges_in_bbox": {},
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "none"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "07 横断歩道橋",
+    "lodType": "2.1",
+    "name": null,
+    "x": 450.5,
+    "y": 29.8,
+    "size_m": [
+     40.3,
+     30.0
+    ],
+    "h_range_m": [
+     30.12,
+     37.92
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "steps": 3,
+     "footway": 2
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 479.5,
+    "y": 275.8,
+    "size_m": [
+     3.1,
+     3.6
+    ],
+    "h_range_m": [
+     48.66,
+     52.66
+    ],
+    "osm_layer_ge1_edges_in_bbox": {},
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "none"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "07 横断歩道橋",
+    "lodType": "2.1",
+    "name": null,
+    "x": 151.4,
+    "y": 214.5,
+    "size_m": [
+     38.9,
+     33.5
+    ],
+    "h_range_m": [
+     14.52,
+     22.67
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "pedestrian": 3,
+     "steps": 3,
+     "footway": 1
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": -23.2,
+    "y": 110.0,
+    "size_m": [
+     11.7,
+     20.6
+    ],
+    "h_range_m": [
+     21.24,
+     49.62
+    ],
+    "osm_layer_ge1_edges_in_bbox": {},
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "none"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 65.7,
+    "y": -34.9,
+    "size_m": [
+     48.6,
+     198.5
+    ],
+    "h_range_m": [
+     14.7,
+     31.63
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "pedestrian": 3,
+     "steps": 4,
+     "footway": 10,
+     "path": 1
+    },
+    "osm_rail_in_bbox": 14,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": -7.7,
+    "y": 666.4,
+    "size_m": [
+     61.0,
+     49.7
+    ],
+    "h_range_m": [
+     19.83,
+     31.59
+    ],
+    "osm_layer_ge1_edges_in_bbox": {},
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "none"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "07 横断歩道橋",
+    "lodType": "2.1",
+    "name": null,
+    "x": 375.9,
+    "y": -83.1,
+    "size_m": [
+     37.4,
+     42.1
+    ],
+    "h_range_m": [
+     21.71,
+     34.57
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "footway": 1,
+     "steps": 4
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 185.2,
+    "y": 371.5,
+    "size_m": [
+     24.7,
+     14.1
+    ],
+    "h_range_m": [
+     12.72,
+     17.48
+    ],
+    "osm_layer_ge1_edges_in_bbox": {},
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "none"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": -33.9,
+    "y": -98.4,
+    "size_m": [
+     47.7,
+     15.8
+    ],
+    "h_range_m": [
+     15.68,
+     29.13
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "footway": 3,
+     "steps": 1
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": -29.4,
+    "y": -77.4,
+    "size_m": [
+     43.5,
+     20.0
+    ],
+    "h_range_m": [
+     15.56,
+     33.26
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "footway": 10
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "07 横断歩道橋",
+    "lodType": "2.1",
+    "name": null,
+    "x": 140.4,
+    "y": 414.6,
+    "size_m": [
+     29.8,
+     33.8
+    ],
+    "h_range_m": [
+     10.07,
+     22.38
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "steps": 3,
+     "pedestrian": 2
+    },
+    "osm_rail_in_bbox": 0,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 189.9,
+    "y": -75.2,
+    "size_m": [
+     51.7,
+     33.5
+    ],
+    "h_range_m": [
+     24.53,
+     30.66
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "footway": 1
+    },
+    "osm_rail_in_bbox": 1,
+    "guess_osm": "pedestrian"
+   },
+   {
+    "file": "53393596",
+    "in_w1": true,
+    "function": "99 不明",
+    "lodType": "2.1",
+    "name": null,
+    "x": 72.0,
+    "y": 246.3,
+    "size_m": [
+     49.9,
+     416.8
+    ],
+    "h_range_m": [
+     16.21,
+     22.52
+    ],
+    "osm_layer_ge1_edges_in_bbox": {
+     "pedestrian": 3,
+     "steps": 7,
+     "footway": 19
+    },
+    "osm_rail_in_bbox": 14,
+    "guess_osm": "pedestrian"
+   }
+  ],
+  "_seconds": 0.6
+ },
+ "bldg": {
+  "files": {
+   "53393585_bldg_6697_op.gml": 2737,
+   "53393586_bldg_6697_op.gml": 2616,
+   "53393595_bldg_6697_op.gml": 2236,
+   "53393596_bldg_6697_op.gml": 1946,
+   "53394505_bldg_6697_op.gml": 904,
+   "53394506_bldg_6697_op.gml": 2372
+  },
+  "n_buildings_all_files": 12811,
+  "n_in_w1": 8047,
+  "lod_in_w1": {
+   "lod2_2.2": 2635,
+   "lod1_only": 4983,
+   "lod2_2.0": 429
+  },
+  "lodType_values_in_w1": {
+   "2.2": 2635,
+   "None": 4983,
+   "2.0": 429
+  },
+  "flags_true_in_w1": {
+   "lod0RoofEdge": 8047,
+   "lod0FootPrint": 0,
+   "lod1Solid": 8047,
+   "lod2Solid": 3064,
+   "lod2MultiSurface": 3064,
+   "lod3Solid": 0,
+   "lod3MultiSurface": 0,
+   "lod4Solid": 0,
+   "lod4MultiSurface": 0,
+   "interiorRoom": 0,
+   "BuildingPart": 0,
+   "Door": 0,
+   "Window": 0,
+   "IntBuildingInstallation": 0
+  },
+  "storeysAbove_hist_in_w1": {
+   "3": 2097,
+   "2": 1809,
+   "9999": 1053,
+   "4": 867,
+   "5": 537,
+   "6": 349,
+   "7": 281,
+   "8": 265,
+   "9": 243,
+   "10": 151,
+   "1": 146,
+   "11": 64,
+   "14": 47,
+   "12": 42,
+   "13": 40,
+   "15": 16,
+   "16": 8,
+   "34": 7,
+   "17": 5,
+   "22": 4,
+   "18": 3,
+   "24": 2,
+   "40": 2,
+   "35": 2,
+   "21": 2
+  },
+  "storeysAbove_valid_1_to_200": 6994,
+  "storeysBelow_hist_in_w1": {
+   "0": 6097,
+   "1": 1050,
+   "9999": 795,
+   "2": 90,
+   "3": 8,
+   "4": 7
+  },
+  "storeysBelow_valid_ge1_le20": 1155,
+  "measuredHeight_present_in_w1": 7863,
+  "usage_in_w1": {
+   "411 住宅": 2070,
+   "413 店舗等併用住宅": 1311,
+   "401 業務施設": 1257,
+   "412 共同住宅": 1155,
+   "402 商業施設": 929,
+   "461 不明": 801,
+   "422 文教厚生施設": 330,
+   "421 官公庁施設": 46,
+   "431 運輸倉庫施設": 42,
+   "403 宿泊施設": 40,
+   "454 その他": 26,
+   "415 作業所併用住宅": 20,
+   "452 供給処理施設": 17,
+   "441 工場": 3
+  },
+  "class_in_w1": {
+   "3002 堅ろう建物": 4023,
+   "3001 普通建物": 3421,
+   "9999 不明": 378,
+   "3003 普通無壁舎": 223,
+   "3004 堅ろう無壁舎": 2
+  },
+  "named_in_w1": [
+   {
+    "name": "NHK放送センター",
+    "lod": "lod1_only",
+    "sa": "8",
+    "sb": "0",
+    "h": "75.7",
+    "usage": "421 官公庁施設"
+   },
+   {
+    "name": "セルリアンタワー東急ホテル",
+    "lod": "lod2_2.2",
+    "sa": "40",
+    "sb": "4",
+    "h": "164",
+    "usage": "403 宿泊施設"
+   },
+   {
+    "name": "マークシティ",
+    "lod": "lod2_2.2",
+    "sa": "23",
+    "sb": "0",
+    "h": "98",
+    "usage": "401 業務施設"
+   },
+   {
+    "name": "代々木警察署代々木公園交番",
+    "lod": "lod1_only",
+    "sa": "9999",
+    "sb": "0",
+    "h": "7.1",
+    "usage": "454 その他"
+   },
+   {
+    "name": "区立常磐松小学校",
+    "lod": "lod1_only",
+    "sa": "5",
+    "sb": "0",
+    "h": "20.2",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "区立松濤中学校",
+    "lod": "lod1_only",
+    "sa": "4",
+    "sb": "0",
+    "h": "20.7",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "区立猿楽小学校",
+    "lod": "lod1_only",
+    "sa": "3",
+    "sb": "0",
+    "h": "15.9",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "区立神南小学校",
+    "lod": "lod2_2.2",
+    "sa": "4",
+    "sb": "0",
+    "h": "14.4",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "区立神宮前小学校",
+    "lod": "lod1_only",
+    "sa": "2",
+    "sb": "0",
+    "h": "14.1",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "区立菅刈小学校",
+    "lod": "lod1_only",
+    "sa": "4",
+    "sb": "0",
+    "h": "16.8",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "区立鉢山中学校",
+    "lod": "lod1_only",
+    "sa": "4",
+    "sb": "0",
+    "h": "21",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "原宿警察署神宮前交番",
+    "lod": "lod1_only",
+    "sa": "2",
+    "sb": "0",
+    "h": "16.9",
+    "usage": "421 官公庁施設"
+   },
+   {
+    "name": "國學院大學渋谷キャンパス",
+    "lod": "lod1_only",
+    "sa": "18",
+    "sb": "0",
+    "h": "83.6",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "実践女子大学渋谷キャンパス",
+    "lod": "lod1_only",
+    "sa": "17",
+    "sb": "0",
+    "h": "78.9",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "戸栗美術館",
+    "lod": "lod1_only",
+    "sa": "3",
+    "sb": "0",
+    "h": "13.9",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "東京労働局渋谷公共職業安定所",
+    "lod": "lod2_2.2",
+    "sa": "6",
+    "sb": "1",
+    "h": "26",
+    "usage": "421 官公庁施設"
+   },
+   {
+    "name": "東京国税局渋谷税務署",
+    "lod": "lod2_2.2",
+    "sa": "7",
+    "sb": "2",
+    "h": "27.5",
+    "usage": "421 官公庁施設"
+   },
+   {
+    "name": "東京消防庁渋谷消防署",
+    "lod": "lod2_2.2",
+    "sa": "8",
+    "sb": "0",
+    "h": "27.7",
+    "usage": "421 官公庁施設"
+   },
+   {
+    "name": "東京消防庁渋谷消防署松濤出張所",
+    "lod": "lod1_only",
+    "sa": "2",
+    "sb": "0",
+    "h": "11.8",
+    "usage": "421 官公庁施設"
+   },
+   {
+    "name": "渋谷ストリーム",
+    "lod": "lod2_2.2",
+    "sa": "35",
+    "sb": "2",
+    "h": "171.3",
+    "usage": "401 業務施設"
+   },
+   {
+    "name": "渋谷ヒカリエ",
+    "lod": "lod2_2.2",
+    "sa": "34",
+    "sb": "4",
+    "h": "173.6",
+    "usage": "401 業務施設"
+   },
+   {
+    "name": "渋谷三郵便局",
+    "lod": "lod2_2.2",
+    "sa": "7",
+    "sb": "1",
+    "h": "22",
+    "usage": "401 業務施設"
+   },
+   {
+    "name": "渋谷中央街郵便局",
+    "lod": "lod2_2.2",
+    "sa": "6",
+    "sb": "2",
+    "h": "19.9",
+    "usage": "401 業務施設"
+   },
+   {
+    "name": "渋谷区役所",
+    "lod": "lod2_2.2",
+    "sa": "15",
+    "sb": "0",
+    "h": "62.4",
+    "usage": "421 官公庁施設"
+   },
+   {
+    "name": "渋谷富ケ谷一郵便局",
+    "lod": "lod1_only",
+    "sa": "4",
+    "sb": "0",
+    "h": "16.1",
+    "usage": "413 店舗等併用住宅"
+   },
+   {
+    "name": "渋谷松濤郵便局",
+    "lod": "lod1_only",
+    "sa": "7",
+    "sb": "1",
+    "h": "25",
+    "usage": "413 店舗等併用住宅"
+   },
+   {
+    "name": "渋谷桜丘郵便局",
+    "lod": "lod2_2.2",
+    "sa": "6",
+    "sb": "0",
+    "h": "15.6",
+    "usage": "413 店舗等併用住宅"
+   },
+   {
+    "name": "渋谷警察署",
+    "lod": "lod2_2.2",
+    "sa": "15",
+    "sb": "0",
+    "h": "55.9",
+    "usage": "421 官公庁施設"
+   },
+   {
+    "name": "渋谷警察署宇田川交番",
+    "lod": "lod2_2.2",
+    "sa": "9999",
+    "sb": "0",
+    "h": "6.7",
+    "usage": "461 不明"
+   },
+   {
+    "name": "渋谷警察署東交番",
+    "lod": "lod1_only",
+    "sa": "2",
+    "sb": "0",
+    "h": "6.6",
+    "usage": "421 官公庁施設"
+   },
+   {
+    "name": "渋谷警察署渋谷駅前交番",
+    "lod": "lod2_2.2",
+    "sa": "9999",
+    "sb": "9999",
+    "h": "11.6",
+    "usage": "461 不明"
+   },
+   {
+    "name": "渋谷警察署美竹交番",
+    "lod": "lod2_2.2",
+    "sa": "9999",
+    "sb": "9999",
+    "h": "5.8",
+    "usage": "461 不明"
+   },
+   {
+    "name": "渋谷警察署鉢山交番",
+    "lod": "lod1_only",
+    "sa": "1",
+    "sb": "0",
+    "h": "4.1",
+    "usage": "421 官公庁施設"
+   },
+   {
+    "name": "渋谷道玄坂郵便局",
+    "lod": "lod2_2.2",
+    "sa": "9999",
+    "sb": "9999",
+    "h": "30.9",
+    "usage": "461 不明"
+   },
+   {
+    "name": "渋谷駅",
+    "lod": "lod2_2.2",
+    "sa": "2",
+    "sb": "0",
+    "h": "19.1",
+    "usage": "431 運輸倉庫施設"
+   },
+   {
+    "name": "特別養護老人ホーム「パール代官山」",
+    "lod": "lod1_only",
+    "sa": "4",
+    "sb": "0",
+    "h": "21.1",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "特別養護老人ホーム「渋谷区かんなみの杜・渋谷」",
+    "lod": "lod2_2.2",
+    "sa": "4",
+    "sb": "0",
+    "h": "34.9",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "特別養護老人ホーム「渋谷区美竹の丘・しぶや」",
+    "lod": "lod2_2.2",
+    "sa": "9",
+    "sb": "1",
+    "h": "30.9",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "神宮前六郵便局",
+    "lod": "lod1_only",
+    "sa": "2",
+    "sb": "0",
+    "h": "10.1",
+    "usage": "421 官公庁施設"
+   },
+   {
+    "name": "神泉駅",
+    "lod": "lod2_2.0",
+    "sa": "4",
+    "sb": "0",
+    "h": "21.2",
+    "usage": "431 運輸倉庫施設"
+   },
+   {
+    "name": "私立実践女子学園高等学校",
+    "lod": "lod1_only",
+    "sa": "4",
+    "sb": "0",
+    "h": "26.5",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "私立渋谷教育学園渋谷高等学校",
+    "lod": "lod2_2.2",
+    "sa": "9",
+    "sb": "1",
+    "h": "28.6",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "私立青山学院中等部",
+    "lod": "lod1_only",
+    "sa": "7",
+    "sb": "0",
+    "h": "30.2",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "私立青山学院初等部",
+    "lod": "lod1_only",
+    "sa": "4",
+    "sb": "0",
+    "h": "24.2",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "私立青山学院高等部",
+    "lod": "lod1_only",
+    "sa": "6",
+    "sb": "0",
+    "h": "28.9",
+    "usage": "422 文教厚生施設"
+   },
+   {
+    "name": "青山学院大学青山キャンパス",
+    "lod": "lod1_only",
+    "sa": "4",
+    "sb": "0",
+    "h": "39.2",
+    "usage": "422 文教厚生施設"
+   }
+  ],
+  "facilities": [
+   {
+    "facility": "渋谷スクランブルスクエア",
+    "osm_buildings_n": 1,
+    "plateau_buildings_centroid_in_osm_footprint": 1,
+    "plateau": [
+     {
+      "name": null,
+      "lod": "lod2_2.2",
+      "lodType": "2.2",
+      "sa": "45",
+      "sb": "2",
+      "h": "220",
+      "usage": "401 業務施設",
+      "footprint_m2": 3859
+     }
+    ],
+    "floorguide_floor_range": [
+     -2,
+     47
+    ]
+   },
+   {
+    "facility": "渋谷ヒカリエ",
+    "osm_buildings_n": 1,
+    "plateau_buildings_centroid_in_osm_footprint": 2,
+    "plateau": [
+     {
+      "name": "渋谷ヒカリエ",
+      "lod": "lod2_2.2",
+      "lodType": "2.2",
+      "sa": "34",
+      "sb": "4",
+      "h": "173.6",
+      "usage": "401 業務施設",
+      "footprint_m2": 5803
+     },
+     {
+      "name": null,
+      "lod": "lod2_2.2",
+      "lodType": "2.2",
+      "sa": "34",
+      "sb": "4",
+      "h": "24.8",
+      "usage": "401 業務施設",
+      "footprint_m2": 526
+     }
+    ],
+    "floorguide_floor_range": [
+     -3,
+     17
+    ]
+   },
+   {
+    "facility": "SHIBUYA109",
+    "osm_buildings_n": 1,
+    "plateau_buildings_centroid_in_osm_footprint": 1,
+    "plateau": [
+     {
+      "name": null,
+      "lod": "lod2_2.2",
+      "lodType": "2.2",
+      "sa": "8",
+      "sb": "2",
+      "h": "33.6",
+      "usage": "402 商業施設",
+      "footprint_m2": 1673
+     }
+    ],
+    "floorguide_floor_range": [
+     -2,
+     8
+    ]
+   },
+   {
+    "facility": "渋谷マークシティ",
+    "osm_buildings_n": 2,
+    "plateau_buildings_centroid_in_osm_footprint": 1,
+    "plateau": [
+     {
+      "name": "マークシティ",
+      "lod": "lod2_2.2",
+      "lodType": "2.2",
+      "sa": "23",
+      "sb": "0",
+      "h": "98",
+      "usage": "401 業務施設",
+      "footprint_m2": 11698
+     }
+    ],
+    "floorguide_floor_range": [
+     1,
+     6
+    ]
+   },
+   {
+    "facility": "渋谷ストリーム",
+    "osm_buildings_n": 1,
+    "plateau_buildings_centroid_in_osm_footprint": 1,
+    "plateau": [
+     {
+      "name": "渋谷ストリーム",
+      "lod": "lod2_2.2",
+      "lodType": "2.2",
+      "sa": "35",
+      "sb": "2",
+      "h": "171.3",
+      "usage": "401 業務施設",
+      "footprint_m2": 4153
+     }
+    ],
+    "floorguide_floor_range": [
+     1,
+     14
+    ]
+   },
+   {
+    "facility": "渋谷パルコ",
+    "osm_buildings_n": 1,
+    "plateau_buildings_centroid_in_osm_footprint": 1,
+    "plateau": [
+     {
+      "name": null,
+      "lod": "lod2_2.2",
+      "lodType": "2.2",
+      "sa": "5",
+      "sb": "0",
+      "h": "80.4",
+      "usage": "402 商業施設",
+      "footprint_m2": 4653
+     }
+    ],
+    "floorguide_floor_range": [
+     -1,
+     10
+    ]
+   },
+   {
+    "facility": "渋谷モディ",
+    "osm_buildings": [],
+    "plateau_buildings_centroid_in_osm_footprint": 0,
+    "plateau": [],
+    "floorguide_floor_range": [
+     1,
+     9
+    ]
+   },
+   {
+    "facility": "MIYASHITA PARK",
+    "osm_buildings_n": 1,
+    "plateau_buildings_centroid_in_osm_footprint": 2,
+    "plateau": [
+     {
+      "name": null,
+      "lod": "lod2_2.2",
+      "lodType": "2.2",
+      "sa": "22",
+      "sb": "1",
+      "h": "79.7",
+      "usage": "402 商業施設",
+      "footprint_m2": 720
+     },
+     {
+      "name": null,
+      "lod": "lod2_2.2",
+      "lodType": "2.2",
+      "sa": "9999",
+      "sb": "9999",
+      "h": "8.2",
+      "usage": "461 不明",
+      "footprint_m2": 55
+     }
+    ],
+    "floorguide_floor_range": [
+     1,
+     4
+    ]
+   },
+   {
+    "facility": "渋谷フクラス",
+    "osm_buildings_n": 1,
+    "plateau_buildings_centroid_in_osm_footprint": 1,
+    "plateau": [
+     {
+      "name": null,
+      "lod": "lod2_2.2",
+      "lodType": "2.2",
+      "sa": "10",
+      "sb": "0",
+      "h": "90.1",
+      "usage": "402 商業施設",
+      "footprint_m2": 3012
+     }
+    ],
+    "floorguide_floor_range": [
+     1,
+     17
+    ]
+   },
+   {
+    "facility": "渋谷駅",
+    "osm_buildings": [],
+    "plateau_buildings_centroid_in_osm_footprint": 0,
+    "plateau": [],
+    "floorguide_floor_range": [
+     -5,
+     3
+    ]
+   }
+  ],
+  "_seconds": 7.3
+ },
+ "tran": {
+  "files": [
+   "53393585_tran_6697_op.gml",
+   "53393586_tran_6697_op.gml",
+   "53393595_tran_6697_op.gml",
+   "53393596_tran_6697_op.gml",
+   "53394505_tran_6697_op.gml",
+   "53394506_tran_6697_op.gml"
+  ],
+  "road_lodType_in_w1": {
+   "None": 1548,
+   "3.0": 1201
+  },
+  "road_sectionType_in_w1": {
+   "4 交差部": 998,
+   "1 土工区間": 1736,
+   "3 橋梁": 10,
+   "2 高架橋": 4,
+   "6 トンネル": 1
+  },
+  "width_like_elements": 0,
+  "traffic_area_unique_rings_area_m2_in_w1": {
+   "aux:1000 車道部|lod3": 1220.2,
+   "aux:3000 島|lod2": 4546.5,
+   "aux:3000 島|lod3": 3819.2,
+   "ta:1000 車道部|lod2": 330175.4,
+   "ta:1000 車道部|lod3": 281227.0,
+   "ta:1020 車道交差部|lod2": 89641.4,
+   "ta:1020 車道交差部|lod3": 84276.4,
+   "ta:2000 歩道部|lod2": 103296.7,
+   "ta:2000 歩道部|lod3": 103239.5
+  },
+  "traffic_area_features_in_w1": {
+   "aux:1000 車道部|lod3": 1,
+   "aux:3000 島|lod2": 62,
+   "aux:3000 島|lod3": 55,
+   "ta:1000 車道部|lod2": 881,
+   "ta:1000 車道部|lod3": 761,
+   "ta:1020 車道交差部|lod2": 488,
+   "ta:1020 車道交差部|lod3": 434,
+   "ta:2000 歩道部|lod2": 1022,
+   "ta:2000 歩道部|lod3": 467
+  },
+  "note": "ring dedup = 同一頂点列(緯度経度 1e-7 度)の環を全ファイル通しで 1 枚に畳む。LOD2 と LOD3 の同じ歩道の重なりは畳めない(頂点が違う)→ 面積は重なり込み。和集合の面積は下の raster_union を見る",
+  "raster_res_m": 0.25,
+  "raster_union_m2": {
+   "side": 109904.2,
+   "road": 390916.7,
+   "other": 5840.9
+  },
+  "raster_union_all_m2": 499999.5,
+  "w1_area_m2": 3799520.3,
+  "width_selftest_median_m": {
+   "w1.0_a0": 0.75,
+   "w1.0_a30": 0.75,
+   "w1.0_a45": 0.75,
+   "w2.0_a0": 1.75,
+   "w2.0_a30": 1.75,
+   "w2.0_a45": 1.75,
+   "w3.0_a0": 2.75,
+   "w3.0_a30": 2.75,
+   "w3.0_a45": 2.75,
+   "w5.0_a0": 4.75,
+   "w5.0_a30": 4.75,
+   "w5.0_a45": 4.75,
+   "w8.0_a0": 7.75,
+   "w8.0_a30": 7.25,
+   "w8.0_a45": 7.75
+  },
+  "width_sidewalk_2000": {
+   "n_ridge_px": 142447,
+   "ridge_len_m_approx": 35611.8,
+   "quantiles_m": {
+    "10": 1.75,
+    "25": 2.25,
+    "50": 2.75,
+    "75": 4.75,
+    "90": 5.75
+   },
+   "hist_share": {
+    "0-1": 0.0298,
+    "1-2": 0.1893,
+    "2-3": 0.2891,
+    "3-4": 0.161,
+    "4-6": 0.271,
+    "6-10": 0.0503,
+    "10-20": 0.0087,
+    "20-inf": 0.0009
+   }
+  },
+  "width_roadway_1000_1020": {
+   "n_ridge_px": 237832,
+   "ridge_len_m_approx": 59458.0,
+   "quantiles_m": {
+    "10": 3.25,
+    "25": 3.75,
+    "50": 5.75,
+    "75": 8.75,
+    "90": 14.25
+   },
+   "hist_share": {
+    "0-1": 0.0021,
+    "1-2": 0.0179,
+    "2-3": 0.0732,
+    "3-4": 0.1833,
+    "4-6": 0.2682,
+    "6-10": 0.2761,
+    "10-20": 0.1253,
+    "20-inf": 0.0538
+   }
+  },
+  "osm_GL_edges_len_m_in_w1": {
+   "footway": 49401,
+   "residential": 31064,
+   "service": 20666,
+   "unclassified": 19097,
+   "tertiary": 15306,
+   "pedestrian": 7016,
+   "primary": 5882,
+   "secondary": 4593,
+   "path": 1289,
+   "steps": 1035,
+   "cycleway": 36,
+   "elevator": 16,
+   "corridor": 6
+  },
+  "osm_GL_edges_share_on_plateau_tran_surface_3m": {
+   "footway": 0.575,
+   "residential": 0.336,
+   "service": 0.24,
+   "unclassified": 0.713,
+   "tertiary": 0.649,
+   "pedestrian": 0.623,
+   "primary": 0.598,
+   "secondary": 0.225,
+   "path": 0.31,
+   "steps": 0.487,
+   "cycleway": 0.522,
+   "elevator": 1.0,
+   "corridor": 1.0
+  },
+  "osm_GL_edges_share_on_surface_and_sidewalk_within_12m": {
+   "footway": 0.535,
+   "residential": 0.106,
+   "service": 0.063,
+   "unclassified": 0.314,
+   "tertiary": 0.528,
+   "pedestrian": 0.469,
+   "primary": 0.559,
+   "secondary": 0.215,
+   "path": 0.098,
+   "steps": 0.211,
+   "cycleway": 0.46,
+   "elevator": 1.0,
+   "corridor": 1.0
+  },
+  "osm_GL_all_len_m": 155406,
+  "osm_GL_share_on_surface_all": 0.497,
+  "hokoukukan2020_width_class_vs_plateau_width": {
+   "1": {
+    "n": 6,
+    "no_plateau_sidewalk_within_4m": 3,
+    "plateau_width_median_m": 5.25,
+    "plateau_width_p25_p75": null
+   },
+   "2": {
+    "n": 110,
+    "no_plateau_sidewalk_within_4m": 32,
+    "plateau_width_median_m": 3.25,
+    "plateau_width_p25_p75": [
+     2.25,
+     4.25
+    ]
+   },
+   "3": {
+    "n": 241,
+    "no_plateau_sidewalk_within_4m": 85,
+    "plateau_width_median_m": 3.5,
+    "plateau_width_p25_p75": [
+     2.75,
+     4.75
+    ]
+   },
+   "4": {
+    "n": 664,
+    "no_plateau_sidewalk_within_4m": 116,
+    "plateau_width_median_m": 5.75,
+    "plateau_width_p25_p75": [
+     4.25,
+     6.75
+    ]
+   },
+   "99": {
+    "n": 3,
+    "no_plateau_sidewalk_within_4m": 0,
+    "plateau_width_median_m": 4.75,
+    "plateau_width_p25_p75": null
+   }
+  },
+  "_seconds": 29.6
+ },
+ "dem": {
+  "533935_dem_6697_op.gml": {
+   "src": {
+    "geometrySrcDescLod1": null,
+    "publicSurveySrcDescLod1": null,
+    "srcScaleLod1": null,
+    "thematicSrcDesc": null,
+    "publicSurveySrcDescLod1_decoded": null,
+    "srcScaleLod1_decoded": null
+   },
+   "n_triangles_all": 1101033
+  },
+  "533945_dem_6697_op.gml": {
+   "src": {
+    "geometrySrcDescLod1": null,
+    "publicSurveySrcDescLod1": null,
+    "srcScaleLod1": null,
+    "thematicSrcDesc": null,
+    "publicSurveySrcDescLod1_decoded": null,
+    "srcScaleLod1_decoded": null
+   },
+   "n_triangles_all": 1441832
+  },
+  "w1": {
+   "n_triangles": 307826,
+   "n_unique_vertices": 155222,
+   "vertex_density_per_100m2": 4.085,
+   "edge_len_m_quantiles": {
+    "10": 4.99,
+    "50": 5.01,
+    "90": 7.07,
+    "99": 7.07
+   },
+   "tri_area_m2_quantiles": {
+    "10": 12.5,
+    "50": 12.5,
+    "90": 12.5
+   },
+   "slope_pct_quantiles_by_triangle": {
+    "50": 3.61,
+    "75": 8.39,
+    "90": 28.03,
+    "95": 49.27,
+    "99": 96.71
+   },
+   "slope_share_area_weighted": {
+    ">2%": 0.6903,
+    ">5%": 0.3883,
+    ">8%": 0.2599,
+    ">12%": 0.1921
+   },
+   "z_decimals_sample": {
+    "0": 15,
+    "2": 1798,
+    "1": 177,
+    "4": 9,
+    "3": 1
+   }
+  },
+  "osm_GL_edge_grade_endpoints": {
+   "n_edges_ge10m": 2789,
+   "grade_pct_quantiles": {
+    "50": 1.7,
+    "75": 3.78,
+    "90": 6.04,
+    "95": 8.48,
+    "99": 15.41
+   },
+   "len_share": {
+    ">2%": 0.4397,
+    ">5%": 0.1423,
+    ">8%": 0.0419,
+    ">12%": 0.0117
+   },
+   "terrain_grid": {
+    "x0": -1172.3,
+    "y0": -916.6,
+    "cell_m": 2.0,
+    "nx": 1088,
+    "ny": 921,
+    "n_tin_points": 170603,
+    "n_tin_triangles": 339100,
+    "z_min_m": -8.49,
+    "z_max_m": 24.335
+   }
+  },
+  "_seconds": 6.4
+ }
+}

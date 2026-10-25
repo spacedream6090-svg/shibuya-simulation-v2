@@ -1,0 +1,264 @@
+{
+ "script": "r82_lod1_road.py",
+ "roads_in_6_files": 4360,
+ "roads_with_lod1MultiSurface": 4360,
+ "lod1_union_m2_in_w1": 859373,
+ "w1_area_m2": 3799520,
+ "lod2or3_trafficarea_union_m2": 500000,
+ "lod1_and_lod23_overlap_m2": 493834,
+ "lod23_outside_lod1_m2": 6166,
+ "osm_GL_len_m_total": 155406,
+ "no_lod23_surface_m": 78161,
+ "no_lod23_but_on_lod1_m": 64559,
+ "share_of_no_lod23_covered_by_lod1": 0.826,
+ "by_klass": {
+  "footway": {
+   "len_m": 49401,
+   "no_lod23_m": 21001,
+   "no_lod23_on_lod1_m": 14943,
+   "lod1_width_m_on_no_lod23": {
+    "n": 7076,
+    "p10": 3.25,
+    "p50": 9.75,
+    "p90": 20.75
+   }
+  },
+  "residential": {
+   "len_m": 31064,
+   "no_lod23_m": 20615,
+   "no_lod23_on_lod1_m": 20528,
+   "lod1_width_m_on_no_lod23": {
+    "n": 9845,
+    "p10": 3.25,
+    "p50": 4.75,
+    "p90": 7.25
+   }
+  },
+  "service": {
+   "len_m": 20666,
+   "no_lod23_m": 15696,
+   "no_lod23_on_lod1_m": 10669,
+   "lod1_width_m_on_no_lod23": {
+    "n": 5076,
+    "p10": 2.25,
+    "p50": 3.25,
+    "p90": 5.75
+   }
+  },
+  "unclassified": {
+   "len_m": 19097,
+   "no_lod23_m": 5472,
+   "no_lod23_on_lod1_m": 5427,
+   "lod1_width_m_on_no_lod23": {
+    "n": 2570,
+    "p10": 4.75,
+    "p50": 7.25,
+    "p90": 11.75
+   }
+  },
+  "tertiary": {
+   "len_m": 15306,
+   "no_lod23_m": 5376,
+   "no_lod23_on_lod1_m": 5233,
+   "lod1_width_m_on_no_lod23": {
+    "n": 2514,
+    "p10": 6.75,
+    "p50": 10.25,
+    "p90": 19.75
+   }
+  },
+  "pedestrian": {
+   "len_m": 7016,
+   "no_lod23_m": 2642,
+   "no_lod23_on_lod1_m": 1092,
+   "lod1_width_m_on_no_lod23": {
+    "n": 524,
+    "p10": 2.25,
+    "p50": 6.75,
+    "p90": 9.75
+   }
+  },
+  "primary": {
+   "len_m": 5882,
+   "no_lod23_m": 2363,
+   "no_lod23_on_lod1_m": 2363,
+   "lod1_width_m_on_no_lod23": {
+    "n": 1123,
+    "p10": 19.25,
+    "p50": 22.75,
+    "p90": 27.25
+   }
+  },
+  "secondary": {
+   "len_m": 4593,
+   "no_lod23_m": 3559,
+   "no_lod23_on_lod1_m": 3559,
+   "lod1_width_m_on_no_lod23": {
+    "n": 1745,
+    "p10": 14.25,
+    "p50": 25.75,
+    "p90": 34.25
+   }
+  },
+  "path": {
+   "len_m": 1289,
+   "no_lod23_m": 889,
+   "no_lod23_on_lod1_m": 499,
+   "lod1_width_m_on_no_lod23": {
+    "n": 232,
+    "p10": 1.25,
+    "p50": 3.25,
+    "p90": 9.75
+   }
+  },
+  "steps": {
+   "len_m": 1035,
+   "no_lod23_m": 531,
+   "no_lod23_on_lod1_m": 227,
+   "lod1_width_m_on_no_lod23": {
+    "n": 106,
+    "p10": 2.75,
+    "p50": 5.25,
+    "p90": 22.0
+   }
+  },
+  "cycleway": {
+   "len_m": 36,
+   "no_lod23_m": 17,
+   "no_lod23_on_lod1_m": 17,
+   "lod1_width_m_on_no_lod23": {
+    "n": 8
+   }
+  },
+  "elevator": {
+   "len_m": 16,
+   "no_lod23_m": 0,
+   "no_lod23_on_lod1_m": 0,
+   "lod1_width_m_on_no_lod23": {
+    "n": 0
+   }
+  },
+  "corridor": {
+   "len_m": 6,
+   "no_lod23_m": 0,
+   "no_lod23_on_lod1_m": 0,
+   "lod1_width_m_on_no_lod23": {
+    "n": 0
+   }
+  }
+ },
+ "known_answer_lod1_vs_lod23_width_on_covered": {
+  "unclassified": {
+   "n": 6485,
+   "lod1_p50": 6.75,
+   "lod23_p50": 6.75,
+   "ratio_p10_p50_p90": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "abs_diff_le_1m_share": 0.948
+  },
+  "residential": {
+   "n": 5005,
+   "lod1_p50": 5.25,
+   "lod23_p50": 4.75,
+   "ratio_p10_p50_p90": [
+    1.0,
+    1.0,
+    1.11
+   ],
+   "abs_diff_le_1m_share": 0.941
+  },
+  "tertiary": {
+   "n": 4689,
+   "lod1_p50": 15.25,
+   "lod23_p50": 15.25,
+   "ratio_p10_p50_p90": [
+    1.0,
+    1.0,
+    1.02
+   ],
+   "abs_diff_le_1m_share": 0.921
+  },
+  "primary": {
+   "n": 1697,
+   "lod1_p50": 27.25,
+   "lod23_p50": 26.75,
+   "ratio_p10_p50_p90": [
+    1.0,
+    1.0,
+    1.05
+   ],
+   "abs_diff_le_1m_share": 0.854
+  },
+  "secondary": {
+   "n": 501,
+   "lod1_p50": 27.75,
+   "lod23_p50": 27.25,
+   "ratio_p10_p50_p90": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "abs_diff_le_1m_share": 0.94
+  },
+  "pedestrian": {
+   "n": 2060,
+   "lod1_p50": 8.25,
+   "lod23_p50": 8.25,
+   "ratio_p10_p50_p90": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "abs_diff_le_1m_share": 0.913
+  },
+  "steps": {
+   "n": 229,
+   "lod1_p50": 4.75,
+   "lod23_p50": 4.75,
+   "ratio_p10_p50_p90": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "abs_diff_le_1m_share": 0.904
+  },
+  "footway": {
+   "n": 13263,
+   "lod1_p50": 11.75,
+   "lod23_p50": 11.75,
+   "ratio_p10_p50_p90": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "abs_diff_le_1m_share": 0.91
+  },
+  "service": {
+   "n": 2353,
+   "lod1_p50": 3.75,
+   "lod23_p50": 3.75,
+   "ratio_p10_p50_p90": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "abs_diff_le_1m_share": 0.907
+  },
+  "path": {
+   "n": 185,
+   "lod1_p50": 3.25,
+   "lod23_p50": 3.25,
+   "ratio_p10_p50_p90": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "abs_diff_le_1m_share": 0.984
+  }
+ },
+ "width_note": "幅=辺の点から 3 m 窓の中の LOD1 の面の距離段数の最大から (2d-1)x0.25 m。八角形距離の近似で R-58 の自己検定は -0.25 m の系統誤差(本表は未補正)。交差点や面の合流で広めに出る",
+ "elapsed_s": 31.4
+}

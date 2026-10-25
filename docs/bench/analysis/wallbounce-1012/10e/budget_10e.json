@@ -1,0 +1,43 @@
+{
+ "agents": 5000,
+ "n_full": 390067,
+ "max_uncompressed_bytes": 2147483648,
+ "runs": {
+  "v3_default": {
+   "final": "68c54cc277b96062",
+   "bytes": 618989,
+   "bytes_per_agent": 123.8,
+   "uncompressed_bytes": 4074882,
+   "uncompressed_per_agent": 815.0,
+   "write_s_median": 0.108,
+   "read_s_median": 0.039,
+   "extrapolated_bytes_390k": 48289436,
+   "extrapolated_uncompressed_390k": 317895399,
+   "uncompressed_390k_over_cap": false
+  },
+  "v3_mem_rel": {
+   "final": "567b3b395df80212",
+   "bytes": 1298157,
+   "bytes_per_agent": 259.6,
+   "uncompressed_bytes": 21664122,
+   "uncompressed_per_agent": 4332.8,
+   "write_s_median": 0.257,
+   "read_s_median": 0.069,
+   "extrapolated_bytes_390k": 101273641,
+   "extrapolated_uncompressed_390k": 1690091815,
+   "uncompressed_390k_over_cap": false
+  },
+  "v3_all_arms": {
+   "final": "1c231fcfc9928e70",
+   "bytes": 2080935,
+   "bytes_per_agent": 416.2,
+   "uncompressed_bytes": 30896791,
+   "uncompressed_per_agent": 6179.4,
+   "write_s_median": 0.437,
+   "read_s_median": 0.083,
+   "extrapolated_bytes_390k": 162340814,
+   "extrapolated_uncompressed_390k": 2410363714,
+   "uncompressed_390k_over_cap": true
+  }
+ }
+}

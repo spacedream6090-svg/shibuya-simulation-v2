@@ -1,0 +1,10 @@
+{
+ "key": "W10#5",
+ "control": "ΔL=0(宣言)vs 回折の近似あり",
+ "status": "unmeasurable",
+ "verdict": null,
+ "reason": "回折・反射の近似は建物の配置ごとに点で変わる補正で、式が未リサーチ・構築側に実装する口も無い(src の変更が要る)",
+ "variants": [],
+ "seconds_wall_row": 0.0,
+ "measured_at": "2026-09-30"
+}

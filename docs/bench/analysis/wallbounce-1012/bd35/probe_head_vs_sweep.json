@@ -1,0 +1,39 @@
+{
+ "a": "head",
+ "b": "sweep",
+ "runs": {
+  "syn_mem_rel_store": {
+   "final_a": "d5c5fde554f17dea",
+   "final_b": "d5c5fde554f17dea",
+   "calls_a": 1028,
+   "calls_b": 1028,
+   "n_entries": [
+    6332,
+    6332
+   ],
+   "systems_moved": {}
+  },
+  "real300_v3_default": {
+   "final_a": "3dfb30508605d14a",
+   "final_b": "3dfb30508605d14a",
+   "calls_a": 3077,
+   "calls_b": 3077,
+   "n_entries": [
+    14161,
+    14161
+   ],
+   "systems_moved": {}
+  },
+  "real300_v3_mem_rel": {
+   "final_a": "5cb03e3afb3d00f7",
+   "final_b": "5cb03e3afb3d00f7",
+   "calls_a": 3084,
+   "calls_b": 3084,
+   "n_entries": [
+    16264,
+    16264
+   ],
+   "systems_moved": {}
+  }
+ }
+}

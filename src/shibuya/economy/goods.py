@@ -1,5 +1,10 @@
 """economy.goods — 物の保存則(U-Goods)。``move_goods`` **単一API**と SKU 別収支。
 
+〔第 1 期 1-9〕納品ログの行に出来事の id の目印の列 2 本(12 B/行・``_dl_event_t_ns``・``_dl_event_seq``・状態台帳の
+行 A=diag・discardable)。補充(``restock_many``)の行には代金の transfer(基本操作 ``economy.ops.transfer``)が書いた
+出来事の id を入れる(物の行 1 つ=代金の行 1 つ)。販売・廃棄ビン・回収・消費の行は物の基本操作の段(CP2 の段階 1 の残り)
+まで空(-1)。補充の代金の原因(``cause``)は呼び手(世界過程)が渡す。宣言は ``delivery_log_event_ids``。
+
 正典(世界過程設計書 §7.1・決定(仮)2026-09-07)
 - 「``move_goods(from, to, qty, sku, account_code)`` **単一API**・在庫の直接代入は静的禁止。
   faucet=域外仕入(RoW→店舗)・持込物/sink=消費(世帯)・廃棄搬出(区の収集→bbox外)・
@@ -69,6 +74,8 @@ __all__ = [
     "MIN_DELIVERY_CAPACITY",
     "delivery_capacity_for",
     "growth_declarations",
+    "DELIVERY_LINK_BYTES",
+    "delivery_event_ids_declaration",
 ]
 
 
@@ -260,6 +267,10 @@ STOCKTAKE_THRESHOLD_RATIO: Final[float] = 0.01
 HOARD_SHELF_DAYS: Final[int] = 14
 #: 納品ログ 1 行のバイト(tick4+poi4+slot1+qty4+kind1 → 16 に切り上げ)。
 DELIVERY_ROW_BYTES: Final[int] = 16
+#: 〔1-9〕納品ログ 1 行の目印の列のバイト(出来事の id=t_ns 8+seq 4)。
+DELIVERY_LINK_BYTES: Final[int] = 12
+#: 目印の列の空の値(出来事の無い行)。
+_NO_EVENT: Final[int] = -1
 #: 納品ログ容量[行]の**据え置き既定**(N を知らない単体呼び出し=モジュール関数
 #: ``growth_declarations()`` の既定値だけに残る・expedient)。
 DEFAULT_DELIVERY_CAPACITY: Final[int] = 131_072
@@ -394,6 +405,9 @@ class GoodsLedger:
         self._dl_slot = np.zeros(cap, dtype=np.int8)
         self._dl_qty = np.zeros(cap, dtype=np.int32)
         self._dl_code = np.zeros(cap, dtype=np.int8)
+        # 〔1-9〕行の目印の列(出来事の id。補充の行=代金の transfer の出来事・ほかは -1)
+        self._dl_event_t_ns = np.full(cap, _NO_EVENT, dtype=np.int64)
+        self._dl_event_seq = np.full(cap, _NO_EVENT, dtype=np.int32)
         self._dl_pos = 0
         self._dl_head = 0
         self._dl_marks: list[tuple[int, int]] = [(0, 0)]
@@ -655,11 +669,13 @@ class GoodsLedger:
         *,
         money=None,
         slot: np.ndarray | None = None,
+        cause=None,  # noqa: ANN001
     ) -> np.ndarray:
         """補充(外界→棚・faucet 域外仕入)。``money`` を渡すと**代金も** transfer する。
 
         代金 = 標準原価(価格 ÷ k)× 数量 を **店舗 → 外界**(域外仕入 sink)で払う。
         支払えない行は補充しない(不可逆な資源移動はエンジン=線引き原則1)。
+        〔1-9〕``cause``(1-3 の原因)は代金の transfer に渡す。物の行の目印には代金の行の出来事の id を入れる。
         """
         s = np.asarray(stores, dtype=np.int64).ravel()
         q = np.asarray(qty, dtype=np.int64).ravel()
@@ -673,15 +689,21 @@ class GoodsLedger:
         )
         ok = (s >= 0) & (s < self.n_poi) & (q > 0) & (sl >= 0) & (sl < self.slots)
         ok &= self.poi_sku[np.clip(s, 0, self.n_poi - 1), np.clip(sl, 0, self.slots - 1)] >= 0
+        ev_ids = None
         if money is not None and ok.any():
             cost = self.unit_cost[s] * q
+            pos0 = money.raw_position() if hasattr(money, "raw_position") else None
+            kw = {} if cause is None else {"cause": cause}
             status = money.transfer_many(
                 int(Sector.STORE), s[ok], int(Sector.ROW), np.zeros(int(ok.sum()), dtype=np.int64),
-                cost[ok], int(AccountCode.IMPORT_PURCHASE), tick,
+                cost[ok], int(AccountCode.IMPORT_PURCHASE), tick, **kw,
             )
             paid = np.zeros(s.size, dtype=bool)
             paid[np.flatnonzero(ok)] = status == 0
             ok = paid
+            if pos0 is not None and ok.any():
+                # 通った代金の行は通った物の行と同じ並び(1 対 1)=その行の出来事の id を物の行の目印に
+                ev_ids = money.event_ids_between(pos0, money.raw_position())
         if not ok.any():
             return out
         with self._open():
@@ -691,17 +713,17 @@ class GoodsLedger:
             np.add.at(self._row_sku, sku_ids, -q[ok])
             np.add.at(self._inflow, sku_ids, q[ok])
             self.n_moves += int(ok.sum())
-            self._log_many(int(tick), s[ok], sl[ok], q[ok], GoodsCode.RESTOCK_FROM_ROW)
+            self._log_many(int(tick), s[ok], sl[ok], q[ok], GoodsCode.RESTOCK_FROM_ROW, event_ids=ev_ids)
         out[ok] = True
         return out
 
     def deliver(self, stores: np.ndarray, qty: np.ndarray, tick: int, *, money=None,
-                slot: np.ndarray | None = None) -> np.ndarray:
+                slot: np.ndarray | None = None, cause=None) -> np.ndarray:  # noqa: ANN001
         """納品(``restock_many`` の別名・納品便として記録する)。
 
         設計書 §7.2 の「納品(納品ドライバー行動・早朝帯)」のエンジン側。誰が運ぶかは C4-subH。
         """
-        return self.restock_many(stores, qty, tick, money=money, slot=slot)
+        return self.restock_many(stores, qty, tick, money=money, slot=slot, cause=cause)
 
     def to_bin_many(self, stores: np.ndarray, qty: np.ndarray, tick: int,
                     slot: np.ndarray | None = None) -> np.ndarray:
@@ -926,18 +948,22 @@ class GoodsLedger:
             retention_days=self.retention_days,
             slots=self.slots,
         )
-        return {"delivery_log": decls["delivery_log"]}
+        return {"delivery_log": decls["delivery_log"],
+                "delivery_log_event_ids": delivery_event_ids_declaration(
+                    delivery_capacity=int(self._dl_tick.size), retention_days=self.retention_days)}
 
     def growth_measured(self) -> Mapping[str, int]:
-        """D-R2-6 の**実測増分バイト**(保持窓の中に残っている納品ログ)。"""
-        return {"delivery_log": int(self._dl_pos - self._dl_head) * DELIVERY_ROW_BYTES}
+        """D-R2-6 の**実測増分バイト**(保持窓の中に残っている納品ログ・〔1-9〕目印の列)。"""
+        live = int(self._dl_pos - self._dl_head)
+        return {"delivery_log": live * DELIVERY_ROW_BYTES, "delivery_log_event_ids": live * DELIVERY_LINK_BYTES}
 
     # ---------------------------------------------------------------- 納品ログ
     def _log(self, tick: int, poi: int, slot: int, qty: int, code: GoodsCode) -> None:
         self._log_many(tick, np.array([poi]), np.array([slot]), np.array([qty]), code)
 
     def _log_many(
-        self, tick: int, poi: np.ndarray, slot: np.ndarray, qty: np.ndarray, code: GoodsCode
+        self, tick: int, poi: np.ndarray, slot: np.ndarray, qty: np.ndarray, code: GoodsCode,
+        event_ids: tuple[np.ndarray, np.ndarray] | None = None,
     ) -> None:
         k = int(np.asarray(qty).size)
         if k == 0:
@@ -950,6 +976,12 @@ class GoodsLedger:
         self._dl_slot[s] = np.asarray(slot, dtype=np.int8)
         self._dl_qty[s] = np.asarray(qty, dtype=np.int32)
         self._dl_code[s] = np.int8(int(code))
+        if event_ids is None:  # 〔1-9〕目印の列(出来事の無い行は -1・輪の使い回しで前の行の id を残さない)
+            self._dl_event_t_ns[s] = _NO_EVENT
+            self._dl_event_seq[s] = _NO_EVENT
+        else:
+            self._dl_event_t_ns[s] = np.asarray(event_ids[0], dtype=np.int64)
+            self._dl_event_seq[s] = np.asarray(event_ids[1], dtype=np.int32)
         self._dl_pos += k
         if self._dl_pos - self._dl_head > cap:
             dropped = (self._dl_pos - self._dl_head) - cap
@@ -974,6 +1006,15 @@ class GoodsLedger:
             axis=1,
         )
 
+    def delivery_event_ids(self) -> tuple[np.ndarray, np.ndarray]:
+        """〔1-9〕保持窓内の納品/移動ログの行の目印 ``(t_ns, seq)``(``delivery_rows`` と同じ並び・無い行は -1)。"""
+        cap = self._dl_tick.size
+        n = int(self._dl_pos - self._dl_head)
+        if n <= 0:
+            return np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int32)
+        s = (self._dl_head + np.arange(n, dtype=np.int64)) % cap
+        return self._dl_event_t_ns[s].copy(), self._dl_event_seq[s].copy()
+
     # ---------------------------------------------------------------- 監査
     def summary(self) -> str:
         bal = self.sku_balance()
@@ -987,7 +1028,7 @@ class GoodsLedger:
     def bytes_total(self) -> int:
         own = sum(int(a.nbytes) for a in self._guarded())
         own += int(self.poi_sku.nbytes) + int(self.unit_cost.nbytes)
-        own += self._dl_tick.size * DELIVERY_ROW_BYTES
+        own += self._dl_tick.size * (DELIVERY_ROW_BYTES + DELIVERY_LINK_BYTES)  # 〔1-9〕目印の列 12 B/行
         return own
 
 
@@ -1044,3 +1085,24 @@ def growth_declarations(
         ),
     )
     return {d.name: d for d in rows}
+
+
+def delivery_event_ids_declaration(*, delivery_capacity: int = DEFAULT_DELIVERY_CAPACITY,
+                                   retention_days: int = 1) -> GrowthDeclaration:
+    """〔1-9〕納品ログの行の目印の列(出来事の id=12 B/行)の成長宣言(1-3 の L8)。輪と同じ容量・保持窓。"""
+    return GrowthDeclaration(
+        name="delivery_log_event_ids",
+        per_agent_bytes=0,
+        per_cell_bytes=0,
+        per_day_growth="O(N)",
+        per_day_growth_coef=float(MOVES_PER_AGENT_PER_DAY * DELIVERY_LINK_BYTES),
+        retention=Retention(days=retention_days, target="納品ログの輪と同じ(行と一緒に上書き・畳む)"),
+        worst_case_ops_per_tick=0,
+        cap=int(delivery_capacity) * DELIVERY_LINK_BYTES,
+        cap_budget_row="S1/M8(親が割当・要 delta)",
+        mechanism=True,
+        note="第 1 期 1-9: 物の台帳の行ごとの出来事の id(補充の行=代金の transfer の出来事・ほかは -1)。",
+        unit="move",
+        bytes_per_unit=DELIVERY_LINK_BYTES,
+        growth_per_simday=MOVES_PER_AGENT_PER_DAY,
+    )

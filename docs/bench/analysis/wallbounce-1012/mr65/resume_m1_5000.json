@@ -1,0 +1,19 @@
+{
+ "config": "v3_mem_rel",
+ "arm_env": {
+  "SHIBUYA_MEMORY_STORE": "events",
+  "SHIBUYA_MEMORY_MODEL": "m1"
+ },
+ "agents": 5000,
+ "seed": 1,
+ "straight_final": "268779d84297ce5b",
+ "resumed_final": "268779d84297ce5b",
+ "same_final": true,
+ "checkpoints_after_boundary_same": true,
+ "n_checkpoints_compared": 4,
+ "calls": [
+  145675,
+  145675
+ ],
+ "wall_s_nondeterministic": 295.5
+}

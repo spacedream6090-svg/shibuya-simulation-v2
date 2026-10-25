@@ -22,10 +22,62 @@ if str(TOOLS_C7) not in sys.path:
     sys.path.insert(0, str(TOOLS_C7))
 
 #: 実世界資産が無い環境(CI)では実データのテストを飛ばす。
-real_data = pytest.mark.skipif(
-    not (WORLD_DIR / "w2_cells.parquet").exists(),
-    reason="実世界資産 data/world/v2 が無い",
-)
+real_data = pytest.mark.requires_data("world_v2:w2_cells.parquet")
+
+# 〔第337 検収 L1〕番人: tests/c7 の試験の間に、リポの data/ と docs/ の下で封印・検証側・〔灰〕の語
+# (``tools/instruments/read_guard.GAUGE_DENY_TOKENS``)を含む道筋を Python の ``open`` が開こうとしたら、開く前に落とす。
+# 合成の置き場(tmp)と道具のモジュール(tools/ の下)は対象の外。監査フックは一度入れたら外せないので、
+# 試験ごとの autouse の fixture が入っている間だけ効かせる(tests/c7 の試験だけ)。
+_SEAL_ROOTS = tuple(sorted({str(f(REPO_ROOT / d)).replace("\\", "/").lower() + "/"
+                             for d in ("data", "docs") for f in (Path.absolute, Path.resolve)}))  # つなぎの両方の形
+_SEAL_ON = {"on": False}
+
+
+def _deny_tokens() -> tuple[str, ...]:
+    rg = str(REPO_ROOT / "tools" / "instruments")
+    if rg not in sys.path:
+        sys.path.insert(0, rg)
+    import read_guard
+
+    return tuple(t.lower() for t in read_guard.GAUGE_DENY_TOKENS)
+
+
+_TOKENS = _deny_tokens()
+
+
+def seal_hit(path) -> str | None:
+    """リポの data/・docs/ の下で守りの語を含む道筋なら、その語(無ければ None)。ファイルシステムには触らない。"""
+    import os
+
+    try:
+        s = os.path.abspath(os.fsdecode(path)).replace("\\", "/").lower()
+    except (TypeError, ValueError):
+        return None
+    if not s.startswith(_SEAL_ROOTS):
+        return None
+    return next((t for t in _TOKENS if t in s), None)
+
+
+def _seal_hook(event, args):
+    if not _SEAL_ON["on"] or event != "open" or not args:
+        return
+    if not isinstance(args[0], (str, bytes)) and not hasattr(args[0], "__fspath__"):
+        return  # 番号で開く(fd)ものは道筋が無い
+    hit = seal_hit(args[0])
+    if hit:
+        raise PermissionError(f"tests/c7 は封印・検証側・〔灰〕のファイルを開かない(語 {hit!r})")
+
+
+sys.addaudithook(_seal_hook)
+
+
+@pytest.fixture(autouse=True)
+def _c7_seal_guard():
+    _SEAL_ON["on"] = True
+    try:
+        yield
+    finally:
+        _SEAL_ON["on"] = False
 
 
 @pytest.fixture(scope="session")

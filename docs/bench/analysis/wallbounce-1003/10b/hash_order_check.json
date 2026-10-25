@@ -1,0 +1,41 @@
+{
+ "schema": "shibuya.bench/wallbounce-1003/10b-hash-order/1",
+ "agents": 2000,
+ "columns_all_arms": 79,
+ "results": {
+  "dead3": {
+   "dropped": [
+    "plan_cursor",
+    "invocation_distance",
+    "wake_pending_class"
+   ],
+   "a_behavior_before_eq_after_delete": true,
+   "b_full_before_ne_after_delete": true,
+   "c_neg_control_excluded_change_keeps_hash": true,
+   "d_pos_control_hunger_change_moves_hash": true
+  },
+  "non_behavior_agents9": {
+   "dropped": [
+    "band",
+    "plan_cursor",
+    "invocation_distance",
+    "wake_pending_class",
+    "fail_streak",
+    "plan_activity",
+    "fam_last",
+    "rel_last",
+    "energy_balance"
+   ],
+   "a_behavior_before_eq_after_delete": true,
+   "b_full_before_ne_after_delete": true,
+   "c_neg_control_excluded_change_keeps_hash": true,
+   "d_pos_control_hunger_change_moves_hash": true
+  },
+  "none": {
+   "dropped": [],
+   "a_behavior_before_eq_after_delete": true,
+   "b_full_before_ne_after_delete": false,
+   "d_pos_control_hunger_change_moves_hash": true
+  }
+ }
+}

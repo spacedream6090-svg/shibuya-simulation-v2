@@ -28,8 +28,6 @@ from shibuya.engine.poi_target import (
     BUYABLE_CATS,
     CATEGORY_WORDS,
     GENERIC_WORDS,
-    POI_TARGET_MODES,
-    check_poi_target,
     KIND_CATEGORY,
     KIND_NAMED,
     KIND_NONE,
@@ -224,7 +222,7 @@ def test_run_day_records_chooser_and_target_resolution_in_the_manifest():
     assert set(tr) == {"i_named", "ii_category", "iii_none", "iv_no_candidate", "attempts",
                        "iv_by_kind", "chooser_entropy_mean_bits", "v_intent",
                        "named_out_of_cell_detail"}
-    assert m["poi_target"] == "candidates"
+    assert "poi_target" not in m  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕対象の決め方の切替口を消した=欄も無い
     assert set(tr["iv_no_candidate"]) == {"bad_target", "not_in_eatery", "closed",
                                           "out_of_stock", "named_out_of_cell"}
     with pytest.raises(ValueError):
@@ -264,42 +262,19 @@ def test_generic_words_read_as_none_q11():
     assert len(CATEGORY_WORDS) == 59
 
 
-def test_poi_target_switch_values_q13():
-    assert POI_TARGET_MODES == ("candidates", "legacy")
-    with pytest.raises(ValueError):
-        check_poi_target("min_id")
-    res = run_day(n_agents=20, seed=1, ticks=10, renderer="stub", poi_target="legacy",
-                  checkpoint_every=10)
-    assert res.run_manifest_fields()["poi_target"] == "legacy"
-    assert res.target_resolution == {}
+def test_poi_target_switch_is_removed_q13():
+    """〔第 4 期 4-3 版上げ 3 回目の第 2 部〕親決定 Q13 の切替口 ``--poi-target legacy``(段 2a 前の現在セルの最小 id=旧
+    checkpoint の再現)は消した=渡すと止まる(旧値の再現は安定版のタグ。前は legacy の今の値を 5,000 体で固定した=
+    最後の値 v3 0932d666332e6084 / 36,742・帰無腕 e6f4670bcab0b4b6 / 41,031=差し替えの世界)。"""
+    import shibuya.engine.poi_target as PT
 
+    assert not hasattr(PT, "POI_TARGET_MODES") and not hasattr(PT, "check_poi_target")
+    with pytest.raises(TypeError):
+        run_day(n_agents=20, seed=1, ticks=10, renderer="stub", poi_target="legacy", checkpoint_every=10)
+    from shibuya import cli
 
-@pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い")
-def test_poi_target_legacy_reproduces_the_pre_2a_checkpoints_q13(monkeypatch):
-    """親決定 Q13: ``--poi-target legacy`` で段 2a 前の checkpoint(02bd0312・b4ad8140)を再現する。
-
-    段 2c(第288)で意図の 4 欄(+10 B/体)が既定で確保され、全 checkpoint が欄のぶん動いた。
-    ``legacy`` では意図の層が働かない(欄を確保するだけ)ので、**欄を混ぜないハッシュ**
-    (``Registry.state_hash(exclude=INTENT_FIELDS)``)で旧値がそのまま出る=挙動は 1 バイトも
-    変わっていない。欄を混ぜた新しい値: v3 ``b3287fa8e93305a5`` / 帰無腕 ``e1c182cbb064aa8b``。
-    """
-    from shibuya.agents.state import INTENT_FIELDS, AgentState
-    from shibuya.cli import run as cli_run
-
-    monkeypatch.setattr(
-        AgentState, "state_hash",
-        lambda self: self.registry.state_hash(exclude=INTENT_FIELDS),
-    )
-    # 3 段目(第289): CLI/cli.run の既定が無制限になったので旧挙動の上限(l4_scale=1.0)を明示する
-    # 5 段目 5a(第291): cli.run の空腹の既定が energy になったので旧規則(hunger_model="v1")を明示する
-    # 9a(第302): 退去の効果(所属解除)が既定になったので旧挙動(leave_effect=False)を明示する
-    v3 = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
-                 poi_target="legacy", l4_scale=1.0, hunger_model="v1", leave_effect=False)
-    assert v3.final_hash.startswith("02bd03126d5f41cb") and int(v3.llm_calls) == 36_460
-    null = cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                   report_precondition=False, poi_target="legacy", l4_scale=1.0,
-                   hunger_model="v1", leave_effect=False)
-    assert null.final_hash.startswith("b4ad8140fe4176db") and int(null.llm_calls) == 41_072
+    with pytest.raises(SystemExit):
+        cli.main(["--poi-target", "legacy"])
 
 
 def test_category_table_uses_known_w6_values_only():
@@ -312,7 +287,7 @@ def test_category_table_uses_known_w6_values_only():
         assert s <= set(PC.SUBCAT_TOPCAT), word
 
 
-@pytest.mark.skipif(not (WORLD_DIR / "w8_t1_cell.parquet").exists(), reason="実世界資産が無い")
+@pytest.mark.requires_data("world_v2:w8_t1_cell.parquet")
 def test_poi_visibility_is_read_from_w8_on_the_real_world():
     w = World.load_or_synthetic(WORLD_DIR, n_cells=139, seed=1)
     v = w.poi_visibility

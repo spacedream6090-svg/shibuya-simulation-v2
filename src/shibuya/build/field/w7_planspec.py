@@ -23,6 +23,14 @@ expedient(全文は ``EXPEDIENTS``=段階ヘッダに載る台帳。ここは要
 - **特別日なし**(D-72 ⑦)/青少年条例16条1項の**一・二号の未写像**(⑧)/D-W8 表の
   **条例8条・6条が未実装**(④)。
 
+〔改訂(第330 B6)〕**PH(祝日)の拾い直し**(10a のアジェンダ §3 の末尾・答え 10-12b 1-6 の 7):
+    OSM の ``opening_hours`` の ``PH`` の規則(``Sa,Su,PH 10:00-20:00``・``PH off`` など)を捨てずに読み、
+    祝日の 1 日ぶんの区間を新しい列 ``holiday_content``(``[[開,閉],…]`` の JSON・PH の規則が無い POI は
+    空文字)に入れる。法規上限は週表と同じ窓で切る。``content``(7 日の週表)は**変えない**=エンジン・
+    W14・W17 が読む列は不変。どの日が祝日かは内閣府の CSV(``data/calendar/syukujitsu.csv``=
+    エンジンの暦の口が読む)で決まる。PH の規則の無い POI の祝日は、エンジンの宣言(親案=土休扱い)に従う。
+    W7 は CSV を入力に足し(W19 の資産表に載る)、CSV の範囲を notes に書く(列は日付に依らない)。
+
 法規の記録修正(2026-09-17・D-72 (a)・**数値は動かさない**)
     答申 ``docs/research/v2-w7-law-primary-check-research.md``(等級A・親一次確認)の
     §3 ②(citation の条ずれ)を直し、①⑦⑧④ を ``EXPEDIENTS`` へ登録した。
@@ -42,12 +50,15 @@ import numpy as np
 import pyarrow as pa
 
 from . import common as C
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 STAGE = "W7"
-STAGE_VERSION = "1.0.0"
+#: 1.1.0(第330 B6): PH(祝日)の規則を列 ``holiday_content`` に拾い直した。
+STAGE_VERSION = "1.1.0"
 
 INPUT_FILES: tuple[tuple[str, ...], ...] = (
     ("realworld", "osm", "poi_opening_hours_overpass_20260907.json"),
+    C.HOLIDAY_CSV,
 )
 
 #: OSM 抽出日(Overpass attic・§0-2 版の凍結)。
@@ -125,7 +136,7 @@ LAW_CAPS: dict[str, dict[str, Any]] = {
         "citation": "東京都風俗営業等の規制及び業務の適正化等に関する法律施行条例11条",
         "closed_window": "0:00-6:00",
         "closed_windows_min": ((0, 360),),
-        "close_cap_min": 1440,
+        "close_cap_min": MINUTES_PER_DAY,
     },
     "minor_entry_limit": {
         "label": "18歳未満の立入制限(興行場・カラオケボックス・ネットカフェ等)",
@@ -181,7 +192,8 @@ EXPEDIENTS: tuple[str, ...] = (
     "違反可能性の割当(法規上限のある業態=enforced・それ以外=unenforced)",
     "love_hotel は旅館業/店舗型性風俗の判定不能→上限なし",
     "接待飲食等(1-3号)は OSM タグに現れず nightlife 既定=深夜酒類提供(上限なし)",
-    "PH(祝日)規則は 7日週モデルに写像せず無視",
+    "PH(祝日)規則は週表(content)に写像せず、祝日の 1 日ぶんの区間を列 holiday_content に置く"
+    "(第330 B6・PH の規則の無い POI は空文字=エンジンの祝日の扱いの宣言に従う)。SH(学校休業日)は無視",
     "チェーン既定=OSM 実値の brand 内最頻伝播(公式表の手入力は未取得=空表)",
     # ---- D-72 (a) 2026-09-17 追加(法規一次確認 §3 の不一致) ----
     "**地域条件なしの一律適用**(D-72 ①): 1-3号・5号・深夜酒類提供の窓は"
@@ -211,28 +223,28 @@ EXPEDIENTS: tuple[str, ...] = (
 # price_tier ∈ {free, low, mid, high}(経済台帳 wage_tier と整合させる語彙)。
 CATEGORY_DEFAULTS: dict[tuple[str, str | None], dict[str, Any]] = {
     ("attraction", None): {"open": 600, "close": 1200, "closed_days": (), "price_tier": "mid"},
-    ("cinema", None): {"open": 540, "close": 1440, "closed_days": (), "price_tier": "mid"},
+    ("cinema", None): {"open": 540, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "mid"},
     ("education", None): {"open": 540, "close": 1260, "closed_days": (5, 6), "price_tier": "mid"},
     ("food", None): {"open": 660, "close": 1380, "closed_days": (), "price_tier": "mid"},
     ("hall", None): {"open": 600, "close": 1320, "closed_days": (), "price_tier": "high"},
-    ("hotel", None): {"open": 0, "close": 1440, "closed_days": (), "price_tier": "high"},
-    ("hotel", "love_hotel"): {"open": 0, "close": 1440, "closed_days": (), "price_tier": "mid"},
-    ("landmark", None): {"open": 0, "close": 1440, "closed_days": (), "price_tier": "free"},
+    ("hotel", None): {"open": 0, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "high"},
+    ("hotel", "love_hotel"): {"open": 0, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "mid"},
+    ("landmark", None): {"open": 0, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "free"},
     ("landmark", "worship"): {"open": 360, "close": 1020, "closed_days": (), "price_tier": "free"},
     ("leisure", None): {"open": 600, "close": 1320, "closed_days": (), "price_tier": "mid"},
-    ("leisure", "arcade"): {"open": 600, "close": 1440, "closed_days": (), "price_tier": "low"},
+    ("leisure", "arcade"): {"open": 600, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "low"},
     ("nightlife", None): {"open": 1020, "close": 1740, "closed_days": (), "price_tier": "mid"},
     ("nightlife", "club"): {"open": 1320, "close": 1800, "closed_days": (), "price_tier": "high"},
     ("nightlife", "karaoke"): {"open": 660, "close": 1740, "closed_days": (), "price_tier": "low"},
-    ("nightlife", "net_cafe"): {"open": 0, "close": 1440, "closed_days": (), "price_tier": "low"},
+    ("nightlife", "net_cafe"): {"open": 0, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "low"},
     ("nightlife", "sauna"): {"open": 660, "close": 1740, "closed_days": (), "price_tier": "mid"},
     ("office", None): {"open": 540, "close": 1080, "closed_days": (5, 6), "price_tier": "free"},
     ("school", None): {"open": 480, "close": 1020, "closed_days": (5, 6), "price_tier": "free"},
     ("school", "childcare"): {"open": 450, "close": 1140, "closed_days": (6,), "price_tier": "mid"},
     ("service", None): {"open": 540, "close": 1080, "closed_days": (5, 6), "price_tier": "mid"},
-    ("service", "hospital"): {"open": 0, "close": 1440, "closed_days": (), "price_tier": "high"},
+    ("service", "hospital"): {"open": 0, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "high"},
     ("shop", None): {"open": 660, "close": 1260, "closed_days": (), "price_tier": "mid"},
-    ("shop", "convenience"): {"open": 0, "close": 1440, "closed_days": (), "price_tier": "low"},
+    ("shop", "convenience"): {"open": 0, "close": MINUTES_PER_DAY, "closed_days": (), "price_tier": "low"},
     ("shop", "pachinko"): {"open": 600, "close": 1380, "closed_days": (), "price_tier": "mid"},
     # --- W6 の subcat 改訂(2026-09-17・geo/poi_class.py)で現れる対 ---
     # **親 cat の行をそのまま継ぐ**(= 既定の営業窓・価格帯は 1 件も動かない
@@ -344,10 +356,10 @@ def _parse_time_ranges(text: str) -> list[tuple[int, int]]:
         oh, om, ch, cm = (int(g) for g in m.groups())
         if om > 59 or cm > 59 or oh > 48 or ch > 48:
             raise OpeningHoursParseError(f"時刻の値域外: {part!r}")
-        o = oh * 60 + om
-        c = ch * 60 + cm
+        o = oh * MINUTES_PER_HOUR + om
+        c = ch * MINUTES_PER_HOUR + cm
         if c <= o:  # 日跨ぎ(11:30-02:00)
-            c += 1440
+            c += MINUTES_PER_DAY
         out.append((o, c))
     return sorted(out)
 
@@ -367,7 +379,7 @@ def parse_opening_hours(value: str) -> list[list[tuple[int, int]]]:
     if not text:
         raise OpeningHoursParseError("空文字")
     if text in ("24/7", "24/7 open", "Mo-Su 00:00-24:00", "Mo-Su,PH 00:00-24:00"):
-        return [[(0, 1440)] for _ in range(7)]
+        return [[(0, MINUTES_PER_DAY)] for _ in range(7)]
     week: list[list[tuple[int, int]]] = [[] for _ in range(7)]
     touched = [False] * 7
     rules: list[str] = []
@@ -408,6 +420,44 @@ def parse_opening_hours(value: str) -> list[list[tuple[int, int]]]:
     return week
 
 
+def parse_holiday_hours(value: str) -> list[tuple[int, int]] | None:
+    """〔改訂(第330 B6)〕OSM ``opening_hours`` の ``PH``(祝日)の規則 → 祝日の 1 日ぶんの区間。
+
+    ``PH`` を含むセレクタの規則だけを読む(``Sa,Su,PH 10:00-20:00`` の時刻・``PH off`` は空)。
+    同じ日の規則を後ろから上書きする規則は :func:`parse_opening_hours` と同じ(off は空にする・
+    2 つ目以降の時刻は足す)。``PH`` の規則が無ければ ``None``。``24/7`` の書き方(``Mo-Su,PH 00:00-24:00``)は
+    終日。対応外の書き方は :class:`OpeningHoursParseError`。
+    """
+    text = value.strip()
+    if text in ("Mo-Su,PH 00:00-24:00",):
+        return [(0, MINUTES_PER_DAY)]
+    rules: list[str] = []
+    for chunk in text.split(";"):
+        chunk = chunk.strip()
+        if chunk:
+            rules.extend(_split_comma_rules(chunk))
+    spans: list[tuple[int, int]] | None = None
+    for rule in rules:
+        rule = rule.strip()
+        if not rule:
+            continue
+        m = _RULE.match(rule)
+        assert m is not None
+        selector = (m.group("days") or "").strip()
+        toks = [t.strip() for t in selector.split(",") if t.strip()]
+        if "PH" not in toks:
+            continue
+        body = m.group("body").strip()
+        if not body:
+            raise OpeningHoursParseError(f"時刻部が空: {rule!r}")
+        if body in ("off", "closed"):
+            spans = []
+            continue
+        ranges = _parse_time_ranges(body)
+        spans = sorted((spans or []) + ranges) if spans is not None else list(ranges)
+    return spans
+
+
 def default_week(cat: str, subcat: str | None) -> list[list[tuple[int, int]]]:
     """カテゴリ既定表 → 7×区間リスト。表に無い組は KeyError(ゲートで検出)。"""
     row = CATEGORY_DEFAULTS[(cat, subcat)]
@@ -428,7 +478,7 @@ def law_key_for(cat: str, subcat: str | None, tags: dict[str, str]) -> str:
 
 
 #: 区間を評価する絶対軸の幅 [分](開店日0時 → 翌々日0時)。日跨ぎ区間の上界。
-SPAN_MIN = 2880
+SPAN_MIN = 2 * MINUTES_PER_DAY
 
 
 class LawCapEffect(NamedTuple):
@@ -455,10 +505,10 @@ def prohibited_intervals(
     for start, end in closed_windows:
         if end <= start:
             raise ValueError(f"営業不可窓は end>start でなければならない: {(start, end)}")
-        k = -(end // 1440) - 1
-        while start + 1440 * k < span_min:
-            a = start + 1440 * k
-            b = end + 1440 * k
+        k = -(end // MINUTES_PER_DAY) - 1
+        while start + MINUTES_PER_DAY * k < span_min:
+            a = start + MINUTES_PER_DAY * k
+            b = end + MINUTES_PER_DAY * k
             k += 1
             a2, b2 = max(a, 0), min(b, span_min)
             if b2 > a2:
@@ -542,6 +592,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
         raise FileNotFoundError(f"W7 は W6 の出力を必要とする: {poi_p}")
 
     overpass = C.load_json(paths[0])
+    holidays_all = C.read_holidays_csv(paths[1])
     tags_by_poi: dict[str, dict[str, str]] = {}
     for el in overpass["elements"]:
         tags_by_poi[f"p_{el['type'][0]}{el['id']}"] = {
@@ -560,11 +611,16 @@ def run(ctx: C.Ctx) -> C.StageResult:
     osm_raw = {p: t["opening_hours"] for p, t in tags_by_poi.items() if "opening_hours" in t}
     parsed_ok: dict[str, list[list[tuple[int, int]]]] = {}
     parse_fail: dict[str, str] = {}
+    holiday_ok: dict[str, list[tuple[int, int]]] = {}
     for pid, value in sorted(osm_raw.items()):
         try:
             parsed_ok[pid] = parse_opening_hours(value)
         except OpeningHoursParseError as exc:
             parse_fail[pid] = f"{value} :: {exc}"
+            continue
+        ph = parse_holiday_hours(value)
+        if ph is not None:
+            holiday_ok[pid] = ph
 
     # --- ③b チェーン既定(同一 brand の最頻文面を OSM 実値から伝播)---
     brand_of: dict[str, str] = {}
@@ -604,6 +660,8 @@ def run(ctx: C.Ctx) -> C.StageResult:
     n_intervals_split = 0
     over_cap_before = 0
     over_cap_after = 0
+    holiday_contents: list[str] = []
+    n_holiday_capped = 0
 
     for pid, cat, subcat in zip(poi["poi_id"], poi["cat"], poi["subcat"]):
         tg = tags_by_poi.get(pid, {})
@@ -640,6 +698,13 @@ def run(ctx: C.Ctx) -> C.StageResult:
         n_intervals_close_moved += eff.closing_moved
         n_intervals_dropped += eff.dropped
         n_intervals_split += eff.split
+        if src == "osm_opening_hours" and pid in holiday_ok:
+            hweek, heff = apply_law_cap([list(holiday_ok[pid])], windows)
+            n_holiday_capped += int(heff.changed)
+            over_cap_after += intervals_in_prohibited_window(hweek, windows)
+            holiday_contents.append(C.json_text(hweek[0]))
+        else:
+            holiday_contents.append("")
         ids.append(f"ps_oh_{pid}")
         contents.append(C.json_text(week))
         srcs.append(src)
@@ -674,6 +739,8 @@ def run(ctx: C.Ctx) -> C.StageResult:
         "law_cap_key": law_keys,
         "law_cap_applied": pa.array(law_applied, type=pa.bool_()),
         "law_cap_rule": law_rules,
+        # 〔改訂(第330 B6)〕祝日の 1 日ぶんの区間(OSM の PH の規則・無ければ空文字)。最後の列に足した。
+        "holiday_content": holiday_contents,
     }
 
     params: dict[str, Any] = {
@@ -726,12 +793,21 @@ def run(ctx: C.Ctx) -> C.StageResult:
             "poi_matched_in_overpass_file": sum(1 for p in poi["poi_id"] if p in tags_by_poi),
             "osm_oh_rows_not_in_w6_poi": sum(1 for p in osm_raw if p not in set(poi["poi_id"])),
             "src_counts": dict(sorted(n_by_src.items())),
+            "holiday_rule_poi": sum(1 for h in holiday_contents if h),
+            "holiday_rule_poi_closed": sum(1 for h in holiday_contents if h == "[]"),
+            "holiday_rule_law_capped": n_holiday_capped,
+            "holiday_csv_range": [min(holidays_all), max(holidays_all)],
+            "holiday_note": (
+                "holiday_content=OSM の PH の規則の祝日の区間(週表 content は不変)。どの日が祝日かは"
+                "内閣府の CSV(エンジンの暦の口)で決まる。PH の規則の無い POI は空文字=エンジンの宣言に従う。"
+            ),
             "price_tier_counts": dict(sorted(Counter(price_tier).items())),
         },
     )
     res.outputs.append(C.write_parquet(ctx.out, "w7_plan_spec.parquet", cols))
     res.gates = [
         C.Gate("plan_spec_rows", n_poi, EXPECTED_POI_ROWS),
+        C.Gate("holiday_rule_poi", sum(1 for h in holiday_contents if h), None),
         C.Gate("category_defaults_cover_all_catsub", len(missing_pairs), 0),
         # 適用前=報告のみ(法規の窓に食い込んでいた区間数)・適用後=不変条件(必ず 0)。
         C.Gate("intervals_over_law_cap_before_apply", over_cap_before, None),

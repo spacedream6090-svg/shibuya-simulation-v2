@@ -2,7 +2,7 @@
  "schema": "shibuya.tools.c8/expedient-triage/1",
  "version": "v1",
  "created": "2026-09-29",
- "note": "D-44 の 3 分類(第308・Q146)。**実装役の自前の構成=未リサーチ(expedient)**: 対照の候補と費用の見込みは既存の記録(構築の通し 12.3 s・W8 前計算 1.15 s・W9 影 数分・W16 対照 0.29 s・W17 再取り込み 約 90 s)から置いた目安で、実測していない。(i) 構築段階の再計算で対照が測れる(宣言値 vs 対照の入力側 JSD=既存の 5 本のランナーの形)/(ii) ランが要る(入力側の JSD では効きが決まらない・LLM の再生成が要る=5,000 体の CSB 対照)/(iii) 対照を定義できない(門・文面・閾値・範囲の宣言)。",
+ "note": "D-44 の 3 分類(第308・Q146)。**実装役の自前の構成=未リサーチ(expedient)**: 対照の候補と費用の見込みは既存の記録(構築の通し 12.3 s・W8 前計算 1.15 s・W9 影 数分・W16 対照 0.29 s・W17 再取り込み 約 90 s)から置いた目安で、実測していない。(i) 構築段階の再計算で対照が測れる(宣言値 vs 対照の入力側 JSD=既存の 5 本のランナーの形)/(ii) ランが要る(入力側の JSD では効きが決まらない・LLM の再生成が要る=5,000 体の CSB 対照)/(iii) 対照を定義できない(門・文面・閾値・範囲の宣言)。〔改訂(第330 ACT)〕10e の構築側で build_manifest の expedient が 6 行増え 4 行消えた(123 行)。W13#5 は前の W13#6 の行(番号のずれ・文言は同じ)。W7#7・W9#5・W10#11・W13#6・W13#7・W13#8 の 3 分類と対照は実装役の案(未リサーチ)。前の行の値: {\"W7#7\": {\"class\": \"i\", \"control\": \"祝日規則を無視 vs 当てる → 再生日の営業中 POI×時(祝日でなければ差 0 の見込み)\", \"cost_seconds_estimate\": 2}, \"W9#5\": {\"class\": \"i\", \"control\": \"再生日=W13 の先頭日 vs 別の候補日 → セルの日陰率の分布 JSD\", \"cost_seconds_estimate\": 300}, \"W13#5\": {\"class\": \"i\", \"control\": \"2026 年 7-8 月のハードコード vs 内閣府 CSV → 再生日の祝日(差 0 の見込み)\", \"cost_seconds_estimate\": 1}, \"W13#6\": {\"class\": \"i\", \"control\": \"時別=平均/合計 vs 正時値 → 時別気象の分布 JSD\", \"cost_seconds_estimate\": 1}, \"W13#7\": {\"class\": \"i\", \"control\": \"etrn 時別値で補完 vs 線形補間 → 補完した時の気象の分布\", \"cost_seconds_estimate\": 1}}〔改訂(第 2 期 2-4・V1 の活性化)〕W12 の expedient が 8 → 11 行(等間隔の推定の 5 行=前の W12#4〜#8 が消え、実ダイヤの宣言 8 行が W12#4〜#11 に入る・build_manifest は 123 → 126 行)。W12#4〜#11 の 3 分類と対照は実装役の案(未リサーチ)。前の行の値(等間隔の推定の行のもの): {\"W12#5\": {\"class\": \"i\", \"control\": \"山手線ピーク 18 本 vs 16/20 本 → 便の時刻分布 JSD\", \"cost_seconds_estimate\": 1}, \"W12#6\": {\"class\": \"i\", \"control\": \"メトロ実ダイヤのオフピーク比 vs 一様 → 便の時刻分布 JSD\", \"cost_seconds_estimate\": 1}, \"W12#7\": {\"class\": \"i\", \"control\": \"夕ピーク=朝ピーク vs 夕ピーク −20%(仮)→ 便の時刻分布 JSD\", \"cost_seconds_estimate\": 1}, \"W12#8\": {\"class\": \"i\", \"control\": \"平日の初終発 vs 土休の初終発 → 便の時刻分布 JSD(土休ダイヤの日)\", \"cost_seconds_estimate\": 1}}",
  "classes": {
   "i": "構築段階の再計算で対照が測れる",
   "ii": "ランが要る",
@@ -91,7 +91,7 @@
   },
   "W7#7": {
    "class": "i",
-   "control": "祝日規則を無視 vs 当てる → 再生日の営業中 POI×時(祝日でなければ差 0 の見込み)",
+   "control": "〔第330 ACT・実装役の案=未リサーチ(expedient)・費用は目安で未測〕祝日の区間=列 holiday_content vs 列を無視(祝日は日曜の行)→ 祝日の営業中 POI×時の分布(既定の開始日 07-13〜17 に祝日は無い)",
    "cost_seconds_estimate": 2
   },
   "W7#8": {
@@ -186,7 +186,7 @@
   },
   "W9#5": {
    "class": "i",
-   "control": "再生日=W13 の先頭日 vs 別の候補日 → セルの日陰率の分布 JSD",
+   "control": "〔第330 ACT・実装役の案=未リサーチ(expedient)・費用は目安で未測〕影を作る日=暦の日付(SHADOW_DATES)vs 近い日の影で代用 → セルの日陰率の分布 JSD",
    "cost_seconds_estimate": 300
   },
   "W10#2": {
@@ -234,6 +234,11 @@
    "control": "中点 1 点の最近傍 way vs 両端+中点の多数決 → 道路名の一致の分布",
    "cost_seconds_estimate": 20
   },
+  "W10#11": {
+   "class": "ii",
+   "control": "〔第330 ACT・実装役の案=未リサーチ(expedient)・費用は目安で未測〕動く車に区間の値を当てる vs klass 既定(今)→ 5,000 体の CSB 対照(エンジンの交通の過程に口が要る=車の段 R-67)",
+   "cost_seconds_estimate": null
+  },
   "W11#2": {
    "class": "i",
    "control": "ホーム/改札の位置 vs ±50 m ずらす → 出口→ホームの構内経路長の分布 JSD",
@@ -264,25 +269,45 @@
    "control": "目的×手段の構成=全ノード共通 vs 構成を ±10% ずらす(方面別の実データは未取得)→ 生成の目的分布 JSD",
    "cost_seconds_estimate": 1
   },
+  "W12#4": {
+   "class": "ii",
+   "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕渋谷の発車の表だけ vs 到着の表で降りる便を作る(井の頭線は到着の表が手元にある)→ 5,000 体の CSB 対照(エンジンに到着の便の口が要る=2-3c)",
+   "cost_seconds_estimate": null
+  },
   "W12#5": {
    "class": "i",
-   "control": "山手線ピーク 18 本 vs 16/20 本 → 便の時刻分布 JSD",
+   "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕山手線 内回り=上り・外回り=下り vs 逆 → 向きごとの便の時刻分布 JSD(エンジンは向きを便の並びの決め方にだけ使う=tt23b §11 の 6)",
    "cost_seconds_estimate": 1
   },
   "W12#6": {
-   "class": "i",
-   "control": "メトロ実ダイヤのオフピーク比 vs 一様 → 便の時刻分布 JSD",
-   "cost_seconds_estimate": 1
+   "class": "ii",
+   "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕湘南新宿ラインを埼京線に畳む vs 別の線(エンジンの線別の定員・混雑率の表と方面ノードの線を同じ版で足す口が要る=6-2)→ 5,000 体の CSB 対照",
+   "cost_seconds_estimate": null
   },
   "W12#7": {
    "class": "i",
-   "control": "夕ピーク=朝ピーク vs 夕ピーク −20%(仮)→ 便の時刻分布 JSD",
+   "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕土休の ◆ 特急 4 本を外す vs 残す → 土休の便の時刻分布 JSD",
    "cost_seconds_estimate": 1
   },
   "W12#8": {
+   "class": "iii",
+   "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕JR の版の宣言(2026-03-14 改正と推測)=別の版の表が手元に無く対照を定義できない",
+   "cost_seconds_estimate": null
+  },
+  "W12#9": {
    "class": "i",
-   "control": "平日の初終発 vs 土休の初終発 → 便の時刻分布 JSD(土休ダイヤの日)",
+   "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕銀座線=9 月改正の版 vs 7 月の取得(2026-07-07・世界の時点の版・手元にある)→ 便の時刻分布 JSD",
    "cost_seconds_estimate": 1
+  },
+  "W12#10": {
+   "class": "iii",
+   "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕井の頭線の版の宣言(dct:issued が世界の時点に効いていたと推測)=別の版の表が無く対照を定義できない",
+   "cost_seconds_estimate": null
+  },
+  "W12#11": {
+   "class": "ii",
+   "control": "〔第 2 期 2-4・実装役の案=未リサーチ(expedient)・費用は目安で未測〕直通の二重(東横線・田園都市線の上り=副都心線・半蔵門線と同じ列車)vs 二重を除く→ 5,000 体の CSB 対照(直通のまとめ方は 2-3c)",
+   "cost_seconds_estimate": null
   },
   "W13#3": {
    "class": "i",
@@ -296,18 +321,23 @@
   },
   "W13#5": {
    "class": "i",
-   "control": "2026 年 7-8 月のハードコード vs 内閣府 CSV → 再生日の祝日(差 0 の見込み)",
+   "control": "時別=平均/合計 vs 正時値 → 時別気象の分布 JSD",
    "cost_seconds_estimate": 1
   },
   "W13#6": {
    "class": "i",
-   "control": "時別=平均/合計 vs 正時値 → 時別気象の分布 JSD",
+   "control": "〔第330 ACT・実装役の案=未リサーチ(expedient)・費用は目安で未測〕10 分値の欠けを etrn 時別値で補完 vs 線形補間 → 補完した時の気象の分布",
    "cost_seconds_estimate": 1
   },
   "W13#7": {
    "class": "i",
-   "control": "etrn 時別値で補完 vs 線形補間 → 補完した時の気象の分布",
+   "control": "〔第330 ACT・実装役の案=未リサーチ(expedient)・費用は目安で未測〕日照の空欄=0 分 vs 時別値で補完 → 夜の時の日照の分布(夜は 0 の見込み)",
    "cost_seconds_estimate": 1
+  },
+  "W13#8": {
+   "class": "iii",
+   "control": "〔第330 ACT・実装役の案=未リサーチ(expedient)・費用は目安で未測〕窓の境界の宣言(前日の 24:00 は窓の外=読まない・ユーザーの答え 10-12b 1-3)=対照(窓の外を読む)は答えに反するので定義できない",
+   "cost_seconds_estimate": null
   },
   "W14#1": {
    "class": "iii",

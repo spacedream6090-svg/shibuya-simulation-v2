@@ -28,7 +28,9 @@ from shibuya.world.state import World
 
 SRC = Path("src/shibuya")
 #: ``ufunc.at`` の第1引数が「世界状態」だと判断する根(``self.`` 経由も見る)。
-STATE_ROOTS = ("world", "agents", "self.world", "self.agents")
+STATE_ROOTS = ("world", "agents", "self.world", "self.agents",
+               # 1-0 段 FIX(検収 L1): 系の箱の形(``b.soa.agents…``・``box.soa.world…``)も世界状態
+               "b.soa", "box.soa")
 #: 台帳の私物(独自検査を持つ)と実行時に import されない工程は対象外。
 OUT_OF_SCOPE = ("economy/", "build/")
 
@@ -52,13 +54,35 @@ def _state_rooted(expr: str) -> bool:
 
 
 def _registry_aliases(tree: ast.AST) -> set[str]:
-    """``holdings = agents.registry.holdings`` のような**別名**を集める(第1引数の判定用)。"""
+    """``holdings = agents.registry.holdings`` のような**別名**を集める(第1引数の判定用)。
+
+    1-0 段 FIX(検収 L1): 別名の別名(``r = b.soa.agents.registry`` → ``m = r.money``)・組の代入
+    (``agents, world = b.soa.agents, b.soa.world``)・注釈つきの代入もたどる(動かなくなるまで繰り返す)。
+    """
     names: set[str] = set()
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Assign) and len(node.targets) == 1:
-            tgt = node.targets[0]
-            if isinstance(tgt, ast.Name) and _state_rooted(_dotted(node.value)):
-                names.add(tgt.id)
+
+    def rooted(expr: ast.AST) -> bool:
+        d = _dotted(expr)
+        return bool(d) and (_state_rooted(d) or d.split(".")[0] in names)
+
+    changed = True
+    while changed:
+        changed = False
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign):
+                tgts, val = node.targets, node.value
+            elif isinstance(node, ast.AnnAssign) and node.value is not None:
+                tgts, val = [node.target], node.value
+            else:
+                continue
+            for tgt in tgts:
+                pairs = (list(zip(tgt.elts, val.elts)) if isinstance(tgt, (ast.Tuple, ast.List))
+                         and isinstance(val, (ast.Tuple, ast.List)) and len(tgt.elts) == len(val.elts)
+                         else [(tgt, val)])
+                for t_, v_ in pairs:
+                    if isinstance(t_, ast.Name) and t_.id not in names and rooted(v_):
+                        names.add(t_.id)
+                        changed = True
     return names
 
 
@@ -80,7 +104,7 @@ def _ufunc_at_targets(path: Path) -> list[str]:
         if not node.args:
             continue
         first = _dotted(node.args[0])
-        if _state_rooted(first) or first in aliases:
+        if _state_rooted(first) or first in aliases or (first and first.split(".")[0] in aliases):
             hits.append(f"{path.as_posix()}:{node.lineno}: np.{inner.attr}.at({first}, …)")
     return hits
 
@@ -166,3 +190,25 @@ class _noop_ctx:
 
     def __exit__(self, *exc):
         return False
+
+
+def test_box_rooted_and_aliased_ufunc_at_outside_resolve_is_found(tmp_path):
+    """負の対照(1-0 段 FIX・検収 L1): 系の箱の形・その別名・組の代入の別名の ``np.<ufunc>.at`` が見つかる。"""
+    p = tmp_path / "fake_sys.py"
+    p.write_text(
+        "import numpy as np\n"
+        "def sys_a(ctx, b):\n    np.add.at(b.soa.agents.registry.money, [0], 1)\n"
+        "def sys_b(ctx, b):\n    r = b.soa.agents.registry\n    np.add.at(r.money, [0], 1)\n"
+        "def sys_c(ctx, box):\n    a, w = box.soa.agents, box.soa.world\n    np.maximum.at(w.pois.stock, [0], 1)\n"
+        "def sys_d(ctx, b):\n    s = b.soa\n    m = s.agents.registry.money\n    np.subtract.at(m, [0], 1)\n"
+        "def sys_e(ctx, b):\n    x = np.zeros(3)\n    np.add.at(x, [0], 1)\n",
+        encoding="utf-8")
+    hits = _ufunc_at_targets(p)
+    assert len(hits) == 4, hits  # sys_e(局所の配列)は世界状態ではない
+
+
+def test_systems_modules_have_no_state_ufunc_at():
+    """系のモジュール(engine/systems)にも世界状態への ``ufunc.at`` は無い(書きは resolve の口だけ)。"""
+    files = sorted((SRC / "engine" / "systems").glob("*.py"))
+    assert files
+    assert not [h for p in files for h in _ufunc_at_targets(p)]

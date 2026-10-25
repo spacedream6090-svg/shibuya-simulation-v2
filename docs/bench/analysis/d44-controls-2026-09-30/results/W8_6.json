@@ -1,0 +1,41 @@
+{
+ "key": "W8#6",
+ "control": "DECK 視点の眼高=GL と同じ(宣言)vs DECK 視点だけ +6 m",
+ "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+ "variants": [
+  {
+   "name": "DECK +6 m: (セル,対象)→見えている視点数",
+   "jsd_bits": 0.0021680892365414602,
+   "null_p95": 0.003298782022654004,
+   "detected": false,
+   "tvd": 0.01009194924706541,
+   "n_declared": 4943303.0,
+   "n_control": 4995232.0,
+   "n_bins": 43751,
+   "jaccard_pairs": 0.9937829992457315
+  },
+  {
+   "name": "DECK +6 m: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+   "jsd_bits": 0.0002463637044621059,
+   "null_p95": 0.0001448034771158729,
+   "detected": true,
+   "tvd": 0.009842122377583173,
+   "n_declared": 356732.0,
+   "n_control": 356732.0,
+   "n_bins": 120,
+   "primary": false
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 1.4901366999838501,
+ "outputs_changed": [
+  "w8_t1.parquet",
+  "w8_t1_cell.parquet",
+  "w8_t2.npy"
+ ],
+ "notes": [],
+ "seconds_wall_row": 18.6,
+ "measured_at": "2026-09-30"
+}

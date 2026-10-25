@@ -52,6 +52,10 @@ from shibuya.llm.undefined import TARGET_HINT_WORDS
 
 __all__ = [
     "UNDEFINED_ACTION",
+    "S2_WITHDRAW",
+    "S2_PAY_CASH",
+    "S2_PAY_ACCOUNT",
+    "S2_MONEY_ACT",
     "parse_action",
     "TARGET_HINT_CODES",
     "TARGET_HINT_NONE",
@@ -212,6 +216,29 @@ def delta_perc_ns(condition) -> np.ndarray:
     return np.rint(k * DELTA_PERC_BASE_NS).astype(np.int64).reshape(cond.shape)
 
 
+#: 〔第 2 期 2-1〕``IntentBatch.s2_flags`` のビット: 判断の口が「お金を下ろす」を選んだ・支払いの方法の答え(現金/口座)・
+#: LLM の答えの行為が金に触れる行為(購入・食事・並ぶ=元の語・遠い店へ歩く移動に変えた行も含む)。
+S2_WITHDRAW: Final[int] = 1
+S2_PAY_CASH: Final[int] = 2
+S2_PAY_ACCOUNT: Final[int] = 4
+S2_MONEY_ACT: Final[int] = 8
+
+
+def _concat_s2(parts: Sequence["IntentBatch"]) -> tuple[np.ndarray | None, np.ndarray | None]:
+    """〔2-1〕任意の 2 列の連結(どの部分も持たなければ ``None``=今のまま・持たない部分は空の値で埋める)。"""
+    has_c = any(p.call_id is not None for p in parts)
+    has_f = any(p.s2_flags is not None for p in parts)
+    cid = None
+    if has_c:
+        cid = np.concatenate([p.call_id if p.call_id is not None else np.full(len(p), None, dtype=object)
+                              for p in parts])
+    flg = None
+    if has_f:
+        flg = np.concatenate([p.s2_flags if p.s2_flags is not None else np.zeros(len(p), dtype=np.int8)
+                              for p in parts]).astype(np.int8)
+    return cid, flg
+
+
 @dataclass(frozen=True)
 class IntentBatch:
     """Phase A の出力(SoA)。1 個体につき 1 件までに畳んである。
@@ -222,6 +249,9 @@ class IntentBatch:
         target_id: int32(行動語で意味が変わる: セル / POI / 相手個体)。-1=なし。
         resource_id: int32(``ResourceSpace`` の番号)。-1=競合しない。
         t_notice_ns: int64(**tick 開始 + δ_perc**。pk の第1要素)。
+        call_id: 〔第 2 期 2-1〕行ごとの呼の id(object・``None``=呼でない行)。経済の段階 2 の腕のランだけ判断の系が
+            付ける(既定 ``None``=列を持たない=今のまま)。購入・食事・引き出しの金の行の原因 ``LlmCall(call_id)``。
+        s2_flags: 〔第 2 期 2-1〕行ごとの段階 2 の印(int8・``S2_*`` のビット)。``call_id`` と同じく腕のランだけ。
     """
 
     agent_id: np.ndarray
@@ -229,11 +259,17 @@ class IntentBatch:
     target_id: np.ndarray
     resource_id: np.ndarray
     t_notice_ns: np.ndarray
+    call_id: np.ndarray | None = None
+    s2_flags: np.ndarray | None = None
 
     def __post_init__(self) -> None:
         n = self.agent_id.size
         for name in ("action_code", "target_id", "resource_id", "t_notice_ns"):
             if getattr(self, name).size != n:
+                raise ValueError(f"IntentBatch.{name} の長さが agent_id と違う")
+        for name in ("call_id", "s2_flags"):
+            v = getattr(self, name)
+            if v is not None and v.size != n:
                 raise ValueError(f"IntentBatch.{name} の長さが agent_id と違う")
 
     def __len__(self) -> int:
@@ -260,6 +296,7 @@ class IntentBatch:
             np.concatenate([p.target_id for p in parts]),
             np.concatenate([p.resource_id for p in parts]),
             np.concatenate([p.t_notice_ns for p in parts]),
+            *_concat_s2(parts),
         )
 
     def take(self, idx) -> "IntentBatch":
@@ -270,6 +307,8 @@ class IntentBatch:
             self.target_id[i],
             self.resource_id[i],
             self.t_notice_ns[i],
+            None if self.call_id is None else self.call_id[i],
+            None if self.s2_flags is None else self.s2_flags[i],
         )
 
     def one_per_agent(self) -> "IntentBatch":
@@ -507,6 +546,42 @@ def talk_partners(
     return partner, source
 
 
+def _reach_rows(agents, a: np.ndarray, named: np.ndarray, rows: np.ndarray, rule) -> np.ndarray:
+    """〔第 2 期 2-2〕``rows`` の行の名指しの相手に届くか(ほかの行は偽)。逐次ループ宣言: なし。"""
+    out = np.zeros(a.shape, dtype=bool)
+    sel = np.flatnonzero(rows)
+    if sel.size:
+        out[sel] = rule.reach(agents, a[sel], np.asarray(named, dtype=np.int64)[sel])
+    return out
+
+
+def _talk_partners_reach(agents, a: np.ndarray, is_talk: np.ndarray, named: np.ndarray | None,
+                         order_key: np.ndarray | None, rule) -> tuple[np.ndarray, np.ndarray]:
+    """〔第 2 期 2-2 段 11a〕``talk_partners`` の腕 ``--proximity distance`` の版(会話の行だけ決める)。
+
+    1. 名指しの個体が範囲内・自分でない・自分が舞台の中で、**届く**(``rule.reach``)ならその個体(``source=0``)。
+    2. さもなければ、届く同じ束の体のうち並びの鍵が最小の体(``engine.proximity.batch_partners``・``source=1``)。
+    3. どちらも居なければ −1(``source=2``)。会話でない行は −1・``source=2``(使わない)。
+    逐次ループ宣言: なし。
+    """
+    from shibuya.engine.proximity import batch_partners
+
+    n = a.size
+    partner = np.full(n, -1, dtype=np.int64)
+    rows = np.flatnonzero(is_talk)
+    if rows.size == 0:
+        return partner, np.full(n, 2, dtype=np.int8)
+    fb = np.full(n, -1, dtype=np.int64)
+    fb[rows] = batch_partners(agents, rule, a, rows, order_key)
+    cell = np.asarray(agents.registry.cell, dtype=np.int64)[a]
+    nm = np.full(n, -1, dtype=np.int64) if named is None else np.asarray(named, dtype=np.int64)
+    valid = is_talk & (nm >= 0) & (nm < int(agents.n)) & (nm != a) & (cell >= 0)
+    ok = _reach_rows(agents, a, nm, valid, rule)
+    partner = np.where(ok, nm, fb)
+    source = np.where(ok, 0, np.where(fb >= 0, 1, 2)).astype(np.int8)
+    return partner, source
+
+
 def pair_partners(
     agent_id: np.ndarray, cell: np.ndarray, order_key: np.ndarray | None = None
 ) -> np.ndarray:
@@ -612,6 +687,7 @@ def intents_from_responses(
     poi_resolver: object | None = None,
     intent_hold: object | None = None,
     talk_chooser: object | None = None,
+    proximity: object | None = None,
 ) -> IntentBatch:
     """Phase A の LLM 由来分: 行動コード → 対象と資源を**エンジンが**決めて intent にする。
 
@@ -665,6 +741,10 @@ def intents_from_responses(
             のランだけ)。名指しの無い会話の行(同セルの名指しでない・別セルの意図にしない行)の相手を関係辺の
             重み+seed つき乱択で引き(``choose_talk_partners``)、全部の会話の行に起点(招待/偶然/知人出現)を
             付ける。``None``(既定)は 1 バイトも変わらない。
+        proximity: 〔第 2 期 2-2 段 11a〕腕 ``--proximity distance`` の判定の規則(``engine.proximity.ProximityRule``)。
+            渡すと会話の相手を「同じセル」でなく「届く」(同じ層・距離 ≤ d、または同じ B5 の単位)で決める: 名指しは
+            届くときだけ・フォールバックは届く束の体のうち並びの鍵が最小の体(``proximity.batch_partners``)・名指しの
+            相手へ歩く意図にするのは「届かず別のセルに居る」相手。``None``(既定)は 1 バイトも変わらない。
 
     Returns:
         ``IntentBatch``(1 個体 1 件)。
@@ -808,9 +888,13 @@ def intents_from_responses(
             if run_salt
             else None
         )
-        partner, source = talk_partners(
-            a, cell, target_person, agents.registry.cell, int(agents.n), order_key
-        )
+        prox = proximity if (proximity is not None and getattr(proximity, "is_distance", False)) else None
+        if prox is None:
+            partner, source = talk_partners(
+                a, cell, target_person, agents.registry.cell, int(agents.n), order_key
+            )
+        else:  # 第 2 期 2-2: 届く相手(名指しは届くときだけ・フォールバックは届く束の体)
+            partner, source = _talk_partners_reach(agents, a, is_talk, target_person, order_key, prox)
         if talk_chooser is not None:
             # C10 8b: 別セルの名指し(下の意図にする行)は選ばない=同じ判定を先に作る
             far0 = np.zeros(n, dtype=bool)
@@ -820,11 +904,14 @@ def intents_from_responses(
                 ok0 = is_talk & (nm0 >= 0) & (nm0 < int(agents.n)) & (nm0 != a) & (cell >= 0)
                 pcell0 = np.where(ok0, pc0[np.clip(nm0, 0, max(0, int(agents.n) - 1))], -1)
                 far0 = ok0 & (pcell0 >= 0) & (pcell0 != cell)
+                if prox is not None:  # 第 2 期 2-2: 届く名指しは別セルでも歩かない
+                    far0 &= ~_reach_rows(agents, a, nm0, far0, prox)
             rows_t = np.flatnonzero(is_talk & ~far0)
             if rows_t.size:
                 got, _origin = talk_chooser.choose_talk_partners(  # type: ignore[attr-defined]
                     agents, int(tick), a[rows_t], partner[rows_t], source[rows_t] == 0,
                     np.asarray(condition, dtype=np.int64)[rows_t],
+                    **({} if prox is None else {"proximity": prox}),
                 )
                 partner = partner.copy()
                 partner[rows_t] = got
@@ -842,6 +929,8 @@ def intents_from_responses(
             ok = is_talk & (nm >= 0) & (nm < int(agents.n)) & (nm != a) & (cell >= 0)
             pcell = np.where(ok, pc_all[np.clip(nm, 0, max(0, int(agents.n) - 1))], -1)
             talk_far = ok & (pcell >= 0) & (pcell != cell)
+            if prox is not None:  # 第 2 期 2-2: 届く名指しは別セルでも歩かない
+                talk_far &= ~_reach_rows(agents, a, nm, talk_far, prox)
             if np.any(talk_far):
                 for k in np.flatnonzero(talk_far).tolist():
                     talk_intents[k] = (int(nm[k]), int(pcell[k]))

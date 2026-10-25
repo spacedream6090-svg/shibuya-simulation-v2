@@ -1,0 +1,120 @@
+{
+ "schema": "shibuya.bench/wave2-2026-09-30/byte-check/1",
+ "head": "adc6da8",
+ "note": "10c 再生の突き合わせ(run_meta に rng_scheme)を入れた後・既定 v3 と帰無の 2 本",
+ "old_switches": {},
+ "expect_moved": [],
+ "how": "mock/classical 5,000 体・seed 1・1 シミュ日・テープつき。HEAD(git archive の src)と作業木で同じ構成を回し、final・呼数・blocks・calls 14 列の sha を比べる。work=作業木の既定・work_old=旧の切替口をすべて付けた作業木。10c: 既定(stateful)の作業木と HEAD の写しを 14 列で比べる(上の rows)。counter の腕は作業木で --rng-scheme counter を渡して回し、stateful との差を counter_moves に書く",
+ "src_checks": "ok(HEAD 側=写し・作業木側=作業木・エラー行なし)",
+ "all_ok": true,
+ "rows": [
+  {
+   "config": "w6_v3_default",
+   "head_final": "993276d5e5bb5cbe",
+   "head_calls": 69978,
+   "work_final": "993276d5e5bb5cbe",
+   "work_calls": 69978,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_golden_null_arm",
+   "head_final": "72cb9cd52982da74",
+   "head_calls": 100439,
+   "work_final": "72cb9cd52982da74",
+   "work_calls": 100439,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  }
+ ],
+ "counter_moves": {
+  "w6_v3_default": {
+   "head_counts": {
+    "salient_events": 0,
+    "collapse": 0,
+    "noticed": 0,
+    "dispatches": 0,
+    "arrived": 0,
+    "mean_delay_min": 0.0
+   },
+   "stateful_counts": {
+    "salient_events": 0,
+    "collapse": 0,
+    "noticed": 0,
+    "dispatches": 0,
+    "arrived": 0,
+    "mean_delay_min": 0.0
+   },
+   "counter_counts": {
+    "salient_events": 10,
+    "collapse": 5,
+    "noticed": 352,
+    "dispatches": 5,
+    "arrived": 5,
+    "mean_delay_min": 8.8
+   },
+   "stateful_final": "993276d5e5bb5cbe",
+   "counter_final": "52a8b390ecd584a1",
+   "final_moved": true,
+   "stateful_calls": 69978,
+   "counter_calls": 69796,
+   "calls_delta": -182,
+   "blocks_rows_delta": -13,
+   "manifest_rng_scheme": {
+    "stateful": "stateful",
+    "counter": "counter"
+   },
+   "counter_error": ""
+  },
+  "w6_golden_null_arm": {
+   "head_counts": {
+    "salient_events": 0,
+    "collapse": 0,
+    "noticed": 0,
+    "dispatches": 0,
+    "arrived": 0,
+    "mean_delay_min": 0.0
+   },
+   "stateful_counts": {
+    "salient_events": 0,
+    "collapse": 0,
+    "noticed": 0,
+    "dispatches": 0,
+    "arrived": 0,
+    "mean_delay_min": 0.0
+   },
+   "counter_counts": {
+    "salient_events": 10,
+    "collapse": 5,
+    "noticed": 1151,
+    "dispatches": 5,
+    "arrived": 5,
+    "mean_delay_min": 9.0
+   },
+   "stateful_final": "72cb9cd52982da74",
+   "counter_final": "f924638f54c57f7d",
+   "final_moved": true,
+   "stateful_calls": 100439,
+   "counter_calls": 100947,
+   "calls_delta": 508,
+   "blocks_rows_delta": 10,
+   "manifest_rng_scheme": {
+    "stateful": "stateful",
+    "counter": "counter"
+   },
+   "counter_error": ""
+  }
+ }
+}

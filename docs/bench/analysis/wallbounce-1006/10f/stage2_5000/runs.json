@@ -1,0 +1,170 @@
+{
+ "schema": "shibuya.tools.c7/salt_runs/1",
+ "arms": {
+  "v3_default": {
+   "vocab_version": "v3",
+   "activity": true
+  },
+  "null_arm": {
+   "plan_executor": false,
+   "report_precondition": false
+  }
+ },
+ "base": "v3_default",
+ "arm": "null_arm",
+ "salts": [
+  1,
+  2,
+  3
+ ],
+ "population_seed": 1,
+ "agents": 5000,
+ "environment_mode": "fixed",
+ "environment_seed": 1,
+ "world": "data/world/v2",
+ "checkpoint_every": 60,
+ "T0": 0,
+ "jobs": 3,
+ "runs": [
+  {
+   "arm": "v3_default",
+   "salt": 1,
+   "aa": false,
+   "checkpoints": "v3_default_s1.json",
+   "final": "993276d5e5bb5cbe",
+   "calls": 69978,
+   "wall_s": 29.64,
+   "wall_s_process": 30.58
+  },
+  {
+   "arm": "v3_default",
+   "salt": 2,
+   "aa": false,
+   "checkpoints": "v3_default_s2.json",
+   "final": "e69e8544799e3f74",
+   "calls": 69498,
+   "wall_s": 27.96,
+   "wall_s_process": 28.81
+  },
+  {
+   "arm": "v3_default",
+   "salt": 3,
+   "aa": false,
+   "checkpoints": "v3_default_s3.json",
+   "final": "bd87be57e428e313",
+   "calls": 69613,
+   "wall_s": 28.13,
+   "wall_s_process": 29.01
+  },
+  {
+   "arm": "null_arm",
+   "salt": 1,
+   "aa": false,
+   "checkpoints": "null_arm_s1.json",
+   "final": "72cb9cd52982da74",
+   "calls": 100439,
+   "wall_s": 29.79,
+   "wall_s_process": 30.61
+  },
+  {
+   "arm": "null_arm",
+   "salt": 2,
+   "aa": false,
+   "checkpoints": "null_arm_s2.json",
+   "final": "91d9bf5af16d58b1",
+   "calls": 101195,
+   "wall_s": 30.18,
+   "wall_s_process": 30.99
+  },
+  {
+   "arm": "null_arm",
+   "salt": 3,
+   "aa": false,
+   "checkpoints": "null_arm_s3.json",
+   "final": "451ec723d02f6fe5",
+   "calls": 102809,
+   "wall_s": 30.46,
+   "wall_s_process": 31.31
+  },
+  {
+   "arm": "v3_default",
+   "salt": 1,
+   "aa": true,
+   "checkpoints": "v3_default_s1_aa.json",
+   "final": "993276d5e5bb5cbe",
+   "calls": 69978,
+   "wall_s": 27.46,
+   "wall_s_process": 28.27
+  }
+ ],
+ "first_diff_fine": {
+  "1": {
+   "coarse_first_tick": 59,
+   "interval": [
+    0,
+    59
+   ],
+   "first_tick": 0,
+   "hashes_differ": [
+    "activity_hash",
+    "agents_hash",
+    "behavior_hash",
+    "combined",
+    "full_hash",
+    "world_hash"
+   ],
+   "checkpoints_compared": 60,
+   "wall_s": {
+    "v3_default": 2.65,
+    "null_arm": 2.46
+   }
+  },
+  "2": {
+   "coarse_first_tick": 59,
+   "interval": [
+    0,
+    59
+   ],
+   "first_tick": 0,
+   "hashes_differ": [
+    "activity_hash",
+    "agents_hash",
+    "behavior_hash",
+    "combined",
+    "full_hash",
+    "world_hash"
+   ],
+   "checkpoints_compared": 60,
+   "wall_s": {
+    "v3_default": 2.61,
+    "null_arm": 2.56
+   }
+  },
+  "3": {
+   "coarse_first_tick": 59,
+   "interval": [
+    0,
+    59
+   ],
+   "first_tick": 0,
+   "hashes_differ": [
+    "activity_hash",
+    "agents_hash",
+    "behavior_hash",
+    "combined",
+    "full_hash",
+    "world_hash"
+   ],
+   "checkpoints_compared": 60,
+   "wall_s": {
+    "v3_default": 2.65,
+    "null_arm": 2.47
+   }
+  }
+ },
+ "wall_seconds": {
+  "runs": 87.7,
+  "first_diff": 15.6
+ },
+ "note": "wall_seconds・wall_s は壁時計(決定論ではない)。パスは runs.json の置き場からの相対"
+}

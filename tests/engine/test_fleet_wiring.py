@@ -573,7 +573,7 @@ def test_fleet_bridge_is_built_with_the_run_vocab_version(fleet_servers, monkeyp
     """第214 欠陥修正: ``run_day(vocab_version="v2", fleet=…)`` は**艦隊側の parser にも v2 を渡す**。
     渡し忘れると mock 経路(``LLMBridge``)だけ v2 で解析し、実 LLM の応答は v1 で解析される
     =「食事」が未定義行動に落ち、腕 AB7c(vocab_v1 vs vocab_v2)が偽の差になる。"""
-    import shibuya.engine.run as run_mod
+    import shibuya.engine.systems.build as run_mod  # 1-0: FleetBridge を作るのは組み立て(engine.systems.build)
 
     seen: list[object] = []
     real = run_mod.FleetBridge

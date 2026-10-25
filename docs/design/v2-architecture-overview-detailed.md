@@ -3,7 +3,7 @@
 > 位置づけ: **いま動いているコードと資産の地図**。設計判断の理由は正典([v2-redesign.md](v2-redesign.md) 決定台帳・
 > [v2-methodology.md](v2-methodology.md) 方法論・各契約書)にあり、本書はそれを実装側から一望できるようにまとめ直したもの。
 > 数値・語彙・名前はすべてリポジトリ内のファイルから取り、出所をリポジトリ相対パスで併記した。**確認できなかったものは「未確認」と書く**。
-> 初見の人向けの 5 分版: [v2-architecture-overview-simple.md](v2-architecture-overview-simple.md)。最終更新 2026-09-19。
+> 初見の人向けの 5 分版: [v2-architecture-overview-simple.md](v2-architecture-overview-simple.md)。数字と表は 2026-10-23 時点(最終更新 2026-10-25)。2026-09 の実 LLM ランの値はその旨を書き分けた。
 
 ---
 
@@ -18,7 +18,7 @@
 
 ## 1. 背骨と三層
 
-**状態と集約はエンジン、意思決定と発話だけ LLM**(`CLAUDE.md` §3)。
+**世界の状態と集約と破れない法則はエンジン(コード)。知覚・記憶の強さ・変化の検出は System 1(コード)、日常の判断は判断モデル、会話とよく考える判断は LLM**(`CLAUDE.md` §3・2026-10-12 のユーザー決定 K2)。行動を止めるのは物理と、現実でも物理的に止める仕組み(鍵・改札など)だけ。
 世界再現の方式は「手続きを書かず基盤を書く」三層([v2-redesign.md](v2-redesign.md) §4b):
 
 | 層 | 中身 | 実装 |
@@ -26,6 +26,8 @@
 | 層1 破れない法則 | 保存則(金・モノ・身体・空間・時間)・物理・台帳 | `src/shibuya/economy/`・`src/shibuya/engine/` |
 | 層2 役割の知識 | 「あなたは店員だ」+ 汎用行動プリミティブ。手順は LLM の世界知識から。エンジンは実行可能性だけ検査 | `src/shibuya/perception/templates.py` B0・`src/shibuya/llm/contract.py` |
 | 層3 未定義の裁定 | 語彙にない行動を却下せず、保存則内で帰結を決め、判例として結晶化 | `src/shibuya/llm/undefined.py`・`tools/vocab/adjudicate.py` |
+
+> 〔改訂(第328・2026-10-12・ユーザー決定)〕**訂正**: ラン中の裁定の腕(GM 裁定・判例の結晶化)は計画から外す([指示書 10-12](v2-wallbounce-decisions-2026-10-12.md) §1-4 D5)。層 3 は「住人の試みから構築側がラン後に世界の部品を足す」(D1〜D6・洗練の段階の手順 8 つ・足すのは行動ではなく世界の部品・商用のランは版を固定)に書き換える。新しさの主張は「ラン後の洗練の段階で構築側が世界の部品を足す」(D3・D5)の形にする([決定台帳](v2-redesign.md) §4b・[意義書](v2_significance.md) の注記)。 上の表の層 3 の実装欄(`src/shibuya/llm/undefined.py`・`tools/vocab/adjudicate.py`)が新しい形でどう使われるかは要確認(親)。
 
 憲法 6 原則(同 §3a)のうち、本書で繰り返し効いてくるのは次の 3 つ。
 
@@ -36,7 +38,7 @@
 ```mermaid
 flowchart TD
   ASSET["世界資産 W0〜W20<br/>凍結 parquet + build_hash"]
-  STATE["個体 SoA + 世界状態<br/>390,067 体 × 127 B/体"]
+  STATE["個体 SoA + 世界状態<br/>既定 345,858 体"]
   PROC["世界過程 18 本<br/>鉄道・混雑・営業・物流・治安"]
   ARB["繰り延べアービタ<br/>誰を起こすか"]
   REND["知覚レンダラ<br/>B0〜B6 の決定論描画"]
@@ -94,20 +96,22 @@ flowchart TD
 
 | パッケージ | 行数 | 主なファイルと責務 |
 |---|---|---|
-| `core` | 1,789 | `types.py`(`EventClass`・`DEFERRAL_CLASSES`・tick/t_sim_ns 二層時刻)・`soa.py`(バイト予算 M9)・`hashing.py`(blake3 タイブレーク・apply_key)・`rng.py`(Philox ドメイン分離)・`growth.py`(状態成長宣言 D-R2-6)・`budget.py`(予算表の機械読み取り) |
+| `core` | 2,648 | `types.py`(`EventClass`・`DEFERRAL_CLASSES`・tick/t_sim_ns 二層時刻)・`soa.py`(バイト予算 M9)・`hashing.py`(blake3 タイブレーク・apply_key)・`rng.py`(Philox ドメイン分離)・`growth.py`(状態成長宣言 D-R2-6)・`budget.py`(予算表の機械読み取り) |
 | `manifest` | 826 | ランの同定(13 節 pydantic)・`schema.DIAG_COLUMNS`・`world_catalog`(凍結カタログ 57 クラス・分母 SHA `34f9fa9d316587be`) |
-| `agents` | 1,772 | `state.py`(`AgentKind` 9 種・`Activity` 8・`ResultCode` 21・`WakeCondition` 11・`REFRACTORY_MINUTES`)・`population.py`(W16 読込)・`weekly.py`(W17 読込)・`schedule.py`(mock 合成日課) |
-| `world` | 5,215 | `assets.py`(凍結 parquet の読み口)・`state.py`(World・密度段階)・`processes/`(世界過程の**宣言**・台帳・憲法5 機械検査・`first_batch.build_registry`) |
-| `perception` | 4,226 | `renderer.py`(B0〜B6 描画 1,773 行)・`templates.py`(文面凍結・`intent_mode`・`vocab_version`)・`p_notice.py`(2 段ヒル型)・`attention.py`・`channels.py`(チャネル別上限)・`normalize.py`(正規化規約 9 項)・`hashes.py` |
-| `llm` | 4,500 | `contract.py`(行動語彙と契約表 881 行)・`parser.py`(2 行形・寛容行指向)・`undefined.py`(段0 辞書と 5 段)・`fleet.py`(vLLM 艦隊 1,879 行)・`mock.py` |
-| `engine` | 16,280 | `run.py`(tick ループ・`RunResult` 2,652 行)・`resolve.py`(適用 2,231 行)・`arbiter.py`・`commit.py`(二相コミット)・`presence.py`(計画実行層 1,516 行)・`conversation.py`・`change_detect.py`(P6)・`llm_bridge.py`(録画/再生)・`tape.py`・`geometry.py`(C9 辺上位置)・`processes/`(世界過程の**実装** 18 本) |
-| `economy` | 4,089 | `ledger.py`(`transfer` 単一 API)・`goods.py`(`move_goods`)・`accounts.py`(6 部門 / 15 科目 / faucet-sink 表)・`checks.py`(検算 ①②・T3)・`census.py`(日次 / 月次 MER)・`pricing.py`・`anchors.py`・`entry_capital.py` |
-| `build` | 18,647 | `run.py`(W0〜W20 の通し)+ `geo` / `field` / `vis` / `lang` / `pop` / `sched` / `audit` |
-| `cli.py` | 791 | 世界・台帳・センサスを束ねて `engine.run.run_day` を呼ぶ**層外の組立**。腕の切替口はここ |
+| `agents` | 2,170 | `state.py`(`AgentKind` 9 種・`Activity` 8・`ResultCode` 21・`WakeCondition` 11・`REFRACTORY_MINUTES`)・`population.py`(W16 読込)・`weekly.py`(W17 読込)・`schedule.py`(mock 合成日課) |
+| `world` | 6,706 | `assets.py`(凍結 parquet の読み口)・`state.py`(World・密度段階)・`processes/`(世界過程の**宣言**・台帳・憲法5 機械検査・`first_batch.build_registry`) |
+| `perception` | 6,270 | `renderer.py`(B0〜B6 描画 3,111 行)・`templates.py`(文面凍結・`intent_mode`・`vocab_version`)・`p_notice.py`(2 段ヒル型)・`attention.py`・`channels.py`(チャネル別上限)・`normalize.py`(正規化規約 9 項)・`hashes.py` |
+| `llm` | 5,520 | `contract.py`(行動語彙と契約表 1,259 行)・`parser.py`(2 行形・寛容行指向)・`undefined.py`(段0 辞書と 5 段)・`fleet.py`(vLLM 艦隊 1,922 行)・`mock.py` |
+| `engine` | 69,081 | `run.py`(`run_day` の入口・`RunResult` 2,655 行)・`systems/`(1-0 で分けた系の表と進行役=`IMPLEMENTED.md` #89)・`resolve.py`(適用 3,613 行)・`arbiter.py`・`commit.py`(二相コミット)・`presence.py`(計画実行層 1,991 行)・`conversation.py`・`change_detect.py`(P6)・`llm_bridge.py`(録画/再生)・`tape.py`・`geometry.py`(C9 辺上位置)・`processes/`(世界過程の**実装** 18 本) |
+| `economy` | 7,264 | `ledger.py`(`transfer` 単一 API)・`goods.py`(`move_goods`)・`accounts.py`(6 部門 / 15 科目 / faucet-sink 表)・`checks.py`(検算 ①②・T3)・`census.py`(日次 / 月次 MER)・`pricing.py`・`anchors.py`・`entry_capital.py` |
+| `build` | 36,101 | `run.py`(W0〜W20 の通し)+ `geo` / `field` / `vis` / `lang` / `pop` / `sched` / `audit` |
+| `cli.py` | 1,838 | 世界・台帳・センサスを束ねて `engine.run.run_day` を呼ぶ**層外の組立**。腕の切替口はここ |
 | `census` | 4 | 現状ほぼ空(層の枠だけ) |
 
+行数は 2026-10-23 の HEAD で各パッケージの `*.py` の行を数えた値。engine には第 1〜6 期の層(`contact/`・`calendar2/`・`calendar3/`・`duties/`・`space/`・`events/`・`experiment/` ほか)が増えた。
+
 外側の道具: `tools/c6`(実 LLM スモーク)・`tools/c7`(本番受入・holdout・アンサンブル)・`tools/c8`(ablation runner・感度・計器盤)・`tools/fig`(論文用の図)・`tools/vocab`(オフライン裁定)・`tools/w17`・`tools/scan_secrets.py`。
-テストは `tests/` 配下に 21 ディレクトリ・`def test_` 2,268 本(直近の実行記録 2,581 passed = `docs/log/devlog-compressed.md` 第219)。
+テストは `tests/` 配下に 25 ディレクトリ・`def test_` 4,929 本(2026-10-23 の HEAD を grep)。直近の全体試験は 6,207 passed(`IMPLEMENTED.md` #126)。
 
 ---
 
@@ -121,8 +125,8 @@ flowchart TD
 flowchart LR
   A["W0〜W6・W11 地理<br/>セル 520・POI 2,337・駅 12"] --> B["W7・W10・W12・W13 場と境界<br/>営業時間・騒音・ダイヤ・気象"]
   B --> C["W8・W9 可視性と影"]
-  C --> D["W14・W15 言語 LLM 生成<br/>看板文 2,302・セル文 514"]
-  D --> E["W16・W17 人<br/>390,067 体・3,461,954 行"]
+  C --> D["W14・W15 言語 LLM 生成<br/>看板文 2,301・セル文 514"]
+  D --> E["W16・W17 人<br/>345,858 体・3,074,698 行"]
   E --> F["W18〜W20 被覆・凍結・受入"]
   F --> G["build_hash 再構築で一致"]
 ```
@@ -140,27 +144,30 @@ flowchart LR
 | W6 POI・組織 | **POI 2,337・組織 9,872** |
 | W7 営業時間 PlanSpec | 2,337 |
 | W8 可視性 | ターゲット 9,592・T1 356,732 行・T1 セル束ね 43,479・T2 520×520 |
-| W9 影グリッド | 288 時刻面 |
+| W9 影グリッド | 288 時刻面 × 8 日(07-13〜07-19・07-28) |
 | W10 静的騒音場 | 街路点 356,732(昼/夜 × 生値/段階) |
 | W11 駅・出口 | 駅 12・出口 45・駅内グラフ ノード 60 / 辺 57 |
-| W12 外界ノード | 10 ノード・発生重み 2,014・時刻表 9,574 |
-| W13 気象日再生 | 35 日・時別 840 |
-| W14 看板文(実 LLM・凍結) | プロンプト 2,337 → **採用 2,302** |
+| W12 外界ノード | 10 ノード・発生重み 2,014・時刻表 6,273 行(平日 3,359・土休 2,914。全 8 線が実ダイヤ=`docs/bench/analysis/wallbounce-1012/tt23b/README.md`) |
+| W13 気象日再生 | 365 日(2025-09-01〜2026-08-31)・時別 8,760 |
+| W14 看板文(実 LLM・凍結) | プロンプト 2,337 → **採用 2,301**(W6 の再生成で 1 行減=`IMPLEMENTED.md` #49) |
 | W15 セル静的文(実 LLM・凍結) | 520 → **採用 514** |
-| W16 母集団合成 | **390,067 体**・世帯 27,404・乗務名簿 1,282・町丁目 80 |
-| W17 週次日課(実 LLM) | **3,461,954 行**(= 8.88 ブロック/体/日) |
-| W18 世界被覆指標 | 57 クラス。`vector` = C 0.4249 / Q 0.2041 / D 0.3268 / V 0.0 / R null、過剰 X 0.004056、孤児 0、死蔵候補 4(`data/world/v2/wc_index.json`) |
-| W19 manifest 凍結 | 96 行 + holdout 封印 3 層(`kddi_la` / `shibuya_jinryu` / `boundary_counts`) |
+| W16 母集団合成 | **345,858 体**(W21c の当て込みの後)・世帯 28,290・乗務名簿 21,193・町丁目 80。2026-09 は 390,067 体・世帯 27,404・乗務名簿 1,282 |
+| W17 週次日課(実 LLM) | **3,074,698 行**(残す 1,178,451+提供者から写した 1,896,247=pop43 README §16-2)。2026-09 の 390,067 体では 3,461,954 行(= 8.88 ブロック/体/日) |
+| W18 世界被覆指標 | 57 クラス。`vector` = C 0.4249 / Q 0.2041 / D 0.3268 / V 0.0 / R null、過剰 X 0.184787(W13 の年間化で n_sim 35 → 365・n_real は 35 日のまま=`docs/design/bridging-ledger.json`)、孤児 0、死蔵候補 4(`data/world/v2/wc_index.json`) |
+| W19 manifest 凍結 | 181 行 + holdout 封印 3 層(`kddi_la` / `shibuya_jinryu` / `boundary_counts`) |
 | W20 受入パック | セル地図・出口・騒音・影・可視性の PNG + ゲート表 |
+| W21・W21b・W21c 人口の作り直し(21 段階の外で組み、W16/W17 へ当てる) | W21 の人 215,792・世帯 28,290 → 当て込みの後の母集団 345,858(`IMPLEMENTED.md` #118) |
+| navmesh1 歩く面(第 5 期 段 1・21 段階の外) | 7 階・ラン 218,199・地上 797,320 m²(`IMPLEMENTED.md` #124) |
 
 W14/W15/W17 は **LLM で作って凍結した資産**である(ランのたびに生成しない)。
-W17 は 2026-09-12 に v2(本人がブロック形式で書く 1 日ぶん)へ入れ替わった(`IMPLEMENTED.md` #19)。
+W17 は 2026-09-12 に v2(本人がブロック形式で書く 1 日ぶん)へ入れ替わった(`IMPLEMENTED.md` #19)。2026-10 に W21c の当て込みで母集団が 345,858 体になり、W21 の体の W17 は提供者の行を写した(つなぎ・`IMPLEMENTED.md` #118)。
 
 ---
 
 ## 4. 1 tick の流れ
 
 正典は運用設計書 §2.2/§2.4、実装は `src/shibuya/engine/run.py` の `run_day`(逐次ループ宣言 P4: tick 数 1,440 ぶんのループ 1 本 + 選抜された呼数ぶんのループ 1 本。それ以外は配列演算)。
+1-0 で `run_day` の中身を系(`engine/systems/`)に分けた。`IMPLEMENTED.md` #89 の時点で 31 個(刻みの中 25・日の頭 1・日の終わり 2・ランの単位 3)、今の表 `SYSTEMS` は 36 個(腕の系を足した・`engine/systems/table.py` を数えた)。世界過程 18 本は系 `world` の中で回る。
 
 ```mermaid
 sequenceDiagram
@@ -230,9 +237,11 @@ flowchart TD
 | 就寝抑止 | `activity == SLEEPING` の候補をアービタ前に落とす。例外 3 = 計画境界・顕著行為由来・会話ターン | `engine/arbiter.py`(D-56) |
 | 診断行 | `DIAG_COLUMNS = ("deferred","promoted","degraded","suppressed")` + `sleep_suppressed` を**起床クラス別 / シミュ日**で必ず記録。記録のないランは較正・holdout 照合に使えない | `manifest/schema.py`・予算宣言表 §7-5 |
 
+> 2026-10-23 時点の注: CLI の既定は呼数の上限なし(`--l4-scale 0`)で、繰り延べ・昇格・縮退は 0 になる(mock 5,000 体=`IMPLEMENTED.md` #55)。上の按分の式はライブラリの既定と `--l4-scale 1` の道。
+
 **純関数性**: `arbitrate()` は入力の並び順に依存しない。候補配列を任意に並べ替えても選抜集合・選抜順序・診断計数は同一(`tests/engine/test_arbiter.py` の性質テスト)。整列鍵 = `(eff_class 昇順, 待ち tick 降順, pk 昇順, agent_id 昇順)`。
 
-**実測(c7-day-4・390,067 体・1 シミュ日)**: 応答 2,691,795 呼 = 6.90 呼/体/日。起床理由の内訳は
+**実測(2026-09・c7-day-4・390,067 体・1 シミュ日・L4 の按分あり)**: 応答 2,691,795 呼 = 6.90 呼/体/日。起床理由の内訳は
 会話 300,089 / 計画境界 1,192,402 / 個体 558,249 / セル 641,055(`docs/research/v2-thought-frequency-anchors-note.md` §2)。
 **5,000 体の検証ラン**では 応答 36,906 に対し 後回し 40,236・抑止 50,055(同 §2 S3)= 要求の約 3 分の 1 しか通っていない。
 
@@ -267,6 +276,8 @@ flowchart TD
 (B1 が種別で分岐するので、契約書の「同セル同時間帯の 2 体」を実装側で解決した点は `perception/renderer.py` 冒頭に明記してある)。
 
 ### 6.2 行動語彙(心 → 世界)
+
+> 2026-10-23 時点の注: 下の 2 行形のラベルと 24 語は語彙 v1(ライブラリの既定)。CLI の既定は語彙 v3 で、ラベルは 理由/行動/対象/活動/まで の 5 つ、行動は種別横断 11 語+「なし」と役割語 11 語(`IMPLEMENTED.md` #46〜#48)。
 
 正典 [v2-action-contract.md](v2-action-contract.md)。出力は **2 行形**:
 
@@ -322,10 +333,10 @@ v2 は動詞を足すのではなく**飲食店オブジェクトの affordance 
 
 **日課が世界の骨格**である。各体は W17 の予定表どおりに動き、LLM は起床したときだけ介入する。
 
-- W17 = 390,067 体 × 3,461,954 行 = **8.88 ブロック/体/日**。
-- 5,000 体の検証ランでは、世界で実行された行動 270,424 件のうち **エンジン継続 236,860 件(87.6%)**・LLM が決めたのは 33,564 件(12.4%)(`PENDING.md` D-98・出所 `ablation_AB7c-VOCAB-V2_s1.json` の `action_usage`)。
+- W17 = 345,858 体 × 3,074,698 行(今の既定の世界)。2026-09 の 390,067 体では 3,461,954 行 = **8.88 ブロック/体/日**。
+- 5,000 体の検証ラン(2026-09)では、世界で実行された行動 270,424 件のうち **エンジン継続 236,860 件(87.6%)**・LLM が決めたのは 33,564 件(12.4%)(旧 `PENDING.md` D-98・出所 `ablation_AB7c-VOCAB-V2_s1.json` の `action_usage`)。
 
-**計画実行層**(`src/shibuya/engine/presence.py` 1,516 行・設計書 [v2-plan-executor-design.md](v2-plan-executor-design.md))は
+**計画実行層**(`src/shibuya/engine/presence.py` 1,991 行・設計書 [v2-plan-executor-design.md](v2-plan-executor-design.md))は
 2026-09-11 に新設された層で、D-66「域外居住 346,445 体(88.8%)が W16 で実装されず域内に常駐し職場で寝る」を
 継ぎ足しでなく層として作り直したもの。
 
@@ -382,11 +393,13 @@ flowchart LR
 | **M1** 個体状態 | ≤30 KB/体 | 既定 **127 B/体** |
 | **M8** RSS | ≤24 GB | **1.530 GiB** |
 | **M11** 観測トークン | 入力 ≤1,300・出力 o64 既定 | 入力 920.8 tok |
-| **L4** 起床数 | **上限 400 万呼/日**(憲法1 の監査点)/ 平均 **10 呼/体/日**がアービタの制御目標 | **6.90 呼/体/日**(39 万体)・7.38〜7.44(5,000 体) |
+| **L4** 起床数 | **上限 400 万呼/日**(憲法1 の監査点)/ 平均 **10 呼/体/日**がアービタの制御目標。2026-09-28 から監査線(manifest の `l4_exceeded`)で、CLI の既定は上限なし(`IMPLEMENTED.md` #55) | **6.90 呼/体/日**(2026-09・39 万体)・7.38〜7.44(5,000 体) |
 | **L5** 日次内省 T2 | 42 万呼/日 = L4 の 10.5% | **0 回/日**(本番で発火していない) |
 | **L6** 起床キュー | 64 in-flight/GPU(ベンチ第3段の膝 c64) | — |
 | **L2** ablation 取り分 | 総 GPU 時間の **20% を予約**(流用禁止) | — |
 | **S1** 恒久記録 | ≤5 GB/シミュ日 | **0.175 GiB** |
+
+> 〔改訂 2026-10-03・ユーザー決定 C2-4=[指示書 10-03](v2-wallbounce-decisions-2026-10-03.md) §5-2〕予算 P2 は「物理の実時間は、1 シミュ日あたり、GPU 側(LLM と決定モデル)の実時間を超えない」に変える(物理を律速にしない)。値は物理を実測してから宣言する。上の行は経緯として残す。実装方針も「Warp(GPU)第一」から「CPU(numba)・配列の計算は部品にして GPU 版に差し替えられる形」(C2-5)に改めた。経緯は [要件の改訂記録](v2-requirements-revision-log.md) ⑩。
 
 運用規則で特に効いているもの: **予算は打ち切り(cap)ではない**(憲法1 により計算制約は解像度で吸収する)。
 予算超過が観測されたら (a) 解像度宣言で粗くする か (b) 予算を宣言改訂する のどちらかで、**cap の静かな挿入は禁止**。
@@ -402,8 +415,8 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-  T["pytest + mock<br/>テスト関数 2,268 本"] --> S["5,000 体 × 1 日<br/>C8 ablation 腕 10 本"]
-  S --> B["390,067 体 × 1 日<br/>C7 本番 9.17 h × 3 seed"]
+  T["pytest + mock<br/>全体試験 6,207 passed"] --> S["5,000 体 × 1 日<br/>C8 ablation 腕 14 本"]
+  S --> B["390,067 体 × 1 日<br/>C7 本番 9.17 h × 3 seed 2026-09"]
   B --> H["事前登録 v1.3 → holdout 開封<br/>KDDI 層 0/4 NOT PASS"]
   H --> N["次の主張には新しい封印<br/>shibuya_jinryu / boundary_counts"]
 ```
@@ -426,7 +439,7 @@ HOLD / SEAL の 2 行は holdout を開けるまで空欄。
 
 ### 10.3 C8 — ablation
 
-`tools/c8/ablation_runner.py` + `tools/c8/ablations_v1.json`(腕 10 本):
+`tools/c8/ablation_runner.py` + `tools/c8/ablations_v1.json`(腕 14 本。AB8・AB6c・AB7d・AB1b は 2026-09-19〜22 に追加):
 
 | 腕 | 問い |
 |---|---|
@@ -437,6 +450,7 @@ HOLD / SEAL の 2 行は holdout を開けるまで空欄。
 | AB5-INTROSPECTION | 日次内省 1.05 回/日 vs 2〜3 回/日 |
 | AB6-AD-ZERO / AB6b-AD-NOTICE | 広告ゼロ / 看板の注視ゲート p_see |
 | AB7-OPEN-INTENT / AB7b-HINT / AB7c-VOCAB-V2 | 24 語のホワイトリスト vs 自由文 vs 語彙 v2 |
+| AB8-L4-SCALE / AB6c / AB7d / AB1b | L4 の倍率(1× / 0.5× / 2× / 無制限)と、無制限での看板・語彙・配分の再検証 |
 
 実測の一例(`docs/bench/c8/ablation/ab7c_s1_parent_report.md`・5,000 体 × 3 腕 115 分):
 語彙 v1 の購入 43.8% は語彙 v2 で 食事 43.9% へ**付け替わる**だけ(食事を購入に畳むと JSD 0.3611 → 0.0132 bits)。
@@ -487,30 +501,36 @@ HOLD / SEAL の 2 行は holdout を開けるまで空欄。
 ## 11. 切替口(CLI)
 
 腕はすべて**既定を 1 バイトも動かさない**形で足す(既定の checkpoint ハッシュが不変であることを退化検査で確認する)。
-`python -m shibuya.cli` の主な切替口:
+既定を切り替えるのは版上げのときだけで、2026-10-23 までに 4 回(4 回目=`--space nav1` の既定化・`IMPLEMENTED.md` #126)。
 
-| 引数 | 既定 | 何の腕か |
+`python -m shibuya.cli` の引数は 2026-10-23 の HEAD で 129 個 = `cli.py` の 108 個 + 艦隊 11(`engine/run.py` の `add_fleet_args`)+ 暦 7(同 `add_calendar_args`)+ 空間 3(`engine/space/nav1.py` の `add_space_args`)。
+環境変数 `SHIBUYA_*` は `src/` に 46 個(消した切替口で、渡すと止まる `SHIBUYA_WAGE`・`SHIBUYA_MEAL_DEFAULT` を含む)。
+下の群は本書の分け方で、数は `add_argument` を数えた値。代表の括弧は既定。
+
+| 群 | 数 | 代表 |
 |---|---|---|
-| `--agents` / `--seed` / `--world` / `--ticks` | 5,000 / 1 / `data/world/v2` / 1,440 | 規模 |
-| `--llm {mock,fleet}` `--endpoints` `--mode` `--temperature` `--max-tokens` `--fleet-wait-s` `--fleet-queue-capacity` | mock / — / smoke / 0.7 / 96 / 0 / 0 | 艦隊接続 |
-| `--tape` `--replay` `--checkpoints-out` `--undefined-out` `--census-out` `--occupancy-every/-out` | 空 | 記録と再生 |
-| `--budget-mode {fixed,ranking}` | fixed | AB1 知覚のトークン配分(義務 ablation) |
-| `--pnotice-d50-scale` `--refractory-scale COND=F` | 1.0 / なし | AB2 / AB3 |
-| `--no-signage` `--signage-p-see` | False / 1.0 | AB6 / AB6b |
-| `--intent-mode {vocab,open,hint}` | vocab | AB7 自由意図 |
-| `--vocab-version {v1,v2}` | v1 | AB7c 語彙 v2「食事」 |
-| `--geometry {node,edge}` `--area-source {legacy,plateau}` `--seat-area-*` | node / legacy / None | C9 位置幾何・歩行可能面積・席面積 |
-| `--derive-rule {v1,v2,v2.1}` `--exit-mode` `--attendance-rate` `--no-plan-executor` `--no-outside-suppression` | v2 / immediate / 1.0 / off / off | 計画実行層 |
-| `--no-sleep-suppression` `--no-plan-sleep` | off / off | D-56 / D-62 の帰無腕 |
-| `--ablate <過程 id / AB-*>` | なし | 世界過程を過程単位で切る |
+| 規模と世界 | 9 | `--agents`(5,000)・`--seed`(1)・`--world`(`data/world/v2`)・`--ticks`(1,440)・`--population-seed` |
+| 艦隊(`add_fleet_args`) | 11 | `--llm {mock,fleet}`(mock)・`--endpoints`・`--temperature`(0.7)・`--max-tokens`(96)・`--tape` |
+| 暦と複数日(`add_calendar_args`) | 7 | `--start-date`・`--sim-days`(1)・`--resume-from`・`--state-out`・`--weather-perturb` |
+| 空間(`add_space_args`) | 3 | `--space {legacy,nav1}`(nav1・legacy は旧値の再現だけ)・`--slope`・`--turn-weight` |
+| 記録と再生 | 8 | `--replay`・`--checkpoints-out`・`--census-out`・`--events {on,off}`(on) |
+| 2026-09 の ablation の腕 | 11 | `--budget-mode`(fixed)・`--l4-scale`(0=上限なし)・`--vocab-version`(v3)・`--intent-mode`・`--no-signage`・`--ablate` |
+| 計画実行層と帰無腕 | 7 | `--derive-rule {v1,v2,v2.1}`(v2)・`--exit-mode`(immediate)・`--no-plan-executor`・`--no-sleep-suppression` |
+| 活動層・選択・食事 | 18 | `--activity`(on)・`--chooser`・`--policy`・`--hunger-model`・`--eatery` |
+| 記憶・関係・口コミ | 29 | `--memory`(off)・`--relations`(off)・記憶 M1〜M5 の腕(`--memory-model m1`・`--memory-cue embed`・`--memory-people memory`・`--memory-grain day`=#110)・出来事の器 `--memory-store events`(#100) |
+| 位置と近接 | 7 | `--geometry`・`--area-source`・`--proximity {cell,distance}`・`--seat-release` |
+| 第 1〜6 期の口と腕 | 15 | `--calendar {w17,1b}`(w17)・`--calendar-2`(off)・`--calendar-3`(off)・`--contact {off,c1}`(off)・`--duties {off,arm}`(off)・`--talk-clock {table,mora}`(table)・`--step-scope {all,changed}`(all)・`--clock {global,regional,mixed}`(global)・`--economy-stage2`・`--decision-port` |
+| 反実仮想の申込書 | 4 | `--experiment`・`--experiment-branch`・`--experiment-model`・`--experiment-aa` |
 
-**L4 の上限を振る切替口は無い**(アービタの `calls_per_day` 引数のみ)。これは D-99 で追加を検討中。
+L4 の上限は `--l4-scale` で振る(`IMPLEMENTED.md` #38)。CLI の既定は 0=上限なし(#55)。
 
 ---
 
 ## 12. 既知の穴と判断待ち
 
 ### 12.1 穴(数字つき)
+
+数字は 2026-09 の実 LLM ラン(390,067 体・L4 の按分あり)の値(行ごとの注は別)。
 
 | 穴 | 数字 | 出所 |
 |---|---|---|
@@ -520,12 +540,14 @@ HOLD / SEAL の 2 行は holdout を開けるまで空欄。
 | holdout のピーク時刻が 3〜8 h 早い | sim 10〜13 時 vs KDDI 15〜18 時(5 エリア全部・3 seed 同一) | `docs/bench/c7/prereg_arms_v1.md` §8 |
 | 来街者が半分以下・従業者が約 2 倍 | 来街者比 sim 0.14〜0.39 vs 0.40〜0.76、従業者比 sim 0.53〜0.76 vs 0.19〜0.47 | 同上 |
 | 深夜の残りすぎ | central 深夜残存 sim 0.385 vs 0.140 | 同上 |
-| 記憶・関係が未実装 | 会話の発話本文はいま捨てている(テープの `response` 列にしか残らない)。関係辺は C10 のアジェンダ段階 | `docs/design/v2-memory-agenda.md`・[v2-c10-relations-agenda.md](v2-c10-relations-agenda.md) |
+| 記憶・関係は腕のまま(既定 off) | 2026-09 の本番では会話の発話本文を捨てていた(テープの `response` 列にしか残らない)。その後、記憶は器と腕 M0〜M5(`--memory`・`--memory-model` ほか)、複数日と再開は 10d(`--sim-days`・`--resume-from`)、関係の辺は C10 の 8a/8b(`--relations`)で実装した。実 LLM では測っていない | `IMPLEMENTED.md` #60・#61・#65〜#67・#83・#110 |
 | 世界被覆の深さが浅い | D(深度)0.327・V(検証済み率)**0.0**・R(到達率)null = 未実測 | `data/world/v2/wc_index.json` |
 | 起床要求の 3 分の 2 が通らない | 5,000 体で 応答 36,906 に対し 後回し 40,236・抑止 50,055 | 思考頻度ノート §2 S3 |
-| 上限が結果を形作っていたかを一度も測っていない | L4 = 10 呼/体/日 は宣言済み予算だが、expedient に課している感度試験を予算行に課していなかった | `PENDING.md` D-99 |
+| 上限が結果を形作っていたか(2026-09 の本番) | L4 = 10 呼/体/日 は宣言済み予算だが、感度試験を予算行に課していなかった。2026-09-28 に mock 5,000 体で測り、上限ありは 07〜21 時が毎時 2,083 呼の天井に張り付いていた。実 LLM では未計測 | 旧 `PENDING.md` D-99・`IMPLEMENTED.md` #55 |
 
-### 12.2 判断待ち(D-98〜D-101)
+### 12.2 判断待ち(D-98〜D-101・2026-09-19 時点)
+
+2026-10-23 時点の注: D-99 は呼数の上限なしの形で実装した(`IMPLEMENTED.md` #38・#55)。D-98〜D-101 の行は 09-28 に旧 PENDING の全文として凍結した(`docs/log/pending-archive-2026-09-28.md`)。今の判断待ちは `PENDING.md` §1。
 
 | # | 決めること | 選択肢 | 親推奨 | 状態 |
 |---|---|---|---|---|
@@ -544,9 +566,9 @@ LLM を呼ぶことさえ判断層に任せる」。R-39 の答申で分かっ�
 
 本書を書く時点でファイルから確認できなかった項目(埋めていない):
 
-- **`RunResult` の実現量の欄**(実現した購入・乗車・売上)。`n_boarded` / `n_board_timeout` は `RunResult` にあるが runner の出力欄に無い(`PENDING.md` D-91 の「未測」)。D-98 (a) で足す対象。
+- **`RunResult` の実現量の欄**(実現した購入・乗車・売上)。`n_boarded` / `n_board_timeout` は `RunResult` にあるが runner の出力欄に無い(`PENDING.md` D-91 の「未測」)。D-98 (a) で足す対象。2026-09-20 に runner の指標 JSON へ `realized` を足した(`IMPLEMENTED.md` #38)。
 - **W17 ヘッダの `description` 欄**は空(各段階のヘッダに説明文が入っていない)。段階の意味は [v2-world-data-build-spec.md](v2-world-data-build-spec.md) の表から取った。
 - **`census` パッケージ**は `__init__.py` 4 行のみで中身が無い。層の枠だけが切ってある状態。
 - **世界被覆指標の R(到達率)と孤児**はランタイムの実読が要るため構築時は null / 空。
 - **`--seat-area-*` の既定値**は `None`(= `crowd.SEAT_AREA_M2` の表に触らない)であり、表の実数は本書では確認していない。
-- **P2(物理フレーム)の 40 万体の実測**は「移動 + 密度 125 ms/tick」が c7-day-3 の参考値として受入報告にあるだけで、宣言値 ≤300 ms/tick に対する正式な計測行は未確認。
+- **P2(物理フレーム)の 40 万体の実測**は「移動 + 密度 125 ms/tick」が c7-day-3 の参考値として受入報告にあるだけで、宣言値 ≤300 ms/tick に対する正式な計測行は未確認。 〔改訂 2026-10-03〕P2 の宣言値は C2-4 で「GPU 側の実時間を超えない」に変わった(値は実測後に宣言)。

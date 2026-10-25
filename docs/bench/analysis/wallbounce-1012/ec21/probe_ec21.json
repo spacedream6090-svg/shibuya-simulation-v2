@@ -1,0 +1,145 @@
+{
+ "schema": "shibuya.bench/ec21/probe/1",
+ "a": "base24",
+ "b": "ec21",
+ "a_src_is_worktree": false,
+ "b_src_is_worktree": true,
+ "a_skipped_rows": [
+  "E"
+ ],
+ "b_skipped_rows": [
+  "ATM",
+  "CR",
+  "E",
+  "EC",
+  "EM"
+ ],
+ "how": "1-0 の probe(全部の刻み・系ごとの全欄の差と指紋)。両側とも状態台帳の行 E・EC・ATM・CR・EM・S8・S8M・日次の economy.conservation・bridges_count・rules_version・events・RunResult.money_stage2_in・ActualLog の目印の 3 欄を外した。PYTHONHASHSEED=0",
+ "all_ok": false,
+ "rows": {
+  "syn_mem_rel_store": {
+   "final_a": "22a71f59126a396d",
+   "final_b": "22a71f59126a396d",
+   "calls_a": 1011,
+   "calls_b": 1011,
+   "n_entries_a": 5945,
+   "n_entries_b": 5945,
+   "systems": 18,
+   "fp_same_all_systems": true,
+   "fp_diff_systems": [],
+   "first_diff": null
+  },
+  "real300_v3_default": {
+   "final_a": "f4466eb1ac04d48f",
+   "final_b": "f4466eb1ac04d48f",
+   "calls_a": 3062,
+   "calls_b": 3062,
+   "n_entries_a": 14159,
+   "n_entries_b": 14159,
+   "systems": 18,
+   "fp_same_all_systems": false,
+   "fp_diff_systems": [
+    "close_final"
+   ],
+   "first_diff": {
+    "index": 14157,
+    "a": [
+     -1,
+     "close_final"
+    ],
+    "b": [
+     -1,
+     "close_final"
+    ],
+    "keys_only_a": [],
+    "keys_only_b": [],
+    "keys_both": [
+     "A:ledger.money.meter",
+     "O50:runner.rail.occupancy",
+     "O57:ledger.money._day",
+     "O59:ledger.goods._day",
+     "O59:ledger.goods._sold_today",
+     "O61:runner.log",
+     "O70:presence.n_departed_by_llm",
+     "O73:runner.rail.n_departed_riders",
+     "O73:runner.rail.n_departures",
+     "O77:ledger.money._flow",
+     "O77:ledger.money._last_close",
+     "O79:ledger.goods._shelf_age",
+     "O80:ledger.goods._day_waste_g",
+     "O80:ledger.goods._inflow",
+     "O80:ledger.goods._last_close",
+     "O80:ledger.goods._open_stock",
+     "O80:ledger.goods._outflow",
+     "O80:ledger.goods._waste_g_daily",
+     "O92:ledger.money._day_marks",
+     "O92:ledger.money._flow_daily",
+     "O92:ledger.money._snap",
+     "O93:ledger.goods._dl_marks",
+     "agents.activity",
+     "agents.transit_ref",
+     "agents.transit_state",
+     "stats.daily_records",
+     "stats.ledger_growth",
+     "stats.result"
+    ]
+   }
+  },
+  "real300_v3_mem_rel": {
+   "final_a": "3a3cae2b97a67d35",
+   "final_b": "3a3cae2b97a67d35",
+   "calls_a": 3062,
+   "calls_b": 3062,
+   "n_entries_a": 16271,
+   "n_entries_b": 16271,
+   "systems": 20,
+   "fp_same_all_systems": false,
+   "fp_diff_systems": [
+    "close_final"
+   ],
+   "first_diff": {
+    "index": 16269,
+    "a": [
+     -1,
+     "close_final"
+    ],
+    "b": [
+     -1,
+     "close_final"
+    ],
+    "keys_only_a": [],
+    "keys_only_b": [],
+    "keys_both": [
+     "A:ledger.money.meter",
+     "O50:runner.rail.occupancy",
+     "O57:ledger.money._day",
+     "O59:ledger.goods._day",
+     "O59:ledger.goods._sold_today",
+     "O61:runner.log",
+     "O70:presence.n_departed_by_llm",
+     "O73:runner.rail.n_departed_riders",
+     "O73:runner.rail.n_departures",
+     "O77:ledger.money._flow",
+     "O77:ledger.money._last_close",
+     "O79:ledger.goods._shelf_age",
+     "O80:ledger.goods._day_waste_g",
+     "O80:ledger.goods._inflow",
+     "O80:ledger.goods._last_close",
+     "O80:ledger.goods._open_stock",
+     "O80:ledger.goods._outflow",
+     "O80:ledger.goods._waste_g_daily",
+     "O92:ledger.money._day_marks",
+     "O92:ledger.money._flow_daily",
+     "O92:ledger.money._snap",
+     "O93:ledger.goods._dl_marks",
+     "agents.activity",
+     "agents.transit_ref",
+     "agents.transit_state",
+     "stats.daily_records",
+     "stats.ledger_growth",
+     "stats.result"
+    ]
+   }
+  }
+ }
+}

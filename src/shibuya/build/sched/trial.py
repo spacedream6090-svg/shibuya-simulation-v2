@@ -88,6 +88,7 @@ from ..pop.w16_population import (
 from . import pool_facts as PF
 from . import vocab as V
 from . import w17_schedule as W17
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     "TRIAL_VERSION",
@@ -264,9 +265,9 @@ def _bin_minutes(labels: Sequence[str]) -> list[int | None]:
             continue
         t = body.strip("-")
         h, _, mm = t.partition(":")
-        m = int(h) * 60 + int(mm)
+        m = int(h) * MINUTES_PER_HOUR + int(mm)
         if prev >= 0 and m + base < prev:
-            base += 1440
+            base += MINUTES_PER_DAY
         m += base
         out.append(m)
         prev = m
@@ -469,8 +470,8 @@ def employment_row(anchor: dict[str, Any], employment: str, u: float) -> str:
 #: ``arrival_lead_min`` 欠損時の既定[分](expedient・決定項 3 の (b) をフォールバックに)。
 LEAD_DEFAULT_MIN: Final[int] = 30
 #: 勤務長のクリップ範囲[分](expedient)。
-WORK_LEN_MIN_MIN: Final[int] = 4 * 60
-WORK_LEN_MAX_MIN: Final[int] = 12 * 60
+WORK_LEN_MIN_MIN: Final[int] = 4 * MINUTES_PER_HOUR
+WORK_LEN_MAX_MIN: Final[int] = 12 * MINUTES_PER_HOUR
 #: 宿泊客とみなす種別(expedient・プールに宿泊欄が無い)。
 STAY_KINDS_DEFAULT: Final[tuple[int, ...]] = (KIND_FOREIGN_VISITOR,)
 
@@ -693,7 +694,7 @@ BK_OUTSIDE, BK_HOME, BK_INAREA, BK_SLEEP, BK_MOVE = range(5)
 BLOCK_KIND_WORDS: Final[tuple[str, ...]] = ("域外", "自宅", "在圏", "就寝", "移動")
 #: 深夜(0〜4 時)に置かない活動語(D-63 (iii)・**文法から外す**)。
 NIGHT_BAN_ACTS: Final[tuple[str, ...]] = ("支度", "乗車")
-NIGHT_END_MIN: Final[int] = 4 * 60
+NIGHT_END_MIN: Final[int] = 4 * MINUTES_PER_HOUR
 #: 開始時刻の深夜側・昼側(``V.TIME_PATTERN`` をちょうど 2 つに割る)。
 _NIGHT_START_RE: Final[str] = r"0[0-3][0-5][0-9]"
 _DAY_START_RE: Final[str] = r"(?:0[4-9]|1[0-9]|2[0-4])[0-5][0-9]"
@@ -842,7 +843,7 @@ def _defuzz(m: int) -> int:
         >>> _defuzz(480), _defuzz(510), _defuzz(487)
         (481, 511, 487)
     """
-    return int(m) + 1 if int(m) % 60 in (0, 30) else int(m)
+    return int(m) + 1 if int(m) % MINUTES_PER_HOUR in (0, 30) else int(m)
 
 
 def _cuts_to_lines(cuts: Sequence[tuple[int, str, str]], place_ok: set[str]) -> list[str]:
@@ -865,7 +866,7 @@ def _cuts_to_lines(cuts: Sequence[tuple[int, str, str]], place_ok: set[str]) -> 
     if not rows:
         return []
     rows[-1] = (rows[-1][0], V.MINUTES_PER_DAY, rows[-1][2], rows[-1][3])
-    return [f"{s // 60:02d}{s % 60:02d}-{e // 60:02d}{e % 60:02d} {a} {p}" for s, e, a, p in rows]
+    return [f"{s // MINUTES_PER_HOUR:02d}{s % MINUTES_PER_HOUR:02d}-{e // MINUTES_PER_HOUR:02d}{e % MINUTES_PER_HOUR:02d} {a} {p}" for s, e, a, p in rows]
 
 
 def example_block(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> list[str]:
@@ -906,7 +907,7 @@ def example_block(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> li
             place_ok,
         )
     elif int(f.visit_days[i]):  # --- 来街者(事実なし)= 散らした骨格 ---
-        a = _defuzz(8 * 60 + _ex_jitter(aid, 0))
+        a = _defuzz(8 * MINUTES_PER_HOUR + _ex_jitter(aid, 0))
         b = _defuzz(a + 45 + _ex_jitter(aid, 1))
         c = _defuzz(b + 120 + _ex_jitter(aid, 2))
         d = _defuzz(c + 60 + _ex_jitter(aid, 3))
@@ -923,7 +924,7 @@ def example_block(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> li
             place_ok,
         )
     elif duty >= 0:  # --- 通学など(窓はあるが第31表を引いていない体)---
-        lo = _defuzz(max(5 * 60, int(f.work_open[i])) - 45 - _ex_jitter(aid, 0))
+        lo = _defuzz(max(5 * MINUTES_PER_HOUR, int(f.work_open[i])) - 45 - _ex_jitter(aid, 0))
         st = _defuzz(int(f.work_open[i]) + _ex_jitter(aid, 1) - 29)
         en = _defuzz(min(V.MINUTES_PER_DAY - 120, int(f.work_close[i])) + _ex_jitter(aid, 2) - 29)
         back = _defuzz(min(V.MINUTES_PER_DAY - MIN_BLOCK_MIN, en + 40 + _ex_jitter(aid, 3)))
@@ -940,7 +941,7 @@ def example_block(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> li
             place_ok,
         )
     else:  # --- 非就業 ---
-        a = _defuzz(7 * 60 + _ex_jitter(aid, 0))
+        a = _defuzz(7 * MINUTES_PER_HOUR + _ex_jitter(aid, 0))
         b = _defuzz(a + 40 + _ex_jitter(aid, 1))
         c = _defuzz(b + 180 + _ex_jitter(aid, 2))
         d = _defuzz(c + 60 + _ex_jitter(aid, 3))
@@ -957,7 +958,7 @@ def example_block(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> li
     if not any(ln.split(" ")[1] == "就寝" for ln in lines):
         return []
     for ln in lines:  # 深夜(0〜3 時台)に 支度/乗車 を置かない
-        if int(ln[:2]) < NIGHT_END_MIN // 60 and ln.split(" ")[1] in NIGHT_BAN_ACTS:
+        if int(ln[:2]) < NIGHT_END_MIN // MINUTES_PER_HOUR and ln.split(" ")[1] in NIGHT_BAN_ACTS:
             return []
     return ["例:", "d0"] + lines + [EXAMPLE_NOTE]
 
@@ -1389,7 +1390,7 @@ def parse_blocks(raw: str) -> tuple[list[Block], dict[str, int]]:
         if m1 >= 60 or m2 >= 60 or h1 > 24 or h2 > 24:
             bad["bad_time"] = bad.get("bad_time", 0) + 1
             continue
-        start, end = h1 * 60 + m1, h2 * 60 + m2
+        start, end = h1 * MINUTES_PER_HOUR + m1, h2 * MINUTES_PER_HOUR + m2
         if start >= V.MINUTES_PER_DAY or start == end:
             bad["bad_time"] = bad.get("bad_time", 0) + 1
             continue
@@ -2071,7 +2072,7 @@ def mock_text(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> str:
                     V.format_body(max(90, lo - 45), lo, V.ACT_MOVE, V.PLACE_STATION),
                     V.format_body(lo, hi, duty, V.PLACE_SCHOOL if duty == V.ACT_SCHOOL
                                   else V.PLACE_WORK),
-                    V.format_body(hi, min(1440, hi + 60), V.ACT_MEAL, V.PLACE_FOOD),
+                    V.format_body(hi, min(MINUTES_PER_DAY, hi + 60), V.ACT_MEAL, V.PLACE_FOOD),
                 ]
             else:
                 lines += [
@@ -2088,27 +2089,27 @@ def mock_text(spec: ArmSpec, f: W17.AgentFacts, t: TrialFacts, i: int) -> str:
                     (max(90, lo - 45), lo, "移動", "駅"),
                     (lo, hi, V.ACTIVITY_WORDS[duty], duty_place),
                     (hi, min(1_410, hi + 60), "移動", "駅"),
-                    (min(1_410, hi + 60), 1_440, "就寝", sleep_place)]
+                    (min(1_410, hi + 60), MINUTES_PER_DAY, "就寝", sleep_place)]
         elif visiting:
             cuts = [(0, 540, "就寝", sleep_place),
                     (540, 600, "乗車", "駅"),
                     (600, 780, "買物", "物販店"),
                     (780, 840, "食事", "飲食店"),
                     (840, 900, "乗車", out_word),
-                    (900, 1_440, "就寝", sleep_place)]
+                    (900, MINUTES_PER_DAY, "就寝", sleep_place)]
         else:
             cuts = [(0, 480, "就寝", sleep_place),
                     (480, 540, "支度", home_word),
                     (540, 780, "休憩", home_word),
                     (780, 840, "食事", "飲食店"),
                     (840, 1_380, "休憩", home_word),
-                    (1_380, 1_440, "就寝", sleep_place)]
+                    (1_380, MINUTES_PER_DAY, "就寝", sleep_place)]
         for s, e, act, pl in cuts:
             if e <= s:
                 continue
             if pl not in place_ok:
                 pl = out_word if out_word in place_ok else home_word
-            head = f"{s // 60:02d}{s % 60:02d}-{e // 60:02d}{e % 60:02d}"
+            head = f"{s // MINUTES_PER_HOUR:02d}{s % MINUTES_PER_HOUR:02d}-{e // MINUTES_PER_HOUR:02d}{e % MINUTES_PER_HOUR:02d}"
             if spec.kind_col:
                 bk = derive_block_kind(_ACT_INDEX[act], _PLACE_INDEX[pl], home_in)
                 lines.append(f"{head} {bk} {act} {pl}")
@@ -2475,8 +2476,8 @@ def _diversity(agent_row: np.ndarray, day: np.ndarray, start: np.ndarray,
         nz = q > 0
         out["M3b_depart_proxy"] = {
             "n": int(p.size),
-            "on_00_30": round(float(np.isin(p % 60, (0, 30)).mean()), 6),
-            "mode_bin": f"{int(np.argmax(bins)) * 15 // 60:02d}:{int(np.argmax(bins)) * 15 % 60:02d}",
+            "on_00_30": round(float(np.isin(p % MINUTES_PER_HOUR, (0, 30)).mean()), 6),
+            "mode_bin": f"{int(np.argmax(bins)) * 15 // MINUTES_PER_HOUR:02d}:{int(np.argmax(bins)) * 15 % MINUTES_PER_HOUR:02d}",
             "mode_share": round(float(q.max()), 6),
             "entropy_bit": round(float(-(q[nz] * np.log2(q[nz])).sum()), 4),
         }

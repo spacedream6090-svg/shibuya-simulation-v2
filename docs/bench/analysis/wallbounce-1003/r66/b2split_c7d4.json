@@ -1,0 +1,6 @@
+{
+ "schema": "shibuya.bench/wallbounce-1003/r66-b2split/1",
+ "calls": 2691795,
+ "b2_fixed_frac_chars": 0.3012,
+ "b2_list_frac_chars": 0.6777
+}
