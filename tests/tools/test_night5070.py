@@ -590,7 +590,9 @@ def test_mask_paths(nr):
     assert "<WSLHOME>/.venv/bin/vllm" in m and "someone" not in m
 
 
-def test_night_runs_log_is_masked(nr, tmp_path):
+def test_night_runs_log_is_masked(nr, tmp_path, monkeypatch):
+    # CI(Linux)では tmp_path がホームの下に無いので、ホームを tmp_path に固定して <HOME> の置換を確かめる(第340)
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
     cfg = _test_cfg("http://127.0.0.1:9", commands=[{"name": "run", "argv": _py("print('ok')")}],
                     needs_fleet=False)
     rc, d, data = _run(nr, tmp_path, cfg)
