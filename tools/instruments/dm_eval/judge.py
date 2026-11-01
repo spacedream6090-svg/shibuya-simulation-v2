@@ -28,7 +28,11 @@
     (bd35 の記録の byte-check の表の ``w6_v3_default``=10e の道具)。1 件の秒は空欄(GPU の後)。
 
 厳密モード(DM9「重みを手元・まとめ方固定・実測で一致」)の検査 ``strict_check``: 新しく作った当て口で同じ入力を
-    2 回(同じ並び)と、並びを逆にした 1 回(まとめ方を変えた)で、状況ごとの分布がバイト単位で同じか。
+    2 回(同じ並び)と、並びを逆にした 1 回(まとめ方を変えた)で、状況ごとの分布がバイト単位で同じか。〔11-01〕回数は
+    引数 ``repeats``(既定 2=1-10 の記録の形)。同一入力 32 回の一致率は ``determinism_check``(比べの列「決定論」)。
+
+モデルの当て口(〔11-01〕``dm_eval.backends``): 候補の logprob から分布を作る ``ChoiceBackend``(Choice/Score)と
+    自由記述を候補に当てる ``FreeTextBackend``(Noul)の抽象・HF の causal LM と vLLM の OpenAI 互換の口(重みは取らない)。
 
 expedient(器の宣言・未リサーチ)
     - 1 位の同点は候補の id の順(中身)で決める(番号の順にしない=位置の偏りを作らない)。
@@ -63,7 +67,7 @@ __all__ = [
     "ScorerUnavailable", "Scorer", "MockScorer", "ClassicalScorer", "TapeScorer", "ClefScorer", "KevScorer",
     "SokudanScorer", "GScorer", "FirstNumberControl", "scorer_registry", "normalize", "top1", "jsd", "spearman",
     "hesitation", "surprise_of", "agreement", "HUMAN_FIELDS", "CALLS_PER_DAY_BASIS", "gpu_hours_per_sim_day",
-    "speed_fields", "strict_check", "dist_digest",
+    "speed_fields", "strict_check", "dist_digest", "determinism_check", "DETERMINISM_REPEATS", "ScoreFailed", "failure_record",
 ]
 
 ROLE_CONTROL: Final[str] = "control"
@@ -87,6 +91,22 @@ CALLS_PER_DAY_BASIS: Final[Mapping[str, Any]] = MappingProxyType({
 
 class ScorerUnavailable(RuntimeError):
     """口だけの当て口(重みの取得と GPU の後=S6)。"""
+
+
+class ScoreFailed(RuntimeError):
+    """〔11-01 検収 低 4〕1 件の採点の失敗(モデルの口の後ろの失敗・切り出しの不一致など)。``evaluate`` は場面ごとに
+    捕まえて「失敗」と記録し、全体は止めない(``backends.base.BackendError`` はこれを継ぐ)。
+
+    記録に残すのは型の名と短い分類 ``category``(timeout・http・boundary・parse・unavailable・other)だけ。例外の文は
+    入力や艦隊の答えを含み得るので写さない(〔再検収 新 低 1〕=``failure_record``)。
+    """
+
+    category = "other"
+
+
+def failure_record(e: BaseException) -> dict[str, str]:
+    """失敗の記録の欄(型の名と分類だけ・例外の文の本文は写さない)。"""
+    return {"error": type(e).__name__, "message": str(getattr(e, "category", "other"))}
 
 
 # ---------------------------------------------------------------------------------------------- 分布の道具
@@ -203,6 +223,14 @@ class Scorer:
     reads_text: bool = False
     #: 当て口がここで入れ替えた提示の並びを見るか(テープ=見ていない=位置の偏りの列は構成上 0)。
     sees_presented_order: bool = True
+    #: 〔11-01〕推論の形(表の列「推論の形」)。規則の当て口は「規則」・テープは「記録」・モデルの当て口は
+    #: ``FORM_LABELS`` のどれか(Choice・Score・Noul)・口だけ(形は答申 R-125 が決める)は ``None``。``describe`` には
+    #: 出さない(1-10 の記録の digest を変えない=比べの節 ``compare`` に出す)。
+    form: str | None = "規則"
+    #: 〔11-01〕GPU で回す当て口か(VRAM の欄の印を分ける)。
+    uses_gpu: bool = False
+    #: 〔11-01〕読む文の版(DM4 の ``short``=判断モデル・``long``=LLM)。既定は短い版(1-10 の記録のまま)。
+    prompt_length: str = "short"
     meta: Mapping[str, Any] = MappingProxyType({})
 
     def __init__(self) -> None:
@@ -263,7 +291,8 @@ class ClassicalScorer(Scorer):
     #: 場所で行き先が決まる活動の種類(全件セルの路上=行く=移動)。
     GO_KINDS: Final[frozenset[str]] = frozenset({"home", "work", "school", "commute"})
 
-    def __init__(self, *, day_kind: str = "weekday", region: str = "kanto") -> None:
+    def __init__(self, *, day_kind: str = "weekday", region: str = "kanto", vocab_version: str = VOCAB_VERSION) -> None:
+        """〔11-01〕``vocab_version`` は語を読む語彙の版(既定は 1-10 の材料の v1・消費の場面は v3)。"""
         from shibuya.engine.classical import ACTIVITY_MAP_V0, SSB_ACTIVITY_CODES, ActivityPrior, load_activity_prior
 
         anchors, md5 = load_activity_prior()
@@ -277,9 +306,9 @@ class ClassicalScorer(Scorer):
             if kind in self.GO_KINDS:
                 w = "移動"
             elif kind == "talk":
-                w = compat_word("なし", "v3", VOCAB_VERSION)  # 近くの知人が材料に無い=なし(待つ)
+                w = compat_word("なし", "v3", vocab_version)  # 近くの知人が材料に無い=なし(待つ)
             else:
-                w = compat_word(action, "v3", VOCAB_VERSION)
+                w = compat_word(action, "v3", vocab_version)
             words.append(w)
         self.words = tuple(words)
         self.meta = MappingProxyType({"anchors_md5": md5, "day_kind": day_kind, "region": region,
@@ -308,11 +337,17 @@ class ClassicalScorer(Scorer):
 
     def _score(self, situation: Situation, candidates: tuple[Candidate, ...], text: str | None
                ) -> Mapping[str, float]:
-        by_kind = {c.kind: c.id for c in candidates}
+        # 〔11-01 検収 中 1〕同じ語の候補が 2 つ以上ある(消費の場面の「購入」)ときは、語の質量を id の順に等分する
+        # (提示の並びで行き先が変わらない)。語が候補ごとに別の 1-10 の材料では x / 1 = x=今までと同じ値。
+        by_kind: dict[str, list[str]] = {}
+        for c in candidates:
+            by_kind.setdefault(c.kind, []).append(c.id)
         out: dict[str, float] = {}
         for w, x in self.word_probs(situation).items():
-            cid = by_kind.get(w, OTHER_ID)
-            out[cid] = out.get(cid, 0.0) + x
+            ids = sorted(by_kind.get(w, ())) or [OTHER_ID]
+            share = x / len(ids)
+            for cid in ids:
+                out[cid] = out.get(cid, 0.0) + share
         return out
 
 
@@ -322,6 +357,7 @@ class TapeScorer(Scorer):
     name = "tape"
     role = ROLE_BASELINE
     sees_presented_order = False
+    form = "記録"
     meta = MappingProxyType({"source": "1-10 の評価セットの output(52 本のテープの応答)=本文は記録に写さない",
                              "presented_order": "テープの LLM は B0 の固定の並びを見た(ここの並べ替えは見ていない)"})
 
@@ -352,6 +388,8 @@ class _ModelPort(Scorer):
 
     implemented = False
     reads_text = True
+    form = None
+    uses_gpu = True
 
 
 class ClefScorer(_ModelPort):
@@ -470,19 +508,24 @@ GPU_HOURS_FORMULA: Final[str] = ("1 シム日あたりの GPU 時間 = 呼数/�
 
 def speed_fields(scorer: Scorer, wall_s_per_item: float | None) -> dict[str, Any]:
     """速さの欄(壁時計は実測・トークン数と GPU の秒は空欄=後で測る)。"""
-    return {"wall_s_per_item": wall_s_per_item, "wall_clock_device": "CPU" if scorer.implemented else None,
+    device = ("GPU" if scorer.uses_gpu else "CPU") if scorer.implemented else None
+    return {"wall_s_per_item": wall_s_per_item, "wall_clock_device": device,
             "tokens_in": None, "tokens_out": None, "gpu_sec_per_call": None,
             "gpu_hours_per_sim_day": gpu_hours_per_sim_day(None), "formula": GPU_HOURS_FORMULA,
             "calls_basis": dict(CALLS_PER_DAY_BASIS)}
 
 
 # ---------------------------------------------------------------------------------------------- 厳密モード(DM9)
-def strict_check(make_scorer: Callable[[], Scorer], items: Sequence[tuple[Situation, Sequence[Candidate], str | None]]
-                 ) -> dict[str, Any]:
-    """同じ入力を 2 回(同じ並び)と、まとめ方を変えた 1 回(並びを逆)で、状況ごとの分布がバイト単位で同じか。
+def strict_check(make_scorer: Callable[[], Scorer], items: Sequence[tuple[Situation, Sequence[Candidate], str | None]],
+                 *, repeats: int = 2) -> dict[str, Any]:
+    """同じ入力を ``repeats`` 回(同じ並び)と、まとめ方を変えた 1 回(並びを逆)で、状況ごとの分布がバイト単位で同じか。
 
     ``make_scorer`` は毎回新しい当て口を作る(隠れた状態を持ち越さない)。口だけの当て口は検査できない(空欄)。
+    〔11-01〕``repeats``(2 以上・既定 2=1-10 の記録の形のまま)回の全部が 1 回目と同じとき ``identical_repeat``。
+    同一入力の 32 回の一致率は ``determinism_check``(1 つの当て口で 1 件ずつ N 回)。
     """
+    if int(repeats) < 2:
+        raise ValueError(f"repeats は 2 以上(いま {repeats})")
     probe = make_scorer()
     if not probe.implemented:
         return {"name": probe.name, "status": "GPU の後(S6)", "identical_repeat": None, "identical_reordered": None}
@@ -495,14 +538,56 @@ def strict_check(make_scorer: Callable[[], Scorer], items: Sequence[tuple[Situat
     indexed = list(enumerate(items))
     t0 = time.perf_counter()
     a = run(indexed)
-    b = run(indexed)
-    c = run(list(reversed(indexed)))
     keys = sorted(a)
     da = dist_digest([a[k] for k in keys])
-    db = dist_digest([b[k] for k in keys])
+    same = True
+    for _r in range(int(repeats) - 1):  # 逐次ループ宣言: 回数 − 1
+        b = run(indexed)
+        same = same and dist_digest([b[k] for k in keys]) == da
+    c = run(list(reversed(indexed)))
     dc = dist_digest([c[k] for k in keys])
     diff = max((abs(a[k][j] - c[k].get(j, 0.0)) for k in keys for j in a[k]), default=0.0)
-    return {"name": probe.name, "status": "検査済み", "n_items": len(keys), "identical_repeat": da == db,
+    return {"name": probe.name, "status": "検査済み", "n_items": len(keys), "identical_repeat": same,
             "identical_reordered": da == dc, "max_abs_diff_reordered": float(diff), "digest": da,
             "weights_local": probe.meta.get("anchors_md5", "重みなし(規則)"), "batching": "1 件ずつ(まとめない)",
             "wall_s": time.perf_counter() - t0}
+
+
+#: 〔11-01〕決定論の検査の既定の回数(B14 と同じ 32/32=回答 11-01 §11・5070 の指示「同一入力 32 回」)。
+DETERMINISM_REPEATS: Final[int] = 32
+
+
+def determinism_check(make_scorer: Callable[[], Scorer],
+                      items: Sequence[tuple[Situation, Sequence[Candidate], str | None]], *,
+                      repeats: int = DETERMINISM_REPEATS) -> dict[str, Any]:
+    """同一入力を ``repeats`` 回: 1 つの当て口(重みを 1 回だけ読む)で各件を続けて N 回採点し、件ごとに N 回の分布が
+    バイト単位で全部同じか(``item_agree_rate``)と 1 位が全部同じか(``top1_agree_rate``)。
+
+    決定論が無い当て口は落とさない(回答 11-01 §11=「分岐と A/A に seed が何本余計に要るか」の評価軸。その本数の式は
+    空欄=``seeds_needed``)。口だけの当て口は空欄。
+    """
+    if int(repeats) < 2:
+        raise ValueError(f"repeats は 2 以上(いま {repeats})")
+    sc = make_scorer()
+    if not sc.implemented:
+        return {"name": sc.name, "status": "GPU の後(S6)", "n_repeats": int(repeats), "n_items": len(items),
+                "item_agree_rate": None, "top1_agree_rate": None, "seeds_needed": None}
+    t0 = time.perf_counter()
+    same = 0
+    same_top = 0
+    distinct_max = 1
+    for s, c, t in items:  # 逐次ループ宣言: 件の数 × 回数
+        digests = []
+        tops = []
+        for _r in range(int(repeats)):
+            d = sc.score(s, c, text=t)
+            digests.append(dist_digest([d]))
+            tops.append(top1(d))
+        same += int(len(set(digests)) == 1)
+        same_top += int(len(set(tops)) == 1)
+        distinct_max = max(distinct_max, len(set(digests)))
+    n = len(items)
+    return {"name": sc.name, "status": "検査済み", "n_repeats": int(repeats), "n_items": n,
+            "item_agree_rate": same / n if n else None, "top1_agree_rate": same_top / n if n else None,
+            "distinct_max": distinct_max, "batching": "1 件ずつ(まとめない)・同じ当て口",
+            "seeds_needed": None, "wall_s": time.perf_counter() - t0}

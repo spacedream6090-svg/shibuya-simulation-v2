@@ -17,6 +17,9 @@
     - ``bias``: 位置の偏りの対照試験(R-108・巡回の並べ替え・1 位が変わる率・番号 1 を選ぶ率・PBS・符号反転の検定)。
     - ``table``: 表「人らしさ × 速さ × 1 シム日あたりの GPU 時間」(候補ごと 1 行・言語ごと・長さの腕ごと・順位なし)。
     - ``cli``: 1 回通して記録の JSON と表を書く。
+    - 〔11-01 段 1 の 3〕``backends``: モデルの当て口の抽象(``ChoiceBackend``=Choice/Score・``FreeTextBackend``=Noul)と
+      HF の causal LM・vLLM の logprob の口(重みは取らない)。``scenes/``: 消費の 4 判断点の場面(``situations.load_scene_file``)。
+      記録は ``docs/bench/analysis/dm-eval-11-01/README.md``。比べの列は ``compare`` の節(``digest`` の外)。
 
 守ること: モデルの重みは取らない・GPU とネットワークは使わない(S6 の後)・正解の表は作らない(人のデータと考慮集合の
 研究の値は検証側=パターン台帳 §10-1)・テープの本文(LLM の応答の文)は記録に写さない(集計だけ)。

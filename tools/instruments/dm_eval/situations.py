@@ -44,6 +44,13 @@ expedient(器の宣言・未リサーチ)
     - 巡回の位置=``k × n // N``(k=0〜N−1・n=候補の数・N=並びの数)。
 逐次ループ宣言: 状況の数(340)× 並びの数(既定 4)× 候補の数(13)。テープは状況のあるテープ(32 本)ごとに 1 回、
     65,536 行ずつ読む(体で絞る=pyarrow の配列演算)。
+
+場面のファイル(〔11-01 段 1 の 3〕消費の 4 判断点・``scenes/``)
+    ``load_scene_file(path)``: 1-10 と同じ形の行(``situation_from_row`` が読む)に、候補の欄 ``candidates``(id・語・
+    見せ方・源と、品・数・値段の欄)と判断点の欄 ``point`` を足した jsonl。前置き B0 は同じ名の ``.b0.json``、md5 は同じ名の
+    ``.md5``(``<md5>  <ファイル名>`` の行)で照らす。候補は場面が持つ(``candidates_for`` の 5 つの源の組み立ては使わない)。
+    場面は自前(架空の店・丸い仮の値・実在の店名と施設名と人名を使わない=漏洩の検査と分ける)。設計は
+    ``docs/bench/analysis/dm-eval-11-01/README.md``。
 """
 
 from __future__ import annotations
@@ -492,3 +499,118 @@ def iter_lengths(situations: Iterable[Situation], presented_by_sid: Mapping[str,
             "tokens": None,
         }
     return out
+
+
+# ---------------------------------------------------------------------------------------------- 場面のファイル(消費)
+SCENES_DIR: Final[Path] = dm_eval.HERE / "scenes"
+CONSUMPTION_SCENES: Final[Path] = SCENES_DIR / "consumption_v1.jsonl"
+#: 消費の 4 判断点(回答 11-01 §2・routing §5)→ 見出し。
+DECISION_POINTS: Final[Mapping[str, str]] = MappingProxyType({
+    "buy_or_skip": "買うか見送るか",
+    "what_how_many": "何をいくつ",
+    "price_skip": "値段を見て見送る",
+    "revisit": "満足して同じ店にまた行くか",
+})
+#: 消費の場面の語彙の版(〔検収 中 4〕語彙 v3 で書く=待機は欠番で使わない・安全弁は「なし」)。
+CONSUMPTION_VOCAB_VERSION: Final[str] = "v3"
+#: 消費の場面で足した候補の語(``Candidate.kind``)。電車の「見送る」(routing §5)と字面がぶつからない名にした
+#: (〔検収 中 4〕)。見せ方の文の頭は routing §5 の語のまま(``CONSUMPTION_WORD_LABELS``)。
+#: 「何をいくつ」は語でなく欄(``購入`` の候補の ``item``・``qty``)。
+CONSUMPTION_WORDS: Final[tuple[str, ...]] = ("buy_skip", "price_skip", "revisit", "no_revisit")
+#: 足した語 → routing §5 の表示の語(候補の見せ方の文はこの語で始める)。
+CONSUMPTION_WORD_LABELS: Final[Mapping[str, str]] = MappingProxyType({
+    "buy_skip": "見送る",
+    "price_skip": "値段を見て見送る",
+    "revisit": "また行く",
+    "no_revisit": "また行かない",
+})
+#: 候補の欄(見せ方の文の外に場面が持つ値=品・数・値段)。
+CANDIDATE_FIELD_KEYS: Final[tuple[str, ...]] = ("item", "qty", "price_yen")
+_CANDIDATE_KEYS: Final[frozenset[str]] = frozenset(("id", "kind", "text", "source") + CANDIDATE_FIELD_KEYS)
+
+
+@dataclass(frozen=True)
+class SceneSet:
+    """場面のファイルの中身(読むだけ)。``candidates`` は状況の id → 候補(番号なし=提示で振る)。"""
+
+    name: str
+    situations: tuple[Situation, ...]
+    candidates: Mapping[str, tuple[Candidate, ...]]
+    points: Mapping[str, str]
+    fields: Mapping[str, Mapping[str, Mapping[str, Any]]]
+    md5: Mapping[str, str]
+
+    def by_point(self) -> dict[str, int]:
+        out = {p: 0 for p in DECISION_POINTS}
+        for p in self.points.values():
+            out[p] = out.get(p, 0) + 1
+        return out
+
+
+def scene_sidecars(path: Path) -> tuple[Path, Path]:
+    """場面の jsonl → (前置き ``.b0.json``・md5 ``.md5``) の道筋。"""
+    p = Path(path)
+    stem = p.name[:-len(".jsonl")] if p.name.endswith(".jsonl") else p.stem
+    return p.with_name(f"{stem}.b0.json"), p.with_name(f"{stem}.md5")
+
+
+def read_md5_list(raw: bytes) -> dict[str, str]:
+    """``<md5>  <ファイル名>`` の行 → {名: md5}。"""
+    out: dict[str, str] = {}
+    for line in raw.decode("utf-8").split("\n"):
+        if not line.strip():
+            continue
+        parts = line.split()
+        if len(parts) != 2 or not re.fullmatch(r"[0-9a-f]{32}", parts[0]):
+            raise ValueError(f"md5 の行の形が違う: {line!r}")
+        out[parts[1]] = parts[0]
+    return out
+
+
+def candidate_of_spec(spec: Mapping[str, Any]) -> Candidate:
+    """場面の候補の欄 → ``Candidate``(番号なし)。知らない鍵は ``ValueError``。"""
+    bad = sorted(set(spec) - _CANDIDATE_KEYS)
+    if bad:
+        raise ValueError(f"候補の欄に知らない鍵 {bad}")
+    if "qty" in spec and (isinstance(spec["qty"], bool) or not isinstance(spec["qty"], int) or spec["qty"] < 1):
+        raise ValueError(f"候補の数 qty は 1 以上の整数(いま {spec['qty']!r})")
+    return Candidate(id=str(spec["id"]), kind=str(spec["kind"]), text=str(spec["text"]), source=str(spec["source"]))
+
+
+def load_scene_file(path: Path | str = CONSUMPTION_SCENES, *, verify_md5: bool = True) -> SceneSet:
+    """場面のファイル(jsonl+``.b0.json``+``.md5``)を読む。md5 が同梱の値と違えば ``ValueError``。"""
+    p = Path(path)
+    b0_path, md5_path = scene_sidecars(p)
+    raw = _read_bytes(p)
+    b0_raw = _read_bytes(b0_path)
+    sums = {p.name: md5_of(raw), b0_path.name: md5_of(b0_raw)}
+    if verify_md5:
+        want = read_md5_list(_read_bytes(md5_path))
+        if want != sums:
+            raise ValueError(f"場面のファイルの md5 が同梱の {md5_path.name} と違う")
+    b0_texts = json.loads(b0_raw.decode("utf-8"))["b0_texts"]
+    sits: list[Situation] = []
+    cands: dict[str, tuple[Candidate, ...]] = {}
+    points: dict[str, str] = {}
+    fields: dict[str, dict[str, dict[str, Any]]] = {}
+    for line in raw.decode("utf-8").split("\n"):  # 逐次ループ宣言: 場面の数
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        sit = situation_from_row(row, b0_texts)
+        if sit.sid in cands:
+            raise ValueError(f"場面の id が重なっている: {sit.sid}")
+        point = str(row.get("point", ""))
+        if point not in DECISION_POINTS:
+            raise ValueError(f"判断点 {point!r} は {tuple(DECISION_POINTS)} のどれか")
+        specs = list(row.get("candidates") or ())
+        cs = tuple(candidate_of_spec(c) for c in specs)
+        if len({c.id for c in cs}) != len(cs) or not cs:
+            raise ValueError(f"場面 {sit.sid} の候補が空か id が重なっている")
+        sits.append(sit)
+        cands[sit.sid] = cs
+        points[sit.sid] = point
+        fields[sit.sid] = {str(c["id"]): {k: c[k] for k in CANDIDATE_FIELD_KEYS if k in c} for c in specs}
+    stem = p.name[:-len(".jsonl")] if p.name.endswith(".jsonl") else p.stem
+    return SceneSet(name=stem, situations=tuple(sits), candidates=MappingProxyType(cands),
+                    points=MappingProxyType(points), fields=MappingProxyType(fields), md5=MappingProxyType(sums))
