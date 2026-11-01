@@ -32,6 +32,9 @@ expedient(本モジュール分)
 直書きの ``MIN_WAGE_HOURLY``=1,226 円(R7.10.3)に戻す=つなぎの台帳 ``BR-MIN-WAGE-HOURLY-1226``・外す段 4-2)と
 ``consumption_tax_rate(asof)``(``consumption_tax.standard_rate`` の国+地方の合計の率を分数で)。``monthly_wage_amounts``
 は時給 ``hourly`` を渡せる(既定は今までどおり ``MIN_WAGE_HOURLY``=既存の呼び手と試験の値は不変)。
+
+〔11-01 §5・段 2 の 5〕``minimum_wage.tokyo`` は ``kind: human``(人が取り締まる)。床の値の読み口 ``min_wage_floor`` は、行が
+machine か、行の ``params.bridge`` が machine のつなぎのときだけ値を返す(``min_wage_terms``・``rule_bridge``=つなぎの欄の検査)。
 """
 
 from __future__ import annotations
@@ -40,6 +43,7 @@ import datetime as _dt
 from dataclasses import dataclass
 from enum import IntEnum
 from fractions import Fraction
+from types import MappingProxyType
 from typing import Final, Mapping
 
 import numpy as np
@@ -51,6 +55,17 @@ __all__ = [
     "CONSUMPTION_TAX_RULE_ID",
     "min_wage_hourly",
     "min_wage_floor",
+    "min_wage_terms",
+    "MinWageTerms",
+    "rule_bridge",
+    "check_rule_bridges",
+    "RULE_BRIDGE_KEY",
+    "BRIDGE_REQUIRED",
+    "BRIDGE_OPTIONAL",
+    "BRIDGE_CONFS",
+    "ENFORCED_MACHINE",
+    "ENFORCED_BRIDGE",
+    "ENFORCED_NONE",
     "consumption_tax_rate",
     "Anchor",
     "ANCHORS",
@@ -246,21 +261,126 @@ def min_wage_hourly(asof: "str | _dt.date", rules=None) -> tuple[int, str]:  # n
     return int(row.params["yen_per_hour"]), f"rules:{MIN_WAGE_RULE_ID}@{row.asof}"
 
 
-def min_wage_floor(asof: "str | _dt.date", rules=None) -> tuple[int | None, str]:  # noqa: ANN001
-    """〔賃金の小さな版上げ・検収 M1〕最低賃金法の床(4 条 2 項)の値[円/時]と出どころ=規則の表の ``minimum_wage.tokyo``
-    (``kind: machine``)の ``asof`` の日に効いている版だけ。:func:`min_wage_hourly` と違い**直書きの値に戻さない**: 表に版の
-    無い日(施行の前)・表の無い写しは ``(None, "none")``=床なし(宣言=記録 wage_occ §13)。machine でない行は止める。
+#: 〔11-01 §5・段 2 の 5〕規則の表の行の ``params.bridge``(人が取り締まる行=``kind: human`` に、検知と反応の口ができるまで
+#: 残す機械のつなぎ)の欄。``kind``(つなぎの側の kind)・``conf``(``expedient``/``mechanism``)・``remove_at``(外す段の文)・
+#: ``declared_in``(決定の ID)は必須・``ledger_id``(つなぎの台帳の行の id)と ``remove_note``(外す段の説明の文)は任意。
+#: ``remove_at`` は計画の段の語(つなぎの台帳の ``PLAN_STAGES`` と同じ=台帳の行と同じ値・試験が突き合わせる)。規則の表の形式(``engine.rules.table``)の
+#: 欄でなく ``params`` の中に置いた(形式の版 2 の ``Rule.from_dict`` は知らない欄を止める=engine は本段で触らない・記録
+#: docs/bench/analysis/s2-rules-1101/README.md の問い)。
+RULE_BRIDGE_KEY: Final[str] = "bridge"
+BRIDGE_REQUIRED: Final[tuple[str, ...]] = ("kind", "conf", "remove_at", "declared_in")
+BRIDGE_OPTIONAL: Final[tuple[str, ...]] = ("ledger_id", "remove_note")
+BRIDGE_CONFS: Final[tuple[str, ...]] = ("expedient", "mechanism")
+#: 規則の表の kind(``engine.rules.table.KINDS`` と同じ並び=試験が突き合わせる)。
+_RULE_KINDS: Final[tuple[str, ...]] = ("machine", "human", "norm")
+#: 最低賃金の床を当てる道(:attr:`MinWageTerms.enforced_by`)。
+ENFORCED_MACHINE: Final[str] = "machine"
+ENFORCED_BRIDGE: Final[str] = "bridge"
+ENFORCED_NONE: Final[str] = "none"
+
+
+def rule_bridge(row) -> "Mapping[str, str] | None":  # noqa: ANN001
+    """〔11-01 §5〕規則の表の行の ``params.bridge`` を検査して返す(無い行は ``None``)。
+
+    欄の過不足・``kind`` と ``conf`` の値・行と同じ kind のつなぎ(意味が無い)は ``ValueError``。
     """
+    params = getattr(row, "params", None)
+    if not isinstance(params, Mapping) or RULE_BRIDGE_KEY not in params:
+        return None
+    b = params[RULE_BRIDGE_KEY]
+    rid = getattr(row, "id", "?")
+    if not isinstance(b, Mapping):
+        raise ValueError(f"{rid}: params.bridge は辞書")
+    missing = set(BRIDGE_REQUIRED) - set(b)
+    extra = set(b) - set(BRIDGE_REQUIRED) - set(BRIDGE_OPTIONAL)
+    if missing or extra:
+        raise ValueError(f"{rid}: params.bridge の欄が違う(無い {sorted(missing)}・知らない {sorted(extra)})")
+    for k in b:
+        if not isinstance(b[k], str) or not b[k].strip():
+            raise ValueError(f"{rid}: params.bridge.{k} は空でない文字列")
+    if b["kind"] not in _RULE_KINDS:
+        raise ValueError(f"{rid}: params.bridge.kind は {_RULE_KINDS}(いま {b['kind']!r})")
+    if b["kind"] == str(getattr(row, "kind", "")):
+        raise ValueError(f"{rid}: params.bridge.kind が行の kind と同じ({b['kind']!r})=つなぎにならない")
+    if b["conf"] not in BRIDGE_CONFS:
+        raise ValueError(f"{rid}: params.bridge.conf は {BRIDGE_CONFS}(いま {b['conf']!r})")
+    return MappingProxyType({k: str(b[k]) for k in (*BRIDGE_REQUIRED, *BRIDGE_OPTIONAL) if k in b})
+
+
+def check_rule_bridges(rules=None) -> tuple[str, ...]:  # noqa: ANN001
+    """〔検収 L1〕表の全部の行(全部の版)の ``params.bridge`` を検査する(壊れていれば ``ValueError``=ランの始めに落とす)。
+
+    戻り=つなぎのある行の ``<id>@<asof>`` の並び(表の順)。表の無い写しは空(ランは止めない=``rules_version`` と同じ扱い)。
+    """
+    from shibuya.engine.rules import table as _RT
+
+    try:
+        rt = _RT.default_rules() if rules is None else rules
+    except FileNotFoundError:
+        return ()
+    return tuple(f"{r.id}@{r.asof}" for r in rt if rule_bridge(r) is not None)  # 逐次: 表の行の数
+
+
+@dataclass(frozen=True)
+class MinWageTerms:
+    """〔11-01 §5〕``asof`` の日の東京都の最低賃金の行の読み(値・出どころ・行の kind・つなぎ)。
+
+    ``yen_per_hour`` が ``None``=表に版の無い日(施行の前)・表の無い写し(``source="none"``・``kind=""``)。
+    """
+
+    yen_per_hour: "int | None"
+    source: str
+    kind: str = ""
+    bridge: "Mapping[str, str] | None" = None
+
+    @property
+    def enforced_by(self) -> str:
+        """床を機械が当てる道: ``machine``(行が machine)・``bridge``(行は human/norm で、つなぎが machine)・``none``。"""
+        if self.yen_per_hour is None:
+            return ENFORCED_NONE
+        if self.kind == "machine":
+            return ENFORCED_MACHINE
+        if self.bridge is not None and self.bridge["kind"] == "machine":
+            return ENFORCED_BRIDGE
+        return ENFORCED_NONE
+
+    @property
+    def floor_by_machine(self) -> bool:
+        return self.enforced_by != ENFORCED_NONE
+
+    def floor(self) -> "tuple[int | None, str]":
+        """床の値と出どころ(:func:`min_wage_floor` の形)。床を機械が当てない行は ``(None, "<kind>:<出どころ>")``。"""
+        if self.yen_per_hour is None:
+            return None, "none"
+        if self.floor_by_machine:
+            return int(self.yen_per_hour), self.source
+        return None, f"{self.kind}:{self.source}"
+
+
+def min_wage_terms(asof: "str | _dt.date", rules=None) -> MinWageTerms:  # noqa: ANN001
+    """〔11-01 §5〕``asof`` の日に効いている ``minimum_wage.tokyo`` の版の読み(**直書きの値に戻さない**)。"""
     from shibuya.engine.rules import table as _RT
 
     try:
         rt = _RT.default_rules() if rules is None else rules
         row = rt.get(MIN_WAGE_RULE_ID, asof)
     except (_RT.RuleNotInForce, FileNotFoundError, KeyError):
-        return None, "none"
-    if str(getattr(row, "kind", "machine")) != "machine":
-        raise ValueError(f"{MIN_WAGE_RULE_ID} は machine の行であること(いま {row.kind!r})")
-    return int(row.params["yen_per_hour"]), f"rules:{MIN_WAGE_RULE_ID}@{row.asof}"
+        return MinWageTerms(None, "none")
+    return MinWageTerms(int(row.params["yen_per_hour"]), f"rules:{MIN_WAGE_RULE_ID}@{row.asof}", str(row.kind),
+                        rule_bridge(row))
+
+
+def min_wage_floor(asof: "str | _dt.date", rules=None) -> tuple[int | None, str]:  # noqa: ANN001
+    """〔賃金の小さな版上げ・検収 M1〕最低賃金法の床(4 条 2 項)の値[円/時]と出どころ=規則の表の ``minimum_wage.tokyo``
+    の ``asof`` の日に効いている版。:func:`min_wage_hourly` と違い**直書きの値に戻さない**: 表に版の無い日(施行の前)・
+    表の無い写しは ``(None, "none")``=床なし(宣言=記録 wage_occ §13)。
+
+    〔11-01 §5・段 2 の 5〕行は ``kind: human``(人が取り締まる=違反は起きたことにして記録)。床を当てるのは、行が machine か、
+    行の ``params.bridge`` が machine のつなぎのときだけ(検知と反応の口ができるまでのつなぎ=表の値を直書きしない)。
+    つなぎの無い human/norm の行は ``(None, "<kind>:rules:…")``=床なし(違反の記録は ``economy.stage2`` の
+    ``rules.minimum_wage_shortfall``)。
+    """
+    return min_wage_terms(asof, rules).floor()
 
 
 def consumption_tax_rate(asof: "str | _dt.date", rules=None) -> tuple[Fraction, str]:  # noqa: ANN001

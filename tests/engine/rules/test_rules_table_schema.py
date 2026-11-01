@@ -67,7 +67,9 @@ def test_the_values_are_the_r106_values():
     assert tax.params["national_rate"] == 0.078 and tuple(tax.params["local_tax_ratio"]) == (22, 78)
     assert tax.params["combined_rate"] == pytest.approx(0.078 * (1 + 22 / 78))
     wage = rules.get("minimum_wage.tokyo", "2026-10-14")
-    assert wage.kind == "machine" and wage.asof == "2026-10-01" and wage.params["yen_per_hour"] == 1280
+    # 〔11-01 §5・段 2 の 5〕最低賃金は human(床は params.bridge の machine のつなぎ=記録 s2-rules-1101)。前は machine
+    assert wage.kind == "human" and wage.asof == "2026-10-01" and wage.params["yen_per_hour"] == 1280
+    assert wage.params["bridge"]["kind"] == "machine"
     late = rules.get("late_night_alcohol.residential_ban", "2026-07-13")
     assert late.kind == "human"
     assert (late.params["closed_from"], late.params["closed_until"], late.params["area"]) == ("00:00", "06:00", "住居集合地域")
@@ -154,7 +156,7 @@ def test_the_repo_minimum_wage_has_the_version_on_the_world_date():
     """〔第337・親の一次確認で △ を解消〕世界の時点 2026-07-13 は 1,226 円(2025-10-03 の版)。2024-10-01 より前は版が無い。"""
     rt = RT.default_rules()
     w = rt.get("minimum_wage.tokyo", "2026-07-13")
-    assert w.asof == "2025-10-03" and w.params["yen_per_hour"] == 1226 and w.kind == "machine"
+    assert w.asof == "2025-10-03" and w.params["yen_per_hour"] == 1226 and w.kind == "human"  # 〔11-01 §5〕前 machine
     assert rt.get("minimum_wage.tokyo", "2025-10-02").params["yen_per_hour"] == 1163
     with pytest.raises(RT.RuleNotInForce):
         rt.get("minimum_wage.tokyo", "2024-09-30")

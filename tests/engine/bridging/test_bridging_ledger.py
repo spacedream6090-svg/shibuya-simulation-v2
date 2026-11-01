@@ -65,7 +65,8 @@ def test_rule_ids_point_to_the_rules_table(ledger):
     from shibuya.engine.rules import table as RT
 
     linked = [r for r in ledger if r.rule_id]
-    assert [r.id for r in linked] == ["BR-MIN-WAGE-HOURLY-1226"]
+    # 〔段 2 の 5〕最低賃金の床のつなぎ(規則の表の params.bridge・道具 docs/bench/analysis/s2-rules-1101/tools/add_bridges_s2rules.py)
+    assert [r.id for r in linked] == ["BR-MIN-WAGE-HOURLY-1226", "DOC-s2rules-min-wage-floor-bridge"]
     for r in linked:
         # 〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7(直書きは表に版の無い日の戻り道だけ=外す段が計画に無い)
         assert r.rule_id in RT.default_rules().ids() and r.remove_at == "7"

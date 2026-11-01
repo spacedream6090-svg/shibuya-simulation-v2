@@ -213,6 +213,26 @@ def _q(x: np.ndarray) -> dict[str, int]:
     return {f"p{q}": int(round(float(np.percentile(v, q)))) for q in QUANTILES}
 
 
+#: 〔11-01 §5・段 2 の 5〕最低賃金の違反の記録の器の鍵(manifest の ``economy.stage2.rules`` の下=観測)。
+SHORTFALL_KEY: Final[str] = "minimum_wage_shortfall"
+#: 器の積算の欄(どれも整数・ランの初めに 0)。``below_*``=床を当てる直前に時給が最低賃金を下回った体と不足の額・
+#: ``lifted_*``=つなぎの床(machine)が上げた体と額・``violation_*``=下回ったまま払った体と額(=起きた違反)。
+SHORTFALL_COUNTS: Final[tuple[str, ...]] = ("paydays", "checked", "below_rows", "below_amount", "lifted_rows",
+                                            "lifted_amount", "violation_rows", "violation_amount")
+
+
+#: 〔検収 L3〕器の積算の範囲(このランの始めから=再開のランでは再開の後の分だけ=計器 s2_meter と同じ)。
+SHORTFALL_SCOPE: Final[str] = "run"
+
+
+def _empty_shortfall() -> dict[str, Any]:
+    """〔11-01 §5〕違反の記録の器(積算 0・最後の給料日の行の読み ``last`` は None・``scope`` は ``run``=再開で 0 に戻る・
+    ``below_at_start``=組み立ての日に最低賃金を下回る体の数=つなぎの有無に依らない)。法定労働時間の超過は数えない
+    (勤務の時間は経済の側に無い=カレンダー 3 と持ち場の層の ``labor_over`` が数える・記録 s2-rules-1101)。"""
+    return {"rule": "minimum_wage.tokyo", "scope": SHORTFALL_SCOPE, **{k: 0 for k in SHORTFALL_COUNTS},
+            "below_at_start": None, "last": None}
+
+
 def _empty_meter(employer_items: tuple[str, ...] = _TX.EMPLOYER_ITEMS_42,
                  r42b: bool = False) -> dict[str, dict[str, int]]:
     """計器の器(〔第 4 期 4-2b〕``employer_items``=雇用主の分の項目・``r42b``=空欄 3 件を埋めた値のランだけの鍵)。"""
@@ -312,6 +332,11 @@ class MoneyStage2:
             "path": wsrc, **(summary or {}),
             "inputs": winp.record() if winp is not None and hasattr(winp, "record") else None,
             "floor_at_start": self._floor_record(plan, mw, hours)}
+        # 〔11-01 §5・段 2 の 5〕最低賃金(規則の表の human の行)の違反の記録の器=ランの積算(観測・金の流れは変えない)
+        # 〔検収 L1〕表の全部の版のつなぎの欄をランの始めに検査する(壊れていればここで落ちる)
+        AN.check_rule_bridges()
+        self.s2_meter["rules"][SHORTFALL_KEY] = _empty_shortfall()
+        self.s2_meter["rules"][SHORTFALL_KEY]["below_at_start"] = self._below_at_start(plan, mw, hours)
         self._rates: dict[str, tuple[Fraction, str]] = {}
         #: 〔検収 A1〕体ごとの最後の「金に触れる行為」(購入・食事・並ぶ)の呼の id(None=まだ無い)と、その呼の支払いの方法の
         #: 答え(-1=答えなし・0=現金・1=口座)。着いて実行する意図・列から席へ入った体の支払いも同じ呼を原因にする。
@@ -325,6 +350,49 @@ class MoneyStage2:
             if a is not None:
                 a.setflags(write=False)
         object.__setattr__(self, "_sealed", True)
+
+    @staticmethod
+    def _below_at_start(plan: Any, mw: np.ndarray | None, hours: np.ndarray | None) -> int | None:
+        """〔検収 L4〕組み立ての日に効いている最低賃金を時給が下回る体の数(つなぎの有無に依らない=床を当てない表でも数える)。
+        賃金の表の無い写し・日付の無い計画・版の無い日は ``None``。"""
+        if mw is None or hours is None:
+            return None
+        try:
+            asof = plan.date_of(0).isoformat()
+        except (AttributeError, TypeError):
+            return None
+        terms = _WG.min_wage_terms(asof)
+        if terms.yen_per_hour is None:
+            return None
+        _f, below = _WG.apply_floor(mw, hours, terms.yen_per_hour)
+        return int(below.sum())
+
+    def _count_min_wage_shortfall(self, asof: str, terms: Any, checked: int, below: np.ndarray, shortfall: int,
+                                  raised: np.ndarray, lift: np.ndarray | None) -> None:
+        """〔11-01 §5・段 2 の 5〕違反の記録の器(体ごとでなく集計)。``below``=床を当てる直前に時給が最低賃金を下回った体・
+        ``shortfall``=その不足の合計[円]・``raised``=つなぎの床が上げた体・``lift``=床で上げた額(体ごと・2-1 の道は None)。
+        ``violation_*``=下回ったまま払った体と額(=起きた違反)。つなぎで床が掛かる道(occupation)では 0・床の無い道
+        (2-1 の道=``lift`` が None・つなぎの無い表)では数える。``last.enforced_by`` はその給料日に床を当てた道
+        (2-1 の道は ``none``)。金の流れは変えない(観測)。"""
+        box = self.s2_meter["rules"][SHORTFALL_KEY]
+        below = np.asarray(below, dtype=bool)
+        raised = np.asarray(raised, dtype=bool)
+        lifted_amount = int(np.asarray(lift)[raised].sum()) if lift is not None and raised.any() else 0
+        stood = below & ~raised
+        box["paydays"] += 1
+        box["checked"] += int(checked)
+        box["below_rows"] += int(below.sum())
+        box["below_amount"] += int(shortfall)
+        box["lifted_rows"] += int(raised.sum())
+        box["lifted_amount"] += lifted_amount
+        box["violation_rows"] += int(stood.sum())
+        box["violation_amount"] += int(shortfall) - lifted_amount
+        bridge = getattr(terms, "bridge", None)
+        box["last"] = {"asof": asof, "yen_per_hour": getattr(terms, "yen_per_hour", None),
+                       "source": str(getattr(terms, "source", "none")), "kind": str(getattr(terms, "kind", "")),
+                       "enforced_by": "none" if lift is None else str(getattr(terms, "enforced_by", "none")),
+                       "bridge_ledger_id": None if bridge is None else bridge.get("ledger_id"),
+                       "wage_path": str(self.wage_source)}
 
     @staticmethod
     def _floor_record(plan: Any, mw: np.ndarray | None, hours: np.ndarray | None) -> dict[str, Any] | None:
@@ -665,14 +733,23 @@ class MoneyStage2:
         hourly_arr = getattr(self.plan, "hourly", None)
         rate = float(hourly) if hourly_arr is None else np.asarray(hourly_arr, dtype=np.float64)[agents]
         occupation = self.monthly_wage is not None
+        # 〔11-01 §5・段 2 の 5〕最低賃金の行は human(人が取り締まる)。床を当てるのは machine のつなぎ(params.bridge)の
+        # 間だけ。床を当てる直前に「床を下回る額」を数える(違反の記録の器=rules.minimum_wage_shortfall)
+        terms = _WG.min_wage_terms(asof.isoformat())
         if occupation:  # 〔賃金の小さな版上げ〕月の賃金=職業 × 性 × 年齢 × 雇用形態(W17 の勤務時間を使わない)
-            # 〔検収 M1〕最低賃金法の床(4 条 2 項)=給料日に効いている規則の表の版(machine の行)。版が無ければ床なし
-            floor, floor_src = _WG.min_wage_floor(asof.isoformat())
-            floored, raised = _WG.apply_floor(self.monthly_wage[agents], self.wage_hours[agents], floor)
-            raised_amount = int((floored - self.monthly_wage[agents])[raised].sum())
+            # 〔検収 M1〕最低賃金法の床(4 条 2 項)=給料日に効いている規則の表の版。版が無ければ床なし
+            floor, floor_src = terms.floor()
+            wage_now = self.monthly_wage[agents]
+            floored, raised, below, shortfall = _WG.floor_with_shortfall(wage_now, self.wage_hours[agents], terms)
+            raised_amount = int((floored - wage_now)[raised].sum())
             gross = np.maximum(floored, 0)
         else:
             gross = AN.monthly_wage_amounts(self.monthly_hours[agents], hourly=rate)
+            # 2-1 の道(月の時間 × 時給)には床の式が無い=数えるだけ(床に当たる体は 0・時給は既定で最低賃金)
+            _paid, raised, below, shortfall = _WG.floor_with_shortfall(gross, self.monthly_hours[agents], terms)
+            raised = np.zeros(gross.size, dtype=bool)
+        self._count_min_wage_shortfall(asof.isoformat(), terms, int(agents.size), below, shortfall, raised,
+                                       floored - wage_now if occupation else None)
         if self.law is not None:  # 〔第 4 期 4-2〕給与の天引き(規則の表の 6 行)と雇用主の分
             return self._payroll_law(ledger, step, asof, agents, sectors, idx, gross,
                                      floor_info=(floor, floor_src, raised, raised_amount) if occupation else None)

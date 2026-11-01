@@ -44,6 +44,8 @@ OLD_PARAMS = {
     ("labor.weekly_rest_day", "1947-09-01"): {"min_rest_days_per_week": 1,
                                               "applies_to_status": ["無期雇用者", "有期雇用者", "臨時雇用者"]},
 }
+#: 〔11-01 §5・段 2 の 5〕kind を human に直し、床のつなぎ ``params.bridge`` を足した行(値の欄は不変=bridge を除いて比べる)。
+BRIDGED = {"minimum_wage.tokyo"}
 LOWER_BOUND = {"food_business.licence", "building_lease.termination_notice", "labor.statutory_hours",
                "labor.overtime_premium", "road_use.police_permit", "outdoor_ad.tokyo_permit", "credit.total_volume_cap",
                "credit.interest_cap", "late_night_alcohol.residential_ban", "consumption_tax.filing_deadline",
@@ -96,7 +98,12 @@ def test_the_filing_deadline_row_is_from_r106_and_used_at_the_period_end():
         rules.get("consumption_tax.filing_deadline", WORLD)  # 読んだ版(2026-10-01)が下限=世界の時点には無い
     r = rules.get("consumption_tax.filing_deadline", "2026-12-31")
     assert r.kind == "human" and r.asof_is_lower_bound  # 〔検収 L1〕人の手続き=human・移す機械の側はつなぎ
-    assert _thaw(r.params) == {"corporation_due_months_after_period_end": 2, "sole_proprietor_period": "暦年",
+    got = _thaw(r.params)
+    # 〔段 2 の 5・検収 M1〕つなぎの書き方を params.bridge に統一(値はつなぎの台帳の行 DOC-rules42-tax-remit-machine)
+    assert got.pop("bridge") == {"kind": "machine", "conf": "expedient", "remove_at": "6-6",
+                                 "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+                                 "ledger_id": "DOC-rules42-tax-remit-machine"}
+    assert got == {"corporation_due_months_after_period_end": 2, "sole_proprietor_period": "暦年",
                                "sole_proprietor_due_month": 3, "sole_proprietor_due_day": 31}
     r106 = (ROOT / "docs/research/v2-r106-rights-institutions-tax-credit.md").read_text(encoding="utf-8")
     assert "課税期間の末日の翌日から 2 か月以内(法人)。個人事業者は翌年 3 月 31 日" in r106
@@ -106,7 +113,10 @@ def test_existing_rows_keep_their_values():
     rules = RT.default_rules()
     for (rid, asof), params in OLD_PARAMS.items():
         r = [x for x in rules.versions(rid) if x.asof == asof]
-        assert len(r) == 1 and _thaw(r[0].params) == params, rid
+        got = _thaw(r[0].params) if len(r) == 1 else None
+        if rid in BRIDGED:
+            assert got is not None and got.pop("bridge")["kind"] == "machine", rid
+        assert len(r) == 1 and got == params, rid
 
 
 def test_the_two_rows_now_cite_the_world_date_versions():
@@ -164,8 +174,11 @@ def test_every_machine_row_has_a_reader():
     from shibuya.economy import taxes as TX
 
     machine = {r.id for r in RT.default_rules() if r.kind == RT.KIND_MACHINE}
-    readers = set(TX.READ_RULES) | {AN.MIN_WAGE_RULE_ID, AN.CONSUMPTION_TAX_RULE_ID}
+    # 〔11-01 §5・段 2 の 5〕最低賃金は human へ(床は params.bridge の machine のつなぎ=anchors.min_wage_terms が読む)
+    readers = set(TX.READ_RULES) | {AN.CONSUMPTION_TAX_RULE_ID}
     assert machine == readers
+    for r in RT.default_rules().versions(AN.MIN_WAGE_RULE_ID):
+        assert r.kind == RT.KIND_HUMAN and AN.rule_bridge(r)["kind"] == RT.KIND_MACHINE
     src = (ROOT / "src/shibuya/economy/taxes.py").read_text(encoding="utf-8")
     for rid in TX.READ_RULES + TX.BRIDGE_READ_RULES:
         assert f'"{rid}"' in src

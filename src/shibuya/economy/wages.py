@@ -7,7 +7,9 @@
 **二重に作らない**: 賃金の表の読み解き・属性と分位から額を出す式・写像・床の式は ``core.wage_formula``(4-1 段 5 から
 移した=build と実行時の両方が呼ぶ)にあり、本モジュールはその名を同じ物として見せる(``from shibuya.core.wage_formula import``)。
 本モジュールに置くのは、写しの読み口(:func:`load_wage_tables`)・最低賃金の床の値(:func:`min_wage_floor`=規則の表=
-``economy.anchors``)・注記の型(:class:`WageTablesAbsentWarning`)だけ。
+``economy.anchors``)・注記の型(:class:`WageTablesAbsentWarning`)だけ。〔11-01 §5・段 2 の 5〕最低賃金の行は human=床は行の
+``params.bridge`` が machine のつなぎの間だけ当て、当てる直前に床を下回った体と額を数える(:func:`floor_with_shortfall`・
+:func:`min_wage_terms`)。
 
 実行時の読み口(:func:`load_wage_tables`): 構築側の写し ``data/research_cache/pop41b/derived/wage_t{9,6,18,2}.json``
 (4-1 段 4〜7 の台帳 ``build.pop.w21_sources.SOURCES_B`` の 4 行=#46 構築側)を md5 を照らして読む(元の xlsx は開かない=写しに
@@ -33,6 +35,8 @@ import json
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Final, Mapping
+
+import numpy as np
 
 from shibuya.core.wage_formula import (  # noqa: F401 — 同じ物を見せる(二重に作らない)
     WAGE_OCCUPATIONS,
@@ -90,6 +94,7 @@ __all__ = [
     "month_hours",
     "apply_floor",
     "DERIVED_RELDIR", "DERIVED_FILES", "load_wage_tables", "WageTablesAbsentWarning", "min_wage_floor",
+    "min_wage_terms", "floor_with_shortfall",
 ]
 
 #: 構築側の写しの置き場(リポの根から)。
@@ -112,6 +117,30 @@ def min_wage_floor(asof: Any, rules: Any = None) -> tuple[int | None, str]:
     from shibuya.economy import anchors as _AN
 
     return _AN.min_wage_floor(asof, rules)
+
+
+def min_wage_terms(asof: Any, rules: Any = None) -> Any:
+    """〔11-01 §5〕``asof`` の日の最低賃金の行の読み(``economy.anchors.MinWageTerms``=値・出どころ・kind・つなぎ)。"""
+    from shibuya.economy import anchors as _AN
+
+    return _AN.min_wage_terms(asof, rules)
+
+
+def floor_with_shortfall(monthly: np.ndarray, hours: np.ndarray,
+                         terms: Any) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+    """〔11-01 §5・段 2 の 5〕床を当てる直前に「床を下回る額」を数え、床を機械が当てる行(machine かつなぎ)だけ床を当てる。
+
+    床の式は :func:`apply_floor`(同じ物)。戻り=(払う月の賃金, 床に当たった体の印, 床を下回った体の印, 下回った額の合計[円])。
+    床を当てる行では「払う月の賃金・床に当たった印」が :func:`apply_floor` の戻りと 1 バイト同じ(下回った印=床に当たった印)。
+    床を当てない行(つなぎの無い human/norm)は月の賃金をそのまま払い、下回った体と額だけを返す(違反は起きたことにして記録)。
+    表に版の無い日は床も下回りも無い。
+    """
+    m = np.asarray(monthly, dtype=np.int64)
+    lifted, below = apply_floor(m, hours, getattr(terms, "yen_per_hour", None))
+    shortfall = int((lifted - m)[below].sum())
+    if bool(getattr(terms, "floor_by_machine", False)):
+        return lifted, below, below, shortfall
+    return m.copy(), np.zeros(m.size, dtype=bool), below, shortfall
 
 
 class WageTablesAbsentWarning(UserWarning):

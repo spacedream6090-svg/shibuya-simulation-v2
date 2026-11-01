@@ -8344,6 +8344,23 @@
     "src/shibuya/engine/presence.py",
     "src/shibuya/engine/space/nav1.py"
    ]
+  },
+  {
+   "id": "DOC-s2rules-min-wage-floor-bridge",
+   "what": "最低賃金の床(最賃法 4 条 2 項=給料日に時給が最低賃金を下回る体の月の賃金を、最低賃金 × 月の時間の目安に上げる)を machine のつなぎで残す。規則の表の minimum_wage.tokyo(3 版)は kind: human・床を当てるのは行の params.bridge が machine の間だけ(economy.anchors.min_wage_terms・economy.wages.floor_with_shortfall)。床を当てる直前に下回った体と額を economy.stage2 の rules.minimum_wage_shortfall に数える(床がある間は violation_rows=0)",
+   "why": "回答 11-01 §5(判定は「現実でその場で物理的に止まるか」=最低賃金に足りない賃金は機械では止まらず事後の監督。検知と反応の口(気づいた人・本人・監督)ができるまで machine をつなぎとして残す)・指示書 11-01 段 2 の 5(違反が起きたら記録する器だけ先に)・10-12 §1-4(法に反する行動は起きたことにする)。外す段=検知と反応の口ができる段(計画の段の番号が無い=7 を当てた・実装役が当てた)(記録 docs/bench/analysis/s2-rules-1101/README.md)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/s2-rules-1101/README.md",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/anchors.py",
+    "src/shibuya/economy/wages.py",
+    "src/shibuya/economy/stage2.py"
+   ],
+   "rule_id": "minimum_wage.tokyo"
   }
  ]
 }

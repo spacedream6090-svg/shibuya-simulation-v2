@@ -147,6 +147,12 @@ def _bridge_row(rule_id: str, asof: "str | _dt.date", rules: Any = None) -> Any:
     row = _get(rule_id, asof, rules)
     if row is not None and str(row.kind) != _RT.KIND_HUMAN:
         raise ValueError(f"{rule_id} は human の行であること(いま {row.kind!r})")
+    if row is not None:  # 〔段 2 の 5・検収 M1〕つなぎの書き方は行の params.bridge の 1 つ(machine のつなぎであること)
+        from shibuya.economy import anchors as _AN
+
+        b = _AN.rule_bridge(row)
+        if b is None or b["kind"] != _RT.KIND_MACHINE:
+            raise ValueError(f"{rule_id} は machine のつなぎ(params.bridge)を持つ行であること")
     return row
 
 
