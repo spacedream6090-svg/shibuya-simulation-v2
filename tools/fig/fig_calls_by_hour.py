@@ -41,7 +41,8 @@ for _p in (str(_HERE), str(REPO_ROOT / "src")):
 import _style as st  # noqa: E402
 
 DEFAULT_TAPE = "data/server_retrieval/2026-09-16/v2_data/tape/c7-day-4/calls.parquet"
-DEFAULT_ANCHORS = "docs/bench/anchors/presence_anchors_v0.json"
+#: 〔第 2 期 2-4 V6〕full_population は検証側のファイル(前は 1 本 presence_anchors_v0.json)。
+DEFAULT_ANCHORS = "docs/bench/anchors/presence_validation_anchors_v0.json"
 DEFAULT_OUT = "docs/bench/figures"
 STEM = "fig2_calls_by_hour"
 
@@ -150,7 +151,7 @@ def load_calls(tape_path: str | Path = DEFAULT_TAPE,
             "deferred_rate": round(n_def / n_rows, 6) if n_rows else 0.0,
             "n_agents": n_agents,
             "calls_per_agent_day": (round(n_live / n_agents, 4) if n_agents else None),
-            "n_agents_source": ("docs/bench/anchors/presence_anchors_v0.json"
+            "n_agents_source": ("docs/bench/anchors/presence_validation_anchors_v0.json"
                                " anchors.full_population" if n_agents else None),
         },
         "input": st.rel(path),

@@ -1,0 +1,33 @@
+{
+ "schema": "shibuya.bench/tm32/head-copy-variants/1",
+ "how": "byte_check_10e.py side の 19 構成(5,000 体・seed 1・1 日)を HEAD d35a9b6 の写しの組み立て方を変えて回し、作業木の既定 W=60 の side と final の一致を数えた。写しの side は cwd=作業木(data は本体への junction)・PYTHONPATH=写しの src",
+ "worktree_w60_w6_v3_default_final": "b8eadcb51e8705e7",
+ "variants": {
+  "anchors_only(10e の手順の写し)": {
+   "final_same_as_worktree_w60": "0/19",
+   "w6_v3_default_final": "d2e8fabcc618ec49",
+   "src_is_worktree": false
+  },
+  "+osm2": {
+   "final_same_as_worktree_w60": "0/19",
+   "w6_v3_default_final": "136d03a7db2dc76f",
+   "src_is_worktree": false
+  },
+  "+osm2+docs_design5(本記録の写し)": {
+   "final_same_as_worktree_w60": "19/19",
+   "w6_v3_default_final": "b8eadcb51e8705e7",
+   "src_is_worktree": false
+  },
+  "junction_only(親の注意の形)": {
+   "final_same_as_worktree_w60": "0/19",
+   "w6_v3_default_final": "136d03a7db2dc76f",
+   "src_is_worktree": false
+  },
+  "junction+rules_table": {
+   "final_same_as_worktree_w60": "19/19",
+   "w6_v3_default_final": "b8eadcb51e8705e7",
+   "src_is_worktree": false
+  }
+ },
+ "note": "anchors_only=src+エンジンが開く錨 3 本+budget+w6-regen+祝日の表。osm2=data/realworld/osm の 2 本(economy_stage2 の ATM の表)。docs_design5=rules-table.json・bridging-ledger.json・v2-perception-contract.md・v2-pattern-ledger.md・v2-world-catalog.md。junction=写しの根に本体の data への junction(回した後に外した)。効くのは OSM の 2 本(data)と rules-table.json(最低賃金と消費税)"
+}

@@ -1,0 +1,189 @@
+{
+ "schema": "night5070/experiments/1",
+ "note": "回答 10-25 §6-0・§6-2 の夜の実験の定義。{{名}} は vars の値で埋める。vars の値が null の名は穴(親が R-C の答申の後に埋める)。OUT(小さな記録の置き場=docs/bench/night5070/<日>_<実験>)・DATA(大きな出力の置き場=data/night5070/<日>_<実験>=gitignore の中。テープ・状態・checkpoints JSON・ログ)・PYTHON・REPO・RUN_ID・ENDPOINTS・EXPERIMENT は night_run が実行時に埋める(vars に書かない)。estimated_minutes の null は空欄(R-C で埋める)。",
+ "deadline_hours": 9.5,
+ "deadline_note": "night_run の締め切りの既定。タスクから回すときは register_task が --deadline-hours(実行時間の上限 − 0.5)を渡す",
+ "start_at": null,
+ "start_at_note": "予定の開始の時刻 HH:MM(要約の終わりの時刻の表に使う。タスクからは register_task の --at が渡る)",
+ "cost": {
+  "yen_per_hour": null,
+  "note": "円/シミュ日の計器(S4)が出来るまでの代わり。電気代などの 1 時間あたりの円を入れると、夜の壁時計 ÷ シミュ日から出す。空欄なら未計測。"
+ },
+ "env": {
+  "PYTHONIOENCODING": "utf-8",
+  "PYTHONPATH": "src"
+ },
+ "vars": {
+  "WSL_DISTRO": null,
+  "MODEL": null,
+  "VLLM_BIN": null,
+  "VLLM_ENV": null,
+  "VLLM_ARGS": null,
+  "VLLM_PORT": 8000,
+  "TMUX_SESSION": "shibuya-vllm",
+  "VLLM_LOG": "/tmp/shibuya-vllm.log",
+  "E2_ARM_FLAGS": null,
+  "E5_PERSONA_ATTR_FLAGS": null,
+  "E5_PERSONA_TRAIT_FLAGS": null,
+  "E5_PERSONA_STORY_FLAGS": null,
+  "E6_ARM_CURRENT_FLAGS": null,
+  "E6_ARM_MEMORY_FLAGS": null,
+  "E6_ARM_PREDICT_FLAGS": null,
+  "E6_ARM_BOTH_FLAGS": null,
+  "E7_PERTURB_FLAGS": null,
+  "E8_COMMAND": null
+ },
+ "vars_note": {
+  "WSL_DISTRO": "WSL2 の配布の名(wsl -l -v で見る)",
+  "MODEL": "vLLM に渡すモデル(Hugging Face の名か WSL の中の置き場)。served-model-name は /v1/models から自動で見つける",
+  "VLLM_BIN": "WSL の中の vllm の実行ファイル(venv の bin/vllm。~ から書く)",
+  "VLLM_ENV": "vllm の前に置く環境変数(例 CUDA_HOME=… を空白区切り。要らなければ空の文字列)",
+  "VLLM_ARGS": "vllm serve の残りの引数(--served-model-name・--max-model-len・--gpu-memory-utilization・量子化など。要らなければ空の文字列)",
+  "E2_ARM_FLAGS": "E2 で on にする腕の引数の並び(JSON の配列で入れると 1 つずつ差し込む)。自由意図(--intent-mode の自由の値)は語彙の版 v1/v2 と一緒にしか使えない(cli の検査)=v3 の既定とは別の構成になる",
+  "E5_PERSONA_ATTR_FLAGS": "E5 の 3 構成の引数(属性だけ/+性格/+生い立ち)。ペルソナの層(P7)の口が出来てから",
+  "E6_ARM_CURRENT_FLAGS": "E6 の 4 腕(現状/記憶だけ/予測だけ/記憶+予測)。R-K の後",
+  "E7_PERTURB_FLAGS": "E7 の揺らし(火事・大雨・運休)の引数。計器(4-9)が出来てから",
+  "E8_COMMAND": "E8 の試験のコマンド全体(JSON の配列)。判断モデルの候補の重みの取得は許可の範囲で(huggingface.co)"
+ },
+ "fleet": {
+  "endpoints": ["http://127.0.0.1:{{VLLM_PORT}}"],
+  "model": "",
+  "model_note": "期待する served-model-name。空なら照合しない。入れると健全性の確認で /v1/models の名と照合し、違えば止める",
+  "start": {
+   "argv": ["wsl.exe", "-d", "{{WSL_DISTRO}}", "--", "bash", "-lc", "tmux new-session -d -s {{TMUX_SESSION}} \"{{VLLM_ENV}} {{VLLM_BIN}} serve {{MODEL}} --port {{VLLM_PORT}} {{VLLM_ARGS}} > {{VLLM_LOG}} 2>&1\""],
+   "background": false,
+   "timeout_s": 120,
+   "note": "既定は tmux で切り離して起こす(コマンドはすぐ返る)。WSL が切り離した過程を残さない場合は background を true にして、vllm serve を前景で回すコマンドに書き換える(night_run が過程を持ち、落とすときに止める)。background:true のときは stop も wsl.exe -d {{WSL_DISTRO}} -- pkill -f 'vllm serve' に替える(tmux の会話が無いため)。起動の前にも stop を 1 回回す(前の夜の残りの掃除・失敗は無視)。R-C の答申で決める"
+  },
+  "health": {
+   "wait_s": 900,
+   "poll_s": 10,
+   "max_tokens": 16,
+   "prompt": "1 行で答えてください。いまは朝ですか夜ですか。"
+  },
+  "collect_log": {
+   "argv": ["wsl.exe", "-d", "{{WSL_DISTRO}}", "--", "bash", "-lc", "tail -n 200 {{VLLM_LOG}}"],
+   "timeout_s": 60
+  },
+  "stop": {
+   "argv": ["wsl.exe", "-d", "{{WSL_DISTRO}}", "--", "bash", "-lc", "tmux kill-session -t {{TMUX_SESSION}}"],
+   "timeout_s": 120
+  }
+ },
+ "experiments": {
+  "E1": {
+   "purpose": "既定の構成(v3 既定=byte-check の w6_v3_default)× 1 日 × 実 LLM。10/13 以降のコードが実 LLM で動くか",
+   "needs_fleet": true,
+   "before_2_7": true,
+   "sim_days": 1,
+   "estimated_minutes": null,
+   "preconditions": [
+    "2-7(返事待ちの体への再送の穴)を直す前は「動くかどうかの確認」に限る。呼数の計測は 2-7 の後(回答 10-25 §6-0)",
+    "--fleet-wait-s 120 は engine.run の help の「本番の運用は 120」に合わせた。--fleet-queue-capacity は既定(繰り延べが出たら 2-7 と一緒に見る)"
+   ],
+   "commands": [
+    {
+     "name": "run",
+     "argv": ["{{PYTHON}}", "-m", "shibuya.cli", "--agents", "5000", "--seed", "1", "--world", "data/world/v2", "--sim-days", "1", "--llm", "fleet", "--endpoints", "{{ENDPOINTS}}", "--mode", "smoke", "--run-id", "{{RUN_ID}}", "--fleet-wait-s", "120", "--tape", "{{DATA}}/tape", "--checkpoints-out", "{{DATA}}/checkpoints.json"],
+     "timeout_minutes": null
+    }
+   ],
+   "outputs": {"checkpoints": "{{DATA}}/checkpoints.json", "tape": "{{DATA}}/tape"}
+  },
+  "E2": {
+   "purpose": "腕を全部 on(記憶・M1〜M5・関係・会話の発話・カレンダー 1b/2/3・連絡 C1・店の仕事・T3・自由意図)× 1 日。どの腕を版上げで既定にできるかの材料",
+   "needs_fleet": true,
+   "sim_days": 1,
+   "estimated_minutes": null,
+   "preconditions": ["E1 が通ってから", "腕の引数の並びは親が決める(vars の E2_ARM_FLAGS)"],
+   "commands": [
+    {
+     "name": "run",
+     "argv": ["{{PYTHON}}", "-m", "shibuya.cli", "--agents", "5000", "--seed", "1", "--world", "data/world/v2", "--sim-days", "1", "--llm", "fleet", "--endpoints", "{{ENDPOINTS}}", "--mode", "smoke", "--run-id", "{{RUN_ID}}", "--fleet-wait-s", "120", "--tape", "{{DATA}}/tape", "--checkpoints-out", "{{DATA}}/checkpoints.json", "{{E2_ARM_FLAGS}}"],
+     "timeout_minutes": null
+    }
+   ],
+   "outputs": {"checkpoints": "{{DATA}}/checkpoints.json", "tape": "{{DATA}}/tape"}
+  },
+  "E3": {
+   "purpose": "mock・古典で 30 日。器の壊れ方(財布・棚・預金の片寄り・同じ日課の 30 回)",
+   "needs_fleet": false,
+   "sim_days": 30,
+   "estimated_minutes": null,
+   "preconditions": ["§6-1 の 3(--sim-days の開始日検査=月〜金 5 日の上限を外す・K9・再開の保存則の検算・出来事の記録をファイルに書く口)の後。今のコードでは開始日検査で止まる"],
+   "commands": [
+    {
+     "name": "run",
+     "argv": ["{{PYTHON}}", "-m", "shibuya.cli", "--agents", "5000", "--seed", "1", "--world", "data/world/v2", "--sim-days", "30", "--llm", "mock", "--policy", "classical", "--chooser", "classical", "--run-id", "{{RUN_ID}}", "--state-out", "{{DATA}}/state", "--checkpoints-out", "{{DATA}}/checkpoints.json"],
+     "timeout_minutes": null
+    }
+   ],
+   "outputs": {"checkpoints": "{{DATA}}/checkpoints.json", "tape": "{{DATA}}/tape"}
+  },
+  "E4": {
+   "purpose": "5,000 体 × 30 日 × 実 LLM。心の壊れ方。E3 との差",
+   "needs_fleet": true,
+   "sim_days": 30,
+   "estimated_minutes": null,
+   "preconditions": ["§6-1 の 3 の後", "2-7 の後(呼数を測るため)", "1 晩で終わらなければ --state-out の状態から --resume-from で続ける(コマンドは親が足す)"],
+   "commands": [
+    {
+     "name": "run",
+     "argv": ["{{PYTHON}}", "-m", "shibuya.cli", "--agents", "5000", "--seed", "1", "--world", "data/world/v2", "--sim-days", "30", "--llm", "fleet", "--endpoints", "{{ENDPOINTS}}", "--mode", "smoke", "--run-id", "{{RUN_ID}}", "--fleet-wait-s", "120", "--tape", "{{DATA}}/tape", "--state-out", "{{DATA}}/state", "--checkpoints-out", "{{DATA}}/checkpoints.json"],
+     "timeout_minutes": null
+    }
+   ],
+   "outputs": {"checkpoints": "{{DATA}}/checkpoints.json", "tape": "{{DATA}}/tape"}
+  },
+  "E5": {
+   "purpose": "ペルソナの感度 3 構成(属性だけ/+性格/+生い立ち)× 1 日。どの層が人流の集計と行動の分布を変えるか(P7)",
+   "needs_fleet": true,
+   "sim_days": 1,
+   "estimated_minutes": null,
+   "preconditions": ["ペルソナの層の口が出来てから(引数は未定)", "生い立ちは 5,000 体分を 5070 で書く(別の夜)", "計測の一覧は 1 本目(attr)の出力から作る。2・3 本目は各 OUT の下の別の名に書く"],
+   "commands": [
+    {"name": "attr", "argv": ["{{PYTHON}}", "-m", "shibuya.cli", "--agents", "5000", "--seed", "1", "--world", "data/world/v2", "--sim-days", "1", "--llm", "fleet", "--endpoints", "{{ENDPOINTS}}", "--run-id", "{{RUN_ID}}-attr", "--fleet-wait-s", "120", "--tape", "{{DATA}}/tape", "--checkpoints-out", "{{DATA}}/checkpoints.json", "{{E5_PERSONA_ATTR_FLAGS}}"], "timeout_minutes": null},
+    {"name": "trait", "argv": ["{{PYTHON}}", "-m", "shibuya.cli", "--agents", "5000", "--seed", "1", "--world", "data/world/v2", "--sim-days", "1", "--llm", "fleet", "--endpoints", "{{ENDPOINTS}}", "--run-id", "{{RUN_ID}}-trait", "--fleet-wait-s", "120", "--tape", "{{DATA}}/tape_trait", "--checkpoints-out", "{{DATA}}/checkpoints_trait.json", "{{E5_PERSONA_TRAIT_FLAGS}}"], "timeout_minutes": null, "metrics_source": false},
+    {"name": "story", "argv": ["{{PYTHON}}", "-m", "shibuya.cli", "--agents", "5000", "--seed", "1", "--world", "data/world/v2", "--sim-days", "1", "--llm", "fleet", "--endpoints", "{{ENDPOINTS}}", "--run-id", "{{RUN_ID}}-story", "--fleet-wait-s", "120", "--tape", "{{DATA}}/tape_story", "--checkpoints-out", "{{DATA}}/checkpoints_story.json", "{{E5_PERSONA_STORY_FLAGS}}"], "timeout_minutes": null, "metrics_source": false}
+   ],
+   "outputs": {"checkpoints": "{{DATA}}/checkpoints.json", "tape": "{{DATA}}/tape"}
+  },
+  "E6": {
+   "purpose": "店舗選択の 4 腕(現状/記憶だけ/予測だけ/記憶+予測)。経験が行動を変え、答え合わせで改善するか(C-1)",
+   "needs_fleet": true,
+   "sim_days": 1,
+   "estimated_minutes": null,
+   "preconditions": ["R-K の答申の後(腕の口は未定)"],
+   "commands": [
+    {"name": "current", "argv": ["{{PYTHON}}", "-m", "shibuya.cli", "--agents", "5000", "--seed", "1", "--world", "data/world/v2", "--llm", "fleet", "--endpoints", "{{ENDPOINTS}}", "--run-id", "{{RUN_ID}}-current", "--fleet-wait-s", "120", "--tape", "{{DATA}}/tape", "--checkpoints-out", "{{DATA}}/checkpoints.json", "{{E6_ARM_CURRENT_FLAGS}}"], "timeout_minutes": null},
+    {"name": "memory", "argv": ["{{PYTHON}}", "-m", "shibuya.cli", "--agents", "5000", "--seed", "1", "--world", "data/world/v2", "--llm", "fleet", "--endpoints", "{{ENDPOINTS}}", "--run-id", "{{RUN_ID}}-memory", "--fleet-wait-s", "120", "--tape", "{{DATA}}/tape_memory", "--checkpoints-out", "{{DATA}}/checkpoints_memory.json", "{{E6_ARM_MEMORY_FLAGS}}"], "timeout_minutes": null, "metrics_source": false},
+    {"name": "predict", "argv": ["{{PYTHON}}", "-m", "shibuya.cli", "--agents", "5000", "--seed", "1", "--world", "data/world/v2", "--llm", "fleet", "--endpoints", "{{ENDPOINTS}}", "--run-id", "{{RUN_ID}}-predict", "--fleet-wait-s", "120", "--tape", "{{DATA}}/tape_predict", "--checkpoints-out", "{{DATA}}/checkpoints_predict.json", "{{E6_ARM_PREDICT_FLAGS}}"], "timeout_minutes": null, "metrics_source": false},
+    {"name": "both", "argv": ["{{PYTHON}}", "-m", "shibuya.cli", "--agents", "5000", "--seed", "1", "--world", "data/world/v2", "--llm", "fleet", "--endpoints", "{{ENDPOINTS}}", "--run-id", "{{RUN_ID}}-both", "--fleet-wait-s", "120", "--tape", "{{DATA}}/tape_both", "--checkpoints-out", "{{DATA}}/checkpoints_both.json", "{{E6_ARM_BOTH_FLAGS}}"], "timeout_minutes": null, "metrics_source": false}
+   ],
+   "outputs": {"checkpoints": "{{DATA}}/checkpoints.json", "tape": "{{DATA}}/tape"}
+  },
+  "E7": {
+   "purpose": "揺らし(火事・大雨・運休)× 古典と LLM。自由度と頑健性(4-9)",
+   "needs_fleet": true,
+   "sim_days": 1,
+   "estimated_minutes": null,
+   "preconditions": ["計器(4-9)が出来てから", "揺らしの口は未定(第 3 期 3-3 の申込書 --experiment で入れるかを親が決める)"],
+   "commands": [
+    {"name": "classical", "argv": ["{{PYTHON}}", "-m", "shibuya.cli", "--agents", "5000", "--seed", "1", "--world", "data/world/v2", "--llm", "mock", "--policy", "classical", "--chooser", "classical", "--run-id", "{{RUN_ID}}-classical", "--checkpoints-out", "{{DATA}}/checkpoints_classical.json", "{{E7_PERTURB_FLAGS}}"], "timeout_minutes": null, "metrics_source": false},
+    {"name": "llm", "argv": ["{{PYTHON}}", "-m", "shibuya.cli", "--agents", "5000", "--seed", "1", "--world", "data/world/v2", "--llm", "fleet", "--endpoints", "{{ENDPOINTS}}", "--run-id", "{{RUN_ID}}-llm", "--fleet-wait-s", "120", "--tape", "{{DATA}}/tape", "--checkpoints-out", "{{DATA}}/checkpoints.json", "{{E7_PERTURB_FLAGS}}"], "timeout_minutes": null, "metrics_source": true}
+   ],
+   "outputs": {"checkpoints": "{{DATA}}/checkpoints.json", "tape": "{{DATA}}/tape"}
+  },
+  "E8": {
+   "purpose": "即断(ModernBERT-ja 3.1 億)の試験と Ruri。判断モデルの候補の下見(回答 10-25 2-1 のとおり 5070 で可)",
+   "needs_fleet": false,
+   "sim_days": 1,
+   "estimated_minutes": null,
+   "preconditions": ["試験のコマンドは未定(vars の E8_COMMAND)", "重みの取得は huggingface.co の許可の範囲で・版を固定(CLAUDE.md §7)", "vLLM は使わない(艦隊を立てない)"],
+   "commands": [
+    {"name": "probe", "argv": ["{{E8_COMMAND}}"], "timeout_minutes": null}
+   ],
+   "outputs": {"checkpoints": "{{DATA}}/checkpoints.json", "tape": "{{DATA}}/tape"}
+  }
+ }
+}

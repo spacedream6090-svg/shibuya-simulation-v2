@@ -54,8 +54,12 @@ def _modules_calling(name: str) -> list[str]:
 
 
 def test_only_ledger_module_touches_the_balance_arrays():
-    """残高配列に触れるのは economy/ledger.py だけ(= transfer 単一API)。"""
-    assert _modules_touching(MONEY_PRIVATE) == [LEDGER]
+    """残高配列に触れるのは economy/ledger.py と economy/ops.py だけ(= transfer 単一API)。
+
+    〔第 1 期 1-9〕書くのは基本操作 ``economy/ops.py`` の ``transfer`` だけになった(旧 ``_apply_cash`` を移した)。
+    書き手の狭い検査は ``tests/economy/cp2/test_cp2_transfer_only_writer.py``(AST・負の対照つき)。
+    """
+    assert _modules_touching(MONEY_PRIVATE) == [LEDGER, "src/shibuya/economy/ops.py"]
 
 
 def test_only_goods_module_touches_the_stock_arrays():
@@ -122,7 +126,7 @@ def test_attached_agent_money_is_not_unfrozen_by_the_ledger():
     led = Ledger(4, 1)
     led.attach_household_cash(money)
     money.flags.writeable = False
-    with led.unlocked():
+    with led._unlocked():  # 〔1-9・検収 M2〕台帳の窓は内部の名(試験だけが外から開ける)
         assert not money.flags.writeable  # 台帳は外部配列のフラグを立てない
     with pytest.raises(ValueError, match="読み取り専用"):
         led.endow_households(np.full(4, 100, dtype=np.int64), tick=0)

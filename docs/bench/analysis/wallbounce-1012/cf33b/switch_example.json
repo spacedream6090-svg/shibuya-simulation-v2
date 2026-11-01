@@ -1,0 +1,311 @@
+{
+ "schema": "cf33b/switch-example/1",
+ "kw": {
+  "n_agents": 1000,
+  "seed": 1,
+  "world_dir": "data/world/v2",
+  "sim_days": 2,
+  "vocab_version": "v3",
+  "checkpoint_every": 60
+ },
+ "form_sha256": "1406365eb08cd81ae7c42524773b1f8949bb3486982b7022d0782d7b8010217d",
+ "n_targets": 200,
+ "base_final": "425c22a316b766795f7159f908d7d65fd74825a62eeb2fc7e0aa1e284611199d",
+ "base_wall_seconds": 29.3,
+ "arms": {
+  "mock": {
+   "summary": {
+    "a": true,
+    "b": true,
+    "d": true,
+    "c_step": 2160,
+    "c_system": "world",
+    "ok": true,
+    "executed_by_agents": false,
+    "model": "mock",
+    "deterministic": true,
+    "c_aa_step": null,
+    "c_gap_steps": null,
+    "d_floor_zero": true
+   },
+   "switch": {
+    "schema": "shibuya.engine.experiment/switch/1",
+    "t0_ns": 129600000000000,
+    "t0_step": 2160,
+    "window_ns": 60000000000,
+    "step_ns": 60000000000,
+    "model": "mock",
+    "deterministic": true,
+    "post_is_run_client": true,
+    "before_t0": "tape",
+    "box": "step"
+   },
+   "runs": {
+    "aa_a": {
+     "final_hash": "425c22a316b766795f7159f908d7d65fd74825a62eeb2fc7e0aa1e284611199d",
+     "checkpoints": 24,
+     "llm_calls": 13633,
+     "wall_seconds": 14.92
+    },
+    "aa_b": {
+     "final_hash": "425c22a316b766795f7159f908d7d65fd74825a62eeb2fc7e0aa1e284611199d",
+     "checkpoints": 24,
+     "llm_calls": 13633,
+     "wall_seconds": 54.76
+    },
+    "branch": {
+     "final_hash": "756a262f7d2124234721bbb5d020d222966002b00c955791cce8844e082f565a",
+     "checkpoints": 24,
+     "llm_calls": 13692,
+     "wall_seconds": 15.29
+    },
+    "branch_probe": {
+     "final_hash": "756a262f7d2124234721bbb5d020d222966002b00c955791cce8844e082f565a",
+     "checkpoints": 24,
+     "llm_calls": 13692,
+     "wall_seconds": 61.07
+    }
+   },
+   "b_pre_t0": {
+    "aa": {
+     "ok": true,
+     "checkpoints_before_T0": 12,
+     "tape_miss_before_t0": 0,
+     "box_left": 0
+    },
+    "branch": {
+     "ok": true,
+     "checkpoints_before_T0": 12,
+     "tape_miss_before_t0": 0,
+     "box_left": 0
+    },
+    "aa_b": {
+     "ok": true,
+     "checkpoints_before_T0": 12,
+     "tape_miss_before_t0": 0,
+     "box_left": 0
+    }
+   },
+   "c": {
+    "coarse_first_step": 2219,
+    "world": {
+     "step": 2160,
+     "system": "world",
+     "keys": [
+      "O73:runner.opening.n_events",
+      "O73:runner.opening.n_fallback",
+      "pois.open_now"
+     ]
+    },
+    "aa_coarse_first_step": null,
+    "vs_aa": {
+     "branch_first_step": 2219,
+     "aa_first_step": null,
+     "gap_steps": null,
+     "status": "A/A の枝 2 本は食い違わない(床 0)=改変の枝の食い違いは床の外"
+    }
+   },
+   "d_determinism": {
+    "model": "mock",
+    "deterministic": true,
+    "twins_vs_base_before_t0": true,
+    "twins_before_t0": true,
+    "aa_exact": true,
+    "aa_exact_required": true,
+    "final_equals_base": true,
+    "final_equals_base_required": true,
+    "ok": true
+   },
+   "d_floor": {
+    "pairs": 1,
+    "model": "mock",
+    "deterministic": true,
+    "metrics": {
+     "calls": {
+      "schema": "shibuya.engine.experiment/floor/1",
+      "n": 1,
+      "mean": 0.0,
+      "sd": null,
+      "min": 0.0,
+      "max": 0.0,
+      "abs_max": 0.0,
+      "zero_share": 1.0,
+      "diffs": [
+       0.0
+      ]
+     }
+    },
+    "checkpoints_after_t0": 12,
+    "checkpoints_differ": 0,
+    "first_differ_step": null,
+    "zero": true
+   },
+   "replay": {
+    "t0_step": 2160,
+    "stateful_policy": false,
+    "replayed_before_t0": 5190,
+    "tape_miss_before_t0": 0,
+    "policy_before_t0": 0,
+    "policy_mismatch_before_t0": 0,
+    "live_from_t0": 8502,
+    "model": "mock",
+    "deterministic": true,
+    "box_peak": 358,
+    "box_carried": 0,
+    "box_repeats": 0,
+    "box_at_switch": 0,
+    "first_live_step": 2160,
+    "fleet_rows_before_t0": 0,
+    "rows_crossing_t0": 0
+   },
+   "wall_seconds": 146.2
+  },
+  "stand_in": {
+   "summary": {
+    "a": true,
+    "b": true,
+    "d": true,
+    "c_step": 2160,
+    "c_system": "world",
+    "ok": true,
+    "executed_by_agents": false,
+    "model": "llm_stand_in",
+    "deterministic": false,
+    "c_aa_step": 2219,
+    "c_gap_steps": 0,
+    "d_floor_zero": false
+   },
+   "switch": {
+    "schema": "shibuya.engine.experiment/switch/1",
+    "t0_ns": 129600000000000,
+    "t0_step": 2160,
+    "window_ns": 60000000000,
+    "step_ns": 60000000000,
+    "model": "llm_stand_in",
+    "deterministic": false,
+    "post_is_run_client": false,
+    "before_t0": "tape",
+    "box": "step"
+   },
+   "runs": {
+    "aa_a": {
+     "final_hash": "286162d335d11ca8f2370656917844562174c8f85c6156e716326be673f63f8d",
+     "checkpoints": 24,
+     "llm_calls": 13549,
+     "wall_seconds": 23.78
+    },
+    "aa_b": {
+     "final_hash": "3353f2f8e2eeff00648bcfd9105f0594dfc9ee5c523af7d341a4941909af88e9",
+     "checkpoints": 24,
+     "llm_calls": 13544,
+     "wall_seconds": 66.2
+    },
+    "branch": {
+     "final_hash": "59ed97cfcbdcb390af47d62f19e4f5fbbb392daee3fe1c7df26cfaf83cffe2f7",
+     "checkpoints": 24,
+     "llm_calls": 13571,
+     "wall_seconds": 23.23
+    },
+    "branch_probe": {
+     "final_hash": "83e0016a5df055454d5cf32735bb8cb543958918e667e6043a9e43f7b7573d43",
+     "checkpoints": 24,
+     "llm_calls": 13747,
+     "wall_seconds": 50.61
+    }
+   },
+   "b_pre_t0": {
+    "aa": {
+     "ok": true,
+     "checkpoints_before_T0": 12,
+     "tape_miss_before_t0": 0,
+     "box_left": 0
+    },
+    "branch": {
+     "ok": true,
+     "checkpoints_before_T0": 12,
+     "tape_miss_before_t0": 0,
+     "box_left": 0
+    },
+    "aa_b": {
+     "ok": true,
+     "checkpoints_before_T0": 12,
+     "tape_miss_before_t0": 0,
+     "box_left": 0
+    }
+   },
+   "c": {
+    "coarse_first_step": 2219,
+    "world": {
+     "step": 2160,
+     "system": "world",
+     "keys": [
+      "O73:runner.opening.n_events",
+      "O73:runner.opening.n_fallback",
+      "pois.open_now"
+     ]
+    },
+    "aa_coarse_first_step": 2219,
+    "vs_aa": {
+     "branch_first_step": 2219,
+     "aa_first_step": 2219,
+     "gap_steps": 0,
+     "status": "改変の枝の食い違いは A/A の枝 2 本と同時か後(床に埋もれる)"
+    }
+   },
+   "d_determinism": {
+    "model": "llm_stand_in",
+    "deterministic": false,
+    "twins_vs_base_before_t0": true,
+    "twins_before_t0": true,
+    "aa_exact": false,
+    "aa_exact_required": false,
+    "final_equals_base": false,
+    "final_equals_base_required": false,
+    "ok": true
+   },
+   "d_floor": {
+    "pairs": 1,
+    "model": "llm_stand_in",
+    "deterministic": false,
+    "metrics": {
+     "calls": {
+      "schema": "shibuya.engine.experiment/floor/1",
+      "n": 1,
+      "mean": -5.0,
+      "sd": null,
+      "min": -5.0,
+      "max": -5.0,
+      "abs_max": 5.0,
+      "zero_share": 0.0,
+      "diffs": [
+       -5.0
+      ]
+     }
+    },
+    "checkpoints_after_t0": 12,
+    "checkpoints_differ": 12,
+    "first_differ_step": 2219,
+    "zero": false
+   },
+   "replay": {
+    "t0_step": 2160,
+    "stateful_policy": false,
+    "replayed_before_t0": 5190,
+    "tape_miss_before_t0": 0,
+    "policy_before_t0": 0,
+    "policy_mismatch_before_t0": 0,
+    "live_from_t0": 8381,
+    "model": "llm_stand_in",
+    "deterministic": false,
+    "box_peak": 358,
+    "box_carried": 0,
+    "box_repeats": 0,
+    "box_at_switch": 0,
+    "first_live_step": 2160,
+    "fleet_rows_before_t0": 0,
+    "rows_crossing_t0": 0
+   },
+   "wall_seconds": 164.0
+  }
+ }
+}

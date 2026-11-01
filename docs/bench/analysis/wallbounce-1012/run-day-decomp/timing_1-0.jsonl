@@ -1,0 +1,8 @@
+{"guard": "on", "k": 1, "wall_s": 33.6, "final": "5f7ae9ff24005314", "calls": 65597}
+{"guard": "off", "k": 1, "wall_s": 32.0, "final": "5f7ae9ff24005314", "calls": 65597}
+{"guard": "on", "k": 2, "wall_s": 33.3, "final": "5f7ae9ff24005314", "calls": 65597}
+{"guard": "off", "k": 2, "wall_s": 33.7, "final": "5f7ae9ff24005314", "calls": 65597}
+{"side": "head", "k": 1, "wall_s": 30.2, "final": "5f7ae9ff24005314"}
+{"side": "10", "k": 1, "wall_s": 33.1, "final": "5f7ae9ff24005314"}
+{"side": "head", "k": 2, "wall_s": 31.5, "final": "5f7ae9ff24005314"}
+{"side": "10", "k": 2, "wall_s": 33.0, "final": "5f7ae9ff24005314"}

@@ -1,0 +1,11 @@
+{
+ "a": "straight:on",
+ "b": "resume:on",
+ "final_same": true,
+ "calls_a": 54109,
+ "calls_b": 19698,
+ "checkpoints_same": true,
+ "end_of_day_same": true,
+ "final_a": "7819c26aee432fe4",
+ "final_b": "7819c26aee432fe4"
+}

@@ -34,6 +34,7 @@ import numpy as np
 
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.state import World
+from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR
 
 __all__ = [
     "KLASS_Q12",
@@ -142,7 +143,7 @@ class TrafficProcess:
         """時間帯が変わったときだけ場を差し替える(tick あたり O(1))。"""
         if not self.active:
             return
-        hour = int(int(tick) * self.tick_seconds // 3_600) % 24
+        hour = int(int(tick) * self.tick_seconds // SECONDS_PER_HOUR) % HOURS_PER_DAY
         if hour == self.hour:
             return
         self.hour = hour

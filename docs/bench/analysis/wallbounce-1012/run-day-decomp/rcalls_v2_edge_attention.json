@@ -1,0 +1,95 @@
+{
+ "config": "v2_edge_attention",
+ "final": "5c881f69e0894b50",
+ "calls_llm": 9942,
+ "by_segment": {
+  "S": {
+   "initialize": 1,
+   "initialize_energy": 1,
+   "normalized_refractory_scale": 1,
+   "place_at_external": 1,
+   "rail_arrive": 1,
+   "refractory_ticks": 1,
+   "set_initial_activity": 1,
+   "set_plan_state": 2
+  },
+  "body": {
+   "_energy_meal": 108,
+   "_tick_minute": 108,
+   "advance_body": 1440,
+   "energy_out_of_area_meal": 108
+  },
+  "world": {
+   "_require_thawed": 1,
+   "collect_waste": 234,
+   "consume": 1,
+   "discard_to_bin": 1,
+   "rail_arrive": 1,
+   "rail_depart": 222,
+   "release_indoor": 355,
+   "restock": 1,
+   "set_notice_state": 2,
+   "set_open_flags": 47,
+   "set_plan_state": 1,
+   "set_thermal": 288,
+   "sync_transit_activity": 1440
+  },
+  "detect": {
+   "apply_detection": 1440
+  },
+  "plan_boundary": {
+   "begin_planned_sleep": 54,
+   "set_plan_state": 1041,
+   "wake_from_plan": 987
+  },
+  "phase_c": {
+   "_advance_focus": 1440,
+   "_approach_dest_node": 365,
+   "_board_riders": 356,
+   "_cell_of_node": 1000,
+   "_clear_focus": 1036,
+   "_complete_buy": 278,
+   "_complete_eat": 244,
+   "_energy_meal": 244,
+   "_energy_snack": 278,
+   "_enter_board_queue": 281,
+   "_fail": 5820,
+   "_focus_xy": 671,
+   "_ok": 3035,
+   "_plan_exit_mask": 751,
+   "_platform_table": 644,
+   "_require_thawed": 522,
+   "_serve_board_queue": 1440,
+   "_serve_poi_queue": 1440,
+   "_set_focus": 671,
+   "_settle_approach": 495,
+   "_tick_minute": 522,
+   "apply": 1440,
+   "release_indoor": 36,
+   "talk_within_reach": 338
+  },
+  "presence": {
+   "rail_arrive": 552,
+   "rail_depart": 305,
+   "release_indoor": 41,
+   "set_plan_state": 1274
+  },
+  "decide": {
+   "_require_thawed": 1046,
+   "set_refractory": 1046
+  },
+  "conversation": {
+   "revert_conversation": 268,
+   "talk_within_reach": 255
+  },
+  "apply_responses": {
+   "_require_thawed": 13,
+   "revert_conversation": 130,
+   "set_conversing": 13,
+   "talk_within_reach": 244
+  },
+  "close_final": {
+   "sync_transit_activity": 1
+  }
+ }
+}

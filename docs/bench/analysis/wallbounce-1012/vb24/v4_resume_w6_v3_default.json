@@ -1,0 +1,21 @@
+{
+ "label": "V4",
+ "base": "w6_v3_default",
+ "arms": {
+  "proximity": "distance",
+  "economy_stage2": "on",
+  "seat_release": "walk"
+ },
+ "agents": 5000,
+ "seed": 1,
+ "straight_final": "b346bb6e3ecc60af",
+ "resumed_final": "b346bb6e3ecc60af",
+ "same_final": true,
+ "checkpoints_after_boundary_same": true,
+ "n_checkpoints_compared": 4,
+ "calls": [
+  138946,
+  138946
+ ],
+ "wall_s_nondeterministic": 175.3
+}

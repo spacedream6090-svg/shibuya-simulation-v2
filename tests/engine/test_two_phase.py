@@ -73,6 +73,10 @@ _HOT_PATHS = (
     "engine/resolve.py",
     "engine/commit.py",
     "engine/change_detect.py",
+    # 第 1 期 1-9: お金の基本操作(購入・運賃・補充の代金が毎刻み通る=口の約束 1-9 の受入の試験)
+    "economy/ops.py",
+    # 1-0: run_day を系に分けた先(弱めない=対象を広げる・草案 §3-3 の 16)
+    *sorted(str(p.relative_to(SRC)).replace("\\", "/") for p in (SRC / "engine" / "systems").glob("*.py")),
 )
 #: 個体数ぶんの Python ループ(P4 で禁止)を疑う書き方。
 _AGENT_LOOP_RE = re.compile(
@@ -263,4 +267,4 @@ def test_losers_get_the_failure_code():
     R.apply(plan.confirmed, plan.losers, a, w, 600)
     for aid in plan.losers.agent_id.tolist():
         assert int(a.last_result[aid]) == int(ResultCode.LOST_ARBITRATION)
-        assert int(a.fail_streak[aid]) == 1
+        # 〔第330・RET〕K15 で fail_streak を消した(前: 1)

@@ -1,0 +1,147 @@
+{
+ "tool": "s8b/tools/speech_tokens.py",
+ "token_rule": "len(text) // 2(最低 1)",
+ "tapes": {
+  "rs8b_on_w6_v3_default": {
+   "calls": 65597,
+   "calls_with_field_line": 3592,
+   "calls_with_heard_lines": 1153,
+   "heard_lines": 1159,
+   "responses_with_comment": 3592,
+   "field_line_tokens": [
+    10
+   ],
+   "heard_line_tokens_max": 17,
+   "heard_line_tokens_mean": 16.82,
+   "shared_static_tokens": {
+    "744": 301,
+    "745": 51755,
+    "746": 368,
+    "747": 13173
+   },
+   "individual_tokens_max": 169,
+   "individual_tokens_mean": 124.21,
+   "individual_tokens_max_with_speech_lines": 169,
+   "b6_tokens_max": 93,
+   "b6_over_80": {
+    "total": 10,
+    "field_only": 0,
+    "heard_only": 0,
+    "both": 10,
+    "neither": 0
+   }
+  },
+  "rs8b_on_w6_v1_default": {
+   "calls": 51835,
+   "calls_with_field_line": 0,
+   "calls_with_heard_lines": 599,
+   "heard_lines": 602,
+   "responses_with_comment": 51835,
+   "field_line_tokens": [],
+   "heard_line_tokens_max": 17,
+   "heard_line_tokens_mean": 16.68,
+   "shared_static_tokens": {
+    "703": 254,
+    "704": 41393,
+    "705": 352,
+    "706": 9836
+   },
+   "individual_tokens_max": 160,
+   "individual_tokens_mean": 127.82,
+   "individual_tokens_max_with_speech_lines": 160,
+   "b6_tokens_max": 71,
+   "b6_over_80": {
+    "total": 0,
+    "field_only": 0,
+    "heard_only": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  "rs8b_on_v3_mem_rel": {
+   "calls": 69111,
+   "calls_with_field_line": 3897,
+   "calls_with_heard_lines": 1245,
+   "heard_lines": 1250,
+   "responses_with_comment": 3897,
+   "field_line_tokens": [
+    10
+   ],
+   "heard_line_tokens_max": 17,
+   "heard_line_tokens_mean": 16.81,
+   "shared_static_tokens": {
+    "744": 308,
+    "745": 55044,
+    "746": 380,
+    "747": 13379
+   },
+   "individual_tokens_max": 226,
+   "individual_tokens_mean": 151.91,
+   "individual_tokens_max_with_speech_lines": 226,
+   "b6_tokens_max": 93,
+   "b6_over_80": {
+    "total": 11,
+    "field_only": 0,
+    "heard_only": 0,
+    "both": 11,
+    "neither": 0
+   }
+  },
+  "rs8b_on_v3_classical_mem_rel": {
+   "calls": 106565,
+   "calls_with_field_line": 1287,
+   "calls_with_heard_lines": 1122,
+   "heard_lines": 1123,
+   "responses_with_comment": 1287,
+   "field_line_tokens": [
+    10
+   ],
+   "heard_line_tokens_max": 17,
+   "heard_line_tokens_mean": 16.86,
+   "shared_static_tokens": {
+    "744": 464,
+    "745": 82963,
+    "746": 493,
+    "747": 22645
+   },
+   "individual_tokens_max": 260,
+   "individual_tokens_mean": 146.64,
+   "individual_tokens_max_with_speech_lines": 260,
+   "b6_tokens_max": 82,
+   "b6_over_80": {
+    "total": 1,
+    "field_only": 0,
+    "heard_only": 0,
+    "both": 1,
+    "neither": 0
+   }
+  },
+  "rhead_w6_v3_default": {
+   "calls": 65597,
+   "calls_with_field_line": 0,
+   "calls_with_heard_lines": 0,
+   "heard_lines": 0,
+   "responses_with_comment": 0,
+   "field_line_tokens": [],
+   "heard_line_tokens_max": null,
+   "heard_line_tokens_mean": null,
+   "shared_static_tokens": {
+    "744": 301,
+    "745": 51755,
+    "746": 368,
+    "747": 13173
+   },
+   "individual_tokens_max": 157,
+   "individual_tokens_mean": 123.31,
+   "individual_tokens_max_with_speech_lines": null,
+   "b6_tokens_max": 67,
+   "b6_over_80": {
+    "total": 0,
+    "field_only": 0,
+    "heard_only": 0,
+    "both": 0,
+    "neither": 0
+   }
+  }
+ }
+}

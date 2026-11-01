@@ -1,0 +1,85 @@
+{
+ "schema": "shibuya.bench/10e/two-day-check-act/1",
+ "how": "第330 ACT の作業木(ACT の資産=影 6 日)・5,000 体・seed 1・sim_days=2・既定 v3(活動層 on)・テープつき。two_day_check_act.py one → check",
+ "check": {
+  "ok": true,
+  "problems": []
+ },
+ "row": {
+  "label": "act",
+  "kw": {},
+  "src_is_worktree": true,
+  "start_sim_datetime": "2026-07-13T00:00:00",
+  "calendar_weekday": "real",
+  "calendar_days": [
+   {
+    "day": 0,
+    "date": "2026-07-13",
+    "weekday": 0,
+    "is_holiday": null,
+    "is_rest_day": null
+   },
+   {
+    "day": 1,
+    "date": "2026-07-14",
+    "weekday": 1,
+    "is_holiday": null,
+    "is_rest_day": null
+   }
+  ],
+  "weather_scheme": "calendar",
+  "weather_perturbed": false,
+  "weather_days": [
+   {
+    "day": 0,
+    "calendar_date": "2026-07-13",
+    "replay_date": "2026-07-13",
+    "stratum": "夏|平日|雨",
+    "how": "actual",
+    "widened": "",
+    "shadow_date": "2026-07-13",
+    "shadow_fallback": false,
+    "sunrise_min": 275.0,
+    "sunset_min": 1139.0
+   },
+   {
+    "day": 1,
+    "calendar_date": "2026-07-14",
+    "replay_date": "2026-07-14",
+    "stratum": "夏|平日|晴",
+    "how": "actual",
+    "widened": "",
+    "shadow_date": "2026-07-14",
+    "shadow_fallback": false,
+    "sunrise_min": 275.0,
+    "sunset_min": 1138.0
+   }
+  ],
+  "weather_warnings": [],
+  "w13_rows_of_replay_dates": {
+   "2026-07-13": {
+    "weather_type": "雨",
+    "weekday_kind": "平日",
+    "stratum": "平日|雨",
+    "temp_max_c": 28.96666666666667,
+    "precip_total_mm": 1.0,
+    "sunrise": "04:35",
+    "sunset": "18:59"
+   },
+   "2026-07-14": {
+    "weather_type": "晴",
+    "weekday_kind": "平日",
+    "stratum": "平日|晴",
+    "temp_max_c": 33.78333333333334,
+    "precip_total_mm": 0.0,
+    "sunrise": "04:35",
+    "sunset": "18:58"
+   }
+  },
+  "final": "912446bd2b42b6ab",
+  "calls": 140913,
+  "calls_sha": "cb330e76b4b8a573",
+  "blocks_sha": "7f09f3dc78d84ac4",
+  "wall_s": 83.6
+ }
+}

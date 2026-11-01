@@ -69,7 +69,7 @@ def test_run_summary_uses_the_store_band_and_lists_three_sources():
     assert got["waste_band_ok"] is res.waste_band_ok
 
 
-@pytest.mark.skipif(not (WORLD_DIR / "w2_cells.parquet").exists(), reason="実世界資産 data/world/v2 が無い")
+@pytest.mark.requires_data("world_v2:w2_cells.parquet")
 def test_real_world_store_band_is_0_911_t_per_day_for_any_agent_count():
     """実世界(2,337 POI・初期在庫 64): 0.911 t/日 ±30% = 0.64〜1.18(体数に依らない)。"""
     from shibuya.world.assets import hash_free_cat_code

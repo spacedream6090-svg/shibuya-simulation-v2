@@ -82,7 +82,7 @@ def test_the_open_day_is_inside_the_window():
 def test_a_direct_balance_assignment_breaks_the_column_check():
     """列和(部門ごとの Σ科目)= Δ現金 が破れる。行和と預金脚は無事=どこが壊れたか分かる。"""
     led = _five_days(_world())
-    with led.unlocked():
+    with led._unlocked():  # 〔1-9・検収 M2〕台帳の窓は内部の名(試験だけが外から開ける)
         led.balance(BalanceLine.CASH, Sector.HOUSEHOLD)[0] += 5_000  # 迂回
     t3 = CK.t3_check(led)
     assert t3.ok is False
@@ -100,7 +100,7 @@ def test_offsetting_direct_assignments_slip_past_check2_but_not_t3():
     検算②は PASS。T3 は**部門ごと**に列和と Δ現金を突き合わせるので両方の部門で落ちる。
     """
     led = _five_days(_world())
-    with led.unlocked():
+    with led._unlocked():  # 〔1-9・検収 M2〕台帳の窓は内部の名(試験だけが外から開ける)
         led.balance(BalanceLine.CASH, Sector.HOUSEHOLD)[0] += 5_000
         led.balance(BalanceLine.CASH, Sector.STORE)[0] -= 5_000
     assert CK.net_worth_equals_real_assets(led).ok is True  # 検算②は素通り
@@ -112,7 +112,7 @@ def test_offsetting_direct_assignments_slip_past_check2_but_not_t3():
 # ------------------------------------------------------------------ (iii) 預金脚
 def test_a_broken_deposit_leg_is_caught_even_when_the_rows_and_columns_are_clean():
     led = _five_days(_world())
-    with led.unlocked():
+    with led._unlocked():  # 〔1-9・検収 M2〕台帳の窓は内部の名(試験だけが外から開ける)
         led.balance(BalanceLine.DEPOSIT, Sector.HOUSEHOLD)[0] += 1_000  # 借入の相方が無い
     t3 = CK.t3_check(led)
     assert t3.ok is False

@@ -1,0 +1,163 @@
+{
+ "config": "golden_null_arm",
+ "n_agents": 1000,
+ "final": "bee59e96a1849734",
+ "calls": 19144,
+ "procs": {
+  "environment": {
+   "visits": 66,
+   "changed": {
+    "O56:runner.environment._shade": 13,
+    "O73:runner.environment.n_updates": 13,
+    "O76:runner.environment.daylight": 1,
+    "O76:runner.environment.heat_stage": 2,
+    "O76:runner.environment.wbgt": 4,
+    "agents.thermal": 13
+   }
+  },
+  "opening": {
+   "visits": 66,
+   "changed": {
+    "O73:runner.opening.n_events": 4,
+    "O73:runner.opening.n_fallback": 4,
+    "pois.open_now": 4
+   }
+  },
+  "crowd": {
+   "visits": 66,
+   "changed": {
+    "O73:runner.crowd.n_released": 22,
+    "O73:runner.crowd.peak_occupancy": 10,
+    "O75:runner.crowd.flow": 64,
+    "O75:runner.crowd.occupancy": 43,
+    "O95:runner.crowd.coherence": 63,
+    "O95:runner.crowd.flow_dir8": 63,
+    "agents.activity": 16,
+    "agents.poi_ref": 22,
+    "agents.poi_since": 22
+   }
+  },
+  "traffic": {
+   "visits": 66,
+   "changed": {
+    "O55:runner.traffic.cell_vehicles": 2
+   }
+  },
+  "street_cleaning": {
+   "visits": 66,
+   "changed": {
+    "O53:runner.street_cleaning.litter_g": 66
+   }
+  },
+  "road_works": {
+   "visits": 66,
+   "changed": {
+    "O54:runner.road_works.blocked_cells": 1,
+    "O54:runner.road_works.occupied_edges": 1,
+    "O73:runner.road_works.n_started": 1
+   }
+  },
+  "infra": {
+   "visits": 66,
+   "changed": {
+    "O55:runner.infra.power_kwh": 66,
+    "O73:runner.infra.water_m3": 66
+   }
+  },
+  "salient": {
+   "visits": 66,
+   "changed": {
+    "O46:runner.salient.budget": 66,
+    "O72:runner.salient.n_broadcast_lines": 3
+   }
+  },
+  "rail": {
+   "visits": 66,
+   "changed": {
+    "O50:runner.rail._return_queue": 30,
+    "O50:runner.rail.occupancy": 19,
+    "O73:runner.rail.n_arrivals": 20,
+    "O73:runner.rail.n_departed_riders": 19,
+    "O73:runner.rail.n_departures": 56,
+    "O73:runner.rail.n_no_return": 4,
+    "O73:runner.rail.n_return_arrived": 11,
+    "O73:runner.rail.n_return_scheduled": 15,
+    "O74:runner.rail.arrival_train": 15,
+    "agents.activity": 33,
+    "agents.band": 20,
+    "agents.cell": 20,
+    "agents.node": 20,
+    "agents.transit_ref": 36,
+    "agents.transit_state": 36,
+    "agents.xy": 20
+   }
+  },
+  "delivery_inbound": {
+   "visits": 66,
+   "changed": {
+    "O52:runner.shelf.backroom": 20,
+    "O73:runner.delivery_inbound.n_delayed": 17,
+    "O73:runner.delivery_inbound.n_runs": 20,
+    "O73:runner.delivery_inbound.units_delivered": 20
+   }
+  },
+  "waste": {
+   "visits": 66,
+   "changed": {
+    "O53:runner.waste._cursor": 20,
+    "O53:runner.waste.waste_g_collected": 20,
+    "O59:ledger.goods._bin": 20,
+    "O60:ledger.goods._dl_code": 20,
+    "O60:ledger.goods._dl_poi": 20,
+    "O60:ledger.goods._dl_qty": 20,
+    "O60:ledger.goods._dl_tick": 20,
+    "O73:runner.waste.n_stops": 20,
+    "O80:ledger.goods._day_waste_g": 20,
+    "O80:ledger.goods._outflow": 20,
+    "O80:ledger.goods._waste_sku": 20,
+    "O80:ledger.goods.store_waste_g_total": 20,
+    "O81:ledger.goods.n_moves": 20,
+    "O93:ledger.goods._dl_pos": 20
+   }
+  },
+  "bus_taxi": {
+   "visits": 66,
+   "changed": {
+    "O73:runner.bus_taxi.n_arrivals": 60
+   }
+  },
+  "press": {
+   "visits": 66,
+   "changed": {
+    "O73:runner.press.n_releases": 3
+   }
+  },
+  "last_mile": {
+   "visits": 66,
+   "changed": {
+    "O55:runner.last_mile.delivered": 2,
+    "O73:runner.last_mile.n_batches": 2
+   }
+  },
+  "large_event": {
+   "visits": 66,
+   "changed": {
+    "O49:runner.large_event._inside": 1,
+    "O73:runner.large_event.n_in": 1,
+    "O74:runner.rail.arrival_train": 1,
+    "agents.activity": 1,
+    "agents.band": 1,
+    "agents.cell": 1,
+    "agents.node": 1,
+    "agents.transit_ref": 1,
+    "agents.transit_state": 1,
+    "agents.xy": 1
+   }
+  }
+ },
+ "no_change": [
+  "dispatch",
+  "hotel",
+  "shelf"
+ ]
+}

@@ -40,12 +40,32 @@ def test_coefficients_match_the_contract():
     assert P.E2_DEG == 6.22 and P.ECC_CUTOFF_DEG == 110.0
     assert P.M_LIGHT_NIGHT == 0.68
     assert P.M_DENSITY == (1.0, 0.5, 0.2)
-    assert P.M_LOAD == (1.0, 0.46, 1.0)  # 手空き / 歩きスマホ / 会話
     assert P.MOVING_D50_MULTIPLIER == 1.5
     assert P.SOCIAL_RADIUS_M == 15.0
     assert (P.SOCIAL_A, P.SOCIAL_B, P.SOCIAL_N50) == (0.92, 1.05, 1.2)
     assert P.A0_CONSTANT == 0.54
     assert P.MAX_EVENTS_PER_TICK == 200
+
+
+def test_load_coefficient_is_gone():
+    """第 1 期 1-2(決定 10-12 §1-6「係数で持たない」): 負荷の係数 ``m_load``(歩きスマホ 0.46)は消した。
+
+    定数・係数一式の欄・一次検出の引数のどれにも残らない。課題従事の旗(``TaskLoad``)は事実として受けるが、確率に効かない
+    (歩きスマホと手空きの一次検出が同じ)。0.46 はパターン台帳 §10 の検証専用の値(Hyman 2010)。
+    """
+    import dataclasses
+    import inspect
+
+    assert not hasattr(P, "M_LOAD") and "M_LOAD" not in P.__all__
+    assert "m_load" not in {f.name for f in dataclasses.fields(P.PNoticeParams)}
+    assert "m_load" not in inspect.signature(P.p1_primary).parameters
+    xy = np.array([[20.0, 0.0], [35.0, 5.0]])
+    h = np.array([8, 9], np.uint8)
+    for ab in list(P.Ablation):
+        got = [P.notice_event(event_xy=(0.0, 0.0), agent_xy=xy, heading_u8=h, task_flag=int(t), night=True,
+                              seed=1, event_id=1, tick=1, params=P.PNoticeParams(ablation=ab)).p1
+               for t in P.TaskLoad]
+        assert all(np.array_equal(got[0], g) for g in got[1:]), ab
 
 
 def test_social_hill_curve():
@@ -102,7 +122,7 @@ def test_ablation_arms_run_and_a0_is_the_constant(ab):
 
 
 def test_ablation_arms_are_ordered_by_strength_at_a_fixed_distance():
-    """A1(距離のみ)≥ A2(+夜/歩きスマホ)≥ A3(+偏心・密度)。"""
+    """A1(距離のみ)≥ A2(+夜。第 1 期 1-2 で負荷の係数=歩きスマホは消した)≥ A3(+偏心・密度)。"""
     xy = np.array([[20.0, 0.0]])
     h = np.array([8], np.uint8)  # 事象(原点)を正面に見る
 

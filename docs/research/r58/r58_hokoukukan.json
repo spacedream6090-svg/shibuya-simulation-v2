@@ -1,0 +1,626 @@
+{
+ "coverage": {
+  "w1_grid_100m": [
+   19,
+   21,
+   399
+  ],
+  "cells_touched_2017": 82,
+  "cells_touched_2020": 121,
+  "cells_touched_union": 121,
+  "cells_touched_both": 82,
+  "share_2017_samples_within_5m_of_2020": 0.9895,
+  "map_north_up_a2017_b2020": [
+   "....##.............",
+   "###########.##.....",
+   "###..##..##.#......",
+   ".###..#######......",
+   "...#..######.......",
+   "...#####.###.......",
+   "....##.#.##........",
+   "....#######........",
+   ".....######........",
+   ".....######........",
+   ".....######..b.....",
+   ".....bb####bbb.....",
+   ".....bbbbbbbbb.....",
+   "..bbbbbbbbbb.......",
+   "..bbbbbbb..........",
+   "..bbbb.............",
+   "..bb...............",
+   "..b................",
+   "...................",
+   "...................",
+   "..................."
+  ]
+ },
+ "bbox_w1": [
+  35.6505,
+  139.6905,
+  35.6685,
+  139.7115
+ ],
+ "shibuya_2017": {
+  "link": {
+   "file": "shibuya_link_2017.geojson",
+   "crs": {
+    "name": "EPSG:6668"
+   },
+   "n_features": 982,
+   "geometry_types": {
+    "LineString": 982
+   },
+   "total_length_m": 20189.9,
+   "midpoint_lat_range": [
+    35.6593,
+    35.67164
+   ],
+   "midpoint_lon_range": [
+    139.68972,
+    139.70683
+   ],
+   "n_features_midpoint_in_w1": 785,
+   "length_in_w1_m": 16106.9,
+   "property_fill": {
+    "FID": {
+     "present": 982,
+     "filled_not_99": 981,
+     "share_filled": 0.999
+    },
+    "link_id": {
+     "present": 982,
+     "filled_not_99": 982,
+     "share_filled": 1.0
+    },
+    "start_id": {
+     "present": 982,
+     "filled_not_99": 982,
+     "share_filled": 1.0
+    },
+    "end_id": {
+     "present": 982,
+     "filled_not_99": 982,
+     "share_filled": 1.0
+    },
+    "distance": {
+     "present": 982,
+     "filled_not_99": 982,
+     "share_filled": 1.0
+    },
+    "rt_struct": {
+     "present": 982,
+     "filled_not_99": 982,
+     "share_filled": 1.0
+    },
+    "route_type": {
+     "present": 982,
+     "filled_not_99": 982,
+     "share_filled": 1.0
+    },
+    "direction": {
+     "present": 982,
+     "filled_not_99": 982,
+     "share_filled": 1.0
+    },
+    "width": {
+     "present": 982,
+     "filled_not_99": 982,
+     "share_filled": 1.0
+    },
+    "vtcl_slope": {
+     "present": 982,
+     "filled_not_99": 982,
+     "share_filled": 1.0
+    },
+    "lev_diff": {
+     "present": 982,
+     "filled_not_99": 982,
+     "share_filled": 1.0
+    },
+    "tfc_signal": {
+     "present": 982,
+     "filled_not_99": 982,
+     "share_filled": 1.0
+    },
+    "tfc_s_type": {
+     "present": 982,
+     "filled_not_99": 982,
+     "share_filled": 1.0
+    },
+    "brail_tile": {
+     "present": 982,
+     "filled_not_99": 982,
+     "share_filled": 1.0
+    },
+    "elevator": {
+     "present": 982,
+     "filled_not_99": 982,
+     "share_filled": 1.0
+    }
+   },
+   "value_hist": {
+    "rt_struct": {
+     "1": 673,
+     "3": 149,
+     "6": 79,
+     "4": 52,
+     "2": 29
+    },
+    "route_type": {
+     "0": 907,
+     "5": 73,
+     "6": 1,
+     "3": 1
+    },
+    "direction": {
+     "0": 982
+    },
+    "width": {
+     "3": 638,
+     "2": 174,
+     "1": 137,
+     "0": 33
+    },
+    "vtcl_slope": {
+     "0": 783,
+     "1": 199
+    },
+    "lev_diff": {
+     "0": 901,
+     "1": 81
+    },
+    "tfc_signal": {
+     "0": 886,
+     "3": 62,
+     "1": 29,
+     "2": 5
+    },
+    "brail_tile": {
+     "0": 909,
+     "1": 73
+    },
+    "elevator": {
+     "0": 981,
+     "2": 1
+    }
+   },
+   "w1_length_m_by_value": {
+    "rt_struct": {
+     "1": 13277,
+     "2": 182,
+     "3": 1965,
+     "4": 285,
+     "6": 398
+    },
+    "route_type": {
+     "0": 15893,
+     "5": 208,
+     "6": 6
+    },
+    "width": {
+     "0": 180,
+     "1": 2650,
+     "2": 4471,
+     "3": 8805
+    },
+    "vtcl_slope": {
+     "0": 14190,
+     "1": 1917
+    },
+    "lev_diff": {
+     "0": 15870,
+     "1": 237
+    },
+    "elevator": {
+     "0": 16107
+    }
+   },
+   "w1_count_by_route_type": {
+    "0": 732,
+    "5": 52,
+    "6": 1
+   }
+  },
+  "node": {
+   "file": "shibuya_node_2017.geojson",
+   "n_features": 860,
+   "n_in_w1": 681,
+   "property_fill": {
+    "FID": {
+     "present": 860,
+     "filled_not_99": 859,
+     "share_filled": 0.9988
+    },
+    "node_id": {
+     "present": 860,
+     "filled_not_99": 860,
+     "share_filled": 1.0
+    },
+    "lat": {
+     "present": 860,
+     "filled_not_99": 860,
+     "share_filled": 1.0
+    },
+    "lon": {
+     "present": 860,
+     "filled_not_99": 860,
+     "share_filled": 1.0
+    },
+    "floor": {
+     "present": 860,
+     "filled_not_99": 860,
+     "share_filled": 1.0
+    },
+    "link1_id": {
+     "present": 860,
+     "filled_not_99": 860,
+     "share_filled": 1.0
+    },
+    "link2_id": {
+     "present": 860,
+     "filled_not_99": 860,
+     "share_filled": 1.0
+    },
+    "link3_id": {
+     "present": 860,
+     "filled_not_99": 860,
+     "share_filled": 1.0
+    },
+    "link4_id": {
+     "present": 860,
+     "filled_not_99": 860,
+     "share_filled": 1.0
+    },
+    "link5_id": {
+     "present": 860,
+     "filled_not_99": 860,
+     "share_filled": 1.0
+    },
+    "link6_id": {
+     "present": 860,
+     "filled_not_99": 860,
+     "share_filled": 1.0
+    },
+    "link7_id": {
+     "present": 860,
+     "filled_not_99": 860,
+     "share_filled": 1.0
+    },
+    "link8_id": {
+     "present": 860,
+     "filled_not_99": 860,
+     "share_filled": 1.0
+    }
+   },
+   "value_hist": {
+    "floor": {
+     "0": 785,
+     "0.5": 38,
+     "1": 32,
+     "0.3": 3,
+     "0.6": 2
+    }
+   }
+  },
+  "facility": {
+   "file": "shibuya_facility_2017.geojson",
+   "n_features": 24,
+   "property_keys": [
+    "FID",
+    "address",
+    "barrier",
+    "brail_tile",
+    "elevator",
+    "escalator",
+    "evacuation",
+    "facil_id",
+    "facil_type",
+    "floors",
+    "info",
+    "info_board",
+    "lat",
+    "lon",
+    "name_en",
+    "name_ja",
+    "nursing",
+    "parking",
+    "tel",
+    "temporary",
+    "toilet"
+   ]
+  }
+ },
+ "shibuyananbu_2020": {
+  "link": {
+   "file": "shibuyananbu_link_2020.geojson",
+   "crs": null,
+   "n_features": 1823,
+   "geometry_types": {
+    "LineString": 1823
+   },
+   "total_length_m": 29459.3,
+   "midpoint_lat_range": [
+    35.65374,
+    35.67164
+   ],
+   "midpoint_lon_range": [
+    139.68925,
+    139.70683
+   ],
+   "n_features_midpoint_in_w1": 1585,
+   "length_in_w1_m": 25098.6,
+   "property_fill": {
+    "FID": {
+     "present": 1823,
+     "filled_not_99": 1822,
+     "share_filled": 0.9995
+    },
+    "link_id": {
+     "present": 1823,
+     "filled_not_99": 1823,
+     "share_filled": 1.0
+    },
+    "start_id": {
+     "present": 1823,
+     "filled_not_99": 1823,
+     "share_filled": 1.0
+    },
+    "end_id": {
+     "present": 1823,
+     "filled_not_99": 1823,
+     "share_filled": 1.0
+    },
+    "rt_struct": {
+     "present": 1823,
+     "filled_not_99": 1820,
+     "share_filled": 0.9984
+    },
+    "route_type": {
+     "present": 1823,
+     "filled_not_99": 1820,
+     "share_filled": 0.9984
+    },
+    "direction": {
+     "present": 1823,
+     "filled_not_99": 1820,
+     "share_filled": 0.9984
+    },
+    "width": {
+     "present": 1823,
+     "filled_not_99": 1813,
+     "share_filled": 0.9945
+    },
+    "vtcl_slope": {
+     "present": 1823,
+     "filled_not_99": 1820,
+     "share_filled": 0.9984
+    },
+    "lev_diff": {
+     "present": 1823,
+     "filled_not_99": 1820,
+     "share_filled": 0.9984
+    },
+    "tfc_signal": {
+     "present": 1823,
+     "filled_not_99": 1820,
+     "share_filled": 0.9984
+    },
+    "tfc_s_type": {
+     "present": 1823,
+     "filled_not_99": 1820,
+     "share_filled": 0.9984
+    },
+    "brail_tile": {
+     "present": 1823,
+     "filled_not_99": 1820,
+     "share_filled": 0.9984
+    },
+    "elevator": {
+     "present": 1823,
+     "filled_not_99": 1817,
+     "share_filled": 0.9967
+    },
+    "roof": {
+     "present": 1823,
+     "filled_not_99": 1820,
+     "share_filled": 0.9984
+    }
+   },
+   "value_hist": {
+    "rt_struct": {
+     "1": 1205,
+     "3": 209,
+     "6": 187,
+     "4": 82,
+     "2": 78,
+     "5": 39,
+     "7": 20,
+     "99": 3
+    },
+    "route_type": {
+     "1": 1630,
+     "6": 162,
+     "4": 18,
+     "7": 7,
+     "99": 3,
+     "5": 2,
+     "3": 1
+    },
+    "direction": {
+     "1": 1818,
+     "99": 3,
+     "3": 1,
+     "2": 1
+    },
+    "width": {
+     "4": 1165,
+     "3": 375,
+     "2": 247,
+     "1": 26,
+     "99": 10
+    },
+    "vtcl_slope": {
+     "1": 1214,
+     "2": 325,
+     "3": 281,
+     "99": 3
+    },
+    "lev_diff": {
+     "1": 1641,
+     "2": 179,
+     "99": 3
+    },
+    "tfc_signal": {
+     "1": 1688,
+     "4": 96,
+     "2": 29,
+     "3": 7,
+     "99": 3
+    },
+    "brail_tile": {
+     "1": 1503,
+     "2": 317,
+     "99": 3
+    },
+    "elevator": {
+     "1": 1802,
+     "5": 15,
+     "99": 6
+    },
+    "roof": {
+     "1": 1747,
+     "2": 73,
+     "99": 3
+    }
+   },
+   "w1_length_m_by_value": {
+    "rt_struct": {
+     "1": 18995,
+     "2": 1432,
+     "3": 2492,
+     "4": 430,
+     "5": 218,
+     "6": 1295,
+     "7": 174,
+     "99": 62
+    },
+    "route_type": {
+     "1": 24241,
+     "3": 7,
+     "4": 31,
+     "5": 47,
+     "6": 640,
+     "7": 71,
+     "99": 62
+    },
+    "width": {
+     "1": 219,
+     "2": 3064,
+     "3": 6143,
+     "4": 15578,
+     "99": 95
+    },
+    "vtcl_slope": {
+     "1": 18906,
+     "2": 3395,
+     "3": 2735,
+     "99": 62
+    },
+    "lev_diff": {
+     "1": 24324,
+     "2": 712,
+     "99": 62
+    },
+    "roof": {
+     "1": 24605,
+     "2": 432,
+     "99": 62
+    },
+    "elevator": {
+     "1": 25005,
+     "5": 24,
+     "99": 69
+    }
+   },
+   "w1_count_by_route_type": {
+    "1": 1416,
+    "6": 138,
+    "7": 7,
+    "99": 3,
+    "4": 18,
+    "3": 1,
+    "5": 2
+   }
+  },
+  "node": {
+   "file": "shibuyananbu_node_2020.geojson",
+   "n_features": 1641,
+   "n_in_w1": 1424,
+   "property_fill": {
+    "node_id": {
+     "present": 1641,
+     "filled_not_99": 1641,
+     "share_filled": 1.0
+    },
+    "lat": {
+     "present": 1641,
+     "filled_not_99": 1641,
+     "share_filled": 1.0
+    },
+    "lon": {
+     "present": 1641,
+     "filled_not_99": 1641,
+     "share_filled": 1.0
+    },
+    "floor": {
+     "present": 1641,
+     "filled_not_99": 1641,
+     "share_filled": 1.0
+    },
+    "in_out": {
+     "present": 1641,
+     "filled_not_99": 1641,
+     "share_filled": 1.0
+    },
+    "link1_id": {
+     "present": 1641,
+     "filled_not_99": 1641,
+     "share_filled": 1.0
+    },
+    "link2_id": {
+     "present": 1641,
+     "filled_not_99": 1590,
+     "share_filled": 0.9689
+    },
+    "link3_id": {
+     "present": 1641,
+     "filled_not_99": 391,
+     "share_filled": 0.2383
+    },
+    "link4_id": {
+     "present": 1641,
+     "filled_not_99": 23,
+     "share_filled": 0.014
+    },
+    "link5_id": {
+     "present": 1641,
+     "filled_not_99": 1,
+     "share_filled": 0.0006
+    }
+   },
+   "value_hist": {
+    "floor": {
+     "0.0": 1450,
+     "0.5": 114,
+     "1.0": 71,
+     "-1.0": 6
+    },
+    "in_out": {
+     "1": 1616,
+     "3": 15,
+     "2": 10
+    }
+   }
+  }
+ }
+}

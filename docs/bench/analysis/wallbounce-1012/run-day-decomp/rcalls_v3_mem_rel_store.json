@@ -1,0 +1,122 @@
+{
+ "config": "v3_mem_rel_store",
+ "final": "28a316167605d410",
+ "calls_llm": 12698,
+ "by_segment": {
+  "S": {
+   "_require_thawed": 1,
+   "initialize": 1,
+   "initialize_energy": 1,
+   "normalized_refractory_scale": 1,
+   "place_at_external": 1,
+   "rail_arrive": 1,
+   "refractory_ticks": 1,
+   "set_initial_activity": 1,
+   "set_plan_state": 2,
+   "write_relations": 1
+  },
+  "body": {
+   "_energy_meal": 118,
+   "_tick_minute": 118,
+   "advance_body": 1440,
+   "energy_out_of_area_meal": 118
+  },
+  "world": {
+   "_require_thawed": 1,
+   "collect_waste": 234,
+   "consume": 1,
+   "discard_to_bin": 1,
+   "rail_arrive": 1,
+   "rail_depart": 356,
+   "release_indoor": 601,
+   "restock": 1,
+   "set_notice_state": 2,
+   "set_open_flags": 47,
+   "set_plan_state": 1,
+   "set_thermal": 288,
+   "sync_transit_activity": 1440
+  },
+  "detect": {
+   "apply_detection": 1440
+  },
+  "plan_boundary": {
+   "begin_planned_sleep": 54,
+   "set_plan_state": 1041,
+   "wake_from_plan": 987
+  },
+  "phase_c": {
+   "_advance_focus": 1440,
+   "_apply_buy": 280,
+   "_apply_eat": 250,
+   "_board_riders": 653,
+   "_cell_of_node": 1680,
+   "_clear_focus": 759,
+   "_clear_intent_fields": 30,
+   "_complete_buy": 650,
+   "_complete_eat": 586,
+   "_energy_meal": 586,
+   "_energy_snack": 650,
+   "_enter_board_queue": 483,
+   "_fail": 10567,
+   "_ok": 4853,
+   "_plan_exit_mask": 1246,
+   "_platform_table": 1027,
+   "_require_thawed": 1236,
+   "_serve_board_queue": 1440,
+   "_serve_poi_queue": 1440,
+   "_set_focus": 1288,
+   "_settle_approach": 841,
+   "_tick_minute": 1236,
+   "apply": 1440,
+   "intent_kept_by": 425,
+   "release_indoor": 63,
+   "talk_within_reach": 518
+  },
+  "presence": {
+   "rail_arrive": 648,
+   "rail_depart": 288,
+   "release_indoor": 73,
+   "set_plan_state": 1353
+  },
+  "decide": {
+   "_require_thawed": 1219,
+   "set_refractory": 1172,
+   "write_memory": 132
+  },
+  "memory": {
+   "_require_thawed": 2328,
+   "write_memory": 1249,
+   "write_relations": 33,
+   "write_store_memory": 1046
+  },
+  "activity_intent": {
+   "_clear_intent_fields": 1,
+   "_require_thawed": 1456,
+   "clear_intent": 1,
+   "set_activity": 1231,
+   "set_activity_until": 190,
+   "set_intent": 34
+  },
+  "conversation": {
+   "revert_conversation": 429,
+   "talk_within_reach": 443
+  },
+  "apply_responses": {
+   "_require_thawed": 29,
+   "revert_conversation": 228,
+   "set_conversing": 29,
+   "talk_within_reach": 409
+  },
+  "relations_wake": {
+   "_require_thawed": 19,
+   "write_relations": 19
+  },
+  "phase_a": {
+   "intent_kept_by": 14
+  },
+  "close_final": {
+   "rail_depart": 1,
+   "sync_transit_activity": 1
+  }
+ }
+}

@@ -20,9 +20,7 @@ if str(TOOLS_VOCAB) not in sys.path:
     sys.path.insert(0, str(TOOLS_VOCAB))
 
 #: AB7 の実テープが無い環境(CI)では実データのテストを飛ばす。
-real_tape = pytest.mark.skipif(
-    not (TAPE_S1 / "calls.parquet").exists(), reason="AB7 seed 1 のテープが無い"
-)
+real_tape = pytest.mark.requires_data("tape:c8_ab7_s1/AB7-OPEN-INTENT__open/calls.parquet")
 
 
 @pytest.fixture(scope="session")

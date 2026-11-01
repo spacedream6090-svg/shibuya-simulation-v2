@@ -23,13 +23,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from ..field import w7_planspec, w10_noise, w12_external_nodes, w13_weather
+from ..field import w7_planspec, w10_noise, w12_external_nodes, w12_real_timetables, w13_weather
 from ..geo import common as C
 from ..geo import w0_crs, w1_walk_graph, w4_heights, w5_entrances, w6_poi_org, w11_station_exits
 from ..pop import w16_population
+from ..sched import w20_calendar_1a
 
 STAGE = "W19"
-STAGE_VERSION = "1.0.0"
+STAGE_VERSION = "1.0.0"  # 〔第333〕層の元の表(layer_independence)を notes に足した。資産の作り直しは版上げ 2 回目で
 
 #: 封印方式(運用設計書 §1.2: D=ダイジェスト/S=層別/P=第三者)。
 SEAL_SCHEME = "S"
@@ -44,6 +45,80 @@ HOLDOUT_LAYERS: tuple[tuple[str, tuple[str, ...]], ...] = (
 )
 #: 静的ゲートで探す語(= holdout 層名。本モジュールは検査対象から外す)。
 HOLDOUT_TOKENS: tuple[str, ...] = tuple(name for name, _ in HOLDOUT_LAYERS)
+
+#: 〔第333・回答 10-13b §1 1-2〕**層の元**(データセットの系)。holdout 層と構築の入力が同じ元を持つかを機械で照らす
+#: 表。名前の静的ゲート(``scan_build_sources``)は層の**名前**しか探さないので、同じ元を別のファイル名で読む形
+#: (``boundary_counts`` と W12 の大都市交通センサス)は捕まえない(仕分け C X1・X2)。元は「提供元/データセット」の語で
+#: 書き、ファイル名ではなく系で合わせる。
+SOURCE_FAMILIES: dict[str, str] = {
+    # 渋谷区オープンデータの KDDI Location Analyzer(滞在人口・通過人口)。kddi_la は事前登録 v1.3 で開封済み。
+    "kddi_la": "kddi_location_analyzer/shibuya_city_opendata",
+    # 同じ区のオープンデータの 6 層(5 表)=kddi_la と列名・行数が一致(月次・日の欄なし)。
+    "shibuya_jinryu": "kddi_location_analyzer/shibuya_city_opendata",
+    # 大都市交通センサス(station_flow/time_dist/transfer)+ODPT 乗降人員=W12 の構築の入力と同じ系。
+    "boundary_counts": "transport_census_12+odpt_passenger_survey",
+    # 〔第 2 期 2-3b〕構築の入力の層(holdout ではない)=W12 の実ダイヤ。元の語は層の名と同じにする
+    # (``w12_real_timetables.INPUT_FAMILIES``)。ユーザーが各社の公式サイトから手で入手した時刻表の読み取り(JR・東急)。
+    "user_timetables": w12_real_timetables.FAMILY_USER,
+    # ODPT チャレンジ枠(京王 井の頭線・利用は応募と照合の範囲・生の行は再配布しない)。
+    "odpt_challenge": w12_real_timetables.FAMILY_CHALLENGE,
+    # ODPT オープン枠の静的データ版 1(銀座線の列車時刻表)。日次の実時間の取得(odpt_rt)とは別の系。
+    "odpt_static": w12_real_timetables.FAMILY_STATIC,
+}
+#: 構築の入力の元(系 → その系から読む入力。W12 の定数から組む=手書きの重複を避ける)。
+#: 〔第 2 期 2-3b〕W12 の実ダイヤの入力の層を 3 つ足した(``w12_real_timetables.input_rel_paths`` から組む)。
+#: holdout の層がこれらと同じ元を持つ形になれば ``layer_independence`` が「構築の入力と同じ元」と印を付ける。
+BUILD_INPUT_FAMILIES: dict[str, tuple[str, ...]] = {
+    "transport_census_12+odpt_passenger_survey": tuple(
+        "/".join(getattr(w12_external_nodes, c))
+        for c in ("STATION_FLOW", "TIME_DIST", "TRANSFER", "PASSENGER_SURVEY")
+        if getattr(w12_external_nodes, c, None)
+    ),
+    # 〔2-4〕元の宣言は W12 の京王の切替口(USE_ODPT_CHALLENGE)に依らない=in_use=False(既定の値は前と同じ)
+    **{fam: w12_real_timetables.input_rel_paths(fam, in_use=False) for fam in w12_real_timetables.INPUT_FAMILIES},
+    # 〔第 3 期 3-1〕構築の段 W20cal(暦 1a・脇の段=ALL_STAGES の外)の構築側の表の元(社会生活基本調査の東京都の 2 表・
+    # 就業構造基本調査の地域の表・経済センサスの市区町村の表)。検証側の表(第 14・15・68-3 表)はここに載らない
+    **{fam: tuple(paths) for fam, paths in w20_calendar_1a.INPUT_FAMILIES.items()},
+}
+#: 開封済みの層(事前登録で 1 回開けた。値は読まないが「独立」ではない)。
+OPENED_LAYERS: dict[str, str] = {
+    "kddi_la": "事前登録 v1.3(c7-day-4・3 seed・0/4)で開封済み=docs/bench/c7",
+}
+
+
+def layer_independence() -> list[dict[str, Any]]:
+    """holdout 層ごとに「元」「構築の入力と同じ元か」「独立か」「印」を返す(値は読まない・表だけ)。
+
+    独立でない層は一覧から消さず「照合用」の印を付ける(回答 10-13b §1 1-2=一覧の変更はユーザー承認)。
+    """
+    out: list[dict[str, Any]] = []
+    families_of_opened = {SOURCE_FAMILIES[n] for n in OPENED_LAYERS if n in SOURCE_FAMILIES}
+    for name, _members in HOLDOUT_LAYERS:
+        fam = SOURCE_FAMILIES.get(name)
+        shares_build = fam in BUILD_INPUT_FAMILIES
+        same_as_opened = (name not in OPENED_LAYERS) and (fam in families_of_opened)
+        opened = name in OPENED_LAYERS
+        independent = (fam is not None) and not shares_build and not same_as_opened and not opened
+        reasons: list[str] = []
+        if fam is None:
+            reasons.append("元が未登録(SOURCE_FAMILIES に足す)")
+        if shares_build:
+            reasons.append("構築の入力と同じ元: " + ", ".join(BUILD_INPUT_FAMILIES[fam]))
+        if same_as_opened:
+            reasons.append("開封済みの層と同じ元: " + ", ".join(sorted(n for n in OPENED_LAYERS if SOURCE_FAMILIES.get(n) == fam)))
+        if opened:
+            reasons.append(OPENED_LAYERS[name])
+        out.append({
+            "name": name,
+            "source_family": fam,
+            "shares_build_input": shares_build,
+            "same_family_as_opened": same_as_opened,
+            "opened": opened,
+            "independent": independent,
+            "mark": "独立" if independent else "照合用(独立でない)",
+            "reasons": reasons,
+        })
+    return out
 #: 本モジュールのファイル名(自己 HIT を避ける)。
 SELF_NAME = "w19_freeze.py"
 
@@ -70,13 +145,18 @@ def data_asset_paths(data_root: Path) -> list[str]:
         parts = getattr(w12_external_nodes, const, None)
         if parts:
             rel.add(_joined(tuple(parts)))
-    for _line, fname in w12_external_nodes.METRO_TIMETABLES:
+    # 〔第 2 期 2-3b〕W12 が実際に読むファイルだけ。実ダイヤ(既定)では ODPT の駅の時刻表は半蔵門線・副都心線だけで、
+    # 実ダイヤの入力 3 層(ユーザー提供の時刻表の読み取り・ODPT チャレンジ枠・ODPT オープン枠の静的データ版 1)を足す。
+    for _line, fname in w12_external_nodes.metro_timetables_in_use():
         rel.add(f"odpt/{fname}")
-    rel.add(_joined(w13_weather.ETRN_CSV))
-    amedas = data_root.joinpath(*w13_weather.AMEDAS_DIR)
-    if amedas.exists():
-        for p in sorted(amedas.rglob("amedas_*.json")):
-            rel.add(p.relative_to(data_root).as_posix())
+    rel.update(w12_real_timetables.all_input_rel_paths())
+    # 〔改訂(第330 B5)〕W13 が実際に読むファイルだけ(窓の CSV 2 本と祝日 CSV)。旧は
+    # data/realworld/amedas を rglob して、構築が読まない日次取得の日まで載せうる形だった。
+    for parts in w13_weather.INPUT_FILES:
+        rel.add(_joined(parts))
+    # 〔第 3 期 3-1〕構築の段 W20cal(暦 1a)の入力(構築側の 4 本の xlsx と産業の写像)。第 31/36 表の錨は data 根の外
+    for parts in w20_calendar_1a.INPUT_FILES:
+        rel.add(_joined(parts))
     pool_root = data_root.joinpath(*w16_population.POOL_DIR)
     if pool_root.exists():
         for q in sorted(pool_root.rglob("part-*.jsonl")):
@@ -122,8 +202,31 @@ def scan_build_sources(build_root: Path) -> dict[str, list[str]]:
     return hits
 
 
+#: 〔第 4 期 4-3 段 10〕差し替えの世界の W21 の材料の台帳(置き場に manifest があるときだけ読む=本体の v2 は今のまま)。
+W21_MANIFESTS: tuple[str, ...] = ("w21_manifest.json", "w21b_manifest.json", "w21c_manifest.json")
+
+
+def w21_material_paths(out_dir: Path) -> dict[str, str]:
+    """置き場の W21 の manifest の材料(``sources`` の元のファイルと写し)→ {data 根からの相対: manifest の md5}。"""
+    got: dict[str, str] = {}
+    for name in W21_MANIFESTS:  # 逐次: manifest の数(3)
+        p = Path(out_dir) / name
+        if not p.exists():
+            continue
+        for src in C.load_json(p).get("sources", []):  # 逐次: 材料の数(≤ 60)
+            for key, md5 in (("path", "md5"), ("derived", "derived_md5")):
+                rel = src.get(key)
+                if rel:
+                    got.setdefault(str(rel), str(src.get(md5) or ""))
+    return dict(sorted(got.items()))
+
+
 def run(ctx: C.Ctx) -> C.StageResult:
     rel_paths = data_asset_paths(ctx.data)
+    # 〔段 10〕W21 の材料(差し替えの世界=W16 の体の元が W21 になった)を資産の表へ(md5 を manifest と照らす)
+    w21_mat = w21_material_paths(ctx.out)
+    rel_paths = sorted(set(rel_paths) | set(w21_mat))
+    w21_md5_bad: list[str] = []
     assets: list[dict[str, Any]] = []
     missing: list[str] = []
     for rel in rel_paths:
@@ -131,14 +234,20 @@ def run(ctx: C.Ctx) -> C.StageResult:
         if not p.exists():
             missing.append(rel)
             continue
-        assets.append(
-            {
-                "id": rel.replace("/", "."),
-                "path": rel,
-                "sha256": C.sha256_file(p),
-                "bytes": p.stat().st_size,
-            }
-        )
+        row = {
+            "id": rel.replace("/", "."),
+            "path": rel,
+            "sha256": C.sha256_file(p),
+            "bytes": p.stat().st_size,
+        }
+        if rel in w21_mat:
+            import hashlib
+
+            md5 = hashlib.md5(p.read_bytes()).hexdigest()
+            row["w21_md5"] = w21_mat[rel]
+            if w21_mat[rel] and md5 != w21_mat[rel]:
+                w21_md5_bad.append(rel)
+        assets.append(row)
 
     layers: list[dict[str, Any]] = []
     for name, members in HOLDOUT_LAYERS:
@@ -156,11 +265,17 @@ def run(ctx: C.Ctx) -> C.StageResult:
 
     build_root = Path(__file__).resolve().parents[1]
     hits = scan_build_sources(build_root)
+    independence = layer_independence()
+    for lyr in layers:
+        row = next(r for r in independence if r["name"] == lyr["name"])
+        lyr["source_family"] = row["source_family"]
+        lyr["independent"] = row["independent"]
+        lyr["mark"] = row["mark"]
 
     # --- W0..W18 の出力ダイジェスト(最終 build_hash は build.run が全段階で組む)---
     stage_digests: list[dict[str, Any]] = []
     digests: list[str] = []
-    for path in sorted(ctx.out.glob("W*.header.json"), key=lambda p: int(p.stem.split(".")[0][1:])):
+    for path in C.stage_header_paths(ctx.out):
         h = C.load_json(path)
         if int(h["stage"][1:]) >= int(STAGE[1:]):
             continue
@@ -182,6 +297,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
         "data_assets": assets,
         "data_assets_missing": missing,
         "holdout_seal": {"seal_scheme": SEAL_SCHEME, "layers": layers},
+        "layer_independence": independence,
         "stage_digests": stage_digests,
         "partial_build_hash_w0_w18": partial,
     }
@@ -190,6 +306,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
         "seal_scheme": SEAL_SCHEME,
         "sealed_utc": SEALED_UTC,
         "holdout_layers": {name: list(members) for name, members in HOLDOUT_LAYERS},
+        "source_families": dict(SOURCE_FAMILIES),
         "sealed_utc_note": "実行時刻を使わない(§0-1 決定論・T1 再構築一致のため固定パラメータ)",
     }
     res = C.StageResult(
@@ -217,6 +334,9 @@ def run(ctx: C.Ctx) -> C.StageResult:
                         "n_members": len(lyr["members"]),
                         "sealed_utc": lyr["sealed_utc"],
                         "opened": lyr["opened"],
+                        "source_family": lyr["source_family"],
+                        "independent": lyr["independent"],
+                        "mark": lyr["mark"],
                     }
                     for lyr in layers
                 ],
@@ -239,4 +359,9 @@ def run(ctx: C.Ctx) -> C.StageResult:
         C.Gate("seal_scheme", SEAL_SCHEME, "S"),
         C.Gate("partial_build_hash_w0_w18", partial[:16], None),
     ]
+    if w21_mat:  # 〔段 10〕差し替えの世界だけ(本体の v2 の門の表は今のまま)
+        res.gates.append(C.Gate("w21_materials", len(w21_mat), None))
+        res.gates.append(C.Gate("w21_material_md5_mismatch", len(w21_md5_bad), 0))
+        res.notes["w21_materials"] = {"count": len(w21_mat), "md5_mismatch": w21_md5_bad,
+                                      "manifests": [m for m in W21_MANIFESTS if (ctx.out / m).exists()]}
     return res

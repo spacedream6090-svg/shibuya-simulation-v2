@@ -3,15 +3,17 @@
 正典: 実装計画書 §3(core=SoAレジストリ・dtype/バイト予算宣言・Philox・ハッシュ・**時刻/ID型**)、
 運用設計書 §2.5(タイブレーク=(t_sim_ns, class_rank[institution −1・conversation 0・
 plan_boundary 1・individual 2・cell 3], blake3(…), subject_id))、§2.3(δ_perc は世界時刻を進めず
-tick 内のナノ秒欄としてのみ使う)。
+1 刻みの中のナノ秒欄としてのみ使う)。
 
 時刻の二層
-- ``tick``: シミュレーション開始からの**分**(既定 tick_seconds=60)。int64。
-- ``t_sim_ns``: 同じ時刻をナノ秒で表す int64 = ``tick * tick_seconds * 1e9 + offset_ns``。
-  ``offset_ns`` は tick 内の秒オフセット(δ_perc=0.2〜1.5秒)を表す 0 以上 tick 長未満の値。
-  **世界時刻は tick でしか進まない**(§2.3)。offset は同一 tick 内の順序専用。
+- 刻みの番号(引数の名は ``tick``): シミュレーション開始からの刻みの数(既定の幅 ``tick_seconds``=60 秒=1 分)。int64。
+- ``t_sim_ns``(型の名 ``SimTime``・第 1 期 1-1 T0): 同じ時刻をナノ秒で表す int64 =
+  ``tick * tick_seconds * 1e9 + offset_ns``。``offset_ns`` は刻みの中の秒の位置(δ_perc=0.2〜1.5秒)を表す
+  0 以上・刻みの長さ未満の値。**世界時刻は刻みでしか進まない**(§2.3)。offset は同じ刻みの中の順序専用。
+- 時間の定数(秒・分・時・日・刻み)は ``core.time_consts`` に集めた(1-1 T0)。ここの ``NS_PER_SECOND``・
+  ``SECONDS_PER_MINUTE`` はその再輸出、``DEFAULT_TICK_SECONDS``・``MINUTES_PER_SIM_DAY`` は同じ値の別名(値は不変)。
 
-層契約: 本モジュールは標準ライブラリと NumPy のみ(shibuya の他パッケージを import しない)。
+層契約: 本モジュールは標準ライブラリと NumPy と同じ core の ``time_consts`` のみ(shibuya の他パッケージを import しない)。
 
 逐次ループ宣言(P4): なし(本モジュールは型と定数のみ・ループを持たない)。
 
@@ -29,7 +31,10 @@ from typing import Final, NewType
 
 import numpy as np
 
+from shibuya.core.time_consts import MINUTES_PER_DAY, NS_PER_SECOND, SECONDS_PER_MINUTE, STEP_SECONDS
+
 __all__ = [
+    "SimTime",
     "AgentId",
     "CellId",
     "ResourceId",
@@ -72,8 +77,8 @@ AGENT_ID_DTYPE: Final = np.dtype(np.int32)
 CELL_ID_DTYPE: Final = np.dtype(np.int32)
 RESOURCE_ID_DTYPE: Final = np.dtype(np.int32)
 
-#: tick(分)・t_sim_ns(ナノ秒)・tick 内オフセット・class_rank は全て int64 で持つ。
-#: (lexsort の鍵を同一 dtype に揃え、符号つき比較の混在を避けるため)
+#: 刻みの番号・t_sim_ns(ナノ秒)・刻みの中のオフセット・class_rank は全て int64 で持つ(名の ``TICK_DTYPE`` は
+#: 旧い名のまま)。(lexsort の鍵を同一 dtype に揃え、符号つき比較の混在を避けるため)
 TICK_DTYPE: Final = np.dtype(np.int64)
 T_SIM_NS_DTYPE: Final = np.dtype(np.int64)
 OFFSET_NS_DTYPE: Final = np.dtype(np.int64)
@@ -88,12 +93,17 @@ INVALID_AGENT_ID: Final[int] = -1
 INVALID_CELL_ID: Final[int] = -1
 INVALID_RESOURCE_ID: Final[int] = -1
 
-NS_PER_SECOND: Final[int] = 1_000_000_000
-SECONDS_PER_MINUTE: Final[int] = 60
-DEFAULT_TICK_SECONDS: Final[int] = 60  # 運用設計書 §1.2 設定節 tick_seconds
-MINUTES_PER_SIM_DAY: Final[int] = 1_440
+# ``NS_PER_SECOND``・``SECONDS_PER_MINUTE`` は ``core.time_consts`` の再輸出(1-1 T0・値は不変)。
+#: 1 刻みの秒の既定(運用設計書 §1.2 設定節 ``tick_seconds``)。``core.time_consts.STEP_SECONDS`` と同じ値の別名。
+DEFAULT_TICK_SECONDS: Final[int] = STEP_SECONDS
+#: 1 シミュ日の分(1,440)。``core.time_consts.MINUTES_PER_DAY`` と同じ値の別名(幅 60 秒では 1 日の刻みの数とも同じ)。
+MINUTES_PER_SIM_DAY: Final[int] = MINUTES_PER_DAY
 INT64_MIN: Final[int] = -(2**63)
 INT64_MAX: Final[int] = 2**63 - 1
+
+#: 世界の時刻の型(第 1 期 1-1 T0・TM7 (a)): シミュレーション開始からの**ナノ秒の整数**(``t_sim_ns`` と同じ意味・int64 に
+#: 収まる)。実体は ``int`` の別名(静的型の名札だけ=値も演算も ``int`` と同じ)。
+SimTime = int
 
 
 class EventClass(IntEnum):
@@ -157,16 +167,16 @@ def as_resource_id(value: int) -> ResourceId:
 
 
 def t_sim_ns(tick: int, offset_ns: int = 0, tick_seconds: int = DEFAULT_TICK_SECONDS) -> int:
-    """(tick, tick 内オフセット[ns]) → t_sim_ns(int64 ナノ秒)。
+    """(刻みの番号 ``tick``, 刻みの中のオフセット[ns]) → t_sim_ns(int64 ナノ秒=``SimTime``)。
 
     Args:
-        tick: シミュレーション開始からの tick 数(負も可=開始前の予約は禁止だが型は許す)。
-        offset_ns: tick 内オフセット(0 以上 ``tick_seconds*1e9`` 未満)。
-        tick_seconds: 1 tick の秒数(既定 60)。
+        ``tick``: シミュレーション開始からの刻みの数(負も可=開始前の予約は禁止だが型は許す)。
+        offset_ns: 刻みの中のオフセット(0 以上 ``tick_seconds*1e9`` 未満)。
+        ``tick_seconds``: 1 刻みの秒数(既定 60)。
 
     Raises:
-        ValueError: offset_ns が tick 長の範囲外・tick_seconds が非正。
-        OverflowError: 結果が int64 に収まらない(tick_seconds=60 なら |tick| >
+        ValueError: offset_ns が刻みの長さの範囲外・``tick_seconds`` が非正。
+        OverflowError: 結果が int64 に収まらない(``tick_seconds=60`` なら ``|tick|`` >
             153,722,867 ≈ 292 年ぶんの分)。ナノ秒欄の表現限界を**黙って回さない**。
     """
     if tick_seconds <= 0:
@@ -184,7 +194,7 @@ def t_sim_ns(tick: int, offset_ns: int = 0, tick_seconds: int = DEFAULT_TICK_SEC
 
 
 def max_tick(tick_seconds: int = DEFAULT_TICK_SECONDS) -> int:
-    """t_sim_ns が **tick 内のどのオフセットでも** int64 に収まる tick の絶対値上限。
+    """t_sim_ns が **刻みの中のどのオフセットでも** int64 に収まる刻みの番号の絶対値上限。
 
     hypothesis が見つけた境界(C4・09-08): 旧定義 ``INT64_MAX // span`` は offset=0 でしか
     成立せず、offset が大きいと ``tick*span+offset`` が INT64_MAX を 1 超えた。
@@ -196,7 +206,7 @@ def max_tick(tick_seconds: int = DEFAULT_TICK_SECONDS) -> int:
 
 
 def split_t_sim_ns(value: int, tick_seconds: int = DEFAULT_TICK_SECONDS) -> tuple[int, int]:
-    """t_sim_ns → (tick, offset_ns)。``t_sim_ns`` の逆写像(floor 除算=負時刻でも整合)。"""
+    """t_sim_ns → (刻みの番号 ``tick``, offset_ns)。``t_sim_ns`` の逆写像(floor 除算=負時刻でも整合)。"""
     if tick_seconds <= 0:
         raise ValueError("tick_seconds は正の整数")
     span = tick_seconds * NS_PER_SECOND

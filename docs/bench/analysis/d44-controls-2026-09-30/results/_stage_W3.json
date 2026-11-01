@@ -1,0 +1,11 @@
+{
+ "stage": "W3",
+ "keys": [
+  "W3"
+ ],
+ "wall_seconds": 4.25,
+ "per_key_seconds": {
+  "W3": 4.25
+ },
+ "failed": []
+}

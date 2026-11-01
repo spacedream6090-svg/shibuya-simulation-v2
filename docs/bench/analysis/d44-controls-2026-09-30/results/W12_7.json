@@ -1,0 +1,29 @@
+{
+ "key": "W12#7",
+ "control": "夕ピーク=朝ピークと同数(宣言)vs 夕ピーク −20%",
+ "metric": "便の (路線 × 曜日種別 × 時) の分布",
+ "variants": [
+  {
+   "name": "夕ピーク −20%",
+   "jsd_bits": 0.0029942742488705152,
+   "null_p95": 0.013897460862228917,
+   "detected": false,
+   "tvd": 0.044181677623800514,
+   "n_declared": 9574.0,
+   "n_control": 9094.0,
+   "n_bins": 320
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.05711480008903891,
+ "outputs_changed": [
+  "w12_timetables.parquet"
+ ],
+ "notes": [
+  "切替口 PM_PEAK_ASSUMED_EQUAL_TO_AM は True/False のどちらでも peak_tph_pm=朝と同数を渡す(`None if PM_PEAK_ASSUMED_EQUAL_TO_AM else tph`)=口として効かない。ここでは関数を包んで −20% を渡した"
+ ],
+ "seconds_wall_row": 0.92,
+ "measured_at": "2026-09-30"
+}

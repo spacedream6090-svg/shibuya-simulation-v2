@@ -1,0 +1,669 @@
+{
+ "stage_gl_cells": 453,
+ "stage_cells_all_bands": 520,
+ "roads": {
+  "by_class": {
+   "residential": {
+    "ways": 289,
+    "len_m": 31735.5,
+    "named_ways": 24,
+    "named_len_m": 2124.6
+   },
+   "service": {
+    "ways": 383,
+    "len_m": 24364.3,
+    "named_ways": 14,
+    "named_len_m": 605.8
+   },
+   "unclassified": {
+    "ways": 223,
+    "len_m": 21378.5,
+    "named_ways": 50,
+    "named_len_m": 5126.1
+   },
+   "tertiary": {
+    "ways": 196,
+    "len_m": 16929.4,
+    "named_ways": 146,
+    "named_len_m": 10922.3
+   },
+   "pedestrian": {
+    "ways": 91,
+    "len_m": 9483.0,
+    "named_ways": 15,
+    "named_len_m": 1966.3
+   },
+   "primary": {
+    "ways": 52,
+    "len_m": 7877.8,
+    "named_ways": 52,
+    "named_len_m": 7877.8
+   },
+   "motorway": {
+    "ways": 12,
+    "len_m": 6708.2,
+    "named_ways": 12,
+    "named_len_m": 6708.2
+   },
+   "secondary": {
+    "ways": 29,
+    "len_m": 5739.5,
+    "named_ways": 29,
+    "named_len_m": 5739.5
+   },
+   "trunk": {
+    "ways": 44,
+    "len_m": 5065.3,
+    "named_ways": 44,
+    "named_len_m": 5065.3
+   }
+  },
+  "total": {
+   "ways": 1319,
+   "len_m": 129281.5,
+   "named_ways": 386,
+   "named_len_m": 46136.0
+  },
+  "named_len_share": 0.3569,
+  "distinct_names": 98,
+  "top_names_by_len": [
+   [
+    "明治通り",
+    5693.4
+   ],
+   [
+    "首都高速3号渋谷線",
+    4221.0
+   ],
+   [
+    "玉川通り",
+    2684.7
+   ],
+   [
+    "首都高速中央環状線",
+    2487.1
+   ],
+   [
+    "井ノ頭通り",
+    1770.6
+   ],
+   [
+    "代々木公園通り",
+    1755.9
+   ],
+   [
+    "六本木通り",
+    1634.3
+   ],
+   [
+    "表参道",
+    1610.7
+   ],
+   [
+    "青山通り",
+    1584.1
+   ],
+   [
+    "八幡通り",
+    1493.3
+   ],
+   [
+    "旧山手通り",
+    1096.5
+   ],
+   [
+    "神宮通り",
+    1068.9
+   ],
+   [
+    "山手通り",
+    1047.3
+   ],
+   [
+    "渋谷区特別区道1076号線(補助18号線)",
+    976.2
+   ],
+   [
+    "キャットストリート",
+    776.2
+   ],
+   [
+    "道玄坂",
+    665.0
+   ],
+   [
+    "松涛文化村ストリート",
+    612.8
+   ],
+   [
+    "青山通り(金王坂)",
+    562.0
+   ],
+   [
+    "イベント広場",
+    501.3
+   ],
+   [
+    "裏渋谷通り",
+    465.6
+   ],
+   [
+    "渋谷区特別区道870号線(野沢通り)",
+    460.2
+   ],
+   [
+    "公園通り",
+    452.2
+   ],
+   [
+    "西郷山通り",
+    450.2
+   ],
+   [
+    "宇田川通り",
+    410.9
+   ],
+   [
+    "とみはち通り",
+    400.6
+   ],
+   [
+    "富ヶ谷1丁目通り",
+    399.2
+   ],
+   [
+    "美竹通り",
+    394.7
+   ],
+   [
+    "渋谷センター街",
+    393.6
+   ],
+   [
+    "野沢通り",
+    387.1
+   ],
+   [
+    "ファイアー通り",
+    379.4
+   ],
+   [
+    "日向道",
+    362.7
+   ],
+   [
+    "淡島通り",
+    362.3
+   ],
+   [
+    "宇田川遊歩道",
+    349.2
+   ],
+   [
+    "宮益坂",
+    342.7
+   ],
+   [
+    "オーチャードロード",
+    329.1
+   ],
+   [
+    "原二本通り",
+    323.7
+   ],
+   [
+    "渋谷区特別区道870号線",
+    313.7
+   ],
+   [
+    "旧渋谷川遊歩道路(キャットストリート)",
+    308.9
+   ],
+   [
+    "高樹町通り",
+    305.9
+   ],
+   [
+    "ランブリングストリート",
+    303.5
+   ]
+  ],
+  "variant_tag_ways": {
+   "official_name": 49,
+   "name:ja-Hira": 87,
+   "name:en": 309,
+   "ref": 163,
+   "alt_name": 24,
+   "old_name": 1
+  },
+  "w1_walk_graph_len_m": 186741.0,
+  "w1_walk_graph_len_by_class": {
+   "footway": 61755.7,
+   "residential": 34069.2,
+   "service": 23080.4,
+   "unclassified": 20858.1,
+   "tertiary": 18411.9,
+   "pedestrian": 10306.6,
+   "primary": 8176.8,
+   "secondary": 6279.7,
+   "steps": 2325.2,
+   "path": 1393.1,
+   "cycleway": 35.6,
+   "corridor": 32.7,
+   "elevator": 16.0
+  },
+  "named_len_over_w1_len": 0.2471
+ },
+ "street_features": {
+  "named_traffic_signals_all": 50,
+  "named_traffic_signals_in_stage": 0,
+  "distinct_signal_names_in_stage": 0,
+  "signal_names_sample": [],
+  "kinds_named_in_stage": {}
+ },
+ "poi_tags_named_leisure_tourism_place": {
+  "tourism=artwork": 27,
+  "leisure=park": 27,
+  "tourism=hotel": 25,
+  "tourism=information": 25,
+  "tourism=museum": 9,
+  "tourism=attraction": 7,
+  "leisure=dance": 6,
+  "leisure=sports_centre": 6,
+  "leisure=amusement_arcade": 5,
+  "tourism=gallery": 5,
+  "leisure=fitness_centre": 5,
+  "leisure=garden": 5,
+  "tourism=viewpoint": 4,
+  "leisure=sauna": 3,
+  "leisure=karaoke": 2,
+  "leisure=bowling_alley": 2,
+  "tourism=theme_park": 1,
+  "leisure=adult_gaming_centre": 1,
+  "tourism=guest_house": 1,
+  "special:marketplace": 1,
+  "leisure=pitch": 1,
+  "tourism=photopoint": 1,
+  "leisure=stadium": 1
+ },
+ "note_place_tags": "Overpass の手元データは place=* (neighbourhood/quarter/square) を問い合わせていない=件数は 0 でも不在の証拠ではない",
+ "w6_poi": {
+  "total": 2337,
+  "named_ge2": 2330,
+  "distinct_names": 2078,
+  "names_used_ge2_times": 97,
+  "pois_sharing_a_name": 349,
+  "distinct_brand_after_branch_strip": 2062,
+  "pois_sharing_brand": 378,
+  "top_shared_names": [
+   [
+    "ファミリーマート",
+    33
+   ],
+   [
+    "セブン-イレブン",
+    29
+   ],
+   [
+    "ローソン",
+    22
+   ],
+   [
+    "スターバックス",
+    15
+   ],
+   [
+    "ドトールコーヒーショップ",
+    9
+   ],
+   [
+    "富士そば",
+    6
+   ],
+   [
+    "マクドナルド",
+    5
+   ],
+   [
+    "すき家",
+    5
+   ],
+   [
+    "auショップ",
+    5
+   ],
+   [
+    "タリーズコーヒー",
+    5
+   ],
+   [
+    "エクセルシオール カフェ",
+    5
+   ],
+   [
+    "カフェ・ベローチェ",
+    4
+   ],
+   [
+    "フレッシュネスバーガー",
+    4
+   ],
+   [
+    "カラオケ館",
+    4
+   ],
+   [
+    "マツモトキヨシ",
+    4
+   ],
+   [
+    "ソフトバンクショップ",
+    4
+   ],
+   [
+    "サンマルクカフェ",
+    4
+   ],
+   [
+    "牛角",
+    4
+   ],
+   [
+    "カラオケ歌広場",
+    4
+   ],
+   [
+    "松屋",
+    4
+   ],
+   [
+    "大戸屋",
+    4
+   ],
+   [
+    "天狗",
+    4
+   ],
+   [
+    "モスバーガー",
+    3
+   ],
+   [
+    "カフェ・ド・クリエ",
+    3
+   ],
+   [
+    "サイゼリヤ",
+    3
+   ]
+  ],
+  "top_shared_brands": [
+   [
+    "ファミリーマート",
+    33
+   ],
+   [
+    "セブン-イレブン",
+    29
+   ],
+   [
+    "ローソン",
+    22
+   ],
+   [
+    "スターバックス",
+    15
+   ],
+   [
+    "ドトールコーヒーショップ",
+    9
+   ],
+   [
+    "富士そば",
+    6
+   ],
+   [
+    "マクドナルド",
+    5
+   ],
+   [
+    "すき家",
+    5
+   ],
+   [
+    "auショップ",
+    5
+   ],
+   [
+    "タリーズコーヒー",
+    5
+   ],
+   [
+    "エクセルシオールカフェ",
+    5
+   ],
+   [
+    "カフェ・ベローチェ",
+    4
+   ],
+   [
+    "フレッシュネスバーガー",
+    4
+   ],
+   [
+    "カラオケ館",
+    4
+   ],
+   [
+    "マツモトキヨシ",
+    4
+   ],
+   [
+    "ソフトバンクショップ",
+    4
+   ],
+   [
+    "サンマルクカフェ",
+    4
+   ],
+   [
+    "牛角",
+    4
+   ],
+   [
+    "カラオケ歌広場",
+    4
+   ],
+   [
+    "松屋",
+    4
+   ],
+   [
+    "大戸屋",
+    4
+   ],
+   [
+    "天狗",
+    4
+   ],
+   [
+    "俺流塩らーめん",
+    4
+   ],
+   [
+    "モスバーガー",
+    3
+   ],
+   [
+    "カフェ・ド・クリエ",
+    3
+   ]
+  ],
+  "named_by_cat": {
+   "food": 819,
+   "shop": 720,
+   "nightlife": 257,
+   "office": 124,
+   "service": 114,
+   "hotel": 89,
+   "school": 71,
+   "landmark": 56,
+   "leisure": 42,
+   "hall": 18,
+   "attraction": 12,
+   "cinema": 7,
+   "education": 1
+  },
+  "landmark_names": [
+   "Atsukobarouh",
+   "First church of christ, scientist, Tokyo",
+   "La Porte Aoyama",
+   "TOKIMEKI STAGE",
+   "Taito Station Shibuya",
+   "furniture goods",
+   "hi-b.a.高校生聖書伝道協会",
+   "こどもの樹",
+   "しぶS",
+   "なかよし",
+   "ひきだしのような家に",
+   "オーバルの塔",
+   "ジョン・ウェスレー像",
+   "ハチ公口",
+   "ハチ公口自転車等駐輪場",
+   "ホープさん",
+   "ヨンデル",
+   "中渋谷教会",
+   "乗泉寺",
+   "北谷稲荷",
+   "吽形狛犬",
+   "商和稲荷神社",
+   "國學院大學神殿",
+   "地球のうえにあそぶこどもたち",
+   "宮益御嶽神社",
+   "平和の鐘",
+   "幸福の科学渋谷精舎",
+   "御嶽神社",
+   "忠犬ハチ公像",
+   "惟神會本部",
+   "日本基督教団本多記念教会",
+   "末日イエスキリスト教会",
+   "東京山手教会",
+   "東京教会",
+   "東福寺",
+   "氷川神社",
+   "渋谷スクランブル交差点",
+   "渋谷区民憲章碑",
+   "渋谷日本基督会",
+   "渋谷福音教会",
+   "渋谷駅 A0",
+   "玉造稲荷神社",
+   "美竹教会",
+   "聖ヶ丘教会",
+   "観世能楽堂",
+   "豐榮稲荷神社",
+   "金王丸御影堂",
+   "金王八幡宮",
+   "金王八幡宮 鳥居",
+   "長泉寺",
+   "阿形狛犬",
+   "隠田神社"
+  ]
+ },
+ "w11_station_exits": {
+  "total": 45,
+  "distinct_names": 23,
+  "dup_names": {
+   "西口": 3,
+   "渋谷駅": 14,
+   "表参道": 5,
+   "明治神宮前駅": 2,
+   "ハチ公口": 2,
+   "新南口": 2
+  },
+  "by_station": {
+   "渋谷": 38,
+   "表参道": 5,
+   "明治神宮前〈原宿〉": 2
+  }
+ },
+ "w5_entrances": {
+  "by_kind": {
+   "station_exit": 45,
+   "projected": 7194,
+   "osm_entrance": 22
+  },
+  "named_by_kind": {
+   "station_exit": 45,
+   "projected": 894,
+   "osm_entrance": 18
+  }
+ },
+ "w4_buildings": {
+  "total": 7210,
+  "named": 907,
+  "named_in_stage": 894,
+  "distinct_names": 890
+ },
+ "chome": {
+  "estat_records": 80,
+  "chome_with_cell_centroid": 37,
+  "towns_with_cell_centroid": 21,
+  "cells_outside_ward": 45,
+  "cells_per_chome": {
+   "渋谷二丁目": 37,
+   "神宮前五丁目": 31,
+   "道玄坂一丁目": 25,
+   "神南二丁目": 24,
+   "神宮前六丁目": 22,
+   "宇田川町": 21,
+   "渋谷一丁目": 21,
+   "渋谷三丁目": 21,
+   "松涛一丁目": 17,
+   "神山町": 16,
+   "道玄坂二丁目": 16,
+   "渋谷四丁目": 16,
+   "神南一丁目": 15,
+   "南平台町": 15,
+   "東二丁目": 15,
+   "東一丁目": 15,
+   "桜丘町": 14,
+   "神宮前四丁目": 14,
+   "神泉町": 13,
+   "富ケ谷一丁目": 13,
+   "猿楽町": 13,
+   "鉢山町": 11,
+   "鴬谷町": 11,
+   "円山町": 10,
+   "代々木神園町": 9,
+   "東三丁目": 8,
+   "松涛二丁目": 7,
+   "恵比寿西二丁目": 6,
+   "代官山町": 5,
+   "神宮前三丁目": 4,
+   "富ケ谷二丁目": 2,
+   "東四丁目": 2,
+   "広尾三丁目": 2,
+   "神宮前一丁目": 1,
+   "恵比寿西一丁目": 1,
+   "恵比寿一丁目": 1,
+   "広尾一丁目": 1
+  },
+  "cells_by_n_chome_mixed": {
+   "0": 37,
+   "1": 217,
+   "2": 209,
+   "3": 45,
+   "4": 11,
+   "5": 1
+  },
+  "blocks_total": 1227,
+  "blocks_with_chome": 1182,
+  "chome_with_block": 30,
+  "blocks_area_m2_quantiles": [
+   61.1,
+   759.1,
+   6415.0
+  ],
+  "w16_note": "W16 の被覆率>0 の町丁目は 42/80(v2-world-data-build-spec 記載)"
+ }
+}

@@ -50,6 +50,9 @@ __all__ = [
     "default_per_entity_byte_cap",
 ]
 
+#: 〔第330・RET〕10e(E1)の「消した死蔵の列を旧い final の再現のためだけにハッシュの中で元の位置に並べ直す」口
+#: (``retired_columns_in_hash``・``Registry.retire``)は ``--hash-scheme full`` と一緒に消した。
+
 #: 個体あたりバイト上限の根拠行(予算宣言表)。
 AGENT_CAP_BUDGET_ROW: Final[str] = "M1"
 #: セルあたりバイト上限の根拠行は**存在しない**(expedient: 総額 M8/M10 側で見る)。
@@ -220,6 +223,7 @@ class Registry:
         self._decls: dict[str, FieldDecl] = {}
         self._arrays: dict[str, np.ndarray] = {}
 
+
     # ---- 生成ヘルパ ----
     @classmethod
     def for_agents(cls, n_agents: int, **kw: Any) -> "Registry":
@@ -301,6 +305,7 @@ class Registry:
         self._decls[field] = decl
         self._arrays[field] = arr
         return arr
+
 
     # ---- 参照 ----
     @property
@@ -393,14 +398,16 @@ class Registry:
         h.update(b"shibuya.core.soa/v1" + _SEP)
         h.update(self.kind.encode("utf-8") + _SEP)
         h.update(str(self.n_entities).encode("ascii") + _SEP)
-        for d in self._decls.values():
-            if d.name in skip:
-                continue
-            arr = self._arrays[d.name]
-            h.update(d.name.encode("utf-8") + _SEP)
-            h.update(d.dtype.str.encode("ascii") + _SEP)
+
+        def feed(name: str, dtype: np.dtype, arr: np.ndarray) -> None:
+            h.update(name.encode("utf-8") + _SEP)
+            h.update(dtype.str.encode("ascii") + _SEP)
             h.update(str(arr.shape).encode("ascii") + _SEP)
             flat = np.ascontiguousarray(arr).reshape(-1)
             h.update(flat.view(np.uint8) if flat.size else b"")
             h.update(_SEP)
+
+        for d in self._decls.values():
+            if d.name not in skip:
+                feed(d.name, d.dtype, self._arrays[d.name])
         return h.hexdigest()

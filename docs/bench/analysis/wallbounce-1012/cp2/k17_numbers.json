@@ -1,0 +1,135 @@
+{
+ "note": "第 1 期 1-9 K17: 金の生ログの輪の係数 6.5 行/体/日(HEAD 3.0)・保持窓 1 日",
+ "k17": {
+  "measured_rows_per_agent_day": 4.07,
+  "margin": 1.5,
+  "lower_bound": 6.105,
+  "rate": 6.5
+ },
+ "rows": [
+  {
+   "n_agents": 5000,
+   "rate": 3.0,
+   "raw_capacity_rows": 16384,
+   "ring_bytes_7_columns": 393216,
+   "ring_bytes_link_columns": 196608,
+   "declared_over_cap": [],
+   "growth_ok": true,
+   "rows": {
+    "transfer_log": {
+     "cap_bytes": 393216,
+     "per_day_growth_coef": 72.0,
+     "declared_projection_bytes": 360000.0
+    },
+    "transfer_log_event_ids": {
+     "cap_bytes": 196608,
+     "per_day_growth_coef": 36.0,
+     "declared_projection_bytes": 180000.0
+    },
+    "delivery_log": {
+     "cap_bytes": 262144,
+     "per_day_growth_coef": 32.0,
+     "declared_projection_bytes": 160000.0
+    },
+    "delivery_log_event_ids": {
+     "cap_bytes": 196608,
+     "per_day_growth_coef": 24.0,
+     "declared_projection_bytes": 120000.0
+    }
+   }
+  },
+  {
+   "n_agents": 5000,
+   "rate": 6.5,
+   "raw_capacity_rows": 32500,
+   "ring_bytes_7_columns": 780000,
+   "ring_bytes_link_columns": 390000,
+   "declared_over_cap": [],
+   "growth_ok": true,
+   "rows": {
+    "transfer_log": {
+     "cap_bytes": 780000,
+     "per_day_growth_coef": 156.0,
+     "declared_projection_bytes": 780000.0
+    },
+    "transfer_log_event_ids": {
+     "cap_bytes": 390000,
+     "per_day_growth_coef": 78.0,
+     "declared_projection_bytes": 390000.0
+    },
+    "delivery_log": {
+     "cap_bytes": 262144,
+     "per_day_growth_coef": 32.0,
+     "declared_projection_bytes": 160000.0
+    },
+    "delivery_log_event_ids": {
+     "cap_bytes": 196608,
+     "per_day_growth_coef": 24.0,
+     "declared_projection_bytes": 120000.0
+    }
+   }
+  },
+  {
+   "n_agents": 390067,
+   "rate": 3.0,
+   "raw_capacity_rows": 1170201,
+   "ring_bytes_7_columns": 28084824,
+   "ring_bytes_link_columns": 14042412,
+   "declared_over_cap": [],
+   "growth_ok": true,
+   "rows": {
+    "transfer_log": {
+     "cap_bytes": 28084824,
+     "per_day_growth_coef": 72.0,
+     "declared_projection_bytes": 28084824.0
+    },
+    "transfer_log_event_ids": {
+     "cap_bytes": 14042412,
+     "per_day_growth_coef": 36.0,
+     "declared_projection_bytes": 14042412.0
+    },
+    "delivery_log": {
+     "cap_bytes": 12482144,
+     "per_day_growth_coef": 32.0,
+     "declared_projection_bytes": 12482144.0
+    },
+    "delivery_log_event_ids": {
+     "cap_bytes": 9361608,
+     "per_day_growth_coef": 24.0,
+     "declared_projection_bytes": 9361608.0
+    }
+   }
+  },
+  {
+   "n_agents": 390067,
+   "rate": 6.5,
+   "raw_capacity_rows": 2535436,
+   "ring_bytes_7_columns": 60850464,
+   "ring_bytes_link_columns": 30425232,
+   "declared_over_cap": [],
+   "growth_ok": true,
+   "rows": {
+    "transfer_log": {
+     "cap_bytes": 60850464,
+     "per_day_growth_coef": 156.0,
+     "declared_projection_bytes": 60850452.0
+    },
+    "transfer_log_event_ids": {
+     "cap_bytes": 30425232,
+     "per_day_growth_coef": 78.0,
+     "declared_projection_bytes": 30425226.0
+    },
+    "delivery_log": {
+     "cap_bytes": 12482144,
+     "per_day_growth_coef": 32.0,
+     "declared_projection_bytes": 12482144.0
+    },
+    "delivery_log_event_ids": {
+     "cap_bytes": 9361608,
+     "per_day_growth_coef": 24.0,
+     "declared_projection_bytes": 9361608.0
+    }
+   }
+  }
+ ]
+}

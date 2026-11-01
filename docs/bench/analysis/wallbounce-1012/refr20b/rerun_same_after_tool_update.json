@@ -1,0 +1,26 @@
+{
+ "n_common": 65,
+ "n_same": 65,
+ "keys": [
+  "final",
+  "calls",
+  "calls_by_condition",
+  "calls_by_hour",
+  "suppressed",
+  "sleep_suppressed",
+  "outside_suppressed",
+  "candidates",
+  "merged",
+  "conversation_sessions",
+  "arbiter",
+  "activity_counters",
+  "conversation_counters",
+  "calls_by_model",
+  "l4"
+ ],
+ "differ": {},
+ "only_a": 0,
+ "only_b": 4,
+ "a": "rows_run2",
+ "b": "rows"
+}

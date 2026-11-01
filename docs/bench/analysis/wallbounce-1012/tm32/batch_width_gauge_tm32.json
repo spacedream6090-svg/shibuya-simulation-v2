@@ -1,0 +1,235 @@
+{
+ "schema": "shibuya.tools.instruments/batch_width_gauge/1",
+ "ref_width_s": 60,
+ "alpha": 0.05,
+ "salts": [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6"
+ ],
+ "metrics": {
+  "calls": "calls",
+  "actions": "actions",
+  "message_delay_max_s": "message_delay_max_s",
+  "lateness": null,
+  "meeting": null
+ },
+ "rows": [
+  {
+   "width_s": 60,
+   "is_ref": true,
+   "n_salts": 6,
+   "final_equal": 1.0,
+   "metrics": {
+    "calls": {
+     "diff": 0.0,
+     "salt_width": 31.37619517349012,
+     "paired_width": 0.0,
+     "diff_over_width": 0.0,
+     "within": true,
+     "mean_ref": 3084.5,
+     "mean_arm": 3084.5
+    },
+    "actions": {
+     "diff": 0.0,
+     "salt_width": 830.9149262746998,
+     "paired_width": 0.0,
+     "diff_over_width": 0.0,
+     "within": true,
+     "mean_ref": 14273.333333333334,
+     "mean_arm": 14273.333333333334
+    },
+    "message_delay_max_s": {
+     "diff": 0.0,
+     "salt_width": 0.0,
+     "paired_width": 0.0,
+     "diff_over_width": null,
+     "within": true,
+     "mean_ref": 0.0,
+     "mean_arm": 0.0
+    },
+    "lateness": {
+     "diff": null,
+     "salt_width": null,
+     "paired_width": null,
+     "diff_over_width": null,
+     "within": null,
+     "note": "置き場(計る口がまだ無い=T2 以降に manifest の道筋を足す)"
+    },
+    "meeting": {
+     "diff": null,
+     "salt_width": null,
+     "paired_width": null,
+     "diff_over_width": null,
+     "within": null,
+     "note": "置き場(計る口がまだ無い=T2 以降に manifest の道筋を足す)"
+    }
+   }
+  },
+  {
+   "width_s": 30,
+   "is_ref": false,
+   "n_salts": 6,
+   "final_equal": 1.0,
+   "metrics": {
+    "calls": {
+     "diff": 0.0,
+     "salt_width": 31.37619517349012,
+     "paired_width": 0.0,
+     "diff_over_width": 0.0,
+     "within": true,
+     "mean_ref": 3084.5,
+     "mean_arm": 3084.5
+    },
+    "actions": {
+     "diff": 0.0,
+     "salt_width": 830.9149262746998,
+     "paired_width": 0.0,
+     "diff_over_width": 0.0,
+     "within": true,
+     "mean_ref": 14273.333333333334,
+     "mean_arm": 14273.333333333334
+    },
+    "message_delay_max_s": {
+     "diff": 0.0,
+     "salt_width": 0.0,
+     "paired_width": 0.0,
+     "diff_over_width": null,
+     "within": true,
+     "mean_ref": 0.0,
+     "mean_arm": 0.0
+    },
+    "lateness": {
+     "diff": null,
+     "salt_width": null,
+     "paired_width": null,
+     "diff_over_width": null,
+     "within": null,
+     "note": "置き場(計る口がまだ無い=T2 以降に manifest の道筋を足す)"
+    },
+    "meeting": {
+     "diff": null,
+     "salt_width": null,
+     "paired_width": null,
+     "diff_over_width": null,
+     "within": null,
+     "note": "置き場(計る口がまだ無い=T2 以降に manifest の道筋を足す)"
+    }
+   }
+  },
+  {
+   "width_s": 10,
+   "is_ref": false,
+   "n_salts": 6,
+   "final_equal": 1.0,
+   "metrics": {
+    "calls": {
+     "diff": 0.0,
+     "salt_width": 31.37619517349012,
+     "paired_width": 0.0,
+     "diff_over_width": 0.0,
+     "within": true,
+     "mean_ref": 3084.5,
+     "mean_arm": 3084.5
+    },
+    "actions": {
+     "diff": 0.0,
+     "salt_width": 830.9149262746998,
+     "paired_width": 0.0,
+     "diff_over_width": 0.0,
+     "within": true,
+     "mean_ref": 14273.333333333334,
+     "mean_arm": 14273.333333333334
+    },
+    "message_delay_max_s": {
+     "diff": 0.0,
+     "salt_width": 0.0,
+     "paired_width": 0.0,
+     "diff_over_width": null,
+     "within": true,
+     "mean_ref": 0.0,
+     "mean_arm": 0.0
+    },
+    "lateness": {
+     "diff": null,
+     "salt_width": null,
+     "paired_width": null,
+     "diff_over_width": null,
+     "within": null,
+     "note": "置き場(計る口がまだ無い=T2 以降に manifest の道筋を足す)"
+    },
+    "meeting": {
+     "diff": null,
+     "salt_width": null,
+     "paired_width": null,
+     "diff_over_width": null,
+     "within": null,
+     "note": "置き場(計る口がまだ無い=T2 以降に manifest の道筋を足す)"
+    }
+   }
+  },
+  {
+   "width_s": 5,
+   "is_ref": false,
+   "n_salts": 6,
+   "final_equal": 1.0,
+   "metrics": {
+    "calls": {
+     "diff": 0.0,
+     "salt_width": 31.37619517349012,
+     "paired_width": 0.0,
+     "diff_over_width": 0.0,
+     "within": true,
+     "mean_ref": 3084.5,
+     "mean_arm": 3084.5
+    },
+    "actions": {
+     "diff": 0.0,
+     "salt_width": 830.9149262746998,
+     "paired_width": 0.0,
+     "diff_over_width": 0.0,
+     "within": true,
+     "mean_ref": 14273.333333333334,
+     "mean_arm": 14273.333333333334
+    },
+    "message_delay_max_s": {
+     "diff": 0.0,
+     "salt_width": 0.0,
+     "paired_width": 0.0,
+     "diff_over_width": null,
+     "within": true,
+     "mean_ref": 0.0,
+     "mean_arm": 0.0
+    },
+    "lateness": {
+     "diff": null,
+     "salt_width": null,
+     "paired_width": null,
+     "diff_over_width": null,
+     "within": null,
+     "note": "置き場(計る口がまだ無い=T2 以降に manifest の道筋を足す)"
+    },
+    "meeting": {
+     "diff": null,
+     "salt_width": null,
+     "paired_width": null,
+     "diff_over_width": null,
+     "within": null,
+     "note": "置き場(計る口がまだ無い=T2 以降に manifest の道筋を足す)"
+    }
+   }
+  }
+ ],
+ "monotone": {
+  "calls": true,
+  "actions": true,
+  "message_delay_max_s": true,
+  "lateness": null,
+  "meeting": null
+ },
+ "default_candidate_s": 60,
+ "note": "記述(合否は書かない)。(g)=|diff| ≤ salt_width(正解の腕の salt 間の幅=実装役の構成・expedient)・(f)=|diff| が W を細かくするほど増えない。T1 の世界の事象の時刻の粒度は 60 秒=どの幅でも同じ"
+}

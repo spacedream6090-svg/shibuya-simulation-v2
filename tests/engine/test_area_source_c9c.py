@@ -117,7 +117,7 @@ def test_the_same_denominator_reaches_detector_and_geometry():
     ).all()
 
 
-@pytest.mark.skipif(not ASSET.exists(), reason="C9c-1 資産が無い")
+@pytest.mark.requires_data(f"world_v2:{WA.WALKABLE_AREA_FILENAME}")
 def test_load_walkable_area_matches_the_parquet_order():
     import pyarrow.parquet as pq
 
@@ -129,7 +129,7 @@ def test_load_walkable_area_matches_the_parquet_order():
     assert len(sha[WA.WALKABLE_AREA_FILENAME]) == 64
 
 
-@pytest.mark.skipif(not ASSET.exists(), reason="C9c-1 資産が無い")
+@pytest.mark.requires_data(f"world_v2:{WA.WALKABLE_AREA_FILENAME}")
 def test_load_walkable_area_refuses_unknown_cells():
     with pytest.raises(ValueError):
         WA.load_walkable_area_m2(WORLD_DIR, ["g999_999_GL"])

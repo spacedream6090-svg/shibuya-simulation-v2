@@ -1,0 +1,36 @@
+{
+ "key": "W16#8",
+ "control": "来街者・通学者の年齢×性別は raking しない(宣言)vs 区の年齢×性別の周辺へ raking(IPF・種=現在の表)",
+ "metric": "年齢階級×性別(16×2)の分布",
+ "variants": [
+  {
+   "name": "来街者(kind 1・6・7)",
+   "jsd_bits": 0.09620248680872559,
+   "null_p95": 0.00017022084669428256,
+   "detected": true,
+   "tvd": 0.25683131283554655,
+   "n_declared": 96006.0,
+   "n_control": 96006.0,
+   "n_bins": 32
+  },
+  {
+   "name": "通学者(kind 5)",
+   "jsd_bits": 0.7140937396388598,
+   "null_p95": 0.00015056584832311978,
+   "detected": true,
+   "tvd": 0.8581026347478075,
+   "n_declared": 33385.0,
+   "n_control": 33385.0,
+   "n_bins": 32
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 0.15153140004258603,
+ "notes": [
+  "種の 0 セルは 1e-9 を足して IPF に通した(0 は動かないのと同じ)"
+ ],
+ "seconds_wall_row": 0.19,
+ "measured_at": "2026-09-30"
+}

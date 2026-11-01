@@ -22,11 +22,15 @@
 橋にして **辺 → 最も近い way(辺の中点から ≤ 8 m)→ センサス路線**(ref/official_name の路線番号・
 国道/都道の別・区道は対象外)の 2 段で対応表を作る(:mod:`.road_names`)。立った辺は**路線の
 区間の中央値**(較正点と同じ ``median_section``)、立たない辺は従来の klass 既定表。
-切替口 = :data:`USE_ROAD_NAME_MATCH`(**既定 False**=対応表は**診断として作って出力する**が騒音場には
-当てない=騒音場は改訂前とバイト一致)。既定 OFF の理由(親決定・段 1c の検収): 較正点の残差が
-1 点も動かず(較正は辺を通らない)改善の証拠が無い一方、klass と way の階級が合わない辺が実測の
-13〜63 倍の交通量を受け、首都高の下の辺が高架を拾う=品質が未確定。絞り込み(段 1c′):
-:data:`ROAD_NAME_REQUIRE_NAMED_SAME_CLASS`(Q7)・:data:`ROAD_NAME_REQUIRE_SAME_BAND`(Q9)。
+切替口 = :data:`USE_ROAD_NAME_MATCH`。〔改訂(第330 B4)〕**既定 True+Q7**(版上げ 1 回目で昇格=
+指示書 10-03 §9-4・第 2 波 W10-6 の手順書)。段 1c の時点の既定 OFF の理由(親決定・段 1c の検収:
+較正点の残差が 1 点も動かず改善の証拠が無い一方、klass と way の階級が合わない辺が実測の 13〜63 倍の
+交通量を受け、首都高の下の辺が高架を拾う)は、Q7(名前か ref があり階級が同じ way に限る)で
+階級の不一致 0・primary+secondary 202/202 になったことで解いた(段 1c′・第 2 波 W10-1)。
+False は旧値(段 1c の資産)の再現のための切替口。絞り込み(段 1c′):
+:data:`ROAD_NAME_REQUIRE_NAMED_SAME_CLASS`(Q7・既定 True)・:data:`ROAD_NAME_REQUIRE_SAME_BAND`(Q9・
+既定 False=09-30 の決定で不要)。**交通の過程との食い違い(宣言)**: ``engine/processes/traffic.py`` は
+klass 既定のまま区間別を読まない=静的な騒音場は区間別・動く車は klass 既定(車の段 R-67 まで)。
 既定表そのものは渋谷区のセンサス実測行から導く(道路種別3/4→primary・6→secondary)。
 
 expedient(すべて感度試験対象)
@@ -54,23 +58,25 @@ import numpy as np
 from . import common as C
 from . import road_names as RN
 from .street_grid import segment_arrays, street_points
+from shibuya.core.time_consts import SECONDS_PER_HOUR
 
 STAGE = "W10"
 #: 1.0.0 = 対応表は空(全辺 klass 既定)/ 1.1.0 = 道路名の突合(段 1c・D-1 (a))+対応表の出力。
-STAGE_VERSION = "1.1.0"
+#: 1.2.0 = 〔改訂(第330 B4)〕対応表を騒音場に当てる(ON)+Q7 が既定。
+STAGE_VERSION = "1.2.0"
 
 KASYO = ("realworld", "road_census_r3", "kasyo13.csv")
 R5_POINTS = ("realworld", "tokyo_noise", "r5_joji_kanshi_points.csv")
 #: 道路名の生応答(段 1c)。``road_names.ROAD_NAMES`` と同じ。
 ROAD_NAMES = RN.ROAD_NAMES
 
-#: **切替口**(段 1c)。**既定 False**=対応表は作って ``w10_edge_section.parquet`` に書く(診断)が、
-#: 騒音場には当てない=全辺が klass 既定表(改訂前の騒音場とバイト一致)。``True`` で当てる。
-#: 既定 OFF の理由は docstring(親決定・段 1c の検収=良くなった証拠が無ければ既定を動かさない)。
-USE_ROAD_NAME_MATCH: bool = False
+#: **切替口**(段 1c)。〔改訂(第330 B4)〕**既定 True**=対応表を騒音場に当てる(立った辺は路線の区間の
+#: 中央値)。False=当てない(全辺が klass 既定表=段 1c の資産の騒音場とバイト一致・旧値の再現の口)。
+#: 対応表は切替口に関わらず ``w10_edge_section.parquet`` に書く(診断)。
+USE_ROAD_NAME_MATCH: bool = True
 #: 段 1c′ Q7 の絞り込み: 候補の way を「名前か ref があり、階級(``road_names.CLASS_TIER``)が辺の
-#: klass と同じもの」に限る。既定 False=段 1c の規則(名前の有無に関わらず最も近い way)。
-ROAD_NAME_REQUIRE_NAMED_SAME_CLASS: bool = False
+#: klass と同じもの」に限る。〔改訂(第330 B4)〕既定 True。False=段 1c の規則(名前の有無に関わらず最も近い way)。
+ROAD_NAME_REQUIRE_NAMED_SAME_CLASS: bool = True
 #: 段 1c′ Q9 の絞り込み: 候補の way を「層(``road_names.way_band``)が辺の band と同じもの」に限る。
 ROAD_NAME_REQUIRE_SAME_BAND: bool = False
 #: 対応表が立つべき辺(primary 127 + secondary 75・仕様書の数)。
@@ -268,7 +274,7 @@ def lane_energy_coeff(vehicle: str, v_kmh: float, n_per_hour: float, regime: str
     v_ms = C.clamp(v_kmh, V_MIN_NONSTEADY, V_MAX_NONSTEADY) / 3.6
     return C.power_from_db(l_wa(vehicle, v_kmh, regime) - PROPAGATION_OFFSET_DB + DELTA_L_DB) * (
         math.pi / v_ms
-    ) * n_per_hour / 3600.0
+    ) * n_per_hour / SECONDS_PER_HOUR
 
 
 def lane_offsets(width_m: float, lanes: int) -> list[float]:
@@ -743,11 +749,11 @@ def run(ctx: C.Ctx) -> C.StageResult:
                 ""
                 if USE_ROAD_NAME_MATCH
                 else (
-                    "既定 OFF(親決定・段 1c の検収): 較正点の残差が 1 点も動かない(較正は路線名で"
+                    "OFF(旧値の再現の切替口・第330 B4 で既定は ON+Q7)。段 1c の時点の既定 OFF の理由"
+                    "(親決定・段 1c の検収): 較正点の残差が 1 点も動かない(較正は路線名で"
                     "センサスを直接引き、辺も騒音場も通らない)=改善の証拠が無い一方、当てうる辺の"
                     "うち klass と way の highway が合わない辺が klass 既定の 13〜63 倍の交通量を受け、"
-                    "首都高の下の辺が高架の way を拾う=品質が未確定。良くなった証拠が無ければ既定を"
-                    "動かさない(実装アジェンダ §3-3 の趣旨)。"
+                    "首都高の下の辺が高架の way を拾う=品質が未確定。"
                 )
             ),
             "road_name_match": match_rep,
@@ -778,6 +784,14 @@ def run(ctx: C.Ctx) -> C.StageResult:
             },
         },
     )
+    if USE_ROAD_NAME_MATCH:
+        # 〔改訂(第330 B4)〕交通の過程との食い違いの宣言(指示書 10-03 §9-4 の 1・3-2・第 2 波 Q-W10e)
+        mismatch = (
+            "静的な騒音場は区間別(対応表の立った辺=路線の区間の中央値)・動く車"
+            "(engine/processes/traffic.py)は klass 既定のまま=食い違いを宣言して進む(車の段 R-67 まで)"
+        )
+        res.expedients.append(mismatch)
+        res.notes["traffic_process_mismatch"] = mismatch
     res.outputs.append(
         C.write_parquet(
             ctx.out,

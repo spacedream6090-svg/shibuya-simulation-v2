@@ -1,0 +1,73 @@
+{
+ "schema": "shibuya.bench/10e/ret-goldens/1",
+ "how": "第330 RET: 写しの木(RET のコード+ACT の資産)で ret_goldens.py <name> を 1 本ずつ(5 本同時)。旧値の再現の試験を今の値に張り替えた値",
+ "rows": [
+  {
+   "name": "nt_hash",
+   "final": "87492778f4582d8fa067757d32b1953516997c92494089ab124840aaaa765bdb",
+   "calls": 25890
+  },
+  {
+   "name": "nt_order_id",
+   "final": "b7697fcafb4ba63b18f486b70b99ad12068e4a12b66482a9be13d4ad8414e97b",
+   "calls": 25828
+  },
+  {
+   "name": "nt_tie_id",
+   "final": "49c3fae02c2de5ecb68c93366fcd6d38139b967a7883b2c5960fa16219cd75d3",
+   "calls": 25877
+  },
+  {
+   "name": "null_hunger_v1",
+   "final": "f655d1eb601d7bb4d5c7ac143b448432c9a156499b34a7c68a2b3268594afc31",
+   "calls": 94435
+  },
+  {
+   "name": "null_l4x1",
+   "final": "f02d7fd4fbb4dc4fdda245a74a3b8e7459ee42b8a8258dedcfe721da599e7958",
+   "calls": 40979
+  },
+  {
+   "name": "null_leave_off",
+   "final": "a33c00469ca28832a3420d69799274746122de6760b0fa4eefbafeb8f4df503e",
+   "calls": 98017
+  },
+  {
+   "name": "plus2_head_final",
+   "final16": "3dc9605f573de1be",
+   "conversation_sessions": 7,
+   "calls": 414,
+   "note": "test_10a_review_fixes の +2 の経路を同じ木で 2 回(同じ値)"
+  },
+  {
+   "name": "q13_null",
+   "final": "ce33abec7629c8110f52e78064ef171cd19928ee1afbf3e2a1f40305ef72d75a",
+   "calls": 40963
+  },
+  {
+   "name": "q13_v3",
+   "final": "9bc6929fbb0da5e8118a7c813c219073ffc1d7a08ba79ab35a544a12e3a57f15",
+   "calls": 36275
+  },
+  {
+   "name": "rel_v1",
+   "final": "380e8651a96b1829b768af8ba3464b9c0fbc7bdc3e2bed0bb02caa02a0e58a9c",
+   "calls": 69406
+  },
+  {
+   "name": "v3_hunger_v1",
+   "final": "1767737a4183a436f18fc6dc54b0832c98d6c90e73bcca2a88f85194ee375030",
+   "calls": 64977
+  },
+  {
+   "name": "v3_l4x1",
+   "final": "a18594506e4a0ea50c3d844ee2e82b7a768a7950230627d757556b70bddddaf8",
+   "calls": 36172
+  },
+  {
+   "name": "v3_leave_off",
+   "final": "1761eef0e3c48dd52ab5ecf81167177269ca54c77b47eefbb208641c8e85aad1",
+   "calls": 65634
+  }
+ ]
+}

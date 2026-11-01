@@ -1,0 +1,30 @@
+{
+ "key": "W9#3",
+ "control": "遮蔽ラスタ 2.5 m(宣言)vs 1.25 m",
+ "metric": "影の面 → (セル × 時 × {日陰, 日向}) の点・面の数の分布",
+ "variants": [
+  {
+   "name": "1.25 m",
+   "jsd_bits": 6.174780430030156e-05,
+   "null_p95": 6.620697166807141e-05,
+   "detected": false,
+   "tvd": 0.003491056389047739,
+   "n_declared": 102738816.0,
+   "n_control": 102738816.0,
+   "n_bins": 25008,
+   "shadow_share_declared": 0.7143917640631561,
+   "shadow_share_control": 0.713419541451597
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 1.1715911999344826,
+ "outputs_changed": [
+  "w9_shadow_2026-07-28.npy",
+  "w9_shadow_planes.parquet"
+ ],
+ "notes": [],
+ "seconds_wall_row": 9.98,
+ "measured_at": "2026-09-30"
+}

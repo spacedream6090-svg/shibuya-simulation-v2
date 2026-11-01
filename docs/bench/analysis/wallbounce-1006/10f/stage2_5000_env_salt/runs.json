@@ -1,0 +1,104 @@
+{
+ "schema": "shibuya.tools.c7/salt_runs/1",
+ "arms": {
+  "v3_default": {
+   "vocab_version": "v3",
+   "activity": true
+  },
+  "null_arm": {
+   "plan_executor": false,
+   "report_precondition": false
+  }
+ },
+ "base": "v3_default",
+ "arm": "null_arm",
+ "salts": [
+  1,
+  2,
+  3
+ ],
+ "population_seed": 1,
+ "agents": 5000,
+ "environment_mode": "salt",
+ "environment_seed": null,
+ "world": "data/world/v2",
+ "checkpoint_every": 60,
+ "T0": 0,
+ "jobs": 3,
+ "runs": [
+  {
+   "arm": "v3_default",
+   "salt": 1,
+   "aa": false,
+   "checkpoints": "v3_default_s1.json",
+   "final": "993276d5e5bb5cbe",
+   "calls": 69978,
+   "wall_s": 29.75,
+   "wall_s_process": 30.55
+  },
+  {
+   "arm": "v3_default",
+   "salt": 2,
+   "aa": false,
+   "checkpoints": "v3_default_s2.json",
+   "final": "02792be888f66b9d",
+   "calls": 69380,
+   "wall_s": 30.2,
+   "wall_s_process": 31.0
+  },
+  {
+   "arm": "v3_default",
+   "salt": 3,
+   "aa": false,
+   "checkpoints": "v3_default_s3.json",
+   "final": "2dabff9c839081b3",
+   "calls": 69552,
+   "wall_s": 29.74,
+   "wall_s_process": 30.55
+  },
+  {
+   "arm": "null_arm",
+   "salt": 1,
+   "aa": false,
+   "checkpoints": "null_arm_s1.json",
+   "final": "72cb9cd52982da74",
+   "calls": 100439,
+   "wall_s": 31.53,
+   "wall_s_process": 32.37
+  },
+  {
+   "arm": "null_arm",
+   "salt": 2,
+   "aa": false,
+   "checkpoints": "null_arm_s2.json",
+   "final": "31a67bd802750b2d",
+   "calls": 102094,
+   "wall_s": 32.69,
+   "wall_s_process": 33.51
+  },
+  {
+   "arm": "null_arm",
+   "salt": 3,
+   "aa": false,
+   "checkpoints": "null_arm_s3.json",
+   "final": "25e6c9353126d7ee",
+   "calls": 103947,
+   "wall_s": 33.26,
+   "wall_s_process": 34.11
+  },
+  {
+   "arm": "v3_default",
+   "salt": 1,
+   "aa": true,
+   "checkpoints": "v3_default_s1_aa.json",
+   "final": "993276d5e5bb5cbe",
+   "calls": 69978,
+   "wall_s": 27.2,
+   "wall_s_process": 28.04
+  }
+ ],
+ "wall_seconds": {
+  "runs": 91.0
+ },
+ "note": "wall_seconds・wall_s は壁時計(決定論ではない)。パスは runs.json の置き場からの相対"
+}

@@ -1,0 +1,10 @@
+{
+ "key": "W11#5",
+ "control": "座標なし駅=同名駅の重心(宣言)vs OSM の駅ノード座標",
+ "status": "unmeasurable",
+ "verdict": null,
+ "reason": "OSM の駅ノード(railway=station)の座標がリポのどの入力にも無い(v8 は路線の折れ線だけ)・Web 取得は禁止。ホーム位置 ±50 m の包絡は W11#2 で測った",
+ "variants": [],
+ "seconds_wall_row": 0.0,
+ "measured_at": "2026-09-30"
+}

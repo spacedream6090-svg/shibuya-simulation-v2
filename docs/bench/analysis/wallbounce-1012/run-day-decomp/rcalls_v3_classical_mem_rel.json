@@ -1,0 +1,99 @@
+{
+ "config": "v3_classical_mem_rel",
+ "final": "a7c16d0fd2d59a0a",
+ "calls_llm": 15836,
+ "by_segment": {
+  "S": {
+   "_require_thawed": 1,
+   "initialize": 1,
+   "initialize_energy": 1,
+   "normalized_refractory_scale": 1,
+   "place_at_external": 1,
+   "rail_arrive": 1,
+   "refractory_ticks": 1,
+   "set_initial_activity": 1,
+   "set_plan_state": 2,
+   "write_relations": 1
+  },
+  "body": {
+   "_energy_meal": 87,
+   "_tick_minute": 87,
+   "advance_body": 1440,
+   "energy_out_of_area_meal": 87
+  },
+  "world": {
+   "_require_thawed": 1,
+   "balk_queue": 7,
+   "collect_waste": 234,
+   "consume": 1,
+   "discard_to_bin": 1,
+   "rail_arrive": 1,
+   "rail_depart": 1,
+   "release_indoor": 730,
+   "restock": 1,
+   "set_notice_state": 2,
+   "set_open_flags": 47,
+   "set_plan_state": 1,
+   "set_thermal": 288,
+   "sync_transit_activity": 1440
+  },
+  "detect": {
+   "apply_detection": 1440
+  },
+  "plan_boundary": {
+   "begin_planned_sleep": 54,
+   "set_plan_state": 1041,
+   "wake_from_plan": 987
+  },
+  "phase_c": {
+   "_advance_focus": 1440,
+   "_clear_focus": 1007,
+   "_clear_intent_fields": 309,
+   "_complete_buy": 165,
+   "_complete_eat": 774,
+   "_energy_meal": 774,
+   "_energy_snack": 165,
+   "_fail": 4250,
+   "_ok": 3252,
+   "_remember_queue_action": 51,
+   "_require_thawed": 939,
+   "_serve_board_queue": 1440,
+   "_serve_poi_queue": 1440,
+   "_set_focus": 2185,
+   "_settle_approach": 938,
+   "_tick_minute": 939,
+   "apply": 1440,
+   "intent_kept_by": 1010
+  },
+  "presence": {
+   "rail_arrive": 393,
+   "rail_depart": 337,
+   "release_indoor": 87,
+   "set_plan_state": 1147
+  },
+  "decide": {
+   "_require_thawed": 1109,
+   "set_refractory": 1228,
+   "talk_within_reach": 85
+  },
+  "memory": {
+   "_require_thawed": 1265,
+   "write_memory": 1265
+  },
+  "activity_intent": {
+   "_clear_intent_fields": 3,
+   "_require_thawed": 2785,
+   "clear_intent": 2,
+   "relabel_intent_failure": 1,
+   "set_activity": 1855,
+   "set_activity_until": 640,
+   "set_intent": 287
+  },
+  "phase_a": {
+   "intent_kept_by": 79
+  },
+  "close_final": {
+   "sync_transit_activity": 1
+  }
+ }
+}

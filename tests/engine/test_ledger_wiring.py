@@ -20,6 +20,8 @@ import time
 import numpy as np
 import pytest
 
+from tests import _time_gates as TG
+
 from shibuya.agents.schedule import synthesize
 from shibuya.agents.state import AgentState
 from shibuya.economy import census as CS
@@ -32,6 +34,7 @@ from shibuya.engine import resolve as R
 from shibuya.engine.ledger_api import LedgerBundle
 from shibuya.engine.run import run_day
 from shibuya.world.state import World
+from tests import golden_env as GE
 
 W2_REPORT_SECONDS = 60.0
 
@@ -60,6 +63,18 @@ def _bundle(world: World, n_agents: int) -> LedgerBundle:
     )
 
 
+@pytest.fixture(scope="module", autouse=True)
+def _stage2_off():
+    """〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=本ファイル(台帳の配線=段階 2 の外の C4 の帳簿)は切替口 off で見る
+    (段階 2 の帳簿・語・保存則は ``tests/economy/stage2``)。"""
+    from shibuya.engine import economy_stage2 as ES2
+
+    mp = pytest.MonkeyPatch()
+    mp.setattr(ES2, "_ARM", ES2.ARM_OFF)
+    yield
+    mp.undo()
+
+
 @pytest.fixture(scope="module")
 def wired():
     world = World.synthetic(n_cells=64, seed=2)
@@ -77,7 +92,10 @@ def test_wiring_does_not_change_the_state_hashes_when_goods_processes_are_off():
     kw = dict(ticks=1_440, checkpoint_every=360, processes_disabled=GOODS_PROCESS_IDS)
     res = run_day(n_agents=500, seed=2, world=world, ledger=bundle, **kw)
     plain = run_day(n_agents=500, seed=2, n_cells=64, **kw)
-    assert [c.combined for c in res.checkpoints] == [c.combined for c in plain.checkpoints]
+    # 10e(E1): 既定の final(behavior-hash)は台帳の外の状態の行(金と物の台帳)を含むので台帳の有無で違う。
+    # 「帳簿を足すだけ」は SoA の全列の組み立て(10e より前の final=legacy_combined)で見る
+    # 〔第330・RET〕legacy_combined は消した=同じ式を試験の側で組む(GE.soa_combined)
+    assert [GE.soa_combined(c) for c in res.checkpoints] == [GE.soa_combined(c) for c in plain.checkpoints]
     assert res.money_end == plain.money_end and res.revenue_end == plain.revenue_end
     assert int(res.column("purchases").sum()) == int(plain.column("purchases").sum())
 
@@ -217,7 +235,10 @@ def test_the_bundle_declaration_survives_the_c7_scale(wired):
     assert rep.declared_over_cap == (), rep.as_text()
     assert rep.ok, rep.as_text()
     caps = {r.name: r.cap for r in rep.rows}
-    assert caps["transfer_log"] == 28_084_824 and caps["delivery_log"] == 12_482_144
+    # 〔1-9・K17〕金の輪の係数 3.0 → 6.5 行/体/日: 容量 ceil(6.5 × 390,067)=2,535,436 行 × 24 B(前は 28,084,824)。
+    # 目印の列(12 B/行)は別の宣言(金・物とも輪と同じ容量)
+    assert caps["transfer_log"] == 60_850_464 and caps["delivery_log"] == 12_482_144
+    assert caps["transfer_log_event_ids"] == 30_425_232 and caps["delivery_log_event_ids"] == 9_361_608
     # 小さいラン(``wired`` = 500 体×1 日)も同じ宣言で通る(下限容量の側)
     res, bundle = wired
     assert res.growth_report is not None and res.growth_report.declared_over_cap == ()
@@ -364,8 +385,8 @@ def test_w2_five_thousand_agents_with_the_ledger_wired():
         n_agents=5_000, seed=1, ticks=1_440, checkpoint_every=360, n_cells=139,
         processes_disabled=GOODS_PROCESS_IDS,
     )
-    assert plain_goods.final_hash == plain_off.final_hash
-    assert wall <= W2_REPORT_SECONDS
+    assert GE.soa_combined(plain_goods.checkpoints[-1]) == GE.soa_combined(plain_off.checkpoints[-1])  # 10e(E1)・〔第330・RET〕
+    assert TG.check(wall <= W2_REPORT_SECONDS, f"W2 台帳あり {wall:.2f}s(報告閾値 {W2_REPORT_SECONDS}s)")
     assert res.conserved and res.min_stock >= 0
     assert int(bundle.money.sector_totals(BalanceLine.CASH).sum()) == 0
     assert CK.net_worth_equals_real_assets(bundle.money, bundle.goods).ok

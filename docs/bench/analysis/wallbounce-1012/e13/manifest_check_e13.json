@@ -1,0 +1,177 @@
+{
+ "schema": "shibuya.bench/e13/manifest-check/1",
+ "agents": 5000,
+ "world": "data/world/v2",
+ "how": "10f の manifest_check_10f.py side の 7 本(HEAD=本体の src・e13=作業木の src・両側 PYTHONHASHSEED=0)の checkpoints の JSON を平坦化して比べる(壁時計の欄は除く・daily の行は行ごとに平坦化)。足してよいのは daily の各行の events の下の葉だけ。一番上の鍵の並びと manifest_sections は同じ。環境の欄(git の commit と汚れ・env_id)は必ず違う",
+ "all_ok": true,
+ "rows": [
+  {
+   "config": "w6_v3_default",
+   "seed": 1,
+   "final_head": "5f7ae9ff24005314",
+   "final_e13": "5f7ae9ff24005314",
+   "fields_compared": 1709,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.env_id"
+   ],
+   "added_fields": 21,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_same": true,
+   "events_daily": [
+    {
+     "on": true,
+     "rows": 28835,
+     "bytes": 2076120
+    }
+   ]
+  },
+  {
+   "config": "w6_v3_default",
+   "seed": 2,
+   "final_head": "db0746a3efc4a8cb",
+   "final_e13": "db0746a3efc4a8cb",
+   "fields_compared": 1714,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.env_id"
+   ],
+   "added_fields": 20,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_same": true,
+   "events_daily": [
+    {
+     "on": true,
+     "rows": 28749,
+     "bytes": 2069928
+    }
+   ]
+  },
+  {
+   "config": "w6_golden_null_arm",
+   "seed": 1,
+   "final_head": "354f49ca9a61b986",
+   "final_e13": "354f49ca9a61b986",
+   "fields_compared": 1710,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.env_id"
+   ],
+   "added_fields": 20,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_same": true,
+   "events_daily": [
+    {
+     "on": true,
+     "rows": 28068,
+     "bytes": 2020896
+    }
+   ]
+  },
+  {
+   "config": "v3_mem_rel",
+   "seed": 1,
+   "final_head": "73a78288ab5e1498",
+   "final_e13": "73a78288ab5e1498",
+   "fields_compared": 2225,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.env_id"
+   ],
+   "added_fields": 21,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_same": true,
+   "events_daily": [
+    {
+     "on": true,
+     "rows": 28890,
+     "bytes": 2080080
+    }
+   ]
+  },
+  {
+   "config": "v3_mem_rel",
+   "seed": 2,
+   "final_head": "c615df9a771cda41",
+   "final_e13": "c615df9a771cda41",
+   "fields_compared": 2211,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.env_id"
+   ],
+   "added_fields": 20,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_same": true,
+   "events_daily": [
+    {
+     "on": true,
+     "rows": 28759,
+     "bytes": 2070648
+    }
+   ]
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "seed": 1,
+   "final_head": "4c512a1fdc2a70c0",
+   "final_e13": "4c512a1fdc2a70c0",
+   "fields_compared": 2222,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.env_id"
+   ],
+   "added_fields": 21,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_same": true,
+   "events_daily": [
+    {
+     "on": true,
+     "rows": 28831,
+     "bytes": 2075832
+    }
+   ]
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "seed": 2,
+   "final_head": "2615535c06c09e84",
+   "final_e13": "2615535c06c09e84",
+   "fields_compared": 2196,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.env_id"
+   ],
+   "added_fields": 20,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_keys_same": true,
+   "events_daily": [
+    {
+     "on": true,
+     "rows": 28664,
+     "bytes": 2063808
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,367 @@
+{
+ "schema": "shibuya.bench/10d/resume-check/1",
+ "config": "w6_v3_default",
+ "agents": 5000,
+ "seed": 1,
+ "sim_days": 2,
+ "checkpoint_every": 1,
+ "ledger_version": "state-ledger/10d",
+ "straight": {
+  "final": "47e0a85b02797e23",
+  "llm_calls": 142043,
+  "daily": [
+   {
+    "day": 0,
+    "end_T": 1440,
+    "eod": {
+     "behavior_hash": "4d7f5fa760301b39c59c59c41122b0c0adb69f2650f206b2ac727ececa8200f1",
+     "full_hash": "c74c350199e23951ccc3b132e107cc6ebe6a99f325a937d429658941b9718cf6",
+     "full_external_bytes": 3587200
+    },
+    "census_pass": true,
+    "census_row": {
+     "day": 0,
+     "residual": 0,
+     "money_supply": 425192358,
+     "faucet_total": 425868428,
+     "sink_total": 676070,
+     "n_transfers": 20362,
+     "hoard_entities": 0,
+     "hoard_amount": 0,
+     "net_worth_ok": true,
+     "flow_ok": true,
+     "residual_ok": true,
+     "ex_nihilo_ok": true,
+     "goods_residual_units": 0,
+     "goods_balanced": true,
+     "waste_g": 1342300.0,
+     "shelf_units": 142379,
+     "gate_ok": true
+    },
+    "money": {
+     "households": 131529808,
+     "money_supply": 425192358
+    },
+    "bodies": {
+     "n": 5000,
+     "in_area": 977,
+     "riding": 6,
+     "outside": 4017,
+     "other": 0
+    }
+   },
+   {
+    "day": 1,
+    "end_T": 2880,
+    "eod": {
+     "behavior_hash": "3165e35df2167ceedfb7b716c86f29d378f736fa3db9ccbfedd01039b9e25c2c",
+     "full_hash": "3da6ac3f78917ed81aaeefdb0a55bfd79b68790a39b4c6bdf58b2db27a0acbbc",
+     "full_external_bytes": 3865902
+    },
+    "census_pass": true,
+    "census_row": {
+     "day": 1,
+     "residual": 0,
+     "money_supply": 424275390,
+     "faucet_total": 0,
+     "sink_total": 916968,
+     "n_transfers": 30732,
+     "hoard_entities": 0,
+     "hoard_amount": 0,
+     "net_worth_ok": true,
+     "flow_ok": true,
+     "residual_ok": true,
+     "ex_nihilo_ok": true,
+     "goods_residual_units": 0,
+     "goods_balanced": true,
+     "waste_g": 1871900.0,
+     "shelf_units": 137886,
+     "gate_ok": true
+    },
+    "money": {
+     "households": 125672948,
+     "money_supply": 424275390
+    },
+    "bodies": {
+     "n": 5000,
+     "in_area": 961,
+     "riding": 0,
+     "outside": 4039,
+     "other": 0
+    }
+   }
+  ],
+  "day_heads": [
+   {
+    "day": 1,
+    "T": 1440,
+    "money": {
+     "households": 131529808,
+     "money_supply": 425192358
+    },
+    "bodies": {
+     "n": 5000,
+     "in_area": 977,
+     "riding": 6,
+     "outside": 4017,
+     "other": 0
+    }
+   }
+  ],
+  "state_files": [],
+  "wall_s": 149.4
+ },
+ "stops": [
+  {
+   "stop_T": 420,
+   "fresh_process": false,
+   "state_file": "state-T00000420.pkl",
+   "state_bytes": 4042916,
+   "state_full_hash": "5e806c228a269a92",
+   "calls": {
+    "straight": 142043,
+    "stop+resume": 142043
+   },
+   "compare": {
+    "from_T": 420,
+    "checkpoints_compared": 2460,
+    "first_mismatch": null,
+    "mismatched_checkpoints": 0,
+    "calls_ticks_compared": 2460,
+    "first_calls_mismatch": null,
+    "calls_ticks_missing": [],
+    "first_diag_mismatch": null,
+    "daily": [
+     {
+      "day": 0,
+      "eod_full_same": true,
+      "eod_behavior_same": true,
+      "census_pass": [
+       true,
+       true
+      ],
+      "census_row_differs": []
+     },
+     {
+      "day": 1,
+      "eod_full_same": true,
+      "eod_behavior_same": true,
+      "census_pass": [
+       true,
+       true
+      ],
+      "census_row_differs": []
+     }
+    ],
+    "tape": {
+     "rows_straight": 140108,
+     "rows_segments": 140108,
+     "rows_differ": 0,
+     "first_differ": null
+    },
+    "ok": true
+   },
+   "wall_s": {
+    "stop": 6.6,
+    "resume": 143.7
+   }
+  },
+  {
+   "stop_T": 750,
+   "fresh_process": true,
+   "state_file": "state-T00000750.pkl",
+   "state_bytes": 4194707,
+   "state_full_hash": "75c994d6e83f47a6",
+   "calls": {
+    "straight": 142043,
+    "stop+resume": 142043
+   },
+   "compare": {
+    "from_T": 750,
+    "checkpoints_compared": 2130,
+    "first_mismatch": null,
+    "mismatched_checkpoints": 0,
+    "calls_ticks_compared": 2130,
+    "first_calls_mismatch": null,
+    "calls_ticks_missing": [],
+    "first_diag_mismatch": null,
+    "daily": [
+     {
+      "day": 0,
+      "eod_full_same": true,
+      "eod_behavior_same": true,
+      "census_pass": [
+       true,
+       true
+      ],
+      "census_row_differs": []
+     },
+     {
+      "day": 1,
+      "eod_full_same": true,
+      "eod_behavior_same": true,
+      "census_pass": [
+       true,
+       true
+      ],
+      "census_row_differs": []
+     }
+    ],
+    "tape": {
+     "rows_straight": 111135,
+     "rows_segments": 111135,
+     "rows_differ": 0,
+     "first_differ": null
+    },
+    "ok": true
+   },
+   "wall_s": {
+    "stop": 24.9,
+    "resume": 124.6
+   }
+  },
+  {
+   "stop_T": 1320,
+   "fresh_process": false,
+   "state_file": "state-T00001320.pkl",
+   "state_bytes": 4294793,
+   "state_full_hash": "6ca55556d0db65ea",
+   "calls": {
+    "straight": 142043,
+    "stop+resume": 142043
+   },
+   "compare": {
+    "from_T": 1320,
+    "checkpoints_compared": 1560,
+    "first_mismatch": null,
+    "mismatched_checkpoints": 0,
+    "calls_ticks_compared": 1560,
+    "first_calls_mismatch": null,
+    "calls_ticks_missing": [],
+    "first_diag_mismatch": null,
+    "daily": [
+     {
+      "day": 0,
+      "eod_full_same": true,
+      "eod_behavior_same": true,
+      "census_pass": [
+       true,
+       true
+      ],
+      "census_row_differs": []
+     },
+     {
+      "day": 1,
+      "eod_full_same": true,
+      "eod_behavior_same": true,
+      "census_pass": [
+       true,
+       true
+      ],
+      "census_row_differs": []
+     }
+    ],
+    "tape": {
+     "rows_straight": 75464,
+     "rows_segments": 75464,
+     "rows_differ": 0,
+     "first_differ": null
+    },
+    "ok": true
+   },
+   "wall_s": {
+    "stop": 56.4,
+    "resume": 90.1
+   }
+  },
+  {
+   "stop_T": 1440,
+   "fresh_process": true,
+   "state_file": "state-T00001440.pkl",
+   "state_bytes": 4302954,
+   "state_full_hash": "c74c350199e23951",
+   "calls": {
+    "straight": 142043,
+    "stop+resume": 142043
+   },
+   "compare": {
+    "from_T": 1440,
+    "checkpoints_compared": 1440,
+    "first_mismatch": null,
+    "mismatched_checkpoints": 0,
+    "calls_ticks_compared": 1440,
+    "first_calls_mismatch": null,
+    "calls_ticks_missing": [],
+    "first_diag_mismatch": null,
+    "daily": [
+     {
+      "day": 1,
+      "eod_full_same": true,
+      "eod_behavior_same": true,
+      "census_pass": [
+       true,
+       true
+      ],
+      "census_row_differs": []
+     }
+    ],
+    "tape": {
+     "rows_straight": 72065,
+     "rows_segments": 72065,
+     "rows_differ": 0,
+     "first_differ": null
+    },
+    "ok": true
+   },
+   "wall_s": {
+    "stop": 62.0,
+    "resume": 89.9
+   }
+  },
+  {
+   "stop_T": 1860,
+   "fresh_process": false,
+   "state_file": "state-T00001860.pkl",
+   "state_bytes": 4378312,
+   "state_full_hash": "fa9643e9d3b5eabe",
+   "calls": {
+    "straight": 142043,
+    "stop+resume": 142043
+   },
+   "compare": {
+    "from_T": 1860,
+    "checkpoints_compared": 1020,
+    "first_mismatch": null,
+    "mismatched_checkpoints": 0,
+    "calls_ticks_compared": 1020,
+    "first_calls_mismatch": null,
+    "calls_ticks_missing": [],
+    "first_diag_mismatch": null,
+    "daily": [
+     {
+      "day": 1,
+      "eod_full_same": true,
+      "eod_behavior_same": true,
+      "census_pass": [
+       true,
+       true
+      ],
+      "census_row_differs": []
+     }
+    ],
+    "tape": {
+     "rows_straight": 66016,
+     "rows_segments": 66016,
+     "rows_differ": 0,
+     "first_differ": null
+    },
+    "ok": true
+   },
+   "wall_s": {
+    "stop": 78.5,
+    "resume": 71.0
+   }
+  }
+ ],
+ "all_ok": true
+}

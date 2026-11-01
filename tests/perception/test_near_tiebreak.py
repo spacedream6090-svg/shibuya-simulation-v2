@@ -24,6 +24,8 @@ from shibuya.perception.renderer import (
 )
 from shibuya.world.state import World
 
+from tests import golden_env as GE
+
 from .test_nearby_vectorized import _reference_nearby_items, crowd
 
 
@@ -136,47 +138,61 @@ def test_default_salt_is_the_run_salt_of_the_seed():
     assert r2._near_salt64 != r._near_salt64
 
 
-def test_cli_flag_and_manifest():
+def test_cli_has_no_near_tiebreak_flag():
     from shibuya import cli
     from shibuya.engine import run as RUN
 
+    # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕ランの口の切替口 --near-tiebreak(id=旧挙動)は消した=CLI・run_day に無い
+    # (知覚の部品 Renderer の引数は単体試験の基準の口として残す=この表の上の試験)
     src = open(cli.__file__, encoding="utf-8").read()
-    assert '"--near-tiebreak"' in src and "near_tiebreak=str(args.near_tiebreak)" in src
-    assert '"--near-tiebreak"' in open(RUN.__file__, encoding="utf-8").read()
-    with pytest.raises(ValueError):
-        RUN.run_day(n_agents=10, ticks=2, near_tiebreak="random")
+    assert '"--near-tiebreak"' not in src and '"--near-tiebreak"' not in open(RUN.__file__, encoding="utf-8").read()
+    with pytest.raises(TypeError):
+        RUN.run_day(n_agents=10, ticks=2, near_tiebreak="id")
+    with pytest.raises(SystemExit):
+        cli.main(["--near-tiebreak", "id"])
 
 
 #: classical 1,500 体・seed 1・v3(実世界資産)の final。
 #: ``hash``(既定)= 第304 Q130 の距離順+Q107 の同点撹拌 / ``hash_order_id`` = 第304(3c86b6b)の既定=並びは行番号の
 #: 昇順(Q130 の前)/ ``classical_tie_id`` = 両方 id = HEAD bb44474 の既定と同じ(Q107 の前=旧 golden)。
-CLASSICAL_1500_GOLDEN = {
-    "hash": ("91732f34f9e2da62d543f77fef773f4600a8b94380f6bafd42203e98f5b8417c", 26_869),
-    "hash_order_id": ("e0a6f3f90fd8fe388312ff4f472239e59cc0194fed50accc4b5073d4bfdfc1a0", 26_845),
-    "classical_tie_id": ("803f04417718539898234b865bb5c6c16b50d7328b28ebd6e412b2b4db311d3b", 26_753),
-}
+#: 第2波 §2A 項 3-1: 3 本とも**交際の相手の旧規則**(``classical_social="near_first"``=近接行の最初の人)の値。
+#: 既定(``acquaintance``)の値は ``CLASSICAL_1500_GOLDEN_ACQ``。
+#: 10f(K26 (1)): 一番外側の鍵は環境の ``platform_id``(``tests/golden_env.py``)。行の無い環境では A/A だけ。値は 10f の前のまま。
+#: 〔改訂(第330・RET)〕前の 3 本は 10e より前の final の定義・乱数・世界の資産・暦の値(hash 91732f34…/26,869・
+#: hash_order_id e0a6f3f9…/26,845・classical_tie_id 803f0441…/26,753=ACT の commit で切替口を通して再現できた)。
+#: 旧値を再現する切替口を消したので、今の値(final=behavior-hash)に張り替えた。
+CLASSICAL_1500_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
+    # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 hash f5aebb9a03f141b6…941ee1 / 25_414・
+    # hash_order_id 91f9a601124e81dc…074e70 / 25_443・classical_tie_id edd9d6c8067f2da3…32db1a / 25_329=記録 pop43)
+    # 〔小さな版上げ・meal_w17〕前 hash 4b3db260…e153f / 25_335・hash_order_id c2a7d482…1cfe2 / 25_284・classical_tie_id 0a1ce7b6…c58de / 25_307
+    # (--meal-default validation で戻る)
+    # 〔第337 4-2 規則の表と天引き(小さな版上げ・既定 on)〕レジの消費税が店の預かり金に残る分で final が動いた(前 fbe9456439ec195d72bfe2b0a68d5d6e1ea4ebd53236cf9f544dc0e50c6c27a1 / 26_053=SHIBUYA_RULES_42=off で戻る・呼数は同じ)
+    "hash": ("7d4e9f985a7bf70e936f7996e0b0e176d0658ef258a3b221b7e78e0e7d50a177", 26_536),  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 f2309ff29b8f1678c2a93778d3eb5d8076c504975f4502eb5ac4888c389e624e / 26_053=--space legacy で戻る・段 1 の nav1(cell)は 231f86e33736d0e7b3ce882361ccbafb234f8667ee80a7b73019944dabf4005e / 25_871・記録 spatial-2026-10/sp1b)  # 〔2-4 V1〕前 87492778f4582d8fa067757d32b1953516997c92494089ab124840aaaa765bdb / 25_890  # 〔2-4 V2〕前 26b748695ffbf7f928f57352d9169fea630f12ca86efc13af383693411e0c578 / 25_638  # 〔2-4 V3〕前 e313dfaace60e42505a25a5b9f6a530e0e291dcd426260dea26f2f1a86c0da86 / 25_363  # 〔2-4 V4〕前 e4185ac9f6901403328403d6591c8cd43857a24de2938b3f2158e82a50e9ee3d
+    # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕ランの口の切替口(--near-order id・--near-tiebreak id)を消したので hash_order_id
+    # (c234caf7f39dea5e / 26,061)と classical_tie_id(c609c5d2b7e99205 / 26,120)の 2 行は消した(再現は安定版のタグ)
+}}
+#: 今の環境の行(無ければ ``None``=A/A だけ)。
+CLASSICAL_1500_GOLDEN = GE.row(CLASSICAL_1500_GOLDEN_BY_ENV)
 
 
-def test_classical_checkpoint_moves_with_hash_and_id_reproduces_the_old_one():
+@pytest.mark.requires_data("world_v2:w2_cells.parquet")
+def test_classical_checkpoint_with_the_default_hash_order():
     from pathlib import Path
 
     from shibuya import cli
 
     world = Path("data/world/v2")
-    if not (world / "w2_cells.parquet").exists():
-        pytest.skip("実世界資産 data/world/v2 が無い")
+    # 〔改訂(第330・RET)〕前は 3 本とも 10e より前の値を切替口(hash full・rng stateful・旧資産・暦)で再現した=今の値に
     kw = dict(n_agents=1500, seed=1, world_dir=str(world), vocab_version="v3", policy="classical",
-              chooser="classical")
+              chooser="classical", classical_social="near_first")
     new = cli.run(**kw)
-    mid = cli.run(near_order="id", **kw)
-    old = cli.run(near_tiebreak="id", near_order="id", **kw)
+    if CLASSICAL_1500_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(既定の hash の 1 本)
+        GE.assert_aa(lambda: cli.run(**kw), lambda r: (r.final_hash, int(r.llm_calls)), first=new)
+        return
     assert (new.final_hash, int(new.llm_calls)) == CLASSICAL_1500_GOLDEN["hash"]
-    assert (mid.final_hash, int(mid.llm_calls)) == CLASSICAL_1500_GOLDEN["hash_order_id"]
-    assert (old.final_hash, int(old.llm_calls)) == CLASSICAL_1500_GOLDEN["classical_tie_id"]
     m = new.run_manifest_fields()["near_tiebreak"]
-    assert m["mode"] == "hash" and m["ties_broken"] > 0 and m["order"] == "distance" and m["order_ties"] > 0
-    assert old.run_manifest_fields()["near_tiebreak"] == {"mode": "id", "ties_broken": 0, "tie_candidates": 0,
-                                                          "order": "id", "order_ties": 0}
+    # 〔第 2 部〕設定の欄 mode・order(切替口の値)は消した=観測の欄だけ
+    assert set(m) == {"ties_broken", "tie_candidates", "order_ties"} and m["ties_broken"] > 0 and m["order_ties"] > 0
 
 
 # ---------------------------------------------------------------- 第304 Q130: 近接行の並び=距離順
@@ -245,12 +261,12 @@ def test_id_order_reproduces_the_previous_order():
     assert r_i.near_order_ties == 0
 
 
-def test_cli_has_the_near_order_flag():
+def test_cli_has_no_near_order_flag():
     from shibuya import cli
     from shibuya.engine import run as RUN
 
+    # 〔第 2 部〕ランの口の切替口 --near-order(id=旧挙動)は消した=CLI・run_day に無い(Renderer の引数は単体試験の口)
     src = open(cli.__file__, encoding="utf-8").read()
-    assert '"--near-order"' in src and "near_order=str(args.near_order)" in src
-    assert '"--near-order"' in open(RUN.__file__, encoding="utf-8").read()
-    with pytest.raises(ValueError):
-        RUN.run_day(n_agents=10, ticks=2, near_order="random")
+    assert '"--near-order"' not in src and '"--near-order"' not in open(RUN.__file__, encoding="utf-8").read()
+    with pytest.raises(TypeError):
+        RUN.run_day(n_agents=10, ticks=2, near_order="id")

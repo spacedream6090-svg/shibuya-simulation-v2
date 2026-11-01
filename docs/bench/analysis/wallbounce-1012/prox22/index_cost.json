@@ -1,0 +1,48 @@
+{
+ "schema": "shibuya.bench/prox22/index_cost/3",
+ "note": "壁時計は決定論でない(同じ PC・ほかの作業と同居)。位置=W1 のノードの座標。hub=体の 2 割を上位 50 ノード。before_review_*=検収の前の形(同席が全辺に reach・_parts が全員の座標を float64 に写す)。notice_draw_*=範囲の中の辺を全部 philox_array で引く・before_notice_draw_*=1 組ずつ stream で引く形(2,000 組・値は同じ=突き合わせた)",
+ "rows": {
+  "uniform": {
+   "agents": 390067,
+   "indexed": 390067,
+   "index_build_s": 0.0633,
+   "index_bytes": 21843752,
+   "index_bytes_per_agent": 56.0,
+   "b5_queries": 1000,
+   "b5_query_ms_mean": 0.032,
+   "b5_candidates_mean": 278.3,
+   "edges_on_stage": 5265557,
+   "edge_gather_s": 0.13,
+   "edge_view_s(shared: notice range + copresent reach)": 0.149,
+   "edges_in_notice_range": 50458,
+   "edges_reach": 1588,
+   "before_review_copresent_reach_all_edges_s": 0.293,
+   "pair_reach_ms": 0.0163,
+   "before_review_pair_reach_ms": 1.593,
+   "notice_draw_all_in_range_s": 0.0266,
+   "notice_draw_us_per_pair": 0.527,
+   "before_notice_draw_us_per_pair_loop": 8.34
+  },
+  "hub": {
+   "agents": 390067,
+   "indexed": 390067,
+   "index_build_s": 0.0599,
+   "index_bytes": 21843752,
+   "index_bytes_per_agent": 56.0,
+   "b5_queries": 1000,
+   "b5_query_ms_mean": 0.035,
+   "b5_candidates_mean": 605.6,
+   "edges_on_stage": 5266313,
+   "edge_gather_s": 0.125,
+   "edge_view_s(shared: notice range + copresent reach)": 0.141,
+   "edges_in_notice_range": 57053,
+   "edges_reach": 5735,
+   "before_review_copresent_reach_all_edges_s": 0.257,
+   "pair_reach_ms": 0.0235,
+   "before_review_pair_reach_ms": 0.9667,
+   "notice_draw_all_in_range_s": 0.0297,
+   "notice_draw_us_per_pair": 0.52,
+   "before_notice_draw_us_per_pair_loop": 9.85
+  }
+ }
+}

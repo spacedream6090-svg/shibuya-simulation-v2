@@ -1,0 +1,35 @@
+{
+ "schema": "sp1.stage/1",
+ "base": "v2",
+ "out": "v2_stage_5-1",
+ "runs": [
+  {
+   "exit_code": 0,
+   "seconds": {
+    "copy_s": 1.3,
+    "navmesh1_s": 22.9
+   },
+   "build_hash": "0b215fcdac476463408b62b90d5a5a323ba26f23e8bb5ea550f877d6bd5edc75",
+   "files": 152,
+   "manifest_sha256": "dc3b57e30bdc1af7cba3c40cc2746851ba98cdcb9224c257ae9207169401dff1",
+   "navmesh1_gates_failed": [],
+   "nav_bytes": 9175362,
+   "bytes": 308251410
+  },
+  {
+   "exit_code": 0,
+   "seconds": {
+    "copy_s": 1.2,
+    "navmesh1_s": 19.2
+   },
+   "build_hash": "0b215fcdac476463408b62b90d5a5a323ba26f23e8bb5ea550f877d6bd5edc75",
+   "files": 152,
+   "manifest_sha256": "dc3b57e30bdc1af7cba3c40cc2746851ba98cdcb9224c257ae9207169401dff1",
+   "navmesh1_gates_failed": [],
+   "nav_bytes": 9175362,
+   "bytes": 308251410
+  }
+ ],
+ "deterministic": true,
+ "manifest_lines_differ": []
+}

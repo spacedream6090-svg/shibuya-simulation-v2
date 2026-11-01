@@ -1,0 +1,27 @@
+{
+ "key": "W7#10",
+ "control": "特別日なし(宣言)vs 特別日の延長(許容地域外でも 1:00 まで)",
+ "metric": "再生日の営業中 POI×時の分布",
+ "variants": [
+  {
+   "name": "特別日の延長(1:00)",
+   "jsd_bits": 0.0,
+   "null_p95": 0.00034936061079824597,
+   "detected": false,
+   "tvd": 0.0,
+   "n_declared": 392616.0,
+   "n_control": 392616.0,
+   "n_bins": 336,
+   "n_poi_changed": 0
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.1106914000120014,
+ "notes": [
+  "現行は全 POI に許容地域の行(1:00)を当てているので、特別日の延長(1:00)は同じ窓=構成上 差 0。「告示する時」(特別の事情のある地域)は告示がリポに無く測れない"
+ ],
+ "seconds_wall_row": 0.69,
+ "measured_at": "2026-09-30"
+}

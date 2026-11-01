@@ -1,0 +1,36 @@
+{
+ "key": "W16#1",
+ "control": "目標体数の空間支持=W2 セルの被覆で按分(宣言)vs 区全域(被覆のある町丁目は人口を全部入れる=被覆率>0 を 1 に)",
+ "metric": "住民の自宅セルの分布",
+ "variants": [
+  {
+   "name": "区全域(被覆のある町丁目は人口を全部入れる=被覆率>0 を 1 に)",
+   "jsd_bits": 0.18621325738633043,
+   "null_p95": 0.0035191208445010443,
+   "detected": true,
+   "tvd": 0.407961686008005,
+   "n_declared": 43588.0,
+   "n_control": 91140.0,
+   "n_bins": 379,
+   "residents_declared": 43588,
+   "residents_control": 91140
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 12.055559700005688,
+ "outputs_changed": [
+  "w16_chome.parquet",
+  "w16_cohorts.json",
+  "w16_duty_roster.parquet",
+  "w16_gates.json",
+  "w16_households.parquet",
+  "w16_population.parquet"
+ ],
+ "notes": [
+  "被覆 0 の町丁目は世界にセルが無く置けない=区全域の人口のうち世界に置ける分だけで比べた"
+ ],
+ "seconds_wall_row": 13.04,
+ "measured_at": "2026-09-30"
+}

@@ -1,0 +1,73 @@
+{
+ "schema": "pop41.activation/1",
+ "build_hash_before": "6a7d34e858e07210d39614f86bd5e47510dd0eb9d424b032672fd21b59702f68",
+ "build_hash_after": "6a7d34e858e07210d39614f86bd5e47510dd0eb9d424b032672fd21b59702f68",
+ "counts": {
+  "same": 107,
+  "moved": 0,
+  "added": 6,
+  "kept_live_only": 0
+ },
+ "changed": [
+  {
+   "path": "W21.header.json",
+   "action": "added",
+   "sha256_before": "",
+   "sha256_after": "8946d886c1b8222a04f5dd22d29a7f81f12106a18cb342c1847cc627f62fb848",
+   "md5_before": "",
+   "md5_after": "5e51fecffed149b81379c89237a4a16b",
+   "bytes_before": 0,
+   "bytes_after": 6715
+  },
+  {
+   "path": "w21_checks.json",
+   "action": "added",
+   "sha256_before": "",
+   "sha256_after": "cd56967399b144e21f94dac2c527196e02183e4973259f9e99d5f2d50220ceb1",
+   "md5_before": "",
+   "md5_after": "be26cde11724e41d4cea7d0561d13f9d",
+   "bytes_before": 0,
+   "bytes_after": 6829
+  },
+  {
+   "path": "w21_frame.json",
+   "action": "added",
+   "sha256_before": "",
+   "sha256_after": "8ff0afa62f4b3ef98347a72992884c817c6ac85d88cae0d5b36711d18a54d37f",
+   "md5_before": "",
+   "md5_after": "3070e72d6e12b5122a1e36c6f2fcc3c9",
+   "bytes_before": 0,
+   "bytes_after": 5027
+  },
+  {
+   "path": "w21_households.parquet",
+   "action": "added",
+   "sha256_before": "",
+   "sha256_after": "803e54dd0c2bbae9526a3186ef0a7a4eed6cdf54b9a2525ea41f72b4502a56a4",
+   "md5_before": "",
+   "md5_after": "7b5fda56f9ca7cd1e6fcc78f3f8cfdcb",
+   "bytes_before": 0,
+   "bytes_after": 247523
+  },
+  {
+   "path": "w21_manifest.json",
+   "action": "added",
+   "sha256_before": "",
+   "sha256_after": "9045d6123da1ec9c0ccdeb1a0a812d604c569a750db69d436cc9320af94c4282",
+   "md5_before": "",
+   "md5_after": "b084bf2783680cefc09a4a0495cba61f",
+   "bytes_before": 0,
+   "bytes_after": 25641
+  },
+  {
+   "path": "w21_persons.parquet",
+   "action": "added",
+   "sha256_before": "",
+   "sha256_after": "ee3c37d9f82aa75121808adc653b3fef6b028508634f85ebbfbaa44dfd9f99bc",
+   "md5_before": "",
+   "md5_after": "b3e2dfb13e5055344d376b75967301f3",
+   "bytes_before": 0,
+   "bytes_after": 620229
+  }
+ ]
+}

@@ -13,7 +13,6 @@ from shibuya.engine.processes.environment import (
     HEAT_STAGE_TO_THERMAL,
     SHADE_FACTOR,
     EnvironmentProcess,
-    select_day,
 )
 from shibuya.world.assets import ProcessAssets
 
@@ -23,20 +22,12 @@ STRATA = {"平日|晴": ["2026-08-03", "2026-08-05", "2026-08-06"], "平日|雨"
 
 
 # ================================================================= 実日の乱択(D-W15)
-def test_select_day_is_deterministic_for_the_same_seed_and_stratum():
-    a = select_day(7, "平日|晴", STRATA)
-    b = select_day(7, "平日|晴", STRATA)
-    assert a == b and a in STRATA["平日|晴"]
+# 〔改訂(第330・RET)〕legacy の実日の選び方 ``select_day`` の 3 件(同じ seed で同じ日・seed で変わる・空の層は止める)は
+# legacy と一緒に消した(ACT の commit で通った)。暦の規則の抽選 ``sample_calendar_day`` は test_weather_calendar_10e.py。
+def test_select_day_is_gone():
+    import shibuya.engine.processes.environment as ENV
 
-
-def test_select_day_depends_on_the_seed():
-    picks = {select_day(s, "平日|晴", STRATA) for s in range(24)}
-    assert len(picks) > 1, "seed を変えても同じ日しか出ないなら層内乱択になっていない"
-
-
-def test_select_day_rejects_an_empty_stratum():
-    with pytest.raises(KeyError):
-        select_day(1, "平日|雪", STRATA)
+    assert not hasattr(ENV, "select_day")
 
 
 def test_replay_date_is_deterministic_and_inside_the_weekday_stratum():
@@ -47,7 +38,8 @@ def test_replay_date_is_deterministic_and_inside_the_weekday_stratum():
     b = EnvironmentProcess(world, agents, pa, master_seed=3, day_index=0)
     assert a.replay_date == b.replay_date
     assert a.replay_date in pa.weather_dates
-    assert a.stratum == "平日|晴"
+    # 〔改訂(第330・RET)〕暦の規則の層の名前は「季節|平日/土休|天候型」(前: legacy の「平日|晴」)。暦は 2026-07-13(夏・平日)
+    assert a.stratum == "夏|平日|晴"
 
 
 # ================================================================= 体感温度(内受容)

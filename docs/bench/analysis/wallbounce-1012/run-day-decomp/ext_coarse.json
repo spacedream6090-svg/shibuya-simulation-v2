@@ -1,0 +1,24 @@
+{
+ "format": "shibuya.bench/1-0/ext-coarse/1",
+ "probes": [
+  "1-0_probe/f_golden_null_arm.json",
+  "1-0_probe/f_v1_edge.json",
+  "1-0_probe/f_v2_edge_attention.json",
+  "1-0_probe/f_v3_classical_mem_rel.json",
+  "1-0_probe/f_v3_default.json",
+  "1-0_probe/f_v3_mem_rel_store.json",
+  "1-0_probe_fix2/f_golden_null_arm.json",
+  "1-0_probe_fix2/f_v1_edge.json",
+  "1-0_probe_fix2/f_v2_edge_attention.json",
+  "1-0_probe_fix2/f_v3_classical_mem_rel.json",
+  "1-0_probe_fix2/f_v3_default.json",
+  "1-0_probe_fix2/f_v3_mem_rel_store.json"
+ ],
+ "ledger_ext_rows": 489,
+ "declarations": 180,
+ "declarations_with_star": 174,
+ "declared_pairs": 2197,
+ "observed_pairs": 383,
+ "observed_outside_declared": [],
+ "ratio_declared_to_observed": 5.74
+}

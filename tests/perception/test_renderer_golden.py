@@ -382,9 +382,7 @@ def test_out_of_world_agent_renders_the_fixed_empty_phrases():
 
 
 # ---------------------------------------------------------------- (j) 実データ
-@pytest.mark.skipif(
-    not (DATA_DIR / "w8_t1_cell.parquet").exists(), reason="data/world/v2 が無い"
-)
+@pytest.mark.requires_data("world_v2:w8_t1_cell.parquet")
 def test_j_real_world_render_100_agents(capsys):
     """実資産(520 セル)で 100 体描画 → 予算・⑧・キャッシュ命中率を検査する。"""
     from shibuya.perception.normalize import assert_no_agent_dependent_words
@@ -427,9 +425,7 @@ def test_j_real_world_render_100_agents(capsys):
     assert ms <= 2.0
 
 
-@pytest.mark.skipif(
-    not (DATA_DIR / "w8_t1_cell.parquet").exists(), reason="data/world/v2 が無い"
-)
+@pytest.mark.requires_data("world_v2:w8_t1_cell.parquet")
 def test_j2_real_assets_carry_names_noise_and_weather():
     w = World.load(DATA_DIR)
     assets = PerceptionAssets.load(DATA_DIR, w)

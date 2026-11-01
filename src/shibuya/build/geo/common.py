@@ -14,6 +14,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Sequence
@@ -262,6 +263,21 @@ def write_header(out_dir: Path, result: StageResult) -> Path:
     path = out_dir / f"{result.stage}.header.json"
     path.write_bytes(canonical_json_bytes(result.to_json()) + b"\n")
     return path
+
+
+#: 段の見出しの名(``W<番号>.header.json``)。
+_STAGE_HEADER_RE = re.compile(r"^W(\d+)\.header\.json$")
+
+
+def stage_header_paths(out_dir: Path) -> list[Path]:
+    """置き場の段の見出し(``W<番号>.header.json``)を番号の順に。〔第 4 期 4-3〕W21 の続きの段(``W21b``・``W21c``・``W21apply``
+    =``build.run`` の段の外)の見出しは名が番号で終わらない=除く(番号を読めずに止まらない)。"""
+    got = []
+    for p in Path(out_dir).glob("W*.header.json"):
+        m = _STAGE_HEADER_RE.match(p.name)
+        if m:
+            got.append((int(m.group(1)), p))
+    return [p for _k, p in sorted(got)]
 
 
 def load_json(path: Path) -> Any:

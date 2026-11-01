@@ -1,0 +1,1630 @@
+{
+ "a": {
+  "label": "head",
+  "rate": "",
+  "src": "写し"
+ },
+ "b": {
+  "label": "ec21_off_final",
+  "rate": "",
+  "src": "作業木"
+ },
+ "note": "2-1 腕 off(既定)vs 本体 HEAD f2405e3(最終の src)",
+ "keys": [
+  "final",
+  "calls",
+  "blocks_rows",
+  "blocks_sha",
+  "calls_rows",
+  "calls_column_names",
+  "calls_columns_sha",
+  "action_usage_total",
+  "action_usage_sha",
+  "calls_by_condition",
+  "salient_events",
+  "collapse",
+  "noticed",
+  "dispatches",
+  "arrived",
+  "mean_delay_min",
+  "meals",
+  "behavior_last",
+  "full_last",
+  "end_of_day",
+  "start_sim_datetime",
+  "replay_date",
+  "calendar_weekday",
+  "rng_scheme",
+  "frozen_sources",
+  "money_balances_sha",
+  "agents_money_sha",
+  "money_flow_daily_sha",
+  "money_core",
+  "money_state_hash",
+  "goods_state_sha",
+  "goods_n_moves",
+  "money_raw_rows_last16384_sha",
+  "money_raw_rows_sha",
+  "money_raw_rows",
+  "money_n_raw_dropped"
+ ],
+ "rows": {
+  "w6_v3_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 20055,
+    "transfers_amount": 433863726,
+    "transfers_uncaused": 16732,
+    "transfer_events": 3323
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 20055,
+     "amount": 433863726,
+     "flow_sum": 433863726,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 16732,
+     "event_rows": 3323,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 661596,
+      "internal": 7360900,
+      "unregistered": 0,
+      "delta_money": 425179634,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     32158
+    ],
+    "b": [
+     32158
+    ]
+   }
+  },
+  "w6_v3_activity_off": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 16284,
+    "transfers_amount": 431894364,
+    "transfers_uncaused": 14560,
+    "transfer_events": 1724
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 16284,
+     "amount": 431894364,
+     "flow_sum": 431894364,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 14560,
+     "event_rows": 1724,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 376634,
+      "internal": 5676500,
+      "unregistered": 0,
+      "delta_money": 425464596,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     30558
+    ],
+    "b": [
+     30558
+    ]
+   }
+  },
+  "w6_v1_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 11902,
+    "transfers_amount": 428390211,
+    "transfers_uncaused": 10099,
+    "transfer_events": 1803
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 11902,
+     "amount": 428390211,
+     "flow_sum": 428390211,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 10099,
+     "event_rows": 1803,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 382681,
+      "internal": 2166300,
+      "unregistered": 0,
+      "delta_money": 425458549,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     30649
+    ],
+    "b": [
+     30649
+    ]
+   }
+  },
+  "w6_v1_derive_v2_1": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 11375,
+    "transfers_amount": 428093932,
+    "transfers_uncaused": 9771,
+    "transfer_events": 1604
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 11375,
+     "amount": 428093932,
+     "flow_sum": 428093932,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 9771,
+     "event_rows": 1604,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 330802,
+      "internal": 1921900,
+      "unregistered": 0,
+      "delta_money": 425510428,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     30543
+    ],
+    "b": [
+     30543
+    ]
+   }
+  },
+  "w6_v2": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 13638,
+    "transfers_amount": 429835117,
+    "transfers_uncaused": 11982,
+    "transfer_events": 1656
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 13638,
+     "amount": 429835117,
+     "flow_sum": 429835117,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 11982,
+     "event_rows": 1656,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 348987,
+      "internal": 3644900,
+      "unregistered": 0,
+      "delta_money": 425492243,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     30470
+    ],
+    "b": [
+     30470
+    ]
+   }
+  },
+  "w6_v1_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 12160,
+    "transfers_amount": 428260216,
+    "transfers_uncaused": 9805,
+    "transfer_events": 2355
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 12160,
+     "amount": 428260216,
+     "flow_sum": 428260216,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 9805,
+     "event_rows": 2355,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 480686,
+      "internal": 1938300,
+      "unregistered": 0,
+      "delta_money": 425360544,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     31213
+    ],
+    "b": [
+     31213
+    ]
+   }
+  },
+  "w6_v2_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 13758,
+    "transfers_amount": 429569040,
+    "transfers_uncaused": 11496,
+    "transfer_events": 2262
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 13758,
+     "amount": 429569040,
+     "flow_sum": 429569040,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 11496,
+     "event_rows": 2262,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 453310,
+      "internal": 3274500,
+      "unregistered": 0,
+      "delta_money": 425387920,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     31178
+    ],
+    "b": [
+     31178
+    ]
+   }
+  },
+  "w6_v1_edge_plateau": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 12435,
+    "transfers_amount": 428319378,
+    "transfers_uncaused": 9878,
+    "transfer_events": 2557
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 12435,
+     "amount": 428319378,
+     "flow_sum": 428319378,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 9878,
+     "event_rows": 2557,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 516248,
+      "internal": 1961900,
+      "unregistered": 0,
+      "delta_money": 425324982,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     31404
+    ],
+    "b": [
+     31404
+    ]
+   }
+  },
+  "w6_old_v1_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 11902,
+    "transfers_amount": 428390211,
+    "transfers_uncaused": 10099,
+    "transfer_events": 1803
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 11902,
+     "amount": 428390211,
+     "flow_sum": 428390211,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 10099,
+     "event_rows": 1803,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 382681,
+      "internal": 2166300,
+      "unregistered": 0,
+      "delta_money": 425458549,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     30649
+    ],
+    "b": [
+     30649
+    ]
+   }
+  },
+  "w6_old_v1_derive_v2_1": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 11375,
+    "transfers_amount": 428093932,
+    "transfers_uncaused": 9771,
+    "transfer_events": 1604
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 11375,
+     "amount": 428093932,
+     "flow_sum": 428093932,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 9771,
+     "event_rows": 1604,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 330802,
+      "internal": 1921900,
+      "unregistered": 0,
+      "delta_money": 425510428,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     30543
+    ],
+    "b": [
+     30543
+    ]
+   }
+  },
+  "w6_old_v2": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 13638,
+    "transfers_amount": 429835117,
+    "transfers_uncaused": 11982,
+    "transfer_events": 1656
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 13638,
+     "amount": 429835117,
+     "flow_sum": 429835117,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 11982,
+     "event_rows": 1656,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 348987,
+      "internal": 3644900,
+      "unregistered": 0,
+      "delta_money": 425492243,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     30470
+    ],
+    "b": [
+     30470
+    ]
+   }
+  },
+  "w6_old_v1_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 12160,
+    "transfers_amount": 428260216,
+    "transfers_uncaused": 9805,
+    "transfer_events": 2355
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 12160,
+     "amount": 428260216,
+     "flow_sum": 428260216,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 9805,
+     "event_rows": 2355,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 480686,
+      "internal": 1938300,
+      "unregistered": 0,
+      "delta_money": 425360544,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     31213
+    ],
+    "b": [
+     31213
+    ]
+   }
+  },
+  "w6_old_v2_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 13758,
+    "transfers_amount": 429569040,
+    "transfers_uncaused": 11496,
+    "transfer_events": 2262
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 13758,
+     "amount": 429569040,
+     "flow_sum": 429569040,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 11496,
+     "event_rows": 2262,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 453310,
+      "internal": 3274500,
+      "unregistered": 0,
+      "delta_money": 425387920,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     31178
+    ],
+    "b": [
+     31178
+    ]
+   }
+  },
+  "w6_old_v1_edge_plateau": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 12435,
+    "transfers_amount": 428319378,
+    "transfers_uncaused": 9878,
+    "transfer_events": 2557
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 12435,
+     "amount": 428319378,
+     "flow_sum": 428319378,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 9878,
+     "event_rows": 2557,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 516248,
+      "internal": 1961900,
+      "unregistered": 0,
+      "delta_money": 425324982,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     31404
+    ],
+    "b": [
+     31404
+    ]
+   }
+  },
+  "w6_golden_null_arm": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 14007,
+    "transfers_amount": 429078554,
+    "transfers_uncaused": 10847,
+    "transfer_events": 3160
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 14007,
+     "amount": 429078554,
+     "flow_sum": 429078554,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 10847,
+     "event_rows": 3160,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 632224,
+      "internal": 2605100,
+      "unregistered": 0,
+      "delta_money": 425209006,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     31228
+    ],
+    "b": [
+     31228
+    ]
+   }
+  },
+  "v3_mem_store": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 20055,
+    "transfers_amount": 433863726,
+    "transfers_uncaused": 16732,
+    "transfer_events": 3323
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 20055,
+     "amount": 433863726,
+     "flow_sum": 433863726,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 16732,
+     "event_rows": 3323,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 661596,
+      "internal": 7360900,
+      "unregistered": 0,
+      "delta_money": 425179634,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     32158
+    ],
+    "b": [
+     32158
+    ]
+   }
+  },
+  "v3_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 20183,
+    "transfers_amount": 434039495,
+    "transfers_uncaused": 17023,
+    "transfer_events": 3160
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 20183,
+     "amount": 434039495,
+     "flow_sum": 434039495,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 17023,
+     "event_rows": 3160,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 633865,
+      "internal": 7564400,
+      "unregistered": 0,
+      "delta_money": 425207365,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     32050
+    ],
+    "b": [
+     32050
+    ]
+   }
+  },
+  "v3_classical": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 18211,
+    "transfers_amount": 433752730,
+    "transfers_uncaused": 18204,
+    "transfer_events": 7
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 18211,
+     "amount": 433752730,
+     "flow_sum": 433752730,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 18204,
+     "event_rows": 7,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 2400,
+      "internal": 7909100,
+      "unregistered": 0,
+      "delta_money": 425838830,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     28814
+    ],
+    "b": [
+     28814
+    ]
+   }
+  },
+  "v3_classical_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "money_balances_sha",
+    "agents_money_sha",
+    "money_flow_daily_sha",
+    "money_core",
+    "money_state_hash",
+    "goods_state_sha",
+    "goods_n_moves",
+    "money_raw_rows_last16384_sha",
+    "money_raw_rows_sha",
+    "money_raw_rows",
+    "money_n_raw_dropped"
+   ],
+   "moved": {},
+   "economy_b": {
+    "raw_capacity": 32500,
+    "raw_rows_per_agent_day": 6.5,
+    "raw_row_bytes": 24,
+    "raw_link_bytes": 12,
+    "raw_overflow": 0,
+    "raw_overflow_policy": "上書きして数える(止めない)",
+    "transfers_total": 18863,
+    "transfers_amount": 434199910,
+    "transfers_uncaused": 18857,
+    "transfer_events": 6
+   },
+   "daily_economy_b": [
+    {
+     "day": 0,
+     "rows": 18863,
+     "amount": 434199910,
+     "flow_sum": 434199910,
+     "flow_sum_ok": true,
+     "overflow": 0,
+     "uncaused": 18857,
+     "event_rows": 6,
+     "conservation": {
+      "faucet": 425841230,
+      "sink": 1680,
+      "internal": 8357000,
+      "unregistered": 0,
+      "delta_money": 425839550,
+      "residual": 0,
+      "residual_code": 0,
+      "ok": true
+     }
+    }
+   ],
+   "daily_events_rows": {
+    "a": [
+     28837
+    ],
+    "b": [
+     28837
+    ]
+   }
+  }
+ }
+}

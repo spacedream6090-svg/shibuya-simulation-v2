@@ -23,6 +23,7 @@ from shibuya.engine import memory as M
 from shibuya.engine import relations as RL
 from shibuya.engine.conversation import ConversationManager
 from shibuya.perception import templates as T
+from tests import golden_env as GE
 
 SRC = Path("src/shibuya")
 OK = int(ResultCode.OK)
@@ -311,18 +312,15 @@ def test_three_person_join_and_counters():
 WORLD = "data/world/v2"
 
 
-def _real_world_or_skip() -> None:
-    from shibuya.world.assets import assets_available
-
-    if not assets_available(WORLD):
-        pytest.skip("W 資産(data/world/v2)が無い")
+#: 〔第333〕前は関数の頭で ``assets_available(WORLD)`` を見て飛ばしていた(``_real_world_or_skip``)=印 ``world_v2`` に。
+real_world = pytest.mark.requires_data("world_v2")
 
 
+@real_world
 def test_run_default_is_off_and_relations_on_keeps_behavior():
-    _real_world_or_skip()
     from shibuya import cli
 
-    kw = dict(n_agents=2000, seed=1, world_dir=WORLD, vocab_version="v3", memory="on")
+    kw = dict(n_agents=2000, seed=1, world_dir=WORLD, vocab_version="v3", memory="on")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     mem = cli.run(**kw)
     # 8b の相手選択・知人出現を切った on(=8a の「書くだけ」)は関係の欄を除いて記憶 on と同じ
     kw_on = dict(relations="on", rel_invite="off", rel_acq_wake="off")
@@ -334,7 +332,7 @@ def test_run_default_is_off_and_relations_on_keeps_behavior():
         on = cli.run(**kw_on, **kw)
     finally:
         mp.undo()
-    assert on.final_hash == mem.final_hash and on.llm_calls == mem.llm_calls     # 書くだけ(mock は描画を読まない)
+    assert GE.soa_combined(on.checkpoints[-1]) == GE.soa_combined(mem.checkpoints[-1]) and on.llm_calls == mem.llm_calls     # 書くだけ(mock は描画を読まない)
     s = on.run_manifest_fields()["relations"]
     assert s["counts"]["init_edges"] > 0 and s["degree_regular"] is False
     assert s["init"]["w17_single_day"] is True and s["tau"] == RL.REL_TAU

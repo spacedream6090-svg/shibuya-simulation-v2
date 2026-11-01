@@ -1,0 +1,387 @@
+{
+ "a": {
+  "label": "wt_sweep",
+  "kw": {},
+  "src": "作業木",
+  "env": {},
+  "body_schedule": "(既定)",
+  "shift": 0
+ },
+ "b": {
+  "label": "wt_shift1",
+  "kw": {},
+  "src": "作業木",
+  "env": {},
+  "body_schedule": "reserve",
+  "shift": 1
+ },
+ "note": "3-5 負の対照: 腕 reserve の予約を 1 刻みずらす(sweep と比べる)",
+ "rows": {
+  "w6_v3_default": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "b8eadcb51e8705e7",
+     "b": "f2f975a47a45d205"
+    },
+    "calls": {
+     "a": 64528,
+     "b": 54532
+    },
+    "blocks_rows": {
+     "a": 7646,
+     "b": 6921
+    },
+    "blocks_sha": {
+     "a": "5a31b20641828198",
+     "b": "42f5d469eba583cd"
+    },
+    "calls_rows": {
+     "a": 64528,
+     "b": 54532
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "ee9682a3dd316141",
+      "agent_id": "e4b34481417476b6",
+      "tick": "dc4df08ee385f74e",
+      "wake_class": "b6928e20c1c48419",
+      "prompt_hash": "814470854f0415d0",
+      "block_ids": "f4a8bf2cc4878275",
+      "params_hash": "e9004da97104db1e",
+      "response": "12ec0fa922fddb10",
+      "tokens_in": "9ab2b10b483794cd",
+      "tokens_out": "2b925ddb50806008",
+      "deferred": "19d9d963a35f7b67",
+      "deferred_reason": "87b30a0bb43e53b4",
+      "observed_tick": "d64c5041c6686fa7",
+      "recalled_rows": "10094e2a5aeee479",
+      "recalled_first_tick": "10094e2a5aeee479",
+      "recalled_kind": "10094e2a5aeee479",
+      "recalled_object": "10094e2a5aeee479",
+      "recalled_source": "10094e2a5aeee479",
+      "acquaintance_ids": "10094e2a5aeee479",
+      "b5_text": "160a2e4565d61324",
+      "b6_block_id": "e7e368fb5c50aa5d"
+     },
+     "b": {
+      "call_id": "804c87864e4547cb",
+      "agent_id": "d5bd9224338e35fa",
+      "tick": "b586c1e8ea232f42",
+      "wake_class": "716a59104b3482d4",
+      "prompt_hash": "190c8c9367f8d58f",
+      "block_ids": "9858ebb46522aaa9",
+      "params_hash": "07d8aa753ed24896",
+      "response": "8afeb1d18a351350",
+      "tokens_in": "488d73a52fce3816",
+      "tokens_out": "c12489d7bc6bd6ce",
+      "deferred": "47024da9b33bedb0",
+      "deferred_reason": "a114932b4eec28d8",
+      "observed_tick": "3a21370068b2672a",
+      "recalled_rows": "e4b19e28a8e975f1",
+      "recalled_first_tick": "e4b19e28a8e975f1",
+      "recalled_kind": "e4b19e28a8e975f1",
+      "recalled_object": "e4b19e28a8e975f1",
+      "recalled_source": "e4b19e28a8e975f1",
+      "acquaintance_ids": "e4b19e28a8e975f1",
+      "b5_text": "4ebde1a8faf8ffce",
+      "b6_block_id": "2b0d9cf4a5e28cf4"
+     }
+    },
+    "action_usage_total": {
+     "a": 295410,
+     "b": 258092
+    },
+    "action_usage_sha": {
+     "a": "5b1af085d2eed33e",
+     "b": "91abdd81629cb953"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 2905,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4245,
+      "PLAN_GENERAL": 6038,
+      "PLAN_TRANSIT": 7046,
+      "INTEROCEPTION": 19840,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 5491,
+      "ACTIVITY_EXPIRY": 18963
+     },
+     "b": {
+      "CONVERSATION_TURN": 2340,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4278,
+      "PLAN_GENERAL": 6130,
+      "PLAN_TRANSIT": 7146,
+      "INTEROCEPTION": 10949,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 4884,
+      "ACTIVITY_EXPIRY": 18805
+     }
+    },
+    "noticed": {
+     "a": 181,
+     "b": 501
+    },
+    "mean_delay_min": {
+     "a": 7.0,
+     "b": 5.4
+    },
+    "meals": {
+     "a": 4434,
+     "b": 3981
+    },
+    "behavior_last": {
+     "a": "b8eadcb51e8705e74863e7e42d5a2cfcb568c739125709332889f2af418a2270",
+     "b": "f2f975a47a45d2052a5bd77d5ed3cea5d289b16cf95eab4d3656c1ef7f94984a"
+    },
+    "full_last": {
+     "a": "6382b612708a65609b90f979b65ae7fc8fcb7ce10e9b560f4f6bfad16c15a3e1",
+     "b": "4bcb7b64ab19725584d6db563d9378a308cb6b9d4e9a1e9fca38196333bf3080"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "4fb84fcd7a8c6966277715ca6047d102a6d3138e72c5e3e23ade9a29b06efaa1",
+      "full_hash": "d5ef471ac622071e93ae4271ca235c37ec879ae46b718c1dedbbbe933be43af9",
+      "full_external_bytes": 3852857
+     },
+     "b": {
+      "behavior_hash": "877256e627d0fc6e9340945f46b957301d3479262750f310962c02bd58b49ffc",
+      "full_hash": "2ed38688f599b0ad87410c53c9d04dc6080ccbbeb6ad01ede783db08f50ad353",
+      "full_external_bytes": 3843675
+     }
+    },
+    "boundary_digest": {
+     "a": "18e9b09fa9f59825470bd683e0c08077f35624f79537ebdb07dfac408d1fcf4a",
+     "b": "893b75fd678b640eceea5e842e8e5c6ab5ad915ac3b9f58056e52c6937dbe07f"
+    },
+    "boundaries": {
+     "a": {
+      "hunger": 26054,
+      "fatigue": 147392,
+      "thermal": 43987
+     },
+     "b": {
+      "hunger": 25631,
+      "fatigue": 14563,
+      "thermal": 41003
+     }
+    }
+   },
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    493730
+   ],
+   "felt_evals": [
+    1440000,
+    68870
+   ]
+  },
+  "v3_mem_rel": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "768b2262e3b0999e",
+     "b": "adce7521032687c1"
+    },
+    "calls": {
+     "a": 67794,
+     "b": 57028
+    },
+    "blocks_rows": {
+     "a": 7969,
+     "b": 7206
+    },
+    "blocks_sha": {
+     "a": "03424ffa8977939c",
+     "b": "c4a2521d2765d0be"
+    },
+    "calls_rows": {
+     "a": 67794,
+     "b": 57028
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "f7b5f399da3eccbe",
+      "agent_id": "201f7cbd5ed5f32c",
+      "tick": "01bbf87fbf9b6ae5",
+      "wake_class": "d792e13e7ef668e2",
+      "prompt_hash": "81a9e83e076e275e",
+      "block_ids": "cc58ea250ccaba6c",
+      "params_hash": "6d708a9d25429894",
+      "response": "68409329285cc8d8",
+      "tokens_in": "1796c80ccada1ceb",
+      "tokens_out": "f709d5e91f718a97",
+      "deferred": "c6b9c7a9995e929b",
+      "deferred_reason": "5f171d465e57457b",
+      "observed_tick": "b3d7f5f7c5605979",
+      "recalled_rows": "d4d108d4fdc885af",
+      "recalled_first_tick": "2e632f250b01c5b0",
+      "recalled_kind": "270d7f258dc3fbb0",
+      "recalled_object": "c15251d85293539c",
+      "recalled_source": "ec72d0e7fdaaca0d",
+      "acquaintance_ids": "ce1968fa58a66821",
+      "b5_text": "d312a52ed555e483",
+      "b6_block_id": "e41f1459f7d4f72c"
+     },
+     "b": {
+      "call_id": "4ba8fceab0953724",
+      "agent_id": "fb9b26cd3f3b37d3",
+      "tick": "96156d4e1639fdf1",
+      "wake_class": "2b818a4683fb34a4",
+      "prompt_hash": "32e9e7464ca7146d",
+      "block_ids": "e4df2f3cc9debbf7",
+      "params_hash": "3e7d5052ccf9d735",
+      "response": "437b37aa09c0ca27",
+      "tokens_in": "ad2c0ea693e96dab",
+      "tokens_out": "18be463ff2bca65d",
+      "deferred": "37b4553e614d1e60",
+      "deferred_reason": "bd2e0f95d4a597ac",
+      "observed_tick": "b3f100f1f80da362",
+      "recalled_rows": "a94f9a36a1a19d78",
+      "recalled_first_tick": "2b7948355818e7a5",
+      "recalled_kind": "5399463adfd9ffb7",
+      "recalled_object": "570219f54e6c3187",
+      "recalled_source": "a43b3839d508c149",
+      "acquaintance_ids": "18b3d78552caa76a",
+      "b5_text": "c6d1710a02b31364",
+      "b6_block_id": "751d311c02e95cf0"
+     }
+    },
+    "action_usage_total": {
+     "a": 300390,
+     "b": 260161
+    },
+    "action_usage_sha": {
+     "a": "2da934f95409a2c1",
+     "b": "3409fb530239568b"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 3117,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4247,
+      "PLAN_GENERAL": 6042,
+      "PLAN_TRANSIT": 7043,
+      "INTEROCEPTION": 19760,
+      "ACQUAINTANCE": 2700,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 5703,
+      "ACTIVITY_EXPIRY": 19182
+     },
+     "b": {
+      "CONVERSATION_TURN": 2429,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4284,
+      "PLAN_GENERAL": 6152,
+      "PLAN_TRANSIT": 7143,
+      "INTEROCEPTION": 11087,
+      "ACQUAINTANCE": 2133,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 4823,
+      "ACTIVITY_EXPIRY": 18977
+     }
+    },
+    "noticed": {
+     "a": 486,
+     "b": 151
+    },
+    "mean_delay_min": {
+     "a": 6.8,
+     "b": 7.8
+    },
+    "meals": {
+     "a": 4479,
+     "b": 4000
+    },
+    "behavior_last": {
+     "a": "768b2262e3b0999e63b2c2726afe66d933cabcd706692933e048376e9d44a524",
+     "b": "adce7521032687c18e8ff572e94b1c1877971da39edfa8e5d63733e0d55fd701"
+    },
+    "full_last": {
+     "a": "830bb4612f6c7150e8cdcdb83bfa5df095516464dc85c35e9be13750008f6ef5",
+     "b": "f9c067d1332a411eb700f3ffbdddff162a91ca0fb2994133001882dbe772dedd"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "b90b525eb8441d055045a66ea5d0fda8e2bf87a2100b85100c4cef198bd6012e",
+      "full_hash": "03bec417e1dad6722f8d9372db0179178155840959ee0a96076124a6cb1a33fd",
+      "full_external_bytes": 4259020
+     },
+     "b": {
+      "behavior_hash": "2efcc5172240944a3412d23e7ebf6dba24c0d169c43eb2a33d80b9d281a00764",
+      "full_hash": "ed6aed29f11d1e6eb9f21cd07f9e458930d9dd3dc995686808b21b7d31de33a9",
+      "full_external_bytes": 4226218
+     }
+    },
+    "boundary_digest": {
+     "a": "d939692fa3eae9e2927f171e1d5ffbec7d8eb7ecff5cfa628d3add9cc3a5d011",
+     "b": "e253eeec59c3101e7774ea6caf8058bf787641f8d3a019a7c84f7cc61adf2d2d"
+    },
+    "boundaries": {
+     "a": {
+      "hunger": 26075,
+      "fatigue": 148021,
+      "thermal": 44043
+     },
+     "b": {
+      "hunger": 25702,
+      "fatigue": 14644,
+      "thermal": 40734
+     }
+    }
+   },
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    498242
+   ],
+   "felt_evals": [
+    1440000,
+    68696
+   ]
+  }
+ }
+}

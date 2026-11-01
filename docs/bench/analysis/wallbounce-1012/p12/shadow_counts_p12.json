@@ -1,0 +1,237 @@
+{
+ "agents": 1000,
+ "ticks": 1440,
+ "seed": 1,
+ "rows": {
+  "v3_classical": {
+   "renders_compared": 15019,
+   "steps_with_renders": 1226,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 17.6
+  },
+  "v3_classical_mem_rel": {
+   "renders_compared": 15056,
+   "steps_with_renders": 1226,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 20.5
+  },
+  "v3_mem_rel": {
+   "renders_compared": 11928,
+   "steps_with_renders": 1168,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 18.4
+  },
+  "v3_mem_store": {
+   "renders_compared": 11873,
+   "steps_with_renders": 1169,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 19.5
+  },
+  "w6_golden_null_arm": {
+   "renders_compared": 18481,
+   "steps_with_renders": 1219,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 16.5
+  },
+  "w6_old_v1_default": {
+   "renders_compared": 9897,
+   "steps_with_renders": 1079,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 12.9
+  },
+  "w6_old_v1_derive_v2_1": {
+   "renders_compared": 8310,
+   "steps_with_renders": 1024,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 11.1
+  },
+  "w6_old_v1_edge": {
+   "renders_compared": 8451,
+   "steps_with_renders": 1035,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 12.0
+  },
+  "w6_old_v1_edge_plateau": {
+   "renders_compared": 8451,
+   "steps_with_renders": 1035,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 11.7
+  },
+  "w6_old_v2": {
+   "renders_compared": 10149,
+   "steps_with_renders": 1092,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 12.3
+  },
+  "w6_old_v2_edge": {
+   "renders_compared": 8695,
+   "steps_with_renders": 1042,
+   "windows": {
+    "420-432": 12,
+    "720-732": 11,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 11.1
+  },
+  "w6_v1_default": {
+   "renders_compared": 9897,
+   "steps_with_renders": 1079,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 10.9
+  },
+  "w6_v1_derive_v2_1": {
+   "renders_compared": 8310,
+   "steps_with_renders": 1024,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 10.3
+  },
+  "w6_v1_edge": {
+   "renders_compared": 8451,
+   "steps_with_renders": 1035,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 11.6
+  },
+  "w6_v1_edge_plateau": {
+   "renders_compared": 8451,
+   "steps_with_renders": 1035,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 11.2
+  },
+  "w6_v2": {
+   "renders_compared": 10149,
+   "steps_with_renders": 1092,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 11.5
+  },
+  "w6_v2_edge": {
+   "renders_compared": 8695,
+   "steps_with_renders": 1042,
+   "windows": {
+    "420-432": 12,
+    "720-732": 11,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 11.1
+  },
+  "w6_v3_activity_off": {
+   "renders_compared": 9400,
+   "steps_with_renders": 1109,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 11.5
+  },
+  "w6_v3_default": {
+   "renders_compared": 11873,
+   "steps_with_renders": 1169,
+   "windows": {
+    "420-432": 12,
+    "720-732": 12,
+    "1020-1032": 12
+   },
+   "mismatches": 0,
+   "mismatch_head": [],
+   "wall_s": 14.7
+  }
+ },
+ "total_renders_compared": 201536,
+ "total_mismatches": 0
+}

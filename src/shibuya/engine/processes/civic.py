@@ -31,12 +31,13 @@ from typing import Final
 import numpy as np
 
 from shibuya.agents.state import AgentKind, AgentState
-from shibuya.core.rng import stream
+from shibuya.core.rng import run_tick_key, stream
 from shibuya.engine import resolve as R
 from shibuya.perception import attention as AT
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
+from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "DISPATCH_MEDIAN_MIN",
@@ -59,35 +60,37 @@ __all__ = [
 _SCHEDULED: Final[int] = DEVIATION_CODES[DeviationVocab.SCHEDULED]
 _REPLACEMENT: Final[int] = DEVIATION_CODES[DeviationVocab.REPLACEMENT]
 _DELAY: Final[int] = DEVIATION_CODES[DeviationVocab.DELAY]
-MINUTES_PER_DAY: Final[int] = 1_440
 
 #: 出動の到着遅延[分]の中央値(親指示・対数正規)。
 DISPATCH_MEDIAN_MIN: Final[float] = 8.0
 #: 同 σ(expedient)。
 DISPATCH_SIGMA: Final[float] = 0.5
 DISPATCH_MAX_MIN: Final[int] = 60
+#: 10c: counter の出動の遅れの乱数の用途名(10e より前の stateful の ``world.public_service_dispatch`` と
+#: 別の名にした=同じ鍵の Philox の列が重ならない)。
+DISPATCH_COUNTER_DOMAIN: Final[str] = "world.public_service_dispatch.counter"
 
 #: 公式発信の時刻[分](expedient)。
-PRESS_MINUTES: Final[tuple[int, ...]] = (7 * 60, 12 * 60, 18 * 60)
+PRESS_MINUTES: Final[tuple[int, ...]] = (7 * MINUTES_PER_HOUR, 12 * MINUTES_PER_HOUR, 18 * MINUTES_PER_HOUR)
 #: 公式発信の本文(命令文なし・世界内テキスト)。
 PRESS_BODY: Final[str] = "鉄道各線は平常どおり運行しています"
 
 #: ホテル 1 POI あたりの客室数(expedient・実データ空欄)。
 HOTEL_ROOMS_PER_POI: Final[int] = 120
-HOTEL_CHECKIN_MINUTE: Final[int] = 21 * 60
-HOTEL_CHECKOUT_MINUTE: Final[int] = 9 * 60
+HOTEL_CHECKIN_MINUTE: Final[int] = 21 * MINUTES_PER_HOUR
+HOTEL_CHECKOUT_MINUTE: Final[int] = 9 * MINUTES_PER_HOUR
 
 #: インフラ原単位(expedient・出典なし)。
 POWER_KWH_PER_PERSON_HOUR: Final[float] = 0.35
 WATER_M3_PER_PERSON_HOUR: Final[float] = 0.012
 
 #: 大規模イベントの窓[分]と来街増分(expedient)。
-EVENT_WINDOW: Final[tuple[int, int]] = (18 * 60, 21 * 60)
+EVENT_WINDOW: Final[tuple[int, int]] = (18 * MINUTES_PER_HOUR, 21 * MINUTES_PER_HOUR)
 EVENT_VISITOR_DELTA: Final[int] = 200
 
 
 def _minute(tick: int, tick_seconds: int) -> int:
-    return int(int(tick) * int(tick_seconds) // 60) % MINUTES_PER_DAY
+    return int(int(tick) * int(tick_seconds) // SECONDS_PER_MINUTE) % MINUTES_PER_DAY
 
 
 class PublicServiceDispatchProcess:
@@ -96,6 +99,15 @@ class PublicServiceDispatchProcess:
     Attributes:
         pending: 到着待ちの ``(到着 tick, セル, x, y)``。
         n_dispatched / n_arrived: 診断。
+
+    乱数(10c の counter・〔第330・RET〕10e より前の ``stateful``=日の頭の Generator は消した):
+        出動ごとに ``stream(seed, DISPATCH_COUNTER_DOMAIN, 0, 鍵の時刻, セル, k)`` を作る
+        (``rng`` は常に ``None``=再開で保存するものが無い)。鍵の時刻は ``run_tick_key(day_index, T)``
+        (``day_index`` は実行器が渡す日の鍵 ``day_key(0)``)。k は同じ T・同じセルの出動を呼ばれた順に
+        数えた番号(0 から)。呼び手(``SalientProcess``)は体の id の昇順で呼ぶ。数えは T が変わると捨てる
+        tick の中だけのもの(tick の境目で再開すれば空から数え直して同じ値)。事象の通し番号は使わない
+        (A5 (a′))。カウンタの 1 語目を 0 にするのは、Philox が 1 語目から進むため
+        (1 語目に鍵の値を置くと、引いた後の列が隣の鍵の列と重なる)。
     """
 
     process_ids: Final[tuple[str, ...]] = ("public_service_dispatch",)
@@ -113,7 +125,15 @@ class PublicServiceDispatchProcess:
         self.world = world
         self.tick_seconds = int(tick_seconds)
         self.log = actual_log
-        self.rng = stream(master_seed, "world.public_service_dispatch", int(day_index))
+        self.master_seed = master_seed
+        self.day_index = int(day_index)
+        #: 〔第330・RET〕常に ``None``(状態を持つ乱数 stateful は消した)。状態台帳 O47 の道筋 ``runner.dispatch.rng`` は
+        #: behavior-hash の外の状態の行の定義に入っている(「無い」の印)ので、行と一緒に消すと final が動く=残した
+        #: (10e の記録 §RET・親に確かめてほしい点)。
+        self.rng: None = None
+        #: counter の k の数え(T が変わると空に戻す・tick の中だけ)。
+        self._k_tick = -1
+        self._k_next: dict[int, int] = {}
         self.pending: list[tuple[int, int, float, float]] = []
         self.n_dispatched = 0
         self.n_arrived = 0
@@ -127,14 +147,15 @@ class PublicServiceDispatchProcess:
         """通報を受けて出動する。到着 tick を返す(規則ゲート=セルが実在すること)。"""
         if not (0 <= int(cell) < self.world.n_cells):
             return -1
+        g = self._counter_stream(int(tick), int(cell))
         delay = float(
             np.clip(
-                self.rng.lognormal(mean=np.log(DISPATCH_MEDIAN_MIN), sigma=DISPATCH_SIGMA),
+                g.lognormal(mean=np.log(DISPATCH_MEDIAN_MIN), sigma=DISPATCH_SIGMA),
                 1.0, float(DISPATCH_MAX_MIN),
             )
         )
         minutes = int(round(delay))
-        arrive = int(tick) + max(1, minutes * 60 // max(1, self.tick_seconds))
+        arrive = int(tick) + max(1, minutes * SECONDS_PER_MINUTE // max(1, self.tick_seconds))
         self.pending.append((arrive, int(cell), float(xy[0]), float(xy[1])))
         self.n_dispatched += 1
         self.delay_minutes_total += minutes
@@ -146,6 +167,18 @@ class PublicServiceDispatchProcess:
                 np.array([minutes], dtype=np.int16),
             )
         return arrive
+
+    def _counter_stream(self, tick: int, cell: int) -> np.random.Generator:
+        """counter の 1 件ぶんの乱数(鍵 = (T, セル, k)・10c)。"""
+        if int(tick) != self._k_tick:
+            self._k_tick = int(tick)
+            self._k_next = {}
+        k = self._k_next.get(int(cell), 0)
+        self._k_next[int(cell)] = k + 1
+        return stream(
+            self.master_seed, DISPATCH_COUNTER_DOMAIN,
+            0, run_tick_key(self.day_index, int(tick), self.tick_seconds), int(cell), int(k),
+        )
 
     def arrivals(self, tick: int) -> list[tuple[int, float, float]]:
         """この tick に到着する隊(セル・座標)。到着した事案は解消する。"""
@@ -387,9 +420,9 @@ class InfraLoadProcess:
         return True
 
     def step(self, tick: int) -> None:
-        hour = int(int(tick) * self.tick_seconds // 3_600) % 24
+        hour = int(int(tick) * self.tick_seconds // SECONDS_PER_HOUR) % HOURS_PER_DAY
         inside = float(int(np.count_nonzero(np.asarray(self.agents.registry.cell) >= 0)))
-        frac = float(self.tick_seconds) / 3_600.0
+        frac = float(self.tick_seconds) / SECONDS_PER_HOUR
         self.power_kwh[hour] += inside * POWER_KWH_PER_PERSON_HOUR * frac
         self.water_m3[hour] += inside * WATER_M3_PER_PERSON_HOUR * frac
 
@@ -438,15 +471,24 @@ class LargeEventProcess:
         self.tick_seconds = int(tick_seconds)
         self.log = actual_log
         self.visitor_delta = int(visitor_delta)
-        g = stream(master_seed, "world.large_event", int(day_index))
-        n = world.n_cells
+        self.master_seed = master_seed
+        self._plan(int(day_index))
+        self.n_in = 0
+        self.n_out = 0
+        self._inside = np.zeros(0, dtype=np.int64)
+
+    def _plan(self, day_key: int) -> None:
+        """その日の会場のセル(日の鍵の乱数・10a #20)。"""
+        g = stream(self.master_seed, "world.large_event", int(day_key))
+        n = self.world.n_cells
         self.venue_cells = (
             np.sort(g.choice(n, size=min(3, n), replace=False)).astype(np.int64)
             if n else np.zeros(0, dtype=np.int64)
         )
-        self.n_in = 0
-        self.n_out = 0
-        self._inside = np.zeros(0, dtype=np.int64)
+
+    def relay_day(self, day_key: int) -> None:
+        """10d(親の答え 5): 日の頭でその日の日の鍵から会場を引き直す(会場に居る体 ``_inside`` はそのまま)。"""
+        self._plan(int(day_key))
 
     @property
     def active(self) -> bool:
@@ -523,6 +565,6 @@ class LargeEventProcess:
             return "大規模イベント: セルが無い(休む)"
         return (
             f"大規模イベント: 会場 {self.venue_cells.size} セル / 来街増分 "
-            f"{self.n_in:,} 人(窓 {EVENT_WINDOW[0] // 60:02d}:00-"
-            f"{EVENT_WINDOW[1] // 60:02d}:00・conf 0.3=expedient)"
+            f"{self.n_in:,} 人(窓 {EVENT_WINDOW[0] // MINUTES_PER_HOUR:02d}:00-"
+            f"{EVENT_WINDOW[1] // MINUTES_PER_HOUR:02d}:00・conf 0.3=expedient)"
         )

@@ -1,0 +1,24 @@
+{
+ "key": "W7#6",
+ "control": "nightlife 既定=深夜酒類提供・上限なし(宣言)vs 接待飲食(1-3 号)の窓 1:00-6:00(OSM タグの明示は優先のまま)",
+ "metric": "営業中 POI×時(168 時×{営業中,休業})の分布",
+ "variants": [
+  {
+   "name": "接待飲食の窓",
+   "jsd_bits": 8.42241018194121e-07,
+   "null_p95": 0.00034936061079824597,
+   "detected": false,
+   "tvd": 0.0003565825131935517,
+   "n_declared": 392616.0,
+   "n_control": 392616.0,
+   "n_bins": 336,
+   "n_poi_changed": 5
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.11991529993247241,
+ "seconds_wall_row": 0.7,
+ "measured_at": "2026-09-30"
+}

@@ -1,0 +1,633 @@
+{
+ "schema": "shibuya.md23/multiday/1",
+ "config": "default",
+ "arms": {},
+ "base": {
+  "vocab_version": "v3",
+  "memory": "on",
+  "relations": "on"
+ },
+ "agents": 5000,
+ "seed": 1,
+ "days": 5,
+ "world": "data/world/v2",
+ "final": "10cc8891332a92bd",
+ "calls": 381302,
+ "money_start": 139548230,
+ "memory_store": null,
+ "start_check_waived": [],
+ "test_only": false,
+ "daily": [
+  {
+   "day": 0,
+   "llm_calls": 69111,
+   "money": {
+    "households": 131423850,
+    "money_supply": 425207365
+   },
+   "events": {
+    "on": true,
+    "rows": 32043,
+    "bytes": 2307096,
+    "by_what": {
+     "過程:rail": 3904,
+     "過程:opening": 6546,
+     "過程:delivery_inbound": 2337,
+     "過程:shelf": 110,
+     "過程:waste": 234,
+     "過程:last_mile": 2758,
+     "過程:bus_taxi": 12954,
+     "過程:road_works": 12,
+     "過程:hotel": 4,
+     "過程:press": 3,
+     "過程:large_event": 6,
+     "過程:dispatch": 10,
+     "過程:day_close": 1,
+     "過程:checkpoint": 4,
+     "金:域外仕入": 49,
+     "金:持ち出し": 3111
+    },
+    "by_cause": {
+     "process": 32043
+    },
+    "live_rows": 32043,
+    "live_bytes": 2307096,
+    "evicted": 0
+   },
+   "stage2": null
+  },
+  {
+   "day": 1,
+   "llm_calls": 79728,
+   "money": {
+    "households": 125383170,
+    "money_supply": 424279720
+   },
+   "events": {
+    "on": true,
+    "rows": 30446,
+    "bytes": 2192112,
+    "by_what": {
+     "過程:rail": 3911,
+     "過程:opening": 4264,
+     "過程:delivery_inbound": 2337,
+     "過程:shelf": 171,
+     "過程:waste": 232,
+     "過程:last_mile": 2758,
+     "過程:bus_taxi": 12954,
+     "過程:road_works": 6,
+     "過程:hotel": 3,
+     "過程:press": 3,
+     "過程:large_event": 6,
+     "過程:day_close": 1,
+     "過程:checkpoint": 4,
+     "金:域外仕入": 150,
+     "金:持ち出し": 3646
+    },
+    "by_cause": {
+     "process": 30446
+    },
+    "live_rows": 62489,
+    "live_bytes": 4499208,
+    "evicted": 0
+   },
+   "stage2": null
+  },
+  {
+   "day": 2,
+   "llm_calls": 79733,
+   "money": {
+    "households": 121066550,
+    "money_supply": 423242622
+   },
+   "events": {
+    "on": true,
+    "rows": 30853,
+    "bytes": 2221416,
+    "by_what": {
+     "過程:rail": 3911,
+     "過程:opening": 4257,
+     "過程:delivery_inbound": 2337,
+     "過程:shelf": 425,
+     "過程:waste": 232,
+     "過程:last_mile": 2758,
+     "過程:bus_taxi": 12954,
+     "過程:road_works": 6,
+     "過程:hotel": 3,
+     "過程:press": 3,
+     "過程:large_event": 6,
+     "過程:day_close": 1,
+     "過程:checkpoint": 4,
+     "金:域外仕入": 242,
+     "金:持ち出し": 3714
+    },
+    "by_cause": {
+     "process": 30853
+    },
+    "live_rows": 93342,
+    "live_bytes": 6720624,
+    "evicted": 0
+   },
+   "stage2": null
+  },
+  {
+   "day": 3,
+   "llm_calls": 81120,
+   "money": {
+    "households": 117104990,
+    "money_supply": 422292640
+   },
+   "events": {
+    "on": true,
+    "rows": 30619,
+    "bytes": 2204568,
+    "by_what": {
+     "過程:rail": 3911,
+     "過程:opening": 4268,
+     "過程:delivery_inbound": 2337,
+     "過程:shelf": 315,
+     "過程:waste": 222,
+     "過程:last_mile": 2758,
+     "過程:bus_taxi": 12954,
+     "過程:road_works": 6,
+     "過程:hotel": 4,
+     "過程:press": 3,
+     "過程:large_event": 6,
+     "過程:dispatch": 4,
+     "過程:day_close": 1,
+     "過程:checkpoint": 4,
+     "金:域外仕入": 184,
+     "金:持ち出し": 3642
+    },
+    "by_cause": {
+     "process": 30619
+    },
+    "live_rows": 123961,
+    "live_bytes": 8925192,
+    "evicted": 0
+   },
+   "stage2": null
+  },
+  {
+   "day": 4,
+   "llm_calls": 71610,
+   "money": {
+    "households": 113782790,
+    "money_supply": 421384565
+   },
+   "events": {
+    "on": true,
+    "rows": 30252,
+    "bytes": 2178144,
+    "by_what": {
+     "過程:rail": 3918,
+     "過程:opening": 4273,
+     "過程:delivery_inbound": 2337,
+     "過程:shelf": 478,
+     "過程:waste": 220,
+     "過程:last_mile": 2758,
+     "過程:bus_taxi": 12954,
+     "過程:road_works": 6,
+     "過程:hotel": 4,
+     "過程:press": 3,
+     "過程:large_event": 6,
+     "過程:day_close": 1,
+     "過程:checkpoint": 4,
+     "金:域外仕入": 200,
+     "金:持ち出し": 3090
+    },
+    "by_cause": {
+     "process": 30252
+    },
+    "live_rows": 154213,
+    "live_bytes": 11103336,
+    "evicted": 0
+   },
+   "stage2": null
+  }
+ ],
+ "probe": [
+  {
+   "day": 0,
+   "wall_s_nondeterministic": 40.1,
+   "conv": {
+    "opened": 234,
+    "closed": 234,
+    "joined": 0
+   },
+   "relations": {
+    "k": 15,
+    "tau_rel": -2.322,
+    "edges_filled": 9304,
+    "edges_live": 8989,
+    "edges_per_agent": 1.861,
+    "full_rate": 0.014,
+    "full_live_rate": 0.0128,
+    "acquaintance_edges": 446,
+    "by_kind": {
+     "household": 2,
+     "work": 5730,
+     "school": 3126,
+     "regular": 0,
+     "acquaintance": 446
+    },
+    "tau_recalibrated": null,
+    "share_with_k_edges": 0.014
+   },
+   "memory": {
+    "rows": 55465,
+    "rows_per_agent": {
+     "p10": 4.0,
+     "p50": 11.0,
+     "p90": 18.0,
+     "mean": 11.1
+    },
+    "full_agents": 0,
+    "evictions": 0
+   },
+   "money": {
+    "cash_total": 131423850,
+    "cash_per_agent": {
+     "p10": 6961.8,
+     "p50": 19406.5,
+     "p90": 53471.4,
+     "mean": 26284.8
+    },
+    "cash_zero": 0
+   }
+  },
+  {
+   "day": 1,
+   "wall_s_nondeterministic": 44.1,
+   "conv": {
+    "opened": 498,
+    "closed": 498,
+    "joined": 0
+   },
+   "relations": {
+    "k": 15,
+    "tau_rel": -2.322,
+    "edges_filled": 9763,
+    "edges_live": 8903,
+    "edges_per_agent": 1.953,
+    "full_rate": 0.0144,
+    "full_live_rate": 0.01,
+    "acquaintance_edges": 912,
+    "by_kind": {
+     "household": 2,
+     "work": 5727,
+     "school": 3122,
+     "regular": 0,
+     "acquaintance": 912
+    },
+    "tau_recalibrated": null,
+    "share_with_k_edges": 0.0144
+   },
+   "memory": {
+    "rows": 99108,
+    "rows_per_agent": {
+     "p10": 9.0,
+     "p50": 19.0,
+     "p90": 31.0,
+     "mean": 19.8
+    },
+    "full_agents": 0,
+    "evictions": 0
+   },
+   "money": {
+    "cash_total": 125383170,
+    "cash_per_agent": {
+     "p10": 5702.8,
+     "p50": 18212.0,
+     "p90": 52343.1,
+     "mean": 25076.6
+    },
+    "cash_zero": 1
+   }
+  },
+  {
+   "day": 2,
+   "wall_s_nondeterministic": 44.0,
+   "conv": {
+    "opened": 717,
+    "closed": 717,
+    "joined": 0
+   },
+   "relations": {
+    "k": 15,
+    "tau_rel": -2.322,
+    "edges_filled": 10146,
+    "edges_live": 8784,
+    "edges_per_agent": 2.029,
+    "full_rate": 0.0148,
+    "full_live_rate": 0.008,
+    "acquaintance_edges": 1304,
+    "by_kind": {
+     "household": 2,
+     "work": 5724,
+     "school": 3116,
+     "regular": 0,
+     "acquaintance": 1304
+    },
+    "tau_recalibrated": null,
+    "share_with_k_edges": 0.0148
+   },
+   "memory": {
+    "rows": 135260,
+    "rows_per_agent": {
+     "p10": 12.0,
+     "p50": 27.0,
+     "p90": 42.0,
+     "mean": 27.1
+    },
+    "full_agents": 0,
+    "evictions": 0
+   },
+   "money": {
+    "cash_total": 121066550,
+    "cash_per_agent": {
+     "p10": 4580.4,
+     "p50": 17480.5,
+     "p90": 51862.6,
+     "mean": 24213.3
+    },
+    "cash_zero": 1
+   }
+  },
+  {
+   "day": 3,
+   "wall_s_nondeterministic": 44.4,
+   "conv": {
+    "opened": 977,
+    "closed": 977,
+    "joined": 0
+   },
+   "relations": {
+    "k": 15,
+    "tau_rel": -2.322,
+    "edges_filled": 10603,
+    "edges_live": 8794,
+    "edges_per_agent": 2.121,
+    "full_rate": 0.0156,
+    "full_live_rate": 0.007,
+    "acquaintance_edges": 1767,
+    "by_kind": {
+     "household": 2,
+     "work": 5722,
+     "school": 3112,
+     "regular": 0,
+     "acquaintance": 1767
+    },
+    "tau_recalibrated": null,
+    "share_with_k_edges": 0.0156
+   },
+   "memory": {
+    "rows": 168149,
+    "rows_per_agent": {
+     "p10": 15.0,
+     "p50": 34.0,
+     "p90": 52.0,
+     "mean": 33.6
+    },
+    "full_agents": 0,
+    "evictions": 0
+   },
+   "money": {
+    "cash_total": 117104990,
+    "cash_per_agent": {
+     "p10": 3364.6,
+     "p50": 16676.0,
+     "p90": 50925.6,
+     "mean": 23421.0
+    },
+    "cash_zero": 2
+   }
+  },
+  {
+   "day": 4,
+   "wall_s_nondeterministic": 40.5,
+   "conv": {
+    "opened": 1216,
+    "closed": 1216,
+    "joined": 0
+   },
+   "relations": {
+    "k": 15,
+    "tau_rel": -2.322,
+    "edges_filled": 11029,
+    "edges_live": 8669,
+    "edges_per_agent": 2.206,
+    "full_rate": 0.0164,
+    "full_live_rate": 0.0056,
+    "acquaintance_edges": 2200,
+    "by_kind": {
+     "household": 2,
+     "work": 5722,
+     "school": 3105,
+     "regular": 0,
+     "acquaintance": 2200
+    },
+    "tau_recalibrated": null,
+    "share_with_k_edges": 0.0164
+   },
+   "memory": {
+    "rows": 193608,
+    "rows_per_agent": {
+     "p10": 18.0,
+     "p50": 39.0,
+     "p90": 60.0,
+     "mean": 38.7
+    },
+    "full_agents": 0,
+    "evictions": 0
+   },
+   "money": {
+    "cash_total": 113782790,
+    "cash_per_agent": {
+     "p10": 2492.2,
+     "p50": 16061.0,
+     "p90": 50249.2,
+     "mean": 22756.6
+    },
+    "cash_zero": 2
+   }
+  }
+ ],
+ "gauge": [
+  {
+   "day": 0,
+   "presence_peak": {
+    "stage": 10,
+    "total5": 10
+   },
+   "presence_level": {
+    "stage": 3759092.6,
+    "total5": 2929841.7
+   },
+   "presence_peak_value": {
+    "stage": 276472.3,
+    "total5": 224810.6
+   },
+   "arrivals_n": 7877,
+   "arrivals_weighted": 601482.9,
+   "arrivals_peak_hour": 9
+  },
+  {
+   "day": 1,
+   "presence_peak": {
+    "stage": 10,
+    "total5": 11
+   },
+   "presence_level": {
+    "stage": 3873174.2,
+    "total5": 3160539.4
+   },
+   "presence_peak_value": {
+    "stage": 274905.1,
+    "total5": 230264.8
+   },
+   "arrivals_n": 7890,
+   "arrivals_weighted": 595699.8,
+   "arrivals_peak_hour": 9
+  },
+  {
+   "day": 2,
+   "presence_peak": {
+    "stage": 10,
+    "total5": 10
+   },
+   "presence_level": {
+    "stage": 3842146.7,
+    "total5": 3083271.1
+   },
+   "presence_peak_value": {
+    "stage": 275499.3,
+    "total5": 225217.3
+   },
+   "arrivals_n": 7936,
+   "arrivals_weighted": 599271.5,
+   "arrivals_peak_hour": 9
+  },
+  {
+   "day": 3,
+   "presence_peak": {
+    "stage": 10,
+    "total5": 11
+   },
+   "presence_level": {
+    "stage": 3840844.4,
+    "total5": 3123883.3
+   },
+   "presence_peak_value": {
+    "stage": 275714.3,
+    "total5": 226955.4
+   },
+   "arrivals_n": 7880,
+   "arrivals_weighted": 595931.5,
+   "arrivals_peak_hour": 9
+  },
+  {
+   "day": 4,
+   "presence_peak": {
+    "stage": 10,
+    "total5": 10
+   },
+   "presence_level": {
+    "stage": 3851936.8,
+    "total5": 3112423.8
+   },
+   "presence_peak_value": {
+    "stage": 273549.7,
+    "total5": 225347.8
+   },
+   "arrivals_n": 7416,
+   "arrivals_weighted": 562966.5,
+   "arrivals_peak_hour": 9
+  }
+ ],
+ "weather": [
+  {
+   "day": 0,
+   "calendar_date": "2026-07-13",
+   "replay_date": "2026-07-13",
+   "how": "actual",
+   "shadow_date": "2026-07-13",
+   "shadow_fallback": false
+  },
+  {
+   "day": 1,
+   "calendar_date": "2026-07-14",
+   "replay_date": "2026-07-14",
+   "how": "actual",
+   "shadow_date": "2026-07-14",
+   "shadow_fallback": false
+  },
+  {
+   "day": 2,
+   "calendar_date": "2026-07-15",
+   "replay_date": "2026-07-15",
+   "how": "actual",
+   "shadow_date": "2026-07-15",
+   "shadow_fallback": false
+  },
+  {
+   "day": 3,
+   "calendar_date": "2026-07-16",
+   "replay_date": "2026-07-16",
+   "how": "actual",
+   "shadow_date": "2026-07-16",
+   "shadow_fallback": false
+  },
+  {
+   "day": 4,
+   "calendar_date": "2026-07-17",
+   "replay_date": "2026-07-17",
+   "how": "actual",
+   "shadow_date": "2026-07-17",
+   "shadow_fallback": false
+  }
+ ],
+ "state_files": [
+  {
+   "name": "state-T00001440.json",
+   "bytes": 5734
+  },
+  {
+   "name": "state-T00001440.npz",
+   "bytes": 1275274
+  },
+  {
+   "name": "state-T00002880.json",
+   "bytes": 5735
+  },
+  {
+   "name": "state-T00002880.npz",
+   "bytes": 1684606
+  },
+  {
+   "name": "state-T00004320.json",
+   "bytes": 5735
+  },
+  {
+   "name": "state-T00004320.npz",
+   "bytes": 2015716
+  },
+  {
+   "name": "state-T00005760.json",
+   "bytes": 5735
+  },
+  {
+   "name": "state-T00005760.npz",
+   "bytes": 2318012
+  },
+  {
+   "name": "state-T00007200.json",
+   "bytes": 5734
+  },
+  {
+   "name": "state-T00007200.npz",
+   "bytes": 2558653
+  }
+ ],
+ "wall_s_nondeterministic": 213.9
+}

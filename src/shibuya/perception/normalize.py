@@ -48,6 +48,8 @@ from typing import Final, Iterable, Sequence
 
 import numpy as np
 
+from shibuya.core.time_consts import MINUTES_PER_HOUR
+
 __all__ = [
     "TIME_ROUND_MINUTES",
     "UNITS",
@@ -124,7 +126,7 @@ def round_time_5min(when: datetime, minutes: int = TIME_ROUND_MINUTES) -> tuple[
         >>> round_time_5min(datetime(2026, 7, 28, 12, 31))
         (12, 30)
     """
-    if minutes <= 0 or 60 % minutes:
+    if minutes <= 0 or MINUTES_PER_HOUR % minutes:
         raise ValueError("丸め幅は 60 を割り切る正の分数")
     return int(when.hour), (int(when.minute) // minutes) * minutes
 
@@ -138,7 +140,7 @@ def format_time(when: datetime, minutes: int = TIME_ROUND_MINUTES) -> tuple[str,
 def time_band(when: datetime, minutes: int = TIME_ROUND_MINUTES) -> int:
     """世界内日時 → 5 分帯の番号(0..287)。共有ブロックのキャッシュ鍵。"""
     h, m = round_time_5min(when, minutes)
-    return (h * 60 + m) // minutes
+    return (h * MINUTES_PER_HOUR + m) // minutes
 
 
 # ------------------------------------------------------------------ ② 列挙

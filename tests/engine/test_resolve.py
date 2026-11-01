@@ -75,7 +75,7 @@ def test_move_to_an_invalid_cell_fails_unreachable():
     w, a = _setup()
     _apply(a, w, _intents(1, C.ACT_MOVE, target=999))
     assert int(a.last_result[1]) == int(ResultCode.UNREACHABLE)
-    assert int(a.fail_streak[1]) == 1
+    # 〔第330・RET〕K15 で fail_streak を消した(前: 1)
 
 
 def test_engine_step_arrival_returns_to_idle_and_updates_cell():
@@ -199,7 +199,7 @@ def test_report_requires_a_perceived_event_d113_2():
     assert int(a.last_result[2]) == int(ResultCode.BAD_TARGET)  # 8 tick 前=窓の外
     assert int(a.last_result[3]) == int(ResultCode.BAD_TARGET)  # 見ていない
     assert out.n_report_ok == 1 and out.n_report_no_event == 2
-    assert int(a.fail_streak[3]) == 1 and int(a.fail_streak[1]) == 0
+    # 〔第330・RET〕K15 で fail_streak を消した(前: 3 は 1・1 は 0)
     assert out.per_action[C.ACT_REPORT] == 3
 
 

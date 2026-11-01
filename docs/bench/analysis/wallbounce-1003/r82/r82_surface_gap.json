@@ -1,0 +1,491 @@
+{
+ "script": "r82_surface_gap.py",
+ "raster_union_m2": {
+  "all_lod2or3": 500000,
+  "lod3_layer_only": 451900,
+  "sidewalk_lod2or3": 109904,
+  "sidewalk_lod3": 103186
+ },
+ "osm_GL_len_m_total": 155406,
+ "share_on_plateau_any_lod_3m": 0.4971,
+ "share_on_plateau_lod3_layer_3m": 0.4551,
+ "by_klass": {
+  "footway": {
+   "len_m": 49401,
+   "no_surface_m": 21001,
+   "no_surface_share": 0.425,
+   "on_lod3_layer_share": 0.527,
+   "covered_and_sidewalk_12m_share": 0.535,
+   "no_surface_but_hokoukukan2020_within5m_m": 4717
+  },
+  "residential": {
+   "len_m": 31064,
+   "no_surface_m": 20615,
+   "no_surface_share": 0.664,
+   "on_lod3_layer_share": 0.282,
+   "covered_and_sidewalk_12m_share": 0.106,
+   "no_surface_but_hokoukukan2020_within5m_m": 179
+  },
+  "service": {
+   "len_m": 20666,
+   "no_surface_m": 15696,
+   "no_surface_share": 0.76,
+   "on_lod3_layer_share": 0.2,
+   "covered_and_sidewalk_12m_share": 0.063,
+   "no_surface_but_hokoukukan2020_within5m_m": 239
+  },
+  "unclassified": {
+   "len_m": 19097,
+   "no_surface_m": 5472,
+   "no_surface_share": 0.287,
+   "on_lod3_layer_share": 0.697,
+   "covered_and_sidewalk_12m_share": 0.314,
+   "no_surface_but_hokoukukan2020_within5m_m": 84
+  },
+  "tertiary": {
+   "len_m": 15306,
+   "no_surface_m": 5376,
+   "no_surface_share": 0.351,
+   "on_lod3_layer_share": 0.606,
+   "covered_and_sidewalk_12m_share": 0.528,
+   "no_surface_but_hokoukukan2020_within5m_m": 557
+  },
+  "pedestrian": {
+   "len_m": 7016,
+   "no_surface_m": 2642,
+   "no_surface_share": 0.377,
+   "on_lod3_layer_share": 0.588,
+   "covered_and_sidewalk_12m_share": 0.469,
+   "no_surface_but_hokoukukan2020_within5m_m": 161
+  },
+  "primary": {
+   "len_m": 5882,
+   "no_surface_m": 2363,
+   "no_surface_share": 0.402,
+   "on_lod3_layer_share": 0.557,
+   "covered_and_sidewalk_12m_share": 0.559,
+   "no_surface_but_hokoukukan2020_within5m_m": 585
+  },
+  "secondary": {
+   "len_m": 4593,
+   "no_surface_m": 3559,
+   "no_surface_share": 0.775,
+   "on_lod3_layer_share": 0.222,
+   "covered_and_sidewalk_12m_share": 0.215,
+   "no_surface_but_hokoukukan2020_within5m_m": 823
+  },
+  "path": {
+   "len_m": 1289,
+   "no_surface_m": 889,
+   "no_surface_share": 0.69,
+   "on_lod3_layer_share": 0.234,
+   "covered_and_sidewalk_12m_share": 0.098,
+   "no_surface_but_hokoukukan2020_within5m_m": 5
+  },
+  "steps": {
+   "len_m": 1035,
+   "no_surface_m": 531,
+   "no_surface_share": 0.513,
+   "on_lod3_layer_share": 0.466,
+   "covered_and_sidewalk_12m_share": 0.211,
+   "no_surface_but_hokoukukan2020_within5m_m": 67
+  },
+  "cycleway": {
+   "len_m": 36,
+   "no_surface_m": 17,
+   "no_surface_share": 0.478,
+   "on_lod3_layer_share": 0.0,
+   "covered_and_sidewalk_12m_share": 0.46,
+   "no_surface_but_hokoukukan2020_within5m_m": 0
+  },
+  "elevator": {
+   "len_m": 16,
+   "no_surface_m": 0,
+   "no_surface_share": 0.0,
+   "on_lod3_layer_share": 1.0,
+   "covered_and_sidewalk_12m_share": 1.0,
+   "no_surface_but_hokoukukan2020_within5m_m": 0
+  },
+  "corridor": {
+   "len_m": 6,
+   "no_surface_m": 0,
+   "no_surface_share": 0.0,
+   "on_lod3_layer_share": 1.0,
+   "covered_and_sidewalk_12m_share": 1.0,
+   "no_surface_but_hokoukukan2020_within5m_m": 0
+  }
+ },
+ "no_surface_total_m": 78161,
+ "no_surface_share": 0.5029,
+ "no_surface_hokoukukan2020_within5m_m": 7417,
+ "by_distance_from_origin": {
+  "0-300m": {
+   "covered": 15202,
+   "no_surface": 328
+  },
+  "300-700m": {
+   "covered": 47124,
+   "no_surface": 7974
+  },
+  "700m+": {
+   "no_surface": 69859,
+   "covered": 14918
+  }
+ },
+ "building_gap_width_m": {
+  "footway|no_surface": {
+   "n_sample": 1497,
+   "none_share": 0.794,
+   "p10": 7.5,
+   "p50": 15.5,
+   "p90": 29.0
+  },
+  "footway|covered": {
+   "n_sample": 2014,
+   "none_share": 0.743,
+   "p10": 10.3,
+   "p50": 18.0,
+   "p90": 26.2
+  },
+  "pedestrian|no_surface": {
+   "n_sample": 190,
+   "none_share": 0.405,
+   "p10": 9.0,
+   "p50": 16.0,
+   "p90": 23.9
+  },
+  "pedestrian|covered": {
+   "n_sample": 295,
+   "none_share": 0.536,
+   "p10": 4.5,
+   "p50": 8.5,
+   "p90": 23.0
+  },
+  "residential|no_surface": {
+   "n_sample": 1442,
+   "none_share": 0.408,
+   "p10": 7.2,
+   "p50": 12.0,
+   "p90": 21.0
+  },
+  "residential|covered": {
+   "n_sample": 753,
+   "none_share": 0.438,
+   "p10": 6.5,
+   "p50": 11.5,
+   "p90": 21.5
+  },
+  "service|no_surface": {
+   "n_sample": 1099,
+   "none_share": 0.48,
+   "p10": 5.5,
+   "p50": 9.5,
+   "p90": 21.5
+  },
+  "service|covered": {
+   "n_sample": 359,
+   "none_share": 0.479,
+   "p10": 5.5,
+   "p50": 9.0,
+   "p90": 19.7
+  },
+  "tertiary|no_surface": {
+   "n_sample": 379,
+   "none_share": 0.596,
+   "p10": 11.0,
+   "p50": 17.5,
+   "p90": 25.4
+  },
+  "tertiary|covered": {
+   "n_sample": 710,
+   "none_share": 0.525,
+   "p10": 12.5,
+   "p50": 20.5,
+   "p90": 28.5
+  },
+  "unclassified|no_surface": {
+   "n_sample": 382,
+   "none_share": 0.51,
+   "p10": 9.3,
+   "p50": 15.0,
+   "p90": 23.0
+  },
+  "unclassified|covered": {
+   "n_sample": 972,
+   "none_share": 0.437,
+   "p10": 7.5,
+   "p50": 11.5,
+   "p90": 23.5
+  }
+ },
+ "building_gap_note": "辺の 2 m 点の 15% 標本。辺に垂直な両方向で OSM 建物の足跡(1 m 格子)に当たるまでの距離の和。片側 20 m 以内に当たらなければ None。道路の幅ではなく建物どうしの空き(前庭・駐車場・塀の内側を含む)=上限の目安",
+ "hokoukukan2020_in_w1_by_rt_struct_m": {
+  "1": {
+   "len_m": 18933,
+   "off_plateau_surface_m": 5587
+  },
+  "2": {
+   "len_m": 1432,
+   "off_plateau_surface_m": 236
+  },
+  "3": {
+   "len_m": 2514,
+   "off_plateau_surface_m": 334
+  },
+  "4": {
+   "len_m": 430,
+   "off_plateau_surface_m": 39
+  },
+  "5": {
+   "len_m": 218,
+   "off_plateau_surface_m": 0
+  },
+  "6": {
+   "len_m": 1241,
+   "off_plateau_surface_m": 247
+  },
+  "7": {
+   "len_m": 174,
+   "off_plateau_surface_m": 2
+  },
+  "99": {
+   "len_m": 62,
+   "off_plateau_surface_m": 0
+  }
+ },
+ "hokoukukan2020_in_w1_total_m": 25005,
+ "hokoukukan2020_off_plateau_m": 6444,
+ "osm_road_tags_in_w1": {
+  "residential": {
+   "ways": 287,
+   "len_m": 30164,
+   "lanes_ways": 25,
+   "lanes_len_m": 2745,
+   "sidewalk_ways": 10,
+   "sidewalk_len_m": 1032,
+   "width_ways": 3,
+   "width_len_m": 516
+  },
+  "service": {
+   "ways": 378,
+   "len_m": 23560,
+   "width_ways": 2,
+   "width_len_m": 317,
+   "sidewalk_ways": 10,
+   "sidewalk_len_m": 806,
+   "lanes_ways": 11,
+   "lanes_len_m": 983
+  },
+  "unclassified": {
+   "ways": 223,
+   "len_m": 20264,
+   "width_ways": 7,
+   "width_len_m": 1182,
+   "sidewalk_ways": 23,
+   "sidewalk_len_m": 2362,
+   "lanes_ways": 32,
+   "lanes_len_m": 3903
+  },
+  "tertiary": {
+   "ways": 197,
+   "len_m": 15590,
+   "lanes_ways": 131,
+   "lanes_len_m": 9685,
+   "sidewalk_ways": 22,
+   "sidewalk_len_m": 1451
+  },
+  "pedestrian": {
+   "ways": 91,
+   "len_m": 9782,
+   "sidewalk_ways": 1,
+   "sidewalk_len_m": 44
+  },
+  "primary": {
+   "ways": 49,
+   "len_m": 6105,
+   "lanes_ways": 31,
+   "lanes_len_m": 4415,
+   "sidewalk_ways": 5,
+   "sidewalk_len_m": 1234
+  },
+  "secondary": {
+   "ways": 27,
+   "len_m": 4774,
+   "lanes_ways": 27,
+   "lanes_len_m": 4774,
+   "sidewalk_ways": 2,
+   "sidewalk_len_m": 1077
+  },
+  "motorway": {
+   "ways": 12,
+   "len_m": 4651,
+   "lanes_ways": 12,
+   "lanes_len_m": 4651
+  },
+  "trunk": {
+   "ways": 43,
+   "len_m": 4612,
+   "lanes_ways": 39,
+   "lanes_len_m": 4488
+  }
+ },
+ "osm_sidewalk_values": {
+  "no": 15,
+  "both": 33,
+  "left": 5,
+  "right": 2,
+  "separate": 3
+ },
+ "osm_highway_crossing_nodes": 612,
+ "osm_crossing_tag_values": {
+  "traffic_signals": 208,
+  "unmarked": 45,
+  "marked": 117,
+  "uncontrolled": 133,
+  "(none)": 101,
+  "zebra": 6,
+  "traffic_signals;marked": 2
+ },
+ "osm_crossing_markings_values": {
+  "(none)": 301,
+  "zebra": 99,
+  "no": 55,
+  "yes": 157
+ },
+ "plateau_frn": {
+  "53393586": {
+   "in_w1_by_function": {
+    "4800 柱": 30,
+    "2000 柵・壁": 25,
+    "1030 車線境界線": 21,
+    "4900 交通信号機": 21,
+    "1110 横断歩道": 18,
+    "1200 規制標示": 17,
+    "1010 区画線": 13,
+    "3150 補助標識": 10,
+    "1120 停止線": 8,
+    "1040 車道外側線": 7,
+    "3130 規制標識": 6,
+    "8150 点字ブロック": 5,
+    "4100 視線誘導標": 2,
+    "4300 道路情報管理施設": 2,
+    "7300 側溝": 2,
+    "1020 車道中央線": 1,
+    "4200 照明施設": 1,
+    "5200 電線共同溝": 1
+   },
+   "geometry_props": {
+    "4800:lod1Geometry": 30,
+    "4800:lod3Geometry": 30,
+    "2000:lod1Geometry": 25,
+    "2000:lod3Geometry": 25,
+    "1030:lod3Geometry": 21,
+    "4900:lod1Geometry": 21,
+    "4900:lod3Geometry": 21,
+    "1110:lod3Geometry": 18,
+    "1200:lod3Geometry": 17,
+    "1010:lod3Geometry": 13,
+    "3150:lod1Geometry": 10,
+    "3150:lod3Geometry": 10,
+    "1120:lod3Geometry": 8,
+    "1040:lod3Geometry": 7,
+    "3130:lod1Geometry": 6,
+    "3130:lod3Geometry": 6,
+    "8150:lod3Geometry": 5,
+    "4100:lod1Geometry": 2,
+    "4100:lod3Geometry": 2,
+    "4300:lod1Geometry": 2,
+    "4300:lod3Geometry": 2,
+    "7300:lod3Geometry": 2,
+    "1020:lod3Geometry": 1,
+    "4200:lod1Geometry": 1,
+    "4200:lod3Geometry": 1,
+    "5200:lod1Geometry": 1,
+    "5200:lod3Geometry": 1
+   }
+  },
+  "53393596": {
+   "in_w1_by_function": {
+    "2000 柵・壁": 1373,
+    "4800 柱": 104,
+    "4200 照明施設": 101,
+    "4020 地下出入口": 55,
+    "5610 マンホール": 49,
+    "4900 交通信号機": 35,
+    "8150 点字ブロック": 30,
+    "8010 停留所": 28,
+    "3110 案内標識": 27,
+    "3130 規制標識": 27,
+    "9001 看板（自立式）": 26,
+    "1200 規制標示": 15,
+    "9000 その他": 14,
+    "1030 車線境界線": 14,
+    "1110 横断歩道": 12,
+    "3150 補助標識": 10,
+    "1010 区画線": 10,
+    "1040 車道外側線": 10,
+    "1120 停止線": 9,
+    "5200 電線共同溝": 8,
+    "7300 側溝": 6,
+    "4300 道路情報管理施設": 3,
+    "1000 道路標示": 3,
+    "4203 立像": 2,
+    "3140 指示標識": 2,
+    "1020 車道中央線": 2,
+    "8030 郵便ポスト": 1,
+    "4100 視線誘導標": 1,
+    "8040 電話ボックス": 1
+   },
+   "geometry_props": {
+    "2000:lod1Geometry": 1373,
+    "2000:lod3Geometry": 1373,
+    "4800:lod1Geometry": 104,
+    "4800:lod3Geometry": 104,
+    "4200:lod1Geometry": 101,
+    "4200:lod3Geometry": 101,
+    "4020:lod1Geometry": 55,
+    "4020:lod3Geometry": 55,
+    "5610:lod3Geometry": 49,
+    "4900:lod1Geometry": 35,
+    "4900:lod3Geometry": 35,
+    "8150:lod3Geometry": 30,
+    "8010:lod1Geometry": 28,
+    "8010:lod3Geometry": 28,
+    "3110:lod1Geometry": 27,
+    "3110:lod3Geometry": 27,
+    "3130:lod1Geometry": 27,
+    "3130:lod3Geometry": 27,
+    "9001:lod1Geometry": 26,
+    "9001:lod3Geometry": 26,
+    "1200:lod3Geometry": 15,
+    "9000:lod1Geometry": 14,
+    "9000:lod3Geometry": 14,
+    "1030:lod3Geometry": 14,
+    "1110:lod3Geometry": 12,
+    "3150:lod1Geometry": 10,
+    "3150:lod3Geometry": 10,
+    "1010:lod3Geometry": 10,
+    "1040:lod3Geometry": 10,
+    "1120:lod3Geometry": 9,
+    "5200:lod1Geometry": 8,
+    "5200:lod3Geometry": 8,
+    "7300:lod3Geometry": 6,
+    "4300:lod1Geometry": 3,
+    "4300:lod3Geometry": 3,
+    "1000:lod3Geometry": 3,
+    "4203:lod1Geometry": 2,
+    "4203:lod3Geometry": 2,
+    "3140:lod1Geometry": 2,
+    "3140:lod3Geometry": 2,
+    "1020:lod3Geometry": 2,
+    "8030:lod1Geometry": 1,
+    "8030:lod3Geometry": 1,
+    "4100:lod1Geometry": 1,
+    "4100:lod3Geometry": 1,
+    "8040:lod1Geometry": 1,
+    "8040:lod3Geometry": 1
+   }
+  }
+ },
+ "elapsed_s": 12.1
+}

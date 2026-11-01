@@ -1,0 +1,21 @@
+{
+ "label": "V2",
+ "base": "v3_mem_rel",
+ "arms": {
+  "proximity": "distance",
+  "economy_stage2": "off",
+  "seat_release": "(口なし)"
+ },
+ "agents": 5000,
+ "seed": 1,
+ "straight_final": "c1629175f053dbf0",
+ "resumed_final": "c1629175f053dbf0",
+ "same_final": true,
+ "checkpoints_after_boundary_same": true,
+ "n_checkpoints_compared": 4,
+ "calls": [
+  145931,
+  145931
+ ],
+ "wall_s_nondeterministic": 223.7
+}

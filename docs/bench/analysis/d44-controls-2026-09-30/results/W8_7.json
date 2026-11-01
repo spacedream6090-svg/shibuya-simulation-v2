@@ -1,0 +1,42 @@
+{
+ "key": "W8#7",
+ "control": "UG は建物ラスタを当てない(宣言)vs UG にも建物ラスタ(地上と同じ 2.5D 視線)を当てる",
+ "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+ "variants": [
+  {
+   "name": "UG にも遮蔽: (セル,対象)→見えている視点数",
+   "jsd_bits": 0.0005824143053194655,
+   "null_p95": 0.003298782022654004,
+   "detected": false,
+   "tvd": 0.0014030991077916737,
+   "n_declared": 4943303.0,
+   "n_control": 4936364.0,
+   "n_bins": 43479,
+   "jaccard_pairs": 0.9995170082108604
+  },
+  {
+   "name": "UG にも遮蔽: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+   "jsd_bits": 0.0007779762561237764,
+   "null_p95": 0.0001451758938727284,
+   "detected": true,
+   "tvd": 0.009931825572138188,
+   "n_declared": 356732.0,
+   "n_control": 356732.0,
+   "n_bins": 117,
+   "primary": false
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 2.711322300019674,
+ "outputs_changed": [
+  "w8_t1.parquet",
+  "w8_t1_cell.parquet"
+ ],
+ "notes": [
+  "カーネルのソースをこのプロセスの中だけ 1 行差し替えて njit した(src のファイルは変えていない)"
+ ],
+ "seconds_wall_row": 20.09,
+ "measured_at": "2026-09-30"
+}

@@ -1,0 +1,29 @@
+{
+ "key": "W2#3",
+ "control": "重心に最近のノード(宣言)vs セル内の最大次数ノード(同点は添字最小)",
+ "metric": "W3 セル間距離(上三角)の 10 m 階級分布",
+ "variants": [
+  {
+   "name": "最大次数ノード",
+   "jsd_bits": 0.0006631642739108527,
+   "null_p95": 0.0011036899571426108,
+   "detected": false,
+   "tvd": 0.021868978805394994,
+   "n_declared": 134940.0,
+   "n_control": 134940.0,
+   "n_bins": 376,
+   "mean_abs_diff_m": 40.477071290944124,
+   "share_pairs_abs_diff_ge_10m": 0.7093967689343412
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.3140170000260696,
+ "rep_changed_cells": 323,
+ "notes": [
+  "分布の JSD は対ごとの入れ替えを見ない(対ごとの差は mean_abs_diff_m・share_pairs_abs_diff_ge_10m に記録)"
+ ],
+ "seconds_wall_row": 0.89,
+ "measured_at": "2026-09-30"
+}

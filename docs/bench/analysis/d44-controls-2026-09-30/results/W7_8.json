@@ -1,0 +1,24 @@
+{
+ "key": "W7#8",
+ "control": "brand 内の最頻を伝播(宣言)vs 伝播なし(入力の brand タグを落としてカテゴリ既定へ)",
+ "metric": "営業中 POI×時(168 時×{営業中,休業})の分布",
+ "variants": [
+  {
+   "name": "伝播なし",
+   "jsd_bits": 1.015775216754738e-06,
+   "null_p95": 0.00034936061079824597,
+   "detected": false,
+   "tvd": 0.0006081005358925762,
+   "n_declared": 392616.0,
+   "n_control": 392616.0,
+   "n_bins": 336,
+   "n_poi_changed": 7
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.12672129995189607,
+ "seconds_wall_row": 0.73,
+ "measured_at": "2026-09-30"
+}

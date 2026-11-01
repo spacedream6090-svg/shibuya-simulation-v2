@@ -1,0 +1,118 @@
+{
+ "schema": "shibuya.bench/ec21/probe-keys/1",
+ "a": "base24",
+ "b": "ec21",
+ "a_src_is_worktree": false,
+ "b_src_is_worktree": true,
+ "how": "ランの終わりの系の境目(T が無い)ごとの snapshot の欄ごとの digest を比べた(外す欄は side と同じ)",
+ "rows": {
+  "real300_v3_default": {
+   "final_a": "f4466eb1ac04d48f",
+   "final_b": "f4466eb1ac04d48f",
+   "n_points": [
+    4,
+    4
+   ],
+   "points": [
+    {
+     "point_a": "drain",
+     "point_b": "drain",
+     "diff_keys": [
+      "J0:decision._s2_hints",
+      "O34:norm_meter.seconds",
+      "O34:norm_meter.tick_ms_max",
+      "O73:runner.phase_seconds"
+     ]
+    },
+    {
+     "point_a": "close_final",
+     "point_b": "close_final",
+     "diff_keys": [
+      "J0:decision._s2_hints",
+      "O34:norm_meter.seconds",
+      "O34:norm_meter.tick_ms_max",
+      "O73:runner.phase_seconds"
+     ]
+    },
+    {
+     "point_a": "report",
+     "point_b": "report",
+     "diff_keys": [
+      "A:ledger.money.meter",
+      "J0:decision._s2_hints",
+      "O34:norm_meter.seconds",
+      "O34:norm_meter.tick_ms_max",
+      "O73:runner.phase_seconds"
+     ]
+    },
+    {
+     "point_a": "END",
+     "point_b": "END",
+     "diff_keys": [
+      "A:ledger.money.meter",
+      "J0:decision._s2_hints",
+      "O34:norm_meter.seconds",
+      "O34:norm_meter.tick_ms_max",
+      "O73:runner.phase_seconds"
+     ]
+    }
+   ]
+  },
+  "real300_v3_mem_rel": {
+   "final_a": "3a3cae2b97a67d35",
+   "final_b": "3a3cae2b97a67d35",
+   "n_points": [
+    4,
+    4
+   ],
+   "points": [
+    {
+     "point_a": "drain",
+     "point_b": "drain",
+     "diff_keys": [
+      "J0:decision._s2_hints",
+      "O19:rel_layer.wall",
+      "O34:norm_meter.seconds",
+      "O34:norm_meter.tick_ms_max",
+      "O73:runner.phase_seconds"
+     ]
+    },
+    {
+     "point_a": "close_final",
+     "point_b": "close_final",
+     "diff_keys": [
+      "J0:decision._s2_hints",
+      "O19:rel_layer.wall",
+      "O34:norm_meter.seconds",
+      "O34:norm_meter.tick_ms_max",
+      "O73:runner.phase_seconds"
+     ]
+    },
+    {
+     "point_a": "report",
+     "point_b": "report",
+     "diff_keys": [
+      "A:ledger.money.meter",
+      "J0:decision._s2_hints",
+      "O19:rel_layer.wall",
+      "O34:norm_meter.seconds",
+      "O34:norm_meter.tick_ms_max",
+      "O73:runner.phase_seconds"
+     ]
+    },
+    {
+     "point_a": "END",
+     "point_b": "END",
+     "diff_keys": [
+      "A:ledger.money.meter",
+      "J0:decision._s2_hints",
+      "O19:rel_layer.wall",
+      "O34:norm_meter.seconds",
+      "O34:norm_meter.tick_ms_max",
+      "O73:runner.phase_seconds"
+     ]
+    }
+   ]
+  }
+ }
+}

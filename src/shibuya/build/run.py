@@ -91,8 +91,9 @@ MANIFEST_SCHEMA = "shibuya.build/build_manifest/1"
 #: 安全弁: 段 → {出力ファイル名: 昇格版の md5 の先頭(16 進)}。走らせる段のディスク上の出力が
 #: これに一致したら、``--stage <段>`` の明示が無い限り上書きを拒否する。
 #: W17 v2 = 本番 第 2 回・第168 昇格(``tests/engine/test_presence_executor.py`` の ``W17_GOLDEN`` の鍵)。
+#: 〔第 4 期 4-3 段 10〕``02114fb577f3`` = 差し替えの世界の W17(W16 の残す行+W21 の人の提供者の写し=``build.pop.w21_apply``)。
 PROTECTED_OUTPUTS: dict[str, dict[str, tuple[str, ...]]] = {
-    "W17": {"w17_schedule.parquet": ("3113e9ba7abb",)},
+    "W17": {"w17_schedule.parquet": ("3113e9ba7abb", "02114fb577f3")},
 }
 
 

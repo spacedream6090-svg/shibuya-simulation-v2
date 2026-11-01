@@ -1,0 +1,56 @@
+{
+ "note": "最後の src(店の行の尺度・docstring の後)の 6 構成 vs 本体 HEAD 0239a3b の写し(19 構成の head の側)・腕は全部既定",
+ "keys": [
+  "final",
+  "calls",
+  "blocks_rows",
+  "blocks_sha",
+  "calls_rows",
+  "calls_column_names",
+  "calls_columns_sha",
+  "action_usage_total",
+  "action_usage_sha",
+  "calls_by_condition",
+  "salient_events",
+  "collapse",
+  "noticed",
+  "dispatches",
+  "arrived",
+  "mean_delay_min",
+  "meals",
+  "behavior_last",
+  "full_last",
+  "end_of_day",
+  "start_sim_datetime",
+  "replay_date",
+  "calendar_weekday",
+  "rng_scheme",
+  "frozen_sources"
+ ],
+ "rows": {
+  "w6_v3_default": {
+   "final": "b8eadcb51e8705e7",
+   "moved": []
+  },
+  "w6_v3_activity_off": {
+   "final": "c88ba9104f45f897",
+   "moved": []
+  },
+  "w6_v1_default": {
+   "final": "e1288e092ddaca86",
+   "moved": []
+  },
+  "v3_mem_rel": {
+   "final": "768b2262e3b0999e",
+   "moved": []
+  },
+  "v3_mem_store": {
+   "final": "a9f6f9f0adb3f9a4",
+   "moved": []
+  },
+  "v3_classical_mem_rel": {
+   "final": "9dd9d5684891b57c",
+   "moved": []
+  }
+ }
+}

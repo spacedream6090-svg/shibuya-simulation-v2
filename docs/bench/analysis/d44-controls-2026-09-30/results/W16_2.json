@@ -1,0 +1,34 @@
+{
+ "key": "W16#2",
+ "control": "町丁目被覆率=10 m 標本格子(宣言)vs 5 m",
+ "metric": "住民の自宅セルの分布",
+ "variants": [
+  {
+   "name": "5 m",
+   "jsd_bits": 1.5670444764125598e-05,
+   "null_p95": 0.0035191208445010443,
+   "detected": false,
+   "tvd": 0.0006962920048645862,
+   "n_declared": 43588.0,
+   "n_control": 43583.0,
+   "n_bins": 373,
+   "residents_declared": 43588,
+   "residents_control": 43583
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 11.955108199967071,
+ "outputs_changed": [
+  "w16_chome.parquet",
+  "w16_cohorts.json",
+  "w16_duty_roster.parquet",
+  "w16_gates.json",
+  "w16_households.parquet",
+  "w16_population.parquet"
+ ],
+ "notes": [],
+ "seconds_wall_row": 12.9,
+ "measured_at": "2026-09-30"
+}

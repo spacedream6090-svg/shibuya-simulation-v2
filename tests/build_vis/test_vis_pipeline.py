@@ -16,6 +16,7 @@ import pytest
 from shibuya.build import run as build_run
 from shibuya.build.geo import common as C
 from shibuya.build.vis import run as vis_run
+from tests import _data_ids as D
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = REPO_ROOT / "data"
@@ -23,16 +24,13 @@ OSM = DATA_DIR / "realworld" / "osm" / "shibuya_osm_wide_v8.json"
 TERRAIN = DATA_DIR / "plateau" / "terrain.npz"
 KASYO = DATA_DIR / "realworld" / "road_census_r3" / "kasyo13.csv"
 
-pytestmark = pytest.mark.skipif(
-    not (OSM.exists() and TERRAIN.exists() and KASYO.exists()), reason="data/ absent (CI)"
-)
+#: 〔第 2 期 2-3b〕W12 1.2.0 は実ダイヤの入力(ユーザー提供の時刻表の読み取り・ODPT の静的データ版 1)も読む。
+pytestmark = pytest.mark.requires_data(*D.ids_of(OSM, TERRAIN, KASYO), "user_timetables", "odpt_static")
 
 #: 実データで**現に落ちる**ゲート(理由つき)。
 KNOWN_FAILING: dict[tuple[str, str], str] = {
-    ("W9", "shadow_bytes_per_day_le_10mb"): (
-        "D-W10 の 8.6MB/日 は 239,028点前提。本実装の街路格子は W10 と同じ 356,732点なので"
-        "288×44,592B=12.84MB になる。点を間引いて予算に合わせることはしない"
-    ),
+    # ("W9", "shadow_bytes_per_day_le_10mb") は第 2 期 2-4 で宣言を実測に合わせた(≤13,000,000 B/日・ゲートの名は
+    # shadow_bytes_per_day_le_budget)=PASS。旧の理由: D-W10 の 8.6MB/日 は 239,028点前提・街路格子は 356,732点で 12.84MB。
 }
 
 #: §1 W8 のゲート「前計算 ≤5分」。
@@ -133,8 +131,14 @@ def test_w9_shadow_planes(built):
     out, headers, _dt = built
     notes = headers["W9"]["notes"]
     date = notes["replay_date"]
-    days = C.read_parquet_columns(out / "w13_weather_days.parquet", ["date"])
-    assert date == days["date"][0]
+    # 〔改訂(第330 B5)〕影の日は W13 の先頭日ではなく定数 SHADOW_DATES(先頭=主の日)。
+    # out にある影のファイルは一覧の日だけ(一覧に無い古い日は W9 が消す)。
+    from shibuya.build.vis import w9_shadow as W9
+
+    assert date == W9.SHADOW_DATES[0]
+    assert notes["shadow_dates"] == list(W9.SHADOW_DATES)
+    on_disk = sorted(f.name for f in out.glob("w9_shadow_*.npy"))
+    assert on_disk == sorted(f"w9_shadow_{d}.npy" for d in W9.SHADOW_DATES)
     planes = np.load(out / f"w9_shadow_{date}.npy")
     assert planes.shape == (288, (notes["points"] + 7) // 8)
     assert planes.dtype == np.uint8

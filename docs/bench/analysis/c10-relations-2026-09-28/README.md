@@ -1,5 +1,7 @@
 # C10 版の台帳 — 関係辺・会話の起点(2026-09-28)
 
+> **〔第311 印: 暫定・node 座標〕** この項の近接系の数値(偶然の出会い・知人出現の起床・セッションの増え方・同席・B5 近接行・T5)は、体の位置がノードの座標に重なる条件で測った値である(node 幾何の全員。edge 幾何でも立ち止まっている体はノードに戻される=`resolve.py:1388-1404,1455-1472`)。2 m 内の組の 99.9% 以上が距離 0 ちょうど([読み直しの記録](../proximity-edge-2026-09-30/README.md))。連続位置が既定になるまで結論に使わない(指示書 09-30 §1-2 追加 B)。
+
 正典: [実装アジェンダ](../../../design/v2-c10-relations-implementation-agenda.md)(§0 の 8a 行・§1 の 1〜8・§4)・上位=[C10 決定アジェンダ v0](../../../design/v2-c10-relations-agenda.md) §4(R1〜R14+R9′)・§5 と D-93 (a)〜(d)・[R-36 答申](../../../research/v2-c10-initial-relations-research.md) §6-1・[記憶アジェンダ v1](../../../design/v2-memory-agenda.md) M12。前提=記憶 第 1 段([版の台帳](../memory-stage1-2026-09-28/README.md) §6a・§6b)・D-120([版の台帳](../store-memory-2026-09-28/README.md))。
 計測は mock 5,000 体・seed 1・W17 v2・語彙 v3・空腹 energy・`--memory on`・`cli.run`(呼数無制限)。スクリプト [rel_measure.py](rel_measure.py) → [rel_byte_check.json](rel_byte_check.json)(既定の byte 一致)・[rel_arms.json](rel_arms.json)(on の腕 14 本・1 構成=1 プロセス)・[rel_tau.json](rel_tau.json)(τ_rel の逆算)・[rel_audit_full.json](rel_audit_full.json)(全母集団の初期網の監査)・[rel_marks.json](rel_marks.json)(B5 近接行の「(知人)」の出現)・[rel_replay.json](rel_replay.json)(実 LLM テープ 17 本)と、[memory_measure.py](../memory-stage1-2026-09-28/memory_measure.py) の `arms15` → [arms15_rel.json](arms15_rel.json)。壁時計は同じ PC の 1 回の値(決定論でない)。
 8b(会話の起点と相手選択+8a の直し)はスクリプト [rel8b_measure.py](rel8b_measure.py) と 8b 用の JSON(§8b の冒頭)。

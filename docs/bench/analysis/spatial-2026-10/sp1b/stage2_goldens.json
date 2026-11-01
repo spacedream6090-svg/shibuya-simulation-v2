@@ -1,0 +1,86 @@
+{
+ "null": {
+  "name": "null",
+  "final": "872136c8ef8115f3494fe492e5242312d2397b13c1279ff9133f354a9409b8d7",
+  "calls": 99453,
+  "effective": "nav1",
+  "density_mode": "neighborhood"
+ },
+ "v3": {
+  "name": "v3",
+  "final": "7bfe215641b792ace98a60faaae1bb1037d0d0d79fbd97ed0dc882a069eb16f3",
+  "calls": 62176,
+  "effective": "nav1",
+  "density_mode": "neighborhood"
+ },
+ "null_l4x1": {
+  "name": "null_l4x1",
+  "final": "9c5b3b6d353b77676644b055663bce347d54e4760d8d0814e380b1aede7caa83",
+  "calls": 40983,
+  "effective": "nav1",
+  "density_mode": "neighborhood"
+ },
+ "v3_l4x1": {
+  "name": "v3_l4x1",
+  "final": "c50febb360d57315a241ec15afcb36ce25f16951808331d0a01e4c1789925e00",
+  "calls": 36541,
+  "effective": "nav1",
+  "density_mode": "neighborhood"
+ },
+ "null_hunger_v1": {
+  "name": "null_hunger_v1",
+  "final": "1e31a0c273bb60c05ee1b00dd270f9cff0b3475d2ebded1bdbb89e3810d08a26",
+  "calls": 98856,
+  "effective": "nav1",
+  "density_mode": "neighborhood"
+ },
+ "v3_hunger_v1": {
+  "name": "v3_hunger_v1",
+  "final": "b47d44e750e93dc3e269c1003a0a2d0fac5beabc057e3859626d1c3b349d0e12",
+  "calls": 61072,
+  "effective": "nav1",
+  "density_mode": "neighborhood"
+ },
+ "prox300": {
+  "name": "prox300",
+  "final": "0f04b4c4710a546b08dd2369f0d25d153ba3b631fc0f71df60dfef8771d3819e",
+  "calls": 2649,
+  "effective": "nav1",
+  "density_mode": "neighborhood"
+ },
+ "near_first1500": {
+  "name": "near_first1500",
+  "final": "7d4e9f985a7bf70e936f7996e0b0e176d0658ef258a3b221b7e78e0e7d50a177",
+  "calls": 26536,
+  "effective": "nav1",
+  "density_mode": "neighborhood"
+ },
+ "rel5000": {
+  "name": "rel5000",
+  "final": "140f365398ad4172e65e42ace40637e432e3b459529220d41d0f6ed5474768f6",
+  "calls": 64500,
+  "effective": "nav1",
+  "density_mode": "neighborhood"
+ },
+ "classical1500": {
+  "name": "classical1500",
+  "final": "9219b4a3810a1388fa9045239705846d83ff4998c3e9784c8332d2431c31ff01",
+  "calls": 25632,
+  "effective": "nav1",
+  "density_mode": "neighborhood"
+ },
+ "v3_cell": {
+  "name": "v3_cell",
+  "final": "6cc4f835866c1ebdbd7d9a2c8f1a3fe5f40ce3ea5929cd8c1887ca0f40f5e444",
+  "calls": 63853,
+  "effective": "nav1",
+  "density_mode": "cell"
+ },
+ "v3_unscaled": {
+  "name": "v3_unscaled",
+  "final": "ef9999b0d56e50daee93818468b2498dd3b07ac2475d0b70ac8b6b505340fbfd",
+  "calls": 61234,
+  "effective": "nav1",
+  "density_mode": "unscaled"
+ }
+}

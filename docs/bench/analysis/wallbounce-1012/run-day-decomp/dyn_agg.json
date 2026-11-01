@@ -1,0 +1,1143 @@
+{
+ "configs": [
+  "golden_null_arm",
+  "v1_edge",
+  "v2_edge_attention",
+  "v3_classical_mem_rel",
+  "v3_default",
+  "v3_mem_rel_store"
+ ],
+ "order": [
+  "day_head",
+  "body",
+  "world",
+  "presence",
+  "perceive_prepare",
+  "llm_receive_A",
+  "apply_responses",
+  "detect",
+  "plan_boundary",
+  "home_meal",
+  "wake_sources",
+  "llm_receive_B",
+  "wake_filter",
+  "relations_wake",
+  "wake_assemble",
+  "arbiter",
+  "decide",
+  "phase_a",
+  "phase_b",
+  "phase_c",
+  "conversation",
+  "activity_intent",
+  "memory",
+  "familiarity",
+  "energy_after",
+  "observe",
+  "checkpoint",
+  "day_close",
+  "drain",
+  "close_final",
+  "report",
+  "END"
+ ],
+ "segments": {
+  "day_head": {
+   "soa": [
+    "agents.plan_activity"
+   ],
+   "ext": [
+    "O37",
+    "O38",
+    "O50",
+    "O55"
+   ],
+   "ext_paths": [
+    "O37:presence._pulled_in_today",
+    "O38:presence.arrival_train",
+    "O38:presence.arrival_train_e1",
+    "O50:runner.rail.occupancy",
+    "O50:runner.rail.peak_ratio",
+    "O55:runner.delivery_inbound.delay_minute",
+    "O55:runner.last_mile.delivered"
+   ],
+   "stats": []
+  },
+  "body": {
+   "soa": [
+    "agents.energy_balance",
+    "agents.fatigue",
+    "agents.hunger",
+    "agents.since_meal_kcal"
+   ],
+   "ext": [
+    "O28"
+   ],
+   "ext_paths": [
+    "O28:energy.counts",
+    "O28:energy.intake_kcal",
+    "O28:energy.meal_bits",
+    "O28:energy.meal_start_out",
+    "O28:energy.n_meals"
+   ],
+   "stats": []
+  },
+  "world": {
+   "soa": [
+    "agents.activity",
+    "agents.band",
+    "agents.cell",
+    "agents.node",
+    "agents.plan_flags",
+    "agents.poi_ref",
+    "agents.poi_since",
+    "agents.thermal",
+    "agents.transit_ref",
+    "agents.transit_state",
+    "agents.xy",
+    "pois.open_now"
+   ],
+   "ext": [
+    "O36",
+    "O37",
+    "O46",
+    "O49",
+    "O50",
+    "O52",
+    "O53",
+    "O54",
+    "O55",
+    "O56",
+    "O59",
+    "O60",
+    "O70",
+    "O72",
+    "O73",
+    "O74",
+    "O75",
+    "O76",
+    "O80",
+    "O81",
+    "O93",
+    "O95"
+   ],
+   "ext_paths": [
+    "O36:presence._extra",
+    "O36:presence._skip_depart_at",
+    "O37:presence._pulled_in_today",
+    "O46:runner.salient.budget",
+    "O49:runner.large_event._inside",
+    "O50:runner.rail._return_queue",
+    "O50:runner.rail.occupancy",
+    "O52:runner.shelf._acted_today",
+    "O52:runner.shelf.backroom",
+    "O53:runner.street_cleaning.litter_g",
+    "O53:runner.waste._cursor",
+    "O53:runner.waste.waste_g_collected",
+    "O54:runner.road_works.blocked_cells",
+    "O54:runner.road_works.occupied_edges",
+    "O55:runner.infra.power_kwh",
+    "O55:runner.last_mile.delivered",
+    "O55:runner.traffic.cell_vehicles",
+    "O56:runner.environment._shade",
+    "O59:ledger.goods._bin",
+    "O60:ledger.goods._dl_code",
+    "O60:ledger.goods._dl_poi",
+    "O60:ledger.goods._dl_qty",
+    "O60:ledger.goods._dl_tick",
+    "O70:presence.n_departed_by_llm",
+    "O70:presence.n_pulled_in",
+    "O70:presence.n_returned_to_block",
+    "O72:runner.salient.n_broadcast_lines",
+    "O73:runner.bus_taxi.n_arrivals",
+    "O73:runner.crowd.n_released",
+    "O73:runner.crowd.peak_occupancy",
+    "O73:runner.delivery_inbound.n_delayed",
+    "O73:runner.delivery_inbound.n_runs",
+    "O73:runner.delivery_inbound.units_delivered",
+    "O73:runner.environment.n_updates",
+    "O73:runner.infra.water_m3",
+    "O73:runner.large_event.n_in",
+    "O73:runner.last_mile.n_batches",
+    "O73:runner.n_steps",
+    "O73:runner.opening.n_events",
+    "O73:runner.opening.n_fallback",
+    "O73:runner.phase_seconds",
+    "O73:runner.press.n_releases",
+    "O73:runner.rail.n_arrivals",
+    "O73:runner.rail.n_departed_riders",
+    "O73:runner.rail.n_departures",
+    "O73:runner.rail.n_no_return",
+    "O73:runner.rail.n_return_arrived",
+    "O73:runner.rail.n_return_scheduled",
+    "O73:runner.road_works.n_started",
+    "O73:runner.waste.n_stops",
+    "O74:runner.rail.arrival_train",
+    "O75:runner.crowd.flow",
+    "O75:runner.crowd.occupancy",
+    "O76:runner.environment.daylight",
+    "O76:runner.environment.heat_stage",
+    "O76:runner.environment.wbgt",
+    "O80:ledger.goods._day_waste_g",
+    "O80:ledger.goods._outflow",
+    "O80:ledger.goods._waste_sku",
+    "O80:ledger.goods.store_waste_g_total",
+    "O81:ledger.goods.n_moves",
+    "O93:ledger.goods._dl_pos",
+    "O95:runner.crowd.coherence",
+    "O95:runner.crowd.flow_dir8"
+   ],
+   "stats": []
+  },
+  "presence": {
+   "soa": [
+    "agents.activity",
+    "agents.band",
+    "agents.cell",
+    "agents.node",
+    "agents.plan_activity",
+    "agents.plan_flags",
+    "agents.poi_ref",
+    "agents.poi_since",
+    "agents.target_node",
+    "agents.transit_ref",
+    "agents.transit_state",
+    "agents.xy"
+   ],
+   "ext": [
+    "O36",
+    "O70"
+   ],
+   "ext_paths": [
+    "O36:presence._defer_deadline",
+    "O36:presence._defer_ids",
+    "O36:presence._defer_line",
+    "O36:presence._defer_walk",
+    "O36:presence._extra",
+    "O36:presence._skip_depart_at",
+    "O70:presence.n_arrivals",
+    "O70:presence.n_arrive_skipped",
+    "O70:presence.n_arrive_skipped_in_area",
+    "O70:presence.n_arrive_skipped_pulled",
+    "O70:presence.n_depart_dropped",
+    "O70:presence.n_depart_skipped",
+    "O70:presence.n_departures",
+    "O70:presence.n_exit_deferred",
+    "O70:presence.n_shopping_interrupted"
+   ],
+   "stats": [
+    "stats.layer_counts"
+   ]
+  },
+  "perceive_prepare": {
+   "soa": [],
+   "ext": [],
+   "ext_paths": [],
+   "stats": []
+  },
+  "llm_receive_A": {
+   "soa": [],
+   "ext": [],
+   "ext_paths": [],
+   "stats": []
+  },
+  "apply_responses": {
+   "soa": [
+    "agents.activity",
+    "agents.talk_partner"
+   ],
+   "ext": [
+    "O13",
+    "O19",
+    "O25",
+    "O26",
+    "O34",
+    "O39",
+    "O41",
+    "O43",
+    "O5",
+    "O6",
+    "O91"
+   ],
+   "ext_paths": [
+    "O13:poi_resolver.store_choice.by_hour",
+    "O13:poi_resolver.store_choice.choice_poi",
+    "O13:poi_resolver.store_choice.choice_reason",
+    "O13:poi_resolver.store_choice.stats",
+    "O19:rel_layer.chosen_count",
+    "O19:rel_layer.origin_of",
+    "O19:rel_layer.stats",
+    "O25:poi_resolver.chooser.stats",
+    "O26:poi_resolver.entropy_sum",
+    "O26:poi_resolver.move_stats",
+    "O26:poi_resolver.stats",
+    "O34:norm_meter._ctx",
+    "O34:norm_meter.n_actions_counted",
+    "O34:norm_meter.n_actions_off_stage",
+    "O34:norm_meter.seconds",
+    "O39:conv._next_id",
+    "O39:conv._of_agent",
+    "O39:conv._refusal_until",
+    "O39:conv.pending_invites",
+    "O39:conv.sessions",
+    "O41:conv.n_accepted",
+    "O41:conv.n_declined",
+    "O41:conv.origin_counts",
+    "O43:run_day.pending",
+    "O5:intent_layer._proposals",
+    "O6:intent_layer.stats",
+    "O91:conv.n_opened"
+   ],
+   "stats": [
+    "stats.talk_stats"
+   ]
+  },
+  "detect": {
+   "soa": [
+    "agents.fatigue_stage",
+    "agents.hunger_stage",
+    "agents.thermal_stage",
+    "cells.b4_hash"
+   ],
+   "ext": [
+    "O45",
+    "O6",
+    "O66"
+   ],
+   "ext_paths": [
+    "O45:detector._prev_raw",
+    "O66:act_layer.n_cell_suppressed",
+    "O66:act_layer.n_expiry_candidates",
+    "O6:intent_layer.stats"
+   ],
+   "stats": [
+    "stats.intero_cross"
+   ]
+  },
+  "plan_boundary": {
+   "soa": [
+    "agents.activity",
+    "agents.board_line",
+    "agents.plan_activity",
+    "agents.sleep_pending",
+    "agents.target_node"
+   ],
+   "ext": [
+    "O70"
+   ],
+   "ext_paths": [
+    "O70:presence.sleep_counts"
+   ],
+   "stats": [
+    "stats.layer_counts",
+    "stats.sleep_counts"
+   ]
+  },
+  "home_meal": {
+   "soa": [],
+   "ext": [],
+   "ext_paths": [],
+   "stats": []
+  },
+  "wake_sources": {
+   "soa": [],
+   "ext": [],
+   "ext_paths": [],
+   "stats": []
+  },
+  "llm_receive_B": {
+   "soa": [],
+   "ext": [],
+   "ext_paths": [],
+   "stats": []
+  },
+  "wake_filter": {
+   "soa": [],
+   "ext": [],
+   "ext_paths": [],
+   "stats": []
+  },
+  "relations_wake": {
+   "soa": [
+    "agents.rel_last",
+    "agents.rel_n"
+   ],
+   "ext": [
+    "O16",
+    "O18",
+    "O19"
+   ],
+   "ext_paths": [
+    "O16:rel_layer._prev_cell",
+    "O18:rel_layer._co_active",
+    "O18:rel_layer._co_day",
+    "O18:rel_layer._co_since",
+    "O19:rel_layer.stats",
+    "O19:rel_layer.wall"
+   ],
+   "stats": []
+  },
+  "wake_assemble": {
+   "soa": [],
+   "ext": [],
+   "ext_paths": [],
+   "stats": []
+  },
+  "arbiter": {
+   "soa": [],
+   "ext": [
+    "O42",
+    "O71"
+   ],
+   "ext_paths": [
+    "O42:arbiter._last_tick",
+    "O42:arbiter._pool",
+    "O71:arbiter._diag_total",
+    "O71:arbiter._merged_total",
+    "O71:arbiter._outside_total",
+    "O71:arbiter._sleep_total",
+    "O71:arbiter.budget_unused",
+    "O71:arbiter.n_calls_total"
+   ],
+   "stats": [
+    "stats.awake_sum",
+    "stats.awake_ticks"
+   ]
+  },
+  "decide": {
+   "soa": [
+    "agents.mem_importance",
+    "agents.mem_last",
+    "agents.mem_n",
+    "agents.refractory_until"
+   ],
+   "ext": [
+    "O11",
+    "O15",
+    "O17",
+    "O19",
+    "O20",
+    "O22",
+    "O23",
+    "O39",
+    "O41",
+    "O43",
+    "O63",
+    "O64",
+    "O69",
+    "O8",
+    "O84",
+    "O86",
+    "O9"
+   ],
+   "ext_paths": [
+    "O11:mem_layer.recall_stats",
+    "O11:mem_layer.stats",
+    "O15:wom.stats",
+    "O17:rel_layer._acq_until",
+    "O19:rel_layer.stats",
+    "O20:classical._prev",
+    "O22:classical._eating_cells",
+    "O22:classical._eating_tick",
+    "O22:classical._tick",
+    "O23:classical.by_hour",
+    "O23:classical.counts",
+    "O39:conv.sessions",
+    "O41:conv.closed_by_reason",
+    "O41:conv.n_blocks",
+    "O41:conv.size_hist",
+    "O43:run_day.pending",
+    "O63:renderer._acq_cache",
+    "O63:renderer._b1_cache",
+    "O63:renderer._b2_cache",
+    "O63:renderer._b3_cache",
+    "O63:renderer._b4_cache",
+    "O64:renderer.signage_exposures",
+    "O69:classical.n_calls",
+    "O84:renderer.cache_hits",
+    "O84:renderer.cache_misses",
+    "O84:renderer.intent_lines",
+    "O84:renderer.memory_items",
+    "O84:renderer.memory_line_tokens",
+    "O84:renderer.memory_lines",
+    "O84:renderer.near_order_ties",
+    "O84:renderer.near_tie_breaks",
+    "O84:renderer.near_tie_candidates",
+    "O84:renderer.renders",
+    "O84:renderer.signage_by_kind",
+    "O84:renderer.signage_effective_p",
+    "O84:renderer.truncation_count",
+    "O86:bridge.n_calls",
+    "O8:mem_layer._gist_order",
+    "O8:mem_layer.gist",
+    "O9:mem_layer._gist_done"
+   ],
+   "stats": [
+    "stats.calls_by_cond",
+    "stats.layer_counts",
+    "stats.n_outside_calls",
+    "stats.peak_pending",
+    "stats.result"
+   ]
+  },
+  "phase_a": {
+   "soa": [],
+   "ext": [
+    "O5",
+    "O6",
+    "O66"
+   ],
+   "ext_paths": [
+    "O5:intent_layer._executing",
+    "O5:intent_layer._kept_walk",
+    "O66:act_layer.n_wander_steps",
+    "O6:intent_layer.stats"
+   ],
+   "stats": [
+    "stats.layer_counts",
+    "stats.peak_intents"
+   ]
+  },
+  "phase_b": {
+   "soa": [],
+   "ext": [],
+   "ext_paths": [],
+   "stats": []
+  },
+  "phase_c": {
+   "soa": [
+    "agents.activity",
+    "agents.band",
+    "agents.board_line",
+    "agents.board_since",
+    "agents.cell",
+    "agents.edge_id",
+    "agents.edge_s",
+    "agents.energy_balance",
+    "agents.fail_streak",
+    "agents.fatigue",
+    "agents.holdings",
+    "agents.hunger",
+    "agents.intent_action",
+    "agents.intent_kind",
+    "agents.intent_since",
+    "agents.intent_target",
+    "agents.last_action",
+    "agents.last_result",
+    "agents.last_result_tick",
+    "agents.money",
+    "agents.node",
+    "agents.path_next_node",
+    "agents.poi_ref",
+    "agents.poi_since",
+    "agents.since_meal_kcal",
+    "agents.sleep_pending",
+    "agents.talk_partner",
+    "agents.target_node",
+    "agents.transit_ref",
+    "agents.transit_state",
+    "agents.xy",
+    "cells.density",
+    "cells.density_stage",
+    "cells.open_count",
+    "pois.revenue",
+    "pois.stock"
+   ],
+   "ext": [
+    "O28",
+    "O50",
+    "O57",
+    "O58",
+    "O59",
+    "O60",
+    "O73",
+    "O77",
+    "O79",
+    "O81",
+    "O92",
+    "O93"
+   ],
+   "ext_paths": [
+    "O28:energy.counts",
+    "O28:energy.intake_kcal",
+    "O28:energy.meal_bits",
+    "O28:energy.meal_start_in",
+    "O28:energy.n_meals",
+    "O28:energy.n_snacks",
+    "O28:energy.snack_start",
+    "O50:runner.rail.occupancy",
+    "O50:runner.rail.peak_ratio",
+    "O57:ledger.money._lines",
+    "O58:ledger.money._raw_amt",
+    "O58:ledger.money._raw_code",
+    "O58:ledger.money._raw_pi",
+    "O58:ledger.money._raw_qi",
+    "O58:ledger.money._raw_qs",
+    "O58:ledger.money._raw_tick",
+    "O59:ledger.goods._shelf",
+    "O59:ledger.goods._sold_today",
+    "O60:ledger.goods._dl_code",
+    "O60:ledger.goods._dl_poi",
+    "O60:ledger.goods._dl_qty",
+    "O60:ledger.goods._dl_slot",
+    "O60:ledger.goods._dl_tick",
+    "O73:runner.rail.n_board_applicants",
+    "O73:runner.rail.n_board_dropped",
+    "O73:runner.rail.n_board_intent",
+    "O73:runner.rail.n_board_waiting",
+    "O73:runner.rail.n_board_walking",
+    "O73:runner.rail.n_boarded_from_queue",
+    "O77:ledger.money._flow",
+    "O77:ledger.money._last_change_day",
+    "O79:ledger.goods._household_sku",
+    "O81:ledger.goods.n_moves",
+    "O92:ledger.money._raw_pos",
+    "O92:ledger.money.n_transfers",
+    "O93:ledger.goods._dl_pos"
+   ],
+   "stats": [
+    "stats.geometry_hops",
+    "stats.leave_counts",
+    "stats.per_action_total",
+    "stats.result"
+   ]
+  },
+  "conversation": {
+   "soa": [
+    "agents.activity",
+    "agents.talk_partner"
+   ],
+   "ext": [
+    "O19",
+    "O39",
+    "O41"
+   ],
+   "ext_paths": [
+    "O19:rel_layer.origin_of",
+    "O39:conv._of_agent",
+    "O39:conv._pair_invite_until",
+    "O39:conv._refusal_until",
+    "O39:conv._speaker_invite_until",
+    "O39:conv.pending_invites",
+    "O39:conv.sessions",
+    "O41:conv.closed_by_reason",
+    "O41:conv.n_expired_purged",
+    "O41:conv.n_gate_rejected",
+    "O41:conv.n_invite_refractory_blocked",
+    "O41:conv.n_invites",
+    "O41:conv.origin_counts",
+    "O41:conv.size_hist"
+   ],
+   "stats": []
+  },
+  "activity_intent": {
+   "soa": [
+    "agents.activity_kind",
+    "agents.activity_until",
+    "agents.intent_action",
+    "agents.intent_kind",
+    "agents.intent_since",
+    "agents.intent_target"
+   ],
+   "ext": [
+    "O1",
+    "O2",
+    "O4",
+    "O5",
+    "O6",
+    "O66"
+   ],
+   "ext_paths": [
+    "O1:act_layer.text",
+    "O1:act_layer.until_kind",
+    "O2:act_layer._text_ids",
+    "O2:act_layer._texts",
+    "O2:act_layer.text_id",
+    "O4:intent_layer._payload",
+    "O5:intent_layer._executing",
+    "O5:intent_layer._kept_walk",
+    "O5:intent_layer._proposals",
+    "O66:act_layer.kind_counts",
+    "O66:act_layer.n_arrival_expired",
+    "O66:act_layer.n_intent_moves",
+    "O66:act_layer.n_set",
+    "O6:intent_layer.stats",
+    "O6:intent_layer.ticks_n",
+    "O6:intent_layer.ticks_sum"
+   ],
+   "stats": []
+  },
+  "memory": {
+   "soa": [
+    "agents.mem_cell",
+    "agents.mem_importance",
+    "agents.mem_kind",
+    "agents.mem_last",
+    "agents.mem_n",
+    "agents.mem_object",
+    "agents.mem_partner",
+    "agents.mem_result",
+    "agents.mem_tick",
+    "agents.rel_first",
+    "agents.rel_kind",
+    "agents.rel_last",
+    "agents.rel_n",
+    "agents.rel_partner",
+    "agents.rel_sign",
+    "agents.sm_first",
+    "agents.sm_last",
+    "agents.sm_n",
+    "agents.sm_poi",
+    "agents.sm_precision",
+    "agents.sm_source",
+    "agents.sm_valence"
+   ],
+   "ext": [
+    "O10",
+    "O11",
+    "O12",
+    "O19",
+    "O64",
+    "O68",
+    "O9"
+   ],
+   "ext_paths": [
+    "O10:mem_layer._next_session",
+    "O11:mem_layer.stats",
+    "O12:mem_layer.store.stats",
+    "O19:rel_layer.stats",
+    "O64:renderer.signage_exposures",
+    "O68:poi_resolver.store_choice.first_by_reason",
+    "O68:poi_resolver.store_choice.visits_by_reason",
+    "O9:mem_layer._session_key"
+   ],
+   "stats": []
+  },
+  "familiarity": {
+   "soa": [],
+   "ext": [],
+   "ext_paths": [],
+   "stats": []
+  },
+  "energy_after": {
+   "soa": [],
+   "ext": [
+    "O28"
+   ],
+   "ext_paths": [
+    "O28:energy.stage_ticks",
+    "O28:energy.stage_ticks_awake_by_hour"
+   ],
+   "stats": []
+  },
+  "observe": {
+   "soa": [],
+   "ext": [
+    "O34",
+    "O70"
+   ],
+   "ext_paths": [
+    "O34:norm_meter._cowalk_pairs_seen",
+    "O34:norm_meter._pair_keys",
+    "O34:norm_meter._pair_len",
+    "O34:norm_meter._prev_xy",
+    "O34:norm_meter.cowalk_agent_minutes",
+    "O34:norm_meter.cowalk_episodes",
+    "O34:norm_meter.cowalk_pairs_max_tick",
+    "O34:norm_meter.group_size_minutes",
+    "O34:norm_meter.inst_group_count",
+    "O34:norm_meter.inst_grouped_minutes",
+    "O34:norm_meter.inst_pairs_max_tick",
+    "O34:norm_meter.inst_size_minutes",
+    "O34:norm_meter.inst_walker_minutes",
+    "O34:norm_meter.moving_agent_minutes",
+    "O34:norm_meter.n_ticks",
+    "O34:norm_meter.seconds",
+    "O34:norm_meter.tick_ms_max",
+    "O70:presence.exit_cell_by_hour",
+    "O70:presence.exit_stage_max_by_hour",
+    "O70:presence.in_area_by_hour",
+    "O70:presence.match_in_den",
+    "O70:presence.match_in_num",
+    "O70:presence.match_out_den",
+    "O70:presence.match_out_num",
+    "O70:presence.platform_cell_by_hour",
+    "O70:presence.sample_hours",
+    "O70:presence.sample_in_area",
+    "O70:presence.wake_in_area_by_hour"
+   ],
+   "stats": [
+    "stats.diag_rows",
+    "stats.prev_sessions",
+    "stats.sleep_counts"
+   ]
+  },
+  "checkpoint": {
+   "soa": [],
+   "ext": [],
+   "ext_paths": [],
+   "stats": []
+  },
+  "day_close": {
+   "soa": [],
+   "ext": [
+    "O57",
+    "O59",
+    "O77",
+    "O79",
+    "O80",
+    "O92",
+    "O93"
+   ],
+   "ext_paths": [
+    "O57:ledger.money._day",
+    "O59:ledger.goods._day",
+    "O59:ledger.goods._sold_today",
+    "O77:ledger.money._flow",
+    "O77:ledger.money._last_close",
+    "O79:ledger.goods._shelf_age",
+    "O80:ledger.goods._day_waste_g",
+    "O80:ledger.goods._inflow",
+    "O80:ledger.goods._last_close",
+    "O80:ledger.goods._open_stock",
+    "O80:ledger.goods._outflow",
+    "O80:ledger.goods._waste_g_daily",
+    "O92:ledger.money._day_marks",
+    "O92:ledger.money._flow_daily",
+    "O92:ledger.money._snap",
+    "O93:ledger.goods._dl_marks"
+   ],
+   "stats": []
+  },
+  "drain": {
+   "soa": [],
+   "ext": [],
+   "ext_paths": [],
+   "stats": []
+  },
+  "close_final": {
+   "soa": [
+    "agents.activity",
+    "agents.transit_ref",
+    "agents.transit_state"
+   ],
+   "ext": [
+    "O50",
+    "O57",
+    "O59",
+    "O70",
+    "O73",
+    "O77",
+    "O79",
+    "O80",
+    "O92",
+    "O93"
+   ],
+   "ext_paths": [
+    "O50:runner.rail.occupancy",
+    "O57:ledger.money._day",
+    "O59:ledger.goods._day",
+    "O59:ledger.goods._sold_today",
+    "O70:presence.n_departed_by_llm",
+    "O73:runner.rail.n_departed_riders",
+    "O73:runner.rail.n_departures",
+    "O73:runner.rail.n_no_return",
+    "O77:ledger.money._flow",
+    "O77:ledger.money._last_close",
+    "O79:ledger.goods._shelf_age",
+    "O80:ledger.goods._day_waste_g",
+    "O80:ledger.goods._inflow",
+    "O80:ledger.goods._last_close",
+    "O80:ledger.goods._open_stock",
+    "O80:ledger.goods._outflow",
+    "O80:ledger.goods._waste_g_daily",
+    "O92:ledger.money._day_marks",
+    "O92:ledger.money._flow_daily",
+    "O92:ledger.money._raw_head",
+    "O92:ledger.money._snap",
+    "O92:ledger.money.n_raw_dropped",
+    "O93:ledger.goods._dl_head",
+    "O93:ledger.goods._dl_marks",
+    "O93:ledger.goods.n_delivery_dropped"
+   ],
+   "stats": []
+  },
+  "report": {
+   "soa": [],
+   "ext": [],
+   "ext_paths": [],
+   "stats": [
+    "stats.sleep_counts"
+   ]
+  }
+ },
+ "soa_multi_segment": {
+  "agents.energy_balance": [
+   "body",
+   "phase_c"
+  ],
+  "agents.fatigue": [
+   "body",
+   "phase_c"
+  ],
+  "agents.hunger": [
+   "body",
+   "phase_c"
+  ],
+  "agents.since_meal_kcal": [
+   "body",
+   "phase_c"
+  ],
+  "agents.activity": [
+   "world",
+   "presence",
+   "apply_responses",
+   "plan_boundary",
+   "phase_c",
+   "conversation",
+   "close_final"
+  ],
+  "agents.band": [
+   "world",
+   "presence",
+   "phase_c"
+  ],
+  "agents.cell": [
+   "world",
+   "presence",
+   "phase_c"
+  ],
+  "agents.node": [
+   "world",
+   "presence",
+   "phase_c"
+  ],
+  "agents.poi_ref": [
+   "world",
+   "presence",
+   "phase_c"
+  ],
+  "agents.poi_since": [
+   "world",
+   "presence",
+   "phase_c"
+  ],
+  "agents.transit_ref": [
+   "world",
+   "presence",
+   "phase_c",
+   "close_final"
+  ],
+  "agents.transit_state": [
+   "world",
+   "presence",
+   "phase_c",
+   "close_final"
+  ],
+  "agents.xy": [
+   "world",
+   "presence",
+   "phase_c"
+  ],
+  "agents.talk_partner": [
+   "apply_responses",
+   "phase_c",
+   "conversation"
+  ],
+  "agents.sleep_pending": [
+   "plan_boundary",
+   "phase_c"
+  ],
+  "agents.target_node": [
+   "presence",
+   "plan_boundary",
+   "phase_c"
+  ],
+  "agents.board_line": [
+   "plan_boundary",
+   "phase_c"
+  ],
+  "agents.plan_flags": [
+   "world",
+   "presence"
+  ],
+  "agents.plan_activity": [
+   "day_head",
+   "presence",
+   "plan_boundary"
+  ],
+  "agents.intent_action": [
+   "phase_c",
+   "activity_intent"
+  ],
+  "agents.intent_kind": [
+   "phase_c",
+   "activity_intent"
+  ],
+  "agents.intent_since": [
+   "phase_c",
+   "activity_intent"
+  ],
+  "agents.intent_target": [
+   "phase_c",
+   "activity_intent"
+  ],
+  "agents.mem_importance": [
+   "decide",
+   "memory"
+  ],
+  "agents.mem_last": [
+   "decide",
+   "memory"
+  ],
+  "agents.mem_n": [
+   "decide",
+   "memory"
+  ],
+  "agents.rel_last": [
+   "relations_wake",
+   "memory"
+  ],
+  "agents.rel_n": [
+   "relations_wake",
+   "memory"
+  ]
+ },
+ "ext_multi_segment": {
+  "O28": [
+   "body",
+   "phase_c",
+   "energy_after"
+  ],
+  "O50": [
+   "day_head",
+   "world",
+   "phase_c",
+   "close_final"
+  ],
+  "O55": [
+   "day_head",
+   "world"
+  ],
+  "O59": [
+   "world",
+   "phase_c",
+   "day_close",
+   "close_final"
+  ],
+  "O60": [
+   "world",
+   "phase_c"
+  ],
+  "O73": [
+   "world",
+   "phase_c",
+   "close_final"
+  ],
+  "O80": [
+   "world",
+   "day_close",
+   "close_final"
+  ],
+  "O81": [
+   "world",
+   "phase_c"
+  ],
+  "O93": [
+   "world",
+   "phase_c",
+   "day_close",
+   "close_final"
+  ],
+  "O34": [
+   "apply_responses",
+   "observe"
+  ],
+  "O39": [
+   "apply_responses",
+   "decide",
+   "conversation"
+  ],
+  "O41": [
+   "apply_responses",
+   "decide",
+   "conversation"
+  ],
+  "O43": [
+   "apply_responses",
+   "decide"
+  ],
+  "O57": [
+   "phase_c",
+   "day_close",
+   "close_final"
+  ],
+  "O77": [
+   "phase_c",
+   "day_close",
+   "close_final"
+  ],
+  "O79": [
+   "phase_c",
+   "day_close",
+   "close_final"
+  ],
+  "O92": [
+   "phase_c",
+   "day_close",
+   "close_final"
+  ],
+  "O36": [
+   "world",
+   "presence"
+  ],
+  "O37": [
+   "day_head",
+   "world"
+  ],
+  "O70": [
+   "world",
+   "presence",
+   "plan_boundary",
+   "observe",
+   "close_final"
+  ],
+  "O5": [
+   "apply_responses",
+   "phase_a",
+   "activity_intent"
+  ],
+  "O6": [
+   "apply_responses",
+   "detect",
+   "phase_a",
+   "activity_intent"
+  ],
+  "O66": [
+   "detect",
+   "phase_a",
+   "activity_intent"
+  ],
+  "O19": [
+   "apply_responses",
+   "relations_wake",
+   "decide",
+   "conversation",
+   "memory"
+  ],
+  "O11": [
+   "decide",
+   "memory"
+  ],
+  "O64": [
+   "decide",
+   "memory"
+  ],
+  "O9": [
+   "decide",
+   "memory"
+  ]
+ },
+ "n_soa_written": 69,
+ "n_ext_written": 65
+}

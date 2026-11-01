@@ -1,0 +1,843 @@
+{
+ "schema": "shibuya.tools.c7/salt_compare/1",
+ "base": "v3_default",
+ "arm": "null_arm",
+ "salts": [
+  1,
+  2,
+  3
+ ],
+ "population_seed": 1,
+ "T0": 0,
+ "environment_mode": "fixed",
+ "environment_seed": 1,
+ "analysis": {
+  "alpha": 0.05,
+  "family_size": 4,
+  "n_pairs": [
+   3
+  ],
+  "overall": "記述のみ(本数不足)",
+  "metrics": {
+   "llm_calls_total": {
+    "n_pairs": 3,
+    "base": [
+     69978.0,
+     69498.0,
+     69613.0
+    ],
+    "arm": [
+     100439.0,
+     101195.0,
+     102809.0
+    ],
+    "diffs": [
+     30461.0,
+     31697.0,
+     33196.0
+    ],
+    "mean_base": 69696.33333333333,
+    "mean_arm": 101481.0,
+    "diff": 31784.666666666668,
+    "width": 7006.1352868457325,
+    "width_t": 8.860200034654554,
+    "family_size": 4,
+    "width_base": 1282.0103584018775,
+    "width_arm": 6192.79179683896,
+    "diff_over_width": 4.536690395679842,
+    "diff_over_width_reading": "差 ÷ 幅は記述。幅に対の差の SD を使うので |差 ÷ 幅| > 1 は対の差の t 検定(正規の仮定)を α/m で棄却するのと同じ意味になるが、K20 (a) の検定ではない(K20 (a) は符号反転と本数の線)",
+    "effect": {
+     "raw_diff": 31784.666666666668,
+     "ratio_arm_over_base": 1.4560450334546533,
+     "sd_diff": 1369.6059043875846,
+     "d_z_crn_pair": 23.207162414270616,
+     "d_av": 43.50416669802618,
+     "note": "d_z は CRN の対の値(差の SD が CRN で縮むほど大きい)。CRN の無い比較の d とは並べない"
+    },
+    "crn": {
+     "var_diff": 1875820.3333333335,
+     "var_base": 62808.33333333333,
+     "var_arm": 1465572.0,
+     "var_ratio": 1.227325615504518,
+     "rho": -0.5725818883684571,
+     "rho_readable": false,
+     "warn_ratio_over_1": false,
+     "ratio_over_1_unread": true,
+     "note": "比 = Var(D)/(Var(基準)+Var(腕))。1 を超えたら CRN で損(独立に回すより差の分散が大きい)。5 対未満は読まない"
+    },
+    "ci_t95": {
+     "lo": 28382.376989341323,
+     "hi": 35186.95634399202,
+     "half_width": 3402.2896773253456,
+     "t": 4.302652729749752
+    },
+    "ci_perm": {
+     "n": 3,
+     "level_target": 0.95,
+     "level_achieved": null,
+     "interval": null,
+     "interval_below": {
+      "level": 0.75,
+      "lo": 30461.0,
+      "hi": 33196.0,
+      "convex": true
+     },
+     "note": "3 対では 95% 以上の区間は作れない(到達できる水準は 1 − 2k/2^3)。作れる最も高い水準 0.7500 の区間を interval_below に添えた"
+    },
+    "d46": {
+     "r_targets": [
+      0.02,
+      0.01
+     ],
+     "cv_base": {
+      "cv": 0.003595826293799056,
+      "relative_se_now": 0.0020760512786840196,
+      "halfwidth95_now": 0.00893252770133026,
+      "n_relative_se": {
+       "0.02": 1,
+       "0.01": 1
+      },
+      "n_halfwidth95": {
+       "0.02": 3,
+       "0.01": 3
+      }
+     },
+     "cv_diff": {
+      "cv": 0.019651046746422596,
+      "relative_se_now": 0.011345537128905006,
+      "halfwidth95_now": 0.04881590629816029,
+      "n_relative_se": {
+       "0.02": 1,
+       "0.01": 4
+      },
+      "n_halfwidth95": {
+       "0.02": 7,
+       "0.01": 18
+      }
+     },
+     "note_formula": "n_relative_se=ceil((CV/r)^2) は相対の標準誤差を r にする本数(D-46 の式)。n_halfwidth95 は 95% の区間の半幅を r にする本数(t を入れた式)。別の物"
+    },
+    "role": "primary",
+    "path": "manifest.llm_calls_total",
+    "alternative": "two-sided",
+    "alternative_reason": "両側",
+    "p": 0.25,
+    "p_method": "exact",
+    "p_floor": 0.25,
+    "p_two_sided": 0.25,
+    "line": 0.05,
+    "status": "記述のみ(本数不足)",
+    "status_note": "3 対の p の下限 0.25(two-sided)が線 0.05 を超える。検定はしない(差・幅・差 ÷ 幅は記述として読む。差 ÷ 幅が 1 を超えても K20 (a) の検定ではない)",
+    "decision": null
+   },
+   "meals_in_area": {
+    "n_pairs": 3,
+    "base": [
+     4497.0,
+     4624.0,
+     4598.0
+    ],
+    "arm": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "diffs": [
+     -4497.0,
+     -4624.0,
+     -4598.0
+    ],
+    "mean_base": 4573.0,
+    "mean_arm": 0.0,
+    "diff": -4573.0,
+    "width": 343.192197895033,
+    "width_t": 8.860200034654554,
+    "family_size": 4,
+    "width_base": 343.192197895033,
+    "width_arm": 0.0,
+    "diff_over_width": -13.324894994840978,
+    "diff_over_width_reading": "差 ÷ 幅は記述。幅に対の差の SD を使うので |差 ÷ 幅| > 1 は対の差の t 検定(正規の仮定)を α/m で棄却するのと同じ意味になるが、K20 (a) の検定ではない(K20 (a) は符号反転と本数の線)",
+    "effect": {
+     "raw_diff": -4573.0,
+     "ratio_arm_over_base": 0.0,
+     "sd_diff": 67.08949247087803,
+     "d_z_crn_pair": -68.16268586299161,
+     "d_av": -136.32537172598322,
+     "note": "d_z は CRN の対の値(差の SD が CRN で縮むほど大きい)。CRN の無い比較の d とは並べない"
+    },
+    "crn": {
+     "var_diff": 4501.0,
+     "var_base": 4501.0,
+     "var_arm": 0.0,
+     "var_ratio": 1.0,
+     "rho": null,
+     "rho_readable": false,
+     "warn_ratio_over_1": false,
+     "ratio_over_1_unread": false,
+     "note": "比 = Var(D)/(Var(基準)+Var(腕))。1 を超えたら CRN で損(独立に回すより差の分散が大きい)。5 対未満は読まない"
+    },
+    "ci_t95": {
+     "lo": -4739.659538309109,
+     "hi": -4406.340461690891,
+     "half_width": 166.6595383091092,
+     "t": 4.302652729749752
+    },
+    "ci_perm": {
+     "n": 3,
+     "level_target": 0.95,
+     "level_achieved": null,
+     "interval": null,
+     "interval_below": {
+      "level": 0.75,
+      "lo": -4624.0,
+      "hi": -4496.999999999999,
+      "convex": true
+     },
+     "note": "3 対では 95% 以上の区間は作れない(到達できる水準は 1 − 2k/2^3)。作れる最も高い水準 0.7500 の区間を interval_below に添えた"
+    },
+    "d46": {
+     "r_targets": [
+      0.02,
+      0.01
+     ],
+     "cv_base": {
+      "cv": 0.01467078339621212,
+      "relative_se_now": 0.00847018074302576,
+      "halfwidth95_now": 0.03644424629545357,
+      "n_relative_se": {
+       "0.02": 1,
+       "0.01": 3
+      },
+      "n_halfwidth95": {
+       "0.02": 5,
+       "0.01": 11
+      }
+     },
+     "cv_diff": {
+      "cv": 0.01467078339621212,
+      "relative_se_now": 0.00847018074302576,
+      "halfwidth95_now": 0.03644424629545357,
+      "n_relative_se": {
+       "0.02": 1,
+       "0.01": 3
+      },
+      "n_halfwidth95": {
+       "0.02": 5,
+       "0.01": 11
+      }
+     },
+     "note_formula": "n_relative_se=ceil((CV/r)^2) は相対の標準誤差を r にする本数(D-46 の式)。n_halfwidth95 は 95% の区間の半幅を r にする本数(t を入れた式)。別の物"
+    },
+    "role": "secondary",
+    "path": "manifest.energy.counts.meals_in_area",
+    "alternative": "two-sided",
+    "alternative_reason": "両側",
+    "p": 0.25,
+    "p_method": "exact",
+    "p_floor": 0.25,
+    "p_two_sided": 0.25,
+    "line": 0.016666666666666666,
+    "status": "記述のみ(本数不足)",
+    "status_note": "3 対の p の下限 0.25(two-sided)が線 0.01667 を超える。検定はしない(差・幅・差 ÷ 幅は記述として読む。差 ÷ 幅が 1 を超えても K20 (a) の検定ではない)",
+    "p_holm": 0.75,
+    "decision": null
+   },
+   "meals_out_of_area": {
+    "n_pairs": 3,
+    "base": [
+     7785.0,
+     7814.0,
+     7826.0
+    ],
+    "arm": [
+     2027.0,
+     1989.0,
+     1954.0
+    ],
+    "diffs": [
+     -5758.0,
+     -5825.0,
+     -5872.0
+    ],
+    "mean_base": 7808.333333333333,
+    "mean_arm": 1990.0,
+    "diff": -5818.333333333333,
+    "width": 293.0719413782314,
+    "width_t": 8.860200034654554,
+    "family_size": 4,
+    "width_base": 107.8294393031603,
+    "width_arm": 186.76606742473803,
+    "diff_over_width": -19.852918385743166,
+    "diff_over_width_reading": "差 ÷ 幅は記述。幅に対の差の SD を使うので |差 ÷ 幅| > 1 は対の差の t 検定(正規の仮定)を α/m で棄却するのと同じ意味になるが、K20 (a) の検定ではない(K20 (a) は符号反転と本数の線)",
+    "effect": {
+     "raw_diff": -5818.333333333333,
+     "ratio_arm_over_base": 0.25485592315901817,
+     "sd_diff": 57.29165151514951,
+     "d_z_crn_pair": -101.55639049425558,
+     "d_av": -202.0623386425781,
+     "note": "d_z は CRN の対の値(差の SD が CRN で縮むほど大きい)。CRN の無い比較の d とは並べない"
+    },
+    "crn": {
+     "var_diff": 3282.333333333333,
+     "var_base": 444.3333333333333,
+     "var_arm": 1333.0,
+     "var_ratio": 1.846774193548387,
+     "rho": -0.977770617175979,
+     "rho_readable": false,
+     "warn_ratio_over_1": false,
+     "ratio_over_1_unread": true,
+     "note": "比 = Var(D)/(Var(基準)+Var(腕))。1 を超えたら CRN で損(独立に回すより差の分散が大きい)。5 対未満は読まない"
+    },
+    "ci_t95": {
+     "lo": -5960.653685430583,
+     "hi": -5676.012981236083,
+     "half_width": 142.32035209725044,
+     "t": 4.302652729749752
+    },
+    "ci_perm": {
+     "n": 3,
+     "level_target": 0.95,
+     "level_achieved": null,
+     "interval": null,
+     "interval_below": {
+      "level": 0.75,
+      "lo": -5871.999999999998,
+      "hi": -5757.999999999998,
+      "convex": true
+     },
+     "note": "3 対では 95% 以上の区間は作れない(到達できる水準は 1 − 2k/2^3)。作れる最も高い水準 0.7500 の区間を interval_below に添えた"
+    },
+    "d46": {
+     "r_targets": [
+      0.02,
+      0.01
+     ],
+     "cv_base": {
+      "cv": 0.0026995793816456566,
+      "relative_se_now": 0.0015586028826918834,
+      "halfwidth95_now": 0.006706126947810065,
+      "n_relative_se": {
+       "0.02": 1,
+       "0.01": 1
+      },
+      "n_halfwidth95": {
+       "0.02": 3,
+       "0.01": 3
+      }
+     },
+     "cv_diff": {
+      "cv": 0.007337244591054367,
+      "relative_se_now": 0.0042361601397553645,
+      "halfwidth95_now": 0.01822672598897551,
+      "n_relative_se": {
+       "0.02": 1,
+       "0.01": 1
+      },
+      "n_halfwidth95": {
+       "0.02": 3,
+       "0.01": 5
+      }
+     },
+     "note_formula": "n_relative_se=ceil((CV/r)^2) は相対の標準誤差を r にする本数(D-46 の式)。n_halfwidth95 は 95% の区間の半幅を r にする本数(t を入れた式)。別の物"
+    },
+    "role": "secondary",
+    "path": "manifest.energy.counts.meals_out_of_area",
+    "alternative": "two-sided",
+    "alternative_reason": "両側",
+    "p": 0.25,
+    "p_method": "exact",
+    "p_floor": 0.25,
+    "p_two_sided": 0.25,
+    "line": 0.016666666666666666,
+    "status": "記述のみ(本数不足)",
+    "status_note": "3 対の p の下限 0.25(two-sided)が線 0.01667 を超える。検定はしない(差・幅・差 ÷ 幅は記述として読む。差 ÷ 幅が 1 を超えても K20 (a) の検定ではない)",
+    "p_holm": 0.75,
+    "decision": null
+   },
+   "snacks": {
+    "n_pairs": 3,
+    "base": [
+     2292.0,
+     2354.0,
+     2310.0
+    ],
+    "arm": [
+     2412.0,
+     2326.0,
+     2400.0
+    ],
+    "diffs": [
+     120.0,
+     -28.0,
+     90.0
+    ],
+    "mean_base": 2318.6666666666665,
+    "mean_arm": 2379.3333333333335,
+    "diff": 60.666666666666664,
+    "width": 400.2265675600031,
+    "width_t": 8.860200034654554,
+    "family_size": 4,
+    "width_base": 163.16031566948382,
+    "width_arm": 238.25720588586017,
+    "diff_over_width": 0.1515808084318924,
+    "diff_over_width_reading": "差 ÷ 幅は記述。幅に対の差の SD を使うので |差 ÷ 幅| > 1 は対の差の t 検定(正規の仮定)を α/m で棄却するのと同じ意味になるが、K20 (a) の検定ではない(K20 (a) は符号反転と本数の線)",
+    "effect": {
+     "raw_diff": 60.666666666666664,
+     "ratio_arm_over_base": 1.0261644623346753,
+     "sd_diff": 78.23895023153962,
+     "d_z_crn_pair": 0.77540236016882,
+     "d_av": 1.5462036828180932,
+     "note": "d_z は CRN の対の値(差の SD が CRN で縮むほど大きい)。CRN の無い比較の d とは並べない"
+    },
+    "crn": {
+     "var_diff": 6121.333333333333,
+     "var_base": 1017.3333333333334,
+     "var_arm": 2169.3333333333335,
+     "var_ratio": 1.92092050209205,
+     "rho": -0.9877203495782236,
+     "rho_readable": false,
+     "warn_ratio_over_1": false,
+     "ratio_over_1_unread": true,
+     "note": "比 = Var(D)/(Var(基準)+Var(腕))。1 を超えたら CRN で損(独立に回すより差の分散が大きい)。5 対未満は読まない"
+    },
+    "ci_t95": {
+     "lo": -133.68966013127127,
+     "hi": 255.02299346460458,
+     "half_width": 194.35632679793792,
+     "t": 4.302652729749752
+    },
+    "ci_perm": {
+     "n": 3,
+     "level_target": 0.95,
+     "level_achieved": null,
+     "interval": null,
+     "interval_below": {
+      "level": 0.75,
+      "lo": -27.999999999999993,
+      "hi": 119.99999999999999,
+      "convex": true
+     },
+     "note": "3 対では 95% 以上の区間は作れない(到達できる水準は 1 − 2k/2^3)。作れる最も高い水準 0.7500 の区間を interval_below に添えた"
+    },
+    "d46": {
+     "r_targets": [
+      0.02,
+      0.01
+     ],
+     "cv_base": {
+      "cv": 0.013756036473727069,
+      "relative_se_now": 0.007942051361088633,
+      "halfwidth95_now": 0.034171888968600746,
+      "n_relative_se": {
+       "0.02": 1,
+       "0.01": 2
+      },
+      "n_halfwidth95": {
+       "0.02": 5,
+       "0.01": 10
+      }
+     },
+     "cv_diff": {
+      "cv": 0.03374307801820283,
+      "relative_se_now": 0.01948157517709595,
+      "halfwidth95_now": 0.0838224526155569,
+      "n_relative_se": {
+       "0.02": 3,
+       "0.01": 12
+      },
+      "n_halfwidth95": {
+       "0.02": 14,
+       "0.01": 47
+      }
+     },
+     "note_formula": "n_relative_se=ceil((CV/r)^2) は相対の標準誤差を r にする本数(D-46 の式)。n_halfwidth95 は 95% の区間の半幅を r にする本数(t を入れた式)。別の物"
+    },
+    "role": "secondary",
+    "path": "manifest.energy.counts.snacks",
+    "alternative": "two-sided",
+    "alternative_reason": "両側",
+    "p": 0.5,
+    "p_method": "exact",
+    "p_floor": 0.25,
+    "p_two_sided": 0.5,
+    "line": 0.016666666666666666,
+    "status": "記述のみ(本数不足)",
+    "status_note": "3 対の p の下限 0.25(two-sided)が線 0.01667 を超える。検定はしない(差・幅・差 ÷ 幅は記述として読む。差 ÷ 幅が 1 を超えても K20 (a) の検定ではない)",
+    "p_holm": 0.75,
+    "decision": null
+   }
+  },
+  "rule": "K20 (a): 3/5/3 本のまま。p の下限(片側 1/2^n・両側 2/2^n)が線に届かなければ記述のみ(本数不足)。外に出す主張の前だけ 6 対(片側なら事前登録して 5 対)"
+ },
+ "crn": {
+  "input_match": {
+   "ok": true,
+   "pairs": [
+    {
+     "pair": 0,
+     "seed": 1,
+     "same_seed": true,
+     "same_population_seed": true,
+     "same_environment_seed": true,
+     "config_diffs": [
+      "activity",
+      "intent.max_ticks",
+      "outside_suppression",
+      "plan_executor",
+      "presence_exit.exit_mode",
+      "synonym_table_version",
+      "vocab_version"
+     ],
+     "config_diff_values": {
+      "activity": {
+       "base": true,
+       "arm": false
+      },
+      "intent.max_ticks": {
+       "base": 60,
+       "arm": null
+      },
+      "outside_suppression": {
+       "base": true,
+       "arm": false
+      },
+      "plan_executor": {
+       "base": true,
+       "arm": false
+      },
+      "presence_exit.exit_mode": {
+       "base": "immediate",
+       "arm": null
+      },
+      "synonym_table_version": {
+       "base": "undefined-synonyms-v5",
+       "arm": "undefined-synonyms-v2"
+      },
+      "vocab_version": {
+       "base": "v3",
+       "arm": "v1"
+      }
+     },
+     "config_diffs_outside_arm": []
+    },
+    {
+     "pair": 1,
+     "seed": 2,
+     "same_seed": true,
+     "same_population_seed": true,
+     "same_environment_seed": true,
+     "config_diffs": [
+      "activity",
+      "intent.max_ticks",
+      "outside_suppression",
+      "plan_executor",
+      "presence_exit.exit_mode",
+      "synonym_table_version",
+      "vocab_version"
+     ],
+     "config_diff_values": {
+      "activity": {
+       "base": true,
+       "arm": false
+      },
+      "intent.max_ticks": {
+       "base": 60,
+       "arm": null
+      },
+      "outside_suppression": {
+       "base": true,
+       "arm": false
+      },
+      "plan_executor": {
+       "base": true,
+       "arm": false
+      },
+      "presence_exit.exit_mode": {
+       "base": "immediate",
+       "arm": null
+      },
+      "synonym_table_version": {
+       "base": "undefined-synonyms-v5",
+       "arm": "undefined-synonyms-v2"
+      },
+      "vocab_version": {
+       "base": "v3",
+       "arm": "v1"
+      }
+     },
+     "config_diffs_outside_arm": []
+    },
+    {
+     "pair": 2,
+     "seed": 3,
+     "same_seed": true,
+     "same_population_seed": true,
+     "same_environment_seed": true,
+     "config_diffs": [
+      "activity",
+      "intent.max_ticks",
+      "outside_suppression",
+      "plan_executor",
+      "presence_exit.exit_mode",
+      "synonym_table_version",
+      "vocab_version"
+     ],
+     "config_diff_values": {
+      "activity": {
+       "base": true,
+       "arm": false
+      },
+      "intent.max_ticks": {
+       "base": 60,
+       "arm": null
+      },
+      "outside_suppression": {
+       "base": true,
+       "arm": false
+      },
+      "plan_executor": {
+       "base": true,
+       "arm": false
+      },
+      "presence_exit.exit_mode": {
+       "base": "immediate",
+       "arm": null
+      },
+      "synonym_table_version": {
+       "base": "undefined-synonyms-v5",
+       "arm": "undefined-synonyms-v2"
+      },
+      "vocab_version": {
+       "base": "v3",
+       "arm": "v1"
+      }
+     },
+     "config_diffs_outside_arm": []
+    }
+   ],
+   "within_arm": {
+    "base": {
+     "exchangeable": true,
+     "unexplained": [],
+     "environment_derived_diffs": [],
+     "population_seed_varies": false,
+     "environment_seed_varies": false,
+     "mode": "sections"
+    },
+    "arm": {
+     "exchangeable": true,
+     "unexplained": [],
+     "environment_derived_diffs": [],
+     "population_seed_varies": false,
+     "environment_seed_varies": false,
+     "mode": "sections"
+    }
+   },
+   "population_seed": [
+    "int:1"
+   ],
+   "population_fixed": true,
+   "environment_mode": "fixed",
+   "environment_seed": [
+    "int:1"
+   ],
+   "environment_fixed": true,
+   "population_hash_same": true,
+   "schedule_hash_same": true,
+   "arm_keys": [
+    "activity",
+    "plan_executor",
+    "report_precondition",
+    "vocab_version"
+   ],
+   "arm_tree_keys": [],
+   "arm_keys_derived": {
+    "synonym_table_version": {
+     "base": "undefined-synonyms-v5",
+     "arm": "undefined-synonyms-v2",
+     "reason": "vocab_version から決まる(語彙 v3 は v5・v1 は v2)"
+    },
+    "outside_suppression": {
+     "base": true,
+     "arm": false,
+     "reason": "manifest の値は域外抑止が実際に効いたか(plan_executor が off なら False)"
+    },
+    "presence_exit.exit_mode": {
+     "base": "immediate",
+     "arm": null,
+     "reason": "計画実行層が無い帰無の腕では presence_exit が空"
+    },
+    "intent.max_ticks": {
+     "base": 60,
+     "arm": null,
+     "reason": "活動層が無い帰無の腕では intent が空"
+    }
+   },
+   "arm_keys_derived_mismatch": [],
+   "arm_keys_unseen": [
+    "report_precondition"
+   ]
+  },
+  "pre_t0": [
+   {
+    "salt": 1,
+    "T0": 0,
+    "checkpoints_before_T0": 0,
+    "first_bad_tick": null,
+    "ok": true,
+    "status": "対象外",
+    "note": "T0=0: T0 より前の checkpoint は無い(腕は最初から違う)"
+   },
+   {
+    "salt": 2,
+    "T0": 0,
+    "checkpoints_before_T0": 0,
+    "first_bad_tick": null,
+    "ok": true,
+    "status": "対象外",
+    "note": "T0=0: T0 より前の checkpoint は無い(腕は最初から違う)"
+   },
+   {
+    "salt": 3,
+    "T0": 0,
+    "checkpoints_before_T0": 0,
+    "first_bad_tick": null,
+    "ok": true,
+    "status": "対象外",
+    "note": "T0=0: T0 より前の checkpoint は無い(腕は最初から違う)"
+   }
+  ],
+  "first_divergence_coarse": [
+   {
+    "salt": 1,
+    "from_T": 0,
+    "checkpoints_compared": 24,
+    "first_tick": 59,
+    "hashes_differ": [
+     "activity_hash",
+     "agents_hash",
+     "behavior_hash",
+     "combined",
+     "full_hash",
+     "world_hash"
+    ],
+    "last_match_tick": null
+   },
+   {
+    "salt": 2,
+    "from_T": 0,
+    "checkpoints_compared": 24,
+    "first_tick": 59,
+    "hashes_differ": [
+     "activity_hash",
+     "agents_hash",
+     "behavior_hash",
+     "combined",
+     "full_hash",
+     "world_hash"
+    ],
+    "last_match_tick": null
+   },
+   {
+    "salt": 3,
+    "from_T": 0,
+    "checkpoints_compared": 24,
+    "first_tick": 59,
+    "hashes_differ": [
+     "activity_hash",
+     "agents_hash",
+     "behavior_hash",
+     "combined",
+     "full_hash",
+     "world_hash"
+    ],
+    "last_match_tick": null
+   }
+  ],
+  "first_divergence_fine": [
+   {
+    "salt": 1,
+    "coarse_first_tick": 59,
+    "interval": [
+     0,
+     59
+    ],
+    "first_tick": 0,
+    "hashes_differ": [
+     "activity_hash",
+     "agents_hash",
+     "behavior_hash",
+     "combined",
+     "full_hash",
+     "world_hash"
+    ],
+    "checkpoints_compared": 60,
+    "wall_s": {
+     "v3_default": 2.65,
+     "null_arm": 2.46
+    }
+   },
+   {
+    "salt": 2,
+    "coarse_first_tick": 59,
+    "interval": [
+     0,
+     59
+    ],
+    "first_tick": 0,
+    "hashes_differ": [
+     "activity_hash",
+     "agents_hash",
+     "behavior_hash",
+     "combined",
+     "full_hash",
+     "world_hash"
+    ],
+    "checkpoints_compared": 60,
+    "wall_s": {
+     "v3_default": 2.61,
+     "null_arm": 2.56
+    }
+   },
+   {
+    "salt": 3,
+    "coarse_first_tick": 59,
+    "interval": [
+     0,
+     59
+    ],
+    "first_tick": 0,
+    "hashes_differ": [
+     "activity_hash",
+     "agents_hash",
+     "behavior_hash",
+     "combined",
+     "full_hash",
+     "world_hash"
+    ],
+    "checkpoints_compared": 60,
+    "wall_s": {
+     "v3_default": 2.65,
+     "null_arm": 2.47
+    }
+   }
+  ],
+  "aa": [
+   {
+    "arm": "v3_default",
+    "salt": 1,
+    "ok": true,
+    "checkpoints": 24,
+    "final_same": true,
+    "first_tick": null
+   }
+  ],
+  "unchecked": [],
+  "ok": true,
+  "status": "ok"
+ },
+ "wall_seconds": {
+  "runs": 87.7,
+  "first_diff": 15.6
+ }
+}

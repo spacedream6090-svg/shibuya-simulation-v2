@@ -1,0 +1,2928 @@
+{
+ "schema": "shibuya.tools.c8/d44-controls/1",
+ "created": "2026-09-30",
+ "note": "D-44 (i) 構築段階の対照(第311)。宣言 vs 対照の入力側 JSD を既存の台帳の片側規則(c8lib.compare_counts の帰無参照=同分布 2 標本の JSD 95% 点)で判定。対照のずらし値・指標(どの出力のどの分布を比べるか)・階級幅は実装役の自前の構成=未リサーチ",
+ "rows": {
+  "W10#10": {
+   "key": "W10#10",
+   "control": "辺の中点 1 点の最近傍 way(宣言)vs 両端+中点の多数決(割れたら中点)",
+   "metric": "道路の辺のセンサス路線ラベルの分布",
+   "variants": [
+    {
+     "name": "両端+中点の多数決",
+     "jsd_bits": 0.0005383514967734252,
+     "null_p95": 0.002083984187778939,
+     "detected": false,
+     "tvd": 0.007621339751303668,
+     "n_declared": 2493.0,
+     "n_control": 2493.0,
+     "n_bins": 8,
+     "n_edges_changed": 39
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 3.3975106000434607,
+   "checks": {
+    "declared_recomputed_equals_asset": true
+   },
+   "notes": [
+    "USE_ROAD_NAME_MATCH は既定 False=対応表は騒音場に当たらない(診断の出力 w10_edge_section だけ)"
+   ],
+   "seconds_wall_row": 3.44,
+   "measured_at": "2026-09-30"
+  },
+  "W10#2": {
+   "key": "W10#2",
+   "control": "昼間 12 h・残り 12 h を各一様(宣言)vs 残り 12 h を昼に近い 4 時間(19-21・6 時)へ 1.5 倍・深夜 8 時間を 0.75 倍(総量は同じ)",
+   "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+   "variants": [
+    {
+     "name": "夜の配分を寄せる",
+     "jsd_bits": 0.009499661251712614,
+     "null_p95": 0.001774917408448474,
+     "detected": true,
+     "tvd": 0.06476010001906193,
+     "n_declared": 713464.0,
+     "n_control": 713464.0,
+     "n_bins": 4168,
+     "share_points_stage_changed_day": 0.028932083468822534,
+     "share_points_stage_changed_night": 0.17472500364419227
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 10.407246100017801,
+   "outputs_changed": [
+    "w10_noise_day.npy",
+    "w10_noise_night.npy",
+    "w10_noise_stage_day.npy",
+    "w10_noise_stage_night.npy"
+   ],
+   "notes": [],
+   "seconds_wall_row": 12.66,
+   "measured_at": "2026-09-30"
+  },
+  "W10#3": {
+   "key": "W10#3",
+   "control": "大型車混入率・旅行速度は昼夜同一(宣言)vs 昼間 12 h 以外の時間だけ 大型車率 ×1.1 と速度 ×1.1 / ×0.9 と ×0.9",
+   "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+   "variants": [
+    {
+     "name": "夜の大型車率・速度 ×1.1",
+     "jsd_bits": 9.343946881746495e-05,
+     "null_p95": 0.001774917408448474,
+     "detected": false,
+     "tvd": 0.005054214368209187,
+     "n_declared": 713464.0,
+     "n_control": 713464.0,
+     "n_bins": 4168,
+     "share_points_stage_changed_day": 0.0012726640727492907,
+     "share_points_stage_changed_night": 0.013929224179496092
+    },
+    {
+     "name": "夜の大型車率・速度 ×0.9",
+     "jsd_bits": 9.052785350715904e-05,
+     "null_p95": 0.001774917408448474,
+     "detected": false,
+     "tvd": 0.005045804693719657,
+     "n_declared": 713464.0,
+     "n_control": 713464.0,
+     "n_bins": 4168,
+     "share_points_stage_changed_day": 0.0012137963513225614,
+     "share_points_stage_changed_night": 0.013777850038684503
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 20.999166600056924,
+   "outputs_changed": [
+    "w10_noise_day.npy",
+    "w10_noise_night.npy",
+    "w10_noise_stage_day.npy",
+    "w10_noise_stage_night.npy"
+   ],
+   "notes": [],
+   "seconds_wall_row": 25.19,
+   "measured_at": "2026-09-30"
+  },
+  "W10#4": {
+   "key": "W10#4",
+   "control": "舗装=密粒(宣言)vs 排水性(騒音場の全辺)",
+   "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+   "variants": [
+    {
+     "name": "排水性",
+     "jsd_bits": 0.2534907920714275,
+     "null_p95": 0.001774917408448474,
+     "detected": true,
+     "tvd": 0.44514649652960764,
+     "n_declared": 713464.0,
+     "n_control": 713464.0,
+     "n_bins": 4168,
+     "share_points_stage_changed_day": 0.7746767881771189,
+     "share_points_stage_changed_night": 0.7804990861487054
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 10.879115400020964,
+   "outputs_changed": [
+    "w10_noise_day.npy",
+    "w10_noise_night.npy",
+    "w10_noise_stage_day.npy",
+    "w10_noise_stage_night.npy"
+   ],
+   "notes": [],
+   "seconds_wall_row": 13.22,
+   "measured_at": "2026-09-30"
+  },
+  "W10#5": {
+   "key": "W10#5",
+   "control": "ΔL=0(宣言)vs 回折の近似あり",
+   "status": "unmeasurable",
+   "verdict": null,
+   "reason": "回折・反射の近似は建物の配置ごとに点で変わる補正で、式が未リサーチ・構築側に実装する口も無い(src の変更が要る)",
+   "variants": [],
+   "seconds_wall_row": 0.0,
+   "measured_at": "2026-09-30"
+  },
+  "W10#6": {
+   "key": "W10#6",
+   "control": "車線別線音源+交通量の車線等分(宣言)vs 車道中心の 1 線源(全交通量)",
+   "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+   "variants": [
+    {
+     "name": "中心 1 線源",
+     "jsd_bits": 0.0008101079768062422,
+     "null_p95": 0.001774917408448474,
+     "detected": false,
+     "tvd": 0.022927575883296143,
+     "n_declared": 713464.0,
+     "n_control": 713464.0,
+     "n_bins": 4168,
+     "share_points_stage_changed_day": 0.03555330051691466,
+     "share_points_stage_changed_night": 0.0362653196236951
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 10.204547600005753,
+   "outputs_changed": [
+    "w10_noise_day.npy",
+    "w10_noise_night.npy",
+    "w10_noise_stage_day.npy",
+    "w10_noise_stage_night.npy"
+   ],
+   "notes": [],
+   "seconds_wall_row": 12.43,
+   "measured_at": "2026-09-30"
+  },
+  "W10#7": {
+   "key": "W10#7",
+   "control": "バンド遮蔽 UG −20 dB(宣言)vs −10 dB / −30 dB",
+   "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+   "variants": [
+    {
+     "name": "UG -10 dB",
+     "jsd_bits": 0.009276186926204678,
+     "null_p95": 0.001774917408448474,
+     "detected": true,
+     "tvd": 0.014977630265857843,
+     "n_declared": 713464.0,
+     "n_control": 713464.0,
+     "n_bins": 4168,
+     "share_points_stage_changed_day": 0.015740107419575478,
+     "share_points_stage_changed_night": 0.01688101992532209
+    },
+    {
+     "name": "UG -30 dB",
+     "jsd_bits": 0.0018047336345808566,
+     "null_p95": 0.001774917408448474,
+     "detected": true,
+     "tvd": 0.003141013421840487,
+     "n_declared": 713464.0,
+     "n_control": 713464.0,
+     "n_bins": 4168,
+     "share_points_stage_changed_day": 0.0022902346859827545,
+     "share_points_stage_changed_night": 0.003991792157698216
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 21.829542399966158,
+   "outputs_changed": [
+    "w10_noise_day.npy",
+    "w10_noise_night.npy",
+    "w10_noise_stage_day.npy",
+    "w10_noise_stage_night.npy"
+   ],
+   "notes": [],
+   "seconds_wall_row": 25.98,
+   "measured_at": "2026-09-30"
+  },
+  "W10#9": {
+   "key": "W10#9",
+   "control": "街路格子 ピッチ 2.5 m(宣言)vs 5 m(バッファ 8 m は同じ)",
+   "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+   "variants": [
+    {
+     "name": "ピッチ 5 m",
+     "jsd_bits": 0.0007234472517400946,
+     "null_p95": 0.001774917408448474,
+     "detected": false,
+     "tvd": 0.017710457492982744,
+     "n_declared": 713464.0,
+     "n_control": 178320.0,
+     "n_bins": 4168
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 3.8241410999326035,
+   "outputs_changed": [
+    "w10_noise_day.npy",
+    "w10_noise_night.npy",
+    "w10_noise_stage_day.npy",
+    "w10_noise_stage_night.npy",
+    "w10_street_points.parquet"
+   ],
+   "notes": [
+    "点の集合が変わるので、W8/W9 の視点も下流で変わる(本行の指標は W10 の騒音段階だけ)"
+   ],
+   "seconds_wall_row": 6.1,
+   "measured_at": "2026-09-30"
+  },
+  "W11#2": {
+   "key": "W11#2",
+   "control": "ホーム=ODPT 代表点・改札=出口重心(宣言)vs ホームだけ/改札だけを ±50 m(東西・南北の 4 方向)ずらす",
+   "metric": "出口→改札→ホームの構内経路長(出口×ホームの対)の 10 m 階級分布",
+   "variants": [
+    {
+     "name": "ホーム (+50, +0) m",
+     "jsd_bits": 0.3007147326839449,
+     "null_p95": 0.09005468954328726,
+     "detected": true,
+     "tvd": 0.5056497175141242,
+     "n_declared": 354.0,
+     "n_control": 354.0,
+     "n_bins": 119,
+     "mean_abs_diff_m": 61.18471186440678
+    },
+    {
+     "name": "ホーム (-50, +0) m",
+     "jsd_bits": 0.30998578771968066,
+     "null_p95": 0.09004845252085027,
+     "detected": true,
+     "tvd": 0.5141242937853107,
+     "n_declared": 354.0,
+     "n_control": 354.0,
+     "n_bins": 113,
+     "mean_abs_diff_m": 56.10143785310734
+    },
+    {
+     "name": "ホーム (+0, +50) m",
+     "jsd_bits": 0.2917093814099976,
+     "null_p95": 0.09005468954328726,
+     "detected": true,
+     "tvd": 0.44915254237288144,
+     "n_declared": 354.0,
+     "n_control": 354.0,
+     "n_bins": 114,
+     "mean_abs_diff_m": 29.086799435028226
+    },
+    {
+     "name": "ホーム (+0, -50) m",
+     "jsd_bits": 0.18382456457217944,
+     "null_p95": 0.09004845252085027,
+     "detected": true,
+     "tvd": 0.3559322033898305,
+     "n_declared": 354.0,
+     "n_control": 354.0,
+     "n_bins": 113,
+     "mean_abs_diff_m": 9.705451977401134
+    },
+    {
+     "name": "改札 (+50, +0) m",
+     "jsd_bits": 0.3328082839419425,
+     "null_p95": 0.09004845252085027,
+     "detected": true,
+     "tvd": 0.5084745762711863,
+     "n_declared": 354.0,
+     "n_control": 354.0,
+     "n_bins": 113,
+     "mean_abs_diff_m": 60.39835875706215
+    },
+    {
+     "name": "改札 (-50, +0) m",
+     "jsd_bits": 0.304452909586133,
+     "null_p95": 0.09004845252085027,
+     "detected": true,
+     "tvd": 0.46045197740113,
+     "n_declared": 354.0,
+     "n_control": 354.0,
+     "n_bins": 113,
+     "mean_abs_diff_m": 76.21259604519774
+    },
+    {
+     "name": "改札 (+0, +50) m",
+     "jsd_bits": 0.34952313786104056,
+     "null_p95": 0.09005468954328726,
+     "detected": true,
+     "tvd": 0.5254237288135594,
+     "n_declared": 354.0,
+     "n_control": 354.0,
+     "n_bins": 114,
+     "mean_abs_diff_m": 36.74071186440678
+    },
+    {
+     "name": "改札 (+0, -50) m",
+     "jsd_bits": 0.34936393069547955,
+     "null_p95": 0.09004845252085027,
+     "detected": true,
+     "tvd": 0.5169491525423728,
+     "n_declared": 354.0,
+     "n_control": 354.0,
+     "n_bins": 113,
+     "mean_abs_diff_m": 56.994180790960435
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 0.4019533999962732,
+   "checks": {
+    "declared_recomputed_equals_asset": true
+   },
+   "seconds_wall_row": 0.4,
+   "measured_at": "2026-09-30"
+  },
+  "W11#3": {
+   "key": "W11#3",
+   "control": "名称一致→最近傍(宣言)vs 最近傍だけ",
+   "metric": "出口 45 → 駅の割当の分布",
+   "variants": [
+    {
+     "name": "最近傍だけ",
+     "jsd_bits": 0.0,
+     "null_p95": 0.054764805530823066,
+     "detected": false,
+     "tvd": 0.0,
+     "n_declared": 45.0,
+     "n_control": 45.0,
+     "n_bins": 3,
+     "stations_declared": 12,
+     "stations_control": 12,
+     "declared": {
+      "渋谷": 38,
+      "表参道": 5,
+      "明治神宮前〈原宿〉": 2
+     },
+     "control": {
+      "渋谷": 38,
+      "表参道": 5,
+      "明治神宮前〈原宿〉": 2
+     }
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.07824410009197891,
+   "outputs_changed": [
+    "w11_station_exits.parquet"
+   ],
+   "seconds_wall_row": 0.81,
+   "measured_at": "2026-09-30"
+  },
+  "W11#4": {
+   "key": "W11#4",
+   "control": "bbox+300 m(宣言)vs bbox+500 m",
+   "metric": "出口 45 → 駅の割当の分布",
+   "variants": [
+    {
+     "name": "bbox+500 m",
+     "jsd_bits": 0.0,
+     "null_p95": 0.054764805530823066,
+     "detected": false,
+     "tvd": 0.0,
+     "n_declared": 45.0,
+     "n_control": 45.0,
+     "n_bins": 3,
+     "stations_declared": 12,
+     "stations_control": 12,
+     "declared": {
+      "渋谷": 38,
+      "表参道": 5,
+      "明治神宮前〈原宿〉": 2
+     },
+     "control": {
+      "渋谷": 38,
+      "表参道": 5,
+      "明治神宮前〈原宿〉": 2
+     }
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.0741495001129806,
+   "outputs_changed": [],
+   "seconds_wall_row": 0.81,
+   "measured_at": "2026-09-30"
+  },
+  "W11#5": {
+   "key": "W11#5",
+   "control": "座標なし駅=同名駅の重心(宣言)vs OSM の駅ノード座標",
+   "status": "unmeasurable",
+   "verdict": null,
+   "reason": "OSM の駅ノード(railway=station)の座標がリポのどの入力にも無い(v8 は路線の折れ線だけ)・Web 取得は禁止。ホーム位置 ±50 m の包絡は W11#2 で測った",
+   "variants": [],
+   "seconds_wall_row": 0.0,
+   "measured_at": "2026-09-30"
+  },
+  "W12#2": {
+   "key": "W12#2",
+   "control": "～6時台→5,6 時・0時台～→0,1 時の等分(宣言)vs 端へ寄せる(外側 5 時と 1 時/内側 6 時と 0 時)",
+   "metric": "生成用重みの時刻分布(24 時・帰無参照の N=重み行数 2,014=既存 S-W14-HOURUNIFORM と同じ expedient)",
+   "variants": [
+    {
+     "name": "外側(5 時・1 時)",
+     "jsd_bits": 0.00508585197221738,
+     "null_p95": 0.005650086402065755,
+     "detected": false,
+     "tvd": 0.008169305152834578,
+     "n_declared": 2014.0,
+     "n_control": 2013.9999999999998,
+     "n_bins": 24
+    },
+    {
+     "name": "内側(6 時・0 時)",
+     "jsd_bits": 0.005085851972217339,
+     "null_p95": 0.005650086402065755,
+     "detected": false,
+     "tvd": 0.008169305152834552,
+     "n_declared": 2014.0,
+     "n_control": 2014.0,
+     "n_bins": 24
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.11467510007787496,
+   "outputs_changed": [
+    "w12_generation_weights.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 1.26,
+   "measured_at": "2026-09-30"
+  },
+  "W12#3": {
+   "key": "W12#3",
+   "control": "目的×手段の構成=全ノード共通(宣言)vs 目的ごとに 1 つずつ ±10%(方面×手段の総量は保って再正規化)",
+   "metric": "生成用重みの目的分布(帰無参照の N=重み行数 2,014)",
+   "variants": [
+    {
+     "name": "不明 ×1.1",
+     "jsd_bits": 9.540291336503716e-06,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.0005553284567768801,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2014.000000000001,
+     "n_bins": 8
+    },
+    {
+     "name": "不明 ×0.9",
+     "jsd_bits": 1.0557566429839435e-05,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.0005559617346774588,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2013.9999999999995,
+     "n_bins": 8
+    },
+    {
+     "name": "勤務・業務 ×1.1",
+     "jsd_bits": 9.68997700249003e-05,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.00570924409756383,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2014.0000000000002,
+     "n_bins": 8
+    },
+    {
+     "name": "勤務・業務 ×0.9",
+     "jsd_bits": 0.00010866592489694633,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.005789411002439529,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2014.0,
+     "n_bins": 8
+    },
+    {
+     "name": "帰宅 ×1.1",
+     "jsd_bits": 4.7607816030042984e-05,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.0027908651330764748,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2014.000000000001,
+     "n_bins": 8
+    },
+    {
+     "name": "帰宅 ×0.9",
+     "jsd_bits": 5.301368503416533e-05,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.0028102731937409845,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2013.999999999999,
+     "n_bins": 8
+    },
+    {
+     "name": "私事 ×1.1",
+     "jsd_bits": 0.00022819102715195775,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.013634698677078125,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2014.0,
+     "n_bins": 8
+    },
+    {
+     "name": "私事 ×0.9",
+     "jsd_bits": 0.00026113063659360426,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.014126139048430738,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2014.0000000000002,
+     "n_bins": 8
+    },
+    {
+     "name": "自宅－勤務 ×1.1",
+     "jsd_bits": 0.00039346304475815566,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.02335013163834497,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2014.0000000000002,
+     "n_bins": 8
+    },
+    {
+     "name": "自宅－勤務 ×0.9",
+     "jsd_bits": 0.0004814947152744029,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.025811021485220617,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2013.9999999999995,
+     "n_bins": 8
+    },
+    {
+     "name": "自宅－業務 ×1.1",
+     "jsd_bits": 5.7507350447723456e-05,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.003353779756854969,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2014.0000000000016,
+     "n_bins": 8
+    },
+    {
+     "name": "自宅－業務 ×0.9",
+     "jsd_bits": 6.404551051070564e-05,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.0033784971355507523,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2014.0000000000005,
+     "n_bins": 8
+    },
+    {
+     "name": "自宅－私事 ×1.1",
+     "jsd_bits": 0.0001962249383780526,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.01144861117724172,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2013.999999999999,
+     "n_bins": 8
+    },
+    {
+     "name": "自宅－私事 ×0.9",
+     "jsd_bits": 0.00022290943623151714,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.011764188447184874,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2014.0000000000002,
+     "n_bins": 8
+    },
+    {
+     "name": "自宅－通学 ×1.1",
+     "jsd_bits": 0.00010922605724812868,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.006362608391221675,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2014.0,
+     "n_bins": 8
+    },
+    {
+     "name": "自宅－通学 ×0.9",
+     "jsd_bits": 0.00012243967808556178,
+     "null_p95": 0.0025257032135033563,
+     "detected": false,
+     "tvd": 0.0064519143636892935,
+     "n_declared": 2014.0000000000002,
+     "n_control": 2014.0000000000007,
+     "n_bins": 8
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.5276106999954209,
+   "seconds_wall_row": 0.53,
+   "measured_at": "2026-09-30"
+  },
+  "W12#5": {
+   "key": "W12#5",
+   "control": "山手線ピーク 18 本/h(宣言)vs 16 / 20 本/h",
+   "metric": "便の (路線 × 曜日種別 × 時) の分布",
+   "variants": [
+    {
+     "name": "16 本/h",
+     "jsd_bits": 0.0013530620567893193,
+     "null_p95": 0.013897460862228917,
+     "detected": false,
+     "tvd": 0.027246276376887466,
+     "n_declared": 9574.0,
+     "n_control": 9282.0,
+     "n_bins": 320
+    },
+    {
+     "name": "20 本/h",
+     "jsd_bits": 0.0,
+     "null_p95": 0.013897460862228917,
+     "detected": false,
+     "tvd": 0.0,
+     "n_declared": 9574.0,
+     "n_control": 9574.0,
+     "n_bins": 320
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.1069157999008894,
+   "outputs_changed": [
+    "w12_timetables.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 1.47,
+   "measured_at": "2026-09-30"
+  },
+  "W12#6": {
+   "key": "W12#6",
+   "control": "オフピーク比=メトロ実ダイヤから(宣言)vs 比 1.0(一様)",
+   "metric": "便の (路線 × 曜日種別 × 時) の分布",
+   "variants": [
+    {
+     "name": "比 1.0",
+     "jsd_bits": 0.017736847945337867,
+     "null_p95": 0.013897460862228917,
+     "detected": true,
+     "tvd": 0.13754453269170544,
+     "n_declared": 9574.0,
+     "n_control": 11652.0,
+     "n_bins": 320
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 0.06975600006990135,
+   "outputs_changed": [
+    "w12_timetables.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 0.94,
+   "measured_at": "2026-09-30"
+  },
+  "W12#7": {
+   "key": "W12#7",
+   "control": "夕ピーク=朝ピークと同数(宣言)vs 夕ピーク −20%",
+   "metric": "便の (路線 × 曜日種別 × 時) の分布",
+   "variants": [
+    {
+     "name": "夕ピーク −20%",
+     "jsd_bits": 0.0029942742488705152,
+     "null_p95": 0.013897460862228917,
+     "detected": false,
+     "tvd": 0.044181677623800514,
+     "n_declared": 9574.0,
+     "n_control": 9094.0,
+     "n_bins": 320
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.05711480008903891,
+   "outputs_changed": [
+    "w12_timetables.parquet"
+   ],
+   "notes": [
+    "切替口 PM_PEAK_ASSUMED_EQUAL_TO_AM は True/False のどちらでも peak_tph_pm=朝と同数を渡す(`None if PM_PEAK_ASSUMED_EQUAL_TO_AM else tph`)=口として効かない。ここでは関数を包んで −20% を渡した"
+   ],
+   "seconds_wall_row": 0.92,
+   "measured_at": "2026-09-30"
+  },
+  "W12#8": {
+   "key": "W12#8",
+   "control": "初終発=メトロ平日ダイヤ 5:01-0:20(宣言)vs 土休ダイヤ 5:01-0:20(土休の等間隔ダイヤだけ)",
+   "metric": "土休の便の (路線 × 時) の分布",
+   "variants": [
+    {
+     "name": "土休の初終発",
+     "jsd_bits": 0.0,
+     "null_p95": 0.012718944394285774,
+     "detected": false,
+     "tvd": 0.0,
+     "n_declared": 5485.0,
+     "n_control": 5485.0,
+     "n_bins": 160
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.139797699986957,
+   "checks": {
+    "declared_regenerated_equals_asset": true
+   },
+   "seconds_wall_row": 0.17,
+   "measured_at": "2026-09-30"
+  },
+  "W13#3": {
+   "key": "W13#3",
+   "control": "日射=日照率と太陽高度からの推定(宣言)vs 日照率だけ(SR=0.9×日照率・太陽高度を見ない)",
+   "metric": "時別の体感温度段階(WBGT 段階・5 語+欠測)の分布(既存 S-W15-TEMP と同じ形)",
+   "variants": [
+    {
+     "name": "日照率だけ(SR=0.9×日照率・太陽高度を見ない)",
+     "jsd_bits": 0.0013759806012739661,
+     "null_p95": 0.004020313129488301,
+     "detected": false,
+     "tvd": 0.03333333333333334,
+     "n_declared": 840.0,
+     "n_control": 840.0,
+     "n_bins": 5,
+     "declared": {
+      "やや暑い": 425,
+      "暑い": 230,
+      "厳しい暑さ": 119,
+      "危険な暑さ": 30,
+      "快適": 36
+     },
+     "control": {
+      "やや暑い": 415,
+      "暑い": 214,
+      "厳しい暑さ": 143,
+      "危険な暑さ": 34,
+      "快適": 34
+     }
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.06770310003776103,
+   "outputs_changed": [
+    "w13_weather_days.parquet",
+    "w13_weather_hourly.parquet"
+   ],
+   "seconds_wall_row": 0.83,
+   "measured_at": "2026-09-30"
+  },
+  "W13#5": {
+   "key": "W13#5",
+   "control": "祝日表=2026 年 7-8 月のハードコード(宣言)vs 内閣府 CSV",
+   "status": "unmeasurable",
+   "verdict": null,
+   "reason": "内閣府の祝日 CSV がリポに無い(未取得)・Web 取得は禁止",
+   "variants": [],
+   "seconds_wall_row": 0.0,
+   "measured_at": "2026-09-30"
+  },
+  "W13#6": {
+   "key": "W13#6",
+   "control": "時別=平均(気温・湿度・風)/合計(降水・日照)(宣言)vs 気温・湿度・風だけ正時の 10 分値",
+   "metric": "時別の体感温度段階(WBGT 段階・5 語+欠測)の分布(既存 S-W15-TEMP と同じ形)",
+   "variants": [
+    {
+     "name": "気温・湿度・風だけ正時の 10 分値",
+     "jsd_bits": 7.617356633516422e-05,
+     "null_p95": 0.004020313129488301,
+     "detected": false,
+     "tvd": 0.0035714285714285657,
+     "n_declared": 840.0,
+     "n_control": 840.0,
+     "n_bins": 5,
+     "declared": {
+      "やや暑い": 425,
+      "暑い": 230,
+      "厳しい暑さ": 119,
+      "危険な暑さ": 30,
+      "快適": 36
+     },
+     "control": {
+      "やや暑い": 425,
+      "暑い": 233,
+      "厳しい暑さ": 119,
+      "危険な暑さ": 27,
+      "快適": 36
+     }
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.08357200003229082,
+   "outputs_changed": [
+    "w13_weather_days.parquet",
+    "w13_weather_hourly.parquet"
+   ],
+   "seconds_wall_row": 0.89,
+   "measured_at": "2026-09-30"
+  },
+  "W13#7": {
+   "key": "W13#7",
+   "control": "アメダス欠測時間は etrn 時別値で補完(宣言)vs 前後のアメダス時別値の線形補間(気温・湿度・風・日照)",
+   "metric": "補完した時の体感温度段階の分布",
+   "variants": [
+    {
+     "name": "線形補間",
+     "jsd_bits": 0.014229031712392655,
+     "null_p95": 0.011249922255462605,
+     "detected": true,
+     "tvd": 0.11627906976744186,
+     "n_declared": 301.0,
+     "n_control": 301.0,
+     "n_bins": 5,
+     "n_filled_hours": 301,
+     "declared": {
+      "やや暑い": 169,
+      "厳しい暑さ": 43,
+      "暑い": 68,
+      "快適": 13,
+      "危険な暑さ": 8
+     },
+     "control": {
+      "やや暑い": 146,
+      "厳しい暑さ": 36,
+      "暑い": 103,
+      "快適": 13,
+      "危険な暑さ": 3
+     }
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 0.16121160006150603,
+   "seconds_wall_row": 0.19,
+   "measured_at": "2026-09-30"
+  },
+  "W16#1": {
+   "key": "W16#1",
+   "control": "目標体数の空間支持=W2 セルの被覆で按分(宣言)vs 区全域(被覆のある町丁目は人口を全部入れる=被覆率>0 を 1 に)",
+   "metric": "住民の自宅セルの分布",
+   "variants": [
+    {
+     "name": "区全域(被覆のある町丁目は人口を全部入れる=被覆率>0 を 1 に)",
+     "jsd_bits": 0.18621325738633043,
+     "null_p95": 0.0035191208445010443,
+     "detected": true,
+     "tvd": 0.407961686008005,
+     "n_declared": 43588.0,
+     "n_control": 91140.0,
+     "n_bins": 379,
+     "residents_declared": 43588,
+     "residents_control": 91140
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 12.055559700005688,
+   "outputs_changed": [
+    "w16_chome.parquet",
+    "w16_cohorts.json",
+    "w16_duty_roster.parquet",
+    "w16_gates.json",
+    "w16_households.parquet",
+    "w16_population.parquet"
+   ],
+   "notes": [
+    "被覆 0 の町丁目は世界にセルが無く置けない=区全域の人口のうち世界に置ける分だけで比べた"
+   ],
+   "seconds_wall_row": 13.04,
+   "measured_at": "2026-09-30"
+  },
+  "W16#11": {
+   "key": "W16#11",
+   "control": "学校セル=学校 POI へ一様(宣言)vs 学校 POI の建物の床面積(面積×階数)比(建物の無い POI は中央値)",
+   "metric": "通学者と学齢の住民の学校セルの分布",
+   "variants": [
+    {
+     "name": "床面積比",
+     "jsd_bits": 0.1973121464300371,
+     "null_p95": 0.0006851569404748959,
+     "detected": true,
+     "tvd": 0.43818320944468736,
+     "n_declared": 36592.0,
+     "n_control": 36592.0,
+     "n_bins": 53
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 12.716770299943164,
+   "outputs_changed": [
+    "w16_gates.json",
+    "w16_population.parquet"
+   ],
+   "notes": [
+    "学校 POI 72 件・建物の無い POI 16 件は床面積の中央値で埋めた(未リサーチ)"
+   ],
+   "seconds_wall_row": 13.58,
+   "measured_at": "2026-09-30"
+  },
+  "W16#12": {
+   "key": "W16#12",
+   "control": "住民の就業区分=多項抽選(宣言)vs 最大剰余の決定論(件数を配ってから決定論の置換で割り当て)",
+   "metric": "住民(15-74 歳)の就業区分 4 値の分布",
+   "variants": [
+    {
+     "name": "最大剰余",
+     "jsd_bits": 6.743898512964362e-06,
+     "null_p95": 8.388318727237946e-05,
+     "detected": false,
+     "tvd": 0.002742890140031762,
+     "n_declared": 34635.0,
+     "n_control": 34635.0,
+     "n_bins": 4,
+     "declared": {
+      "3": 13167,
+      "1": 3577,
+      "0": 10814,
+      "2": 7077
+     },
+     "control": {
+      "3": 13216,
+      "2": 7094,
+      "0": 10719,
+      "1": 3606
+     }
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 25.632858900004067,
+   "outputs_changed": [
+    "w16_cohorts.json",
+    "w16_duty_roster.parquet",
+    "w16_gates.json",
+    "w16_population.parquet"
+   ],
+   "notes": [
+    "宣言側は W16 を記録の包みだけで再実行した(出力が基準と一致: 変化したファイル なし)"
+   ],
+   "seconds_wall_row": 26.88,
+   "measured_at": "2026-09-30"
+  },
+  "W16#13": {
+   "key": "W16#13",
+   "control": "域外へ通う住民の方面=到着側『自宅－勤務』の重みを流用(宣言)vs 方面一様",
+   "metric": "域外へ通う住民の方面(外界ノード)の分布",
+   "variants": [
+    {
+     "name": "方面一様",
+     "jsd_bits": 0.1198954333279996,
+     "null_p95": 0.0004656242930442634,
+     "detected": true,
+     "tvd": 0.2958152958152958,
+     "n_declared": 13167.0,
+     "n_control": 13167.0,
+     "n_bins": 10
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 12.479624000028707,
+   "outputs_changed": [
+    "w16_gates.json",
+    "w16_population.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 13.37,
+   "measured_at": "2026-09-30"
+  },
+  "W16#2": {
+   "key": "W16#2",
+   "control": "町丁目被覆率=10 m 標本格子(宣言)vs 5 m",
+   "metric": "住民の自宅セルの分布",
+   "variants": [
+    {
+     "name": "5 m",
+     "jsd_bits": 1.5670444764125598e-05,
+     "null_p95": 0.0035191208445010443,
+     "detected": false,
+     "tvd": 0.0006962920048645862,
+     "n_declared": 43588.0,
+     "n_control": 43583.0,
+     "n_bins": 373,
+     "residents_declared": 43588,
+     "residents_control": 43583
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 11.955108199967071,
+   "outputs_changed": [
+    "w16_chome.parquet",
+    "w16_cohorts.json",
+    "w16_duty_roster.parquet",
+    "w16_gates.json",
+    "w16_households.parquet",
+    "w16_population.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 12.9,
+   "measured_at": "2026-09-30"
+  },
+  "W16#4": {
+   "key": "W16#4",
+   "control": "住居系 kind に generic を入れる(宣言)vs 入れない",
+   "metric": "住民の自宅セルの分布",
+   "variants": [
+    {
+     "name": "入れない",
+     "jsd_bits": 0.12106496886619919,
+     "null_p95": 0.0035191208445010443,
+     "detected": true,
+     "tvd": 0.2903780857116638,
+     "n_declared": 43588.0,
+     "n_control": 43588.0,
+     "n_bins": 372,
+     "residents_declared": 43588,
+     "residents_control": 43588
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 12.59932859998662,
+   "outputs_changed": [
+    "w16_gates.json",
+    "w16_households.parquet",
+    "w16_population.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 13.62,
+   "measured_at": "2026-09-30"
+  },
+  "W16#5": {
+   "key": "W16#5",
+   "control": "年齢不詳を既知階級の比で按分(宣言)vs 不詳を別階級(区の不詳の割合 25,380/243,883)",
+   "metric": "住民の年齢階級(16+不詳)の分布",
+   "variants": [
+    {
+     "name": "不詳を別階級",
+     "jsd_bits": 0.05409439818486839,
+     "null_p95": 0.00020707778613522103,
+     "detected": true,
+     "tvd": 0.10406629408363846,
+     "n_declared": 43588.0,
+     "n_control": 43588.0,
+     "n_bins": 17
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 0.11995500000193715,
+   "notes": [
+    "対照側は期待値(区の階級比 × 住民数)。宣言側は IPF+最大剰余の整数表(抽選なし)"
+   ],
+   "seconds_wall_row": 0.16,
+   "measured_at": "2026-09-30"
+  },
+  "W16#7": {
+   "key": "W16#7",
+   "control": "従業者の年齢目標=区の 15 歳以上の分布(宣言)vs 1 階級(5 歳)上/下へずらす",
+   "metric": "通勤者(kind 0)の年齢階級の分布",
+   "variants": [
+    {
+     "name": "+5 歳",
+     "jsd_bits": 0.026610681058402925,
+     "null_p95": 3.506673467333418e-05,
+     "detected": true,
+     "tvd": 0.11172441280611015,
+     "n_declared": 215772.0,
+     "n_control": 215772.0,
+     "n_bins": 13
+    },
+    {
+     "name": "−5 歳",
+     "jsd_bits": 0.07274731108000605,
+     "null_p95": 3.506673467333418e-05,
+     "detected": true,
+     "tvd": 0.15892238103182985,
+     "n_declared": 215772.0,
+     "n_control": 215772.0,
+     "n_bins": 13
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 25.932840800029226,
+   "outputs_changed": [
+    "w16_cohorts.json",
+    "w16_duty_roster.parquet",
+    "w16_gates.json",
+    "w16_population.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 27.33,
+   "measured_at": "2026-09-30"
+  },
+  "W16#8": {
+   "key": "W16#8",
+   "control": "来街者・通学者の年齢×性別は raking しない(宣言)vs 区の年齢×性別の周辺へ raking(IPF・種=現在の表)",
+   "metric": "年齢階級×性別(16×2)の分布",
+   "variants": [
+    {
+     "name": "来街者(kind 1・6・7)",
+     "jsd_bits": 0.09620248680872559,
+     "null_p95": 0.00017022084669428256,
+     "detected": true,
+     "tvd": 0.25683131283554655,
+     "n_declared": 96006.0,
+     "n_control": 96006.0,
+     "n_bins": 32
+    },
+    {
+     "name": "通学者(kind 5)",
+     "jsd_bits": 0.7140937396388598,
+     "null_p95": 0.00015056584832311978,
+     "detected": true,
+     "tvd": 0.8581026347478075,
+     "n_declared": 33385.0,
+     "n_control": 33385.0,
+     "n_bins": 32
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 0.15153140004258603,
+   "notes": [
+    "種の 0 セルは 1e-9 を足して IPF に通した(0 は動かないのと同じ)"
+   ],
+   "seconds_wall_row": 0.19,
+   "measured_at": "2026-09-30"
+  },
+  "W16#9": {
+   "key": "W16#9",
+   "control": "通学・業務・私事の体数=PT 2018 の目的別到着比(宣言)vs 1 つずつ ±10%",
+   "metric": "全体の種別(kind 0-8)の体数の分布",
+   "variants": [
+    {
+     "name": "自宅－通学 ×1.1",
+     "jsd_bits": 0.00013329874846621133,
+     "null_p95": 1.4293498506396632e-05,
+     "detected": true,
+     "tvd": 0.0077586907169303835,
+     "n_declared": 390067.0,
+     "n_control": 393405.0,
+     "n_bins": 9,
+     "n_declared_agents": 390067,
+     "n_control_agents": 393405
+    },
+    {
+     "name": "自宅－通学 ×0.9",
+     "jsd_bits": 0.00014997818215278146,
+     "null_p95": 1.4293498506396632e-05,
+     "detected": true,
+     "tvd": 0.007895011826486425,
+     "n_declared": 390067.0,
+     "n_control": 386728.0,
+     "n_bins": 9,
+     "n_declared_agents": 390067,
+     "n_control_agents": 386728
+    },
+    {
+     "name": "自宅－業務 ×1.1",
+     "jsd_bits": 2.0968381205185602e-05,
+     "null_p95": 1.4293498506396632e-05,
+     "detected": true,
+     "tvd": 0.0038730824785862894,
+     "n_declared": 390067.0,
+     "n_control": 391853.0,
+     "n_bins": 9,
+     "n_declared_agents": 390067,
+     "n_control_agents": 391853
+    },
+    {
+     "name": "自宅－業務 ×0.9",
+     "jsd_bits": 2.1816251949704978e-05,
+     "null_p95": 1.4293498506396632e-05,
+     "detected": true,
+     "tvd": 0.003908712990029067,
+     "n_declared": 390067.0,
+     "n_control": 388281.0,
+     "n_bins": 9,
+     "n_declared_agents": 390067,
+     "n_control_agents": 388281
+    },
+    {
+     "name": "自宅－私事 ×1.1",
+     "jsd_bits": 0.0002896991159007509,
+     "null_p95": 1.4293498506396632e-05,
+     "detected": true,
+     "tvd": 0.01581428237114241,
+     "n_declared": 390067.0,
+     "n_control": 397882.0,
+     "n_bins": 9,
+     "n_declared_agents": 390067,
+     "n_control_agents": 397882
+    },
+    {
+     "name": "自宅－私事 ×0.9",
+     "jsd_bits": 0.0003357464800627946,
+     "null_p95": 1.4293498506396632e-05,
+     "detected": true,
+     "tvd": 0.01645876723557309,
+     "n_declared": 390067.0,
+     "n_control": 382253.0,
+     "n_bins": 9,
+     "n_declared_agents": 390067,
+     "n_control_agents": 382253
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 78.11249510012567,
+   "outputs_changed": [
+    "w16_cohorts.json",
+    "w16_duty_roster.parquet",
+    "w16_gates.json",
+    "w16_population.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 81.36,
+   "measured_at": "2026-09-30"
+  },
+  "W17#4": {
+   "key": "W17#4",
+   "control": "時刻の整合修復 off(宣言)vs on(`--time-fact-repair`・応答の再取り込み)",
+   "metric": "週次表の (活動 × 開始時刻 15 分階級) の分布",
+   "variants": [
+    {
+     "name": "修復 on",
+     "jsd_bits": 2.4339159537944453e-07,
+     "null_p95": 0.00012424028048163555,
+     "detected": false,
+     "tvd": 0.0001106311637878495,
+     "n_declared": 3461954.0,
+     "n_control": 3461954.0,
+     "n_bins": 6144
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 102.18477339996025,
+   "checks": {
+    "repair_off_reproduces_promoted_schedule": true
+   },
+   "seconds_detail": {
+    "ingest_off": 51.8268654999556,
+    "ingest_on": 50.35790790000465
+   },
+   "seconds_wall_row": 103.44,
+   "measured_at": "2026-09-30"
+  },
+  "W17#5": {
+   "key": "W17#5",
+   "control": "勤務窓=第31/36表の逆関数法(宣言)vs 表の支え(構成比>0 の 15 分ビン)の上で一様",
+   "metric": "LLM へ渡す事実行の出勤・帰宅時刻(15 分階級)の分布=入力側",
+   "variants": [
+    {
+     "name": "出勤時刻",
+     "jsd_bits": 0.27818719628128524,
+     "null_p95": 0.0001247418245777452,
+     "detected": true,
+     "tvd": 0.5457062221707248,
+     "n_declared": 241652.0,
+     "n_control": 241652.0,
+     "n_bins": 200,
+     "n_windows": 241652
+    },
+    {
+     "name": "帰宅時刻",
+     "jsd_bits": 0.21587293064749835,
+     "null_p95": 0.00014422895400215707,
+     "detected": true,
+     "tvd": 0.4553655670137222,
+     "n_declared": 241652.0,
+     "n_control": 241652.0,
+     "n_bins": 200
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 17.37478720000945,
+   "notes": [
+    "取り込み(修復 off=本番)では窓は一致率の計数にしか使われない=窓を変えても週次表は動かない。窓の効きは LLM への事実行を通る(再生成が要る)。ここで測ったのはその入力の差"
+   ],
+   "seconds_wall_row": 17.56,
+   "measured_at": "2026-09-30"
+  },
+  "W1#2": {
+   "key": "W1#2",
+   "control": "pendant 除去あり(宣言)vs 除去なし(pendant 列を全 False)",
+   "metric": "W3 セル間距離(上三角)の 10 m 階級分布",
+   "variants": [
+    {
+     "name": "除去なし",
+     "jsd_bits": 0.0,
+     "null_p95": 0.0011036899571426108,
+     "detected": false,
+     "tvd": 0.0,
+     "n_declared": 134940.0,
+     "n_control": 134940.0,
+     "n_bins": 376
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.5266738999634981,
+   "outputs_changed": [
+    "w1_nodes.parquet"
+   ],
+   "notes": [
+    "pendant 列を読むコードは src に無い(grep: w1_walk_graph.py の中だけ)"
+   ],
+   "seconds_wall_row": 1.53,
+   "measured_at": "2026-09-30"
+  },
+  "W1#3": {
+   "key": "W1#3",
+   "control": "完全一致→部分一致(宣言)vs 完全一致だけ",
+   "metric": "floorguide 22 本の結線の状態(両端/片端/無し)と W11 構内グラフの次数分布",
+   "variants": [
+    {
+     "name": "floorguide 結線の状態",
+     "jsd_bits": 0.5757993983191749,
+     "null_p95": 0.0,
+     "detected": true,
+     "tvd": 0.7727272727272727,
+     "n_declared": 22.0,
+     "n_control": 22.0,
+     "n_bins": 4,
+     "declared": {
+      "ao_bo": 22
+     },
+     "control": {
+      "ao_bx": 9,
+      "ao_bo": 5,
+      "ax_bx": 3,
+      "ax_bo": 5
+     }
+    },
+    {
+     "name": "W11 構内グラフの次数",
+     "jsd_bits": 0.0,
+     "null_p95": 0.04759685621988901,
+     "detected": false,
+     "tvd": 0.0,
+     "n_declared": 60.0,
+     "n_control": 60.0,
+     "n_bins": 4
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 0.19050240004435182,
+   "outputs_changed": [
+    "w11_floorguide_connections.parquet",
+    "w1_floorguide_links.parquet"
+   ],
+   "seconds_wall_row": 0.93,
+   "measured_at": "2026-09-30"
+  },
+  "W2#2": {
+   "key": "W2#2",
+   "control": "端点の一方でも数える(宣言・重複計上)vs 両端点で按分(0.5 ずつ)",
+   "metric": "セルの n_edges の分布(セル上の重み)",
+   "variants": [
+    {
+     "name": "両端点で按分",
+     "jsd_bits": 0.002853985287740614,
+     "null_p95": 0.032114676275074666,
+     "detected": false,
+     "tvd": 0.04902022890983116,
+     "n_declared": 6820.0,
+     "n_control": 4944.0,
+     "n_bins": 520
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.2727512000128627,
+   "checks": {
+    "declared_recomputed_equals_asset": true
+   },
+   "seconds_wall_row": 0.27,
+   "measured_at": "2026-09-30"
+  },
+  "W2#3": {
+   "key": "W2#3",
+   "control": "重心に最近のノード(宣言)vs セル内の最大次数ノード(同点は添字最小)",
+   "metric": "W3 セル間距離(上三角)の 10 m 階級分布",
+   "variants": [
+    {
+     "name": "最大次数ノード",
+     "jsd_bits": 0.0006631642739108527,
+     "null_p95": 0.0011036899571426108,
+     "detected": false,
+     "tvd": 0.021868978805394994,
+     "n_declared": 134940.0,
+     "n_control": 134940.0,
+     "n_bins": 376,
+     "mean_abs_diff_m": 40.477071290944124,
+     "share_pairs_abs_diff_ge_10m": 0.7093967689343412
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.3140170000260696,
+   "rep_changed_cells": 323,
+   "notes": [
+    "分布の JSD は対ごとの入れ替えを見ない(対ごとの差は mean_abs_diff_m・share_pairs_abs_diff_ge_10m に記録)"
+   ],
+   "seconds_wall_row": 0.89,
+   "measured_at": "2026-09-30"
+  },
+  "W2#4": {
+   "key": "W2#4",
+   "control": "外周 GL ノードのセル集合(宣言)vs 街区重心のセル(1 街区 1 セル)",
+   "metric": "街区×セルの所属のセル上の分布",
+   "variants": [
+    {
+     "name": "街区重心のセル",
+     "jsd_bits": 0.049521695828076404,
+     "null_p95": 0.06068088993462891,
+     "detected": false,
+     "tvd": 0.1671046290549964,
+     "n_declared": 2809.0,
+     "n_control": 1227.0,
+     "n_bins": 395
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.21003439999185503,
+   "seconds_wall_row": 0.21,
+   "measured_at": "2026-09-30"
+  },
+  "W3#1": {
+   "key": "W3#1",
+   "control": "代表ノード間の最短路(宣言)vs セル内ノード対の最短路の中央値",
+   "metric": "セル間距離(上三角)の 10 m 階級分布",
+   "variants": [
+    {
+     "name": "ノード対の中央値",
+     "jsd_bits": 0.0007475432818183843,
+     "null_p95": 0.0011036899571426108,
+     "detected": false,
+     "tvd": 0.021817103898028753,
+     "n_declared": 134940.0,
+     "n_control": 134940.0,
+     "n_bins": 376,
+     "mean_abs_diff_m": 24.217111308729805,
+     "share_pairs_abs_diff_ge_10m": 0.605520972283978
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 1.6408411000156775,
+   "checks": {
+    "declared_recomputed_equals_asset": true
+   },
+   "notes": [
+    "分布の JSD は対ごとの入れ替えを見ない(対ごとの差は mean_abs_diff_m・share_pairs_abs_diff_ge_10m に記録)"
+   ],
+   "seconds_wall_row": 4.01,
+   "measured_at": "2026-09-30"
+  },
+  "W3#2": {
+   "key": "W3#2",
+   "control": "uint16 メートル丸め(宣言)vs 丸めない(float)",
+   "metric": "セル間距離(上三角)の 10 m 階級分布",
+   "variants": [
+    {
+     "name": "丸めない・10 m 階級",
+     "jsd_bits": 5.328679166379026e-05,
+     "null_p95": 0.0011036899571426108,
+     "detected": false,
+     "tvd": 0.005506150881873429,
+     "n_declared": 134940.0,
+     "n_control": 134940.0,
+     "n_bins": 376,
+     "max_abs_diff_m": 0.5
+    },
+    {
+     "name": "丸めない・1 m 階級(参考)",
+     "jsd_bits": 0.005059495193719243,
+     "null_p95": 0.009394070165956305,
+     "detected": false,
+     "tvd": 0.058803912850155626,
+     "n_declared": 134940.0,
+     "n_control": 134940.0,
+     "n_bins": 3759,
+     "primary": false
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.44983260007575154,
+   "checks": {
+    "declared_recomputed_equals_asset": true
+   },
+   "seconds_wall_row": 4.01,
+   "measured_at": "2026-09-30"
+  },
+  "W3#3": {
+   "key": "W3#3",
+   "control": "丸め前に min(D, Dᵀ) で対称化(宣言)vs 対称化しない",
+   "metric": "セル間距離(対角以外の全順序対)の 10 m 階級分布",
+   "variants": [
+    {
+     "name": "対称化しない・10 m 階級",
+     "jsd_bits": 9.695414051481342e-07,
+     "null_p95": 0.0005510695752150157,
+     "detected": false,
+     "tvd": 0.0007818289610197104,
+     "n_declared": 269880.0,
+     "n_control": 269880.0,
+     "n_bins": 376,
+     "entries_differ": 5278
+    },
+    {
+     "name": "対称化しない・1 m 階級(参考)",
+     "jsd_bits": 9.357580072989237e-05,
+     "null_p95": 0.0046544100828242105,
+     "detected": false,
+     "tvd": 0.007399585000741071,
+     "n_declared": 269880.0,
+     "n_control": 269880.0,
+     "n_bins": 3759,
+     "primary": false
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.44983260007575154,
+   "checks": {
+    "declared_recomputed_equals_asset": true
+   },
+   "seconds_wall_row": 4.01,
+   "measured_at": "2026-09-30"
+  },
+  "W5#2": {
+   "key": "W5#2",
+   "control": "最寄りノードのセル(宣言)vs 入口座標の格子セル",
+   "metric": "入口のセル分布",
+   "variants": [
+    {
+     "name": "入口座標の格子セル",
+     "jsd_bits": 0.030344354546231207,
+     "null_p95": 0.02436501290310745,
+     "detected": true,
+     "tvd": 0.1283569756231924,
+     "n_declared": 7261.0,
+     "n_control": 7261.0,
+     "n_bins": 452
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 0.24831539997830987,
+   "entrances_cell_differs": 1846,
+   "seconds_wall_row": 0.25,
+   "measured_at": "2026-09-30"
+  },
+  "W6#2": {
+   "key": "W6#2",
+   "control": "自身の格子×束縛ノードのバンド・欠けたらノードのセル(宣言)vs 格子だけ(バンド GL・欠けは『セル表に無い』)",
+   "metric": "POI・組織のセル分布",
+   "variants": [
+    {
+     "name": "POI: 格子だけ(バンド GL)",
+     "jsd_bits": 0.03286716045094977,
+     "null_p95": 0.06022092820708934,
+     "detected": false,
+     "tvd": 0.04792468977321352,
+     "n_declared": 2337.0,
+     "n_control": 2337.0,
+     "n_bins": 317,
+     "n_changed": 115
+    },
+    {
+     "name": "組織: 格子だけ(バンド GL)",
+     "jsd_bits": 0.050491755503937204,
+     "null_p95": 0.014676344740972682,
+     "detected": true,
+     "tvd": 0.06412074554294976,
+     "n_declared": 9872.0,
+     "n_control": 9872.0,
+     "n_bins": 356,
+     "n_changed": 633
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 0.33714219997636974,
+   "seconds_wall_row": 0.34,
+   "measured_at": "2026-09-30"
+  },
+  "W6#3": {
+   "key": "W6#3",
+   "control": "名前一致層あり(宣言)vs なし(切替口 USE_NAME_SUBCAT_RULES=False)",
+   "metric": "POI の cat|subcat 分布",
+   "variants": [
+    {
+     "name": "名前一致層なし",
+     "jsd_bits": 0.00022142842635260128,
+     "null_p95": 0.00938506534623407,
+     "detected": false,
+     "tvd": 0.0012836970474967902,
+     "n_declared": 2337.0,
+     "n_control": 2337.0,
+     "n_bins": 43,
+     "n_changed": 3
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.34416860004421324,
+   "outputs_changed": [
+    "w6_poi.parquet"
+   ],
+   "seconds_wall_row": 1.13,
+   "measured_at": "2026-09-30"
+  },
+  "W7#10": {
+   "key": "W7#10",
+   "control": "特別日なし(宣言)vs 特別日の延長(許容地域外でも 1:00 まで)",
+   "metric": "再生日の営業中 POI×時の分布",
+   "variants": [
+    {
+     "name": "特別日の延長(1:00)",
+     "jsd_bits": 0.0,
+     "null_p95": 0.00034936061079824597,
+     "detected": false,
+     "tvd": 0.0,
+     "n_declared": 392616.0,
+     "n_control": 392616.0,
+     "n_bins": 336,
+     "n_poi_changed": 0
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.1106914000120014,
+   "notes": [
+    "現行は全 POI に許容地域の行(1:00)を当てているので、特別日の延長(1:00)は同じ窓=構成上 差 0。「告示する時」(特別の事情のある地域)は告示がリポに無く測れない"
+   ],
+   "seconds_wall_row": 0.69,
+   "measured_at": "2026-09-30"
+  },
+  "W7#11": {
+   "key": "W7#11",
+   "control": "三・四号だけ(宣言)vs 一号(cinema・hall の theatre/events_venue/music_venue)+二号(leisure の sports_centre で代用)も",
+   "metric": "未成年の立入窓(23:00-4:00 を当てた視点)での営業中 POI×時の分布",
+   "variants": [
+    {
+     "name": "一・二号も写像",
+     "jsd_bits": 3.904198962207002e-07,
+     "null_p95": 0.0003490282614287342,
+     "detected": false,
+     "tvd": 0.00012480387961774338,
+     "n_declared": 392616.0,
+     "n_control": 392616.0,
+     "n_bins": 336,
+     "n_poi_added": 28
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.22521750000305474,
+   "notes": [
+    "二号(ボウリング/スケート/水泳)は subcat に無く sports_centre で代用(未リサーチ)"
+   ],
+   "seconds_wall_row": 0.23,
+   "measured_at": "2026-09-30"
+  },
+  "W7#2": {
+   "key": "W7#2",
+   "control": "18 歳未満の立入制限を窓として当てない(宣言)vs 23:00-4:00 を当てる(未成年から見た営業中)",
+   "metric": "未成年から見た営業中 POI×時(168 時×{営業中,休業})の分布",
+   "variants": [
+    {
+     "name": "立入窓を当てる",
+     "jsd_bits": 1.1886413941386174e-05,
+     "null_p95": 0.00034936061079824597,
+     "detected": false,
+     "tvd": 0.0014416121604825093,
+     "n_declared": 392616.0,
+     "n_control": 392616.0,
+     "n_bins": 336,
+     "n_poi_affected": 18
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.22721449995879084,
+   "seconds_wall_row": 0.23,
+   "measured_at": "2026-09-30"
+  },
+  "W7#5": {
+   "key": "W7#5",
+   "control": "love_hotel=上限なし(宣言)vs 店舗型性風俗の窓 0:00-6:00(旅館業なら窓なし=宣言と同じ)",
+   "metric": "営業中 POI×時(168 時×{営業中,休業})の分布",
+   "variants": [
+    {
+     "name": "店舗型性風俗の窓",
+     "jsd_bits": 0.00024275804660263628,
+     "null_p95": 0.00034936061079824597,
+     "detected": false,
+     "tvd": 0.00673940949935815,
+     "n_declared": 392616.0,
+     "n_control": 392616.0,
+     "n_bins": 336,
+     "n_poi_changed": 63
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.11481319996528327,
+   "seconds_wall_row": 0.72,
+   "measured_at": "2026-09-30"
+  },
+  "W7#6": {
+   "key": "W7#6",
+   "control": "nightlife 既定=深夜酒類提供・上限なし(宣言)vs 接待飲食(1-3 号)の窓 1:00-6:00(OSM タグの明示は優先のまま)",
+   "metric": "営業中 POI×時(168 時×{営業中,休業})の分布",
+   "variants": [
+    {
+     "name": "接待飲食の窓",
+     "jsd_bits": 8.42241018194121e-07,
+     "null_p95": 0.00034936061079824597,
+     "detected": false,
+     "tvd": 0.0003565825131935517,
+     "n_declared": 392616.0,
+     "n_control": 392616.0,
+     "n_bins": 336,
+     "n_poi_changed": 5
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.11991529993247241,
+   "seconds_wall_row": 0.7,
+   "measured_at": "2026-09-30"
+  },
+  "W7#7": {
+   "key": "W7#7",
+   "control": "PH 規則を無視(宣言)vs 当てる(再生日 2026-07-28 は祝日表に無い)",
+   "metric": "再生日の営業中 POI×時の分布",
+   "variants": [
+    {
+     "name": "PH を当てる(再生日=祝日でない→対照=宣言)",
+     "jsd_bits": 0.0,
+     "null_p95": 0.00034936061079824597,
+     "detected": false,
+     "tvd": 0.0,
+     "n_declared": 392616.0,
+     "n_control": 392616.0,
+     "n_bins": 336
+    },
+    {
+     "name": "参考: 再生日が祝日だったら(PH 規則のある POI 40 件をその曜日へ)",
+     "jsd_bits": 2.976903828742571e-06,
+     "null_p95": 0.00041124794590418956,
+     "detected": false,
+     "tvd": 0.0008543122711928857,
+     "n_declared": 56088.0,
+     "n_control": 56088.0,
+     "n_bins": 48,
+     "primary": false
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.2509367000311613,
+   "replay_date": "2026-07-28",
+   "replay_is_holiday": false,
+   "seconds_wall_row": 0.29,
+   "measured_at": "2026-09-30"
+  },
+  "W7#8": {
+   "key": "W7#8",
+   "control": "brand 内の最頻を伝播(宣言)vs 伝播なし(入力の brand タグを落としてカテゴリ既定へ)",
+   "metric": "営業中 POI×時(168 時×{営業中,休業})の分布",
+   "variants": [
+    {
+     "name": "伝播なし",
+     "jsd_bits": 1.015775216754738e-06,
+     "null_p95": 0.00034936061079824597,
+     "detected": false,
+     "tvd": 0.0006081005358925762,
+     "n_declared": 392616.0,
+     "n_control": 392616.0,
+     "n_bins": 336,
+     "n_poi_changed": 7
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 0.12672129995189607,
+   "seconds_wall_row": 0.73,
+   "measured_at": "2026-09-30"
+  },
+  "W7#9": {
+   "key": "W7#9",
+   "control": "一律(宣言=許容地域の行)vs **上界の対照**: 全 POI を住居集合地域とみなす(1-3 号・5 号 23:00-10:00・深夜酒類 0:00-6:00)",
+   "metric": "営業中 POI×時(168 時×{営業中,休業})の分布",
+   "variants": [
+    {
+     "name": "上界(全 POI 住居集合地域)",
+     "jsd_bits": 0.0020687519502911858,
+     "null_p95": 0.00034936061079824597,
+     "detected": true,
+     "tvd": 0.01814368237667339,
+     "n_declared": 392616.0,
+     "n_control": 392616.0,
+     "n_bins": 336,
+     "n_poi_changed": 217
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 0.1177216999931261,
+   "notes": [
+    "告示 26 町丁の全名簿と用途地域がリポに無い(答申は名簿を省略形で載せる・取得は禁止)ので、実際の地域条件ではなく**上界**を当てた。上界が帰無内なら実際も帰無内・超えたらラン対照へ(保守側)"
+   ],
+   "seconds_wall_row": 0.69,
+   "measured_at": "2026-09-30"
+  },
+  "W8#2": {
+   "key": "W8#2",
+   "control": "最大視程 150 m(宣言)vs 100 m / 200 m",
+   "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+   "variants": [
+    {
+     "name": "視程 100 m: (セル,対象)→見えている視点数",
+     "jsd_bits": 0.05790109026018618,
+     "null_p95": 0.003298782022654004,
+     "detected": true,
+     "tvd": 0.16800950503868528,
+     "n_declared": 4943303.0,
+     "n_control": 3867136.0,
+     "n_bins": 43479,
+     "jaccard_pairs": 0.805837300765887
+    },
+    {
+     "name": "視程 100 m: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+     "jsd_bits": 0.022186532493326375,
+     "null_p95": 0.0001451758938727284,
+     "detected": true,
+     "tvd": 0.1309190092282161,
+     "n_declared": 356732.0,
+     "n_control": 356732.0,
+     "n_bins": 117,
+     "primary": false
+    },
+    {
+     "name": "視程 200 m: (セル,対象)→見えている視点数",
+     "jsd_bits": 0.037026098870339835,
+     "null_p95": 0.003298782022654004,
+     "detected": true,
+     "tvd": 0.11506385811228448,
+     "n_declared": 4943303.0,
+     "n_control": 5703649.0,
+     "n_bins": 49989,
+     "jaccard_pairs": 0.8697713496969334
+    },
+    {
+     "name": "視程 200 m: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+     "jsd_bits": 0.008921731325861734,
+     "null_p95": 0.0001448034771158729,
+     "detected": true,
+     "tvd": 0.08463776728748755,
+     "n_declared": 356732.0,
+     "n_control": 356732.0,
+     "n_bins": 167,
+     "primary": false
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 2.9907655001152307,
+   "outputs_changed": [
+    "w8_t1.parquet",
+    "w8_t1_cell.parquet",
+    "w8_t2.npy"
+   ],
+   "notes": [],
+   "seconds_wall_row": 39.51,
+   "measured_at": "2026-09-30"
+  },
+  "W8#3": {
+   "key": "W8#3",
+   "control": "遮蔽ラスタ 2.5 m(宣言)vs 1.25 m(視線の標本刻みは 2.5 m のまま)",
+   "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+   "variants": [
+    {
+     "name": "ラスタ 1.25 m: (セル,対象)→見えている視点数",
+     "jsd_bits": 0.006873946071767577,
+     "null_p95": 0.003298782022654004,
+     "detected": true,
+     "tvd": 0.03920554279232201,
+     "n_declared": 4943303.0,
+     "n_control": 5109770.0,
+     "n_bins": 46110,
+     "jaccard_pairs": 0.9189980481457385
+    },
+    {
+     "name": "ラスタ 1.25 m: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+     "jsd_bits": 0.0010916756181368686,
+     "null_p95": 0.0001451758938727284,
+     "detected": true,
+     "tvd": 0.03136528262112735,
+     "n_declared": 356732.0,
+     "n_control": 356732.0,
+     "n_bins": 117,
+     "primary": false
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 1.5710075000533834,
+   "outputs_changed": [
+    "w8_t1.parquet",
+    "w8_t1_cell.parquet",
+    "w8_t2.npy",
+    "w8_targets.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 20.39,
+   "measured_at": "2026-09-30"
+  },
+  "W8#4": {
+   "key": "W8#4",
+   "control": "建物の基準地盤高=重心の DEM(宣言)vs footprint 頂点の DEM の最小値",
+   "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+   "variants": [
+    {
+     "name": "頂点の DEM の最小: (セル,対象)→見えている視点数",
+     "jsd_bits": 0.005642962699137986,
+     "null_p95": 0.003298782022654004,
+     "detected": true,
+     "tvd": 0.019718704170352278,
+     "n_declared": 4943303.0,
+     "n_control": 5007375.0,
+     "n_bins": 44669,
+     "jaccard_pairs": 0.9609124896460632
+    },
+    {
+     "name": "頂点の DEM の最小: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+     "jsd_bits": 0.00015505493203701295,
+     "null_p95": 0.0001451758938727284,
+     "detected": true,
+     "tvd": 0.010812038168709289,
+     "n_declared": 356732.0,
+     "n_control": 356732.0,
+     "n_bins": 117,
+     "primary": false
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 1.427492400049232,
+   "outputs_changed": [
+    "w8_t1.parquet",
+    "w8_t1_cell.parquet",
+    "w8_t2.npy",
+    "w8_targets.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 20.1,
+   "measured_at": "2026-09-30"
+  },
+  "W8#5": {
+   "key": "W8#5",
+   "control": "DEM 範囲外=端の値でクランプ(宣言)vs 範囲外を欠損=基準面 GROUND0 15.18 m で埋める",
+   "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+   "variants": [
+    {
+     "name": "範囲外=GROUND0: (セル,対象)→見えている視点数",
+     "jsd_bits": 0.01217533878021837,
+     "null_p95": 0.003298782022654004,
+     "detected": true,
+     "tvd": 0.02229189753713305,
+     "n_declared": 4943303.0,
+     "n_control": 4977383.0,
+     "n_bins": 44599,
+     "jaccard_pairs": 0.9652234355030381
+    },
+    {
+     "name": "範囲外=GROUND0: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+     "jsd_bits": 0.00032553299125157595,
+     "null_p95": 0.0001451758938727284,
+     "detected": true,
+     "tvd": 0.014512294944103693,
+     "n_declared": 356732.0,
+     "n_control": 356732.0,
+     "n_bins": 117,
+     "primary": false
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 1.4391062000067905,
+   "outputs_changed": [
+    "w8_t1.parquet",
+    "w8_t1_cell.parquet",
+    "w8_t2.npy",
+    "w8_targets.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 19.52,
+   "measured_at": "2026-09-30"
+  },
+  "W8#6": {
+   "key": "W8#6",
+   "control": "DECK 視点の眼高=GL と同じ(宣言)vs DECK 視点だけ +6 m",
+   "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+   "variants": [
+    {
+     "name": "DECK +6 m: (セル,対象)→見えている視点数",
+     "jsd_bits": 0.0021680892365414602,
+     "null_p95": 0.003298782022654004,
+     "detected": false,
+     "tvd": 0.01009194924706541,
+     "n_declared": 4943303.0,
+     "n_control": 4995232.0,
+     "n_bins": 43751,
+     "jaccard_pairs": 0.9937829992457315
+    },
+    {
+     "name": "DECK +6 m: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+     "jsd_bits": 0.0002463637044621059,
+     "null_p95": 0.0001448034771158729,
+     "detected": true,
+     "tvd": 0.009842122377583173,
+     "n_declared": 356732.0,
+     "n_control": 356732.0,
+     "n_bins": 120,
+     "primary": false
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 1.4901366999838501,
+   "outputs_changed": [
+    "w8_t1.parquet",
+    "w8_t1_cell.parquet",
+    "w8_t2.npy"
+   ],
+   "notes": [],
+   "seconds_wall_row": 18.6,
+   "measured_at": "2026-09-30"
+  },
+  "W8#7": {
+   "key": "W8#7",
+   "control": "UG は建物ラスタを当てない(宣言)vs UG にも建物ラスタ(地上と同じ 2.5D 視線)を当てる",
+   "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+   "variants": [
+    {
+     "name": "UG にも遮蔽: (セル,対象)→見えている視点数",
+     "jsd_bits": 0.0005824143053194655,
+     "null_p95": 0.003298782022654004,
+     "detected": false,
+     "tvd": 0.0014030991077916737,
+     "n_declared": 4943303.0,
+     "n_control": 4936364.0,
+     "n_bins": 43479,
+     "jaccard_pairs": 0.9995170082108604
+    },
+    {
+     "name": "UG にも遮蔽: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+     "jsd_bits": 0.0007779762561237764,
+     "null_p95": 0.0001451758938727284,
+     "detected": true,
+     "tvd": 0.009931825572138188,
+     "n_declared": 356732.0,
+     "n_control": 356732.0,
+     "n_bins": 117,
+     "primary": false
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 2.711322300019674,
+   "outputs_changed": [
+    "w8_t1.parquet",
+    "w8_t1_cell.parquet"
+   ],
+   "notes": [
+    "カーネルのソースをこのプロセスの中だけ 1 行差し替えて njit した(src のファイルは変えていない)"
+   ],
+   "seconds_wall_row": 20.09,
+   "measured_at": "2026-09-30"
+  },
+  "W8#8": {
+   "key": "W8#8",
+   "control": "1 視点あたり上限 256(宣言)vs 512",
+   "metric": "w8_t1_cell の (セル, 対象) → 見えている視点数 の分布(エンジンが読む表)",
+   "variants": [
+    {
+     "name": "上限 512: (セル,対象)→見えている視点数",
+     "jsd_bits": 0.0,
+     "null_p95": 0.003298782022654004,
+     "detected": false,
+     "tvd": 0.0,
+     "n_declared": 4943303.0,
+     "n_control": 4943303.0,
+     "n_bins": 43479,
+     "jaccard_pairs": 1.0
+    },
+    {
+     "name": "上限 512: 視点あたり可視数の分布(参考・w8_t1 はエンジンが読まない)",
+     "jsd_bits": 0.0,
+     "null_p95": 0.0001451758938727284,
+     "detected": false,
+     "tvd": 0.0,
+     "n_declared": 356732.0,
+     "n_control": 356732.0,
+     "n_bins": 117,
+     "primary": false
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 1.4183304000180215,
+   "outputs_changed": [],
+   "notes": [],
+   "seconds_wall_row": 19.33,
+   "measured_at": "2026-09-30"
+  },
+  "W8#9": {
+   "key": "W8#9",
+   "control": "T2 のセル対の標本 ≤200(宣言)vs ≤400",
+   "metric": "T2 見通し率(評価したセル対)の 0.05 階級分布",
+   "variants": [
+    {
+     "name": "標本 ≤400",
+     "jsd_bits": 9.696326694589387e-05,
+     "null_p95": 0.0010749221691933038,
+     "detected": false,
+     "tvd": 0.003748828491096571,
+     "n_declared": 10670.0,
+     "n_control": 10670.0,
+     "n_bins": 21,
+     "mean_abs_diff": 0.0022690564757099525
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 1.4511811999836937,
+   "outputs_changed": [
+    "w8_t2.npy"
+   ],
+   "notes": [
+    "w8_t2 はエンジン側の読み口が無い(D-44 (c) の段単位では W8 が読まれるので『読む』に入っている)"
+   ],
+   "seconds_wall_row": 2.23,
+   "measured_at": "2026-09-30"
+  },
+  "W9#1": {
+   "key": "W9#1",
+   "control": "影の最大追跡 300 m(宣言)vs 600 m",
+   "metric": "影の面 → (セル × 時 × {日陰, 日向}) の点・面の数の分布",
+   "variants": [
+    {
+     "name": "600 m",
+     "jsd_bits": 0.00017021468925427558,
+     "null_p95": 6.620697166807141e-05,
+     "detected": true,
+     "tvd": 0.0009756779754985694,
+     "n_declared": 102738816.0,
+     "n_control": 102738816.0,
+     "n_bins": 25008,
+     "shadow_share_declared": 0.7143917640631561,
+     "shadow_share_control": 0.7153674420386547
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 1.136393200024031,
+   "outputs_changed": [
+    "w9_shadow_2026-07-28.npy",
+    "w9_shadow_planes.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 10.04,
+   "measured_at": "2026-09-30"
+  },
+  "W9#2": {
+   "key": "W9#2",
+   "control": "DECK=GL と同じ扱い(宣言)vs DECK 視点だけ +6 m(UG の常時日陰は両側とも同じ)",
+   "metric": "影の面 → (セル × 時 × {日陰, 日向}) の点・面の数の分布",
+   "variants": [
+    {
+     "name": "DECK 視点だけ +6 m(UG の常時日陰は両側とも同じ)",
+     "jsd_bits": 0.0008374406719709238,
+     "null_p95": 6.620697166807141e-05,
+     "detected": true,
+     "tvd": 0.0029642447894279796,
+     "n_declared": 102738816.0,
+     "n_control": 102738816.0,
+     "n_bins": 25008,
+     "shadow_share_declared": 0.7143917640631561,
+     "shadow_share_control": 0.711427519273728
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 1.0000804999144748,
+   "outputs_changed": [
+    "w9_shadow_2026-07-28.npy",
+    "w9_shadow_planes.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 9.7,
+   "measured_at": "2026-09-30"
+  },
+  "W9#3": {
+   "key": "W9#3",
+   "control": "遮蔽ラスタ 2.5 m(宣言)vs 1.25 m",
+   "metric": "影の面 → (セル × 時 × {日陰, 日向}) の点・面の数の分布",
+   "variants": [
+    {
+     "name": "1.25 m",
+     "jsd_bits": 6.174780430030156e-05,
+     "null_p95": 6.620697166807141e-05,
+     "detected": false,
+     "tvd": 0.003491056389047739,
+     "n_declared": 102738816.0,
+     "n_control": 102738816.0,
+     "n_bins": 25008,
+     "shadow_share_declared": 0.7143917640631561,
+     "shadow_share_control": 0.713419541451597
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 1.1715911999344826,
+   "outputs_changed": [
+    "w9_shadow_2026-07-28.npy",
+    "w9_shadow_planes.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 9.98,
+   "measured_at": "2026-09-30"
+  },
+  "W9#4": {
+   "key": "W9#4",
+   "control": "大気差・尾根越し遮蔽なし(宣言)vs 大気差あり(太陽高度に大気差を足す)",
+   "metric": "影の面 → (セル × 時 × {日陰, 日向}) の点・面の数の分布",
+   "variants": [
+    {
+     "name": "大気差あり(太陽高度に大気差を足す)",
+     "jsd_bits": 3.891796096761138e-05,
+     "null_p95": 6.620697166807141e-05,
+     "detected": false,
+     "tvd": 0.0007787514312020103,
+     "n_declared": 102738816.0,
+     "n_control": 102738816.0,
+     "n_bins": 25008,
+     "shadow_share_declared": 0.7143917640631561,
+     "shadow_share_control": 0.713613012631954
+    }
+   ],
+   "detected": false,
+   "status": "measured",
+   "verdict": "not_driving",
+   "seconds_stage": 1.0130205999594182,
+   "outputs_changed": [
+    "w9_shadow_2026-07-28.npy",
+    "w9_shadow_planes.parquet"
+   ],
+   "notes": [
+    "大気差の式は NOAA 太陽位置計算表の式を記憶から書いた(一次未確認=未リサーチ)"
+   ],
+   "partial": "尾根越し遮蔽(ラスタの外の遠方地形)は遠方の DEM がリポに無く測れない",
+   "seconds_wall_row": 9.4,
+   "measured_at": "2026-09-30"
+  },
+  "W9#5": {
+   "key": "W9#5",
+   "control": "再生日=W13 の先頭日 2026-07-28(宣言)vs 候補の末日 2026-08-31",
+   "metric": "影の面 → (セル × 時 × {日陰, 日向}) の点・面の数の分布",
+   "variants": [
+    {
+     "name": "候補の末日 2026-08-31",
+     "jsd_bits": 0.008272024464496472,
+     "null_p95": 6.620697166807141e-05,
+     "detected": true,
+     "tvd": 0.04353677776469606,
+     "n_declared": 102738816.0,
+     "n_control": 102738816.0,
+     "n_bins": 25008,
+     "shadow_share_declared": 0.7143917640631561,
+     "shadow_share_control": 0.7552055593087621
+    }
+   ],
+   "detected": true,
+   "status": "measured",
+   "verdict": "needs_run",
+   "seconds_stage": 1.0068397000432014,
+   "outputs_changed": [
+    "w13_weather_days.parquet",
+    "w9_shadow_2026-08-31.npy",
+    "w9_shadow_planes.parquet"
+   ],
+   "notes": [],
+   "seconds_wall_row": 8.9,
+   "measured_at": "2026-09-30"
+  }
+ },
+ "stages": {
+  "W1": {
+   "stage": "W1",
+   "keys": [
+    "W1#2",
+    "W1#3"
+   ],
+   "wall_seconds": 2.89,
+   "per_key_seconds": {
+    "W1#2": 1.77,
+    "W1#3": 1.13
+   },
+   "failed": []
+  },
+  "W10": {
+   "stage": "W10",
+   "keys": [
+    "W10#2",
+    "W10#3",
+    "W10#4",
+    "W10#5",
+    "W10#6",
+    "W10#7",
+    "W10#9",
+    "W10#10"
+   ],
+   "wall_seconds": 100.59,
+   "per_key_seconds": {
+    "W10#2": 12.86,
+    "W10#3": 25.4,
+    "W10#4": 13.44,
+    "W10#5": 0.15,
+    "W10#6": 12.64,
+    "W10#7": 26.19,
+    "W10#9": 6.31,
+    "W10#10": 3.61
+   },
+   "failed": []
+  },
+  "W11": {
+   "stage": "W11",
+   "keys": [
+    "W11#2",
+    "W11#3",
+    "W11#4",
+    "W11#5"
+   ],
+   "wall_seconds": 2.73,
+   "per_key_seconds": {
+    "W11#2": 0.57,
+    "W11#3": 1.01,
+    "W11#4": 1.0,
+    "W11#5": 0.15
+   },
+   "failed": []
+  },
+  "W12": {
+   "stage": "W12",
+   "keys": [
+    "W12#2",
+    "W12#3",
+    "W12#5",
+    "W12#6",
+    "W12#7",
+    "W12#8"
+   ],
+   "wall_seconds": 6.37,
+   "per_key_seconds": {
+    "W12#2": 1.44,
+    "W12#3": 0.69,
+    "W12#5": 1.66,
+    "W12#6": 1.13,
+    "W12#7": 1.11,
+    "W12#8": 0.34
+   },
+   "failed": []
+  },
+  "W13": {
+   "stage": "W13",
+   "keys": [
+    "W13#3",
+    "W13#5",
+    "W13#6",
+    "W13#7"
+   ],
+   "wall_seconds": 2.63,
+   "per_key_seconds": {
+    "W13#3": 1.04,
+    "W13#5": 0.15,
+    "W13#6": 1.08,
+    "W13#7": 0.35
+   },
+   "failed": []
+  },
+  "W16": {
+   "stage": "W16",
+   "keys": [
+    "W16#1",
+    "W16#2",
+    "W16#4",
+    "W16#5",
+    "W16#7",
+    "W16#8",
+    "W16#9",
+    "W16#11",
+    "W16#12",
+    "W16#13"
+   ],
+   "wall_seconds": 204.61,
+   "per_key_seconds": {
+    "W16#1": 13.26,
+    "W16#2": 13.13,
+    "W16#4": 13.84,
+    "W16#5": 0.33,
+    "W16#7": 27.55,
+    "W16#8": 0.36,
+    "W16#9": 81.6,
+    "W16#11": 13.82,
+    "W16#12": 27.11,
+    "W16#13": 13.61
+   },
+   "failed": []
+  },
+  "W17": {
+   "stage": "W17",
+   "keys": [
+    "W17#4",
+    "W17#5"
+   ],
+   "wall_seconds": 121.36,
+   "per_key_seconds": {
+    "W17#4": 103.62,
+    "W17#5": 17.74
+   },
+   "failed": []
+  },
+  "W2": {
+   "stage": "W2",
+   "keys": [
+    "W2#2",
+    "W2#3",
+    "W2#4"
+   ],
+   "wall_seconds": 1.93,
+   "per_key_seconds": {
+    "W2#2": 0.43,
+    "W2#3": 1.12,
+    "W2#4": 0.38
+   },
+   "failed": []
+  },
+  "W3": {
+   "stage": "W3",
+   "keys": [
+    "W3"
+   ],
+   "wall_seconds": 4.25,
+   "per_key_seconds": {
+    "W3": 4.25
+   },
+   "failed": []
+  },
+  "W5": {
+   "stage": "W5",
+   "keys": [
+    "W5#2"
+   ],
+   "wall_seconds": 0.42,
+   "per_key_seconds": {
+    "W5#2": 0.42
+   },
+   "failed": []
+  },
+  "W6": {
+   "stage": "W6",
+   "keys": [
+    "W6#2",
+    "W6#3"
+   ],
+   "wall_seconds": 1.85,
+   "per_key_seconds": {
+    "W6#2": 0.51,
+    "W6#3": 1.34
+   },
+   "failed": []
+  },
+  "W7": {
+   "stage": "W7",
+   "keys": [
+    "W7#2",
+    "W7#5",
+    "W7#6",
+    "W7#7",
+    "W7#8",
+    "W7#9",
+    "W7#10",
+    "W7#11"
+   ],
+   "wall_seconds": 5.81,
+   "per_key_seconds": {
+    "W7#2": 0.41,
+    "W7#5": 0.92,
+    "W7#6": 0.91,
+    "W7#7": 0.46,
+    "W7#8": 0.93,
+    "W7#9": 0.89,
+    "W7#10": 0.88,
+    "W7#11": 0.41
+   },
+   "failed": []
+  },
+  "W8": {
+   "stage": "W8",
+   "keys": [
+    "W8#2",
+    "W8#3",
+    "W8#4",
+    "W8#5",
+    "W8#6",
+    "W8#7",
+    "W8#8",
+    "W8#9"
+   ],
+   "wall_seconds": 161.98,
+   "per_key_seconds": {
+    "W8#2": 39.8,
+    "W8#3": 20.65,
+    "W8#4": 20.36,
+    "W8#5": 19.81,
+    "W8#6": 18.86,
+    "W8#7": 20.39,
+    "W8#8": 19.63,
+    "W8#9": 2.47
+   },
+   "failed": []
+  },
+  "W9": {
+   "stage": "W9",
+   "keys": [
+    "W9#1",
+    "W9#2",
+    "W9#3",
+    "W9#4",
+    "W9#5"
+   ],
+   "wall_seconds": 49.3,
+   "per_key_seconds": {
+    "W9#1": 10.31,
+    "W9#2": 9.95,
+    "W9#3": 10.24,
+    "W9#4": 9.65,
+    "W9#5": 9.15
+   },
+   "failed": []
+  }
+ },
+ "base_rebuild": {
+  "stages": [
+   "W0",
+   "W1",
+   "W2",
+   "W3",
+   "W4",
+   "W5",
+   "W6",
+   "W7",
+   "W10",
+   "W11",
+   "W12",
+   "W13",
+   "W8",
+   "W9",
+   "W16"
+  ],
+  "wall_seconds": 32.8,
+  "outputs": [
+   {
+    "stage": "W0",
+    "output": "world_crs.json",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W1",
+    "output": "w1_nodes.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W1",
+    "output": "w1_edges.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W1",
+    "output": "w1_edge_geometry.npz",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W1",
+    "output": "w1_floorguide_links.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W2",
+    "output": "w2_cells.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W2",
+    "output": "w2_blocks.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W2",
+    "output": "w2_block_rings.npz",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W3",
+    "output": "w3_cell_dist.npy",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W3",
+    "output": "w3_next_hop.npy",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W3",
+    "output": "w3_cell_reps.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W4",
+    "output": "w4_buildings.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W5",
+    "output": "w5_entrances.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W6",
+    "output": "w6_poi.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W6",
+    "output": "w6_org.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W7",
+    "output": "w7_plan_spec.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W10",
+    "output": "w10_street_points.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W10",
+    "output": "w10_noise_day.npy",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W10",
+    "output": "w10_noise_night.npy",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W10",
+    "output": "w10_noise_stage_day.npy",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W10",
+    "output": "w10_noise_stage_night.npy",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W10",
+    "output": "w10_edge_section.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W11",
+    "output": "w11_stations.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W11",
+    "output": "w11_station_exits.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W11",
+    "output": "w11_station_graph_nodes.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W11",
+    "output": "w11_station_graph_edges.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W11",
+    "output": "w11_floorguide_connections.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W12",
+    "output": "w12_external_nodes.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W12",
+    "output": "w12_generation_weights.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W12",
+    "output": "w12_timetables.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W13",
+    "output": "w13_weather_days.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W13",
+    "output": "w13_weather_hourly.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W8",
+    "output": "w8_targets.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W8",
+    "output": "w8_t1.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W8",
+    "output": "w8_t1_cell.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W8",
+    "output": "w8_t2.npy",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W9",
+    "output": "w9_shadow_2026-07-28.npy",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W9",
+    "output": "w9_shadow_planes.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W16",
+    "output": "w16_population.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W16",
+    "output": "w16_households.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W16",
+    "output": "w16_duty_roster.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W16",
+    "output": "w16_chome.parquet",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W16",
+    "output": "w16_gates.json",
+    "same_as_promoted": true
+   },
+   {
+    "stage": "W16",
+    "output": "w16_cohorts.json",
+    "same_as_promoted": true
+   }
+  ],
+  "all_same": true,
+  "manifest_build_hash_head": "09571e85ace689da"
+ },
+ "selfcheck_all_ok": true
+}

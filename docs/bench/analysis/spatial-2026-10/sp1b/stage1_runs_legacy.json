@@ -1,0 +1,149 @@
+{
+ "agents": 5000,
+ "runs": [
+  {
+   "label": "legacy_1d",
+   "space": "legacy",
+   "days": 1,
+   "agents": 5000,
+   "seed": 1,
+   "machine": "Windows 11 AMD64 cpu=20",
+   "final": "bb86f89855172717",
+   "checkpoints": [
+    [
+     359,
+     "8a4bce823373de0f"
+    ],
+    [
+     719,
+     "6701937f1f0e74ee"
+    ],
+    [
+     1079,
+     "8267375d5205629a"
+    ],
+    [
+     1439,
+     "bb86f89855172717"
+    ]
+   ],
+   "calls": 63572,
+   "wall_s": 40.3,
+   "run_wall_s": 39.84,
+   "ms_per_step": 27.67,
+   "steps": 1440,
+   "peak_rss_bytes": 527138816,
+   "space_effective": "legacy",
+   "space_meter": null,
+   "cell_changes": 79717,
+   "agent_ticks": 7200000,
+   "density_stage_changes": 21611,
+   "density_stage_hist": {
+    "0": 326316,
+    "1": 318531,
+    "2": 75753,
+    "3": 15967,
+    "4": 11208,
+    "5": 1025
+   },
+   "action_usage": {
+    "(エンジン継続)": 236797,
+    "移動": 9683,
+    "乗車": 5203,
+    "購入": 4827,
+    "なし": 5308,
+    "会話": 4722,
+    "退去": 5365,
+    "通報": 5261,
+    "手伝い": 5295,
+    "断る": 5255,
+    "就寝": 5033,
+    "食事": 5007,
+    "並ぶ": 4811
+   },
+   "movement_s": 0.2,
+   "phase_c_s": 3.07,
+   "resume_files": []
+  },
+  {
+   "label": "legacy_2d",
+   "space": "legacy",
+   "days": 2,
+   "agents": 5000,
+   "seed": 1,
+   "machine": "Windows 11 AMD64 cpu=20",
+   "final": "38d5d5674b90f993",
+   "checkpoints": [
+    [
+     359,
+     "8a4bce823373de0f"
+    ],
+    [
+     719,
+     "6701937f1f0e74ee"
+    ],
+    [
+     1079,
+     "8267375d5205629a"
+    ],
+    [
+     1439,
+     "bb86f89855172717"
+    ],
+    [
+     1799,
+     "33ad59c497ba00cb"
+    ],
+    [
+     2159,
+     "379f590e5c4afaf0"
+    ],
+    [
+     2519,
+     "45d6f455d6a0a3c6"
+    ],
+    [
+     2879,
+     "38d5d5674b90f993"
+    ]
+   ],
+   "calls": 138821,
+   "wall_s": 85.4,
+   "run_wall_s": 84.95,
+   "ms_per_step": 29.5,
+   "steps": 2880,
+   "peak_rss_bytes": 520720384,
+   "space_effective": "legacy",
+   "space_meter": null,
+   "cell_changes": 175382,
+   "agent_ticks": 14400000,
+   "density_stage_changes": 45237,
+   "density_stage_hist": {
+    "0": 606934,
+    "1": 678495,
+    "2": 154185,
+    "3": 33625,
+    "4": 22411,
+    "5": 1950
+   },
+   "action_usage": {
+    "(エンジン継続)": 521784,
+    "移動": 20574,
+    "乗車": 11562,
+    "購入": 8953,
+    "なし": 11463,
+    "会話": 10098,
+    "退去": 11687,
+    "通報": 11474,
+    "手伝い": 11538,
+    "断る": 11434,
+    "就寝": 11031,
+    "食事": 9465,
+    "並ぶ": 9006
+   },
+   "movement_s": 0.41,
+   "phase_c_s": 6.26,
+   "resume_files": []
+  }
+ ]
+}

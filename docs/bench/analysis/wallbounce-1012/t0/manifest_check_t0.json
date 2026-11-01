@@ -1,0 +1,128 @@
+{
+ "schema": "shibuya.bench/t0/manifest-check/1",
+ "agents": 5000,
+ "world": "data/world/v2",
+ "how": "10f の manifest_check_10f.py side の 7 本(HEAD=本体の src・t0=作業木の src・両側 PYTHONHASHSEED=0)の checkpoints の JSON を平坦化して比べる(壁時計の欄は除く・daily の行は行ごとに平坦化)。足してよいのは TM9 の欄(一番上・daily の行)と manifest_sections の表の TM9 の 4 行だけ。環境の欄(git の commit と汚れ・env_id)は必ず違う",
+ "all_ok": true,
+ "rows": [
+  {
+   "config": "w6_v3_default",
+   "seed": 1,
+   "final_head": "5f7ae9ff24005314",
+   "final_t0": "5f7ae9ff24005314",
+   "fields_compared": 1695,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.env_id"
+   ],
+   "added_fields": 14,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_order_old_then_tm9": true
+  },
+  {
+   "config": "w6_v3_default",
+   "seed": 2,
+   "final_head": "db0746a3efc4a8cb",
+   "final_t0": "db0746a3efc4a8cb",
+   "fields_compared": 1700,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.env_id"
+   ],
+   "added_fields": 14,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_order_old_then_tm9": true
+  },
+  {
+   "config": "w6_golden_null_arm",
+   "seed": 1,
+   "final_head": "354f49ca9a61b986",
+   "final_t0": "354f49ca9a61b986",
+   "fields_compared": 1696,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.env_id"
+   ],
+   "added_fields": 14,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_order_old_then_tm9": true
+  },
+  {
+   "config": "v3_mem_rel",
+   "seed": 1,
+   "final_head": "73a78288ab5e1498",
+   "final_t0": "73a78288ab5e1498",
+   "fields_compared": 2211,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.env_id"
+   ],
+   "added_fields": 14,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_order_old_then_tm9": true
+  },
+  {
+   "config": "v3_mem_rel",
+   "seed": 2,
+   "final_head": "c615df9a771cda41",
+   "final_t0": "c615df9a771cda41",
+   "fields_compared": 2197,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.env_id"
+   ],
+   "added_fields": 14,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_order_old_then_tm9": true
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "seed": 1,
+   "final_head": "4c512a1fdc2a70c0",
+   "final_t0": "4c512a1fdc2a70c0",
+   "fields_compared": 2208,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.env_id"
+   ],
+   "added_fields": 14,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_order_old_then_tm9": true
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "seed": 2,
+   "final_head": "2615535c06c09e84",
+   "final_t0": "2615535c06c09e84",
+   "fields_compared": 2182,
+   "fields_differ": [],
+   "environment_fields_differ": [
+    "manifest.env_id",
+    "manifest.environment.code.git_diff_sha256",
+    "manifest.environment.env_id"
+   ],
+   "added_fields": 14,
+   "unexpected_added": [],
+   "removed_fields": [],
+   "top_level_order_old_then_tm9": true
+  }
+ ]
+}

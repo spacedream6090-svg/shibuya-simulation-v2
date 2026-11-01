@@ -1,0 +1,2003 @@
+{
+ "inputs": {
+  "situations": "data/evalset/evalset-1-10/situations.jsonl",
+  "situations_md5": "d4d0cf61e64a2fd0a400d84f625b3335",
+  "summary": "data/evalset/evalset-1-10/summary.json",
+  "summary_md5": "46e8d0e955e6b05faf7ad29f8d507794",
+  "tapes": 32,
+  "tape_experience": true,
+  "tapes_md5": {
+   "n": 32,
+   "ok": true,
+   "mismatch": [],
+   "basis": "1-10 summary.json の tapes[].md5_calls"
+  }
+ },
+ "schema": "shibuya.tools.dm_eval/1",
+ "params": {
+  "seed": "dm61",
+  "mock_seed": "dm61-mock",
+  "n_orders": 4,
+  "rotation_offsets": {
+   "13": [
+    0,
+    3,
+    6,
+    9
+   ]
+  },
+  "arms": {
+   "t300": 300,
+   "t1000": 1000
+  },
+  "arm_drop_blocks": {
+   "t300": [
+    "B0"
+   ],
+   "t1000": []
+  },
+  "chars_per_token": 1.0,
+  "vocab_version": "v1",
+  "experience_k": 3,
+  "present_domain": "dm_eval.present"
+ },
+ "n_situations": 340,
+ "languages": {
+  "ja": 340,
+  "日本語の外": null
+ },
+ "first_language": null,
+ "experience": {
+  "situations_with_experience": 304,
+  "words_total": 755
+ },
+ "candidates": {
+  "n_situations": 340,
+  "presented_by_source": {
+   "affordance": 245,
+   "continue": 340,
+   "deliberate": 340,
+   "experience": 551,
+   "vocab": 2944
+  },
+  "kinds_by_source": {
+   "affordance": {
+    "乗車": 82,
+    "移動": 103,
+    "購入": 60
+   },
+   "continue": {
+    "待機": 340
+   },
+   "deliberate": {
+    "よく考える": 340
+   },
+   "experience": {
+    "乗車": 15,
+    "休憩": 42,
+    "会話": 1,
+    "移動": 237,
+    "購入": 253,
+    "退去": 2,
+    "通報": 1
+   },
+   "vocab": {
+    "乗車": 243,
+    "休憩": 298,
+    "会話": 339,
+    "就寝": 340,
+    "手伝い": 340,
+    "断る": 340,
+    "購入": 27,
+    "退去": 338,
+    "通報": 339,
+    "降車": 340
+   }
+  },
+  "n_candidates": {
+   "13": 340
+  },
+  "blank_sources": {
+   "plan": "近い予定=B6(起床の理由と予定)が材料に無い",
+   "affordance:会話": "近くの人=B5 の近接行が材料に無い",
+   "affordance:就寝": "自宅のセル=材料は全件セルの路上(1-10 §5 の 2)",
+   "affordance:断る": "招待=B6 が材料に無い",
+   "experience:memory": "記憶(B5)が材料に無い=テープの前の呼で代える"
+  }
+ },
+ "lengths": {
+  "t300/short": {
+   "n": 340,
+   "chars_min": 395,
+   "chars_median": 516.5,
+   "chars_max": 583,
+   "common_chars_median": 380.0,
+   "target_tokens": 300,
+   "budget_chars": 300,
+   "over_budget": 340,
+   "numbers_outside_money_time_median": 4.0,
+   "numbers_outside_money_time_max": 10,
+   "tokens": null
+  },
+  "t300/long": {
+   "n": 340,
+   "chars_min": 434,
+   "chars_median": 555.5,
+   "chars_max": 622,
+   "common_chars_median": 380.0,
+   "target_tokens": 300,
+   "budget_chars": 300,
+   "over_budget": 340,
+   "numbers_outside_money_time_median": 4.0,
+   "numbers_outside_money_time_max": 10,
+   "tokens": null
+  },
+  "t1000/short": {
+   "n": 340,
+   "chars_min": 1603,
+   "chars_median": 1724.5,
+   "chars_max": 1791,
+   "common_chars_median": 1588.0,
+   "target_tokens": 1000,
+   "budget_chars": 1000,
+   "over_budget": 340,
+   "numbers_outside_money_time_median": 21.0,
+   "numbers_outside_money_time_max": 27,
+   "tokens": null
+  },
+  "t1000/long": {
+   "n": 340,
+   "chars_min": 1642,
+   "chars_median": 1763.5,
+   "chars_max": 1830,
+   "common_chars_median": 1588.0,
+   "target_tokens": 1000,
+   "budget_chars": 1000,
+   "over_budget": 340,
+   "numbers_outside_money_time_median": 21.0,
+   "numbers_outside_money_time_max": 27,
+   "tokens": null
+  }
+ },
+ "scorers": [
+  {
+   "describe": {
+    "name": "mock",
+    "role": "control",
+    "implemented": true,
+    "reads_text": false,
+    "sees_presented_order": true,
+    "meta": {
+     "draw": "Dirichlet(1)=指数分布の重みを正規化",
+     "key": "種|状況の id",
+     "order": "候補の id の順(提示の並びを使わない)"
+    }
+   },
+   "by_arm": {
+    "t300": {
+     "agreement_vs_classical": {
+      "n": 340,
+      "jsd_mean": 0.715433868228645,
+      "jsd_median": 0.7229076314329941,
+      "spearman_mean": 0.07220209176085382,
+      "spearman_undefined": 0,
+      "top1_agree": 0.05588235294117647,
+      "marginal_jsd": 0.6597422446695815
+     },
+     "agreement_vs_tape": {
+      "n": 340,
+      "jsd_mean": 0.8250828432436683,
+      "jsd_median": 0.8414849829013056,
+      "spearman_mean": 0.030556223040947357,
+      "spearman_undefined": 0,
+      "top1_agree": 0.06470588235294118,
+      "marginal_jsd": 0.5395784154896021
+     },
+     "agreement_vs_g": null,
+     "hesitation": {
+      "n": 340,
+      "margin_mean": 0.07895031435089497,
+      "margin_median": 0.055134356845014984,
+      "entropy_mean": 2.1757204781243837,
+      "entropy_median": 2.1822806669184667
+     },
+     "surprise": null,
+     "other_rate": 0.0,
+     "position_bias": {
+      "n_situations": 340,
+      "n_orders": [
+       4
+      ],
+      "top1_change_rate": 0.0,
+      "top1_change_pairwise": 0.0,
+      "self_consistency_2": 1.0,
+      "number1_rate": 0.06985294117647059,
+      "number1_expected": 0.07692307692307691,
+      "other_top1_rate": 0.0,
+      "pbs_by_n": {
+       "13": {
+        "picks": 1360,
+        "pbs": 0.021875178237990157,
+        "position_dist": [
+         0.06985294117647059,
+         0.08308823529411764,
+         0.08161764705882353,
+         0.07205882352941176,
+         0.075,
+         0.08308823529411764,
+         0.07352941176470588,
+         0.0713235294117647,
+         0.08676470588235294,
+         0.07205882352941176,
+         0.0713235294117647,
+         0.08676470588235294,
+         0.07352941176470588
+        ]
+       }
+      },
+      "number1_test": {
+       "statistic": "d_i = 番号 1 を選んだ並びの割合 − 1/n_i の平均",
+       "mean_d": -0.0070701357466063375,
+       "p": 0.25015807136719576,
+       "n": 340,
+       "method": "monte-carlo",
+       "alternative": "two-sided",
+       "formula": "tools/c7/salt_compare.sign_flip_p"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     },
+     "speed": {
+      "wall_s_per_item": 4.1581102927653665e-05,
+      "wall_clock_device": "CPU",
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "same_as_arm": null
+    },
+    "t1000": {
+     "agreement_vs_classical": {
+      "n": 340,
+      "jsd_mean": 0.715433868228645,
+      "jsd_median": 0.7229076314329941,
+      "spearman_mean": 0.07220209176085382,
+      "spearman_undefined": 0,
+      "top1_agree": 0.05588235294117647,
+      "marginal_jsd": 0.6597422446695815
+     },
+     "agreement_vs_tape": {
+      "n": 340,
+      "jsd_mean": 0.8250828432436683,
+      "jsd_median": 0.8414849829013056,
+      "spearman_mean": 0.030556223040947357,
+      "spearman_undefined": 0,
+      "top1_agree": 0.06470588235294118,
+      "marginal_jsd": 0.5395784154896021
+     },
+     "agreement_vs_g": null,
+     "hesitation": {
+      "n": 340,
+      "margin_mean": 0.07895031435089497,
+      "margin_median": 0.055134356845014984,
+      "entropy_mean": 2.1757204781243837,
+      "entropy_median": 2.1822806669184667
+     },
+     "surprise": null,
+     "other_rate": 0.0,
+     "position_bias": {
+      "n_situations": 340,
+      "n_orders": [
+       4
+      ],
+      "top1_change_rate": 0.0,
+      "top1_change_pairwise": 0.0,
+      "self_consistency_2": 1.0,
+      "number1_rate": 0.06985294117647059,
+      "number1_expected": 0.07692307692307691,
+      "other_top1_rate": 0.0,
+      "pbs_by_n": {
+       "13": {
+        "picks": 1360,
+        "pbs": 0.021875178237990157,
+        "position_dist": [
+         0.06985294117647059,
+         0.08308823529411764,
+         0.08161764705882353,
+         0.07205882352941176,
+         0.075,
+         0.08308823529411764,
+         0.07352941176470588,
+         0.0713235294117647,
+         0.08676470588235294,
+         0.07205882352941176,
+         0.0713235294117647,
+         0.08676470588235294,
+         0.07352941176470588
+        ]
+       }
+      },
+      "number1_test": {
+       "statistic": "d_i = 番号 1 を選んだ並びの割合 − 1/n_i の平均",
+       "mean_d": -0.0070701357466063375,
+       "p": 0.25015807136719576,
+       "n": 340,
+       "method": "monte-carlo",
+       "alternative": "two-sided",
+       "formula": "tools/c7/salt_compare.sign_flip_p"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     },
+     "speed": {
+      "wall_s_per_item": 4.1581102927653665e-05,
+      "wall_clock_device": "CPU",
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "same_as_arm": "t300"
+    }
+   }
+  },
+  {
+   "describe": {
+    "name": "classical",
+    "role": "baseline",
+    "implemented": true,
+    "reads_text": false,
+    "sees_presented_order": true,
+    "meta": {
+     "anchors_md5": "79acf3cabc43fd36f11d2d718310066c",
+     "day_kind": "weekday",
+     "region": "kanto",
+     "multipliers": "1.0(IPF なし=engine の既定)",
+     "meal_gate": "通さない(B5 が無い)",
+     "sex": "男女の平均",
+     "age": "総数の行",
+     "words": [
+      "移動",
+      "待機",
+      "移動",
+      "移動",
+      "移動",
+      "移動",
+      "待機",
+      "待機",
+      "購入",
+      "移動",
+      "待機",
+      "待機",
+      "待機",
+      "移動",
+      "移動",
+      "待機",
+      "待機",
+      "待機",
+      "待機"
+     ]
+    }
+   },
+   "by_arm": {
+    "t300": {
+     "agreement_vs_classical": null,
+     "agreement_vs_tape": {
+      "n": 340,
+      "jsd_mean": 0.5452838874507833,
+      "jsd_median": 0.4466380722554887,
+      "spearman_mean": 0.4903546794518195,
+      "spearman_undefined": 0,
+      "top1_agree": 0.43823529411764706,
+      "marginal_jsd": 0.2675718641354603
+     },
+     "agreement_vs_g": null,
+     "hesitation": {
+      "n": 340,
+      "margin_mean": 0.5061870954740596,
+      "margin_median": 0.4617947578853843,
+      "entropy_mean": 0.5656744922485794,
+      "entropy_median": 0.5995868069817847
+     },
+     "surprise": null,
+     "other_rate": 0.0,
+     "position_bias": {
+      "n_situations": 340,
+      "n_orders": [
+       4
+      ],
+      "top1_change_rate": 0.0,
+      "top1_change_pairwise": 0.0,
+      "self_consistency_2": 1.0,
+      "number1_rate": 0.07941176470588235,
+      "number1_expected": 0.07692307692307691,
+      "other_top1_rate": 0.0,
+      "pbs_by_n": {
+       "13": {
+        "picks": 1360,
+        "pbs": 0.01707208097729727,
+        "position_dist": [
+         0.07941176470588235,
+         0.07279411764705883,
+         0.08161764705882353,
+         0.07941176470588235,
+         0.07352941176470588,
+         0.07573529411764705,
+         0.08602941176470588,
+         0.06985294117647059,
+         0.07720588235294118,
+         0.08088235294117647,
+         0.0713235294117647,
+         0.0713235294117647,
+         0.08088235294117647
+        ]
+       }
+      },
+      "number1_test": {
+       "statistic": "d_i = 番号 1 を選んだ並びの割合 − 1/n_i の平均",
+       "mean_d": 0.0024886877828054297,
+       "p": 0.7002270696381858,
+       "n": 340,
+       "method": "monte-carlo",
+       "alternative": "two-sided",
+       "formula": "tools/c7/salt_compare.sign_flip_p"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     },
+     "speed": {
+      "wall_s_per_item": 1.4462941223481561e-05,
+      "wall_clock_device": "CPU",
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "same_as_arm": null
+    },
+    "t1000": {
+     "agreement_vs_classical": null,
+     "agreement_vs_tape": {
+      "n": 340,
+      "jsd_mean": 0.5452838874507833,
+      "jsd_median": 0.4466380722554887,
+      "spearman_mean": 0.4903546794518195,
+      "spearman_undefined": 0,
+      "top1_agree": 0.43823529411764706,
+      "marginal_jsd": 0.2675718641354603
+     },
+     "agreement_vs_g": null,
+     "hesitation": {
+      "n": 340,
+      "margin_mean": 0.5061870954740596,
+      "margin_median": 0.4617947578853843,
+      "entropy_mean": 0.5656744922485794,
+      "entropy_median": 0.5995868069817847
+     },
+     "surprise": null,
+     "other_rate": 0.0,
+     "position_bias": {
+      "n_situations": 340,
+      "n_orders": [
+       4
+      ],
+      "top1_change_rate": 0.0,
+      "top1_change_pairwise": 0.0,
+      "self_consistency_2": 1.0,
+      "number1_rate": 0.07941176470588235,
+      "number1_expected": 0.07692307692307691,
+      "other_top1_rate": 0.0,
+      "pbs_by_n": {
+       "13": {
+        "picks": 1360,
+        "pbs": 0.01707208097729727,
+        "position_dist": [
+         0.07941176470588235,
+         0.07279411764705883,
+         0.08161764705882353,
+         0.07941176470588235,
+         0.07352941176470588,
+         0.07573529411764705,
+         0.08602941176470588,
+         0.06985294117647059,
+         0.07720588235294118,
+         0.08088235294117647,
+         0.0713235294117647,
+         0.0713235294117647,
+         0.08088235294117647
+        ]
+       }
+      },
+      "number1_test": {
+       "statistic": "d_i = 番号 1 を選んだ並びの割合 − 1/n_i の平均",
+       "mean_d": 0.0024886877828054297,
+       "p": 0.7002270696381858,
+       "n": 340,
+       "method": "monte-carlo",
+       "alternative": "two-sided",
+       "formula": "tools/c7/salt_compare.sign_flip_p"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     },
+     "speed": {
+      "wall_s_per_item": 1.4462941223481561e-05,
+      "wall_clock_device": "CPU",
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "same_as_arm": "t300"
+    }
+   }
+  },
+  {
+   "describe": {
+    "name": "tape",
+    "role": "baseline",
+    "implemented": true,
+    "reads_text": false,
+    "sees_presented_order": false,
+    "meta": {
+     "source": "1-10 の評価セットの output(52 本のテープの応答)=本文は記録に写さない",
+     "presented_order": "テープの LLM は B0 の固定の並びを見た(ここの並べ替えは見ていない)"
+    }
+   },
+   "by_arm": {
+    "t300": {
+     "agreement_vs_classical": {
+      "n": 340,
+      "jsd_mean": 0.5452838874507833,
+      "jsd_median": 0.4466380722554887,
+      "spearman_mean": 0.4903546794518195,
+      "spearman_undefined": 0,
+      "top1_agree": 0.43823529411764706,
+      "marginal_jsd": 0.2675718641354603
+     },
+     "agreement_vs_tape": null,
+     "agreement_vs_g": null,
+     "hesitation": {
+      "n": 340,
+      "margin_mean": 1.0,
+      "margin_median": 1.0,
+      "entropy_mean": 0.0,
+      "entropy_median": 0.0
+     },
+     "surprise": null,
+     "other_rate": 0.0058823529411764705,
+     "position_bias": {
+      "n_situations": 340,
+      "n_orders": [
+       4
+      ],
+      "top1_change_rate": 0.0,
+      "top1_change_pairwise": 0.0,
+      "self_consistency_2": 1.0,
+      "number1_rate": 0.075,
+      "number1_expected": 0.07692307692307691,
+      "other_top1_rate": 0.0058823529411764705,
+      "pbs_by_n": {
+       "13": {
+        "picks": 1352,
+        "pbs": 0.018267883188207795,
+        "position_dist": [
+         0.07544378698224852,
+         0.07544378698224852,
+         0.08136094674556213,
+         0.07174556213017752,
+         0.07988165680473373,
+         0.08062130177514792,
+         0.07026627218934911,
+         0.08284023668639054,
+         0.08062130177514792,
+         0.0650887573964497,
+         0.08210059171597633,
+         0.07692307692307693,
+         0.07766272189349112
+        ]
+       }
+      },
+      "number1_test": {
+       "statistic": "d_i = 番号 1 を選んだ並びの割合 − 1/n_i の平均",
+       "mean_d": -0.0019230769230769267,
+       "p": 0.7645466188939868,
+       "n": 340,
+       "method": "monte-carlo",
+       "alternative": "two-sided",
+       "formula": "tools/c7/salt_compare.sign_flip_p"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     },
+     "speed": {
+      "wall_s_per_item": 3.8437279427478854e-05,
+      "wall_clock_device": "CPU",
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "same_as_arm": null
+    },
+    "t1000": {
+     "agreement_vs_classical": {
+      "n": 340,
+      "jsd_mean": 0.5452838874507833,
+      "jsd_median": 0.4466380722554887,
+      "spearman_mean": 0.4903546794518195,
+      "spearman_undefined": 0,
+      "top1_agree": 0.43823529411764706,
+      "marginal_jsd": 0.2675718641354603
+     },
+     "agreement_vs_tape": null,
+     "agreement_vs_g": null,
+     "hesitation": {
+      "n": 340,
+      "margin_mean": 1.0,
+      "margin_median": 1.0,
+      "entropy_mean": 0.0,
+      "entropy_median": 0.0
+     },
+     "surprise": null,
+     "other_rate": 0.0058823529411764705,
+     "position_bias": {
+      "n_situations": 340,
+      "n_orders": [
+       4
+      ],
+      "top1_change_rate": 0.0,
+      "top1_change_pairwise": 0.0,
+      "self_consistency_2": 1.0,
+      "number1_rate": 0.075,
+      "number1_expected": 0.07692307692307691,
+      "other_top1_rate": 0.0058823529411764705,
+      "pbs_by_n": {
+       "13": {
+        "picks": 1352,
+        "pbs": 0.018267883188207795,
+        "position_dist": [
+         0.07544378698224852,
+         0.07544378698224852,
+         0.08136094674556213,
+         0.07174556213017752,
+         0.07988165680473373,
+         0.08062130177514792,
+         0.07026627218934911,
+         0.08284023668639054,
+         0.08062130177514792,
+         0.0650887573964497,
+         0.08210059171597633,
+         0.07692307692307693,
+         0.07766272189349112
+        ]
+       }
+      },
+      "number1_test": {
+       "statistic": "d_i = 番号 1 を選んだ並びの割合 − 1/n_i の平均",
+       "mean_d": -0.0019230769230769267,
+       "p": 0.7645466188939868,
+       "n": 340,
+       "method": "monte-carlo",
+       "alternative": "two-sided",
+       "formula": "tools/c7/salt_compare.sign_flip_p"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     },
+     "speed": {
+      "wall_s_per_item": 3.8437279427478854e-05,
+      "wall_clock_device": "CPU",
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "same_as_arm": "t300"
+    }
+   }
+  },
+  {
+   "describe": {
+    "name": "g_first_token",
+    "role": "baseline",
+    "implemented": false,
+    "reads_text": true,
+    "sees_presented_order": true,
+    "meta": {
+     "model": "(G) 8B 級の 1 トークン目の確率",
+     "source": "R-83 §5・判断モデルの草案 DM1",
+     "weights": "GPU の後(S6)"
+    }
+   },
+   "by_arm": {
+    "t300": {
+     "status": "GPU の後(S6)",
+     "speed": {
+      "wall_s_per_item": null,
+      "wall_clock_device": null,
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     }
+    },
+    "t1000": {
+     "status": "GPU の後(S6)",
+     "speed": {
+      "wall_s_per_item": null,
+      "wall_clock_device": null,
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     }
+    }
+   }
+  },
+  {
+   "describe": {
+    "name": "clef_flash",
+    "role": "candidate",
+    "implemented": false,
+    "reads_text": true,
+    "sees_presented_order": true,
+    "meta": {
+     "model": "Clef-flash",
+     "license": "Apache-2.0",
+     "source": "R-83 §2-1(判断モデルの草案 DM1 の材料)",
+     "weights": "取らない(S6)"
+    }
+   },
+   "by_arm": {
+    "t300": {
+     "status": "GPU の後(S6)",
+     "speed": {
+      "wall_s_per_item": null,
+      "wall_clock_device": null,
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     }
+    },
+    "t1000": {
+     "status": "GPU の後(S6)",
+     "speed": {
+      "wall_s_per_item": null,
+      "wall_clock_device": null,
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     }
+    }
+   }
+  },
+  {
+   "describe": {
+    "name": "clef",
+    "role": "candidate",
+    "implemented": false,
+    "reads_text": true,
+    "sees_presented_order": true,
+    "meta": {
+     "model": "Clef",
+     "license": "Apache-2.0",
+     "source": "R-83 §2-1(判断モデルの草案 DM1 の材料)",
+     "weights": "取らない(S6)"
+    }
+   },
+   "by_arm": {
+    "t300": {
+     "status": "GPU の後(S6)",
+     "speed": {
+      "wall_s_per_item": null,
+      "wall_clock_device": null,
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     }
+    },
+    "t1000": {
+     "status": "GPU の後(S6)",
+     "speed": {
+      "wall_s_per_item": null,
+      "wall_clock_device": null,
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     }
+    }
+   }
+  },
+  {
+   "describe": {
+    "name": "kev_9b",
+    "role": "candidate",
+    "implemented": false,
+    "reads_text": true,
+    "sees_presented_order": true,
+    "meta": {
+     "model": "Kev-9B",
+     "license": "Apache-2.0",
+     "source": "R-83 §2-1",
+     "weights": "取らない(S6)"
+    }
+   },
+   "by_arm": {
+    "t300": {
+     "status": "GPU の後(S6)",
+     "speed": {
+      "wall_s_per_item": null,
+      "wall_clock_device": null,
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     }
+    },
+    "t1000": {
+     "status": "GPU の後(S6)",
+     "speed": {
+      "wall_s_per_item": null,
+      "wall_clock_device": null,
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     }
+    }
+   }
+  },
+  {
+   "describe": {
+    "name": "sokudan_ja_310m",
+    "role": "candidate",
+    "implemented": false,
+    "reads_text": true,
+    "sees_presented_order": true,
+    "meta": {
+     "model": "GeneLab/sokudan-ja-310m",
+     "license": "Apache-2.0",
+     "source": "R-94 §0 #2(親検収 第323)",
+     "train_mean_tokens": 134,
+     "lang": "ja",
+     "weights": "取らない(S6・手元の 5070 で回してよい=回答 2-1)",
+     "extra_measures": {
+      "long_input_t300_t1000": null,
+      "synthetic_training_data_effect": null,
+      "non_japanese_first_language": null
+     }
+    }
+   },
+   "by_arm": {
+    "t300": {
+     "status": "GPU の後(S6)",
+     "speed": {
+      "wall_s_per_item": null,
+      "wall_clock_device": null,
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     }
+    },
+    "t1000": {
+     "status": "GPU の後(S6)",
+     "speed": {
+      "wall_s_per_item": null,
+      "wall_clock_device": null,
+      "tokens_in": null,
+      "tokens_out": null,
+      "gpu_sec_per_call": null,
+      "gpu_hours_per_sim_day": null,
+      "formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+      "calls_basis": {
+       "calls_per_day": 64528,
+       "n_agents": 5000,
+       "days": 1,
+       "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+      }
+     },
+     "human": {
+      "human_match": null,
+      "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+     }
+    }
+   }
+  }
+ ],
+ "controls": {
+  "first_number": {
+   "describe": {
+    "name": "first_number",
+    "role": "control",
+    "implemented": true,
+    "reads_text": false,
+    "sees_presented_order": true,
+    "meta": {
+     "rule": "番号 1 に確率 1"
+    }
+   },
+   "position_bias": {
+    "n_situations": 340,
+    "n_orders": [
+     4
+    ],
+    "top1_change_rate": 1.0,
+    "top1_change_pairwise": 1.0,
+    "self_consistency_2": 0.0,
+    "number1_rate": 1.0,
+    "number1_expected": 0.07692307692307691,
+    "other_top1_rate": 0.0,
+    "pbs_by_n": {
+     "13": {
+      "picks": 1360,
+      "pbs": 0.960768922830523,
+      "position_dist": [
+       1.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    "number1_test": {
+     "statistic": "d_i = 番号 1 を選んだ並びの割合 − 1/n_i の平均",
+     "mean_d": 0.9230769230769231,
+     "p": 9.536734069124156e-07,
+     "n": 340,
+     "method": "monte-carlo",
+     "alternative": "two-sided",
+     "formula": "tools/c7/salt_compare.sign_flip_p"
+    }
+   }
+  }
+ },
+ "tape_fixed_order": {
+  "order": [
+   "移動",
+   "乗車",
+   "降車",
+   "購入",
+   "待機",
+   "会話",
+   "退去",
+   "通報",
+   "手伝い",
+   "断る",
+   "休憩",
+   "就寝"
+  ],
+  "counts": [
+   169,
+   3,
+   0,
+   140,
+   15,
+   3,
+   1,
+   1,
+   0,
+   0,
+   6,
+   0
+  ],
+  "other": 2,
+  "position1_rate": 0.5,
+  "position1_expected": 0.08333333333333333,
+  "note": "並びが 1 通り=位置と中身が分けられない(記録だけ・R-108 §3-1 (i))"
+ },
+ "pbs_null_floor": {
+  "13": {
+   "reps": 10000,
+   "n_situations": 340,
+   "n": 13,
+   "offsets": [
+    0,
+    3,
+    6,
+    9
+   ],
+   "mean": 0.021234352091862814,
+   "p05": 0.011031296973123154,
+   "p50": 0.020364818808159497,
+   "p95": 0.03410351587583972,
+   "seed": "dm61-pbs-floor",
+   "method": "模擬(選んだ中身の 0 番目の並びの位置が一様)"
+  }
+ },
+ "strict": [
+  {
+   "name": "mock",
+   "status": "検査済み",
+   "n_items": 1360,
+   "identical_repeat": true,
+   "identical_reordered": true,
+   "max_abs_diff_reordered": 0.0,
+   "digest": "1634d3a1ccfbe60cdc70b8e0b44f0becc3a8c03652b8a9c135b6e3072769017b",
+   "weights_local": "重みなし(規則)",
+   "batching": "1 件ずつ(まとめない)",
+   "wall_s": 0.11356209998484701
+  },
+  {
+   "name": "classical",
+   "status": "検査済み",
+   "n_items": 1360,
+   "identical_repeat": true,
+   "identical_reordered": true,
+   "max_abs_diff_reordered": 0.0,
+   "digest": "9d6d98a05b7cc0bbaf0197b68da2f70dc990657db294b57a97bc65aec93a2dd1",
+   "weights_local": "79acf3cabc43fd36f11d2d718310066c",
+   "batching": "1 件ずつ(まとめない)",
+   "wall_s": 0.16766529995948076
+  },
+  {
+   "name": "tape",
+   "status": "検査済み",
+   "n_items": 1360,
+   "identical_repeat": true,
+   "identical_reordered": true,
+   "max_abs_diff_reordered": 0.0,
+   "digest": "d56ebb83cff15b9a4b4ecd3a590c4664b7b7a648d526785288bf18f9f1222388",
+   "weights_local": "重みなし(規則)",
+   "batching": "1 件ずつ(まとめない)",
+   "wall_s": 0.13462359993718565
+  },
+  {
+   "name": "g_first_token",
+   "status": "GPU の後(S6)",
+   "identical_repeat": null,
+   "identical_reordered": null
+  },
+  {
+   "name": "clef_flash",
+   "status": "GPU の後(S6)",
+   "identical_repeat": null,
+   "identical_reordered": null
+  },
+  {
+   "name": "clef",
+   "status": "GPU の後(S6)",
+   "identical_repeat": null,
+   "identical_reordered": null
+  },
+  {
+   "name": "kev_9b",
+   "status": "GPU の後(S6)",
+   "identical_repeat": null,
+   "identical_reordered": null
+  },
+  {
+   "name": "sokudan_ja_310m",
+   "status": "GPU の後(S6)",
+   "identical_repeat": null,
+   "identical_reordered": null
+  }
+ ],
+ "human": {
+  "human_match": null,
+  "basis": "検証側(パターン台帳 §10-1=考慮集合の大きさ・習慣の割合ほか #50)=器は値を持たない・正解の表は作らない"
+ },
+ "speed_formula": "1 シム日あたりの GPU 時間 = 呼数/日(5,000 体 1 日の実測 64,528)×(人口 ÷ 5,000)× 1 件の秒(GPU・空欄)÷ 3,600 ÷ GPU の数",
+ "calls_basis": {
+  "calls_per_day": 64528,
+  "n_agents": 5000,
+  "days": 1,
+  "source": "docs/bench/analysis/wallbounce-1012/bd35/README.md の byte-check の表(w6_v3_default・10e の道具)"
+ },
+ "limits": [
+  "正解の表は作らない(人のデータと考慮集合の研究の値は検証側=パターン台帳 §10-1・人のデータとの照合は欄だけ)",
+  "言語は日本語だけ(材料の B0 が日本語で書くと決めている)・住人の第一言語の欄は空欄(§4-8)",
+  "B5・B6 が無い(1-10 §5 の 1)=近い予定・近くの人・空腹と疲れ・招待が入力に無い=体と事情の無い判断(親の注 §9 の (b))",
+  "テープの当て口は B0 の固定の並びへの答え=ここで入れ替えた並びは見ていない(並べ替えに対しては構成上 0)",
+  "Clef-flash・Clef・Kev-9B・即断・(G) は口だけ=人らしさ・速さ・GPU 時間の欄は GPU の後(S6)",
+  "長さの腕 t300 は B0 を外すだけ(DM4 (a) の人ごとの短い特徴量の描画は engine に無い)・トークン数は後で測る"
+ ],
+ "timing": {
+  "wall_s": 13.736696099978872
+ },
+ "table": {
+  "columns": [
+   "scorer",
+   "role",
+   "implemented",
+   "lang",
+   "first_language",
+   "arm",
+   "jsd_vs_classical",
+   "spearman_vs_classical",
+   "jsd_vs_tape",
+   "top1_agree_vs_tape",
+   "jsd_vs_g",
+   "self_consistency_2",
+   "top1_change_rate",
+   "number1_rate",
+   "pbs",
+   "number1_p",
+   "margin_mean",
+   "entropy_mean",
+   "surprise",
+   "other_rate",
+   "human_match",
+   "wall_s_per_item",
+   "tokens_in",
+   "gpu_hours_per_sim_day",
+   "notes"
+  ],
+  "rows": [
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "implemented": true,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t300",
+    "jsd_vs_classical": 0.715433868228645,
+    "spearman_vs_classical": 0.07220209176085382,
+    "jsd_vs_tape": 0.8250828432436683,
+    "top1_agree_vs_tape": 0.06470588235294118,
+    "jsd_vs_g": null,
+    "self_consistency_2": 1.0,
+    "top1_change_rate": 0.0,
+    "number1_rate": 0.06985294117647059,
+    "pbs": 0.021875178237990157,
+    "number1_p": 0.25015807136719576,
+    "margin_mean": 0.07895031435089497,
+    "entropy_mean": 2.1757204781243837,
+    "surprise": null,
+    "other_rate": 0.0,
+    "human_match": null,
+    "wall_s_per_item": 4.1581102927653665e-05,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "文を読まない=腕で結果は変わらない"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "implemented": true,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t1000",
+    "jsd_vs_classical": 0.715433868228645,
+    "spearman_vs_classical": 0.07220209176085382,
+    "jsd_vs_tape": 0.8250828432436683,
+    "top1_agree_vs_tape": 0.06470588235294118,
+    "jsd_vs_g": null,
+    "self_consistency_2": 1.0,
+    "top1_change_rate": 0.0,
+    "number1_rate": 0.06985294117647059,
+    "pbs": 0.021875178237990157,
+    "number1_p": 0.25015807136719576,
+    "margin_mean": 0.07895031435089497,
+    "entropy_mean": 2.1757204781243837,
+    "surprise": null,
+    "other_rate": 0.0,
+    "human_match": null,
+    "wall_s_per_item": 4.1581102927653665e-05,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "文を読まない=腕で結果は変わらない"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "implemented": true,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t300",
+    "jsd_vs_classical": null,
+    "spearman_vs_classical": null,
+    "jsd_vs_tape": 0.5452838874507833,
+    "top1_agree_vs_tape": 0.43823529411764706,
+    "jsd_vs_g": null,
+    "self_consistency_2": 1.0,
+    "top1_change_rate": 0.0,
+    "number1_rate": 0.07941176470588235,
+    "pbs": 0.01707208097729727,
+    "number1_p": 0.7002270696381858,
+    "margin_mean": 0.5061870954740596,
+    "entropy_mean": 0.5656744922485794,
+    "surprise": null,
+    "other_rate": 0.0,
+    "human_match": null,
+    "wall_s_per_item": 1.4462941223481561e-05,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "文を読まない=腕で結果は変わらない"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "implemented": true,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t1000",
+    "jsd_vs_classical": null,
+    "spearman_vs_classical": null,
+    "jsd_vs_tape": 0.5452838874507833,
+    "top1_agree_vs_tape": 0.43823529411764706,
+    "jsd_vs_g": null,
+    "self_consistency_2": 1.0,
+    "top1_change_rate": 0.0,
+    "number1_rate": 0.07941176470588235,
+    "pbs": 0.01707208097729727,
+    "number1_p": 0.7002270696381858,
+    "margin_mean": 0.5061870954740596,
+    "entropy_mean": 0.5656744922485794,
+    "surprise": null,
+    "other_rate": 0.0,
+    "human_match": null,
+    "wall_s_per_item": 1.4462941223481561e-05,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "文を読まない=腕で結果は変わらない"
+   },
+   {
+    "scorer": "tape",
+    "role": "基準",
+    "implemented": true,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t300",
+    "jsd_vs_classical": 0.5452838874507833,
+    "spearman_vs_classical": 0.4903546794518195,
+    "jsd_vs_tape": null,
+    "top1_agree_vs_tape": null,
+    "jsd_vs_g": null,
+    "self_consistency_2": 1.0,
+    "top1_change_rate": 0.0,
+    "number1_rate": 0.075,
+    "pbs": 0.018267883188207795,
+    "number1_p": 0.7645466188939868,
+    "margin_mean": 1.0,
+    "entropy_mean": 0.0,
+    "surprise": null,
+    "other_rate": 0.0058823529411764705,
+    "human_match": null,
+    "wall_s_per_item": 3.8437279427478854e-05,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "位置の偏りの列は構成上 0(テープの LLM はここで入れ替えた並びを見ていない=8B の位置の偏りの測りではない・固定の並びでの位置 1 の率 0.50 は位置と中身が重なり分けられない)・文を読まない=腕で結果は変わらない"
+   },
+   {
+    "scorer": "tape",
+    "role": "基準",
+    "implemented": true,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t1000",
+    "jsd_vs_classical": 0.5452838874507833,
+    "spearman_vs_classical": 0.4903546794518195,
+    "jsd_vs_tape": null,
+    "top1_agree_vs_tape": null,
+    "jsd_vs_g": null,
+    "self_consistency_2": 1.0,
+    "top1_change_rate": 0.0,
+    "number1_rate": 0.075,
+    "pbs": 0.018267883188207795,
+    "number1_p": 0.7645466188939868,
+    "margin_mean": 1.0,
+    "entropy_mean": 0.0,
+    "surprise": null,
+    "other_rate": 0.0058823529411764705,
+    "human_match": null,
+    "wall_s_per_item": 3.8437279427478854e-05,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "位置の偏りの列は構成上 0(テープの LLM はここで入れ替えた並びを見ていない=8B の位置の偏りの測りではない・固定の並びでの位置 1 の率 0.50 は位置と中身が重なり分けられない)・文を読まない=腕で結果は変わらない"
+   },
+   {
+    "scorer": "g_first_token",
+    "role": "基準",
+    "implemented": false,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t300",
+    "jsd_vs_classical": null,
+    "spearman_vs_classical": null,
+    "jsd_vs_tape": null,
+    "top1_agree_vs_tape": null,
+    "jsd_vs_g": null,
+    "self_consistency_2": null,
+    "top1_change_rate": null,
+    "number1_rate": null,
+    "pbs": null,
+    "number1_p": null,
+    "margin_mean": null,
+    "entropy_mean": null,
+    "surprise": null,
+    "other_rate": null,
+    "human_match": null,
+    "wall_s_per_item": null,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "口だけ=重みの取得と GPU の後(S6)"
+   },
+   {
+    "scorer": "g_first_token",
+    "role": "基準",
+    "implemented": false,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t1000",
+    "jsd_vs_classical": null,
+    "spearman_vs_classical": null,
+    "jsd_vs_tape": null,
+    "top1_agree_vs_tape": null,
+    "jsd_vs_g": null,
+    "self_consistency_2": null,
+    "top1_change_rate": null,
+    "number1_rate": null,
+    "pbs": null,
+    "number1_p": null,
+    "margin_mean": null,
+    "entropy_mean": null,
+    "surprise": null,
+    "other_rate": null,
+    "human_match": null,
+    "wall_s_per_item": null,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "口だけ=重みの取得と GPU の後(S6)"
+   },
+   {
+    "scorer": "clef_flash",
+    "role": "候補",
+    "implemented": false,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t300",
+    "jsd_vs_classical": null,
+    "spearman_vs_classical": null,
+    "jsd_vs_tape": null,
+    "top1_agree_vs_tape": null,
+    "jsd_vs_g": null,
+    "self_consistency_2": null,
+    "top1_change_rate": null,
+    "number1_rate": null,
+    "pbs": null,
+    "number1_p": null,
+    "margin_mean": null,
+    "entropy_mean": null,
+    "surprise": null,
+    "other_rate": null,
+    "human_match": null,
+    "wall_s_per_item": null,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "口だけ=重みの取得と GPU の後(S6)"
+   },
+   {
+    "scorer": "clef_flash",
+    "role": "候補",
+    "implemented": false,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t1000",
+    "jsd_vs_classical": null,
+    "spearman_vs_classical": null,
+    "jsd_vs_tape": null,
+    "top1_agree_vs_tape": null,
+    "jsd_vs_g": null,
+    "self_consistency_2": null,
+    "top1_change_rate": null,
+    "number1_rate": null,
+    "pbs": null,
+    "number1_p": null,
+    "margin_mean": null,
+    "entropy_mean": null,
+    "surprise": null,
+    "other_rate": null,
+    "human_match": null,
+    "wall_s_per_item": null,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "口だけ=重みの取得と GPU の後(S6)"
+   },
+   {
+    "scorer": "clef",
+    "role": "候補",
+    "implemented": false,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t300",
+    "jsd_vs_classical": null,
+    "spearman_vs_classical": null,
+    "jsd_vs_tape": null,
+    "top1_agree_vs_tape": null,
+    "jsd_vs_g": null,
+    "self_consistency_2": null,
+    "top1_change_rate": null,
+    "number1_rate": null,
+    "pbs": null,
+    "number1_p": null,
+    "margin_mean": null,
+    "entropy_mean": null,
+    "surprise": null,
+    "other_rate": null,
+    "human_match": null,
+    "wall_s_per_item": null,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "口だけ=重みの取得と GPU の後(S6)"
+   },
+   {
+    "scorer": "clef",
+    "role": "候補",
+    "implemented": false,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t1000",
+    "jsd_vs_classical": null,
+    "spearman_vs_classical": null,
+    "jsd_vs_tape": null,
+    "top1_agree_vs_tape": null,
+    "jsd_vs_g": null,
+    "self_consistency_2": null,
+    "top1_change_rate": null,
+    "number1_rate": null,
+    "pbs": null,
+    "number1_p": null,
+    "margin_mean": null,
+    "entropy_mean": null,
+    "surprise": null,
+    "other_rate": null,
+    "human_match": null,
+    "wall_s_per_item": null,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "口だけ=重みの取得と GPU の後(S6)"
+   },
+   {
+    "scorer": "kev_9b",
+    "role": "候補",
+    "implemented": false,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t300",
+    "jsd_vs_classical": null,
+    "spearman_vs_classical": null,
+    "jsd_vs_tape": null,
+    "top1_agree_vs_tape": null,
+    "jsd_vs_g": null,
+    "self_consistency_2": null,
+    "top1_change_rate": null,
+    "number1_rate": null,
+    "pbs": null,
+    "number1_p": null,
+    "margin_mean": null,
+    "entropy_mean": null,
+    "surprise": null,
+    "other_rate": null,
+    "human_match": null,
+    "wall_s_per_item": null,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "口だけ=重みの取得と GPU の後(S6)"
+   },
+   {
+    "scorer": "kev_9b",
+    "role": "候補",
+    "implemented": false,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t1000",
+    "jsd_vs_classical": null,
+    "spearman_vs_classical": null,
+    "jsd_vs_tape": null,
+    "top1_agree_vs_tape": null,
+    "jsd_vs_g": null,
+    "self_consistency_2": null,
+    "top1_change_rate": null,
+    "number1_rate": null,
+    "pbs": null,
+    "number1_p": null,
+    "margin_mean": null,
+    "entropy_mean": null,
+    "surprise": null,
+    "other_rate": null,
+    "human_match": null,
+    "wall_s_per_item": null,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "口だけ=重みの取得と GPU の後(S6)"
+   },
+   {
+    "scorer": "sokudan_ja_310m",
+    "role": "候補",
+    "implemented": false,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t300",
+    "jsd_vs_classical": null,
+    "spearman_vs_classical": null,
+    "jsd_vs_tape": null,
+    "top1_agree_vs_tape": null,
+    "jsd_vs_g": null,
+    "self_consistency_2": null,
+    "top1_change_rate": null,
+    "number1_rate": null,
+    "pbs": null,
+    "number1_p": null,
+    "margin_mean": null,
+    "entropy_mean": null,
+    "surprise": null,
+    "other_rate": null,
+    "human_match": null,
+    "wall_s_per_item": null,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "口だけ=重みの取得と GPU の後(S6)・追加の測り(GPU の後で埋める): long_input_t300_t1000・non_japanese_first_language・synthetic_training_data_effect"
+   },
+   {
+    "scorer": "sokudan_ja_310m",
+    "role": "候補",
+    "implemented": false,
+    "lang": "ja",
+    "first_language": null,
+    "arm": "t1000",
+    "jsd_vs_classical": null,
+    "spearman_vs_classical": null,
+    "jsd_vs_tape": null,
+    "top1_agree_vs_tape": null,
+    "jsd_vs_g": null,
+    "self_consistency_2": null,
+    "top1_change_rate": null,
+    "number1_rate": null,
+    "pbs": null,
+    "number1_p": null,
+    "margin_mean": null,
+    "entropy_mean": null,
+    "surprise": null,
+    "other_rate": null,
+    "human_match": null,
+    "wall_s_per_item": null,
+    "tokens_in": null,
+    "gpu_hours_per_sim_day": null,
+    "notes": "口だけ=重みの取得と GPU の後(S6)・追加の測り(GPU の後で埋める): long_input_t300_t1000・non_japanese_first_language・synthetic_training_data_effect"
+   }
+  ],
+  "blank": [
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_g": "GPU の後で埋める",
+    "surprise": "該当なし(この当て口は返さない)",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "tokens_in": "該当なし(文を読まない)",
+    "gpu_hours_per_sim_day": "該当なし(GPU を使わない)"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_g": "GPU の後で埋める",
+    "surprise": "該当なし(この当て口は返さない)",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "tokens_in": "該当なし(文を読まない)",
+    "gpu_hours_per_sim_day": "該当なし(GPU を使わない)"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_classical": "該当なし(自分との比べ)",
+    "spearman_vs_classical": "該当なし(自分との比べ)",
+    "jsd_vs_g": "GPU の後で埋める",
+    "surprise": "該当なし(この当て口は返さない)",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "tokens_in": "該当なし(文を読まない)",
+    "gpu_hours_per_sim_day": "該当なし(GPU を使わない)"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_classical": "該当なし(自分との比べ)",
+    "spearman_vs_classical": "該当なし(自分との比べ)",
+    "jsd_vs_g": "GPU の後で埋める",
+    "surprise": "該当なし(この当て口は返さない)",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "tokens_in": "該当なし(文を読まない)",
+    "gpu_hours_per_sim_day": "該当なし(GPU を使わない)"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_tape": "該当なし(自分との比べ)",
+    "top1_agree_vs_tape": "該当なし(自分との比べ)",
+    "jsd_vs_g": "GPU の後で埋める",
+    "surprise": "該当なし(この当て口は返さない)",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "tokens_in": "該当なし(文を読まない)",
+    "gpu_hours_per_sim_day": "該当なし(GPU を使わない)"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_tape": "該当なし(自分との比べ)",
+    "top1_agree_vs_tape": "該当なし(自分との比べ)",
+    "jsd_vs_g": "GPU の後で埋める",
+    "surprise": "該当なし(この当て口は返さない)",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "tokens_in": "該当なし(文を読まない)",
+    "gpu_hours_per_sim_day": "該当なし(GPU を使わない)"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_classical": "GPU の後で埋める",
+    "spearman_vs_classical": "GPU の後で埋める",
+    "jsd_vs_tape": "GPU の後で埋める",
+    "top1_agree_vs_tape": "GPU の後で埋める",
+    "jsd_vs_g": "GPU の後で埋める",
+    "self_consistency_2": "GPU の後で埋める",
+    "top1_change_rate": "GPU の後で埋める",
+    "number1_rate": "GPU の後で埋める",
+    "pbs": "GPU の後で埋める",
+    "number1_p": "GPU の後で埋める",
+    "margin_mean": "GPU の後で埋める",
+    "entropy_mean": "GPU の後で埋める",
+    "surprise": "GPU の後で埋める",
+    "other_rate": "GPU の後で埋める",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "wall_s_per_item": "GPU の後で埋める",
+    "tokens_in": "GPU の後で埋める",
+    "gpu_hours_per_sim_day": "GPU の後で埋める"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_classical": "GPU の後で埋める",
+    "spearman_vs_classical": "GPU の後で埋める",
+    "jsd_vs_tape": "GPU の後で埋める",
+    "top1_agree_vs_tape": "GPU の後で埋める",
+    "jsd_vs_g": "GPU の後で埋める",
+    "self_consistency_2": "GPU の後で埋める",
+    "top1_change_rate": "GPU の後で埋める",
+    "number1_rate": "GPU の後で埋める",
+    "pbs": "GPU の後で埋める",
+    "number1_p": "GPU の後で埋める",
+    "margin_mean": "GPU の後で埋める",
+    "entropy_mean": "GPU の後で埋める",
+    "surprise": "GPU の後で埋める",
+    "other_rate": "GPU の後で埋める",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "wall_s_per_item": "GPU の後で埋める",
+    "tokens_in": "GPU の後で埋める",
+    "gpu_hours_per_sim_day": "GPU の後で埋める"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_classical": "GPU の後で埋める",
+    "spearman_vs_classical": "GPU の後で埋める",
+    "jsd_vs_tape": "GPU の後で埋める",
+    "top1_agree_vs_tape": "GPU の後で埋める",
+    "jsd_vs_g": "GPU の後で埋める",
+    "self_consistency_2": "GPU の後で埋める",
+    "top1_change_rate": "GPU の後で埋める",
+    "number1_rate": "GPU の後で埋める",
+    "pbs": "GPU の後で埋める",
+    "number1_p": "GPU の後で埋める",
+    "margin_mean": "GPU の後で埋める",
+    "entropy_mean": "GPU の後で埋める",
+    "surprise": "GPU の後で埋める",
+    "other_rate": "GPU の後で埋める",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "wall_s_per_item": "GPU の後で埋める",
+    "tokens_in": "GPU の後で埋める",
+    "gpu_hours_per_sim_day": "GPU の後で埋める"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_classical": "GPU の後で埋める",
+    "spearman_vs_classical": "GPU の後で埋める",
+    "jsd_vs_tape": "GPU の後で埋める",
+    "top1_agree_vs_tape": "GPU の後で埋める",
+    "jsd_vs_g": "GPU の後で埋める",
+    "self_consistency_2": "GPU の後で埋める",
+    "top1_change_rate": "GPU の後で埋める",
+    "number1_rate": "GPU の後で埋める",
+    "pbs": "GPU の後で埋める",
+    "number1_p": "GPU の後で埋める",
+    "margin_mean": "GPU の後で埋める",
+    "entropy_mean": "GPU の後で埋める",
+    "surprise": "GPU の後で埋める",
+    "other_rate": "GPU の後で埋める",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "wall_s_per_item": "GPU の後で埋める",
+    "tokens_in": "GPU の後で埋める",
+    "gpu_hours_per_sim_day": "GPU の後で埋める"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_classical": "GPU の後で埋める",
+    "spearman_vs_classical": "GPU の後で埋める",
+    "jsd_vs_tape": "GPU の後で埋める",
+    "top1_agree_vs_tape": "GPU の後で埋める",
+    "jsd_vs_g": "GPU の後で埋める",
+    "self_consistency_2": "GPU の後で埋める",
+    "top1_change_rate": "GPU の後で埋める",
+    "number1_rate": "GPU の後で埋める",
+    "pbs": "GPU の後で埋める",
+    "number1_p": "GPU の後で埋める",
+    "margin_mean": "GPU の後で埋める",
+    "entropy_mean": "GPU の後で埋める",
+    "surprise": "GPU の後で埋める",
+    "other_rate": "GPU の後で埋める",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "wall_s_per_item": "GPU の後で埋める",
+    "tokens_in": "GPU の後で埋める",
+    "gpu_hours_per_sim_day": "GPU の後で埋める"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_classical": "GPU の後で埋める",
+    "spearman_vs_classical": "GPU の後で埋める",
+    "jsd_vs_tape": "GPU の後で埋める",
+    "top1_agree_vs_tape": "GPU の後で埋める",
+    "jsd_vs_g": "GPU の後で埋める",
+    "self_consistency_2": "GPU の後で埋める",
+    "top1_change_rate": "GPU の後で埋める",
+    "number1_rate": "GPU の後で埋める",
+    "pbs": "GPU の後で埋める",
+    "number1_p": "GPU の後で埋める",
+    "margin_mean": "GPU の後で埋める",
+    "entropy_mean": "GPU の後で埋める",
+    "surprise": "GPU の後で埋める",
+    "other_rate": "GPU の後で埋める",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "wall_s_per_item": "GPU の後で埋める",
+    "tokens_in": "GPU の後で埋める",
+    "gpu_hours_per_sim_day": "GPU の後で埋める"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_classical": "GPU の後で埋める",
+    "spearman_vs_classical": "GPU の後で埋める",
+    "jsd_vs_tape": "GPU の後で埋める",
+    "top1_agree_vs_tape": "GPU の後で埋める",
+    "jsd_vs_g": "GPU の後で埋める",
+    "self_consistency_2": "GPU の後で埋める",
+    "top1_change_rate": "GPU の後で埋める",
+    "number1_rate": "GPU の後で埋める",
+    "pbs": "GPU の後で埋める",
+    "number1_p": "GPU の後で埋める",
+    "margin_mean": "GPU の後で埋める",
+    "entropy_mean": "GPU の後で埋める",
+    "surprise": "GPU の後で埋める",
+    "other_rate": "GPU の後で埋める",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "wall_s_per_item": "GPU の後で埋める",
+    "tokens_in": "GPU の後で埋める",
+    "gpu_hours_per_sim_day": "GPU の後で埋める"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_classical": "GPU の後で埋める",
+    "spearman_vs_classical": "GPU の後で埋める",
+    "jsd_vs_tape": "GPU の後で埋める",
+    "top1_agree_vs_tape": "GPU の後で埋める",
+    "jsd_vs_g": "GPU の後で埋める",
+    "self_consistency_2": "GPU の後で埋める",
+    "top1_change_rate": "GPU の後で埋める",
+    "number1_rate": "GPU の後で埋める",
+    "pbs": "GPU の後で埋める",
+    "number1_p": "GPU の後で埋める",
+    "margin_mean": "GPU の後で埋める",
+    "entropy_mean": "GPU の後で埋める",
+    "surprise": "GPU の後で埋める",
+    "other_rate": "GPU の後で埋める",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "wall_s_per_item": "GPU の後で埋める",
+    "tokens_in": "GPU の後で埋める",
+    "gpu_hours_per_sim_day": "GPU の後で埋める"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_classical": "GPU の後で埋める",
+    "spearman_vs_classical": "GPU の後で埋める",
+    "jsd_vs_tape": "GPU の後で埋める",
+    "top1_agree_vs_tape": "GPU の後で埋める",
+    "jsd_vs_g": "GPU の後で埋める",
+    "self_consistency_2": "GPU の後で埋める",
+    "top1_change_rate": "GPU の後で埋める",
+    "number1_rate": "GPU の後で埋める",
+    "pbs": "GPU の後で埋める",
+    "number1_p": "GPU の後で埋める",
+    "margin_mean": "GPU の後で埋める",
+    "entropy_mean": "GPU の後で埋める",
+    "surprise": "GPU の後で埋める",
+    "other_rate": "GPU の後で埋める",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "wall_s_per_item": "GPU の後で埋める",
+    "tokens_in": "GPU の後で埋める",
+    "gpu_hours_per_sim_day": "GPU の後で埋める"
+   },
+   {
+    "first_language": "該当なし(材料なし=§4-8)",
+    "jsd_vs_classical": "GPU の後で埋める",
+    "spearman_vs_classical": "GPU の後で埋める",
+    "jsd_vs_tape": "GPU の後で埋める",
+    "top1_agree_vs_tape": "GPU の後で埋める",
+    "jsd_vs_g": "GPU の後で埋める",
+    "self_consistency_2": "GPU の後で埋める",
+    "top1_change_rate": "GPU の後で埋める",
+    "number1_rate": "GPU の後で埋める",
+    "pbs": "GPU の後で埋める",
+    "number1_p": "GPU の後で埋める",
+    "margin_mean": "GPU の後で埋める",
+    "entropy_mean": "GPU の後で埋める",
+    "surprise": "GPU の後で埋める",
+    "other_rate": "GPU の後で埋める",
+    "human_match": "該当なし(検証側=値を入れない)",
+    "wall_s_per_item": "GPU の後で埋める",
+    "tokens_in": "GPU の後で埋める",
+    "gpu_hours_per_sim_day": "GPU の後で埋める"
+   }
+  ],
+  "order": "並びは当て口の宣言の順(対照 → 基準 → 候補)。順位は付けない(ユーザーが選ぶ=決定 10-12 §1-9・DM1)",
+  "footnotes": [
+   "PBS の帰無の床(中身だけで選ぶ当て口の模擬・候補 13・10,000 回): 平均 0.021・5〜95% 0.011〜0.034(この幅の中の PBS は偏りの証拠にならない)",
+   "テープの行: 位置の偏りの列は構成上 0(テープの LLM はここで入れ替えた並びを見ていない=8B の位置の偏りの測りではない・固定の並びでの位置 1 の率 0.50 は位置と中身が重なり分けられない)"
+  ]
+ },
+ "digest": "c33a261c71160d69ad46f025461771d9813d41bee80c3bb803164b20b6fcc1d0"
+}

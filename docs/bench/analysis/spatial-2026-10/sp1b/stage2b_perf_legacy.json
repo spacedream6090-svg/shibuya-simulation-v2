@@ -1,0 +1,1 @@
+{"old_b4": false, "env": {"SHIBUYA_SPACE": "legacy"}, "space": "legacy", "density_mode": null, "machine": "Windows 11 AMD64 cpu=20", "final": "bb86f89855172717", "calls": 63572, "wall_s": 43.7, "run_wall_s": 43.22, "ms_per_step": 30.01, "peak_ws_bytes": 541454336, "cell_block_wakes": 232031, "calls_cell_block": 5561}

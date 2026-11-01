@@ -1,0 +1,26 @@
+{
+ "key": "W16#5",
+ "control": "年齢不詳を既知階級の比で按分(宣言)vs 不詳を別階級(区の不詳の割合 25,380/243,883)",
+ "metric": "住民の年齢階級(16+不詳)の分布",
+ "variants": [
+  {
+   "name": "不詳を別階級",
+   "jsd_bits": 0.05409439818486839,
+   "null_p95": 0.00020707778613522103,
+   "detected": true,
+   "tvd": 0.10406629408363846,
+   "n_declared": 43588.0,
+   "n_control": 43588.0,
+   "n_bins": 17
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 0.11995500000193715,
+ "notes": [
+  "対照側は期待値(区の階級比 × 住民数)。宣言側は IPF+最大剰余の整数表(抽選なし)"
+ ],
+ "seconds_wall_row": 0.16,
+ "measured_at": "2026-09-30"
+}

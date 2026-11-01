@@ -1,0 +1,28 @@
+{
+ "key": "W16#13",
+ "control": "域外へ通う住民の方面=到着側『自宅－勤務』の重みを流用(宣言)vs 方面一様",
+ "metric": "域外へ通う住民の方面(外界ノード)の分布",
+ "variants": [
+  {
+   "name": "方面一様",
+   "jsd_bits": 0.1198954333279996,
+   "null_p95": 0.0004656242930442634,
+   "detected": true,
+   "tvd": 0.2958152958152958,
+   "n_declared": 13167.0,
+   "n_control": 13167.0,
+   "n_bins": 10
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 12.479624000028707,
+ "outputs_changed": [
+  "w16_gates.json",
+  "w16_population.parquet"
+ ],
+ "notes": [],
+ "seconds_wall_row": 13.37,
+ "measured_at": "2026-09-30"
+}

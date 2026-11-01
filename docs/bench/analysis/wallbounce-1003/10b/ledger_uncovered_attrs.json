@@ -1,0 +1,1521 @@
+{
+ "note": "10b-2: 持ち主のクラスの属性は台帳の行か除外の一覧に必ず載る(uncovered と problems が空=合格)",
+ "owner_classes": {
+  "act_layer": {
+   "file": "engine/activity.py",
+   "class": "ActivityLayer",
+   "n_attrs": 27
+  },
+  "intent_layer": {
+   "file": "engine/intent.py",
+   "class": "IntentLayer",
+   "n_attrs": 11
+  },
+  "fam_layer": {
+   "file": "engine/familiarity.py",
+   "class": "FamiliarityLayer",
+   "n_attrs": 11
+  },
+  "mem_layer": {
+   "file": "engine/memory.py",
+   "class": "MemoryLayer",
+   "n_attrs": 19
+  },
+  "mem_layer.store": {
+   "file": "engine/store_memory.py",
+   "class": "StoreMemory",
+   "n_attrs": 11
+  },
+  "poi_resolver": {
+   "file": "engine/poi_target.py",
+   "class": "TargetResolver",
+   "n_attrs": 23
+  },
+  "poi_resolver.store_choice": {
+   "file": "engine/store_choice.py",
+   "class": "StoreChoice",
+   "n_attrs": 22
+  },
+  "poi_resolver.chooser": {
+   "file": "engine/chooser.py",
+   "class": "ClassicalChooser",
+   "n_attrs": 5
+  },
+  "wom": {
+   "file": "engine/wom.py",
+   "class": "WomExtractor",
+   "n_attrs": 14
+  },
+  "rel_layer": {
+   "file": "engine/relations.py",
+   "class": "RelationLayer",
+   "n_attrs": 23
+  },
+  "classical": {
+   "file": "engine/classical.py",
+   "class": "ClassicalPolicy",
+   "n_attrs": 36
+  },
+  "energy": {
+   "file": "engine/energy.py",
+   "class": "EnergyLayer",
+   "n_attrs": 18
+  },
+  "energy.out_of_area": {
+   "file": "engine/energy.py",
+   "class": "OutOfAreaMeals",
+   "n_attrs": 24
+  },
+  "energy.home_meals": {
+   "file": "engine/energy.py",
+   "class": "HomeMeals",
+   "n_attrs": 10
+  },
+  "norm_meter": {
+   "file": "engine/norm_meter.py",
+   "class": "GroupNormMeter",
+   "n_attrs": 33
+  },
+  "presence": {
+   "file": "engine/presence.py",
+   "class": "PlanExecutor",
+   "n_attrs": 108
+  },
+  "conv": {
+   "file": "engine/conversation.py",
+   "class": "ConversationManager",
+   "n_attrs": 36
+  },
+  "arbiter": {
+   "file": "engine/arbiter.py",
+   "class": "Arbiter",
+   "n_attrs": 15
+  },
+  "detector": {
+   "file": "engine/change_detect.py",
+   "class": "ChangeDetector",
+   "n_attrs": 13
+  },
+  "runner": {
+   "file": "engine/processes/runner.py",
+   "class": "WorldProcessRunner",
+   "n_attrs": 38
+  },
+  "runner.salient": {
+   "file": "engine/processes/salient.py",
+   "class": "SalientProcess",
+   "n_attrs": 31
+  },
+  "runner.dispatch": {
+   "file": "engine/processes/civic.py",
+   "class": "PublicServiceDispatchProcess",
+   "n_attrs": 10
+  },
+  "runner.hotel": {
+   "file": "engine/processes/civic.py",
+   "class": "HotelProcess",
+   "n_attrs": 16
+  },
+  "runner.large_event": {
+   "file": "engine/processes/civic.py",
+   "class": "LargeEventProcess",
+   "n_attrs": 13
+  },
+  "runner.press": {
+   "file": "engine/processes/civic.py",
+   "class": "PressProcess",
+   "n_attrs": 8
+  },
+  "runner.infra": {
+   "file": "engine/processes/civic.py",
+   "class": "InfraLoadProcess",
+   "n_attrs": 7
+  },
+  "runner.rail": {
+   "file": "engine/processes/rail.py",
+   "class": "RailProcess",
+   "n_attrs": 55
+  },
+  "runner.crowd": {
+   "file": "engine/processes/crowd.py",
+   "class": "CrowdProcess",
+   "n_attrs": 19
+  },
+  "runner.shelf": {
+   "file": "engine/processes/goods_flow.py",
+   "class": "ShelfRestockProcess",
+   "n_attrs": 19
+  },
+  "runner.delivery_inbound": {
+   "file": "engine/processes/goods_flow.py",
+   "class": "DeliveryInboundProcess",
+   "n_attrs": 14
+  },
+  "runner.waste": {
+   "file": "engine/processes/goods_flow.py",
+   "class": "WasteCollectionProcess",
+   "n_attrs": 15
+  },
+  "runner.street_cleaning": {
+   "file": "engine/processes/goods_flow.py",
+   "class": "StreetCleaningProcess",
+   "n_attrs": 9
+  },
+  "runner.last_mile": {
+   "file": "engine/processes/logistics.py",
+   "class": "LastMileProcess",
+   "n_attrs": 12
+  },
+  "runner.bus_taxi": {
+   "file": "engine/processes/logistics.py",
+   "class": "BusTaxiProcess",
+   "n_attrs": 12
+  },
+  "runner.road_works": {
+   "file": "engine/processes/logistics.py",
+   "class": "RoadWorksProcess",
+   "n_attrs": 13
+  },
+  "runner.traffic": {
+   "file": "engine/processes/traffic.py",
+   "class": "TrafficProcess",
+   "n_attrs": 12
+  },
+  "runner.opening": {
+   "file": "engine/processes/opening.py",
+   "class": "OpeningProcess",
+   "n_attrs": 14
+  },
+  "runner.environment": {
+   "file": "engine/processes/environment.py",
+   "class": "EnvironmentProcess",
+   "n_attrs": 23
+  },
+  "runner.log": {
+   "file": "world/processes/actual_log.py",
+   "class": "ActualLog",
+   "n_attrs": 12
+  },
+  "ledger.money": {
+   "file": "economy/ledger.py",
+   "class": "Ledger",
+   "n_attrs": 26
+  },
+  "ledger.goods": {
+   "file": "economy/goods.py",
+   "class": "GoodsLedger",
+   "n_attrs": 39
+  },
+  "undefined": {
+   "file": "llm/undefined.py",
+   "class": "UndefinedActionRegistry",
+   "n_attrs": 15
+  },
+  "renderer": {
+   "file": "perception/renderer.py",
+   "class": "Renderer",
+   "n_attrs": 58
+  },
+  "bridge": {
+   "file": "engine/llm_bridge.py",
+   "class": "LLMBridge",
+   "n_attrs": 25
+  },
+  "bridge.tape": {
+   "file": "engine/tape.py",
+   "class": "TapeWriter",
+   "n_attrs": 8
+  },
+  "fleet_bridge": {
+   "file": "llm/fleet.py",
+   "class": "FleetBridge",
+   "n_attrs": 28
+  }
+ },
+ "uncovered": {},
+ "problems": [],
+ "excluded_entries": 112,
+ "excluded_attrs": 491,
+ "excluded_by_kind": {
+  "cache": 127,
+  "const": 258,
+  "ref": 106
+ },
+ "excluded": [
+  {
+   "owner": "act_layer",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "n",
+    "salt",
+    "minutes_per_tick",
+    "_tpd",
+    "leave_effect"
+   ]
+  },
+  {
+   "owner": "act_layer",
+   "kind": "cache",
+   "reason": "ぶらつきの近傍の表(資産から作る)",
+   "attrs": [
+    "_nbr_start",
+    "_nbr_cells"
+   ]
+  },
+  {
+   "owner": "intent_layer",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "n",
+    "max_ticks"
+   ]
+  },
+  {
+   "owner": "intent_layer",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world"
+   ]
+  },
+  {
+   "owner": "intent_layer",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "_poi_cell"
+   ]
+  },
+  {
+   "owner": "fam_layer",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "n",
+    "k",
+    "minutes_per_tick",
+    "d",
+    "p_see",
+    "seed"
+   ]
+  },
+  {
+   "owner": "fam_layer",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "signage_poi_by_cell"
+   ]
+  },
+  {
+   "owner": "fam_layer",
+   "kind": "ref",
+   "reason": "描画の側の関数(配線)",
+   "attrs": [
+    "p_see_fn",
+    "kind_fn"
+   ]
+  },
+  {
+   "owner": "mem_layer",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "n",
+    "n_rows",
+    "minutes_per_tick",
+    "d",
+    "w_r",
+    "w_i",
+    "tau",
+    "store_recall_scope"
+   ]
+  },
+  {
+   "owner": "mem_layer",
+   "kind": "ref",
+   "reason": "関係辺の層(rel_layer の側で数える)",
+   "attrs": [
+    "relations"
+   ]
+  },
+  {
+   "owner": "mem_layer.store",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "n",
+    "n_rows",
+    "minutes_per_tick",
+    "d",
+    "sigma",
+    "decay",
+    "weight",
+    "signage"
+   ]
+  },
+  {
+   "owner": "mem_layer.store",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "poi_cell"
+   ]
+  },
+  {
+   "owner": "mem_layer.store",
+   "kind": "ref",
+   "reason": "店の選び手の口(関数)",
+   "attrs": [
+    "visit_hook"
+   ]
+  },
+  {
+   "owner": "poi_resolver",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "_cat",
+    "_sub",
+    "_names",
+    "_names_by_len",
+    "_cat_words",
+    "_cat_exact",
+    "_buyable",
+    "_by_cell",
+    "_off",
+    "_skip",
+    "_cell_of_place",
+    "_landmark"
+   ]
+  },
+  {
+   "owner": "poi_resolver",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "_rich",
+    "seed",
+    "move_search_radius"
+   ]
+  },
+  {
+   "owner": "poi_resolver",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world"
+   ]
+  },
+  {
+   "owner": "poi_resolver.store_choice",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "memory",
+    "store",
+    "world"
+   ]
+  },
+  {
+   "owner": "poi_resolver.store_choice",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "n",
+    "seed",
+    "minutes_per_tick",
+    "ticks_per_hour",
+    "_tpd",
+    "intent_max_ticks",
+    "recall_first",
+    "_src_order"
+   ]
+  },
+  {
+   "owner": "poi_resolver.store_choice",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "poi_cell",
+    "price",
+    "walk"
+   ]
+  },
+  {
+   "owner": "poi_resolver.chooser",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "p_h",
+    "tau",
+    "name"
+   ]
+  },
+  {
+   "owner": "wom",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "source",
+    "n_poi"
+   ]
+  },
+  {
+   "owner": "wom",
+   "kind": "cache",
+   "reason": "店名と評価語の辞書(世界と辞書 v0 から作る)",
+   "attrs": [
+    "poi_cell",
+    "cell_dist",
+    "keys",
+    "_by_first",
+    "_generic",
+    "_generic_tails",
+    "_cat_tails",
+    "_val_words",
+    "_neg"
+   ]
+  },
+  {
+   "owner": "rel_layer",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)(enable_* で 1 回だけ置く値を含む)",
+   "attrs": [
+    "n",
+    "k",
+    "minutes_per_tick",
+    "d",
+    "tau",
+    "s",
+    "_co_minutes",
+    "_co_meters",
+    "_acq_pair_ticks"
+   ]
+  },
+  {
+   "owner": "rel_layer",
+   "kind": "cache",
+   "reason": "tick の中だけの控え(同セルの辺の集め・知人出現の候補=その tick の中で使い切る)",
+   "attrs": [
+    "_hits",
+    "_hits_tick",
+    "_acq_pending"
+   ]
+  },
+  {
+   "owner": "classical",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)・交際の口(関数)",
+   "attrs": [
+    "agents",
+    "world",
+    "partner_fn"
+   ]
+  },
+  {
+   "owner": "classical",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "minutes_per_tick",
+    "_tpd",
+    "_identity",
+    "seed",
+    "prior",
+    "prior_md5",
+    "m_place",
+    "m_next",
+    "m_prev",
+    "source",
+    "social",
+    "meal_gate"
+   ]
+  },
+  {
+   "owner": "classical",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "work_cell",
+    "school_cell",
+    "employed",
+    "has_work",
+    "_station",
+    "_eatery",
+    "_cell_has_eatery"
+   ]
+  },
+  {
+   "owner": "energy",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "model",
+    "n_agents"
+   ]
+  },
+  {
+   "owner": "energy",
+   "kind": "ref",
+   "reason": "ClassicalPolicy._gate_hazard と同じ配列(O21 で数える)",
+   "attrs": [
+    "meal_reset"
+   ]
+  },
+  {
+   "owner": "energy",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "poi_intake"
+   ]
+  },
+  {
+   "owner": "energy.out_of_area",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "sleep_defer",
+    "_tpd"
+   ]
+  },
+  {
+   "owner": "energy.out_of_area",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)(予定の行の数と並べ替えの索引)",
+   "attrs": [
+    "n_rows",
+    "n_defaults",
+    "n_asleep_defaults",
+    "n_deferrable",
+    "_arm_order",
+    "_eat_order",
+    "_arm_start",
+    "_eat_start"
+   ]
+  },
+  {
+   "owner": "energy.home_meals",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "_tpd"
+   ]
+  },
+  {
+   "owner": "energy.home_meals",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "n_rows",
+    "n_agents_with_rows"
+   ]
+  },
+  {
+   "owner": "norm_meter",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "agents"
+   ]
+  },
+  {
+   "owner": "norm_meter",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "tick_seconds",
+    "n_station_cells",
+    "role_codes",
+    "_role_word_by_code",
+    "_code_words"
+   ]
+  },
+  {
+   "owner": "norm_meter",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "_station_cell"
+   ]
+  },
+  {
+   "owner": "presence",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "agents",
+    "weekly",
+    "rail",
+    "assets"
+   ]
+  },
+  {
+   "owner": "presence",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)・クラスの定数",
+   "attrs": [
+    "day_index",
+    "seed",
+    "ticks",
+    "exit_mode",
+    "attendance_rate",
+    "mode",
+    "derive_rule",
+    "n",
+    "walk_max_ticks",
+    "ablation_id",
+    "process_ids",
+    "_PRESENCE_TYPES",
+    "_BOUNDARY_TYPES"
+   ]
+  },
+  {
+   "owner": "presence",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)(管理する体・自宅・方向・路線・開始時の在圏・事象の索引)",
+   "attrs": [
+    "managed",
+    "home_cell",
+    "home_out",
+    "_home_shim",
+    "direction_node",
+    "line_of_agent",
+    "in_area_at_start",
+    "_ev_start",
+    "n_all_day_outside"
+   ]
+  },
+  {
+   "owner": "presence",
+   "kind": "cache",
+   "reason": "この tick に歩き始めた体(tick の中で使い切る)",
+   "attrs": [
+    "walk_started_now"
+   ]
+  },
+  {
+   "owner": "conv",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)(重要度上位の体の集合を含む)",
+   "attrs": [
+    "master_seed",
+    "domain",
+    "max_turns",
+    "extra_turns_for_important",
+    "max_participants",
+    "accept_probability",
+    "refusal_memory_ticks",
+    "silence_ticks",
+    "max_session_ticks",
+    "walk_over_ticks",
+    "topics_per_session",
+    "important",
+    "origin_names"
+   ]
+  },
+  {
+   "owner": "arbiter",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "n_agents",
+    "run_salt",
+    "budget",
+    "classes",
+    "_pool_cap"
+   ]
+  },
+  {
+   "owner": "detector",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "n_agents",
+    "n_cells"
+   ]
+  },
+  {
+   "owner": "detector",
+   "kind": "cache",
+   "reason": "歩行可能面積(資産)と毎 tick 使い回す作業の配列",
+   "attrs": [
+    "walkable_area_m2",
+    "_b1",
+    "_b2",
+    "_b3",
+    "_up",
+    "_dn",
+    "_hit",
+    "_any",
+    "_cell_mask",
+    "_wake_buf"
+   ]
+  },
+  {
+   "owner": "runner",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)(過程の辞書 _procs を含む)",
+   "attrs": [
+    "registry",
+    "world",
+    "agents",
+    "assets",
+    "clock",
+    "calendar",
+    "ledger",
+    "presence",
+    "_procs"
+   ]
+  },
+  {
+   "owner": "runner",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)・世界側台帳の検査の結果",
+   "attrs": [
+    "master_seed",
+    "day_index",
+    "tick_seconds",
+    "plan_executor",
+    "constitution_report",
+    "constitution_ok",
+    "registry_hash",
+    "enabled"
+   ]
+  },
+  {
+   "owner": "runner.salient",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)(知覚 SoA は台帳の perception の 5 行で数える)",
+   "attrs": [
+    "world",
+    "agents",
+    "dispatch",
+    "press",
+    "environment",
+    "pstate"
+   ]
+  },
+  {
+   "owner": "runner.salient",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)・クラスの定数",
+   "attrs": [
+    "tick_seconds",
+    "master_seed",
+    "day_index",
+    "ablation",
+    "d50_scale",
+    "params",
+    "d50_by_kind",
+    "rate",
+    "process_ids",
+    "ablation_id"
+   ]
+  },
+  {
+   "owner": "runner.salient",
+   "kind": "cache",
+   "reason": "step の頭で空に戻すその tick の事象・行・気づいた体と、セルの索引",
+   "attrs": [
+    "events",
+    "cell_lines",
+    "noticed_agents",
+    "_neighbours",
+    "_cell_index_tick",
+    "_order",
+    "_start"
+   ]
+  },
+  {
+   "owner": "runner.dispatch",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "log"
+   ]
+  },
+  {
+   "owner": "runner.dispatch",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "tick_seconds",
+    "process_ids",
+    "ablation_id"
+   ]
+  },
+  {
+   "owner": "runner.hotel",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "agents",
+    "log"
+   ]
+  },
+  {
+   "owner": "runner.hotel",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "tick_seconds",
+    "process_ids",
+    "ablation_id"
+   ]
+  },
+  {
+   "owner": "runner.hotel",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "hotel_poi",
+    "hotel_cell",
+    "rooms_total",
+    "hotel_of_cell",
+    "external_home"
+   ]
+  },
+  {
+   "owner": "runner.large_event",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "agents",
+    "rail",
+    "presence",
+    "log"
+   ]
+  },
+  {
+   "owner": "runner.large_event",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "tick_seconds",
+    "visitor_delta",
+    "process_ids",
+    "ablation_id"
+   ]
+  },
+  {
+   "owner": "runner.large_event",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "venue_cells"
+   ]
+  },
+  {
+   "owner": "runner.press",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "log"
+   ]
+  },
+  {
+   "owner": "runner.press",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)(発表の文)",
+   "attrs": [
+    "tick_seconds",
+    "line",
+    "strip",
+    "process_ids",
+    "ablation_id"
+   ]
+  },
+  {
+   "owner": "runner.infra",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "agents"
+   ]
+  },
+  {
+   "owner": "runner.infra",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "tick_seconds",
+    "process_ids",
+    "ablation_id"
+   ]
+  },
+  {
+   "owner": "runner.rail",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "agents",
+    "assets",
+    "calendar",
+    "schedule",
+    "log",
+    "presence",
+    "_weekly"
+   ]
+  },
+  {
+   "owner": "runner.rail",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "master_seed",
+    "day_index",
+    "fare_yen",
+    "plan_executor",
+    "process_ids",
+    "ablation_id"
+   ]
+  },
+  {
+   "owner": "runner.rail",
+   "kind": "cache",
+   "reason": "時刻表と列車の表(資産と暦から作る)",
+   "attrs": [
+    "lines",
+    "lines_present",
+    "line_cell",
+    "dep_tick",
+    "dwell",
+    "train_line",
+    "train_dir",
+    "platform_cell",
+    "capacity100",
+    "cap_pct",
+    "_arr_order",
+    "_arr_start",
+    "enter_tick",
+    "_enter_order",
+    "_enter_sorted"
+   ]
+  },
+  {
+   "owner": "runner.crowd",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "agents"
+   ]
+  },
+  {
+   "owner": "runner.crowd",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "tick_seconds",
+    "seat_area_m2",
+    "default_seat_area_m2",
+    "process_ids",
+    "ablation_id"
+   ]
+  },
+  {
+   "owner": "runner.crowd",
+   "kind": "cache",
+   "reason": "席数の表(資産)と、その tick の入店数(tick の頭で 0 に戻す)",
+   "attrs": [
+    "seats",
+    "admitted_this_tick"
+   ]
+  },
+  {
+   "owner": "runner.shelf",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "agents",
+    "ledger",
+    "log"
+   ]
+  },
+  {
+   "owner": "runner.shelf",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "tick_seconds",
+    "fill_ratio",
+    "process_ids",
+    "ablation_id"
+   ]
+  },
+  {
+   "owner": "runner.shelf",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)(初期の在庫からの容量・発注点・店員)",
+   "attrs": [
+    "capacity",
+    "reorder_point",
+    "staff_of_poi"
+   ]
+  },
+  {
+   "owner": "runner.delivery_inbound",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "ledger",
+    "shelf",
+    "log"
+   ]
+  },
+  {
+   "owner": "runner.delivery_inbound",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "tick_seconds",
+    "day_index",
+    "process_ids",
+    "ablation_id",
+    "plan_spec_id"
+   ]
+  },
+  {
+   "owner": "runner.delivery_inbound",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "plan_minute"
+   ]
+  },
+  {
+   "owner": "runner.waste",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "agents",
+    "ledger",
+    "log"
+   ]
+  },
+  {
+   "owner": "runner.waste",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "tick_seconds",
+    "master_seed",
+    "process_ids",
+    "ablation_id"
+   ]
+  },
+  {
+   "owner": "runner.waste",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "route"
+   ]
+  },
+  {
+   "owner": "runner.street_cleaning",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "agents"
+   ]
+  },
+  {
+   "owner": "runner.street_cleaning",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "tick_seconds",
+    "process_ids",
+    "ablation_id"
+   ]
+  },
+  {
+   "owner": "runner.last_mile",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "log"
+   ]
+  },
+  {
+   "owner": "runner.last_mile",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "tick_seconds",
+    "process_ids",
+    "ablation_id"
+   ]
+  },
+  {
+   "owner": "runner.last_mile",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "bbox_share",
+    "parcels_today",
+    "parcels_per_cell",
+    "_hours"
+   ]
+  },
+  {
+   "owner": "runner.bus_taxi",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "assets",
+    "log"
+   ]
+  },
+  {
+   "owner": "runner.bus_taxi",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "tick_seconds",
+    "headway",
+    "process_ids",
+    "ablation_id",
+    "plan_spec_id"
+   ]
+  },
+  {
+   "owner": "runner.bus_taxi",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "stop_cell",
+    "phase",
+    "n_departures_planned"
+   ]
+  },
+  {
+   "owner": "runner.road_works",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "assets",
+    "log"
+   ]
+  },
+  {
+   "owner": "runner.road_works",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "tick_seconds",
+    "process_ids",
+    "ablation_id",
+    "plan_spec_id"
+   ]
+  },
+  {
+   "owner": "runner.road_works",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "planned_edges",
+    "edge_cell"
+   ]
+  },
+  {
+   "owner": "runner.traffic",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "assets"
+   ]
+  },
+  {
+   "owner": "runner.traffic",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "tick_seconds",
+    "through_ratio",
+    "process_ids",
+    "ablation_id"
+   ]
+  },
+  {
+   "owner": "runner.traffic",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)・場を作り直した時の印(-1 に戻せば同じ時の場を作り直す)",
+   "attrs": [
+    "edge_hourly",
+    "q24",
+    "hour"
+   ]
+  },
+  {
+   "owner": "runner.opening",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "world",
+    "agents",
+    "assets",
+    "log"
+   ]
+  },
+  {
+   "owner": "runner.opening",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "day_index",
+    "tick_seconds",
+    "process_ids",
+    "ablation_id",
+    "plan_spec_id"
+   ]
+  },
+  {
+   "owner": "runner.opening",
+   "kind": "cache",
+   "reason": "資産・母集団・予定の表から初期化で作る表(ランの間に変わらない=作り直せる)",
+   "attrs": [
+    "open_matrix",
+    "staff_of_poi"
+   ]
+  },
+  {
+   "owner": "runner.environment",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)",
+   "attrs": [
+    "calendar",
+    "world",
+    "agents",
+    "assets"
+   ]
+  },
+  {
+   "owner": "runner.environment",
+   "kind": "const",
+   "reason": "クラスの定数(process_ids・ablation_id など)・初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "prefer_shadow_days",
+    "master_seed",
+    "day_index",
+    "tick_seconds",
+    "process_ids"
+   ]
+  },
+  {
+   "owner": "runner.environment",
+   "kind": "cache",
+   "reason": "日の出・日の入り・セルの点・日陰の面(資産と日付から作る)と日陰のキャッシュの印",
+   "attrs": [
+    "_planes",
+    "_sunrise",
+    "_sunset",
+    "_cell_point",
+    "_shade_cache_frame"
+   ]
+  },
+  {
+   "owner": "ledger.money",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)(他所の現金の扱いの印は初期化で 1 回だけ立てる)",
+   "attrs": [
+    "sizes",
+    "_foreign_cash",
+    "retention_days",
+    "raw_capacity"
+   ]
+  },
+  {
+   "owner": "ledger.money",
+   "kind": "cache",
+   "reason": "書き込み窓の入れ子の深さ(checkpoint では 0)",
+   "attrs": [
+    "_depth"
+   ]
+  },
+  {
+   "owner": "ledger.money",
+   "kind": "const",
+   "reason": "初期の財布(cli._HouseholdWalletLedger・母集団の財布=初期化で渡す定数)",
+   "attrs": [
+    "wallets"
+   ]
+  },
+  {
+   "owner": "ledger.goods",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)・クラスの定数",
+   "attrs": [
+    "sku",
+    "n_poi",
+    "slots",
+    "cat",
+    "poi_sku",
+    "_n_slots_used",
+    "static_store_waste_g",
+    "unit_cost",
+    "n_agents",
+    "retention_days",
+    "STORE_WASTE_BAND_NOTE"
+   ]
+  },
+  {
+   "owner": "ledger.goods",
+   "kind": "cache",
+   "reason": "書き込み窓の入れ子の深さ(checkpoint では 0)",
+   "attrs": [
+    "_depth"
+   ]
+  },
+  {
+   "owner": "undefined",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "vocab_version",
+    "threshold_agents",
+    "log_limit",
+    "params",
+    "review_keywords"
+   ]
+  },
+  {
+   "owner": "undefined",
+   "kind": "ref",
+   "reason": "裁定器(run_day では None)",
+   "attrs": [
+    "adjudicator"
+   ]
+  },
+  {
+   "owner": "renderer",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)・時計の関数・焦点の列(agents.focus_target のビュー)",
+   "attrs": [
+    "world",
+    "agents",
+    "assets",
+    "clock_fn",
+    "_focus_target"
+   ]
+  },
+  {
+   "owner": "renderer",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)(知人の初期表・被注視数は初期化で渡す値)",
+   "attrs": [
+    "seed",
+    "acquaintances",
+    "watched_by",
+    "budget_mode",
+    "strict_group_budget",
+    "signage_enabled",
+    "signage_p_see",
+    "p_see_activity",
+    "_p_see_mult",
+    "_p_see_identity",
+    "intent_mode",
+    "vocab_version",
+    "role_words",
+    "near_tiebreak",
+    "near_order",
+    "_near_salt64",
+    "_b0",
+    "_b4b",
+    "_hunger_words",
+    "hunger_words",
+    "_hunger_min_stage"
+   ]
+  },
+  {
+   "owner": "bridge",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "mode",
+    "vocab_version",
+    "landmarks",
+    "_engine_codes",
+    "params",
+    "lane",
+    "tick_seconds"
+   ]
+  },
+  {
+   "owner": "bridge",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)(未定義行動の台帳・再生・応答の口)",
+   "attrs": [
+    "renderer",
+    "undefined",
+    "replay",
+    "client"
+   ]
+  },
+  {
+   "owner": "bridge.tape",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "path",
+    "flush_rows",
+    "run_meta"
+   ]
+  },
+  {
+   "owner": "bridge.tape",
+   "kind": "ref",
+   "reason": "parquet の書き手(ファイル)",
+   "attrs": [
+    "_writer"
+   ]
+  },
+  {
+   "owner": "fleet_bridge",
+   "kind": "ref",
+   "reason": "他のオブジェクトへの参照(その持ち主の側で数える)(艦隊・テープ・未定義行動の台帳・デバッグのファイル)",
+   "attrs": [
+    "client",
+    "tape",
+    "tape_row_factory",
+    "undefined",
+    "_debug_fp"
+   ]
+  },
+  {
+   "owner": "fleet_bridge",
+   "kind": "const",
+   "reason": "初期化で渡す設定・定数(ランの間に変わらない)",
+   "attrs": [
+    "vocab_version",
+    "landmarks",
+    "_engine_codes",
+    "params",
+    "source",
+    "_params_hash",
+    "debug_dir",
+    "debug_max_rows"
+   ]
+  }
+ ]
+}

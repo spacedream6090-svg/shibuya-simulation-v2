@@ -1,0 +1,337 @@
+{
+ "agents": 5000,
+ "seed": 1,
+ "days": 2,
+ "env": {},
+ "runs": {
+  "w6_v3_default": {
+   "config": "w6_v3_default",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "2809f188586a6c0a",
+   "calls": 134719,
+   "jam_meter": 0,
+   "jam_by_day": {},
+   "jam_max_concurrent_by_day": {},
+   "jam_steps_by_day": {},
+   "jam_top_cells_by_day": {},
+   "wall_s": 130.9
+  },
+  "w6_v3_activity_off": {
+   "config": "w6_v3_activity_off",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "a9dd37066037d843",
+   "calls": 109823,
+   "jam_meter": 0,
+   "jam_by_day": {},
+   "jam_max_concurrent_by_day": {},
+   "jam_steps_by_day": {},
+   "jam_top_cells_by_day": {},
+   "wall_s": 104.5
+  },
+  "w6_v1_default": {
+   "config": "w6_v1_default",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "e6e0e24f9b92162b",
+   "calls": 113952,
+   "jam_meter": 0,
+   "jam_by_day": {},
+   "jam_max_concurrent_by_day": {},
+   "jam_steps_by_day": {},
+   "jam_top_cells_by_day": {},
+   "wall_s": 95.6
+  },
+  "w6_v1_derive_v2_1": {
+   "config": "w6_v1_derive_v2_1",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "46b0f9ee679f4f46",
+   "calls": 102077,
+   "jam_meter": 0,
+   "jam_by_day": {},
+   "jam_max_concurrent_by_day": {},
+   "jam_steps_by_day": {},
+   "jam_top_cells_by_day": {},
+   "wall_s": 87.8
+  },
+  "w6_v2": {
+   "config": "w6_v2",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "096eb6e643b08e5d",
+   "calls": 115503,
+   "jam_meter": 33,
+   "jam_by_day": {
+    "1": 33
+   },
+   "jam_max_concurrent_by_day": {
+    "1": 12
+   },
+   "jam_steps_by_day": {
+    "1": 3
+   },
+   "jam_top_cells_by_day": {
+    "1": [
+     [
+      "329",
+      33
+     ]
+    ]
+   },
+   "wall_s": 97.0
+  },
+  "w6_v1_edge": {
+   "config": "w6_v1_edge",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "1b95be857d6eb0ba",
+   "calls": 113952,
+   "jam_meter": 0,
+   "jam_by_day": {},
+   "jam_max_concurrent_by_day": {},
+   "jam_steps_by_day": {},
+   "jam_top_cells_by_day": {},
+   "wall_s": 94.2
+  },
+  "w6_v2_edge": {
+   "config": "w6_v2_edge",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "a0aa43b3ae571b05",
+   "calls": 115503,
+   "jam_meter": 33,
+   "jam_by_day": {
+    "1": 33
+   },
+   "jam_max_concurrent_by_day": {
+    "1": 12
+   },
+   "jam_steps_by_day": {
+    "1": 3
+   },
+   "jam_top_cells_by_day": {
+    "1": [
+     [
+      "329",
+      33
+     ]
+    ]
+   },
+   "wall_s": 98.5
+  },
+  "w6_v1_edge_plateau": {
+   "config": "w6_v1_edge_plateau",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "1b95be857d6eb0ba",
+   "calls": 113952,
+   "jam_meter": 0,
+   "jam_by_day": {},
+   "jam_max_concurrent_by_day": {},
+   "jam_steps_by_day": {},
+   "jam_top_cells_by_day": {},
+   "wall_s": 95.1
+  },
+  "w6_old_v1_default": {
+   "config": "w6_old_v1_default",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "0e50a107051ad5bb",
+   "calls": 113952,
+   "jam_meter": 0,
+   "jam_by_day": {},
+   "jam_max_concurrent_by_day": {},
+   "jam_steps_by_day": {},
+   "jam_top_cells_by_day": {},
+   "wall_s": 95.3
+  },
+  "w6_old_v1_derive_v2_1": {
+   "config": "w6_old_v1_derive_v2_1",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "bb2925b16545c8ea",
+   "calls": 102077,
+   "jam_meter": 0,
+   "jam_by_day": {},
+   "jam_max_concurrent_by_day": {},
+   "jam_steps_by_day": {},
+   "jam_top_cells_by_day": {},
+   "wall_s": 82.7
+  },
+  "w6_old_v2": {
+   "config": "w6_old_v2",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "515e642461a0c5ac",
+   "calls": 115503,
+   "jam_meter": 33,
+   "jam_by_day": {
+    "1": 33
+   },
+   "jam_max_concurrent_by_day": {
+    "1": 12
+   },
+   "jam_steps_by_day": {
+    "1": 3
+   },
+   "jam_top_cells_by_day": {
+    "1": [
+     [
+      "329",
+      33
+     ]
+    ]
+   },
+   "wall_s": 96.5
+  },
+  "w6_old_v1_edge": {
+   "config": "w6_old_v1_edge",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "2e446a7b95c18498",
+   "calls": 113952,
+   "jam_meter": 0,
+   "jam_by_day": {},
+   "jam_max_concurrent_by_day": {},
+   "jam_steps_by_day": {},
+   "jam_top_cells_by_day": {},
+   "wall_s": 94.4
+  },
+  "w6_old_v2_edge": {
+   "config": "w6_old_v2_edge",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "baa75cfe70f372c3",
+   "calls": 115503,
+   "jam_meter": 33,
+   "jam_by_day": {
+    "1": 33
+   },
+   "jam_max_concurrent_by_day": {
+    "1": 12
+   },
+   "jam_steps_by_day": {
+    "1": 3
+   },
+   "jam_top_cells_by_day": {
+    "1": [
+     [
+      "329",
+      33
+     ]
+    ]
+   },
+   "wall_s": 96.5
+  },
+  "w6_old_v1_edge_plateau": {
+   "config": "w6_old_v1_edge_plateau",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "2e446a7b95c18498",
+   "calls": 113952,
+   "jam_meter": 0,
+   "jam_by_day": {},
+   "jam_max_concurrent_by_day": {},
+   "jam_steps_by_day": {},
+   "jam_top_cells_by_day": {},
+   "wall_s": 93.2
+  },
+  "w6_golden_null_arm": {
+   "config": "w6_golden_null_arm",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "4e1f33e399265a8b",
+   "calls": 205151,
+   "jam_meter": 2778,
+   "jam_by_day": {
+    "0": 469,
+    "1": 2309
+   },
+   "jam_max_concurrent_by_day": {
+    "0": 3,
+    "1": 778
+   },
+   "jam_steps_by_day": {
+    "0": 250,
+    "1": 389
+   },
+   "jam_top_cells_by_day": {
+    "0": [
+     [
+      "392",
+      469
+     ]
+    ],
+    "1": [
+     [
+      "291",
+      1465
+     ],
+     [
+      "392",
+      519
+     ],
+     [
+      "323",
+      169
+     ]
+    ]
+   },
+   "wall_s": 135.2
+  },
+  "v3_mem_store": {
+   "config": "v3_mem_store",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "c441f2c7e6470932",
+   "calls": 134719,
+   "jam_meter": 0,
+   "jam_by_day": {},
+   "jam_max_concurrent_by_day": {},
+   "jam_steps_by_day": {},
+   "jam_top_cells_by_day": {},
+   "wall_s": 152.9
+  },
+  "v3_mem_rel": {
+   "config": "v3_mem_rel",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "8059e052a917bd77",
+   "calls": 139693,
+   "jam_meter": 0,
+   "jam_by_day": {},
+   "jam_max_concurrent_by_day": {},
+   "jam_steps_by_day": {},
+   "jam_top_cells_by_day": {},
+   "wall_s": 160.9
+  },
+  "v3_classical": {
+   "config": "v3_classical",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "e049c9beabde5544",
+   "calls": 204197,
+   "jam_meter": 0,
+   "jam_by_day": {},
+   "jam_max_concurrent_by_day": {},
+   "jam_steps_by_day": {},
+   "jam_top_cells_by_day": {},
+   "wall_s": 166.0
+  },
+  "v3_classical_mem_rel": {
+   "config": "v3_classical_mem_rel",
+   "space": "nav1",
+   "density_mode": "neighborhood",
+   "final": "5ff80ee6e92506f6",
+   "calls": 227437,
+   "jam_meter": 0,
+   "jam_by_day": {},
+   "jam_max_concurrent_by_day": {},
+   "jam_steps_by_day": {},
+   "jam_top_cells_by_day": {},
+   "wall_s": 231.8
+  }
+ }
+}

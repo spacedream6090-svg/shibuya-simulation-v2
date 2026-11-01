@@ -8,6 +8,7 @@
 - 律速はLLM(14.8h/日・極限試算0.5-1.5h)であり、エンジン(1-10分/日・群衆物理込みで+0.1-1.3h)の言語速度は総時間を動かさない。v1の遅さは逐次ループとRAM膨張(データ配置)であって言語ではない(AMBER: 列指向Pythonは Agents.jl 同等域)。
 - **移行条件(事前宣言)**: 次のいずれかがPhase 2/3の実測で起きた**関数のみ**Rust(PyO3)またはC++へ: ①numbaベクトル化後もP2(≤5ms@5千体)/P3(≥10万イベント/秒)を2倍以上超過 ②P6(変化検出≤2ms/tick)不達 ③GIL干渉が実測されプロセス分離でも解けない。移行時はNumPy参照実装を残し数値一致テストをCIに置く。
 - 重い連続物理(群衆・車両追従)はどの言語でもGPUカーネル(Warp)に書く=言語選択と独立。
+- 〔改訂 2026-10-03・C2-5〕上の「NVIDIA Warp(GPU第一)」と「重い連続物理は GPU カーネル(Warp)に書く」を「CPU(numba)。配列の計算は部品にして、GPU版に差し替えられる形」に書き換える([指示書 10-03](v2-wallbounce-decisions-2026-10-03.md) §5-2・§6 ⑩)。⑩ の条件: 物理を並列化する(格子の構築を多コアに)・エンジンと LLM のクライアントを別のプロセスに分ける・配列の計算を部品に切り出し、規模が大きくなって CPU が律速になったら GPU 版に差し替える。移行条件 ① の P2 は C2-4 で「物理の実時間は、1 シミュ日あたり、GPU 側(LLM と決定モデル)の実時間を超えない」に変わった(値は実測後に宣言)。
 - **v2の「アーキテクチャからの刷新」**は言語ではなく、配列指向(SoA)・単一書き込み口(engine.resolve)・二相コミット・予算とテストによる強制、で実現する。
 
 ## §2 部品表
@@ -51,10 +52,12 @@ economy: 台帳/transfer/検算/センサス(engineのtransfer単一API経由の
 - Proc A engine(単一プロセス・asyncio×1・計算はnumba nogil/Warp)。理由: M8(RSS≤24GB)・GILは逐次禁止下で問題化しない・決定論の証明が単純。
 - Proc B×7 vLLM OpenAIサーバ(外部起動・ランより長生き)。Proc C 埋め込みworker(CPU・スレッド数明示)。Proc D writer(Parquet/journal/checkpoint・SPSCキュー)。Proc E 計器盤(読むだけ)。
 - 実測項目(Phase 2): httpxイベントループとnumba計算の干渉。出たらLLMクライアントを別プロセスへ(条件宣言済み)。
+- 〔改訂 2026-10-03・§6 ⑩〕エンジンと LLM のクライアントは別のプロセスに分ける(09-30 の調査で取り合いが分かっているため・[指示書 10-03](v2-wallbounce-decisions-2026-10-03.md) §6 ⑩)。上の「Proc A engine(単一プロセス…numba nogil/Warp)」と「出たら別プロセスへ」は元の文言として残す。
 
 ## §5 データ層
 - 世界データ台帳=Parquet(不変・ハッシュ)→実行時NumPy。可視性=生バイナリ+numpy.memmap(ラン間共有)。LLMテープ・診断行・transfer=Parquet(zstd・日次)。センサス=Parquet+CSV。checkpoint=.npz+zstd(M7≤2.0xを機械検査)。集計=DuckDB直読。
 - 40万体×1日: テープ1.2-1.6GB(圧縮後)+診断/取引/行動ログ数百MB=1.5-2.0GB(S1≤5GB内)。**個体×tickの全記録は禁止**(セル別集計へ)。
+- 〔改訂 2026-10-03・C5〕「個体×tickの全記録は禁止(セル別集計へ)」を「起きたときだけ記録する。位置は量子化して、範囲内の体だけ」に書き換える。容量は実測して宣言し直す([指示書 10-03](v2-wallbounce-decisions-2026-10-03.md) §5-3)。
 - **要決定(Phase 2)**: checkpointがS2(≤17GB/日)と6時間毎×膨張率≤2.0xで緊張(生24GB/日)→圧縮前提/増分/頻度。
 
 ## §6 テスト・CI・性能ゲート
@@ -107,6 +110,7 @@ engine単一プロセス(GIL干渉未実測)/P6のxxhash×453で≤2ms(未実測
 - `llm.parser`: ラベル別名表・行動ラベル完全欠落時のみ自由文フォールバック・`<think>` 除去・値は次ラベルか改行まで・`format_ok`(書式)と `action`(語彙一致)を別指標。
 - `llm.undefined`: 同義語表 v0(版付き)・最長部分文字列フォールバック・N=10・ログ上限 4,096・段3 キーワード(保存則/在庫/所持金/性能/予算/売上/faucet/sink)・裁定プロンプト文面。
 - `engine.conversation`: d_talk≈1 m は同一セルで代替(セル内座標なし)・受諾 0.8・招待者先行の交互発話・話題数=max_turns・沈黙 5 tick・セッション TTL 60 tick・拒否記憶 60 tick(無順序対)・定型の相槌/締め文・招待の RNG カウンタ=(tick, inviter)(§2.5 順・親修正)・resolve が招待側のみ CONVERSING にするため被招待側の離脱はセルで検出(C4 で両側更新)。
+- 〔改訂 2026-10-03・B3〕d_talk は 2 m の決め打ちを既定にし宣言する。1 m と 2.5 m を感度の腕にし、空間の段 3 で音の伝わり方の計算に置き換える([指示書 10-03](v2-wallbounce-decisions-2026-10-03.md) §4)。
 - `engine.llm_bridge`: StubRenderer(prompt_hash=agent/cell/tick//5/wake_class)・call_id="<tick>:<agent>:<class>"・δ_think=ceil(レーン秒/60)=L0 0/L1 1/L2 2/L3 5 tick(認知設計書 §1)・種別固有語は当面 待機 に写像+計数・TapeMiss→空応答→未定義→待機(実LLMへ落とさない)。
 - `engine.run`: 診断の日次行 8(deferred/promoted/degraded/suppressed/parse_errors/undefined_actions/tape_misses/conversations_opened・率は RunResult 属性)・会話招待は resolve の 会話 成功を入口とし `partner_idle=True` を前提(resolve が適用時に検査済み)。
 - 手伝いの失敗「能力不足」= `ResultCode.INSUFFICIENT_ABILITY`(親追加)。

@@ -1,0 +1,78 @@
+{
+ "schema": "pop43.stage/1",
+ "base": "v2",
+ "w21": "v2_stage_4-1",
+ "out": "v2_stage_4-3",
+ "runs": [
+  {
+   "exit_codes": {
+    "W21b": 0,
+    "W21c": 0,
+    "W21apply": 0,
+    "audit": 0
+   },
+   "seconds": {
+    "copy_s": 0.9,
+    "W21b_s": 35.0,
+    "W21c_s": 31.4,
+    "W21apply_s": 38.4,
+    "audit_s": 4.4
+   },
+   "build_hash": "0b215fcdac476463408b62b90d5a5a323ba26f23e8bb5ea550f877d6bd5edc75",
+   "w21b_build_hash": "1ccbfb048516d45484895398a58e49ab5a8aede960461e821b4d845fb647542b",
+   "w21c_build_hash": "5936be9caf93f447e2b0dc709243a957ae3d0646521220443e66dedb2b1b5c2c",
+   "w21_apply_build_hash": "bac0c202c861293233820382cf747713b50b333c2cba059825d7a06ad1861014",
+   "w21_build_hash": "ca823451cad3f57b5a2636b65a6cc94806e9a62f9b7a9b7dd6546370c97f00c0",
+   "files": 143,
+   "manifest_sha256": "283f14dd9b4437060eea8e0be884cfdaeec55764d10bf298ad19cbde11c9de4b",
+   "gates_failed": [
+    [
+     "W10",
+     "calibration_max_abs_residual_db"
+    ]
+   ],
+   "bytes": 299076048
+  },
+  {
+   "exit_codes": {
+    "W21b": 0,
+    "W21c": 0,
+    "W21apply": 0,
+    "audit": 0
+   },
+   "seconds": {
+    "copy_s": 0.9,
+    "W21b_s": 34.0,
+    "W21c_s": 30.7,
+    "W21apply_s": 40.8,
+    "audit_s": 4.6
+   },
+   "build_hash": "0b215fcdac476463408b62b90d5a5a323ba26f23e8bb5ea550f877d6bd5edc75",
+   "w21b_build_hash": "1ccbfb048516d45484895398a58e49ab5a8aede960461e821b4d845fb647542b",
+   "w21c_build_hash": "5936be9caf93f447e2b0dc709243a957ae3d0646521220443e66dedb2b1b5c2c",
+   "w21_apply_build_hash": "bac0c202c861293233820382cf747713b50b333c2cba059825d7a06ad1861014",
+   "w21_build_hash": "ca823451cad3f57b5a2636b65a6cc94806e9a62f9b7a9b7dd6546370c97f00c0",
+   "files": 143,
+   "manifest_sha256": "939fba0fb893bac04e9d79c027f4fc4fb8a8c8f73f5cf84df01f954e0010063b",
+   "gates_failed": [
+    [
+     "W10",
+     "calibration_max_abs_residual_db"
+    ]
+   ],
+   "bytes": 299075858
+  }
+ ],
+ "deterministic": true,
+ "manifest_lines_differ": [
+  "0d6195094a4d4536d2f386c7154c0f93cee11a2633030fd543df1ae21988db2f  W21c.header.json",
+  "31a1a712076499a4af5359fbca99a3541279c403f8c8919424e84345a89ca553  w21c_manifest.json",
+  "5f9b3f06d7e503229ca54340516268158cc9827969d72610348a7d86043a4489  W21c.header.json",
+  "c01d8905b18a7452d05ee92c7bbdef9165a5dd8af9a122a24d00eeb6d8636fac  w21c_manifest.json"
+ ],
+ "location_dependent": [
+  "W21c.header.json",
+  "w21c_manifest.json"
+ ],
+ "keys_equal": true
+}

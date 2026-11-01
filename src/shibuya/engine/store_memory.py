@@ -41,6 +41,12 @@ A の近似)。**本段では誰も読まない**(7c で選び手と B5 が読�
 満杯で新しい店 → 店の行の score(A + 0.5 × min(4, precision)=アジェンダ §3-3 の形・宣言)が最小の行を
 落とす(同点は行番号の小さい方)。記憶のエピソードの追い出しで店の行は消さない(宣言・問い (g))。
 
+〔第 6 期 6-5・検収 M4〕行の読み書きは口 :meth:`StoreMemory.columns`(既定=体の表の ``agents.registry.sm_*`` そのもの)・
+:meth:`StoreMemory._evict_slots`(満杯の体の行の選び=既定は score の最小)・:meth:`StoreMemory._put`(書く=既定は
+``resolve.write_store_memory``)を通す。人も記憶の一つの腕(``--memory-people memory``)は子
+``engine.memory_shops.UncappedStoreMemory`` が口を差し替える(器の店の行の表=幅を倍にして上限 256 まで・上限で A の一番
+低い行を消す)。既定のランは同じ配列・同じ計算(結果不変)。
+
 逐次ループ宣言(P4)
     1. :meth:`StoreMemory.write`: 体あたりの店の事象の件数の最大ぶん(同じ体の 2 件目を次の回へ)。
     2. :meth:`StoreMemory.summary`: 出どころの組の数ぶん(≤ 16)・ランの終わりに 1 回。
@@ -59,6 +65,7 @@ import numpy as np
 from shibuya.agents.state import STORE_MEMORY_EMPTY, ResultCode
 from shibuya.engine import resolve as R
 from shibuya.engine.memory import EVENT_KINDS
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     "STORE_MEMORY_N",
@@ -79,6 +86,7 @@ __all__ = [
     "check_store_decay",
     "valence_of_result",
     "StoreRows",
+    "StoreColumns",
     "StoreMemory",
 ]
 
@@ -174,6 +182,18 @@ class StoreRows(NamedTuple):
     n: np.ndarray          # 更新回数
 
 
+class StoreColumns(NamedTuple):
+    """〔第 6 期 6-5・検収 M4〕店の評価の行の列(``(体, 幅)``)。既定=体の表の ``sm_*`` そのもの(読む口=書かない)。"""
+
+    poi: np.ndarray
+    valence: np.ndarray
+    precision: np.ndarray
+    first: np.ndarray
+    last: np.ndarray
+    n: np.ndarray
+    source: np.ndarray
+
+
 def _q(x: np.ndarray) -> dict[str, float]:
     x = np.asarray(x, dtype=np.float64)
     if x.size == 0:
@@ -212,6 +232,23 @@ class StoreMemory:
         #: 7c: 訪問(購入/食事の成立)の通知先 ``(体, 店, 行があったか, 自分の訪問のビットがあったか)``。
         self.visit_hook: Any = None
 
+    # ------------------------------------------------------------------ 〔6-5・検収 M4〕行の口(子が差し替える)
+    def columns(self, agents: Any) -> StoreColumns:
+        """店の評価の行の列(既定=体の表の ``agents.registry.sm_*`` そのもの)。読むだけに使う。"""
+        r = agents.registry
+        return StoreColumns(r.sm_poi, r.sm_valence, r.sm_precision, r.sm_first, r.sm_last, r.sm_n, r.sm_source)
+
+    def _evict_slots(self, agents: Any, a: np.ndarray, tick: int) -> np.ndarray:
+        """満杯の体(``a``)の新しい店の行の番号(既定=店の行の score の最小=同点は行番号の小さい方を上書き)。"""
+        s = self.scores(agents, a, tick)
+        self.stats["evictions"] += int(a.size)
+        return np.argmin(s, axis=1)
+
+    def _put(self, agents: Any, a: np.ndarray, slot: np.ndarray, poi: np.ndarray, v: np.ndarray, p: np.ndarray,
+             first: np.ndarray, last: np.ndarray, n: np.ndarray, src: np.ndarray) -> None:
+        """行を書く(既定=``resolve.write_store_memory``=記録の SoA の書き手)。"""
+        R.write_store_memory(agents, a, slot, poi, v, p, first, last, n, src)
+
     # ------------------------------------------------------------------ 書き手
     def on_episodes(self, agents: Any, tick: int, a: np.ndarray, kind: np.ndarray, obj: np.ndarray,
                     result: np.ndarray) -> None:
@@ -229,10 +266,11 @@ class StoreMemory:
         visit = own & np.isin(kind, _KINDS_VISIT) & (result == int(ResultCode.OK))
         if self.visit_hook is not None and bool(visit.any()):
             va, vp = a[visit], obj[visit]
-            rows = agents.registry.sm_poi[va].astype(np.int64)
+            c = self.columns(agents)
+            rows = c.poi[va].astype(np.int64)
             hit = rows == vp[:, None]
             had_row = hit.any(axis=1)
-            srcs = agents.registry.sm_source[va].astype(np.int64)
+            srcs = c.source[va].astype(np.int64)
             had_self = (hit & ((srcs & STORE_SOURCE_BIT["self"]) > 0)).any(axis=1)
             self.visit_hook(va, vp, had_row, had_self)
         self.stats["episodes_shop_without_poi"] += int(np.count_nonzero(np.isin(kind, _KINDS_SELF) & ~is_poi))
@@ -286,8 +324,8 @@ class StoreMemory:
 
     def _write_round(self, agents: Any, tick: int, a: np.ndarray, poi: np.ndarray, valence: np.ndarray,
                      w: np.ndarray, bit: np.ndarray) -> np.ndarray:
-        r = agents.registry
-        rows = r.sm_poi[a].astype(np.int64)
+        c = self.columns(agents)
+        rows = c.poi[a].astype(np.int64)
         hit = rows == poi[:, None]
         found = hit.any(axis=1)
         slot = np.where(found, np.argmax(hit, axis=1), -1)
@@ -297,24 +335,23 @@ class StoreMemory:
         slot = np.where(new & has_empty, np.argmax(empty, axis=1), slot)
         evict = new & ~has_empty
         if bool(evict.any()):
-            s = self.scores(agents, a[evict], tick)
-            slot[evict] = np.argmin(s, axis=1)  # 同点は行番号の小さい方
-            self.stats["evictions"] += int(np.count_nonzero(evict))
-        old_v = r.sm_valence[a, slot].astype(np.float64)
-        old_p = r.sm_precision[a, slot].astype(np.float64)
-        old_n = r.sm_n[a, slot].astype(np.int64)
-        old_first = r.sm_first[a, slot].astype(np.int64)
-        old_last = r.sm_last[a, slot].astype(np.int64)
-        old_src = r.sm_source[a, slot].astype(np.int64)
+            slot[evict] = self._evict_slots(agents, a[evict], tick)  # 既定=score の最小(同点は行番号の小さい方)
+            c = self.columns(agents)  # 〔6-5〕子は幅を広げることがある=列を引き直す
+        old_v = c.valence[a, slot].astype(np.float64)
+        old_p = c.precision[a, slot].astype(np.float64)
+        old_n = c.n[a, slot].astype(np.int64)
+        old_first = c.first[a, slot].astype(np.int64)
+        old_last = c.last[a, slot].astype(np.int64)
+        old_src = c.source[a, slot].astype(np.int64)
         if self.decay == "citysim":  # 中立への回帰(前回から今回までの日数ぶん)
-            days = np.maximum(0.0, (int(tick) - old_last) * self.minutes_per_tick / 1_440.0)
+            days = np.maximum(0.0, (int(tick) - old_last) * self.minutes_per_tick / MINUTES_PER_DAY)
             old_v = old_v * np.exp(-CITYSIM_LAMBDA_PER_DAY * days)
         v = np.where(found, old_v, 0.0) + w * valence
         p = np.where(found, old_p, 0.0) + w
         n = np.where(found, np.minimum(old_n + 1, 65_535), 1)
         first = np.where(found, old_first, int(tick))
         src = np.where(found, old_src | bit, bit)
-        R.write_store_memory(agents, a, slot, poi, v, p, first, np.full(a.size, int(tick)), n, src)
+        self._put(agents, a, slot, poi, v, p, first, np.full(a.size, int(tick)), n, src)
         self.stats["merged"] += int(np.count_nonzero(found))
         self.stats["new_rows"] += int(np.count_nonzero(new))
         self.stats["source_added"] += int(np.count_nonzero(found & ((old_src & bit) == 0)))
@@ -323,51 +360,50 @@ class StoreMemory:
     # ------------------------------------------------------------------ 読み口
     def activation(self, agents: Any, agent_ids: np.ndarray, tick: int) -> np.ndarray:
         """体の配列 → ``(体, M)`` の A(減衰の形に従う・空行は −inf)。"""
-        r = agents.registry
+        c = self.columns(agents)
         a = np.asarray(agent_ids, dtype=np.int64)
-        empty = r.sm_poi[a] == STORE_MEMORY_EMPTY
+        empty = c.poi[a] == STORE_MEMORY_EMPTY
         if self.decay == "ga":
-            hours = np.maximum(0.0, (int(tick) - r.sm_last[a].astype(np.float64))
-                               * self.minutes_per_tick / 60.0)
+            hours = np.maximum(0.0, (int(tick) - c.last[a].astype(np.float64))
+                               * self.minutes_per_tick / MINUTES_PER_HOUR)
             A = hours * math.log(GA_RECENCY_PER_HOUR)
         else:
-            nn = r.sm_n[a].astype(np.float64)
-            L = np.maximum(0.0, (int(tick) - r.sm_first[a].astype(np.float64)) * self.minutes_per_tick)
+            nn = c.n[a].astype(np.float64)
+            L = np.maximum(0.0, (int(tick) - c.first[a].astype(np.float64)) * self.minutes_per_tick)
             with np.errstate(divide="ignore"):
                 A = np.log(nn / (1.0 - self.d)) - self.d * np.log(L + 1.0)
         return np.where(empty, -np.inf, A)
 
     def valence_now(self, agents: Any, agent_ids: np.ndarray, tick: int) -> np.ndarray:
         """体の配列 → ``(体, M)`` の読むときの向きの強さ(citysim は中立への回帰を掛ける)。"""
-        r = agents.registry
+        c = self.columns(agents)
         a = np.asarray(agent_ids, dtype=np.int64)
-        v = r.sm_valence[a].astype(np.float64)
+        v = c.valence[a].astype(np.float64)
         if self.decay == "citysim":
-            days = np.maximum(0.0, (int(tick) - r.sm_last[a].astype(np.float64))
-                              * self.minutes_per_tick / 1_440.0)
+            days = np.maximum(0.0, (int(tick) - c.last[a].astype(np.float64))
+                              * self.minutes_per_tick / MINUTES_PER_DAY)
             v = v * np.exp(-CITYSIM_LAMBDA_PER_DAY * days)
         return v
 
     def scores(self, agents: Any, agent_ids: np.ndarray, tick: int) -> np.ndarray:
         """店の行の score=A + 0.5 × min(4, precision)(追い出しの順・空行は −inf)。"""
-        r = agents.registry
         a = np.asarray(agent_ids, dtype=np.int64)
         A = self.activation(agents, a, tick)
-        p = np.minimum(STORE_SCORE_P_CAP, r.sm_precision[a].astype(np.float64))
+        p = np.minimum(STORE_SCORE_P_CAP, self.columns(agents).precision[a].astype(np.float64))
         return A + STORE_SCORE_W_P * p
 
     def rows(self, agents: Any, agent_id: int, tick: int, tau: float) -> StoreRows:
         """1 体の空でない行(行番号の順)→ :class:`StoreRows`。"""
-        r = agents.registry
+        c = self.columns(agents)
         i = int(agent_id)
-        used = np.flatnonzero(r.sm_poi[i] != STORE_MEMORY_EMPTY)
+        used = np.flatnonzero(c.poi[i] != STORE_MEMORY_EMPTY)
         A = self.activation(agents, np.asarray([i]), tick)[0][used]
         v = self.valence_now(agents, np.asarray([i]), tick)[0][used]
         return StoreRows(
-            row=used, poi=r.sm_poi[i][used].astype(np.int64), valence=v,
-            sign=np.sign(v).astype(np.int64), precision=r.sm_precision[i][used].astype(np.float64),
-            A=A, recallable=A >= float(tau), source=r.sm_source[i][used].astype(np.int64),
-            n=r.sm_n[i][used].astype(np.int64),
+            row=used, poi=c.poi[i][used].astype(np.int64), valence=v,
+            sign=np.sign(v).astype(np.int64), precision=c.precision[i][used].astype(np.float64),
+            A=A, recallable=A >= float(tau), source=c.source[i][used].astype(np.int64),
+            n=c.n[i][used].astype(np.int64),
         )
 
     def known(self, agents: Any, agent_ids: np.ndarray, tick: int, tau: float,
@@ -377,9 +413,8 @@ class StoreMemory:
         ``poi_mask``(POI の数の bool)で店を絞る(カテゴリ・営業中・到達可能=7c)。``min_sign`` で向きの
         下限(例: 0=向き ≥ 0)。配列演算だけ(P4)。
         """
-        r = agents.registry
         a = np.asarray(agent_ids, dtype=np.int64)
-        poi = r.sm_poi[a].astype(np.int64)
+        poi = self.columns(agents).poi[a].astype(np.int64)
         ok = (poi != STORE_MEMORY_EMPTY) & (self.activation(agents, a, tick) >= float(tau))
         if poi_mask is not None:
             m = np.asarray(poi_mask, dtype=bool)
@@ -392,15 +427,15 @@ class StoreMemory:
     # ------------------------------------------------------------------ 監査
     def summary(self, agents: Any, tick: int, tau: float) -> dict[str, Any]:
         """manifest ``store_memory_summary``: 行数/体・出どころ別・向き・精度・統合の回数・A。"""
-        r = agents.registry
+        c = self.columns(agents)
         all_ids = np.arange(self.n, dtype=np.int64)
-        used = r.sm_poi != STORE_MEMORY_EMPTY
+        used = c.poi != STORE_MEMORY_EMPTY
         rows_per = used.sum(axis=1)
         A = self.activation(agents, all_ids, tick)
         v = self.valence_now(agents, all_ids, tick)
         sign = np.sign(v)
-        src = r.sm_source.astype(np.int64)
-        prec = r.sm_precision.astype(np.float64)
+        src = c.source.astype(np.int64)
+        prec = c.precision.astype(np.float64)
         rec = used & (A >= float(tau))
         by_source: dict[str, dict[str, int]] = {}
         for bits in sorted(set(src[used].tolist())):  # 逐次ループ宣言 2: 出どころの組の数ぶん(≤ 16)
@@ -410,7 +445,7 @@ class StoreMemory:
                 "valence0": int((m & (sign == 0)).sum()), "valence-1": int((m & (sign < 0)).sum()),
                 "recallable": int((m & rec).sum()),
             }
-        pois = r.sm_poi[used].astype(np.int64)
+        pois = c.poi[used].astype(np.int64)
         per_poi = np.bincount(pois, minlength=1) if pois.size else np.zeros(1, dtype=np.int64)
         top = np.argsort(-per_poi, kind="stable")[:10]
         return {
@@ -423,7 +458,7 @@ class StoreMemory:
             "counts": {k: int(v_) for k, v_ in sorted(self.stats.items())},
             "rows_used_per_agent": _q(rows_per),
             "rows_used_total": int(used.sum()),
-            "full_agents": int(np.count_nonzero(rows_per == self.n_rows)),
+            "full_agents": int(np.count_nonzero(rows_per == int(c.poi.shape[1]))),  # 〔6-5〕幅=列の形(既定は n_rows)
             "agents_with_rows": int(np.count_nonzero(rows_per > 0)),
             "rows_by_source": by_source,
             "rows_with_source_bit": {s: int((used & ((src & STORE_SOURCE_BIT[s]) > 0)).sum())
@@ -431,7 +466,7 @@ class StoreMemory:
             "valence_sign": {"+1": int((used & (sign > 0)).sum()), "0": int((used & (sign == 0)).sum()),
                              "-1": int((used & (sign < 0)).sum())},
             "precision": _q(prec[used]),
-            "n_per_row": _q(r.sm_n[used]),
+            "n_per_row": _q(c.n[used]),
             "A": _q(A[used]),
             "recallable_rows": int(rec.sum()),
             "recallable_rows_per_agent": _q(rec.sum(axis=1)),

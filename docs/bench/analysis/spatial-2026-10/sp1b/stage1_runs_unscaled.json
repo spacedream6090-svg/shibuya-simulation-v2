@@ -1,0 +1,364 @@
+{
+ "agents": 5000,
+ "runs": [
+  {
+   "label": "unscaled_1d",
+   "space": "nav1",
+   "days": 1,
+   "agents": 5000,
+   "seed": 1,
+   "machine": "Windows 11 AMD64 cpu=20",
+   "final": "ef9999b0d56e50da",
+   "checkpoints": [
+    [
+     359,
+     "ae4d42c7787cc168"
+    ],
+    [
+     719,
+     "6ec9ceed37064188"
+    ],
+    [
+     1079,
+     "985721627ba29d8f"
+    ],
+    [
+     1439,
+     "ef9999b0d56e50da"
+    ]
+   ],
+   "calls": 61234,
+   "wall_s": 50.1,
+   "run_wall_s": 49.67,
+   "ms_per_step": 34.49,
+   "steps": 1440,
+   "peak_rss_bytes": 525332480,
+   "space_effective": "nav1",
+   "space_meter": {
+    "routes_planned": 8529,
+    "routes_from_cache": 9735,
+    "routes_corridor": 7529,
+    "routes_wide": 998,
+    "routes_failed": 2,
+    "replans_on_resume": 0,
+    "expanded_total": 1904977,
+    "trips_arrived": 16296,
+    "walked_m": 7369241.44319058,
+    "trip_time_s_sum": 5863816.729733389,
+    "trip_len_m_sum": 6725321.233216262,
+    "link_traversals": 21210,
+    "link_traversals_by_kind": {
+     "stairs": 18915,
+     "escalator": 0,
+     "elevator": 16,
+     "ramp": 1223
+    },
+    "link_wait_agent_steps": 0,
+    "link_admitted": 21407,
+    "stops_mid_route": 1782,
+    "placed_at_anchor": 9406,
+    "slope_time_s_sum": 6436818.605546343,
+    "flat_time_s_sum": 6335051.213490279,
+    "jammed_agent_steps": 0
+   },
+   "cell_changes": 80884,
+   "agent_ticks": 7200000,
+   "density_stage_changes": 0,
+   "density_stage_hist": {
+    "0": 748800
+   },
+   "action_usage": {
+    "(エンジン継続)": 115183,
+    "移動": 13757,
+    "乗車": 4963,
+    "購入": 4649,
+    "なし": 5183,
+    "会話": 4526,
+    "退去": 5102,
+    "通報": 5068,
+    "手伝い": 5098,
+    "断る": 5266,
+    "就寝": 5012,
+    "食事": 4710,
+    "並ぶ": 4580
+   },
+   "movement_s": 0.39,
+   "phase_c_s": 11.87,
+   "resume_files": []
+  },
+  {
+   "label": "unscaled_2d",
+   "space": "nav1",
+   "days": 2,
+   "agents": 5000,
+   "seed": 1,
+   "machine": "Windows 11 AMD64 cpu=20",
+   "final": "c89afc076f77a842",
+   "checkpoints": [
+    [
+     359,
+     "ae4d42c7787cc168"
+    ],
+    [
+     719,
+     "6ec9ceed37064188"
+    ],
+    [
+     1079,
+     "985721627ba29d8f"
+    ],
+    [
+     1439,
+     "ef9999b0d56e50da"
+    ],
+    [
+     1799,
+     "6748a1f4079dfdcf"
+    ],
+    [
+     2159,
+     "d52a8f4ade0c63e7"
+    ],
+    [
+     2519,
+     "efbb6b2b728e9607"
+    ],
+    [
+     2879,
+     "c89afc076f77a842"
+    ]
+   ],
+   "calls": 132966,
+   "wall_s": 101.4,
+   "run_wall_s": 100.88,
+   "ms_per_step": 35.03,
+   "steps": 2880,
+   "peak_rss_bytes": 526594048,
+   "space_effective": "nav1",
+   "space_meter": {
+    "routes_planned": 14040,
+    "routes_from_cache": 25354,
+    "routes_corridor": 12311,
+    "routes_wide": 1725,
+    "routes_failed": 4,
+    "replans_on_resume": 0,
+    "expanded_total": 3380835,
+    "trips_arrived": 34983,
+    "walked_m": 15793548.741688082,
+    "trip_time_s_sum": 12507746.950337611,
+    "trip_len_m_sum": 14340943.810925754,
+    "link_traversals": 46058,
+    "link_traversals_by_kind": {
+     "stairs": 40992,
+     "escalator": 0,
+     "elevator": 39,
+     "ramp": 2700
+    },
+    "link_wait_agent_steps": 0,
+    "link_admitted": 46487,
+    "stops_mid_route": 4072,
+    "placed_at_anchor": 18123,
+    "slope_time_s_sum": 13894499.014650717,
+    "flat_time_s_sum": 13683521.655409295,
+    "jammed_agent_steps": 0
+   },
+   "cell_changes": 173358,
+   "agent_ticks": 14400000,
+   "density_stage_changes": 0,
+   "density_stage_hist": {
+    "0": 1497600
+   },
+   "action_usage": {
+    "(エンジン継続)": 246901,
+    "移動": 29278,
+    "乗車": 10937,
+    "購入": 8758,
+    "なし": 11077,
+    "会話": 9665,
+    "退去": 11080,
+    "通報": 11010,
+    "手伝い": 11106,
+    "断る": 11294,
+    "就寝": 10865,
+    "食事": 9161,
+    "並ぶ": 8794
+   },
+   "movement_s": 0.79,
+   "phase_c_s": 22.58,
+   "resume_files": []
+  },
+  {
+   "label": "unscaled_2dstop",
+   "space": "nav1",
+   "days": 2,
+   "agents": 5000,
+   "seed": 1,
+   "machine": "Windows 11 AMD64 cpu=20",
+   "final": "6748a1f4079dfdcf",
+   "checkpoints": [
+    [
+     359,
+     "ae4d42c7787cc168"
+    ],
+    [
+     719,
+     "6ec9ceed37064188"
+    ],
+    [
+     1079,
+     "985721627ba29d8f"
+    ],
+    [
+     1439,
+     "ef9999b0d56e50da"
+    ],
+    [
+     1799,
+     "6748a1f4079dfdcf"
+    ]
+   ],
+   "calls": 66805,
+   "wall_s": 55.4,
+   "run_wall_s": 54.89,
+   "ms_per_step": 29.51,
+   "steps": 1860,
+   "peak_rss_bytes": 523468800,
+   "space_effective": "nav1",
+   "space_meter": {
+    "routes_planned": 9273,
+    "routes_from_cache": 10876,
+    "routes_corridor": 8131,
+    "routes_wide": 1140,
+    "routes_failed": 2,
+    "replans_on_resume": 0,
+    "expanded_total": 2164133,
+    "trips_arrived": 17924,
+    "walked_m": 8225840.847121635,
+    "trip_time_s_sum": 6517779.706043928,
+    "trip_len_m_sum": 7483363.285401887,
+    "link_traversals": 23518,
+    "link_traversals_by_kind": {
+     "stairs": 20937,
+     "escalator": 0,
+     "elevator": 18,
+     "ramp": 1349
+    },
+    "link_wait_agent_steps": 0,
+    "link_admitted": 23735,
+    "stops_mid_route": 2019,
+    "placed_at_anchor": 9883,
+    "slope_time_s_sum": 7217941.669751308,
+    "flat_time_s_sum": 7104171.404712503,
+    "jammed_agent_steps": 0
+   },
+   "cell_changes": 90228,
+   "agent_ticks": 9300000,
+   "density_stage_changes": 0,
+   "density_stage_hist": {
+    "0": 967200
+   },
+   "action_usage": {
+    "(エンジン継続)": 128305,
+    "移動": 15010,
+    "乗車": 5410,
+    "購入": 4997,
+    "なし": 5638,
+    "会話": 4994,
+    "退去": 5562,
+    "通報": 5518,
+    "手伝い": 5553,
+    "断る": 5748,
+    "就寝": 5457,
+    "食事": 5121,
+    "並ぶ": 4958
+   },
+   "movement_s": 0.48,
+   "phase_c_s": 13.2,
+   "resume_files": [
+    "state-T00001440.npz",
+    "state-T00001860.npz"
+   ]
+  },
+  {
+   "label": "unscaled_2dstop_resumed",
+   "space": "nav1",
+   "days": 2,
+   "agents": 5000,
+   "seed": 1,
+   "machine": "Windows 11 AMD64 cpu=20",
+   "final": "c89afc076f77a842",
+   "checkpoints": [
+    [
+     2159,
+     "d52a8f4ade0c63e7"
+    ],
+    [
+     2519,
+     "efbb6b2b728e9607"
+    ],
+    [
+     2879,
+     "c89afc076f77a842"
+    ]
+   ],
+   "calls": 66161,
+   "wall_s": 49.7,
+   "run_wall_s": 49.19,
+   "ms_per_step": 48.22,
+   "steps": 1020,
+   "peak_rss_bytes": 529997824,
+   "space_effective": "nav1",
+   "space_meter": {
+    "routes_planned": 8874,
+    "routes_from_cache": 10411,
+    "routes_corridor": 7869,
+    "routes_wide": 1003,
+    "routes_failed": 2,
+    "replans_on_resume": 40,
+    "expanded_total": 1947048,
+    "trips_arrived": 17059,
+    "walked_m": 7567707.894566431,
+    "trip_time_s_sum": 5989967.244293719,
+    "trip_len_m_sum": 6857580.525524254,
+    "link_traversals": 22540,
+    "link_traversals_by_kind": {
+     "stairs": 20055,
+     "escalator": 0,
+     "elevator": 21,
+     "ramp": 1351
+    },
+    "link_wait_agent_steps": 0,
+    "link_admitted": 22752,
+    "stops_mid_route": 2053,
+    "placed_at_anchor": 8240,
+    "slope_time_s_sum": 6698733.223694554,
+    "flat_time_s_sum": 6601264.79100344,
+    "jammed_agent_steps": 0
+   },
+   "cell_changes": 83130,
+   "agent_ticks": 5100000,
+   "density_stage_changes": 0,
+   "density_stage_hist": {
+    "0": 530400
+   },
+   "action_usage": {
+    "(エンジン継続)": 118596,
+    "移動": 14268,
+    "乗車": 5527,
+    "購入": 3761,
+    "なし": 5439,
+    "会話": 4671,
+    "退去": 5518,
+    "通報": 5492,
+    "手伝い": 5553,
+    "断る": 5546,
+    "就寝": 5408,
+    "食事": 4040,
+    "並ぶ": 3836
+   },
+   "movement_s": 0.3,
+   "phase_c_s": 11.16,
+   "resume_files": []
+  }
+ ]
+}

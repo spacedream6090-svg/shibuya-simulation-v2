@@ -32,9 +32,7 @@ from shibuya.engine.run import run_day
 from shibuya.world.state import World
 
 WORLD_DIR = Path("data/world/v2")
-real_data = pytest.mark.skipif(
-    not (WORLD_DIR / "w12_timetables.parquet").exists(), reason="実世界資産 data/world/v2 が無い"
-)
+real_data = pytest.mark.requires_data("world_v2:w12_timetables.parquet")
 SALT = b"l4-salt"
 
 

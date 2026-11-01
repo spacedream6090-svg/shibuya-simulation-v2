@@ -19,7 +19,8 @@
   の ``unlimited`` の final と並べる。v3 既定の腕は energy の要約を全部控える(report が読む)。
 - ``perf``: 子プロセスで 1 構成ずつ回し、壁時計と**ピークの作業セット**(Windows
   ``K32GetProcessMemoryInfo``)と ``AgentState.bytes_total()`` を取る。**決定論でない**(同じ PC の 1 回)。
-- ``report``: 錨(``docs/bench/anchors/hunger_energy_anchors_v0.json``)だけを読む(data/ は読まない)。
+- ``report``: 錨(``docs/bench/anchors/hunger_energy_build_anchors_v0.json``・``hunger_energy_validation_anchors_v0.json``
+  =〔2-4 V6〕前は 1 本 ``hunger_energy_anchors_v0.json``)だけを読む(data/ は読まない)。
   食事開始の分布は**範囲内の食事だけ**(K6 (i) の付帯)。照合であって較正ではない。
 
 絶対パスは書かない。
@@ -40,7 +41,15 @@ from typing import Any
 HERE = Path(__file__).resolve().parent
 W6 = HERE.parent / "w6-regen-2026-09-28" / "w6_regen_measure.py"
 L4 = HERE.parent / "l4-unlimited-2026-09-28" / "l4_arms15.json"
-ANCHORS = HERE.parents[1] / "anchors" / "hunger_energy_anchors_v0.json"
+#: 〔第 2 期 2-4 V6・検収 L3〕錨は 2 本(構築側 ``hunger_energy_build_anchors_v0.json``+検証側
+#: ``hunger_energy_validation_anchors_v0.json``)に分けた(前は 1 本 ``hunger_energy_anchors_v0.json``=消した)。
+#: 読むのは :func:`_anchors`(``energy.load_anchors()``=2 本を 1 つの辞書に戻す口=分ける前の 1 本と同じ辞書)。
+
+
+def _anchors() -> dict:
+    from shibuya.engine import energy as _E  # noqa: PLC0415(作業木の src を PYTHONPATH に)
+
+    return _E.load_anchors()[0]
 ENGINE_CONTINUE = "(エンジン継続)"
 ENTRANCES: dict[str, tuple[str, ...]] = {
     "場所": ("CELL_BLOCK",),
@@ -223,7 +232,7 @@ def _window_peaks(p: list[float]) -> dict[str, str]:
 
 
 def cmd_report(args: argparse.Namespace) -> int:
-    anc = json.loads(ANCHORS.read_text(encoding="utf-8"))
+    anc = _anchors()
     en = json.loads((HERE / "arms15_energy.json").read_text(encoding="utf-8"))
     v1 = json.loads((HERE / "arms15_v1.json").read_text(encoding="utf-8"))
     ea = {r["arm"]: r for r in en["arms"]}

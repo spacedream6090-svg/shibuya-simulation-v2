@@ -20,6 +20,8 @@ import time
 import numpy as np
 import pytest
 
+from tests import _time_gates as TG
+
 from shibuya.agents.state import Activity, AgentState, RESULT_TEXT, ResultCode
 from shibuya.core.budget import budget_by_id, load_budget_table
 from shibuya.engine import commit as C
@@ -441,4 +443,5 @@ def test_p2_edge_geometry_under_300ms_at_400k_agents():
     for label, ms in rows:
         print(f"  {label:24s} {ms:7.2f} ms/tick (宣言 ≤300)")
     ms_real = rows[1][1]
-    assert ms_real <= 300.0, f"P2(40 万体・本番相当)超過: {ms_real:.2f} ms/tick > 300 ms"
+    assert TG.check(ms_real <= 300.0, f"P2(40 万体・本番相当){ms_real:.2f} ms/tick(上限 300 ms)"), (
+        f"P2(40 万体・本番相当)超過: {ms_real:.2f} ms/tick > 300 ms")

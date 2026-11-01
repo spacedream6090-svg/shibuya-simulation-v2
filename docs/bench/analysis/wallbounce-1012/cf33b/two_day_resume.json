@@ -1,0 +1,53 @@
+{
+ "schema": "cf33b/two-day-resume/1",
+ "agents": 5000,
+ "kw": {
+  "seed": 1,
+  "world_dir": "data/world/v2",
+  "sim_days": 2,
+  "vocab_version": "v3",
+  "checkpoint_every": 360
+ },
+ "a": {
+  "label": "head",
+  "final": "b346bb6e3ecc60af57f507fd2bd9c3b5461fe57751b7c93e80a0051c52ad0158",
+  "calls": 138946,
+  "src_is_worktree": false,
+  "resume": {
+   "final_same": true,
+   "checkpoints_same": true,
+   "checkpoints_compared": 4
+  }
+ },
+ "b": {
+  "label": "cf33b",
+  "final": "b346bb6e3ecc60af57f507fd2bd9c3b5461fe57751b7c93e80a0051c52ad0158",
+  "calls": 138946,
+  "src_is_worktree": true,
+  "resume": {
+   "final_same": true,
+   "checkpoints_same": true,
+   "checkpoints_compared": 4
+  }
+ },
+ "straight_final_same": true,
+ "straight_calls_same": true,
+ "straight_checkpoints_same": true,
+ "checkpoints": 8,
+ "experiment_null": [
+  null,
+  null
+ ],
+ "wall_s": {
+  "head": {
+   "straight": 94.8,
+   "stop": 48.1,
+   "resume": 73.9
+  },
+  "cf33b": {
+   "straight": 93.3,
+   "stop": 49.0,
+   "resume": 73.8
+  }
+ }
+}

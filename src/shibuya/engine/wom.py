@@ -5,7 +5,9 @@
 
 どこで・何から
     ``engine.run`` の ``_utter``(会話ターンの応答のパース時・``MemoryLayer.note_utterance`` の隣)。**呼数 0**
-    (正規表現+辞書照合)。語彙 v1/v2=「ひと言」欄・v3=理由欄+対象欄(発話本文が無い=薄い・宣言)。
+    (正規表現+辞書照合)。**発話の欄(ひと言)だけ**を読む(第2波 §2A 項 1・``--wom-source utterance``=既定)。
+    いまの語彙 v3 にはひと言欄が無いので抽出は 0(Q57 (d) で足す)。旧=``reason-target``(v3 で理由欄+対象欄を
+    読む=理由欄は本人の内心=聞き手に漏れる欠陥・旧の再現用)。
     ``--store-memory on`` のランだけ(書き先は店の評価の記憶=7a)。
 
 店名の照合(正規化 v0・宣言)
@@ -52,6 +54,10 @@ from shibuya.engine.store_memory import STORE_SOURCE_BIT
 
 __all__ = [
     "WOM_TEXT_FIELDS",
+    "WOM_TEXT_FIELDS_BY_SOURCE",
+    "WOM_SOURCES",
+    "DEFAULT_WOM_SOURCE",
+    "check_wom_source",
     "WOM_WEIGHT",
     "NAME_MIN_CHARS_V0",
     "BRANCH_SUFFIXES_V0",
@@ -65,10 +71,25 @@ __all__ = [
     "hear",
 ]
 
-#: 語彙の版 → 読む欄(v1/v2=ひと言・v3=理由+対象)。
-WOM_TEXT_FIELDS: Final[dict[str, tuple[str, ...]]] = {
-    "v1": ("comment",), "v2": ("comment",), "v3": ("reason", "target"),
+#: 口コミの源(第2波 §2A 項 1・Q57 の確認の結果): ``utterance``=**発話の欄(ひと言)だけ**を読む(既定)/
+#: ``reason-target``=旧(語彙 v3 で理由欄+対象欄を読む=理由欄は本人の内心なので聞き手に漏れる=欠陥・旧の再現用)。
+WOM_SOURCES: Final[tuple[str, ...]] = ("utterance", "reason-target")
+DEFAULT_WOM_SOURCE: Final[str] = "utterance"
+#: 源 → 語彙の版 → 読む欄。``utterance`` は全版でひと言だけ(いまの v3 にはひと言欄が無い=抽出は 0。
+#: ひと言欄は Q57 (d) で後から足す)。``reason-target`` は第297〜第312 の表(v1/v2=ひと言・v3=理由+対象)。
+WOM_TEXT_FIELDS_BY_SOURCE: Final[dict[str, dict[str, tuple[str, ...]]]] = {
+    "utterance": {"v1": ("comment",), "v2": ("comment",), "v3": ("comment",)},
+    "reason-target": {"v1": ("comment",), "v2": ("comment",), "v3": ("reason", "target")},
 }
+#: 既定の源(``utterance``)の表(後方互換の名)。
+WOM_TEXT_FIELDS: Final[dict[str, tuple[str, ...]]] = WOM_TEXT_FIELDS_BY_SOURCE[DEFAULT_WOM_SOURCE]
+
+
+def check_wom_source(source: str) -> str:
+    """``--wom-source`` の値を検める。"""
+    if str(source) not in WOM_SOURCES:
+        raise ValueError(f"wom_source は {WOM_SOURCES} のどれか(いま {source!r})")
+    return str(source)
 #: 聞き手への転写の重み(行動契約書 §4)。本段は宛先だけを使う。
 WOM_WEIGHT: Final[dict[str, float]] = {"addressee": 1.0, "bystander": 0.5, "overheard": 0.2}
 #: 鍵にする名の最小字数(正規化後)。
@@ -194,7 +215,8 @@ class WomExtractor:
     """店名の辞書と評価語の辞書(1 ランに 1 つ・世界は読むだけ)。"""
 
     def __init__(self, names: Sequence[str], cats: Sequence[str], poi_cell: np.ndarray,
-                 cell_dist: np.ndarray | None) -> None:
+                 cell_dist: np.ndarray | None, source: str = DEFAULT_WOM_SOURCE) -> None:
+        self.source = check_wom_source(source)
         n = len(names)
         self.n_poi = n
         self.poi_cell = np.asarray(poi_cell, dtype=np.int64)[:n] if n else np.zeros(0, dtype=np.int64)
@@ -224,10 +246,10 @@ class WomExtractor:
         self.unmatched_words: Counter = Counter()
 
     @classmethod
-    def from_world(cls, world: Any) -> "WomExtractor":
+    def from_world(cls, world: Any, source: str = DEFAULT_WOM_SOURCE) -> "WomExtractor":
         a = world.assets
         return cls(tuple(getattr(a, "poi_name", ()) or ()), tuple(getattr(a, "poi_cat", ()) or ()),
-                   np.asarray(world.pois.cell, dtype=np.int64), getattr(a, "cell_dist", None))
+                   np.asarray(world.pois.cell, dtype=np.int64), getattr(a, "cell_dist", None), source=source)
 
     # ------------------------------------------------------------------ 照合
     def _ok_boundary(self, text: str, i: int, key: str) -> bool:
@@ -302,9 +324,10 @@ class WomExtractor:
 
     def utterance_text(self, vocab_version: str, *, comment: str = "", reason: str = "",
                        target: str = "") -> str:
-        """語彙の版 → 読む欄を正規化して | でつなぐ(「なし」の欄は読まない)。"""
+        """語彙の版 → 読む欄(源 ``self.source`` の表)を正規化して | でつなぐ(「なし」の欄は読まない)。"""
         fields = {"comment": comment, "reason": reason, "target": target}
-        parts = [normalize_v0(fields[f]) for f in WOM_TEXT_FIELDS.get(str(vocab_version), ("comment",))]
+        table = WOM_TEXT_FIELDS_BY_SOURCE[self.source]
+        parts = [normalize_v0(fields[f]) for f in table.get(str(vocab_version), ("comment",))]
         return _FIELD_SEP.join(p for p in parts if p not in _NONE_WORDS)
 
     def observe(self, ex: WomExtraction) -> None:
@@ -333,7 +356,8 @@ class WomExtractor:
         """manifest ``wom``: 発話・抽出・向き・照合できない語・照合できた店の上位。"""
         u = max(1, self.stats.get("utterances", 0))
         return {
-            "text_fields": {k: list(v) for k, v in WOM_TEXT_FIELDS.items()},
+            "source": self.source,
+            "text_fields": {k: list(v) for k, v in WOM_TEXT_FIELDS_BY_SOURCE[self.source].items()},
             "weight_addressee": WOM_WEIGHT["addressee"],
             "dictionary_keys": len(self.keys),
             "counts": {k: int(v) for k, v in sorted(self.stats.items())},

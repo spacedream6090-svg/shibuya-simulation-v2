@@ -30,6 +30,7 @@ dev = [
   "hypothesis>=6.100",
   "import-linter>=2.0",
   "matplotlib>=3.9",
+  "pytest-xdist==3.8.0",  # 第333: CI-1/CI-2 を -n 2 --dist loadfile で並べる(版を固定)
 ]
 
 [tool.setuptools.packages.find]
@@ -45,6 +46,7 @@ addopts = "-q -p no:cacheprovider"
 markers = [
   "gpu: GPU必須(セルフホストランナーのみ・CIでは除外)",
   "slow: 5,000体縮小ラン級(CIでは nightly)",
+  "requires_data(*ids): data(gitignore 下)が要る試験。id は tests/_data_ids.py の登録表。無ければ一律の理由で飛ばす(第333)",
 ]
 filterwarnings = ["error::DeprecationWarning:shibuya.*"]
 

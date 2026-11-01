@@ -301,6 +301,8 @@ class ConversationManager:
         self.n_blocks = 0
         self.n_backchannels = 0
         self.n_interrupts = 0
+        #: 10e(E2): ``purge_expired`` で落とした期限切れの項の数(診断)。
+        self.n_expired_purged = 0
         self.closed_by_reason: dict[str, int] = {r: 0 for r in CLOSE_REASONS}
         #: 「無視された」イベント(呼を消費しない)。``(tick, inviter, invitee)``。
         self.ignored_events: list[tuple[int, int, int]] = []
@@ -711,6 +713,7 @@ class ConversationManager:
         in_conversation: Sequence[bool] | np.ndarray | None = None,
         xy: Sequence[float] | np.ndarray | None = None,
         leave_distance_m: float | None = None,
+        near_fn: Any = None,
     ) -> list[Session]:
         """1 tick 進める(WALKING_OVER→PARTICIPATING・ソフト終了・CLOSING→TERMINAL)。
 
@@ -724,6 +727,9 @@ class ConversationManager:
                 取ること**——同値だと境界の 2 人が毎 tick 作っては壊す(§4 改訂 G7)。
                 ``None``(既定)なら従来どおり ``cell`` の一致で見る。
             leave_distance_m: 離脱距離[m](``engine.resolve.TALK_LEAVE_METERS``)。
+            near_fn: 〔第 2 期 2-2 段 11a〕``(a, b) -> bool の配列``(腕 ``--proximity distance`` の
+                ``engine.proximity.ProximityRule.stay``=同じ層・距離 ≤ d+1 m、または同じ B5 の単位)。渡すと
+                ソフト終了「セル離脱」の判定がこれになる(``xy``・``cell`` より強い)。``None``(既定)は今のまま。
 
         Returns:
             この tick に TERMINAL へ落ちたセッション。
@@ -745,7 +751,11 @@ class ConversationManager:
                     s.state = ConvState.PARTICIPATING
                 continue
             # --- PARTICIPATING のソフト終了 ---
-            if by_distance:
+            if near_fn is not None:  # 第 2 期 2-2: 腕 distance(同じ層・d+1 m・同じ B5 の単位)
+                if self._left_reach(s, near_fn):
+                    self._close(s, int(tick), "left_cell")
+                    continue
+            elif by_distance:
                 if self._left_distance(s, xy_arr, float(leave_distance_m)):
                     self._close(s, int(tick), "left_cell")
                     continue
@@ -781,6 +791,15 @@ class ConversationManager:
             if float(np.sqrt(float(d[0]) ** 2 + float(d[1]) ** 2)) > limit_m:
                 return True
         return False
+
+    @staticmethod
+    def _left_reach(s: Session, near_fn: Any) -> bool:
+        """参加者のどれかが最初の参加者から届かなくなったか(第 2 期 2-2・``near_fn``)。逐次ループ宣言: なし(参加者 ≤ 3)。"""
+        anchor = int(s.participants[0])
+        others = np.asarray(s.participants[1:], dtype=np.int64)
+        if others.size == 0:
+            return False
+        return not bool(np.all(near_fn(np.full(others.size, anchor, dtype=np.int64), others)))
 
     def _left_cell(self, s: Session, cell) -> bool:
         arr = np.asarray(cell)
@@ -826,6 +845,31 @@ class ConversationManager:
             return None
         self._close(s, int(tick), reason)
         return s
+
+    def purge_expired(self, tick: int) -> int:
+        """10e(E2・10b 検収 P3): 期限つきの辞書 3 つから、期限の切れた項を落とす(有界化)。
+
+        ``_refusal_until``・``_pair_invite_until``・``_speaker_invite_until`` は「``tick < 期限`` なら抑止」としか
+        読まれない(``refused_recently``・``invite_blocked_by_refractory``)。期限 ``<= tick`` の項はこの tick から先の
+        どの読みでも「無い」と同じなので、落としても挙動は変わらない(呼数・行動の件数は不変)。落とさないと日数に
+        比例して増える(10b 検収の再現: 合成 2,000 体・3 日で O39 の直列化 2,291 B → 253,229 B)。
+        状態(O39・挿入順つき)の中身が変わるので behavior-hash と full-hash は動く。呼ぶのは tick ごとに 1 回
+        (会話の段の終わり)。掃除の時刻は T だけで決まる=checkpoint の間隔や再開の位置に依らない。
+
+        逐次ループ宣言(P4): 生きている項の数ぶん(期限の窓の中の項だけが残る)。
+
+        Returns:
+            落とした項の数。
+        """
+        t = int(tick)
+        n = 0
+        for table in (self._refusal_until, self._pair_invite_until, self._speaker_invite_until):
+            dead = [k for k, until in table.items() if until <= t]
+            for k in dead:
+                del table[k]
+            n += len(dead)
+        self.n_expired_purged += n
+        return n
 
     def purge_terminal(self) -> int:
         """TERMINAL のセッションを表から落とす(有界化 D-R2-6)。

@@ -37,7 +37,15 @@ from typing import Any
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-ANCHORS = HERE.parents[1] / "anchors" / "hunger_energy_anchors_v0.json"
+#: 〔第 2 期 2-4 V6・検収 L3〕錨は 2 本(構築側 ``hunger_energy_build_anchors_v0.json``+検証側
+#: ``hunger_energy_validation_anchors_v0.json``)に分けた(前は 1 本 ``hunger_energy_anchors_v0.json``=消した)。
+#: 読むのは :func:`_anchors`(``energy.load_anchors()``=2 本を 1 つの辞書に戻す口=分ける前の 1 本と同じ辞書)。
+
+
+def _anchors() -> dict:
+    from shibuya.engine import energy as _E  # noqa: PLC0415(作業木の src を PYTHONPATH に)
+
+    return _E.load_anchors()[0]
 ENGINE_CONTINUE = "(エンジン継続)"
 ENTRANCES: dict[str, tuple[str, ...]] = {
     "場所": ("CELL_BLOCK",),
@@ -288,7 +296,7 @@ def cmd_collect(args: argparse.Namespace) -> int:
     """腕ごとの中間 JSON(``--tmp``)を束ねる(腕は回さない)。"""
     tmp = Path(args.tmp)
     rows = {arm: json.loads((tmp / f"{arm}.json").read_text(encoding="utf-8")) for arm in ARMS}
-    anc = json.loads(ANCHORS.read_text(encoding="utf-8"))
+    anc = _anchors()
     ref = {k: _norm(v["rate_pct"]) for k, v in anc["ssb2021_meal_rate_15min"]["series"].items()}
     base = rows["mock_v3"]
     summary = []

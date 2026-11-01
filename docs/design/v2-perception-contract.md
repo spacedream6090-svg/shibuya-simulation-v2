@@ -1,6 +1,7 @@
 # v2知覚契約書(R3-8・草案v1)
 
 > **状態: v1・全10節レビュー完了・仮決定(2026-09-06)。全項は仮=変更可。** §1不変条件(a)/§2型(推奨4点)/§3チャネル(リサーチ3本の親一次確認後に4点)/§4注意ゲート(5点)/§5 prefix(変更なし)/§6更新規則(A案×3+invocation distance)/§7予算delta/§8検証装置/§9陣分け再編/§10三表化。§2.2予算はBN-5で確定・品質プローブv0(指標B)=「答えが決まる場面の行動分布は不変」+①追試で制約違反率の差を検出せず(反証なし)。
+> **〔改訂 2026-10-03・C3〕空間の設計ラウンドで改訂予定。セル部分の共有をやめ、本人の位置と視線から作る(処理量は約 12% 減の推測・R-66 で実測後に宣言)。** 共有は場所の定型文などに限る。いまはセル部分(入力の約 16%)を共有している。12% は BN-5 の「人ごとの部分が 100 トークン増えるごとに約 8% 落ちる」からの推測・一次確認待ち([指示書 10-03](v2-wallbounce-decisions-2026-10-03.md) §5-3)。本書の本文(B2・B4 のセル共有とバイト一致)は改訂まで元のまま。
 > 位置づけ: **世界→心**の契約(行動契約R4=心→世界、と対)。憲法3「心と世界は相互に見える」・憲法5「知覚されない細部は作らない」の実装形。
 > 根拠: 決定台帳§9 R3-1〜7・人物観測・広告・D1′。答申: [U17知覚](../research/v2-perception-u17-research.md)・[人物観測検証](../research/v2-person-perception-verification.md)・[VLM検証](../research/v2-vlm-reality-check-research.md)・[識別テスト](../research/v2-turing-test-validation-research.md)・[密度聴覚](../research/v2-density-hearing-verification.md)・[観測形式](../research/v2-observation-format-research.md)・[更新タイミング](../research/v2-perception-timing-research.md)・[一次確認](../research/v2-hearing-numbers-and-d1-coverage.md)・[広告](../research/v2-ad-information-research.md)。
 > **本書の本質は「文面凍結宣言」**: 観測がLLMに届く文面は決定論テンプレで固定し、版と感度試験なしに変えない(ペルソナ文面の中立化だけで毒性が46.7%動く実測=文面は世界規則の一部)。

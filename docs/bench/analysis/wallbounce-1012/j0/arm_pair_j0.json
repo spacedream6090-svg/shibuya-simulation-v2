@@ -1,0 +1,249 @@
+{
+ "schema": "shibuya.bench/j0/arm-pair/1",
+ "agents": 5000,
+ "seed": 1,
+ "world": "data/world/v2",
+ "rows": {
+  "w6_v3_default": {
+   "kw": {
+    "vocab_version": "v3",
+    "activity": true
+   },
+   "legacy": {
+    "final": "5f7ae9ff24005314",
+    "calls": 65597,
+    "wall_s": 35.6,
+    "llm_phase_s": 22.87,
+    "sequence_len": 65597,
+    "sequence_sha": "8f45591096570ea2",
+    "decision_port": {
+     "schema": "shibuya.engine.decision/port/1",
+     "arm": "legacy",
+     "port": null,
+     "sources": [
+      "experience",
+      "affordance",
+      "plan",
+      "continue",
+      "deliberate"
+     ],
+     "bridge_source": "vocab",
+     "other_share_default": null,
+     "other_share_basis": "R-108 §1-5・空欄 R108-1(LLM が「その他(自由記述)」を選ぶ割合を測った原典なし。近い証拠=NA が正解でも 8B は 18.3%=Wang ほか 2025 表 2・28 モデル平均 0.738 → 0.350=Tam ほか 2025 表 7)・§3-3(低い割合は候補の十分さの証拠にならない=既知の答えの検査で測る)",
+     "decisions": null,
+     "late": null,
+     "fleet_legacy": null,
+     "presented_by_source": null,
+     "chosen_by_source": null,
+     "other": null,
+     "other_ratio": null,
+     "chosen_number": null,
+     "n_candidates": null,
+     "mismatch": null,
+     "events": null,
+     "events_unlogged": null
+    },
+    "events_by_cause": {
+     "process": 32158
+    },
+    "events_rows_last_day": 32158
+   },
+   "port": {
+    "final": "5f7ae9ff24005314",
+    "calls": 65597,
+    "wall_s": 48.7,
+    "llm_phase_s": 35.4,
+    "sequence_len": 65597,
+    "sequence_sha": "8f45591096570ea2",
+    "decision_port": {
+     "schema": "shibuya.engine.decision/port/1",
+     "arm": "port",
+     "port": "mock",
+     "sources": [
+      "experience",
+      "affordance",
+      "plan",
+      "continue",
+      "deliberate"
+     ],
+     "bridge_source": "vocab",
+     "other_share_default": null,
+     "other_share_basis": "R-108 §1-5・空欄 R108-1(LLM が「その他(自由記述)」を選ぶ割合を測った原典なし。近い証拠=NA が正解でも 8B は 18.3%=Wang ほか 2025 表 2・28 モデル平均 0.738 → 0.350=Tam ほか 2025 表 7)・§3-3(低い割合は候補の十分さの証拠にならない=既知の答えの検査で測る)",
+     "decisions": 65597,
+     "late": 0,
+     "fleet_legacy": 0,
+     "presented_by_source": {
+      "experience": 0,
+      "affordance": 270496,
+      "plan": 126,
+      "continue": 65597,
+      "deliberate": 65597,
+      "vocab": 450945
+     },
+     "chosen_by_source": {
+      "experience": 0,
+      "affordance": 22685,
+      "plan": 9,
+      "continue": 5350,
+      "deliberate": 0,
+      "vocab": 37553,
+      "other": 0
+     },
+     "other": 0,
+     "other_ratio": 0.0,
+     "chosen_number": {
+      "1": 5008,
+      "2": 5017,
+      "3": 4952,
+      "4": 4959,
+      "5": 5015,
+      "6": 5120,
+      "7": 5148,
+      "8": 5068,
+      "9": 5016,
+      "10": 5090,
+      "11": 5031,
+      "12": 5081,
+      "13": 5092
+     },
+     "n_candidates": {
+      "13": 65597
+     },
+     "mismatch": 0,
+     "events": 65597,
+     "events_unlogged": 0
+    },
+    "events_by_cause": {
+     "llm_call": 65597,
+     "process": 32158
+    },
+    "events_rows_last_day": 97755
+   },
+   "same_final": true,
+   "same_calls": true,
+   "same_sequence": true
+  },
+  "v3_classical_mem_rel": {
+   "kw": {
+    "vocab_version": "v3",
+    "memory": "on",
+    "relations": "on",
+    "policy": "classical",
+    "chooser": "classical"
+   },
+   "legacy": {
+    "final": "4c512a1fdc2a70c0",
+    "calls": 106565,
+    "wall_s": 75.8,
+    "llm_phase_s": 59.9,
+    "sequence_len": 106565,
+    "sequence_sha": "fa7cec5e081f3869",
+    "decision_port": {
+     "schema": "shibuya.engine.decision/port/1",
+     "arm": "legacy",
+     "port": null,
+     "sources": [
+      "experience",
+      "affordance",
+      "plan",
+      "continue",
+      "deliberate"
+     ],
+     "bridge_source": "vocab",
+     "other_share_default": null,
+     "other_share_basis": "R-108 §1-5・空欄 R108-1(LLM が「その他(自由記述)」を選ぶ割合を測った原典なし。近い証拠=NA が正解でも 8B は 18.3%=Wang ほか 2025 表 2・28 モデル平均 0.738 → 0.350=Tam ほか 2025 表 7)・§3-3(低い割合は候補の十分さの証拠にならない=既知の答えの検査で測る)",
+     "decisions": null,
+     "late": null,
+     "fleet_legacy": null,
+     "presented_by_source": null,
+     "chosen_by_source": null,
+     "other": null,
+     "other_ratio": null,
+     "chosen_number": null,
+     "n_candidates": null,
+     "mismatch": null,
+     "events": null,
+     "events_unlogged": null
+    },
+    "events_by_cause": {
+     "process": 28837
+    },
+    "events_rows_last_day": 28837
+   },
+   "port": {
+    "final": "4c512a1fdc2a70c0",
+    "calls": 106565,
+    "wall_s": 87.9,
+    "llm_phase_s": 72.51,
+    "sequence_len": 106565,
+    "sequence_sha": "fa7cec5e081f3869",
+    "decision_port": {
+     "schema": "shibuya.engine.decision/port/1",
+     "arm": "port",
+     "port": "classical",
+     "sources": [
+      "experience",
+      "affordance",
+      "plan",
+      "continue",
+      "deliberate"
+     ],
+     "bridge_source": "vocab",
+     "other_share_default": null,
+     "other_share_basis": "R-108 §1-5・空欄 R108-1(LLM が「その他(自由記述)」を選ぶ割合を測った原典なし。近い証拠=NA が正解でも 8B は 18.3%=Wang ほか 2025 表 2・28 モデル平均 0.738 → 0.350=Tam ほか 2025 表 7)・§3-3(低い割合は候補の十分さの証拠にならない=既知の答えの検査で測る)",
+     "decisions": 106565,
+     "late": 0,
+     "fleet_legacy": 0,
+     "presented_by_source": {
+      "experience": 102924,
+      "affordance": 373193,
+      "plan": 546,
+      "continue": 106565,
+      "deliberate": 106565,
+      "vocab": 695552
+     },
+     "chosen_by_source": {
+      "experience": 13289,
+      "affordance": 19665,
+      "plan": 229,
+      "continue": 69784,
+      "deliberate": 0,
+      "vocab": 3598,
+      "other": 0
+     },
+     "other": 0,
+     "other_ratio": 0.0,
+     "chosen_number": {
+      "1": 8214,
+      "2": 8235,
+      "3": 8333,
+      "4": 8290,
+      "5": 8060,
+      "6": 8377,
+      "7": 8063,
+      "8": 8228,
+      "9": 8210,
+      "10": 8254,
+      "11": 8162,
+      "12": 7987,
+      "13": 8152
+     },
+     "n_candidates": {
+      "13": 106565
+     },
+     "mismatch": 0,
+     "events": 106565,
+     "events_unlogged": 0
+    },
+    "events_by_cause": {
+     "llm_call": 106565,
+     "process": 28837
+    },
+    "events_rows_last_day": 135402
+   },
+   "same_final": true,
+   "same_calls": true,
+   "same_sequence": true
+  }
+ }
+}

@@ -14,6 +14,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from tests import _time_gates as TG
+
 from shibuya.economy import checks as CK
 from shibuya.economy.accounts import BalanceLine, Sector
 from shibuya.economy.goods import GoodsLedger
@@ -24,9 +26,7 @@ from shibuya.world.state import World
 
 WORLD_DIR = Path("data/world/v2")
 W2_REPORT_SECONDS = 60.0
-real_data = pytest.mark.skipif(
-    not (WORLD_DIR / "w12_timetables.parquet").exists(), reason="実世界資産 data/world/v2 が無い"
-)
+real_data = pytest.mark.requires_data("world_v2:w12_timetables.parquet")
 
 
 def _bundle(world: World, n_agents: int) -> LedgerBundle:
@@ -128,7 +128,7 @@ def test_run_day_on_the_real_world_with_all_first_batch_processes(capsys):
     assert sum(per_line.values()) == runner.rail.dep_tick.size > 3_000
 
     # W2(報告値)
-    assert res.wall_seconds <= W2_REPORT_SECONDS
+    assert TG.check(res.wall_seconds <= W2_REPORT_SECONDS, f"W2 {res.wall_seconds:.2f}s(報告閾値 {W2_REPORT_SECONDS}s)")
     assert res.growth_report is not None
 
 
@@ -289,7 +289,7 @@ def test_c4_second_half_on_the_real_world(capsys):
     assert runner.hotel.active
 
     # W2(報告値)と門前条件
-    assert res.wall_seconds <= W2_REPORT_SECONDS
+    assert TG.check(res.wall_seconds <= W2_REPORT_SECONDS, f"W2 {res.wall_seconds:.2f}s(報告閾値 {W2_REPORT_SECONDS}s)")
     assert res.constitution_ok and res.registry_hash
     fields = res.run_manifest_fields()
     assert fields["template_sha256"] and fields["catalog_sha16"]

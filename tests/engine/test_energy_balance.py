@@ -2,7 +2,8 @@
 
 正典: ``docs/design/v2-energy-classical-implementation-agenda.md`` §1(1〜10)・草案
 ``docs/design/v2-hunger-choice-attention-draft.md`` §1-2・§1-2b・§1-6。
-錨は追跡ファイル ``docs/bench/anchors/hunger_energy_anchors_v0.json`` だけを読む(data/ は読まない)。
+錨は追跡ファイル ``docs/bench/anchors/hunger_energy_build_anchors_v0.json``・``hunger_energy_validation_anchors_v0.json``
+(〔第 2 期 2-4 V6〕前は 1 本 ``hunger_energy_anchors_v0.json``)だけを読む(data/ は読まない)。
 """
 
 from __future__ import annotations
@@ -23,6 +24,9 @@ from shibuya.perception import templates as T
 from shibuya.perception.renderer import Renderer
 from shibuya.world.state import World
 
+# 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕錨は構築側の 1 本だけ(旧値の腕 validation と検証側の錨を読む口は消した=前は 2 本を
+# 合わせて読み、第 18-1 表の 1 つの既定の時刻で前の版の値を確かめた)。既定の時刻を全員 1 つの値にする試験は
+# ``_single_distribution``(凍結の表の中央値)で組む。既定の腕 w17 の体ごとの引きは tests/engine/body/test_meal_default_w17.py
 ANC, ANC_MD5 = E.load_anchors()
 SRC = Path("src/shibuya")
 CJK = re.compile(r"[぀-ヿ㐀-鿿]")
@@ -30,6 +34,33 @@ CJK = re.compile(r"[぀-ヿ㐀-鿿]")
 
 def model(rate: str = "eer") -> E.EnergyModel:
     return E.EnergyModel(ANC, ANC_MD5, rate=rate)
+
+
+#: 既定の時刻の代表値[分](凍結の表の中央値=模型の ``default_meal_min``・数値はソースに写さず模型から読む)。
+BM, LM, DM = (model().default_meal_min[k] for k in ("breakfast", "lunch", "dinner"))
+
+
+def _single_distribution(b: int, l: int, d: int) -> E.MealStartDistribution:
+    """既定の食事時刻が全員 1 つの値になる分布(1 体・朝昼夕の食事の行 1 本ずつの週次表から)。〔第 4 期 4-3 版上げ 3 回目の
+    第 2 部〕前は旧値の腕 validation(全員 1 つの値)で組んだ=腕を消したので、同じ形を分布で作る。"""
+    eat, out = ACTIVITY_WORDS.index("食事"), PLACE_WORDS.index("域外")
+    starts = (int(b), int(l), int(d))
+    counts = np.zeros(N_DAYS, dtype=np.int64)
+    counts[0] = 3
+    offset = np.zeros(N_DAYS + 1, dtype=np.int64)
+    np.cumsum(counts, out=offset[1:])
+    w = WeeklySchedule(source=None, agent_id=np.arange(1, dtype=np.int64), day_offset=offset,
+                       start_min=np.asarray(starts, dtype=np.int16), end_min=np.asarray([s + 30 for s in starts], dtype=np.int16),
+                       activity=np.full(3, eat, dtype=np.int8), place_kind=np.full(3, out, dtype=np.int8),
+                       target_cell=np.full(3, -1, dtype=np.int32), seq=np.arange(3, dtype=np.int16))
+    return E.MealStartDistribution.from_weekly(w, 0)
+
+SINGLE = _single_distribution(BM, LM, DM)
+
+
+def _oom(*a, **k) -> E.OutOfAreaMeals:
+    """既定の時刻が全員 BM・LM・DM の範囲外の食事の予定(〔第 2 部〕前は旧値の腕の模型で同じ形)。"""
+    return E.OutOfAreaMeals(*a, **{"distribution": SINGLE, **k})
 
 
 def layer(n: int, rate: str = "eer") -> E.EnergyLayer:
@@ -49,11 +80,8 @@ def test_anchor_values_are_pinned():
     assert dri["ref_weight_kg"]["male"][k] == 63.0
     assert dri["pal_normal"][k] == 1.75
     assert dri["eer_sd_kcal_day"] == {"male": 199, "female": 164}
-    t10 = ANC["nhns_t10_breakfast_skip"]
-    j = t10["age_classes"].index("20-29")
-    assert (t10["pct"]["total"][j], t10["pct"]["male"][j], t10["pct"]["female"][j]) == (31.1, 37.3, 26.5)
-    nat = ANC["ssb2021_t18_1_weekday"]["national"]["breakfast_start"]
-    assert (nat["rate_pct"], nat["mean_time"]) == (77.2, "7:12")
+    # 〔第 2 部〕検証側の錨(第 10 表の朝食の欠食・第 18-1 表の全国の朝食の開始)の値の確かめは消した(試験は検証側を読まない)
+    assert "nhns_t10_breakfast_skip" not in ANC and "ssb2021_t18_1_weekday" not in ANC
     mets = ANC["mets_2012"]["mets"]
     assert (mets["17190"], mets["17200"], mets["17170"], mets["07030"], mets["07020"]) == (
         3.5, 4.3, 3.0, 1.0, 1.3
@@ -63,19 +91,13 @@ def test_anchor_values_are_pinned():
     assert len(dri["pal_normal"]) == 12 and dri["pal_normal"][0] == 1.35 and dri["pal_normal"][-1] == 1.7
 
 
-def test_default_meal_times_come_from_the_anchors():
-    """範囲外の既定の時刻: 朝 7:29・夕 19:18(第18-1表 東京都 平日)・昼=第7-1表 東京都の最大区分の開始。"""
-    m = model()
-    assert m.default_meal_min == {"breakfast": 449, "lunch": 735, "dinner": 1158}
-    tokyo = ANC["ssb2021_meal_rate_15min"]["series"]["t7_1_weekday_tokyo_total"]["rate_pct"]
-    vals = [-1.0 if x is None else float(x) for x in tokyo]
-    assert max(range(96), key=lambda i: (vals[i], -i)) * 15 == 735  # 12:15-12:30 = 35.21%
-    assert 705 <= m.default_meal_min["lunch"] <= 735  # アジェンダの見込み 11:45〜12:15(上端)
+# 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕前の試験 test_default_meal_times_come_from_the_anchors(旧値の腕の既定の時刻=第 18-1 表・
+# 第 7-1 表=検証側の錨から組む)は腕と一緒に消した。
 
 
 def test_anchor_file_holds_numbers_and_codes_only():
     """表の文言(活動名の和文など)は入れない=和文は出典表記の 4 行だけ。"""
-    raw = E.ANCHORS_PATH.read_text(encoding="utf-8")
+    raws = [E.ANCHORS_BUILD_PATH.read_text(encoding="utf-8")]  # 〔第 2 部〕構築側の 1 本だけ(検証側は読まない)
     body = dict(ANC)
     attribution = body.pop("attribution")
     assert len(attribution) == 4
@@ -84,7 +106,7 @@ def test_anchor_file_holds_numbers_and_codes_only():
     import json
 
     assert not CJK.search(json.dumps(body, ensure_ascii=False)), "錨の本体に和文がある"
-    assert raw.count("\r") == 0
+    assert all(raw.count("\r") == 0 for raw in raws)
     for name, src in ANC["sources"].items():
         assert re.fullmatch(r"[0-9a-f]{32}", src["json_md5"]), name
 
@@ -227,8 +249,8 @@ def test_initialize_energy_places_the_copy_without_a_false_crossing():
         a.sex[:] = [0, 1, 0, 1, -1, 1]
     lay = layer(6)
     R.initialize_energy(a, lay, seed=1)
-    # 初期値 = EER × (1440 − 1158)/1440 → 比 0.5875 → ふつう
-    np.testing.assert_allclose(a.since_meal_kcal, a.eer_kcal * (282 / 1440), rtol=1e-5)
+    # 初期値 = EER × (1440 − 既定の夕食の分)/1440 → ふつう(範囲外の予定の無い層=凍結の表の中央値の 1 つの値)
+    np.testing.assert_allclose(a.since_meal_kcal, a.eer_kcal * ((1440 - DM) / 1440), rtol=1e-5)
     assert set(a.hunger.tolist()) == {5}
     assert set(a.hunger_stage.tolist()) == {1}
     assert float(np.abs(a.energy_balance).sum()) == 0.0
@@ -287,7 +309,7 @@ def test_out_of_area_meal_resets_since_meal_and_adds_the_share():
         a.since_meal_kcal[:] = 1500.0
     eer = a.eer_kcal.astype(np.float64)
     got = R.energy_out_of_area_meal(a, lay, np.array([0, 1]), np.array([0, 0]),
-                                    np.array([True, False]), tick=449)
+                                    np.array([True, False]), tick=BM)
     assert got == 2
     np.testing.assert_array_equal(a.since_meal_kcal, [0.0, 0.0])
     s = ANC["nhns_t13_meal_kcal"]["shares"]
@@ -298,7 +320,7 @@ def test_out_of_area_meal_resets_since_meal_and_adds_the_share():
     np.testing.assert_array_equal(a.hunger, [1, 1])
     assert lay.counts["meals_out_of_area"] == 2
     assert lay.counts["meals_out_from_row"] == 1 and lay.counts["meals_out_default"] == 1
-    assert int(lay.meal_bits[0]) == 1 and int(lay.meal_start_out[449 // 15]) == 2
+    assert int(lay.meal_bits[0]) == 1 and int(lay.meal_start_out[BM // 15]) == 2
 
 
 def test_snack_and_drink_subtract_from_since_meal():
@@ -358,27 +380,27 @@ def test_out_of_area_schedule_uses_meal_rows_then_default_times():
     rows = [
         (0, 0, 420, SLEEP, HOME), (0, 540, 750, WORK, OUT), (0, 750, 780, EAT, OUT),
         (0, 780, 1080, WORK, OUT),
-        (1, 0, 600, SLEEP, HOME),  # 7:29 に就寝中でも既定の時刻どおり(アジェンダ §1-5 の文言)
+        (1, 0, 600, SLEEP, HOME),  # 既定の朝食の時刻に就寝中でも既定の時刻どおり(アジェンダ §1-5 の文言)
     ]
-    oom = E.OutOfAreaMeals(model(), 3, 1440, weekly=_weekly(rows, 3), day_index=0)
+    oom = _oom(model(), 3, 1440, weekly=_weekly(rows, 3), day_index=0)
     ev = sorted(zip(oom.agent.tolist(), oom.tick.tolist(), oom.slot.tolist(), oom.from_row.tolist()))
     assert ev == [
-        (0, 449, 0, False), (0, 750, 1, True), (0, 1158, 2, False),
-        (1, 449, 0, False), (1, 735, 1, False), (1, 1158, 2, False),
-        (2, 449, 0, False), (2, 735, 1, False), (2, 1158, 2, False),
+        (0, BM, 0, False), (0, 750, 1, True), (0, DM, 2, False),
+        (1, BM, 0, False), (1, LM, 1, False), (1, DM, 2, False),
+        (2, BM, 0, False), (2, LM, 1, False), (2, DM, 2, False),
     ]
     out = np.full(3, 2, dtype=np.int8)
-    ids, slots, fr = oom.due(449, out)
+    ids, slots, fr = oom.due(BM, out)
     np.testing.assert_array_equal(ids, [0, 1, 2])
-    ids, _, _ = oom.due(449, np.zeros(3, dtype=np.int8))  # 範囲内なら置かない
+    ids, _, _ = oom.due(BM, np.zeros(3, dtype=np.int8))  # 範囲内なら置かない
     assert ids.size == 0
     ids, slots, fr = oom.due(750, out)
     assert ids.tolist() == [0] and slots.tolist() == [1] and fr.tolist() == [True]
 
 
 def test_out_of_area_schedule_without_weekly_is_three_default_times():
-    oom = E.OutOfAreaMeals(model(), 2, 1440, weekly=None)
-    assert sorted(set(oom.tick.tolist())) == [449, 735, 1158]
+    oom = _oom(model(), 2, 1440, weekly=None)
+    assert sorted(set(oom.tick.tolist())) == [BM, LM, DM]
     assert oom.n_rows == 0 and oom.n_defaults == 6
 
 
@@ -458,7 +480,9 @@ def test_run_day_default_is_v1_and_energy_is_an_arm():
     m = en.run_manifest_fields()
     assert m["hunger_model"] == "energy" and m["energy_rate"] == "eer"
     e = m["energy"]
-    assert e["avg_mets"] == 1.379 and e["anchors_md5"] == ANC_MD5
+    # 〔小さな版上げ・meal_w17〕ランは構築側の 1 本だけの md5
+    assert e["avg_mets"] == 1.379 and e["anchors_md5"] == E.load_anchors()[1] == ANC_MD5
+    assert e["meal_default"] == "w17" and e["anchors"] == "docs/bench/anchors/hunger_energy_build_anchors_v0.json"
     assert e["mets"]["sleep"] == {"code": "07030", "mets": 1.0}
     for key in ("counts", "census", "balance_kcal", "breakfast_skip", "stage_time_share",
                 "meal_start_in_15min"):

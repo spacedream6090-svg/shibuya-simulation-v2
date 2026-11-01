@@ -1,0 +1,206 @@
+{
+ "format": "shibuya.bench/1-0/probe-compare/1",
+ "how": "probe_run.py: HEAD(--head・sys.monitoring で系の先頭の行)と 1-0(進行役の境目)で、1,000 体・seed 1・全 tick の系ごとの全欄の差(SoA・外の道筋・積算・buffers・壁時計の道筋は除く)を取り、(T, 系, 変わった欄の digest) の並びと系ごとの指紋を比べた。1-0 の側は宣言の外の変化(段 B)も数えた",
+ "rows": [
+  {
+   "config": "v3_default",
+   "sim_days": 2,
+   "head": {
+    "side": "head",
+    "config": "v3_default",
+    "final": "fc2fde3ae17a96e8",
+    "calls": 25698
+   },
+   "1-0": {
+    "side": "worktree",
+    "config": "v3_default",
+    "final": "fc2fde3ae17a96e8",
+    "calls": 25698
+   },
+   "entries": [
+    31292,
+    31292
+   ],
+   "systems_with_entries": 19,
+   "fp_differs": [],
+   "all_same": true,
+   "first_diff": null,
+   "violations_1_0": 0
+  },
+  {
+   "config": "v3_mem_rel_store",
+   "sim_days": 1,
+   "head": {
+    "side": "head",
+    "config": "v3_mem_rel_store",
+    "final": "4857a4146b645a3f",
+    "calls": 11928
+   },
+   "1-0": {
+    "side": "worktree",
+    "config": "v3_mem_rel_store",
+    "final": "4857a4146b645a3f",
+    "calls": 11928
+   },
+   "entries": [
+    17781,
+    17781
+   ],
+   "systems_with_entries": 19,
+   "fp_differs": [
+    "report"
+   ],
+   "all_same": false,
+   "first_diff": {
+    "index": 17780,
+    "a": [
+     -1,
+     "report"
+    ],
+    "b": [
+     -1,
+     "report"
+    ],
+    "keys_only_a": [],
+    "keys_only_b": [],
+    "keys_both": [
+     "stats.result",
+     "stats.sleep_counts"
+    ]
+   },
+   "violations_1_0": 0,
+   "PYTHONHASHSEED_0_both_sides": {
+    "all_same": true,
+    "entries": [
+     17781,
+     17781
+    ]
+   }
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "sim_days": 1,
+   "head": {
+    "side": "head",
+    "config": "v3_classical_mem_rel",
+    "final": "0fa6d5609746ec40",
+    "calls": 15056
+   },
+   "1-0": {
+    "side": "worktree",
+    "config": "v3_classical_mem_rel",
+    "final": "0fa6d5609746ec40",
+    "calls": 15056
+   },
+   "entries": [
+    17476,
+    17476
+   ],
+   "systems_with_entries": 18,
+   "fp_differs": [],
+   "all_same": true,
+   "first_diff": null,
+   "violations_1_0": 0
+  },
+  {
+   "config": "v1_edge",
+   "sim_days": 1,
+   "head": {
+    "side": "head",
+    "config": "v1_edge",
+    "final": "5c330f7c1175ca9a",
+    "calls": 8451
+   },
+   "1-0": {
+    "side": "worktree",
+    "config": "v1_edge",
+    "final": "5c330f7c1175ca9a",
+    "calls": 8451
+   },
+   "entries": [
+    12917,
+    12917
+   ],
+   "systems_with_entries": 16,
+   "fp_differs": [],
+   "all_same": true,
+   "first_diff": null,
+   "violations_1_0": 0
+  },
+  {
+   "config": "v2_edge_attention",
+   "sim_days": 1,
+   "head": {
+    "side": "head",
+    "config": "v2_edge_attention",
+    "final": "1b83226c002b1eb2",
+    "calls": 8695
+   },
+   "1-0": {
+    "side": "worktree",
+    "config": "v2_edge_attention",
+    "final": "1b83226c002b1eb2",
+    "calls": 8695
+   },
+   "entries": [
+    12875,
+    12875
+   ],
+   "systems_with_entries": 16,
+   "fp_differs": [
+    "report"
+   ],
+   "all_same": false,
+   "first_diff": {
+    "index": 12874,
+    "a": [
+     -1,
+     "report"
+    ],
+    "b": [
+     -1,
+     "report"
+    ],
+    "keys_only_a": [],
+    "keys_only_b": [],
+    "keys_both": [
+     "stats.result",
+     "stats.sleep_counts"
+    ]
+   },
+   "violations_1_0": 0,
+   "PYTHONHASHSEED_0_both_sides": {
+    "all_same": true,
+    "entries": [
+     12875,
+     12875
+    ]
+   }
+  },
+  {
+   "config": "golden_null_arm",
+   "sim_days": 1,
+   "head": {
+    "side": "head",
+    "config": "golden_null_arm",
+    "final": "4af63f9871093746",
+    "calls": 18481
+   },
+   "1-0": {
+    "side": "worktree",
+    "config": "golden_null_arm",
+    "final": "4af63f9871093746",
+    "calls": 18481
+   },
+   "entries": [
+    13622,
+    13622
+   ],
+   "systems_with_entries": 15,
+   "fp_differs": [],
+   "all_same": true,
+   "first_diff": null,
+   "violations_1_0": 0
+  }
+ ]
+}

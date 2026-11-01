@@ -1,0 +1,44 @@
+{
+ "key": "W10#7",
+ "control": "バンド遮蔽 UG −20 dB(宣言)vs −10 dB / −30 dB",
+ "metric": "騒音段階 → (セル × {昼, 夜} × 段階 4) の点の数の分布",
+ "variants": [
+  {
+   "name": "UG -10 dB",
+   "jsd_bits": 0.009276186926204678,
+   "null_p95": 0.001774917408448474,
+   "detected": true,
+   "tvd": 0.014977630265857843,
+   "n_declared": 713464.0,
+   "n_control": 713464.0,
+   "n_bins": 4168,
+   "share_points_stage_changed_day": 0.015740107419575478,
+   "share_points_stage_changed_night": 0.01688101992532209
+  },
+  {
+   "name": "UG -30 dB",
+   "jsd_bits": 0.0018047336345808566,
+   "null_p95": 0.001774917408448474,
+   "detected": true,
+   "tvd": 0.003141013421840487,
+   "n_declared": 713464.0,
+   "n_control": 713464.0,
+   "n_bins": 4168,
+   "share_points_stage_changed_day": 0.0022902346859827545,
+   "share_points_stage_changed_night": 0.003991792157698216
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 21.829542399966158,
+ "outputs_changed": [
+  "w10_noise_day.npy",
+  "w10_noise_night.npy",
+  "w10_noise_stage_day.npy",
+  "w10_noise_stage_night.npy"
+ ],
+ "notes": [],
+ "seconds_wall_row": 25.98,
+ "measured_at": "2026-09-30"
+}

@@ -1,0 +1,23 @@
+{
+ "schema": "shibuya.bench/wallbounce-1003/10a-holiday-fetch/1",
+ "url": "https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv",
+ "saved_as": "data/calendar/syukujitsu.csv",
+ "fetched_utc": "2026-10-03T08:39:19Z",
+ "http_status": 200,
+ "server_last_modified": "Mon, 02 Feb 2026 00:30:17 GMT",
+ "content_type": "text/csv",
+ "bytes": 21538,
+ "md5": "733fabb6b488794a0cd3d94df4b1f24a",
+ "sha256": "cec37a743c96995cdb9cb52b685c9003634682a9b0e1a640a6b9b96881fe964a",
+ "encoding": "cp932 (Shift_JIS 系・BOM なし・utf-8 では読めない)",
+ "line_ending": "CRLF (原本のまま・gitignore 下)",
+ "columns": ["国民の祝日・休日月日", "国民の祝日・休日名称"],
+ "date_format": "YYYY/M/D (ゼロ埋めなし)",
+ "rows": 1067,
+ "first": ["1955/1/1", "元日"],
+ "last": ["2027/11/23", "勤労感謝の日"],
+ "sorted_ascending": true,
+ "rows_2026": 18,
+ "rows_2027": 17,
+ "note": "振替休日・国民の休日は名称『休日』の行として入っている(例 2026/5/6・2026/9/22)"
+}

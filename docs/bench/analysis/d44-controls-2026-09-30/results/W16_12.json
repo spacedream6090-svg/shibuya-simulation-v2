@@ -1,0 +1,44 @@
+{
+ "key": "W16#12",
+ "control": "住民の就業区分=多項抽選(宣言)vs 最大剰余の決定論(件数を配ってから決定論の置換で割り当て)",
+ "metric": "住民(15-74 歳)の就業区分 4 値の分布",
+ "variants": [
+  {
+   "name": "最大剰余",
+   "jsd_bits": 6.743898512964362e-06,
+   "null_p95": 8.388318727237946e-05,
+   "detected": false,
+   "tvd": 0.002742890140031762,
+   "n_declared": 34635.0,
+   "n_control": 34635.0,
+   "n_bins": 4,
+   "declared": {
+    "3": 13167,
+    "1": 3577,
+    "0": 10814,
+    "2": 7077
+   },
+   "control": {
+    "3": 13216,
+    "2": 7094,
+    "0": 10719,
+    "1": 3606
+   }
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 25.632858900004067,
+ "outputs_changed": [
+  "w16_cohorts.json",
+  "w16_duty_roster.parquet",
+  "w16_gates.json",
+  "w16_population.parquet"
+ ],
+ "notes": [
+  "宣言側は W16 を記録の包みだけで再実行した(出力が基準と一致: 変化したファイル なし)"
+ ],
+ "seconds_wall_row": 26.88,
+ "measured_at": "2026-09-30"
+}

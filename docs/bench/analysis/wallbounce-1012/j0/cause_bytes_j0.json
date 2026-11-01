@@ -1,0 +1,73 @@
+{
+ "schema": "shibuya.bench/j0/cause-bytes-compare/1",
+ "note": "1-3 の検収 M2: 原因の表の 1 呼あたりの保持バイト(tracemalloc・N=20,000 呼・入力の出来事 id 0/2/8 個)。head=本体 HEAD f60b0a6 の src(呼び出しごとの Python の物)・j0=作業木(列・1-8 の検収 M1 で選んだ源と提示の番号の 2 列を足した後)。j0 の実測は列の倍化の余り(容量 32,768/65,536 に 20,000 行)を含む=列の幅は 39 B+入力 12 B/個。道具 tools/cause_bytes.py",
+ "head": {
+  "schema": "shibuya.bench/j0/cause-bytes/1",
+  "label": "head",
+  "n": 20000,
+  "calls_per_agent_day": 13.1,
+  "agents": 390000,
+  "days": 7,
+  "row_bytes_event": 72,
+  "rows": [
+   {
+    "inputs": 0,
+    "bytes_per_call": 198.4,
+    "n_causes": 20000,
+    "gb_390k_7days": 7.1
+   },
+   {
+    "inputs": 2,
+    "bytes_per_call": 402.3,
+    "n_causes": 20000,
+    "gb_390k_7days": 14.39
+   },
+   {
+    "inputs": 8,
+    "bytes_per_call": 1002.3,
+    "n_causes": 20000,
+    "gb_390k_7days": 35.84
+   }
+  ],
+  "note": "保持バイト=原因の表(と名の表)の増分。出来事の行の列(ROW_BYTES × 行)は先に確保したので入らない"
+ },
+ "j0": {
+  "schema": "shibuya.bench/j0/cause-bytes/1",
+  "label": "j0",
+  "n": 20000,
+  "calls_per_agent_day": 13.1,
+  "agents": 390000,
+  "days": 7,
+  "row_bytes_event": 72,
+  "rows": [
+   {
+    "inputs": 0,
+    "bytes_per_call": 63.8,
+    "n_causes": 20000,
+    "gb_390k_7days": 2.28
+   },
+   {
+    "inputs": 2,
+    "bytes_per_call": 103.1,
+    "n_causes": 20000,
+    "gb_390k_7days": 3.69
+   },
+   {
+    "inputs": 8,
+    "bytes_per_call": 221.1,
+    "n_causes": 20000,
+    "gb_390k_7days": 7.91
+   }
+  ],
+  "note": "保持バイト=原因の表(と名の表)の増分。出来事の行の列(ROW_BYTES × 行)は先に確保したので入らない"
+ },
+ "width_j0": {
+  "cause_row_bytes": 39,
+  "input_id_bytes": 12,
+  "gb_390k_7days": {
+   "0": 1.39,
+   "2": 2.25,
+   "8": 4.83
+  }
+ }
+}

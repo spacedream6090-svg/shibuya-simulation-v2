@@ -1,0 +1,3233 @@
+{
+ "meta": {
+  "dynamic_unresolved_engine": [
+   "engine/resolve.py:534",
+   "engine/resolve.py:538",
+   "engine/resolve.py:786",
+   "engine/run.py:353"
+  ],
+  "dynamic_unresolved_all": [
+   "agents/state.py:772",
+   "engine/resolve.py:534",
+   "engine/resolve.py:538",
+   "engine/resolve.py:786",
+   "engine/run.py:353",
+   "perception/state.py:117"
+  ],
+  "files_engine": 39,
+  "files_all_src": 95,
+  "columns": 98,
+  "note": "src は git archive HEAD の写し。パスは shibuya/ からの相対"
+ },
+ "columns": {
+  "agents.cell": {
+   "decl": [
+    "agents/state.py:505"
+   ],
+   "engine": {
+    "read": 83,
+    "read_strict": 79,
+    "read_str": 2,
+    "str_other": 3,
+    "write": 6,
+    "write_strict": 6,
+    "meta": 1
+   },
+   "all_src": {
+    "declare": 2,
+    "write": 8,
+    "write_strict": 8,
+    "str_other": 17,
+    "str_in_seq": 1,
+    "read": 91,
+    "read_strict": 85,
+    "read_str": 3,
+    "meta": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/activity.py:434",
+    "engine/activity.py:441",
+    "engine/activity.py:460",
+    "engine/change_detect.py:375",
+    "engine/classical.py:367",
+    "engine/classical.py:419",
+    "engine/classical.py:490",
+    "engine/classical.py:511",
+    "engine/classical.py:534",
+    "engine/classical.py:608",
+    "engine/commit.py:576",
+    "engine/commit.py:685",
+    "engine/commit.py:735",
+    "engine/commit.py:812",
+    "engine/commit.py:819",
+    "engine/commit.py:841",
+    "engine/commit.py:879",
+    "engine/conversation.py:788",
+    "engine/familiarity.py:251",
+    "engine/intent.py:133",
+    "engine/intent.py:195",
+    "engine/memory.py:354",
+    "engine/memory.py:609",
+    "engine/memory.py:657",
+    "engine/memory.py:753",
+    "engine/norm_meter.py:136",
+    "engine/norm_meter.py:234",
+    "engine/norm_meter.py:303",
+    "engine/poi_target.py:276",
+    "engine/poi_target.py:424",
+    "engine/poi_target.py:428",
+    "engine/poi_target.py:559",
+    "engine/poi_target.py:648",
+    "engine/poi_target.py:685",
+    "engine/poi_target.py:691",
+    "engine/poi_target.py:700",
+    "engine/presence.py:1140",
+    "engine/presence.py:1708",
+    "engine/processes/civic.py:267",
+    "engine/processes/civic.py:318"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1251",
+    "perception/renderer.py:1699",
+    "perception/renderer.py:171",
+    "perception/renderer.py:2514",
+    "perception/renderer.py:2520",
+    "world/state.py:398"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [
+    "llm/fleet.py:373",
+    "llm/fleet.py:622",
+    "perception/renderer.py:1313"
+   ],
+   "str_in_seq": [
+    "core/soa.py:204"
+   ]
+  },
+  "agents.node": {
+   "decl": [
+    "agents/state.py:507"
+   ],
+   "engine": {
+    "str_in_seq": 1,
+    "read": 21,
+    "read_strict": 21,
+    "write": 10,
+    "write_strict": 10,
+    "meta": 2,
+    "str_other": 1
+   },
+   "all_src": {
+    "declare": 2,
+    "write": 12,
+    "write_strict": 12,
+    "str_in_seq": 1,
+    "read": 21,
+    "read_strict": 21,
+    "meta": 2,
+    "str_other": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/poi_target.py:520",
+    "engine/poi_target.py:652",
+    "engine/resolve.py:1432",
+    "engine/resolve.py:1479",
+    "engine/resolve.py:1499",
+    "engine/resolve.py:1506",
+    "engine/resolve.py:1553",
+    "engine/resolve.py:1554",
+    "engine/resolve.py:1560",
+    "engine/resolve.py:1628",
+    "engine/resolve.py:1664",
+    "engine/resolve.py:1665",
+    "engine/resolve.py:1707",
+    "engine/resolve.py:1710",
+    "engine/resolve.py:1854",
+    "engine/resolve.py:1920",
+    "engine/resolve.py:2006",
+    "engine/resolve.py:2822",
+    "engine/resolve.py:2998",
+    "engine/resolve.py:726",
+    "engine/resolve.py:727"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "engine/geometry.py:82"
+   ]
+  },
+  "agents.band": {
+   "decl": [
+    "agents/state.py:509"
+   ],
+   "engine": {
+    "write": 4,
+    "write_strict": 4,
+    "meta": 1
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 4,
+    "write_strict": 4,
+    "meta": 1,
+    "str_other": 5,
+    "str_in_seq": 5,
+    "read_str": 1,
+    "read_strict": 1
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [
+    "world/assets.py:368"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "perception/renderer.py:854",
+    "world/assets.py:346",
+    "world/assets.py:364",
+    "world/assets.py:557",
+    "world/assets.py:921"
+   ]
+  },
+  "agents.xy": {
+   "decl": [
+    "agents/state.py:511"
+   ],
+   "engine": {
+    "read": 14,
+    "read_strict": 13,
+    "write": 4,
+    "write_strict": 4
+   },
+   "all_src": {
+    "declare": 1,
+    "read": 17,
+    "read_strict": 14,
+    "write": 4,
+    "write_strict": 4
+   },
+   "engine_read_strict_sites": [
+    "engine/norm_meter.py:227",
+    "engine/norm_meter.py:328",
+    "engine/processes/crowd.py:278",
+    "engine/processes/salient.py:215",
+    "engine/processes/salient.py:318",
+    "engine/processes/salient.py:405",
+    "engine/relations.py:858",
+    "engine/relations.py:955",
+    "engine/resolve.py:1737",
+    "engine/resolve.py:1776",
+    "engine/resolve.py:1810",
+    "engine/resolve.py:2486",
+    "engine/run.py:3499"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1252"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [
+    "perception/renderer.py:1971",
+    "perception/renderer.py:1972"
+   ],
+   "str_in_seq": []
+  },
+  "agents.path_next_node": {
+   "decl": [
+    "agents/state.py:513"
+   ],
+   "engine": {
+    "write": 3,
+    "write_strict": 3,
+    "read": 7,
+    "read_strict": 7
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 4,
+    "write_strict": 4,
+    "read": 7,
+    "read_strict": 7
+   },
+   "engine_read_strict_sites": [
+    "engine/resolve.py:1429",
+    "engine/resolve.py:1432",
+    "engine/resolve.py:1494",
+    "engine/resolve.py:1499",
+    "engine/resolve.py:1506",
+    "engine/resolve.py:1561",
+    "engine/resolve.py:1710"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.target_node": {
+   "decl": [
+    "agents/state.py:515"
+   ],
+   "engine": {
+    "read": 9,
+    "read_strict": 9,
+    "write": 19,
+    "write_strict": 19,
+    "meta": 3
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 20,
+    "write_strict": 20,
+    "read": 9,
+    "read_strict": 9,
+    "meta": 3
+   },
+   "engine_read_strict_sites": [
+    "engine/commit.py:554",
+    "engine/commit.py:560",
+    "engine/norm_meter.py:302",
+    "engine/processes/crowd.py:267",
+    "engine/processes/crowd.py:277",
+    "engine/processes/salient.py:404",
+    "engine/resolve.py:1495",
+    "engine/resolve.py:1804",
+    "engine/resolve.py:903"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.kind": {
+   "decl": [
+    "agents/state.py:535"
+   ],
+   "engine": {
+    "read": 10,
+    "read_str": 11,
+    "read_strict": 11,
+    "str_other": 1,
+    "rmw": 2,
+    "write_str": 1,
+    "write": 1
+   },
+   "all_src": {
+    "str_in_seq": 12,
+    "read": 27,
+    "meta": 3,
+    "str_other": 18,
+    "declare": 1,
+    "read_strict": 14,
+    "write": 2,
+    "read_str": 13,
+    "rmw": 2,
+    "write_str": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/classical.py:350",
+    "engine/norm_meter.py:177",
+    "engine/poi_target.py:347",
+    "engine/poi_target.py:635",
+    "engine/poi_target.py:697",
+    "engine/processes/civic.py:311",
+    "engine/processes/goods_flow.py:209",
+    "engine/processes/opening.py:152",
+    "engine/processes/opening.py:168",
+    "engine/run.py:1522",
+    "engine/run.py:3596"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "core/serialize.py:120",
+    "perception/renderer.py:169",
+    "world/assets.py:1222"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [
+    "agents/population.py:137",
+    "agents/population.py:172",
+    "agents/population.py:322",
+    "cli.py:234",
+    "core/soa.py:161",
+    "core/soa.py:371",
+    "core/soa.py:394",
+    "llm/contract.py:980",
+    "llm/parser.py:605",
+    "perception/renderer.py:1314",
+    "world/processes/actual_log.py:282",
+    "world/processes/records.py:338",
+    "world/processes/relations.py:121",
+    "world/processes/relations.py:153",
+    "world/processes/relations.py:191",
+    "world/processes/relations.py:223"
+   ],
+   "str_in_seq": [
+    "agents/population.py:178",
+    "agents/population.py:198",
+    "agents/population.py:86",
+    "economy/census.py:134",
+    "economy/census.py:495",
+    "perception/renderer.py:727",
+    "world/assets.py:1152",
+    "world/assets.py:1173",
+    "world/assets.py:1215",
+    "world/assets.py:475",
+    "world/assets.py:516",
+    "world/processes/records.py:293"
+   ]
+  },
+  "agents.age": {
+   "decl": [
+    "agents/state.py:538"
+   ],
+   "engine": {
+    "read": 10,
+    "read_strict": 9,
+    "read_str": 1,
+    "write_str": 1,
+    "write": 1
+   },
+   "all_src": {
+    "str_in_seq": 3,
+    "read": 11,
+    "str_other": 1,
+    "declare": 1,
+    "read_strict": 9,
+    "read_str": 1,
+    "write_str": 1,
+    "write": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/classical.py:508",
+    "engine/classical.py:531",
+    "engine/energy.py:925",
+    "engine/resolve.py:1171",
+    "engine/resolve.py:1182",
+    "engine/resolve.py:1201",
+    "engine/resolve.py:1203",
+    "engine/resolve.py:1234",
+    "engine/resolve.py:514"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [
+    "agents/population.py:169"
+   ],
+   "str_in_seq": [
+    "agents/population.py:178",
+    "agents/population.py:198",
+    "agents/population.py:86"
+   ]
+  },
+  "agents.sex": {
+   "decl": [
+    "agents/state.py:540"
+   ],
+   "engine": {
+    "read": 10,
+    "read_strict": 9,
+    "read_str": 1,
+    "write_str": 1,
+    "write": 1
+   },
+   "all_src": {
+    "str_in_seq": 3,
+    "str_other": 1,
+    "read": 11,
+    "declare": 1,
+    "write": 2,
+    "write_strict": 1,
+    "read_strict": 9,
+    "read_str": 1,
+    "write_str": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/classical.py:508",
+    "engine/classical.py:531",
+    "engine/energy.py:926",
+    "engine/resolve.py:1171",
+    "engine/resolve.py:1182",
+    "engine/resolve.py:1201",
+    "engine/resolve.py:1203",
+    "engine/resolve.py:1234",
+    "engine/resolve.py:516"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [
+    "agents/population.py:324"
+   ],
+   "str_in_seq": [
+    "agents/population.py:178",
+    "agents/population.py:198",
+    "agents/population.py:86"
+   ]
+  },
+  "agents.hunger": {
+   "decl": [
+    "agents/state.py:542"
+   ],
+   "engine": {
+    "str_in_seq": 3,
+    "read_dyn": 2,
+    "read_strict": 12,
+    "read": 11,
+    "write": 8,
+    "write_strict": 8,
+    "meta": 1,
+    "rmw": 3
+   },
+   "all_src": {
+    "str_in_seq": 4,
+    "declare": 1,
+    "read_dyn": 4,
+    "read_strict": 14,
+    "read": 11,
+    "write": 8,
+    "write_strict": 8,
+    "meta": 1,
+    "rmw": 3,
+    "str_other": 3
+   },
+   "engine_read_strict_sites": [
+    "engine/change_detect.py:305(INTERO_VARS)",
+    "engine/change_detect.py:308(INTERO_VARS)",
+    "engine/classical.py:451",
+    "engine/classical.py:475",
+    "engine/classical.py:484",
+    "engine/energy.py:889",
+    "engine/poi_target.py:524",
+    "engine/poi_target.py:653",
+    "engine/resolve.py:1179",
+    "engine/resolve.py:1285",
+    "engine/run.py:3186",
+    "engine/store_choice.py:170"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1796(INTEROCEPTION_FIELDS)",
+    "perception/renderer.py:2374(INTEROCEPTION_FIELDS)"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:405",
+    "engine/change_detect.py:78",
+    "engine/resolve.py:530",
+    "engine/run.py:3894"
+   ]
+  },
+  "agents.fatigue": {
+   "decl": [
+    "agents/state.py:544"
+   ],
+   "engine": {
+    "str_in_seq": 3,
+    "read_dyn": 2,
+    "read_strict": 2,
+    "write": 5,
+    "write_strict": 5,
+    "rmw": 4
+   },
+   "all_src": {
+    "str_in_seq": 4,
+    "declare": 1,
+    "read_dyn": 4,
+    "read_strict": 4,
+    "write": 5,
+    "write_strict": 5,
+    "rmw": 4
+   },
+   "engine_read_strict_sites": [
+    "engine/change_detect.py:305(INTERO_VARS)",
+    "engine/change_detect.py:308(INTERO_VARS)"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1796(INTEROCEPTION_FIELDS)",
+    "perception/renderer.py:2374(INTEROCEPTION_FIELDS)"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:405",
+    "engine/change_detect.py:79",
+    "engine/resolve.py:531",
+    "engine/run.py:3894"
+   ]
+  },
+  "agents.thermal": {
+   "decl": [
+    "agents/state.py:546"
+   ],
+   "engine": {
+    "str_in_seq": 3,
+    "read_dyn": 2,
+    "read_strict": 2,
+    "write": 2,
+    "write_strict": 2
+   },
+   "all_src": {
+    "str_in_seq": 4,
+    "declare": 1,
+    "read_dyn": 4,
+    "read_strict": 4,
+    "write": 2,
+    "write_strict": 2
+   },
+   "engine_read_strict_sites": [
+    "engine/change_detect.py:305(INTERO_VARS)",
+    "engine/change_detect.py:308(INTERO_VARS)"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1796(INTEROCEPTION_FIELDS)",
+    "perception/renderer.py:2374(INTEROCEPTION_FIELDS)"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:405",
+    "engine/change_detect.py:80",
+    "engine/resolve.py:532",
+    "engine/run.py:3894"
+   ]
+  },
+  "agents.hunger_stage": {
+   "decl": [
+    "agents/state.py:550"
+   ],
+   "engine": {
+    "str_in_seq": 2,
+    "read_dyn": 2,
+    "read_strict": 2,
+    "write": 2,
+    "write_strict": 2
+   },
+   "all_src": {
+    "declare": 1,
+    "str_in_seq": 2,
+    "read_dyn": 2,
+    "read_strict": 2,
+    "write": 2,
+    "write_strict": 2
+   },
+   "engine_read_strict_sites": [
+    "engine/change_detect.py:305(INTERO_VARS)",
+    "engine/change_detect.py:308(INTERO_VARS)"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "engine/change_detect.py:78",
+    "engine/resolve.py:530"
+   ]
+  },
+  "agents.fatigue_stage": {
+   "decl": [
+    "agents/state.py:552"
+   ],
+   "engine": {
+    "str_in_seq": 2,
+    "read_dyn": 2,
+    "read_strict": 2
+   },
+   "all_src": {
+    "declare": 1,
+    "str_in_seq": 2,
+    "read_dyn": 2,
+    "read_strict": 2
+   },
+   "engine_read_strict_sites": [
+    "engine/change_detect.py:305(INTERO_VARS)",
+    "engine/change_detect.py:308(INTERO_VARS)"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "engine/change_detect.py:79",
+    "engine/resolve.py:531"
+   ]
+  },
+  "agents.thermal_stage": {
+   "decl": [
+    "agents/state.py:554"
+   ],
+   "engine": {
+    "str_in_seq": 2,
+    "read_dyn": 2,
+    "read_strict": 2
+   },
+   "all_src": {
+    "declare": 1,
+    "str_in_seq": 2,
+    "read_dyn": 2,
+    "read_strict": 2
+   },
+   "engine_read_strict_sites": [
+    "engine/change_detect.py:305(INTERO_VARS)",
+    "engine/change_detect.py:308(INTERO_VARS)"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "engine/change_detect.py:80",
+    "engine/resolve.py:532"
+   ]
+  },
+  "agents.money": {
+   "decl": [
+    "agents/state.py:567"
+   ],
+   "engine": {
+    "read": 26,
+    "str_other": 1,
+    "read_strict": 9,
+    "write": 5,
+    "write_strict": 5,
+    "rmw": 3
+   },
+   "all_src": {
+    "declare": 1,
+    "read_str": 1,
+    "read_strict": 10,
+    "read": 30,
+    "str_other": 3,
+    "write": 5,
+    "write_strict": 5,
+    "rmw": 3
+   },
+   "engine_read_strict_sites": [
+    "engine/poi_target.py:311",
+    "engine/resolve.py:2021",
+    "engine/resolve.py:2170",
+    "engine/resolve.py:2317",
+    "engine/resolve.py:2930",
+    "engine/run.py:2208",
+    "engine/run.py:2669",
+    "engine/run.py:3992",
+    "engine/store_choice.py:169"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "cli.py:1292"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [
+    "perception/renderer.py:1814",
+    "perception/renderer.py:2397",
+    "perception/renderer.py:2479",
+    "perception/renderer.py:2488"
+   ],
+   "str_in_seq": []
+  },
+  "agents.holdings": {
+   "decl": [
+    "agents/state.py:569"
+   ],
+   "engine": {
+    "read": 2,
+    "read_strict": 2,
+    "write": 1,
+    "write_strict": 1,
+    "rmw": 1
+   },
+   "all_src": {
+    "declare": 1,
+    "read": 4,
+    "read_strict": 2,
+    "write": 1,
+    "write_strict": 1,
+    "rmw": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/processes/goods_flow.py:473",
+    "engine/resolve.py:2711"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [
+    "perception/renderer.py:1815",
+    "perception/renderer.py:2398"
+   ],
+   "str_in_seq": []
+  },
+  "agents.activity": {
+   "decl": [
+    "agents/state.py:572"
+   ],
+   "engine": {
+    "read": 52,
+    "read_strict": 44,
+    "read_str": 1,
+    "write": 43,
+    "write_strict": 42,
+    "meta": 4,
+    "rmw": 4,
+    "str_other": 2
+   },
+   "all_src": {
+    "declare": 1,
+    "str_in_seq": 2,
+    "str_other": 3,
+    "read": 62,
+    "read_strict": 46,
+    "read_str": 1,
+    "write": 43,
+    "write_strict": 42,
+    "meta": 4,
+    "rmw": 4
+   },
+   "engine_read_strict_sites": [
+    "engine/activity.py:100",
+    "engine/activity.py:354",
+    "engine/activity.py:432",
+    "engine/classical.py:417",
+    "engine/classical.py:471",
+    "engine/classical.py:527",
+    "engine/classical.py:702",
+    "engine/commit.py:554",
+    "engine/energy.py:890",
+    "engine/intent.py:241",
+    "engine/intent.py:339",
+    "engine/intent.py:372",
+    "engine/intent.py:395",
+    "engine/intent.py:432",
+    "engine/norm_meter.py:234",
+    "engine/norm_meter.py:301",
+    "engine/presence.py:1236",
+    "engine/presence.py:1292",
+    "engine/presence.py:1388",
+    "engine/presence.py:1473",
+    "engine/presence.py:1532",
+    "engine/presence.py:1721",
+    "engine/processes/crowd.py:267",
+    "engine/processes/salient.py:410",
+    "engine/resolve.py:1075",
+    "engine/resolve.py:1127",
+    "engine/resolve.py:1134",
+    "engine/resolve.py:1149",
+    "engine/resolve.py:1495",
+    "engine/resolve.py:1804",
+    "engine/resolve.py:2058",
+    "engine/resolve.py:2416",
+    "engine/resolve.py:2419",
+    "engine/resolve.py:2505",
+    "engine/resolve.py:2545",
+    "engine/resolve.py:685",
+    "engine/resolve.py:769",
+    "engine/run.py:1567",
+    "engine/run.py:3102",
+    "engine/run.py:3147"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1568",
+    "perception/renderer.py:1585"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [
+    "agents/weekly.py:266",
+    "agents/weekly.py:328",
+    "agents/weekly.py:366",
+    "agents/weekly.py:472",
+    "cli.py:1174",
+    "perception/renderer.py:1818",
+    "perception/renderer.py:2401",
+    "perception/renderer.py:2449"
+   ],
+   "str_in_seq": [
+    "agents/weekly.py:235",
+    "agents/weekly.py:247"
+   ]
+  },
+  "agents.plan_cursor": {
+   "decl": [
+    "agents/state.py:574"
+   ],
+   "engine": {},
+   "all_src": {
+    "declare": 1
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.talk_partner": {
+   "decl": [
+    "agents/state.py:576"
+   ],
+   "engine": {
+    "read_str": 1,
+    "read_strict": 2,
+    "write": 7,
+    "write_strict": 7,
+    "read": 1
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 8,
+    "write_strict": 8,
+    "read_str": 1,
+    "read_strict": 2,
+    "read": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:355",
+    "engine/run.py:2639"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.invocation_distance": {
+   "decl": [
+    "agents/state.py:578"
+   ],
+   "engine": {},
+   "all_src": {
+    "declare": 2
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.transit_state": {
+   "decl": [
+    "agents/state.py:581"
+   ],
+   "engine": {
+    "read": 39,
+    "read_strict": 38,
+    "write": 5,
+    "write_strict": 5
+   },
+   "all_src": {
+    "declare": 1,
+    "read": 39,
+    "read_strict": 38,
+    "write": 5,
+    "write_strict": 5
+   },
+   "engine_read_strict_sites": [
+    "engine/activity.py:433",
+    "engine/classical.py:471",
+    "engine/classical.py:526",
+    "engine/energy.py:891",
+    "engine/intent.py:242",
+    "engine/intent.py:396",
+    "engine/intent.py:431",
+    "engine/norm_meter.py:137",
+    "engine/norm_meter.py:235",
+    "engine/norm_meter.py:304",
+    "engine/presence.py:1237",
+    "engine/presence.py:1254",
+    "engine/presence.py:1256",
+    "engine/presence.py:1286",
+    "engine/presence.py:1386",
+    "engine/presence.py:1419",
+    "engine/presence.py:1531",
+    "engine/presence.py:1561",
+    "engine/presence.py:1693",
+    "engine/presence.py:1733",
+    "engine/processes/civic.py:313",
+    "engine/processes/civic.py:472",
+    "engine/processes/rail.py:627",
+    "engine/processes/rail.py:649",
+    "engine/processes/rail.py:696",
+    "engine/resolve.py:1150",
+    "engine/resolve.py:1910",
+    "engine/resolve.py:2003",
+    "engine/resolve.py:2132",
+    "engine/resolve.py:2852",
+    "engine/resolve.py:566",
+    "engine/resolve.py:684",
+    "engine/run.py:2734",
+    "engine/run.py:2739",
+    "engine/run.py:3104",
+    "engine/run.py:3155",
+    "engine/run.py:356",
+    "engine/run.py:3603"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.transit_ref": {
+   "decl": [
+    "agents/state.py:584"
+   ],
+   "engine": {
+    "read": 3,
+    "read_strict": 3,
+    "write": 5,
+    "write_strict": 5
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 6,
+    "write_strict": 6,
+    "read": 3,
+    "read_strict": 3
+   },
+   "engine_read_strict_sites": [
+    "engine/processes/civic.py:496",
+    "engine/processes/rail.py:650",
+    "engine/resolve.py:2133"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.board_line": {
+   "decl": [
+    "agents/state.py:588"
+   ],
+   "engine": {
+    "read": 6,
+    "read_strict": 6,
+    "write": 16,
+    "write_strict": 16,
+    "meta": 4
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 17,
+    "write_strict": 17,
+    "read": 6,
+    "read_strict": 6,
+    "meta": 4
+   },
+   "engine_read_strict_sites": [
+    "engine/presence.py:1422",
+    "engine/presence.py:1436",
+    "engine/resolve.py:1397",
+    "engine/resolve.py:1582",
+    "engine/resolve.py:2000",
+    "engine/resolve.py:2041"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.board_since": {
+   "decl": [
+    "agents/state.py:591"
+   ],
+   "engine": {
+    "write": 17,
+    "write_strict": 17,
+    "read": 4,
+    "read_strict": 4
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 18,
+    "write_strict": 18,
+    "read": 4,
+    "read_strict": 4
+   },
+   "engine_read_strict_sites": [
+    "engine/resolve.py:1864",
+    "engine/resolve.py:2003",
+    "engine/resolve.py:2020",
+    "engine/resolve.py:2042"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.sleep_pending": {
+   "decl": [
+    "agents/state.py:595"
+   ],
+   "engine": {
+    "read": 6,
+    "read_strict": 6,
+    "write": 7,
+    "write_strict": 7
+   },
+   "all_src": {
+    "declare": 1,
+    "read": 6,
+    "read_strict": 6,
+    "write": 7,
+    "write_strict": 7
+   },
+   "engine_read_strict_sites": [
+    "engine/commit.py:868",
+    "engine/intent.py:243",
+    "engine/intent.py:433",
+    "engine/resolve.py:1405",
+    "engine/resolve.py:1588",
+    "engine/resolve.py:772"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.intent_action": {
+   "decl": [
+    "agents/state.py:599"
+   ],
+   "engine": {
+    "read": 13,
+    "read_strict": 13,
+    "str_other": 1,
+    "write": 2,
+    "write_strict": 2
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "write": 3,
+    "write_strict": 3,
+    "read": 13,
+    "read_strict": 14,
+    "str_other": 2,
+    "read_str": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/intent.py:178",
+    "engine/intent.py:221",
+    "engine/intent.py:260",
+    "engine/intent.py:305",
+    "engine/intent.py:315",
+    "engine/intent.py:371",
+    "engine/intent.py:428",
+    "engine/presence.py:1392",
+    "engine/resolve.py:1071",
+    "engine/resolve.py:1094",
+    "engine/resolve.py:1411",
+    "engine/resolve.py:1462",
+    "engine/resolve.py:2416"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1845"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:401"
+   ]
+  },
+  "agents.intent_target": {
+   "decl": [
+    "agents/state.py:603"
+   ],
+   "engine": {
+    "read": 2,
+    "read_strict": 3,
+    "read_str": 1,
+    "write": 2,
+    "write_strict": 2
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "write": 3,
+    "write_strict": 3,
+    "read": 2,
+    "read_strict": 4,
+    "read_str": 2
+   },
+   "engine_read_strict_sites": [
+    "engine/intent.py:194",
+    "engine/intent.py:261",
+    "engine/memory.py:358"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1852"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:401"
+   ]
+  },
+  "agents.intent_kind": {
+   "decl": [
+    "agents/state.py:605"
+   ],
+   "engine": {
+    "read": 2,
+    "read_strict": 3,
+    "str_other": 1,
+    "read_str": 1,
+    "write": 2,
+    "write_strict": 2
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read": 2,
+    "read_strict": 4,
+    "str_other": 1,
+    "read_str": 2,
+    "write": 2,
+    "write_strict": 2
+   },
+   "engine_read_strict_sites": [
+    "engine/intent.py:193",
+    "engine/intent.py:262",
+    "engine/memory.py:357"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1851"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:401"
+   ]
+  },
+  "agents.intent_since": {
+   "decl": [
+    "agents/state.py:607"
+   ],
+   "engine": {
+    "read": 2,
+    "read_strict": 2,
+    "write": 2,
+    "write_strict": 2
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "write": 3,
+    "write_strict": 3,
+    "read": 2,
+    "read_strict": 2
+   },
+   "engine_read_strict_sites": [
+    "engine/intent.py:263",
+    "engine/intent.py:438"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:401"
+   ]
+  },
+  "agents.poi_ref": {
+   "decl": [
+    "agents/state.py:610"
+   ],
+   "engine": {
+    "read": 13,
+    "read_strict": 15,
+    "read_str": 2,
+    "write": 4,
+    "write_strict": 4
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 5,
+    "write_strict": 5,
+    "read": 13,
+    "read_strict": 15,
+    "read_str": 2
+   },
+   "engine_read_strict_sites": [
+    "engine/classical.py:416",
+    "engine/classical.py:427",
+    "engine/classical.py:701",
+    "engine/memory.py:363",
+    "engine/memory.py:364",
+    "engine/memory.py:679",
+    "engine/memory.py:723",
+    "engine/memory.py:739",
+    "engine/memory.py:743",
+    "engine/norm_meter.py:139",
+    "engine/presence.py:1317",
+    "engine/presence.py:1389",
+    "engine/processes/crowd.py:228",
+    "engine/processes/crowd.py:235",
+    "engine/resolve.py:2539"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.poi_since": {
+   "decl": [
+    "agents/state.py:612"
+   ],
+   "engine": {
+    "read": 1,
+    "read_strict": 1,
+    "write": 3,
+    "write_strict": 3
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 4,
+    "write_strict": 4,
+    "read": 1,
+    "read_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/processes/crowd.py:231"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.queue_poi": {
+   "decl": [
+    "agents/state.py:614"
+   ],
+   "engine": {
+    "read": 8,
+    "read_strict": 9,
+    "read_str": 1,
+    "write": 8,
+    "write_strict": 8
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 9,
+    "write_strict": 9,
+    "read": 8,
+    "read_strict": 9,
+    "read_str": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:366",
+    "engine/memory.py:680",
+    "engine/norm_meter.py:139",
+    "engine/presence.py:1321",
+    "engine/presence.py:1390",
+    "engine/processes/crowd.py:238",
+    "engine/processes/crowd.py:247",
+    "engine/resolve.py:2542",
+    "engine/resolve.py:2900"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.queue_since": {
+   "decl": [
+    "agents/state.py:616"
+   ],
+   "engine": {
+    "read": 2,
+    "read_strict": 2,
+    "write": 6,
+    "write_strict": 6
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 7,
+    "write_strict": 7,
+    "read": 2,
+    "read_strict": 2
+   },
+   "engine_read_strict_sites": [
+    "engine/processes/crowd.py:242",
+    "engine/resolve.py:2904"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.refractory_until": {
+   "decl": [
+    "agents/state.py:702"
+   ],
+   "engine": {
+    "read": 3,
+    "read_strict": 3,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "declare": 1,
+    "read": 3,
+    "read_strict": 3,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/resolve.py:818",
+    "engine/run.py:3108",
+    "engine/run.py:3160"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.wake_pending_class": {
+   "decl": [
+    "agents/state.py:705"
+   ],
+   "engine": {},
+   "all_src": {
+    "declare": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.last_action": {
+   "decl": [
+    "agents/state.py:708"
+   ],
+   "engine": {
+    "read": 4,
+    "read_strict": 5,
+    "read_str": 1,
+    "write": 5,
+    "write_strict": 5
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 6,
+    "write_strict": 6,
+    "read": 4,
+    "read_strict": 5,
+    "read_str": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/intent.py:394",
+    "engine/memory.py:367",
+    "engine/memory.py:668",
+    "engine/presence.py:1451",
+    "engine/run.py:3187"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.last_result": {
+   "decl": [
+    "agents/state.py:711"
+   ],
+   "engine": {
+    "read": 11,
+    "read_strict": 12,
+    "read_str": 1,
+    "write": 8,
+    "write_strict": 8
+   },
+   "all_src": {
+    "declare": 1,
+    "read": 12,
+    "read_strict": 12,
+    "read_str": 1,
+    "write": 8,
+    "write_strict": 8
+   },
+   "engine_read_strict_sites": [
+    "engine/activity.py:297",
+    "engine/intent.py:338",
+    "engine/intent.py:393",
+    "engine/intent.py:417",
+    "engine/intent.py:422",
+    "engine/intent.py:447",
+    "engine/memory.py:368",
+    "engine/memory.py:669",
+    "engine/norm_meter.py:175",
+    "engine/presence.py:1451",
+    "engine/presence.py:1457",
+    "engine/run.py:3424"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [
+    "perception/renderer.py:2447"
+   ],
+   "str_in_seq": []
+  },
+  "agents.last_result_tick": {
+   "decl": [
+    "agents/state.py:713"
+   ],
+   "engine": {
+    "read": 7,
+    "read_strict": 7,
+    "write": 7,
+    "write_strict": 7
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 8,
+    "write_strict": 8,
+    "read": 9,
+    "read_strict": 8
+   },
+   "engine_read_strict_sites": [
+    "engine/activity.py:296",
+    "engine/intent.py:337",
+    "engine/intent.py:392",
+    "engine/intent.py:416",
+    "engine/intent.py:448",
+    "engine/memory.py:666",
+    "engine/norm_meter.py:176"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:2504"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [
+    "perception/renderer.py:2450"
+   ],
+   "str_in_seq": []
+  },
+  "agents.fail_streak": {
+   "decl": [
+    "agents/state.py:715"
+   ],
+   "engine": {
+    "write": 6,
+    "write_strict": 6,
+    "rmw": 4
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 6,
+    "write_strict": 6,
+    "rmw": 4
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.edge_id": {
+   "decl": [
+    "agents/state.py:519"
+   ],
+   "engine": {
+    "write": 3,
+    "write_strict": 3,
+    "read": 5,
+    "read_strict": 5
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 4,
+    "write_strict": 4,
+    "read": 5,
+    "read_strict": 5
+   },
+   "engine_read_strict_sites": [
+    "engine/resolve.py:1432",
+    "engine/resolve.py:1499",
+    "engine/resolve.py:1506",
+    "engine/resolve.py:1563",
+    "engine/resolve.py:1710"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.edge_s": {
+   "decl": [
+    "agents/state.py:522"
+   ],
+   "engine": {
+    "write": 3,
+    "write_strict": 3,
+    "read": 5,
+    "read_strict": 5
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 3,
+    "write_strict": 3,
+    "read": 5,
+    "read_strict": 5
+   },
+   "engine_read_strict_sites": [
+    "engine/resolve.py:1432",
+    "engine/resolve.py:1499",
+    "engine/resolve.py:1506",
+    "engine/resolve.py:1562",
+    "engine/resolve.py:1710"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.focus_target": {
+   "decl": [
+    "agents/state.py:527"
+   ],
+   "engine": {
+    "write": 4,
+    "write_strict": 4,
+    "read": 3,
+    "read_strict": 3
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 5,
+    "write_strict": 5,
+    "read": 4,
+    "read_strict": 4
+   },
+   "engine_read_strict_sites": [
+    "engine/resolve.py:1622",
+    "engine/resolve.py:1626",
+    "engine/resolve.py:1809"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1130"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.focus_ttl": {
+   "decl": [
+    "agents/state.py:531"
+   ],
+   "engine": {
+    "write": 5,
+    "write_strict": 5,
+    "read": 2,
+    "read_strict": 2,
+    "rmw": 1
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 5,
+    "write_strict": 5,
+    "read": 2,
+    "read_strict": 2,
+    "rmw": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/resolve.py:1805",
+    "engine/resolve.py:1812"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.weight_kg": {
+   "decl": [
+    "agents/state.py:558"
+   ],
+   "engine": {
+    "str_other": 5,
+    "read": 2,
+    "read_strict": 2,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "str_other": 5,
+    "read": 2,
+    "read_strict": 2,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/energy.py:983",
+    "engine/resolve.py:1182"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:395"
+   ]
+  },
+  "agents.eer_kcal": {
+   "decl": [
+    "agents/state.py:560"
+   ],
+   "engine": {
+    "read": 8,
+    "read_strict": 8,
+    "str_other": 3,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read": 8,
+    "read_strict": 8,
+    "str_other": 3,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/energy.py:904",
+    "engine/resolve.py:1153",
+    "engine/resolve.py:1156",
+    "engine/resolve.py:1176",
+    "engine/resolve.py:1204",
+    "engine/resolve.py:1209",
+    "engine/resolve.py:1237",
+    "engine/resolve.py:1241"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:395"
+   ]
+  },
+  "agents.since_meal_kcal": {
+   "decl": [
+    "agents/state.py:562"
+   ],
+   "engine": {
+    "write": 4,
+    "write_strict": 4,
+    "read": 4,
+    "read_strict": 4,
+    "rmw": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "write": 4,
+    "write_strict": 4,
+    "read": 4,
+    "read_strict": 4,
+    "rmw": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/resolve.py:1156",
+    "engine/resolve.py:1176",
+    "engine/resolve.py:1209",
+    "engine/resolve.py:1241"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:395"
+   ]
+  },
+  "agents.energy_balance": {
+   "decl": [
+    "agents/state.py:564"
+   ],
+   "engine": {
+    "read": 1,
+    "read_strict": 1,
+    "write": 4,
+    "write_strict": 4
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read": 1,
+    "read_strict": 1,
+    "write": 4,
+    "write_strict": 4
+   },
+   "engine_read_strict_sites": [
+    "engine/energy.py:903"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:395"
+   ]
+  },
+  "agents.plan_activity": {
+   "decl": [
+    "agents/state.py:620"
+   ],
+   "engine": {
+    "str_other": 1,
+    "write": 2,
+    "write_strict": 2
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 3,
+    "write_strict": 3,
+    "str_other": 1
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.plan_flags": {
+   "decl": [
+    "agents/state.py:623"
+   ],
+   "engine": {
+    "read_str": 1,
+    "read_strict": 3,
+    "str_other": 2,
+    "write": 6,
+    "write_strict": 6,
+    "read": 2,
+    "rmw": 4
+   },
+   "all_src": {
+    "declare": 1,
+    "read_str": 1,
+    "read_strict": 3,
+    "str_other": 2,
+    "write": 6,
+    "write_strict": 6,
+    "read": 2,
+    "rmw": 4
+   },
+   "engine_read_strict_sites": [
+    "engine/presence.py:1560",
+    "engine/resolve.py:2069",
+    "engine/resolve.py:2418"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.activity_until": {
+   "decl": [
+    "agents/state.py:628"
+   ],
+   "engine": {
+    "read": 6,
+    "read_strict": 6,
+    "write": 2,
+    "write_strict": 2
+   },
+   "all_src": {
+    "declare": 1,
+    "write": 3,
+    "write_strict": 3,
+    "read": 6,
+    "read_strict": 6
+   },
+   "engine_read_strict_sites": [
+    "engine/activity.py:350",
+    "engine/activity.py:376",
+    "engine/activity.py:390",
+    "engine/activity.py:431",
+    "engine/activity.py:462",
+    "engine/resolve.py:1137"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.activity_kind": {
+   "decl": [
+    "agents/state.py:631"
+   ],
+   "engine": {
+    "read": 4,
+    "read_strict": 4,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "declare": 1,
+    "read": 6,
+    "read_strict": 6,
+    "write": 1,
+    "write_strict": 1,
+    "str_other": 2
+   },
+   "engine_read_strict_sites": [
+    "engine/activity.py:335",
+    "engine/activity.py:430",
+    "engine/resolve.py:1133",
+    "engine/resolve.py:1151"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1572",
+    "perception/renderer.py:1588"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "agents.fam_thing": {
+   "decl": [
+    "agents/state.py:636"
+   ],
+   "engine": {
+    "read": 9,
+    "read_strict": 9,
+    "rmw": 1,
+    "str_other": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "write": 2,
+    "write_strict": 2,
+    "read": 9,
+    "read_strict": 9,
+    "rmw": 1,
+    "str_other": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/familiarity.py:199",
+    "engine/familiarity.py:214",
+    "engine/familiarity.py:217",
+    "engine/familiarity.py:218",
+    "engine/familiarity.py:335",
+    "engine/familiarity.py:366",
+    "engine/familiarity.py:384",
+    "engine/familiarity.py:395",
+    "engine/poi_target.py:303"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:368"
+   ]
+  },
+  "agents.fam_first": {
+   "decl": [
+    "agents/state.py:638"
+   ],
+   "engine": {
+    "read": 2,
+    "read_strict": 2,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "write": 2,
+    "write_strict": 2,
+    "read": 2,
+    "read_strict": 2
+   },
+   "engine_read_strict_sites": [
+    "engine/familiarity.py:187",
+    "engine/familiarity.py:351"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:368"
+   ]
+  },
+  "agents.fam_last": {
+   "decl": [
+    "agents/state.py:640"
+   ],
+   "engine": {
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "write": 2,
+    "write_strict": 2
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:368"
+   ]
+  },
+  "agents.fam_visits": {
+   "decl": [
+    "agents/state.py:642"
+   ],
+   "engine": {
+    "read": 5,
+    "read_strict": 5,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read": 5,
+    "read_strict": 5,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/familiarity.py:186",
+    "engine/familiarity.py:220",
+    "engine/familiarity.py:349",
+    "engine/familiarity.py:368",
+    "engine/poi_target.py:304"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:368"
+   ]
+  },
+  "agents.fam_exposures": {
+   "decl": [
+    "agents/state.py:644"
+   ],
+   "engine": {
+    "read": 4,
+    "read_strict": 4,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read": 4,
+    "read_strict": 4,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/familiarity.py:186",
+    "engine/familiarity.py:221",
+    "engine/familiarity.py:350",
+    "engine/familiarity.py:369"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:368"
+   ]
+  },
+  "agents.mem_kind": {
+   "decl": [
+    "agents/state.py:649"
+   ],
+   "engine": {
+    "read": 9,
+    "read_strict": 11,
+    "read_str": 2,
+    "rmw": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read": 9,
+    "read_strict": 11,
+    "read_str": 2,
+    "rmw": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:333",
+    "engine/memory.py:445",
+    "engine/memory.py:516",
+    "engine/memory.py:764",
+    "engine/memory.py:780",
+    "engine/memory.py:791",
+    "engine/memory.py:840",
+    "engine/memory.py:844",
+    "engine/memory.py:845",
+    "engine/memory.py:872",
+    "engine/memory.py:873"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:375"
+   ]
+  },
+  "agents.mem_tick": {
+   "decl": [
+    "agents/state.py:651"
+   ],
+   "engine": {
+    "read": 4,
+    "read_strict": 5,
+    "read_str": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read": 4,
+    "read_strict": 5,
+    "read_str": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:309",
+    "engine/memory.py:351",
+    "engine/memory.py:536",
+    "engine/memory.py:782",
+    "engine/memory.py:885"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:375"
+   ]
+  },
+  "agents.mem_last": {
+   "decl": [
+    "agents/state.py:653"
+   ],
+   "engine": {
+    "read_str": 2,
+    "read_strict": 3,
+    "read": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read_str": 2,
+    "read_strict": 3,
+    "read": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:403",
+    "engine/memory.py:485",
+    "engine/memory.py:886"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:375"
+   ]
+  },
+  "agents.mem_cell": {
+   "decl": [
+    "agents/state.py:655"
+   ],
+   "engine": {
+    "read_str": 3,
+    "read_strict": 4,
+    "read": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read_str": 3,
+    "read_strict": 4,
+    "read": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:376",
+    "engine/memory.py:403",
+    "engine/memory.py:485",
+    "engine/memory.py:884"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:375"
+   ]
+  },
+  "agents.mem_partner": {
+   "decl": [
+    "agents/state.py:657"
+   ],
+   "engine": {
+    "read_str": 3,
+    "read_strict": 6,
+    "read": 3,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read_str": 3,
+    "read_strict": 6,
+    "read": 3,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:372",
+    "engine/memory.py:403",
+    "engine/memory.py:485",
+    "engine/memory.py:517",
+    "engine/memory.py:846",
+    "engine/memory.py:882"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:375"
+   ]
+  },
+  "agents.mem_object": {
+   "decl": [
+    "agents/state.py:659"
+   ],
+   "engine": {
+    "read_str": 2,
+    "read_strict": 6,
+    "read": 4,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read_str": 2,
+    "read_strict": 6,
+    "read": 4,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:369",
+    "engine/memory.py:444",
+    "engine/memory.py:518",
+    "engine/memory.py:765",
+    "engine/memory.py:846",
+    "engine/memory.py:883"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:375"
+   ]
+  },
+  "agents.mem_result": {
+   "decl": [
+    "agents/state.py:661"
+   ],
+   "engine": {
+    "read": 6,
+    "read_strict": 9,
+    "read_str": 3,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read": 6,
+    "read_strict": 9,
+    "read_str": 3,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:378",
+    "engine/memory.py:403",
+    "engine/memory.py:485",
+    "engine/memory.py:519",
+    "engine/memory.py:792",
+    "engine/memory.py:847",
+    "engine/memory.py:875",
+    "engine/memory.py:876",
+    "engine/memory.py:899"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:376"
+   ]
+  },
+  "agents.mem_importance": {
+   "decl": [
+    "agents/state.py:663"
+   ],
+   "engine": {
+    "read_str": 1,
+    "read_strict": 4,
+    "read": 3,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read_str": 1,
+    "read_strict": 4,
+    "read": 3,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:310",
+    "engine/memory.py:352",
+    "engine/memory.py:827",
+    "engine/memory.py:832"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:376"
+   ]
+  },
+  "agents.mem_n": {
+   "decl": [
+    "agents/state.py:665"
+   ],
+   "engine": {
+    "read": 6,
+    "read_strict": 7,
+    "read_str": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read": 6,
+    "read_strict": 7,
+    "read_str": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:309",
+    "engine/memory.py:351",
+    "engine/memory.py:534",
+    "engine/memory.py:782",
+    "engine/memory.py:828",
+    "engine/memory.py:849",
+    "engine/memory.py:887"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:376"
+   ]
+  },
+  "agents.sm_poi": {
+   "decl": [
+    "agents/state.py:670"
+   ],
+   "engine": {
+    "read": 11,
+    "read_strict": 12,
+    "read_str": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "write": 2,
+    "write_strict": 2,
+    "read": 11,
+    "read_strict": 12,
+    "read_str": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:346",
+    "engine/memory.py:431",
+    "engine/store_choice.py:141",
+    "engine/store_choice.py:147",
+    "engine/store_memory.py:232",
+    "engine/store_memory.py:290",
+    "engine/store_memory.py:328",
+    "engine/store_memory.py:363",
+    "engine/store_memory.py:367",
+    "engine/store_memory.py:382",
+    "engine/store_memory.py:397",
+    "engine/store_memory.py:413"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:381"
+   ]
+  },
+  "agents.sm_valence": {
+   "decl": [
+    "agents/state.py:672"
+   ],
+   "engine": {
+    "write": 1,
+    "write_strict": 1,
+    "read": 2,
+    "read_strict": 2
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "write": 1,
+    "write_strict": 1,
+    "read": 2,
+    "read_strict": 2
+   },
+   "engine_read_strict_sites": [
+    "engine/store_memory.py:303",
+    "engine/store_memory.py:344"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:381"
+   ]
+  },
+  "agents.sm_precision": {
+   "decl": [
+    "agents/state.py:674"
+   ],
+   "engine": {
+    "read_str": 1,
+    "read_strict": 6,
+    "write": 1,
+    "write_strict": 1,
+    "read": 5
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read_str": 1,
+    "read_strict": 6,
+    "write": 1,
+    "write_strict": 1,
+    "read": 5
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:432",
+    "engine/store_choice.py:148",
+    "engine/store_memory.py:304",
+    "engine/store_memory.py:356",
+    "engine/store_memory.py:368",
+    "engine/store_memory.py:403"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:381"
+   ]
+  },
+  "agents.sm_first": {
+   "decl": [
+    "agents/state.py:676"
+   ],
+   "engine": {
+    "write": 1,
+    "write_strict": 1,
+    "read": 2,
+    "read_strict": 2
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "write": 2,
+    "write_strict": 2,
+    "read": 2,
+    "read_strict": 2
+   },
+   "engine_read_strict_sites": [
+    "engine/store_memory.py:306",
+    "engine/store_memory.py:335"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:381"
+   ]
+  },
+  "agents.sm_last": {
+   "decl": [
+    "agents/state.py:678"
+   ],
+   "engine": {
+    "read_str": 1,
+    "read_strict": 4,
+    "write": 1,
+    "write_strict": 1,
+    "read": 3
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "write": 2,
+    "write_strict": 2,
+    "read_str": 1,
+    "read_strict": 4,
+    "read": 3
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:486",
+    "engine/store_memory.py:307",
+    "engine/store_memory.py:330",
+    "engine/store_memory.py:346"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:381"
+   ]
+  },
+  "agents.sm_n": {
+   "decl": [
+    "agents/state.py:680"
+   ],
+   "engine": {
+    "write": 1,
+    "write_strict": 1,
+    "read": 4,
+    "read_strict": 4
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "write": 1,
+    "write_strict": 1,
+    "read": 4,
+    "read_strict": 4
+   },
+   "engine_read_strict_sites": [
+    "engine/store_memory.py:305",
+    "engine/store_memory.py:334",
+    "engine/store_memory.py:370",
+    "engine/store_memory.py:434"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:381"
+   ]
+  },
+  "agents.sm_source": {
+   "decl": [
+    "agents/state.py:682"
+   ],
+   "engine": {
+    "read_str": 1,
+    "read_strict": 6,
+    "write": 1,
+    "write_strict": 1,
+    "read": 5
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read_str": 1,
+    "read_strict": 6,
+    "write": 1,
+    "write_strict": 1,
+    "read": 5
+   },
+   "engine_read_strict_sites": [
+    "engine/memory.py:487",
+    "engine/store_choice.py:149",
+    "engine/store_memory.py:235",
+    "engine/store_memory.py:308",
+    "engine/store_memory.py:369",
+    "engine/store_memory.py:402"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:381"
+   ]
+  },
+  "agents.rel_partner": {
+   "decl": [
+    "agents/state.py:689"
+   ],
+   "engine": {
+    "read": 10,
+    "read_strict": 10,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "write": 2,
+    "write_strict": 2,
+    "read": 10,
+    "read_strict": 10
+   },
+   "engine_read_strict_sites": [
+    "engine/relations.py:1051",
+    "engine/relations.py:1073",
+    "engine/relations.py:709",
+    "engine/relations.py:765",
+    "engine/relations.py:781",
+    "engine/relations.py:789",
+    "engine/relations.py:800",
+    "engine/relations.py:850",
+    "engine/relations.py:924",
+    "engine/relations.py:976"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:388"
+   ]
+  },
+  "agents.rel_kind": {
+   "decl": [
+    "agents/state.py:691"
+   ],
+   "engine": {
+    "read": 7,
+    "read_strict": 7,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read": 7,
+    "read_strict": 7,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/relations.py:1060",
+    "engine/relations.py:1085",
+    "engine/relations.py:733",
+    "engine/relations.py:735",
+    "engine/relations.py:781",
+    "engine/relations.py:976",
+    "engine/relations.py:980"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:388"
+   ]
+  },
+  "agents.rel_sign": {
+   "decl": [
+    "agents/state.py:693"
+   ],
+   "engine": {
+    "read": 4,
+    "read_strict": 4,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read": 4,
+    "read_strict": 4,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/relations.py:1086",
+    "engine/relations.py:736",
+    "engine/relations.py:782",
+    "engine/relations.py:977"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:388"
+   ]
+  },
+  "agents.rel_first": {
+   "decl": [
+    "agents/state.py:695"
+   ],
+   "engine": {
+    "read": 6,
+    "read_strict": 6,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read": 6,
+    "read_strict": 6,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/relations.py:1020",
+    "engine/relations.py:1053",
+    "engine/relations.py:737",
+    "engine/relations.py:764",
+    "engine/relations.py:793",
+    "engine/relations.py:977"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:388"
+   ]
+  },
+  "agents.rel_last": {
+   "decl": [
+    "agents/state.py:697"
+   ],
+   "engine": {
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:388"
+   ]
+  },
+  "agents.rel_n": {
+   "decl": [
+    "agents/state.py:699"
+   ],
+   "engine": {
+    "read": 7,
+    "read_strict": 7,
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "str_in_seq": 1,
+    "declare": 1,
+    "read": 7,
+    "read_strict": 7,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/relations.py:1020",
+    "engine/relations.py:1052",
+    "engine/relations.py:1103",
+    "engine/relations.py:738",
+    "engine/relations.py:764",
+    "engine/relations.py:793",
+    "engine/relations.py:975"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "agents/state.py:388"
+   ]
+  },
+  "cells.density": {
+   "decl": [
+    "world/state.py:121"
+   ],
+   "engine": {
+    "read": 7,
+    "read_strict": 7,
+    "str_other": 1,
+    "write": 3,
+    "write_strict": 3
+   },
+   "all_src": {
+    "read": 10,
+    "read_strict": 10,
+    "str_other": 1,
+    "write": 3,
+    "write_strict": 3,
+    "declare": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/change_detect.py:158",
+    "engine/processes/crowd.py:271",
+    "engine/processes/goods_flow.py:578",
+    "engine/processes/salient.py:344",
+    "engine/resolve.py:1512",
+    "engine/resolve.py:1557",
+    "engine/run.py:3595"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1211",
+    "world/state.py:217",
+    "world/state.py:236"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "cells.density_stage": {
+   "decl": [
+    "world/state.py:123"
+   ],
+   "engine": {
+    "read": 2,
+    "read_strict": 2,
+    "write": 3,
+    "write_strict": 3,
+    "rmw": 3
+   },
+   "all_src": {
+    "read": 2,
+    "read_strict": 2,
+    "write": 3,
+    "write_strict": 3,
+    "rmw": 3,
+    "declare": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/presence.py:1715",
+    "engine/processes/salient.py:484"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "cells.noise_stage": {
+   "decl": [
+    "world/state.py:125"
+   ],
+   "engine": {
+    "str_in_seq": 1
+   },
+   "all_src": {
+    "str_in_seq": 2,
+    "read": 5,
+    "read_strict": 3,
+    "declare": 1
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1219",
+    "perception/renderer.py:1220",
+    "world/state.py:418"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [
+    "perception/renderer.py:1767",
+    "perception/renderer.py:2295"
+   ],
+   "str_in_seq": [
+    "engine/change_detect.py:86",
+    "world/processes/first_batch.py:240"
+   ]
+  },
+  "cells.open_count": {
+   "decl": [
+    "world/state.py:128"
+   ],
+   "engine": {
+    "write": 2,
+    "write_strict": 2
+   },
+   "all_src": {
+    "write": 2,
+    "write_strict": 2,
+    "declare": 1
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "cells.b4_hash": {
+   "decl": [
+    "world/state.py:130"
+   ],
+   "engine": {
+    "write": 1,
+    "write_strict": 1
+   },
+   "all_src": {
+    "write": 1,
+    "write_strict": 1,
+    "read": 1,
+    "read_strict": 1,
+    "declare": 1
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [
+    "world/state.py:221"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "pois.cell": {
+   "decl": [
+    "world/state.py:134"
+   ],
+   "engine": {
+    "read": 83,
+    "read_strict": 79,
+    "read_str": 2,
+    "str_other": 3,
+    "write": 6,
+    "write_strict": 6,
+    "meta": 1
+   },
+   "all_src": {
+    "declare": 2,
+    "write": 8,
+    "write_strict": 8,
+    "str_other": 17,
+    "str_in_seq": 1,
+    "read": 91,
+    "read_strict": 85,
+    "read_str": 3,
+    "meta": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/activity.py:434",
+    "engine/activity.py:441",
+    "engine/activity.py:460",
+    "engine/change_detect.py:375",
+    "engine/classical.py:367",
+    "engine/classical.py:419",
+    "engine/classical.py:490",
+    "engine/classical.py:511",
+    "engine/classical.py:534",
+    "engine/classical.py:608",
+    "engine/commit.py:576",
+    "engine/commit.py:685",
+    "engine/commit.py:735",
+    "engine/commit.py:812",
+    "engine/commit.py:819",
+    "engine/commit.py:841",
+    "engine/commit.py:879",
+    "engine/conversation.py:788",
+    "engine/familiarity.py:251",
+    "engine/intent.py:133",
+    "engine/intent.py:195",
+    "engine/memory.py:354",
+    "engine/memory.py:609",
+    "engine/memory.py:657",
+    "engine/memory.py:753",
+    "engine/norm_meter.py:136",
+    "engine/norm_meter.py:234",
+    "engine/norm_meter.py:303",
+    "engine/poi_target.py:276",
+    "engine/poi_target.py:424",
+    "engine/poi_target.py:428",
+    "engine/poi_target.py:559",
+    "engine/poi_target.py:648",
+    "engine/poi_target.py:685",
+    "engine/poi_target.py:691",
+    "engine/poi_target.py:700",
+    "engine/presence.py:1140",
+    "engine/presence.py:1708",
+    "engine/processes/civic.py:267",
+    "engine/processes/civic.py:318"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1251",
+    "perception/renderer.py:1699",
+    "perception/renderer.py:171",
+    "perception/renderer.py:2514",
+    "perception/renderer.py:2520",
+    "world/state.py:398"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [
+    "llm/fleet.py:373",
+    "llm/fleet.py:622",
+    "perception/renderer.py:1313"
+   ],
+   "str_in_seq": [
+    "core/soa.py:204"
+   ]
+  },
+  "pois.node": {
+   "decl": [
+    "world/state.py:136"
+   ],
+   "engine": {
+    "str_in_seq": 1,
+    "read": 21,
+    "read_strict": 21,
+    "write": 10,
+    "write_strict": 10,
+    "meta": 2,
+    "str_other": 1
+   },
+   "all_src": {
+    "declare": 2,
+    "write": 12,
+    "write_strict": 12,
+    "str_in_seq": 1,
+    "read": 21,
+    "read_strict": 21,
+    "meta": 2,
+    "str_other": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/poi_target.py:520",
+    "engine/poi_target.py:652",
+    "engine/resolve.py:1432",
+    "engine/resolve.py:1479",
+    "engine/resolve.py:1499",
+    "engine/resolve.py:1506",
+    "engine/resolve.py:1553",
+    "engine/resolve.py:1554",
+    "engine/resolve.py:1560",
+    "engine/resolve.py:1628",
+    "engine/resolve.py:1664",
+    "engine/resolve.py:1665",
+    "engine/resolve.py:1707",
+    "engine/resolve.py:1710",
+    "engine/resolve.py:1854",
+    "engine/resolve.py:1920",
+    "engine/resolve.py:2006",
+    "engine/resolve.py:2822",
+    "engine/resolve.py:2998",
+    "engine/resolve.py:726",
+    "engine/resolve.py:727"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": [
+    "engine/geometry.py:82"
+   ]
+  },
+  "pois.stock": {
+   "decl": [
+    "world/state.py:138"
+   ],
+   "engine": {
+    "read": 7,
+    "read_strict": 7,
+    "write": 4,
+    "write_strict": 4,
+    "meta": 3
+   },
+   "all_src": {
+    "read": 8,
+    "read_strict": 8,
+    "write": 5,
+    "write_strict": 5,
+    "meta": 3,
+    "declare": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/poi_target.py:420",
+    "engine/processes/goods_flow.py:167",
+    "engine/resolve.py:2167",
+    "engine/resolve.py:2215",
+    "engine/resolve.py:2934",
+    "engine/run.py:3316",
+    "engine/run.py:3994"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "cli.py:285"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "pois.price": {
+   "decl": [
+    "world/state.py:140"
+   ],
+   "engine": {
+    "read": 6,
+    "str_other": 1,
+    "read_strict": 4,
+    "write": 1,
+    "rmw": 1
+   },
+   "all_src": {
+    "read": 8,
+    "read_strict": 6,
+    "str_other": 1,
+    "write": 2,
+    "rmw": 1,
+    "declare": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/poi_target.py:300",
+    "engine/resolve.py:2166",
+    "engine/resolve.py:2316",
+    "engine/resolve.py:2929"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "cli.py:285",
+    "perception/renderer.py:2515"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "pois.revenue": {
+   "decl": [
+    "world/state.py:142"
+   ],
+   "engine": {
+    "write": 2,
+    "write_strict": 2,
+    "read": 1,
+    "read_strict": 1
+   },
+   "all_src": {
+    "write": 2,
+    "write_strict": 2,
+    "read": 1,
+    "read_strict": 1,
+    "declare": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/run.py:3993"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "pois.capacity": {
+   "decl": [
+    "world/state.py:144"
+   ],
+   "engine": {
+    "read": 5,
+    "write": 1,
+    "read_strict": 1
+   },
+   "all_src": {
+    "read": 5,
+    "write": 2,
+    "read_strict": 1,
+    "declare": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/run.py:3316"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "pois.open_from": {
+   "decl": [
+    "world/state.py:146"
+   ],
+   "engine": {},
+   "all_src": {
+    "read": 3,
+    "read_strict": 3,
+    "declare": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1546",
+    "perception/renderer.py:2523",
+    "world/state.py:393"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "pois.open_to": {
+   "decl": [
+    "world/state.py:148"
+   ],
+   "engine": {},
+   "all_src": {
+    "read": 2,
+    "read_strict": 2,
+    "declare": 1,
+    "write": 1,
+    "write_strict": 1
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [
+    "perception/renderer.py:1547",
+    "world/state.py:393"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "pois.open_now": {
+   "decl": [
+    "world/state.py:150"
+   ],
+   "engine": {
+    "read": 3,
+    "read_strict": 3,
+    "str_other": 1,
+    "write": 3,
+    "write_strict": 3
+   },
+   "all_src": {
+    "read": 4,
+    "read_strict": 4,
+    "str_other": 1,
+    "write": 4,
+    "write_strict": 4,
+    "declare": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/processes/opening.py:181",
+    "engine/processes/opening.py:222",
+    "engine/processes/opening.py:238"
+   ],
+   "all_read_strict_sites_outside_engine": [
+    "world/state.py:389"
+   ],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "perception.heading": {
+   "decl": [
+    "perception/state.py:98"
+   ],
+   "engine": {
+    "read": 1,
+    "read_strict": 1,
+    "write": 2,
+    "write_strict": 2
+   },
+   "all_src": {
+    "read": 1,
+    "read_strict": 1,
+    "write": 2,
+    "write_strict": 2,
+    "declare": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/processes/salient.py:213"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "perception.task_flag": {
+   "decl": [
+    "perception/state.py:100"
+   ],
+   "engine": {
+    "read": 1,
+    "read_strict": 1,
+    "write": 2,
+    "write_strict": 2
+   },
+   "all_src": {
+    "read": 1,
+    "read_strict": 1,
+    "write": 2,
+    "write_strict": 2,
+    "declare": 1
+   },
+   "engine_read_strict_sites": [
+    "engine/processes/salient.py:214"
+   ],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "perception.last_b2_hash": {
+   "decl": [
+    "perception/state.py:103"
+   ],
+   "engine": {},
+   "all_src": {
+    "declare": 1
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "perception.last_b4_hash": {
+   "decl": [
+    "perception/state.py:105"
+   ],
+   "engine": {},
+   "all_src": {
+    "declare": 1
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  },
+  "perception.invocation_distance": {
+   "decl": [
+    "perception/state.py:108"
+   ],
+   "engine": {},
+   "all_src": {
+    "declare": 2
+   },
+   "engine_read_strict_sites": [],
+   "all_read_strict_sites_outside_engine": [],
+   "all_read_sites_outside_engine_nonstrict": [],
+   "str_in_seq": []
+  }
+ }
+}

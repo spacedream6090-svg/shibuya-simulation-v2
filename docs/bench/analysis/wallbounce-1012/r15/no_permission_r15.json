@@ -1,0 +1,989 @@
+{
+ "a": {
+  "label": "head",
+  "src": "写し"
+ },
+ "b": {
+  "label": "r15",
+  "src": "写し"
+ },
+ "agents": 5000,
+ "seed": 1,
+ "totals": {
+  "head_bridge_role_actions": 0,
+  "head_norm_meter_no_permission": 0,
+  "head_open_close_not_permitted_rows": 0,
+  "r15_events_unauthorized": 0
+ },
+ "rows": {
+  "w6_v3_default": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 20,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "5f7ae9ff24005314",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "5f7ae9ff24005314",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "w6_v3_activity_off": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 19,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "e0054a837c6ec4c1",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "e0054a837c6ec4c1",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "w6_v1_default": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 19,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "24375ee3dab349e8",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "24375ee3dab349e8",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "w6_v1_derive_v2_1": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 16,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "59329a9a3611c16c",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "59329a9a3611c16c",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "w6_v2": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 19,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "7e3a16b4190c10b5",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "7e3a16b4190c10b5",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "w6_v1_edge": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 18,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "0e0430daa24c109e",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "0e0430daa24c109e",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "w6_v2_edge": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 22,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "8151c3ee812ef412",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "8151c3ee812ef412",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "w6_v1_edge_plateau": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 16,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "a9d0c78a8e3bb079",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "a9d0c78a8e3bb079",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "w6_old_v1_default": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 19,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "5f3665e29e8c55e1",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "5f3665e29e8c55e1",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "w6_old_v1_derive_v2_1": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 16,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "f1ac9740ef2d04ca",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "f1ac9740ef2d04ca",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "w6_old_v2": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 19,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "24efbaa77c1ce701",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "24efbaa77c1ce701",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "w6_old_v1_edge": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 18,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "607b93b4cef8f716",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "607b93b4cef8f716",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "w6_old_v2_edge": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 22,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "c1056e6fda20f2c5",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "c1056e6fda20f2c5",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "w6_old_v1_edge_plateau": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 16,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "8a15b93709c7ebdf",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "8a15b93709c7ebdf",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "w6_golden_null_arm": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 18,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "354f49ca9a61b986",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "354f49ca9a61b986",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "v3_mem_store": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 20,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "f7ff0a6953fb9a38",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "f7ff0a6953fb9a38",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "v3_mem_rel": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 21,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "73a78288ab5e1498",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "73a78288ab5e1498",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "v3_classical": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 17,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "202a05a22c5bd8e1",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "202a05a22c5bd8e1",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  },
+  "v3_classical_mem_rel": {
+   "head_open_close_not_permitted_rows": 0,
+   "head_open_close_rows": 22,
+   "head_bridge_role_actions": 0,
+   "head_norm_meter_no_permission": 0,
+   "head_norm_meter_role_actions": 0,
+   "head_final": "4c512a1fdc2a70c0",
+   "r15_open_close_not_permitted_rows": 0,
+   "r15_bridge_role_actions": 0,
+   "r15_norm_meter_no_permission": 0,
+   "r15_events_unauthorized": 0,
+   "r15_final": "4c512a1fdc2a70c0",
+   "final_same": true,
+   "r15_rights": {
+    "rows": 7095,
+    "with_until": 0,
+    "by_kind": {
+     "own": 0,
+     "lease": 2337,
+     "employ": 4758,
+     "licence": 0
+    },
+    "by_holder_kind": {
+     "agent": 4758,
+     "org": 0,
+     "store": 2337
+    },
+    "by_object_kind": {
+     "org": 2421,
+     "store": 2337,
+     "parcel": 2337,
+     "dwelling": 0
+    },
+    "by_source": {
+     "w16_population.org_id": 2421,
+     "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+     "w6_poi(区画にいること)": 2337
+    },
+    "bytes": 510840,
+    "blank_bridges": {
+     "lease.rent": "BR-RENT-BLANK",
+     "licence": "BR-RIGHTS-LICENCE-BLANK",
+     "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+    },
+    "unauthorized": {
+     "rows": 0,
+     "by_act": {},
+     "unjudged_by_act": {}
+    }
+   }
+  }
+ }
+}

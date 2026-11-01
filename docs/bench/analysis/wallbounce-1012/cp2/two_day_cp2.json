@@ -1,0 +1,27 @@
+{
+ "schema": "shibuya.bench/cp2/two-day/1",
+ "how": "10e/two_day_check_act.py one(5,000 体・seed 1・sim_days=2・世界資産・既定 v3・テープつき)を作業木の src(1-9・既定=K17 の係数 6.5・出来事の記録 on)で回した。head の値は 1-0・T0・1-3 の記録の HEAD の値",
+ "head": {
+  "final": "912446bd2b42b6ab",
+  "calls": 140913,
+  "calls_sha": "cb330e76b4b8a573",
+  "blocks_sha": "7f09f3dc78d84ac4"
+ },
+ "cp2": {
+  "final": "912446bd2b42b6ab",
+  "calls": 140913,
+  "calls_sha": "cb330e76b4b8a573",
+  "blocks_sha": "7f09f3dc78d84ac4"
+ },
+ "same": {
+  "final": true,
+  "calls": true,
+  "calls_sha": true,
+  "blocks_sha": true
+ },
+ "src_is_worktree": true,
+ "calendar_days": [
+  "2026-07-13",
+  "2026-07-14"
+ ]
+}

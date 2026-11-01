@@ -22,10 +22,7 @@ if str(TOOLS_W17) not in sys.path:
     sys.path.insert(0, str(TOOLS_W17))
 
 #: 実世界資産が無い環境(CI)では実データのテストを飛ばす。
-real_data = pytest.mark.skipif(
-    not (WORLD_DIR / "w17_schedule.parquet").exists(),
-    reason="実世界資産 data/world/v2 が無い",
-)
+real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 
 
 @pytest.fixture(scope="session")
@@ -35,9 +32,71 @@ def dy():
     return _m
 
 
+#: 〔第337 封印の分離の残り〕fixture は**構築側のファイル**(``diversity_build_anchors_v0.json``)だけを開き、
+#: 検証側(第 30 表〔検〕・Schneider 2013〔灰〕)は鍵の名だけ同じ**作り物**にする(値は試験の中で作る)。
+BUILD_ANCHORS_PATH = REPO_ROOT / "docs" / "bench" / "anchors" / "diversity_build_anchors_v0.json"
+SYNTH_SOURCE = "synthetic(test)"
+#: 作り物の鍵(``diversity_validation_anchors_v0.json`` と同じ名・値は作り物)。
+SYNTH_KEYS = ("tokyo_weekday_depart_on_00_30", "tokyo_weekday_depart_top_bin_share",
+              "tokyo_weekday_depart_top_hour_share", "tokyo_weekday_depart_entropy_bits",
+              "national_weekday_depart_on_00_30", "national_weekday_depart_entropy_bits",
+              "motif_count", "motif_coverage", "motif_threshold",
+              "daily_locations_lt7_share", "daily_locations_lognormal")
+
+
+def synth_validation_anchors() -> dict:
+    """検証側の錨の**作り物**(検証側のファイルの値ではない)。
+
+    ``motif_threshold`` は M1 の数え方の閾値で、合成 4 人日の試験の docstring(閾値 0.5%)に合わせた。ほかは
+    既存の assert が通る形の作り物(:00/:30 の割合は合成の before より低い=時刻をばらした after が近づく)。
+    """
+    def row(tag: str, **kw) -> dict:
+        return {"source": SYNTH_SOURCE, "verified_by": SYNTH_SOURCE, "tag": tag, "unit": "synthetic",
+                "scope": "synthetic(test)", **kw}
+
+    return {
+        "tokyo_weekday_depart_on_00_30": row("anchor", value=0.4),
+        "tokyo_weekday_depart_top_bin_share": row("anchor", value=0.2),
+        "tokyo_weekday_depart_top_hour_share": row("anchor", value=0.3),
+        "tokyo_weekday_depart_entropy_bits": row("anchor", value=4.0),
+        "national_weekday_depart_on_00_30": row("anchor", value=0.4),
+        "national_weekday_depart_entropy_bits": row("anchor", value=4.0),
+        "motif_count": row("anchor", value=10),
+        "motif_coverage": row("anchor", value=0.8),
+        "motif_threshold": row("anchor", value=0.005),
+        "daily_locations_lt7_share": row("anchor", value=0.9),
+        "daily_locations_lognormal": row("anchor", value=2.0, values={"mu": 0.7, "sigma": 0.4}),
+    }
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _no_default_validation_file(dy, tmp_path_factory):
+    """番人: 既定の道筋(構築側+検証側)で台帳を読もうとしたら、検証側を無いファイルに差し替えて落とす。"""
+    absent = tmp_path_factory.mktemp("no_validation") / "absent_diversity_validation_anchors.json"
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(dy, "DEFAULT_ANCHORS_PATHS", (dy.DEFAULT_ANCHORS_PATHS[0], absent))
+        yield
+
+
 @pytest.fixture(scope="session")
 def anchors(dy):
-    return dy.load_anchors()
+    """構築側のファイル+検証側の作り物(:func:`synth_validation_anchors`)。"""
+    doc = dy.load_anchors(BUILD_ANCHORS_PATH)  # 構築側のファイルだけを開く
+    clash = set(doc["anchors"]) & set(SYNTH_KEYS)
+    assert not clash, f"構築側のファイルに作り物と同じ鍵がある: {sorted(clash)}"
+    doc["anchors"] = {**doc["anchors"], **synth_validation_anchors()}
+    dy.check_anchors(doc)
+    return doc
+
+
+@pytest.fixture()
+def anchors_file(anchors, tmp_path):
+    """CLI に渡す台帳(構築側+作り物を 1 本に書いたもの)。"""
+    import json
+
+    p = tmp_path / "anchors_synth.json"
+    p.write_text(json.dumps({k: v for k, v in anchors.items() if k != "_path"}, ensure_ascii=False), encoding="utf-8")
+    return p
 
 
 # ---------------------------------------------------------------- 合成データ

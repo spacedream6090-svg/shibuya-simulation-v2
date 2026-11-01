@@ -1,0 +1,522 @@
+{
+ "note": "R-118 付属。標準報酬月額の等級表(健康保険法 40 条 1 項・厚生年金保険法 20 条 1 項)を e-Gov 法令 API v2(asof 2026-07-13)の条文から機械で写した。to_excl=null は最終級(上限なし)。協会けんぽ東京支部の令和 8 年 3 月分からの保険料額表(PDF)の健康保険の全額の列(9.85%)と、等級ごとに標準報酬 × 9.85% を突き合わせた(突き合わせられた等級の数と食い違いを下に書く)。",
+ "asof": "2026-07-13",
+ "health_insurance": {
+  "law": "健康保険法",
+  "law_id": "211AC0000000070",
+  "article": "40 条 1 項",
+  "version": "211AC0000000070_20260605_508AC0000000031",
+  "url": "https://laws.e-gov.go.jp/api/2/law_data/211AC0000000070?asof=2026-07-13&response_format=xml",
+  "grades": [
+   {
+    "grade": 1,
+    "standard": 58000,
+    "from_incl": 0,
+    "to_excl": 63000
+   },
+   {
+    "grade": 2,
+    "standard": 68000,
+    "from_incl": 63000,
+    "to_excl": 73000
+   },
+   {
+    "grade": 3,
+    "standard": 78000,
+    "from_incl": 73000,
+    "to_excl": 83000
+   },
+   {
+    "grade": 4,
+    "standard": 88000,
+    "from_incl": 83000,
+    "to_excl": 93000
+   },
+   {
+    "grade": 5,
+    "standard": 98000,
+    "from_incl": 93000,
+    "to_excl": 101000
+   },
+   {
+    "grade": 6,
+    "standard": 104000,
+    "from_incl": 101000,
+    "to_excl": 107000
+   },
+   {
+    "grade": 7,
+    "standard": 110000,
+    "from_incl": 107000,
+    "to_excl": 114000
+   },
+   {
+    "grade": 8,
+    "standard": 118000,
+    "from_incl": 114000,
+    "to_excl": 122000
+   },
+   {
+    "grade": 9,
+    "standard": 126000,
+    "from_incl": 122000,
+    "to_excl": 130000
+   },
+   {
+    "grade": 10,
+    "standard": 134000,
+    "from_incl": 130000,
+    "to_excl": 138000
+   },
+   {
+    "grade": 11,
+    "standard": 142000,
+    "from_incl": 138000,
+    "to_excl": 146000
+   },
+   {
+    "grade": 12,
+    "standard": 150000,
+    "from_incl": 146000,
+    "to_excl": 155000
+   },
+   {
+    "grade": 13,
+    "standard": 160000,
+    "from_incl": 155000,
+    "to_excl": 165000
+   },
+   {
+    "grade": 14,
+    "standard": 170000,
+    "from_incl": 165000,
+    "to_excl": 175000
+   },
+   {
+    "grade": 15,
+    "standard": 180000,
+    "from_incl": 175000,
+    "to_excl": 185000
+   },
+   {
+    "grade": 16,
+    "standard": 190000,
+    "from_incl": 185000,
+    "to_excl": 195000
+   },
+   {
+    "grade": 17,
+    "standard": 200000,
+    "from_incl": 195000,
+    "to_excl": 210000
+   },
+   {
+    "grade": 18,
+    "standard": 220000,
+    "from_incl": 210000,
+    "to_excl": 230000
+   },
+   {
+    "grade": 19,
+    "standard": 240000,
+    "from_incl": 230000,
+    "to_excl": 250000
+   },
+   {
+    "grade": 20,
+    "standard": 260000,
+    "from_incl": 250000,
+    "to_excl": 270000
+   },
+   {
+    "grade": 21,
+    "standard": 280000,
+    "from_incl": 270000,
+    "to_excl": 290000
+   },
+   {
+    "grade": 22,
+    "standard": 300000,
+    "from_incl": 290000,
+    "to_excl": 310000
+   },
+   {
+    "grade": 23,
+    "standard": 320000,
+    "from_incl": 310000,
+    "to_excl": 330000
+   },
+   {
+    "grade": 24,
+    "standard": 340000,
+    "from_incl": 330000,
+    "to_excl": 350000
+   },
+   {
+    "grade": 25,
+    "standard": 360000,
+    "from_incl": 350000,
+    "to_excl": 370000
+   },
+   {
+    "grade": 26,
+    "standard": 380000,
+    "from_incl": 370000,
+    "to_excl": 395000
+   },
+   {
+    "grade": 27,
+    "standard": 410000,
+    "from_incl": 395000,
+    "to_excl": 425000
+   },
+   {
+    "grade": 28,
+    "standard": 440000,
+    "from_incl": 425000,
+    "to_excl": 455000
+   },
+   {
+    "grade": 29,
+    "standard": 470000,
+    "from_incl": 455000,
+    "to_excl": 485000
+   },
+   {
+    "grade": 30,
+    "standard": 500000,
+    "from_incl": 485000,
+    "to_excl": 515000
+   },
+   {
+    "grade": 31,
+    "standard": 530000,
+    "from_incl": 515000,
+    "to_excl": 545000
+   },
+   {
+    "grade": 32,
+    "standard": 560000,
+    "from_incl": 545000,
+    "to_excl": 575000
+   },
+   {
+    "grade": 33,
+    "standard": 590000,
+    "from_incl": 575000,
+    "to_excl": 605000
+   },
+   {
+    "grade": 34,
+    "standard": 620000,
+    "from_incl": 605000,
+    "to_excl": 635000
+   },
+   {
+    "grade": 35,
+    "standard": 650000,
+    "from_incl": 635000,
+    "to_excl": 665000
+   },
+   {
+    "grade": 36,
+    "standard": 680000,
+    "from_incl": 665000,
+    "to_excl": 695000
+   },
+   {
+    "grade": 37,
+    "standard": 710000,
+    "from_incl": 695000,
+    "to_excl": 730000
+   },
+   {
+    "grade": 38,
+    "standard": 750000,
+    "from_incl": 730000,
+    "to_excl": 770000
+   },
+   {
+    "grade": 39,
+    "standard": 790000,
+    "from_incl": 770000,
+    "to_excl": 810000
+   },
+   {
+    "grade": 40,
+    "standard": 830000,
+    "from_incl": 810000,
+    "to_excl": 855000
+   },
+   {
+    "grade": 41,
+    "standard": 880000,
+    "from_incl": 855000,
+    "to_excl": 905000
+   },
+   {
+    "grade": 42,
+    "standard": 930000,
+    "from_incl": 905000,
+    "to_excl": 955000
+   },
+   {
+    "grade": 43,
+    "standard": 980000,
+    "from_incl": 955000,
+    "to_excl": 1005000
+   },
+   {
+    "grade": 44,
+    "standard": 1030000,
+    "from_incl": 1005000,
+    "to_excl": 1055000
+   },
+   {
+    "grade": 45,
+    "standard": 1090000,
+    "from_incl": 1055000,
+    "to_excl": 1115000
+   },
+   {
+    "grade": 46,
+    "standard": 1150000,
+    "from_incl": 1115000,
+    "to_excl": 1175000
+   },
+   {
+    "grade": 47,
+    "standard": 1210000,
+    "from_incl": 1175000,
+    "to_excl": 1235000
+   },
+   {
+    "grade": 48,
+    "standard": 1270000,
+    "from_incl": 1235000,
+    "to_excl": 1295000
+   },
+   {
+    "grade": 49,
+    "standard": 1330000,
+    "from_incl": 1295000,
+    "to_excl": 1355000
+   },
+   {
+    "grade": 50,
+    "standard": 1390000,
+    "from_incl": 1355000,
+    "to_excl": null
+   }
+  ]
+ },
+ "pension": {
+  "law": "厚生年金保険法",
+  "law_id": "329AC0000000115",
+  "article": "20 条 1 項",
+  "version": "329AC0000000115_20260525_506AC0000000052",
+  "url": "https://laws.e-gov.go.jp/api/2/law_data/329AC0000000115?asof=2026-07-13&response_format=xml",
+  "grades": [
+   {
+    "grade": 1,
+    "standard": 88000,
+    "from_incl": 0,
+    "to_excl": 93000
+   },
+   {
+    "grade": 2,
+    "standard": 98000,
+    "from_incl": 93000,
+    "to_excl": 101000
+   },
+   {
+    "grade": 3,
+    "standard": 104000,
+    "from_incl": 101000,
+    "to_excl": 107000
+   },
+   {
+    "grade": 4,
+    "standard": 110000,
+    "from_incl": 107000,
+    "to_excl": 114000
+   },
+   {
+    "grade": 5,
+    "standard": 118000,
+    "from_incl": 114000,
+    "to_excl": 122000
+   },
+   {
+    "grade": 6,
+    "standard": 126000,
+    "from_incl": 122000,
+    "to_excl": 130000
+   },
+   {
+    "grade": 7,
+    "standard": 134000,
+    "from_incl": 130000,
+    "to_excl": 138000
+   },
+   {
+    "grade": 8,
+    "standard": 142000,
+    "from_incl": 138000,
+    "to_excl": 146000
+   },
+   {
+    "grade": 9,
+    "standard": 150000,
+    "from_incl": 146000,
+    "to_excl": 155000
+   },
+   {
+    "grade": 10,
+    "standard": 160000,
+    "from_incl": 155000,
+    "to_excl": 165000
+   },
+   {
+    "grade": 11,
+    "standard": 170000,
+    "from_incl": 165000,
+    "to_excl": 175000
+   },
+   {
+    "grade": 12,
+    "standard": 180000,
+    "from_incl": 175000,
+    "to_excl": 185000
+   },
+   {
+    "grade": 13,
+    "standard": 190000,
+    "from_incl": 185000,
+    "to_excl": 195000
+   },
+   {
+    "grade": 14,
+    "standard": 200000,
+    "from_incl": 195000,
+    "to_excl": 210000
+   },
+   {
+    "grade": 15,
+    "standard": 220000,
+    "from_incl": 210000,
+    "to_excl": 230000
+   },
+   {
+    "grade": 16,
+    "standard": 240000,
+    "from_incl": 230000,
+    "to_excl": 250000
+   },
+   {
+    "grade": 17,
+    "standard": 260000,
+    "from_incl": 250000,
+    "to_excl": 270000
+   },
+   {
+    "grade": 18,
+    "standard": 280000,
+    "from_incl": 270000,
+    "to_excl": 290000
+   },
+   {
+    "grade": 19,
+    "standard": 300000,
+    "from_incl": 290000,
+    "to_excl": 310000
+   },
+   {
+    "grade": 20,
+    "standard": 320000,
+    "from_incl": 310000,
+    "to_excl": 330000
+   },
+   {
+    "grade": 21,
+    "standard": 340000,
+    "from_incl": 330000,
+    "to_excl": 350000
+   },
+   {
+    "grade": 22,
+    "standard": 360000,
+    "from_incl": 350000,
+    "to_excl": 370000
+   },
+   {
+    "grade": 23,
+    "standard": 380000,
+    "from_incl": 370000,
+    "to_excl": 395000
+   },
+   {
+    "grade": 24,
+    "standard": 410000,
+    "from_incl": 395000,
+    "to_excl": 425000
+   },
+   {
+    "grade": 25,
+    "standard": 440000,
+    "from_incl": 425000,
+    "to_excl": 455000
+   },
+   {
+    "grade": 26,
+    "standard": 470000,
+    "from_incl": 455000,
+    "to_excl": 485000
+   },
+   {
+    "grade": 27,
+    "standard": 500000,
+    "from_incl": 485000,
+    "to_excl": 515000
+   },
+   {
+    "grade": 28,
+    "standard": 530000,
+    "from_incl": 515000,
+    "to_excl": 545000
+   },
+   {
+    "grade": 29,
+    "standard": 560000,
+    "from_incl": 545000,
+    "to_excl": 575000
+   },
+   {
+    "grade": 30,
+    "standard": 590000,
+    "from_incl": 575000,
+    "to_excl": 605000
+   },
+   {
+    "grade": 31,
+    "standard": 620000,
+    "from_incl": 605000,
+    "to_excl": 635000
+   },
+   {
+    "grade": 32,
+    "standard": 650000,
+    "from_incl": 635000,
+    "to_excl": null,
+    "source": "協会けんぽ東京支部の保険料額表(令和 8 年 3 月分から)の行「35(32) 650,000 635,000～」と厚生年金保険料 118,950.00(=650,000 × 18.3%)。条文 20 条 1 項は第三十一級 620,000 円で終わり、第三十二級は同条 2 項の改定(政令)によるもの=政令の名と施行日は未確認"
+   }
+  ],
+  "note": "e-Gov の 20 条 1 項の本文は第三十一級(620,000 円・605,000 円以上)までを載せる。同条 2 項は政令で等級区分を改定できると定める。いまの等級表(協会けんぽの額表)は第三十二級 650,000 円まであり、第三十一級は 605,000 円以上 635,000 円未満=上の 31 級の to_excl と 32 級は額表から写した(条文の写しではない)。"
+ },
+ "check_vs_kyoukaikenpo_tokyo": {
+  "url": "https://www.kyoukaikenpo.or.jp/assets/R8_13tokyo.pdf",
+  "matched_grades": 50,
+  "mismatches": [],
+  "result": "健康保険の 50 等級すべてで、標準報酬月額が額表と一致し、標準報酬 × 9.85% が額表の全額の列と 0.05 円以内で一致した(食い違い 0)。"
+ }
+}

@@ -1,0 +1,58 @@
+{
+ "runs": 2,
+ "exit_codes": [
+  0,
+  0
+ ],
+ "w21b_sha256_by_run": [
+  {
+   "w21_people.parquet": "6d6e4522432f1fce101f92d119f2581c85f764340ec5c724d056f037f36ee23b",
+   "w21_org.parquet": "e6b1fb8b3e7153ef57dbfbed79a1b5f91263b3f29f3b9d245ef5885351f5c3da",
+   "w21_rights_initial.parquet": "fea2402059b51da79bc0e28b0a0d52ae3786d27702ffa581ce8ff537597c9884",
+   "w21_relations_initial.parquet": "6f961fab5a55332ce66ca51a24910469a511cce5dff99eb0fe3f1f3528e03b2c",
+   "w21_money.parquet": "74a13584f2c0e46c2e0294e4a40de65eec12f7d51f1faa29c7794eab0aa272de",
+   "w21_money_households.parquet": "33e30bf84041effb476b50f4c791cdd9a472f8c06ed38997054739daa47af5cc",
+   "w21_prior_places.parquet": "8b53701ffdb361ff05893dc7b98addfbc5ade111a0adb753f8fd97de34a53bd6",
+   "w21_outside.parquet": "aa48430dc9a79b4d344b37076fce6d73454e6ee82f3bc570524c39b027a21a74",
+   "w21_outside_households.parquet": "44ea05e38416c9cffe8891e3622e439ad23afebfba865d4d7e0a0c2f91a683a8",
+   "w21_checks_b.json": "7aade261d4fc03fafd6b35138431a9952ad3fc4cf566af900340ae409119ba1d",
+   "w21b_manifest.json": "feabc12721b18b808aeba7c74544c43b72df8a8f43202cc9047c234030bb1322",
+   "W21b.header.json": "ed5d091d346f84604d4c50f4ad08fb310ad15aaa0082fe181862f3089927172e"
+  },
+  {
+   "w21_people.parquet": "6d6e4522432f1fce101f92d119f2581c85f764340ec5c724d056f037f36ee23b",
+   "w21_org.parquet": "e6b1fb8b3e7153ef57dbfbed79a1b5f91263b3f29f3b9d245ef5885351f5c3da",
+   "w21_rights_initial.parquet": "fea2402059b51da79bc0e28b0a0d52ae3786d27702ffa581ce8ff537597c9884",
+   "w21_relations_initial.parquet": "6f961fab5a55332ce66ca51a24910469a511cce5dff99eb0fe3f1f3528e03b2c",
+   "w21_money.parquet": "74a13584f2c0e46c2e0294e4a40de65eec12f7d51f1faa29c7794eab0aa272de",
+   "w21_money_households.parquet": "33e30bf84041effb476b50f4c791cdd9a472f8c06ed38997054739daa47af5cc",
+   "w21_prior_places.parquet": "8b53701ffdb361ff05893dc7b98addfbc5ade111a0adb753f8fd97de34a53bd6",
+   "w21_outside.parquet": "aa48430dc9a79b4d344b37076fce6d73454e6ee82f3bc570524c39b027a21a74",
+   "w21_outside_households.parquet": "44ea05e38416c9cffe8891e3622e439ad23afebfba865d4d7e0a0c2f91a683a8",
+   "w21_checks_b.json": "7aade261d4fc03fafd6b35138431a9952ad3fc4cf566af900340ae409119ba1d",
+   "w21b_manifest.json": "feabc12721b18b808aeba7c74544c43b72df8a8f43202cc9047c234030bb1322",
+   "W21b.header.json": "ed5d091d346f84604d4c50f4ad08fb310ad15aaa0082fe181862f3089927172e"
+  }
+ ],
+ "deterministic": true,
+ "w21b_build_hash": "34798bd5d9b67dbeca81457187f8698e9a22ea520c0ba01b3df04fd10160c58f",
+ "w21_build_hash_of_base": "ca823451cad3f57b5a2636b65a6cc94806e9a62f9b7a9b7dd6546370c97f00c0",
+ "build_hash_of_stage": "6a7d34e858e07210d39614f86bd5e47510dd0eb9d424b032672fd21b59702f68",
+ "build_hash_of_base": "6a7d34e858e07210d39614f86bd5e47510dd0eb9d424b032672fd21b59702f68",
+ "files_in_stage": 125,
+ "stage_manifest_sha256": "8023d2a271d043e17d72733a9fd3a2ade3c00c2f4692f67d91973463799b3c3d",
+ "bytes_w21b": {
+  "w21_people.parquet": 4959349,
+  "w21_org.parquet": 177635,
+  "w21_rights_initial.parquet": 1365564,
+  "w21_relations_initial.parquet": 6552293,
+  "w21_money.parquet": 6332281,
+  "w21_money_households.parquet": 626230,
+  "w21_prior_places.parquet": 20328792,
+  "w21_outside.parquet": 227797,
+  "w21_outside_households.parquet": 382697,
+  "w21_checks_b.json": 16418,
+  "w21b_manifest.json": 37253,
+  "W21b.header.json": 10076
+ }
+}

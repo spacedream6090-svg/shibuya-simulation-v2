@@ -1,0 +1,113 @@
+{
+ "a": {
+  "label": "rb_sweep_g",
+  "kw": {},
+  "src": "作業木",
+  "env": {},
+  "body_schedule": "(既定)",
+  "shift": 0,
+  "gauge": true
+ },
+ "b": {
+  "label": "rb_reserve_g",
+  "kw": {},
+  "src": "作業木",
+  "env": {},
+  "body_schedule": "reserve",
+  "shift": 0,
+  "gauge": true
+ },
+ "note": "3-5 rebase の後: 腕 sweep と腕 reserve(両側とも計器あり)",
+ "rows": {
+  "w6_v3_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    417115
+   ],
+   "felt_evals": [
+    1440000,
+    75282
+   ]
+  },
+  "v3_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    421474
+   ],
+   "felt_evals": [
+    1440000,
+    75675
+   ]
+  }
+ }
+}

@@ -24,6 +24,8 @@ import re
 import unicodedata
 from typing import Final, NamedTuple
 
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
+
 __all__ = [
     "N_DAYS",
     "MINUTES_PER_DAY",
@@ -78,7 +80,6 @@ __all__ = [
 
 #: 曜日数(週7日フル生成=決定台帳「母集団合成(追補)」)。
 N_DAYS: Final[int] = 7
-MINUTES_PER_DAY: Final[int] = 1_440
 
 #: 曜日語(**d0=月曜**。W7 ``plan_spec`` の content の曜日順と同じ)。
 DAY_WORDS: Final[tuple[str, ...]] = ("月曜", "火曜", "水曜", "木曜", "金曜", "土曜", "日曜")
@@ -267,8 +268,8 @@ def format_line(day: int, start: int, end: int, activity: int, place: int) -> st
         'd1 0700-0830 移動 職場'
     """
     return (
-        f"d{int(day)} {int(start) // 60:02d}{int(start) % 60:02d}"
-        f"-{int(end) // 60:02d}{int(end) % 60:02d} "
+        f"d{int(day)} {int(start) // MINUTES_PER_HOUR:02d}{int(start) % MINUTES_PER_HOUR:02d}"
+        f"-{int(end) // MINUTES_PER_HOUR:02d}{int(end) % MINUTES_PER_HOUR:02d} "
         f"{ACTIVITY_WORDS[int(activity)]} {PLACE_WORDS[int(place)]}"
     )
 
@@ -281,8 +282,8 @@ def format_body(start: int, end: int, activity: int, place: int) -> str:
         '0700-0830 移動 職場'
     """
     return (
-        f"{int(start) // 60:02d}{int(start) % 60:02d}"
-        f"-{int(end) // 60:02d}{int(end) % 60:02d} "
+        f"{int(start) // MINUTES_PER_HOUR:02d}{int(start) % MINUTES_PER_HOUR:02d}"
+        f"-{int(end) // MINUTES_PER_HOUR:02d}{int(end) % MINUTES_PER_HOUR:02d} "
         f"{ACTIVITY_WORDS[int(activity)]} {PLACE_WORDS[int(place)]}"
     )
 
@@ -391,7 +392,7 @@ def parse_line(line: str, day: int | None = None) -> tuple[list[Act], str, tuple
     h2, m2 = int(m.group("h2")), int(m.group("m2"))
     if m1 >= 60 or m2 >= 60 or h1 > 24 or h2 > 24:
         return [], "bad_time", ()
-    start, end = h1 * 60 + m1, h2 * 60 + m2
+    start, end = h1 * MINUTES_PER_HOUR + m1, h2 * MINUTES_PER_HOUR + m2
     if start >= MINUTES_PER_DAY:  # 0000 と 2400 は同義。開始が 2400 は不採用
         return [], "bad_time", ()
     notes: list[str] = []

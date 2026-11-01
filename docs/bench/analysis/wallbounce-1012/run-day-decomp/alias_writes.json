@@ -1,0 +1,22 @@
+{
+ "_complete_buy": {
+  "writes": [
+   "agents.money"
+  ],
+  "why": "economy/ledger.py:_apply_cash が世帯の現金=agents.money を np.add.at で書く(別名)"
+ },
+ "_complete_eat": {
+  "writes": [
+   "agents.money"
+  ],
+  "why": "同上(purchase_many)"
+ },
+ "apply_detection": {
+  "writes": [
+   "agents.fatigue_stage",
+   "agents.hunger_stage",
+   "agents.thermal_stage"
+  ],
+  "why": "registry.field(crossing.stage_field)[...] = の名前の変数で書く(AST で解けない)"
+ }
+}

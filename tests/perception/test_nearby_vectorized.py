@@ -15,6 +15,7 @@ import pytest
 
 from shibuya.agents.state import AgentKind, AgentState
 from shibuya.perception import channels as ch
+from shibuya.perception.facts import SeenPerson
 from shibuya.perception.renderer import Renderer, person_word
 from shibuya.world.state import World
 
@@ -132,15 +133,56 @@ def test_tick_cache_arrays_are_consistent_with_the_soa():
 
 @pytest.mark.parametrize("mode", ["fixed", "ranking"])
 def test_rendered_bytes_are_unchanged_in_both_modes(mode):
-    """描画バイトが新旧で一致(B5 の行・順序・ランキングの距離まで)。"""
+    """描画バイトが新旧で一致(B5 の行・順序・ランキングの距離まで)。
+
+    〔第 1 期 1-2〕描画は ``perceive`` の中で ``_nearby_people``(見えた人の構造=``SeenPerson``)を呼ぶ。差し替えの的を
+    その口に移した(修正前の実装の行を ``SeenPerson`` に写す ``_reference_nearby_people``)。差し替えが描画に効いたことは
+    呼ばれた回数で確かめる(``_nearby_items`` を差し替えても描画には効かない=空振りの守りにしない)。
+    """
     r, a = crowd(n=300, mode=mode, friends=True)
     tc = r._tickc
     hashes_new = [r.render(i, tick=600, wake_reason=3).prompt_hash for i in range(0, 300, 3)]
-    Renderer._nearby_items, saved = _reference_nearby_items, Renderer._nearby_items
+    calls = {"n": 0}
+
+    def ref(self, i, cell, tc_):  # noqa: ANN001, ANN202
+        calls["n"] += 1
+        return _reference_nearby_people(self, i, cell, tc_)
+
+    Renderer._nearby_people, saved = ref, Renderer._nearby_people
     try:
         r2, a2 = crowd(n=300, mode=mode, friends=True)
         hashes_old = [r2.render(i, tick=600, wake_reason=3).prompt_hash for i in range(0, 300, 3)]
     finally:
-        Renderer._nearby_items = saved
+        Renderer._nearby_people = saved
+    assert calls["n"] == len(hashes_old)  # 差し替えた口を描画が実際に通った
     assert hashes_new == hashes_old
     assert tc.cell_x.size == a.n
+
+
+def _reference_nearby_people(self, i: int, cell: int, tc) -> list[SeenPerson]:
+    """``_reference_nearby_items``(修正前の実装の行=``P-<id>(未知/知人)`` と距離)→ 見えた人(``SeenPerson``)。"""
+    act = self.agents.activity
+    out = []
+    for text, d in _reference_nearby_items(self, i, cell, tc):
+        j = int(text[len("P-"): text.index("(")])
+        out.append(SeenPerson(id=j, direction=None, action=int(act[j]), distance_m=float(d),
+                              acquainted=text.endswith("(知人)")))
+    return out
+
+
+def test_negative_control_a_changed_reference_is_caught():
+    """負の対照: 差し替えの口で 1 人の印を変えると描画の指紋が変わる(差し替えが描画に効いている)。"""
+    r, _a = crowd(n=300, mode="fixed", friends=True)
+    base = [r.render(i, tick=600, wake_reason=3).prompt_hash for i in range(0, 300, 3)]
+
+    def flipped(self, i, cell, tc_):  # noqa: ANN001, ANN202
+        got = _reference_nearby_people(self, i, cell, tc_)
+        return [SeenPerson(sp.id, sp.direction, sp.action, sp.distance_m, not sp.acquainted) for sp in got]
+
+    Renderer._nearby_people, saved = flipped, Renderer._nearby_people
+    try:
+        r2, _a2 = crowd(n=300, mode="fixed", friends=True)
+        other = [r2.render(i, tick=600, wake_reason=3).prompt_hash for i in range(0, 300, 3)]
+    finally:
+        Renderer._nearby_people = saved
+    assert base != other

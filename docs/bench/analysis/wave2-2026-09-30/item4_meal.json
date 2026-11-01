@@ -1,0 +1,310 @@
+{
+ "schema": "shibuya.bench/wave2-2026-09-30/meal-gate/1",
+ "how": "classical 5,000 体・seed 1・v3・energy・1 シミュ日。per_wake=既定(旧)・per_hour=Q48 (a)。判定しない",
+ "rows": [
+  {
+   "meal_gate": "per_wake",
+   "classical_social": "acquaintance",
+   "final": "3390e3ec02d392a9",
+   "calls": 97563,
+   "meals_in_area": 9518,
+   "gate_passed": 12726,
+   "gate_passed_by_stage": {
+    "1": 4281,
+    "2": 6445,
+    "3": 2000
+   },
+   "meals_per_agent": {
+    "0": 7,
+    "1": 41,
+    "2": 743,
+    "3": 2406,
+    "4+": 1803
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 7.6
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 7.2
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 6.3
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 8.1
+    }
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": 162.3,
+    "p5": -1011.4,
+    "p25": -210.4,
+    "p50": 6.1,
+    "p75": 596.9,
+    "p95": 1456.3
+   },
+   "census_per_agent": {
+    "intake_kcal": 2627.2,
+    "expenditure_kcal": 2464.9,
+    "balance_kcal": 162.3,
+    "eer_kcal": 2388.0
+   },
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.3637,
+     "normal": 0.5067,
+     "hungry": 0.1135,
+     "very_hungry": 0.0162,
+     "agent_ticks": 2873719
+    },
+    "asleep_in_area": {
+     "full": 0.0181,
+     "normal": 0.2517,
+     "hungry": 0.6886,
+     "very_hungry": 0.0417,
+     "agent_ticks": 362230
+    },
+    "away": {
+     "full": 0.1891,
+     "normal": 0.3436,
+     "hungry": 0.4441,
+     "very_hungry": 0.0232,
+     "agent_ticks": 3964051
+    }
+   }
+  },
+  {
+   "meal_gate": "per_hour",
+   "classical_social": "acquaintance",
+   "final": "81a86003317aeb03",
+   "calls": 95939,
+   "meals_in_area": 7452,
+   "gate_passed": 8938,
+   "gate_passed_by_stage": {
+    "1": 2135,
+    "2": 4983,
+    "3": 1820
+   },
+   "meals_per_agent": {
+    "0": 10,
+    "1": 103,
+    "2": 1392,
+    "3": 2656,
+    "4+": 839
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 9.5
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 8.1
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 7.3
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 9.0
+    }
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": -163.3,
+    "p5": -1241.7,
+    "p25": -567.6,
+    "p50": -94.1,
+    "p75": 71.3,
+    "p95": 1034.1
+   },
+   "census_per_agent": {
+    "intake_kcal": 2299.7,
+    "expenditure_kcal": 2462.9,
+    "balance_kcal": -163.3,
+    "eer_kcal": 2388.0
+   },
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.3061,
+     "normal": 0.5072,
+     "hungry": 0.1594,
+     "very_hungry": 0.0273,
+     "agent_ticks": 2863537
+    },
+    "asleep_in_area": {
+     "full": 0.0108,
+     "normal": 0.2313,
+     "hungry": 0.7003,
+     "very_hungry": 0.0577,
+     "agent_ticks": 372412
+    },
+    "away": {
+     "full": 0.1841,
+     "normal": 0.3274,
+     "hungry": 0.4618,
+     "very_hungry": 0.0268,
+     "agent_ticks": 3964051
+    }
+   }
+  },
+  {
+   "meal_gate": "per_wake",
+   "classical_social": "near_first",
+   "final": "60e7222783a221c6",
+   "calls": 102021,
+   "meals_in_area": 9628,
+   "gate_passed": 12939,
+   "gate_passed_by_stage": {
+    "1": 4461,
+    "2": 6473,
+    "3": 2005
+   },
+   "meals_per_agent": {
+    "0": 8,
+    "1": 39,
+    "2": 743,
+    "3": 2373,
+    "4+": 1837
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 7.6
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 7.2
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 6.3
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 8.1
+    }
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": 176.9,
+    "p5": -1008.5,
+    "p25": -219.5,
+    "p50": 6.2,
+    "p75": 624.9,
+    "p95": 1498.0
+   },
+   "census_per_agent": {
+    "intake_kcal": 2643.0,
+    "expenditure_kcal": 2466.2,
+    "balance_kcal": 176.9,
+    "eer_kcal": 2388.0
+   },
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.367,
+     "normal": 0.5052,
+     "hungry": 0.1115,
+     "very_hungry": 0.0163,
+     "agent_ticks": 2872484
+    },
+    "asleep_in_area": {
+     "full": 0.0162,
+     "normal": 0.252,
+     "hungry": 0.6905,
+     "very_hungry": 0.0413,
+     "agent_ticks": 363485
+    },
+    "away": {
+     "full": 0.1892,
+     "normal": 0.3443,
+     "hungry": 0.4435,
+     "very_hungry": 0.023,
+     "agent_ticks": 3964031
+    }
+   }
+  },
+  {
+   "meal_gate": "per_hour",
+   "classical_social": "near_first",
+   "final": "dd3611071cf0ba5e",
+   "calls": 100576,
+   "meals_in_area": 7462,
+   "gate_passed": 8921,
+   "gate_passed_by_stage": {
+    "1": 2153,
+    "2": 4992,
+    "3": 1776
+   },
+   "meals_per_agent": {
+    "0": 9,
+    "1": 101,
+    "2": 1377,
+    "3": 2673,
+    "4+": 840
+   },
+   "breakfast_skip": {
+    "all": {
+     "n": 5000,
+     "skip_pct": 9.5
+    },
+    "age20_29": {
+     "n": 993,
+     "skip_pct": 8.1
+    },
+    "age20_29_male": {
+     "n": 537,
+     "skip_pct": 7.3
+    },
+    "age20_29_female": {
+     "n": 456,
+     "skip_pct": 9.0
+    }
+   },
+   "balance_kcal": {
+    "n": 5000,
+    "mean": -165.5,
+    "p5": -1245.6,
+    "p25": -563.7,
+    "p50": -98.4,
+    "p75": 55.5,
+    "p95": 977.8
+   },
+   "census_per_agent": {
+    "intake_kcal": 2299.2,
+    "expenditure_kcal": 2464.7,
+    "balance_kcal": -165.5,
+    "eer_kcal": 2388.0
+   },
+   "stage_time_share": {
+    "awake_in_area": {
+     "full": 0.3072,
+     "normal": 0.5095,
+     "hungry": 0.1566,
+     "very_hungry": 0.0267,
+     "agent_ticks": 2863589
+    },
+    "asleep_in_area": {
+     "full": 0.0095,
+     "normal": 0.2338,
+     "hungry": 0.6971,
+     "very_hungry": 0.0596,
+     "agent_ticks": 372374
+    },
+    "away": {
+     "full": 0.1836,
+     "normal": 0.3277,
+     "hungry": 0.4618,
+     "very_hungry": 0.027,
+     "agent_ticks": 3964037
+    }
+   }
+  }
+ ]
+}

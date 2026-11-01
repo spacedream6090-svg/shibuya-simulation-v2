@@ -1,0 +1,82 @@
+{
+ "config": "golden_null_arm",
+ "final": "bee59e96a1849734",
+ "calls_llm": 19144,
+ "by_segment": {
+  "S": {
+   "initialize": 1,
+   "initialize_energy": 1,
+   "normalized_refractory_scale": 1,
+   "place_at_external": 1,
+   "refractory_ticks": 1,
+   "set_initial_activity": 1
+  },
+  "body": {
+   "_energy_meal": 56,
+   "_tick_minute": 56,
+   "advance_body": 1440,
+   "energy_out_of_area_meal": 56
+  },
+  "world": {
+   "_require_thawed": 1,
+   "collect_waste": 234,
+   "consume": 1,
+   "discard_to_bin": 1,
+   "rail_arrive": 285,
+   "rail_depart": 320,
+   "release_indoor": 339,
+   "restock": 1,
+   "set_notice_state": 2,
+   "set_open_flags": 47,
+   "set_thermal": 288,
+   "sync_transit_activity": 1440
+  },
+  "detect": {
+   "apply_detection": 1440
+  },
+  "plan_boundary": {
+   "begin_planned_sleep": 54,
+   "wake_from_plan": 987
+  },
+  "decide": {
+   "_require_thawed": 1209,
+   "set_refractory": 1209
+  },
+  "phase_c": {
+   "_advance_focus": 1440,
+   "_board_riders": 525,
+   "_cell_of_node": 1505,
+   "_clear_focus": 579,
+   "_complete_buy": 370,
+   "_energy_snack": 370,
+   "_enter_board_queue": 401,
+   "_fail": 6865,
+   "_ok": 5492,
+   "_plan_exit_mask": 1085,
+   "_platform_table": 980,
+   "_require_thawed": 370,
+   "_serve_board_queue": 1440,
+   "_serve_poi_queue": 1440,
+   "_set_focus": 1169,
+   "_settle_approach": 619,
+   "_tick_minute": 370,
+   "apply": 1440,
+   "release_indoor": 27,
+   "talk_within_reach": 577
+  },
+  "conversation": {
+   "revert_conversation": 476,
+   "talk_within_reach": 497
+  },
+  "apply_responses": {
+   "_require_thawed": 31,
+   "revert_conversation": 276,
+   "set_conversing": 31,
+   "talk_within_reach": 461
+  },
+  "close_final": {
+   "rail_depart": 1,
+   "sync_transit_activity": 1
+  }
+ }
+}

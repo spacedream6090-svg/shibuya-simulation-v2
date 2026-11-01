@@ -1,0 +1,1823 @@
+{
+ "base": "base",
+ "agents": 5000,
+ "days": 1,
+ "arms": {
+  "default": {
+   "v3_mem_store": {
+    "moved": [
+     "calls_column_names",
+     "full_last"
+    ],
+    "moved_tape_columns": [
+     "recalled_event_ids"
+    ],
+    "calls_delta": 0,
+    "final": [
+     "a9f6f9f0adb3f9a4",
+     "a9f6f9f0adb3f9a4"
+    ],
+    "events_rows": [
+     122892,
+     53682
+    ],
+    "wall_ms_per_step": [
+     49.063,
+     44.132
+    ],
+    "mr65": null,
+    "topk_m1_vs_m0": {},
+    "topk_shares": {},
+    "relations": [
+     {},
+     {}
+    ]
+   },
+   "v3_mem_rel": {
+    "moved": [
+     "calls_column_names",
+     "full_last"
+    ],
+    "moved_tape_columns": [
+     "recalled_event_ids"
+    ],
+    "calls_delta": 0,
+    "final": [
+     "768b2262e3b0999e",
+     "768b2262e3b0999e"
+    ],
+    "events_rows": [
+     125991,
+     53943
+    ],
+    "wall_ms_per_step": [
+     47.637,
+     43.986
+    ],
+    "mr65": null,
+    "topk_m1_vs_m0": {},
+    "topk_shares": {},
+    "relations": [
+     {
+      "edges_live_total": 8981,
+      "agents_with_edges": 1858,
+      "kinds": {
+       "household": 2,
+       "work": 5712,
+       "school": 3110,
+       "acquaintance": 157
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 804,
+       "agents_with_15": 65
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7962
+      }
+     },
+     {
+      "edges_live_total": 8981,
+      "agents_with_edges": 1858,
+      "kinds": {
+       "household": 2,
+       "work": 5712,
+       "school": 3110,
+       "acquaintance": 157
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 804,
+       "agents_with_15": 65
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7962
+      }
+     }
+    ]
+   },
+   "v3_classical_mem_rel": {
+    "moved": [
+     "calls_column_names",
+     "full_last"
+    ],
+    "moved_tape_columns": [
+     "recalled_event_ids"
+    ],
+    "calls_delta": 0,
+    "final": [
+     "9dd9d5684891b57c",
+     "9dd9d5684891b57c"
+    ],
+    "events_rows": [
+     113564,
+     51607
+    ],
+    "wall_ms_per_step": [
+     67.436,
+     63.002
+    ],
+    "mr65": null,
+    "topk_m1_vs_m0": {},
+    "topk_shares": {},
+    "relations": [
+     {
+      "edges_live_total": 8828,
+      "agents_with_edges": 1773,
+      "kinds": {
+       "household": 2,
+       "work": 5714,
+       "school": 3111,
+       "acquaintance": 1
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 800,
+       "agents_with_15": 64
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7656
+      }
+     },
+     {
+      "edges_live_total": 8828,
+      "agents_with_edges": 1773,
+      "kinds": {
+       "household": 2,
+       "work": 5714,
+       "school": 3111,
+       "acquaintance": 1
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 800,
+       "agents_with_15": 64
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7656
+      }
+     }
+    ]
+   },
+   "w6_v3_default": {
+    "moved": [],
+    "moved_tape_columns": [],
+    "calls_delta": 0,
+    "final": [
+     "b8eadcb51e8705e7",
+     "b8eadcb51e8705e7"
+    ],
+    "events_rows": [
+     53682,
+     53682
+    ],
+    "wall_ms_per_step": [
+     32.038,
+     33.264
+    ],
+    "mr65": null,
+    "topk_m1_vs_m0": {},
+    "topk_shares": {},
+    "relations": [
+     {},
+     {}
+    ]
+   }
+  },
+  "m1": {
+   "v3_mem_store": {
+    "moved": [
+     "final",
+     "behavior_last",
+     "full_last"
+    ],
+    "moved_tape_columns": [
+     "b5_text",
+     "prompt_hash",
+     "recalled_event_ids",
+     "recalled_first_tick",
+     "recalled_kind",
+     "recalled_object",
+     "recalled_rows",
+     "tokens_in"
+    ],
+    "calls_delta": 0,
+    "final": [
+     "a9f6f9f0adb3f9a4",
+     "dca7eddf9fc118e6"
+    ],
+    "events_rows": [
+     122892,
+     122892
+    ],
+    "wall_ms_per_step": [
+     49.063,
+     66.305
+    ],
+    "mr65": {
+     "arms": {
+      "model": "m1",
+      "cue": "id",
+      "people": "table",
+      "embed_model": null,
+      "grain": "each",
+      "env_at_summary": {
+       "model": "m1",
+       "cue": "id",
+       "people": "table",
+       "embed_model": "ruri-v3-30m",
+       "grain": "each",
+       "rate_seed": 1
+      }
+     },
+     "rows_per_agent_max": 60,
+     "uncapped": false,
+     "played_along_share": null,
+     "m1": {
+      "params": {
+       "d": 0.5,
+       "k_recent": 3,
+       "t_min_s": 1.0,
+       "cv_rate": 0.15,
+       "rate_clip_sigma": 3.0,
+       "w_importance": 0.5,
+       "w_cue": 1.0,
+       "d_familiar": 0.35,
+       "forget_margin": 1.0,
+       "clear_margin": 1.0,
+       "kinds": {
+        "episode": {
+         "d": 0.5,
+         "additive": "importance"
+        },
+        "person": {
+         "d": 0.5,
+         "additive": "none"
+        },
+        "impression": {
+         "d": 0.5,
+         "additive": "none"
+        }
+       },
+       "tau": -3.738025
+      },
+      "rate_seed": 1,
+      "scale": {
+       "mean": 1.000413,
+       "sd": 0.149279,
+       "min": 0.55,
+       "max": 1.45
+      },
+      "rows_by_known_times": {
+       "0": 0,
+       "1": 43042,
+       "2": 7068,
+       "3": 3202
+      },
+      "counts": {
+       "touched": 68860,
+       "new_rows": 53312,
+       "cleared": 0,
+       "seeded": 0,
+       "grown": 0
+      }
+     }
+    },
+    "topk_m1_vs_m0": {
+     "calls": 59693,
+     "same_order": 30811,
+     "same_set": 33998,
+     "m1_fewer": 945,
+     "m1_more": 2415,
+     "both_empty": 169,
+     "overlap_items": 87048,
+     "m1_items": 116033,
+     "m0_items": 114244
+    },
+    "topk_shares": {
+     "same_order": 0.5162,
+     "same_order_excluding_both_empty": 0.5148,
+     "same_set": 0.5695,
+     "same_set_excluding_both_empty": 0.5683,
+     "both_empty": 169,
+     "calls": 59693,
+     "overlap_items_of_m0_items": 0.7619
+    },
+    "relations": [
+     {},
+     {}
+    ]
+   },
+   "v3_mem_rel": {
+    "moved": [
+     "final",
+     "behavior_last",
+     "full_last"
+    ],
+    "moved_tape_columns": [
+     "b5_text",
+     "prompt_hash",
+     "recalled_event_ids",
+     "recalled_first_tick",
+     "recalled_kind",
+     "recalled_object",
+     "recalled_rows",
+     "tokens_in"
+    ],
+    "calls_delta": 0,
+    "final": [
+     "768b2262e3b0999e",
+     "7eaf88e41a5a3335"
+    ],
+    "events_rows": [
+     125991,
+     125991
+    ],
+    "wall_ms_per_step": [
+     47.637,
+     62.581
+    ],
+    "mr65": {
+     "arms": {
+      "model": "m1",
+      "cue": "id",
+      "people": "table",
+      "embed_model": null,
+      "grain": "each",
+      "env_at_summary": {
+       "model": "m1",
+       "cue": "id",
+       "people": "table",
+       "embed_model": "ruri-v3-30m",
+       "grain": "each",
+       "rate_seed": 1
+      }
+     },
+     "rows_per_agent_max": 60,
+     "uncapped": false,
+     "played_along_share": null,
+     "m1": {
+      "params": {
+       "d": 0.5,
+       "k_recent": 3,
+       "t_min_s": 1.0,
+       "cv_rate": 0.15,
+       "rate_clip_sigma": 3.0,
+       "w_importance": 0.5,
+       "w_cue": 1.0,
+       "d_familiar": 0.35,
+       "forget_margin": 1.0,
+       "clear_margin": 1.0,
+       "kinds": {
+        "episode": {
+         "d": 0.5,
+         "additive": "importance"
+        },
+        "person": {
+         "d": 0.5,
+         "additive": "none"
+        },
+        "impression": {
+         "d": 0.5,
+         "additive": "none"
+        }
+       },
+       "tau": -3.738025
+      },
+      "rate_seed": 1,
+      "scale": {
+       "mean": 1.000413,
+       "sd": 0.149279,
+       "min": 0.55,
+       "max": 1.45
+      },
+      "rows_by_known_times": {
+       "0": 0,
+       "1": 44195,
+       "2": 7473,
+       "3": 3439
+      },
+      "counts": {
+       "touched": 71658,
+       "new_rows": 55107,
+       "cleared": 0,
+       "seeded": 0,
+       "grown": 0
+      }
+     }
+    },
+    "topk_m1_vs_m0": {
+     "calls": 62959,
+     "same_order": 45925,
+     "same_set": 48470,
+     "m1_fewer": 4238,
+     "m1_more": 2595,
+     "both_empty": 212,
+     "overlap_items": 107402,
+     "m1_items": 119228,
+     "m0_items": 121308
+    },
+    "topk_shares": {
+     "same_order": 0.7294,
+     "same_order_excluding_both_empty": 0.7285,
+     "same_set": 0.7699,
+     "same_set_excluding_both_empty": 0.7691,
+     "both_empty": 212,
+     "calls": 62959,
+     "overlap_items_of_m0_items": 0.8854
+    },
+    "relations": [
+     {
+      "edges_live_total": 8981,
+      "agents_with_edges": 1858,
+      "kinds": {
+       "household": 2,
+       "work": 5712,
+       "school": 3110,
+       "acquaintance": 157
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 804,
+       "agents_with_15": 65
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7962
+      }
+     },
+     {
+      "edges_live_total": 8981,
+      "agents_with_edges": 1858,
+      "kinds": {
+       "household": 2,
+       "work": 5712,
+       "school": 3110,
+       "acquaintance": 157
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 804,
+       "agents_with_15": 65
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7962
+      }
+     }
+    ]
+   },
+   "v3_classical_mem_rel": {
+    "moved": [
+     "final",
+     "behavior_last",
+     "full_last"
+    ],
+    "moved_tape_columns": [
+     "b5_text",
+     "prompt_hash",
+     "recalled_event_ids",
+     "recalled_first_tick",
+     "recalled_kind",
+     "recalled_object",
+     "recalled_rows",
+     "tokens_in"
+    ],
+    "calls_delta": 0,
+    "final": [
+     "9dd9d5684891b57c",
+     "b3e45d6536a63d9e"
+    ],
+    "events_rows": [
+     113564,
+     113564
+    ],
+    "wall_ms_per_step": [
+     67.436,
+     101.308
+    ],
+    "mr65": {
+     "arms": {
+      "model": "m1",
+      "cue": "id",
+      "people": "table",
+      "embed_model": null,
+      "grain": "each",
+      "env_at_summary": {
+       "model": "m1",
+       "cue": "id",
+       "people": "table",
+       "embed_model": "ruri-v3-30m",
+       "grain": "each",
+       "rate_seed": 1
+      }
+     },
+     "rows_per_agent_max": 59,
+     "uncapped": false,
+     "played_along_share": null,
+     "m1": {
+      "params": {
+       "d": 0.5,
+       "k_recent": 3,
+       "t_min_s": 1.0,
+       "cv_rate": 0.15,
+       "rate_clip_sigma": 3.0,
+       "w_importance": 0.5,
+       "w_cue": 1.0,
+       "d_familiar": 0.35,
+       "forget_margin": 1.0,
+       "clear_margin": 1.0,
+       "kinds": {
+        "episode": {
+         "d": 0.5,
+         "additive": "importance"
+        },
+        "person": {
+         "d": 0.5,
+         "additive": "none"
+        },
+        "impression": {
+         "d": 0.5,
+         "additive": "none"
+        }
+       },
+       "tau": -3.738025
+      },
+      "rate_seed": 1,
+      "scale": {
+       "mean": 1.000413,
+       "sd": 0.149279,
+       "min": 0.55,
+       "max": 1.45
+      },
+      "rows_by_known_times": {
+       "0": 0,
+       "1": 46287,
+       "2": 4248,
+       "3": 1882
+      },
+      "counts": {
+       "touched": 61697,
+       "new_rows": 52417,
+       "cleared": 0,
+       "seeded": 0,
+       "grown": 0
+      }
+     }
+    },
+    "topk_m1_vs_m0": {
+     "calls": 100513,
+     "same_order": 66970,
+     "same_set": 69454,
+     "m1_fewer": 16730,
+     "m1_more": 5362,
+     "both_empty": 1965,
+     "overlap_items": 142323,
+     "m1_items": 159093,
+     "m0_items": 176088
+    },
+    "topk_shares": {
+     "same_order": 0.6663,
+     "same_order_excluding_both_empty": 0.6596,
+     "same_set": 0.691,
+     "same_set_excluding_both_empty": 0.6848,
+     "both_empty": 1965,
+     "calls": 100513,
+     "overlap_items_of_m0_items": 0.8082
+    },
+    "relations": [
+     {
+      "edges_live_total": 8828,
+      "agents_with_edges": 1773,
+      "kinds": {
+       "household": 2,
+       "work": 5714,
+       "school": 3111,
+       "acquaintance": 1
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 800,
+       "agents_with_15": 64
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7656
+      }
+     },
+     {
+      "edges_live_total": 8828,
+      "agents_with_edges": 1773,
+      "kinds": {
+       "household": 2,
+       "work": 5714,
+       "school": 3111,
+       "acquaintance": 1
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 800,
+       "agents_with_15": 64
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7656
+      }
+     }
+    ]
+   },
+   "w6_v3_default": {
+    "moved": [],
+    "moved_tape_columns": [],
+    "calls_delta": 0,
+    "final": [
+     "b8eadcb51e8705e7",
+     "b8eadcb51e8705e7"
+    ],
+    "events_rows": [
+     53682,
+     53682
+    ],
+    "wall_ms_per_step": [
+     32.038,
+     32.501
+    ],
+    "mr65": null,
+    "topk_m1_vs_m0": {},
+    "topk_shares": {},
+    "relations": [
+     {},
+     {}
+    ]
+   }
+  },
+  "embed": {
+   "v3_mem_store": {
+    "moved": [
+     "final",
+     "behavior_last",
+     "full_last"
+    ],
+    "moved_tape_columns": [
+     "b5_text",
+     "prompt_hash",
+     "recalled_event_ids",
+     "recalled_first_tick",
+     "recalled_kind",
+     "recalled_object",
+     "recalled_rows",
+     "tokens_in"
+    ],
+    "calls_delta": 0,
+    "final": [
+     "a9f6f9f0adb3f9a4",
+     "e0096057b31a7e99"
+    ],
+    "events_rows": [
+     122892,
+     122892
+    ],
+    "wall_ms_per_step": [
+     49.063,
+     48.398
+    ],
+    "mr65": {
+     "arms": {
+      "model": "m0",
+      "cue": "embed",
+      "people": "table",
+      "embed_model": "ngram-test",
+      "grain": "each",
+      "env_at_summary": {
+       "model": "m0",
+       "cue": "embed",
+       "people": "table",
+       "embed_model": "ngram-test",
+       "grain": "each",
+       "rate_seed": 1
+      }
+     },
+     "rows_per_agent_max": 60,
+     "uncapped": false,
+     "played_along_share": null,
+     "cue": {
+      "model": "ngram-test",
+      "dim": 256,
+      "w_ctx": 1.0,
+      "cos_match": 0.5,
+      "rows_with_vec": 329,
+      "agents_heard": 0,
+      "agents_own": 316,
+      "counts": {
+       "heard": 0,
+       "own": 698,
+       "rows_embedded": 329,
+       "rows_dropped": 0,
+       "queries": 8,
+       "query_cache_hits": 2582,
+       "recalls_with_cue": 2590,
+       "recalls_without_cue": 57103
+      }
+     }
+    },
+    "topk_m1_vs_m0": {},
+    "topk_shares": {},
+    "relations": [
+     {},
+     {}
+    ]
+   },
+   "v3_mem_rel": {
+    "moved": [
+     "final",
+     "behavior_last",
+     "full_last"
+    ],
+    "moved_tape_columns": [
+     "b5_text",
+     "prompt_hash",
+     "recalled_event_ids",
+     "recalled_first_tick",
+     "recalled_kind",
+     "recalled_object",
+     "recalled_rows",
+     "tokens_in"
+    ],
+    "calls_delta": 0,
+    "final": [
+     "768b2262e3b0999e",
+     "cc2ac53d24ae28e8"
+    ],
+    "events_rows": [
+     125991,
+     125991
+    ],
+    "wall_ms_per_step": [
+     47.637,
+     47.073
+    ],
+    "mr65": {
+     "arms": {
+      "model": "m0",
+      "cue": "embed",
+      "people": "table",
+      "embed_model": "ngram-test",
+      "grain": "each",
+      "env_at_summary": {
+       "model": "m0",
+       "cue": "embed",
+       "people": "table",
+       "embed_model": "ngram-test",
+       "grain": "each",
+       "rate_seed": 1
+      }
+     },
+     "rows_per_agent_max": 60,
+     "uncapped": false,
+     "played_along_share": null,
+     "cue": {
+      "model": "ngram-test",
+      "dim": 256,
+      "w_ctx": 1.0,
+      "cos_match": 0.5,
+      "rows_with_vec": 374,
+      "agents_heard": 0,
+      "agents_own": 358,
+      "counts": {
+       "heard": 0,
+       "own": 742,
+       "rows_embedded": 379,
+       "rows_dropped": 0,
+       "queries": 8,
+       "query_cache_hits": 3243,
+       "recalls_with_cue": 3251,
+       "recalls_without_cue": 59708
+      }
+     }
+    },
+    "topk_m1_vs_m0": {},
+    "topk_shares": {},
+    "relations": [
+     {
+      "edges_live_total": 8981,
+      "agents_with_edges": 1858,
+      "kinds": {
+       "household": 2,
+       "work": 5712,
+       "school": 3110,
+       "acquaintance": 157
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 804,
+       "agents_with_15": 65
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7962
+      }
+     },
+     {
+      "edges_live_total": 8981,
+      "agents_with_edges": 1858,
+      "kinds": {
+       "household": 2,
+       "work": 5712,
+       "school": 3110,
+       "acquaintance": 157
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 804,
+       "agents_with_15": 65
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7962
+      }
+     }
+    ]
+   },
+   "v3_classical_mem_rel": {
+    "moved": [
+     "final",
+     "behavior_last",
+     "full_last"
+    ],
+    "moved_tape_columns": [
+     "b5_text",
+     "prompt_hash",
+     "recalled_event_ids",
+     "recalled_first_tick",
+     "recalled_kind",
+     "recalled_object",
+     "recalled_rows",
+     "tokens_in"
+    ],
+    "calls_delta": 0,
+    "final": [
+     "9dd9d5684891b57c",
+     "650b5847edb09e63"
+    ],
+    "events_rows": [
+     113564,
+     113564
+    ],
+    "wall_ms_per_step": [
+     67.436,
+     66.153
+    ],
+    "mr65": {
+     "arms": {
+      "model": "m0",
+      "cue": "embed",
+      "people": "table",
+      "embed_model": "ngram-test",
+      "grain": "each",
+      "env_at_summary": {
+       "model": "m0",
+       "cue": "embed",
+       "people": "table",
+       "embed_model": "ngram-test",
+       "grain": "each",
+       "rate_seed": 1
+      }
+     },
+     "rows_per_agent_max": 59,
+     "uncapped": false,
+     "played_along_share": null,
+     "cue": {
+      "model": "ngram-test",
+      "dim": 256,
+      "w_ctx": 1.0,
+      "cos_match": 0.5,
+      "rows_with_vec": 246,
+      "agents_heard": 0,
+      "agents_own": 221,
+      "counts": {
+       "heard": 0,
+       "own": 650,
+       "rows_embedded": 256,
+       "rows_dropped": 0,
+       "queries": 4,
+       "query_cache_hits": 2962,
+       "recalls_with_cue": 2966,
+       "recalls_without_cue": 97547
+      }
+     }
+    },
+    "topk_m1_vs_m0": {},
+    "topk_shares": {},
+    "relations": [
+     {
+      "edges_live_total": 8828,
+      "agents_with_edges": 1773,
+      "kinds": {
+       "household": 2,
+       "work": 5714,
+       "school": 3111,
+       "acquaintance": 1
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 800,
+       "agents_with_15": 64
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7656
+      }
+     },
+     {
+      "edges_live_total": 8828,
+      "agents_with_edges": 1773,
+      "kinds": {
+       "household": 2,
+       "work": 5714,
+       "school": 3111,
+       "acquaintance": 1
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 800,
+       "agents_with_15": 64
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7656
+      }
+     }
+    ]
+   },
+   "w6_v3_default": {
+    "moved": [],
+    "moved_tape_columns": [],
+    "calls_delta": 0,
+    "final": [
+     "b8eadcb51e8705e7",
+     "b8eadcb51e8705e7"
+    ],
+    "events_rows": [
+     53682,
+     53682
+    ],
+    "wall_ms_per_step": [
+     32.038,
+     32.161
+    ],
+    "mr65": null,
+    "topk_m1_vs_m0": {},
+    "topk_shares": {},
+    "relations": [
+     {},
+     {}
+    ]
+   }
+  },
+  "people": {
+   "v3_mem_store": {
+    "moved": [
+     "final",
+     "behavior_last",
+     "full_last"
+    ],
+    "moved_tape_columns": [
+     "b5_text",
+     "prompt_hash",
+     "recalled_event_ids",
+     "recalled_first_tick",
+     "recalled_kind",
+     "recalled_object",
+     "recalled_rows",
+     "tokens_in"
+    ],
+    "calls_delta": 0,
+    "final": [
+     "a9f6f9f0adb3f9a4",
+     "fc10773ef8ec1a4c"
+    ],
+    "events_rows": [
+     122892,
+     122892
+    ],
+    "wall_ms_per_step": [
+     49.063,
+     68.574
+    ],
+    "mr65": {
+     "arms": {
+      "model": "m1",
+      "cue": "id",
+      "people": "memory",
+      "embed_model": null,
+      "grain": "each",
+      "env_at_summary": {
+       "model": "m1",
+       "cue": "id",
+       "people": "memory",
+       "embed_model": "ruri-v3-30m",
+       "grain": "each",
+       "rate_seed": 1
+      }
+     },
+     "rows_per_agent_max": 60,
+     "uncapped": true,
+     "played_along_share": null,
+     "m1": {
+      "params": {
+       "d": 0.5,
+       "k_recent": 3,
+       "t_min_s": 1.0,
+       "cv_rate": 0.15,
+       "rate_clip_sigma": 3.0,
+       "w_importance": 0.5,
+       "w_cue": 1.0,
+       "d_familiar": 0.35,
+       "forget_margin": 1.0,
+       "clear_margin": 1.0,
+       "kinds": {
+        "episode": {
+         "d": 0.5,
+         "additive": "importance"
+        },
+        "person": {
+         "d": 0.5,
+         "additive": "none"
+        },
+        "impression": {
+         "d": 0.5,
+         "additive": "none"
+        }
+       },
+       "tau": -3.738025
+      },
+      "rate_seed": 1,
+      "scale": {
+       "mean": 1.000413,
+       "sd": 0.149279,
+       "min": 0.55,
+       "max": 1.45
+      },
+      "rows_by_known_times": {
+       "0": 0,
+       "1": 43083,
+       "2": 7156,
+       "3": 3443
+      },
+      "counts": {
+       "touched": 69929,
+       "new_rows": 53682,
+       "cleared": 0,
+       "seeded": 0,
+       "grown": 0
+      }
+     },
+     "people": {
+      "rows": 370,
+      "agents": 355,
+      "per_agent_max": 2,
+      "per_agent_mean": 0.074
+     }
+    },
+    "topk_m1_vs_m0": {
+     "calls": 59693,
+     "same_order": 30811,
+     "same_set": 33998,
+     "m1_fewer": 945,
+     "m1_more": 2415,
+     "both_empty": 169,
+     "overlap_items": 87048,
+     "m1_items": 116033,
+     "m0_items": 114244
+    },
+    "topk_shares": {
+     "same_order": 0.5162,
+     "same_order_excluding_both_empty": 0.5148,
+     "same_set": 0.5695,
+     "same_set_excluding_both_empty": 0.5683,
+     "both_empty": 169,
+     "calls": 59693,
+     "overlap_items_of_m0_items": 0.7619
+    },
+    "relations": [
+     {},
+     {}
+    ]
+   },
+   "v3_mem_rel": {
+    "moved": [
+     "final",
+     "calls",
+     "blocks_sha",
+     "action_usage_sha",
+     "behavior_last",
+     "full_last",
+     "noticed",
+     "meals"
+    ],
+    "moved_tape_columns": [
+     "acquaintance_ids",
+     "agent_id",
+     "b5_text",
+     "b6_block_id",
+     "block_ids",
+     "call_id",
+     "deferred",
+     "deferred_reason",
+     "observed_tick",
+     "params_hash",
+     "prompt_hash",
+     "recalled_event_ids",
+     "recalled_first_tick",
+     "recalled_kind",
+     "recalled_object",
+     "recalled_rows",
+     "recalled_source",
+     "response",
+     "tick",
+     "tokens_in",
+     "tokens_out",
+     "wake_class"
+    ],
+    "calls_delta": -3105,
+    "final": [
+     "768b2262e3b0999e",
+     "16434de8b0643c7c"
+    ],
+    "events_rows": [
+     125991,
+     123400
+    ],
+    "wall_ms_per_step": [
+     47.637,
+     63.854
+    ],
+    "mr65": {
+     "arms": {
+      "model": "m1",
+      "cue": "id",
+      "people": "memory",
+      "embed_model": null,
+      "grain": "each",
+      "env_at_summary": {
+       "model": "m1",
+       "cue": "id",
+       "people": "memory",
+       "embed_model": "ruri-v3-30m",
+       "grain": "each",
+       "rate_seed": 1
+      }
+     },
+     "rows_per_agent_max": 58,
+     "uncapped": true,
+     "played_along_share": null,
+     "m1": {
+      "params": {
+       "d": 0.5,
+       "k_recent": 3,
+       "t_min_s": 1.0,
+       "cv_rate": 0.15,
+       "rate_clip_sigma": 3.0,
+       "w_importance": 0.5,
+       "w_cue": 1.0,
+       "d_familiar": 0.35,
+       "forget_margin": 1.0,
+       "clear_margin": 1.0,
+       "kinds": {
+        "episode": {
+         "d": 0.5,
+         "additive": "importance"
+        },
+        "person": {
+         "d": 0.5,
+         "additive": "none"
+        },
+        "impression": {
+         "d": 0.5,
+         "additive": "none"
+        }
+       },
+       "tau": -3.738025
+      },
+      "rate_seed": 1,
+      "scale": {
+       "mean": 1.000413,
+       "sd": 0.149279,
+       "min": 0.55,
+       "max": 1.45
+      },
+      "rows_by_known_times": {
+       "0": 0,
+       "1": 51878,
+       "2": 7419,
+       "3": 3467
+      },
+      "counts": {
+       "touched": 70467,
+       "new_rows": 53903,
+       "cleared": 0,
+       "seeded": 8861,
+       "grown": 0
+      }
+     },
+     "people": {
+      "rows": 9215,
+      "agents": 1976,
+      "per_agent_max": 16,
+      "per_agent_mean": 1.843
+     }
+    },
+    "topk_m1_vs_m0": {
+     "calls": 61629,
+     "same_order": 45150,
+     "same_set": 47591,
+     "m1_fewer": 4262,
+     "m1_more": 2710,
+     "both_empty": 1986,
+     "overlap_items": 101482,
+     "m1_items": 112837,
+     "m0_items": 114795
+    },
+    "topk_shares": {
+     "same_order": 0.7326,
+     "same_order_excluding_both_empty": 0.7237,
+     "same_set": 0.7722,
+     "same_set_excluding_both_empty": 0.7646,
+     "both_empty": 1986,
+     "calls": 61629,
+     "overlap_items_of_m0_items": 0.884
+    },
+    "relations": [
+     {
+      "edges_live_total": 8981,
+      "agents_with_edges": 1858,
+      "kinds": {
+       "household": 2,
+       "work": 5712,
+       "school": 3110,
+       "acquaintance": 157
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 804,
+       "agents_with_15": 65
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7962
+      }
+     },
+     {
+      "edges_live_total": 4996,
+      "agents_with_edges": 1208,
+      "kinds": {
+       "household": 2,
+       "work": 3193,
+       "school": 1688,
+       "acquaintance": 113
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 427,
+       "agents_with_15": 19
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 4.0,
+       "p99": 12.0,
+       "p100": 16.0,
+       "mean": 0.9992
+      }
+     }
+    ]
+   },
+   "v3_classical_mem_rel": {
+    "moved": [
+     "final",
+     "calls",
+     "blocks_sha",
+     "action_usage_sha",
+     "behavior_last",
+     "full_last",
+     "noticed",
+     "meals"
+    ],
+    "moved_tape_columns": [
+     "acquaintance_ids",
+     "agent_id",
+     "b5_text",
+     "b6_block_id",
+     "block_ids",
+     "call_id",
+     "deferred",
+     "deferred_reason",
+     "observed_tick",
+     "params_hash",
+     "prompt_hash",
+     "recalled_event_ids",
+     "recalled_first_tick",
+     "recalled_kind",
+     "recalled_object",
+     "recalled_rows",
+     "recalled_source",
+     "response",
+     "tick",
+     "tokens_in",
+     "tokens_out",
+     "wake_class"
+    ],
+    "calls_delta": -11891,
+    "final": [
+     "9dd9d5684891b57c",
+     "2353ea23fb37472b"
+    ],
+    "events_rows": [
+     113564,
+     108022
+    ],
+    "wall_ms_per_step": [
+     67.436,
+     92.384
+    ],
+    "mr65": {
+     "arms": {
+      "model": "m1",
+      "cue": "id",
+      "people": "memory",
+      "embed_model": null,
+      "grain": "each",
+      "env_at_summary": {
+       "model": "m1",
+       "cue": "id",
+       "people": "memory",
+       "embed_model": "ruri-v3-30m",
+       "grain": "each",
+       "rate_seed": 1
+      }
+     },
+     "rows_per_agent_max": 57,
+     "uncapped": true,
+     "played_along_share": null,
+     "m1": {
+      "params": {
+       "d": 0.5,
+       "k_recent": 3,
+       "t_min_s": 1.0,
+       "cv_rate": 0.15,
+       "rate_clip_sigma": 3.0,
+       "w_importance": 0.5,
+       "w_cue": 1.0,
+       "d_familiar": 0.35,
+       "forget_margin": 1.0,
+       "clear_margin": 1.0,
+       "kinds": {
+        "episode": {
+         "d": 0.5,
+         "additive": "importance"
+        },
+        "person": {
+         "d": 0.5,
+         "additive": "none"
+        },
+        "impression": {
+         "d": 0.5,
+         "additive": "none"
+        }
+       },
+       "tau": -3.738025
+      },
+      "rate_seed": 1,
+      "scale": {
+       "mean": 1.000413,
+       "sd": 0.149279,
+       "min": 0.55,
+       "max": 1.45
+      },
+      "rows_by_known_times": {
+       "0": 0,
+       "1": 52967,
+       "2": 3977,
+       "3": 1530
+      },
+      "counts": {
+       "touched": 57724,
+       "new_rows": 49613,
+       "cleared": 0,
+       "seeded": 8861,
+       "grown": 0
+      }
+     },
+     "people": {
+      "rows": 8861,
+      "agents": 1773,
+      "per_agent_max": 15,
+      "per_agent_mean": 1.7722
+     }
+    },
+    "topk_m1_vs_m0": {
+     "calls": 90396,
+     "same_order": 61720,
+     "same_set": 63666,
+     "m1_fewer": 14766,
+     "m1_more": 5007,
+     "both_empty": 3888,
+     "overlap_items": 123598,
+     "m1_items": 137761,
+     "m0_items": 152191
+    },
+    "topk_shares": {
+     "same_order": 0.6828,
+     "same_order_excluding_both_empty": 0.6685,
+     "same_set": 0.7043,
+     "same_set_excluding_both_empty": 0.691,
+     "both_empty": 3888,
+     "calls": 90396,
+     "overlap_items_of_m0_items": 0.8121
+    },
+    "relations": [
+     {
+      "edges_live_total": 8828,
+      "agents_with_edges": 1773,
+      "kinds": {
+       "household": 2,
+       "work": 5714,
+       "school": 3111,
+       "acquaintance": 1
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 800,
+       "agents_with_15": 64
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7656
+      }
+     },
+     {
+      "edges_live_total": 4893,
+      "agents_with_edges": 1139,
+      "kinds": {
+       "household": 2,
+       "work": 3193,
+       "school": 1698
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 423,
+       "agents_with_15": 19
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 4.0,
+       "p99": 12.0,
+       "p100": 15.0,
+       "mean": 0.9786
+      }
+     }
+    ]
+   },
+   "w6_v3_default": {
+    "moved": [],
+    "moved_tape_columns": [],
+    "calls_delta": 0,
+    "final": [
+     "b8eadcb51e8705e7",
+     "b8eadcb51e8705e7"
+    ],
+    "events_rows": [
+     53682,
+     53682
+    ],
+    "wall_ms_per_step": [
+     32.038,
+     32.131
+    ],
+    "mr65": null,
+    "topk_m1_vs_m0": {},
+    "topk_shares": {},
+    "relations": [
+     {},
+     {}
+    ]
+   }
+  },
+  "grain": {
+   "v3_mem_store": {
+    "moved": [
+     "full_last"
+    ],
+    "moved_tape_columns": [
+     "recalled_event_ids"
+    ],
+    "calls_delta": 0,
+    "final": [
+     "a9f6f9f0adb3f9a4",
+     "a9f6f9f0adb3f9a4"
+    ],
+    "events_rows": [
+     122892,
+     107344
+    ],
+    "wall_ms_per_step": [
+     49.063,
+     48.666
+    ],
+    "mr65": {
+     "arms": {
+      "model": "m0",
+      "cue": "id",
+      "people": "table",
+      "embed_model": null,
+      "grain": "day",
+      "env_at_summary": {
+       "model": "m0",
+       "cue": "id",
+       "people": "table",
+       "embed_model": "ruri-v3-30m",
+       "grain": "day",
+       "rate_seed": 1
+      }
+     },
+     "rows_per_agent_max": 60,
+     "uncapped": false,
+     "played_along_share": null
+    },
+    "topk_m1_vs_m0": {},
+    "topk_shares": {},
+    "relations": [
+     {},
+     {}
+    ]
+   },
+   "v3_mem_rel": {
+    "moved": [
+     "full_last"
+    ],
+    "moved_tape_columns": [
+     "recalled_event_ids"
+    ],
+    "calls_delta": 0,
+    "final": [
+     "768b2262e3b0999e",
+     "768b2262e3b0999e"
+    ],
+    "events_rows": [
+     125991,
+     109440
+    ],
+    "wall_ms_per_step": [
+     47.637,
+     47.614
+    ],
+    "mr65": {
+     "arms": {
+      "model": "m0",
+      "cue": "id",
+      "people": "table",
+      "embed_model": null,
+      "grain": "day",
+      "env_at_summary": {
+       "model": "m0",
+       "cue": "id",
+       "people": "table",
+       "embed_model": "ruri-v3-30m",
+       "grain": "day",
+       "rate_seed": 1
+      }
+     },
+     "rows_per_agent_max": 60,
+     "uncapped": false,
+     "played_along_share": null
+    },
+    "topk_m1_vs_m0": {},
+    "topk_shares": {},
+    "relations": [
+     {
+      "edges_live_total": 8981,
+      "agents_with_edges": 1858,
+      "kinds": {
+       "household": 2,
+       "work": 5712,
+       "school": 3110,
+       "acquaintance": 157
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 804,
+       "agents_with_15": 65
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7962
+      }
+     },
+     {
+      "edges_live_total": 8981,
+      "agents_with_edges": 1858,
+      "kinds": {
+       "household": 2,
+       "work": 5712,
+       "school": 3110,
+       "acquaintance": 157
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 804,
+       "agents_with_15": 65
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7962
+      }
+     }
+    ]
+   },
+   "v3_classical_mem_rel": {
+    "moved": [
+     "full_last"
+    ],
+    "moved_tape_columns": [
+     "recalled_event_ids"
+    ],
+    "calls_delta": 0,
+    "final": [
+     "9dd9d5684891b57c",
+     "9dd9d5684891b57c"
+    ],
+    "events_rows": [
+     113564,
+     104284
+    ],
+    "wall_ms_per_step": [
+     67.436,
+     67.954
+    ],
+    "mr65": {
+     "arms": {
+      "model": "m0",
+      "cue": "id",
+      "people": "table",
+      "embed_model": null,
+      "grain": "day",
+      "env_at_summary": {
+       "model": "m0",
+       "cue": "id",
+       "people": "table",
+       "embed_model": "ruri-v3-30m",
+       "grain": "day",
+       "rate_seed": 1
+      }
+     },
+     "rows_per_agent_max": 59,
+     "uncapped": false,
+     "played_along_share": null
+    },
+    "topk_m1_vs_m0": {},
+    "topk_shares": {},
+    "relations": [
+     {
+      "edges_live_total": 8828,
+      "agents_with_edges": 1773,
+      "kinds": {
+       "household": 2,
+       "work": 5714,
+       "school": 3111,
+       "acquaintance": 1
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 800,
+       "agents_with_15": 64
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7656
+      }
+     },
+     {
+      "edges_live_total": 8828,
+      "agents_with_edges": 1773,
+      "kinds": {
+       "household": 2,
+       "work": 5714,
+       "school": 3111,
+       "acquaintance": 1
+      },
+      "dunbar_layers": {
+       "agents_with_5_or_more": 800,
+       "agents_with_15": 64
+      },
+      "edges_live_per_agent": {
+       "p0": 0.0,
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 7.0,
+       "p99": 15.0,
+       "p100": 15.0,
+       "mean": 1.7656
+      }
+     }
+    ]
+   },
+   "w6_v3_default": {
+    "moved": [],
+    "moved_tape_columns": [],
+    "calls_delta": 0,
+    "final": [
+     "b8eadcb51e8705e7",
+     "b8eadcb51e8705e7"
+    ],
+    "events_rows": [
+     53682,
+     53682
+    ],
+    "wall_ms_per_step": [
+     32.038,
+     33.363
+    ],
+    "mr65": null,
+    "topk_m1_vs_m0": {},
+    "topk_shares": {},
+    "relations": [
+     {},
+     {}
+    ]
+   }
+  }
+ }
+}

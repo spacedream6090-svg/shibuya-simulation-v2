@@ -1,0 +1,3912 @@
+{
+ "a": {
+  "label": "lg",
+  "kw": null,
+  "src": null,
+  "env": {
+   "SHIBUYA_SPACE": "legacy"
+  }
+ },
+ "b": {
+  "label": "d2",
+  "kw": null,
+  "src": null,
+  "env": {}
+ },
+ "note": "HEAD(legacy) vs 5-1b 既定",
+ "keys": [
+  "final",
+  "calls",
+  "blocks_rows",
+  "blocks_sha",
+  "calls_rows",
+  "calls_column_names",
+  "calls_columns_sha",
+  "action_usage_total",
+  "action_usage_sha",
+  "calls_by_condition",
+  "salient_events",
+  "collapse",
+  "noticed",
+  "dispatches",
+  "arrived",
+  "mean_delay_min",
+  "meals",
+  "behavior_last",
+  "full_last",
+  "end_of_day",
+  "start_sim_datetime",
+  "replay_date",
+  "calendar_weekday",
+  "rng_scheme",
+  "frozen_sources"
+ ],
+ "rows": {
+  "w6_v3_default": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "bb86f89855172717",
+     "b": "7bfe215641b792ac"
+    },
+    "calls": {
+     "a": 63572,
+     "b": 62176
+    },
+    "blocks_rows": {
+     "a": 6928,
+     "b": 6822
+    },
+    "blocks_sha": {
+     "a": "22680c3a448cd2b0",
+     "b": "cd2a649e84a3b50b"
+    },
+    "calls_rows": {
+     "a": 63572,
+     "b": 62176
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "d95b6a8efd43829e",
+      "agent_id": "4400e53dcd256f2a",
+      "tick": "cd98bec56ec7f5a6",
+      "wake_class": "a531756e3b6d3dfe",
+      "prompt_hash": "ace39bce79fc43f4",
+      "block_ids": "382ac6b5d6d593ee",
+      "params_hash": "7aa183a58f23b42c",
+      "response": "06a8c5cb75d853b2",
+      "tokens_in": "c402d8983cb32a54",
+      "tokens_out": "36e1cd92b18a62b1",
+      "deferred": "96f30f8ada500791",
+      "deferred_reason": "2444b8a049a3f0b4",
+      "observed_tick": "ffd845976d7047c7",
+      "recalled_rows": "4d1f39be6e8958d4",
+      "recalled_first_tick": "4d1f39be6e8958d4",
+      "recalled_kind": "4d1f39be6e8958d4",
+      "recalled_object": "4d1f39be6e8958d4",
+      "recalled_source": "4d1f39be6e8958d4",
+      "acquaintance_ids": "4d1f39be6e8958d4",
+      "b5_text": "b2dbd71450080118",
+      "b6_block_id": "0e02c82c3fa721a9"
+     },
+     "b": {
+      "call_id": "90286e81e31265fa",
+      "agent_id": "4875f87b04a5475c",
+      "tick": "9a214b3b38c183ec",
+      "wake_class": "f6f0616987342a33",
+      "prompt_hash": "2bd7927a73d2659b",
+      "block_ids": "8b68b1fbff94065c",
+      "params_hash": "a2bf4563c131dee8",
+      "response": "1abac69ce4bca3b8",
+      "tokens_in": "695ca677a2945632",
+      "tokens_out": "8040f5b09063a7ce",
+      "deferred": "fcd7ba6a4517ce9d",
+      "deferred_reason": "ebc1ea3a28445644",
+      "observed_tick": "7b6d37c74229a93f",
+      "recalled_rows": "95073d632a052dae",
+      "recalled_first_tick": "95073d632a052dae",
+      "recalled_kind": "95073d632a052dae",
+      "recalled_object": "95073d632a052dae",
+      "recalled_source": "95073d632a052dae",
+      "acquaintance_ids": "95073d632a052dae",
+      "b5_text": "913ba8ca989230ae",
+      "b6_block_id": "02ccdc219dab67b8"
+     }
+    },
+    "action_usage_total": {
+     "a": 302567,
+     "b": 185691
+    },
+    "action_usage_sha": {
+     "a": "4b2c70229b541c3f",
+     "b": "f36bbdc22e4632a1"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 2612,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4220,
+      "PLAN_GENERAL": 6566,
+      "PLAN_TRANSIT": 6720,
+      "INTEROCEPTION": 19065,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 5561,
+      "ACTIVITY_EXPIRY": 18828
+     },
+     "b": {
+      "CONVERSATION_TURN": 2767,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4069,
+      "PLAN_GENERAL": 6437,
+      "PLAN_TRANSIT": 6551,
+      "INTEROCEPTION": 18537,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 5600,
+      "ACTIVITY_EXPIRY": 18215
+     }
+    },
+    "noticed": {
+     "a": 465,
+     "b": 780
+    },
+    "mean_delay_min": {
+     "a": 6.4,
+     "b": 10.2
+    },
+    "meals": {
+     "a": 4414,
+     "b": 4128
+    },
+    "behavior_last": {
+     "a": "bb86f8985517271743702a8faa376b134c1986fd9c0bed27f30b317eb04d18ee",
+     "b": "7bfe215641b792ace98a60faaae1bb1037d0d0d79fbd97ed0dc882a069eb16f3"
+    },
+    "full_last": {
+     "a": "02b942ec4e5dfd184ea7d3fec7fddfc3f88027e87172ced8949c2fb06a95e0fd",
+     "b": "5de598882f4b79779e0ec359511fc8de97c80f3ade00a64e1b51c3cfe65bee22"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "ae38937e033f0d95e1a59680c745ef976e48c4407e85c4d8ddca496683008fec",
+      "full_hash": "23608244c160d64fc04dd3b9598d1a9b7af90908470f8a670949f312c0a4a8bb",
+      "full_external_bytes": 3862360
+     },
+     "b": {
+      "behavior_hash": "28480c4351985f4252ad3cbaa7c24a96981a05a4e4561367384857ebc0d5250e",
+      "full_hash": "250b112627dec2437d1d0b92393c410164a701367999139dde0724d712f3581e",
+      "full_external_bytes": 3841004
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": -1396,
+   "blocks_rows_delta": -106,
+   "action_usage_delta": -116876,
+   "noticed_delta": 315
+  },
+  "w6_v3_activity_off": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "3cdf9dbf4918cd64",
+     "b": "d63b7d5976a4ac19"
+    },
+    "calls": {
+     "a": 49462,
+     "b": 45707
+    },
+    "blocks_rows": {
+     "a": 2354,
+     "b": 2201
+    },
+    "blocks_sha": {
+     "a": "7610d8b44d467b02",
+     "b": "3ef03ac8cdba8f3e"
+    },
+    "calls_rows": {
+     "a": 49462,
+     "b": 45707
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "d37edd24d5931f46",
+      "agent_id": "79090263fb08a0ed",
+      "tick": "08de5392552d78b7",
+      "wake_class": "eb42235f8c22779b",
+      "prompt_hash": "6d40d037ce7110ef",
+      "block_ids": "6b4e0f283820d315",
+      "params_hash": "7d9bd7292d43b353",
+      "response": "3d678261554659a0",
+      "tokens_in": "c42ef682c53cff80",
+      "tokens_out": "dc74ac55ec1fab00",
+      "deferred": "277ee2a87e674b8d",
+      "deferred_reason": "5e5e3e66b53f5f0d",
+      "observed_tick": "4af51616c5124685",
+      "recalled_rows": "6160c51e782d703b",
+      "recalled_first_tick": "6160c51e782d703b",
+      "recalled_kind": "6160c51e782d703b",
+      "recalled_object": "6160c51e782d703b",
+      "recalled_source": "6160c51e782d703b",
+      "acquaintance_ids": "6160c51e782d703b",
+      "b5_text": "736ba74ee5cf3599",
+      "b6_block_id": "657a752623e697d3"
+     },
+     "b": {
+      "call_id": "f393012d9bbb9e14",
+      "agent_id": "b8e7a622441ec64b",
+      "tick": "f55935352794aefa",
+      "wake_class": "38c7adc15ce24836",
+      "prompt_hash": "5c7d6b311ffc7c7e",
+      "block_ids": "220d786b6df63929",
+      "params_hash": "fe43d10795dc29f3",
+      "response": "319e652314d69a36",
+      "tokens_in": "277330e080aab8fd",
+      "tokens_out": "4b20decc9aec98a5",
+      "deferred": "4996d5dc2a7cb097",
+      "deferred_reason": "ed0a00ddeae08dbb",
+      "observed_tick": "bbcbf34ac9796d1d",
+      "recalled_rows": "3c41c50c771d06b7",
+      "recalled_first_tick": "3c41c50c771d06b7",
+      "recalled_kind": "3c41c50c771d06b7",
+      "recalled_object": "3c41c50c771d06b7",
+      "recalled_source": "3c41c50c771d06b7",
+      "acquaintance_ids": "3c41c50c771d06b7",
+      "b5_text": "a6d75095e360343c",
+      "b6_block_id": "f6ee82470c9c2174"
+     }
+    },
+    "action_usage_total": {
+     "a": 173477,
+     "b": 94409
+    },
+    "action_usage_sha": {
+     "a": "2ceca3580ef9a4b8",
+     "b": "0a9eeb7a1270beb7"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1864,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4321,
+      "PLAN_GENERAL": 6796,
+      "PLAN_TRANSIT": 6926,
+      "INTEROCEPTION": 10258,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 19297,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 1675,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4253,
+      "PLAN_GENERAL": 6700,
+      "PLAN_TRANSIT": 6826,
+      "INTEROCEPTION": 9634,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16619,
+      "ACTIVITY_EXPIRY": 0
+     }
+    },
+    "noticed": {
+     "a": 224,
+     "b": 489
+    },
+    "mean_delay_min": {
+     "a": 9.8,
+     "b": 6.8
+    },
+    "meals": {
+     "a": 3412,
+     "b": 3057
+    },
+    "behavior_last": {
+     "a": "3cdf9dbf4918cd643886436e384cb5b2fa18c9de0f040ae4991ef646cff70091",
+     "b": "d63b7d5976a4ac19705d568afed204d3ffbfdcb1800ec58ff77395060bdc0a2e"
+    },
+    "full_last": {
+     "a": "452f3fb4288e8e8e334c684e7cbedb454d2c86945efc9d4f26766eda2f9d8542",
+     "b": "14e9b6b595f08d0083a7da15645def367594f6c829c9ddd9648ae31fa5ea2fa0"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "62dab2296c9546169adff316bb6762b3ee7dc71ff3677e7b7a9e35184c08b6ce",
+      "full_hash": "3fb90ae22506b6b576c367583d4d066dc4a6400ae1b81f164fb3fe37afcb406b",
+      "full_external_bytes": 2818301
+     },
+     "b": {
+      "behavior_hash": "f92345e37f09c416c8b3073be2343b6cb941c2508cb69ca63b99500499b05d75",
+      "full_hash": "e925eebcf0b4553ae6e414740ebfd96dda1a6a7154d1dc60ed818705459fca25",
+      "full_external_bytes": 2815672
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": -3755,
+   "blocks_rows_delta": -153,
+   "action_usage_delta": -79068,
+   "noticed_delta": 265
+  },
+  "w6_v1_default": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "meals",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "8fca095b1ad080d9",
+     "b": "096225c5e2f4b3b6"
+    },
+    "calls": {
+     "a": 50447,
+     "b": 47189
+    },
+    "blocks_rows": {
+     "a": 2348,
+     "b": 2246
+    },
+    "blocks_sha": {
+     "a": "323e88833e16d7f1",
+     "b": "13d30a39c346b824"
+    },
+    "calls_rows": {
+     "a": 50447,
+     "b": 47189
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "24cb40a3df81511a",
+      "agent_id": "801ef7bc4f345f78",
+      "tick": "94aa90ca7cb2de08",
+      "wake_class": "7bda3c73faf7c461",
+      "prompt_hash": "beadde5fbee96c18",
+      "block_ids": "f295f5b58719dc67",
+      "params_hash": "8b280d6d0101ef74",
+      "response": "bbd6f7d2d718cf6b",
+      "tokens_in": "3c006dd4ca8fba66",
+      "tokens_out": "591d932ad31ae196",
+      "deferred": "9c68f82a7c3adf15",
+      "deferred_reason": "63268d5ac4a0583a",
+      "observed_tick": "e1e81e797d629e61",
+      "recalled_rows": "1f2c552ccebd1750",
+      "recalled_first_tick": "1f2c552ccebd1750",
+      "recalled_kind": "1f2c552ccebd1750",
+      "recalled_object": "1f2c552ccebd1750",
+      "recalled_source": "1f2c552ccebd1750",
+      "acquaintance_ids": "1f2c552ccebd1750",
+      "b5_text": "62083d993f6b13b9",
+      "b6_block_id": "f9b06858116f9771"
+     },
+     "b": {
+      "call_id": "a4a8aff4dcca32d5",
+      "agent_id": "6e7dded2311e68bc",
+      "tick": "52bbdff4dd17721f",
+      "wake_class": "a466771d3405b422",
+      "prompt_hash": "177734daddc9901b",
+      "block_ids": "d5defa559afeccb3",
+      "params_hash": "305fafd158e08321",
+      "response": "17b87a26007a3cee",
+      "tokens_in": "9b12a33067cfbfd3",
+      "tokens_out": "d889e6789e388b00",
+      "deferred": "15e25588795cda9e",
+      "deferred_reason": "84b9e68b0e3dec9e",
+      "observed_tick": "5140673ebe6a1a7d",
+      "recalled_rows": "8c25ac1fff5c437b",
+      "recalled_first_tick": "8c25ac1fff5c437b",
+      "recalled_kind": "8c25ac1fff5c437b",
+      "recalled_object": "8c25ac1fff5c437b",
+      "recalled_source": "8c25ac1fff5c437b",
+      "acquaintance_ids": "8c25ac1fff5c437b",
+      "b5_text": "96296ce46c353368",
+      "b6_block_id": "a7a184bf82e1f8d7"
+     }
+    },
+    "action_usage_total": {
+     "a": 178192,
+     "b": 98602
+    },
+    "action_usage_sha": {
+     "a": "f7541e6b3856a0be",
+     "b": "b9a30c6c61aa0d1e"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1946,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4310,
+      "PLAN_GENERAL": 6789,
+      "PLAN_TRANSIT": 6910,
+      "INTEROCEPTION": 11395,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 19097,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 1707,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4242,
+      "PLAN_GENERAL": 6686,
+      "PLAN_TRANSIT": 6822,
+      "INTEROCEPTION": 10831,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16901,
+      "ACTIVITY_EXPIRY": 0
+     }
+    },
+    "noticed": {
+     "a": 590,
+     "b": 571
+    },
+    "mean_delay_min": {
+     "a": 6.2,
+     "b": 10.8
+    },
+    "behavior_last": {
+     "a": "8fca095b1ad080d9ee776c4409d117de868fa5f364d0c127be756e068548cf39",
+     "b": "096225c5e2f4b3b66c914ec364ff2ee310848fcb53934162fa7f61499161ed73"
+    },
+    "full_last": {
+     "a": "8ac129982f4c84a0bb62bbc2c6e96b8c61e72c013a5f284c79dea6efa996a7df",
+     "b": "2c73fd3ddb9613c3119d0d12779bc33a745fcc4c1a497fef5f2fe483ec5bcd21"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "97f42f18d7cc3a9bb8c80ee05e485647208896f9e7ecf40a9a26a1dfd8bce8cd",
+      "full_hash": "c7d24be3a1225d1caf5e8caa7d46a1a83a36592a0e2d17b357f3d15429e6a516",
+      "full_external_bytes": 2814201
+     },
+     "b": {
+      "behavior_hash": "fe17e925c0a1f92e72cbc90ceda2db65af39c6073baed129f322501cc6508c69",
+      "full_hash": "875a8edadb22b7b2a6f5272c29d8b94cacf238c6532384a181bf8c66b9b6e5aa",
+      "full_external_bytes": 2813976
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": -3258,
+   "blocks_rows_delta": -102,
+   "action_usage_delta": -79590,
+   "noticed_delta": -19
+  },
+  "w6_v1_derive_v2_1": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "meals",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "58bbb01114b2d518",
+     "b": "5ae9e2147cbf4efc"
+    },
+    "calls": {
+     "a": 45099,
+     "b": 40784
+    },
+    "blocks_rows": {
+     "a": 2123,
+     "b": 1973
+    },
+    "blocks_sha": {
+     "a": "7860708ae62b7d6d",
+     "b": "a60fd9cbcd9ceda7"
+    },
+    "calls_rows": {
+     "a": 45099,
+     "b": 40784
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "9579b3ab7fdad184",
+      "agent_id": "4051c744d66a0d97",
+      "tick": "83a0e2eb88da26ba",
+      "wake_class": "b2d7a68b110d3c09",
+      "prompt_hash": "25807a2bfcacb2b6",
+      "block_ids": "07054fcdc16ac52b",
+      "params_hash": "458c5bb30d6e0966",
+      "response": "2e764ab1372d8dd3",
+      "tokens_in": "dca1e7eb5118caca",
+      "tokens_out": "5f670b87643342ad",
+      "deferred": "15e4c6cbdb47d350",
+      "deferred_reason": "4191e4ff1a3dccb4",
+      "observed_tick": "aa57d76511fc7320",
+      "recalled_rows": "f919282193f02d3e",
+      "recalled_first_tick": "f919282193f02d3e",
+      "recalled_kind": "f919282193f02d3e",
+      "recalled_object": "f919282193f02d3e",
+      "recalled_source": "f919282193f02d3e",
+      "acquaintance_ids": "f919282193f02d3e",
+      "b5_text": "65c9e6d9491323d3",
+      "b6_block_id": "44639c4de6388209"
+     },
+     "b": {
+      "call_id": "7005d76365cf16a8",
+      "agent_id": "b515bf6dc7c2ee55",
+      "tick": "72e6484bd1d4d8aa",
+      "wake_class": "7bdbae7513948241",
+      "prompt_hash": "8d501bced2cc4679",
+      "block_ids": "c42e08862f46d7fb",
+      "params_hash": "deb042614299a48e",
+      "response": "ba8443258f25e86f",
+      "tokens_in": "24a43a48131a79d9",
+      "tokens_out": "15b43e33322e0985",
+      "deferred": "8f84c87844cd886f",
+      "deferred_reason": "80cf56d77709ab09",
+      "observed_tick": "8245719649a831c1",
+      "recalled_rows": "2abf17d2cce979fe",
+      "recalled_first_tick": "2abf17d2cce979fe",
+      "recalled_kind": "2abf17d2cce979fe",
+      "recalled_object": "2abf17d2cce979fe",
+      "recalled_source": "2abf17d2cce979fe",
+      "acquaintance_ids": "2abf17d2cce979fe",
+      "b5_text": "cadb8250636505ee",
+      "b6_block_id": "97428a124a7628b9"
+     }
+    },
+    "action_usage_total": {
+     "a": 163145,
+     "b": 86956
+    },
+    "action_usage_sha": {
+     "a": "e3b6e35bf0b8c7f0",
+     "b": "26fd7bf6e9202c1f"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1677,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4400,
+      "PLAN_GENERAL": 6758,
+      "PLAN_TRANSIT": 3182,
+      "INTEROCEPTION": 10954,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 18128,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 1348,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4379,
+      "PLAN_GENERAL": 6696,
+      "PLAN_TRANSIT": 3126,
+      "INTEROCEPTION": 10333,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 14902,
+      "ACTIVITY_EXPIRY": 0
+     }
+    },
+    "noticed": {
+     "a": 744,
+     "b": 469
+    },
+    "mean_delay_min": {
+     "a": 9.2,
+     "b": 8.4
+    },
+    "behavior_last": {
+     "a": "58bbb01114b2d51837b611afa8bd6406e0858b776c7b1b367f5d22d825c4fec4",
+     "b": "5ae9e2147cbf4efc01f20615cbef81df4be99d78afe4dacf41a9be954c570ff1"
+    },
+    "full_last": {
+     "a": "32b128dd7331949b4f22ef33b10d70231e451cc04867d61d6b484cddc6c4d0ba",
+     "b": "350c6c63bb0d3a0173026a9da40836e4389a2a8d18b4ce7519ba79bd7435ed69"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "a6f6e631ccf77f4f42d4b0cdbacf80b2309c39052ea3bf1065a901e2bf291602",
+      "full_hash": "769198ba8c5741fbea573817f2f7bf6101d395dc7d59a97f2e49a5debe2ba051",
+      "full_external_bytes": 2827275
+     },
+     "b": {
+      "behavior_hash": "e3f0353abb79eca09cec973121d85a8dc6bc2449d2d964759d5c140359cc9c0a",
+      "full_hash": "d42b4f6bd422b8f512823d4da4d6738f5fef80cbab7f6db6196bdfd63f2d378e",
+      "full_external_bytes": 2814285
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": -4315,
+   "blocks_rows_delta": -150,
+   "action_usage_delta": -76189,
+   "noticed_delta": -275
+  },
+  "w6_v2": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "77ffdd620ee5fb77",
+     "b": "cb302fb189552993"
+    },
+    "calls": {
+     "a": 52069,
+     "b": 48394
+    },
+    "blocks_rows": {
+     "a": 2361,
+     "b": 2245
+    },
+    "blocks_sha": {
+     "a": "3568cc075ad6a3ce",
+     "b": "56d937e3bf21e7dd"
+    },
+    "calls_rows": {
+     "a": 52069,
+     "b": 48394
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "63ca780e45f1a501",
+      "agent_id": "29b027ead3525aec",
+      "tick": "e42c6b53d1b4d180",
+      "wake_class": "91c29b4bf11e6300",
+      "prompt_hash": "5e059d87cd9e9622",
+      "block_ids": "bcda615a12acdeeb",
+      "params_hash": "6844d198befd5088",
+      "response": "8f4bae9afdbfd961",
+      "tokens_in": "17c3c4c37253b82d",
+      "tokens_out": "7bcedca559e02489",
+      "deferred": "d20d91193f5988a8",
+      "deferred_reason": "5b88763645737f8b",
+      "observed_tick": "385c97e0b989b187",
+      "recalled_rows": "483daba166e7e66a",
+      "recalled_first_tick": "483daba166e7e66a",
+      "recalled_kind": "483daba166e7e66a",
+      "recalled_object": "483daba166e7e66a",
+      "recalled_source": "483daba166e7e66a",
+      "acquaintance_ids": "483daba166e7e66a",
+      "b5_text": "071faeddf65ce094",
+      "b6_block_id": "f70d8fe4796567b7"
+     },
+     "b": {
+      "call_id": "a954f6c2a1a508df",
+      "agent_id": "1dd7fd05956b8368",
+      "tick": "21ab34e1502c6c7f",
+      "wake_class": "098106dfdaa442d0",
+      "prompt_hash": "85a123e253558225",
+      "block_ids": "ee5807775c350dd2",
+      "params_hash": "f56515fefea6cb84",
+      "response": "c1939bf8dd454317",
+      "tokens_in": "44163661263af718",
+      "tokens_out": "63e9a3a2cedccc53",
+      "deferred": "c3d2266186f08902",
+      "deferred_reason": "7263d99c0d57c8be",
+      "observed_tick": "62bdd9944a2d88c2",
+      "recalled_rows": "0e8c6ae13470cf5c",
+      "recalled_first_tick": "0e8c6ae13470cf5c",
+      "recalled_kind": "0e8c6ae13470cf5c",
+      "recalled_object": "0e8c6ae13470cf5c",
+      "recalled_source": "0e8c6ae13470cf5c",
+      "acquaintance_ids": "0e8c6ae13470cf5c",
+      "b5_text": "61bbc0ca13332ad0",
+      "b6_block_id": "103f86cd52244062"
+     }
+    },
+    "action_usage_total": {
+     "a": 173530,
+     "b": 97628
+    },
+    "action_usage_sha": {
+     "a": "0142949f89d89584",
+     "b": "4f9712209f6c2cf4"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1798,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4335,
+      "PLAN_GENERAL": 6799,
+      "PLAN_TRANSIT": 6944,
+      "INTEROCEPTION": 12952,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 19241,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 1639,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4227,
+      "PLAN_GENERAL": 6682,
+      "PLAN_TRANSIT": 6844,
+      "INTEROCEPTION": 12158,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16844,
+      "ACTIVITY_EXPIRY": 0
+     }
+    },
+    "noticed": {
+     "a": 718,
+     "b": 614
+    },
+    "mean_delay_min": {
+     "a": 9.2,
+     "b": 9.4
+    },
+    "meals": {
+     "a": 2183,
+     "b": 1897
+    },
+    "behavior_last": {
+     "a": "77ffdd620ee5fb7764993b99ad0d49f9f3a33d763948cec7c724db29928f7bfa",
+     "b": "cb302fb1895529937e10ac643c25288f409b1fa2096f48aa89c55070c17da09c"
+    },
+    "full_last": {
+     "a": "274053ec850bca000bd75d8b1913b5aa0cd820c4882131070fed02742ac16d4f",
+     "b": "e8460aa96e4d4c076a21b4e5dcbf340278084ad523bb7d1612e37cebfa2f851c"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "838826e05bf9985d9697ad159e36ac7eb12ee08c9105123729e65cfc82f9c3c4",
+      "full_hash": "aab73fba357e1c7bbf0d927a109ee48f70a659b3117a478d69a8dcac6f4d5d6b",
+      "full_external_bytes": 2815628
+     },
+     "b": {
+      "behavior_hash": "4d6b19f6a079e22ce894055c6965ae7dba5a701f39b23fd48b0c3a973ab0e156",
+      "full_hash": "2a0e16011156f9c7c102adeadddb6291951451fcce30fc958c8316abad6be4f8",
+      "full_external_bytes": 2816083
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": -3675,
+   "blocks_rows_delta": -116,
+   "action_usage_delta": -75902,
+   "noticed_delta": -104
+  },
+  "w6_v1_edge": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "meals",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "b829f10b33677498",
+     "b": "15047d92585f05e6"
+    },
+    "calls": {
+     "a": 45416,
+     "b": 47189
+    },
+    "blocks_rows": {
+     "a": 2195,
+     "b": 2246
+    },
+    "blocks_sha": {
+     "a": "819ece77d04729be",
+     "b": "13d30a39c346b824"
+    },
+    "calls_rows": {
+     "a": 45416,
+     "b": 47189
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "195c542475059468",
+      "agent_id": "e2bf4cb5b05ecc1c",
+      "tick": "6fd516267711a102",
+      "wake_class": "826ed3b917ded138",
+      "prompt_hash": "960d692526dd30ee",
+      "block_ids": "ab8780edaa9c138d",
+      "params_hash": "950ee699a23f8fbd",
+      "response": "b964da8a182f3964",
+      "tokens_in": "590e2ca03f3e756e",
+      "tokens_out": "ba71abd9e80c6adc",
+      "deferred": "662880e0743efd4c",
+      "deferred_reason": "ce679e9e081ef91e",
+      "observed_tick": "3b5f234999b5b342",
+      "recalled_rows": "0c87ccc9083e6538",
+      "recalled_first_tick": "0c87ccc9083e6538",
+      "recalled_kind": "0c87ccc9083e6538",
+      "recalled_object": "0c87ccc9083e6538",
+      "recalled_source": "0c87ccc9083e6538",
+      "acquaintance_ids": "0c87ccc9083e6538",
+      "b5_text": "f23ec21fc5628ca7",
+      "b6_block_id": "252ed70cd4645063"
+     },
+     "b": {
+      "call_id": "a4a8aff4dcca32d5",
+      "agent_id": "6e7dded2311e68bc",
+      "tick": "52bbdff4dd17721f",
+      "wake_class": "a466771d3405b422",
+      "prompt_hash": "177734daddc9901b",
+      "block_ids": "d5defa559afeccb3",
+      "params_hash": "305fafd158e08321",
+      "response": "17b87a26007a3cee",
+      "tokens_in": "9b12a33067cfbfd3",
+      "tokens_out": "d889e6789e388b00",
+      "deferred": "15e25588795cda9e",
+      "deferred_reason": "84b9e68b0e3dec9e",
+      "observed_tick": "5140673ebe6a1a7d",
+      "recalled_rows": "8c25ac1fff5c437b",
+      "recalled_first_tick": "8c25ac1fff5c437b",
+      "recalled_kind": "8c25ac1fff5c437b",
+      "recalled_object": "8c25ac1fff5c437b",
+      "recalled_source": "8c25ac1fff5c437b",
+      "acquaintance_ids": "8c25ac1fff5c437b",
+      "b5_text": "96296ce46c353368",
+      "b6_block_id": "a7a184bf82e1f8d7"
+     }
+    },
+    "action_usage_total": {
+     "a": 95405,
+     "b": 98602
+    },
+    "action_usage_sha": {
+     "a": "01a68dd9d3584253",
+     "b": "b9a30c6c61aa0d1e"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1727,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4236,
+      "PLAN_GENERAL": 6657,
+      "PLAN_TRANSIT": 6819,
+      "INTEROCEPTION": 10591,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 15386,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 1707,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4242,
+      "PLAN_GENERAL": 6686,
+      "PLAN_TRANSIT": 6822,
+      "INTEROCEPTION": 10831,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16901,
+      "ACTIVITY_EXPIRY": 0
+     }
+    },
+    "noticed": {
+     "a": 256,
+     "b": 571
+    },
+    "mean_delay_min": {
+     "a": 7.6,
+     "b": 10.8
+    },
+    "behavior_last": {
+     "a": "b829f10b336774982dbb52a685a11a3bd83d443d148e3a04f1f2522a5e41c483",
+     "b": "15047d92585f05e6dd1c0e7c6ee69a052f84aea614574032bf3d51074828e0d9"
+    },
+    "full_last": {
+     "a": "7ffc285e7577ab8bf344ba99f6811224947c97d4ab3f553427072a005985bdec",
+     "b": "f31f826b0f1d61db6b633283aea735c3ae37a1ffb4f34fed920c76878528c0ad"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "c62d8d7683032c3f2736f7da633f7c1c939275d3dbdcd6030678738619003366",
+      "full_hash": "ffbcda7935c9f2b70a93bd3b034574e4e23a4b19426c10c48843939ce015e34e",
+      "full_external_bytes": 2812253
+     },
+     "b": {
+      "behavior_hash": "1bf4c7c1f95d0ad9a2021c31d65abdb5acb75a9553af0f40c415572e468f31ce",
+      "full_hash": "4b08963c4b95fa0007af717285e230f10cd499a05ae2205b04b04468d518b297",
+      "full_external_bytes": 2813976
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": 1773,
+   "blocks_rows_delta": 51,
+   "action_usage_delta": 3197,
+   "noticed_delta": 315
+  },
+  "w6_v2_edge": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "6774af25325f9e5e",
+     "b": "afe42a76e549e5ff"
+    },
+    "calls": {
+     "a": 46720,
+     "b": 48394
+    },
+    "blocks_rows": {
+     "a": 2193,
+     "b": 2245
+    },
+    "blocks_sha": {
+     "a": "e4300d8a01568189",
+     "b": "56d937e3bf21e7dd"
+    },
+    "calls_rows": {
+     "a": 46720,
+     "b": 48394
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "da96611fa0e54df6",
+      "agent_id": "34d36221bc95cf9d",
+      "tick": "c1a8c662584ce014",
+      "wake_class": "c9cd9171061f910e",
+      "prompt_hash": "c1dc1faa03ca3a61",
+      "block_ids": "95d5e24e02f44a60",
+      "params_hash": "920e600bf7cd31db",
+      "response": "d3079ad299186398",
+      "tokens_in": "bed8dd47a34db4a6",
+      "tokens_out": "193dd95045900983",
+      "deferred": "a1e0b832684f7e57",
+      "deferred_reason": "59983a1b5df27019",
+      "observed_tick": "6a1493f3ad2c111a",
+      "recalled_rows": "fe66b281c1fa82b8",
+      "recalled_first_tick": "fe66b281c1fa82b8",
+      "recalled_kind": "fe66b281c1fa82b8",
+      "recalled_object": "fe66b281c1fa82b8",
+      "recalled_source": "fe66b281c1fa82b8",
+      "acquaintance_ids": "fe66b281c1fa82b8",
+      "b5_text": "2f067765a9e9c616",
+      "b6_block_id": "e3954106a41023fa"
+     },
+     "b": {
+      "call_id": "a954f6c2a1a508df",
+      "agent_id": "1dd7fd05956b8368",
+      "tick": "21ab34e1502c6c7f",
+      "wake_class": "098106dfdaa442d0",
+      "prompt_hash": "85a123e253558225",
+      "block_ids": "ee5807775c350dd2",
+      "params_hash": "f56515fefea6cb84",
+      "response": "c1939bf8dd454317",
+      "tokens_in": "44163661263af718",
+      "tokens_out": "63e9a3a2cedccc53",
+      "deferred": "c3d2266186f08902",
+      "deferred_reason": "7263d99c0d57c8be",
+      "observed_tick": "62bdd9944a2d88c2",
+      "recalled_rows": "0e8c6ae13470cf5c",
+      "recalled_first_tick": "0e8c6ae13470cf5c",
+      "recalled_kind": "0e8c6ae13470cf5c",
+      "recalled_object": "0e8c6ae13470cf5c",
+      "recalled_source": "0e8c6ae13470cf5c",
+      "acquaintance_ids": "0e8c6ae13470cf5c",
+      "b5_text": "61bbc0ca13332ad0",
+      "b6_block_id": "103f86cd52244062"
+     }
+    },
+    "action_usage_total": {
+     "a": 94704,
+     "b": 97628
+    },
+    "action_usage_sha": {
+     "a": "ec86033d46071b8b",
+     "b": "4f9712209f6c2cf4"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1653,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4225,
+      "PLAN_GENERAL": 6683,
+      "PLAN_TRANSIT": 6862,
+      "INTEROCEPTION": 12052,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 15245,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 1639,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4227,
+      "PLAN_GENERAL": 6682,
+      "PLAN_TRANSIT": 6844,
+      "INTEROCEPTION": 12158,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16844,
+      "ACTIVITY_EXPIRY": 0
+     }
+    },
+    "noticed": {
+     "a": 610,
+     "b": 614
+    },
+    "mean_delay_min": {
+     "a": 8.2,
+     "b": 9.4
+    },
+    "meals": {
+     "a": 1914,
+     "b": 1897
+    },
+    "behavior_last": {
+     "a": "6774af25325f9e5ea1aa4f7729d9f89aeeaa94dc36a6a8741694bc722706b401",
+     "b": "afe42a76e549e5ff0342722af0de1228c2b3b3c45396f5ea04edd1e90b4c8bd5"
+    },
+    "full_last": {
+     "a": "c61c2ebb3d4818eea961e9a3e61aa8e86661be9567f8164937703e97a9082593",
+     "b": "cd9959ae80834afdad1c82779de6a03c4de6d7d2e14158336beed06117f25ab7"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "aac668ebbbfa23221255e0946cc76b16c930e4c28608115fe635e13ecffde237",
+      "full_hash": "d465e81a2ad0d2c1024ea31f9e02bb808f99fcf2e4bde07cd73b5a9d241ede2f",
+      "full_external_bytes": 2815315
+     },
+     "b": {
+      "behavior_hash": "9bbc68cffa3ab3ac673fa894c574d8c56e00699cc4e090d3b2b0670e93ef2933",
+      "full_hash": "4fe81f7fffe1ce11b469900766def79d511ada1f13913aaa61abc356dfcc5db5",
+      "full_external_bytes": 2816083
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": 1674,
+   "blocks_rows_delta": 52,
+   "action_usage_delta": 2924,
+   "noticed_delta": 4
+  },
+  "w6_v1_edge_plateau": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "meals",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "753e327c02103481",
+     "b": "15047d92585f05e6"
+    },
+    "calls": {
+     "a": 46485,
+     "b": 47189
+    },
+    "blocks_rows": {
+     "a": 2198,
+     "b": 2246
+    },
+    "blocks_sha": {
+     "a": "a177b00652403bf2",
+     "b": "13d30a39c346b824"
+    },
+    "calls_rows": {
+     "a": 46485,
+     "b": 47189
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "508cd52a80ed47cf",
+      "agent_id": "f14589f1b0e0adf5",
+      "tick": "f37827087a4621a0",
+      "wake_class": "423b538e0ffcee9d",
+      "prompt_hash": "fcce7bee66fe3ae2",
+      "block_ids": "b1df22f16dea90f0",
+      "params_hash": "8c7a7c3a10ce1c2d",
+      "response": "17d0bb134e7c9252",
+      "tokens_in": "ff80e05b2afc5447",
+      "tokens_out": "566cb956bd84ccae",
+      "deferred": "e5bf7055c5b1b76d",
+      "deferred_reason": "cc3c36490ca4f6e1",
+      "observed_tick": "54ec2bb4e65a912f",
+      "recalled_rows": "896a4cbf24a9bec4",
+      "recalled_first_tick": "896a4cbf24a9bec4",
+      "recalled_kind": "896a4cbf24a9bec4",
+      "recalled_object": "896a4cbf24a9bec4",
+      "recalled_source": "896a4cbf24a9bec4",
+      "acquaintance_ids": "896a4cbf24a9bec4",
+      "b5_text": "f282625eed961012",
+      "b6_block_id": "e58dfa8b18e57649"
+     },
+     "b": {
+      "call_id": "a4a8aff4dcca32d5",
+      "agent_id": "6e7dded2311e68bc",
+      "tick": "52bbdff4dd17721f",
+      "wake_class": "a466771d3405b422",
+      "prompt_hash": "177734daddc9901b",
+      "block_ids": "d5defa559afeccb3",
+      "params_hash": "305fafd158e08321",
+      "response": "17b87a26007a3cee",
+      "tokens_in": "9b12a33067cfbfd3",
+      "tokens_out": "d889e6789e388b00",
+      "deferred": "15e25588795cda9e",
+      "deferred_reason": "84b9e68b0e3dec9e",
+      "observed_tick": "5140673ebe6a1a7d",
+      "recalled_rows": "8c25ac1fff5c437b",
+      "recalled_first_tick": "8c25ac1fff5c437b",
+      "recalled_kind": "8c25ac1fff5c437b",
+      "recalled_object": "8c25ac1fff5c437b",
+      "recalled_source": "8c25ac1fff5c437b",
+      "acquaintance_ids": "8c25ac1fff5c437b",
+      "b5_text": "96296ce46c353368",
+      "b6_block_id": "a7a184bf82e1f8d7"
+     }
+    },
+    "action_usage_total": {
+     "a": 96992,
+     "b": 98602
+    },
+    "action_usage_sha": {
+     "a": "9c2cba528c1c5674",
+     "b": "b9a30c6c61aa0d1e"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1763,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4227,
+      "PLAN_GENERAL": 6674,
+      "PLAN_TRANSIT": 6807,
+      "INTEROCEPTION": 10749,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16265,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 1707,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4242,
+      "PLAN_GENERAL": 6686,
+      "PLAN_TRANSIT": 6822,
+      "INTEROCEPTION": 10831,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16901,
+      "ACTIVITY_EXPIRY": 0
+     }
+    },
+    "noticed": {
+     "a": 280,
+     "b": 571
+    },
+    "mean_delay_min": {
+     "a": 9.6,
+     "b": 10.8
+    },
+    "behavior_last": {
+     "a": "753e327c0210348124902a50734920771b7b8d23ddd2a9f1d3193f8f518c45b3",
+     "b": "15047d92585f05e6dd1c0e7c6ee69a052f84aea614574032bf3d51074828e0d9"
+    },
+    "full_last": {
+     "a": "7f6605fa88fa522ff790c29d23b0a8ca49477925b170c6fd3cdc08899165fe60",
+     "b": "f31f826b0f1d61db6b633283aea735c3ae37a1ffb4f34fed920c76878528c0ad"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "50318183fd9ebe9f886e012820a6138aab033806246e955bd9ceccb44ee99a30",
+      "full_hash": "cfa9d699fd149baecd50983acfac8a57c0d2e331f65b5f6e9297f150a776f04a",
+      "full_external_bytes": 2813777
+     },
+     "b": {
+      "behavior_hash": "1bf4c7c1f95d0ad9a2021c31d65abdb5acb75a9553af0f40c415572e468f31ce",
+      "full_hash": "4b08963c4b95fa0007af717285e230f10cd499a05ae2205b04b04468d518b297",
+      "full_external_bytes": 2813976
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "c9c_walkable_area.parquet": "131da7680ee98e69c25510e330893389918c148b438022037f0ebb18b0d34814",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "c9c_walkable_area.parquet": "131da7680ee98e69c25510e330893389918c148b438022037f0ebb18b0d34814",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": 704,
+   "blocks_rows_delta": 48,
+   "action_usage_delta": 1610,
+   "noticed_delta": 291
+  },
+  "w6_old_v1_default": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "meals",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "6192e8e56dda3517",
+     "b": "7b587a7e86047928"
+    },
+    "calls": {
+     "a": 50447,
+     "b": 47189
+    },
+    "blocks_rows": {
+     "a": 2344,
+     "b": 2243
+    },
+    "blocks_sha": {
+     "a": "59606225db760de1",
+     "b": "1ab7ffa24da4f78b"
+    },
+    "calls_rows": {
+     "a": 50447,
+     "b": 47189
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "24cb40a3df81511a",
+      "agent_id": "801ef7bc4f345f78",
+      "tick": "94aa90ca7cb2de08",
+      "wake_class": "7bda3c73faf7c461",
+      "prompt_hash": "acf648e261dcf13e",
+      "block_ids": "f295f5b58719dc67",
+      "params_hash": "8b280d6d0101ef74",
+      "response": "bbd6f7d2d718cf6b",
+      "tokens_in": "aa7396cd8d2607db",
+      "tokens_out": "591d932ad31ae196",
+      "deferred": "9c68f82a7c3adf15",
+      "deferred_reason": "63268d5ac4a0583a",
+      "observed_tick": "e1e81e797d629e61",
+      "recalled_rows": "1f2c552ccebd1750",
+      "recalled_first_tick": "1f2c552ccebd1750",
+      "recalled_kind": "1f2c552ccebd1750",
+      "recalled_object": "1f2c552ccebd1750",
+      "recalled_source": "1f2c552ccebd1750",
+      "acquaintance_ids": "1f2c552ccebd1750",
+      "b5_text": "62083d993f6b13b9",
+      "b6_block_id": "3af238e021aa08fe"
+     },
+     "b": {
+      "call_id": "a4a8aff4dcca32d5",
+      "agent_id": "6e7dded2311e68bc",
+      "tick": "52bbdff4dd17721f",
+      "wake_class": "a466771d3405b422",
+      "prompt_hash": "3392b131b0e3cd9c",
+      "block_ids": "d5defa559afeccb3",
+      "params_hash": "305fafd158e08321",
+      "response": "17b87a26007a3cee",
+      "tokens_in": "ba03e3a7adb35b28",
+      "tokens_out": "d889e6789e388b00",
+      "deferred": "15e25588795cda9e",
+      "deferred_reason": "84b9e68b0e3dec9e",
+      "observed_tick": "5140673ebe6a1a7d",
+      "recalled_rows": "8c25ac1fff5c437b",
+      "recalled_first_tick": "8c25ac1fff5c437b",
+      "recalled_kind": "8c25ac1fff5c437b",
+      "recalled_object": "8c25ac1fff5c437b",
+      "recalled_source": "8c25ac1fff5c437b",
+      "acquaintance_ids": "8c25ac1fff5c437b",
+      "b5_text": "96296ce46c353368",
+      "b6_block_id": "eb22798cb420d2af"
+     }
+    },
+    "action_usage_total": {
+     "a": 178192,
+     "b": 98602
+    },
+    "action_usage_sha": {
+     "a": "f7541e6b3856a0be",
+     "b": "b9a30c6c61aa0d1e"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1946,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4310,
+      "PLAN_GENERAL": 6789,
+      "PLAN_TRANSIT": 6910,
+      "INTEROCEPTION": 11395,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 19097,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 1707,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4242,
+      "PLAN_GENERAL": 6686,
+      "PLAN_TRANSIT": 6822,
+      "INTEROCEPTION": 10831,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16901,
+      "ACTIVITY_EXPIRY": 0
+     }
+    },
+    "noticed": {
+     "a": 590,
+     "b": 571
+    },
+    "mean_delay_min": {
+     "a": 6.2,
+     "b": 10.8
+    },
+    "behavior_last": {
+     "a": "6192e8e56dda3517a8909807ef4703556a276bfa6f9c5b458a4e12e13a48bb26",
+     "b": "7b587a7e86047928d5f5258889dfe6bb7185690396ace17a86769fe63ab88f7d"
+    },
+    "full_last": {
+     "a": "a563e28a841b44adca2d77e1483ba44bd4ed39cba6a8c963691bc9071939e92f",
+     "b": "798be4cd1d5d2ab099bc41e6a33d552101b4b8a9cb54885e02dc0556e4e0f3b8"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "426129dc160d03bf76adaf27c633ed72ff16f9b288027c1dfeff52a65c229eee",
+      "full_hash": "dbc993ce607561a55b3b3dd61e9819e1b9402505987810030689fd7c846e3645",
+      "full_external_bytes": 2814201
+     },
+     "b": {
+      "behavior_hash": "17d17efb9ab9d60c7c2fd4403ede0060248d915b576737bbe856b66ff3b6f6a9",
+      "full_hash": "c037952822c90bb927ea18a65c35fa4665bf29e4f9763211764d60f1bd00c461",
+      "full_external_bytes": 2813976
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": -3258,
+   "blocks_rows_delta": -101,
+   "action_usage_delta": -79590,
+   "noticed_delta": -19
+  },
+  "w6_old_v1_derive_v2_1": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "meals",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "dbada024bb4c4ae9",
+     "b": "5a08dd86e267751b"
+    },
+    "calls": {
+     "a": 45099,
+     "b": 40784
+    },
+    "blocks_rows": {
+     "a": 2119,
+     "b": 1969
+    },
+    "blocks_sha": {
+     "a": "f7cd3e9e49f908a1",
+     "b": "34602dc41d05fc6a"
+    },
+    "calls_rows": {
+     "a": 45099,
+     "b": 40784
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "9579b3ab7fdad184",
+      "agent_id": "4051c744d66a0d97",
+      "tick": "83a0e2eb88da26ba",
+      "wake_class": "b2d7a68b110d3c09",
+      "prompt_hash": "9ed5ed36a7afa25d",
+      "block_ids": "07054fcdc16ac52b",
+      "params_hash": "458c5bb30d6e0966",
+      "response": "2e764ab1372d8dd3",
+      "tokens_in": "c5aae7ad03f9b8df",
+      "tokens_out": "5f670b87643342ad",
+      "deferred": "15e4c6cbdb47d350",
+      "deferred_reason": "4191e4ff1a3dccb4",
+      "observed_tick": "aa57d76511fc7320",
+      "recalled_rows": "f919282193f02d3e",
+      "recalled_first_tick": "f919282193f02d3e",
+      "recalled_kind": "f919282193f02d3e",
+      "recalled_object": "f919282193f02d3e",
+      "recalled_source": "f919282193f02d3e",
+      "acquaintance_ids": "f919282193f02d3e",
+      "b5_text": "65c9e6d9491323d3",
+      "b6_block_id": "ebb4dc635d203daf"
+     },
+     "b": {
+      "call_id": "7005d76365cf16a8",
+      "agent_id": "b515bf6dc7c2ee55",
+      "tick": "72e6484bd1d4d8aa",
+      "wake_class": "7bdbae7513948241",
+      "prompt_hash": "247784e5cc13b552",
+      "block_ids": "c42e08862f46d7fb",
+      "params_hash": "deb042614299a48e",
+      "response": "ba8443258f25e86f",
+      "tokens_in": "8e1a507f751d348b",
+      "tokens_out": "15b43e33322e0985",
+      "deferred": "8f84c87844cd886f",
+      "deferred_reason": "80cf56d77709ab09",
+      "observed_tick": "8245719649a831c1",
+      "recalled_rows": "2abf17d2cce979fe",
+      "recalled_first_tick": "2abf17d2cce979fe",
+      "recalled_kind": "2abf17d2cce979fe",
+      "recalled_object": "2abf17d2cce979fe",
+      "recalled_source": "2abf17d2cce979fe",
+      "acquaintance_ids": "2abf17d2cce979fe",
+      "b5_text": "cadb8250636505ee",
+      "b6_block_id": "1dba26b967bdf33f"
+     }
+    },
+    "action_usage_total": {
+     "a": 163145,
+     "b": 86956
+    },
+    "action_usage_sha": {
+     "a": "e3b6e35bf0b8c7f0",
+     "b": "26fd7bf6e9202c1f"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1677,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4400,
+      "PLAN_GENERAL": 6758,
+      "PLAN_TRANSIT": 3182,
+      "INTEROCEPTION": 10954,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 18128,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 1348,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4379,
+      "PLAN_GENERAL": 6696,
+      "PLAN_TRANSIT": 3126,
+      "INTEROCEPTION": 10333,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 14902,
+      "ACTIVITY_EXPIRY": 0
+     }
+    },
+    "noticed": {
+     "a": 744,
+     "b": 469
+    },
+    "mean_delay_min": {
+     "a": 9.2,
+     "b": 8.4
+    },
+    "behavior_last": {
+     "a": "dbada024bb4c4ae90bfd68438a79ef26cf36b79944a06f89f1557a913ddc49a6",
+     "b": "5a08dd86e267751bc8b151e360652a0b445f6d6998dca9736cf62dabf4a837a9"
+    },
+    "full_last": {
+     "a": "ea4bb77adfd585ae349f52a732065482fdbae2591f8fdb08f0358dc3456b0edb",
+     "b": "cbdf3a5f609468705eb6a9bbb1f6dfa124deb30bc7c2abd3a78c0eeef1f6f538"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "e35989580eb9c6e7657fd9db24330805240747b9015ad9128a71febe7c402cc5",
+      "full_hash": "05661e60159e46e3f07782d00f6bc2dfc1071a22e64d88b3f2f104e57ba60df5",
+      "full_external_bytes": 2827275
+     },
+     "b": {
+      "behavior_hash": "9027195d1bcefbb7b8be2e44829dd9261b0bb0c003bff5527eeb3e0e855a0947",
+      "full_hash": "994d01a006a2cb80715d755ac6020f1b41cb5ce24db13f23978f083f4ac78522",
+      "full_external_bytes": 2814285
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": -4315,
+   "blocks_rows_delta": -150,
+   "action_usage_delta": -76189,
+   "noticed_delta": -275
+  },
+  "w6_old_v2": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "8896852c2ae0aaf7",
+     "b": "f0813e78de0c4199"
+    },
+    "calls": {
+     "a": 52069,
+     "b": 48394
+    },
+    "blocks_rows": {
+     "a": 2356,
+     "b": 2241
+    },
+    "blocks_sha": {
+     "a": "85c822675ea2b8f2",
+     "b": "9b959b32944b8769"
+    },
+    "calls_rows": {
+     "a": 52069,
+     "b": 48394
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "63ca780e45f1a501",
+      "agent_id": "29b027ead3525aec",
+      "tick": "e42c6b53d1b4d180",
+      "wake_class": "91c29b4bf11e6300",
+      "prompt_hash": "432384b23d294776",
+      "block_ids": "bcda615a12acdeeb",
+      "params_hash": "6844d198befd5088",
+      "response": "8f4bae9afdbfd961",
+      "tokens_in": "3bc0c7de9eb9a120",
+      "tokens_out": "7bcedca559e02489",
+      "deferred": "d20d91193f5988a8",
+      "deferred_reason": "5b88763645737f8b",
+      "observed_tick": "385c97e0b989b187",
+      "recalled_rows": "483daba166e7e66a",
+      "recalled_first_tick": "483daba166e7e66a",
+      "recalled_kind": "483daba166e7e66a",
+      "recalled_object": "483daba166e7e66a",
+      "recalled_source": "483daba166e7e66a",
+      "acquaintance_ids": "483daba166e7e66a",
+      "b5_text": "071faeddf65ce094",
+      "b6_block_id": "a35066caa9935671"
+     },
+     "b": {
+      "call_id": "a954f6c2a1a508df",
+      "agent_id": "1dd7fd05956b8368",
+      "tick": "21ab34e1502c6c7f",
+      "wake_class": "098106dfdaa442d0",
+      "prompt_hash": "2eb0ea53608943fc",
+      "block_ids": "ee5807775c350dd2",
+      "params_hash": "f56515fefea6cb84",
+      "response": "c1939bf8dd454317",
+      "tokens_in": "e0be8e5ef126fc01",
+      "tokens_out": "63e9a3a2cedccc53",
+      "deferred": "c3d2266186f08902",
+      "deferred_reason": "7263d99c0d57c8be",
+      "observed_tick": "62bdd9944a2d88c2",
+      "recalled_rows": "0e8c6ae13470cf5c",
+      "recalled_first_tick": "0e8c6ae13470cf5c",
+      "recalled_kind": "0e8c6ae13470cf5c",
+      "recalled_object": "0e8c6ae13470cf5c",
+      "recalled_source": "0e8c6ae13470cf5c",
+      "acquaintance_ids": "0e8c6ae13470cf5c",
+      "b5_text": "61bbc0ca13332ad0",
+      "b6_block_id": "c997d131b0be52f0"
+     }
+    },
+    "action_usage_total": {
+     "a": 173530,
+     "b": 97628
+    },
+    "action_usage_sha": {
+     "a": "0142949f89d89584",
+     "b": "4f9712209f6c2cf4"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1798,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4335,
+      "PLAN_GENERAL": 6799,
+      "PLAN_TRANSIT": 6944,
+      "INTEROCEPTION": 12952,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 19241,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 1639,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4227,
+      "PLAN_GENERAL": 6682,
+      "PLAN_TRANSIT": 6844,
+      "INTEROCEPTION": 12158,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16844,
+      "ACTIVITY_EXPIRY": 0
+     }
+    },
+    "noticed": {
+     "a": 718,
+     "b": 614
+    },
+    "mean_delay_min": {
+     "a": 9.2,
+     "b": 9.4
+    },
+    "meals": {
+     "a": 2183,
+     "b": 1897
+    },
+    "behavior_last": {
+     "a": "8896852c2ae0aaf70f47a52adf7d06fa8293b3ad46750483e80388a788c28225",
+     "b": "f0813e78de0c4199c869507281118d337c6fe21e0e3eb314ded00609c7810503"
+    },
+    "full_last": {
+     "a": "aad26ad265929ab2bef4bb2df498ade66112ed766be10762e2aa2d29f8e4c4a4",
+     "b": "0d459d15299dfc5c1a7e28436e380b1ae3f64aba10253e0d21b98797faf138c4"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "4811d92705697da9533cf337a7f72e49bd400bac32f0b953d7584a189f63c597",
+      "full_hash": "93ff869fbe16dc972f34271765398469299ec6716daa3ba57d2ea770b9c65a54",
+      "full_external_bytes": 2815628
+     },
+     "b": {
+      "behavior_hash": "1f0fc3a4cfcc2b09123ec73c32a3a553bb8c7c694e553bea43d187c3c9da70d1",
+      "full_hash": "0e3ccbf5ac5e8b50d21f357d241a6a95e05da6e09c42df4bb8a5324e9ee4ba75",
+      "full_external_bytes": 2816083
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": -3675,
+   "blocks_rows_delta": -115,
+   "action_usage_delta": -75902,
+   "noticed_delta": -104
+  },
+  "w6_old_v1_edge": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "meals",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "a00047a53ad1ee4e",
+     "b": "c87a1dbe2434e376"
+    },
+    "calls": {
+     "a": 45416,
+     "b": 47189
+    },
+    "blocks_rows": {
+     "a": 2192,
+     "b": 2243
+    },
+    "blocks_sha": {
+     "a": "a3f2604ae6faa4b9",
+     "b": "1ab7ffa24da4f78b"
+    },
+    "calls_rows": {
+     "a": 45416,
+     "b": 47189
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "195c542475059468",
+      "agent_id": "e2bf4cb5b05ecc1c",
+      "tick": "6fd516267711a102",
+      "wake_class": "826ed3b917ded138",
+      "prompt_hash": "780a50baa20326a6",
+      "block_ids": "ab8780edaa9c138d",
+      "params_hash": "950ee699a23f8fbd",
+      "response": "b964da8a182f3964",
+      "tokens_in": "d204ec723e175bd6",
+      "tokens_out": "ba71abd9e80c6adc",
+      "deferred": "662880e0743efd4c",
+      "deferred_reason": "ce679e9e081ef91e",
+      "observed_tick": "3b5f234999b5b342",
+      "recalled_rows": "0c87ccc9083e6538",
+      "recalled_first_tick": "0c87ccc9083e6538",
+      "recalled_kind": "0c87ccc9083e6538",
+      "recalled_object": "0c87ccc9083e6538",
+      "recalled_source": "0c87ccc9083e6538",
+      "acquaintance_ids": "0c87ccc9083e6538",
+      "b5_text": "f23ec21fc5628ca7",
+      "b6_block_id": "8390fb9cc2927b3c"
+     },
+     "b": {
+      "call_id": "a4a8aff4dcca32d5",
+      "agent_id": "6e7dded2311e68bc",
+      "tick": "52bbdff4dd17721f",
+      "wake_class": "a466771d3405b422",
+      "prompt_hash": "3392b131b0e3cd9c",
+      "block_ids": "d5defa559afeccb3",
+      "params_hash": "305fafd158e08321",
+      "response": "17b87a26007a3cee",
+      "tokens_in": "ba03e3a7adb35b28",
+      "tokens_out": "d889e6789e388b00",
+      "deferred": "15e25588795cda9e",
+      "deferred_reason": "84b9e68b0e3dec9e",
+      "observed_tick": "5140673ebe6a1a7d",
+      "recalled_rows": "8c25ac1fff5c437b",
+      "recalled_first_tick": "8c25ac1fff5c437b",
+      "recalled_kind": "8c25ac1fff5c437b",
+      "recalled_object": "8c25ac1fff5c437b",
+      "recalled_source": "8c25ac1fff5c437b",
+      "acquaintance_ids": "8c25ac1fff5c437b",
+      "b5_text": "96296ce46c353368",
+      "b6_block_id": "eb22798cb420d2af"
+     }
+    },
+    "action_usage_total": {
+     "a": 95405,
+     "b": 98602
+    },
+    "action_usage_sha": {
+     "a": "01a68dd9d3584253",
+     "b": "b9a30c6c61aa0d1e"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1727,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4236,
+      "PLAN_GENERAL": 6657,
+      "PLAN_TRANSIT": 6819,
+      "INTEROCEPTION": 10591,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 15386,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 1707,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4242,
+      "PLAN_GENERAL": 6686,
+      "PLAN_TRANSIT": 6822,
+      "INTEROCEPTION": 10831,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16901,
+      "ACTIVITY_EXPIRY": 0
+     }
+    },
+    "noticed": {
+     "a": 256,
+     "b": 571
+    },
+    "mean_delay_min": {
+     "a": 7.6,
+     "b": 10.8
+    },
+    "behavior_last": {
+     "a": "a00047a53ad1ee4e31a1077588e2d58f47e35e3d5faa5b5477c0eb016b047fcb",
+     "b": "c87a1dbe2434e3767dd8b62b9219aeb2d78856eee96331982a0481ab031184ca"
+    },
+    "full_last": {
+     "a": "4bb459e1cf99082cc39d4cbbb559d577882a652c9cb918b4b4ec6506af9ad5aa",
+     "b": "2b0fcf3aa61180e261ebd7a68878de471349def80f2857c0d9f802c267b3003e"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "9fba23a21b1ad4230510987fca6498e885e3eb1be32ac4bd3bc4ffbab8fe397d",
+      "full_hash": "f9fd3f4b349ea5a30733fed0ec7c8675ea59ae40c85c615bcd878e34f7ce401f",
+      "full_external_bytes": 2812253
+     },
+     "b": {
+      "behavior_hash": "6663f011f6d240ebaf2d8b5cd23da0f5b3ff2ef28c2160160f251cf2c52e7b29",
+      "full_hash": "02b87a39121a8d94a8ce789c2d10153dcfe96a50599dfe7bb597dcd99598c413",
+      "full_external_bytes": 2813976
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": 1773,
+   "blocks_rows_delta": 51,
+   "action_usage_delta": 3197,
+   "noticed_delta": 315
+  },
+  "w6_old_v2_edge": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "83a0af6d41f11702",
+     "b": "84e81fd6a491325f"
+    },
+    "calls": {
+     "a": 46720,
+     "b": 48394
+    },
+    "blocks_rows": {
+     "a": 2190,
+     "b": 2241
+    },
+    "blocks_sha": {
+     "a": "4063bb7b5e1ee212",
+     "b": "9b959b32944b8769"
+    },
+    "calls_rows": {
+     "a": 46720,
+     "b": 48394
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "da96611fa0e54df6",
+      "agent_id": "34d36221bc95cf9d",
+      "tick": "c1a8c662584ce014",
+      "wake_class": "c9cd9171061f910e",
+      "prompt_hash": "7526ca521f1c8f65",
+      "block_ids": "95d5e24e02f44a60",
+      "params_hash": "920e600bf7cd31db",
+      "response": "d3079ad299186398",
+      "tokens_in": "f78d59879d8465ec",
+      "tokens_out": "193dd95045900983",
+      "deferred": "a1e0b832684f7e57",
+      "deferred_reason": "59983a1b5df27019",
+      "observed_tick": "6a1493f3ad2c111a",
+      "recalled_rows": "fe66b281c1fa82b8",
+      "recalled_first_tick": "fe66b281c1fa82b8",
+      "recalled_kind": "fe66b281c1fa82b8",
+      "recalled_object": "fe66b281c1fa82b8",
+      "recalled_source": "fe66b281c1fa82b8",
+      "acquaintance_ids": "fe66b281c1fa82b8",
+      "b5_text": "2f067765a9e9c616",
+      "b6_block_id": "8bdcc3e91d455e93"
+     },
+     "b": {
+      "call_id": "a954f6c2a1a508df",
+      "agent_id": "1dd7fd05956b8368",
+      "tick": "21ab34e1502c6c7f",
+      "wake_class": "098106dfdaa442d0",
+      "prompt_hash": "2eb0ea53608943fc",
+      "block_ids": "ee5807775c350dd2",
+      "params_hash": "f56515fefea6cb84",
+      "response": "c1939bf8dd454317",
+      "tokens_in": "e0be8e5ef126fc01",
+      "tokens_out": "63e9a3a2cedccc53",
+      "deferred": "c3d2266186f08902",
+      "deferred_reason": "7263d99c0d57c8be",
+      "observed_tick": "62bdd9944a2d88c2",
+      "recalled_rows": "0e8c6ae13470cf5c",
+      "recalled_first_tick": "0e8c6ae13470cf5c",
+      "recalled_kind": "0e8c6ae13470cf5c",
+      "recalled_object": "0e8c6ae13470cf5c",
+      "recalled_source": "0e8c6ae13470cf5c",
+      "acquaintance_ids": "0e8c6ae13470cf5c",
+      "b5_text": "61bbc0ca13332ad0",
+      "b6_block_id": "c997d131b0be52f0"
+     }
+    },
+    "action_usage_total": {
+     "a": 94704,
+     "b": 97628
+    },
+    "action_usage_sha": {
+     "a": "ec86033d46071b8b",
+     "b": "4f9712209f6c2cf4"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1653,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4225,
+      "PLAN_GENERAL": 6683,
+      "PLAN_TRANSIT": 6862,
+      "INTEROCEPTION": 12052,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 15245,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 1639,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4227,
+      "PLAN_GENERAL": 6682,
+      "PLAN_TRANSIT": 6844,
+      "INTEROCEPTION": 12158,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16844,
+      "ACTIVITY_EXPIRY": 0
+     }
+    },
+    "noticed": {
+     "a": 610,
+     "b": 614
+    },
+    "mean_delay_min": {
+     "a": 8.2,
+     "b": 9.4
+    },
+    "meals": {
+     "a": 1914,
+     "b": 1897
+    },
+    "behavior_last": {
+     "a": "83a0af6d41f11702df045007c4b41956129f2bc6bfb53bb2fbb0fc64947ae959",
+     "b": "84e81fd6a491325f38a8ff11f4228d3a88ff643ddd719d8a9f48fa247e62f4c8"
+    },
+    "full_last": {
+     "a": "4cbc3146c0dd892a1b128c2d34593d180ebfd37e3c648efb5c4b93707f6cd89f",
+     "b": "2c9bba0658a967001ae1ae3498b90a84fcac1a40cf590e7456293e9d984ef857"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "f933cebfe95d6d683eb80bcabbe147454a23c03ef71d742bf173cf8999b55261",
+      "full_hash": "c4f502088e7a460e0e3610991c6004517d2b4023e6193855e57591cc535fe279",
+      "full_external_bytes": 2815315
+     },
+     "b": {
+      "behavior_hash": "7d60ecc3d14db858da45de6d56aae3f45e984080ad2136159a483fb0247ab97d",
+      "full_hash": "95678ab78a0850ea3ee9eb441ed51cbba49eb12cacce8b41a064fdec503a7278",
+      "full_external_bytes": 2816083
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": 1674,
+   "blocks_rows_delta": 51,
+   "action_usage_delta": 2924,
+   "noticed_delta": 4
+  },
+  "w6_old_v1_edge_plateau": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "meals",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "71ef271090c9a548",
+     "b": "c87a1dbe2434e376"
+    },
+    "calls": {
+     "a": 46485,
+     "b": 47189
+    },
+    "blocks_rows": {
+     "a": 2195,
+     "b": 2243
+    },
+    "blocks_sha": {
+     "a": "e4032e4b5aecd1a9",
+     "b": "1ab7ffa24da4f78b"
+    },
+    "calls_rows": {
+     "a": 46485,
+     "b": 47189
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "508cd52a80ed47cf",
+      "agent_id": "f14589f1b0e0adf5",
+      "tick": "f37827087a4621a0",
+      "wake_class": "423b538e0ffcee9d",
+      "prompt_hash": "80ea05c6380cab2b",
+      "block_ids": "b1df22f16dea90f0",
+      "params_hash": "8c7a7c3a10ce1c2d",
+      "response": "17d0bb134e7c9252",
+      "tokens_in": "18c255cc8fb0ad98",
+      "tokens_out": "566cb956bd84ccae",
+      "deferred": "e5bf7055c5b1b76d",
+      "deferred_reason": "cc3c36490ca4f6e1",
+      "observed_tick": "54ec2bb4e65a912f",
+      "recalled_rows": "896a4cbf24a9bec4",
+      "recalled_first_tick": "896a4cbf24a9bec4",
+      "recalled_kind": "896a4cbf24a9bec4",
+      "recalled_object": "896a4cbf24a9bec4",
+      "recalled_source": "896a4cbf24a9bec4",
+      "acquaintance_ids": "896a4cbf24a9bec4",
+      "b5_text": "f282625eed961012",
+      "b6_block_id": "eb0898182877fa3f"
+     },
+     "b": {
+      "call_id": "a4a8aff4dcca32d5",
+      "agent_id": "6e7dded2311e68bc",
+      "tick": "52bbdff4dd17721f",
+      "wake_class": "a466771d3405b422",
+      "prompt_hash": "3392b131b0e3cd9c",
+      "block_ids": "d5defa559afeccb3",
+      "params_hash": "305fafd158e08321",
+      "response": "17b87a26007a3cee",
+      "tokens_in": "ba03e3a7adb35b28",
+      "tokens_out": "d889e6789e388b00",
+      "deferred": "15e25588795cda9e",
+      "deferred_reason": "84b9e68b0e3dec9e",
+      "observed_tick": "5140673ebe6a1a7d",
+      "recalled_rows": "8c25ac1fff5c437b",
+      "recalled_first_tick": "8c25ac1fff5c437b",
+      "recalled_kind": "8c25ac1fff5c437b",
+      "recalled_object": "8c25ac1fff5c437b",
+      "recalled_source": "8c25ac1fff5c437b",
+      "acquaintance_ids": "8c25ac1fff5c437b",
+      "b5_text": "96296ce46c353368",
+      "b6_block_id": "eb22798cb420d2af"
+     }
+    },
+    "action_usage_total": {
+     "a": 96992,
+     "b": 98602
+    },
+    "action_usage_sha": {
+     "a": "9c2cba528c1c5674",
+     "b": "b9a30c6c61aa0d1e"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1763,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4227,
+      "PLAN_GENERAL": 6674,
+      "PLAN_TRANSIT": 6807,
+      "INTEROCEPTION": 10749,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16265,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 1707,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4242,
+      "PLAN_GENERAL": 6686,
+      "PLAN_TRANSIT": 6822,
+      "INTEROCEPTION": 10831,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16901,
+      "ACTIVITY_EXPIRY": 0
+     }
+    },
+    "noticed": {
+     "a": 280,
+     "b": 571
+    },
+    "mean_delay_min": {
+     "a": 9.6,
+     "b": 10.8
+    },
+    "behavior_last": {
+     "a": "71ef271090c9a548ffdb8055f562026fb3217e994e6a291a6d9d9689de81b617",
+     "b": "c87a1dbe2434e3767dd8b62b9219aeb2d78856eee96331982a0481ab031184ca"
+    },
+    "full_last": {
+     "a": "2e55d4147235307e39a6d90496623bf4541d8a36bd8c9c9ea086ca40f5cb1b05",
+     "b": "2b0fcf3aa61180e261ebd7a68878de471349def80f2857c0d9f802c267b3003e"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "71290a32c3551b5b8f321df541d49040f6e9a8eac6279eb910e4a7a109e65e5b",
+      "full_hash": "6cea1ee68c902c5f6e0d5d55f50bd377173daf94f890adebd89cee7883b15dab",
+      "full_external_bytes": 2813777
+     },
+     "b": {
+      "behavior_hash": "6663f011f6d240ebaf2d8b5cd23da0f5b3ff2ef28c2160160f251cf2c52e7b29",
+      "full_hash": "02b87a39121a8d94a8ce789c2d10153dcfe96a50599dfe7bb597dcd99598c413",
+      "full_external_bytes": 2813976
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "c9c_walkable_area.parquet": "131da7680ee98e69c25510e330893389918c148b438022037f0ebb18b0d34814",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "c9c_walkable_area.parquet": "131da7680ee98e69c25510e330893389918c148b438022037f0ebb18b0d34814",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": 704,
+   "blocks_rows_delta": 48,
+   "action_usage_delta": 1610,
+   "noticed_delta": 291
+  },
+  "w6_golden_null_arm": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "meals",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "dcebb7c1d04b9d27",
+     "b": "872136c8ef8115f3"
+    },
+    "calls": {
+     "a": 97250,
+     "b": 99453
+    },
+    "blocks_rows": {
+     "a": 3493,
+     "b": 3168
+    },
+    "blocks_sha": {
+     "a": "b636763e1924335c",
+     "b": "400242afd39f9394"
+    },
+    "calls_rows": {
+     "a": 97250,
+     "b": 99453
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "d6a58b2c25cc6ef3",
+      "agent_id": "619198a915f5d41d",
+      "tick": "4b57605425dc5e81",
+      "wake_class": "0debdb14f7a9a630",
+      "prompt_hash": "75dcf19a520e07c4",
+      "block_ids": "484ea545a216600a",
+      "params_hash": "ac6d267b55d0e483",
+      "response": "bd4de7478de00b5c",
+      "tokens_in": "1ad199d056660de8",
+      "tokens_out": "9262e1c84796d626",
+      "deferred": "05d2195c6cbd2e85",
+      "deferred_reason": "75cf2c3b486cb6c5",
+      "observed_tick": "30e105a768ddccb1",
+      "recalled_rows": "da42d6e2d95c165e",
+      "recalled_first_tick": "da42d6e2d95c165e",
+      "recalled_kind": "da42d6e2d95c165e",
+      "recalled_object": "da42d6e2d95c165e",
+      "recalled_source": "da42d6e2d95c165e",
+      "acquaintance_ids": "da42d6e2d95c165e",
+      "b5_text": "289ffde62f4e554d",
+      "b6_block_id": "f9da6b62a326afec"
+     },
+     "b": {
+      "call_id": "428e0b29d1519946",
+      "agent_id": "fa0a21afbad76adf",
+      "tick": "d4f2540e45be6586",
+      "wake_class": "b66cc84e0d2ffc46",
+      "prompt_hash": "abc8e138b127e119",
+      "block_ids": "48580721edbb464d",
+      "params_hash": "92cc49a2f120ab59",
+      "response": "ddb65a811e29ea0c",
+      "tokens_in": "b8488b1623a4f424",
+      "tokens_out": "6ab3f30d007812c0",
+      "deferred": "36d8674b76bb7c75",
+      "deferred_reason": "e871de363421bbcf",
+      "observed_tick": "cec546a410a5c411",
+      "recalled_rows": "8122467eb28be578",
+      "recalled_first_tick": "8122467eb28be578",
+      "recalled_kind": "8122467eb28be578",
+      "recalled_object": "8122467eb28be578",
+      "recalled_source": "8122467eb28be578",
+      "acquaintance_ids": "8122467eb28be578",
+      "b5_text": "2c013940f787cb91",
+      "b6_block_id": "443881c4599878f6"
+     }
+    },
+    "action_usage_total": {
+     "a": 293093,
+     "b": 190672
+    },
+    "action_usage_sha": {
+     "a": "09c13720094e989f",
+     "b": "e90dd1a7aa415576"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 3302,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 5856,
+      "PLAN_GENERAL": 15135,
+      "PLAN_TRANSIT": 11996,
+      "INTEROCEPTION": 27446,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 33515,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 2849,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 5858,
+      "PLAN_GENERAL": 15133,
+      "PLAN_TRANSIT": 11996,
+      "INTEROCEPTION": 28914,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 34703,
+      "ACTIVITY_EXPIRY": 0
+     }
+    },
+    "noticed": {
+     "a": 2295,
+     "b": 105
+    },
+    "mean_delay_min": {
+     "a": 9.0,
+     "b": 5.0
+    },
+    "behavior_last": {
+     "a": "dcebb7c1d04b9d27e4b0628b5d38a9a090e106f0b8ee3343488c373d8e0fd84b",
+     "b": "872136c8ef8115f3494fe492e5242312d2397b13c1279ff9133f354a9409b8d7"
+    },
+    "full_last": {
+     "a": "a1234e2e9943c05de05d60c90ede4d4551b2411dd653f8d0cfa326f37684d0a6",
+     "b": "2a250a2c72d5dfb40f735ffa38d017788bb7bfe8716254d2cb4c485c10922813"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "19df7eee6489b5868aabb80d3c31823f47fef598fd18b80353e78d3a2b573e72",
+      "full_hash": "5d6203713d71b7d7503d763b49cb53cd417ec17b51ea70ad9eb9690372478f6d",
+      "full_external_bytes": 2297453
+     },
+     "b": {
+      "behavior_hash": "fb6348004f116f02f595533fa8da95c5fca818bdbb52637e5046aa67d7a07fea",
+      "full_hash": "9db17696aa86edd6002d64a3df147a60fb3e5f6e9aac8901b0038e37db99e9f9",
+      "full_external_bytes": 2291766
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": 2203,
+   "blocks_rows_delta": -325,
+   "action_usage_delta": -102421,
+   "noticed_delta": -2190
+  },
+  "v3_mem_store": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "023d3db40aecd1be",
+     "b": "8fba888188303279"
+    },
+    "calls": {
+     "a": 63572,
+     "b": 62176
+    },
+    "blocks_rows": {
+     "a": 6928,
+     "b": 6822
+    },
+    "blocks_sha": {
+     "a": "22680c3a448cd2b0",
+     "b": "cd2a649e84a3b50b"
+    },
+    "calls_rows": {
+     "a": 63572,
+     "b": 62176
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "d95b6a8efd43829e",
+      "agent_id": "4400e53dcd256f2a",
+      "tick": "cd98bec56ec7f5a6",
+      "wake_class": "a531756e3b6d3dfe",
+      "prompt_hash": "7a5f2036322db4ea",
+      "block_ids": "382ac6b5d6d593ee",
+      "params_hash": "7aa183a58f23b42c",
+      "response": "06a8c5cb75d853b2",
+      "tokens_in": "b1ceff7b10f84b4f",
+      "tokens_out": "36e1cd92b18a62b1",
+      "deferred": "96f30f8ada500791",
+      "deferred_reason": "2444b8a049a3f0b4",
+      "observed_tick": "ffd845976d7047c7",
+      "recalled_rows": "73fe6f74071d61cf",
+      "recalled_first_tick": "45b901eac26937ba",
+      "recalled_kind": "e1058c8c3f5268e9",
+      "recalled_object": "94680285168556dc",
+      "recalled_source": "4d1f39be6e8958d4",
+      "acquaintance_ids": "4d1f39be6e8958d4",
+      "b5_text": "8d1383ea4fe95a91",
+      "b6_block_id": "0e02c82c3fa721a9"
+     },
+     "b": {
+      "call_id": "90286e81e31265fa",
+      "agent_id": "4875f87b04a5475c",
+      "tick": "9a214b3b38c183ec",
+      "wake_class": "f6f0616987342a33",
+      "prompt_hash": "21e7f3e93fc22119",
+      "block_ids": "8b68b1fbff94065c",
+      "params_hash": "a2bf4563c131dee8",
+      "response": "1abac69ce4bca3b8",
+      "tokens_in": "673dfa24903243fb",
+      "tokens_out": "8040f5b09063a7ce",
+      "deferred": "fcd7ba6a4517ce9d",
+      "deferred_reason": "ebc1ea3a28445644",
+      "observed_tick": "7b6d37c74229a93f",
+      "recalled_rows": "12d6c1ccbf98f212",
+      "recalled_first_tick": "65d73c663dd17416",
+      "recalled_kind": "694d39d657bb0de6",
+      "recalled_object": "f08910294c43104f",
+      "recalled_source": "95073d632a052dae",
+      "acquaintance_ids": "95073d632a052dae",
+      "b5_text": "6bd62c3b0b029087",
+      "b6_block_id": "02ccdc219dab67b8"
+     }
+    },
+    "action_usage_total": {
+     "a": 302567,
+     "b": 185691
+    },
+    "action_usage_sha": {
+     "a": "4b2c70229b541c3f",
+     "b": "f36bbdc22e4632a1"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 2612,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4220,
+      "PLAN_GENERAL": 6566,
+      "PLAN_TRANSIT": 6720,
+      "INTEROCEPTION": 19065,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 5561,
+      "ACTIVITY_EXPIRY": 18828
+     },
+     "b": {
+      "CONVERSATION_TURN": 2767,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4069,
+      "PLAN_GENERAL": 6437,
+      "PLAN_TRANSIT": 6551,
+      "INTEROCEPTION": 18537,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 5600,
+      "ACTIVITY_EXPIRY": 18215
+     }
+    },
+    "noticed": {
+     "a": 465,
+     "b": 780
+    },
+    "mean_delay_min": {
+     "a": 6.4,
+     "b": 10.2
+    },
+    "meals": {
+     "a": 4414,
+     "b": 4128
+    },
+    "behavior_last": {
+     "a": "023d3db40aecd1beaee977f689d998fd797477abc05bd29893c98e5aca22a68a",
+     "b": "8fba8881883032792677122803cdfe220e3566fabfc6c1e1ecf909b3bb1bb395"
+    },
+    "full_last": {
+     "a": "a1e696830e9538d01dee4239a01e11293b30161b55d24fb3b2bca5b6212f20b5",
+     "b": "52ed8ab486f0184bcf4098ee413be9e62ee7b856a1a5bd7cd1ae1cb210330802"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "1750a33adad3eea0bc441fbc7e5b681da267e79fcbf1e754cf530b4a0b47bfa8",
+      "full_hash": "273b95cd78ac3adf25cc2b9d66fae9410c375aa37ad42981b0aab68d8894b8e4",
+      "full_external_bytes": 4314683
+     },
+     "b": {
+      "behavior_hash": "7a80018e61315e48cc53570ad38c7bfdba2ced5ecbfff91e161cdbcb580481e7",
+      "full_hash": "fedf5fff880b1d2bc7a0e5593c84ae55445f936c55090c537fb5e0199f059e8d",
+      "full_external_bytes": 4297301
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": -1396,
+   "blocks_rows_delta": -106,
+   "action_usage_delta": -116876,
+   "noticed_delta": 315
+  },
+  "v3_mem_rel": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "94becde2c4fdb0d2",
+     "b": "140f365398ad4172"
+    },
+    "calls": {
+     "a": 66374,
+     "b": 64500
+    },
+    "blocks_rows": {
+     "a": 7406,
+     "b": 7128
+    },
+    "blocks_sha": {
+     "a": "8c5c7a9651c8b3b6",
+     "b": "ea1418fe7bcc514a"
+    },
+    "calls_rows": {
+     "a": 66374,
+     "b": 64500
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "790dac1a29ae5586",
+      "agent_id": "81af90f5196e4ff9",
+      "tick": "5900f22a94f9cc0b",
+      "wake_class": "eb7bbd21946e4f53",
+      "prompt_hash": "f808f4a8bbedb096",
+      "block_ids": "f255da02e6efcd90",
+      "params_hash": "4dc5b90bd5487d4a",
+      "response": "e715efae22dbc93c",
+      "tokens_in": "db890964c9a0f031",
+      "tokens_out": "026ace6b55bd73ad",
+      "deferred": "76e0dc43866e13b8",
+      "deferred_reason": "c0405fb14aef6428",
+      "observed_tick": "e1382d26d041264d",
+      "recalled_rows": "5c81ae0c249e8379",
+      "recalled_first_tick": "bb32fdeacd9f8b41",
+      "recalled_kind": "0ccc6b481d909bf0",
+      "recalled_object": "300f0d1b8240f127",
+      "recalled_source": "f2c1c29293f25353",
+      "acquaintance_ids": "c5128c4c88f133f0",
+      "b5_text": "8450b35392615eaa",
+      "b6_block_id": "c66ceb6ec1c652e6"
+     },
+     "b": {
+      "call_id": "02089c363e167239",
+      "agent_id": "4a64aa9cc961f187",
+      "tick": "631bf3547019094e",
+      "wake_class": "19be514efcbd4ff2",
+      "prompt_hash": "0ce068309e98af55",
+      "block_ids": "3d89a9bd3f20385f",
+      "params_hash": "2d94d955e2472215",
+      "response": "f1dedc9023044daa",
+      "tokens_in": "0710d43e41079c18",
+      "tokens_out": "0e13dc27098c10ad",
+      "deferred": "876657197b0ba787",
+      "deferred_reason": "378382a3dc11746a",
+      "observed_tick": "f01b0b5326937c81",
+      "recalled_rows": "018573a9cf8f8e3b",
+      "recalled_first_tick": "02419f66fe35d6b7",
+      "recalled_kind": "578d5d507de4416a",
+      "recalled_object": "c25390386c955ef4",
+      "recalled_source": "89d0c1b076b15870",
+      "acquaintance_ids": "68e7925196874e06",
+      "b5_text": "57d115da32d55d0e",
+      "b6_block_id": "83f877c10468102b"
+     }
+    },
+    "action_usage_total": {
+     "a": 303057,
+     "b": 187709
+    },
+    "action_usage_sha": {
+     "a": "b298df7c16056b35",
+     "b": "57590b7e86769a9e"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 2869,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4210,
+      "PLAN_GENERAL": 6590,
+      "PLAN_TRANSIT": 6736,
+      "INTEROCEPTION": 19061,
+      "ACQUAINTANCE": 2577,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 5334,
+      "ACTIVITY_EXPIRY": 18997
+     },
+     "b": {
+      "CONVERSATION_TURN": 2958,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4056,
+      "PLAN_GENERAL": 6459,
+      "PLAN_TRANSIT": 6561,
+      "INTEROCEPTION": 18498,
+      "ACQUAINTANCE": 2151,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 5479,
+      "ACTIVITY_EXPIRY": 18338
+     }
+    },
+    "noticed": {
+     "a": 340,
+     "b": 293
+    },
+    "mean_delay_min": {
+     "a": 8.4,
+     "b": 6.4
+    },
+    "meals": {
+     "a": 4555,
+     "b": 4378
+    },
+    "behavior_last": {
+     "a": "94becde2c4fdb0d2cb239e979558babd982ee4c9f8495459b5b27dfaa4038a33",
+     "b": "140f365398ad4172e65e42ace40637e432e3b459529220d41d0f6ed5474768f6"
+    },
+    "full_last": {
+     "a": "f14f77a418e1d94992d9e0147cfc84af5fe07aea0aba05e6cbc64b384d78ed8a",
+     "b": "1a8a27c5031b88214d773f262b871b1bb29edfe6bf77e70d5f6b785394cade5f"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "954af04c2e3b4055e3b324274b8ef99fdcac76abb52b63e10273231fcce9640f",
+      "full_hash": "edc1619201f5e7ca8b9d9fe088a35646cc9a4bdfee4f455196da47a73de04521",
+      "full_external_bytes": 4249392
+     },
+     "b": {
+      "behavior_hash": "75c44c9fa1816085145b8f99d7bc3fe4e9fda528b78a373828c50ed4c2e22dd9",
+      "full_hash": "9401d5633f63d4049607c5fc6b08f8d6f4c68ecfe53fcf7dffcc1d48090bb549",
+      "full_external_bytes": 4229695
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": -1874,
+   "blocks_rows_delta": -278,
+   "action_usage_delta": -115348,
+   "noticed_delta": -47
+  },
+  "v3_classical": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "b09d447075fcabda",
+     "b": "03b308625332f678"
+    },
+    "calls": {
+     "a": 91791,
+     "b": 92316
+    },
+    "blocks_rows": {
+     "a": 7729,
+     "b": 7277
+    },
+    "blocks_sha": {
+     "a": "749d03f45a143eb4",
+     "b": "d6e16e7ad42e1774"
+    },
+    "calls_rows": {
+     "a": 91791,
+     "b": 92316
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "93d0fa0b5b3ee3a5",
+      "agent_id": "b4b213ce1c7fdf3f",
+      "tick": "9d99c5909080fdab",
+      "wake_class": "410d81d12ae3cabb",
+      "prompt_hash": "679094a0de53d395",
+      "block_ids": "dc887ff16460ca34",
+      "params_hash": "8390302d8045cc76",
+      "response": "9618ce70c465cb56",
+      "tokens_in": "ada313235ceca483",
+      "tokens_out": "217d3be5476807ed",
+      "deferred": "3ba61f66c6fe128a",
+      "deferred_reason": "4a8911057fdc5ab3",
+      "observed_tick": "45f3106abd438f8c",
+      "recalled_rows": "b5d4f5b65e6eeefd",
+      "recalled_first_tick": "b5d4f5b65e6eeefd",
+      "recalled_kind": "b5d4f5b65e6eeefd",
+      "recalled_object": "b5d4f5b65e6eeefd",
+      "recalled_source": "b5d4f5b65e6eeefd",
+      "acquaintance_ids": "b5d4f5b65e6eeefd",
+      "b5_text": "2f92b7e45039f2db",
+      "b6_block_id": "ed09ea0654379d6b"
+     },
+     "b": {
+      "call_id": "ceb3bdedb3cad3ad",
+      "agent_id": "e92f2ef7384c4b4e",
+      "tick": "1ab1144c1af357bd",
+      "wake_class": "b0d0485162cc38a0",
+      "prompt_hash": "051131922050f3f8",
+      "block_ids": "02b25046e482bb35",
+      "params_hash": "35692507d3d8a51d",
+      "response": "adc187237dd6d3d1",
+      "tokens_in": "94c0d3ec8ff4ab67",
+      "tokens_out": "319f8d6b2d94da4c",
+      "deferred": "26da3b6f58be2565",
+      "deferred_reason": "3d81cdcc3246ecd4",
+      "observed_tick": "a29ca94f6238d78c",
+      "recalled_rows": "848b008c71288a7c",
+      "recalled_first_tick": "848b008c71288a7c",
+      "recalled_kind": "848b008c71288a7c",
+      "recalled_object": "848b008c71288a7c",
+      "recalled_source": "848b008c71288a7c",
+      "acquaintance_ids": "848b008c71288a7c",
+      "b5_text": "36ff96b759d861b2",
+      "b6_block_id": "59b986708d202080"
+     }
+    },
+    "action_usage_total": {
+     "a": 425290,
+     "b": 324303
+    },
+    "action_usage_sha": {
+     "a": "d5983caed9f79156",
+     "b": "661d92784f1921a0"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 0,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4445,
+      "PLAN_GENERAL": 7064,
+      "PLAN_TRANSIT": 7198,
+      "INTEROCEPTION": 24254,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 8556,
+      "ACTIVITY_EXPIRY": 40274
+     },
+     "b": {
+      "CONVERSATION_TURN": 0,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4445,
+      "PLAN_GENERAL": 7064,
+      "PLAN_TRANSIT": 7198,
+      "INTEROCEPTION": 23112,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 8967,
+      "ACTIVITY_EXPIRY": 41530
+     }
+    },
+    "noticed": {
+     "a": 715,
+     "b": 796
+    },
+    "meals": {
+     "a": 9612,
+     "b": 9128
+    },
+    "behavior_last": {
+     "a": "b09d447075fcabda405d9034b2e47dbb677acba3292b386515c994b90dd6f7bc",
+     "b": "03b308625332f6787645acf41c9a79d8482bcfe6b6f877b9f3b2d0fb48a3eb07"
+    },
+    "full_last": {
+     "a": "8e3cedc4ea33a4b88be3195573772ae2060cb7b1fa335f5a64780d163c681a37",
+     "b": "c2d8f4f8e988c980b4b7158359c8bb044d0cebbb11d635047b45ea87015b983b"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "b711000e067ad75a7aed6b39ae82b7e28c4a01925f494e219c348f23b0c918cd",
+      "full_hash": "b0f32949cfe867aee4d2d23a25c54a3a5c9c3b16dc28036ab49ae0f698a3fb1c",
+      "full_external_bytes": 4461944
+     },
+     "b": {
+      "behavior_hash": "8d32566defa36477677e7ee8c3cf6863cba9c6578495ba455d0c5adaea5b5ecc",
+      "full_hash": "3350021ea6bfd1e6cbbf016cf9f03b3ce5d797929d66c61b4bc39054ea7ac0c6",
+      "full_external_bytes": 4449673
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": 525,
+   "blocks_rows_delta": -452,
+   "action_usage_delta": -100987,
+   "noticed_delta": 81
+  },
+  "v3_classical_mem_rel": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "final": {
+     "a": "ac9fbe9414d9fdaa",
+     "b": "853a11f9941d1dfb"
+    },
+    "calls": {
+     "a": 102368,
+     "b": 104127
+    },
+    "blocks_rows": {
+     "a": 8153,
+     "b": 7691
+    },
+    "blocks_sha": {
+     "a": "ecc9ebb2c4ec6f8a",
+     "b": "73b3dfb35c1752be"
+    },
+    "calls_rows": {
+     "a": 102368,
+     "b": 104127
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "b9654c0b81f71ea7",
+      "agent_id": "76f7750e245dfc68",
+      "tick": "90b4a793936acd18",
+      "wake_class": "6fda15d7a0415d37",
+      "prompt_hash": "ba49d8e7e1935749",
+      "block_ids": "52787edab97a63f1",
+      "params_hash": "f3fa93abe7f646eb",
+      "response": "fc91844ad1ab596a",
+      "tokens_in": "6623117e636a69c5",
+      "tokens_out": "f33f1cd280bbb157",
+      "deferred": "5c79a50307d3b6bb",
+      "deferred_reason": "b980863f62f365ce",
+      "observed_tick": "90580ec60b01cff6",
+      "recalled_rows": "f4bacef2d8a9c41f",
+      "recalled_first_tick": "b6f866618d1ace61",
+      "recalled_kind": "d79427e4467f1349",
+      "recalled_object": "3aaa2160ab006216",
+      "recalled_source": "73a8c53e0ba0712a",
+      "acquaintance_ids": "7f61ae419349c112",
+      "b5_text": "729173e3c0a6a5c9",
+      "b6_block_id": "7e77b4ece24a3046"
+     },
+     "b": {
+      "call_id": "ea03ca42e08a1287",
+      "agent_id": "74eec5d2e486e065",
+      "tick": "6be84d083f5ae3df",
+      "wake_class": "a15088939d4a1b0c",
+      "prompt_hash": "2fa7bdacd54bd0bc",
+      "block_ids": "8be701ef7d884b0f",
+      "params_hash": "ff77a6dd2c4b14ed",
+      "response": "1e84de4402021907",
+      "tokens_in": "db66d756b115ce2c",
+      "tokens_out": "9df33c63f445f2f4",
+      "deferred": "3df44a26d25f9218",
+      "deferred_reason": "bdabea2d9c0a67a1",
+      "observed_tick": "d91f53567159a8d9",
+      "recalled_rows": "96441ac0eb09d8c4",
+      "recalled_first_tick": "3d053a3df5f63b39",
+      "recalled_kind": "c8bd7298ed6ad710",
+      "recalled_object": "9d4287709858970f",
+      "recalled_source": "ce680a1ce2220c45",
+      "acquaintance_ids": "fb2eab5ecdff105f",
+      "b5_text": "3b365692f910cdbd",
+      "b6_block_id": "8915cd5a381d4984"
+     }
+    },
+    "action_usage_total": {
+     "a": 452947,
+     "b": 352731
+    },
+    "action_usage_sha": {
+     "a": "7f32d8860a06c176",
+     "b": "89eb118d233e9182"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1029,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4445,
+      "PLAN_GENERAL": 7064,
+      "PLAN_TRANSIT": 7198,
+      "INTEROCEPTION": 24624,
+      "ACQUAINTANCE": 8684,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 8973,
+      "ACTIVITY_EXPIRY": 40351
+     },
+     "b": {
+      "CONVERSATION_TURN": 1199,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4445,
+      "PLAN_GENERAL": 7064,
+      "PLAN_TRANSIT": 7196,
+      "INTEROCEPTION": 23553,
+      "ACQUAINTANCE": 9323,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 9560,
+      "ACTIVITY_EXPIRY": 41787
+     }
+    },
+    "noticed": {
+     "a": 693,
+     "b": 797
+    },
+    "meals": {
+     "a": 9961,
+     "b": 9509
+    },
+    "behavior_last": {
+     "a": "ac9fbe9414d9fdaa8413f6d69a6772fcb3b25a1db0900d41d2553f46d585d794",
+     "b": "853a11f9941d1dfb1bc90db3dcb83f0f7b2404e09d83290e60c2216dfce6f8d9"
+    },
+    "full_last": {
+     "a": "f6a1535c71d549a8c60aa3b7b829cb70502648879b930f429c3fcf5796359c30",
+     "b": "dc45ab42cbcfd5b88bfac392c5ecc36e3f1b8067622da858c4ef8e9cd3ac9eef"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "b737012744ba1e0a05ecd8c5d7ee8e9d0d134e1595a99ebed8a53ee0439e3b62",
+      "full_hash": "c8bad94095a66e7927d0f36ed9fc0c000b673499cd59c0d95f1039505e37a5ad",
+      "full_external_bytes": 4859868
+     },
+     "b": {
+      "behavior_hash": "0fa99f41e972c99b00fecdb6bbbd72810ba9835ded60518da353a2d4ca9da066",
+      "full_hash": "4afef877efb362cdc3aaaeb7fe2fd49fd514b7b6ae30edb78170b26c2576c004",
+      "full_external_bytes": 4854385
+     }
+    },
+    "frozen_sources": {
+     "a": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     },
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "nav1:nav1_anchors.parquet": "43fb869db5ba7a87cf012ce10ad01c9149926d2fcae391b797a6bb2bd477018f",
+      "nav1:nav1_corridor.parquet": "9ffb9183b58748eaf123e7460269cf449b651f4cf536a6e5a778c06119ef7e2d",
+      "nav1:nav1_dem.npy": "f7e1bc2462c3ffa088fb456da44fa3b5fa1f1dd80986437d48b79a59f3d6e448",
+      "nav1:nav1_links.parquet": "c9272790bf85709c759bbe85aae567f84fac538af2c398f3332eda543fe1372b",
+      "nav1:nav1_meta.json": "644504d7f98d1ebdc9687c0438f1b3ef0d67e97cf6a83fe16b2a4e3467947a89",
+      "nav1:nav1_portals.parquet": "15027f17a47fb1a3ae6a39ab8704c597383d83fae53922d9e6852c8f51587aed",
+      "nav1:nav1_runs.parquet": "8f3a96b8ccac0977d875c4b5aa11b9da900f19121d9cb78866123a9a23ba4d5d",
+      "nav1:nav1_strips.parquet": "91de700106893a3bc4c908ce9437347970c2524699e427abda525bf478f6a4df",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "7ef7ab9038348e59c4cec0ea95d24dd3b4a3fe398bfd20c06fc66d32b59cbfca",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-13.npy": "8200c6dbe83baa3dc2c5543066c83473f437d24cd7d9d61af4d5bfb15e463d38"
+     }
+    }
+   },
+   "calls_delta": 1759,
+   "blocks_rows_delta": -462,
+   "action_usage_delta": -100216,
+   "noticed_delta": 104
+  }
+ }
+}

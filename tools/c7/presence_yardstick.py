@@ -17,7 +17,8 @@
     **アンカーとの距離**だけ。
 
 現実側の数値はここに書かない
-    全て ``docs/bench/anchors/presence_anchors_v0.json``(source/tag/verified_by 付き)から読む。
+    全て ``docs/bench/anchors/presence_calib_anchors_v0.json``(較正側)と ``presence_validation_anchors_v0.json``
+    (検証側)〔第 2 期 2-4 V6=前は 1 本 presence_anchors_v0.json〕(source/tag/verified_by 付き)から読む。
     **合格線は書かない**——距離を出すだけで、良否は親が決める(CLAUDE.md §2)。
 
 入口
@@ -60,7 +61,11 @@ AREA_IDS = c7lib.AREA_IDS
 REPO_ROOT = c7lib.REPO_ROOT
 
 #: 既定のアンカー台帳(現実側の数値は**全てここ**にある)。
-DEFAULT_ANCHORS_PATH = REPO_ROOT / "docs" / "bench" / "anchors" / "presence_anchors_v0.json"
+#: 〔第 2 期 2-4 V6〕錨は較正側(中核 9 町丁目〔非〕)と検証側(PT 由来〔灰〕・第 4-1 表〔検〕ほか)の 2 本に分けた
+#: (前は 1 本 ``presence_anchors_v0.json``=混在)。物差しは両方を使う=既定は 2 本を 1 つに戻して読む。
+DEFAULT_ANCHORS_PATHS = (REPO_ROOT / "docs" / "bench" / "anchors" / "presence_calib_anchors_v0.json",
+                         REPO_ROOT / "docs" / "bench" / "anchors" / "presence_validation_anchors_v0.json")
+DEFAULT_ANCHORS_PATH = DEFAULT_ANCHORS_PATHS[1]  # 見出し(purpose・rules)のある側=記録の道筋の表記
 
 #: ``AgentKind``(src/shibuya/agents/state.py)の順と名前。journal の kind 軸に対応。
 KIND_JA: tuple[str, ...] = (
@@ -117,8 +122,15 @@ def display_path(p: str | Path) -> str:
 
 def load_anchors(path: str | Path | None = None) -> dict[str, Any]:
     """アンカー台帳を読む。**必須欄が欠けていたら落とす**(推測で埋めない)。"""
-    p = Path(path) if path else DEFAULT_ANCHORS_PATH
-    doc = json.loads(p.read_text(encoding="utf-8"))
+    if path:
+        p = Path(path)
+        doc = json.loads(p.read_text(encoding="utf-8"))
+    else:  # 〔2-4 V6〕較正側と検証側を 1 つに戻す(錨を合わせ・見出しは検証側=元の文)
+        p = DEFAULT_ANCHORS_PATH
+        calib, valid = (json.loads(q.read_text(encoding="utf-8")) for q in DEFAULT_ANCHORS_PATHS)
+        doc = dict(valid)
+        doc["anchors"] = {**calib.get("anchors", {}), **valid.get("anchors", {})}
+        doc.pop("split_from", None)
     check_anchors(doc)
     doc["_path"] = str(p)
     return doc

@@ -1,0 +1,552 @@
+{
+ "n_rows": 36868,
+ "n_surfaces": 91,
+ "surfaces": [
+  {
+   "raw": "行く",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 20508
+  },
+  {
+   "raw": "食べる",
+   "mapped": "購入",
+   "stage": "stage0",
+   "n": 12594
+  },
+  {
+   "raw": "移動",
+   "mapped": "移動",
+   "stage": "vocab",
+   "n": 1353
+  },
+  {
+   "raw": "買う",
+   "mapped": "購入",
+   "stage": "stage0",
+   "n": 548
+  },
+  {
+   "raw": "食事",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 328
+  },
+  {
+   "raw": "購入",
+   "mapped": "購入",
+   "stage": "vocab",
+   "n": 229
+  },
+  {
+   "raw": "探す",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 212
+  },
+  {
+   "raw": "休憩",
+   "mapped": "休憩",
+   "stage": "vocab",
+   "n": 177
+  },
+  {
+   "raw": "待機",
+   "mapped": "待機",
+   "stage": "vocab",
+   "n": 131
+  },
+  {
+   "raw": "行動",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 90
+  },
+  {
+   "raw": "探索",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 86
+  },
+  {
+   "raw": "観察",
+   "mapped": "待機",
+   "stage": "stage0",
+   "n": 80
+  },
+  {
+   "raw": "行動 移動",
+   "mapped": "移動",
+   "stage": "vocab",
+   "n": 61
+  },
+  {
+   "raw": "買い物",
+   "mapped": "購入",
+   "stage": "stage0",
+   "n": 52
+  },
+  {
+   "raw": "近づく",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 49
+  },
+  {
+   "raw": "飲む",
+   "mapped": "購入",
+   "stage": "stage0",
+   "n": 44
+  },
+  {
+   "raw": "見る",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 33
+  },
+  {
+   "raw": "近寄る",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 30
+  },
+  {
+   "raw": "歩く",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 24
+  },
+  {
+   "raw": "休む",
+   "mapped": "休憩",
+   "stage": "stage0",
+   "n": 23
+  },
+  {
+   "raw": "水を飲む",
+   "mapped": "購入",
+   "stage": "stage0",
+   "n": 18
+  },
+  {
+   "raw": "近く移動",
+   "mapped": "移動",
+   "stage": "vocab",
+   "n": 15
+  },
+  {
+   "raw": "食料購入",
+   "mapped": "購入",
+   "stage": "vocab",
+   "n": 12
+  },
+  {
+   "raw": "進む",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 10
+  },
+  {
+   "raw": "飲食",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 10
+  },
+  {
+   "raw": "待つ",
+   "mapped": "待機",
+   "stage": "stage0",
+   "n": 10
+  },
+  {
+   "raw": "取る",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 9
+  },
+  {
+   "raw": "避雨",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 8
+  },
+  {
+   "raw": "飲み物 買う",
+   "mapped": "購入",
+   "stage": "stage0",
+   "n": 7
+  },
+  {
+   "raw": "向かう",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 6
+  },
+  {
+   "raw": "持つ",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 6
+  },
+  {
+   "raw": "飲み物買う",
+   "mapped": "購入",
+   "stage": "stage0",
+   "n": 5
+  },
+  {
+   "raw": "持ち歩く",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 5
+  },
+  {
+   "raw": "走る",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 5
+  },
+  {
+   "raw": "帰る",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 4
+  },
+  {
+   "raw": "避難",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 4
+  },
+  {
+   "raw": "飲みに行く",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 4
+  },
+  {
+   "raw": "近寄",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 3
+  },
+  {
+   "raw": "冷たい飲み物",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 3
+  },
+  {
+   "raw": "飲み物を買う",
+   "mapped": "購入",
+   "stage": "stage0",
+   "n": 3
+  },
+  {
+   "raw": "近くの飲食店を探す",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 3
+  },
+  {
+   "raw": "会話",
+   "mapped": "会話",
+   "stage": "vocab",
+   "n": 3
+  },
+  {
+   "raw": "調べる",
+   "mapped": "待機",
+   "stage": "stage0",
+   "n": 2
+  },
+  {
+   "raw": "並ぶ",
+   "mapped": "並ぶ",
+   "stage": "vocab",
+   "n": 2
+  },
+  {
+   "raw": "飲み歩く",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 2
+  },
+  {
+   "raw": "飲み物購入",
+   "mapped": "購入",
+   "stage": "vocab",
+   "n": 2
+  },
+  {
+   "raw": "水を買う",
+   "mapped": "購入",
+   "stage": "stage0",
+   "n": 2
+  },
+  {
+   "raw": "喫茶",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 2
+  },
+  {
+   "raw": "座る",
+   "mapped": "休憩",
+   "stage": "stage0",
+   "n": 2
+  },
+  {
+   "raw": "食べる food1954",
+   "mapped": "購入",
+   "stage": "stage0",
+   "n": 2
+  },
+  {
+   "raw": "近くに行く",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 2
+  },
+  {
+   "raw": "飲み物探し",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 2
+  },
+  {
+   "raw": "取りに行く",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 2
+  },
+  {
+   "raw": "探",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 2
+  },
+  {
+   "raw": "持つ 水筒",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 2
+  },
+  {
+   "raw": "飲み物 探索",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 2
+  },
+  {
+   "raw": "離れる",
+   "mapped": "退去",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "飲食店",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 1
+  },
+  {
+   "raw": "近くへ行く",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "飛び乗る",
+   "mapped": "乗車",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "飲料 取りに行く",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "近路探索",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "近くの飲料店を探す",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "飲み物 購入",
+   "mapped": "購入",
+   "stage": "vocab",
+   "n": 1
+  },
+  {
+   "raw": "近くの店へ移動",
+   "mapped": "移動",
+   "stage": "vocab",
+   "n": 1
+  },
+  {
+   "raw": "確認",
+   "mapped": "待機",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "傘を探す",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "近路 移動",
+   "mapped": "移動",
+   "stage": "vocab",
+   "n": 1
+  },
+  {
+   "raw": "飲み物 取り出し",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 1
+  },
+  {
+   "raw": "買いに行く",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "飲み物を探す",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "持ち物確認",
+   "mapped": "待機",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "話しかける",
+   "mapped": "会話",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "電話",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 1
+  },
+  {
+   "raw": "餃子 買う",
+   "mapped": "購入",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "飲み物 取りに行く",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "求める",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 1
+  },
+  {
+   "raw": "聞く",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 1
+  },
+  {
+   "raw": "近くの飲食店へ 移動",
+   "mapped": "移動",
+   "stage": "vocab",
+   "n": 1
+  },
+  {
+   "raw": "食べ物 取りに行く",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "帰宅",
+   "mapped": "移動",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "誰かに話す",
+   "mapped": "会話",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "近くへ 移動",
+   "mapped": "移動",
+   "stage": "vocab",
+   "n": 1
+  },
+  {
+   "raw": "誰とも話す",
+   "mapped": "会話",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "行動 目的",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 1
+  },
+  {
+   "raw": "飲み",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 1
+  },
+  {
+   "raw": "返す",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 1
+  },
+  {
+   "raw": "前進",
+   "mapped": null,
+   "stage": "undefined",
+   "n": 1
+  },
+  {
+   "raw": "話す",
+   "mapped": "会話",
+   "stage": "stage0",
+   "n": 1
+  },
+  {
+   "raw": "近く 移動",
+   "mapped": "移動",
+   "stage": "vocab",
+   "n": 1
+  },
+  {
+   "raw": "近くの物を買う",
+   "mapped": "購入",
+   "stage": "stage0",
+   "n": 1
+  }
+ ]
+}

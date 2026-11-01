@@ -1,0 +1,41 @@
+{
+ "n_agents": 5000,
+ "final_hash": "993276d5e5bb5cbe",
+ "phase_checkpoint_s_4_checkpoints": 0.041,
+ "per_checkpoint_s": {
+  "final_soa(agents+world)": 0.00031,
+  "behavior_hash_alone": 0.01164,
+  "full_hash_alone": 0.01147,
+  "both_with_memo(run_day の形)": 0.01199,
+  "full_external_only": 0.01107
+ },
+ "external_bytes": 3351116,
+ "external_rows_s_top": {
+  "O39": 0.00765,
+  "O1": 0.00211,
+  "O38": 0.00024,
+  "O43": 0.00018,
+  "O3": 0.00012,
+  "O57": 0.00012,
+  "O29": 7e-05,
+  "O4": 5e-05,
+  "O42": 4e-05,
+  "O77": 4e-05,
+  "O46": 4e-05,
+  "O35": 3e-05
+ },
+ "external_rows_bytes_top": {
+  "O38": 1163889,
+  "O3": 740974,
+  "O29": 284984,
+  "O57": 274534,
+  "O39": 159138,
+  "O55": 118604,
+  "O1": 84837,
+  "O74": 80056,
+  "O50": 65492,
+  "O59": 63199,
+  "O35": 50187,
+  "O75": 42729
+ }
+}

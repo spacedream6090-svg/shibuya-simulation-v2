@@ -1,0 +1,390 @@
+{
+ "what": "腕 c1・mock 5,000 体・1 日・seed 1・世界 data/world/v2(W21)・語彙 v3。head=本体 6f07eff の写し(HEAD_TREE_FILES+data へのつなぎ)=直す前・wt=作業木=直した後。道具 tools/run_c1_onoff.py・1 本ずつ・壁時計は参考",
+ "compare": {
+  "wt_on_off": {
+   "a": {
+    "label": "wt_on",
+    "events": "on",
+    "final": "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0",
+    "contact_rows": 95879,
+    "wall_s": 85.1
+   },
+   "b": {
+    "label": "wt_off",
+    "events": "off",
+    "final": "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0",
+    "contact_rows": 0,
+    "wall_s": 75.7
+   },
+   "final_same": true,
+   "checkpoints_behavior_same": true,
+   "n_checkpoints": 4,
+   "first_checkpoint_differ": null,
+   "meter_same": true,
+   "meter_moved": {},
+   "audit": {
+    "a": 0,
+    "b": 0
+   },
+   "note": "作業木(直した後): 腕 c1・5,000 体 1 日・記録 on vs off"
+  },
+  "head_on_off": {
+   "a": {
+    "label": "head_on",
+    "events": "on",
+    "final": "567b69385e7b742afce9fa78187963e0a099d06f92f2ee834938d5ac7ec070fd",
+    "contact_rows": 95879,
+    "wall_s": 86.4
+   },
+   "b": {
+    "label": "head_off",
+    "events": "off",
+    "final": "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0",
+    "contact_rows": 0,
+    "wall_s": 78.6
+   },
+   "final_same": false,
+   "checkpoints_behavior_same": false,
+   "n_checkpoints": 4,
+   "first_checkpoint_differ": 359,
+   "meter_same": true,
+   "meter_moved": {},
+   "audit": {
+    "a": 0,
+    "b": 0
+   },
+   "note": "本体 6f07eff の写し(直す前): 腕 c1・記録 on vs off"
+  },
+  "head_wt_on": {
+   "a": {
+    "label": "head_on",
+    "events": "on",
+    "final": "567b69385e7b742afce9fa78187963e0a099d06f92f2ee834938d5ac7ec070fd",
+    "contact_rows": 95879,
+    "wall_s": 86.4
+   },
+   "b": {
+    "label": "wt_on",
+    "events": "on",
+    "final": "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0",
+    "contact_rows": 95879,
+    "wall_s": 85.1
+   },
+   "final_same": false,
+   "checkpoints_behavior_same": false,
+   "n_checkpoints": 4,
+   "first_checkpoint_differ": 359,
+   "meter_same": true,
+   "meter_moved": {},
+   "audit": {
+    "a": 0,
+    "b": 0
+   },
+   "note": "記録 on: 直す前 vs 直した後"
+  },
+  "head_wt_off": {
+   "a": {
+    "label": "head_off",
+    "events": "off",
+    "final": "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0",
+    "contact_rows": 0,
+    "wall_s": 78.6
+   },
+   "b": {
+    "label": "wt_off",
+    "events": "off",
+    "final": "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0",
+    "contact_rows": 0,
+    "wall_s": 75.7
+   },
+   "final_same": true,
+   "checkpoints_behavior_same": true,
+   "n_checkpoints": 4,
+   "first_checkpoint_differ": null,
+   "meter_same": true,
+   "meter_moved": {},
+   "audit": {
+    "a": 0,
+    "b": 0
+   },
+   "note": "記録 off: 直す前 vs 直した後"
+  }
+ },
+ "runs": {
+  "wt_on": {
+   "label": "wt_on",
+   "events": "on",
+   "final": "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0",
+   "wall_s": 85.1,
+   "checkpoints_behavior": [
+    [
+     359,
+     "1966002f992a80bb3fb42ad42b8720a89769ca4d173163cad9b24331d1b9cb2e"
+    ],
+    [
+     719,
+     "9a589f94965d79a7607e7814ee51c3749f4494039527c069823ecc47490762c2"
+    ],
+    [
+     1079,
+     "f1ee809e8ea594751b99a955e63d445b477811703d56869d1efafe03f939c490"
+    ],
+    [
+     1439,
+     "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0"
+    ]
+   ],
+   "contact_rows": 95879,
+   "contact_rows_by_what": {
+    "連絡:スマホを見た": 9300,
+    "連絡:出た": 12,
+    "連絡:出ない": 14,
+    "連絡:切った": 21,
+    "連絡:届いた": 24,
+    "連絡:後で": 10212,
+    "連絡:無視": 10444,
+    "連絡:着信": 35,
+    "連絡:読んだ": 19961,
+    "連絡:送った": 25205,
+    "連絡:通話の終わり": 24,
+    "連絡:電話をかけた": 35,
+    "連絡:預かった": 1089,
+    "連絡:顔を上げた": 19503
+   },
+   "audit": {
+    "events": 95879,
+    "violations": 0,
+    "examples": []
+   },
+   "issued": 154570,
+   "event_id_tables": {
+    "ct_event_of_rows": 57815,
+    "speech_event_of_rows": 0
+   },
+   "inbox_row_lengths": [
+    9
+   ],
+   "calls_by_model": {
+    "judge_model": 154570,
+    "llm": 82169,
+    "contact": {
+     "judge_model": 154570,
+     "llm": 18597
+    }
+   }
+  },
+  "wt_off": {
+   "label": "wt_off",
+   "events": "off",
+   "final": "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0",
+   "wall_s": 75.7,
+   "checkpoints_behavior": [
+    [
+     359,
+     "1966002f992a80bb3fb42ad42b8720a89769ca4d173163cad9b24331d1b9cb2e"
+    ],
+    [
+     719,
+     "9a589f94965d79a7607e7814ee51c3749f4494039527c069823ecc47490762c2"
+    ],
+    [
+     1079,
+     "f1ee809e8ea594751b99a955e63d445b477811703d56869d1efafe03f939c490"
+    ],
+    [
+     1439,
+     "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0"
+    ]
+   ],
+   "contact_rows": 0,
+   "contact_rows_by_what": {},
+   "audit": {
+    "events": 0,
+    "violations": 0,
+    "examples": []
+   },
+   "issued": 154570,
+   "event_id_tables": {
+    "ct_event_of_rows": 0,
+    "speech_event_of_rows": 0
+   },
+   "inbox_row_lengths": [
+    9
+   ],
+   "calls_by_model": {
+    "judge_model": 154570,
+    "llm": 82169,
+    "contact": {
+     "judge_model": 154570,
+     "llm": 18597
+    }
+   }
+  },
+  "head_on": {
+   "label": "head_on",
+   "events": "on",
+   "final": "567b69385e7b742afce9fa78187963e0a099d06f92f2ee834938d5ac7ec070fd",
+   "wall_s": 86.4,
+   "checkpoints_behavior": [
+    [
+     359,
+     "f3fea5e9d15b4804656ff50ea7805e34d88de09799d2028a827c7060787abd11"
+    ],
+    [
+     719,
+     "efa5afbfebcfb5280be251506c3595dbba9634357983c2901288eb7e5807cf99"
+    ],
+    [
+     1079,
+     "d39a5f154265baf64345b1b42cb9967b3bc06545f44382cbe5a9dc8864fc0b29"
+    ],
+    [
+     1439,
+     "567b69385e7b742afce9fa78187963e0a099d06f92f2ee834938d5ac7ec070fd"
+    ]
+   ],
+   "contact_rows": 95879,
+   "contact_rows_by_what": {
+    "連絡:スマホを見た": 9300,
+    "連絡:出た": 12,
+    "連絡:出ない": 14,
+    "連絡:切った": 21,
+    "連絡:届いた": 24,
+    "連絡:後で": 10212,
+    "連絡:無視": 10444,
+    "連絡:着信": 35,
+    "連絡:読んだ": 19961,
+    "連絡:送った": 25205,
+    "連絡:通話の終わり": 24,
+    "連絡:電話をかけた": 35,
+    "連絡:預かった": 1089,
+    "連絡:顔を上げた": 19503
+   },
+   "audit": {
+    "events": 95879,
+    "violations": 0,
+    "examples": []
+   },
+   "issued": 154570,
+   "event_id_tables": {
+    "ct_event_of_rows": 0,
+    "speech_event_of_rows": 0
+   },
+   "inbox_row_lengths": [
+    11
+   ],
+   "calls_by_model": {
+    "judge_model": 154570,
+    "llm": 82169,
+    "contact": {
+     "judge_model": 154570,
+     "llm": 18597
+    }
+   }
+  },
+  "head_off": {
+   "label": "head_off",
+   "events": "off",
+   "final": "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0",
+   "wall_s": 78.6,
+   "checkpoints_behavior": [
+    [
+     359,
+     "1966002f992a80bb3fb42ad42b8720a89769ca4d173163cad9b24331d1b9cb2e"
+    ],
+    [
+     719,
+     "9a589f94965d79a7607e7814ee51c3749f4494039527c069823ecc47490762c2"
+    ],
+    [
+     1079,
+     "f1ee809e8ea594751b99a955e63d445b477811703d56869d1efafe03f939c490"
+    ],
+    [
+     1439,
+     "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0"
+    ]
+   ],
+   "contact_rows": 0,
+   "contact_rows_by_what": {},
+   "audit": {
+    "events": 0,
+    "violations": 0,
+    "examples": []
+   },
+   "issued": 154570,
+   "event_id_tables": {
+    "ct_event_of_rows": 0,
+    "speech_event_of_rows": 0
+   },
+   "inbox_row_lengths": [
+    9
+   ],
+   "calls_by_model": {
+    "judge_model": 154570,
+    "llm": 82169,
+    "contact": {
+     "judge_model": 154570,
+     "llm": 18597
+    }
+   }
+  }
+ },
+ "after_s8_fix": {
+  "note": "§16-6(発話の口の直しを親のクラスへ)の後の最後のコード",
+  "wt_on_vs_wt_off": {
+   "a": {
+    "label": "wt_on",
+    "events": "on",
+    "final": "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0",
+    "contact_rows": 95879,
+    "wall_s": 86.7
+   },
+   "b": {
+    "label": "wt_off",
+    "events": "off",
+    "final": "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0",
+    "contact_rows": 0,
+    "wall_s": 80.5
+   },
+   "final_same": true,
+   "checkpoints_behavior_same": true,
+   "n_checkpoints": 4,
+   "first_checkpoint_differ": null,
+   "meter_same": true,
+   "meter_moved": {},
+   "audit": {
+    "a": 0,
+    "b": 0
+   },
+   "note": "C1 最後のコード: 記録 on vs off"
+  },
+  "prev_vs_last_on": {
+   "a": {
+    "label": "wt_on",
+    "events": "on",
+    "final": "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0",
+    "contact_rows": 95879,
+    "wall_s": 85.1
+   },
+   "b": {
+    "label": "wt_on",
+    "events": "on",
+    "final": "b4bdb1545f28446b823262f79a96caf4e2b8d9174d5f8f38d4ecfd724411c0f0",
+    "contact_rows": 95879,
+    "wall_s": 86.7
+   },
+   "final_same": true,
+   "checkpoints_behavior_same": true,
+   "n_checkpoints": 4,
+   "first_checkpoint_differ": null,
+   "meter_same": true,
+   "meter_moved": {},
+   "audit": {
+    "a": 0,
+    "b": 0
+   },
+   "note": "C1 記録 on: §16 のコード vs 最後のコード"
+  }
+ }
+}

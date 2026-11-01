@@ -21,16 +21,10 @@ if str(TOOLS_C8) not in sys.path:
     sys.path.insert(0, str(TOOLS_C8))
 
 #: 実世界資産が無い環境(CI)では実データのテストを飛ばす。
-real_data = pytest.mark.skipif(
-    not (WORLD_DIR / "w12_generation_weights.parquet").exists(),
-    reason="実世界資産 data/world/v2 が無い",
-)
+real_data = pytest.mark.requires_data("world_v2:w12_generation_weights.parquet")
 
 #: 国勢調査の小地域境界(W16 の対照に要る)。
-real_estat = pytest.mark.skipif(
-    not (DATA_DIR / "realworld" / "estat" / "r2ka13113" / "r2ka13113.shp").exists(),
-    reason="e-Stat 小地域境界が無い",
-)
+real_estat = pytest.mark.requires_data("estat:r2ka13113/r2ka13113.shp")
 
 
 @pytest.fixture(scope="session")

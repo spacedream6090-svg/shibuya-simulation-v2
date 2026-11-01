@@ -33,15 +33,21 @@ expedient(本モジュール分)
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import hashlib
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Final, Sequence
+from typing import Any, Final, Mapping, Sequence
 
 import numpy as np
 
 from shibuya.core.rng import stream
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
+    # ---- 10e(B0・B1): 資産の指紋と旧資産の切替口 ----
+    "SHADOW_GLOB",
+    "array_sha256",
+    "file_sha256",
     "BAND_CODES",
     "CELL_SIZE_M",
     "GRID_ORIGIN_XY",
@@ -107,6 +113,32 @@ DEFAULT_OPEN_TO_TICK: Final[int] = 1_320
 NOISE_DAY_HOURS: Final[tuple[int, int]] = (6, 22)
 #: 騒音段階の段数(``perception.templates.NOISE_STAGE_VOCAB`` と同じ 4 段)。
 N_NOISE_STAGES: Final[int] = 4
+
+# ------------------------------------------------- 10e(B0): 資産の指紋
+#: W9 の影のファイルの名前の型(``w9_shadow_<YYYY-MM-DD>.npy``)。
+SHADOW_GLOB: Final[str] = "w9_shadow_*.npy"
+#: 〔第330・RET〕旧資産の切替口(10e B1 の ``--world-assets-pre10e``・``AssetSource``・``PRE10E_FAMILIES``)は
+#: 版上げ 1 回目の後に消した(ユーザーの答え 1-5)。旧値の再現は第330 ACT の commit で記録した(10e の記録 §RET)。
+
+
+def file_sha256(path: str | Path) -> str:
+    """ファイルの中身の sha256(16 進・1 MiB ずつ読む)。10e(B0): manifest の ``frozen_sources`` に書く値。"""
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def array_sha256(*arrays: np.ndarray) -> str:
+    """配列の並び(dtype・形・中身)の sha256。10e(B0): 騒音の集約後のセル別の段の補助の指紋。"""
+    h = hashlib.sha256()
+    for a in arrays:
+        x = np.ascontiguousarray(a)
+        h.update(f"{x.dtype.str}{x.shape}".encode("ascii"))
+        h.update(x.tobytes())
+    return h.hexdigest()
+
 
 # ------------------------------------------------- C9c-1 歩行可能面積の実測化(G8 (b))
 #: 歩行可能面積の出所。``legacy``=現行の「W10 街路点数 × 6.25 m²・床 1,500 m²」
@@ -263,6 +295,9 @@ class WorldAssets:
     noise_stage_day: np.ndarray | None = None
     #: 同 夜(22-6 時)。
     noise_stage_night: np.ndarray | None = None
+    #: 10e(B0): この資産が読んだ騒音の地図のファイル → sha256 と、集約後のセル別の段(昼・夜)の補助の指紋
+    #: ``noise_stage_cells``。manifest の ``frozen_sources`` に ``world:`` を付けて写す。W10 が無ければ空。
+    asset_sources: Mapping[str, str] = field(default_factory=dict)
 
     @property
     def has_noise_field(self) -> bool:
@@ -331,7 +366,10 @@ def _cell_key(ix: np.ndarray, iy: np.ndarray, band: np.ndarray) -> np.ndarray:
 
 
 def load_assets(path: str | Path) -> WorldAssets:
-    """``data/world/v2`` の資産を読む(W1/W2/W3/W6)。
+    """``data/world/v2`` の資産を読む(W1/W2/W3/W6・騒音は W10)。
+
+    Args:
+        path: 資産ディレクトリ。
 
     Raises:
         FileNotFoundError: 必要ファイルが欠けている。
@@ -417,7 +455,9 @@ def load_assets(path: str | Path) -> WorldAssets:
     poi_open_from = np.full(n_poi, DEFAULT_OPEN_FROM_TICK, dtype=np.int16)
     poi_open_to = np.full(n_poi, DEFAULT_OPEN_TO_TICK, dtype=np.int16)
 
-    ns_day, ns_night = _noise_stage_per_cell(p, cell_ix, cell_iy, cell_band)
+    ns_day, ns_night, noise_sources = _noise_stage_per_cell(
+        p, cell_ix, cell_iy, cell_band
+    )
 
     return WorldAssets(
         source=str(p),
@@ -449,6 +489,7 @@ def load_assets(path: str | Path) -> WorldAssets:
         poi_xy=poi_xy,
         noise_stage_day=ns_day,
         noise_stage_night=ns_night,
+        asset_sources=noise_sources,
     )
 
 
@@ -532,8 +573,8 @@ def load_visible_pois_by_cell(
 
 
 def _noise_stage_per_cell(
-    path: Path, cell_ix: np.ndarray, cell_iy: np.ndarray, cell_band: np.ndarray
-) -> tuple[np.ndarray | None, np.ndarray | None]:
+    path: Path, cell_ix: np.ndarray, cell_iy: np.ndarray, cell_band: np.ndarray,
+) -> tuple[np.ndarray | None, np.ndarray | None, dict[str, str]]:
     """W10(街路点 2.5 m 格子)の騒音段階 → セル別の**最頻値**(昼/夜)。
 
     ``perception.renderer._street_aggregate`` と**同じ集約規則**(セル×段の度数の argmax=
@@ -541,7 +582,8 @@ def _noise_stage_per_cell(
     二重定義になる。一致は ``tests/engine/test_renderer_wiring.py`` が実データで機械検査する。
 
     Returns:
-        ``(昼, 夜)``。W10 が無ければ ``(None, None)``。
+        ``(昼, 夜, 読んだファイルの sha256)``。W10 が無ければ ``(None, None, {})``。10e(B0): 指紋の辞書は
+        ファイル名 → sha256 と ``noise_stage_cells``(集約後の昼・夜の配列の sha256)。
 
     Note:
         逐次ループ宣言(P4): **昼/夜の 2 回**のループのみ(点数 356,732 の集約は ``bincount``
@@ -549,10 +591,13 @@ def _noise_stage_per_cell(
     """
     import pyarrow.parquet as pq
 
-    pts = path / "w10_street_points.parquet"
+    root = Path(path)
+    pts = root / "w10_street_points.parquet"
     files = ("w10_noise_stage_day.npy", "w10_noise_stage_night.npy")
-    if not pts.exists() or not all((path / f).exists() for f in files):
-        return None, None
+    if not pts.exists() or not all((root / f).exists() for f in files):
+        return None, None, {}
+    sources = {f: file_sha256(root / f) for f in files}
+    sources["w10_street_points.parquet"] = file_sha256(pts)
 
     d = pq.read_table(pts, columns=["x", "y", "band"]).to_pydict()
     sx = np.asarray(d["x"], dtype=np.float64)
@@ -573,7 +618,7 @@ def _noise_stage_per_cell(
 
     out: list[np.ndarray] = []
     for name in files:  # 逐次ループ宣言: 昼/夜の 2 回
-        stage = np.load(path / name)
+        stage = np.load(root / name)
         flat = cell_of_point[valid] * N_NOISE_STAGES + np.clip(
             stage[valid].astype(np.int64), 0, N_NOISE_STAGES - 1
         )
@@ -581,7 +626,8 @@ def _noise_stage_per_cell(
             n_cells, N_NOISE_STAGES
         )
         out.append(tab.argmax(axis=1).astype(np.uint8))
-    return out[0], out[1]
+    sources["noise_stage_cells"] = array_sha256(out[0], out[1])
+    return out[0], out[1], sources
 
 
 def hash_free_cat_code(cat: str) -> int:
@@ -834,6 +880,14 @@ class ProcessAssets:
     plan_day: np.ndarray | None = None
     plan_start: np.ndarray | None = None
     plan_end: np.ndarray | None = None
+    #: 〔第330・10e E3・ACT〕W7 に祝日の規則(``PH``=列 ``holiday_content``)を持つ店(昇順)。資産に無ければ ``None``。
+    #: 祝日の区間は ``plan_day == 7``。``[]``=祝日は休み・空文字/列なし=祝日の規則なし(日曜の行)。
+    plan_ph_poi: np.ndarray | None = None
+    #: 〔第 6 期 6-6 ② 第 1 部〕W7 の列 ``src``(営業時間の行の出どころ=``osm_opening_hours``・``chain_default``・
+    #: ``category_default``)の名の表(昇順)と、店(POI)→ 名の番号(−1=行が無い)。店の決まりの口が出どころの印に使う
+    #: (読むだけ=腕 ``--duties arm`` のランだけが読む・既定の挙動は不変)。列の無い資産は ``()`` と ``None``。
+    plan_src_names: tuple[str, ...] = ()
+    plan_poi_src: np.ndarray | None = None
     edge_klass_code: np.ndarray | None = None
     edge_cell: np.ndarray | None = None
     edge_length_m: np.ndarray | None = None
@@ -842,6 +896,15 @@ class ProcessAssets:
     poi_cat_names: tuple[str, ...] = ()
     bus_stop_cell: np.ndarray | None = None
     hotel_poi: np.ndarray | None = None
+    #: 10e(B6): W13 の時別の気象の値(``(n_days, 24)``・欠けは NaN)。天気の規則 ``calendar`` で WBGT を
+    #: 「再生日の気象 × 暦の日付の太陽高度」から計算し直すために読む(``legacy`` では使わない)。列が無い資産は ``None``。
+    hourly_temp_c: np.ndarray | None = None
+    hourly_rh: np.ndarray | None = None
+    hourly_wind_ms: np.ndarray | None = None
+    hourly_sunshine_h: np.ndarray | None = None
+    #: 10e(B0): 世界過程が読んだファイル → sha256(W13 の 2 本・W12 の 2 本・影の点の対応に使う W10 の街路点)。
+    #: manifest の ``frozen_sources`` に ``process:`` を付けて写す。影(W9)は開いた日だけ環境の過程が足す。
+    asset_sources: Mapping[str, str] = field(default_factory=dict)
 
     # ---- 有無の判定(過程ごとに独立して休める) ----
     @property
@@ -875,12 +938,17 @@ class ProcessAssets:
         except ValueError:
             return -1
 
-    def shadow_planes(self, date: str):
-        """``w9_shadow_<date>.npy`` を memmap で開く(無ければ ``None``)。"""
+    def shadow_path(self, date: str) -> Path | None:
+        """``w9_shadow_<date>.npy`` の場所(その日の影が無ければ ``None``)。"""
         if not self.shadow_dir or str(date) not in self.shadow_dates:
             return None
         p = Path(self.shadow_dir) / f"w9_shadow_{date}.npy"
-        if not p.exists():
+        return p if p.exists() else None
+
+    def shadow_planes(self, date: str):
+        """``w9_shadow_<date>.npy`` を memmap で開く(無ければ ``None``)。"""
+        p = self.shadow_path(date)
+        if p is None:
             return None
         return np.load(p, mmap_mode="r")
 
@@ -897,13 +965,13 @@ def _hhmm_to_min(text: object) -> float:
         return float("nan")
     hh, mm = s.split(":", 1)
     try:
-        return float(int(hh) * 60 + int(mm))
+        return float(int(hh) * MINUTES_PER_HOUR + int(mm))
     except ValueError:
         return float("nan")
 
 
 def _nearest_street_point_per_cell(
-    path: Path,
+    pts: Path,
     cell_centroid: np.ndarray,
     cell_ix: np.ndarray,
     cell_iy: np.ndarray,
@@ -915,7 +983,6 @@ def _nearest_street_point_per_cell(
     """
     import pyarrow.parquet as pq
 
-    pts = path / PROCESS_FILES["street_points"]
     if not pts.exists():
         return None, 0
     d = pq.read_table(pts, columns=["x", "y", "band"]).to_pydict()
@@ -1054,7 +1121,9 @@ def _bus_stop_cells(
     return order[take].astype(np.int64)
 
 
-def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
+def load_process_assets(
+    path, assets: WorldAssets
+) -> ProcessAssets:
     """``data/world/v2`` から世界過程(C4 第1陣)の資産を読む。
 
     Args:
@@ -1074,6 +1143,8 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
 
     p = Path(path)
     n_cells = assets.n_cells
+    #: 10e(B0): 読んだファイルの sha256(manifest の frozen_sources へ)
+    sources: dict[str, str] = {}
 
     # ---- W2: place_id → セル索引 ----
     place_to_cell: dict[str, int] = {}
@@ -1088,9 +1159,12 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
     wtype: tuple[str, ...] = ()
     sunrise = sunset = None
     hourly_wbgt = hourly_heat = None
+    hourly_inputs: dict[str, np.ndarray] = {}
     fd = p / PROCESS_FILES["weather_days"]
     fh = p / PROCESS_FILES["weather_hourly"]
     if fd.exists() and fh.exists():
+        sources[fd.name] = file_sha256(fd)
+        sources[fh.name] = file_sha256(fh)
         d = pq.read_table(fd).to_pydict()
         idx = sorted(range(len(d["date"])), key=lambda i: str(d["date"][i]))
         dates = tuple(str(d["date"][i]) for i in idx)
@@ -1114,13 +1188,27 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
         ok = (hd >= 0) & (hh >= 0) & (hh < 24)
         hourly_wbgt[hd[ok], hh[ok]] = hv[ok]
         hourly_heat[hd[ok], hh[ok]] = hs[ok]
+        # 10e(B6): WBGT の入力(気温・湿度・風・日照)。天気の規則 calendar でだけ使う(列が無い資産は空のまま)
+        names = set(pq.read_schema(fh).names)
+        cols = [c for c in ("temp_c", "rh", "wind_ms", "sunshine_h") if c in names]
+        if len(cols) == 4:
+            hin = pq.read_table(fh, columns=cols).to_pydict()
+            for c in cols:  # 逐次ループ宣言: 列 4 本(起動時 1 回)
+                arr = np.full((len(dates), 24), np.nan, dtype=np.float64)
+                val = np.array([np.nan if v is None else float(v) for v in hin[c]], dtype=np.float64)
+                arr[hd[ok], hh[ok]] = val[ok]
+                hourly_inputs[c] = arr
 
     # ---- W9: 影グリッド(実在する日だけ) ----
+    shadow_root = p
     shadow_dates = tuple(
-        sorted(f.name[len("w9_shadow_") : -len(".npy")] for f in p.glob("w9_shadow_*.npy"))
+        sorted(f.name[len("w9_shadow_") : -len(".npy")] for f in shadow_root.glob(SHADOW_GLOB))
     )
+    f_pts = p / PROCESS_FILES["street_points"]
+    if f_pts.exists():
+        sources[f_pts.name] = file_sha256(f_pts)
     cell_point, n_points = _nearest_street_point_per_cell(
-        p,
+        f_pts,
         assets.cell_centroid.astype(np.float64),
         np.asarray(assets.cell_ix),
         np.asarray(assets.cell_iy),
@@ -1132,6 +1220,7 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
     tt_line_idx = tt_cal = tt_dir = tt_dep = None
     ft = p / PROCESS_FILES["timetables"]
     if ft.exists():
+        sources[ft.name] = file_sha256(ft)
         t = pq.read_table(
             ft, columns=["line", "direction", "calendar", "departure_min"]
         ).to_pydict()
@@ -1142,7 +1231,7 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
         tt_line_idx = np.array([lidx[str(x)] for x in t["line"]], dtype=np.int16)
         tt_cal = np.array([1 if str(c) != "Weekday" else 0 for c in t["calendar"]], dtype=np.int8)
         tt_dir = np.array([didx[str(x)] for x in t["direction"]], dtype=np.int16)
-        tt_dep = (np.asarray(t["departure_min"], dtype=np.int64) % 1_440).astype(np.int32)
+        tt_dep = (np.asarray(t["departure_min"], dtype=np.int64) % MINUTES_PER_DAY).astype(np.int32)
 
     # ---- W11: 路線 → 渋谷のホームセル ----
     line_platform_cell = None
@@ -1170,6 +1259,7 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
     ext_node_line_idx = None
     fx = p / PROCESS_FILES["external_nodes"]
     if fx.exists() and tt_lines:
+        sources[fx.name] = file_sha256(fx)
         ex = pq.read_table(fx, columns=["node_id", "kind", "lines"]).to_pydict()
         idx = np.full(len(ex["node_id"]), -1, dtype=np.int16)
         # 逐次ループ宣言: 方面ノード(10)ぶん。起動時 1 回。
@@ -1201,6 +1291,9 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
 
     # ---- W6/W7: POI カテゴリと営業時間 PlanSpec ----
     plan_poi = plan_day = plan_start = plan_end = None
+    plan_ph_poi = None
+    plan_src_names: tuple[str, ...] = ()
+    plan_poi_src = None
     poi_cat_code = None
     poi_cat_names: tuple[str, ...] = ()
     fp = p / PROCESS_FILES["plan_spec"]
@@ -1212,8 +1305,24 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
         cmap = {name: i for i, name in enumerate(poi_cat_names)}
         poi_cat_code = np.array([cmap[str(c)] for c in poi["cat"]], dtype=np.int16)
         if fp.exists():
-            ps = pq.read_table(fp, columns=["poi_id", "kind", "content"]).to_pydict()
+            # 〔第330・ACT〕祝日(PH)の区間は構築側の列 ``holiday_content``(W7 1.1.0・``[[開,閉],…]`` の JSON・
+            # 空文字=PH の規則なし=日曜の行・``[]``=祝日は休み)から読む(親の決定 (1)=構築側の形に合わせる)。
+            # 列の無い W7(1.1.0 より前の資産・合成の資産)は PH の規則なし。週表 ``content`` は曜日 0〜6 の 7 要素だけを読む。
+            _ps_cols = ["poi_id", "kind", "content"]
+            _ps_names = pq.read_schema(fp).names
+            if "holiday_content" in _ps_names:
+                _ps_cols.append("holiday_content")
+            if "src" in _ps_names:  # 〔第 6 期 6-6 ② 第 1 部〕営業時間の行の出どころ(読むだけ)
+                _ps_cols.append("src")
+            ps = pq.read_table(fp, columns=_ps_cols).to_pydict()
+            src_col = ps.get("src")
+            if src_col is not None:
+                plan_src_names = tuple(sorted({str(x) for x, k in zip(src_col, ps["kind"])
+                                               if str(k) == "opening_hours"}))
+                plan_poi_src = np.full(len(poi_index), -1, dtype=np.int16)
+            hol = ps.get("holiday_content")
             rp: list[int] = []
+            ph: set[int] = set()
             rd: list[int] = []
             rs: list[int] = []
             re_: list[int] = []
@@ -1224,11 +1333,26 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
                 j = poi_index.get(str(ps["poi_id"][i]), -1)
                 if j < 0:
                     continue
+                if plan_poi_src is not None:
+                    plan_poi_src[j] = plan_src_names.index(str(src_col[i]))
                 try:
                     week = json.loads(str(ps["content"][i]))
                 except (ValueError, TypeError):
                     continue
-                for day, spans in enumerate(list(week)[:7]):
+                days_spans: list[tuple[int, Any]] = list(enumerate(list(week)[:7]))
+                # 〔第330・ACT〕祝日の行(``plan_day == 7``)は列 ``holiday_content`` から
+                h_txt = str(hol[i] or "") if hol is not None else ""
+                if h_txt:
+                    try:
+                        h_spans = json.loads(h_txt)
+                    except (ValueError, TypeError):
+                        h_spans = None
+                    if h_spans is not None:
+                        ph.add(j)
+                        days_spans.append((7, h_spans))
+                for day, spans in days_spans:
+                    if spans is None:
+                        continue
                     for span in spans:
                         if len(span) != 2:
                             continue
@@ -1240,6 +1364,7 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
             plan_day = np.asarray(rd, dtype=np.int8)
             plan_start = np.asarray(rs, dtype=np.int32)
             plan_end = np.asarray(re_, dtype=np.int32)
+            plan_ph_poi = np.asarray(sorted(ph), dtype=np.int64) if ph else None
 
     # ---- W1: 道路の辺(断面自動車交通) ----
     edge_klass_code = edge_cell = edge_len = None
@@ -1265,7 +1390,7 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
         hourly_wbgt=hourly_wbgt,
         hourly_heat_stage=hourly_heat,
         shadow_dates=shadow_dates,
-        shadow_dir=str(p) if shadow_dates else "",
+        shadow_dir=str(shadow_root) if shadow_dates else "",
         cell_street_point=(
             cell_point if (cell_point is not None and int(cell_point.size) == n_cells) else None
         ),
@@ -1282,6 +1407,9 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
         plan_day=plan_day,
         plan_start=plan_start,
         plan_end=plan_end,
+        plan_ph_poi=plan_ph_poi,
+        plan_src_names=plan_src_names,
+        plan_poi_src=plan_poi_src,
         edge_klass_code=edge_klass_code,
         edge_cell=edge_cell,
         edge_length_m=edge_len,
@@ -1294,10 +1422,17 @@ def load_process_assets(path, assets: WorldAssets) -> ProcessAssets:
         hotel_poi=np.flatnonzero(
             np.asarray([str(c) == "hotel" for c in assets.poi_cat], dtype=bool)
         ).astype(np.int64),
+        hourly_temp_c=hourly_inputs.get("temp_c"),
+        hourly_rh=hourly_inputs.get("rh"),
+        hourly_wind_ms=hourly_inputs.get("wind_ms"),
+        hourly_sunshine_h=hourly_inputs.get("sunshine_h"),
+        asset_sources=sources,
     )
 
 
-def load_process_assets_or_synthetic(path, assets: WorldAssets) -> ProcessAssets:
+def load_process_assets_or_synthetic(
+    path, assets: WorldAssets
+) -> ProcessAssets:
     """資産があれば読み、無ければ空の ``ProcessAssets``(全過程が休む)。"""
     if path is None:
         return ProcessAssets.synthetic()

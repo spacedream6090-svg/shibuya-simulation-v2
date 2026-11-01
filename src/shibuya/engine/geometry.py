@@ -187,12 +187,16 @@ class EdgeGeometry:
         n_agents: int,
         walkable_area_m2=None,
         tick_seconds: int = 60,
+        population_seed: int | str | None = None,
     ) -> None:
         self.assets = assets
         self.seed = seed
         self.n_agents = int(n_agents)
         self.tick_seconds = int(tick_seconds)
-        self.v_desired = desired_speeds(seed, np.arange(self.n_agents, dtype=np.int64))
+        # 10f(K21 (a)): 希望歩行速度は体の属性=母集団の seed から(``None`` なら seed と同じ=今と同じ)
+        self.v_desired = desired_speeds(
+            seed if population_seed is None else population_seed, np.arange(self.n_agents, dtype=np.int64)
+        )
 
         n_cells = int(assets.n_cells)
         if walkable_area_m2 is None:

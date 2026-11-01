@@ -1,0 +1,344 @@
+{
+ "schema": "cf33/branch-example/2",
+ "kw": {
+  "n_agents": 1000,
+  "seed": 1,
+  "world_dir": "data/world/v2",
+  "sim_days": 2,
+  "vocab_version": "v3",
+  "checkpoint_every": 60
+ },
+ "n_targets": 200,
+ "n_open_at_noon": 2059,
+ "staffed_pois": 0,
+ "form_sha256": "1406365eb08cd81ae7c42524773b1f8949bb3486982b7022d0782d7b8010217d",
+ "summary": {
+  "a": true,
+  "b": true,
+  "d": true,
+  "c_step": 2160,
+  "c_system": "world",
+  "ok": true,
+  "executed_by_agents": false
+ },
+ "T0_step": 2160,
+ "resume_from": "state-T00001440.npz",
+ "runs": {
+  "aa_a": {
+   "final_hash": "fc2fde3ae17a96e852738329022487cf652adedc73529d57afe2aa23f5738456",
+   "checkpoints": 24,
+   "llm_calls": 13825,
+   "wall_seconds": 10.81
+  },
+  "aa_b": {
+   "final_hash": "fc2fde3ae17a96e852738329022487cf652adedc73529d57afe2aa23f5738456",
+   "checkpoints": 24,
+   "llm_calls": 13825,
+   "wall_seconds": 32.67
+  },
+  "branch": {
+   "final_hash": "afc8b298972eb1ced6b2e3679ffd8f5bfc1aa6575971183222e1078019334d3d",
+   "checkpoints": 24,
+   "llm_calls": 13866,
+   "wall_seconds": 10.49
+  },
+  "branch_probe": {
+   "final_hash": "afc8b298972eb1ced6b2e3679ffd8f5bfc1aa6575971183222e1078019334d3d",
+   "checkpoints": 24,
+   "llm_calls": 13866,
+   "wall_seconds": 35.59
+  }
+ },
+ "base_final": "fc2fde3ae17a96e852738329022487cf652adedc73529d57afe2aa23f5738456",
+ "a_input_match": {
+  "aa": {
+   "ok": true,
+   "config_diffs": [
+    "experiment.aa",
+    "experiment.aa_of",
+    "experiment.branch_t0_step",
+    "experiment.decisions",
+    "experiment.end_ns",
+    "experiment.form_sha256",
+    "experiment.half",
+    "experiment.kind",
+    "experiment.level",
+    "experiment.member.chance",
+    "experiment.member.environment_seed",
+    "experiment.member.initial",
+    "experiment.member.model",
+    "experiment.member.population_seed",
+    "experiment.member.seed",
+    "experiment.notice",
+    "experiment.preregistration_sha256",
+    "experiment.registration_sha256",
+    "experiment.schema",
+    "experiment.seal_sha256",
+    "experiment.t0_ns",
+    "experiment.t0_step",
+    "group_norms.cost.ticks",
+    "run_kind"
+   ],
+   "resume_derived": [
+    {
+     "key": "group_norms.cost.ticks",
+     "base": "2880",
+     "run": "1440",
+     "reason": "集団の規範の計器が回った刻みの数(再開のランは再開の時刻からの数=節の表で設定に入っている計器)"
+    }
+   ]
+  },
+  "branch": {
+   "ok": true,
+   "config_diffs": [
+    "experiment.aa",
+    "experiment.aa_of",
+    "experiment.branch_t0_step",
+    "experiment.decisions",
+    "experiment.end_ns",
+    "experiment.form_sha256",
+    "experiment.half",
+    "experiment.kind",
+    "experiment.level",
+    "experiment.member.chance",
+    "experiment.member.environment_seed",
+    "experiment.member.initial",
+    "experiment.member.model",
+    "experiment.member.population_seed",
+    "experiment.member.seed",
+    "experiment.notice",
+    "experiment.preregistration_sha256",
+    "experiment.registration_sha256",
+    "experiment.schema",
+    "experiment.seal_sha256",
+    "experiment.t0_ns",
+    "experiment.t0_step",
+    "group_norms.cost.ticks",
+    "run_kind"
+   ],
+   "resume_derived": [
+    {
+     "key": "group_norms.cost.ticks",
+     "base": "2880",
+     "run": "1440",
+     "reason": "集団の規範の計器が回った刻みの数(再開のランは再開の時刻からの数=節の表で設定に入っている計器)"
+    }
+   ]
+  }
+ },
+ "b_pre_t0": {
+  "aa": {
+   "T0_step": 2160,
+   "checkpoints_before_T0": 12,
+   "first_bad_step": null,
+   "tape_miss_before_t0": 0,
+   "policy_mismatch_before_t0": 0,
+   "ok": true,
+   "status": "ok",
+   "note": ""
+  },
+  "branch": {
+   "T0_step": 2160,
+   "checkpoints_before_T0": 12,
+   "first_bad_step": null,
+   "tape_miss_before_t0": 0,
+   "policy_mismatch_before_t0": 0,
+   "ok": true,
+   "status": "ok",
+   "note": ""
+  },
+  "resume_state": {
+   "state_file": "state-T00001440.npz",
+   "next_T": 1440,
+   "base_state_matches_base_end_of_day": true,
+   "end_of_day_found": true,
+   "note": "基準の自己一致(基準の状態のファイルの見出し × 基準の manifest の日ごとの記録)"
+  }
+ },
+ "c_first_divergence": {
+  "world": {
+   "index": 1,
+   "step": 2160,
+   "system": "world",
+   "keys": [
+    "O73:runner.opening.n_events",
+    "O73:runner.opening.n_fallback",
+    "pois.open_now"
+   ],
+   "a": [
+    2160,
+    "world",
+    [
+     "O46:runner.salient.budget",
+     "O53:runner.street_cleaning.litter_g",
+     "O55:runner.infra.power_kwh",
+     "O55:runner.last_mile.delivered",
+     "O56:runner.environment._shade",
+     "O72:runner.salient.n_broadcast_lines",
+     "O73:runner.bus_taxi.n_arrivals",
+     "O73:runner.environment.n_updates",
+     "O73:runner.infra.water_m3",
+     "O73:runner.last_mile.n_batches",
+     "O73:runner.n_steps",
+     "O73:runner.opening.n_events",
+     "O73:runner.opening.n_fallback",
+     "O73:runner.press.n_releases",
+     "O73:runner.rail.n_departures",
+     "O75:runner.crowd.flow",
+     "O76:runner.environment.heat_stage",
+     "O76:runner.environment.wbgt",
+     "O95:runner.crowd.coherence",
+     "O95:runner.crowd.flow_dir8",
+     "agents.thermal",
+     "pois.open_now"
+    ]
+   ],
+   "b": [
+    2160,
+    "world",
+    [
+     "O46:runner.salient.budget",
+     "O53:runner.street_cleaning.litter_g",
+     "O55:runner.infra.power_kwh",
+     "O55:runner.last_mile.delivered",
+     "O56:runner.environment._shade",
+     "O72:runner.salient.n_broadcast_lines",
+     "O73:runner.bus_taxi.n_arrivals",
+     "O73:runner.environment.n_updates",
+     "O73:runner.infra.water_m3",
+     "O73:runner.last_mile.n_batches",
+     "O73:runner.n_steps",
+     "O73:runner.opening.n_events",
+     "O73:runner.opening.n_fallback",
+     "O73:runner.press.n_releases",
+     "O73:runner.rail.n_departures",
+     "O75:runner.crowd.flow",
+     "O76:runner.environment.heat_stage",
+     "O76:runner.environment.wbgt",
+     "O95:runner.crowd.coherence",
+     "O95:runner.crowd.flow_dir8",
+     "agents.thermal",
+     "pois.open_now"
+    ]
+   ]
+  },
+  "any": {
+   "step": 2160,
+   "system": "experiment",
+   "keys": [
+    "E:events._cz_exp_rows",
+    "E:events._cz_experiments",
+    "E:events._cz_kind",
+    "E:events._cz_n",
+    "E:events._cz_ref",
+    "E:events._ev_cause",
+    "E:events._ev_how_much",
+    "E:events._ev_n",
+    "E:events._ev_n_appended",
+    "E:events._ev_name_codes",
+    "E:events._ev_names",
+    "E:events._ev_origin",
+    "E:events._ev_received_ns",
+    "E:events._ev_seq",
+    "E:events._ev_seq_next",
+    "E:events._ev_t_ns",
+    "E:events._ev_via",
+    "E:events._ev_what",
+    "E:events._ev_where_id",
+    "E:events._ev_where_kind",
+    "E:events._ev_who",
+    "E:events._ev_whom"
+   ]
+  },
+  "coarse": {
+   "first_step": 2219,
+   "hashes_differ": [
+    "activity_hash",
+    "agents_hash",
+    "behavior_hash",
+    "full_hash",
+    "world_hash"
+   ],
+   "last_match_step": null,
+   "checkpoints_compared": 12
+  },
+  "nonportable_keys": [
+   "O61:runner.log",
+   "O63:renderer._tickc",
+   "X:experiment.handle"
+  ],
+  "reason": "",
+  "window_steps": [
+   2160,
+   2219
+  ],
+  "probe_rows": {
+   "aa": 825,
+   "branch": 827
+  },
+  "branch_repeat_same": true
+ },
+ "execution": {
+  "branch": {
+   "targets": 200,
+   "staffed_targets": 0,
+   "staffed_pois": 0,
+   "role_actions": 0,
+   "fallback": 200
+  },
+  "aa": {
+   "targets": 200,
+   "staffed_targets": 0,
+   "staffed_pois": 0,
+   "role_actions": 0,
+   "fallback": 168
+  },
+  "note": "対象の店の T0 以後の開け閉め(ActualLog の store_opening)=担当の従業者の役割行動 / conf 0.5 のつなぎ。executed_by_agents は決定 10-12 §1-1 の「分岐でフォールバックを使わない」の判定で、summary.ok(4 つの確認)には入れない"
+ },
+ "d_aa": {
+  "ok": true,
+  "checkpoints": 24,
+  "final_same": true,
+  "first_bad_step": null,
+  "probe_rows": 0,
+  "probe_first_divergence": null,
+  "final_equals_base": true
+ },
+ "experiment_meter": {
+  "decided": 1,
+  "unapplied": 0,
+  "reapplied": 0,
+  "restored": 0,
+  "notices": 3,
+  "notice_unreached": 0,
+  "events": 4
+ },
+ "replay": {
+  "t0_step": 2160,
+  "stateful_policy": false,
+  "replayed_before_t0": 5260,
+  "tape_miss_before_t0": 0,
+  "policy_before_t0": 0,
+  "policy_mismatch_before_t0": 0,
+  "live_from_t0": 8606
+ },
+ "staffed_targets": 0,
+ "opening_counters_branch": {
+  "events": 4296.0,
+  "role_actions": 0.0,
+  "fallback": 4296.0,
+  "open_now": 505.0,
+  "staffed_pois": 0.0
+ },
+ "opening_counters_aa": {
+  "events": 4264.0,
+  "role_actions": 0.0,
+  "fallback": 4264.0,
+  "open_now": 537.0,
+  "staffed_pois": 0.0
+ },
+ "wall_seconds": {
+  "base": 19.9,
+  "branch_runs": 89.6
+ }
+}

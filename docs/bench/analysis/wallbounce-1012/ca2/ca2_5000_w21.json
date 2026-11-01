@@ -1,0 +1,2999 @@
+{
+ "note": "第 6 期 6-2 カレンダー 2: 本体 2313e1b(段 10=W21 の世界)への載せ替えの後の腕 arm の mock 5,000 体(世界 v2=W21・seed 1)の計器の元。道具 tools/run_ca2.py。合否なし。1b と束ねたランは W20 の週の表を 2 つ(v2_stage_3-1=前の世界の表・v2_stage_4-3=W21 の世界の表)。",
+ "runs": {
+  "arm_1day": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "contact": "off",
+   "events": "on",
+   "calendar1b": false,
+   "final": "2d96c3041cd4f6fd1133c877f05ed0d67213572d0edba37afce995c18378ced0",
+   "llm_calls": 63564,
+   "wall_s": 44.4,
+   "calls_by_model": {
+    "judge_model": 10497,
+    "llm": 67832,
+    "calendar_2": {
+     "judge_model": 10497,
+     "llm": 4268
+    }
+   },
+   "calendar2_calls": {
+    "judge_model": 10497,
+    "llm": 4268
+   },
+   "events_by_what": {
+    "約束:仮で受けた": 69,
+    "約束:出発した": 15,
+    "約束:取り消した": 18,
+    "約束:受けた": 66,
+    "約束:場所を変えた": 11,
+    "約束:断った": 82,
+    "約束:時刻を変えた": 24,
+    "約束:書いた": 4188,
+    "約束:知らせ": 17,
+    "約束:確かさを変えた": 19,
+    "約束:行かない": 20,
+    "約束:誘った": 286
+   },
+   "events_by_via": {
+    "対面": 503,
+    "無し": 4312
+   },
+   "audit": {
+    "events": 4815,
+    "violations": 0,
+    "examples": []
+   },
+   "event_log": {
+    "rows": 58221,
+    "nbytes": 4191912,
+    "cause_nbytes": 565920,
+    "promise_rows": 4815
+   },
+   "calendar_2": {
+    "schema": "shibuya.engine.calendar2/1",
+    "arm": "arm",
+    "port": "calendar2-mock",
+    "placements": {
+     "アプリ": {
+      "知らせ": "本人が決めた時刻に通知",
+      "持ち歩き": true,
+      "見える範囲": "画面",
+      "忘れやすさ": "低い",
+      "思い出し方": "通知・画面を見たとき",
+      "重なりの警告": true
+     },
+     "アラーム": {
+      "知らせ": "本人が決めた時刻に鳴る",
+      "持ち歩き": true,
+      "見える範囲": "音",
+      "忘れやすさ": "低い",
+      "思い出し方": "鳴る",
+      "重なりの警告": false
+     },
+     "手帳": {
+      "知らせ": "無し",
+      "持ち歩き": true,
+      "見える範囲": "開いたとき",
+      "忘れやすさ": "中",
+      "思い出し方": "見たとき",
+      "重なりの警告": false
+     },
+     "頭の中": {
+      "知らせ": "無し",
+      "持ち歩き": true,
+      "見える範囲": "本人だけ",
+      "忘れやすさ": "高い",
+      "思い出し方": "記憶で思い出せたとき",
+      "重なりの警告": false
+     }
+    },
+    "kinds": [
+     "二人の約束",
+     "本人の予定",
+     "本人の計画",
+     "アラーム",
+     "出来事の実行意図"
+    ],
+    "certainty": [
+     "仮",
+     "確定"
+    ],
+    "candidates": {
+     "length_hours": [
+      1,
+      2,
+      3
+     ],
+     "notify_lead_min": [
+      10,
+      30,
+      60
+     ],
+     "horizon_days": 7,
+     "hours": "正時",
+     "edit_max_candidates": 120
+    },
+    "recall": {
+     "tau": -3.7380247491506395,
+     "importance": 3,
+     "form": "memory_m1.base_level",
+     "cue": "約束の相手が同じセル"
+    },
+    "early_min": 5,
+    "arbitration": {
+     "main_first": "見える予定の判断(出発する/まだ/行かない)は、その刻みに主の判断の呼びのあった体ではしない(次の刻みに回す)",
+     "turn_content": "会話の番の判断(誘う・返事・書く・変える)はその番の中身=番と同じ刻みの別の呼び(GPU の後は番の出力に畳む)"
+    },
+    "provisional": [
+     "判断の候補の語と源の当て方(会話の番 3・いつ 2 段・長さ・どこで・返事 3・置き場所 4・知らせ・実行意図・見えた予定 3・変える)",
+     "長さの候補 1/2/3 時間と終わりは決めない・知らせの候補 10/30/60 分前・いつは 7 日先まで・正時だけ",
+     "仮のモデル(mock)は候補を語と id の順に並べ乱数の余りで一様に選ぶ(判断モデルの代わり)"
+    ],
+    "decisions": {
+     "certain": 135,
+     "day": 310,
+     "edit": 72,
+     "edit_what": 72,
+     "go": 62,
+     "hour": 310,
+     "intent": 65,
+     "length": 286,
+     "notify": 133,
+     "outside": 7622,
+     "place": 297,
+     "placement": 270,
+     "respond": 217,
+     "turn": 646
+    },
+    "promises": {
+     "written": {
+      "二人の約束:アプリ": 72,
+      "二人の約束:アラーム": 61,
+      "二人の約束:手帳": 72,
+      "二人の約束:頭の中": 65
+     },
+     "rows_promise": 270,
+     "agents": 182,
+     "days": 1,
+     "per_agent_week": 0.378,
+     "offers": 286,
+     "offers_by_via": {
+      "対面": 286
+     }
+    },
+    "responses": {
+     "counts": {
+      "仮で受ける": 69,
+      "受ける": 66,
+      "断る": 82,
+      "返事なし": 69
+     },
+     "rates": {
+      "仮で受ける": 0.24125874125874125,
+      "受ける": 0.23076923076923078,
+      "断る": 0.2867132867132867,
+      "返事なし": 0.24125874125874125
+     },
+     "offers_no_answer": 69,
+     "offers_all_declined": 82
+    },
+    "initial": {
+     "offered": 5000,
+     "rows": 0,
+     "per_agent": 0.0
+    },
+    "forgot": {
+     "アプリ": {
+      "closed": 12,
+      "forgot": 0,
+      "rate": 0.0
+     },
+     "アラーム": {
+      "closed": 10,
+      "forgot": 0,
+      "rate": 0.0
+     },
+     "手帳": {
+      "closed": 11,
+      "forgot": 1,
+      "rate": 0.09090909090909091
+     },
+     "頭の中": {
+      "closed": 11,
+      "forgot": 0,
+      "rate": 0.0
+     }
+    },
+    "arrival": {
+     "outcomes": {
+      "5 分前までに着いた": 6,
+      "出発したが着かなかった": 9,
+      "出発しなかった": 9,
+      "忘れた": 1,
+      "行かない": 19
+     },
+     "closed_promises": 44,
+     "early_rate": 0.24,
+     "late_rate": 0.0,
+     "arrived": 6,
+     "arrive_minus_start_min": {
+      "-655": 1,
+      "-368": 1,
+      "-319": 1,
+      "-144": 1,
+      "-97": 1,
+      "-18": 1
+     }
+    },
+    "plan_match": {
+     "sampled": 15,
+     "at_place": 6,
+     "rate": 0.4
+    },
+    "impossible": {
+     "write:閉店中": 18
+    },
+    "read_delay_minutes": null,
+    "outside_plan": {
+     "出た": 7622,
+     "戻った": 1956,
+     "書いた": 3827
+    },
+    "intentions": {
+     "きっかけ": 28,
+     "アラーム": 61,
+     "出来事": 30
+    },
+    "rejected": {
+     "reasons": {},
+     "shown": 0,
+     "silent": 0
+    },
+    "changes": {
+     "取り消し": 18,
+     "場所": 11,
+     "時刻": 24,
+     "確かさ": 19,
+     "candidates_capped": 0
+    },
+    "live_rows": {
+     "rows": 2171,
+     "offers": 0,
+     "watch": 0,
+     "agenda_steps": 186
+    },
+    "calls": {
+     "judge_model": 10497,
+     "llm": 4268
+    }
+   },
+   "meter": {
+    "answers:仮で受ける": 69,
+    "answers:受ける": 66,
+    "answers:断る": 82,
+    "answers:返事なし": 69,
+    "arbitration:main_first": 90,
+    "changes:取り消し": 18,
+    "changes:場所": 11,
+    "changes:時刻": 24,
+    "changes:確かさ": 19,
+    "chosen:ここ": 142,
+    "chosen:まだ": 23,
+    "chosen:アプリに書く": 72,
+    "chosen:アラームをかける": 61,
+    "chosen:仮で受ける": 69,
+    "chosen:仮で書く": 78,
+    "chosen:何もしない": 35,
+    "chosen:出発する": 19,
+    "chosen:取り消す": 18,
+    "chosen:受ける": 66,
+    "chosen:場所を変える": 11,
+    "chosen:変える予定": 72,
+    "chosen:手帳に書く": 72,
+    "chosen:持ちかけない": 4083,
+    "chosen:断る": 82,
+    "chosen:日": 310,
+    "chosen:時刻": 310,
+    "chosen:時刻を変える": 24,
+    "chosen:相手に会ったら確かめる": 30,
+    "chosen:知らせ": 114,
+    "chosen:知らせない": 19,
+    "chosen:確かさを変える": 19,
+    "chosen:確定で書く": 57,
+    "chosen:約束を持ちかける": 4113,
+    "chosen:終わりは決めない": 73,
+    "chosen:自分の約束を変える": 72,
+    "chosen:行かない": 20,
+    "chosen:覚えておく": 65,
+    "chosen:言葉で決める": 155,
+    "chosen:長さ": 213,
+    "closed:アラーム": 11,
+    "closed:出来事の実行意図": 6,
+    "closed_by_placement:アプリ": 12,
+    "closed_by_placement:アラーム": 10,
+    "closed_by_placement:手帳": 11,
+    "closed_by_placement:頭の中": 11,
+    "decisions:certain": 135,
+    "decisions:day": 310,
+    "decisions:edit": 72,
+    "decisions:edit_what": 72,
+    "decisions:go": 62,
+    "decisions:hour": 310,
+    "decisions:intent": 65,
+    "decisions:length": 286,
+    "decisions:notify": 133,
+    "decisions:outside": 7622,
+    "decisions:place": 297,
+    "decisions:placement": 270,
+    "decisions:respond": 217,
+    "decisions:turn": 646,
+    "events:約束:仮で受けた": 69,
+    "events:約束:出発した": 15,
+    "events:約束:取り消した": 18,
+    "events:約束:受けた": 66,
+    "events:約束:場所を変えた": 11,
+    "events:約束:断った": 82,
+    "events:約束:時刻を変えた": 24,
+    "events:約束:書いた": 4188,
+    "events:約束:知らせ": 17,
+    "events:約束:確かさを変えた": 19,
+    "events:約束:行かない": 20,
+    "events:約束:誘った": 286,
+    "go:まだ": 23,
+    "go:もう居た": 3,
+    "go:会話中で出られない": 3,
+    "go:歩き出した": 3,
+    "go:歩けない": 1,
+    "go:行かない": 20,
+    "go:言葉の場所": 9,
+    "head_recall:思い出した": 15,
+    "heard_certainty:仮": 78,
+    "heard_certainty:確定": 57,
+    "impossible:write:閉店中": 18,
+    "initial_offered": 5000,
+    "initial_rows": 0,
+    "intentions:きっかけ": 28,
+    "intentions:アラーム": 61,
+    "intentions:出来事": 30,
+    "notified:アプリ": 6,
+    "notified:アラーム": 11,
+    "offers": 286,
+    "offers:対面": 286,
+    "offers_all_declined": 82,
+    "offers_no_answer": 69,
+    "outcome:5 分前までに着いた": 6,
+    "outcome:出発したが着かなかった": 9,
+    "outcome:出発しなかった": 9,
+    "outcome:忘れた": 1,
+    "outcome:行かない": 19,
+    "outcome_by_placement:アプリ:5 分前までに着いた": 4,
+    "outcome_by_placement:アプリ:出発したが着かなかった": 2,
+    "outcome_by_placement:アプリ:行かない": 6,
+    "outcome_by_placement:アラーム:5 分前までに着いた": 1,
+    "outcome_by_placement:アラーム:出発したが着かなかった": 2,
+    "outcome_by_placement:アラーム:出発しなかった": 6,
+    "outcome_by_placement:アラーム:行かない": 1,
+    "outcome_by_placement:手帳:5 分前までに着いた": 1,
+    "outcome_by_placement:手帳:出発したが着かなかった": 3,
+    "outcome_by_placement:手帳:出発しなかった": 3,
+    "outcome_by_placement:手帳:忘れた": 1,
+    "outcome_by_placement:手帳:行かない": 3,
+    "outcome_by_placement:頭の中:出発したが着かなかった": 2,
+    "outcome_by_placement:頭の中:行かない": 9,
+    "outside_plan:出た": 7622,
+    "outside_plan:戻った": 1956,
+    "outside_plan:書いた": 3827,
+    "plan_match:居た": 6,
+    "plan_match:見た数": 15,
+    "text:outside": 3827,
+    "text:place": 155,
+    "text:what": 286,
+    "turns:対面": 646,
+    "written:二人の約束:アプリ": 72,
+    "written:二人の約束:アラーム": 61,
+    "written:二人の約束:手帳": 72,
+    "written:二人の約束:頭の中": 65
+   },
+   "checkpoints_behavior": [
+    [
+     359,
+     "6b97f993a38f6c26873f38d05b82b1ff348769d9d1d85a473033e22c16c30bc8"
+    ],
+    [
+     719,
+     "4c83b0de501757e9da9710113d13310b134c34c3769190d23634087be8f53776"
+    ],
+    [
+     1079,
+     "6fb8898a13439b543649291a46abd88a58e6134dfa0665702aa4d6c9099ed780"
+    ],
+    [
+     1439,
+     "2d96c3041cd4f6fd1133c877f05ed0d67213572d0edba37afce995c18378ced0"
+    ]
+   ],
+   "calendar_1b": null
+  },
+  "arm_1day_events_off": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "contact": "off",
+   "events": "off",
+   "calendar1b": false,
+   "final": "2d96c3041cd4f6fd1133c877f05ed0d67213572d0edba37afce995c18378ced0",
+   "llm_calls": 63564,
+   "wall_s": 42.1,
+   "calls_by_model": {
+    "judge_model": 10497,
+    "llm": 67832,
+    "calendar_2": {
+     "judge_model": 10497,
+     "llm": 4268
+    }
+   },
+   "calendar2_calls": {
+    "judge_model": 10497,
+    "llm": 4268
+   },
+   "events_by_what": {},
+   "events_by_via": {},
+   "audit": {
+    "events": 0,
+    "violations": 0,
+    "examples": []
+   },
+   "event_log": {
+    "rows": 0,
+    "nbytes": 0,
+    "cause_nbytes": 0,
+    "promise_rows": 0
+   },
+   "calendar_2": {
+    "schema": "shibuya.engine.calendar2/1",
+    "arm": "arm",
+    "port": "calendar2-mock",
+    "placements": {
+     "アプリ": {
+      "知らせ": "本人が決めた時刻に通知",
+      "持ち歩き": true,
+      "見える範囲": "画面",
+      "忘れやすさ": "低い",
+      "思い出し方": "通知・画面を見たとき",
+      "重なりの警告": true
+     },
+     "アラーム": {
+      "知らせ": "本人が決めた時刻に鳴る",
+      "持ち歩き": true,
+      "見える範囲": "音",
+      "忘れやすさ": "低い",
+      "思い出し方": "鳴る",
+      "重なりの警告": false
+     },
+     "手帳": {
+      "知らせ": "無し",
+      "持ち歩き": true,
+      "見える範囲": "開いたとき",
+      "忘れやすさ": "中",
+      "思い出し方": "見たとき",
+      "重なりの警告": false
+     },
+     "頭の中": {
+      "知らせ": "無し",
+      "持ち歩き": true,
+      "見える範囲": "本人だけ",
+      "忘れやすさ": "高い",
+      "思い出し方": "記憶で思い出せたとき",
+      "重なりの警告": false
+     }
+    },
+    "kinds": [
+     "二人の約束",
+     "本人の予定",
+     "本人の計画",
+     "アラーム",
+     "出来事の実行意図"
+    ],
+    "certainty": [
+     "仮",
+     "確定"
+    ],
+    "candidates": {
+     "length_hours": [
+      1,
+      2,
+      3
+     ],
+     "notify_lead_min": [
+      10,
+      30,
+      60
+     ],
+     "horizon_days": 7,
+     "hours": "正時",
+     "edit_max_candidates": 120
+    },
+    "recall": {
+     "tau": -3.7380247491506395,
+     "importance": 3,
+     "form": "memory_m1.base_level",
+     "cue": "約束の相手が同じセル"
+    },
+    "early_min": 5,
+    "arbitration": {
+     "main_first": "見える予定の判断(出発する/まだ/行かない)は、その刻みに主の判断の呼びのあった体ではしない(次の刻みに回す)",
+     "turn_content": "会話の番の判断(誘う・返事・書く・変える)はその番の中身=番と同じ刻みの別の呼び(GPU の後は番の出力に畳む)"
+    },
+    "provisional": [
+     "判断の候補の語と源の当て方(会話の番 3・いつ 2 段・長さ・どこで・返事 3・置き場所 4・知らせ・実行意図・見えた予定 3・変える)",
+     "長さの候補 1/2/3 時間と終わりは決めない・知らせの候補 10/30/60 分前・いつは 7 日先まで・正時だけ",
+     "仮のモデル(mock)は候補を語と id の順に並べ乱数の余りで一様に選ぶ(判断モデルの代わり)"
+    ],
+    "decisions": {
+     "certain": 135,
+     "day": 310,
+     "edit": 72,
+     "edit_what": 72,
+     "go": 62,
+     "hour": 310,
+     "intent": 65,
+     "length": 286,
+     "notify": 133,
+     "outside": 7622,
+     "place": 297,
+     "placement": 270,
+     "respond": 217,
+     "turn": 646
+    },
+    "promises": {
+     "written": {
+      "二人の約束:アプリ": 72,
+      "二人の約束:アラーム": 61,
+      "二人の約束:手帳": 72,
+      "二人の約束:頭の中": 65
+     },
+     "rows_promise": 270,
+     "agents": 182,
+     "days": 1,
+     "per_agent_week": 0.378,
+     "offers": 286,
+     "offers_by_via": {
+      "対面": 286
+     }
+    },
+    "responses": {
+     "counts": {
+      "仮で受ける": 69,
+      "受ける": 66,
+      "断る": 82,
+      "返事なし": 69
+     },
+     "rates": {
+      "仮で受ける": 0.24125874125874125,
+      "受ける": 0.23076923076923078,
+      "断る": 0.2867132867132867,
+      "返事なし": 0.24125874125874125
+     },
+     "offers_no_answer": 69,
+     "offers_all_declined": 82
+    },
+    "initial": {
+     "offered": 5000,
+     "rows": 0,
+     "per_agent": 0.0
+    },
+    "forgot": {
+     "アプリ": {
+      "closed": 12,
+      "forgot": 0,
+      "rate": 0.0
+     },
+     "アラーム": {
+      "closed": 10,
+      "forgot": 0,
+      "rate": 0.0
+     },
+     "手帳": {
+      "closed": 11,
+      "forgot": 1,
+      "rate": 0.09090909090909091
+     },
+     "頭の中": {
+      "closed": 11,
+      "forgot": 0,
+      "rate": 0.0
+     }
+    },
+    "arrival": {
+     "outcomes": {
+      "5 分前までに着いた": 6,
+      "出発したが着かなかった": 9,
+      "出発しなかった": 9,
+      "忘れた": 1,
+      "行かない": 19
+     },
+     "closed_promises": 44,
+     "early_rate": 0.24,
+     "late_rate": 0.0,
+     "arrived": 6,
+     "arrive_minus_start_min": {
+      "-655": 1,
+      "-368": 1,
+      "-319": 1,
+      "-144": 1,
+      "-97": 1,
+      "-18": 1
+     }
+    },
+    "plan_match": {
+     "sampled": 15,
+     "at_place": 6,
+     "rate": 0.4
+    },
+    "impossible": {
+     "write:閉店中": 18
+    },
+    "read_delay_minutes": null,
+    "outside_plan": {
+     "出た": 7622,
+     "戻った": 1956,
+     "書いた": 3827
+    },
+    "intentions": {
+     "きっかけ": 28,
+     "アラーム": 61,
+     "出来事": 30
+    },
+    "rejected": {
+     "reasons": {},
+     "shown": 0,
+     "silent": 0
+    },
+    "changes": {
+     "取り消し": 18,
+     "場所": 11,
+     "時刻": 24,
+     "確かさ": 19,
+     "candidates_capped": 0
+    },
+    "live_rows": {
+     "rows": 2171,
+     "offers": 0,
+     "watch": 0,
+     "agenda_steps": 186
+    },
+    "calls": {
+     "judge_model": 10497,
+     "llm": 4268
+    }
+   },
+   "meter": {
+    "answers:仮で受ける": 69,
+    "answers:受ける": 66,
+    "answers:断る": 82,
+    "answers:返事なし": 69,
+    "arbitration:main_first": 90,
+    "changes:取り消し": 18,
+    "changes:場所": 11,
+    "changes:時刻": 24,
+    "changes:確かさ": 19,
+    "chosen:ここ": 142,
+    "chosen:まだ": 23,
+    "chosen:アプリに書く": 72,
+    "chosen:アラームをかける": 61,
+    "chosen:仮で受ける": 69,
+    "chosen:仮で書く": 78,
+    "chosen:何もしない": 35,
+    "chosen:出発する": 19,
+    "chosen:取り消す": 18,
+    "chosen:受ける": 66,
+    "chosen:場所を変える": 11,
+    "chosen:変える予定": 72,
+    "chosen:手帳に書く": 72,
+    "chosen:持ちかけない": 4083,
+    "chosen:断る": 82,
+    "chosen:日": 310,
+    "chosen:時刻": 310,
+    "chosen:時刻を変える": 24,
+    "chosen:相手に会ったら確かめる": 30,
+    "chosen:知らせ": 114,
+    "chosen:知らせない": 19,
+    "chosen:確かさを変える": 19,
+    "chosen:確定で書く": 57,
+    "chosen:約束を持ちかける": 4113,
+    "chosen:終わりは決めない": 73,
+    "chosen:自分の約束を変える": 72,
+    "chosen:行かない": 20,
+    "chosen:覚えておく": 65,
+    "chosen:言葉で決める": 155,
+    "chosen:長さ": 213,
+    "closed:アラーム": 11,
+    "closed:出来事の実行意図": 6,
+    "closed_by_placement:アプリ": 12,
+    "closed_by_placement:アラーム": 10,
+    "closed_by_placement:手帳": 11,
+    "closed_by_placement:頭の中": 11,
+    "decisions:certain": 135,
+    "decisions:day": 310,
+    "decisions:edit": 72,
+    "decisions:edit_what": 72,
+    "decisions:go": 62,
+    "decisions:hour": 310,
+    "decisions:intent": 65,
+    "decisions:length": 286,
+    "decisions:notify": 133,
+    "decisions:outside": 7622,
+    "decisions:place": 297,
+    "decisions:placement": 270,
+    "decisions:respond": 217,
+    "decisions:turn": 646,
+    "go:まだ": 23,
+    "go:もう居た": 3,
+    "go:会話中で出られない": 3,
+    "go:歩き出した": 3,
+    "go:歩けない": 1,
+    "go:行かない": 20,
+    "go:言葉の場所": 9,
+    "head_recall:思い出した": 15,
+    "heard_certainty:仮": 78,
+    "heard_certainty:確定": 57,
+    "impossible:write:閉店中": 18,
+    "initial_offered": 5000,
+    "initial_rows": 0,
+    "intentions:きっかけ": 28,
+    "intentions:アラーム": 61,
+    "intentions:出来事": 30,
+    "notified:アプリ": 6,
+    "notified:アラーム": 11,
+    "offers": 286,
+    "offers:対面": 286,
+    "offers_all_declined": 82,
+    "offers_no_answer": 69,
+    "outcome:5 分前までに着いた": 6,
+    "outcome:出発したが着かなかった": 9,
+    "outcome:出発しなかった": 9,
+    "outcome:忘れた": 1,
+    "outcome:行かない": 19,
+    "outcome_by_placement:アプリ:5 分前までに着いた": 4,
+    "outcome_by_placement:アプリ:出発したが着かなかった": 2,
+    "outcome_by_placement:アプリ:行かない": 6,
+    "outcome_by_placement:アラーム:5 分前までに着いた": 1,
+    "outcome_by_placement:アラーム:出発したが着かなかった": 2,
+    "outcome_by_placement:アラーム:出発しなかった": 6,
+    "outcome_by_placement:アラーム:行かない": 1,
+    "outcome_by_placement:手帳:5 分前までに着いた": 1,
+    "outcome_by_placement:手帳:出発したが着かなかった": 3,
+    "outcome_by_placement:手帳:出発しなかった": 3,
+    "outcome_by_placement:手帳:忘れた": 1,
+    "outcome_by_placement:手帳:行かない": 3,
+    "outcome_by_placement:頭の中:出発したが着かなかった": 2,
+    "outcome_by_placement:頭の中:行かない": 9,
+    "outside_plan:出た": 7622,
+    "outside_plan:戻った": 1956,
+    "outside_plan:書いた": 3827,
+    "plan_match:居た": 6,
+    "plan_match:見た数": 15,
+    "text:outside": 3827,
+    "text:place": 155,
+    "text:what": 286,
+    "turns:対面": 646,
+    "written:二人の約束:アプリ": 72,
+    "written:二人の約束:アラーム": 61,
+    "written:二人の約束:手帳": 72,
+    "written:二人の約束:頭の中": 65
+   },
+   "checkpoints_behavior": [
+    [
+     359,
+     "6b97f993a38f6c26873f38d05b82b1ff348769d9d1d85a473033e22c16c30bc8"
+    ],
+    [
+     719,
+     "4c83b0de501757e9da9710113d13310b134c34c3769190d23634087be8f53776"
+    ],
+    [
+     1079,
+     "6fb8898a13439b543649291a46abd88a58e6134dfa0665702aa4d6c9099ed780"
+    ],
+    [
+     1439,
+     "2d96c3041cd4f6fd1133c877f05ed0d67213572d0edba37afce995c18378ced0"
+    ]
+   ],
+   "calendar_1b": null
+  },
+  "arm_with_c1_1day": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "contact": "c1",
+   "events": "on",
+   "calendar1b": false,
+   "final": "913890bd0f7b50e27705b2169271662a3df4eac504da3fdde78620554b69fac1",
+   "llm_calls": 63614,
+   "wall_s": 157.1,
+   "calls_by_model": {
+    "judge_model": 360336,
+    "llm": 100706,
+    "contact": {
+     "judge_model": 148619,
+     "llm": 17636
+    },
+    "calendar_2": {
+     "judge_model": 211717,
+     "llm": 19456
+    }
+   },
+   "calendar2_calls": {
+    "judge_model": 211717,
+    "llm": 19456
+   },
+   "events_by_what": {
+    "約束:仮で受けた": 15262,
+    "約束:出発した": 1605,
+    "約束:取り消した": 1908,
+    "約束:受けた": 15246,
+    "約束:場所を変えた": 1932,
+    "約束:断った": 15198,
+    "約束:時刻を変えた": 1840,
+    "約束:書いた": 55932,
+    "約束:知らせ": 2104,
+    "約束:確かさを変えた": 1798,
+    "約束:行かない": 1796,
+    "約束:誘った": 8428
+   },
+   "events_by_via": {
+    "グループ": 53634,
+    "メッセージ": 10,
+    "対面": 482,
+    "無し": 68915,
+    "通話": 8
+   },
+   "audit": {
+    "events": 123049,
+    "violations": 0,
+    "examples": []
+   },
+   "event_log": {
+    "rows": 268117,
+    "nbytes": 19304424,
+    "cause_nbytes": 14586864,
+    "promise_rows": 123049
+   },
+   "calendar_2": {
+    "schema": "shibuya.engine.calendar2/1",
+    "arm": "arm",
+    "port": "calendar2-mock",
+    "placements": {
+     "アプリ": {
+      "知らせ": "本人が決めた時刻に通知",
+      "持ち歩き": true,
+      "見える範囲": "画面",
+      "忘れやすさ": "低い",
+      "思い出し方": "通知・画面を見たとき",
+      "重なりの警告": true
+     },
+     "アラーム": {
+      "知らせ": "本人が決めた時刻に鳴る",
+      "持ち歩き": true,
+      "見える範囲": "音",
+      "忘れやすさ": "低い",
+      "思い出し方": "鳴る",
+      "重なりの警告": false
+     },
+     "手帳": {
+      "知らせ": "無し",
+      "持ち歩き": true,
+      "見える範囲": "開いたとき",
+      "忘れやすさ": "中",
+      "思い出し方": "見たとき",
+      "重なりの警告": false
+     },
+     "頭の中": {
+      "知らせ": "無し",
+      "持ち歩き": true,
+      "見える範囲": "本人だけ",
+      "忘れやすさ": "高い",
+      "思い出し方": "記憶で思い出せたとき",
+      "重なりの警告": false
+     }
+    },
+    "kinds": [
+     "二人の約束",
+     "本人の予定",
+     "本人の計画",
+     "アラーム",
+     "出来事の実行意図"
+    ],
+    "certainty": [
+     "仮",
+     "確定"
+    ],
+    "candidates": {
+     "length_hours": [
+      1,
+      2,
+      3
+     ],
+     "notify_lead_min": [
+      10,
+      30,
+      60
+     ],
+     "horizon_days": 7,
+     "hours": "正時",
+     "edit_max_candidates": 120
+    },
+    "recall": {
+     "tau": -3.7380247491506395,
+     "importance": 3,
+     "form": "memory_m1.base_level",
+     "cue": "約束の相手が同じセル"
+    },
+    "early_min": 5,
+    "arbitration": {
+     "main_first": "見える予定の判断(出発する/まだ/行かない)は、その刻みに主の判断の呼びのあった体ではしない(次の刻みに回す)",
+     "turn_content": "会話の番の判断(誘う・返事・書く・変える)はその番の中身=番と同じ刻みの別の呼び(GPU の後は番の出力に畳む)"
+    },
+    "provisional": [
+     "判断の候補の語と源の当て方(会話の番 3・いつ 2 段・長さ・どこで・返事 3・置き場所 4・知らせ・実行意図・見えた予定 3・変える)",
+     "長さの候補 1/2/3 時間と終わりは決めない・知らせの候補 10/30/60 分前・いつは 7 日先まで・正時だけ",
+     "仮のモデル(mock)は候補を語と id の順に並べ乱数の余りで一様に選ぶ(判断モデルの代わり)"
+    ],
+    "decisions": {
+     "certain": 7266,
+     "day": 10268,
+     "edit": 8270,
+     "edit_what": 7478,
+     "go": 5377,
+     "hour": 10268,
+     "intent": 9499,
+     "length": 8428,
+     "notify": 18873,
+     "outside": 7614,
+     "place": 10360,
+     "placement": 37774,
+     "respond": 45706,
+     "turn": 24536
+    },
+    "promises": {
+     "written": {
+      "二人の約束:アプリ": 9377,
+      "二人の約束:アラーム": 9496,
+      "二人の約束:手帳": 9402,
+      "二人の約束:頭の中": 9499
+     },
+     "rows_promise": 37774,
+     "agents": 770,
+     "days": 1,
+     "per_agent_week": 52.8836,
+     "offers": 8428,
+     "offers_by_via": {
+      "グループ": 8144,
+      "メッセージ": 7,
+      "対面": 272,
+      "通話": 5
+     }
+    },
+    "responses": {
+     "counts": {
+      "仮で受ける": 15262,
+      "受ける": 15246,
+      "断る": 15198,
+      "返事なし": 29011
+     },
+     "rates": {
+      "仮で受ける": 0.20426408983230054,
+      "受ける": 0.20404994847223523,
+      "断る": 0.2034075243920393,
+      "返事なし": 0.38827843730342493
+     },
+     "offers_no_answer": 761,
+     "offers_all_declined": 325
+    },
+    "initial": {
+     "offered": 5000,
+     "rows": 0,
+     "per_agent": 0.0
+    },
+    "forgot": {
+     "アプリ": {
+      "closed": 1029,
+      "forgot": 65,
+      "rate": 0.06316812439261418
+     },
+     "アラーム": {
+      "closed": 1005,
+      "forgot": 7,
+      "rate": 0.006965174129353234
+     },
+     "手帳": {
+      "closed": 1015,
+      "forgot": 668,
+      "rate": 0.6581280788177339
+     },
+     "頭の中": {
+      "closed": 1044,
+      "forgot": 46,
+      "rate": 0.044061302681992334
+     }
+    },
+    "arrival": {
+     "outcomes": {
+      "5 分前までに着いた": 191,
+      "出発したが着かなかった": 874,
+      "出発しなかった": 610,
+      "取り消し": 159,
+      "忘れた": 786,
+      "行かない": 1408,
+      "遅れて着いた": 60,
+      "間に合った": 5
+     },
+     "closed_promises": 4093,
+     "early_rate": 0.07561361836896278,
+     "late_rate": 0.023752969121140142,
+     "arrived": 256,
+     "arrive_minus_start_min": {
+      "-724": 1,
+      "-721": 2,
+      "-717": 1,
+      "-665": 1,
+      "-660": 1,
+      "-655": 1,
+      "-649": 1,
+      "-607": 1,
+      "-605": 1,
+      "-596": 1,
+      "-581": 1,
+      "-573": 1,
+      "-550": 1,
+      "-545": 1,
+      "-544": 1,
+      "-533": 1,
+      "-530": 1,
+      "-528": 1,
+      "-524": 1,
+      "-520": 1,
+      "-518": 1,
+      "-516": 2,
+      "-498": 2,
+      "-491": 1,
+      "-489": 2,
+      "-485": 1,
+      "-482": 1,
+      "-474": 1,
+      "-459": 1,
+      "-453": 1,
+      "-446": 1,
+      "-439": 1,
+      "-431": 1,
+      "-429": 1,
+      "-428": 1,
+      "-420": 1,
+      "-410": 1,
+      "-398": 1,
+      "-396": 1,
+      "-379": 1,
+      "-378": 1,
+      "-374": 1,
+      "-369": 1,
+      "-358": 1,
+      "-356": 1,
+      "-354": 1,
+      "-344": 3,
+      "-342": 1,
+      "-340": 1,
+      "-338": 1,
+      "-323": 1,
+      "-321": 1,
+      "-320": 1,
+      "-305": 2,
+      "-304": 1,
+      "-298": 1,
+      "-297": 1,
+      "-294": 1,
+      "-292": 2,
+      "-290": 1,
+      "-288": 1,
+      "-283": 1,
+      "-278": 2,
+      "-260": 2,
+      "-252": 1,
+      "-251": 1,
+      "-246": 2,
+      "-245": 1,
+      "-240": 1,
+      "-238": 1,
+      "-227": 1,
+      "-226": 1,
+      "-223": 1,
+      "-220": 1,
+      "-218": 1,
+      "-209": 1,
+      "-202": 2,
+      "-198": 1,
+      "-196": 1,
+      "-188": 1,
+      "-187": 2,
+      "-185": 2,
+      "-180": 2,
+      "-179": 1,
+      "-174": 1,
+      "-173": 1,
+      "-172": 1,
+      "-170": 1,
+      "-167": 1,
+      "-163": 1,
+      "-162": 1,
+      "-156": 1,
+      "-148": 1,
+      "-139": 1,
+      "-137": 1,
+      "-134": 1,
+      "-127": 2,
+      "-123": 1,
+      "-120": 1,
+      "-117": 1,
+      "-110": 1,
+      "-108": 1,
+      "-97": 1,
+      "-92": 1,
+      "-90": 1,
+      "-87": 1,
+      "-85": 1,
+      "-81": 1,
+      "-71": 1,
+      "-67": 1,
+      "-64": 1,
+      "-63": 1,
+      "-60": 9,
+      "-57": 1,
+      "-54": 1,
+      "-50": 1,
+      "-49": 2,
+      "-48": 1,
+      "-47": 1,
+      "-46": 2,
+      "-45": 1,
+      "-43": 2,
+      "-42": 2,
+      "-41": 2,
+      "-32": 1,
+      "-31": 1,
+      "-30": 5,
+      "-29": 1,
+      "-25": 2,
+      "-24": 1,
+      "-23": 1,
+      "-22": 1,
+      "-21": 2,
+      "-20": 1,
+      "-18": 4,
+      "-17": 2,
+      "-15": 1,
+      "-14": 1,
+      "-13": 1,
+      "-12": 1,
+      "-10": 7,
+      "-8": 1,
+      "-7": 1,
+      "-6": 2,
+      "-5": 1,
+      "-3": 2,
+      "-2": 1,
+      "-1": 1,
+      "0": 1,
+      "1": 4,
+      "3": 3,
+      "4": 1,
+      "7": 3,
+      "8": 1,
+      "9": 1,
+      "10": 4,
+      "11": 5,
+      "13": 2,
+      "14": 1,
+      "15": 1,
+      "17": 2,
+      "20": 1,
+      "21": 1,
+      "22": 1,
+      "25": 1,
+      "27": 2,
+      "31": 1,
+      "32": 2,
+      "33": 1,
+      "34": 1,
+      "41": 1,
+      "43": 1,
+      "45": 1,
+      "46": 1,
+      "50": 1,
+      "52": 1,
+      "55": 1,
+      "58": 1,
+      "59": 1,
+      "60": 2,
+      "64": 1,
+      "68": 1,
+      "77": 1,
+      "79": 1,
+      "85": 1,
+      "108": 1,
+      "142": 1,
+      "289": 1,
+      "314": 1,
+      "413": 1
+     }
+    },
+    "plan_match": {
+     "sampled": 1030,
+     "at_place": 140,
+     "rate": 0.13592233009708737
+    },
+    "impossible": {
+     "go:過ぎた時刻": 203,
+     "go:閉店中": 11,
+     "go:間に合わない": 47,
+     "write:過ぎた時刻": 201,
+     "write:閉店中": 995,
+     "write:間に合わない": 51
+    },
+    "read_delay_minutes": {
+     "source": "contact_c1.read_delay_minutes",
+     "n": 172074,
+     "p50": 3,
+     "p75": 10,
+     "p95": 475
+    },
+    "outside_plan": {
+     "出た": 7614,
+     "戻った": 1946,
+     "書いた": 3824
+    },
+    "intentions": {
+     "きっかけ": 989,
+     "アラーム": 9496,
+     "出来事": 4838
+    },
+    "rejected": {
+     "reasons": {},
+     "shown": 0,
+     "silent": 0
+    },
+    "changes": {
+     "取り消し": 1908,
+     "場所": 1932,
+     "時刻": 1840,
+     "確かさ": 1798,
+     "candidates_capped": 0
+    },
+    "live_rows": {
+     "rows": 47871,
+     "offers": 76,
+     "watch": 12,
+     "agenda_steps": 439
+    },
+    "calls": {
+     "judge_model": 211717,
+     "llm": 19456
+    }
+   },
+   "meter": {
+    "answers:仮で受ける": 15262,
+    "answers:受ける": 15246,
+    "answers:断る": 15198,
+    "answers:返事なし": 29011,
+    "arbitration:main_first": 415,
+    "changes:取り消し": 1908,
+    "changes:場所": 1932,
+    "changes:時刻": 1840,
+    "changes:確かさ": 1798,
+    "chosen:ここ": 3156,
+    "chosen:まだ": 1785,
+    "chosen:アプリに書く": 9377,
+    "chosen:アラームをかける": 9496,
+    "chosen:仮で受ける": 15262,
+    "chosen:仮で書く": 3614,
+    "chosen:何もしない": 4661,
+    "chosen:出発する": 1796,
+    "chosen:取り消す": 1908,
+    "chosen:受ける": 15246,
+    "chosen:場所を変える": 1932,
+    "chosen:変える予定": 8270,
+    "chosen:手帳に書く": 9402,
+    "chosen:持ちかけない": 12420,
+    "chosen:断る": 15198,
+    "chosen:日": 10268,
+    "chosen:時刻": 10268,
+    "chosen:時刻を変える": 1840,
+    "chosen:相手に会ったら確かめる": 4838,
+    "chosen:知らせ": 16568,
+    "chosen:知らせない": 2305,
+    "chosen:確かさを変える": 1798,
+    "chosen:確定で書く": 3652,
+    "chosen:約束を持ちかける": 12252,
+    "chosen:終わりは決めない": 2125,
+    "chosen:自分の約束を変える": 7478,
+    "chosen:行かない": 1796,
+    "chosen:覚えておく": 9499,
+    "chosen:言葉で決める": 7204,
+    "chosen:長さ": 6303,
+    "closed:アラーム": 1345,
+    "closed:出来事の実行意図": 677,
+    "closed_by_placement:アプリ": 1029,
+    "closed_by_placement:アラーム": 1005,
+    "closed_by_placement:手帳": 1015,
+    "closed_by_placement:頭の中": 1044,
+    "decisions:certain": 7266,
+    "decisions:day": 10268,
+    "decisions:edit": 8270,
+    "decisions:edit_what": 7478,
+    "decisions:go": 5377,
+    "decisions:hour": 10268,
+    "decisions:intent": 9499,
+    "decisions:length": 8428,
+    "decisions:notify": 18873,
+    "decisions:outside": 7614,
+    "decisions:place": 10360,
+    "decisions:placement": 37774,
+    "decisions:respond": 45706,
+    "decisions:turn": 24536,
+    "edit_narrowed:eday": 792,
+    "events:約束:仮で受けた": 15262,
+    "events:約束:出発した": 1605,
+    "events:約束:取り消した": 1908,
+    "events:約束:受けた": 15246,
+    "events:約束:場所を変えた": 1932,
+    "events:約束:断った": 15198,
+    "events:約束:時刻を変えた": 1840,
+    "events:約束:書いた": 55932,
+    "events:約束:知らせ": 2104,
+    "events:約束:確かさを変えた": 1798,
+    "events:約束:行かない": 1796,
+    "events:約束:誘った": 8428,
+    "go:まだ": 1785,
+    "go:もう居た": 70,
+    "go:会話中で出られない": 12,
+    "go:歩き出した": 330,
+    "go:歩けない": 179,
+    "go:行かない": 1796,
+    "go:言葉の場所": 1205,
+    "head_recall:思い出した": 1919,
+    "head_recall:思い出せない": 188,
+    "heard_certainty:仮": 3614,
+    "heard_certainty:確定": 3652,
+    "impossible:go:過ぎた時刻": 203,
+    "impossible:go:閉店中": 11,
+    "impossible:go:間に合わない": 47,
+    "impossible:write:過ぎた時刻": 201,
+    "impossible:write:閉店中": 995,
+    "impossible:write:間に合わない": 51,
+    "initial_offered": 5000,
+    "initial_rows": 0,
+    "intentions:きっかけ": 989,
+    "intentions:アラーム": 9496,
+    "intentions:出来事": 4838,
+    "notified:アプリ": 759,
+    "notified:アラーム": 1345,
+    "notified_asleep": 7,
+    "offers": 8428,
+    "offers:グループ": 8144,
+    "offers:メッセージ": 7,
+    "offers:対面": 272,
+    "offers:通話": 5,
+    "offers_all_declined": 325,
+    "offers_no_answer": 761,
+    "outcome:5 分前までに着いた": 191,
+    "outcome:出発したが着かなかった": 874,
+    "outcome:出発しなかった": 610,
+    "outcome:取り消し": 159,
+    "outcome:忘れた": 786,
+    "outcome:行かない": 1408,
+    "outcome:遅れて着いた": 60,
+    "outcome:間に合った": 5,
+    "outcome_by_placement:アプリ:5 分前までに着いた": 59,
+    "outcome_by_placement:アプリ:出発したが着かなかった": 253,
+    "outcome_by_placement:アプリ:出発しなかった": 105,
+    "outcome_by_placement:アプリ:取り消し": 69,
+    "outcome_by_placement:アプリ:忘れた": 65,
+    "outcome_by_placement:アプリ:行かない": 456,
+    "outcome_by_placement:アプリ:遅れて着いた": 20,
+    "outcome_by_placement:アプリ:間に合った": 2,
+    "outcome_by_placement:アラーム:5 分前までに着いた": 39,
+    "outcome_by_placement:アラーム:出発したが着かなかった": 228,
+    "outcome_by_placement:アラーム:出発しなかった": 374,
+    "outcome_by_placement:アラーム:忘れた": 7,
+    "outcome_by_placement:アラーム:行かない": 334,
+    "outcome_by_placement:アラーム:遅れて着いた": 22,
+    "outcome_by_placement:アラーム:間に合った": 1,
+    "outcome_by_placement:手帳:5 分前までに着いた": 14,
+    "outcome_by_placement:手帳:出発したが着かなかった": 94,
+    "outcome_by_placement:手帳:出発しなかった": 104,
+    "outcome_by_placement:手帳:取り消し": 18,
+    "outcome_by_placement:手帳:忘れた": 668,
+    "outcome_by_placement:手帳:行かない": 112,
+    "outcome_by_placement:手帳:遅れて着いた": 5,
+    "outcome_by_placement:頭の中:5 分前までに着いた": 79,
+    "outcome_by_placement:頭の中:出発したが着かなかった": 299,
+    "outcome_by_placement:頭の中:出発しなかった": 27,
+    "outcome_by_placement:頭の中:取り消し": 72,
+    "outcome_by_placement:頭の中:忘れた": 46,
+    "outcome_by_placement:頭の中:行かない": 506,
+    "outcome_by_placement:頭の中:遅れて着いた": 13,
+    "outcome_by_placement:頭の中:間に合った": 2,
+    "outside_plan:出た": 7614,
+    "outside_plan:戻った": 1946,
+    "outside_plan:書いた": 3824,
+    "overlap_warned": 4206,
+    "plan_match:居た": 140,
+    "plan_match:見た数": 1030,
+    "text:outside": 3824,
+    "text:place": 7204,
+    "text:what": 8428,
+    "turns:グループ": 23905,
+    "turns:メッセージ": 22,
+    "turns:対面": 602,
+    "turns:通話": 7,
+    "written:二人の約束:アプリ": 9377,
+    "written:二人の約束:アラーム": 9496,
+    "written:二人の約束:手帳": 9402,
+    "written:二人の約束:頭の中": 9499
+   },
+   "checkpoints_behavior": [
+    [
+     359,
+     "48af934f906b942e28a5153d390d753aea576912d61d75b54107b3fe14f11e25"
+    ],
+    [
+     719,
+     "107d2ea6ab20422c447f887de16862b177a753447fce8f880405329c6263687c"
+    ],
+    [
+     1079,
+     "d982bbef36c77c633abce9484d34d8b1e5b92f7e22f1980b9cf142af651788c2"
+    ],
+    [
+     1439,
+     "913890bd0f7b50e27705b2169271662a3df4eac504da3fdde78620554b69fac1"
+    ]
+   ],
+   "calendar_1b": null
+  },
+  "arm_2days_resume_at_1440": {
+   "mode": "resume",
+   "agents": 5000,
+   "seed": 1,
+   "days": 2,
+   "stop": 1440,
+   "contact": "off",
+   "state_file": "state-T00001440.npz",
+   "straight": {
+    "final": "58a63ae08ab0e490118a70440ae015ab669d1f0c326297b494daedcc564edcbb",
+    "wall_s": 93.8
+   },
+   "resumed": {
+    "final": "58a63ae08ab0e490118a70440ae015ab669d1f0c326297b494daedcc564edcbb",
+    "wall_s": 96.6
+   },
+   "final_same": true,
+   "checkpoints_after_stop_same": true,
+   "n_checkpoints_after_stop": 24,
+   "manifest_same": {
+    "promises": true,
+    "responses": true,
+    "arrival": true,
+    "forgot": true,
+    "plan_match": true,
+    "impossible": true,
+    "outside_plan": true,
+    "intentions": true,
+    "changes": true
+   },
+   "straight_summary": {
+    "final": "58a63ae08ab0e490118a70440ae015ab669d1f0c326297b494daedcc564edcbb",
+    "llm_calls": 138486,
+    "wall_s": 93.8,
+    "calls_by_model": {
+     "judge_model": 21198,
+     "llm": 147055,
+     "calendar_2": {
+      "judge_model": 21198,
+      "llm": 8569
+     }
+    },
+    "calendar2_calls": {
+     "judge_model": 21198,
+     "llm": 8569
+    },
+    "events_by_what": {
+     "約束:仮で受けた": 131,
+     "約束:出発した": 39,
+     "約束:取り消した": 40,
+     "約束:受けた": 124,
+     "約束:場所を変えた": 22,
+     "約束:断った": 156,
+     "約束:時刻を変えた": 45,
+     "約束:書いた": 8428,
+     "約束:知らせ": 44,
+     "約束:確かさを変えた": 38,
+     "約束:行かない": 43,
+     "約束:誘った": 540
+    },
+    "events_by_via": {
+     "対面": 951,
+     "無し": 8699
+    },
+    "audit": {
+     "events": 9650,
+     "violations": 0,
+     "examples": []
+    },
+    "event_log": {
+     "rows": 111253,
+     "nbytes": 8010216,
+     "cause_nbytes": 1043190,
+     "promise_rows": 9650
+    },
+    "calendar_2": {
+     "schema": "shibuya.engine.calendar2/1",
+     "arm": "arm",
+     "port": "calendar2-mock",
+     "placements": {
+      "アプリ": {
+       "知らせ": "本人が決めた時刻に通知",
+       "持ち歩き": true,
+       "見える範囲": "画面",
+       "忘れやすさ": "低い",
+       "思い出し方": "通知・画面を見たとき",
+       "重なりの警告": true
+      },
+      "アラーム": {
+       "知らせ": "本人が決めた時刻に鳴る",
+       "持ち歩き": true,
+       "見える範囲": "音",
+       "忘れやすさ": "低い",
+       "思い出し方": "鳴る",
+       "重なりの警告": false
+      },
+      "手帳": {
+       "知らせ": "無し",
+       "持ち歩き": true,
+       "見える範囲": "開いたとき",
+       "忘れやすさ": "中",
+       "思い出し方": "見たとき",
+       "重なりの警告": false
+      },
+      "頭の中": {
+       "知らせ": "無し",
+       "持ち歩き": true,
+       "見える範囲": "本人だけ",
+       "忘れやすさ": "高い",
+       "思い出し方": "記憶で思い出せたとき",
+       "重なりの警告": false
+      }
+     },
+     "kinds": [
+      "二人の約束",
+      "本人の予定",
+      "本人の計画",
+      "アラーム",
+      "出来事の実行意図"
+     ],
+     "certainty": [
+      "仮",
+      "確定"
+     ],
+     "candidates": {
+      "length_hours": [
+       1,
+       2,
+       3
+      ],
+      "notify_lead_min": [
+       10,
+       30,
+       60
+      ],
+      "horizon_days": 7,
+      "hours": "正時",
+      "edit_max_candidates": 120
+     },
+     "recall": {
+      "tau": -3.7380247491506395,
+      "importance": 3,
+      "form": "memory_m1.base_level",
+      "cue": "約束の相手が同じセル"
+     },
+     "early_min": 5,
+     "arbitration": {
+      "main_first": "見える予定の判断(出発する/まだ/行かない)は、その刻みに主の判断の呼びのあった体ではしない(次の刻みに回す)",
+      "turn_content": "会話の番の判断(誘う・返事・書く・変える)はその番の中身=番と同じ刻みの別の呼び(GPU の後は番の出力に畳む)"
+     },
+     "provisional": [
+      "判断の候補の語と源の当て方(会話の番 3・いつ 2 段・長さ・どこで・返事 3・置き場所 4・知らせ・実行意図・見えた予定 3・変える)",
+      "長さの候補 1/2/3 時間と終わりは決めない・知らせの候補 10/30/60 分前・いつは 7 日先まで・正時だけ",
+      "仮のモデル(mock)は候補を語と id の順に並べ乱数の余りで一様に選ぶ(判断モデルの代わり)"
+     ],
+     "decisions": {
+      "certain": 255,
+      "day": 585,
+      "edit": 145,
+      "edit_what": 145,
+      "go": 143,
+      "hour": 585,
+      "intent": 136,
+      "length": 540,
+      "notify": 252,
+      "outside": 15670,
+      "place": 562,
+      "placement": 510,
+      "respond": 411,
+      "turn": 1259
+     },
+     "promises": {
+      "written": {
+       "二人の約束:アプリ": 138,
+       "二人の約束:アラーム": 114,
+       "二人の約束:手帳": 122,
+       "二人の約束:頭の中": 136
+      },
+      "rows_promise": 510,
+      "agents": 342,
+      "days": 2,
+      "per_agent_week": 0.357,
+      "offers": 540,
+      "offers_by_via": {
+       "対面": 540
+      }
+     },
+     "responses": {
+      "counts": {
+       "仮で受ける": 131,
+       "受ける": 124,
+       "断る": 156,
+       "返事なし": 129
+      },
+      "rates": {
+       "仮で受ける": 0.24259259259259258,
+       "受ける": 0.22962962962962963,
+       "断る": 0.28888888888888886,
+       "返事なし": 0.2388888888888889
+      },
+      "offers_no_answer": 129,
+      "offers_all_declined": 156
+     },
+     "initial": {
+      "offered": 5000,
+      "rows": 0,
+      "per_agent": 0.0
+     },
+     "forgot": {
+      "アプリ": {
+       "closed": 32,
+       "forgot": 0,
+       "rate": 0.0
+      },
+      "アラーム": {
+       "closed": 23,
+       "forgot": 1,
+       "rate": 0.043478260869565216
+      },
+      "手帳": {
+       "closed": 28,
+       "forgot": 2,
+       "rate": 0.07142857142857142
+      },
+      "頭の中": {
+       "closed": 29,
+       "forgot": 4,
+       "rate": 0.13793103448275862
+      }
+     },
+     "arrival": {
+      "outcomes": {
+       "5 分前までに着いた": 15,
+       "出発したが着かなかった": 21,
+       "出発しなかった": 22,
+       "取り消し": 9,
+       "忘れた": 7,
+       "行かない": 38
+      },
+      "closed_promises": 112,
+      "early_rate": 0.23076923076923078,
+      "late_rate": 0.0,
+      "arrived": 15,
+      "arrive_minus_start_min": {
+       "-1158": 1,
+       "-655": 1,
+       "-618": 1,
+       "-599": 1,
+       "-572": 1,
+       "-368": 1,
+       "-349": 1,
+       "-319": 1,
+       "-144": 1,
+       "-135": 1,
+       "-97": 3,
+       "-18": 1,
+       "-7": 1
+      }
+     },
+     "plan_match": {
+      "sampled": 40,
+      "at_place": 12,
+      "rate": 0.3
+     },
+     "impossible": {
+      "go:過ぎた時刻": 2,
+      "go:閉店中": 3,
+      "go:間に合わない": 1,
+      "write:閉店中": 32
+     },
+     "read_delay_minutes": null,
+     "outside_plan": {
+      "出た": 15670,
+      "戻った": 5924,
+      "書いた": 7736
+     },
+     "intentions": {
+      "きっかけ": 64,
+      "アラーム": 114,
+      "出来事": 68
+     },
+     "rejected": {
+      "reasons": {},
+      "shown": 0,
+      "silent": 0
+     },
+     "changes": {
+      "取り消し": 40,
+      "場所": 22,
+      "時刻": 45,
+      "確かさ": 38,
+      "candidates_capped": 0
+     },
+     "live_rows": {
+      "rows": 2351,
+      "offers": 0,
+      "watch": 0,
+      "agenda_steps": 230
+     },
+     "calls": {
+      "judge_model": 21198,
+      "llm": 8569
+     }
+    },
+    "meter": {
+     "answers:仮で受ける": 131,
+     "answers:受ける": 124,
+     "answers:断る": 156,
+     "answers:返事なし": 129,
+     "arbitration:main_first": 387,
+     "changes:取り消し": 40,
+     "changes:場所": 22,
+     "changes:時刻": 45,
+     "changes:確かさ": 38,
+     "chosen:ここ": 269,
+     "chosen:まだ": 51,
+     "chosen:アプリに書く": 138,
+     "chosen:アラームをかける": 114,
+     "chosen:仮で受ける": 131,
+     "chosen:仮で書く": 133,
+     "chosen:何もしない": 68,
+     "chosen:出発する": 49,
+     "chosen:取り消す": 40,
+     "chosen:受ける": 124,
+     "chosen:場所を変える": 22,
+     "chosen:変える予定": 145,
+     "chosen:手帳に書く": 122,
+     "chosen:持ちかけない": 8508,
+     "chosen:断る": 156,
+     "chosen:日": 585,
+     "chosen:時刻": 585,
+     "chosen:時刻を変える": 45,
+     "chosen:相手に会ったら確かめる": 68,
+     "chosen:知らせ": 216,
+     "chosen:知らせない": 36,
+     "chosen:確かさを変える": 38,
+     "chosen:確定で書く": 122,
+     "chosen:約束を持ちかける": 8276,
+     "chosen:終わりは決めない": 137,
+     "chosen:自分の約束を変える": 145,
+     "chosen:行かない": 43,
+     "chosen:覚えておく": 136,
+     "chosen:言葉で決める": 293,
+     "chosen:長さ": 403,
+     "closed:アラーム": 27,
+     "closed:出来事の実行意図": 14,
+     "closed_by_placement:アプリ": 32,
+     "closed_by_placement:アラーム": 23,
+     "closed_by_placement:手帳": 28,
+     "closed_by_placement:頭の中": 29,
+     "decisions:certain": 255,
+     "decisions:day": 585,
+     "decisions:edit": 145,
+     "decisions:edit_what": 145,
+     "decisions:go": 143,
+     "decisions:hour": 585,
+     "decisions:intent": 136,
+     "decisions:length": 540,
+     "decisions:notify": 252,
+     "decisions:outside": 15670,
+     "decisions:place": 562,
+     "decisions:placement": 510,
+     "decisions:respond": 411,
+     "decisions:turn": 1259,
+     "events:約束:仮で受けた": 131,
+     "events:約束:出発した": 39,
+     "events:約束:取り消した": 40,
+     "events:約束:受けた": 124,
+     "events:約束:場所を変えた": 22,
+     "events:約束:断った": 156,
+     "events:約束:時刻を変えた": 45,
+     "events:約束:書いた": 8428,
+     "events:約束:知らせ": 44,
+     "events:約束:確かさを変えた": 38,
+     "events:約束:行かない": 43,
+     "events:約束:誘った": 540,
+     "go:まだ": 51,
+     "go:もう居た": 10,
+     "go:会話中で出られない": 5,
+     "go:歩き出した": 8,
+     "go:歩けない": 5,
+     "go:行かない": 43,
+     "go:言葉の場所": 21,
+     "head_recall:思い出した": 37,
+     "head_recall:思い出せない": 7,
+     "heard_certainty:仮": 133,
+     "heard_certainty:確定": 122,
+     "impossible:go:過ぎた時刻": 2,
+     "impossible:go:閉店中": 3,
+     "impossible:go:間に合わない": 1,
+     "impossible:write:閉店中": 32,
+     "initial_offered": 5000,
+     "initial_rows": 0,
+     "intentions:きっかけ": 64,
+     "intentions:アラーム": 114,
+     "intentions:出来事": 68,
+     "notified:アプリ": 17,
+     "notified:アラーム": 27,
+     "notified_asleep": 1,
+     "offers": 540,
+     "offers:対面": 540,
+     "offers_all_declined": 156,
+     "offers_no_answer": 129,
+     "outcome:5 分前までに着いた": 15,
+     "outcome:出発したが着かなかった": 21,
+     "outcome:出発しなかった": 22,
+     "outcome:取り消し": 9,
+     "outcome:忘れた": 7,
+     "outcome:行かない": 38,
+     "outcome_by_placement:アプリ:5 分前までに着いた": 11,
+     "outcome_by_placement:アプリ:出発したが着かなかった": 5,
+     "outcome_by_placement:アプリ:出発しなかった": 1,
+     "outcome_by_placement:アプリ:取り消し": 3,
+     "outcome_by_placement:アプリ:行かない": 12,
+     "outcome_by_placement:アラーム:5 分前までに着いた": 1,
+     "outcome_by_placement:アラーム:出発したが着かなかった": 3,
+     "outcome_by_placement:アラーム:出発しなかった": 11,
+     "outcome_by_placement:アラーム:忘れた": 1,
+     "outcome_by_placement:アラーム:行かない": 7,
+     "outcome_by_placement:手帳:5 分前までに着いた": 2,
+     "outcome_by_placement:手帳:出発したが着かなかった": 6,
+     "outcome_by_placement:手帳:出発しなかった": 9,
+     "outcome_by_placement:手帳:取り消し": 2,
+     "outcome_by_placement:手帳:忘れた": 2,
+     "outcome_by_placement:手帳:行かない": 7,
+     "outcome_by_placement:頭の中:5 分前までに着いた": 1,
+     "outcome_by_placement:頭の中:出発したが着かなかった": 7,
+     "outcome_by_placement:頭の中:出発しなかった": 1,
+     "outcome_by_placement:頭の中:取り消し": 4,
+     "outcome_by_placement:頭の中:忘れた": 4,
+     "outcome_by_placement:頭の中:行かない": 12,
+     "outside_plan:出た": 15670,
+     "outside_plan:戻った": 5924,
+     "outside_plan:書いた": 7736,
+     "overlap_warned": 1,
+     "plan_match:居た": 12,
+     "plan_match:見た数": 40,
+     "text:outside": 7736,
+     "text:place": 293,
+     "text:what": 540,
+     "turns:対面": 1259,
+     "written:二人の約束:アプリ": 138,
+     "written:二人の約束:アラーム": 114,
+     "written:二人の約束:手帳": 122,
+     "written:二人の約束:頭の中": 136
+    },
+    "checkpoints_behavior": [
+     [
+      59,
+      "585fe3c2fa30abcc480ac7cbfb9ce418733790cfea254544de8b41e565eea88f"
+     ],
+     [
+      119,
+      "844fc5a48fc2f6d6695635dcf3d6a398d6664397aa73b1eebb16821a86f3c17c"
+     ],
+     [
+      179,
+      "a1e74f21ad0409d31f326cbfeb10678089cfa6480f806ec082db90224251119a"
+     ],
+     [
+      239,
+      "70859b4af6d67b581e830faeee46e98c8fe3f0ecccf944207f426e420eb34d34"
+     ],
+     [
+      299,
+      "9435bbd640f1a6e968efe2b3ba6a34b69fcf00ca9b39920dd59ead1230375772"
+     ],
+     [
+      359,
+      "6b97f993a38f6c26873f38d05b82b1ff348769d9d1d85a473033e22c16c30bc8"
+     ],
+     [
+      419,
+      "f14720827b4ed7f769110eb8cae48bb8fc40a06f4d6f44b93b823fffe53a9705"
+     ],
+     [
+      479,
+      "bd26e1d9aa34b4869127ef21aeb1c7253191d03bff147c9014d5c9f24c379182"
+     ],
+     [
+      539,
+      "e55b317e15c9e939c891ea02ecab5963235a6d1066cfb88d1219b5bda55a380a"
+     ],
+     [
+      599,
+      "b3e8cd2e8cf1dbc581175eda524883a501629b96a823491f8173a2b649ac0f9f"
+     ],
+     [
+      659,
+      "07c513d3cf7981cba0d84d1714a0577d218938f6f226848b4ef856d256f25bc3"
+     ],
+     [
+      719,
+      "4c83b0de501757e9da9710113d13310b134c34c3769190d23634087be8f53776"
+     ],
+     [
+      779,
+      "7c9400262f80065351c3876690772558243b509ce25200bcada3ac18797b85ab"
+     ],
+     [
+      839,
+      "266a187380590d8288e8c9b1d41b4422e5c38299a4c39e147e2ee89a657b496d"
+     ],
+     [
+      899,
+      "16d56a5e784516968b06e09779e5215a356733f398a591d9af264c043257207e"
+     ],
+     [
+      959,
+      "204cc4995a6a7c44c422d6ceadc80915f8754d0d96acb69042d906674349b4bc"
+     ],
+     [
+      1019,
+      "30096aa649a5f75483e219c2d49fb6cf3dfc9dbe97ce95549936fd2d7972bf5c"
+     ],
+     [
+      1079,
+      "6fb8898a13439b543649291a46abd88a58e6134dfa0665702aa4d6c9099ed780"
+     ],
+     [
+      1139,
+      "f3905c31cdcf828eaf5a6628fc4dea66d0f0001791a9d7d55f17d1fb23231fe4"
+     ],
+     [
+      1199,
+      "32be5c1eb7e01af4fb12852117c5ba331222e532d60c272c4d56bbf07c2635c9"
+     ],
+     [
+      1259,
+      "a9a7125108e22c4125cfc6b7c841c127ded10e1874db3168bdfbc6c5516a8718"
+     ],
+     [
+      1319,
+      "da19dc835bce599462b9eb47193735da22c495a3f44b7204307022c490a1ef1b"
+     ],
+     [
+      1379,
+      "3979cc085a23b0aaa1b9e1405f271ad130d504bb5f1a2bbbf53ddc1a2a8cd318"
+     ],
+     [
+      1439,
+      "2d96c3041cd4f6fd1133c877f05ed0d67213572d0edba37afce995c18378ced0"
+     ],
+     [
+      1499,
+      "a7450d5fa573d454ead28ba2763f1f2acb5ba2bf08fd1aa65e07130b483792a9"
+     ],
+     [
+      1559,
+      "f97d9b513c40932b0c101ba76ddb20c776d689c890db8df1dddf5e6a7acbe40f"
+     ],
+     [
+      1619,
+      "6610633570c6c4ed178ae3898ca7d3dbbef3e672f59100cc4e3b2bfd757b874d"
+     ],
+     [
+      1679,
+      "293ce93371506905bc166e735e49d1dad482106048aca8e352cacc83011e93c8"
+     ],
+     [
+      1739,
+      "a85c64d14f57437dca2cd18abe6759d47bf1d7056bf5cb5587d853d0c1e57d3b"
+     ],
+     [
+      1799,
+      "17e4e125fba20691d7c60bf7709ea8f604b57e852f7f3d35fa097255337fd326"
+     ],
+     [
+      1859,
+      "0284f602d785e831b3d0035177fb65839e57f1c3190c54059f0a27372f5dd190"
+     ],
+     [
+      1919,
+      "97d3dab8f6c8a40fc97354adf131a79c31535a4d35ac91095899ddef329a9874"
+     ],
+     [
+      1979,
+      "21ce1b832322cdcf71aca186f98670c50233efe308196180cf4be39c3e9ffb68"
+     ],
+     [
+      2039,
+      "ac076744eb5390744af67b87a5a32704724213a17162fbdfb6e479bc6ece2ab2"
+     ],
+     [
+      2099,
+      "25fb3a0922cbfa0ab09ad56a2a9123d1523dfc46fe40f68e45f4a8bcb161c507"
+     ],
+     [
+      2159,
+      "9d29654487b1289361f766433b9ac4f74cf7ad845c02c00f9616ffdb9e538002"
+     ],
+     [
+      2219,
+      "5ec899cfeb0ee15d4b3fa2d167e6bb2a0e2e77ae0f6d11e74c6311e33dfc72c3"
+     ],
+     [
+      2279,
+      "1db66447bb6af4191c35af7701ded8d9df8092c9dbc9a2bb1d3f109427928e70"
+     ],
+     [
+      2339,
+      "cba82f495508598fa15219bc83a973ab273ec8097f609d6906929dda14b121d7"
+     ],
+     [
+      2399,
+      "fd1e42cbc14a41aa775fda3d4867ca8355b42b05066676d3771b855e65ed4dc3"
+     ],
+     [
+      2459,
+      "c04e3e049a258ad8e14d1efde3134cb1e1543715bacce229323ec5e13dfa9f7c"
+     ],
+     [
+      2519,
+      "4b6ee6a2715b53848ffad4fb0a404d269f5c17ae618acb8231a6290bdfe481c7"
+     ],
+     [
+      2579,
+      "31c6fed7508122412b84019e3d1b476ba4b08314bc4b7a6a4b157dab61a4262d"
+     ],
+     [
+      2639,
+      "92a90f6ba001e83c93faea503db10c7ba9edd362bce884319afc10d8ad407353"
+     ],
+     [
+      2699,
+      "e03a29ad0e9756a51fdccc952175633ae8d6fd13efa1f94a5a050cd45fbc0d7f"
+     ],
+     [
+      2759,
+      "a14723affe7241af07ebc9f1441831a03d06aa53799b7a65db355f88413e9d9f"
+     ],
+     [
+      2819,
+      "ea613b14d22110812124c24d8f56173b0de2cb3f3a0899fd48014ef27c94f2b6"
+     ],
+     [
+      2879,
+      "58a63ae08ab0e490118a70440ae015ab669d1f0c326297b494daedcc564edcbb"
+     ]
+    ],
+    "calendar_1b": null
+   }
+  },
+  "arm_with_1b_1day_w20_stage_3-1": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "contact": "off",
+   "events": "on",
+   "calendar1b": true,
+   "final": "693c5114c3b53933fe40397800fd306143b4b6025f9270e5af37c4f4913c0f4f",
+   "llm_calls": 64776,
+   "wall_s": 45.3,
+   "calls_by_model": {
+    "judge_model": 10792,
+    "llm": 69144,
+    "calendar_2": {
+     "judge_model": 10792,
+     "llm": 4368
+    }
+   },
+   "calendar2_calls": {
+    "judge_model": 10792,
+    "llm": 4368
+   },
+   "events_by_what": {
+    "約束:仮で受けた": 67,
+    "約束:出発した": 16,
+    "約束:取り消した": 17,
+    "約束:受けた": 82,
+    "約束:場所を変えた": 14,
+    "約束:断った": 76,
+    "約束:時刻を変えた": 23,
+    "約束:書いた": 4335,
+    "約束:知らせ": 18,
+    "約束:確かさを変えた": 18,
+    "約束:行かない": 20,
+    "約束:誘った": 294
+   },
+   "events_by_via": {
+    "対面": 519,
+    "無し": 4461
+   },
+   "audit": {
+    "events": 4980,
+    "violations": 0,
+    "examples": []
+   },
+   "event_log": {
+    "rows": 59186,
+    "nbytes": 4261392,
+    "cause_nbytes": 590664,
+    "promise_rows": 4980
+   },
+   "calendar_2": {
+    "schema": "shibuya.engine.calendar2/1",
+    "arm": "arm",
+    "port": "calendar2-mock",
+    "placements": {
+     "アプリ": {
+      "知らせ": "本人が決めた時刻に通知",
+      "持ち歩き": true,
+      "見える範囲": "画面",
+      "忘れやすさ": "低い",
+      "思い出し方": "通知・画面を見たとき",
+      "重なりの警告": true
+     },
+     "アラーム": {
+      "知らせ": "本人が決めた時刻に鳴る",
+      "持ち歩き": true,
+      "見える範囲": "音",
+      "忘れやすさ": "低い",
+      "思い出し方": "鳴る",
+      "重なりの警告": false
+     },
+     "手帳": {
+      "知らせ": "無し",
+      "持ち歩き": true,
+      "見える範囲": "開いたとき",
+      "忘れやすさ": "中",
+      "思い出し方": "見たとき",
+      "重なりの警告": false
+     },
+     "頭の中": {
+      "知らせ": "無し",
+      "持ち歩き": true,
+      "見える範囲": "本人だけ",
+      "忘れやすさ": "高い",
+      "思い出し方": "記憶で思い出せたとき",
+      "重なりの警告": false
+     }
+    },
+    "kinds": [
+     "二人の約束",
+     "本人の予定",
+     "本人の計画",
+     "アラーム",
+     "出来事の実行意図"
+    ],
+    "certainty": [
+     "仮",
+     "確定"
+    ],
+    "candidates": {
+     "length_hours": [
+      1,
+      2,
+      3
+     ],
+     "notify_lead_min": [
+      10,
+      30,
+      60
+     ],
+     "horizon_days": 7,
+     "hours": "正時",
+     "edit_max_candidates": 120
+    },
+    "recall": {
+     "tau": -3.7380247491506395,
+     "importance": 3,
+     "form": "memory_m1.base_level",
+     "cue": "約束の相手が同じセル"
+    },
+    "early_min": 5,
+    "arbitration": {
+     "main_first": "見える予定の判断(出発する/まだ/行かない)は、その刻みに主の判断の呼びのあった体ではしない(次の刻みに回す)",
+     "turn_content": "会話の番の判断(誘う・返事・書く・変える)はその番の中身=番と同じ刻みの別の呼び(GPU の後は番の出力に畳む)"
+    },
+    "provisional": [
+     "判断の候補の語と源の当て方(会話の番 3・いつ 2 段・長さ・どこで・返事 3・置き場所 4・知らせ・実行意図・見えた予定 3・変える)",
+     "長さの候補 1/2/3 時間と終わりは決めない・知らせの候補 10/30/60 分前・いつは 7 日先まで・正時だけ",
+     "仮のモデル(mock)は候補を語と id の順に並べ乱数の余りで一様に選ぶ(判断モデルの代わり)"
+    ],
+    "decisions": {
+     "certain": 149,
+     "day": 317,
+     "edit": 72,
+     "edit_what": 72,
+     "go": 60,
+     "hour": 317,
+     "intent": 69,
+     "length": 294,
+     "notify": 159,
+     "outside": 7798,
+     "place": 308,
+     "placement": 298,
+     "respond": 225,
+     "turn": 654
+    },
+    "promises": {
+     "written": {
+      "二人の約束:アプリ": 77,
+      "二人の約束:アラーム": 82,
+      "二人の約束:手帳": 70,
+      "二人の約束:頭の中": 69
+     },
+     "rows_promise": 298,
+     "agents": 198,
+     "days": 1,
+     "per_agent_week": 0.4172,
+     "offers": 294,
+     "offers_by_via": {
+      "対面": 294
+     }
+    },
+    "responses": {
+     "counts": {
+      "仮で受ける": 67,
+      "受ける": 82,
+      "断る": 76,
+      "返事なし": 69
+     },
+     "rates": {
+      "仮で受ける": 0.22789115646258504,
+      "受ける": 0.2789115646258503,
+      "断る": 0.2585034013605442,
+      "返事なし": 0.23469387755102042
+     },
+     "offers_no_answer": 69,
+     "offers_all_declined": 76
+    },
+    "initial": {
+     "offered": 5000,
+     "rows": 0,
+     "per_agent": 0.0
+    },
+    "forgot": {
+     "アプリ": {
+      "closed": 13,
+      "forgot": 0,
+      "rate": 0.0
+     },
+     "アラーム": {
+      "closed": 9,
+      "forgot": 0,
+      "rate": 0.0
+     },
+     "手帳": {
+      "closed": 8,
+      "forgot": 1,
+      "rate": 0.125
+     },
+     "頭の中": {
+      "closed": 11,
+      "forgot": 0,
+      "rate": 0.0
+     }
+    },
+    "arrival": {
+     "outcomes": {
+      "5 分前までに着いた": 5,
+      "出発したが着かなかった": 11,
+      "出発しなかった": 6,
+      "取り消し": 1,
+      "忘れた": 1,
+      "行かない": 17
+     },
+     "closed_promises": 41,
+     "early_rate": 0.21739130434782608,
+     "late_rate": 0.0,
+     "arrived": 5,
+     "arrive_minus_start_min": {
+      "-655": 1,
+      "-319": 1,
+      "-291": 1,
+      "-144": 1,
+      "-57": 1
+     }
+    },
+    "plan_match": {
+     "sampled": 9,
+     "at_place": 2,
+     "rate": 0.2222222222222222
+    },
+    "impossible": {
+     "write:閉店中": 18
+    },
+    "read_delay_minutes": null,
+    "outside_plan": {
+     "出た": 7798,
+     "戻った": 2009,
+     "書いた": 3922
+    },
+    "intentions": {
+     "きっかけ": 32,
+     "アラーム": 82,
+     "出来事": 33
+    },
+    "rejected": {
+     "reasons": {},
+     "shown": 0,
+     "silent": 0
+    },
+    "changes": {
+     "取り消し": 17,
+     "場所": 14,
+     "時刻": 23,
+     "確かさ": 18,
+     "candidates_capped": 0
+    },
+    "live_rows": {
+     "rows": 2265,
+     "offers": 0,
+     "watch": 0,
+     "agenda_steps": 203
+    },
+    "calls": {
+     "judge_model": 10792,
+     "llm": 4368
+    }
+   },
+   "meter": {
+    "answers:仮で受ける": 67,
+    "answers:受ける": 82,
+    "answers:断る": 76,
+    "answers:返事なし": 69,
+    "arbitration:main_first": 90,
+    "changes:取り消し": 17,
+    "changes:場所": 14,
+    "changes:時刻": 23,
+    "changes:確かさ": 18,
+    "chosen:ここ": 156,
+    "chosen:まだ": 21,
+    "chosen:アプリに書く": 77,
+    "chosen:アラームをかける": 82,
+    "chosen:仮で受ける": 67,
+    "chosen:仮で書く": 84,
+    "chosen:何もしない": 36,
+    "chosen:出発する": 19,
+    "chosen:取り消す": 17,
+    "chosen:受ける": 82,
+    "chosen:場所を変える": 14,
+    "chosen:変える予定": 72,
+    "chosen:手帳に書く": 70,
+    "chosen:持ちかけない": 4164,
+    "chosen:断る": 76,
+    "chosen:日": 317,
+    "chosen:時刻": 317,
+    "chosen:時刻を変える": 23,
+    "chosen:相手に会ったら確かめる": 33,
+    "chosen:知らせ": 136,
+    "chosen:知らせない": 23,
+    "chosen:確かさを変える": 18,
+    "chosen:確定で書く": 65,
+    "chosen:約束を持ちかける": 4216,
+    "chosen:終わりは決めない": 81,
+    "chosen:自分の約束を変える": 72,
+    "chosen:行かない": 20,
+    "chosen:覚えておく": 69,
+    "chosen:言葉で決める": 152,
+    "chosen:長さ": 213,
+    "closed:アラーム": 12,
+    "closed:出来事の実行意図": 8,
+    "closed_by_placement:アプリ": 13,
+    "closed_by_placement:アラーム": 9,
+    "closed_by_placement:手帳": 8,
+    "closed_by_placement:頭の中": 11,
+    "decisions:certain": 149,
+    "decisions:day": 317,
+    "decisions:edit": 72,
+    "decisions:edit_what": 72,
+    "decisions:go": 60,
+    "decisions:hour": 317,
+    "decisions:intent": 69,
+    "decisions:length": 294,
+    "decisions:notify": 159,
+    "decisions:outside": 7798,
+    "decisions:place": 308,
+    "decisions:placement": 298,
+    "decisions:respond": 225,
+    "decisions:turn": 654,
+    "events:約束:仮で受けた": 67,
+    "events:約束:出発した": 16,
+    "events:約束:取り消した": 17,
+    "events:約束:受けた": 82,
+    "events:約束:場所を変えた": 14,
+    "events:約束:断った": 76,
+    "events:約束:時刻を変えた": 23,
+    "events:約束:書いた": 4335,
+    "events:約束:知らせ": 18,
+    "events:約束:確かさを変えた": 18,
+    "events:約束:行かない": 20,
+    "events:約束:誘った": 294,
+    "go:まだ": 21,
+    "go:もう居た": 4,
+    "go:会話中で出られない": 2,
+    "go:歩き出した": 1,
+    "go:歩けない": 1,
+    "go:行かない": 20,
+    "go:言葉の場所": 11,
+    "head_recall:思い出した": 10,
+    "heard_certainty:仮": 84,
+    "heard_certainty:確定": 65,
+    "impossible:write:閉店中": 18,
+    "initial_offered": 5000,
+    "initial_rows": 0,
+    "intentions:きっかけ": 32,
+    "intentions:アラーム": 82,
+    "intentions:出来事": 33,
+    "notified:アプリ": 6,
+    "notified:アラーム": 12,
+    "offers": 294,
+    "offers:対面": 294,
+    "offers_all_declined": 76,
+    "offers_no_answer": 69,
+    "outcome:5 分前までに着いた": 5,
+    "outcome:出発したが着かなかった": 11,
+    "outcome:出発しなかった": 6,
+    "outcome:取り消し": 1,
+    "outcome:忘れた": 1,
+    "outcome:行かない": 17,
+    "outcome_by_placement:アプリ:5 分前までに着いた": 3,
+    "outcome_by_placement:アプリ:出発したが着かなかった": 4,
+    "outcome_by_placement:アプリ:行かない": 6,
+    "outcome_by_placement:アラーム:5 分前までに着いた": 1,
+    "outcome_by_placement:アラーム:出発したが着かなかった": 3,
+    "outcome_by_placement:アラーム:出発しなかった": 4,
+    "outcome_by_placement:アラーム:行かない": 1,
+    "outcome_by_placement:手帳:出発したが着かなかった": 2,
+    "outcome_by_placement:手帳:出発しなかった": 2,
+    "outcome_by_placement:手帳:忘れた": 1,
+    "outcome_by_placement:手帳:行かない": 3,
+    "outcome_by_placement:頭の中:5 分前までに着いた": 1,
+    "outcome_by_placement:頭の中:出発したが着かなかった": 2,
+    "outcome_by_placement:頭の中:取り消し": 1,
+    "outcome_by_placement:頭の中:行かない": 7,
+    "outside_plan:出た": 7798,
+    "outside_plan:戻った": 2009,
+    "outside_plan:書いた": 3922,
+    "plan_match:居た": 2,
+    "plan_match:見た数": 9,
+    "text:outside": 3922,
+    "text:place": 152,
+    "text:what": 294,
+    "turns:対面": 654,
+    "written:二人の約束:アプリ": 77,
+    "written:二人の約束:アラーム": 82,
+    "written:二人の約束:手帳": 70,
+    "written:二人の約束:頭の中": 69
+   },
+   "checkpoints_behavior": [
+    [
+     359,
+     "63dd359cd828eeb971216102a36fd171adb4dd4d5808e23a230872558c2292c6"
+    ],
+    [
+     719,
+     "7bfa74b5fc502b98434250a9ef6d804c7a44aea2aa61b66250422be3f7fdd17d"
+    ],
+    [
+     1079,
+     "e204324b2d3922200586fd2c92c83a49a1b4d84c247ff66fd9d1430640c6a933"
+    ],
+    [
+     1439,
+     "693c5114c3b53933fe40397800fd306143b4b6025f9270e5af37c4f4913c0f4f"
+    ]
+   ],
+   "calendar_1b": {
+    "totals": {
+     "managed": 119,
+     "go_decided": 119,
+     "go_arrived": 119,
+     "back_decided": 118,
+     "home": 114,
+     "early5": 88,
+     "late": 11,
+     "impossible": 69,
+     "decisions": 488,
+     "suppressed_w17_arrive": 94,
+     "suppressed_w17_depart": 69,
+     "interrupts": 53,
+     "left_at_work": 102,
+     "back_to_work": 92,
+     "trips_logged": 381
+    },
+    "checks": {
+     "exits_unexplained": 0,
+     "exits_during_walk": 0,
+     "appear_unexplained": 0,
+     "backward_wakes": 0,
+     "end_notices": 118,
+     "selected_trains": 0,
+     "inbound_checked": 215,
+     "opportunities": 488
+    }
+   }
+  },
+  "arm_with_1b_1day_w20_stage_4-3": {
+   "mode": "one",
+   "agents": 5000,
+   "seed": 1,
+   "contact": "off",
+   "events": "on",
+   "calendar1b": true,
+   "final": "3b23f832fb823f11691bec9b39b8589f3090c0e1c0aa9e52a0e836d26efbf918",
+   "llm_calls": 68996,
+   "wall_s": 48.5,
+   "calls_by_model": {
+    "judge_model": 10906,
+    "llm": 73419,
+    "calendar_2": {
+     "judge_model": 10906,
+     "llm": 4423
+    }
+   },
+   "calendar2_calls": {
+    "judge_model": 10906,
+    "llm": 4423
+   },
+   "events_by_what": {
+    "約束:仮で受けた": 76,
+    "約束:出発した": 14,
+    "約束:取り消した": 24,
+    "約束:受けた": 77,
+    "約束:場所を変えた": 12,
+    "約束:断った": 70,
+    "約束:時刻を変えた": 22,
+    "約束:書いた": 4432,
+    "約束:知らせ": 11,
+    "約束:確かさを変えた": 22,
+    "約束:行かない": 20,
+    "約束:誘った": 278
+   },
+   "events_by_via": {
+    "対面": 501,
+    "無し": 4557
+   },
+   "audit": {
+    "events": 5058,
+    "violations": 0,
+    "examples": []
+   },
+   "event_log": {
+    "rows": 67852,
+    "nbytes": 4885344,
+    "cause_nbytes": 903459,
+    "promise_rows": 5058
+   },
+   "calendar_2": {
+    "schema": "shibuya.engine.calendar2/1",
+    "arm": "arm",
+    "port": "calendar2-mock",
+    "placements": {
+     "アプリ": {
+      "知らせ": "本人が決めた時刻に通知",
+      "持ち歩き": true,
+      "見える範囲": "画面",
+      "忘れやすさ": "低い",
+      "思い出し方": "通知・画面を見たとき",
+      "重なりの警告": true
+     },
+     "アラーム": {
+      "知らせ": "本人が決めた時刻に鳴る",
+      "持ち歩き": true,
+      "見える範囲": "音",
+      "忘れやすさ": "低い",
+      "思い出し方": "鳴る",
+      "重なりの警告": false
+     },
+     "手帳": {
+      "知らせ": "無し",
+      "持ち歩き": true,
+      "見える範囲": "開いたとき",
+      "忘れやすさ": "中",
+      "思い出し方": "見たとき",
+      "重なりの警告": false
+     },
+     "頭の中": {
+      "知らせ": "無し",
+      "持ち歩き": true,
+      "見える範囲": "本人だけ",
+      "忘れやすさ": "高い",
+      "思い出し方": "記憶で思い出せたとき",
+      "重なりの警告": false
+     }
+    },
+    "kinds": [
+     "二人の約束",
+     "本人の予定",
+     "本人の計画",
+     "アラーム",
+     "出来事の実行意図"
+    ],
+    "certainty": [
+     "仮",
+     "確定"
+    ],
+    "candidates": {
+     "length_hours": [
+      1,
+      2,
+      3
+     ],
+     "notify_lead_min": [
+      10,
+      30,
+      60
+     ],
+     "horizon_days": 7,
+     "hours": "正時",
+     "edit_max_candidates": 120
+    },
+    "recall": {
+     "tau": -3.7380247491506395,
+     "importance": 3,
+     "form": "memory_m1.base_level",
+     "cue": "約束の相手が同じセル"
+    },
+    "early_min": 5,
+    "arbitration": {
+     "main_first": "見える予定の判断(出発する/まだ/行かない)は、その刻みに主の判断の呼びのあった体ではしない(次の刻みに回す)",
+     "turn_content": "会話の番の判断(誘う・返事・書く・変える)はその番の中身=番と同じ刻みの別の呼び(GPU の後は番の出力に畳む)"
+    },
+    "provisional": [
+     "判断の候補の語と源の当て方(会話の番 3・いつ 2 段・長さ・どこで・返事 3・置き場所 4・知らせ・実行意図・見えた予定 3・変える)",
+     "長さの候補 1/2/3 時間と終わりは決めない・知らせの候補 10/30/60 分前・いつは 7 日先まで・正時だけ",
+     "仮のモデル(mock)は候補を語と id の順に並べ乱数の余りで一様に選ぶ(判断モデルの代わり)"
+    ],
+    "decisions": {
+     "certain": 153,
+     "day": 300,
+     "edit": 80,
+     "edit_what": 80,
+     "go": 54,
+     "hour": 300,
+     "intent": 78,
+     "length": 278,
+     "notify": 162,
+     "outside": 7992,
+     "place": 290,
+     "placement": 306,
+     "respond": 223,
+     "turn": 610
+    },
+    "promises": {
+     "written": {
+      "二人の約束:アプリ": 83,
+      "二人の約束:アラーム": 79,
+      "二人の約束:手帳": 66,
+      "二人の約束:頭の中": 78
+     },
+     "rows_promise": 306,
+     "agents": 184,
+     "days": 1,
+     "per_agent_week": 0.4284,
+     "offers": 278,
+     "offers_by_via": {
+      "対面": 278
+     }
+    },
+    "responses": {
+     "counts": {
+      "仮で受ける": 76,
+      "受ける": 77,
+      "断る": 70,
+      "返事なし": 55
+     },
+     "rates": {
+      "仮で受ける": 0.2733812949640288,
+      "受ける": 0.27697841726618705,
+      "断る": 0.2517985611510791,
+      "返事なし": 0.19784172661870503
+     },
+     "offers_no_answer": 55,
+     "offers_all_declined": 70
+    },
+    "initial": {
+     "offered": 5000,
+     "rows": 0,
+     "per_agent": 0.0
+    },
+    "forgot": {
+     "アプリ": {
+      "closed": 10,
+      "forgot": 0,
+      "rate": 0.0
+     },
+     "アラーム": {
+      "closed": 8,
+      "forgot": 0,
+      "rate": 0.0
+     },
+     "手帳": {
+      "closed": 13,
+      "forgot": 1,
+      "rate": 0.07692307692307693
+     },
+     "頭の中": {
+      "closed": 7,
+      "forgot": 0,
+      "rate": 0.0
+     }
+    },
+    "arrival": {
+     "outcomes": {
+      "5 分前までに着いた": 5,
+      "出発したが着かなかった": 7,
+      "出発しなかった": 7,
+      "忘れた": 1,
+      "行かない": 18
+     },
+     "closed_promises": 38,
+     "early_rate": 0.25,
+     "late_rate": 0.0,
+     "arrived": 5,
+     "arrive_minus_start_min": {
+      "-537": 1,
+      "-181": 1,
+      "-144": 1,
+      "-119": 1,
+      "-9": 1
+     }
+    },
+    "plan_match": {
+     "sampled": 10,
+     "at_place": 3,
+     "rate": 0.3
+    },
+    "impossible": {
+     "write:閉店中": 14
+    },
+    "read_delay_minutes": null,
+    "outside_plan": {
+     "出た": 7992,
+     "戻った": 1938,
+     "書いた": 4000
+    },
+    "intentions": {
+     "きっかけ": 43,
+     "アラーム": 79,
+     "出来事": 47
+    },
+    "rejected": {
+     "reasons": {},
+     "shown": 0,
+     "silent": 0
+    },
+    "changes": {
+     "取り消し": 24,
+     "場所": 12,
+     "時刻": 22,
+     "確かさ": 22,
+     "candidates_capped": 0
+    },
+    "live_rows": {
+     "rows": 2443,
+     "offers": 0,
+     "watch": 0,
+     "agenda_steps": 204
+    },
+    "calls": {
+     "judge_model": 10906,
+     "llm": 4423
+    }
+   },
+   "meter": {
+    "answers:仮で受ける": 76,
+    "answers:受ける": 77,
+    "answers:断る": 70,
+    "answers:返事なし": 55,
+    "arbitration:main_first": 138,
+    "changes:取り消し": 24,
+    "changes:場所": 12,
+    "changes:時刻": 22,
+    "changes:確かさ": 22,
+    "chosen:ここ": 145,
+    "chosen:まだ": 18,
+    "chosen:アプリに書く": 83,
+    "chosen:アラームをかける": 79,
+    "chosen:仮で受ける": 76,
+    "chosen:仮で書く": 86,
+    "chosen:何もしない": 31,
+    "chosen:出発する": 16,
+    "chosen:取り消す": 24,
+    "chosen:受ける": 77,
+    "chosen:場所を変える": 12,
+    "chosen:変える予定": 80,
+    "chosen:手帳に書く": 66,
+    "chosen:持ちかけない": 4244,
+    "chosen:断る": 70,
+    "chosen:日": 300,
+    "chosen:時刻": 300,
+    "chosen:時刻を変える": 22,
+    "chosen:相手に会ったら確かめる": 47,
+    "chosen:知らせ": 146,
+    "chosen:知らせない": 16,
+    "chosen:確かさを変える": 22,
+    "chosen:確定で書く": 67,
+    "chosen:約束を持ちかける": 4278,
+    "chosen:終わりは決めない": 66,
+    "chosen:自分の約束を変える": 80,
+    "chosen:行かない": 20,
+    "chosen:覚えておく": 78,
+    "chosen:言葉で決める": 145,
+    "chosen:長さ": 212,
+    "closed:アラーム": 9,
+    "closed:出来事の実行意図": 4,
+    "closed_by_placement:アプリ": 10,
+    "closed_by_placement:アラーム": 8,
+    "closed_by_placement:手帳": 13,
+    "closed_by_placement:頭の中": 7,
+    "decisions:certain": 153,
+    "decisions:day": 300,
+    "decisions:edit": 80,
+    "decisions:edit_what": 80,
+    "decisions:go": 54,
+    "decisions:hour": 300,
+    "decisions:intent": 78,
+    "decisions:length": 278,
+    "decisions:notify": 162,
+    "decisions:outside": 7992,
+    "decisions:place": 290,
+    "decisions:placement": 306,
+    "decisions:respond": 223,
+    "decisions:turn": 610,
+    "events:約束:仮で受けた": 76,
+    "events:約束:出発した": 14,
+    "events:約束:取り消した": 24,
+    "events:約束:受けた": 77,
+    "events:約束:場所を変えた": 12,
+    "events:約束:断った": 70,
+    "events:約束:時刻を変えた": 22,
+    "events:約束:書いた": 4432,
+    "events:約束:知らせ": 11,
+    "events:約束:確かさを変えた": 22,
+    "events:約束:行かない": 20,
+    "events:約束:誘った": 278,
+    "go:まだ": 18,
+    "go:もう居た": 6,
+    "go:会話中で出られない": 1,
+    "go:歩けない": 1,
+    "go:行かない": 20,
+    "go:言葉の場所": 8,
+    "head_recall:思い出した": 16,
+    "heard_certainty:仮": 86,
+    "heard_certainty:確定": 67,
+    "impossible:write:閉店中": 14,
+    "initial_offered": 5000,
+    "initial_rows": 0,
+    "intentions:きっかけ": 43,
+    "intentions:アラーム": 79,
+    "intentions:出来事": 47,
+    "notified:アプリ": 2,
+    "notified:アラーム": 9,
+    "offers": 278,
+    "offers:対面": 278,
+    "offers_all_declined": 70,
+    "offers_no_answer": 55,
+    "outcome:5 分前までに着いた": 5,
+    "outcome:出発したが着かなかった": 7,
+    "outcome:出発しなかった": 7,
+    "outcome:忘れた": 1,
+    "outcome:行かない": 18,
+    "outcome_by_placement:アプリ:5 分前までに着いた": 2,
+    "outcome_by_placement:アプリ:出発したが着かなかった": 2,
+    "outcome_by_placement:アプリ:行かない": 6,
+    "outcome_by_placement:アラーム:出発したが着かなかった": 2,
+    "outcome_by_placement:アラーム:出発しなかった": 3,
+    "outcome_by_placement:アラーム:行かない": 3,
+    "outcome_by_placement:手帳:5 分前までに着いた": 2,
+    "outcome_by_placement:手帳:出発したが着かなかった": 2,
+    "outcome_by_placement:手帳:出発しなかった": 4,
+    "outcome_by_placement:手帳:忘れた": 1,
+    "outcome_by_placement:手帳:行かない": 4,
+    "outcome_by_placement:頭の中:5 分前までに着いた": 1,
+    "outcome_by_placement:頭の中:出発したが着かなかった": 1,
+    "outcome_by_placement:頭の中:行かない": 5,
+    "outside_plan:出た": 7992,
+    "outside_plan:戻った": 1938,
+    "outside_plan:書いた": 4000,
+    "overlap_warned": 1,
+    "plan_match:居た": 3,
+    "plan_match:見た数": 10,
+    "text:outside": 4000,
+    "text:place": 145,
+    "text:what": 278,
+    "turns:対面": 610,
+    "written:二人の約束:アプリ": 83,
+    "written:二人の約束:アラーム": 79,
+    "written:二人の約束:手帳": 66,
+    "written:二人の約束:頭の中": 78
+   },
+   "checkpoints_behavior": [
+    [
+     359,
+     "74b94097e26a3b3acc8b996db8ea54945be01089522c6c77824dfd00a22a459a"
+    ],
+    [
+     719,
+     "4e75c98e87f6f24e9400203ba294a8eba1b533b891237659efb3fc666c21af3e"
+    ],
+    [
+     1079,
+     "c27a1cb3cf8d1659ff5c47e07dc1948b2e5f3de6cd0bb46f5cfa54c63c8c8e47"
+    ],
+    [
+     1439,
+     "3b23f832fb823f11691bec9b39b8589f3090c0e1c0aa9e52a0e836d26efbf918"
+    ]
+   ],
+   "calendar_1b": {
+    "totals": {
+     "managed": 2553,
+     "go_decided": 2547,
+     "go_arrived": 2545,
+     "back_decided": 2476,
+     "home": 2448,
+     "early5": 1529,
+     "late": 501,
+     "impossible": 1493,
+     "decisions": 9877,
+     "suppressed_w17_arrive": 2983,
+     "suppressed_w17_depart": 2655,
+     "interrupts": 1248,
+     "left_at_work": 1748,
+     "back_to_work": 1627,
+     "trips_logged": 7888
+    },
+    "checks": {
+     "exits_unexplained": 0,
+     "exits_during_walk": 0,
+     "appear_unexplained": 0,
+     "backward_wakes": 0,
+     "end_notices": 2476,
+     "selected_trains": 0,
+     "inbound_checked": 4173,
+     "opportunities": 9877
+    }
+   }
+  }
+ }
+}

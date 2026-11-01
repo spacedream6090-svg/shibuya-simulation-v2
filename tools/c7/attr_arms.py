@@ -317,12 +317,15 @@ def kind_journal_table(ticks: np.ndarray, kind_cell: np.ndarray, amap: Any, mode
     return t3 / np.maximum(nh, 1.0)[:, None, None]
 
 
-def population_for(world: str, n_agents: int, seed: int) -> Any:
-    """``engine.run._resolve_population`` と同じ規約で体の行を取る(行 i = 体 i)。"""
+def population_for(world: str, n_agents: int, seed: int, rng_scheme: str = "counter") -> Any:
+    """``engine.run._resolve_population`` と同じ規約で体の行を取る(行 i = 体 i)。
+
+    10e(検収 L2): ``rng_scheme`` は抽出の鍵の並べ方(engine の既定 counter・10e より前のランは stateful)。
+    """
     from shibuya.agents.population import load_population, sample_population
 
     pop = load_population(world, n=None, seed=seed)
-    return sample_population(pop, n_agents, seed) if pop.n > n_agents else pop
+    return sample_population(pop, n_agents, seed, rng_scheme=rng_scheme) if pop.n > n_agents else pop
 
 
 def arms_grid(ticks: np.ndarray, cells: np.ndarray, axes: AgentAxes, area_of_cell: np.ndarray,

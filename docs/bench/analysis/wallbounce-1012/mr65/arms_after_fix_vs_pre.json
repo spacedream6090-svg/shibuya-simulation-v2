@@ -1,0 +1,93 @@
+{
+ "m1/v3_mem_rel": {
+  "final": [
+   "7eaf88e41a5a3335",
+   "7eaf88e41a5a3335"
+  ],
+  "same_final": true,
+  "same_as_after_fix_on_ed7155c": true,
+  "moved": [],
+  "moved_tape_columns": [],
+  "calls": [
+   67794,
+   67794
+  ],
+  "shops": null
+ },
+ "embed/v3_mem_rel": {
+  "final": [
+   "cc2ac53d24ae28e8",
+   "cc2ac53d24ae28e8"
+  ],
+  "same_final": true,
+  "same_as_after_fix_on_ed7155c": true,
+  "moved": [],
+  "moved_tape_columns": [],
+  "calls": [
+   67794,
+   67794
+  ],
+  "shops": null
+ },
+ "people/v3_mem_rel": {
+  "final": [
+   "16434de8b0643c7c",
+   "16434de8b0643c7c"
+  ],
+  "same_final": true,
+  "same_as_after_fix_on_ed7155c": true,
+  "moved": [],
+  "moved_tape_columns": [],
+  "calls": [
+   64689,
+   64689
+  ],
+  "shops": null
+ },
+ "grain/v3_mem_rel": {
+  "final": [
+   "768b2262e3b0999e",
+   "768b2262e3b0999e"
+  ],
+  "same_final": true,
+  "same_as_after_fix_on_ed7155c": true,
+  "moved": [],
+  "moved_tape_columns": [],
+  "calls": [
+   67794,
+   67794
+  ],
+  "shops": null
+ },
+ "people/v3_mem_store": {
+  "final": [
+   "fc10773ef8ec1a4c",
+   "f41038f9a769597c"
+  ],
+  "same_final": false,
+  "same_as_after_fix_on_ed7155c": true,
+  "moved": [
+   "final",
+   "behavior_last",
+   "full_last"
+  ],
+  "moved_tape_columns": [],
+  "calls": [
+   64528,
+   64528
+  ],
+  "shops": {
+   "width": 32,
+   "cap": 256,
+   "rows": 20221,
+   "agents_with_rows": 4814,
+   "per_agent_max": 14,
+   "row_bytes": 23,
+   "counts": {
+    "grown": 0,
+    "evicted_by_a": 0,
+    "written": 27768
+   }
+  }
+ }
+}

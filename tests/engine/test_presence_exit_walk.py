@@ -5,7 +5,7 @@
 - 会話中は繰り延べ・買物/列は解いてから・非鉄道ゲートは即時・上限超過(TOO_FAR)と意図が落ちたら即時
 - 列車で出た計画の退出は LLM の乗車と分ける(帰りの便を付けない・張り直さない)
 - 歩いている体は場所の変化・到着満了・計画境界で起こさない・待機/なしで歩みを止めない
-- 退去=所属解除(在店・列・会話)・活動欄「なし」なら次の tick に満了・切替口 ``leave_effect``
+- 退去=所属解除(在店・列・会話)・活動欄「なし」なら次の tick に満了(〔第 2 部〕切替口 ``leave_effect`` は消した)
 """
 
 from __future__ import annotations
@@ -187,7 +187,6 @@ def test_leave_releases_store_queue_and_marks_conversation():
         a.registry.queue_since[1] = 1
         a.registry.activity[2] = int(Activity.CONVERSING)
         a.registry.talk_partner[2] = 3
-        a.registry.fail_streak[:] = 2
     out = R.ResolveOutcome(tick=9)
     with a.writable():
         R._apply_leave(a, w, np.array([0, 1, 2]), np.array([-1, -1, -1]), 9, out, None)
@@ -195,17 +194,12 @@ def test_leave_releases_store_queue_and_marks_conversation():
     assert int(r.poi_ref[0]) == -1 and int(r.queue_poi[1]) == -1
     assert (np.asarray(r.activity)[[0, 1, 2]] == int(Activity.IDLE)).all() and int(r.talk_partner[2]) == -1
     assert (np.asarray(r.last_result)[[0, 1, 2]] == int(ResultCode.OK)).all()
-    assert (np.asarray(r.fail_streak)[[0, 1, 2]] == 0).all()           # 失敗しない行動
+    # 〔第330・RET〕K15 で fail_streak を消した(前: 失敗しない行動=0 に戻る)
     assert (out.n_leave, out.n_leave_indoor, out.n_leave_queue, out.n_leave_conversing) == (3, 1, 1, 1)
     assert np.concatenate(out.leave_conversing).tolist() == [2]
-    # 切替口 off=第301 以前(所属は残る)
-    w2, b = make_world_agents(1)
-    with b.writable():
-        b.registry.poi_ref[0] = 2
-    off = R.ResolveOutcome(tick=9, leave_effect=False)
-    with b.writable():
-        R._apply_leave(b, w2, np.array([0]), np.array([-1]), 9, off, None)
-    assert int(b.registry.poi_ref[0]) == 2 and off.n_leave == 0
+    # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕切替口 off(第301 以前=所属は残る)は消した=欄が無い
+    with pytest.raises(TypeError):
+        R.ResolveOutcome(tick=9, leave_effect=False)
 
 
 def test_leave_with_no_activity_expires_next_tick():
@@ -227,14 +221,12 @@ def test_leave_with_no_activity_expires_next_tick():
     lay.after_resolve(a, 10, [0, 1], [C.ACT_LEAVE, C.ACT_WAIT], [none, none])
     until = np.asarray(a.registry.activity_until)
     assert int(until[0]) == 11 and int(until[1]) > 11 and lay.n_leave_expired == 1
-    lay.leave_effect = False
-    lay.after_resolve(a, 20, [0], [C.ACT_LEAVE], [none])
-    assert int(np.asarray(a.registry.activity_until)[0]) > 21
+    assert not hasattr(lay, "leave_effect")  # 〔第 2 部〕切替口(off=満了させない)は消した
 
 
 # ================================================================= (c) ラン
 @real_data
-def test_run_walk_mode_accounts_for_every_exit_and_leave_switch_reproduces_the_old_golden():
+def test_run_walk_mode_accounts_for_every_exit_and_the_leave_switch_is_gone():
     from shibuya import cli
 
     kw = dict(n_agents=1500, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")
@@ -257,23 +249,25 @@ def test_run_walk_mode_accounts_for_every_exit_and_leave_switch_reproduces_the_o
     pc = dict(walk.process_counters)
     assert pc["rail.boarded_plan_exit"] == ex["walk_boarded"]
     assert walk.fares_paid == int(FARE_YEN) * int(pc["rail.boarded_from_queue"])
-    assert walk.money_start == walk.money_end + walk.revenue_end + walk.fares_paid
+    # 〔第 2 期 2-4 V4〕経済の段階 2 が既定 on=左辺に段階 2 の項(現金の外から入った額−レジの税)を足す(RunResult.conserved の式)
+    assert walk.money_start + walk.money_stage2_in == walk.money_end + walk.revenue_end + walk.fares_paid
     again = cli.run(exit_mode="walk_to_platform", **kw)
     assert again.final_hash == walk.final_hash and again.llm_calls == walk.llm_calls
     imm = cli.run(**kw)
     m = imm.run_manifest_fields()
-    assert m["presence_exit"]["exit_mode"] == "immediate" and m["leave_effects"]["enabled"] is True
-    assert m["leave_effects"]["leave"] > 0
-    old = cli.run(leave_effect=False, **kw)
-    assert old.run_manifest_fields()["leave_effects"]["enabled"] is False
-    assert old.final_hash != imm.final_hash                # mock v3 は退去を選ぶ=既定が動く
+    assert m["presence_exit"]["exit_mode"] == "immediate" and "enabled" not in m["leave_effects"]
+    assert m["leave_effects"]["leave"] > 0 and m["leave_effects"]["released_indoor"] > 0  # mock v3 は退去を選ぶ=効果が動く
+    # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果の切替口 leave_effect=False(第301 以前)は消した=渡すと止まる
+    # (前は切替口の off と既定の checkpoint の並びが食い違うことを見た)
+    with pytest.raises(TypeError):
+        cli.run(leave_effect=False, **kw)
 
 
 def test_cli_has_the_9a_flags():
     from pathlib import Path
 
     text = Path("src/shibuya/cli.py").read_text(encoding="utf-8")
-    assert '"--leave-effect"' in text and '"walk_to_platform"' in text
+    assert '"--leave-effect"' not in text and '"walk_to_platform"' in text  # 〔第 2 部〕--leave-effect は消した
 
 
 def test_rewalk_once_after_an_llm_action_then_immediate():

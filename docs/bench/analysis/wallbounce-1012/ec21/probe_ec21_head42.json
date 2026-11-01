@@ -1,0 +1,128 @@
+{
+ "schema": "shibuya.bench/ec21/probe/1",
+ "a": "head42",
+ "b": "ec21",
+ "a_src_is_worktree": false,
+ "b_src_is_worktree": true,
+ "a_skipped_rows": [
+  "E",
+  "S8",
+  "S8M"
+ ],
+ "b_skipped_rows": [
+  "ATM",
+  "CR",
+  "E",
+  "EC",
+  "EM"
+ ],
+ "how": "1-0 の probe(全部の刻み・系ごとの全欄の差と指紋)。両側とも状態台帳の行 E・EC・ATM・CR・EM・S8・S8M・日次の economy.conservation・bridges_count・rules_version・events・RunResult.money_stage2_in・ActualLog の目印の 3 欄を外した。PYTHONHASHSEED=0",
+ "all_ok": false,
+ "rows": {
+  "syn_mem_rel_store": {
+   "final_a": "22a71f59126a396d",
+   "final_b": "22a71f59126a396d",
+   "calls_a": 1011,
+   "calls_b": 1011,
+   "n_entries_a": 5945,
+   "n_entries_b": 5945,
+   "systems": 18,
+   "fp_same_all_systems": false,
+   "fp_diff_systems": [
+    "checkpoint",
+    "close_final",
+    "decide",
+    "perceive_prepare",
+    "phase_c",
+    "report",
+    "world"
+   ],
+   "first_diff": {
+    "index": 2,
+    "a": [
+     0,
+     "perceive_prepare"
+    ],
+    "b": [
+     0,
+     "perceive_prepare"
+    ],
+    "keys_only_a": [],
+    "keys_only_b": [],
+    "keys_both": [
+     "O63:renderer._tickc"
+    ]
+   }
+  },
+  "real300_v3_default": {
+   "final_a": "f4466eb1ac04d48f",
+   "final_b": "f4466eb1ac04d48f",
+   "calls_a": 3062,
+   "calls_b": 3062,
+   "n_entries_a": 14159,
+   "n_entries_b": 14159,
+   "systems": 18,
+   "fp_same_all_systems": false,
+   "fp_diff_systems": [
+    "checkpoint",
+    "close_final",
+    "decide",
+    "perceive_prepare",
+    "phase_c",
+    "report",
+    "world"
+   ],
+   "first_diff": {
+    "index": 2,
+    "a": [
+     0,
+     "perceive_prepare"
+    ],
+    "b": [
+     0,
+     "perceive_prepare"
+    ],
+    "keys_only_a": [],
+    "keys_only_b": [],
+    "keys_both": [
+     "O63:renderer._tickc"
+    ]
+   }
+  },
+  "real300_v3_mem_rel": {
+   "final_a": "3a3cae2b97a67d35",
+   "final_b": "3a3cae2b97a67d35",
+   "calls_a": 3062,
+   "calls_b": 3062,
+   "n_entries_a": 16271,
+   "n_entries_b": 16271,
+   "systems": 20,
+   "fp_same_all_systems": false,
+   "fp_diff_systems": [
+    "checkpoint",
+    "close_final",
+    "decide",
+    "perceive_prepare",
+    "phase_c",
+    "report",
+    "world"
+   ],
+   "first_diff": {
+    "index": 2,
+    "a": [
+     0,
+     "perceive_prepare"
+    ],
+    "b": [
+     0,
+     "perceive_prepare"
+    ],
+    "keys_only_a": [],
+    "keys_only_b": [],
+    "keys_both": [
+     "O63:renderer._tickc"
+    ]
+   }
+  }
+ }
+}

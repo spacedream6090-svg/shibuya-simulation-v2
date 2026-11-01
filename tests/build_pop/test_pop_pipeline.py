@@ -20,8 +20,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from tests import _time_gates as TG
+
 from shibuya.agents.population import load_population, sample_population
 from shibuya.build.geo import common as C
+from tests import _data_ids as D
 from shibuya.build.pop import w16_population as W16
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -41,10 +44,7 @@ UPSTREAM = (
     "w12_generation_weights.parquet",
 )
 
-pytestmark = pytest.mark.skipif(
-    not (SHP.exists() and POOL.exists() and all((WORLD_DIR / f).exists() for f in UPSTREAM)),
-    reason="data/ absent (CI)",
-)
+pytestmark = pytest.mark.requires_data(*D.ids_of(SHP, POOL, *(WORLD_DIR / f for f in UPSTREAM)))
 
 
 @pytest.fixture(scope="module")
@@ -177,10 +177,7 @@ def test_direction_shares_follow_w12_weights(built):
 
 
 # ------------------------------------------------------------------ ローダとエンジン結線
-@pytest.mark.skipif(
-    not (WORLD_DIR / "w16_population.parquet").exists(),
-    reason="data/world/v2/w16_population.parquet が無い(先に W16 を回す)",
-)
+@pytest.mark.requires_data("world_v2:w16_population.parquet")
 def test_loader_reads_the_published_population():
     pop = load_population(WORLD_DIR)
     assert pop is not None and pop.n > 300_000
@@ -204,10 +201,7 @@ def test_loader_reads_the_published_population():
         assert abs(cnt / full_stat.n - sub_stat.counts_by_kind().get(k, 0) / sub_stat.n) < 0.01
 
 
-@pytest.mark.skipif(
-    not (WORLD_DIR / "w16_population.parquet").exists(),
-    reason="data/world/v2/w16_population.parquet が無い(先に W16 を回す)",
-)
+@pytest.mark.requires_data("world_v2:w16_population.parquet")
 def test_population_backed_run_conserves_money():
     """(f) 母集団を載せたランがエンジンを通る・保存則が保たれる・同 seed 同ハッシュ。"""
     from shibuya.engine.run import run_day
@@ -230,10 +224,7 @@ def test_population_backed_run_conserves_money():
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(
-    not (WORLD_DIR / "w16_population.parquet").exists(),
-    reason="data/world/v2/w16_population.parquet が無い(先に W16 を回す)",
-)
+@pytest.mark.requires_data("world_v2:w16_population.parquet")
 def test_population_backed_full_day_5000_agents():
     """(f) 5,000 体 × 1 シミュ日(mock LLM)・保存則不変(予算行 W2 ≤10 分)。"""
     from shibuya.engine.run import run_day
@@ -246,7 +237,7 @@ def test_population_backed_full_day_5000_agents():
     print(f"\n[W16→1日ラン] 5,000体 {dt:.1f}s / 呼 {res.llm_calls:,}")
     assert res.conserved
     assert res.min_stock >= 0
-    assert dt < 600.0  # 予算行 W2
+    assert TG.check(dt < 600.0, f"W16 から 5,000 体 1 日 {dt:.1f}s(上限 600 s)")  # 予算行 W2
 
 
 def test_age_raking_uses_all_sixteen_classes_and_prorates_the_unknown(built):

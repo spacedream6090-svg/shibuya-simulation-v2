@@ -1,0 +1,265 @@
+{
+ "schema": "shibuya.rules-table/1",
+ "note": "R-118 付属(案・未決)。docs/design/rules-table.json に足す行の案で、本体の表ではない(読み手は無い)。形は既存の minimum_wage.tokyo と同じ(engine/rules/table.py の Rule の 7 欄だけ)。値は本書 §2 の表の一次出典から写した。asof は「この行の値が効く最初の日」。施行の初日が確かめられなかった行は、読んだ版の施行日を下限に置き、note に「施行の初日は未確認」と書いた(既存の late_night_alcohol.residential_ban と同じ扱い)。e-Gov の版は世界の時点 2026-07-13 の版(asof=2026-07-13 で引いた law_revision_id の日付)。取得日は全部 2026-10-18。",
+ "rules": [
+  {
+   "id": "food_business.licence",
+   "kind": "human",
+   "asof": "2025-06-01",
+   "source": [
+    {"law": "食品衛生法", "law_id": "322AC0000000233", "article": "55 条・76 条・82 条 1 項", "version": "2025-06-01", "url": "https://laws.e-gov.go.jp/api/2/law_data/322AC0000000233?asof=2026-07-13", "retrieved": "2026-10-18"},
+    {"law": "渋谷区「営業許可申請(新規)について」", "article": "手続きの流れ(工事完成予定日の 10 日くらい前に申請・許可日は検査の翌開庁日)", "version": "2026-10-16 更新", "url": "https://www.city.shibuya.tokyo.jp/jigyosha/jigyo-eisei/jigyo-shokuhin/eigyokyoka.html", "retrieved": "2026-10-18"},
+    {"law": "渋谷区保健所「営業許可申請手数料一覧」", "article": "新規 飲食店営業 18,300 円・継続新規 飲食店営業 8,900 円", "version": "令和 3 年 6 月 1 日現在", "url": "https://files.city.shibuya.tokyo.jp/assets/12995aba8b194961be709ba879857f70/638611c882684c0d8fad807ed3c8a6a0/assets_jigyosha_000063183.pdf", "retrieved": "2026-10-18"}
+   ],
+   "params": {"issuer": "区長(特別区=76 条)", "validity_years_min": 5, "apply_before_completion_days_hint": 10, "licence_date": "検査の翌開庁日", "fee_yen_new_restaurant": 18300, "fee_yen_continued_restaurant": 8900, "penalty_unlicensed": "2 年以下の拘禁刑又は 200 万円以下の罰金(82 条 1 項)"},
+   "applies_to": "",
+   "note": "許可なしの営業は物理では止まらない=人が取り締まる(保健所・区長。60・61 条の取消しと停止)。有効期間は「5 年を下らない」(55 条 3 項)だけが条文で、渋谷区の決め方は未確認。asof は読んだ版の施行日(拘禁刑の文言を含む 2025-06-01 版)を下限にした=許可制度の施行の初日は未確認。"
+  },
+  {
+   "id": "building_lease.termination_notice",
+   "kind": "human",
+   "asof": "2026-05-21",
+   "source": [
+    {"law": "借地借家法", "law_id": "403AC0000000090", "article": "26 条 1 項・27 条 1 項・28 条・38 条", "version": "2026-05-21", "url": "https://laws.e-gov.go.jp/api/2/law_data/403AC0000000090?asof=2026-07-13", "retrieved": "2026-10-18"},
+    {"law": "民法", "law_id": "129AC0000000089", "article": "614 条・617 条 1 項 2 号", "version": "2026-06-24", "url": "https://laws.e-gov.go.jp/api/2/law_data/129AC0000000089?asof=2026-07-13", "retrieved": "2026-10-18"}
+   ],
+   "params": {"non_renewal_notice_window_months_before_expiry": [12, 6], "landlord_termination_effect_months": 6, "no_term_tenant_termination_effect_months": 3, "landlord_needs_just_cause": true, "rent_due_default": "毎月末(建物・宅地=民法 614 条。特約があれば特約)", "fixed_term_requires_writing_and_prior_explanation": true},
+   "applies_to": "",
+   "note": "通知の期間と効力の発生までの月数は条文の値。貸主の更新拒絶と解約申入れは「正当の事由」が要る(28 条=解釈が要る)ので、機械で決めず人が争う側。通知をしなければ同じ条件で更新したものとみなす(26 条 1 項)=台帳の行の until を伸ばす機械の動きにできる(案)。asof は読んだ版の施行日を下限にした(施行の初日は未確認)。"
+  },
+  {
+   "id": "labor.statutory_hours",
+   "kind": "human",
+   "asof": "2026-06-24",
+   "source": [
+    {"law": "労働基準法", "law_id": "322AC0000000049", "article": "32 条 1 項・2 項", "version": "2026-06-24", "url": "https://laws.e-gov.go.jp/api/2/law_data/322AC0000000049?asof=2026-07-13", "retrieved": "2026-10-18"}
+   ],
+   "params": {"max_hours_per_week": 40, "max_hours_per_day": 8},
+   "applies_to": "",
+   "note": "休憩を除き週 40 時間・1 日 8 時間を超えて労働させてはならない。超えるには労使協定(36 条)が要り、違反は労働基準監督署が取り締まる=人の側。労基法の版は 2026-07-17 に変わるが 32 条の文は同じ(本書の確認)。asof は読んだ版の施行日を下限にした。"
+  },
+  {
+   "id": "labor.overtime_premium",
+   "kind": "machine",
+   "asof": "2026-06-24",
+   "source": [
+    {"law": "労働基準法", "law_id": "322AC0000000049", "article": "37 条 1 項", "version": "2026-06-24", "url": "https://laws.e-gov.go.jp/api/2/law_data/322AC0000000049?asof=2026-07-13", "retrieved": "2026-10-18"}
+   ],
+   "params": {"overtime_min_rate_range": [0.25, 0.5], "over_60h_per_month_min_rate": 0.5},
+   "applies_to": "",
+   "note": "条文は「2 割 5 分以上 5 割以下の範囲内で政令で定める率以上」=時間外と休日の具体の率は政令(割増賃金令)で、本書は読んでいない(未確認)。深夜(22 時〜5 時)の割増の率も同じ条の続き(本書は文の途中まで読んだ=未確認)。給与の仕組みが勤務の記録から計算する側(案)。"
+  },
+  {
+   "id": "road_use.police_permit",
+   "kind": "human",
+   "asof": "2026-06-14",
+   "source": [
+    {"law": "道路交通法", "law_id": "335AC0000000105", "article": "77 条 1 項 1〜4 号・78 条・119 条 2 項 7 号", "version": "2026-06-14", "url": "https://laws.e-gov.go.jp/api/2/law_data/335AC0000000105?asof=2026-07-13", "retrieved": "2026-10-18"},
+    {"law": "警視庁「道路使用許可申請手続きについて」", "article": "手数料・申請先・東京都内で許可が要る行為の例", "version": "2026-03-02 更新", "url": "https://www.keishicho.metro.tokyo.lg.jp/tetsuzuki/kotsu/road_permission.html", "retrieved": "2026-10-18"}
+   ],
+   "params": {"issuer": "所轄警察署長(交通規制係)", "fee_yen_works": 2700, "fee_yen_other": 2100, "fee_yen_annual_fair_stall": 1100, "fee_yen_reissue": 700, "penalty_unpermitted": "3 月以下の拘禁刑又は 5 万円以下の罰金(119 条 2 項 7 号)"},
+   "applies_to": "",
+   "note": "工事・作業、広告板などの工作物、露店・屋台、祭礼・ロケ・路上の人寄せ・物の販売や交付など(77 条 1 項 4 号は公安委員会が定める=警視庁の頁の例)。許可なしでもできてしまう=人が取り締まる。道交法の版は 2026-07-21 に変わるが 76〜78・119 条の文は同じ(本書の確認)。asof は読んだ版の施行日を下限にした。"
+  },
+  {
+   "id": "road_occupancy.shibuya_ward_road",
+   "kind": "human",
+   "asof": "2026-04-01",
+   "source": [
+    {"law": "道路法", "law_id": "327AC1000000180", "article": "32 条 1 項・39 条・71 条", "version": "2025-10-01", "url": "https://laws.e-gov.go.jp/api/2/law_data/327AC1000000180?asof=2026-07-13", "retrieved": "2026-10-18"},
+    {"law": "渋谷区土木部「令和8年度 道路占用料 一覧表」", "article": "看板(アーチ式を除く)・商品置場・祭礼縁日の一時的なもの・減免単価の看板と日よけ", "version": "令和 8 年度", "url": "https://files.city.shibuya.tokyo.jp/assets/12995aba8b194961be709ba879857f70/3652ed02570f455a89ed593159055af3/senyo-R8senyo.pdf", "retrieved": "2026-10-18"},
+    {"law": "渋谷区「道路占用許可申請」", "article": "区道・都道・国道の申請先・道路使用許可も要る", "version": "2026-03-23 更新", "url": "https://www.city.shibuya.tokyo.jp/kankyo/doro-kasen/doro-shinsei/senyo.html", "retrieved": "2026-10-18"}
+   ],
+   "params": {"issuer": "道路管理者(区道=区長・都道=都・国道 20 号と 246 号=国)", "fee_yen_per_m2_year_signboard": 127800, "fee_yen_per_m2_year_signboard_reduced": 14900, "fee_yen_per_m2_year_goods_storage": 127800, "fee_yen_per_m2_day_festival_temporary": 1230, "fee_yen_per_m2_year_awning_reduced": 1450},
+   "applies_to": "",
+   "note": "区道の占用料は渋谷区道路占用料等徴収条例(本文は区の外部の例規集=読んでいない)による令和 8 年度の単価(区の一覧の PDF の行と列を位置で対応させて読んだ=表の読み取りは本書の作業で、減免単価の適用条件は未確認)。区の頁は複製禁止の文言(回答 10-12b §3 (d))=値の事実だけを写した。許可なしの占用は道路管理者が監督処分(71 条)=人の側。asof は令和 8 年度の初日(区の年度の単価の始まり=推定)。"
+  },
+  {
+   "id": "outdoor_ad.tokyo_permit",
+   "kind": "human",
+   "asof": "2026-01-01",
+   "source": [
+    {"law": "東京都屋外広告物条例(昭和 24 年条例第 100 号)", "article": "8 条・13 条 5 号・23 条・24 条 2 項・27 条 2 項・29 条と別表・68 条", "version": "屋外広告物のしおり 2026 年版 p.44〜60 の本文", "url": "https://www.toshiseibi.metro.tokyo.lg.jp/documents/d/toshiseibi/kou-siori2026-p44-60_booklet", "retrieved": "2026-10-18"},
+    {"law": "屋外広告物法", "law_id": "324AC0000000189", "article": "3 条・4 条・7 条", "version": "2025-06-01", "url": "https://laws.e-gov.go.jp/api/2/law_data/324AC0000000189?asof=2026-07-13", "retrieved": "2026-10-18"},
+    {"law": "渋谷区「屋外広告物の許可申請」", "article": "原則として区長の許可・東京都屋外広告物条例を基準", "version": "2026-03-23 更新", "url": "https://www.city.shibuya.tokyo.jp/kankyo/doro-kasen/doro-shinsei/okugai.html", "retrieved": "2026-10-18"}
+   ],
+   "params": {"issuer": "区長(渋谷区の頁。区が処理する根拠の条例は未確認)", "permit_period_years_max": 2, "renewal_apply_days_before_expiry": 10, "fee_yen_signboard_per_5m2": 3220, "fee_yen_small_signboard_each": 400, "fee_yen_banner_flag_each": 450, "self_use_exempt": "自家用広告物(自己の店名などを自己の営業所に表示)は許可なしで表示できる(13 条 5 号)=規則で定める基準に適合するものに限る(基準の値は未確認)", "penalty_unpermitted": "300,000 円以下の罰金(68 条 2 号=8 条の許可を受けない表示)"},
+   "applies_to": "",
+   "note": "特別区・市・町の区域は許可区域(8 条 1 号)。許可期間は 2 年を超えられない(24 条 2 項)・継続は満了の 10 日前までに申請(27 条 2 項)・期間満了で除却の義務(28 条)。許可なしの表示は物理では止まらない=人が取り締まる。asof は読んだ冊子(2026 年版)の年の初日を下限に置いた=仮(条例の最終改正の施行日は未確認)。"
+  },
+  {
+   "id": "consumption_tax.reduced_rate",
+   "kind": "machine",
+   "asof": "2019-10-01",
+   "source": [
+    {"law": "消費税法", "law_id": "363AC0000000108", "article": "29 条 2 号・63 条", "version": "2026-04-01", "url": "https://laws.e-gov.go.jp/api/2/law_data/363AC0000000108?asof=2026-07-13", "retrieved": "2026-10-18"},
+    {"law": "国税庁「消費税の軽減税率制度に関するQ&A(個別事例編)」", "article": "問 53(休憩スペースでの飲食=店内飲食か持ち帰りかの意思確認)", "version": "令和 8 年 4 月改訂", "url": "https://www.nta.go.jp/taxes/shiraberu/zeimokubetsu/shohi/keigenzeiritsu/pdf/qa/03-01.pdf", "retrieved": "2026-10-18"}
+   ],
+   "params": {"national_rate": 0.0624, "local_tax_ratio": [22, 78], "combined_rate": 0.08, "scope": "飲食料品(酒類と外食=飲食設備のある場所で飲食させる役務を除く)・週 2 回以上発行の新聞の定期購読", "rate_decided_by": "売る時点で客の意思(店内飲食か持ち帰りか)を確かめて店が決める"},
+   "applies_to": "",
+   "note": "地方の 1.76% は 6.24% × 22/78 の算術(R-106 §3-1)。率の計算はレジ=機械。持ち帰りと申し出て店内で食べるなど申告と違う行動は物理では止まらない=記録の側(人がどう反応するかは未確認)。asof の 2019-10-01 は軽減税率の実施日(国税庁 Q&A の前書き「令和元年 10 月 1 日の消費税率の引上げと同時に、消費税の軽減税率制度が実施されました」)。"
+  },
+  {
+   "id": "consumption_tax.invoice_rounding",
+   "kind": "machine",
+   "asof": "2023-10-01",
+   "source": [
+    {"law": "国税庁「適格請求書等保存方式に関する Q&A」", "article": "問 57(端数処理は一の適格請求書につき税率ごとに 1 回・方法は任意)", "version": "令和 6 年 4 月改訂(R-106 #19)", "url": "https://www.nta.go.jp/taxes/shiraberu/zeimokubetsu/shohi/keigenzeiritsu/pdf/qa/57.pdf", "retrieved": "2026-10-18"}
+   ],
+   "params": {"rounding_unit": "一の適格請求書(レシート)ごとに税率ごとに 1 回", "rounding_method": "任意(切上げ・切捨て・四捨五入)", "per_item_rounding_allowed": false},
+   "applies_to": "",
+   "note": "今のレジの税は購入の 1 行ごとに税込 × 率/(1+率) の切り捨て(つなぎの台帳 DOC-ec21-register-tax-rounding)。1 回の購入=1 枚のレシート=1 つの税率なら同じ結果。軽減税率と標準税率が 1 枚に混ざる段で、税率ごとに 1 回へ直す。asof の 2023-10-01 はインボイス制度の開始(R-106 §6-1 の e-Gov の改正履歴=平成 28 年法律第 15 号の施行日)。"
+  },
+  {
+   "id": "income_tax.withholding_monthly",
+   "kind": "machine",
+   "asof": "2026-01-01",
+   "source": [
+    {"law": "所得税法", "law_id": "340AC0000000033", "article": "183 条 1 項・185 条", "version": "2026-04-01", "url": "https://laws.e-gov.go.jp/api/2/law_data/340AC0000000033?asof=2026-07-13", "retrieved": "2026-10-18"},
+    {"law": "国税庁「月額表の甲欄を適用する給与等に対する源泉徴収税額の電算機計算の特例」(平成 24 年財務省告示第 116 号・令和 7 年 4 月 30 日財務省告示第 123 号改正)", "article": "別表第一〜第四(令和 8 年分)", "version": "令和 8 年分", "url": "https://www.nta.go.jp/publication/pamph/gensen/zeigakuhyo2026/data/18.pdf", "retrieved": "2026-10-18"},
+    {"law": "国税庁「給与所得の源泉徴収税額表(令和8年分)月額表」(平成 24 年財務省告示第 115 号別表第一・令和 7 年 4 月 30 日財務省告示第 122 号改正)", "article": "甲欄 105,000 円未満 0 円・105,000〜107,000 円 扶養 0 人 170 円・乙欄 105,000 円未満 3.063%", "version": "令和 8 年分", "url": "https://www.nta.go.jp/publication/pamph/gensen/zeigakuhyo2026/data/01-07.pdf", "retrieved": "2026-10-18"}
+   ],
+   "params": {
+    "method": "電算機計算の特例(甲欄)",
+    "employment_income_deduction": [
+     {"from": 0, "to": 158333, "fixed": 54167},
+     {"from": 158334, "to": 299999, "rate": 0.30, "add": 6667},
+     {"from": 300000, "to": 549999, "rate": 0.20, "add": 36667},
+     {"from": 550000, "to": 708330, "rate": 0.10, "add": 91667},
+     {"from": 708331, "to": null, "fixed": 162500}
+    ],
+    "deduction_rounding": "1 円未満は切り上げ",
+    "dependent_or_spouse_deduction_each": 31667,
+    "basic_deduction": [
+     {"from": 0, "to": 2120833, "amount": 48334},
+     {"from": 2120834, "to": 2162499, "amount": 40000},
+     {"from": 2162500, "to": 2204166, "amount": 26667},
+     {"from": 2204167, "to": 2245833, "amount": 13334},
+     {"from": 2245834, "to": null, "amount": 0}
+    ],
+    "tax_on_taxable": [
+     {"from": 0, "to": 162500, "rate": 0.05105, "minus": 0},
+     {"from": 162501, "to": 275000, "rate": 0.10210, "minus": 8296},
+     {"from": 275001, "to": 579166, "rate": 0.20420, "minus": 36374},
+     {"from": 579167, "to": 750000, "rate": 0.23483, "minus": 54113},
+     {"from": 750001, "to": 1500000, "rate": 0.33693, "minus": 130688},
+     {"from": 1500001, "to": 3333333, "rate": 0.40840, "minus": 237893},
+     {"from": 3333334, "to": null, "rate": 0.45945, "minus": 408061}
+    ],
+    "tax_rounding": "10 円未満は四捨五入",
+    "otsu_rate_below_105000": 0.03063,
+    "payment_due": "徴収の日の属する月の翌月 10 日(183 条 1 項)"
+   },
+   "applies_to": "",
+   "note": "A=その月の社会保険料等を控除した後の給与等の金額。課税給与所得 B=A − 給与所得控除 − 基礎控除 − 配偶者(特別)控除と扶養控除。特例の式と月額表は少し違う値になり得る(本書の算術・扶養 0 人: A=105,000 円で特例 130 円・月額表 170 円。月額表の 7 区分(105,000〜165,000 円)の中央の額では差は 0〜10 円、区分の端では最大 60 円)=どちらも法の認める方法。令和 8 年分(2026-01-01〜12-31)の表=asof は年の初日。乙欄の 105,000 円以上の行は月額表から写す(本書は 105,000〜165,000 円の行だけ読んだ)。扶養親族の数は本人の属性から(扶養控除等申告書=提出は人の行為・今は属性で代える=expedient の候補)。"
+  },
+  {
+   "id": "resident_tax.special_collection_tokyo_ward",
+   "kind": "machine",
+   "asof": "2026-06-01",
+   "source": [
+    {"law": "地方税法", "law_id": "325AC0000000226", "article": "321 条の 3・321 条の 5・734 条", "version": "2026-06-05", "url": "https://laws.e-gov.go.jp/api/2/law_data/325AC0000000226?asof=2026-07-13", "retrieved": "2026-10-18"},
+    {"law": "東京都主税局「個人住民税」", "article": "2 所得割(都民税 4%・区市町村民税 6%)・3 均等割(都 1,000 円・区市町村 3,000 円・森林環境税 1,000 円)・4 納める時期(給与所得者は 6 月から翌年 5 月まで毎月の給料から)", "version": "取得時点の頁", "url": "https://www.tax.metro.tokyo.lg.jp/kazei/life/kojin_ju", "retrieved": "2026-10-18"}
+   ],
+   "params": {"income_levy_rate_metro": 0.04, "income_levy_rate_ward": 0.06, "per_capita_metro_yen": 1000, "per_capita_ward_yen": 3000, "forest_environment_tax_yen": 1000, "monthly_share": "12 分の 1(6 月〜翌年 5 月)", "remit_due": "徴収した月の翌月 10 日", "base": "前年の所得(1 月 1 日に住所がある区で課税)"},
+   "applies_to": "",
+   "note": "令和 8 年度分=2026-06〜2027-05 の給与から(世界の時点の 7〜8 月はこの年度の 2・3 回目)。税額は前年(2025 年)の所得から区が決めて事業主に通知する=シムの中の体には前年の所得の履歴が無い(今の月の賃金 × 12 で代える等は expedient の候補)。所得控除と税額控除(調整控除など)は読んでいない=未確認。特別区は地方税法の市町村の規定を準用(734 条=都を市とみなす規定の一部を読んだ。特別区民税の準用の条は未確認)。"
+  },
+  {
+   "id": "health_insurance.kyoukai_tokyo",
+   "kind": "machine",
+   "asof": "2026-03-01",
+   "source": [
+    {"law": "健康保険法", "law_id": "211AC0000000070", "article": "40 条 1 項(標準報酬月額)・160 条・161 条・167 条 1 項", "version": "2026-06-05", "url": "https://laws.e-gov.go.jp/api/2/law_data/211AC0000000070?asof=2026-07-13", "retrieved": "2026-10-18"},
+    {"law": "全国健康保険協会「令和8年度の協会けんぽの保険料率は3月分(4月納付分)から改定されます」", "article": "東京都 9.91% → 9.85%・介護 1.62%・子ども・子育て支援金 0.23%(4 月分から)", "version": "令和 8 年度", "url": "https://www.kyoukaikenpo.or.jp/about/business/insurance_rate/rate_prefectures/r08/", "retrieved": "2026-10-18"},
+    {"law": "全国健康保険協会 東京支部「令和8年3月分(4月納付分)からの健康保険・厚生年金保険の保険料額表」", "article": "等級 1〜50・全額と折半額・端数の扱い", "version": "令和 8 年 3 月分から", "url": "https://www.kyoukaikenpo.or.jp/assets/R8_13tokyo.pdf", "retrieved": "2026-10-18"}
+   ],
+   "params": {"rate": 0.0985, "care_rate_age_40_64": 0.0162, "employee_share": 0.5, "grades_ref": "docs/research/v2-r118-standard-remuneration-grades.json#health_insurance", "deduct_month": "前月の標準報酬月額に係る保険料を報酬から控除(167 条 1 項)", "employee_share_rounding": "給与から控除する場合 50 銭以下は切り捨て・50 銭を超えると切り上げ(特約があれば特約)", "payment_due": "翌月末日(R-106 §3-2・健保法 164 条=本書は読み直していない)"},
+   "applies_to": "",
+   "note": "保険料=標準報酬月額 × 率。等級表(50 級・58,000〜1,390,000 円)は付属の JSON(条文 40 条から写し、額表の健康保険の全額の列と 50 級すべて一致)。加入の範囲(4 分の 3 未満の短時間労働者は週 20 時間以上・学生でない・特定適用事業所)は年金機構の頁の要件(企業規模 51 人以上・2027 年 10 月から 36 人以上)。asof は 3 月分の初日(3 月分=4 月納付・4 月の給与から控除)。"
+  },
+  {
+   "id": "child_support_levy.rate",
+   "kind": "machine",
+   "asof": "2026-04-01",
+   "source": [
+    {"law": "全国健康保険協会「令和8年度の協会けんぽの保険料率は3月分(4月納付分)から改定されます」", "article": "令和 8 年 4 月分(5 月納付分)から全国一律の子ども・子育て支援金(0.23%)", "version": "令和 8 年度", "url": "https://www.kyoukaikenpo.or.jp/about/business/insurance_rate/rate_prefectures/r08/", "retrieved": "2026-10-18"}
+   ],
+   "params": {"rate": 0.0023, "employee_share": 0.5, "base": "健康保険の標準報酬月額"},
+   "applies_to": "",
+   "note": "額表の 1 級 58,000 円で全額 133.4 円(=58,000 × 0.23%)と一致。支援金の根拠の法(子ども・子育て支援法)の条は読んでいない=未確認。"
+  },
+  {
+   "id": "pension.employees_rate",
+   "kind": "machine",
+   "asof": "2017-09-01",
+   "source": [
+    {"law": "厚生年金保険法", "law_id": "329AC0000000115", "article": "20 条 1 項・81 条 4 項(平成二十九年九月以後の月分 千分の百八十三・〇〇)・82 条 1 項・84 条 1 項", "version": "2026-05-25", "url": "https://laws.e-gov.go.jp/api/2/law_data/329AC0000000115?asof=2026-07-13", "retrieved": "2026-10-18"},
+    {"law": "日本年金機構「厚生年金保険料額表」", "article": "平成 29 年 9 月を最後に引上げが終了し 18.3% で固定", "version": "取得時点の頁", "url": "https://www.nenkin.go.jp/service/kounen/hokenryo/ryogaku/ryogakuhyo/index.html", "retrieved": "2026-10-18"}
+   ],
+   "params": {"rate": 0.183, "employee_share": 0.5, "grades_ref": "docs/research/v2-r118-standard-remuneration-grades.json#pension", "deduct_month": "前月の標準報酬月額に係る保険料を報酬から控除(84 条 1 項)"},
+   "applies_to": "",
+   "note": "等級は 32 級(88,000〜650,000 円)。条文 20 条 1 項の本文は 31 級までで、32 級は同条 2 項の改定による(政令の名と施行日は未確認)=付属の JSON に注。"
+  },
+  {
+   "id": "employment_insurance.rate_general",
+   "kind": "machine",
+   "asof": "2026-04-01",
+   "source": [
+    {"law": "厚生労働省 山形労働局「令和8年度の雇用保険料率について」", "article": "一般の事業 労働者 5/1,000・事業主 8.5/1,000・計 13.5/1,000・適用期間 令和 8 年 4 月 1 日〜令和 9 年 3 月 31 日", "version": "令和 8 年度", "url": "https://jsite.mhlw.go.jp/yamagata-roudoukyoku/koyouhoken-20260316.html", "retrieved": "2026-10-18"},
+    {"law": "雇用保険法", "law_id": "349AC0000000116", "article": "6 条 1 号・2 号(週 20 時間未満・31 日以上の雇用見込みがない者は適用しない)", "version": "2026-05-13", "url": "https://laws.e-gov.go.jp/api/2/law_data/349AC0000000116?asof=2026-07-13", "retrieved": "2026-10-18"},
+    {"law": "労働保険の保険料の徴収等に関する法律", "law_id": "344AC0000000084", "article": "12 条・31 条", "version": "2025-10-01", "url": "https://laws.e-gov.go.jp/api/2/law_data/344AC0000000084?asof=2026-07-13", "retrieved": "2026-10-18"}
+   ],
+   "params": {"employee_rate": 0.005, "employer_rate": 0.0085, "valid_until": "2027-03-31", "eligibility": "週の所定労働時間 20 時間以上かつ 31 日以上の雇用見込み"},
+   "applies_to": "",
+   "note": "労働者の負担は賃金の総額 × 率で毎月の給与から(控除の月と端数の扱いは本書では未確認)。全国一律の率で、山形労働局の頁は厚労省の地方の頁(mhlw.go.jp)。"
+  },
+  {
+   "id": "credit.total_volume_cap",
+   "kind": "machine",
+   "asof": "2025-10-01",
+   "source": [
+    {"law": "貸金業法", "law_id": "358AC1000000032", "article": "13 条 3 項・13 条の 2 第 2 項", "version": "2025-10-01", "url": "https://laws.e-gov.go.jp/api/2/law_data/358AC1000000032?asof=2026-07-13", "retrieved": "2026-10-18"},
+    {"law": "貸金業法施行規則", "law_id": "358M50000040040", "article": "10 条の 21(除かれる契約)・10 条の 23(例外)", "version": "2025-10-01", "url": "https://laws.e-gov.go.jp/api/2/law_data/358M50000040040?asof=2026-07-13", "retrieved": "2026-10-18"},
+    {"law": "金融庁「貸金業法 Q&A」", "article": "Q2-1・Q2-3・Q2-10〜Q2-13", "version": "取得時点の頁", "url": "https://www.fsa.go.jp/policy/kashikin/qa.html", "retrieved": "2026-10-18"}
+   ],
+   "params": {"cap_ratio_of_annual_income": [1, 3], "income_document_required_over_yen_single_lender": 500000, "income_document_required_over_yen_all_lenders": 1000000, "excluded": "住宅資金・自動車の購入資金ほか(規則 10 条の 21)", "exceptions": "借換え・緊急の医療費・配偶者と合わせて 3 分の 1 以内・個人事業者ほか(規則 10 条の 23)", "not_covered": "銀行の貸付けと銀行のカードローン・法人向け・カードのショッピング(Q2-11〜Q2-13)"},
+   "applies_to": "",
+   "note": "貸す側(体のない外の組織)の機械の検査(決定 10-12 §4-11 C2)。借り手が 3 分の 1 を超えても処罰はなく新しい借入れができなくなるだけ(Q2-2・Q2-3)。asof は読んだ版の施行日を下限にした(総量規制の施行の初日は未確認)。貸金業法施行規則は 2026-08-31 に版が変わるが 10 条の 21 と 10 条の 23 の文は同じ(本書の確認)。"
+  },
+  {
+   "id": "credit.interest_cap",
+   "kind": "machine",
+   "asof": "2010-06-18",
+   "source": [
+    {"law": "利息制限法", "law_id": "329AC0000000100", "article": "1 条", "version": "2010-06-18", "url": "https://laws.e-gov.go.jp/api/2/law_data/329AC0000000100?asof=2026-07-13", "retrieved": "2026-10-18"}
+   ],
+   "params": {"rate_cap": [{"principal_from": 0, "principal_to_excl": 100000, "annual_rate": 0.20}, {"principal_from": 100000, "principal_to_excl": 1000000, "annual_rate": 0.18}, {"principal_from": 1000000, "principal_to_excl": null, "annual_rate": 0.15}]},
+   "applies_to": "",
+   "note": "上限を超える部分は無効(1 条)=契約の値を機械が上限に置き換える側。asof は e-Gov の版の施行日(平成 18 年法律第 115 号による改正の施行日=e-Gov の版の ID)。遅延損害金の上限(4 条)は R-106 §4-1 を引く(本書は読み直していない)。"
+  },
+  {
+   "id": "national_pension.premium",
+   "kind": "human",
+   "asof": "2026-04-01",
+   "source": [
+    {"law": "日本年金機構「国民年金の保険料はいくらですか。」", "article": "令和 8 年度(令和 8 年 4 月〜令和 9 年 3 月まで)は月額 17,920 円", "version": "2026-04-01 更新", "url": "https://www.nenkin.go.jp/section/faq/kokunen/seido/hokenryo/seidosetsumei/20150331.html", "retrieved": "2026-10-18"},
+    {"law": "国民年金法", "law_id": "334AC0000000141", "article": "91 条(毎月の保険料は翌月末日までに納付)", "version": "2026-05-25", "url": "https://laws.e-gov.go.jp/api/2/law_data/334AC0000000141?asof=2026-07-13", "retrieved": "2026-10-18"}
+   ],
+   "params": {"monthly_yen": 17920, "valid_until": "2027-03-31", "due": "翌月末日"},
+   "applies_to": "",
+   "note": "自営業などの第 1 号被保険者が本人で納める(決定 10-12 §4-11「自営業は、本人が期限に納めます」)=納める行為は人の側。額は機械の値。"
+  },
+  {
+   "id": "national_health_insurance.shibuya",
+   "kind": "human",
+   "asof": "2026-04-01",
+   "source": [
+    {"law": "渋谷区「令和8年度国民健康保険料の保険料率などが決まりました」", "article": "均等割額・所得割料率・世帯限度額の内訳表", "version": "2026-04-01 更新", "url": "https://www.city.shibuya.tokyo.jp/kurashi/kokuho/kenkohokenryo/kokuho_ritu2026.html", "retrieved": "2026-10-18"}
+   ],
+   "params": {"per_capita_yen": {"medical": 47600, "elderly_support": 17600, "child_support": 1873, "care": 17800}, "income_rate": {"medical": 0.0751, "elderly_support": 0.028, "child_support": 0.0027, "care": 0.0243}, "household_cap_yen": {"medical": 670000, "elderly_support": 260000, "child_support": 30000, "care": 170000}, "income_base": "令和 7 年の所得 − 基礎控除 43 万円"},
+   "applies_to": "",
+   "note": "合計は均等割 84,873 円・所得割 13.01%・限度 1,130,000 円(区の表の値)。子ども子育て支援金分は 18 歳に達する日以後の最初の 3 月 31 日を過ぎていない人にはかからない。介護分は 40〜64 歳(区の表の列=年齢の条件の文は本書では未確認)。納付の期別は読んでいない(未確認)。納めるのは本人(世帯主)=人の側。"
+  }
+ ]
+}

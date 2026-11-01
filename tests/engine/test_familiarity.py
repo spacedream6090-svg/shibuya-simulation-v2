@@ -33,6 +33,7 @@ from shibuya.engine.familiarity import (
     thing_kind,
 )
 from shibuya.engine.run import run_day
+from tests import golden_env as GE
 
 WORLD_DIR = Path("data/world/v2")
 
@@ -220,19 +221,19 @@ def test_cli_passes_the_familiarity_flags(monkeypatch):
 
 
 # ------------------------------------------------------------------ (f) on でも挙動は変えない
-@pytest.mark.skipif(not (WORLD_DIR / "w17_schedule.parquet").exists(), reason="実世界資産が無い")
+@pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_on_counts_contacts_and_does_not_change_behaviour_on_the_real_world(monkeypatch):
     from shibuya.agents import state as S
     from shibuya.cli import run as cli_run
 
-    off = cli_run(n_agents=1_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")
+    off = cli_run(n_agents=1_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     monkeypatch.setattr(
         S.AgentState, "state_hash",
         lambda self: self.registry.state_hash(exclude=FAMILIARITY_FIELDS),
     )
     on = cli_run(n_agents=1_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
                  familiarity="on")
-    assert on.final_hash == off.final_hash       # 表の 5 欄を除けば 1 バイトも変わらない
+    assert GE.soa_combined(on.checkpoints[-1]) == GE.soa_combined(off.checkpoints[-1])       # 表の 5 欄を除けば 1 バイトも変わらない
     assert on.llm_calls == off.llm_calls
     s = on.run_manifest_fields()["familiarity_summary"]
     c = s["counts"]

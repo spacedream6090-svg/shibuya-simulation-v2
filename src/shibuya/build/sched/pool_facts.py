@@ -30,6 +30,8 @@ from typing import Final, Sequence
 
 import numpy as np
 
+from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
+
 __all__ = [
     "LAYERS",
     "TRIAL_ONLY_FIELDS",
@@ -145,7 +147,7 @@ def parse_hhmm(spec: object) -> int:
         return -1
     if not (0 <= h <= 24 and 0 <= m < 60):
         return -1
-    return h * 60 + m
+    return h * MINUTES_PER_HOUR + m
 
 
 @dataclass(frozen=True)
@@ -227,13 +229,13 @@ def _fill(facts: PoolFacts, row: int, d: dict) -> None:
         facts.duty_rotates[row] = bool(duty.get("rotates"))
     bed = d.get("bedtime_min")
     if isinstance(bed, (int, float)):
-        facts.bedtime_min[row] = int(bed) % 1440
+        facts.bedtime_min[row] = int(bed) % MINUTES_PER_DAY
     steps = d.get("sleep_steps")
     if isinstance(steps, (int, float)):
-        facts.sleep_min[row] = min(1439, int(steps) * SLEEP_STEP_MINUTES)
+        facts.sleep_min[row] = min(MINUTES_PER_DAY - 1, int(steps) * SLEEP_STEP_MINUTES)
     lead = d.get("arrival_lead_min")
     if isinstance(lead, (int, float)) and not isinstance(lead, bool):
-        facts.arrival_lead_min[row] = max(-1, min(1439, int(lead)))
+        facts.arrival_lead_min[row] = max(-1, min(MINUTES_PER_DAY - 1, int(lead)))
     facts.found[row] = True
 
 

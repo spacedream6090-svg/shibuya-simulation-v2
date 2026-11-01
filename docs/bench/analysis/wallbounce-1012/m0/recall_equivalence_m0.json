@@ -1,0 +1,133 @@
+{
+ "runs": [
+  {
+   "config": "v3_mem_rel",
+   "agents": 5000,
+   "every": 7,
+   "steps_sampled": 179,
+   "calls_compared": 9787,
+   "calls_with_candidates": 9008,
+   "items_compared": 17779,
+   "store_rows_items": 0,
+   "mismatches": 0,
+   "final_off": "73a78288ab5e1498",
+   "final_on": "73a78288ab5e1498",
+   "final_same": true,
+   "calls_off": 69111,
+   "calls_on": 69111,
+   "recall_counts_same": true,
+   "memory_store": {
+    "arm": "events",
+    "n_rows": 128,
+    "row_bytes": 32,
+    "legacy_row_bytes": 14,
+    "rows": 55465,
+    "agents_with_rows": 4817,
+    "origins": {
+     "log": 0,
+     "legacy": 55465
+    },
+    "annotations": 452,
+    "shown_rows_live": 46043,
+    "tape_pending": 0,
+    "counts": {
+     "legacy_events": 72354,
+     "merged": 16889,
+     "new_rows": 55465,
+     "recall_calls": 64277,
+     "remember": 72354,
+     "shown_calls": 69111,
+     "shown_rows": 124656
+    }
+   },
+   "wall_s_off": 54.7,
+   "wall_s_on_with_double_recall": 64.2
+  },
+  {
+   "config": "v3_mem_store",
+   "agents": 5000,
+   "every": 7,
+   "steps_sampled": 179,
+   "calls_compared": 9214,
+   "calls_with_candidates": 8468,
+   "items_compared": 16501,
+   "store_rows_items": 1600,
+   "mismatches": 0,
+   "final_off": "f7ff0a6953fb9a38",
+   "final_on": "f7ff0a6953fb9a38",
+   "final_same": true,
+   "calls_off": 65597,
+   "calls_on": 65597,
+   "recall_counts_same": true,
+   "memory_store": {
+    "arm": "events",
+    "n_rows": 128,
+    "row_bytes": 32,
+    "legacy_row_bytes": 14,
+    "rows": 53234,
+    "agents_with_rows": 4819,
+    "origins": {
+     "log": 0,
+     "legacy": 53234
+    },
+    "annotations": 433,
+    "shown_rows_live": 41220,
+    "tape_pending": 0,
+    "counts": {
+     "legacy_events": 69304,
+     "merged": 16070,
+     "new_rows": 53234,
+     "recall_calls": 60761,
+     "remember": 69304,
+     "shown_calls": 65597,
+     "shown_rows": 105413
+    }
+   },
+   "wall_s_off": 83.2,
+   "wall_s_on_with_double_recall": 99.6
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "agents": 5000,
+   "every": 7,
+   "steps_sampled": 192,
+   "calls_compared": 15115,
+   "calls_with_candidates": 13942,
+   "items_compared": 25319,
+   "store_rows_items": 0,
+   "mismatches": 0,
+   "final_off": "4c512a1fdc2a70c0",
+   "final_on": "4c512a1fdc2a70c0",
+   "final_same": true,
+   "calls_off": 106565,
+   "calls_on": 106565,
+   "recall_counts_same": true,
+   "memory_store": {
+    "arm": "events",
+    "n_rows": 128,
+    "row_bytes": 32,
+    "legacy_row_bytes": 14,
+    "rows": 52422,
+    "agents_with_rows": 4820,
+    "origins": {
+     "log": 0,
+     "legacy": 52422
+    },
+    "annotations": 365,
+    "shown_rows_live": 45760,
+    "tape_pending": 0,
+    "counts": {
+     "legacy_events": 62050,
+     "merged": 9628,
+     "new_rows": 52422,
+     "recall_calls": 101714,
+     "remember": 62050,
+     "shown_calls": 106565,
+     "shown_rows": 179024
+    }
+   },
+   "wall_s_off": 115.7,
+   "wall_s_on_with_double_recall": 129.4
+  }
+ ]
+}

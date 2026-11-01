@@ -90,14 +90,20 @@ def test_inactive_without_a_plan_spec():
 
 
 # ================================================================= 権限(契約書 §2.2)
-def test_open_close_without_permission_returns_no_permission():
+def test_open_close_without_permission_is_not_stopped():
+    """〔第 1 期 1-5・CP3・検収 L2〕権利の無い開閉も止めない(旗は確定・結果は OK)。許可のない行動の印は出来事の
+    記録にだけ書く(呼び手の過程が ``on_unauthorized`` で受ける=``tests/engine/rights/test_rights_events.py``)。"""
     world, agents, proc = _process([(0, 0, 600, 1_320)], n_agents=20)
     outsider = int(np.flatnonzero(agents.registry.field("kind") != int(AgentKind.WORKER))[0])
+    got = []
     code = R.request_open_close(
-        agents, world, np.array([outsider]), np.array([0]), np.array([True]), 10
+        agents, world, np.array([outsider]), np.array([0]), np.array([True]), 10,
+        on_unauthorized=lambda a, p: got.append((a.tolist(), p.tolist())),
     )
-    assert int(code[0]) == int(ResultCode.NO_PERMISSION)
-    assert int(agents.last_result[outsider]) == int(ResultCode.NO_PERMISSION)
+    assert int(code[0]) == int(ResultCode.OK)
+    assert int(agents.last_result[outsider]) == int(ResultCode.OK)
+    assert int(world.pois.open_now[0]) == 1
+    assert got == [([outsider], [0])]
 
 
 def test_has_permission_requires_staff_kind_and_same_cell():

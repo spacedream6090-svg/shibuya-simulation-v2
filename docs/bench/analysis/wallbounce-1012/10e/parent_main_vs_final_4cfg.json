@@ -1,0 +1,2786 @@
+{
+ "a": {
+  "label": "final",
+  "kw": {},
+  "src": "作業木"
+ },
+ "b": {
+  "label": "main_final",
+  "kw": {},
+  "src": "写し"
+ },
+ "note": "",
+ "keys": [
+  "final",
+  "calls",
+  "blocks_rows",
+  "blocks_sha",
+  "calls_rows",
+  "calls_column_names",
+  "calls_columns_sha",
+  "action_usage_total",
+  "action_usage_sha",
+  "calls_by_condition",
+  "salient_events",
+  "collapse",
+  "noticed",
+  "dispatches",
+  "arrived",
+  "mean_delay_min",
+  "meals",
+  "behavior_last",
+  "full_last",
+  "end_of_day",
+  "start_sim_datetime",
+  "replay_date",
+  "calendar_weekday",
+  "rng_scheme",
+  "frozen_sources"
+ ],
+ "rows": {
+  "w6_v3_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": null,
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "c548b2bb7ecd5c2149c46ac21c019b919c702fc577d92f7a1ae7ff564d95f4a0",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v3_activity_off": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": null,
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "c548b2bb7ecd5c2149c46ac21c019b919c702fc577d92f7a1ae7ff564d95f4a0",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v1_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": null,
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "c548b2bb7ecd5c2149c46ac21c019b919c702fc577d92f7a1ae7ff564d95f4a0",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v1_derive_v2_1": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "fa483a24c61e9c22",
+     "b": null
+    },
+    "calls": {
+     "a": 55424,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 2680,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "82f0ec11971a9410",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 55424,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "2f0f51ee70a7a684",
+      "agent_id": "266409deb81ef224",
+      "tick": "525979bcf3caaad4",
+      "wake_class": "e26294f962ff35aa",
+      "prompt_hash": "a4e44c2890d687c3",
+      "block_ids": "e9b7ae6cab745126",
+      "params_hash": "5ce83199238f8fd2",
+      "response": "6b96aa1aed50cbca",
+      "tokens_in": "7974864245fa3e16",
+      "tokens_out": "0a4f1bfde8cf115b",
+      "deferred": "221d58ac81596fa7",
+      "deferred_reason": "d312a22d91d5e5d6",
+      "observed_tick": "fcc74fa4e5e807bd",
+      "recalled_rows": "1913362c5c2ead3b",
+      "recalled_first_tick": "1913362c5c2ead3b",
+      "recalled_kind": "1913362c5c2ead3b",
+      "recalled_object": "1913362c5c2ead3b",
+      "recalled_source": "1913362c5c2ead3b",
+      "acquaintance_ids": "1913362c5c2ead3b",
+      "b5_text": "0a674867298f824d",
+      "b6_block_id": "839e1eaa6a234773"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 190741,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "c130525b9d78efa9",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 2504,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4435,
+      "PLAN_GENERAL": 6238,
+      "PLAN_TRANSIT": 3114,
+      "INTEROCEPTION": 18129,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 21004,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 649,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 9.6,
+     "b": null
+    },
+    "meals": {
+     "a": 0,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "fa483a24c61e9c22e3e146eacc74b4c07fc02e4883dfdbc9db76c5e9a3191f26",
+     "b": null
+    },
+    "full_last": {
+     "a": "27d0d0e013a7085b4bf3b7af3fb885baa360dc9f10ff34bed407dee8f6f4bd98",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "a6200fae74f0e2c0a19cf39b6aec86a68d8a3333e803209f8ea1c858c168be69",
+      "full_hash": "72566beb70483f7e81cdcaac48ba9759a958f6ae2b818cefe7a0240209a85238",
+      "full_external_bytes": 2366799
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -55424,
+   "blocks_rows_delta": -2680,
+   "action_usage_delta": -190741,
+   "noticed_delta": -649
+  },
+  "w6_v2": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "40dab07ad9c33534",
+     "b": null
+    },
+    "calls": {
+     "a": 60579,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 2789,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "f855ddaefbcd6a0e",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 60579,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "7824fa663d84450f",
+      "agent_id": "735a4cb0c83d3247",
+      "tick": "ea7b7ef18da33a74",
+      "wake_class": "e6ae74a7e79d8482",
+      "prompt_hash": "6f124e55a7335320",
+      "block_ids": "ccc80662a31ca104",
+      "params_hash": "4a9193fa4ac6967c",
+      "response": "2d702e5dd9d4d29f",
+      "tokens_in": "e56e17c60db043ab",
+      "tokens_out": "110025045b2195cc",
+      "deferred": "e6a4a7e5e459368d",
+      "deferred_reason": "c83916f4ac2c699e",
+      "observed_tick": "8b0372fd776f3114",
+      "recalled_rows": "174b6fdbb3faa988",
+      "recalled_first_tick": "174b6fdbb3faa988",
+      "recalled_kind": "174b6fdbb3faa988",
+      "recalled_object": "174b6fdbb3faa988",
+      "recalled_source": "174b6fdbb3faa988",
+      "acquaintance_ids": "174b6fdbb3faa988",
+      "b5_text": "ecfdf4cd98808c8d",
+      "b6_block_id": "3b859c40fecfd088"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 193663,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "599fe0b57d1d9ddf",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 2544,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4354,
+      "PLAN_GENERAL": 6291,
+      "PLAN_TRANSIT": 7235,
+      "INTEROCEPTION": 19627,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 20528,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 270,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 9.2,
+     "b": null
+    },
+    "meals": {
+     "a": 2367,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "40dab07ad9c3353403db2eb9ae044b15a85fdbe6e588614ae19d3ff50fda960f",
+     "b": null
+    },
+    "full_last": {
+     "a": "4bc3d41453120552eb471b0abdf1ad5e3e007ef5e4211ba645b8afb49344fb2c",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "f190b7cf9df894c167660285d0a131b6d350b57b5446a852e4ed353e653fce7a",
+      "full_hash": "86fb6302df40ec290820d28ac5a54b1e48a900553a98147ad528232a6b69af9f",
+      "full_external_bytes": 2368890
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -60579,
+   "blocks_rows_delta": -2789,
+   "action_usage_delta": -193663,
+   "noticed_delta": -270
+  },
+  "w6_v1_edge": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "582d7f9340963ff1",
+     "b": null
+    },
+    "calls": {
+     "a": 54302,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 2608,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "377775d3963d07e8",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 54302,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "e2d33ba8f5210123",
+      "agent_id": "1ef40178ac6aa120",
+      "tick": "471ea357043cf016",
+      "wake_class": "67636f856f4e3446",
+      "prompt_hash": "f30aee3be8cc3921",
+      "block_ids": "77da4fe9f60f0299",
+      "params_hash": "e4892749d05d525f",
+      "response": "518940b28ae28028",
+      "tokens_in": "fa81653926d1fa92",
+      "tokens_out": "09378e91f5d48dee",
+      "deferred": "5fd8997b1065ccd9",
+      "deferred_reason": "d3c68473b8950773",
+      "observed_tick": "b14d37908587cb9b",
+      "recalled_rows": "7574126652515122",
+      "recalled_first_tick": "7574126652515122",
+      "recalled_kind": "7574126652515122",
+      "recalled_object": "7574126652515122",
+      "recalled_source": "7574126652515122",
+      "acquaintance_ids": "7574126652515122",
+      "b5_text": "d68e3e146d81718c",
+      "b6_block_id": "393ba03d1baddc41"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 107543,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "979310ab1c455f04",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 2351,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4234,
+      "PLAN_GENERAL": 6110,
+      "PLAN_TRANSIT": 7134,
+      "INTEROCEPTION": 18063,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16410,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 470,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 6.6,
+     "b": null
+    },
+    "meals": {
+     "a": 0,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "582d7f9340963ff1ee93372cf5f967ca25e0a60e9888bc2dab2af3f13d8e156d",
+     "b": null
+    },
+    "full_last": {
+     "a": "21eb8efb7e82bba689729bb3ff60f42af44ea38cc441daa38ed95843d7fc9fe6",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "75368ccd8fe06f687528aa6689fdb0005a776e9d53eda4a439374eebd2baad4b",
+      "full_hash": "77c4a4242a1fd22d2e203b6a17f6c02051f6e6d61a13a39f085c4e2e58c69f8b",
+      "full_external_bytes": 2366389
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -54302,
+   "blocks_rows_delta": -2608,
+   "action_usage_delta": -107543,
+   "noticed_delta": -470
+  },
+  "w6_v2_edge": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "f55b97e6cae96873",
+     "b": null
+    },
+    "calls": {
+     "a": 54348,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 2218,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "93c4e875217cb3fd",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 54348,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "9664954b01638fe0",
+      "agent_id": "240e4e22a46e4b9c",
+      "tick": "5e3ea46996698ed1",
+      "wake_class": "b2eedccf9f0d53c5",
+      "prompt_hash": "1334bb2cb9947971",
+      "block_ids": "e98a9989d5662282",
+      "params_hash": "802b0e9d22a75b58",
+      "response": "3c17b64d2125ccbd",
+      "tokens_in": "2ec5d5fa88eee1cf",
+      "tokens_out": "a0ae786b6206b17c",
+      "deferred": "d7ead5a5706312fb",
+      "deferred_reason": "b236960448485bb9",
+      "observed_tick": "43d8e98c4b4c6094",
+      "recalled_rows": "a411c65ba80bdb29",
+      "recalled_first_tick": "a411c65ba80bdb29",
+      "recalled_kind": "a411c65ba80bdb29",
+      "recalled_object": "a411c65ba80bdb29",
+      "recalled_source": "a411c65ba80bdb29",
+      "acquaintance_ids": "a411c65ba80bdb29",
+      "b5_text": "e7fc50cc3f1697be",
+      "b6_block_id": "2de6a0062298c466"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 104815,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "a1b1a8f7bf748463",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1679,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4218,
+      "PLAN_GENERAL": 6193,
+      "PLAN_TRANSIT": 7136,
+      "INTEROCEPTION": 18970,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16152,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 514,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 6.2,
+     "b": null
+    },
+    "meals": {
+     "a": 2096,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "f55b97e6cae968730c30b590685e4436eb79ba1ffd2750beaeddbd06b754541e",
+     "b": null
+    },
+    "full_last": {
+     "a": "e97e3d9d738d41cc02310ed35dd1884e747156c01758d9ebcb31c0b64af38465",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "bafc95869e6477d24ab60b7f1563c5dda6fab8e44388de5a63710e7ee023ff61",
+      "full_hash": "9364fd311a67c2be67cabc2568cb352d9b8899f4ddfd819f2243763aee465d51",
+      "full_external_bytes": 2367342
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -54348,
+   "blocks_rows_delta": -2218,
+   "action_usage_delta": -104815,
+   "noticed_delta": -514
+  },
+  "w6_v1_edge_plateau": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "3c8cd47b8cd74cb8",
+     "b": null
+    },
+    "calls": {
+     "a": 56038,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 2634,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "ef3bb0d9acc30355",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 56038,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "a6d20d23b47b4a68",
+      "agent_id": "137cdc06d695a6be",
+      "tick": "f5f263a5621d5e07",
+      "wake_class": "23756428e8fcde99",
+      "prompt_hash": "b1450dbc643f6dab",
+      "block_ids": "ff61f17cd3be3715",
+      "params_hash": "edebd8ecab679a75",
+      "response": "940f00946034339d",
+      "tokens_in": "4ec3cc6e0e7703a3",
+      "tokens_out": "a8d5b3617a51fba8",
+      "deferred": "dc89f6a437c75e89",
+      "deferred_reason": "355712400917477a",
+      "observed_tick": "90ca521dab83779a",
+      "recalled_rows": "cba432be8b4231c5",
+      "recalled_first_tick": "cba432be8b4231c5",
+      "recalled_kind": "cba432be8b4231c5",
+      "recalled_object": "cba432be8b4231c5",
+      "recalled_source": "cba432be8b4231c5",
+      "acquaintance_ids": "cba432be8b4231c5",
+      "b5_text": "98a90af6e56b0424",
+      "b6_block_id": "661557dea989e747"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 111816,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "3237d60620655d4f",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 2325,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4225,
+      "PLAN_GENERAL": 6087,
+      "PLAN_TRANSIT": 7102,
+      "INTEROCEPTION": 17974,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 18325,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 940,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 8.4,
+     "b": null
+    },
+    "meals": {
+     "a": 0,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "3c8cd47b8cd74cb8fe6185fd48ad25625318bfc67d5396e100e246d6e692aee2",
+     "b": null
+    },
+    "full_last": {
+     "a": "985877e80a66aa2ecec677c2e4e9d6ae96c6a07e59760aed2a3cb4d7fe78c68d",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "460162abdc3d4495138c4e1ae58f0f094fd60958a77c1296cd3e8255195147b5",
+      "full_hash": "70f8e13a605bcf21044c5d990c3a0ee20eafc33a08ae45f98d2c2e8f7fc18289",
+      "full_external_bytes": 2367509
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -56038,
+   "blocks_rows_delta": -2634,
+   "action_usage_delta": -111816,
+   "noticed_delta": -940
+  },
+  "w6_old_v1_default": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "8c6bd89ef728528c",
+     "b": null
+    },
+    "calls": {
+     "a": 60591,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 2851,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "0a2b39865c186f46",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 60591,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "42ca126507aff1ed",
+      "agent_id": "d5538debd495bce6",
+      "tick": "a3f36c5984e35a1b",
+      "wake_class": "4aaca587f4ad60b1",
+      "prompt_hash": "147b3c0c672dabe7",
+      "block_ids": "093d2059513a9fe3",
+      "params_hash": "122ea853962e9811",
+      "response": "38dcea528e53c97c",
+      "tokens_in": "e98f7e6855b9f8c8",
+      "tokens_out": "96cc7f97f6586995",
+      "deferred": "42f5e5e35424ffbf",
+      "deferred_reason": "859b2bf832e8f0a0",
+      "observed_tick": "79bff0a7d5e7d2ca",
+      "recalled_rows": "da319e335d4f7af0",
+      "recalled_first_tick": "da319e335d4f7af0",
+      "recalled_kind": "da319e335d4f7af0",
+      "recalled_object": "da319e335d4f7af0",
+      "recalled_source": "da319e335d4f7af0",
+      "acquaintance_ids": "da319e335d4f7af0",
+      "b5_text": "eece1d11bea70f96",
+      "b6_block_id": "f4eacfa88c829fa8"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 206554,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "16462e5fb69c29ee",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 2666,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4318,
+      "PLAN_GENERAL": 6231,
+      "PLAN_TRANSIT": 7184,
+      "INTEROCEPTION": 18467,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 21725,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 447,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 8.2,
+     "b": null
+    },
+    "meals": {
+     "a": 0,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "8c6bd89ef728528c55585a6da2f5526b14c9305051a80ab06f299a46fe6c4dc5",
+     "b": null
+    },
+    "full_last": {
+     "a": "23c04c8912ac3089ebf1fab2318a63e911bb555aebb0310f56d7d6964f51955b",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "f08d6237ac44368997d461c494b13c75c050fd0559daed506501f9927d9152d0",
+      "full_hash": "f1d817a2a4d273918324c72f11fb616b429d16a2139e2173924de8c99e703efe",
+      "full_external_bytes": 2367299
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -60591,
+   "blocks_rows_delta": -2851,
+   "action_usage_delta": -206554,
+   "noticed_delta": -447
+  },
+  "w6_old_v1_derive_v2_1": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "ebced6f597ac9ac7",
+     "b": null
+    },
+    "calls": {
+     "a": 55424,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 2677,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "d05abd29aa548631",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 55424,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "2f0f51ee70a7a684",
+      "agent_id": "266409deb81ef224",
+      "tick": "525979bcf3caaad4",
+      "wake_class": "e26294f962ff35aa",
+      "prompt_hash": "1ce55404411be9ae",
+      "block_ids": "e9b7ae6cab745126",
+      "params_hash": "5ce83199238f8fd2",
+      "response": "6b96aa1aed50cbca",
+      "tokens_in": "90989c77fc35e24b",
+      "tokens_out": "0a4f1bfde8cf115b",
+      "deferred": "221d58ac81596fa7",
+      "deferred_reason": "d312a22d91d5e5d6",
+      "observed_tick": "fcc74fa4e5e807bd",
+      "recalled_rows": "1913362c5c2ead3b",
+      "recalled_first_tick": "1913362c5c2ead3b",
+      "recalled_kind": "1913362c5c2ead3b",
+      "recalled_object": "1913362c5c2ead3b",
+      "recalled_source": "1913362c5c2ead3b",
+      "acquaintance_ids": "1913362c5c2ead3b",
+      "b5_text": "0a674867298f824d",
+      "b6_block_id": "1e6864048cb948b1"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 190741,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "c130525b9d78efa9",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 2504,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4435,
+      "PLAN_GENERAL": 6238,
+      "PLAN_TRANSIT": 3114,
+      "INTEROCEPTION": 18129,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 21004,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 649,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 9.6,
+     "b": null
+    },
+    "meals": {
+     "a": 0,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "ebced6f597ac9ac77b9e573ea9876c404f6b375708b017b9e120c4c86c146934",
+     "b": null
+    },
+    "full_last": {
+     "a": "7085148ab4b19aa7374964351ac468d0d725dc5f1b95af742eb414ca410c7a93",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "32f056c85f3ba984b420ee52a894ea25ce2f9fc9c9ca9042a14ae813c1ebca25",
+      "full_hash": "e7c2325570639cc2488a079a27e8bc5d457f1d3a9bb8fad097da25f88627c1e9",
+      "full_external_bytes": 2366799
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -55424,
+   "blocks_rows_delta": -2677,
+   "action_usage_delta": -190741,
+   "noticed_delta": -649
+  },
+  "w6_old_v2": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "8072feee6c517738",
+     "b": null
+    },
+    "calls": {
+     "a": 60579,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 2785,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "a1ab8c921509558f",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 60579,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "7824fa663d84450f",
+      "agent_id": "735a4cb0c83d3247",
+      "tick": "ea7b7ef18da33a74",
+      "wake_class": "e6ae74a7e79d8482",
+      "prompt_hash": "40d3a012d2b09163",
+      "block_ids": "ccc80662a31ca104",
+      "params_hash": "4a9193fa4ac6967c",
+      "response": "2d702e5dd9d4d29f",
+      "tokens_in": "37a84dbdf6786b7b",
+      "tokens_out": "110025045b2195cc",
+      "deferred": "e6a4a7e5e459368d",
+      "deferred_reason": "c83916f4ac2c699e",
+      "observed_tick": "8b0372fd776f3114",
+      "recalled_rows": "174b6fdbb3faa988",
+      "recalled_first_tick": "174b6fdbb3faa988",
+      "recalled_kind": "174b6fdbb3faa988",
+      "recalled_object": "174b6fdbb3faa988",
+      "recalled_source": "174b6fdbb3faa988",
+      "acquaintance_ids": "174b6fdbb3faa988",
+      "b5_text": "ecfdf4cd98808c8d",
+      "b6_block_id": "05956b66fd21bfca"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 193663,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "599fe0b57d1d9ddf",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 2544,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4354,
+      "PLAN_GENERAL": 6291,
+      "PLAN_TRANSIT": 7235,
+      "INTEROCEPTION": 19627,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 20528,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 270,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 9.2,
+     "b": null
+    },
+    "meals": {
+     "a": 2367,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "8072feee6c517738f35e575f96addd7b50f2e0315532b0b14752a74fa8f818c8",
+     "b": null
+    },
+    "full_last": {
+     "a": "bfd3e706500b12dc9b4145d2a6bfead1d6e6b62255947f95acf82b667e9b3ebe",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "89e95388b4360869fbbb6bae1ff1afeac8396d24d9bb64d31ea20c00b212832e",
+      "full_hash": "386c1e41cbd53b4ed2246418007461f1786e8aef9d5c0363d23174cdfcdc5b42",
+      "full_external_bytes": 2368890
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -60579,
+   "blocks_rows_delta": -2785,
+   "action_usage_delta": -193663,
+   "noticed_delta": -270
+  },
+  "w6_old_v1_edge": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "8465cffa5f8317a4",
+     "b": null
+    },
+    "calls": {
+     "a": 54302,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 2606,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "ef466e9f2f142c0e",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 54302,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "e2d33ba8f5210123",
+      "agent_id": "1ef40178ac6aa120",
+      "tick": "471ea357043cf016",
+      "wake_class": "67636f856f4e3446",
+      "prompt_hash": "92239c4509dce9ba",
+      "block_ids": "77da4fe9f60f0299",
+      "params_hash": "e4892749d05d525f",
+      "response": "518940b28ae28028",
+      "tokens_in": "996c9ddd8b6938f6",
+      "tokens_out": "09378e91f5d48dee",
+      "deferred": "5fd8997b1065ccd9",
+      "deferred_reason": "d3c68473b8950773",
+      "observed_tick": "b14d37908587cb9b",
+      "recalled_rows": "7574126652515122",
+      "recalled_first_tick": "7574126652515122",
+      "recalled_kind": "7574126652515122",
+      "recalled_object": "7574126652515122",
+      "recalled_source": "7574126652515122",
+      "acquaintance_ids": "7574126652515122",
+      "b5_text": "d68e3e146d81718c",
+      "b6_block_id": "78403c3799f2105d"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 107543,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "979310ab1c455f04",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 2351,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4234,
+      "PLAN_GENERAL": 6110,
+      "PLAN_TRANSIT": 7134,
+      "INTEROCEPTION": 18063,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16410,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 470,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 6.6,
+     "b": null
+    },
+    "meals": {
+     "a": 0,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "8465cffa5f8317a49d4787a761c8126a53398bc5e996a1b102ec10658a96c521",
+     "b": null
+    },
+    "full_last": {
+     "a": "4eb59987e9b344524d66002a5b7b36572a6e27dd1587fb2ffac6541509f2a170",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "2608ed53f241ae63cef409ff89219f592d6b16bedb20ad805bb1baca1f5e4af8",
+      "full_hash": "010e10082bed95a7ade9c8c848cff542f9f7f8737bec6b8cee480925a4ee6870",
+      "full_external_bytes": 2366389
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -54302,
+   "blocks_rows_delta": -2606,
+   "action_usage_delta": -107543,
+   "noticed_delta": -470
+  },
+  "w6_old_v2_edge": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "8e52736a242225c8",
+     "b": null
+    },
+    "calls": {
+     "a": 54348,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 2216,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "869d2b4b3004df16",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 54348,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "9664954b01638fe0",
+      "agent_id": "240e4e22a46e4b9c",
+      "tick": "5e3ea46996698ed1",
+      "wake_class": "b2eedccf9f0d53c5",
+      "prompt_hash": "559df78c7f2f0b2a",
+      "block_ids": "e98a9989d5662282",
+      "params_hash": "802b0e9d22a75b58",
+      "response": "3c17b64d2125ccbd",
+      "tokens_in": "262039d74ad1f3c2",
+      "tokens_out": "a0ae786b6206b17c",
+      "deferred": "d7ead5a5706312fb",
+      "deferred_reason": "b236960448485bb9",
+      "observed_tick": "43d8e98c4b4c6094",
+      "recalled_rows": "a411c65ba80bdb29",
+      "recalled_first_tick": "a411c65ba80bdb29",
+      "recalled_kind": "a411c65ba80bdb29",
+      "recalled_object": "a411c65ba80bdb29",
+      "recalled_source": "a411c65ba80bdb29",
+      "acquaintance_ids": "a411c65ba80bdb29",
+      "b5_text": "e7fc50cc3f1697be",
+      "b6_block_id": "60bcf1119465e1c4"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 104815,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "a1b1a8f7bf748463",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1679,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4218,
+      "PLAN_GENERAL": 6193,
+      "PLAN_TRANSIT": 7136,
+      "INTEROCEPTION": 18970,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 16152,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 514,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 6.2,
+     "b": null
+    },
+    "meals": {
+     "a": 2096,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "8e52736a242225c851a88a484ff3bf1bd54b69d14f565443d2386b073ad2ff91",
+     "b": null
+    },
+    "full_last": {
+     "a": "6886f92b852ce4196bf1154b226dd303ca7e32a9d3e9049306ad0089e5ae577b",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "b9a72f93c8b3849031d8ae71607641c5f98cb3ffc6aad7c54fda785e4e3c7deb",
+      "full_hash": "4036b75d561c5e1fc0c04def673cda5c44758bb989d6f5be20809a93ade006c6",
+      "full_external_bytes": 2367342
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -54348,
+   "blocks_rows_delta": -2216,
+   "action_usage_delta": -104815,
+   "noticed_delta": -514
+  },
+  "w6_old_v1_edge_plateau": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "a0a319c992a27900",
+     "b": null
+    },
+    "calls": {
+     "a": 56038,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 2632,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "fe8b17b8dd6cea9e",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 56038,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "a6d20d23b47b4a68",
+      "agent_id": "137cdc06d695a6be",
+      "tick": "f5f263a5621d5e07",
+      "wake_class": "23756428e8fcde99",
+      "prompt_hash": "51d5d13b83cda04c",
+      "block_ids": "ff61f17cd3be3715",
+      "params_hash": "edebd8ecab679a75",
+      "response": "940f00946034339d",
+      "tokens_in": "2855f827cd050d9c",
+      "tokens_out": "a8d5b3617a51fba8",
+      "deferred": "dc89f6a437c75e89",
+      "deferred_reason": "355712400917477a",
+      "observed_tick": "90ca521dab83779a",
+      "recalled_rows": "cba432be8b4231c5",
+      "recalled_first_tick": "cba432be8b4231c5",
+      "recalled_kind": "cba432be8b4231c5",
+      "recalled_object": "cba432be8b4231c5",
+      "recalled_source": "cba432be8b4231c5",
+      "acquaintance_ids": "cba432be8b4231c5",
+      "b5_text": "98a90af6e56b0424",
+      "b6_block_id": "fe6a3d592866444c"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 111816,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "3237d60620655d4f",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 2325,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4225,
+      "PLAN_GENERAL": 6087,
+      "PLAN_TRANSIT": 7102,
+      "INTEROCEPTION": 17974,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 18325,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 940,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 8.4,
+     "b": null
+    },
+    "meals": {
+     "a": 0,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "a0a319c992a27900f17915e86f50d8f1b1df60dc16b093f6171870b36facad05",
+     "b": null
+    },
+    "full_last": {
+     "a": "421cfb9bcf6150ce62782eb10747f4e92fb0fa05c871fbb24a71d10b7bdc4713",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "412341e228ad246ae16db59a01314b32d53407da79ee18e78c5a6cef7546d4ca",
+      "full_hash": "64a291525aea0c90d048f2a73ad8677729a1172fa04acbf4a475ffe15ec34622",
+      "full_external_bytes": 2367509
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -56038,
+   "blocks_rows_delta": -2632,
+   "action_usage_delta": -111816,
+   "noticed_delta": -940
+  },
+  "w6_golden_null_arm": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "aaaa89d936f1674e",
+     "b": null
+    },
+    "calls": {
+     "a": 101773,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 4048,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "3fe2b099f7c3f16f",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 101773,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "0361d9381554449c",
+      "agent_id": "6b938f0e231f7de1",
+      "tick": "d608a146a4d6e764",
+      "wake_class": "c234c94ca16ad5af",
+      "prompt_hash": "1120664924c9e436",
+      "block_ids": "5995191edc47d041",
+      "params_hash": "19b9732693384e6e",
+      "response": "56288c87227d60cb",
+      "tokens_in": "c00efcc33cb9bda9",
+      "tokens_out": "ebd4b58c93a5e60a",
+      "deferred": "eb5444d8b4e160b4",
+      "deferred_reason": "79217cedb47d1f87",
+      "observed_tick": "ca5cfd55696c1303",
+      "recalled_rows": "a986ee4e55bea821",
+      "recalled_first_tick": "a986ee4e55bea821",
+      "recalled_kind": "a986ee4e55bea821",
+      "recalled_object": "a986ee4e55bea821",
+      "recalled_source": "a986ee4e55bea821",
+      "acquaintance_ids": "a986ee4e55bea821",
+      "b5_text": "e212eaef3f5497c7",
+      "b6_block_id": "3708ab0ce436ac53"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 298104,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "ec959400f0d8a542",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 4357,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 5745,
+      "PLAN_GENERAL": 15048,
+      "PLAN_TRANSIT": 11948,
+      "INTEROCEPTION": 30407,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 34268,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 1278,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 5.6,
+     "b": null
+    },
+    "meals": {
+     "a": 0,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "aaaa89d936f1674eb38eb6c8c178ccae3bf5559ad59add53e3f20a54763c90c5",
+     "b": null
+    },
+    "full_last": {
+     "a": "be55e0aa4218e2b4ad75110a7702908e9a8f4ad8611d68881d41cee86ce91623",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "f78c49afab7d98fdafdda48b392e2dc2f01d900e31bb5ddd78a8d2dbafed6e78",
+      "full_hash": "f9add2ab52da28d31bc2a0c24f88a1e0819216daff4f2ebcdbb5df2680c5c652",
+      "full_external_bytes": 1851959
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -101773,
+   "blocks_rows_delta": -4048,
+   "action_usage_delta": -298104,
+   "noticed_delta": -1278
+  },
+  "v3_mem_store": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "a16b260e4f8bc0ff",
+     "b": null
+    },
+    "calls": {
+     "a": 70501,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 8128,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "b5c719666672b53e",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 70501,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "0b832466447740ff",
+      "agent_id": "b7b0821e7b92e590",
+      "tick": "f1042b1532467c8e",
+      "wake_class": "465414018985801e",
+      "prompt_hash": "9bcbcc356cc04108",
+      "block_ids": "07b58e355c25ecaa",
+      "params_hash": "581b312310a42864",
+      "response": "f20601b691613198",
+      "tokens_in": "94379d04cadd2362",
+      "tokens_out": "fba5a1ca8f780ce5",
+      "deferred": "9846526674d24e42",
+      "deferred_reason": "53458d0bbaf82918",
+      "observed_tick": "3209fce7f18386ff",
+      "recalled_rows": "9e48c1a82b9ff5d5",
+      "recalled_first_tick": "a17daf380d6038bf",
+      "recalled_kind": "f6055d27f324afa6",
+      "recalled_object": "ee66ddf74b48bc57",
+      "recalled_source": "002a459975bed28a",
+      "acquaintance_ids": "002a459975bed28a",
+      "b5_text": "3dff6a6e0f4b7d2e",
+      "b6_block_id": "b927ffc2467d9450"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 313774,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "1562cce17e99544a",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 3592,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4265,
+      "PLAN_GENERAL": 6054,
+      "PLAN_TRANSIT": 7003,
+      "INTEROCEPTION": 23394,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 6001,
+      "ACTIVITY_EXPIRY": 20192
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 310,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 8.2,
+     "b": null
+    },
+    "meals": {
+     "a": 4664,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "a16b260e4f8bc0ffeb1856afd2895f2e96a2b76839f529240bb54c523206e73d",
+     "b": null
+    },
+    "full_last": {
+     "a": "092de8101340bc405efa8f710a9d98e92208ce966f5d30bcd32890a20e489a22",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "876a14227560662a0bcbdec47c7ba1cba74267938f321eed8556657c997dc4d8",
+      "full_hash": "62f4c23d4ad499027fa7945b31124697ebad91bce2f489a6b350ae5a7c2277b7",
+      "full_external_bytes": 3904344
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -70501,
+   "blocks_rows_delta": -8128,
+   "action_usage_delta": -313774,
+   "noticed_delta": -310
+  },
+  "v3_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme"
+   ],
+   "moved": {
+    "frozen_sources": {
+     "a": null,
+     "b": {
+      "w14_signage.parquet": "ad5e304c097fff42d36857757aa82e3a9ef5e384af995f9e4adbea7d9968283a",
+      "w15_cell_static.parquet": "012489fc47264359e5de66f52ab7be44dbf9fdf81f9af4c8cd170ebc4411ac59",
+      "perception:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "perception:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "perception:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "perception:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "perception:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "world:w10_noise_stage_day.npy": "e760a6dcbcb0800339c986021e9542f28de2a92995379e855f6da84c0b9d74d7",
+      "world:w10_noise_stage_night.npy": "9cd06ebd13d2feb93d1f2fe5ca6fd77ff1baf894a38f67da9285667cc808ab80",
+      "world:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "world:noise_stage_cells": "d789ef63bc349099cf379bf8482f99c689eab078c7ff7069a1934bbeebd33ea3",
+      "process:w13_weather_days.parquet": "585190f318502190795d774fd2aa97ad26906bbb2b1332ebb1e024223303818c",
+      "process:w13_weather_hourly.parquet": "861d6bea07966bb5011b5409e41dc36b2d00de8fcb8f05771850f31955771351",
+      "process:w10_street_points.parquet": "de1340b15bda281ccf1ba8ff48e829fc53289458d5e0a60f55cc8f3ffb1aacd8",
+      "process:w12_timetables.parquet": "c548b2bb7ecd5c2149c46ac21c019b919c702fc577d92f7a1ae7ff564d95f4a0",
+      "process:w12_external_nodes.parquet": "031fe09e9a566effd722b3e64a60a684ed746c7b25461c0510162fd7c4aa71ee",
+      "process:w9_shadow_2026-07-28.npy": "ad8b6c0e2579a7f81c6ca2b73905ac581976211c53e508851e1ed45d9dce7b75"
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "v3_classical": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "a514cf85402d8ed7",
+     "b": null
+    },
+    "calls": {
+     "a": 97766,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 8550,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "e5c144e203345e90",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 97766,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "aab98546cccd75bb",
+      "agent_id": "f7034d536c1e13f1",
+      "tick": "c4fa9849b2277757",
+      "wake_class": "f292a3cdc5d734c1",
+      "prompt_hash": "ae42432e92e9ddef",
+      "block_ids": "7597b41d276e6f31",
+      "params_hash": "8a970fa5227b31ea",
+      "response": "f7e6f7d2d9158f9a",
+      "tokens_in": "96e3c7ded1094515",
+      "tokens_out": "09d9683c03b67d0e",
+      "deferred": "380287f83e1a0a2e",
+      "deferred_reason": "3b738b503d5f1f22",
+      "observed_tick": "5e096528e02f9856",
+      "recalled_rows": "78d12a8c37c1d59f",
+      "recalled_first_tick": "78d12a8c37c1d59f",
+      "recalled_kind": "78d12a8c37c1d59f",
+      "recalled_object": "78d12a8c37c1d59f",
+      "recalled_source": "78d12a8c37c1d59f",
+      "acquaintance_ids": "78d12a8c37c1d59f",
+      "b5_text": "e679bcab323d709d",
+      "b6_block_id": "2e3c484b226f3d1f"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 441078,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "693b91ca1f6c917b",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 0,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4468,
+      "PLAN_GENERAL": 6542,
+      "PLAN_TRANSIT": 7597,
+      "INTEROCEPTION": 27604,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 10164,
+      "ACTIVITY_EXPIRY": 41391
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 927,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 10.2,
+     "b": null
+    },
+    "meals": {
+     "a": 9457,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "a514cf85402d8ed746750bc402caeb378b5c422181cb7f5601d92b8c4cf63069",
+     "b": null
+    },
+    "full_last": {
+     "a": "c33b1a7775726b91ebd6edbe0e945e31fd1c81ccb3a8dc46227225cccaa08c4d",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "177f434a94f286d47f5e0c3ea94397eaaafdd60106413efc6b9a41aa1a88bcd3",
+      "full_hash": "9ad4ff5055fb90a98f04dbfca098c57b0eeb0e296ec124038e24cd407cbfc595",
+      "full_external_bytes": 4042896
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -97766,
+   "blocks_rows_delta": -8550,
+   "action_usage_delta": -441078,
+   "noticed_delta": -927
+  },
+  "v3_classical_mem_rel": {
+   "same": [
+    "frozen_sources"
+   ],
+   "moved": {
+    "final": {
+     "a": "f6f5ec7b706bc086",
+     "b": null
+    },
+    "calls": {
+     "a": 111010,
+     "b": null
+    },
+    "blocks_rows": {
+     "a": 8880,
+     "b": null
+    },
+    "blocks_sha": {
+     "a": "5753ee1c1e3793d7",
+     "b": null
+    },
+    "calls_rows": {
+     "a": 111010,
+     "b": null
+    },
+    "calls_column_names": {
+     "a": [
+      "call_id",
+      "agent_id",
+      "tick",
+      "wake_class",
+      "prompt_hash",
+      "block_ids",
+      "params_hash",
+      "response",
+      "tokens_in",
+      "tokens_out",
+      "deferred",
+      "deferred_reason",
+      "observed_tick",
+      "recalled_rows",
+      "recalled_first_tick",
+      "recalled_kind",
+      "recalled_object",
+      "recalled_source",
+      "acquaintance_ids",
+      "b5_text",
+      "b6_block_id"
+     ],
+     "b": null
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "78764c196c636f3d",
+      "agent_id": "f60ba7643d0258c8",
+      "tick": "5a8a6beeaae52256",
+      "wake_class": "a08194f9755b3907",
+      "prompt_hash": "5a970ce65b37e638",
+      "block_ids": "51d88a6ce1d80257",
+      "params_hash": "bf31e53f0fc8848c",
+      "response": "35827d13d516fc41",
+      "tokens_in": "9724911ac8104545",
+      "tokens_out": "6e3c079721a34fbd",
+      "deferred": "f8d0e5dd1d0a4988",
+      "deferred_reason": "9970cb91053333f3",
+      "observed_tick": "31324a031413b013",
+      "recalled_rows": "cfcd47a19d2e83d8",
+      "recalled_first_tick": "512498b29a5e9e08",
+      "recalled_kind": "5f7f00d0af4df24f",
+      "recalled_object": "90e8a2f9027c2d8f",
+      "recalled_source": "8a6eb57a956b2acd",
+      "acquaintance_ids": "e68bbf799babf294",
+      "b5_text": "7b4c3725ca51fdf1",
+      "b6_block_id": "dedcfab551b5815b"
+     },
+     "b": null
+    },
+    "action_usage_total": {
+     "a": 474645,
+     "b": null
+    },
+    "action_usage_sha": {
+     "a": "53e3e06c93d2bbb1",
+     "b": null
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 1201,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 4468,
+      "PLAN_GENERAL": 6540,
+      "PLAN_TRANSIT": 7593,
+      "INTEROCEPTION": 27981,
+      "ACQUAINTANCE": 12153,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 10202,
+      "ACTIVITY_EXPIRY": 40872
+     },
+     "b": null
+    },
+    "salient_events": {
+     "a": 10,
+     "b": null
+    },
+    "collapse": {
+     "a": 5,
+     "b": null
+    },
+    "noticed": {
+     "a": 910,
+     "b": null
+    },
+    "dispatches": {
+     "a": 5,
+     "b": null
+    },
+    "arrived": {
+     "a": 5,
+     "b": null
+    },
+    "mean_delay_min": {
+     "a": 8.6,
+     "b": null
+    },
+    "meals": {
+     "a": 9871,
+     "b": null
+    },
+    "behavior_last": {
+     "a": "f6f5ec7b706bc086142275e000aa73df4716001b7a87776efd4300030fe4b840",
+     "b": null
+    },
+    "full_last": {
+     "a": "80081fa7df7971a2d4c0a30927b0d00701a34dba39453c1b019c57c2222c7588",
+     "b": null
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "5ff000bcdb31f87deedac7c6f5db2b59c956924adf7b8351a1446da2d3caeeae",
+      "full_hash": "93d2aaf2a1b1ab7d12ec309c49c40d131aac968d4eb3afe47d85fd0463a1fc89",
+      "full_external_bytes": 4449118
+     },
+     "b": null
+    },
+    "start_sim_datetime": {
+     "a": "2026-07-28T00:00:00",
+     "b": null
+    },
+    "replay_date": {
+     "a": "2026-07-28",
+     "b": null
+    },
+    "calendar_weekday": {
+     "a": "day_index",
+     "b": null
+    },
+    "rng_scheme": {
+     "a": "counter",
+     "b": null
+    }
+   },
+   "calls_delta": -111010,
+   "blocks_rows_delta": -8880,
+   "action_usage_delta": -474645,
+   "noticed_delta": -910
+  }
+ }
+}

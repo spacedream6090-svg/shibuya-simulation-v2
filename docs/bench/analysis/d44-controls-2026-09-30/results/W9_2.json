@@ -1,0 +1,30 @@
+{
+ "key": "W9#2",
+ "control": "DECK=GL と同じ扱い(宣言)vs DECK 視点だけ +6 m(UG の常時日陰は両側とも同じ)",
+ "metric": "影の面 → (セル × 時 × {日陰, 日向}) の点・面の数の分布",
+ "variants": [
+  {
+   "name": "DECK 視点だけ +6 m(UG の常時日陰は両側とも同じ)",
+   "jsd_bits": 0.0008374406719709238,
+   "null_p95": 6.620697166807141e-05,
+   "detected": true,
+   "tvd": 0.0029642447894279796,
+   "n_declared": 102738816.0,
+   "n_control": 102738816.0,
+   "n_bins": 25008,
+   "shadow_share_declared": 0.7143917640631561,
+   "shadow_share_control": 0.711427519273728
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 1.0000804999144748,
+ "outputs_changed": [
+  "w9_shadow_2026-07-28.npy",
+  "w9_shadow_planes.parquet"
+ ],
+ "notes": [],
+ "seconds_wall_row": 9.7,
+ "measured_at": "2026-09-30"
+}

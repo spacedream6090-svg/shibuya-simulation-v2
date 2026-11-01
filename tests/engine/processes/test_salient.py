@@ -146,7 +146,7 @@ def test_a_collapse_triggers_a_dispatch_and_the_arrival_is_salient():
 # ================================================================= M12(2 byte/体)
 def test_notice_state_is_two_bytes_per_agent_and_written_through_resolve():
     world, agents, sp = _proc(n_agents=32, n_cells=9)
-    assert sp.pstate.declared_bytes_per_agent == 18  # heading 1 + task 1 + b2/b4 hash 16
+    assert sp.pstate.declared_bytes_per_agent == 2  # heading 1 + task 1(10e(E1): 死蔵の b2/b4 hash 16 は消した)
     assert sp.pstate.frozen
     sp._update_notice_state()
     assert sp.pstate.frozen  # 窓は閉じて戻る

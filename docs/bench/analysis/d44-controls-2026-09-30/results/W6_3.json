@@ -1,0 +1,27 @@
+{
+ "key": "W6#3",
+ "control": "名前一致層あり(宣言)vs なし(切替口 USE_NAME_SUBCAT_RULES=False)",
+ "metric": "POI の cat|subcat 分布",
+ "variants": [
+  {
+   "name": "名前一致層なし",
+   "jsd_bits": 0.00022142842635260128,
+   "null_p95": 0.00938506534623407,
+   "detected": false,
+   "tvd": 0.0012836970474967902,
+   "n_declared": 2337.0,
+   "n_control": 2337.0,
+   "n_bins": 43,
+   "n_changed": 3
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 0.34416860004421324,
+ "outputs_changed": [
+  "w6_poi.parquet"
+ ],
+ "seconds_wall_row": 1.13,
+ "measured_at": "2026-09-30"
+}

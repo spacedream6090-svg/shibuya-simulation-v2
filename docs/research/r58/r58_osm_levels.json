@@ -1,0 +1,291 @@
+{
+ "poi_tags_overpass_20260928": {
+  "n_elements": 3516,
+  "types": {
+   "node": 2999,
+   "way": 510,
+   "relation": 7
+  },
+  "osm_base": "2026-09-27T17:22:36Z",
+  "tag_counts": {
+   "level": 631,
+   "building:levels": 112,
+   "addr:floor": 88,
+   "indoor": 66,
+   "layer": 59,
+   "covered": 20,
+   "level:ref": 18,
+   "building:levels:underground": 8,
+   "location": 3,
+   "highway": 1,
+   "bridge": 1
+  },
+  "level_values_top": {
+   "0": 191,
+   "1": 112,
+   "-1": 65,
+   "2": 64,
+   "3": 39,
+   "5": 28,
+   "6": 23,
+   "4": 20,
+   "7": 14,
+   "-2": 11,
+   "9": 9,
+   "0;1": 7,
+   "8": 6,
+   "0;1;2": 3,
+   "12": 3,
+   "0-2": 2,
+   "1;2": 2,
+   "18": 2,
+   "0,1,2": 1,
+   "14": 1
+  },
+  "level_nonzero": 440,
+  "level_by_distance_from_origin": {
+   "<300m": 250,
+   "300-700m": 253,
+   ">=700m": 128
+  },
+  "all_by_distance_from_origin": {
+   "300-700m": 1423,
+   ">=700m": 1129,
+   "<300m": 964
+  },
+  "highway_values": {
+   "traffic_signals": 1
+  }
+ },
+ "poi_opening_hours_overpass_20260907": {
+  "n_elements": 2164,
+  "types": {
+   "node": 2043,
+   "way": 121
+  },
+  "osm_base": "2026-09-07T12:57:35Z",
+  "tag_counts": {
+   "level": 473,
+   "addr:floor": 79,
+   "building:levels": 47,
+   "layer": 44,
+   "indoor": 42,
+   "level:ref": 13,
+   "building:levels:underground": 7,
+   "location": 1
+  },
+  "level_values_top": {
+   "0": 170,
+   "1": 89,
+   "-1": 51,
+   "2": 39,
+   "5": 21,
+   "3": 20,
+   "6": 12,
+   "4": 12,
+   "7": 9,
+   "-2": 8,
+   "0;1": 7,
+   "9": 6,
+   "0-2": 2,
+   "1;2": 2,
+   "0;1;2": 2,
+   "8": 2,
+   "12": 2,
+   "0,1,2": 1,
+   "4-5": 1,
+   "-1;0;1;2": 1
+  },
+  "level_nonzero": 303,
+  "level_by_distance_from_origin": {},
+  "all_by_distance_from_origin": {},
+  "highway_values": {}
+ },
+ "street_features_overpass_20260907": {
+  "n_elements": 2009,
+  "types": {
+   "node": 1757,
+   "way": 252
+  },
+  "osm_base": "2026-09-07T13:04:51Z",
+  "tag_counts": {
+   "highway": 956,
+   "level": 33,
+   "covered": 27,
+   "layer": 17,
+   "building:levels": 11,
+   "indoor": 10,
+   "tunnel": 9,
+   "location": 1,
+   "bridge": 1
+  },
+  "level_values_top": {
+   "0": 11,
+   "2": 7,
+   "3": 4,
+   "-1": 3,
+   "1": 2,
+   "-2": 2,
+   "-4": 1,
+   "4": 1,
+   "5": 1,
+   "6": 1
+  },
+  "level_nonzero": 22,
+  "level_by_distance_from_origin": {},
+  "all_by_distance_from_origin": {},
+  "highway_values": {
+   "crossing": 612,
+   "traffic_signals": 166,
+   "bus_stop": 127,
+   "street_lamp": 51
+  }
+ },
+ "road_names_overpass_20260928": {
+  "n_elements": 1328,
+  "types": {
+   "way": 1328
+  },
+  "osm_base": "2026-09-27T17:20:36Z",
+  "tag_counts": {
+   "highway": 1328,
+   "layer": 75,
+   "bridge": 45,
+   "tunnel": 33,
+   "level": 8,
+   "covered": 4,
+   "indoor": 1
+  },
+  "level_values_top": {
+   "5": 7,
+   "0,1": 1
+  },
+  "level_nonzero": 8,
+  "level_by_distance_from_origin": {},
+  "all_by_distance_from_origin": {},
+  "highway_values": {
+   "service": 385,
+   "residential": 291,
+   "unclassified": 223,
+   "tertiary": 199,
+   "pedestrian": 91,
+   "primary": 52,
+   "trunk": 44,
+   "secondary": 29,
+   "motorway": 14
+  }
+ },
+ "station_entrances_overpass": {
+  "n_elements": 45,
+  "types": {
+   "node": 45
+  },
+  "osm_base": null,
+  "tag_counts": {
+   "level": 8,
+   "highway": 1
+  },
+  "level_values_top": {
+   "0": 6,
+   "-2": 1,
+   "1": 1
+  },
+  "level_nonzero": 2,
+  "level_by_distance_from_origin": {
+   "<300m": 5,
+   ">=700m": 2,
+   "300-700m": 1
+  },
+  "all_by_distance_from_origin": {
+   "300-700m": 8,
+   "<300m": 30,
+   ">=700m": 7
+  },
+  "highway_values": {
+   "elevator": 1
+  }
+ },
+ "shibuya_osm_wide_v8": {
+  "edges": 4944,
+  "edge_keys": [
+   "geometry",
+   "klass",
+   "layer",
+   "length",
+   "u",
+   "v"
+  ],
+  "klass_count": {
+   "footway": 1937,
+   "residential": 724,
+   "service": 557,
+   "unclassified": 529,
+   "tertiary": 481,
+   "pedestrian": 262,
+   "steps": 193,
+   "primary": 127,
+   "secondary": 75,
+   "path": 51,
+   "cycleway": 3,
+   "corridor": 3,
+   "elevator": 2
+  },
+  "klass_len_m": {
+   "footway": 61756,
+   "residential": 34069,
+   "service": 23080,
+   "unclassified": 20858,
+   "tertiary": 18412,
+   "pedestrian": 10307,
+   "primary": 8177,
+   "secondary": 6280,
+   "steps": 2325,
+   "path": 1393,
+   "cycleway": 36,
+   "corridor": 33,
+   "elevator": 16
+  },
+  "layer_len_m": {
+   "None": 172971,
+   "1": 7559,
+   "-1": 3117,
+   "-2": 1914,
+   "2": 1181
+  },
+  "buildings": 7210,
+  "buildings_with_below": 20,
+  "building_levels_top": {
+   "2": 6203,
+   "4": 532,
+   "6": 92,
+   "8": 61,
+   "3": 58,
+   "9": 55,
+   "7": 44,
+   "5": 41,
+   "10": 35,
+   "11": 13,
+   "1": 12,
+   "12": 11
+  },
+  "pois": 2337,
+  "pois_with_floor_field": 1607,
+  "poi_floor_values": {
+   "0": 1392,
+   "1": 66,
+   "-1": 41,
+   "2": 35,
+   "3": 20,
+   "6": 10,
+   "5": 10,
+   "7": 9,
+   "4": 8,
+   "-2": 4,
+   "9": 4,
+   "8": 3,
+   "12": 2,
+   "15": 1,
+   "40": 1
+  }
+ }
+}

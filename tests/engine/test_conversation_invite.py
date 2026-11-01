@@ -320,7 +320,7 @@ def test_acceptance_is_consumed_before_phase_c_so_no_false_partner_busy():
     assert int(ag.registry.activity[2]) == int(Activity.CONVERSING)
     # B の「直前の結果」(B6 の主語)に PARTNER_BUSY が載っていない
     assert int(ag.registry.last_result[2]) == before
-    assert int(ag.registry.fail_streak[2]) == 0
+    # 〔第330・RET〕K15 で fail_streak を消した(前: 0 のまま)
 
 
 def test_acceptance_without_a_target_is_also_accepted():

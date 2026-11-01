@@ -1,0 +1,159 @@
+{
+ "a": "resume_head.json",
+ "b": "resume_10.json",
+ "rows": [
+  {
+   "config": "w6_v3_default",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "9a10f1b4e9f5f312",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "w6_v3_activity_off",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "f7079e12ecf0bcb9",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "w6_v1_default",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "faea9399528b28e2",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "w6_v1_derive_v2_1",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "6ed65b480b995519",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "w6_v2",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "7e8a98fd7f4dc164",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "w6_v1_edge",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "fd69358a60293f1a",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "w6_v2_edge",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "8d487ac0ead65137",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "w6_v1_edge_plateau",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "fd69358a60293f1a",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "w6_old_v1_default",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "6837c7852a9a7d91",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "w6_old_v1_derive_v2_1",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "da9574b8a11a337d",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "w6_old_v2",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "20745a97a4fec77c",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "w6_old_v1_edge",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "d8e9899049bed100",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "w6_old_v2_edge",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "7d47e8ed0269c585",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "w6_old_v1_edge_plateau",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "d8e9899049bed100",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "w6_golden_null_arm",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "805d1e343969d0b6",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "v3_mem_store",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "db690c629ce369de",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "v3_mem_rel",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "3bbca528eb065888",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "v3_classical",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "834269027cc0283f",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "straight_final_same": true,
+   "straight_calls_same": true,
+   "final": "e6f807929af2a713",
+   "resume_equals_straight_b": true,
+   "state_bytes_same": false
+  }
+ ],
+ "all_ok": true
+}

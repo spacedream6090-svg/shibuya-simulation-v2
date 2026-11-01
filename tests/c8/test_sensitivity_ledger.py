@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+import copy
+import hashlib
+import importlib.util
 import json
+import re
+from pathlib import Path
 
 import numpy as np
 import pyarrow as pa
@@ -15,6 +20,23 @@ from .conftest import real_data, real_estat
 @pytest.fixture(scope="module")
 def ledger(c8lib):
     return c8lib.load_sensitivity()
+
+
+#: 読み口の文字列「出力名 ← ファイル:行番号」の行番号(第313 の後: 別の実装が src に行を足すと行番号だけずれる)。
+_SITE_LINE = re.compile(r"^(.* ← [^:]+):\d+$")
+
+
+def strip_site_lines(obj):
+    """読み口の「:行番号」を落とす(意味のある内容=「資産の出力名 ← ファイル」まで)。台帳には行番号を残し、
+    テストの比較と digest の前にだけ正規化する。ファイル名が変われば比較は変わる(検出力は保つ)。"""
+    if isinstance(obj, dict):
+        return {k: strip_site_lines(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [strip_site_lines(v) for v in obj]
+    if isinstance(obj, str):
+        m = _SITE_LINE.match(obj)
+        return m.group(1) if m else obj
+    return obj
 
 
 # ------------------------------------------------------------------ 台帳と設計書の突合
@@ -76,11 +98,18 @@ def test_open_questions_flag_the_gap(ledger):
 
     第307(Q141): 09-09 の 122 行 → 現行の build_manifest の 121 行(段の改版 W6 +1・W7 +5・W10 +1・W17 −8)。
     旧注記は ``note_2026_09_09`` に残す。
+    〔改訂(第330・ACT)〕10e の構築側で 121 → 123 行(+6・−4)。121 行の注記は ``note_2026_10_12_pre_act`` に残す。
+    〔改訂(第 2 期 2-4・V1)〕W12 1.2.0(実ダイヤ)の活性化で 123 → 126 行(+8・−5)。123 行の注記は
+    ``note_2026_10_14_pre_2_4``・問いの前の文は ``open_questions_pre_2_4`` に残す。
     """
     be = ledger["build_manifest_expedients"]
-    assert be["count"] == 121 == ledger["build_manifest_judgment"]["count"]
-    assert "W6 +1・W7 +5・W10 +1・W17 −8" in be["note"] and "122 行" in be["note_2026_09_09"]
-    assert any("121" in q for q in ledger["open_questions"])
+    assert be["count"] == 126 == ledger["build_manifest_judgment"]["count"]  # 〔第 2 期 2-4〕前 123
+    assert "W6 +1・W7 +5・W10 +1・W17 −8" in be["note_2026_10_12_pre_act"] and "122 行" in be["note_2026_09_09"]
+    assert "121 行から 6 行増え 4 行消えた" in be["note_2026_10_14_pre_2_4"]
+    assert "123 行から 8 行増え 5 行消えた" in be["note"]
+    assert any("126" in q for q in ledger["open_questions"])
+    assert any("123" in q for q in ledger["open_questions_pre_2_4"])
+    assert any("121" in q for q in ledger["open_questions_pre_act"])
 
 
 def test_ledger_markdown_is_a_valid_table(sensitivity, ledger):
@@ -239,11 +268,13 @@ def test_w16_area_apportionment_real(sensitivity, world_dir, data_dir):
 @real_data
 def test_w13_and_w12_real_assets(sensitivity, world_dir):
     t = sensitivity.w13_temp_plus(world_dir)
-    assert t["n_hours"] == 840
+    # 〔改訂(第330 B5)〕W13 の年間化で 35 日 × 24 = 840 → 365 日 × 24 = 8,760 時
+    assert t["n_hours"] == 8_760
     u = sensitivity.w12_hour_uniform(world_dir)
     assert u["n_weight_rows"] > 0
     j = sensitivity.w12_jr_phase(world_dir)
-    assert j["n_shifted"] > 0 and j["n_departures"] > j["n_shifted"]
+    # 〔第 2 期 2-4・V1〕W12 1.2.0(実ダイヤ)は等間隔の行が無い=ずらす便 0(S-W14-JRPHASE の対照は 1.1.0 の時刻表のもの)
+    assert j["n_shifted"] == 0 and j["n_departures"] > 0
 
 
 @real_data
@@ -259,7 +290,7 @@ def test_run_row_fills_verdict(sensitivity, world_dir, data_dir):
 def test_manifest_judgment_block_is_consistent(sensitivity, ledger):
     """build_manifest の expedient 全行の判定列(3 値+既存の台帳行)が行・集計・規則の文言と合うこと。"""
     j = ledger["build_manifest_judgment"]
-    assert j["count"] == len(j["rows"]) == 121
+    assert j["count"] == len(j["rows"]) == 126          # 〔第 2 期 2-4〕前 123・〔改訂(第330・ACT)〕前 121
     assert j["covered"] + j["judged"] == j["count"]
     assert set(j["tally"]) == set(sensitivity.MANIFEST_VERDICTS)
     assert j["tally"] == {v: sum(r["verdict"] == v for r in j["rows"]) for v in sensitivity.MANIFEST_VERDICTS}
@@ -275,7 +306,7 @@ def test_manifest_judgment_block_is_consistent(sensitivity, ledger):
     assert "片側" in j["rule_note"] and "駆動しえない" in j["rule_note"]
     assert "f≈1" in j["rule_note"] and "第200" in j["rule_note"]  # 検出可能効果量の床
     # 既存の 19 行・過程の id は触らない(判定列は別の鍵)
-    assert len(ledger["rows"]) == 19 and ledger["build_manifest_expedients"]["count"] == 121
+    assert len(ledger["rows"]) == 19 and ledger["build_manifest_expedients"]["count"] == 126  # 〔2-4〕前 123・〔第330・ACT〕前 121
 
 
 def test_manifest_judgment_validation_catches_bad_rows(sensitivity, ledger):
@@ -289,7 +320,7 @@ def test_manifest_judgment_validation_catches_bad_rows(sensitivity, ledger):
 
 def test_manifest_judgment_markdown_has_the_rule_and_the_table(sensitivity, ledger):
     md = sensitivity.ledger_markdown(ledger)
-    assert "D-44 (a) build_manifest の expedient 121 行の一括判定" in md
+    assert "D-44 (a) build_manifest の expedient 126 行の一括判定" in md   # 〔2-4〕前 123・〔改訂(第330・ACT)〕前 121
     assert "検出可能効果量の床" in md
     assert md.count("判定不能(JSD 無し)") == ledger["build_manifest_judgment"]["tally"]["undetermined"]
 
@@ -298,8 +329,9 @@ def test_manifest_judgment_markdown_has_the_rule_and_the_table(sensitivity, ledg
 def test_manifest_judgment_matches_the_live_manifest(c8lib, sensitivity, ledger, world_dir):
     """台帳の判定列は data/world/v2/build_manifest.json から作り直しても同じ(既存の台帳行の書き出しは 1 行ずつに当たる)。"""
     live = sensitivity.build_manifest_verdicts(c8lib.load_json(world_dir / "build_manifest.json"), ledger)
-    # 第307/第308: 判定不能の行に足した依存グラフの列(engine_reads*)と 3 分類(triage)は (a) の判定列の比較からは外す
-    stored = [{k: v for k, v in r.items() if not k.startswith("engine_reads") and k != "triage"}
+    # 第307/第308/第311: 判定不能の行に足した依存グラフの列(engine_reads*)・3 分類(triage)・D-44 の対照(d44)は
+    # (a) の判定列の比較からは外す
+    stored = [{k: v for k, v in r.items() if not k.startswith("engine_reads") and k not in ("triage", "d44")}
               for r in ledger["build_manifest_judgment"]["rows"]]
     assert live["rows"] == stored
     assert live["manifest_build_hash"] == ledger["build_manifest_judgment"]["manifest_build_hash"]
@@ -357,16 +389,16 @@ def g():
     assert sensitivity._output_token("acceptance/cells.png") == "cells.png"
 
 
+@pytest.mark.requires_data("world_v2:build_manifest.json")
 def test_read_graph_matches_the_source(c8lib, sensitivity, ledger, world_dir):
     """台帳の依存グラフはいまの src から作り直しても同じ(実データの manifest があるとき)。"""
     mp = world_dir / "build_manifest.json"
-    if not mp.exists():
-        pytest.skip("実世界資産 data/world/v2 が無い")
     g = sensitivity.engine_read_graph(c8lib.load_json(mp))
     stored = ledger["build_manifest_judgment"]["read_graph"]["stages"]
     for st, si in g["stages"].items():
         assert si["verdict"] == stored[st]["verdict"], st
-        assert si["engine_sites"] == stored[st]["engine_sites"], st
+        # 行番号は比べない(src に行が足されると動く)。出力名とファイルは比べる
+        assert strip_site_lines(si["engine_sites"]) == strip_site_lines(stored[st]["engine_sites"]), st
         assert si["consumers"] == stored[st]["consumers"], st
 
 
@@ -376,11 +408,11 @@ def test_triage_column_is_consistent(c8lib, sensitivity, ledger):
     j = ledger["build_manifest_judgment"]
     ts = j["triage_summary"]
     reads = [r for r in j["rows"] if r.get("engine_reads") == "reads"]
-    assert ts["n_reads_rows"] == len(reads) == 96
+    assert ts["n_reads_rows"] == len(reads) == 102      # 〔2-4〕前 98(W12 の +8・−5)・〔改訂(第330・ACT)〕前 96
     assert all(r["triage"]["class"] in sensitivity.TRIAGE_CLASSES and r["triage"]["control"] for r in reads)
     assert all("triage" not in r for r in j["rows"] if r.get("engine_reads") != "reads")
     assert ts["tally"] == {c: sum(r["triage"]["class"] == c for r in reads) for c in sensitivity.TRIAGE_CLASSES}
-    assert sum(ts["tally"].values()) == 96
+    assert sum(ts["tally"].values()) == 102
     # (i) だけが費用の見込み(秒)を持つ・合計が合う
     for r in reads:
         has_cost = r["triage"]["cost_seconds_estimate"] is not None
@@ -399,3 +431,255 @@ def test_triage_validation_catches_bad_rows(sensitivity, ledger):
     row = next(r for r in broken["build_manifest_judgment"]["rows"] if r.get("triage"))
     row["triage"]["class"] = "iv"
     assert any("triage" in p for p in sensitivity.validate_ledger(broken))
+
+
+# ------------------------------------------------------------------ D-44 の対照(第311・ユーザー決定 2026-09-30)
+#: 第311 の前の台帳(第310 bd19e0c 時点)から計算した digest。既存の 19 行・過程の id 22 本・旧注記・
+#: (a)(c)・Q146 の列が 1 バイトも動いていないことを固定する(D-44 は別の鍵 ``d44``/``d44_summary`` にだけ書く)。
+PRE_D44_DIGESTS = {
+    # 〔改訂(第330 B3)〕S-W14-JRPHASE の declared を丸めの直しの値(9,014 便・等間隔 7,418)に直した
+    # (発注どおり・result は直す前のまま)。旧値 5a34eefd0baf3d8c7753d40248c4c3b134d8fe7dda7fe7d96d107d3bad59f8b2
+    "rows": "e3483f9f17437d9efbd2df07e69cb1b5df306e967a7cbf91c2bc6aaf3ea916de",
+    "process_ablations": "cfe7fa204d28f98fe457dcb27260854f082e41fb99c52f5b72372d19380c68c7",
+    # 〔改訂(第330・ACT)〕下の 3 つは 10e の構築側の expedient の増減(121 → 123 行・build_hash 5ff1bacf…)で台帳の判定を
+    # 作り直した値(--judge-manifest → --read-graph → --triage → --d44)。同じ文言の行は鍵(W13#6 → W13#5 の 1 行)の
+    # ほか全欄が前と同じことを確かめた(10e の記録 README §ACT)。旧値: build_manifest_expedients 036a4bd1090d3381…
+    # ・judgment_rows_without_d44 541acb8cc5ed2a3b…・judgment_rest_without_d44 eb70c08cd5aae15c…
+    # 〔改訂(第 2 期 2-4・V1 の活性化)〕下の 3 つは W12 1.2.0 の expedient の増減(123 → 126 行・build_hash 6a7d34e8…)で台帳の
+    # 判定を作り直した値(--judge-manifest → --read-graph → --triage → --d44)。同じ文言の 117 行は鍵を含め全欄が前と同じ
+    # ことを確かめた(記録 vb24/README.md の V1)。旧値: build_manifest_expedients 309a443eddede128…・judgment_rows_without_d44 ffc43608d6b51943…・judgment_rest_without_d44 1fc90c5f93dea4b0…
+    "build_manifest_expedients": "076ab5f2e389cc1f4c8e8f1dca5004ce3347639cd7b123a698006ebb57b0d486",
+    "judgment_rows_without_d44": "16e625d280f13b058affc499a2222454f41e8c9aa9b8008eae5293273fb13a6c",
+    # 読み口の「:行番号」を落とした後の digest(第313 後の修正: 旧値 b759c1be…=行番号込み)。HEAD 01b6f5b の台帳と
+    # 読み口を再生成した作業木の台帳で同じ値=再生成で変わったのは行番号だけ
+    # 〔改訂(第336・第 4 期 4-1 段 1〜3)〕構築側の新しい段 W21(build/pop/)が W2・W4・W16 を読むので、読みのグラフを
+    # 作り直した(--read-graph)=consumers に W21 が増えただけ(行番号を除く engine_sites と verdict は不変・rows の digest も
+    # 不変)。旧値 c1ce486e678bed4b…
+    # 〔第336・3-1〕構築の脇の段 W20cal(build/sched/w20_calendar_1a.py=読みのグラフでは W20 の名)が W16 を読むので、読みの
+    # グラフを作り直した(--read-graph)=W16 の consumers に W20 が増えただけ(engine_sites・verdict・rows の digest は不変)。
+    # 旧値 824743c7c5836c94…
+    # 〔改訂(第 4 期 4-1 段 4〜7・W21b)〕段 4〜7 の組み立て(build/pop/w21_build_b.py=段 W21 の続き)が W3(w3_cell_dist)・
+    # W6(w6_org・w6_poi)・W12(w12_external_nodes)を読むので、本体 ed7155c へ rebase した後に読みのグラフを作り直した
+    # (--read-graph)=3-1 の W20 に加えて W3・W6・W12 の consumers に W21 が増えただけ(行番号を除く engine_sites と
+    # verdict・reach は不変・rows と judgment_rows_without_d44 の digest も不変・記録 pop41b/README.md)。旧値は 2 つ:
+    # 本体(3-1 の後)c4ea05eed1bced95…・本段の rebase 前(段 1〜3 の後)d32aa76180bd874a…
+    # 〔第 4 期 4-3 段 10〕構築側の新しい段 W21apply(build/pop/w21_apply.py=読みのグラフでは W21 の名)が W17 の週次表を読むので、
+    # 読みのグラフを作り直した(--read-graph)=W17 の consumers に W21 が増えただけ(engine_sites・verdict・rows の digest は不変)。
+    # 旧値 49dd536770bf25e9bd08d3630d2ac51ddeb944a4276a1a5420702a22fef3e3ae(記録 pop43/README.md)
+    # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界の build_manifest(build_hash 0b215fcd…=活性化の後の本体の v2)で
+    # 判定を作り直した(--judge-manifest → --read-graph → --triage → --d44)=変わったのは manifest_build_hash だけ(行・読みの
+    # グラフ・3 分類・D-44 は前と同じ)。旧値 bb2e854a4bae35e08684b36dae4e2393845650b0ab0736157e92189b97cbc9e5(記録 pop43)
+    # 〔第 5 期 空間の段 1〕エンジンの移動(engine/space/nav1.py)が W1 の w1_edge_geometry.npz を読む(曲がる向き)ので、W1 の
+    # engine_sites に 1 行足した(手で・verdict・reach・consumers・rows の digest は不変・記録 spatial-2026-10/sp1/README.md)。
+    # 旧値 ba7f50c455453d59aa052a9d22c418d3c410d179383fb4a1d62ea23abd5b217d
+    "judgment_rest_without_d44": "e16aefb0bba45be86a54b999be41999cdd3736fa379d737752ff1a22316781c2",
+}
+D44_DIR_REL = ("docs", "bench", "analysis", "d44-controls-2026-09-30")
+
+
+def _digest(obj) -> str:
+    return hashlib.sha256(json.dumps(obj, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def _d44_module():
+    path = Path(__file__).resolve().parents[2].joinpath(*D44_DIR_REL, "d44_controls.py")
+    spec = importlib.util.spec_from_file_location("d44_controls_for_test", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)  # type: ignore[union-attr]
+    return mod
+
+
+def test_d44_leaves_existing_ledger_parts_unchanged(ledger):
+    """既存の 19 行・過程 22 本・旧注記・判定列(a)(c)・3 分類は不変(D-44 は ``d44`` と ``d44_summary`` にだけ足す)。"""
+    assert len(ledger["rows"]) == 19 and len(ledger["process_ablations"]["ids"]) == 22
+    assert _digest(ledger["rows"]) == PRE_D44_DIGESTS["rows"]
+    assert _digest(ledger["process_ablations"]) == PRE_D44_DIGESTS["process_ablations"]
+    assert _digest(ledger["build_manifest_expedients"]) == PRE_D44_DIGESTS["build_manifest_expedients"]
+    j = ledger["build_manifest_judgment"]
+    rows = [{k: v for k, v in r.items() if k != "d44"} for r in j["rows"]]
+    assert _digest(strip_site_lines(rows)) == PRE_D44_DIGESTS["judgment_rows_without_d44"]
+    rest = {k: v for k, v in j.items() if k not in ("rows", "d44_summary")}
+    assert _digest(strip_site_lines(rest)) == PRE_D44_DIGESTS["judgment_rest_without_d44"]
+
+
+def test_site_line_normalization_keeps_the_file_but_drops_the_line(ledger):
+    """行番号だけのずれは通り、読み口のファイルが変わる・増える・消えると落ちる(正規化で検出力を失わない)。"""
+    assert strip_site_lines("w2_cells.parquet ← perception/renderer.py:653") == "w2_cells.parquet ← perception/renderer.py"
+    assert strip_site_lines("w2_cells.parquet ← perception/renderer.py") == "w2_cells.parquet ← perception/renderer.py"
+    assert strip_site_lines("09:00") == "09:00"  # 読み口でない文字列は触らない
+    rest = {k: v for k, v in ledger["build_manifest_judgment"].items() if k not in ("rows", "d44_summary")}
+    base = _digest(strip_site_lines(rest))
+    st = next(k for k, v in rest["read_graph"]["stages"].items() if v["engine_sites"])
+    # 行番号だけ変える → 同じ
+    moved = json.loads(json.dumps(rest))
+    moved["read_graph"]["stages"][st]["engine_sites"] = [
+        re.sub(r":\d+$", ":99999", s) for s in moved["read_graph"]["stages"][st]["engine_sites"]]
+    assert moved != rest and _digest(strip_site_lines(moved)) == base
+    # 読み口のファイルを変える → 違う
+    other = json.loads(json.dumps(rest))
+    s0 = other["read_graph"]["stages"][st]["engine_sites"][0]
+    other["read_graph"]["stages"][st]["engine_sites"][0] = re.sub(r"← [^:]+:", "← world/other_reader.py:", s0)
+    assert _digest(strip_site_lines(other)) != base
+    # 読み口が増える/消える → 違う
+    more = json.loads(json.dumps(rest))
+    more["read_graph"]["stages"][st]["engine_sites"].append("w99_x.parquet ← engine/run.py:1")
+    assert _digest(strip_site_lines(more)) != base
+    less = json.loads(json.dumps(rest))
+    less["read_graph"]["stages"][st]["engine_sites"] = less["read_graph"]["stages"][st]["engine_sites"][1:]
+    assert _digest(strip_site_lines(less)) != base
+    # 依存グラフの比較でも同じ: 行番号だけ違えば等しい・ファイルが違えば等しくない
+    a = ["w1_edges.parquet ← world/assets.py:90"]
+    assert strip_site_lines(a) == strip_site_lines(["w1_edges.parquet ← world/assets.py:95"])
+    assert strip_site_lines(a) != strip_site_lines(["w1_edges.parquet ← world/other.py:90"])
+
+
+def test_d44_column_is_consistent(sensitivity, ledger):
+    """判定不能 111 行(〔2-4〕前 107)すべてに 6 値の状態。集計・分類ごとの規則(iii=対照を定義できない・読まない=対象外)・判定と JSD が合う。
+
+    〔改訂(第330・ACT)〕前は 105 行・5 値。10e の構築側で増えた・文言の変わった行は D-44 の結果を当てず「未判定」
+    (``pending``・``sensitivity.D44_PENDING``)。(iii) と読まない行は今までどおりの値。"""
+    j = ledger["build_manifest_judgment"]
+    ds = j["d44_summary"]
+    rows = [r for r in j["rows"] if "d44" in r]
+    assert len(rows) == ds["n_rows"] == 111 == j["tally"]["undetermined"]  # 〔2-4〕前 107
+    assert all(r["verdict"] == "undetermined" for r in rows)
+    assert ds["tally"] == {s: sum(r["d44"]["status"] == s for r in rows) for s in sensitivity.D44_STATUSES}
+    assert sum(ds["tally"].values()) == 111
+
+    def cls(r):
+        return (r.get("triage") or {}).get("class") or "not_read"
+
+    # 〔2-4〕前 [66, 14, 18, 9](W12 の新しい 8 行の 3 分類は実装役の案=tools/c8/expedient_triage_v1.json の note)
+    assert [sum(1 for r in rows if cls(r) == c) for c in ("i", "ii", "iii", "not_read")] == [65, 17, 20, 9]
+    pending = {r["key"] for r in rows if r["d44"]["status"] == "pending"}
+    # W13#8・〔2-4〕W12#8・W12#10 は (iii)=対照を定義できない
+    assert pending == set(sensitivity.D44_PENDING) - {"W13#8", "W12#8", "W12#10"}
+    assert all(r["d44"]["reason"].startswith("未判定") for r in rows if r["d44"]["status"] == "pending")
+    for r in rows:
+        d, c = r["d44"], cls(r)
+        if c == "iii":
+            assert d["status"] == "no_control", r["key"]
+        elif c == "not_read":
+            assert d["status"] == "out_of_scope" and "ランに届かない" in d["reason"], r["key"]
+        elif r["key"] in sensitivity.D44_PENDING:
+            assert d["status"] == "pending", r["key"]
+        else:
+            assert d["status"] in ("not_driving", "needs_run", "unmeasurable"), r["key"]
+        if d["status"] in ("not_driving", "needs_run") and d["where"] == "build":
+            # 片側規則: 判定に使った変種の JSD と帰無参照の大小が判定と合う
+            assert (d["jsd_bits"] > d["null_p95"]) == (d["status"] == "needs_run"), r["key"]
+            assert (d["n_variants_detected"] > 0) == (d["status"] == "needs_run"), r["key"]
+            assert d["unresearched"] is True
+        if d["status"] == "unmeasurable":
+            assert d.get("reason") or d.get("needed_knob"), r["key"]
+    for c, tally in ds["by_class"].items():
+        assert tally == {s: sum(1 for r in rows if cls(r) == c and r["d44"]["status"] == s)
+                         for s in sensitivity.D44_STATUSES}
+    note = ds["rule_note"]
+    assert "片側" in note and "f≈1" in note and "第200" in note and "未リサーチ" in note
+    assert not sensitivity.validate_ledger(ledger)
+
+
+def test_d44_validation_catches_bad_rows(sensitivity, ledger):
+    broken = json.loads(json.dumps(ledger))
+    row = next(r for r in broken["build_manifest_judgment"]["rows"] if (r.get("triage") or {}).get("class") == "iii")
+    row["d44"]["status"] = "not_driving"
+    assert any("(iii)" in p for p in sensitivity.validate_ledger(broken))
+    broken = json.loads(json.dumps(ledger))
+    broken["build_manifest_judgment"]["d44_summary"]["tally"]["needs_run"] += 1
+    assert any("d44_summary" in p for p in sensitivity.validate_ledger(broken))
+    broken = json.loads(json.dumps(ledger))
+    row = next(r for r in broken["build_manifest_judgment"]["rows"] if "d44" in r)
+    row["d44"]["status"] = "maybe"
+    assert any("d44 status" in p for p in sensitivity.validate_ledger(broken))
+    broken = json.loads(json.dumps(ledger))
+    row = next(r for r in broken["build_manifest_judgment"]["rows"] if r.get("engine_reads") == "not_read")
+    del row["d44"]
+    assert any("d44 が無い" in p for p in sensitivity.validate_ledger(broken))
+
+
+def test_d44_regenerates_from_the_result_files(c8lib, sensitivity, ledger):
+    """台帳の d44 列は結果の記録(d44_results.json・mock_controls.json)から作り直しても同じ。"""
+    fresh = copy.deepcopy(ledger["build_manifest_judgment"])
+    for r in fresh["rows"]:
+        r.pop("d44", None)
+    fresh.pop("d44_summary", None)
+    mock = c8lib.load_json(sensitivity.D44_MOCK_PATH) if sensitivity.D44_MOCK_PATH.exists() else None
+    sensitivity.attach_d44(fresh, c8lib.load_json(sensitivity.D44_RESULTS_PATH), mock)
+    assert fresh["d44_summary"] == ledger["build_manifest_judgment"]["d44_summary"]
+    assert [r.get("d44") for r in fresh["rows"]] == [r.get("d44") for r in ledger["build_manifest_judgment"]["rows"]]
+
+
+def test_act_d44_key_remap_and_pending_rows(c8lib, sensitivity, ledger):
+    """〔第330・ACT〕番号のずれた行(W13#5=前の W13#6)は D-44 の結果を前の鍵から引き、増えた・文言の変わった行は
+    結果を当てない(同じ鍵の古い結果は別の文言の行のもの)。未判定の行に理由が無ければ自己検査で落ちる。"""
+    res = c8lib.load_json(sensitivity.D44_RESULTS_PATH)["rows"]
+    rows = {r["key"]: r for r in ledger["build_manifest_judgment"]["rows"]}
+    assert sensitivity.D44_KEY_REMAP == {"W13#5": "W13#6"}
+    w = rows["W13#5"]
+    assert w["expedient"].startswith("10分値 → 時別の畳み方") and w["d44"]["control"] == res["W13#6"]["control"]
+    for k in ("W7#7", "W9#5", "W13#6", "W13#7"):          # 同じ鍵の古い結果(別の文言)は当てない
+        assert rows[k]["d44"]["status"] == "pending" and "jsd_bits" not in rows[k]["d44"], k
+        assert rows[k]["d44"].get("control") != res[k]["control"], k
+    broken = json.loads(json.dumps(ledger))
+    row = next(r for r in broken["build_manifest_judgment"]["rows"] if (r.get("d44") or {}).get("status") == "pending")
+    row["d44"]["reason"] = ""
+    assert any("未判定の行に理由が無い" in p for p in sensitivity.validate_ledger(broken))
+
+
+def test_d44_results_follow_the_rule_and_hold_no_paths(c8lib, sensitivity):
+    """結果の記録: 各変種の検出=JSD>帰無・行の検出=主の変種のどれか・宣言側の再計算が資産と一致・基準の再構築が
+    昇格版と一致・検算が通る・絶対パスとユーザー名を書かない。"""
+    res = c8lib.load_json(sensitivity.D44_RESULTS_PATH)
+    assert len(res["rows"]) == 66
+    for key, r in res["rows"].items():
+        assert r["key"] == key
+        if r["status"] == "unmeasurable":
+            assert r["reason"]
+            continue
+        for v in r["variants"]:
+            assert v["detected"] == (v["jsd_bits"] > v["null_p95"]), (key, v["name"])
+        assert r["detected"] == any(v["detected"] for v in r["variants"] if v.get("primary", True)), key
+        assert r["verdict"] == ("needs_run" if r["detected"] else "not_driving"), key
+        for name, ok in (r.get("checks") or {}).items():
+            assert ok is True, (key, name)
+    assert res["base_rebuild"]["all_same"] is True
+    assert res["selfcheck_all_ok"] is True
+    for p in sensitivity.D44_DIR.glob("**/*.json"):
+        data = p.read_bytes()
+        assert b"\r" not in data, p.name
+        text = data.decode("utf-8")
+        assert "Users" not in text and ":\\\\" not in text and ":/" not in text, p.name
+
+
+@real_data
+def test_d44_read_only_controls_recompute_from_the_live_world(c8lib, sensitivity, world_dir):
+    """読むだけの対照(W2#4・W5#2・W7#2)はいまの世界資産から計算し直しても記録と同じ JSD。"""
+    mod = _d44_module()
+
+    class _E:
+        base = world_dir
+
+    res = c8lib.load_json(sensitivity.D44_RESULTS_PATH)["rows"]
+    for key, fn in (("W2#4", mod.c_w2_4), ("W5#2", mod.c_w5_2), ("W7#2", mod.c_w7_2)):
+        got = fn(_E())
+        assert [v["jsd_bits"] for v in got["variants"]] == pytest.approx(
+            [v["jsd_bits"] for v in res[key]["variants"]], rel=1e-12, abs=1e-15), key
+        assert got["verdict"] == res[key]["verdict"], key
+
+
+def test_d44_open_hours_metric_matches_hand_count():
+    """営業中 POI×時 の指標: 月曜 0-12 時の 1 POI は営業 12・休業 156(168 時)。日跨ぎは週で巻く。"""
+    mod = _d44_module()
+    v = mod.open_hours_vector([[[(0, 720)], [], [], [], [], [], []]])
+    assert v[:168].sum() == 12.0 and v[168:].sum() == 156.0 and v.size == 336
+    w = mod.open_hours_vector([[[], [], [], [], [], [], [(1380, 1500)]]])  # 日曜 23:00-翌 1:00 → 月曜 0 時台へ巻く
+    assert w[167] == 1.0 and w[0] == 1.0 and w[:168].sum() == 2.0
+
+
+def test_d44_markdown_has_the_section(sensitivity, ledger):
+    md = sensitivity.ledger_markdown(ledger)
+    ds = ledger["build_manifest_judgment"]["d44_summary"]
+    assert "D-44 の対照(第311" in md
+    for s in sensitivity.D44_STATUSES:
+        assert f"{sensitivity.D44_STATUS_JA[s]} **{ds['tally'][s]}**" in md

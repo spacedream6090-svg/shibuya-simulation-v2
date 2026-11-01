@@ -26,6 +26,7 @@ from __future__ import annotations
 from typing import Final, Mapping
 
 from shibuya.core.growth import GrowthDeclaration, Retention
+from shibuya.core.time_consts import STEPS_PER_DAY
 
 __all__ = [
     "PENDING_APPLY_ROW_BYTES",
@@ -51,7 +52,7 @@ TAPE_ROW_BYTES: Final[int] = 400
 
 #: 予算行 L4 の制御目標(平均呼数/体/シミュ日)。
 CALLS_PER_AGENT_PER_DAY: Final[int] = 10
-TICKS_PER_DAY: Final[int] = 1_440
+TICKS_PER_DAY: Final[int] = STEPS_PER_DAY
 
 
 def declarations() -> Mapping[str, GrowthDeclaration]:

@@ -1,0 +1,159 @@
+"""engine.systems.llm_io — LLM の往復の口(会話ターンの発話・艦隊/再生の到着の受け取り)と系 llm_receive(第 1 期 1-0)。
+
+HEAD ``ee3abc7`` の ``run_day`` の入れ子の関数 ``_utter``・``_receive_arrivals`` を、箱を受け取る関数にしたもの(中身は同じ)。
+
+- ``utter``: 会話ターンの発話 1 回(``conv.utterance``)・記憶の会話の行と要旨・店の記憶の口コミ(``llm_receive`` と
+  ``decide`` の両方から呼ぶ=草案 §3-3 の 7)。
+- ``receive_arrivals``: ④′ 艦隊(と再生の代役)の到着を受け取る(10a・A9)。届いた応答は ``max(t_apply, floor)`` で
+  ``LlmIo.pending`` へ入る。
+- ``sys_llm_receive``: 系。``perceive_prepare`` の後(下限 ``tick``=応答の遅れ 1)。〔第 2 部〕位置 B(遅れ 2=旧)は消した。
+
+逐次ループ宣言: 到着の件数ぶん(HEAD と同じ・本番の poll と同じ件数)。
+"""
+
+from __future__ import annotations
+
+import time
+from typing import Any
+
+from shibuya.agents.state import WakeCondition
+from shibuya.engine.llm_bridge import delta_think_ticks
+from shibuya.engine.wom import hear as wom_hear
+from shibuya.llm.fleet import Deferred as FleetDeferred
+
+__all__ = ["utter", "receive_arrivals", "sys_llm_receive"]
+
+
+def utter(b: Any, agent_id: int, t_now: int, action: Any, comment: str, reason: str = "",
+          parse: Any = None, call_id: str = "") -> None:
+    """会話ターンの発話 1 回(``conv.utterance``)。6a: 記憶の会話の行と要旨(on のときだけ)。
+
+    6b(第294 Q57 暫定): 要旨の源=ひと言が空/「なし」なら理由欄の先頭 40 字(語彙 v3)。
+    7b(D-120 N3 (a)): 店の記憶 on のランだけ、発話(``wom_source``: 既定=ひと言だけ・旧=v3 で理由+対象)から店名と評価語を
+    抽出し、**宛先**(会話の相手=``talk_partner``・セッションの参加者)の店の行へ伝聞として書く。
+    〔第 6 期 6-3 T2〕腕 ``--talk-clock mora`` のランだけ(``layers.talk_clock`` がある)、ひと言を会話の時計に渡す(計器)。
+    〔第 1 期 1-8b〕腕 ``--speech-port on`` のランだけ(``layers.speech`` がある)、ひと言を発話の口に通す
+    (``engine.speech.layer.speak_turn``=出来事ログに 1 回・相手の次の入力・口コミの抽出は口の (c))。``call_id`` は
+    その会話の番の呼び出しの id(発話の出来事の原因)。既定の腕では ``call_id`` を読まない=今の道のまま。
+    """
+    agents, conv, mem_layer, wom_ex = b.soa.agents, b.layers.conv, b.layers.mem_layer, b.layers.wom
+    speech = b.layers.speech  # 1-8b: 腕 on のランだけ(既定 None=今の道)
+    vocab_version, store_wom_on = b.cfg.vocab_version, b.cfg.store_wom_on
+    partner_before = (int(agents.registry.talk_partner[int(agent_id)])
+                      if (wom_ex is not None or speech is not None) else -1)
+    s = conv.utterance(agent_id, t_now, action=action, comment=comment)
+    cal2 = getattr(b.layers, "calendar2", None)  # 〔第 6 期 6-2 カレンダー 2〕腕 arm のランだけ(既定 None=今の道)
+    if cal2 is not None and s is not None:
+        # 会話の番の控え(誘い・返事・書くの判断は系 calendar_2 が同じ刻みにする=控えるだけ・世界の状態は書かない)
+        cal2.note_turn(f"f:{int(s.session_id)}", int(agent_id), int(t_now),
+                       call_id or f"f:{int(s.session_id)}:{int(s.blocks)}", s.participants)
+    contact = getattr(b.layers, "contact", None)  # 〔第 6 期 6-4 C2〕腕 c1 のランだけ(既定 None=今の道)
+    if contact is not None and s is not None:
+        # 対面の会話の番の控え(連絡先の交換の機会=その体の最初の番・判断は系 contact が同じ刻みにする=控えるだけ)
+        contact.note_face_turn(f"f:{int(s.session_id)}", int(agent_id), int(t_now), call_id or "", s.participants,
+                               int(s.calls.get(int(agent_id), 0)))
+    talk_clock = getattr(b.layers, "talk_clock", None)  # 〔第 6 期 6-3 T2〕腕 --talk-clock mora のランだけ(既定 None=今の 1 ターンの長さの表)
+    if talk_clock is not None:
+        # 会話の時計: 発言の長さ=モーラ数 × 話す速さ・発言の事象を窓の待ち行列に時刻順に置く(世界の状態は書かない=計器)
+        talk_clock.on_turn(agents, int(agent_id), int(t_now), s, comment)
+    if mem_layer is not None:
+        mem_layer.note_utterance(agents, int(agent_id), int(t_now), s, comment, reason, call_id=call_id)
+    if speech is not None:
+        from shibuya.engine.speech.layer import speak_turn
+
+        speak_turn(b, speech, int(agent_id), int(t_now), s, comment, reason, parse, call_id, partner_before)
+        return
+    if wom_ex is not None and s is not None:
+        tgt = getattr(parse, "target", None)
+        text = wom_ex.utterance_text(
+            vocab_version,
+            comment=str(getattr(parse, "raw_comment", "") or comment or ""),
+            reason=str(getattr(parse, "raw_reason", "") or reason or ""),
+            target=str(getattr(tgt, "raw", "") or ""),
+        )
+        ex = wom_ex.extract(text, int(agents.registry.cell[int(agent_id)]))
+        wom_ex.observe(ex)
+        others = [int(p) for p in s.participants if int(p) != int(agent_id)]
+        listener = partner_before if partner_before in others else (others[0] if others else -1)
+        if store_wom_on:  # 7c の腕: 口コミ off=抽出は数えるが転写しない
+            wom_hear(mem_layer.store, agents, int(t_now), listener, ex)
+
+
+def receive_arrivals(b: Any, tick: int, floor: int) -> int:
+    """④′ 艦隊(と再生の代役)の到着を受け取る(10a・A9)。返り値=書式エラーの件数。
+
+    届いた応答は ``max(t_apply, floor)`` で ``pending`` へ入る。①の直前で ``floor=tick``(=発射 +1 刻みの①で反映)。
+    mock(``fleet_bridge is None`` かつ ``replay_inbox`` が空)は何もしない。
+    """
+    from shibuya.engine import run as _RUN
+
+    _target_person, _pending_extra, _call_ref = _RUN._target_person, _RUN._pending_extra, _RUN._call_ref
+    io = b.llm
+    fleet_bridge, conv = b.layers.fleet_bridge, b.layers.conv
+    replay_inbox, fleet_deferred, fleet_waiting, fleet_inflight = (io.replay_inbox, io.fleet_deferred,
+                                                                    io.fleet_waiting, io.fleet_inflight)
+    phase = b.runstats.phase
+    fleet_wait_s, tick_seconds = b.cfg.fleet_wait_s, b.cfg.tick_seconds
+    n_err = 0
+    if fleet_bridge is None and replay_inbox:
+        # ---- ④′-r 再生モードの「到着」(D-58)。**艦隊経路と同じ位置・同じ扱い** ----
+        # 逐次ループ宣言: この刻みに届く件数ぶん(本番の poll と同じ件数)。
+        t0 = time.perf_counter()
+        for is_deferred, item in replay_inbox.pop(tick, ()):
+            if is_deferred:
+                fleet_deferred.append(item)
+                continue
+            res = item
+            fleet_waiting.discard(int(res.agent_id))
+            io.pending.append((
+                max(res.t_apply, floor), res.wake_class, res.agent_id,
+                res.condition, res.text, res.action_code, _target_person(res.target),
+                *_pending_extra(res), *_call_ref(res),
+            ))
+            if not res.format_ok:
+                n_err += 1
+            if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
+                utter(b, res.agent_id, tick, res.parse.action, res.parse.comment,
+                      res.parse.reason, res.parse, call_id=_call_ref(res)[1])
+        phase["llm"] += time.perf_counter() - t0
+    if fleet_bridge is not None:
+        t0 = time.perf_counter()
+        if fleet_wait_s > 0.0 and fleet_bridge.client.outstanding:
+            fleet_bridge.client.wait_idle(timeout=fleet_wait_s)
+            phase["fleet_wait"] += time.perf_counter() - t0
+            t0 = time.perf_counter()
+        for res in fleet_bridge.poll(now_tick=tick):
+            fleet_inflight.pop(str(res.call.call_id if isinstance(res, FleetDeferred) else res.call_id), None)
+            if isinstance(res, FleetDeferred):
+                fleet_deferred.append(
+                    (
+                        int(res.call.agent_id),
+                        int(res.call.condition),
+                        int(res.call.wake_class),
+                        int(res.call.wake_since),
+                    )
+                )
+                continue
+            fleet_waiting.discard(int(res.agent_id))
+            # t_apply = 起床 + δ_perc + δ_think(§2.4)。到着が遅れたぶんは
+            # **破棄せず**この刻み以降へ(締切超過=繰り延べアービタの趣旨)。
+            t_apply = res.tick + delta_think_ticks(res.lane, tick_seconds)
+            io.pending.append((
+                max(t_apply, floor), res.wake_class, res.agent_id,
+                res.condition, res.text, res.action_code, _target_person(res.target),
+                *_pending_extra(res), *_call_ref(res),
+            ))
+            if not res.format_ok:
+                n_err += 1
+            if conv is not None and res.condition == int(WakeCondition.CONVERSATION_TURN):
+                utter(b, res.agent_id, tick, res.parse.action, res.parse.comment,
+                      res.parse.reason, res.parse, call_id=_call_ref(res)[1])
+        phase["llm"] += time.perf_counter() - t0
+    return n_err
+
+
+def sys_llm_receive(ctx: Any, b: Any) -> None:
+    """系 llm_receive(L5・L11 前半): 艦隊/再生の到着を受け取り、書式エラーの件数を scratch に置く。"""
+    tick = ctx.T
+    floor = tick
+    b.scratch.n_parse_errors_fleet = receive_arrivals(b, tick, floor)

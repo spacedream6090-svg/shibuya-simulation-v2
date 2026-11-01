@@ -1,0 +1,2901 @@
+[
+ {
+  "key": "agents.cell",
+  "name": "cell",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c",
+   "presence",
+   "world"
+  ],
+  "world_subsystems": [
+   "large_event",
+   "presence.step",
+   "rail"
+  ],
+  "resolve_writers": [
+   "apply",
+   "initialize",
+   "place_at_external",
+   "rail_arrive",
+   "rail_depart"
+  ]
+ },
+ {
+  "key": "agents.node",
+  "name": "node",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c",
+   "presence",
+   "world"
+  ],
+  "world_subsystems": [
+   "large_event",
+   "presence.step",
+   "rail"
+  ],
+  "resolve_writers": [
+   "_apply_alight",
+   "_apply_engine_step",
+   "_board_riders",
+   "apply",
+   "initialize",
+   "place_at_external",
+   "rail_arrive",
+   "rail_depart"
+  ]
+ },
+ {
+  "key": "agents.band",
+  "name": "band",
+  "place": "agents",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [
+   "phase_c",
+   "presence",
+   "world"
+  ],
+  "world_subsystems": [
+   "large_event",
+   "presence.step",
+   "rail"
+  ],
+  "resolve_writers": [
+   "apply",
+   "initialize",
+   "rail_arrive"
+  ]
+ },
+ {
+  "key": "agents.xy",
+  "name": "xy",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c",
+   "presence",
+   "world"
+  ],
+  "world_subsystems": [
+   "large_event",
+   "presence.step",
+   "rail"
+  ],
+  "resolve_writers": [
+   "apply",
+   "initialize",
+   "rail_arrive"
+  ]
+ },
+ {
+  "key": "agents.path_next_node",
+  "name": "path_next_node",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_apply_engine_step",
+   "apply"
+  ]
+ },
+ {
+  "key": "agents.target_node",
+  "name": "target_node",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c",
+   "plan_boundary",
+   "presence"
+  ],
+  "world_subsystems": [
+   "presence.step"
+  ],
+  "resolve_writers": [
+   "_apply_alight",
+   "_apply_board",
+   "_apply_engine_step",
+   "_apply_move",
+   "_apply_sleep",
+   "_board_riders",
+   "_enter_board_queue",
+   "begin_exit_walk",
+   "begin_planned_sleep",
+   "fail_intent",
+   "place_at_external",
+   "rail_arrive",
+   "rail_depart"
+  ]
+ },
+ {
+  "key": "agents.kind",
+  "name": "kind",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "initialize"
+  ]
+ },
+ {
+  "key": "agents.age",
+  "name": "age",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "initialize"
+  ]
+ },
+ {
+  "key": "agents.sex",
+  "name": "sex",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "initialize"
+  ]
+ },
+ {
+  "key": "agents.hunger",
+  "name": "hunger",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "body",
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_complete_buy",
+   "_complete_eat",
+   "_energy_meal",
+   "_energy_snack",
+   "advance_body",
+   "initialize",
+   "initialize_energy"
+  ]
+ },
+ {
+  "key": "agents.fatigue",
+  "name": "fatigue",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "body",
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_apply_rest",
+   "advance_body",
+   "initialize"
+  ]
+ },
+ {
+  "key": "agents.thermal",
+  "name": "thermal",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "world"
+  ],
+  "world_subsystems": [
+   "environment"
+  ],
+  "resolve_writers": [
+   "initialize",
+   "set_thermal"
+  ]
+ },
+ {
+  "key": "agents.hunger_stage",
+  "name": "hunger_stage",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "detect"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "energy_home_meal",
+   "initialize_energy"
+  ]
+ },
+ {
+  "key": "agents.fatigue_stage",
+  "name": "fatigue_stage",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "detect"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "agents.thermal_stage",
+  "name": "thermal_stage",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "detect"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "agents.money",
+  "name": "money",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_board_riders",
+   "_complete_buy",
+   "_complete_eat",
+   "initialize"
+  ]
+ },
+ {
+  "key": "agents.holdings",
+  "name": "holdings",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_complete_buy"
+  ]
+ },
+ {
+  "key": "agents.activity",
+  "name": "activity",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "apply_responses",
+   "close_final",
+   "conversation",
+   "phase_c",
+   "plan_boundary",
+   "presence",
+   "world"
+  ],
+  "world_subsystems": [
+   "crowd",
+   "large_event",
+   "presence.step",
+   "presence.step_plan_boundaries",
+   "rail"
+  ],
+  "resolve_writers": [
+   "_apply_alight",
+   "_apply_board",
+   "_apply_buy",
+   "_apply_eat",
+   "_apply_engine_step",
+   "_apply_leave",
+   "_apply_move",
+   "_apply_rest",
+   "_apply_sleep",
+   "_apply_talk",
+   "_apply_wait",
+   "_board_riders",
+   "_complete_buy",
+   "_complete_eat",
+   "_enter_board_queue",
+   "_serve_board_queue",
+   "_serve_poi_queue",
+   "balk_queue",
+   "begin_exit_walk",
+   "begin_planned_sleep",
+   "fail_intent",
+   "initialize",
+   "join_conversation",
+   "place_at_external",
+   "rail_arrive",
+   "rail_depart",
+   "release_indoor",
+   "revert_conversation",
+   "set_conversing",
+   "set_initial_activity",
+   "sync_transit_activity",
+   "wake_from_plan"
+  ]
+ },
+ {
+  "key": "agents.talk_partner",
+  "name": "talk_partner",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "apply_responses",
+   "conversation",
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_apply_leave",
+   "_apply_talk",
+   "join_conversation",
+   "revert_conversation",
+   "set_conversing"
+  ]
+ },
+ {
+  "key": "agents.transit_state",
+  "name": "transit_state",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "close_final",
+   "phase_c",
+   "presence",
+   "world"
+  ],
+  "world_subsystems": [
+   "large_event",
+   "presence.step",
+   "rail"
+  ],
+  "resolve_writers": [
+   "_apply_alight",
+   "_board_riders",
+   "place_at_external",
+   "rail_arrive",
+   "rail_depart"
+  ]
+ },
+ {
+  "key": "agents.transit_ref",
+  "name": "transit_ref",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "close_final",
+   "phase_c",
+   "presence",
+   "world"
+  ],
+  "world_subsystems": [
+   "large_event",
+   "presence.step",
+   "rail"
+  ],
+  "resolve_writers": [
+   "_apply_alight",
+   "_board_riders",
+   "place_at_external",
+   "rail_arrive",
+   "rail_depart"
+  ]
+ },
+ {
+  "key": "agents.board_line",
+  "name": "board_line",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c",
+   "plan_boundary"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_apply_board",
+   "_apply_engine_step",
+   "_board_riders",
+   "_enter_board_queue",
+   "_serve_board_queue",
+   "apply",
+   "begin_exit_walk",
+   "begin_planned_sleep",
+   "clear_board_intent",
+   "place_at_external"
+  ]
+ },
+ {
+  "key": "agents.board_since",
+  "name": "board_since",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_apply_board",
+   "_apply_engine_step",
+   "_board_riders",
+   "_enter_board_queue",
+   "_serve_board_queue",
+   "apply",
+   "begin_exit_walk",
+   "begin_planned_sleep",
+   "clear_board_intent",
+   "place_at_external"
+  ]
+ },
+ {
+  "key": "agents.sleep_pending",
+  "name": "sleep_pending",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c",
+   "plan_boundary"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_apply_engine_step",
+   "apply",
+   "begin_planned_sleep",
+   "wake_from_plan"
+  ]
+ },
+ {
+  "key": "agents.intent_action",
+  "name": "intent_action",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "activity_intent",
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_clear_intent_fields",
+   "set_intent"
+  ]
+ },
+ {
+  "key": "agents.intent_target",
+  "name": "intent_target",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "activity_intent",
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_clear_intent_fields",
+   "set_intent"
+  ]
+ },
+ {
+  "key": "agents.intent_kind",
+  "name": "intent_kind",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "activity_intent",
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_clear_intent_fields",
+   "set_intent"
+  ]
+ },
+ {
+  "key": "agents.intent_since",
+  "name": "intent_since",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "activity_intent",
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_clear_intent_fields",
+   "set_intent"
+  ]
+ },
+ {
+  "key": "agents.poi_ref",
+  "name": "poi_ref",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c",
+   "presence",
+   "world"
+  ],
+  "world_subsystems": [
+   "crowd",
+   "presence.step"
+  ],
+  "resolve_writers": [
+   "_board_riders",
+   "_complete_buy",
+   "_complete_eat",
+   "release_indoor"
+  ]
+ },
+ {
+  "key": "agents.poi_since",
+  "name": "poi_since",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c",
+   "presence",
+   "world"
+  ],
+  "world_subsystems": [
+   "crowd",
+   "presence.step"
+  ],
+  "resolve_writers": [
+   "_complete_buy",
+   "_complete_eat",
+   "release_indoor"
+  ]
+ },
+ {
+  "key": "agents.queue_poi",
+  "name": "queue_poi",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_apply_buy",
+   "_apply_eat",
+   "_board_riders",
+   "_complete_buy",
+   "_complete_eat",
+   "_serve_poi_queue",
+   "balk_queue"
+  ]
+ },
+ {
+  "key": "agents.queue_since",
+  "name": "queue_since",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_apply_buy",
+   "_apply_eat",
+   "_serve_poi_queue",
+   "balk_queue"
+  ]
+ },
+ {
+  "key": "agents.refractory_until",
+  "name": "refractory_until",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "decide"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "clear_refractory"
+  ]
+ },
+ {
+  "key": "agents.last_action",
+  "name": "last_action",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "apply",
+   "fail_intent",
+   "relabel_intent_failure"
+  ]
+ },
+ {
+  "key": "agents.last_result",
+  "name": "last_result",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_fail",
+   "_ok",
+   "apply",
+   "balk_queue",
+   "fail_intent",
+   "join_conversation",
+   "request_open_close"
+  ]
+ },
+ {
+  "key": "agents.last_result_tick",
+  "name": "last_result_tick",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_fail",
+   "_ok",
+   "apply",
+   "balk_queue",
+   "fail_intent",
+   "join_conversation",
+   "request_open_close"
+  ]
+ },
+ {
+  "key": "agents.fail_streak",
+  "name": "fail_streak",
+  "place": "agents",
+  "behavior": "no",
+  "restore": "unknown",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_fail",
+   "_ok",
+   "apply",
+   "balk_queue",
+   "fail_intent",
+   "request_open_close"
+  ]
+ },
+ {
+  "key": "agents.edge_id",
+  "name": "edge_id",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_apply_engine_step",
+   "apply"
+  ]
+ },
+ {
+  "key": "agents.edge_s",
+  "name": "edge_s",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_apply_engine_step",
+   "apply"
+  ]
+ },
+ {
+  "key": "agents.focus_target",
+  "name": "focus_target",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_advance_focus",
+   "_clear_focus",
+   "_set_focus",
+   "_settle_approach"
+  ]
+ },
+ {
+  "key": "agents.focus_ttl",
+  "name": "focus_ttl",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_advance_focus",
+   "_clear_focus",
+   "_set_focus",
+   "_settle_approach"
+  ]
+ },
+ {
+  "key": "agents.weight_kg",
+  "name": "weight_kg",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "initialize_energy"
+  ]
+ },
+ {
+  "key": "agents.eer_kcal",
+  "name": "eer_kcal",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "initialize_energy"
+  ]
+ },
+ {
+  "key": "agents.since_meal_kcal",
+  "name": "since_meal_kcal",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "body",
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_energy_meal",
+   "_energy_snack",
+   "initialize_energy"
+  ]
+ },
+ {
+  "key": "agents.energy_balance",
+  "name": "energy_balance",
+  "place": "agents",
+  "behavior": "diag",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "body",
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_energy_meal",
+   "_energy_snack",
+   "initialize_energy"
+  ]
+ },
+ {
+  "key": "agents.plan_activity",
+  "name": "plan_activity",
+  "place": "agents",
+  "behavior": "no",
+  "restore": "unknown",
+  "dead": false,
+  "systems": [
+   "day_head",
+   "plan_boundary",
+   "presence"
+  ],
+  "world_subsystems": [
+   "presence.step",
+   "presence.step_plan_boundaries"
+  ],
+  "resolve_writers": [
+   "set_plan_state"
+  ]
+ },
+ {
+  "key": "agents.plan_flags",
+  "name": "plan_flags",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "presence",
+   "world"
+  ],
+  "world_subsystems": [
+   "large_event",
+   "presence.step"
+  ],
+  "resolve_writers": [
+   "set_plan_state"
+  ]
+ },
+ {
+  "key": "agents.activity_until",
+  "name": "activity_until",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "activity_intent"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "set_activity",
+   "set_activity_until"
+  ]
+ },
+ {
+  "key": "agents.activity_kind",
+  "name": "activity_kind",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "activity_intent"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "set_activity"
+  ]
+ },
+ {
+  "key": "agents.fam_thing",
+  "name": "fam_thing",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_familiarity"
+  ]
+ },
+ {
+  "key": "agents.fam_first",
+  "name": "fam_first",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_familiarity"
+  ]
+ },
+ {
+  "key": "agents.fam_last",
+  "name": "fam_last",
+  "place": "agents",
+  "behavior": "no",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_familiarity"
+  ]
+ },
+ {
+  "key": "agents.fam_visits",
+  "name": "fam_visits",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_familiarity"
+  ]
+ },
+ {
+  "key": "agents.fam_exposures",
+  "name": "fam_exposures",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_familiarity"
+  ]
+ },
+ {
+  "key": "agents.mem_kind",
+  "name": "mem_kind",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_memory"
+  ]
+ },
+ {
+  "key": "agents.mem_tick",
+  "name": "mem_tick",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_memory"
+  ]
+ },
+ {
+  "key": "agents.mem_last",
+  "name": "mem_last",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "decide",
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_memory"
+  ]
+ },
+ {
+  "key": "agents.mem_cell",
+  "name": "mem_cell",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_memory"
+  ]
+ },
+ {
+  "key": "agents.mem_partner",
+  "name": "mem_partner",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_memory"
+  ]
+ },
+ {
+  "key": "agents.mem_object",
+  "name": "mem_object",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_memory"
+  ]
+ },
+ {
+  "key": "agents.mem_result",
+  "name": "mem_result",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_memory"
+  ]
+ },
+ {
+  "key": "agents.mem_importance",
+  "name": "mem_importance",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "decide",
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_memory"
+  ]
+ },
+ {
+  "key": "agents.mem_n",
+  "name": "mem_n",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "decide",
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_memory"
+  ]
+ },
+ {
+  "key": "agents.sm_poi",
+  "name": "sm_poi",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_store_memory"
+  ]
+ },
+ {
+  "key": "agents.sm_valence",
+  "name": "sm_valence",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_store_memory"
+  ]
+ },
+ {
+  "key": "agents.sm_precision",
+  "name": "sm_precision",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_store_memory"
+  ]
+ },
+ {
+  "key": "agents.sm_first",
+  "name": "sm_first",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_store_memory"
+  ]
+ },
+ {
+  "key": "agents.sm_last",
+  "name": "sm_last",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_store_memory"
+  ]
+ },
+ {
+  "key": "agents.sm_n",
+  "name": "sm_n",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_store_memory"
+  ]
+ },
+ {
+  "key": "agents.sm_source",
+  "name": "sm_source",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_store_memory"
+  ]
+ },
+ {
+  "key": "agents.rel_partner",
+  "name": "rel_partner",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_relations"
+  ]
+ },
+ {
+  "key": "agents.rel_kind",
+  "name": "rel_kind",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_relations"
+  ]
+ },
+ {
+  "key": "agents.rel_sign",
+  "name": "rel_sign",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_relations"
+  ]
+ },
+ {
+  "key": "agents.rel_first",
+  "name": "rel_first",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_relations"
+  ]
+ },
+ {
+  "key": "agents.rel_last",
+  "name": "rel_last",
+  "place": "agents",
+  "behavior": "no",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory",
+   "relations_wake"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_relations"
+  ]
+ },
+ {
+  "key": "agents.rel_n",
+  "name": "rel_n",
+  "place": "agents",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory",
+   "relations_wake"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "write_relations"
+  ]
+ },
+ {
+  "key": "cells.density",
+  "name": "density",
+  "place": "cells",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "apply",
+   "initialize"
+  ]
+ },
+ {
+  "key": "cells.density_stage",
+  "name": "density_stage",
+  "place": "cells",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "apply",
+   "initialize"
+  ]
+ },
+ {
+  "key": "cells.noise_stage",
+  "name": "noise_stage",
+  "place": "cells",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "cells.open_count",
+  "name": "open_count",
+  "place": "cells",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "apply",
+   "initialize"
+  ]
+ },
+ {
+  "key": "cells.b4_hash",
+  "name": "b4_hash",
+  "place": "cells",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [
+   "detect"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "apply_detection"
+  ]
+ },
+ {
+  "key": "pois.cell",
+  "name": "cell",
+  "place": "pois",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "apply",
+   "initialize",
+   "place_at_external",
+   "rail_arrive",
+   "rail_depart"
+  ]
+ },
+ {
+  "key": "pois.node",
+  "name": "node",
+  "place": "pois",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_apply_alight",
+   "_apply_engine_step",
+   "_board_riders",
+   "apply",
+   "initialize",
+   "place_at_external",
+   "rail_arrive",
+   "rail_depart"
+  ]
+ },
+ {
+  "key": "pois.stock",
+  "name": "stock",
+  "place": "pois",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_complete_buy",
+   "discard_to_bin",
+   "restock"
+  ]
+ },
+ {
+  "key": "pois.price",
+  "name": "price",
+  "place": "pois",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "pois.revenue",
+  "name": "revenue",
+  "place": "pois",
+  "behavior": "diag",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "_complete_buy",
+   "_complete_eat"
+  ]
+ },
+ {
+  "key": "pois.capacity",
+  "name": "capacity",
+  "place": "pois",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "pois.open_from",
+  "name": "open_from",
+  "place": "pois",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "pois.open_to",
+  "name": "open_to",
+  "place": "pois",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "pois.open_now",
+  "name": "open_now",
+  "place": "pois",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "world"
+  ],
+  "world_subsystems": [
+   "opening"
+  ],
+  "resolve_writers": [
+   "request_open_close",
+   "set_open_flags"
+  ]
+ },
+ {
+  "key": "perception.heading",
+  "name": "heading",
+  "place": "perception",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "set_notice_state"
+  ]
+ },
+ {
+  "key": "perception.task_flag",
+  "name": "task_flag",
+  "place": "perception",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": [
+   "set_notice_state"
+  ]
+ },
+ {
+  "key": "perception.invocation_distance",
+  "name": "invocation_distance",
+  "place": "perception",
+  "behavior": "no",
+  "restore": "discardable",
+  "dead": true,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O1",
+  "name": "ActivityLayer text・until_kind",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "activity_intent"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O2",
+  "name": "ActivityLayer text_id・_texts・_text_ids・_digest_cache",
+  "place": "external",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [
+   "activity_intent"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O3",
+  "name": "ActivityLayer _bt_agent・_bt_tick・_bt_start",
+  "place": "external",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O4",
+  "name": "IntentLayer _payload",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "activity_intent"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O5",
+  "name": "IntentLayer _proposals・_executing・_kept_walk",
+  "place": "external",
+  "behavior": "no",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "activity_intent",
+   "apply_responses",
+   "phase_a"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O6",
+  "name": "IntentLayer stats・ticks_sum・ticks_n",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "activity_intent",
+   "apply_responses",
+   "detect",
+   "phase_a"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O7",
+  "name": "FamiliarityLayer prev_cell",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O8",
+  "name": "MemoryLayer gist・_gist_order",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "decide"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O9",
+  "name": "MemoryLayer _session_key・_gist_done",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "decide",
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O10",
+  "name": "MemoryLayer _next_session・_next_join",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O11",
+  "name": "MemoryLayer _target・stats・recall_stats",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "decide",
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O12",
+  "name": "StoreMemory stats",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O13",
+  "name": "StoreChoice choice_poi・choice_reason・stats・by_hour",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "apply_responses"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O14",
+  "name": "StoreChoice _b_tick・_b_off",
+  "place": "external",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O15",
+  "name": "WomExtractor stats・top・unmatched_words",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "decide"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O16",
+  "name": "RelationLayer _prev_cell",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "relations_wake"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O17",
+  "name": "RelationLayer _acq_until",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "decide"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O18",
+  "name": "RelationLayer _co_since・_co_day・_co_active",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "relations_wake"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O19",
+  "name": "RelationLayer _invite_salt・chosen_count・origin_of・stats ほか",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "apply_responses",
+   "conversation",
+   "decide",
+   "memory",
+   "relations_wake"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O20",
+  "name": "ClassicalPolicy _prev",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "decide"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O21",
+  "name": "ClassicalPolicy _gate_hazard(EnergyLayer meal_reset と同じ配列)",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O22",
+  "name": "ClassicalPolicy _condition・_tick・_eating_tick・_eating_cells",
+  "place": "external",
+  "behavior": "no",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "decide"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O23",
+  "name": "ClassicalPolicy _b_tick・_b_off・counts・by_hour",
+  "place": "external",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [
+   "decide"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O24",
+  "name": "ClassicalPolicy home_cell・acq_fn",
+  "place": "external",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O25",
+  "name": "ClassicalChooser last_habit・stats",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "apply_responses"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O26",
+  "name": "TargetResolver _cat_mask_cache・stats・entropy_sum・named_closed・move_stats",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "apply_responses"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O27",
+  "name": "EnergyLayer bmr",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O28",
+  "name": "EnergyLayer meal_bits・n_meals・n_snacks・counts・intake_kcal・meal_start_*・stage_ticks*",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "body",
+   "energy_after",
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O29",
+  "name": "OutOfAreaMeals の予定 tick・agent・slot・from_row・_start",
+  "place": "external",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O30",
+  "name": "OutOfAreaMeals の遅らせの表 d_agent・d_slot・d_arm_tick・d_eat_tick・d_wake_min",
+  "place": "external",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O31",
+  "name": "OutOfAreaMeals d_armed(就寝中の食事を起床時に回す印)",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O32",
+  "name": "HomeMeals の予定 tick・agent・slot・_start・home_cell",
+  "place": "external",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O33",
+  "name": "HomeMeals n_not_home・n_asleep・OutOfAreaMeals の計数 n_armed ほか",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O34",
+  "name": "GroupNormMeter _prev_xy・_pair_keys・_pair_len・計数",
+  "place": "external",
+  "behavior": "no",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "apply_responses",
+   "observe"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O35",
+  "name": "PlanExecutor 退出の歩行 _walk_since・_walk_line・_plan_rider・_rewalked・_rewalk_*",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O36",
+  "name": "PlanExecutor _defer_ids・_defer_deadline・_defer_line・_defer_walk・_extra・_skip_depart_at",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "presence",
+   "world"
+  ],
+  "world_subsystems": [
+   "presence.step",
+   "rail"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O37",
+  "name": "PlanExecutor _pulled_in_today",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "day_head",
+   "world"
+  ],
+  "world_subsystems": [
+   "large_event"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O38",
+  "name": "PlanExecutor ev_*・arrival_*・absent・blocks",
+  "place": "external",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [
+   "day_head"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O39",
+  "name": "ConversationManager sessions・_of_agent・_refusal_until・_next_id・pending_invites・_pair_invite_until・_speaker_invite_until",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "apply_responses",
+   "conversation",
+   "decide"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O40",
+  "name": "ConversationManager join_events",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O41",
+  "name": "ConversationManager origin_counts ほかの計数",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "apply_responses",
+   "conversation",
+   "decide"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O42",
+  "name": "Arbiter _pending・_pool・queue・_last_tick",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "arbiter"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O43",
+  "name": "run_day の局所 pending(適用待ちの応答)",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "apply_responses",
+   "decide"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O44",
+  "name": "run_day の局所 fleet_deferred・fleet_waiting",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O45",
+  "name": "ChangeDetector _prev_raw",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "detect"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O46",
+  "name": "SalientProcess rng・event_seen_tick・budget",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "world"
+  ],
+  "world_subsystems": [
+   "salient"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O47",
+  "name": "PublicServiceDispatchProcess rng・pending",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O48",
+  "name": "HotelProcess rooms_occupied・bed_cell",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O49",
+  "name": "LargeEventProcess _inside",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "world"
+  ],
+  "world_subsystems": [
+   "large_event"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O50",
+  "name": "RailProcess occupancy・peak_ratio・_return_queue・_inbound・_inbound_ready",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "close_final",
+   "day_head",
+   "phase_c",
+   "world"
+  ],
+  "world_subsystems": [
+   "rail"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O51",
+  "name": "CrowdProcess queue_action",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O52",
+  "name": "ShelfRestockProcess backroom・_acted_today",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "world"
+  ],
+  "world_subsystems": [
+   "delivery_inbound"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O53",
+  "name": "WasteCollection _cursor・waste_g_collected/StreetCleaning litter_g・swept_g",
+  "place": "external",
+  "behavior": "no",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "world"
+  ],
+  "world_subsystems": [
+   "street_cleaning",
+   "waste"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O54",
+  "name": "RoadWorks blocked_cells・occupied_edges",
+  "place": "external",
+  "behavior": "no",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "world"
+  ],
+  "world_subsystems": [
+   "road_works"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O55",
+  "name": "LastMile delivered・_cum/BusTaxi・Traffic(cell_hourly・cell_vehicles)・Infra(power_kwh)・Press・Opening・DeliveryInbound の計数",
+  "place": "external",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [
+   "day_head",
+   "world"
+  ],
+  "world_subsystems": [
+   "infra",
+   "last_mile",
+   "traffic"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O56",
+  "name": "EnvironmentProcess replay_date・stratum・_row・_shade",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [
+   "world"
+  ],
+  "world_subsystems": [
+   "environment"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O57",
+  "name": "MoneyLedger _lines・_day",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "close_final",
+   "day_close",
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O58",
+  "name": "MoneyLedger 生ログのリング(中身)",
+  "place": "external",
+  "behavior": "no",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O59",
+  "name": "GoodsLedger _shelf・_bin・_sold_today・_day",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "close_final",
+   "day_close",
+   "phase_c",
+   "world"
+  ],
+  "world_subsystems": [
+   "waste"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O60",
+  "name": "GoodsLedger 配達ログのリング",
+  "place": "external",
+  "behavior": "no",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "phase_c",
+   "world"
+  ],
+  "world_subsystems": [
+   "waste"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O61",
+  "name": "WorldProcessRunner log(ActualLog)",
+  "place": "external",
+  "behavior": "no",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O62",
+  "name": "UndefinedActionRegistry log・counts・precedents",
+  "place": "external",
+  "behavior": "no",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O63",
+  "name": "PerceptionRenderer のキャッシュ _b1_cache〜_b4_cache・_rank_cell_cache・_acq_cache・_tickc",
+  "place": "external",
+  "behavior": "no",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [
+   "decide"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O64",
+  "name": "PerceptionRenderer の口 acquaintance_fn・memory_recall・session_partner_fn・named_closed_lookup・signage_exposures",
+  "place": "external",
+  "behavior": "no",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "decide",
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O65",
+  "name": "LLMBridge・TapeWriter・FleetBridge の計数・行・処理中の呼",
+  "place": "external",
+  "behavior": "no",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O66",
+  "name": "ActivityLayer の計数",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "activity_intent",
+   "detect",
+   "phase_a"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O67",
+  "name": "FamiliarityLayer stats",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O68",
+  "name": "StoreChoice first_by_reason・visits_by_reason",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "memory"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O69",
+  "name": "ClassicalPolicy n_calls",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "decide"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O70",
+  "name": "PlanExecutor の計数と時別の控え",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "close_final",
+   "observe",
+   "plan_boundary",
+   "presence",
+   "world"
+  ],
+  "world_subsystems": [
+   "large_event",
+   "presence.step",
+   "presence.step_plan_boundaries",
+   "rail"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O71",
+  "name": "Arbiter の計数",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "arbiter"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O72",
+  "name": "SalientProcess の計数",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "world"
+  ],
+  "world_subsystems": [
+   "salient"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O73",
+  "name": "世界の過程と実行器の計数",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "close_final",
+   "phase_c",
+   "world"
+  ],
+  "world_subsystems": [
+   "bus_taxi",
+   "crowd",
+   "delivery_inbound",
+   "environment",
+   "infra",
+   "large_event",
+   "last_mile",
+   "opening",
+   "press",
+   "rail",
+   "road_works",
+   "waste"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O74",
+  "name": "RailProcess arrival_train・external_line(帰りの便の予約印・域外居住者の路線)",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "world"
+  ],
+  "world_subsystems": [
+   "large_event",
+   "rail"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O75",
+  "name": "CrowdProcess occupancy・queue_len・flow",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "unknown",
+  "dead": false,
+  "systems": [
+   "world"
+  ],
+  "world_subsystems": [
+   "crowd"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O76",
+  "name": "EnvironmentProcess daylight・heat_stage・wbgt",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "derivable",
+  "dead": false,
+  "systems": [
+   "world"
+  ],
+  "world_subsystems": [
+   "environment"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O77",
+  "name": "MoneyLedger _flow・_last_change_day・_snap0・_last_close(センサスと保存則の項)",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "close_final",
+   "day_close",
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O78",
+  "name": "MoneyLedger rejections",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O79",
+  "name": "GoodsLedger _shelf_age・_household_sku",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "close_final",
+   "day_close",
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O80",
+  "name": "GoodsLedger の保存則の項(_row_sku・_waste_sku・_inflow・_outflow・_residual・_open_stock・廃棄の g)",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "close_final",
+   "day_close",
+   "world"
+  ],
+  "world_subsystems": [
+   "waste"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O81",
+  "name": "GoodsLedger n_moves・rejections",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "phase_c",
+   "world"
+  ],
+  "world_subsystems": [
+   "waste"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O82",
+  "name": "UndefinedActionRegistry proposals・vocabulary_extension・_agents",
+  "place": "external",
+  "behavior": "no",
+  "restore": "unknown",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O83",
+  "name": "UndefinedActionRegistry の計数",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O84",
+  "name": "PerceptionRenderer の計数",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "decide"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O85",
+  "name": "LLMBridge _interned(テープへ書いた共有ブロック)",
+  "place": "external",
+  "behavior": "no",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O86",
+  "name": "LLMBridge の計数",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [
+   "decide"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O87",
+  "name": "TapeWriter の書き出し待ちの行と計数",
+  "place": "external",
+  "behavior": "no",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O88",
+  "name": "FleetBridge _interned",
+  "place": "external",
+  "behavior": "no",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O89",
+  "name": "FleetBridge の計数",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "discardable",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O90",
+  "name": "ClassicalPolicy _ipf_cache(15 分帯ごとの c_t の覚え書き)",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O91",
+  "name": "ConversationManager n_opened(開いたセッションの数)",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "apply_responses"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O92",
+  "name": "MoneyLedger 締めの基準と生ログの位置(_snap・_flow_daily・_raw_pos・_raw_head・_day_marks・n_raw_dropped・n_transfers)",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "close_final",
+   "day_close",
+   "phase_c"
+  ],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O93",
+  "name": "GoodsLedger 配達ログの位置(_dl_pos・_dl_head・_dl_marks・n_delivery_dropped)",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "required",
+  "dead": false,
+  "systems": [
+   "close_final",
+   "day_close",
+   "phase_c",
+   "world"
+  ],
+  "world_subsystems": [
+   "waste"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O94",
+  "name": "TargetResolver named_closed(名指しの店の即時閉店の控え)",
+  "place": "external",
+  "behavior": "behavior",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ },
+ {
+  "key": "O95",
+  "name": "CrowdProcess flow_dir8・coherence(8 方位と向きのそろい)",
+  "place": "external",
+  "behavior": "diag",
+  "restore": "unknown",
+  "dead": false,
+  "systems": [
+   "world"
+  ],
+  "world_subsystems": [
+   "crowd"
+  ],
+  "resolve_writers": []
+ },
+ {
+  "key": "O96",
+  "name": "run_day の局所 replay_inbox(再生の到着待ち)",
+  "place": "external",
+  "behavior": "no",
+  "restore": "required",
+  "dead": false,
+  "systems": [],
+  "world_subsystems": [],
+  "resolve_writers": []
+ }
+]

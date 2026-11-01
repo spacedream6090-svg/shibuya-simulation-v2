@@ -1,0 +1,1207 @@
+{
+ "note": "第 6 期 6-2 カレンダー 3 の腕 arm(+C1+カレンダー 2・試験用の印=分析に使わない)・mock 5,000 体・seed 1・世界 v2(W21)・独立検収の直し(H1 雇い主の口の表を最初の刻みの頭に作る・M1 組む機会=金曜の頭+試験用の印の土日始まりは 0 日目)と C1 の家での充電のつなぎ(BR-CT1-CHARGE-AT-HOME)の後。道具 tools/run_ca3.py。数は振る舞いのモデルではない",
+ "sunday_1day": {
+  "mode": "one",
+  "agents": 5000,
+  "seed": 1,
+  "start": "2026-07-26",
+  "days": 1,
+  "activity": "on",
+  "events": "on",
+  "final": "c1acc2841723b33f72f2c1c43717a8b2c9920c41b03550924ef5e94911afb04d",
+  "llm_calls": 0,
+  "wall_s": 24.0,
+  "calls_by_model": {
+   "judge_model": 40971,
+   "llm": 3978,
+   "contact": {
+    "judge_model": 11883,
+    "llm": 1968
+   },
+   "calendar_2": {
+    "judge_model": 24814,
+    "llm": 2010
+   },
+   "calendar_3": {
+    "judge_model": 4274,
+    "llm": 0
+   }
+  },
+  "events_by_what": {
+   "勤務:休みにした": 1,
+   "勤務:休みを申し出た": 21,
+   "勤務:受けた": 4,
+   "勤務:断った": 1,
+   "勤務:書いた": 2136,
+   "勤務:枠を決めた": 3808
+  },
+  "audit": {
+   "calendar_3": {
+    "events": 5971,
+    "violations": 0,
+    "examples": []
+   },
+   "contact_c1": {
+    "events": 8373,
+    "violations": 0,
+    "examples": []
+   },
+   "calendar_2": {
+    "events": 15429,
+    "violations": 0,
+    "examples": []
+   }
+  },
+  "event_log": {
+   "rows": 56497,
+   "nbytes": 4067784,
+   "cause_nbytes": 1739838,
+   "work_rows": 5971
+  },
+  "calendar_3": {
+   "schema": "shibuya.engine.calendar3/1",
+   "arm": "arm",
+   "trial": {
+    "mark": "試験用(分析に使わない)",
+    "start_rule_violations": [
+     "0 日目が月曜でない(曜日 6・2026-07-26)"
+    ]
+   },
+   "port": "calendar3-mock",
+   "compose": {
+    "weekday": 4,
+    "begins_at": "週の最後の平日(金曜)の頭(その日の最初の刻み)・試験用の印のランは土日始まりの 0 日目の頭にも",
+    "decides_at": "起きていて主の判断の呼びの無い最初の刻み(範囲の外の体は寝ていなければ起きている)",
+    "week": "次の月曜から 7 日",
+    "week_days": 7,
+    "scheduler_role": "店長",
+    "frames": "その人の W20 の約束の形(始業〜終業・重ならない組)",
+    "max_send_tries": 3
+   },
+   "labor": {
+    "source": [
+     "labor.statutory_hours",
+     "labor.weekly_rest_day"
+    ],
+    "kind": [
+     "human",
+     "human"
+    ],
+    "max_hours_per_week": 40,
+    "max_hours_per_day": 8,
+    "min_rest_days_per_week": 1,
+    "enforced": false
+   },
+   "arbitration": {
+    "main_first": "雇い主の組む・送り直す・働く人の遅れの判断は、その刻みに主の判断の呼びのあった体ではしない(次の刻みに回す)",
+    "read_content": "読んだ・聞いたときの判断(書く・申し出る・返事・休みにする)は読んだ刻みの中身(C1 の読む判断は主の判断の無い刻み)"
+   },
+   "store_rules": {
+    "closed_days": "枠だけ(本段は空=店のエージェントの段)"
+   },
+   "provisional": [
+    "判断の候補の語と源の当て方(その日の枠・知らせ・休みの申し出・休みたい日・返事・返事を受けて・遅れの連絡)",
+    "仮のモデル(mock)は候補を語と id の順に並べ乱数の余りで一様に選ぶ(判断モデルの代わり)"
+   ],
+   "decisions": {
+    "answer": 5,
+    "apply": 3,
+    "frame": 3808,
+    "notify": 395,
+    "rest": 42,
+    "rest_day": 21
+   },
+   "roster": {
+    "units": 428,
+    "by_kind": {
+     "組織": 420,
+     "店": 8
+    },
+    "scheduler_by": {
+     "最初の担当": 153,
+     "本人": 271,
+     "店長": 4
+    },
+    "schedulers": 428,
+    "weekly_workers": 1124,
+    "fixed_workers": 1976,
+    "weekly_outside_employer": 381,
+    "weekly_no_employer": 199,
+    "weekly_scheduled": 544
+   },
+   "composed": {
+    "begun": 428,
+    "begun_on_trial_day0": 1,
+    "by:店長": 4,
+    "by:最初の担当": 153,
+    "by:本人": 271,
+    "units": 428,
+    "weekday:6": 428,
+    "workers": 544,
+    "hour_of_day": {
+     "0": 428
+    }
+   },
+   "work_days_per_week": {
+    "2": 3,
+    "3": 27,
+    "4": 65,
+    "5": 170,
+    "6": 176,
+    "7": 103
+   },
+   "rest": {
+    "accepted": 4,
+    "applied": 1,
+    "asked": 21,
+    "declined": 1,
+    "kept": 2,
+    "not_asked": 21,
+    "replied_in_call": 2,
+    "reply_declined_read": 1,
+    "self_scheduled": 353,
+    "accept_rate": 0.8
+   },
+   "contacts": {
+    "c1_judge_calls": 162,
+    "c1_llm_calls": 108,
+    "call_connected:シフトの知らせ": 19,
+    "call_connected:休みの申し出": 2,
+    "call_failed:シフトの知らせ": 30,
+    "call_failed:休みの申し出": 2,
+    "call_failed:申し出への返事": 1,
+    "held:シフトの知らせ": 44,
+    "held:休みの申し出": 9,
+    "read_by_other": 49,
+    "received:シフトの知らせ": 395,
+    "received:休みの申し出": 5,
+    "received:申し出への返事": 4,
+    "self:シフトの知らせ": 353,
+    "sent:シフトの知らせ:call": 49,
+    "sent:シフトの知らせ:group": 49,
+    "sent:シフトの知らせ:msg": 49,
+    "sent:休みの申し出:call": 4,
+    "sent:休みの申し出:group": 6,
+    "sent:休みの申し出:msg": 2,
+    "sent:申し出への返事:call": 1,
+    "sent:申し出への返事:group": 1,
+    "sent:申し出への返事:msg": 1
+   },
+   "rows": {
+    "written": 2136
+   },
+   "late": {},
+   "labor_over": {
+    "frame_outside_store_hours": 409,
+    "frames_checked_hours": 604,
+    "over_day_hours": 1493,
+    "over_week_hours": 314,
+    "short_rest_days": 103
+   },
+   "holiday": {},
+   "common_knowledge": {
+    "asked": 3110,
+    "line": "今日は 7 月 26 日(日)。"
+   },
+   "live": {
+    "rows": 2136,
+    "plans": 428,
+    "messages": 80,
+    "out": 0,
+    "calls": 0,
+    "wait": 86,
+    "agenda_steps": 2650,
+    "assigned_per_unit_day": {
+     "0": 590,
+     "1": 2113,
+     "2": 188,
+     "3": 34,
+     "4": 32,
+     "5": 14,
+     "6": 8,
+     "7": 8,
+     "8": 3,
+     "9": 4,
+     "10": 1,
+     "11": 1
+    }
+   },
+   "calls": {
+    "judge_model": 4274,
+    "llm": 0
+   }
+  },
+  "meter": {
+   "chosen:そのまま": 2,
+   "chosen:休み": 834,
+   "chosen:休みたい日": 21,
+   "chosen:休みを申し出る": 21,
+   "chosen:受ける": 4,
+   "chosen:断る": 1,
+   "chosen:枠": 2974,
+   "chosen:申し出ない": 21,
+   "chosen:知らせ": 274,
+   "chosen:知らせない": 121,
+   "chosen:自分の行を休みにする": 1,
+   "common:asked": 3110,
+   "composed:begun": 428,
+   "composed:begun_on_trial_day0": 1,
+   "composed:by:店長": 4,
+   "composed:by:最初の担当": 153,
+   "composed:by:本人": 271,
+   "composed:units": 428,
+   "composed:weekday:6": 428,
+   "composed:workers": 544,
+   "contacts:c1_judge_calls": 162,
+   "contacts:c1_llm_calls": 108,
+   "contacts:call_connected:シフトの知らせ": 19,
+   "contacts:call_connected:休みの申し出": 2,
+   "contacts:call_failed:シフトの知らせ": 30,
+   "contacts:call_failed:休みの申し出": 2,
+   "contacts:call_failed:申し出への返事": 1,
+   "contacts:held:シフトの知らせ": 44,
+   "contacts:held:休みの申し出": 9,
+   "contacts:read_by_other": 49,
+   "contacts:received:シフトの知らせ": 395,
+   "contacts:received:休みの申し出": 5,
+   "contacts:received:申し出への返事": 4,
+   "contacts:self:シフトの知らせ": 353,
+   "contacts:sent:シフトの知らせ:call": 49,
+   "contacts:sent:シフトの知らせ:group": 49,
+   "contacts:sent:シフトの知らせ:msg": 49,
+   "contacts:sent:休みの申し出:call": 4,
+   "contacts:sent:休みの申し出:group": 6,
+   "contacts:sent:休みの申し出:msg": 2,
+   "contacts:sent:申し出への返事:call": 1,
+   "contacts:sent:申し出への返事:group": 1,
+   "contacts:sent:申し出への返事:msg": 1,
+   "decisions:answer": 5,
+   "decisions:apply": 3,
+   "decisions:frame": 3808,
+   "decisions:notify": 395,
+   "decisions:rest": 42,
+   "decisions:rest_day": 21,
+   "events:勤務:休みにした": 1,
+   "events:勤務:休みを申し出た": 21,
+   "events:勤務:受けた": 4,
+   "events:勤務:断った": 1,
+   "events:勤務:書いた": 2136,
+   "events:勤務:枠を決めた": 3808,
+   "labor:frame_outside_store_hours": 409,
+   "labor:frames_checked_hours": 604,
+   "labor:over_day_hours": 1493,
+   "labor:over_week_hours": 314,
+   "labor:short_rest_days": 103,
+   "rest:accepted": 4,
+   "rest:applied": 1,
+   "rest:asked": 21,
+   "rest:declined": 1,
+   "rest:kept": 2,
+   "rest:not_asked": 21,
+   "rest:replied_in_call": 2,
+   "rest:reply_declined_read": 1,
+   "rest:self_scheduled": 353,
+   "rows:written": 2136,
+   "store_rules:asked": 428
+  },
+  "calendar_days": [
+   {
+    "date": "2026-07-26",
+    "weekday": 6,
+    "holiday": "",
+    "rest_day": true
+   }
+  ],
+  "checkpoints_behavior": [
+   [
+    359,
+    "45188e273205aec5a49aec3df5b902b65d6607d43bdcd79254c9a1550e128fc2"
+   ],
+   [
+    719,
+    "c4d1ac1dc8e0b2e614597a53b715befef1e492db7416d97e17f54a0a3f5d5df2"
+   ],
+   [
+    1079,
+    "2f089c2a7997bc59223697cf6aeb2a674f5adfb5a5022ebb426b8b9d10a866ba"
+   ],
+   [
+    1439,
+    "c1acc2841723b33f72f2c1c43717a8b2c9920c41b03550924ef5e94911afb04d"
+   ]
+  ]
+ },
+ "sunday_monday_2days_activity_off": {
+  "mode": "one",
+  "agents": 5000,
+  "seed": 1,
+  "start": "2026-07-26",
+  "days": 2,
+  "activity": "off",
+  "events": "on",
+  "final": "581f6169aab50a5bdf1ec2200bcf3039d632f59ed6473dfa99db6dfd82a3ba26",
+  "llm_calls": 43310,
+  "wall_s": 104.1,
+  "calls_by_model": {
+   "judge_model": 321760,
+   "llm": 77446,
+   "contact": {
+    "judge_model": 125630,
+    "llm": 16502
+   },
+   "calendar_2": {
+    "judge_model": 191445,
+    "llm": 17634
+   },
+   "calendar_3": {
+    "judge_model": 4685,
+    "llm": 0
+   }
+  },
+  "events_by_what": {
+   "勤務:休みにした": 11,
+   "勤務:休みを申し出た": 74,
+   "勤務:受けた": 33,
+   "勤務:断った": 24,
+   "勤務:書いた": 2715,
+   "勤務:枠を決めた": 3808,
+   "勤務:知らせ": 281,
+   "勤務:遅れると伝えた": 32
+  },
+  "audit": {
+   "calendar_3": {
+    "events": 6978,
+    "violations": 0,
+    "examples": []
+   },
+   "contact_c1": {
+    "events": 81324,
+    "violations": 0,
+    "examples": []
+   },
+   "calendar_2": {
+    "events": 110452,
+    "violations": 0,
+    "examples": []
+   }
+  },
+  "event_log": {
+   "rows": 260936,
+   "nbytes": 18787392,
+   "cause_nbytes": 12892032,
+   "work_rows": 6978
+  },
+  "calendar_3": {
+   "schema": "shibuya.engine.calendar3/1",
+   "arm": "arm",
+   "trial": {
+    "mark": "試験用(分析に使わない)",
+    "start_rule_violations": [
+     "0 日目が月曜でない(曜日 6・2026-07-26)",
+     "複数日が連続する平日に収まらない(0 日目=2026-07-26)"
+    ]
+   },
+   "port": "calendar3-mock",
+   "compose": {
+    "weekday": 4,
+    "begins_at": "週の最後の平日(金曜)の頭(その日の最初の刻み)・試験用の印のランは土日始まりの 0 日目の頭にも",
+    "decides_at": "起きていて主の判断の呼びの無い最初の刻み(範囲の外の体は寝ていなければ起きている)",
+    "week": "次の月曜から 7 日",
+    "week_days": 7,
+    "scheduler_role": "店長",
+    "frames": "その人の W20 の約束の形(始業〜終業・重ならない組)",
+    "max_send_tries": 3
+   },
+   "labor": {
+    "source": [
+     "labor.statutory_hours",
+     "labor.weekly_rest_day"
+    ],
+    "kind": [
+     "human",
+     "human"
+    ],
+    "max_hours_per_week": 40,
+    "max_hours_per_day": 8,
+    "min_rest_days_per_week": 1,
+    "enforced": false
+   },
+   "arbitration": {
+    "main_first": "雇い主の組む・送り直す・働く人の遅れの判断は、その刻みに主の判断の呼びのあった体ではしない(次の刻みに回す)",
+    "read_content": "読んだ・聞いたときの判断(書く・申し出る・返事・休みにする)は読んだ刻みの中身(C1 の読む判断は主の判断の無い刻み)"
+   },
+   "store_rules": {
+    "closed_days": "枠だけ(本段は空=店のエージェントの段)"
+   },
+   "provisional": [
+    "判断の候補の語と源の当て方(その日の枠・知らせ・休みの申し出・休みたい日・返事・返事を受けて・遅れの連絡)",
+    "仮のモデル(mock)は候補を語と id の順に並べ乱数の余りで一様に選ぶ(判断モデルの代わり)"
+   ],
+   "decisions": {
+    "answer": 57,
+    "apply": 27,
+    "frame": 3808,
+    "late": 76,
+    "notify": 498,
+    "rest": 145,
+    "rest_day": 74
+   },
+   "roster": {
+    "units": 428,
+    "by_kind": {
+     "組織": 420,
+     "店": 8
+    },
+    "scheduler_by": {
+     "最初の担当": 153,
+     "本人": 271,
+     "店長": 4
+    },
+    "schedulers": 428,
+    "weekly_workers": 1124,
+    "fixed_workers": 1976,
+    "weekly_outside_employer": 381,
+    "weekly_no_employer": 199,
+    "weekly_scheduled": 544
+   },
+   "composed": {
+    "begun": 428,
+    "begun_on_trial_day0": 1,
+    "by:店長": 4,
+    "by:最初の担当": 153,
+    "by:本人": 271,
+    "units": 428,
+    "weekday:6": 428,
+    "workers": 544,
+    "hour_of_day": {
+     "0": 428
+    }
+   },
+   "work_days_per_week": {
+    "2": 3,
+    "3": 27,
+    "4": 65,
+    "5": 170,
+    "6": 176,
+    "7": 103
+   },
+   "rest": {
+    "accepted": 33,
+    "applied": 11,
+    "asked": 74,
+    "declined": 24,
+    "kept": 16,
+    "not_asked": 71,
+    "replied_in_call": 10,
+    "reply_declined_read": 21,
+    "row_gone": 1,
+    "self_scheduled": 353,
+    "accept_rate": 0.5789473684210527
+   },
+   "contacts": {
+    "c1_judge_calls": 422,
+    "c1_llm_calls": 275,
+    "call_connected:シフトの知らせ": 27,
+    "call_connected:休みの申し出": 10,
+    "call_connected:申し出への返事": 9,
+    "call_connected:遅れの連絡": 1,
+    "call_failed:シフトの知らせ": 54,
+    "call_failed:休みの申し出": 20,
+    "call_failed:申し出への返事": 16,
+    "call_failed:遅れの連絡": 10,
+    "gave_up": 4,
+    "held:シフトの知らせ": 44,
+    "held:休みの申し出": 14,
+    "held:申し出への返事": 3,
+    "held:遅れの連絡": 3,
+    "held_retries": 2,
+    "read_by_other": 299,
+    "received:シフトの知らせ": 498,
+    "received:休みの申し出": 57,
+    "received:申し出への返事": 49,
+    "received:遅れの連絡": 21,
+    "self:シフトの知らせ": 353,
+    "sent:シフトの知らせ:call": 81,
+    "sent:シフトの知らせ:group": 66,
+    "sent:シフトの知らせ:msg": 80,
+    "sent:休みの申し出:call": 30,
+    "sent:休みの申し出:group": 42,
+    "sent:休みの申し出:msg": 21,
+    "sent:申し出への返事:call": 25,
+    "sent:申し出への返事:group": 19,
+    "sent:申し出への返事:msg": 16,
+    "sent:遅れの連絡:call": 11,
+    "sent:遅れの連絡:group": 15,
+    "sent:遅れの連絡:msg": 16
+   },
+   "rows": {
+    "closed:休み": 1,
+    "closed:済み": 375,
+    "notified": 281,
+    "written": 2715
+   },
+   "late": {
+    "as_is": 44,
+    "at_work_or_no_cell": 7,
+    "self_scheduled": 181,
+    "told": 32
+   },
+   "labor_over": {
+    "frame_outside_store_hours": 409,
+    "frames_checked_hours": 604,
+    "over_day_hours": 1493,
+    "over_week_hours": 314,
+    "short_rest_days": 103
+   },
+   "holiday": {},
+   "common_knowledge": {
+    "asked": 3410,
+    "line": "今日は 7 月 27 日(月)。"
+   },
+   "live": {
+    "rows": 2339,
+    "plans": 428,
+    "messages": 60,
+    "out": 0,
+    "calls": 0,
+    "wait": 18,
+    "agenda_steps": 2679,
+    "assigned_per_unit_day": {
+     "0": 590,
+     "1": 2113,
+     "2": 188,
+     "3": 34,
+     "4": 32,
+     "5": 14,
+     "6": 8,
+     "7": 8,
+     "8": 3,
+     "9": 4,
+     "10": 1,
+     "11": 1
+    }
+   },
+   "calls": {
+    "judge_model": 4685,
+    "llm": 0
+   }
+  },
+  "meter": {
+   "arbitration:main_first": 9,
+   "chosen:このまま": 44,
+   "chosen:そのまま": 16,
+   "chosen:休み": 834,
+   "chosen:休みたい日": 74,
+   "chosen:休みを申し出る": 74,
+   "chosen:受ける": 33,
+   "chosen:断る": 24,
+   "chosen:枠": 2974,
+   "chosen:申し出ない": 71,
+   "chosen:知らせ": 361,
+   "chosen:知らせない": 137,
+   "chosen:自分の行を休みにする": 11,
+   "chosen:遅れると連絡する": 32,
+   "common:asked": 3410,
+   "composed:begun": 428,
+   "composed:begun_on_trial_day0": 1,
+   "composed:by:店長": 4,
+   "composed:by:最初の担当": 153,
+   "composed:by:本人": 271,
+   "composed:units": 428,
+   "composed:weekday:6": 428,
+   "composed:workers": 544,
+   "contacts:c1_judge_calls": 422,
+   "contacts:c1_llm_calls": 275,
+   "contacts:call_connected:シフトの知らせ": 27,
+   "contacts:call_connected:休みの申し出": 10,
+   "contacts:call_connected:申し出への返事": 9,
+   "contacts:call_connected:遅れの連絡": 1,
+   "contacts:call_failed:シフトの知らせ": 54,
+   "contacts:call_failed:休みの申し出": 20,
+   "contacts:call_failed:申し出への返事": 16,
+   "contacts:call_failed:遅れの連絡": 10,
+   "contacts:gave_up": 4,
+   "contacts:held:シフトの知らせ": 44,
+   "contacts:held:休みの申し出": 14,
+   "contacts:held:申し出への返事": 3,
+   "contacts:held:遅れの連絡": 3,
+   "contacts:held_retries": 2,
+   "contacts:read_by_other": 299,
+   "contacts:received:シフトの知らせ": 498,
+   "contacts:received:休みの申し出": 57,
+   "contacts:received:申し出への返事": 49,
+   "contacts:received:遅れの連絡": 21,
+   "contacts:self:シフトの知らせ": 353,
+   "contacts:sent:シフトの知らせ:call": 81,
+   "contacts:sent:シフトの知らせ:group": 66,
+   "contacts:sent:シフトの知らせ:msg": 80,
+   "contacts:sent:休みの申し出:call": 30,
+   "contacts:sent:休みの申し出:group": 42,
+   "contacts:sent:休みの申し出:msg": 21,
+   "contacts:sent:申し出への返事:call": 25,
+   "contacts:sent:申し出への返事:group": 19,
+   "contacts:sent:申し出への返事:msg": 16,
+   "contacts:sent:遅れの連絡:call": 11,
+   "contacts:sent:遅れの連絡:group": 15,
+   "contacts:sent:遅れの連絡:msg": 16,
+   "decisions:answer": 57,
+   "decisions:apply": 27,
+   "decisions:frame": 3808,
+   "decisions:late": 76,
+   "decisions:notify": 498,
+   "decisions:rest": 145,
+   "decisions:rest_day": 74,
+   "events:勤務:休みにした": 11,
+   "events:勤務:休みを申し出た": 74,
+   "events:勤務:受けた": 33,
+   "events:勤務:断った": 24,
+   "events:勤務:書いた": 2715,
+   "events:勤務:枠を決めた": 3808,
+   "events:勤務:知らせ": 281,
+   "events:勤務:遅れると伝えた": 32,
+   "labor:frame_outside_store_hours": 409,
+   "labor:frames_checked_hours": 604,
+   "labor:over_day_hours": 1493,
+   "labor:over_week_hours": 314,
+   "labor:short_rest_days": 103,
+   "late:as_is": 44,
+   "late:at_work_or_no_cell": 7,
+   "late:self_scheduled": 181,
+   "late:told": 32,
+   "rest:accepted": 33,
+   "rest:applied": 11,
+   "rest:asked": 74,
+   "rest:declined": 24,
+   "rest:kept": 16,
+   "rest:not_asked": 71,
+   "rest:replied_in_call": 10,
+   "rest:reply_declined_read": 21,
+   "rest:row_gone": 1,
+   "rest:self_scheduled": 353,
+   "rows:closed:休み": 1,
+   "rows:closed:済み": 375,
+   "rows:notified": 281,
+   "rows:written": 2715,
+   "store_rules:asked": 428
+  },
+  "calendar_days": [
+   {
+    "date": "2026-07-26",
+    "weekday": 6,
+    "holiday": "",
+    "rest_day": true
+   },
+   {
+    "date": "2026-07-27",
+    "weekday": 0,
+    "holiday": "",
+    "rest_day": false
+   }
+  ],
+  "checkpoints_behavior": [
+   [
+    359,
+    "ba4632b8783ea2ad5272c03ee42ceeaf9632837e310d8b3a8863e46b07485f0e"
+   ],
+   [
+    719,
+    "15fd3c7d4de48dacae2186cc8b9742935b80845e5920b427fa94b792a766744b"
+   ],
+   [
+    1079,
+    "f964c323b9bc987bc91ce0fffda33aa623603891d170b64e09eda58a5e64b1b1"
+   ],
+   [
+    1439,
+    "288a7bfe3ab2fb60e0da6061fc1d6cc2e2ba3eac5d5922471d2e92812a099480"
+   ],
+   [
+    1799,
+    "a6d337319b3c86a8c3f6c6b1976d684ef337ff56166cb88d6a5e92c708b69d47"
+   ],
+   [
+    2159,
+    "37b87e26c0bc732b7095b7ea971c2be9ddfccb67d6f9a3d99e10872522273bc3"
+   ],
+   [
+    2519,
+    "ef39bbe6637db81e2168e5c1493ab071aa4e7fd1df1fa88c1d527c39b519f67c"
+   ],
+   [
+    2879,
+    "581f6169aab50a5bdf1ec2200bcf3039d632f59ed6473dfa99db6dfd82a3ba26"
+   ]
+  ]
+ },
+ "holiday_2days_activity_off": {
+  "mode": "one",
+  "agents": 5000,
+  "seed": 1,
+  "start": "2026-07-19",
+  "days": 2,
+  "activity": "off",
+  "events": "on",
+  "final": "ee14897a88caf1e58d88dbd4b515bc699c9fdb83b579a1a586337db5cf754681",
+  "llm_calls": 52310,
+  "wall_s": 184.0,
+  "calls_by_model": {
+   "judge_model": 347479,
+   "llm": 88949,
+   "contact": {
+    "judge_model": 138272,
+    "llm": 17755
+   },
+   "calendar_2": {
+    "judge_model": 204511,
+    "llm": 18884
+   },
+   "calendar_3": {
+    "judge_model": 4696,
+    "llm": 0
+   }
+  },
+  "events_by_what": {
+   "勤務:休みにした": 10,
+   "勤務:休みを申し出た": 78,
+   "勤務:受けた": 33,
+   "勤務:断った": 26,
+   "勤務:書いた": 2743,
+   "勤務:枠を決めた": 3808,
+   "勤務:知らせ": 279,
+   "勤務:遅れると伝えた": 29
+  },
+  "audit": {
+   "calendar_3": {
+    "events": 7006,
+    "violations": 0,
+    "examples": []
+   },
+   "contact_c1": {
+    "events": 88721,
+    "violations": 0,
+    "examples": []
+   },
+   "calendar_2": {
+    "events": 117675,
+    "violations": 0,
+    "examples": []
+   }
+  },
+  "event_log": {
+   "rows": 275481,
+   "nbytes": 19834632,
+   "cause_nbytes": 13868955,
+   "work_rows": 7006
+  },
+  "calendar_3": {
+   "schema": "shibuya.engine.calendar3/1",
+   "arm": "arm",
+   "trial": {
+    "mark": "試験用(分析に使わない)",
+    "start_rule_violations": [
+     "0 日目が月曜でない(曜日 6・2026-07-19)",
+     "複数日が連続する平日に収まらない(0 日目=2026-07-19)"
+    ]
+   },
+   "port": "calendar3-mock",
+   "compose": {
+    "weekday": 4,
+    "begins_at": "週の最後の平日(金曜)の頭(その日の最初の刻み)・試験用の印のランは土日始まりの 0 日目の頭にも",
+    "decides_at": "起きていて主の判断の呼びの無い最初の刻み(範囲の外の体は寝ていなければ起きている)",
+    "week": "次の月曜から 7 日",
+    "week_days": 7,
+    "scheduler_role": "店長",
+    "frames": "その人の W20 の約束の形(始業〜終業・重ならない組)",
+    "max_send_tries": 3
+   },
+   "labor": {
+    "source": [
+     "labor.statutory_hours",
+     "labor.weekly_rest_day"
+    ],
+    "kind": [
+     "human",
+     "human"
+    ],
+    "max_hours_per_week": 40,
+    "max_hours_per_day": 8,
+    "min_rest_days_per_week": 1,
+    "enforced": false
+   },
+   "arbitration": {
+    "main_first": "雇い主の組む・送り直す・働く人の遅れの判断は、その刻みに主の判断の呼びのあった体ではしない(次の刻みに回す)",
+    "read_content": "読んだ・聞いたときの判断(書く・申し出る・返事・休みにする)は読んだ刻みの中身(C1 の読む判断は主の判断の無い刻み)"
+   },
+   "store_rules": {
+    "closed_days": "枠だけ(本段は空=店のエージェントの段)"
+   },
+   "provisional": [
+    "判断の候補の語と源の当て方(その日の枠・知らせ・休みの申し出・休みたい日・返事・返事を受けて・遅れの連絡)",
+    "仮のモデル(mock)は候補を語と id の順に並べ乱数の余りで一様に選ぶ(判断モデルの代わり)"
+   ],
+   "decisions": {
+    "answer": 59,
+    "apply": 26,
+    "frame": 3808,
+    "late": 74,
+    "notify": 502,
+    "rest": 149,
+    "rest_day": 78
+   },
+   "roster": {
+    "units": 428,
+    "by_kind": {
+     "組織": 420,
+     "店": 8
+    },
+    "scheduler_by": {
+     "最初の担当": 153,
+     "本人": 271,
+     "店長": 4
+    },
+    "schedulers": 428,
+    "weekly_workers": 1124,
+    "fixed_workers": 1976,
+    "weekly_outside_employer": 381,
+    "weekly_no_employer": 199,
+    "weekly_scheduled": 544
+   },
+   "composed": {
+    "begun": 428,
+    "begun_on_trial_day0": 1,
+    "by:店長": 4,
+    "by:最初の担当": 153,
+    "by:本人": 271,
+    "units": 428,
+    "weekday:6": 428,
+    "workers": 544,
+    "hour_of_day": {
+     "0": 428
+    }
+   },
+   "work_days_per_week": {
+    "2": 3,
+    "3": 27,
+    "4": 65,
+    "5": 170,
+    "6": 176,
+    "7": 103
+   },
+   "rest": {
+    "accepted": 33,
+    "applied": 10,
+    "asked": 78,
+    "declined": 26,
+    "kept": 16,
+    "not_asked": 71,
+    "replied_in_call": 8,
+    "reply_declined_read": 20,
+    "row_gone": 2,
+    "self_scheduled": 353,
+    "accept_rate": 0.559322033898305
+   },
+   "contacts": {
+    "c1_judge_calls": 418,
+    "c1_llm_calls": 277,
+    "call_connected:シフトの知らせ": 29,
+    "call_connected:休みの申し出": 8,
+    "call_connected:申し出への返事": 9,
+    "call_connected:遅れの連絡": 1,
+    "call_failed:シフトの知らせ": 49,
+    "call_failed:休みの申し出": 18,
+    "call_failed:申し出への返事": 17,
+    "call_failed:遅れの連絡": 10,
+    "gave_up": 3,
+    "held:シフトの知らせ": 44,
+    "held:休みの申し出": 16,
+    "held:申し出への返事": 3,
+    "held:遅れの連絡": 3,
+    "held_retries": 3,
+    "read_by_other": 310,
+    "received:シフトの知らせ": 502,
+    "received:休みの申し出": 59,
+    "received:申し出への返事": 48,
+    "received:遅れの連絡": 20,
+    "self:シフトの知らせ": 353,
+    "sent:シフトの知らせ:call": 78,
+    "sent:シフトの知らせ:group": 66,
+    "sent:シフトの知らせ:msg": 79,
+    "sent:休みの申し出:call": 26,
+    "sent:休みの申し出:group": 42,
+    "sent:休みの申し出:msg": 26,
+    "sent:申し出への返事:call": 26,
+    "sent:申し出への返事:group": 20,
+    "sent:申し出への返事:msg": 17,
+    "sent:遅れの連絡:call": 11,
+    "sent:遅れの連絡:group": 15,
+    "sent:遅れの連絡:msg": 12
+   },
+   "rows": {
+    "closed:済み": 378,
+    "notified": 279,
+    "written": 2743
+   },
+   "late": {
+    "as_is": 45,
+    "at_work_or_no_cell": 14,
+    "self_scheduled": 178,
+    "told": 29
+   },
+   "labor_over": {
+    "frame_outside_store_hours": 413,
+    "frames_checked_hours": 604,
+    "over_day_hours": 1493,
+    "over_week_hours": 314,
+    "short_rest_days": 103
+   },
+   "holiday": {
+    "frames_off": 119,
+    "frames_work": 425,
+    "rest_asked_on_holiday": 12,
+    "ランの中の祝日": 1
+   },
+   "common_knowledge": {
+    "asked": 3434,
+    "line": "今日は 7 月 20 日(月・海の日)。"
+   },
+   "live": {
+    "rows": 2365,
+    "plans": 428,
+    "messages": 56,
+    "out": 0,
+    "calls": 0,
+    "wait": 22,
+    "agenda_steps": 2704,
+    "assigned_per_unit_day": {
+     "0": 590,
+     "1": 2113,
+     "2": 188,
+     "3": 34,
+     "4": 32,
+     "5": 14,
+     "6": 8,
+     "7": 8,
+     "8": 3,
+     "9": 4,
+     "10": 1,
+     "11": 1
+    }
+   },
+   "calls": {
+    "judge_model": 4696,
+    "llm": 0
+   }
+  },
+  "meter": {
+   "arbitration:main_first": 10,
+   "chosen:このまま": 45,
+   "chosen:そのまま": 16,
+   "chosen:休み": 834,
+   "chosen:休みたい日": 78,
+   "chosen:休みを申し出る": 78,
+   "chosen:受ける": 33,
+   "chosen:断る": 26,
+   "chosen:枠": 2974,
+   "chosen:申し出ない": 71,
+   "chosen:知らせ": 360,
+   "chosen:知らせない": 142,
+   "chosen:自分の行を休みにする": 10,
+   "chosen:遅れると連絡する": 29,
+   "common:asked": 3434,
+   "composed:begun": 428,
+   "composed:begun_on_trial_day0": 1,
+   "composed:by:店長": 4,
+   "composed:by:最初の担当": 153,
+   "composed:by:本人": 271,
+   "composed:units": 428,
+   "composed:weekday:6": 428,
+   "composed:workers": 544,
+   "contacts:c1_judge_calls": 418,
+   "contacts:c1_llm_calls": 277,
+   "contacts:call_connected:シフトの知らせ": 29,
+   "contacts:call_connected:休みの申し出": 8,
+   "contacts:call_connected:申し出への返事": 9,
+   "contacts:call_connected:遅れの連絡": 1,
+   "contacts:call_failed:シフトの知らせ": 49,
+   "contacts:call_failed:休みの申し出": 18,
+   "contacts:call_failed:申し出への返事": 17,
+   "contacts:call_failed:遅れの連絡": 10,
+   "contacts:gave_up": 3,
+   "contacts:held:シフトの知らせ": 44,
+   "contacts:held:休みの申し出": 16,
+   "contacts:held:申し出への返事": 3,
+   "contacts:held:遅れの連絡": 3,
+   "contacts:held_retries": 3,
+   "contacts:read_by_other": 310,
+   "contacts:received:シフトの知らせ": 502,
+   "contacts:received:休みの申し出": 59,
+   "contacts:received:申し出への返事": 48,
+   "contacts:received:遅れの連絡": 20,
+   "contacts:self:シフトの知らせ": 353,
+   "contacts:sent:シフトの知らせ:call": 78,
+   "contacts:sent:シフトの知らせ:group": 66,
+   "contacts:sent:シフトの知らせ:msg": 79,
+   "contacts:sent:休みの申し出:call": 26,
+   "contacts:sent:休みの申し出:group": 42,
+   "contacts:sent:休みの申し出:msg": 26,
+   "contacts:sent:申し出への返事:call": 26,
+   "contacts:sent:申し出への返事:group": 20,
+   "contacts:sent:申し出への返事:msg": 17,
+   "contacts:sent:遅れの連絡:call": 11,
+   "contacts:sent:遅れの連絡:group": 15,
+   "contacts:sent:遅れの連絡:msg": 12,
+   "decisions:answer": 59,
+   "decisions:apply": 26,
+   "decisions:frame": 3808,
+   "decisions:late": 74,
+   "decisions:notify": 502,
+   "decisions:rest": 149,
+   "decisions:rest_day": 78,
+   "events:勤務:休みにした": 10,
+   "events:勤務:休みを申し出た": 78,
+   "events:勤務:受けた": 33,
+   "events:勤務:断った": 26,
+   "events:勤務:書いた": 2743,
+   "events:勤務:枠を決めた": 3808,
+   "events:勤務:知らせ": 279,
+   "events:勤務:遅れると伝えた": 29,
+   "holiday:frames_off": 119,
+   "holiday:frames_work": 425,
+   "holiday:rest_asked_on_holiday": 12,
+   "holiday:ランの中の祝日": 1,
+   "labor:frame_outside_store_hours": 413,
+   "labor:frames_checked_hours": 604,
+   "labor:over_day_hours": 1493,
+   "labor:over_week_hours": 314,
+   "labor:short_rest_days": 103,
+   "late:as_is": 45,
+   "late:at_work_or_no_cell": 14,
+   "late:self_scheduled": 178,
+   "late:told": 29,
+   "rest:accepted": 33,
+   "rest:applied": 10,
+   "rest:asked": 78,
+   "rest:declined": 26,
+   "rest:kept": 16,
+   "rest:not_asked": 71,
+   "rest:replied_in_call": 8,
+   "rest:reply_declined_read": 20,
+   "rest:row_gone": 2,
+   "rest:self_scheduled": 353,
+   "rows:closed:済み": 378,
+   "rows:notified": 279,
+   "rows:written": 2743,
+   "store_rules:asked": 428
+  },
+  "calendar_days": [
+   {
+    "date": "2026-07-19",
+    "weekday": 6,
+    "holiday": "",
+    "rest_day": true
+   },
+   {
+    "date": "2026-07-20",
+    "weekday": 0,
+    "holiday": "海の日",
+    "rest_day": true
+   }
+  ],
+  "checkpoints_behavior": [
+   [
+    359,
+    "f80774d6751a980c394f53f8e99ca3543da5607e9212844e07ee5e846639f6f9"
+   ],
+   [
+    719,
+    "60b5300800e18372ce950712b41205c54985ae4f4798708dcb2b5a975097bfb9"
+   ],
+   [
+    1079,
+    "b3ab29fdf31d099928e8b5816d18fec9daeed5c169332600a42f3385bddf7c58"
+   ],
+   [
+    1439,
+    "70ce593208eb2c3ae0bbef2404527b11a9ea78865957eff5cf3132f1f6a23db4"
+   ],
+   [
+    1799,
+    "444db66d44488ca7a0ab2c5db1439b0a2b23b61686f79bed5ca7be46e3fc5206"
+   ],
+   [
+    2159,
+    "2431e231863b3ddf1d0598fd59fef4e995274e89a01694f5a3734cc0fb198f7d"
+   ],
+   [
+    2519,
+    "7cafbfc07423cfc84709c0c2ae8f933e101f8a9571aabf63f4421f97e41b2f29"
+   ],
+   [
+    2879,
+    "ee14897a88caf1e58d88dbd4b515bc699c9fdb83b579a1a586337db5cf754681"
+   ]
+  ]
+ },
+ "resume_day_boundary_with_roster": {
+  "mode": "resume",
+  "agents": 5000,
+  "seed": 1,
+  "start": "2026-07-26",
+  "days": 2,
+  "stop": 1440,
+  "activity": "off",
+  "state_file": "state-T00001440.npz",
+  "straight": {
+   "final": "581f6169aab50a5bdf1ec2200bcf3039d632f59ed6473dfa99db6dfd82a3ba26",
+   "wall_s": 154.4
+  },
+  "resumed": {
+   "final": "581f6169aab50a5bdf1ec2200bcf3039d632f59ed6473dfa99db6dfd82a3ba26",
+   "wall_s": 214.8
+  },
+  "final_same": true,
+  "checkpoints_after_stop_same": true,
+  "n_checkpoints_after_stop": 24,
+  "manifest_same": {
+   "roster": true,
+   "composed": true,
+   "work_days_per_week": true,
+   "rest": true,
+   "contacts": true,
+   "rows": true,
+   "late": true,
+   "labor_over": true,
+   "holiday": true,
+   "live": true,
+   "calls": true
+  }
+ },
+ "contact_c1_only_1day_after_charge": {
+  "final": "59930cf3b739a1973448ef34344d320e4f9d76daeea7d27a03969467bcadeab4",
+  "wall_s": 70.1,
+  "calls_by_model": {
+   "judge_model": 154570,
+   "llm": 82169,
+   "contact": {
+    "judge_model": 154570,
+    "llm": 18597
+   }
+  },
+  "devices": {
+   "battery_min": 0.0,
+   "battery_mean": 0.7572,
+   "off": 24,
+   "battery_zero": 24,
+   "manner": 2509,
+   "bag_home": 2508,
+   "earphones": 956,
+   "in_hand": 44
+  },
+  "charge": {
+   "charge:agent_steps": 444411,
+   "devices_off": 24,
+   "held": 1089
+  },
+  "final_before_charge": "2b9c9346 (検収の値=本体 71c53bd と同じ)"
+ }
+}

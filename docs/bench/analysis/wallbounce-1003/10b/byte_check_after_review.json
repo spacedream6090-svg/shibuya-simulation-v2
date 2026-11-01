@@ -1,0 +1,191 @@
+{
+ "schema": "shibuya.bench/wave2-2026-09-30/byte-check/1",
+ "head": "bbe7e77(src と tests は 120d147 と同じ)",
+ "note": "10b-3(検収後の直し): 既定 v3・帰無・関係 on の 3 本",
+ "old_switches": {},
+ "expect_moved": [],
+ "how": "mock/classical 5,000 体・seed 1・1 シミュ日・テープつき。HEAD(git archive の src)と作業木で同じ構成を回し、final・呼数・blocks・calls 14 列の sha を比べる。work=作業木の既定・work_old=旧の切替口をすべて付けた作業木。10b の欄(work だけ): checkpoint ごとの behavior/full の先頭 16 桁・最後の値の全桁・外の状態のバイト・checkpoint の時間",
+ "src_checks": "ok(HEAD 側=写し・作業木側=作業木・エラー行なし)",
+ "all_ok": true,
+ "rows": [
+  {
+   "config": "w6_v3_default",
+   "head_final": "993276d5e5bb5cbe",
+   "head_calls": 69978,
+   "work_final": "993276d5e5bb5cbe",
+   "work_calls": 69978,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_golden_null_arm",
+   "head_final": "72cb9cd52982da74",
+   "head_calls": 100439,
+   "work_final": "72cb9cd52982da74",
+   "work_calls": 100439,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "v3_mem_rel",
+   "head_final": "40409ebed834126b",
+   "head_calls": 72930,
+   "work_final": "40409ebed834126b",
+   "work_calls": 72930,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  }
+ ],
+ "state_hashes_10b": {
+  "w6_v3_default": {
+   "behavior": [
+    "6818eb4260e45f88",
+    "8d2cd5a545711367",
+    "9bfc52cdd8a4e1a2",
+    "535b040a2fcc5411"
+   ],
+   "full": [
+    "b36360b39a4415a5",
+    "d94e2dd4385de80a",
+    "8ac88373d7aba782",
+    "0e64a658ddb8a2ee"
+   ],
+   "behavior_last": "535b040a2fcc54117f0c0e6972ab790096261cf20e2b50a4599afa11ad8110de",
+   "full_last": "0e64a658ddb8a2ee39bb0a06a2b833981d7c50a072ee600c712d24ee022a2eed",
+   "full_external_bytes": 3572270,
+   "checkpoint_s_work": 0.0545,
+   "checkpoint_s_head": 0.005,
+   "n_checkpoints": 4,
+   "end_of_day": {
+    "behavior_hash": "8730ff33fa5eab1aa9227d82a8b0e39aff2aeb1d7953562b77e11dcec33a5750",
+    "full_hash": "1e2426f4dc74e947ae66d9c21181862cc92ebfe2c0b8b016e31c40a8e5a0d47a",
+    "full_external_bytes": 3577350
+   },
+   "checkpoint_max_s_work": 0.0184
+  },
+  "w6_golden_null_arm": {
+   "behavior": [
+    "02665354b18ffd7c",
+    "1bdc5e9d2a17f266",
+    "7f66f59564fae10f",
+    "aee7c77d4b78636d"
+   ],
+   "full": [
+    "30c0a30c43494f5e",
+    "6f22c071a96603bf",
+    "0ca05c42f65ac6d9",
+    "11dcb05bcb25b041"
+   ],
+   "behavior_last": "aee7c77d4b78636d83dc754eb78c0b82aae85fb5bef34019dc95383bf9862e7b",
+   "full_last": "11dcb05bcb25b041ecb3cc091e1b1004c02ab2a0674ef6967fcd471140e916b6",
+   "full_external_bytes": 2023679,
+   "checkpoint_s_work": 0.039,
+   "checkpoint_s_head": 0.0022,
+   "n_checkpoints": 4,
+   "end_of_day": {
+    "behavior_hash": "dae2c163d95d7d2987246539abdae94ea790d7ae96f48284c977307982aa2789",
+    "full_hash": "10c869e4838ce15702038ae67b3f5d1c4f6f276545697f8c5f4df1c49e3fbd56",
+    "full_external_bytes": 2028759
+   },
+   "checkpoint_max_s_work": 0.0156
+  },
+  "v3_mem_rel": {
+   "behavior": [
+    "cc4148c3c5daaf2a",
+    "3b2fa6b7e15d943d",
+    "ee56b3c9a2be590e",
+    "20240d0eae4f8db7"
+   ],
+   "full": [
+    "2d5620a4ba1a74d0",
+    "1f93ba2dfd64f46b",
+    "584bfdce1180e6a9",
+    "429ed43bdfd14cd9"
+   ],
+   "behavior_last": "20240d0eae4f8db757ce2a211d0d46bf66d8784f3f5c7b9657000901021820af",
+   "full_last": "429ed43bdfd14cd907e4d341068890c0d9f58eaa2cfcc8bc639442cdfb9378a7",
+   "full_external_bytes": 3996834,
+   "checkpoint_s_work": 0.1068,
+   "checkpoint_s_head": 0.0252,
+   "n_checkpoints": 4,
+   "end_of_day": {
+    "behavior_hash": "4b2a9226c719ba16f2c8f235b0f35102b5f8af4748908afc0acc93f0c3a6e0b1",
+    "full_hash": "4f0d9da96c65387a78009e4188928a1678623c84acb29b34769b78137ad60132",
+    "full_external_bytes": 4001914
+   },
+   "checkpoint_max_s_work": 0.0323
+  }
+ },
+ "full_external_bytes_by_row_v3_default": {
+  "O1": 84837,
+  "O2": 40307,
+  "O3": 740974,
+  "O4": 2088,
+  "O7": 1,
+  "O8": 2,
+  "O9": 2,
+  "O10": 2,
+  "O14": 2,
+  "O16": 1,
+  "O17": 1,
+  "O18": 3,
+  "O20": 1,
+  "O21": 1,
+  "O23": 2,
+  "O24": 1,
+  "O27": 1,
+  "O29": 284984,
+  "O30": 125,
+  "O31": 25,
+  "O32": 5,
+  "O35": 50187,
+  "O36": 20137,
+  "O38": 1163889,
+  "O39": 159138,
+  "O40": 9,
+  "O42": 1102,
+  "O43": 7895,
+  "O44": 27,
+  "O45": 8349,
+  "O46": 20777,
+  "O47": 362,
+  "O48": 40766,
+  "O49": 25,
+  "O50": 65492,
+  "O51": 5028,
+  "O52": 21089,
+  "O53": 4272,
+  "O54": 620,
+  "O55": 118604,
+  "O56": 595,
+  "O57": 274534,
+  "O59": 63199,
+  "O74": 80056,
+  "O75": 42729,
+  "O76": 49,
+  "O77": 34151,
+  "O79": 14125,
+  "O80": 508,
+  "O82": 27,
+  "O85": 221163,
+  "O88": 1
+ }
+}

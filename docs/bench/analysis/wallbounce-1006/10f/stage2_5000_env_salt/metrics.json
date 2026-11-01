@@ -1,0 +1,10 @@
+{"alpha": 0.05,
+ "primary": {"id": "llm_calls_total", "path": "manifest.llm_calls_total"},
+ "secondary": [{"id": "meals_in_area", "path": "manifest.energy.counts.meals_in_area"},
+               {"id": "meals_out_of_area", "path": "manifest.energy.counts.meals_out_of_area"},
+               {"id": "snacks", "path": "manifest.energy.counts.snacks"}],
+ "arm_keys_derived": {
+   "synonym_table_version": {"base": "undefined-synonyms-v5", "arm": "undefined-synonyms-v2", "reason": "vocab_version から決まる(語彙 v3 は v5・v1 は v2)"},
+   "outside_suppression": {"base": true, "arm": false, "reason": "manifest の値は域外抑止が実際に効いたか(plan_executor が off なら False)"},
+   "presence_exit.exit_mode": {"base": "immediate", "arm": null, "reason": "計画実行層が無い帰無の腕では presence_exit が空"},
+   "intent.max_ticks": {"base": 60, "arm": null, "reason": "活動層が無い帰無の腕では intent が空"}}}

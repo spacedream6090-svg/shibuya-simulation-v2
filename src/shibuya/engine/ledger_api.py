@@ -100,16 +100,20 @@ class EntityRef(NamedTuple):
 
 @runtime_checkable
 class MoneyLedger(Protocol):
-    """金の台帳(U11)。実装は ``shibuya.economy.ledger.Ledger``。"""
+    """金の台帳(U11)。実装は ``shibuya.economy.ledger.Ledger``。
 
-    def unlocked(self) -> ContextManager[Any]:
-        """台帳が持つ配列を書き込み可能にする文脈(resolve の書き込み窓と入れ子にする)。"""
-        ...
+    〔第 1 期 1-9・検収 M2〕台帳の配列を書ける窓(旧 ``unlocked``)は口から外した。窓を開けるのは economy の基本操作
+    ``economy.ops.transfer`` だけ(``Ledger._unlocked``・AST の試験 ``tests/economy/cp2/test_cp2_write_window.py``)。
+    """
 
     def transfer(
-        self, payer: EntityRef, payee: EntityRef, amount: int, code: int, tick: int
+        self, payer: EntityRef, payee: EntityRef, amount: int, code: int, tick: int, *, cause: Any = None
     ) -> TransferStatus:
-        """単一API(境界・経済設計書 §2.3)。残高の直接代入はこれ以外に存在しない。"""
+        """単一API(境界・経済設計書 §2.3)。残高の直接代入はこれ以外に存在しない。
+
+        〔第 1 期 1-9〕検査に通った行は基本操作 ``economy.ops.transfer`` が書く。``cause`` は 1-3 の原因(渡すと
+        出来事を書き、生ログの行に id の目印を付ける)。
+        """
         ...
 
     def transfer_many(
@@ -121,12 +125,14 @@ class MoneyLedger(Protocol):
         amounts: np.ndarray,
         code: int,
         tick: int,
+        *,
+        cause: Any = None,
     ) -> np.ndarray:
         """ベクトル版(P4: 個体数ぶんの Python ループを作らない)。行ごとの ``TransferStatus``。"""
         ...
 
     def purchase_many(
-        self, buyers: np.ndarray, stores: np.ndarray, amounts: np.ndarray, tick: int
+        self, buyers: np.ndarray, stores: np.ndarray, amounts: np.ndarray, tick: int, *, cause: Any = None
     ) -> np.ndarray:
         """購入の金の脚(世帯→店舗・消費支出)。engine は科目名を知らない。"""
         ...
@@ -184,8 +190,9 @@ class GoodsLedger(Protocol):
         *,
         money: Any | None = None,
         slot: np.ndarray | None = None,
+        cause: Any = None,
     ) -> np.ndarray:
-        """補充・納品(外界→棚・faucet 域外仕入)。``money`` を渡すと代金も transfer する。"""
+        """補充・納品(外界→棚・faucet 域外仕入)。``money`` を渡すと代金も transfer する(〔1-9〕``cause`` も渡す)。"""
         ...
 
     def to_bin_many(
@@ -266,6 +273,30 @@ class LedgerBundle:
     #: ``end_of_day`` が畳んだ**直近の締め**(``daily_census`` が読む用の控え)。
     #: frozen dataclass なので中身だけ差し替える(比較・ハッシュからは外す)。
     last_close: dict[str, Any] = field(default_factory=dict, compare=False, repr=False)
+
+    # ---------------------------------------------------------------- 〔第 1 期 1-9〕出来事の記録と計器
+    def attach_events(self, log: Any, step_seconds: int | None = None) -> None:
+        """1-3 の出来事の記録を両台帳へ挿す(持たない実装=口の契約の外の古い台帳は何もしない)。
+
+        原因を渡した金の移動(基本操作 ``economy.ops.transfer``)が出来事を書き、生ログの行に id の目印を付ける。
+        ``log`` は出来事を書く口(``engine.events.links.MoneyEventLink``=呼び手の build が作る)。economy は
+        ``engine.events`` を import できず、本モジュールも ``engine.events`` を読まない(読むと economy → ledger_api →
+        語彙表 → ``llm.contract`` の鎖で層の契約 forbidden「economy → llm」が破れる)。物の台帳の補充の行の目印は代金の行の
+        id を写す=物の台帳には挿さない。``None`` なら外す。``step_seconds`` は刻みの幅(口の刻みの番号 → 通しの時刻 ``t_ns``)。
+        """
+        fn = getattr(self.money, "attach_events", None) if self.money is not None else None
+        if fn is not None:
+            fn(log, step_seconds=step_seconds)
+
+    def economy_record(self) -> dict[str, Any]:
+        """manifest の ``economy`` の欄(K17 の輪の容量と溢れ・transfer の計器)。金の台帳が無ければ空。"""
+        fn = getattr(self.money, "economy_record", None) if self.money is not None else None
+        return dict(fn()) if fn is not None else {}
+
+    def economy_day_record(self) -> dict[str, Any]:
+        """日次の記録の ``economy`` の欄(直近に締めた日の transfer の計器と流れの表の検算)。無ければ空。"""
+        meter = getattr(self.money, "meter", None) if self.money is not None else None
+        return dict(getattr(meter, "last_day", {}) or {})
 
     def end_of_day(self, day: int) -> DayCloses:
         """日次の畳み込みを両台帳へ流し、**その日の締めを返す**。

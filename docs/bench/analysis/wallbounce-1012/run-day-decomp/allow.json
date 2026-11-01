@@ -1,0 +1,717 @@
+{
+ "day_head": {
+  "resolve_ops_observed": [
+   "set_plan_state"
+  ],
+  "resolve_closure": [
+   "set_plan_state"
+  ],
+  "allow": [
+   "agents.plan_activity",
+   "agents.plan_flags"
+  ],
+  "observed_changed": [
+   "agents.plan_activity"
+  ],
+  "leaks": []
+ },
+ "body": {
+  "resolve_ops_observed": [
+   "_energy_meal",
+   "_tick_minute",
+   "advance_body",
+   "energy_out_of_area_meal"
+  ],
+  "resolve_closure": [
+   "_energy_meal",
+   "_tick_minute",
+   "advance_body",
+   "energy_out_of_area_meal"
+  ],
+  "allow": [
+   "agents.energy_balance",
+   "agents.fatigue",
+   "agents.hunger",
+   "agents.since_meal_kcal"
+  ],
+  "observed_changed": [
+   "agents.energy_balance",
+   "agents.fatigue",
+   "agents.hunger",
+   "agents.since_meal_kcal"
+  ],
+  "leaks": []
+ },
+ "world": {
+  "resolve_ops_observed": [
+   "_require_thawed",
+   "balk_queue",
+   "collect_waste",
+   "consume",
+   "discard_to_bin",
+   "rail_arrive",
+   "rail_depart",
+   "release_indoor",
+   "restock",
+   "set_notice_state",
+   "set_open_flags",
+   "set_plan_state",
+   "set_thermal",
+   "sync_transit_activity"
+  ],
+  "resolve_closure": [
+   "_require_thawed",
+   "balk_queue",
+   "collect_waste",
+   "consume",
+   "discard_to_bin",
+   "rail_arrive",
+   "rail_depart",
+   "release_indoor",
+   "restock",
+   "set_notice_state",
+   "set_open_flags",
+   "set_plan_state",
+   "set_thermal",
+   "sync_transit_activity"
+  ],
+  "allow": [
+   "agents.activity",
+   "agents.band",
+   "agents.cell",
+   "agents.fail_streak",
+   "agents.holdings",
+   "agents.last_result",
+   "agents.last_result_tick",
+   "agents.node",
+   "agents.plan_activity",
+   "agents.plan_flags",
+   "agents.poi_ref",
+   "agents.poi_since",
+   "agents.queue_poi",
+   "agents.queue_since",
+   "agents.target_node",
+   "agents.thermal",
+   "agents.transit_ref",
+   "agents.transit_state",
+   "agents.xy",
+   "perception.heading",
+   "perception.task_flag",
+   "pois.open_now",
+   "pois.stock"
+  ],
+  "observed_changed": [
+   "agents.activity",
+   "agents.band",
+   "agents.cell",
+   "agents.node",
+   "agents.plan_flags",
+   "agents.poi_ref",
+   "agents.poi_since",
+   "agents.thermal",
+   "agents.transit_ref",
+   "agents.transit_state",
+   "agents.xy",
+   "pois.open_now"
+  ],
+  "leaks": []
+ },
+ "presence": {
+  "resolve_ops_observed": [
+   "rail_arrive",
+   "rail_depart",
+   "release_indoor",
+   "set_plan_state"
+  ],
+  "resolve_closure": [
+   "rail_arrive",
+   "rail_depart",
+   "release_indoor",
+   "set_plan_state"
+  ],
+  "allow": [
+   "agents.activity",
+   "agents.band",
+   "agents.cell",
+   "agents.node",
+   "agents.plan_activity",
+   "agents.plan_flags",
+   "agents.poi_ref",
+   "agents.poi_since",
+   "agents.target_node",
+   "agents.transit_ref",
+   "agents.transit_state",
+   "agents.xy"
+  ],
+  "observed_changed": [
+   "agents.activity",
+   "agents.band",
+   "agents.cell",
+   "agents.node",
+   "agents.plan_activity",
+   "agents.plan_flags",
+   "agents.poi_ref",
+   "agents.poi_since",
+   "agents.target_node",
+   "agents.transit_ref",
+   "agents.transit_state",
+   "agents.xy"
+  ],
+  "leaks": []
+ },
+ "perceive_prepare": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "llm_receive_A": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "apply_responses": {
+  "resolve_ops_observed": [
+   "_require_thawed",
+   "revert_conversation",
+   "set_conversing",
+   "talk_within_reach"
+  ],
+  "resolve_closure": [
+   "_require_thawed",
+   "revert_conversation",
+   "set_conversing",
+   "talk_within_reach"
+  ],
+  "allow": [
+   "agents.activity",
+   "agents.talk_partner"
+  ],
+  "observed_changed": [
+   "agents.activity",
+   "agents.talk_partner"
+  ],
+  "leaks": []
+ },
+ "detect": {
+  "resolve_ops_observed": [
+   "apply_detection"
+  ],
+  "resolve_closure": [
+   "apply_detection"
+  ],
+  "allow": [
+   "agents.fatigue_stage",
+   "agents.hunger_stage",
+   "agents.thermal_stage",
+   "cells.b4_hash"
+  ],
+  "observed_changed": [
+   "agents.fatigue_stage",
+   "agents.hunger_stage",
+   "agents.thermal_stage",
+   "cells.b4_hash"
+  ],
+  "leaks": []
+ },
+ "plan_boundary": {
+  "resolve_ops_observed": [
+   "begin_planned_sleep",
+   "set_plan_state",
+   "wake_from_plan"
+  ],
+  "resolve_closure": [
+   "begin_planned_sleep",
+   "set_plan_state",
+   "wake_from_plan"
+  ],
+  "allow": [
+   "agents.activity",
+   "agents.board_line",
+   "agents.board_since",
+   "agents.plan_activity",
+   "agents.plan_flags",
+   "agents.sleep_pending",
+   "agents.target_node"
+  ],
+  "observed_changed": [
+   "agents.activity",
+   "agents.board_line",
+   "agents.plan_activity",
+   "agents.sleep_pending",
+   "agents.target_node"
+  ],
+  "leaks": []
+ },
+ "home_meal": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "wake_sources": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "llm_receive_B": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "wake_filter": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "relations_wake": {
+  "resolve_ops_observed": [
+   "_require_thawed",
+   "write_relations"
+  ],
+  "resolve_closure": [
+   "_require_thawed",
+   "write_relations"
+  ],
+  "allow": [
+   "agents.rel_first",
+   "agents.rel_kind",
+   "agents.rel_last",
+   "agents.rel_n",
+   "agents.rel_partner",
+   "agents.rel_sign"
+  ],
+  "observed_changed": [
+   "agents.rel_last",
+   "agents.rel_n"
+  ],
+  "leaks": []
+ },
+ "wake_assemble": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "arbiter": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "decide": {
+  "resolve_ops_observed": [
+   "_require_thawed",
+   "set_refractory",
+   "talk_within_reach",
+   "write_memory"
+  ],
+  "resolve_closure": [
+   "_require_thawed",
+   "set_refractory",
+   "talk_within_reach",
+   "write_memory"
+  ],
+  "allow": [
+   "agents.mem_cell",
+   "agents.mem_importance",
+   "agents.mem_kind",
+   "agents.mem_last",
+   "agents.mem_n",
+   "agents.mem_object",
+   "agents.mem_partner",
+   "agents.mem_result",
+   "agents.mem_tick",
+   "agents.refractory_until"
+  ],
+  "observed_changed": [
+   "agents.mem_importance",
+   "agents.mem_last",
+   "agents.mem_n",
+   "agents.refractory_until"
+  ],
+  "leaks": []
+ },
+ "phase_a": {
+  "resolve_ops_observed": [
+   "intent_kept_by"
+  ],
+  "resolve_closure": [
+   "intent_kept_by"
+  ],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "phase_b": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "phase_c": {
+  "resolve_ops_observed": [
+   "_advance_focus",
+   "_apply_buy",
+   "_apply_eat",
+   "_approach_dest_node",
+   "_board_riders",
+   "_cell_of_node",
+   "_clear_focus",
+   "_clear_intent_fields",
+   "_complete_buy",
+   "_complete_eat",
+   "_energy_meal",
+   "_energy_snack",
+   "_enter_board_queue",
+   "_fail",
+   "_focus_xy",
+   "_ok",
+   "_plan_exit_mask",
+   "_platform_table",
+   "_remember_queue_action",
+   "_require_thawed",
+   "_serve_board_queue",
+   "_serve_poi_queue",
+   "_set_focus",
+   "_settle_approach",
+   "_tick_minute",
+   "apply",
+   "intent_kept_by",
+   "release_indoor",
+   "talk_within_reach"
+  ],
+  "resolve_closure": [
+   "_advance_focus",
+   "_apply_alight",
+   "_apply_board",
+   "_apply_buy",
+   "_apply_eat",
+   "_apply_engine_step",
+   "_apply_help",
+   "_apply_leave",
+   "_apply_move",
+   "_apply_queue",
+   "_apply_record_only",
+   "_apply_report",
+   "_apply_rest",
+   "_apply_sleep",
+   "_apply_talk",
+   "_apply_wait",
+   "_approach_dest_node",
+   "_board_riders",
+   "_cell_of_node",
+   "_clear_focus",
+   "_clear_intent_fields",
+   "_complete_buy",
+   "_complete_eat",
+   "_energy_meal",
+   "_energy_snack",
+   "_enter_board_queue",
+   "_fail",
+   "_focus_xy",
+   "_ok",
+   "_plan_exit_mask",
+   "_platform_table",
+   "_remember_queue_action",
+   "_require_thawed",
+   "_serve_board_queue",
+   "_serve_poi_queue",
+   "_set_focus",
+   "_settle_approach",
+   "_tick_minute",
+   "apply",
+   "balk_queue",
+   "intent_kept_by",
+   "release_indoor",
+   "talk_within_reach"
+  ],
+  "allow": [
+   "agents.activity",
+   "agents.band",
+   "agents.board_line",
+   "agents.board_since",
+   "agents.cell",
+   "agents.edge_id",
+   "agents.edge_s",
+   "agents.energy_balance",
+   "agents.fail_streak",
+   "agents.fatigue",
+   "agents.focus_target",
+   "agents.focus_ttl",
+   "agents.holdings",
+   "agents.hunger",
+   "agents.intent_action",
+   "agents.intent_kind",
+   "agents.intent_since",
+   "agents.intent_target",
+   "agents.last_action",
+   "agents.last_result",
+   "agents.last_result_tick",
+   "agents.money",
+   "agents.node",
+   "agents.path_next_node",
+   "agents.poi_ref",
+   "agents.poi_since",
+   "agents.queue_poi",
+   "agents.queue_since",
+   "agents.since_meal_kcal",
+   "agents.sleep_pending",
+   "agents.talk_partner",
+   "agents.target_node",
+   "agents.transit_ref",
+   "agents.transit_state",
+   "agents.xy",
+   "cells.density",
+   "cells.density_stage",
+   "cells.open_count",
+   "pois.revenue",
+   "pois.stock"
+  ],
+  "observed_changed": [
+   "agents.activity",
+   "agents.band",
+   "agents.board_line",
+   "agents.board_since",
+   "agents.cell",
+   "agents.edge_id",
+   "agents.edge_s",
+   "agents.energy_balance",
+   "agents.fail_streak",
+   "agents.fatigue",
+   "agents.holdings",
+   "agents.hunger",
+   "agents.intent_action",
+   "agents.intent_kind",
+   "agents.intent_since",
+   "agents.intent_target",
+   "agents.last_action",
+   "agents.last_result",
+   "agents.last_result_tick",
+   "agents.money",
+   "agents.node",
+   "agents.path_next_node",
+   "agents.poi_ref",
+   "agents.poi_since",
+   "agents.since_meal_kcal",
+   "agents.sleep_pending",
+   "agents.talk_partner",
+   "agents.target_node",
+   "agents.transit_ref",
+   "agents.transit_state",
+   "agents.xy",
+   "cells.density",
+   "cells.density_stage",
+   "cells.open_count",
+   "pois.revenue",
+   "pois.stock"
+  ],
+  "leaks": []
+ },
+ "conversation": {
+  "resolve_ops_observed": [
+   "revert_conversation",
+   "talk_within_reach"
+  ],
+  "resolve_closure": [
+   "revert_conversation",
+   "talk_within_reach"
+  ],
+  "allow": [
+   "agents.activity",
+   "agents.talk_partner"
+  ],
+  "observed_changed": [
+   "agents.activity",
+   "agents.talk_partner"
+  ],
+  "leaks": []
+ },
+ "activity_intent": {
+  "resolve_ops_observed": [
+   "_clear_intent_fields",
+   "_require_thawed",
+   "clear_intent",
+   "relabel_intent_failure",
+   "set_activity",
+   "set_activity_until",
+   "set_intent"
+  ],
+  "resolve_closure": [
+   "_clear_intent_fields",
+   "_require_thawed",
+   "clear_intent",
+   "relabel_intent_failure",
+   "set_activity",
+   "set_activity_until",
+   "set_intent"
+  ],
+  "allow": [
+   "agents.activity_kind",
+   "agents.activity_until",
+   "agents.intent_action",
+   "agents.intent_kind",
+   "agents.intent_since",
+   "agents.intent_target",
+   "agents.last_action"
+  ],
+  "observed_changed": [
+   "agents.activity_kind",
+   "agents.activity_until",
+   "agents.intent_action",
+   "agents.intent_kind",
+   "agents.intent_since",
+   "agents.intent_target"
+  ],
+  "leaks": []
+ },
+ "memory": {
+  "resolve_ops_observed": [
+   "_require_thawed",
+   "write_memory",
+   "write_relations",
+   "write_store_memory"
+  ],
+  "resolve_closure": [
+   "_require_thawed",
+   "write_memory",
+   "write_relations",
+   "write_store_memory"
+  ],
+  "allow": [
+   "agents.mem_cell",
+   "agents.mem_importance",
+   "agents.mem_kind",
+   "agents.mem_last",
+   "agents.mem_n",
+   "agents.mem_object",
+   "agents.mem_partner",
+   "agents.mem_result",
+   "agents.mem_tick",
+   "agents.rel_first",
+   "agents.rel_kind",
+   "agents.rel_last",
+   "agents.rel_n",
+   "agents.rel_partner",
+   "agents.rel_sign",
+   "agents.sm_first",
+   "agents.sm_last",
+   "agents.sm_n",
+   "agents.sm_poi",
+   "agents.sm_precision",
+   "agents.sm_source",
+   "agents.sm_valence"
+  ],
+  "observed_changed": [
+   "agents.mem_cell",
+   "agents.mem_importance",
+   "agents.mem_kind",
+   "agents.mem_last",
+   "agents.mem_n",
+   "agents.mem_object",
+   "agents.mem_partner",
+   "agents.mem_result",
+   "agents.mem_tick",
+   "agents.rel_first",
+   "agents.rel_kind",
+   "agents.rel_last",
+   "agents.rel_n",
+   "agents.rel_partner",
+   "agents.rel_sign",
+   "agents.sm_first",
+   "agents.sm_last",
+   "agents.sm_n",
+   "agents.sm_poi",
+   "agents.sm_precision",
+   "agents.sm_source",
+   "agents.sm_valence"
+  ],
+  "leaks": []
+ },
+ "familiarity": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "energy_after": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "observe": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "checkpoint": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "day_close": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "drain": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ },
+ "close_final": {
+  "resolve_ops_observed": [
+   "rail_depart",
+   "sync_transit_activity"
+  ],
+  "resolve_closure": [
+   "rail_depart",
+   "sync_transit_activity"
+  ],
+  "allow": [
+   "agents.activity",
+   "agents.cell",
+   "agents.node",
+   "agents.target_node",
+   "agents.transit_ref",
+   "agents.transit_state"
+  ],
+  "observed_changed": [
+   "agents.activity",
+   "agents.transit_ref",
+   "agents.transit_state"
+  ],
+  "leaks": []
+ },
+ "report": {
+  "resolve_ops_observed": [],
+  "resolve_closure": [],
+  "allow": [],
+  "observed_changed": [],
+  "leaks": []
+ }
+}

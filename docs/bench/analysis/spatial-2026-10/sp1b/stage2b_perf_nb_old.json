@@ -1,0 +1,1 @@
+{"old_b4": true, "env": {}, "space": "nav1", "density_mode": "neighborhood", "machine": "Windows 11 AMD64 cpu=20", "final": "7088a9b4543cd200", "calls": 61369, "wall_s": 52.0, "run_wall_s": 51.52, "ms_per_step": 35.78, "peak_ws_bytes": 522911744, "cell_block_wakes": 209106, "calls_cell_block": 4779}

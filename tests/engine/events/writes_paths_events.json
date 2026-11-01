@@ -1,0 +1,21 @@
+{
+ "note": "第 1 期 1-3: 出来事の記録(状態台帳の行 E)を書く系=writes.paths に E:events.* を宣言した系(凍結。系を足したら理由を記録に書いて更新する)。第 1 期 1-9 で phase_c を足した(運賃の transfer の出来事=原因 過程 rail・基本操作 economy.ops.transfer が書く)。第 1 期 1-8 J0 で decide を足した(腕 --decision-port port の判断の出来事=原因 LlmCall)。第 1 期 1-7 も decide に同じ宣言を使う(看板を読んだ出来事=作り物の印 signboard:synthetic・腕 SHIBUYA_TOOL_EVENTS・既定 off=既定のランでは書かない)=1 つにまとめた。〔第 1 期 1-8b〕llm_receive を足した(腕 --speech-port on の艦隊と再生の到着の発話=原因 LlmCall の発話の出来事 1 行)。〔第 3 期 3-3〕experiment を足した(申込書の決定と告知の出来事=原因 実験の条件・口は gate.admit だけ・申込書を渡したランだけ立つ系)。〔第 2 期 2-3〕conversation(会話の終わり)と memory(その刻みの記憶の出来事=行為の成否・到着・会話の始まり・気づき・看板の初見)を足した(腕 --memory-store events と記録のあるランだけ体の出来事の口 engine.events.body が書く・既定のランでは書かない)〔第 6 期 6-2〕presence を足した(腕 --calendar 1b の出発と帰るの判断の出来事=行為:移動・原因 LlmCall=候補の源 plan と提示の番号・腕のランだけ書く)〔第 6 期 6-4 C1〕contact を足した(連絡の道具の出来事=族 連絡・通話の発話=腕 c1 のランだけ立つ系)〔第 6 期 6-2 カレンダー 2〕calendar_2 を足した(約束の族の出来事=誘った・受けた・書いた・出発したほか=腕 --calendar-2 arm のランだけ立つ系)〔第 6 期 6-2 カレンダー 3〕calendar_3 を足した(勤務の族の出来事=枠を決めた・書いた・休みを申し出た・受けた・断った・休みにした・遅れると伝えた・知らせ=腕 --calendar-3 arm のランだけ立つ系)〔第 6 期 6-6 ② 第 1 部〕duties を足した(仕事の族の出来事=開けた・閉めた・補充した・捨てた=本人の語と、担当の体の開閉と補充の ActualLog の行の出来事=腕 --duties arm のランだけ立つ系)",
+ "pattern": "E:events.*",
+ "systems": [
+  "experiment",
+  "world",
+  "presence",
+  "llm_receive",
+  "decide",
+  "phase_c",
+  "conversation",
+  "contact",
+  "calendar_3",
+  "calendar_2",
+  "duties",
+  "memory",
+  "checkpoint",
+  "day_close",
+  "close_final"
+ ]
+}

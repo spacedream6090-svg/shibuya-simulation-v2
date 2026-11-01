@@ -1,0 +1,170 @@
+{
+ "schema": "shibuya.bench/10d/resume-check/1",
+ "config": "v3_counter_x1000",
+ "agents": 5000,
+ "seed": 1,
+ "sim_days": 2,
+ "checkpoint_every": 1,
+ "ledger_version": "state-ledger/10d",
+ "straight": {
+  "final": "13767dbb558bb3e2",
+  "llm_calls": 197659,
+  "daily": [
+   {
+    "day": 0,
+    "end_T": 1440,
+    "eod": {
+     "behavior_hash": "7a43da58b741ca89dc55892f12f89ab6703d505758dc77295d41db1df075a6a1",
+     "full_hash": "5a217bf76a6897d04bb7bf18436a9f9ee0fc2f8d4bf262ed4c654213a0cb9fc3",
+     "full_external_bytes": 3628372
+    },
+    "census_pass": true,
+    "census_row": {
+     "day": 0,
+     "residual": 0,
+     "money_supply": 425014602,
+     "faucet_total": 425868428,
+     "sink_total": 853826,
+     "n_transfers": 22915,
+     "hoard_entities": 0,
+     "hoard_amount": 0,
+     "net_worth_ok": true,
+     "flow_ok": true,
+     "residual_ok": true,
+     "ex_nihilo_ok": true,
+     "goods_residual_units": 0,
+     "goods_balanced": true,
+     "waste_g": 1597600.0,
+     "shelf_units": 141618,
+     "gate_ok": true
+    },
+    "money": {
+     "households": 130114368,
+     "money_supply": 425014602
+    },
+    "bodies": {
+     "n": 5000,
+     "in_area": 952,
+     "riding": 4,
+     "outside": 4044,
+     "other": 0
+    }
+   },
+   {
+    "day": 1,
+    "end_T": 2880,
+    "eod": {
+     "behavior_hash": "f2aaf9019384ba826faaaa8d37ac41febc89fe17eb6d6716343076fbfba49c2e",
+     "full_hash": "70501ba10d8ebf1bafcb0de3c660913a34fe91c2bc4a34850e85f9f09c3bba6e",
+     "full_external_bytes": 3934336
+    },
+    "census_pass": true,
+    "census_row": {
+     "day": 1,
+     "residual": 0,
+     "money_supply": 423896092,
+     "faucet_total": 0,
+     "sink_total": 1118510,
+     "n_transfers": 35301,
+     "hoard_entities": 0,
+     "hoard_amount": 0,
+     "net_worth_ok": true,
+     "flow_ok": true,
+     "residual_ok": true,
+     "ex_nihilo_ok": true,
+     "goods_residual_units": 0,
+     "goods_balanced": true,
+     "waste_g": 1634700.0,
+     "shelf_units": 136601,
+     "gate_ok": true
+    },
+    "money": {
+     "households": 123088928,
+     "money_supply": 423896092
+    },
+    "bodies": {
+     "n": 5000,
+     "in_area": 953,
+     "riding": 0,
+     "outside": 4047,
+     "other": 0
+    }
+   }
+  ],
+  "day_heads": [
+   {
+    "day": 1,
+    "T": 1440,
+    "money": {
+     "households": 130114368,
+     "money_supply": 425014602
+    },
+    "bodies": {
+     "n": 5000,
+     "in_area": 952,
+     "riding": 4,
+     "outside": 4044,
+     "other": 0
+    }
+   }
+  ],
+  "state_files": [],
+  "wall_s": 181.3
+ },
+ "stops": [
+  {
+   "stop_T": 1320,
+   "fresh_process": false,
+   "state_file": "state-T00001320.pkl",
+   "state_bytes": 4319304,
+   "state_full_hash": "f8ede3204521576b",
+   "calls": {
+    "straight": 197659,
+    "stop+resume": 197659
+   },
+   "compare": {
+    "from_T": 1320,
+    "checkpoints_compared": 1560,
+    "first_mismatch": null,
+    "mismatched_checkpoints": 0,
+    "calls_ticks_compared": 1560,
+    "first_calls_mismatch": null,
+    "calls_ticks_missing": [],
+    "daily": [
+     {
+      "day": 0,
+      "eod_full_same": true,
+      "eod_behavior_same": true,
+      "census_pass": [
+       true,
+       true
+      ],
+      "census_row_differs": []
+     },
+     {
+      "day": 1,
+      "eod_full_same": true,
+      "eod_behavior_same": true,
+      "census_pass": [
+       true,
+       true
+      ],
+      "census_row_differs": []
+     }
+    ],
+    "tape": {
+     "rows_straight": 104126,
+     "rows_segments": 104126,
+     "rows_differ": 0,
+     "first_differ": null
+    },
+    "ok": true
+   },
+   "wall_s": {
+    "stop": 76.5,
+    "resume": 114.9
+   }
+  }
+ ],
+ "all_ok": true
+}

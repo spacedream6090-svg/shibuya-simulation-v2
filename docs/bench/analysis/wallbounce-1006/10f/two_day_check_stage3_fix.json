@@ -1,0 +1,26 @@
+{
+ "schema": "shibuya.bench/10f/two-day-check/1",
+ "head": "129da80",
+ "how": "第 3 段の検収の後の直し(U1〜U7)の後の作業木。5,000 体・seed 1・sim_days=2・世界資産・既定 v3・テープつき。HEAD の行は two_day_check_stage3.json と同じラン",
+ "rows": [
+  {
+   "side": "head",
+   "src_is_head": true,
+   "final": "47e0a85b02797e23",
+   "calls": 142043,
+   "calls_sha": "d9b118029d599596",
+   "blocks_sha": "4fc9beccec9b175f",
+   "wall_s": 72.5
+  },
+  {
+   "side": "work",
+   "src_is_head": false,
+   "final": "47e0a85b02797e23",
+   "calls": 142043,
+   "calls_sha": "d9b118029d599596",
+   "blocks_sha": "4fc9beccec9b175f",
+   "wall_s": 71.5
+  }
+ ],
+ "equal": true
+}

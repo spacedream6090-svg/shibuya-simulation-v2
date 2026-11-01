@@ -21,9 +21,13 @@
     表と JSON の書き出しは ``tools/c6/c6lib``。
 
 現実側の数値はここに書かない
-    全て ``docs/bench/anchors/diversity_anchors_v0.json``(source/tag/verified_by 付き)。
-    同ファイルの ``p0_prior`` は**現実アンカーではない**=設計書 §5 の前値で、
-    物差し自身の再現性検査にだけ使う。
+    全て ``docs/bench/anchors/diversity_*_anchors_v0.json``(source/tag/verified_by 付き)。〔第337 封印の分離の残り〕
+    元の 1 本 ``diversity_anchors_v0.json`` は区分の違う錨が混ざっていたので鍵の名で 2 本に分けた
+    (``tools/instruments/anchor_split.py``・値は変えていない): 構築側(検証に使わない側)
+    ``diversity_build_anchors_v0.json``=第 31 表の雇用形態別の帯〔写〕・Song 2010 と Alessandretti 2018
+    (パターン台帳 §10-3)・``p0_prior`` / 検証側 ``diversity_validation_anchors_v0.json``=第 30 表〔検〕・
+    Schneider 2013〔灰〕(仮-13)。:func:`load_anchors` は既定で 2 本を 1 つの辞書に戻す(物差しは両方を使う)。
+    ``p0_prior`` は**現実アンカーではない**=設計書 §5 の前値で、物差し自身の再現性検査にだけ使う。
 
 入口
     ``--parquet PATH``     W17 週次表(既定 ``<world>/w17_schedule.parquet``)。P0 の前値。
@@ -86,8 +90,13 @@ from shibuya.build.sched import vocab as V  # noqa: E402
 markdown_table = c6lib.markdown_table
 write_outputs = c6lib.write_outputs
 
-#: 既定のアンカー台帳(現実側の数値は**全てここ**にある)。
-DEFAULT_ANCHORS_PATH = REPO_ROOT / "docs" / "bench" / "anchors" / "diversity_anchors_v0.json"
+#: 既定のアンカー台帳(現実側の数値は**全てここ**にある)。〔第337〕構築側と検証側の 2 本(合わせて読む)。
+DEFAULT_ANCHORS_PATHS: tuple[Path, Path] = (
+    REPO_ROOT / "docs" / "bench" / "anchors" / "diversity_build_anchors_v0.json",
+    REPO_ROOT / "docs" / "bench" / "anchors" / "diversity_validation_anchors_v0.json",
+)
+#: 記録の表記(検証側=現実側の比べの相手の多くが居る側)。
+DEFAULT_ANCHORS_PATH = DEFAULT_ANCHORS_PATHS[1]
 
 #: ``AgentKind``(src/shibuya/agents/state.py)の順と名前。
 KIND_JA: tuple[str, ...] = (
@@ -149,12 +158,37 @@ def check_anchors(doc: Mapping[str, Any]) -> None:
             raise ValueError(f"アンカー {key} に値(value/values/low)が無い")
 
 
-def load_anchors(path: str | Path | None = None) -> dict[str, Any]:
-    """アンカー台帳を読む。**必須欄が欠けていたら落とす**(推測で埋めない)。"""
-    p = Path(path) if path else DEFAULT_ANCHORS_PATH
-    doc = json.loads(p.read_text(encoding="utf-8"))
+def merge_anchor_docs(docs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """複数の台帳を 1 つに戻す(``anchors`` は合わせる・同じ名は止める・ほかの鍵は前の側を残す)。"""
+    out: dict[str, Any] = {}
+    for d in docs:
+        for k, v in d.items():
+            if k == "split_from":
+                continue
+            if k == "anchors":
+                clash = set(out.get("anchors", {})) & set(v)
+                if clash:
+                    raise ValueError(f"台帳の間で同じ錨の名がある: {sorted(clash)}")
+                out.setdefault("anchors", {}).update(v)
+            elif k not in out:
+                out[k] = v
+    return out
+
+
+def load_anchors(path: str | Path | Sequence[str | Path] | None = None) -> dict[str, Any]:
+    """アンカー台帳を読む。**必須欄が欠けていたら落とす**(推測で埋めない)。
+
+    〔第337〕``path`` は 1 本・複数(合わせる)・None(既定の 2 本=:data:`DEFAULT_ANCHORS_PATHS`)。
+    """
+    if path is None:
+        paths = list(DEFAULT_ANCHORS_PATHS)
+    elif isinstance(path, (str, Path)):
+        paths = [Path(path)]
+    else:
+        paths = [Path(x) for x in path]
+    doc = merge_anchor_docs([json.loads(p.read_text(encoding="utf-8")) for p in paths])
     check_anchors(doc)
-    doc["_path"] = str(p)
+    doc["_path"] = "+".join(str(p) for p in paths)
     return doc
 
 
@@ -1663,7 +1697,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--before-label", default="before", help="before 側の名前")
     ap.add_argument("--floor", nargs=2, default=None, metavar=("A", "B"),
                     help="同腕 2 標本(parquet か jsonl)= 揺らぎのフロア")
-    ap.add_argument("--anchors", default=None, help=f"アンカー台帳(既定 {DEFAULT_ANCHORS_PATH})")
+    ap.add_argument("--anchors", nargs="+", default=None,
+                    help="アンカー台帳(複数なら合わせる。既定 構築側+検証側の 2 本=DEFAULT_ANCHORS_PATHS)")
     ap.add_argument("--out", default=None, help="出力ディレクトリ(既定=標準出力のみ)")
     args = ap.parse_args(argv)
 

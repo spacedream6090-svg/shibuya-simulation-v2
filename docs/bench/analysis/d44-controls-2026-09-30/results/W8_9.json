@@ -1,0 +1,30 @@
+{
+ "key": "W8#9",
+ "control": "T2 のセル対の標本 ≤200(宣言)vs ≤400",
+ "metric": "T2 見通し率(評価したセル対)の 0.05 階級分布",
+ "variants": [
+  {
+   "name": "標本 ≤400",
+   "jsd_bits": 9.696326694589387e-05,
+   "null_p95": 0.0010749221691933038,
+   "detected": false,
+   "tvd": 0.003748828491096571,
+   "n_declared": 10670.0,
+   "n_control": 10670.0,
+   "n_bins": 21,
+   "mean_abs_diff": 0.0022690564757099525
+  }
+ ],
+ "detected": false,
+ "status": "measured",
+ "verdict": "not_driving",
+ "seconds_stage": 1.4511811999836937,
+ "outputs_changed": [
+  "w8_t2.npy"
+ ],
+ "notes": [
+  "w8_t2 はエンジン側の読み口が無い(D-44 (c) の段単位では W8 が読まれるので『読む』に入っている)"
+ ],
+ "seconds_wall_row": 2.23,
+ "measured_at": "2026-09-30"
+}

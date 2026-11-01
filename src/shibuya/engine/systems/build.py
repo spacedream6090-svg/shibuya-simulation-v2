@@ -1,0 +1,1675 @@
+"""engine.systems.build — 組み立て(R1・S0〜S8 と再開の復元)(第 1 期 1-0・段 F)。
+
+``build(_call_args)`` は HEAD ``ee3abc7`` の ``run_day`` の頭(``_call_args = dict(locals())`` の次の文)から刻みのループの
+前までを、そのままの文で回して状態の箱(``Box``)を返す。前置きは run_day の引数 113 個を ``_call_args`` から結ぶ行だけ
+(``_call_args`` の写し方・設定の指紋 ``RS.fingerprint(_call_args)`` は HEAD と同じ=草案 §3-3 の 3)。
+HEAD の入れ子の関数のうち状態と日の口(``_hash_owners`` ほか 14)は ``engine.systems.state_io`` の箱を受け取る関数にした。
+描画と方策へ差し込む関数(``_classical_acq``・``_classical_partner``・``_session_partners``・``_b3_words``・無名関数 3 つ)は
+組み立ての中の入れ子の def のまま(捕まえる物の同一性を保つ=草案 §3-3 の 6)。
+
+試験の差し替えの的: 層の組み立ての名前(``FleetBridge``・``PerceptionRendererAdapter``・``WorldProcessRunner``・
+``Arbiter``・``ConversationManager``)は**このモジュール**の名前(HEAD は ``engine.run``)。``engine.run`` で定義された
+補助(``_resolve_population`` など)は呼ぶ時に ``engine.run`` から引く。
+
+逐次ループ宣言: HEAD の組み立てのまま(各文の注を見る)。
+"""
+
+from __future__ import annotations
+
+import copy
+import dataclasses
+import time
+from datetime import datetime
+from datetime import timedelta
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+
+from shibuya.agents.schedule import synthesize
+from shibuya.agents.state import AgentState
+from shibuya.agents.state import FOCUS_NONE
+from shibuya.agents.state import N_WAKE_CONDITIONS_ALL
+from shibuya.agents.state import WakeCondition
+from shibuya.agents.weekly import apply_to_mock_schedule
+from shibuya.agents.weekly import load_weekly
+from shibuya.core.rng import RNG_SCHEME
+from shibuya.engine import commit as C
+from shibuya.engine import resolve as R
+from shibuya.engine.space import nav1 as _NAV1
+from shibuya.engine import resume as RS
+from shibuya.engine.activity import ActivityLayer
+from shibuya.engine.arbiter import Arbiter
+from shibuya.engine.arbiter import call_budget_per_tick
+from shibuya.engine.calendar import DEFAULT_WORLD_START
+from shibuya.engine.calendar import SimCalendar
+from shibuya.engine.calendar import WEATHER_SCHEME
+from shibuya.engine.calendar import WEEKDAY_MODE
+from shibuya.engine.calendar import load_holidays
+from shibuya.engine.calendar import parse_school_holidays
+from shibuya.engine.calendar import parse_start
+from shibuya.engine.change_detect import ChangeDetector
+from shibuya.engine.chooser import check_chooser
+from shibuya.engine.chooser import make_chooser
+from shibuya.engine.classical import ActivityPrior
+from shibuya.engine.classical import ClassicalPolicy
+from shibuya.engine.classical import check_activity_region
+from shibuya.engine.classical import check_classical_social
+from shibuya.engine.classical import check_meal_gate
+from shibuya.engine.classical import check_policy
+from shibuya.engine.classical import load_activity_prior
+from shibuya.engine.conversation import ConversationManager
+from shibuya.engine.body import BodyModel
+from shibuya.engine.energy import EnergyLayer
+from shibuya.engine.energy import EnergyModel
+from shibuya.engine.energy import HomeMeals
+from shibuya.engine.energy import OutOfAreaMeals
+from shibuya.engine.energy import check_energy_rate
+from shibuya.engine.energy import check_home_meal
+from shibuya.engine.energy import check_hunger_model
+from shibuya.engine.energy import check_meal_sleep_defer
+from shibuya.engine.energy import load_anchors
+from shibuya.engine import energy as _EN
+from shibuya.engine.familiarity import FAMILIARITY_MODES
+from shibuya.engine.familiarity import FamiliarityLayer
+from shibuya.engine.geometry import EdgeGeometry
+from shibuya.engine.geometry import check_geometry
+from shibuya.engine.intent import IntentLayer
+from shibuya.engine.llm_bridge import LLMBridge
+from shibuya.engine.llm_bridge import PerceptionRendererAdapter
+from shibuya.engine.llm_bridge import StubRenderer
+from shibuya.engine.memory import MEMORY_MODES
+from shibuya.engine.memory import MemoryLayer
+from shibuya.engine.memory import STORE_RECALL_SCOPES
+from shibuya.engine.poi_target import TargetResolver
+from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
+from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
+from shibuya.engine.presence import PlanExecutor
+from shibuya.engine.processes.crowd import SEAT_AREA_M2
+from shibuya.engine.processes.runner import WorldProcessRunner
+from shibuya.engine.processes.salient import check_d50_scale as _check_d50_scale
+from shibuya.engine.relations import REL_INIT_DENSITIES
+from shibuya.engine.relations import REL_MODES
+from shibuya.engine.relations import REL_ORIGINS
+from shibuya.engine.relations import DEFAULT_REL_TENURE_HASH
+from shibuya.engine.relations import REL_TAU_BY_TENURE_HASH
+from shibuya.engine.relations import initial_edges as _rel_initial_edges
+from shibuya.engine.store_choice import StoreChoice
+from shibuya.engine.store_choice import walk_m_per_tick as _walk_m_per_tick
+from shibuya.engine.store_memory import STORE_MEMORY_MODES
+from shibuya.engine.store_memory import check_store_decay
+from shibuya.engine.store_memory import check_store_sigma
+from shibuya.engine.systems import boxes as _BX
+from shibuya.engine.systems import state_io as _SIO
+from shibuya.engine.tape import TapeRow
+from shibuya.engine.tape import TapeWriter
+from shibuya.engine.tape import read_run_meta
+from shibuya.engine.wom import WomExtractor
+from shibuya.engine.wom import check_wom_source
+from shibuya.llm.fleet import FleetBridge
+from shibuya.perception.channels import BudgetMode
+from shibuya.perception.renderer import PerceptionAssets
+from shibuya.perception.renderer import Renderer as PerceptionRenderer
+from shibuya.perception.renderer import check_hunger_words
+from shibuya.perception.renderer import check_signage_p_see
+from shibuya.perception.templates import check_intent_mode
+from shibuya.perception.templates import check_role_words
+from shibuya.perception.templates import check_vocab_version
+from shibuya.world.assets import DEFAULT_AREA_SOURCE
+from shibuya.world.assets import check_area_source
+from shibuya.world.assets import load_process_assets_or_synthetic
+from shibuya.world.assets import load_walkable_area_m2
+from shibuya.world.state import World
+from shibuya.world.state import check_eatery_mode
+from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_MINUTE
+
+
+__all__ = ["build"]
+
+
+def build(_call_args: dict[str, Any]) -> Any:
+    """組み立て(R1): 腕の検査・世界と SoA と層の組み立て・状態の箱・再開の復元。返り値=``Box``。"""
+    from shibuya.engine import run as _RUN
+
+    RNG_LAYOUT = _RUN.RNG_LAYOUT
+    RunResult = _RUN.RunResult
+    _ENTRANCES = _RUN._ENTRANCES
+    _default_mock = _RUN._default_mock
+    _named_closed_lookup = _RUN._named_closed_lookup
+    _replay_tape_dir = _RUN._replay_tape_dir
+    _resolve_population = _RUN._resolve_population
+    _resolve_response_delay = _RUN._resolve_response_delay
+    _same_seed = _RUN._same_seed
+    _schedule_with_population = _RUN._schedule_with_population
+    check_replay_tape = _RUN.check_replay_tape
+    classical_acq_addressable = _RUN.classical_acq_addressable
+    resolve_environment_seed = _RUN.resolve_environment_seed
+    resolve_population_seed = _RUN.resolve_population_seed
+    run_salt_for = _RUN.run_salt_for
+
+    # ---- run_day の引数(``_call_args`` は run_day の頭で ``dict(locals())`` した写し=設定の指紋の材料) ----
+    n_agents = _call_args['n_agents']
+    seed = _call_args['seed']
+    world = _call_args['world']
+    population_seed = _call_args['population_seed']
+    environment_seed = _call_args['environment_seed']
+    tick_seconds = _call_args['tick_seconds']
+    ticks = _call_args['ticks']
+    llm = _call_args['llm']
+    fleet = _call_args['fleet']
+    fleet_wait_s = _call_args['fleet_wait_s']
+    fleet_debug_dir = _call_args['fleet_debug_dir']
+    checkpoint_every = _call_args['checkpoint_every']
+    day_index = _call_args['day_index']
+    budget = _call_args['budget']
+    l4_scale = _call_args['l4_scale']
+    n_cells = _call_args['n_cells']
+    mode = _call_args['mode']
+    tape_path = _call_args['tape_path']
+    replay = _call_args['replay']
+    renderer = _call_args['renderer']
+    world_dir = _call_args['world_dir']
+    conversations = _call_args['conversations']
+    lane = _call_args['lane']
+    ledger = _call_args['ledger']
+    processes = _call_args['processes']
+    processes_enabled = _call_args['processes_enabled']
+    processes_disabled = _call_args['processes_disabled']
+    p_notice_ablation = _call_args['p_notice_ablation']
+    p_notice_d50_scale = _call_args['p_notice_d50_scale']
+    refractory_scale = _call_args['refractory_scale']
+    signage = _call_args['signage']
+    signage_p_see = _call_args['signage_p_see']
+    intent_mode = _call_args['intent_mode']
+    vocab_version = _call_args['vocab_version']
+    role_words = _call_args['role_words']
+    group_norms = _call_args['group_norms']
+    budget_mode = _call_args['budget_mode']
+    salient_rate_per_10k = _call_args['salient_rate_per_10k']
+    report_precondition = _call_args['report_precondition']
+    queue_service = _call_args['queue_service']
+    population = _call_args['population']
+    occupancy_every = _call_args['occupancy_every']
+    occupancy_path = _call_args['occupancy_path']
+    sleep_suppression = _call_args['sleep_suppression']
+    plan_sleep = _call_args['plan_sleep']
+    plan_executor = _call_args['plan_executor']
+    exit_mode = _call_args['exit_mode']
+    attendance_rate = _call_args['attendance_rate']
+    outside_suppression = _call_args['outside_suppression']
+    derive_rule = _call_args['derive_rule']
+    geometry = _call_args['geometry']
+    area_source = _call_args['area_source']
+    space = _call_args['space']
+    seat_area_eatery_m2 = _call_args['seat_area_eatery_m2']
+    seat_area_retail_m2 = _call_args['seat_area_retail_m2']
+    census_out = _call_args['census_out']
+    activity = _call_args['activity']
+    eatery = _call_args['eatery']
+    chooser = _call_args['chooser']
+    move_search_radius = _call_args['move_search_radius']
+    mock_move_target_p = _call_args['mock_move_target_p']
+    intent_max_ticks = _call_args['intent_max_ticks']
+    mock_out_of_cell_target_p = _call_args['mock_out_of_cell_target_p']
+    familiarity = _call_args['familiarity']
+    familiarity_k = _call_args['familiarity_k']
+    hunger_model = _call_args['hunger_model']
+    energy_rate = _call_args['energy_rate']
+    meal_sleep_defer = _call_args['meal_sleep_defer']
+    home_meal = _call_args['home_meal']
+    hunger_words = _call_args['hunger_words']
+    policy = _call_args['policy']
+    activity_region = _call_args['activity_region']
+    classical_social = _call_args['classical_social']
+    meal_gate = _call_args['meal_gate']
+    classical_habit_p = _call_args['classical_habit_p']
+    classical_tau = _call_args['classical_tau']
+    p_see_activity = _call_args['p_see_activity']
+    memory = _call_args['memory']
+    memory_n = _call_args['memory_n']
+    memory_tau = _call_args['memory_tau']
+    store_memory = _call_args['store_memory']
+    store_memory_n = _call_args['store_memory_n']
+    store_sigma = _call_args['store_sigma']
+    store_decay = _call_args['store_decay']
+    store_wom = _call_args['store_wom']
+    store_signage = _call_args['store_signage']
+    store_recall_scope = _call_args['store_recall_scope']
+    wom_source = _call_args['wom_source']
+    relations = _call_args['relations']
+    rel_k = _call_args['rel_k']
+    rel_tau = _call_args['rel_tau']
+    rel_d = _call_args['rel_d']
+    rel_init_density = _call_args['rel_init_density']
+    conv_max_participants = _call_args['conv_max_participants']
+    rel_tenure_weeks = _call_args['rel_tenure_weeks']
+    rel_invite = _call_args['rel_invite']
+    rel_acq_wake = _call_args['rel_acq_wake']
+    rel_copresent = _call_args['rel_copresent']
+    sim_days = _call_args['sim_days']
+    start_sim_datetime = _call_args['start_sim_datetime']
+    holiday_csv = _call_args['holiday_csv']
+    school_holidays = _call_args['school_holidays']
+    state_out = _call_args['state_out']
+    stop_at_tick = _call_args['stop_at_tick']
+    resume_from = _call_args['resume_from']
+    run_id = _call_args['run_id']
+    checkpoint_detail = _call_args['checkpoint_detail']
+    weather_perturb = _call_args['weather_perturb']
+
+    # 10f(K21 (a)): 母集団の seed(省略時は seed と同じ)。指紋には seed と違うときだけ載せる(省略と、seed と同じ値の
+    # 明示は同じラン=指紋も今と同じ。状態のファイルの見出しは既定のランでは 1 欄も増えない)
+    pop_seed = resolve_population_seed(seed, population_seed)
+    env_seed = resolve_environment_seed(seed, environment_seed)
+    _call_args.pop("population_seed", None)
+    _call_args.pop("environment_seed", None)
+    if not _same_seed(pop_seed, seed):
+        _call_args["population_seed"] = pop_seed
+    if not _same_seed(env_seed, seed):
+        _call_args["environment_seed"] = env_seed
+
+    weather_perturb = bool(weather_perturb)
+    if not weather_perturb:
+        _call_args.pop("weather_perturb", None)
+
+    t_start = time.perf_counter()
+    budget_mode_enum = BudgetMode.parse(budget_mode)
+    # ---- 第 1 期 1-4(検収 L10): つなぎの台帳と規則の表をランの始めに 1 回読む(壊れていればここで落ちる=1 日回した
+    # 後の日の締めで落ちない。無い写しは警告して null。読むだけ=状態にも指紋にも入らない) ----
+    from shibuya.engine.bridging import ledger as _BR
+    from shibuya.engine.rules import table as _RT
+
+    _BR.bridges_count()
+    _RT.rules_version()
+    # ---- 10a(A1・A1-1・A1-2・A1-3・A9): 暦の口・通しの時刻 T・応答の遅れ(世界を触る前に検査) ----
+    check_replay_tape(mode, replay)  # 〔第330・RET〕10e より前・活性化より前の録画は止める
+    response_delay = _resolve_response_delay(mode, replay)
+
+    if mode == "replay" and replay is not None:  # 10f: 録画した環境が違えば警告を 1 行(挙動は変えない)
+        _rtd = _replay_tape_dir(replay)
+        RS.warn_if_other_environment(read_run_meta(_rtd).get("environment"), f"再生するテープ {_rtd.name}")
+    sim_days = int(sim_days)
+    if sim_days < 1:
+        raise ValueError(f"sim_days は 1 以上(いま {sim_days})")
+    start_given = parse_start(start_sim_datetime)
+    # 10e(E3): 暦の 0 日目。渡されたらその日・渡さなければ既定の開始日 2026-07-13 + day_index 日
+    calendar = SimCalendar(
+        start_given if start_given is not None else DEFAULT_WORLD_START + timedelta(days=int(day_index)),
+        tick_seconds=int(tick_seconds),
+        day_index=int(day_index),
+        holidays=load_holidays(holiday_csv),
+        school_holidays=parse_school_holidays(school_holidays),
+    )
+    tpd = calendar.ticks_per_day
+    #: 10d: 状態の口(書き出し・止める・再開)を使うラン。
+    _state_mode = state_out is not None or stop_at_tick is not None or resume_from is not None
+    if sim_days > 1 and int(ticks) != tpd:
+        raise ValueError(f"sim_days > 1 では ticks は 1 日の tick 数 {tpd}(いま {ticks})")
+    if sim_days == 1 and int(ticks) > tpd:
+        raise ValueError(f"ticks は 1 日の tick 数 {tpd} 以下(複数日は sim_days で回す・いま {ticks})")
+    if (sim_days > 1 or _state_mode) and (mode == "replay" or replay is not None):
+        raise ValueError("複数日のランと状態の口(10d)は再生(replay)と一緒に使えない(10d の範囲の外)")
+    total_ticks = int(ticks) if sim_days == 1 else sim_days * tpd
+    # ---- 10d: 再開の読み込み(世界を触る前に見出しを検査する)・止める時刻・ラン ID ----
+    _fp = RS.fingerprint(_call_args)
+    from shibuya.engine.speech import layer as _SPEECH
+
+    if _SPEECH.arm() == _SPEECH.ARM_ON:
+        # 第 1 期 1-8b: 発話の口の腕は結果を変える(相手の入力に発話が載る)=on のときだけ設定の指紋に足す(既定は今の指紋)
+        _fp["speech_port"] = _SPEECH.ARM_ON
+    from shibuya.engine import batching as _BATCH
+
+    if not _BATCH.is_default():
+        # 第 3 期 3-2: まとめの幅の腕は既定(刻みの幅)のときだけ設定の指紋に入れない(腕のときは入れる=再開で親と照合)
+        _fp[_BATCH.FP_KEY] = int(_BATCH.arm())
+    from shibuya.engine import memory_m1 as _MR65
+    from shibuya.engine import memory_store as _MSR65
+
+    _mr65_cfg = _MR65.config_of(_MR65.arms(), row_caps=_MSR65.row_caps())
+    if _mr65_cfg:
+        # 第 6 期 6-5(検収 L1): 記憶の腕は結果を変える=既定と違う腕のときだけ設定の指紋に足す(腕の名・埋め込みのモデルの
+        # 名と版・行の上限=再開で腕と埋め込みのモデルの取り違えを止める。既定のランの指紋は前のまま)
+        _fp[_MR65.FP_KEY] = _mr65_cfg
+    from shibuya.engine import calendar_shadow as _CSH
+
+    if _CSH.is_on():
+        # 〔第 3 期 3-1〕暦 1a の影の腕は on のときだけ設定の指紋に足す(既定は今の指紋・影は計器だけ=挙動は不変)
+        _fp["calendar_shadow"] = _CSH.MODE_1A
+    from shibuya.engine import calendar_self as _CAL1B
+
+    if _CAL1B.is_on():
+        # 〔第 6 期 6-2〕カレンダー 1b の腕は結果を変える(勤務の出入りを本人へ)=1b のときだけ設定の指紋に足す(既定は今の指紋)
+        _fp[_CAL1B.FP_KEY] = _CAL1B.MODE_1B
+    # 〔第 6 期 6-3〕時計の段 T2〜T4 の腕(会話の時計・何かあった体だけ・場所ごとの時計)は既定と違うときだけ設定の指紋に足す
+    # (既定のランの指紋は前のまま=まとめの幅と同じ形・再開で親と照合)
+    from shibuya.engine import regional_clock as _RCK
+    from shibuya.engine import speech_clock as _TCK
+    from shibuya.engine import step_scope as _SSC
+
+    for _tm_mod in (_TCK, _SSC, _RCK):  # 逐次ループ宣言: 腕の数(3)
+        if not _tm_mod.is_default():
+            _fp[_tm_mod.FP_KEY] = _tm_mod.arm()
+    if _RCK.arm() == _RCK.ARM_MIXED:  # 〔6-3 検収 L7〕混合の時計は口だけ=組み立ての段で止める
+        raise NotImplementedError(_RCK.MIXED_NOTE)
+    from shibuya.engine.contact import arm as _CTA
+
+    _ct_cfg = _CTA.config()
+    if _ct_cfg is not None:
+        # 〔第 6 期 6-4 C1〕連絡の道具の腕は結果を変える=c1 のときだけ設定の指紋に足す(腕と下の腕=再開で取り違えを止める。
+        # 既定 off のランの指紋は今のまま)
+        _fp[_CTA.FP_KEY] = _ct_cfg
+    from shibuya.engine.calendar2 import arm as _CA2A
+
+    _ca2_cfg = _CA2A.config()
+    if _ca2_cfg is not None:
+        # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定の腕は結果を変える(本人が約束の場所へ歩く)=arm のときだけ設定の指紋に
+        # 足す(再開で取り違えを止める。既定 off のランの指紋は今のまま)
+        _fp[_CA2A.FP_KEY] = _ca2_cfg
+    from shibuya.engine.calendar3 import arm as _CA3A
+
+    _ca3_cfg = _CA3A.config()
+    if _ca3_cfg is not None:
+        # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日の腕は結果を変える(C3 の連絡が C1 の口を通る)=arm のときだけ設定の指紋に足す
+        # (試験用の印の下の腕も=再開で取り違えを止める。既定 off のランの指紋は今のまま)。C1 とカレンダー 2 の層を再利用する
+        if _ct_cfg is None or _ca2_cfg is None:
+            raise ValueError("腕 --calendar-3 arm は --contact c1(職場の連絡を送る口)と --calendar-2 arm(本人の予定の器)の"
+                             "ランだけ(層を再利用する=二重に作らない)")
+        _fp[_CA3A.FP_KEY] = _ca3_cfg
+    from shibuya.engine.duties import arm as _DUA
+
+    _du_cfg = _DUA.config()
+    if _du_cfg is not None:
+        # 〔第 6 期 6-6 ② 第 1 部〕店の仕事の腕は結果を変える(担当が店に居る店の開閉・補充・廃棄が本人の判断になる)=arm のとき
+        # だけ設定の指紋に足す(再開で取り違えを止める。既定 off のランの指紋は今のまま)。世界過程の無いランは組み立てで止める
+        if not processes:
+            raise ValueError("腕 --duties arm は世界過程(開閉店・補充・廃棄)のあるランだけ")
+        _fp[_DUA.FP_KEY] = _du_cfg
+    # ---- 第 3 期 3-3: 反実仮想の申込書(``cli.run`` が ``engine.experiment.layer.staged`` で置いた物・無ければ None=今の道)。
+    # 設定の指紋には入れない(申込書の指紋は manifest の experiment の節=分岐が基準のランの状態から再開できる) ----
+    from shibuya.engine.experiment import layer as _EXPL
+
+    _exp_staged = _EXPL.current()
+    # 〔親の判断 M1〕封印の入口: ランの seed の 3 つとモデルの札がアンサンブルのどの半分か(探索が封印した半分なら止める)
+    _exp_entry = _EXPL.entrance(_exp_staged, seed=seed, population_seed=pop_seed, environment_seed=env_seed)
+    _exp_inherited = False
+    _bundle: "RS.StateBundle | None" = None
+    t_begin = 0
+    parent_run: dict[str, Any] | None = None
+    _read_seconds = 0.0
+    if resume_from is not None:
+        _t_read = time.perf_counter()
+        _bundle = RS.read_state(resume_from)
+        _read_seconds = time.perf_counter() - _t_read
+        _h = _bundle.header
+        # 10f: 親を書いた環境が違えば警告を 1 行(挙動は変えない)
+        RS.warn_if_other_environment(_h.get("platform"), f"状態のファイル {Path(resume_from).name}")
+        if bool(_h.get("finished", False)):
+            raise ValueError(
+                f"finished: true のランへは再開しない(親 {_h.get('run_id')}・T={_h.get('progress', {}).get('next_T')})"
+            )
+        _diff = RS.fingerprint_diff(_h.get("fingerprint", {}), _fp)
+        if _diff:
+            raise ValueError(f"再開の設定が親と違う(欄 {_diff[:8]})")
+        # 第 2 期 2-2(検収 M1): 近接の腕は設定の指紋に入れない=見出しの proximity(無ければ cell)と今の腕を突き合わせる
+        from shibuya.engine import proximity as _PXR
+
+        _PXR.check_resume(_h.get("proximity"))
+        # 第 2 期 2-1(検収 A5): 経済の段階 2 の腕は設定の指紋に入れない=見出しの economy_stage2(無ければ off)と今の腕を
+        # 突き合わせる
+        from shibuya.engine import economy_stage2 as _ES2R
+
+        _ES2R.check_resume(_h.get("economy_stage2"),  # 〔2-4 V4〕金の台帳が無いランは腕 on でも挿さない=off と同じ
+                           effective=ledger is not None and hasattr(getattr(ledger, "money", None), "attach_stage2"))
+        # 〔第 2 期 2-4 V3〕在席の印の腕も設定の指紋に入れない=見出しの seat_release(無ければ legacy)と今の腕を突き合わせる
+        from shibuya.engine import seat_release as _SRR
+
+        _SRR.check_resume(_h.get("seat_release"))
+        t_begin = int(_h["progress"]["next_T"])
+        if not (0 < t_begin < total_ticks):
+            raise ValueError(f"再開の時刻 T={t_begin} がこのランの範囲 0〜{total_ticks} の内側に無い(sim_days を見る)")
+        parent_run = {
+            "run_id": str(_h.get("run_id", "")),
+            "resume_T": int(t_begin),
+            "state_file": Path(resume_from).name,
+            "state_full_hash": str(_h.get("hashes", {}).get("full_hash", "")),
+        }
+        # 3-3: 親が申込書つきなら同じ申込書でなければ止める(親が申込書なし=基準のランからの分岐は通す)
+        _exp_inherited = _EXPL.check_resume(_exp_staged, _h)
+    t_end = total_ticks
+    if stop_at_tick is not None:
+        if state_out is None:
+            raise ValueError("stop_at_tick には state_out(状態の書き出し先)が要る")
+        if not (t_begin < int(stop_at_tick) < total_ticks):
+            raise ValueError(f"stop_at_tick は {t_begin} より大きく {total_ticks} より小さい(いま {stop_at_tick})")
+        t_end = int(stop_at_tick)
+    _resuming = _bundle is not None
+    # 10d 検収 L6: ラン ID は実行ごとに一意(時刻の印を含む)。状態の口を使わないランでは作らない(空)=manifest を
+    # 決定論のまま保つ(同じ設定の 2 回のランの manifest が一致する約束・tests/engine/test_census_out.py)。
+    run_id = str(run_id) or (
+        RS.run_id_of(_fp, start_T=t_begin, parent=(parent_run or {}).get("run_id", "")) if _state_mode else ""
+    )
+    # ---- ablation ②③: 腕の値をここで検査する(過程を切ったランでも manifest が嘘をつかない) ----
+    p_notice_d50_scale = _check_d50_scale(p_notice_d50_scale)
+    # ---- D-66 計画実行層の腕: 値の検査は**層が休むランでも**する(manifest が嘘をつかない) ----
+    if str(exit_mode) not in PRESENCE_EXIT_MODES:
+        raise ValueError(f"exit_mode は {PRESENCE_EXIT_MODES} のどれか(いま {exit_mode!r})")
+    if isinstance(group_norms, str) and group_norms not in ("on", "off"):
+        raise ValueError(f"group_norms は 'on'/'off' か bool(いま {group_norms!r})")
+    group_norms_on = (group_norms == "on") if isinstance(group_norms, str) else bool(group_norms)
+    if not (0.0 <= float(attendance_rate) <= 1.0):
+        raise ValueError(f"attendance_rate は 0.0〜1.0(いま {attendance_rate})")
+    if str(derive_rule) not in PRESENCE_DERIVE_RULES:
+        raise ValueError(f"derive_rule は {PRESENCE_DERIVE_RULES} のどれか(いま {derive_rule!r})")
+    # ---- C9 位置幾何の腕: 値の検査は**SoA を確保する前**にする(欄が 1 本変わるため) ----
+    geometry = check_geometry(geometry)
+    # ---- 〔第 5 期 空間の段 1・5-1b〕移動の切替口 --space(既定 nav1=版上げ 4 回目・legacy は旧値の再現だけ・指定は環境変数 SHIBUYA_SPACE より強い)。資産(nav1_*)の無い
+    # 合成の世界では legacy で回し、manifest の space.effective と reason に書く(つなぎ=engine.space.nav1.NAV1_EXPEDIENTS の 5)。
+    # 〔段 1 の検収 問い 4〕本番の世界(build_manifest.json の build_hash を持つ世界)で資産が無ければ止める(黙って legacy にしない) ----
+    space_mode = _NAV1.check_space(_NAV1.space_env_override(space))  # 名 space は後で資源の表に使う
+    space_reason = ""
+    nav_on = False
+    if space_mode == "nav1":
+        if world_dir is None or str(getattr(world.assets, "source", "synthetic")) == "synthetic":
+            space_reason = "合成の世界(ナビメッシュの資産なし)"
+        elif not _NAV1.space_available(world_dir):
+            if _NAV1.is_production_world(world_dir):
+                raise FileNotFoundError(
+                    "本番の世界(build_manifest.json の build_hash を持つ世界)に nav1_* の資産が無い=活性化の前か apply 忘れ。"
+                    "docs/bench/analysis/spatial-2026-10/sp1/tools/activate_sp1.py apply で資産を入れるか、旧値の移動で回すなら "
+                    "--space legacy(space='legacy')を渡す")
+            space_reason = "世界の置き場に nav1_* の資産が無い(build_hash を持たない世界)"
+        else:
+            nav_on = True
+    space_effective = "nav1" if nav_on else "legacy"
+    # ---- C9c-1 歩行可能面積の出所: 資産を読む前に検査(manifest が嘘をつかない) ----
+    area_source = check_area_source(area_source)
+    # ---- C9c-1 席面積の感度腕: **None なら表に触らない**(既定は 1 バイトも変わらない) ----
+    seat_area_table: dict[str, float] | None = None
+    if seat_area_eatery_m2 is not None:
+        if float(seat_area_eatery_m2) <= 0.0:
+            raise ValueError(f"seat_area_eatery_m2 は正の値(いま {seat_area_eatery_m2})")
+        seat_area_table = {k: float(seat_area_eatery_m2) for k in SEAT_AREA_M2}
+    if seat_area_retail_m2 is not None and float(seat_area_retail_m2) <= 0.0:
+        raise ValueError(f"seat_area_retail_m2 は正の値(いま {seat_area_retail_m2})")
+    # ---- D-59 (b) 看板の注視ゲート: 同上(過程を切ったランでも腕の値を検査する) ----
+    signage_p_see = check_signage_p_see(signage_p_see)
+    # 〔第 1 期 1-2・決定 10-12 §1-6〕看板の注視の活動の乗数(表と腕)は消した。引数は設定の指紋と 1-0 の引数の数を
+    # 変えないため残し、None 以外は止める。箱の欄(1-0 の割り当て)は「表は無い」の値のまま
+    if p_see_activity is not None:
+        raise ValueError("p_see_activity は第 1 期 1-2 で消した(看板の注視に活動の乗数を掛けない=決定 10-12 §1-6)")
+    p_see_activity_table = None
+    p_see_activity_identity = True
+    # ---- AB7 自由意図の腕: 値の検査は**レンダラを作る前**にする(manifest が嘘をつかない) ----
+    intent_mode = check_intent_mode(intent_mode)
+    role_words = check_role_words(role_words)
+    # ---- 語彙 v2 の版: 同上(mock・レンダラ・bridge の前で確定させる) ----
+    vocab_version = check_vocab_version(vocab_version)
+    # ---- 二層の段 2: 活動層は**語彙 v3 のときだけ**立つ(SoA を確保する前に決める=欄が 2 本変わる) ----
+    activity = check_role_words(activity)  # "on"/"off"/bool を bool へ(同じ正規化)
+    activity_on = bool(activity) and vocab_version == "v3"
+    # ---- 4 段目: 親しみの表の腕(SoA を確保する前に決める=欄が 5 本変わる) ----
+    if isinstance(familiarity, str):
+        if familiarity not in FAMILIARITY_MODES:
+            raise ValueError(f"familiarity は {FAMILIARITY_MODES} か bool(いま {familiarity!r})")
+        familiarity_on = familiarity == "on"
+    else:
+        familiarity_on = bool(familiarity)
+    if int(familiarity_k) < 1:
+        raise ValueError(f"familiarity_k は 1 以上(いま {familiarity_k})")
+    # ---- 6 段目 6a: 記憶の表の腕(SoA を確保する前に決める=欄が 9 本変わる) ----
+    if isinstance(memory, str):
+        if memory not in MEMORY_MODES:
+            raise ValueError(f"memory は {MEMORY_MODES} か bool(いま {memory!r})")
+        memory_on = memory == "on"
+    else:
+        memory_on = bool(memory)
+    if int(memory_n) < 1:
+        raise ValueError(f"memory_n は 1 以上(いま {memory_n})")
+    if not np.isfinite(float(memory_tau)):
+        raise ValueError(f"memory_tau は有限の実数(いま {memory_tau})")
+    # ---- D-120 7a: 店の評価の記憶の腕(SoA を確保する前に決める=欄が 7 本変わる) ----
+    if isinstance(store_memory, str):
+        if store_memory not in STORE_MEMORY_MODES:
+            raise ValueError(f"store_memory は {STORE_MEMORY_MODES} か bool(いま {store_memory!r})")
+        store_memory_on = store_memory == "on"
+    else:
+        store_memory_on = bool(store_memory)
+    if int(store_memory_n) < 1:
+        raise ValueError(f"store_memory_n は 1 以上(いま {store_memory_n})")
+    store_sigma_table = check_store_sigma(store_sigma)
+    store_decay = check_store_decay(store_decay)
+    if store_memory_on and not memory_on:
+        raise ValueError("store_memory は memory='on' のランでだけ使える(書き手がエピソードの書き手に乗る)")
+
+    def _onoff(v: bool | str, name: str) -> bool:
+        if isinstance(v, str):
+            if v not in ("on", "off"):
+                raise ValueError(f"{name} は 'on'/'off' か bool(いま {v!r})")
+            return v == "on"
+        return bool(v)
+
+    # ---- C10 8a: 関係辺の腕(SoA を確保する前に決める=欄が 6 本変わる) ----
+    if isinstance(relations, str):
+        if relations not in REL_MODES:
+            raise ValueError(f"relations は {REL_MODES} か bool(いま {relations!r})")
+        relations_on = relations == "on"
+    else:
+        relations_on = bool(relations)
+    if relations_on and not memory_on:
+        raise ValueError("relations は memory='on' のランでだけ使える(書き手がエピソードの書き手に乗る)")
+    if int(rel_k) < 1:
+        raise ValueError(f"rel_k は 1 以上(いま {rel_k})")
+    # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕在職期間のハッシュは v2 だけ(旧値 v1 の切替口 --rel-tenure-hash は消した=再現は
+    # 安定版のタグ)。既定の τ は v2 の再逆算値
+    rel_tenure_hash = DEFAULT_REL_TENURE_HASH
+    if rel_tau is None:
+        rel_tau = REL_TAU_BY_TENURE_HASH[rel_tenure_hash]
+    if not (0.0 < float(rel_d) < 1.0) or not np.isfinite(float(rel_tau)):
+        raise ValueError(f"rel_d は 0〜1・rel_tau は有限(いま d={rel_d}・τ={rel_tau})")
+    if float(rel_init_density) not in REL_INIT_DENSITIES:
+        raise ValueError(f"rel_init_density は {REL_INIT_DENSITIES} のどれか(いま {rel_init_density})")
+    if int(conv_max_participants) not in (2, 3):
+        raise ValueError(f"conv_max_participants は 2 か 3(いま {conv_max_participants})")
+    rel_invite_on = _onoff(rel_invite, "rel_invite")
+    rel_acq_wake_on = _onoff(rel_acq_wake, "rel_acq_wake")
+    rel_copresent_on = _onoff(rel_copresent, "rel_copresent")
+    if rel_copresent_on and not relations_on:
+        raise ValueError("rel_copresent は relations='on' のランでだけ使える")
+    if not (np.isfinite(float(rel_tenure_weeks)) and float(rel_tenure_weeks) >= 1.0):
+        raise ValueError(f"rel_tenure_weeks は 1 以上(いま {rel_tenure_weeks})")
+    store_wom_on = _onoff(store_wom, "store_wom")
+    wom_source = check_wom_source(wom_source)
+    store_signage_on = _onoff(store_signage, "store_signage")
+    if str(store_recall_scope) not in STORE_RECALL_SCOPES:
+        raise ValueError(f"store_recall_scope は {STORE_RECALL_SCOPES} のどれか(いま {store_recall_scope!r})")
+    # ---- 5 段目 5a: 空腹のモデル(SoA を確保する前に決める=欄が 4 本変わる) ----
+    hunger_model = check_hunger_model(hunger_model)
+    energy_rate = check_energy_rate(energy_rate)
+    energy_on = hunger_model == "energy"
+    meal_sleep_defer = check_meal_sleep_defer(meal_sleep_defer)
+    home_meal = check_home_meal(home_meal)
+    hunger_words = check_hunger_words(hunger_words)
+    # ---- 段 1b: 飲食店の切替口(値の検査は世界を触る前・既定 food=現行のバイト) ----
+    eatery = check_eatery_mode(eatery)
+    # ---- 段 2a: 選び手と対象の決め方(値の検査は世界を触る前) ----
+    chooser = check_chooser(chooser)
+    # ---- 5 段目 5b: 方策と事前分布の地域(値の検査は世界を触る前) ----
+    policy = check_policy(policy)
+    activity_region = check_activity_region(activity_region)
+    classical_social = check_classical_social(classical_social)
+    meal_gate = check_meal_gate(meal_gate)
+    if policy == "classical":
+        if llm is not None:
+            raise ValueError("policy='classical' と llm の注入は併用できない")
+        if mode == "replay" or replay is not None or fleet is not None:
+            raise ValueError("policy='classical' は再生・艦隊と併用できない")
+        if vocab_version != "v3":
+            raise ValueError("policy='classical' は語彙 v3 だけ(5 ラベルの応答文)")
+    #: 語彙 v3 の対象ヒント(「対象: 自宅/職場/学校」→ 拠点セル)は活動層と独立に効かせる。
+    v3_hints = vocab_version == "v3"
+    # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
+    refractory_table = R.refractory_ticks(refractory_scale)
+    refractory_scale_norm = R.normalized_refractory_scale(refractory_scale)
+    world = world if world is not None else World.synthetic(n_cells=n_cells, seed=pop_seed)  # 10f: 母集団の側
+    # 渡された World を使い回しても前のランの切替口が残らないよう、**毎ラン必ず書く**。
+    world.set_eatery_mode(eatery)
+    # ---- 段 2a: 購入/食事/並ぶの対象=候補 → 選び手(1 ランに 1 つ・世界は読むだけ) ----
+    poi_resolver = TargetResolver(
+        world=world,
+        chooser=make_chooser(chooser, p_h=float(classical_habit_p), tau=float(classical_tau)),
+        seed=seed,
+        move_search_radius=int(move_search_radius),
+    )
+    mock_move_target_p = float(mock_move_target_p)
+    if not (0.0 <= mock_move_target_p <= 1.0):
+        raise ValueError(f"mock_move_target_p は 0.0〜1.0(いま {mock_move_target_p})")
+    mock_out_of_cell_target_p = float(mock_out_of_cell_target_p)
+    if not (0.0 <= mock_out_of_cell_target_p <= 1.0):
+        raise ValueError(
+            f"mock_out_of_cell_target_p は 0.0〜1.0(いま {mock_out_of_cell_target_p})"
+        )
+    if int(intent_max_ticks) < 1:
+        raise ValueError(f"intent_max_ticks は 1 以上(いま {intent_max_ticks})")
+    classical_policy: ClassicalPolicy | None = None
+    if policy == "classical":
+        _prior_doc, _prior_md5 = load_activity_prior()
+        classical_policy = ClassicalPolicy(
+            seed=seed,
+            prior=ActivityPrior(_prior_doc, calendar.day_kind(0), activity_region),  # 10a #18
+            prior_md5=_prior_md5,
+            social=classical_social,
+            meal_gate=meal_gate,
+        )
+        llm = classical_policy
+    llm = llm if llm is not None else _default_mock(
+        seed, vocab_version, mock_move_target_p, mock_out_of_cell_target_p
+    )
+    salt = run_salt_for(seed)
+    # 検収後 P3・10c: テープの脇の meta に応答の遅れと乱数の方式を書く(再生で突き合わせる・テープの版と列は変えない)
+    # 10f(K26 (a)): 環境の欄と env_id(manifest・状態の見出しと同じ値)もテープの脇の meta に書く
+    _env_fields = RS.environment_fields()
+    tape_writer = (TapeWriter(Path(tape_path), run_meta={"response_delay": int(response_delay),
+                                                            "rng_scheme": RNG_SCHEME,
+                                                            "rng_layout": RNG_LAYOUT,  # 10e(検収 L1)
+                                                            # 〔第330・ACT・RET〕暦の規則(再生では check_replay_tape が確かめる)
+                                                            "calendar_weekday": WEEKDAY_MODE,
+                                                            "weather_scheme": WEATHER_SCHEME,
+                                                            "env_id": str(_env_fields["env_id"]),
+                                                            "environment": copy.deepcopy(_env_fields)})
+                   if tape_path is not None else None)
+    conv = (ConversationManager(seed, max_participants=int(conv_max_participants))
+            if conversations else None)
+    # 10f(K21 (a)): mock 日課・W16 の抽出は母集団の seed から(既定は seed と同じ値)
+    schedule = synthesize(n_agents, pop_seed, world.n_cells)
+    pop = _resolve_population(population, world_dir, n_agents, pop_seed, world.n_cells)
+    # ---- D-66: 週次表(W17)は SoA を確保する前に読む(層の有無で列が 1 本変わるため) ----
+    # ``load_weekly`` / ``restrict_to`` は純粋な読み込み(乱数を 1 語も引かない)なので、
+    # ここへ繰り上げても帰無腕のバイト列は動かない。
+    weekly = load_weekly(world_dir) if (world_dir is not None and pop is not None) else None
+    # 〔小さな版上げ・回答 10-13b §7 の 2〕既定の食事時刻の分布は週次表の**全員**から(restrict_to の前=体の数に依らない。
+    # 空腹の模型の無いランは作らない=None)
+    _meal_dist = (_EN.meal_start_distribution(weekly, calendar.table_weekday(0))
+                  if energy_on else None)
+    if weekly is not None:
+        weekly = weekly.restrict_to(pop.source_agent_id)
+    # ``--ablate AB-PLAN-EXECUTOR`` / ``--ablate plan_execution`` でも切れる(台帳の約束)。
+    # 層は ``engine/processes`` の下に居ないので ``WorldProcessRunner`` のトグルには載らない。
+    _ablated = {str(x) for x in (processes_disabled or ())}
+    if _ablated & set(PlanExecutor.process_ids) | (_ablated & {PlanExecutor.ablation_id}):
+        plan_executor = False
+    plan_exec_on = bool(plan_executor) and weekly is not None and pop is not None
+    # ---- C9b(対象と注意・G3〜G7)が立つ条件 ----
+    # **辺上の連続位置(距離が定義できる)**と**語彙 v2(段0 辞書 v4 が対象ヒントを運ぶ)**の
+    # 両方が要る: 焦点の取得/喪失距離も会話の成立/離脱距離も「距離」抜きには意味が無く、
+    # 「近づく/見る」という対象そのものは辞書 v4 でしか入って来ない。したがって**積**で立てる。
+    # 既定の 4 腕(node/v1・--derive-rule v2.1・--vocab-version v2・--geometry edge)は
+    # どれも片方しか持たないので **checkpoint は 1 バイトも動かない**。
+    attention_on = (geometry == "edge") and (vocab_version == "v2")
+    # ---- 第 2 期 2-2 段 11a: 近接の判定の腕(〔2-4 V2〕既定 distance=層を作る。切替口 cell=層を作らない=同じセル)。distance のランだけ層を作り、
+    # 会話・返事待ち・3 人会話・離脱・招待の相手・偶然・知人出現・同席・B5 の近接行を「舞台の中・同じ層・距離 ≤ d(B5 の
+    # 単位の中は距離を見ない)」で判定する(状態台帳の行 PX=軸 1 diag・軸 2 discardable)。腕は環境変数と CLI だけ
+    # (run_day の引数にしない=設定の指紋に入れない=記憶の器と候補の口の腕と同じ扱い) ----
+    from shibuya.engine import proximity as _PXM
+
+    # 規則はここで作る(古典の交際の候補の閉包が使う)・層は関係の層の後(気づいた印の読み口=関係の層を渡す)
+    _px_rule = (
+        _PXM.rule_from(mode=_PXM.MODE_DISTANCE, d_m=_PXM.d(), seed=seed, day_key0=int(day_index),
+                       step_seconds=int(tick_seconds), geometry=("nav1" if nav_on else str(geometry)),
+                       poi_cell=world.pois.cell,
+                       cell_band=world.assets.cell_band)  # 〔2-4 V2〕体の層はセルから導く
+        if _PXM.arm() == _PXM.MODE_DISTANCE else None
+    )
+    _px_kw: dict = {} if _px_rule is None else {"proximity": _px_rule}
+    agents = AgentState(
+        n_agents,
+        plan_columns=plan_exec_on,
+        edge_columns=(geometry == "edge"),
+        attention_columns=attention_on,
+        activity_columns=activity_on,
+        familiarity_columns=familiarity_on,
+        familiarity_k=int(familiarity_k),
+        energy_columns=energy_on,
+        memory_columns=memory_on,
+        memory_n=int(memory_n),
+        store_memory_columns=store_memory_on,
+        store_memory_n=int(store_memory_n),
+        relation_columns=relations_on,
+        rel_k=int(rel_k),
+        nav_columns=nav_on,
+    )
+    if ledger is not None and ledger.money is not None:
+        # 世帯の現金行 = 個体 SoA の money(写しを作らない・台帳の書き込み窓は resolve が持つ)
+        ledger.money.attach_household_cash(agents.registry.money)
+        if _resuming and int(getattr(ledger.money, "n_transfers", 0)) != 0:
+            # 10d(A11): 再開に渡す台帳で参入資本や財布をもう入れていたら、お金が無から湧く(自動補充)
+            raise ValueError(
+                "再開に渡す台帳は、参入資本や初期の財布を入れる前の新しい台帳にする"
+                "(cli.build_ledger_bundle(endow=False)・A11 のお金の自動補充の禁止)"
+            )
+    if pop is not None:
+        schedule = _schedule_with_population(
+            schedule, pop, world.n_cells, keep_outside_home=plan_exec_on
+        )
+    # ---- 第 2 期 2-1: 経済の段階 2 の腕(既定 off=何もしない)。世帯の初期の財布より前に金の台帳へ挿す(初期の預金)。
+    # 再開でも挿す(設定=組み立てで作り直す・残高は保存した状態から戻す) ----
+    from shibuya.engine import economy_stage2 as _ES2
+
+    economy_plan = _ES2.attach(ledger, schedule=schedule, weekly=weekly, calendar=calendar, world=world,
+                               n_agents=n_agents, tick_seconds=tick_seconds, pop=pop, world_dir=world_dir)
+    # ---- 〔第 3 期 3-5〕本人の体の層(持ち主 body・どの腕でも置く=段の境目の計器と manifest の body)。腕(TM5 の予約)は
+    # 組み立てのときに読む(--body-schedule・環境変数 SHIBUYA_BODY_SCHEDULE・既定 sweep)。再開では予約の列を状態から引き直す
+    # (最初の体の刻みで全員を規則に通す=状態台帳の行 BD は軸 2 discardable) ----
+    # 〔第 6 期 6-3 T3〕腕 --step-scope changed は体の反映を TM5 の予約(3-5 の reserve)にする(何かあった体だけ)
+    body_layer = BodyModel(n_agents, step_seconds=tick_seconds,
+                           arm=("reserve" if _SSC.arm() == _SSC.ARM_CHANGED else None))
+    if not _resuming:  # 10d(A11・親の答え 2): 再開では日の頭の初期化を呼ばない(保存した状態を読む)
+        R.initialize(agents, world, schedule, day_index=day_index, ledger=ledger, body=body_layer)
+    # ---- 5 段目 5a: 体のエネルギー収支(値を決める層・書き手は resolve) ----
+    energy_layer: EnergyLayer | None = None
+    if energy_on:
+        _anc, _anc_md5 = load_anchors()
+        _emodel = EnergyModel(
+            _anc, _anc_md5, rate=energy_rate, minutes_per_tick=float(tick_seconds) / SECONDS_PER_MINUTE
+        )
+        energy_layer = EnergyLayer(
+            model=_emodel,
+            n_agents=n_agents,
+            out_of_area=OutOfAreaMeals(
+                _emodel, n_agents, ticks, weekly=weekly, day_index=calendar.table_weekday(0),  # 10a #15
+                tick_seconds=tick_seconds, sleep_defer=meal_sleep_defer,
+                seed=pop_seed, distribution=_meal_dist,  # 〔小さな版上げ〕既定の食事時刻は母集団の側の引き
+            ),
+            # 第2波 §2B 項 2: 自宅が範囲内(W16 の home_cell >= 0)の体の自宅の食事行(既定 off=None)
+            home_meals=(
+                HomeMeals(
+                    n_agents, ticks, weekly,
+                    np.asarray(pop.home_cell, dtype=np.int64) if pop is not None
+                    else np.full(n_agents, -1, dtype=np.int64),
+                    day_index=calendar.table_weekday(0), tick_seconds=tick_seconds,  # 10a #15
+                )
+                if home_meal == "plan"
+                else None
+            ),
+            poi_intake=EnergyModel.poi_intake_kind(
+                getattr(world.assets, "poi_cat", None),
+                getattr(world.assets, "poi_subcat", None),
+                world.n_poi,
+            ),
+        )
+        if not _resuming:  # 10d(A11): 空腹の初期値・体の定数は保存した状態から
+            R.initialize_energy(agents, energy_layer, pop_seed, body=body_layer)  # 10f: 体の定数は母集団の側・10e: 鍵の並べ方
+    agents.freeze()
+    world.freeze()
+
+    # ---- ⓪a 世界過程(C4 第1陣・世界過程設計書 §3 実装原則3=書き込みは resolve 経由) ----
+    runner: WorldProcessRunner | None = None
+    if processes:
+        runner = WorldProcessRunner(
+            world=world,
+            agents=agents,
+            assets=load_process_assets_or_synthetic(world_dir, world.assets),
+            seed=seed,
+            population_seed=pop_seed,  # 10f: 域外居住は母集団の側
+            environment_seed=env_seed,  # 10f 第 2 段の直し(S1): 気象・大きな催し・道路工事は環境の側
+            day_index=day_index,
+            tick_seconds=tick_seconds,
+            calendar=calendar,  # 10a: #2・#3・#7・#10・#11・#20 は暦の口から
+            weather_perturb=weather_perturb,  # 10e(B6): 天気を揺らす(アンサンブル)
+            initial_placement=not _resuming,  # 10d(A11): 再開では域外へ置かない
+            schedule=schedule,
+            ledger=ledger,
+            enabled=processes_enabled,
+            disabled=processes_disabled,
+            p_notice_ablation=p_notice_ablation,
+            p_notice_d50_scale=p_notice_d50_scale,
+            salient_rate_per_10k=salient_rate_per_10k,
+            plan_executor=plan_exec_on,
+            seat_area_m2=seat_area_table,
+            default_seat_area_m2=seat_area_retail_m2,
+            org_of_agent=_org_of_agent(pop, n_agents),  # 第 1 期 1-5: 権利台帳の雇用の行(W16 の org_id)
+            # 〔第 4 期 4-3 段 10〕差し替えの世界(母集団が w21_person_id を持つ)だけ初期の行の表を読む=本体の v2 は None
+            initial_rights=_initial_rights(world_dir, pop, n_agents),
+        )
+    if economy_plan is not None:  # 第 2 期 2-1: 賃金の雇用の行は権利台帳(開閉の過程が持つ)から読む
+        economy_plan.runner = runner
+    if runner is not None:  # 〔第 3 期 3-5〕体感温度は本人の体の層の口(環境の過程へ挿す)
+        runner.attach_body(body_layer)
+
+    # ---- ⓪a-2 計画実行層(D-66・engine.presence)。W17 + W16 のあるランだけ立つ ----
+    presence: PlanExecutor | None = None
+    if plan_exec_on:
+        presence = PlanExecutor(
+            world,
+            agents,
+            weekly,
+            day_index=calendar.table_weekday(0),  # 10a #16
+            home_cell=pop.home_cell,
+            direction_node=pop.direction_node,
+            kind=pop.kind,
+            agent_id=pop.source_agent_id,
+            rail=(
+                runner.rail
+                if (runner is not None and runner.is_enabled("rail"))
+                else None
+            ),
+            assets=(
+                runner.assets
+                if runner is not None
+                else load_process_assets_or_synthetic(world_dir, world.assets)
+            ),
+            ticks=ticks,
+            exit_mode=exit_mode,
+            attendance_rate=attendance_rate,
+            derive_rule=str(derive_rule),
+            walk_max_ticks=int(intent_max_ticks),
+            seed=seed,  # 10a ◐ #19: 出勤率の抽選の 1 日目からの塩
+        )
+        if _resuming:  # 10d(A11): 再開では域外の配置をしない(配置の数の控えだけ作る)
+            presence.initialize_caches()
+        else:
+            presence.initialize()  # その時刻に在圏でない体を域外へ(I1 の分母)
+        if runner is not None:
+            runner.attach_presence(presence)  # hotel の母数・civic の引き込み候補
+
+    # ---- 〔第 3 期 3-1〕暦 1a の影(腕 --calendar-shadow 1a・母集団のあるランだけ・計器だけ=出入りは今の計画実行層が W17 で
+    # 動かす=CA2 (a)・状態台帳の行 CAL=軸 1 diag・軸 2 derivable)。0 日目はここで張る・1 日目からは日の頭の表の張り直し ----
+    calendar_shadow_layer = _CSH.build(world_dir, pop, calendar=calendar, weekly=weekly, n_agents=n_agents)
+
+    # ---- 10a #1・10e(E3): T=0 の世界内日時=暦の開始日(世界の日付は暦・天気の行を引く再生日とは別)。
+    # 〔第330・RET〕10e より前の「既定の開始日 + day_index を気象の再生実日で置き換える」導き方(legacy)は消した。
+    #: 開始日の検査(違反で止める・祝日表の範囲外・祝日の表が読めないも止める)。
+    #: 〔第 6 期 6-2 カレンダー 3〕腕 arm の試験用の印(``SHIBUYA_CALENDAR_3_TRIAL=on``=分析に使わない印・決定 10-12 CA10)のランだけ、
+    #: 規則の違反(0 日目が月曜でない・祝日・連続する平日に収まらない)を止めずに manifest の calendar_3.trial に記録する
+    #: (止める違反=祝日の表が読めない・範囲の外は今のまま止める)。腕 off と印の無いランは今のまま。
+    _ca3_trial = None
+    if _ca3_cfg is not None and _CA3A.trial_on():
+        _fatal, _rule = calendar.start_problems(sim_days)
+        if _fatal:
+            raise ValueError("開始日の検査で止めた: " + " / ".join(_fatal))
+        _ca3_trial = {"mark": _CA3A.TRIAL_MARK, "start_rule_violations": list(_rule)}
+        # 〔検収 L1〕manifest の calendar.start_check にも違反を印つきで残す(開始日の検査の欄で選ぶ道具が印のランを通さない)
+        start_check: list[str] = [f"{_CA3A.TRIAL_MARK}: {v}" for v in _rule]
+    else:
+        start_check = calendar.check_start(sim_days)
+
+    # ---- 知覚レンダラ(C3 結線・B0-B6 の本物) ----
+    perception: PerceptionRendererAdapter | None = None
+    frozen_sources_map: dict[str, str] = {}
+    #: C9c-1: 実測面積の資産 SHA(``area_source="plateau"`` のときだけ入る)。
+    walkable_sources: dict[str, str] = {}
+    if renderer is None:
+        assets = PerceptionAssets.load_or_synthetic(world_dir, world)
+        # ---- C9c-1: 歩行可能面積を実測に差し替える(**分母は 1 本**=二重定義を作らない) ----
+        # ``PerceptionAssets`` は frozen なので ``dataclasses.replace`` で作り直す。差し替えは
+        # レンダラを作る**前**なので、B4 の LOS 段・起床条件 (i)・Kladek 減速が同じ値を見る。
+        if area_source != DEFAULT_AREA_SOURCE:
+            new_area, area_sha = load_walkable_area_m2(world_dir, assets.place_ids)
+            assets = dataclasses.replace(assets, walkable_area_m2=new_area)
+            walkable_sources = dict(area_sha)
+        frozen_sources_map = dict(getattr(assets, "frozen_sources", {}) or {})
+        frozen_sources_map.update(walkable_sources)
+        # 10e(B0): 知覚が読んだ騒音の地図(W10)と天気(W13)の sha256・集約後の段の指紋(``perception:``)
+        frozen_sources_map.update(
+            {f"perception:{k}": v for k, v in (getattr(assets, "asset_sources", {}) or {}).items()}
+        )
+        # 世界内日時 = 暦の口(10a #1)= ``world_start + T × tick_seconds``(``tick_seconds=60`` では
+        # 今の ``start + T 分`` と同じ値)。``world_start`` は上で決めた(既定は気象の再生実日)。
+        perception = PerceptionRendererAdapter(
+            PerceptionRenderer(
+                world, agents, assets,
+                clock_fn=calendar.datetime_of,
+                seed=seed,
+                budget_mode=budget_mode_enum,
+                signage_enabled=signage,
+                signage_p_see=signage_p_see,
+                intent_mode=intent_mode,
+                vocab_version=vocab_version,
+                role_words=role_words,
+                near_salt=run_salt_for(seed),
+                hunger_words=hunger_words,
+                # 第 1 期 1-2: 知覚の事実の時刻の見方(暦の日の種類)。描画の文は読まない
+                day_kind_fn=lambda T_: calendar.day_kind(calendar.day_of(T_)),
+            )
+        )
+        renderer_obj: Any = perception
+        walkable = assets.walkable_area_m2
+    elif isinstance(renderer, str):
+        if renderer != "stub":
+            raise ValueError("renderer は None / 'stub' / Renderer 実装")
+        if area_source != DEFAULT_AREA_SOURCE:
+            raise ValueError("area_source='plateau' は注入レンダラ('stub')では使えない")
+        renderer_obj = StubRenderer()
+        walkable = None
+    else:
+        if area_source != DEFAULT_AREA_SOURCE:
+            # 注入された資産を黙って書き換えない(呼び手が自分で差し替える口を持っている)。
+            raise ValueError("area_source='plateau' は注入レンダラでは使えない(資産は呼び手のもの)")
+        renderer_obj = renderer
+        # 注入されたものが本物のアダプタなら、前計算(⓪)と B4 欄の受け渡しも同じ道を通す
+        perception = renderer if isinstance(renderer, PerceptionRendererAdapter) else None
+        walkable = getattr(getattr(renderer, "assets", None), "walkable_area_m2", None)
+
+    # ---- C9b G6 a′: 目印(landmark 56 + attraction 12)の「名 → POI 索引」表 ----
+    # パーサはこれを渡されたときだけ固有名を POI まで解決する(``target.poi_id``)。
+    landmarks = world.landmark_targets() if attention_on else None
+    bridge = LLMBridge(
+        llm,
+        renderer=renderer_obj,
+        tape=tape_writer,
+        mode=mode,
+        replay=replay,
+        lane=lane,
+        tick_seconds=tick_seconds,
+        params={"max_tokens": 64, "temperature": 0.0},
+        vocab_version=vocab_version,
+        landmarks=landmarks,
+    )
+
+    # ---- 実艦隊(C6-a)。テープ・未定義行動台帳・デコード設定は bridge と**同じものを共有** ----
+    # ``params``(=テープ列 ``params_hash``)は**艦隊の実デコード設定**から作る
+    # (``FleetBridge`` の既定)。mock の {max_tokens:64, temperature:0.0} を引きずらない。
+    fleet_bridge = (
+        FleetBridge(
+            fleet,
+            tape=tape_writer,
+            tape_row_factory=TapeRow,
+            undefined=bridge.undefined,
+            debug_dir=fleet_debug_dir,
+            vocab_version=vocab_version,  # 第214: 渡し忘れ=実 LLM の v2 応答が v1 で解析されていた
+            landmarks=landmarks,
+        )
+        if fleet is not None
+        else None
+    )
+    #: 艦隊で繰り延べになった呼 ``(agent, condition, class_rank, since_tick)``。
+    #: 次の刻みの起床候補へ**そのまま再投入**する(破棄禁止=憲法1)。
+    fleet_deferred: list[tuple[int, int, int, int]] = []
+    n_fleet_reinjected = 0
+    n_fleet_resent = 0
+    #: 繰り延べ中の個体(再送を数えるためだけの集合。呼数 L4 は**発射数**で数える)。
+    fleet_waiting: set[int] = set()
+    #: 10d(A10): 艦隊へ**出したが返っていない呼**(call_id → ``LLMCall``・発射の順)。状態を書くときに保存し、
+    #: 再開のときに同じ call_id(=同じ seed)で出し直す。艦隊の無いランでは空のまま。
+    fleet_inflight: dict[str, Any] = {}
+    #: **再生モードの艦隊の代役**(D-58)。``observed_tick`` → その刻みで「届く」項目。
+    #: 項目は ``(繰り延べか, ペイロード)``。繰り延べは ``(agent, cond, class, since_tick)``、
+    #: 応答は ``BridgeResult`` そのもの。テープが版1(``observed_tick=-1``)なら常に空
+    #: =mock 経路は 1 バイトも変わらない。
+    replay_inbox: dict[int, list[tuple[bool, Any]]] = {}
+
+    detector = ChangeDetector(n_agents, world.n_cells, walkable_area_m2=walkable)
+    # ---- C9 位置幾何(G1 (b))。``node``(既定)では作らない=resolve は現行の経路 ----
+    # 密度の分母(歩行可能面積)は**変化検出と同じ値**を使う(二重定義を作らない)。
+    geom: EdgeGeometry | None = (
+        EdgeGeometry(
+            world.assets,
+            seed=seed,
+            population_seed=pop_seed,  # 10f: 希望歩行速度は母集団の側
+            n_agents=n_agents,
+            walkable_area_m2=walkable,
+            tick_seconds=tick_seconds,
+        )
+        if geometry == "edge"
+        else None
+    )
+    # ---- 〔第 5 期 空間の段 1〕nav1: 位置幾何をナビメッシュの移動に替える(edge の道具は作らない・欄は geometry のまま) ----
+    if nav_on:
+        # 〔段 1 の検収 M4〕密度の分母の抽出の割合=経済と同じ population_scale(体の数 ÷ 母集団の総数・総数が無ければ 1)
+        from shibuya.engine.economy_stage2 import population_total as _pop_total
+
+        _pt = _pop_total(world_dir) if pop is not None else None
+        geom = _NAV1.load_space(world_dir, world.assets, seed=seed, n_agents=n_agents, tick_seconds=tick_seconds,
+                                population_seed=pop_seed, slope_model=_NAV1.slope_arm(),
+                                turn_weight_mode=_NAV1.turn_arm(),
+                                population_scale=(float(n_agents) / float(_pt)) if _pt else 1.0,
+                                density_mode=_NAV1.density_arm())  # 〔段 5-1b〕密度の推定の腕(SHIBUYA_NAV1_DENSITY)
+        if not _resuming:  # 再開では保存した位置を読む(置き直さない)
+            R.nav_place(agents, world, geom)
+        # 〔段 5-1b〕変化検出の B4 の密度の段も同じ推定(位置の確定で書いた world.cells.density_stage)から=密度を 1 つに
+        detector.los_from_stage = True
+        frozen_sources_map.update({f"nav1:{k}": v for k, v in sorted(geom.mesh.sources.items())})
+    #: edge 幾何の診断(ラン通算)。node では 0 のまま。
+    geometry_hops = 0
+    geometry_jammed = 0
+    #: このランの 1 刻みの呼数上限(``None`` なら L4 按分)。manifest の ``budget_per_tick``。
+    effective_budget = float(budget) if budget is not None else call_budget_per_tick(n_agents)
+    arbiter = Arbiter(n_agents, salt, effective_budget)
+    space = C.ResourceSpace(world.n_poi, n_agents, world.n_cells)
+
+    # 計画境界。W17 週次表(w17_schedule.parquet)があればそれを使い、無ければ mock 日課の 5 境界へ落ちる
+    # (C5-b 結線・09-09)。mock 経路は --no-population と合成世界の下限対照としてそのまま残す。
+    if weekly is not None:
+        # D-62: 就寝境界で「どこで寝るか」が要るので行き先セルも一緒に取る(並びは同じ)
+        # 10a #13・#14: W17 の曜日の行は暦の口から(day_index モードでは ``day_index % 7``)
+        _wd0 = calendar.table_weekday(0)
+        b_agent, b_cond, b_tick, b_cell = weekly.boundary_events_full(_wd0)
+        schedule = apply_to_mock_schedule(schedule, weekly, _wd0)  # 拠点セル(自宅/職場)の上書き
+        # ---- D-62 (b): 刻み 0 の activity を W17 の 0:00 時点の活動から立てる ----
+        # ``initialize`` は全員 SLEEPING(週次表の無い世界の既定)。ここで立て直す。
+        if plan_sleep and not _resuming:  # 10d(A11): 再開では初期の活動を立てない
+            R.set_initial_activity(agents, weekly.initial_activity(_wd0))
+    else:
+        # 10a #12: mock 日課の平日/休日は暦の口の土休から
+        b_agent, b_slot, b_tick = schedule.events_of_day(
+            calendar.table_weekday(0), rest_day=calendar.is_rest_day(0)
+        )
+        b_cell = np.full(b_agent.size, -1, dtype=np.int32)  # mock 日課の就寝地=自宅セル
+        b_cond = np.array(
+            [
+                int(WakeCondition.PLAN_GENERAL),
+                int(WakeCondition.PLAN_TRANSIT),
+                int(WakeCondition.PLAN_GENERAL),
+                int(WakeCondition.PLAN_TRANSIT),
+                int(WakeCondition.PLAN_SLEEPING),
+            ],
+            dtype=np.int8,
+        )[b_slot]
+    b_start = np.searchsorted(b_tick, np.arange(ticks + 1), side="left")
+    schedule_hash = weekly.schedule_hash() if weekly is not None else ""
+    # ---- 5 段目 5b: 方策 classical を SoA・世界・計画境界に結ぶ(読むだけ) ----
+    if classical_policy is not None:
+        _has_work = np.zeros(n_agents, dtype=bool)
+        if pop is not None:
+            _m = min(n_agents, int(pop.n))
+            _has_work[:_m] = np.asarray(pop.work_cell, dtype=np.int64)[:_m] >= 0
+        _pa = getattr(runner, "assets", None) if runner is not None else None
+        classical_policy.bind(
+            agents=agents,
+            world=world,
+            home_cell=np.asarray(schedule.home_cell),
+            work_cell=np.asarray(schedule.work_cell),
+            school_cell=getattr(schedule, "school_cell", None),
+            has_work=_has_work,
+            boundary_agent=b_agent,
+            boundary_tick=b_tick,
+            tick_seconds=tick_seconds,
+            station_cells=getattr(_pa, "line_platform_cell", None),
+        )
+        if energy_layer is not None:  # 第2波 §2B Q-2B-6 (ii): 食事で per_hour の門の H を 0 に(per_wake は None)
+            energy_layer.meal_reset = classical_policy.meal_reset_array()
+    #: 5 段目 5b(L4 (a)・SOFAI 形式): 時 × 層(0=System 1 予定/習慣で呼ばない・1=System 1.5 選択器・
+    #: 2=System 2 LLM/mock)× 起床入口 の判断数。層 1/2 は発射した呼(方策で分ける)・層 0 は
+    #: エンジンが予定を実行した件(計画の就寝・意図の到着・計画実行層の到着/退出)。
+    layer_counts = np.zeros((24, 3, len(_ENTRANCES)), dtype=np.int64)
+    #: 9a(D-112 ④): 退去の効果の件数(診断だけ)。
+    leave_counts: dict[str, int] = {"n_leave": 0, "n_leave_indoor": 0, "n_leave_queue": 0,
+                                    "n_leave_conversing": 0,
+                                    "n_seat_released_walk": 0}  # 〔第 2 期 2-4 V3〕歩き出しで解いた在席の印
+    leave_closed = 0
+    _call_layer = 1 if classical_policy is not None else 2
+    # ---- 二層の段 2: 活動層(「次の予定」は上の計画境界の表から引く) ----
+    act_layer: ActivityLayer | None = (
+        ActivityLayer(
+            n_agents, world, salt, tick_seconds=tick_seconds,
+            boundary_agent=b_agent, boundary_tick=b_tick,
+        )
+        if activity_on
+        else None
+    )
+    # ---- 段 2c: 意図の保持(活動層+候補の解決がある=語彙 v3・activity on・candidates) ----
+    intent_layer: IntentLayer | None = (
+        IntentLayer(n_agents, world, max_ticks=int(intent_max_ticks))
+        if (act_layer is not None and poi_resolver is not None)
+        else None
+    )
+    # ---- 段 2c Q25: 名指しの即時閉店の B6 補足(店名・閉店中・W7 の開店時刻) ----
+    _q25_renderer = getattr(perception, "renderer", None) if perception is not None else None
+    if (
+        intent_layer is not None
+        and poi_resolver is not None
+        and _q25_renderer is not None
+        and hasattr(_q25_renderer, "named_closed_lookup")
+    ):
+        _q25_renderer.named_closed_lookup = _named_closed_lookup(
+            poi_resolver, runner, calendar, tick_seconds
+        )
+    # ---- 10d 検収 D1: B3 の天候は世界過程の「その日の再生の実日」で引く(体の暑さと同じ行・日付の語は暦) ----
+    if (
+        _q25_renderer is not None and hasattr(_q25_renderer, "weather_date_fn")
+        and runner is not None and runner.replay_date
+    ):
+        _env = runner.environment
+        _q25_renderer.weather_date_fn = lambda: (_env.replay_date or None)
+        # ---- 10e(B6): 天気の規則 calendar では B3 の語を環境の過程と同じ規則で作る(天候=再生日の行・日照=暦の日付の
+        # 日の出と日の入り・暑さ=体感温度と同じ暑さ段)。天候の語はレンダラの W13 の表を再生日で引く(欠けた時の扱いも今と同じ)
+        if runner.assets.has_weather and hasattr(_q25_renderer, "weather_words_fn"):
+            _wr = _q25_renderer
+
+            def _b3_words(when: datetime) -> tuple[str, str, str]:
+                rd = _env.replay_date
+                wd = (datetime.strptime(rd, "%Y-%m-%d").replace(hour=int(when.hour)) if rd else when)
+                daylight, heat = _env.b3_sun_heat(int(when.hour))
+                return _wr.assets.weather(wd)[0], daylight, heat
+
+            _wr.weather_words_fn = _b3_words
+            _wr.weather_words_key_fn = lambda when: (_env.replay_date, when.date().isoformat())
+    # ---- 4 段目: 親しみの表(値を決める層・書き手は resolve.write_familiarity) ----
+    _fam_renderer = getattr(perception, "renderer", None) if perception is not None else None
+    _fam_has_renderer = _fam_renderer is not None and hasattr(_fam_renderer, "signage_exposures")
+    fam_layer: FamiliarityLayer | None = (
+        FamiliarityLayer(
+            n_agents, int(familiarity_k), minutes_per_tick=float(tick_seconds) / SECONDS_PER_MINUTE,
+            # 親決定 (f): 入った回 × そのセルで B2 に載る看板 × p_see(描画と同じ集合・同じ流れ)
+            signage_poi_by_cell=(
+                _fam_renderer.signage_poi_by_cell() if _fam_has_renderer else None
+            ),
+            p_see=float(getattr(_fam_renderer, "signage_p_see", 1.0)) if _fam_has_renderer else 1.0,
+            seed=getattr(_fam_renderer, "seed", seed) if _fam_has_renderer else seed,
+            kind_fn=(
+                _fam_renderer.activity_classes
+                if (_fam_has_renderer and hasattr(_fam_renderer, "activity_classes"))
+                else None
+            ),
+        )
+        if familiarity_on
+        else None
+    )
+    # ---- 6 段目 6a: 記憶の表(値を決める層・書き手は resolve.write_memory) ----
+    mem_layer: MemoryLayer | None = (
+        MemoryLayer(n_agents, int(memory_n), minutes_per_tick=float(tick_seconds) / SECONDS_PER_MINUTE)
+        if memory_on
+        else None
+    )
+    if (fam_layer is not None or mem_layer is not None) and _fam_has_renderer:
+        _fam_renderer.signage_exposures = []  # 描画による露出の控え(刻みごとに取り出す)
+    # ---- 記憶 第 1 段 6b: 想起の口(on のランだけ描画に差し込む・off は None=描画バイト不変) ----
+    if mem_layer is not None:
+        mem_layer.tau = float(memory_tau)
+    else:
+        # 第 6 期 6-5(検収 L6): 記憶 off のランで記憶の腕を立てたら止める(黙って効かないランを作らない=check_arms と同じ形)
+        _MR65.check_arms(store_on=False)
+    # ---- 第 1 期 1-6 記憶の器 M0(腕 --memory-store events・既定 mem=器を作らない)。器は記憶の表と同じ規則の写しで、
+    # 表に書く所で同じ出来事を書き、想起を器から引く。見せた行の録画(描画の口)とテープの列 recalled_event_ids
+    # (版 4 の中・腕のランだけ)。状態台帳の行 M0(作り直せる)・M0R(録画と計数=捨ててよい) ----
+    from shibuya.engine import memory_store as _MS
+
+    if mem_layer is not None and _MS.arm() == _MS.ARM_EVENTS:
+        # 〔第 6 期 6-5・検収 M1〕腕 m1 の人ごとの忘れる速さの鍵はランごとの母集団の seed(10f S1)
+        _m0 = mem_layer.enable_memory_store(step_seconds=int(tick_seconds), population_seed=pop_seed)
+        if perception is not None:
+            perception.memory_shown = mem_layer.on_shown
+        if tape_writer is not None:
+            tape_writer.arm_columns[_MS.TAPE_COLUMN] = mem_layer.tape_event_ids
+            _m0.attach_tape()
+    # ---- D-120 7a: 店の評価の記憶(エピソードの書き手に乗る・本段では誰も読まない) ----
+    if mem_layer is not None and store_memory_on:
+        mem_layer.enable_store(int(store_memory_n), sigma=store_sigma_table, decay=store_decay,
+                               signage=store_signage_on, poi_cell=np.asarray(world.pois.cell),
+                               recall_scope=str(store_recall_scope))
+        # ---- D-120 7c: 想起優先の候補合成(選び手 classical のとき)と決め手の記録 ----
+        if poi_resolver is not None:
+            poi_resolver.store_choice = StoreChoice(
+                mem_layer, world, n_agents, seed=seed,
+                boundary_agent=b_agent, boundary_tick=b_tick,
+                walk_m_per_tick=_walk_m_per_tick(world, n_agents, geometry=("nav1" if nav_on else str(geometry)),
+                                                  geom=geom,
+                                                  tick_seconds=int(tick_seconds)),
+                intent_max_ticks=int(intent_max_ticks),
+                minutes_per_tick=float(tick_seconds) / SECONDS_PER_MINUTE,
+            )
+    # ---- C10 8a: 関係辺(機械的初期化=W16+W17 の共在・書き手は記憶のエピソード・知人の結線) ----
+    rel_layer = None
+    if mem_layer is not None and relations_on:
+        rel_layer = mem_layer.enable_relations(int(rel_k), tau=float(rel_tau), d=float(rel_d))
+        _t_rel = time.perf_counter()
+        _init = _rel_initial_edges(
+            pop, weekly, n_agents, k=int(rel_k), day_index=int(calendar.table_weekday(0)),  # 10a #19
+            density=float(rel_init_density),
+            minutes_per_tick=float(tick_seconds) / SECONDS_PER_MINUTE, d=float(rel_d), tau=float(rel_tau),
+            tenure_weeks=float(rel_tenure_weeks), tenure_hash=str(rel_tenure_hash),
+        ) if (pop is not None and not _resuming) else None  # 10d(A11): 再開では初期の辺を作らない
+        if _init is not None:
+            rel_layer.seed_initial(agents, _init)
+            rel_layer.init_audit["init_seconds_nondeterministic"] = round(time.perf_counter() - _t_rel, 3)
+        if _fam_renderer is not None and hasattr(_fam_renderer, "acquaintance_fn"):
+            _fam_renderer.acquaintance_fn = lambda i_, t_: rel_layer.acquaintances(agents, i_, t_)
+        if classical_policy is not None:
+            def _classical_acq(aid_: int, tick_: int, ids_: list[int]) -> np.ndarray:
+                # 第2波 §2A 項 3-1: 近接行の人 → 生きている辺の A(辺が無い/τ 未満は −inf)。
+                # 検収後: 話しかけられない相手(会話中・就寝中=resolve._UNADDRESSABLE)と、このランの設定で会話が
+                # 届かない相手(talk_within_reach が偽)も −inf(resolve._apply_talk が PARTNER_BUSY/GONE で落とす相手)。
+                # 逐次ループ宣言: 近接行の人数ぶん(≤ 数人)× 呼数=呼ごとの小さな表引き
+                e_ = rel_layer.edges(agents, int(aid_), int(tick_))
+                lut_ = dict(zip(e_.partner.tolist(), e_.A.tolist()))
+                A_ = np.asarray([lut_.get(int(p_), -np.inf) for p_ in ids_], dtype=np.float64)
+                return classical_acq_addressable(agents, int(aid_), ids_, A_, by_distance=attention_on,
+                                                 rule=_px_rule)
+
+            classical_policy.acq_fn = _classical_acq
+        # ---- C10 8b: 会話の起点と相手選択・知人出現の起床・同席(腕) ----
+        if rel_invite_on:
+            rel_layer.enable_invite(salt)
+            if classical_policy is not None:
+                def _classical_partner(aid_: int, tick_: int, strangers_: list[int]) -> int:
+                    # 残りの層=近接行の「未知」の人から seed つきハッシュ順(D-31 (a)=行の先頭=id の小さい人にしない)
+                    stranger_ = rel_layer.pick_rest(int(tick_), int(aid_), strangers_)
+                    got_, _o = rel_layer.choose_talk_partners(
+                        agents, int(tick_), np.asarray([int(aid_)]), np.asarray([int(stranger_)]),
+                        np.asarray([False]), np.asarray([-1]), record_origin=False, **_px_kw,
+                    )
+                    return int(got_[0])
+
+                classical_policy.partner_fn = _classical_partner
+        if rel_acq_wake_on:
+            rel_layer.enable_acquaintance_wake()
+        if rel_copresent_on:
+            rel_layer.enable_copresent()
+        if conv is not None:
+            conv.track_origins(REL_ORIGINS)
+    # 第 2 期 2-2 段 11a: 近接の層(腕 distance だけ)。描画の B5 の近接行の知人は関係の層の気づいた印を読む(検収 L1)
+    proximity_layer = (
+        None if _px_rule is None else _PXM.ProximityLayer(
+            _px_rule, marks=rel_layer if (rel_layer is not None and rel_layer.acq_wake_on) else None)
+    )
+    if (
+        conv is not None and int(conv_max_participants) > 2 and _fam_renderer is not None
+        and hasattr(_fam_renderer, "session_partner_fn")
+    ):
+        def _session_partners(i_: int) -> list[int]:
+            s_ = conv.session_of(int(i_))
+            return [int(q) for q in s_.participants if int(q) != int(i_)] if s_ is not None else []
+
+        _fam_renderer.session_partner_fn = _session_partners
+    # ---- D-120 7b: 会話からの抽出(店名の辞書=W6 の店・評価語の辞書 v0・呼数 0) ----
+    wom_ex: WomExtractor | None = (
+        WomExtractor.from_world(world, source=wom_source)
+        if mem_layer is not None and mem_layer.store is not None
+        else None
+    )
+    if _fam_renderer is not None and hasattr(_fam_renderer, "memory_recall"):
+        _fam_renderer.memory_recall = (
+            (lambda i_, t_, c_, inv_: mem_layer.recall(agents, i_, t_, c_, inv_))
+            if mem_layer is not None
+            else None
+        )
+
+    # 1-0 段 E: 会話ターンの発話 ``_utter`` は engine.systems.llm_io.utter へ移した(箱を受け取る関数)
+    #: 発射した呼の起床条件ごとの件数(起床の内訳・満了入口の列を含む)。
+    calls_by_cond = np.zeros(N_WAKE_CONDITIONS_ALL, dtype=np.int64)
+
+    result = RunResult(
+        n_agents=n_agents,
+        n_cells=world.n_cells,
+        seed=seed,
+        population_seed=pop_seed,  # 10f(K21 (a))
+        environment_seed=env_seed,  # 10f 第 2 段の直し(S1)
+        ticks=t_end - t_begin,  # 10a: 回した通しの刻みの数(1 日のランでは ``ticks``)・10d: 再開・止めたランはその区間
+        world_source=world.assets.source,
+        tape_path=str(tape_path) if tape_path is not None else "",
+        mode=mode,
+    )
+    result.env_fields = _env_fields  # 10f: manifest の environment・env_id
+    result.money_start = int(agents.registry.money.astype(np.int64).sum())
+    #: D-71 §3 J: 行動コード別の適用件数(``ResolveOutcome.per_action`` のラン合計)。
+    per_action_total: dict[int, int] = {}
+    # 第308 D-107 (a): 群・規範の計器(**読むだけ**=状態・乱数・テープに触れない)
+    from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE as _AWBC
+    from shibuya.engine.norm_meter import GroupNormMeter, role_code_table
+
+    norm_meter = (GroupNormMeter(agents, world, role_codes=role_code_table(vocab_version),
+                                 code_words=_AWBC, tick_seconds=int(tick_seconds),
+                                 process_assets=getattr(runner, "assets", None) if runner is not None else None)
+                  if group_norms_on else None)  # 第309 Q150: --group-norms off で計器を通さない
+    # 在圏 journal(C7 受入計器 tools/c7・holdout 照合の入力)。既定 0=書かない(状態・診断・テープに影響なし)。
+    occ_ticks: list[int] = []
+    occ_counts: list[np.ndarray] = []
+    occ_kind: list[np.ndarray] = []
+    occ_transit: list[np.ndarray] = []
+    # ``fleet_wait`` は ``--fleet-wait-s`` の待ち(``llm`` から分離して数える=P2 の切り分け用)。
+    # ``movement_cpu`` は movement 区間の**スレッド CPU 時間**(壁時計との差=GIL 待ち)。
+    phase = {k: 0.0 for k in ("presence", "detect", "arbiter", "llm", "fleet_wait", "phase_a",
+                              "phase_b", "phase_c", "movement", "movement_cpu", "checkpoint")}
+    diag_rows: list[tuple[int, ...]] = []
+    # (t_apply, class, agent, condition, text, action_code, target_person,
+    #  **target_hint**, **target_poi**, **activity**, **target**, **``fire_tick``**, **call_id**)
+    # ``activity`` = 二層の段 2 の活動(``engine.activity.ActivityPayload``・v3 以外は None)。
+    # ``target_person`` = LLM が「対象」欄に書いた個体 id(-1=名指しなし・C6 09-09)。
+    # ``target_hint`` = 段0 辞書 v4 の対象ヒント索引(C9b G5・0=なし)。
+    # ``target_poi`` = 「対象」欄が目印 POI に解決できたときの索引(C9b G6 a′・-1=なし)。
+    # 10b(① の前提): 末尾に**発射の刻み** と **call_id**(``"{発射の刻み}:{体}:{級}"``=テープの call_id)。
+    # 読む側は今は無い(原因の欄は ① の記録で)=組の形が変わるだけで既定の結果は動かない。
+    pending: list[tuple[int, int, int, int, str, int, int, int, int, Any, Any, int, str]] = []
+    #: この刻みに適用した応答の (体, 行動コード, 活動)。``resolve.apply`` の後に活動層が書く。
+    applied_activity: tuple[list[int], list[int], list[Any]] = ([], [], [])
+    #: C9b G3/G4: この刻みに LLM が言った**焦点の要求**(-1=なし)。使い回す 1 本の
+    #: バッファ(毎刻み触った行だけ戻す=個体数ぶんの確保は 1 回きり)。
+    focus_request = (
+        np.full(n_agents, int(FOCUS_NONE), dtype=np.int64) if attention_on else None
+    )
+    #: この刻みに応答を適用した個体 → 行動コード(会話の被招待の返事を読むのに使う)。
+    applied_now: dict[int, int] = {}
+    #: 会話の相手の由来(``conv_*`` 診断行の素材)。
+    talk_stats: dict[str, int] = {}
+    prev_tape_misses = 0
+    prev_sessions = 0
+    peak_pending = 0
+    peak_intents = 0
+    peak_backlog = 0
+    n_undefined_total = 0
+    #: D-66: **発射した呼**のうち域外の体宛てだった延べ数(抑止が効いていれば 0)。
+    n_outside_calls = 0
+    # ---- D-62「就寝は計画の実行」の計数(診断列は増やさない=診断表の形を変えない) ----
+    #: ``resolve.begin_planned_sleep`` の内訳 + ``arrived``(就寝地へ着いて寝た)+
+    #: ``woke``(非就寝の計画境界で起こした)。
+    sleep_counts: dict[str, int] = {}
+    #: 世界内時刻の**時**別「起きている体」の延べ数と刻みの数(起床率/時 の分子・分母)。
+    awake_sum = [0] * HOURS_PER_DAY
+    awake_ticks = [0] * HOURS_PER_DAY
+    #: 5 段目 5a(診断): 内受容の跨ぎ(変数 3 × 上げ/下げ × 全体/起きて範囲内)。
+    intero_cross = np.zeros((3, 2, 2), dtype=np.int64)
+
+    # 1-0 段 E: ④′ の到着の受け取り ``_receive_arrivals`` は engine.systems.llm_io.receive_arrivals へ移した
+
+
+    # ================================================================ 10d: 日の頭・日の締め・状態の書き出しと読み込み
+    #: 日ごとの締めの記録(締めの回数=日数・保存則・体の数・日の終わりのお金と 2 つのハッシュ)。manifest の ``daily``。
+    daily_records: list[dict[str, Any]] = []
+    #: 日の頭(1 日目から)の記録(日の頭のお金=前の日の終わりと同じか=自動補充が無いか)。manifest の ``day_heads``。
+    day_heads: list[dict[str, Any]] = []
+    #: K9 (a) のつなぎで W17 の曜日の行を月曜(0)に置き換えた日。
+    w17_substituted: list[int] = []
+    #: 書いた状態のファイル(名前・T・バイト・``finished``・書くのにかかった秒=壁時計)。
+    state_files: list[dict[str, Any]] = []
+
+    # ---- 第 1 期 1-3: 出来事の記録(CP12・既定 on・切替口 SHIBUYA_EVENTS=off/CLI --events off)。状態台帳の行 E
+    # (軸 1 diag・軸 2 discardable)=ハッシュにも状態のファイルにも入らない。再開のランは空から書く(id は (t_ns, seq)
+    # なので刻みの境目からの再開でも通しのランと同じ id になる)。ActualLog の行に id の目印を付ける口を実行器に挿す ----
+    from shibuya.engine.events import log as _EV
+
+    events = _EV.EventLog(enabled=_EV.enabled())
+    if runner is not None:
+        runner.attach_events(events)
+        # 第 1 期 1-5(CP3): 判断の応答の役割語を権利台帳で確かめて数える(止めない・行動は起きない=出来事は書かない)
+        bridge.attach_role_rights(runner.role_act_check())
+    if ledger is not None:  # 第 1 期 1-9: 原因を渡した金の移動が出来事を書き、金と物の台帳の行に id の目印を付ける
+        from shibuya.engine.events.links import MoneyEventLink
+
+        ledger.attach_events(MoneyEventLink(events), step_seconds=int(tick_seconds))
+    # ---- 第 1 期 1-7(道具の台帳 C0): 道具の一式(台帳・グループの一覧=W16・店の番号の表=空・看板の口=腕のときだけ)。
+    # 組み立てで作り、ランの間は読むだけ(箱 Fixtures.tools=状態台帳の対象外)。既定のランでは誰も読まない ----
+    from shibuya.engine.tools import record as _TOOLS
+
+    _tools_fx = _TOOLS.build_fixture(pop, n_agents, events)
+    # ---- 第 2 期 2-3: 体の出来事の口(腕 --memory-store events かつ出来事の記録のあるランだけ)。記憶が書く体の出来事を記録へ書き、
+    # 器の目印をその出来事にする(出どころ None)。1-7 の看板の口が立っていれば看板の初見はその行を目印にする ----
+    _m0s = getattr(mem_layer, "memory_store", None) if mem_layer is not None else None
+    if _m0s is not None and events.enabled:
+        from shibuya.engine.events.body import BodyEventLink
+
+        _m0s.attach_events(BodyEventLink(events, signboard_reads=_tools_fx.signboard_link is not None))
+
+    # ---- 第 1 期 1-8 J0: 候補の口の腕(既定 legacy=層を作らない=今の道)。port のランだけ層を作り、判断の系が 1 呼を口に通す
+    # (状態台帳の行 J0=軸 1 diag・軸 2 discardable)。実装は方策で選ぶ(古典 → ClassicalPort・記録の mock → MockPort・
+    # ほか(テープの再生・注入の LLM)→ LlmPort) ----
+    from shibuya.engine.decision import layer as _DL
+
+    decision_layer = None
+    if _DL.arm() == _DL.ARM_PORT:
+        from shibuya.engine.decision import ports as _DP
+        from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE as _WORDS
+        from shibuya.llm.contract import cross_action_words, safe_action_word
+        from shibuya.llm.mock import MockLLM as _MockLLM
+
+        _pkw = dict(seed=seed, day_key0=int(day_index), step_seconds=int(tick_seconds))
+        if classical_policy is not None:
+            _port = _DP.ClassicalPort(bridge, classical_policy, **_pkw)
+        elif bridge.replay is None and isinstance(bridge.client, _MockLLM):
+            _port = _DP.MockPort(bridge, bridge.client, **_pkw)
+        else:
+            _port = _DP.LlmPort(bridge, **_pkw)
+        _pa_j0 = getattr(runner, "assets", None) if runner is not None else None
+        decision_layer = _DL.DecisionLayer(
+            port=_port, vocab=cross_action_words(vocab_version), continue_word=safe_action_word(vocab_version),
+            word_of_code=_WORDS, events=events, world=world, home_cell=np.asarray(schedule.home_cell),
+            station_cells=getattr(_pa_j0, "line_platform_cell", None),
+            tools=_tools_fx.registry,  # 1-7: 候補の源「周りが示すできること」に道具の台帳(Fixtures.tools と同じ物)
+            money_stage2=economy_plan,  # 第 2 期 2-1: 経済の段階 2 の候補(お金を下ろす・支払いの注)=腕のランだけ
+        )
+
+    # ---- 第 1 期 1-8b: 発話の口の腕(既定 off=口を作らない=今の道)。on のランだけ口を作り、描画に届いた発話を受け取る口と
+    # 会話の番の出力の欄の指示を挿す(状態台帳の腕の行 S8・S8M)。口コミの抽出は口の (c)=今の道と同じ抽出と転写 ----
+    speech_port = None
+    if _SPEECH.arm() == _SPEECH.ARM_ON:
+        speech_port = _SPEECH.make_port(
+            events=events, wom=wom_ex, vocab_version=vocab_version, agents=agents, mem_layer=mem_layer,
+            store_wom_on=store_wom_on, step_seconds=int(tick_seconds), conv=conv,
+        )
+        if _fam_renderer is not None and hasattr(_fam_renderer, "heard_fn"):
+            _fam_renderer.heard_fn = speech_port.take_heard
+            _fam_renderer.heard_seen_fn = speech_port.report_shown  # 検収 低8: B6 に載せた後で「届いた」に数える
+            _fam_renderer.speech_field = True
+
+    # ---- 〔第 6 期 6-2〕カレンダー 1b(腕 --calendar 1b・母集団と計画実行層のあるランだけ・既定 None=今の道)。W20 の時刻つきの
+    # 勤務の約束を持つ体の出入りを本人の判断(仮のモデル=mock/古典)へ渡し、計画実行層に口を挿す(その体の W17 の到着・退出は
+    # 実行しない)。0 日目はここで張る・1 日目からは日の頭の表の張り直し。状態台帳の腕の行 C1B・C1BM ----
+    # 〔段 1 の検収 M5〕nav1 のランでは道のりの見積りを本人の歩く速さで(節 1 つ=W1 の辺長の平均 ÷ 本人の m/刻み の刻み)。
+    # legacy は None=節 1 つ 1 刻み(今の見積り=B8 の node の歩く速さ)のまま
+    _hop_steps = None
+    if nav_on:
+        _el = np.asarray(getattr(world.assets, "edge_len_m", np.zeros(0)), dtype=np.float64)
+        _hop_steps = (float(_el.mean()) if _el.size else 1.0) / _walk_m_per_tick(
+            world, n_agents, geometry="nav1", geom=geom, tick_seconds=int(tick_seconds))
+    calendar_self_layer = _CAL1B.build(
+        world_dir, pop, calendar=calendar, agents=agents, world=world, presence=presence, classical=classical_policy,
+        seed=seed, day_key0=int(day_index), step_seconds=int(tick_seconds), steps_per_day=tpd, events=events,
+        tools=_tools_fx.registry,  # 〔検収 L4〕時計の道具の行を読む(見れば分単位=TM8)
+        hop_steps=_hop_steps,
+    )
+    # ---- 〔第 6 期 6-3〕時計の段 T2 の会話の時計(腕 mora のランだけ・既定 table は None=今の道)・T3 の変化の印(腕 changed の
+    # ランだけ)。会話の時計の事象を置く口(窓の待ち行列か区域ごとの時計)は進行役が挿す(状態台帳の腕の行 TCR・TCC・T3M) ----
+    talk_clock = _TCK.make(pop_seed=pop_seed, seed=seed, step_s=int(tick_seconds), rel_layer=rel_layer)
+    step_scope = _SSC.make(n_agents)
+
+    # ---- 第 3 期 3-3: 申込書の持ち主(申込書を渡したランだけ・既定 None=系 experiment が立たない=今の道)。分岐なら LLM の口を
+    # T0 で切り替える口に包む(T0 より前はテープ・T0 から今の方策=engine.experiment.branch)。状態台帳の行 X(diag・discardable) ----
+    experiment_layer = _EXPL.make_layer(
+        _exp_staged, world=world, runner=runner, calendar=calendar, events=events, n_agents=n_agents,
+        step_seconds=int(tick_seconds), steps_per_day=tpd, begin_step=t_begin, end_step=t_end,
+        total_steps=total_ticks, inherited=_exp_inherited, bridge=bridge, fleet=fleet, entry=_exp_entry,
+    )
+
+    # ---- 〔第 6 期 6-4 C1〕連絡の道具(腕 c1 のランだけ・既定 None=系 contact が立たない=今の道)。描画の知覚の事実を目と心の
+    # 向きの形にする口(Renderer.contact_fn)を挿す。窓の境目の種類は進行役が待ち行列を作った後に結ぶ(bind_queue) ----
+    contact_layer = None
+    if _ct_cfg is not None:
+        from shibuya.engine.contact.layer import ContactLayer as _ContactLayer
+
+        contact_layer = _ContactLayer(
+            n_agents=n_agents, seed=seed, population_seed=pop_seed, day_key0=int(day_index),
+            step_seconds=int(tick_seconds), events=events, agents=agents, world=world,
+            groups=_tools_fx.groups, rel_layer=rel_layer, conv=conv,
+            remember_link=bool(_m0s is not None and events.enabled), renderer=_fam_renderer,
+            home_cell=np.asarray(schedule.home_cell),  # 〔C2〕充電器のある家(住まいのセル)
+            # 〔C2〕習慣の状態「勤務中」(勤め先のセル)・店の番号の場所の表(本段は空欄)
+            work_cell=(np.asarray(schedule.work_cell) if getattr(schedule, "work_cell", None) is not None else None),
+            phones=_tools_fx.phones,
+        )
+        # 〔C2〕メッセージ・ビデオ通話・充電器・店の番号を調べる・郵便・置き手紙の道具の行(腕 c1 のランの台帳だけ=既定は今のまま)
+        from shibuya.engine.contact.tools import register_into as _ct_register_tools
+
+        _ct_register_tools(_tools_fx.registry)
+        if _fam_renderer is not None and hasattr(_fam_renderer, "contact_fn"):
+            _fam_renderer.contact_fn = contact_layer.percept_hook
+        if decision_layer is not None:  # 〔検収 M5 (i)〕腕 port: 暇なときの「スマホを見る」は主の判断の候補
+            decision_layer.contact_offer = contact_layer
+            contact_layer.main_offer = True
+
+    # ---- 〔第 6 期 6-2 カレンダー 2〕会話とメッセージから生まれる予定(腕 arm のランだけ・既定 None=系 calendar_2 が立たない=
+    # 今の道)。会話の番の控えの口を連絡の道具(腕 c1 のラン)に挿す(通話の番とメッセージを送る判断)。対面の会話の番は
+    # engine.systems.llm_io.utter が箱から引く ----
+    calendar2_layer = None
+    if _ca2_cfg is not None:
+        from shibuya.engine.calendar2.layer import Calendar2Layer as _Calendar2Layer
+
+        calendar2_layer = _Calendar2Layer(
+            n_agents=n_agents, seed=seed, population_seed=pop_seed, day_key0=int(day_index),
+            step_seconds=int(tick_seconds), steps_per_day=tpd, events=events, agents=agents, world=world,
+            calendar=calendar, conv=conv, contact=contact_layer, runner=runner, hop_steps=_hop_steps,
+        )
+        if contact_layer is not None:
+            contact_layer.turn_sink = calendar2_layer.note_turn
+            contact_layer.offer_probe = calendar2_layer.offer_waiting  # 〔C2〕大事な誘い(習慣を判断の口へ戻す条件)
+
+    # ---- 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日(腕 arm のランだけ・既定 None=系 calendar_3 が立たない=今の道)。雇い主の口の表
+    # (権利台帳の雇用の行・W20 の表・役割の語=導出)を作り、C1 の口に送った/読んだメッセージの控えの口を挿す。C1 とカレンダー 2 の
+    # 層を再利用する(二重に作らない) ----
+    calendar3_layer = None
+    if _ca3_cfg is not None:
+        from shibuya.engine.calendar3 import roster as _R3
+        from shibuya.engine.calendar3.layer import Calendar3Layer as _Calendar3Layer
+
+        _ca3_w20 = _R3.w20_table_for_run(world_dir, pop)
+        calendar3_layer = _Calendar3Layer(
+            n_agents=n_agents, seed=seed, day_key0=int(day_index), step_seconds=int(tick_seconds), steps_per_day=tpd,
+            events=events, agents=agents, world=world, calendar=calendar, contact=contact_layer,
+            calendar2=calendar2_layer, runner=runner,
+            # 〔検収 H1〕表は組み立てでは作らず最初の刻みの頭に作る(再開では状態を戻して権利台帳を作り直した後=通しと同じ台帳)。
+            # W20 の週の表(世界の資産)は組み立てで読む(無ければここで止める)
+            roster_fn=lambda: _R3.roster_for_run(_ca3_w20, pop, runner, n_agents), trial=_ca3_trial,
+        )
+        contact_layer.sent_sink = calendar3_layer.note_sent
+        contact_layer.read_sink = calendar3_layer.note_read
+
+    # ---- 〔第 6 期 6-6 ② 第 1 部〕店の仕事を働く人の体へ(腕 --duties arm のランだけ・既定 None=系 duties が立たない=今の道)。
+    # 世界過程の開閉店・補充・廃棄に持ち主を挿す(担当が店に居る店はエンジンが代わりにしない)・判断の口の役割語「補充」「開閉店」を
+    # 効かせる口を LLMBridge に挿す ----
+    duties_layer = None
+    if _du_cfg is not None:
+        from shibuya.engine.duties.layer import DutiesLayer as _DutiesLayer
+
+        duties_layer = _DutiesLayer(
+            n_agents=n_agents, seed=seed, day_key0=int(day_index), step_seconds=int(tick_seconds), steps_per_day=tpd,
+            events=events, agents=agents, world=world, calendar=calendar, runner=runner,
+        )
+        runner.opening.duties = duties_layer
+        runner.shelf.duties = duties_layer
+        runner.waste.duties = duties_layer
+        bridge.role_sink = duties_layer.note_role_word
+
+    # ---- 1-0 段 C: 状態の箱(局所の割り当ての表 local-assignment.json・草案 §2-3)。物はそのまま指す(写しを作らない) ----
+    from shibuya.engine import seat_release as _SRB  # 〔第 2 期 2-4 V3〕
+
+    box = _BX.Box(
+        cfg=_BX.RunConfig(
+            n_agents=n_agents, seed=seed, tick_seconds=tick_seconds, ticks=ticks, fleet_wait_s=fleet_wait_s,
+            checkpoint_every=checkpoint_every, day_index=day_index, l4_scale=l4_scale, mode=mode, lane=lane,
+            census_out=census_out, attendance_rate=attendance_rate, exit_mode=exit_mode, derive_rule=derive_rule,
+            checkpoint_detail=checkpoint_detail, classical_habit_p=classical_habit_p, classical_tau=classical_tau,
+            familiarity_k=familiarity_k, intent_max_ticks=intent_max_ticks,
+            memory_n=memory_n, move_search_radius=move_search_radius, occupancy_every=occupancy_every,
+            occupancy_path=occupancy_path, outside_suppression=outside_suppression,
+            p_notice_ablation=p_notice_ablation, p_notice_d50_scale=p_notice_d50_scale, plan_sleep=plan_sleep,
+            queue_service=queue_service, report_precondition=report_precondition, response_delay=response_delay,
+            run_id=run_id, seat_area_eatery_m2=seat_area_eatery_m2, seat_area_retail_m2=seat_area_retail_m2,
+            signage=signage, signage_p_see=signage_p_see, sim_days=sim_days, sleep_suppression=sleep_suppression,
+            state_out=state_out, store_recall_scope=store_recall_scope, vocab_version=vocab_version,
+            activity_region=activity_region, area_source=area_source, chooser=chooser, eatery=eatery,
+            energy_rate=energy_rate, geometry=geometry, space=space_mode, space_effective=space_effective,
+            space_reason=space_reason, home_meal=home_meal, hunger_model=hunger_model,
+            hunger_words=hunger_words, intent_mode=intent_mode, meal_sleep_defer=meal_sleep_defer,
+            mock_move_target_p=mock_move_target_p, mock_out_of_cell_target_p=mock_out_of_cell_target_p,
+            policy=policy,
+            role_words=role_words,
+            pop_seed=pop_seed, env_seed=env_seed, tpd=tpd, total_ticks=total_ticks, t_begin=t_begin, t_end=t_end,
+            activity_on=activity_on, energy_on=energy_on, familiarity_on=familiarity_on, memory_on=memory_on,
+            store_memory_on=store_memory_on, store_signage_on=store_signage_on, store_wom_on=store_wom_on,
+            plan_exec_on=plan_exec_on, attention_on=attention_on, v3_hints=v3_hints, salt=salt,
+            refractory_table=refractory_table, refractory_scale_norm=refractory_scale_norm,
+            budget_mode_enum=budget_mode_enum, p_see_activity_table=p_see_activity_table,
+            p_see_activity_identity=p_see_activity_identity, call_layer=_call_layer, fp=_fp, parent_run=parent_run,
+            seat_release=_SRB.arm(),  # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(組み立てで 1 回読む)
+        ),
+        soa=_BX.SoAState(agents=agents, world=world),
+        layers=_BX.Layers(
+            act_layer=act_layer, intent_layer=intent_layer, fam_layer=fam_layer, mem_layer=mem_layer,
+            poi_resolver=poi_resolver, wom=wom_ex, rel_layer=rel_layer, classical=classical_policy,
+            energy=energy_layer, norm_meter=norm_meter, presence=presence, conv=conv, arbiter=arbiter,
+            detector=detector, runner=runner, ledger=ledger,
+            renderer=getattr(perception, "renderer", None) if perception is not None else None,
+            bridge=bridge, fleet_bridge=fleet_bridge, events=events, decision=decision_layer, speech=speech_port,
+            proximity=proximity_layer,
+            experiment=experiment_layer,
+            body=body_layer,
+            calendar_shadow=calendar_shadow_layer,
+            calendar_self=calendar_self_layer,
+            talk_clock=talk_clock,  # 〔第 6 期 6-3 T2〕
+            step_scope=step_scope,  # 〔第 6 期 6-3 T3〕
+            contact=contact_layer,  # 〔第 6 期 6-4 C1〕腕 c1 のランだけ
+            calendar2=calendar2_layer,  # 〔第 6 期 6-2 カレンダー 2〕腕 arm のランだけ
+            calendar3=calendar3_layer,  # 〔第 6 期 6-2 カレンダー 3〕腕 arm のランだけ
+            duties=duties_layer,  # 〔第 6 期 6-6 ② 第 1 部〕腕 --duties arm のランだけ
+        ),
+        llm=_BX.LlmIo(pending=pending, fleet_deferred=fleet_deferred, fleet_waiting=fleet_waiting,
+                      fleet_inflight=fleet_inflight, replay_inbox=replay_inbox),
+        day=_BX.DayTables(b_agent=b_agent, b_cond=b_cond, b_tick=b_tick, b_cell=b_cell, b_start=b_start,
+                          w17_substituted=w17_substituted),
+        buffers=_BX.Buffers(focus_request=focus_request),
+        scratch=_BX.TickScratch(),
+        runstats=_BX.RunStats(
+            result=result, phase=phase, diag_rows=diag_rows, layer_counts=layer_counts, leave_counts=leave_counts,
+            sleep_tally=sleep_counts, awake_sum=awake_sum, awake_ticks=awake_ticks, calls_by_cond=calls_by_cond,
+            per_action_total=per_action_total, talk_stats=talk_stats, intero_cross=intero_cross,
+            occ_ticks=occ_ticks, occ_counts=occ_counts, occ_kind=occ_kind, occ_transit=occ_transit,
+            daily_records=daily_records, day_heads=day_heads, state_files=state_files,
+            frozen_sources_map=frozen_sources_map, leave_closed=leave_closed, geometry_hops=geometry_hops,
+            geometry_jammed=geometry_jammed, n_fleet_reinjected=n_fleet_reinjected, n_fleet_resent=n_fleet_resent,
+            n_outside_calls=n_outside_calls, n_undefined_total=n_undefined_total, peak_backlog=peak_backlog,
+            peak_intents=peak_intents, peak_pending=peak_pending, prev_sessions=prev_sessions,
+            prev_tape_misses=prev_tape_misses, t_start=t_start, read_seconds=_read_seconds,
+        ),
+        fx=_BX.Fixtures(
+            calendar=calendar, schedule=schedule, schedule_hash=schedule_hash, weekly=weekly, space=space,
+            geom=geom, perception=perception, renderer_obj=renderer_obj, walkable=walkable,
+            env_fields=_env_fields, start_check=start_check, fleet=fleet, tools=_tools_fx,
+            atms=(economy_plan.atms if economy_plan is not None else None),  # 第 2 期 2-1: ATM の表(腕のランだけ)
+            experiment=None if _exp_staged is None else _exp_staged.form,
+        ),
+    )
+    del pending, n_undefined_total, n_fleet_reinjected, n_fleet_resent, n_outside_calls, geometry_hops
+    del geometry_jammed, leave_closed, peak_pending, peak_intents, peak_backlog, prev_sessions, prev_tape_misses
+    del b_agent, b_cond, b_tick, b_cell, b_start, t_start, _read_seconds
+
+    # ---- 10d: 再開(保存した状態を読む=日の頭の初期化は上で呼んでいない) ----
+    #: 読み込み(ファイルを読む)と戻す(表の張り直し・SoA と外の状態・full-hash の検算)の秒(壁時計=記録だけ)。
+    if _bundle is not None:
+        _t_r = time.perf_counter()
+        # 再開の時刻より前に頭が来た日の表を張り直す(便の索引を通しのランと同じにする)。日の境目からの再開では
+        # その日の頭はループの先頭で張る(通しのランと同じ位置)。
+        for _d in range(1, (t_begin - 1) // tpd + 1):
+            _SIO.relay_tables(box, _d)
+        R.restore_soa(agents, world, _SIO.pst_now(box), _bundle.soa)
+        _SIO.rebuild_derived(box)  # 10d(親の答え 2): 起動時に SoA から作る表を、戻した SoA から作り直す
+        RS.check_item_kinds(_SIO.hash_owners(box), _bundle.items)  # 10f(K23 (a)): 戻す前に今の値の型と突き合わせる
+        R.restore_items(_SIO.hash_owners(box), _bundle.items)
+        if mem_layer is not None and mem_layer.memory_store is not None:
+            mem_layer.rebuild_memory_store(agents)  # 1-6 M0: 器は戻した記憶の表と要旨から作り直す(台帳の行 M0)
+        _full_r, _ = _SIO.full_state_hash(agents, world, _SIO.pst_now(box), schedule.population_hash, schedule_hash,
+                                     _SIO.hash_owners(box), memo={})
+        if _full_r != str(_bundle.header.get("hashes", {}).get("full_hash", "")):
+            raise RuntimeError(
+                "再開で戻した状態の full-hash が保存したときと違う(戻し忘れか戻し違い・"
+                f"保存 {str(_bundle.header.get('hashes', {}).get('full_hash', ''))[:16]}・戻した後 {_full_r[:16]})"
+            )
+        result.money_start = int(agents.registry.money.astype(np.int64).sum())
+        # 10d 検収 L1: 診断の行の差分の基準(前の刻みの終わりの値)を戻した状態から置く(通しと同じ差分になる)
+        box.runstats.prev_sessions = conv.n_opened if conv is not None else 0
+        box.runstats.prev_tape_misses = bridge.n_tape_misses
+        box.runstats.restore_seconds = time.perf_counter() - _t_r
+        if _bundle.inflight:
+            if fleet_bridge is None:
+                raise ValueError("保存に艦隊の未着の呼があるが、再開のランに艦隊が無い")
+            # 出したが返っていない呼を同じ call_id(=艦隊の seed は call_id とランの seed から決まる)で出し直す
+            _calls_r = list(_bundle.inflight)
+            for c_ in _calls_r:
+                fleet_inflight[str(c_.call_id)] = c_
+            for d_ in fleet_bridge.submit(_calls_r, now_tick=t_begin - 1):
+                fleet_inflight.pop(str(d_.call.call_id), None)
+                fleet_deferred.append(
+                    (int(d_.call.agent_id), int(d_.call.condition), int(d_.call.wake_class), int(d_.call.wake_since))
+                )
+    return box
+
+
+def _initial_rights(world_dir: Any, pop: Any, n_agents: int) -> Any:
+    """〔第 4 期 4-3 段 10〕差し替えの世界の権利台帳の初期の行(体の番号=ランの SoA の行)。母集団が差し替えの版でなければ
+    ``None``(本体の v2=今の口)。差し替えの版なのに表が無ければ止める(黙って丸振りに戻さない)。"""
+    from shibuya.engine.rights import initial as _RIN
+
+    if pop is None or not getattr(pop, "is_swapped", False):
+        return None
+    m = min(int(n_agents), int(pop.n))
+    rows = _RIN.load_run_rows(world_dir, np.asarray(pop.source_agent_id, dtype=np.int64)[:m])
+    if rows is None:
+        raise ValueError(f"差し替えの母集団の世界に {_RIN.RUN_ROWS_FILE} が無い(店の担当と住まいの行)")
+    return rows
+
+
+def _org_of_agent(pop: Any, n_agents: int) -> Any:
+    """第 1 期 1-5: 体 → W16 の ``org_id``(母集団の行は体の番号の順=``_schedule_with_population`` と同じ並び。
+    母集団より多い体は -1=組織なし。母集団の無いランは ``None``)。"""
+    if pop is None:
+        return None
+    out = np.full(int(n_agents), -1, dtype=np.int64)
+    m = min(int(n_agents), int(pop.n))
+    out[:m] = np.asarray(pop.org_id, dtype=np.int64)[:m]
+    return out

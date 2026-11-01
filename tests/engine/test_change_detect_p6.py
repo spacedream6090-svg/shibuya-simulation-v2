@@ -13,6 +13,8 @@ import time
 import numpy as np
 import pytest
 
+from tests import _time_gates as TG
+
 from shibuya.agents.state import AgentState, WakeCondition
 from shibuya.core.types import EventClass
 from shibuya.engine import change_detect as CD
@@ -202,7 +204,7 @@ def test_p6_change_detection_under_2ms_at_400k_agents():
     for label, ms, wakes in rows:
         print(f"  {label:22s} {ms:6.3f} ms/tick  (セル起床 {wakes:,}/tick)")
     worst = max(ms for _, ms, _ in rows)
-    assert worst <= 2.0, f"P6 超過: {worst:.3f} ms/tick > 2 ms"
+    assert TG.check(worst <= 2.0, f"P6 {worst:.3f} ms/tick(上限 2 ms)"), f"P6 超過: {worst:.3f} ms/tick > 2 ms"
 
 
 def test_p6_scaled_down_runs_in_ci():

@@ -26,12 +26,20 @@ expedient(本モジュール分)
 - ``WalletKind`` の数値は ``shibuya.agents.state.AgentKind`` と同じ並びだが、層契約により
   economy から agents を import できないので**値を写して**持つ
   (``tests/economy/test_anchors.py::test_wallet_kind_matches_agent_kind`` が一致を強制)。
+
+〔第 2 期 2-1〕規則の表(``engine.rules.table``・``docs/design/rules-table.json``)の最初の読み手: ``min_wage_hourly(asof)``
+(東京都の最低賃金=``minimum_wage.tokyo`` の ``yen_per_hour``・その日に効いている版。表に版の無い日=2026-10-01 より前は
+直書きの ``MIN_WAGE_HOURLY``=1,226 円(R7.10.3)に戻す=つなぎの台帳 ``BR-MIN-WAGE-HOURLY-1226``・外す段 4-2)と
+``consumption_tax_rate(asof)``(``consumption_tax.standard_rate`` の国+地方の合計の率を分数で)。``monthly_wage_amounts``
+は時給 ``hourly`` を渡せる(既定は今までどおり ``MIN_WAGE_HOURLY``=既存の呼び手と試験の値は不変)。
 """
 
 from __future__ import annotations
 
+import datetime as _dt
 from dataclasses import dataclass
 from enum import IntEnum
+from fractions import Fraction
 from typing import Final, Mapping
 
 import numpy as np
@@ -39,6 +47,11 @@ import numpy as np
 from shibuya.economy.accounts import AccountCode, Sector
 
 __all__ = [
+    "MIN_WAGE_RULE_ID",
+    "CONSUMPTION_TAX_RULE_ID",
+    "min_wage_hourly",
+    "min_wage_floor",
+    "consumption_tax_rate",
     "Anchor",
     "ANCHORS",
     "SPEND_MULTI_PERSON_PER_DAY",
@@ -208,10 +221,77 @@ def initial_wallets(n: int, kinds: np.ndarray, rng: np.random.Generator) -> np.n
     return np.clip(np.rint(draw), WALLET_MIN, WALLET_MAX).astype(np.int64)
 
 
-def monthly_wage_amounts(hours: np.ndarray, premium: float = 1.0) -> np.ndarray:
-    """月次賃金[円] = 労働時間 × 最低賃金 × 割増係数(外生・§2.7 第1陣)。"""
+#: 〔2-1〕規則の表の行の id(東京都の最低賃金・消費税の標準税率)。
+MIN_WAGE_RULE_ID: Final[str] = "minimum_wage.tokyo"
+CONSUMPTION_TAX_RULE_ID: Final[str] = "consumption_tax.standard_rate"
+
+
+def min_wage_hourly(asof: "str | _dt.date", rules=None) -> tuple[int, str]:  # noqa: ANN001
+    """〔2-1〕``asof`` の日に効いている東京都の最低賃金[円/時]と出どころ(規則の表の最初の読み手)。
+
+    表に版がある日(2026-10-01 以後)は規則の表の ``yen_per_hour``(1,280 円)・版の無い日(施行の前)は直書きの
+    ``MIN_WAGE_HOURLY``(1,226 円=R7.10.3・つなぎの台帳 ``BR-MIN-WAGE-HOURLY-1226``)に戻す。表のファイルが無い写しも
+    直書きに戻す。
+
+    Returns:
+        ``(円/時, 出どころ)``(出どころは ``"rules:<id>@<asof>"`` か ``"anchors.MIN_WAGE_HOURLY"``)。
+    """
+    from shibuya.engine.rules import table as _RT
+
+    try:
+        rt = _RT.default_rules() if rules is None else rules
+        row = rt.get(MIN_WAGE_RULE_ID, asof)
+    except (_RT.RuleNotInForce, FileNotFoundError, KeyError):
+        return int(MIN_WAGE_HOURLY), "anchors.MIN_WAGE_HOURLY"
+    return int(row.params["yen_per_hour"]), f"rules:{MIN_WAGE_RULE_ID}@{row.asof}"
+
+
+def min_wage_floor(asof: "str | _dt.date", rules=None) -> tuple[int | None, str]:  # noqa: ANN001
+    """〔賃金の小さな版上げ・検収 M1〕最低賃金法の床(4 条 2 項)の値[円/時]と出どころ=規則の表の ``minimum_wage.tokyo``
+    (``kind: machine``)の ``asof`` の日に効いている版だけ。:func:`min_wage_hourly` と違い**直書きの値に戻さない**: 表に版の
+    無い日(施行の前)・表の無い写しは ``(None, "none")``=床なし(宣言=記録 wage_occ §13)。machine でない行は止める。
+    """
+    from shibuya.engine.rules import table as _RT
+
+    try:
+        rt = _RT.default_rules() if rules is None else rules
+        row = rt.get(MIN_WAGE_RULE_ID, asof)
+    except (_RT.RuleNotInForce, FileNotFoundError, KeyError):
+        return None, "none"
+    if str(getattr(row, "kind", "machine")) != "machine":
+        raise ValueError(f"{MIN_WAGE_RULE_ID} は machine の行であること(いま {row.kind!r})")
+    return int(row.params["yen_per_hour"]), f"rules:{MIN_WAGE_RULE_ID}@{row.asof}"
+
+
+def consumption_tax_rate(asof: "str | _dt.date", rules=None) -> tuple[Fraction, str]:  # noqa: ANN001
+    """〔2-1〕``asof`` の日に効いている消費税の国+地方の合計の率(分数)と出どころ。
+
+    率は表の ``national_rate``(7.8%)× (1 + 地方の比 22/78)=10%(表の ``combined_rate`` と同じことを確かめる)。
+    表に版の無い日・表の無い写しは率 0(=税を取らない)と出どころ ``"none"``。
+    """
+    from shibuya.engine.rules import table as _RT
+
+    try:
+        rt = _RT.default_rules() if rules is None else rules
+        row = rt.get(CONSUMPTION_TAX_RULE_ID, asof)
+    except (_RT.RuleNotInForce, FileNotFoundError, KeyError):
+        return Fraction(0), "none"
+    nat = Fraction(str(row.params["national_rate"]))
+    loc = row.params["local_tax_ratio"]
+    rate = nat * (1 + Fraction(int(loc[0]), int(loc[1])))
+    if rate != Fraction(str(row.params["combined_rate"])):
+        raise ValueError(f"規則の表の消費税の率が合わない: {rate} と combined_rate {row.params['combined_rate']}")
+    return rate, f"rules:{CONSUMPTION_TAX_RULE_ID}@{row.asof}"
+
+
+def monthly_wage_amounts(hours: np.ndarray, premium: float = 1.0, *, hourly=None) -> np.ndarray:  # noqa: ANN001
+    """月次賃金[円] = 労働時間 × 時給 × 割増係数(外生・§2.7 第1陣)。
+
+    〔2-1〕``hourly``(円/時・スカラーか体ごとの配列)を渡せる。既定 ``None`` は ``MIN_WAGE_HOURLY``(今までどおり)。
+    """
     h = np.asarray(hours, dtype=np.float64).ravel()
-    return np.rint(h * float(MIN_WAGE_HOURLY) * float(premium)).astype(np.int64)
+    w = float(MIN_WAGE_HOURLY) if hourly is None else np.asarray(hourly, dtype=np.float64)
+    return np.rint(h * w * float(premium)).astype(np.int64)
 
 
 def monthly_wages(
@@ -223,8 +303,17 @@ def monthly_wages(
     *,
     premium: float = 1.0,
     from_row: bool = False,
+    hourly=None,  # noqa: ANN001
+    payer_sector: int | None = None,
+    method: int = 0,
+    cause=None,  # noqa: ANN001
+    amounts=None,  # noqa: ANN001
 ) -> np.ndarray:
     """雇用主(または域外雇用主)→ 世帯の月次賃金を**一括** transfer する。
+
+    〔第 2 期 2-1〕経済の段階 2 の給料日(``economy.stage2.MoneyStage2.payroll``)が最初の呼び手。``hourly``(時給=規則の表の
+    最低賃金)・``payer_sector``(雇用主か店=店の担当従業者)・``method``(口座=世帯の銀行預金へ)・``cause``(過程 payroll)
+    を渡せる。既定は今までどおり(雇用主から現金・``MIN_WAGE_HOURLY``)。
 
     Args:
         ledger: ``economy.ledger.Ledger``。
@@ -234,19 +323,33 @@ def monthly_wages(
         tick: 現在 tick。
         premium: 最低賃金への割増係数(expedient)。
         from_row: True なら域外雇用主(faucet)。
+        hourly: 時給(円/時・スカラーか行ごと)。``None``=``MIN_WAGE_HOURLY``。
+        payer_sector: 支払側の部門(``None``=雇用主。``from_row`` が優先)。
+        method: 支払いの方法(``ops.METHOD_CASH``=0・``ops.METHOD_ACCOUNT``=1=世帯の口座へ)。
+        cause: 1-3 の原因(``None``=出来事を書かない)。
+        amounts: 〔賃金の小さな版上げ〕行ごとの額[円](渡せば ``hours``・``hourly``・``premium`` は使わない=賃金の腕
+            ``occupation`` の月の賃金=``economy.wages``)。``None``=今までどおり 時間 × 時給 × 割増。
 
     Returns:
         行ごとの ``TransferStatus``。
     """
-    amounts = monthly_wage_amounts(hours, premium)
+    if amounts is None:
+        amounts = monthly_wage_amounts(hours, premium, hourly=hourly)
+    else:
+        amounts = np.asarray(amounts, dtype=np.int64).ravel()
     hh = np.asarray(households, dtype=np.int64).ravel()
     if from_row:
         payers = np.zeros(hh.size, dtype=np.int64)
         payer_sector = int(Sector.ROW)
     else:
         payers = np.asarray(employers, dtype=np.int64).ravel()
-        payer_sector = int(Sector.EMPLOYER)
+        payer_sector = int(Sector.EMPLOYER) if payer_sector is None else int(payer_sector)
+    if int(method) == 0 and cause is None:  # 今までの呼び方(引数を足さない=値は不変)
+        return ledger.transfer_many(
+            payer_sector, payers, int(Sector.HOUSEHOLD), hh, amounts,
+            int(AccountCode.WAGE), tick,
+        )
     return ledger.transfer_many(
         payer_sector, payers, int(Sector.HOUSEHOLD), hh, amounts,
-        int(AccountCode.WAGE), tick,
+        int(AccountCode.WAGE), tick, method=int(method), cause=cause,
     )

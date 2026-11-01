@@ -1,0 +1,21 @@
+{
+ "schema": "shibuya.tools.instruments/calib_anchors/1",
+ "version": "v0",
+ "created": "2026-10-14",
+ "purpose": "2-0 較正側の錨の計器(tools/instruments/anchor_gauge.py)が読む、世界資産の外の錨。較正側(〔非〕=今の版の入力でない)の値だけを置く。検証側(〔検〕)と区分が未決(〔灰〕)の値は置かない。",
+ "rules": [
+  "値は docs/bench/anchors/presence_anchors_v0.json の core9_* 3 行の写し(親の一次確認 2026-09-10)。計器は presence_anchors_v0.json を開かない(pt_area_daytime_peak=〔灰〕と wake_rate=第 4-1 表=〔検〕が同じファイルにある=R-115 §2)。",
+  "合格線は書かない。差を測るだけ(CLAUDE.md §2・2-0 の計画)。"
+ ],
+ "core9": {
+  "mark": "〔非〕(構築は読まない・R-115 §2)",
+  "chome_names": ["道玄坂一丁目", "道玄坂二丁目", "宇田川町", "神南一丁目", "桜丘町", "渋谷一丁目", "渋谷二丁目", "渋谷三丁目", "神宮前六丁目"],
+  "scope": "中核9町丁目(道玄坂1・道玄坂2・宇田川町・神南1・桜丘町・渋谷1・渋谷2・渋谷3・神宮前6)= 1.39 km²",
+  "daytime_population": {"value": 130167, "unit": "人"},
+  "night_population": {"value": 8810, "unit": "人"},
+  "day_night_ratio": {"value": 14.8, "unit": "倍", "note": "= 130,167 / 8,810。勤務者/居住者の側だけの代理(来街者を含まない・範囲が町丁目=5 エリアと違う)"},
+  "source": "東京都 令和2年国勢調査による東京都の昼間人口 第11表(推計) https://www.toukei.metro.tokyo.lg.jp/tyukanj/2020/tj20zv1100.csv",
+  "verified_by": "parent 2026-09-10(presence_anchors_v0.json の core9_daytime_population・core9_night_population・core9_day_night_ratio)",
+  "copied_by": "2-0 実装役 2026-10-14(core9_* の 3 行だけを読んで写した)"
+ }
+}

@@ -1,0 +1,33 @@
+{
+ "schema": "shibuya.tools.c7/presence_anchors/1",
+ "version": "v0",
+ "created": "2026-09-10",
+ "purpose": "較正側の錨(中核 9 町丁目の昼夜間人口=都の第 11 表〔非〕・R-115 §2)。2-0 の計器と較正が読む。検証側の錨は presence_validation_anchors_v0.json(計器も較正も読まない)",
+ "split_from": "第 2 期 2-4 V6: 元のファイル presence_anchors_v0.json を鍵の名で機械的に分けた(値は変えていない・値を読まずに分けた)。較正側/構築側と検証側の 2 本=記録 docs/bench/analysis/wallbounce-1012/vb24/README.md の V6",
+ "anchors": {
+  "core9_daytime_population": {
+   "value": 130167,
+   "unit": "人",
+   "scope": "中核9町丁目(道玄坂1・道玄坂2・宇田川町・神南1・桜丘町・渋谷1・渋谷2・渋谷3・神宮前6)= 1.39 km²",
+   "tag": "anchor",
+   "source": "東京都 令和2年国勢調査による東京都の昼間人口 第11表(推計) https://www.toukei.metro.tokyo.lg.jp/tyukanj/2020/tj20zv1100.csv",
+   "verified_by": "parent 2026-09-10"
+  },
+  "core9_night_population": {
+   "value": 8810,
+   "unit": "人",
+   "scope": "同 中核9町丁目の常住人口(夜間人口)",
+   "tag": "anchor",
+   "source": "東京都 令和2年国勢調査による東京都の昼間人口 第11表(推計) https://www.toukei.metro.tokyo.lg.jp/tyukanj/2020/tj20zv1100.csv",
+   "verified_by": "parent 2026-09-10"
+  },
+  "core9_day_night_ratio": {
+   "value": 14.8,
+   "unit": "倍",
+   "scope": "同 中核9町丁目の昼夜間人口比率(= 130,167 / 8,810)",
+   "tag": "anchor",
+   "source": "東京都 令和2年国勢調査による東京都の昼間人口 第11表(推計) https://www.toukei.metro.tokyo.lg.jp/tyukanj/2020/tj20zv1100.csv",
+   "verified_by": "parent 2026-09-10"
+  }
+ }
+}

@@ -1,0 +1,305 @@
+{
+ "cli.py": [
+  "money",
+  "price",
+  "stock"
+ ],
+ "core/serialize.py": [
+  "kind"
+ ],
+ "engine/activity.py": [
+  "activity",
+  "activity_kind",
+  "activity_until",
+  "cell",
+  "last_result",
+  "last_result_tick",
+  "transit_state"
+ ],
+ "engine/change_detect.py": [
+  "cell",
+  "density",
+  "fatigue",
+  "fatigue_stage",
+  "hunger",
+  "hunger_stage",
+  "thermal",
+  "thermal_stage"
+ ],
+ "engine/classical.py": [
+  "activity",
+  "age",
+  "cell",
+  "hunger",
+  "kind",
+  "poi_ref",
+  "sex",
+  "transit_state"
+ ],
+ "engine/commit.py": [
+  "activity",
+  "cell",
+  "sleep_pending",
+  "target_node"
+ ],
+ "engine/conversation.py": [
+  "cell"
+ ],
+ "engine/energy.py": [
+  "activity",
+  "age",
+  "eer_kcal",
+  "energy_balance",
+  "hunger",
+  "sex",
+  "transit_state",
+  "weight_kg"
+ ],
+ "engine/familiarity.py": [
+  "cell",
+  "fam_exposures",
+  "fam_first",
+  "fam_thing",
+  "fam_visits"
+ ],
+ "engine/intent.py": [
+  "activity",
+  "cell",
+  "intent_action",
+  "intent_kind",
+  "intent_since",
+  "intent_target",
+  "last_action",
+  "last_result",
+  "last_result_tick",
+  "sleep_pending",
+  "transit_state"
+ ],
+ "engine/memory.py": [
+  "cell",
+  "intent_kind",
+  "intent_target",
+  "last_action",
+  "last_result",
+  "last_result_tick",
+  "mem_cell",
+  "mem_importance",
+  "mem_kind",
+  "mem_last",
+  "mem_n",
+  "mem_object",
+  "mem_partner",
+  "mem_result",
+  "mem_tick",
+  "poi_ref",
+  "queue_poi",
+  "sm_first",
+  "sm_last",
+  "sm_poi",
+  "sm_precision",
+  "sm_source",
+  "talk_partner"
+ ],
+ "engine/norm_meter.py": [
+  "activity",
+  "cell",
+  "kind",
+  "last_result",
+  "last_result_tick",
+  "poi_ref",
+  "queue_poi",
+  "target_node",
+  "transit_state",
+  "xy"
+ ],
+ "engine/poi_target.py": [
+  "cell",
+  "fam_thing",
+  "fam_visits",
+  "hunger",
+  "kind",
+  "money",
+  "node",
+  "price",
+  "stock"
+ ],
+ "engine/presence.py": [
+  "activity",
+  "board_line",
+  "cell",
+  "density_stage",
+  "intent_action",
+  "last_action",
+  "last_result",
+  "plan_flags",
+  "poi_ref",
+  "queue_poi",
+  "transit_state"
+ ],
+ "engine/processes/civic.py": [
+  "cell",
+  "kind",
+  "transit_ref",
+  "transit_state"
+ ],
+ "engine/processes/crowd.py": [
+  "activity",
+  "cell",
+  "density",
+  "poi_ref",
+  "poi_since",
+  "queue_poi",
+  "queue_since",
+  "target_node",
+  "xy"
+ ],
+ "engine/processes/environment.py": [
+  "cell"
+ ],
+ "engine/processes/goods_flow.py": [
+  "cell",
+  "density",
+  "holdings",
+  "kind",
+  "stock"
+ ],
+ "engine/processes/opening.py": [
+  "cell",
+  "kind",
+  "open_now"
+ ],
+ "engine/processes/rail.py": [
+  "transit_ref",
+  "transit_state"
+ ],
+ "engine/processes/salient.py": [
+  "activity",
+  "cell",
+  "density",
+  "density_stage",
+  "heading",
+  "target_node",
+  "task_flag",
+  "xy"
+ ],
+ "engine/relations.py": [
+  "cell",
+  "rel_first",
+  "rel_kind",
+  "rel_n",
+  "rel_partner",
+  "rel_sign",
+  "xy"
+ ],
+ "engine/resolve.py": [
+  "activity",
+  "activity_kind",
+  "activity_until",
+  "age",
+  "board_line",
+  "board_since",
+  "cell",
+  "density",
+  "edge_id",
+  "edge_s",
+  "eer_kcal",
+  "fatigue",
+  "fatigue_stage",
+  "focus_target",
+  "focus_ttl",
+  "holdings",
+  "hunger",
+  "hunger_stage",
+  "intent_action",
+  "money",
+  "node",
+  "path_next_node",
+  "plan_flags",
+  "poi_ref",
+  "price",
+  "queue_poi",
+  "queue_since",
+  "refractory_until",
+  "sex",
+  "since_meal_kcal",
+  "sleep_pending",
+  "stock",
+  "target_node",
+  "thermal",
+  "thermal_stage",
+  "transit_ref",
+  "transit_state",
+  "weight_kg",
+  "xy"
+ ],
+ "engine/run.py": [
+  "activity",
+  "capacity",
+  "cell",
+  "density",
+  "hunger",
+  "kind",
+  "last_action",
+  "last_result",
+  "money",
+  "refractory_until",
+  "revenue",
+  "stock",
+  "talk_partner",
+  "transit_state",
+  "xy"
+ ],
+ "engine/store_choice.py": [
+  "cell",
+  "hunger",
+  "money",
+  "sm_poi",
+  "sm_precision",
+  "sm_source"
+ ],
+ "engine/store_memory.py": [
+  "sm_first",
+  "sm_last",
+  "sm_n",
+  "sm_poi",
+  "sm_precision",
+  "sm_source",
+  "sm_valence"
+ ],
+ "engine/wom.py": [
+  "cell"
+ ],
+ "perception/renderer.py": [
+  "activity",
+  "activity_kind",
+  "cell",
+  "density",
+  "fatigue",
+  "focus_target",
+  "hunger",
+  "intent_action",
+  "intent_kind",
+  "intent_target",
+  "kind",
+  "last_result_tick",
+  "noise_stage",
+  "open_from",
+  "open_to",
+  "price",
+  "thermal",
+  "xy"
+ ],
+ "world/assets.py": [
+  "band",
+  "kind"
+ ],
+ "world/state.py": [
+  "b4_hash",
+  "cell",
+  "density",
+  "noise_stage",
+  "open_from",
+  "open_now",
+  "open_to"
+ ]
+}

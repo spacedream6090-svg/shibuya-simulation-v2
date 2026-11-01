@@ -87,9 +87,6 @@ __all__ = [
     "CATEGORY_WORDS",
     "GENERIC_WORDS",
     "BUYABLE_CATS",
-    "POI_TARGET_MODES",
-    "DEFAULT_POI_TARGET",
-    "check_poi_target",
     "TargetResolver",
     "resolution_summary",
     "MOVE_SEARCH_RADIUS_CELLS",
@@ -179,19 +176,8 @@ CATEGORY_WORDS: Final[tuple[tuple[str, frozenset[str], frozenset[str]], ...]] = 
     )
 )
 
-#: 購入/食事/並ぶの対象の決め方の切替口(親決定 Q13・``--poi-target``)。``candidates``(既定)=
-#: 本モジュール(候補 → 選び手)/ ``legacy``=段 2a 前の「現在セルの最小 id」(``commit._poi_in_cell``)=
-#: **旧 checkpoint(02bd0312 等)の再現用**。
-POI_TARGET_MODES: Final[tuple[str, ...]] = ("candidates", "legacy")
-DEFAULT_POI_TARGET: Final[str] = POI_TARGET_MODES[0]
-
-
-def check_poi_target(mode: str) -> str:
-    """``poi_target`` の値を検査して返す。"""
-    m = str(mode)
-    if m not in POI_TARGET_MODES:
-        raise ValueError(f"poi_target は {POI_TARGET_MODES} のどれか(いま {mode!r})")
-    return m
+#: 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕購入/食事/並ぶの対象は本モジュール(候補 → 選び手)だけ。段 2a 前の「現在セルの
+#: 最小 id」に戻す切替口 ``--poi-target legacy``(親決定 Q13・旧 checkpoint の再現用)は消した=旧値の再現は安定版のタグ。
 
 
 #: 段 2b: カテゴリ語の近傍探索で見る**近いセルの数**(現在セルを除く・``cell_dist`` の昇順・宣言・

@@ -6,7 +6,7 @@
 - 実装計画書 §7/運用設計書 §1.2: vLLM の prefix caching は ``sha256_cbor``
   (= CBOR 正準符号化した鍵を SHA-256)。本モジュールの ``sha256_cbor`` は**同名の算法**を
   ローカルで再現し、テープの ``params_hash``・プロンプト鍵に使う。
-- 運用設計書 §2.2: 優先度キー pk = (ceil_ns(t_notice), blake3(run_salt‖tick‖resource_id‖agent_id))。
+- 運用設計書 §2.2: 優先度キー pk = (ceil_ns(t_notice), blake3(run_salt‖``tick``‖resource_id‖agent_id))。
   本モジュールが担うのは第2要素(u64 に切ったもの)。
 - 運用設計書 §2.4: apply_key = (t_apply, event_class, blake3(run_salt‖t_apply‖agent_id))。
   同じく第3要素を担う。
@@ -18,7 +18,7 @@
     two's complement (int64)** で連結。用途タグは
       ``b"pk\x00"`` 優先度キー / ``b"ak\x00"`` LLM 適用キー / ``b"wk\x00"`` 起床タイブレーク。
     出力 = blake3 の先頭8バイトを little-endian の unsigned int64 として読む。
-    用途タグを挟むのは、同じ (salt, tick, id) 三つ組が別用途で同一値にならないようにするため
+    用途タグを挟むのは、同じ (salt, ``tick``, id) 三つ組が別用途で同一値にならないようにするため
     (設計書に規定なし=expedient・golden 値をテストで固定する)。
 
 逐次ループ宣言(P4・実装計画書 §6/予算 P4)
@@ -120,7 +120,7 @@ def priority_key(run_salt: bytes, tick: int, resource_id: int, agent_id: int) ->
     """資源競合の優先度キー第2要素(運用設計書 §2.2)。
 
     ``blake3(run_salt ‖ b"pk\x00" ‖ i64le(tick) ‖ i64le(resource_id) ‖ i64le(agent_id))`` の
-    先頭8バイト u64。第1要素(気づいた時刻=tick開始+δ_perc)は呼び出し側が持つ。
+    先頭8バイト u64。第1要素(気づいた時刻=刻みの頭+δ_perc)は呼び出し側が持つ。
     """
     return blake3_u64(_pack(BLAKE3_TAG_PRIORITY, run_salt, tick, resource_id, agent_id))
 
@@ -171,7 +171,7 @@ def _hash_rows_u64(tag: bytes, run_salt: bytes, columns: Sequence[np.ndarray]) -
 def priority_key_array(
     run_salt: bytes, tick: int, resource_ids: np.ndarray, agent_ids: np.ndarray
 ) -> np.ndarray:
-    """``priority_key`` のベクトル版(同一 tick の全 intent 分)。"""
+    """``priority_key`` のベクトル版(同じ刻みの全 intent 分)。"""
     resource_ids = np.asarray(resource_ids)
     agent_ids = np.asarray(agent_ids)
     ticks = np.full(resource_ids.shape, int(tick), dtype=np.int64)
@@ -186,7 +186,7 @@ def apply_key_array(run_salt: bytes, t_apply: np.ndarray, agent_ids: np.ndarray)
 def wake_tiebreak_array(
     run_salt: bytes, tick: int, class_ranks: np.ndarray, agent_ids: np.ndarray
 ) -> np.ndarray:
-    """``wake_tiebreak`` のベクトル版(1 tick 分の起床イベント)。"""
+    """``wake_tiebreak`` のベクトル版(1 刻み分の起床イベント)。"""
     class_ranks = np.asarray(class_ranks)
     agent_ids = np.asarray(agent_ids)
     ticks = np.full(class_ranks.shape, int(tick), dtype=np.int64)
@@ -196,7 +196,7 @@ def wake_tiebreak_array(
 def wander_key_array(run_salt: bytes, tick: int, agent_ids: np.ndarray) -> np.ndarray:
     """「あたり」歩行の行き先を選ぶ u64(``blake3(run_salt ‖ b"wd\\x00" ‖ i64le(tick) ‖ i64le(agent_id))``)。
 
-    二層の段 2(D-116 F): 候補セルの並び(昇順)に ``key % 候補数`` で当てる。同じ salt・tick・
+    二層の段 2(D-116 F): 候補セルの並び(昇順)に ``key % 候補数`` で当てる。同じ salt・刻み・
     体なら常に同じ行き先(テープから再現できる)。
     """
     agent_ids = np.asarray(agent_ids)
@@ -207,7 +207,7 @@ def wander_key_array(run_salt: bytes, tick: int, agent_ids: np.ndarray) -> np.nd
 def relation_invite_key_array(run_salt: bytes, tick: int, agent_ids: np.ndarray) -> np.ndarray:
     """招待の相手を関係辺の重みで引く u64(``blake3(run_salt ‖ b"ri\\x00" ‖ i64le(tick) ‖ i64le(agent_id))``)。
 
-    C10 8b(R12・D-31 (b)): 同じ salt・tick・体なら常に同じ相手(テープから再現できる)。
+    C10 8b(R12・D-31 (b)): 同じ salt・刻み・体なら常に同じ相手(テープから再現できる)。
     """
     agent_ids = np.asarray(agent_ids)
     ticks = np.full(agent_ids.shape, int(tick), dtype=np.int64)

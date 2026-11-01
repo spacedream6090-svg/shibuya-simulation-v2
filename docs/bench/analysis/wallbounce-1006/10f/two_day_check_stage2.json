@@ -1,0 +1,96 @@
+{
+ "schema": "shibuya.bench/10f/two-day-check/1",
+ "head": "74d6da8",
+ "how": "5,000 体・seed 1・sim_days=2・世界資産。HEAD の写し(git archive と祝日の CSV)と作業木で cli.run を回し、final・呼数・最後の日の工事の辺と催しの会場を比べた。day_index=3 は活動層 off(活動層 on の 2 日のランは 1 日目の表の張り直しが K9 のつなぎで止まる=今の仕様)",
+ "rows": [
+  {
+   "day_index": 0,
+   "activity": "on",
+   "final": "47e0a85b02797e23",
+   "calls": 142043,
+   "works_last": [
+    169,
+    1332,
+    1462,
+    2049,
+    2933,
+    3955
+   ],
+   "venue_last": [
+    152,
+    251,
+    398
+   ],
+   "src_is_head": true,
+   "wall_s": 79.5,
+   "side": "head"
+  },
+  {
+   "day_index": 3,
+   "activity": "off",
+   "final": "4d629b58b39305e0",
+   "calls": 53709,
+   "works_last": [
+    14,
+    1056,
+    3449,
+    4611,
+    4628,
+    4852
+   ],
+   "venue_last": [
+    129,
+    195,
+    318
+   ],
+   "src_is_head": true,
+   "wall_s": 30.3,
+   "side": "head"
+  },
+  {
+   "day_index": 0,
+   "activity": "on",
+   "final": "47e0a85b02797e23",
+   "calls": 142043,
+   "works_last": [
+    169,
+    1332,
+    1462,
+    2049,
+    2933,
+    3955
+   ],
+   "venue_last": [
+    152,
+    251,
+    398
+   ],
+   "src_is_head": false,
+   "wall_s": 79.6,
+   "side": "work"
+  },
+  {
+   "day_index": 3,
+   "activity": "off",
+   "final": "4d629b58b39305e0",
+   "calls": 53709,
+   "works_last": [
+    14,
+    1056,
+    3449,
+    4611,
+    4628,
+    4852
+   ],
+   "venue_last": [
+    129,
+    195,
+    318
+   ],
+   "src_is_head": false,
+   "wall_s": 30.3,
+   "side": "work"
+  }
+ ],
+ "all_match": true
+}

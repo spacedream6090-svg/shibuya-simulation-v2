@@ -1,0 +1,258 @@
+{
+ "osm_base": "2026-10-12T07:57:35Z",
+ "elements": 2115,
+ "by_key": {
+  "amenity=bench": {
+   "n": 39,
+   "types": {
+    "node": 39
+   },
+   "with_level": 2
+  },
+  "leisure=picnic_table": {
+   "n": 2,
+   "types": {
+    "node": 2
+   },
+   "with_level": 0
+  },
+  "amenity=waste_basket": {
+   "n": 4,
+   "types": {
+    "node": 4
+   },
+   "with_level": 1
+  },
+  "amenity=recycling": {
+   "n": 0,
+   "types": {},
+   "with_level": 0
+  },
+  "amenity=vending_machine": {
+   "n": 55,
+   "types": {
+    "node": 55
+   },
+   "with_level": 2
+  },
+  "amenity=bicycle_parking": {
+   "n": 24,
+   "types": {
+    "node": 21,
+    "way": 3
+   },
+   "with_level": 0
+  },
+  "amenity=motorcycle_parking": {
+   "n": 7,
+   "types": {
+    "node": 5,
+    "way": 2
+   },
+   "with_level": 0
+  },
+  "amenity=parking_entrance": {
+   "n": 30,
+   "types": {
+    "node": 30
+   },
+   "with_level": 2
+  },
+  "amenity=telephone": {
+   "n": 32,
+   "types": {
+    "node": 32
+   },
+   "with_level": 3
+  },
+  "amenity=post_box": {
+   "n": 34,
+   "types": {
+    "node": 34
+   },
+   "with_level": 0
+  },
+  "amenity=toilets": {
+   "n": 35,
+   "types": {
+    "node": 20,
+    "way": 15
+   },
+   "with_level": 16
+  },
+  "amenity=drinking_water": {
+   "n": 7,
+   "types": {
+    "node": 7
+   },
+   "with_level": 0
+  },
+  "amenity=smoking_area": {
+   "n": 7,
+   "types": {
+    "node": 6,
+    "way": 1
+   },
+   "with_level": 0
+  },
+  "amenity=shelter": {
+   "n": 1,
+   "types": {
+    "way": 1
+   },
+   "with_level": 0
+  },
+  "amenity=atm": {
+   "n": 7,
+   "types": {
+    "node": 7
+   },
+   "with_level": 0
+  },
+  "amenity=clock": {
+   "n": 3,
+   "types": {
+    "node": 3
+   },
+   "with_level": 0
+  },
+  "amenity=fountain": {
+   "n": 0,
+   "types": {},
+   "with_level": 0
+  },
+  "man_made=street_cabinet": {
+   "n": 4,
+   "types": {
+    "node": 4
+   },
+   "with_level": 0
+  },
+  "highway=street_lamp": {
+   "n": 51,
+   "types": {
+    "node": 51
+   },
+   "with_level": 0
+  },
+  "highway=traffic_signals": {
+   "n": 166,
+   "types": {
+    "node": 166
+   },
+   "with_level": 0
+  },
+  "highway=bus_stop": {
+   "n": 127,
+   "types": {
+    "node": 127
+   },
+   "with_level": 0
+  },
+  "natural=tree": {
+   "n": 383,
+   "types": {
+    "node": 383
+   },
+   "with_level": 0
+  },
+  "barrier=bollard": {
+   "n": 37,
+   "types": {
+    "node": 25,
+    "way": 12
+   },
+   "with_level": 0
+  },
+  "barrier=fence": {
+   "n": 29,
+   "types": {
+    "way": 29
+   },
+   "with_level": 0
+  },
+  "barrier=turnstile": {
+   "n": 12,
+   "types": {
+    "node": 12
+   },
+   "with_level": 6
+  },
+  "barrier=gate": {
+   "n": 18,
+   "types": {
+    "node": 16,
+    "way": 2
+   },
+   "with_level": 4
+  },
+  "tourism=information": {
+   "n": 34,
+   "types": {
+    "node": 30,
+    "way": 4
+   },
+   "with_level": 3
+  },
+  "emergency=fire_hydrant": {
+   "n": 50,
+   "types": {
+    "node": 50
+   },
+   "with_level": 0
+  },
+  "emergency=defibrillator": {
+   "n": 2,
+   "types": {
+    "node": 2
+   },
+   "with_level": 1
+  },
+  "man_made=surveillance": {
+   "n": 1,
+   "types": {
+    "node": 1
+   },
+   "with_level": 0
+  }
+ },
+ "extra": {
+  "advertising": {
+   "board": 1
+  },
+  "advertising_with_text": 0,
+  "indoor": {
+   "no": 3,
+   "yes": 303,
+   "corridor": 38,
+   "room": 17
+  },
+  "highway=elevator": 47,
+  "conveying": {
+   "yes": 37,
+   "both": 3,
+   "reversible": 1,
+   "forward": 4,
+   "backward": 2
+  },
+  "entrance": {
+   "main": 7,
+   "yes": 41,
+   "exit": 1,
+   "shop": 1
+  },
+  "door": {},
+  "shop_or_amenity_with_level": 566,
+  "inscription_any": 0,
+  "vending_machine_vending": {
+   "drinks": 44,
+   "drinks;coffee": 1,
+   "cigarettes": 1,
+   "public_transport_tickets": 2,
+   "water": 1,
+   "(なし)": 6
+  },
+  "bicycle_parking_capacity_tagged": 1,
+  "bicycle_parking_capacity_sum": 22
+ }
+}

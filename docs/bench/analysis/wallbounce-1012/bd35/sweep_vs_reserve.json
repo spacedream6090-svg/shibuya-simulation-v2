@@ -1,0 +1,876 @@
+{
+ "a": {
+  "label": "wt_sweep",
+  "kw": {},
+  "src": "作業木",
+  "env": {},
+  "body_schedule": "(既定)",
+  "shift": 0
+ },
+ "b": {
+  "label": "wt_reserve",
+  "kw": {},
+  "src": "作業木",
+  "env": {},
+  "body_schedule": "reserve",
+  "shift": 0
+ },
+ "note": "3-5: 作業木の腕 sweep(既定)と腕 reserve(TM5 の予約)",
+ "rows": {
+  "w6_v3_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    417115
+   ],
+   "felt_evals": [
+    1440000,
+    75282
+   ]
+  },
+  "w6_v3_activity_off": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    197054
+   ],
+   "felt_evals": [
+    1440000,
+    55294
+   ]
+  },
+  "w6_v1_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    200944
+   ],
+   "felt_evals": [
+    1440000,
+    56816
+   ]
+  },
+  "w6_v1_derive_v2_1": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    201559
+   ],
+   "felt_evals": [
+    1440000,
+    53956
+   ]
+  },
+  "w6_v2": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    204780
+   ],
+   "felt_evals": [
+    1440000,
+    54612
+   ]
+  },
+  "w6_v1_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    198374
+   ],
+   "felt_evals": [
+    1440000,
+    46227
+   ]
+  },
+  "w6_v2_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    202269
+   ],
+   "felt_evals": [
+    1440000,
+    45065
+   ]
+  },
+  "w6_v1_edge_plateau": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    200618
+   ],
+   "felt_evals": [
+    1440000,
+    47003
+   ]
+  },
+  "w6_old_v1_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    200944
+   ],
+   "felt_evals": [
+    1440000,
+    56816
+   ]
+  },
+  "w6_old_v1_derive_v2_1": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    201559
+   ],
+   "felt_evals": [
+    1440000,
+    53956
+   ]
+  },
+  "w6_old_v2": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    204780
+   ],
+   "felt_evals": [
+    1440000,
+    54612
+   ]
+  },
+  "w6_old_v1_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    198374
+   ],
+   "felt_evals": [
+    1440000,
+    46227
+   ]
+  },
+  "w6_old_v2_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    202269
+   ],
+   "felt_evals": [
+    1440000,
+    45065
+   ]
+  },
+  "w6_old_v1_edge_plateau": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    200618
+   ],
+   "felt_evals": [
+    1440000,
+    47003
+   ]
+  },
+  "w6_golden_null_arm": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    210120
+   ],
+   "felt_evals": [
+    1440000,
+    66425
+   ]
+  },
+  "v3_mem_store": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    417115
+   ],
+   "felt_evals": [
+    1440000,
+    75282
+   ]
+  },
+  "v3_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    421474
+   ],
+   "felt_evals": [
+    1440000,
+    75675
+   ]
+  },
+  "v3_classical": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    482344
+   ],
+   "felt_evals": [
+    1440000,
+    92616
+   ]
+  },
+  "v3_classical_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "boundary_digest",
+    "boundaries"
+   ],
+   "moved": {},
+   "n_keys": 27,
+   "body_arm": [
+    "sweep",
+    "reserve"
+   ],
+   "body_evals": [
+    7200000,
+    494551
+   ],
+   "felt_evals": [
+    1440000,
+    96766
+   ]
+  }
+ }
+}

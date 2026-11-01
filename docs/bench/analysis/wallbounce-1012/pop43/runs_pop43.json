@@ -1,0 +1,4391 @@
+{
+ "note": "runs_pop43.py side の出力(HEAD の写し+本体の v2 / 作業木+v2_stage_4-3)・5,000 体・seed 1・w6_v3_default。head・w21 は試験(-n 2)と並走した値・perf_quiet は試験の後に 1 本ずつ交互に回した値(直しの後)。HEAD の側はコードと世界が第 1 部と同じ=第 1 部の値(1 刻みは run_wall_s を刻みの数で割り直した)",
+ "head": {
+  "src": "写し",
+  "agents": 5000,
+  "seed": 1,
+  "runs": [
+   {
+    "label": "head_1d_a",
+    "config": "w6_v3_default",
+    "days": 1,
+    "start": "",
+    "world_build_hash": "6a7d34e858e07210",
+    "src_is_worktree": false,
+    "final": "333b1820f7849b00",
+    "calls": 64024,
+    "wall_s": 39.8,
+    "run_wall_s": 39.41,
+    "peak_rss_bytes": 512647168,
+    "kinds": {
+     "0": 2346,
+     "1": 637,
+     "2": 75,
+     "3": 434,
+     "4": 24,
+     "5": 364,
+     "6": 219,
+     "7": 186,
+     "8": 715
+    },
+    "duty_roles": {
+     "タクシー運転手": 4,
+     "バス運転士": 120,
+     "指令": 24,
+     "救急隊員": 6,
+     "消防士": 45,
+     "警察官": 140,
+     "議員": 34,
+     "車掌": 40,
+     "電車運転士": 60,
+     "駅員": 300
+    },
+    "presence_summary": "計画実行: 域外居住 4,491 / 到着 7,881 / 退出 4,276 / 終日域外 154 / 計画一致率(在圏) 0.888 / (域外) 0.991 / 昼夜比 09-03 3.71 / 日末の計画在圏なのに域外 220",
+    "presence_counters": {
+     "home_out": 4491.0,
+     "blocks": 6406.0,
+     "all_day_outside": 154.0,
+     "absent": 0.0,
+     "arrivals": 7881.0,
+     "departures": 4276.0,
+     "arrive_skipped": 243.0,
+     "arrive_skipped_in_area": 94.0,
+     "arrive_skipped_pulled_in": 149.0,
+     "returned_to_block": 2433.0,
+     "plan_stranded_eod": 220.0,
+     "depart_skipped": 8.0,
+     "exit_deferred": 6.0,
+     "exit_forced": 0.0,
+     "shopping_interrupted": 468.0,
+     "queue_balked": 0.0,
+     "gate_arrivals": 741.0,
+     "spread_moved": 0.0,
+     "spread_overflow": 0.0,
+     "pulled_in": 200.0,
+     "pushed_out": 200.0,
+     "departed_by_llm": 3355.0,
+     "depart_dropped": 794.0,
+     "rearmed": 4.0,
+     "placed_at_start": 189.0,
+     "home_out_slept_inside": 0.0,
+     "wake_in_area_03": 0.0778688524590164,
+     "wake_in_area_09": 0.977523949889462,
+     "wake_in_area_12": 0.9837003145553331,
+     "in_area_03": 732.0,
+     "in_area_09": 2714.0,
+     "in_area_12": 3497.0,
+     "plan_match_in": 0.8880069219772778,
+     "plan_match_out": 0.9909629540965946,
+     "day_night_ratio_09_03": 3.7076502732240435
+    },
+    "wake_rate_in_area_by_hour": [
+     0.0072,
+     0.0777,
+     0.0832,
+     0.0779,
+     0.0779,
+     0.1023,
+     0.2129,
+     0.5705,
+     0.8874,
+     0.9775,
+     0.9834,
+     0.9839,
+     0.9837,
+     0.9848,
+     0.9842,
+     0.9836,
+     0.9825,
+     0.9828,
+     0.9847,
+     0.9817,
+     0.973,
+     0.9669,
+     0.9442,
+     0.9203
+    ],
+    "action_usage": {
+     "(エンジン継続)": 231133,
+     "移動": 9322,
+     "乗車": 5428,
+     "購入": 4835,
+     "なし": 5267,
+     "会話": 4856,
+     "退去": 5357,
+     "通報": 5266,
+     "手伝い": 5257,
+     "断る": 5318,
+     "就寝": 5070,
+     "食事": 4751,
+     "並ぶ": 4860
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2813,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4224,
+     "PLAN_GENERAL": 6038,
+     "PLAN_TRANSIT": 7028,
+     "INTEROCEPTION": 19318,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 5654,
+     "ACTIVITY_EXPIRY": 18949
+    },
+    "meals": 4297,
+    "conversation_counters": {
+     "sessions_opened": 163,
+     "sessions_active": 0,
+     "sessions_closed": 163,
+     "ignored_invites": 1,
+     "gate_rejected": 50,
+     "utterance_blocks": 649,
+     "backchannels": 0,
+     "interrupts": 0,
+     "conv_invites": 2293,
+     "conv_accepted": 163,
+     "conv_declined": 2128,
+     "conv_pending_expired": 1,
+     "conv_pending_open": 0,
+     "conv_invite_refractory_blocked": 98,
+     "closed_hard": 50,
+     "closed_soft_topics": 0,
+     "closed_soft_silence": 0,
+     "closed_退去": 59,
+     "closed_left_cell": 54,
+     "closed_timeout": 0,
+     "conv_target_named": 0,
+     "conv_fallback_same_batch": 2889,
+     "conv_target_absent": 2394,
+     "conversing_agents_end": 0
+    },
+    "store_choice": {},
+    "economy_conservation": [
+     {
+      "ok": true,
+      "residual": 0
+     }
+    ],
+    "wage_build": {
+     "path": "occupation",
+     "source": "賃金構造基本統計調査 令和7年(R-107・一般 第9・6・18表・短時間 第2表・全国・企業規模計)",
+     "md5": {
+      "wage_t9.json": "3b9a446728619f5b0c600f3fe1789fb5",
+      "wage_t6.json": "6c6546a84d0d2c702bfcb0575bee6167",
+      "wage_t18.json": "b1e80e3f9b1fbc5dd9436452d4fe6f50",
+      "wage_t2.json": "ad8a1f6a629dd816f023206b79bd4b4c"
+     },
+     "bodies": 5000,
+     "basis": {
+      "occupation": 3569,
+      "average": 1431,
+      "given": 0
+     },
+     "no_value": 0,
+     "monthly": {
+      "p10": 176418,
+      "p50": 276902,
+      "p90": 475369
+     },
+     "median_check": [
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "男",
+       "n": 414,
+       "median": 353860,
+       "r107_median": 364200,
+       "ratio": 0.9716
+      },
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "女",
+       "n": 325,
+       "median": 276701,
+       "r107_median": 297000,
+       "ratio": 0.9317
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "男",
+       "n": 674,
+       "median": 302831,
+       "r107_median": 358200,
+       "ratio": 0.8454
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "女",
+       "n": 469,
+       "median": 248492,
+       "r107_median": 264700,
+       "ratio": 0.9388
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "男",
+       "n": 276,
+       "median": 286657,
+       "r107_median": 337500,
+       "ratio": 0.8494
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "女",
+       "n": 185,
+       "median": 241497,
+       "r107_median": 248400,
+       "ratio": 0.9722
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "男",
+       "n": 630,
+       "median": 284720,
+       "r107_median": 269500,
+       "ratio": 1.0565
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "女",
+       "n": 394,
+       "median": 248514,
+       "r107_median": 235700,
+       "ratio": 1.0544
+      },
+      {
+       "occupation": "建設・採掘従事者",
+       "sex": "男",
+       "n": 35,
+       "median": 279543,
+       "r107_median": 310700,
+       "ratio": 0.8997
+      }
+     ],
+     "inputs": {
+      "source": "persona_pool",
+      "rows_read": 4135,
+      "occ_vocab": [
+       "サービス職業従事者",
+       "事務従事者",
+       "保安職業従事者",
+       "専門的・技術的職業従事者",
+       "建設・採掘従事者",
+       "生産工程従事者",
+       "管理的職業従事者",
+       "販売従事者",
+       "輸送・機械運転従事者",
+       "通学",
+       "運搬・清掃・包装等従事者",
+       "非就業"
+      ],
+      "emp_vocab": [
+       "家族従業者",
+       "役員",
+       "正規",
+       "自営業主",
+       "非就業",
+       "非正規"
+      ],
+      "sex_unknown": 0,
+      "age_unknown": 0,
+      "given": false,
+      "layers": [
+       "L1",
+       "L2",
+       "L3",
+       "L5"
+      ]
+     },
+     "floor_at_start": {
+      "asof": "2026-07-13",
+      "yen_per_hour": 1226,
+      "source": "rules:minimum_wage.tokyo@2025-10-03",
+      "raised": 840,
+      "bodies": 5000,
+      "raised_share": 0.168
+     }
+    },
+    "wages_meter": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0
+    },
+    "rights": {
+     "rows": 7095,
+     "with_until": 0,
+     "by_kind": {
+      "own": 0,
+      "lease": 2337,
+      "employ": 4758,
+      "licence": 0
+     },
+     "by_holder_kind": {
+      "agent": 4758,
+      "org": 0,
+      "store": 2337
+     },
+     "by_object_kind": {
+      "org": 2421,
+      "store": 2337,
+      "parcel": 2337,
+      "dwelling": 0
+     },
+     "by_source": {
+      "w16_population.org_id": 2421,
+      "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+      "w6_poi(区画にいること)": 2337
+     },
+     "bytes": 510840,
+     "blank_bridges": {
+      "lease.rent": "BR-RENT-BLANK",
+      "licence": "BR-RIGHTS-LICENCE-BLANK",
+      "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+     },
+     "unauthorized": {
+      "open_close": 0,
+      "role_action_unauthorized": 0,
+      "role_action_unjudged": 0
+     }
+    },
+    "salient_events": 10,
+    "dispatches": 5,
+    "noticed": 578,
+    "ms_per_step": 27.37
+   },
+   {
+    "label": "head_1d_b",
+    "config": "w6_v3_default",
+    "days": 1,
+    "start": "",
+    "world_build_hash": "6a7d34e858e07210",
+    "src_is_worktree": false,
+    "final": "333b1820f7849b00",
+    "calls": 64024,
+    "wall_s": 37.4,
+    "run_wall_s": 36.97,
+    "peak_rss_bytes": 515321856,
+    "kinds": {
+     "0": 2346,
+     "1": 637,
+     "2": 75,
+     "3": 434,
+     "4": 24,
+     "5": 364,
+     "6": 219,
+     "7": 186,
+     "8": 715
+    },
+    "duty_roles": {
+     "タクシー運転手": 4,
+     "バス運転士": 120,
+     "指令": 24,
+     "救急隊員": 6,
+     "消防士": 45,
+     "警察官": 140,
+     "議員": 34,
+     "車掌": 40,
+     "電車運転士": 60,
+     "駅員": 300
+    },
+    "presence_summary": "計画実行: 域外居住 4,491 / 到着 7,881 / 退出 4,276 / 終日域外 154 / 計画一致率(在圏) 0.888 / (域外) 0.991 / 昼夜比 09-03 3.71 / 日末の計画在圏なのに域外 220",
+    "presence_counters": {
+     "home_out": 4491.0,
+     "blocks": 6406.0,
+     "all_day_outside": 154.0,
+     "absent": 0.0,
+     "arrivals": 7881.0,
+     "departures": 4276.0,
+     "arrive_skipped": 243.0,
+     "arrive_skipped_in_area": 94.0,
+     "arrive_skipped_pulled_in": 149.0,
+     "returned_to_block": 2433.0,
+     "plan_stranded_eod": 220.0,
+     "depart_skipped": 8.0,
+     "exit_deferred": 6.0,
+     "exit_forced": 0.0,
+     "shopping_interrupted": 468.0,
+     "queue_balked": 0.0,
+     "gate_arrivals": 741.0,
+     "spread_moved": 0.0,
+     "spread_overflow": 0.0,
+     "pulled_in": 200.0,
+     "pushed_out": 200.0,
+     "departed_by_llm": 3355.0,
+     "depart_dropped": 794.0,
+     "rearmed": 4.0,
+     "placed_at_start": 189.0,
+     "home_out_slept_inside": 0.0,
+     "wake_in_area_03": 0.0778688524590164,
+     "wake_in_area_09": 0.977523949889462,
+     "wake_in_area_12": 0.9837003145553331,
+     "in_area_03": 732.0,
+     "in_area_09": 2714.0,
+     "in_area_12": 3497.0,
+     "plan_match_in": 0.8880069219772778,
+     "plan_match_out": 0.9909629540965946,
+     "day_night_ratio_09_03": 3.7076502732240435
+    },
+    "wake_rate_in_area_by_hour": [
+     0.0072,
+     0.0777,
+     0.0832,
+     0.0779,
+     0.0779,
+     0.1023,
+     0.2129,
+     0.5705,
+     0.8874,
+     0.9775,
+     0.9834,
+     0.9839,
+     0.9837,
+     0.9848,
+     0.9842,
+     0.9836,
+     0.9825,
+     0.9828,
+     0.9847,
+     0.9817,
+     0.973,
+     0.9669,
+     0.9442,
+     0.9203
+    ],
+    "action_usage": {
+     "(エンジン継続)": 231133,
+     "移動": 9322,
+     "乗車": 5428,
+     "購入": 4835,
+     "なし": 5267,
+     "会話": 4856,
+     "退去": 5357,
+     "通報": 5266,
+     "手伝い": 5257,
+     "断る": 5318,
+     "就寝": 5070,
+     "食事": 4751,
+     "並ぶ": 4860
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2813,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4224,
+     "PLAN_GENERAL": 6038,
+     "PLAN_TRANSIT": 7028,
+     "INTEROCEPTION": 19318,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 5654,
+     "ACTIVITY_EXPIRY": 18949
+    },
+    "meals": 4297,
+    "conversation_counters": {
+     "sessions_opened": 163,
+     "sessions_active": 0,
+     "sessions_closed": 163,
+     "ignored_invites": 1,
+     "gate_rejected": 50,
+     "utterance_blocks": 649,
+     "backchannels": 0,
+     "interrupts": 0,
+     "conv_invites": 2293,
+     "conv_accepted": 163,
+     "conv_declined": 2128,
+     "conv_pending_expired": 1,
+     "conv_pending_open": 0,
+     "conv_invite_refractory_blocked": 98,
+     "closed_hard": 50,
+     "closed_soft_topics": 0,
+     "closed_soft_silence": 0,
+     "closed_退去": 59,
+     "closed_left_cell": 54,
+     "closed_timeout": 0,
+     "conv_target_named": 0,
+     "conv_fallback_same_batch": 2889,
+     "conv_target_absent": 2394,
+     "conversing_agents_end": 0
+    },
+    "store_choice": {},
+    "economy_conservation": [
+     {
+      "ok": true,
+      "residual": 0
+     }
+    ],
+    "wage_build": {
+     "path": "occupation",
+     "source": "賃金構造基本統計調査 令和7年(R-107・一般 第9・6・18表・短時間 第2表・全国・企業規模計)",
+     "md5": {
+      "wage_t9.json": "3b9a446728619f5b0c600f3fe1789fb5",
+      "wage_t6.json": "6c6546a84d0d2c702bfcb0575bee6167",
+      "wage_t18.json": "b1e80e3f9b1fbc5dd9436452d4fe6f50",
+      "wage_t2.json": "ad8a1f6a629dd816f023206b79bd4b4c"
+     },
+     "bodies": 5000,
+     "basis": {
+      "occupation": 3569,
+      "average": 1431,
+      "given": 0
+     },
+     "no_value": 0,
+     "monthly": {
+      "p10": 176418,
+      "p50": 276902,
+      "p90": 475369
+     },
+     "median_check": [
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "男",
+       "n": 414,
+       "median": 353860,
+       "r107_median": 364200,
+       "ratio": 0.9716
+      },
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "女",
+       "n": 325,
+       "median": 276701,
+       "r107_median": 297000,
+       "ratio": 0.9317
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "男",
+       "n": 674,
+       "median": 302831,
+       "r107_median": 358200,
+       "ratio": 0.8454
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "女",
+       "n": 469,
+       "median": 248492,
+       "r107_median": 264700,
+       "ratio": 0.9388
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "男",
+       "n": 276,
+       "median": 286657,
+       "r107_median": 337500,
+       "ratio": 0.8494
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "女",
+       "n": 185,
+       "median": 241497,
+       "r107_median": 248400,
+       "ratio": 0.9722
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "男",
+       "n": 630,
+       "median": 284720,
+       "r107_median": 269500,
+       "ratio": 1.0565
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "女",
+       "n": 394,
+       "median": 248514,
+       "r107_median": 235700,
+       "ratio": 1.0544
+      },
+      {
+       "occupation": "建設・採掘従事者",
+       "sex": "男",
+       "n": 35,
+       "median": 279543,
+       "r107_median": 310700,
+       "ratio": 0.8997
+      }
+     ],
+     "inputs": {
+      "source": "persona_pool",
+      "rows_read": 4135,
+      "occ_vocab": [
+       "サービス職業従事者",
+       "事務従事者",
+       "保安職業従事者",
+       "専門的・技術的職業従事者",
+       "建設・採掘従事者",
+       "生産工程従事者",
+       "管理的職業従事者",
+       "販売従事者",
+       "輸送・機械運転従事者",
+       "通学",
+       "運搬・清掃・包装等従事者",
+       "非就業"
+      ],
+      "emp_vocab": [
+       "家族従業者",
+       "役員",
+       "正規",
+       "自営業主",
+       "非就業",
+       "非正規"
+      ],
+      "sex_unknown": 0,
+      "age_unknown": 0,
+      "given": false,
+      "layers": [
+       "L1",
+       "L2",
+       "L3",
+       "L5"
+      ]
+     },
+     "floor_at_start": {
+      "asof": "2026-07-13",
+      "yen_per_hour": 1226,
+      "source": "rules:minimum_wage.tokyo@2025-10-03",
+      "raised": 840,
+      "bodies": 5000,
+      "raised_share": 0.168
+     }
+    },
+    "wages_meter": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0
+    },
+    "rights": {
+     "rows": 7095,
+     "with_until": 0,
+     "by_kind": {
+      "own": 0,
+      "lease": 2337,
+      "employ": 4758,
+      "licence": 0
+     },
+     "by_holder_kind": {
+      "agent": 4758,
+      "org": 0,
+      "store": 2337
+     },
+     "by_object_kind": {
+      "org": 2421,
+      "store": 2337,
+      "parcel": 2337,
+      "dwelling": 0
+     },
+     "by_source": {
+      "w16_population.org_id": 2421,
+      "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+      "w6_poi(区画にいること)": 2337
+     },
+     "bytes": 510840,
+     "blank_bridges": {
+      "lease.rent": "BR-RENT-BLANK",
+      "licence": "BR-RIGHTS-LICENCE-BLANK",
+      "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+     },
+     "unauthorized": {
+      "open_close": 0,
+      "role_action_unauthorized": 0,
+      "role_action_unjudged": 0
+     }
+    },
+    "salient_events": 10,
+    "dispatches": 5,
+    "noticed": 578,
+    "ms_per_step": 25.67
+   },
+   {
+    "label": "head_2d",
+    "config": "w6_v3_default",
+    "days": 2,
+    "start": "",
+    "world_build_hash": "6a7d34e858e07210",
+    "src_is_worktree": false,
+    "final": "76e4025d342134e3",
+    "calls": 138574,
+    "wall_s": 82.3,
+    "run_wall_s": 81.86,
+    "peak_rss_bytes": 520613888,
+    "kinds": {
+     "0": 2346,
+     "1": 637,
+     "2": 75,
+     "3": 434,
+     "4": 24,
+     "5": 364,
+     "6": 219,
+     "7": 186,
+     "8": 715
+    },
+    "duty_roles": {
+     "タクシー運転手": 4,
+     "バス運転士": 120,
+     "指令": 24,
+     "救急隊員": 6,
+     "消防士": 45,
+     "警察官": 140,
+     "議員": 34,
+     "車掌": 40,
+     "電車運転士": 60,
+     "駅員": 300
+    },
+    "presence_summary": "計画実行: 域外居住 4,491 / 到着 15,703 / 退出 8,363 / 終日域外 154 / 計画一致率(在圏) 0.866 / (域外) 0.961 / 昼夜比 09-03 3.71 / 日末の計画在圏なのに域外 234",
+    "presence_counters": {
+     "home_out": 4491.0,
+     "blocks": 6406.0,
+     "all_day_outside": 154.0,
+     "absent": 0.0,
+     "arrivals": 15703.0,
+     "departures": 8363.0,
+     "arrive_skipped": 782.0,
+     "arrive_skipped_in_area": 505.0,
+     "arrive_skipped_pulled_in": 277.0,
+     "returned_to_block": 5106.0,
+     "plan_stranded_eod": 234.0,
+     "depart_skipped": 180.0,
+     "exit_deferred": 8.0,
+     "exit_forced": 0.0,
+     "shopping_interrupted": 777.0,
+     "queue_balked": 0.0,
+     "gate_arrivals": 741.0,
+     "spread_moved": 0.0,
+     "spread_overflow": 0.0,
+     "pulled_in": 400.0,
+     "pushed_out": 400.0,
+     "departed_by_llm": 7129.0,
+     "depart_dropped": 1613.0,
+     "rearmed": 5.0,
+     "placed_at_start": 189.0,
+     "home_out_slept_inside": 1.0,
+     "wake_in_area_03": 0.0778688524590164,
+     "wake_in_area_09": 0.977523949889462,
+     "wake_in_area_12": 0.9837003145553331,
+     "in_area_03": 732.0,
+     "in_area_09": 2714.0,
+     "in_area_12": 3497.0,
+     "plan_match_in": 0.8657550221954706,
+     "plan_match_out": 0.9607247591118558,
+     "day_night_ratio_09_03": 3.7076502732240435
+    },
+    "wake_rate_in_area_by_hour": [
+     0.0072,
+     0.0777,
+     0.0832,
+     0.0779,
+     0.0779,
+     0.1023,
+     0.2129,
+     0.5705,
+     0.8874,
+     0.9775,
+     0.9834,
+     0.9839,
+     0.9837,
+     0.9848,
+     0.9842,
+     0.9836,
+     0.9825,
+     0.9828,
+     0.9847,
+     0.9817,
+     0.973,
+     0.9669,
+     0.9442,
+     0.9203
+    ],
+    "action_usage": {
+     "(エンジン継続)": 498669,
+     "移動": 19996,
+     "乗車": 11602,
+     "購入": 8779,
+     "なし": 11526,
+     "会話": 10047,
+     "退去": 11703,
+     "通報": 11581,
+     "手伝い": 11443,
+     "断る": 11557,
+     "就寝": 10947,
+     "食事": 8920,
+     "並ぶ": 8637
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 5705,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 8473,
+     "PLAN_GENERAL": 12259,
+     "PLAN_TRANSIT": 13945,
+     "INTEROCEPTION": 44413,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 11596,
+     "ACTIVITY_EXPIRY": 42183
+    },
+    "meals": 7446,
+    "conversation_counters": {
+     "sessions_opened": 326,
+     "sessions_active": 0,
+     "sessions_closed": 326,
+     "ignored_invites": 4,
+     "gate_rejected": 95,
+     "utterance_blocks": 1336,
+     "backchannels": 0,
+     "interrupts": 0,
+     "conv_invites": 4658,
+     "conv_accepted": 326,
+     "conv_declined": 4326,
+     "conv_pending_expired": 4,
+     "conv_pending_open": 0,
+     "conv_invite_refractory_blocked": 187,
+     "closed_hard": 107,
+     "closed_soft_topics": 0,
+     "closed_soft_silence": 0,
+     "closed_退去": 118,
+     "closed_left_cell": 101,
+     "closed_timeout": 0,
+     "conv_target_named": 0,
+     "conv_fallback_same_batch": 6131,
+     "conv_target_absent": 5069,
+     "conversing_agents_end": 0
+    },
+    "store_choice": {},
+    "economy_conservation": [
+     {
+      "ok": true,
+      "residual": 0
+     },
+     {
+      "ok": true,
+      "residual": 0
+     }
+    ],
+    "wage_build": {
+     "path": "occupation",
+     "source": "賃金構造基本統計調査 令和7年(R-107・一般 第9・6・18表・短時間 第2表・全国・企業規模計)",
+     "md5": {
+      "wage_t9.json": "3b9a446728619f5b0c600f3fe1789fb5",
+      "wage_t6.json": "6c6546a84d0d2c702bfcb0575bee6167",
+      "wage_t18.json": "b1e80e3f9b1fbc5dd9436452d4fe6f50",
+      "wage_t2.json": "ad8a1f6a629dd816f023206b79bd4b4c"
+     },
+     "bodies": 5000,
+     "basis": {
+      "occupation": 3569,
+      "average": 1431,
+      "given": 0
+     },
+     "no_value": 0,
+     "monthly": {
+      "p10": 176418,
+      "p50": 276902,
+      "p90": 475369
+     },
+     "median_check": [
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "男",
+       "n": 414,
+       "median": 353860,
+       "r107_median": 364200,
+       "ratio": 0.9716
+      },
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "女",
+       "n": 325,
+       "median": 276701,
+       "r107_median": 297000,
+       "ratio": 0.9317
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "男",
+       "n": 674,
+       "median": 302831,
+       "r107_median": 358200,
+       "ratio": 0.8454
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "女",
+       "n": 469,
+       "median": 248492,
+       "r107_median": 264700,
+       "ratio": 0.9388
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "男",
+       "n": 276,
+       "median": 286657,
+       "r107_median": 337500,
+       "ratio": 0.8494
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "女",
+       "n": 185,
+       "median": 241497,
+       "r107_median": 248400,
+       "ratio": 0.9722
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "男",
+       "n": 630,
+       "median": 284720,
+       "r107_median": 269500,
+       "ratio": 1.0565
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "女",
+       "n": 394,
+       "median": 248514,
+       "r107_median": 235700,
+       "ratio": 1.0544
+      },
+      {
+       "occupation": "建設・採掘従事者",
+       "sex": "男",
+       "n": 35,
+       "median": 279543,
+       "r107_median": 310700,
+       "ratio": 0.8997
+      }
+     ],
+     "inputs": {
+      "source": "persona_pool",
+      "rows_read": 4135,
+      "occ_vocab": [
+       "サービス職業従事者",
+       "事務従事者",
+       "保安職業従事者",
+       "専門的・技術的職業従事者",
+       "建設・採掘従事者",
+       "生産工程従事者",
+       "管理的職業従事者",
+       "販売従事者",
+       "輸送・機械運転従事者",
+       "通学",
+       "運搬・清掃・包装等従事者",
+       "非就業"
+      ],
+      "emp_vocab": [
+       "家族従業者",
+       "役員",
+       "正規",
+       "自営業主",
+       "非就業",
+       "非正規"
+      ],
+      "sex_unknown": 0,
+      "age_unknown": 0,
+      "given": false,
+      "layers": [
+       "L1",
+       "L2",
+       "L3",
+       "L5"
+      ]
+     },
+     "floor_at_start": {
+      "asof": "2026-07-13",
+      "yen_per_hour": 1226,
+      "source": "rules:minimum_wage.tokyo@2025-10-03",
+      "raised": 840,
+      "bodies": 5000,
+      "raised_share": 0.168
+     }
+    },
+    "wages_meter": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0
+    },
+    "rights": {
+     "rows": 7095,
+     "with_until": 0,
+     "by_kind": {
+      "own": 0,
+      "lease": 2337,
+      "employ": 4758,
+      "licence": 0
+     },
+     "by_holder_kind": {
+      "agent": 4758,
+      "org": 0,
+      "store": 2337
+     },
+     "by_object_kind": {
+      "org": 2421,
+      "store": 2337,
+      "parcel": 2337,
+      "dwelling": 0
+     },
+     "by_source": {
+      "w16_population.org_id": 2421,
+      "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+      "w6_poi(区画にいること)": 2337
+     },
+     "bytes": 510840,
+     "blank_bridges": {
+      "lease.rent": "BR-RENT-BLANK",
+      "licence": "BR-RIGHTS-LICENCE-BLANK",
+      "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+     },
+     "unauthorized": {
+      "open_close": 0,
+      "role_action_unauthorized": 0,
+      "role_action_unjudged": 0
+     }
+    },
+    "salient_events": 10,
+    "dispatches": 5,
+    "noticed": 578,
+    "ms_per_step": 28.42,
+    "ms_per_step_note": "第 1 部の記録の値 14.21 は 2 日を 5,760 で割った誤り(L11 の直しで正した)"
+   },
+   {
+    "label": "head_pay",
+    "config": "w6_v3_default",
+    "days": 2,
+    "start": "2026-08-24",
+    "world_build_hash": "6a7d34e858e07210",
+    "src_is_worktree": false,
+    "final": "a7d137ae204dc98e",
+    "calls": 142321,
+    "wall_s": 88.6,
+    "run_wall_s": 88.24,
+    "peak_rss_bytes": 516407296,
+    "kinds": {
+     "0": 2346,
+     "1": 637,
+     "2": 75,
+     "3": 434,
+     "4": 24,
+     "5": 364,
+     "6": 219,
+     "7": 186,
+     "8": 715
+    },
+    "duty_roles": {
+     "タクシー運転手": 4,
+     "バス運転士": 120,
+     "指令": 24,
+     "救急隊員": 6,
+     "消防士": 45,
+     "警察官": 140,
+     "議員": 34,
+     "車掌": 40,
+     "電車運転士": 60,
+     "駅員": 300
+    },
+    "presence_summary": "計画実行: 域外居住 4,491 / 到着 15,907 / 退出 8,300 / 終日域外 154 / 計画一致率(在圏) 0.862 / (域外) 0.961 / 昼夜比 09-03 3.70 / 日末の計画在圏なのに域外 259",
+    "presence_counters": {
+     "home_out": 4491.0,
+     "blocks": 6406.0,
+     "all_day_outside": 154.0,
+     "absent": 0.0,
+     "arrivals": 15907.0,
+     "departures": 8300.0,
+     "arrive_skipped": 784.0,
+     "arrive_skipped_in_area": 502.0,
+     "arrive_skipped_pulled_in": 282.0,
+     "returned_to_block": 5309.0,
+     "plan_stranded_eod": 259.0,
+     "depart_skipped": 193.0,
+     "exit_deferred": 5.0,
+     "exit_forced": 0.0,
+     "shopping_interrupted": 698.0,
+     "queue_balked": 0.0,
+     "gate_arrivals": 741.0,
+     "spread_moved": 0.0,
+     "spread_overflow": 0.0,
+     "pulled_in": 400.0,
+     "pushed_out": 400.0,
+     "departed_by_llm": 7425.0,
+     "depart_dropped": 1663.0,
+     "rearmed": 8.0,
+     "placed_at_start": 189.0,
+     "home_out_slept_inside": 1.0,
+     "wake_in_area_03": 0.0778688524590164,
+     "wake_in_area_09": 0.976727004063539,
+     "wake_in_area_12": 0.9812463935372187,
+     "in_area_03": 732.0,
+     "in_area_09": 2707.0,
+     "in_area_12": 3466.0,
+     "plan_match_in": 0.8619366488601309,
+     "plan_match_out": 0.9612110239990425,
+     "day_night_ratio_09_03": 3.698087431693989
+    },
+    "wake_rate_in_area_by_hour": [
+     0.0072,
+     0.0777,
+     0.0832,
+     0.0779,
+     0.0779,
+     0.1023,
+     0.2129,
+     0.5705,
+     0.8875,
+     0.9767,
+     0.9828,
+     0.9823,
+     0.9812,
+     0.9807,
+     0.9796,
+     0.9765,
+     0.9755,
+     0.9787,
+     0.9819,
+     0.9775,
+     0.9701,
+     0.9604,
+     0.9377,
+     0.9153
+    ],
+    "action_usage": {
+     "(エンジン継続)": 503785,
+     "移動": 20162,
+     "乗車": 12022,
+     "購入": 8897,
+     "なし": 11764,
+     "会話": 10229,
+     "退去": 11994,
+     "通報": 11801,
+     "手伝い": 11838,
+     "断る": 11796,
+     "就寝": 11456,
+     "食事": 9039,
+     "並ぶ": 8583
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 5923,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 8462,
+     "PLAN_GENERAL": 12230,
+     "PLAN_TRANSIT": 13922,
+     "INTEROCEPTION": 48251,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 11748,
+     "ACTIVITY_EXPIRY": 41785
+    },
+    "meals": 7347,
+    "conversation_counters": {
+     "sessions_opened": 324,
+     "sessions_active": 0,
+     "sessions_closed": 324,
+     "ignored_invites": 4,
+     "gate_rejected": 97,
+     "utterance_blocks": 1326,
+     "backchannels": 0,
+     "interrupts": 0,
+     "conv_invites": 4883,
+     "conv_accepted": 324,
+     "conv_declined": 4554,
+     "conv_pending_expired": 4,
+     "conv_pending_open": 0,
+     "conv_invite_refractory_blocked": 203,
+     "closed_hard": 105,
+     "closed_soft_topics": 0,
+     "closed_soft_silence": 0,
+     "closed_退去": 116,
+     "closed_left_cell": 103,
+     "closed_timeout": 0,
+     "conv_target_named": 0,
+     "conv_fallback_same_batch": 6581,
+     "conv_target_absent": 5004,
+     "conversing_agents_end": 0
+    },
+    "store_choice": {},
+    "economy_conservation": [
+     {
+      "ok": true,
+      "residual": 0
+     },
+     {
+      "ok": true,
+      "residual": 0
+     }
+    ],
+    "wage_build": {
+     "path": "occupation",
+     "source": "賃金構造基本統計調査 令和7年(R-107・一般 第9・6・18表・短時間 第2表・全国・企業規模計)",
+     "md5": {
+      "wage_t9.json": "3b9a446728619f5b0c600f3fe1789fb5",
+      "wage_t6.json": "6c6546a84d0d2c702bfcb0575bee6167",
+      "wage_t18.json": "b1e80e3f9b1fbc5dd9436452d4fe6f50",
+      "wage_t2.json": "ad8a1f6a629dd816f023206b79bd4b4c"
+     },
+     "bodies": 5000,
+     "basis": {
+      "occupation": 3569,
+      "average": 1431,
+      "given": 0
+     },
+     "no_value": 0,
+     "monthly": {
+      "p10": 176418,
+      "p50": 276902,
+      "p90": 475369
+     },
+     "median_check": [
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "男",
+       "n": 414,
+       "median": 353860,
+       "r107_median": 364200,
+       "ratio": 0.9716
+      },
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "女",
+       "n": 325,
+       "median": 276701,
+       "r107_median": 297000,
+       "ratio": 0.9317
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "男",
+       "n": 674,
+       "median": 302831,
+       "r107_median": 358200,
+       "ratio": 0.8454
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "女",
+       "n": 469,
+       "median": 248492,
+       "r107_median": 264700,
+       "ratio": 0.9388
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "男",
+       "n": 276,
+       "median": 286657,
+       "r107_median": 337500,
+       "ratio": 0.8494
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "女",
+       "n": 185,
+       "median": 241497,
+       "r107_median": 248400,
+       "ratio": 0.9722
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "男",
+       "n": 630,
+       "median": 284720,
+       "r107_median": 269500,
+       "ratio": 1.0565
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "女",
+       "n": 394,
+       "median": 248514,
+       "r107_median": 235700,
+       "ratio": 1.0544
+      },
+      {
+       "occupation": "建設・採掘従事者",
+       "sex": "男",
+       "n": 35,
+       "median": 279543,
+       "r107_median": 310700,
+       "ratio": 0.8997
+      }
+     ],
+     "inputs": {
+      "source": "persona_pool",
+      "rows_read": 4135,
+      "occ_vocab": [
+       "サービス職業従事者",
+       "事務従事者",
+       "保安職業従事者",
+       "専門的・技術的職業従事者",
+       "建設・採掘従事者",
+       "生産工程従事者",
+       "管理的職業従事者",
+       "販売従事者",
+       "輸送・機械運転従事者",
+       "通学",
+       "運搬・清掃・包装等従事者",
+       "非就業"
+      ],
+      "emp_vocab": [
+       "家族従業者",
+       "役員",
+       "正規",
+       "自営業主",
+       "非就業",
+       "非正規"
+      ],
+      "sex_unknown": 0,
+      "age_unknown": 0,
+      "given": false,
+      "layers": [
+       "L1",
+       "L2",
+       "L3",
+       "L5"
+      ]
+     },
+     "floor_at_start": {
+      "asof": "2026-08-24",
+      "yen_per_hour": 1226,
+      "source": "rules:minimum_wage.tokyo@2025-10-03",
+      "raised": 840,
+      "bodies": 5000,
+      "raised_share": 0.168
+     }
+    },
+    "wages_meter": {
+     "paydays": 1,
+     "paid": 2421,
+     "amount": 770724083,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 770724083,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 2421,
+     "store_rows": 0
+    },
+    "rights": {
+     "rows": 7095,
+     "with_until": 0,
+     "by_kind": {
+      "own": 0,
+      "lease": 2337,
+      "employ": 4758,
+      "licence": 0
+     },
+     "by_holder_kind": {
+      "agent": 4758,
+      "org": 0,
+      "store": 2337
+     },
+     "by_object_kind": {
+      "org": 2421,
+      "store": 2337,
+      "parcel": 2337,
+      "dwelling": 0
+     },
+     "by_source": {
+      "w16_population.org_id": 2421,
+      "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+      "w6_poi(区画にいること)": 2337
+     },
+     "bytes": 510840,
+     "blank_bridges": {
+      "lease.rent": "BR-RENT-BLANK",
+      "licence": "BR-RIGHTS-LICENCE-BLANK",
+      "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+     },
+     "unauthorized": {
+      "open_close": 0,
+      "role_action_unauthorized": 0,
+      "role_action_unjudged": 0
+     }
+    },
+    "salient_events": 10,
+    "dispatches": 5,
+    "noticed": 389,
+    "ms_per_step": 30.64,
+    "ms_per_step_note": "第 1 部の記録の値 15.32 は 2 日を 5,760 で割った誤り(L11 の直しで正した)"
+   }
+  ]
+ },
+ "w21": {
+  "src": "作業木",
+  "agents": 5000,
+  "seed": 1,
+  "runs": [
+   {
+    "label": "w21_1d_a",
+    "config": "w6_v3_default",
+    "days": 1,
+    "start": "",
+    "world_build_hash": "0b215fcdac476463",
+    "src_is_worktree": true,
+    "final": "eb759bb4e5be37ec",
+    "calls": 63572,
+    "wall_s": 40.9,
+    "run_wall_s": 40.4,
+    "ms_per_step": 28.05,
+    "peak_rss_bytes": 534863872,
+    "kinds": {
+     "0": 2254,
+     "1": 765,
+     "2": 128,
+     "3": 431,
+     "4": 24,
+     "5": 435,
+     "6": 261,
+     "7": 228,
+     "8": 474
+    },
+    "duty_roles": {
+     "バス運転士": 120,
+     "募金スタッフ": 1,
+     "店長": 63,
+     "指令": 24,
+     "救急隊員": 6,
+     "消防士": 52,
+     "清掃作業員": 4,
+     "納品ドライバー": 13,
+     "補充": 169,
+     "警備員": 5,
+     "警察官": 141,
+     "路上支援員": 1,
+     "路上生活者": 2,
+     "車掌": 23,
+     "配送作業員": 7,
+     "電車運転士": 27,
+     "駅員": 109
+    },
+    "presence_summary": "計画実行: 域外居住 4,421 / 到着 7,787 / 退出 4,296 / 終日域外 136 / 計画一致率(在圏) 0.901 / (域外) 0.990 / 昼夜比 09-03 3.09 / 日末の計画在圏なのに域外 98",
+    "presence_counters": {
+     "home_out": 4421.0,
+     "blocks": 6413.0,
+     "all_day_outside": 136.0,
+     "absent": 0.0,
+     "arrivals": 7787.0,
+     "departures": 4296.0,
+     "arrive_skipped": 107.0,
+     "arrive_skipped_in_area": 58.0,
+     "arrive_skipped_pulled_in": 49.0,
+     "returned_to_block": 2311.0,
+     "plan_stranded_eod": 98.0,
+     "depart_skipped": 11.0,
+     "exit_deferred": 3.0,
+     "exit_forced": 0.0,
+     "shopping_interrupted": 472.0,
+     "queue_balked": 0.0,
+     "gate_arrivals": 624.0,
+     "spread_moved": 0.0,
+     "spread_overflow": 0.0,
+     "pulled_in": 200.0,
+     "pushed_out": 200.0,
+     "departed_by_llm": 3211.0,
+     "depart_dropped": 782.0,
+     "rearmed": 1.0,
+     "placed_at_start": 231.0,
+     "home_out_slept_inside": 1.0,
+     "wake_in_area_03": 0.09400705052878966,
+     "wake_in_area_09": 0.9684650455927052,
+     "wake_in_area_12": 0.9810399310542948,
+     "in_area_03": 851.0,
+     "in_area_09": 2632.0,
+     "in_area_12": 3481.0,
+     "plan_match_in": 0.9012280569577338,
+     "plan_match_out": 0.9895976564835296,
+     "day_night_ratio_09_03": 3.0928319623971796
+    },
+    "wake_rate_in_area_by_hour": [
+     0.0062,
+     0.0785,
+     0.0964,
+     0.094,
+     0.0918,
+     0.114,
+     0.2319,
+     0.5298,
+     0.862,
+     0.9685,
+     0.98,
+     0.9794,
+     0.981,
+     0.9813,
+     0.9775,
+     0.9778,
+     0.9814,
+     0.9805,
+     0.9815,
+     0.9742,
+     0.969,
+     0.9495,
+     0.9215,
+     0.8917
+    ],
+    "action_usage": {
+     "(エンジン継続)": 236797,
+     "移動": 9683,
+     "乗車": 5203,
+     "購入": 4827,
+     "なし": 5308,
+     "会話": 4722,
+     "退去": 5365,
+     "通報": 5261,
+     "手伝い": 5295,
+     "断る": 5255,
+     "就寝": 5033,
+     "食事": 5007,
+     "並ぶ": 4811
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2612,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4220,
+     "PLAN_GENERAL": 6566,
+     "PLAN_TRANSIT": 6720,
+     "INTEROCEPTION": 19065,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 5561,
+     "ACTIVITY_EXPIRY": 18828
+    },
+    "meals": 4414,
+    "conversation_counters": {
+     "sessions_opened": 151,
+     "sessions_active": 0,
+     "sessions_closed": 151,
+     "ignored_invites": 0,
+     "gate_rejected": 41,
+     "utterance_blocks": 646,
+     "backchannels": 0,
+     "interrupts": 0,
+     "conv_invites": 2095,
+     "conv_accepted": 151,
+     "conv_declined": 1943,
+     "conv_pending_expired": 0,
+     "conv_pending_open": 0,
+     "conv_invite_refractory_blocked": 91,
+     "closed_hard": 51,
+     "closed_soft_topics": 0,
+     "closed_soft_silence": 0,
+     "closed_退去": 55,
+     "closed_left_cell": 45,
+     "closed_timeout": 0,
+     "conv_target_named": 0,
+     "conv_fallback_same_batch": 2610,
+     "conv_target_absent": 2485,
+     "conversing_agents_end": 0
+    },
+    "store_choice": {},
+    "economy_conservation": [
+     {
+      "ok": true,
+      "residual": 0
+     }
+    ],
+    "wage_build": {
+     "path": "occupation",
+     "source": "賃金構造基本統計調査 令和7年(R-107・一般 第9・6・18表・短時間 第2表・全国・企業規模計)",
+     "md5": {
+      "wage_t9.json": "3b9a446728619f5b0c600f3fe1789fb5",
+      "wage_t6.json": "6c6546a84d0d2c702bfcb0575bee6167",
+      "wage_t18.json": "b1e80e3f9b1fbc5dd9436452d4fe6f50",
+      "wage_t2.json": "ad8a1f6a629dd816f023206b79bd4b4c"
+     },
+     "bodies": 5000,
+     "basis": {
+      "occupation": 930,
+      "average": 1778,
+      "given": 2292
+     },
+     "no_value": 0,
+     "monthly": {
+      "p10": 166355,
+      "p50": 276369,
+      "p90": 490584
+     },
+     "median_check": [
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "男",
+       "n": 131,
+       "median": 377790,
+       "r107_median": 364200,
+       "ratio": 1.0373
+      },
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "女",
+       "n": 92,
+       "median": 318888,
+       "r107_median": 297000,
+       "ratio": 1.0737
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "男",
+       "n": 160,
+       "median": 368475,
+       "r107_median": 358200,
+       "ratio": 1.0287
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "女",
+       "n": 123,
+       "median": 268873,
+       "r107_median": 264700,
+       "ratio": 1.0158
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "男",
+       "n": 57,
+       "median": 328815,
+       "r107_median": 337500,
+       "ratio": 0.9743
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "女",
+       "n": 49,
+       "median": 260399,
+       "r107_median": 248400,
+       "ratio": 1.0483
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "男",
+       "n": 105,
+       "median": 286897,
+       "r107_median": 269500,
+       "ratio": 1.0646
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "女",
+       "n": 81,
+       "median": 246747,
+       "r107_median": 235700,
+       "ratio": 1.0469
+      },
+      {
+       "occupation": "輸送・機械運転従事者",
+       "sex": "男",
+       "n": 48,
+       "median": 301346,
+       "r107_median": 285500,
+       "ratio": 1.0555
+      }
+     ],
+     "inputs": {
+      "source": "persona_pool+w21",
+      "rows_read": 825,
+      "occ_vocab": [
+       "サービス職業従事者",
+       "事務従事者",
+       "保安職業従事者",
+       "専門的・技術的職業従事者",
+       "建設・採掘従事者",
+       "生産工程従事者",
+       "管理的職業従事者",
+       "販売従事者",
+       "輸送・機械運転従事者",
+       "農林漁業従事者",
+       "通学",
+       "運搬・清掃・包装等従事者",
+       "非就業"
+      ],
+      "emp_vocab": [
+       "家族従業者",
+       "役員",
+       "正規",
+       "自営業主",
+       "非就業",
+       "非正規"
+      ],
+      "sex_unknown": 0,
+      "age_unknown": 0,
+      "given": true,
+      "layers": [
+       "L1",
+       "L2",
+       "L3",
+       "L5"
+      ]
+     },
+     "floor_at_start": {
+      "asof": "2026-07-13",
+      "yen_per_hour": 1226,
+      "source": "rules:minimum_wage.tokyo@2025-10-03",
+      "raised": 924,
+      "bodies": 5000,
+      "raised_share": 0.1848
+     }
+    },
+    "wages_meter": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0,
+     "outside_employer_paid": 0,
+     "outside_employer_amount": 0
+    },
+    "rights": {
+     "rows": 7806,
+     "with_until": 0,
+     "by_kind": {
+      "own": 153,
+      "lease": 2558,
+      "employ": 5095,
+      "licence": 0
+     },
+     "by_holder_kind": {
+      "agent": 5469,
+      "org": 0,
+      "store": 2337
+     },
+     "by_object_kind": {
+      "org": 2660,
+      "store": 2435,
+      "parcel": 2337,
+      "dwelling": 374
+     },
+     "by_source": {
+      "w16_population.org_id": 1945,
+      "w21apply:外の雇用主(席の外=勤め先のセルはあるが組織が無い・閉じた表の外の番号)": 715,
+      "w21c:店の持ち主の組織に所属した体(体 → 店・段 4 の所属と店の持ち主)": 166,
+      "宣言:担当従業者の丸振り(engine.rights.initial)": 2269,
+      "w6_poi(区画にいること)": 2337,
+      "w21_households.tenure(国勢調査 第7-1表)": 374
+     },
+     "bytes": 562032,
+     "blank_bridges": {
+      "lease.rent": "BR-RENT-BLANK",
+      "licence": "BR-RIGHTS-LICENCE-BLANK",
+      "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+     },
+     "unauthorized": {
+      "open_close": 0,
+      "role_action_unauthorized": 0,
+      "role_action_unjudged": 0
+     }
+    },
+    "salient_events": 10,
+    "dispatches": 5,
+    "noticed": 465
+   },
+   {
+    "label": "w21_1d_b",
+    "config": "w6_v3_default",
+    "days": 1,
+    "start": "",
+    "world_build_hash": "0b215fcdac476463",
+    "src_is_worktree": true,
+    "final": "eb759bb4e5be37ec",
+    "calls": 63572,
+    "wall_s": 40.2,
+    "run_wall_s": 39.77,
+    "ms_per_step": 27.62,
+    "peak_rss_bytes": 525783040,
+    "kinds": {
+     "0": 2254,
+     "1": 765,
+     "2": 128,
+     "3": 431,
+     "4": 24,
+     "5": 435,
+     "6": 261,
+     "7": 228,
+     "8": 474
+    },
+    "duty_roles": {
+     "バス運転士": 120,
+     "募金スタッフ": 1,
+     "店長": 63,
+     "指令": 24,
+     "救急隊員": 6,
+     "消防士": 52,
+     "清掃作業員": 4,
+     "納品ドライバー": 13,
+     "補充": 169,
+     "警備員": 5,
+     "警察官": 141,
+     "路上支援員": 1,
+     "路上生活者": 2,
+     "車掌": 23,
+     "配送作業員": 7,
+     "電車運転士": 27,
+     "駅員": 109
+    },
+    "presence_summary": "計画実行: 域外居住 4,421 / 到着 7,787 / 退出 4,296 / 終日域外 136 / 計画一致率(在圏) 0.901 / (域外) 0.990 / 昼夜比 09-03 3.09 / 日末の計画在圏なのに域外 98",
+    "presence_counters": {
+     "home_out": 4421.0,
+     "blocks": 6413.0,
+     "all_day_outside": 136.0,
+     "absent": 0.0,
+     "arrivals": 7787.0,
+     "departures": 4296.0,
+     "arrive_skipped": 107.0,
+     "arrive_skipped_in_area": 58.0,
+     "arrive_skipped_pulled_in": 49.0,
+     "returned_to_block": 2311.0,
+     "plan_stranded_eod": 98.0,
+     "depart_skipped": 11.0,
+     "exit_deferred": 3.0,
+     "exit_forced": 0.0,
+     "shopping_interrupted": 472.0,
+     "queue_balked": 0.0,
+     "gate_arrivals": 624.0,
+     "spread_moved": 0.0,
+     "spread_overflow": 0.0,
+     "pulled_in": 200.0,
+     "pushed_out": 200.0,
+     "departed_by_llm": 3211.0,
+     "depart_dropped": 782.0,
+     "rearmed": 1.0,
+     "placed_at_start": 231.0,
+     "home_out_slept_inside": 1.0,
+     "wake_in_area_03": 0.09400705052878966,
+     "wake_in_area_09": 0.9684650455927052,
+     "wake_in_area_12": 0.9810399310542948,
+     "in_area_03": 851.0,
+     "in_area_09": 2632.0,
+     "in_area_12": 3481.0,
+     "plan_match_in": 0.9012280569577338,
+     "plan_match_out": 0.9895976564835296,
+     "day_night_ratio_09_03": 3.0928319623971796
+    },
+    "wake_rate_in_area_by_hour": [
+     0.0062,
+     0.0785,
+     0.0964,
+     0.094,
+     0.0918,
+     0.114,
+     0.2319,
+     0.5298,
+     0.862,
+     0.9685,
+     0.98,
+     0.9794,
+     0.981,
+     0.9813,
+     0.9775,
+     0.9778,
+     0.9814,
+     0.9805,
+     0.9815,
+     0.9742,
+     0.969,
+     0.9495,
+     0.9215,
+     0.8917
+    ],
+    "action_usage": {
+     "(エンジン継続)": 236797,
+     "移動": 9683,
+     "乗車": 5203,
+     "購入": 4827,
+     "なし": 5308,
+     "会話": 4722,
+     "退去": 5365,
+     "通報": 5261,
+     "手伝い": 5295,
+     "断る": 5255,
+     "就寝": 5033,
+     "食事": 5007,
+     "並ぶ": 4811
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2612,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4220,
+     "PLAN_GENERAL": 6566,
+     "PLAN_TRANSIT": 6720,
+     "INTEROCEPTION": 19065,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 5561,
+     "ACTIVITY_EXPIRY": 18828
+    },
+    "meals": 4414,
+    "conversation_counters": {
+     "sessions_opened": 151,
+     "sessions_active": 0,
+     "sessions_closed": 151,
+     "ignored_invites": 0,
+     "gate_rejected": 41,
+     "utterance_blocks": 646,
+     "backchannels": 0,
+     "interrupts": 0,
+     "conv_invites": 2095,
+     "conv_accepted": 151,
+     "conv_declined": 1943,
+     "conv_pending_expired": 0,
+     "conv_pending_open": 0,
+     "conv_invite_refractory_blocked": 91,
+     "closed_hard": 51,
+     "closed_soft_topics": 0,
+     "closed_soft_silence": 0,
+     "closed_退去": 55,
+     "closed_left_cell": 45,
+     "closed_timeout": 0,
+     "conv_target_named": 0,
+     "conv_fallback_same_batch": 2610,
+     "conv_target_absent": 2485,
+     "conversing_agents_end": 0
+    },
+    "store_choice": {},
+    "economy_conservation": [
+     {
+      "ok": true,
+      "residual": 0
+     }
+    ],
+    "wage_build": {
+     "path": "occupation",
+     "source": "賃金構造基本統計調査 令和7年(R-107・一般 第9・6・18表・短時間 第2表・全国・企業規模計)",
+     "md5": {
+      "wage_t9.json": "3b9a446728619f5b0c600f3fe1789fb5",
+      "wage_t6.json": "6c6546a84d0d2c702bfcb0575bee6167",
+      "wage_t18.json": "b1e80e3f9b1fbc5dd9436452d4fe6f50",
+      "wage_t2.json": "ad8a1f6a629dd816f023206b79bd4b4c"
+     },
+     "bodies": 5000,
+     "basis": {
+      "occupation": 930,
+      "average": 1778,
+      "given": 2292
+     },
+     "no_value": 0,
+     "monthly": {
+      "p10": 166355,
+      "p50": 276369,
+      "p90": 490584
+     },
+     "median_check": [
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "男",
+       "n": 131,
+       "median": 377790,
+       "r107_median": 364200,
+       "ratio": 1.0373
+      },
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "女",
+       "n": 92,
+       "median": 318888,
+       "r107_median": 297000,
+       "ratio": 1.0737
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "男",
+       "n": 160,
+       "median": 368475,
+       "r107_median": 358200,
+       "ratio": 1.0287
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "女",
+       "n": 123,
+       "median": 268873,
+       "r107_median": 264700,
+       "ratio": 1.0158
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "男",
+       "n": 57,
+       "median": 328815,
+       "r107_median": 337500,
+       "ratio": 0.9743
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "女",
+       "n": 49,
+       "median": 260399,
+       "r107_median": 248400,
+       "ratio": 1.0483
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "男",
+       "n": 105,
+       "median": 286897,
+       "r107_median": 269500,
+       "ratio": 1.0646
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "女",
+       "n": 81,
+       "median": 246747,
+       "r107_median": 235700,
+       "ratio": 1.0469
+      },
+      {
+       "occupation": "輸送・機械運転従事者",
+       "sex": "男",
+       "n": 48,
+       "median": 301346,
+       "r107_median": 285500,
+       "ratio": 1.0555
+      }
+     ],
+     "inputs": {
+      "source": "persona_pool+w21",
+      "rows_read": 825,
+      "occ_vocab": [
+       "サービス職業従事者",
+       "事務従事者",
+       "保安職業従事者",
+       "専門的・技術的職業従事者",
+       "建設・採掘従事者",
+       "生産工程従事者",
+       "管理的職業従事者",
+       "販売従事者",
+       "輸送・機械運転従事者",
+       "農林漁業従事者",
+       "通学",
+       "運搬・清掃・包装等従事者",
+       "非就業"
+      ],
+      "emp_vocab": [
+       "家族従業者",
+       "役員",
+       "正規",
+       "自営業主",
+       "非就業",
+       "非正規"
+      ],
+      "sex_unknown": 0,
+      "age_unknown": 0,
+      "given": true,
+      "layers": [
+       "L1",
+       "L2",
+       "L3",
+       "L5"
+      ]
+     },
+     "floor_at_start": {
+      "asof": "2026-07-13",
+      "yen_per_hour": 1226,
+      "source": "rules:minimum_wage.tokyo@2025-10-03",
+      "raised": 924,
+      "bodies": 5000,
+      "raised_share": 0.1848
+     }
+    },
+    "wages_meter": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0,
+     "outside_employer_paid": 0,
+     "outside_employer_amount": 0
+    },
+    "rights": {
+     "rows": 7806,
+     "with_until": 0,
+     "by_kind": {
+      "own": 153,
+      "lease": 2558,
+      "employ": 5095,
+      "licence": 0
+     },
+     "by_holder_kind": {
+      "agent": 5469,
+      "org": 0,
+      "store": 2337
+     },
+     "by_object_kind": {
+      "org": 2660,
+      "store": 2435,
+      "parcel": 2337,
+      "dwelling": 374
+     },
+     "by_source": {
+      "w16_population.org_id": 1945,
+      "w21apply:外の雇用主(席の外=勤め先のセルはあるが組織が無い・閉じた表の外の番号)": 715,
+      "w21c:店の持ち主の組織に所属した体(体 → 店・段 4 の所属と店の持ち主)": 166,
+      "宣言:担当従業者の丸振り(engine.rights.initial)": 2269,
+      "w6_poi(区画にいること)": 2337,
+      "w21_households.tenure(国勢調査 第7-1表)": 374
+     },
+     "bytes": 562032,
+     "blank_bridges": {
+      "lease.rent": "BR-RENT-BLANK",
+      "licence": "BR-RIGHTS-LICENCE-BLANK",
+      "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+     },
+     "unauthorized": {
+      "open_close": 0,
+      "role_action_unauthorized": 0,
+      "role_action_unjudged": 0
+     }
+    },
+    "salient_events": 10,
+    "dispatches": 5,
+    "noticed": 465
+   },
+   {
+    "label": "w21_2d",
+    "config": "w6_v3_default",
+    "days": 2,
+    "start": "",
+    "world_build_hash": "0b215fcdac476463",
+    "src_is_worktree": true,
+    "final": "a0e0dcf8a573f81b",
+    "calls": 138821,
+    "wall_s": 84.9,
+    "run_wall_s": 84.48,
+    "ms_per_step": 29.33,
+    "peak_rss_bytes": 524189696,
+    "kinds": {
+     "0": 2254,
+     "1": 765,
+     "2": 128,
+     "3": 431,
+     "4": 24,
+     "5": 435,
+     "6": 261,
+     "7": 228,
+     "8": 474
+    },
+    "duty_roles": {
+     "バス運転士": 120,
+     "募金スタッフ": 1,
+     "店長": 63,
+     "指令": 24,
+     "救急隊員": 6,
+     "消防士": 52,
+     "清掃作業員": 4,
+     "納品ドライバー": 13,
+     "補充": 169,
+     "警備員": 5,
+     "警察官": 141,
+     "路上支援員": 1,
+     "路上生活者": 2,
+     "車掌": 23,
+     "配送作業員": 7,
+     "電車運転士": 27,
+     "駅員": 109
+    },
+    "presence_summary": "計画実行: 域外居住 4,421 / 到着 15,665 / 退出 8,417 / 終日域外 136 / 計画一致率(在圏) 0.887 / (域外) 0.962 / 昼夜比 09-03 3.09 / 日末の計画在圏なのに域外 112",
+    "presence_counters": {
+     "home_out": 4421.0,
+     "blocks": 6413.0,
+     "all_day_outside": 136.0,
+     "absent": 0.0,
+     "arrivals": 15665.0,
+     "departures": 8417.0,
+     "arrive_skipped": 508.0,
+     "arrive_skipped_in_area": 403.0,
+     "arrive_skipped_pulled_in": 105.0,
+     "returned_to_block": 5003.0,
+     "plan_stranded_eod": 112.0,
+     "depart_skipped": 96.0,
+     "exit_deferred": 7.0,
+     "exit_forced": 0.0,
+     "shopping_interrupted": 769.0,
+     "queue_balked": 0.0,
+     "gate_arrivals": 624.0,
+     "spread_moved": 0.0,
+     "spread_overflow": 0.0,
+     "pulled_in": 400.0,
+     "pushed_out": 400.0,
+     "departed_by_llm": 7039.0,
+     "depart_dropped": 1665.0,
+     "rearmed": 6.0,
+     "placed_at_start": 231.0,
+     "home_out_slept_inside": 4.0,
+     "wake_in_area_03": 0.09400705052878966,
+     "wake_in_area_09": 0.9684650455927052,
+     "wake_in_area_12": 0.9810399310542948,
+     "in_area_03": 851.0,
+     "in_area_09": 2632.0,
+     "in_area_12": 3481.0,
+     "plan_match_in": 0.8870262939802607,
+     "plan_match_out": 0.9617609254498715,
+     "day_night_ratio_09_03": 3.0928319623971796
+    },
+    "wake_rate_in_area_by_hour": [
+     0.0062,
+     0.0785,
+     0.0964,
+     0.094,
+     0.0918,
+     0.114,
+     0.2319,
+     0.5298,
+     0.862,
+     0.9685,
+     0.98,
+     0.9794,
+     0.981,
+     0.9813,
+     0.9775,
+     0.9778,
+     0.9814,
+     0.9805,
+     0.9815,
+     0.9742,
+     0.969,
+     0.9495,
+     0.9215,
+     0.8917
+    ],
+    "action_usage": {
+     "(エンジン継続)": 521784,
+     "移動": 20574,
+     "乗車": 11562,
+     "購入": 8953,
+     "なし": 11463,
+     "会話": 10098,
+     "退去": 11687,
+     "通報": 11474,
+     "手伝い": 11538,
+     "断る": 11434,
+     "就寝": 11031,
+     "食事": 9465,
+     "並ぶ": 9006
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 5475,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 8440,
+     "PLAN_GENERAL": 13374,
+     "PLAN_TRANSIT": 13450,
+     "INTEROCEPTION": 44284,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 11777,
+     "ACTIVITY_EXPIRY": 42021
+    },
+    "meals": 7751,
+    "conversation_counters": {
+     "sessions_opened": 295,
+     "sessions_active": 0,
+     "sessions_closed": 295,
+     "ignored_invites": 1,
+     "gate_rejected": 74,
+     "utterance_blocks": 1246,
+     "backchannels": 0,
+     "interrupts": 0,
+     "conv_invites": 4500,
+     "conv_accepted": 295,
+     "conv_declined": 4203,
+     "conv_pending_expired": 1,
+     "conv_pending_open": 0,
+     "conv_invite_refractory_blocked": 187,
+     "closed_hard": 100,
+     "closed_soft_topics": 0,
+     "closed_soft_silence": 0,
+     "closed_退去": 118,
+     "closed_left_cell": 77,
+     "closed_timeout": 0,
+     "conv_target_named": 0,
+     "conv_fallback_same_batch": 5796,
+     "conv_target_absent": 5316,
+     "conversing_agents_end": 0
+    },
+    "store_choice": {},
+    "economy_conservation": [
+     {
+      "ok": true,
+      "residual": 0
+     },
+     {
+      "ok": true,
+      "residual": 0
+     }
+    ],
+    "wage_build": {
+     "path": "occupation",
+     "source": "賃金構造基本統計調査 令和7年(R-107・一般 第9・6・18表・短時間 第2表・全国・企業規模計)",
+     "md5": {
+      "wage_t9.json": "3b9a446728619f5b0c600f3fe1789fb5",
+      "wage_t6.json": "6c6546a84d0d2c702bfcb0575bee6167",
+      "wage_t18.json": "b1e80e3f9b1fbc5dd9436452d4fe6f50",
+      "wage_t2.json": "ad8a1f6a629dd816f023206b79bd4b4c"
+     },
+     "bodies": 5000,
+     "basis": {
+      "occupation": 930,
+      "average": 1778,
+      "given": 2292
+     },
+     "no_value": 0,
+     "monthly": {
+      "p10": 166355,
+      "p50": 276369,
+      "p90": 490584
+     },
+     "median_check": [
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "男",
+       "n": 131,
+       "median": 377790,
+       "r107_median": 364200,
+       "ratio": 1.0373
+      },
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "女",
+       "n": 92,
+       "median": 318888,
+       "r107_median": 297000,
+       "ratio": 1.0737
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "男",
+       "n": 160,
+       "median": 368475,
+       "r107_median": 358200,
+       "ratio": 1.0287
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "女",
+       "n": 123,
+       "median": 268873,
+       "r107_median": 264700,
+       "ratio": 1.0158
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "男",
+       "n": 57,
+       "median": 328815,
+       "r107_median": 337500,
+       "ratio": 0.9743
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "女",
+       "n": 49,
+       "median": 260399,
+       "r107_median": 248400,
+       "ratio": 1.0483
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "男",
+       "n": 105,
+       "median": 286897,
+       "r107_median": 269500,
+       "ratio": 1.0646
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "女",
+       "n": 81,
+       "median": 246747,
+       "r107_median": 235700,
+       "ratio": 1.0469
+      },
+      {
+       "occupation": "輸送・機械運転従事者",
+       "sex": "男",
+       "n": 48,
+       "median": 301346,
+       "r107_median": 285500,
+       "ratio": 1.0555
+      }
+     ],
+     "inputs": {
+      "source": "persona_pool+w21",
+      "rows_read": 825,
+      "occ_vocab": [
+       "サービス職業従事者",
+       "事務従事者",
+       "保安職業従事者",
+       "専門的・技術的職業従事者",
+       "建設・採掘従事者",
+       "生産工程従事者",
+       "管理的職業従事者",
+       "販売従事者",
+       "輸送・機械運転従事者",
+       "農林漁業従事者",
+       "通学",
+       "運搬・清掃・包装等従事者",
+       "非就業"
+      ],
+      "emp_vocab": [
+       "家族従業者",
+       "役員",
+       "正規",
+       "自営業主",
+       "非就業",
+       "非正規"
+      ],
+      "sex_unknown": 0,
+      "age_unknown": 0,
+      "given": true,
+      "layers": [
+       "L1",
+       "L2",
+       "L3",
+       "L5"
+      ]
+     },
+     "floor_at_start": {
+      "asof": "2026-07-13",
+      "yen_per_hour": 1226,
+      "source": "rules:minimum_wage.tokyo@2025-10-03",
+      "raised": 924,
+      "bodies": 5000,
+      "raised_share": 0.1848
+     }
+    },
+    "wages_meter": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0,
+     "outside_employer_paid": 0,
+     "outside_employer_amount": 0
+    },
+    "rights": {
+     "rows": 7806,
+     "with_until": 0,
+     "by_kind": {
+      "own": 153,
+      "lease": 2558,
+      "employ": 5095,
+      "licence": 0
+     },
+     "by_holder_kind": {
+      "agent": 5469,
+      "org": 0,
+      "store": 2337
+     },
+     "by_object_kind": {
+      "org": 2660,
+      "store": 2435,
+      "parcel": 2337,
+      "dwelling": 374
+     },
+     "by_source": {
+      "w16_population.org_id": 1945,
+      "w21apply:外の雇用主(席の外=勤め先のセルはあるが組織が無い・閉じた表の外の番号)": 715,
+      "w21c:店の持ち主の組織に所属した体(体 → 店・段 4 の所属と店の持ち主)": 166,
+      "宣言:担当従業者の丸振り(engine.rights.initial)": 2269,
+      "w6_poi(区画にいること)": 2337,
+      "w21_households.tenure(国勢調査 第7-1表)": 374
+     },
+     "bytes": 562032,
+     "blank_bridges": {
+      "lease.rent": "BR-RENT-BLANK",
+      "licence": "BR-RIGHTS-LICENCE-BLANK",
+      "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+     },
+     "unauthorized": {
+      "open_close": 0,
+      "role_action_unauthorized": 0,
+      "role_action_unjudged": 0
+     }
+    },
+    "salient_events": 10,
+    "dispatches": 5,
+    "noticed": 465
+   },
+   {
+    "label": "w21_pay",
+    "config": "w6_v3_default",
+    "days": 2,
+    "start": "2026-08-24",
+    "world_build_hash": "0b215fcdac476463",
+    "src_is_worktree": true,
+    "final": "88b1d279f20e8779",
+    "calls": 143286,
+    "wall_s": 85.5,
+    "run_wall_s": 85.01,
+    "ms_per_step": 29.52,
+    "peak_rss_bytes": 506695680,
+    "kinds": {
+     "0": 2254,
+     "1": 765,
+     "2": 128,
+     "3": 431,
+     "4": 24,
+     "5": 435,
+     "6": 261,
+     "7": 228,
+     "8": 474
+    },
+    "duty_roles": {
+     "バス運転士": 120,
+     "募金スタッフ": 1,
+     "店長": 63,
+     "指令": 24,
+     "救急隊員": 6,
+     "消防士": 52,
+     "清掃作業員": 4,
+     "納品ドライバー": 13,
+     "補充": 169,
+     "警備員": 5,
+     "警察官": 141,
+     "路上支援員": 1,
+     "路上生活者": 2,
+     "車掌": 23,
+     "配送作業員": 7,
+     "電車運転士": 27,
+     "駅員": 109
+    },
+    "presence_summary": "計画実行: 域外居住 4,421 / 到着 15,757 / 退出 8,388 / 終日域外 136 / 計画一致率(在圏) 0.889 / (域外) 0.962 / 昼夜比 09-03 3.11 / 日末の計画在圏なのに域外 103",
+    "presence_counters": {
+     "home_out": 4421.0,
+     "blocks": 6413.0,
+     "all_day_outside": 136.0,
+     "absent": 0.0,
+     "arrivals": 15757.0,
+     "departures": 8388.0,
+     "arrive_skipped": 502.0,
+     "arrive_skipped_in_area": 389.0,
+     "arrive_skipped_pulled_in": 113.0,
+     "returned_to_block": 5090.0,
+     "plan_stranded_eod": 103.0,
+     "depart_skipped": 98.0,
+     "exit_deferred": 6.0,
+     "exit_forced": 0.0,
+     "shopping_interrupted": 778.0,
+     "queue_balked": 0.0,
+     "gate_arrivals": 624.0,
+     "spread_moved": 0.0,
+     "spread_overflow": 0.0,
+     "pulled_in": 400.0,
+     "pushed_out": 400.0,
+     "departed_by_llm": 7155.0,
+     "depart_dropped": 1692.0,
+     "rearmed": 5.0,
+     "placed_at_start": 231.0,
+     "home_out_slept_inside": 4.0,
+     "wake_in_area_03": 0.09400705052878966,
+     "wake_in_area_09": 0.9689746500189179,
+     "wake_in_area_12": 0.9768719283029778,
+     "in_area_03": 851.0,
+     "in_area_09": 2643.0,
+     "in_area_12": 3459.0,
+     "plan_match_in": 0.8892488510510058,
+     "plan_match_out": 0.9619552220960125,
+     "day_night_ratio_09_03": 3.1057579318448885
+    },
+    "wake_rate_in_area_by_hour": [
+     0.0062,
+     0.0785,
+     0.0964,
+     0.094,
+     0.0918,
+     0.114,
+     0.2319,
+     0.5298,
+     0.862,
+     0.969,
+     0.981,
+     0.9775,
+     0.9769,
+     0.9766,
+     0.974,
+     0.9725,
+     0.9753,
+     0.9752,
+     0.9766,
+     0.9683,
+     0.9665,
+     0.9491,
+     0.921,
+     0.8903
+    ],
+    "action_usage": {
+     "(エンジン継続)": 529352,
+     "移動": 20829,
+     "乗車": 11847,
+     "購入": 9097,
+     "なし": 11939,
+     "会話": 10362,
+     "退去": 12065,
+     "通報": 11990,
+     "手伝い": 11952,
+     "断る": 11911,
+     "就寝": 11506,
+     "食事": 9629,
+     "並ぶ": 9157
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 5698,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 8447,
+     "PLAN_GENERAL": 13364,
+     "PLAN_TRANSIT": 13445,
+     "INTEROCEPTION": 48125,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 11734,
+     "ACTIVITY_EXPIRY": 42473
+    },
+    "meals": 7856,
+    "conversation_counters": {
+     "sessions_opened": 331,
+     "sessions_active": 1,
+     "sessions_closed": 330,
+     "ignored_invites": 0,
+     "gate_rejected": 80,
+     "utterance_blocks": 1327,
+     "backchannels": 0,
+     "interrupts": 0,
+     "conv_invites": 4625,
+     "conv_accepted": 331,
+     "conv_declined": 4294,
+     "conv_pending_expired": 0,
+     "conv_pending_open": 0,
+     "conv_invite_refractory_blocked": 234,
+     "closed_hard": 101,
+     "closed_soft_topics": 0,
+     "closed_soft_silence": 0,
+     "closed_退去": 123,
+     "closed_left_cell": 106,
+     "closed_timeout": 0,
+     "conv_target_named": 0,
+     "conv_fallback_same_batch": 6191,
+     "conv_target_absent": 5396,
+     "conversing_agents_end": 2
+    },
+    "store_choice": {},
+    "economy_conservation": [
+     {
+      "ok": true,
+      "residual": 0
+     },
+     {
+      "ok": true,
+      "residual": 0
+     }
+    ],
+    "wage_build": {
+     "path": "occupation",
+     "source": "賃金構造基本統計調査 令和7年(R-107・一般 第9・6・18表・短時間 第2表・全国・企業規模計)",
+     "md5": {
+      "wage_t9.json": "3b9a446728619f5b0c600f3fe1789fb5",
+      "wage_t6.json": "6c6546a84d0d2c702bfcb0575bee6167",
+      "wage_t18.json": "b1e80e3f9b1fbc5dd9436452d4fe6f50",
+      "wage_t2.json": "ad8a1f6a629dd816f023206b79bd4b4c"
+     },
+     "bodies": 5000,
+     "basis": {
+      "occupation": 930,
+      "average": 1778,
+      "given": 2292
+     },
+     "no_value": 0,
+     "monthly": {
+      "p10": 166355,
+      "p50": 276369,
+      "p90": 490584
+     },
+     "median_check": [
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "男",
+       "n": 131,
+       "median": 377790,
+       "r107_median": 364200,
+       "ratio": 1.0373
+      },
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "女",
+       "n": 92,
+       "median": 318888,
+       "r107_median": 297000,
+       "ratio": 1.0737
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "男",
+       "n": 160,
+       "median": 368475,
+       "r107_median": 358200,
+       "ratio": 1.0287
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "女",
+       "n": 123,
+       "median": 268873,
+       "r107_median": 264700,
+       "ratio": 1.0158
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "男",
+       "n": 57,
+       "median": 328815,
+       "r107_median": 337500,
+       "ratio": 0.9743
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "女",
+       "n": 49,
+       "median": 260399,
+       "r107_median": 248400,
+       "ratio": 1.0483
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "男",
+       "n": 105,
+       "median": 286897,
+       "r107_median": 269500,
+       "ratio": 1.0646
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "女",
+       "n": 81,
+       "median": 246747,
+       "r107_median": 235700,
+       "ratio": 1.0469
+      },
+      {
+       "occupation": "輸送・機械運転従事者",
+       "sex": "男",
+       "n": 48,
+       "median": 301346,
+       "r107_median": 285500,
+       "ratio": 1.0555
+      }
+     ],
+     "inputs": {
+      "source": "persona_pool+w21",
+      "rows_read": 825,
+      "occ_vocab": [
+       "サービス職業従事者",
+       "事務従事者",
+       "保安職業従事者",
+       "専門的・技術的職業従事者",
+       "建設・採掘従事者",
+       "生産工程従事者",
+       "管理的職業従事者",
+       "販売従事者",
+       "輸送・機械運転従事者",
+       "農林漁業従事者",
+       "通学",
+       "運搬・清掃・包装等従事者",
+       "非就業"
+      ],
+      "emp_vocab": [
+       "家族従業者",
+       "役員",
+       "正規",
+       "自営業主",
+       "非就業",
+       "非正規"
+      ],
+      "sex_unknown": 0,
+      "age_unknown": 0,
+      "given": true,
+      "layers": [
+       "L1",
+       "L2",
+       "L3",
+       "L5"
+      ]
+     },
+     "floor_at_start": {
+      "asof": "2026-08-24",
+      "yen_per_hour": 1226,
+      "source": "rules:minimum_wage.tokyo@2025-10-03",
+      "raised": 924,
+      "bodies": 5000,
+      "raised_share": 0.1848
+     }
+    },
+    "wages_meter": {
+     "paydays": 1,
+     "paid": 2726,
+     "amount": 897159093,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 655650708,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 1945,
+     "store_rows": 66,
+     "outside_employer_paid": 715,
+     "outside_employer_amount": 241508385
+    },
+    "rights": {
+     "rows": 7806,
+     "with_until": 0,
+     "by_kind": {
+      "own": 153,
+      "lease": 2558,
+      "employ": 5095,
+      "licence": 0
+     },
+     "by_holder_kind": {
+      "agent": 5469,
+      "org": 0,
+      "store": 2337
+     },
+     "by_object_kind": {
+      "org": 2660,
+      "store": 2435,
+      "parcel": 2337,
+      "dwelling": 374
+     },
+     "by_source": {
+      "w16_population.org_id": 1945,
+      "w21apply:外の雇用主(席の外=勤め先のセルはあるが組織が無い・閉じた表の外の番号)": 715,
+      "w21c:店の持ち主の組織に所属した体(体 → 店・段 4 の所属と店の持ち主)": 166,
+      "宣言:担当従業者の丸振り(engine.rights.initial)": 2269,
+      "w6_poi(区画にいること)": 2337,
+      "w21_households.tenure(国勢調査 第7-1表)": 374
+     },
+     "bytes": 562032,
+     "blank_bridges": {
+      "lease.rent": "BR-RENT-BLANK",
+      "licence": "BR-RIGHTS-LICENCE-BLANK",
+      "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+     },
+     "unauthorized": {
+      "open_close": 0,
+      "role_action_unauthorized": 0,
+      "role_action_unjudged": 0
+     }
+    },
+    "salient_events": 10,
+    "dispatches": 5,
+    "noticed": 364
+   }
+  ]
+ },
+ "perf_quiet": {
+  "head": [
+   {
+    "label": "head_qa",
+    "config": "w6_v3_default",
+    "days": 1,
+    "start": "",
+    "world_build_hash": "6a7d34e858e07210",
+    "src_is_worktree": false,
+    "final": "333b1820f7849b00",
+    "calls": 64024,
+    "wall_s": 45.6,
+    "run_wall_s": 45.2,
+    "ms_per_step": 31.39,
+    "peak_rss_bytes": 517144576,
+    "kinds": {
+     "0": 2346,
+     "1": 637,
+     "2": 75,
+     "3": 434,
+     "4": 24,
+     "5": 364,
+     "6": 219,
+     "7": 186,
+     "8": 715
+    },
+    "duty_roles": {
+     "タクシー運転手": 4,
+     "バス運転士": 120,
+     "指令": 24,
+     "救急隊員": 6,
+     "消防士": 45,
+     "警察官": 140,
+     "議員": 34,
+     "車掌": 40,
+     "電車運転士": 60,
+     "駅員": 300
+    },
+    "presence_summary": "計画実行: 域外居住 4,491 / 到着 7,881 / 退出 4,276 / 終日域外 154 / 計画一致率(在圏) 0.888 / (域外) 0.991 / 昼夜比 09-03 3.71 / 日末の計画在圏なのに域外 220",
+    "presence_counters": {
+     "home_out": 4491.0,
+     "blocks": 6406.0,
+     "all_day_outside": 154.0,
+     "absent": 0.0,
+     "arrivals": 7881.0,
+     "departures": 4276.0,
+     "arrive_skipped": 243.0,
+     "arrive_skipped_in_area": 94.0,
+     "arrive_skipped_pulled_in": 149.0,
+     "returned_to_block": 2433.0,
+     "plan_stranded_eod": 220.0,
+     "depart_skipped": 8.0,
+     "exit_deferred": 6.0,
+     "exit_forced": 0.0,
+     "shopping_interrupted": 468.0,
+     "queue_balked": 0.0,
+     "gate_arrivals": 741.0,
+     "spread_moved": 0.0,
+     "spread_overflow": 0.0,
+     "pulled_in": 200.0,
+     "pushed_out": 200.0,
+     "departed_by_llm": 3355.0,
+     "depart_dropped": 794.0,
+     "rearmed": 4.0,
+     "placed_at_start": 189.0,
+     "home_out_slept_inside": 0.0,
+     "wake_in_area_03": 0.0778688524590164,
+     "wake_in_area_09": 0.977523949889462,
+     "wake_in_area_12": 0.9837003145553331,
+     "in_area_03": 732.0,
+     "in_area_09": 2714.0,
+     "in_area_12": 3497.0,
+     "plan_match_in": 0.8880069219772778,
+     "plan_match_out": 0.9909629540965946,
+     "day_night_ratio_09_03": 3.7076502732240435
+    },
+    "wake_rate_in_area_by_hour": [
+     0.0072,
+     0.0777,
+     0.0832,
+     0.0779,
+     0.0779,
+     0.1023,
+     0.2129,
+     0.5705,
+     0.8874,
+     0.9775,
+     0.9834,
+     0.9839,
+     0.9837,
+     0.9848,
+     0.9842,
+     0.9836,
+     0.9825,
+     0.9828,
+     0.9847,
+     0.9817,
+     0.973,
+     0.9669,
+     0.9442,
+     0.9203
+    ],
+    "action_usage": {
+     "(エンジン継続)": 231133,
+     "移動": 9322,
+     "乗車": 5428,
+     "購入": 4835,
+     "なし": 5267,
+     "会話": 4856,
+     "退去": 5357,
+     "通報": 5266,
+     "手伝い": 5257,
+     "断る": 5318,
+     "就寝": 5070,
+     "食事": 4751,
+     "並ぶ": 4860
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2813,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4224,
+     "PLAN_GENERAL": 6038,
+     "PLAN_TRANSIT": 7028,
+     "INTEROCEPTION": 19318,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 5654,
+     "ACTIVITY_EXPIRY": 18949
+    },
+    "meals": 4297,
+    "conversation_counters": {
+     "sessions_opened": 163,
+     "sessions_active": 0,
+     "sessions_closed": 163,
+     "ignored_invites": 1,
+     "gate_rejected": 50,
+     "utterance_blocks": 649,
+     "backchannels": 0,
+     "interrupts": 0,
+     "conv_invites": 2293,
+     "conv_accepted": 163,
+     "conv_declined": 2128,
+     "conv_pending_expired": 1,
+     "conv_pending_open": 0,
+     "conv_invite_refractory_blocked": 98,
+     "closed_hard": 50,
+     "closed_soft_topics": 0,
+     "closed_soft_silence": 0,
+     "closed_退去": 59,
+     "closed_left_cell": 54,
+     "closed_timeout": 0,
+     "conv_target_named": 0,
+     "conv_fallback_same_batch": 2889,
+     "conv_target_absent": 2394,
+     "conversing_agents_end": 0
+    },
+    "store_choice": {},
+    "economy_conservation": [
+     {
+      "ok": true,
+      "residual": 0
+     }
+    ],
+    "wage_build": {
+     "path": "occupation",
+     "source": "賃金構造基本統計調査 令和7年(R-107・一般 第9・6・18表・短時間 第2表・全国・企業規模計)",
+     "md5": {
+      "wage_t9.json": "3b9a446728619f5b0c600f3fe1789fb5",
+      "wage_t6.json": "6c6546a84d0d2c702bfcb0575bee6167",
+      "wage_t18.json": "b1e80e3f9b1fbc5dd9436452d4fe6f50",
+      "wage_t2.json": "ad8a1f6a629dd816f023206b79bd4b4c"
+     },
+     "bodies": 5000,
+     "basis": {
+      "occupation": 3569,
+      "average": 1431,
+      "given": 0
+     },
+     "no_value": 0,
+     "monthly": {
+      "p10": 176418,
+      "p50": 276902,
+      "p90": 475369
+     },
+     "median_check": [
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "男",
+       "n": 414,
+       "median": 353860,
+       "r107_median": 364200,
+       "ratio": 0.9716
+      },
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "女",
+       "n": 325,
+       "median": 276701,
+       "r107_median": 297000,
+       "ratio": 0.9317
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "男",
+       "n": 674,
+       "median": 302831,
+       "r107_median": 358200,
+       "ratio": 0.8454
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "女",
+       "n": 469,
+       "median": 248492,
+       "r107_median": 264700,
+       "ratio": 0.9388
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "男",
+       "n": 276,
+       "median": 286657,
+       "r107_median": 337500,
+       "ratio": 0.8494
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "女",
+       "n": 185,
+       "median": 241497,
+       "r107_median": 248400,
+       "ratio": 0.9722
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "男",
+       "n": 630,
+       "median": 284720,
+       "r107_median": 269500,
+       "ratio": 1.0565
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "女",
+       "n": 394,
+       "median": 248514,
+       "r107_median": 235700,
+       "ratio": 1.0544
+      },
+      {
+       "occupation": "建設・採掘従事者",
+       "sex": "男",
+       "n": 35,
+       "median": 279543,
+       "r107_median": 310700,
+       "ratio": 0.8997
+      }
+     ],
+     "inputs": {
+      "source": "persona_pool",
+      "rows_read": 4135,
+      "occ_vocab": [
+       "サービス職業従事者",
+       "事務従事者",
+       "保安職業従事者",
+       "専門的・技術的職業従事者",
+       "建設・採掘従事者",
+       "生産工程従事者",
+       "管理的職業従事者",
+       "販売従事者",
+       "輸送・機械運転従事者",
+       "通学",
+       "運搬・清掃・包装等従事者",
+       "非就業"
+      ],
+      "emp_vocab": [
+       "家族従業者",
+       "役員",
+       "正規",
+       "自営業主",
+       "非就業",
+       "非正規"
+      ],
+      "sex_unknown": 0,
+      "age_unknown": 0,
+      "given": false,
+      "layers": [
+       "L1",
+       "L2",
+       "L3",
+       "L5"
+      ]
+     },
+     "floor_at_start": {
+      "asof": "2026-07-13",
+      "yen_per_hour": 1226,
+      "source": "rules:minimum_wage.tokyo@2025-10-03",
+      "raised": 840,
+      "bodies": 5000,
+      "raised_share": 0.168
+     }
+    },
+    "wages_meter": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0
+    },
+    "rights": {
+     "rows": 7095,
+     "with_until": 0,
+     "by_kind": {
+      "own": 0,
+      "lease": 2337,
+      "employ": 4758,
+      "licence": 0
+     },
+     "by_holder_kind": {
+      "agent": 4758,
+      "org": 0,
+      "store": 2337
+     },
+     "by_object_kind": {
+      "org": 2421,
+      "store": 2337,
+      "parcel": 2337,
+      "dwelling": 0
+     },
+     "by_source": {
+      "w16_population.org_id": 2421,
+      "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+      "w6_poi(区画にいること)": 2337
+     },
+     "bytes": 510840,
+     "blank_bridges": {
+      "lease.rent": "BR-RENT-BLANK",
+      "licence": "BR-RIGHTS-LICENCE-BLANK",
+      "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+     },
+     "unauthorized": {
+      "open_close": 0,
+      "role_action_unauthorized": 0,
+      "role_action_unjudged": 0
+     }
+    },
+    "salient_events": 10,
+    "dispatches": 5,
+    "noticed": 578
+   },
+   {
+    "label": "head_qb",
+    "config": "w6_v3_default",
+    "days": 1,
+    "start": "",
+    "world_build_hash": "6a7d34e858e07210",
+    "src_is_worktree": false,
+    "final": "333b1820f7849b00",
+    "calls": 64024,
+    "wall_s": 42.8,
+    "run_wall_s": 42.43,
+    "ms_per_step": 29.46,
+    "peak_rss_bytes": 516345856,
+    "kinds": {
+     "0": 2346,
+     "1": 637,
+     "2": 75,
+     "3": 434,
+     "4": 24,
+     "5": 364,
+     "6": 219,
+     "7": 186,
+     "8": 715
+    },
+    "duty_roles": {
+     "タクシー運転手": 4,
+     "バス運転士": 120,
+     "指令": 24,
+     "救急隊員": 6,
+     "消防士": 45,
+     "警察官": 140,
+     "議員": 34,
+     "車掌": 40,
+     "電車運転士": 60,
+     "駅員": 300
+    },
+    "presence_summary": "計画実行: 域外居住 4,491 / 到着 7,881 / 退出 4,276 / 終日域外 154 / 計画一致率(在圏) 0.888 / (域外) 0.991 / 昼夜比 09-03 3.71 / 日末の計画在圏なのに域外 220",
+    "presence_counters": {
+     "home_out": 4491.0,
+     "blocks": 6406.0,
+     "all_day_outside": 154.0,
+     "absent": 0.0,
+     "arrivals": 7881.0,
+     "departures": 4276.0,
+     "arrive_skipped": 243.0,
+     "arrive_skipped_in_area": 94.0,
+     "arrive_skipped_pulled_in": 149.0,
+     "returned_to_block": 2433.0,
+     "plan_stranded_eod": 220.0,
+     "depart_skipped": 8.0,
+     "exit_deferred": 6.0,
+     "exit_forced": 0.0,
+     "shopping_interrupted": 468.0,
+     "queue_balked": 0.0,
+     "gate_arrivals": 741.0,
+     "spread_moved": 0.0,
+     "spread_overflow": 0.0,
+     "pulled_in": 200.0,
+     "pushed_out": 200.0,
+     "departed_by_llm": 3355.0,
+     "depart_dropped": 794.0,
+     "rearmed": 4.0,
+     "placed_at_start": 189.0,
+     "home_out_slept_inside": 0.0,
+     "wake_in_area_03": 0.0778688524590164,
+     "wake_in_area_09": 0.977523949889462,
+     "wake_in_area_12": 0.9837003145553331,
+     "in_area_03": 732.0,
+     "in_area_09": 2714.0,
+     "in_area_12": 3497.0,
+     "plan_match_in": 0.8880069219772778,
+     "plan_match_out": 0.9909629540965946,
+     "day_night_ratio_09_03": 3.7076502732240435
+    },
+    "wake_rate_in_area_by_hour": [
+     0.0072,
+     0.0777,
+     0.0832,
+     0.0779,
+     0.0779,
+     0.1023,
+     0.2129,
+     0.5705,
+     0.8874,
+     0.9775,
+     0.9834,
+     0.9839,
+     0.9837,
+     0.9848,
+     0.9842,
+     0.9836,
+     0.9825,
+     0.9828,
+     0.9847,
+     0.9817,
+     0.973,
+     0.9669,
+     0.9442,
+     0.9203
+    ],
+    "action_usage": {
+     "(エンジン継続)": 231133,
+     "移動": 9322,
+     "乗車": 5428,
+     "購入": 4835,
+     "なし": 5267,
+     "会話": 4856,
+     "退去": 5357,
+     "通報": 5266,
+     "手伝い": 5257,
+     "断る": 5318,
+     "就寝": 5070,
+     "食事": 4751,
+     "並ぶ": 4860
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2813,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4224,
+     "PLAN_GENERAL": 6038,
+     "PLAN_TRANSIT": 7028,
+     "INTEROCEPTION": 19318,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 5654,
+     "ACTIVITY_EXPIRY": 18949
+    },
+    "meals": 4297,
+    "conversation_counters": {
+     "sessions_opened": 163,
+     "sessions_active": 0,
+     "sessions_closed": 163,
+     "ignored_invites": 1,
+     "gate_rejected": 50,
+     "utterance_blocks": 649,
+     "backchannels": 0,
+     "interrupts": 0,
+     "conv_invites": 2293,
+     "conv_accepted": 163,
+     "conv_declined": 2128,
+     "conv_pending_expired": 1,
+     "conv_pending_open": 0,
+     "conv_invite_refractory_blocked": 98,
+     "closed_hard": 50,
+     "closed_soft_topics": 0,
+     "closed_soft_silence": 0,
+     "closed_退去": 59,
+     "closed_left_cell": 54,
+     "closed_timeout": 0,
+     "conv_target_named": 0,
+     "conv_fallback_same_batch": 2889,
+     "conv_target_absent": 2394,
+     "conversing_agents_end": 0
+    },
+    "store_choice": {},
+    "economy_conservation": [
+     {
+      "ok": true,
+      "residual": 0
+     }
+    ],
+    "wage_build": {
+     "path": "occupation",
+     "source": "賃金構造基本統計調査 令和7年(R-107・一般 第9・6・18表・短時間 第2表・全国・企業規模計)",
+     "md5": {
+      "wage_t9.json": "3b9a446728619f5b0c600f3fe1789fb5",
+      "wage_t6.json": "6c6546a84d0d2c702bfcb0575bee6167",
+      "wage_t18.json": "b1e80e3f9b1fbc5dd9436452d4fe6f50",
+      "wage_t2.json": "ad8a1f6a629dd816f023206b79bd4b4c"
+     },
+     "bodies": 5000,
+     "basis": {
+      "occupation": 3569,
+      "average": 1431,
+      "given": 0
+     },
+     "no_value": 0,
+     "monthly": {
+      "p10": 176418,
+      "p50": 276902,
+      "p90": 475369
+     },
+     "median_check": [
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "男",
+       "n": 414,
+       "median": 353860,
+       "r107_median": 364200,
+       "ratio": 0.9716
+      },
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "女",
+       "n": 325,
+       "median": 276701,
+       "r107_median": 297000,
+       "ratio": 0.9317
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "男",
+       "n": 674,
+       "median": 302831,
+       "r107_median": 358200,
+       "ratio": 0.8454
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "女",
+       "n": 469,
+       "median": 248492,
+       "r107_median": 264700,
+       "ratio": 0.9388
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "男",
+       "n": 276,
+       "median": 286657,
+       "r107_median": 337500,
+       "ratio": 0.8494
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "女",
+       "n": 185,
+       "median": 241497,
+       "r107_median": 248400,
+       "ratio": 0.9722
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "男",
+       "n": 630,
+       "median": 284720,
+       "r107_median": 269500,
+       "ratio": 1.0565
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "女",
+       "n": 394,
+       "median": 248514,
+       "r107_median": 235700,
+       "ratio": 1.0544
+      },
+      {
+       "occupation": "建設・採掘従事者",
+       "sex": "男",
+       "n": 35,
+       "median": 279543,
+       "r107_median": 310700,
+       "ratio": 0.8997
+      }
+     ],
+     "inputs": {
+      "source": "persona_pool",
+      "rows_read": 4135,
+      "occ_vocab": [
+       "サービス職業従事者",
+       "事務従事者",
+       "保安職業従事者",
+       "専門的・技術的職業従事者",
+       "建設・採掘従事者",
+       "生産工程従事者",
+       "管理的職業従事者",
+       "販売従事者",
+       "輸送・機械運転従事者",
+       "通学",
+       "運搬・清掃・包装等従事者",
+       "非就業"
+      ],
+      "emp_vocab": [
+       "家族従業者",
+       "役員",
+       "正規",
+       "自営業主",
+       "非就業",
+       "非正規"
+      ],
+      "sex_unknown": 0,
+      "age_unknown": 0,
+      "given": false,
+      "layers": [
+       "L1",
+       "L2",
+       "L3",
+       "L5"
+      ]
+     },
+     "floor_at_start": {
+      "asof": "2026-07-13",
+      "yen_per_hour": 1226,
+      "source": "rules:minimum_wage.tokyo@2025-10-03",
+      "raised": 840,
+      "bodies": 5000,
+      "raised_share": 0.168
+     }
+    },
+    "wages_meter": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0
+    },
+    "rights": {
+     "rows": 7095,
+     "with_until": 0,
+     "by_kind": {
+      "own": 0,
+      "lease": 2337,
+      "employ": 4758,
+      "licence": 0
+     },
+     "by_holder_kind": {
+      "agent": 4758,
+      "org": 0,
+      "store": 2337
+     },
+     "by_object_kind": {
+      "org": 2421,
+      "store": 2337,
+      "parcel": 2337,
+      "dwelling": 0
+     },
+     "by_source": {
+      "w16_population.org_id": 2421,
+      "宣言:担当従業者の丸振り(engine.rights.initial)": 2337,
+      "w6_poi(区画にいること)": 2337
+     },
+     "bytes": 510840,
+     "blank_bridges": {
+      "lease.rent": "BR-RENT-BLANK",
+      "licence": "BR-RIGHTS-LICENCE-BLANK",
+      "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+     },
+     "unauthorized": {
+      "open_close": 0,
+      "role_action_unauthorized": 0,
+      "role_action_unjudged": 0
+     }
+    },
+    "salient_events": 10,
+    "dispatches": 5,
+    "noticed": 578
+   }
+  ],
+  "w21": [
+   {
+    "label": "w21_qa",
+    "config": "w6_v3_default",
+    "days": 1,
+    "start": "",
+    "world_build_hash": "0b215fcdac476463",
+    "src_is_worktree": true,
+    "final": "eb759bb4e5be37ec",
+    "calls": 63572,
+    "wall_s": 44.1,
+    "run_wall_s": 43.61,
+    "ms_per_step": 30.28,
+    "peak_rss_bytes": 510021632,
+    "kinds": {
+     "0": 2254,
+     "1": 765,
+     "2": 128,
+     "3": 431,
+     "4": 24,
+     "5": 435,
+     "6": 261,
+     "7": 228,
+     "8": 474
+    },
+    "duty_roles": {
+     "バス運転士": 120,
+     "募金スタッフ": 1,
+     "店長": 63,
+     "指令": 24,
+     "救急隊員": 6,
+     "消防士": 52,
+     "清掃作業員": 4,
+     "納品ドライバー": 13,
+     "補充": 169,
+     "警備員": 5,
+     "警察官": 141,
+     "路上支援員": 1,
+     "路上生活者": 2,
+     "車掌": 23,
+     "配送作業員": 7,
+     "電車運転士": 27,
+     "駅員": 109
+    },
+    "presence_summary": "計画実行: 域外居住 4,421 / 到着 7,787 / 退出 4,296 / 終日域外 136 / 計画一致率(在圏) 0.901 / (域外) 0.990 / 昼夜比 09-03 3.09 / 日末の計画在圏なのに域外 98",
+    "presence_counters": {
+     "home_out": 4421.0,
+     "blocks": 6413.0,
+     "all_day_outside": 136.0,
+     "absent": 0.0,
+     "arrivals": 7787.0,
+     "departures": 4296.0,
+     "arrive_skipped": 107.0,
+     "arrive_skipped_in_area": 58.0,
+     "arrive_skipped_pulled_in": 49.0,
+     "returned_to_block": 2311.0,
+     "plan_stranded_eod": 98.0,
+     "depart_skipped": 11.0,
+     "exit_deferred": 3.0,
+     "exit_forced": 0.0,
+     "shopping_interrupted": 472.0,
+     "queue_balked": 0.0,
+     "gate_arrivals": 624.0,
+     "spread_moved": 0.0,
+     "spread_overflow": 0.0,
+     "pulled_in": 200.0,
+     "pushed_out": 200.0,
+     "departed_by_llm": 3211.0,
+     "depart_dropped": 782.0,
+     "rearmed": 1.0,
+     "placed_at_start": 231.0,
+     "home_out_slept_inside": 1.0,
+     "wake_in_area_03": 0.09400705052878966,
+     "wake_in_area_09": 0.9684650455927052,
+     "wake_in_area_12": 0.9810399310542948,
+     "in_area_03": 851.0,
+     "in_area_09": 2632.0,
+     "in_area_12": 3481.0,
+     "plan_match_in": 0.9012280569577338,
+     "plan_match_out": 0.9895976564835296,
+     "day_night_ratio_09_03": 3.0928319623971796
+    },
+    "wake_rate_in_area_by_hour": [
+     0.0062,
+     0.0785,
+     0.0964,
+     0.094,
+     0.0918,
+     0.114,
+     0.2319,
+     0.5298,
+     0.862,
+     0.9685,
+     0.98,
+     0.9794,
+     0.981,
+     0.9813,
+     0.9775,
+     0.9778,
+     0.9814,
+     0.9805,
+     0.9815,
+     0.9742,
+     0.969,
+     0.9495,
+     0.9215,
+     0.8917
+    ],
+    "action_usage": {
+     "(エンジン継続)": 236797,
+     "移動": 9683,
+     "乗車": 5203,
+     "購入": 4827,
+     "なし": 5308,
+     "会話": 4722,
+     "退去": 5365,
+     "通報": 5261,
+     "手伝い": 5295,
+     "断る": 5255,
+     "就寝": 5033,
+     "食事": 5007,
+     "並ぶ": 4811
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2612,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4220,
+     "PLAN_GENERAL": 6566,
+     "PLAN_TRANSIT": 6720,
+     "INTEROCEPTION": 19065,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 5561,
+     "ACTIVITY_EXPIRY": 18828
+    },
+    "meals": 4414,
+    "conversation_counters": {
+     "sessions_opened": 151,
+     "sessions_active": 0,
+     "sessions_closed": 151,
+     "ignored_invites": 0,
+     "gate_rejected": 41,
+     "utterance_blocks": 646,
+     "backchannels": 0,
+     "interrupts": 0,
+     "conv_invites": 2095,
+     "conv_accepted": 151,
+     "conv_declined": 1943,
+     "conv_pending_expired": 0,
+     "conv_pending_open": 0,
+     "conv_invite_refractory_blocked": 91,
+     "closed_hard": 51,
+     "closed_soft_topics": 0,
+     "closed_soft_silence": 0,
+     "closed_退去": 55,
+     "closed_left_cell": 45,
+     "closed_timeout": 0,
+     "conv_target_named": 0,
+     "conv_fallback_same_batch": 2610,
+     "conv_target_absent": 2485,
+     "conversing_agents_end": 0
+    },
+    "store_choice": {},
+    "economy_conservation": [
+     {
+      "ok": true,
+      "residual": 0
+     }
+    ],
+    "wage_build": {
+     "path": "occupation",
+     "source": "賃金構造基本統計調査 令和7年(R-107・一般 第9・6・18表・短時間 第2表・全国・企業規模計)",
+     "md5": {
+      "wage_t9.json": "3b9a446728619f5b0c600f3fe1789fb5",
+      "wage_t6.json": "6c6546a84d0d2c702bfcb0575bee6167",
+      "wage_t18.json": "b1e80e3f9b1fbc5dd9436452d4fe6f50",
+      "wage_t2.json": "ad8a1f6a629dd816f023206b79bd4b4c"
+     },
+     "bodies": 5000,
+     "basis": {
+      "occupation": 930,
+      "average": 1778,
+      "given": 2292
+     },
+     "no_value": 0,
+     "monthly": {
+      "p10": 166355,
+      "p50": 276369,
+      "p90": 490584
+     },
+     "median_check": [
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "男",
+       "n": 131,
+       "median": 377790,
+       "r107_median": 364200,
+       "ratio": 1.0373
+      },
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "女",
+       "n": 92,
+       "median": 318888,
+       "r107_median": 297000,
+       "ratio": 1.0737
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "男",
+       "n": 160,
+       "median": 368475,
+       "r107_median": 358200,
+       "ratio": 1.0287
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "女",
+       "n": 123,
+       "median": 268873,
+       "r107_median": 264700,
+       "ratio": 1.0158
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "男",
+       "n": 57,
+       "median": 328815,
+       "r107_median": 337500,
+       "ratio": 0.9743
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "女",
+       "n": 49,
+       "median": 260399,
+       "r107_median": 248400,
+       "ratio": 1.0483
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "男",
+       "n": 105,
+       "median": 286897,
+       "r107_median": 269500,
+       "ratio": 1.0646
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "女",
+       "n": 81,
+       "median": 246747,
+       "r107_median": 235700,
+       "ratio": 1.0469
+      },
+      {
+       "occupation": "輸送・機械運転従事者",
+       "sex": "男",
+       "n": 48,
+       "median": 301346,
+       "r107_median": 285500,
+       "ratio": 1.0555
+      }
+     ],
+     "inputs": {
+      "source": "persona_pool+w21",
+      "rows_read": 825,
+      "occ_vocab": [
+       "サービス職業従事者",
+       "事務従事者",
+       "保安職業従事者",
+       "専門的・技術的職業従事者",
+       "建設・採掘従事者",
+       "生産工程従事者",
+       "管理的職業従事者",
+       "販売従事者",
+       "輸送・機械運転従事者",
+       "農林漁業従事者",
+       "通学",
+       "運搬・清掃・包装等従事者",
+       "非就業"
+      ],
+      "emp_vocab": [
+       "家族従業者",
+       "役員",
+       "正規",
+       "自営業主",
+       "非就業",
+       "非正規"
+      ],
+      "sex_unknown": 0,
+      "age_unknown": 0,
+      "given": true,
+      "layers": [
+       "L1",
+       "L2",
+       "L3",
+       "L5"
+      ]
+     },
+     "floor_at_start": {
+      "asof": "2026-07-13",
+      "yen_per_hour": 1226,
+      "source": "rules:minimum_wage.tokyo@2025-10-03",
+      "raised": 924,
+      "bodies": 5000,
+      "raised_share": 0.1848
+     }
+    },
+    "wages_meter": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0,
+     "outside_employer_paid": 0,
+     "outside_employer_amount": 0
+    },
+    "rights": {
+     "rows": 7806,
+     "with_until": 0,
+     "by_kind": {
+      "own": 153,
+      "lease": 2558,
+      "employ": 5095,
+      "licence": 0
+     },
+     "by_holder_kind": {
+      "agent": 5469,
+      "org": 0,
+      "store": 2337
+     },
+     "by_object_kind": {
+      "org": 2660,
+      "store": 2435,
+      "parcel": 2337,
+      "dwelling": 374
+     },
+     "by_source": {
+      "w16_population.org_id": 1945,
+      "w21apply:外の雇用主(席の外=勤め先のセルはあるが組織が無い・閉じた表の外の番号)": 715,
+      "w21c:店の持ち主の組織に所属した体(体 → 店・段 4 の所属と店の持ち主)": 166,
+      "宣言:担当従業者の丸振り(engine.rights.initial)": 2269,
+      "w6_poi(区画にいること)": 2337,
+      "w21_households.tenure(国勢調査 第7-1表)": 374
+     },
+     "bytes": 562032,
+     "blank_bridges": {
+      "lease.rent": "BR-RENT-BLANK",
+      "licence": "BR-RIGHTS-LICENCE-BLANK",
+      "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+     },
+     "unauthorized": {
+      "open_close": 0,
+      "role_action_unauthorized": 0,
+      "role_action_unjudged": 0
+     }
+    },
+    "salient_events": 10,
+    "dispatches": 5,
+    "noticed": 465
+   },
+   {
+    "label": "w21_qb",
+    "config": "w6_v3_default",
+    "days": 1,
+    "start": "",
+    "world_build_hash": "0b215fcdac476463",
+    "src_is_worktree": true,
+    "final": "eb759bb4e5be37ec",
+    "calls": 63572,
+    "wall_s": 42.3,
+    "run_wall_s": 41.89,
+    "ms_per_step": 29.09,
+    "peak_rss_bytes": 530915328,
+    "kinds": {
+     "0": 2254,
+     "1": 765,
+     "2": 128,
+     "3": 431,
+     "4": 24,
+     "5": 435,
+     "6": 261,
+     "7": 228,
+     "8": 474
+    },
+    "duty_roles": {
+     "バス運転士": 120,
+     "募金スタッフ": 1,
+     "店長": 63,
+     "指令": 24,
+     "救急隊員": 6,
+     "消防士": 52,
+     "清掃作業員": 4,
+     "納品ドライバー": 13,
+     "補充": 169,
+     "警備員": 5,
+     "警察官": 141,
+     "路上支援員": 1,
+     "路上生活者": 2,
+     "車掌": 23,
+     "配送作業員": 7,
+     "電車運転士": 27,
+     "駅員": 109
+    },
+    "presence_summary": "計画実行: 域外居住 4,421 / 到着 7,787 / 退出 4,296 / 終日域外 136 / 計画一致率(在圏) 0.901 / (域外) 0.990 / 昼夜比 09-03 3.09 / 日末の計画在圏なのに域外 98",
+    "presence_counters": {
+     "home_out": 4421.0,
+     "blocks": 6413.0,
+     "all_day_outside": 136.0,
+     "absent": 0.0,
+     "arrivals": 7787.0,
+     "departures": 4296.0,
+     "arrive_skipped": 107.0,
+     "arrive_skipped_in_area": 58.0,
+     "arrive_skipped_pulled_in": 49.0,
+     "returned_to_block": 2311.0,
+     "plan_stranded_eod": 98.0,
+     "depart_skipped": 11.0,
+     "exit_deferred": 3.0,
+     "exit_forced": 0.0,
+     "shopping_interrupted": 472.0,
+     "queue_balked": 0.0,
+     "gate_arrivals": 624.0,
+     "spread_moved": 0.0,
+     "spread_overflow": 0.0,
+     "pulled_in": 200.0,
+     "pushed_out": 200.0,
+     "departed_by_llm": 3211.0,
+     "depart_dropped": 782.0,
+     "rearmed": 1.0,
+     "placed_at_start": 231.0,
+     "home_out_slept_inside": 1.0,
+     "wake_in_area_03": 0.09400705052878966,
+     "wake_in_area_09": 0.9684650455927052,
+     "wake_in_area_12": 0.9810399310542948,
+     "in_area_03": 851.0,
+     "in_area_09": 2632.0,
+     "in_area_12": 3481.0,
+     "plan_match_in": 0.9012280569577338,
+     "plan_match_out": 0.9895976564835296,
+     "day_night_ratio_09_03": 3.0928319623971796
+    },
+    "wake_rate_in_area_by_hour": [
+     0.0062,
+     0.0785,
+     0.0964,
+     0.094,
+     0.0918,
+     0.114,
+     0.2319,
+     0.5298,
+     0.862,
+     0.9685,
+     0.98,
+     0.9794,
+     0.981,
+     0.9813,
+     0.9775,
+     0.9778,
+     0.9814,
+     0.9805,
+     0.9815,
+     0.9742,
+     0.969,
+     0.9495,
+     0.9215,
+     0.8917
+    ],
+    "action_usage": {
+     "(エンジン継続)": 236797,
+     "移動": 9683,
+     "乗車": 5203,
+     "購入": 4827,
+     "なし": 5308,
+     "会話": 4722,
+     "退去": 5365,
+     "通報": 5261,
+     "手伝い": 5295,
+     "断る": 5255,
+     "就寝": 5033,
+     "食事": 5007,
+     "並ぶ": 4811
+    },
+    "calls_by_condition": {
+     "CONVERSATION_TURN": 2612,
+     "PLAN_SLEEPING": 0,
+     "PLAN_WORKING": 4220,
+     "PLAN_GENERAL": 6566,
+     "PLAN_TRANSIT": 6720,
+     "INTEROCEPTION": 19065,
+     "ACQUAINTANCE": 0,
+     "PROXIMITY_SWAP": 0,
+     "BEING_WATCHED": 0,
+     "OVERHEARD": 0,
+     "CELL_BLOCK": 5561,
+     "ACTIVITY_EXPIRY": 18828
+    },
+    "meals": 4414,
+    "conversation_counters": {
+     "sessions_opened": 151,
+     "sessions_active": 0,
+     "sessions_closed": 151,
+     "ignored_invites": 0,
+     "gate_rejected": 41,
+     "utterance_blocks": 646,
+     "backchannels": 0,
+     "interrupts": 0,
+     "conv_invites": 2095,
+     "conv_accepted": 151,
+     "conv_declined": 1943,
+     "conv_pending_expired": 0,
+     "conv_pending_open": 0,
+     "conv_invite_refractory_blocked": 91,
+     "closed_hard": 51,
+     "closed_soft_topics": 0,
+     "closed_soft_silence": 0,
+     "closed_退去": 55,
+     "closed_left_cell": 45,
+     "closed_timeout": 0,
+     "conv_target_named": 0,
+     "conv_fallback_same_batch": 2610,
+     "conv_target_absent": 2485,
+     "conversing_agents_end": 0
+    },
+    "store_choice": {},
+    "economy_conservation": [
+     {
+      "ok": true,
+      "residual": 0
+     }
+    ],
+    "wage_build": {
+     "path": "occupation",
+     "source": "賃金構造基本統計調査 令和7年(R-107・一般 第9・6・18表・短時間 第2表・全国・企業規模計)",
+     "md5": {
+      "wage_t9.json": "3b9a446728619f5b0c600f3fe1789fb5",
+      "wage_t6.json": "6c6546a84d0d2c702bfcb0575bee6167",
+      "wage_t18.json": "b1e80e3f9b1fbc5dd9436452d4fe6f50",
+      "wage_t2.json": "ad8a1f6a629dd816f023206b79bd4b4c"
+     },
+     "bodies": 5000,
+     "basis": {
+      "occupation": 930,
+      "average": 1778,
+      "given": 2292
+     },
+     "no_value": 0,
+     "monthly": {
+      "p10": 166355,
+      "p50": 276369,
+      "p90": 490584
+     },
+     "median_check": [
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "男",
+       "n": 131,
+       "median": 377790,
+       "r107_median": 364200,
+       "ratio": 1.0373
+      },
+      {
+       "occupation": "専門的・技術的職業従事者",
+       "sex": "女",
+       "n": 92,
+       "median": 318888,
+       "r107_median": 297000,
+       "ratio": 1.0737
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "男",
+       "n": 160,
+       "median": 368475,
+       "r107_median": 358200,
+       "ratio": 1.0287
+      },
+      {
+       "occupation": "事務従事者",
+       "sex": "女",
+       "n": 123,
+       "median": 268873,
+       "r107_median": 264700,
+       "ratio": 1.0158
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "男",
+       "n": 57,
+       "median": 328815,
+       "r107_median": 337500,
+       "ratio": 0.9743
+      },
+      {
+       "occupation": "販売従事者",
+       "sex": "女",
+       "n": 49,
+       "median": 260399,
+       "r107_median": 248400,
+       "ratio": 1.0483
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "男",
+       "n": 105,
+       "median": 286897,
+       "r107_median": 269500,
+       "ratio": 1.0646
+      },
+      {
+       "occupation": "サービス職業従事者",
+       "sex": "女",
+       "n": 81,
+       "median": 246747,
+       "r107_median": 235700,
+       "ratio": 1.0469
+      },
+      {
+       "occupation": "輸送・機械運転従事者",
+       "sex": "男",
+       "n": 48,
+       "median": 301346,
+       "r107_median": 285500,
+       "ratio": 1.0555
+      }
+     ],
+     "inputs": {
+      "source": "persona_pool+w21",
+      "rows_read": 825,
+      "occ_vocab": [
+       "サービス職業従事者",
+       "事務従事者",
+       "保安職業従事者",
+       "専門的・技術的職業従事者",
+       "建設・採掘従事者",
+       "生産工程従事者",
+       "管理的職業従事者",
+       "販売従事者",
+       "輸送・機械運転従事者",
+       "農林漁業従事者",
+       "通学",
+       "運搬・清掃・包装等従事者",
+       "非就業"
+      ],
+      "emp_vocab": [
+       "家族従業者",
+       "役員",
+       "正規",
+       "自営業主",
+       "非就業",
+       "非正規"
+      ],
+      "sex_unknown": 0,
+      "age_unknown": 0,
+      "given": true,
+      "layers": [
+       "L1",
+       "L2",
+       "L3",
+       "L5"
+      ]
+     },
+     "floor_at_start": {
+      "asof": "2026-07-13",
+      "yen_per_hour": 1226,
+      "source": "rules:minimum_wage.tokyo@2025-10-03",
+      "raised": 924,
+      "bodies": 5000,
+      "raised_share": 0.1848
+     }
+    },
+    "wages_meter": {
+     "paydays": 0,
+     "paid": 0,
+     "amount": 0,
+     "unpaid": 0,
+     "unpaid_amount": 0,
+     "funding": 0,
+     "deductions": 0,
+     "no_hours": 0,
+     "outside_employer": 0,
+     "employer_rows": 0,
+     "store_rows": 0,
+     "outside_employer_paid": 0,
+     "outside_employer_amount": 0
+    },
+    "rights": {
+     "rows": 7806,
+     "with_until": 0,
+     "by_kind": {
+      "own": 153,
+      "lease": 2558,
+      "employ": 5095,
+      "licence": 0
+     },
+     "by_holder_kind": {
+      "agent": 5469,
+      "org": 0,
+      "store": 2337
+     },
+     "by_object_kind": {
+      "org": 2660,
+      "store": 2435,
+      "parcel": 2337,
+      "dwelling": 374
+     },
+     "by_source": {
+      "w16_population.org_id": 1945,
+      "w21apply:外の雇用主(席の外=勤め先のセルはあるが組織が無い・閉じた表の外の番号)": 715,
+      "w21c:店の持ち主の組織に所属した体(体 → 店・段 4 の所属と店の持ち主)": 166,
+      "宣言:担当従業者の丸振り(engine.rights.initial)": 2269,
+      "w6_poi(区画にいること)": 2337,
+      "w21_households.tenure(国勢調査 第7-1表)": 374
+     },
+     "bytes": 562032,
+     "blank_bridges": {
+      "lease.rent": "BR-RENT-BLANK",
+      "licence": "BR-RIGHTS-LICENCE-BLANK",
+      "dwelling": "BR-RIGHTS-DWELLING-BLANK"
+     },
+     "unauthorized": {
+      "open_close": 0,
+      "role_action_unauthorized": 0,
+      "role_action_unjudged": 0
+     }
+    },
+    "salient_events": 10,
+    "dispatches": 5,
+    "noticed": 465
+   }
+  ]
+ }
+}

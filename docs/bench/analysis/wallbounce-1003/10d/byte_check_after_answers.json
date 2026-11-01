@@ -1,0 +1,96 @@
+{
+ "schema": "shibuya.bench/wave2-2026-09-30/byte-check/1",
+ "head": "8486f9c",
+ "note": "10d 親の答えの反映の後(台帳 10d 版・再開の初期化なし・日ごとの表・CLI)。既定 v3・帰無・relations-on の 3 本",
+ "old_switches": {},
+ "expect_moved": [],
+ "how": "mock/classical 5,000 体・seed 1・1 シミュ日・テープつき。HEAD(git archive の src)と作業木で同じ構成を回し、final・呼数・blocks・calls 14 列の sha を比べる。work=作業木の既定・work_old=旧の切替口をすべて付けた作業木。10b の欄(work だけ): checkpoint ごとの behavior/full の先頭 16 桁・最後の値の全桁・外の状態のバイト・checkpoint の時間",
+ "src_checks": "ok(HEAD 側=写し・作業木側=作業木・エラー行なし)",
+ "all_ok": true,
+ "rows": [
+  {
+   "config": "w6_v3_default",
+   "head_final": "993276d5e5bb5cbe",
+   "head_calls": 69978,
+   "work_final": "993276d5e5bb5cbe",
+   "work_calls": 69978,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "w6_golden_null_arm",
+   "head_final": "72cb9cd52982da74",
+   "head_calls": 100439,
+   "work_final": "72cb9cd52982da74",
+   "work_calls": 100439,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  },
+  {
+   "config": "v3_mem_rel",
+   "head_final": "40409ebed834126b",
+   "head_calls": 72930,
+   "work_final": "40409ebed834126b",
+   "work_calls": 72930,
+   "default_may_move": false,
+   "work": {
+    "final_equal": true,
+    "calls_equal": true,
+    "blocks_equal": true,
+    "calls_columns_differ": [],
+    "all_equal": true
+   }
+  }
+ ],
+ "state_hashes_10b": {
+  "w6_v3_default": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "w6_golden_null_arm": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  },
+  "v3_mem_rel": {
+   "behavior": null,
+   "full": null,
+   "behavior_last": null,
+   "full_last": null,
+   "full_external_bytes": null,
+   "checkpoint_s_work": null,
+   "checkpoint_s_head": null,
+   "n_checkpoints": null,
+   "end_of_day": null,
+   "checkpoint_max_s_work": null
+  }
+ },
+ "full_external_bytes_by_row_v3_default": null
+}

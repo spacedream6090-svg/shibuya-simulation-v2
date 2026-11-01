@@ -1,0 +1,30 @@
+{
+ "key": "W16#11",
+ "control": "学校セル=学校 POI へ一様(宣言)vs 学校 POI の建物の床面積(面積×階数)比(建物の無い POI は中央値)",
+ "metric": "通学者と学齢の住民の学校セルの分布",
+ "variants": [
+  {
+   "name": "床面積比",
+   "jsd_bits": 0.1973121464300371,
+   "null_p95": 0.0006851569404748959,
+   "detected": true,
+   "tvd": 0.43818320944468736,
+   "n_declared": 36592.0,
+   "n_control": 36592.0,
+   "n_bins": 53
+  }
+ ],
+ "detected": true,
+ "status": "measured",
+ "verdict": "needs_run",
+ "seconds_stage": 12.716770299943164,
+ "outputs_changed": [
+  "w16_gates.json",
+  "w16_population.parquet"
+ ],
+ "notes": [
+  "学校 POI 72 件・建物の無い POI 16 件は床面積の中央値で埋めた(未リサーチ)"
+ ],
+ "seconds_wall_row": 13.58,
+ "measured_at": "2026-09-30"
+}

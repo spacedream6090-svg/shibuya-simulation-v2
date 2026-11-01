@@ -7,3 +7,5 @@
 *.zip binary
 *.pdf binary
 *.xlsx binary
+# 試験の fixture(内閣府の祝日 CSV=cp932・CRLF)はバイトのまま(md5 を固定。改行の変換をさせない=第333)
+tests/fixtures/calendar/*.csv binary

@@ -13,6 +13,8 @@ import time
 import numpy as np
 import pytest
 
+from tests import _time_gates as TG
+
 from shibuya.core.budget import budget_by_id, load_budget_table, parse_limit
 from shibuya.engine.scheduler import Scheduler
 
@@ -56,4 +58,5 @@ def test_p3_event_throughput(capsys):
         )
     assert drained == N_EVENTS
     assert s.pending == 0
-    assert e2e_rate >= threshold, f"P3 未達: {e2e_rate:,.0f} events/s < {threshold:,.0f}"
+    assert TG.check(e2e_rate >= threshold, f"P3 {e2e_rate:,.0f} events/s(閾値 {threshold:,.0f})"), (
+        f"P3 未達: {e2e_rate:,.0f} events/s < {threshold:,.0f}")

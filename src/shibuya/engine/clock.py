@@ -27,6 +27,7 @@ from shibuya.core.types import (
     split_t_sim_ns,
     t_sim_ns as _t_sim_ns,
 )
+from shibuya.core.time_consts import SECONDS_PER_DAY, SECONDS_PER_MINUTE
 
 __all__ = ["SimClock"]
 
@@ -59,7 +60,7 @@ class SimClock:
     @property
     def ticks_per_sim_day(self) -> int:
         """1 シミュ日の tick 数(tick_seconds=60 なら 1,440)。"""
-        seconds = MINUTES_PER_SIM_DAY * 60
+        seconds = MINUTES_PER_SIM_DAY * SECONDS_PER_MINUTE
         if seconds % int(self.tick_seconds):
             raise ValueError(f"tick_seconds={self.tick_seconds} は 1 日を割り切らない")
         return seconds // int(self.tick_seconds)
@@ -80,7 +81,7 @@ class SimClock:
         if (when.tzinfo is None) != (self.start_sim_datetime.tzinfo is None):
             raise ValueError("start_sim_datetime と when の tz 有無が食い違う")
         delta = when - self.start_sim_datetime
-        total_ns = (delta.days * 86_400 + delta.seconds) * NS_PER_SECOND + delta.microseconds * 1_000
+        total_ns = (delta.days * SECONDS_PER_DAY + delta.seconds) * NS_PER_SECOND + delta.microseconds * 1_000
         return split_t_sim_ns(total_ns, int(self.tick_seconds))
 
     def t_sim_ns(self, tick: int, offset_s: float = 0.0) -> int:

@@ -1,0 +1,109 @@
+{
+ "schema": "shibuya.bench/wallbounce-1003/10a-b56/1",
+ "arm": "mem_rel_store",
+ "args": {
+  "vocab_version": "v3",
+  "activity": true,
+  "memory": "on",
+  "relations": "on",
+  "store_memory": "on"
+ },
+ "agents": 5000,
+ "seed": 1,
+ "final_hash": "1e28c8ce3f80d888",
+ "llm_calls": 72930,
+ "tape": {
+  "calls_rows": 72930,
+  "calls_bytes": 4534586,
+  "blocks_rows": 5506,
+  "blocks_bytes": 201144,
+  "total_bytes": 4735730,
+  "bytes_per_call": 64.94,
+  "calls_bytes_per_call": 62.18,
+  "compression": "zstd(TAPE_COMPRESSION)",
+  "column_names": [
+   "call_id",
+   "agent_id",
+   "tick",
+   "wake_class",
+   "prompt_hash",
+   "block_ids",
+   "params_hash",
+   "response",
+   "tokens_in",
+   "tokens_out",
+   "deferred",
+   "deferred_reason",
+   "observed_tick",
+   "recalled_rows"
+  ]
+ },
+ "renders": 72930,
+ "renders_equal_rows": true,
+ "b5_bytes": {
+  "n": 72930,
+  "mean": 448.0,
+  "p50": 450.0,
+  "p95": 512.0,
+  "max": 614,
+  "min": 264,
+  "sum": 32672844
+ },
+ "b6_bytes": {
+  "n": 72930,
+  "mean": 222.7,
+  "p50": 209.0,
+  "p95": 271.0,
+  "max": 339,
+  "min": 179,
+  "sum": 16242327
+ },
+ "b5_plus_b6_bytes": {
+  "n": 72930,
+  "mean": 670.7,
+  "p50": 671.0,
+  "p95": 762.0,
+  "max": 917,
+  "min": 452,
+  "sum": 48915171
+ },
+ "prompt_text_bytes": {
+  "n": 72930,
+  "mean": 5273.1,
+  "p50": 5273.0,
+  "p95": 5412.0,
+  "max": 5611,
+  "min": 4848,
+  "sum": 384570099
+ },
+ "b56_share_of_prompt": 0.1272,
+ "unique_b5": {
+  "n": 69142,
+  "bytes": 30982866
+ },
+ "unique_b6": {
+  "n": 3028,
+  "bytes": 798197
+ },
+ "compressed": {
+  "zstd": {
+   "calls_rewritten_bytes": 3846141,
+   "b56_only_table_bytes": 2848789,
+   "calls_plus_b56_bytes": 6694721,
+   "increment_bytes": 2848580,
+   "increment_per_call": 39.06
+  },
+  "gzip": {
+   "calls_rewritten_bytes": 4067145,
+   "b56_only_table_bytes": 2743839,
+   "calls_plus_b56_bytes": 6810775,
+   "increment_bytes": 2743630,
+   "increment_per_call": 37.62
+  }
+ },
+ "gzip_concat_b56": {
+  "raw_bytes": 49061030,
+  "gzip6_bytes": 2832147
+ },
+ "wall_s_reference": 76.2
+}

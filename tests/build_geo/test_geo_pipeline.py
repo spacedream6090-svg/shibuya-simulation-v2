@@ -17,12 +17,13 @@ import pytest
 
 from shibuya.build.geo import STAGES, common as C
 from shibuya.build.geo import run as geo_run
+from tests import _data_ids as D
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = REPO_ROOT / "data"
 OSM = DATA_DIR / "realworld" / "osm" / "shibuya_osm_wide_v8.json"
 
-pytestmark = pytest.mark.skipif(not OSM.exists(), reason="data/ absent (CI)")
+pytestmark = pytest.mark.requires_data(D.id_of(OSM))
 
 
 @pytest.fixture(scope="module")

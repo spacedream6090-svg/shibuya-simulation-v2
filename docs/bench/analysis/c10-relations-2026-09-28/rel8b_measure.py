@@ -85,8 +85,11 @@ def _h(obj: Any) -> str:
 
 
 # ------------------------------------------------------------------ 層化抽出(Q94)
-def stratified_sample(pop: Any, n: int, seed: int | str = 1) -> Any:
-    """世帯・組織ごとの抽出(計測の口・宣言)。同 seed 同結果・``agent_id`` 昇順。"""
+def stratified_sample(pop: Any, n: int, seed: int | str = 1, rng_scheme: str = "") -> Any:
+    """世帯・組織ごとの抽出(計測の口・宣言)。同 seed 同結果・``agent_id`` 昇順。
+
+    〔10e(検収 L2)〕``rng_scheme`` は ``engine.run`` が渡す引数を受けるだけ(この抽出は自前の鍵=使わない)。
+    """
     from shibuya.core.rng import stream
 
     n = int(n)

@@ -229,7 +229,7 @@ def run(ctx: C.Ctx) -> C.StageResult:
     # --- 各段階ヘッダの catalog_classes を集める(自分より前の段階のみ)---
     headers: dict[str, dict[str, Any]] = {}
     header_paths: list[Any] = []
-    for path in sorted(ctx.out.glob("W*.header.json"), key=lambda p: int(p.stem.split(".")[0][1:])):
+    for path in C.stage_header_paths(ctx.out):
         h = C.load_json(path)
         if int(h["stage"][1:]) < int(STAGE[1:]):
             headers[h["stage"]] = h
