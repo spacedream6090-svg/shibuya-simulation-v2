@@ -1,0 +1,4595 @@
+{
+ "what": "A2 の旗 3 欄の初期化(OSM brand)と経済センサス 2021 の法人の割合のずれ(11-02r §3 の 2)",
+ "script": "docs/bench/analysis/a2-flags-1102/a2_flag_census_gap.py",
+ "inputs": {
+  "data/world/v2/w6_poi.parquet": {
+   "sha256": "cf38443ab8f84868e957fd47c67830cca9755763f781d46a8bdf629a86b6d5ff"
+  },
+  "data/realworld/osm/poi_tags_overpass_20260928.json": {
+   "sha256": "23d4386608c6eb97712472c490189860b1fc8a33d003bf3c65dbcbd035fe2c34"
+  },
+  "data/realworld/estat/経済センサス2021_事業所ベース_産業大分類_従業者売上_渋谷区.json": {
+   "sha256": "7358c855a94046b7f92d7c3d08235d0311f2e6c765618e401935154011ff177f"
+  },
+  "data/realworld/estat/経済センサス2021_事業所数従業者数_渋谷区.json": {
+   "sha256": "4f1f84b22fe70ab9b5bafc14d65a29b2a9b728abe88ad733ca88aad85a8a505c"
+  }
+ },
+ "definitions": {
+  "brand_any": "brand・brand:ja・brand:en・brand:wikidata のどれか(R-134 題 5 (a)=A2 の 2 の文)",
+  "brand_wikidata": "brand:wikidata(題 5 (b))",
+  "brand_c_pricing_hq": "(a) から shop=convenience と operator≠brand(正規化+包含で比べる)を除いた=値付けの旗が本社の数(題 5 (c))",
+  "census_corp_pct": "(会社+会社以外の法人)/総数(事業所数・民営)=100−個人の割合",
+  "census_multi_establishment_enterprise_pct_ref": "参考=渋谷区に本所のある企業等のうち複数事業所企業の割合(企業産業・0003449701)",
+  "gap": "OSM の割合 − センサスの法人の割合(ポイント)",
+  "name_matches_other_brand_no_tag": "brand の無い POI の名が、ほかの要素の brand の名を含む数(ASCII は語の境で 4 字以上・ほかは 3 字以上)=タグの抜けの目安(expedient・誤当たりを含みうる=一覧を JSON に)",
+  "mapping": "major_of() の表(JSIC 大分類への読み・推測の行はスクリプトに印)"
+ },
+ "census_establishment": {
+  "table_id": "0004006322",
+  "title": "産業(大分類)、経営組織(3区分)別民営事業所数、従業者数、売上（収入）金額、１事業所当たり従業者数、１事業所当たり売上（収入）金額及び従業者１人当たり売上（収入）金額－全国、都道府県、市区町村",
+  "published_date": "2023-06-27",
+  "by_major": {
+   "E": {
+    "total": 697,
+    "individual": 40,
+    "company": 656,
+    "non_company_corp": 1,
+    "raw": {
+     "0": "697",
+     "1": "40",
+     "2": "656",
+     "3": "1",
+     "S1": "-",
+     "S2": "-"
+    },
+    "corp_pct": 94.26,
+    "individual_pct": 5.74,
+    "sum_check": true
+   },
+   "G": {
+    "total": 2641,
+    "individual": 17,
+    "company": 2608,
+    "non_company_corp": 16,
+    "raw": {
+     "0": "2641",
+     "1": "17",
+     "2": "2608",
+     "3": "16",
+     "S1": "10",
+     "S2": "1"
+    },
+    "corp_pct": 99.36,
+    "individual_pct": 0.64,
+    "sum_check": true
+   },
+   "I": {
+    "total": 6311,
+    "individual": 372,
+    "company": 5908,
+    "non_company_corp": 31,
+    "raw": {
+     "0": "6311",
+     "1": "372",
+     "2": "5908",
+     "3": "31",
+     "S1": "10",
+     "S2": "-"
+    },
+    "corp_pct": 94.11,
+    "individual_pct": 5.89,
+    "sum_check": true
+   },
+   "J": {
+    "total": 500,
+    "individual": 3,
+    "company": 458,
+    "non_company_corp": 39,
+    "raw": {
+     "0": "500",
+     "1": "3",
+     "2": "458",
+     "3": "39",
+     "S1": "5",
+     "S2": "2"
+    },
+    "corp_pct": 99.4,
+    "individual_pct": 0.6,
+    "sum_check": true
+   },
+   "K": {
+    "total": 2963,
+    "individual": 174,
+    "company": 2768,
+    "non_company_corp": 21,
+    "raw": {
+     "0": "2963",
+     "1": "174",
+     "2": "2768",
+     "3": "21",
+     "S1": "5",
+     "S2": "6"
+    },
+    "corp_pct": 94.13,
+    "individual_pct": 5.87,
+    "sum_check": true
+   },
+   "L": {
+    "total": 3495,
+    "individual": 669,
+    "company": 2627,
+    "non_company_corp": 199,
+    "raw": {
+     "0": "3495",
+     "1": "669",
+     "2": "2627",
+     "3": "199",
+     "S1": "5",
+     "S2": "3"
+    },
+    "corp_pct": 80.86,
+    "individual_pct": 19.14,
+    "sum_check": true
+   },
+   "M": {
+    "total": 3366,
+    "individual": 661,
+    "company": 2698,
+    "non_company_corp": 7,
+    "raw": {
+     "0": "3366",
+     "1": "661",
+     "2": "2698",
+     "3": "7",
+     "S1": "-",
+     "S2": "-"
+    },
+    "corp_pct": 80.36,
+    "individual_pct": 19.64,
+    "sum_check": true
+   },
+   "N": {
+    "total": 2286,
+    "individual": 506,
+    "company": 1744,
+    "non_company_corp": 36,
+    "raw": {
+     "0": "2286",
+     "1": "506",
+     "2": "1744",
+     "3": "36",
+     "S1": "2",
+     "S2": "-"
+    },
+    "corp_pct": 77.87,
+    "individual_pct": 22.13,
+    "sum_check": true
+   },
+   "O": {
+    "total": 872,
+    "individual": 139,
+    "company": 553,
+    "non_company_corp": 180,
+    "raw": {
+     "0": "872",
+     "1": "139",
+     "2": "553",
+     "3": "180",
+     "S1": "-",
+     "S2": "2"
+    },
+    "corp_pct": 84.06,
+    "individual_pct": 15.94,
+    "sum_check": true
+   },
+   "P": {
+    "total": 1491,
+    "individual": 625,
+    "company": 370,
+    "non_company_corp": 496,
+    "raw": {
+     "0": "1491",
+     "1": "625",
+     "2": "370",
+     "3": "496",
+     "S1": "1",
+     "S2": "2"
+    },
+    "corp_pct": 58.08,
+    "individual_pct": 41.92,
+    "sum_check": true
+   },
+   "Q": {
+    "total": 38,
+    "individual": 0,
+    "company": 37,
+    "non_company_corp": 1,
+    "raw": {
+     "0": "38",
+     "1": "-",
+     "2": "37",
+     "3": "1",
+     "S1": "-",
+     "S2": "-"
+    },
+    "corp_pct": 100.0,
+    "individual_pct": 0.0,
+    "sum_check": true
+   },
+   "R": {
+    "total": 1993,
+    "individual": 25,
+    "company": 1447,
+    "non_company_corp": 521,
+    "raw": {
+     "0": "1993",
+     "1": "25",
+     "2": "1447",
+     "3": "521",
+     "S1": "5",
+     "S2": "64"
+    },
+    "corp_pct": 98.75,
+    "individual_pct": 1.25,
+    "sum_check": true
+   },
+   "AR": {
+    "total": 27624,
+    "individual": 3262,
+    "company": 22803,
+    "non_company_corp": 1559,
+    "raw": {
+     "0": "27624",
+     "1": "3262",
+     "2": "22803",
+     "3": "1559",
+     "S1": "43",
+     "S2": "82"
+    },
+    "corp_pct": 88.19,
+    "individual_pct": 11.81,
+    "sum_check": true
+   }
+  }
+ },
+ "census_enterprise_ref": {
+  "table_id": "0003449701",
+  "title": "企業産業(大分類)、経営組織(3区分)、単一・複数(2区分)別企業等数、事業所数及び常用雇用者数－全国、都道府県、郡・支庁等、市区町村",
+  "by_major": {
+   "E": {
+    "enterprises": 729,
+    "multi_establishment": 205,
+    "multi_pct": 28.12
+   },
+   "G": {
+    "enterprises": 2745,
+    "multi_establishment": 297,
+    "multi_pct": 10.82
+   },
+   "I": {
+    "enterprises": 3627,
+    "multi_establishment": 735,
+    "multi_pct": 20.26
+   },
+   "J": {
+    "enterprises": 275,
+    "multi_establishment": 35,
+    "multi_pct": 12.73
+   },
+   "K": {
+    "enterprises": 2904,
+    "multi_establishment": 172,
+    "multi_pct": 5.92
+   },
+   "L": {
+    "enterprises": 3723,
+    "multi_establishment": 220,
+    "multi_pct": 5.91
+   },
+   "M": {
+    "enterprises": 2296,
+    "multi_establishment": 279,
+    "multi_pct": 12.15
+   },
+   "N": {
+    "enterprises": 2089,
+    "multi_establishment": 244,
+    "multi_pct": 11.68
+   },
+   "O": {
+    "enterprises": 665,
+    "multi_establishment": 106,
+    "multi_pct": 15.94
+   },
+   "P": {
+    "enterprises": 1294,
+    "multi_establishment": 132,
+    "multi_pct": 10.2
+   },
+   "Q": {
+    "enterprises": 3,
+    "multi_establishment": 1,
+    "multi_pct": 33.33
+   },
+   "R": {
+    "enterprises": 1670,
+    "multi_establishment": 242,
+    "multi_pct": 14.49
+   },
+   "AR": {
+    "enterprises": 22778,
+    "multi_establishment": 2815,
+    "multi_pct": 12.36
+   }
+  }
+ },
+ "scopes": {
+  "w6_poi": {
+   "n_ids": 2337,
+   "core_store_majors_IMN": {
+    "majors": [
+     "I",
+     "M",
+     "N"
+    ],
+    "poi_n": 1896,
+    "brand_any_n": 440,
+    "brand_any_pct": 23.21,
+    "census_establishments": 11963,
+    "census_corp_pct": 87.14,
+    "gap_brand_any_minus_corp_pt": -63.93
+   },
+   "upper_bound_check_brand_le_corp": {
+    "majors_ok": [
+     "E",
+     "G",
+     "I",
+     "J",
+     "K",
+     "L",
+     "M",
+     "N",
+     "O",
+     "P",
+     "Q",
+     "R"
+    ],
+    "n_ok": 12,
+    "n_rows": 12
+   },
+   "excluded": {
+    "excluded:not_store": 51,
+    "no_raw_tags": 78,
+    "excluded:public": 20,
+    "excluded:vacant": 6,
+    "excluded:office_unknown_industry": 70
+   },
+   "in_scope_total": {
+    "n": 2112,
+    "brand_any": 463,
+    "brand_wikidata": 446,
+    "brand_c_pricing_hq": 345,
+    "convenience": 91,
+    "operator_present_with_brand": 115,
+    "operator_differs": 32,
+    "name_matches_other_brand_no_tag": 11
+   },
+   "gap_rows": [
+    {
+     "major": "E",
+     "name": "製造業",
+     "poi_n": 2,
+     "brand_any_n": 0,
+     "brand_any_pct": 0.0,
+     "brand_wikidata_pct": 0.0,
+     "brand_c_pricing_hq_pct": 0.0,
+     "census_establishments": 697,
+     "census_corp_pct": 94.26,
+     "census_individual_pct": 5.74,
+     "census_multi_establishment_enterprise_pct_ref": 28.12,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -94.26,
+     "gap_brand_wikidata_minus_corp_pt": -94.26,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -94.26
+    },
+    {
+     "major": "G",
+     "name": "情報通信業",
+     "poi_n": 10,
+     "brand_any_n": 0,
+     "brand_any_pct": 0.0,
+     "brand_wikidata_pct": 0.0,
+     "brand_c_pricing_hq_pct": 0.0,
+     "census_establishments": 2641,
+     "census_corp_pct": 99.36,
+     "census_individual_pct": 0.64,
+     "census_multi_establishment_enterprise_pct_ref": 10.82,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -99.36,
+     "gap_brand_wikidata_minus_corp_pt": -99.36,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -99.36
+    },
+    {
+     "major": "I",
+     "name": "卸売業，小売業",
+     "poi_n": 628,
+     "brand_any_n": 240,
+     "brand_any_pct": 38.22,
+     "brand_wikidata_pct": 36.78,
+     "brand_c_pricing_hq_pct": 22.29,
+     "census_establishments": 6311,
+     "census_corp_pct": 94.11,
+     "census_individual_pct": 5.89,
+     "census_multi_establishment_enterprise_pct_ref": 20.26,
+     "operator_differs_n": 14,
+     "convenience_n": 91,
+     "name_matches_other_brand_no_tag_n": 1,
+     "gap_brand_any_minus_corp_pt": -55.89,
+     "gap_brand_wikidata_minus_corp_pt": -57.33,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -71.82
+    },
+    {
+     "major": "J",
+     "name": "金融業，保険業",
+     "poi_n": 35,
+     "brand_any_n": 18,
+     "brand_any_pct": 51.43,
+     "brand_wikidata_pct": 51.43,
+     "brand_c_pricing_hq_pct": 51.43,
+     "census_establishments": 500,
+     "census_corp_pct": 99.4,
+     "census_individual_pct": 0.6,
+     "census_multi_establishment_enterprise_pct_ref": 12.73,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 1,
+     "gap_brand_any_minus_corp_pt": -47.97,
+     "gap_brand_wikidata_minus_corp_pt": -47.97,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -47.97
+    },
+    {
+     "major": "K",
+     "name": "不動産業，物品賃貸業",
+     "poi_n": 16,
+     "brand_any_n": 4,
+     "brand_any_pct": 25.0,
+     "brand_wikidata_pct": 25.0,
+     "brand_c_pricing_hq_pct": 25.0,
+     "census_establishments": 2963,
+     "census_corp_pct": 94.13,
+     "census_individual_pct": 5.87,
+     "census_multi_establishment_enterprise_pct_ref": 5.92,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -69.13,
+     "gap_brand_wikidata_minus_corp_pt": -69.13,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -69.13
+    },
+    {
+     "major": "L",
+     "name": "学術研究，専門・技術サービス業",
+     "poi_n": 7,
+     "brand_any_n": 0,
+     "brand_any_pct": 0.0,
+     "brand_wikidata_pct": 0.0,
+     "brand_c_pricing_hq_pct": 0.0,
+     "census_establishments": 3495,
+     "census_corp_pct": 80.86,
+     "census_individual_pct": 19.14,
+     "census_multi_establishment_enterprise_pct_ref": 5.91,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -80.86,
+     "gap_brand_wikidata_minus_corp_pt": -80.86,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -80.86
+    },
+    {
+     "major": "M",
+     "name": "宿泊業，飲食サービス業",
+     "poi_n": 1120,
+     "brand_any_n": 179,
+     "brand_any_pct": 15.98,
+     "brand_wikidata_pct": 15.36,
+     "brand_c_pricing_hq_pct": 14.38,
+     "census_establishments": 3366,
+     "census_corp_pct": 80.36,
+     "census_individual_pct": 19.64,
+     "census_multi_establishment_enterprise_pct_ref": 12.15,
+     "operator_differs_n": 18,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 8,
+     "gap_brand_any_minus_corp_pt": -64.38,
+     "gap_brand_wikidata_minus_corp_pt": -65.0,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -65.98
+    },
+    {
+     "major": "N",
+     "name": "生活関連サービス業，娯楽業",
+     "poi_n": 148,
+     "brand_any_n": 21,
+     "brand_any_pct": 14.19,
+     "brand_wikidata_pct": 13.51,
+     "brand_c_pricing_hq_pct": 14.19,
+     "census_establishments": 2286,
+     "census_corp_pct": 77.87,
+     "census_individual_pct": 22.13,
+     "census_multi_establishment_enterprise_pct_ref": 11.68,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 1,
+     "gap_brand_any_minus_corp_pt": -63.68,
+     "gap_brand_wikidata_minus_corp_pt": -64.36,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -63.68
+    },
+    {
+     "major": "O",
+     "name": "教育，学習支援業",
+     "poi_n": 60,
+     "brand_any_n": 0,
+     "brand_any_pct": 0.0,
+     "brand_wikidata_pct": 0.0,
+     "brand_c_pricing_hq_pct": 0.0,
+     "census_establishments": 872,
+     "census_corp_pct": 84.06,
+     "census_individual_pct": 15.94,
+     "census_multi_establishment_enterprise_pct_ref": 15.94,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -84.06,
+     "gap_brand_wikidata_minus_corp_pt": -84.06,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -84.06
+    },
+    {
+     "major": "P",
+     "name": "医療，福祉",
+     "poi_n": 42,
+     "brand_any_n": 0,
+     "brand_any_pct": 0.0,
+     "brand_wikidata_pct": 0.0,
+     "brand_c_pricing_hq_pct": 0.0,
+     "census_establishments": 1491,
+     "census_corp_pct": 58.08,
+     "census_individual_pct": 41.92,
+     "census_multi_establishment_enterprise_pct_ref": 10.2,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -58.08,
+     "gap_brand_wikidata_minus_corp_pt": -58.08,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -58.08
+    },
+    {
+     "major": "Q",
+     "name": "複合サービス事業",
+     "poi_n": 11,
+     "brand_any_n": 0,
+     "brand_any_pct": 0.0,
+     "brand_wikidata_pct": 0.0,
+     "brand_c_pricing_hq_pct": 0.0,
+     "census_establishments": 38,
+     "census_corp_pct": 100.0,
+     "census_individual_pct": 0.0,
+     "census_multi_establishment_enterprise_pct_ref": 33.33,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -100.0,
+     "gap_brand_wikidata_minus_corp_pt": -100.0,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -100.0
+    },
+    {
+     "major": "R",
+     "name": "サービス業（他に分類されないもの）",
+     "poi_n": 33,
+     "brand_any_n": 1,
+     "brand_any_pct": 3.03,
+     "brand_wikidata_pct": 3.03,
+     "brand_c_pricing_hq_pct": 3.03,
+     "census_establishments": 1993,
+     "census_corp_pct": 98.75,
+     "census_individual_pct": 1.25,
+     "census_multi_establishment_enterprise_pct_ref": 14.49,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -95.72,
+     "gap_brand_wikidata_minus_corp_pt": -95.72,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -95.72
+    }
+   ],
+   "summary": {
+    "brand_any_all": {
+     "min_poi_n": 1,
+     "n_majors": 12,
+     "median_gap_pt": -75.0,
+     "median_abs_gap_pt": 75.0,
+     "max_abs_gap_pt": 100.0,
+     "max_abs_gap_major": "Q",
+     "min_gap_pt": -100.0,
+     "max_gap_pt": -47.97,
+     "majors_abs_gap_ge_20pt": [
+      "E",
+      "G",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R"
+     ]
+    },
+    "brand_wikidata_all": {
+     "min_poi_n": 1,
+     "n_majors": 12,
+     "median_gap_pt": -75.0,
+     "median_abs_gap_pt": 75.0,
+     "max_abs_gap_pt": 100.0,
+     "max_abs_gap_major": "Q",
+     "min_gap_pt": -100.0,
+     "max_gap_pt": -47.97,
+     "majors_abs_gap_ge_20pt": [
+      "E",
+      "G",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R"
+     ]
+    },
+    "brand_c_pricing_hq_all": {
+     "min_poi_n": 1,
+     "n_majors": 12,
+     "median_gap_pt": -76.34,
+     "median_abs_gap_pt": 76.34,
+     "max_abs_gap_pt": 100.0,
+     "max_abs_gap_major": "Q",
+     "min_gap_pt": -100.0,
+     "max_gap_pt": -47.97,
+     "majors_abs_gap_ge_20pt": [
+      "E",
+      "G",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R"
+     ]
+    },
+    "brand_any_n_ge_10": {
+     "min_poi_n": 10,
+     "n_majors": 10,
+     "median_gap_pt": -66.75,
+     "median_abs_gap_pt": 66.75,
+     "max_abs_gap_pt": 100.0,
+     "max_abs_gap_major": "Q",
+     "min_gap_pt": -100.0,
+     "max_gap_pt": -47.97,
+     "majors_abs_gap_ge_20pt": [
+      "G",
+      "I",
+      "J",
+      "K",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R"
+     ]
+    },
+    "brand_wikidata_n_ge_10": {
+     "min_poi_n": 10,
+     "n_majors": 10,
+     "median_gap_pt": -67.06,
+     "median_abs_gap_pt": 67.06,
+     "max_abs_gap_pt": 100.0,
+     "max_abs_gap_major": "Q",
+     "min_gap_pt": -100.0,
+     "max_gap_pt": -47.97,
+     "majors_abs_gap_ge_20pt": [
+      "G",
+      "I",
+      "J",
+      "K",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R"
+     ]
+    },
+    "brand_c_pricing_hq_n_ge_10": {
+     "min_poi_n": 10,
+     "n_majors": 10,
+     "median_gap_pt": -70.47,
+     "median_abs_gap_pt": 70.47,
+     "max_abs_gap_pt": 100.0,
+     "max_abs_gap_major": "Q",
+     "min_gap_pt": -100.0,
+     "max_gap_pt": -47.97,
+     "majors_abs_gap_ge_20pt": [
+      "G",
+      "I",
+      "J",
+      "K",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R"
+     ]
+    }
+   },
+   "per_osm_value": {
+    "amenity=restaurant": {
+     "n": 476,
+     "brand_any": 39,
+     "brand_wikidata": 39,
+     "brand_c_pricing_hq": 38,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 1,
+     "name_matches_other_brand_no_tag": 4
+    },
+    "amenity=cafe": {
+     "n": 206,
+     "brand_any": 58,
+     "brand_wikidata": 57,
+     "brand_c_pricing_hq": 46,
+     "convenience": 0,
+     "operator_present_with_brand": 39,
+     "operator_differs": 12,
+     "name_matches_other_brand_no_tag": 2
+    },
+    "shop=clothes": {
+     "n": 181,
+     "brand_any": 47,
+     "brand_wikidata": 44,
+     "brand_c_pricing_hq": 46,
+     "convenience": 0,
+     "operator_present_with_brand": 2,
+     "operator_differs": 1,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=bar": {
+     "n": 144,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=fast_food": {
+     "n": 108,
+     "brand_any": 59,
+     "brand_wikidata": 59,
+     "brand_c_pricing_hq": 54,
+     "convenience": 0,
+     "operator_present_with_brand": 14,
+     "operator_differs": 5,
+     "name_matches_other_brand_no_tag": 1
+    },
+    "shop=convenience": {
+     "n": 91,
+     "brand_any": 91,
+     "brand_wikidata": 91,
+     "brand_c_pricing_hq": 0,
+     "convenience": 91,
+     "operator_present_with_brand": 37,
+     "operator_differs": 5,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=pub": {
+     "n": 74,
+     "brand_any": 15,
+     "brand_wikidata": 12,
+     "brand_c_pricing_hq": 15,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 1
+    },
+    "amenity=love_hotel": {
+     "n": 63,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=hairdresser": {
+     "n": 43,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 1
+    },
+    "amenity=place_of_worship": {
+     "n": 29,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=dentist": {
+     "n": 25,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=school": {
+     "n": 24,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "tourism=hotel": {
+     "n": 22,
+     "brand_any": 5,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 5,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=bank": {
+     "n": 20,
+     "brand_any": 14,
+     "brand_wikidata": 14,
+     "brand_c_pricing_hq": 14,
+     "convenience": 0,
+     "operator_present_with_brand": 3,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=sports": {
+     "n": 20,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=pharmacy": {
+     "n": 18,
+     "brand_any": 3,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=nightclub": {
+     "n": 18,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=shoes": {
+     "n": 17,
+     "brand_any": 10,
+     "brand_wikidata": 10,
+     "brand_c_pricing_hq": 10,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=mobile_phone": {
+     "n": 17,
+     "brand_any": 12,
+     "brand_wikidata": 12,
+     "brand_c_pricing_hq": 9,
+     "convenience": 0,
+     "operator_present_with_brand": 10,
+     "operator_differs": 3,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=beauty": {
+     "n": 16,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=karaoke_box": {
+     "n": 15,
+     "brand_any": 8,
+     "brand_wikidata": 8,
+     "brand_c_pricing_hq": 8,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=variety_store": {
+     "n": 15,
+     "brand_any": 7,
+     "brand_wikidata": 7,
+     "brand_c_pricing_hq": 7,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "office=estate_agent": {
+     "n": 15,
+     "brand_any": 4,
+     "brand_wikidata": 4,
+     "brand_c_pricing_hq": 4,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=chemist": {
+     "n": 14,
+     "brand_any": 9,
+     "brand_wikidata": 9,
+     "brand_c_pricing_hq": 8,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 1,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=yes": {
+     "n": 14,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=college": {
+     "n": 13,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=cosmetics": {
+     "n": 13,
+     "brand_any": 6,
+     "brand_wikidata": 6,
+     "brand_c_pricing_hq": 4,
+     "convenience": 0,
+     "operator_present_with_brand": 2,
+     "operator_differs": 2,
+     "name_matches_other_brand_no_tag": 1
+    },
+    "shop=supermarket": {
+     "n": 12,
+     "brand_any": 9,
+     "brand_wikidata": 9,
+     "brand_c_pricing_hq": 9,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=kindergarten": {
+     "n": 12,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=mall": {
+     "n": 12,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=post_office": {
+     "n": 11,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=furniture": {
+     "n": 11,
+     "brand_any": 3,
+     "brand_wikidata": 3,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=massage": {
+     "n": 11,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=clinic": {
+     "n": 11,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=books": {
+     "n": 10,
+     "brand_any": 2,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=deli": {
+     "n": 10,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=theatre": {
+     "n": 10,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=studio": {
+     "n": 10,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=confectionery": {
+     "n": 9,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=jewelry": {
+     "n": 9,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=music": {
+     "n": 9,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=musical_instrument": {
+     "n": 8,
+     "brand_any": 3,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=gambling": {
+     "n": 8,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=electronics": {
+     "n": 7,
+     "brand_any": 5,
+     "brand_wikidata": 5,
+     "brand_c_pricing_hq": 5,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=stationery": {
+     "n": 7,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=optician": {
+     "n": 7,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=alcohol": {
+     "n": 7,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=cinema": {
+     "n": 7,
+     "brand_any": 2,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=events_venue": {
+     "n": 7,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=bakery": {
+     "n": 7,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=watches": {
+     "n": 6,
+     "brand_any": 3,
+     "brand_wikidata": 3,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=hospital": {
+     "n": 6,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=outdoor": {
+     "n": 6,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=ice_cream": {
+     "n": 6,
+     "brand_any": 3,
+     "brand_wikidata": 3,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=department_store": {
+     "n": 6,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "office=lawyer": {
+     "n": 5,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=car": {
+     "n": 5,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "tourism=museum": {
+     "n": 5,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=pet": {
+     "n": 5,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=money_lender": {
+     "n": 5,
+     "brand_any": 3,
+     "brand_wikidata": 3,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=hobby": {
+     "n": 5,
+     "brand_any": 3,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=toys": {
+     "n": 5,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "leisure=sports_centre": {
+     "n": 5,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "office=insurance": {
+     "n": 5,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 1
+    },
+    "shop=bag": {
+     "n": 5,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "leisure=fitness_centre": {
+     "n": 5,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=florist": {
+     "n": 5,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 1,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=pawnbroker": {
+     "n": 5,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=bicycle": {
+     "n": 4,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "leisure=amusement_arcade": {
+     "n": 4,
+     "brand_any": 3,
+     "brand_wikidata": 3,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=coffee": {
+     "n": 4,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=video": {
+     "n": 3,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=travel_agency": {
+     "n": 3,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "tourism=gallery": {
+     "n": 3,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=dry_cleaning": {
+     "n": 3,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "leisure=sauna": {
+     "n": 3,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=video_games": {
+     "n": 3,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=university": {
+     "n": 3,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=fashion_accessories": {
+     "n": 2,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=photo": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=lottery": {
+     "n": 2,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=gift": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=greengrocer": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=tobacco": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=tailor": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "office=religion": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=copyshop": {
+     "n": 2,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "office=architect": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=beverages": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=laundry": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=trade": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=food_court": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=pastry": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=hardware": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "leisure=adult_gaming_centre": {
+     "n": 1,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "leisure=karaoke": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "tourism=guest_house": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=kiosk": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=ticket": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=fishing": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=estate_agent": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=tea": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=computer": {
+     "n": 1,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=interior_decoration": {
+     "n": 1,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=art": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=medical_supply": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=collector": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=anime": {
+     "n": 1,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=baby_goods": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=cheese": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=motorcycle": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=electrical": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=internet_cafe": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=public_bath": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=printing": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=second_hand": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=chocolate": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=erotic": {
+     "n": 1,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=arts_centre": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=bookmaker": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=perfumery": {
+     "n": 1,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 1,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=general": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "craft=glaziery": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "leisure=stadium": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    }
+   },
+   "name_matches_other_brand_no_tag_list": [
+    {
+     "poi_id": "p_n760366321",
+     "primary": "amenity=restaurant",
+     "name": "不二家レストラン",
+     "matched_brand": [
+      "不二家"
+     ]
+    },
+    {
+     "poi_id": "p_n1618477755",
+     "primary": "amenity=fast_food",
+     "name": "丸亀製麺所",
+     "matched_brand": [
+      "丸亀製麺"
+     ]
+    },
+    {
+     "poi_id": "p_n1669670177",
+     "primary": "amenity=restaurant",
+     "name": "kirin city",
+     "matched_brand": [
+      "kirin"
+     ]
+    },
+    {
+     "poi_id": "p_n1684609244",
+     "primary": "amenity=restaurant",
+     "name": "Kirin City",
+     "matched_brand": [
+      "kirin"
+     ]
+    },
+    {
+     "poi_id": "p_n1745599778",
+     "primary": "amenity=restaurant",
+     "name": "不二家レストラン",
+     "matched_brand": [
+      "不二家"
+     ]
+    },
+    {
+     "poi_id": "p_n3340683540",
+     "primary": "amenity=pub",
+     "name": "土間土間",
+     "matched_brand": [
+      "土間土間"
+     ]
+    },
+    {
+     "poi_id": "p_n4226149090",
+     "primary": "amenity=cafe",
+     "name": "L'Occitane Café",
+     "matched_brand": [
+      "l'occitane"
+     ]
+    },
+    {
+     "poi_id": "p_n12452266975",
+     "primary": "shop=hairdresser",
+     "name": "Hair Resort LIFE 渋谷",
+     "matched_brand": [
+      "life"
+     ]
+    },
+    {
+     "poi_id": "p_n12452573402",
+     "primary": "office=insurance",
+     "name": "NN Life Insurance",
+     "matched_brand": [
+      "life"
+     ]
+    },
+    {
+     "poi_id": "p_n12452577431",
+     "primary": "amenity=cafe",
+     "name": "Real Drip Coffee No.12 by Ueshima Coffee House",
+     "matched_brand": [
+      "ueshima coffee house"
+     ]
+    },
+    {
+     "poi_id": "p_n12452577432",
+     "primary": "shop=cosmetics",
+     "name": "TOM FORD BEAUTY",
+     "matched_brand": [
+      "tom ford"
+     ]
+    }
+   ],
+   "brand_operator_pairs": [
+    {
+     "brand": "7-ELEVEN",
+     "operator": "セブンイレブン・ジャパン",
+     "n": 18
+    },
+    {
+     "brand": "スターバックス",
+     "operator": "スターバックスコーヒージャパン",
+     "n": 12
+    },
+    {
+     "brand": "ドトール",
+     "operator": "ドトールコーヒー",
+     "n": 8
+    },
+    {
+     "brand": "FamilyMart",
+     "operator": "ファミリーマート",
+     "n": 6
+    },
+    {
+     "brand": "LAWSON",
+     "operator": "ローソン",
+     "n": 4
+    },
+    {
+     "brand": "カフェ・ベローチェ",
+     "operator": "シャノアール",
+     "n": 4
+    },
+    {
+     "brand": "SoftBank",
+     "operator": "ソフトバンク",
+     "n": 4
+    },
+    {
+     "brand": "サンマルクカフェ",
+     "operator": "サンマルクカフェ",
+     "n": 4
+    },
+    {
+     "brand": "松屋",
+     "operator": "松屋フーズ",
+     "n": 4
+    },
+    {
+     "brand": "エクセルシオール カフェ",
+     "operator": "ドトールコーヒー",
+     "n": 4
+    },
+    {
+     "brand": "7-ELEVEN",
+     "operator": "株式会社セブン&アイ・ホールディングス",
+     "n": 4
+    },
+    {
+     "brand": "モスバーガー",
+     "operator": "モスフードサービス",
+     "n": 3
+    },
+    {
+     "brand": "カフェ・ド・クリエ",
+     "operator": "ポッカ・クリエイト",
+     "n": 3
+    },
+    {
+     "brand": "タリーズコーヒー",
+     "operator": "タリーズコーヒージャパン",
+     "n": 3
+    },
+    {
+     "brand": "au",
+     "operator": "KDDI",
+     "n": 3
+    },
+    {
+     "brand": "LAWSON",
+     "operator": "ローソン (LAWSON)",
+     "n": 2
+    },
+    {
+     "brand": "みずほ銀行",
+     "operator": "みずほ銀行",
+     "n": 2
+    },
+    {
+     "brand": "ケンタッキーフライドチキン",
+     "operator": "日本ケンタッキー・フライド・チキン",
+     "n": 2
+    },
+    {
+     "brand": "FamilyMart",
+     "operator": "am/pm",
+     "n": 1
+    },
+    {
+     "brand": "ライフ",
+     "operator": "ライフコーポレーション",
+     "n": 1
+    },
+    {
+     "brand": "すき家",
+     "operator": "ゼンショー",
+     "n": 1
+    },
+    {
+     "brand": "FamilyMart",
+     "operator": "FamilyMart",
+     "n": 1
+    },
+    {
+     "brand": "ユニクロ",
+     "operator": "ユニクロ",
+     "n": 1
+    },
+    {
+     "brand": "トモズ",
+     "operator": "住商ドラッグストアーズ",
+     "n": 1
+    },
+    {
+     "brand": "SoftBank",
+     "operator": "ソフトバンクモバイル",
+     "n": 1
+    },
+    {
+     "brand": "本家かまどや",
+     "operator": "本家かまどや",
+     "n": 1
+    },
+    {
+     "brand": "MOS CAFE",
+     "operator": "モスフードサービス",
+     "n": 1
+    },
+    {
+     "brand": "NTT docomo",
+     "operator": "NTTドコモ",
+     "n": 1
+    },
+    {
+     "brand": "ジョナサン",
+     "operator": "すかいらーく",
+     "n": 1
+    },
+    {
+     "brand": "ロッテリア",
+     "operator": "ロッテリア",
+     "n": 1
+    },
+    {
+     "brand": "魚べい",
+     "operator": "元気寿司",
+     "n": 1
+    },
+    {
+     "brand": "タイトーステーション",
+     "operator": "タイトー",
+     "n": 1
+    },
+    {
+     "brand": "NATURAL LAWSON",
+     "operator": "ローソン",
+     "n": 1
+    },
+    {
+     "brand": "薬ヒグチ",
+     "operator": "薬ヒグチ＆ファーマライズ",
+     "n": 1
+    },
+    {
+     "brand": "フレッシュネスバーガー",
+     "operator": "フレッシュネス",
+     "n": 1
+    },
+    {
+     "brand": "Rakuten Mobile",
+     "operator": "楽天モバイル",
+     "n": 1
+    },
+    {
+     "brand": "Converse",
+     "operator": "Converse",
+     "n": 1
+    },
+    {
+     "brand": "きらぼし銀行",
+     "operator": "きらぼし銀行",
+     "n": 1
+    },
+    {
+     "brand": "Sabon",
+     "operator": "Shibuya Hikarie",
+     "n": 1
+    },
+    {
+     "brand": "Jo Malone",
+     "operator": "Shibuya Hikarie",
+     "n": 1
+    },
+    {
+     "brand": "Paul Smith",
+     "operator": "Shibuya Hikarie",
+     "n": 1
+    },
+    {
+     "brand": "MAC Cosmetics",
+     "operator": "Shibuya Hikarie",
+     "n": 1
+    },
+    {
+     "brand": "青山フラワーマーケット",
+     "operator": "Shibuya Hikarie",
+     "n": 1
+    }
+   ]
+  },
+  "osm_all_elements": {
+   "n_ids": 3516,
+   "core_store_majors_IMN": {
+    "majors": [
+     "I",
+     "M",
+     "N"
+    ],
+    "poi_n": 2343,
+    "brand_any_n": 484,
+    "brand_any_pct": 20.66,
+    "census_establishments": 11963,
+    "census_corp_pct": 87.14,
+    "gap_brand_any_minus_corp_pt": -66.48
+   },
+   "upper_bound_check_brand_le_corp": {
+    "majors_ok": [
+     "E",
+     "G",
+     "I",
+     "J",
+     "K",
+     "L",
+     "M",
+     "N",
+     "O",
+     "P",
+     "Q",
+     "R"
+    ],
+    "n_ok": 12,
+    "n_rows": 12
+   },
+   "excluded": {
+    "excluded:not_store": 738,
+    "excluded:office_unknown_industry": 107,
+    "excluded:public": 22,
+    "excluded:vacant": 6
+   },
+   "in_scope_total": {
+    "n": 2643,
+    "brand_any": 510,
+    "brand_wikidata": 492,
+    "brand_c_pricing_hq": 386,
+    "convenience": 97,
+    "operator_present_with_brand": 119,
+    "operator_differs": 33,
+    "name_matches_other_brand_no_tag": 19
+   },
+   "gap_rows": [
+    {
+     "major": "E",
+     "name": "製造業",
+     "poi_n": 13,
+     "brand_any_n": 0,
+     "brand_any_pct": 0.0,
+     "brand_wikidata_pct": 0.0,
+     "brand_c_pricing_hq_pct": 0.0,
+     "census_establishments": 697,
+     "census_corp_pct": 94.26,
+     "census_individual_pct": 5.74,
+     "census_multi_establishment_enterprise_pct_ref": 28.12,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -94.26,
+     "gap_brand_wikidata_minus_corp_pt": -94.26,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -94.26
+    },
+    {
+     "major": "G",
+     "name": "情報通信業",
+     "poi_n": 23,
+     "brand_any_n": 0,
+     "brand_any_pct": 0.0,
+     "brand_wikidata_pct": 0.0,
+     "brand_c_pricing_hq_pct": 0.0,
+     "census_establishments": 2641,
+     "census_corp_pct": 99.36,
+     "census_individual_pct": 0.64,
+     "census_multi_establishment_enterprise_pct_ref": 10.82,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -99.36,
+     "gap_brand_wikidata_minus_corp_pt": -99.36,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -99.36
+    },
+    {
+     "major": "I",
+     "name": "卸売業，小売業",
+     "poi_n": 818,
+     "brand_any_n": 272,
+     "brand_any_pct": 33.25,
+     "brand_wikidata_pct": 32.15,
+     "brand_c_pricing_hq_pct": 20.29,
+     "census_establishments": 6311,
+     "census_corp_pct": 94.11,
+     "census_individual_pct": 5.89,
+     "census_multi_establishment_enterprise_pct_ref": 20.26,
+     "operator_differs_n": 15,
+     "convenience_n": 97,
+     "name_matches_other_brand_no_tag_n": 5,
+     "gap_brand_any_minus_corp_pt": -60.86,
+     "gap_brand_wikidata_minus_corp_pt": -61.96,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -73.82
+    },
+    {
+     "major": "J",
+     "name": "金融業，保険業",
+     "poi_n": 39,
+     "brand_any_n": 21,
+     "brand_any_pct": 53.85,
+     "brand_wikidata_pct": 53.85,
+     "brand_c_pricing_hq_pct": 53.85,
+     "census_establishments": 500,
+     "census_corp_pct": 99.4,
+     "census_individual_pct": 0.6,
+     "census_multi_establishment_enterprise_pct_ref": 12.73,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 1,
+     "gap_brand_any_minus_corp_pt": -45.55,
+     "gap_brand_wikidata_minus_corp_pt": -45.55,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -45.55
+    },
+    {
+     "major": "K",
+     "name": "不動産業，物品賃貸業",
+     "poi_n": 16,
+     "brand_any_n": 4,
+     "brand_any_pct": 25.0,
+     "brand_wikidata_pct": 25.0,
+     "brand_c_pricing_hq_pct": 25.0,
+     "census_establishments": 2963,
+     "census_corp_pct": 94.13,
+     "census_individual_pct": 5.87,
+     "census_multi_establishment_enterprise_pct_ref": 5.92,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -69.13,
+     "gap_brand_wikidata_minus_corp_pt": -69.13,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -69.13
+    },
+    {
+     "major": "L",
+     "name": "学術研究，専門・技術サービス業",
+     "poi_n": 7,
+     "brand_any_n": 0,
+     "brand_any_pct": 0.0,
+     "brand_wikidata_pct": 0.0,
+     "brand_c_pricing_hq_pct": 0.0,
+     "census_establishments": 3495,
+     "census_corp_pct": 80.86,
+     "census_individual_pct": 19.14,
+     "census_multi_establishment_enterprise_pct_ref": 5.91,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -80.86,
+     "gap_brand_wikidata_minus_corp_pt": -80.86,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -80.86
+    },
+    {
+     "major": "M",
+     "name": "宿泊業，飲食サービス業",
+     "poi_n": 1346,
+     "brand_any_n": 191,
+     "brand_any_pct": 14.19,
+     "brand_wikidata_pct": 13.6,
+     "brand_c_pricing_hq_pct": 12.85,
+     "census_establishments": 3366,
+     "census_corp_pct": 80.36,
+     "census_individual_pct": 19.64,
+     "census_multi_establishment_enterprise_pct_ref": 12.15,
+     "operator_differs_n": 18,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 12,
+     "gap_brand_any_minus_corp_pt": -66.17,
+     "gap_brand_wikidata_minus_corp_pt": -66.76,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -67.51
+    },
+    {
+     "major": "N",
+     "name": "生活関連サービス業，娯楽業",
+     "poi_n": 179,
+     "brand_any_n": 21,
+     "brand_any_pct": 11.73,
+     "brand_wikidata_pct": 11.17,
+     "brand_c_pricing_hq_pct": 11.73,
+     "census_establishments": 2286,
+     "census_corp_pct": 77.87,
+     "census_individual_pct": 22.13,
+     "census_multi_establishment_enterprise_pct_ref": 11.68,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 1,
+     "gap_brand_any_minus_corp_pt": -66.14,
+     "gap_brand_wikidata_minus_corp_pt": -66.7,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -66.14
+    },
+    {
+     "major": "O",
+     "name": "教育，学習支援業",
+     "poi_n": 74,
+     "brand_any_n": 0,
+     "brand_any_pct": 0.0,
+     "brand_wikidata_pct": 0.0,
+     "brand_c_pricing_hq_pct": 0.0,
+     "census_establishments": 872,
+     "census_corp_pct": 84.06,
+     "census_individual_pct": 15.94,
+     "census_multi_establishment_enterprise_pct_ref": 15.94,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -84.06,
+     "gap_brand_wikidata_minus_corp_pt": -84.06,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -84.06
+    },
+    {
+     "major": "P",
+     "name": "医療，福祉",
+     "poi_n": 77,
+     "brand_any_n": 0,
+     "brand_any_pct": 0.0,
+     "brand_wikidata_pct": 0.0,
+     "brand_c_pricing_hq_pct": 0.0,
+     "census_establishments": 1491,
+     "census_corp_pct": 58.08,
+     "census_individual_pct": 41.92,
+     "census_multi_establishment_enterprise_pct_ref": 10.2,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -58.08,
+     "gap_brand_wikidata_minus_corp_pt": -58.08,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -58.08
+    },
+    {
+     "major": "Q",
+     "name": "複合サービス事業",
+     "poi_n": 11,
+     "brand_any_n": 0,
+     "brand_any_pct": 0.0,
+     "brand_wikidata_pct": 0.0,
+     "brand_c_pricing_hq_pct": 0.0,
+     "census_establishments": 38,
+     "census_corp_pct": 100.0,
+     "census_individual_pct": 0.0,
+     "census_multi_establishment_enterprise_pct_ref": 33.33,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -100.0,
+     "gap_brand_wikidata_minus_corp_pt": -100.0,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -100.0
+    },
+    {
+     "major": "R",
+     "name": "サービス業（他に分類されないもの）",
+     "poi_n": 40,
+     "brand_any_n": 1,
+     "brand_any_pct": 2.5,
+     "brand_wikidata_pct": 2.5,
+     "brand_c_pricing_hq_pct": 2.5,
+     "census_establishments": 1993,
+     "census_corp_pct": 98.75,
+     "census_individual_pct": 1.25,
+     "census_multi_establishment_enterprise_pct_ref": 14.49,
+     "operator_differs_n": 0,
+     "convenience_n": 0,
+     "name_matches_other_brand_no_tag_n": 0,
+     "gap_brand_any_minus_corp_pt": -96.25,
+     "gap_brand_wikidata_minus_corp_pt": -96.25,
+     "gap_brand_c_pricing_hq_minus_corp_pt": -96.25
+    }
+   ],
+   "summary": {
+    "brand_any_all": {
+     "min_poi_n": 1,
+     "n_majors": 12,
+     "median_gap_pt": -75.0,
+     "median_abs_gap_pt": 75.0,
+     "max_abs_gap_pt": 100.0,
+     "max_abs_gap_major": "Q",
+     "min_gap_pt": -100.0,
+     "max_gap_pt": -45.55,
+     "majors_abs_gap_ge_20pt": [
+      "E",
+      "G",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R"
+     ]
+    },
+    "brand_wikidata_all": {
+     "min_poi_n": 1,
+     "n_majors": 12,
+     "median_gap_pt": -75.0,
+     "median_abs_gap_pt": 75.0,
+     "max_abs_gap_pt": 100.0,
+     "max_abs_gap_major": "Q",
+     "min_gap_pt": -100.0,
+     "max_gap_pt": -45.55,
+     "majors_abs_gap_ge_20pt": [
+      "E",
+      "G",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R"
+     ]
+    },
+    "brand_c_pricing_hq_all": {
+     "min_poi_n": 1,
+     "n_majors": 12,
+     "median_gap_pt": -77.34,
+     "median_abs_gap_pt": 77.34,
+     "max_abs_gap_pt": 100.0,
+     "max_abs_gap_major": "Q",
+     "min_gap_pt": -100.0,
+     "max_gap_pt": -45.55,
+     "majors_abs_gap_ge_20pt": [
+      "E",
+      "G",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R"
+     ]
+    },
+    "brand_any_n_ge_10": {
+     "min_poi_n": 10,
+     "n_majors": 11,
+     "median_gap_pt": -69.13,
+     "median_abs_gap_pt": 69.13,
+     "max_abs_gap_pt": 100.0,
+     "max_abs_gap_major": "Q",
+     "min_gap_pt": -100.0,
+     "max_gap_pt": -45.55,
+     "majors_abs_gap_ge_20pt": [
+      "E",
+      "G",
+      "I",
+      "J",
+      "K",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R"
+     ]
+    },
+    "brand_wikidata_n_ge_10": {
+     "min_poi_n": 10,
+     "n_majors": 11,
+     "median_gap_pt": -69.13,
+     "median_abs_gap_pt": 69.13,
+     "max_abs_gap_pt": 100.0,
+     "max_abs_gap_major": "Q",
+     "min_gap_pt": -100.0,
+     "max_gap_pt": -45.55,
+     "majors_abs_gap_ge_20pt": [
+      "E",
+      "G",
+      "I",
+      "J",
+      "K",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R"
+     ]
+    },
+    "brand_c_pricing_hq_n_ge_10": {
+     "min_poi_n": 10,
+     "n_majors": 11,
+     "median_gap_pt": -73.82,
+     "median_abs_gap_pt": 73.82,
+     "max_abs_gap_pt": 100.0,
+     "max_abs_gap_major": "Q",
+     "min_gap_pt": -100.0,
+     "max_gap_pt": -45.55,
+     "majors_abs_gap_ge_20pt": [
+      "E",
+      "G",
+      "I",
+      "J",
+      "K",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R"
+     ]
+    }
+   },
+   "per_osm_value": {
+    "amenity=restaurant": {
+     "n": 587,
+     "brand_any": 42,
+     "brand_wikidata": 41,
+     "brand_c_pricing_hq": 41,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 1,
+     "name_matches_other_brand_no_tag": 5
+    },
+    "amenity=cafe": {
+     "n": 250,
+     "brand_any": 63,
+     "brand_wikidata": 62,
+     "brand_c_pricing_hq": 51,
+     "convenience": 0,
+     "operator_present_with_brand": 39,
+     "operator_differs": 12,
+     "name_matches_other_brand_no_tag": 4
+    },
+    "shop=clothes": {
+     "n": 247,
+     "brand_any": 58,
+     "brand_wikidata": 55,
+     "brand_c_pricing_hq": 57,
+     "convenience": 0,
+     "operator_present_with_brand": 2,
+     "operator_differs": 1,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=bar": {
+     "n": 175,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=fast_food": {
+     "n": 123,
+     "brand_any": 61,
+     "brand_wikidata": 61,
+     "brand_c_pricing_hq": 56,
+     "convenience": 0,
+     "operator_present_with_brand": 14,
+     "operator_differs": 5,
+     "name_matches_other_brand_no_tag": 2
+    },
+    "shop=convenience": {
+     "n": 97,
+     "brand_any": 97,
+     "brand_wikidata": 97,
+     "brand_c_pricing_hq": 0,
+     "convenience": 97,
+     "operator_present_with_brand": 39,
+     "operator_differs": 6,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=pub": {
+     "n": 80,
+     "brand_any": 17,
+     "brand_wikidata": 14,
+     "brand_c_pricing_hq": 17,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 1
+    },
+    "amenity=love_hotel": {
+     "n": 64,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=hairdresser": {
+     "n": 51,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 1
+    },
+    "amenity=place_of_worship": {
+     "n": 36,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=dentist": {
+     "n": 29,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=school": {
+     "n": 29,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "tourism=hotel": {
+     "n": 27,
+     "brand_any": 5,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 5,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=shoes": {
+     "n": 25,
+     "brand_any": 10,
+     "brand_wikidata": 10,
+     "brand_c_pricing_hq": 10,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 1
+    },
+    "amenity=nightclub": {
+     "n": 25,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=doctors": {
+     "n": 24,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=bank": {
+     "n": 23,
+     "brand_any": 16,
+     "brand_wikidata": 16,
+     "brand_c_pricing_hq": 16,
+     "convenience": 0,
+     "operator_present_with_brand": 3,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=sports": {
+     "n": 23,
+     "brand_any": 3,
+     "brand_wikidata": 3,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=studio": {
+     "n": 23,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=yes": {
+     "n": 22,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 1
+    },
+    "shop=beauty": {
+     "n": 21,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=variety_store": {
+     "n": 19,
+     "brand_any": 9,
+     "brand_wikidata": 9,
+     "brand_c_pricing_hq": 9,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=pharmacy": {
+     "n": 18,
+     "brand_any": 3,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=furniture": {
+     "n": 17,
+     "brand_any": 4,
+     "brand_wikidata": 4,
+     "brand_c_pricing_hq": 4,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=mobile_phone": {
+     "n": 17,
+     "brand_any": 12,
+     "brand_wikidata": 12,
+     "brand_c_pricing_hq": 9,
+     "convenience": 0,
+     "operator_present_with_brand": 10,
+     "operator_differs": 3,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=mall": {
+     "n": 16,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=chemist": {
+     "n": 15,
+     "brand_any": 10,
+     "brand_wikidata": 10,
+     "brand_c_pricing_hq": 9,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 1,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=cosmetics": {
+     "n": 15,
+     "brand_any": 6,
+     "brand_wikidata": 6,
+     "brand_c_pricing_hq": 4,
+     "convenience": 0,
+     "operator_present_with_brand": 2,
+     "operator_differs": 2,
+     "name_matches_other_brand_no_tag": 1
+    },
+    "amenity=karaoke_box": {
+     "n": 15,
+     "brand_any": 8,
+     "brand_wikidata": 8,
+     "brand_c_pricing_hq": 8,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "office=estate_agent": {
+     "n": 15,
+     "brand_any": 4,
+     "brand_wikidata": 4,
+     "brand_c_pricing_hq": 4,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=jewelry": {
+     "n": 14,
+     "brand_any": 3,
+     "brand_wikidata": 3,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=supermarket": {
+     "n": 14,
+     "brand_any": 11,
+     "brand_wikidata": 11,
+     "brand_c_pricing_hq": 11,
+     "convenience": 0,
+     "operator_present_with_brand": 2,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=college": {
+     "n": 14,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=books": {
+     "n": 14,
+     "brand_any": 2,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=clinic": {
+     "n": 13,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=theatre": {
+     "n": 13,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=massage": {
+     "n": 13,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=kindergarten": {
+     "n": 13,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=bakery": {
+     "n": 12,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=music": {
+     "n": 12,
+     "brand_any": 3,
+     "brand_wikidata": 3,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=department_store": {
+     "n": 11,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 1
+    },
+    "amenity=post_office": {
+     "n": 11,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=ice_cream": {
+     "n": 10,
+     "brand_any": 3,
+     "brand_wikidata": 3,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=confectionery": {
+     "n": 10,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=deli": {
+     "n": 10,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=gift": {
+     "n": 9,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=events_venue": {
+     "n": 9,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=musical_instrument": {
+     "n": 9,
+     "brand_any": 3,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=optician": {
+     "n": 8,
+     "brand_any": 3,
+     "brand_wikidata": 3,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "tourism=museum": {
+     "n": 8,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=watches": {
+     "n": 8,
+     "brand_any": 3,
+     "brand_wikidata": 3,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=gambling": {
+     "n": 8,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=toys": {
+     "n": 8,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=electronics": {
+     "n": 8,
+     "brand_any": 5,
+     "brand_wikidata": 5,
+     "brand_c_pricing_hq": 5,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=cinema": {
+     "n": 8,
+     "brand_any": 2,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=stationery": {
+     "n": 8,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "leisure=sports_centre": {
+     "n": 8,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=hobby": {
+     "n": 7,
+     "brand_any": 3,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 1
+    },
+    "shop=bag": {
+     "n": 7,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=hospital": {
+     "n": 7,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=alcohol": {
+     "n": 7,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "leisure=fitness_centre": {
+     "n": 6,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=pawnbroker": {
+     "n": 6,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=coffee": {
+     "n": 6,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=outdoor": {
+     "n": 6,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=florist": {
+     "n": 6,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 1,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=car": {
+     "n": 5,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=bicycle": {
+     "n": 5,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "tourism=gallery": {
+     "n": 5,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "office=insurance": {
+     "n": 5,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 1
+    },
+    "shop=video_games": {
+     "n": 5,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "leisure=amusement_arcade": {
+     "n": 5,
+     "brand_any": 3,
+     "brand_wikidata": 3,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=greengrocer": {
+     "n": 5,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=university": {
+     "n": 5,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=collector": {
+     "n": 5,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=pet": {
+     "n": 5,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=money_lender": {
+     "n": 5,
+     "brand_any": 3,
+     "brand_wikidata": 3,
+     "brand_c_pricing_hq": 3,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "office=lawyer": {
+     "n": 5,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=second_hand": {
+     "n": 4,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=anime": {
+     "n": 4,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=arts_centre": {
+     "n": 4,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "leisure=sauna": {
+     "n": 3,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=dry_cleaning": {
+     "n": 3,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=food_court": {
+     "n": 3,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=ticket": {
+     "n": 3,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=video": {
+     "n": 3,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=travel_agency": {
+     "n": 3,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=internet_cafe": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=laundry": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=interior_decoration": {
+     "n": 2,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=lottery": {
+     "n": 2,
+     "brand_any": 2,
+     "brand_wikidata": 2,
+     "brand_c_pricing_hq": 2,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "craft=brewery": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=trade": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=chocolate": {
+     "n": 2,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=pastry": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=perfumery": {
+     "n": 2,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 1,
+     "operator_differs": 1,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "craft=photographer": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "leisure=karaoke": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "tourism=guest_house": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=kiosk": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=motorcycle": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=tobacco": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=tailor": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "office=religion": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=copyshop": {
+     "n": 2,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=photo": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=fashion_accessories": {
+     "n": 2,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "office=architect": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=beverages": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "craft=electronics_repair": {
+     "n": 2,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "healthcare=laboratory": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=doityourself": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "amenity=public_bath": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=printing": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=erotic": {
+     "n": 1,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=rental": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=antiques": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=model": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=yarn": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "craft=pottery": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=water": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=games": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "craft=photographic_laboratory": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=hardware": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "healthcare=sample_collection": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "craft=key_cutter": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "leisure=adult_gaming_centre": {
+     "n": 1,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "craft=optician": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=fishing": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=estate_agent": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=tea": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=computer": {
+     "n": 1,
+     "brand_any": 1,
+     "brand_wikidata": 1,
+     "brand_c_pricing_hq": 1,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "healthcare=blood_donation": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=repair": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=religion": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=art": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=medical_supply": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=tattoo": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=seafood": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "healthcare=rehabilitation": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=baby_goods": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=cheese": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=electrical": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "leisure=stadium": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=bookmaker": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "craft=shoemaker": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "shop=general": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    },
+    "craft=glaziery": {
+     "n": 1,
+     "brand_any": 0,
+     "brand_wikidata": 0,
+     "brand_c_pricing_hq": 0,
+     "convenience": 0,
+     "operator_present_with_brand": 0,
+     "operator_differs": 0,
+     "name_matches_other_brand_no_tag": 0
+    }
+   },
+   "name_matches_other_brand_no_tag_list": [
+    {
+     "poi_id": "p_n10992183005",
+     "primary": "shop=hobby",
+     "name": "まんだらけ",
+     "matched_brand": [
+      "まんだらけ"
+     ]
+    },
+    {
+     "poi_id": "p_n12452266975",
+     "primary": "shop=hairdresser",
+     "name": "Hair Resort LIFE 渋谷",
+     "matched_brand": [
+      "life"
+     ]
+    },
+    {
+     "poi_id": "p_n12452573402",
+     "primary": "office=insurance",
+     "name": "NN Life Insurance",
+     "matched_brand": [
+      "life"
+     ]
+    },
+    {
+     "poi_id": "p_n12452577431",
+     "primary": "amenity=cafe",
+     "name": "Real Drip Coffee No.12 by Ueshima Coffee House",
+     "matched_brand": [
+      "ueshima coffee house"
+     ]
+    },
+    {
+     "poi_id": "p_n12452577432",
+     "primary": "shop=cosmetics",
+     "name": "TOM FORD BEAUTY",
+     "matched_brand": [
+      "tom ford"
+     ]
+    },
+    {
+     "poi_id": "p_n13350652701",
+     "primary": "shop=shoes",
+     "name": "White Atelier by Converse",
+     "matched_brand": [
+      "converse"
+     ]
+    },
+    {
+     "poi_id": "p_n13352293301",
+     "primary": "amenity=fast_food",
+     "name": "Slice of Life",
+     "matched_brand": [
+      "life"
+     ]
+    },
+    {
+     "poi_id": "p_n13564339572",
+     "primary": "shop=yes",
+     "name": "Dior",
+     "matched_brand": [
+      "dior"
+     ]
+    },
+    {
+     "poi_id": "p_n14118639801",
+     "primary": "amenity=cafe",
+     "name": "タリーズコーヒー 渋谷スクランブルスクエア店",
+     "matched_brand": [
+      "タリーズコーヒー"
+     ]
+    },
+    {
+     "poi_id": "p_n14118639802",
+     "primary": "amenity=cafe",
+     "name": "タリーズコーヒー 渋谷アクシュ店",
+     "matched_brand": [
+      "タリーズコーヒー"
+     ]
+    },
+    {
+     "poi_id": "p_n14152740880",
+     "primary": "amenity=restaurant",
+     "name": "IKEA スウェーデンレストラン",
+     "matched_brand": [
+      "ikea"
+     ]
+    },
+    {
+     "poi_id": "p_n1618477755",
+     "primary": "amenity=fast_food",
+     "name": "丸亀製麺所",
+     "matched_brand": [
+      "丸亀製麺"
+     ]
+    },
+    {
+     "poi_id": "p_n1669670177",
+     "primary": "amenity=restaurant",
+     "name": "kirin city",
+     "matched_brand": [
+      "kirin"
+     ]
+    },
+    {
+     "poi_id": "p_n1684609244",
+     "primary": "amenity=restaurant",
+     "name": "Kirin City",
+     "matched_brand": [
+      "kirin"
+     ]
+    },
+    {
+     "poi_id": "p_n1745599778",
+     "primary": "amenity=restaurant",
+     "name": "不二家レストラン",
+     "matched_brand": [
+      "不二家"
+     ]
+    },
+    {
+     "poi_id": "p_n3340683540",
+     "primary": "amenity=pub",
+     "name": "土間土間",
+     "matched_brand": [
+      "土間土間"
+     ]
+    },
+    {
+     "poi_id": "p_n4226149090",
+     "primary": "amenity=cafe",
+     "name": "L'Occitane Café",
+     "matched_brand": [
+      "l'occitane"
+     ]
+    },
+    {
+     "poi_id": "p_n760366321",
+     "primary": "amenity=restaurant",
+     "name": "不二家レストラン",
+     "matched_brand": [
+      "不二家"
+     ]
+    },
+    {
+     "poi_id": "p_w136692138",
+     "primary": "shop=department_store",
+     "name": "西武渋谷店ロフト館",
+     "matched_brand": [
+      "ロフト"
+     ]
+    }
+   ],
+   "brand_operator_pairs": [
+    {
+     "brand": "7-ELEVEN",
+     "operator": "セブンイレブン・ジャパン",
+     "n": 18
+    },
+    {
+     "brand": "スターバックス",
+     "operator": "スターバックスコーヒージャパン",
+     "n": 12
+    },
+    {
+     "brand": "ドトール",
+     "operator": "ドトールコーヒー",
+     "n": 8
+    },
+    {
+     "brand": "FamilyMart",
+     "operator": "ファミリーマート",
+     "n": 6
+    },
+    {
+     "brand": "LAWSON",
+     "operator": "ローソン",
+     "n": 4
+    },
+    {
+     "brand": "松屋",
+     "operator": "松屋フーズ",
+     "n": 4
+    },
+    {
+     "brand": "SoftBank",
+     "operator": "ソフトバンク",
+     "n": 4
+    },
+    {
+     "brand": "サンマルクカフェ",
+     "operator": "サンマルクカフェ",
+     "n": 4
+    },
+    {
+     "brand": "エクセルシオール カフェ",
+     "operator": "ドトールコーヒー",
+     "n": 4
+    },
+    {
+     "brand": "7-ELEVEN",
+     "operator": "株式会社セブン&アイ・ホールディングス",
+     "n": 4
+    },
+    {
+     "brand": "カフェ・ベローチェ",
+     "operator": "シャノアール",
+     "n": 4
+    },
+    {
+     "brand": "カフェ・ド・クリエ",
+     "operator": "ポッカ・クリエイト",
+     "n": 3
+    },
+    {
+     "brand": "タリーズコーヒー",
+     "operator": "タリーズコーヒージャパン",
+     "n": 3
+    },
+    {
+     "brand": "モスバーガー",
+     "operator": "モスフードサービス",
+     "n": 3
+    },
+    {
+     "brand": "au",
+     "operator": "KDDI",
+     "n": 3
+    },
+    {
+     "brand": "みずほ銀行",
+     "operator": "みずほ銀行",
+     "n": 2
+    },
+    {
+     "brand": "ケンタッキーフライドチキン",
+     "operator": "日本ケンタッキー・フライド・チキン",
+     "n": 2
+    },
+    {
+     "brand": "LAWSON",
+     "operator": "ローソン (LAWSON)",
+     "n": 2
+    },
+    {
+     "brand": "FamilyMart",
+     "operator": "FamilyMart",
+     "n": 1
+    },
+    {
+     "brand": "Converse",
+     "operator": "Converse",
+     "n": 1
+    },
+    {
+     "brand": "ユニクロ",
+     "operator": "ユニクロ",
+     "n": 1
+    },
+    {
+     "brand": "トモズ",
+     "operator": "住商ドラッグストアーズ",
+     "n": 1
+    },
+    {
+     "brand": "SoftBank",
+     "operator": "ソフトバンクモバイル",
+     "n": 1
+    },
+    {
+     "brand": "本家かまどや",
+     "operator": "本家かまどや",
+     "n": 1
+    },
+    {
+     "brand": "MOS CAFE",
+     "operator": "モスフードサービス",
+     "n": 1
+    },
+    {
+     "brand": "NTT docomo",
+     "operator": "NTTドコモ",
+     "n": 1
+    },
+    {
+     "brand": "ジョナサン",
+     "operator": "すかいらーく",
+     "n": 1
+    },
+    {
+     "brand": "ロッテリア",
+     "operator": "ロッテリア",
+     "n": 1
+    },
+    {
+     "brand": "魚べい",
+     "operator": "元気寿司",
+     "n": 1
+    },
+    {
+     "brand": "タイトーステーション",
+     "operator": "タイトー",
+     "n": 1
+    },
+    {
+     "brand": "NATURAL LAWSON",
+     "operator": "ローソン",
+     "n": 1
+    },
+    {
+     "brand": "FamilyMart",
+     "operator": "サンクス",
+     "n": 1
+    },
+    {
+     "brand": "薬ヒグチ",
+     "operator": "薬ヒグチ＆ファーマライズ",
+     "n": 1
+    },
+    {
+     "brand": "フレッシュネスバーガー",
+     "operator": "フレッシュネス",
+     "n": 1
+    },
+    {
+     "brand": "LAWSON",
+     "operator": "LAWSON",
+     "n": 1
+    },
+    {
+     "brand": "FamilyMart",
+     "operator": "am/pm",
+     "n": 1
+    },
+    {
+     "brand": "ライフ",
+     "operator": "ライフコーポレーション",
+     "n": 1
+    },
+    {
+     "brand": "Rakuten Mobile",
+     "operator": "楽天モバイル",
+     "n": 1
+    },
+    {
+     "brand": "すき家",
+     "operator": "ゼンショー",
+     "n": 1
+    },
+    {
+     "brand": "きらぼし銀行",
+     "operator": "きらぼし銀行",
+     "n": 1
+    },
+    {
+     "brand": "ドン・キホーテ",
+     "operator": "株式会社ドン・キホーテ",
+     "n": 1
+    },
+    {
+     "brand": "タワーレコード",
+     "operator": "タワーレコード株式会社",
+     "n": 1
+    },
+    {
+     "brand": "Sabon",
+     "operator": "Shibuya Hikarie",
+     "n": 1
+    },
+    {
+     "brand": "Jo Malone",
+     "operator": "Shibuya Hikarie",
+     "n": 1
+    },
+    {
+     "brand": "Paul Smith",
+     "operator": "Shibuya Hikarie",
+     "n": 1
+    },
+    {
+     "brand": "MAC Cosmetics",
+     "operator": "Shibuya Hikarie",
+     "n": 1
+    },
+    {
+     "brand": "青山フラワーマーケット",
+     "operator": "Shibuya Hikarie",
+     "n": 1
+    }
+   ]
+  }
+ }
+}
