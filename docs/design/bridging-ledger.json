@@ -2496,8 +2496,8 @@
   },
   {
    "id": "HD-engine.presence-b560bcbc",
-   "what": "src/shibuya/engine/presence.py の docstring の見出し「expedient(本モジュール分・実装計画書 §8「D-66/計画実行層(第1段)」が正典)」の下の項 9 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-2 カレンダー 1b(出入りを本人へ・E4 と W17 のつなぎを外す)〔11-01 段 2 の 3・4〕項 E6(出勤率)は消した=全員出勤・項 E8(到着の分散)は既定から外した=全員が E1 の便(旧道は切替口 legacy)。項の数は 9 のまま(項の文に注を足した)",
+   "what": "src/shibuya/engine/presence.py の docstring の見出し「expedient(本モジュール分・実装計画書 §8「D-66/計画実行層(第1段)」が正典)」の下の項 11 個",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-2 カレンダー 1b(出入りを本人へ・E4 と W17 のつなぎを外す)〔11-01 段 2 の 3・4〕項 E6(出勤率)は消した=全員出勤・項 E8(到着の分散)は既定から外した=全員が E1 の便(旧道は切替口 legacy)。項の数は 9 のまま(項の文に注を足した)〔第341・11-02 研究 6〕docstring を今の実装に合わせて書き直し、登録簿に E12(RETURN_MIN_AWAY_MIN=戻りの最短の外出)と E13(読み口 v2/v2.1)を足した=項 9 → 11(記録 docs/bench/analysis/presence-docstring-1102/README.md)",
    "remove_at": "6-2",
    "declared_in": "src/shibuya/engine/presence.py#heading:b560bcbc",
    "conf": "expedient",

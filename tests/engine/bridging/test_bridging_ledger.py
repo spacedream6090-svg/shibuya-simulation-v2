@@ -161,7 +161,9 @@ def test_the_counts_by_form(decls):
     # 〔第 2 期 2-2 段 11a〕engine/proximity.py(項 5)=79 → 80・357 → 362(記録 prox22/README.md)
     # 〔第 3 期 3-5〕environment.py の項 3(体感温度)と salient.py の項 1(倒れる率)を本人の体の層の表へ移した=362 → 358
     # 〔第 3 期 3-1〕build/sched/w20_calendar_1a.py(項 8)=80 → 81・358 → 366(本体の後に・記録 ca31/README.md)
-    assert len({d.path for d in heads}) == 81 and sum(d.items for d in heads) == 366
+    # 〔第342〕presence.py の docstring を実装に合わせて書き直し E12・E13 を登録簿に足した(#134・95c4ced)=項 9 → 11・366 → 368
+    # (記録 presence-docstring-1102/README.md・見出しは足していない)
+    assert len({d.path for d in heads}) == 81 and sum(d.items for d in heads) == 368
 
 
 def test_process_and_fallback_rows(ledger, decls):

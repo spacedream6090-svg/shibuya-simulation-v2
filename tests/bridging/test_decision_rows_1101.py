@@ -64,8 +64,10 @@ def test_one_row_per_routing_decision(tool, doc):
 #: 土台の DEC 以外の行の指紋(id 順に並べた行の正規化 JSON の sha256)。固定した版の由来: 第340 段 2 の 5(規則の表・6a943af=
 #: +1 行)と段 2 の 3・4(率の規則・ce52662=+4 行・13 行に注)の後の 678 行(=c0729a4 の 673+1+4)。並走の段がこの行を
 #: 変えたら、変えた行を記録に書いてこの値を直す(前の値=c0729a4 の 673 行 3871dcc2…dd42c75bd)。
+#: 〔第342〕presence.py の docstring の書き直し(#134・95c4ced)で見出しの行 HD-engine.presence-b560bcbc の項が 9 → 11
+#: (E12・E13 を登録簿に)=what と why を直した(行数は 678 のまま・前の値 7130eb39…1f5e81a7)。
 BASE_ROWS = 678
-BASE_ROWS_SHA = "7130eb39a961f5154716eec965ef2808e9267d8b0e214088f43c3f3c1f5e81a7"
+BASE_ROWS_SHA = "ce4aa6dbaea77df521acc3fc31f1c84fc768e3ba26635031e31583476ee85198"
 
 
 def test_base_rows_are_byte_identical(doc):

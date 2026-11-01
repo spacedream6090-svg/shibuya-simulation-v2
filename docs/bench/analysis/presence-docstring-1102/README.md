@@ -92,3 +92,7 @@
 - 〔11-02/6〕`presence.py` の到着と退出の場所(docstring は実装に合わせた=記録 docs/bench/analysis/presence-docstring-1102): ① 方面 8/9 の体が門(W12)でなく駅の出口に現れる ② 到着の約 6/25 が表参道・明治神宮前の出口のセル(線と結び付けない round-robin)
 - ③ 同じ刻みの退出と到着=旧既定(E8 の分散あり=今の legacy の腕)・nav1 の腕の 5,000 体で 18〜20 件/日・最大 1,355 m(新南口 ↔ 明治神宮前のセルの代表ノード間と一致=推測・出口どうしの上限 1,853.8 m)。今の既定 off では未計測。台帳 `DOC-nav1-presence-same-step-depart-arrive`
 - 直すのは段 2(①②③と、戻りの割り振りの偏り #10)。日の境目の穴 #23 は K9/A11 の親の判断。設計書にも及ぶ食い違い(§3 の E3・降車セルの分散・ARRIVE の引数・type 数・§2 の derive の定義・§6 の `--gate-mode`・E6・E8・E12=§1-2)は親が設計書を直すかを決める
+
+## 6. 取り込みの後の直し(第342・CI の赤)
+
+- CI(b593b57)で `tests/engine/bridging/test_bridging_ledger.py` の 2 本が落ちた=docstring の登録簿に E12・E13 を足したため、つなぎの台帳の見出しの行 `HD-engine.presence-b560bcbc`(項 9 個)と見出しの項の合計(366)がずれた。台帳の行を項 11 個に直し(why に注)、試験の合計を 368 に、土台の行の指紋 `BASE_ROWS_SHA` を固定し直した(行数 678 のまま)。教訓: docstring だけの段でも `tests/engine/bridging`・`tests/bridging` を範囲に入れる。
