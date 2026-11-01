@@ -1,0 +1,240 @@
+{
+ "a": {
+  "label": "head342",
+  "kw": {},
+  "src": "写し",
+  "env": {}
+ },
+ "b": {
+  "label": "s2e",
+  "kw": {},
+  "src": "写し",
+  "env": {}
+ },
+ "note": "",
+ "keys": [
+  "final",
+  "calls",
+  "blocks_rows",
+  "blocks_sha",
+  "calls_rows",
+  "calls_column_names",
+  "calls_columns_sha",
+  "action_usage_total",
+  "action_usage_sha",
+  "calls_by_condition",
+  "salient_events",
+  "collapse",
+  "noticed",
+  "dispatches",
+  "arrived",
+  "mean_delay_min",
+  "meals",
+  "behavior_last",
+  "full_last",
+  "end_of_day",
+  "start_sim_datetime",
+  "replay_date",
+  "calendar_weekday",
+  "rng_scheme",
+  "frozen_sources"
+ ],
+ "rows": {
+  "w6_v3_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources"
+   ],
+   "moved": {
+    "full_last": {
+     "a": "704112949e6816bedcdc91f9fdad867a206089b8578dea3a6890892e01cd235f",
+     "b": "f0fcaa8320f17a7af331407d1505b04f2b6510c677057e5091251e7641c2df07"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "2a91e9458edda7a5d1a15d26172612ca78a5f35c747dcffa33b126f46e4f0271",
+      "full_hash": "c25c8437ed66a45565a080aa7a6f75f646cd742305d05050b7798f1070164014",
+      "full_external_bytes": 3846084
+     },
+     "b": {
+      "behavior_hash": "2a91e9458edda7a5d1a15d26172612ca78a5f35c747dcffa33b126f46e4f0271",
+      "full_hash": "fe16f6833bb72ec1a15cbbc9ab8ff67e868f461ce74b792a7d608f46758a89bb",
+      "full_external_bytes": 3846031
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "v3_mem_store": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources"
+   ],
+   "moved": {
+    "full_last": {
+     "a": "370a1757a7a66df3335f6ed7e89dee4dd0e31e92cff5593f4098f0d5730122a0",
+     "b": "28fc8af6012c84255d8c0cdc200cb2b9993b60031bcf8045637731f40d3e4a01"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "69811b5427df36f9f72403f80d59e2761e048245c1729486a3ceb94697316bf5",
+      "full_hash": "62839c3452231b41e052bed9c32a19afbf4de1940c774c1a6db31007adb8a998",
+      "full_external_bytes": 4301254
+     },
+     "b": {
+      "behavior_hash": "69811b5427df36f9f72403f80d59e2761e048245c1729486a3ceb94697316bf5",
+      "full_hash": "a158ecbbaea1f915ecb20f12edccc1241e63e175eb41ef65dcc3b84bbc0585b7",
+      "full_external_bytes": 4301201
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "v3_classical": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources"
+   ],
+   "moved": {
+    "full_last": {
+     "a": "961a6902aaf08d21b791b67c6dff9fa7ef9d28f23f524b5d10cc50e2a1220f95",
+     "b": "a0c52c07c5680a2c9e0638e18e8a2ff65f124db6ef77a4ea11cd96b054781ac0"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "6cdc9a08a16024e316c3ea5c69402f3d0d92f3306107528f6189266bfae2a4a2",
+      "full_hash": "556ca95d440c1054feefedae1cd7f45c23ea2a3edbe9288b95fab81a7fb4badc",
+      "full_external_bytes": 4442525
+     },
+     "b": {
+      "behavior_hash": "6cdc9a08a16024e316c3ea5c69402f3d0d92f3306107528f6189266bfae2a4a2",
+      "full_hash": "cd01561c454428383258364fbc72b08ed36a9157ef29eadffe186f6407b76094",
+      "full_external_bytes": 4442472
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "v3_classical_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources"
+   ],
+   "moved": {
+    "full_last": {
+     "a": "6d61558f25669cc143319f45e4ac48e4a2435436107fd56e040a3fe9da89f174",
+     "b": "33a7fd3122760b3623c5f3a8b1c4b517ff31d00b20e05f217678e57c84d5792a"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "e8771f4c60ffc40827d467cc795a8c5332178d5bcd67337ea147503ecab356de",
+      "full_hash": "a2c2c06f747e0f3dffb1d8b74362639024a2a6b9491f64389689f762712b11b5",
+      "full_external_bytes": 4845556
+     },
+     "b": {
+      "behavior_hash": "e8771f4c60ffc40827d467cc795a8c5332178d5bcd67337ea147503ecab356de",
+      "full_hash": "ca08259733b5ab71d1ec51cc0a4917ad9e825c94212a2f7ffd31b0ad2466ba14",
+      "full_external_bytes": 4845503
+     }
+    }
+   },
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  }
+ }
+}
