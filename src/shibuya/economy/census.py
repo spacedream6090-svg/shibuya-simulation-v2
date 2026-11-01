@@ -370,7 +370,7 @@ def monthly_census_t3(ledger, day: int) -> dict[str, Any] | None:
 
 
 def monthly_mer(
-    ledger, goods=None, *, month: int = 0, days: int | None = None
+    ledger, goods=None, *, month: int = 0, days: int | None = None, waste_band_applies: bool = True,
 ) -> dict[str, Any]:
     """月次 MER(EVE Online 型の**固定表**)。
 
@@ -437,7 +437,9 @@ def monthly_mer(
         # 第305 Q137: 帯=店だけの静的な帯・判定=店の回収量(ビン → 搬出)の t/日(報告だけ)
         _e, lo, hi = goods.store_waste_band()
         store_pd = float(getattr(goods, "store_waste_g_total", 0.0)) / 1_000_000.0 / max(1, n_days)
-        out["waste_band_ok"] = bool(hi > 0.0 and lo <= store_pd <= hi)
+        out["waste_band_ok"] = bool(hi > 0.0 and lo <= store_pd <= hi) if waste_band_applies else None
+        if not waste_band_applies:  # 〔11-01 段 2 の 4・検収 M1〕呼び手(engine)が率の規則の腕 off を渡したとき=非該当・値は残す
+            out["waste_band_na"] = "非該当(売れ残りの廃棄率を外した=11-01 §2)"
         out["waste_band"] = (lo, hi)
         out["waste_store_tonnes_per_day"] = store_pd
         out["waste_band_check"] = str(goods.STORE_WASTE_BAND_NOTE)

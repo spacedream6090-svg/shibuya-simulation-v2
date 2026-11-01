@@ -94,10 +94,12 @@ def test_l4_space_argument_beats_the_environment_in_a_run(monkeypatch):
 MAIN = Path("data/world/v2")
 #: w6_v3_default(5,000 体・seed 1・1 日・v3)の final と呼数(記録 spatial-2026-10/sp1b)。既定=nav1+neighborhood・腕は
 #: 環境変数 SHIBUYA_NAV1_DENSITY(cell・unscaled)。段 1 の nav1(cell・B4 の密度の段は人/セル)の値は d8b2d497eef28887/61,261
+#: 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 None 7bfe215641b792ac / 62_176・cell 6cc4f835866c1ebd / 63_853・unscaled
+#: ef9999b0d56e50da / 61_234=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)
 NAV1_GOLDEN = {
-    None: ("7bfe215641b792ac", 62_176),
-    "cell": ("6cc4f835866c1ebd", 63_853),
-    "unscaled": ("ef9999b0d56e50da", 61_234),
+    None: ("73aa01d9afb206d0", 61_066),
+    "cell": ("7b976b2272ef57e4", 62_600),
+    "unscaled": ("7a27bf218610714c", 60_191),
 }
 
 

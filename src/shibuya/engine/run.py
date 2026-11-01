@@ -506,7 +506,6 @@ MOTION_RNG_DOMAINS: dict[str, str] = {
 #: 動きの側の、``core.rng`` の用途名を持たない塩(``seed`` から作る)。
 MOTION_SALTS: dict[str, str] = {
     "run_salt": "blake3(seed‖engine): アービタの同点・適用の順・近接行の同点・歩きの行き先・関係の招待の重み",
-    "attendance": "blake3(attendance‖seed‖日): 出勤率の抽選(engine.presence.attendance_draw)",
     "fleet.call_seed": "xxh64(call_id, seed): 艦隊の呼ごとのデコードの種",
     # 〔第 6 期 6-2〕腕 --calendar 1b だけ。動きの seed(salt)と体の W16 の agent_id から引く決定論の割り振り(乱数の流れを
     # 使わない=core.rng の用途名は無い)。母集団の seed は使わない=母集団と salt の分離は前のまま
@@ -817,8 +816,9 @@ class RunResult:
     plan_executor: bool = False
     #: 退出の実行形(設計書 §10-3)。第1段は ``immediate`` のみ実装。
     exit_mode: str = "immediate"
-    #: 出勤率(D-67 (b)・expedient E6)。既定 1.0=全員来る。
-    attendance_rate: float = 1.0
+    #: 〔11-01 段 2 の 3・4〕率の形の規則を外した節(``engine.rate_rules.manifest_fields``=腕・外した印・旧道の件数)。
+    #: 出勤率の欄 ``attendance_rate`` は消した(くじの道ごと消した=全員出勤の宣言)。
+    rate_rules: dict[str, Any] = field(default_factory=dict)
     #: 在圏ブロックの読み口(``engine.presence.DERIVE_RULES``・既定 v2)。
     derive_rule: str = "v2"
     #: **C9 位置幾何の腕**(G1・2026-09-17 ユーザー決定)。``"node"``=現行の 1 tick=1 ノード
@@ -1146,8 +1146,13 @@ class RunResult:
                 "区の総排出量との比較は保留)")
 
     @property
-    def waste_band_ok(self) -> bool:
-        """第304 Q135 (a): **店の収集量**を店だけの帯と比べる(内訳の無い結果は従来どおり総量で比べる)。"""
+    def waste_band_ok(self) -> bool | None:
+        """第304 Q135 (a): **店の収集量**を店だけの帯と比べる(内訳の無い結果は従来どおり総量で比べる)。
+
+        〔11-01 段 2 の 4・検収 M1〕腕 off のラン(``waste_sink.band_ok`` が ``None``)は ``None``=非該当(帯は外した売れ残りの
+        廃棄率の期待=比べる相手が無い)。"""
+        if self.waste_sink and "band_ok" in self.waste_sink and self.waste_sink["band_ok"] is None:
+            return None
         lo, hi = self.waste_band
         v = self.waste_sink.get("breakdown_t", {}).get("store_expired_stock") if self.waste_sink else None
         return bool(hi > 0.0 and lo <= (self.waste_tonnes_per_day if v is None else float(v)) <= hi)
@@ -1184,8 +1189,8 @@ class RunResult:
             ``v1``/``undefined-synonyms-v2``)・
             ``sleep_suppression``(D-56 就寝抑止の腕。既定 ``True``)・
             ``plan_sleep``(D-62「就寝は計画の実行」の腕。既定 ``True``)・
-            ``plan_executor``/``exit_mode``/``attendance_rate``(D-66 計画実行層の腕。
-            既定 ``True``(ただし W16+W17 のあるランだけ立つ)/``immediate``/``1.0``)・
+            ``plan_executor``/``exit_mode``(D-66 計画実行層の腕。
+            既定 ``True``(ただし W16+W17 のあるランだけ立つ)/``immediate``。〔11-01〕出勤率の欄は消した)・
             ``t3_ok``(T3=冗長方程式の検算の合否。``None``=月次センサスが立たなかった
             ラン=**未実行**。D-85 (a))・``catalog_sha16``(世界カタログ v0.2 の凍結 SHA)・
             ``process_ids``(実際に回した過程 id の昇順)・``ablations``(切った過程/感度試験 id)。
@@ -1337,7 +1342,6 @@ class RunResult:
             "group_norms": dict(self.group_norms),
             # ---- 第304 Q135 (a): 廃棄 sink の内訳と店だけの帯(列追加のみ・報告だけ) ----
             "waste_sink": dict(self.waste_sink),
-            "attendance_rate": float(self.attendance_rate),
             "derive_rule": str(self.derive_rule),
             "outside_suppression": bool(self.outside_suppression),
             # ---- C9 位置幾何(既定 node=現行のバイト。edge=辺上の連続位置) ----
@@ -1458,6 +1462,9 @@ class RunResult:
             # behavior-hash は manifest を読まない) ----
             "space": _NAV1.manifest_section(str(self.space), str(self.space_effective), str(self.space_reason),
                                             getattr(self, "space_layer", None)),
+            # ---- 〔11-01 段 2 の 3・4〕率の形の規則を外した節(形の版・腕・規則の宣言・外した印=設定/旧道の件数=観測)。
+            # 末尾=… → 5-1 の space → 11-01。記録だけ(final・behavior-hash は manifest を読まない)。列追加のみ ----
+            "rate_rules": dict(self.rate_rules),
         }
 
     def economy_fields(self) -> dict[str, Any]:
@@ -1666,7 +1673,9 @@ class RunResult:
                 f"{self.hotel_checkins:,} / 顕著行為 {self.salient_events:,}(気づき "
                 f"{self.noticed:,}・出動 {self.dispatches:,}) / 廃棄 "
                 f"{self.waste_tonnes_per_day:.3f} t/日{self._waste_breakdown_text()} (band {self.waste_band[0]:.2f}-"
-                f"{self.waste_band[1]:.2f}) {'OK' if self.waste_band_ok else 'NG'}{self._waste_band_note()}"
+                f"{self.waste_band[1]:.2f}) "
+                f"{self.waste_sink.get('band_na', '') if self.waste_band_ok is None else ('OK' if self.waste_band_ok else 'NG')}"
+                f"{self._waste_band_note()}"
             )
             if self.census_row:
                 lines.append(
@@ -2031,7 +2040,6 @@ def run_day(
     plan_sleep: bool = True,
     plan_executor: bool = True,
     exit_mode: str = "immediate",
-    attendance_rate: float = 1.0,
     outside_suppression: bool = True,
     derive_rule: str = "v2",
     geometry: str = DEFAULT_GEOMETRY,
@@ -2251,9 +2259,6 @@ def run_day(
         exit_mode: 退出の実行形(設計書 §10-3)。既定 ``"immediate"``(即時 ``rail_depart``)・
             **9a(D-115 ①)** ``"walk_to_platform"``=その体の路線のホームへ歩いて受容関数を通して乗る
             (上限 ``intent_max_ticks``・超えたら即時)。``"board_intent"`` は予約(``NotImplementedError``)。
-        attendance_rate: 出勤率(D-67 (b)・expedient E6・既定 1.0)。通勤・通学の体のうち
-            ``1 - rate`` の割合を ``_mix64(agent_id)`` の決定論でその日「終日域外」にする。
-            **1.0 では 1 ビットも変わらない**。
         outside_suppression: **D-66 域外抑止**(既定 True)。``transit_state != 0``
             (域外滞在・乗車中)の体の起床候補をアービタに入れない——舞台に居ない体は
             B0-B6 の描画欄が全て空で、プロンプトが「どこにも居ない」になるため。
@@ -2593,8 +2598,6 @@ def main(argv: list[str] | None = None) -> int:
                     help="群・規範の計器(D-107 (a)・読むだけ)を回すか(第309 Q150・既定 on)")
     ap.add_argument("--exit-mode", choices=PRESENCE_EXIT_MODES, default="immediate",
                     help="退出の実行形(immediate のみ実装・他は予約)")
-    ap.add_argument("--attendance-rate", type=float, default=1.0, metavar="RATE",
-                    help="出勤率(D-67 (b)・expedient E6・既定 1.0)")
     ap.add_argument("--derive-rule", choices=PRESENCE_DERIVE_RULES, default="v2",
                     help="在圏ブロックの読み口(v2=§2 追補・v1=原則のまま)")
     ap.add_argument("--no-outside-suppression", action="store_true",
@@ -2639,7 +2642,6 @@ def main(argv: list[str] | None = None) -> int:
         plan_executor=not args.no_plan_executor,
         exit_mode=str(args.exit_mode),
         group_norms=str(args.group_norms),
-        attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,
         geometry=str(args.geometry),

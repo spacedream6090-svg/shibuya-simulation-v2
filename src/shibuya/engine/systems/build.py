@@ -195,7 +195,6 @@ def build(_call_args: dict[str, Any]) -> Any:
     plan_sleep = _call_args['plan_sleep']
     plan_executor = _call_args['plan_executor']
     exit_mode = _call_args['exit_mode']
-    attendance_rate = _call_args['attendance_rate']
     outside_suppression = _call_args['outside_suppression']
     derive_rule = _call_args['derive_rule']
     geometry = _call_args['geometry']
@@ -424,6 +423,10 @@ def build(_call_args: dict[str, Any]) -> Any:
         from shibuya.engine import seat_release as _SRR
 
         _SRR.check_resume(_h.get("seat_release"))
+        # 〔11-01 段 2 の 3・4〕率の形の規則の腕も設定の指紋に入れない=見出しの rate_rules(無ければ legacy)と今の腕を突き合わせる
+        from shibuya.engine import rate_rules as _RRR
+
+        _RRR.check_resume(_h.get("rate_rules"))
         t_begin = int(_h["progress"]["next_T"])
         if not (0 < t_begin < total_ticks):
             raise ValueError(f"再開の時刻 T={t_begin} がこのランの範囲 0〜{total_ticks} の内側に無い(sim_days を見る)")
@@ -456,8 +459,6 @@ def build(_call_args: dict[str, Any]) -> Any:
     if isinstance(group_norms, str) and group_norms not in ("on", "off"):
         raise ValueError(f"group_norms は 'on'/'off' か bool(いま {group_norms!r})")
     group_norms_on = (group_norms == "on") if isinstance(group_norms, str) else bool(group_norms)
-    if not (0.0 <= float(attendance_rate) <= 1.0):
-        raise ValueError(f"attendance_rate は 0.0〜1.0(いま {attendance_rate})")
     if str(derive_rule) not in PRESENCE_DERIVE_RULES:
         raise ValueError(f"derive_rule は {PRESENCE_DERIVE_RULES} のどれか(いま {derive_rule!r})")
     # ---- C9 位置幾何の腕: 値の検査は**SoA を確保する前**にする(欄が 1 本変わるため) ----
@@ -782,6 +783,9 @@ def build(_call_args: dict[str, Any]) -> Any:
     world.freeze()
 
     # ---- ⓪a 世界過程(C4 第1陣・世界過程設計書 §3 実装原則3=書き込みは resolve 経由) ----
+    from shibuya.engine import rate_rules as _RRB  # 〔11-01 段 2 の 3・4〕率の形の規則の腕(組み立てで 1 回読む)
+
+    rate_rules_mode = _RRB.arm()
     runner: WorldProcessRunner | None = None
     if processes:
         runner = WorldProcessRunner(
@@ -809,6 +813,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             org_of_agent=_org_of_agent(pop, n_agents),  # 第 1 期 1-5: 権利台帳の雇用の行(W16 の org_id)
             # 〔第 4 期 4-3 段 10〕差し替えの世界(母集団が w21_person_id を持つ)だけ初期の行の表を読む=本体の v2 は None
             initial_rights=_initial_rights(world_dir, pop, n_agents),
+            rate_rules=rate_rules_mode,  # 〔11-01 段 2 の 3・4〕率の形の規則の腕
         )
     if economy_plan is not None:  # 第 2 期 2-1: 賃金の雇用の行は権利台帳(開閉の過程が持つ)から読む
         economy_plan.runner = runner
@@ -825,8 +830,6 @@ def build(_call_args: dict[str, Any]) -> Any:
             day_index=calendar.table_weekday(0),  # 10a #16
             home_cell=pop.home_cell,
             direction_node=pop.direction_node,
-            kind=pop.kind,
-            agent_id=pop.source_agent_id,
             rail=(
                 runner.rail
                 if (runner is not None and runner.is_enabled("rail"))
@@ -839,10 +842,10 @@ def build(_call_args: dict[str, Any]) -> Any:
             ),
             ticks=ticks,
             exit_mode=exit_mode,
-            attendance_rate=attendance_rate,
             derive_rule=str(derive_rule),
             walk_max_ticks=int(intent_max_ticks),
-            seed=seed,  # 10a ◐ #19: 出勤率の抽選の 1 日目からの塩
+            seed=seed,
+            rate_rules=rate_rules_mode,  # 〔11-01 段 2 の 4〕E8 の到着の分散は旧道だけ(出勤率のくじは消した)
         )
         if _resuming:  # 10d(A11): 再開では域外の配置をしない(配置の数の控えだけ作る)
             presence.initialize_caches()
@@ -1533,7 +1536,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         cfg=_BX.RunConfig(
             n_agents=n_agents, seed=seed, tick_seconds=tick_seconds, ticks=ticks, fleet_wait_s=fleet_wait_s,
             checkpoint_every=checkpoint_every, day_index=day_index, l4_scale=l4_scale, mode=mode, lane=lane,
-            census_out=census_out, attendance_rate=attendance_rate, exit_mode=exit_mode, derive_rule=derive_rule,
+            census_out=census_out, exit_mode=exit_mode, derive_rule=derive_rule,
             checkpoint_detail=checkpoint_detail, classical_habit_p=classical_habit_p, classical_tau=classical_tau,
             familiarity_k=familiarity_k, intent_max_ticks=intent_max_ticks,
             memory_n=memory_n, move_search_radius=move_search_radius, occupancy_every=occupancy_every,
@@ -1558,6 +1561,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             budget_mode_enum=budget_mode_enum, p_see_activity_table=p_see_activity_table,
             p_see_activity_identity=p_see_activity_identity, call_layer=_call_layer, fp=_fp, parent_run=parent_run,
             seat_release=_SRB.arm(),  # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(組み立てで 1 回読む)
+            rate_rules=rate_rules_mode,  # 〔11-01 段 2 の 3・4〕率の形の規則の腕(組み立てで 1 回読む)
         ),
         soa=_BX.SoAState(agents=agents, world=world),
         layers=_BX.Layers(

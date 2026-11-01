@@ -209,15 +209,14 @@ def test_inbound_trains_by_the_rail_table_and_on_time(pair):
 
 
 @real_data
-def test_attendance_lottery_below_one_is_kept(w20, arm_1b):
-    """〔検収 L3〕出勤率 < 1: くじで休む体は管理しない(計画実行層のくじと同じ体)。"""
-    # 300 体の抽出は出勤率の対象の種別(通勤者 0・通学者 5)を含まない=1,000 体・日の頭だけ(5 刻み)
-    res = cli.run(**{**KW, "n_agents": 1000}, attendance_rate=0.5, ticks=5)
+def test_everyone_attends_after_the_lottery_was_removed(w20, arm_1b):
+    """〔11-01 段 2 の 4〕出勤率のくじは消した=全員出勤(計画実行層と同じ口 ``absent_on``・除いた理由「出勤率のくじ」は 0)。"""
+    # 前の試験は 1,000 体・日の頭だけ(5 刻み)で出勤率 0.5 のくじを見ていた
+    res = cli.run(**{**KW, "n_agents": 1000}, ticks=5)
     layer = res.calendar_self_layer
     absent = np.asarray(layer.presence.absent, dtype=bool)
-    assert absent.any() and np.array_equal(layer._absent(0), absent)
-    assert not (layer.cal_store["managed"] & absent).any()
-    assert _cal(res)["days"][0]["excluded"]["出勤率のくじ"] > 0
+    assert not absent.any() and not layer._absent(0).any()
+    assert _cal(res)["days"][0]["excluded"]["出勤率のくじ"] == 0
 
 
 # ================================================================= 負の対照(植えた写しで検査が落ちる)

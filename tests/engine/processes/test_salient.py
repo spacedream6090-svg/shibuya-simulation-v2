@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 
 from shibuya.agents.state import WakeCondition
 from shibuya.core.types import EventClass
@@ -22,6 +23,14 @@ from shibuya.perception import attention as AT
 from shibuya.perception import p_notice as PN
 
 from .conftest import make_agents, make_world
+
+
+@pytest.fixture(autouse=True)
+def _rate_rules_legacy(monkeypatch):
+    """〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)。"""
+    from shibuya.engine import rate_rules as RR
+
+    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
 
 
 def _proc(n_agents: int = 60, n_cells: int = 25, **kw):

@@ -35,9 +35,11 @@ expedient(本モジュール分・実装計画書 §8「D-66/計画実行層(第
   運賃不足・待ちの打ち切り・経路なし)ら**その場で ``rail_depart``**(会話中なら繰り延べてから)・非鉄道
   ゲートの体(線 −1)と便/ホーム/経路の無い体は即時。``board_intent`` は未実装(``NotImplementedError``)。
 - E5 W17 の乗車行は在圏に数えない(``count_transit=False``)。
-- E6 出勤率(``--attendance-rate``)= 通勤・通学の一部をその日「終日域外」にする。
+- E6 出勤率(``--attendance-rate``)は〔11-01 段 2 の 4〕で消した=全員出勤の宣言(判断モデルの口ができるまで・
+  ``engine.rate_rules`` の ``attendance``)。
 - E7 その日の在圏ブロックが 0 本の体は終日域外。
-- E8 到着分散の上限 k=8 便・容量ベース backward fill。
+- E8 到着分散の上限 k=8 便・容量ベース backward fill は〔11-01 段 2 の 4〕で既定から外した=全員が E1 の便に乗る
+  (``engine.rate_rules`` の ``arrival_spread``・旧道は切替口 ``--rate-rules legacy`` だけ・次の版上げで消す)。
 - E9 計画一致率の定義(正時標本・両側)。
 """
 
@@ -56,7 +58,7 @@ from shibuya.agents.weekly import (
     PLACE_KIND_OUTSIDE,
     PLACE_WORDS,
 )
-from shibuya.core.hashing import blake3_hex
+from shibuya.engine import rate_rules as _RATE_RULES
 from shibuya.engine import resolve as R
 from shibuya.world.state import World
 from shibuya.core.time_consts import HOURS_PER_DAY, STEPS_PER_HOUR
@@ -127,9 +129,6 @@ EDGE_TRIM_ACTIVITY_CODES: Final[tuple[int, ...]] = (MOVE_ACTIVITY_CODE, PREP_ACT
 #: 「次の行」を探すときに飛ばせる連続乗車行の上限(逐次ループの上界・expedient)。
 _MAX_RIDE_RUN: Final[int] = 8
 
-#: 出勤率(E6)の対象種別(``agents.state.AgentKind``: 0=通勤者 / 5=通学者)。
-ATTENDANCE_KINDS: Final[tuple[int, ...]] = (0, 5)
-
 
 class EventType:
     """日次イベントの種(設計書 §3 の表)。値は表の番号。"""
@@ -173,20 +172,6 @@ def _mix64(x: np.ndarray) -> np.ndarray:
         v *= np.uint64(0xC4CEB9FE1A85EC53)
         v ^= v >> np.uint64(33)
     return v
-
-
-def attendance_draw(agent_id: np.ndarray, *, day: int = 0, seed: int | str = 1) -> np.ndarray:
-    """出勤率(E6)の抽選の値 ``0〜9,999``(体ごと・決定論・ランの乱数列を消費しない)。
-
-    10a(材料 §2-3 の ◐ #19): 今の鍵は ``agent_id`` だけ=毎日同じ体が休む。**0 日目は今の鍵のまま**
-    (``_mix64(agent_id)``・既定のランと W17 の構築側の式とバイト一致)にし、1 日目からは
-    ``(seed, 日)`` の塩を混ぜる(日ごと・seed ごとに休む体が替わる)。
-    """
-    a = np.maximum(np.asarray(agent_id, dtype=np.int64), 0).astype(np.uint64)
-    if int(day) != 0:
-        salt = np.uint64(int(blake3_hex(f"attendance{seed}{int(day)}".encode("utf-8"))[:16], 16))
-        a = a ^ salt
-    return (_mix64(a) % np.uint64(10_000)).astype(np.int64)
 
 
 def _day_rows(weekly, day: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -588,15 +573,15 @@ class PlanExecutor:
         day_index: 曜日(0=月曜)。
         home_cell: ``(n,)`` の自宅セル(**域外居住は −1 のまま**)。
         direction_node: ``(n,)`` の方面ノード索引(W16。-1=未付与)。
-        kind: ``(n,)`` の ``AgentKind``(出勤率 E6 の対象判定)。
-        agent_id: ``(n,)`` の元 ``agent_id``(出勤率 E6 の決定論キー=T4 規模不変)。
         rail: ``engine.processes.rail.RailProcess``(``None`` 可=全方面をゲート扱い)。
         assets: ``world.assets.ProcessAssets``(方面→線・駅出口セル)。
         ticks: ラン長[tick]。
         exit_mode: ``immediate``(既定)/ ``walk_to_platform``(9a)。``board_intent`` は ``NotImplementedError``。
         walk_max_ticks: 9a の歩いて乗る退出の上限[tick](超えたら即時 ``rail_depart``)。
-        attendance_rate: 出勤率(E6・既定 1.0=全員来る)。
-        seed: 出勤率の抽選の 1 日目からの塩(10a ◐ #19・0 日目は使わない=今と同じ)。
+        seed: ランの seed(〔11-01〕出勤率の抽選の塩は消した=属性として持つだけ)。
+        rate_rules: 〔11-01 段 2 の 4〕率の形の規則の腕(``engine.rate_rules``・``None``=今の腕=既定 off)。off は E8 の
+            到着の分散をしない(全員が E1 の便)。legacy は旧道(次の版上げで消す)。出勤率のくじはどちらの腕にも無い
+            (全員出勤の宣言)。
 
     Note:
         10a(通しの時刻 T): 層のイベント列は**0 日目の座標**(``0 <= T < ticks``)で組む。1 日目からの
@@ -616,17 +601,15 @@ class PlanExecutor:
         day_index: int = 0,
         home_cell=None,
         direction_node=None,
-        kind=None,
-        agent_id=None,
         rail: Any | None = None,
         assets: Any | None = None,
         ticks: int = MINUTES_PER_DAY,
         exit_mode: str = "immediate",
-        attendance_rate: float = 1.0,
         mode: str = "derive",
         derive_rule: str = DERIVE_RULE_DEFAULT,
         walk_max_ticks: int = EXIT_WALK_MAX_TICKS,
         seed: int | str = 1,
+        rate_rules: str | None = None,
     ) -> None:
         if derive_rule not in DERIVE_RULES:
             raise ValueError(f"--derive-rule は {DERIVE_RULES} のどれか(いま {derive_rule!r})")
@@ -636,9 +619,6 @@ class PlanExecutor:
             raise NotImplementedError(
                 f"exit_mode={exit_mode!r} は予約だけ(9a は walk_to_platform を実装・設計書 §10-3)"
             )
-        rate = float(attendance_rate)
-        if not (0.0 <= rate <= 1.0):
-            raise ValueError(f"--attendance-rate は 0.0〜1.0(いま {rate})")
         self.world = world
         self.agents = agents
         self.weekly = weekly
@@ -648,7 +628,8 @@ class PlanExecutor:
         self.seed = seed
         self.ticks = int(ticks)
         self.exit_mode = str(exit_mode)
-        self.attendance_rate = rate
+        #: 〔11-01 段 2 の 4〕率の形の規則の腕(``off``=E8 の到着の分散をしない・``legacy``=旧道)。
+        self.rate_rules = _RATE_RULES.resolve(rate_rules)
         self.mode = str(mode)
         self.derive_rule = str(derive_rule)
         n = int(agents.n)
@@ -673,22 +654,11 @@ class PlanExecutor:
         self.direction_node = dn
         self.line_of_agent = self._lines_of_direction(dn)
 
-        kd = np.full(n, -1, dtype=np.int64)
-        if kind is not None:
-            src = np.asarray(kind, dtype=np.int64).ravel()
-            kd[: min(n, src.size)] = src[: min(n, src.size)]
-        aid = np.arange(n, dtype=np.int64)
-        if agent_id is not None:
-            src = np.asarray(agent_id, dtype=np.int64).ravel()
-            aid[: min(n, src.size)] = src[: min(n, src.size)]
-        #: 10d: 出勤率の抽選を日ごとに引き直すための種別と鍵(初期化で渡す値・ランの間に変わらない)。
-        self._kind = kd
-        self._agent_key = aid
         #: 10d: いまの日の頭の通しの時刻 T(イベントの表は日の中の分で持ち、T との換算に使う。0 日目は 0)。
         self._t0 = 0
         #: 10d: いまの日の便の索引の範囲(``rail.day_range``)。``None``=全部の便(0 日目=今と同じ)。
         self._day_trains: tuple[int, int] | None = None
-        self.absent = self._attendance_absent(kd, aid, rate)
+        self.absent = self.absent_on(0)
 
         # ---- 在圏ブロック(§2)----
         exclude = np.zeros(int(weekly.n_agents), dtype=bool)
@@ -815,20 +785,15 @@ class PlanExecutor:
             out[:] = -1
         return out
 
-    def _attendance_absent(
-        self, kind: np.ndarray, agent_id: np.ndarray, rate: float, day: int = 0
-    ) -> np.ndarray:
-        """出勤率(E6)で「その日来ない」体(``(n,)`` bool)。既定 1.0 では全て False。
+    def absent_on(self, day: int = 0) -> np.ndarray:
+        """``day`` 日目に「来ない」体(``(n,)`` bool)=**全員 False**(〔11-01 段 2 の 4〕全員出勤の宣言)。
 
-        ``day`` は日番号(10a ◐ #19)。0 日目は今の鍵(``attendance_draw`` を参照)。
+        出勤率のくじ(E6・``BR-ATTENDANCE-LOTTERY``)は消した(回答 11-01 §2=率で決めない)。休むかは本人の判断(判断モデルの
+        口=段 3)ができるまで「全員出勤」と宣言する。旧の既定 1.0 も全員 False だった=既定の結果は変わらない。カレンダー 1b
+        (``engine.calendar_self``)も同じ口を読む。
         """
-        out = np.zeros(self.n, dtype=bool)
-        if rate >= 1.0:
-            return out
-        target = np.isin(kind, np.asarray(ATTENDANCE_KINDS, dtype=np.int64))
-        u = attendance_draw(agent_id, day=int(day), seed=self.seed)
-        thr = int(round(rate * 10_000))
-        return target & self.managed & (u >= thr)
+        del day
+        return np.zeros(self.n, dtype=bool)
 
     def _train_mask(self, n_trains: int) -> np.ndarray:
         """いまの日の便の印(10d)。``_day_trains`` が ``None``(0 日目)なら全部の便=今と同じ。"""
@@ -843,7 +808,7 @@ class PlanExecutor:
     def relay_day(self, day: int, *, t0: int, weekday: int) -> None:
         """``day`` 日目の在圏の表を張り直す(10d・日の頭)。**表だけ**(体の状態は書かない=``start_day``)。
 
-        出勤率の欠席(日番号つきの鍵・10a ◐ #19)・在圏ブロック(週次表の曜日の行 ``weekday``=K9 のつなぎでは
+        欠席(〔11-01〕全員出勤=空)・在圏ブロック(週次表の曜日の行 ``weekday``=K9 のつなぎでは
         月曜の行)・到着便(鉄道のその日の便)・イベントの表を作り直す。イベントの表は日の中の分で持ち、
         ``_t0``(その日の頭の T)で換算する。資産・母集団・予定の表と日番号だけから決まる(再開でも同じ表になる)。
 
@@ -856,7 +821,7 @@ class PlanExecutor:
         self._day_trains = (
             rail.day_range(int(day)) if (rail is not None and hasattr(rail, "day_range")) else None
         )
-        self.absent = self._attendance_absent(self._kind, self._agent_key, self.attendance_rate, day=int(day))
+        self.absent = self.absent_on(int(day))
         m = min(self.n, int(self.weekly.n_agents))
         exclude = np.zeros(int(self.weekly.n_agents), dtype=bool)
         exclude[: min(m, exclude.size)] = self.absent[: min(m, exclude.size)]
@@ -1064,7 +1029,11 @@ class PlanExecutor:
         b_end = blocks.end.astype(np.int64)
         # ---- 到着便と到着 tick(E1・E8)----
         train = self._assign_trains(b_agent, b_start)
-        train = self._spread_arrivals(train, b_agent)
+        if _RATE_RULES.is_legacy(self.rate_rules):  # 旧道(切替口・次の版上げで消す)=E8 の ±8 便の分散
+            train = self._spread_arrivals(train, b_agent)
+        else:  # 〔11-01 段 2 の 4〕全員が E1(間に合う最も遅い便)に乗る=散らさない(|便差| は 0)
+            self.arrival_train_e1 = train.copy()
+            self.n_spread_moved = 0
         rail = self.rail
         if rail is not None and getattr(rail, "active", False) and train.size:
             enter = np.asarray(rail.enter_tick, dtype=np.int64)

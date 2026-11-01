@@ -38,6 +38,13 @@ expedient(本モジュール分)
 ``COLLAPSE_PER_10K_PER_DAY``(1 万体あたり 1 日 3.0 件・出典なし=expedient・宣言は ``engine.body.rules.BODY_EXPEDIENTS``・
 名はここから写して出す)とポアソンの引き方は ``BodyModel.collapse_draw``(口を通す=〔検収 L2〕・乱数の流れと引く順は前と同じ)。本モジュールは
 倒れた体を事象にし、出動と ``p_notice`` の到達判定につなぐ。
+
+〔11-01 段 2 の 3・4〕倒れる率を既定から外した(回答 11-01 §2・§3・§9=率は救急の出場件数=行動と制度の集計と同じ系で、W3 の
+採点と循環する)。既定(腕 off・``engine.rate_rules`` の ``collapse``)の率は 0=「体の式ができるまで倒れる人は無い」(B8 で
+WBGT→熱中症の式に置き換える・W3 は錨に残す)。出動の過程(``civic.PublicServiceDispatchProcess``)はそのまま残す=発火しない。
+旧道(腕 legacy)は前の 3.0 件(次の版上げで消す)。率を引数 ``rate_per_10k_per_day`` で直に渡す口(試験と
+``run_day(salient_rate_per_10k=…)``)は**旧道でだけ効く**(〔検収 L3〕腕 off では無視して率 0=``removed`` の印と矛盾しない。
+口は次の版上げで旧道と一緒に消す=台帳 ``DOC-s2rates-collapse-test-knob``)。
 """
 
 from __future__ import annotations
@@ -49,6 +56,7 @@ import numpy as np
 
 from shibuya.agents.state import Activity, AgentState, WakeCondition
 from shibuya.core.rng import run_tick_key, stream
+from shibuya.engine import rate_rules as _RATE_RULES
 from shibuya.engine import resolve as R
 from shibuya.engine.body.model import BodyModel as _BodyModel
 from shibuya.engine.body.rules import COLLAPSE_PER_10K_PER_DAY  # 〔第 3 期 3-5〕体の層へ移した値(同じ名で写して出す)
@@ -136,6 +144,7 @@ class SalientProcess:
         ablation: PN.Ablation | int | str = PN.Ablation.A4_SOCIAL,
         rate_per_10k_per_day: float | None = None,
         d50_scale: float = 1.0,
+        rate_rules: str | None = None,
     ) -> None:
         self.world = world
         self.agents = agents
@@ -163,9 +172,12 @@ class SalientProcess:
         self.budget = PN.EventBudget()
         self.pstate = PerceptionState(agents.n)
         self.pstate.freeze()
+        #: 〔11-01 段 2 の 3・4〕率の形の規則の腕(``off``=倒れる率 0・``legacy``=旧道の 3.0 件)。
+        self.rate_rules = _RATE_RULES.resolve(rate_rules)
+        # 〔検収 L3〕試験の口(率を直に渡す)は旧道でだけ効かせる=腕 off は常に 0(次の版上げで口ごと消す)
         self.rate = float(
-            COLLAPSE_PER_10K_PER_DAY if rate_per_10k_per_day is None
-            else rate_per_10k_per_day
+            (COLLAPSE_PER_10K_PER_DAY if rate_per_10k_per_day is None else rate_per_10k_per_day)
+            if _RATE_RULES.is_legacy(self.rate_rules) else 0.0
         )
         #: 〔第330・RET〕常に ``None``(状態を持つ乱数 stateful は消した)。状態台帳 O46 の道筋 ``runner.salient.rng`` は
         #: behavior-hash の外の状態の行の定義に入っている(「無い」の印)ので、行と一緒に消すと final が動く=残した。
@@ -316,6 +328,8 @@ class SalientProcess:
 
     # ------------------------------------------------------------------ 事象の源
     def _collapse_events(self, tick: int) -> list[SalientEvent]:
+        if self.rate <= 0.0:  # 〔11-01〕倒れる人は無い(率 0=ポアソンの件数は常に 0・流れは counter なので引かなくても同じ)
+            return []
         g = stream(
             self.master_seed, SALIENT_COUNTER_DOMAIN,
             0, run_tick_key(self.day_index, int(tick), self.tick_seconds),
@@ -442,6 +456,9 @@ class SalientProcess:
         return {
             "events": float(self.n_events),
             "collapse": float(self.n_collapse),
+            # ---- 〔11-01 段 2 の 3・4〕倒れる率を外した印(腕で決まる)と実効の率(腕 off は常に 0) ----
+            "rate_rule_collapse_removed": float(not _RATE_RULES.is_legacy(self.rate_rules)),
+            "collapse_rate_per_10k": float(self.rate),
             "noticed": float(self.n_noticed),
             "over_cap": float(self.n_over_cap),
             "candidates": float(c["candidates"]),

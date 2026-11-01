@@ -62,6 +62,12 @@ expedient(本モジュール分)
 - 混雑率は**シミュ内の乗客だけ**で測る(域外区間の既存乗客を外生投入しない=第2陣)。
   したがって 5,000 体規模では受容関数は発火せず、乗り残しは 0 になる。
 
+**〔11-01 段 2 の 4〕受け入れ確率を既定から外した**(回答 11-01 §2・棚卸し #22・``engine.rate_rules`` の ``board_accept``):
+    150〜200% の受け入れ確率(1.0→0.7 の線形)は混み具合を見て詰めて乗るかの**本人の判断**を率で決めていた=外した。
+    既定(腕 off)は**200% の上限(実効容量=定員×2.0)だけ物理として残し**、上限までは全員乗る。``accept_rate`` の関数は
+    旧道(切替口 ``--rate-rules legacy``・次の版上げで消す)のために残す。旧道で確率に断られた延べ数(200% の上限で断られた
+    分を除く)は ``counters()`` の ``left_behind_by_rate``(off では 0)。
+
 **§2.6 の未実装(親への申し送り・本サブの範囲外)**
     (ii)「混雑率で**内受容**(不快)と**停車時間**が増える」は入れていない。停車時間は線別の
     静的表(``DWELL_TICKS_BY_LINE``)のままで混雑率を見ないし、混雑率を内受容(認知設計書 §2 の 3 変数)へ
@@ -77,6 +83,7 @@ import numpy as np
 
 from shibuya.agents.state import AgentState
 from shibuya.core.rng import philox
+from shibuya.engine import rate_rules as _RATE_RULES
 from shibuya.engine import resolve as R
 from shibuya.engine.calendar import SimCalendar
 from shibuya.engine.events.log import Process
@@ -234,8 +241,11 @@ class RailProcess:
         fare_yen: int = FARE_YEN,
         plan_executor: bool = False,
         calendar: Any | None = None,
+        rate_rules: str | None = None,
     ) -> None:
         self.world = world
+        #: 〔11-01 段 2 の 4〕率の形の規則の腕(``off``=受け入れ確率を外し 200% の上限だけ・``legacy``=旧道)。
+        self.rate_rules = _RATE_RULES.resolve(rate_rules)
         self.agents = agents
         self.assets = passets
         self.master_seed = master_seed
@@ -260,6 +270,8 @@ class RailProcess:
         #: 分母は ``n_board_applicants``(運賃を払えた希望者=受容関数にかかった延べ数)。
         self.n_left_behind = 0
         self.n_board_applicants = 0
+        #: 〔11-01〕旧道(legacy)で受け入れ確率に断られた延べ数(200% の上限で断られた分を除く・off では 0)。
+        self.n_left_behind_by_rate = 0
         #: 乗車の意図保持(D-51)の診断: 乗車を選んだ延べ数 / ホームへ歩き出した数 /
         #: 行ける ホームが無かった数 / 待ちに入った延べ数 / 待ちの打ち切り。
         self.n_board_intent = 0
@@ -688,10 +700,14 @@ class RailProcess:
         t = int(train_idx)
         if t < 0 or t >= self.dep_tick.size or n_candidates <= 0:
             return 0
-        ratio = float(self.occupancy[t]) / max(float(self.capacity100[t]), 1.0)
-        rate = self.accept_rate(ratio)
         hard = int(np.floor(ACCEPT_MAX_RATIO * self.capacity100[t] - self.occupancy[t]))
-        quota = int(max(0, min(n_candidates, int(np.floor(rate * n_candidates)), hard)))
+        if _RATE_RULES.is_legacy(self.rate_rules):  # 旧道(切替口・次の版上げで消す)=§2.6 の受け入れ確率
+            ratio = float(self.occupancy[t]) / max(float(self.capacity100[t]), 1.0)
+            rate = self.accept_rate(ratio)
+            quota = int(max(0, min(n_candidates, int(np.floor(rate * n_candidates)), hard)))
+            self.n_left_behind_by_rate += int(max(0, min(n_candidates, hard))) - quota
+        else:  # 〔11-01 段 2 の 4〕200% の上限(物理)だけ=上限までは全員乗る
+            quota = int(max(0, min(n_candidates, hard)))
         self.n_board_applicants += int(n_candidates)
         self.n_left_behind += int(n_candidates) - quota
         return quota
@@ -855,6 +871,9 @@ class RailProcess:
             "board_applicants": float(self.n_board_applicants),
             "left_behind": float(self.n_left_behind),  # §2.6 (iii)
             "left_behind_rate": float(self.left_behind_rate),
+            # ---- 〔11-01 段 2 の 4〕受け入れ確率を外した印と旧道の件数 ----
+            "rate_rule_board_accept_removed": float(not _RATE_RULES.is_legacy(self.rate_rules)),
+            "left_behind_by_rate": float(self.n_left_behind_by_rate),
             # ---- D-51 乗車の意図保持 ----
             "board_intent": float(self.n_board_intent),
             "board_walking": float(self.n_board_walking),

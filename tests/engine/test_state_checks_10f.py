@@ -35,7 +35,7 @@ TPD = 1_440
 #: 10e(E4): 既定 v3・5,000 体・seed 1・1 日の final(乱数 counter・K19 の鍵の並べ方)。
 #: 〔改訂(第330)〕10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた。E5 の値は 4fbf61616af1e3d2。
 #: 〔改訂(第330・ACT)〕版上げ 1 回目の活性化(暦の一本化・開始日 2026-07-13・影 6 日)で動いた。B6build の値は 0483d1165e245bed。
-K19_V3_FINAL_COUNTER = "7bfe215641b792ac"  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+K19_V3_FINAL_COUNTER = "73aa01d9afb206d0"  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 7bfe215641b792ac=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
 # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の腕 --meal-default validation の final の定数 _K19_PRE_MEAL_W17(最後の値 5b080133301bf13d=差し替えの世界・前 b8eadcb51e8705e7=W16 の世界)は切替口と一緒に消した(再現は安定版のタグ stable-v2-before-meal-default-w17)
 
 
@@ -355,10 +355,18 @@ def test_t5_static_fifth_word_caller_fails(tmp_path):
 
 # ================================================================= K25: K19 の検査(実行時)
 def _record(kw, runner=run_day, extra=None):
-    with RA.StreamRecorder() as rec:
-        res = runner(**kw)
-        if extra is not None:
-            extra()
+    from shibuya.engine import rate_rules as RR
+
+    prev = RR.arm()
+    if "salient_rate_per_10k" in kw:  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
+        RR.set_arm(RR.MODE_LEGACY)
+    try:
+        with RA.StreamRecorder() as rec:
+            res = runner(**kw)
+            if extra is not None:
+                extra()
+    finally:
+        RR.set_arm(prev)
     return rec.analyze(), res
 
 
@@ -372,7 +380,7 @@ def k19_runs():
     return {"counter": _record(dict(SYN1000))}
 
 
-def test_k19_runtime_overlaps_only_in_the_allow_list(k19_runs):
+def test_k19_runtime_overlaps_only_in_the_allow_list(k19_runs, monkeypatch):
     """10e(E4): counter では実際の重なりが 0(許可の表に ``overlap`` は無い)。〔改訂(第330・RET)〕扱い ``stateful`` の
     用途名(stateful のランでだけ重なりを許した 8 本)は切替口と一緒に消した=許可の表は空。"""
     st, res = k19_runs["counter"]
@@ -383,7 +391,10 @@ def test_k19_runtime_overlaps_only_in_the_allow_list(k19_runs):
     assert st["world.delivery_inbound"].keyed is False
     assert not ({"world.salient", "world.public_service_dispatch"} & set(st))  # 日の頭の Generator は作らない
     assert RA.K19_ALLOW == {} and not hasattr(RA, "STATEFUL_ONLY") and not hasattr(RA, "OVERLAP")
-    # 計器は結果を変えない(包まないランと同じ final)
+    # 計器は結果を変えない(包まないランと同じ final)。〔11-01 段 2 の 3・4・検収 L3〕率を渡すランは旧道(_record と同じ腕)
+    from shibuya.engine import rate_rules as RR
+
+    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
     assert run_day(**dict(SYN1000)).final_hash == res.final_hash
 
 

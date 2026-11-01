@@ -291,7 +291,8 @@ def test_two_identical_runs_agree_bit_for_bit():
 # ============================================== (vii) 大規模イベントの迂回を塞ぐ(D-61 追補)
 def _event(world, agents, rail, *, visitors: int = 5):
     return LargeEventProcess(
-        world, agents, rail=rail, master_seed=1, day_index=0, visitor_delta=visitors
+        world, agents, rail=rail, master_seed=1, day_index=0, visitor_delta=visitors,
+        rate_rules="legacy",  # 〔11-01 段 2 の 4〕旧道(切替口)の規則を見る試験
     )
 
 

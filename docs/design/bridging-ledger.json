@@ -1727,12 +1727,12 @@
   {
    "id": "BR-ATTENDANCE-LOTTERY",
    "what": "出勤率のくじ(attendance_rate・既定 1.0=全員来る・日番号つきの鍵で欠席を引く)",
-   "why": "人の選択(出勤)をエンジンが決めている(10-12 §1-5 ①群)。判断モデルができるまでのつなぎ(10-12 §4-1 CA5)。計画 6-6 ①(人の選択を判断モデルへ)",
+   "why": "人の選択(出勤)をエンジンが決めている(10-12 §1-5 ①群)。判断モデルができるまでのつなぎ(10-12 §4-1 CA5)。計画 6-6 ①(人の選択を判断モデルへ)〔11-01 段 2 の 3・4〕閉じた(removed): 出勤率のくじを道ごと消した(engine/presence.py の attendance_draw と ATTENDANCE_KINDS・PlanExecutor と run_day の引数 attendance_rate・CLI の --attendance-rate・manifest の attendance_rate)。判断モデルの口ができるまで「全員出勤」と宣言する(回答 11-01 §2・engine/rate_rules.py の attendance)。旧の既定 1.0 も全員出勤=既定の結果は変わらない(記録 docs/bench/analysis/s2-rates-1101/README.md)",
    "remove_at": "6-6",
    "declared_in": "docs/design/v2-wallbounce-decisions-2026-10-12.md §4-1 CA5",
    "conf": "expedient",
    "since": "2026-10-14",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "plan",
    "code_at": [
     "src/shibuya/engine/presence.py"
@@ -2497,7 +2497,7 @@
   {
    "id": "HD-engine.presence-b560bcbc",
    "what": "src/shibuya/engine/presence.py の docstring の見出し「expedient(本モジュール分・実装計画書 §8「D-66/計画実行層(第1段)」が正典)」の下の項 9 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-2 カレンダー 1b(出入りを本人へ・E4 と W17 のつなぎを外す)",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-2 カレンダー 1b(出入りを本人へ・E4 と W17 のつなぎを外す)〔11-01 段 2 の 3・4〕項 E6(出勤率)は消した=全員出勤・項 E8(到着の分散)は既定から外した=全員が E1 の便(旧道は切替口 legacy)。項の数は 9 のまま(項の文に注を足した)",
    "remove_at": "6-2",
    "declared_in": "src/shibuya/engine/presence.py#heading:b560bcbc",
    "conf": "expedient",
@@ -2508,7 +2508,7 @@
   {
    "id": "HD-engine.processes.civic-fe8b67d5",
    "what": "src/shibuya/engine/processes/civic.py の docstring の見出し「expedient(本モジュール分・全て「返済対象」)」の下の項 6 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-6 ②(出動・ホテル・報道は働く人のエージェントへ・10-12 §1-5 ②群)",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-6 ②(出動・ホテル・報道は働く人のエージェントへ・10-12 §1-5 ②群)〔11-01 段 2 の 3・4〕項「大規模イベント」の注入は既定から外した(旧道は切替口 legacy)。項の数は 6 のまま",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/engine/processes/civic.py#heading:fe8b67d5",
    "conf": "expedient",
@@ -2541,7 +2541,7 @@
   {
    "id": "HD-engine.processes.goods_flow-fe8b67d5",
    "what": "src/shibuya/engine/processes/goods_flow.py の docstring の見出し「expedient(本モジュール分・全て「返済対象」)」の下の項 8 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-6 ②(補充・納品・廃棄・清掃は働く人のエージェントへ)",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-6 ②(補充・納品・廃棄・清掃は働く人のエージェントへ)〔11-01 段 2 の 3・4〕項「売れ残り → ビン」と項「街路ごみ」は既定から外した=売れ残りの廃棄は無い・ポイ捨ては無い(旧道は切替口 legacy)。項の数は 8 のまま",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/engine/processes/goods_flow.py#heading:fe8b67d5",
    "conf": "expedient",
@@ -2552,7 +2552,7 @@
   {
    "id": "HD-engine.processes.logistics-fe8b67d5",
    "what": "src/shibuya/engine/processes/logistics.py の docstring の見出し「expedient(本モジュール分・全て「返済対象」)」の下の項 4 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-6 ②(宅配・バス・道路工事は働く人のエージェントへ)",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-6 ②(宅配・バス・道路工事は働く人のエージェントへ)〔11-01 段 2 の 3・4〕項「宅配」は既定から外した=宅配は無い(旧道は切替口 legacy)。項の数は 4 のまま",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/engine/processes/logistics.py#heading:fe8b67d5",
    "conf": "expedient",
@@ -2574,7 +2574,7 @@
   {
    "id": "HD-engine.processes.rail-1af925f4",
    "what": "src/shibuya/engine/processes/rail.py の docstring の見出し「expedient(本モジュール分)」の下の項 6 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 2-3b 鉄道の実ダイヤ(停車と折返し)。〔2-3b・2026-10-14〕2-3b は渋谷の発車だけ=残り(終点の到着・直通の二重計上のまとめ方)は 2-3c。〔2-3c・2026-10-15〕終点の到着(銀座線・井の頭線)と地下鉄の直通の到着の時刻は W12 1.3.0 の発着の表に入った(折返し時分の元)。エンジンはまだ読まない(既定)=停車と折返しの項は残る。外す段=4-3(到着の行を読むかを決める段)。運賃・定員・域外居住・到着便の割り当て・混雑率の項は 2-3c の外(見出し単位の 1 行=項ごとに分けるかは親の判断)。〔2-3c 検収 L6・2026-10-15・親の判断〕項ごとの行 DOC-tt23c-rail-*(6 行)に分けた。見出しの行はコードの宣言と 1 対 1 のために残し、外す段は項の最後の段(7)にした(項の外す段は項ごとの行)",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 2-3b 鉄道の実ダイヤ(停車と折返し)。〔2-3b・2026-10-14〕2-3b は渋谷の発車だけ=残り(終点の到着・直通の二重計上のまとめ方)は 2-3c。〔2-3c・2026-10-15〕終点の到着(銀座線・井の頭線)と地下鉄の直通の到着の時刻は W12 1.3.0 の発着の表に入った(折返し時分の元)。エンジンはまだ読まない(既定)=停車と折返しの項は残る。外す段=4-3(到着の行を読むかを決める段)。運賃・定員・域外居住・到着便の割り当て・混雑率の項は 2-3c の外(見出し単位の 1 行=項ごとに分けるかは親の判断)。〔2-3c 検収 L6・2026-10-15・親の判断〕項ごとの行 DOC-tt23c-rail-*(6 行)に分けた。見出しの行はコードの宣言と 1 対 1 のために残し、外す段は項の最後の段(7)にした(項の外す段は項ごとの行)〔11-01 段 2 の 3・4〕見出しの外の §2.6 の受け入れ確率(150〜200% で 1.0→0.7)は既定から外した=200% の上限だけ物理として残す(旧道は切替口 legacy)。見出しの項の数は 6 のまま",
    "remove_at": "7",
    "declared_in": "src/shibuya/engine/processes/rail.py#heading:1af925f4",
    "conf": "expedient",
@@ -2655,7 +2655,7 @@
   {
    "id": "DOC-tt23c-rail-congestion",
    "what": "rail.py の expedient の項 6: 混雑率はシミュ内の乗客だけで測る(域外区間の既存乗客を外生投入しない=第2陣)。5,000 体規模では受容関数は発火せず乗り残しは 0",
-   "why": "域外区間の既存乗客を入れる段が計画に無い(rail.py の「第2陣」を計画の段の番号に読み替えられない)=7(主張の前に感度試験)(項ごとの行=見出しの行 HD-engine.processes.rail-1af925f4 から分けた・2026-10-15・検収 L6)",
+   "why": "域外区間の既存乗客を入れる段が計画に無い(rail.py の「第2陣」を計画の段の番号に読み替えられない)=7(主張の前に感度試験)(項ごとの行=見出しの行 HD-engine.processes.rail-1af925f4 から分けた・2026-10-15・検収 L6)〔11-01 段 2 の 3・4〕受け入れ確率(受容関数)は既定から外した=200% の上限だけ(5,000 体では前も今も乗り残し 0)",
    "remove_at": "7",
    "declared_in": "docs/bench/analysis/wallbounce-1012/tt23c/README.md §11",
    "conf": "expedient",
@@ -3065,7 +3065,7 @@
   {
    "id": "PR-delivery_last_mile",
    "what": "世界過程 delivery_last_mile(mechanism=False・executor=llm_agent・感度 AB-PARCEL-ALLOCATION・返済期限「Phase 3(区別実績の取得後・按分係数を返済)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(区別実績の取得後・按分係数を返済)」はデータの取得待ち=話題で当てた: 6-6 ②(宅配は働く人のエージェントへ)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(区別実績の取得後・按分係数を返済)」はデータの取得待ち=話題で当てた: 6-6 ②(宅配は働く人のエージェントへ)〔11-01 段 2 の 3・4〕既定(--rate-rules off)で宅配の過程を動かさない=宅配は無い(W2 は錨に残す=駆動と採点の循環を解く)。区按分は旧道(切替口 legacy)だけ=次の版上げで消す。宣言の形は S2-ledger が直す",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:delivery_last_mile",
    "conf": "expedient",
@@ -3153,7 +3153,7 @@
   {
    "id": "PR-large_event",
    "what": "世界過程 large_event(mechanism=False・executor=engine_rule・感度 AB-EVENT-DELTA・返済期限「Phase 3(イベント来街増分の実データ取得後・§7.2「expedient 強」)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(イベント来街増分の実データ取得後・§7.2「expedient 強」)」はデータの取得待ち=話題で当てた: 6-6 ②(催しは働く人のエージェントへ)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(イベント来街増分の実データ取得後・§7.2「expedient 強」)」はデータの取得待ち=話題で当てた: 6-6 ②(催しは働く人のエージェントへ)〔11-01 段 2 の 3・4〕既定(--rate-rules off)で人の注入(18:00 の 200 人・21:00 の退出)を外した=催しの人の注入は無い。会場 3 セルの開催と記録は残す。注入は旧道(切替口 legacy)だけ=次の版上げで消す。催しの情報を外の人に届く入力にするのは段 3",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:large_event",
    "conf": "expedient",
@@ -3197,7 +3197,7 @@
   {
    "id": "FB-large_event",
    "what": "フォールバック台帳の行 large_event → (PlanSpec なし=過程そのものの代替)(executor=engine_rule・conf 0.3・被覆「報道で確認できる大規模イベント(主催者・参加者をエージェント化しないぶん=100%)」・返済期限「Phase 3(イベント来街増分の実データ取得後・§7.2「expedient 強」)」)",
-   "why": "コードの宣言(第 6 形=CLAUDE.md §3「エンジン規則でつなぐ(conf 宣言つき・カバー率を台帳へ)」の台帳=WorldRegistry.fallback_ledger() の行・検収 M1。同じ過程の第 5 形の行 PR-large_event と重なる)。外す段: 返済期限「Phase 3(イベント来街増分の実データ取得後・§7.2「expedient 強」)」はデータの取得待ち=話題で当てた: 6-6 ②(催しは働く人のエージェントへ)",
+   "why": "コードの宣言(第 6 形=CLAUDE.md §3「エンジン規則でつなぐ(conf 宣言つき・カバー率を台帳へ)」の台帳=WorldRegistry.fallback_ledger() の行・検収 M1。同じ過程の第 5 形の行 PR-large_event と重なる)。外す段: 返済期限「Phase 3(イベント来街増分の実データ取得後・§7.2「expedient 強」)」はデータの取得待ち=話題で当てた: 6-6 ②(催しは働く人のエージェントへ)〔11-01 段 2 の 3・4〕既定(--rate-rules off)で人の注入を外した(PR-large_event の注と同じ)。宣言の形(executor・conf)は S2-ledger が直す",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/registry.py#fallback:large_event|",
    "conf": "expedient",
@@ -4555,7 +4555,7 @@
   {
    "id": "BR-BODY-COLLAPSE-RATE",
    "what": "倒れる率 1 万体あたり 1 日 3.0 件(出典なし。東京消防庁の出場件数 935,373 件/年を都の人口で割ると 1 万人・日あたり約 1.8 件だが、救急要請と路上で倒れるは同じでないので同じ桁の丸い値を置いた)",
-   "why": "コードの宣言(expedients)。③ 群の体の急変=D9(決定 10-12 §1-5 の D の論点 3=本人の体・倒れる率は出典を探す=リサーチ)。3-5 で processes/salient.py の docstring の見出しの項から移した。出典が見つかるまで出典なし。外す段: 置き換える段が計画に無い=主張の前に感度試験で示す",
+   "why": "コードの宣言(expedients)。③ 群の体の急変=D9(決定 10-12 §1-5 の D の論点 3=本人の体・倒れる率は出典を探す=リサーチ)。3-5 で processes/salient.py の docstring の見出しの項から移した。出典が見つかるまで出典なし。外す段: 置き換える段が計画に無い=主張の前に感度試験で示す〔11-01 段 2 の 3・4〕既定(--rate-rules off)で外した=体の式ができるまで倒れる人は無い(W3 は錨に残す・回答 11-01 §2・§3・§9)。値 3.0 は旧道(切替口 legacy)だけが使う=次の版上げで宣言ごと消す。出動の過程は残す(発火しない)",
    "remove_at": "7",
    "declared_in": "src/shibuya/engine/body/rules.py#expedients:dbe2c73e",
    "conf": "expedient",
@@ -7637,7 +7637,7 @@
   {
    "id": "DOC-du1-unstaffed-bridge",
    "what": "その店の雇用の行を持つ体が店のセルに居て起きていない店(雇用の行の無い店・体が別の場所に居る店・体が店で寝ている店)は今の conf 宣言つきのつなぎのまま=開閉は OpeningProcess の REPLACEMENT(conf 0.5)・補充は 10:00 の engine_rule・売れ残りは 05:00 に棚 → ビン(雇用の行の体が閉店の作業で捨てた店は除く)。開始の刻みの最初の設定(open_now が負の店)もエンジン(担当の役割行動として代打しない)。〔検収 M4〕補充と開閉の「居る」は同じ判定(種別を見ない)",
-   "why": "決定 10-12 §2 の 2(まだ人の行動で作れない変化はエンジン規則でつなぐ=conf 宣言つき・カバー率を台帳へ)。カバー率は manifest の duties.coverage(雇用の行の出どころ別・店の決まりの出どころ別)と記録 §5",
+   "why": "決定 10-12 §2 の 2(まだ人の行動で作れない変化はエンジン規則でつなぐ=conf 宣言つき・カバー率を台帳へ)。カバー率は manifest の duties.coverage(雇用の行の出どころ別・店の決まりの出どころ別)と記録 §5〔11-01 段 2 の 3・4〕このうち売れ残りの 05:00 のつなぎ(廃棄率)は既定から外した=担当の体の居ない店の売れ残りは捨てられない(担当の体が捨てる分=腕 duties は残る・旧道は切替口 legacy)",
    "remove_at": "6-6",
    "declared_in": "docs/bench/analysis/wallbounce-1012/duties1/README.md",
    "conf": "expedient",
@@ -8361,6 +8361,67 @@
     "src/shibuya/economy/stage2.py"
    ],
    "rule_id": "minimum_wage.tokyo"
+  },
+  {
+   "id": "DOC-s2rates-legacy-switch",
+   "what": "切替口 --rate-rules legacy(環境変数 SHIBUYA_RATE_RULES=legacy)は 11-01 段 2 の 4 の版上げの前の値の再現のためだけの道(催しの 200 人注入・E8 の到着の分散・乗車の受け入れ確率・ポイ捨て 0.05 g/人/刻み・売れ残りの廃棄率・宅配の区按分・倒れる率 3.0 件/万体/日)。出勤率のくじは戻らない(道ごと消した)",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)。legacy の 5,000 体 × 1 日 mock は前の版と final が一致(記録 docs/bench/analysis/s2-rates-1101/README.md)。次の版上げで切替口を消すときに書き直す試験(旧道に固定した試験=検収 L5): test_du_runs の朝のつなぎ・test_cp2_event_links の補充の行・test_resume_10d の宅配の張り直し・test_state_ledger_10b の t7 の旧道の 1 本・倒れる率の試験の口を使う試験(test_salient・test_rng_scheme_10c・test_ablation23_switches・test_resume_10d・test_salt_seed_split_10f・test_state_checks_10f・test_version_bump_10e)・旧道の規則を見る過程の試験(test_civic・test_goods_flow・test_logistics・test_rail_return・test_presence_executor の E8 の 3 本と催しの経路)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/bench/analysis/s2-rates-1101/README.md",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/rate_rules.py",
+    "src/shibuya/cli.py"
+   ]
+  },
+  {
+   "id": "DOC-s2rates-event-held-log",
+   "what": "催しの人の注入を外した後も、会場 3 セルの抽選と開催の記録(ActualLog の SCHEDULED の行=18:00 と 21:00)は残す(旧道の注入と退出の行と同じ形・体は動かさない)",
+   "why": "指示書 11-01 段 2 の 4「催しの開催そのもの(会場 3 セル)は残す」。開催の情報を外の人に届く入力にし、来るかを本人が決めるのは段 3(回答 11-01 §2・§8)。会場の決め方(日の鍵の乱数で 3 セル)は今のまま=未リサーチ(expedient)",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/s2-rates-1101/README.md",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/processes/civic.py"
+   ]
+  },
+  {
+   "id": "DOC-s2rates-collapse-test-knob",
+   "what": "倒れる率を直に渡す口(run_day の salient_rate_per_10k・SalientProcess の rate_per_10k_per_day)は旧道(--rate-rules legacy)でだけ効く。腕 off では無視して率 0(removed の印と食い違わない=検収 L3)。manifest の rate_rules.counts に実効の率と件数が出る",
+   "why": "既存の試験と道具(tools/c7/salt_runs.py の腕 sal ほか)が出動の経路を見るのにこの口を使う=その試験は旧道で回す。次の版上げで旧道と一緒に口を消す(記録 docs/bench/analysis/s2-rates-1101/README.md)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/bench/analysis/s2-rates-1101/README.md",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/processes/salient.py",
+    "src/shibuya/engine/run.py"
+   ]
+  },
+  {
+   "id": "DOC-s2rates-waste-band-na",
+   "what": "腕 off(既定)のランの店の廃棄の帯(runner.waste_sink_report の band_ok・月次 MER の waste_band_ok)は非該当(None・理由 band_na/waste_band_na=売れ残りの廃棄率を外した)。帯は初期在庫 × SKU の廃棄率の静的な期待(外した #99)で、比べる相手が無い。値(帯・内訳・店の回収量)は残す。要約は「非該当(…)」と書き、tools/c7/c7lib.py は None と読む",
+   "why": "検収 M1(既定のランが毎回 NG を出し、原因が外した規則であることが宣言されていなかった)・回答 11-01 §2。店の売れ残りの廃棄が店員の判断(腕 duties)で既定になったら、帯をその出力と比べ直す",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/s2-rates-1101/README.md",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/processes/runner.py",
+    "src/shibuya/economy/census.py",
+    "src/shibuya/cli.py",
+    "src/shibuya/engine/run.py"
+   ]
   }
  ]
 }

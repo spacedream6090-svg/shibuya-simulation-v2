@@ -372,7 +372,10 @@ def test_resume_refuses_a_ledger_that_was_already_endowed(tmp_path, monkeypatch)
 
 
 # ================================================================= (vii) counter の乱数
-def test_counter_rng_resume_draws_once(tmp_path):
+def test_counter_rng_resume_draws_once(tmp_path, monkeypatch):
+    from shibuya.engine import rate_rules as RR
+
+    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
     kw = dict(n_agents=200, seed=1, n_cells=25, ticks=TPD, sim_days=2, checkpoint_every=10,
               salient_rate_per_10k=3000.0)  # 〔第330・RET〕rng_scheme を消した(counter だけ)
     straight = run_day(tape_path=tmp_path / "s", **kw)
@@ -484,9 +487,13 @@ def test_cli_switches_for_sim_days_and_resume(tmp_path):
 
 
 @real_data
-def test_daily_tables_are_relaid_from_the_calendar_day(tmp_path):
+def test_daily_tables_are_relaid_from_the_calendar_day(tmp_path, monkeypatch):
     """親の答え 5: 2 日目の頭で W7 の曜日の行と世界過程の日ごとの乱数の表を暦の口の日で引き直す。"""
     from shibuya.core.rng import stream
+    from shibuya.engine import rate_rules as RR
+
+    # 〔11-01 段 2 の 3・4〕宅配の配達済みの張り直しは旧道(切替口)だけ=旧道で見る
+    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
 
     res = cli.run(checkpoint_every=360, **WORLD_KW)
     rn = res.runner

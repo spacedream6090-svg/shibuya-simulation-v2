@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, AgentState, AgentKind
+from shibuya.agents.state import Activity, AgentState
 from shibuya.agents.weekly import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
 from shibuya.engine import resolve as R
 from shibuya.engine.presence import (
@@ -134,12 +134,12 @@ W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     # 〔第 4 期 4-3 段 10・版上げ 3 回目〕02114fb577f3 = 差し替えの世界(W16 を W21 に)の W17(残す W16 の体の行+W21 の体へ
     # 提供者の行の写し=記録 pop43)。5,000 体・seed 1・1 日の値は親の検収の前の実装役の実測(記録 pop43 §16)。
     "02114fb577f3": {
-        "null_arm_final": "872136c8ef8115f3", "null_arm_llm_calls": 99_453,  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 dcebb7c1d04b9d27 / 97_250=--space legacy で戻る・段 1 の nav1(cell)は fc31115bb6dc9e09 / 87_274・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 90582d704a6d2dcb=SHIBUYA_RULES_42=off で戻る・記録 rules42)
-        "null_arm_final_hunger_v1": "1e31a0c273bb60c0", "null_arm_llm_calls_hunger_v1": 98_856,  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 730512bf7cc6b877 / 95_208=--space legacy で戻る・段 1 の nav1(cell)は 83070878d560b37f / 83_456・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 f2d9ae6144d0e8ad / 95_054=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 09c7907e713e40e6=SHIBUYA_RULES_42=off で戻る・記録 rules42)
-        "null_arm_final_l4x1": "9c5b3b6d353b7767", "null_arm_llm_calls_l4x1": 40_983,  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 b239860914d1a3b0 / 41_089=--space legacy で戻る・段 1 の nav1(cell)は 857b1a00cec8b0c8 / 40_990・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 b239860914d1a3b0 / 41_089=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 2a4e22a1554081a8=SHIBUYA_RULES_42=off で戻る・記録 rules42)
-        "v3_default_final": "7bfe215641b792ac", "v3_default_llm_calls": 62_176,  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717 / 63_572=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887 / 61_261・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
-        "v3_default_final_hunger_v1": "b47d44e750e93dc3", "v3_default_llm_calls_hunger_v1": 61_072,  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 2e5ba0c90fc90099 / 63_618=--space legacy で戻る・段 1 の nav1(cell)は eddffcada215af43 / 60_293・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 938434492bf062bd / 63_600=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 4c71d4d44f9f7c57=SHIBUYA_RULES_42=off で戻る・記録 rules42)
-        "v3_default_final_l4x1": "c50febb360d57315", "v3_default_llm_calls_l4x1": 36_541,  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 b698b0e54a588536 / 36_759=--space legacy で戻る・段 1 の nav1(cell)は 74d21977568e45a8 / 36_420・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 bec0c89bf3ebbf8b / 36_759=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 aea727f0a508f2c7=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "null_arm_final": "2767525651ddb7ce", "null_arm_llm_calls": 101_035,  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 872136c8ef8115f3 / 99_453=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 dcebb7c1d04b9d27 / 97_250=--space legacy で戻る・段 1 の nav1(cell)は fc31115bb6dc9e09 / 87_274・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 90582d704a6d2dcb=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "null_arm_final_hunger_v1": "37fe9e3db225e9a8", "null_arm_llm_calls_hunger_v1": 97_047,  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 1e31a0c273bb60c0 / 98_856=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 730512bf7cc6b877 / 95_208=--space legacy で戻る・段 1 の nav1(cell)は 83070878d560b37f / 83_456・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 f2d9ae6144d0e8ad / 95_054=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 09c7907e713e40e6=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "null_arm_final_l4x1": "9df2be95f55a809a", "null_arm_llm_calls_l4x1": 40_835,  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 9c5b3b6d353b7767 / 40_983=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 b239860914d1a3b0 / 41_089=--space legacy で戻る・段 1 の nav1(cell)は 857b1a00cec8b0c8 / 40_990・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 b239860914d1a3b0 / 41_089=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 2a4e22a1554081a8=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "v3_default_final": "73aa01d9afb206d0", "v3_default_llm_calls": 61_066,  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 7bfe215641b792ac / 62_176=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717 / 63_572=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887 / 61_261・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "v3_default_final_hunger_v1": "09ff5fd88bb4bc09", "v3_default_llm_calls_hunger_v1": 60_375,  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 b47d44e750e93dc3 / 61_072=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 2e5ba0c90fc90099 / 63_618=--space legacy で戻る・段 1 の nav1(cell)は eddffcada215af43 / 60_293・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 938434492bf062bd / 63_600=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 4c71d4d44f9f7c57=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "v3_default_final_l4x1": "335f80ac58b648e0", "v3_default_llm_calls_l4x1": 36_350,  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 c50febb360d57315 / 36_541=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 b698b0e54a588536 / 36_759=--space legacy で戻る・段 1 の nav1(cell)は 74d21977568e45a8 / 36_420・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 bec0c89bf3ebbf8b / 36_759=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 aea727f0a508f2c7=SHIBUYA_RULES_42=off で戻る・記録 rules42)
         "v1_outside_blocks": 522_182, "v1_outside_dist": [82, 137_156, 117_612, 43_787],
         "s5000_v1": {"n_blocks": 8_697, "zero": 1, "outside": 7_730, "in": 967},
         "s5000_v2": {"n_blocks": 6_413, "zero": 136, "outside": 5_446, "in": 967},
@@ -234,8 +234,6 @@ def make_layer(
     assets=None,
     n_cells: int = 9,
     ticks: int = 1_440,
-    attendance_rate: float = 1.0,
-    kind=None,
     with_rail: bool = True,
 ):
     w, a = make_world_agents(n, n_cells=n_cells, home_cell=home_cell)
@@ -252,12 +250,9 @@ def make_layer(
         day_index=0,
         home_cell=home_cell,
         direction_node=np.zeros(n, dtype=np.int64) if direction is None else direction,
-        kind=np.zeros(n, dtype=np.int64) if kind is None else kind,
-        agent_id=np.arange(n, dtype=np.int64),
         rail=rail,
         assets=pa,
         ticks=ticks,
-        attendance_rate=attendance_rate,
     )
     return w, a, rail, layer
 
@@ -754,9 +749,8 @@ def test_arrival_spread_never_exceeds_capacity_times_the_cap():
         w, a, wk, day_index=0,
         home_cell=np.full(n, -1, dtype=np.int64),
         direction_node=np.zeros(n, dtype=np.int64),
-        kind=np.zeros(n, dtype=np.int64),
-        agent_id=np.arange(n, dtype=np.int64),
         rail=rail, assets=pa, ticks=1_440,
+        rate_rules="legacy",  # 〔11-01 段 2 の 4〕E8 の分散は旧道(切替口)だけ
     )
     per_train = np.bincount(layer.arrival_train[layer.arrival_train >= 0], minlength=6)
     assert layer.n_spread_moved > 0
@@ -788,9 +782,8 @@ def test_arrival_spread_stays_inside_the_eight_train_window():
         w, a, wk, day_index=0,
         home_cell=np.full(n, -1, dtype=np.int64),
         direction_node=np.zeros(n, dtype=np.int64),
-        kind=np.zeros(n, dtype=np.int64),
-        agent_id=np.arange(n, dtype=np.int64),
         rail=rail, assets=pa, ticks=1_440,
+        rate_rules="legacy",  # 〔11-01 段 2 の 4〕E8 の分散は旧道(切替口)だけ
     )
     e1 = layer.arrival_train_e1
     got = layer.arrival_train
@@ -827,9 +820,8 @@ def test_overflow_on_the_last_train_stays_on_its_own_e1_train():
         w, a, wk, day_index=0,
         home_cell=np.full(n, -1, dtype=np.int64),
         direction_node=np.zeros(n, dtype=np.int64),
-        kind=np.zeros(n, dtype=np.int64),
-        agent_id=np.arange(n, dtype=np.int64),
         rail=rail, assets=pa, ticks=1_440,
+        rate_rules="legacy",  # 〔11-01 段 2 の 4〕E8 の分散は旧道(切替口)だけ
     )
     e1, got = layer.arrival_train_e1, layer.arrival_train
     sv = np.flatnonzero(e1 >= 0)
@@ -962,7 +954,8 @@ def test_the_real_civic_path_pulls_and_pushes_through_the_layer():
     )
     layer.initialize()
     ev = LargeEventProcess(
-        world, agents, rail=rail, master_seed=1, day_index=0, visitor_delta=4
+        world, agents, rail=rail, master_seed=1, day_index=0, visitor_delta=4,
+        rate_rules="legacy",  # 〔11-01 段 2 の 4〕催しの人の注入は旧道(切替口)だけ
     )
     ev.presence = layer
     lo, hi = EVENT_WINDOW
@@ -994,31 +987,21 @@ def test_native_mode_and_other_exit_modes_are_reserved():
         PlanExecutor(w, a, wk, home_cell=np.array([-1]), exit_mode="board_intent")
     with pytest.raises(ValueError):
         PlanExecutor(w, a, wk, home_cell=np.array([-1]), exit_mode="teleport")
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):  # 〔11-01 段 2 の 4〕出勤率の引数は消した
         PlanExecutor(w, a, wk, home_cell=np.array([-1]), attendance_rate=1.5)
 
 
-def test_attendance_rate_removes_a_deterministic_share_of_commuters():
-    """§6 E6: ``attendance_rate`` は通勤・通学の一部を**決定論で**終日域外にする。"""
+def test_everyone_attends_after_the_attendance_lottery_was_removed():
+    """〔11-01 段 2 の 4〕出勤率のくじ(E6)は消した=全員出勤(日を変えても誰も休まない・ブロックは全員分)。"""
     n = 400
     rows = [(i, 0, 400, ACT_SLEEP, PK_OUT, -1) for i in range(n)]
     rows += [(i, 500, 900, ACT_WORK, PK_WORK, 3) for i in range(n)]
     wk = make_weekly(rows, n)
-    kinds = np.where(np.arange(n) % 2 == 0, int(AgentKind.COMMUTER), int(AgentKind.VISITOR))
     home = np.full(n, -1, dtype=np.int64)
-    _, _, _, full = make_layer(wk, n=n, home_cell=home, kind=kinds)
-    _, _, _, part = make_layer(
-        wk, n=n, home_cell=home, kind=kinds, attendance_rate=0.88
-    )
+    _, _, _, full = make_layer(wk, n=n, home_cell=home)
     assert int(full.absent.sum()) == 0
-    assert 0 < int(part.absent.sum()) < n // 2
-    assert not part.absent[kinds == int(AgentKind.VISITOR)].any()  # 来街者は対象外
-    # 同じ入力なら同じ体が抜ける(乱数ではない)
-    _, _, _, part2 = make_layer(
-        wk, n=n, home_cell=home, kind=kinds, attendance_rate=0.88
-    )
-    assert np.array_equal(part.absent, part2.absent)
-    assert part.blocks.n_blocks == full.blocks.n_blocks - int(part.absent.sum())
+    assert not full.absent_on(1).any() and not full.absent_on(5).any()
+    assert full.counters()["absent"] == 0.0
 
 
 def test_mix64_matches_the_build_side_definition():

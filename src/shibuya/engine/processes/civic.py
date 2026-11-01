@@ -21,7 +21,8 @@ expedient(本モジュール分・全て「返済対象」)
 - 発信時刻 07:00 / 12:00 / 18:00 の 3 本。到達範囲=**全セル**(§7.2「到達範囲の較正後に返済」)。
 - ホテル: 客室数 = **1 POI あたり 120 室**(実データ空欄)。チェックイン 21:00・アウト 09:00。
 - インフラ原単位: 電力 0.35 kWh/人/時・水 0.012 m³/人/時(**出典なし**・W5 の実数は空欄)。
-- 大規模イベント: 18:00-21:00 に外界から ``EVENT_VISITOR_DELTA`` 人を会場セルへ入れる。
+- 大規模イベント: 18:00-21:00 に外界から ``EVENT_VISITOR_DELTA`` 人を会場セルへ入れる〔11-01 段 2 の 4 で既定から外した=
+  催しの人の注入は無い・会場 3 セルの開催は残す・旧道は切替口 ``--rate-rules legacy`` だけ(次の版上げで消す)〕。
 """
 
 from __future__ import annotations
@@ -32,6 +33,7 @@ import numpy as np
 
 from shibuya.agents.state import AgentKind, AgentState
 from shibuya.core.rng import run_tick_key, stream
+from shibuya.engine import rate_rules as _RATE_RULES
 from shibuya.engine import resolve as R
 from shibuya.perception import attention as AT
 from shibuya.world.assets import ProcessAssets
@@ -442,9 +444,14 @@ class InfraLoadProcess:
 
 
 class LargeEventProcess:
-    """大規模イベント(外界からの来街増分を窓の間だけ入れる)。
+    """大規模イベント(会場の開催・旧道は外界からの来街増分を窓の間だけ入れる)。
 
     ``executor=engine_rule``・conf 0.3(``first_batch``)。主催者・参加者はエージェント化しない。
+
+    〔11-01 段 2 の 4〕回答 11-01 §2(A1-2)「催しの 200 人注入=無い。催しの情報が外の人に届き、来るかは本人の判断」。既定
+    (腕 off・``engine.rate_rules`` の ``event_injection``)は 18:00 の注入と 21:00 の退出をしない(体は急に現れない=10-12
+    §1-3)。会場 3 セルの抽選と開催の記録(ActualLog の SCHEDULED の行)は残す(催しの情報を外の人へ届く入力にするのは段 3)。
+    旧道(腕 legacy)は前のまま(次の版上げで消す)。
     """
 
     process_ids: Final[tuple[str, ...]] = ("large_event",)
@@ -461,10 +468,13 @@ class LargeEventProcess:
         tick_seconds: int = 60,
         actual_log=None,
         visitor_delta: int = EVENT_VISITOR_DELTA,
+        rate_rules: str | None = None,
     ) -> None:
         self.world = world
         self.agents = agents
         self.rail = rail
+        #: 〔11-01 段 2 の 4〕率の形の規則の腕(``off``=注入しない・``legacy``=旧道)。
+        self.rate_rules = _RATE_RULES.resolve(rate_rules)
         #: **D-66 計画実行層**(``engine.presence.PlanExecutor``)。``None``=帰無腕。
         #: 引き込み候補を層に選ばせ(その日在圏予定のある域外の体)、I4 の通知を返す。
         self.presence = None
@@ -505,6 +515,9 @@ class LargeEventProcess:
             self._leave(int(tick))
 
     def _arrive(self, tick: int) -> None:
+        if not _RATE_RULES.is_legacy(self.rate_rules):  # 〔11-01〕注入は無い=会場の開催だけ記録する
+            self._log_held(tick)
+            return
         r = self.agents.registry
         # **D-66 (I4)**: 計画実行層があれば「**その日在圏予定のある**域外の体」から取る
         # (非来街日の体を引き込まない)。無ければ従来どおり域外の先頭 N 体。
@@ -532,7 +545,19 @@ class LargeEventProcess:
                 np.full(self.venue_cells.size, _SCHEDULED, dtype=np.int8),
             )
 
+    def _log_held(self, step_no: int) -> None:
+        """会場の開催の記録だけ(〔11-01〕注入の無い腕 off の 18:00 と 21:00・行の形は旧道の注入と退出の行と同じ)。"""
+        if self.log is not None:
+            self.log.append_many(
+                self.process_ids[0], self.venue_cells,
+                np.full(self.venue_cells.size, int(step_no), dtype=np.int64),
+                np.full(self.venue_cells.size, _SCHEDULED, dtype=np.int8),
+            )
+
     def _leave(self, tick: int) -> None:
+        if not _RATE_RULES.is_legacy(self.rate_rules):  # 〔11-01〕注入は無い=出す体も居ない(開催の終わりだけ記録)
+            self._log_held(tick)
+            return
         if self._inside.size == 0:
             return
         ref = np.asarray(self.agents.registry.transit_ref, dtype=np.int64)[self._inside]
@@ -558,11 +583,15 @@ class LargeEventProcess:
             "arrived": float(self.n_in),
             "left": float(self.n_out),
             "inside_now": float(self._inside.size),
+            # ---- 〔11-01 段 2 の 4〕催しの人の注入を外した印(旧道の件数は arrived) ----
+            "rate_rule_event_injection_removed": float(not _RATE_RULES.is_legacy(self.rate_rules)),
         }
 
     def summary(self) -> str:
         if not self.active:
             return "大規模イベント: セルが無い(休む)"
+        if not _RATE_RULES.is_legacy(self.rate_rules):
+            return f"大規模イベント: 会場 {self.venue_cells.size} セル / 人の注入は無い(〔11-01〕率の形の規則を外した)"
         return (
             f"大規模イベント: 会場 {self.venue_cells.size} セル / 来街増分 "
             f"{self.n_in:,} 人(窓 {EVENT_WINDOW[0] // MINUTES_PER_HOUR:02d}:00-"

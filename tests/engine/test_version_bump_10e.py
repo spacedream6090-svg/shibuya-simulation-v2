@@ -314,10 +314,13 @@ def test_e5_recalled_memory_identity_and_acquaintances(v4_tape):
 
 
 # ================================================================= E4 の検収の直し(L1・L2・L3)
-def test_e4_l1_tape_meta_carries_the_rng_layout_and_old_counter_tapes_stop(tmp_path):
+def test_e4_l1_tape_meta_carries_the_rng_layout_and_old_counter_tapes_stop(tmp_path, monkeypatch):
     """L1: テープの脇の meta に鍵の配置の印(``rng_layout``)。10c〜10f の counter で録ったテープ(印が無い)は再生で
     明示的に止まる。〔改訂(第330・RET)〕前は「stateful のテープは印が無くても回る(meta の無い実テープと同じ扱い)」も
     見た=stateful を消したので、印が無いテープ・stateful のテープ・meta の無いテープはどれも止まる。"""
+    from shibuya.engine import rate_rules as RR
+
+    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
     import json
 
     from shibuya.engine.run import RNG_LAYOUT

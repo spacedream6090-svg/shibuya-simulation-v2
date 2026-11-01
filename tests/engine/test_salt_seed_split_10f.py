@@ -191,7 +191,7 @@ def test_dynamic_domains_match_the_defaults():
 _HASH_SITES = {
     ("engine/run.py", "run_salt_for"): "run_salt",
     ("perception/renderer.py", "__init__"): "run_salt",  # near_salt を渡さないときの run_salt の写し(run_day は渡す)
-    ("engine/presence.py", "attendance_draw"): "attendance",
+    # 〔11-01 段 2 の 4〕("engine/presence.py", "attendance_draw")=出勤率の抽選は消した
     # 〔第 6 期 6-2〕腕 1b の体ごとの割り振り(動きの seed=salt・母集団の seed は使わない)
     ("engine/calendar_self.py", "_key_draw"): "calendar_1b",
     ("llm/fleet.py", "seed_for"): "fleet.call_seed",
@@ -271,6 +271,9 @@ def _check_split(seen, seed, pop_seed, env_seed):
 
 
 def test_population_and_motion_streams_use_their_own_seed_synthetic(monkeypatch):
+    from shibuya.engine import rate_rules as RR
+
+    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
     seen = _record_keys(monkeypatch)
     cli.run(n_agents=60, seed=3, population_seed=7, environment_seed=11, world_dir=NO_WORLD, n_cells=30, ticks=240,
             checkpoint_every=60, salient_rate_per_10k=3000.0)  # 〔第330・RET〕rng_scheme を消した(counter だけ)
@@ -414,7 +417,11 @@ def test_environment_seed_only_changes_weather_events_and_works(monkeypatch):
 
 
 # ---------------------------------------------------------------- T3: 回す役と CRN の健全性
-def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path):
+def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path, monkeypatch):
+    from shibuya.engine import rate_rules as RR
+
+    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
+    monkeypatch.setenv("SHIBUYA_RATE_RULES", RR.MODE_LEGACY)  # 子のプロセス(tools/c7/salt_runs.py)も旧道
     # 10e(E4): 乱数 counter では率 100 だと 200 体・1 日で事象が 0 件の salt がある(腕が基準と同じランになる)ので
     # 率を上げて、どの salt でも腕が食い違うようにした
     arms = {"base": {}, "sal": {"salient_rate_per_10k": 1000.0}}
@@ -457,8 +464,12 @@ def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path):
     assert rep["analysis"]["metrics"]["calls"]["status"] == sc.DESCRIPTIVE  # 2 対
 
 
-def test_runner_environment_modes(tmp_path):
+def test_runner_environment_modes(tmp_path, monkeypatch):
     """S1: 回す役の ``--environment-mode``。fixed は環境の seed が全部同じ(省略=母集団の seed)・salt は salt と同じ。"""
+    from shibuya.engine import rate_rules as RR
+
+    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
+    monkeypatch.setenv("SHIBUYA_RATE_RULES", RR.MODE_LEGACY)  # 子のプロセス(tools/c7/salt_runs.py)も旧道
     arms = {"base": {}, "sal": {"salient_rate_per_10k": 100.0}}
     idx = {}
     for mode in ("fixed", "salt"):

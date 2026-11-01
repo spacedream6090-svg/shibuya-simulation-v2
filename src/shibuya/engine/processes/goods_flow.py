@@ -33,10 +33,12 @@ expedient(本モジュール分・全て「返済対象」)
 - 納品の時間帯 **05:00-08:00**(親指示の窓)・1 店 1 日 1 便・ロット = 補充ロット × 2。
 - 納品の遅延 = 15% の便が 1-30 分(幾何分布・平均 ≈ 6 分)。実データは空欄。
 - 収集の時間帯 **06:00-10:00**・セル順のルート・1 tick 1 セル分の店舗を回る。
-- 売れ残り → ビン: 1 日 1 回(閉店帯)に SKU 別 ``waste_rate`` を棚へ掛ける。
+- 売れ残り → ビン: 1 日 1 回(閉店帯)に SKU 別 ``waste_rate`` を棚へ掛ける〔11-01 段 2 の 4 で既定から外した=売れ残りの
+  廃棄は無い(店の仕事の腕 duties の担当の体が捨てる分は残す)・旧道は切替口 ``--rate-rules legacy`` だけ〕。
 - 世帯の消費(C 類排出): 1 日 1 回、所持のある個体が 1 個消費する(``resolve.consume``)。
 - 街路ごみ: 1 人 1 tick あたり ``LITTER_G_PER_PERSON_TICK`` [g]。**SKU を持たない**ので
-  物の台帳(SKU 別)へは載せず、質量だけを本過程が持つ(band の内訳としては別に足す)。
+  物の台帳(SKU 別)へは載せず、質量だけを本過程が持つ(band の内訳としては別に足す)〔11-01 段 2 の 4 で既定から外した=
+  ポイ捨ては無い・掃除の巡回は残す(拾う物が無い)・旧道は切替口 ``--rate-rules legacy`` だけ〕。
 """
 
 from __future__ import annotations
@@ -47,6 +49,7 @@ import numpy as np
 
 from shibuya.agents.state import AgentKind, AgentState
 from shibuya.core.rng import k19_counters, stream
+from shibuya.engine import rate_rules as _RATE_RULES
 from shibuya.engine import resolve as R
 from shibuya.engine.events.log import Process
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
@@ -485,6 +488,7 @@ class WasteCollectionProcess:
         tick_seconds: int = 60,
         actual_log=None,
         master_seed: int | str = 1,
+        rate_rules: str | None = None,
     ) -> None:
         self.world = world
         self.agents = agents
@@ -492,6 +496,8 @@ class WasteCollectionProcess:
         self.tick_seconds = int(tick_seconds)
         self.log = actual_log
         self.master_seed = master_seed
+        #: 〔11-01 段 2 の 4〕率の形の規則の腕(``off``=05:00 の売れ残りの廃棄率を掛けない・``legacy``=旧道)。
+        self.rate_rules = _RATE_RULES.resolve(rate_rules)
         self.route = np.argsort(
             np.asarray(world.pois.cell, dtype=np.int64), kind="stable"
         ).astype(np.int64)
@@ -514,7 +520,8 @@ class WasteCollectionProcess:
         if not self.active:
             return
         minute = _minute(tick, self.tick_seconds)
-        if minute == WASTE_TO_BIN_MINUTE:
+        # 〔11-01 段 2 の 4〕売れ残りの廃棄率(つなぎ)は旧道だけ。担当の体が捨てる分(腕 duties の bin_by_staff)は残る
+        if minute == WASTE_TO_BIN_MINUTE and _RATE_RULES.is_legacy(self.rate_rules):
             self._sell_leftovers_to_bin(int(tick))
         if minute == HOUSEHOLD_CONSUME_MINUTE:
             self._household_consumption(int(tick))
@@ -650,6 +657,8 @@ class WasteCollectionProcess:
             "consumed": float(self.n_consumed),
             "consumed_g": float(self.consumed_g),
             "day_waste_g": float(self.ledger.goods.day_waste_g) if self.active else 0.0,
+            # ---- 〔11-01 段 2 の 4〕売れ残りの廃棄率を外した印(旧道の件数は to_bin_rows) ----
+            "rate_rule_leftover_waste_removed": float(not _RATE_RULES.is_legacy(self.rate_rules)),
         }
 
     def summary(self) -> str:
@@ -673,10 +682,15 @@ class StreetCleaningProcess:
     process_ids: Final[tuple[str, ...]] = ("street_cleaning",)
     ablation_id: Final[str] = "AB-CLEANING-RATE"
 
-    def __init__(self, world: World, agents: AgentState, *, tick_seconds: int = 60) -> None:
+    def __init__(self, world: World, agents: AgentState, *, tick_seconds: int = 60,
+                 rate_rules: str | None = None) -> None:
         self.world = world
         self.agents = agents
         self.tick_seconds = int(tick_seconds)
+        #: 〔11-01 段 2 の 4〕率の形の規則の腕(``off``=ポイ捨ては無い・``legacy``=旧道の 0.05 g/人/刻み)。
+        self.rate_rules = _RATE_RULES.resolve(rate_rules)
+        #: 〔11-01〕旧道で生じた街路ごみの総量[g](off では 0)。
+        self.litter_generated_g = 0.0
         self.litter_g = np.zeros(world.n_cells, dtype=np.float64)
         self.swept_g = 0.0
         self.n_swept_cells = 0
@@ -689,9 +703,10 @@ class StreetCleaningProcess:
     def step(self, tick: int) -> None:
         if not self.active:
             return
-        self.litter_g += (
-            np.asarray(self.world.cells.density, dtype=np.float64) * LITTER_G_PER_PERSON_TICK
-        )
+        if _RATE_RULES.is_legacy(self.rate_rules):  # 旧道(切替口・次の版上げで消す)=人数 × 0.05 g/刻み
+            add = np.asarray(self.world.cells.density, dtype=np.float64) * LITTER_G_PER_PERSON_TICK
+            self.litter_g += add
+            self.litter_generated_g += float(add.sum())
         minute = _minute(tick, self.tick_seconds)
         if not any(lo <= minute < hi for lo, hi in CLEANING_WINDOWS):
             return
@@ -707,6 +722,9 @@ class StreetCleaningProcess:
             "litter_now_g": float(self.litter_g.sum()),
             "swept_g": float(self.swept_g),
             "swept_cells": float(self.n_swept_cells),
+            # ---- 〔11-01 段 2 の 4〕ポイ捨てを外した印と旧道の件数(生じた量) ----
+            "rate_rule_litter_removed": float(not _RATE_RULES.is_legacy(self.rate_rules)),
+            "litter_generated_g": float(self.litter_generated_g),
         }
 
     def summary(self) -> str:

@@ -70,6 +70,8 @@ FALLBACK_THERMAL: Final[int] = 5
 
 #: 「倒れる」の発生率[件/10,000体/日](expedient=:data:`BODY_EXPEDIENTS` の 6・出典なし)。3-5 より前は
 #: ``engine.processes.salient`` に置いた(同じ名で写して出す)。
+#: 〔11-01 段 2 の 3・4〕既定(``engine.rate_rules`` の腕 off)では使わない=倒れる人は無い。旧道(腕 legacy)だけが使う(次の版上げで
+#: 消す)。体の式(B8・WBGT→熱中症)に置き換えるまで、W3 は錨に残す。
 COLLAPSE_PER_10K_PER_DAY: Final[float] = 3.0
 
 #: 刻み 0 の体の状態(D18・C2 の初期値・expedient=:data:`BODY_EXPEDIENTS` の 7)。

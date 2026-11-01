@@ -158,7 +158,7 @@ def test_infra_load_grows_with_occupancy_and_reports_a_peak():
 def test_large_event_pulls_visitors_in_and_sends_them_back():
     world = make_world(16)
     agents, _ = make_agents(world, 40)
-    ev = LargeEventProcess(world, agents, master_seed=2, visitor_delta=5)
+    ev = LargeEventProcess(world, agents, master_seed=2, visitor_delta=5, rate_rules="legacy")  # 〔11-01 段 2 の 4〕旧道(切替口)の規則を見る試験
     outside = np.arange(8, dtype=np.int64)
     R.place_at_external(agents, outside, np.zeros(outside.size, dtype=np.int64))
     lo, hi = EVENT_WINDOW

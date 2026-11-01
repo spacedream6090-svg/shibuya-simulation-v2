@@ -28,7 +28,8 @@ W17 の週次表で到着・退出・就寝・起床を実行する=今と同じ
    電車の発車か境界を歩いて越えるときだけ(時刻で消さない・歩きが途切れたらその場に居続ける=E4 を外す)。
 4. **つなぎの外し方**: この腕のランでは、管理する体(その日に時刻つきの勤務の約束がある体)の計画実行層の到着・退出(W17 の
    ARRIVE/DEPART と張り直しの到着)を実行しない(``PlanExecutor.io_hook``)。就寝・起床は W17 のまま(疲労の後)・来街者の来訪も
-   W17 のまま(判断モデルの後)・出勤率のくじは残す(判断モデルまで)。
+   W17 のまま(判断モデルの後)・出勤率のくじは残す(判断モデルまで)〔11-01 段 2 の 4 でくじを消した=全員出勤の宣言・
+   除いた理由「出勤率のくじ」の欄は形のために残す=常に 0〕。
 5. **計器**(CA8・合否なし): 出勤・帰宅の時刻の分布(W20 の約束との差)・通勤時間(見積り vs 実際 vs 実感)・5 分前到着・遅刻
    (錨は空欄)・計画一致率・15 分ごとの約束の場所に居る率・不可能な予定(間に合わない=記録だけ)・活動の切り替え・忘れた割合
    (置き場所ごと)・判断の数と源と番号・エンジンがしないこと 3 つの検査(下)・つなぎの台帳の数。manifest の末尾の
@@ -766,14 +767,16 @@ class CalendarSelf:
         self._set_reminders(np.flatnonzero(put), T0)
 
     def _absent(self, d: int) -> np.ndarray:
-        """出勤率のくじ(CA5=判断モデルまでのつなぎ・BR-ATTENDANCE-LOTTERY)でその日来ない体。計画実行層と同じ口・同じ鍵で
-        引き直す(計画実行層の表の欄は読まない=その欄は計器の側)。"""
+        """その日来ない体(計画実行層と同じ口 ``absent_on``=計画実行層の表の欄は読まない=その欄は計器の側)。
+
+        〔11-01 段 2 の 4〕出勤率のくじ(CA5・BR-ATTENDANCE-LOTTERY)は消した=全員出勤の宣言(口は全員 False を返す)。
+        """
         pr = self.presence
         out = np.zeros(self.n, dtype=bool)
-        fn = getattr(pr, "_attendance_absent", None)
+        fn = getattr(pr, "absent_on", None)
         if fn is None:
             return out
-        got = np.asarray(fn(pr._kind, pr._agent_key, float(pr.attendance_rate), day=int(d)), dtype=bool)
+        got = np.asarray(fn(int(d)), dtype=bool)
         out[: min(self.n, got.size)] = got[: self.n]
         return out
 

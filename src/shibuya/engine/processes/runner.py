@@ -31,6 +31,7 @@ from typing import Any, Final, Iterable, Mapping
 import numpy as np
 
 from shibuya.agents.state import AgentState
+from shibuya.engine import rate_rules as _RATE_RULES
 from shibuya.engine import resolve as R
 from shibuya.engine.calendar import SimCalendar
 from shibuya.engine.processes.civic import (
@@ -131,6 +132,9 @@ class WorldProcessRunner:
             (``None``=``master_seed`` と同じ)。ほかの過程の乱数は ``master_seed``(動きの seed)。
         org_of_agent: 〔第 1 期 1-5〕体 → W16 の ``org_id``(権利台帳の雇用の行の材料・開閉の過程へ渡す。``None``=
             母集団の無いラン)。
+        rate_rules: 〔11-01 段 2 の 3・4〕率の形の規則の腕(``engine.rate_rules``・``None``=今の腕=既定 off)。鉄道(受け入れ
+            確率)・廃棄物収集(売れ残りの廃棄率)・街路清掃(ポイ捨て)・宅配・大規模イベント(人の注入)・顕著行為(倒れる率)へ
+            渡す。
 
     Attributes:
         registry_hash: 台帳の blake3(manifest の同定欄へ)。
@@ -171,6 +175,7 @@ class WorldProcessRunner:
         weather_perturb: bool = False,
         org_of_agent: Any | None = None,
         initial_rights: Any | None = None,
+        rate_rules: str | None = None,
     ) -> None:
         if world is None or agents is None:
             raise ValueError("WorldProcessRunner は world と agents を要る")
@@ -192,6 +197,9 @@ class WorldProcessRunner:
         #: 10a #7: 営業時間の表(W7)の曜日の行。〔第330・10e E3〕祝日は W7 の祝日の行(``opening_row``・PH の無い店は日曜の行)。
         table_weekday = int(self.calendar.opening_row(0))
         self.ledger = ledger
+        #: 〔11-01 段 2 の 3・4〕率の形の規則の腕(組み立てで 1 回決める・過程へ渡す)。
+        self.rate_rules = _RATE_RULES.resolve(rate_rules)
+        _rr = self.rate_rules
         #: **D-66 計画実行層**のラン(``engine.presence.PlanExecutor`` が在圏の出入りを持つ)。
         #: rail の乱数 12% と D-61 帰りの便を止め、起動時の域外配置も層に任せる。
         self.plan_executor = bool(plan_executor)
@@ -231,6 +239,7 @@ class WorldProcessRunner:
             master_seed=_pop_seed, day_index=self.day_index,
             schedule=schedule, actual_log=self.log,
             plan_executor=self.plan_executor, calendar=self.calendar,
+            rate_rules=_rr,
         )
         self.opening = OpeningProcess(
             world, agents, self.assets,
@@ -255,10 +264,10 @@ class WorldProcessRunner:
         )
         self.waste = WasteCollectionProcess(
             world, agents, ledger=ledger, tick_seconds=self.tick_seconds,
-            actual_log=self.log, master_seed=self.master_seed,
+            actual_log=self.log, master_seed=self.master_seed, rate_rules=_rr,
         )
         self.street_cleaning = StreetCleaningProcess(
-            world, agents, tick_seconds=self.tick_seconds
+            world, agents, tick_seconds=self.tick_seconds, rate_rules=_rr,
         )
 
         # ---- C4 後半: 前倒し 9 本 ----
@@ -275,7 +284,7 @@ class WorldProcessRunner:
         )
         self.last_mile = LastMileProcess(
             world, household_per_cell=household, master_seed=self.master_seed,
-            day_index=day_key, tick_seconds=self.tick_seconds, actual_log=self.log,
+            day_index=day_key, tick_seconds=self.tick_seconds, actual_log=self.log, rate_rules=_rr,
         )
         self.bus_taxi = BusTaxiProcess(
             world, self.assets, tick_seconds=self.tick_seconds, actual_log=self.log
@@ -295,7 +304,7 @@ class WorldProcessRunner:
         )
         self.large_event = LargeEventProcess(
             world, agents, rail=self.rail, master_seed=_env_seed,  # 10f(S1): 環境の側
-            day_index=day_key, tick_seconds=self.tick_seconds, actual_log=self.log,
+            day_index=day_key, tick_seconds=self.tick_seconds, actual_log=self.log, rate_rules=_rr,
         )
         self.dispatch = PublicServiceDispatchProcess(
             world, master_seed=self.master_seed, day_index=day_key,
@@ -308,6 +317,7 @@ class WorldProcessRunner:
             ablation=_p_notice_ablation(p_notice_ablation, enabled),
             rate_per_10k_per_day=salient_rate_per_10k,
             d50_scale=p_notice_d50_scale,
+            rate_rules=_rr,
         )
 
         self._procs: dict[str, Any] = {
@@ -535,18 +545,23 @@ class WorldProcessRunner:
         street = (self.street_cleaning.swept_g / 1e6) if self.is_enabled("street_cleaning") else 0.0
         goods_t = float(goods.waste_band(days=1).tonnes)
         expected, lo, hi = goods.store_waste_band()
-        return {
+        # 〔11-01 段 2 の 4・検収 M1〕腕 off では店の帯は外した規則(#99 売れ残りの廃棄率)の期待=判定は非該当(None)・値は残す
+        applies = _RATE_RULES.is_legacy(self.rate_rules)
+        out = {
             "total_t": round(total, 6),
             "breakdown_t": {"store_expired_stock": round(store, 6), "household_consumption": round(household, 6),
                             "street_litter": round(street, 6),
                             "other_goods": round(goods_t - store - household, 6)},
             "band_store_t": [round(lo, 6), round(hi, 6)],
             "expected_store_t": round(expected, 6),
-            "band_ok": bool(hi > 0.0 and lo <= store <= hi),
+            "band_ok": bool(hi > 0.0 and lo <= store <= hi) if applies else None,
             "band_basis": "店舗の期限切れ在庫の静的期待(初期在庫 × SKU 廃棄率(切り捨て)× 質量)±30%・体数に依らない・expedient・未リサーチ(D-52 (a)・第304 Q135 (a))",
             "band_check": str(getattr(goods, "STORE_WASTE_BAND_NOTE", "")),  # 第305 Q138
             "ward_total_comparison": "保留(区 119.6 t/日との比較は、世帯の一般ごみ(消費した財の質量以外)=第 2 陣を入れてから)",
         }
+        if not applies:  # 腕 off のランだけ足す(legacy の manifest の waste_sink は前のまま)
+            out["band_na"] = _RATE_RULES.WASTE_BAND_NA
+        return out
 
     def projected_waste_tonnes_per_day(self) -> float:
         """その日の廃棄 sink[t/日](物の台帳 + 街路清掃の回収分)。"""
@@ -601,7 +616,8 @@ class WorldProcessRunner:
             lines.append(
                 f"  廃棄 sink(検算②): {ws['total_t']:.4f} t/日(店 {b['store_expired_stock']:.4f}・世帯の消費 "
                 f"{b['household_consumption']:.4f}・街路 {b['street_litter']:.4f})店の帯 "
-                f"(band {lo:.2f}-{hi:.2f} t/日) {'OK' if ws['band_ok'] else 'NG'}"
+                f"(band {lo:.2f}-{hi:.2f} t/日) "
+                f"{ws['band_na'] if ws['band_ok'] is None else ('OK' if ws['band_ok'] else 'NG')}"
                 f"(自己整合性の検査=店の回収量 vs 静的期待 {ws['expected_store_t']:.3f} t/日 ±30%・現実との照合ではない・"
                 "区の総排出量との比較は保留)"
             )

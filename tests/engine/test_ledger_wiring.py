@@ -105,7 +105,7 @@ def test_goods_processes_change_the_world(wired):
     res, bundle = wired
     runner = res.runner  # type: ignore[attr-defined]
     assert runner.delivery_inbound.n_runs > 0  # 納品便が立つ
-    assert runner.waste.n_bin_rows > 0  # 売れ残りがビンへ落ちる
+    assert runner.waste.n_bin_rows == 0  # 〔11-01 段 2 の 4〕売れ残りの廃棄率は外した(前: 売れ残りがビンへ落ちる)
     assert int(bundle.goods.aggregate_stock().sum()) != int(
         np.asarray(res.world.assets.poi_stock0, dtype=np.int64).sum()  # type: ignore[attr-defined]
     )

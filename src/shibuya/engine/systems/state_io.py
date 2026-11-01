@@ -419,6 +419,12 @@ def save_state(b: Any, T_next: int, *, finished: bool, closed: bool) -> None:
     _sr = _SR.header_fields(b.cfg.seat_release)
     if _sr is not None:
         header["seat_release"] = _sr
+    # 〔11-01 段 2 の 3・4〕率の形の規則の腕(既定の off のランだけ書く=legacy は版上げの前の見出しのまま)
+    from shibuya.engine import rate_rules as _RRS
+
+    _rr = _RRS.header_fields(b.cfg.rate_rules)
+    if _rr is not None:
+        header["rate_rules"] = _rr
     from shibuya.engine.experiment import layer as _EXPL
 
     _exp_h = _EXPL.state_header(getattr(b.layers, "experiment", None))

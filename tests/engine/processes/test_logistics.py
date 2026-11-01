@@ -24,7 +24,7 @@ from .conftest import WORLD_DIR, make_world, real_data
 # ================================================================= 宅配ラストマイル
 def test_parcels_are_the_ward_number_scaled_by_the_bbox_area():
     world = make_world(64)
-    lm = LastMileProcess(world)
+    lm = LastMileProcess(world, rate_rules="legacy")  # 〔11-01 段 2 の 4〕旧道(切替口)の規則を見る試験
     share = 64 * CELL_AREA_M2 / SHIBUYA_WARD_AREA_M2
     assert lm.bbox_share == share
     assert lm.parcels_today == round(PARCELS_PER_DAY_WARD * share)
@@ -36,7 +36,7 @@ def test_parcels_follow_the_household_weights():
     hh = np.zeros(16, dtype=np.int64)
     hh[3] = 10
     hh[7] = 30
-    lm = LastMileProcess(world, household_per_cell=hh)
+    lm = LastMileProcess(world, household_per_cell=hh, rate_rules="legacy")  # 〔11-01 段 2 の 4〕旧道(切替口)の規則を見る試験
     assert lm.parcels_per_cell[7] > lm.parcels_per_cell[3] > 0
     assert int(lm.parcels_per_cell[[0, 1, 2]].sum()) == 0
 
@@ -44,7 +44,7 @@ def test_parcels_follow_the_household_weights():
 def test_parcels_are_delivered_on_the_hourly_curve():
     world = make_world(16)
     hh = np.full(16, 5, dtype=np.int64)
-    lm = LastMileProcess(world, household_per_cell=hh)
+    lm = LastMileProcess(world, household_per_cell=hh, rate_rules="legacy")  # 〔11-01 段 2 の 4〕旧道(切替口)の規則を見る試験
     for t in range(1_440):
         lm.step(t)
     assert 0 < int(lm.delivered.sum()) <= lm.parcels_today

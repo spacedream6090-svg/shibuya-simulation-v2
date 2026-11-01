@@ -184,7 +184,7 @@ def test_delivery_delay_is_recorded_as_a_deviation():
 # ================================================================= 廃棄物収集
 def test_leftovers_go_to_the_bin_then_out_of_the_bbox():
     world, agents, bundle = _setup(n_agents=30, n_cells=16)
-    waste = WasteCollectionProcess(world, agents, ledger=bundle)
+    waste = WasteCollectionProcess(world, agents, ledger=bundle, rate_rules="legacy")  # 〔11-01 段 2 の 4〕旧道(切替口)の規則を見る試験
     waste.step(WASTE_TO_BIN_MINUTE)
     assert int(bundle.goods.bins.sum()) > 0
     lo, hi = COLLECT_WINDOW
@@ -209,7 +209,7 @@ def test_household_consumption_lands_in_the_sink():
 
 def test_waste_band_is_reported_even_when_out_of_band():
     world, agents, bundle = _setup(n_agents=20, n_cells=16)
-    waste = WasteCollectionProcess(world, agents, ledger=bundle)
+    waste = WasteCollectionProcess(world, agents, ledger=bundle, rate_rules="legacy")  # 〔11-01 段 2 の 4〕旧道(切替口)の規則を見る試験
     waste.step(WASTE_TO_BIN_MINUTE)
     lo, hi = COLLECT_WINDOW
     for t in range(lo, hi):
@@ -224,7 +224,7 @@ def test_waste_band_is_reported_even_when_out_of_band():
 # ================================================================= 街路清掃
 def test_litter_rises_with_density_and_is_swept_on_the_shift():
     world, agents, _ = _setup(n_agents=40, n_cells=9)
-    clean = StreetCleaningProcess(world, agents)
+    clean = StreetCleaningProcess(world, agents, rate_rules="legacy")  # 〔11-01 段 2 の 4〕旧道(切替口)の規則を見る試験
     for t in range(0, 60):
         clean.step(t)
     assert clean.litter_g.sum() > 0

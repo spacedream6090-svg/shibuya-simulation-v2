@@ -41,7 +41,6 @@ def report(ctx: Any, b: Any) -> Any:
     activity_on = cfg.activity_on
     activity_region = cfg.activity_region
     area_source = cfg.area_source
-    attendance_rate = cfg.attendance_rate
     attention_on = cfg.attention_on
     budget_mode_enum = cfg.budget_mode_enum
     chooser = cfg.chooser
@@ -399,7 +398,9 @@ def report(ctx: Any, b: Any) -> Any:
     result.outside_suppression = bool(outside_suppression and plan_exec_on)
     result.outside_wake_candidates = int(rs.n_outside_calls)
     result.exit_mode = str(exit_mode)
-    result.attendance_rate = float(attendance_rate)
+    from shibuya.engine import rate_rules as _RRM  # 〔11-01 段 2 の 3・4〕率の形の規則を外した節(腕・印・旧道の件数)
+
+    result.rate_rules = _RRM.manifest_fields(b.cfg.rate_rules, b.layers.runner, b.layers.presence)
     result.derive_rule = str(derive_rule)
     result.geometry = str(geometry)
     result.space = str(space)

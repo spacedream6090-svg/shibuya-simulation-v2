@@ -22,10 +22,12 @@ BOX_ATTR = {"stats": "runstats"}
 #: 表の欄の名 → 箱の欄の名(名の衝突を避けて変えたもの)。
 FIELD_RENAMES = {("stats", "sleep_counts"): "sleep_tally"}
 #: 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧道の切替口と一緒に消した設定の欄(表は HEAD ee3abc7 の割り当ての記録=凍結のまま)。
-REMOVED_FIELDS = {("cfg", "leave_effect"), ("cfg", "poi_target"), ("cfg", "near_tiebreak"), ("cfg", "near_order")}
+REMOVED_FIELDS = {("cfg", "leave_effect"), ("cfg", "poi_target"), ("cfg", "near_tiebreak"), ("cfg", "near_order"),
+                  ("cfg", "attendance_rate")}  # 〔11-01 段 2 の 4〕出勤率のくじと一緒に消した欄
 #: 〔第 2 部〕run_day の引数から消した切替口(leave_effect・poi_target・near_tiebreak・near_order・rel_tenure_hash・
-#: response_delay=113 → 107)。
-REMOVED_PARAMS = ("leave_effect", "poi_target", "near_tiebreak", "near_order", "rel_tenure_hash", "response_delay")
+#: response_delay=113 → 107)。〔11-01 段 2 の 4〕出勤率 attendance_rate を消した(108 → 107)。
+REMOVED_PARAMS = ("leave_effect", "poi_target", "near_tiebreak", "near_order", "rel_tenure_hash", "response_delay",
+                  "attendance_rate")
 #: 〔第 5 期 空間の段 1〕run_day の引数に足した切替口(space=107 → 108)。
 ADDED_PARAMS = ("space",)
 

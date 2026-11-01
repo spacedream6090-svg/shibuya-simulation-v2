@@ -815,8 +815,9 @@ def parse_run_summary(text: str) -> dict[str, Any]:
     out["census_gate"] = (m.group(1) == "PASS") if m else None
     m = re.search(r"憲法5\s+(OK|NG)", text)
     out["constitution_ok"] = (m.group(1) == "OK") if m else None
-    m = re.search(r"band\s+[0-9.]+-[0-9.]+\)\s*(OK|NG)", text)
-    out["waste_band_ok"] = (m.group(1) == "OK") if m else None
+    # 〔11-01 段 2 の 4・検収 M1〕腕 off のランの帯は「非該当(…)」=None(NG に数えない)
+    m = re.search(r"band\s+[0-9.]+-[0-9.]+\)\s*(OK|NG|非該当)", text)
+    out["waste_band_ok"] = (None if m.group(1) == "非該当" else m.group(1) == "OK") if m else None
 
     diag = {k: int(v.replace(",", "")) for k, v in _DIAG_RE.findall(text)}
     m = _DIAG_RATE_RE.search(text)

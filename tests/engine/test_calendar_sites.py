@@ -19,7 +19,7 @@ import pytest
 from shibuya.agents.schedule import synthesize
 from shibuya.agents.state import AgentState
 from shibuya.engine.calendar import SimCalendar, load_holidays
-from shibuya.engine.presence import _mix64, attendance_draw
+from shibuya.engine import presence as _PRESENCE
 from shibuya.engine.processes import environment as ENV
 from shibuya.engine.processes.runner import WorldProcessRunner
 from shibuya.engine.run import (
@@ -123,16 +123,9 @@ def test_named_closed_next_day_comes_from_the_calendar(table):
 
 
 # ================================================================= ◐ #19 出勤率
-def test_attendance_draw_keeps_day0_and_moves_from_day1():
-    a = np.arange(5_000, dtype=np.int64)
-    old = (_mix64(a.astype(np.uint64)) % np.uint64(10_000)).astype(np.int64)
-    assert np.array_equal(attendance_draw(a, day=0, seed=1), old)
-    assert np.array_equal(attendance_draw(a, day=0, seed=99), old)          # 0 日目は seed に依らない(今のまま)
-    d1 = attendance_draw(a, day=1, seed=1)
-    assert np.mean(d1 != old) > 0.99
-    assert np.mean(attendance_draw(a, day=1, seed=2) != d1) > 0.99         # 1 日目からは seed で変わる
-    assert np.mean(attendance_draw(a, day=2, seed=1) != d1) > 0.99
-    assert (d1 >= 0).all() and (d1 < 10_000).all()
+def test_the_attendance_draw_was_removed():
+    """〔11-01 段 2 の 4〕出勤率のくじ(E6)は道ごと消した=全員出勤の宣言(``engine.rate_rules`` の attendance)。"""
+    assert not hasattr(_PRESENCE, "attendance_draw") and not hasattr(_PRESENCE, "ATTENDANCE_KINDS")
 
 
 # ================================================================= 切替口の引数

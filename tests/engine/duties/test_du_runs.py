@@ -257,8 +257,12 @@ def test_without_the_decision_the_shelf_is_not_restocked_by_the_engine_at_a_staf
 
 # ================================================================= 廃棄は閉店の作業
 def test_discard_is_a_closing_task_and_the_morning_bridge_skips_it(monkeypatch):
+    from shibuya.engine import rate_rules as RR
     from shibuya.engine import resolve as R
     from shibuya.engine.processes import goods_flow as GF
+
+    # 〔11-01 段 2 の 4〕05:00 の売れ残りのつなぎは旧道(切替口)だけ=つなぎと担当の体の分け方を旧道で見る
+    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
 
     calls = []
     real = R.discard_to_bin

@@ -107,7 +107,6 @@ class RunConfig:
     mode: str
     lane: str
     census_out: Any
-    attendance_rate: float
     exit_mode: str
     derive_rule: str
     checkpoint_detail: bool
@@ -184,6 +183,8 @@ class RunConfig:
     parent_run: Any
     #: 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(``engine.seat_release``・組み立てで 1 回読む=``walk`` 既定・``legacy`` 切替口)。
     seat_release: str = "legacy"
+    #: 〔11-01 段 2 の 3・4〕率の形の規則の腕(``engine.rate_rules``・組み立てで 1 回読む=``off`` 既定・``legacy`` 切替口)。
+    rate_rules: str = "off"
 
     @property
     def stopped(self) -> bool:

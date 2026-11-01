@@ -39,7 +39,7 @@ def walk_layer(weekly, *, n: int, home_cell, direction=None, ticks: int = 1_440,
     layer = PlanExecutor(
         w, a, weekly, day_index=0, home_cell=home_cell,
         direction_node=np.zeros(n, dtype=np.int64) if direction is None else direction,
-        kind=np.zeros(n, dtype=np.int64), agent_id=np.arange(n, dtype=np.int64), rail=rail, assets=pa,
+        rail=rail, assets=pa,
         ticks=ticks, exit_mode="walk_to_platform",
     )
     rail.presence = layer

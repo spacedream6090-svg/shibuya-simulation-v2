@@ -9,6 +9,8 @@
 expedient(本モジュール分・全て「返済対象」)
 - 宅配: 区按分 **27,000 個/日** をさらに **bbox 面積比**(セル数×1万 m² ÷ 渋谷区 15.11 km²)で
   按分する。セルへの配分は**世帯数(mock 日課の自宅セル度数)**に比例。実データ(区別実績)は空欄。
+  〔11-01 段 2 の 3・4 で既定から外した=宅配は無い(W2 は錨に残す=駆動と採点の循環を解く)・旧道は切替口
+  ``--rate-rules legacy`` だけ(次の版上げで消す)〕
 - 宅配の時間帯カーブ(08-21 時の 14 段)は自前。再配達(``attempt_count``)は C4 では立てない。
 - バス: ODPT GTFS が未取得なので **PlanSpec は等間隔(06:00-23:00・10 分間隔)** で合成する。
   停留所は OSM ``highway=bus_stop``(127 点)をセルへ写像した実データ。
@@ -25,6 +27,7 @@ from typing import Final
 import numpy as np
 
 from shibuya.core.rng import k19_counters, stream
+from shibuya.engine import rate_rules as _RATE_RULES
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
@@ -77,6 +80,9 @@ def _minute(tick: int, tick_seconds: int) -> int:
 class LastMileProcess:
     """宅配ラストマイル(世帯数按分 × 時間帯カーブ)。
 
+    〔11-01 段 2 の 3・4〕回答 11-01 §2・§3「宅配 27,000 個/日=無い(W2 は錨に残す)」。既定(腕 off・``engine.rate_rules`` の
+    ``parcels``)はその日の予定個数を 0 にする(過程を動かさない=``active`` が偽)。旧道(腕 legacy)は前のまま(次の版上げで消す)。
+
     Attributes:
         parcels_per_cell: ``(n_cells,)`` その日の予定個数。
         delivered: ``(n_cells,)`` 配達済み個数。
@@ -94,15 +100,20 @@ class LastMileProcess:
         day_index: int = 0,
         tick_seconds: int = 60,
         actual_log=None,
+        rate_rules: str | None = None,
     ) -> None:
         self.world = world
         self.tick_seconds = int(tick_seconds)
         self.log = actual_log
+        #: 〔11-01 段 2 の 3・4〕率の形の規則の腕(``off``=宅配は無い・``legacy``=旧道の区按分)。
+        self.rate_rules = _RATE_RULES.resolve(rate_rules)
         n = world.n_cells
         self.bbox_share = min(
             1.0, float(n) * CELL_AREA_M2 / SHIBUYA_WARD_AREA_M2
         )
-        self.parcels_today = int(round(PARCELS_PER_DAY_WARD * self.bbox_share))
+        self.parcels_today = (
+            int(round(PARCELS_PER_DAY_WARD * self.bbox_share)) if _RATE_RULES.is_legacy(self.rate_rules) else 0
+        )
         w = (
             np.ones(n, dtype=np.float64) if household_per_cell is None
             else np.asarray(household_per_cell, dtype=np.float64)[:n]
@@ -161,9 +172,13 @@ class LastMileProcess:
             "delivered": float(int(self.delivered.sum())),
             "batches": float(self.n_batches),
             "bbox_share": float(self.bbox_share),
+            # ---- 〔11-01 段 2 の 3・4〕宅配を外した印(旧道の件数は delivered) ----
+            "rate_rule_parcels_removed": float(not _RATE_RULES.is_legacy(self.rate_rules)),
         }
 
     def summary(self) -> str:
+        if not _RATE_RULES.is_legacy(self.rate_rules):
+            return "宅配ラストマイル: 宅配は無い(〔11-01〕率の形の規則を外した=W2 は錨に残す)"
         if not self.active:
             return "宅配ラストマイル: 対象セルなし(休む)"
         return (

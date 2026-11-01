@@ -95,7 +95,7 @@ PATHS: Final[dict[str, str]] = {
     "mock_out_of_cell_target_p": _C, "familiarity": _C, "familiarity_k": _C, "hunger_model": _C, "energy_rate": _C,
     "meal_sleep_defer": _C, "home_meal": _C, "hunger_words": _C, "policy": _C, "memory": _C, "memory_n": _C,
     "store_memory": _C, "synonym_table_version": _C, "sleep_suppression": _C, "plan_sleep": _C,
-    "plan_executor": _C, "exit_mode": _C, "attendance_rate": _C, "derive_rule": _C, "outside_suppression": _C,
+    "plan_executor": _C, "exit_mode": _C, "derive_rule": _C, "outside_suppression": _C,
     "geometry": _C, "area_source": _C, "seat_area_eatery_m2": _C, "seat_area_retail_m2": _C, "attention": _C,
     # ---- 計数・分布(観測) ----
     "activity_kind_counts": _O, "target_resolution": _O, "move_resolution": _O, "intero_crossings": _O,
@@ -186,7 +186,7 @@ PATHS: Final[dict[str, str]] = {
     # 注 note(定数の文)だけ設定。前は cost ごと設定の節(反実仮想の分岐の入力の一致が RESUME_DERIVED で許していた)
     **_mixed("group_norms.cost", config=("note",), observed=("ticks",)),
     **_mixed("waste_sink", config=("band_store_t", "expected_store_t", "band_basis", "band_check",
-                                   "ward_total_comparison"), observed=("total_t", "breakdown_t", "band_ok")),
+                                   "ward_total_comparison", "band_na"), observed=("total_t", "breakdown_t", "band_ok")),
     # ---- 第 1 期 1-9(K17): 金の生ログの輪の容量(体数と係数で決まる=設定)と溢れ・transfer の計器(観測) ----
     **_mixed("economy", config=("raw_capacity", "raw_rows_per_agent_day", "raw_row_bytes", "raw_link_bytes",
                                 "raw_overflow_policy"), observed=(
@@ -216,6 +216,9 @@ PATHS: Final[dict[str, str]] = {
     **_mixed("space", config=("requested", "effective", "reason", "schema", "slope_model", "turn_weight_mode",
                                 "turn_weight_m", "climb_weight_m_per_m", "navmesh", "expedients"),
              observed=("meter",)),
+    # ---- 〔11-01 段 2 の 3・4〕率の形の規則を外した節(形の版・腕・規則の宣言・外した印=設定/旧道の件数=観測)。出勤率の欄
+    # attendance_rate は消した(くじの道ごと消した=全員出勤の宣言) ----
+    **_mixed("rate_rules", config=("schema", "mode", "rules", "removed"), observed=("counts",)),
     **_mixed("proximity", config=("schema", "mode", "d_m", "d_arms", "leave_m", "b5_radius_m", "b5_radius_source",
                                   "notice", "unit_source", "index_cell_m", "position_source", "marks"), observed=(
         "index_builds", "indexed_max", "unit_occupancy_max", "units_occupied_max", "unit_occupancy_hist")),

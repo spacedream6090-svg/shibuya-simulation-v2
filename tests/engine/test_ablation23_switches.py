@@ -55,6 +55,7 @@ def spread_scene(scale: float, ablation="A4", *, n: int = 120, ticks: int = 240)
     sp = SalientProcess(
         world, agents, master_seed=1, rate_per_10k_per_day=5_000.0,
         ablation=ablation, d50_scale=scale,
+        rate_rules="legacy",  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
     )
     for t in range(ticks):
         sp.step(t)
@@ -232,7 +233,10 @@ def test_manifest_carries_the_first_wave_arms():
     assert (base["p_notice_d50_scale"], base["refractory_scale"], base["signage"]) == (1.0, {}, True)
 
 
-def test_d50_scale_reaches_the_salient_process_through_run_day():
+def test_d50_scale_reaches_the_salient_process_through_run_day(monkeypatch):
+    from shibuya.engine import rate_rules as RR
+
+    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
     res = run_day(
         n_agents=300, seed=3, ticks=30, checkpoint_every=30, n_cells=25,
         processes=True, conversations=False, salient_rate_per_10k=4_000.0,

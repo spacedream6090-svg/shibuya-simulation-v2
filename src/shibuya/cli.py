@@ -345,7 +345,9 @@ def write_census_files(ledger, goods, day: int, out_dir: str | Path) -> tuple[st
     d.mkdir(parents=True, exist_ok=True)
     row = CS.daily_census(ledger, goods, day=int(day))
     p_daily = CS.write_daily_census([row], d / DAILY_CENSUS_FILENAME)
-    mer = CS.monthly_mer(ledger, goods, month=0, days=1)
+    from shibuya.engine import rate_rules as _RRC  # 〔11-01 段 2 の 4・検収 M1〕腕 off は店の廃棄の帯を非該当に
+
+    mer = CS.monthly_mer(ledger, goods, month=0, days=1, waste_band_applies=_RRC.is_legacy())
     p_mer = CS.write_monthly_mer(mer, d / MONTHLY_MER_FILENAME)
     p_sectors = CS.write_monthly_mer_sectors(mer, d / MONTHLY_MER_SECTORS_FILENAME)
     return (p_daily.as_posix(), p_mer.as_posix(), p_sectors.as_posix())
@@ -480,6 +482,7 @@ def run(
                          "store_capital_yen": store_capital_yen})
         from shibuya.engine import proximity as _proximity  # 第 2 期 2-2: 環境変数の腕も腕と数える(結果が変わる腕)
         from shibuya.engine import seat_release as _seat_release  # 〔第 2 期 2-4 V3〕同じ(既定 walk と違えば腕)
+        from shibuya.engine import rate_rules as _rate_rules  # 〔11-01 段 2 の 4〕率の形の規則(既定 off と違えば腕)
         from shibuya.engine import batching as _BATCH  # 〔第 3 期 3-2〕まとめの幅の腕(環境変数か --batch-width-s)
         from shibuya.engine import body as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)
         from shibuya.engine import calendar_shadow as _calendar_shadow  # 〔第 3 期 3-1〕暦 1a の影(既定 w17 と違えば腕)
@@ -499,6 +502,7 @@ def run(
         run_kind = _RK.decide(arms_on=bool(arms) or _speech_layer.arm() != _speech_layer.ARM_OFF
                               or _proximity.arm() != _proximity.DEFAULT_MODE  # 〔2-4 V2〕既定は distance
                               or _seat_release.arm() != _seat_release.DEFAULT_MODE  # 〔2-4 V3〕既定は walk
+                              or _rate_rules.arm() != _rate_rules.DEFAULT_MODE  # 〔11-01〕既定は off
                               or _ES2.arm() != _ES2.DEFAULT_ARM  # 〔2-4 V4〕経済の段階 2 も(既定 on と違えば腕)
                               or not _BATCH.is_default()  # 〔第 3 期 3-2〕まとめの幅(既定 60 秒と違えば腕)
                               or _body.arm() != _body.DEFAULT_ARM  # 〔3-5〕体の予約の腕(既定は sweep)
@@ -960,12 +964,14 @@ def main(argv: list[str] | None = None) -> int:
              "ホームへ歩いて受容関数を通して乗る)・board_intent は予約(NotImplementedError)",
     )
     ap.add_argument(
-        "--attendance-rate",
-        type=float,
-        default=1.0,
-        metavar="RATE",
-        help="出勤率(D-67 (b)・expedient E6。既定 1.0=全員来る)。通勤・通学の体のうち"
-             " 1-RATE をその日「終日域外」にする(_mix64(agent_id) の決定論)",
+        "--rate-rules",
+        choices=("off", "legacy"),
+        default=None,
+        help="〔11-01 段 2 の 4〕率の形の規則の切替口(既定 off・環境変数 SHIBUYA_RATE_RULES と同じ。指定すれば環境変数より強い)。"
+             "off=率の形の規則を外した状態(催しの 200 人注入・E8 の到着の分散・乗車の受け入れ確率・ポイ捨て・売れ残りの廃棄率・"
+             "宅配・倒れる率が無い=宣言は engine.rate_rules)。legacy=版上げの前の値の再現のためだけの道(次の版上げで消す)。"
+             "出勤率のくじ(旧 --attendance-rate)はどちらにも無い=全員出勤。腕は設定の指紋に入れない(manifest の rate_rules に"
+             "出る・既定と違えばランの種類は arm)",
     )
     ap.add_argument(
         "--report-precondition",
@@ -1550,8 +1556,6 @@ def main(argv: list[str] | None = None) -> int:
         refractory_scale = parse_refractory_scale(args.refractory_scale)
         if float(args.pnotice_d50_scale) <= 0.0:
             raise argparse.ArgumentTypeError("--pnotice-d50-scale は正の値")
-        if not (0.0 <= float(args.attendance_rate) <= 1.0):
-            raise argparse.ArgumentTypeError("--attendance-rate は 0.0〜1.0")
         if not (0.0 <= float(args.signage_p_see) <= 1.0):
             raise argparse.ArgumentTypeError("--signage-p-see は 0.0〜1.0 の確率")
         if float(args.l4_scale) < 0.0:
@@ -1600,6 +1604,10 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import batching as _batching
 
         _batching.set_arm(int(args.batch_width_s))
+    if args.rate_rules is not None:  # 〔11-01 段 2 の 4〕率の形の規則の腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import rate_rules as _rate_rules
+
+        _rate_rules.set_arm(str(args.rate_rules))
     if args.seat_release is not None:  # 〔第 2 期 2-4 V3〕在席の印の腕(組み立てが読む。指定は環境変数より強い)
         from shibuya.engine import seat_release as _seat_release
 
@@ -1716,7 +1724,6 @@ def main(argv: list[str] | None = None) -> int:
         home_meal=str(args.home_meal),
         hunger_words=str(args.hunger_words),
         role_words=(str(args.role_words) == "on"),
-        attendance_rate=float(args.attendance_rate),
         derive_rule=str(args.derive_rule),
         outside_suppression=not args.no_outside_suppression,
         geometry=str(args.geometry),
