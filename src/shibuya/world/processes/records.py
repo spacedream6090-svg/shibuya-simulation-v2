@@ -20,6 +20,12 @@ expedient(本モジュール分・CLAUDE.md §4)
   列挙値に**足し**、``delay_minutes != 0 ⇔ deviation == DELAY`` を不変条件にした(expedient)。
 - ``conf`` は ``executor=engine_rule`` の行にだけ持たせる(§1「conf宣言つきフォールバック」)。
   LLM が担う行に conf を書くのは意味が無いので**禁止**にした(設計書に明記なし=expedient)。
+
+〔第340 段 2 の 2・6・7=回答 11-01 §1・§2・§3・§10-3〕宣言の 3 欄を ``WorldProcess`` と ``PlanSpec`` に足した。
+``drives_from``(その過程を動かしている値の系=パターン ID・``data:<id>``・``input:<id>``・``none``)・
+``absence``(``Absence``=無いと宣言する文・理由・外す段。名の ``absent`` は在圏の欄 ``presence.absent`` とぶつかるので避けた)・``input_decl``(``InputDecl``=入力の宣言の型)。
+3 欄は**宣言だけで挙動を変えない**ので ``as_dict``(=``WorldRegistry.registry_hash`` の元)に入れない
+(整理の段は 1 バイト不変)。読み口は ``declaration_extras``。突き合わせは ``world.processes.circularity``。
 """
 
 from __future__ import annotations
@@ -43,6 +49,11 @@ __all__ = [
     "ANNOUNCEMENT_BLOCKS",
     "Validity",
     "AnnouncementScope",
+    "ABSENCE_KINDS",
+    "INPUT_DECL_STATUSES",
+    "DRIVES_NONE",
+    "Absence",
+    "InputDecl",
     "WorldProcess",
     "PlanSpec",
     "ActualLogEntry",
@@ -212,6 +223,176 @@ class AnnouncementScope:
         }
 
 
+# ------------------------------------------------------------------ 宣言の型(第340 段 2・回答 11-01)
+#: ``Absence.kind`` の語。no_actor=主体(体)が居ない過程(routing §3-1)/no_port=判断の口がまだ無い
+#: (routing §3-2)/input=「無い」ではなく入力として宣言(納品)/initial_plan=「無い」ではなく初期の予定(発注)。
+ABSENCE_KINDS: Final[tuple[str, ...]] = ("no_actor", "no_port", "input", "initial_plan")
+#: ``InputDecl.status`` の語。filled=既存の入力で欄を埋めた/fields_only=欄だけ(値は段 0 の取得の後)。
+INPUT_DECL_STATUSES: Final[tuple[str, ...]] = ("filled", "fields_only")
+#: ``drives_from`` の「外の値の系で動いていない」(式・自前の定数・行動の集計)の語。
+DRIVES_NONE: Final[str] = "none"
+
+#: 入力の宣言の値の欄(回答 11-01 §1 の型の順)。
+_INPUT_VALUE_FIELDS: Final[tuple[str, ...]] = (
+    "unit", "source", "version", "fetched", "resolution", "interpolation", "one_way",
+    "period", "perturbation", "proxies_layer", "endogenize_when",
+)
+
+
+def _clean_drives(values: tuple[str, ...] | list[str], owner: str) -> tuple[str, ...]:
+    out = _clean_ids(tuple(values), "drives_from", owner)
+    if DRIVES_NONE in out and len(out) > 1:
+        raise ValueError(f"{owner}: drives_from の {DRIVES_NONE!r} は単独で書く(いま {out})")
+    return out
+
+
+@dataclass(frozen=True)
+class Absence:
+    """無いと宣言する過程・判断(回答 11-01 §2・§10-3・routing §3)。
+
+    Attributes:
+        id: 宣言の id(``absent.<英数>``)。
+        subject: 過程・判断の名(routing §3 の「過程」「判断」の欄)。
+        kind: ``ABSENCE_KINDS`` のどれか。
+        statement: 宣言の文(routing §3 の文案。文案の無いものは実装役の文=``source`` に書く)。
+        reason: 理由(主体が居ない・口が無い・集計の量)。
+        remove_at: 外す段(文案の「外す段」。段の名が文書に無いものは「空欄」と書く)。
+        effect: 宣言で起きること(routing §3-1 の欄)。
+        engine_now: いまのエンジンの動き(規則がまだ動く/口が無いので起きない)。外すのは誰の段か。
+        routing_rows: routing §1 の行の番号(§1-9 の組織の行は空)。
+        world_process_id: 対応する ``WorldProcess``/``PlanSpec`` の id(無ければ空)。
+        source: 文案の出典(文書と節)。
+        keeps_anchor: 検証の錨に残すもの(例: 宅配の W2)。
+        engine_stopped: エンジンがこの過程・判断をもう動かしていないか(〔検収 中-3〕循環の検査の「無い」の例外は
+            True のときだけ効く。False=規則がまだ動く=宣言と実装が食い違う)。
+        stage: 結ぶ判断の行(routing の最初の行)の DEC の行の ``remove_at`` と同じ段の語(〔検収 中-4〕2 か所で
+            値をそろえる。結ぶ行の無い宣言は ``7``)。``remove_at`` は宣言が外れる段の文(文案の写し)。
+    """
+
+    id: str
+    subject: str
+    kind: str
+    statement: str
+    reason: str
+    remove_at: str
+    effect: str = ""
+    engine_now: str = ""
+    routing_rows: tuple[int, ...] = ()
+    world_process_id: str = ""
+    source: str = ""
+    keeps_anchor: tuple[str, ...] = ()
+    engine_stopped: bool = False
+    stage: str = "7"
+
+    def __post_init__(self) -> None:
+        if not self.id or self.id.strip() != self.id or " " in self.id:
+            raise ValueError(f"Absence.id は空白なしの非空文字列: {self.id!r}")
+        if not isinstance(self.engine_stopped, bool):
+            raise TypeError(f"{self.id}: Absence.engine_stopped は bool")
+        if not self.stage.strip():
+            raise ValueError(f"{self.id}: Absence.stage は段の語")
+        for name in ("subject", "statement", "reason", "remove_at"):
+            if not str(getattr(self, name)).strip():
+                raise ValueError(f"{self.id}: Absence.{name} は必須(宣言の文・理由・外す段)")
+        if self.kind not in ABSENCE_KINDS:
+            raise ValueError(f"{self.id}: Absence.kind は {ABSENCE_KINDS}(いま {self.kind!r})")
+        rows = tuple(int(r) for r in self.routing_rows)
+        if any(r < 1 or r > 112 for r in rows) or len(set(rows)) != len(rows):
+            raise ValueError(f"{self.id}: routing_rows は routing §1 の 1〜112 の重ならない番号")
+        object.__setattr__(self, "routing_rows", rows)
+        object.__setattr__(self, "keeps_anchor", _clean_ids(tuple(self.keeps_anchor), "keeps_anchor", self.id))
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "id": self.id,
+            "subject": self.subject,
+            "kind": self.kind,
+            "statement": self.statement,
+            "reason": self.reason,
+            "remove_at": self.remove_at,
+            "effect": self.effect,
+            "engine_now": self.engine_now,
+            "routing_rows": list(self.routing_rows),
+            "world_process_id": self.world_process_id,
+            "source": self.source,
+            "keeps_anchor": list(self.keeps_anchor),
+            "engine_stopped": self.engine_stopped,
+            "stage": self.stage,
+        }
+
+
+@dataclass(frozen=True)
+class InputDecl:
+    """入力の宣言(回答 11-01 §1 の型・A1-8 案 b)。境界の外から一方向に流れるもの。
+
+    欄の順は回答 §1: 変数の名と単位/出典と版と取得日/時間の細かさと補間/内部から影響を受けない一方向で
+    あること/較正か検証かの期間/揺らし方/代理している未構築の層/内生化の条件。``status=fields_only`` の
+    行(新しい入力 7 つ=値は段 0 の取得の後)は値の欄が空でよい。``filled`` の行は値の欄を全部書く
+    (分からない欄は「空欄(理由)」と書いて空にしない)。
+
+    Attributes:
+        source_rows: 欄の値の出典の行(文書の場所。``docs/...`` か ``src/...``)。
+        carrier: 世界の台帳(WorldProcess/PlanSpec)に結ぶ記録の無い入力の置き場(モジュールと名=〔検収 低-4〕)。
+    """
+
+    id: str
+    name: str
+    unit: str = ""
+    source: str = ""
+    version: str = ""
+    fetched: str = ""
+    resolution: str = ""
+    interpolation: str = ""
+    one_way: str = ""
+    period: str = ""
+    perturbation: str = ""
+    proxies_layer: str = ""
+    endogenize_when: str = ""
+    source_rows: tuple[str, ...] = ()
+    status: str = "filled"
+    world_process_id: str = ""
+    note: str = ""
+    carrier: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.id or self.id.strip() != self.id or " " in self.id:
+            raise ValueError(f"InputDecl.id は空白なしの非空文字列: {self.id!r}")
+        if self.status == "filled" and not (self.world_process_id or self.carrier.strip()):
+            raise ValueError(f"{self.id}: filled の入力は結ぶ過程(world_process_id)か置き場(carrier)が要る")
+        if not self.name.strip():
+            raise ValueError(f"{self.id}: InputDecl.name(変数の名)は必須")
+        if self.status not in INPUT_DECL_STATUSES:
+            raise ValueError(f"{self.id}: InputDecl.status は {INPUT_DECL_STATUSES}")
+        object.__setattr__(self, "source_rows", _clean_ids(tuple(self.source_rows), "source_rows", self.id))
+        if self.status == "filled":
+            empty = [f for f in _INPUT_VALUE_FIELDS if not str(getattr(self, f)).strip()]
+            if empty:
+                raise ValueError(f"{self.id}: filled の入力の宣言は値の欄を全部書く(空 {empty})")
+            if not self.source_rows:
+                raise ValueError(f"{self.id}: filled の入力の宣言は出典の行(source_rows)が要る")
+
+    def as_dict(self) -> dict[str, Any]:
+        d: dict[str, Any] = {"id": self.id, "name": self.name}
+        for f in _INPUT_VALUE_FIELDS:
+            d[f] = getattr(self, f)
+        d.update(
+            source_rows=list(self.source_rows),
+            status=self.status,
+            world_process_id=self.world_process_id,
+            note=self.note,
+            carrier=self.carrier,
+        )
+        return d
+
+
+def _check_declaration_fields(owner: str, drives_from: Any, absence: Any, input_decl: Any) -> tuple[str, ...]:
+    if absence is not None and not isinstance(absence, Absence):
+        raise TypeError(f"{owner}: absence は Absence か None")
+    if input_decl is not None and not isinstance(input_decl, InputDecl):
+        raise TypeError(f"{owner}: input_decl は InputDecl か None")
+    return _clean_drives(tuple(drives_from), owner)
+
+
 # ------------------------------------------------------------------ レコード型1: WorldProcess
 @dataclass(frozen=True)
 class WorldProcess:
@@ -260,10 +441,18 @@ class WorldProcess:
     revisability: str = ""
     batch: str = ""
     note: str = ""
+    drives_from: tuple[str, ...] = ()
+    absence: Absence | None = None
+    input_decl: InputDecl | None = None
 
     def __post_init__(self) -> None:
         if not self.id or self.id.strip() != self.id or " " in self.id:
             raise ValueError(f"WorldProcess.id は空白なしの非空文字列: {self.id!r}")
+        object.__setattr__(
+            self,
+            "drives_from",
+            _check_declaration_fields(self.id, self.drives_from, self.absence, self.input_decl),
+        )
         if not isinstance(self.growth, GrowthDeclaration):
             raise TypeError(f"{self.id}: growth は core.growth.GrowthDeclaration(§3 実装原則2)")
         object.__setattr__(
@@ -332,6 +521,15 @@ class WorldProcess:
         """(a)+(b) の届き先の合併(D-R2-4 の検査対象)。"""
         return tuple(self.reaches) + tuple(self.contributes)
 
+    def declaration_extras(self) -> dict[str, Any]:
+        """宣言の 3 欄(``as_dict`` に入れない=registry_hash を動かさない)。"""
+        return {
+            "id": self.id,
+            "drives_from": list(self.drives_from),
+            "absence": self.absence.as_dict() if self.absence is not None else None,
+            "input_decl": self.input_decl.as_dict() if self.input_decl is not None else None,
+        }
+
     def as_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
@@ -393,10 +591,18 @@ class PlanSpec:
     repayment_due: str = ""
     batch: str = ""
     note: str = ""
+    drives_from: tuple[str, ...] = ()
+    absence: Absence | None = None
+    input_decl: InputDecl | None = None
 
     def __post_init__(self) -> None:
         if not self.id or self.id.strip() != self.id or " " in self.id:
             raise ValueError(f"PlanSpec.id は空白なしの非空文字列: {self.id!r}")
+        object.__setattr__(
+            self,
+            "drives_from",
+            _check_declaration_fields(self.id, self.drives_from, self.absence, self.input_decl),
+        )
         if not self.content.strip():
             raise ValueError(f"{self.id}: 内容(content)は必須")
         if not isinstance(self.validity, Validity):
@@ -446,6 +652,15 @@ class PlanSpec:
             + tuple(self.announcement_scope.channel_ids)
             + tuple(self.contributes)
         )
+
+    def declaration_extras(self) -> dict[str, Any]:
+        """宣言の 3 欄(``as_dict`` に入れない=registry_hash を動かさない)。"""
+        return {
+            "id": self.id,
+            "drives_from": list(self.drives_from),
+            "absence": self.absence.as_dict() if self.absence is not None else None,
+            "input_decl": self.input_decl.as_dict() if self.input_decl is not None else None,
+        }
 
     def revised(
         self, *, content: str, at_tick: int, authority: str, validity: Validity | None = None

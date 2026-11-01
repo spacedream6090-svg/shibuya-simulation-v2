@@ -23,6 +23,11 @@
   ``code_at``: 文書で宣言した行の、関わるコードの場所(読むだけの手がかり)。``rule_id``: 規則の表の行に結ぶ直書きの
   係数の行(検収 L7・口の約束 1-4 の約束 (1)「既存の直書きの係数は 4-2 まで残す=つなぎとして台帳へ」)。この 3 欄は
   口の約束の欄に足した(仮採用)。
+- 〔第340 段 2・回答 11-01 §3・検収 中-1 の土台〕判断ごとの行(``DEC-…``)の欄を足した(どれも空でよい=既存の行は欄を
+  持たず、バイトは変わらない): ``drives_from``(その過程/つなぎを動かしている値の系=パターン ID・``data:<id>``・``none``)・
+  ``routing_row``(routing §1 の行の番号・0=無し)・``world_process``(結ぶ世界過程の id)・``decided``(回答の節の ID)・
+  ``contributes``(世界過程の無い行が入る錨)・``calibration_declined``(その錨で較正しない)・``drives_note``(値の出典)。
+  **表を読んでも挙動は変わらない**のは同じ(読み手は ``world.processes.circularity`` と試験だけ)。
 
 先例: TRACE(Grimm ほか 2014)の「仮定ごとに根拠と確かめ方」の文書の型・MATSim の ``config_reduced``(既定と違う
 設定だけ)。「外す段つきの行をコードの宣言と AST で 1 対 1 に突き合わせる」先例は無い(R-113 §4=自前の構成)。
@@ -70,12 +75,20 @@ PLAN_STAGES: Final[frozenset[str]] = frozenset({
     # 〔小さな版上げ・meal_w17 検収 L6〕``next-bump``=次の版上げ(回答 10-13b §0-6「版上げで新しい道を既定にしたら、古い道の
     # 切替口は次の版上げで消す」=旧値の再現のためだけの切替口の行)。段の番号ではなく版上げの順で決まる
     "next-bump",
+    # 〔第340 段 2・指示書 11-01(11-01p)の段 1〜5〕段 1=5070 と判断モデルの比較・段 2=台帳と循環・段 3=語彙と判断の口・
+    # 段 4=背圧(2-7)・段 5=E 系列の組み直し
+    *(f"11-01p-{i}" for i in range(1, 6)),
 })
 _DOC_PREFIX = "docs/"
 _CODE_PREFIX = "src/"
 _RULE_ID = re.compile(r"^[a-z0-9_]+(?:\.[a-z0-9_]+)*$")
 _FIELDS: Final[tuple[str, ...]] = (
     "id", "what", "why", "remove_at", "declared_in", "conf", "since", "status", "remove_basis")
+#: 〔第340 段 2〕空でよい欄(空なら ``as_dict`` に出さない=既存の行の形を変えない)。並びの欄は文字列の並び。
+_LIST_FIELDS: Final[tuple[str, ...]] = ("drives_from", "contributes", "calibration_declined")
+_TEXT_FIELDS: Final[tuple[str, ...]] = ("world_process", "decided", "drives_note")
+_OPTIONAL_FIELDS: Final[tuple[str, ...]] = ("code_at", "rule_id", "drives_from", "routing_row", "world_process",
+                                            "decided", "contributes", "calibration_declined", "drives_note")
 
 
 def _iso_date(value: str, name: str) -> str:
@@ -101,6 +114,13 @@ class Bridge:
     remove_basis: str = "plan"
     code_at: tuple[str, ...] = field(default=())
     rule_id: str = ""
+    drives_from: tuple[str, ...] = field(default=())
+    routing_row: int = 0
+    world_process: str = ""
+    decided: str = ""
+    contributes: tuple[str, ...] = field(default=())
+    calibration_declined: tuple[str, ...] = field(default=())
+    drives_note: str = ""
 
     def __post_init__(self) -> None:
         for name in _FIELDS:
@@ -126,6 +146,18 @@ class Bridge:
         object.__setattr__(self, "code_at", code_at)
         if not isinstance(self.rule_id, str) or (self.rule_id and not _RULE_ID.match(self.rule_id)):
             raise ValueError(f"Bridge.rule_id は規則の表の id の形か空(id={self.id!r})")
+        for name in _LIST_FIELDS:
+            vals = tuple(getattr(self, name))
+            if any(not isinstance(v, str) or not v.strip() for v in vals) or len(set(vals)) != len(vals):
+                raise ValueError(f"Bridge.{name} は空でない文字列の重ならない並び(id={self.id!r})")
+            object.__setattr__(self, name, vals)
+        if "none" in self.drives_from and len(self.drives_from) > 1:
+            raise ValueError(f"Bridge.drives_from の 'none' は単独で書く(id={self.id!r})")
+        for name in _TEXT_FIELDS:
+            if not isinstance(getattr(self, name), str):
+                raise ValueError(f"Bridge.{name} は文字列(id={self.id!r})")
+        if isinstance(self.routing_row, bool) or not isinstance(self.routing_row, int) or not 0 <= self.routing_row <= 112:
+            raise ValueError(f"Bridge.routing_row は 0(無し)か routing §1 の 1〜112(id={self.id!r})")
 
     @property
     def declared_in_code(self) -> bool:
@@ -143,13 +175,17 @@ class Bridge:
             d["code_at"] = list(self.code_at)
         if self.rule_id:
             d["rule_id"] = self.rule_id
+        for name in _OPTIONAL_FIELDS[2:]:
+            v = getattr(self, name)
+            if v:
+                d[name] = list(v) if isinstance(v, tuple) else v
         return d
 
     @classmethod
     def from_dict(cls, d: Mapping[str, Any]) -> "Bridge":
         if not isinstance(d, Mapping):
             raise ValueError(f"Bridge の行は辞書(いま {type(d).__name__})")
-        known = {*_FIELDS, "code_at", "rule_id"}
+        known = {*_FIELDS, *_OPTIONAL_FIELDS}
         extra = set(d) - known
         if extra:
             raise ValueError(f"Bridge に知らない欄 {sorted(extra)}(id={d.get('id')!r})")
@@ -158,6 +194,9 @@ class Bridge:
             raise ValueError(f"Bridge に要る欄が無い {sorted(missing)}(id={d.get('id')!r})")
         kw = dict(d)
         kw["code_at"] = tuple(kw.get("code_at", ()))
+        for name in _LIST_FIELDS:
+            if name in kw:
+                kw[name] = tuple(kw[name])
         return cls(**kw)
 
 

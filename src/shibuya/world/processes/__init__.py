@@ -12,6 +12,9 @@
     ``deletion_candidates``  削除候補台帳ファイル(``runs/`` へ冪等追記)
     ``first_batch``          第1陣+前倒し分の宣言(データのみ)
     ``actual_log``           追記専用 ActualLog(固定幅 numpy・保持窓・増分索引・遵守率)
+    ``absent``               「無いと宣言」の一覧(第340 段 2・回答 11-01 §10-3・宣言だけ)
+    ``inputs``               入力の宣言の一覧(第340 段 2・回答 11-01 §1 の型・宣言だけ)
+    ``circularity``          循環の機械検査(drives_from × 採点する系 × burned・回答 11-01 §3)
 
 層契約: ``world`` は ``core`` と ``manifest`` のみ import する(import-linter で強制)。
 """

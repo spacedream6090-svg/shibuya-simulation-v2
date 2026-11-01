@@ -29,8 +29,11 @@ from __future__ import annotations
 from typing import Final, Mapping
 
 from shibuya.core.growth import GrowthDeclaration, Retention
+from shibuya.world.processes import absent as _AB
+from shibuya.world.processes import inputs as INP
 from shibuya.world.processes.constitution import PROPOSED_CHANNEL_IDS
 from shibuya.world.processes.records import (
+    Absence,
     AnnouncementScope,
     Clock,
     DetailDeclaration,
@@ -69,6 +72,10 @@ __all__ = [
 BATCH_FIRST: Final[str] = "第1陣(D-R2-5 / §7.2 初回実装)"
 BATCH_PULLED_FORWARD: Final[str] = "初回実装へ前倒し(§7.2 第2陣分)"
 ACTUAL_LOG_ID: Final[str] = "actual_log"
+
+#: 〔第340 段 2〕「無いと宣言」の一覧(``world.processes.absent``)。各過程の ``absence``・``input_decl``・``drives_from``
+#: は宣言だけ(``as_dict``=registry_hash に入らない=挙動と記録を変えない)。
+_ABS: Final[Mapping[str, Absence]] = _AB.by_id()
 
 #: cap の割当元(予算表)。M8=RSS総額 ≤24GB・S1=恒久記録 ≤5GB/シミュ日。
 _CAP_1MB: Final[int] = 1 * 1024 * 1024
@@ -126,6 +133,7 @@ _DAYNIGHT = WorldProcess(
     reaches=("内受容", "人物③"),
     norm_kind=NormKind.BRUTE_PHYSICAL,
     violability=Violability.REGIMENTED,
+    drives_from=("none",),
     batch=BATCH_FIRST,
     note=(
         "D-R2-5 は「昼夜(日照=B3)」と書くが §3 に B3 のチャネル行が無いため、"
@@ -150,6 +158,8 @@ _WEATHER = WorldProcess(
     reaches=("内受容",),
     norm_kind=NormKind.BRUTE_PHYSICAL,
     violability=Violability.REGIMENTED,
+    drives_from=("data:jma_etrn",),
+    input_decl=INP.WEATHER,
     batch=BATCH_FIRST,
     note="D-R2-5「天候(気象庁実測の特定日を再生=B3・体感温度)」。B3 は §3 に行が無い(上と同じ)",
 )
@@ -180,6 +190,7 @@ _RAIL = WorldProcess(
     norm_kind=NormKind.REGULATIVE,
     violability=Violability.ENFORCED,
     revisability="指令エージェント(各社・数体)が revises(指令, PlanSpec) で改訂(§1 追補)",
+    drives_from=("data:timetables_w12",),
     batch=BATCH_FIRST,
     note="§1「域外区間の進行のみ B 類」。第1陣は bbox 内も engine_rule で回す=返済対象",
 )
@@ -204,6 +215,7 @@ _CROWD = WorldProcess(
     contributes=("D1′", "D4′"),
     norm_kind=NormKind.BRUTE_PHYSICAL,
     violability=Violability.REGIMENTED,
+    drives_from=("none",),
     batch=BATCH_FIRST,
     note="§3「聴覚: 密度項 … 源=混雑場上のミップ畳み込み」=この場が2チャネルを養う",
 )
@@ -231,6 +243,7 @@ _OPENING = WorldProcess(
     norm_kind=NormKind.REGULATIVE,
     violability=Violability.UNENFORCED,
     revisability="店主エージェント(revises)。営業時間変更は §2 の revises で発火",
+    drives_from=("data:w7_opening_hours",),
     batch=BATCH_FIRST,
 )
 
@@ -254,6 +267,7 @@ _NOISE = WorldProcess(
     contributes=("D12′",),
     norm_kind=NormKind.BRUTE_PHYSICAL,
     violability=Violability.REGIMENTED,
+    drives_from=("data:road_census_r3", "data:tokyo_noise_r5"),
     batch=BATCH_FIRST,
     note="段階境界は法定/LOS 境界に釘付け(§2.4 正規化規約⑤)=mechanism",
 )
@@ -276,6 +290,7 @@ _GOODS = WorldProcess(
     contributes=("W1",),
     norm_kind=NormKind.BRUTE_PHYSICAL,
     violability=Violability.REGIMENTED,
+    drives_from=("none",),
     batch=BATCH_FIRST,
     note="金の U11(transfer 単一 API)と同型。faucet=域外仕入/sink=消費・廃棄搬出・返品(§7.1)",
 )
@@ -305,6 +320,7 @@ _SHELF = WorldProcess(
     repayment_due="Phase 3(SKU 粒度・棚卸閾値・初期在庫・補充閾値/ロットの較正データ取得後)",
     norm_kind=NormKind.BRUTE_PHYSICAL,
     violability=Violability.REGIMENTED,
+    drives_from=("none",),
     batch=BATCH_FIRST,
     note="§7.2 expedient 欄「SKU粒度・棚卸閾値・初期在庫・補充閾値/ロット」",
 )
@@ -326,6 +342,8 @@ _DELIVERY_IN = WorldProcess(
     mechanism=False,
     sensitivity_test_id="AB-DELIVERY-FREQ",
     repayment_due="Phase 3(納品頻度・時間帯の実データ取得後)",
+    drives_from=("none",),
+    input_decl=INP.INBOUND_GOODS,
     batch=BATCH_FIRST,
 )
 
@@ -349,6 +367,8 @@ _WASTE = WorldProcess(
     mechanism=False,
     sensitivity_test_id="AB-WASTE-ROUTE",
     repayment_due="Phase 3(区の収集ルート・積載の実データ取得後)",
+    drives_from=("none",),
+    absence=_ABS["absent.waste_collection"],
     batch=BATCH_FIRST,
 )
 
@@ -371,6 +391,7 @@ _INDOOR = WorldProcess(
     mechanism=False,
     sensitivity_test_id="AB-OCCUPANCY-CAPACITY",
     repayment_due="Phase 3(渋谷の実店舗席数=現在空欄・取得後に較正)",
+    drives_from=("none",),
     batch=BATCH_FIRST,
     note="16行表 行2「席数換算式・回転率・離脱閾値=全部 expedient(渋谷の実店舗席数は空欄)」",
 )
@@ -399,6 +420,8 @@ _TRAFFIC = WorldProcess(
     conf=0.4,
     coverage="bbox 断面を通過する自動車交通の全量(自動車運転者をエージェント化しないぶん=100%)",
     repayment_due="第3陣(自動車運転者のエージェント化・§7.2)",
+    drives_from=("data:road_census_r3",),  # 検収 中-1: D5′ の出典の系と同じ語
+    input_decl=INP.THROUGH_TRAFFIC,
     batch=BATCH_FIRST,
     note="§7.2 expedient 欄「通過交通比率」",
 )
@@ -439,6 +462,8 @@ PULLED_FORWARD_DECLARATIONS: Final[tuple[WorldProcess, ...]] = (
         mechanism=False,
         sensitivity_test_id="AB-PARCEL-ALLOCATION",
         repayment_due="Phase 3(区別実績の取得後・按分係数を返済)",
+        drives_from=("W2",),
+        absence=_ABS["absent.parcel_delivery"],
         batch=BATCH_PULLED_FORWARD,
     ),
     WorldProcess(
@@ -464,6 +489,7 @@ PULLED_FORWARD_DECLARATIONS: Final[tuple[WorldProcess, ...]] = (
         revisability="営業所・配車の指令エージェント(revises)",
         norm_kind=NormKind.REGULATIVE,
         violability=Violability.ENFORCED,
+        drives_from=("none",),
         batch=BATCH_PULLED_FORWARD,
     ),
     WorldProcess(
@@ -483,6 +509,8 @@ PULLED_FORWARD_DECLARATIONS: Final[tuple[WorldProcess, ...]] = (
         mechanism=False,
         sensitivity_test_id="AB-DISPATCH-DELAY",
         repayment_due="Phase 3(署別実績が未取得=空欄・取得後に返済)",
+        drives_from=("W3",),
+        absence=_ABS["absent.public_service_dispatch"],
         batch=BATCH_PULLED_FORWARD,
         note="§3 人物③「顕著な行為(倒れる・叫び・警察)」=出動そのものが到達チャネルを持つ",
     ),
@@ -503,6 +531,8 @@ PULLED_FORWARD_DECLARATIONS: Final[tuple[WorldProcess, ...]] = (
         mechanism=False,
         sensitivity_test_id="AB-CLEANING-RATE",
         repayment_due="Phase 3(原単位が空欄=取得後に返済)",
+        drives_from=("none",),
+        absence=_ABS["absent.street_cleaning"],
         batch=BATCH_PULLED_FORWARD,
     ),
     WorldProcess(
@@ -520,6 +550,8 @@ PULLED_FORWARD_DECLARATIONS: Final[tuple[WorldProcess, ...]] = (
         mechanism=False,
         sensitivity_test_id="AB-INFRA-INTENSITY",
         repayment_due="Phase 3(W5 の実数が空欄=都環境局・区別データの探索後)",
+        drives_from=("none",),
+        absence=_ABS["absent.power_water"],
         batch=BATCH_PULLED_FORWARD,
         note="§7.2 保留欄「配電網・水道管網は憲法5(a)(b)不成立=停電/断水は離散事象フラグのみ」",
     ),
@@ -540,6 +572,7 @@ PULLED_FORWARD_DECLARATIONS: Final[tuple[WorldProcess, ...]] = (
         conf=0.4,
         coverage="bbox 内ホテルの客室在庫(フロント業務をエージェント化しないぶん=100%)",
         repayment_due="Phase 3(フロント業務のエージェント化・客室数の実データ取得後)",
+        drives_from=("none",),
         batch=BATCH_PULLED_FORWARD,
     ),
     WorldProcess(
@@ -560,6 +593,8 @@ PULLED_FORWARD_DECLARATIONS: Final[tuple[WorldProcess, ...]] = (
         repayment_due="Phase 3(工事頻度が空欄=占用許可データの取得後)",
         norm_kind=NormKind.REGULATIVE,
         violability=Violability.ENFORCED,
+        drives_from=("none",),
+        absence=_ABS["absent.road_works"],
         batch=BATCH_PULLED_FORWARD,
     ),
     WorldProcess(
@@ -583,6 +618,8 @@ PULLED_FORWARD_DECLARATIONS: Final[tuple[WorldProcess, ...]] = (
         repayment_due="Phase 3(発信頻度・到達範囲の較正後)",
         norm_kind=NormKind.DESCRIPTIVE_ONLY,
         violability=Violability.UNENFORCED,
+        drives_from=("none",),
+        input_decl=INP.WARD_POLICY,
         batch=BATCH_PULLED_FORWARD,
     ),
     WorldProcess(
@@ -602,6 +639,9 @@ PULLED_FORWARD_DECLARATIONS: Final[tuple[WorldProcess, ...]] = (
         conf=0.3,
         coverage="報道で確認できる大規模イベント(主催者・参加者をエージェント化しないぶん=100%)",
         repayment_due="Phase 3(イベント来街増分の実データ取得後・§7.2「expedient 強」)",
+        drives_from=("none",),
+        absence=_ABS["absent.event_injection"],
+        input_decl=INP.EVENT_INFO,
         batch=BATCH_PULLED_FORWARD,
     ),
 )
@@ -628,6 +668,8 @@ PLAN_SPECS: Final[tuple[PlanSpec, ...]] = (
         catalog_classes=("ダイヤ・営業時間・価格表(PlanSpec)", "鉄道運行(静的→運行連動)"),
         gate_condition="遵守率(ActualLog 一致率)の分布が現実の遅延データ(D10′・ODPT)と突き合う",
         contributes=("D10′",),
+        drives_from=("data:timetables_w12",),
+        input_decl=INP.TIMETABLE,
         batch=BATCH_FIRST,
         note="§1 追補: 障害時は指令員が計画そのものを書き換え、乗務員が改訂版に従う",
     ),
@@ -652,6 +694,7 @@ PLAN_SPECS: Final[tuple[PlanSpec, ...]] = (
         mechanism=False,
         sensitivity_test_id="AB-OPENING-TABLE",
         repayment_due="Phase 3(POI 営業時間の実データ取得後・既定表は expedient)",
+        drives_from=("data:w7_opening_hours",),
         batch=BATCH_FIRST,
     ),
     PlanSpec(
@@ -673,6 +716,7 @@ PLAN_SPECS: Final[tuple[PlanSpec, ...]] = (
         catalog_classes=("ダイヤ・営業時間・価格表(PlanSpec)", "バス"),
         gate_condition="バス分担率がトリップ原単位(D6)・外出率(D7)の band に収まる",
         contributes=("D6",),
+        drives_from=("none",),
         batch=BATCH_PULLED_FORWARD,
     ),
     PlanSpec(
@@ -696,6 +740,7 @@ PLAN_SPECS: Final[tuple[PlanSpec, ...]] = (
         mechanism=False,
         sensitivity_test_id="AB-ROADWORK-FREQ",
         repayment_due="Phase 3(占用許可データの取得後)",
+        drives_from=("none",),
         batch=BATCH_PULLED_FORWARD,
     ),
 )
