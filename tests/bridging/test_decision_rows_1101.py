@@ -66,8 +66,11 @@ def test_one_row_per_routing_decision(tool, doc):
 #: 変えたら、変えた行を記録に書いてこの値を直す(前の値=c0729a4 の 673 行 3871dcc2…dd42c75bd)。
 #: 〔第342〕presence.py の docstring の書き直し(#134・95c4ced)で見出しの行 HD-engine.presence-b560bcbc の項が 9 → 11
 #: (E12・E13 を登録簿に)=what と why を直した(行数は 678 のまま・前の値 7130eb39…1f5e81a7)。
-BASE_ROWS = 678
-BASE_ROWS_SHA = "ce4aa6dbaea77df521acc3fc31f1c84fc768e3ba26635031e31583476ee85198"
+#: 〔11-02r §1 #7〕第342 の 1c137c6(678 行 ce4aa6db…6ee85198)の後に s2e の 1 行(DOC-s2e-absent-legacy-switch)を足し、
+#: 6 行に注(PR-waste_collection・PR-street_cleaning・PR-road_works_occupancy・PR-plan.road_works・
+#: PR-public_service_dispatch・PR-infra_daily_load)=記録 docs/bench/analysis/s2e-1102/README.md §1・§10。
+BASE_ROWS = 679
+BASE_ROWS_SHA = "eaf4d8e7efa2f130cf3dc74cf6c169d11b6566aa73c124d1ad83acd117c44bdb"
 
 
 def test_base_rows_are_byte_identical(doc):

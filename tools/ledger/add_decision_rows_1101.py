@@ -70,7 +70,14 @@ _STAGE = {"L1.5": "11-01p-3", "初期の予定": "6-2", "代打(つなぎ)": "6-
           "L1 残す": "7"}
 _STAGE_ROW = {100: "6-6", 101: "6-6", 49: "6-4", 50: "6-4", 52: "6-4", 79: "7"}
 #: 回答 11-01 §2 で外す 9 件(#101 は Calvo の改定確率と β を結線しない行)。
-NEXT_BUMP_ROWS = frozenset({2, 3, 10, 22, 42, 83, 99, 105, 101})
+#: 〔11-02r §1 #7〕「無い」の過程 5 件(#43 電気と水・#103 ごみ収集・#104 清掃・#106 道路工事・#110 出動)は小さな版上げで
+#: 既定から止めた(engine/absent_processes.py)=旧道の切替口を消す次の版上げが外す段。#104・106・110 は routing の「すぐ外せる」で
+#: もとから next-bump。
+NEXT_BUMP_ROWS = frozenset({2, 3, 10, 22, 42, 83, 99, 105, 101, 43, 103})
+#: 〔11-02r §1 #7〕既定で止めた「無い」の過程の行(drives_note の末尾に足す文)。
+_ABSENT_STOPPED_NOTE = ("〔11-02r §1 #7〕既定で止めた(engine/absent_processes.py の既定 stopped)。旧道 --absent-processes legacy は"
+                        "次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)")
+ABSENT_STOPPED_ROWS = frozenset({43, 103, 104, 106, 110})
 
 #: L1 残すで仕組みも値も裏付けのある行=mechanism(検収 低-5: #76 の語の区切り・#85 の不応期 30 分・#88 の器だけ・
 #: #83 の率の置き換えは expedient)。
@@ -84,7 +91,9 @@ DECIDED: dict[int, str] = {
     **{n: "11-01/§10-2(6-4)" for n in (57, 89, 90)},
     48: "11-01/§10-2(6-6)",
     **{n: "11-01/§10-2(6-7)" for n in (35, 107, 108, 111, 112)},
-    **{n: "11-01/§10-2(6-8)" for n in (4, 43, 74)},
+    **{n: "11-01/§10-2(6-8)" for n in (4, 74)},
+    43: "11-01/§10-2(6-8)・11-02r/§1 #7",
+    **{n: "11-02r/§1 #7" for n in (103, 104, 106, 110)},
     **{n: "11-01/§2" for n in (2, 3, 10, 22, 42, 99, 101, 105, 83)},
     **{n: "11-01/§3" for n in (31, 32, 41, 98)},
 }
@@ -204,6 +213,8 @@ def dec_row(cells: list[str]) -> dict[str, Any]:
         "remove_basis": "inferred",
     }
     f: dict[str, Any] = {"routing_row": n, **DEC_FIELDS.get(n, {})}
+    if n in ABSENT_STOPPED_ROWS:
+        f["drives_note"] = (f"{f['drives_note']}。" if f.get("drives_note") else "") + _ABSENT_STOPPED_NOTE
     if n in DECIDED:
         f["decided"] = DECIDED[n]
     for k in _OPT_ORDER:

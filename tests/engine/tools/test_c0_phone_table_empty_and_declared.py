@@ -86,6 +86,6 @@ def test_manifest_reports_the_empty_table():
     # 〔第 1 期 1-8b〕その後ろに speech_port・〔第 2 期 2-2 段 11a〕その後ろに proximity・〔第 3 期 3-3〕その後ろに experiment・
     # 〔第 3 期 3-2〕その後ろに batching・〔第 3 期 3-5〕その後ろに body・〔第 3 期 3-1〕その後ろ(末尾)に calendar_shadow
     # 〔第 5 期 空間の段 1〕その後ろ(末尾)に space
-    # 〔11-01 段 2 の 4〕その後ろ(末尾)に rate_rules
-    assert list(res.run_manifest_fields())[-9:] == ["tools", "speech_port", "proximity", "experiment", "batching", "body",
-                                                    "calendar_shadow", "space", "rate_rules"]
+    # 〔11-01 段 2 の 4〕その後ろに rate_rules・〔11-02r §1 #7〕その後ろ(末尾)に absent_processes
+    assert list(res.run_manifest_fields())[-10:] == ["tools", "speech_port", "proximity", "experiment", "batching", "body",
+                                                     "calendar_shadow", "space", "rate_rules", "absent_processes"]

@@ -219,6 +219,8 @@ PATHS: Final[dict[str, str]] = {
     # ---- 〔11-01 段 2 の 3・4〕率の形の規則を外した節(形の版・腕・規則の宣言・外した印=設定/旧道の件数=観測)。出勤率の欄
     # attendance_rate は消した(くじの道ごと消した=全員出勤の宣言) ----
     **_mixed("rate_rules", config=("schema", "mode", "rules", "removed"), observed=("counts",)),
+    # ---- 〔11-02r §1 #7〕「無い」と宣言した過程 5 件を止めた節(形の版・腕・過程の宣言・止めた印=設定/旧道の件数=観測) ----
+    **_mixed("absent_processes", config=("schema", "mode", "processes", "stopped"), observed=("counts",)),
     **_mixed("proximity", config=("schema", "mode", "d_m", "d_arms", "leave_m", "b5_radius_m", "b5_radius_source",
                                   "notice", "unit_source", "index_cell_m", "position_source", "marks"), observed=(
         "index_builds", "indexed_max", "unit_occupancy_max", "units_occupied_max", "unit_occupancy_hist")),

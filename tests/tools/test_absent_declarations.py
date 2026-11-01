@@ -2,7 +2,8 @@
 
 - 出力は決定論(2 回出して同じ)・宣言の数(主体が居ない 8・入力/初期の予定 2・口が無い 13・率を外す 2+補足 1・入力 13)。
 - 回答 11-01 §10-3 の過程と判断がすべて載る。指紋は宣言を変えると変わる(版上げの前後で比べる用)。
-- 記録 docs/bench/analysis/s2-ledger-1101/absent_declarations.md はいまの出力と同じ。
+- 記録 docs/bench/analysis/s2e-1102/absent_declarations.md はいまの出力と同じ(〔11-02r §1 #7〕版上げごとに出し直す。前の版の
+  出力は docs/bench/analysis/s2-ledger-1101/absent_declarations.md=止めた 20・まだ動く 6)。
 """
 
 from __future__ import annotations
@@ -16,7 +17,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 _PATH = ROOT / "tools" / "instruments" / "absent_declarations.py"
-RECORD = ROOT / "docs" / "bench" / "analysis" / "s2-ledger-1101" / "absent_declarations.md"
+RECORD = ROOT / "docs" / "bench" / "analysis" / "s2e-1102" / "absent_declarations.md"
 
 
 @pytest.fixture(scope="module")
@@ -38,7 +39,11 @@ def test_render_is_deterministic_and_lists_every_declaration(gauge):
                     "よく考える", "ひと言", "1 日の振り返り", "予想と違って直す", "接客", "値段を変える", "倒れる"):
         assert f"| {subject} |" in a, subject
     assert "主体が居ない過程 8・入力/初期の予定 2・口が無い判断 13・率を外すもの 2(+補足 1)=宣言 26" in a
-    assert "止めた=循環の検査の例外になる)20・まだ動く 6" in a  # 率の規則(ce52662)の後
+    # 率の規則(ce52662)の後は 20・6 → 〔11-02r §1 #7〕「無い」の過程 5 件を止めた後は 25・1(まだ動くのは納品だけ)
+    assert "止めた=循環の検査の例外になる)25・まだ動く 1" in a
+    for line in a.splitlines():
+        if line.startswith(("| ごみ収集 |", "| 街路の清掃 |", "| 道路工事 |", "| 救急と警察の出動 |", "| 電気と水の負荷 |")):
+            assert line.rstrip().split("|")[-3].strip() == "止めた", line[:20]
     for subject in ("ポイ捨て", "売れ残りの廃棄"):
         assert f"| {subject} |" in a, subject
     assert "入力の宣言 13(埋めた 5・欄だけ 8)" in a

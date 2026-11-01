@@ -17,7 +17,8 @@ expedient(本モジュール分・全て「返済対象」)
   **乗降は C4 では作らない**(台帳 ``occupancy`` は 0 のまま)=「運行が可視物として起きる」だけ。
 - 道路工事: 夜間(22:00-05:00)に辺を無作為に占用する。**歩行グラフの next-hop は前計算表
   (W3)なので迂回は作らない**——占用は「通れなくなった辺」の記録と、その辺が載るセルの
-  ``blocked_cells`` フラグまで。迂回は Phase 3(動的経路)へ返済。
+  ``blocked_cells`` フラグまで。迂回は Phase 3(動的経路)へ返済。〔11-02r §1 #7 で既定から止めた=道路工事は無い(業者の
+  体が居ない)・旧道は切替口 ``--absent-processes legacy`` だけ(次の版上げで消す)〕
 """
 
 from __future__ import annotations
@@ -27,6 +28,7 @@ from typing import Final
 import numpy as np
 
 from shibuya.core.rng import k19_counters, stream
+from shibuya.engine import absent_processes as _ABSENT
 from shibuya.engine import rate_rules as _RATE_RULES
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
@@ -296,11 +298,15 @@ class RoadWorksProcess:
         tick_seconds: int = 60,
         actual_log=None,
         n_works: int = ROADWORKS_PER_NIGHT,
+        absent_processes: str | None = None,
     ) -> None:
         self.world = world
         self.assets = passets
         self.tick_seconds = int(tick_seconds)
         self.log = actual_log
+        #: 〔11-02r §1 #7〕「無い」の過程の腕(``stopped``=辺を占用しない・``legacy``=旧道)。その日の工事の辺の抽選
+        #: (日の鍵の counter)は腕に依らず引く(ほかの流れを動かさない・記録はしない)。
+        self.absent_processes = _ABSENT.resolve(absent_processes)
         self.blocked_cells = np.zeros(world.n_cells, dtype=bool)
         self.occupied_edges = np.zeros(0, dtype=np.int64)
         self.n_started = 0
@@ -337,7 +343,9 @@ class RoadWorksProcess:
     def step(self, tick: int) -> None:
         if not self.active:
             return
-        minute = _minute(tick, self.tick_seconds)
+        if not _ABSENT.is_legacy(self.absent_processes):  # 〔11-02r §1 #7〕道路工事は無い(業者の体が居ない)
+            return
+        minute = _minute(tick, self.tick_seconds)  # 旧道(切替口・次の版上げで消す)=毎晩の占用
         lo, hi = ROADWORK_WINDOW
         night = (minute >= lo) or (minute < hi)  # 日跨ぎの窓
         if night and self.occupied_edges.size == 0:
@@ -364,6 +372,8 @@ class RoadWorksProcess:
             "finished": float(self.n_finished),
             "occupied_now": float(self.occupied_edges.size),
             "blocked_cells": float(int(self.blocked_cells.sum())),
+            # ---- 〔11-02r §1 #7〕占用を止めた印(旧道の件数は started) ----
+            "absent_road_works_stopped": float(not _ABSENT.is_legacy(self.absent_processes)),
         }
 
     def summary(self) -> str:

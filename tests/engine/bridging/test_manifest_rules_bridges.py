@@ -50,10 +50,11 @@ def test_the_fields_are_at_the_end_and_frozen(two_days):
     # 末尾の 10 前まで
     # 〔第 3 期 3-1〕その後ろ(末尾)に calendar_shadow を足した=1-4 の 3 欄は末尾の 11 前まで
     # 〔11-01 段 2 の 4〕その後ろ(末尾)に rate_rules を足した=1-4 の 3 欄は末尾の 13 前まで
-    assert keys == TOP and keys[-16:-13] == R14 and keys[-17] == "bridges_count"  # 〔11-01〕rate_rules の分 1 つずれた
-    # 〔第 5 期 空間の段 1〕その後ろに space・〔11-01 段 2 の 4〕その後ろ(末尾)に rate_rules=末尾の 13
-    assert keys[-13:] == ["economy", "percept", "rights", "decision_port", "tools", "speech_port", "proximity",
-                          "experiment", "batching", "body", "calendar_shadow", "space", "rate_rules"]
+    # 〔11-02r §1 #7〕その後ろ(末尾)に absent_processes を足した=1-4 の 3 欄は末尾の 14 前まで
+    assert keys == TOP and keys[-17:-14] == R14 and keys[-18] == "bridges_count"  # 〔11-02r〕absent_processes の分 1 つずれた
+    # 〔第 5 期 空間の段 1〕その後ろに space・〔11-01 段 2 の 4〕rate_rules・〔11-02r §1 #7〕その後ろ(末尾)に absent_processes
+    assert keys[-14:] == ["economy", "percept", "rights", "decision_port", "tools", "speech_port", "proximity",
+                          "experiment", "batching", "body", "calendar_shadow", "space", "rate_rules", "absent_processes"]
 
 
 def test_values_match_the_ledger_and_the_table(two_days):

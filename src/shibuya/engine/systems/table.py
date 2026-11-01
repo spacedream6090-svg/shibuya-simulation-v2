@@ -475,7 +475,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "EC:ledger.* EM:ledger.* "  # 2-1: 経済の段階 2(給料日の賃金・日の欄)と生ログの支払いの方法の列
                "TXD:ledger.* "  # 4-2: 申告の期限の日の締めに預かり消費税を政府へ(腕 SHIBUYA_RULES_42=on)
                "C1B:calendar_self.cal_store",  # 〔6-2〕鉄道の日の締めの発車=カレンダー 1b の連続性の手がかり(腕 1b だけ)
-         tally="daily_records state_files result", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days "
+         tally="daily_records state_files result", reads="cfg.absent_processes cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days "
                "cfg.state_out cfg.tick_seconds cfg.tpd fx.calendar fx.env_fields fx.schedule fx.schedule_hash "
                "layers.act_layer layers.arbiter layers.bridge layers.classical layers.conv "
                "layers.detector layers.energy layers.fam_layer layers.fleet_bridge "
@@ -492,7 +492,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
     make("drain", "判断", "run_end", _RE.sys_drain,
          paths="O43:run_day.* O44:run_day.* O96:run_day.* O8[89]:fleet_bridge.* O87:bridge.* "
                "M0R:mem_layer.memory_store.*",  # 1-6: 艦隊の残りの呼のテープの行=記憶の器の録画の控えを取り出す
-         tally="result state_files", calls_llm="drain", reads="cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days cfg.state_out cfg.t_end "
+         tally="result state_files", calls_llm="drain", reads="cfg.absent_processes cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days cfg.state_out cfg.t_end "
                "cfg.tick_seconds cfg.total_ticks cfg.tpd fx.env_fields fx.schedule fx.schedule_hash "
                "layers.act_layer layers.arbiter layers.bridge layers.classical layers.conv "
                "layers.detector layers.energy layers.fam_layer layers.fleet_bridge "
@@ -514,7 +514,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "EC:ledger.* EM:ledger.* "  # 2-1: 経済の段階 2(最後の日の給料日の賃金・日の欄)と生ログの支払いの方法の列
                "TXD:ledger.* "  # 4-2: 最後の日の締めの預かり消費税の納付(腕 SHIBUYA_RULES_42=on)
                "C1B:calendar_self.cal_store",  # 〔6-2〕最後の便の発車=カレンダー 1b の連続性の手がかり(腕 1b だけ)
-         tally="daily_records ledger_growth result state_files", reads="cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days "
+         tally="daily_records ledger_growth result state_files", reads="cfg.absent_processes cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days "
                "cfg.state_out cfg.stopped cfg.t_end cfg.tick_seconds cfg.total_ticks cfg.tpd fx.calendar fx.env_fields "
                "fx.schedule fx.schedule_hash layers.act_layer layers.arbiter layers.bridge "
                "layers.classical layers.conv layers.detector layers.energy layers.fam_layer "
@@ -539,7 +539,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``
-         reads="cfg.activity_on cfg.activity_region cfg.area_source "
+         reads="cfg.absent_processes cfg.activity_on cfg.activity_region cfg.area_source "
                "cfg.attention_on cfg.budget_mode_enum cfg.chooser cfg.classical_habit_p "
                "cfg.classical_tau cfg.day_index cfg.derive_rule cfg.eatery cfg.energy_on "
                "cfg.energy_rate cfg.exit_mode cfg.familiarity_k cfg.familiarity_on cfg.geometry "

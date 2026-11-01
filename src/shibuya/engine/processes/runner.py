@@ -31,6 +31,7 @@ from typing import Any, Final, Iterable, Mapping
 import numpy as np
 
 from shibuya.agents.state import AgentState
+from shibuya.engine import absent_processes as _ABSENT
 from shibuya.engine import rate_rules as _RATE_RULES
 from shibuya.engine import resolve as R
 from shibuya.engine.calendar import SimCalendar
@@ -135,6 +136,8 @@ class WorldProcessRunner:
         rate_rules: 〔11-01 段 2 の 3・4〕率の形の規則の腕(``engine.rate_rules``・``None``=今の腕=既定 off)。鉄道(受け入れ
             確率)・廃棄物収集(売れ残りの廃棄率)・街路清掃(ポイ捨て)・宅配・大規模イベント(人の注入)・顕著行為(倒れる率)へ
             渡す。
+        absent_processes: 〔11-02r §1 #7〕「無い」と宣言した過程 5 件の腕(``engine.absent_processes``・``None``=今の腕=
+            既定 stopped)。廃棄物収集(収集の巡回)・街路清掃(掃除の巡回)・道路工事・公共サービス出動・インフラ日負荷へ渡す。
 
     Attributes:
         registry_hash: 台帳の blake3(manifest の同定欄へ)。
@@ -176,6 +179,7 @@ class WorldProcessRunner:
         org_of_agent: Any | None = None,
         initial_rights: Any | None = None,
         rate_rules: str | None = None,
+        absent_processes: str | None = None,
     ) -> None:
         if world is None or agents is None:
             raise ValueError("WorldProcessRunner は world と agents を要る")
@@ -200,6 +204,9 @@ class WorldProcessRunner:
         #: 〔11-01 段 2 の 3・4〕率の形の規則の腕(組み立てで 1 回決める・過程へ渡す)。
         self.rate_rules = _RATE_RULES.resolve(rate_rules)
         _rr = self.rate_rules
+        #: 〔11-02r §1 #7〕「無い」の過程の腕(組み立てで 1 回決める・過程へ渡す)。
+        self.absent_processes = _ABSENT.resolve(absent_processes)
+        _ap = self.absent_processes
         #: **D-66 計画実行層**のラン(``engine.presence.PlanExecutor`` が在圏の出入りを持つ)。
         #: rail の乱数 12% と D-61 帰りの便を止め、起動時の域外配置も層に任せる。
         self.plan_executor = bool(plan_executor)
@@ -264,10 +271,10 @@ class WorldProcessRunner:
         )
         self.waste = WasteCollectionProcess(
             world, agents, ledger=ledger, tick_seconds=self.tick_seconds,
-            actual_log=self.log, master_seed=self.master_seed, rate_rules=_rr,
+            actual_log=self.log, master_seed=self.master_seed, rate_rules=_rr, absent_processes=_ap,
         )
         self.street_cleaning = StreetCleaningProcess(
-            world, agents, tick_seconds=self.tick_seconds, rate_rules=_rr,
+            world, agents, tick_seconds=self.tick_seconds, rate_rules=_rr, absent_processes=_ap,
         )
 
         # ---- C4 後半: 前倒し 9 本 ----
@@ -291,14 +298,14 @@ class WorldProcessRunner:
         )
         self.road_works = RoadWorksProcess(
             world, self.assets, master_seed=_env_seed, day_index=day_key,  # 10f(S1): 環境の側
-            tick_seconds=self.tick_seconds, actual_log=self.log,
+            tick_seconds=self.tick_seconds, actual_log=self.log, absent_processes=_ap,
         )
         self.hotel = HotelProcess(
             world, agents, self.assets,
             external_home=(self.rail.external_line >= 0),
             tick_seconds=self.tick_seconds, actual_log=self.log,
         )
-        self.infra = InfraLoadProcess(world, agents, tick_seconds=self.tick_seconds)
+        self.infra = InfraLoadProcess(world, agents, tick_seconds=self.tick_seconds, absent_processes=_ap)
         self.press = PressProcess(
             world, tick_seconds=self.tick_seconds, actual_log=self.log
         )
@@ -308,7 +315,7 @@ class WorldProcessRunner:
         )
         self.dispatch = PublicServiceDispatchProcess(
             world, master_seed=self.master_seed, day_index=day_key,
-            tick_seconds=self.tick_seconds, actual_log=self.log,
+            tick_seconds=self.tick_seconds, actual_log=self.log, absent_processes=_ap,
         )
         self.salient = SalientProcess(
             world, agents, master_seed=self.master_seed, day_index=day_key,

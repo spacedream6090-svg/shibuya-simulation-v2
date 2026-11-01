@@ -185,6 +185,9 @@ class RunConfig:
     seat_release: str = "legacy"
     #: 〔11-01 段 2 の 3・4〕率の形の規則の腕(``engine.rate_rules``・組み立てで 1 回読む=``off`` 既定・``legacy`` 切替口)。
     rate_rules: str = "off"
+    #: 〔11-02r §1 #7〕「無い」と宣言した過程 5 件の腕(``engine.absent_processes``・組み立てで 1 回読む=``stopped`` 既定・
+    #: ``legacy`` 切替口)。
+    absent_processes: str = "stopped"
 
     @property
     def stopped(self) -> bool:

@@ -425,6 +425,12 @@ def save_state(b: Any, T_next: int, *, finished: bool, closed: bool) -> None:
     _rr = _RRS.header_fields(b.cfg.rate_rules)
     if _rr is not None:
         header["rate_rules"] = _rr
+    # 〔11-02r §1 #7〕「無い」の過程の腕(既定の stopped のランだけ書く=legacy は版上げの前の見出しのまま)
+    from shibuya.engine import absent_processes as _APS
+
+    _ap = _APS.header_fields(b.cfg.absent_processes)
+    if _ap is not None:
+        header["absent_processes"] = _ap
     from shibuya.engine.experiment import layer as _EXPL
 
     _exp_h = _EXPL.state_header(getattr(b.layers, "experiment", None))

@@ -819,6 +819,8 @@ class RunResult:
     #: 〔11-01 段 2 の 3・4〕率の形の規則を外した節(``engine.rate_rules.manifest_fields``=腕・外した印・旧道の件数)。
     #: 出勤率の欄 ``attendance_rate`` は消した(くじの道ごと消した=全員出勤の宣言)。
     rate_rules: dict[str, Any] = field(default_factory=dict)
+    #: 〔11-02r §1 #7〕「無い」と宣言した過程 5 件を止めた節(``engine.absent_processes.manifest_fields``=腕・止めた印・旧道の件数)。
+    absent_processes: dict[str, Any] = field(default_factory=dict)
     #: 在圏ブロックの読み口(``engine.presence.DERIVE_RULES``・既定 v2)。
     derive_rule: str = "v2"
     #: **C9 位置幾何の腕**(G1・2026-09-17 ユーザー決定)。``"node"``=現行の 1 tick=1 ノード
@@ -1465,6 +1467,9 @@ class RunResult:
             # ---- 〔11-01 段 2 の 3・4〕率の形の規則を外した節(形の版・腕・規則の宣言・外した印=設定/旧道の件数=観測)。
             # 末尾=… → 5-1 の space → 11-01。記録だけ(final・behavior-hash は manifest を読まない)。列追加のみ ----
             "rate_rules": dict(self.rate_rules),
+            # ---- 〔11-02r §1 #7〕「無い」と宣言した過程 5 件を止めた節(形の版・腕・過程の宣言・止めた印=設定/旧道の件数=観測)。
+            # 末尾=… → 11-01 の rate_rules → 11-02r。記録だけ(final・behavior-hash は manifest を読まない)。列追加のみ ----
+            "absent_processes": dict(self.absent_processes),
         }
 
     def economy_fields(self) -> dict[str, Any]:

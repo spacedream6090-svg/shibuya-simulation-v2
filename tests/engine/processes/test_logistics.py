@@ -106,7 +106,7 @@ def test_road_works_occupy_at_night_and_clear_in_the_morning():
         edge_length_m=np.full(20, 50.0),
         edge_klass_names=("residential",),
     )
-    rw = RoadWorksProcess(world, assets, master_seed=1, n_works=4)
+    rw = RoadWorksProcess(world, assets, master_seed=1, n_works=4, absent_processes="legacy")  # 〔11-02r §1 #7〕旧道の占用を見る
     assert rw.active and rw.planned_edges.size == 4
     lo, hi = ROADWORK_WINDOW
     rw.step(lo)  # 22:00

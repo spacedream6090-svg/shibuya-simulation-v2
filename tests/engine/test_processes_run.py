@@ -265,12 +265,13 @@ def test_c4_second_half_on_the_real_world(capsys):
 
     # 新過程の ActualLog 行(**件数が 0 でない**ことまで見る)
     # 〔11-01 段 2 の 3・4〕宅配は無い・売れ残りの廃棄とポイ捨ては無い(収集する物が無い)=行が立たない過程は 2 つ
+    # 〔11-02r §1 #7〕道路工事は無い(既定 stopped)=行が立たない過程は 3 つ
     for pid in ("shelf_stock_restock", "delivery_inbound",
-                "bus_taxi_operation", "road_works_occupancy",
+                "bus_taxi_operation",
                 "press_official_release", "large_event"):
         assert pid in runner.log.process_ids, pid
         assert runner.log.compliance_rate([pid]).n_total > 0, pid
-    for pid in ("waste_collection", "delivery_last_mile"):
+    for pid in ("waste_collection", "delivery_last_mile", "road_works_occupancy"):
         assert pid not in runner.log.process_ids, pid
     # ホテル客室在庫だけは **N≈1 の事象**(この fixture で 5,000 体×1 日のチェックインは
     # 0〜1 件)なので「行が 1 本以上」を要求しない。D-62(就寝は計画の実行)で LLM が
@@ -286,10 +287,11 @@ def test_c4_second_half_on_the_real_world(capsys):
     # 前倒し 9 本が「動いた」ことの正の証拠
     # 〔11-01 段 2 の 3・4〕宅配は無い(parcels 0)・催しの人の注入は無い(n_in 0・会場は立つ)=外した規則の負の対照
     assert res.deliveries > 0 and res.parcels == 0 and res.bus_arrivals > 0
-    assert runner.road_works.n_started > 0
+    # 〔11-02r §1 #7〕道路工事・電気と水は無い(既定 stopped)=止めた過程の負の対照(工事の辺の抽選は残る)
+    assert runner.road_works.n_started == 0 and runner.road_works.planned_edges.size > 0
     assert runner.press.n_releases == 3
     assert runner.large_event.n_in == 0 and runner.large_event.venue_cells.size == 3
-    assert runner.infra.counters()["power_kwh_day"] > 0
+    assert runner.infra.counters()["power_kwh_day"] == 0
     assert runner.hotel.active
 
     # W2(報告値)と門前条件

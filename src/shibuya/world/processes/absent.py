@@ -13,8 +13,9 @@
 「無い」の例外(〔検収 中-3〕): ``engine_stopped=True`` の宣言だけが循環の検査の例外になる。True は、口が無いので
 起きない判断(no_port の 12 件と補足)・採用と解雇・発注と、率の規則を外す段(ce52662・``engine.rate_rules`` の既定 off)で
 止まった 5 件=宅配(``parcels``)・倒れる(``collapse``)・催しの注入(``event_injection``)・ポイ捨て(``litter``)・
-売れ残りの廃棄(``leftover_waste``)。ほかの no_actor(ごみ収集・清掃・道路工事・救急と警察の出動の過程そのもの・電気と水)は
-エンジンから外す段が決まるまで False のまま。
+売れ残りの廃棄(``leftover_waste``)と、〔11-02r §1 #7〕「無い」の過程を止める段(``engine.absent_processes`` の既定
+stopped)で止まった 5 件=ごみ収集・街路の清掃・道路工事・救急と警察の出動・電気と水。False は納品(入力の宣言・
+``delivery_inbound`` の E5 と気象の文と一緒に次の版上げ)だけ。
 
 文案の扱い: routing §3 の文案はそのまま写した(「外す段」の空欄も「空欄」のまま)。routing §3 に文案の無いもの
 (電気と水の負荷=回答 11-01 §10-2 の 6-8・納品と発注の言い換え=指示書 段 2 の 6)は同じ形で実装役が書き、
@@ -43,10 +44,11 @@ __all__ = [
 ROUTING_DOC: Final[str] = "docs/reference/decision-routing-2026-11-01.md"
 _S31 = f"{ROUTING_DOC} §3-1"
 _S32 = f"{ROUTING_DOC} §3-2"
-_ENGINE_RULE_STILL = "エンジンの規則がまだ動く({where})。エンジンから外す段は指示書 11-01 に書いていない=親が決める"
 _NO_PORT_NOW = "口が無いので今も起きない({where})"
 _RATE_OFF = ("外した(率の規則 {rule}=既定 off・engine/rate_rules.py・段 2 の 3・4)。旧道 `--rate-rules legacy` では {where} が"
              "動く(1 版だけ=次の版上げで消す)")
+_ABSENT_OFF = ("止めた(「無い」の過程 {name}=既定 stopped・engine/absent_processes.py・11-02r §1 #7)。旧道 "
+               "`--absent-processes legacy` では {where} が動く(1 版だけ=次の版上げで消す)")
 
 # ================================================================== §3-1 主体が居ない過程(回答 11-01 §10-3 の 8 つ)
 NO_ACTOR: Final[tuple[Absence, ...]] = (
@@ -58,12 +60,12 @@ NO_ACTOR: Final[tuple[Absence, ...]] = (
         reason="主体(収集員の体)が居ない",
         remove_at="収集員の体を置く段(空欄)",
         effect="ごみが溜まる一方。W1 は収集ができるまで比べられない",
-        engine_now=_ENGINE_RULE_STILL.format(where="06〜10 時にセル順=engine/processes/goods_flow.py"),
+        engine_now=_ABSENT_OFF.format(name="waste_collection", where="06〜10 時にセル順=engine/processes/goods_flow.py"),
         routing_rows=(103,),
         world_process_id="waste_collection",
         source=_S31,
-        engine_stopped=False,
-        stage="6-6",
+        engine_stopped=True,
+        stage="next-bump",
     ),
     Absence(
         id="absent.street_cleaning",
@@ -73,11 +75,12 @@ NO_ACTOR: Final[tuple[Absence, ...]] = (
         reason="主体(清掃員の体)が居ない",
         remove_at="清掃員の体を置く段(空欄)",
         effect="ポイ捨てが残る",
-        engine_now=_ENGINE_RULE_STILL.format(where="05〜07・13〜15 時に 8 セル/刻み=engine/processes/goods_flow.py"),
+        engine_now=_ABSENT_OFF.format(name="street_cleaning",
+                                      where="05〜07・13〜15 時に 8 セル/刻み=engine/processes/goods_flow.py"),
         routing_rows=(104,),
         world_process_id="street_cleaning",
         source=_S31,
-        engine_stopped=False,
+        engine_stopped=True,
         stage="next-bump",
     ),
     Absence(
@@ -107,11 +110,11 @@ NO_ACTOR: Final[tuple[Absence, ...]] = (
         reason="主体(業者の体)が居ない",
         remove_at="業者と占用許可を置く段(台帳の返済は Phase 3)",
         effect="夜の通行止め(12 件/日 [A])が無くなる",
-        engine_now=_ENGINE_RULE_STILL.format(where="毎晩 6 辺・22〜05 時=engine/processes/logistics.py"),
+        engine_now=_ABSENT_OFF.format(name="road_works", where="毎晩 6 辺・22〜05 時=engine/processes/logistics.py"),
         routing_rows=(106,),
         world_process_id="road_works_occupancy",
         source=_S31,
-        engine_stopped=False,
+        engine_stopped=True,
         stage="next-bump",
     ),
     Absence(
@@ -125,12 +128,12 @@ NO_ACTOR: Final[tuple[Absence, ...]] = (
         reason="主体(隊員と指令の体)が居ない・出力が錨 W3 に入る",
         remove_at="通報を受ける体と隊員を置く段(空欄)",
         effect="倒れた人が運ばれない。#56 通報の効果先も無い",
-        engine_now=_ENGINE_RULE_STILL.format(where="倒れたら 100% 出動・中央値 8 分=engine/processes/civic.py"),
+        engine_now=_ABSENT_OFF.format(name="dispatch", where="倒れたら 100% 出動・中央値 8 分=engine/processes/civic.py"),
         routing_rows=(110,),
         world_process_id="public_service_dispatch",
         source=f"{_S31}+W3 の文は回答 11-01 §3 の読みに統一(検収 低-8)",
         keeps_anchor=("W3",),
-        engine_stopped=False,
+        engine_stopped=True,
         stage="next-bump",
     ),
     Absence(
@@ -178,13 +181,13 @@ NO_ACTOR: Final[tuple[Absence, ...]] = (
         reason="人数 × 原単位は集計の量(原単位は出典なし)・機器を使う本人の行為も建物の主体も居ない",
         remove_at="機器を使う行為か建物の主体を置く段(空欄)",
         effect="電気と水の日負荷の形が出なくなる(W5 は実数が空欄なので照合は元から無い)",
-        engine_now=_ENGINE_RULE_STILL.format(where="人数 × 0.35 kWh・0.012 m³/時=engine/processes/civic.py"),
+        engine_now=_ABSENT_OFF.format(name="infra", where="人数 × 0.35 kWh・0.012 m³/時=engine/processes/civic.py"),
         routing_rows=(43,),
         world_process_id="infra_daily_load",
         source="回答 11-01 §10-2(6-8)・routing §6-8 の (a)=文は実装役(routing §3 に文案なし)",
         keeps_anchor=("W5",),
-        engine_stopped=False,
-        stage="7",
+        engine_stopped=True,
+        stage="next-bump",
     ),
 )
 

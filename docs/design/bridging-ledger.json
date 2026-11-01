@@ -3032,7 +3032,7 @@
   {
    "id": "PR-waste_collection",
    "what": "世界過程 waste_collection(mechanism=False・executor=llm_agent・感度 AB-WASTE-ROUTE・返済期限「Phase 3(区の収集ルート・積載の実データ取得後)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(区の収集ルート・積載の実データ取得後)」はデータの取得待ち=話題で当てた: 6-6 ②(収集は働く人のエージェントへ)。〔6-6 ② 第 1 部〕腕 --duties arm では雇用の行の体が居て起きている店で売れ残りの廃棄が本人の行動に置き換わる(本人の行動の割合 0.3%(本人 5 行/つなぎ 1,544 行・W21c 4.8%/丸振り 0.1%)=記録 docs/bench/analysis/wallbounce-1012/duties1/README.md §5 の 5,000 体 1 日)・既定 off では今のまま(外すのは既定化のとき=DOC-du1-not-default)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(区の収集ルート・積載の実データ取得後)」はデータの取得待ち=話題で当てた: 6-6 ②(収集は働く人のエージェントへ)。〔6-6 ② 第 1 部〕腕 --duties arm では雇用の行の体が居て起きている店で売れ残りの廃棄が本人の行動に置き換わる(本人の行動の割合 0.3%(本人 5 行/つなぎ 1,544 行・W21c 4.8%/丸振り 0.1%)=記録 docs/bench/analysis/wallbounce-1012/duties1/README.md §5 の 5,000 体 1 日)・既定 off では今のまま(外すのは既定化のとき=DOC-du1-not-default)〔11-02r §1 #7〕既定(--absent-processes stopped)で止めた=06〜10 時の収集は無い(収集員の体が居ない・ビンに溜まる一方)。世帯の消費(#41・11-02r §1 #8)と担当の体の廃棄(腕 duties)は残す(宣言 world/processes/absent.py の absent.waste_collection・engine/absent_processes.py)。旧道(切替口 legacy)だけが動かす=次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:waste_collection",
    "conf": "expedient",
@@ -3087,7 +3087,7 @@
   {
    "id": "PR-public_service_dispatch",
    "what": "世界過程 public_service_dispatch(mechanism=False・executor=llm_agent・感度 AB-DISPATCH-DELAY・返済期限「Phase 3(署別実績が未取得=空欄・取得後に返済)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(署別実績が未取得=空欄・取得後に返済)」はデータの取得待ち=話題で当てた: 6-6 ②(出動は働く人のエージェントへ)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(署別実績が未取得=空欄・取得後に返済)」はデータの取得待ち=話題で当てた: 6-6 ②(出動は働く人のエージェントへ)〔11-02r §1 #7〕既定(--absent-processes stopped)で止めた=通報を受けた出動は無い(隊員と指令の体が居ない・倒れた人は運ばれない)(宣言 world/processes/absent.py の absent.public_service_dispatch・engine/absent_processes.py)。旧道(切替口 legacy)だけが動かす=次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:public_service_dispatch",
    "conf": "expedient",
@@ -3098,7 +3098,7 @@
   {
    "id": "PR-street_cleaning",
    "what": "世界過程 street_cleaning(mechanism=False・executor=llm_agent・感度 AB-CLEANING-RATE・返済期限「Phase 3(原単位が空欄=取得後に返済)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(原単位が空欄=取得後に返済)」はデータの取得待ち=話題で当てた: 6-6 ②(清掃は働く人のエージェントへ)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(原単位が空欄=取得後に返済)」はデータの取得待ち=話題で当てた: 6-6 ②(清掃は働く人のエージェントへ)〔11-02r §1 #7〕既定(--absent-processes stopped)で止めた=掃除の巡回は無い(清掃員の体が居ない・街路のごみは残る)(宣言 world/processes/absent.py の absent.street_cleaning・engine/absent_processes.py)。旧道(切替口 legacy)だけが動かす=次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:street_cleaning",
    "conf": "expedient",
@@ -3109,7 +3109,7 @@
   {
    "id": "PR-infra_daily_load",
    "what": "世界過程 infra_daily_load(mechanism=False・executor=none・感度 AB-INFRA-INTENSITY・返済期限「Phase 3(W5 の実数が空欄=都環境局・区別データの探索後)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(W5 の実数が空欄=都環境局・区別データの探索後)」はデータの取得待ち=話題で当てた: 置き換える段が計画に無い(表し方・見積り・自前規約)=主張の前に感度試験で駆動しないことを示す",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(W5 の実数が空欄=都環境局・区別データの探索後)」はデータの取得待ち=話題で当てた: 置き換える段が計画に無い(表し方・見積り・自前規約)=主張の前に感度試験で駆動しないことを示す〔11-02r §1 #7〕既定(--absent-processes stopped)で止めた=電気と水の負荷の集計は無い(宣言 world/processes/absent.py の absent.power_water・engine/absent_processes.py)。旧道(切替口 legacy)だけが動かす=次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)",
    "remove_at": "7",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:infra_daily_load",
    "conf": "expedient",
@@ -3131,7 +3131,7 @@
   {
    "id": "PR-road_works_occupancy",
    "what": "世界過程 road_works_occupancy(mechanism=False・executor=llm_agent・感度 AB-ROADWORK-FREQ・返済期限「Phase 3(工事頻度が空欄=占用許可データの取得後)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(工事頻度が空欄=占用許可データの取得後)」はデータの取得待ち=話題で当てた: 6-6 ②(道路工事は働く人のエージェントへ)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(工事頻度が空欄=占用許可データの取得後)」はデータの取得待ち=話題で当てた: 6-6 ②(道路工事は働く人のエージェントへ)〔11-02r §1 #7〕既定(--absent-processes stopped)で止めた=夜の占用は無い(業者の体が居ない)(宣言 world/processes/absent.py の absent.road_works・engine/absent_processes.py)。旧道(切替口 legacy)だけが動かす=次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:road_works_occupancy",
    "conf": "expedient",
@@ -3175,7 +3175,7 @@
   {
    "id": "PR-plan.road_works",
    "what": "PlanSpec plan.road_works(mechanism=False・executor=-・感度 AB-ROADWORK-FREQ・返済期限「Phase 3(占用許可データの取得後)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(占用許可データの取得後)」はデータの取得待ち=話題で当てた: 6-6 ②(道路工事は働く人のエージェントへ)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(占用許可データの取得後)」はデータの取得待ち=話題で当てた: 6-6 ②(道路工事は働く人のエージェントへ)〔11-02r §1 #7〕既定(--absent-processes stopped)で止めた=工事の予定を実行しない(辺の抽選は残す=記録しない)(宣言 world/processes/absent.py の absent.road_works・engine/absent_processes.py)。旧道(切替口 legacy)だけが動かす=次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:plan.road_works",
    "conf": "expedient",
@@ -8424,6 +8424,21 @@
    ]
   },
   {
+   "id": "DOC-s2e-absent-legacy-switch",
+   "what": "切替口 --absent-processes legacy(環境変数 SHIBUYA_ABSENT_PROCESSES=legacy)は 11-02r §1 #7 の版上げの前の値の再現のためだけの道(ごみの収集 06〜10 時・街路の掃除の巡回・道路工事の夜の占用・救急と警察の出動・電気と水の負荷)",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)。legacy の 5,000 体 × 1 日 mock は前の版と final と呼数と過程の件数が一致(記録 docs/bench/analysis/s2e-1102/README.md)。次の版上げで切替口を消すときに書き直す試験(旧道に固定した試験): tests/engine/processes/test_absent_processes_1102.py の legacy の側・旧道の過程の挙動を見る試験(test_goods_flow・test_logistics・test_civic・test_processes_run ほか=記録 §4 の一覧)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/bench/analysis/s2e-1102/README.md",
+   "conf": "expedient",
+   "since": "2026-11-02",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/absent_processes.py",
+    "src/shibuya/cli.py"
+   ]
+  },
+  {
    "id": "DEC-1-comeToday",
    "what": "判断 #1: その日渋谷へ来るか",
    "why": "いまの決め手: D(W17 の週の表。在圏 0 本なら終日域外=在圏の E7)。行き先: 初期の予定(根拠 C(来る)。訪日の母集団は G の入力)。移すのに要るもの: 日中に「来るか」を変える口・範囲外の人の判断(輪の段)・催しの情報を受ける入口。外すまでのつなぎ: W17 を「初期の予定」と呼び替え、conf 宣言で残す(`BR-W17-IO-SLEEP`)。口ができるまでは外せない",
@@ -8993,7 +9008,7 @@
    "id": "DEC-43-powerWater",
    "what": "判断 #43: 電気・水を使うか",
    "why": "いまの決め手: E(人数 × 0.35 kWh・0.012 m³/時)。行き先: 要判断(根拠 人数 × 原単位は集計(A)。本人の行為(機器を使う)か建物の負荷か決まらない。出力は錨 W5 に入る(⑤ ×)→ §6-8)。移すのに要るもの: 機器を使う行為か建物の主体。外すまでのつなぎ: 原単位は出典なし。外すなら「電気と水の負荷は無い」と宣言",
-   "remove_at": "7",
+   "remove_at": "next-bump",
    "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 43",
    "conf": "expedient",
    "since": "2026-11-01",
@@ -9004,8 +9019,8 @@
    ],
    "routing_row": 43,
    "world_process": "infra_daily_load",
-   "decided": "11-01/§10-2(6-8)",
-   "drives_note": "原単位は出典なし(routing #43)"
+   "decided": "11-01/§10-2(6-8)・11-02r/§1 #7",
+   "drives_note": "原単位は出典なし(routing #43)。〔11-02r §1 #7〕既定で止めた(engine/absent_processes.py の既定 stopped)。旧道 --absent-processes legacy は次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)"
   },
   {
    "id": "DEC-44-startTalk",
@@ -9813,7 +9828,7 @@
    "id": "DEC-103-wastePickup",
    "what": "判断 #103: ごみを集める",
    "why": "いまの決め手: E(06〜10 時にセル順)。行き先: 無いと宣言(根拠 C(① ×)・⑤ ×(`contributes=W1`))。移すのに要るもの: 収集員の体。外すまでのつなぎ: 外すとごみが溜まる一方になる。W1 の検証は、収集ができるまで比べられない",
-   "remove_at": "6-6",
+   "remove_at": "next-bump",
    "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 103",
    "conf": "expedient",
    "since": "2026-11-01",
@@ -9823,7 +9838,9 @@
     "none"
    ],
    "routing_row": 103,
-   "world_process": "waste_collection"
+   "world_process": "waste_collection",
+   "decided": "11-02r/§1 #7",
+   "drives_note": "〔11-02r §1 #7〕既定で止めた(engine/absent_processes.py の既定 stopped)。旧道 --absent-processes legacy は次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)"
   },
   {
    "id": "DEC-104-streetSweep",
@@ -9839,7 +9856,9 @@
     "none"
    ],
    "routing_row": 104,
-   "world_process": "street_cleaning"
+   "world_process": "street_cleaning",
+   "decided": "11-02r/§1 #7",
+   "drives_note": "〔11-02r §1 #7〕既定で止めた(engine/absent_processes.py の既定 stopped)。旧道 --absent-processes legacy は次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)"
   },
   {
    "id": "DEC-105-parcelDelivery",
@@ -9873,7 +9892,9 @@
     "none"
    ],
    "routing_row": 106,
-   "world_process": "road_works_occupancy"
+   "world_process": "road_works_occupancy",
+   "decided": "11-02r/§1 #7",
+   "drives_note": "〔11-02r §1 #7〕既定で止めた(engine/absent_processes.py の既定 stopped)。旧道 --absent-processes legacy は次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)"
   },
   {
    "id": "DEC-107-runTrains",
@@ -9944,7 +9965,8 @@
    ],
    "routing_row": 110,
    "world_process": "public_service_dispatch",
-   "drives_note": "出動の回数は倒れる率(W3 と同系)で決まる(a1-research §6 #8)"
+   "decided": "11-02r/§1 #7",
+   "drives_note": "出動の回数は倒れる率(W3 と同系)で決まる(a1-research §6 #8)。〔11-02r §1 #7〕既定で止めた(engine/absent_processes.py の既定 stopped)。旧道 --absent-processes legacy は次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)"
   },
   {
    "id": "DEC-111-pressRelease",

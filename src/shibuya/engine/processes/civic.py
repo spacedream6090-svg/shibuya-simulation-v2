@@ -17,10 +17,12 @@
 
 expedient(本モジュール分・全て「返済対象」)
 - 出動の遅延 = **対数正規(中央値 8 分)**(親指示)。σ は 0.5(自前)。上限 60 分。
-- 倒れる事象への出動率 100%(通報の規則ゲートは「同一セルに誰か居ること」だけ)。
+- 倒れる事象への出動率 100%(通報の規則ゲートは「同一セルに誰か居ること」だけ)〔11-02r §1 #7 で既定から止めた=救急と
+  警察の出動は無い(隊員と指令の体が居ない・倒れた人は運ばれない)・旧道は切替口 ``--absent-processes legacy`` だけ〕。
 - 発信時刻 07:00 / 12:00 / 18:00 の 3 本。到達範囲=**全セル**(§7.2「到達範囲の較正後に返済」)。
 - ホテル: 客室数 = **1 POI あたり 120 室**(実データ空欄)。チェックイン 21:00・アウト 09:00。
-- インフラ原単位: 電力 0.35 kWh/人/時・水 0.012 m³/人/時(**出典なし**・W5 の実数は空欄)。
+- インフラ原単位: 電力 0.35 kWh/人/時・水 0.012 m³/人/時(**出典なし**・W5 の実数は空欄)〔11-02r §1 #7 で既定から
+  止めた=電気と水の負荷は無い・旧道は切替口 ``--absent-processes legacy`` だけ〕。
 - 大規模イベント: 18:00-21:00 に外界から ``EVENT_VISITOR_DELTA`` 人を会場セルへ入れる〔11-01 段 2 の 4 で既定から外した=
   催しの人の注入は無い・会場 3 セルの開催は残す・旧道は切替口 ``--rate-rules legacy`` だけ(次の版上げで消す)〕。
 """
@@ -33,6 +35,7 @@ import numpy as np
 
 from shibuya.agents.state import AgentKind, AgentState
 from shibuya.core.rng import run_tick_key, stream
+from shibuya.engine import absent_processes as _ABSENT
 from shibuya.engine import rate_rules as _RATE_RULES
 from shibuya.engine import resolve as R
 from shibuya.perception import attention as AT
@@ -123,12 +126,15 @@ class PublicServiceDispatchProcess:
         day_index: int = 0,
         tick_seconds: int = 60,
         actual_log=None,
+        absent_processes: str | None = None,
     ) -> None:
         self.world = world
         self.tick_seconds = int(tick_seconds)
         self.log = actual_log
         self.master_seed = master_seed
         self.day_index = int(day_index)
+        #: 〔11-02r §1 #7〕「無い」の過程の腕(``stopped``=通報を受けても出動しない=倒れた人は運ばれない・``legacy``=旧道)。
+        self.absent_processes = _ABSENT.resolve(absent_processes)
         #: 〔第330・RET〕常に ``None``(状態を持つ乱数 stateful は消した)。状態台帳 O47 の道筋 ``runner.dispatch.rng`` は
         #: behavior-hash の外の状態の行の定義に入っている(「無い」の印)ので、行と一緒に消すと final が動く=残した
         #: (10e の記録 §RET・親に確かめてほしい点)。
@@ -146,8 +152,14 @@ class PublicServiceDispatchProcess:
         return True
 
     def request(self, tick: int, cell: int, xy: tuple[float, float]) -> int:
-        """通報を受けて出動する。到着 tick を返す(規則ゲート=セルが実在すること)。"""
+        """通報を受けて出動する。到着 tick を返す(規則ゲート=セルが実在すること)。
+
+        〔11-02r §1 #7〕既定(腕 ``stopped``)では出動しない(-1・乱数も引かない・記録も数えもしない)=救急と警察の出動は
+        無い(倒れた人は運ばれない=倒れた数は顕著行為の ``salient.collapse``)。
+        """
         if not (0 <= int(cell) < self.world.n_cells):
+            return -1
+        if not _ABSENT.is_legacy(self.absent_processes):
             return -1
         g = self._counter_stream(int(tick), int(cell))
         delay = float(
@@ -212,6 +224,8 @@ class PublicServiceDispatchProcess:
             "mean_delay_min": float(
                 self.delay_minutes_total / max(1, self.n_dispatched)
             ),
+            # ---- 〔11-02r §1 #7〕出動を止めた印(旧道の件数は dispatched) ----
+            "absent_dispatch_stopped": float(not _ABSENT.is_legacy(self.absent_processes)),
         }
 
     def summary(self) -> str:
@@ -410,10 +424,13 @@ class InfraLoadProcess:
     process_ids: Final[tuple[str, ...]] = ("infra_daily_load",)
     ablation_id: Final[str] = "AB-INFRA-INTENSITY"
 
-    def __init__(self, world: World, agents: AgentState, *, tick_seconds: int = 60) -> None:
+    def __init__(self, world: World, agents: AgentState, *, tick_seconds: int = 60,
+                 absent_processes: str | None = None) -> None:
         self.world = world
         self.agents = agents
         self.tick_seconds = int(tick_seconds)
+        #: 〔11-02r §1 #7〕「無い」の過程の腕(``stopped``=負荷を集計しない・``legacy``=旧道)。
+        self.absent_processes = _ABSENT.resolve(absent_processes)
         self.power_kwh = np.zeros(24, dtype=np.float64)
         self.water_m3 = np.zeros(24, dtype=np.float64)
 
@@ -422,7 +439,9 @@ class InfraLoadProcess:
         return True
 
     def step(self, tick: int) -> None:
-        hour = int(int(tick) * self.tick_seconds // SECONDS_PER_HOUR) % HOURS_PER_DAY
+        if not _ABSENT.is_legacy(self.absent_processes):  # 〔11-02r §1 #7〕電気と水の負荷は無い
+            return
+        hour = int(int(tick) * self.tick_seconds // SECONDS_PER_HOUR) % HOURS_PER_DAY  # 旧道(次の版上げで消す)
         inside = float(int(np.count_nonzero(np.asarray(self.agents.registry.cell) >= 0)))
         frac = float(self.tick_seconds) / SECONDS_PER_HOUR
         self.power_kwh[hour] += inside * POWER_KWH_PER_PERSON_HOUR * frac
@@ -432,10 +451,15 @@ class InfraLoadProcess:
         return {
             "power_kwh_day": float(self.power_kwh.sum()),
             "water_m3_day": float(self.water_m3.sum()),
-            "peak_hour": float(int(np.argmax(self.power_kwh))),
+            # 〔11-02r §1 #7・検収 低-5〕止めた腕は −1(全部 0 の argmax で 0 時が山に見えるのを避ける)
+            "peak_hour": float(int(np.argmax(self.power_kwh)) if _ABSENT.is_legacy(self.absent_processes) else -1),
+            # ---- 〔11-02r §1 #7〕集計を止めた印 ----
+            "absent_infra_stopped": float(not _ABSENT.is_legacy(self.absent_processes)),
         }
 
     def summary(self) -> str:
+        if not _ABSENT.is_legacy(self.absent_processes):  # 〔11-02r §1 #7〕
+            return "インフラ日負荷: 止めた(電気と水の負荷は無い=11-02r §1 #7)"
         return (
             f"インフラ日負荷: 電力 {self.power_kwh.sum():,.0f} kWh / 水 "
             f"{self.water_m3.sum():,.0f} m³ / ピーク {int(np.argmax(self.power_kwh))} 時"

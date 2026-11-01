@@ -68,6 +68,8 @@ CA31_KEYS = ("calendar_shadow",)
 SP1_KEYS = ("space",)
 #: 〔11-01 段 2 の 3・4〕率の形の規則を外した節(末尾)。
 RR11_KEYS = ("rate_rules",)
+#: 〔11-02r §1 #7〕「無い」と宣言した過程 5 件を止めた節(末尾)。
+AP12_KEYS = ("absent_processes",)
 PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite", "blake3", "os", "os_release",
                  "os_version", "machine", "cpu", "numpy_simd", "deps", "deps_sha256", "deps_count"}
 #: 設定の節の道筋の一覧の sha256(環境に依らない golden=検収 N3 の 3)。節を変えたら理由を記録に書いて更新する。
@@ -148,7 +150,9 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: (前 ``30242fe6…1f1d5ec7`` → ``94d2cc0c…7e481ffa``=この 1 本を外すと前の値に戻る・記録 docs/bench/analysis/wallbounce-1012/ct_c2/README.md)。
 #: 〔11-01 段 2 の 3・4〕attendance_rate を消し rate_rules.mode・removed・rules・schema と waste_sink.band_na(検収 M1=腕 off の
 #: 店の帯の非該当の理由)を足した(前 94d2cc0c…・記録 s2-rates-1101)
-CONFIG_PATHS_SHA256 = "fc5174c7cb73cd0e69d460cd7e6951da8231aa97d19f4ed4b1d64fb3308fca73"
+#: 〔11-02r §1 #7〕absent_processes.mode・processes・schema・stopped を足した(前 fc5174c7…3308fca73=この 4 本を外すと前の値に
+#: 戻る・記録 s2e-1102)
+CONFIG_PATHS_SHA256 = "0e6dfaaafb0a0f85d09fb7cdc5602bf78f13af4a3efc2732865e172b81f9ec69"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 
@@ -314,7 +318,7 @@ def test_t1_two_processes_write_the_same_env_id_and_final_to_the_files(tmp_path)
     # 列追加のみ(末尾に 3 つ+第 2 段の 2 つ+10e の欄+1-1 T0 の欄+1-4 の欄+1-9 の欄+1-2 の欄+1-5 の欄+1-8 J0 の欄+1-7 の欄
     # +1-8b の欄+2-2 の欄+3-3 の欄+3-1 の欄)
     tail = (NEW_KEYS + STAGE2_KEYS + E10_KEYS + T0_KEYS + R14_KEYS + C19_KEYS + P12_KEYS + R15_KEYS + J08_KEYS
-            + C07_KEYS + S8B_KEYS + PX22_KEYS + X33_KEYS + TM32_KEYS + BD35_KEYS + CA31_KEYS + SP1_KEYS + RR11_KEYS)
+            + C07_KEYS + S8B_KEYS + PX22_KEYS + X33_KEYS + TM32_KEYS + BD35_KEYS + CA31_KEYS + SP1_KEYS + RR11_KEYS + AP12_KEYS)
     assert list(c1["manifest"])[-len(tail):] == list(tail)
 
 

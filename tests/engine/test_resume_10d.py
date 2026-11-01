@@ -376,6 +376,9 @@ def test_counter_rng_resume_draws_once(tmp_path, monkeypatch):
     from shibuya.engine import rate_rules as RR
 
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
+    from shibuya.engine import absent_processes as AP
+
+    monkeypatch.setattr(AP, "_ARM", AP.MODE_LEGACY)  # 〔11-02r §1 #7〕出動の経路も旧道でだけ動く(次の版上げで書き直す)
     kw = dict(n_agents=200, seed=1, n_cells=25, ticks=TPD, sim_days=2, checkpoint_every=10,
               salient_rate_per_10k=3000.0)  # 〔第330・RET〕rng_scheme を消した(counter だけ)
     straight = run_day(tape_path=tmp_path / "s", **kw)

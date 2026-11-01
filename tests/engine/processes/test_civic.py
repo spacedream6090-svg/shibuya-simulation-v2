@@ -27,7 +27,7 @@ from .conftest import make_agents, make_world
 # ================================================================= 出動
 def test_dispatch_delay_is_lognormal_around_the_median():
     world = make_world(16)
-    d = PublicServiceDispatchProcess(world, master_seed=3)
+    d = PublicServiceDispatchProcess(world, master_seed=3, absent_processes="legacy")  # 〔11-02r §1 #7〕旧道の出動を見る
     for k in range(400):
         d.request(0, k % 16, (0.0, 0.0))
     mean = d.delay_minutes_total / d.n_dispatched
@@ -37,7 +37,7 @@ def test_dispatch_delay_is_lognormal_around_the_median():
 
 def test_dispatch_arrival_resolves_the_incident():
     world = make_world(9)
-    d = PublicServiceDispatchProcess(world, master_seed=1)
+    d = PublicServiceDispatchProcess(world, master_seed=1, absent_processes="legacy")  # 〔11-02r §1 #7〕旧道の出動を見る
     arrive = d.request(10, 2, (5.0, 6.0))
     assert arrive > 10
     assert d.arrivals(arrive - 1) == []
@@ -146,7 +146,7 @@ def test_hotel_checkout_frees_the_rooms():
 def test_infra_load_grows_with_occupancy_and_reports_a_peak():
     world = make_world(9)
     agents, _ = make_agents(world, 30)
-    infra = InfraLoadProcess(world, agents)
+    infra = InfraLoadProcess(world, agents, absent_processes="legacy")  # 〔11-02r §1 #7〕旧道の集計を見る
     for t in range(180):
         infra.step(t)
     c = infra.counters()

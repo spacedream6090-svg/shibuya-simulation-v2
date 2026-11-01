@@ -427,6 +427,10 @@ def build(_call_args: dict[str, Any]) -> Any:
         from shibuya.engine import rate_rules as _RRR
 
         _RRR.check_resume(_h.get("rate_rules"))
+        # 〔11-02r §1 #7〕「無い」の過程の腕も設定の指紋に入れない=見出しの absent_processes(無ければ legacy)と今の腕を突き合わせる
+        from shibuya.engine import absent_processes as _APR
+
+        _APR.check_resume(_h.get("absent_processes"))
         t_begin = int(_h["progress"]["next_T"])
         if not (0 < t_begin < total_ticks):
             raise ValueError(f"再開の時刻 T={t_begin} がこのランの範囲 0〜{total_ticks} の内側に無い(sim_days を見る)")
@@ -786,6 +790,9 @@ def build(_call_args: dict[str, Any]) -> Any:
     from shibuya.engine import rate_rules as _RRB  # 〔11-01 段 2 の 3・4〕率の形の規則の腕(組み立てで 1 回読む)
 
     rate_rules_mode = _RRB.arm()
+    from shibuya.engine import absent_processes as _APB  # 〔11-02r §1 #7〕「無い」の過程の腕(組み立てで 1 回読む)
+
+    absent_mode = _APB.arm()
     runner: WorldProcessRunner | None = None
     if processes:
         runner = WorldProcessRunner(
@@ -814,6 +821,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             # 〔第 4 期 4-3 段 10〕差し替えの世界(母集団が w21_person_id を持つ)だけ初期の行の表を読む=本体の v2 は None
             initial_rights=_initial_rights(world_dir, pop, n_agents),
             rate_rules=rate_rules_mode,  # 〔11-01 段 2 の 3・4〕率の形の規則の腕
+            absent_processes=absent_mode,  # 〔11-02r §1 #7〕「無い」と宣言した過程 5 件の腕
         )
     if economy_plan is not None:  # 第 2 期 2-1: 賃金の雇用の行は権利台帳(開閉の過程が持つ)から読む
         economy_plan.runner = runner
@@ -1562,6 +1570,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             p_see_activity_identity=p_see_activity_identity, call_layer=_call_layer, fp=_fp, parent_run=parent_run,
             seat_release=_SRB.arm(),  # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(組み立てで 1 回読む)
             rate_rules=rate_rules_mode,  # 〔11-01 段 2 の 3・4〕率の形の規則の腕(組み立てで 1 回読む)
+            absent_processes=absent_mode,  # 〔11-02r §1 #7〕「無い」と宣言した過程 5 件の腕(組み立てで 1 回読む)
         ),
         soa=_BX.SoAState(agents=agents, world=world),
         layers=_BX.Layers(

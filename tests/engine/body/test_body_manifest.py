@@ -39,7 +39,7 @@ def test_manifest_body_keys_and_sections(monkeypatch):
     res = run_day(**kw)
     m = res.run_manifest_fields()
     assert res.final_hash == run_day(**kw).final_hash
-    assert list(m)[-4:] == ["body", "calendar_shadow", "space", "rate_rules"]  # 〔11-01 段 2 の 4〕末尾に rate_rules  # 〔第 5 期 空間の段 1〕space  # 〔第 3 期 3-1 の取り込み〕その後ろ(末尾)に calendar_shadow
+    assert list(m)[-5:] == ["body", "calendar_shadow", "space", "rate_rules", "absent_processes"]  # 〔11-02r §1 #7〕末尾に absent_processes  # 〔11-01 段 2 の 4〕rate_rules  # 〔第 5 期 空間の段 1〕space  # 〔第 3 期 3-1 の取り込み〕その後ろ(末尾)に calendar_shadow
     body = m["body"]
     assert list(body) == list(BM.CONFIG_KEYS) + list(BM.OBSERVED_KEYS)
     assert body["owner"] == "body" and body["arm"] == "sweep" and body["arms"] == ["sweep", "reserve"]

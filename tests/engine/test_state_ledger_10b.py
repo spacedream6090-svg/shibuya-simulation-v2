@@ -951,9 +951,12 @@ def test_t7_legacy_switch_reproduces_the_pre_bump_final(monkeypatch):
     旧道は 1 版だけ残す切替口(回答 10-13b §0-6)。この試験は次の版上げで切替口と一緒に消す(旧値の再現は安定版のタグ)。
     """
     from shibuya import cli
+    from shibuya.engine import absent_processes as AP
     from shibuya.engine import rate_rules as RR
 
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
+    # 〔11-02r §1 #7〕版上げの前の値=「無い」の過程も旧道(止めた出動が倒れた人の到着=警察の顕著行為を消すので final が動く)
+    monkeypatch.setattr(AP, "_ARM", AP.MODE_LEGACY)
     res = cli.run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")
     if GE.platform_id() in GE.REGISTERED:
         assert (res.final_hash[:16], int(res.llm_calls)) == (T7_V3_FINAL_RATE_RULES_LEGACY, 62_176)

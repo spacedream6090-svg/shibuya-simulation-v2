@@ -401,6 +401,9 @@ def report(ctx: Any, b: Any) -> Any:
     from shibuya.engine import rate_rules as _RRM  # 〔11-01 段 2 の 3・4〕率の形の規則を外した節(腕・印・旧道の件数)
 
     result.rate_rules = _RRM.manifest_fields(b.cfg.rate_rules, b.layers.runner, b.layers.presence)
+    from shibuya.engine import absent_processes as _APM  # 〔11-02r §1 #7〕「無い」の過程を止めた節(腕・印・旧道の件数)
+
+    result.absent_processes = _APM.manifest_fields(b.cfg.absent_processes, b.layers.runner)
     result.derive_rule = str(derive_rule)
     result.geometry = str(geometry)
     result.space = str(space)
