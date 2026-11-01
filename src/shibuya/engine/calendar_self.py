@@ -194,7 +194,7 @@ SLOT_MIN: Final[int] = 15
 
 #: この段の仮採用とつなぎの台帳の行(manifest の ``bridges`` の行と記録の表)。
 BRIDGES: Final[tuple[str, ...]] = (
-    "BR-W17-IO-SLEEP", "BR-E4-EXIT-VANISH", "BR-ATTENDANCE-LOTTERY", "BR-K9-MONDAY",
+    "BR-W17-IO-SLEEP", "BR-E4-EXIT-VANISH", "BR-K9-MONDAY",  # BR-ATTENDANCE-LOTTERY は 11-01 段 2 の 4 で消した(removed・第340)
     "DOC-ca1b-placement-initial", "DOC-ca1b-margin", "DOC-ca1b-look-interval", "DOC-ca1b-estimate-initial",
     "DOC-ca1b-estimate-update", "DOC-ca1b-outside-time", "DOC-ca1b-planner-look", "DOC-ca1b-approx-time",
     "DOC-ca1b-end-notice", "DOC-ca1b-blank-place-cell", "DOC-ca1b-gate-exit", "DOC-ca1b-commuter-pass",
