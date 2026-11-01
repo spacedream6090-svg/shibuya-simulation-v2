@@ -394,6 +394,19 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #135 都の区部点群 LAS の集計の道具 `tools/spatial/`(11-02 取得 1・tools だけ=src/ 不変・第341・2026-11-02・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [指示書 11-02 研究と取得](docs/design/prompt-2026-11-02-research.md) 取得 1(「集計(デッキと地下の床の高さ・坂の勾配・歩道の面)は従来どおり作る」)・従来の計画 R-119 #11(SR1)・R-82 §3。記録 [pointcloud-2026-11](docs/bench/analysis/pointcloud-2026-11/README.md)。取り込み `3e91751`。raw は `data/raw/tokyo_pointcloud_23ku/`(zip 62・展開した LAS 62=生データを残す規則・台帳 その 21-c に zip と LAS の sha256)・集計は `data/spatial/tokyo_pointcloud_23ku/agg/`。
+- **中身**: `las_io.py`=LAS 1.2 PF0〜3 を struct+numpy で読む(memmap・VLR と GeoKey)・`jgd_plane.py`=平面直角第 9 系 ↔ 経緯度(国土地理院の式・GRS80・検収役が別の実装で 0.06 mm 以内・GSI の 2 点で一致)・`las_pointcloud_agg.py`=zip の一覧の確認 → 展開 → 0.25 m の DEM(Class 2)/DSM → 520 セル(`w2_cells` の 100 m 格子)の地面の高さの中央値と 5/95 分位・2 m と 0.25 m の勾配・隣のセルとの勾配・DSM−DEM 3〜8 m の割合と最頻値・地盤点の密度・デッキ 39 セルの床(橋梁 LOD2 の外形の中の DSM 27=`brid`・3〜8 m の最頻値 12=`heuristic`・欄 `deck_floor_confidence`)・縁石の試み(段差 0.10〜0.25 m・PLATEAU の歩道と車道の境から L1 で 2 画素=境の近くに偶然の 2.5〜3.8 倍だが拾えた率 4.9〜11.7%=取れない)・地下 28 セルは「無いと宣言」・1 m のラスタ 3 本・要約 JSON(図郭ごとの点数・Class・bbox の IoU・sha256)。CLI `--raw-dir --cells --out [--meshes] [--jobs]`。軸は LAS の X=東・Y=北(bbox の IoU ≥ 0.9945・逆なら 0)・VLR の無い 09LD2762/2763 は bbox で判定・EPSG が 6677 以外なら止まる。
+- **結果**: 62/62 図郭(点 390,485,561・地上 453 セルは全部 complete)。2 m 勾配のセル中央値 3.75%(5〜95 分位 1.8〜7.3%・**expedient `slope2m_min_valid=8` に敏感=32 で 3.30%・56 で 2.74%**・PLATEAU nav1_dem の床 3.71%・相関 0.90)・隣のセルとの勾配の最大 中央値 4.4%・点群 DEM − PLATEAU DEM の中央値 −0.007 m(平均絶対差 0.11 m)・デッキの床−地面 中央値 6.4 m(2.8〜14.1)・橋梁 39 構造の DSM − PLATEAU 上面 +0.91 m(±1 m 18・±2 m 35)。性能 1 図郭 3.3 s・62 図郭 248 s・私有メモリ最大 1.97 GB。
+- 検収: 検収役=条件つき受入(高 0・中 5=向きの試験が対称・軸の逆と VLR 無しの試験が無い・PLATEAU の道と縁石の試験が無い・デッキ 12 セルの言い過ぎ・勾配の感度の未宣言/低 8)→ 全部直した(試験 20 → 26・値は不変)→ 親(26 passed・LF・識別子に open/tick なし・raw の sha256 不変・CLEAN)。**残り(問い)**: VLR の無い 2 図郭の扱い・段差の定数の感度(3dcel で同じ試みをするか)・デッキの床の正(PLATEAU の上面か DSM か=屋根の混入 2 セル)・R-82 の種別不明 30 構造との結び(gml ID)・0.25 m DEM の出力・SR12 の坂に使う量(セル内の中央値か隣のセルとの勾配か)。
+
+### #134 presence.py の docstring を今の実装に合わせて書き直し+食い違いの表(11-02 研究 6・docstring と注釈だけ=コードは ast で同一・第341・2026-11-02・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [指示書 11-02 研究と取得](docs/design/prompt-2026-11-02-research.md) 研究 6・元の指摘 [回答 10-25](docs/design/v2-answers-2026-10-25.md) §9 の 2。記録 [presence-docstring-1102](docs/bench/analysis/presence-docstring-1102/README.md)(食い違い 24 行・設計書との食い違い 10 行・1,355 m の検算・`check_ast_equal.py`)。取り込み `95c4ced`。
+- **中身**: モジュール docstring に「到着と退出の場所と時刻(今の挙動)」の節=到着は W11 の出口 45 行 → 重複を除いた 25 セルへブロックの通し番号の round-robin(線・方面・ホームと結ばない・6/25 は表参道・明治神宮前の出口)・方面 8/9 の体も駅の出口(W12 の門のセルはエンジンでは読まない)・退出は今いるセルから即時・同じ刻みの退出と到着(旧既定・nav1 の腕で 18〜20 件/日・最大 1,355.0 m=新南口 `g3_-5_GL` ↔ 明治神宮前 `g3_9_GL` の代表ノード間と一致・今の既定 off は未計測)・日の境目(32,065/4,281 体・静的)・P4 の 4 種とループの一覧・書き込み口に `begin_exit_walk`/`clear_board_intent`・E6/E8 の削除の経緯・E12/E13 を登録簿に。関数 docstring 17 本と注釈も直し、穴には「〔既知の穴・11-02〕」の印(PENDING §2 の 17 を指す)。
+- 検収: 検収役=条件つき受入(高 0・中 6=測定の条件(旧既定)・`ticks` の意味・日の境目の穴(自己申告に無い)・`_flush_walkers` の古い記述・行数 1,960・設計書との食い違いの漏れ/低 9)→ 全部直した → 親(ast で docstring を外した dump の sha256 が HEAD と同一・陰性対照あり・LF・絶対パスなし・`tests/engine -k presence` 70 passed を本体でも)。**残り**: 穴の修正は段 2(PENDING §2 の 17)・設計書 §2・§3・§6 の 10 件・既定 off での瞬間移動の件数の測り直し。
+
 ### #133 台帳の欄と循環の機械検査・「無いと宣言」の器・入力の宣言(11-01p 段 2 の 2・6・7・宣言だけ=既定は 1 バイト不変・第340・2026-11-02・実装役 Opus 5.5・別の検収役・親検収)
 
 - 正典: [回答 11-01](docs/design/v2-answers-2026-11-01.md) §1(入力の宣言の型)・§2(代打の 5 条件・無いと宣言)・§3(`drives_from`・採点する系・`burned`・CI の突き合わせ)・§10-3。根拠 [routing](docs/reference/decision-routing-2026-11-01.md) §1・§3・§4。記録 [s2-ledger-1101](docs/bench/analysis/s2-ledger-1101/README.md)(検収 [review.md](docs/bench/analysis/s2-ledger-1101/review.md))。取り込み `49d22f0`。
