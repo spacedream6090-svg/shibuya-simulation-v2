@@ -10,11 +10,10 @@
 ``Absence.engine_now`` にそう書く。規則を外すのは別の段(率の規則=段 2 の 3・4)で、外す段が指示書に無い過程は
 「親が決める」と書いた。一覧は計器 ``tools/instruments/absent_declarations.py`` が Markdown に出す(版上げごと)。
 
-「無い」の例外(〔検収 中-3〕): ``engine_stopped=True`` の宣言だけが循環の検査の例外になる。いま True は、口が無いので
-起きない判断(no_port の 12 件と補足)・採用と解雇・発注だけ。率の規則を外す段(S2-rates)を取り込んだら、宅配
-(``absent.parcel_delivery``)・倒れる(``absent.collapse``)・催しの注入(``absent.event_injection``)・ポイ捨て
-(``absent.litter``)・売れ残りの廃棄(``absent.discard_unsold``)の 5 件を True にする(手順は記録
-``docs/bench/analysis/s2-ledger-1101/README.md`` §7)。ほかの no_actor(ごみ収集・清掃・道路工事・救急と警察・電気と水)は
+「無い」の例外(〔検収 中-3〕): ``engine_stopped=True`` の宣言だけが循環の検査の例外になる。True は、口が無いので
+起きない判断(no_port の 12 件と補足)・採用と解雇・発注と、率の規則を外す段(ce52662・``engine.rate_rules`` の既定 off)で
+止まった 5 件=宅配(``parcels``)・倒れる(``collapse``)・催しの注入(``event_injection``)・ポイ捨て(``litter``)・
+売れ残りの廃棄(``leftover_waste``)。ほかの no_actor(ごみ収集・清掃・道路工事・救急と警察の出動の過程そのもの・電気と水)は
 エンジンから外す段が決まるまで False のまま。
 
 文案の扱い: routing §3 の文案はそのまま写した(「外す段」の空欄も「空欄」のまま)。routing §3 に文案の無いもの
@@ -45,8 +44,9 @@ ROUTING_DOC: Final[str] = "docs/reference/decision-routing-2026-11-01.md"
 _S31 = f"{ROUTING_DOC} §3-1"
 _S32 = f"{ROUTING_DOC} §3-2"
 _ENGINE_RULE_STILL = "エンジンの規則がまだ動く({where})。エンジンから外す段は指示書 11-01 に書いていない=親が決める"
-_RATE_STAGE = "エンジンの規則がまだ動く({where})。外すのは率の規則を外す段(指示書 段 2 の 3・4=別の実装役)"
 _NO_PORT_NOW = "口が無いので今も起きない({where})"
+_RATE_OFF = ("外した(率の規則 {rule}=既定 off・engine/rate_rules.py・段 2 の 3・4)。旧道 `--rate-rules legacy` では {where} が"
+             "動く(1 版だけ=次の版上げで消す)")
 
 # ================================================================== §3-1 主体が居ない過程(回答 11-01 §10-3 の 8 つ)
 NO_ACTOR: Final[tuple[Absence, ...]] = (
@@ -91,12 +91,12 @@ NO_ACTOR: Final[tuple[Absence, ...]] = (
         reason="主体(配達員の体)と注文が居ない・27,000 個/日は区按分の集計で錨 W2 と循環する",
         remove_at="配達員と注文の主体を置く段(空欄)",
         effect="宅配の車と人が街から消える(7,657 個/日 [A])",
-        engine_now=_RATE_STAGE.format(where="区按分 27,000 個/日=engine/processes/logistics.py"),
+        engine_now=_RATE_OFF.format(rule="parcels", where="区按分 27,000 個/日=engine/processes/logistics.py"),
         routing_rows=(105,),
         world_process_id="delivery_last_mile",
         source=_S31,
         keeps_anchor=("W2",),
-        engine_stopped=False,
+        engine_stopped=True,
         stage="next-bump",
     ),
     Absence(
@@ -144,11 +144,11 @@ NO_ACTOR: Final[tuple[Absence, ...]] = (
         reason="200 人は集計の量で、主催者も居ない",
         remove_at="催しの情報を外の人に届ける入口と、本人の『来るか』の口ができたら(指示書 段 3)",
         effect="催しの日の人出が 0 になる",
-        engine_now=_RATE_STAGE.format(where="18 時に 200 人を会場へ・21 時に出す=engine/processes/civic.py"),
+        engine_now=_RATE_OFF.format(rule="event_injection", where="18 時に 200 人を会場へ・21 時に出す=engine/processes/civic.py"),
         routing_rows=(10,),
         world_process_id="large_event",
         source=_S31,
-        engine_stopped=False,
+        engine_stopped=True,
         stage="next-bump",
     ),
     Absence(
@@ -291,8 +291,8 @@ NO_PORT: Final[tuple[Absence, ...]] = (
         "急に倒れる人は世界に無い(率を外した後)。理由: 体の式がまだ無い。外す段: WBGT→熱中症の体の式ができたら。"
         "W3 は錨に残す・体の式ができるまで検証から外す",
         "体の式がまだ無い", "WBGT→熱中症の体の式ができたら(B8)", "",
-        keeps=("W3",), stage="next-bump", stopped=False, source=f"{_S32}+W3 の文は回答 11-01 §3 の読みに統一(検収 低-8)",
-        now=_RATE_STAGE.format(where="1 万体あたり 1 日 3.0 件=engine/body/rules.py BR-BODY-COLLAPSE-RATE")),
+        keeps=("W3",), stage="next-bump", stopped=True, source=f"{_S32}+W3 の文は回答 11-01 §3 の読みに統一(検収 低-8)",
+        now=_RATE_OFF.format(rule="collapse", where="1 万体あたり 1 日 3.0 件=engine/body/rules.py BR-BODY-COLLAPSE-RATE")),
 )
 
 #: 回答 11-01 §2 の「同じ形で外すもの」のうち「無い」と宣言する 2 件(率の規則=S2-rates が外す・文は実装役)。
@@ -301,14 +301,14 @@ RATE_REMOVED: Final[tuple[Absence, ...]] = (
         "ポイ捨ては世界に無い。理由: セルの人数 × 0.05 g/刻みは集計の量(回答 11-01 §2)。"
         "外す段: 持ち物の状態と語彙「捨てる」ができたら",
         "人数 × 率は集計の量", "持ち物の状態と語彙「捨てる」ができたら", "",
-        stage="next-bump", stopped=False, source="回答 11-01 §2・routing §6-B #42=文は実装役",
-        now=_RATE_STAGE.format(where="セルの人数 × 0.05 g/刻み=engine/processes/goods_flow.py")),
+        stage="next-bump", stopped=True, source="回答 11-01 §2・routing §6-B #42=文は実装役",
+        now=_RATE_OFF.format(rule="litter", where="セルの人数 × 0.05 g/刻み=engine/processes/goods_flow.py")),
     _np("absent.discard_unsold", "売れ残りの廃棄", (99,),
         "売れ残りの廃棄は世界に無い。理由: 05 時に廃棄率を掛けるのは率の形(回答 11-01 §2)。"
         "外す段: 店員の判断(腕 duties)を既定にしたら",
         "廃棄率を掛けるのは率の形", "店員の判断(腕 duties)を既定にしたら", "",
-        stage="next-bump", stopped=False, source="回答 11-01 §2・routing §6-B #99=文は実装役",
-        now=_RATE_STAGE.format(where="閉店帯に SKU 別 waste_rate を棚へ掛ける=engine/processes/goods_flow.py")),
+        stage="next-bump", stopped=True, source="回答 11-01 §2・routing §6-B #99=文は実装役",
+        now=_RATE_OFF.format(rule="leftover_waste", where="閉店帯に SKU 別 waste_rate を棚へ掛ける=engine/processes/goods_flow.py")),
 )
 
 #: 回答 11-01 §10-3 の 13 件の外で、routing §3-2 と §10-1 が同じ形で「成立しない」と書くもの(数えを分ける)。

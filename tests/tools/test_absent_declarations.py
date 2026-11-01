@@ -38,7 +38,7 @@ def test_render_is_deterministic_and_lists_every_declaration(gauge):
                     "よく考える", "ひと言", "1 日の振り返り", "予想と違って直す", "接客", "値段を変える", "倒れる"):
         assert f"| {subject} |" in a, subject
     assert "主体が居ない過程 8・入力/初期の予定 2・口が無い判断 13・率を外すもの 2(+補足 1)=宣言 26" in a
-    assert "止めた=循環の検査の例外になる)15・まだ動く 11" in a
+    assert "止めた=循環の検査の例外になる)20・まだ動く 6" in a  # 率の規則(ce52662)の後
     for subject in ("ポイ捨て", "売れ残りの廃棄"):
         assert f"| {subject} |" in a, subject
     assert "入力の宣言 13(埋めた 5・欄だけ 8)" in a

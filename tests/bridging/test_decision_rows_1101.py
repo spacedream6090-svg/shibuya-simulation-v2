@@ -61,16 +61,15 @@ def test_one_row_per_routing_decision(tool, doc):
     assert dest == {"L1 残す": 9, "L1.5": 55, "L2": 7, "初期の予定": 8, "代打": 1, "無いと宣言": 6, "要判断": 26}
 
 
-#: 土台(c0729a4)の 673 行の指紋(id 順に並べた行の正規化 JSON の sha256)。並走の段がこの行を変えたら、変えた行を
-#: 記録に書いてこの値を直す(例: 率の規則を外す段が行を removed にする)。
-BASE_ROWS = 673
-BASE_ROWS_SHA = "3871dcc21465e5531e27dfdfcd36ae1f268c282df1de28ec1983e97dd42c75bd"
+#: 土台の DEC 以外の行の指紋(id 順に並べた行の正規化 JSON の sha256)。固定した版の由来: 第340 段 2 の 5(規則の表・6a943af=
+#: +1 行)と段 2 の 3・4(率の規則・ce52662=+4 行・13 行に注)の後の 678 行(=c0729a4 の 673+1+4)。並走の段がこの行を
+#: 変えたら、変えた行を記録に書いてこの値を直す(前の値=c0729a4 の 673 行 3871dcc2…dd42c75bd)。
+BASE_ROWS = 678
+BASE_ROWS_SHA = "7130eb39a961f5154716eec965ef2808e9267d8b0e214088f43c3f3c1f5e81a7"
 
 
 def test_base_rows_are_byte_identical(doc):
-    # 土台の行=DEC でなく since が 11-01 より前(並走の段が足す行は since が 11-01 以後=別に数える)
-    base = sorted((r for r in doc["bridges"] if not r["id"].startswith("DEC-") and r["since"] < "2026-11-01"),
-                  key=lambda r: r["id"])
+    base = sorted((r for r in doc["bridges"] if not r["id"].startswith("DEC-")), key=lambda r: r["id"])
     raw = json.dumps(base, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
     assert len(base) == BASE_ROWS and hashlib.sha256(raw).hexdigest() == BASE_ROWS_SHA
     assert "row_fields" not in doc and "row_fields_note" not in doc
@@ -98,7 +97,7 @@ def test_existing_rows_are_kept(doc):
     assert sum(1 for r in rows if r["id"].startswith("HD-")) == 85
     first_dec = next(i for i, r in enumerate(rows) if r["id"].startswith("DEC-"))
     assert all(r["id"].startswith("DEC-") for r in rows[first_dec:])
-    assert first_dec >= 673  # 第340 の前の台帳は 673 行(既存の行は前に・不変。並走の段が足した行も前に来る)
+    assert first_dec >= BASE_ROWS  # 既存の行は前に・不変(並走の段が足した行も前に来る)
 
 
 def test_pattern_columns_tool_is_idempotent_and_keeps_cells():

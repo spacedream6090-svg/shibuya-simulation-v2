@@ -71,7 +71,7 @@ ledger.py の 1 行の削除は `from_dict` の知っている欄の集合の行
 
 | 主体 | 系 | 行 | 扱い |
 |---|---|---|---|
-| world_process:delivery_last_mile・DEC-105 | W2 | W2 | **落ちる=宣言と実装が食い違う**(宅配の率の規則がまだ動く。S2-rates の後に通る=§7) |
+| world_process:delivery_last_mile・DEC-105 | W2 | W2 | 無いと宣言(engine_stopped=True)で通る。率の規則(ce52662)の前は「宣言と実装が食い違う」で落ちていた(§7) |
 | world_process:public_service_dispatch・DEC-83・DEC-110 | W3 | W3 | W3=外す で通る |
 | world_process:vehicle_cross_section・DEC-109 | data:road_census_r3 | D5′・D5 | 疑い=警告(親が決める) |
 | world_process:static_noise_field | data:tokyo_noise_r5 | D12′ | 疑い=警告(D12′ は burned=要確認) |
@@ -115,12 +115,15 @@ ledger.py の 1 行の削除は `from_dict` の知っている欄の集合の行
 
 ## §6 試験
 
-- 新しい試験 37 本。いまの作業木で落ちるのは `tests/bridging/test_drives_from_vs_scoring.py::test_no_unexpected_circularity` の 1 本だけで、**意図した落ち**(宅配の W2=宣言と実装が食い違う。§7 の後に通る)。ほかは通る。
+- 新しい試験 37 本。率の規則(ce52662)の上で全部通る(§7 の前は `test_no_unexpected_circularity` が宅配の W2 で意図どおり落ちていた)。
+- 〔2026-11-02・rebase の後〕tests/bridging・tests/engine/bridging・tests/world・tests/tools/test_absent_declarations.py・tests/engine/test_state_checks_10f.py=236 本が通る(落ち 0)。
 - 回した範囲: tests/bridging・tests/world/processes・tests/tools/test_absent_declarations.py・tests/engine/bridging・tests/c8/test_sensitivity_ledger.py・tests/engine/test_state_checks_10f.py=265 本が通り、上の 1 本が落ちる。
 - 前回の全体(`-m "not gpu and not slow"`)の落ち 4 件のうち 3 件(O38)は欄の名を `absence` にして直った。残りの `tests/vocab/test_registry_from_tape.py::test_ab7_seed1_open_matches_the_parent_report` は作業木では本体の src でも落ちる(テープの道筋。本体のリポでは通る=検収)。
 - import-linter は 5 契約とも通る。秘密スキャンは CLEAN。
 
 ## §7 取り込みの手順(率の規則を外す段=S2-rates の後)
+
+〔実施・2026-11-02〕規則の表(6a943af)と率の規則(ce52662・率 9 件は既定 off)の上へ rebase した後に、下の 2〜5 を行った。`engine_stopped=True` にしたのは宅配(`parcels`)・倒れる(`collapse`)・催しの注入(`event_injection`)・ポイ捨て(`litter`)・売れ残りの廃棄(`leftover_waste`)の 5 件(率の規則の記録 `docs/bench/analysis/s2-rates-1101/README.md` §1 の表と `engine/rate_rules.py` の `RULES` で確かめた・試験が `RULES` の名を照らす)。土台の行の指紋は 678 行(673+規則の表 1+率の規則 4・13 行に注)で固定し直した。`test_no_unexpected_circularity` は通る。registry_hash は不変。計器の出力の指紋は `81215f34d47a28fe`(止めた 20・まだ動く 6)。
 
 1. S2-rates(宅配・倒れる率・催しの注入・ポイ捨て・売れ残りの廃棄の率の規則を外す)を先に取り込む。
 2. `src/shibuya/world/processes/absent.py` で次の 5 件の `engine_stopped` を `True` にする: `absent.parcel_delivery`・`absent.collapse`・`absent.event_injection`・`absent.litter`・`absent.discard_unsold`。`engine_now` の文を「外した(段の名)」に直す。

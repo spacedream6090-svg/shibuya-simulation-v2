@@ -4,8 +4,7 @@
   「採点する系」の欄の語(``data:<id>``=出典の系)のどちらでも見る(検収 中-1)。例外=その行が ``burned``/``外す``・
   その過程が「無い」と宣言済み**かつ** ``engine_stopped=True`` で、その行が宣言の錨に入る(検収 中-3・低-2)。
   疑いの行(車→D5′・D5、騒音→D12′、W17→A5〜A7)は警告の印で通す=落とすのは親が決める。
-  **〔検収 中-3〕いまの作業木では宅配の率の規則がまだ動くので、`test_no_unexpected_circularity` は「宣言と実装が
-  食い違う」で落ちる状態が正しい**(取り込みは率の規則を外す段=S2-rates の後。手順は記録 README §7)。
+  〔検収 中-3〕率の規則を外す段(ce52662・既定 off)の後なので、宅配の W2 は engine_stopped=True の宣言で例外に入る。
 - (b) 回答 11-01 §3 の 3 件(宅配 W2・倒れる率 W3・β と E7)の宣言。
 - (c) 疑いの 5 行(routing §6-B)の ``contributes`` を確かめて表にする(記録 README §3-1 の表と同じ値)。
 """
@@ -136,7 +135,7 @@ def test_negative_control_overlap_fails_unless_burned_or_stopped_absence():
 
 
 def test_no_unexpected_circularity(overlaps):
-    """〔中-3〕S2-rates の前は宅配(W2)で落ちるのが正しい=宣言と実装が食い違う。"""
+    """〔中-3〕率の規則を外す前は宅配(W2)で落ちた(宣言と実装が食い違う)。いまは無いの宣言で通る。"""
     found = {(o.subject, o.system, o.pattern_id) for o in overlaps if not o.exempt}
     for o in sorted(found & SUSPECT_OVERLAPS):
         warnings.warn(f"循環の疑い(親が決める): {o}", UserWarning, stacklevel=1)
@@ -145,23 +144,28 @@ def test_no_unexpected_circularity(overlaps):
     assert found == SUSPECT_OVERLAPS, "疑いの重なりが変わった=一覧と記録の表を直す"
 
 
-def test_mismatch_list_is_what_s2_rates_must_resolve(overlaps):
-    """宣言はあるがエンジンがまだ動かしている重なり(中-3)=S2-rates の後に engine_stopped=True にすると消える一覧。"""
-    mism = sorted({(o.subject, o.pattern_id) for o in overlaps if CI.MISMATCH in o.detail})
-    assert mism == [("bridge:DEC-105-parcelDelivery", "W2"), ("world_process:delivery_last_mile", "W2")]
+def test_no_mismatch_after_rate_rules(overlaps):
+    """宣言はあるがエンジンがまだ動かしている重なり(中-3)=率の規則を外す段(ce52662)の後は 0。"""
+    assert sorted({(o.subject, o.pattern_id) for o in overlaps if CI.MISMATCH in o.detail}) == []
 
 
 def test_engine_stopped_flags():
-    """いま True は口が無い判断・採用と解雇・発注だけ。S2-rates の後に True にする 5 件は False(記録 README §7)。"""
+    """True=口が無い判断・採用と解雇・発注と、率の規則(``engine.rate_rules`` の既定 off)で止まった 5 件。
+    まだ動く 5 件(ごみ収集・清掃・道路工事・救急の出動の過程そのもの・電気と水)と納品は False。"""
+    from shibuya.engine import rate_rules as RR
+
     ab = AB.by_id()
-    to_flip = {"absent.parcel_delivery", "absent.collapse", "absent.event_injection", "absent.litter",
-               "absent.discard_unsold"}
-    assert all(not ab[i].engine_stopped for i in to_flip)
+    stopped_by_rate = {"absent.parcel_delivery": "parcels", "absent.collapse": "collapse",
+                       "absent.event_injection": "event_injection", "absent.litter": "litter",
+                       "absent.discard_unsold": "leftover_waste"}
+    assert RR.DEFAULT_MODE == RR.MODE_OFF
+    for aid, rule in stopped_by_rate.items():
+        assert ab[aid].engine_stopped and rule in RR.RULES and rule in ab[aid].engine_now, aid
     still = {"absent.waste_collection", "absent.street_cleaning", "absent.road_works",
              "absent.public_service_dispatch", "absent.power_water", "absent.inbound_delivery"}
     assert all(not ab[i].engine_stopped for i in still)
     assert {a.id for a in AB.ABSENCES if a.engine_stopped} == (
-        {a.id for a in AB.NO_PORT + AB.NO_PORT_EXTRA} - {"absent.collapse"}) | {"absent.hiring_firing", "absent.ordering"}
+        {a.id for a in AB.NO_PORT + AB.NO_PORT_EXTRA} | set(stopped_by_rate) | {"absent.hiring_firing", "absent.ordering"})
 
 
 # ================================================================= (b) 回答 11-01 §3 の 3 件
