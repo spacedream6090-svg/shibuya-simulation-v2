@@ -1,7 +1,7 @@
 # STATUS(索引)
 
-- **現在地(2026-10-25・第339)**: 構築工程 C0〜C8 は一巡(39 万体 × 1 日の実 LLM ラン c7-day-4 を 3 seed・holdout 開封=0/4 NOT PASS・2026-09)。第 0〜7 陣の実装 #87〜#126 が本体 `build/spatial-d102-prep` に着地(版上げ 4 回・小さな版上げ 3 回・全体試験 6,207 passed・CI 緑)。正は [実装の計画 10-12](docs/design/v2-implementation-plan-2026-10-12.md)と [回答 10-25](docs/design/v2-answers-2026-10-25.md)。**実装(src/ の変更)は停止中**(10-25/§0-0)=再開はユーザーの合図「実装を再開」。**実 LLM の手段は 09-22 から無し** → ユーザーの RTX 5070(12 GB)に Qwen3-8B の 4 ビット版を載せて再開する準備中(10-25/§6)。
-- **今の段・次の 1 手(セッションが切れてもここから再開)**: 〔第339・10-25〕今週=回答 10-25 の保存(済 d2a4b59)→ PENDING を 3 区分に(済)・CLAUDE.md §7 の改訂(済)→ 答申 R-A(R-120・R-121)・R-B(R-122)・R-C(R-123)→ 夜間ランの道具 `tools/night5070/`(作業木 `stage/night5070`)→ 2-7 の確認の報告 → 段 0 の取得(10-25/§2-1)→ README「いま」・概要書の数字(10-25/§9)→ **11/5 までに PR #8 を main へ**(src/ の新しい変更は含めない)。合図の後=10-25/§6-1 の 1〜5 → E1 を 5070 で(寝ている間)。
+- **現在地(2026-11-01・第340)**: 構築工程 C0〜C8 は一巡(39 万体 × 1 日の実 LLM ラン c7-day-4 を 3 seed・holdout 開封=0/4 NOT PASS・2026-09)。第 0〜7 陣の実装 #87〜#127 が本体 `build/spatial-d102-prep` に着地(版上げ 4 回・小さな版上げ 3 回・全体試験 6,207 passed)。正は [回答 11-01](docs/design/v2-answers-2026-11-01.md)(A1=知見の 5 区分・錨の量を式に入れない・判断の置き場 112 件・判断モデル第 1 世代は公開重み・検証は全規模)と [指示書 11-01](docs/design/prompt-2026-11-01.md)。**実装(src/)は 2026-11-01 から限定して再開**(段 0〜3・5。段 4=2-7 背圧は D4 の後・E1 はユーザーの合図)。**実 LLM の手段は 09-22 から無し** → ユーザーの RTX 5070(12 GB)に Qwen3-8B の 4 ビット版を載せて試走 E1 と判断モデルの比較に使う(検証は 35 万体をクラウドで=E 系列の組み直し)。
+- **今の段・次の 1 手(セッションが切れてもここから再開)**: 〔第340・11-01〕添付 6 本の保存(済 fc1b44b)→ 文書の改訂(CLAUDE.md §4・用語集 2-14・決定台帳・索引・README=済 fc1b44b)→ **並行の作業木 5 本**(`stage/n5070-1101`=試走と安全の検査/`stage/dmeval-1101`=消費の場面と比較の列/`stage/leak-1101`=漏洩の検査の器/`stage/ledger-1101`=錨の台帳の 2 列/`stage/eseries-1101`=E 系列の組み直し)と研究 5 本(R-124〜R-128)→ 検収と取り込み → **11/5 までに PR #8 を main へ**(文書だけ)→ 段 2(台帳と循環・小さな src)→ WSL の導入(最後・再起動)→ 完了の条件 1〜7 → 段 3(段 1 の比較の後)。
 - **版上げの履歴とタグ(戻し方つき・10-13b/§0-6・§0-7)**:
 
 | 回 | 何 | 取り込み | 安定版のタグ(直前の commit) | 戻し方 |
@@ -18,11 +18,11 @@
 
 - 進捗の目安: v2 初版(C0〜C8)≈ 70% / 第一目標「世界そのものがプロダクト」≈ 3 割(第126 の見積り・据え置き)。
 - **判断待ち・実装待ち・研究の題**: [PENDING.md](PENDING.md)(第339 に 3 区分へ組み直し。旧の形は [pending-archive-2026-10-25.md](docs/log/pending-archive-2026-10-25.md)・[pending-archive-2026-09-28.md](docs/log/pending-archive-2026-09-28.md))
-- 完了実装: [IMPLEMENTED.md](IMPLEMENTED.md)(#1〜#126)・運用の道具: `tools/realworld_fetch/`(日次の現実データ・検証専用)・`tools/night5070/`(5070 の夜間ラン=第339 で作成中)
+- 完了実装: [IMPLEMENTED.md](IMPLEMENTED.md)(#1〜#127)・運用の道具: `tools/realworld_fetch/`(日次の現実データ・検証専用)・`tools/night5070/`(5070 の夜間ラン=#127・第340 で試走と安全の検査を追加中)・`tools/instruments/dm_eval/`(判断モデルの評価の器)
 - 正典: 決定台帳 [v2-redesign.md](docs/design/v2-redesign.md)・方法論 [v2-methodology.md](docs/design/v2-methodology.md)・用語集 [v2-glossary.md](docs/design/v2-glossary.md)・決定の ID の索引 [decision-id-index.md](docs/design/decision-id-index.md)
-- 壁打ちの決定の原文: [回答 10-25](docs/design/v2-answers-2026-10-25.md)(最新・決定/仮決定/研究の題の 3 区分)・[回答 10-13b](docs/design/v2-answers-2026-10-13b.md)(自律運転の規則)・[指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md)。エンジンが決めている 55 件の 3 群=[一覧](docs/bench/analysis/wallbounce-1006/agentless-outcomes-inventory.md)
+- 壁打ちの決定の原文: [回答 11-01](docs/design/v2-answers-2026-11-01.md)(最新・A1・すべて仮決定)+[指示書 11-01](docs/design/prompt-2026-11-01.md)・[指示書 11-01 5070](docs/design/prompt-2026-11-01-5070.md)・根拠 3 本は [docs/reference/](docs/reference/)・[回答 10-25](docs/design/v2-answers-2026-10-25.md)(決定/仮決定/研究の題の 3 区分)・[回答 10-13b](docs/design/v2-answers-2026-10-13b.md)(自律運転の規則)・[指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md)。エンジンが決めている 55 件の 3 群=[一覧](docs/bench/analysis/wallbounce-1006/agentless-outcomes-inventory.md)
 - リサーチ: 索引 [INDEX.md](docs/research/INDEX.md)・残務 [research-backlog.md](docs/research/research-backlog.md)・分野地図 [v2-discipline-map.md](docs/research/v2-discipline-map.md)。参照用の凍結(ChatGPT の要約 2 本・10-25)は [docs/reference/](docs/reference/)
 - 受入報告: [C5](docs/ops/build-report-C5.md)・[C6](docs/ops/build-report-C6.md)・[C7](docs/ops/build-report-C7.md)・[C8](docs/ops/build-report-C8.md)
 - 開発ログ: [docs/log/devlog.md](docs/log/devlog.md)(第1〜330 は [devlog-compressed.md](docs/log/devlog-compressed.md) へ圧縮済み)
-- ブランチ/PR: main は PR #7 まで(f9a3c97・2026-09-30)。作業ブランチ `build/spatial-d102-prep`(PR #8 OPEN・main より 244 commit 先=11/5 までに 1 回で取り込む)。
-- 最終更新: 2026-10-25(第339 回答 10-25 の反映=PENDING の 3 区分・CLAUDE.md §7・版上げの履歴の表)
+- ブランチ/PR: main は PR #7 まで(f9a3c97・2026-09-30)。作業ブランチ `build/spatial-d102-prep`(PR #8 OPEN・11/5 までに 1 回で取り込む=文書だけ・src/ の新しい変更は含めない)。
+- 最終更新: 2026-11-01(第340 回答 11-01 の反映=実装の限定の再開・作業木 5 本と研究 5 本の並行)
