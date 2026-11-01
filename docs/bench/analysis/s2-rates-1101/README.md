@@ -136,6 +136,8 @@ src の中で `economy/pricing.py` の Calvo の口(`calvo_draw`・`calvo_daily_
 | `test_classical_social.py::test_run_golden_and_arms` | `CLASSICAL_1500_GOLDEN_ACQ`(final/呼数) | `c56b731cc9b70f4a…53cc4`/23,917 | `9219b4a3810a1388…1ff01`/25,632 |
 | `test_relations_tenure.py::test_relations_on_arm_golden_old_and_new` | `REL_ON_5000_GOLDEN` の (v2, behavior) | `8db3f95a61228c92`/63,710 | `140f365398ad4172`/64,500 |
 | `proximity/test_runs.py::test_cell_arm_equals_the_head_golden` | `HEAD_GOLDEN`(final/呼数) | `2b342b34994d1963…ea90a6`/2,422 | `6acaa4cea49d0990…778707`/2,651 |
+| `tests/perception/test_near_tiebreak.py::test_classical_checkpoint_with_the_default_hash_order`〔親が全体試験で発見=範囲の外〕 | 古典 1,500 体の `CLASSICAL_1500_GOLDEN`(final/呼数) | `fa919b1afc932eef…48f1b`/24,734 | `7d4e9f985a7bf70e…0a177`/26,536 |
+| `tests/perception/facts/test_percept_schema.py::test_run_manifest_has_the_percept_section`〔同上〕 | manifest の末尾の鍵の並び | 末尾に `rate_rules` を足した 13 鍵 | 12 鍵 |
 
 前の値は、更新の前に `SHIBUYA_RATE_RULES=legacy` で 13 本(nav1 は 3 本)を回して全部通った(3 分 11 秒)=前の値が legacy で再現することを確かめてから更新した。新しい値は off の 5,000 体のラン(帰無腕・空腹 v1・l4×1・k19 の 6 構成)を回して集め、t7・nav1・classical・関係・近接はランの値(落ちたときの値)を使った。
 
@@ -144,6 +146,8 @@ src の中で `economy/pricing.py` の Calvo の口(`calvo_draw`・`calvo_daily_
 性能の 2 本(`test_change_detect_p6.py::test_p6_change_detection_under_2ms_at_400k_agents`=4.0 ms/刻み > 2 ms・`test_geometry_c9.py::test_p2_edge_geometry_under_300ms_at_400k_agents`=332 ms/刻み > 300 ms)は 10 並列の負荷で落ちた。単独で回すと本段と土台のどちらも通った(2 passed・35.5 秒と 35.7 秒)=本段の変更とは無関係。
 
 設定の節の道筋の指紋 `CONFIG_PATHS_SHA256` は、〔検収 M1〕で `waste_sink.band_na` が設定の節に足されたので `fc5174c7…3308fca73` に改めた(土台との差=`attendance_rate` が消え `rate_rules.mode/removed/rules/schema` と `waste_sink.band_na` が足されただけ=一覧の diff で確かめた)。
+
+〔親の注・第340〕上の 2 本は率の規則の段の範囲(tests/engine tests/economy tests/c8 tests/tools)の外で、本体の全体試験(6,368 passed・2 failed)で見つかった。版上げの範囲には tests/perception を含める(メモリ parallel-stage-pipeline の第337 の追記のとおり)。
 
 ### 5-4 最終の全体試験
 
