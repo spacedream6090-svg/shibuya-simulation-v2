@@ -1,0 +1,98 @@
+{
+ "timetable": {
+  "SaturdayHoliday": {
+   "departures": 2914,
+   "lines": 8,
+   "by_band": {
+    "deep_0_6": 85,
+    "morning_6_10": 600,
+    "late_morning_10_11": 176,
+    "noon_11_14": 510,
+    "afternoon_14_17": 518,
+    "evening_17_23": 924,
+    "late_23_24": 101
+   },
+   "by_hour": [
+    35,
+    0,
+    0,
+    0,
+    3,
+    47,
+    102,
+    151,
+    169,
+    178,
+    176,
+    168,
+    171,
+    171,
+    171,
+    172,
+    175,
+    181,
+    176,
+    160,
+    153,
+    134,
+    120,
+    101
+   ]
+  },
+  "Weekday": {
+   "departures": 3359,
+   "lines": 8,
+   "by_band": {
+    "deep_0_6": 92,
+    "morning_6_10": 840,
+    "late_morning_10_11": 183,
+    "noon_11_14": 493,
+    "afternoon_14_17": 504,
+    "evening_17_23": 1133,
+    "late_23_24": 114
+   },
+   "by_hour": [
+    36,
+    0,
+    0,
+    0,
+    3,
+    53,
+    125,
+    217,
+    278,
+    220,
+    183,
+    167,
+    162,
+    164,
+    162,
+    166,
+    176,
+    212,
+    219,
+    200,
+    188,
+    167,
+    147,
+    114
+   ]
+  }
+ },
+ "poi_columns": [
+  "poi_id",
+  "name",
+  "cat",
+  "subcat",
+  "floor",
+  "building_id",
+  "node_id",
+  "x",
+  "y",
+  "place_id",
+  "band"
+ ],
+ "poi_rows": 2337,
+ "poi_open_cols": [],
+ "poi_close_cols": []
+}

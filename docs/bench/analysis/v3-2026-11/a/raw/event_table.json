@@ -1,0 +1,207 @@
+{
+ "N": 345858,
+ "scale": 69.1716,
+ "bands": {
+  "deep_0_6": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5
+  ],
+  "morning_6_10": [
+   6,
+   7,
+   8,
+   9
+  ],
+  "noon_11_14": [
+   11,
+   12,
+   13
+  ],
+  "evening_17_23": [
+   17,
+   18,
+   19,
+   20,
+   21,
+   22
+  ],
+  "other_10_11_14_17_23_24": [
+   10,
+   14,
+   15,
+   16,
+   23
+  ]
+ },
+ "rows": {
+  "area_enter_W17": {
+   "deep_0_6": 5587,
+   "morning_6_10": 181524,
+   "noon_11_14": 13730,
+   "evening_17_23": 58375,
+   "other_10_11_14_17_23_24": 28870,
+   "total": 288086
+  },
+  "area_leave_W17": {
+   "deep_0_6": 2038,
+   "morning_6_10": 36487,
+   "noon_11_14": 15872,
+   "evening_17_23": 177343,
+   "other_10_11_14_17_23_24": 57589,
+   "total": 289329
+  },
+  "plan_block_boundaries_W17": {
+   "deep_0_6": 66909,
+   "morning_6_10": 859302,
+   "noon_11_14": 285441,
+   "evening_17_23": 1099188,
+   "other_10_11_14_17_23_24": 418000,
+   "total": 2728840
+  },
+  "walk_arrivals_mock_x69": {
+   "deep_0_6": 10860,
+   "morning_6_10": 237397,
+   "noon_11_14": 258218,
+   "evening_17_23": 310719,
+   "other_10_11_14_17_23_24": 321440,
+   "total": 1138634
+  },
+  "llm_calls_mock_x69": {
+   "deep_0_6": 52432,
+   "morning_6_10": 1001328,
+   "noon_11_14": 842510,
+   "evening_17_23": 1302778,
+   "other_10_11_14_17_23_24": 1024985,
+   "total": 4224033
+  },
+  "llm_calls_scheduled_planclass_mock_x69": {
+   "deep_0_6": 39566,
+   "morning_6_10": 595775,
+   "noon_11_14": 411156,
+   "evening_17_23": 829713,
+   "other_10_11_14_17_23_24": 547977,
+   "total": 2424188
+  },
+  "llm_calls_reactive_individual_mock_x69": {
+   "deep_0_6": 11482,
+   "morning_6_10": 288930,
+   "noon_11_14": 301657,
+   "evening_17_23": 316045,
+   "other_10_11_14_17_23_24": 348971,
+   "total": 1267085
+  },
+  "llm_calls_reactive_cell_mock_x69": {
+   "deep_0_6": 761,
+   "morning_6_10": 66059,
+   "noon_11_14": 95388,
+   "evening_17_23": 102581,
+   "other_10_11_14_17_23_24": 79132,
+   "total": 343921
+  },
+  "llm_calls_conversation_turn_mock_x69": {
+   "deep_0_6": 623,
+   "morning_6_10": 50564,
+   "noon_11_14": 34309,
+   "evening_17_23": 54438,
+   "other_10_11_14_17_23_24": 48904,
+   "total": 188838
+  },
+  "responses_applied_mock_x69": {
+   "deep_0_6": 52432,
+   "morning_6_10": 1001328,
+   "noon_11_14": 842510,
+   "evening_17_23": 1302778,
+   "other_10_11_14_17_23_24": 1024985,
+   "total": 4224033
+  },
+  "conversation_acts_mock_x69": {
+   "deep_0_6": 623,
+   "morning_6_10": 43371,
+   "noon_11_14": 31196,
+   "evening_17_23": 46898,
+   "other_10_11_14_17_23_24": 40673,
+   "total": 162761
+  },
+  "conversations_opened_mock_x69": {
+   "deep_0_6": 0,
+   "morning_6_10": 2905,
+   "noon_11_14": 1937,
+   "evening_17_23": 3389,
+   "other_10_11_14_17_23_24": 2629,
+   "total": 10860
+  },
+  "purchases_mock_x69": {
+   "deep_0_6": 2698,
+   "morning_6_10": 57966,
+   "noon_11_14": 79617,
+   "evening_17_23": 84597,
+   "other_10_11_14_17_23_24": 88332,
+   "total": 313209
+  },
+  "intents_mock_x69": {
+   "deep_0_6": 136614,
+   "morning_6_10": 2872973,
+   "noon_11_14": 2696101,
+   "evening_17_23": 3749170,
+   "other_10_11_14_17_23_24": 3332619,
+   "total": 12787477
+  },
+  "wake_candidates_system1_mock_x69": {
+   "deep_0_6": 1385784,
+   "morning_6_10": 2902371,
+   "noon_11_14": 1874412,
+   "evening_17_23": 3916219,
+   "other_10_11_14_17_23_24": 2451096,
+   "total": 12529882
+  },
+  "walker_ticks_mock_x69": {
+   "deep_0_6": 79340,
+   "morning_6_10": 1768510,
+   "noon_11_14": 1704388,
+   "evening_17_23": 2295252,
+   "other_10_11_14_17_23_24": 2126958,
+   "total": 7974448
+  },
+  "train_departures_weekday_W12": {
+   "deep_0_6": 92,
+   "morning_6_10": 840,
+   "noon_11_14": 493,
+   "evening_17_23": 1133,
+   "other_10_11_14_17_23_24": 801,
+   "total": 3359
+  },
+  "shop_open_W7_monday": {
+   "deep_0_6": 0,
+   "morning_6_10": 430,
+   "noon_11_14": 1223,
+   "evening_17_23": 283,
+   "other_10_11_14_17_23_24": 184,
+   "total": 2120
+  },
+  "shop_close_W7_monday": {
+   "deep_0_6": 300,
+   "morning_6_10": 5,
+   "noon_11_14": 1,
+   "evening_17_23": 1136,
+   "other_10_11_14_17_23_24": 678,
+   "total": 2120
+  },
+  "signal_changes_assumed": {
+   "deep_0_6": 112320,
+   "morning_6_10": 74880,
+   "noon_11_14": 56160,
+   "evening_17_23": 112320,
+   "other_10_11_14_17_23_24": 93600,
+   "total": 449280
+  }
+ },
+ "signal_assumption": {
+  "points": 208,
+  "cycle_s": 120,
+  "changes_per_cycle": 3
+ }
+}

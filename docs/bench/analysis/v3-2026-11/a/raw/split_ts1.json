@@ -1,0 +1,306 @@
+{
+ "runs": [
+  {
+   "label": "n5000_ts1_h0",
+   "agents": 5000,
+   "ticks": 3600,
+   "idle_ticks": 2,
+   "systems": {
+    "activity_intent": {
+     "total_s": 0.5635,
+     "ms_per_tick": 0.1565,
+     "fixed_ms_per_tick": 0.0874,
+     "fixed_share": 0.5583,
+     "floor_ms_idle_median": 0.0148,
+     "coef_ms_per_event": {
+      "calls": 9.4e-05,
+      "intents": 0.000264
+     }
+    },
+    "apply_responses": {
+     "total_s": 1.4011,
+     "ms_per_tick": 0.3892,
+     "fixed_ms_per_tick": 0.1262,
+     "fixed_share": 0.3242,
+     "floor_ms_idle_median": 0.0178,
+     "coef_ms_per_event": {
+      "calls": 0.000862,
+      "intents": 0.000556,
+      "purchases": 0.212337
+     }
+    },
+    "arbiter": {
+     "total_s": 0.4574,
+     "ms_per_tick": 0.1271,
+     "fixed_ms_per_tick": 0.0877,
+     "fixed_share": 0.6899,
+     "floor_ms_idle_median": 0.042,
+     "coef_ms_per_event": {
+      "calls": 0.001113,
+      "intents": 0.000103,
+      "purchases": 0.001785
+     }
+    },
+    "body": {
+     "total_s": 0.5788,
+     "ms_per_tick": 0.1608,
+     "fixed_ms_per_tick": 0.1499,
+     "fixed_share": 0.9324,
+     "floor_ms_idle_median": 0.1436,
+     "coef_ms_per_event": {
+      "calls": 0.000185,
+      "intents": 3.4e-05
+     }
+    },
+    "checkpoint": {
+     "total_s": 0.1166,
+     "ms_per_tick": 0.0324,
+     "fixed_ms_per_tick": 0.0301,
+     "fixed_share": 0.9296,
+     "floor_ms_idle_median": 0.0052,
+     "coef_ms_per_event": {
+      "moved": 9e-06
+     }
+    },
+    "close_final": {
+     "total_s": 0.0,
+     "ms_per_tick": 0.0,
+     "fixed_ms_per_tick": 0.0,
+     "fixed_share": 0.0,
+     "floor_ms_idle_median": 0.0,
+     "coef_ms_per_event": {}
+    },
+    "conversation": {
+     "total_s": 0.1978,
+     "ms_per_tick": 0.0549,
+     "fixed_ms_per_tick": 0.0198,
+     "fixed_share": 0.3603,
+     "floor_ms_idle_median": 0.0159,
+     "coef_ms_per_event": {
+      "calls": 0.000252,
+      "intents": 6.3e-05,
+      "purchases": 0.005116,
+      "conversations": 0.038296
+     }
+    },
+    "decide": {
+     "total_s": 16.1179,
+     "ms_per_tick": 4.4772,
+     "fixed_ms_per_tick": 0.0824,
+     "fixed_share": 0.0184,
+     "floor_ms_idle_median": 0.0111,
+     "coef_ms_per_event": {
+      "calls": 0.403933,
+      "moved": 0.000418,
+      "arrived": 0.008272,
+      "purchases": 0.047621
+     }
+    },
+    "detect": {
+     "total_s": 0.7827,
+     "ms_per_tick": 0.2174,
+     "fixed_ms_per_tick": 0.2032,
+     "fixed_share": 0.9347,
+     "floor_ms_idle_median": 0.1627,
+     "coef_ms_per_event": {
+      "calls": 0.000284,
+      "intents": 4.3e-05,
+      "arrived": 0.000572
+     }
+    },
+    "drain": {
+     "total_s": 0.0,
+     "ms_per_tick": 0.0,
+     "fixed_ms_per_tick": 0.0,
+     "fixed_share": 0.0,
+     "floor_ms_idle_median": 0.0,
+     "coef_ms_per_event": {}
+    },
+    "energy_after": {
+     "total_s": 0.2427,
+     "ms_per_tick": 0.0674,
+     "fixed_ms_per_tick": 0.0549,
+     "fixed_share": 0.8147,
+     "floor_ms_idle_median": 0.0518,
+     "coef_ms_per_event": {
+      "calls": 4.1e-05,
+      "intents": 4.6e-05,
+      "arrived": 0.000323
+     }
+    },
+    "llm_receive": {
+     "total_s": 0.0325,
+     "ms_per_tick": 0.009,
+     "fixed_ms_per_tick": 0.0083,
+     "fixed_share": 0.9215,
+     "floor_ms_idle_median": 0.009,
+     "coef_ms_per_event": {
+      "calls": 0.0,
+      "intents": 3e-06
+     }
+    },
+    "memory": {
+     "total_s": 0.0237,
+     "ms_per_tick": 0.0066,
+     "fixed_ms_per_tick": 0.006,
+     "fixed_share": 0.9125,
+     "floor_ms_idle_median": 0.0045,
+     "coef_ms_per_event": {
+      "calls": 5e-06,
+      "moved": 2e-06,
+      "purchases": 8.2e-05,
+      "conversations": 7.4e-05
+     }
+    },
+    "observe": {
+     "total_s": 1.3875,
+     "ms_per_tick": 0.3854,
+     "fixed_ms_per_tick": 0.2133,
+     "fixed_share": 0.5534,
+     "floor_ms_idle_median": 0.1108,
+     "coef_ms_per_event": {
+      "calls": 0.000169,
+      "intents": 0.000645,
+      "arrived": 0.012044
+     }
+    },
+    "perceive_prepare": {
+     "total_s": 7.649,
+     "ms_per_tick": 2.1247,
+     "fixed_ms_per_tick": 1.8205,
+     "fixed_share": 0.8568,
+     "floor_ms_idle_median": 0.4651,
+     "coef_ms_per_event": {
+      "calls": 0.00059,
+      "intents": 0.001048,
+      "arrived": 0.086324
+     }
+    },
+    "phase_a": {
+     "total_s": 0.4588,
+     "ms_per_tick": 0.1275,
+     "fixed_ms_per_tick": 0.0894,
+     "fixed_share": 0.7013,
+     "floor_ms_idle_median": 0.0544,
+     "coef_ms_per_event": {
+      "calls": 0.000198,
+      "intents": 0.000136,
+      "arrived": 0.002594
+     }
+    },
+    "phase_b": {
+     "total_s": 0.2333,
+     "ms_per_tick": 0.0648,
+     "fixed_ms_per_tick": 0.0338,
+     "fixed_share": 0.5216,
+     "floor_ms_idle_median": 0.0116,
+     "coef_ms_per_event": {
+      "calls": 0.000127,
+      "intents": 9.7e-05,
+      "purchases": 0.008716
+     }
+    },
+    "phase_c": {
+     "total_s": 11.7715,
+     "ms_per_tick": 3.2699,
+     "fixed_ms_per_tick": 0.9669,
+     "fixed_share": 0.2957,
+     "floor_ms_idle_median": 0.3344,
+     "coef_ms_per_event": {
+      "calls": 0.015069,
+      "intents": 0.008299
+     }
+    },
+    "plan_boundary": {
+     "total_s": 0.1342,
+     "ms_per_tick": 0.0373,
+     "fixed_ms_per_tick": 0.018,
+     "fixed_share": 0.482,
+     "floor_ms_idle_median": 0.0567,
+     "coef_ms_per_event": {
+      "calls": 0.000348,
+      "intents": 5.9e-05,
+      "arrived": 0.00142
+     }
+    },
+    "presence": {
+     "total_s": 0.2307,
+     "ms_per_tick": 0.0641,
+     "fixed_ms_per_tick": 0.0202,
+     "fixed_share": 0.3151,
+     "floor_ms_idle_median": 0.0734,
+     "coef_ms_per_event": {
+      "calls": 0.000395,
+      "intents": 0.000153,
+      "purchases": 0.000556
+     }
+    },
+    "report": {
+     "total_s": 0.0,
+     "ms_per_tick": 0.0,
+     "fixed_ms_per_tick": 0.0,
+     "fixed_share": 0.0,
+     "floor_ms_idle_median": 0.0,
+     "coef_ms_per_event": {}
+    },
+    "wake_assemble": {
+     "total_s": 0.0816,
+     "ms_per_tick": 0.0227,
+     "fixed_ms_per_tick": 0.0223,
+     "fixed_share": 0.9859,
+     "floor_ms_idle_median": 0.0225,
+     "coef_ms_per_event": {
+      "calls": 1.9e-05,
+      "moved": 0.0,
+      "purchases": 4.3e-05
+     }
+    },
+    "wake_filter": {
+     "total_s": 0.0514,
+     "ms_per_tick": 0.0143,
+     "fixed_ms_per_tick": 0.0141,
+     "fixed_share": 0.9841,
+     "floor_ms_idle_median": 0.0149,
+     "coef_ms_per_event": {
+      "calls": 2e-06,
+      "intents": 1e-06,
+      "arrived": 7.2e-05
+     }
+    },
+    "wake_sources": {
+     "total_s": 0.0568,
+     "ms_per_tick": 0.0158,
+     "fixed_ms_per_tick": 0.0145,
+     "fixed_share": 0.919,
+     "floor_ms_idle_median": 0.0159,
+     "coef_ms_per_event": {
+      "calls": 9e-06,
+      "moved": 4e-06,
+      "arrived": 0.000142,
+      "purchases": 0.000155
+     }
+    },
+    "world": {
+     "total_s": 1.1301,
+     "ms_per_tick": 0.3139,
+     "fixed_ms_per_tick": 0.2474,
+     "fixed_share": 0.7882,
+     "floor_ms_idle_median": 0.3772,
+     "coef_ms_per_event": {
+      "calls": 0.000409,
+      "intents": 0.000241
+     }
+    }
+   },
+   "sum_total_s": 43.7,
+   "sum_fixed_s": 15.539,
+   "fixed_share": 0.3556,
+   "sum_fixed_ms_per_tick": 4.316,
+   "sum_ms_per_tick": 12.139,
+   "tick_sum_idle_median_ms": 2.015,
+   "tick_sum_p50_ms": 4.573,
+   "tick_sum_max_ms": 247.156
+  }
+ ],
+ "fixed_vs_N": {}
+}

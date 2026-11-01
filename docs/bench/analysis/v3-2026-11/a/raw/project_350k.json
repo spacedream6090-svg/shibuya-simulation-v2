@@ -1,0 +1,252 @@
+{
+ "N": 345858,
+ "rows": [
+  {
+   "system": "decide",
+   "ms_per_tick_5k": 18.179,
+   "fixed_5k": 0.154,
+   "event_5k": 18.025,
+   "floor_idle_5k": 0.0093,
+   "fixed_share_5k": 0.0085,
+   "fixed_N": 5.7,
+   "event_N": 1246.8,
+   "event_N_c7rate": 708.7
+  },
+  {
+   "system": "phase_c",
+   "ms_per_tick_5k": 8.453,
+   "fixed_5k": 1.11,
+   "event_5k": 7.343,
+   "floor_idle_5k": 0.317,
+   "fixed_share_5k": 0.1313,
+   "fixed_N": 45.8,
+   "event_N": 507.9,
+   "event_N_c7rate": 507.9
+  },
+  {
+   "system": "perceive_prepare",
+   "ms_per_tick_5k": 2.581,
+   "fixed_5k": 1.209,
+   "event_5k": 1.373,
+   "floor_idle_5k": 0.7025,
+   "fixed_share_5k": 0.4683,
+   "fixed_N": 51.8,
+   "event_N": 94.9,
+   "event_N_c7rate": 94.9
+  },
+  {
+   "system": "apply_responses",
+   "ms_per_tick_5k": 1.318,
+   "fixed_5k": 0.339,
+   "event_5k": 0.979,
+   "floor_idle_5k": 0.0115,
+   "fixed_share_5k": 0.257,
+   "fixed_N": 10.6,
+   "event_N": 67.7,
+   "event_N_c7rate": 67.7
+  },
+  {
+   "system": "world",
+   "ms_per_tick_5k": 0.608,
+   "fixed_5k": 0.368,
+   "event_5k": 0.24,
+   "floor_idle_5k": 0.1324,
+   "fixed_share_5k": 0.6046,
+   "fixed_N": 4.5,
+   "event_N": 16.6,
+   "event_N_c7rate": 16.6
+  },
+  {
+   "system": "activity_intent",
+   "ms_per_tick_5k": 0.362,
+   "fixed_5k": 0.127,
+   "event_5k": 0.236,
+   "floor_idle_5k": 0.023,
+   "fixed_share_5k": 0.3496,
+   "fixed_N": 3.3,
+   "event_N": 16.3,
+   "event_N_c7rate": 16.3
+  },
+  {
+   "system": "detect",
+   "ms_per_tick_5k": 0.297,
+   "fixed_5k": 0.251,
+   "event_5k": 0.046,
+   "floor_idle_5k": 0.1966,
+   "fixed_share_5k": 0.8449,
+   "fixed_N": 3.2,
+   "event_N": 3.2,
+   "event_N_c7rate": 3.2
+  },
+  {
+   "system": "observe",
+   "ms_per_tick_5k": 0.271,
+   "fixed_5k": 0.169,
+   "event_5k": 0.102,
+   "floor_idle_5k": 0.0986,
+   "fixed_share_5k": 0.6231,
+   "fixed_N": 7.1,
+   "event_N": 7.1,
+   "event_N_c7rate": 7.1
+  },
+  {
+   "system": "arbiter",
+   "ms_per_tick_5k": 0.242,
+   "fixed_5k": 0.175,
+   "event_5k": 0.067,
+   "floor_idle_5k": 0.075,
+   "fixed_share_5k": 0.7219,
+   "fixed_N": 5.4,
+   "event_N": 4.7,
+   "event_N_c7rate": 4.7
+  },
+  {
+   "system": "body",
+   "ms_per_tick_5k": 0.239,
+   "fixed_5k": 0.156,
+   "event_5k": 0.082,
+   "floor_idle_5k": 0.1291,
+   "fixed_share_5k": 0.6555,
+   "fixed_N": 4.8,
+   "event_N": 5.7,
+   "event_N_c7rate": 5.7
+  },
+  {
+   "system": "phase_a",
+   "ms_per_tick_5k": 0.205,
+   "fixed_5k": 0.121,
+   "event_5k": 0.084,
+   "floor_idle_5k": 0.0488,
+   "fixed_share_5k": 0.5914,
+   "fixed_N": 3.4,
+   "event_N": 5.8,
+   "event_N_c7rate": 5.8
+  },
+  {
+   "system": "conversation",
+   "ms_per_tick_5k": 0.178,
+   "fixed_5k": 0.019,
+   "event_5k": 0.159,
+   "floor_idle_5k": 0.0137,
+   "fixed_share_5k": 0.1044,
+   "fixed_N": 0.3,
+   "event_N": 11.0,
+   "event_N_c7rate": 11.0
+  },
+  {
+   "system": "presence",
+   "ms_per_tick_5k": 0.173,
+   "fixed_5k": 0.072,
+   "event_5k": 0.101,
+   "floor_idle_5k": 0.0117,
+   "fixed_share_5k": 0.4169,
+   "fixed_N": 3.2,
+   "event_N": 7.0,
+   "event_N_c7rate": 7.0
+  },
+  {
+   "system": "phase_b",
+   "ms_per_tick_5k": 0.128,
+   "fixed_5k": 0.069,
+   "event_5k": 0.059,
+   "floor_idle_5k": 0.0103,
+   "fixed_share_5k": 0.5416,
+   "fixed_N": 3.0,
+   "event_N": 4.1,
+   "event_N_c7rate": 4.1
+  },
+  {
+   "system": "energy_after",
+   "ms_per_tick_5k": 0.091,
+   "fixed_5k": 0.067,
+   "event_5k": 0.023,
+   "floor_idle_5k": 0.051,
+   "fixed_share_5k": 0.7435,
+   "fixed_N": 3.1,
+   "event_N": 1.6,
+   "event_N_c7rate": 1.6
+  },
+  {
+   "system": "plan_boundary",
+   "ms_per_tick_5k": 0.077,
+   "fixed_5k": 0.057,
+   "event_5k": 0.02,
+   "floor_idle_5k": 0.0079,
+   "fixed_share_5k": 0.7441,
+   "fixed_N": 2.2,
+   "event_N": 1.4,
+   "event_N_c7rate": 1.4
+  },
+  {
+   "system": "checkpoint",
+   "ms_per_tick_5k": 0.035,
+   "fixed_5k": 0.035,
+   "event_5k": 0.0,
+   "floor_idle_5k": 0.0042,
+   "fixed_share_5k": 1.0,
+   "fixed_N": 1.9,
+   "event_N": 0.0,
+   "event_N_c7rate": 0.0
+  },
+  {
+   "system": "wake_assemble",
+   "ms_per_tick_5k": 0.024,
+   "fixed_5k": 0.022,
+   "event_5k": 0.002,
+   "floor_idle_5k": 0.0194,
+   "fixed_share_5k": 0.919,
+   "fixed_N": 0.0,
+   "event_N": 0.1,
+   "event_N_c7rate": 0.1
+  },
+  {
+   "system": "wake_sources",
+   "ms_per_tick_5k": 0.018,
+   "fixed_5k": 0.014,
+   "event_5k": 0.004,
+   "floor_idle_5k": 0.0122,
+   "fixed_share_5k": 0.7809,
+   "fixed_N": 0.1,
+   "event_N": 0.3,
+   "event_N_c7rate": 0.3
+  },
+  {
+   "system": "wake_filter",
+   "ms_per_tick_5k": 0.015,
+   "fixed_5k": 0.014,
+   "event_5k": 0.001,
+   "floor_idle_5k": 0.0126,
+   "fixed_share_5k": 0.9285,
+   "fixed_N": 0.0,
+   "event_N": 0.1,
+   "event_N_c7rate": 0.1
+  },
+  {
+   "system": "llm_receive",
+   "ms_per_tick_5k": 0.01,
+   "fixed_5k": 0.008,
+   "event_5k": 0.002,
+   "floor_idle_5k": 0.0068,
+   "fixed_share_5k": 0.8058,
+   "fixed_N": 0.1,
+   "event_N": 0.1,
+   "event_N_c7rate": 0.1
+  },
+  {
+   "system": "memory",
+   "ms_per_tick_5k": 0.008,
+   "fixed_5k": 0.007,
+   "event_5k": 0.001,
+   "floor_idle_5k": 0.0043,
+   "fixed_share_5k": 0.8462,
+   "fixed_N": 0.1,
+   "event_N": 0.1,
+   "event_N_c7rate": 0.1
+  }
+ ],
+ "total_fixed_N_ms": 159.6,
+ "total_event_N_ms": 2002.5,
+ "total_event_N_c7rate_ms": 1464.3,
+ "fixed_share_N": 0.0738,
+ "fixed_share_N_c7rate": 0.0983
+}
