@@ -1333,7 +1333,7 @@ def main(argv: list[str] | None = None) -> int:
         choices=("m0", "m1"),
         default=None,
         help="第 6 期 6-5 記憶の強さの式の腕(既定 m0=今の式・環境変数 SHIBUYA_MEMORY_MODEL と同じ。指定すれば環境変数より強い)。"
-             "m1=ACT-R の折衷形(時刻は秒・+1 なし・最短の符号化時間・忘れる速さの人ごとのばらつき 15%・境目 τ は仮の値)。"
+             "m1=ACT-R の折衷形(時刻は秒・+1 なし・最短の符号化時間・忘れる速さの人ごとのばらつき 15%%・境目 τ は仮の値)。"
              "--memory-store events のランだけ効く(記憶 off のランで立てると止める・結果を変える腕=ランの種類は腕・manifest の"
              "設定の節 memory_summary.mr65_arms と設定の指紋に入る・計器は memory_summary.memory_store.mr65)",
     )
