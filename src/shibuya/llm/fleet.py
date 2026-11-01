@@ -79,6 +79,7 @@ from __future__ import annotations
 import asyncio
 import json
 import math
+import os
 import re
 import threading
 import time
@@ -736,6 +737,17 @@ class _FatalHTTP(Exception):
     """再試行しない HTTP 応答(4xx・本文不正)。"""
 
 
+#: 艦隊の API key を受け取る環境変数(tools/night5070 が艦隊を立てるときに子の環境に入れる)。
+#: 空か無ければヘッダを付けない(既定=これまでと同じ要求)。値はログにも manifest にも書かない。
+FLEET_API_KEY_ENV: Final[str] = "SHIBUYA_FLEET_API_KEY"
+
+
+def fleet_auth_headers() -> dict[str, str] | None:
+    """``SHIBUYA_FLEET_API_KEY`` が空でなければ ``Authorization: Bearer <値>``。無ければ None。"""
+    key = os.environ.get(FLEET_API_KEY_ENV, "").strip()
+    return {"Authorization": f"Bearer {key}"} if key else None
+
+
 #: 「接続エラー」= §7 の再試行対象(同一レプリカ1回→別レプリカ1回)。
 #: ``httpx.NetworkError`` が Connect/Read/Write/Close の親・``PoolTimeout``/``ConnectTimeout`` は
 #: 「繋がらなかった」側なので**タイムアウトではなく接続エラー**に入れる(expedient)。
@@ -893,10 +905,12 @@ class FleetClient:
             pool=cfg.e2e_timeout_s,
         )
         self._replicas = []
+        headers = fleet_auth_headers()
         for i, ep in enumerate(cfg.endpoints):
             transport = self._transport_factory(ep) if self._transport_factory is not None else None
             client = httpx.AsyncClient(
-                base_url=ep.rstrip("/"), limits=limits, timeout=timeout, transport=transport
+                base_url=ep.rstrip("/"), limits=limits, timeout=timeout, transport=transport,
+                headers=headers,
             )
             self._replicas.append(_Replica(i, ep.rstrip("/"), client, self.per_replica))
 
