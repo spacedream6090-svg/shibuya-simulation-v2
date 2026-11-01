@@ -1,0 +1,121 @@
+{
+ "n_exit_rows": 45,
+ "n_exit_rows_with_cell": 45,
+ "n_exit_cells_unique": 25,
+ "exit_cells": [
+  "g-1_-1_DECK",
+  "g-1_-1_GL",
+  "g-1_0_GL",
+  "g-2_-1_GL",
+  "g-2_-2_DECK",
+  "g-7_-3_GL",
+  "g0_-1_GL",
+  "g0_-2_DECK",
+  "g0_0_GL",
+  "g1_-1_GL",
+  "g1_-2_GL",
+  "g1_-2_UG",
+  "g1_-3_DECK",
+  "g1_0_GL",
+  "g1_1_GL",
+  "g1_2_GL",
+  "g2_-2_GL",
+  "g2_-3_UG",
+  "g3_-5_GL",
+  "g3_9_GL",
+  "g4_9_GL",
+  "g9_4_GL",
+  "g9_5_GL",
+  "g9_6_GL",
+  "g9_7_GL"
+ ],
+ "centroid_in_grid_box": 520,
+ "n_cells": 520,
+ "exit_cells_by_station_title": {
+  "渋谷": [
+   "g-1_-1_DECK",
+   "g-1_-1_GL",
+   "g-1_0_GL",
+   "g-2_-1_GL",
+   "g-2_-2_DECK",
+   "g-7_-3_GL",
+   "g0_-1_GL",
+   "g0_-2_DECK",
+   "g0_0_GL",
+   "g1_-1_GL",
+   "g1_-2_GL",
+   "g1_-2_UG",
+   "g1_-3_DECK",
+   "g1_0_GL",
+   "g1_1_GL",
+   "g1_2_GL",
+   "g2_-2_GL",
+   "g2_-3_UG",
+   "g3_-5_GL"
+  ],
+  "表参道": [
+   "g9_4_GL",
+   "g9_5_GL",
+   "g9_6_GL",
+   "g9_7_GL"
+  ],
+  "明治神宮前〈原宿〉": [
+   "g3_9_GL",
+   "g4_9_GL"
+  ]
+ },
+ "exit_to_exit_max_m_centroid": 1846.6,
+ "exit_to_exit_pair_centroid": [
+  "g-7_-3_GL",
+  "g9_7_GL"
+ ],
+ "exit_pairs_near_1355_centroid": [
+  [
+   "g3_-5_GL",
+   "g3_9_GL",
+   1362.2
+  ]
+ ],
+ "any_cell_to_exit_max_m_centroid": 2515.1,
+ "any_cell_to_exit_pair_centroid": [
+  "g-9_-11_GL",
+  "g9_7_GL"
+ ],
+ "shibuya_exit_to_exit_max_m_centroid": 988.6,
+ "shibuya_exit_to_exit_pair_centroid": [
+  "g-7_-3_GL",
+  "g3_-5_GL"
+ ],
+ "gate8_ext_walk_gate_n_cells": 58,
+ "gate8_to_exit_max_m_centroid": 2515.1,
+ "gate8_to_nearest_exit_median_m_centroid": 615.2,
+ "gate9_ext_road_gate_n_cells": 37,
+ "gate9_to_exit_max_m_centroid": 2515.1,
+ "gate9_to_nearest_exit_median_m_centroid": 606.2,
+ "exit_to_exit_max_m_rep_node_xy": 1853.8,
+ "exit_to_exit_pair_rep_node_xy": [
+  "g-7_-3_GL",
+  "g9_7_GL"
+ ],
+ "exit_pairs_near_1355_rep_node_xy": [
+  [
+   "g3_-5_GL",
+   "g3_9_GL",
+   1355.0
+  ]
+ ],
+ "any_cell_to_exit_max_m_rep_node_xy": 2508.4,
+ "any_cell_to_exit_pair_rep_node_xy": [
+  "g-9_-11_GL",
+  "g9_7_GL"
+ ],
+ "shibuya_exit_to_exit_max_m_rep_node_xy": 982.8,
+ "shibuya_exit_to_exit_pair_rep_node_xy": [
+  "g-7_-3_GL",
+  "g3_-5_GL"
+ ],
+ "gate8_to_exit_max_m_rep_node_xy": 2508.4,
+ "gate8_to_nearest_exit_median_m_rep_node_xy": 623.4,
+ "gate9_to_exit_max_m_rep_node_xy": 2508.4,
+ "gate9_to_nearest_exit_median_m_rep_node_xy": 609.9
+}

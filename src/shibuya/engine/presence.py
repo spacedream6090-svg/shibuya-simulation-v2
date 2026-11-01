@@ -4,43 +4,88 @@
 - ``docs/design/v2-plan-executor-design.md``(ユーザー承認・第145)。§1 責務・§2 データ・
   §3 イベントと tick 処理・§4 LLM との分担・§5 不変条件 I1-I6・§6 帰無腕と expedient。
 - 背景の数値は ``docs/design/v2-d66-outside-residents-agenda.md`` §1(親検証済み)。
+- 本 docstring は 2026-11-02(指示書 11-02 の 6)に**今の実装**へ合わせて書き直した。設計書・旧 docstring との
+  食い違いの一覧は ``docs/bench/analysis/presence-docstring-1102/README.md``。「〔既知の穴・11-02〕」の印は
+  PENDING §2 の presence.py の行(直すのは段 2)を指す。
 
 何をする層か
     「誰がいつ舞台に居て何をしているか」を**機構として**持つ。W17 週次表を **在圏ブロック**
-    に畳み、日次のイベント列(到着・退出・就寝・起床)を組んで、tick ごとに
-    ``engine.resolve`` の既存の書き込み口だけを叩く。**世界への書き込み口は増やさない**
+    に畳み、日の頭に 1 回(0 日目は起動時・1 日目からは ``relay_day``=10d)イベント列(到着・退出・就寝・起床)を
+    組んで、tick ごとに ``engine.resolve`` の既存の書き込み口だけを叩く。**世界への書き込み口は増やさない**
     (``rail_arrive`` / ``rail_depart`` / ``begin_planned_sleep`` / ``wake_from_plan`` /
-    ``release_indoor`` / ``balk_queue`` / ``place_at_external`` / ``set_plan_state``)。
+    ``release_indoor`` / ``balk_queue`` / ``place_at_external`` / ``set_plan_state``。9a の
+    ``--exit-mode walk_to_platform`` のランだけ ``begin_exit_walk`` / ``clear_board_intent`` も叩く)。
+
+到着と退出の場所と時刻(今の挙動)
+    - **到着のセル**: 鉄道の体も非鉄道ゲートの体(線 −1=方面 8/9 の徒歩・道路・方面 −1 の住民・便の無い線)も、
+      W11 駅出口(45 行)を**重複を除いた 25 セル**(``_exit_cells``)へ、ブロックの通し番号の round-robin
+      (``rank % 25``・``_build_events``)で降ろす。線・方面・ホームとは結び付けない。〔既知の穴・11-02〕25 セルのうち
+      6 セルは表参道(4)と明治神宮前〈原宿〉(2)の出口のセルで、セルの重心で W0 の原点から 1.01〜1.18 km・最寄りの渋谷の
+      出口セルから 0.72〜0.91 km 離れている(到着の約 6/25 がそこに出る)。
+      出口セルが無い世界ではホームのセル(``rail.line_cell``)で同じ round-robin。どちらも無ければ鉄道の体は便のホーム
+      (``rail.platform_cell``)・ゲートの体はセル −1(``_do_arrive`` が捨てる=到着しない)。
+      W12 の門のセル(``ext_walk_gate`` 58 セル・``ext_road_gate`` 37 セル=区界)はエンジンでは**読まない**
+      (build 側の ``w21_build_b`` は読む)。
+    - **到着の時刻**: 鉄道=E1 の便がホームへ入る tick(ホームから出口までの所要時間は無い)・ゲート=ブロックの開始 tick。
+      どちらも前のブロックの終了より前にはしない(``max(到着, 前の終了)``)。ブロックの終了以後になる到着は捨てる。
+    - **退出の場所**: 既定(``immediate``)は DEPART の tick に**今いるセルから**その場で ``rail_depart``(cell=−1)=
+      駅へも門へも歩かない。9a(``walk_to_platform``)は鉄道の体だけ自分の線のホームへ歩く(ゲートの体は即時)。
+    - 〔既知の穴・11-02〕**方面 8/9(徒歩・道路)の体が門ではなく駅の出口に現れる**(上の round-robin。旧 docstring と
+      設計書 §3 は「ゲートセルへ」)。
+    - 〔既知の穴・11-02〕**同じ tick の退出と到着=瞬間移動**: 同じ tick の中は DEPART → ARRIVE の順(``_TYPE_ORDER``)。
+      前のブロックの終了 tick に次のブロックの到着が重なる体(主な経路=次のブロックの E1 の便が前のブロックの終了より前に
+      ホームへ入り、到着が前の終了へ切り上がる・推測)は、その tick に今いるセルから消えて出口セルに現れる。
+      測った値は 5,000 体 1 日で 18〜20 件・最大 1,355 m(``docs/bench/analysis/spatial-2026-10/sp1``・2026-10-21〜23・
+      ``--space nav1`` の腕・**旧既定=E8 の到着の分散あり=今の ``--rate-rules legacy`` の腕**。今の既定 off では未計測)。
+      1,355 m は新南口のセル ``g3_-5_GL`` ↔ 明治神宮前駅のセル ``g3_9_GL`` の代表ノード間の距離 1,355.0 m と一致する
+      (値の一致からの推測・受入の記録は対のセルを残していない)。出口セルどうしの最大は 1,853.8 m。
+      台帳 ``DOC-nav1-presence-same-step-depart-arrive``。
+    - 〔既知の穴・11-02〕**日の境目**: DEPART は ``b_end < ticks`` のときだけ積み、最初のブロックが 0 時開始の体には
+      その日の ARRIVE を積まない(毎日)。1 日目からは位置を持ち越す(A11)ので、K9 の下でも計画と在圏がずれる。
+      (a) 最後のブロックが 24 時まで続き最初のブロックが 0 時より後に始まる域外居住者 32,065 体は夜通し在圏のまま残り、
+      最初の ARRIVE は I2 で捨てられる。(b) 最初のブロックが 0 時開始で最後のブロックが 24 時前に終わる域外居住者
+      4,281 体は 0 時から次のブロックまで域外(読み口 v2・day0 の表から数えた静的な数・ランでは未計測)。
 
 層契約
-    ``engine`` 内・``world`` と ``agents`` は**読むだけ**・``build`` は import しない
-    (方面ノード → 路線の表は ``world.assets.ProcessAssets`` が Parquet から読む)。
+    ``engine`` 内・``world`` と ``agents`` は**読むだけ**(書き込みは ``engine.resolve`` の口)・``build`` は import しない
+    (方面ノード → 路線の表と駅出口のセルは ``world.assets.ProcessAssets`` が Parquet から読む)。
 
 逐次ループ宣言(P4)
-1. **日次構築 1 回**: 到着の山の分散(``_spread_arrivals``)が**便数**ぶんのループを 1 本持つ
-   (線ごとに、その線の便を時刻の降順に 1 回走る。個体数には比例しない)。
-2. **tick ごと**: イベント種(5)ぶんの ``flatnonzero`` と、退出繰り延べの**繰り延べ中の体数**
-   ぶんのベクトル演算。**個体数に比例する Python ループは無い**。9a の歩いて乗る退出は歩いている体の
-   マスク(体数の配列 1 本の ``flatnonzero``)と、意図が落ちた体の直前の結果/行為の値の種類ぶん(≤ 25)。
+1. **日の頭に 1 回**(起動時と ``relay_day``): 到着便の割り当て(``_assign_trains``)の線数(≤ 8)ぶんのループ・
+   ブロックの直後の行を探す乗車行の飛ばし(``PlanBlocks.from_weekly``・≤ ``_MAX_RIDE_RUN``=8)。腕
+   ``--rate-rules legacy`` のランだけ、到着の山の分散(``_spread_arrivals``)が線ごとに**その線の便数**ぶんの
+   ループ 2 本(降順・昇順)を持つ(個体数には比例しない)。
+2. **tick ごと**: イベント種ぶんの ``flatnonzero``(``step`` が DEPART・ARRIVE の 2 種・``step_plan_boundaries`` が
+   SLEEP・WAKE の 2 種=計 4 種。WORK_START・AT_HOME は積まない)と、退出繰り延べの**繰り延べ中の体数**ぶんの
+   ベクトル演算。9a の歩いて乗る退出は歩いている体のマスク(体数の配列 1 本の ``flatnonzero``)と、意図が落ちた体の
+   直前の結果/行為の値の種類ぶん(≤ 25)。域外へ出た体の張り直し(``_rearm_after_leaving``)と張り直した到着の実行
+   (``step`` の ``_extra``)は**張り直す体数**ぶんの Python ループ(LLM の乗車・civic の退場の数=個体数には比例しない)。
+   これ以外に個体数に比例する Python ループは無い。
 
 expedient(本モジュール分・実装計画書 §8「D-66/計画実行層(第1段)」が正典)
-- E1 到着便=「ブロック開始に間に合う最も遅い便」(始発前は始発)。
-- E2 方面 → 線(埼京/湘南新宿ラインは W12 の ``lines[0]`` = 埼京線に畳む)。
-- E3 非鉄道ゲート(方面 8/9)は所要時間なし=開始 tick ちょうどにゲートセルへ。
+- E1 到着便=「ブロック開始に間に合う最も遅い便」(始発前は始発)。到着は前のブロックの終了へ切り上げる(上)。
+- E2 方面 → 線(埼京/湘南新宿ラインは W12 の ``lines[0]`` = 埼京線に畳む)。便が 1 本も無い線はゲート扱い(線 −1)。
+- E3 非鉄道ゲート(線 −1)は所要時間なし=ブロックの開始 tick ちょうどに**駅の出口セル**(上の round-robin)へ。
+  〔既知の穴・11-02〕門のセルへは置かない。設計書 §6 の切替口 ``--gate-mode instant|walk`` は実装に無い。
 - E4 退出は即時 ``rail_depart``(受容関数を通さない)=既定 ``--exit-mode immediate``。
   **9a(D-115 ①)**: ``walk_to_platform`` を実装=DEPART の tick に**その体の路線のホーム**への乗車の意図
   (D-51 の ``board_line``)を立てて歩かせ、着けば ``_serve_board_queue`` が受容関数を通して乗せる。
   会話中は従来どおり繰り延べ・買物/待ち行列は解いてから歩く・歩いて ``walk_max_ticks``(既定 60=意図の
-  上限と同じ)を超えたら**その場で ``rail_depart``**(TOO_FAR)・意図が落ちた(LLM が別の行為を選んだ・
-  運賃不足・待ちの打ち切り・経路なし)ら**その場で ``rail_depart``**(会話中なら繰り延べてから)・非鉄道
-  ゲートの体(線 −1)と便/ホーム/経路の無い体は即時。``board_intent`` は未実装(``NotImplementedError``)。
+  上限 ``--intent-max-ticks`` と同じ値を組み立てが渡す)を超えたら**その場で ``rail_depart``**(TOO_FAR)。意図が
+  落ちたとき: LLM の別の行為で落ちた 1 回目は、その行為が終わってから歩き直す(第302 Q117 (b)・上限
+  ``EXIT_DEFER_LIMIT``)。運賃不足・待ちの打ち切り・経路なし(``FARE_SHORT``・``NO_TRAIN``・``UNREACHABLE``)と
+  2 回目は**その場で ``rail_depart``**(会話中なら繰り延べてから)。非鉄道ゲートの体(線 −1)と便/ホーム/経路の
+  無い体は即時。``board_intent`` は未実装(``NotImplementedError``)。
 - E5 W17 の乗車行は在圏に数えない(``count_transit=False``)。
 - E6 出勤率(``--attendance-rate``)は〔11-01 段 2 の 4〕で消した=全員出勤の宣言(判断モデルの口ができるまで・
   ``engine.rate_rules`` の ``attendance``)。
-- E7 その日の在圏ブロックが 0 本の体は終日域外。
+- E7 その日の在圏ブロックが 0 本の体は終日域外(0 日目は ``initialize`` が域外へ置く・1 日目からは位置を持ち越す=A11。
+  日の境目の穴は上の〔既知の穴・11-02〕)。
 - E8 到着分散の上限 k=8 便・容量ベース backward fill は〔11-01 段 2 の 4〕で既定から外した=全員が E1 の便に乗る
   (``engine.rate_rules`` の ``arrival_spread``・旧道は切替口 ``--rate-rules legacy`` だけ・次の版上げで消す)。
 - E9 計画一致率の定義(正時標本・両側)。
+- E12 LLM の乗車/退去で出た体が進行中のブロックへ戻るまでの最短の外出 ``RETURN_MIN_AWAY_MIN``=60 分(下の定数)。
+- E13 在圏ブロックの読み口 v2 / v2.1(``DERIVE_RULES``・既定 v2・``--derive-rule``)。
 """
 
 from __future__ import annotations
@@ -72,7 +117,8 @@ __all__ = [
     "PlanExecutor",
 ]
 
-#: 到着の山を溢れさせる上限[便](§3「容量ベース backward fill」・expedient E8)。
+#: 到着の山を溢れさせる上限[便](§3「容量ベース backward fill」・expedient E8)。〔11-01 段 2 の 4〕腕
+#: ``--rate-rules legacy`` のランだけ使う(既定 off は分散しない)。
 ARRIVAL_SPREAD_MAX_TRAINS: Final[int] = 8
 
 #: 退出 tick に会話中だった体を繰り延べる上限[tick](§4・expedient)。
@@ -83,12 +129,16 @@ EXIT_DEFER_LIMIT: Final[int] = 30
 #: (その日の最後のブロックの途中で出た体)が当日ずっと帰れない穴を塞ぐ。
 #: 値 60 は自前(D-61 の「次の域内活動の開始に最も近い便」を、次の活動が無い場合へ
 #: 延長したもの)。昇格条件 = PT の私事トリップの滞在時間分布。
+#: 戻る先のセルは駅の出口セル(``_exit_cells`` の先頭から順に=呼ぶたびに先頭から。〔既知の穴・11-02〕先頭の
+#: 出口セルに偏る)・時刻は ``tick + 60`` 以降に最も早くホームへ入る便の tick(線は選ばない)。戻るのは、その便が
+#: 進行中のブロックの終了より前で、かつ日の終わりより前のときだけ。
 RETURN_MIN_AWAY_MIN: Final[int] = 60
 
 #: 退出の実行形(§10-3)。``immediate``(既定)と ``walk_to_platform``(9a)を実装・``board_intent`` は予約
 #: (``NotImplementedError``)。
 EXIT_MODES: Final[tuple[str, ...]] = ("immediate", "board_intent", "walk_to_platform")
-#: 9a: 歩いて乗る退出の上限[tick](既定=段 2c の意図の上限 ``INTENT_MAX_TICKS`` と同じ 60・run が渡す)。
+#: 9a: 歩いて乗る退出の上限[tick](既定=段 2c の意図の上限 ``INTENT_MAX_TICKS`` と同じ 60・組み立て
+#: ``engine.systems.build`` が ``--intent-max-ticks`` の値を渡す=専用の旗は無い)。
 EXIT_WALK_MAX_TICKS: Final[int] = 60
 
 #: 「乗車」の活動語コード(``ACTIVITY_WORDS`` の索引)。
@@ -131,7 +181,12 @@ _MAX_RIDE_RUN: Final[int] = 8
 
 
 class EventType:
-    """日次イベントの種(設計書 §3 の表)。値は表の番号。"""
+    """日次イベントの種(設計書 §3 の表)。値は表の番号。
+
+    積むのは ARRIVE・DEPART・SLEEP・WAKE の 4 種だけ(WORK_START・AT_HOME は値だけ=積まない)。
+    ARRIVE の引数は**降りるセル**(設計書 §3 の表は「便索引」と書くが、実装はセルを渡す)・DEPART は線索引
+    (−1=非鉄道ゲート)・SLEEP は就寝地セル・WAKE は −1。
+    """
 
     ARRIVE: Final[int] = 0
     DEPART: Final[int] = 1
@@ -142,6 +197,9 @@ class EventType:
 
 
 #: 同一 tick 内の実行順(**退出 → 到着**の順にする=同 tick に両方ある体を取りこぼさない)。
+#: 〔既知の穴・11-02〕この順のため、同じ tick に DEPART と ARRIVE がある体は今いるセルから消えて駅の出口セルに
+#: 現れる(旧既定=E8 の分散あり・nav1 の腕の 5,000 体 1 日で 18〜20 件・最大 1,355 m。今の既定 off では未計測=
+#: モジュール docstring・PENDING §2 の presence.py の行)。
 _TYPE_ORDER: Final[dict[int, int]] = {
     EventType.DEPART: 0,
     EventType.ARRIVE: 1,
@@ -159,10 +217,12 @@ FLAG_ARRIVED: Final[int] = 1 << 3
 def _mix64(x: np.ndarray) -> np.ndarray:
     """splitmix64 の最終混合(決定論・ベクトル化・**乱数ではない**)。
 
-    出勤率(E6)の「その日来ない 12%」を ``agent_id`` だけから決めるのに使う。
-    ``core.rng`` の Philox を使わないのは**ランの乱数列を 1 語も消費しない**ため
-    (T4 規模不変・帰無腕とのバイト一致を保つ)。``build.sched.w17_schedule._mix64``
-    と同じ式(二重定義・テストが一致を機械検査)。
+    〔11-01 段 2 の 4〕本モジュールの中に呼び手は無い(出勤率 E6 の「その日来ない 12%」を ``agent_id`` だけから
+    決めるのに使っていた=くじは消した)。式は ``build.sched.w17_schedule._mix64``・``engine.geometry._mix64``
+    と同じで、``tests/engine/test_geometry_c9.py`` と ``tests/engine/test_presence_executor.py`` が本関数を import して
+    一致を機械検査するので残している。
+    ``core.rng`` の Philox を使わなかったのは**ランの乱数列を 1 語も消費しない**ため
+    (T4 規模不変・帰無腕とのバイト一致を保つ)。
     """
     v = np.asarray(x, dtype=np.uint64).copy()
     with np.errstate(over="ignore"):
@@ -366,9 +426,12 @@ class PlanBlocks:
 
     Note:
         ブロックの定義(**居住区分つき**・設計書 §2):
-        ``place_kind ≠ 域外`` ∧ ``活動 ≠ 乗車`` の**連続行**を 1 本に畳む。
+        ``place_kind ≠ 域外`` ∧ ``活動 ≠ 乗車`` の**連続行**を 1 本に畳む(読み口 v1 の原則)。
         **域外居住者(``home_out``)の「自宅」行は域外**として扱う(=在圏でない)。
-        域内居住者の「自宅」行は在圏(舞台の中に家がある)。
+        域内居住者の「自宅」行は在圏(舞台の中に家がある。設計書 §2 の ``derive`` の行は
+        「``place_kind ∉ {自宅, 域外}``」と書くが、実装は域内居住者の自宅行を在圏に数える)。
+        既定の読み口 v2 は、この原則で得たランを ``_apply_derive_v2`` でさらに選ぶ(v2.1 は
+        ``_trim_nonstay_edges`` も通す)。
     """
 
     n_agents: int
@@ -438,7 +501,8 @@ class PlanBlocks:
             home_out: ``(n_agents,)`` の bool。域外居住(``home_cell < 0``)。
             mode: ``"derive"``(現行 W17 を畳む)/ ``"native"``(``block_kind`` 列を読む・**未実装**)。
             count_transit: True なら「乗車」行も在圏に数える(E5 の帰無側)。
-            exclude: ``(n_agents,)`` bool。True の体は**ブロック 0 本**にする(E6 出勤率)。
+            exclude: ``(n_agents,)`` bool。True の体は**ブロック 0 本**にする(旧 E6 出勤率の口。〔11-01 段 2 の 4〕
+                ``PlanExecutor`` は ``absent_on``=全員 False を渡す=今は誰も外れない)。
             derive_rule: 読み口(``"v1"`` / ``"v2"`` / ``"v2.1"``・既定 v2・
                 ``_apply_derive_v2`` / ``_trim_nonstay_edges``)。
 
@@ -573,10 +637,13 @@ class PlanExecutor:
         day_index: 曜日(0=月曜)。
         home_cell: ``(n,)`` の自宅セル(**域外居住は −1 のまま**)。
         direction_node: ``(n,)`` の方面ノード索引(W16。-1=未付与)。
-        rail: ``engine.processes.rail.RailProcess``(``None`` 可=全方面をゲート扱い)。
-        assets: ``world.assets.ProcessAssets``(方面→線・駅出口セル)。
-        ticks: ラン長[tick]。
+        rail: ``engine.processes.rail.RailProcess``(``None`` 可=便を使わない=全員の到着がゲート扱い)。
+        assets: ``world.assets.ProcessAssets``(方面→線・駅出口セル。駅出口セルは**到着の全員**の降りるセル)。
+        ticks: 層のイベントの表の長さ[tick]。1 日のランはラン長(≤ 1 日・スモークなどの短いランを含む)・複数日のランは
+            1 日の tick 数(``relay_day`` が日ごとに張り直す)。
         exit_mode: ``immediate``(既定)/ ``walk_to_platform``(9a)。``board_intent`` は ``NotImplementedError``。
+        mode: 在圏ブロックの読み方(``"derive"`` だけ実装・``"native"`` は ``NotImplementedError``)。
+        derive_rule: 読み口(``DERIVE_RULES``・既定 v2)。
         walk_max_ticks: 9a の歩いて乗る退出の上限[tick](超えたら即時 ``rail_depart``)。
         seed: ランの seed(〔11-01〕出勤率の抽選の塩は消した=属性として持つだけ)。
         rate_rules: 〔11-01 段 2 の 4〕率の形の規則の腕(``engine.rate_rules``・``None``=今の腕=既定 off)。off は E8 の
@@ -584,8 +651,10 @@ class PlanExecutor:
             (全員出勤の宣言)。
 
     Note:
-        10a(通しの時刻 T): 層のイベント列は**0 日目の座標**(``0 <= T < ticks``)で組む。1 日目からの
-        在圏の出入りは日の頭の初期化(10g・A11)で張り直す(それまでは 1 日目以降のイベントは無い=宣言)。
+        10a/10d(通しの時刻 T): 層のイベント列は**日の中の分**(``0 <= T - _t0 < ticks``)で持ち、通しの時刻 T とは
+        ``_t0``(その日の頭の T・0 日目は 0)で換算する。1 日目からは ``relay_day`` が日の頭に表を張り直し、
+        ``start_day`` が計画の印だけを書き換える(位置・活動・在圏は持ち越す=A11・域外への配置はしない)。
+        到着と退出の場所はモジュール docstring の「到着と退出の場所と時刻」(〔既知の穴・11-02〕2 件を含む)。
     """
 
     #: 台帳の感度試験 id(``--ablate AB-PLAN-EXECUTOR`` / 帰無腕 ``--no-plan-executor``)。
@@ -715,7 +784,7 @@ class PlanExecutor:
         self._walk_since = np.full(n, -1, dtype=np.int32)
         self._walk_line = np.full(n, -1, dtype=np.int32)
         self._plan_rider = np.zeros(n, dtype=bool)
-        #: この tick に歩き出した体(``engine.run`` が活動層を「目的地つき移動・到着まで」にする)。
+        #: この tick に歩き出した体(``engine.systems.body.sys_presence`` が ``force_arrival`` で活動層を「目的地つき移動・到着まで」にする)。
         self.walk_started_now = np.empty(0, dtype=np.int64)
         self.n_exit_walk_started = 0
         self.n_exit_walk_waiting_at_start = 0
@@ -767,7 +836,9 @@ class PlanExecutor:
 
         表は ``world.assets.ProcessAssets.ext_node_line_idx``(W12 ``w12_external_nodes``
         の ``lines[0]`` を ``tt_lines`` に引いたもの)。**expedient E2**: 埼京線/湘南新宿
-        ラインのような複数線の方面は先頭の線に畳む。
+        ラインのような複数線の方面は先頭の線に畳む。方面 8/9(徒歩・道路)と方面 −1 は −1。
+        ``rail.lines_present`` に無い線(便が 1 本も無い線)も −1。``rail`` はあるが ``lines_present`` が
+        無いか空なら全員 −1。``rail`` が ``None`` なら表の値のまま(到着は ``_assign_trains`` が全員ゲートにする)。
         """
         table = getattr(self.assets, "ext_node_line_idx", None)
         out = np.full(direction.size, -1, dtype=np.int64)
@@ -813,7 +884,8 @@ class PlanExecutor:
         ``_t0``(その日の頭の T)で換算する。資産・母集団・予定の表と日番号だけから決まる(再開でも同じ表になる)。
 
         Note:
-            逐次ループ宣言(P4): 日の頭に 1 回(``_spread_arrivals`` の線数 × 便数のループを含む)。
+            逐次ループ宣言(P4): 日の頭に 1 回(``_assign_trains`` の線数のループ。腕 ``--rate-rules legacy`` の
+            ランだけ ``_spread_arrivals`` の線数 × 便数のループを含む)。
         """
         self.day_index = int(weekday)
         self._t0 = int(t0)
@@ -862,7 +934,14 @@ class PlanExecutor:
         self.n_all_day_outside = int(np.count_nonzero(self.managed & ~has_plan))
 
     def _exit_cells(self) -> np.ndarray:
-        """降車セルの候補(W11 駅出口セル。無ければホームセル。どちらも無ければ空)。"""
+        """降車セルの候補(W11 駅出口セル。無ければホームセル。どちらも無ければ空)。
+
+        W11 の 45 行を重複を除いて**セル索引の昇順に 25 セル**(本番の世界 v2)にする。渋谷の 19 セルのほかに
+        表参道(4)・明治神宮前〈原宿〉(2)の出口のセルを含む(〔既知の穴・11-02〕到着の約 6/25 がそこに出る)。
+        到着(``_build_events``)・0 時から在圏のセル無しの体(``initialize``)・E12 の戻り(``_rearm_after_leaving``)は、
+        鉄道かゲートか・線・方面に関わらず全員この中から round-robin で選ぶ。W12 の門のセル(徒歩・道路の区界)は
+        エンジンでは読まない(〔既知の穴・11-02〕E3)。
+        """
         ex = getattr(self.assets, "station_exit_cell", None)
         if ex is not None:
             c = np.asarray(ex, dtype=np.int64).ravel()
@@ -915,6 +994,9 @@ class PlanExecutor:
         ③ それでも置けない体は **自分の E1 便が受け切る**(その便の混雑率が上限を超える)。
 
         したがって **|到着便 − E1 便| ≤ 8 が不変条件**(``tests`` が全体で検査する)。
+
+        〔11-01 段 2 の 4〕``_build_events`` は腕 ``--rate-rules legacy`` のときだけ本関数を呼ぶ(既定 off は
+        E1 の便のまま=分散しない・``n_spread_moved`` は 0)。
 
         Note:
             逐次ループ宣言(P4): **その線の便数**ぶんのループ 2 本(降順・昇順)+ 書き戻し
@@ -1021,7 +1103,20 @@ class PlanExecutor:
         return out
 
     def _build_events(self) -> None:
-        """日次イベント列(§3)を 1 回だけ組む(``lexsort`` のみ・個体比例ループなし)。"""
+        """日次イベント列(§3)を日の頭に 1 回組む(起動時と ``relay_day``・``lexsort`` のみ・個体比例ループなし)。
+
+        - ARRIVE: 時刻=鉄道は到着便がホームへ入る tick・ゲート(便 −1)はブロックの開始 tick。前のブロックの終了より前に
+          しない(切り上げ)・その日の 0 時開始の最初のブロック(毎日)とブロックの終了以後の到着は積まない。セル=
+          ``_exit_cells`` の round-robin(ブロックの通し番号 ``rank % 出口セル数``=線・方面・ホームと結び付けない)。
+        - DEPART: ブロックの終了 tick(日の終わり ``ticks`` 以上は積まない・到着を捨てたブロック=``keep_arrive`` が偽で
+          0 時開始でないものも積まない)。域外居住者は毎ブロック・域内居住者は直後の行が「域外」のときだけ。引数は線(−1=ゲート)。
+        - SLEEP / WAKE: W17 の当日の行の開始。
+
+        〔既知の穴・11-02〕前のブロックの DEPART と次のブロックの ARRIVE が同じ tick に並ぶと、退出 → 到着の順で
+        同じ tick に実行される=今いるセルから駅の出口セルへの瞬間移動(モジュール docstring・PENDING §2 の presence.py の行)。
+        〔既知の穴・11-02〕日の終わりまで続くブロックの DEPART を積まないことと、0 時開始の最初のブロックの ARRIVE を毎日
+        積まないことが、位置の持ち越し(A11)と合わさって日の境目で計画と在圏をずらす(モジュール docstring の「日の境目」)。
+        """
         blocks = self.blocks
         n = self.n
         b_agent = blocks.agent_of_block
@@ -1045,7 +1140,8 @@ class PlanExecutor:
             arr_tick = b_start.copy()
             arr_cell = np.full(b_start.size, -1, dtype=np.int64)
         self.n_gate_arrivals = int(np.count_nonzero(train < 0))
-        # 降車セルの分散(§3・W11 出口セルへ round-robin)
+        # 降車セルの分散(§3・W11 出口セルへ round-robin)。鉄道の体のホームのセルも、ゲートの体(方面 8/9 ほか)の −1 も
+        # ここで上書きする=全員が駅の出口セルに降りる(〔既知の穴・11-02〕E3=門のセルへは置かない)
         exits = self._exit_cells()
         if exits.size:
             rank = np.arange(b_start.size, dtype=np.int64)
@@ -1058,6 +1154,7 @@ class PlanExecutor:
         # 前のブロックの終了より**前**には戻らない(戻ると DEPART より先に ARRIVE が来て
         # その体が域外へ出たきりになる)。始発前のブロックは**始発まで到着しない**
         # (=遅刻する。E1 の宣言どおり)ので、ここでは開始 tick への切り下げはしない。
+        # 〔既知の穴・11-02〕切り上げた到着は前のブロックの DEPART と同じ tick になる(同じ tick の退出と到着)。
         arr_tick = np.maximum(arr_tick, prev_end)
         arr_tick = np.clip(arr_tick, 0, max(0, self.ticks))
         self.arrival_tick = arr_tick
@@ -1186,6 +1283,10 @@ class PlanExecutor:
     def initialize(self) -> int:
         """tick 0 に**在圏でない体**を域外へ置く(I1 の分母を立てる)。
 
+        ``plan_flags`` を書き(域外居住・今日の計画あり・0 時から在圏=到着済み)、0 時から在圏なのにセルが無い
+        域外居住者(I6)は駅の出口セル(``_exit_cells`` の先頭から順に=〔既知の穴・11-02〕先頭の出口セルに偏る)へ
+        ``rail_arrive`` で降ろす(出口セルが無い世界では域外へ置く)。再開のランでは呼ばない(``initialize_caches``)。
+
         Returns:
             域外へ置いた体数。
         """
@@ -1228,11 +1329,21 @@ class PlanExecutor:
     #: ``step`` が実行するイベント種(在圏の出入り)。世界過程(⓪a)と同じ位置で回す。
     _PRESENCE_TYPES: Final[tuple[int, ...]] = (EventType.DEPART, EventType.ARRIVE)
     #: ``step_plan_boundaries`` が実行する種(計画境界)。**D-62 と同じ位置**で回す
-    #: (run.py の「計画境界の起床候補」の所=tick の骨格を動かさない)。
+    #: (旧 run.py の「計画境界の起床候補」の所=今は ``engine.systems.body.sys_plan_boundary``・tick の骨格を動かさない)。
     _BOUNDARY_TYPES: Final[tuple[int, ...]] = (EventType.SLEEP, EventType.WAKE)
 
     def step(self, tick: int) -> None:
-        """在圏の出入り(到着・退出・計画活動)を実行する(§3・§4 の優先規則)。"""
+        """在圏の出入り(到着・退出)を実行する(§3・§4 の優先規則)。就寝・起床は ``step_plan_boundaries``。
+
+        同じ tick の中の順: ① 9a の歩いている体の始末(``_flush_walkers``)→ ② 歩き直し(``_flush_rewalks``)→
+        ③ 退出の繰り延べの解除(``_flush_deferred_exits``)→ ④ 張り直した到着(``_extra``)→ ⑤ その tick の
+        DEPART → ARRIVE(``_TYPE_ORDER``)。〔既知の穴・11-02〕この tick に ``rail_depart`` で出た体が ⑤ の ARRIVE で
+        同じ tick に駅の出口セルへ降りうる(モジュール docstring)。腕ごとの形: 既定 ``immediate`` は ③ と ⑤ の DEPART。
+        9a(``walk_to_platform``)でも、① の TOO_FAR と意図落ちの即時、③ の歩かない繰り延べ、⑤ のゲートの体と
+        便/ホーム/経路の無い体の即時 ``rail_depart`` で同じ形になる。逆に 9a で歩き出した鉄道の体は在圏のままなので、
+        同じ tick に切り上がった ARRIVE は I2 で捨てられ、次のブロックには来ない(``notify_departed_by_plan`` は張り直さない)。
+        呼び手は ``engine.systems.body.sys_presence``。
+        """
         t = int(tick)
         self.walk_started_now = np.empty(0, dtype=np.int64)
         self._flush_walkers(t)
@@ -1258,7 +1369,8 @@ class PlanExecutor:
                                  else np.empty(0, dtype=np.int64))
 
     def step_plan_boundaries(self, tick: int) -> None:
-        """計画境界(就寝・起床)を実行する(D-62 の発火元。run.py から層へ移した)。"""
+        """計画境界(就寝・起床)を実行する(D-62 の発火元。run.py から層へ移した=今の呼び手は
+        ``engine.systems.body.sys_plan_boundary``)。"""
         self._run_tick(int(tick), self._BOUNDARY_TYPES)
 
     def _run_tick(self, t: int, types: tuple[int, ...]) -> None:
@@ -1273,7 +1385,7 @@ class PlanExecutor:
         seg_arg = self.ev_arg[lo:hi].astype(np.int64)
         seg_act = self.ev_act[lo:hi].astype(np.int64)
         seg_place = self.ev_place[lo:hi].astype(np.int64)
-        for ty in types:  # 逐次ループ宣言: イベント種(≤4)ぶん
+        for ty in types:  # 逐次ループ宣言: イベント種(1 回の呼び出しで 2・計 4)ぶん
             sel = np.flatnonzero(seg_type == ty)
             if sel.size == 0:
                 continue
@@ -1345,7 +1457,12 @@ class PlanExecutor:
         self.n_arrivals += int(got.size)
 
     def _do_depart(self, ids: np.ndarray, lines: np.ndarray, tick: int) -> None:
-        """DEPART: 在圏の体を域外へ(§4 の優先規則: 会話中は繰り延べ・買物/待ちは中断)。"""
+        """DEPART: 在圏の体を域外へ(§4 の優先規則: 会話中は繰り延べ・買物/待ちは中断)。
+
+        既定(``immediate``)は**今いるセルから**その場で ``rail_depart``(駅へも門へも歩かない・E4)。9a は
+        ``_begin_walk``。域外へ出た体の進行中ブロックの DEPART(``_skip_depart_at``)と、カレンダー 1b の口
+        (``io_hook.io_off``)の体は実行しない。在圏でない体(乗車中・域外)は数えて捨てる(I3)。
+        """
         if ids.size == 0:
             return
         hook = getattr(self, "io_hook", None)  # 〔6-2〕口の無い持ち主(試験の写しなど)は既定と同じ None
@@ -1490,8 +1607,11 @@ class PlanExecutor:
             self._begin_walk(go_w, ln_w, int(tick), rewalk=True)
 
     def _flush_walkers(self, tick: int) -> None:
-        """歩いて乗る退出の体を捌く: 乗った(発車待ちへ)/ 上限超過(TOO_FAR=即時)/ 意図が落ちた(即時・会話中は
-        繰り延べてから即時)。逐次ループ宣言: なし(歩いている体のマスク=体数の配列 1 本)。"""
+        """歩いて乗る退出の体を捌く: 乗った(発車待ちへ)/ 上限超過(TOO_FAR=即時)/ 列車以外で域外へ出た(歩きを畳む)/
+        意図が落ちた。意図が落ちた体のうち、LLM の別の行為で落ちた 1 回目は歩き直しの待ち(``_flush_rewalks``・第302
+        Q117 (b)・上限 ``EXIT_DEFER_LIMIT``)へ入れる。``NO_TRAIN``・``FARE_SHORT``・``UNREACHABLE`` と 2 回目は即時
+        (会話中は繰り延べてから即時)。逐次ループ宣言: 歩いている体のマスク(体数の配列 1 本)と、意図が落ちた体の
+        直前の結果/行為の値の種類ぶん(≤ 25)のループ。"""
         if self.exit_mode != "walk_to_platform":
             return
         ids = np.flatnonzero(self._walk_since >= 0).astype(np.int64)
@@ -1700,10 +1820,17 @@ class PlanExecutor:
         「次の」= ``start > tick`` の最初のブロック(**進行中のブロックには張らない**——
         張ると押し出された体が翌 tick に戻ってしまう。層2 指摘 2026-09-11: civic の
         退場 200 体のうち 175 体が翌 tick に戻っていた)。次のブロックの到着 tick が
-        既に過ぎていれば ``tick+1`` に張り直し、まだ先なら通常のイベントがそのまま出る。
+        既に過ぎていれば、**そのブロックの開始 tick**(``max(start, tick+1)``=次のブロックの start は常に
+        tick より後なので開始 tick)に、そのブロックの到着セル(``arrival_cell``=駅の出口セルの round-robin)へ
+        張り直す。まだ先なら通常のイベントがそのまま出る。
+        E12(``allow_return_to_current=True``=LLM の乗車/退去だけ): 次のブロックが無く進行中のブロックの残りが
+        ``RETURN_MIN_AWAY_MIN`` 以上の体は、``tick + 60`` 以降に最も早くホームへ入る便の tick に駅の出口セル
+        (``_exit_cells`` の先頭から順に=〔既知の穴・11-02〕先頭の出口セルに偏る)へ戻す。戻るのは、その便が進行中の
+        ブロックの終了より前で、かつ日の終わり(``ticks``)より前のときだけ(それ以外は戻らず DEPART を落とす)。
 
         Note:
-            逐次ループ宣言(P4): なし(``searchsorted`` 1 本)。
+            逐次ループ宣言(P4): ``searchsorted`` 1 本と、**戻す体数・張り直す体数**ぶんの Python ループ
+            (``_extra`` への積み込み・1 tick の LLM 乗車数/civic の退場数=個体数には比例しない)。
         """
         blocks = self.blocks
         if blocks.n_blocks == 0 or a.size == 0:
@@ -1760,8 +1887,8 @@ class PlanExecutor:
         late = ok_nxt & (self.arrival_tick[safe_nxt] <= tl)
         rows = np.flatnonzero(late)
         if rows.size:
-            # 便に乗り遅れた形なので、**ブロックの開始 tick ちょうど**にゲートから入る
-            # (非鉄道ゲート E3 と同じ扱い)。``t+1`` に戻すと押し出された体が翌 tick に
+            # 便に乗り遅れた形なので、**ブロックの開始 tick ちょうど**にそのブロックの到着セルから入る
+            # (非鉄道ゲート E3 と同じ扱い=到着セルは門ではなく駅の出口セル・〔既知の穴・11-02〕)。``t+1`` に戻すと押し出された体が翌 tick に
             # 舞台へ帰ってしまう(層2 指摘 2026-09-11: civic の退場 200 中 175 体)。
             when = np.maximum(blocks.start[safe_nxt[rows]].astype(np.int64), tl + 1)
             cells = self.arrival_cell[safe_nxt[rows]]
@@ -1786,7 +1913,9 @@ class PlanExecutor:
 
     # ------------------------------------------------------------------ 診断(§5)
     def sample(self, tick: int) -> None:
-        """正時の標本(計画一致率 両側・在圏人数)。E9。**run.py が在圏 journal と同じ位置で呼ぶ**。"""
+        """正時の標本(計画一致率 両側・在圏人数)。E9。**在圏 journal と同じ位置で呼ぶ**(旧 run.py=今は
+        ``engine.systems.observe``)。9a の計器(出口セル・ホームセルの在圏・出口セルの密度段の最大)も、各正時の
+        初標本で 1 回数える(出口セル=``_exit_cells`` の 25 セル=表参道・明治神宮前の出口のセルを含む)。"""
         if int(tick) % STEPS_PER_HOUR:
             return
         r = self.agents.registry
