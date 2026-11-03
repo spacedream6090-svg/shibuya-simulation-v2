@@ -394,6 +394,13 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #139 v3-0a 案 A=乱数の鍵・呼びの id・時間帯の材料を世界の時刻 t_ns から作る(届く 18 か所・1 バイト不変・切替口なし)(11-04 §2-1・第344・2026-11-04・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [指示書 11-04 返事その 4](docs/design/prompt-2026-11-04-reply4.md) §2-1・[11-03](docs/design/prompt-2026-11-03-reply3.md) §5。記録 [v30a](docs/bench/analysis/v3-2026-11/v30a/README.md)(§1 棚卸し・§2〜§7)。
+- **中身**: `core.rng.key_time_from_t_ns`(t_ns // (幅 × 1e9)・v3-0b で単位を替えるときはこの 1 本)・`DecisionPort.time_key_at`。18 か所=艦隊の道の呼びの id と時間帯・判断の口の並べ替えの鍵・decide_one の呼びの id・腕の口(contact・calendar2・calendar3・duties)の鍵と呼びの id・連絡の習慣の鍵。既存の署名の変更 0・`step_key` は残した(v3-0b で判断)。
+- **結果**: byte-check 19 構成 25/25 同じ(実装役)・親の 4 構成 25/25・腕 on(7 変数)の w6_v3_default 25/25(final `a1ef8fe8d4f5a257`)。実のランで通るのは 11 か所(calendar3 と習慣の道は合成のランと試験)。性能は揺れの範囲(土台 60.3/56.2 s・作業木 60.3/55.1 s・呼数 60,939)。
+- 検収: 検収役=条件つき受入(コードの欠陥なし・記録の訂正 2 点を親が直した・`MockPort.pick` の棚卸しの漏れは v3-0b へ=PENDING §2 の 22)→ 親(範囲の試験 4,140 passed・1 skipped・0 failed・`b36ed1a`)。
+
 ### #138 棚卸し B の欠陥 4 件(M10・M11・M28・M16)の直し=小さな版上げ+宣言の食い違い 31 件を文書の側で(11-03 §3・第343・2026-11-03〜04・実装役 Opus 5.5・別の検収役・親検収)
 
 - 正典: [指示書 11-03 返事その 3](docs/design/prompt-2026-11-03-reply3.md) §3(欠陥は親が確かめてから直す・既定が動けば小さな版上げ 1 回・宣言の食い違いは文書の側だけ)。記録 [fix4-1103](docs/bench/analysis/fix4-1103/README.md)(byte-check の比較 JSON は `bytecheck/`)。取り込み `8165b3d`・安定版のタグ `stable-v2-before-defect-fixes-1103`(3b375dc)。
