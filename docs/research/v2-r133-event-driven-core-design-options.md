@@ -389,3 +389,20 @@
 
 - 等級: **B**(リポ内の引用 3 か所を HEAD で実読。先例(MATSim・SUMO・SimPy・Flink・Fujimoto・AI Metropolis)は R-128 の親の実読を経たものを除き答申の等級のまま。Fujimoto WSC 2015 の PDF は WebFetch の一時の写しを pymupdf で読んだ=従来の作法)。
 - 親の注: 発注文の「今のテープは刻みごとの journal」は親の書き違い=答申 §7-1 の訂正の候補のとおり(1 呼 1 行・鍵は刻みの番号)。会話の時計が 7 ms で L4 の 0.2 秒を足していない点は壁打ちの題 5 の副問に入れる。
+
+## 11-03 の訂正(第343・2026-11-03・親 Fable 5.1 が HEAD 33193c3 で確認)
+
+出どころ: [指示書 11-03](../design/prompt-2026-11-03-reply3.md) §1 と [v3 の核の独立の読み](../reference/v3-core-independent-review-2026-11-02.md) §5(読み手の報告=親の一次確認の前)。**本文は書き換えない**。番号は独立の読み §5 の表の番号。
+
+| # | 本文の所 | 本文の記述 | 訂正 | 親の確かめ(HEAD 33193c3) |
+|---|---|---|---|---|
+| 5 | §0-1・§1-1 の読み | 「今の進行役は、すでに事象の列で動いている」 | **器についてだけ正しい**(窓の待ち行列・ナノ秒の時刻・会話の時計と区域の時計の腕)。中身は、60 秒ごとの「刻みの事象」1 種が自分で次の刻みを予約し、その処理が表の系(`timing == "tick"` の 25 系+腕)を決まった順に全員ぶん回す**時間駆動**。既定のランで列に入る世界の事象はこの 1 種だけ。起床・返事の適用・在圏・鉄道・不応期はどれも「刻みの番号で引く表」か「毎刻みの全件比べ」 | `engine/systems/conductor.py:191-195`(`on_step` が `t_ns + step_ns` に次を予約)・`:196-206`(`TickCtx.of(T, tpd, step_s)` で全系)・`:208`・`:212`(`KIND_STEP` 1 種)・`:126-129`(`tick_plan`=`timing == "tick"` の系を全部)・`engine/presence.py:1278-1280`・`engine/processes/rail.py:770`・`:807`・`engine/arbiter.py:394-405`(不応期は毎刻み比べ) |
+| 6 | §0-2・§1-1 の 3 行目 | 同時刻の順の鍵の 1 通りは「起床のスケジューラ」の「時刻 → 級 → blake3 → 体」 | `engine/scheduler.py` の `order_indices`・`due` は**既定のランで呼ばれない**(src の呼び手は `engine/__init__.py` の再輸出だけ。`.due(` の呼び手は energy・press・civic の別の物)。実際の起床の同順は**アービタ**の `np.lexsort((agent, pk, -waited, eff_class))`(待ちの長さも入る)で、`pk = wake_tiebreak_array(run_salt, tick, eff_class, agent)`=刻みの番号がハッシュの材料に入る。「2 通り」の正しい組は「アービタの同順」と「窓の待ち行列の順」 | `engine/arbiter.py:439`・`:457`・grep(`order_indices`・`\.due(`) |
+| 7 | §1-1 の presence の行・§8-3 の v3-1(「既に事象の形」・「時刻が 60 秒の格子なら一致」) | 計画実行層の表をそのまま列へ移せる | その表の時刻の単位は **W17 の分と便の `enter_tick`** で、刻みの幅と結び付いていない(刻みの番号で引く表)。列へ移す前に、**表の時刻を秒(か t_ns)に直す段**が要る。60 秒刻みのままなら一致する(= v3-1 の前に 1 段足す。R-130 の 11-03 の訂正 #1 と同じ根) | `engine/presence.py:654`・`:1121-1138`・`:1278-1280`・`:1376-1380` |
+| 8 | §8-2(M1)・§8-3 の v3-0 | v3-0 で「鍵の 1 本化・列を状態に入れる・呼びの id と乱数の鍵を世界の時刻に」のうえで 19 構成が一致 | 後ろ 2 つは byte-check の比べる値(テープの `call_id` 列の sha・full-hash・状態のファイル・再開の照合)を動かす。**v3-0 は 2 つに割る**: **v3-0a**=器だけ(1 バイト不変。鍵の材料を「t_ns から今と同じ整数を作る関数」を通す形にする書き換えはここで可=指示書 11-03 §5)/**v3-0b**=呼びの id・乱数の鍵の形を世界の時刻にする・列を状態に入れる(比べる値が動く=版上げか、比べる列の宣言) | `docs/bench/analysis/wave2-2026-09-30/wave2_bytecheck.py:84-93`(`calls_columns_sha` は calls の全列)・`engine/state_ledger.py:971-986`(`BW` は軸 1 diag・軸 2 discardable) |
+| 9 | §2-2 の決定論の注意 | 「今の `run_tick_key` は刻みの番号を使う」 | `run_tick_key` のほかに、**生の刻みの番号を counter やハッシュに入れる口が 10 か所余り**ある(第343 の実装役の棚卸しでは約 45 か所=[記録 v30a/README](../bench/analysis/v3-2026-11/v30a/README.md) §1): `engine/arbiter.py:439`・`engine/systems/judge.py:102`(`t_apply`)・`engine/commit.py:447`・`:887`・`engine/chooser.py:269`・`engine/classical.py:630`・`engine/conversation.py:386`・`llm/mock.py`・`perception/p_notice.py:477`・`engine/processes/salient.py:335`・`civic.py:194`・`engine/decision/port.py:313`・`engine/proximity.py:262`・呼びの id `engine/systems/decide.py:181`・`engine/llm_bridge.py:792`・腕の `step_key` の口 | grep(第343) |
+| 10 | §1-1 の batching の行(「幅 W は 60 秒の約数だけ」) | 正確 | 正確。加えて、**刻みの幅が既定の幅の倍数でないと核が組めない**(`ValueError`)。R-130 §3 も同じことを書いている | `engine/batching.py:190-193` |
+| 11 | §1-1(runner の step は `runner.py:453`) | 行番号 | HEAD では `engine/processes/runner.py:460`(土台の差) | 実読 |
+
+- 系の順(§8-3)への含意: **v3-0 → v3-0a / v3-0b に割る**。**v3-1 の前に「W17・W12 の時刻の単位(分)を秒(か t_ns)に直す段」を足す**(結果が動く=版上げ)。どちらも題 8 の壁打ちで決める(指示書 11-03 §5 は v3-0a の書き換えだけを許し、単位を替える段は題 8 の後)。
+- 等級は **B のまま**。
