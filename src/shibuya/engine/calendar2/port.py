@@ -182,7 +182,7 @@ class Calendar2Port(DecisionPort):
 
     def choose(self, ctx: DecisionContext, candidates: Sequence[Candidate]) -> Choice:
         """候補を並べ替えて番号を振り(用途名 ``calendar2.present``)、仮のモデルの答えを元の id に戻す。"""
-        key = k19_counters(self.step_key(ctx.step), int(ctx.agent_id), _serial(ctx))
+        key = k19_counters(self.time_key_at(ctx.t_ns), int(ctx.agent_id), _serial(ctx))
         presented = present(candidates, stream(self.seed, PRESENT_DOMAIN, *key))
         cid = self._pick(ctx, presented)
         for c in presented:
@@ -192,7 +192,7 @@ class Calendar2Port(DecisionPort):
 
     def _draw(self, ctx: DecisionContext) -> int:
         """選びの乱数(用途名 ``calendar2.mock``・1 語)。"""
-        return int(stream(self.seed, MOCK_DOMAIN, *k19_counters(self.step_key(ctx.step), int(ctx.agent_id),
+        return int(stream(self.seed, MOCK_DOMAIN, *k19_counters(self.time_key_at(ctx.t_ns), int(ctx.agent_id),
                                                                 _serial(ctx))).integers(0, 1 << 31))
 
     def _pick(self, ctx: DecisionContext, presented: tuple[Candidate, ...]) -> str:

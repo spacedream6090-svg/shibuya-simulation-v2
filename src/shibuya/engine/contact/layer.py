@@ -85,6 +85,7 @@ from typing import Any, Callable, Final, Iterable, Mapping, Sequence
 import numpy as np
 
 from shibuya.agents.state import Activity
+from shibuya.core.rng import key_time_from_t_ns
 from shibuya.core.time_consts import NS_PER_SECOND, SECONDS_PER_MINUTE
 from shibuya.engine.batching import WORLD
 from shibuya.engine.body.system1 import loud_sound_notice, noise_stage_at
@@ -443,7 +444,7 @@ class ContactLayer:
         serial = _P.serial_of(purpose, k)
         cell = int(self.agents.registry.cell[a])
         ctx = DecisionContext(agent_id=int(a), step=int(T), t_ns=int(t_ns), wake_class=-1, condition=-1, cell=cell,
-                              call_id=_P.call_id_of(T, a, serial))
+                              call_id=_P.call_id_of(key_time_from_t_ns(t_ns, self.step_seconds), a, serial))
         ch = self.port.choose(ctx, cands)
         self._issue(T, a, serial)
         self._issued_n[1] += 1
@@ -503,7 +504,7 @@ class ContactLayer:
             k = self._codes.get(a, 0) + 1
             self._codes[a] = k
             serial = _P.serial_of(habit_purpose, k)
-            if _P.habit_recheck_u(self.port.seed, self.port.step_key(T), a, serial) < _HB.HABIT_RECHECK_SHARE:
+            if _P.habit_recheck_u(self.port.seed, self.port.time_key_at(t_ns), a, serial) < _HB.HABIT_RECHECK_SHARE:
                 reason = "recheck"
             else:
                 c = next(x for x in cands if x.kind == word)
@@ -514,8 +515,8 @@ class ContactLayer:
                 self._bump(f"habit:answered:{kind}")
                 self._bump(f"habit:answered:{sw}:{kind}")
                 self._bump(f"habit:word:{kind}:{word}")
-                return c, LlmCall(_P.call_id_of(T, a, serial), basis, source=SOURCE_EXPERIENCE,
-                                  number=order.index(c) + 1)
+                return c, LlmCall(_P.call_id_of(key_time_from_t_ns(t_ns, self.step_seconds), a, serial), basis,
+                                  source=SOURCE_EXPERIENCE, number=order.index(c) + 1)
         self._bump(f"habit:back:{reason}")
         self._bump(f"habit:back:{sw}:{kind}")
         c, cause = self._decide(T, t_ns, a, purpose, cands)

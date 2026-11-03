@@ -39,6 +39,7 @@ from typing import Any, Final, Mapping, Sequence
 
 import numpy as np
 
+from shibuya.core.rng import key_time_from_t_ns
 from shibuya.engine import economy_stage2 as _ES2
 from shibuya.engine.decision.port import (
     ALL_SOURCES,
@@ -305,7 +306,8 @@ class DecisionLayer:
         mem = getattr(p, "memories", None) if p is not None else None
         ctx = DecisionContext(
             agent_id=int(agent_id), step=int(step), t_ns=int(t_ns), wake_class=int(wake_class),
-            condition=int(condition), cell=int(cell), call_id=f"{int(step)}:{int(agent_id)}:{int(wake_class)}",
+            condition=int(condition), cell=int(cell),
+            call_id=f"{key_time_from_t_ns(t_ns, self.port.step_seconds)}:{int(agent_id)}:{int(wake_class)}",
             percept=p, prediction=None, memory=None if mem is None else tuple(mem), tools=None,
             inviter=int(inviter), last_action=int(last_action), request=start,
         )

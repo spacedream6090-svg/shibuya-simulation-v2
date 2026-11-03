@@ -34,6 +34,7 @@ from shibuya.engine import resolve as R
 from shibuya.engine.systems import llm_io as _LLM_IO
 from shibuya.llm.fleet import LLMCall
 from shibuya.llm.fleet import split_system_user
+from shibuya.core.rng import key_time_from_t_ns
 from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, STEPS_PER_HOUR
 
 
@@ -157,6 +158,8 @@ def sys_decide(ctx: Any, b: Any) -> None:
         else:
             # 逐次ループ宣言2′: 同じ呼数ぶん(描画は同じ・往復だけ非同期になる)
             calls: list[LLMCall] = []
+            # 〔v3-0a 案 A〕呼びの id と時間帯の材料は世界の時刻から(刻みの頭の時刻=今までの刻みの番号と同じ整数)
+            key_t = key_time_from_t_ns(int(ctx.t_ns), tick_seconds)
             for i in range(len(sel)):
                 a = int(sel.agent_id[i])
                 cls = int(decision.selected_eff_class[i])
@@ -178,11 +181,11 @@ def sys_decide(ctx: Any, b: Any) -> None:
                 fleet_waiting.add(a)
                 calls.append(
                     LLMCall(
-                        call_id=f"{tick}:{a}:{cls}",
+                        call_id=f"{key_t}:{a}:{cls}",
                         agent_id=a, tick=tick, wake_class=cls, condition=cond,
                         prompt=rendered.text, system=sys_txt, user=usr_txt,
                         blocks=rendered.blocks, lane=lane, cell=int(cell[a]),
-                        time_bucket=tick // TIME_BUCKET_TICKS,
+                        time_bucket=key_t // TIME_BUCKET_TICKS,
                         since_tick=int(sel.since_tick[i]),
                         prompt_hash_hint=rendered.prompt_hash,
                         recalled_rows=tuple(getattr(rendered, "recalled_rows", ())),

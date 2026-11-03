@@ -54,7 +54,8 @@ def test_mock_port_is_uniform_deterministic_and_closed():
     cands = [PD.cand(PD.K_SHOP, "店を開ける", id=PD.ID_UNLOCK), PD.cand(PD.K_WAIT, "まだ", id="wait")]
     picks = []
     for k in range(1, 401):
-        ctx = DecisionContext(agent_id=3, step=k, t_ns=0, wake_class=-1, condition=-1, cell=0,
+        # 〔v3-0a 案 A〕鍵は世界の時刻から(t_ns=刻みの頭の時刻=エンジンが渡す形。前は t_ns=0 で刻みの番号だけを変えていた)
+        ctx = DecisionContext(agent_id=3, step=k, t_ns=k * 60 * 10**9, wake_class=-1, condition=-1, cell=0,
                               call_id=PD.call_id_of(k, 3, PD.serial_of(PD.P_SHOP, 1)))
         a = port.choose(ctx, cands)
         b = port.choose(ctx, cands)

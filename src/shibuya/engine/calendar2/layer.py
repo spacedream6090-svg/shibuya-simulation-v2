@@ -68,6 +68,7 @@ from typing import Any, Final, Iterable, Mapping, Sequence
 import numpy as np
 
 from shibuya.agents.state import Activity
+from shibuya.core.rng import key_time_from_t_ns
 from shibuya.core.time_consts import HOURS_PER_DAY, NS_PER_SECOND, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
 from shibuya.engine import resolve as R
 from shibuya.engine.calendar2 import arm as _ARM
@@ -267,7 +268,7 @@ class Calendar2Layer:
         serial = _P.serial_of(purpose, k)
         cell = int(self.agents.registry.cell[a])
         ctx = DecisionContext(agent_id=int(a), step=int(T), t_ns=int(t_ns), wake_class=-1, condition=-1, cell=cell,
-                              call_id=_P.call_id_of(T, a, serial))
+                              call_id=_P.call_id_of(key_time_from_t_ns(t_ns, self.step_seconds), a, serial))
         ch = self.port.choose(ctx, cands)
         self._issue(T, a, serial)
         self._c2_issued_n[1] += 1

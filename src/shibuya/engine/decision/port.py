@@ -50,7 +50,7 @@ from typing import Any, Final, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.core.rng import k19_counters, run_tick_key, stream
+from shibuya.core.rng import k19_counters, run_tick_key, stream, time_key_from_t_ns
 
 __all__ = [
     "PORT_SCHEMA", "SOURCES", "SOURCE_EXPERIENCE", "SOURCE_AFFORDANCE", "SOURCE_PLAN", "SOURCE_CONTINUE",
@@ -312,9 +312,14 @@ class DecisionPort:
         """並べ替えの鍵の時刻(10c の counter と同じ ``run_tick_key``)。"""
         return run_tick_key(self.day_key0, int(step), self.step_seconds)
 
+    def time_key_at(self, t_ns: int) -> int:
+        """〔v3-0a 案 A〕並べ替えの鍵の時刻を世界の時刻 ``t_ns`` から作る(``core.rng.time_key_from_t_ns``)。刻みの頭の時刻なら
+        ``step_key`` と同じ値。"""
+        return time_key_from_t_ns(self.day_key0, int(t_ns), self.step_seconds)
+
     def choose(self, ctx: DecisionContext, candidates: Sequence[Candidate]) -> Choice:
         """候補を並べ替えて番号を振り、実装の答えを元の id に戻す(C-2 の 1)。"""
-        presented = present(candidates, present_rng(self.seed, self.step_key(ctx.step), ctx.agent_id,
+        presented = present(candidates, present_rng(self.seed, self.time_key_at(ctx.t_ns), ctx.agent_id,
                                                      len(candidates)))
         cid, extra = self._answer(ctx, presented)
         if cid == OTHER_ID:

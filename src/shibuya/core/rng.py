@@ -32,6 +32,7 @@ __all__ = [
     "RNG_SCHEME",
     "run_tick_key",
     "time_key_from_t_ns",
+    "key_time_from_t_ns",
     "k19_counters",
     "philox_array",
     "k19_counter_array",
@@ -127,21 +128,37 @@ def run_tick_key(day_key0: int, T: int, tick_seconds: int) -> int:
     return v
 
 
+def key_time_from_t_ns(t_ns: int, step_seconds: int) -> int:
+    """〔v3-0a 案 A(指示書 11-04 §2-1)〕乱数の鍵・呼びの id・時間帯の材料に入れる時刻の整数を、通しの時刻 ``t_ns``
+    (ナノ秒=``core.types.SimTime``)から作る。
+
+    値は ``t_ns // (幅 × 1e9)``(床=その時刻を含む刻み)。刻みの頭の時刻(``TickCtx.t_ns``=``T × 幅 × 1e9``)を渡せば、
+    今まで材料に入れていた通しの刻みの番号 ``T`` と同じ整数(``tests/engine/time/test_t0_rng_key.py`` が検算)。
+    材料の単位を秒やナノ秒に替える段(v3-0b=結果が動く)では、この関数 1 本を替える。
+
+    Raises:
+        ValueError: 幅が正の整数でない。
+    """
+    w = int(step_seconds)
+    if w <= 0:
+        raise ValueError(f"刻みの幅(秒)は正の整数: {step_seconds!r}")
+    return int(t_ns) // (w * NS_PER_SECOND)
+
+
 def time_key_from_t_ns(day_key0: int, t_ns: int, step_seconds: int) -> int:
     """〔第 1 期 1-1 T0・TM7 (d) の準備〕``run_tick_key`` と同じ鍵の値を、刻みの番号でなく通しの時刻 ``t_ns``
     (ナノ秒=``core.types.SimTime``)から作る。
 
-    刻みの番号は ``t_ns // (幅 × 1e9)``(床=その時刻を含む刻み)。刻みの頭の時刻(``TickCtx.t_ns``)を渡せば
+    時刻の整数は :func:`key_time_from_t_ns`(床=その時刻を含む刻み)。刻みの頭の時刻(``TickCtx.t_ns``)を渡せば
     ``run_tick_key(day_key0, T, 幅)`` と同じ値(``tests/engine/time/test_t0_rng_key.py`` が全刻みで検算)。
-    **呼び手はまだ無い**(鍵の値は 10c の counter のまま=結果不変)。鍵の材料を出来事の時刻と中身に替えるのは後の段。
+    〔v3-0a 案 A〕呼び手は判断の口の鍵(``engine.decision.port.DecisionPort.time_key_at``)。鍵の材料を出来事の時刻と
+    中身に替えるのは後の段。
 
     Raises:
         ValueError: 幅が正の整数でない・鍵が 0..2^64-1 の外。
     """
     w = int(step_seconds)
-    if w <= 0:
-        raise ValueError(f"刻みの幅(秒)は正の整数: {step_seconds!r}")
-    return run_tick_key(day_key0, int(t_ns) // (w * NS_PER_SECOND), w)
+    return run_tick_key(day_key0, key_time_from_t_ns(t_ns, w), w)
 
 
 # ---------------------------------------------------------------- 第 2 期 2-2: 配列で回す Philox(同じ出力)
