@@ -53,7 +53,7 @@ DEAD5 = ("agents.plan_cursor", "agents.invocation_distance", "agents.wake_pendin
 T7_TARGET_SECONDS = 0.100
 T7_SHARE_CAP = 0.01
 #: T7 で確かめる既定 v3 の final(10e の版上げの段ごとに張り替える)。
-T7_V3_FINAL = "73aa01d9afb206d0"  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 7bfe215641b792ac=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+T7_V3_FINAL = "c8d68704b7b0760d"  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 73aa01d9afb206d0=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 7bfe215641b792ac=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
 #: 〔11-01 段 2 の 4〕旧道(SHIBUYA_RATE_RULES=legacy)の既定 v3 の final=版上げの前の値(試験 ``test_t7_legacy_switch_reproduces_the_pre_bump_final``・次の版上げで切替口と一緒に消す)。
 T7_V3_FINAL_RATE_RULES_LEGACY = "7bfe215641b792ac"
 # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の腕 --meal-default validation の final の定数 _T7_V3_FINAL_PRE_MEAL_W17(最後の値 5b080133301bf13d=差し替えの世界・前 b8eadcb51e8705e7=W16 の世界)は切替口と一緒に消した(再現は安定版のタグ stable-v2-before-meal-default-w17)
@@ -734,8 +734,10 @@ def test_t5_weight_kg_is_read_only_at_initialization(monkeypatch, tmp_path):
 #: 切替口と一緒に消した(値は 10e の記録 §E1 と §RET に残した)。
 #: 今の既定の final(=behavior-hash)の頭 16 桁(段ごとに張り替える)。
 CUR_SYN = {
-    "v1": "a36995c487c3f214", "v3": "92290af2f272b811", "v2_edge_attention": "863d35e1bfdb55f9",
-    "all_arms": "246c6478620d4cce", "classical": "22d8c5ba98bfaca0",  # 〔2-4 V2〕前 all_arms ab8201f624b4dfa7(近接の既定 distance)
+    # 〔11-03 §3〕棚卸し B の欠陥 4 件の直し(M10 の招待側の戻しを含む)で 4 構成が動いた(前 v1 a36995c487c3f214・v3 92290af2f272b811・
+    # v2_edge_attention 863d35e1bfdb55f9・all_arms 246c6478620d4cce=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・classical は不変・記録 fix4-1103)
+    "v1": "ea16e1af840583d4", "v3": "7c9db9611874691c", "v2_edge_attention": "1b9ce45df4c8dd92",
+    "all_arms": "2406ca74eed3422d", "classical": "22d8c5ba98bfaca0",  # 〔2-4 V2〕前 all_arms ab8201f624b4dfa7(近接の既定 distance)
     # 〔小さな版上げ・meal_w17〕既定の食事時刻を W17 v2 の分布から=エネルギー収支の 2 構成が動いた(前 all_arms 9071edfd618d42d8・
     # classical 2297d5c5947551f0=--meal-default validation で戻る・記録 meal_w17/README.md)
 }
@@ -957,6 +959,10 @@ def test_t7_legacy_switch_reproduces_the_pre_bump_final(monkeypatch):
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
     # 〔11-02r §1 #7〕版上げの前の値=「無い」の過程も旧道(止めた出動が倒れた人の到着=警察の顕著行為を消すので final が動く)
     monkeypatch.setattr(AP, "_ARM", AP.MODE_LEGACY)
+    # 〔11-03 §3〕同じく欠陥 4 件の直しも旧道(版上げの前の値=3 つの切替口をどれも legacy)
+    from shibuya.engine import defect_fixes_1103 as DF
+
+    monkeypatch.setattr(DF, "_ARM", DF.MODE_LEGACY)
     res = cli.run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")
     if GE.platform_id() in GE.REGISTERED:
         assert (res.final_hash[:16], int(res.llm_calls)) == (T7_V3_FINAL_RATE_RULES_LEGACY, 62_176)

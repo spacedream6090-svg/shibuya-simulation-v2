@@ -21,11 +21,12 @@
 どちらも個体数 n に比例するループではない(P4 の禁止対象外)。
 
 expedient(本モジュール分)
-- **d_talk の代理**: C2/C3 の個体はセル内座標を持たない(``AgentState`` は cell と xy を
-  持つが会話距離の判定に使える精度が無い)。よって「距離≦d_talk(≈1m)」は
-  **「同一セル ∧ 双方 idle」**で代理する。``D_TALK_METERS`` は宣言だけ置く(C4 で群衆物理が
-  入ったら xy 距離に差し替える)。
-- 応答確率 **0.8**(契約書「較正目標=声かけ応答率≈0.8」)。較正データ無しの定数。
+- **d_talk の代理**: 「距離≦d_talk(≈1m)」は本モジュールでは測らない。届くかは呼び手が渡す
+  (``same_cell``=``resolve.talk_within_reach``: 既定の近接の腕 distance は ``engine.proximity`` の距離 d・
+  注意の腕は ``resolve.TALK_OPEN_METERS``・切替口 cell は同一セル)。相手の idle は呼び手が見ない
+  (``partner_idle=True`` で渡す)。``D_TALK_METERS`` は宣言だけ置く(1 m を使う道は無い)。
+- 応答確率 **0.8**(契約書「較正目標=声かけ応答率≈0.8」)。較正データ無しの定数。〔11-03 棚卸し B §4-1〕今の呼び手は
+  全部 ``answered=True``(被招待の返事)を渡すので抽選は引かれない=死んでいる道(次の版上げで消す・つなぎの台帳の行)。
 - 話者交替は**招待者始まりの単純交替**。契約書は「話者選択(WHO)=エンジン(会話分析規則)」
   としか言わず規則を与えていない。
 - **話題スタック**の初期本数 = ``max_turns``(1往復ごとに1本消費)。契約書に本数の規定なし。
@@ -71,20 +72,28 @@ __all__ = [
     "PAIR_INVITE_REFRACTORY_TICKS",
     "SPEAKER_INVITE_REFRACTORY_TICKS",
     "ConversationManager",
+    "REVERT_CAUSES",
 ]
 
 #: 契約書 §2.1「距離≦d_talk(≈1m)」。C3 では**同一セル**で代理する(上の expedient)。
 #: **C9b G7(2026-09-17)**: 辺上の連続位置が入った腕では、成立=
 #: ``engine.resolve.TALK_OPEN_METERS``(2 m)・離脱= ``TALK_LEAVE_METERS``(3 m)の
 #: **実距離**に置き換わる(本定数は v1 の名目値として残す=文面凍結)。
+#: 〔11-03 棚卸し B §4-1〕実装はこう: どこからも距離として読まれない。成立の距離は既定の近接の腕 distance の d(2.0 m・
+#: ``engine.proximity``)と注意の腕の ``resolve.TALK_OPEN_METERS``(2.0 m)の 2 本の定数が別々に持つ。宣言はこう: d_talk≈1 m。
+#: 1 本にまとめるか・値を合わせるかは仕分け待ち(11-03 §2)。
 D_TALK_METERS: Final[float] = 1.0
-#: 声かけ応答率(契約書「較正目標≈0.8」・expedient)。
+#: 声かけ応答率(契約書「較正目標≈0.8」・expedient)。〔11-03 棚卸し B §4-1〕抽選(``_accepts``)は ``invite`` に
+#: ``answered=None`` を渡したときだけ引かれ、今の呼び手(会話の系・連絡の道具)は全部 ``answered=True``=死んでいる道
+#: (次の版上げで消す・台帳 DOC-fix4-dead-accept-probability)。
 ACCEPT_PROBABILITY: Final[float] = 0.8
 #: ハード終了: 1体あたりの発話ブロック数(契約書 max_turns=3・予算由来の expedient)。
 MAX_TURNS: Final[int] = 3
-#: 「重要度上位のみ+2呼」(契約書 §3)。
+#: 「重要度上位のみ+2呼」(契約書 §3)。〔11-03 棚卸し B §4-1〕組み立て(``systems/build.py``)は ``important`` を渡さない
+#: =対象が空=+2 呼は誰にも付かない死んでいる道(次の版上げで消す・台帳 DOC-fix4-dead-important-extra-turns)。
 IMPORTANT_EXTRA_TURNS: Final[int] = 2
-#: 参加上限(契約書「参加上限3(2者既定)」)。
+#: 参加上限(契約書「参加上限3(2者既定)」)。〔11-03 棚卸し B §4-1〕実装はこう: 既定 2(3 は ``run_day`` の
+#: ``conv_max_participants=3``=C10 8a の口のときだけ)。宣言はこう: 上限 3。既定を合わせるかは仕分け待ち(11-03 §2)。
 MAX_PARTICIPANTS: Final[int] = 2
 #: 拒否/無視の記憶[tick](expedient)。
 REFUSAL_MEMORY_TICKS: Final[int] = 60
@@ -113,6 +122,11 @@ SPEAKER_INVITE_REFRACTORY_TICKS: Final[int] = 30
 BACKCHANNELS: Final[tuple[str, ...]] = ("うん", "なるほど", "そうですね")
 #: CLOSING の定型締め1発話(文面凍結)。
 CLOSING_UTTERANCE: Final[str] = "それじゃ、また。"
+
+#: 〔11-03 M10 の続き〕招待側の戻しの原因(計器 ``n_invite_revert_kept_activity`` の鍵)。``no_target``=対象の決まらない
+#: 会話(resolve が失敗させた体=活動は変わっていない)・``invite_failed``=招待が流れた(不応期・``invite`` の却下・返事待ちに
+#: 積めなかった)・``expired``=期限切れの返事待ち・``settle``=返事の解決(``engine.run._settle_pending_invites`` の末尾)。
+REVERT_CAUSES: Final[tuple[str, ...]] = ("no_target", "invite_failed", "expired", "settle")
 
 #: 終了理由(診断行の分類)。
 CLOSE_REASONS: Final[tuple[str, ...]] = (
@@ -259,6 +273,7 @@ class ConversationManager:
         topics_per_session: int | None = None,
         important: Iterable[int] = (),
         domain: str = INVITE_RNG_DOMAIN,
+        count_unreachable: bool = False,
     ) -> None:
         if max_participants < 2 or max_participants > 3:
             raise ValueError("参加上限は 2..3(契約書 §3)")
@@ -276,6 +291,9 @@ class ConversationManager:
         self.walk_over_ticks = int(walk_over_ticks)
         self.topics_per_session = int(topics_per_session if topics_per_session is not None else max_turns)
         self.important: set[int] = {int(a) for a in important}
+        #: 〔11-03 M16〕届かない返事の不成立を ``counters`` の ``conv_pending_unreachable`` と起点の計数の鍵 ``unreachable`` に
+        #: 出すか(組み立てが腕 ``engine.defect_fixes_1103`` の on で True を渡す=旧道 legacy の出力は 1 字も変えない)。
+        self.count_unreachable = bool(count_unreachable)
 
         self.sessions: dict[int, Session] = {}
         self._of_agent: dict[int, int] = {}  # agent → session_id(1人1会話)
@@ -303,6 +321,14 @@ class ConversationManager:
         self.n_interrupts = 0
         #: 10e(E2): ``purge_expired`` で落とした期限切れの項の数(診断)。
         self.n_expired_purged = 0
+        #: 〔11-03 M16〕届かない「会話」の返事を断りでなく不成立にした数(``drop_pending``・腕 on のランだけ増える・診断)。
+        self.n_pending_unreachable = 0
+        #: 〔11-03 M10〕会話の終わりで活動を戻さなかった参加者の数(活動の名 → 数・``engine.systems.talk`` が積む・
+        #: 腕 on のランだけ増える・診断)。
+        self.n_end_kept_activity: dict[str, int] = {}
+        #: 〔11-03 M10 の続き〕招待側の戻しで活動を戻さなかった数(原因 → 活動の名 → 数・``engine.systems.talk`` と
+        #: ``engine.run._settle_pending_invites`` が積む・腕 on のランだけ増える・診断)。原因は ``REVERT_CAUSES``。
+        self.n_revert_kept_activity: dict[str, dict[str, int]] = {}
         self.closed_by_reason: dict[str, int] = {r: 0 for r in CLOSE_REASONS}
         #: 「無視された」イベント(呼を消費しない)。``(tick, inviter, invitee)``。
         self.ignored_events: list[tuple[int, int, int]] = []
@@ -554,6 +580,45 @@ class ConversationManager:
         s.origin = int(pend.origin)
         return s
 
+    def drop_pending(self, invitee: int, tick: int, reason: str = "unreachable") -> PendingInvite | None:
+        """〔11-03 M16〕返事待ちを**不成立**で落とす(断りではない=拒否の記憶 ``_remember_refusal`` を残さない)。
+
+        被招待の返事が「会話」で招待者宛て(か名指しなし)なのに、その時点で相手に届かないとき(``run._settle_pending_invites``
+        の腕 on)。旧道(腕 legacy)はこの場合を ``resolve_pending(accepted=False)``=断りに数え、組を 60 刻み記憶していた
+        (承諾した人が「断った」記録になる)。招待側を戻すのは呼び出し側(今と同じ)。
+
+        Returns:
+            落とした返事待ち(無ければ ``None``)。
+        """
+        pend = self.pending_invites.pop(int(invitee), None)
+        if pend is None:
+            return None
+        self.n_pending_unreachable += 1
+        self.note_origin(pend.origin, str(reason))
+        return pend
+
+    def note_end_kept(self, kept: Mapping[str, int]) -> None:
+        """〔11-03 M10〕会話の終わりで活動を戻さなかった参加者の数(活動の名 → 数=``resolve.end_conversation`` の戻り値)を積む。"""
+        for name, n in kept.items():  # 逐次ループ宣言: 活動の名ぶん(≤ 8)
+            self.n_end_kept_activity[str(name)] = self.n_end_kept_activity.get(str(name), 0) + int(n)
+
+    def note_revert_kept(self, cause: str, kept: Mapping[str, int]) -> None:
+        """〔11-03 M10 の続き〕招待側の戻しで活動を戻さなかった数(活動の名 → 数)を原因 ``cause``(``REVERT_CAUSES``)ごとに積む。"""
+        if str(cause) not in REVERT_CAUSES:
+            raise ValueError(f"招待側の戻しの原因は {REVERT_CAUSES} のどれか(いま {cause!r})")
+        if not kept:
+            return
+        row = self.n_revert_kept_activity.setdefault(str(cause), {})
+        for name, n in kept.items():  # 逐次ループ宣言: 活動の名ぶん(≤ 8)
+            row[str(name)] = row.get(str(name), 0) + int(n)
+
+    def defect_fix_counters(self) -> dict[str, Any]:
+        """〔11-03 §3〕欠陥の直しの計器のうち会話マネージャが持つ 3 本(manifest の ``defect_fixes_1103.counts``・読むだけ)。"""
+        return {"n_conversation_end_kept_activity": {k: int(v) for k, v in sorted(self.n_end_kept_activity.items())},
+                "n_invite_revert_kept_activity": {c: {k: int(v) for k, v in sorted(row.items())}
+                                                  for c, row in sorted(self.n_revert_kept_activity.items())},
+                "n_pending_unreachable": int(self.n_pending_unreachable)}
+
     def expire_pending(self, tick: int) -> list[int]:
         """期限切れの返事待ちを落とす。
 
@@ -575,7 +640,9 @@ class ConversationManager:
     def track_origins(self, names: tuple[str, ...]) -> None:
         """起点の計数を開く(``--relations on`` のランだけ・既定の ``counters`` は 1 字も変えない)。"""
         self.origin_names = tuple(names)
-        self.origin_counts = {n: {"invites": 0, "accepted": 0, "declined": 0, "expired": 0, "rejected": 0}
+        self.origin_counts = {n: {"invites": 0, "accepted": 0, "declined": 0, "expired": 0, "rejected": 0,
+                                  # 〔11-03 M16〕腕 on のランだけ最初から鍵を置く(ほかの鍵と同じ形・旧道は 1 字も変えない)
+                                  **({"unreachable": 0} if self.count_unreachable else {})}
                               for n in self.origin_names}
 
     def note_origin(self, origin: int, event: str) -> None:
@@ -901,6 +968,8 @@ class ConversationManager:
             "conv_pending_open": len(self.pending_invites),
             "conv_invite_refractory_blocked": self.n_invite_refractory_blocked,
         }
+        if self.count_unreachable:  # 〔11-03 M16〕腕 on のランだけ(帳尻=招待 = 成立+断り+期限切れ+未決+不成立)
+            out["conv_pending_unreachable"] = int(self.n_pending_unreachable)
         for reason in CLOSE_REASONS:
             out[f"closed_{reason}"] = int(self.closed_by_reason.get(reason, 0))
         if self.max_participants > 2:  # C10 8a の口(既定 2 の計数は 1 字も変えない)

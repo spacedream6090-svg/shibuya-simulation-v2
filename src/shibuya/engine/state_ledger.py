@@ -481,7 +481,9 @@ _EXT: tuple[LedgerRow, ...] = (
        ("conv.origin_counts", "conv.n_ignored_invites", "conv.n_gate_rejected", "conv.n_invites",
         "conv.n_accepted", "conv.n_declined", "conv.n_pending_expired", "conv.n_invite_refractory_blocked",
         "conv.n_blocks", "conv.n_backchannels", "conv.n_interrupts", "conv.closed_by_reason", "conv.ignored_events",
-        "conv.size_hist", "conv.n_expired_purged")),
+        "conv.size_hist", "conv.n_expired_purged",
+        # 〔11-03 §3 M16・M10〕届かない返事を不成立にした数・会話の終わりと招待の戻しで活動を戻さなかった数(腕 on のランだけ増える)
+        "conv.n_pending_unreachable", "conv.n_end_kept_activity", "conv.n_revert_kept_activity")),
     _o(42, "Arbiter _pending・_pool・queue・_last_tick", "arbiter.py:535-543", "配列・float・辞書", B, R_,
        ("arbiter._pending", "arbiter._pool", "arbiter.queue", "arbiter._last_tick")),
     _o(43, "run_day の局所 pending(適用待ちの応答)", "run.py:2696", "list[13 要素の組]", B, R_, ("run_day.pending",),
@@ -1245,11 +1247,13 @@ _EXT: tuple[LedgerRow, ...] = (
                *(f"contact.chats.{a}" for a in (
                    "n_ignored_invites", "n_gate_rejected", "n_invites", "n_accepted", "n_declined", "n_pending_expired",
                    "n_invite_refractory_blocked", "n_blocks", "n_backchannels", "n_interrupts", "closed_by_reason",
-                   "ignored_events", "size_hist", "n_expired_purged", "origin_counts")),
+                   "ignored_events", "size_hist", "n_expired_purged", "origin_counts",
+                   "n_pending_unreachable", "n_end_kept_activity", "n_revert_kept_activity")),  # 〔11-03 §3〕会話マネージャの診断 3 欄(電話・チャットでは 0 のまま)
                *(f"contact.calls.{a}" for a in (
                    "n_ignored_invites", "n_gate_rejected", "n_invites", "n_accepted", "n_declined", "n_pending_expired",
                    "n_invite_refractory_blocked", "n_blocks", "n_backchannels", "n_interrupts", "closed_by_reason",
-                   "ignored_events", "size_hist", "n_expired_purged", "origin_counts")),
+                   "ignored_events", "size_hist", "n_expired_purged", "origin_counts",
+                   "n_pending_unreachable", "n_end_kept_activity", "n_revert_kept_activity")),  # 〔11-03 §3〕会話マネージャの診断 3 欄(電話・チャットでは 0 のまま)
                "contact.speech.meter", "contact.speech._last_input", "contact.speech._own_last",
                "contact.speech._heard_taken",
                "contact.book.bodiless_dropped"),  # 〔C2〕宛先の帳が持ち主になった(体の無い人を落とした数=計器)
@@ -1778,7 +1782,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("presence", CACHE, "この tick に歩き始めた体(tick の中で使い切る)", "walk_started_now"),
     _x("conv", CONST, _CFG + "(重要度上位の体の集合を含む)", "master_seed", "domain", "max_turns",
        "extra_turns_for_important", "max_participants", "accept_probability", "refusal_memory_ticks",
-       "silence_ticks", "max_session_ticks", "walk_over_ticks", "topics_per_session", "important", "origin_names"),
+       "silence_ticks", "max_session_ticks", "walk_over_ticks", "topics_per_session", "important", "origin_names",
+       "count_unreachable"),  # 〔11-03 M16〕届かない返事の不成立を counters に出すか(腕 on で True)
     _x("arbiter", CONST, _CFG, "n_agents", "run_salt", "budget", "classes", "_pool_cap"),
     _x("detector", CONST, _CFG, "n_agents", "n_cells"),
     # 〔段 5-1b〕nav1 のランでは B4 の密度の段を world.cells.density_stage から取る印(組み立てが置く・ランの間に変わらない)
@@ -2049,10 +2054,11 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
     _x("contact.chats", CONST, _CFG + "(6-4 C1 検収 L1: 会話の器の設定=チャットの沈黙の閾値・使わない段の長さ)", "master_seed",
        "domain", "max_turns", "extra_turns_for_important", "max_participants", "accept_probability",
        "refusal_memory_ticks", "silence_ticks", "max_session_ticks", "walk_over_ticks", "topics_per_session",
-       "important", "origin_names"),
+       "important", "origin_names", "count_unreachable"),
     _x("contact.calls", CONST, _CFG + "(6-4 C1: 対面の会話と同じ設定=重要度上位の体の集合を含む)", "master_seed", "domain",
        "max_turns", "extra_turns_for_important", "max_participants", "accept_probability", "refusal_memory_ticks",
-       "silence_ticks", "max_session_ticks", "walk_over_ticks", "topics_per_session", "important", "origin_names"),
+       "silence_ticks", "max_session_ticks", "walk_over_ticks", "topics_per_session", "important", "origin_names",
+       "count_unreachable"),  # 〔11-03 M16〕届かない返事の不成立を counters に出すか(腕 on で True)
     _x("contact.calls", CONST, _FIELD + "(6-4 C1: 腕の行の腕の名 LEDGER_ARM=子クラス CallManager)", "LEDGER_ARM"),
     _x("contact.speech", CONST, _CFG, "step_ns", "ttl_steps", "max_per_addressee"),
     _x("contact.speech", CONST, _FIELD + "(6-4 C1: 実装の名・腕の行の腕の名 LEDGER_ARM=子クラス CallSpeechPort)", "name",

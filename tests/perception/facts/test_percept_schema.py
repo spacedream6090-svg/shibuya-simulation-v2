@@ -224,6 +224,7 @@ def test_run_manifest_has_the_percept_section():
     # 〔第 5 期 空間の段 1〕その後ろ(末尾)に space
     # 〔第340・11-01 段 2 の 4〕その後ろに rate_rules(率の形の規則を外した小さな版上げの計器)
     # 〔11-02r §1 #7〕その後ろ(末尾)に absent_processes(「無い」の過程 5 件を止めた小さな版上げの計器)
-    assert keys[-14:] == ["economy", "percept", "rights", "decision_port", "tools", "speech_port", "proximity",
-                          "experiment", "batching", "body", "calendar_shadow", "space", "rate_rules", "absent_processes"]
+    assert keys[-15:] == ["economy", "percept", "rights", "decision_port", "tools", "speech_port", "proximity",
+                          "experiment", "batching", "body", "calendar_shadow", "space", "rate_rules", "absent_processes",
+                          "defect_fixes_1103"]  # 〔11-03 §3〕その後ろ(末尾)に defect_fixes_1103
     assert np.isfinite(m["percept"]["n_fields"])

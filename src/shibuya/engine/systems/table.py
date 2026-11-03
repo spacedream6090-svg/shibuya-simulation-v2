@@ -206,12 +206,12 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.contact",  # 〔第 6 期 6-4 C2〕対面の会話の番の控え(腕 c1 のランだけ)
          origin=f"L5(遅れ 1)・L11 前半(遅れ 2)・run.py:3668・3890-3891 @{_E}"),
     make("apply_responses", "判断", "tick", _JG.sys_apply_responses,
-         resolve_ops="revert_conversation set_conversing talk_within_reach",
+         resolve_ops="revert_conversation end_conversation set_conversing talk_within_reach",
          paths="O43:run_day.* O39:conv.* O40:conv.* O41:conv.* O91:conv.* O[4-6]:intent_layer.* O13:poi_resolver.* "
                "O2[56]:poi_resolver.* O68:poi_resolver.* O94:poi_resolver.* O19:rel_layer.* O34:norm_meter.* "
                "O66:act_layer.*",
          scratch_w="llm_intents n_undefined applied_activity applied_now", buffers_w="focus_request",
-         tally="n_undefined_total phase talk_stats", reads="buffers.focus_request cfg.attention_on cfg.salt cfg.v3_hints cfg.vocab_version "
+         tally="n_undefined_total phase talk_stats", reads="buffers.focus_request cfg.attention_on cfg.defect_fixes_1103 cfg.salt cfg.v3_hints cfg.vocab_version "
                "fx.schedule fx.space layers.act_layer layers.conv layers.intent_layer layers.ledger "
                "layers.norm_meter layers.poi_resolver layers.rel_layer llm.pending "
                "runstats.n_undefined_total runstats.phase runstats.talk_stats "
@@ -350,7 +350,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "TXD:ledger.*",
          scratch_r="plan", buffers_r="focus_request", scratch_w="outcome",
          tally="geometry_hops geometry_jammed leave_counts per_action_total phase result",
-         reads="buffers.focus_request cfg.attention_on cfg.queue_service cfg.seat_release "
+         reads="buffers.focus_request cfg.attention_on cfg.defect_fixes_1103 cfg.queue_service cfg.seat_release "
                "cfg.report_precondition cfg.vocab_version fx.geom fx.schedule layers.energy "
                "layers.fam_layer layers.ledger layers.mem_layer layers.norm_meter layers.runner "
                "runstats.geometry_hops runstats.geometry_jammed runstats.leave_counts "
@@ -359,12 +359,12 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.proximity",  # 第 2 期 2-2: 腕 distance の判定の規則(会話の開始)
          origin=f"L17・run.py:4166-4222 @{_E}"),
     make("conversation", "会話", "tick", _TK.sys_conversation,
-         resolve_ops="revert_conversation join_conversation set_conversing talk_within_reach",
+         resolve_ops="revert_conversation end_conversation join_conversation set_conversing talk_within_reach",
          paths="O39:conv.* O40:conv.* O41:conv.* O91:conv.* O19:rel_layer.* "
                "E:events.* "  # 第 2 期 2-3: 会話の終わりの出来事(体の出来事の口・腕のランだけ)
                "TCC:talk_clock.*",  # 〔第 6 期 6-3 T2〕腕 mora の会話の時計(終わった会話の長さ・時計の行を消す)
          scratch_r="plan applied_now outcome", tally="leave_closed",
-         when="conv", reads="cfg.attention_on layers.conv layers.rel_layer runstats.leave_closed "
+         when="conv", reads="cfg.attention_on cfg.defect_fixes_1103 layers.conv layers.rel_layer runstats.leave_closed "
                "scratch.applied_now scratch.outcome scratch.plan soa.agents "
                "layers.proximity "  # 第 2 期 2-2: 腕 distance の判定の規則(招待・3 人会話・離脱)
                "layers.mem_layer "  # 第 2 期 2-3: 体の出来事の口(記憶の器が持つ)
@@ -475,7 +475,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "EC:ledger.* EM:ledger.* "  # 2-1: 経済の段階 2(給料日の賃金・日の欄)と生ログの支払いの方法の列
                "TXD:ledger.* "  # 4-2: 申告の期限の日の締めに預かり消費税を政府へ(腕 SHIBUYA_RULES_42=on)
                "C1B:calendar_self.cal_store",  # 〔6-2〕鉄道の日の締めの発車=カレンダー 1b の連続性の手がかり(腕 1b だけ)
-         tally="daily_records state_files result", reads="cfg.absent_processes cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days "
+         tally="daily_records state_files result", reads="cfg.absent_processes cfg.defect_fixes_1103 cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days "
                "cfg.state_out cfg.tick_seconds cfg.tpd fx.calendar fx.env_fields fx.schedule fx.schedule_hash "
                "layers.act_layer layers.arbiter layers.bridge layers.classical layers.conv "
                "layers.detector layers.energy layers.fam_layer layers.fleet_bridge "
@@ -492,7 +492,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
     make("drain", "判断", "run_end", _RE.sys_drain,
          paths="O43:run_day.* O44:run_day.* O96:run_day.* O8[89]:fleet_bridge.* O87:bridge.* "
                "M0R:mem_layer.memory_store.*",  # 1-6: 艦隊の残りの呼のテープの行=記憶の器の録画の控えを取り出す
-         tally="result state_files", calls_llm="drain", reads="cfg.absent_processes cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days cfg.state_out cfg.t_end "
+         tally="result state_files", calls_llm="drain", reads="cfg.absent_processes cfg.defect_fixes_1103 cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days cfg.state_out cfg.t_end "
                "cfg.tick_seconds cfg.total_ticks cfg.tpd fx.env_fields fx.schedule fx.schedule_hash "
                "layers.act_layer layers.arbiter layers.bridge layers.classical layers.conv "
                "layers.detector layers.energy layers.fam_layer layers.fleet_bridge "
@@ -514,7 +514,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "EC:ledger.* EM:ledger.* "  # 2-1: 経済の段階 2(最後の日の給料日の賃金・日の欄)と生ログの支払いの方法の列
                "TXD:ledger.* "  # 4-2: 最後の日の締めの預かり消費税の納付(腕 SHIBUYA_RULES_42=on)
                "C1B:calendar_self.cal_store",  # 〔6-2〕最後の便の発車=カレンダー 1b の連続性の手がかり(腕 1b だけ)
-         tally="daily_records ledger_growth result state_files", reads="cfg.absent_processes cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days "
+         tally="daily_records ledger_growth result state_files", reads="cfg.absent_processes cfg.defect_fixes_1103 cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days "
                "cfg.state_out cfg.stopped cfg.t_end cfg.tick_seconds cfg.total_ticks cfg.tpd fx.calendar fx.env_fields "
                "fx.schedule fx.schedule_hash layers.act_layer layers.arbiter layers.bridge "
                "layers.classical layers.conv layers.detector layers.energy layers.fam_layer "
@@ -539,7 +539,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
          origin=f"E1・run.py:4551-4592 @{_E}"),
     make("report", "計器", "run_end", _RP.report,
          tally="result sleep_counts frozen_sources_map",  # 段 FIX: 欄の別名 ``frozen_sources_map.update``
-         reads="cfg.absent_processes cfg.activity_on cfg.activity_region cfg.area_source "
+         reads="cfg.absent_processes cfg.defect_fixes_1103 cfg.activity_on cfg.activity_region cfg.area_source "
                "cfg.attention_on cfg.budget_mode_enum cfg.chooser cfg.classical_habit_p "
                "cfg.classical_tau cfg.day_index cfg.derive_rule cfg.eatery cfg.energy_on "
                "cfg.energy_rate cfg.exit_mode cfg.familiarity_k cfg.familiarity_on cfg.geometry "

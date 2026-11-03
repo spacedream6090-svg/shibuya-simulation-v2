@@ -38,8 +38,9 @@ def test_rights_is_the_last_key_and_observed(res):
     # calendar_shadow(試験の名は履歴のまま)
     # 〔第 5 期 空間の段 1〕その後ろ(末尾)に space
     # 〔11-01 段 2 の 4〕その後ろに rate_rules・〔11-02r §1 #7〕その後ろ(末尾)に absent_processes
-    assert keys == TOP and keys[-12:] == ["rights", "decision_port", "tools", "speech_port", "proximity", "experiment",
-                                          "batching", "body", "calendar_shadow", "space", "rate_rules", "absent_processes"]
+    assert keys == TOP and keys[-13:] == ["rights", "decision_port", "tools", "speech_port", "proximity", "experiment",
+                                          "batching", "body", "calendar_shadow", "space", "rate_rules", "absent_processes",
+                                          "defect_fixes_1103"]  # 〔11-03 §3〕その後ろ(末尾)に defect_fixes_1103
     assert MS.section_of("rights") == MS.OBSERVED and MS.section_of("rights.by_kind") == MS.OBSERVED
 
 

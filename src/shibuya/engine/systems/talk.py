@@ -1,5 +1,9 @@
 """engine.systems.talk — 会話の系(relations_wake・conversation)(第 1 期 1-0)。
 
+〔11-03 M10〕会話の終わりの解放と、招待が流れた招待側の戻しは腕 ``engine.defect_fixes_1103`` で分かれる(既定 on=
+CONVERSING の体だけ IDLE に戻す ``resolve.end_conversation``・旧道 legacy=全員を IDLE に戻す ``resolve.revert_conversation``)。会話の番で別の行為を選んだ体を
+セッションから外す配線(``conv.step`` に ``in_conversation`` を渡す)はしていない(本人の判断の口の設計=仕分け待ち)。
+
 中身は HEAD ``ee3abc7`` の ``engine/run.py`` の ``run_day`` の同じ区間のまま。系の関数は ``(ctx, b)`` を受け取り、
 区間の外から来る名前を箱から結ぶ前置き(局所の割り当ての表 ``local-assignment.json`` と同じ写像)と、
 刻みの中の受け渡しを ``TickScratch`` へ書く後置きだけを足した(文は変えない・``box.`` は ``b.``)。
@@ -82,9 +86,11 @@ def sys_conversation(ctx: Any, b: Any) -> None:
         cell_now = agents.registry.cell
         act_now = agents.registry.activity
         reverted: list[int] = []
+        #: 〔11-03 M10 の続き〕体 → 最初に積まれた原因(``conversation.REVERT_CAUSES``・計器の内訳だけに使う)
+        revert_cause: dict[int, str] = {}
 
-        def _revert(a: int) -> None:
-            """招待が流れた側を IDLE へ戻す候補に積む。
+        def _revert(a: int, cause: str) -> None:
+            """招待が流れた側を IDLE へ戻す候補に積む(``cause`` は計器の内訳=``conversation.REVERT_CAUSES``)。
 
             **すでに別のセッションに入っている個体は戻さない**(相互招待で
             A→B と B→C が同時に立つと、B の招待が流れたときに B が A との
@@ -92,6 +98,7 @@ def sys_conversation(ctx: Any, b: Any) -> None:
             """
             if a >= 0 and not conv.is_busy(int(a)):
                 reverted.append(int(a))
+                revert_cause.setdefault(int(a), cause)
 
         # ①(返事待ちの解決)は **Phase C の前**に済んでいる(``_settle_pending_invites``)。
 
@@ -112,7 +119,8 @@ def sys_conversation(ctx: Any, b: Any) -> None:
                 inviter = int(inviters[j])
                 invitee = int(invitees[j])
                 if invitee < 0 or invitee >= agents.n:
-                    _revert(inviter)
+                    # 対象の決まらない会話(resolve が失敗させた体=活動は変わっていない・CONVERSING の確かめより前)
+                    _revert(inviter, "no_target")
                     continue
                 if int(act_now[inviter]) != int(Activity.CONVERSING):
                     # C10 8a(D-93 (d)): 相手が会話中(PARTNER_BUSY)で、そのセッションに空きがあれば加わる
@@ -147,7 +155,7 @@ def sys_conversation(ctx: Any, b: Any) -> None:
                 if mutual and conv.invite_blocked_by_refractory(inviter, invitee, tick):
                     conv.n_invite_refractory_blocked += 1  # 軽-5: 相互指名も不応期の対象
                     conv.note_origin(origin, "rejected")
-                    _revert(inviter)
+                    _revert(inviter, "invite_failed")
                     continue
                 if mutual:
                     # その場で成立。相手の意思は相手自身の呼に出ているので抽選は引かない。
@@ -160,7 +168,7 @@ def sys_conversation(ctx: Any, b: Any) -> None:
                     )
                     if opened is None:
                         conv.note_origin(origin, "rejected")
-                        _revert(inviter)  # 内訳は ``conv.invite`` が数える
+                        _revert(inviter, "invite_failed")  # 内訳は ``conv.invite`` が数える
                     else:
                         conv.n_accepted += 1
                         conv.note_origin(origin, "accepted")
@@ -180,17 +188,30 @@ def sys_conversation(ctx: Any, b: Any) -> None:
                         same_cell=same_cell, origin=origin,
                     ):
                         conv.note_origin(origin, "rejected")
-                        _revert(inviter)
+                        _revert(inviter, "invite_failed")
                     else:
                         conv.note_origin(origin, "invites")
 
         # ---- ③ 期限切れの返事待ち(「無視された」=呼を消費しない) ----
         for stale in conv.expire_pending(tick):
-            _revert(stale)
+            _revert(stale, "expired")
         if rel_layer is not None:
             rel_layer.origin_of.clear()  # C10 8b: この刻みの起点の控えを捨てる(招待に使わなかった行)
         if reverted:
-            R.revert_conversation(agents, np.array(sorted(set(reverted)), dtype=np.int64))
+            _rv = np.array(sorted(set(reverted)), dtype=np.int64)
+            if b.cfg.defect_fixes_1103 == "on":
+                # 〔11-03 M10 の続き〕招待側の戻し(対象の決まらない会話の失敗・招待が流れた・期限切れの返事待ち)も、
+                # CONVERSING の体だけ IDLE に戻す(resolve が失敗させた体・返事待ちの間に別の行為を選んだ体の活動は変えない
+                # =対象のある失敗は旧道でも戻していない=それと揃う)。``_revert`` は積むときに会話中(is_busy)の体を除くが、
+                # 同じ刻みのうちにセッションに入った体もあるので書く直前にもう一度除く(検収 低-2)。戻さなかった数は
+                # 原因ごとに招待の戻しの計器へ(会話の終わりとは別)
+                _rv = _rv[np.fromiter((not conv.is_busy(int(x)) for x in _rv.tolist()), dtype=bool, count=_rv.size)]
+                for _cause in sorted({revert_cause[int(x)] for x in _rv.tolist()}):  # 逐次ループ宣言: 原因ぶん(≤ 4)
+                    _ids = _rv[np.fromiter((revert_cause[int(x)] == _cause for x in _rv.tolist()), dtype=bool,
+                                           count=_rv.size)]
+                    conv.note_revert_kept(_cause, R.end_conversation(agents, _ids))
+            else:  # 旧道(腕 legacy=版上げの前の値の再現・次の版上げで消す): 全員を IDLE に戻す
+                R.revert_conversation(agents, _rv)
         finished = conv.step(
             tick,
             cell=agents.registry.cell,
@@ -214,6 +235,11 @@ def sys_conversation(ctx: Any, b: Any) -> None:
             done = np.array(
                 sorted({int(p) for s in finished for p in s.participants}), dtype=np.int64
             )
-            R.revert_conversation(agents, done)
+            if b.cfg.defect_fixes_1103 == "on":
+                # 〔11-03 M10〕CONVERSING の参加者だけ IDLE に戻す(会話の番で選んだ別の行為=歩く・寝る・在店などは変えない)。
+                # 戻さなかった数を活動の名ごとに数える(計器 n_conversation_end_kept_activity=会話マネージャの診断)。
+                conv.note_end_kept(R.end_conversation(agents, done))
+            else:  # 旧道(腕 legacy=版上げの前の値の再現・次の版上げで消す): 参加者全員を IDLE に戻す
+                R.revert_conversation(agents, done)
         conv.purge_terminal()
         conv.purge_expired(tick)  # 10e(E2): 期限の切れた不応期・拒否の控えを落とす(挙動は不変・有界化)

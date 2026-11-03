@@ -69,8 +69,12 @@ def test_one_row_per_routing_decision(tool, doc):
 #: 〔11-02r §1 #7〕第342 の 1c137c6(678 行 ce4aa6db…6ee85198)の後に s2e の 1 行(DOC-s2e-absent-legacy-switch)を足し、
 #: 6 行に注(PR-waste_collection・PR-street_cleaning・PR-road_works_occupancy・PR-plan.road_works・
 #: PR-public_service_dispatch・PR-infra_daily_load)=記録 docs/bench/analysis/s2e-1102/README.md §1・§10。
-BASE_ROWS = 679
-BASE_ROWS_SHA = "eaf4d8e7efa2f130cf3dc74cf6c169d11b6566aa73c124d1ad83acd117c44bdb"
+#: 〔11-03 §3〕a800790(679 行 eaf4d8e7…bdb)の後に fix4 の 3 行(DOC-fix4-defect-legacy-switch・
+#: DOC-fix4-dead-accept-probability・DOC-fix4-dead-important-extra-turns)を足し、4 行の why に注(W15#4・
+#: BR-REFRACTORY-OVERHEARD・HD-engine.resolve-1af925f4・HD-engine.conversation-1af925f4)=記録
+#: docs/bench/analysis/fix4-1103/README.md §5。
+BASE_ROWS = 682
+BASE_ROWS_SHA = "c5e005b5fb1929da4e8efc7078f026379f5e4c4b8cdcb29b009a1852eeee82c3"
 
 
 def test_base_rows_are_byte_identical(doc):

@@ -126,6 +126,7 @@ def sys_phase_c(ctx: Any, b: Any) -> None:
         track_events=mem_layer is not None,
         proximity=None if proximity is None else proximity.rule,
         seat_release_walk=(b.cfg.seat_release == "walk"),  # 〔第 2 期 2-4 V3〕既定 walk・切替口 legacy
+        defect_fixes=(b.cfg.defect_fixes_1103 == "on"),  # 〔11-03 M11・M28〕既定 on・切替口 legacy
     )
     phase["phase_c"] += time.perf_counter() - t0
     if norm_meter is not None:
@@ -155,6 +156,9 @@ def sys_phase_c(ctx: Any, b: Any) -> None:
         leave_counts[_k] += int(getattr(outcome, _k))
     # 〔第 2 期 2-4 V3〕歩き出しで解いた在席の印の数(診断だけ・manifest の leave_effects.released_on_walk)
     leave_counts["n_seat_released_walk"] += int(outcome.n_seat_released_walk)
+    # 〔11-03 M11・M28〕列を離れた数・口座で払えて列に残った数(診断だけ・manifest の defect_fixes_1103.counts)
+    for _k in ("n_queue_left_by_move", "n_queue_left_by_board", "n_queue_dropped_away", "n_queue_payable_not_cash"):
+        leave_counts[_k] += int(getattr(outcome, _k))
     result.n_report_ok += outcome.n_report_ok
     result.n_report_no_event += outcome.n_report_no_event
     result.n_served_from_queue += outcome.n_served_from_queue

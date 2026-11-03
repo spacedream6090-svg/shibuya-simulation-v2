@@ -431,6 +431,10 @@ def build(_call_args: dict[str, Any]) -> Any:
         from shibuya.engine import absent_processes as _APR
 
         _APR.check_resume(_h.get("absent_processes"))
+        # 〔11-03 §3〕欠陥の直しの腕も設定の指紋に入れない=見出しの defect_fixes_1103(無ければ legacy)と今の腕を突き合わせる
+        from shibuya.engine import defect_fixes_1103 as _DFR
+
+        _DFR.check_resume(_h.get("defect_fixes_1103"))
         t_begin = int(_h["progress"]["next_T"])
         if not (0 < t_begin < total_ticks):
             raise ValueError(f"再開の時刻 T={t_begin} がこのランの範囲 0〜{total_ticks} の内側に無い(sim_days を見る)")
@@ -662,7 +666,12 @@ def build(_call_args: dict[str, Any]) -> Any:
                                                             "env_id": str(_env_fields["env_id"]),
                                                             "environment": copy.deepcopy(_env_fields)})
                    if tape_path is not None else None)
-    conv = (ConversationManager(seed, max_participants=int(conv_max_participants))
+    from shibuya.engine import defect_fixes_1103 as _DFB  # 〔11-03 §3〕欠陥 4 件の直しの腕(組み立てで 1 回読む)
+
+    defect_fixes_mode = _DFB.arm()
+    conv = (ConversationManager(seed, max_participants=int(conv_max_participants),
+                                # 〔11-03 M16〕届かない返事の不成立を counters に出すのは腕 on のランだけ(旧道の出力は 1 字も変えない)
+                                count_unreachable=(defect_fixes_mode == _DFB.MODE_ON))
             if conversations else None)
     # 10f(K21 (a)): mock 日課・W16 の抽出は母集団の seed から(既定は seed と同じ値)
     schedule = synthesize(n_agents, pop_seed, world.n_cells)
@@ -1085,7 +1094,10 @@ def build(_call_args: dict[str, Any]) -> Any:
     #: 9a(D-112 ④): 退去の効果の件数(診断だけ)。
     leave_counts: dict[str, int] = {"n_leave": 0, "n_leave_indoor": 0, "n_leave_queue": 0,
                                     "n_leave_conversing": 0,
-                                    "n_seat_released_walk": 0}  # 〔第 2 期 2-4 V3〕歩き出しで解いた在席の印
+                                    "n_seat_released_walk": 0,  # 〔第 2 期 2-4 V3〕歩き出しで解いた在席の印
+                                    # 〔11-03 M11・M28〕列を離れた数(移動・乗車・店のセルに居ない)・口座で払えて列に残った数
+                                    "n_queue_left_by_move": 0, "n_queue_left_by_board": 0,
+                                    "n_queue_dropped_away": 0, "n_queue_payable_not_cash": 0}
     leave_closed = 0
     _call_layer = 1 if classical_policy is not None else 2
     # ---- 二層の段 2: 活動層(「次の予定」は上の計画境界の表から引く) ----
@@ -1571,6 +1583,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             seat_release=_SRB.arm(),  # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(組み立てで 1 回読む)
             rate_rules=rate_rules_mode,  # 〔11-01 段 2 の 3・4〕率の形の規則の腕(組み立てで 1 回読む)
             absent_processes=absent_mode,  # 〔11-02r §1 #7〕「無い」と宣言した過程 5 件の腕(組み立てで 1 回読む)
+            defect_fixes_1103=defect_fixes_mode,  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しの腕(組み立てで 1 回読んだ値)
         ),
         soa=_BX.SoAState(agents=agents, world=world),
         layers=_BX.Layers(

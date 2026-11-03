@@ -221,6 +221,8 @@ PATHS: Final[dict[str, str]] = {
     **_mixed("rate_rules", config=("schema", "mode", "rules", "removed"), observed=("counts",)),
     # ---- 〔11-02r §1 #7〕「無い」と宣言した過程 5 件を止めた節(形の版・腕・過程の宣言・止めた印=設定/旧道の件数=観測) ----
     **_mixed("absent_processes", config=("schema", "mode", "processes", "stopped"), observed=("counts",)),
+    # ---- 〔11-03 §3〕棚卸し B の欠陥 4 件の直しの節(形の版・腕・4 件の宣言・直した印=設定/計器=観測) ----
+    **_mixed("defect_fixes_1103", config=("schema", "mode", "fixes", "fixed"), observed=("counts",)),
     **_mixed("proximity", config=("schema", "mode", "d_m", "d_arms", "leave_m", "b5_radius_m", "b5_radius_source",
                                   "notice", "unit_source", "index_cell_m", "position_source", "marks"), observed=(
         "index_builds", "indexed_max", "unit_occupancy_max", "units_occupied_max", "unit_occupancy_hist")),

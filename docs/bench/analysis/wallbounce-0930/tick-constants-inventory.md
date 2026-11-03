@@ -18,7 +18,7 @@
 
 | # | ファイル:行 | 名前 | 値 | 意味 | 秒(60 s tick) | 15 s で |
 |---|---|---|---|---|---|---|
-| 1 | agents/state.py:305-317(使う所 engine/resolve.py:254・:792-) | `REFRACTORY_MINUTES` | 0/360/150/60/15/45/10/15/5/5/30 | 起床条件 11 種の不応期。**名前は分だが tick として使う**(arbiter.py:128「tick_seconds=60 なので 1 分 = 1 tick」・resolve.py:293 同旨) | 0/21,600/9,000/3,600/900/2,700/600/900/300/300/1,800 | **変わる**(不応期が 1/4=起床の上限頻度 4 倍) |
+| 1 | agents/state.py:305-317〔11-03 行番号の注・fix4 の時点: :306-318〕(使う所 engine/resolve.py:254・:792-) | `REFRACTORY_MINUTES` | 0/360/150/60/15/45/10/15/5/5/30 | 起床条件 11 種の不応期。**名前は分だが tick として使う**(arbiter.py:128「tick_seconds=60 なので 1 分 = 1 tick」・resolve.py:293 同旨) | 0/21,600/9,000/3,600/900/2,700/600/900/300/300/1,800 | **変わる**(不応期が 1/4=起床の上限頻度 4 倍) |
 | 2 | engine/resolve.py:281-(`refractory_ticks(scale)`) | 実効不応期表 | 上の表 × 倍率(half-up 丸め) | ablation ③ の口 | 同上 | **変わる**(丸めも分の整数前提) |
 | 3 | engine/arbiter.py:106-111 | `T_MAX_TICKS` | 会話 3/計画境界 10/個体 30/セル 60 | 繰り延べの昇格までの待ち | 180/600/1,800/3,600 | **変わる** |
 | 4 | engine/arbiter.py:117 | `POOL_CAP_TICKS` | 2.0 | 端数繰越の上限(tick 何個ぶんの予算か) | 120 s ぶん | **変わる**(L4 の腕のときだけ効く) |
@@ -45,20 +45,20 @@
 | 15 | engine/intent.py:99(CLI engine/run.py:1839・cli.py:859 `--intent-max-ticks`) | `INTENT_MAX_TICKS` | 60(腕 30/120) | 歩いてこれを超えたら `TOO_FAR` | 3,600 | **変わる**。store_choice.py:19 の到達可能性も `歩速[m/tick] ≤ min(次の予定までの tick, INTENT_MAX_TICKS)` で tick の上限を使う |
 | 16 | engine/presence.py:88・:607 | `EXIT_WALK_MAX_TICKS` | 60 | 歩いて乗る退出の上限(9a) | 3,600 | **変わる** |
 | 17 | engine/presence.py:82(使う所 :1637・:1640) | `RETURN_MIN_AWAY_MIN` | 60 | 在圏ブロックへ戻る最短の外出。**名前は分だが tick に足している**(`self._earliest_enter_tick(t + RETURN_MIN_AWAY_MIN)`) | 3,600 | **変わる** |
-| 18 | engine/resolve.py:201(使う所 :1750・:1774) | `FOCUS_TTL_TICKS` | 10 | 注意の焦点の寿命(毎 tick −1) | 600 | **変わる** |
-| 19 | engine/resolve.py:236(使う所 :2544) | `REPORT_WINDOW_TICKS` | 5 | 通報の前提「知覚済み」の窓。コメントが「最長レーン L3(300 s)= 5 tick」=**秒からの導出値を tick で固定** | 300 | **変わる**(秒から導けば 20 tick) |
-| 20 | engine/resolve.py:237(使う所 :2009) | `BOARD_WAIT_LIMIT_TICKS` | 30 | 乗車待ちの打ち切り | 1,800 | **変わる** |
+| 18 | engine/resolve.py:201〔11-03 行番号の注・fix4 の時点: :212〕(使う所 :1750・:1774) | `FOCUS_TTL_TICKS` | 10 | 注意の焦点の寿命(毎 tick −1) | 600 | **変わる** |
+| 19 | engine/resolve.py:236〔11-03 行番号の注・fix4 の時点: :249〕(使う所 :2544) | `REPORT_WINDOW_TICKS` | 5 | 通報の前提「知覚済み」の窓。コメントが「最長レーン L3(300 s)= 5 tick」=**秒からの導出値を tick で固定** | 300 | **変わる**(秒から導けば 20 tick) |
+| 20 | engine/resolve.py:237〔11-03 行番号の注・fix4 の時点: :250〕(使う所 :2009) | `BOARD_WAIT_LIMIT_TICKS` | 30 | 乗車待ちの打ち切り | 1,800 | **変わる** |
 | 21 | engine/processes/rail.py:118・:123・:129 | `DWELL_TICKS`/`DWELL_TICKS_TERMINAL`/`DWELL_TICKS_BY_LINE` | 1 / 2 | 停車時間(通過型/終端) | 60 / 120 | **変わる**(15/30 s。コメント rail.py:113-117 は実値 30〜60 s を「1 分 tick では表せない」と宣言=**実値に近づく方向**) |
-| 22 | world/graph.py:12(使う所 engine/resolve.py:1519 `step_once`) | 1 tick = 1 ノード前進(既定の `--geometry node`=geometry.py:84) | 1 ノード/tick | node 幾何の歩行 | — | **変わる**(実時間の歩行速度が 4 倍) |
+| 22 | world/graph.py:12(使う所 engine/resolve.py:1519 `step_once`) | 1 tick = 1 ノード前進(既定の `--geometry node`=geometry.py:84)〔11-03 行番号の注・fix4 の時点: 今の既定の空間の腕は nav1(engine/space/nav1.py の `DEFAULT_SPACE`)=node の歩行は nav1 の外の道〕 | 1 ノード/tick | node 幾何の歩行 | — | **変わる**(実時間の歩行速度が 4 倍) |
 | 23 | engine/geometry.py:99(使う所 :328) | `MAX_HOPS_PER_TICK` | 32 | edge 幾何の 1 tick の辺跨ぎの上限(距離は `v × f(ρ) × tick_seconds`=:277) | — | **変わらない**(距離は秒で換算・上限に当たりにくくなるだけ) |
-| 24 | engine/activity.py:78・llm/contract.py:1163・:1165(換算 activity.py:211) | `PARTNER_MAX_MINUTES`/`UNTIL_DEFAULT_MINUTES`/`UNTIL_MAX_MINUTES` | 60 / 60 / 480 分 | 「まで」の既定と上限 | 3,600 / 3,600 / 28,800 | **変わらない**(`np.ceil(m / minutes_per_tick)`) |
+| 24 | engine/activity.py:78・llm/contract.py:1163・:1165〔11-03 行番号の注・fix4 の時点: llm/contract.py:1181・:1183〕(換算 activity.py:211) | `PARTNER_MAX_MINUTES`/`UNTIL_DEFAULT_MINUTES`/`UNTIL_MAX_MINUTES` | 60 / 60 / 480 分 | 「まで」の既定と上限 | 3,600 / 3,600 / 28,800 | **変わらない**(`np.ceil(m / minutes_per_tick)`) |
 
 ### 1-4 体(内受容)
 
 | # | ファイル:行 | 名前 | 値 | 意味 | 秒 | 15 s で |
 |---|---|---|---|---|---|---|
-| 25 | engine/resolve.py:176(使う所 :1115 `int(tick) % BODY_TICK_PERIOD == 0`) | `BODY_TICK_PERIOD` | 30 | 疲労 +1(energy でないときは空腹も +1)・就寝中の疲労 −2 の周期 | 1,800 | **変わる**(疲労の進みが 4 倍=既定の energy 腕でも疲労はこの規則) |
-| 26 | engine/resolve.py:184(使う所 :1117) | `ACTIVITY_REST_PERIOD_TICKS` | 10 | 休んでいる体の疲労 −1 の周期(`--activity on`=既定 cli.py:798) | 600 | **変わる** |
+| 25 | engine/resolve.py:176〔11-03 行番号の注・fix4 の時点: resolve から engine/body/rules.py:53 へ移った=第 3 期 3-5〕(使う所 :1115 `int(tick) % BODY_TICK_PERIOD == 0`) | `BODY_TICK_PERIOD` | 30 | 疲労 +1(energy でないときは空腹も +1)・就寝中の疲労 −2 の周期 | 1,800 | **変わる**(疲労の進みが 4 倍=既定の energy 腕でも疲労はこの規則) |
+| 26 | engine/resolve.py:184〔11-03 行番号の注・fix4 の時点: engine/body/rules.py:58 へ移った〕(使う所 :1117) | `ACTIVITY_REST_PERIOD_TICKS` | 10 | 休んでいる体の疲労 −1 の周期(`--activity on`=既定 cli.py:798) | 600 | **変わる** |
 | 27 | engine/energy.py:261・:334 | energy の消費(`EER/1440 × 分/tick × METs`) | — | 既定の空腹(`DEFAULT_HUNGER_MODEL = "energy"`=energy.py:105) | — | **変わらない**(`minutes_per_tick` で換算) |
 | 28 | engine/change_detect.py:73・:75 | `INTERO_UP_EDGES`/`INTERO_HYSTERESIS` | 4/7/9・1 | 内受容の段の閾値(値の閾値で時間ではない) | — | 定数は**変わらない**。ただし #25 で値の進みが 4 倍なので**跨ぎの回数は変わる** |
 
@@ -76,14 +76,14 @@
 
 | # | ファイル:行 | 名前 | 値 | 意味 | 秒 | 15 s で |
 |---|---|---|---|---|---|---|
-| 34 | perception/p_notice.py:113 | `MAX_EVENTS_PER_TICK` | 200 | 顕著イベントの tick あたり上限 | 200/60 s | **変わる**(上限が秒あたり 4 倍。上限に当たっていなければ影響なし=不明) |
+| 34 | perception/p_notice.py:113〔11-03 行番号の注・fix4 の時点: :112〕 | `MAX_EVENTS_PER_TICK` | 200 | 顕著イベントの tick あたり上限 | 200/60 s | **変わる**(上限が秒あたり 4 倍。上限に当たっていなければ影響なし=不明) |
 | 35 | engine/processes/salient.py:305-306 | 崩れの発生率 | 日あたり率 × tick_seconds/86,400 | ポアソンの tick あたり期待値 | — | **変わらない** |
 | 36 | engine/processes/goods_flow.py:115(使う所 :578) | `LITTER_G_PER_PERSON_TICK` | 0.05 g/人/tick | 街路ごみの発生 | 0.05 g/人/分 | **変わる**(1 日のごみが 4 倍) |
 | 37 | engine/processes/goods_flow.py:119(使う所 :584-585) | `CELLS_PER_SWEEP_TICK` | 8 | 清掃の進み | 8 セル/分 | **変わる** |
 | 38 | engine/processes/opening.py:50・:177-178/goods_flow.py:85・:223/environment.py:73・:246 | `STEP_MINUTES` 5・`RESTOCK_STEP_MINUTES` 5・`THERMAL_STEP_MINUTES`(=5) | 5 分 | 分を秒から出し `minute % 5` で間引く | — | **不明**: 該当の分に 4 tick 続けて走る。開閉(状態の比較)・暑さ(同じ値の上書き)は冪等に見えるが、補充(在庫が発注点未満なら発注)は 4 回走ると量が変わりうる【推測】 |
 | 39 | engine/processes/civic.py:90・:137/logistics.py:74/traffic.py:145/environment.py:214/salient.py:423 | 時刻の換算 | `tick * tick_seconds // 60` | 世界過程の時刻 | — | **変わらない** |
 | 40 | engine/run.py:239(使う所 :3124・llm/fleet.py:354・:622) | `TIME_BUCKET_TICKS` | 5 | 艦隊の順序制御の「5 分帯」(知覚契約 §2.4 ⑨) | 300 | **変わる**(75 秒帯になる) |
-| 41 | engine/llm_bridge.py:155-161・:176-192 | `LANE_SECONDS`・`delta_think_ticks` | L1 2.6 s ほか | δ_think(秒 → `ceil(秒/tick秒)`) | — | **変わらない**(L1 は 15 s でも 1 tick)。run.py:231 `DELTA_THINK_TICKS` は 60 秒固定で計算した定数だが src 内で参照しているのは docstring だけ(grep) |
+| 41 | engine/llm_bridge.py:155-161・:176-192〔11-03 行番号の注・fix4 の時点: :161-167・:182-198〕 | `LANE_SECONDS`・`delta_think_ticks` | L1 2.6 s ほか | δ_think(秒 → `ceil(秒/tick秒)`) | — | **変わらない**(L1 は 15 s でも 1 tick)。run.py:231 `DELTA_THINK_TICKS` は 60 秒固定で計算した定数だが src 内で参照しているのは docstring だけ(grep) |
 | 42 | engine/run.py:2914-2917 | 艦隊の応答の適用 `max(t_apply, tick+1)` | — | 本番(障壁あり)では常に発射 + 2 tick で適用([tick-llm-overlap.md](tick-llm-overlap.md) §1-4) | 120 | **変わる**(30 s) |
 | 43 | engine/norm_meter.py:57(使う所 :341・:346) | `COWALK_MINUTES` | 5 | 群れ歩きの連続時間。**連続 tick 数と比べている** | 300 | **変わる**(計器のみ・世界は動かない) |
 | 44 | engine/energy.py:583-588 | `stage_ticks` | — | 空腹の段の延べ(tick 数で数える計器) | — | **変わる**(計器の単位のみ) |
@@ -117,7 +117,7 @@
 | core/types.py:93-94 | `DEFAULT_TICK_SECONDS = 60`・`MINUTES_PER_SIM_DAY = 1_440` |
 | cli.py:621(・:385) | `--ticks` の既定 = `MINUTES_PER_SIM_DAY`(1 日 = 1,440 tick) |
 | engine/run.py:2229 | 知覚の時計 `clock_fn=lambda t: start + timedelta(minutes=int(t))` |
-| perception/renderer.py:1054 | 既定の `clock_fn` も `timedelta(minutes=int(t))` |
+| perception/renderer.py:1054〔11-03 行番号の注・fix4 の時点: :1168〕 | 既定の `clock_fn` も `timedelta(minutes=int(t))` |
 | engine/run.py:3019 | 起床率/時 `_h = (tick // 60) % 24` |
 | engine/run.py:3140 | 呼/時 `calls_by_hour[(tick // 60) % 24]` |
 | engine/run.py:490 | 同(docstring「時 = `(tick // 60) % 24`」) |

@@ -157,6 +157,8 @@ def sys_apply_responses(ctx: Any, b: Any) -> None:
             consumed = _settle_pending_invites(
                 conv, agents, tick, agents_in_order, codes, tgt_person, R, np,
                 attention_on, **({} if prox_rule is None else {"rule": prox_rule}),
+                drop_unreachable=(b.cfg.defect_fixes_1103 == "on"),  # 〔11-03 M16〕届かない返事は不成立(既定 on)
+                keep_activity=(b.cfg.defect_fixes_1103 == "on"),  # 〔11-03 M10 の続き〕招待側の戻しは CONVERSING だけ
             )
             keep = (
                 np.array(

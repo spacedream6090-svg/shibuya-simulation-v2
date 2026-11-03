@@ -228,7 +228,9 @@ def test_named_target_drives_invites_end_to_end():
     # 帳尻: 出た招待は 成立 / 断り / 期限切れ / 未決 のどれかで必ず説明できる
     assert (
         c["conv_accepted"] + c["conv_declined"] + c["conv_pending_expired"]
-        + c["conv_pending_open"] == c["conv_invites"]
+        + c["conv_pending_open"]
+        + c.get("conv_pending_unreachable", 0)  # 〔11-03 M16〕届かない返事の不成立(腕 on のランだけ出る)
+        == c["conv_invites"]
     ), c
     assert res.conserved
     assert c["conv_fallback_same_batch"] > 0  # 別セルの名指しはフォールバックへ
@@ -255,7 +257,9 @@ def test_declining_invitees_do_not_open_sessions_and_the_inviter_is_reverted():
     assert c["sessions_opened"] == c["conv_accepted"]
     assert (
         c["conv_accepted"] + c["conv_declined"] + c["conv_pending_expired"]
-        + c["conv_pending_open"] == c["conv_invites"]
+        + c["conv_pending_open"]
+        + c.get("conv_pending_unreachable", 0)  # 〔11-03 M16〕届かない返事の不成立(腕 on のランだけ出る)
+        == c["conv_invites"]
     ), c
     act = res.agents.registry.activity
     partner = res.agents.registry.talk_partner

@@ -310,7 +310,8 @@ class CrowdProcess:
         """待ち行列の上位 k(``(POI, 表示名, 人数)``)。B4b へ差し込むための材料。
 
         Note:
-            レンダラ側に B4b の差し込み口が無いので**配線していない**(モジュール docstring)。
+            配線済み(モジュール docstring の「B4b への配線」): 知覚の系 ``engine.systems.perceive`` が
+            ``runner.queue_rows(3)`` を ``Renderer.prepare_tick(queues=...)`` へ毎 tick 渡す。
         """
         if self.queue_len.size == 0:
             return ()

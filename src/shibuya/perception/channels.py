@@ -125,6 +125,8 @@ class ChannelLimit:
 #: §3.2 の表(**行の追加/削除は契約書の改版**)。
 CHANNEL_LIMITS: Final[tuple[ChannelLimit, ...]] = (
     # ---- B5 220 ----
+    # 〔11-03 棚卸し A §4-1〕実装はこう: 描画(``renderer``)は近接人物を ``max_items=len(near)`` で切る=知人の常掲・会話の
+    # 参加者・焦点で 3 を超えうる。宣言はこう: 上位 3 件まで(下の max_items=3)。どちらに合わせるかは仕分け待ち(11-03 §2)。
     ChannelLimit("B5.near_person", "B5", "近接人物 上位k(密度逓減3/2/1)×33", 100, Grade.A,
                  "Cowan 3-5チャンク・MOT 3-4・注視確率0.86・v1実測近接3人",
                  max_items=3, ablation="近接1人あたり33→25 tok / k逓減 vs 固定3"),
@@ -138,6 +140,8 @@ CHANNEL_LIMITS: Final[tuple[ChannelLimit, ...]] = (
     ChannelLimit("B2.ground", "B2", "近接路面・通行可能性(<4 m)", 40, Grade.A,
                  "near path (<4 m) … critical・クリティカル注視 近路面19.5%(最大)",
                  max_items=1),
+    # 〔11-03 棚卸し A §4-1〕つなぎの台帳 W15#4 は W15 の凍結文の経路の「可視物は上位 2 件・目印 2 件」。合成文の経路は下の
+    # 上位 3 件・目印 2 件(``renderer`` の合成の可視物リスト)。件数をそろえるかは仕分け待ち(11-03 §2)。
     ChannelLimit("B2.visible", "B2", "店舗・施設 可視物上位3×20", 60, Grade.C,
                  "v1プローブ(可視3件)のみ", max_items=3),
     ChannelLimit("B2.signage", "B2", "看板・広告面1件", 25, Grade.C,

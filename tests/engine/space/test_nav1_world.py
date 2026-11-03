@@ -97,9 +97,9 @@ MAIN = Path("data/world/v2")
 #: 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 None 7bfe215641b792ac / 62_176・cell 6cc4f835866c1ebd / 63_853・unscaled
 #: ef9999b0d56e50da / 61_234=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)
 NAV1_GOLDEN = {
-    None: ("73aa01d9afb206d0", 61_066),
-    "cell": ("7b976b2272ef57e4", 62_600),
-    "unscaled": ("7a27bf218610714c", 60_191),
+    None: ("c8d68704b7b0760d", 60_939),  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 73aa01d9afb206d0 / 61_066=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)
+    "cell": ("ab503d82e499ccfe", 62_543),  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 7b976b2272ef57e4 / 62_600=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)
+    "unscaled": ("2d1c84ef289fb54d", 60_211),  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 7a27bf218610714c / 60_191=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)
 }
 
 

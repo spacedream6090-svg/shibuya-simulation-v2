@@ -821,6 +821,9 @@ class RunResult:
     rate_rules: dict[str, Any] = field(default_factory=dict)
     #: 〔11-02r §1 #7〕「無い」と宣言した過程 5 件を止めた節(``engine.absent_processes.manifest_fields``=腕・止めた印・旧道の件数)。
     absent_processes: dict[str, Any] = field(default_factory=dict)
+    #: 〔11-03 §3〕棚卸し B の欠陥 4 件(M10・M11・M28・M16)の直しの節(``engine.defect_fixes_1103.manifest_fields``=腕・
+    #: 直した印・計器)。
+    defect_fixes_1103: dict[str, Any] = field(default_factory=dict)
     #: 在圏ブロックの読み口(``engine.presence.DERIVE_RULES``・既定 v2)。
     derive_rule: str = "v2"
     #: **C9 位置幾何の腕**(G1・2026-09-17 ユーザー決定)。``"node"``=現行の 1 tick=1 ノード
@@ -1470,6 +1473,9 @@ class RunResult:
             # ---- 〔11-02r §1 #7〕「無い」と宣言した過程 5 件を止めた節(形の版・腕・過程の宣言・止めた印=設定/旧道の件数=観測)。
             # 末尾=… → 11-01 の rate_rules → 11-02r。記録だけ(final・behavior-hash は manifest を読まない)。列追加のみ ----
             "absent_processes": dict(self.absent_processes),
+            # ---- 〔11-03 §3〕棚卸し B の欠陥 4 件の直しの節(形の版・腕・4 件の宣言・直した印=設定/計器=観測)。
+            # 末尾=… → 11-02r の absent_processes → 11-03。記録だけ(final・behavior-hash は manifest を読まない)。列追加のみ ----
+            "defect_fixes_1103": dict(self.defect_fixes_1103),
         }
 
     def economy_fields(self) -> dict[str, Any]:
@@ -1850,7 +1856,8 @@ def _schedule_with_population(
 
 
 def _settle_pending_invites(
-    conv, agents, tick, agent_ids, codes, named, R, np, by_distance: bool = False, rule: Any = None
+    conv, agents, tick, agent_ids, codes, named, R, np, by_distance: bool = False, rule: Any = None,
+    drop_unreachable: bool = False, keep_activity: bool = False,
 ) -> set[int]:
     """返事待ちの招待を**Phase C の前に**確定する(層2 中-1・09-09)。
 
@@ -1868,6 +1875,16 @@ def _settle_pending_invites(
 
     〔第 2 期 2-2 段 11a〕``rule``(腕 ``--proximity distance`` の ``engine.proximity.ProximityRule``)を渡すと、届くかを
     「同じ層・距離 ≤ d、または同じ B5 の単位」で見る(``resolve.talk_within_reach`` の ``rule``)。``None``(既定)は今のまま。
+
+    〔11-03 M16〕``drop_unreachable``(腕 ``engine.defect_fixes_1103`` の on=CLI の既定)では、返事が **会話** で対象が招待者
+    (か名指しなし)なのに**届かない**ときは断りではなく**不成立**にする(``ConversationManager.drop_pending``=拒否の記憶を
+    残さない)。招待側は今と同じく戻す。本人の行は intent に残す(今と同じ=B6 は今のまま)。``False``(この関数の既定=
+    直に呼ぶ試験・切替口 legacy)は版上げの前の挙動(届かない承諾も断りに数え、組を 60 刻み記憶する)。
+
+    〔11-03 M10 の続き〕``keep_activity``(同じ腕 on)では、末尾の招待側の戻しを CONVERSING の体だけ IDLE にする形
+    (``resolve.end_conversation``)にする=返事待ちの間に別の行為を選んだ招待側の活動は変えない。戻す体は会話中(is_busy)
+    でない招待側だけ(下の 2 か所の条件)。戻さなかった数は ``ConversationManager.note_revert_kept`` に積む。``False``(この関数
+    の既定=旧道)は全員を IDLE に戻す(``resolve.revert_conversation``)。
 
     Returns:
         **intent から外す**個体(=承諾した被招待。承諾は新しい招待ではない)。
@@ -1890,6 +1907,12 @@ def _settle_pending_invites(
         )
         aimed_at_inviter = int(named[k]) in (a, -1)
         ok = bool(codes[k] == C.ACT_TALK) and aimed_at_inviter and same_cell
+        if drop_unreachable and bool(codes[k] == C.ACT_TALK) and aimed_at_inviter and not same_cell:
+            # 〔11-03 M16〕承諾したが届かない=不成立(断りではない)。招待側は下と同じく戻す
+            conv.drop_pending(b, tick, "unreachable")
+            if a >= 0 and not conv.is_busy(a):
+                reverted.append(a)
+            continue
         opened = conv.resolve_pending(b, tick, accepted=ok)
         if opened is not None:
             accepted.append((a, b))
@@ -1903,7 +1926,13 @@ def _settle_pending_invites(
             np.array([y for _, y in accepted], dtype=np.int64),
         )
     if reverted:
-        R.revert_conversation(agents, np.array(sorted(set(reverted)), dtype=np.int64))
+        _rv = np.array(sorted(set(reverted)), dtype=np.int64)
+        if keep_activity:  # 〔11-03 M10 の続き〕CONVERSING の招待側だけ IDLE に戻す
+            # 積むときは会話中でなかったが、同じ呼び出しの後の行で承諾してセッションに入った体は書く直前に除く(検収 低-2)
+            _rv = _rv[np.fromiter((not conv.is_busy(int(x)) for x in _rv.tolist()), dtype=bool, count=_rv.size)]
+            conv.note_revert_kept("settle", R.end_conversation(agents, _rv))
+        else:
+            R.revert_conversation(agents, _rv)
     return consumed
 
 

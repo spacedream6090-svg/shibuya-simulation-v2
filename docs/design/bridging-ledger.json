@@ -1017,7 +1017,7 @@
   {
    "id": "W15#4",
    "what": "プロンプトへ載せる可視物は上位 2 件・目印 2 件(順序は renderer と同じ・本文に書ける名前は 2 つまで)",
-   "why": "構築の段 W15 が宣言した近似(StageResult.expedients の 4 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W15#4)。外す段: 空間の段 3 のセルの廃止と知覚の個人化(セルの定型文をやめる)",
+   "why": "構築の段 W15 が宣言した近似(StageResult.expedients の 4 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W15#4)。外す段: 空間の段 3 のセルの廃止と知覚の個人化(セルの定型文をやめる) 〔11-03 §3 の段 2・記録 docs/bench/analysis/fix4-1103/README.md §3〕実装はこう: W15 の凍結文の経路は可視物 2 件・目印 2 件、合成文の経路(perception/channels.py の B2.visible=上位 3 件・renderer の合成の可視物リスト)は上位 3 件・目印 2 件=経路で件数が違う。宣言はこう: 上位 2 件・目印 2 件。そろえるかは仕分け待ち(11-03 §2)",
    "remove_at": "5-3",
    "declared_in": "src/shibuya/build/lang/w15_cell_static.py#expedients:f2679ba0",
    "conf": "expedient",
@@ -2047,7 +2047,7 @@
   {
    "id": "BR-REFRACTORY-OVERHEARD",
    "what": "不応期「傍受」5 分(起床条件 OVERHEARD・知覚契約書 §6 の表・同一話者 30 分は C2 未実装)",
-   "why": "「いつ考えるか」(起床の検出と再呼び出しの間隔)をエンジンが強制している。驚き駆動で判断モデルへ移す(回答 10-13b §4-1)。T3 で外す(回答 10-13b §4-2 の 2・カレンダー 1b と同じ版上げ)",
+   "why": "「いつ考えるか」(起床の検出と再呼び出しの間隔)をエンジンが強制している。驚き駆動で判断モデルへ移す(回答 10-13b §4-1)。T3 で外す(回答 10-13b §4-2 の 2・カレンダー 1b と同じ版上げ) 〔11-03 §3 の段 2・記録 docs/bench/analysis/fix4-1103/README.md §3〕「同一話者 30 分は C2 未実装」と書くが、会話の側に招待の間隔 30(engine/conversation.py の SPEAKER_INVITE_REFRACTORY_TICKS=同じ招待側が次に誘うまで)がある。傍受の起床の不応期と同じものかは不明=仕分け待ち(11-03 §2)",
    "remove_at": "T3",
    "declared_in": "docs/design/v2-answers-2026-10-13b.md §4-2 の 2",
    "conf": "expedient",
@@ -2398,7 +2398,7 @@
   {
    "id": "HD-engine.conversation-1af925f4",
    "what": "src/shibuya/engine/conversation.py の docstring の見出し「expedient(本モジュール分)」の下の項 7 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 空間の段 3(会話の距離 2 m の決め打ちを外す)",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 空間の段 3(会話の距離 2 m の決め打ちを外す) 〔11-03 §3 の段 2・記録 docs/bench/analysis/fix4-1103/README.md §3〕d_talk の代理の項を今の実装に合わせて書き直し(届くかは呼び手が渡す=既定の近接の腕 distance・相手の idle は見ない)、応答確率 0.8 の項に「呼び手は全部 answered=True=抽選は引かれない=死んでいる道」の注を足した(行 DOC-fix4-dead-accept-probability)。項の数は 7 のまま",
    "remove_at": "5-3",
    "declared_in": "src/shibuya/engine/conversation.py#heading:1af925f4",
    "conf": "expedient",
@@ -2691,7 +2691,7 @@
   {
    "id": "HD-engine.resolve-1af925f4",
    "what": "src/shibuya/engine/resolve.py の docstring の見出し「expedient(本モジュール分)」の下の項 6 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 空間の段 1(1 刻み=1 ノードの移動をナビメッシュの移動に)〔第 3 期 3-5〕内受容の自然変動の項(③ 群の空腹と疲れ=D8)は本人の体の層 src/shibuya/engine/body/rules.py の BODY_EXPEDIENTS へ移した(行 BR-BODY-NATURAL-VARIATION)。この見出しの同じ位置の項は行為の効果の内受容(休憩・購入・食事)に書き直した=項の数は 6 のまま",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 空間の段 1(1 刻み=1 ノードの移動をナビメッシュの移動に)〔第 3 期 3-5〕内受容の自然変動の項(③ 群の空腹と疲れ=D8)は本人の体の層 src/shibuya/engine/body/rules.py の BODY_EXPEDIENTS へ移した(行 BR-BODY-NATURAL-VARIATION)。この見出しの同じ位置の項は行為の効果の内受容(休憩・購入・食事)に書き直した=項の数は 6 のまま 〔11-03 §3 の段 2・記録 docs/bench/analysis/fix4-1103/README.md §3〕項の文を今の実装に合わせて書き直した(移動の幾何の腕 node・edge・nav1・鉄道の過程を渡したランの乗車と降車・会話は招待の成否と活動の欄だけ・日次内省は数えるだけ)。項の数は 6 のまま=declared_in と what は不変",
    "remove_at": "5-1",
    "declared_in": "src/shibuya/engine/resolve.py#heading:1af925f4",
    "conf": "expedient",
@@ -8436,6 +8436,51 @@
    "code_at": [
     "src/shibuya/engine/absent_processes.py",
     "src/shibuya/cli.py"
+   ]
+  },
+  {
+   "id": "DOC-fix4-defect-legacy-switch",
+   "what": "切替口 --defect-fixes-1103 legacy(環境変数 SHIBUYA_DEFECT_FIXES_1103=legacy)は 11-03 §3 の版上げの前の値の再現のためだけの道(会話の終わりで参加者全員を IDLE に戻す=M10・列の印が移動と乗車で消えない=M11・列の支払いの確かめが現金だけ=M28・届かない承諾を断りに数える=M16)",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)。legacy の 5,000 体 × 1 日 mock の byte-check は記録 docs/bench/analysis/fix4-1103/README.md §6。次の版上げで切替口を消すときに書き直す試験(旧道に固定した試験): tests/engine/test_defect_fixes_1103.py の legacy の側",
+   "remove_at": "next-bump",
+   "declared_in": "docs/bench/analysis/fix4-1103/README.md",
+   "conf": "expedient",
+   "since": "2026-11-03",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/defect_fixes_1103.py",
+    "src/shibuya/cli.py"
+   ]
+  },
+  {
+   "id": "DOC-fix4-dead-accept-probability",
+   "what": "会話の応答率 0.8 の抽選(engine/conversation.py の ACCEPT_PROBABILITY・ConversationManager._accepts=invite に answered=None を渡したときだけ引く)は死んでいる道(今の呼び手=会話の系 engine/systems/talk.py と連絡の道具 engine/contact/layer.py は全部 answered=True)",
+   "why": "棚卸し B §4-1(docs/reference/behavior-audit-B-resolve-world-2026-11-02.md)。宣言(conversation.py の docstring の expedient の項・定数の注)は残っているのに抽選は一度も引かれない。消さずに印だけ付けた(次の版上げで消す=11-03 §3 の段 2 の親の発注。外す段は親の案=inferred)。状態台帳の欄(conv の accept_probability)も一緒に消す",
+   "remove_at": "next-bump",
+   "declared_in": "docs/bench/analysis/fix4-1103/README.md §3",
+   "conf": "expedient",
+   "since": "2026-11-03",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/conversation.py",
+    "src/shibuya/engine/state_ledger.py"
+   ]
+  },
+  {
+   "id": "DOC-fix4-dead-important-extra-turns",
+   "what": "会話の「重要度上位のみ +2 呼」(engine/conversation.py の IMPORTANT_EXTRA_TURNS・ConversationManager の important と max_turns_for)は死んでいる道(組み立て engine/systems/build.py は important を渡さない=対象が空)",
+   "why": "棚卸し B §4-1。契約書 §3 の「重要度上位のみ+2呼」の宣言はあるが、対象の集合をどこからも渡していない=+2 呼は誰にも付かない。消さずに印だけ付けた(次の版上げで消す=11-03 §3 の段 2 の親の発注。外す段は親の案=inferred)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/bench/analysis/fix4-1103/README.md §3",
+   "conf": "expedient",
+   "since": "2026-11-03",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/conversation.py",
+    "src/shibuya/engine/systems/build.py"
    ]
   },
   {

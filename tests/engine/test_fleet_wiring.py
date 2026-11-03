@@ -388,7 +388,9 @@ def test_fleet_conversation_opens_a_session_like_the_mock_path(fleet_servers):
     assert c["conv_invites"] > 0, c  # 招待機構へ入った=(c) は原因ではない
     assert (
         c["conv_accepted"] + c["conv_declined"] + c["conv_pending_expired"]
-        + c["conv_pending_open"] == c["conv_invites"]
+        + c["conv_pending_open"]
+        + c.get("conv_pending_unreachable", 0)  # 〔11-03 M16〕届かない返事の不成立(腕 on のランだけ出る)
+        == c["conv_invites"]
     ), c
     assert res.conserved
 
@@ -438,7 +440,13 @@ def test_conversations_need_awake_partners_so_night_only_runs_barely_open_any():
 
     # ① D-56 **前**の挙動(帰無腕)= 真夜中でも呼は立つが、相手が寝ているので成立率が低い。
     night, n_open, n_calls = rate(60, sleep_suppression=False)
-    day, d_open, d_calls = rate(CONV_TICKS, sleep_suppression=False)
+    # 〔11-03 §3 M10 の続き〕昼の側は 1 日を通す(前は CONV_TICKS=600)。旧道は「対象の決まらない会話」を選んで失敗した体
+    # (この台本の「対象: P-1」が決まらない体=resolve は活動を変えない)も招待側の戻しで IDLE にしていたので、寝ている体を
+    # 起こしていた(この試験の 600 刻みで寝ていて戻されなかった体 126=計器 no_target。成立 1 件)。直した道では寝た体は寝たまま=
+    # 600 刻みでは成立 0・1 日で 6(記録 fix4-1103 §4)。旧道(SHIBUYA_DEFECT_FIXES_1103=legacy)は 600 刻みで前のとおり通る
+    from shibuya.core.time_consts import STEPS_PER_DAY
+
+    day, d_open, d_calls = rate(STEPS_PER_DAY, sleep_suppression=False)
     assert n_calls > 0 and d_calls > 0
     assert d_open > n_open
     assert day > 5.0 * night, (night, day, n_open, d_open)

@@ -484,6 +484,7 @@ def run(
         from shibuya.engine import seat_release as _seat_release  # 〔第 2 期 2-4 V3〕同じ(既定 walk と違えば腕)
         from shibuya.engine import rate_rules as _rate_rules  # 〔11-01 段 2 の 4〕率の形の規則(既定 off と違えば腕)
         from shibuya.engine import absent_processes as _absent_processes  # 〔11-02r §1 #7〕「無い」の過程(既定 stopped と違えば腕)
+        from shibuya.engine import defect_fixes_1103 as _defect_fixes_1103  # 〔11-03 §3〕欠陥 4 件の直し(既定 on と違えば腕)
         from shibuya.engine import batching as _BATCH  # 〔第 3 期 3-2〕まとめの幅の腕(環境変数か --batch-width-s)
         from shibuya.engine import body as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)
         from shibuya.engine import calendar_shadow as _calendar_shadow  # 〔第 3 期 3-1〕暦 1a の影(既定 w17 と違えば腕)
@@ -505,6 +506,7 @@ def run(
                               or _seat_release.arm() != _seat_release.DEFAULT_MODE  # 〔2-4 V3〕既定は walk
                               or _rate_rules.arm() != _rate_rules.DEFAULT_MODE  # 〔11-01〕既定は off
                               or _absent_processes.arm() != _absent_processes.DEFAULT_MODE  # 〔11-02r〕既定は stopped
+                              or _defect_fixes_1103.arm() != _defect_fixes_1103.DEFAULT_MODE  # 〔11-03〕既定は on
                               or _ES2.arm() != _ES2.DEFAULT_ARM  # 〔2-4 V4〕経済の段階 2 も(既定 on と違えば腕)
                               or not _BATCH.is_default()  # 〔第 3 期 3-2〕まとめの幅(既定 60 秒と違えば腕)
                               or _body.arm() != _body.DEFAULT_ARM  # 〔3-5〕体の予約の腕(既定は sweep)
@@ -983,6 +985,16 @@ def main(argv: list[str] | None = None) -> int:
              "指定すれば環境変数より強い)。stopped=ごみの収集・街路の清掃・道路工事・救急と警察の出動・電気と水の負荷を止めた"
              "状態(宣言は world/processes/absent.py・切替は engine.absent_processes)。legacy=版上げの前の値の再現のためだけの道"
              "(次の版上げで消す)。腕は設定の指紋に入れない(manifest の absent_processes に出る・既定と違えばランの種類は arm)",
+    )
+    ap.add_argument(
+        "--defect-fixes-1103",
+        choices=("on", "legacy"),
+        default=None,
+        help="〔11-03 §3〕棚卸し B の欠陥 4 件の直しの切替口(既定 on・環境変数 SHIBUYA_DEFECT_FIXES_1103 と同じ。"
+             "指定すれば環境変数より強い)。on=会話の終わりで会話中の体だけ IDLE に戻す(M10)・移動と乗車で歩き出した体は"
+             "列を離れる(M11)・列の支払いの確かめを現金か口座に(M28)・届かない承諾は断りでなく不成立(M16)"
+             "(切替は engine.defect_fixes_1103)。legacy=版上げの前の値の再現のためだけの道(次の版上げで消す)。"
+             "腕は設定の指紋に入れない(manifest の defect_fixes_1103 に出る・既定と違えばランの種類は arm)",
     )
     ap.add_argument(
         "--report-precondition",
@@ -1623,6 +1635,10 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import absent_processes as _absent_processes
 
         _absent_processes.set_arm(str(args.absent_processes))
+    if args.defect_fixes_1103 is not None:  # 〔11-03 §3〕欠陥 4 件の直しの腕(組み立てが読む。指定は環境変数より強い)
+        from shibuya.engine import defect_fixes_1103 as _defect_fixes_1103
+
+        _defect_fixes_1103.set_arm(str(args.defect_fixes_1103))
     if args.seat_release is not None:  # 〔第 2 期 2-4 V3〕在席の印の腕(組み立てが読む。指定は環境変数より強い)
         from shibuya.engine import seat_release as _seat_release
 

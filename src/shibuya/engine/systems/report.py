@@ -404,6 +404,9 @@ def report(ctx: Any, b: Any) -> Any:
     from shibuya.engine import absent_processes as _APM  # 〔11-02r §1 #7〕「無い」の過程を止めた節(腕・印・旧道の件数)
 
     result.absent_processes = _APM.manifest_fields(b.cfg.absent_processes, b.layers.runner)
+    from shibuya.engine import defect_fixes_1103 as _DFM  # 〔11-03 §3〕欠陥 4 件の直しの節(腕・直した印・計器)
+
+    result.defect_fixes_1103 = _DFM.manifest_fields(b.cfg.defect_fixes_1103, leave_counts, b.layers.conv)
     result.derive_rule = str(derive_rule)
     result.geometry = str(geometry)
     result.space = str(space)

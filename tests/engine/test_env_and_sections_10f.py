@@ -70,6 +70,8 @@ SP1_KEYS = ("space",)
 RR11_KEYS = ("rate_rules",)
 #: 〔11-02r §1 #7〕「無い」と宣言した過程 5 件を止めた節(末尾)。
 AP12_KEYS = ("absent_processes",)
+#: 〔11-03 §3〕棚卸し B の欠陥 4 件の直しの節(末尾)。
+DF13_KEYS = ("defect_fixes_1103",)
 PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite", "blake3", "os", "os_release",
                  "os_version", "machine", "cpu", "numpy_simd", "deps", "deps_sha256", "deps_count"}
 #: 設定の節の道筋の一覧の sha256(環境に依らない golden=検収 N3 の 3)。節を変えたら理由を記録に書いて更新する。
@@ -152,7 +154,9 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: 店の帯の非該当の理由)を足した(前 94d2cc0c…・記録 s2-rates-1101)
 #: 〔11-02r §1 #7〕absent_processes.mode・processes・schema・stopped を足した(前 fc5174c7…3308fca73=この 4 本を外すと前の値に
 #: 戻る・記録 s2e-1102)
-CONFIG_PATHS_SHA256 = "0e6dfaaafb0a0f85d09fb7cdc5602bf78f13af4a3efc2732865e172b81f9ec69"
+#: 〔11-03 §3〕defect_fixes_1103.fixed・fixes・mode・schema を足した(前 0e6dfaaa…81f9ec69=この 4 本を外すと前の値に戻る・
+#: 記録 fix4-1103)
+CONFIG_PATHS_SHA256 = "2531b96fb30889c8a1f10bba35df951bd9b8897b3d8733c66001cba446316cb5"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 
@@ -318,7 +322,8 @@ def test_t1_two_processes_write_the_same_env_id_and_final_to_the_files(tmp_path)
     # 列追加のみ(末尾に 3 つ+第 2 段の 2 つ+10e の欄+1-1 T0 の欄+1-4 の欄+1-9 の欄+1-2 の欄+1-5 の欄+1-8 J0 の欄+1-7 の欄
     # +1-8b の欄+2-2 の欄+3-3 の欄+3-1 の欄)
     tail = (NEW_KEYS + STAGE2_KEYS + E10_KEYS + T0_KEYS + R14_KEYS + C19_KEYS + P12_KEYS + R15_KEYS + J08_KEYS
-            + C07_KEYS + S8B_KEYS + PX22_KEYS + X33_KEYS + TM32_KEYS + BD35_KEYS + CA31_KEYS + SP1_KEYS + RR11_KEYS + AP12_KEYS)
+            + C07_KEYS + S8B_KEYS + PX22_KEYS + X33_KEYS + TM32_KEYS + BD35_KEYS + CA31_KEYS + SP1_KEYS + RR11_KEYS + AP12_KEYS
+            + DF13_KEYS)
     assert list(c1["manifest"])[-len(tail):] == list(tail)
 
 
@@ -437,15 +442,15 @@ def test_golden_tables_are_keyed_by_platform_and_values_unchanged():
     # 993276d5…/72cb9cd5…・40409ebe…/72,930)。関係 on の v1 は今の値の行
     assert not {k for k in g if k.endswith(("_stateful", "_pre10e"))}
     g21 = TPE.W17_GOLDEN_BY_ENV[GE.PLATFORM_10F]["02114fb577f3"]
-    assert (g21["v3_default_final"], g21["v3_default_llm_calls"]) == ("73aa01d9afb206d0", 61_066)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 7bfe215641b792ac / 62_176=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717 / 63_572=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887 / 61_261・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
-    assert (g21["null_arm_final"], g21["null_arm_llm_calls"]) == ("2767525651ddb7ce", 101_035)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 872136c8ef8115f3 / 99_453=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 dcebb7c1d04b9d27 / 97_250=--space legacy で戻る・段 1 の nav1(cell)は fc31115bb6dc9e09 / 87_274・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 90582d704a6d2dcb=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+    assert (g21["v3_default_final"], g21["v3_default_llm_calls"]) == ("c8d68704b7b0760d", 60_939)  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 73aa01d9afb206d0 / 61_066=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 7bfe215641b792ac / 62_176=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717 / 63_572=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887 / 61_261・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+    assert (g21["null_arm_final"], g21["null_arm_llm_calls"]) == ("2875768fc19e02e8", 95_645)  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 2767525651ddb7ce / 101_035=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 872136c8ef8115f3 / 99_453=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 dcebb7c1d04b9d27 / 97_250=--space legacy で戻る・段 1 の nav1(cell)は fc31115bb6dc9e09 / 87_274・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 90582d704a6d2dcb=SHIBUYA_RULES_42=off で戻る・記録 rules42)
     assert set(g21) == set(g)  # 同じ欄(W16 の世界の行と同じ試験が回る)
     # 〔第 4 期 4-3 段 10・版上げ 3 回目〕関係 on の 2 行は差し替えの世界の値(前 v1 ee4df5ad2dccfa94 / 67_233・v2 bf212900153818d2 /
     # 66_844=記録 pop43)。W17 の表は W16 の世界の行(3113e9ba7abb)を残し、差し替えの世界の行(02114fb577f3)を足した
     # 〔第 2 部〕("v1","behavior") の行(285505540ec73d0d / 66_455)は切替口 --rel-tenure-hash と一緒に消した
     assert ("v1", "behavior") not in TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F]
     assert set(TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F]) == {("v2", "behavior")}
-    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("8db3f95a61228c92", 63_710)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 140f365398ad4172 / 64_500=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 94becde2c4fdb0d2 / 66_374=--space legacy で戻る・段 1 の nav1(cell)は 7cfa8bad2676996e / 63_877・記録 spatial-2026-10/sp1b)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213  # 〔2-4 V4〕前 4a0db59663ef0d7b / 67_780  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 d0623491c47e5e2f=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("477e22fcaed2590a", 63_519)  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 8db3f95a61228c92 / 63_710=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 140f365398ad4172 / 64_500=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 94becde2c4fdb0d2 / 66_374=--space legacy で戻る・段 1 の nav1(cell)は 7cfa8bad2676996e / 63_877・記録 spatial-2026-10/sp1b)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213  # 〔2-4 V4〕前 4a0db59663ef0d7b / 67_780  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 d0623491c47e5e2f=SHIBUYA_RULES_42=off で戻る・記録 rules42)
 
 
 # ================================================================= manifest の節(K22 (a)・検収 N1・N3)

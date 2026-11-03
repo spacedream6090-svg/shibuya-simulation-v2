@@ -48,7 +48,7 @@ expedient(本モジュール分)
   W14 → ``B2.signage`` の本文(§3.2 の 25 tok 枠)・W15 → ``B2.visible`` の ``{items}``。
   W15 を B2 に**足す**と群予算(B2+B4+B4b ≤250)を超えるので、可視物リストを**置き換える**
   形にした。W15 側の上限は 45 tok(= B2 ブロック予算 150 − 実資産での他行最大)で、
-  仕様 §1 W15 の「150 tok」は B2 ブロック全体の予算と読む(=**親判断待ち**)。
+  仕様 §1 W15 の「150 tok」は B2 ブロック全体の予算と読む(=**親判断待ち**・〔11-03 棚卸し A §4-2〕未決のまま=仕分け待ち)。
   どの版の文面で走ったかは ``PerceptionAssets.frozen_sources``(ファイル名→sha256)に出る。
 
 **解決した曖昧点(親へ報告・黙って解決していない)**
@@ -392,7 +392,8 @@ ACTIVITY_WORDS_V3: Final[tuple[str, ...]] = tuple(
     "なし" if w in ("待機", "休憩", "降車") else w for w in ACTIVITY_WORDS
 )
 
-#: 失敗コード → 「いま可能」3語(行動契約書 §6・**待機を必ず含む**=失敗しない行動・expedient)。
+#: 失敗コード → 「いま可能」3語(行動契約書 §6・**待機を必ず含む**=失敗しない行動・expedient)。語彙 v1/v2 の表。
+#: 〔11-03 棚卸し A §4-2〕語彙 v3 には待機が無く、下の ``RESULT_OPTIONS_V3`` が待機を「なし」に畳む(=なしを必ず含む)。
 RESULT_OPTIONS: Final[Mapping[int, tuple[str, str, str]]] = {
     ResultCode.MONEY_SHORT: ("移動", "待機", "休憩"),
     ResultCode.OUT_OF_STOCK: ("移動", "待機", "購入"),

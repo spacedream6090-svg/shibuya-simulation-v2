@@ -28,20 +28,22 @@
 - ``AgentState.freeze/thaw``: フィールド数ぶん(宣言済み)。
 
 expedient(本モジュール分)
-- 移動は **1 tick=1 ノード**(``world.graph`` の宣言と同じ)。実速度・群衆物理は U15(C4 以降)。
-  **C9 (2026-09-17)**: ``apply(..., geometry=EdgeGeometry(...))`` を渡すと辺上の連続位置+
-  希望速度+Kladek 減速へ切り替わる(``engine.geometry``)。既定(``None``)は上のまま。
-  なお ``initialize`` は幾何を取らないので **tick 0 の ``density_stage`` だけは人/セルの段**
-  (edge モードでも)。tick 0 の ``apply`` 末尾で人/m² の Fruin LOS 段へ貼り替わる
+- 移動の幾何は ``apply(..., geometry=...)`` で選ぶ。``None`` は **1 tick=1 ノード**(``world.graph`` の宣言と同じ)、
+  ``EdgeGeometry`` は辺上の連続位置+希望速度+Kladek 減速(C9・``engine.geometry``)、ナビメッシュの空間
+  (``engine.space.nav1``・CLI の既定の空間の腕 nav1=第 5 期 空間の段 1)は面の上の位置と経路。群衆物理(押し合い)は
+  どれも持たない。なお ``initialize`` は幾何を取らないので **tick 0 の ``density_stage`` だけは人/セルの段**
+  (ほかの幾何でも)。tick 0 の ``apply`` 末尾で幾何の段へ貼り替わる
   ——tick 0 は全員が自宅で就寝中なので影響は無いが、黙って一本化しないために書いておく。
 - 行為の効果の内受容(``_apply_rest`` と v1 の購入・食事): 休憩で疲労−3、購入と食事で空腹−4。値は自前(契約書に
   無い)。〔第 3 期 3-5〕体の自然変動(30 刻みごとの空腹+1・疲労+1・就寝中の疲労−2・休みの回復)は本人の体の層
   ``engine.body``(``rules.BODY_EXPEDIENTS``)へ移した。
-- 断るは C2 では状態を変えない(記録のみ=契約書の効果先が未実装)。通報は **D-113 ②(第267)** で前提「当該事象を知覚済み」を検査する(``_apply_report``・効果先は未実装のまま)。手伝いは
+- 断るは状態を変えない(記録のみ=契約書の効果先が未実装)。通報は **D-113 ②(第267)** で前提「当該事象を知覚済み」を検査する(``_apply_report``・効果先は未実装のまま)。手伝いは
   「相手が援助要求状態」を持たないので必ず失敗(``BAD_TARGET``)。
-- 乗車は**列車が無い**ので必ず ``NO_TRAIN``、降車は契約書どおり ``NO_STOP``(その駅には止まらない)(列車は C4・§2.6 の混雑率受容関数もそこ)。
-- 会話は**セッションレコードを作るだけ**(発話ブロック・終了判定・記憶転写は C3/C4)。
-- 日次内省(T2)は「就寝で発火」を**記録するだけ**(実際の内省呼は C3)。
+- 乗車・降車は鉄道の過程(``rail``=``engine.processes.rail``)を渡したランだけ成立しうる(乗車の意図の保持=D-51・
+  停車中の列車へ FIFO)。渡さないラン(C2 互換)は乗車が必ず ``NO_TRAIN``、降車が契約書どおり ``NO_STOP``。
+- 会話は resolve では招待の成否と活動の欄(``CONVERSING``・``talk_partner``)を書くだけ。セッション(発話ブロック・
+  終了判定)は ``engine.conversation``、記憶への転写は記憶の層が持つ。
+- 日次内省(T2)は resolve では「就寝で発火」を**数えるだけ**(``n_reflections``=診断の行)。
 
 **C4 の結線(台帳)**
 - ``ledger``(``engine.ledger_api.LedgerBundle``)を注入すると、購入の
@@ -115,6 +117,7 @@ from shibuya.core.time_consts import MINUTES_PER_DAY
 
 __all__ = [
     "revert_conversation",
+    "end_conversation",
     "set_conversing",
     "BODY_TICK_PERIOD",
     "APPROACH_DONE_M",
@@ -227,6 +230,8 @@ EAT_HUNGER_RELIEF: Final[int] = BUY_HUNGER_RELIEF
 #: 表し、解除は既存の回転率(``engine.processes.crowd.DWELL_MAX_TICKS`` = 30 分)に従う。
 #: 20 分ちょうどで解く口を作るには per-tick の新しい走査が要る(P4 宣言が必要)ので、
 #: **作るかどうかは親/ユーザーの判断待ち**=いまは宣言値としてだけ持つ。
+#: 〔11-03 棚卸し B §4-1〕実装はこう: この値はどこからも読まれない(席は crowd の 30 刻みで解く)。宣言はこう: 食事の
+#: 所要時間 20 分(契約行 ``_SPEC_EAT``)。値を合わせるかは仕分け待ち(11-03 §2)。
 EAT_DWELL_MINUTES: Final[int] = 20
 
 #: 物の台帳の払い出しスロットを回す最大回数(``_apply_buy`` の注記・expedient)。
@@ -247,10 +252,15 @@ BOARD_WAIT_LIMIT_TICKS: Final[int] = 30
 #: 乗車の意図(``board_line``)を**保つ**行動(これ以外を選んだら意図は落ちる)。
 #: 乗車=張り直し / 待機=ホームで待ち続ける / エンジン継続=ホームへ歩いている途中。
 #: **語彙 v3 の「なし」**(待機の代替)も待ち続けに数える(v1/v2 では 25 は来ない=不変)。
+#: 〔11-03 棚卸し B §4-1・B5〕実装はこう: ホームへ**歩いている途中**で待機・なしを選ぶと ``_apply_wait`` が歩みを止め
+#: (WAITING)、意図は ``_serve_board_queue`` の「宙に浮いた意図の掃除」で消える(保たれるのはホームで待っている体だけ)。
+#: 宣言はこう: 待機・なしで意図を保つ。どちらに合わせるかは仕分け待ち(11-03 §2)。
 _BOARD_KEEP_ACTIONS: Final[tuple[int, ...]] = (ACT_BOARD, ACT_WAIT, ENGINE_STEP, ACT_NONE)
 
 #: 就寝の意図(``sleep_pending``)を**保つ**行動(これ以外を選んだら意図は落ちる・D-62)。
 #: 就寝=張り直し / エンジン継続=就寝地へ歩いている途中。
+#: 〔11-03 棚卸し B §4-1・B5〕実装はこう: なし・待機を選ぶと就寝の意図は落ちる。宣言はこう: 親決定 Q20「なし・待機は新しい
+#: 行為が無い=意図を保つ」(段 2c の意図 ``INTENT_KEEP_ACTIONS`` には効く)。就寝の意図に広げるかは仕分け待ち(11-03 §2)。
 _SLEEP_KEEP_ACTIONS: Final[tuple[int, ...]] = (ACT_SLEEP, ENGINE_STEP)
 
 #: 段 2c: 意図(``intent_action``)を**保つ**行為(親決定 Q20=ユーザー決定「意図は達成か失敗まで保持」)。
@@ -495,6 +505,16 @@ class ResolveOutcome:
     seat_release_walk: bool = False
     #: 〔第 2 期 2-4 V3〕歩き出しで解いた在席の印の数(診断)。
     n_seat_released_walk: int = 0
+    #: 〔11-03 §3〕棚卸し B の欠陥の直し(``engine.defect_fixes_1103``・既定 on=True・切替口 legacy=False)。本モジュールで
+    #: 効くのは M11(移動・乗車で列を離れる・店のセルに居ない体を列から外す)と M28(列の支払いの確かめを ``_payable`` に)。
+    defect_fixes: bool = False
+    #: 〔11-03 M11〕移動で歩き出して列を離れた数 / 乗車でホームへ歩き出して列を離れた数 / 列を捌く前に店のセルに居なかった数
+    #: (最後の 1 本は本来 0 のはず=移動と乗車の外で動いた体)。旧道では 0。
+    n_queue_left_by_move: int = 0
+    n_queue_left_by_board: int = 0
+    n_queue_dropped_away: int = 0
+    #: 〔11-03 M28〕列の確かめで、現金だけなら外れたが口座で払えたので列に残った数(旧道では 0)。
+    n_queue_payable_not_cash: int = 0
 
     def add_result(self, code: int, n: int) -> None:
         if n:
@@ -1307,6 +1327,7 @@ def apply(
     track_events: bool = False,
     proximity: Any = None,
     seat_release_walk: bool = False,
+    defect_fixes: bool = False,
 ) -> ResolveOutcome:
     """Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
 
@@ -1347,6 +1368,10 @@ def apply(
         seat_release_walk: 〔第 2 期 2-4 V3〕``True`` で移動の意図(``_apply_move``)で歩き出した体の在席の印
             (``poi_ref``/``poi_since``)を解く(``engine.seat_release`` の腕 walk=CLI の既定)。``False``(この関数の既定
             =直に呼ぶ試験・切替口 legacy)は 2-4 より前の挙動(退去・乗車・滞在の上限でしか解かない)。
+        defect_fixes: 〔11-03 §3〕``True`` で棚卸し B の M11・M28 を直した道(``engine.defect_fixes_1103`` の腕 on=CLI の既定):
+            移動(``_apply_move``)で歩き出した体と、乗車(``_apply_board``)でホームへ歩き出した体は満席の列を離れる
+            (失敗は書かない)・列を捌く(``_serve_poi_queue``)前に店のセルに居ない体を列から外す・列の支払いの確かめを
+            ``_payable``(現金か口座)にする。``False``(この関数の既定=直に呼ぶ試験・切替口 legacy)は版上げの前の挙動。
         proximity: 〔第 2 期 2-2 段 11a〕腕 ``--proximity distance`` の判定の規則(``engine.proximity.ProximityRule``)。
             渡すと会話の開始の判定が「舞台の中・同じ層・距離 ≤ d、または同じ B5 の単位」になる(``talk_by_distance``
             より強い)。``None``(既定)は 1 分岐も通らない。
@@ -1384,6 +1409,7 @@ def apply(
         track_events=bool(track_events),
         proximity=proximity,
         seat_release_walk=bool(seat_release_walk),
+        defect_fixes=bool(defect_fixes),
     )
     r = agents.registry
     with agents.writable(), world.writable():
@@ -1836,6 +1862,15 @@ def _apply_move(agents, world, aid, tgt, tick, out, schedule) -> None:
                 r.poi_ref[seated] = -1
                 r.poi_since[seated] = -1
                 out.n_seat_released_walk += int(seated.size)
+        if out.defect_fixes:
+            # 〔11-03 M11〕満席の列に並んでいた体が歩き出した(新しい行為が通った)=列を離れる。失敗は書かない
+            # (``INTERRUPTED`` ではない)。旧道では列に残り、席が空けば離れた所で購入・食事が成立していた。
+            left = g[~same[good]]
+            left = left[r.queue_poi[left] >= 0]
+            if left.size:
+                r.queue_poi[left] = -1
+                r.queue_since[left] = -1
+                out.n_queue_left_by_move += int(left.size)
         # 「近づく」の対象を**焦点として保持**する(着いたときに居るかを見る=``TARGET_GONE``)。
         # 距離は問わない(遠くの目印に近づくのは正当)=``require_near=False``。
         _set_focus(agents, world, g, tick, out, require_near=False)
@@ -2132,6 +2167,13 @@ def _apply_board(agents, world, aid, tgt, tick, out, schedule) -> None:
             r.activity[walk] = int(Activity.MOVING)
             r.target_node[walk] = dest_got[~same].astype(r.target_node.dtype)
             rail.n_board_walking += int(walk.size)
+            if out.defect_fixes:
+                # 〔11-03 M11〕満席の列に並んでいた体がホームへ歩き出した=列を離れる(失敗は書かない)
+                left = walk[r.queue_poi[walk] >= 0]
+                if left.size:
+                    r.queue_poi[left] = -1
+                    r.queue_since[left] = -1
+                    out.n_queue_left_by_board += int(left.size)
         if same.any():
             _enter_board_queue(agents, world, ids[same], tick, out)
         _ok(agents, ids, tick, out)
@@ -2675,6 +2717,30 @@ def revert_conversation(agents, agent_ids: np.ndarray) -> None:
         r.talk_partner[ids] = -1
 
 
+def end_conversation(agents, agent_ids: np.ndarray) -> dict[str, int]:
+    """〔11-03 M10〕終わったセッションの参加者を解放する(行動契約書 §3「終了はエンジン」)。
+
+    活動が **CONVERSING の参加者だけ** IDLE に戻し、ほかの活動(会話の番に選んだ移動・休み・待機・在店・就寝・IDLE)は
+    変えない。相手の欄 ``talk_partner`` は全員 −1 に戻す。旧道(腕 legacy)は ``revert_conversation`` で全員を IDLE に
+    していた(会話の番で歩き出した体が道の途中で止まる・寝た体や買った体も IDLE になる)。世界状態への書き込みは
+    resolve のみ(本関数はその内側)。
+
+    Returns:
+        戻さなかった体の数(活動の名 → 数・計器 ``n_conversation_end_kept_activity``)。
+    """
+    ids = np.asarray(agent_ids, dtype=np.int64)
+    if ids.size == 0:
+        return {}
+    with agents.writable():
+        r = agents.registry
+        act = np.asarray(r.activity[ids], dtype=np.int64)
+        talking = act == int(Activity.CONVERSING)
+        r.activity[ids[talking]] = int(Activity.IDLE)
+        r.talk_partner[ids] = -1
+    kept, n = np.unique(act[~talking], return_counts=True)
+    return {Activity(int(k)).name: int(c) for k, c in zip(kept.tolist(), n.tolist())}
+
+
 def set_conversing(agents: AgentState, inviters, invitees) -> None:
     """会話成立時に**両側**を CONVERSING にする(C6・09-09)。
 
@@ -3137,6 +3203,8 @@ def _serve_poi_queue(agents, world, tick: int, out: ResolveOutcome) -> None:
       所持金が足りなくなった体は ``MONEY_SHORT``、棚が空なら ``OUT_OF_STOCK`` で列を離れる。
     - 15 tick の離脱閾値(``crowd.step``)はそのまま=席が空かなければ従来どおり ``INTERRUPTED``。
     - 切替口 ``out.queue_service``(False=第267 以前=誰も捌かない)。混雑場が無ければ何もしない。
+    - 〔11-03 M11・M28〕``out.defect_fixes``(腕 on=既定)では、捌く前に店のセルに居ない体を列から外し(失敗は書かない)、
+      払えるかを ``_payable``(現金か口座)で見る。旧道(False)は居場所を見ず、現金だけで見る。
 
     逐次ループ宣言(P4): なし(並んでいる体の配列に対するベクトル判定・``can_admit`` 1 回)。
     """
@@ -3152,6 +3220,18 @@ def _serve_poi_queue(agents, world, tick: int, out: ResolveOutcome) -> None:
     order = np.lexsort((waiting, since))
     w = waiting[order]
     poi = q[w]
+    if out.defect_fixes:
+        # 〔11-03 M11〕並んでいる体がその店のセルに居なければ列から外す(移動・乗車の外で動いた体=本来 0 のはず)。
+        # 活動と直前の結果は書かない(本人は列を離れる行為を試みていない)。
+        away = np.asarray(r.cell, dtype=np.int64)[w] != world.pois.cell.astype(np.int64)[poi]
+        if away.any():
+            gone = w[away]
+            r.queue_poi[gone] = -1
+            r.queue_since[gone] = -1
+            out.n_queue_dropped_away += int(gone.size)
+            w, poi = w[~away], poi[~away]
+            if w.size == 0:
+                return
     # 閉店した店の列は解散
     open_mask = np.asarray(world.open_mask(tick), dtype=bool)
     closed = ~open_mask[poi]
@@ -3175,6 +3255,12 @@ def _serve_poi_queue(agents, world, tick: int, out: ResolveOutcome) -> None:
     )
     price = world.pois.price[poi].astype(np.int64)
     can_pay = r.money[w].astype(np.int64) >= price
+    if out.defect_fixes:
+        # 〔11-03 M28〕新しい行の購入・食事と同じ確かめ(``_payable``=経済の段階 2 の支払いの部品では現金か口座)。
+        # 旧道は現金だけ=口座で払える体が列の中でだけ MONEY_SHORT で外れていた。
+        cash_only = can_pay
+        can_pay = _payable(agents, out, w, price)
+        out.n_queue_payable_not_cash += int(np.count_nonzero(can_pay & ~cash_only))
     is_buy = kind != _QUEUE_FOR_EAT
     in_stock = np.ones(w.size, dtype=bool)
     if is_buy.any():

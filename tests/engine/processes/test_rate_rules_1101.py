@@ -313,7 +313,7 @@ def test_run_manifest_counts_rise_in_legacy_and_are_zero_off(day_runs):
     """〔検収 L2〕同じ 1 日のランで、旧道は催し・売れ残り・ポイ捨て・宅配の件数が立ち、off は全部 0(倒れる率は off で 0)。"""
     m = day_runs["off"].run_manifest_fields()
     rr = m["rate_rules"]
-    assert list(m)[-2:] == ["rate_rules", "absent_processes"] and "attendance_rate" not in m  # 〔11-02r §1 #7〕末尾に absent_processes
+    assert list(m)[-3:] == ["rate_rules", "absent_processes", "defect_fixes_1103"] and "attendance_rate" not in m  # 〔11-02r §1 #7〕末尾に absent_processes
     assert rr["schema"] == RR.SCHEMA and rr["mode"] == "off"
     assert all(v == 1 for v in rr["removed"].values())
     assert {k: v for k, v in rr["counts"].items() if v not in (0, None)} == {}

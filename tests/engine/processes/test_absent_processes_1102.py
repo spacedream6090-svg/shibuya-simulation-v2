@@ -272,7 +272,7 @@ def tiny_runs():
 def test_run_manifest_section(tiny_runs):
     m = tiny_runs["stopped"].run_manifest_fields()
     ap = m["absent_processes"]
-    assert list(m)[-2:] == ["rate_rules", "absent_processes"]
+    assert list(m)[-3:] == ["rate_rules", "absent_processes", "defect_fixes_1103"]  # 〔11-03 §3〕その後ろ(末尾)に defect_fixes_1103
     assert ap["schema"] == AP.SCHEMA and ap["mode"] == "stopped" and set(ap["processes"]) == set(AP.PROCESSES)
     assert all(v == 1 for v in ap["stopped"].values())
     assert {k: v for k, v in ap["counts"].items() if v not in (0, None)} == {}

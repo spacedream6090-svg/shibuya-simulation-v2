@@ -104,6 +104,8 @@ _REQUIRED_FILES: Final[tuple[str, ...]] = (
 SYNTHETIC_POI_CATS: Final[tuple[str, ...]] = ("コンビニ", "飲食", "物販")
 SYNTHETIC_POI_PRICES: Final[tuple[int, ...]] = (300, 800, 1_500)
 #: 合成 POI の 1 tick あたり受け入れ数(資源の容量・expedient)。
+#: 〔11-03 棚卸し B §4-1〕実装はこう: 本番の世界の資産の読み口(W6 の POI)も同じ 4 を使う。宣言はこう: 合成 POI の値。
+#: 本番の値を別に持つかは仕分け待ち(11-03 §2)。
 SYNTHETIC_POI_CAPACITY: Final[int] = 4
 #: 合成 POI の営業時間(W7 PlanSpec が無いときの既定・10:00-22:00)。
 DEFAULT_OPEN_FROM_TICK: Final[int] = 600

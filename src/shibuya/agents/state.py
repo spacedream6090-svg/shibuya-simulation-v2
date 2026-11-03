@@ -313,7 +313,7 @@ REFRACTORY_MINUTES: Final[tuple[int, ...]] = (
     10,  # 知人出現(expedient・同一相手 60 分は relations.REL_ACQ_PAIR_REFRACTORY_MIN=関係 on で働く。〔第334 訂正〕前の注「C2 未実装」は古い)
     15,  # 近接入替(expedient・最大の暴発源)
     5,  # 被注視(expedient)
-    5,  # 傍受(expedient・同一話者 30 分は C2 未実装)
+    5,  # 傍受(expedient・同一話者 30 分は C2 未実装)〔11-03 棚卸し A §4-1〕会話の側に招待の間隔 30(conversation.SPEAKER_INVITE_REFRACTORY_TICKS)がある=傍受の起床の不応期と同じものかは不明=仕分け待ち
     30,  # セル動的ブロック変化(expedient)
 )
 

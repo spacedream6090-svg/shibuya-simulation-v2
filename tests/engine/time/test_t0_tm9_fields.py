@@ -55,7 +55,8 @@ def test_manifest_keys_match_the_frozen_list(two_days):
                                    "calendar_shadow",  # 〔3-1〕暦 1a の影
                                    "space",  # 〔第 5 期 空間の段 1〕移動の切替口と計器
                                    "rate_rules",  # 〔11-01 段 2 の 3・4〕率の形の規則を外した節
-                                   "absent_processes"]  # 〔11-02r §1 #7〕「無い」の過程 5 件を止めた節(末尾)
+                                   "absent_processes",  # 〔11-02r §1 #7〕「無い」の過程 5 件を止めた節
+                                   "defect_fixes_1103"]  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しの節(末尾)
 
 
 def test_manifest_tm9_values(two_days):
