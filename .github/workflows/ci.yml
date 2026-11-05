@@ -44,6 +44,10 @@ jobs:
       - name: Data not tracked (data/ must stay out of git)
         run: |
           if git ls-files data | grep -q .; then echo "data/ files are tracked"; exit 1; fi
+      # 段 3 ファイルのカード(11-05/§3-1 の 1)が src・tests・tools より古くないか。入口の索引と docs・data の索引は比べない
+      # (CI に data は無く、docs は commit ごとに変わる)。
+      - name: Repo guide cards are fresh (src・tests・tools)
+        run: python tools/repo_guide/build.py --check
 
   ci-1:
     name: ci-1 単体と結合(not gpu and not slow)
