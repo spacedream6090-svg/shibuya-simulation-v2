@@ -394,6 +394,13 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #140 段 3 ファイルのカードの道具 `tools/repo_guide/`(1 バイト不変・src の変更 0)(11-05 §3-1 の 1・第345・2026-11-05)
+
+- 正典: [指示書 11-05](docs/design/prompt-2026-11-05-reply6.md) §3-1。置き場 [リポの案内](docs/reference/repo-guide/README.md)。
+- **中身**: AST だけで src・tests・tools の全ファイル(Python 935 本)の説明・公開の関数とクラス・import と呼び手・状態の台帳の行・書きの許可・CLI の引数・環境変数・読む試験・決定の ID を集め、ディレクトリごとのカード 120 本にする。docs は索引、data は名前と大きさだけ(ファイルを開かない)。`build.py --check` を CI の ci-0 と pre-commit に足した。
+- **検収**: 別の検収役=条件つき受入(全数の突き合わせは src で差なし・tools と tests の import の辺 52 本が落ちる欠陥ほか)→ 実装役が直した(突然変異の生き残り 0)→ 親=試験 39 本・`--check`・`read_guard` の呼び手を確認。
+- 同じ回の文書(コードなし): [段 1](docs/reference/repo-guide/day-flow.md)・[段 2](docs/reference/repo-guide/catalog/)・[言えること](docs/reference/repo-guide/can-say.md)・[仕様書 v0](docs/design/spec/README.md) 393 項目・[差の一覧](docs/design/spec/gaps.md)・[食い違い](docs/design/spec/conflicts.md)・[包みの案](docs/reference/package-map-claude-code-2026-11-05.md)・R-143〜R-148。
+
 ### #139 v3-0a 案 A=乱数の鍵・呼びの id・時間帯の材料を世界の時刻 t_ns から作る(届く 18 か所・1 バイト不変・切替口なし)(11-04 §2-1・第344・2026-11-04・実装役 Opus 5.5・別の検収役・親検収)
 
 - 正典: [指示書 11-04 返事その 4](docs/design/prompt-2026-11-04-reply4.md) §2-1・[11-03](docs/design/prompt-2026-11-03-reply3.md) §5。記録 [v30a](docs/bench/analysis/v3-2026-11/v30a/README.md)(§1 棚卸し・§2〜§7)。

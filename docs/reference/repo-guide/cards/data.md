@@ -55,11 +55,11 @@
 | `data/realworld/tokyo_noise` | 314.7 KB |
 | `data/realworld/transport_census` | 19.5 MB |
 | `data/realworld/wbgt` | 197.9 KB |
-| `data/realworld_live` | 874.0 MB |
+| `data/realworld_live` | 874.2 MB |
 | `data/realworld_live/_logs` | 1.9 MB |
 | `data/realworld_live/amedas` | 4.7 MB |
 | `data/realworld_live/jma_xml` | 239.4 MB |
-| `data/realworld_live/odpt_rt` | 570.3 MB |
+| `data/realworld_live/odpt_rt` | 570.5 MB |
 | `data/realworld_live/odpt_static` | 54.9 MB |
 | `data/realworld_live/wbgt` | 210.4 KB |
 | `data/research_cache` | 788.3 MB |

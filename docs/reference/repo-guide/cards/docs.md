@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-253 ディレクトリ・2131 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+257 ディレクトリ・2160 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(2 本)
 
@@ -1043,6 +1043,23 @@
 - [v2_significance.md](../../../design/v2_significance.md): v2の意義 — 何がわかるのか・何ができるようになるのか・世界にどう影響しうるのか(ドラフト)
 - [v3-core-design-2026-11-03.md](../../../design/v3-core-design-2026-11-03.md): v3 事象駆動の核の設計書(壁打ちの答えを題ごとに写す)
 
+## docs/design/spec(14 本)
+
+- [00-principles.md](../../../design/spec/00-principles.md): 仕様書 v0 第 0 章 設計の原則
+- [01-time-and-execution.md](../../../design/spec/01-time-and-execution.md): 仕様書 v0 第 1 章 時間と実行(runtime)
+- [02-world.md](../../../design/spec/02-world.md): 仕様書 v0 第 2 章 世界(world)
+- [03-mind.md](../../../design/spec/03-mind.md): 仕様書 v0 第 3 章 心(mind)
+- [04-act.md](../../../design/spec/04-act.md): 仕様書 v0 第 4 章 差分の器(act)
+- [05-economy.md](../../../design/spec/05-economy.md): 仕様書 v0 第 5 章 経済(economy)
+- [06-society.md](../../../design/spec/06-society.md): 仕様書 v0 第 6 章 社会(society・器と計器だけ)
+- [07-validation.md](../../../design/spec/07-validation.md): 仕様書 v0 第 7 章 検証(validation)
+- [08-experiments.md](../../../design/spec/08-experiments.md): 仕様書 v0 第 8 章 実験(experiments)
+- [09-build.md](../../../design/spec/09-build.md): 仕様書 v0 第 9 章 構築(build)
+- [10-interfaces.md](../../../design/spec/10-interfaces.md): 仕様書 v0 第 10 章 外への口(interfaces)
+- [README.md](../../../design/spec/README.md): 仕様書 v0(あるべき姿)の索引
+- [conflicts.md](../../../design/spec/conflicts.md): 仕様書 v0 食い違いの一覧
+- [gaps.md](../../../design/spec/gaps.md): 仕様書 v0 差の一覧(gaps)
+
 ## docs/funding(1 本)
 
 - [mitou-advanced-research.md](../../../funding/mitou-advanced-research.md): 未踏アドバンスト事業 事前リサーチ(2026-09-14・第186)
@@ -1081,7 +1098,11 @@
 - [v2-server-lessons.md](../../../ops/v2-server-lessons.md): サーバーで回して初めて分かったこと — 実装に織り込む形(2026-09-22・第251)
 - [version-history.md](../../../ops/version-history.md): 版上げの履歴とタグ(戻し方つき)
 
-## docs/reference(13 本)
+## docs/plateau2026(1 本)
+
+- [check-3-3.md](../../../plateau2026/check-3-3.md): PLATEAU AWARD の「先に確かめること」(返事その 5 §3-3・返事その 6 §6)
+
+## docs/reference(15 本)
 
 - [2026-10-25_engine_llm_parallelization_summary.md](../../2026-10-25_engine_llm_parallelization_summary.md): 渋谷LLM社会シミュレーター：判断頻度・並列処理・高速化の議論まとめ
 - [2026-10-25_shibuya_world_model_and_strategy_summary.md](../../2026-10-25_shibuya_world_model_and_strategy_summary.md): 渋谷シミュレーション：世界モデル構想・技術ロードマップ・市場戦略の要約
@@ -1093,9 +1114,23 @@
 - [decision-inventory-2026-10-31.md](../../decision-inventory-2026-10-31.md): 住民の判断は今だれが決めているか(棚卸し)2026-10-31
 - [decision-routing-2026-11-01.md](../../decision-routing-2026-11-01.md): 住民の判断の行き先(112 件の振り分け)2026-11-01
 - [decision-routing-addendum-2026-11-03.md](../../decision-routing-addendum-2026-11-03.md): 住民の判断の行き先 追補(112 件の表に無い行)2026-11-03
+- [package-map-claude-code-2026-11-05-files.md](../../package-map-claude-code-2026-11-05-files.md): 包みの分類の案(Claude Code の独立の案)ファイルの表 2026-11-05
+- [package-map-claude-code-2026-11-05.md](../../package-map-claude-code-2026-11-05.md): 包みの分類の案(Claude Code の独立の案)2026-11-05
 - [tech-map-2026-11-03.md](../../tech-map-2026-11-03.md): 現状技術マップ 2026-11-03(`src/shibuya/` の全ファイル)
 - [v3-core-independent-review-2026-11-02.md](../../v3-core-independent-review-2026-11-02.md): v3 の核の独立の読み(R-130・R-133 の突き合わせ)
 - [wallbounce-record-2026-11-02_05.md](../../wallbounce-record-2026-11-02_05.md): 壁打ちの記録 2026-11-02〜11-05(理由と意図の記録)
+
+## docs/reference/repo-guide(3 本)
+
+- [README.md](../README.md): リポの案内(今のコードの記述)の索引
+- [can-say.md](../can-say.md): 今の中身で言えること・言えないこと
+- [day-flow.md](../day-flow.md): シミュレーションの 1 日の流れ(把握の資料 段 1)
+
+## docs/reference/repo-guide/catalog(3 本)
+
+- [a-body-and-town.md](../catalog/a-body-and-town.md): 機能のカタログ A 体と街(把握の資料 段 2)
+- [b-people.md](../catalog/b-people.md): 機能のカタログ B 人の中身(把握の資料 段 2)
+- [c-foundation.md](../catalog/c-foundation.md): 機能のカタログ グループ C 基盤(把握の資料 段 2)
 
 ## docs/reference/v1(8 本)
 
@@ -1108,7 +1143,7 @@
 - [devlog-compressed.md](../../v1/devlog-compressed.md): 開発ログ(圧縮アーカイブ)
 - [v1-inventory.md](../../v1/v1-inventory.md): v1シミュレーション 全機能棚卸し(2026-08-29・v2ゼロベース再設計の入力)
 
-## docs/research(210 本)
+## docs/research(216 本)
 
 - [INDEX.md](../../../research/INDEX.md): 答申の索引(docs/research/ 73 本)
 - [RESEARCH-STATE.md](../../../research/RESEARCH-STATE.md): リサーチの進行状況(次のエージェントが最初に読む 1 枚)
@@ -1232,6 +1267,12 @@
 - [v2-r140-population-lod-simulation.md](../../../research/v2-r140-population-lod-simulation.md): R-140 解像度を変える人口のシミュレーション(人口の LOD)の先例と、都市を足すときに先に入れておく欄
 - [v2-r141-persistent-state-vectors-and-steering.md](../../../research/v2-r141-persistent-state-vectors-and-steering.md): R-141 持続する状態ベクトルと操舵(本人ごとの性格と気分の数値を出来事ごとに更新し、LLM を呼ぶときに効かせる形の先例と、vLLM でどこまでできるか)
 - [v2-r142-activation-tape-capture.md](../../../research/v2-r142-activation-tape-capture.md): R-142 活性をテープに残す道(vLLM の隠れ状態の取り出し・HF transformers の道・Qwen3-8B の量・5070 で試す形)
+- [v2-r143-harness-and-mind-port.md](../../../research/v2-r143-harness-and-mind-port.md): R-143 ハーネスの設計と、住民の心への写し方(長く動くエージェントの先例・道具の見せ方・多数を回す形・安く回す工夫・途中の入力に流される度合い・ReAct 型の費用・心の口の設計案の比較)
+- [v2-r144-mind-body-coupling.md](../../../research/v2-r144-mind-body-coupling.md): R-144 心と体の接続(threaded cognition・複数資源・埋め合わせの減速・体から心への影響)
+- [v2-r145-learned-continuous-system1.md](../../../research/v2-r145-learned-continuous-system1.md): R-145 学習した小さな連続のネットワーク(System 1 の第 2 世代: 知覚の流れを入れ続け、状態を持ち、簡単な判断を出し続け、重い判断を呼ぶ形の先例と、35 万体を毎秒回す費用)
+- [v2-r146-sleep-consolidation-person-vector.md](../../../research/v2-r146-sleep-consolidation-person-vector.md): R-146 睡眠での固定と本人のベクトル(文の記憶と熟考を本人のベクトルへ写す先例・ベクトルの形・vLLM での差し込み・誰をいつ更新するか・費用・5070 の試験)
+- [v2-r147-continual-learning-persistent-state.md](../../../research/v2-r147-continual-learning-persistent-state.md): R-147 継続学習と持続する内部状態(文の側で学ぶ流れと、重みや状態の側で学ぶ流れの比較・状態を持つ系列模型の日本語の能力と保存の口・Qwen3-8B のままでできる範囲)
+- [v2-r148-social-cognition-anchors.md](../../../research/v2-r148-social-cognition-anchors.md): R-148 社会的認知の錨(印象の形成の連続体の模型・ステレオタイプの内容の模型の日本での値・心の理論の計測・LLM の社会的な偏りの測り方)
 - [v2-r2-llm-social-sim-fulltext-check.md](../../../research/v2-r2-llm-social-sim-fulltext-check.md): R-2 — LLM 社会シミュレーション文献 12 件の本文実読(答申・2026-09-16)
 - [v2-r23-primary-check-batch1.md](../../../research/v2-r23-primary-check-batch1.md): R-23 第1批: 出典URLゼロの答申(D等級33本)の一次確認
 - [v2-r23-primary-check-batch2.md](../../../research/v2-r23-primary-check-batch2.md): R-23 第2批: 「背骨」を成す 4 答申の一次確認
