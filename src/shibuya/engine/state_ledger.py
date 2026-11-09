@@ -1362,12 +1362,12 @@ _EXT: tuple[LedgerRow, ...] = (
         items=("calendar2._c2_issued", "calendar2._c2_issued_n"), arm="calendar-2",
         note="6-2 カレンダー 2: 読み手は監査(試験と記録の道具)と manifest だけ=軸 1 diag。再開したランの監査が通しと同じ=軸 2 "
              "required(C1 の CT1Q と同じ形)"),
-    # ---- 〔第 4 期 4-2〕店の預かり消費税(Q1・腕 SHIBUYA_RULES_42=on のランで税の部品が動くときだけ持ち主がある=腕 off の
-    # ランの 2 つのハッシュと状態のファイルは不変) ----
+    # ---- 〔第 4 期 4-2〕店の預かり消費税(Q1・税の部品が動くランだけ持ち主がある=〔第346〕切替口 SHIBUYA_RULES_42 は消した
+    # =腕の名 rules-42 は状態台帳の行の印として残す) ----
     LedgerRow(
         key="TXD", name="TaxDeposit(店の預かり消費税=課税期間の年 → 店ごとの預かり額・累計・第 4 期 4-2)", place=EXTERNAL,
         dtype="dict(年 → i8 の配列=店の数)・計数の dict", nbytes="課税期間 1 つあたり 8 B/店(2,337 店で 18.7 KB)",
-        alloc="SHIBUYA_RULES_42=on(既定)", behavior=BEHAVIOR, restore=REQUIRED, dead=False,
+        alloc="経済の段階 2 の税の部品が動くラン(既定)", behavior=BEHAVIOR, restore=REQUIRED, dead=False,
         basis="economy/tax_deposit.py(TaxDeposit.collect・remit_due)・economy/stage2.py(purchase・before_close)",
         items=("ledger.money.stage2.tax_deposit.held", "ledger.money.stage2.tax_deposit.totals"), arm="rules-42",
         note="4-2(Q1): レジの税を店の預かり金に積み、申告の期限の日の締めに店 → 政府へ移す。預かり額が期限の納付の額を決める="
@@ -1655,7 +1655,7 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定(状態台帳の腕の行 CA2*・腕 --calendar-2 arm のランだけ)と子の持ち主
     "calendar2": ("engine/calendar2/layer.py", "Calendar2Layer"),
     "calendar2.book": ("engine/calendar2/book.py", "PromiseBook"),
-    # 〔第 4 期 4-2〕店の預かり消費税(状態台帳の腕の行 TXD・腕 SHIBUYA_RULES_42=on のランだけ)
+    # 〔第 4 期 4-2〕店の預かり消費税(状態台帳の腕の行 TXD・税の部品が動くランだけ)
     "ledger.money.stage2.tax_deposit": ("economy/tax_deposit.py", "TaxDeposit"),
     # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日(状態台帳の腕の行 CA3*・腕 --calendar-3 arm のランだけ)
     "calendar3": ("engine/calendar3/layer.py", "Calendar3Layer"),

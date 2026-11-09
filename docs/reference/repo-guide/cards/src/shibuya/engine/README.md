@@ -328,18 +328,16 @@ engine.defect_fixes_1103 — 棚卸し B で見つけた欠陥 4 件の直しの
 
 ## [economy_rules.py](../../../../../../../src/shibuya/engine/economy_rules.py)
 
-engine.economy_rules — 第 4 期 4-2 の規則の表の中身を経済の段階 2 に挿す腕と、給与の天引きの加入の判定の材料。
+engine.economy_rules — 第 4 期 4-2 の規則の表の中身を経済の段階 2 に挿す組み立ての材料(給与の天引きの加入の判定の材料)。
 
 - 公開の関数とクラス
   - `PayrollInputs`(クラス): 給与の天引きの加入の判定の材料(体ごと・読むだけ)。
-  - `arm`(関数): いまの腕(``on``=既定・``off``=4-2 の前の値の再現)。組み立てのときに読む。
   - `payroll_inputs`(関数): 体ごとの加入の判定の材料を組み立てる(:class:`PayrollInputs`)。表の無い世界・母集団の無いランは材料なし。
-  - `set_arm`(関数): 腕を選ぶ(試験と byte-check の切替口)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.economy_stage2`
 - 呼び手: `shibuya.engine.economy_stage2`
-- 読む試験: `tests/economy/stage2/test_stage2_default_2_4.py`・`tests/economy/stage2/test_stage2_resume_arm.py`・`tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42_payroll.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_rules42b_payroll.py`・`tests/economy/test_wage_occupation.py`
-- 環境変数: `SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`
-- 決定の ID: 10-12・10-13b/§0-6・R-118・第 346
+- 読む試験: `tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42_payroll.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_rules42b_payroll.py`
+- 環境変数: `SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・名前を読めない所 1 か所
+- 決定の ID: 10-12・R-118・第 346
 
 ## [economy_stage2.py](../../../../../../../src/shibuya/engine/economy_stage2.py)
 
@@ -1278,7 +1276,7 @@ behavior-hash と full-hash(10b・A2・A3)。表は ``engine.state_ledger`` だ�
     - `O96` run_day の局所 replay_inbox(再生の到着待ち)(挙動 no・復元 required) 道筋 `run_day.replay_inbox` 書ける系: decide・drain・llm_receive
     - `P` TickScratch.percepts(知覚の事実 Percept・第 1 期 1-2)(挙動 no・復元 discardable) 書ける系: (宣言なし)
     - `PX0` TickScratch.near_index(近傍の索引 SpatialIndex・第 2 期 2-2 段 11a)(挙動 no・復元 discardable) 書ける系: (宣言なし)
-- 決定の ID: 10-12/§4-4・10-12/§4-11・11-01・11-03・11-03/§3・第 330
+- 決定の ID: 10-12/§4-4・10-12/§4-11・11-01・11-03・11-03/§3・第 330・第 346
 
 ## [state_ledger_ast.py](../../../../../../../src/shibuya/engine/state_ledger_ast.py)
 

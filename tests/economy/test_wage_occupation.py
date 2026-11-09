@@ -359,11 +359,8 @@ def test_wage_path_header_and_resume_check(monkeypatch):
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     plan_occ = types.SimpleNamespace(parts=ES2.PARTS, wage_model="occupation")
     assert ES2.header_fields(plan_occ) == {"arm": "on", "parts": list(ES2.PARTS), "wage": "occupation"}
-    from shibuya.engine import economy_rules as ER  # 〔第 4 期 4-2〕見出しの規則の表の中身の腕(既定 on)もそろえる
-
-    law = {} if ER.arm() == ER.ARM_OFF else {"rules_42": ER.arm()}
-    if law:  # 〔第 4 期 4-2b〕空欄 3 件を埋めた値も見出しにそろえる(〔第346〕切替口 SHIBUYA_RULES_42B は消した)
-        law["rules_42b"] = "on"
+    # 〔第 4 期 4-2・4-2b〕見出しの規則の表の中身と空欄 3 件を埋めた値もそろえる(〔第346〕切替口 42・42B は消した)
+    law = {"rules_42": "on", "rules_42b": "on"}
     ES2.check_resume({"arm": "on", "parts": list(ES2.PARTS), "wage": "occupation", **law})
     with pytest.raises(ValueError, match="賃金の腕"):
         ES2.check_resume({"arm": "on", "parts": list(ES2.PARTS), **law})  # 見出しに無い=w17(版上げの前の状態)

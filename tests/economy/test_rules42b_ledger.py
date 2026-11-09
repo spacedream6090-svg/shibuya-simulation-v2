@@ -120,7 +120,6 @@ def test_on_minus_off_is_the_contribution_and_the_age_caps():
 def test_resume_refuses_a_header_without_rules_42b(monkeypatch):
     """〔第346〕見出しに ``rules_42b=on`` の無い状態のファイル(4-2 の値のラン)からは再開できない(切替口は消した)。"""
     monkeypatch.setattr(ES2, "_ARM", ES2.ARM_ON)
-    monkeypatch.setattr(ER, "_ARM", ER.ARM_ON)
     on = ES2.header_fields(types.SimpleNamespace(parts=ES2.PARTS, wage_model=ES2.wage_arm(), law=_inputs(True)))
     off = ES2.header_fields(types.SimpleNamespace(parts=ES2.PARTS, wage_model=ES2.wage_arm(), law=_inputs(False)))
     assert on["rules_42b"] == "on" and "rules_42b" not in off and off["rules_42"] == "on"
@@ -156,7 +155,6 @@ def law(monkeypatch):
     monkeypatch.setattr(ES2, "_ARM", ES2.ARM_ON)
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)
-    monkeypatch.setattr(ER, "_ARM", ER.ARM_ON)
 
 
 def _run(sim_days: int = 2):

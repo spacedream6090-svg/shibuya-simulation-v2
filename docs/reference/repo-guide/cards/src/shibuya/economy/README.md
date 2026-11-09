@@ -31,6 +31,7 @@ economy.accounts — 部門・貸借対照表の行・**取引科目の列挙と
 - import している内部モジュール: `shibuya.engine.ledger_api`
 - 呼び手: `shibuya.cli`・`shibuya.economy`・`shibuya.economy.anchors`・`shibuya.economy.census`・`shibuya.economy.checks`・`shibuya.economy.credit`・`shibuya.economy.entry_capital`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.economy.pricing`・`shibuya.economy.stage2`・`shibuya.economy.tax_deposit`・`tools/vocab/adjudicate.py`
 - 読む試験: `tests/economy/cp2/head_goods_136fdbb.py`・`tests/economy/cp2/head_ledger_136fdbb.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/cp2/test_cp2_flow_sum.py`・`tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/cp2/test_cp2_nine_ops_equivalence.py`・`tests/economy/cp2/test_cp2_write_window.py`・`tests/economy/stage2/test_stage2_account_and_conservation.py`・`tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_default_2_4.py`・`tests/economy/stage2/test_stage2_guards.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/economy/stage2/test_stage2_resume.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/stage2/test_stage2_world_two_day.py`・`tests/economy/stage2/test_wage_occupation_runs.py`・`tests/economy/test_accounts.py`・`tests/economy/test_anchors.py`・`tests/economy/test_census.py`・`tests/economy/test_entry_capital.py`・`tests/economy/test_goods.py`・`tests/economy/test_ledger.py`・`tests/economy/test_min_wage_human_bridge.py`・`tests/economy/test_pricing.py`・`tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_single_write_path.py`・`tests/economy/test_t3_redundant_equation.py`・`tests/economy/test_wage_occupation.py`・`tests/engine/events/test_e_vocab_is_closed.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_rail.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_processes_run.py`・`tests/test_cli.py`
+- 決定の ID: 第 346
 
 ## [anchors.py](../../../../../../../src/shibuya/economy/anchors.py)
 
@@ -259,7 +260,7 @@ economy.tax_deposit — 店の預かり消費税(第 4 期 4-2・Q1=PENDING 仮-
 - 状態台帳の行
   - 持ち主 `ledger.money.stage2.tax_deposit`(`TaxDeposit`)
     - `TXD` TaxDeposit(店の預かり消費税=課税期間の年 → 店ごとの預かり額・累計・第 4 期 4-2)(挙動 behavior・復元 required・腕 rules-42) 道筋 `ledger.money.stage2.tax_deposit.held`・`ledger.money.stage2.tax_deposit.totals` 書ける系: close_final・day_close・phase_c
-- 決定の ID: R-106・R-118
+- 決定の ID: R-106・R-118・第 346
 
 ## [taxes.py](../../../../../../../src/shibuya/economy/taxes.py)
 

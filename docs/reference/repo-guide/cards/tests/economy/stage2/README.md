@@ -63,7 +63,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_resume_check_uses_the_effective_arm`(関数): 金の台帳の無いラン(台帳なしの run_day)は腕 on でも段階 2 を挿さない=見出しに書かない=off と同じに扱う。
   - `test_revenue_is_tax_exclusive_on_a_synthetic_run`(関数): 合成の世界(台帳つき)の 1 日: 店の売上の写しの合計=世帯 → 店の消費支出 − レジの税・保存則が通る。
   - `test_tax_of_and_the_last_purchase_rows`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.stage2`・`shibuya.engine.economy_rules`・`shibuya.engine.economy_stage2`
+- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.stage2`・`shibuya.engine.economy_stage2`
 - 決定の ID: 第 346
 
 ## [test_stage2_guards.py](../../../../../../../tests/economy/stage2/test_stage2_guards.py)
@@ -110,7 +110,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `arm`(関数)
   - `test_arm_off_state_files_keep_the_header_and_refuse_an_on_resume`(関数)
   - `test_resume_stops_when_the_arm_or_parts_differ`(関数)
-- import している内部モジュール: `shibuya.engine.economy_rules`・`shibuya.engine.economy_stage2`・`shibuya.engine.resume`・`shibuya.world.state`・`tests/economy/stage2/test_stage2_runs.py`
+- import している内部モジュール: `shibuya.engine.economy_stage2`・`shibuya.engine.resume`・`shibuya.world.state`・`tests/economy/stage2/test_stage2_runs.py`
 - 決定の ID: 第 346
 
 ## [test_stage2_rules_credit_atm.py](../../../../../../../tests/economy/stage2/test_stage2_rules_credit_atm.py)

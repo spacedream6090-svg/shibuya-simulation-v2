@@ -11,13 +11,13 @@
 |---|---|---|
 | ``wages`` | 給料日(毎月 25 日・土休なら前の営業日=暦の口)の日の締めで、雇用主 → 世帯の銀行預金(``金:賃金``・
   ``Process("payroll")``)。雇用主(組織・店の担当従業者の店)の原資=外界 → 雇用主の消費支出(域外の取引先の支払い=払う
-  賃金と同じ額=第 1 陣の「外生」・faucet)。給与の天引きは〔第 4 期 4-2〕腕 ``SHIBUYA_RULES_42=on``(既定)で動く
-  (``engine.economy_rules``・``engine.economy_stage2.attach`` が ``Stage2Plan.law`` に渡す。``off`` の旧道では 0) | ``before_close`` |
+  賃金と同じ額=第 1 陣の「外生」・faucet)。給与の天引きは〔第 4 期 4-2〕規則の表の中身で動く(``engine.economy_rules``・
+  ``engine.economy_stage2.attach`` が ``Stage2Plan.law`` に渡す。``law`` の無い部品の口では 0) | ``before_close`` |
 | ``withdraw`` | ATM・銀行の支店で本人が下ろす(銀行 → 世帯の現金・``金:引き出し``・``Process("atm")``) | ``withdraw`` |
 | ``payment`` | 購入・食事・運賃の支払いの方法(現金か口座=カード・電子マネー・IC)を本人が選ぶ。口座=世帯の預金 → 店(本体の
   行は ``金:消費支出`` のまま+銀行の決済の行 ``金:カード``) | ``purchase``・``can_pay``・``pay_fares`` |
 | ``tax`` | レジの消費税(規則の表の率=国 7.8%+地方 22/78=10%)の分を店 → 政府(``金:税``・``Process("register")``)=店の
-  売上は税抜きに。〔第 4 期 4-2・Q1〕腕 ``SHIBUYA_RULES_42=on``(既定)では店の預かり金の口に積み(``economy.tax_deposit``)、
+  売上は税抜きに。〔第 4 期 4-2・Q1〕規則の表の中身のある組み立て(既定)では店の預かり金の口に積み(``economy.tax_deposit``)、
   申告の期限の日の締めに店 → 政府へ移す | ``purchase``・``before_close`` |
 | ``visitors`` | 来街者(種別 1・6・7)にも口座(持ち込み=初期の財布の ``VISITOR_ACCOUNT_SHARE`` を預金へ分ける=合計は不変)=カード払いが効く | ``endow`` |
 
@@ -43,13 +43,14 @@
   最低賃金に戻して注記)の道。
 - 店の外界の売上(範囲の外の取引先)の額は 0(資料なし)。縮小ランの比(体数 / 母集団)を manifest に宣言する。
 
-〔第 4 期 4-2〕給与の天引き(``economy.taxes``=規則の表の 6 行・PENDING 仮-40 の Q4・Q7): 腕 ``SHIBUYA_RULES_42=on``(既定・
-組み立ての物 ``plan.law``=加入の判定の材料がある)のランは、給料日に雇用主が額面を払い(雇用主 → 世帯の口座)、本人の分
+〔第 4 期 4-2〕給与の天引き(``economy.taxes``=規則の表の 6 行・PENDING 仮-40 の Q4・Q7): 組み立ての物 ``plan.law``
+(加入の判定の材料=組み立ては常に渡す)のあるランは、給料日に雇用主が額面を払い(雇用主 → 世帯の口座)、本人の分
 (源泉所得税・住民税・健保と介護・支援金・厚年・雇用保険)を世帯の口座 → 政府(``金:税``・登録の sink「給与の天引き(本人 →
 政府)」)・雇用主の分(健保と介護・支援金・厚年・雇用保険)を雇用主 → 政府(「給与の天引き(雇用主 → 政府)」)へ移す。雇用主の
 原資(外界の売上=faucet)は額面+雇用主の分。外の雇用主(閉じた表の外)の体は外界が額面を払い、本人の分だけ政府へ(雇用主の分は
 範囲の外=記録しない)。納付は給料日の締めに即時(現実は翌月 10 日・翌月末=未リサーチ(expedient)・台帳
-``DOC-rules42-remit-timing``)。腕 ``off`` は 4-2 の前の値の再現(天引き 0)=次の版上げで消す。記録 ``rules42/README.md``。
+``DOC-rules42-remit-timing``)。``law`` の無い ``Stage2Plan`` を直に作る物は 4-2 の前の値(天引き 0)=部品の単体試験の基準の口
+(〔第346〕ランの切替口 ``SHIBUYA_RULES_42=off`` は消した・旧値の再現は安定版のタグ)。記録 ``rules42/README.md``。
 〔第 4 期 4-2b〕天引きは規則の表の空欄 3 件を埋めた値(manifest の鍵 ``economy.stage2.plan.rules_42b``=``on``・組み立ての物の
 ``PayrollInputs.rules_42b``=常に真)で行う(住民税の基礎控除・調整控除・非課税/厚年 70 歳・健保 75 歳/子ども・子育て拠出金=
 事業主だけ=雇用主の分に足して同じ「給与の天引き(雇用主 → 政府)」で移す)。記録 ``rules42b/README.md``。〔第346〕4-2 の値の
@@ -185,7 +186,7 @@ def payroll_deductions(gross: np.ndarray, asof: "str | _dt.date", *, inputs: Any
 
     〔第 4 期 4-2〕``inputs``(加入の判定の材料=``engine.economy_rules.PayrollInputs``)と ``agents``(行の体)を渡せば、給料日
     ``asof`` に効いている規則の表の 6 行で本人の分を出す(内訳=``economy.taxes.Deductions``=雇用主の分も持つ)。``inputs`` が
-    無い(腕 ``SHIBUYA_RULES_42=off``=4-2 の前の値の再現)ときは 0 と ``None``(器のまま)。
+    無い(部品の単体試験の基準の口=4-2 の前の値・〔第346〕ランの切替口は消した)ときは 0 と ``None``(器のまま)。
     """
     g = np.asarray(gross, dtype=np.int64)
     if inputs is None:
@@ -315,12 +316,12 @@ class MoneyStage2:
         self.atms = getattr(plan, "atms", None)
         #: 支払い(payment)か税(tax)が動くランは購入を委ねる。
         self.handles_purchase = bool({"payment", "tax"} & self.parts)
-        #: 〔第 4 期 4-2〕規則の表の中身の腕(``engine.economy_rules``)の加入の判定の材料(``None``=腕 off=4-2 の前の値の再現)と、
+        #: 〔第 4 期 4-2〕規則の表の中身(``engine.economy_rules``)の加入の判定の材料(``None``=部品の口=4-2 の前の値)と、
         #: 店の預かり消費税(Q1・税の部品が動くランだけ・状態台帳の腕の行 TXD)。
         self.law = getattr(plan, "law", None)
         self.tax_deposit = (TaxDeposit(int(n_stores)) if self.law is not None and "tax" in self.parts else None)
         #: 計器(状態台帳の行 EM=diag・discardable)。ランの積算と日の欄(日の締めで 0)。
-        #: 〔第 4 期 4-2b〕計器の雇用主の分の項目(腕 off と段階 2 の天引きの無いランは 4-2 の 4 項目=記録は 4-2 のまま)。
+        #: 〔第 4 期 4-2b〕計器の雇用主の分の項目(部品の口の 4-2 の値と天引きの無い物は 4-2 の 4 項目=記録は 4-2 のまま)。
         self._r42b = self.law is not None and _r42b(self.law)
         self._meter_items = (_TX.EMPLOYER_ITEMS if self._r42b else _TX.EMPLOYER_ITEMS_42, self._r42b)
         self.s2_meter: dict[str, Any] = {"run": _empty_meter(*self._meter_items), "day": _empty_meter(*self._meter_items),

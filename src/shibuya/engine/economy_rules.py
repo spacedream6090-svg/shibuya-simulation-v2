@@ -1,13 +1,14 @@
-"""engine.economy_rules — 第 4 期 4-2 の規則の表の中身を経済の段階 2 に挿す腕と、給与の天引きの加入の判定の材料。
+"""engine.economy_rules — 第 4 期 4-2 の規則の表の中身を経済の段階 2 に挿す組み立ての材料(給与の天引きの加入の判定の材料)。
 
 正: 計画 10-12 第 4 期 4-2・§3 版上げ 3 回目(R-118 §7-1 の「4-3 に束ねる分」)・PENDING 仮-40(Q1〜Q7=親の判断・仮採用)。
 
-腕(旧道の切替口): 環境変数 ``SHIBUYA_RULES_42`` {``on``,``off``}(:func:`set_arm`・既定 ``on``)。``on``=給料日に税と社会保険を
-天引きし雇用主の分も払う・レジの消費税は店の預かり金に積んで申告の期限に政府へ移す(Q1)。``off``=4-2 の前の値の再現
-(天引き 0・レジの税は売った時点で政府へ)=**次の版上げで消す**(回答 10-13b §0-6・つなぎの台帳 ``DOC-rules42-legacy-switch``)。
-腕は組み立てのときに読む(``engine.economy_stage2.attach`` が :func:`payroll_inputs` の結果を ``Stage2Plan.law`` に渡す)。
-状態のファイルとハッシュには、腕の行(状態台帳 ``TXD``=店の預かり消費税)が持ち主の居るランだけ入る=``off`` のランは
-腕を足す前と同じバイト。
+規則の表の中身は常に挿す: 給料日に税と社会保険を天引きし雇用主の分も払う・レジの消費税は店の預かり金に積んで申告の期限に
+政府へ移す(Q1)。組み立て(``engine.economy_stage2.attach``)が :func:`payroll_inputs` の結果を ``Stage2Plan.law`` に渡す。
+状態のファイルとハッシュには、腕の行(状態台帳 ``TXD``=店の預かり消費税)が持ち主の居るラン(段階 2 の税の部品が動くラン)
+だけ入る。〔第346 旧道の切替口の削除〕4-2 の前の値(天引き 0・レジの税は売った時点で政府へ)の再現の切替口
+``SHIBUYA_RULES_42=off`` は消した(環境変数を与えると読み込みで止まる・つなぎの台帳 ``DOC-rules42-legacy-switch`` は
+removed)。旧値の再現は安定版のタグ ``stable-v2-before-switch-removal-346``。``law`` の無い ``Stage2Plan`` を直に作る物
+(``economy.stage2.MoneyStage2`` の 4-2 の前の値の道)は部品の単体試験の基準の口として残す(ランの口からは選べない)。
 
 〔第 4 期 4-2b〕天引きは規則の表の空欄 3 件を埋めた値(R-118 §10-2=住民税の基礎控除・調整控除・非課税/厚年 70 歳・健保
 75 歳の年齢の上限/子ども・子育て拠出金 0.36%=事業主だけ)で行う。組み立ては :class:`PayrollInputs` の ``rules_42b`` を常に真に
@@ -40,24 +41,25 @@ from typing import Any, Final
 import numpy as np
 
 __all__ = [
-    "ARM_ON", "ARM_OFF", "ARMS", "DEFAULT_ARM", "arm", "set_arm", "RIGHTS_INITIAL_FILE", "PayrollInputs",
+    "ARM_ON", "ARM_OFF", "ENV_42_REMOVED", "RIGHTS_INITIAL_FILE", "PayrollInputs",
     "payroll_inputs", "FULL_TIME_WEEKLY_HOURS", "NON_EMPLOYEE_ROLES", "ENV_42B_REMOVED", "REMOVED_SWITCH_TAG",
 ]
 
+#: 状態のファイルの見出しの ``economy_stage2.rules_42``・``rules_42b`` の値(``on``=規則の表の中身を挿したラン・見出しに
+#: 無い=``off``=4-2 の前のラン=〔第346〕再開できない)。
 ARM_ON: Final[str] = "on"
 ARM_OFF: Final[str] = "off"
-ARMS: Final[tuple[str, ...]] = (ARM_ON, ARM_OFF)
-DEFAULT_ARM: Final[str] = ARM_ON
-_ARM: str = os.environ.get("SHIBUYA_RULES_42", DEFAULT_ARM).strip().lower() or DEFAULT_ARM
-if _ARM not in ARMS:
-    raise ValueError(f"SHIBUYA_RULES_42 は {ARMS} のどれか(いま {_ARM!r})")
 #: 〔第346〕旧道の切替口を消す前の安定版のタグ(旧値の再現はこのタグで回す)。
 REMOVED_SWITCH_TAG: Final[str] = "stable-v2-before-switch-removal-346"
 #: 〔第346〕消した切替口の環境変数(4-2b の空欄 3 件を埋める前の値の再現=与えると止まる=黙って無視しない)。
 ENV_42B_REMOVED: Final[str] = "SHIBUYA_RULES_42B"
-if os.environ.get(ENV_42B_REMOVED, "").strip():
-    raise ValueError(f"{ENV_42B_REMOVED} は消した切替口(第346 旧道の切替口の削除・旧値の再現は安定版のタグ "
-                     f"{REMOVED_SWITCH_TAG})=環境変数を外す")
+#: 〔第346〕消した切替口の環境変数(4-2 の前の値の再現=与えると止まる=黙って無視しない)。
+ENV_42_REMOVED: Final[str] = "SHIBUYA_RULES_42"
+for _name in (ENV_42_REMOVED, ENV_42B_REMOVED):
+    if os.environ.get(_name, "").strip():
+        raise ValueError(f"{_name} は消した切替口(第346 旧道の切替口の削除・旧値の再現は安定版のタグ "
+                         f"{REMOVED_SWITCH_TAG})=環境変数を外す")
+del _name
 
 #: 差し替えの世界の初期の権利の表(W21b・役割と週の時間の目安を持つ)。
 RIGHTS_INITIAL_FILE: Final[str] = "w21_rights_initial.parquet"
@@ -66,19 +68,6 @@ RIGHTS_INITIAL_FILE: Final[str] = "w21_rights_initial.parquet"
 FULL_TIME_WEEKLY_HOURS: Final[float] = 40.0 * 3.0 / 4.0
 #: 雇われる側でない役割(W21b の語・業主=自営の本人・家族従業者・内職=自分で納める側=R-118 §2-6 の human)。
 NON_EMPLOYEE_ROLES: Final[tuple[str, ...]] = ("業主", "家族従業者", "内職")
-
-
-def arm() -> str:
-    """いまの腕(``on``=既定・``off``=4-2 の前の値の再現)。組み立てのときに読む。"""
-    return _ARM
-
-
-def set_arm(name: str) -> None:
-    """腕を選ぶ(試験と byte-check の切替口)。"""
-    global _ARM
-    if str(name) not in ARMS:
-        raise ValueError(f"SHIBUYA_RULES_42 は {ARMS} のどれか(いま {name!r})")
-    _ARM = str(name)
 
 
 @dataclass(frozen=True)

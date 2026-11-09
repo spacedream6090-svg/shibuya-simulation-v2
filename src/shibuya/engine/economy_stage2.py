@@ -190,17 +190,18 @@ def check_resume(saved: Any, *, effective: bool = True) -> None:
     if now_arm == ARM_ON and s_wage != DEFAULT_WAGE:
         raise ValueError(f"再開の賃金の腕が親と違う(親 wage={s_wage}・今 wage={DEFAULT_WAGE})=旧値の腕 w17 は消した"
                          "(安定版のタグ stable-v2-before-wage-occupation で回す)")
-    # 〔第 4 期 4-2〕規則の表の中身の腕(見出しに無い=off=4-2 の前の状態)
+    # 〔第 4 期 4-2〕規則の表の中身(見出しに無い=off=4-2 の前の状態)。〔第346〕旧値の切替口 SHIBUYA_RULES_42=off は消した=
+    # 見出しに on が無い状態のファイルからは再開できない
     from shibuya.engine import economy_rules as _ER
 
     s_law = str(s.get("rules_42", _ER.ARM_OFF))
-    if now_arm == ARM_ON and s_law != _ER.arm():
-        raise ValueError(f"再開の規則の表の中身の腕が親と違う(親 rules_42={s_law}・今 {_ER.arm()})=環境変数 "
-                         "SHIBUYA_RULES_42 を親にそろえる")
-    # 〔第 4 期 4-2b〕空欄 3 件を埋めた値(見出しに無い=4-2 の値の状態・規則の表の中身の腕が on のランだけ)。〔第346〕旧値の
-    # 切替口 SHIBUYA_RULES_42B=off は消した=見出しに on が無い状態のファイルからは再開できない
+    if now_arm == ARM_ON and s_law != _ER.ARM_ON:
+        raise ValueError(f"再開の規則の表の中身の腕が親と違う(親 rules_42={s_law}・今 {_ER.ARM_ON})=4-2 の前の値の切替口 "
+                         f"{_ER.ENV_42_REMOVED}=off は消した(安定版のタグ {_ER.REMOVED_SWITCH_TAG} で回す)")
+    # 〔第 4 期 4-2b〕空欄 3 件を埋めた値(見出しに無い=4-2 の値の状態)。〔第346〕旧値の切替口 SHIBUYA_RULES_42B=off は
+    # 消した=見出しに on が無い状態のファイルからは再開できない
     s_42b = str(s.get("rules_42b", _ER.ARM_OFF))
-    if now_arm == ARM_ON and _ER.arm() == _ER.ARM_ON and s_42b != _ER.ARM_ON:
+    if now_arm == ARM_ON and s_42b != _ER.ARM_ON:
         raise ValueError(f"再開の規則の表の空欄 3 件の腕が親と違う(親 rules_42b={s_42b}・今 {_ER.ARM_ON})=4-2 の値の切替口 "
                          f"{_ER.ENV_42B_REMOVED}=off は消した(安定版のタグ {_ER.REMOVED_SWITCH_TAG} で回す)")
 
@@ -655,8 +656,8 @@ class Stage2Plan:
         self.causes = MappingProxyType(dict(causes))
         #: 世界過程の実行器(権利台帳の持ち主=開閉の過程)。組み立てが実行器を作った後に 1 回だけ置く。
         self.runner: Any = None
-        #: 〔第 4 期 4-2〕規則の表の中身の腕(``engine.economy_rules``)が on のランの加入の判定の材料
-        #: (``economy_rules.PayrollInputs``)。``None``=4-2 の前の値の再現(天引き 0・レジの税は売った時点で政府へ)。
+        #: 〔第 4 期 4-2〕規則の表の中身の加入の判定の材料(``economy_rules.PayrollInputs``・組み立ては常に渡す)。``None``=
+        #: 4-2 の前の値(天引き 0・レジの税は売った時点で政府へ)=直に作る部品の単体試験の基準の口(〔第346〕切替口は消した)。
         self.law = law
         for a in (self.kinds, self.monthly_hours):
             if a is not None:
@@ -787,10 +788,9 @@ def attach(ledger_bundle: Any, *, schedule: Any, weekly: Any, calendar: Any, wor
     winp = wage_inputs(schedule, pop, n_agents)
     total = population_total(world_dir) if pop is not None else None
     scale = (float(n_agents) / float(total)) if total else None
-    from shibuya.engine import economy_rules as _ER  # 〔第 4 期 4-2〕給与の天引きと預かり消費税の腕(組み立てで読む)
+    from shibuya.engine import economy_rules as _ER  # 〔第 4 期 4-2〕給与の天引きと預かり消費税の材料(〔第346〕常に挿す)
 
-    law = (_ER.payroll_inputs(pop, world_dir, n_agents, np.asarray(schedule.kind)[: int(n_agents)])
-           if _ER.arm() == _ER.ARM_ON else None)
+    law = _ER.payroll_inputs(pop, world_dir, n_agents, np.asarray(schedule.kind)[: int(n_agents)])
     plan = Stage2Plan(parts=_PARTS, kinds=np.asarray(schedule.kind)[: int(n_agents)], monthly_hours=hours,
                       hours_source=src, atms=atms, calendar=calendar, tick_seconds=tick_seconds, n_agents=n_agents,
                       population_scale=scale, causes={n: Process(n) for n in CAUSE_NAMES}, wage_model=DEFAULT_WAGE,
