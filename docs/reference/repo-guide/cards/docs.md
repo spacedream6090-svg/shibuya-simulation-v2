@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-257 ディレクトリ・2174 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+257 ディレクトリ・2178 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -1105,7 +1105,7 @@
 
 - [check-3-3.md](../../../plateau2026/check-3-3.md): PLATEAU AWARD の「先に確かめること」(返事その 5 §3-3・返事その 6 §6)
 
-## docs/reference(21 本)
+## docs/reference(25 本)
 
 - [2026-10-25_engine_llm_parallelization_summary.md](../../2026-10-25_engine_llm_parallelization_summary.md): 渋谷LLM社会シミュレーター：判断頻度・並列処理・高速化の議論まとめ
 - [2026-10-25_shibuya_world_model_and_strategy_summary.md](../../2026-10-25_shibuya_world_model_and_strategy_summary.md): 渋谷シミュレーション：世界モデル構想・技術ロードマップ・市場戦略の要約
@@ -1120,9 +1120,12 @@
 - [decision-routing-2026-11-01.md](../../decision-routing-2026-11-01.md): 住民の判断の行き先(112 件の振り分け)2026-11-01
 - [decision-routing-addendum-2026-11-03.md](../../decision-routing-addendum-2026-11-03.md): 住民の判断の行き先 追補(112 件の表に無い行)2026-11-03
 - [inventory-vessels-research-heads-2026-11-09.md](../../inventory-vessels-research-heads-2026-11-09.md): 器と研究の残りの棚卸し(2026-11-09)
+- [mind-world-reads-2026-11-09.md](../../mind-world-reads-2026-11-09.md): 心の区分が外の列を読む所の数え直し 2026-11-09
 - [opened-values-in-docs-2026-11-09.md](../../opened-values-in-docs-2026-11-09.md): 開封の値が普通の文書にある件の一覧(名前と行番号だけ)
 - [package-map-claude-code-2026-11-05-files.md](../../package-map-claude-code-2026-11-05-files.md): 包みの分類の案(Claude Code の独立の案)ファイルの表 2026-11-05
 - [package-map-claude-code-2026-11-05.md](../../package-map-claude-code-2026-11-05.md): 包みの分類の案(Claude Code の独立の案)2026-11-05
+- [package-map-final-2026-11-09-files.md](../../package-map-final-2026-11-09-files.md): コードの区分の最終の表(全ファイル)2026-11-09
+- [package-map-final-2026-11-09.md](../../package-map-final-2026-11-09.md): コードの区分の最終の表と、移す段の計画 2026-11-09
 - [package-map-reconcile-2026-11-05.md](../../package-map-reconcile-2026-11-05.md): 包みの割り当ての照らし合わせ(案 K と案 F)2026-11-05
 - [stage2-crosscheck-2026-11-05.md](../../stage2-crosscheck-2026-11-05.md): 段 2 の突き合わせの結果(2026-11-05・claude.ai の側の読み手 4 本・Opus 5.5)
 - [tech-map-2026-11-03.md](../../tech-map-2026-11-03.md): 現状技術マップ 2026-11-03(`src/shibuya/` の全ファイル)
