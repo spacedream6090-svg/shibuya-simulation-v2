@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-257 ディレクトリ・2177 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+260 ディレクトリ・2190 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -31,6 +31,14 @@
 - [README.md](../../../bench/analysis/d44-controls-2026-09-30/README.md): D-44 の対照 — 構築段階の対照 66 行・mock の対照・印と登録(第311・2026-09-30)
 
 ## docs/bench/analysis/d44-controls-2026-09-30/results(80 本)
+
+## docs/bench/analysis/delete-346(1 本)
+
+- [README.md](../../../bench/analysis/delete-346/README.md): 第346 旧道の切替口と死んだ道の削除(返事その 6 §3-2 の 1・2/返事その 7 §2 の 5)
+
+## docs/bench/analysis/delete-346/bytecheck(11 本)
+
+## docs/bench/analysis/delete-346/tools(1 本)
 
 ## docs/bench/analysis/dm-eval-11-01(2 本)
 
