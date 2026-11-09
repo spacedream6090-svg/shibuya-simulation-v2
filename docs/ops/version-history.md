@@ -16,6 +16,7 @@
 | 小 | まだ動いていた「無い」の過程 5 件(ごみ収集・清掃・道路工事・救急の出動・電気と水)を既定で止める(#136・11-02r #7)。既定の final は不変・変わるのは過程の計数と ActualLog。性能 5,000 体 50.0 s/34.7 ms/511 MB(同じ日の土台 49.6〜51.2 s=揺れの範囲) | 4566492 | `stable-v2-before-absent-5`(1c137c6) | `git checkout stable-v2-before-absent-5` か `--absent-processes legacy`(環境変数 `SHIBUYA_ABSENT_PROCESSES=legacy`・次の版上げで消す) |
 | 小 | 棚卸し B の欠陥 4 件(M10・M11・M28・M16)の直し(#138・11-03 §3)。既定の final 73aa01d9 → c8d68704・呼数 61,066 → 60,939。性能 5,000 体 60.5/61.8 s・42〜43 ms・最大 520〜527 MB(同じ巡の土台 62.8/61.8 s=揺れの範囲) | 8165b3d | `stable-v2-before-defect-fixes-1103`(3b375dc) | `git checkout stable-v2-before-defect-fixes-1103` か `--defect-fixes-1103 legacy`(環境変数 `SHIBUYA_DEFECT_FIXES_1103=legacy`・次の版上げで消す) |
 | 実証の線 | 39 万体 × 1 日の実 LLM(C7 受入) | 8f78065 | `v2-c7-day-4-accepted` | — |
+| 整理 | 旧道の切替口 5 本(SHIBUYA_RULES_42B・SHIBUYA_RULES_42・--seat-release legacy・--proximity cell・--defect-fixes-1103 legacy)と死んだ道 2 本を消した(#142・第346・既定の結果は不変=37 欄のうち台帳の件数の 3 欄だけ動いた)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 59.7 秒/後 50.9 秒(19 構成を 6 本並列・同じ機械で。並列の混み方で揺れるので比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | 7e595d9〜3d88da1 | `stable-v2-before-switch-removal-346`(6753891) | `git checkout stable-v2-before-switch-removal-346`(消した旧道の値の再現) |
 
 ## 版上げと整理の段の手順(byte-check)
 

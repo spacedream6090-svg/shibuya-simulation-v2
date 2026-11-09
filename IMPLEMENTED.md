@@ -394,6 +394,21 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #142 旧道の切替口 5 本と死んだ道 2 本を消した(整理の段・既定の結果は不変)(11-05 §3-2 の 1・2・第346・2026-11-09〜10・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [返事その 6](docs/design/prompt-2026-11-05-reply6.md) §3-2・[返事その 7](docs/design/prompt-2026-11-09-reply7.md) §2 の 5・手順 [6-1 メモ](docs/design/v2-prep-6-1-notes-2026-10-25.md) §2。記録 [delete-346](docs/bench/analysis/delete-346/README.md)。
+- **中身**: `SHIBUYA_RULES_42B`・`SHIBUYA_RULES_42`・`--seat-release legacy`・`--proximity cell`・`--defect-fixes-1103 legacy` を消し、渡すと止まる形に(一覧と止める文は `engine/removed_switches.py`・組み立ての最初で検査・消した旗は help に出さない旗で受けて止める)。死んだ道=会話の応答率 0.8 の抽選・重要度上位の +2 呼。1 本ずつ commit(7e595d9〜7827c5e)。旧値の再現は安定版のタグ `stable-v2-before-switch-removal-346`(6753891)。
+- **止めたもの(判断待ち)**: `--economy-stage2 off`・`--rate-rules legacy`・`--absent-processes legacy`(旧道がほかの試験の駆動と基準)。消さなかったもの: `--space legacy`(Q7)・`--hunger-model v1`(Q13)。
+- **結果**: 項目ごとに byte-check 25 欄 19/19 同じ(final `c8d68704b7b0760d` / 60,939)。親の 37 欄=25 欄・テープの全ファイル・型と見出し・run_meta・全 checkpoint は同じ・動いたのは manifest の `bridges_count`(763→758)・`bridges_version`・`daily[*].bridges_count` だけ(台帳の 5 行を removed にした結果)。
+- **検収**: 別の検収役=条件つき受入(H1 消した環境変数がランの入口で止まらない・M2 描画の結合の試験を消していた・M3 再開を止める試験が名前どおりでない・L1 略記で `--proximity` が `--proximity-d` に吸われる ほか)→ 実装役が直した(c3594ee)→ 親(取り込んだ src が削除の作業木と同一・範囲の試験 1,435 passed・37 欄の byte-check)。検収の中で、仕様書の役が決定の置き場の表の欄に注を書き込み CI-1 を赤にしていたことも見つかった(ac3d63e で直した)。
+
+### #141 byte-check の道具 `tools/bytecheck/`(37 欄・CI では回せない)(11-09 §2 の 4・第346・2026-11-09・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [返事その 7](docs/design/prompt-2026-11-09-reply7.md) §2 の 4。使い方 [tools/bytecheck/README.md](tools/bytecheck/README.md)・版上げの手順 [version-history](docs/ops/version-history.md) と CLAUDE.md §4。
+- **中身**: 10e の道具の働きを引き継ぎ、run=基準の commit を git archive で写す→data へのつなぎ→両側→比べる→つなぎだけを外す、を 1 回で(b1bd58e)。検収の後に強くした(05be3f1)=比べるもの 25 欄 → 37 欄(テープの全ファイルの sha256・型と見出し・manifest と run_meta の全欄=比べない欄は名前と理由つき・全 checkpoint)・欄の欠けと条件の不一致は誤り・ランが読んだ shibuya のファイルの digest を記録・外で開いたファイルの記録。
+- **結果**: 基準 vs 作業木(src 同じ)で 19 構成すべて同じ(約 7 分)。v3-0a の記録と final が一致。既知の答え=定数 1 つで終了コード 1・戻して 0・注だけ 0。
+- **検収**: 別の検収役=条件つき受入(H1 テープの型と見出し・manifest の 115 欄を比べていない=型の変更と版の文字列の変更で「同じ」を返した・M1 突然変異 27 本のうち 12 本が生き残る ほか)→ 実装役が直した(生き残り 12→0・新しい 30 本も 0・試験 121 本)。親の直し 1 点=本体から回すと editable の名札 `*.egg-info` を「道具のリポを開いた」と誤って数えた。
+
 ### #140 段 3 ファイルのカードの道具 `tools/repo_guide/`(1 バイト不変・src の変更 0)(11-05 §3-1 の 1・第345・2026-11-05)
 
 - 正典: [指示書 11-05](docs/design/prompt-2026-11-05-reply6.md) §3-1。置き場 [リポの案内](docs/reference/repo-guide/README.md)。
