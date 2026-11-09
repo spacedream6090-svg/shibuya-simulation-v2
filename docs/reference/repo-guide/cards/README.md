@@ -96,7 +96,7 @@
 | [tests/llm](tests/llm/README.md) | 9 | 0 |
 | [tests/perception](tests/perception/README.md) | 19 | 0 |
 | [tests/perception/facts](tests/perception/facts/README.md) | 7 | 0 |
-| [tests/tools](tests/tools/README.md) | 19 | 0 |
+| [tests/tools](tests/tools/README.md) | 20 | 0 |
 | [tests/vocab](tests/vocab/README.md) | 5 | 0 |
 | [tests/w17](tests/w17/README.md) | 3 | 0 |
 | [tests/world](tests/world/README.md) | 2 | 0 |
@@ -106,6 +106,7 @@
 | [tools/bench/event_cost](tools/bench/event_cost/README.md) | 1 | 0 |
 | [tools/bench_spikes](tools/bench_spikes/README.md) | 3 | 0 |
 | [tools/build_geo](tools/build_geo/README.md) | 1 | 0 |
+| [tools/bytecheck](tools/bytecheck/README.md) | 5 | 1 |
 | [tools/c6](tools/c6/README.md) | 7 | 0 |
 | [tools/c7](tools/c7/README.md) | 11 | 1 |
 | [tools/c8](tools/c8/README.md) | 5 | 3 |
@@ -131,7 +132,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 257 ディレクトリ・2165 本
+- [docs の索引](docs.md): 257 ディレクトリ・2174 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

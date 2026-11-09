@@ -1,5 +1,7 @@
 """10e(版上げ 1 回目)の byte-check と「動いた量」の控え。
 
+〔11-09〕今の道具は ``tools/bytecheck/``(README.md)。この道具は記録の再現のために残す。
+
 比べ方は [byte_check_10c.py](../../wallbounce-1003/10c/byte_check_10c.py) と同じ 19 構成(W6 の 15 腕+店の記憶・関係・
 古典・古典+記憶+関係。mock/classical 5,000 体・seed 1・1 シミュ日・テープつき)。``one`` は 10c の欄に加えて
 行動の件数(``action_usage``)・起床の内訳・最後の checkpoint の behavior-hash と full-hash(全桁)・締めの後の 2 本・

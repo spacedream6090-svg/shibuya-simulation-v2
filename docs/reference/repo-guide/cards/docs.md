@@ -2,10 +2,11 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-257 ディレクトリ・2165 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+257 ディレクトリ・2174 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
-## docs(2 本)
+## docs(3 本)
 
+- [README.md](../../../README.md): docs の入口(索引)
 - [data-license-ledger.md](../../../data-license-ledger.md): データ・ライセンス台帳(2026-09-01初期化)
 - [handover-memory.md](../../../handover-memory.md): メモリ引き継ぎ文書(v1プロジェクト → v2・2026-09-01作成)
 
@@ -1104,7 +1105,7 @@
 
 - [check-3-3.md](../../../plateau2026/check-3-3.md): PLATEAU AWARD の「先に確かめること」(返事その 5 §3-3・返事その 6 §6)
 
-## docs/reference(18 本)
+## docs/reference(21 本)
 
 - [2026-10-25_engine_llm_parallelization_summary.md](../../2026-10-25_engine_llm_parallelization_summary.md): 渋谷LLM社会シミュレーター：判断頻度・並列処理・高速化の議論まとめ
 - [2026-10-25_shibuya_world_model_and_strategy_summary.md](../../2026-10-25_shibuya_world_model_and_strategy_summary.md): 渋谷シミュレーション：世界モデル構想・技術ロードマップ・市場戦略の要約
@@ -1114,9 +1115,12 @@
 - [behavior-audit-triage-2026-11-03.md](../../behavior-audit-triage-2026-11-03.md): 挙動の棚卸し 164 件の仕分け(V/K/D/E)2026-11-03
 - [behavior-audit-triage-2026-11-04.md](../../behavior-audit-triage-2026-11-04.md): 挙動の棚卸し 164 件の仕分けのやり直し(V/K/D/E)2026-11-04
 - [conflicts-triage-2026-11-05.md](../../conflicts-triage-2026-11-05.md): 食い違いの仕分け(第 345 の conflicts.md の 44 問+X-1〜X-8)2026-11-05
+- [data-two-groups-2026-11-09.md](../../data-two-groups-2026-11-09.md): データの 2 つの組の台帳(答え合わせ専用/学びの候補)
 - [decision-inventory-2026-10-31.md](../../decision-inventory-2026-10-31.md): 住民の判断は今だれが決めているか(棚卸し)2026-10-31
 - [decision-routing-2026-11-01.md](../../decision-routing-2026-11-01.md): 住民の判断の行き先(112 件の振り分け)2026-11-01
 - [decision-routing-addendum-2026-11-03.md](../../decision-routing-addendum-2026-11-03.md): 住民の判断の行き先 追補(112 件の表に無い行)2026-11-03
+- [inventory-vessels-research-heads-2026-11-09.md](../../inventory-vessels-research-heads-2026-11-09.md): 器と研究の残りの棚卸し(2026-11-09)
+- [opened-values-in-docs-2026-11-09.md](../../opened-values-in-docs-2026-11-09.md): 開封の値が普通の文書にある件の一覧(名前と行番号だけ)
 - [package-map-claude-code-2026-11-05-files.md](../../package-map-claude-code-2026-11-05-files.md): 包みの分類の案(Claude Code の独立の案)ファイルの表 2026-11-05
 - [package-map-claude-code-2026-11-05.md](../../package-map-claude-code-2026-11-05.md): 包みの分類の案(Claude Code の独立の案)2026-11-05
 - [package-map-reconcile-2026-11-05.md](../../package-map-reconcile-2026-11-05.md): 包みの割り当ての照らし合わせ(案 K と案 F)2026-11-05
@@ -1148,7 +1152,7 @@
 - [devlog-compressed.md](../../v1/devlog-compressed.md): 開発ログ(圧縮アーカイブ)
 - [v1-inventory.md](../../v1/v1-inventory.md): v1シミュレーション 全機能棚卸し(2026-08-29・v2ゼロベース再設計の入力)
 
-## docs/research(216 本)
+## docs/research(221 本)
 
 - [INDEX.md](../../../research/INDEX.md): 答申の索引(docs/research/ 73 本)
 - [RESEARCH-STATE.md](../../../research/RESEARCH-STATE.md): リサーチの進行状況(次のエージェントが最初に読む 1 枚)
@@ -1266,18 +1270,23 @@
 - [v2-r134-diff-vessel-layer3-addendum.md](../../../research/v2-r134-diff-vessel-layer3-addendum.md): R-134 答申: 差分の器の設計(R-124 層 3 の追補)
 - [v2-r135-mind-modules-precedents.md](../../../research/v2-r135-mind-modules-precedents.md): R-135 心のモジュールの先例(速い過程と遅い過程が状態を共有し、調停で誰が答えるかを決める形)
 - [v2-r136-interruption-and-attention.md](../../../research/v2-r136-interruption-and-attention.md): R-136 割り込みと注意(v3 の核の割り込みの規則の材料)
+- [v2-r137-addendum-unread-sources.md](../../../research/v2-r137-addendum-unread-sources.md): R-137 の追補: 読めなかった原典(飽き・限界値定理・連れの効果・Gollwitzer 1999)をどこまで読めたか
 - [v2-r137-human-daily-planning-forms.md](../../../research/v2-r137-human-daily-planning-forms.md): R-137 答申: 人の予定の形(前もって時刻で決める部分・順番だけ決める部分・活動の終わりの手がかり)と W17 の置き換えの型
 - [v2-r138-single-world-mmo-sync.md](../../../research/v2-r138-single-world-mmo-sync.md): R-138 単一の世界の MMO の同期(世界を遅らせる形と、計算を割っても結果を 1 つに保つ形)
 - [v2-r139-rail-realtime-operation.md](../../../research/v2-r139-rail-realtime-operation.md): R-139 答申: 鉄道の実運行(秒の事象で回すときの材料=ODPT の在線・遅延・時刻表の粒度/秒の時刻表/停車時分と遅れの伝播の模型)
 - [v2-r140-population-lod-simulation.md](../../../research/v2-r140-population-lod-simulation.md): R-140 解像度を変える人口のシミュレーション(人口の LOD)の先例と、都市を足すときに先に入れておく欄
+- [v2-r141-addendum-sae-and-persona-vectors.md](../../../research/v2-r141-addendum-sae-and-persona-vectors.md): R-141 の追補: Qwen3-8B 用の公開の特徴の辞書(スパースオートエンコーダ・SAE)と、性格の向き(persona vectors)の取り出し方の手順
 - [v2-r141-persistent-state-vectors-and-steering.md](../../../research/v2-r141-persistent-state-vectors-and-steering.md): R-141 持続する状態ベクトルと操舵(本人ごとの性格と気分の数値を出来事ごとに更新し、LLM を呼ぶときに効かせる形の先例と、vLLM でどこまでできるか)
 - [v2-r142-activation-tape-capture.md](../../../research/v2-r142-activation-tape-capture.md): R-142 活性をテープに残す道(vLLM の隠れ状態の取り出し・HF transformers の道・Qwen3-8B の量・5070 で試す形)
 - [v2-r143-harness-and-mind-port.md](../../../research/v2-r143-harness-and-mind-port.md): R-143 ハーネスの設計と、住民の心への写し方(長く動くエージェントの先例・道具の見せ方・多数を回す形・安く回す工夫・途中の入力に流される度合い・ReAct 型の費用・心の口の設計案の比較)
 - [v2-r144-mind-body-coupling.md](../../../research/v2-r144-mind-body-coupling.md): R-144 心と体の接続(threaded cognition・複数資源・埋め合わせの減速・体から心への影響)
 - [v2-r145-learned-continuous-system1.md](../../../research/v2-r145-learned-continuous-system1.md): R-145 学習した小さな連続のネットワーク(System 1 の第 2 世代: 知覚の流れを入れ続け、状態を持ち、簡単な判断を出し続け、重い判断を呼ぶ形の先例と、35 万体を毎秒回す費用)
+- [v2-r146-addendum-agent-memory-article.md](../../../research/v2-r146-addendum-agent-memory-article.md): R-146 の追補: Anthropic「The components of agent memory」(2026-11-06)の一次確認(記憶の 4 層・眠っている間の整理・逆になりうる結果・指示の仕方の数値)と、住民へ写すときの注意
 - [v2-r146-sleep-consolidation-person-vector.md](../../../research/v2-r146-sleep-consolidation-person-vector.md): R-146 睡眠での固定と本人のベクトル(文の記憶と熟考を本人のベクトルへ写す先例・ベクトルの形・vLLM での差し込み・誰をいつ更新するか・費用・5070 の試験)
 - [v2-r147-continual-learning-persistent-state.md](../../../research/v2-r147-continual-learning-persistent-state.md): R-147 継続学習と持続する内部状態(文の側で学ぶ流れと、重みや状態の側で学ぶ流れの比較・状態を持つ系列模型の日本語の能力と保存の口・Qwen3-8B のままでできる範囲)
 - [v2-r148-social-cognition-anchors.md](../../../research/v2-r148-social-cognition-anchors.md): R-148 社会的認知の錨(印象の形成の連続体の模型・ステレオタイプの内容の模型の日本での値・心の理論の計測・LLM の社会的な偏りの測り方)
+- [v2-r149-llm-judge-model-biases-and-remedies.md](../../../research/v2-r149-llm-judge-model-biases-and-remedies.md): R-149 LLM と判断モデルの癖と手当て(数と時刻の偏りと例の写し・出力の形と時刻の付けすぎ・選択肢の並び・均質化の手当てと副作用・働きかけへの反応しすぎ・時刻で思い出す記憶の模型・Qwen3-8B と判断モデルの候補で測った値)
+- [v2-r150-learning-from-human-behavior-data.md](../../../research/v2-r150-learning-from-human-behavior-data.md): R-150 人の行動のデータで学ばせる道(Centaur 型の判断モデルの候補・心の組み方を機械に探させる道・学ばせた住民と学ばせない住民の比べ方)
 - [v2-r2-llm-social-sim-fulltext-check.md](../../../research/v2-r2-llm-social-sim-fulltext-check.md): R-2 — LLM 社会シミュレーション文献 12 件の本文実読(答申・2026-09-16)
 - [v2-r23-primary-check-batch1.md](../../../research/v2-r23-primary-check-batch1.md): R-23 第1批: 出典URLゼロの答申(D等級33本)の一次確認
 - [v2-r23-primary-check-batch2.md](../../../research/v2-r23-primary-check-batch2.md): R-23 第2批: 「背骨」を成す 4 答申の一次確認

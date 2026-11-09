@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 19 本・その他 0 本(このディレクトリの直下)
+Python 20 本・その他 0 本(このディレクトリの直下)
 
 ## [test_absent_declarations.py](../../../../../../tests/tools/test_absent_declarations.py)
 
@@ -71,6 +71,55 @@ tools/instruments/batch_width_gauge.py(第 3 期 3-2・TM4 の既定の幅の試
   - `test_run_one_records_the_shape`(関数)
   - `test_salt_width_is_the_salt_compare_width_base`(関数)
   - `test_zero_difference_table_has_every_width_within_and_monotone`(関数)
+
+## [test_bytecheck.py](../../../../../../tests/tools/test_bytecheck.py)
+
+tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長いランも要らない単体だけ(CI の ci-1 で回る)。
+
+- 公開の関数とクラス
+  - `clean_env`(関数)
+  - `old10e`(関数)
+  - `refs`(関数)
+  - `test_all19_is_the_old_table`(関数)
+  - `test_all19_matches_the_v30a_record`(関数)
+  - `test_archive_paths`(関数)
+  - `test_audit_hook_records_opens`(関数)
+  - `test_classify_reads`(関数)
+  - `test_cli_exit_codes`(関数)
+  - `test_compare_errors_are_2_even_when_values_match`(関数)
+  - `test_compare_json_has_no_absolute_path`(関数)
+  - `test_compare_keys_are_the_25_of_10e`(関数)
+  - `test_compare_moved_and_error_is_2`(関数)
+  - `test_compare_moved_is_1_and_names_the_field`(関数)
+  - `test_compare_reads_old_records_without_new_fields`(関数)
+  - `test_compare_same_is_0_and_wall_clock_is_not_compared`(関数)
+  - `test_engine_anchor_files_are_in_the_list`(関数)
+  - `test_every_shibuya_env_in_src_is_listed`(関数)
+  - `test_every_tracked_path_in_src_is_classified`(関数)
+  - `test_git_archive_copy_and_tree_missing`(関数)
+  - `test_hash_functions_are_the_old_ones`(関数)
+  - `test_head_tree_files_cover_the_old_list`(関数)
+  - `test_listed_files_are_really_referenced_in_src`(関数)
+  - `test_listed_tracked_files_exist_and_are_tracked`(関数)
+  - `test_mask_paths_hides_repo_tree_home_and_python`(関数)
+  - `test_one_emits_every_field_of_10e`(関数)
+  - `test_opened_outside`(関数)
+  - `test_package_metadata_reads_are_not_foreign`(関数): 第346 親: 本体から回したときの editable の名札の読みは「道具のリポを開いた」に数えない。
+  - `test_parent4_and_arms_sets`(関数)
+  - `test_place_and_remove_link_keeps_the_target`(関数)
+  - `test_remove_link_refuses_a_real_directory_and_keeps_its_content`(関数)
+  - `test_root_reader_files_are_declared`(関数)
+  - `test_run_refuses_a_non_empty_work_dir`(関数)
+  - `test_run_refuses_stray_env_and_bad_commit`(関数)
+  - `test_scanner_negative_control_finds_an_unlisted_read`(関数)
+  - `test_scanner_patterns`(関数)
+  - `test_side_stops_on_an_incomplete_tree_without_running`(関数)
+  - `test_switch_env_keeps_the_old_list_except_the_path_one`(関数)
+  - `test_switch_env_records_values_and_hidden_names_only`(関数)
+  - `wave2`(関数)
+- import している内部モジュール: `tools/bytecheck/check.py`・`tools/bytecheck/cli.py`・`tools/bytecheck/configs.py`・`tools/bytecheck/tree.py`
+- 環境変数: `SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CONTACT`・`SHIBUYA_FLEET_API_KEY`・`os.environ` をまるごと使う
+- 決定の ID: 11-09/§2・第 346
 
 ## [test_commit_check.py](../../../../../../tests/tools/test_commit_check.py)
 
