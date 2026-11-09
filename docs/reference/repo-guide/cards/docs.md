@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-257 ディレクトリ・2160 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+257 ディレクトリ・2165 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(2 本)
 
@@ -927,7 +927,7 @@
 
 ## docs/bench/w17/v2_attempt1(2 本)
 
-## docs/design(116 本)
+## docs/design(117 本)
 
 - [decision-id-index.md](../../../design/decision-id-index.md): 決定の ID の索引(自動生成・手で編集しない)
 - [prompt-2026-11-01-5070.md](../../../design/prompt-2026-11-01-5070.md): 目的
@@ -939,6 +939,7 @@
 - [prompt-2026-11-04-reply4b.md](../../../design/prompt-2026-11-04-reply4b.md): 1. 決定の記録(仮決定)
 - [prompt-2026-11-04-reply5.md](../../../design/prompt-2026-11-04-reply5.md): 1. 決定の記録(仮決定)
 - [prompt-2026-11-05-reply6.md](../../../design/prompt-2026-11-05-reply6.md): 1. CLAUDE.md §2-2 の書き換え(ユーザー承認・ニュアンスを保つ)
+- [prompt-2026-11-09-reply7.md](../../../design/prompt-2026-11-09-reply7.md): 0. 届いた範囲の確認
 - [v2-a2-rights-flags-2026-11-02.md](../../../design/v2-a2-rights-flags-2026-11-02.md): A2 の旗 3 欄と OSM からの初期化(11-02r §3 の 7 (ア)・段 2 の入力の宣言の欄と同じ扱い)
 - [v2-action-activity-two-layer-draft.md](../../../design/v2-action-activity-two-layer-draft.md): 行為と活動の二層 — 出力形の設計ラウンド草案 v0(2026-09-27・第272)
 - [v2-action-contract.md](../../../design/v2-action-contract.md): v2行動契約書(R4・v1)
@@ -1071,7 +1072,7 @@
 - [pending-archive-2026-09-28.md](../../../log/pending-archive-2026-09-28.md): PENDING アーカイブ(2026-09-08〜09-27・第278 時点の全文)
 - [pending-archive-2026-10-25.md](../../../log/pending-archive-2026-10-25.md): PENDING の凍結(2026-10-25・第339)
 
-## docs/ops(24 本)
+## docs/ops(25 本)
 
 - [build-report-C0.md](../../../ops/build-report-C0.md): 工程 C0(骨格)受入報告(2026-09-08・ブランチ build/c0-c4)
 - [build-report-C1.md](../../../ops/build-report-C1.md): 工程 C1(世界データ構築)受入報告(2026-09-08・ブランチ build/c0-c4)
@@ -1094,6 +1095,7 @@
 - [layer2-review-checklist.md](../../../ops/layer2-review-checklist.md): 層2 独立検収チェックリスト(工程出口・別インスタンスのFableが実施)
 - [murata-lab-inquiry-draft-2026-10-12.md](../../../ops/murata-lab-inquiry-draft-2026-10-12.md): 大阪大学 村田研(合成人口データ)への問い合わせの下書き(2026-10-12・親起草・ユーザーが送る)
 - [night5070-runbook.md](../../../ops/night5070-runbook.md): 5070 の夜の実験の運用手順
+- [report-345-2026-11-05.md](../../../ops/report-345-2026-11-05.md): 第 345 の報告(2026-11-05)
 - [u9-inquiry-draft-2026-09-30.md](../../../ops/u9-inquiry-draft-2026-09-30.md): U-9 渋谷区への照会文(送れる形・2026-10-03 更新。下書きは 2026-09-30)
 - [v2-server-lessons.md](../../../ops/v2-server-lessons.md): サーバーで回して初めて分かったこと — 実装に織り込む形(2026-09-22・第251)
 - [version-history.md](../../../ops/version-history.md): 版上げの履歴とタグ(戻し方つき)
@@ -1102,7 +1104,7 @@
 
 - [check-3-3.md](../../../plateau2026/check-3-3.md): PLATEAU AWARD の「先に確かめること」(返事その 5 §3-3・返事その 6 §6)
 
-## docs/reference(15 本)
+## docs/reference(18 本)
 
 - [2026-10-25_engine_llm_parallelization_summary.md](../../2026-10-25_engine_llm_parallelization_summary.md): 渋谷LLM社会シミュレーター：判断頻度・並列処理・高速化の議論まとめ
 - [2026-10-25_shibuya_world_model_and_strategy_summary.md](../../2026-10-25_shibuya_world_model_and_strategy_summary.md): 渋谷シミュレーション：世界モデル構想・技術ロードマップ・市場戦略の要約
@@ -1111,14 +1113,17 @@
 - [behavior-audit-B-resolve-world-2026-11-02.md](../../behavior-audit-B-resolve-world-2026-11-02.md): 設計者の指紋の棚卸し B(本人が選んだ後、世界が何をするか)2026-11-02
 - [behavior-audit-triage-2026-11-03.md](../../behavior-audit-triage-2026-11-03.md): 挙動の棚卸し 164 件の仕分け(V/K/D/E)2026-11-03
 - [behavior-audit-triage-2026-11-04.md](../../behavior-audit-triage-2026-11-04.md): 挙動の棚卸し 164 件の仕分けのやり直し(V/K/D/E)2026-11-04
+- [conflicts-triage-2026-11-05.md](../../conflicts-triage-2026-11-05.md): 食い違いの仕分け(第 345 の conflicts.md の 44 問+X-1〜X-8)2026-11-05
 - [decision-inventory-2026-10-31.md](../../decision-inventory-2026-10-31.md): 住民の判断は今だれが決めているか(棚卸し)2026-10-31
 - [decision-routing-2026-11-01.md](../../decision-routing-2026-11-01.md): 住民の判断の行き先(112 件の振り分け)2026-11-01
 - [decision-routing-addendum-2026-11-03.md](../../decision-routing-addendum-2026-11-03.md): 住民の判断の行き先 追補(112 件の表に無い行)2026-11-03
 - [package-map-claude-code-2026-11-05-files.md](../../package-map-claude-code-2026-11-05-files.md): 包みの分類の案(Claude Code の独立の案)ファイルの表 2026-11-05
 - [package-map-claude-code-2026-11-05.md](../../package-map-claude-code-2026-11-05.md): 包みの分類の案(Claude Code の独立の案)2026-11-05
+- [package-map-reconcile-2026-11-05.md](../../package-map-reconcile-2026-11-05.md): 包みの割り当ての照らし合わせ(案 K と案 F)2026-11-05
+- [stage2-crosscheck-2026-11-05.md](../../stage2-crosscheck-2026-11-05.md): 段 2 の突き合わせの結果(2026-11-05・claude.ai の側の読み手 4 本・Opus 5.5)
 - [tech-map-2026-11-03.md](../../tech-map-2026-11-03.md): 現状技術マップ 2026-11-03(`src/shibuya/` の全ファイル)
 - [v3-core-independent-review-2026-11-02.md](../../v3-core-independent-review-2026-11-02.md): v3 の核の独立の読み(R-130・R-133 の突き合わせ)
-- [wallbounce-record-2026-11-02_05.md](../../wallbounce-record-2026-11-02_05.md): 壁打ちの記録 2026-11-02〜11-05(理由と意図の記録)
+- [wallbounce-record-2026-11-02_05.md](../../wallbounce-record-2026-11-02_05.md): 壁打ちの記録 2026-11-02〜11-09(理由と意図の記録)
 
 ## docs/reference/repo-guide(3 本)
 
