@@ -47,6 +47,7 @@ import numpy as np
 from shibuya.core.hashing import blake3_hex
 from shibuya.engine import state_ledger as SL
 from shibuya.engine import state_codec as SC
+from shibuya.engine.class_ids import class_id
 from shibuya.engine.state_codec import StateFormatError  # noqa: F401 - 読み口の拒否の型(再輸出)
 from shibuya.engine.state_hashes import _ABSENT, resolve_item
 
@@ -87,7 +88,7 @@ def _canon(v: Any) -> Any:
         return [_canon(x) for x in v]
     if isinstance(v, np.ndarray):
         return _canon(v.tolist())
-    return f"<{type(v).__module__}.{type(v).__qualname__}>"
+    return f"<{class_id(type(v))}>"  # 〔移す段 1〕型の名は固定の表の凍結の名
 
 
 #: 指紋で「パスの文字列」ではなく中身で同定する引数(10d 検収 L3)。

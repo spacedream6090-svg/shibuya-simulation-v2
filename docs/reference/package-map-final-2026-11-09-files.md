@@ -14,6 +14,7 @@
 ## 2. 数
 
 - 行は 324 本(`.py` 323 本と JSON 1 本)。割るもの 24 本。消すもの 2 本。build は置き場を変えない 79 本。
+- 〔移す段 1 で足した〕第346 で足された `engine/removed_switches.py` の行 224a を足した(行は 325 本)。上と本文 §2 の数には入れていない。
 - 元の内訳: K 298 本・11-09 18 本・F 6 本・照らし合わせ 2 本。
 - 照らし合わせの区分の内訳: 同じ 265 本・(ii) 41 本・(iii) 16 本・(i) 2 本。
 - 包みごとの数は本文 §2 にあります。
@@ -246,6 +247,7 @@
 | 222 | `engine/regional_clock.py` | runtime | `runtime/clocks/regional.py` | いいえ | 場所ごとの時計の腕。場所ごとの時計 T4 | K | 同じ |
 | 223 | `engine/relations.py` | mind | `mind/relations/layer.py` 746・`world/facts/initial_ties.py` 326・`foundation/vocab/relations.py` 42 | 割る(§4-13) | 客観の初期の辺と主観の辺が 1 つ。割る。問い 3 の決着=A(世界の事実・運ぶ器・本人の理解の 3 か所。世界の事実から本人の理解への写しは始めの 1 回) | K | (iii) 問い 3 |
 | 224 | `engine/relations_people.py` | mind | `mind/relations/people.py` | いいえ | 人も記憶の腕の関係の読み口=本人の理解 | K | 同じ |
+| 224a | `engine/removed_switches.py` | foundation | `foundation/arms/removed.py` | いいえ | 消した切替口の一覧と、渡されたら止める口(第346 で足した)。標準ライブラリだけを読む。読み手は世界の法則(`seat_release`・`proximity`)・経済の規則の口(`economy_rules`)・runtime(組み立て・欠陥の切替口)・CLI で、全部より下の foundation に置き、切替口 4 本と同じ `foundation/arms/` に並べる案(移す段 1 で足した行。置き場は段 4 の前に親が確かめる) | 移す段 1 | — |
 | 225 | `engine/resolve.py` | act | `act/apply.py` 454・`act/ops/shop.py` 454・`act/ops/rail.py` 379・`act/ops/move.py` 322・`act/ops/plan_writes.py` 309・`mind/ops.py` 208・`act/ops/law_writes.py` 197・`act/ops/body_writes.py` 158・`act/gate.py` 154・`act/ops/talk.py` 154・`runtime/state/restore.py` 136・`act/ops/intent_writes.py` 115・`act/ops/focus.py` 94・`act/ops/init_writes.py` 82・`foundation/write_guard.py` 33・`act/ops/detect_writes.py` 10・`foundation/vocab/act_codes.py` 3・`foundation/vocab/agent_codes.py` 2 | 割る(§4-14) | 書き手の全部。割る。`apply_detection` だけは世界の欄 `cells.b4_hash` を書くので、11-09 の書きの文(世界の欄を書く関数は act だけ)に合わせて `act/ops/detect_writes.py` へ(案 K は `mind/ops.py`) | K | 同じ |
 | 226 | `engine/resume.py` | runtime | `runtime/state/resume.py` | いいえ | 再開と設定の指紋。日境界の再開と通しランの状態の書き出し・読み込み・設定の指紋 | K | 同じ |
 | 227 | `engine/rights/__init__.py` | world | `world/facts/rights/__init__.py`(空にする) | いいえ | 包みの頭。再輸出は消す(呼び手は新しい置き場を直に読む)。問い 7 の決着=world の事実の側 | K | (iii) 問い 7 |

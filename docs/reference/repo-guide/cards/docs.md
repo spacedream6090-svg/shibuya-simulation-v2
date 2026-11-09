@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-260 ディレクトリ・2190 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+261 ディレクトリ・2191 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -85,6 +85,8 @@
 ## docs/bench/analysis/memory-stage1-2026-09-28(10 本)
 
 - [README.md](../../../bench/analysis/memory-stage1-2026-09-28/README.md): 6 段目 版の台帳 — 記憶 第 1 段=記録と想起(2026-09-28)
+
+## docs/bench/analysis/move-346/tools(1 本)
 
 ## docs/bench/analysis/night5070-1101(2 本)
 

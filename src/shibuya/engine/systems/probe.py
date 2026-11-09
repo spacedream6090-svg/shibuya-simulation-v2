@@ -32,6 +32,8 @@ from typing import Any, Callable, Iterable, Mapping
 import blake3 as _blake3
 import numpy as np
 
+from shibuya.engine.class_ids import class_id
+
 __all__ = ["View", "Probe", "snapshot", "first_diff", "RESULT_SKIP", "STATS_NAMES"]
 
 #: 診断の積算(``RunStats`` の欄の名=HEAD の ``run_day`` の局所の名と同じ)。
@@ -126,7 +128,7 @@ def plain(v: Any, depth: int = 0, objs: bool = False, refs: frozenset[int] = fro
         slots = [s for c in type(v).__mro__ for s in getattr(c, "__slots__", ())]
         if slots:
             return (type(v).__qualname__, [(s, plain(getattr(v, s, None), depth + 1, objs, refs)) for s in slots])
-    return ("obj", type(v).__module__ + "." + type(v).__qualname__)
+    return ("obj", class_id(type(v)))  # 〔移す段 1〕型の名は固定の表の凍結の名
 
 
 def _digest_value(v: Any, objs: bool = False, refs: frozenset[int] = frozenset()) -> str:

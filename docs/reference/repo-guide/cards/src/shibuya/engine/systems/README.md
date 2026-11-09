@@ -322,9 +322,9 @@ engine.systems.probe — 系ごとの全欄の差(段 B)と系ごとの指紋(�
   - `save`(関数)
   - `snapshot`(関数): 全欄の digest(読むだけ・乱数を引かない・状態を書かない)。
   - `view_of`(関数): 箱から snapshot の材料を組む(HEAD の局所から組む ``probe_run._head_view`` と同じ形)。
-- import している内部モジュール: `shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.state_io`
+- import している内部モジュール: `shibuya.engine.class_ids`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.state_io`
 - 呼び手: `shibuya.engine.experiment.branch`・`shibuya.engine.systems.conductor`
-- 読む試験: `tests/economy/cp2/test_cp2_writes_declared.py`・`tests/engine/batching/test_conductor_windows.py`・`tests/engine/clock/test_tm3_step_scope.py`・`tests/engine/clock/test_tm4_regional_clock.py`・`tests/engine/decision/test_j0_writes_declared.py`・`tests/engine/events/test_e_writes_declared.py`・`tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_m0_writes_declared.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/speech/test_speech_writes_declared.py`・`tests/engine/systems/test_guard_runs.py`・`tests/engine/tools/test_c0_contacts_in_relations.py`
+- 読む試験: `tests/economy/cp2/test_cp2_writes_declared.py`・`tests/engine/batching/test_conductor_windows.py`・`tests/engine/clock/test_tm3_step_scope.py`・`tests/engine/clock/test_tm4_regional_clock.py`・`tests/engine/decision/test_j0_writes_declared.py`・`tests/engine/events/test_e_writes_declared.py`・`tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_m0_writes_declared.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/speech/test_speech_writes_declared.py`・`tests/engine/state/test_class_ids.py`・`tests/engine/systems/test_guard_runs.py`・`tests/engine/tools/test_c0_contacts_in_relations.py`
 
 ## [remember.py](../../../../../../../../src/shibuya/engine/systems/remember.py)
 

@@ -35,6 +35,7 @@ import numpy as np
 
 from shibuya.core.hashing import blake3_hex
 from shibuya.engine import state_ledger as SL
+from shibuya.engine.class_ids import class_id
 
 FULL_HEADER: Final[bytes] = b"shibuya.engine.state_hashes/full/v1"
 #: 10e(E1): final の定義=behavior-hash(manifest の ``hash_scheme`` に書く記録の値)。〔第330・RET〕旧い ``combined``
@@ -43,7 +44,7 @@ FINAL_DEFINITION: Final[str] = "behavior"
 _SEP: Final[bytes] = b"\x1f"
 _LEN = struct.Struct("<Q")
 #: ``vars()`` で欄を並べてよい値のクラス(``__dict__`` を持つが dataclass でないもの)。
-#: ここに無いクラスは ``TypeError``=外の状態の書き出し漏れを黙って通さない。
+#: ここに無いクラスは ``TypeError``=外の状態の書き出し漏れを黙って通さない。名は凍結の名(``engine.class_ids`` の値)。
 VALUE_CLASSES: Final[frozenset[str]] = frozenset({
     "shibuya.engine.arbiter.WakeCandidates",
     "shibuya.engine.scheduler.DeferralQueue",
@@ -87,8 +88,8 @@ class _Buf:
 
 
 def _qual(obj: Any) -> str:
-    t = type(obj)
-    return f"{t.__module__}.{t.__qualname__}"
+    """型の凍結の名(〔移す段 1〕``engine.class_ids`` の固定の表から引く=置き場を動かしてもバイトが変わらない)。"""
+    return class_id(type(obj))
 
 
 def _str(f: Any, tag: bytes, s: str) -> None:

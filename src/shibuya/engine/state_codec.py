@@ -43,6 +43,8 @@ from typing import Any, Final
 
 import numpy as np
 
+from shibuya.engine.class_ids import class_id, class_path
+
 CODEC: Final[str] = "shibuya.engine.state_codec/v1"
 MARKS: Final[frozenset[str]] = frozenset(
     {"__t", "__s", "__d", "__o", "__nd", "__g", "__ns", "__f", "__q", "__r"})
@@ -50,7 +52,7 @@ MARKS: Final[frozenset[str]] = frozenset(
 META_KEY: Final[str] = "meta"
 
 #: 組み立ててよいクラス(``モジュール.クラス名`` → 形)。形は ``object``(属性の辞書)・``tuple``(要素の list)・
-#: ``enum``。ここに無いクラスは書けず、読めない。足すときは中身(``__getstate__`` などの独自の直列化が無いこと)を
+#: ``enum``。名は凍結の名(``engine.class_ids`` の値=〔移す段 1〕置き場を動かしても変えない)。ここに無いクラスは書けず、読めない。足すときは中身(``__getstate__`` などの独自の直列化が無いこと)を
 #: 確かめる(``tests/engine/test_state_codec_10f.py`` が表の全部を検査する)。
 ALLOWED_CLASSES: Final[dict[str, str]] = {
     # 計画実行層・活動・意図(日の境目の run_day.pending・intent_layer._payload)
@@ -122,19 +124,24 @@ class StateFormatError(ValueError):
 
 
 def qualname(obj_or_cls: Any) -> str:
+    """型の凍結の名(〔移す段 1〕``engine.class_ids`` の固定の表から引く)。"""
     t = obj_or_cls if isinstance(obj_or_cls, type) else type(obj_or_cls)
-    return f"{t.__module__}.{t.__qualname__}"
+    return class_id(t)
 
 
 _CLASS_CACHE: dict[str, type] = {}
 
 
 def allowed_class(name: str) -> type:
-    """許可の表の名前 → クラス(表に無ければ ``StateFormatError``)。import するのは表に書いたモジュールだけ。"""
+    """許可の表の名前 → クラス(表に無ければ ``StateFormatError``)。import するのは表に書いたモジュールだけ。
+
+    〔移す段 1〕名は凍結の名。import する先は固定の表の今の置き場(``class_path``)で、組み立てたクラスの凍結の名が
+    ``name`` と同じことを確かめる。
+    """
     if name not in ALLOWED_CLASSES:
         raise StateFormatError(f"許可の表に無いクラス名: {name!r}")
     if name not in _CLASS_CACHE:
-        mod, _, attr = name.rpartition(".")
+        mod, _, attr = class_path(name).rpartition(".")
         obj: Any = importlib.import_module(mod)
         obj = getattr(obj, attr)
         if not isinstance(obj, type) or qualname(obj) != name:
