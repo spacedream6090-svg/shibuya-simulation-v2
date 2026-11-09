@@ -505,7 +505,7 @@ class ResolveOutcome:
     seat_release_walk: bool = False
     #: 〔第 2 期 2-4 V3〕歩き出しで解いた在席の印の数(診断)。
     n_seat_released_walk: int = 0
-    #: 〔11-03 §3〕棚卸し B の欠陥の直し(``engine.defect_fixes_1103``・既定 on=True・切替口 legacy=False)。本モジュールで
+    #: 〔11-03 §3〕棚卸し B の欠陥の直し(ランは常に True・False=部品の単体試験の基準の口=〔第346〕切替口は消した)。本モジュールで
     #: 効くのは M11(移動・乗車で列を離れる・店のセルに居ない体を列から外す)と M28(列の支払いの確かめを ``_payable`` に)。
     defect_fixes: bool = False
     #: 〔11-03 M11〕移動で歩き出して列を離れた数 / 乗車でホームへ歩き出して列を離れた数 / 列を捌く前に店のセルに居なかった数
@@ -1369,10 +1369,11 @@ def apply(
             (``poi_ref``/``poi_since``)を解く(ランは常に ``True``=``engine.seat_release`` の walk)。``False``(この関数の
             既定=直に呼ぶ部品の単体試験の基準の口・〔第346〕ランの切替口 legacy は消した)は 2-4 より前の挙動(退去・乗車・
             滞在の上限でしか解かない)。
-        defect_fixes: 〔11-03 §3〕``True`` で棚卸し B の M11・M28 を直した道(``engine.defect_fixes_1103`` の腕 on=CLI の既定):
+        defect_fixes: 〔11-03 §3〕``True`` で棚卸し B の M11・M28 を直した道(ランは常に ``True``):
             移動(``_apply_move``)で歩き出した体と、乗車(``_apply_board``)でホームへ歩き出した体は満席の列を離れる
             (失敗は書かない)・列を捌く(``_serve_poi_queue``)前に店のセルに居ない体を列から外す・列の支払いの確かめを
-            ``_payable``(現金か口座)にする。``False``(この関数の既定=直に呼ぶ試験・切替口 legacy)は版上げの前の挙動。
+            ``_payable``(現金か口座)にする。``False``(この関数の既定=直に呼ぶ部品の単体試験の基準の口・〔第346〕ランの
+            切替口 legacy は消した)は版上げの前の挙動。
         proximity: 〔第 2 期 2-2 段 11a〕腕 ``--proximity distance`` の判定の規則(``engine.proximity.ProximityRule``)。
             渡すと会話の開始の判定が「舞台の中・同じ層・距離 ≤ d、または同じ B5 の単位」になる(``talk_by_distance``
             より強い)。``None``(既定)は 1 分岐も通らない。

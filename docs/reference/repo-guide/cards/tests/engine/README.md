@@ -468,7 +468,6 @@ C6 会話招待の設計準拠(09-09): 「対象」欄で名指し → 被招待
 〔11-03 §3〕棚卸し B の欠陥 4 件(M10・M11・M28・M16)の直しと切替口 ``engine.defect_fixes_1103`` の試験。
 
 - 公開の関数とクラス
-  - `arm_restore`(関数)
   - `test_a_body_choosing_a_talk_without_a_target_keeps_its_activity`(関数): 〔中-2〕対象の決まらない会話(resolve が失敗させた体=活動は変わっていない)。旧道は寝ている体を IDLE にして起こしていた。
   - `test_a_body_that_joined_a_session_in_the_same_call_is_not_released`(関数): 〔低-2〕A が B に断られて戻す候補に積まれ、同じ呼び出しの後の行で C の招待を承諾してセッションに入った。直した道は
   - `test_a_queued_body_that_is_moved_elsewhere_is_dropped_before_serving`(関数): 移動・乗車の外で動いた体(ここでは域の外からの到着の口で別のセルへ置いた)は、捌く前に列から外す(直した道だけ)。
@@ -479,22 +478,23 @@ C6 会話招待の設計準拠(09-09): 「対象」欄で名指し → 被招待
   - `test_an_expired_invite_still_releases_a_waiting_conversing_inviter`(関数): 返事を待って CONVERSING のままの招待側は、どちらの腕でも IDLE に戻る(戻しの意図そのもの)。
   - `test_an_invitee_that_moved_away_then_accepts_keeps_the_invite_ledger_balanced`(関数): 〔中-1〕招待の後に被招待が別のセルへ動いてから承諾した。既定は不成立(``conv_pending_unreachable``=腕 on のランだけ
   - `test_an_unreachable_acceptance_is_not_a_refusal`(関数)
-  - `test_cli_rejects_a_wrong_arm_name`(関数)
   - `test_drop_pending_counts_the_origin`(関数)
   - `test_end_conversation_keeps_the_activity_of_bodies_that_are_not_conversing`(関数)
   - `test_other_replies_are_still_refusals`(関数): 届かなくても「会話」でない返事は今のまま断り(直すのは承諾の返事だけ)。
-  - `test_resume_with_another_arm_is_refused`(関数): 腕は設定の指紋に入れない=状態のファイルの見出しの ``defect_fixes_1103``(on だけ書く)と今の腕を突き合わせる。
+  - `test_removed_defect_fixes_switch_env_and_cli_flag_stop`(関数): 〔第346〕消した切替口: 環境変数 SHIBUYA_DEFECT_FIXES_1103 を与えると読み込みで止まる・CLI の旗は引数の誤り・系は
+  - `test_resume_reads_the_header`(関数): 腕は設定の指紋に入れない=状態のファイルの見出しの ``defect_fixes_1103``(常に on)を見る(〔第346〕見出しに無い=
   - `test_revert_conversation_is_the_legacy_release`(関数)
   - `test_run_manifest_section`(関数)
   - `test_state_header_and_resume_check`(関数)
   - `test_the_arm_is_not_a_run_day_argument`(関数): 腕は組み立てで 1 回読む(``run_day`` の引数にしない=設定の指紋に入れない)。
-  - `test_the_conversation_system_releases_by_the_arm`(関数): 会話の番で「移動」を選んで歩き出した体(MOVING)は、既定ではセッションの終わりで止まらない(旧道は IDLE に戻る)。
+  - `test_the_conversation_system_releases_by_the_arm`(関数): 会話の番で「移動」を選んで歩き出した体(MOVING)は、セッションの終わりで止まらない(〔第346〕旧道の IDLE は消した)。
   - `test_the_default_arm_is_on_and_names_are_checked`(関数)
   - `test_the_queue_checks_payment_like_a_new_purchase`(関数)
   - `test_the_unreachable_origin_key_is_there_from_the_start_only_when_counted`(関数): 〔低-4〕起点の計数の鍵は最初から全部ある作り=腕 on のランは unreachable も最初から 0 で置く(旧道は鍵を足さない)。
   - `tiny_runs`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.commit`・`shibuya.engine.conversation`・`shibuya.engine.defect_fixes_1103`・`shibuya.engine.processes.crowd`・`shibuya.engine.processes.rail`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.systems.talk`・`shibuya.world.state`・`tests/engine/processes/conftest.py`
-- 決定の ID: 11-03・11-03/§3
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.commit`・`shibuya.engine.conversation`・`shibuya.engine.defect_fixes_1103`・`shibuya.engine.processes.crowd`・`shibuya.engine.processes.rail`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.systems.boxes`・`shibuya.engine.systems.talk`・`shibuya.world.state`・`tests/engine/processes/conftest.py`
+- 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`os.environ` をまるごと使う
+- 決定の ID: 11-03・11-03/§3・第 346
 
 ## [test_determinism_t1_t2_t4.py](../../../../../../tests/engine/test_determinism_t1_t2_t4.py)
 
@@ -1607,12 +1607,11 @@ D-56 就寝抑止(ユーザー決定 (a)・2026-09-10)のテスト。
   - `test_t6_behavior_columns_do_not_depend_on_the_configuration`(関数): 構成を変えても behavior の列の集合は表から決まる(A2 (b))。age・sex は v1 の構成でも behavior。
   - `test_t7_gate_is_the_share_of_the_whole_wall_clock`(関数): T7 の門の形の単体: 割合の門は宣言値を超える checkpoint でも、全体に占める割合が小さければ通す。
   - `test_t7_hash_cost_within_the_declared_cap`(関数): T7(10e で門の形を確定・ユーザー決定 10-12=10f のアジェンダ §6-2): **門は checkpoint のハッシュの壁時計が
-  - `test_t7_legacy_switch_reproduces_the_pre_bump_final`(関数): 〔11-01 段 2 の 4〕切替口 ``SHIBUYA_RATE_RULES=legacy`` で既定 v3 の final が版上げの前の値(``7bfe215641b792ac``)に戻る。
   - `test_to_state_is_canonical_and_strict`(関数)
   - `test_two_day_run_reports_both_hashes_every_day`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.core.hashing`・`shibuya.core.soa`・`shibuya.engine.absent_processes`・`shibuya.engine.defect_fixes_1103`・`shibuya.engine.rate_rules`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.decide`・`shibuya.engine.systems.llm_io`・`shibuya.engine.systems.run_end`・`shibuya.engine.systems.state_io`・`shibuya.perception.state`・`shibuya.world.state`・`tests/engine/test_tape_deferred.py`・`tests/golden_env.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.core.hashing`・`shibuya.core.soa`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.decide`・`shibuya.engine.systems.llm_io`・`shibuya.engine.systems.run_end`・`shibuya.engine.systems.state_io`・`shibuya.perception.state`・`shibuya.world.state`・`tests/engine/test_tape_deferred.py`・`tests/golden_env.py`・`tests/llm/test_fleet.py`
 - 読む試験: `tests/engine/memory/test_mr65_guards.py`
-- 決定の ID: 10-06/§6・10-12・10-13b/§0-6・11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・第 321・第 330
+- 決定の ID: 10-06/§6・10-12・11-01・11-03/§3・第 321・第 330・第 346
 
 ## [test_store_choice.py](../../../../../../tests/engine/test_store_choice.py)
 

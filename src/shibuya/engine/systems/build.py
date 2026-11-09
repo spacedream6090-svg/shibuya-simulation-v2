@@ -431,7 +431,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         from shibuya.engine import absent_processes as _APR
 
         _APR.check_resume(_h.get("absent_processes"))
-        # 〔11-03 §3〕欠陥の直しの腕も設定の指紋に入れない=見出しの defect_fixes_1103(無ければ legacy)と今の腕を突き合わせる
+        # 〔11-03 §3〕欠陥の直しは設定の指紋に入れない=見出しの defect_fixes_1103(無ければ legacy=〔第346〕再開できない)を見る
         from shibuya.engine import defect_fixes_1103 as _DFR
 
         _DFR.check_resume(_h.get("defect_fixes_1103"))
@@ -666,12 +666,9 @@ def build(_call_args: dict[str, Any]) -> Any:
                                                             "env_id": str(_env_fields["env_id"]),
                                                             "environment": copy.deepcopy(_env_fields)})
                    if tape_path is not None else None)
-    from shibuya.engine import defect_fixes_1103 as _DFB  # 〔11-03 §3〕欠陥 4 件の直しの腕(組み立てで 1 回読む)
-
-    defect_fixes_mode = _DFB.arm()
     conv = (ConversationManager(seed, max_participants=int(conv_max_participants),
-                                # 〔11-03 M16〕届かない返事の不成立を counters に出すのは腕 on のランだけ(旧道の出力は 1 字も変えない)
-                                count_unreachable=(defect_fixes_mode == _DFB.MODE_ON))
+                                # 〔11-03 M16〕届かない返事の不成立を counters に出す(〔第346〕切替口 legacy は消した=常に)
+                                count_unreachable=True)
             if conversations else None)
     # 10f(K21 (a)): mock 日課・W16 の抽出は母集団の seed から(既定は seed と同じ値)
     schedule = synthesize(n_agents, pop_seed, world.n_cells)
@@ -1577,7 +1574,6 @@ def build(_call_args: dict[str, Any]) -> Any:
             p_see_activity_identity=p_see_activity_identity, call_layer=_call_layer, fp=_fp, parent_run=parent_run,
             rate_rules=rate_rules_mode,  # 〔11-01 段 2 の 3・4〕率の形の規則の腕(組み立てで 1 回読む)
             absent_processes=absent_mode,  # 〔11-02r §1 #7〕「無い」と宣言した過程 5 件の腕(組み立てで 1 回読む)
-            defect_fixes_1103=defect_fixes_mode,  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しの腕(組み立てで 1 回読んだ値)
         ),
         soa=_BX.SoAState(agents=agents, world=world),
         layers=_BX.Layers(

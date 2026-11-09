@@ -292,7 +292,7 @@ class ConversationManager:
         self.topics_per_session = int(topics_per_session if topics_per_session is not None else max_turns)
         self.important: set[int] = {int(a) for a in important}
         #: 〔11-03 M16〕届かない返事の不成立を ``counters`` の ``conv_pending_unreachable`` と起点の計数の鍵 ``unreachable`` に
-        #: 出すか(組み立てが腕 ``engine.defect_fixes_1103`` の on で True を渡す=旧道 legacy の出力は 1 字も変えない)。
+        #: 出すか(組み立ては常に True を渡す=〔第346〕切替口 legacy は消した・偽は部品の単体試験の基準の口)。
         self.count_unreachable = bool(count_unreachable)
 
         self.sessions: dict[int, Session] = {}

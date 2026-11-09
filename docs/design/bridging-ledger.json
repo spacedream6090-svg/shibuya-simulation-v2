@@ -8441,12 +8441,12 @@
   {
    "id": "DOC-fix4-defect-legacy-switch",
    "what": "切替口 --defect-fixes-1103 legacy(環境変数 SHIBUYA_DEFECT_FIXES_1103=legacy)は 11-03 §3 の版上げの前の値の再現のためだけの道(会話の終わりで参加者全員を IDLE に戻す=M10・列の印が移動と乗車で消えない=M11・列の支払いの確かめが現金だけ=M28・届かない承諾を断りに数える=M16)",
-   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)。legacy の 5,000 体 × 1 日 mock の byte-check は記録 docs/bench/analysis/fix4-1103/README.md §6。次の版上げで切替口を消すときに書き直す試験(旧道に固定した試験): tests/engine/test_defect_fixes_1103.py の legacy の側",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)。legacy の 5,000 体 × 1 日 mock の byte-check は記録 docs/bench/analysis/fix4-1103/README.md §6。次の版上げで切替口を消すときに書き直す試験(旧道に固定した試験): tests/engine/test_defect_fixes_1103.py の legacy の側〔第346 旧道の切替口と死んだ道の削除〕閉じた: 欠陥 4 件の直しの切替口 --defect-fixes-1103 legacy(環境変数 SHIBUYA_DEFECT_FIXES_1103)と会話の系の旧道の分かれ(全員を IDLE に戻す)を消した(環境変数を与えると読み込みで止まる・CLI は引数の誤り・設定の箱の欄も消した)。部品の関数の既定(resolve.apply の defect_fixes=False・_settle_pending_invites の drop_unreachable/keep_activity=False・ConversationManager の count_unreachable=False)は部品の単体試験の基準の口として残した。旧値の再現は安定版のタグ stable-v2-before-switch-removal-346(記録 docs/bench/analysis/delete-346/README.md・取り込みの commit は親)",
    "remove_at": "next-bump",
    "declared_in": "docs/bench/analysis/fix4-1103/README.md",
    "conf": "expedient",
    "since": "2026-11-03",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "plan",
    "code_at": [
     "src/shibuya/engine/defect_fixes_1103.py",

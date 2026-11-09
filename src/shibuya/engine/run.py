@@ -1876,12 +1876,13 @@ def _settle_pending_invites(
     〔第 2 期 2-2 段 11a〕``rule``(腕 ``--proximity distance`` の ``engine.proximity.ProximityRule``)を渡すと、届くかを
     「同じ層・距離 ≤ d、または同じ B5 の単位」で見る(``resolve.talk_within_reach`` の ``rule``)。``None``(既定)は今のまま。
 
-    〔11-03 M16〕``drop_unreachable``(腕 ``engine.defect_fixes_1103`` の on=CLI の既定)では、返事が **会話** で対象が招待者
+    〔11-03 M16〕``drop_unreachable``(ランは常に真=判断の系が渡す)では、返事が **会話** で対象が招待者
     (か名指しなし)なのに**届かない**ときは断りではなく**不成立**にする(``ConversationManager.drop_pending``=拒否の記憶を
     残さない)。招待側は今と同じく戻す。本人の行は intent に残す(今と同じ=B6 は今のまま)。``False``(この関数の既定=
-    直に呼ぶ試験・切替口 legacy)は版上げの前の挙動(届かない承諾も断りに数え、組を 60 刻み記憶する)。
+    直に呼ぶ部品の単体試験の基準の口・〔第346〕ランの切替口 legacy は消した)は版上げの前の挙動(届かない承諾も断りに数え、
+    組を 60 刻み記憶する)。
 
-    〔11-03 M10 の続き〕``keep_activity``(同じ腕 on)では、末尾の招待側の戻しを CONVERSING の体だけ IDLE にする形
+    〔11-03 M10 の続き〕``keep_activity``(ランは常に真)では、末尾の招待側の戻しを CONVERSING の体だけ IDLE にする形
     (``resolve.end_conversation``)にする=返事待ちの間に別の行為を選んだ招待側の活動は変えない。戻す体は会話中(is_busy)
     でない招待側だけ(下の 2 か所の条件)。戻さなかった数は ``ConversationManager.note_revert_kept`` に積む。``False``(この関数
     の既定=旧道)は全員を IDLE に戻す(``resolve.revert_conversation``)。

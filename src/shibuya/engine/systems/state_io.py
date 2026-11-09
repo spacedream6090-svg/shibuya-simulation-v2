@@ -431,10 +431,10 @@ def save_state(b: Any, T_next: int, *, finished: bool, closed: bool) -> None:
     _ap = _APS.header_fields(b.cfg.absent_processes)
     if _ap is not None:
         header["absent_processes"] = _ap
-    # 〔11-03 §3〕欠陥 4 件の直しの腕(既定の on のランだけ書く=legacy は版上げの前の見出しのまま)
+    # 〔11-03 §3〕欠陥 4 件の直しの腕(on=〔第346〕切替口 legacy は消した=見出しは常に書く)
     from shibuya.engine import defect_fixes_1103 as _DFS
 
-    _df = _DFS.header_fields(b.cfg.defect_fixes_1103)
+    _df = _DFS.header_fields(_DFS.DEFAULT_MODE)
     if _df is not None:
         header["defect_fixes_1103"] = _df
     from shibuya.engine.experiment import layer as _EXPL

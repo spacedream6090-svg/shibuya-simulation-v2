@@ -54,8 +54,7 @@ T7_TARGET_SECONDS = 0.100
 T7_SHARE_CAP = 0.01
 #: T7 で確かめる既定 v3 の final(10e の版上げの段ごとに張り替える)。
 T7_V3_FINAL = "c8d68704b7b0760d"  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 73aa01d9afb206d0=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 7bfe215641b792ac=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
-#: 〔11-01 段 2 の 4〕旧道(SHIBUYA_RATE_RULES=legacy)の既定 v3 の final=版上げの前の値(試験 ``test_t7_legacy_switch_reproduces_the_pre_bump_final``・次の版上げで切替口と一緒に消す)。
-T7_V3_FINAL_RATE_RULES_LEGACY = "7bfe215641b792ac"
+# 〔第346〕旧道の final の定数 T7_V3_FINAL_RATE_RULES_LEGACY(7bfe215641b792ac)は使う試験と一緒に消した
 # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の腕 --meal-default validation の final の定数 _T7_V3_FINAL_PRE_MEAL_W17(最後の値 5b080133301bf13d=差し替えの世界・前 b8eadcb51e8705e7=W16 の世界)は切替口と一緒に消した(再現は安定版のタグ stable-v2-before-meal-default-w17)
 #: A2 (b): 構成で読み手が変わる 6 列(どの構成でも behavior)。
 A2B_SIX = ("age", "sex", "talk_partner", "weight_kg", "sm_last", "mem_last")
@@ -946,29 +945,9 @@ def test_t7_hash_cost_within_the_declared_cap(kw):
                       f"(割合 {share:.3%} は門の中)")
 
 
-@real_data
-def test_t7_legacy_switch_reproduces_the_pre_bump_final(monkeypatch):
-    """〔11-01 段 2 の 4〕切替口 ``SHIBUYA_RATE_RULES=legacy`` で既定 v3 の final が版上げの前の値(``7bfe215641b792ac``)に戻る。
-
-    旧道は 1 版だけ残す切替口(回答 10-13b §0-6)。この試験は次の版上げで切替口と一緒に消す(旧値の再現は安定版のタグ)。
-    """
-    from shibuya import cli
-    from shibuya.engine import absent_processes as AP
-    from shibuya.engine import rate_rules as RR
-
-    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
-    # 〔11-02r §1 #7〕版上げの前の値=「無い」の過程も旧道(止めた出動が倒れた人の到着=警察の顕著行為を消すので final が動く)
-    monkeypatch.setattr(AP, "_ARM", AP.MODE_LEGACY)
-    # 〔11-03 §3〕同じく欠陥 4 件の直しも旧道(版上げの前の値=3 つの切替口をどれも legacy)
-    from shibuya.engine import defect_fixes_1103 as DF
-
-    monkeypatch.setattr(DF, "_ARM", DF.MODE_LEGACY)
-    res = cli.run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")
-    if GE.platform_id() in GE.REGISTERED:
-        assert (res.final_hash[:16], int(res.llm_calls)) == (T7_V3_FINAL_RATE_RULES_LEGACY, 62_176)
-    else:
-        GE.warn_unregistered("T7 の旧道(legacy)の final")
-    assert res.run_manifest_fields()["rate_rules"]["mode"] == "legacy"
+# 〔第346 旧道の切替口の削除〕試験 test_t7_legacy_switch_reproduces_the_pre_bump_final(3 つの切替口 rate_rules・
+# absent_processes・defect_fixes_1103 をどれも legacy にして版上げの前の final 7bfe215641b792ac / 62,176 を再現)は、
+# 欠陥の直しの切替口と一緒に消した(旧値の再現は安定版のタグ stable-v2-before-switch-removal-346)
 
 
 def test_t7_gate_is_the_share_of_the_whole_wall_clock():

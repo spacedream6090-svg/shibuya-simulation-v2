@@ -27,7 +27,7 @@ engine.absent_processes — 「無い」と宣言した世界過程 5 件を止�
   - `set_arm`(関数): 腕を選ぶ(CLI ``--absent-processes``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
   - `stopped_flags`(関数): 過程ごとの ``absent_<名>_stopped``(1=止めた・0=旧道)。腕だけで決まる印(設定)。
 - 呼び手: `shibuya.cli`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.logistics`・`shibuya.engine.processes.runner`・`shibuya.engine.systems.build`・`shibuya.engine.systems.report`・`shibuya.engine.systems.state_io`
-- 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/processes/test_salient.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_state_ledger_10b.py`
+- 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/processes/test_salient.py`・`tests/engine/test_resume_10d.py`
 - 環境変数: `SHIBUYA_ABSENT_PROCESSES`
 - 決定の ID: 10-13b/§0-6・11-01/§2・11-02・11-02r・11-02r #7・11-02r/§1・11-02r/§1 #7・11-02r/§1 #8・11-02r/§2-2
 
@@ -309,22 +309,20 @@ engine.conversation — 会話プロトコル(行動契約書 §3)のセッシ�
 
 ## [defect_fixes_1103.py](../../../../../../../src/shibuya/engine/defect_fixes_1103.py)
 
-engine.defect_fixes_1103 — 棚卸し B で見つけた欠陥 4 件の直しの切替口(指示書 11-03 §3・小さな版上げ 1 回分)。
+engine.defect_fixes_1103 — 棚卸し B で見つけた欠陥 4 件の直しの宣言・計器・見出し(指示書 11-03 §3・小さな版上げ 1 回分)。
 
 - 公開の関数とクラス
-  - `arm`(関数): いまの腕(``on``=既定・``legacy``=切替口)。組み立てのときに読む。
-  - `check_resume`(関数): 再開のときに、保存したランの腕(見出しの ``defect_fixes_1103``・無ければ legacy)と今の腕が同じかを確かめる(違えば止める)。
+  - `check_resume`(関数): 再開のときに、保存したランの見出しの ``defect_fixes_1103``(無ければ legacy=版上げの前のラン)が on かを確かめる(違えば止める)。
   - `empty_counts`(関数): 計器の空の形(活動の名ごとの dict 2 本と整数 5 本)。
-  - `header_fields`(関数): 状態のファイルの見出しの ``defect_fixes_1103``(legacy のランは書かない=None=版上げの前の見出しのまま)。
-  - `is_legacy`(関数): ``mode``(省略=今の腕)が旧道(版上げの前の挙動)か。
-  - `is_on`(関数): ``mode``(省略=今の腕)が直した道(既定 on)か。
+  - `header_fields`(関数): 状態のファイルの見出しの ``defect_fixes_1103``(ランは常に ``{"mode": "on"}``・on の外の名は None)。
+  - `is_legacy`(関数): ``mode``(省略=ランの腕 on)が旧道(版上げの前の挙動=部品の口だけ)か。
+  - `is_on`(関数): ``mode``(省略=ランの腕 on)が直した道か。
   - `manifest_fields`(関数): manifest の ``defect_fixes_1103``(設定=形の版・腕・4 件の宣言・直した印/観測=計器)。
-  - `resolve`(関数): 引数の腕(``None``=今の腕)を名に直す(名の誤りは止める)。
-  - `set_arm`(関数): 腕を選ぶ(CLI ``--defect-fixes-1103``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
-- 呼び手: `shibuya.cli`・`shibuya.engine.systems.build`・`shibuya.engine.systems.report`・`shibuya.engine.systems.state_io`
-- 読む試験: `tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_state_ledger_10b.py`
+  - `resolve`(関数): 引数の腕(``None``=ランの腕 ``on``)を名に直す(名の誤りは止める)。
+- 呼び手: `shibuya.engine.systems.build`・`shibuya.engine.systems.report`・`shibuya.engine.systems.state_io`
+- 読む試験: `tests/engine/test_defect_fixes_1103.py`
 - 環境変数: `SHIBUYA_DEFECT_FIXES_1103`
-- 決定の ID: 10-13b/§0-6・11-02r/§2-2・11-03・11-03/§3
+- 決定の ID: 10-13b/§0-6・11-02r/§2-2・11-03・11-03/§3・第 346
 
 ## [economy_rules.py](../../../../../../../src/shibuya/engine/economy_rules.py)
 
@@ -788,7 +786,7 @@ engine.rate_rules — 率の形の規則を外す切替口(指示書 11-01 段 2
   - `resolve`(関数): 過程の引数の腕(``None``=今の腕)を名に直す(名の誤りは止める)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--rate-rules``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
 - 呼び手: `shibuya.cli`・`shibuya.engine.presence`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.logistics`・`shibuya.engine.processes.rail`・`shibuya.engine.processes.runner`・`shibuya.engine.processes.salient`・`shibuya.engine.systems.build`・`shibuya.engine.systems.report`・`shibuya.engine.systems.state_io`
-- 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/processes/test_salient.py`・`tests/engine/test_ablation23_switches.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/test_waste_sink_report.py`
+- 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/processes/test_salient.py`・`tests/engine/test_ablation23_switches.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/test_waste_sink_report.py`
 - 環境変数: `SHIBUYA_RATE_RULES`
 - 決定の ID: 10-13b/§0-6・11-01・11-01/§2
 
@@ -1108,7 +1106,7 @@ engine.run — 1 シミュ日の mock ラン(予算行 **W2**)と CLI。
   - `--ticks`
   - `--weather-perturb`: 天気を揺らす(10e B6・アンサンブル)。窓の中でも同じ季節 × 平日/土休の層から天候型を日数の割合で引く(鍵は --environment-seed)。既定は付けない=その日の実際の天気
   - `--world`: 世界資産ディレクトリ(無ければ合成小世界へ落ちる)
-- 決定の ID: 10-12/§1-6・11-01・11-02r・11-02r/§1・11-02r/§1 #7・11-03・11-03/§3・R-8・D-28・D-51・D-55・D-56・D-58・D-59・D-61・D-62・D-66・D-71・D-84・D-85・D-93・D-96・D-99・D-107・D-110・D-112・D-113・D-114・D-115・D-116・D-117・D-118・D-119・D-120・第 266・第 267・第 268・第 269・第 299・第 300・第 304・第 308・第 309・第 330
+- 決定の ID: 10-12/§1-6・11-01・11-02r・11-02r/§1・11-02r/§1 #7・11-03・11-03/§3・R-8・D-28・D-51・D-55・D-56・D-58・D-59・D-61・D-62・D-66・D-71・D-84・D-85・D-93・D-96・D-99・D-107・D-110・D-112・D-113・D-114・D-115・D-116・D-117・D-118・D-119・D-120・第 266・第 267・第 268・第 269・第 299・第 300・第 304・第 308・第 309・第 330・第 346
 
 ## [run_kind.py](../../../../../../../src/shibuya/engine/run_kind.py)
 

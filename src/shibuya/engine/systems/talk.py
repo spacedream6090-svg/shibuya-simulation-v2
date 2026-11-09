@@ -1,7 +1,8 @@
 """engine.systems.talk — 会話の系(relations_wake・conversation)(第 1 期 1-0)。
 
-〔11-03 M10〕会話の終わりの解放と、招待が流れた招待側の戻しは腕 ``engine.defect_fixes_1103`` で分かれる(既定 on=
-CONVERSING の体だけ IDLE に戻す ``resolve.end_conversation``・旧道 legacy=全員を IDLE に戻す ``resolve.revert_conversation``)。会話の番で別の行為を選んだ体を
+〔11-03 M10〕会話の終わりの解放と、招待が流れた招待側の戻しは CONVERSING の体だけ IDLE に戻す(``resolve.end_conversation``)。
+〔第346〕旧道 legacy(全員を IDLE に戻す ``resolve.revert_conversation``)の分かれと切替口 ``engine.defect_fixes_1103`` の腕は
+消した(旧値の再現は安定版のタグ)。会話の番で別の行為を選んだ体を
 セッションから外す配線(``conv.step`` に ``in_conversation`` を渡す)はしていない(本人の判断の口の設計=仕分け待ち)。
 
 中身は HEAD ``ee3abc7`` の ``engine/run.py`` の ``run_day`` の同じ区間のまま。系の関数は ``(ctx, b)`` を受け取り、
@@ -199,19 +200,16 @@ def sys_conversation(ctx: Any, b: Any) -> None:
             rel_layer.origin_of.clear()  # C10 8b: この刻みの起点の控えを捨てる(招待に使わなかった行)
         if reverted:
             _rv = np.array(sorted(set(reverted)), dtype=np.int64)
-            if b.cfg.defect_fixes_1103 == "on":
-                # 〔11-03 M10 の続き〕招待側の戻し(対象の決まらない会話の失敗・招待が流れた・期限切れの返事待ち)も、
-                # CONVERSING の体だけ IDLE に戻す(resolve が失敗させた体・返事待ちの間に別の行為を選んだ体の活動は変えない
-                # =対象のある失敗は旧道でも戻していない=それと揃う)。``_revert`` は積むときに会話中(is_busy)の体を除くが、
-                # 同じ刻みのうちにセッションに入った体もあるので書く直前にもう一度除く(検収 低-2)。戻さなかった数は
-                # 原因ごとに招待の戻しの計器へ(会話の終わりとは別)
-                _rv = _rv[np.fromiter((not conv.is_busy(int(x)) for x in _rv.tolist()), dtype=bool, count=_rv.size)]
-                for _cause in sorted({revert_cause[int(x)] for x in _rv.tolist()}):  # 逐次ループ宣言: 原因ぶん(≤ 4)
-                    _ids = _rv[np.fromiter((revert_cause[int(x)] == _cause for x in _rv.tolist()), dtype=bool,
-                                           count=_rv.size)]
-                    conv.note_revert_kept(_cause, R.end_conversation(agents, _ids))
-            else:  # 旧道(腕 legacy=版上げの前の値の再現・次の版上げで消す): 全員を IDLE に戻す
-                R.revert_conversation(agents, _rv)
+            # 〔11-03 M10 の続き〕招待側の戻し(対象の決まらない会話の失敗・招待が流れた・期限切れの返事待ち)も、
+            # CONVERSING の体だけ IDLE に戻す(resolve が失敗させた体・返事待ちの間に別の行為を選んだ体の活動は変えない
+            # =対象のある失敗は旧道でも戻していない=それと揃う)。``_revert`` は積むときに会話中(is_busy)の体を除くが、
+            # 同じ刻みのうちにセッションに入った体もあるので書く直前にもう一度除く(検収 低-2)。戻さなかった数は
+            # 原因ごとに招待の戻しの計器へ(会話の終わりとは別)。〔第346〕旧道(全員を IDLE)の分かれは消した
+            _rv = _rv[np.fromiter((not conv.is_busy(int(x)) for x in _rv.tolist()), dtype=bool, count=_rv.size)]
+            for _cause in sorted({revert_cause[int(x)] for x in _rv.tolist()}):  # 逐次ループ宣言: 原因ぶん(≤ 4)
+                _ids = _rv[np.fromiter((revert_cause[int(x)] == _cause for x in _rv.tolist()), dtype=bool,
+                                       count=_rv.size)]
+                conv.note_revert_kept(_cause, R.end_conversation(agents, _ids))
         finished = conv.step(
             tick,
             cell=agents.registry.cell,
@@ -235,11 +233,9 @@ def sys_conversation(ctx: Any, b: Any) -> None:
             done = np.array(
                 sorted({int(p) for s in finished for p in s.participants}), dtype=np.int64
             )
-            if b.cfg.defect_fixes_1103 == "on":
-                # 〔11-03 M10〕CONVERSING の参加者だけ IDLE に戻す(会話の番で選んだ別の行為=歩く・寝る・在店などは変えない)。
-                # 戻さなかった数を活動の名ごとに数える(計器 n_conversation_end_kept_activity=会話マネージャの診断)。
-                conv.note_end_kept(R.end_conversation(agents, done))
-            else:  # 旧道(腕 legacy=版上げの前の値の再現・次の版上げで消す): 参加者全員を IDLE に戻す
-                R.revert_conversation(agents, done)
+            # 〔11-03 M10〕CONVERSING の参加者だけ IDLE に戻す(会話の番で選んだ別の行為=歩く・寝る・在店などは変えない)。
+            # 戻さなかった数を活動の名ごとに数える(計器 n_conversation_end_kept_activity=会話マネージャの診断)。
+            # 〔第346〕旧道(参加者全員を IDLE)の分かれは消した
+            conv.note_end_kept(R.end_conversation(agents, done))
         conv.purge_terminal()
         conv.purge_expired(tick)  # 10e(E2): 期限の切れた不応期・拒否の控えを落とす(挙動は不変・有界化)

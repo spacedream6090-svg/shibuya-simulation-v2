@@ -186,9 +186,6 @@ class RunConfig:
     #: 〔11-02r §1 #7〕「無い」と宣言した過程 5 件の腕(``engine.absent_processes``・組み立てで 1 回読む=``stopped`` 既定・
     #: ``legacy`` 切替口)。
     absent_processes: str = "stopped"
-    #: 〔11-03 §3〕棚卸し B の欠陥 4 件の直しの腕(``engine.defect_fixes_1103``・組み立てで 1 回読む=``on`` 既定・
-    #: ``legacy`` 切替口)。
-    defect_fixes_1103: str = "on"
 
     @property
     def stopped(self) -> bool:

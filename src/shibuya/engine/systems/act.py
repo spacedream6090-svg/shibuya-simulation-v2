@@ -126,7 +126,7 @@ def sys_phase_c(ctx: Any, b: Any) -> None:
         track_events=mem_layer is not None,
         proximity=None if proximity is None else proximity.rule,
         seat_release_walk=True,  # 〔第 2 期 2-4 V3〕歩き出しで在席の印を解く(〔第346〕切替口 legacy は消した)
-        defect_fixes=(b.cfg.defect_fixes_1103 == "on"),  # 〔11-03 M11・M28〕既定 on・切替口 legacy
+        defect_fixes=True,  # 〔11-03 M11・M28〕直した道(〔第346〕切替口 legacy は消した)
     )
     phase["phase_c"] += time.perf_counter() - t0
     if norm_meter is not None:

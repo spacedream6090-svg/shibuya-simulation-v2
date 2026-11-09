@@ -115,8 +115,8 @@ engine.systems.boxes — ``run_day`` の状態の箱(第 1 期 1-0・草案 §2-
   - `TickScratchStrict`(クラス): 試験の番兵つき(T4): 刻みの頭で ``UNSET`` を置き、その刻みに書かれる前に読むと落ちる。
 - import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.systems.guard`
 - 呼び手: `shibuya.engine.systems.build`・`shibuya.engine.systems.conductor`
-- 読む試験: `tests/economy/stage2/test_stage2_runs.py`・`tests/engine/systems/test_boxes.py`・`tests/engine/systems/test_systems_table.py`・`tests/engine/time/test_t0_rng_key.py`・`tests/engine/time/test_t0_tickctx_equivalence.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/perception/facts/test_percept_is_scratch.py`
-- 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・第 346
+- 読む試験: `tests/economy/stage2/test_stage2_runs.py`・`tests/engine/systems/test_boxes.py`・`tests/engine/systems/test_systems_table.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/time/test_t0_rng_key.py`・`tests/engine/time/test_t0_tickctx_equivalence.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/perception/facts/test_percept_is_scratch.py`
+- 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・第 346
 
 ## [build.py](../../../../../../../../src/shibuya/engine/systems/build.py)
 
