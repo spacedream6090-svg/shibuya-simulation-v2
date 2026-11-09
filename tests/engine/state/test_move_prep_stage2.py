@@ -107,8 +107,39 @@ def test_index_refuses_a_function_name_split_across_files(tmp_path, monkeypatch)
     monkeypatch.setattr(AL, "RESOLVE_FILES", ("engine/resolve.py", "engine/resolve_part.py"))
     AL.index.cache_clear()
     try:
-        with pytest.raises(ValueError, match="重なる"):
+        with pytest.raises(ValueError, match="関数の名がファイルをまたいで重なる"):
             AL.index(str(root))
+    finally:
+        AL.index.cache_clear()
+
+
+def _split_tree(tmp_path: Path, part: str) -> Path:
+    """resolve.py と、割った先のふりのファイル 1 本と、``declared_columns`` が読むファイルを置いた木(``src/shibuya`` の形)。"""
+    from shibuya.engine import state_ledger_ast as A
+
+    root = tmp_path / "shibuya"
+    (root / "engine").mkdir(parents=True)
+    (root / "engine" / "resolve.py").write_text(Path(RV.__file__).read_text(encoding="utf-8"), encoding="utf-8")
+    (root / "engine" / "resolve_part.py").write_text(part, encoding="utf-8")
+    for rel in A.DECL_FILES.values():
+        (root / rel).parent.mkdir(parents=True, exist_ok=True)
+        (root / rel).write_text((PKG / rel).read_text(encoding="utf-8"), encoding="utf-8")
+    return root
+
+
+def test_index_refuses_a_table_name_split_across_files_and_merges_distinct_ones(tmp_path, monkeypatch):
+    """〔検収 L2〕頂上の表の名(関数を指す代入)がファイルをまたいで重なれば止める。重ならなければ 2 本を 1 つの閉包にする。"""
+    ref = AL.index().tables["_APPLY"]
+    monkeypatch.setattr(AL, "RESOLVE_FILES", ("engine/resolve.py", "engine/resolve_part.py"))
+    AL.index.cache_clear()
+    try:
+        bad = _split_tree(tmp_path / "bad", "def _part_helper():\n    pass\n\n\n_APPLY = {1: _part_helper}\n")
+        with pytest.raises(ValueError, match="頂上の表の名がファイルをまたいで重なる"):
+            AL.index(str(bad))
+        good = _split_tree(tmp_path / "good", "def _part_helper():\n    pass\n\n\n_PART = {1: _part_helper}\n")
+        idx = AL.index(str(good))
+        assert "_part_helper" in idx.funcs and idx.tables["_PART"] == {"_part_helper"}
+        assert idx.tables["_APPLY"] == ref
     finally:
         AL.index.cache_clear()
 

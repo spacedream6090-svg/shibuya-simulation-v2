@@ -87,7 +87,7 @@
 | [tests/engine/rules](tests/engine/rules/README.md) | 3 | 0 |
 | [tests/engine/space](tests/engine/space/README.md) | 4 | 0 |
 | [tests/engine/speech](tests/engine/speech/README.md) | 14 | 0 |
-| [tests/engine/state](tests/engine/state/README.md) | 4 | 2 |
+| [tests/engine/state](tests/engine/state/README.md) | 5 | 2 |
 | [tests/engine/systems](tests/engine/systems/README.md) | 6 | 1 |
 | [tests/engine/time](tests/engine/time/README.md) | 8 | 3 |
 | [tests/engine/tools](tests/engine/tools/README.md) | 9 | 0 |

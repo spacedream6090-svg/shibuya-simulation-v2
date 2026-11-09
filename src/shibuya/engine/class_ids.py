@@ -2,16 +2,19 @@
 
 クラスの「モジュール.クラス名」は、ハッシュ(``engine.state_hashes`` の Enum・dataclass・名前つきの組・値のクラス)・
 状態のファイル(``engine.state_codec`` の ``__o``)・設定の指紋(``engine.resume._canon``)・系ごとの指紋
-(``engine.systems.probe.plain``)に入る。置き場を動かすと名が変わり final が変わるので、名は本表から引く。
+(``engine.systems.probe`` の ``plain`` と外の状態の digest)に入る。置き場を動かすと名が変わり final が変わるので、名は
+本表から引く。
 
 - 鍵=今の「モジュール.クラス名」、値=凍結の名(上の 4 か所に入る文字列)。段 1 では鍵と値が同じ。移す道具が鍵だけを
   書き換え、値は変えない。
-- 表は src(``build/`` を除く)の全部のクラス(関数の中のクラスを含む)。載せないのは CP12 の実験の条件の型 1 つだけ
-  (``engine/events/log.py`` と ``engine/experiment/gate.py`` の外に名を文字列で書けない。値はハッシュにも状態のファイルにも
-  入らない=今の名をそのまま返す)。手で書かない: 道具
+- 表は src(``build/`` を除く)の全部のクラス(関数の中のクラスを含む)。表に書けないクラス(CP12 の実験の条件の型=名を
+  ``engine/events/log.py`` と ``engine/experiment/gate.py`` の外に文字列で書けない)は、自分の置き場でクラスの属性
+  :data:`DECLARED_ATTR` に凍結の名を宣言し、:func:`class_id` が表の次に読む。手で書かない: 道具
   ``docs/bench/analysis/move-346/tools/gen_class_ids.py`` が AST から作る(試験 ``tests/engine/state/test_class_ids.py``
   が src と表と凍結の JSON を突き合わせる)。
-- 表に無い型(numpy・標準ライブラリ・試験の中のクラス)は今の名をそのまま返す。
+- 表にも宣言にも無い ``shibuya`` の型(構築の段 ``shibuya.build`` を除く)は ``TypeError`` で止める(後から足した
+  クラスを黙って今の名で流さない=検収 M2)。``shibuya`` の外の型(numpy・標準ライブラリ・試験の中のクラス)と構築の段の
+  型は今の名をそのまま返す。
 
 時間の方針: 本モジュールは時刻を持たない。逐次ループ宣言: なし(表を 1 回作るだけ)。
 """
@@ -21,7 +24,13 @@ from __future__ import annotations
 from types import MappingProxyType
 from typing import Final, Mapping
 
-__all__ = ["CLASS_IDS", "class_id", "class_path"]
+__all__ = ["CLASS_IDS", "DECLARED_ATTR", "class_id", "class_path"]
+
+#: 自分の置き場で凍結の名を宣言するクラスの属性の名(クラスの本体に ``CLASS_ID = "…"``。継いだ属性は読まない)。
+DECLARED_ATTR: Final[str] = "CLASS_ID"
+#: 表で守る包みの頭と、表に載せない構築の段の頭(包みの根の名から作る)。
+_ROOT: Final[str] = __name__.partition(".")[0] + "."
+_BUILD: Final[str] = _ROOT + "build."
 
 #: クラスの名の固定の表。鍵=今の「モジュール.クラス名」、値=凍結の名(ハッシュ・状態のファイル・設定の指紋に入る文字列)。
 #: 段 1 では鍵と値が同じ。移す道具が鍵だけを書き換え、値は変えない。
@@ -512,9 +521,23 @@ _PATH_OF: Final[Mapping[str, str]] = MappingProxyType({v: k for k, v in CLASS_ID
 
 
 def class_id(t: type) -> str:
-    """型の凍結の名(表に無い型は今の「モジュール.クラス名」)。"""
+    """型の凍結の名。表 → クラスの宣言(:data:`DECLARED_ATTR`)の順に引く。どちらにも無い ``shibuya`` の型は止める。"""
     name = f"{t.__module__}.{t.__qualname__}"
-    return CLASS_IDS.get(name, name)
+    got = CLASS_IDS.get(name)
+    if got is not None:
+        return got
+    declared = t.__dict__.get(DECLARED_ATTR)
+    if isinstance(declared, str):
+        return declared
+    if name.startswith(_ROOT) and not name.startswith(_BUILD):
+        return _unknown(name)
+    return name
+
+
+def _unknown(name: str) -> str:
+    """表にも宣言にも無い ``shibuya`` の型(試験が差し替えて数える口)。"""
+    raise TypeError(f"class_ids: 表に無い shibuya の型 {name}(道具 docs/bench/analysis/move-346/tools/gen_class_ids.py "
+                    "で表を作り直す)")
 
 
 def class_path(frozen: str) -> str:

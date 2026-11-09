@@ -1,18 +1,22 @@
 """移す段 1(返事その 7 §4-2 の 3・計画 docs/reference/package-map-final-2026-11-09.md §7-1): クラスの名の固定の表。
 
 クラスの「モジュール.クラス名」はハッシュ・状態のファイル・設定の指紋・系ごとの指紋に入る。ファイルを動かすと名が
-変わり final が変わる(案 K の実測)。だから名は ``engine.class_ids`` の表から引く。ここで確かめること:
+変わり final が変わる(案 K の実測)。だから名は ``engine.class_ids`` の表(と、表に書けないクラスの置き場の宣言)から
+引く。ここで確かめること:
 
-1. 網羅: src(build を除く)の全部のクラス(AST)の名が、表の鍵の集合と同じ(載せない CP12 の型 1 つを除く。その型が
-   ハッシュにも状態のファイルにも入らないことも確かめる)。
-2. 凍結: 表の値の集合が凍結の JSON と同じ(値は変えない。クラスを足したら両方に足す)。
-3. 1 対 1: 値が重ならない・``class_path`` が鍵に戻る・許可の表の型が今の名に戻る。
+1. 網羅: src(build を除く)の全部のクラス(AST)の名が、表の鍵と「置き場で宣言するクラス」の和と同じ。
+2. 凍結: 凍結の JSON(凍結の名 → ``__qualname__``)が表の値と宣言の値と同じで、どの行も値の末尾が鍵のクラスの
+   ``__qualname__``(値どうしの入れ替えを落とす=検収 M3)。
+3. 1 対 1: 値が重ならない・``class_path`` が鍵に戻る・許可の表の型が今の名に戻る。表にも宣言にも無い ``shibuya`` の型は
+   止め、``shibuya`` の外と構築の段の型は今の名のまま(検収 M2)。
 4. 入口: 4 ファイルの 5 つの関数が ``class_id``・``class_path`` を通り、``__module__`` と ``__qualname__`` を
-   連ねる式が残っていない。
+   連ねる式が残っていない。``allowed_class`` の名の確かめに振る舞いの負の対照(検収 M6)。
 5. 動かしたふり: 試験の中で 3 つの型(dataclass・Enum・値のクラス)の ``__module__`` を書き換え、表の鍵をそれに
    合わせると、値の直列化(ハッシュ)・状態のファイル・設定の指紋・系ごとの指紋と、短いランの全 checkpoint・状態の
-   ファイル・再開が、書き換える前と同じ。表を合わせないと変わる(負の対照)。
+   ファイル・再開が、書き換える前と同じ。表を合わせないと止まるか変わる(負の対照)。CP12 の実験の条件の型は置き場の
+   宣言で、系ごとの指紋の外の状態の digest の経路でも名が変わらない(検収 M1)。
 6. 往復: 許可の表の全部の名が ``allowed_class`` で組み立てられる。
+7. 既定のラン・止めて再開・系ごとの指紋(probe)で、表に無い ``shibuya`` の型は 0 件(検収 M2)。
 
 表は道具 ``docs/bench/analysis/move-346/tools/gen_class_ids.py`` で作る(手で書かない)。
 """
@@ -36,10 +40,10 @@ from shibuya.engine import class_ids as CI
 from shibuya.engine import resume as RS
 from shibuya.engine import state_codec as SC
 from shibuya.engine import state_hashes as SH
-from shibuya.engine import state_ledger as SL
 from shibuya.engine.arbiter import WakeCandidates
-from shibuya.engine.events import log as EV
 from shibuya.engine.class_ids import CLASS_IDS, class_id, class_path
+from shibuya.engine.events import log as EV
+from shibuya.engine.experiment import gate as GATE
 from shibuya.engine.run import run_day
 from shibuya.engine.scheduler import DeferralQueue
 from shibuya.engine.systems import probe as PR
@@ -47,7 +51,7 @@ from shibuya.engine.systems import probe as PR
 ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "src"
 PKG = SRC / "shibuya"
-FROZEN = Path(__file__).with_name("class_ids_frozen.json")
+FROZEN = json.loads(Path(__file__).with_name("class_ids_frozen.json").read_text(encoding="utf-8"))["names"]
 #: 入口の 4 ファイル(src/shibuya からの道筋)と、表を通る関数(関数の名 → 呼ぶはずの名)。
 ENTRY_FILES: dict[str, dict[str, set[str]]] = {
     "engine/state_hashes.py": {"_qual": {"class_id"}},
@@ -55,6 +59,8 @@ ENTRY_FILES: dict[str, dict[str, set[str]]] = {
     "engine/resume.py": {"_canon": {"class_id"}},
     "engine/systems/probe.py": {"plain": {"class_id"}},
 }
+#: CP12 の実験の条件の型の凍結の名(試験は src の外なので書いてよい)。
+EXP_ID = "shibuya.engine.events.log.Experiment"
 
 
 # ================================================================= AST の集め方(道具と別に書く=2 つの実装の突き合わせ)
@@ -63,69 +69,79 @@ def _module_name(p: Path) -> str:
     return ".".join(parts[:-1] if parts[-1] == "__init__" else parts)
 
 
-def _qualnames(node: ast.AST, prefix: str = "") -> list[str]:
-    out: list[str] = []
+def _classes(node: ast.AST, prefix: str = "") -> list[tuple[str, ast.ClassDef]]:
+    out: list[tuple[str, ast.ClassDef]] = []
     for ch in ast.iter_child_nodes(node):
         if isinstance(ch, ast.ClassDef):
-            out.append(prefix + ch.name)
-            out += _qualnames(ch, f"{prefix}{ch.name}.")
+            out.append((prefix + ch.name, ch))
+            out += _classes(ch, f"{prefix}{ch.name}.")
         elif isinstance(ch, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            out += _qualnames(ch, f"{prefix}{ch.name}.<locals>.")
+            out += _classes(ch, f"{prefix}{ch.name}.<locals>.")
         elif isinstance(ch, ast.Lambda):
-            out += _qualnames(ch, f"{prefix}<lambda>.<locals>.")
+            out += _classes(ch, f"{prefix}<lambda>.<locals>.")
         else:
-            out += _qualnames(ch, prefix)
+            out += _classes(ch, prefix)
     return out
 
 
-def src_classes() -> list[str]:
-    names: list[str] = []
+def _declares(cls: ast.ClassDef) -> bool:
+    return any(isinstance(st, (ast.Assign, ast.AnnAssign))
+               and any(isinstance(t, ast.Name) and t.id == CI.DECLARED_ATTR
+                       for t in (st.targets if isinstance(st, ast.Assign) else [st.target]))
+               for st in cls.body)
+
+
+def src_classes() -> tuple[dict[str, str], set[str]]:
+    """(「モジュール.クラス名」→ ``__qualname__``, 置き場で凍結の名を宣言するクラスの名)。"""
+    quals: dict[str, str] = {}
+    declared: set[str] = set()
     for p in sorted(PKG.rglob("*.py")):
         if p.relative_to(PKG).parts[0] == "build":
             continue
-        tree = ast.parse(p.read_text(encoding="utf-8"))
-        names += [f"{_module_name(p)}.{q}" for q in _qualnames(tree)]
-    return names
+        for q, node in _classes(ast.parse(p.read_text(encoding="utf-8"))):
+            name = f"{_module_name(p)}.{q}"
+            assert name not in quals, f"同じ名のクラスが 2 つある {name}"
+            quals[name] = q
+            if _declares(node):
+                declared.add(name)
+    return quals, declared
+
+
+QUALS, DECLARED = src_classes()
 
 
 # ================================================================= 1 網羅
-#: 表に載せないクラス(道具の ``EXCLUDE`` と同じ)。CP12: 実験の条件の型の名は src の 2 か所の外に文字列で書けない
-#: (``tests/engine/events/test_e_cause_three_kinds.py``)。値はハッシュにも状態のファイルにも入らない(下の試験)。
-EXCLUDED = {f"{EV.__name__}.Experiment"}
-
-
-def test_table_keys_are_exactly_the_classes_in_src():
-    found = src_classes()
-    assert len(found) == len(set(found)), "同じ名のクラスが 2 つある"
-    assert EXCLUDED <= set(found), "載せないクラスの名が src に無い(一覧を直す)"
-    found = [n for n in found if n not in EXCLUDED]
-    missing = sorted(set(found) - set(CLASS_IDS))
-    extra = sorted(set(CLASS_IDS) - set(found))
-    assert not missing and not extra, (
-        f"表に無いクラス {missing[:5]}・src に無い鍵 {extra[:5]}"
+def test_table_keys_and_declarations_are_exactly_the_classes_in_src():
+    assert DECLARED == {EXP_ID}, "置き場で宣言するクラスは CP12 の型だけのはず(増やすなら理由を記録に書く)"
+    missing = sorted(set(QUALS) - set(CLASS_IDS) - DECLARED)
+    extra = sorted(set(CLASS_IDS) - set(QUALS))
+    both = sorted(set(CLASS_IDS) & DECLARED)
+    assert not missing and not extra and not both, (
+        f"表に無いクラス {missing[:5]}・src に無い鍵 {extra[:5]}・表と宣言の両方 {both}"
         "(道具 docs/bench/analysis/move-346/tools/gen_class_ids.py で作り直す)")
 
 
-def test_excluded_classes_never_reach_a_hash_or_the_state_file():
-    """載せないクラスは今の名を返す。持つ行(出来事の記録 E・実験の層 X)は軸 1 diag・軸 2 discardable(ハッシュにも状態の
-    ファイルにも入らない)で、許可の表・値のクラスにも無い=置き場を動かしても final と状態のファイルは変わらない。"""
-    assert class_id(EV.Experiment) == f"{EV.__name__}.Experiment"
-    assert not EXCLUDED & {*SC.ALLOWED_CLASSES, *SH.VALUE_CLASSES, *SC.CLASS_FIELDS}
-    holders = [r for r in SL.external_rows()
-               if any(i.startswith("events._cz_experiments") or i.startswith("experiment.") for i in r.items)]
-    assert {r.key for r in holders} == {"E", "X"}
-    assert all(r.behavior == SL.DIAG and r.restore == SL.DISCARDABLE for r in holders)
-
-
 # ================================================================= 2 凍結
-def test_values_match_the_frozen_json():
-    doc = json.loads(FROZEN.read_text(encoding="utf-8"))
-    names = doc["names"]
-    assert names == sorted(set(names)), "凍結の JSON は重なりなしの昇順"
-    assert set(CLASS_IDS.values()) == set(names)
+def test_frozen_json_maps_each_value_to_the_qualname_of_its_class():
+    assert list(FROZEN) == sorted(FROZEN), "凍結の JSON は凍結の名の昇順"
+    want = {v: QUALS[k] for k, v in CLASS_IDS.items()}
+    want[EV.Experiment.CLASS_ID] = QUALS[EXP_ID]
+    assert FROZEN == want
+    for k, v in CLASS_IDS.items():  # 値の末尾が鍵のクラスの __qualname__(値どうしの入れ替えを落とす=検収 M3)
+        assert v.endswith("." + QUALS[k]), (k, v)
 
 
-# ================================================================= 3 1 対 1
+def test_swapping_two_values_is_caught():
+    """突然変異(``ActivityKind`` と ``AgentKind`` の値の入れ替え)を、名の集合でなく写像が落とす。"""
+    a, b = "shibuya.agents.state.ActivityKind", "shibuya.agents.state.AgentKind"
+    ids = dict(CLASS_IDS)
+    ids[a], ids[b] = ids[b], ids[a]
+    assert set(ids.values()) == set(CLASS_IDS.values())  # 名の集合では同じ
+    assert {v: QUALS[k] for k, v in ids.items()} != {v: QUALS[k] for k, v in CLASS_IDS.items()}
+    assert not ids[a].endswith("." + QUALS[a])
+
+
+# ================================================================= 3 1 対 1・表に無い型
 def _allowed_types() -> dict[str, type]:
     """許可の表(状態のファイル)・値のクラス(ハッシュ)・欄の一覧の名 → 型(import して引く)。"""
     out: dict[str, type] = {}
@@ -142,7 +158,7 @@ def _import(path: str) -> type:
 
 
 def test_one_to_one_and_back_to_the_current_name():
-    vals = list(CLASS_IDS.values())
+    vals = [*CLASS_IDS.values(), EV.Experiment.CLASS_ID]
     assert len(vals) == len(set(vals)), "凍結の名が重なる"
     for k, v in CLASS_IDS.items():
         assert class_path(v) == k
@@ -150,9 +166,24 @@ def test_one_to_one_and_back_to_the_current_name():
     for name, t in _allowed_types().items():
         assert class_id(t) == name
         assert class_path(class_id(t)) == f"{t.__module__}.{t.__qualname__}"
-    # 表に無い型は今の名をそのまま
+
+
+def test_unknown_shibuya_types_stop_and_others_keep_their_names():
+    late = type("Late", (), {"__module__": "shibuya.engine.late"})  # 後から type() で足したふり
+    with pytest.raises(TypeError, match="表に無い shibuya の型 shibuya.engine.late.Late"):
+        class_id(late)
+    with pytest.raises(TypeError, match="表に無い"):
+        SH.to_state(type("NT", (tuple,), {"__module__": "shibuya.x", "_fields": ("a",)})((1,)))
     assert class_id(np.ndarray) == "numpy.ndarray"
     assert class_path("numpy.ndarray") == "numpy.ndarray"
+    local = type("Local", (), {})  # 試験の中のクラス
+    assert class_id(local) == f"{__name__}.Local"
+    built = type("B", (), {"__module__": "shibuya.build.sched.trial"})  # 構築の段(表に載せない・動かさない)
+    assert class_id(built) == "shibuya.build.sched.trial.B"
+    assert class_id(type("N", (), {"__module__": "x.y", CI.DECLARED_ATTR: 1})) == "x.y.N"  # 宣言は文字列だけを読む
+    base = type("Base", (), {"__module__": "x.y", CI.DECLARED_ATTR: "frozen.Base"})
+    assert class_id(base) == "frozen.Base"
+    assert class_id(type("Sub", (base,), {"__module__": "x.y"})) == "x.y.Sub"  # 継いだ宣言は読まない
 
 
 # ================================================================= 4 入口
@@ -181,18 +212,32 @@ def test_entry_functions_go_through_the_table():
     assert len(_has_module_qualname_chain(ci)) == 1
 
 
+def test_allowed_class_refuses_a_path_that_points_to_another_class(monkeypatch):
+    """検収 M6: 凍結の名の import 先(``_PATH_OF``)が別のクラスを指せば ``StateFormatError`` で止まる。"""
+    name = "shibuya.engine.arbiter.WakeCandidates"
+    other = "shibuya.engine.scheduler.DeferralQueue"
+    paths = dict(CI._PATH_OF)
+    paths[name] = other
+    monkeypatch.setattr(CI, "_PATH_OF", MappingProxyType(paths))
+    monkeypatch.setattr(SC, "_CLASS_CACHE", {})
+    with pytest.raises(SC.StateFormatError, match="許可の表の名前がクラスを指さない"):
+        SC.allowed_class(name)
+    with pytest.raises(SC.StateFormatError):  # 状態のファイルの読みでも止まる
+        SC.loads(SC.dumps({"w": _sample()["wake"]}))
+
+
 # ================================================================= 5 動かしたふり
 MOVED = (WakeCandidates, EventClass, DeferralQueue)
 
 
-def _pretend_moved(monkeypatch: pytest.MonkeyPatch, *, table: bool = True,
-                   classes: tuple[type, ...] = MOVED) -> dict[str, str]:
-    """型の ``__module__`` を試験の中だけ別の置き場に書き換える。``table`` なら表の鍵も合わせる。旧 → 新の名。"""
+def _pretend_moved(monkeypatch: pytest.MonkeyPatch, *, table: bool = True, classes: tuple[type, ...] = MOVED,
+                   head: str = "shibuya._moved_for_test.") -> dict[str, str]:
+    """型の ``__module__`` を試験の中だけ別の置き場(``head`` の下)に書き換える。``table`` なら表の鍵も合わせる。旧 → 新の名。"""
     ids = dict(CI.CLASS_IDS)
     moved: dict[str, str] = {}
     for cls in classes:
         old = f"{cls.__module__}.{cls.__qualname__}"
-        new_mod = "shibuya._moved_for_test." + cls.__module__.rpartition(".")[2]
+        new_mod = head + cls.__module__.rpartition(".")[2]
         fake = sys.modules.get(new_mod) or types.ModuleType(new_mod)
         setattr(fake, cls.__name__, cls)
         monkeypatch.setitem(sys.modules, new_mod, fake)
@@ -233,15 +278,60 @@ def test_pretend_move_keeps_hash_state_file_and_fingerprint_bytes(monkeypatch):
         assert class_id(WakeCandidates) == "shibuya.engine.arbiter.WakeCandidates"
         assert class_path("shibuya.engine.arbiter.WakeCandidates") == moved["shibuya.engine.arbiter.WakeCandidates"]
         assert _unit_bytes() == before
-    # 負の対照: 表を合わせないと名が変わる(ハッシュ・指紋が動く・状態のファイルは許可の表に無い名で書けない)
-    with monkeypatch.context() as m:
+    with monkeypatch.context() as m:  # 負の対照 1: 表を合わせない shibuya の置き場=表に無い型で止まる
         _pretend_moved(m, table=False)
         doc = _sample()
+        for f in (SH.to_state, SC.dumps, lambda d: RS._canon({"x": d["wake"]})):
+            with pytest.raises(TypeError, match="表に無い"):
+                f(doc)
+    with monkeypatch.context() as m:  # 負の対照 2: shibuya の外へ動かしたふり=名が変わりハッシュと指紋が動く
+        _pretend_moved(m, table=False, head="moved_outside_for_test.")
+        doc = _sample()
         assert SH.to_state(doc) != before[0]
-        with pytest.raises(TypeError, match="直列化の書き手が無い型"):
-            SC.dumps(doc)
         assert RS._canon({"x": doc["wake"]}) != before[3]
         assert PR.plain(DeferralQueue.__new__(DeferralQueue)) != before[4]
+
+
+def _experiment_log() -> EV.EventLog:
+    log = EV.EventLog()
+    GATE.admit(log, "cond-A", what="過程:opening", who="engine", origin="実験")
+    assert len(log._cz_experiments) == 1
+    return log
+
+
+def _probe_snap(log: EV.EventLog) -> str:
+    """系ごとの指紋の外の状態の digest(``probe.snapshot`` の ``ext`` の行 E の ``events._cz_experiments``)。"""
+    view = PR.View(agents=None, world=None, pstate=None, owners={"events": log}, tally={}, result=None)
+    return PR.snapshot(view, families=("ext",))["E:events._cz_experiments"]
+
+
+def _probe_ext(log: EV.EventLog) -> tuple[str, tuple[bytes, int]]:
+    """``probe.snapshot`` の値と、その下の ``item_digest``(=probe が呼ぶ口)。"""
+    return _probe_snap(log), SH.item_digest({"events": log}, "E", "events._cz_experiments")
+
+
+def test_cp12_type_keeps_its_frozen_name_on_the_probe_path(monkeypatch):
+    """検収 M1: 実験の条件の型は表に書けない(CP12)ので置き場で凍結の名を宣言する。probe の外の状態の digest の経路
+    (行 E の ``events._cz_experiments``)でも、置き場を動かしたふりで値が変わらない。"""
+    assert ("E", "events._cz_experiments") in PR._ext_rows()
+    assert EV.Experiment.__dict__[CI.DECLARED_ATTR] == EXP_ID == class_id(EV.Experiment)
+    log = _experiment_log()
+    assert EXP_ID.encode() in SH.to_state(log._cz_experiments)  # 名がバイトに入る
+    before = _probe_ext(log)
+    assert not before[0].startswith(("X:", "ERR:")), before[0]  # 代わりの digest でなく item_digest の値
+    with monkeypatch.context() as m:  # 動かしたふり(置き場の名だけ替える)=宣言の名なので同じ
+        m.setattr(EV.Experiment, "__module__", "shibuya._moved_for_test.log")
+        assert _probe_ext(log) == before
+    with monkeypatch.context() as m:  # 負の対照 1: 宣言を外すと shibuya の型は止まる(probe は代わりの digest に落ちる)
+        m.setattr(EV.Experiment, "__module__", "shibuya._moved_for_test.log")
+        m.delattr(EV.Experiment, CI.DECLARED_ATTR)
+        with pytest.raises(TypeError, match="表に無い"):
+            SH.item_digest({"events": log}, "E", "events._cz_experiments")
+        assert _probe_snap(log).startswith("X:")
+    with monkeypatch.context() as m:  # 負の対照 2: 宣言を外して shibuya の外へ=名が変わり digest が動く
+        m.setattr(EV.Experiment, "__module__", "moved_outside_for_test.log")
+        m.delattr(EV.Experiment, CI.DECLARED_ATTR)
+        assert _probe_ext(log) != before
 
 
 RUN_KW = dict(n_agents=30, seed=1, n_cells=9, ticks=1440, checkpoint_every=360)
@@ -273,17 +363,17 @@ def test_pretend_move_keeps_a_short_run_and_resume(tmp_path, monkeypatch):
     with monkeypatch.context() as m:
         _pretend_moved(m)
         assert _run_bytes(tmp_path / "b") == before
-    with monkeypatch.context() as m:  # 負の対照: 表を合わせないと behavior-hash(final)と full-hash が動く
-        _pretend_moved(m, table=False, classes=(WakeCandidates, EventClass))
+    with monkeypatch.context() as m:  # 負の対照 1: 表を合わせない shibuya の置き場=ランが止まる
+        _pretend_moved(m, table=False)
+        with pytest.raises(TypeError, match="表に無い"):
+            run_day(sim_days=2, **RUN_KW)
+    with monkeypatch.context() as m:  # 負の対照 2: shibuya の外へ=behavior-hash(final)と full-hash が動く
+        _pretend_moved(m, table=False, classes=(WakeCandidates, EventClass), head="moved_outside_for_test.")
         a = run_day(sim_days=2, **RUN_KW)
         got = [(c.tick, c.behavior_hash, c.full_hash) for c in a.checkpoints if c.tick < STOP]
         want = [(h[0], h[2], h[3]) for h in before[0] if h[0] < STOP]
         assert [g[0] for g in got] == [w[0] for w in want]
         assert all(g[1] != w[1] and g[2] != w[2] for g, w in zip(got, want))
-    with monkeypatch.context() as m:  # 負の対照: 値のクラスは表を合わせないと直列化の書き手が無い(黙って通さない)
-        _pretend_moved(m, table=False, classes=(DeferralQueue,))
-        with pytest.raises(TypeError, match="直列化の書き手が無い型"):
-            run_day(sim_days=2, **RUN_KW)
 
 
 # ================================================================= 6 往復
@@ -296,3 +386,17 @@ def test_every_allowed_class_name_is_rebuilt(monkeypatch):
         assert name in CLASS_IDS.values()
     for name in (*SH.VALUE_CLASSES, *SC.CLASS_FIELDS):
         assert name in CLASS_IDS.values()
+
+
+# ================================================================= 7 既定のラン・再開・probe で表に無い型は 0 件
+def test_default_run_resume_and_probe_meet_no_unknown_shibuya_type(tmp_path, monkeypatch):
+    """検収 M2: 止める口を数える口に替えて、既定のラン(止めて再開)と系ごとの指紋つきのランを回す=表に無い型 0 件。"""
+    seen: list[str] = []
+    monkeypatch.setattr(CI, "_unknown", lambda name: seen.append(name) or name)
+    _run_bytes(tmp_path / "r")
+    pr = PR.Probe(check=None, ticks=frozenset(range(0, 240, 7)) | {59, 60, 119, 120, 179, 180})
+    monkeypatch.setattr(PR, "ACTIVE", pr)
+    run_day(n_agents=60, seed=1, n_cells=9, ticks=240, checkpoint_every=60, vocab_version="v3")
+    monkeypatch.setattr(PR, "ACTIVE", None)
+    assert pr.n_snap > 0
+    assert sorted(set(seen)) == []

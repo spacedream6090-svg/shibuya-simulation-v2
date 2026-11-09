@@ -105,7 +105,8 @@ class ResolveIndex:
 def index(root: str | None = None) -> ResolveIndex:
     """``RESOLVE_FILES`` を読んで関数ごとの書きと辺を作る(``root`` は ``src/shibuya``・既定はこのパッケージ)。
 
-    〔移す段 2-3〕ファイルの一覧を読む形にした(段 2 では 1 本=前と同じ)。関数の名がファイルをまたいで重なれば止める。
+    〔移す段 2-3〕ファイルの一覧を読む形にした(段 2 では 1 本=前と同じ)。関数の名と頂上の表の名(関数を指す代入)が
+    ファイルをまたいで重なれば止める(1 本のファイルの中の扱いは前と同じ)。
     """
     from shibuya.engine import state_ledger_ast as A
 
@@ -113,6 +114,7 @@ def index(root: str | None = None) -> ResolveIndex:
     trees = [ast.parse(base.joinpath(*rel.split("/")).read_text(encoding="utf-8")) for rel in RESOLVE_FILES]
     par: dict[ast.AST, ast.AST] = {}
     funcs: dict[str, ast.FunctionDef] = {}
+    owner: dict[str, str] = {}  # 関数と頂上の表の名 → 置いたファイル(ファイルをまたぐ重なりを止める)
     for rel, tree in zip(RESOLVE_FILES, trees):
         par.update(A._parents(tree))
         mine = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef)}
@@ -120,17 +122,20 @@ def index(root: str | None = None) -> ResolveIndex:
         if clash:
             raise ValueError(f"resolve の書き手の関数の名がファイルをまたいで重なる({rel}): {clash}")
         funcs.update(mine)
+        owner.update(dict.fromkeys(mine, rel))
     decl = A.declared_columns(base)
     names = {c for v in decl.values() for c in v}
 
     tables: dict[str, set[str]] = {}
-    for n in [stmt for tree in trees for stmt in tree.body]:
+    for rel, n in [(rel, stmt) for rel, tree in zip(RESOLVE_FILES, trees) for stmt in tree.body]:
         tgt = (n.targets[0] if isinstance(n, ast.Assign) and len(n.targets) == 1
                else (n.target if isinstance(n, ast.AnnAssign) else None))
         if isinstance(tgt, ast.Name) and getattr(n, "value", None) is not None:
             refs = {x.id for x in ast.walk(n.value) if isinstance(x, ast.Name) and (x.id in funcs or x.id in tables)}
             refs = set().union(*({r} if r in funcs else tables[r] for r in refs)) if refs else set()
             if refs:
+                if owner.setdefault(tgt.id, rel) != rel:
+                    raise ValueError(f"resolve の頂上の表の名がファイルをまたいで重なる({rel}): {tgt.id}")
                 tables[tgt.id] = refs
     direct: dict[str, set[str]] = defaultdict(set)
     calls: dict[str, set[str]] = defaultdict(set)

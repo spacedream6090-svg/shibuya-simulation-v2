@@ -764,6 +764,27 @@ def test_scanner_negative_control_finds_an_unlisted_read(tmp_path: Path):
     assert set(T.scan_root_anchors(tmp_path / "src")) == {"shibuya/z.py"}
 
 
+def test_root_scanner_counts_the_paths_helpers(tmp_path: Path):
+    """〔移す段 2-2・検収 M5〕``core/paths.py`` の手伝い(``find_upward``・``module_dir``・``PACKAGE_ROOT``)で根を読む読み手も
+    数える(突然変異: 手伝いで ``docs`` を読む関数を足すと見つかる)。"""
+    pkg = tmp_path / "src" / "shibuya"
+    (pkg / "core").mkdir(parents=True)
+    files = {
+        "core/paths.py": "from pathlib import Path\nREPO_ROOT = Path(__file__).parents[3]\n",
+        "a.py": ("from shibuya.core.paths import find_upward, module_dir\n"
+                 "def f():\n    return find_upward('docs/x.md', module_dir(__name__))\n"),
+        "b.py": ("from shibuya.core.paths import PACKAGE_ROOT\n"
+                 "def g():\n    return PACKAGE_ROOT.parent.parent / 'docs' / 'x.md'\n"),
+        "c.py": "from shibuya.core import paths as P\ndef h():\n    return P.REPO_ROOT / 'docs'\n",
+        "d.py": "def k(start):\n    for p in (start, *start.parents):\n        pass\n",
+        "e.py": "X = 1\n",
+    }
+    for rel, text in files.items():
+        (pkg / rel).write_text(text, encoding="utf-8")
+    assert set(T.scan_root_anchors(tmp_path / "src")) == {
+        "shibuya/core/paths.py", "shibuya/a.py", "shibuya/b.py", "shibuya/c.py", "shibuya/d.py"}
+
+
 # ================================================================== 写しの木
 def test_git_archive_copy_and_tree_missing(tmp_path: Path):
     if subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True).returncode != 0:

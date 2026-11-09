@@ -181,6 +181,10 @@ class Experiment(_Cause):
 
     cond_id: str
     kind: ClassVar[str] = "experiment"
+    #: 〔移す段 1・検収 M1〕凍結の名(``engine.class_ids`` が表の次に読む)。CP12 で型の名はこの置き場と口の外の src に
+    #: 文字列で書けない=表に載せられないので、ここで宣言する。外の状態の digest(系ごとの指紋の ``events._cz_experiments``)に
+    #: 入る名で、置き場を動かしても変えない。
+    CLASS_ID: ClassVar[str] = "shibuya.engine.events.log.Experiment"
 
     def __init__(self, cond_id: str) -> None:
         _only_from_gate(sys._getframe(1))  # 先に見る(既存の物の __init__ を呼び直しても中身を書き換えない)

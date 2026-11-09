@@ -114,7 +114,7 @@ engine.experiment.gate — 実験が世界に入る口(第 1 期 1-3・CP12)。*
   - `admit`(関数): 実験の条件 ``cond_id`` を原因とする出来事を記録の時計の時刻で 1 行書き、id を返す(CP12 の唯一の口)。
 - import している内部モジュール: `shibuya.engine.events.log`・`shibuya.engine.events.vocab`
 - 呼び手: `shibuya.engine.events.log`・`shibuya.engine.experiment.apply`
-- 読む試験: `tests/engine/decision/test_j0_cause_columns.py`・`tests/engine/events/test_e_cause_three_kinds.py`
+- 読む試験: `tests/engine/decision/test_j0_cause_columns.py`・`tests/engine/events/test_e_cause_three_kinds.py`・`tests/engine/state/test_class_ids.py`
 - 決定の ID: 10-12/§4-5・R-113
 
 ## [layer.py](../../../../../../../../src/shibuya/engine/experiment/layer.py)

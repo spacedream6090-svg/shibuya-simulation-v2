@@ -92,12 +92,15 @@ ROOT_READERS: Final[dict[str, str]] = {
     "shibuya/core/paths.py": "リポの根と包みの根の定義(移す段 2-2)。読むものは呼び手の行",
     "shibuya/economy/wages.py": "data/research_cache/pop41b/derived(DATA_READS)",
     "shibuya/engine/bridging/ledger.py": "docs/design/bridging-ledger.json(TRACKED_READS)",
+    "shibuya/engine/bridging/scan.py": "包みの根 PACKAGE_ROOT の下(src の中)を走査するだけ(移す段 2-2)",
     "shibuya/engine/calendar.py": "resolve_repo_path の呼び(定義は core/paths.py)・data/calendar/syukujitsu.csv(DATA_READS)",
     "shibuya/engine/classical.py": "docs/bench/anchors/ssb2021_activity_prior_v0.json(TRACKED_READS)",
     "shibuya/engine/economy_stage2.py": "data/realworld/osm の 2 本・data/persona_pool_v2(DATA_READS)",
     "shibuya/engine/energy.py": "docs/bench/anchors の 2 本(TRACKED_READS)",
     "shibuya/engine/resume.py": "渡された相対の道筋の同定(path_identity)と .git の commit(写しの木はリポの外=空の値)",
     "shibuya/engine/rules/table.py": "docs/design/rules-table.json(TRACKED_READS)",
+    "shibuya/engine/systems/allow.py": "包みの根 PACKAGE_ROOT から RESOLVE_FILES(src の中)を読むだけ(移す段 2-2)",
+    "shibuya/engine/systems/static_check.py": "module_dir(__name__)=このモジュールのディレクトリ(呼び手は無い・移す段 2-2)",
     "shibuya/world/processes/circularity.py": "docs/design/bridging-ledger.json・v2-pattern-ledger.md(TRACKED_READS)",
     "shibuya/world/processes/constitution.py": "docs/design/v2-perception-contract.md・v2-pattern-ledger.md(TRACKED_READS)",
 }
@@ -376,11 +379,19 @@ def unclassified_refs(refs: Iterable[PathRef]) -> dict[str, list[str]]:
     return out
 
 
+#: 根の道を求める呼び出しの名(:func:`scan_root_anchors`)。〔移す段 2-2・検収 M5〕``core/paths.py`` の手伝いを足した。
+ROOT_CALLS: Final[frozenset[str]] = frozenset({"resolve_repo_path", "_repo_root", "find_upward", "module_dir"})
+#: 根の道の名(素の名と属性。``PACKAGE_ROOT.parent.parent`` でリポの根に届く)。
+ROOT_NAMES: Final[frozenset[str]] = frozenset({"REPO_ROOT", "PACKAGE_ROOT"})
+
+
 def scan_root_anchors(src_dir: str | Path) -> dict[str, list[int]]:
     """src の中でリポの根を求めるファイル(src からの道筋 → 行)。
 
     数えるもの: ``….parents[k]`` で k がそのファイルからリポの根に届く数(``src/a/b.py`` なら 3)・``….parents`` を
-    上へ辿る for・``resolve_repo_path(…)``・``_repo_root(…)`` の呼び出し・``REPO_ROOT`` の名。
+    上へ辿る for(``(start, *start.parents)`` の形を含む)・:data:`ROOT_CALLS` の呼び出し・:data:`ROOT_NAMES` の名
+    (素の名と属性=``P.REPO_ROOT`` の形)。〔移す段 2-2・検収 M5〕根の道を 1 か所に集めた ``core/paths.py`` の手伝い
+    (``find_upward``・``module_dir``・``PACKAGE_ROOT``)で根を読む読み手も数える。
     """
     src = Path(src_dir)
     out: dict[str, list[int]] = {}
@@ -394,14 +405,16 @@ def scan_root_anchors(src_dir: str | Path) -> dict[str, list[int]]:
                     and node.value.attr == "parents" and isinstance(node.slice, ast.Constant)
                     and isinstance(node.slice.value, int) and node.slice.value >= depth - 1):
                 lines.add(node.lineno)
-            elif isinstance(node, ast.For) and isinstance(node.iter, ast.Attribute) and node.iter.attr == "parents":
+            elif isinstance(node, ast.For) and any(isinstance(x, ast.Attribute) and x.attr == "parents"
+                                                   for x in ast.walk(node.iter)):
                 lines.add(node.lineno)
             elif isinstance(node, ast.Call):
                 f = node.func
                 name = f.id if isinstance(f, ast.Name) else f.attr if isinstance(f, ast.Attribute) else ""
-                if name in ("resolve_repo_path", "_repo_root"):
+                if name in ROOT_CALLS:
                     lines.add(node.lineno)
-            elif isinstance(node, ast.Name) and node.id == "REPO_ROOT":
+            elif ((isinstance(node, ast.Name) and node.id in ROOT_NAMES)
+                  or (isinstance(node, ast.Attribute) and node.attr in ROOT_NAMES)):
                 lines.add(node.lineno)
         if lines:
             out[rel.as_posix()] = sorted(lines)

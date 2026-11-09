@@ -138,6 +138,7 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
   - `test_remove_link_refuses_a_real_directory_and_keeps_its_content`(関数)
   - `test_removed_env_names_still_appear_in_src_as_the_stop`(関数): 〔第346〕消した切替口の名は src に残る(与えると読み込みで止める文)=SWITCH_ENV に戻さない。
   - `test_root_reader_files_are_declared`(関数)
+  - `test_root_scanner_counts_the_paths_helpers`(関数): 〔移す段 2-2・検収 M5〕``core/paths.py`` の手伝い(``find_upward``・``module_dir``・``PACKAGE_ROOT``)で根を読む読み手も
   - `test_run_checks_that_base_read_the_copy`(関数)
   - `test_run_checks_the_src_digest_against_the_files`(関数): 検収 M1: 基準の側が読んだ src の digest が写しの木と違えば(比べる側も同じく)2。
   - `test_run_does_not_compare_a_json_from_an_earlier_run`(関数): 検収 L5: side が JSON を書かずに戻ったとき、置き場に残った前のランの JSON と比べない。
