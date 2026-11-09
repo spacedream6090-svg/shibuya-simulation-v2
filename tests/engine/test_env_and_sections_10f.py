@@ -401,7 +401,10 @@ def test_removing_a_bit_relevant_field_makes_the_golden_check_loud(monkeypatch):
     import platform as _pf
 
     base = RS.environment_fields()["platform_id"]
-    monkeypatch.setattr(_pf, "processor", lambda: "")
+    # 〔第346〕CI の像 ubuntu-26.04 では processor() がもともと空なので、空に差し替えても値が変わらない。
+    # 今の値と必ず違う値に差し替える(手元の Windows では空・CI では別の名)。
+    alt = "" if _pf.processor() else "bytecheck-test-cpu"
+    monkeypatch.setattr(_pf, "processor", lambda: alt)
     try:
         assert RS.environment_fields(refresh=True)["platform_id"] != base
         with pytest.warns(GE.GoldenUnregisteredWarning):
