@@ -21,12 +21,17 @@
 つなぎ(junction)
     :func:`place_data_link` が写しの木の ``data`` を本体の data へのつなぎにし、:func:`remove_link` が**つなぎだけ**を外す。
     外す前につなぎ(か記号のリンク)であることを確かめ、そうでなければ何もせず誤りにする(中を消さない)。Windows では
-    ``cmd /c rmdir <つなぎ>``(``/s`` なし=中に入らない)、それ以外では ``os.unlink``。
+    作るのは ``_winapi.CreateJunction``・外すのは ``os.rmdir``(つなぎそのものだけ=中に入らない。cmd を通さない=検収 L7)、
+    それ以外では記号のリンクと ``os.unlink``。
+
+走査が見つけない形(宣言): 別のモジュールから import した名を通した結合(``from x import BASE`` → ``BASE / "a.json"``)。
+ランの監査フック(``check.sort_reads``)が開いたファイルで拾う。
 """
 
 from __future__ import annotations
 
 import ast
+import hashlib
 import os
 import re
 import subprocess
@@ -113,10 +118,25 @@ class PathRef:
 
 #: 道筋の文字列の頭(``docs/…`` など)。後ろの引用の文(``§2-3`` や空白の後)は切る。
 _LEAD_RE: Final[re.Pattern[str]] = re.compile(r"(?:docs|data|tools|tests)(?:/[\w.\-{}@+]*)*", re.ASCII)
+#: 書式の差し込み(``%s``・``%(name)s``・``{name}``)。``{}`` にそろえる(検収 L2: ``"docs/x/%s.json" % …``)。
+_FMT_RE: Final[re.Pattern[str]] = re.compile(r"%(?:\([^)]*\))?[-#0 +]*\d*(?:\.\d+)?[sdifr]|\{[^{}]*\}")
+
+
+def norm_text(text: str) -> str:
+    """道筋の文字列の書き方をそろえる(``\\`` を ``/`` に・頭の ``./`` を外す・書式の差し込みを ``{}`` に)。"""
+    t = text.replace("\\", "/")
+    while t.startswith("./"):
+        t = t[2:]
+    return _FMT_RE.sub(_HOLE, t)
+
+
+def _starts_top(text: str) -> bool:
+    return any(text.startswith(t + "/") for t in _TOPS)
 
 
 def lead_path(text: str) -> str | None:
     """文字列の頭の道筋(``docs``・``data``・``tools``・``tests`` で始まるもの)。無ければ None。"""
+    text = norm_text(text)
     m = _LEAD_RE.match(text)
     if m is None:
         return None
@@ -159,12 +179,12 @@ class _PathVisitor(ast.NodeVisitor):
             self.refs.append(PathRef(path, self.rel, getattr(node, "lineno", 0)))
 
     def visit_Constant(self, node: ast.Constant) -> None:
-        if isinstance(node.value, str) and any(node.value.startswith(t + "/") for t in _TOPS):
+        if isinstance(node.value, str) and _starts_top(norm_text(node.value)):
             self._add(lead_path(node.value), node)
 
     def visit_JoinedStr(self, node: ast.JoinedStr) -> None:
         text = _fstring(node)
-        if any(text.startswith(t + "/") for t in _TOPS):
+        if _starts_top(norm_text(text)):
             self._add(lead_path(text), node)
         for v in node.values:  # 差し込みの式の中も見る
             if isinstance(v, ast.FormattedValue):
@@ -174,7 +194,22 @@ class _PathVisitor(ast.NodeVisitor):
         self._add(tuple_path(node), node)
         self.generic_visit(node)
 
+    def visit_List(self, node: ast.List) -> None:  # 検収 L2: ``PARTS = ["docs", …]``
+        self._add(tuple_path(node), node)
+        self.generic_visit(node)
+
     def visit_BinOp(self, node: ast.BinOp) -> None:
+        if isinstance(node.op, ast.Add):  # 検収 L2: ``"docs/" + NAME``・``root + "docs/x.json"``
+            leaves = _add_leaves(node)
+            self._add(concat_path([_segment(x, self.symbols) for x in leaves]), node)
+            for leaf in leaves:
+                if isinstance(leaf, ast.JoinedStr):
+                    for v in leaf.values:
+                        if isinstance(v, ast.FormattedValue):
+                            self.visit(v.value)
+                elif not isinstance(leaf, (ast.Constant, ast.Name)):
+                    self.visit(leaf)
+            return
         if isinstance(node.op, ast.Div):
             leaves = _div_leaves(node)
             self._add(chain_path([_segment(x, self.symbols) for x in leaves]), node)
@@ -191,8 +226,8 @@ class _PathVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def tuple_path(node: ast.Tuple) -> str | None:
-    """文字列の定数だけの tuple(``("..", "docs", "bench", …)``)を道筋にする(先頭の ``..`` は飛ばす)。"""
+def tuple_path(node: ast.Tuple | ast.List) -> str | None:
+    """文字列の定数だけの tuple か list(``("..", "docs", "bench", …)``)を道筋にする(先頭の ``..`` は飛ばす)。"""
     vals = [e.value for e in node.elts if isinstance(e, ast.Constant) and isinstance(e.value, str)]
     if not vals or len(vals) != len(node.elts):
         return None
@@ -207,8 +242,14 @@ def _div_leaves(node: ast.AST) -> list[ast.AST]:
     return [node]
 
 
+def _add_leaves(node: ast.AST) -> list[ast.AST]:
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+        return _add_leaves(node.left) + _add_leaves(node.right)
+    return [node]
+
+
 def _segment(leaf: ast.AST, symbols: _Symbols) -> str | None:
-    """鎖の部品 1 つ(文字列の定数・f 文字列・道筋の名・文字列の定数の名)。分からなければ None。"""
+    """鎖の部品 1 つ(文字列の定数・f 文字列・道筋の名・文字列の定数の名・``Path("docs")``)。分からなければ None。"""
     if isinstance(leaf, ast.Constant) and isinstance(leaf.value, str):
         return leaf.value
     if isinstance(leaf, ast.JoinedStr):
@@ -217,19 +258,38 @@ def _segment(leaf: ast.AST, symbols: _Symbols) -> str | None:
         return symbols.paths.get(leaf.id, symbols.consts.get(leaf.id))
     if isinstance(leaf, ast.Starred) and isinstance(leaf.value, ast.Name):
         return symbols.paths.get(leaf.value.id)
-    if isinstance(leaf, ast.Starred) and isinstance(leaf.value, ast.Tuple):
+    if isinstance(leaf, ast.Starred) and isinstance(leaf.value, (ast.Tuple, ast.List)):
         vals = [e.value for e in leaf.value.elts if isinstance(e, ast.Constant) and isinstance(e.value, str)]
         return "/".join(vals) if vals and len(vals) == len(leaf.value.elts) else None
+    if isinstance(leaf, ast.Call):  # 検収 L2: ``Path("docs") / "design" / …``
+        segs = _call_segments(leaf, symbols)
+        if segs is not None and any(s is not None for s in segs):
+            return "/".join(s if s is not None else _HOLE for s in segs)
     return None
 
 
+def _dotted(node: ast.AST) -> str:
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        return f"{_dotted(node.value)}.{node.attr}"
+    return ""
+
+
 def _call_segments(node: ast.Call, symbols: _Symbols) -> list[str | None] | None:
-    """``x.joinpath(a, *T, b)``・``Path(a, b)`` の部品(それ以外の呼び出しは None)。"""
+    """``x.joinpath(a, *T, b)``・``Path(a, b)``・``os.path.join(a, b)``・``"/".join([a, b])`` の部品(それ以外は None)。"""
     f = node.func
     if isinstance(f, ast.Attribute) and f.attr == "joinpath":
         return [_segment(f.value, symbols), *(_segment(a, symbols) for a in node.args)]
+    if isinstance(f, ast.Attribute) and f.attr == "join":  # 検収 L2
+        if (isinstance(f.value, ast.Constant) and f.value.value in ("/", "\\") and len(node.args) == 1
+                and isinstance(node.args[0], (ast.List, ast.Tuple))):
+            return [_segment(e, symbols) for e in node.args[0].elts]
+        if _dotted(f.value) in ("os.path", "path", "posixpath", "ntpath"):
+            return [_segment(a, symbols) for a in node.args]
+        return None
     name = f.id if isinstance(f, ast.Name) else f.attr if isinstance(f, ast.Attribute) else ""
-    if name in ("Path", "PurePath", "PurePosixPath") and len(node.args) > 1:
+    if name in ("Path", "PurePath", "PurePosixPath") and node.args:
         return [_segment(a, symbols) for a in node.args]
     return None
 
@@ -237,9 +297,17 @@ def _call_segments(node: ast.Call, symbols: _Symbols) -> list[str | None] | None
 def chain_path(segs: list[str | None]) -> str | None:
     """``/`` の鎖の部品から道筋を作る(最初の ``docs``・``data``・``tools``・``tests`` から。後の未知の部品は ``{}``)。"""
     for i, s in enumerate(segs):
-        if s is not None and _is_top(s):
-            head = lead_path(s) or s
-            return _norm([head, *(x if x is not None else _HOLE for x in segs[i + 1:])])
+        if s is not None and _is_top(norm_text(s)):
+            head = lead_path(s) or norm_text(s)
+            return _norm([head, *(norm_text(x) if x is not None else _HOLE for x in segs[i + 1:])])
+    return None
+
+
+def concat_path(parts: list[str | None]) -> str | None:
+    """``+`` でつないだ文字列の部品から道筋を作る(最初に ``docs/`` などで始まる部品から。未知の部品は ``{}``)。"""
+    for i, s in enumerate(parts):
+        if s is not None and _starts_top(norm_text(s)):
+            return lead_path("".join(x if x is not None else _HOLE for x in parts[i:]))
     return None
 
 
@@ -264,7 +332,9 @@ def _module_symbols(tree: ast.Module) -> _Symbols:
                     sym.consts[n] = value.value
         elif isinstance(value, ast.BinOp) and isinstance(value.op, ast.Div):
             path = chain_path([_segment(x, sym) for x in _div_leaves(value)])
-        elif isinstance(value, ast.Tuple):
+        elif isinstance(value, ast.BinOp) and isinstance(value.op, ast.Add):
+            path = concat_path([_segment(x, sym) for x in _add_leaves(value)])
+        elif isinstance(value, (ast.Tuple, ast.List)):
             path = tuple_path(value)
         elif isinstance(value, ast.Call):
             segs = _call_segments(value, sym)
@@ -417,8 +487,22 @@ class NotALinkError(RuntimeError):
     """外そうとした道筋がつなぎでない(何もしていない)。"""
 
 
+def _make_junction(target: Path, link: Path) -> None:
+    """Windows のつなぎ(junction)を作る(``_winapi.CreateJunction``=cmd を通さない・検収 L7。無い Python では ``mklink /J``)。"""
+    try:
+        import _winapi  # noqa: PLC0415 - Windows だけ
+
+        make = _winapi.CreateJunction
+    except (ImportError, AttributeError):
+        r = subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(target)], capture_output=True)
+        if r.returncode != 0:
+            raise RuntimeError(f"つなぎを作れなかった: {r.stderr.decode('cp932', 'replace')[-300:]}") from None
+        return
+    make(str(target), str(link))
+
+
 def place_data_link(tree_root: Path, target: Path) -> Path:
-    """``tree_root/data`` を ``target`` へのつなぎにする(Windows は ``mklink /J``・それ以外は記号のリンク)。"""
+    """``tree_root/data`` を ``target`` へのつなぎにする(Windows は junction・それ以外は記号のリンク)。"""
     link = tree_root / "data"
     if link.exists() or is_link(link):
         raise FileExistsError(f"写しの木に data が既にある: {link}")
@@ -426,9 +510,9 @@ def place_data_link(tree_root: Path, target: Path) -> Path:
     if not tgt.is_dir():
         raise FileNotFoundError(f"つなぎの先が無い: {target}")
     if os.name == "nt":
-        r = subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(tgt)], capture_output=True)
-        if r.returncode != 0 or not link.is_junction():
-            raise RuntimeError(f"つなぎを作れなかった: {r.stderr.decode('cp932', 'replace')[-300:]}")
+        _make_junction(tgt, link)
+        if not link.is_junction():
+            raise RuntimeError(f"つなぎを作れなかった: {link}")
     else:
         os.symlink(tgt, link, target_is_directory=True)
     return link
@@ -437,20 +521,44 @@ def place_data_link(tree_root: Path, target: Path) -> Path:
 def remove_link(path: str | Path) -> None:
     """つなぎ(か記号のリンク)だけを外す。つなぎでなければ :class:`NotALinkError`(何も消さない)。
 
-    Windows は ``cmd /c rmdir <道筋>``(``/s`` なし=中に入らない)・それ以外は ``os.unlink``。外した後に道筋が残っていれば
-    ``RuntimeError``。
+    Windows は ``os.rmdir``(つなぎそのものを外す=先の中に入らない・cmd を通さない=検収 L7)・それ以外は ``os.unlink``。
+    外した後に道筋が残っていれば ``RuntimeError``。
     """
     p = Path(path)
     if not is_link(p):
         raise NotALinkError(f"つなぎでない(外さない): {p}")
     if os.name == "nt":
-        r = subprocess.run(["cmd", "/c", "rmdir", str(p)], capture_output=True)
-        if r.returncode != 0:
-            raise RuntimeError(f"つなぎを外せなかった: {r.stderr.decode('cp932', 'replace')[-300:]}")
+        os.rmdir(p)
     else:
         os.unlink(p)
     if p.exists() or is_link(p):
         raise RuntimeError(f"つなぎが残っている: {p}")
+
+
+def in_git_worktree(path: str | Path) -> bool:
+    """``path``(無ければ在る一番近い親)が git の作業木の中か(検収 M4: 写しの木が作業木の中にあると、根を上へ辿る読み口が
+    作業木の docs を読む)。git が無ければ False。"""
+    p = Path(os.path.abspath(str(path)))
+    while not p.exists() and p != p.parent:
+        p = p.parent
+    try:
+        r = subprocess.run(["git", "-C", str(p), "rev-parse", "--is-inside-work-tree"], capture_output=True)
+    except OSError:
+        return False
+    return r.returncode == 0 and r.stdout.strip() == b"true"
+
+
+def src_files_digest(src_dir: str | Path, rels: Iterable[str]) -> dict[str, str | None]:
+    """``src_dir`` の下のファイル(``src_dir`` からの posix の道筋)のバイトの sha256 の頭 16 桁(無ければ None)。
+
+    ``one`` が読んだ ``shibuya`` のモジュールの digest(``src_files``)と同じ作り方。run が基準の側の digest を写しの木と
+    照らす(検収 M1)。"""
+    s = Path(src_dir)
+    out: dict[str, str | None] = {}
+    for rel in rels:
+        f = s / rel
+        out[rel] = hashlib.sha256(f.read_bytes()).hexdigest()[:16] if f.is_file() else None
+    return out
 
 
 def python_prefixes() -> tuple[str, ...]:

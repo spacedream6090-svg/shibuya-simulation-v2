@@ -5,7 +5,8 @@
 
     python tools/bytecheck/cli.py run --work C:\\bc<N> --out-dir <記録の置き場> --jobs 6
 
-終了コード: 0=全部同じ・1=動いた欄がある・2=誤り(引数・ランの誤り・写しの木の不足・つなぎを外せなかった)。
+終了コード: 0=全部同じ・1=動いた欄がある・2=誤り(引数・ランの誤り・写しの木の不足・読んだ src の違い・条件の違い・
+つなぎを外せなかった)。比べるものと比べない欄は README.md の「何を確かめるか」。
 """
 
 from __future__ import annotations
@@ -68,12 +69,16 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--multiset-items", default="")
     sp.add_argument("--allow-incomplete-tree", action="store_true")
     sp.add_argument("--commit", default="", help="side の JSON に書く commit(記録だけ)")
+    sp.add_argument("--extra-path", action="append", default=[],
+                    help="写しの一覧に足す追跡ファイル(run の --extra-path と同じ=開いても一覧に無いとは数えない)")
 
     sp = sub.add_parser("compare", help="side の JSON 2 本を比べる")
     sp.add_argument("--a", required=True)
     sp.add_argument("--b", required=True)
     sp.add_argument("--note", default="")
     sp.add_argument("--out", required=True)
+    sp.add_argument("--strict", action="store_true",
+                    help="新しい欄や条件の欄が記録に無いことも誤り(2)にする(run は常に strict)")
 
     sp = sub.add_parser("one", help="1 構成を回す(side が呼ぶ)")
     _common(sp)
@@ -101,9 +106,9 @@ def main(argv: list[str] | None = None) -> int:
             return K.side(label=a.label, scratch=a.scratch, out=a.out, src=a.src, set_name=a.set_name, only=a.only,
                           jobs=a.jobs, kw=a.kw, world=a.world, agents=a.agents, seed=a.seed,
                           drop_behavior_item=a.drop_behavior_item, multiset_items=a.multiset_items,
-                          allow_incomplete_tree=a.allow_incomplete_tree, commit=a.commit)
+                          allow_incomplete_tree=a.allow_incomplete_tree, commit=a.commit, extra_paths=a.extra_path)
         if a.cmd == "compare":
-            return K.compare(a=a.a, b=a.b, out=a.out, note=a.note)
+            return K.compare(a=a.a, b=a.b, out=a.out, note=a.note, strict=a.strict)
         return K.cmd_one(config=a.config, tape=a.tape, world=a.world, agents=a.agents, seed=a.seed, kw=a.kw,
                          drop_behavior_item=a.drop_behavior_item, multiset_items=a.multiset_items,
                          expect_src=a.expect_src, scratch=a.scratch)

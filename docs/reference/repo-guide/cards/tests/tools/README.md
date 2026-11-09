@@ -74,51 +74,94 @@ tools/instruments/batch_width_gauge.py(第 3 期 3-2・TM4 の既定の幅の試
 
 ## [test_bytecheck.py](../../../../../../tests/tools/test_bytecheck.py)
 
-tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長いランも要らない単体だけ(CI の ci-1 で回る)。
+tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長いランも要らない(CI の ci-1 で回る)。
 
 - 公開の関数とクラス
   - `clean_env`(関数)
+  - `fake`(関数)
   - `old10e`(関数)
   - `refs`(関数)
+  - `stop_before_copy`(関数): 断るはずの run が先へ進んだら、写しの木もつなぎも作らずに落とす(壊れた道具でもリポや data に触れない)。
   - `test_all19_is_the_old_table`(関数)
   - `test_all19_matches_the_v30a_record`(関数)
   - `test_archive_paths`(関数)
+  - `test_arrow_schema_sees_types_nullability_and_metadata`(関数)
   - `test_audit_hook_records_opens`(関数)
+  - `test_checkpoint_rows_keep_every_field`(関数)
   - `test_classify_reads`(関数)
   - `test_cli_exit_codes`(関数)
+  - `test_compare_condition_mismatch_is_2`(関数): 検収 M3: 体数・seed・組・切替口・引数・世界・ハッシュを弱める口・PYTHONHASHSEED が違えば値が同じでも誤り。
+  - `test_compare_config_only_in_b_is_2`(関数)
+  - `test_compare_each_new_key_moves`(関数)
   - `test_compare_errors_are_2_even_when_values_match`(関数)
+  - `test_compare_ignores_the_fleet_key_in_hidden_env`(関数)
   - `test_compare_json_has_no_absolute_path`(関数)
   - `test_compare_keys_are_the_25_of_10e`(関数)
+  - `test_compare_lacking_25_keys_is_2`(関数): 検収 M3: 25 欄が両側とも欠けた行・片側だけ欠けた行は誤り。
+  - `test_compare_manifest_and_run_meta_name_the_moved_fields`(関数)
   - `test_compare_moved_and_error_is_2`(関数)
   - `test_compare_moved_is_1_and_names_the_field`(関数)
-  - `test_compare_reads_old_records_without_new_fields`(関数)
+  - `test_compare_nan_is_same_and_type_change_moves`(関数): 検収 L6: NaN は「動いた」にしない。0 と 0.0 は違う値。
+  - `test_compare_reads_old_records_without_new_fields`(関数): 古い記録(新しい欄が無い)は 25 欄を比べて 0。新しい欄は「比べていない」と注を付け、同じとは数えない。strict なら 2。
   - `test_compare_same_is_0_and_wall_clock_is_not_compared`(関数)
+  - `test_compare_with_no_configs_is_2`(関数): 検収 M3: 構成が 0 のまま「同じ」を返さない。
+  - `test_diff_and_named_moves`(関数)
   - `test_engine_anchor_files_are_in_the_list`(関数)
   - `test_every_shibuya_env_in_src_is_listed`(関数)
   - `test_every_tracked_path_in_src_is_classified`(関数)
+  - `test_fake_extra_path_is_listed_and_outside_reads_are_recorded`(関数): 検収 M2: --extra-path で足したファイルは一覧に無いと数えない。検収 M4: 外で開いたファイルは記録する(誤りにしない)。
+  - `test_fake_one_reports_a_src_other_than_expected`(関数)
+  - `test_fake_read_above_the_tree_is_an_error`(関数)
+  - `test_fake_read_in_the_tool_repo_is_foreign`(関数)
+  - `test_fake_read_of_an_unlisted_tracked_file_is_an_error`(関数)
+  - `test_fake_side_runs_with_the_given_src`(関数)
+  - `test_fake_two_runs_differing_only_in_skipped_fields_are_same`(関数)
+  - `test_fake_variant_moves_exactly_the_expected_fields`(関数)
+  - `test_field_digest_ignores_only_the_skipped_fields`(関数)
   - `test_git_archive_copy_and_tree_missing`(関数)
   - `test_hash_functions_are_the_old_ones`(関数)
   - `test_head_tree_files_cover_the_old_list`(関数)
   - `test_listed_files_are_really_referenced_in_src`(関数)
   - `test_listed_tracked_files_exist_and_are_tracked`(関数)
+  - `test_loaded_src_files_and_digest`(関数)
   - `test_mask_paths_hides_repo_tree_home_and_python`(関数)
-  - `test_one_emits_every_field_of_10e`(関数)
+  - `test_mask_paths_ignores_case_on_windows`(関数)
+  - `test_nan_survives_the_side_json_round_trip`(関数)
+  - `test_new_key_changes_cover_every_new_key`(関数)
+  - `test_new_keys_and_skip_lists_are_pinned`(関数): 比べるものと比べない欄の一覧を固定する(足す・外すは README とこの試験を一緒に直す)。
+  - `test_one_emits_every_field_of_10e_and_the_new_ones`(関数)
   - `test_opened_outside`(関数)
   - `test_package_metadata_reads_are_not_foreign`(関数): 第346 親: 本体から回したときの editable の名札の読みは「道具のリポを開いた」に数えない。
   - `test_parent4_and_arms_sets`(関数)
   - `test_place_and_remove_link_keeps_the_target`(関数)
+  - `test_readme_names_every_compared_and_skipped_field`(関数)
   - `test_remove_link_refuses_a_real_directory_and_keeps_its_content`(関数)
   - `test_root_reader_files_are_declared`(関数)
+  - `test_run_checks_that_base_read_the_copy`(関数)
+  - `test_run_checks_the_src_digest_against_the_files`(関数): 検収 M1: 基準の側が読んだ src の digest が写しの木と違えば(比べる側も同じく)2。
+  - `test_run_does_not_compare_a_json_from_an_earlier_run`(関数): 検収 L5: side が JSON を書かずに戻ったとき、置き場に残った前のランの JSON と比べない。
+  - `test_run_gives_the_tree_src_to_base_and_the_given_src_to_work`(関数)
+  - `test_run_is_2_when_a_side_failed_even_if_values_match`(関数)
+  - `test_run_is_strict_about_missing_new_fields`(関数): run は両側を今の道具で回す=新しい欄が無ければ「比べていない」で済ませず 2(compare は strict)。
   - `test_run_refuses_a_non_empty_work_dir`(関数)
-  - `test_run_refuses_stray_env_and_bad_commit`(関数)
+  - `test_run_refuses_a_work_dir_inside_a_git_worktree`(関数): 検収 M4: 写しの木が作業木の中にあると、根を上へ辿る読み口が作業木の docs を読む=断る。
+  - `test_run_refuses_stray_env_bad_commit_and_bad_kw`(関数)
+  - `test_same_value_is_canonical_json`(関数)
+  - `test_scanner_finds_the_l2_forms`(関数)
   - `test_scanner_negative_control_finds_an_unlisted_read`(関数)
   - `test_scanner_patterns`(関数)
-  - `test_side_stops_on_an_incomplete_tree_without_running`(関数)
+  - `test_side_stops_on_an_incomplete_tree_or_bad_kw_without_running`(関数)
+  - `test_sort_reads`(関数): 検収 M1(M08・M16)・M4: 写しの木の追跡ファイル・道具のリポ(src も)・写しの木の上の階・外を仕分ける。
+  - `test_strip_skipped_removes_only_the_named_fields`(関数)
   - `test_switch_env_keeps_the_old_list_except_the_path_one`(関数)
   - `test_switch_env_records_values_and_hidden_names_only`(関数)
+  - `test_tape_files_and_sha256`(関数)
+  - `test_tree_label_and_mask_outside`(関数): 検収 L8: 比べる側(道具のリポ)の誤りの文は <repo>。外の道筋は <abs>/… にしてドライブを出さない。
+  - `test_worktree_commit_marks_dirty_tracked_reads`(関数): 検収 M1(M17)・L9: 作業木の src なら HEAD・src の外のエンジンが読む追跡ファイルの変更も +dirty に数える。
   - `wave2`(関数)
-- import している内部モジュール: `tools/bytecheck/check.py`・`tools/bytecheck/cli.py`・`tools/bytecheck/configs.py`・`tools/bytecheck/tree.py`
-- 環境変数: `SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CONTACT`・`SHIBUYA_FLEET_API_KEY`・`os.environ` をまるごと使う
+  - `wired`(関数)
+- import している内部モジュール: `tools/bytecheck/check.py`・`tools/bytecheck/cli.py`・`tools/bytecheck/configs.py`・`tools/bytecheck/fields.py`・`tools/bytecheck/tree.py`
+- 環境変数: `SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CONTACT`・`SHIBUYA_FLEET_API_KEY`・名前を読めない所 5 か所・`os.environ` をまるごと使う
 - 決定の ID: 11-09/§2・第 346
 
 ## [test_commit_check.py](../../../../../../tests/tools/test_commit_check.py)

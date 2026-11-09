@@ -11,7 +11,7 @@ Python 60 本・その他 0 本(このディレクトリの直下)
 engine: 時計/スケジューラ/繰り延べアービタ/resolve/二相コミット=世界状態への唯一の書き込み口。
 
 - import している内部モジュール: `shibuya.engine.arbiter`・`shibuya.engine.change_detect`・`shibuya.engine.clock`・`shibuya.engine.commit`・`shibuya.engine.scheduler`・`shibuya.engine.tape`
-- 読む試験(道筋で): `tests/tools/test_repo_guide.py`
+- 読む試験(道筋で): `tests/tools/test_bytecheck.py`・`tests/tools/test_repo_guide.py`
 
 ## [absent_processes.py](../../../../../../../src/shibuya/engine/absent_processes.py)
 

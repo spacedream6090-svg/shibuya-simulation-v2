@@ -106,7 +106,7 @@
 | [tools/bench/event_cost](tools/bench/event_cost/README.md) | 1 | 0 |
 | [tools/bench_spikes](tools/bench_spikes/README.md) | 3 | 0 |
 | [tools/build_geo](tools/build_geo/README.md) | 1 | 0 |
-| [tools/bytecheck](tools/bytecheck/README.md) | 5 | 1 |
+| [tools/bytecheck](tools/bytecheck/README.md) | 6 | 1 |
 | [tools/c6](tools/c6/README.md) | 7 | 0 |
 | [tools/c7](tools/c7/README.md) | 11 | 1 |
 | [tools/c8](tools/c8/README.md) | 5 | 3 |
