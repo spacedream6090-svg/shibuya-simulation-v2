@@ -16,3 +16,13 @@
 | 小 | まだ動いていた「無い」の過程 5 件(ごみ収集・清掃・道路工事・救急の出動・電気と水)を既定で止める(#136・11-02r #7)。既定の final は不変・変わるのは過程の計数と ActualLog。性能 5,000 体 50.0 s/34.7 ms/511 MB(同じ日の土台 49.6〜51.2 s=揺れの範囲) | 4566492 | `stable-v2-before-absent-5`(1c137c6) | `git checkout stable-v2-before-absent-5` か `--absent-processes legacy`(環境変数 `SHIBUYA_ABSENT_PROCESSES=legacy`・次の版上げで消す) |
 | 小 | 棚卸し B の欠陥 4 件(M10・M11・M28・M16)の直し(#138・11-03 §3)。既定の final 73aa01d9 → c8d68704・呼数 61,066 → 60,939。性能 5,000 体 60.5/61.8 s・42〜43 ms・最大 520〜527 MB(同じ巡の土台 62.8/61.8 s=揺れの範囲) | 8165b3d | `stable-v2-before-defect-fixes-1103`(3b375dc) | `git checkout stable-v2-before-defect-fixes-1103` か `--defect-fixes-1103 legacy`(環境変数 `SHIBUYA_DEFECT_FIXES_1103=legacy`・次の版上げで消す) |
 | 実証の線 | 39 万体 × 1 日の実 LLM(C7 受入) | 8f78065 | `v2-c7-day-4-accepted` | — |
+
+## 版上げと整理の段の手順(byte-check)
+
+〔第346・2026-11-09・[返事その 7](../design/prompt-2026-11-09-reply7.md) §2 の 4〕版上げと整理の段では、次の 1 行で byte-check を回す。基準は既定で HEAD、比べる側は既定で作業木の src。19 構成すべて 25 欄が同じなら終了コード 0、動いた欄があれば 1、誤りは 2。
+
+```
+python tools/bytecheck/cli.py run --work C:\bc<N> --out-dir <記録の置き場>/bytecheck --jobs 6
+```
+
+CI では回せない(data と約 7 分のランが要る)。**CI が緑でも決定論は確かめていない。** 使い方と確かめないことは [tools/bytecheck/README.md](../../tools/bytecheck/README.md)。
