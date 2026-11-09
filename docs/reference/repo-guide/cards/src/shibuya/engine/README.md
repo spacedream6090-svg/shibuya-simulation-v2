@@ -333,15 +333,13 @@ engine.economy_rules — 第 4 期 4-2 の規則の表の中身を経済の段�
 - 公開の関数とクラス
   - `PayrollInputs`(クラス): 給与の天引きの加入の判定の材料(体ごと・読むだけ)。
   - `arm`(関数): いまの腕(``on``=既定・``off``=4-2 の前の値の再現)。組み立てのときに読む。
-  - `arm_42b`(関数): 〔第 4 期 4-2b〕いまの腕(``on``=既定=空欄 3 件を埋めた値・``off``=4-2 の値の再現)。組み立てのときに読む。
   - `payroll_inputs`(関数): 体ごとの加入の判定の材料を組み立てる(:class:`PayrollInputs`)。表の無い世界・母集団の無いランは材料なし。
   - `set_arm`(関数): 腕を選ぶ(試験と byte-check の切替口)。
-  - `set_arm_42b`(関数): 〔第 4 期 4-2b〕腕を選ぶ(試験と byte-check の切替口)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.economy_stage2`
 - 呼び手: `shibuya.engine.economy_stage2`
 - 読む試験: `tests/economy/stage2/test_stage2_default_2_4.py`・`tests/economy/stage2/test_stage2_resume_arm.py`・`tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42_payroll.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_rules42b_payroll.py`・`tests/economy/test_wage_occupation.py`
 - 環境変数: `SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`
-- 決定の ID: 10-12・10-13b/§0-6・R-118
+- 決定の ID: 10-12・10-13b/§0-6・R-118・第 346
 
 ## [economy_stage2.py](../../../../../../../src/shibuya/engine/economy_stage2.py)
 
@@ -375,7 +373,7 @@ engine.economy_stage2 — 経済の段階 2 の腕と engine の側の組み立�
 - 読む試験: `tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/cp2/test_cp2_nine_ops_equivalence.py`・`tests/economy/stage2/test_stage2_atm_absent_warning.py`・`tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_default_2_4.py`・`tests/economy/stage2/test_stage2_guards.py`・`tests/economy/stage2/test_stage2_resume.py`・`tests/economy/stage2/test_stage2_resume_arm.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/stage2/test_stage2_world_two_day.py`・`tests/economy/stage2/test_wage_occupation_runs.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_wage_occupation.py`・`tests/engine/multiday/_md.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_pop_w21_world.py`
 - 読む試験(道筋で): `tests/economy/stage2/test_stage2_writers.py`
 - 環境変数: `SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_ECONOMY_STAGE2_PARTS`・`SHIBUYA_WAGE`
-- 決定の ID: 10-13b/§7・第 335
+- 決定の ID: 10-13b/§7・第 335・第 346
 
 ## [energy.py](../../../../../../../src/shibuya/engine/energy.py)
 

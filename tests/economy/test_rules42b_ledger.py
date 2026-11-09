@@ -1,9 +1,10 @@
-"""第 4 期 4-2b 給料日の台帳の動き(合成の台帳)と、合成の世界の 2 日のラン(腕 SHIBUYA_RULES_42B の on/off)。
+"""第 4 期 4-2b 給料日の台帳の動き(合成の台帳)と、合成の世界の 2 日のラン。
 
 - 給料日: 子ども・子育て拠出金は雇用主の分に足して「給与の天引き(雇用主 → 政府)」で移す・原資(外界 → 雇用主)=額面+
   雇用主の分・保存則の残差 0・4 本の流れの検算 0。70 歳以上は厚年と拠出金 0・75 歳以上は健保と支援金 0。
-- 腕 off(``PayrollInputs.rules_42b=False``)=4-2 の値(雇用主の分 4 項目・計器に拠出金の鍵なし)。
-- 再開: 見出しの ``rules_42b`` と今の腕が違えば止める。
+- 部品の単体試験の基準の口(``PayrollInputs.rules_42b=False`` を直に作る)=4-2 の値(雇用主の分 4 項目・計器に拠出金の鍵なし)。
+- 〔第346〕ランの切替口 ``SHIBUYA_RULES_42B`` は消した: 環境変数を与えると読み込みで止まる・組み立ては常に 4-2b の値・
+  見出しに ``rules_42b=on`` の無い状態のファイルからは再開できない(旧値の再現は安定版のタグ)。
 """
 
 from __future__ import annotations
@@ -92,7 +93,8 @@ def test_payday_moves_the_child_care_contribution_with_the_employer_share():
     assert led.economy_record()["stage2"]["plan"]["rules_42b"] == "on"
 
 
-def test_off_keeps_the_4_2_values_and_records():
+def test_the_unit_base_port_keeps_the_4_2_values_and_records():
+    """部品の単体試験の基準の口(``rules_42b=False`` を直に作る=ランの口からは選べない)は 4-2 の値と記録のまま。"""
     led, gross, want = _payday(False)
     w = led.meter.last_day["stage2"]["wages"]
     assert "employer_child_care_contribution" not in w and "enrolled_pension" not in w
@@ -115,26 +117,34 @@ def test_on_minus_off_is_the_contribution_and_the_age_caps():
 
 
 # ================================================================ 再開の見出し
-def test_resume_refuses_a_different_rules_42b_arm(monkeypatch):
+def test_resume_refuses_a_header_without_rules_42b(monkeypatch):
+    """〔第346〕見出しに ``rules_42b=on`` の無い状態のファイル(4-2 の値のラン)からは再開できない(切替口は消した)。"""
     monkeypatch.setattr(ES2, "_ARM", ES2.ARM_ON)
     monkeypatch.setattr(ER, "_ARM", ER.ARM_ON)
-    monkeypatch.setattr(ER, "_ARM_42B", ER.ARM_ON)
     on = ES2.header_fields(types.SimpleNamespace(parts=ES2.PARTS, wage_model=ES2.wage_arm(), law=_inputs(True)))
     off = ES2.header_fields(types.SimpleNamespace(parts=ES2.PARTS, wage_model=ES2.wage_arm(), law=_inputs(False)))
     assert on["rules_42b"] == "on" and "rules_42b" not in off and off["rules_42"] == "on"
     ES2.check_resume(on)
-    with pytest.raises(ValueError, match="空欄 3 件の腕"):
+    with pytest.raises(ValueError, match="空欄 3 件の腕.*消した.*stable-v2-before-switch-removal-346"):
         ES2.check_resume(off)
-    ER.set_arm_42b(ER.ARM_OFF)
-    ES2.check_resume(off)
     with pytest.raises(ValueError, match="空欄 3 件の腕"):
-        ES2.check_resume(on)
+        ES2.check_resume({**on, "rules_42b": "off"})
 
 
-def test_the_arm_is_read_from_the_environment_name():
-    assert ER.ENV_42B == "SHIBUYA_RULES_42B" and ER.DEFAULT_ARM_42B == ER.ARM_ON
-    with pytest.raises(ValueError):
-        ER.set_arm_42b("maybe")
+def test_removed_rules_42b_switch_env_stops():
+    """〔第346〕消した切替口: 環境変数 SHIBUYA_RULES_42B を与えると読み込みで止まる・腕を選ぶ口は無い。"""
+    import os
+    import subprocess
+    import sys
+
+    assert ER.ENV_42B_REMOVED == "SHIBUYA_RULES_42B" and ER.REMOVED_SWITCH_TAG == "stable-v2-before-switch-removal-346"
+    for name in ("arm_42b", "set_arm_42b", "ENV_42B", "DEFAULT_ARM_42B", "_ARM_42B"):
+        assert not hasattr(ER, name), name
+    for value in ("off", "on"):
+        env = {**os.environ, "SHIBUYA_RULES_42B": value, "PYTHONIOENCODING": "utf-8"}
+        r = subprocess.run([sys.executable, "-c", "import shibuya.engine.economy_rules"], env=env, capture_output=True,
+                           text=True, encoding="utf-8")
+        assert r.returncode != 0 and "消した切替口" in r.stderr and ER.REMOVED_SWITCH_TAG in r.stderr
 
 
 # ================================================================ 合成の世界の 2 日(給料日 2026-08-25 をまたぐ)
@@ -147,8 +157,6 @@ def law(monkeypatch):
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)
     monkeypatch.setattr(ER, "_ARM", ER.ARM_ON)
-    monkeypatch.setattr(ER, "_ARM_42B", ER.ARM_ON)
-    return ER.set_arm_42b
 
 
 def _run(sim_days: int = 2):
@@ -162,32 +170,25 @@ def _run(sim_days: int = 2):
     return res, led
 
 
-def test_two_synthetic_days_on_and_off(law):
+def test_two_synthetic_days(law):
+    """合成の世界の 2 日(給料日をまたぐ)=4-2b の値で天引き(〔第346〕4-2 の値のランとの比べは旧値の切替口と一緒に消した=
+    差は部品の口の :func:`test_on_minus_off_is_the_contribution_and_the_age_caps` が見る)。"""
     on, led_on = _run()
-    law(ER.ARM_OFF)
-    off, led_off = _run()
-    r_on, r_off = led_on.stage2.s2_meter["run"]["wages"], led_off.stage2.s2_meter["run"]["wages"]
-    assert led_on.stage2.law.rules_42b is True and led_off.stage2.law.rules_42b is False
-    assert r_on["paid"] == r_off["paid"] > 0 and r_on["amount"] == r_off["amount"]
-    # 合成の世界は加入の判定の材料なし=源泉と住民税だけ・住民税は基礎控除と調整控除と非課税の分だけ小さい
-    assert r_on["employee_income_tax"] == r_off["employee_income_tax"]
-    assert 0 <= r_on["employee_resident_tax"] < r_off["employee_resident_tax"]
-    assert r_on["employer_share_amount"] == r_off["employer_share_amount"] == 0
-    for res in (on, off):
-        assert res.conserved
-        for d in res.run_manifest_fields()["daily"]:
-            c = d["economy"]["conservation"]
-            assert c["ok"] is True and c["residual"] == 0 and c["unregistered"] == 0
+    r_on = led_on.stage2.s2_meter["run"]["wages"]
+    assert led_on.stage2.law.rules_42b is True
+    assert r_on["paid"] > 0 and r_on["amount"] > 0
+    # 合成の世界は加入の判定の材料なし=源泉と住民税だけ(雇用主の分は 0)
+    assert r_on["employee_income_tax"] > 0 and r_on["employee_resident_tax"] >= 0
+    assert r_on["employer_share_amount"] == 0
+    assert on.conserved
+    for d in on.run_manifest_fields()["daily"]:
+        c = d["economy"]["conservation"]
+        assert c["ok"] is True and c["residual"] == 0 and c["unregistered"] == 0
     assert on.run_manifest_fields()["economy"]["stage2"]["plan"]["rules_42b"] == "on"
-    assert "rules_42b" not in off.run_manifest_fields()["economy"]["stage2"]["plan"]
-    # 給料日の前(1 日目)までは同じ=腕は天引きの額だけを変える
-    assert on.llm_calls == off.llm_calls
 
 
-def test_payroll_inputs_carry_the_arm_at_build_time(law):
-    law(ER.ARM_OFF)
-    assert ER.payroll_inputs(None, None, 3, np.zeros(3)).rules_42b is False
-    law(ER.ARM_ON)
+def test_payroll_inputs_are_always_4_2b_at_build_time(law):
+    """〔第346〕組み立ては常に ``rules_42b`` 真(切替口は消した)。偽は直に作る部品の口だけ。"""
     inp = ER.payroll_inputs(None, None, 3, np.zeros(3))
     assert inp.rules_42b is True and "rules_42b" not in inp.record()  # 設定の節 plan.law は 4-2 のまま
     assert dataclasses.replace(inp, rules_42b=False).rules_42b is False

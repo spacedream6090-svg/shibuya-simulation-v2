@@ -67,7 +67,8 @@ def test_one_person_month_matches_the_hand_calculation():
 
 
 def test_off_reproduces_the_4_2_values():
-    """腕 off(``r42b=False``)=4-2 の値(f27377a の手計算)・雇用主の分は 4 項目・記録に年齢の欄なし。"""
+    """部品の単体試験の基準の口(``r42b=False``・〔第346〕ランの切替口は消した)=4-2 の値(f27377a の手計算)・雇用主の分は
+    4 項目・記録に年齢の欄なし。"""
     d = _ded([300_000], [45], r42b=False)
     assert int(d.employee["resident_tax"][0]) == 16_099 and int(d.employee_total[0]) == 68_849
     assert tuple(d.employer) == TX.EMPLOYER_ITEMS_42 and int(d.employer_total[0]) == 47_550

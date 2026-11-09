@@ -50,10 +50,11 @@
 原資(外界の売上=faucet)は額面+雇用主の分。外の雇用主(閉じた表の外)の体は外界が額面を払い、本人の分だけ政府へ(雇用主の分は
 範囲の外=記録しない)。納付は給料日の締めに即時(現実は翌月 10 日・翌月末=未リサーチ(expedient)・台帳
 ``DOC-rules42-remit-timing``)。腕 ``off`` は 4-2 の前の値の再現(天引き 0)=次の版上げで消す。記録 ``rules42/README.md``。
-〔第 4 期 4-2b〕腕 ``SHIBUYA_RULES_42B=on``(既定・manifest の鍵 ``economy.stage2.plan.rules_42b``・組み立ての物の
-``PayrollInputs.rules_42b``)は規則の表の空欄 3 件を埋めた値(住民税の基礎控除・調整控除・非課税/厚年 70 歳・健保 75 歳/
-子ども・子育て拠出金=事業主だけ=雇用主の分に足して同じ「給与の天引き(雇用主 → 政府)」で移す)。``off`` は 4-2 の値の再現
-(次の版上げで消す)。記録 ``rules42b/README.md``。
+〔第 4 期 4-2b〕天引きは規則の表の空欄 3 件を埋めた値(manifest の鍵 ``economy.stage2.plan.rules_42b``=``on``・組み立ての物の
+``PayrollInputs.rules_42b``=常に真)で行う(住民税の基礎控除・調整控除・非課税/厚年 70 歳・健保 75 歳/子ども・子育て拠出金=
+事業主だけ=雇用主の分に足して同じ「給与の天引き(雇用主 → 政府)」で移す)。記録 ``rules42b/README.md``。〔第346〕4-2 の値の
+再現の切替口 ``SHIBUYA_RULES_42B=off`` は消した(旧値の再現は安定版のタグ ``stable-v2-before-switch-removal-346``)。
+``PayrollInputs.rules_42b`` を偽にして直に作る物は部品の単体試験の基準の口(4-2 の値・ランの口からは選べない)。
 
 つなぎの台帳の行(``docs/design/bridging-ledger.json``・宣言の場所=記録 ``ec21/README.md``): ``DOC-ec21-*``。
 
@@ -196,7 +197,7 @@ def payroll_deductions(gross: np.ndarray, asof: "str | _dt.date", *, inputs: Any
 
 
 def _r42b(inputs: Any) -> bool:
-    """〔第 4 期 4-2b〕加入の判定の材料が持つ腕(``PayrollInputs.rules_42b``=組み立てで読んだ ``SHIBUYA_RULES_42B``)。"""
+    """〔第 4 期 4-2b〕加入の判定の材料が持つ印(``PayrollInputs.rules_42b``=組み立ては常に真・偽は単体試験の基準の口)。"""
     return bool(getattr(inputs, "rules_42b", True))
 
 

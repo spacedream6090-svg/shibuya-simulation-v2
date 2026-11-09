@@ -25,7 +25,8 @@ from shibuya.economy import taxes as TX
 from shibuya.engine import economy_rules as ER
 
 ASOF = "2026-08-25"
-#: 〔第 4 期 4-2b〕本書は 4-2 の値(腕 ``SHIBUYA_RULES_42B=off``=旧道)の手計算をそのまま通す。4-2b の値(基礎控除・調整控除・
+#: 〔第 4 期 4-2b〕本書は 4-2 の値(``r42b=False``=部品の単体試験の基準の口・〔第346〕ランの切替口は消した)の手計算をそのまま
+#: 通す。4-2b の値(基礎控除・調整控除・
 #: 非課税・年齢の上限・子ども・子育て拠出金)は ``test_rules42b_payroll.py``。
 R42B = False
 

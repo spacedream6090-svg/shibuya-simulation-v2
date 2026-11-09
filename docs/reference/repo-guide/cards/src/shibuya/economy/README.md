@@ -246,7 +246,7 @@ economy.stage2 — 経済の段階 2(第 2 期 2-1・CP2 の段階 2・腕 ``--e
 - 呼び手: `shibuya.cli`・`shibuya.economy.ledger`
 - 読む試験: `tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_default_2_4.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/test_min_wage_human_bridge.py`・`tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_wage_occupation.py`
 - 読む試験(道筋で): `tests/economy/stage2/test_stage2_writers.py`
-- 決定の ID: 10-12・10-12/§4-11・10-13b/§0-3・10-13b/§7・11-01/§5・R-107
+- 決定の ID: 10-12・10-12/§4-11・10-13b/§0-3・10-13b/§7・11-01/§5・R-107・第 346
 
 ## [tax_deposit.py](../../../../../../../src/shibuya/economy/tax_deposit.py)
 
@@ -287,7 +287,7 @@ economy.taxes — 第 4 期 4-2 の規則の表の machine の行の読み手(�
 - 呼び手: `shibuya.economy.credit`・`shibuya.economy.stage2`・`shibuya.economy.tax_deposit`
 - 読む試験: `tests/economy/test_min_wage_human_bridge.py`・`tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42_payroll.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_rules42b_payroll.py`・`tests/engine/rules/test_rules42_table.py`
 - 読む試験(道筋で): `tests/engine/rules/test_rules_table_schema.py`
-- 決定の ID: 10-12/§4-11・R-118
+- 決定の ID: 10-12/§4-11・R-118・第 346
 
 ## [wages.py](../../../../../../../src/shibuya/economy/wages.py)
 

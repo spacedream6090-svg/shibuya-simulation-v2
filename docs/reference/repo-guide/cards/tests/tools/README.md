@@ -136,6 +136,7 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
   - `test_place_and_remove_link_keeps_the_target`(関数)
   - `test_readme_names_every_compared_and_skipped_field`(関数)
   - `test_remove_link_refuses_a_real_directory_and_keeps_its_content`(関数)
+  - `test_removed_env_names_still_appear_in_src_as_the_stop`(関数): 〔第346〕消した切替口の名は src に残る(与えると読み込みで止める文)=SWITCH_ENV に戻さない。
   - `test_root_reader_files_are_declared`(関数)
   - `test_run_checks_that_base_read_the_copy`(関数)
   - `test_run_checks_the_src_digest_against_the_files`(関数): 検収 M1: 基準の側が読んだ src の digest が写しの木と違えば(比べる側も同じく)2。
@@ -153,7 +154,7 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
   - `test_side_stops_on_an_incomplete_tree_or_bad_kw_without_running`(関数)
   - `test_sort_reads`(関数): 検収 M1(M08・M16)・M4: 写しの木の追跡ファイル・道具のリポ(src も)・写しの木の上の階・外を仕分ける。
   - `test_strip_skipped_removes_only_the_named_fields`(関数)
-  - `test_switch_env_keeps_the_old_list_except_the_path_one`(関数)
+  - `test_switch_env_keeps_the_old_list_except_the_path_one_and_the_removed`(関数)
   - `test_switch_env_records_values_and_hidden_names_only`(関数)
   - `test_tape_files_and_sha256`(関数)
   - `test_tree_label_and_mask_outside`(関数): 検収 L8: 比べる側(道具のリポ)の誤りの文は <repo>。外の道筋は <abs>/… にしてドライブを出さない。

@@ -236,7 +236,7 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
   - `test_the_care_rate_is_only_for_ages_40_to_64`(関数)
   - `test_without_inputs_nothing_is_enrolled_but_taxes_apply`(関数)
 - import している内部モジュール: `shibuya.economy.taxes`・`shibuya.engine.economy_rules`・`shibuya.engine.rules.table`
-- 決定の ID: R-118・R-118 §1-2 #9
+- 決定の ID: R-118・R-118 §1-2 #9・第 346
 
 ## [test_rules42_runs.py](../../../../../../tests/economy/test_rules42_runs.py)
 
@@ -254,20 +254,21 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
 
 ## [test_rules42b_ledger.py](../../../../../../tests/economy/test_rules42b_ledger.py)
 
-第 4 期 4-2b 給料日の台帳の動き(合成の台帳)と、合成の世界の 2 日のラン(腕 SHIBUYA_RULES_42B の on/off)。
+第 4 期 4-2b 給料日の台帳の動き(合成の台帳)と、合成の世界の 2 日のラン。
 
 - 公開の関数とクラス
   - `law`(関数)
-  - `test_off_keeps_the_4_2_values_and_records`(関数)
   - `test_on_minus_off_is_the_contribution_and_the_age_caps`(関数)
   - `test_payday_moves_the_child_care_contribution_with_the_employer_share`(関数)
-  - `test_payroll_inputs_carry_the_arm_at_build_time`(関数)
-  - `test_resume_refuses_a_different_rules_42b_arm`(関数)
+  - `test_payroll_inputs_are_always_4_2b_at_build_time`(関数): 〔第346〕組み立ては常に ``rules_42b`` 真(切替口は消した)。偽は直に作る部品の口だけ。
+  - `test_removed_rules_42b_switch_env_stops`(関数): 〔第346〕消した切替口: 環境変数 SHIBUYA_RULES_42B を与えると読み込みで止まる・腕を選ぶ口は無い。
+  - `test_resume_refuses_a_header_without_rules_42b`(関数): 〔第346〕見出しに ``rules_42b=on`` の無い状態のファイル(4-2 の値のラン)からは再開できない(切替口は消した)。
   - `test_stage_b_payday_has_no_undeclared_writes`(関数): 段 B(系の前後で変わった欄 ⊆ 宣言・``SHIBUYA_SYSTEMS_CHECK=1``): 給料日(2026-08-25 の締め)を含む合成の 2 日で宣言の外 0。
-  - `test_the_arm_is_read_from_the_environment_name`(関数)
-  - `test_two_synthetic_days_on_and_off`(関数)
+  - `test_the_unit_base_port_keeps_the_4_2_values_and_records`(関数): 部品の単体試験の基準の口(``rules_42b=False`` を直に作る=ランの口からは選べない)は 4-2 の値と記録のまま。
+  - `test_two_synthetic_days`(関数): 合成の世界の 2 日(給料日をまたぐ)=4-2b の値で天引き(〔第346〕4-2 の値のランとの比べは旧値の切替口と一緒に消した=
 - import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.taxes`・`shibuya.engine.economy_rules`・`shibuya.engine.economy_stage2`・`shibuya.engine.events.log`・`shibuya.engine.ledger_api`・`shibuya.engine.run`・`shibuya.world.state`
-- 環境変数: `SHIBUYA_RULES_42B`・`SHIBUYA_SYSTEMS_CHECK`
+- 環境変数: `SHIBUYA_RULES_42B`・`SHIBUYA_SYSTEMS_CHECK`・`os.environ` をまるごと使う
+- 決定の ID: 第 346
 
 ## [test_rules42b_payroll.py](../../../../../../tests/economy/test_rules42b_payroll.py)
 
@@ -283,7 +284,7 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
   - `test_no_hard_coded_ages_or_amounts_in_the_reader`(関数): AST: 年齢の上限・控除の額・率・限度は規則の表から(読み手の taxes.py に直書きが無い)。
   - `test_non_taxable_end_to_end_both_levies_are_zero`(関数): 合計所得 45 万円以下は均等割も所得割も 0(境の上下を月の額面で)。未成年者は 135 万円以下で 0。
   - `test_non_taxable_limits_and_minor`(関数)
-  - `test_off_reproduces_the_4_2_values`(関数): 腕 off(``r42b=False``)=4-2 の値(f27377a の手計算)・雇用主の分は 4 項目・記録に年齢の欄なし。
+  - `test_off_reproduces_the_4_2_values`(関数): 部品の単体試験の基準の口(``r42b=False``・〔第346〕ランの切替口は消した)=4-2 の値(f27377a の手計算)・雇用主の分は
   - `test_one_person_month_matches_the_hand_calculation`(関数)
   - `test_pension_stops_at_70_and_health_at_75`(関数)
   - `test_resident_tax_is_zero_before_the_fiscal_year_row`(関数)
@@ -291,7 +292,7 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
   - `test_the_rows_are_the_r118_10_2_values`(関数): 写し検査: 表の値は R-118 §10-2 の表の値(43/29/15 万円・2,400/2,450/2,500 万円・5%・200 万円・2,500 円・45 万円・
   - `test_unknown_age_stays_inside_the_caps`(関数)
 - import している内部モジュール: `shibuya.economy.taxes`・`shibuya.engine.economy_rules`・`shibuya.engine.rules.table`
-- 決定の ID: R-118
+- 決定の ID: R-118・第 346
 
 ## [test_single_write_path.py](../../../../../../tests/economy/test_single_write_path.py)
 
@@ -352,4 +353,4 @@ T3(SFC の冗長方程式)の毎期検算(D-85 (a)・ユーザー決定 2026-09-
 - import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_sources`・`shibuya.cli`・`shibuya.core.wage_formula`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.wages`・`shibuya.engine.economy_rules`・`shibuya.engine.economy_stage2`・`shibuya.engine.events.log`・`shibuya.engine.rights.initial`
 - 読む試験: `tests/economy/test_min_wage_human_bridge.py`
 - 環境変数: `SHIBUYA_WAGE`・`os.environ` をまるごと使う
-- 決定の ID: 10-13b/§7・第 337
+- 決定の ID: 10-13b/§7・第 337・第 346

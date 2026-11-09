@@ -162,11 +162,22 @@ def test_hash_functions_are_the_old_ones(old10e, wave2):
 
 
 # ================================================================== 切替口の環境変数
-def test_switch_env_keeps_the_old_list_except_the_path_one(old10e):
+def test_switch_env_keeps_the_old_list_except_the_path_one_and_the_removed(old10e):
     old = set(old10e.SWITCH_ENV)
-    assert old - set(C.SWITCH_ENV) == {"SHIBUYA_CALENDAR_W20"}  # 値が道筋=名だけ残す側へ
+    # 値が道筋=名だけ残す側へ・〔第346〕消した切替口=REMOVED_ENV へ
+    assert old - set(C.SWITCH_ENV) == {"SHIBUYA_CALENDAR_W20"} | (old & set(C.REMOVED_ENV))
     assert "SHIBUYA_CALENDAR_W20" in C.HIDDEN_ENV
     assert not set(C.SWITCH_ENV) & set(C.HIDDEN_ENV)
+    assert not set(C.REMOVED_ENV) & (set(C.SWITCH_ENV) | set(C.HIDDEN_ENV))
+
+
+def test_removed_env_names_still_appear_in_src_as_the_stop():
+    """〔第346〕消した切替口の名は src に残る(与えると読み込みで止める文)=SWITCH_ENV に戻さない。"""
+    text = "\n".join(p.read_text(encoding="utf-8") for p in SRC.rglob("*.py"))
+    for name in C.REMOVED_ENV:
+        assert f'"{name}"' in text, name
+    assert C.switch_env({name: "x" for name in C.REMOVED_ENV}) == {}
+    assert C.hidden_env_names({name: "x" for name in C.REMOVED_ENV}) == sorted(C.REMOVED_ENV)
 
 
 def test_every_shibuya_env_in_src_is_listed():
@@ -174,7 +185,7 @@ def test_every_shibuya_env_in_src_is_listed():
     for p in SRC.rglob("*.py"):
         names |= set(re.findall(r"[\"'](SHIBUYA_[A-Z0-9_]+)[\"']", p.read_text(encoding="utf-8")))
     assert names, "src に SHIBUYA_ の名が 1 つも無い(走査が壊れた)"
-    missing = names - set(C.SWITCH_ENV) - set(C.HIDDEN_ENV)
+    missing = names - set(C.SWITCH_ENV) - set(C.HIDDEN_ENV) - set(C.REMOVED_ENV)
     assert not missing, f"configs.SWITCH_ENV(値を残す)か HIDDEN_ENV(名だけ)に足すこと: {sorted(missing)}"
 
 

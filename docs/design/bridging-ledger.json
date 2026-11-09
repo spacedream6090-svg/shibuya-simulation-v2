@@ -7517,12 +7517,12 @@
   {
    "id": "DOC-rules42b-legacy-switch",
    "what": "規則の表の空欄 3 件の腕 SHIBUYA_RULES_42B=off(engine/economy_rules.py・PayrollInputs.rules_42b)=4-2 の値の再現(住民税は給与所得控除と社会保険料控除だけ・厚年と健保の年齢の上限なし・子ども・子育て拠出金 0)のためだけの切替口",
-   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)(記録 docs/bench/analysis/wallbounce-1012/rules42b/README.md)",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)(記録 docs/bench/analysis/wallbounce-1012/rules42b/README.md)〔第346 旧道の切替口と死んだ道の削除〕閉じた: 規則の表の空欄 3 件の腕の切替口 SHIBUYA_RULES_42B=off(4-2 の値の再現)を消した(環境変数を与えると読み込みで止まる)。4-2 の値は部品の単体試験の基準の口として残した(PayrollInputs.rules_42b を偽にして直に作る物・taxes.payroll_tables(r42b=False))。旧値の再現は安定版のタグ stable-v2-before-switch-removal-346(記録 docs/bench/analysis/delete-346/README.md・取り込みの commit は親)",
    "remove_at": "next-bump",
    "declared_in": "docs/bench/analysis/wallbounce-1012/rules42b/README.md",
    "conf": "expedient",
    "since": "2026-10-22",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "plan",
    "code_at": [
     "src/shibuya/engine/economy_rules.py",
