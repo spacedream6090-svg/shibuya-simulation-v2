@@ -116,7 +116,7 @@ engine.systems.boxes — ``run_day`` の状態の箱(第 1 期 1-0・草案 §2-
 - import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.systems.guard`
 - 呼び手: `shibuya.engine.systems.build`・`shibuya.engine.systems.conductor`
 - 読む試験: `tests/economy/stage2/test_stage2_runs.py`・`tests/engine/systems/test_boxes.py`・`tests/engine/systems/test_systems_table.py`・`tests/engine/time/test_t0_rng_key.py`・`tests/engine/time/test_t0_tickctx_equivalence.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/perception/facts/test_percept_is_scratch.py`
-- 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3
+- 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・第 346
 
 ## [build.py](../../../../../../../../src/shibuya/engine/systems/build.py)
 
@@ -236,7 +236,7 @@ engine.systems.judge — 判断の系(apply_responses・wake_sources・wake_filt
   - 系 `wake_sources`(群 判断・時 `tick`・関数 `sys_wake_sources`)
     - 書いてよい外の道筋: `O39:conv.*`・`O41:conv.*`・`O46:runner.*`・`O72:runner.*`
     - 書く scratch: `c_agent`・`c_class`・`c_cond`・`s_agent`・`s_class`・`s_cond`
-- 決定の ID: 11-03・D-56・D-62・D-66・D-107・第 308
+- 決定の ID: 11-03・D-56・D-62・D-66・D-107・第 308・第 346
 
 ## [llm_io.py](../../../../../../../../src/shibuya/engine/systems/llm_io.py)
 
@@ -463,7 +463,7 @@ engine.systems.talk — 会話の系(relations_wake・conversation)(第 1 期 1-
     - 書いてよい SoA の列(閉包): `agents.rel_first`・`agents.rel_kind`・`agents.rel_last`・`agents.rel_n`・`agents.rel_partner`・`agents.rel_sign`
     - 書いてよい外の道筋: `O1[6-9]:rel_layer.*`
     - 書く scratch: `e_agent`・`e_class`・`e_cond`
-- 決定の ID: 11-03・D-93・D-112
+- 決定の ID: 11-03・D-93・D-112・第 346
 
 ## [world.py](../../../../../../../../src/shibuya/engine/systems/world.py)
 

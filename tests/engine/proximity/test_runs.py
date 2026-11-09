@@ -4,15 +4,15 @@
   ``resolve.set_conversing`` と 3 人会話 ``resolve.join_conversation`` を包んで数える)。腕 1.0/2.5 m でも同じ。
 - B5 の近接行に載った人は、同じ層で半径の中か・同じ B5 の単位か・気づいた知人(全描画)。距離の値は今と同じ作り。
 - 同じ入力で同じ結果(腕 distance を 2 回)。
-- ``--proximity cell`` は今と同じ(本体 HEAD ``2bc7a4b`` の src で同じ構成を回した final と呼数=golden。19 構成の
-  byte-check は記録 prox22/byte_check_prox22.json)。
+- 〔第346〕``--proximity cell`` の切替口(2-2 までの値の再現)は消した=CLI の旗は引数の誤り・環境変数は読み込みで止まる
+  (旧値の再現は安定版のタグ ``stable-v2-before-switch-removal-346``・前の golden の試験は消した)。
 - 再開 == 通し(腕 distance・合成の世界・2 日・日中と日の境目と、世界資産 1,000 体=検収 L2): 気づいた印は同一相手の
   不応期の配列(状態台帳 O17)にあるので再開で戻る(負の対照: 再開の最初に印を消すと final が動く)。
-- 腕の違う再開は止まる(検収 M1: cell で保存 → distance で再開・逆・d の違い)。
+- 腕の違う再開は止まる(検収 M1: d の違い・cell の見出しの検査は ``test_rule.py``)。
 - 描画の B5 の近接行の知人で半径の外に載る人は、関係の層の気づいた印が切れていない(検収 L1)。
 - 気づく抽選の流れは K19 の検査を通る(重なり・作り直し 0・合成のラン)。
 - 書きの検査(腕 distance): 検査の on/off で final が同じ・scratch の番兵・段 B(系の前後の変化 ⊆ 宣言)。
-- CLI ``--proximity`` は環境変数より強い・``--proximity-d`` の腕・manifest の ``proximity``。
+- CLI ``--proximity-d`` は環境変数より強い・manifest の ``proximity``。
 """
 
 from __future__ import annotations
@@ -49,14 +49,14 @@ GOLDEN_KW = dict(n_agents=300, seed=1, world_dir=WORLD, ticks=1440, vocab_versio
 
 @contextmanager
 def arm(mode: str, d: float = 2.0):
-    prev = (P.arm(), P.d())
-    P.set_arm(mode)
+    """近接の腕(〔第346〕ランは常に distance=d だけを選ぶ)。"""
+    assert mode == P.MODE_DISTANCE, mode
+    prev = P.d()
     P.set_d(d)
     try:
         yield
     finally:
-        P.set_arm(prev[0])
-        P.set_d(prev[1])
+        P.set_d(prev)
 
 
 # ================================================================= 世界資産: 全会話が届く・B5 の近接行
@@ -156,15 +156,6 @@ def test_b5_near_rows_are_within_radius_or_unit(distance_day):
 
 
 @world_assets
-def test_cell_arm_equals_the_head_golden():
-    with arm("cell"):
-        res = cli.run(**GOLDEN_KW)
-    assert (res.final_hash, int(res.llm_calls)) == HEAD_GOLDEN
-    m = res.run_manifest_fields()["proximity"]
-    assert m["mode"] == "cell" and m["index_builds"] is None and getattr(res, "proximity_layer") is None
-
-
-@world_assets
 @pytest.mark.slow
 @pytest.mark.parametrize("d", [1.0, 2.5])
 def test_sensitivity_arms_keep_every_conversation_within_their_d(d):
@@ -178,15 +169,13 @@ SYN = dict(n_agents=80, seed=1, n_cells=9, ticks=720, budget=80.0, sleep_suppres
            memory="on", relations="on", rel_copresent="on", store_memory="on", checkpoint_every=60)
 
 
-def test_same_input_same_result_and_the_arm_moves_the_run():
+def test_same_input_same_result():
     with arm("distance"):
         a = run_day(**SYN)
         b = run_day(**SYN)
-    with arm("cell"):
-        c = run_day(**SYN)
     assert (a.final_hash, a.llm_calls) == (b.final_hash, b.llm_calls)
     assert a.run_manifest_fields()["proximity"] == b.run_manifest_fields()["proximity"]
-    assert c.run_manifest_fields()["proximity"]["mode"] == "cell"
+    assert a.run_manifest_fields()["proximity"]["mode"] == "distance"
     assert a.run_manifest_fields()["proximity"]["index_builds"] == 720
 
 
@@ -256,23 +245,26 @@ def _cli(tmp_path, name: str, env: dict, extra: list[str]) -> dict:
     return json.loads(Path(out).read_text(encoding="utf-8"))["manifest"]["proximity"]
 
 
-@pytest.mark.parametrize("env_arm,cli_arm,want", [
-    ("cell", "distance", "distance"), ("distance", "cell", "cell"), ("distance", None, "distance")])
-def test_cli_proximity_beats_the_environment(tmp_path, env_arm, cli_arm, want):
-    extra = [] if cli_arm is None else ["--proximity", cli_arm]
-    m = _cli(tmp_path, f"{env_arm}_{cli_arm}", {"SHIBUYA_PROXIMITY": env_arm}, extra)
-    assert m["mode"] == want and ((m["index_builds"] is None) == (want == "cell"))
+def test_cli_runs_distance_and_the_removed_cell_switch_stops(tmp_path):
+    """〔第346〕CLI の既定は distance・``--proximity`` の旗は引数の誤り・環境変数 SHIBUYA_PROXIMITY は読み込みで止まる。"""
+    m = _cli(tmp_path, "default", {}, [])
+    assert m["mode"] == "distance" and m["index_builds"] is not None
+    with pytest.raises(SystemExit):
+        cli.main(["--proximity", "cell"])
+    e = dict(os.environ, PYTHONIOENCODING="utf-8", SHIBUYA_PROXIMITY="cell")
+    code = "import sys; from shibuya import cli; sys.exit(cli.main(sys.argv[1:]))"
+    r = subprocess.run([sys.executable, "-c", code, *ARGS], capture_output=True, text=True, encoding="utf-8", env=e,
+                       timeout=600)
+    assert r.returncode != 0 and "消した切替口" in r.stderr
 
 
 def test_cli_proximity_d_arm(tmp_path):
-    m = _cli(tmp_path, "d25", {"SHIBUYA_PROXIMITY": "cell", "SHIBUYA_PROXIMITY_D": "1.0"},
-             ["--proximity", "distance", "--proximity-d", "2.5"])
+    m = _cli(tmp_path, "d25", {"SHIBUYA_PROXIMITY_D": "1.0"}, ["--proximity-d", "2.5"])
     assert m["mode"] == "distance" and m["d_m"] == 2.5 and m["leave_m"] == 3.5
 
 
 # ================================================================= 検収 M1: 腕の違う再開は止まる
-@pytest.mark.parametrize("first,second", [
-    (("cell", 2.0), ("distance", 2.0)), (("distance", 2.0), ("cell", 2.0)), (("distance", 2.0), ("distance", 2.5))])
+@pytest.mark.parametrize("first,second", [(("distance", 2.0), ("distance", 2.5)), (("distance", 2.5), ("distance", 1.0))])
 def test_resume_with_another_proximity_arm_is_refused(tmp_path, first, second):
     kw = dict(n_agents=40, seed=1, n_cells=9, ticks=240, budget=40.0, vocab_version="v3", memory="on",
               relations="on")

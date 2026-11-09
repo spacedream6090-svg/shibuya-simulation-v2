@@ -9,7 +9,6 @@ from typing import Any, Iterator
 
 from shibuya.engine import economy_stage2 as ES2
 from shibuya.engine import memory_store as MS
-from shibuya.engine import proximity as PX
 from shibuya.engine.memory_store import MemoryStore
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -22,18 +21,16 @@ KW = dict(n_agents=80, seed=1, n_cells=9, ticks=720, budget=80.0, sleep_suppress
 
 
 @contextmanager
-def arms(memory_store: str = "mem", proximity: str = "cell", economy_stage2: str = "off") -> Iterator[None]:
-    """腕を一時的に選ぶ(組み立てが読む)。"""
-    prev = (MS.arm(), PX.arm(), ES2.arm())
+def arms(memory_store: str = "mem", economy_stage2: str = "off") -> Iterator[None]:
+    """腕を一時的に選ぶ(組み立てが読む)。〔第346〕近接は常に distance(切替口 cell は消した)。"""
+    prev = (MS.arm(), ES2.arm())
     MS.set_arm(memory_store)
-    PX.set_arm(proximity)
     ES2.set_arm(economy_stage2)
     try:
         yield
     finally:
         MS.set_arm(prev[0])
-        PX.set_arm(prev[1])
-        ES2.set_arm(prev[2])
+        ES2.set_arm(prev[1])
 
 
 class Capture:

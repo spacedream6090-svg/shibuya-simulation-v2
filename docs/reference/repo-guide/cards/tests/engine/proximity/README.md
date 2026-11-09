@@ -39,8 +39,8 @@ Python 6 本・その他 0 本(このディレクトリの直下)
 
 - 公開の関数とクラス
   - `agents`(関数)
-  - `test_arm_and_d_switches_are_checked`(関数)
   - `test_d_default_is_the_talk_open_constant`(関数)
+  - `test_d_switch_is_checked_and_the_cell_switch_is_removed`(関数): ``--proximity-d`` は感度の腕として残す。〔第346〕``--proximity cell`` の切替口(腕を選ぶ口・環境変数)は消した。
   - `test_edge_view_reach_equals_reach`(関数): 検収 M2: 同席と知人出現が共有する辺の見え方の「届く」は ``reach`` と同じ答え(単位は打ち切りの外でも届く)。
   - `test_layer_meter_counts_unit_occupancy`(関数)
   - `test_manifest_fields_cell_and_distance`(関数)
@@ -52,7 +52,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_off_stage_cannot_talk_and_boundary_is_inclusive`(関数)
   - `test_other_band_1m_cannot_talk`(関数)
   - `test_other_cell_1m_can_talk_only_in_distance`(関数)
-  - `test_resume_arm_check`(関数): 検収 M1: 再開の腕の検査(見出しの proximity が無ければ cell)。
+  - `test_resume_arm_check`(関数): 検収 M1: 再開の腕の検査(見出しの proximity が無ければ cell=〔第346〕cell の切替口は消した=再開できない)。
   - `test_rule_from_requires_poi_cell`(関数)
   - `test_rule_none_and_cell_mode_keep_the_current_judgement`(関数)
   - `test_same_cell_3m_cannot_talk_in_distance`(関数)
@@ -60,30 +60,30 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_sensitivity_arms`(関数)
   - `test_unit_needs_the_store_cell`(関数): 在席の印があっても、その店のセルの外に居る体(店を出て歩いている体)は単位に数えない。
 - import している内部モジュール: `shibuya.core.rng`・`shibuya.engine.proximity`・`shibuya.engine.resolve`・`shibuya.engine.rng_audit`
-- 決定の ID: R-62・R-79
+- 環境変数: `SHIBUYA_PROXIMITY`・`os.environ` をまるごと使う
+- 決定の ID: R-62・R-79・第 346
 
 ## [test_runs.py](../../../../../../../tests/engine/proximity/test_runs.py)
 
 第 2 期 2-2 段 11a: ランの単位の検査(アジェンダ §2-1 の不変条件のうちランが要るもの)。
 
 - 公開の関数とクラス
-  - `arm`(関数)
+  - `arm`(関数): 近接の腕(〔第346〕ランは常に distance=d だけを選ぶ)。
   - `distance_day`(関数)
   - `test_b5_near_rows_are_within_radius_or_unit`(関数)
-  - `test_cell_arm_equals_the_head_golden`(関数)
-  - `test_cli_proximity_beats_the_environment`(関数)
   - `test_cli_proximity_d_arm`(関数)
+  - `test_cli_runs_distance_and_the_removed_cell_switch_stops`(関数): 〔第346〕CLI の既定は distance・``--proximity`` の旗は引数の誤り・環境変数 SHIBUYA_PROXIMITY は読み込みで止まる。
   - `test_every_opened_conversation_is_within_reach`(関数)
   - `test_guards_hold_on_the_distance_arm`(関数)
   - `test_notice_streams_in_a_run_pass_k19`(関数)
   - `test_resume_equals_straight_on_the_distance_arm`(関数)
   - `test_resume_with_another_proximity_arm_is_refused`(関数)
-  - `test_same_input_same_result_and_the_arm_moves_the_run`(関数)
+  - `test_same_input_same_result`(関数)
   - `test_sensitivity_arms_keep_every_conversation_within_their_d`(関数)
   - `test_world_resume_equals_straight_and_the_marks_matter`(関数)
 - import している内部モジュール: `shibuya.cli`・`shibuya.core.write_permit`・`shibuya.engine.proximity`・`shibuya.engine.relations`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.rng_audit`・`shibuya.engine.run`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.perception.renderer`
-- 環境変数: `SHIBUYA_PROXIMITY`・`SHIBUYA_PROXIMITY_D`・`os.environ` をまるごと使う
-- 決定の ID: 11-01・11-03/§3
+- 環境変数: `SHIBUYA_PROXIMITY_D`・`os.environ` をまるごと使う
+- 決定の ID: 11-01・11-03/§3・第 346
 
 ## [test_switch_sites.py](../../../../../../../tests/engine/proximity/test_switch_sites.py)
 

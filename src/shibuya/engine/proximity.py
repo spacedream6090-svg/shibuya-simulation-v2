@@ -70,7 +70,7 @@ from shibuya.engine.spatial_index import INDEX_CELL_M, SpatialIndex
 __all__ = [
     "MODE_CELL", "MODE_DISTANCE", "MODES", "DEFAULT_MODE", "D_DEFAULT", "D_ARMS", "LEAVE_MARGIN_M", "NOTICE_D75_M", "NOTICE_D25_M",
     "NOTICE_D50_M", "NOTICE_SCALE_M", "NOTICE_CUTOFF_M", "NOTICE_SOURCE", "NOTICE_DOMAIN", "B5_RADIUS_M",
-    "B5_RADIUS_SOURCE", "INDEX_CELL_M", "UNIT_SOURCE", "SCHEMA", "arm", "set_arm", "d", "set_d", "notice_p",
+    "B5_RADIUS_SOURCE", "INDEX_CELL_M", "UNIT_SOURCE", "SCHEMA", "ENV_REMOVED", "d", "set_d", "notice_p",
     "ProximityRule", "NearView", "ProximityLayer", "manifest_fields", "CONFIG_KEYS", "OBSERVED_KEYS",
     "batch_partners", "marks_for", "rule_from", "OCC_BINS", "header_fields", "check_resume",
 ]
@@ -78,7 +78,10 @@ __all__ = [
 MODE_CELL: Final[str] = "cell"
 MODE_DISTANCE: Final[str] = "distance"
 MODES: Final[tuple[str, ...]] = (MODE_CELL, MODE_DISTANCE)
-#: 〔第 2 期 2-4 V2〕既定の腕(10-03 §4 の決定=11a を版上げ 2 回目で既定に)。``cell`` は切替口(2-2 までの値の再現)。
+#: 〔第 2 期 2-4 V2〕既定の腕(10-03 §4 の決定=11a を版上げ 2 回目で既定に)。〔第346〕ランは常にこれ=``cell`` のランの
+#: 切替口(2-2 までの値の再現・``--proximity cell``・環境変数 ``SHIBUYA_PROXIMITY``)は消した(旧値の再現は安定版のタグ
+#: ``stable-v2-before-switch-removal-346``)。``ProximityRule(mode=MODE_CELL)`` と下の関数の ``proximity=None`` の道は部品の
+#: 単体試験の基準の口として残す(ランの口からは選べない・つなぎの台帳に行は無かった=記録 ``delete-346/README.md`` だけ)。
 DEFAULT_MODE: Final[str] = MODE_DISTANCE
 #: 会話の距離 d[m](B3: 2 m の決め打ちを既定にし宣言=``engine.resolve.TALK_OPEN_METERS`` と同じ値・試験で突き合わせる)。
 D_DEFAULT: Final[float] = 2.0
@@ -109,9 +112,11 @@ UNIT_SOURCE: Final[str] = "agents.poi_ref(在席中の POI の区画 id)∧ 体�
 SCHEMA: Final[str] = "shibuya.proximity/3"
 
 # ------------------------------------------------------------------ 腕(組み立てのときに読む)
-_ARM: str = os.environ.get("SHIBUYA_PROXIMITY", DEFAULT_MODE).strip().lower() or DEFAULT_MODE
-if _ARM not in MODES:
-    raise ValueError(f"SHIBUYA_PROXIMITY は {MODES} のどれか(いま {_ARM!r})")
+#: 〔第346〕消した切替口の環境変数(与えると止まる=黙って無視しない)。
+ENV_REMOVED: Final[str] = "SHIBUYA_PROXIMITY"
+if os.environ.get(ENV_REMOVED, "").strip():
+    raise ValueError(f"{ENV_REMOVED} は消した切替口(第346 旧道の切替口の削除・旧値の再現は安定版のタグ "
+                     "stable-v2-before-switch-removal-346)=環境変数を外す")
 
 
 def _check_d(value: Any) -> float:
@@ -127,21 +132,8 @@ def _check_d(value: Any) -> float:
 _D: float = _check_d(os.environ.get("SHIBUYA_PROXIMITY_D", str(D_DEFAULT)).strip() or D_DEFAULT)
 
 
-def arm() -> str:
-    """いまの腕(``distance``=実距離=既定〔2-4 V2〕・``cell``=同じセル=切替口)。組み立てのときに読む。"""
-    return _ARM
-
-
-def set_arm(name: str) -> None:
-    """腕を選ぶ(CLI ``--proximity``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。"""
-    global _ARM
-    if str(name) not in MODES:
-        raise ValueError(f"--proximity は {MODES} のどれか(いま {name!r})")
-    _ARM = str(name)
-
-
 def d() -> float:
-    """いまの会話の距離 d[m](腕 ``distance`` のときだけ効く)。"""
+    """いまの会話の距離 d[m](ランの近接の規則=``distance`` の距離)。"""
     return _D
 
 
@@ -153,24 +145,29 @@ def set_d(value: Any) -> None:
 
 # ------------------------------------------------------------------ 状態のファイルの見出し(検収 M1)
 def header_fields(layer: "ProximityLayer | None") -> dict[str, Any] | None:
-    """状態のファイルの見出しの ``proximity``(腕 cell のランは書かない=None=今の見出しのまま)。"""
+    """状態のファイルの見出しの ``proximity``(層の無い物は書かない=None・ランは常に層を持つ)。"""
     if layer is None:
         return None
     return {"mode": layer.rule.mode, "d_m": float(layer.rule.d)}
 
 
 def check_resume(saved: Any) -> None:
-    """再開のときに、保存したランの腕(見出しの ``proximity``・無ければ cell)と今の腕が同じかを確かめる(違えば止める)。
+    """再開のときに、保存したランの腕(見出しの ``proximity``・無ければ cell=2-2 までのラン)と今の腕が同じかを確かめる
+    (違えば止める)。
 
-    腕は設定の指紋に入れない(``run_day`` の引数ではない)ので、指紋の検査では見つからない=ここで見る。
+    腕は設定の指紋に入れない(``run_day`` の引数ではない)ので、指紋の検査では見つからない=ここで見る。〔第346〕今の腕は
+    常に distance(cell の切替口は消した=見出しに無い・cell の状態のファイルからは再開できない)。
     """
     s = saved if isinstance(saved, Mapping) else {}
     s_mode = str(s.get("mode", MODE_CELL))
     s_d = s.get("d_m")
-    now_mode, now_d = arm(), (d() if arm() == MODE_DISTANCE else None)
-    if s_mode != now_mode or (now_mode == MODE_DISTANCE and (s_d is None or float(s_d) != float(now_d))):
+    now_mode, now_d = DEFAULT_MODE, d()
+    if s_mode != now_mode:
         raise ValueError(f"再開の近接の腕が親と違う(親 mode={s_mode} d={s_d}・今 mode={now_mode} d={now_d})"
-                         "=--proximity・--proximity-d(環境変数 SHIBUYA_PROXIMITY・SHIBUYA_PROXIMITY_D)を親にそろえる")
+                         "=旧値の切替口 --proximity cell は消した(安定版のタグ stable-v2-before-switch-removal-346 で回す)")
+    if s_d is None or float(s_d) != float(now_d):
+        raise ValueError(f"再開の近接の腕が親と違う(親 mode={s_mode} d={s_d}・今 mode={now_mode} d={now_d})"
+                         "=--proximity-d(環境変数 SHIBUYA_PROXIMITY_D)を親にそろえる")
 
 
 # ------------------------------------------------------------------ 知人に気づく確率(B4)
@@ -505,7 +502,7 @@ class ProximityLayer:
 
 
 def manifest_fields(layer: "ProximityLayer | None") -> dict[str, Any]:
-    """manifest の ``proximity``(腕 cell のランは層が無い=観測の子は null)。"""
+    """manifest の ``proximity``(層の無い物は観測の子が null・ランは常に層を持つ=mode は distance)。"""
     rule = None if layer is None else layer.rule
     cfg: dict[str, Any] = {
         "schema": SCHEMA,

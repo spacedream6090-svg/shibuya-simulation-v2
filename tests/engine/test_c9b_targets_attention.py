@@ -77,16 +77,14 @@ def test_default_arms_have_no_attention_columns_and_no_new_counters(arm, monkeyp
     ``--geometry edge``)が 1 バイトも動かないことの構造的な根拠=
     **``attention_columns`` が立たない**(SoA の宣言列が増えないので ``state_hash`` が動かない)。
 
-    〔第 2 期 2-4 V2〕近接の既定が distance になり、``n_talk_by_distance`` は近接の腕の実距離の成立も数える(2-2)=
-    C9b の診断が立たないことは近接の切替口 cell で見る(欄が立たないことは腕によらない)。
+    〔第 2 期 2-4 V2〕近接の既定が distance になり、``n_talk_by_distance`` は近接の腕の実距離の成立も数える(2-2)。
+    〔第346〕近接の切替口 cell は消した=C9b の対象と注意の 2 つの計数(近づく・焦点)が 0 で、欄が立たないことを見る
+    (欄が立たないことは腕によらない・実距離の成立の数は近接の層が数える)。
     """
-    from shibuya.engine import proximity as P
-
-    monkeypatch.setattr(P, "_ARM", P.MODE_CELL)
     res = run_day(**SMALL, **arm)
     assert res.attention is False
     assert res.run_manifest_fields()["attention"] is False
-    assert (res.n_approach, res.n_focus, res.n_talk_by_distance) == (0, 0, 0)
+    assert (res.n_approach, res.n_focus) == (0, 0)
     assert "対象と注意" not in res.summary()
 
 

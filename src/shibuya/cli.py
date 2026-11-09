@@ -480,7 +480,6 @@ def run(
     if run_kind is None:  # 第 1 期 1-4(検収 M2): 腕は CLI の既定と比べて決める(記録だけ)
         arms = run_arms({**kwargs, "budget": budget, "l4_scale": scale, "use_population": use_population,
                          "store_capital_yen": store_capital_yen})
-        from shibuya.engine import proximity as _proximity  # 第 2 期 2-2: 環境変数の腕も腕と数える(結果が変わる腕)
         from shibuya.engine import rate_rules as _rate_rules  # 〔11-01 段 2 の 4〕率の形の規則(既定 off と違えば腕)
         from shibuya.engine import absent_processes as _absent_processes  # 〔11-02r §1 #7〕「無い」の過程(既定 stopped と違えば腕)
         from shibuya.engine import defect_fixes_1103 as _defect_fixes_1103  # 〔11-03 §3〕欠陥 4 件の直し(既定 on と違えば腕)
@@ -501,7 +500,6 @@ def run(
         # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
         # 〔第 3 期 3-3〕申込書を渡したランは反実仮想(試験 > 反実仮想 > 腕 > 再現)
         run_kind = _RK.decide(arms_on=bool(arms) or _speech_layer.arm() != _speech_layer.ARM_OFF
-                              or _proximity.arm() != _proximity.DEFAULT_MODE  # 〔2-4 V2〕既定は distance
                               or _rate_rules.arm() != _rate_rules.DEFAULT_MODE  # 〔11-01〕既定は off
                               or _absent_processes.arm() != _absent_processes.DEFAULT_MODE  # 〔11-02r〕既定は stopped
                               or _defect_fixes_1103.arm() != _defect_fixes_1103.DEFAULT_MODE  # 〔11-03〕既定は on
@@ -1406,20 +1404,11 @@ def main(argv: list[str] | None = None) -> int:
              "設定の指紋に入り、ランの種類は腕(manifest の speech_port に出る)",
     )
     ap.add_argument(
-        "--proximity",
-        choices=("cell", "distance"),
-        default=None,
-        help="第 2 期 2-2 段 11a 近接の判定の腕(〔2-4 V2〕既定 distance・環境変数 SHIBUYA_PROXIMITY と同じ。指定すれば"
-             "環境変数より強い)。distance で会話・返事待ち・3 人会話・離脱・招待の相手・偶然・知人出現(気づく確率)・同席・"
-             "B5 の近接行を「同じ層・距離 ≤ d(同じ店の区画の中は距離を見ない)」で判定する。cell=2-2 までの判定(同じセル)"
-             "=切替口(旧値の再現)。腕は設定の指紋に入れない(manifest の proximity に出る・既定と違えばランの種類は arm)",
-    )
-    ap.add_argument(
         "--proximity-d",
         choices=("1.0", "2.0", "2.5"),
         default=None,
         help="第 2 期 2-2 段 11a 会話の距離 d[m] の感度の腕(既定 2.0=B3 の決め打ち・環境変数 SHIBUYA_PROXIMITY_D と同じ。"
-             "--proximity distance のときだけ効く)",
+             "近接の判定=同じ層・距離 ≤ d の d。〔第346〕--proximity cell の切替口は消した)",
     )
     ap.add_argument(
         "--economy-stage2",
@@ -1605,10 +1594,6 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine.speech import layer as _speech_layer
 
         _speech_layer.set_arm(str(args.speech_port))
-    if args.proximity is not None:  # 第 2 期 2-2 段 11a: 近接の判定の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine import proximity as _proximity
-
-        _proximity.set_arm(str(args.proximity))
     if args.proximity_d is not None:
         from shibuya.engine import proximity as _proximity
 

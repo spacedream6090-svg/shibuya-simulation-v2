@@ -77,7 +77,7 @@ def sys_conversation(ctx: Any, b: Any) -> None:
     plan = b.scratch.plan
     rel_layer = b.layers.rel_layer
     tick = ctx.T
-    # 第 2 期 2-2 段 11a: 腕 --proximity distance の判定の規則(〔2-4 V2〕既定。切替口 cell は None=同じセル)
+    # 第 2 期 2-2 段 11a: 腕 --proximity distance の判定の規則(〔2-4 V2〕既定。〔第346〕切替口 cell は消した=ランは常に層を持つ)
     prox_rule = None if b.layers.proximity is None else b.layers.proximity.rule
     # 第 2 期 2-3: 体の出来事の口(腕 --memory-store events と記録のあるランだけ・既定 None=今のまま)
     _mem = b.layers.mem_layer

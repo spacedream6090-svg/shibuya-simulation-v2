@@ -76,10 +76,12 @@ def set_arms(config: str) -> dict[str, str]:
     from shibuya.engine import proximity as PX
 
     arms = CONFIGS[config]
+    # 〔第346 旧道の切替口の削除〕近接の切替口(set_arm)は消した=ランは常に distance(組 b・d の近接は既定と同じ)
+    if arms.get("proximity", PX.DEFAULT_MODE) != PX.DEFAULT_MODE:
+        raise ValueError(f"近接の切替口 cell は消した(組 {config}・安定版のタグ stable-v2-before-switch-removal-346 で回す)")
     # 〔第337〕書かれていない腕は各 module の既定の定数に戻す(2-4 より前の値 cell/off を直書きしていたため、
     # 試験の finally の set_arms("default") が本体の既定(distance/on)を上書きし、同じプロセスの後の golden が順番で落ちた)。
     MS.set_arm(arms.get("memory_store", MS.ARM_MEM))
-    PX.set_arm(arms.get("proximity", PX.DEFAULT_MODE))
     ES2.set_arm(arms.get("economy_stage2", ES2.DEFAULT_ARM))
     return dict(arms)
 

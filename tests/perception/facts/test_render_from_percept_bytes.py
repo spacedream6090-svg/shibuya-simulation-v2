@@ -9,9 +9,11 @@
     近接の並びと同点・注意の焦点・想起と意図と被招待と閉店の 1 句と知人と会話の参加者・天気の実日・役割語と自由意図・
     行列と顕著な出来事・被注視の人数)× 4 刻み × 全員(起床の理由・直前の結果・直前の行動・招待者を振る)。計数(命中・
     切り詰め・意図・想起・閉店・注視の抽選・近接の同点)も双子と同じ。
-(B) byte-check の 19 構成(``wave2_bytecheck.configs()``)× 代表の刻み(朝・昼・夕の 3 つの窓=各構成 3 刻み以上で描画が
-    ある)で、ランの中の描画を全部双子と比べる(世界資産が要る=``requires_data("world_v2")``)。5,000 体・1 日の全部の
-    呼の一致は byte-check(テープの ``prompt_hash`` の列の sha)が見る(記録 p12/README.md)。
+(B) byte-check の 19 構成(``wave2_bytecheck.configs()``)× 代表の刻み(朝・昼・夕の 3 つの窓)で、ランの中の描画を全部
+    双子と比べていた(近接の切替口 cell の道=HEAD の双子は B5 の近接行の distance の道を持たない)。〔第346〕近接の
+    切替口 cell は消した=ランの比べは消した(1-2 の分離の一致の記録は p12/README.md・旧値の再現は安定版のタグ
+    ``stable-v2-before-switch-removal-346``)。構成の名の表の検査だけ残す。5,000 体・1 日の全部の呼の一致は byte-check
+    (テープの ``prompt_hash`` の列の sha)が見る。
 
 〔段 5-1b 検収 L5〕nav1 のランは前計算に ``los_stage``(密度の段)を渡す。HEAD の双子の口には無いので、双子には同じ段を写して B4 の欄と
 指紋を今の ``perception.hashes`` で作り直す=この 2 欄(``b4_field_rows``・``b4_field_hash``)は双子と独立には比べていない(文・ブロック・
@@ -318,25 +320,3 @@ CONFIG_NAMES = sorted(
 def test_the_19_configs_are_the_byte_check_set():
     assert sorted(_wave2_configs()) == CONFIG_NAMES
 
-
-@pytest.mark.requires_data("world_v2")
-@pytest.mark.parametrize("config", CONFIG_NAMES)
-def test_19_configs_render_the_same_bytes_as_head(config, monkeypatch, tmp_path):
-    from shibuya import cli
-
-    from shibuya.engine import proximity as P
-
-    kw = dict(_wave2_configs()[config])
-    stats = _shadow(monkeypatch)
-    # 〔第 2 期 2-4 V2〕近接の既定は distance になった。比べる相手(HEAD 136fdbb の描画の写し)は B5 の近接行の
-    # distance の道(2-2 の _nearby_people_distance)を持たない=1-2 の分離の一致は切替口 cell の道で見る(前と同じ比べ)
-    monkeypatch.setattr(P, "_ARM", P.MODE_CELL)
-    cli.run(n_agents=N_AGENTS, seed=1, world_dir=str(ROOT / "data" / "world" / "v2"), ticks=WINDOWS[-1][1],
-            tape_path=tmp_path / "tape", **kw)
-    assert stats["bad"] == [], stats["bad"][:5]
-    assert len(stats["pairs"]) == 1
-    r, h = stats["pairs"][0]
-    assert {k: getattr(r, k) for k in COUNTERS} == {k: getattr(h, k) for k in COUNTERS}  # 診断の計数も同じ
-    windows_hit = {lo for lo, hi in WINDOWS for t in stats["ticks"] if lo <= t < hi}
-    assert len(stats["ticks"]) >= 3 and len(windows_hit) == len(WINDOWS), (config, sorted(stats["ticks"]))
-    assert stats["n"] >= 3

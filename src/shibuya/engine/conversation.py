@@ -23,7 +23,7 @@
 expedient(本モジュール分)
 - **d_talk の代理**: 「距離≦d_talk(≈1m)」は本モジュールでは測らない。届くかは呼び手が渡す
   (``same_cell``=``resolve.talk_within_reach``: 既定の近接の腕 distance は ``engine.proximity`` の距離 d・
-  注意の腕は ``resolve.TALK_OPEN_METERS``・切替口 cell は同一セル)。相手の idle は呼び手が見ない
+  注意の腕は ``resolve.TALK_OPEN_METERS``・〔第346〕切替口 cell は消した)。相手の idle は呼び手が見ない
   (``partner_idle=True`` で渡す)。``D_TALK_METERS`` は宣言だけ置く(1 m を使う道は無い)。
 - 応答確率 **0.8**(契約書「較正目標=声かけ応答率≈0.8」)。較正データ無しの定数。〔11-03 棚卸し B §4-1〕今の呼び手は
   全部 ``answered=True``(被招待の返事)を渡すので抽選は引かれない=死んでいる道(次の版上げで消す・つなぎの台帳の行)。

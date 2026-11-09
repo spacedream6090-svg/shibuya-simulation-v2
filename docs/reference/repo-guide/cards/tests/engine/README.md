@@ -246,7 +246,8 @@ C9b 対象と注意(G3/G4/G5/G6/G7)の検収。
   - `test_talk_open_and_leave_distances_form_a_hysteresis`(関数)
   - `test_talk_within_reach_needs_same_cell_and_two_meters`(関数)
   - `test_v1_dictionary_and_version_are_untouched`(関数): 語彙 v1 の段0 辞書・版・対象ヒント表は**同一オブジェクト**のまま。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.conversation`・`shibuya.engine.geometry`・`shibuya.engine.proximity`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.llm.contract`・`shibuya.llm.undefined`・`shibuya.perception.renderer`・`shibuya.world.state`・`tests/engine/time/__init__.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.conversation`・`shibuya.engine.geometry`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.llm.contract`・`shibuya.llm.undefined`・`shibuya.perception.renderer`・`shibuya.world.state`・`tests/engine/time/__init__.py`
+- 決定の ID: 第 346
 
 ## [test_calendar.py](../../../../../../tests/engine/test_calendar.py)
 

@@ -305,7 +305,7 @@ engine.conversation — 会話プロトコル(行動契約書 §3)のセッシ�
     - `O40` ConversationManager join_events(挙動 behavior・復元 required) 道筋 `conv.join_events` 書ける系: apply_responses・conversation・decide・llm_receive
     - `O41` ConversationManager origin_counts ほかの計数(挙動 diag・復元 discardable) 道筋 `conv.closed_by_reason`・`conv.ignored_events`・`conv.n_accepted`・`conv.n_backchannels`・`conv.n_blocks`・`conv.n_declined`・`conv.n_end_kept_activity`・`conv.n_expired_purged`・`conv.n_gate_rejected`・`conv.n_ignored_invites`・`conv.n_interrupts`・`conv.n_invite_refractory_blocked`・`conv.n_invites`・`conv.n_pending_expired`・`conv.n_pending_unreachable`・`conv.n_revert_kept_activity`・`conv.origin_counts`・`conv.size_hist` 書ける系: apply_responses・conversation・decide・llm_receive・wake_sources
     - `O91` ConversationManager n_opened(開いたセッションの数)(挙動 behavior・復元 required) 道筋 `conv.n_opened` 書ける系: apply_responses・conversation・decide・llm_receive
-- 決定の ID: 11-03・11-03/§2・11-03/§3・D-93
+- 決定の ID: 11-03・11-03/§2・11-03/§3・D-93・第 346
 
 ## [defect_fixes_1103.py](../../../../../../../src/shibuya/engine/defect_fixes_1103.py)
 
@@ -755,26 +755,24 @@ engine.proximity — 会話と近接を実距離で判定する切替口(第 2 �
   - `NearView`(クラス): 描画の前計算に渡す物(規則・この刻みの索引・気づいた印の読み口)。
   - `ProximityLayer`(クラス): 腕 ``distance`` の層(判定の規則・計器・気づいた印の読み口)。組み立てが作る(既定の distance で作る・旧道の cell では作らない=None)。
   - `ProximityRule`(クラス): 腕 ``distance`` の判定の規則(組み立てで 1 回作る・ランの間は変えない)。``seed``=動きの側の seed。
-  - `arm`(関数): いまの腕(``distance``=実距離=既定〔2-4 V2〕・``cell``=同じセル=切替口)。組み立てのときに読む。
   - `batch_partners`(関数): 適用の束 ``batch`` の中で、``rows``(束の中の位置)の体に届く束の体のうち並びの鍵が最小の体(届く体が無ければ −1)。
-  - `check_resume`(関数): 再開のときに、保存したランの腕(見出しの ``proximity``・無ければ cell)と今の腕が同じかを確かめる(違えば止める)。
-  - `d`(関数): いまの会話の距離 d[m]\(腕 ``distance`` のときだけ効く)。
-  - `header_fields`(関数): 状態のファイルの見出しの ``proximity``(腕 cell のランは書かない=None=今の見出しのまま)。
-  - `manifest_fields`(関数): manifest の ``proximity``(腕 cell のランは層が無い=観測の子は null)。
+  - `check_resume`(関数): 再開のときに、保存したランの腕(見出しの ``proximity``・無ければ cell=2-2 までのラン)と今の腕が同じかを確かめる
+  - `d`(関数): いまの会話の距離 d[m]\(ランの近接の規則=``distance`` の距離)。
+  - `header_fields`(関数): 状態のファイルの見出しの ``proximity``(層の無い物は書かない=None・ランは常に層を持つ)。
+  - `manifest_fields`(関数): manifest の ``proximity``(層の無い物は観測の子が null・ランは常に層を持つ=mode は distance)。
   - `marks_for`(関数): 「暫定」の印(B6・B8)。B6 は位置の出どころ(node と edge の幾何は立っている体は node・nav1 は面の上の点)・B8 は
   - `notice_p`(関数): R-62 の 2 点を通るロジスティック p(d)(距離[m] → 気づく確率)。
   - `rule_from`(関数): 組み立ての口(``seed``=動きの側の seed=気づく抽選の counter の流れの鍵・``poi_cell``=``world.pois.cell``・
-  - `set_arm`(関数): 腕を選ぶ(CLI ``--proximity``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
   - `set_d`(関数): 会話の距離 d の感度の腕を選ぶ(CLI ``--proximity-d``・試験の切替口)。
 - import している内部モジュール: `shibuya.core.rng`・`shibuya.engine.spatial_index`
 - 呼び手: `shibuya.cli`・`shibuya.engine.commit`・`shibuya.engine.relations`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.state_io`
-- 読む試験: `tests/engine/multiday/_md.py`・`tests/engine/proximity/test_rule.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/proximity/test_switch_sites.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/perception/facts/test_render_from_percept_bytes.py`
+- 読む試験: `tests/engine/proximity/test_rule.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/proximity/test_switch_sites.py`・`tests/engine/space/test_nav1_units.py`
 - 読む試験(道筋で): `tests/engine/test_state_ledger_10b.py`
 - 状態台帳の行
   - 持ち主 `proximity`(`ProximityLayer`)
     - `PX` ProximityLayer(近接の層の計器・第 2 期 2-2 段 11a)(挙動 diag・復元 discardable) 道筋 `proximity._meter` 書ける系: perceive_prepare
 - 環境変数: `SHIBUYA_PROXIMITY`・`SHIBUYA_PROXIMITY_D`
-- 決定の ID: 10-03/§4・10-13b/§0-3・R-62・R-79
+- 決定の ID: 10-03/§4・10-13b/§0-3・R-62・R-79・第 346
 
 ## [rate_rules.py](../../../../../../../src/shibuya/engine/rate_rules.py)
 
