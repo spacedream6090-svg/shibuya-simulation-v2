@@ -61,6 +61,7 @@
 
 ### G-4 実験の型: EnsembleSpec と SweepSpec
 - **推奨**: run manifest(U8)に実験型を2つ追加する。**EnsembleSpec**=同一パラメタでseedのみ変える(不確実性の測定・面2の判定単位)。**SweepSpec**=パラメタ/expedientを変える(感度・ablation・直積または明示組)。k*の判定はEnsembleSpecに対してのみ定義。
+  - 〔11-09 で直した(古い写しの伝播)〕EnsembleSpec の「同一パラメタで seed のみ変える」は `10-12/§1-2` で置き換わった。分布は初期状態・モデル・偶然の 3 つを揺らして作り、揺らしの源ごとに幅を分けて報告する(初期状態だけ・乱数だけでは狭すぎる)。正の写しは [仕様書 v0](spec/08-experiments.md) EX-15。上の文は旧文として残す。
 - ラン定義の最小要素(BehaviorSpaceに準拠): 掃引変数×repetitions×reporters(面1/面2の指標のみ)×stop条件×setup/go。
 - expedient: 2型に分けること自体(Covasim MultiSimのreseed既定の教訓から)。
 
