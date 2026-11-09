@@ -413,10 +413,10 @@ def save_state(b: Any, T_next: int, *, finished: bool, closed: bool) -> None:
     _es2 = _ES2.header_fields(_stage2_plan(b))
     if _es2 is not None:
         header["economy_stage2"] = _es2
-    # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(既定の walk のランだけ書く=legacy は 2-4 より前の見出しのまま)
+    # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(walk=〔第346〕切替口 legacy は消した=見出しは常に書く)
     from shibuya.engine import seat_release as _SR
 
-    _sr = _SR.header_fields(b.cfg.seat_release)
+    _sr = _SR.header_fields(_SR.DEFAULT_MODE)
     if _sr is not None:
         header["seat_release"] = _sr
     # 〔11-01 段 2 の 3・4〕率の形の規則の腕(既定の off のランだけ書く=legacy は版上げの前の見出しのまま)

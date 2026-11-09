@@ -350,7 +350,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "TXD:ledger.*",
          scratch_r="plan", buffers_r="focus_request", scratch_w="outcome",
          tally="geometry_hops geometry_jammed leave_counts per_action_total phase result",
-         reads="buffers.focus_request cfg.attention_on cfg.defect_fixes_1103 cfg.queue_service cfg.seat_release "
+         reads="buffers.focus_request cfg.attention_on cfg.defect_fixes_1103 cfg.queue_service "
                "cfg.report_precondition cfg.vocab_version fx.geom fx.schedule layers.energy "
                "layers.fam_layer layers.ledger layers.mem_layer layers.norm_meter layers.runner "
                "runstats.geometry_hops runstats.geometry_jammed runstats.leave_counts "
@@ -475,7 +475,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "EC:ledger.* EM:ledger.* "  # 2-1: 経済の段階 2(給料日の賃金・日の欄)と生ログの支払いの方法の列
                "TXD:ledger.* "  # 4-2: 申告の期限の日の締めに預かり消費税を政府へ(税の部品が動くラン)
                "C1B:calendar_self.cal_store",  # 〔6-2〕鉄道の日の締めの発車=カレンダー 1b の連続性の手がかり(腕 1b だけ)
-         tally="daily_records state_files result", reads="cfg.absent_processes cfg.defect_fixes_1103 cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days "
+         tally="daily_records state_files result", reads="cfg.absent_processes cfg.defect_fixes_1103 cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.sim_days "
                "cfg.state_out cfg.tick_seconds cfg.tpd fx.calendar fx.env_fields fx.schedule fx.schedule_hash "
                "layers.act_layer layers.arbiter layers.bridge layers.classical layers.conv "
                "layers.detector layers.energy layers.fam_layer layers.fleet_bridge "
@@ -492,7 +492,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
     make("drain", "判断", "run_end", _RE.sys_drain,
          paths="O43:run_day.* O44:run_day.* O96:run_day.* O8[89]:fleet_bridge.* O87:bridge.* "
                "M0R:mem_layer.memory_store.*",  # 1-6: 艦隊の残りの呼のテープの行=記憶の器の録画の控えを取り出す
-         tally="result state_files", calls_llm="drain", reads="cfg.absent_processes cfg.defect_fixes_1103 cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days cfg.state_out cfg.t_end "
+         tally="result state_files", calls_llm="drain", reads="cfg.absent_processes cfg.defect_fixes_1103 cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.sim_days cfg.state_out cfg.t_end "
                "cfg.tick_seconds cfg.total_ticks cfg.tpd fx.env_fields fx.schedule fx.schedule_hash "
                "layers.act_layer layers.arbiter layers.bridge layers.classical layers.conv "
                "layers.detector layers.energy layers.fam_layer layers.fleet_bridge "
@@ -514,7 +514,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "EC:ledger.* EM:ledger.* "  # 2-1: 経済の段階 2(最後の日の給料日の賃金・日の欄)と生ログの支払いの方法の列
                "TXD:ledger.* "  # 4-2: 最後の日の締めの預かり消費税の納付(税の部品が動くラン)
                "C1B:calendar_self.cal_store",  # 〔6-2〕最後の便の発車=カレンダー 1b の連続性の手がかり(腕 1b だけ)
-         tally="daily_records ledger_growth result state_files", reads="cfg.absent_processes cfg.defect_fixes_1103 cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.seat_release cfg.sim_days "
+         tally="daily_records ledger_growth result state_files", reads="cfg.absent_processes cfg.defect_fixes_1103 cfg.census_out cfg.checkpoint_every cfg.fp cfg.parent_run cfg.rate_rules cfg.run_id cfg.sim_days "
                "cfg.state_out cfg.stopped cfg.t_end cfg.tick_seconds cfg.total_ticks cfg.tpd fx.calendar fx.env_fields "
                "fx.schedule fx.schedule_hash layers.act_layer layers.arbiter layers.bridge "
                "layers.classical layers.conv layers.detector layers.energy layers.fam_layer "
@@ -550,7 +550,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "cfg.outside_suppression cfg.p_notice_ablation cfg.p_notice_d50_scale "
                "cfg.parent_run cfg.plan_exec_on "
                "cfg.plan_sleep cfg.policy cfg.rate_rules cfg.refractory_scale_norm cfg.response_delay "
-               "cfg.role_words cfg.run_id cfg.seat_area_eatery_m2 cfg.seat_area_retail_m2 cfg.seat_release cfg.signage "
+               "cfg.role_words cfg.run_id cfg.seat_area_eatery_m2 cfg.seat_area_retail_m2 cfg.signage "
                "cfg.signage_p_see cfg.sim_days cfg.sleep_suppression cfg.stopped cfg.store_memory_on "
                "cfg.space cfg.space_effective cfg.space_reason "  # 〔第 5 期 空間の段 1〕切替口 --space
                "cfg.store_recall_scope cfg.store_signage_on cfg.store_wom_on cfg.t_begin cfg.t_end "

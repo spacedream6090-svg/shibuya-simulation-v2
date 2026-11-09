@@ -1,8 +1,10 @@
 """〔第 2 期 2-4 V3〕在席の印を歩き出しで解く(``engine.seat_release``・``resolve._apply_move``)。
 
-既定 walk=移動の意図で歩き出した体(行き先のノードへ向かう=MOVING)の ``poi_ref``/``poi_since`` を解く。到着済み(行き先の
-ノードに居る=IDLE)・移動しない体・行けない体は解かない。``resolve.apply`` の既定(``seat_release_walk=False``=直に呼ぶ
-試験と切替口 legacy)は 2-4 より前の挙動。記録 ``docs/bench/analysis/wallbounce-1012/vb24/README.md`` の V3。
+ランは常に walk=移動の意図で歩き出した体(行き先のノードへ向かう=MOVING)の ``poi_ref``/``poi_since`` を解く。到着済み
+(行き先のノードに居る=IDLE)・移動しない体・行けない体は解かない。``resolve.apply`` の既定(``seat_release_walk=False``=直に
+呼ぶ部品の単体試験の基準の口)は 2-4 より前の挙動。〔第346〕ランの切替口 ``--seat-release legacy``(環境変数
+``SHIBUYA_SEAT_RELEASE``)は消した=渡すと止まる・見出しに ``seat_release`` の無い状態のファイルからは再開できない。記録
+``docs/bench/analysis/wallbounce-1012/vb24/README.md`` の V3・``docs/bench/analysis/delete-346/README.md``。
 """
 
 from __future__ import annotations
@@ -80,49 +82,56 @@ def test_unseated_walkers_are_not_counted():
     assert out.n_seat_released_walk == 0 and int(agents.registry.poi_ref[0]) == -1
 
 
-def test_arm_default_header_and_resume_check(monkeypatch):
+def test_default_header_and_resume_check():
     assert SR.DEFAULT_MODE == SR.MODE_WALK
-    monkeypatch.setattr(SR, "_ARM", SR.MODE_WALK)
-    assert SR.arm() == "walk" and SR.is_walk()
-    assert SR.header_fields("walk") == {"mode": "walk"} and SR.header_fields("legacy") is None
+    assert SR.header_fields() == SR.header_fields("walk") == {"mode": "walk"} and SR.header_fields("legacy") is None
     SR.check_resume({"mode": "walk"})
-    with pytest.raises(ValueError):
-        SR.check_resume(None)  # 見出しに無い=legacy(2-4 より前のラン)
-    monkeypatch.setattr(SR, "_ARM", SR.MODE_LEGACY)
-    SR.check_resume(None)
-    with pytest.raises(ValueError):
-        SR.check_resume({"mode": "walk"})
-    with pytest.raises(ValueError):
-        SR.set_arm("sometimes")
+    for saved in (None, {"mode": "legacy"}):  # 見出しに無い=legacy(2-4 より前のラン)=〔第346〕再開できない
+        with pytest.raises(ValueError, match="在席の印の腕.*消した.*stable-v2-before-switch-removal-346"):
+            SR.check_resume(saved)
 
 
-def test_run_manifest_reports_the_arm_and_the_count(monkeypatch):
-    """合成の世界のランの manifest の ``leave_effects`` に腕と解いた数が出る(legacy は 0)。"""
+def test_removed_seat_release_switch_env_and_cli_flag_stop():
+    """〔第346〕消した切替口: 環境変数 SHIBUYA_SEAT_RELEASE を与えると読み込みで止まる・CLI の --seat-release は無い。"""
+    import inspect
+    import os
+    import subprocess
+    import sys
+
+    from shibuya import cli
+
+    for name in ("arm", "set_arm", "is_walk", "MODES", "_ARM"):
+        assert not hasattr(SR, name), name
+    env = {**os.environ, "SHIBUYA_SEAT_RELEASE": "legacy", "PYTHONIOENCODING": "utf-8"}
+    r = subprocess.run([sys.executable, "-c", "import shibuya.engine.seat_release"], env=env, capture_output=True,
+                       text=True, encoding="utf-8")
+    assert r.returncode != 0 and "消した切替口" in r.stderr
+    assert '"--seat-release"' not in inspect.getsource(cli)
+    for value in ("legacy", "walk"):
+        with pytest.raises(SystemExit):
+            cli.main(["--seat-release", value])
+
+
+def test_run_manifest_reports_the_arm_and_the_count():
+    """合成の世界のランの manifest の ``leave_effects`` に腕(walk に固定)と解いた数が出る・見出しにも walk。"""
     from shibuya.engine.run import run_day
 
-    got = {}
-    for mode in ("walk", "legacy"):
-        monkeypatch.setattr(SR, "_ARM", mode)
-        res = run_day(n_agents=60, seed=1, ticks=240, renderer="stub", vocab_version="v3", checkpoint_every=240)
-        le = res.run_manifest_fields()["leave_effects"]
-        got[mode] = (le["seat_release"], le["released_on_walk"])
-    assert got["walk"][0] == "walk" and got["legacy"] == ("legacy", 0)
+    res = run_day(n_agents=60, seed=1, ticks=240, renderer="stub", vocab_version="v3", checkpoint_every=240)
+    le = res.run_manifest_fields()["leave_effects"]
+    assert le["seat_release"] == "walk" and le["released_on_walk"] >= 0
 
 
-@pytest.mark.parametrize("first,second", [("walk", "legacy"), ("legacy", "walk")])
-def test_resume_with_another_seat_arm_is_refused(tmp_path, monkeypatch, first, second):
-    """腕は設定の指紋に入れない=状態のファイルの見出しの ``seat_release``(walk だけ書く)と今の腕を突き合わせる。"""
+def test_resume_without_the_seat_header_is_refused(tmp_path):
+    """腕は設定の指紋に入れない=状態のファイルの見出しの ``seat_release`` を見る(〔第346〕見出しに無い=2-4 より前は止める)。"""
+    import json
+
     from shibuya.engine import resume as RS
     from shibuya.engine.run import run_day
 
     kw = dict(n_agents=40, seed=1, n_cells=9, ticks=240, budget=40.0, vocab_version="v3")
-    monkeypatch.setattr(SR, "_ARM", first)
     a = run_day(state_out=tmp_path / "st", stop_at_tick=120, **kw)
     f = tmp_path / "st" / a.resume["state_files"][-1]["file"]
     head = RS.read_state(f).header
-    assert ("seat_release" in head) == (first == "walk")
-    monkeypatch.setattr(SR, "_ARM", second)
-    with pytest.raises(ValueError, match="在席の印の腕"):
-        run_day(resume_from=f, **kw)
-    monkeypatch.setattr(SR, "_ARM", first)
+    assert head["seat_release"] == {"mode": "walk"}
     run_day(resume_from=f, **kw)  # 同じ腕は通る
+    assert json.dumps(head, sort_keys=True)  # 見出しは JSON にできる(消した鍵は無い)

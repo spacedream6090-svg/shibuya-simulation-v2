@@ -92,7 +92,7 @@ COMPARE_KEYS: Final[tuple[str, ...]] = (
 #: ``SHIBUYA_CALENDAR_W20``(値が道筋)を :data:`HIDDEN_ENV` へ移し、src が読むのに一覧に無かった 4 本
 #: (``SHIBUYA_ABSENT_PROCESSES``・``SHIBUYA_BODY_BOUNDARY_GAUGE``・``SHIBUYA_DEFECT_FIXES_1103``・``SHIBUYA_RATE_RULES``)を足した。
 SWITCH_ENV: Final[tuple[str, ...]] = (
-    "SHIBUYA_PROXIMITY", "SHIBUYA_PROXIMITY_D", "SHIBUYA_SEAT_RELEASE", "SHIBUYA_ECONOMY_STAGE2",
+    "SHIBUYA_PROXIMITY", "SHIBUYA_PROXIMITY_D", "SHIBUYA_ECONOMY_STAGE2",
     "SHIBUYA_ECONOMY_STAGE2_PARTS", "SHIBUYA_MEMORY_STORE", "SHIBUYA_EVENTS", "SHIBUYA_TOOL_EVENTS",
     "SHIBUYA_WRITE_GUARD", "SHIBUYA_SYSTEMS_CHECK", "SHIBUYA_WARD_AREA_M2",
     "SHIBUYA_BATCH_WIDTH_S", "SHIBUYA_CALENDAR_SHADOW", "SHIBUYA_BODY_SCHEDULE",
@@ -109,7 +109,7 @@ SWITCH_ENV: Final[tuple[str, ...]] = (
 #: 〔第346 旧道の切替口の削除〕消した切替口の環境変数(src は名を持つ=与えると読み込みで止まる。:data:`SWITCH_ENV` から外した
 #: =値を残す欄が無い。置かれていれば名だけを ``env_hidden`` に残す)。記録 ``docs/bench/analysis/delete-346/README.md``。
 REMOVED_ENV: Final[tuple[str, ...]] = (
-    "SHIBUYA_RULES_42B", "SHIBUYA_RULES_42",
+    "SHIBUYA_RULES_42B", "SHIBUYA_RULES_42", "SHIBUYA_SEAT_RELEASE",
 )
 
 #: 値を記録しない環境変数(道筋・鍵)。置かれていれば名だけを side の JSON の ``env_hidden`` に残す。

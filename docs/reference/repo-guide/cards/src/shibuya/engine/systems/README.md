@@ -36,7 +36,7 @@ engine.systems.act — 行為の解決の系(phase_a・phase_b・phase_c)(第 1 
     - 書いてよい外の道筋: `A:ledger.*`・`E:events.*`・`EC:ledger.*`・`EM:ledger.*`・`O21:classical._gate_hazard`・`O26:poi_resolver.*`・`O2[7-9]:energy.*`・`O34:norm_meter.*`・`O46:runner.*`・`O47:runner.*`・`O48:runner.*`・`O5[0-1]:runner.*`・`O5[7-9]:ledger.*`・`O60:ledger.*`・`O66:act_layer.*`・`O7[2-5]:runner.*`・`O7[7-9]:ledger.*`・`O8[01]:ledger.*`・`O94:poi_resolver.*`・`O9[23]:ledger.*`・`O[4-6]:intent_layer.*`・`TXD:ledger.*`
     - 書く scratch: `outcome`
     - 書く計数: `geometry_hops`・`geometry_jammed`・`leave_counts`・`per_action_total`・`phase`・`result`
-- 決定の ID: 11-03・D-71・D-107・第 308
+- 決定の ID: 11-03・D-71・D-107・第 308・第 346
 
 ## [allow.py](../../../../../../../../src/shibuya/engine/systems/allow.py)
 
@@ -128,7 +128,7 @@ engine.systems.build — 組み立て(R1・S0〜S8 と再開の復元)(第 1 期
 - 呼び手: `shibuya.engine.systems.conductor`
 - 読む試験: `tests/engine/clock/test_tm4_regional_clock.py`・`tests/engine/duties/_du.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_pop_w21_world.py`・`tests/engine/test_sim_time_T.py`
 - 読む試験(道筋で): `tests/engine/body/test_body_guard.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/rules/test_rules_table_schema.py`・`tests/engine/systems/test_boxes.py`
-- 決定の ID: 10-12・10-12/§1-6・10-13b/§7・11-01・11-02r/§1・11-02r/§1 #7・11-03・11-03/§3・D-31・D-58・D-59・D-62・D-66・D-71・D-107・D-112・D-120・第 214・第 308・第 309・第 330
+- 決定の ID: 10-12・10-12/§1-6・10-13b/§7・11-01・11-02r/§1・11-02r/§1 #7・11-03・11-03/§3・D-31・D-58・D-59・D-62・D-66・D-71・D-107・D-112・D-120・第 214・第 308・第 309・第 330・第 346
 
 ## [conductor.py](../../../../../../../../src/shibuya/engine/systems/conductor.py)
 
@@ -356,7 +356,7 @@ engine.systems.report — ランの結果の組み立て(R3・E2〜E4)(第 1 期
 - 書きの許可
   - 系 `report`(群 計器・時 `run_end`・関数 `report`)
     - 書く計数: `frozen_sources_map`・`result`・`sleep_counts`
-- 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・D-58・D-59・D-99・D-107・第 308・第 309・第 330
+- 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・D-58・D-59・D-99・D-107・第 308・第 309・第 330・第 346
 
 ## [run_end.py](../../../../../../../../src/shibuya/engine/systems/run_end.py)
 
@@ -417,7 +417,7 @@ engine.systems.state_io — 箱から状態台帳の持ち主・知覚 SoA・ハ
 - 呼び手: `shibuya.engine.systems.build`・`shibuya.engine.systems.day`・`shibuya.engine.systems.observe`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.run_end`
 - 読む試験: `tests/engine/discard_probe.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/systems/test_boxes.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/time/test_t0_tm9_fields.py`
 - 読む試験(道筋で): `tests/engine/rules/test_rules_table_schema.py`
-- 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・D-85
+- 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・D-85・第 346
 
 ## [static_check.py](../../../../../../../../src/shibuya/engine/systems/static_check.py)
 

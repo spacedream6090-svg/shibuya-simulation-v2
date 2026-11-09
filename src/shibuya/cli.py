@@ -481,7 +481,6 @@ def run(
         arms = run_arms({**kwargs, "budget": budget, "l4_scale": scale, "use_population": use_population,
                          "store_capital_yen": store_capital_yen})
         from shibuya.engine import proximity as _proximity  # 第 2 期 2-2: 環境変数の腕も腕と数える(結果が変わる腕)
-        from shibuya.engine import seat_release as _seat_release  # 〔第 2 期 2-4 V3〕同じ(既定 walk と違えば腕)
         from shibuya.engine import rate_rules as _rate_rules  # 〔11-01 段 2 の 4〕率の形の規則(既定 off と違えば腕)
         from shibuya.engine import absent_processes as _absent_processes  # 〔11-02r §1 #7〕「無い」の過程(既定 stopped と違えば腕)
         from shibuya.engine import defect_fixes_1103 as _defect_fixes_1103  # 〔11-03 §3〕欠陥 4 件の直し(既定 on と違えば腕)
@@ -503,7 +502,6 @@ def run(
         # 〔第 3 期 3-3〕申込書を渡したランは反実仮想(試験 > 反実仮想 > 腕 > 再現)
         run_kind = _RK.decide(arms_on=bool(arms) or _speech_layer.arm() != _speech_layer.ARM_OFF
                               or _proximity.arm() != _proximity.DEFAULT_MODE  # 〔2-4 V2〕既定は distance
-                              or _seat_release.arm() != _seat_release.DEFAULT_MODE  # 〔2-4 V3〕既定は walk
                               or _rate_rules.arm() != _rate_rules.DEFAULT_MODE  # 〔11-01〕既定は off
                               or _absent_processes.arm() != _absent_processes.DEFAULT_MODE  # 〔11-02r〕既定は stopped
                               or _defect_fixes_1103.arm() != _defect_fixes_1103.DEFAULT_MODE  # 〔11-03〕既定は on
@@ -1439,15 +1437,6 @@ def main(argv: list[str] | None = None) -> int:
              "SHIBUYA_ECONOMY_STAGE2_PARTS と同じ)。1 つずつ測るため",
     )
     ap.add_argument(
-        "--seat-release",
-        choices=("walk", "legacy"),
-        default=None,
-        help="第 2 期 2-4 V3 在席の印を歩き出しで解く腕(既定 walk・環境変数 SHIBUYA_SEAT_RELEASE と同じ。指定すれば環境変数より"
-             "強い)。walk=移動の意図で歩き出した体の在席の印(店の席)を解く。legacy=2-4 より前の挙動(退去・乗車・滞在の上限で"
-             "しか解かない)=切替口(旧値の再現)。腕は設定の指紋に入れない(manifest の leave_effects.seat_release に出る・"
-             "既定と違えばランの種類は arm)",
-    )
-    ap.add_argument(
         "--batch-width-s",
         type=int,
         choices=_batch_widths(),
@@ -1640,10 +1629,6 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.engine import defect_fixes_1103 as _defect_fixes_1103
 
         _defect_fixes_1103.set_arm(str(args.defect_fixes_1103))
-    if args.seat_release is not None:  # 〔第 2 期 2-4 V3〕在席の印の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine import seat_release as _seat_release
-
-        _seat_release.set_arm(str(args.seat_release))
     if args.body_schedule is not None:  # 〔第 3 期 3-5〕TM5 の体の予約の腕(組み立てが読む。指定は環境変数より強い)
         from shibuya.engine import body as _body
 

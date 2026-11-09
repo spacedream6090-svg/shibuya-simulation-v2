@@ -432,8 +432,9 @@ def report(ctx: Any, b: Any) -> Any:
                             "left_queue": int(leave_counts["n_leave_queue"]),
                             "was_conversing": int(leave_counts["n_leave_conversing"]),
                             "sessions_closed": int(rs.leave_closed),
-                            # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(設定)と解いた数(観測)
-                            "seat_release": str(b.cfg.seat_release),
+                            # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(設定=walk に固定・〔第346〕切替口は消した)と
+                            # 解いた数(観測)
+                            "seat_release": "walk",
                             "released_on_walk": int(leave_counts["n_seat_released_walk"])}
     if presence is not None:
         result.presence_exit = dict(presence.exit_summary())

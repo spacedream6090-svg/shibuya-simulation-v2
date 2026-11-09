@@ -501,7 +501,7 @@ class ResolveOutcome:
     n_leave_conversing: int = 0
     #: 退去した**会話中の**体(``engine.run`` が会話マネージャの終了経路=CLOSING で閉じる)。
     leave_conversing: list = field(default_factory=list)
-    #: 〔第 2 期 2-4 V3〕移動の意図で歩き出した体の在席の印を解く(``engine.seat_release``・既定 walk=True・切替口 legacy=False)。
+    #: 〔第 2 期 2-4 V3〕移動の意図で歩き出した体の在席の印を解く(ランは常に True・False=部品の単体試験の基準の口)。
     seat_release_walk: bool = False
     #: 〔第 2 期 2-4 V3〕歩き出しで解いた在席の印の数(診断)。
     n_seat_released_walk: int = 0
@@ -1366,8 +1366,9 @@ def apply(
         talk_by_distance: **C9b G7**。``True`` で会話の成立判定が「同一セル代理」から
             ``TALK_OPEN_METERS``(2 m)の実距離になる。``False``(既定)は現行のまま。
         seat_release_walk: 〔第 2 期 2-4 V3〕``True`` で移動の意図(``_apply_move``)で歩き出した体の在席の印
-            (``poi_ref``/``poi_since``)を解く(``engine.seat_release`` の腕 walk=CLI の既定)。``False``(この関数の既定
-            =直に呼ぶ試験・切替口 legacy)は 2-4 より前の挙動(退去・乗車・滞在の上限でしか解かない)。
+            (``poi_ref``/``poi_since``)を解く(ランは常に ``True``=``engine.seat_release`` の walk)。``False``(この関数の
+            既定=直に呼ぶ部品の単体試験の基準の口・〔第346〕ランの切替口 legacy は消した)は 2-4 より前の挙動(退去・乗車・
+            滞在の上限でしか解かない)。
         defect_fixes: 〔11-03 §3〕``True`` で棚卸し B の M11・M28 を直した道(``engine.defect_fixes_1103`` の腕 on=CLI の既定):
             移動(``_apply_move``)で歩き出した体と、乗車(``_apply_board``)でホームへ歩き出した体は満席の列を離れる
             (失敗は書かない)・列を捌く(``_serve_poi_queue``)前に店のセルに居ない体を列から外す・列の支払いの確かめを

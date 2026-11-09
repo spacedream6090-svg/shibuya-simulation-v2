@@ -998,7 +998,7 @@ engine.resolve — **世界状態への唯一の書き込み口**(二相コミ�
   - `write_memory`: 直接の書き `agents.mem_cell`・`agents.mem_importance`・`agents.mem_kind`・`agents.mem_last`・`agents.mem_n`・`agents.mem_object`・`agents.mem_partner`・`agents.mem_result`・`agents.mem_tick` 口として持つ系: decide・llm_receive・memory
   - `write_relations`: 直接の書き `agents.rel_first`・`agents.rel_kind`・`agents.rel_last`・`agents.rel_n`・`agents.rel_partner`・`agents.rel_sign` 口として持つ系: build・memory・relations_wake
   - `write_store_memory`: 直接の書き `agents.sm_first`・`agents.sm_last`・`agents.sm_n`・`agents.sm_poi`・`agents.sm_precision`・`agents.sm_source`・`agents.sm_valence` 口として持つ系: decide・llm_receive・memory
-- 決定の ID: 10-12/§1-4・11-03・11-03/§2・11-03/§3・11-09・D-49・D-51・D-56・D-62・D-66・D-71・D-93・D-112・D-113・D-115・D-116・D-118・D-120・第 263・第 266・第 267・第 268・第 275・第 275 #2・第 288・第 288 #54・第 302・第 330
+- 決定の ID: 10-12/§1-4・11-03・11-03/§2・11-03/§3・11-09・D-49・D-51・D-56・D-62・D-66・D-71・D-93・D-112・D-113・D-115・D-116・D-118・D-120・第 263・第 266・第 267・第 268・第 275・第 275 #2・第 288・第 288 #54・第 302・第 330・第 346
 
 ## [resume.py](../../../../../../../src/shibuya/engine/resume.py)
 
@@ -1145,17 +1145,15 @@ engine.scheduler — 起床イベントの1分tickバケット配列+tick内秒�
 
 ## [seat_release.py](../../../../../../../src/shibuya/engine/seat_release.py)
 
-engine.seat_release — 在席の印を歩き出しで解く切替口(第 2 期 2-4 V3・版上げ 2 回目)。
+engine.seat_release — 在席の印を歩き出しで解く(第 2 期 2-4 V3・版上げ 2 回目)の見出しと再開の検査。
 
 - 公開の関数とクラス
-  - `arm`(関数): いまの腕(``walk``=既定・``legacy``=切替口)。組み立てのときに読む。
-  - `check_resume`(関数): 再開のときに、保存したランの腕(見出しの ``seat_release``・無ければ legacy)と今の腕が同じかを確かめる(違えば止める)。
-  - `header_fields`(関数): 状態のファイルの見出しの ``seat_release``(legacy のランは書かない=None=2-4 より前の見出しのまま)。
-  - `is_walk`(関数): ``mode``(省略=今の腕)が歩き出しで解く腕か。
-  - `set_arm`(関数): 腕を選ぶ(CLI ``--seat-release``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
-- 呼び手: `shibuya.cli`・`shibuya.engine.systems.build`・`shibuya.engine.systems.state_io`
+  - `check_resume`(関数): 再開のときに、保存したランの見出しの ``seat_release``(無ければ legacy=2-4 より前のラン)が walk かを確かめる(違えば止める)。
+  - `header_fields`(関数): 状態のファイルの見出しの ``seat_release``(ランは常に ``{"mode": "walk"}``・walk の外の名は None)。
+- 呼び手: `shibuya.engine.systems.build`・`shibuya.engine.systems.state_io`
 - 読む試験: `tests/engine/test_seat_release_2_4.py`
 - 環境変数: `SHIBUYA_SEAT_RELEASE`
+- 決定の ID: 第 346
 
 ## [solar.py](../../../../../../../src/shibuya/engine/solar.py)
 

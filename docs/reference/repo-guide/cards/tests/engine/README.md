@@ -1416,12 +1416,15 @@ P3 ゲート: イベント処理スループット **≥10万イベント/秒**(
 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く(``engine.seat_release``・``resolve._apply_move``)。
 
 - 公開の関数とクラス
-  - `test_arm_default_header_and_resume_check`(関数)
-  - `test_resume_with_another_seat_arm_is_refused`(関数): 腕は設定の指紋に入れない=状態のファイルの見出しの ``seat_release``(walk だけ書く)と今の腕を突き合わせる。
-  - `test_run_manifest_reports_the_arm_and_the_count`(関数): 合成の世界のランの manifest の ``leave_effects`` に腕と解いた数が出る(legacy は 0)。
+  - `test_default_header_and_resume_check`(関数)
+  - `test_removed_seat_release_switch_env_and_cli_flag_stop`(関数): 〔第346〕消した切替口: 環境変数 SHIBUYA_SEAT_RELEASE を与えると読み込みで止まる・CLI の --seat-release は無い。
+  - `test_resume_without_the_seat_header_is_refused`(関数): 腕は設定の指紋に入れない=状態のファイルの見出しの ``seat_release`` を見る(〔第346〕見出しに無い=2-4 より前は止める)。
+  - `test_run_manifest_reports_the_arm_and_the_count`(関数): 合成の世界のランの manifest の ``leave_effects`` に腕(walk に固定)と解いた数が出る・見出しにも walk。
   - `test_unseated_walkers_are_not_counted`(関数)
   - `test_walkers_release_the_seat_only_with_the_walk_arm`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.seat_release`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.seat_release`・`shibuya.world.state`
+- 環境変数: `SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
+- 決定の ID: 第 346
 
 ## [test_sim_time_T.py](../../../../../../tests/engine/test_sim_time_T.py)
 

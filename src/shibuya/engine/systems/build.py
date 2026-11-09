@@ -419,7 +419,7 @@ def build(_call_args: dict[str, Any]) -> Any:
 
         _ES2R.check_resume(_h.get("economy_stage2"),  # 〔2-4 V4〕金の台帳が無いランは腕 on でも挿さない=off と同じ
                            effective=ledger is not None and hasattr(getattr(ledger, "money", None), "attach_stage2"))
-        # 〔第 2 期 2-4 V3〕在席の印の腕も設定の指紋に入れない=見出しの seat_release(無ければ legacy)と今の腕を突き合わせる
+        # 〔第 2 期 2-4 V3〕在席の印は設定の指紋に入れない=見出しの seat_release(無ければ legacy=〔第346〕再開できない)を見る
         from shibuya.engine import seat_release as _SRR
 
         _SRR.check_resume(_h.get("seat_release"))
@@ -1550,8 +1550,6 @@ def build(_call_args: dict[str, Any]) -> Any:
         bridge.role_sink = duties_layer.note_role_word
 
     # ---- 1-0 段 C: 状態の箱(局所の割り当ての表 local-assignment.json・草案 §2-3)。物はそのまま指す(写しを作らない) ----
-    from shibuya.engine import seat_release as _SRB  # 〔第 2 期 2-4 V3〕
-
     box = _BX.Box(
         cfg=_BX.RunConfig(
             n_agents=n_agents, seed=seed, tick_seconds=tick_seconds, ticks=ticks, fleet_wait_s=fleet_wait_s,
@@ -1580,7 +1578,6 @@ def build(_call_args: dict[str, Any]) -> Any:
             refractory_table=refractory_table, refractory_scale_norm=refractory_scale_norm,
             budget_mode_enum=budget_mode_enum, p_see_activity_table=p_see_activity_table,
             p_see_activity_identity=p_see_activity_identity, call_layer=_call_layer, fp=_fp, parent_run=parent_run,
-            seat_release=_SRB.arm(),  # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(組み立てで 1 回読む)
             rate_rules=rate_rules_mode,  # 〔11-01 段 2 の 3・4〕率の形の規則の腕(組み立てで 1 回読む)
             absent_processes=absent_mode,  # 〔11-02r §1 #7〕「無い」と宣言した過程 5 件の腕(組み立てで 1 回読む)
             defect_fixes_1103=defect_fixes_mode,  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しの腕(組み立てで 1 回読んだ値)
