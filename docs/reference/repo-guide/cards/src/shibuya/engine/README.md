@@ -757,7 +757,7 @@ engine.proximity — 会話と近接を実距離で判定する切替口(第 2 �
 
 - 公開の関数とクラス
   - `NearView`(クラス): 描画の前計算に渡す物(規則・この刻みの索引・気づいた印の読み口)。
-  - `ProximityLayer`(クラス): 腕 ``distance`` の層(判定の規則・計器・気づいた印の読み口)。組み立てが作る(既定の腕 cell では作らない=None)。
+  - `ProximityLayer`(クラス): 腕 ``distance`` の層(判定の規則・計器・気づいた印の読み口)。組み立てが作る(既定の distance で作る・旧道の cell では作らない=None)。
   - `ProximityRule`(クラス): 腕 ``distance`` の判定の規則(組み立てで 1 回作る・ランの間は変えない)。``seed``=動きの側の seed。
   - `arm`(関数): いまの腕(``distance``=実距離=既定〔2-4 V2〕・``cell``=同じセル=切替口)。組み立てのときに読む。
   - `batch_partners`(関数): 適用の束 ``batch`` の中で、``rows``(束の中の位置)の体に届く束の体のうち並びの鍵が最小の体(届く体が無ければ −1)。
@@ -1002,7 +1002,7 @@ engine.resolve — **世界状態への唯一の書き込み口**(二相コミ�
   - `write_memory`: 直接の書き `agents.mem_cell`・`agents.mem_importance`・`agents.mem_kind`・`agents.mem_last`・`agents.mem_n`・`agents.mem_object`・`agents.mem_partner`・`agents.mem_result`・`agents.mem_tick` 口として持つ系: decide・llm_receive・memory
   - `write_relations`: 直接の書き `agents.rel_first`・`agents.rel_kind`・`agents.rel_last`・`agents.rel_n`・`agents.rel_partner`・`agents.rel_sign` 口として持つ系: build・memory・relations_wake
   - `write_store_memory`: 直接の書き `agents.sm_first`・`agents.sm_last`・`agents.sm_n`・`agents.sm_poi`・`agents.sm_precision`・`agents.sm_source`・`agents.sm_valence` 口として持つ系: decide・llm_receive・memory
-- 決定の ID: 10-12/§1-4・11-03・11-03/§2・11-03/§3・D-49・D-51・D-56・D-62・D-66・D-71・D-93・D-112・D-113・D-115・D-116・D-118・D-120・第 263・第 266・第 267・第 268・第 275・第 275 #2・第 288・第 288 #54・第 302・第 330
+- 決定の ID: 10-12/§1-4・11-03・11-03/§2・11-03/§3・11-09・D-49・D-51・D-56・D-62・D-66・D-71・D-93・D-112・D-113・D-115・D-116・D-118・D-120・第 263・第 266・第 267・第 268・第 275・第 275 #2・第 288・第 288 #54・第 302・第 330
 
 ## [resume.py](../../../../../../../src/shibuya/engine/resume.py)
 

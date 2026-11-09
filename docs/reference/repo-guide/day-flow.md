@@ -2,18 +2,19 @@
 
 > 発注は [返事その 6](../../design/prompt-2026-11-05-reply6.md) §3-1 の 2 です。今のコードの現状を書きます。あるべき姿は [仕様書](../../design/spec/) の担当なので、ここには書きません。
 > 正はコードです。HEAD `15b6bbd` のコードを読み、既定の値は CLI の引数の定義と各モジュールの腕の関数を Python で読み出して確かめました。この文書のためにランは回していません。`data/` は開いていません。実測の数値には出どころの記録を添えます。
+> 〔11-09〕[段 2 の突き合わせ](../stage2-crosscheck-2026-11-05.md)の食い違いと書き漏れを、HEAD `14b151a` のコードで確かめて直しました。直した所の一覧は §13 です。
 
 ## 0. 先に結論と読み方
 
 ### 0-1 先に結論
 
-1. 既定のランで「考える」を担っているのは mock(決まった乱数で答える代役)です。mock はプロンプトを読まず(腕 `--speech-port on` の発話の欄の指示だけが例外)、語彙の 12 語から一様に 1 語を引きます。LLM は腕で、判断モデルは src にまだありません。
+1. 既定のランで「考える」を担っているのは mock(決まった乱数で答える代役)です。mock はプロンプトを読まず、語彙の 12 語から一様に 1 語を引きます。例外は 2 つです。腕 `--speech-port on` の発話の欄の指示を見ることと、ライブラリの `run_day` の引数 `mock_move_target_p`・`mock_out_of_cell_target_p`(既定 0・CLI に引数なし)を上げたときに B2 の「見えるもの」を読んで対象にすることです(`llm/mock.py`)。LLM は腕です。判断モデルの中身はまだありません。腕(連絡 c1・カレンダー 2 と 3・店の仕事)には判断モデルを呼ぶ口があり、mock が答えます。`calls_by_model.judge_model` はその呼数で、既定では 0 です。連絡・店の仕事・カレンダーの判断と文の口は、`--llm fleet` でも仮のモデルに固定です(§4-4)。
 2. 日課表 W17(初期の予定)のうちコードが実行するのは、舞台への出入り・就寝・起床の 4 種と、舞台の外に居る体の食事だけです。勤務の行を実行する処理は無く、日課の中身はプロンプトにも載りません。W17 の行の切れ目は呼び出しのきっかけとして使います。
 3. 記憶・関係・発話の言葉は既定で off です。会話のセッションは成立しますが、言葉が無く、誰も覚えません。
 
 ### 0-2 既定のランとは
 
-`python -m shibuya.cli` を引数なし・`SHIBUYA_*` の環境変数なしで起動したランを「既定のラン」と呼びます。5,000 体(`--agents`)・1 日(`--ticks 1440`)・seed(乱数の種)1・世界は `data/world/v2` です。開始日は 2026-07-13 の月曜です([calendar.py](../../../src/shibuya/engine/calendar.py) の `DEFAULT_WORLD_START`)。
+`python -m shibuya.cli` を引数なし・`SHIBUYA_*` の環境変数なしで起動したランを「既定のラン」と呼びます。5,000 体(`--agents`)・1 日(`--ticks 1440`)・seed(乱数の種)1・世界は `data/world/v2` です。開始日は 2026-07-13 の月曜です([calendar.py](../../../src/shibuya/engine/calendar.py) の `DEFAULT_WORLD_START`)。組み立ては毎ランで開始日の検査を走らせ、祝日でない月曜に始まり、2 日以上なら連続する平日に収まるランだけを回します(祝日の CSV が読めないときも止まる)。今の作りでは土日と祝日を回せません([カタログ A §16](catalog/a-body-and-town.md))。
 
 入口が違うと既定も違います。[cli.py](../../../src/shibuya/cli.py) の CLI の既定は語彙 v3・空腹 energy・呼数の上限なしで、ライブラリの `run_day` の既定は語彙 v1・空腹 v1・呼数の按分です(`cli.arm_baseline`)。世界の資産が無い場所(合成の小さな世界)では、日課の実行部が立たず、移動も旧道で回ります。
 
@@ -152,9 +153,11 @@
 | 古典モデル | `--policy classical` | 腕 | [classical.py](../../../src/shibuya/engine/classical.py)。LLM 0 呼。食事の門と社会生活基本調査の事前分布 |
 | LLM | `--llm fleet --endpoints …` | 腕 | [fleet.py](../../../src/shibuya/llm/fleet.py)。非同期の実 vLLM(推論サーバー)。温度 0.7・最大 96 トークン。既定は待たない(`--fleet-wait-s 0`。本番の運用値は 120) |
 | 再生 | `--replay` | 腕 | 応答の記録(旧: テープ)から完全一致で引く |
-| 判断モデル | なし | 未実装 | 判断の口の実装は llm・mock・classical の 3 つだけ([ports.py](../../../src/shibuya/engine/decision/ports.py))。評価の道具 `tools/instruments/dm_eval/` は src の外 |
+| 判断モデル | なし | 中身は未実装 | 判断モデルの中身は無い。主の判断の口の実装は llm・mock・classical の 3 つだけ([ports.py](../../../src/shibuya/engine/decision/ports.py))。腕(連絡 `--contact c1`・`--calendar-2 arm`・`--calendar-3 arm`・`--duties arm`)には判断モデルを呼ぶ口があり、仮のモデル(mock)が答える。`calls_by_model.judge_model` はその呼数(既定では 0)。評価の道具 `tools/instruments/dm_eval/` は src の外 |
 
-計器の `layer_counts` は mock の呼び出しも層 2(LLM)に数えます(`build.py` の `_call_layer`)。計器の「LLM の呼数」を読むときは mock を含むと読んでください。
+腕の層の判断の口と文の口は、コードで仮のモデルに固定されています(`contact/layer.py`・`duties/layer.py`・`calendar2/layer.py`・`calendar3/layer.py`・`calendar_self.py`)。`--llm fleet` を選んでも、連絡・店の仕事・カレンダーの判断と文は艦隊へ行きません。艦隊へ行くのは主の判断の呼び(会話の番を含む)だけです。
+
+計器の `layer_counts` は mock の呼び出しも層 2(LLM)に数えます(古典の方策は層 1・`build.py` の `_call_layer`)。計器の「LLM の呼数」は答え手によらず足すので(`decide.py`)、mock も古典の方策も含むと読んでください。
 
 ### 4-5 プロンプト
 
@@ -188,9 +191,9 @@
 
 ## 6. 店で買う・食べる
 
-答えが「購入」「食事」「並ぶ」なら、今のセルの営業中で意図に合う店を候補にし、最寄りを選びます([poi_target.py](../../../src/shibuya/engine/poi_target.py)・[chooser.py](../../../src/shibuya/engine/chooser.py))。mock は対象が「なし」なので、今のセルに候補が無ければ失敗します。
+答えが「購入」「食事」「並ぶ」なら、今のセルの営業中で意図に合う店を候補にし、最寄りの選び手で選びます([poi_target.py](../../../src/shibuya/engine/poi_target.py)・[chooser.py](../../../src/shibuya/engine/chooser.py))。選び手の規則は距離 → 可視 → 番号ですが、候補が今のセルの店だけなので距離は全部同じで、実際は今のセルで最も見える店(可視の降順 → 番号)になります([カタログ B](catalog/b-people.md) 2 節)。mock は対象が「なし」なので、今のセルに候補が無ければ失敗します。
 
-購入は、営業中・在庫あり・支払えるを確かめ、席があれば成立します。1 回 1 個で、棚が減り、所持が増えます。満席なら列に並び、席が空くと並んだ順に入り、15 刻みで離れます。在席は最大 30 刻みです([crowd.py](../../../src/shibuya/engine/processes/crowd.py))。食事は飲食店だけで成立し、棚も所持も動きません。金は購入と同じ道で動き、空腹が戻ります。
+購入は、営業中・在庫あり・支払えるを確かめ、席があれば成立します。1 回 1 個で、棚が減り、所持が増えます。満席なら列に並び、席が空くと並んだ順に入ります。列で 15 刻み待っても入れなければ列を離れます(`WAIT_MAX_TICKS`)。在席は最大 30 刻みです(`DWELL_MAX_TICKS`・[crowd.py](../../../src/shibuya/engine/processes/crowd.py))。食事は飲食店だけで成立し、棚も所持も動きません。金は購入と同じ道で動き、空腹が戻ります。
 
 支払いは財布が足りれば現金、足りなければ口座です。レジの消費税は 10% で店の預かり金に積みます。財布が 1 日の消費を下回った体が営業中の ATM のセルで判断すると、千円単位で下ろします。どれも規則で、[stage2.py](../../../src/shibuya/economy/stage2.py) に未リサーチ(expedient)と宣言があります。給料日は毎月 25 日(土休は前の営業日)の日の締めで、職業ごとの実データの賃金と天引きが動きます。既定の 1 日のラン(7 月 13 日)には来ません。
 
@@ -204,7 +207,7 @@
 |---|---|
 | 既定 | 店選びは最寄り(`--chooser nearest`・憲法⑥の宣言つき暫定)・購入と食事と列・金と物の台帳・経済の段階 2 の 5 部品(賃金・引き出し・支払いの方法・レジの税・来街者の口座)・規則の表の天引きと預かり消費税・開閉と補充の代打・納品 |
 | 腕 | `--duties arm`(開閉と補充と廃棄を担当の判断へ)・`--chooser classical`・`--home-meal plan`・`--meal-sleep-defer on`・`--eatery place_food`・`--store-memory on` |
-| 器 | [credit.py](../../../src/shibuya/economy/credit.py)(信用。呼び手なし)・[pricing.py](../../../src/shibuya/economy/pricing.py)(価格形成。結線しない) |
+| 器 | [credit.py](../../../src/shibuya/economy/credit.py)(信用。経済の段階 2 が容量 0 の帳面 `CreditBook` を作って記録に載せるが、行は足されず結果を変えない=`Ledger.attach_stage2`)・[pricing.py](../../../src/shibuya/economy/pricing.py)(価格の改定 Calvo・`propose_price` は結線しない。ただし係数 k=`K_VOLUME`・`K_AVERAGE`・`K_PREMIUM` は `goods.CATEGORY_K` として原価=価格 ÷ k と参入資本の原価率に使うので、既定のランの補充の代金と参入資本の値に効く) |
 | 無い | 品と数を選ぶ・値段を見て見送る・家で食べる・値段を変える・接客・売れ残りの廃棄・ポイ捨て・ごみ収集・宅配・採用と解雇。納品は無いでなく入力、発注は無いでなく初期の予定(固定の注文)と宣言しています |
 
 ## 7. 話す
@@ -288,14 +291,16 @@
 |---|---:|---|
 | 既定 | 38 | 進行と記録 5(進行役と窓・組み立て・出来事の記録・群と規範の計器・診断と checkpoint と manifest とセンサス)/世界過程 13(§9 の既定)/体 3(日課の実行部・空腹と疲れと体感温度・舞台の外の食事)/知覚と判断 7(描画・変化の検出・割り当て・mock・語彙と読み取りと同義語辞書・活動層・意図の保持)/行為 6(取り合いの決着と書き込み・歩行・店選び・購入と食事と列・近接の判定・会話のセッション)/経済と制度 4(台帳・経済の段階 2・規則の表と天引き・権利台帳) |
 | 腕 | 38 | 考える 4(`--policy classical`・`--llm fleet`・`--replay`・`--decision-port port`)/話すと覚える 12(§7 の `--speech-port` から `--familiarity` までの 11 本と §6 の `--store-memory on`)/予定と連絡と仕事 6(`--calendar 1b`・`--calendar-shadow 1a`・`--calendar-2 arm`・`--calendar-3 arm`・`--contact c1`・`--duties arm`)/店と食事 4(`--chooser classical`・`--home-meal plan`・`--meal-sleep-defer on`・`--eatery place_food`)/歩くと出入り 5(`--exit-mode walk_to_platform`・`--derive-rule v2.1`・`--slope tobler`・`--turn-weight person`・`SHIBUYA_NAV1_DENSITY`)/時計 5(`--talk-clock mora`・`--step-scope changed`・`--clock regional`・`--body-schedule reserve`・`--batch-width-s`)/実験 2(`--experiment`・`--weather-perturb`) |
-| 器 | 14 | system1.py の 3 件・道具の台帳・persona.py・credit.py・pricing.py・memory_impression.py・memory_trace.py・rail_events.py・応答率 0.8 の抽選・重要度上位の +2 呼・判断の口の驚きと迷いの欄・起床の条件の 3 行 |
+| 器 | 14 | system1.py の 3 件・道具の台帳・persona.py・credit.py・pricing.py(価格の改定の関数。係数 k は既定で原価と参入資本に効く=§6)・memory_impression.py・memory_trace.py・rail_events.py・応答率 0.8 の抽選・重要度上位の +2 呼・判断の口の驚きと迷いの欄・起床の条件の 3 行 |
 | 無い | 24 | 主体が居ない 8(ごみ収集・街路の清掃・宅配・道路工事・救急と警察の出動・催しの人の注入・採用と解雇・電気と水の負荷)/口が無い 13(電車を見送る・品と数を選ぶ・値段を見て見送る・3 人目として加わる・予定を考え直す・家で食べる・よく考える・ひと言・1 日の振り返り・予想と違って直す・接客・値段を変える・倒れる)/率を外した 2(ポイ捨て・売れ残りの廃棄)/効果の先が無い 1(手伝いと断るの効果)。このほか absent.py には納品(入力)と発注(初期の予定)の 2 件の言い換えがあります |
 
 旧道の切替口は 10 本あります。`--rate-rules legacy`・`--absent-processes legacy`・`--defect-fixes-1103 legacy`・`--seat-release legacy`・`--proximity cell`・`--economy-stage2 off`・`SHIBUYA_RULES_42=off`・`SHIBUYA_RULES_42B=off`・`--space legacy`・`--hunger-model v1` です。11-05/§3-2 で消す予定で、既定のランでは通りません(通らないことの確認は §3-2 の作業で行います)。
 
+〔11-09〕この 10 本のほかにも、CLI の help が旧値の再現と書く切替口があります。`--vocab-version v1`・`v2`(「v1 の checkpoint を再現するとき」)・`--l4-scale 1.0`(「旧挙動」)・`--report-precondition off`(「checkpoint ba01bd0b を再現する帰無腕」)・`--wom-source reason-target`(「旧の再現用」)・`--derive-rule v1` です。後ろの 3 本は、この文書の数え方(帰無の腕と腕の中の下の腕は数えない)で外れると読めます。`--vocab-version v1`・`v2` と `--l4-scale 1.0` は、腕にも旧道にもまだ数えていません。旧道の網羅は未確認です(§12)。
+
 ## 11. 文書とコードが違う所
 
-正はコードです。古い文書を直すかは整理の段(11-05/§3-2)の判断で、ここでは書き直していません。
+正はコードです。1〜17 の古い文書を直すかは整理の段(11-05/§3-2)の判断で、ここでは書き直していません。18〜20 は 11-09 に足した行で、段 2 の突き合わせ §3 に沿って、コードの docstring と注の側を同じ作業で直しました(どれもランの出力に入らない文字列)。
 
 | # | 文書の記述 | コード | 場所 |
 |---:|---|---|---|
@@ -313,9 +318,12 @@
 | 12 | 過程数(5)ぶんのループ | 18 本 | runner.py の `step` のコメント |
 | 13 | `--exit-mode` は「immediate のみ実装」 | `walk_to_platform` も実装済み(`shibuya.cli` の help は正しい) | run.py の `main` の help |
 | 14 | 「既定は起床のたびに全部 L2」 | 語の衝突。ここの L2 は判断の行き先の LLM の層で、コードの思考時間の段の既定は L1 | absent.py の `absent.deliberate`・llm_bridge.py の `DEFAULT_LANE` |
-| 15 | 11-05/9-3d・9-5 で「考え中も歩く速さは落ちない」「再開の費用は無い」を無いの一覧へ足す決定 | absent.py にまだ行が無い(決定が新しく未着手) | absent.py |
-| 16 | 発注の手がかりの `engine/conductor.py` | 実体は `engine/systems/conductor.py` | 発注文 |
+| 15 | 11-05/9-3d・9-5 で「考え中も歩く速さは落ちない」「考え中も回避に失敗しない」(9-3d)と「再開の費用は無い」(9-5)の 3 件を無いの一覧へ足す決定 | absent.py に 3 件とも行が無い(決定が新しく未着手) | absent.py・[返事その 6](../../design/prompt-2026-11-05-reply6.md) の 9-3d と 9-5 |
+| 16 | 発注の手がかりの `engine/conductor.py` | 実体は `engine/systems/conductor.py` | 発注文(リポの外。リポの中に同じ文は無く、突き合わせでも確かめられなかった) |
 | 17 | 技術マップの行数(build.py 1,688・run.py 2,662・cli.py 1,860) | HEAD `33193c3` の値。今は 1,701・2,691・1,876 | [技術マップ](../tech-map-2026-11-03.md) §1 |
+| 18 | 経済の段階 2 の部品の表「給与の天引きは器だけ(規則の表に行が無い=0)」 | 既定の `SHIBUYA_RULES_42=on` で天引きが動く(`engine/economy_rules.py`。§6 の記述はコードと合う) | [stage2.py](../../../src/shibuya/economy/stage2.py) の冒頭の部品の表(11-09 に直した) |
+| 19 | 報道は「全セルへ届く」「到達=全セル」 | 在席者のいるセルだけ(`salient._broadcast_events`。§9 の記述はコードと合う) | [civic.py](../../../src/shibuya/engine/processes/civic.py) の `PressProcess` の docstring と `summary` の文(11-09 に直した) |
+| 20 | 「流れ・顕著行為ダイジェストは C3 では常に 0」 | 描画の前計算が世界過程の流れと顕著行為を入れた B4 の欄を変化の検出へ渡す(`systems/perceive.py`・`perception.b4_field_rows`) | [change_detect.py](../../../src/shibuya/engine/change_detect.py) の expedient の項(11-09 に直した) |
 
 ## 12. 未確認のまま残した所
 
@@ -326,3 +334,21 @@
 - 腕・器・旧道の切替口の一覧は 1 日の流れに関わるものを読んで作りました。リポ全部の網羅は未確認で、機能のカタログ(段 2)と突き合わせます。10-25 §2-5 の切替口の一覧とは突き合わせていません。
 
 カードは [cards/README.md](cards/README.md) です(段 3・本体への取り込み待ち)。ファイルごとの公開の関数・呼び手・書きの許可はカードで引けます。
+
+## 13. 11-09 の直し(段 2 の突き合わせ)
+
+[段 2 の突き合わせ](../stage2-crosscheck-2026-11-05.md) §4-dayflow の番号です(day-flow の分)。どれも HEAD `14b151a` のコードで確かめてから直しました。
+
+| 突き合わせ | 直した所 |
+|---|---|
+| 食い違い 1(pricing.py は器ではない) | §6 の区分表の器・§10-2 の器の行 |
+| 食い違い 2(credit.py の「呼び手なし」) | §6 の区分表の器 |
+| 食い違い 3(§11 #15 の落とした 1 件) | §11 #15 |
+| 食い違い 4(§11 #16 の発注文) | 確かめられない。§11 #16 に「リポの外・確かめられなかった」の注を足した |
+| 食い違い 5(旧道の切替口 10 本のほか) | §10-2 の末尾 |
+| 食い違い 6(mock がプロンプトを読む例外) | §0-1 の 1 |
+| 食い違い 7(15 刻みの書き方) | §6 の 2 段落目 |
+| 食い違い 8(§11 の漏れ 3 件) | §11 #18〜#20。コードの側も直した |
+| 言い方(判断モデル) | §0-1 の 1・§4-4 の表と注 |
+| 書き漏れ(開始日の検査) | §0-2 |
+| 書き漏れ(既定の店選びで距離が効かない) | §6 の 1 段落目 |

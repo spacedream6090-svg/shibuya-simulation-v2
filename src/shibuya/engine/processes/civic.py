@@ -237,7 +237,7 @@ class PublicServiceDispatchProcess:
 
 
 class PressProcess:
-    """報道・公式発信(固定時刻の放送)。全セルへ届く 1 行を作る。"""
+    """報道・公式発信(固定時刻の放送)。1 行を作る。届けるのは在席者のいるセルだけ(``salient._broadcast_events``)。"""
 
     process_ids: Final[tuple[str, ...]] = ("press_official_release",)
     ablation_id: Final[str] = "AB-PRESS-REACH"
@@ -276,7 +276,7 @@ class PressProcess:
 
     def summary(self) -> str:
         return (
-            f"報道・公式発信: {self.n_releases} 本 / 到達=全 {self.world.n_cells} セル"
+            f"報道・公式発信: {self.n_releases} 本 / 到達=在席者のいるセル(全 {self.world.n_cells} セルのうち)"
             "(B3 のチャネル行が無いので B4 顕著行為へ載せる=親へ報告済み)"
         )
 

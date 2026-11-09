@@ -2,6 +2,7 @@
 
 > 発注は [返事その 6](../../../design/prompt-2026-11-05-reply6.md) §3-1 の 3 です。担当は基盤の機能で、体と街はグループ A、人の中身はグループ B が書きます。今のコードの現状を書き、あるべき姿は書きません([仕様書](../../../design/spec/)の担当です)。
 > 正はコードです。HEAD `15b6bbd` を読みました。既定の値は `shibuya.cli` の引数の定義と各モジュールの腕の関数を Python で読み出して確かめ、ランは回していません。`data/` は開いていません。数値には出どころを添えます。
+> 〔11-09〕[段 2 の突き合わせ](../../stage2-crosscheck-2026-11-05.md)の食い違いと書き漏れを、HEAD `14b151a` のコードで確かめて直しました。直した所の一覧は §5 です。
 
 ## 0. 読み方
 
@@ -44,7 +45,7 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 | C8 | 保存と再開 | 既定はハッシュだけ・ファイルと再開は腕 | `engine/resume.py`・`engine/state_codec.py`・`engine/state_hashes.py` |
 | C9 | 状態の台帳 | 既定(読むだけ) | `engine/state_ledger.py`・`engine/state_ledger_ast.py` |
 | C10 | LLM サーバー群と推論(艦隊) | 腕 | `llm/fleet.py`・`engine/systems/llm_io.py`・`tools/night5070/` |
-| C11 | 判断の口と考える担い手 | mock は既定・口は腕・判断モデルは無い | `engine/decision/`・`llm/mock.py`・`engine/classical.py` |
+| C11 | 判断の口と考える担い手 | mock は既定・口は腕・判断モデルの中身は無い(腕に判断モデルを呼ぶ口があり、mock が答える) | `engine/decision/`・`llm/mock.py`・`engine/classical.py` |
 | C12 | 語彙と読み取り | 既定 | `llm/contract.py`・`llm/parser.py`・`llm/undefined.py` |
 | C13 | 知覚 | 既定(空の欄は器だけ) | `perception/` |
 | C14 | 呼び出し(起床)=変化の検出と割り当て | 既定 | `engine/change_detect.py`・`engine/arbiter.py`・`engine/systems/judge.py` |
@@ -82,7 +83,7 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 | 参入資本 | 既定 | 経済センサスの按分。`--store-capital` で一律 |
 | 世帯の初期の財布 | 既定 | `anchors.initial_wallets`。`--no-population` で mock の値 |
 | 信用(`CreditBook`・`repay_due`・総量規制・利息の上限) | 器だけ | `Ledger.attach_stage2` が `CreditBook(capacity=0)` を作る。行は足されない |
-| 価格形成(`pricing.py`) | 器だけ | `goods.py` が定数 `K_*` を読むだけ |
+| 価格形成(`pricing.py`) | 器だけ(係数は既定で効く) | 価格の改定(Calvo・`propose_price`)は結線しない。係数 `K_VOLUME`・`K_AVERAGE`・`K_PREMIUM` は `goods.CATEGORY_K` として原価=価格 ÷ k(`GoodsLedger.from_pois`)と参入資本の原価率(`entry_capital.COST_RATIO_BY_BAND`)に使う=既定のランの補充の代金と参入資本に効く |
 | 軽減税率(`taxes.reduced_rate`) | 器だけ | docstring に呼び手なしとある |
 | 家賃 | 器だけ | 科目 `RENT` はあるが払う行為が無い(`BR-RENT-BLANK`) |
 | 値段を変える・値段を見て見送る・品と数を選ぶ・採用と解雇・売れ残りの廃棄 | 無いと宣言 | `absent.change_price`・`absent.price_balk`・`absent.item_qty`・`absent.hiring_firing`・`absent.discard_unsold` |
@@ -113,12 +114,13 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 #### 棚卸しの指紋
 
-`M18 K`・`M27 E`(保存則)・`M28 E`(制度の手順)・`S12 E`(保存則)・`S13 E`(保存則)・`A58 V`(腕 port の支払いの注)。仕分けの表 §1-2 は M27・S12・S13 を「今の挙動が式を破っている=直す対象」と書いています。
+`M18 K`・`M27 E`(保存則)・`M28 E`(制度の手順)・`S12 E`(保存則)・`S13 E`(保存則)・`A58 V`(腕 port の支払いの注)。仕分けの表 §1-2 は M27・S12・S13 を「今の挙動が式を破っている=直す対象」と書いています(〔11-09〕S12 は今のコードでは起きないと確かめた=下の既知の穴)。
 
 #### 既知の穴
 
 - 日課由来の移動と、計画の退出で歩いて乗る体は運賃を払いません(M27・[段 1](../day-flow.md) §3)。
-- 払い出しは最大 8 スロットで、9 スロット以上の店は偽の品切れになります(S12)。持ち物は 255 で頭打ちです(S13)。
+- 持ち物は 255 で頭打ちです(S13)。
+- 〔11-09〕仕分けの表の S12「払い出しは最大 8 スロットで、9 スロット以上の店は偽の品切れ」は、今のコードでは起きません。`GoodsLedger.sell_many` は店ごとの前置数を棚の累積和に当て、1 回の呼びで全スロットをまたいで払い出します(2026-09-08 の直し・`goods.py` の docstring)。`_apply_buy` から呼ぶ `_complete_buy` の 8 回の再試行(`_SELL_SLOT_RETRIES`)は保険で、進まなければ抜けます。作業木の外のスクラッチで、SKU の登録簿を 12 スロットに替えた店で確かめました。各スロット 1 個の店へ 12 行を `sell_many` 1 回で 12 個とも払い出し、`resolve.apply`(→ `_apply_buy`)の 12 人も OUT_OF_STOCK 0・`sell_many` の呼び 1 回でした。先頭 9 スロットが空で後ろ 3 スロットだけに在庫がある店も 3 個とも払い出しました。既定の SKU の登録簿はカテゴリ 3 種 × 1〜3 SKU で、スロットは最大 3 です。`resolve.py` の古い注(先頭スロットだけから払い出すと書いていた)も 11-09 に直しました。仕分けの表の S12 の行は親が直します。
 - 世帯の物は全世帯の合計だけで、誰が何を持つかは答えられません(`goods.py` の docstring)。
 - 物の生ログに出来事の id が入るのは補充だけで、販売・廃棄ビン・回収・消費は空です(同)。
 - 賃金の原資は外界から同額を入れる外生です(`DOC-ec21-employer-funding-exogenous`)。店の外界の売上は 0 です(`DOC-ec21-external-store-sales-zero`)。
@@ -132,7 +134,7 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 | 文書の記述 | コード | 場所 |
 |---|---|---|
 | 段階 2 は既定 off | 既定 on | `stage2.py` の冒頭(段 1 §11 #10)・`systems/build.py` の組み立ての注(「既定 off=何もしない」) |
-| 給与の天引きは器だけ(規則の表に行が無い=0) | `SHIBUYA_RULES_42=on` で天引きする(`economy_stage2.attach` が `law` を渡す) | `stage2.py` の部品の表 |
+| 給与の天引きは器だけ(規則の表に行が無い=0) | `SHIBUYA_RULES_42=on` で天引きする(`economy_stage2.attach` が `law` を渡す) | `stage2.py` の部品の表(11-09 に直した) |
 | 切替口 `--wage w17`(次の版上げで消す) | 消した。CLI に無く、`SHIBUYA_WAGE` は止まる | `stage2.py` の docstring |
 | 層の名 `census`(診断行・センサス) | 中身なし。センサスは `economy/census.py` | `census/__init__.py` |
 
@@ -153,7 +155,7 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 | 許可のない行動の記録 | 既定 | 開閉店だけが書く。件数は `record.py` の docstring で既定は 0 行 |
 | 役割語の権利の確かめ(`RoleActCheck`) | 既定(mock の道)・判定は数えるだけ | 効果の先が無いので役割語は安全弁の語へ落ちる |
 | 営業許可 | 器だけ | 行は 0(`BR-RIGHTS-LICENCE-BLANK`) |
-| 信用・道路の区間・看板の権利 | 器だけ | 種類の表にあるが行は 0(`rights/ledger.py` の docstring) |
+| 信用の権利・道路の区間と看板の許可 | 器だけ | 権利の種類(`KINDS`)に足したのは信用 `credit` だけ。道路の区間 `road_segment` と看板 `signboard` は物の種類(`OBJECT_KINDS`)で、許可 `licence` の対象。どれも行は 0(`rights/ledger.py` の docstring と定数) |
 | 違反に気づいた人・持ち主・警察の反応 | 無い(宣言なし) | `record.py` に「後の段」とある |
 
 #### ファイル
@@ -199,7 +201,8 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 |---|---|---|
 | 診断の行(`DIAG_RUN_COLUMNS`) | 既定 | 系 `observe`。切替口なし |
 | 群・規範の計器(`GroupNormMeter`) | 既定 | `--group-norms`=on |
-| 層の記録(`layer_counts`) | 既定 | mock も層 2 に数える(`build.py` の `_call_layer`) |
+| 層の記録(`layer_counts`) | 既定 | mock も層 2 に数える。古典の方策は層 1(`build.py` の `_call_layer`) |
+| 判断モデルの呼数の欄(`calls_by_model.judge_model`) | 既定(既定のランは 0) | manifest と日次の記録の欄(`run._calls_by_model`)。判断モデルの中身は無く、腕(連絡 c1・カレンダー 2 と 3・店の仕事)の仮のモデルの呼数を数える。内訳は `contact`・`calendar_2`・`calendar_3`・`duties` の節(C11) |
 | 状態成長の検査(`check_growth`) | 既定 | 結果は `growth_report` に置きラン要約に載る |
 | 在圏 journal | 腕 | `--occupancy-every`=0・`--occupancy-out` |
 | 体の段の境目の計器 | 腕 | `SHIBUYA_BODY_BOUNDARY_GAUGE`=1 |
@@ -208,7 +211,7 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 | 忠実度の計器盤(`tools/c8/dashboard.py`) | 腕(ランの外) | Markdown と JSON を 1 枚に書く。画面は無い(C21) |
 | ablation と感度試験(`tools/c8/ablation_runner.py`・`sensitivity.py`) | 腕(ランの外) | |
 | 較正側の錨の計器(`tools/instruments/anchor_gauge.py`) | 腕(ランの外) | `read_guard.py` が封印の層を開く前に落とす |
-| 判断モデルの評価(`tools/instruments/dm_eval/`) | 器だけ(ランの外) | 実装のある当て口は mock・古典・テープ。Clef ほかは口だけ(`__init__.py` の docstring) |
+| 判断モデルの評価(`tools/instruments/dm_eval/`) | 器だけ(ランの外・重みと GPU が無いので回していない) | judge の当て口で実装があるのは mock・古典・テープ。Clef ほかは口だけ(`__init__.py` の docstring)。〔11-01 段 1 の 3〕でモデルの logprob の当て口も実装済み=`HFCausalChoiceScorer`(`backends/hf.py`)・`VLLMLogprobScorer`(`backends/vllm.py`)・`LogprobChoiceScorer`(`backends/base.py`)。重みは取らない |
 | 漏洩の検査(`tools/instruments/leak_check/`) | 器だけ(ランの外) | 実行は vLLM の後(PENDING §2 の 18) |
 | 技量スコア・慣らし・ヒストリーマッチングの計器 | 器だけ(ランの外) | C5 |
 | 事象の固定費・速さの試作(`tools/bench/event_cost/`・`tools/bench_spikes/`) | 腕(ランの外) | |
@@ -237,12 +240,17 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 - 円/シミュ日の計器はありません(PENDING §2 の 7)。出来事の記録をファイルに書く口と S4 の計器もありません(PENDING §4)。
 - 計器は呼数を判断・割り込み・持ち越した起床に分けていません(PENDING §2 の 20)。
-- 計器の「LLM の呼数」は mock を含みます([段 1](../day-flow.md) §4-4)。
+- 計器の「LLM の呼数」は答え手によらず足します(`decide.py` の `result.llm_calls += len(sel)`)。mock も、古典の方策(LLM 0 呼と `classical.py` が書く)も数えます([段 1](../day-flow.md) §4-4)。
+- 判断モデルの評価の道具の「1 シム日あたりの GPU 時間」の母数は 64,528 呼/日(bd35 の記録・`tools/instruments/dm_eval/judge.py` の `CALLS_PER_DAY_BASIS`)のままで、今の既定の記録の 60,939 呼/日(fix4-1103)と違います。11-09 の直しでは数値を変えていません。
 - 規範は経験的期待だけで、規範的期待(逸脱への反応)を測る機構がありません(`norm_meter.py` は「慣習」と宣言)。
 
 #### 文書とコードの差
 
-見つけていません。段 1 §11 #5 の呼数の古い値はここにも関わります。
+| 文書の記述 | コード | 場所 |
+|---|---|---|
+| dm_eval の母数 64,528 呼/日 | 今の既定の記録は 60,939 呼/日 | `dm_eval/judge.py` の `CALLS_PER_DAY_BASIS`(数値の定数なので直していない) |
+
+呼び出しの割り当ての docstring の古い呼数(56,488 呼)は C14 に書きます。
 
 ### C4 manifest とランの種類
 
@@ -351,7 +359,7 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 #### 何をしているか
 
-LLM の 1 呼び出しを 1 行の Parquet に残し、同じ鍵(体・刻み・種類・プロンプトのハッシュ)で答えを引いて再実行します。答えが返らなかった呼び出しも 1 行にします。共有のプロンプトブロックは内容のハッシュで 1 回だけ保存します。脇の `run_meta.json` に応答の遅れ・乱数の方式・暦の規則・環境を書きます。
+主の判断の 1 呼び出しを 1 行の Parquet に残し、同じ鍵(体・刻み・種類・プロンプトのハッシュ)で答えを引いて再実行します。行を書くのは `LLMBridge` だけです(`llm_bridge.py`)。答え手が mock でも古典の方策でも 1 行になります(古典は `build.py` で `llm = classical_policy`)。腕の判断の口(連絡・カレンダー 2 と 3・店の仕事)の呼びはテープに書きません(`engine/contact`・`calendar2`・`calendar3`・`duties`・`decision` にテープの参照が無い=grep)。答えが返らなかった呼び出しも 1 行にします。共有のプロンプトブロックは内容のハッシュで 1 回だけ保存します。脇の `run_meta.json` に応答の遅れ・乱数の方式・暦の規則・環境を書きます。
 
 #### 状態
 
@@ -362,7 +370,8 @@ LLM の 1 呼び出しを 1 行の Parquet に残し、同じ鍵(体・刻み・
 | 版 4・21 列(`shibuya.tape/4`) | 録画のときの形 | `len(CALLS_SCHEMA)`=21(読み出し) |
 | 腕の列 `recalled_event_ids` | 腕 | `--memory-store events` のランだけ足す |
 | `recalled_source` | 器だけ | 列の予約で、記憶の作り直しまで空 |
-| 複数日のラン・状態の口との組み合わせ | 無い(宣言なし) | 組み立てで `ValueError` |
+| 再生と、複数日のラン・状態の口との組み合わせ | 無い(宣言なし) | 止めるのは再生だけ。`--replay`(mode `replay`)と複数日か状態の口(書き出し・止める・再開)を組むと、組み立てで `ValueError`(`systems/build.py`) |
+| 録画と、複数日のラン・状態の口との組み合わせ | 腕 | 録画は複数日・状態の書き出し・再開と一緒に使える(試験 `tests/engine/duties/test_du_runs.py` の 2 日と再開・`tests/engine/test_version_bump_10e.py`) |
 
 #### ファイル
 
@@ -559,6 +568,7 @@ LLM の 1 呼び出しを 1 行の Parquet に残し、同じ鍵(体・刻み・
 
 - 返事を待っている体にも新しい呼び出しを送ります(`DOC-fleet-resend-while-waiting`・PENDING §4)。
 - 判断の口を通りません(C11)。分岐もできません(C5)。役割語の確かめも挿していません(C2)。
+- 艦隊へ行くのは主の判断の呼び(会話の番を含む)だけです。腕の層(連絡 c1・カレンダー 1b・2・3・店の仕事)の判断の口と文の口はコードで仮のモデルに固定で、`--llm fleet` でも艦隊へ行きません(C11)。
 - 会話の番の発話の道は mock で通らないので段 B で確かめていません(`DOC-ca2-fleet-turn-unchecked`)。
 - 今の既定の構成を実 LLM で 1 日回した記録は確認できません([段 1](../day-flow.md) §12)。往復の秒は艦隊が立った後に測ります(PENDING §2 の 21)。
 
@@ -584,7 +594,8 @@ LLM の 1 呼び出しを 1 行の Parquet に残し、同じ鍵(体・刻み・
 | 古典の方策(`ClassicalPolicy`) | 腕 | `--policy classical`・`--activity-region`・`--classical-social`・`--meal-gate` |
 | 実 LLM | 腕 | C10 |
 | 候補の口 | 腕 | `--decision-port`(引数の既定 None → `legacy`)・`SHIBUYA_DECISION_PORT`。`port` は結果を変えない |
-| 判断モデル | 無い(宣言なし) | `ports.PORT_NAMES` は `llm`・`mock`・`classical` だけ。評価の器は `tools/instruments/dm_eval/` |
+| 判断モデルの中身 | 無い(宣言なし) | `ports.PORT_NAMES` は `llm`・`mock`・`classical` だけ。評価の器は `tools/instruments/dm_eval/`(C3) |
+| 判断モデルを呼ぶ口(腕の層) | 腕(答えるのは mock) | 腕 `--contact c1`・`--calendar-2 arm`・`--calendar-3 arm`・`--duties arm` には判断モデルの呼びの道があり、仮のモデル(mock)が候補から一様に選ぶ(`contact/port.py` の冒頭ほか)。manifest の `calls_by_model.judge_model` がその呼数を数える(`run._calls_by_model`・`contact/layer.py` の `model_calls`。既定のランは 0)。口は `contact/layer.py`・`duties/layer.py`・`calendar2/layer.py`・`calendar3/layer.py`・`calendar_self.py` で仮のモデルに固定で、`--llm fleet` でも艦隊へ行かない |
 | 驚き・迷い・連続値・本人の予想 | 器だけ | `Choice` と `DecisionContext` の欄。どの実装も空 |
 | 支払いの方法の答え(`Choice.payment`) | 器だけ | 3 つの実装は答えない |
 | 候補「よく考える」 | 器だけ | 候補には載るが、選ばれても上の層を呼ぶ道が無い |
@@ -803,6 +814,7 @@ M22・S48・S49・A15 は `processes/crowd.py` の行で、グループ A の席
 | 文書の記述 | コード | 場所 |
 |---|---|---|
 | 平均 10 呼/体/日が制御目標 | CLI の既定は上限なしで監査の線 | `arbiter.py` の docstring(段 1 §11 #7) |
+| 「実測ランは 5,000 体で 56,488 呼」 | 2026-09-08 のバグ直しの時点の値。今の既定の記録は 60,939 呼(段 1 §11 #5) | `arbiter.py` の docstring(11-09 に当時の値と分かる形に直した) |
 | 起床条件 (ii) に知人・近接・被注視・傍受 | 検出するのは内受容だけ(`change_detect.py` に記載あり) | 知覚契約書 §6 の引用 |
 
 ### C15 行為の解決(二段階の確定)
@@ -844,7 +856,7 @@ M22・S48・S49・A15 は `processes/crowd.py` の行で、グループ A の席
 
 #### 何をしているか
 
-刻みの中の処理を「系」に分け、宣言の表の順に呼びます。表は 36 系(組み立て 1・日の頭 1・刻みの中 30・日の終わり 1・ランの終わり 3)で、既定のランで立つのは刻みの中の 22 系です([段 1](../day-flow.md) §1-2)。系ごとに読む欄と書く欄を宣言し、書く SoA の列は `resolve_ops` の静的な閉包から機械で作ります。実行時に許可の外を書くと落ちます。状態は箱(`RunConfig`・`SoAState`・`Layers`・`LlmIo`・`DayTables`・`Buffers`・`TickScratch`・`RunStats`・`Fixtures`)に分けます。
+刻みの中の処理を「系」に分け、宣言の表の順に呼びます。表は 36 系(組み立て 1・日の頭 1・刻みの中 30・日の終わり 1・ランの終わり 3)で、既定のランで立つのは刻みの中の 22 系です([段 1](../day-flow.md) §1-2)。22 は「条件なしの 18 系+presence・conversation・activity_intent・energy_after」です(`table.py` の `SYSTEMS`・`conductor.py` の `WHEN`)。presence は W17 と W16 の資産があるときだけ立つので(`build.py`)、資産の無い世界(CI の合成の世界など)では 21 系です。energy_after は空腹 energy(CLI の既定)のときだけで、ライブラリの `run_day` の既定(空腹 v1)では立ちません。系ごとに読む欄と書く欄を宣言し、書く SoA の列は `resolve_ops` の静的な閉包から機械で作ります。実行時に許可の外を書くと落ちます。状態は箱(`RunConfig`・`SoAState`・`Layers`・`LlmIo`・`DayTables`・`Buffers`・`TickScratch`・`RunStats`・`Fixtures`)に分けます。
 
 #### 状態
 
@@ -854,7 +866,15 @@ M22・S48・S49・A15 は `processes/crowd.py` の行で、グループ A の席
 | 書きの許可 | 既定 | `SHIBUYA_WRITE_GUARD`=on(外しても結果は同じ) |
 | 段 B と番兵の検査 | 腕(試験) | `SHIBUYA_SYSTEMS_CHECK` |
 | AST の検査・負の対照(`static_check.py`・`overrides.py`) | 腕(試験) | src に呼び手なし |
-| 層の契約 | 既定(CI) | `pyproject.toml` の import-linter に 5 本。CI は `ci-0`・`ci-1`・`ci-2` の 3 段(`.github/workflows/ci.yml`) |
+| 層の契約 | 既定(CI) | `pyproject.toml` の import-linter に 5 本。CI は `ci-0`・`ci-1`・`ci-2` の 3 段(`.github/workflows/ci.yml`・中身は下) |
+| CI の ci-0(push と PR) | CI | 祝日の fixture(`tests/fixtures/calendar/syukujitsu.csv`)の md5・秘密スキャン(`tools/scan_secrets.py` に追跡中の全ファイル)・import-linter・`data/` が追跡されていないこと・カードの新しさ(`python tools/repo_guide/build.py --check`) |
+| CI の ci-1(push と PR) | CI | `pytest -m "not gpu and not slow"` を 2 並列。data の要る試験は印 `requires_data`(登録表 `tests/_data_ids.py`)で飛び、飛ばした数を要約に出す(合否にしない) |
+| CI の ci-2(毎晩と手動) | CI | slow のうち data の要らないもの。時間の門は記録だけ(`SHIBUYA_TIME_GATES=record`・`tests/_time_gates.py`) |
+| pre-commit(`.githooks/pre-commit`) | 手元の commit | `data/` のステージを拒む・ステージしたファイルの秘密スキャン・`tools/commit_check.py`(絶対パスほかの検査と、`COMMIT_EXPECT` があればステージの中身の突き合わせ)・src・tests・tools の .py を変えた commit だけカードの `--check` |
+| カード(段 3)の検査 | CI と pre-commit | src・tests・tools の .py を変えた commit ごとに、ci-0 と pre-commit がカードが古くないかを検査する(pre-commit はその .py を変えた commit だけ、ci-0 は push と PR のたびに毎回。返事その 6 §3-1 の「版上げのたびに作り直す」は、11-09 §1-4 で親案のこの形を採った) |
+| 決定の索引(`tools/decision_index.py`) | 手で回す | 原文の見出しと ID から `docs/design/decision-id-index.md` を作る。`--check` はあるが、CI と pre-commit には入っていない |
+
+**CI が緑でも決定論は確かめていません。** byte-check・golden・性能の門・data の要る試験は CI の外で、作者の機械で回します(`ci.yml` の冒頭の注「本体の夜間(data のある全体の試験・byte-check 19 構成・golden・性能の門)は作者の機械で回す」)。CI の Ubuntu には data が無く、golden の値とも比べません(C18)。
 
 #### ファイル
 
@@ -940,7 +960,7 @@ M22・S48・S49・A15 は `processes/crowd.py` の行で、グループ A の席
 
 #### 何をしているか
 
-同じ設定なら同じ結果になる仕組みです。乱数は Philox4x64 のカウンタ方式で、鍵は (seed, 用途)、カウンタ側に刻みと体を置きます(`RNG_SCHEME`=counter・読み出し)。seed は動き・母集団・環境の 3 つに分かれます。同じ時刻の順序づけは blake3 の鍵です。v3-0a で、届く 18 か所の鍵は世界の時刻 t_ns から作る形にしました(値は不変)。
+同じ設定なら同じ結果になる仕組みです。乱数は Philox4x64 のカウンタ方式で、鍵は (seed, 用途)、カウンタ側に刻みと体を置きます(`RNG_SCHEME`=counter・読み出し)。seed は動き・母集団・環境の 3 つに分かれます。同じ時刻の順序づけは blake3 の鍵です。v3-0a で、届く 18 か所の鍵は世界の時刻 t_ns から作る形にしました(値は不変)。〔11-09〕18 は v3-0a の記録(#139・[v30a §1-2](../../../bench/analysis/v3-2026-11/v30a/README.md))の数え方の値です。src で `key_time_from_t_ns`・`time_key_at` を呼ぶ所を数えると 17 か所で、ほかに定義が 1 か所(`decision/port.py` の `time_key_at`)あります。記録の数え方とは照らしていません。
 
 #### 状態
 
@@ -949,6 +969,10 @@ M22・S48・S49・A15 は `processes/crowd.py` の行で、グループ A の席
 | カウンタ方式の乱数 | 既定 | 切替口なし(`stateful` の道は消した) |
 | seed の 3 分割 | 既定 | C5 |
 | 流れの重なりの検査(`rng_audit.py`) | 腕(試験) | src に呼び手なし |
+| byte-check(決定論と「1 バイト不変」の受入) | CI の外(作者の機械) | 道具は今、記録ごとに `docs/bench/analysis/` の下にあります(`wallbounce-1012/10e/byte_check_10e.py`・`wallbounce-1012/bd35/tools/byte_check_bd35.py`・`wave2-2026-09-30/wave2_bytecheck.py`・`fix4-1103/bytecheck/` ほか)。src の docstring が「byte-check 19 構成」を受入の基準に引きます(`engine/systems/__init__.py`・`engine/step_scope.py` ほか)。道具を [tools/bytecheck/](../../../../tools/bytecheck/) に置き、版上げの手順の 1 行として呼ぶ形にします(第346・別の役が作っている。CI では回せない) |
+| golden(状態のハッシュの固定の値) | CI の外(作者の機械) | 登録した 1 つの環境(Windows 11・x86-64・Python 3.12.10・numpy 2.5.3・numba 0.67.0・llvmlite 0.49.0・blake3 1.0.9=`tests/golden_env.py` の `PLATFORM_10F`)とだけ値を比べます。ほかの環境(CI の Ubuntu を含む)は同じ設定 2 回の一致(A/A)と警告 `GoldenUnregisteredWarning` だけで、落としません |
+
+**CI が緑でも決定論は確かめていません**(C16)。byte-check・golden・性能の門・data の要る試験は CI の外で、作者の機械で回します。
 
 #### ファイル
 
@@ -967,7 +991,7 @@ M22・S48・S49・A15 は `processes/crowd.py` の行で、グループ A の席
 
 #### 既知の穴
 
-- 刻みの番号から作る鍵が約 27 か所残っています(PENDING §2 の 22・v3-0b)。
+- 刻みの番号から作る鍵が約 27 か所残っています(PENDING §2 の 22・v3-0b)。〔11-09〕27 は v3-0a の記録([v30a §1-2](../../../bench/analysis/v3-2026-11/v30a/README.md))の値で、コードでは数え直していません(`MockPort.pick` が `ctx.step` を使うのは 1 例=`decision/ports.py`)。
 - 実 LLM は同じ設定でも A/A が食い違います(`experiment/switch.py`)。決定論の札は mock と古典だけです。
 
 #### 文書とコードの差
@@ -1040,7 +1064,7 @@ W21(ペルソナと人口の作り直し)とナビメッシュ(`build/space/navm
 
 #### 何をしているか
 
-住民の表を読み、ランの体の数へ抽出します。母集団は 345,858 体です([版上げの履歴](../../../ops/version-history.md) 3 回目)。W16 の残す行と W21 の人でできています(#118)。抽出は二層で、機能に要る定員を先取りし、残りを種別 × 年齢階級 × 性別で最大剰余法の比例配分にします。抽出と体の定数の乱数は母集団の seed です。
+住民の表を読み、ランの体の数へ抽出します。母集団は 345,858 体です([版上げの履歴](../../../ops/version-history.md) 3 回目の記録の値。data を開いていないので確かめていません)。W16 の残す行と W21 の人でできています(#118)。抽出は二層で、機能に要る定員を先取りし、残りを種別 × 年齢階級 × 性別で最大剰余法の比例配分にします。抽出と体の定数の乱数は母集団の seed です。
 
 #### 状態
 
@@ -1208,3 +1232,28 @@ expedient のつなぎを 1 行ずつ載せ、外す段を書く台帳です。�
 - 元の決定は docstring・カード・IMPLEMENTED の見出しから辿りました。原文の条項の中身までは読んでいません。カードの決定の ID は機械の読みで、誤って拾った番号を含むことがあります。
 - 発注の「10-25 §6-1 の (i) の一覧」とは突き合わせていません。
 - カードは作業木 `wt_repoguide` の版を読みました。本体へ取り込む前なので、リンク先は取り込みの後に効きます。
+
+## 5. 11-09 の直し(段 2 の突き合わせ)
+
+[段 2 の突き合わせ](../../stage2-crosscheck-2026-11-05.md) §4-c の番号です。どれも HEAD `14b151a` のコードで確かめてから直しました。11-09 の直しのために読んだのは goods.py の 186〜240 行と 304〜470 行と 600〜665 行・resolve.py の 2490〜2520 行・rights/ledger.py の定数・dm_eval の `__init__.py` と backends のクラス・systems/build.py の 300〜310 行と 1098〜1106 行・conductor.py の 100〜130 行・decide.py の 205〜215 行・run.py の 517〜545 行・contact/port.py の冒頭・`.github/workflows/ci.yml`・`.githooks/pre-commit`・`tests/golden_env.py`・`tools/decision_index.py` の冒頭です。S12 の確かめは作業木の外のスクラッチで小さく回しました(C1 の既知の穴)。
+
+| 突き合わせ | 直した所 |
+|---|---|
+| 食い違い 1(S12) | C1 の既知の穴。resolve.py の古い注も直した |
+| 食い違い 2(権利の種類と物の種類) | C2 の状態 |
+| 食い違い 3(dm_eval の当て口) | C3 の状態 |
+| 食い違い 4(録画と再生と複数日) | C6 の状態 |
+| 食い違い 5(テープに書く範囲) | C6 の何をしているか |
+| 食い違い 6(判断モデルの呼びの道) | C11 の状態・§1 の C11 の行・C10 の既知の穴 |
+| 食い違い 7(22 系の条件) | C16 の何をしているか |
+| 食い違い 8(LLM の呼数に古典も入る) | C3 の状態と既知の穴 |
+| 食い違い 9(18 か所) | 確かめられない。C18 の何をしているかに数え方の注を足した |
+| 食い違い 10(約 27 か所) | 確かめられない。C18 の既知の穴に記録の値の注を足した |
+| 食い違い 11(345,858 体) | 確かめられない。C20 の何をしているかに記録の値の注を足した |
+| 書き漏れ byte-check | C18 の状態 |
+| 書き漏れ CI と pre-commit の中身 | C16 の状態 |
+| 書き漏れ golden の環境の行 | C18 の状態 |
+| 書き漏れ 判断モデルの呼数の欄 | C3 の状態・C11 の状態 |
+| 書き漏れ 計器の古い母数 | C3 の既知の穴と文書とコードの差 |
+| 書き漏れ カードと決定の索引の自動生成 | C16 の状態 |
+| 価格形成の係数(段 1 の食い違い 1 と同じ根) | C1 の状態 |

@@ -445,7 +445,7 @@ def marks_for(geometry: str) -> dict[str, str]:
 
 
 class ProximityLayer:
-    """腕 ``distance`` の層(判定の規則・計器・気づいた印の読み口)。組み立てが作る(既定の腕 cell では作らない=None)。
+    """腕 ``distance`` の層(判定の規則・計器・気づいた印の読み口)。組み立てが作る(既定の distance で作る・旧道の cell では作らない=None)。
 
     欄は組み立ての 1 回だけ置ける(付け替え・消すのは断る=検収 L3)。計器は :attr:`meter_view`(読むだけの写し)。書く口は
     :meth:`build_index` だけ。``marks``=関係の層(``aware_of`` を読むだけ・知人出現の起床が無いランは None)。

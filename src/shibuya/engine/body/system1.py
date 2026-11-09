@@ -73,7 +73,8 @@ def speech_loudness(noise_stage: Any, *, agent_id: Any = None) -> None:
 def noise_stage_at(world: Any, cells: np.ndarray, step: int, step_seconds: int) -> np.ndarray:
     """W10 の騒音の段の読みの口(``World.noise_stage_for_tick`` の値をセルで引く・読むだけ)。舞台の外の体は 0。
 
-    ロンバード効果の値(:func:`speech_loudness`)の入力。本段では読み手が居ない(器だけ)。
+    ロンバード効果の値(:func:`speech_loudness`)の入力(その値は空=器だけ)。読み手は連絡の腕 ``--contact c1``
+    (``engine.contact.layer`` の System 1 の口=電話とメッセージに気づく刺激を騒音の段から作る)。
     """
     stage = np.asarray(world.noise_stage_for_tick(int(step), int(step_seconds)), dtype=np.uint8)
     c = np.asarray(cells).astype(np.int64)

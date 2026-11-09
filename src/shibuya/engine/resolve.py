@@ -2497,12 +2497,12 @@ def _complete_buy(agents, world, buyers, bought, paid, tick, out) -> None:
     else:
         r.money[buyers] = (r.money[buyers].astype(np.int64) - paid).astype(np.int32)
     if led is not None and led.goods is not None:
-        # ``GoodsLedger.sell_many`` は「**最初の非空スロット**」からしか払い出さない
-        # (``_first_nonempty_slot``)。同一 tick に同一 POI へ複数人が来ると、先頭スロットの
-        # 残りを超えた行は他スロットに在庫があっても失敗する。``can_sell`` は棚の**合計**で
-        # 判定しているので、これは台帳側の粒度の食い違い(economy は本サブの読み取り専用領域)。
-        # ここで**失敗行だけを次のスロットへ回す**ことで ``can_sell`` の意味に合わせる。
-        # 逐次ループ宣言(P4): **スロット数**ぶん(≤8)。購入行数には比例しない。
+        # ``GoodsLedger.sell_many`` は 2026-09-08 の直しの後、店ごとの前置数を棚の累積和に当て、1 回の呼びで
+        # **全スロットをまたいで払い出す**(``can_sell`` の棚の**合計**と粒度が合う=正しい払い出しは台帳の側で完結)。
+        # 直しの前は「最初の非空スロット」(``_first_nonempty_slot``)からしか払い出さず、ここで失敗行だけを次の
+        # スロットへ回して埋め合わせていた。下の再試行(≤8 回)はその**保険として残す**だけで、進まなければ抜ける
+        # (9 スロット以上の店でも偽の品切れにならないことを 11-09 に 12 スロットの店で確かめた=段 2 の突き合わせ)。
+        # 逐次ループ宣言(P4): **再試行の回数**ぶん(≤8)。購入行数には比例しない。
         sold = np.zeros(bought.size, dtype=bool)
         pending = np.arange(bought.size, dtype=np.int64)
         for _ in range(_SELL_SLOT_RETRIES):

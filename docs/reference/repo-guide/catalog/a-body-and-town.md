@@ -3,6 +3,7 @@
 > 発注は [返事その 6](../../../design/prompt-2026-11-05-reply6.md) §3-1 の 3 です。今のコードの現状を書きます。あるべき姿は [仕様書](../../../design/spec/) の担当なので、ここには書きません。
 > 正はコードです。HEAD `15b6bbd` のコードを読みました。既定の値は CLI の引数の定義と各モジュールの腕の関数を Python で読み出して確かめました(`SHIBUYA_*` の環境変数は 1 つも立っていない状態)。この文書のためにランは回していません。`data/` は開いていません。実測の値には出どころを添えます。
 > 1 日の流れは [段 1](../day-flow.md)、ファイルごとの事実は [段 3 のカード](../cards/README.md)(本体への取り込み待ち)です。
+> 〔11-09〕[段 2 の突き合わせ](../../stage2-crosscheck-2026-11-05.md)の食い違いと書き漏れを、HEAD `14b151a` のコードで確かめて直しました。直した所の一覧は §21 です。
 
 ## 0. 先に一覧と読み方
 
@@ -13,7 +14,7 @@
 | # | 機能 | 状態 | 主なファイル |
 |---:|---|---|---|
 | 1 | 鉄道 | 既定=時刻表の運行・乗車・運賃・200% の上限/腕=帰無腕/器だけ=渋谷の発着の表/無いと宣言=電車を見送る | [rail.py](../../../../src/shibuya/engine/processes/rail.py)・[resolve.py](../../../../src/shibuya/engine/resolve.py) |
-| 2 | 在圏(域内に居る・舞台の外) | 既定=日課の実行部・読み取り規則 v2・即時の退出/腕=`--exit-mode walk_to_platform` ほか/器だけ=予約の口 3 つ/無いと宣言=催しの人の注入 | [presence.py](../../../../src/shibuya/engine/presence.py)・[weekly.py](../../../../src/shibuya/agents/weekly.py) |
+| 2 | 在圏(域内に居る・舞台の外) | 既定=日課の実行部・読み取り規則 v2・即時の退出/腕=`--exit-mode walk_to_platform` ほか/器だけ=§2 の状態の表の 4 項目(`board_intent`・`native`・`WORK_START` と `AT_HOME`・W12 の門のセル)/無いと宣言=催しの人の注入 | [presence.py](../../../../src/shibuya/engine/presence.py)・[weekly.py](../../../../src/shibuya/agents/weekly.py) |
 | 3 | 歩行とナビメッシュ | 既定=歩ける面の移動 nav1/腕=坂・曲がる重み/器だけ=経路の候補 3 つ/`absent.py` に行なし | [nav1.py](../../../../src/shibuya/engine/space/nav1.py)・[navmesh.py](../../../../src/shibuya/world/navmesh.py)・[navmesh_route.py](../../../../src/shibuya/world/navmesh_route.py) |
 | 4 | 人の動きのモデル(足した) | 既定=本人の速さ × 坂 × 混み具合・接続口/腕=密度の推定/器だけ=混雑の中の避け方 | nav1.py・[geometry.py](../../../../src/shibuya/engine/geometry.py) |
 | 5 | 混雑場(足した) | 既定=密度の段と流れの 3 値/器だけ=8 方位と平均待ち | [crowd.py](../../../../src/shibuya/engine/processes/crowd.py)・[state.py](../../../../src/shibuya/world/state.py) |
@@ -27,7 +28,7 @@
 | 13 | 無いと宣言と入力の宣言(足した) | 宣言だけ(挙動を変えない) | [absent.py](../../../../src/shibuya/world/processes/absent.py)・[inputs.py](../../../../src/shibuya/world/processes/inputs.py) |
 | 14 | 規則の表 | 既定=表と読み手/器だけ=読み手に呼び手の無い行 4 件/読むコードの無い行 8 id | [table.py](../../../../src/shibuya/engine/rules/table.py)・[rules-table.json](../../../design/rules-table.json) |
 | 15 | 体の層(足した) | 既定=全員を見る版/腕=予約の版/器だけ=System 1 の 3 件/無いと宣言=倒れる | [engine/body/](../../../../src/shibuya/engine/body/) |
-| 16 | 暦の口(足した) | 既定/器だけ=学校の長期休みの表 | [calendar.py](../../../../src/shibuya/engine/calendar.py) |
+| 16 | 暦の口(足した) | 既定(開始日の検査を含む=土日と祝日は回せない)/腕=開始日・日数・祝日の表・学校の長期休みの表(どれも開始日の検査の範囲の中だけ) | [calendar.py](../../../../src/shibuya/engine/calendar.py) |
 | 17 | 近接の判定(足した) | 既定=実距離 2.0 m/腕=距離の感度 | [proximity.py](../../../../src/shibuya/engine/proximity.py)・[spatial_index.py](../../../../src/shibuya/engine/spatial_index.py) |
 | 18 | 時計と刻みの腕(足した) | 腕だけ(既定は全体で 1 つの時計・幅 60 秒) | [batching.py](../../../../src/shibuya/engine/batching.py)・[regional_clock.py](../../../../src/shibuya/engine/regional_clock.py)・[step_scope.py](../../../../src/shibuya/engine/step_scope.py) |
 
@@ -56,9 +57,9 @@ CLI の既定は `shibuya.cli.main` の引数の定義を読み出した値、�
 | `--slope` | `SHIBUYA_SLOPE` | 未指定 → `wood` | 腕 `tobler` | 3・4 |
 | `--turn-weight` | `SHIBUYA_TURN_WEIGHT` | 未指定 → `fixed` | 腕 `person` | 3 |
 | なし | `SHIBUYA_NAV1_DENSITY` | `neighborhood` | 腕 `cell`・`unscaled` | 4・5 |
-| `--geometry` | なし | `node` | 腕 `edge`(nav1 のランでは効かない) | 3 |
+| `--geometry` | なし | `node` | 腕 `edge`(nav1 のランでは位置を nav1 が持つ。語彙 v2 と組むと nav1 でも注意の層が立つ=§3。結果が変わるかは未確認) | 3 |
 | `--area-source` | なし | `legacy` | 腕 `plateau`(nav1 のランでは効かない) | 5 |
-| `--intent-max-ticks` | なし | 60 | 感度の腕 30・120 | 3 |
+| `--intent-max-ticks` | なし | 60 | 感度の腕 30・120 | 2・3(§2 は歩いて乗る退出の上限=`walk_max_ticks`) |
 | `--move-search-radius` | なし | 5 | 感度の値 | 3 |
 | `--exit-mode` | なし | `immediate` | 腕 `walk_to_platform`・`board_intent` は選ぶと止まる | 1・2 |
 | `--derive-rule` | なし | `v2` | 腕 `v1`・`v2.1` | 2 |
@@ -67,11 +68,13 @@ CLI の既定は `shibuya.cli.main` の引数の定義を読み出した値、�
 | `--seat-area-eatery`・`--seat-area-retail` | なし | `None` | 感度の腕 | 6 |
 | `--seat-release` | `SHIBUYA_SEAT_RELEASE` | 未指定 → `walk` | `legacy` は旧道 | 6 |
 | `--defect-fixes-1103` | `SHIBUYA_DEFECT_FIXES_1103` | 未指定 → `on` | `legacy` は旧道 | 6 |
-| `--rate-rules` | `SHIBUYA_RATE_RULES` | 未指定 → `off` | `legacy` は旧道 | 1・2・11 |
+| `--rate-rules` | `SHIBUYA_RATE_RULES` | 未指定 → `off` | `legacy` は旧道 | 1・2・11・15(倒れる率) |
 | `--absent-processes` | `SHIBUYA_ABSENT_PROCESSES` | 未指定 → `stopped` | `legacy` は旧道 | 11 |
-| `--ablate` | なし | 空 | 過程の id か `AB-*` で切る口 | 11 |
+| `--ablate` | なし | 空 | 過程の id か `AB-*` で切る口。`AB-PLAN-EXECUTOR` と `plan_execution` は日課の実行部を切る | 2・11 |
 | `--weather-perturb` | なし | 立てない | 腕 | 7 |
-| `--start-date` | なし | 空 → 2026-07-13 | 腕 | 7・16 |
+| `--start-date` | なし | 空 → 2026-07-13 | 腕(開始日の検査の範囲の中だけ=§16) | 7・16 |
+| `--sim-days` | なし | 1 | 腕(2 以上は連続する平日だけ=§16) | 16 |
+| `--school-holidays` | なし | 空 | 腕(渡すと、その区間に入る日を含むランを開始日の検査が止める) | 16 |
 | `--body-schedule` | `SHIBUYA_BODY_SCHEDULE` | 未指定 → `sweep` | 腕 `reserve` | 15 |
 | なし | `SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B` | どちらも `on` | `off` は旧道 | 14 |
 | `--proximity` | `SHIBUYA_PROXIMITY` | 未指定 → `distance` | `cell` は旧道 | 17 |
@@ -162,14 +165,14 @@ D-R2-5・D-W14(静的ダイヤ)・D-51(乗車の意図の保持)・D-61(帰り�
 
 就寝は W17 の就寝の行で `begin_planned_sleep` が実行します。就寝地のセルに居れば寝て、居なければ歩いて着いたら寝ます。乗車中・舞台の外・会話中の体には何もしません。起床の実行は就寝でない行の始まりごとの `wake_from_plan` です。
 
-乗車で舞台の外へ出た体は、次のブロックの到着を張り直します。次のブロックが無ければ、60 分以後の最も早い便が進行中のブロックの終わりより前にあるときだけ、出口のセルへ戻します(E12)。舞台の外と乗車中の体には呼び出しを出しません([judge.py](../../../../src/shibuya/engine/systems/judge.py) が `arbiter.step` に `outside` を渡します)。
+乗車で舞台の外へ出た体は、次のブロックの到着を張り直します。次のブロックが無ければ、次の 4 つがそろうときだけ出口のセルへ戻します(E12・`presence._rearm_after_leaving`)。① 答えの「乗車」で出た体である(`allow_return_to_current`。civic の押し出しは使わない)② 進行中のブロックの残りが 60 分以上 ③ 60 分以後の最も早い便が進行中のブロックの終わりより前 ④ その便が日の終わりより前。舞台の外と乗車中の体には呼び出しを出しません([judge.py](../../../../src/shibuya/engine/systems/judge.py) が `arbiter.step` に `outside` を渡します)。
 
 ### 状態
 
 | 区分 | 中身 |
 |---|---|
 | 既定 | 日課の実行部・読み取り規則 v2・即時の退出・E1 の便・全員出勤・舞台の外の見送り・計画の就寝。W17 か W16 が無いランでは立ちません |
-| 腕 | `--exit-mode walk_to_platform`(路線のホームへ歩いて乗る・運賃なし・上限は `--intent-max-ticks`)・`--derive-rule v2.1`・`v1`・`--calendar 1b`(`io_hook` で出入りを本人へ。中身は B)・帰無腕 3 本 |
+| 腕 | `--exit-mode walk_to_platform`(路線のホームへ歩いて乗る・運賃なし・上限は `--intent-max-ticks`)・`--derive-rule v2.1`・`v1`・`--calendar 1b`(`io_hook` で出入りを本人へ。中身は B)・`--calendar-shadow 1a`(勤務と授業の影を W20 から数える計器だけ・既定 `w17`=作らない・`engine/calendar_shadow.py`。中身は B §12)・帰無腕 3 本・日課の実行部を切る口 `--ablate AB-PLAN-EXECUTOR` と `--ablate plan_execution`(`build.py`) |
 | 器だけ | `--exit-mode board_intent` と `mode="native"` は `NotImplementedError`。`EventType.WORK_START`・`AT_HOME` は値だけで積みません。W12 の門のセルはエンジンが読みません |
 | 無いと宣言 | `absent.event_injection`(催しの人の注入)。来るかどうかは `rate_rules` の `attendance`=全員出勤の宣言 |
 | 旧道 | `--rate-rules legacy` の到着の分散 E8(E1 の便の ±8 便) |
@@ -253,8 +256,10 @@ presence.py の冒頭に〔既知の穴・11-02〕として書かれ、[PENDING]
 |---|---|
 | 既定 | nav1 の移動・活動層と意図の保持・Wood 2023 の坂・曲がる重み 50 m |
 | 条件 | 合成の世界と `build_hash` の無い世界は legacy で回し、manifest の `space.effective` に書きます。本番の世界に `nav1_*` が無ければ `FileNotFoundError` で止まります |
-| 腕 | `--slope tobler`・`--turn-weight person`(32〜62 m の一様)・`--intent-max-ticks 30/120`・`--move-search-radius` |
-| 器だけ | `NavPlanner.candidates`(3 つの候補を本人が選ぶ口・呼び手なし)。`--geometry edge` は nav1 のランでは効きません(台帳 `DOC-nav1-arms-inert-edge-plateau`) |
+| 腕 | `--slope tobler`・`--turn-weight person`(32〜62 m の一様)・`--intent-max-ticks 30/120`・`--move-search-radius`・`--geometry edge`(下の注) |
+| 器だけ | `NavPlanner.candidates`(3 つの候補を本人が選ぶ口・呼び手なし) |
+
+`--geometry edge` の注: nav1 のランでは位置を nav1 が持ちます。台帳 `DOC-nav1-arms-inert-edge-plateau` が「nav1 では効かない」と測ったのは語彙 v1 の構成だけです。nav1 でも語彙 v2 と組むと注意の層が立ち(`build.py` の `attention_on`=`geometry == "edge"` かつ語彙 v2)、SoA の edge の欄も確保されます。焦点の処理は `r.xy` を使うので nav1 でも動きます(`resolve.py` の焦点の区間)。結果が変わるかは、回していないので未確認です。
 | 無いと宣言 | `absent.py` に行はありません。衝突なしと経路の選びは nav1.py の `NAV1_EXPEDIENTS` とつなぎの台帳の宣言です |
 | 旧道 | `--space legacy`(1 刻み 1 節・人/セルの密度の段) |
 
@@ -609,7 +614,8 @@ D-W10(5 分刻み)・`10-12b/§1-3`・#88・#100(影 7 日)・知覚契約書 §
 | 区分 | 中身 |
 |---|---|
 | 既定 | 静的な昼夜の段(B4 に載る・変化の検出に効く) |
-| 器だけ | `cells.noise_stage`(動的な上書きの欄・書く系の宣言なし=カードの状態台帳の行)・`system1.noise_stage_at`(読み手なし) |
+| 腕 | `--contact c1`(既定 off)。`system1.noise_stage_at` で騒音の段を読み、`contact/device.py` の `noise_db_of_stage` で dB にして、電話とメッセージに気づく刺激を作る(`contact/layer.py` の `_system1`。中身は B §13) |
+| 器だけ | `cells.noise_stage`(動的な上書きの欄・書く系の宣言なし=カードの状態台帳の行)。ロンバード効果の値 `system1.speech_loudness` は空で、その入力としての `noise_stage_at` は器だけ |
 
 ### 実装しているファイル
 
@@ -638,7 +644,9 @@ D-W11・`10-03/§9-4`・#51・#77・`static_noise_field`(台帳の行・実行�
 
 ### 文書とコードの差
 
-なし(確かめた範囲)。
+| 文書の記述 | コード | 場所 |
+|---|---|---|
+| `noise_stage_at` は「本段では読み手が居ない(器だけ)」 | 連絡の腕 `--contact c1` が読む(`contact/layer.py` の `_system1`) | system1.py の `noise_stage_at` の docstring(11-09 に直した) |
 
 ## 10. 見通し(足した)
 
@@ -715,6 +723,8 @@ D-W9・#52(段 2a)・#53(段 2b)・`09-25/D-114`。
 
 台帳だけの行が 2 つあります。`goods_conservation`(none)と `static_noise_field`(none)で、実行器の過程はありません。
 
+町の側の器だけの欄に `cells.open_count`(セルごとの営業中の店の数)があります。`resolve` が 0 時(`initialize`)と毎刻みの位置の確定の後に `open_count_per_cell` から書きますが、読み手は 0 です(状態台帳の行の注「読み 0」・`engine/state_ledger.py`)。
+
 切替口は `--rate-rules`(旧道=受け入れ確率・到着の分散・催しの注入・ポイ捨て・売れ残りの廃棄・宅配・倒れる)と `--absent-processes`(旧道=ごみ収集・街路の清掃・道路工事・出動・電気と水)、過程ごとに切る `--ablate`(過程の id か `AB-*`)です。`--absent-processes legacy` と `--rate-rules legacy` は 11-05/§3-2 で消す予定です。
 
 ### 実装しているファイル
@@ -764,7 +774,7 @@ D-R2-1・D-R2-5・`10-12/§1-1`(CP6)・`11-01/§2`・`11-01/§3`・`11-01/§10-1
 |---|---|---|
 | 補充点=棚容量の 80% | `REORDER_FILL_RATIO = 0.95` | goods_flow.py の docstring([段 1 §11](../day-flow.md) の #11) |
 | 過程数(5)ぶんのループ | 18 本 | runner.py の `step` の注(段 1 §11 の #12) |
-| 報道の到達=全セル | 在席者のいるセルだけ(`_broadcast_events`) | civic.py の docstring と `summary`・[段 1 §9](../day-flow.md) の行 15 |
+| 報道の到達=全セル | 在席者のいるセルだけ(`salient._broadcast_events`) | civic.py の `PressProcess` の docstring と `summary` の文(11-09 に直した。`summary` は試験が表示するだけで、ランの出力に入らない)・[段 1 §9](../day-flow.md) の行 15 |
 | 催しは 18 時に記録 | 18 時と 21 時の 2 回(`_arrive`・`_leave` が `_log_held`) | [段 1 §9](../day-flow.md) の行 16 |
 | 駆動の主体は `executor=llm_agent` が示す | 既定はエンジンの規則か代打 | first_batch.py の冒頭・各行の `executor` |
 | 環境変数 `SHIBUYA_WARD_AREA_M2` | 定数の名で環境変数ではない | カードの logistics.py の行 |
@@ -928,7 +938,7 @@ machine は機械が守らせる行、human は人が知っていて人が取り
 
 本人の体の規則を 1 つの持ち主にまとめた層です。値は 3 つの内受容で、空腹・疲れ・体感温度です。
 
-- 疲れは 30 刻みごとに +1、就寝中は −2、在店かその場で持続中は 10 刻みごとに −1 です。
+- 疲れは体の刻み(30 刻みごと)に先に +1 し、そのあと就寝中の体から −2 します。寝ている体は 30 刻みで差し引き −1 です。在店かその場で持続中は 10 刻みごとに −1 です(`body/rules.py` の `fatigue_after`)。
 - 空腹の既定はエネルギー収支です。中身は B の食事の担当です。
 - 体感温度は §7 のとおりです。
 - 刻み 0 の値は空腹 2・疲れ 2・暑さ 5 で、自前です。
@@ -982,15 +992,25 @@ machine は機械が守らせる行、human は人が知っていて人が取り
 
 ### 何をしているか
 
-日付・曜日・祝日・季節・土休・営業時間の表の行を `SimCalendar` 1 つで引きます。開始日の既定は 2026-07-13(月)です。祝日は内閣府の CSV から読み、無ければ空で警告します。祝日は土休に数え、曜日 7 日の表では日曜の行、W7 では祝日の行(無い店は日曜の行)です。鉄道の平日か土休か、天気の層、営業時間の行、日ごとの乱数の鍵がここを読みます。
+日付・曜日・祝日・季節・土休・営業時間の表の行を `SimCalendar` 1 つで引きます。開始日の既定は 2026-07-13(月)です。祝日は内閣府の CSV から読みます。祝日は土休に数え、曜日 7 日の表では日曜の行、W7 では祝日の行(無い店は日曜の行)です。鉄道の平日か土休か、天気の層、営業時間の行、日ごとの乱数の鍵がここを読みます。
+
+開始日の検査(`SimCalendar.start_problems`・`check_start`)は、組み立て(`engine/systems/build.py`)が毎ランで呼びます。違反があると `ValueError` でランを止めます。
+
+- 止める違反: 祝日の表が読めていない・ランの日が祝日の表の範囲の外。
+- 規則の違反(これも止める): 0 日目が月曜でない・0 日目が祝日・2 日以上のランでどれかの日が土休か祝日(連続する平日に収まらない)・どれかの日が学校の長期休みの区間(`--school-holidays` を渡したときだけ)。
+- 例外: カレンダー 3 の試験用の印のラン(`--calendar-3 arm` と `SHIBUYA_CALENDAR_3_TRIAL=on`)だけは、規則の違反を止めずに manifest の `calendar_3.trial` と `calendar.start_check` に印つきで残します。止める違反は止めます。
+
+このため `--start-date`・`--sim-days` で回せるのは、祝日でない月曜に始まり、連続する平日に収まるランだけです。複数日は月曜から金曜までの最長 5 日です。**今の作りでは土日と祝日を回せません。**
+
+祝日の CSV が無いとき、読み込み(`load_holidays`)は警告して空の表を返します。しかし開始日の検査が「祝日の表が読めていない」を止める違反にするので、ランは止まります。合成の世界のランも同じです(試験は `tests/conftest.py` が fixture の CSV を `data/calendar/` へ写してから回します)。
 
 ### 状態
 
 | 区分 | 中身 |
 |---|---|
-| 既定 | 上の全部 |
-| 腕 | `--start-date`・`--holiday-csv`・`--sim-days` |
-| 器だけ | `--school-holidays`(学校の長期休みの表は渡す形だけで中身は空) |
+| 既定 | 上の全部(開始日の検査を含む) |
+| 腕 | `--start-date`・`--holiday-csv`・`--sim-days`(どれも開始日の検査の範囲の中だけ)・`--school-holidays`(既定は空。渡すと、その区間に入る日を含むランを止める) |
+| 器だけ | なし(11-09 に `--school-holidays` を器だけから腕へ移した) |
 
 ### 実装しているファイル
 
@@ -1012,13 +1032,15 @@ machine は機械が守らせる行、human は人が知っていて人が取り
 
 - 年末年始などの慣行の休みはありません(未リサーチ・宣言)。
 - 祝日を日曜の行で読むのは未リサーチの expedient です。
-- 日曜始まりのランの 0 日目は W17 に行が無く全員が舞台の外で待ちます(`DOC-ca3-weekend-k9`)。
+- 土日と祝日を回せません(上の開始日の検査)。
+- 0 日目が月曜でないランは開始日の検査で止まります。回るのはカレンダー 3 の試験用の印のランだけで、日曜始まりのその 0 日目は W17 に行が無く全員が舞台の外で待ちます(`DOC-ca3-weekend-k9`)。
 
 ### 文書とコードの差
 
 | 文書の記述 | コード | 場所 |
 |---|---|---|
 | 給料日は今は誰も読まない | 経済の段階 2 が 25 日の暦を作って読む(`economy_stage2.py` の `payday_calendar`・`stage2.py` の `plan.is_payday`) | calendar.py の docstring |
+| 祝日の CSV が無いときは空にして警告を 1 回だけ出す「既定のランを壊さない」・警告の文「祝日を空として回す(既定のランは祝日を見ない)」 | 読み込みは警告だけだが、開始日の検査がランを止める | calendar.py の冒頭の docstring と `load_holidays` の警告の文(11-09 に直した。警告は標準エラーに出るだけで、ランの出力に入らない) |
 
 ## 17. 近接の判定(足した)
 
@@ -1097,12 +1119,14 @@ machine は機械が守らせる行、human は人が知っていて人が取り
 
 ### 既知の穴
 
-- メッセージと電話は区域の時計では欄だけです(regional_clock.py の docstring)。
+- メッセージと電話は区域の時計では欄だけです(regional_clock.py の docstring)。メッセージと電話そのものは連絡の腕 `--contact c1` が持ちますが、区域の時計とは結んでいません(regional_clock.py に contact との結線は無い=grep)。
 - 印は写しとの比べで付けます(`DOC-tm234-t3-mark-by-copy`)。
 
 ### 文書とコードの差
 
-なし(確かめた範囲)。
+| 文書の記述 | コード | 場所 |
+|---|---|---|
+| メッセージと電話は「今の世界に無い(C1 の後)」 | 連絡の腕 `--contact c1`(`engine/contact/` の calls.py・deliver.py・layer.py)がメッセージと電話を実装している。区域の時計の側は欄だけ | regional_clock.py の冒頭の docstring の (d)(11-09 に直した)と manifest の欄 `clock.messages` の文(`manifest_fields`。ランの出力に入るので直していない) |
 
 ## 19. 読んでいないファイル
 
@@ -1138,8 +1162,30 @@ machine は機械が守らせる行、human は人が知っていて人が取り
 - ランを回していないので、既定のランの乗車・列・席・補充の担い手の件数は未確認です。
 - 同じ刻みの退出と到着と、日の境目の体の数の今の既定の値は未計測です(presence.py の docstring の注)。
 - 運賃の前の確かめ(§1 の既知の穴)の影響の件数は未計測です。
-- `--geometry edge` と `--area-source plateau` が nav1 で効かないのは台帳の記録の値で、動かしていません。
+- `--area-source plateau` が nav1 で効かないのは台帳の記録の値で、動かしていません。`--geometry edge` は、台帳が語彙 v1 の構成で効かないと記録しています。語彙 v2 と組んだ構成(§3 の注)は回していません。
 - 窓の幅・区域の時計・走査の絞り込みの「結果が同じ」は docstring の記述です。
 - S46 の float32 の丸めで経路の形が変わらないかは、仕分けの表も未確認と書いています。
 - 運転士の体が母集団に居るかは未確認です(routing 行 108 の文)。
 - つなぎの台帳の行は id と文の先頭を読みました。全 794 行の網羅ではありません。
+
+## 21. 11-09 の直し(段 2 の突き合わせ)
+
+[段 2 の突き合わせ](../../stage2-crosscheck-2026-11-05.md) §4-a の番号です。どれも HEAD `14b151a` のコードで確かめてから直しました。11-09 の直しのために読んだのは calendar.py の 395〜460 行・build.py の 290〜310 行と 680〜730 行と 860〜900 行・presence.py の 1816〜1880 行・body/rules.py の 170〜205 行・contact/layer.py の 935〜965 行・regional_clock.py の 1〜30 行と 400〜415 行・resolve.py の 576〜583 行と 1555〜1566 行です。
+
+| 突き合わせ | 直した所 |
+|---|---|
+| 食い違い 1(`noise_stage_at` の読み手) | §9 の状態と文書とコードの差。system1.py の docstring も直した |
+| 食い違い 2(`--geometry edge` と nav1) | §0-3 の行・§3 の状態と注・§20 |
+| 食い違い 3(祝日の CSV が無いとき) | §16 の何をしているか・文書とコードの差。calendar.py の docstring と警告の文も直した |
+| 食い違い 4(`--school-holidays`) | §0-1・§0-3・§16 の状態(器だけ → 腕) |
+| 食い違い 5(日曜始まり) | §16 の既知の穴 |
+| 食い違い 6(E12 の条件) | §2 の何をしているか |
+| 食い違い 7(疲れ) | §15 の何をしているか |
+| 食い違い 8(区域の時計の「メッセージは無い」) | §18 の既知の穴と文書とコードの差。regional_clock.py の docstring を直した(manifest の欄の文は直していない) |
+| 食い違い 9(効く機能の列) | §0-3 の `--rate-rules`・`--intent-max-ticks` の行 |
+| 食い違い 10(器だけの数) | §0-1 の 2 行目 |
+| 書き漏れ O1(開始日の検査) | §16 の何をしているか・状態・既知の穴・§0-1・§0-3(`--sim-days`・`--school-holidays` の行を足した) |
+| 書き漏れ O2(連絡の腕の騒音の読み) | §9 の状態 |
+| 書き漏れ O3(`cells.open_count`) | §11 の状態の表の後 |
+| 書き漏れ O4(暦 1a の影) | §2 の状態の腕 |
+| 書き漏れ O5(日課の実行部を切る口) | §2 の状態の腕・§0-3 の `--ablate` の行 |

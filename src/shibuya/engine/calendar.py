@@ -13,8 +13,9 @@ expedient・未リサーチ)。W7 の営業時間は PH の行(構築側の列 `
 
 祝日の表(A1-2): 内閣府「国民の祝日」CSV(``data/calendar/syukujitsu.csv``・cp932・列
 ``国民の祝日・休日月日``・``国民の祝日・休日名称``・1955/1/1〜2027/11/23)。振替休日と国民の休日は
-名称「休日」の行として入っている。ファイルが無いときは祝日を空にして警告を 1 回だけ出す
-(既定のランを壊さない)。読んだファイルの md5 を manifest に記録する。
+名称「休日」の行として入っている。ファイルが無いときは祝日を空にして警告を 1 回だけ出す(読み込みは止めない)。
+ただし組み立てが毎ランで呼ぶ開始日の検査(``check_start``)が「祝日の表が読めていない」を止める違反にするので、
+ランは止まる。読んだファイルの md5 を manifest に記録する。
 
 季節: 気象庁の季節の区分(春=3〜5 月・夏=6〜8 月・秋=9〜11 月・冬=12〜2 月)を日付の月から引く。
 
@@ -169,7 +170,7 @@ def load_holidays(path: str | Path = DEFAULT_HOLIDAY_CSV) -> HolidayTable:
         if shown not in _WARNED_MISSING:
             _WARNED_MISSING.add(shown)
             warnings.warn(
-                f"祝日 CSV が無い({shown})。祝日を空として回す(既定のランは祝日を見ない)",
+                f"祝日 CSV が無い({shown})。祝日を空の表にする(開始日の検査がランを止める)",
                 CalendarWarning,
                 stacklevel=2,
             )

@@ -1029,7 +1029,8 @@ def main(argv: list[str] | None = None) -> int:
         choices=CHOOSER_NAMES,
         default=DEFAULT_CHOOSER,
         help="段 2a(D-114 (a)): 購入/食事/並ぶの対象の選び手。候補=現在セルの営業中・意図に合う POI。"
-             "nearest=可視(W8 の視点数)の降順 → POI 索引(既定・憲法⑥の宣言つき暫定)/"
+             "nearest=距離の昇順 → 可視(W8 の視点数)の降順 → POI 索引(既定・憲法⑥の宣言つき暫定。候補が現在セルだけ"
+             "なので距離は全部同じ=実際は可視の降順 → POI 索引で決まる)/"
              "classical=5 段目 5b の古典的選択モデル(習慣 p_h+空腹の語で動く願望水準+可視順の揺らぎ τ)",
     )
     ap.add_argument(

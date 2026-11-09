@@ -18,7 +18,7 @@ engine.processes.civic — 公共サービス出動・報道/公式発信・大�
   - `HotelProcess`(クラス): ホテル客室在庫(来街者のチェックイン・アウト)。
   - `InfraLoadProcess`(クラス): インフラ日負荷(電力・水)の集約。**報告のみ**(網は持たない)。
   - `LargeEventProcess`(クラス): 大規模イベント(会場の開催・旧道は外界からの来街増分を窓の間だけ入れる)。
-  - `PressProcess`(クラス): 報道・公式発信(固定時刻の放送)。全セルへ届く 1 行を作る。
+  - `PressProcess`(クラス): 報道・公式発信(固定時刻の放送)。1 行を作る。届けるのは在席者のいるセルだけ(``salient._broadcast_events``)。
   - `PublicServiceDispatchProcess`(クラス): 公共サービス出動(救急・警察)。「倒れる」事象を受けて出動し、到着で解消する。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.absent_processes`・`shibuya.engine.rate_rules`・`shibuya.engine.resolve`・`shibuya.perception.attention`・`shibuya.world.assets`・`shibuya.world.processes.records`・`shibuya.world.state`
 - 呼び手: `shibuya.engine.processes.runner`

@@ -57,7 +57,7 @@ shibuya.cli — 実行入口(層外の組立コード・C4 出口で追加)。
   - `--census-out`: (help を読めない)
   - `--checkpoint-every`
   - `--checkpoints-out`: checkpoint 列(tick・agents/world/population/schedule ハッシュ・combined)と final_hash を JSON で書く(C7 受入 T2-a/b/c の入力。既定=書かない)
-  - `--chooser`: 段 2a(D-114 (a)): 購入/食事/並ぶの対象の選び手。候補=現在セルの営業中・意図に合う POI。nearest=可視(W8 の視点数)の降順 → POI 索引(既定・憲法⑥の宣言つき暫定)/classical=5 段目 5b の古典的選択モデル(習慣 p_h+空腹の語で動く願望水準+可視順の揺らぎ τ)
+  - `--chooser`: 段 2a(D-114 (a)): 購入/食事/並ぶの対象の選び手。候補=現在セルの営業中・意図に合う POI。nearest=距離の昇順 → 可視(W8 の視点数)の降順 → POI 索引(既定・憲法⑥の宣言つき暫定。候補が現在セルだけなので距離は全部同じ=実際は可視の降順 → POI 索引で決まる)/classical=5 段目 5b の古典的選択モデル(習慣 p_h+空腹の語で動く願望水準+可視順の揺らぎ τ)
   - `--classical-habit-p`: --chooser classical の習慣の確率 p_h(宣言 0.5・感度 0.25/0.75・--familiarity on のときだけ効く)
   - `--classical-social`: 第2波 §2A 項 3-1(Q42): --policy classical の交際・付き合いの相手。acquaintance=B5 近接行の知人(関係辺の相手)のうち活性 A が最大の人・居なければ待つ(既定・関係 off では会話を始めない)/near_first=旧(近接行の最初の人=見知らぬ人)
   - `--classical-tau`: --chooser classical の満足化の走査順の揺らぎ τ(宣言 1.0・感度 0.5/2.0)
