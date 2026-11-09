@@ -43,7 +43,7 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_the_first_contents`(関数)
   - `test_the_ledger_sha_is_canonical`(関数)
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.bridging.ledger`・`shibuya.engine.bridging.scan`・`shibuya.engine.rules.table`・`shibuya.engine.run`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.relations`
-- 決定の ID: 10-12/§1・10-13b/§4-2・D-44・第 334・第 336・第 337・第 342
+- 決定の ID: 10-12/§1・10-13b/§4-2・D-44・第 334・第 336・第 337・第 342・第 346
 
 ## [test_manifest_rules_bridges.py](../../../../../../../tests/engine/bridging/test_manifest_rules_bridges.py)
 

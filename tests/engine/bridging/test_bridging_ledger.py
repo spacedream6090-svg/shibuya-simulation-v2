@@ -163,7 +163,8 @@ def test_the_counts_by_form(decls):
     # 〔第 3 期 3-1〕build/sched/w20_calendar_1a.py(項 8)=80 → 81・358 → 366(本体の後に・記録 ca31/README.md)
     # 〔第342〕presence.py の docstring を実装に合わせて書き直し E12・E13 を登録簿に足した(#134・95c4ced)=項 9 → 11・366 → 368
     # (記録 presence-docstring-1102/README.md・見出しは足していない)
-    assert len({d.path for d in heads}) == 81 and sum(d.items for d in heads) == 368
+    # 〔第346 死んだ道の削除〕conversation.py の項 7 → 6(応答確率 0.8 の項=抽選ごと消した)=368 → 367
+    assert len({d.path for d in heads}) == 81 and sum(d.items for d in heads) == 367
 
 
 def test_process_and_fallback_rows(ledger, decls):

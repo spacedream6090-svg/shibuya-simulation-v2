@@ -478,7 +478,7 @@ ENVIRONMENT_RNG_DOMAINS: dict[str, str] = {
 MOTION_RNG_DOMAINS: dict[str, str] = {
     "engine.chooser": "店・行き先の候補の選び手(poi_target・store_choice も同じ流れ)",
     "policy.classical": "古典の方策の抽選",
-    "conversation.invite": "会話の招待の抽選",
+    # 〔第346 死んだ道の削除〕会話の招待の抽選 conversation.invite は応答率 0.8 の抽選と一緒に消した
     "llm.mock": "mock の応答(行為の抽選)",
     "decision.present": "候補の口の提示の並べ替え(第 1 期 1-8 J0・腕 --decision-port port のランだけ)",
     "llm.mock.move_target": "mock の移動の対象",

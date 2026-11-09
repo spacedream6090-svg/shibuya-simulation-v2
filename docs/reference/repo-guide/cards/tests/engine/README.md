@@ -399,9 +399,6 @@ engine.clock のテスト(壁時計非依存・tick↔日時・δ_perc のナノ
 engine.conversation のテスト(行動契約書 §3 会話プロトコル)。
 
 - 公開の関数とクラス
-  - `test_accept_is_deterministic_for_the_same_key`(関数)
-  - `test_accept_rate_is_about_zero_point_eight`(関数)
-  - `test_accept_uses_the_declared_rng_stream`(関数)
   - `test_backchannels_are_engine_generated_and_deterministic`(関数)
   - `test_closing_emits_the_fixed_closing_utterance_then_terminal`(関数)
   - `test_counters_report_openings_and_reasons`(関数)
@@ -427,9 +424,11 @@ engine.conversation のテスト(行動契約書 §3 会話プロトコル)。
   - `test_soft_stop_when_a_participant_leaves_the_cell`(関数)
   - `test_soft_stop_when_the_topic_stack_is_empty`(関数)
   - `test_speakers_alternate_starting_with_the_inviter`(関数)
+  - `test_the_dead_accept_lottery_is_removed`(関数): 〔第346 死んだ道の削除〕応答率 0.8 の抽選(``answered=None`` のときだけ引いた)は消した=返事は必ず渡す。
   - `test_wake_candidates_are_conversation_turns_with_zero_refractory`(関数)
   - `test_walking_over_state_can_be_enabled`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.rng`・`shibuya.core.types`・`shibuya.engine.conversation`・`shibuya.engine.run`・`shibuya.llm`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.types`・`shibuya.engine.conversation`・`shibuya.engine.run`・`shibuya.llm`
+- 決定の ID: 第 346
 
 ## [test_conversation_invite.py](../../../../../../tests/engine/test_conversation_invite.py)
 
@@ -1374,7 +1373,7 @@ engine.resolve のテスト: 行動契約書 §2.1 の 12 語(前提・効果・
 - import している内部モジュール: `shibuya.cli`・`shibuya.core.rng`・`shibuya.engine.conversation`・`shibuya.engine.geometry`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.environment`・`shibuya.engine.processes.logistics`・`shibuya.engine.rate_rules`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.llm.mock`・`tools/c7/salt_compare.py`
 - 読む試験: `tests/engine/memory/test_m1_runs.py`
 - 環境変数: `SHIBUYA_RATE_RULES`・`os.environ` をまるごと使う
-- 決定の ID: 11-01・第 330
+- 決定の ID: 11-01・第 330・第 346
 
 ## [test_scheduler.py](../../../../../../tests/engine/test_scheduler.py)
 
@@ -1519,7 +1518,7 @@ D-56 就寝抑止(ユーザー決定 (a)・2026-09-10)のテスト。
   - `test_u7_pulled_in_today_is_outside_this_check`(関数): U7: O37 ``presence._pulled_in_today``(軸 1 diag)は、わざと discardable にして日の境目の直後(T=1441)に捨てても
   - `test_v3_allow_entries_pin_the_function_of_the_line`(関数): 10e(E2・10f 第 3 段の検収 V3): 許可した行を別の関数へ**移す**(数は同じ)と、関数の名前で落ちる。
 - import している内部モジュール: `shibuya.cli`・`shibuya.core.rng`・`shibuya.engine.classical`・`shibuya.engine.rate_rules`・`shibuya.engine.resolve`・`shibuya.engine.rng_audit`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`tests/engine/discard_probe.py`・`tests/engine/test_sim_time_T.py`
-- 決定の ID: 11-01・11-03/§3・第 330・第 337
+- 決定の ID: 11-01・11-03/§3・第 330・第 337・第 346
 
 ## [test_state_format_10f.py](../../../../../../tests/engine/test_state_format_10f.py)
 

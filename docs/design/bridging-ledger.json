@@ -2397,8 +2397,8 @@
   },
   {
    "id": "HD-engine.conversation-1af925f4",
-   "what": "src/shibuya/engine/conversation.py の docstring の見出し「expedient(本モジュール分)」の下の項 7 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 空間の段 3(会話の距離 2 m の決め打ちを外す) 〔11-03 §3 の段 2・記録 docs/bench/analysis/fix4-1103/README.md §3〕d_talk の代理の項を今の実装に合わせて書き直し(届くかは呼び手が渡す=既定の近接の腕 distance・相手の idle は見ない)、応答確率 0.8 の項に「呼び手は全部 answered=True=抽選は引かれない=死んでいる道」の注を足した(行 DOC-fix4-dead-accept-probability)。項の数は 7 のまま",
+   "what": "src/shibuya/engine/conversation.py の docstring の見出し「expedient(本モジュール分)」の下の項 6 個",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 空間の段 3(会話の距離 2 m の決め打ちを外す) 〔11-03 §3 の段 2・記録 docs/bench/analysis/fix4-1103/README.md §3〕d_talk の代理の項を今の実装に合わせて書き直し(届くかは呼び手が渡す=既定の近接の腕 distance・相手の idle は見ない)、応答確率 0.8 の項に「呼び手は全部 answered=True=抽選は引かれない=死んでいる道」の注を足した(行 DOC-fix4-dead-accept-probability)。項の数は 7 のまま〔第346 旧道の切替口と死んだ道の削除〕応答確率 0.8 の項を消した(死んだ道=抽選ごと消した・行 DOC-fix4-dead-accept-probability)=項 7 → 6(記録 docs/bench/analysis/delete-346/README.md・取り込みの commit は親)",
    "remove_at": "5-3",
    "declared_in": "src/shibuya/engine/conversation.py#heading:1af925f4",
    "conf": "expedient",
@@ -8456,12 +8456,12 @@
   {
    "id": "DOC-fix4-dead-accept-probability",
    "what": "会話の応答率 0.8 の抽選(engine/conversation.py の ACCEPT_PROBABILITY・ConversationManager._accepts=invite に answered=None を渡したときだけ引く)は死んでいる道(今の呼び手=会話の系 engine/systems/talk.py と連絡の道具 engine/contact/layer.py は全部 answered=True)",
-   "why": "棚卸し B §4-1(docs/reference/behavior-audit-B-resolve-world-2026-11-02.md)。宣言(conversation.py の docstring の expedient の項・定数の注)は残っているのに抽選は一度も引かれない。消さずに印だけ付けた(次の版上げで消す=11-03 §3 の段 2 の親の発注。外す段は親の案=inferred)。状態台帳の欄(conv の accept_probability)も一緒に消す",
+   "why": "棚卸し B §4-1(docs/reference/behavior-audit-B-resolve-world-2026-11-02.md)。宣言(conversation.py の docstring の expedient の項・定数の注)は残っているのに抽選は一度も引かれない。消さずに印だけ付けた(次の版上げで消す=11-03 §3 の段 2 の親の発注。外す段は親の案=inferred)。状態台帳の欄(conv の accept_probability)も一緒に消す〔第346 旧道の切替口と死んだ道の削除〕閉じた: 死んだ道=会話の応答率 0.8 の抽選(ACCEPT_PROBABILITY・ConversationManager._accepts・accept_probability と domain の引数と状態台帳の欄・乱数の静的な呼び手の表の 1 行・乱数の用途名 conversation.invite)を消した。invite の answered は必ず渡す(呼び手は全部 answered=True だった=既定のランは 1 バイト不変)。旧値の再現は安定版のタグ stable-v2-before-switch-removal-346(記録 docs/bench/analysis/delete-346/README.md・取り込みの commit は親)",
    "remove_at": "next-bump",
    "declared_in": "docs/bench/analysis/fix4-1103/README.md §3",
    "conf": "expedient",
    "since": "2026-11-03",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/engine/conversation.py",

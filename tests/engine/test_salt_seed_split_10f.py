@@ -49,7 +49,7 @@ def _fd():
 #: 用途名を持たない呼び出し(``self.domain`` は既定の定数)。値は ``test_dynamic_domains_match_the_defaults`` で
 #: 実物の既定と突き合わせる(検収 S3-1 の 4: 手書きの表が既定の変更を追わない穴)。
 _DYNAMIC = {
-    "self.domain": {"conversation.invite", "llm.mock"},
+    "self.domain": {"llm.mock"},  # 〔第346〕会話の招待の抽選(conversation.invite)は死んだ道と一緒に消した
     "self.domain + _MOVE_TARGET_DOMAIN_SUFFIX": {"llm.mock.move_target"},
     "self.domain + _SHOP_TARGET_DOMAIN_SUFFIX": {"llm.mock.out_of_cell_target"},
 }
@@ -179,7 +179,8 @@ def test_dynamic_domains_match_the_defaults():
     from shibuya.llm import mock as MOCK
     from shibuya.llm.mock import MockLLM
 
-    assert {ConversationManager(1).domain, MockLLM(master_seed=1).domain} == _DYNAMIC["self.domain"]
+    assert {MockLLM(master_seed=1).domain} == _DYNAMIC["self.domain"]
+    assert not hasattr(ConversationManager(1), "domain")  # 〔第346〕抽選と一緒に用途名の引数も消した
     assert {MockLLM(master_seed=1).domain + MOCK._MOVE_TARGET_DOMAIN_SUFFIX} == _DYNAMIC[
         "self.domain + _MOVE_TARGET_DOMAIN_SUFFIX"]
     assert {MockLLM(master_seed=1).domain + MOCK._SHOP_TARGET_DOMAIN_SUFFIX} == _DYNAMIC[

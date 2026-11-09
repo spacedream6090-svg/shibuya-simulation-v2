@@ -25,8 +25,6 @@ expedient(本モジュール分)
   (``same_cell``=``resolve.talk_within_reach``: 既定の近接の腕 distance は ``engine.proximity`` の距離 d・
   注意の腕は ``resolve.TALK_OPEN_METERS``・〔第346〕切替口 cell は消した)。相手の idle は呼び手が見ない
   (``partner_idle=True`` で渡す)。``D_TALK_METERS`` は宣言だけ置く(1 m を使う道は無い)。
-- 応答確率 **0.8**(契約書「較正目標=声かけ応答率≈0.8」)。較正データ無しの定数。〔11-03 棚卸し B §4-1〕今の呼び手は
-  全部 ``answered=True``(被招待の返事)を渡すので抽選は引かれない=死んでいる道(次の版上げで消す・つなぎの台帳の行)。
 - 話者交替は**招待者始まりの単純交替**。契約書は「話者選択(WHO)=エンジン(会話分析規則)」
   としか言わず規則を与えていない。
 - **話題スタック**の初期本数 = ``max_turns``(1往復ごとに1本消費)。契約書に本数の規定なし。
@@ -48,19 +46,16 @@ from typing import Any, Final, Iterable, Mapping, Sequence
 import numpy as np
 
 from shibuya.agents.state import WakeCondition
-from shibuya.core.rng import stream
 from shibuya.core.types import EventClass
 
 __all__ = [
     "D_TALK_METERS",
-    "ACCEPT_PROBABILITY",
     "MAX_TURNS",
     "IMPORTANT_EXTRA_TURNS",
     "MAX_PARTICIPANTS",
     "REFUSAL_MEMORY_TICKS",
     "SILENCE_TICKS",
     "MAX_SESSION_TICKS",
-    "INVITE_RNG_DOMAIN",
     "BACKCHANNELS",
     "CLOSING_UTTERANCE",
     "CLOSE_REASONS",
@@ -83,10 +78,6 @@ __all__ = [
 #: ``engine.proximity``)と注意の腕の ``resolve.TALK_OPEN_METERS``(2.0 m)の 2 本の定数が別々に持つ。宣言はこう: d_talk≈1 m。
 #: 1 本にまとめるか・値を合わせるかは仕分け待ち(11-03 §2)。
 D_TALK_METERS: Final[float] = 1.0
-#: 声かけ応答率(契約書「較正目標≈0.8」・expedient)。〔11-03 棚卸し B §4-1〕抽選(``_accepts``)は ``invite`` に
-#: ``answered=None`` を渡したときだけ引かれ、今の呼び手(会話の系・連絡の道具)は全部 ``answered=True``=死んでいる道
-#: (次の版上げで消す・台帳 DOC-fix4-dead-accept-probability)。
-ACCEPT_PROBABILITY: Final[float] = 0.8
 #: ハード終了: 1体あたりの発話ブロック数(契約書 max_turns=3・予算由来の expedient)。
 MAX_TURNS: Final[int] = 3
 #: 「重要度上位のみ+2呼」(契約書 §3)。〔11-03 棚卸し B §4-1〕組み立て(``systems/build.py``)は ``important`` を渡さない
@@ -101,8 +92,6 @@ REFUSAL_MEMORY_TICKS: Final[int] = 60
 SILENCE_TICKS: Final[int] = 5
 #: セッション寿命の上限[tick](有界化・expedient)。
 MAX_SESSION_TICKS: Final[int] = 60
-#: 招待の応答判定に使う RNG ドメイン。
-INVITE_RNG_DOMAIN: Final[str] = "conversation.invite"
 
 #: **被招待の返事を待つ tick 数**(C6・09-09)。相手が同じ適用バッチに居なかった招待は
 #: 次 tick に被招待起床(``WakeCondition.CONVERSATION_TURN``)させ、その返事を待つ。
@@ -240,11 +229,11 @@ class ConversationManager:
     """会話セッションの生成・進行・終了(**終了はLLMに決めさせない**)。
 
     Args:
-        master_seed: ランの ``master_seed``(応答判定の RNG 鍵)。
+        master_seed: ランの ``master_seed``(〔第346〕応答判定の抽選と乱数の用途名 ``conversation.invite`` は消した=今は
+            記録だけ・位置の引数の互換で残す)。
         max_turns: 1体あたりの発話ブロック上限(ハード終了)。
         extra_turns_for_important: 重要度上位の追加呼数。
         max_participants: 参加上限(既定2・契約書の上限は3)。
-        accept_probability: 声かけ応答率。
         refusal_memory_ticks: 拒否/無視の記憶[tick]。
         silence_ticks: 沈黙のソフト終了閾値[tick]。
         max_session_ticks: セッション寿命[tick]。
@@ -253,7 +242,7 @@ class ConversationManager:
 
     Example:
         >>> m = ConversationManager(master_seed=1)
-        >>> s = m.invite(3, 5, tick=0, cell=7, same_cell=True, partner_idle=True)
+        >>> s = m.invite(3, 5, tick=0, cell=7, same_cell=True, partner_idle=True, answered=True)
         >>> s is None or s.state is ConvState.PARTICIPATING
         True
     """
@@ -265,26 +254,20 @@ class ConversationManager:
         max_turns: int = MAX_TURNS,
         extra_turns_for_important: int = IMPORTANT_EXTRA_TURNS,
         max_participants: int = MAX_PARTICIPANTS,
-        accept_probability: float = ACCEPT_PROBABILITY,
         refusal_memory_ticks: int = REFUSAL_MEMORY_TICKS,
         silence_ticks: int = SILENCE_TICKS,
         max_session_ticks: int = MAX_SESSION_TICKS,
         walk_over_ticks: int = 0,
         topics_per_session: int | None = None,
         important: Iterable[int] = (),
-        domain: str = INVITE_RNG_DOMAIN,
         count_unreachable: bool = False,
     ) -> None:
         if max_participants < 2 or max_participants > 3:
             raise ValueError("参加上限は 2..3(契約書 §3)")
-        if not (0.0 <= accept_probability <= 1.0):
-            raise ValueError("accept_probability は 0..1")
         self.master_seed = master_seed
-        self.domain = domain
         self.max_turns = int(max_turns)
         self.extra_turns_for_important = int(extra_turns_for_important)
         self.max_participants = int(max_participants)
-        self.accept_probability = float(accept_probability)
         self.refusal_memory_ticks = int(refusal_memory_ticks)
         self.silence_ticks = int(silence_ticks)
         self.max_session_ticks = int(max_session_ticks)
@@ -401,17 +384,6 @@ class ConversationManager:
             return GateResult(False, "no_call_budget")
         return GateResult(True, "")
 
-    def _accepts(self, inviter: int, tick: int) -> bool:
-        """応答判定(エンジン確率・決定論)。
-
-        RNG: ``core.rng.stream(master_seed, "conversation.invite", tick, inviter)``(運用設計書 §2.5 のカウンタ順)
-        (**親の指定どおりの引数順**。運用設計書 §2.5 のカウンタ順は
-        ``(tick, entity_id, draw_index)`` で、``llm.mock`` はそちらに従っている=不一致を
-        報告済み。どちらもカウンタベースなので T4「規模不変」は満たす)。
-        """
-        g = stream(self.master_seed, self.domain, int(tick), int(inviter))  # 運用設計書 §2.5: カウンタ=(tick, entity_id, …)
-        return bool(g.random() < self.accept_probability)
-
     # ---------------------------------------------------------------- 招待
     def invite(
         self,
@@ -424,15 +396,16 @@ class ConversationManager:
         partner_idle: bool,
         inviter_has_budget: bool = True,
         partner_has_budget: bool = True,
-        answered: bool | None = None,
+        answered: bool,
     ) -> Session | None:
-        """招待 → 応答判定 → セッション生成。
+        """招待 → 被招待者の返事 → セッション生成。
 
         Args:
-            answered: **被招待者の実際の返事**(``True``=その tick の自分の呼で 会話 と答えた)。
-                ``None``(既定)のときだけエンジンの応答確率 ``accept_probability`` を引く。
-                C6(09-09)で被招待が自分の呼で答えるようになったので、答えが分かる場面では
-                **抽選を使わない**(0.8 は較正の目標値であって機構ではない)。
+            answered: **被招待者の実際の返事**(``True``=その tick の自分の呼で 会話 と答えた・必ず渡す)。
+                C6(09-09)で被招待が自分の呼で答えるようになった。〔第346 死んだ道の削除〕エンジンの応答確率 0.8 の抽選
+                (``answered=None`` のときだけ引いた・呼び手は全部 ``answered=True``=死んでいる道・つなぎの台帳
+                ``DOC-fix4-dead-accept-probability``)は消した(旧値の再現は安定版のタグ
+                ``stable-v2-before-switch-removal-346``)。
 
         Returns:
             成立した ``Session``。ゲート不通過・不応答なら ``None``
@@ -446,10 +419,8 @@ class ConversationManager:
         if not g.ok:
             self.n_gate_rejected += 1
             return None
-        accepts = self._accepts(inviter, tick) if answered is None else bool(answered)
-        if not accepts:
-            if answered is not None:
-                self.n_declined += 1  # 相手が**自分の呼で**断った(抽選ではない)
+        if not bool(answered):
+            self.n_declined += 1  # 相手が**自分の呼で**断った(抽選ではない)
             self.n_ignored_invites += 1
             self.ignored_events.append((int(tick), int(inviter), int(invitee)))
             self._remember_refusal(inviter, invitee, tick)

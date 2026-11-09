@@ -227,7 +227,8 @@ def scan_sites(root: Path, files: Iterable[Path] | None = None) -> list[StreamSi
 
 #: 静的に安全な呼び手(ファイル・関数・用途名)。増えても減っても落とす(10f の時点の 15 か所・〔第330〕B6 で 1 つ足して 16 か所・
 #: 〔第330・RET〕legacy の天気の 2 か所(`EnvironmentProcess._pick_day`・`select_day`)を消して 14 か所・〔第 2 期 2-2〕+1=15 か所・〔第 6 期 6-5〕+1=16 か所・
-#: 〔第 6 期 6-3〕+2=18 か所・〔賃金の小さな版上げ〕+1=19 か所・〔第 6 期 6-4 C1〕+2=21 か所・〔小さな版上げ meal_w17〕+1=22 か所)。
+#: 〔第 6 期 6-3〕+2=18 か所・〔賃金の小さな版上げ〕+1=19 か所・〔第 6 期 6-4 C1〕+2=21 か所・〔小さな版上げ meal_w17〕+1=22 か所・
+#: 〔第346 死んだ道の削除〕会話の応答率 0.8 の抽選 ``ConversationManager._accepts`` を消した −1=表の今の数は 26 → 25=試験 ``test_k19_static_sites_are_frozen``)。
 SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     # 〔小さな版上げ・meal_w17〕既定の食事時刻の引き(philox_array・k19 の鍵の並べ方・1 ブロック=3 語)
     ("engine/energy.py", "MealStartDistribution.draw", "energy.meal_default"),
@@ -242,7 +243,6 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     # 引く語数が定数で 4 以内 7 か所(〔第330〕+1・RET −2)
     ("engine/chooser.py", "draw_index", "engine.chooser"),
     ("engine/classical.py", "ClassicalPolicy.answer", "policy.classical"),  # 〔1-8 J0〕render の中身を answer へ移した
-    ("engine/conversation.py", "ConversationManager._accepts", "expr:self.domain"),
     # 〔第330・10e B6〕天気の規則 calendar の再生日の抽選(鍵 1 語=層の名前と日番号のハッシュ・引く語数 2)
     ("engine/processes/environment.py", "sample_calendar_day", "engine.processes.environment"),
     ("llm/mock.py", "MockLLM._draws", "expr:self.domain"),

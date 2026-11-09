@@ -1,6 +1,7 @@
 """engine.conversation のテスト(行動契約書 §3 会話プロトコル)。
 
-開始ゲート5条件/応答判定0.8の決定論/話者交替(招待者始まり)/ハード終了 max_turns 3(+2)/
+開始ゲート5条件/被招待者の返事(〔第346〕応答率 0.8 の抽選=死んだ道は消した)/話者交替(招待者始まり)/
+ハード終了 max_turns 3(+2)/
 ソフト終了(話題スタック空・沈黙・退去・セル離脱)/1人1会話/拒否履歴/
 会話ターン起床(不応期0)/診断計数。
 """
@@ -11,10 +12,8 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import REFRACTORY_MINUTES, WakeCondition
-from shibuya.core.rng import stream
 from shibuya.core.types import EventClass
 from shibuya.engine.conversation import (
-    ACCEPT_PROBABILITY,
     BACKCHANNELS,
     CLOSING_UTTERANCE,
     D_TALK_METERS,
@@ -27,12 +26,11 @@ SEED = 20260908
 
 
 def _manager(**kw) -> ConversationManager:
-    kw.setdefault("accept_probability", 1.0)  # ゲートと進行の検査では応答判定を固定
     return ConversationManager(SEED, **kw)
 
 
 def _open(m: ConversationManager, a=1, b=2, tick=0, cell=5):
-    return m.invite(a, b, tick, cell, same_cell=True, partner_idle=True)
+    return m.invite(a, b, tick, cell, same_cell=True, partner_idle=True, answered=True)
 
 
 # ---------------------------------------------------------------- 開始ゲート
@@ -84,31 +82,28 @@ def test_refusal_memory_blocks_the_pair_for_a_while():
     assert m.gate(1, 2, 40, same_cell=True, partner_idle=True).ok
 
 
-# ---------------------------------------------------------------- 応答判定
-def test_accept_is_deterministic_for_the_same_key():
-    a = ConversationManager(SEED)
-    b = ConversationManager(SEED)
-    for tick in range(20):
-        assert (a._accepts(7, tick)) == (b._accepts(7, tick))
+# ---------------------------------------------------------------- 被招待者の返事
+def test_the_dead_accept_lottery_is_removed():
+    """〔第346 死んだ道の削除〕応答率 0.8 の抽選(``answered=None`` のときだけ引いた)は消した=返事は必ず渡す。"""
+    import inspect
 
+    from shibuya.engine import conversation as CV
 
-def test_accept_uses_the_declared_rng_stream():
     m = ConversationManager(SEED)
-    # 運用設計書 §2.5: カウンタ=(tick, entity_id, …) → (tick=3, inviter=7)
-    expected = bool(stream(SEED, "conversation.invite", 3, 7).random() < ACCEPT_PROBABILITY)
-    assert m._accepts(7, 3) is expected
-
-
-def test_accept_rate_is_about_zero_point_eight():
-    m = ConversationManager(SEED)
-    hits = sum(m._accepts(a, t) for a in range(200) for t in range(10))
-    assert 0.75 <= hits / 2_000 <= 0.85
+    for name in ("_accepts", "accept_probability"):
+        assert not hasattr(m, name), name
+    assert not hasattr(CV, "ACCEPT_PROBABILITY")
+    assert inspect.signature(m.invite).parameters["answered"].default is inspect.Parameter.empty
+    with pytest.raises(TypeError):
+        m.invite(1, 2, 0, 5, same_cell=True, partner_idle=True)  # type: ignore[call-arg]
+    with pytest.raises(TypeError):
+        ConversationManager(SEED, accept_probability=0.8)  # type: ignore[call-arg]
 
 
 def test_non_response_is_an_ignored_event_and_costs_no_call():
-    m = ConversationManager(SEED, accept_probability=0.0)
-    assert m.invite(1, 2, 0, 5, same_cell=True, partner_idle=True) is None
-    assert m.n_ignored_invites == 1 and m.ignored_events == [(0, 1, 2)]
+    m = ConversationManager(SEED)
+    assert m.invite(1, 2, 0, 5, same_cell=True, partner_idle=True, answered=False) is None
+    assert m.n_ignored_invites == 1 and m.n_declined == 1 and m.ignored_events == [(0, 1, 2)]
     assert m.counters()["utterance_blocks"] == 0
     assert not m.is_busy(1) and not m.is_busy(2)
 
@@ -279,8 +274,6 @@ def test_counters_report_openings_and_reasons():
 def test_invalid_configuration_is_rejected():
     with pytest.raises(ValueError):
         ConversationManager(SEED, max_participants=4)
-    with pytest.raises(ValueError):
-        ConversationManager(SEED, accept_probability=1.5)
 
 
 # ---------------------------------------------------------------- run_day 結線
