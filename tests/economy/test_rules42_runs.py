@@ -35,14 +35,14 @@ def law(monkeypatch):
     monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)
 
 
-def _run(sim_days: int = 2):
+def _run(sim_days: int = 2, **kw):
     world = World.synthetic(n_cells=64, seed=2)
     led = Ledger(N, world.n_poi)
     goods = GoodsLedger.from_pois(np.arange(world.n_poi) % 3, np.asarray(world.pois.stock),
                                   np.asarray(world.pois.price), n_agents=N)
     bundle = LedgerBundle(money=led, goods=goods, census=lambda d: CS.daily_census(led, goods, day=d))
     res = run_day(n_agents=N, seed=2, world=world, ticks=1_440, sim_days=sim_days, checkpoint_every=720,
-                  ledger=bundle, start_sim_datetime="2026-08-24")
+                  ledger=bundle, start_sim_datetime="2026-08-24", **kw)
     return res, led
 
 
@@ -129,6 +129,27 @@ def test_resume_refuses_a_header_without_rules_42(law):
         ES2.check_resume(off)
     assert ES2.header_fields(types.SimpleNamespace(parts=ES2.PARTS, wage_model=ES2.wage_arm(), law=None)).get(
         "rules_42") is None  # law の無い部品の口は見出しに書かない
+
+
+@pytest.mark.parametrize("key,match", [("rules_42", "規則の表の中身の腕"), ("rules_42b", "空欄 3 件の腕")])
+def test_resume_from_a_state_without_the_rules_key_is_refused(tmp_path, law, key, match):
+    """〔第346〕見出しの ``economy_stage2`` に ``rules_42``(4-2 の前のラン)か ``rules_42b``(4-2 の値のラン)の無い状態の
+    ファイルは再開で止まる: 保存の間だけ見出しからその鍵を外し、戻してから再開する(検収 M3)。"""
+    from shibuya.engine import resume as RS
+
+    orig = ES2.header_fields
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(ES2, "header_fields", lambda plan: {k: v for k, v in (orig(plan) or {}).items() if k != key})
+        a, _ = _run(sim_days=1, state_out=tmp_path / "st", stop_at_tick=120)
+    f = tmp_path / "st" / a.resume["state_files"][-1]["file"]
+    head = RS.read_state(f).header["economy_stage2"]
+    assert key not in head and head["arm"] == "on"
+    with pytest.raises(ValueError, match=f"{match}.*消した.*stable-v2-before-switch-removal-346"):
+        _run(sim_days=1, resume_from=f)
+    b, _ = _run(sim_days=1, state_out=tmp_path / "ok", stop_at_tick=120)  # 正の対照: 鍵のある保存は通る
+    g = tmp_path / "ok" / b.resume["state_files"][-1]["file"]
+    assert RS.read_state(g).header["economy_stage2"][key] == "on"
+    _run(sim_days=1, resume_from=g)
 
 
 def test_conserved_fails_when_the_deposit_check_breaks(law):

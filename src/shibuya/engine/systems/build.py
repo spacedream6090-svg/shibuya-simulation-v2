@@ -129,6 +129,11 @@ __all__ = ["build"]
 
 def build(_call_args: dict[str, Any]) -> Any:
     """組み立て(R1): 腕の検査・世界と SoA と層の組み立て・状態の箱・再開の復元。返り値=``Box``。"""
+    # 〔第346 旧道の切替口の削除・検収 H1〕消した切替口の環境変数は、切替口を持っていたモジュールを import しないランでも
+    # ここ(ランの入口=刻みに入る前)で止める(黙って既定で回さない)
+    from shibuya.engine import removed_switches as _RSW
+
+    _RSW.check_environment()
     from shibuya.engine import run as _RUN
 
     RNG_LAYOUT = _RUN.RNG_LAYOUT
@@ -698,8 +703,10 @@ def build(_call_args: dict[str, Any]) -> Any:
     attention_on = (geometry == "edge") and (vocab_version == "v2")
     # ---- 第 2 期 2-2 段 11a: 近接の判定(〔2-4 V2〕distance=層を作る・〔第346〕切替口 cell は消した=ランは常に層を作る)。層は
     # 会話・返事待ち・3 人会話・離脱・招待の相手・偶然・知人出現・同席・B5 の近接行を「舞台の中・同じ層・距離 ≤ d(B5 の
-    # 単位の中は距離を見ない)」で判定する(状態台帳の行 PX=軸 1 diag・軸 2 discardable)。腕は環境変数と CLI だけ
-    # (run_day の引数にしない=設定の指紋に入れない=記憶の器と候補の口の腕と同じ扱い) ----
+    # 単位の中は距離を見ない)」で判定する(状態台帳の行 PX=軸 1 diag・軸 2 discardable)。会話の距離 d の感度の腕
+    # (--proximity-d・環境変数)は run_day の引数にしない=設定の指紋に入れない。下の ``_px_rule is None`` の枝(規則も層も
+    # 無い=同じセル)はランでは通らない=試験の口(知覚の分離の試験 test_render_from_percept_bytes の (B) が ``rule_from`` を
+    # None に差し替えて HEAD 136fdbb の双子と比べる=検収 M2)として残す ----
     from shibuya.engine import proximity as _PXM
 
     # 規則はここで作る(古典の交際の候補の閉包が使う)・層は関係の層の後(気づいた印の読み口=関係の層を渡す)
@@ -1253,7 +1260,8 @@ def build(_call_args: dict[str, Any]) -> Any:
             rel_layer.enable_copresent()
         if conv is not None:
             conv.track_origins(REL_ORIGINS)
-    # 第 2 期 2-2 段 11a: 近接の層(腕 distance だけ)。描画の B5 の近接行の知人は関係の層の気づいた印を読む(検収 L1)
+    # 第 2 期 2-2 段 11a: 近接の層(規則のあるラン=常に。None の枝は上の注の試験の口)。描画の B5 の近接行の知人は関係の
+    # 層の気づいた印を読む(検収 L1)
     proximity_layer = (
         None if _px_rule is None else _PXM.ProximityLayer(
             _px_rule, marks=rel_layer if (rel_layer is not None and rel_layer.acq_wake_on) else None)

@@ -284,6 +284,22 @@ def test_resume_with_another_proximity_arm_is_refused(tmp_path, first, second):
         run_day(resume_from=f, **kw)                            # 同じ腕は通る
 
 
+def test_resume_without_the_proximity_header_is_refused(tmp_path):
+    """〔第346〕見出しに ``proximity`` の無い状態のファイル(cell のラン)は再開で止まる: 保存の間だけ見出しを書かない形にし、
+    戻してから再開する(検収 M3)。"""
+    from shibuya.engine import resume as RS
+
+    kw = dict(n_agents=40, seed=1, n_cells=9, ticks=240, budget=40.0, vocab_version="v3", memory="on",
+              relations="on")
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(P, "header_fields", lambda *a_, **k_: None)  # cell のラン=見出しに proximity が無い
+        a = run_day(state_out=tmp_path / "st", stop_at_tick=120, **kw)
+    f = tmp_path / "st" / a.resume["state_files"][-1]["file"]
+    assert "proximity" not in RS.read_state(f).header
+    with pytest.raises(ValueError, match="近接の腕.*消した.*stable-v2-before-switch-removal-346"):
+        run_day(resume_from=f, **kw)
+
+
 # ================================================================= 検収 L2: 世界資産の再開(気づく抽選が十分に起きる構成)
 WRES = dict(n_agents=1_000, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", relations="on",
             rel_copresent="on", checkpoint_every=60)

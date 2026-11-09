@@ -865,28 +865,28 @@ _EXT: tuple[LedgerRow, ...] = (
              "ここに持つ=読み手は次の発話の原因の入力(出来事ログ=診断)だけ=軸 1 diag(記録 on/off で behavior-hash と final が"
              "同じ)。未読が刻みをまたぐ=再開したランの原因の入力が通しと同じ=軸 2 required(C1 の CT1Q・カレンダー 2 の CA2M と"
              "同じ形)。書く系は decide・llm_receive(宣言 S8E:speech.*)"),
-    # ---- 第 2 期 2-2 段 11a(近接の判定の切替口): 足す前に軸を決めた行(腕の裏=既定の腕 cell では持ち主が None) ----
+    # ---- 第 2 期 2-2 段 11a(近接の判定): 足す前に軸を決めた行(〔第346〕切替口 cell は消した=ランでは常に持ち主がある) ----
     LedgerRow(
         key="PX", name="ProximityLayer(近接の層の計器・第 2 期 2-2 段 11a)", place=EXTERNAL,
-        dtype="計器の dict(数と分布)", nbytes="", alloc="SHIBUYA_PROXIMITY=distance", behavior=DIAG,
+        dtype="計器の dict(数と分布)", nbytes="", alloc="組み立てが常に作る(〔第346〕切替口 cell は消した)", behavior=DIAG,
         restore=DISCARDABLE, dead=False,
         basis="engine/proximity.py(ProximityLayer.build_index・observed)・engine/systems/perceive.py(書く)・"
               "engine/run.py(manifest の proximity)",
         items=("proximity._meter",),
-        note="2-2 段 11a: 腕 --proximity distance のランだけ層を作る(〔2-4 V2〕既定。切替口 cell は持ち主が None)。計器(索引を作った回数・"
+        note="2-2 段 11a: 組み立てが常に層を作る(〔2-4 V2〕既定。〔第346〕切替口 cell は消した)。計器(索引を作った回数・"
              "索引の体の数の最大・B5 の単位の在室人数の最大と分布)は診断=読み手は manifest の proximity と試験だけ(軸 1 diag)。"
              "判定の規則(rule)は設定・気づいた印の読み口(_marks=関係の層)は参照(除外の一覧)。軸 2 discardable(再開のランは 0 から=どちらのハッシュにも状態のファイルにも"
              "入らない)。書く系は perceive_prepare だけ(宣言 PX:proximity.*)。行の鍵は O の通し番号でなく PX"),
     LedgerRow(
         key="PX0", name="TickScratch.near_index(近傍の索引 SpatialIndex・第 2 期 2-2 段 11a)", place=EXTERNAL,
         dtype="engine.proximity.SpatialIndex(体の id・座標・層・B5 の単位・格子の鍵の配列)", nbytes="",
-        alloc="SHIBUYA_PROXIMITY=distance", behavior=NO, restore=DISCARDABLE, dead=False,
+        alloc="近接の層のある刻み(ランでは常に・〔第346〕切替口 cell は消した)", behavior=NO, restore=DISCARDABLE, dead=False,
         basis="engine/proximity.py(SpatialIndex)・engine/systems/perceive.py(書く)・engine/systems/boxes.py(SCRATCH_FIELDS)・"
               "perception/renderer.py(B5 の近接行=描画の前計算 _tickc.near)",
         items=(),
         note="2-2 段 11a: 軸 1 no(刻みの頭の SoA の xy・band・poi_ref・cell から作り直す派生の値=行 P と同じ扱い)・軸 2 "
              "discardable(刻みの頭で空になる=どちらのハッシュにも状態のファイルにも入らない)。持ち主の物ではなく TickScratch の"
-             "欄なので道筋(items)は持たない。書く系は perceive_prepare だけ(writes.scratch=段 C の守り)。既定の腕 cell では None"),
+             "欄なので道筋(items)は持たない。書く系は perceive_prepare だけ(writes.scratch=段 C の守り)。層の無い物(部品の口)では None"),
     # ---- 第 2 期 2-1(経済の段階 2・腕 --economy-stage2 on): 足す前に軸を決めた行(腕の無いランは持ち主の属性が None) ----
     LedgerRow(
         key="EC", name="経済の段階 2 の中身(MoneyStage2=部品・体の種別・1 日の消費・労働時間・組み立ての物・計器)",

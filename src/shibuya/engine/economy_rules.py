@@ -32,13 +32,15 @@ removed)。旧値の再現は安定版のタグ ``stable-v2-before-switch-remova
 
 from __future__ import annotations
 
-import os
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Final
 
 import numpy as np
+
+from shibuya.engine.removed_switches import REMOVED_SWITCH_TAG
+from shibuya.engine.removed_switches import stop_if_set as _stop_if_set
 
 __all__ = [
     "ARM_ON", "ARM_OFF", "ENV_42_REMOVED", "RIGHTS_INITIAL_FILE", "PayrollInputs",
@@ -49,17 +51,12 @@ __all__ = [
 #: 無い=``off``=4-2 の前のラン=〔第346〕再開できない)。
 ARM_ON: Final[str] = "on"
 ARM_OFF: Final[str] = "off"
-#: 〔第346〕旧道の切替口を消す前の安定版のタグ(旧値の再現はこのタグで回す)。
-REMOVED_SWITCH_TAG: Final[str] = "stable-v2-before-switch-removal-346"
-#: 〔第346〕消した切替口の環境変数(4-2b の空欄 3 件を埋める前の値の再現=与えると止まる=黙って無視しない)。
+#: 〔第346〕消した切替口の環境変数(4-2b の空欄 3 件を埋める前の値の再現=与えると止まる=黙って無視しない)。一覧と止める文は
+#: ``engine.removed_switches``(ランの入口=組み立ての最初でも止める)。
 ENV_42B_REMOVED: Final[str] = "SHIBUYA_RULES_42B"
 #: 〔第346〕消した切替口の環境変数(4-2 の前の値の再現=与えると止まる=黙って無視しない)。
 ENV_42_REMOVED: Final[str] = "SHIBUYA_RULES_42"
-for _name in (ENV_42_REMOVED, ENV_42B_REMOVED):
-    if os.environ.get(_name, "").strip():
-        raise ValueError(f"{_name} は消した切替口(第346 旧道の切替口の削除・旧値の再現は安定版のタグ "
-                         f"{REMOVED_SWITCH_TAG})=環境変数を外す")
-del _name
+_stop_if_set(ENV_42_REMOVED, ENV_42B_REMOVED)
 
 #: 差し替えの世界の初期の権利の表(W21b・役割と週の時間の目安を持つ)。
 RIGHTS_INITIAL_FILE: Final[str] = "w21_rights_initial.parquet"

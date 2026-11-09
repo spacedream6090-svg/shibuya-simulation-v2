@@ -122,16 +122,20 @@ def test_run_manifest_reports_the_arm_and_the_count():
 
 
 def test_resume_without_the_seat_header_is_refused(tmp_path):
-    """腕は設定の指紋に入れない=状態のファイルの見出しの ``seat_release`` を見る(〔第346〕見出しに無い=2-4 より前は止める)。"""
-    import json
-
+    """腕は設定の指紋に入れない=状態のファイルの見出しの ``seat_release`` を見る。〔第346〕見出しに無い状態のファイル
+    (2-4 より前のラン)は再開で止まる: 保存の間だけ見出しを書かない形にし、戻してから再開する(検収 M3)。"""
     from shibuya.engine import resume as RS
     from shibuya.engine.run import run_day
 
     kw = dict(n_agents=40, seed=1, n_cells=9, ticks=240, budget=40.0, vocab_version="v3")
-    a = run_day(state_out=tmp_path / "st", stop_at_tick=120, **kw)
+    a = run_day(state_out=tmp_path / "st", stop_at_tick=120, **kw)  # 正の対照: 見出しのある保存は通る
     f = tmp_path / "st" / a.resume["state_files"][-1]["file"]
-    head = RS.read_state(f).header
-    assert head["seat_release"] == {"mode": "walk"}
-    run_day(resume_from=f, **kw)  # 同じ腕は通る
-    assert json.dumps(head, sort_keys=True)  # 見出しは JSON にできる(消した鍵は無い)
+    assert RS.read_state(f).header["seat_release"] == {"mode": "walk"}
+    run_day(resume_from=f, **kw)
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(SR, "header_fields", lambda *a_, **k_: None)  # 2-4 より前のラン=見出しに seat_release が無い
+        old = run_day(state_out=tmp_path / "old", stop_at_tick=120, **kw)
+    g = tmp_path / "old" / old.resume["state_files"][-1]["file"]
+    assert "seat_release" not in RS.read_state(g).header
+    with pytest.raises(ValueError, match="在席の印の腕.*消した.*stable-v2-before-switch-removal-346"):
+        run_day(resume_from=g, **kw)

@@ -249,8 +249,9 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
   - `test_on_keeps_the_register_tax_in_the_deposit_and_deducts_on_payday`(関数)
   - `test_removed_rules_42_switch_env_stops`(関数): 〔第346〕消した切替口: 環境変数 SHIBUYA_RULES_42 を与えると読み込みで止まる・腕を選ぶ口は無い。
   - `test_resume_equals_straight_with_the_deposit`(関数)
+  - `test_resume_from_a_state_without_the_rules_key_is_refused`(関数): 〔第346〕見出しの ``economy_stage2`` に ``rules_42``(4-2 の前のラン)か ``rules_42b``(4-2 の値のラン)の無い状態の
   - `test_resume_refuses_a_header_without_rules_42`(関数): 見出しの ``rules_42`` が無い状態のファイル(4-2 の前のラン)からは再開できない(〔第346〕切替口は消した・天引きは状態を
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.economy_rules`・`shibuya.engine.economy_stage2`・`shibuya.engine.ledger_api`・`shibuya.engine.run`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.economy_rules`・`shibuya.engine.economy_stage2`・`shibuya.engine.ledger_api`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.world.state`
 - 環境変数: `SHIBUYA_RULES_42`・`os.environ` をまるごと使う
 - 決定の ID: 第 346
 

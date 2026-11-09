@@ -135,7 +135,7 @@ def test_revert_conversation_is_the_legacy_release():
     assert np.all(np.asarray(agents.registry.talk_partner) == -1)
 
 
-def _conversation_box(agents, conv, mode):
+def _conversation_box(agents, conv):
     plan = SimpleNamespace(confirmed=EMPTY)
     return SimpleNamespace(
         soa=SimpleNamespace(agents=agents),
@@ -146,9 +146,9 @@ def _conversation_box(agents, conv, mode):
     )
 
 
-@pytest.mark.parametrize("mode", ["on"])  # 〔第346〕系の旧道(legacy)は消した
-def test_the_conversation_system_releases_by_the_arm(mode):
-    """会話の番で「移動」を選んで歩き出した体(MOVING)は、セッションの終わりで止まらない(〔第346〕旧道の IDLE は消した)。"""
+def test_the_conversation_system_releases_only_conversing_bodies():
+    """会話の番で「移動」を選んで歩き出した体(MOVING)は、セッションの終わりで止まらない(〔第346〕系の旧道=全員を IDLE は
+    消した)。"""
     from shibuya.engine.systems.talk import sys_conversation
 
     world, agents = _talk_agents()
@@ -157,16 +157,12 @@ def test_the_conversation_system_releases_by_the_arm(mode):
                     answered=True)
     assert s is not None
     conv.close_now(0, 11, "退去")  # CLOSING → 次の step で TERMINAL
-    b = _conversation_box(agents, conv, mode)
+    b = _conversation_box(agents, conv)
     sys_conversation(SimpleNamespace(T=12), b)
-    assert int(agents.activity[0]) == int(Activity.IDLE)  # 会話中だった体は戻す(どちらの腕も)
+    assert int(agents.activity[0]) == int(Activity.IDLE)  # 会話中だった体は戻す
     assert int(agents.registry.talk_partner[0]) == -1 and int(agents.registry.talk_partner[1]) == -1
-    if mode == "on":
-        assert int(agents.activity[1]) == int(Activity.MOVING)
-        assert conv.n_end_kept_activity == {"MOVING": 1}
-    else:
-        assert int(agents.activity[1]) == int(Activity.IDLE)
-        assert conv.n_end_kept_activity == {}
+    assert int(agents.activity[1]) == int(Activity.MOVING)
+    assert conv.n_end_kept_activity == {"MOVING": 1}
 
 
 # ================================================================= M11 列を離れる
@@ -376,17 +372,24 @@ def test_run_manifest_section(tiny_runs):
     assert leg["counts"] == DF.empty_counts()
 
 
-def test_resume_reads_the_header(tmp_path):
-    """腕は設定の指紋に入れない=状態のファイルの見出しの ``defect_fixes_1103``(常に on)を見る(〔第346〕見出しに無い=
-    版上げの前は ``test_state_header_and_resume_check`` が止まることを見る)。"""
+def test_resume_without_the_header_is_refused(tmp_path):
+    """腕は設定の指紋に入れない=状態のファイルの見出しの ``defect_fixes_1103``(常に on)を見る。〔第346〕見出しに無い状態の
+    ファイル(版上げの前のラン)は再開で止まる: 保存の間だけ見出しを書かない形にし、戻してから再開する(検収 M3)。"""
     from shibuya.engine import resume as RS
     from shibuya.engine.run import run_day
 
     kw = dict(n_agents=40, seed=1, n_cells=9, ticks=240, budget=40.0, vocab_version="v3")
-    a = run_day(state_out=tmp_path / "st", stop_at_tick=120, **kw)
+    a = run_day(state_out=tmp_path / "st", stop_at_tick=120, **kw)  # 正の対照: 見出しのある保存は通る
     f = tmp_path / "st" / a.resume["state_files"][-1]["file"]
     assert RS.read_state(f).header["defect_fixes_1103"] == {"mode": "on"}
-    run_day(resume_from=f, **kw)  # 同じ腕は通る
+    run_day(resume_from=f, **kw)
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(DF, "header_fields", lambda *a_, **k_: None)  # 版上げの前のラン=見出しに defect_fixes_1103 が無い
+        old = run_day(state_out=tmp_path / "old", stop_at_tick=120, **kw)
+    g = tmp_path / "old" / old.resume["state_files"][-1]["file"]
+    assert "defect_fixes_1103" not in RS.read_state(g).header
+    with pytest.raises(ValueError, match="欠陥の直し.*消した.*stable-v2-before-switch-removal-346"):
+        run_day(resume_from=g, **kw)
 
 
 # ================================================================= M10 の続き: 招待が流れた招待側の戻し(11-03 親の依頼の続き)
@@ -399,32 +402,27 @@ def _waiting_inviter(activity):
     return agents, conv
 
 
-@pytest.mark.parametrize("mode", ["on"])  # 〔第346〕系の旧道(legacy)は消した
-def test_an_expired_invite_keeps_the_inviters_new_activity(mode):
-    """返事待ちの間に歩き出した招待側(MOVING)は、期限切れの戻しで既定では MOVING のまま(旧道は IDLE)。"""
+def test_an_expired_invite_keeps_the_inviters_new_activity():
+    """返事待ちの間に歩き出した招待側(MOVING)は、期限切れの戻しで MOVING のまま(〔第346〕系の旧道=IDLE は消した)。"""
     from shibuya.engine.conversation import PENDING_INVITE_TTL_TICKS
     from shibuya.engine.systems.talk import sys_conversation
 
     agents, conv = _waiting_inviter(Activity.MOVING)
-    b = _conversation_box(agents, conv, mode)
+    b = _conversation_box(agents, conv)
     sys_conversation(SimpleNamespace(T=5 + PENDING_INVITE_TTL_TICKS + 1), b)
     assert not conv.pending_invites and conv.n_pending_expired == 1
     assert int(agents.registry.talk_partner[0]) == -1
-    if mode == "on":
-        assert int(agents.activity[0]) == int(Activity.MOVING)
-        assert conv.n_revert_kept_activity == {"expired": {"MOVING": 1}} and conv.n_end_kept_activity == {}
-    else:
-        assert int(agents.activity[0]) == int(Activity.IDLE) and conv.n_revert_kept_activity == {}
+    assert int(agents.activity[0]) == int(Activity.MOVING)
+    assert conv.n_revert_kept_activity == {"expired": {"MOVING": 1}} and conv.n_end_kept_activity == {}
 
 
-@pytest.mark.parametrize("mode", ["on"])  # 〔第346〕系の旧道(legacy)は消した
-def test_an_expired_invite_still_releases_a_waiting_conversing_inviter(mode):
-    """返事を待って CONVERSING のままの招待側は、どちらの腕でも IDLE に戻る(戻しの意図そのもの)。"""
+def test_an_expired_invite_still_releases_a_waiting_conversing_inviter():
+    """返事を待って CONVERSING のままの招待側は IDLE に戻る(戻しの意図そのもの)。"""
     from shibuya.engine.conversation import PENDING_INVITE_TTL_TICKS
     from shibuya.engine.systems.talk import sys_conversation
 
     agents, conv = _waiting_inviter(Activity.CONVERSING)
-    sys_conversation(SimpleNamespace(T=5 + PENDING_INVITE_TTL_TICKS + 1), _conversation_box(agents, conv, mode))
+    sys_conversation(SimpleNamespace(T=5 + PENDING_INVITE_TTL_TICKS + 1), _conversation_box(agents, conv))
     assert int(agents.activity[0]) == int(Activity.IDLE) and conv.n_revert_kept_activity == {}
 
 
@@ -444,23 +442,19 @@ def test_a_refusal_keeps_the_inviters_new_activity(keep):
 
 
 # ================================================================= 検収の直し(11-03 の 3 回目)
-@pytest.mark.parametrize("mode", ["on"])  # 〔第346〕系の旧道(legacy)は消した
-def test_a_body_choosing_a_talk_without_a_target_keeps_its_activity(mode):
-    """〔中-2〕対象の決まらない会話(resolve が失敗させた体=活動は変わっていない)。旧道は寝ている体を IDLE にして起こしていた。
-    既定は CONVERSING でない体を戻さない(対象のある失敗は旧道でも戻していない=それと揃う)。計器の原因は no_target。"""
+def test_a_body_choosing_a_talk_without_a_target_keeps_its_activity():
+    """〔中-2〕対象の決まらない会話(resolve が失敗させた体=活動は変わっていない)。旧道は寝ている体を IDLE にして起こしていた
+    (〔第346〕系の旧道は消した)。CONVERSING でない体を戻さない(対象のある失敗と揃う)。計器の原因は no_target。"""
     from shibuya.engine.systems.talk import sys_conversation
 
     _, agents = _talk_agents()  # 体 4 は SLEEPING
     conv = ConversationManager(master_seed=1)
-    b = _conversation_box(agents, conv, mode)
+    b = _conversation_box(agents, conv)
     b.scratch.plan = SimpleNamespace(confirmed=_batch([4], C.ACT_TALK, [-1]))
     sys_conversation(SimpleNamespace(T=3), b)
     assert int(agents.registry.talk_partner[4]) == -1
-    if mode == "on":
-        assert int(agents.activity[4]) == int(Activity.SLEEPING)
-        assert conv.n_revert_kept_activity == {"no_target": {"SLEEPING": 1}}
-    else:
-        assert int(agents.activity[4]) == int(Activity.IDLE) and conv.n_revert_kept_activity == {}
+    assert int(agents.activity[4]) == int(Activity.SLEEPING)
+    assert conv.n_revert_kept_activity == {"no_target": {"SLEEPING": 1}}
 
 
 @pytest.mark.parametrize("fix", [True, False])

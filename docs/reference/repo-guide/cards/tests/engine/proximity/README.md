@@ -78,6 +78,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_notice_streams_in_a_run_pass_k19`(関数)
   - `test_resume_equals_straight_on_the_distance_arm`(関数)
   - `test_resume_with_another_proximity_arm_is_refused`(関数)
+  - `test_resume_without_the_proximity_header_is_refused`(関数): 〔第346〕見出しに ``proximity`` の無い状態のファイル(cell のラン)は再開で止まる: 保存の間だけ見出しを書かない形にし、
   - `test_same_input_same_result`(関数)
   - `test_sensitivity_arms_keep_every_conversation_within_their_d`(関数)
   - `test_world_resume_equals_straight_and_the_marks_matter`(関数)

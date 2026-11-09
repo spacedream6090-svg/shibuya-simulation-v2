@@ -23,7 +23,7 @@
 | [src/shibuya/census](src/shibuya/census/README.md) | 1 | 0 |
 | [src/shibuya/core](src/shibuya/core/README.md) | 11 | 0 |
 | [src/shibuya/economy](src/shibuya/economy/README.md) | 15 | 0 |
-| [src/shibuya/engine](src/shibuya/engine/README.md) | 60 | 0 |
+| [src/shibuya/engine](src/shibuya/engine/README.md) | 61 | 0 |
 | [src/shibuya/engine/body](src/shibuya/engine/body/README.md) | 5 | 0 |
 | [src/shibuya/engine/bridging](src/shibuya/engine/bridging/README.md) | 3 | 0 |
 | [src/shibuya/engine/calendar2](src/shibuya/engine/calendar2/README.md) | 6 | 0 |
@@ -66,7 +66,7 @@
 | [tests/economy](tests/economy/README.md) | 18 | 0 |
 | [tests/economy/cp2](tests/economy/cp2/README.md) | 12 | 1 |
 | [tests/economy/stage2](tests/economy/stage2/README.md) | 14 | 0 |
-| [tests/engine](tests/engine/README.md) | 82 | 0 |
+| [tests/engine](tests/engine/README.md) | 83 | 0 |
 | [tests/engine/batching](tests/engine/batching/README.md) | 3 | 0 |
 | [tests/engine/body](tests/engine/body/README.md) | 9 | 0 |
 | [tests/engine/bridging](tests/engine/bridging/README.md) | 3 | 0 |

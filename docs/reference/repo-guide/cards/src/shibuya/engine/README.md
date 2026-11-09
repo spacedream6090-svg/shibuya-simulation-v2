@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 60 本・その他 0 本(このディレクトリの直下)
+Python 61 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [body](body/README.md)・[bridging](bridging/README.md)・[calendar2](calendar2/README.md)・[calendar3](calendar3/README.md)・[contact](contact/README.md)・[decision](decision/README.md)・[duties](duties/README.md)・[events](events/README.md)・[experiment](experiment/README.md)・[processes](processes/README.md)・[rights](rights/README.md)・[rules](rules/README.md)・[space](space/README.md)・[speech](speech/README.md)・[systems](systems/README.md)・[tools](tools/README.md)
 
@@ -319,6 +319,7 @@ engine.defect_fixes_1103 — 棚卸し B で見つけた欠陥 4 件の直しの
   - `is_on`(関数): ``mode``(省略=ランの腕 on)が直した道か。
   - `manifest_fields`(関数): manifest の ``defect_fixes_1103``(設定=形の版・腕・4 件の宣言・直した印/観測=計器)。
   - `resolve`(関数): 引数の腕(``None``=ランの腕 ``on``)を名に直す(名の誤りは止める)。
+- import している内部モジュール: `shibuya.engine.removed_switches`
 - 呼び手: `shibuya.engine.systems.build`・`shibuya.engine.systems.report`・`shibuya.engine.systems.state_io`
 - 読む試験: `tests/engine/test_defect_fixes_1103.py`
 - 環境変数: `SHIBUYA_DEFECT_FIXES_1103`
@@ -331,10 +332,10 @@ engine.economy_rules — 第 4 期 4-2 の規則の表の中身を経済の段�
 - 公開の関数とクラス
   - `PayrollInputs`(クラス): 給与の天引きの加入の判定の材料(体ごと・読むだけ)。
   - `payroll_inputs`(関数): 体ごとの加入の判定の材料を組み立てる(:class:`PayrollInputs`)。表の無い世界・母集団の無いランは材料なし。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.economy_stage2`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.economy_stage2`・`shibuya.engine.removed_switches`
 - 呼び手: `shibuya.engine.economy_stage2`
 - 読む試験: `tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42_payroll.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_rules42b_payroll.py`
-- 環境変数: `SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・名前を読めない所 1 か所
+- 環境変数: `SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`
 - 決定の ID: 10-12・R-118・第 346
 
 ## [economy_stage2.py](../../../../../../../src/shibuya/engine/economy_stage2.py)
@@ -747,7 +748,7 @@ engine.presence — 計画実行層(Presence & Plan Executor・D-66 第1段)。
 
 ## [proximity.py](../../../../../../../src/shibuya/engine/proximity.py)
 
-engine.proximity — 会話と近接を実距離で判定する切替口(第 2 期 2-2・段 11a)。
+engine.proximity — 会話と近接を実距離で判定する(第 2 期 2-2・段 11a)。
 
 - 公開の関数とクラス
   - `NearView`(クラス): 描画の前計算に渡す物(規則・この刻みの索引・気づいた印の読み口)。
@@ -762,9 +763,9 @@ engine.proximity — 会話と近接を実距離で判定する切替口(第 2 �
   - `notice_p`(関数): R-62 の 2 点を通るロジスティック p(d)(距離[m] → 気づく確率)。
   - `rule_from`(関数): 組み立ての口(``seed``=動きの側の seed=気づく抽選の counter の流れの鍵・``poi_cell``=``world.pois.cell``・
   - `set_d`(関数): 会話の距離 d の感度の腕を選ぶ(CLI ``--proximity-d``・試験の切替口)。
-- import している内部モジュール: `shibuya.core.rng`・`shibuya.engine.spatial_index`
+- import している内部モジュール: `shibuya.core.rng`・`shibuya.engine.removed_switches`・`shibuya.engine.spatial_index`
 - 呼び手: `shibuya.cli`・`shibuya.engine.commit`・`shibuya.engine.relations`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.state_io`
-- 読む試験: `tests/engine/proximity/test_rule.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/proximity/test_switch_sites.py`・`tests/engine/space/test_nav1_units.py`
+- 読む試験: `tests/engine/proximity/test_rule.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/proximity/test_switch_sites.py`・`tests/engine/space/test_nav1_units.py`・`tests/perception/facts/test_render_from_percept_bytes.py`
 - 読む試験(道筋で): `tests/engine/test_state_ledger_10b.py`
 - 状態台帳の行
   - 持ち主 `proximity`(`ProximityLayer`)
@@ -851,6 +852,19 @@ engine.relations_people — 人も記憶の一つ(第 6 期 6-5・腕 ``--memory
 - 状態台帳の行
   - 持ち主 `rel_layer` の別のクラス `PeopleRelationLayer`(行は `shibuya.engine.relations` のカードを見る)
 - 決定の ID: 10-12/§4-6
+
+## [removed_switches.py](../../../../../../../src/shibuya/engine/removed_switches.py)
+
+engine.removed_switches — 消した旧道の切替口の一覧と、渡されたら止める口(第346 旧道の切替口の削除)。
+
+- 公開の関数とクラス
+  - `check_environment`(関数): 消した切替口の環境変数(:data:`REMOVED_ENV` の全部)のどれかが置かれていれば止める(ランの入口で呼ぶ)。
+  - `message`(関数): 止めるときの文(名・消した段・安定版のタグ)。
+  - `stop_if_set`(関数): ``names`` の環境変数のどれかが置かれていれば(空でない値)止める(``ValueError``)。
+- 呼び手: `shibuya.cli`・`shibuya.engine.defect_fixes_1103`・`shibuya.engine.economy_rules`・`shibuya.engine.proximity`・`shibuya.engine.seat_release`・`shibuya.engine.systems.build`
+- 読む試験: `tests/engine/test_removed_switches_346.py`
+- 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
+- 決定の ID: 第 346
 
 ## [resolve.py](../../../../../../../src/shibuya/engine/resolve.py)
 
@@ -976,7 +990,7 @@ engine.resolve — **世界状態への唯一の書き込み口**(二相コミ�
   - `restock`: 直接の書き `pois.stock` 口として持つ系: duties・world
   - `restore_items`: 直接の書き (なし) 口として持つ系: build
   - `restore_soa`: 直接の書き (なし) 口として持つ系: build
-  - `revert_conversation`: 直接の書き `agents.activity`・`agents.talk_partner` 口として持つ系: apply_responses・conversation
+  - `revert_conversation`: 直接の書き `agents.activity`・`agents.talk_partner`
   - `set_activity`: 直接の書き `agents.activity_kind`・`agents.activity_until` 口として持つ系: activity_intent・presence
   - `set_activity_until`: 直接の書き `agents.activity_until` 口として持つ系: activity_intent
   - `set_conversing`: 直接の書き `agents.activity`・`agents.talk_partner` 口として持つ系: apply_responses・conversation
@@ -1021,7 +1035,7 @@ engine.resolve — **世界状態への唯一の書き込み口**(二相コミ�
   - `write_state`(関数): 状態のまとまりを 1 ファイル(npz+json・圧縮)に書く(一時ファイル → ``os.replace``)。返り値=ファイルのバイト数。
 - import している内部モジュール: `shibuya.core.hashing`・`shibuya.engine.calendar`・`shibuya.engine.state_codec`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`
 - 呼び手: `shibuya.engine.resolve`・`shibuya.engine.systems.build`・`shibuya.engine.systems.state_io`
-- 読む試験: `tests/economy/stage2/test_stage2_resume_arm.py`・`tests/engine/batching/test_conductor_windows.py`・`tests/engine/calendar/test_ca1b_runs.py`・`tests/engine/calendar/test_calendar_shadow.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/clock/test_tm2_talk_clock.py`・`tests/engine/clock/test_tm3_step_scope.py`・`tests/engine/clock/test_tm4_regional_clock.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/speech/test_speech_arm_rows_resume.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_env_and_sections_10f.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_seat_release_2_4.py`・`tests/engine/test_state_format_10f.py`・`tests/golden_env.py`・`tests/perception/facts/test_percept_is_scratch.py`
+- 読む試験: `tests/economy/stage2/test_stage2_resume_arm.py`・`tests/economy/test_rules42_runs.py`・`tests/engine/batching/test_conductor_windows.py`・`tests/engine/calendar/test_ca1b_runs.py`・`tests/engine/calendar/test_calendar_shadow.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/clock/test_tm2_talk_clock.py`・`tests/engine/clock/test_tm3_step_scope.py`・`tests/engine/clock/test_tm4_regional_clock.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/speech/test_speech_arm_rows_resume.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_env_and_sections_10f.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_seat_release_2_4.py`・`tests/engine/test_state_format_10f.py`・`tests/golden_env.py`・`tests/perception/facts/test_percept_is_scratch.py`
 - 環境変数: `NUMBA_NUM_THREADS`
 - 決定の ID: D-102・第 330
 
@@ -1146,6 +1160,7 @@ engine.seat_release — 在席の印を歩き出しで解く(第 2 期 2-4 V3・
 - 公開の関数とクラス
   - `check_resume`(関数): 再開のときに、保存したランの見出しの ``seat_release``(無ければ legacy=2-4 より前のラン)が walk かを確かめる(違えば止める)。
   - `header_fields`(関数): 状態のファイルの見出しの ``seat_release``(ランは常に ``{"mode": "walk"}``・walk の外の名は None)。
+- import している内部モジュール: `shibuya.engine.removed_switches`
 - 呼び手: `shibuya.engine.systems.build`・`shibuya.engine.systems.state_io`
 - 読む試験: `tests/engine/test_seat_release_2_4.py`
 - 環境変数: `SHIBUYA_SEAT_RELEASE`

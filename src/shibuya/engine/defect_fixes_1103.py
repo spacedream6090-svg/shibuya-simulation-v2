@@ -41,8 +41,9 @@
 
 from __future__ import annotations
 
-import os
 from typing import Any, Final, Mapping
+
+from shibuya.engine import removed_switches as _RSW
 
 __all__ = [
     "MODE_ON", "MODE_LEGACY", "MODES", "DEFAULT_MODE", "SCHEMA", "FIXES", "FIX_DECLARATIONS", "COUNT_KEYS",
@@ -89,9 +90,7 @@ COUNT_KEYS: Final[tuple[str, ...]] = (
 
 #: 〔第346〕消した切替口の環境変数(与えると止まる=黙って無視しない)。
 ENV_REMOVED: Final[str] = "SHIBUYA_DEFECT_FIXES_1103"
-if os.environ.get(ENV_REMOVED, "").strip():
-    raise ValueError(f"{ENV_REMOVED} は消した切替口(第346 旧道の切替口の削除・旧値の再現は安定版のタグ "
-                     "stable-v2-before-switch-removal-346)=環境変数を外す")
+_RSW.stop_if_set(ENV_REMOVED)  # 一覧と止める文は engine.removed_switches(ランの入口=組み立ての最初でも止める)
 
 
 def resolve(mode: str | None) -> str:

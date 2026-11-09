@@ -206,7 +206,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.contact",  # 〔第 6 期 6-4 C2〕対面の会話の番の控え(腕 c1 のランだけ)
          origin=f"L5(遅れ 1)・L11 前半(遅れ 2)・run.py:3668・3890-3891 @{_E}"),
     make("apply_responses", "判断", "tick", _JG.sys_apply_responses,
-         resolve_ops="revert_conversation end_conversation set_conversing talk_within_reach",
+         # 〔第346〕revert_conversation(旧道=全員を IDLE)はランでは呼ばない(判断の系は keep_activity=True)=外した。閉包は同じ
+         resolve_ops="end_conversation set_conversing talk_within_reach",
          paths="O43:run_day.* O39:conv.* O40:conv.* O41:conv.* O91:conv.* O[4-6]:intent_layer.* O13:poi_resolver.* "
                "O2[56]:poi_resolver.* O68:poi_resolver.* O94:poi_resolver.* O19:rel_layer.* O34:norm_meter.* "
                "O66:act_layer.*",
@@ -359,7 +360,8 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.proximity",  # 第 2 期 2-2: 腕 distance の判定の規則(会話の開始)
          origin=f"L17・run.py:4166-4222 @{_E}"),
     make("conversation", "会話", "tick", _TK.sys_conversation,
-         resolve_ops="revert_conversation end_conversation join_conversation set_conversing talk_within_reach",
+         # 〔第346〕revert_conversation(旧道=全員を IDLE)の分かれは消した=外した。閉包(書く列)は同じ
+         resolve_ops="end_conversation join_conversation set_conversing talk_within_reach",
          paths="O39:conv.* O40:conv.* O41:conv.* O91:conv.* O19:rel_layer.* "
                "E:events.* "  # 第 2 期 2-3: 会話の終わりの出来事(体の出来事の口・腕のランだけ)
                "TCC:talk_clock.*",  # 〔第 6 期 6-3 T2〕腕 mora の会話の時計(終わった会話の長さ・時計の行を消す)

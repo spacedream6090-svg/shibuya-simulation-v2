@@ -109,11 +109,12 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
 - 公開の関数とクラス
   - `recall_for`(関数): 双子の想起の口=1-2 の側が引いた行をそのまま返す(想起の計数を 2 回にしない)。
   - `same_rendered`(関数): 2 つの描画の結果で違う欄の名(空なら同じ)。
+  - `test_19_configs_render_the_same_bytes_as_head`(関数)
   - `test_a_percept_from_another_step_is_refused`(関数): 刻みの外で残らない(1-2 の約束 (3)): 前の刻みの Percept は描かない。
   - `test_counters_match_head`(関数): 描画の計数(診断の行 O84)も 1-2 の前と同じ(draw を呼ばずに比べる)。
   - `test_negative_control_one_byte_change_is_caught`(関数): 負の対照: 描き方を 1 文字だけ変えると双子との比べで落ちる(比べが恒真でない)。
   - `test_render_without_prepare_and_out_of_area_cells`(関数): ``prepare_tick`` を呼ばずに描く道(``render`` が自分で前計算する)と、セルの外の体も同じ。
   - `test_synthetic_scenes_render_the_same_bytes_as_head`(関数)
   - `test_the_19_configs_are_the_byte_check_set`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.memory`・`shibuya.perception.hashes`・`shibuya.perception.renderer`・`tests/perception/facts/scenes.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.memory`・`shibuya.engine.proximity`・`shibuya.perception.hashes`・`shibuya.perception.renderer`・`tests/perception/facts/scenes.py`
 - 決定の ID: 第 346

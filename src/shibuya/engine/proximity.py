@@ -1,15 +1,16 @@
-"""engine.proximity — 会話と近接を実距離で判定する切替口(第 2 期 2-2・段 11a)。
+"""engine.proximity — 会話と近接を実距離で判定する(第 2 期 2-2・段 11a)。
 
 正: 実装アジェンダ ``docs/design/v2-proximity-distance-implementation-agenda.md`` §2(段 11a)・末尾の「ユーザー決定
 (2026-10-03)」B1〜B8・決定 ``docs/design/v2-wallbounce-decisions-2026-10-03.md`` §4(4-2 気づく確率)。
 
-腕(切替口): ``--proximity {cell,distance}``(環境変数 ``SHIBUYA_PROXIMITY``・:func:`set_arm`)と会話の距離 d の感度の腕
-``--proximity-d {1.0,2.0,2.5}``(環境変数 ``SHIBUYA_PROXIMITY_D``・:func:`set_d`)。〔第 2 期 2-4 V2・版上げ 2 回目〕既定は
-``distance``(:data:`DEFAULT_MODE`=10-03 §4 の決定どおり・d=2.0 m)。``cell``=2-2 までの判定(同じセル)=層を作らない=
-**切替口**(旧値の再現=2-4 の記録 ``docs/bench/analysis/wallbounce-1012/vb24/README.md`` の V2)。腕は組み立てのときに読む
-(``run_day`` の引数にしない=設定の指紋に入れない=記憶の器と候補の口の腕と同じ扱い)。腕の名と値は manifest の
-``proximity`` と状態のファイルの見出しの ``proximity`` に出る(再開のときに今の腕と違えば止める=組み立て。見出しに無い
-状態のファイル=2-4 より前の既定の cell のラン)。
+ランは常に ``distance``(:data:`DEFAULT_MODE`=10-03 §4 の決定・〔第 2 期 2-4 V2・版上げ 2 回目〕で既定に)。会話の距離 d の
+感度の腕 ``--proximity-d {1.0,2.0,2.5}``(環境変数 ``SHIBUYA_PROXIMITY_D``・:func:`set_d`・既定 2.0 m)は組み立てのときに読む
+(``run_day`` の引数にしない=設定の指紋に入れない)。腕の名と値は manifest の ``proximity`` と状態のファイルの見出しの
+``proximity`` に出る(再開のときに d が違えば止める=組み立て。見出しに無い状態のファイル=2-4 より前の cell のラン=止める)。
+〔第346 旧道の切替口の削除〕2-2 までの判定(同じセル=層を作らない)の再現の切替口 ``--proximity cell``(環境変数
+``SHIBUYA_PROXIMITY``・``set_arm``)は消した: 環境変数を与えると止まる(読み込みとランの入口=``engine.removed_switches``)・
+CLI の旗は引数の誤り。旧値の再現は安定版のタグ ``stable-v2-before-switch-removal-346``。``ProximityRule(mode=MODE_CELL)`` と
+関数の ``proximity=None`` の道は部品の単体試験の基準の口として残す(ランの口からは選べない)。
 
 ``distance`` の判定(:meth:`ProximityRule.reach`):
 
@@ -33,8 +34,8 @@
 ``PX0``)。描画は :class:`NearView`(規則・索引・気づいた印の読み口)を描画の前計算で受け取る。
 
 層(:class:`ProximityLayer`・状態台帳の行 ``PX``=軸 1 diag・軸 2 discardable): 判定の規則(凍結)と計器(索引を作った
-回数・索引の体の数・B5 の単位の在室人数の分布と最大)と、気づいた印の読み口(関係の層・読むだけ)。腕 ``distance``
-のランだけ組み立てが作る(既定 None)。欄は組み立ての 1 回だけ置ける(付け替え・消すのは断る)。
+回数・索引の体の数・B5 の単位の在室人数の分布と最大)と、気づいた印の読み口(関係の層・読むだけ)。ランでは組み立てが
+常に作る(箱の欄の既定 None は直に作る部品の口)。欄は組み立ての 1 回だけ置ける(付け替え・消すのは断る)。
 
 「暫定」の印(B6・B8): 位置の出どころは node の座標(立っている体は node に重なる・edge 幾何でも立ち止まった体は node)
 =近接の量はどれも「暫定・node 座標」。建物の中(B5 の単位)の体の位置は店に入る前に居たノードのまま(店の位置に
@@ -65,6 +66,7 @@ from typing import Any, Callable, Final, Mapping
 import numpy as np
 
 from shibuya.core.rng import k19_counter_array, philox_array, run_tick_key, unit_float
+from shibuya.engine import removed_switches as _RSW
 from shibuya.engine.spatial_index import INDEX_CELL_M, SpatialIndex
 
 __all__ = [
@@ -78,10 +80,8 @@ __all__ = [
 MODE_CELL: Final[str] = "cell"
 MODE_DISTANCE: Final[str] = "distance"
 MODES: Final[tuple[str, ...]] = (MODE_CELL, MODE_DISTANCE)
-#: 〔第 2 期 2-4 V2〕既定の腕(10-03 §4 の決定=11a を版上げ 2 回目で既定に)。〔第346〕ランは常にこれ=``cell`` のランの
-#: 切替口(2-2 までの値の再現・``--proximity cell``・環境変数 ``SHIBUYA_PROXIMITY``)は消した(旧値の再現は安定版のタグ
-#: ``stable-v2-before-switch-removal-346``)。``ProximityRule(mode=MODE_CELL)`` と下の関数の ``proximity=None`` の道は部品の
-#: 単体試験の基準の口として残す(ランの口からは選べない・つなぎの台帳に行は無かった=記録 ``delete-346/README.md`` だけ)。
+#: 〔第 2 期 2-4 V2〕既定の腕(10-03 §4 の決定=11a を版上げ 2 回目で既定に)。〔第346〕ランは常にこれ(cell の切替口は
+#: 消した=モジュールの docstring・つなぎの台帳に行は無かった=記録 ``delete-346/README.md`` だけ)。
 DEFAULT_MODE: Final[str] = MODE_DISTANCE
 #: 会話の距離 d[m](B3: 2 m の決め打ちを既定にし宣言=``engine.resolve.TALK_OPEN_METERS`` と同じ値・試験で突き合わせる)。
 D_DEFAULT: Final[float] = 2.0
@@ -114,9 +114,7 @@ SCHEMA: Final[str] = "shibuya.proximity/3"
 # ------------------------------------------------------------------ 腕(組み立てのときに読む)
 #: 〔第346〕消した切替口の環境変数(与えると止まる=黙って無視しない)。
 ENV_REMOVED: Final[str] = "SHIBUYA_PROXIMITY"
-if os.environ.get(ENV_REMOVED, "").strip():
-    raise ValueError(f"{ENV_REMOVED} は消した切替口(第346 旧道の切替口の削除・旧値の再現は安定版のタグ "
-                     "stable-v2-before-switch-removal-346)=環境変数を外す")
+_RSW.stop_if_set(ENV_REMOVED)  # 一覧と止める文は engine.removed_switches(ランの入口=組み立ての最初でも止める)
 
 
 def _check_d(value: Any) -> float:

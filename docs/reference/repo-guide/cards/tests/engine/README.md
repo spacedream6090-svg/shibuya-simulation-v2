@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 82 本・その他 0 本(このディレクトリの直下)
+Python 83 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [batching](batching/README.md)・[body](body/README.md)・[bridging](bridging/README.md)・[calendar](calendar/README.md)・[calendar2](calendar2/README.md)・[calendar3](calendar3/README.md)・[clock](clock/README.md)・[contact](contact/README.md)・[decision](decision/README.md)・[duties](duties/README.md)・[events](events/README.md)・[experiment](experiment/README.md)・[memory](memory/README.md)・[multiday](multiday/README.md)・[processes](processes/README.md)・[proximity](proximity/README.md)・[rights](rights/README.md)・[rules](rules/README.md)・[space](space/README.md)・[speech](speech/README.md)・[systems](systems/README.md)・[time](time/README.md)・[tools](tools/README.md)
 
@@ -467,26 +467,26 @@ C6 会話招待の設計準拠(09-09): 「対象」欄で名指し → 被招待
 〔11-03 §3〕棚卸し B の欠陥 4 件(M10・M11・M28・M16)の直しと切替口 ``engine.defect_fixes_1103`` の試験。
 
 - 公開の関数とクラス
-  - `test_a_body_choosing_a_talk_without_a_target_keeps_its_activity`(関数): 〔中-2〕対象の決まらない会話(resolve が失敗させた体=活動は変わっていない)。旧道は寝ている体を IDLE にして起こしていた。
+  - `test_a_body_choosing_a_talk_without_a_target_keeps_its_activity`(関数): 〔中-2〕対象の決まらない会話(resolve が失敗させた体=活動は変わっていない)。旧道は寝ている体を IDLE にして起こしていた
   - `test_a_body_that_joined_a_session_in_the_same_call_is_not_released`(関数): 〔低-2〕A が B に断られて戻す候補に積まれ、同じ呼び出しの後の行で C の招待を承諾してセッションに入った。直した道は
   - `test_a_queued_body_that_is_moved_elsewhere_is_dropped_before_serving`(関数): 移動・乗車の外で動いた体(ここでは域の外からの到着の口で別のセルへ置いた)は、捌く前に列から外す(直した道だけ)。
   - `test_a_queued_body_that_walks_away_leaves_the_queue`(関数)
   - `test_a_queued_body_that_walks_to_the_platform_leaves_the_queue`(関数)
   - `test_a_refusal_keeps_the_inviters_new_activity`(関数): 返事の解決(``_settle_pending_invites``)の末尾の戻し: 断られた招待側が SHOPPING なら既定では残す(旧道は IDLE)。
-  - `test_an_expired_invite_keeps_the_inviters_new_activity`(関数): 返事待ちの間に歩き出した招待側(MOVING)は、期限切れの戻しで既定では MOVING のまま(旧道は IDLE)。
-  - `test_an_expired_invite_still_releases_a_waiting_conversing_inviter`(関数): 返事を待って CONVERSING のままの招待側は、どちらの腕でも IDLE に戻る(戻しの意図そのもの)。
+  - `test_an_expired_invite_keeps_the_inviters_new_activity`(関数): 返事待ちの間に歩き出した招待側(MOVING)は、期限切れの戻しで MOVING のまま(〔第346〕系の旧道=IDLE は消した)。
+  - `test_an_expired_invite_still_releases_a_waiting_conversing_inviter`(関数): 返事を待って CONVERSING のままの招待側は IDLE に戻る(戻しの意図そのもの)。
   - `test_an_invitee_that_moved_away_then_accepts_keeps_the_invite_ledger_balanced`(関数): 〔中-1〕招待の後に被招待が別のセルへ動いてから承諾した。既定は不成立(``conv_pending_unreachable``=腕 on のランだけ
   - `test_an_unreachable_acceptance_is_not_a_refusal`(関数)
   - `test_drop_pending_counts_the_origin`(関数)
   - `test_end_conversation_keeps_the_activity_of_bodies_that_are_not_conversing`(関数)
   - `test_other_replies_are_still_refusals`(関数): 届かなくても「会話」でない返事は今のまま断り(直すのは承諾の返事だけ)。
   - `test_removed_defect_fixes_switch_env_and_cli_flag_stop`(関数): 〔第346〕消した切替口: 環境変数 SHIBUYA_DEFECT_FIXES_1103 を与えると読み込みで止まる・CLI の旗は引数の誤り・系は
-  - `test_resume_reads_the_header`(関数): 腕は設定の指紋に入れない=状態のファイルの見出しの ``defect_fixes_1103``(常に on)を見る(〔第346〕見出しに無い=
+  - `test_resume_without_the_header_is_refused`(関数): 腕は設定の指紋に入れない=状態のファイルの見出しの ``defect_fixes_1103``(常に on)を見る。〔第346〕見出しに無い状態の
   - `test_revert_conversation_is_the_legacy_release`(関数)
   - `test_run_manifest_section`(関数)
   - `test_state_header_and_resume_check`(関数)
   - `test_the_arm_is_not_a_run_day_argument`(関数): 腕は組み立てで 1 回読む(``run_day`` の引数にしない=設定の指紋に入れない)。
-  - `test_the_conversation_system_releases_by_the_arm`(関数): 会話の番で「移動」を選んで歩き出した体(MOVING)は、セッションの終わりで止まらない(〔第346〕旧道の IDLE は消した)。
+  - `test_the_conversation_system_releases_only_conversing_bodies`(関数): 会話の番で「移動」を選んで歩き出した体(MOVING)は、セッションの終わりで止まらない(〔第346〕系の旧道=全員を IDLE は
   - `test_the_default_arm_is_on_and_names_are_checked`(関数)
   - `test_the_queue_checks_payment_like_a_new_purchase`(関数)
   - `test_the_unreachable_origin_key_is_there_from_the_start_only_when_counted`(関数): 〔低-4〕起点の計数の鍵は最初から全部ある作り=腕 on のランは unreachable も最初から 0 で置く(旧道は鍵を足さない)。
@@ -1236,6 +1236,19 @@ C10 8b(会話の起点と相手選択+8a の直し)の検査。
 - 読む試験: `tests/engine/test_env_and_sections_10f.py`
 - 決定の ID: 11-01・11-03/§3・第 330
 
+## [test_removed_switches_346.py](../../../../../../tests/engine/test_removed_switches_346.py)
+
+第346 旧道の切替口の削除: 消した切替口はランの入口で止まる(検収 H1・L1)。
+
+- 公開の関数とクラス
+  - `test_a_removed_cli_flag_stops_even_when_abbreviated`(関数): 〔検収 L1〕``--proximity 1.0`` が略記で ``--proximity-d`` の感度の腕として通らない。
+  - `test_a_run_with_a_removed_switch_env_stops_before_the_ticks`(関数): 値によらず(既定の値でも)止まる。止まるのは組み立ての最初か、切替口を持っていたモジュールの読み込み=刻みの前。
+  - `test_the_hidden_flags_are_not_in_the_help`(関数)
+  - `test_the_list_and_the_message_are_in_one_place`(関数)
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.removed_switches`
+- 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
+- 決定の ID: 第 346
+
 ## [test_renderer_wiring.py](../../../../../../tests/engine/test_renderer_wiring.py)
 
 C3 結線(レンダラ → bridge → run)の受入テスト。
@@ -1418,7 +1431,7 @@ P3 ゲート: イベント処理スループット **≥10万イベント/秒**(
 - 公開の関数とクラス
   - `test_default_header_and_resume_check`(関数)
   - `test_removed_seat_release_switch_env_and_cli_flag_stop`(関数): 〔第346〕消した切替口: 環境変数 SHIBUYA_SEAT_RELEASE を与えると読み込みで止まる・CLI の --seat-release は無い。
-  - `test_resume_without_the_seat_header_is_refused`(関数): 腕は設定の指紋に入れない=状態のファイルの見出しの ``seat_release`` を見る(〔第346〕見出しに無い=2-4 より前は止める)。
+  - `test_resume_without_the_seat_header_is_refused`(関数): 腕は設定の指紋に入れない=状態のファイルの見出しの ``seat_release`` を見る。〔第346〕見出しに無い状態のファイル
   - `test_run_manifest_reports_the_arm_and_the_count`(関数): 合成の世界のランの manifest の ``leave_effects`` に腕(walk に固定)と解いた数が出る・見出しにも walk。
   - `test_unseated_walkers_are_not_counted`(関数)
   - `test_walkers_release_the_seat_only_with_the_walk_arm`(関数)

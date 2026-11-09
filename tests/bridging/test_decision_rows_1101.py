@@ -73,8 +73,12 @@ def test_one_row_per_routing_decision(tool, doc):
 #: DOC-fix4-dead-accept-probability・DOC-fix4-dead-important-extra-turns)を足し、4 行の why に注(W15#4・
 #: BR-REFRACTORY-OVERHEARD・HD-engine.resolve-1af925f4・HD-engine.conversation-1af925f4)=記録
 #: docs/bench/analysis/fix4-1103/README.md §5。
+#: 〔第346 旧道の切替口と死んだ道の削除〕6753891(682 行 c5e005b5…eee82c3)の 5 行を removed にし(DOC-rules42b-legacy-switch・
+#: DOC-rules42-legacy-switch・DOC-fix4-defect-legacy-switch・DOC-fix4-dead-accept-probability・
+#: DOC-fix4-dead-important-extra-turns=why に閉じた注)、HD-engine.conversation-1af925f4 の項を 7 → 6 に直した(what と why)
+#: =行数は 682 のまま・記録 docs/bench/analysis/delete-346/README.md §6。
 BASE_ROWS = 682
-BASE_ROWS_SHA = "c5e005b5fb1929da4e8efc7078f026379f5e4c4b8cdcb29b009a1852eeee82c3"
+BASE_ROWS_SHA = "7399fa30d93e814c8e7bcbf5248cf2740a01f66a359608e98eb072416235f7df"
 
 
 def test_base_rows_are_byte_identical(doc):
