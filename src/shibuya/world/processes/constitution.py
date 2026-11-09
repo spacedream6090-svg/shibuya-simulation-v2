@@ -34,6 +34,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Final, Iterable, Protocol, Sequence
 
+from shibuya.core.paths import find_upward, module_dir
 from shibuya.world.processes.records import (
     DetailDeclaration,
     PlanSpec,
@@ -139,11 +140,8 @@ DIAGNOSTIC_OUTPUT_IDS: Final[tuple[str, ...]] = (
 
 # ------------------------------------------------------------------ Markdown 読み直し
 def _repo_root(relpath: str) -> Path:
-    here = Path(__file__).resolve()
-    for parent in here.parents:
-        if (parent / relpath).is_file():
-            return parent
-    raise FileNotFoundError(f"{relpath} が見つからない({here} から上位を探索)")
+    """このモジュールの置き場から上へ辿り、``relpath`` を含むディレクトリ(〔移す段 2-2〕``core.paths.find_upward``)。"""
+    return find_upward(relpath, module_dir(__name__))
 
 
 def _doc_path(relpath: str, env: str, override: str | Path | None) -> Path:

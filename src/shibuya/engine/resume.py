@@ -45,6 +45,7 @@ from typing import Any, Final, Mapping
 import numpy as np
 
 from shibuya.core.hashing import blake3_hex
+from shibuya.core.paths import REPO_ROOT, resolve_repo_path
 from shibuya.engine import state_ledger as SL
 from shibuya.engine import state_codec as SC
 from shibuya.engine.class_ids import class_id
@@ -104,8 +105,6 @@ def path_identity(path: Any) -> str | None:
         return None
     p = Path(path)
     if not p.is_absolute() and not p.exists():
-        from shibuya.engine.calendar import resolve_repo_path
-
         p = Path(resolve_repo_path(str(path)))
     if p.is_file():
         return "sha256:" + hashlib.sha256(p.read_bytes()).hexdigest()
@@ -219,7 +218,8 @@ def _numba_threads() -> int | None:
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[3]
+    """リポの根(〔移す段 2-2〕``core.paths`` の 1 か所)。試験が差し替える口なので関数のまま残す。"""
+    return REPO_ROOT
 
 
 def _git(root: Path, *args: str, timeout: float = 30) -> Any:

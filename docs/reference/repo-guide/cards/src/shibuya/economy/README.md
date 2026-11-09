@@ -300,7 +300,7 @@ economy.wages — 職業 × 性 × 年齢 × 雇用形態の賃金(賃金構造�
   - `load_wage_tables`(関数): 構築側の写し 4 本(:data:`DERIVED_FILES`)を md5 を照らして読む。無い写しは ``None``(md5 が違えば止める)。
   - `min_wage_floor`(関数): 〔検収 M1〕``asof`` の日に効いている最低賃金の床[円/時]と出どころ(規則の表の ``minimum_wage.tokyo``)。
   - `min_wage_terms`(関数): 〔11-01 §5〕``asof`` の日の最低賃金の行の読み(``economy.anchors.MinWageTerms``=値・出どころ・kind・つなぎ)。
-- import している内部モジュール: `shibuya.core.wage_formula`・`shibuya.economy.anchors`・`shibuya.engine.calendar`
+- import している内部モジュール: `shibuya.core.paths`・`shibuya.core.wage_formula`・`shibuya.economy.anchors`
 - 呼び手: `shibuya.economy.stage2`
 - 読む試験: `tests/economy/stage2/test_wage_occupation_runs.py`・`tests/economy/test_min_wage_human_bridge.py`・`tests/economy/test_wage_occupation.py`
 - 決定の ID: 10-12/§4-11・10-13b/§7・11-01/§5・R-107

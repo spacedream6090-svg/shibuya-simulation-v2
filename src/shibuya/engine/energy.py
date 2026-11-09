@@ -92,6 +92,7 @@ from typing import Any, Final, Mapping
 import numpy as np
 
 from shibuya.agents.state import Activity, ActivityKind
+from shibuya.core.paths import REPO_ROOT
 from shibuya.core.rng import stream, k19_counters, k19_counter_array, philox_array, unit_float
 from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
 from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
@@ -225,7 +226,7 @@ DEFAULT_HOME_MEAL: Final[str] = "off"
 
 #: 錨の追跡ファイル(リポ直下からの相対)。〔第 2 期 2-4 V6〕構築側(DRI・NHNS 第 14・13 表・METs)と検証側(NHNS 第 10 表・
 #: 社会生活基本調査 第 18-1 表・15 分の食事率と導出)の 2 本(前は 1 本 ``hunger_energy_anchors_v0.json``=混在)。
-_ANCHORS_DIR: Final[Path] = Path(__file__).resolve().parents[3] / "docs" / "bench" / "anchors"
+_ANCHORS_DIR: Final[Path] = REPO_ROOT / "docs" / "bench" / "anchors"
 ANCHORS_BUILD_PATH: Final[Path] = _ANCHORS_DIR / "hunger_energy_build_anchors_v0.json"
 ANCHORS_VALIDATION_PATH: Final[Path] = _ANCHORS_DIR / "hunger_energy_validation_anchors_v0.json"
 ANCHORS_PATHS: Final[tuple[Path, Path]] = (ANCHORS_BUILD_PATH, ANCHORS_VALIDATION_PATH)

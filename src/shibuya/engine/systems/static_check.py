@@ -27,6 +27,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
 
+from shibuya.core.paths import module_dir
+from shibuya.engine import resolve as _RESOLVE
+from shibuya.engine import systems as _SYSTEMS
+
 __all__ = ["SystemCode", "analyze", "analyze_spec"]
 
 BOXES = ("cfg", "soa", "layers", "llm", "day", "buffers", "scratch", "runstats", "fx")
@@ -34,7 +38,11 @@ BOXES = ("cfg", "soa", "layers", "llm", "day", "buffers", "scratch", "runstats",
 TALLY_NAME = {"sleep_tally": "sleep_counts"}
 _MUTATORS = {"append", "extend", "update", "clear", "pop", "setdefault", "add", "discard", "insert", "remove",
              "popitem", "sort", "fill"}
-RESOLVE_MODULE = "shibuya.engine.resolve"
+#: 〔移す段 2-3〕resolve のモジュールの名と、系の包みの名の頭は、モジュールの ``__name__`` から作る(段 4・段 6 で動かしても
+#: 文字列を直さなくてよい。import は移す道具が直す)。
+RESOLVE_MODULE = _RESOLVE.__name__
+_RESOLVE_PARENT, _, _RESOLVE_LEAF = RESOLVE_MODULE.rpartition(".")
+_SYSTEMS_PREFIX = _SYSTEMS.__name__ + "."
 
 
 @dataclass
@@ -59,7 +67,7 @@ def _module_aliases(mod: Any) -> dict[str, Any]:
     """モジュールの頂上の名前のうち ``engine.systems`` のモジュールを指すもの。"""
     out = {}
     for k, v in vars(mod).items():
-        if inspect.ismodule(v) and v.__name__.startswith("shibuya.engine.systems."):
+        if inspect.ismodule(v) and v.__name__.startswith(_SYSTEMS_PREFIX):
             out[k] = v
     return out
 
@@ -76,7 +84,7 @@ def _resolve_names(mod: Any, fdef: ast.FunctionDef) -> tuple[set[str], dict[str,
     for n in ast.walk(fdef):
         if isinstance(n, ast.ImportFrom):
             for a in n.names:
-                if n.module == "shibuya.engine" and a.name == "resolve":
+                if n.module == _RESOLVE_PARENT and a.name == _RESOLVE_LEAF:
                     mods.add(a.asname or a.name)
                 elif n.module == RESOLVE_MODULE:
                     funcs[a.asname or a.name] = a.name
@@ -205,7 +213,7 @@ def analyze(fn: Callable[..., Any], *, _seen: set | None = None) -> SystemCode:
             cand = vars(mod)[node.id]
             if inspect.isfunction(cand) and cand.__module__ == mod.__name__:
                 target = cand
-        if inspect.isfunction(target) and target.__module__.startswith("shibuya.engine.systems."):
+        if inspect.isfunction(target) and target.__module__.startswith(_SYSTEMS_PREFIX):
             sub = analyze(target, _seen=seen)
             res.box_refs |= sub.box_refs
             res.scratch_stores |= sub.scratch_stores
@@ -222,4 +230,5 @@ def analyze_spec(spec: Any) -> SystemCode | None:
 
 
 def source_root() -> Path:
-    return Path(__file__).resolve().parent
+    """このモジュールのあるディレクトリ(〔移す段 2-2〕``core.paths.module_dir``)。"""
+    return module_dir(__name__)

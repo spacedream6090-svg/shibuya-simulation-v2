@@ -21,7 +21,7 @@
 | [src/shibuya/build/space](src/shibuya/build/space/README.md) | 5 | 0 |
 | [src/shibuya/build/vis](src/shibuya/build/vis/README.md) | 5 | 0 |
 | [src/shibuya/census](src/shibuya/census/README.md) | 1 | 0 |
-| [src/shibuya/core](src/shibuya/core/README.md) | 11 | 0 |
+| [src/shibuya/core](src/shibuya/core/README.md) | 12 | 0 |
 | [src/shibuya/economy](src/shibuya/economy/README.md) | 15 | 0 |
 | [src/shibuya/engine](src/shibuya/engine/README.md) | 62 | 0 |
 | [src/shibuya/engine/body](src/shibuya/engine/body/README.md) | 5 | 0 |
@@ -87,7 +87,7 @@
 | [tests/engine/rules](tests/engine/rules/README.md) | 3 | 0 |
 | [tests/engine/space](tests/engine/space/README.md) | 4 | 0 |
 | [tests/engine/speech](tests/engine/speech/README.md) | 14 | 0 |
-| [tests/engine/state](tests/engine/state/README.md) | 2 | 1 |
+| [tests/engine/state](tests/engine/state/README.md) | 4 | 2 |
 | [tests/engine/systems](tests/engine/systems/README.md) | 6 | 1 |
 | [tests/engine/time](tests/engine/time/README.md) | 8 | 3 |
 | [tests/engine/tools](tests/engine/tools/README.md) | 9 | 0 |
@@ -133,7 +133,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 261 ディレクトリ・2191 本
+- [docs の索引](docs.md): 261 ディレクトリ・2192 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

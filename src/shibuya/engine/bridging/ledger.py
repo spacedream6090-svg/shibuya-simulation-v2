@@ -48,6 +48,8 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Final, Iterable, Iterator, Mapping
 
+from shibuya.core.paths import REPO_ROOT
+
 __all__ = [
     "SCHEMA", "LEDGER_RELPATH", "CONFS", "STATUSES", "REMOVE_BASES", "PLAN_STAGES",
     "Bridge", "BridgeLedger", "load", "default_path", "default_ledger", "bridges_count", "bridges_version",
@@ -291,7 +293,7 @@ def canonical_sha(obj: Any) -> str:
 
 def default_path() -> Path:
     """リポの台帳の道筋(``<リポの根>/docs/design/bridging-ledger.json``)。"""
-    return Path(__file__).resolve().parents[4] / LEDGER_RELPATH
+    return REPO_ROOT / LEDGER_RELPATH  # 〔移す段 2-2〕リポの根は core.paths の 1 か所
 
 
 def load(path: str | Path | None = None) -> BridgeLedger:

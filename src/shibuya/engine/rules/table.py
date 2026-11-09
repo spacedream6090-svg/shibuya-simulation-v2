@@ -39,6 +39,8 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Final, Iterable, Iterator, Mapping
 
+from shibuya.core.paths import REPO_ROOT
+
 __all__ = [
     "SCHEMA", "TABLE_RELPATH", "KINDS", "KIND_MACHINE", "KIND_HUMAN", "KIND_NORM", "ASOF_BASES", "ASOF_IN_FORCE",
     "ASOF_LOWER_BOUND",
@@ -257,7 +259,7 @@ def canonical_sha(obj: Any) -> str:
 
 def default_path() -> Path:
     """リポの表の道筋(``<リポの根>/docs/design/rules-table.json``)。"""
-    return Path(__file__).resolve().parents[4] / TABLE_RELPATH
+    return REPO_ROOT / TABLE_RELPATH  # 〔移す段 2-2〕リポの根は core.paths の 1 か所
 
 
 def load(path: str | Path | None = None) -> Rules:

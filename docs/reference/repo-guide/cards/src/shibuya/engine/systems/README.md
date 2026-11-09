@@ -8,6 +8,8 @@ Python 25 本・その他 0 本(このディレクトリの直下)
 
 engine.systems — ``run_day`` を「状態の箱・系(読む欄と書く欄の宣言)・短い進行役」に分けた形(第 1 期 1-0)。
 
+- 呼び手: `shibuya.engine.systems.static_check`
+- 読む試験: `tests/engine/state/test_move_prep_stage2.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
 
 ## [act.py](../../../../../../../../src/shibuya/engine/systems/act.py)
@@ -45,13 +47,13 @@ engine.systems.allow — 系の「書いてよい SoA の列」を resolve の�
 - 公開の関数とクラス
   - `ResolveIndex`(クラス): resolve.py の関数ごとの直接の書きと辺(静的)。
   - `closure`(関数): resolve の口の集合から、resolve.py の中でたどれる関数の全部(口そのものを含む)。
-  - `index`(関数): ``engine/resolve.py`` を読んで関数ごとの書きと辺を作る(``root`` は ``src/shibuya``・既定はこのパッケージ)。
+  - `index`(関数): ``RESOLVE_FILES`` を読んで関数ごとの書きと辺を作る(``root`` は ``src/shibuya``・既定はこのパッケージ)。
   - `place_of`(関数): 書きの式の手前の文字列から置き場を決める(``pois``・``cells``・``perception``・ほかは ``agents``)。
-  - `src_root`(関数): ``src/shibuya`` の場所(このファイルから 2 つ上)。
+  - `src_root`(関数): ``src/shibuya`` の場所(〔移す段 2-2〕包みの根は ``core.paths`` の 1 か所)。
   - `writes_for_ops`(関数): resolve の口の集合の静的な書き集合の閉包(``"agents.cell"`` の形)。=系の ``writes.soa``。
-- import している内部モジュール: `shibuya.engine.state_ledger_ast`
+- import している内部モジュール: `shibuya.core.paths`・`shibuya.engine.state_ledger_ast`
 - 呼び手: `shibuya.engine.systems.spec`
-- 読む試験: `tests/economy/cp2/test_cp2_transfer_only_writer.py`・`tests/economy/stage2/test_stage2_writers.py`・`tests/engine/body/test_body_guard.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/systems/test_systems_table.py`・`tests/tools/test_repo_guide.py`
+- 読む試験: `tests/economy/cp2/test_cp2_transfer_only_writer.py`・`tests/economy/stage2/test_stage2_writers.py`・`tests/engine/body/test_body_guard.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/systems/test_systems_table.py`・`tests/tools/test_repo_guide.py`
 - 決定の ID: 第 330
 
 ## [body.py](../../../../../../../../src/shibuya/engine/systems/body.py)
@@ -427,8 +429,9 @@ engine.systems.static_check — 系の宣言と系のコードを AST で突き�
   - `SystemCode`(クラス)
   - `analyze`(関数): 系の関数(か箱を受け取る補助)の本体を推移的に読む。
   - `analyze_spec`(関数)
-  - `source_root`(関数)
-- 読む試験: `tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_systems_table.py`
+  - `source_root`(関数): このモジュールのあるディレクトリ(〔移す段 2-2〕``core.paths.module_dir``)。
+- import している内部モジュール: `shibuya.core.paths`・`shibuya.engine.resolve`・`shibuya.engine.systems`
+- 読む試験: `tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_systems_table.py`
 
 ## [table.py](../../../../../../../../src/shibuya/engine/systems/table.py)
 

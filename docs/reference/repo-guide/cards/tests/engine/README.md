@@ -71,7 +71,7 @@ engine 層のテスト(llm.mock の結線テストを含む)。
   - `test_tape_meta_does_not_touch_the_parquet`(関数)
   - `test_the_tape_carries_the_response_delay_and_old_tapes_stop`(関数): テープの脇の meta に応答の遅れ(1)を書く・〔第 4 期 4-3 版上げ 3 回目の第 2 部〕+2(旧)の切替口は消した=値 2 の
   - `test_unreadable_csv_stops_real_and_nulls_the_manifest_in_day_index`(関数): 〔改訂(第330・RET)〕前は「day_index では止めず manifest の md5・範囲を null」も見た(day_index を消した)。暦は real
-- import している内部モジュール: `shibuya.agents.schedule`・`shibuya.agents.weekly`・`shibuya.engine.calendar`・`shibuya.engine.energy`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.tape`・`shibuya.world.state`・`tests/engine/test_calendar.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.agents.schedule`・`shibuya.agents.weekly`・`shibuya.core.paths`・`shibuya.engine.calendar`・`shibuya.engine.energy`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.tape`・`shibuya.world.state`・`tests/engine/test_calendar.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
 - 決定の ID: 第 330
 
 ## [test_ablation23_switches.py](../../../../../../tests/engine/test_ablation23_switches.py)

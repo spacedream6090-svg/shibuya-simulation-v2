@@ -17,6 +17,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from shibuya.core.paths import find_upward, module_dir
+
 __all__ = [
     "BudgetRow",
     "BUDGET_MD_RELPATH",
@@ -67,15 +69,15 @@ class BudgetRow:
 
 
 def _repo_root() -> Path:
-    """このファイルから上へ辿り、宣言表を含むディレクトリを探す。"""
-    here = Path(__file__).resolve()
-    for parent in here.parents:
-        if (parent / BUDGET_MD_RELPATH).is_file():
-            return parent
-    raise FileNotFoundError(
-        f"{BUDGET_MD_RELPATH} が見つからない({here} から上位を探索)。"
-        f"環境変数 {ENV_BUDGET_MD} で明示指定できる。"
-    )
+    """このモジュールの置き場から上へ辿り、宣言表を含むディレクトリを探す(〔移す段 2-2〕``core.paths.find_upward``)。"""
+    here = module_dir(__name__)
+    try:
+        return find_upward(BUDGET_MD_RELPATH, here)
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            f"{BUDGET_MD_RELPATH} が見つからない({here} から上位を探索)。"
+            f"環境変数 {ENV_BUDGET_MD} で明示指定できる。"
+        ) from None
 
 
 def _default_path() -> Path:

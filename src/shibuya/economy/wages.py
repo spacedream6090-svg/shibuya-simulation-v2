@@ -156,7 +156,7 @@ def load_wage_tables(root: str | Path | None = None) -> WageTables | None:
         root: 写しの置き場(``None``=リポの根からの :data:`DERIVED_RELDIR`)。
     """
     if root is None:
-        from shibuya.engine.calendar import resolve_repo_path
+        from shibuya.core.paths import resolve_repo_path  # 〔移す段 2-2〕暦から根の道の口を出した
 
         base = resolve_repo_path(DERIVED_RELDIR)
     else:

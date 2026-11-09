@@ -74,9 +74,9 @@ world.processes.constitution — **憲法5 の機械検査**(D-R2-4・決定2026
   - `check_declaration`(関数): 1件ぶんの (a)/(b) 検査。
   - `parse_pattern_ledger_ids`(関数): パターン台帳の表(先頭列見出しが ``ID`` または ``行``)から行 id を読む。
   - `parse_perception_channel_ids`(関数): 知覚契約書 §3 チャネル仕様表の**チャネル列**を出現順で返す。
-- import している内部モジュール: `shibuya.world.processes.records`
+- import している内部モジュール: `shibuya.core.paths`・`shibuya.world.processes.records`
 - 呼び手: `shibuya.world.processes`・`shibuya.world.processes.circularity`・`shibuya.world.processes.deletion_candidates`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.registry`
-- 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/world/processes/test_constitution.py`・`tests/world/processes/test_deletion_candidates.py`・`tests/world/processes/test_first_batch.py`
+- 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/world/processes/test_constitution.py`・`tests/world/processes/test_deletion_candidates.py`・`tests/world/processes/test_first_batch.py`
 - 環境変数: `SHIBUYA_PATTERN_LEDGER_MD`・`SHIBUYA_PERCEPTION_MD`・名前を読めない所 1 か所
 
 ## [deletion_candidates.py](../../../../../../../../src/shibuya/world/processes/deletion_candidates.py)

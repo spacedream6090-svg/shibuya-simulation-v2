@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 11 本・その他 0 本(このディレクトリの直下)
+Python 12 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../src/shibuya/core/__init__.py)
 
@@ -17,8 +17,9 @@ core: SoAレジストリ・dtype/バイト予算宣言・Philox RNG・ハッシ�
   - `budget_by_id`(関数): ``id`` → 行 の索引を作る。
   - `load_budget_table`(関数): 宣言表 §1〜§5 の全行を、Markdown 上の出現順で返す。
   - `parse_limit`(関数): 宣言値セルから数値上限を **best-effort** で1つ取り出す。
+- import している内部モジュール: `shibuya.core.paths`
 - 呼び手: `shibuya.core.soa`・`shibuya.llm.fleet`・`tools/c7/c7lib.py`・`tools/c8/c8lib.py`
-- 読む試験: `tests/core/test_soa.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_scheduler_p3.py`・`tests/llm/test_fleet_contract.py`・`tests/test_budget_table.py`
+- 読む試験: `tests/core/test_soa.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_scheduler_p3.py`・`tests/llm/test_fleet_contract.py`・`tests/test_budget_table.py`
 - 環境変数: `SHIBUYA_BUDGET_MD`
 
 ## [growth.py](../../../../../../../src/shibuya/core/growth.py)
@@ -59,6 +60,17 @@ core.hashing — 決定論ハッシュ(blake3/xxh64/sha256_cbor)と優先度キ�
 - 読む試験(道筋で): `tests/engine/test_salt_seed_split_10f.py`
 - 決定の ID: D-31・D-116
 
+## [paths.py](../../../../../../../src/shibuya/core/paths.py)
+
+core.paths — リポの根と包みの根を 1 か所で求める(移す段 2-2・計画 docs/reference/package-map-final-2026-11-09.md §7-3)。
+
+- 公開の関数とクラス
+  - `find_upward`(関数): ``start`` から上へ辿り、``relpath`` のファイルを含む最初のディレクトリ(無ければ ``FileNotFoundError``)。
+  - `module_dir`(関数): モジュールの名(``__name__``)→ そのファイルのあるディレクトリ(包みの根から名の部品をたどる)。
+  - `resolve_repo_path`(関数): 相対パスはリポの根から、絶対パスはそのまま(検収後 P4: 作業ディレクトリに依らない)。
+- 呼び手: `shibuya.core.budget`・`shibuya.economy.wages`・`shibuya.engine.bridging.ledger`・`shibuya.engine.bridging.scan`・`shibuya.engine.calendar`・`shibuya.engine.classical`・`shibuya.engine.economy_stage2`・`shibuya.engine.energy`・`shibuya.engine.resume`・`shibuya.engine.rules.table`・`shibuya.engine.systems.allow`・`shibuya.engine.systems.static_check`・`shibuya.world.processes.constitution`
+- 読む試験: `tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_10a_review_fixes.py`
+
 ## [rng.py](../../../../../../../src/shibuya/core/rng.py)
 
 core.rng — カウンタベース乱数(numpy Philox4x64)のドメイン分離。
@@ -76,7 +88,7 @@ core.rng — カウンタベース乱数(numpy Philox4x64)のドメイン分離�
   - `unit_float`(関数): uint64 → [0, 1) の float64(numpy の ``Generator.random()`` と同じ写し方=上の 53 bit × 2^-53)。
 - import している内部モジュール: `shibuya.core.time_consts`
 - 呼び手: `shibuya.agents.population`・`shibuya.agents.schedule`・`shibuya.build.field.w13_weather`・`shibuya.build.geo.w3_distances`・`shibuya.build.pop.attr_fns`・`shibuya.build.pop.w16_population`・`shibuya.build.pop.w21_apply`・`shibuya.build.pop.w21_build`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_checks`・`shibuya.build.pop.w21_households`・`shibuya.build.pop.w21_port10`・`shibuya.build.pop.w21_prior`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.cli`・`shibuya.core.wage_formula`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar2.port`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar3.port`・`shibuya.engine.chooser`・`shibuya.engine.classical`・`shibuya.engine.contact.device`・`shibuya.engine.contact.layer`・`shibuya.engine.contact.port`・`shibuya.engine.decision.layer`・`shibuya.engine.decision.port`・`shibuya.engine.duties.layer`・`shibuya.engine.duties.port`・`shibuya.engine.energy`・`shibuya.engine.geometry`・`shibuya.engine.memory_m1`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.environment`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.logistics`・`shibuya.engine.processes.rail`・`shibuya.engine.processes.salient`・`shibuya.engine.proximity`・`shibuya.engine.rng_audit`・`shibuya.engine.run`・`shibuya.engine.space.nav1`・`shibuya.engine.speech_clock`・`shibuya.engine.systems.build`・`shibuya.engine.systems.decide`・`shibuya.engine.systems.report`・`shibuya.llm.mock`・`shibuya.perception.attention`・`shibuya.perception.p_notice`・`shibuya.world.assets`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`
-- 読む試験: `tests/c8/test_ensemble.py`・`tests/economy/test_anchors.py`・`tests/economy/test_pricing.py`・`tests/engine/body/test_body_same_values.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/proximity/test_philox_array.py`・`tests/engine/proximity/test_rule.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_state_format_10f.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/time/test_t0_rng_key.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/test_rng_properties.py`
+- 読む試験: `tests/c8/test_ensemble.py`・`tests/economy/test_anchors.py`・`tests/economy/test_pricing.py`・`tests/engine/body/test_body_same_values.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/proximity/test_philox_array.py`・`tests/engine/proximity/test_rule.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_state_format_10f.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/time/test_t0_rng_key.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/test_rng_properties.py`
 - 決定の ID: 11-04/§2-1・第 330
 
 ## [serialize.py](../../../../../../../src/shibuya/core/serialize.py)

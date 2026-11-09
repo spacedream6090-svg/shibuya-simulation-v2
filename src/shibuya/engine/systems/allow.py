@@ -34,8 +34,14 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Iterable, Mapping
 
-__all__ = ["ALIAS_WRITES", "TRANSFER_PORTS_HOUSEHOLD", "TRANSFER_WRITES", "ResolveIndex", "index", "closure",
-           "writes_for_ops", "place_of", "src_root"]
+from shibuya.core.paths import PACKAGE_ROOT
+
+__all__ = ["ALIAS_WRITES", "TRANSFER_PORTS_HOUSEHOLD", "TRANSFER_WRITES", "RESOLVE_FILES", "ResolveIndex", "index",
+           "closure", "writes_for_ops", "place_of", "src_root"]
+
+#: 〔移す段 2-3〕書きの閉包を読む resolve のファイルの一覧(包みの根からの posix の道筋)。段 2 では 1 本。段 6 で resolve を
+#: 割るときに、割り先の書き手のファイルを全部載せる(``index`` は関数の名がファイルをまたいで重ならないことを確かめる)。
+RESOLVE_FILES: tuple[str, ...] = ("engine/resolve.py",)
 
 #: AST で見えない書き(手で書く別名の表・根拠つき)。関数の名 → (書く列, 根拠)。
 #: 〔第330・再検収の残る点 (1)〕``_board_riders`` と ``initialize`` の台帳越しの ``agents.money`` を足した
@@ -66,8 +72,8 @@ TRANSFER_PORTS_HOUSEHOLD: Mapping[str, str] = MappingProxyType({
 
 
 def src_root() -> Path:
-    """``src/shibuya`` の場所(このファイルから 2 つ上)。"""
-    return Path(__file__).resolve().parents[2]
+    """``src/shibuya`` の場所(〔移す段 2-2〕包みの根は ``core.paths`` の 1 か所)。"""
+    return PACKAGE_ROOT
 
 
 def place_of(expr_text: str) -> str:
@@ -97,18 +103,28 @@ class ResolveIndex:
 
 @lru_cache(maxsize=4)
 def index(root: str | None = None) -> ResolveIndex:
-    """``engine/resolve.py`` を読んで関数ごとの書きと辺を作る(``root`` は ``src/shibuya``・既定はこのパッケージ)。"""
+    """``RESOLVE_FILES`` を読んで関数ごとの書きと辺を作る(``root`` は ``src/shibuya``・既定はこのパッケージ)。
+
+    〔移す段 2-3〕ファイルの一覧を読む形にした(段 2 では 1 本=前と同じ)。関数の名がファイルをまたいで重なれば止める。
+    """
     from shibuya.engine import state_ledger_ast as A
 
     base = Path(root) if root is not None else src_root()
-    tree = ast.parse((base / "engine" / "resolve.py").read_text(encoding="utf-8"))
-    par = A._parents(tree)
-    funcs = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef)}
+    trees = [ast.parse(base.joinpath(*rel.split("/")).read_text(encoding="utf-8")) for rel in RESOLVE_FILES]
+    par: dict[ast.AST, ast.AST] = {}
+    funcs: dict[str, ast.FunctionDef] = {}
+    for rel, tree in zip(RESOLVE_FILES, trees):
+        par.update(A._parents(tree))
+        mine = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef)}
+        clash = sorted(set(mine) & set(funcs))
+        if clash:
+            raise ValueError(f"resolve の書き手の関数の名がファイルをまたいで重なる({rel}): {clash}")
+        funcs.update(mine)
     decl = A.declared_columns(base)
     names = {c for v in decl.values() for c in v}
 
     tables: dict[str, set[str]] = {}
-    for n in tree.body:
+    for n in [stmt for tree in trees for stmt in tree.body]:
         tgt = (n.targets[0] if isinstance(n, ast.Assign) and len(n.targets) == 1
                else (n.target if isinstance(n, ast.AnnAssign) else None))
         if isinstance(tgt, ast.Name) and getattr(n, "value", None) is not None:

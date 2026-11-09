@@ -22,8 +22,9 @@ engine.bridging.ledger — つなぎの台帳(第 1 期 1-4・CA8・計器の最
   - `default_ledger`(関数): リポの台帳(1 回だけ読む)。
   - `default_path`(関数): リポの台帳の道筋(``<リポの根>/docs/design/bridging-ledger.json``)。
   - `load`(関数): 台帳を読む(形式の版・欄の検査つき。壊れた JSON・知らない欄・不正な値は ``ValueError``)。
+- import している内部モジュール: `shibuya.core.paths`
 - 呼び手: `shibuya.engine.calendar_self`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.state_io`・`shibuya.engine.tools.registry`
-- 読む試験: `tests/bridging/test_decision_rows_1101.py`・`tests/economy/test_min_wage_human_bridge.py`・`tests/engine/body/test_body_rules_sources.py`・`tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/bridging/test_manifest_rules_bridges.py`・`tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/multiday/test_md23_w9_window.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/time/test_t0_tm9_fields.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`・`tests/engine/tools/test_c0_signboard_mark_invariance.py`・`tests/engine/tools/test_c0_tool_registry.py`
+- 読む試験: `tests/bridging/test_decision_rows_1101.py`・`tests/economy/test_min_wage_human_bridge.py`・`tests/engine/body/test_body_rules_sources.py`・`tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/bridging/test_manifest_rules_bridges.py`・`tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/multiday/test_md23_w9_window.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/time/test_t0_tm9_fields.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`・`tests/engine/tools/test_c0_signboard_mark_invariance.py`・`tests/engine/tools/test_c0_tool_registry.py`
 - 決定の ID: 10-12/§1・10-12/§2・10-13b/§0-6・10-13b/§3・10-13b/§4-2・11-01・11-01/§3・11-01p・R-113・第 340
 
 ## [scan.py](../../../../../../../../src/shibuya/engine/bridging/scan.py)
@@ -38,6 +39,6 @@ engine.bridging.scan — コードの expedient の宣言を AST で数える(�
   - `scan_package`(関数): このパッケージ(``src/shibuya``)の宣言(A〜E は AST・F はフォールバック台帳を実行して読む)。道筋は
   - `scan_source`(関数): 1 つのファイルの宣言(``path`` はリポの根からの道筋=``declared_in`` に入る)。
   - `scan_tree`(関数): ``root`` の下の ``*.py`` を全部見る(道筋は ``rel_to`` からの posix の相対=既定は ``root`` の親の親)。
-- import している内部モジュール: `shibuya.world.processes.first_batch`・`shibuya.world.processes.registry`
-- 読む試験: `tests/engine/body/test_body_rules_sources.py`・`tests/engine/bridging/test_bridging_ledger.py`
+- import している内部モジュール: `shibuya.core.paths`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.registry`
+- 読む試験: `tests/engine/body/test_body_rules_sources.py`・`tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/state/test_move_prep_stage2.py`
 - 決定の ID: 第 334

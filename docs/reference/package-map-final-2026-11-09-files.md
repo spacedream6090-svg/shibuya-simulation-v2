@@ -14,7 +14,7 @@
 ## 2. 数
 
 - 行は 324 本(`.py` 323 本と JSON 1 本)。割るもの 24 本。消すもの 2 本。build は置き場を変えない 79 本。
-- 〔移す段 1 で足した〕第346 で足された `engine/removed_switches.py` の行 224a を足した(行は 325 本)。上と本文 §2 の数には入れていない。
+- 〔移す段 1・段 2 で足した〕第346 で足された `engine/removed_switches.py` の行 224a と、移す段で足したファイル `engine/class_ids.py`(143a)・`core/paths.py`(91a)の行を足した(行は 327 本)。上と本文 §2 の数には入れていない。
 - 元の内訳: K 298 本・11-09 18 本・F 6 本・照らし合わせ 2 本。
 - 照らし合わせの区分の内訳: 同じ 265 本・(ii) 41 本・(iii) 16 本・(i) 2 本。
 - 包みごとの数は本文 §2 にあります。
@@ -114,6 +114,7 @@
 | 89 | `core/budget.py` | foundation | `foundation/budget.py` | いいえ | 予算宣言表の読み口。shibuya の中を読まない | K | 同じ |
 | 90 | `core/growth.py` | foundation | `foundation/growth.py` | いいえ | 状態成長の宣言と検査の型 | K | 同じ |
 | 91 | `core/hashing.py` | foundation | `foundation/hashing.py` | いいえ | 決定論ハッシュ。決定論ハッシュ(blake3・xxh64・sha256_cbor)と優先度キー | K | 同じ |
+| 91a | `core/paths.py` | foundation | `foundation/paths.py` | いいえ | リポの根と包みの根(移す段 2-2 で足した。置き場は本文 §7-3 のとおり)。標準ライブラリだけを読む | 移す段 2 | — |
 | 92 | `core/rng.py` | foundation | `foundation/rng.py` | いいえ | カウンタベース乱数。カウンタベース乱数(Philox)のドメイン分離 | K | 同じ |
 | 93 | `core/serialize.py` | foundation | `foundation/serialize.py` | いいえ | SoA の保存の道具(呼び手は試験だけ) | K | 同じ |
 | 94 | `core/soa.py` | foundation | `foundation/soa.py` | いいえ | SoA レジストリ。SoA レジストリとバイト予算宣言 M9 | K | 同じ |
@@ -166,6 +167,7 @@
 | 141 | `engine/calendar_shadow.py` | society | `society/calendar_shadow.py` 197・`world/facts/w20_calendar_reader.py` 115 | 割る(§4-5) | W20 の勤務と授業の週の表の読み口(束ねが出勤・通学に使う=世界の事実)と、暦 1a の影の計器が 1 つ。割る | 11-09 | (i) |
 | 142 | `engine/change_detect.py` | mind | `mind/system1/change_detect.py` 290・`world/model/scene_hash.py` 63・`foundation/vocab/agent_codes.py` 6 | 割る(§4-6) | System 1 と B4 の指紋が 1 つ。割る | K | 同じ |
 | 143 | `engine/chooser.py` | mind | `mind/judge/chooser.py` 153・`foundation/ports/choice.py` 69 | 割る(§4-7) | 選び手の口と実装。口だけ割る | K | 同じ |
+| 143a | `engine/class_ids.py` | runtime | `runtime/state/class_ids.py` | いいえ | クラスの名の固定の表(移す段 1 で足した。置き場は本文 §7-1 のとおり)。何も読まない。読み手は状態のハッシュ・状態のファイル・再開・系ごとの指紋 | 移す段 1 | — |
 | 144 | `engine/classical.py` | mind | `mind/judge/classical.py` | いいえ | 古典の方策。System 1.5 の古典的選択モデル | K | 同じ |
 | 145 | `engine/clock.py` | runtime | `runtime/clock.py` | いいえ | 時計。シミュレーション時計 | K | 同じ |
 | 146 | `engine/commit.py` | act | `act/intake/from_words.py` 542・`act/commit.py` 300・`foundation/vocab/act_codes.py` 34 | 割る(§4-8) | 取り合いの裁定と言葉の読みが 1 つ。割る | K | 同じ |

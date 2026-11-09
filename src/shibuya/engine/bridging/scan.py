@@ -39,6 +39,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Iterator
 
+from shibuya.core.paths import PACKAGE_ROOT
+
 __all__ = [
     "FORMS", "FORM_CONF", "FORM_EXPEDIENTS", "FORM_DOCSTRING", "FORM_HEADING", "FORM_PROCESS", "FORM_FALLBACK",
     "Declaration", "declared_in_of", "scan_source", "scan_tree", "scan_package", "count_by_form",
@@ -290,7 +292,7 @@ def fallback_declarations(rows: Iterable[object] | None = None) -> list[Declarat
 def scan_package() -> list[Declaration]:
     """このパッケージ(``src/shibuya``)の宣言(A〜E は AST・F はフォールバック台帳を実行して読む)。道筋は
     ``src/shibuya/...``。"""
-    pkg = Path(__file__).resolve().parents[2]
+    pkg = PACKAGE_ROOT  # 〔移す段 2-2〕包みの根は core.paths の 1 か所
     return scan_tree(pkg, rel_to=pkg.parent.parent) + fallback_declarations()
 
 

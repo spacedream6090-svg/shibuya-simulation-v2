@@ -11,7 +11,7 @@ Python 2 本・その他 0 本(このディレクトリの直下)
 shibuya-simulation-v2: 現実の渋谷を舞台にしたLLM社会シミュレーション第2世代(エンジン)。
 
 - 呼び手: `tools/bytecheck/check.py`・`tools/instruments/anchor_gauge.py`
-- 読む試験: `tests/test_child_imports_this_tree.py`
+- 読む試験: `tests/engine/state/test_move_prep_stage2.py`・`tests/test_child_imports_this_tree.py`
 - 読む試験(道筋で): `tests/tools/test_bytecheck.py`・`tests/tools/test_dm_eval.py`・`tests/tools/test_repo_guide.py`
 
 ## [cli.py](../../../../../../src/shibuya/cli.py)

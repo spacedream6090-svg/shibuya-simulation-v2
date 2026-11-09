@@ -32,6 +32,9 @@ FROZEN_N_CLASSES = 57
 
 #: 同梱 JSON の位置(package-data として pyproject に登録済み)。
 CATALOG_RESOURCE = "frozen/world_catalog_v0_2.json"
+#: 〔移す段 2-5〕同梱 JSON を持つ包みの名(このモジュールの ``__package__`` から作る。段 4 で JSON と pyproject の
+#: ``package-data`` を一緒に動かす)。
+_RESOURCE_PACKAGE: str = __package__ or __name__.rpartition(".")[0]
 
 
 @dataclass(frozen=True)
@@ -58,7 +61,7 @@ class WorldCatalog:
 
 def load_world_catalog() -> WorldCatalog:
     """同梱 JSON から凍結カタログを読む。"""
-    resource = files("shibuya.manifest").joinpath(CATALOG_RESOURCE)
+    resource = files(_RESOURCE_PACKAGE).joinpath(CATALOG_RESOURCE)
     payload = json.loads(resource.read_text(encoding="utf-8"))
     return WorldCatalog(
         version=payload["version"],

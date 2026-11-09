@@ -75,4 +75,4 @@ manifest.schema: U8 run manifest の型(13節)と機械化される規則。
   - `load_world_catalog`(関数): 同梱 JSON から凍結カタログを読む。
   - `verify_frozen`(関数): 凍結値との一致を検査する(分母が黙って動いていないことの門)。
 - 呼び手: `shibuya.build.audit.w18_coverage`・`shibuya.world.processes.registry`
-- 読む試験: `tests/build_audit/test_audit_pipeline.py`・`tests/build_audit/test_audit_units.py`・`tests/test_world_catalog_sha.py`・`tests/world/processes/conftest.py`・`tests/world/processes/test_constitution.py`・`tests/world/processes/test_first_batch.py`・`tests/world/processes/test_registry.py`
+- 読む試験: `tests/build_audit/test_audit_pipeline.py`・`tests/build_audit/test_audit_units.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/test_world_catalog_sha.py`・`tests/world/processes/conftest.py`・`tests/world/processes/test_constitution.py`・`tests/world/processes/test_first_batch.py`・`tests/world/processes/test_registry.py`

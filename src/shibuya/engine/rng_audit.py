@@ -30,7 +30,15 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Final, Iterable, Mapping
 
+from shibuya.core import rng as _RNG
+
 # ================================================================ 静的(AST)
+#: 〔移す段 2-4〕``core.rng`` のモジュールの名(``__name__`` から作る=段 4 で動かしても検査が呼び手を見落とさない)。
+RNG_MODULE: Final[str] = _RNG.__name__
+#: 頭の包みの名を除いた名(今は ``core.rng``)・その親(``core``)・葉(``rng``)。import の形の照合に使う。
+_RNG_TAIL: Final[str] = RNG_MODULE.partition(".")[2]
+_RNG_PARENT_TAIL: Final[str] = _RNG_TAIL.rpartition(".")[0]
+_RNG_LEAF: Final[str] = _RNG_TAIL.rpartition(".")[2]
 #: 〔第 2 期 2-2〕``philox_array``(配列で回す Philox=行ごとに 1 本の流れ・引く語数は ``words``)を足した。
 RNG_FUNCS: Final[tuple[str, ...]] = ("stream", "philox", "philox_array")
 #: 棄却のある分布(引く語数が値で変わる)。
@@ -67,17 +75,17 @@ def _rng_aliases(tree: ast.AST) -> tuple[dict[str, str], set[str]]:
     names: dict[str, str] = {}
     mods: set[str] = set()
     for n in ast.walk(tree):
-        if isinstance(n, ast.ImportFrom) and (n.module or "").split(".")[-1] == "rng":
+        if isinstance(n, ast.ImportFrom) and (n.module or "").split(".")[-1] == _RNG_LEAF:
             for a in n.names:
                 if a.name in RNG_FUNCS:
                     names[a.asname or a.name] = a.name
-        elif isinstance(n, ast.ImportFrom) and (n.module or "").endswith("core"):
+        elif isinstance(n, ast.ImportFrom) and (n.module or "").endswith(_RNG_PARENT_TAIL):
             for a in n.names:
-                if a.name == "rng":
+                if a.name == _RNG_LEAF:
                     mods.add(a.asname or a.name)
         elif isinstance(n, ast.Import):
             for a in n.names:
-                if a.name.endswith("core.rng"):
+                if a.name.endswith(_RNG_TAIL):
                     mods.add(a.asname or a.name)
     return names, mods
 
@@ -403,10 +411,10 @@ class StreamRecorder:
             return out
 
         for name, mod in list(sys.modules.items()):
-            if (name == "shibuya.core.rng" or name.startswith("shibuya.")) and getattr(mod, "philox", None) is orig:
+            if (name == RNG_MODULE or name.startswith("shibuya.")) and getattr(mod, "philox", None) is orig:
                 self._patched.append((mod, "philox", orig))
                 setattr(mod, "philox", wrapped)
-            if ((name == "shibuya.core.rng" or name.startswith("shibuya."))
+            if ((name == RNG_MODULE or name.startswith("shibuya."))
                     and getattr(mod, "philox_array", None) is orig_a):
                 self._patched.append((mod, "philox_array", orig_a))
                 setattr(mod, "philox_array", wrapped_array)

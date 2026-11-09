@@ -47,6 +47,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Final, Iterable, Mapping
 
+from shibuya.core.paths import resolve_repo_path  # 〔移す段 2-2〕根の道の口は core.paths(暦は使うだけ)
 from shibuya.core.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
 from shibuya.core.time_consts import SECONDS_PER_MINUTE
 
@@ -65,7 +66,6 @@ __all__ = [
     "load_holidays",
     "parse_school_holidays",
     "parse_start",
-    "resolve_repo_path",
     "ticks_per_day",
 ]
 
@@ -145,16 +145,6 @@ _WARNED_MISSING: set[str] = set()
 def _parse_ymd(text: str) -> date:
     y, m, d = (int(x) for x in str(text).strip().split("/"))
     return date(y, m, d)
-
-
-#: リポの根(``src/shibuya/engine/calendar.py`` から 3 つ上)。相対パスの祝日 CSV はここから解決する。
-REPO_ROOT: Final[Path] = Path(__file__).resolve().parents[3]
-
-
-def resolve_repo_path(path: str | Path) -> Path:
-    """相対パスはリポの根から、絶対パスはそのまま(検収後 P4: 作業ディレクトリに依らない)。"""
-    p = Path(path)
-    return p if p.is_absolute() else REPO_ROOT / p
 
 
 def load_holidays(path: str | Path = DEFAULT_HOLIDAY_CSV) -> HolidayTable:

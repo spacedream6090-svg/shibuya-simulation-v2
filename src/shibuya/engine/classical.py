@@ -51,6 +51,7 @@ from typing import Any, Final, Mapping
 import numpy as np
 
 from shibuya.agents.state import Activity, AgentKind, WakeCondition
+from shibuya.core.paths import REPO_ROOT
 from shibuya.core.rng import stream
 from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
 from shibuya.llm import LLMRequest, LLMResponse, estimate_tokens
@@ -88,7 +89,7 @@ __all__ = [
 ]
 
 ACTIVITY_PRIOR_PATH: Final[Path] = (
-    Path(__file__).resolve().parents[3] / "docs" / "bench" / "anchors" / "ssb2021_activity_prior_v0.json"
+    REPO_ROOT / "docs" / "bench" / "anchors" / "ssb2021_activity_prior_v0.json"
 )
 #: 方策(``--policy``)。``mock``=凍結の ``MockLLM``(既定)/ ``classical``=本モジュール(LLM 0 呼)。
 POLICIES: Final[tuple[str, ...]] = ("mock", "classical")
