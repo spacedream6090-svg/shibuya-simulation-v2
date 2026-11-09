@@ -19,6 +19,7 @@
 - Web の道具が利用の上限に当たったら、別の道具に替えずに止まり、それまでの分を書いて「読めなかった」と報告する。
 - 出典ごとに等級(本文を読んだ/要旨だけ/検索の抜粋だけ)を付ける。自分の組み立ては【見立て】、根拠のない置き方は【推測】と書く。推薦は書かない。
 - 封印の層(holdout・test の層)に触れない。コード・台帳・設計書・INDEX を変えない。commit も git add もしない。
+- 次の文書は開かない(開封の値が平文で載っている=[一覧](../reference/opened-values-in-docs-2026-11-09.md)・11-09 §6-3 の 2・⑥ 検証の封の壁打ちまで): IMPLEMENTED.md・docs/ops/build-report-C7*.md・docs/ops/build-report-C8*.md・docs/design/v2-g1-backtest-plan-2026-11-02.md・docs/design/v2-pattern-ledger.md。
 ```
 
 ## 親の検収で確かめること(断られた頁)
