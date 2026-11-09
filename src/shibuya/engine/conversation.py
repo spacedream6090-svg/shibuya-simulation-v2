@@ -41,7 +41,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import IntEnum
-from typing import Any, Final, Iterable, Mapping, Sequence
+from typing import Any, Final, Mapping, Sequence
 
 import numpy as np
 
@@ -51,7 +51,6 @@ from shibuya.core.types import EventClass
 __all__ = [
     "D_TALK_METERS",
     "MAX_TURNS",
-    "IMPORTANT_EXTRA_TURNS",
     "MAX_PARTICIPANTS",
     "REFUSAL_MEMORY_TICKS",
     "SILENCE_TICKS",
@@ -80,9 +79,9 @@ __all__ = [
 D_TALK_METERS: Final[float] = 1.0
 #: ハード終了: 1体あたりの発話ブロック数(契約書 max_turns=3・予算由来の expedient)。
 MAX_TURNS: Final[int] = 3
-#: 「重要度上位のみ+2呼」(契約書 §3)。〔11-03 棚卸し B §4-1〕組み立て(``systems/build.py``)は ``important`` を渡さない
-#: =対象が空=+2 呼は誰にも付かない死んでいる道(次の版上げで消す・台帳 DOC-fix4-dead-important-extra-turns)。
-IMPORTANT_EXTRA_TURNS: Final[int] = 2
+#: 〔第346 死んだ道の削除〕「重要度上位のみ+2呼」(契約書 §3)は消した(組み立ては対象を渡さなかった=+2 呼は誰にも付かない
+#: 死んでいる道・台帳 DOC-fix4-dead-important-extra-turns は removed・旧値の再現は安定版のタグ
+#: ``stable-v2-before-switch-removal-346``)。ハード上限は全員 ``max_turns``。
 #: 参加上限(契約書「参加上限3(2者既定)」)。〔11-03 棚卸し B §4-1〕実装はこう: 既定 2(3 は ``run_day`` の
 #: ``conv_max_participants=3``=C10 8a の口のときだけ)。宣言はこう: 上限 3。既定を合わせるかは仕分け待ち(11-03 §2)。
 MAX_PARTICIPANTS: Final[int] = 2
@@ -232,13 +231,11 @@ class ConversationManager:
         master_seed: ランの ``master_seed``(〔第346〕応答判定の抽選と乱数の用途名 ``conversation.invite`` は消した=今は
             記録だけ・位置の引数の互換で残す)。
         max_turns: 1体あたりの発話ブロック上限(ハード終了)。
-        extra_turns_for_important: 重要度上位の追加呼数。
         max_participants: 参加上限(既定2・契約書の上限は3)。
         refusal_memory_ticks: 拒否/無視の記憶[tick]。
         silence_ticks: 沈黙のソフト終了閾値[tick]。
         max_session_ticks: セッション寿命[tick]。
         walk_over_ticks: WALKING_OVER に留まる tick(既定0=ゲートが同一セルを要求するため)。
-        important: 重要度上位の個体 id(``+2呼``の対象)。
 
     Example:
         >>> m = ConversationManager(master_seed=1)
@@ -252,28 +249,24 @@ class ConversationManager:
         master_seed: int | str,
         *,
         max_turns: int = MAX_TURNS,
-        extra_turns_for_important: int = IMPORTANT_EXTRA_TURNS,
         max_participants: int = MAX_PARTICIPANTS,
         refusal_memory_ticks: int = REFUSAL_MEMORY_TICKS,
         silence_ticks: int = SILENCE_TICKS,
         max_session_ticks: int = MAX_SESSION_TICKS,
         walk_over_ticks: int = 0,
         topics_per_session: int | None = None,
-        important: Iterable[int] = (),
         count_unreachable: bool = False,
     ) -> None:
         if max_participants < 2 or max_participants > 3:
             raise ValueError("参加上限は 2..3(契約書 §3)")
         self.master_seed = master_seed
         self.max_turns = int(max_turns)
-        self.extra_turns_for_important = int(extra_turns_for_important)
         self.max_participants = int(max_participants)
         self.refusal_memory_ticks = int(refusal_memory_ticks)
         self.silence_ticks = int(silence_ticks)
         self.max_session_ticks = int(max_session_ticks)
         self.walk_over_ticks = int(walk_over_ticks)
         self.topics_per_session = int(topics_per_session if topics_per_session is not None else max_turns)
-        self.important: set[int] = {int(a) for a in important}
         #: 〔11-03 M16〕届かない返事の不成立を ``counters`` の ``conv_pending_unreachable`` と起点の計数の鍵 ``unreachable`` に
         #: 出すか(組み立ては常に True を渡す=〔第346〕切替口 legacy は消した・偽は部品の単体試験の基準の口)。
         self.count_unreachable = bool(count_unreachable)
@@ -338,10 +331,8 @@ class ConversationManager:
         return sum(1 for s in self.sessions.values() if s.active)
 
     def max_turns_for(self, agent_id: int) -> int:
-        """その個体のハード上限(重要度上位は +2)。"""
-        return self.max_turns + (
-            self.extra_turns_for_important if int(agent_id) in self.important else 0
-        )
+        """その個体のハード上限(全員 ``max_turns``=〔第346〕重要度上位の +2 呼は消した)。"""
+        return self.max_turns
 
     @staticmethod
     def _pair(a: int, b: int) -> tuple[int, int]:

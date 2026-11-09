@@ -1,7 +1,7 @@
 """engine.conversation のテスト(行動契約書 §3 会話プロトコル)。
 
 開始ゲート5条件/被招待者の返事(〔第346〕応答率 0.8 の抽選=死んだ道は消した)/話者交替(招待者始まり)/
-ハード終了 max_turns 3(+2)/
+ハード終了 max_turns 3(〔第346〕重要度上位の +2 呼=死んだ道は消した)/
 ソフト終了(話題スタック空・沈黙・退去・セル離脱)/1人1会話/拒否履歴/
 会話ターン起床(不応期0)/診断計数。
 """
@@ -188,15 +188,24 @@ def test_hard_stop_at_max_turns_three_calls_per_agent():
     assert m.counters()["closed_hard"] == 1
 
 
-def test_important_agents_get_two_extra_calls():
-    m = _manager(important=[1], topics_per_session=50)
+def test_the_dead_important_extra_calls_are_removed():
+    """〔第346 死んだ道の削除〕重要度上位の +2 呼(組み立ては対象を渡さなかった)は消した=全員 ``max_turns``。"""
+    from shibuya.engine import conversation as CV
+
+    assert not hasattr(CV, "IMPORTANT_EXTRA_TURNS")
+    with pytest.raises(TypeError):
+        _manager(important=[1])  # type: ignore[call-arg]
+    with pytest.raises(TypeError):
+        _manager(extra_turns_for_important=2)  # type: ignore[call-arg]
+    m = _manager(topics_per_session=50)
+    assert not hasattr(m, "important") and not hasattr(m, "extra_turns_for_important")
     s = _open(m, 1, 2)
-    assert s.max_turns_of == {1: MAX_TURNS + 2, 2: MAX_TURNS}
+    assert s.max_turns_of == {1: MAX_TURNS, 2: MAX_TURNS} and m.max_turns_for(1) == MAX_TURNS
     for tick in range(1, 40):
         if s.state is not ConvState.PARTICIPATING:
             break
         m.utterance(s.speaker, tick, action="会話", comment="…")
-    assert s.calls[1] == MAX_TURNS + 2 and s.calls[2] == MAX_TURNS
+    assert s.calls[1] == MAX_TURNS and s.calls[2] == MAX_TURNS
 
 
 def test_soft_stop_when_the_topic_stack_is_empty():

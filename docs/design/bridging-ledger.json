@@ -8471,12 +8471,12 @@
   {
    "id": "DOC-fix4-dead-important-extra-turns",
    "what": "会話の「重要度上位のみ +2 呼」(engine/conversation.py の IMPORTANT_EXTRA_TURNS・ConversationManager の important と max_turns_for)は死んでいる道(組み立て engine/systems/build.py は important を渡さない=対象が空)",
-   "why": "棚卸し B §4-1。契約書 §3 の「重要度上位のみ+2呼」の宣言はあるが、対象の集合をどこからも渡していない=+2 呼は誰にも付かない。消さずに印だけ付けた(次の版上げで消す=11-03 §3 の段 2 の親の発注。外す段は親の案=inferred)",
+   "why": "棚卸し B §4-1。契約書 §3 の「重要度上位のみ+2呼」の宣言はあるが、対象の集合をどこからも渡していない=+2 呼は誰にも付かない。消さずに印だけ付けた(次の版上げで消す=11-03 §3 の段 2 の親の発注。外す段は親の案=inferred)〔第346 旧道の切替口と死んだ道の削除〕閉じた: 死んだ道=会話の重要度上位の +2 呼(IMPORTANT_EXTRA_TURNS・ConversationManager の important と extra_turns_for_important の引数と状態台帳の欄)を消した。ハード上限は全員 max_turns(組み立ては対象を渡さなかった=既定のランは 1 バイト不変)。旧値の再現は安定版のタグ stable-v2-before-switch-removal-346(記録 docs/bench/analysis/delete-346/README.md・取り込みの commit は親)",
    "remove_at": "next-bump",
    "declared_in": "docs/bench/analysis/fix4-1103/README.md §3",
    "conf": "expedient",
    "since": "2026-11-03",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "inferred",
    "code_at": [
     "src/shibuya/engine/conversation.py",

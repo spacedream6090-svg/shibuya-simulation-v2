@@ -407,7 +407,6 @@ engine.conversation のテスト(行動契約書 §3 会話プロトコル)。
   - `test_gate_rejects_each_missing_condition`(関数)
   - `test_gate_rejects_self_invitation`(関数)
   - `test_hard_stop_at_max_turns_three_calls_per_agent`(関数)
-  - `test_important_agents_get_two_extra_calls`(関数)
   - `test_interrupt_is_discretised_to_the_next_transition_point`(関数)
   - `test_invalid_configuration_is_rejected`(関数)
   - `test_join_respects_the_participant_cap`(関数)
@@ -425,6 +424,7 @@ engine.conversation のテスト(行動契約書 §3 会話プロトコル)。
   - `test_soft_stop_when_the_topic_stack_is_empty`(関数)
   - `test_speakers_alternate_starting_with_the_inviter`(関数)
   - `test_the_dead_accept_lottery_is_removed`(関数): 〔第346 死んだ道の削除〕応答率 0.8 の抽選(``answered=None`` のときだけ引いた)は消した=返事は必ず渡す。
+  - `test_the_dead_important_extra_calls_are_removed`(関数): 〔第346 死んだ道の削除〕重要度上位の +2 呼(組み立ては対象を渡さなかった)は消した=全員 ``max_turns``。
   - `test_wake_candidates_are_conversation_turns_with_zero_refractory`(関数)
   - `test_walking_over_state_can_be_enabled`(関数)
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.core.types`・`shibuya.engine.conversation`・`shibuya.engine.run`・`shibuya.llm`
