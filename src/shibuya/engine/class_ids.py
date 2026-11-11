@@ -35,6 +35,10 @@ _BUILD: Final[str] = _ROOT + "build."
 #: クラスの名の固定の表。鍵=今の「モジュール.クラス名」、値=凍結の名(ハッシュ・状態のファイル・設定の指紋に入る文字列)。
 #: 段 1 では鍵と値が同じ。移す道具が鍵だけを書き換え、値は変えない。
 CLASS_IDS: Final[Mapping[str, str]] = MappingProxyType({
+    "shibuya.act.activity.ActivityLayer": "shibuya.engine.activity.ActivityLayer",
+    "shibuya.act.activity.ActivityPayload": "shibuya.engine.activity.ActivityPayload",
+    "shibuya.act.intake.parser.ParseResult": "shibuya.llm.parser.ParseResult",
+    "shibuya.act.intent.IntentLayer": "shibuya.engine.intent.IntentLayer",
     "shibuya.agents.state.Activity": "shibuya.agents.state.Activity",
     "shibuya.agents.state.ActivityKind": "shibuya.agents.state.ActivityKind",
     "shibuya.agents.state.AgentKind": "shibuya.agents.state.AgentKind",
@@ -88,8 +92,6 @@ CLASS_IDS: Final[Mapping[str, str]] = MappingProxyType({
     "shibuya.economy.taxes._Grades": "shibuya.economy.taxes._Grades",
     "shibuya.economy.wage_formula.WageTables": "shibuya.core.wage_formula.WageTables",
     "shibuya.economy.wages.WageTablesAbsentWarning": "shibuya.economy.wages.WageTablesAbsentWarning",
-    "shibuya.engine.activity.ActivityLayer": "shibuya.engine.activity.ActivityLayer",
-    "shibuya.engine.activity.ActivityPayload": "shibuya.engine.activity.ActivityPayload",
     "shibuya.engine.arbiter.Arbiter": "shibuya.engine.arbiter.Arbiter",
     "shibuya.engine.arbiter.ArbiterDecision": "shibuya.engine.arbiter.ArbiterDecision",
     "shibuya.engine.arbiter.WakeCandidates": "shibuya.engine.arbiter.WakeCandidates",
@@ -169,7 +171,6 @@ CLASS_IDS: Final[Mapping[str, str]] = MappingProxyType({
     "shibuya.engine.experiment.switch.ReplaySwitch": "shibuya.engine.experiment.switch.ReplaySwitch",
     "shibuya.engine.experiment.switch.SwitchSpec": "shibuya.engine.experiment.switch.SwitchSpec",
     "shibuya.engine.familiarity.FamiliarityLayer": "shibuya.engine.familiarity.FamiliarityLayer",
-    "shibuya.engine.intent.IntentLayer": "shibuya.engine.intent.IntentLayer",
     "shibuya.engine.llm_bridge.BridgeResult": "shibuya.engine.llm_bridge.BridgeResult",
     "shibuya.engine.llm_bridge.CallStart": "shibuya.engine.llm_bridge.CallStart",
     "shibuya.engine.llm_bridge.LLMBridge": "shibuya.engine.llm_bridge.LLMBridge",
@@ -396,7 +397,6 @@ CLASS_IDS: Final[Mapping[str, str]] = MappingProxyType({
     "shibuya.llm.fleet._RetryableHTTP": "shibuya.llm.fleet._RetryableHTTP",
     "shibuya.llm.mock.MockLLM": "shibuya.llm.mock.MockLLM",
     "shibuya.llm.mock.TapeLLM": "shibuya.llm.mock.TapeLLM",
-    "shibuya.llm.parser.ParseResult": "shibuya.llm.parser.ParseResult",
     "shibuya.llm.undefined.Proposal": "shibuya.llm.undefined.Proposal",
     "shibuya.llm.undefined.ProposalStatus": "shibuya.llm.undefined.ProposalStatus",
     "shibuya.llm.undefined.UndefinedActionRecord": "shibuya.llm.undefined.UndefinedActionRecord",

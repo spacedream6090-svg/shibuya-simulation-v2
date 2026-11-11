@@ -204,7 +204,7 @@ def test_leave_releases_store_queue_and_marks_conversation():
 
 def test_leave_with_no_activity_expires_next_tick():
     from shibuya.engine import commit as C
-    from shibuya.engine.activity import ActivityLayer, ActivityPayload
+    from shibuya.act.activity import ActivityLayer, ActivityPayload
     from shibuya.foundation.vocab.actions import NO_TARGET, UNTIL_DEFAULT_MINUTES, UntilKind
 
     from shibuya.world.model.state import World

@@ -39,7 +39,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 from shibuya.engine.tape import Tape  # noqa: E402
 from shibuya.foundation.vocab.actions import ACTION_VOCAB_12, ROLE_ACTION_WORDS  # noqa: E402
-from shibuya.llm.parser import parse_two_line  # noqa: E402
+from shibuya.act.intake.parser import parse_two_line  # noqa: E402
 
 TALK = "会話"
 

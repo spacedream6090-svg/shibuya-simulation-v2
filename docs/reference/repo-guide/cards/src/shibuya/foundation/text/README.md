@@ -67,7 +67,7 @@ perception.normalize — バイト一致の正規化規約 9 項(知覚契約書
   - `sort_ids`(関数): 列挙は **ID 昇順**(§2.4 ②)。数値 ID は数として、文字列 ID はコードポイント順。
   - `time_band`(関数): 世界内日時 → 5 分帯の番号(0..287)。共有ブロックのキャッシュ鍵。
 - import している内部モジュール: `shibuya.foundation.time_consts`
-- 呼び手: `shibuya.build.lang.common`・`shibuya.engine.activity`・`shibuya.engine.change_detect`・`shibuya.engine.memory_store`・`shibuya.perception.renderer`
+- 呼び手: `shibuya.act.activity`・`shibuya.build.lang.common`・`shibuya.engine.change_detect`・`shibuya.engine.memory_store`・`shibuya.perception.renderer`
 - 読む試験: `tests/build_lang/test_wiring.py`・`tests/engine/test_memory_recall.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_weather_calendar_10e.py`・`tests/perception/facts/head_renderer_136fdbb.py`・`tests/perception/facts/test_percept_schema.py`・`tests/perception/test_b4_detector_gap.py`・`tests/perception/test_normalize.py`・`tests/perception/test_renderer_golden.py`
 
 ## [templates.py](../../../../../../../../src/shibuya/foundation/text/templates.py)

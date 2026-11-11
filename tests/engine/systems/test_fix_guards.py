@@ -199,7 +199,7 @@ def test_permit_check_catches_reexported_names(src, words):
 _SOA_TAILS = {"registry", "agents", "cells", "pois", "pstate"}
 _EXEMPT_D6 = {"agents/state.py", "world/model/state.py", "world/model/percept_state.py", "engine/resolve.py", "foundation/soa.py"}
 D6_ALLOW = {
-    ("engine/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",
+    ("act/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",
     ("engine/store_choice.py", "self.poi_cell"): "同上",
     ("engine/store_choice.py", "self.price"): "POI の値段(静的な列)の int64 の写し",
     ("world/laws/civic.py", "self.bed_cell[got]"):

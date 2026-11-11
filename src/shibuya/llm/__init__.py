@@ -48,9 +48,6 @@ from shibuya.foundation.hashing import sha256_cbor
 __all__ = [
     # 行動契約(llm.contract の再輸出)
     # パーサ(llm.parser の再輸出)
-    "ParseResult",
-    "parse_two_line",
-    "find_action_word",
     # 未定義行動5段(llm.undefined の再輸出)
     "UndefinedActionRegistry",
     "UndefinedActionRecord",
@@ -157,11 +154,6 @@ class TapeLookup(Protocol):
 
 # 契約定義の後に実装/パーサを読む(循環回避)。
 from shibuya.llm.mock import MockLLM, TapeLLM  # noqa: E402
-from shibuya.llm.parser import (  # noqa: E402
-    ParseResult,
-    find_action_word,
-    parse_two_line,
-)
 from shibuya.llm.undefined import (  # noqa: E402
     Proposal,
     ProposalStatus,

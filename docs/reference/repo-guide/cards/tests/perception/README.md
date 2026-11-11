@@ -124,7 +124,7 @@ B4b「近景」への待ち行列の差し込み(C4 後半で付けた唯一の�
   - `test_rule8_and_b5_do_not_move_for_the_invitee`(関数): B6 は**個体ブロック**なので、被招待でも B0-B4b と B5 は 1 バイトも動かない。
   - `test_template_sha256_is_untouched`(関数): テンプレ本体(``TEMPLATES``/``WAKE_REASON_TEXT``)に行を足していない。
   - `test_the_invitee_is_told_who_spoke_to_them`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.run`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.parser`・`shibuya.perception.renderer`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.agents.state`・`shibuya.engine.run`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.perception.renderer`・`shibuya.world.model.state`
 - 決定の ID: D-62・第 137
 
 ## [test_channels.py](../../../../../../tests/perception/test_channels.py)

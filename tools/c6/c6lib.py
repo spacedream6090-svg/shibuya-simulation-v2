@@ -904,7 +904,7 @@ def score_texts(texts: Sequence[str], vocab_version: str = "v1") -> dict[str, An
     として数える(エンジンの ``UndefinedActionRegistry.observe`` と同じ扱い)。
     """
     from shibuya.foundation.vocab.actions import ROLE_ACTION_WORDS, is_role_action
-    from shibuya.llm.parser import parse_two_line
+    from shibuya.act.intake.parser import parse_two_line
     from shibuya.llm.undefined import map_synonym
 
     n = len(texts)
@@ -974,7 +974,7 @@ def violation_flags(scenes: Sequence[Scene], texts: Sequence[str]) -> list[int]:
     「直前の結果」が失敗として提示されている以上、**同じ行動をそのまま繰り返すのは制約違反**
     という判定(行動契約書 §6「いま可能」3 語が提示されている場面)。表に無い種は違反にしない。
     """
-    from shibuya.llm.parser import parse_two_line
+    from shibuya.act.intake.parser import parse_two_line
 
     out: list[int] = []
     for s, t in zip(scenes, texts):

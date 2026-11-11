@@ -83,14 +83,14 @@ from shibuya.foundation.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
 from shibuya.engine import commit as C
 from shibuya.engine import growth_decl as GD
 from shibuya.engine import resolve as R
-from shibuya.engine.activity import payload_of
+from shibuya.act.activity import payload_of
 from shibuya.engine.calendar import (
     DEFAULT_HOLIDAY_CSV,
     WEATHER_SCHEME,
     WEEKDAY_MODE,
     SimCalendar,
 )
-from shibuya.engine.intent import INTENT_MAX_TICKS
+from shibuya.act.intent import INTENT_MAX_TICKS
 from shibuya.engine.familiarity import FAMILIARITY_K
 from shibuya.engine.memory import MEMORY_N, RECALL_TAU
 from shibuya.engine.wom import DEFAULT_WOM_SOURCE

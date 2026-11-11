@@ -38,7 +38,7 @@ from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.world.model.space import nav1 as _NAV1
 from shibuya.engine import resume as RS
-from shibuya.engine.activity import ActivityLayer
+from shibuya.act.activity import ActivityLayer
 from shibuya.engine.arbiter import Arbiter
 from shibuya.engine.arbiter import call_budget_per_tick
 from shibuya.engine.calendar import DEFAULT_WORLD_START
@@ -74,7 +74,7 @@ from shibuya.engine.familiarity import FAMILIARITY_MODES
 from shibuya.engine.familiarity import FamiliarityLayer
 from shibuya.world.model.geometry import EdgeGeometry
 from shibuya.world.model.geometry import check_geometry
-from shibuya.engine.intent import IntentLayer
+from shibuya.act.intent import IntentLayer
 from shibuya.engine.llm_bridge import LLMBridge
 from shibuya.engine.llm_bridge import PerceptionRendererAdapter
 from shibuya.engine.llm_bridge import StubRenderer

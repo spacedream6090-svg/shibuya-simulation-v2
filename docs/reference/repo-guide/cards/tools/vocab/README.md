@@ -46,7 +46,7 @@ registry_from_tape — 録画テープ(``calls.parquet``)→ 未定義行動台�
   - `main`(関数)
   - `payload_from_tape`(関数): ``shibuya.cli.undefined_registry_payload`` と**同じ形**の dict を作る。
   - `registry_from_tape`(関数): テープ → (台帳, ``(agent_id, tick) → セル``, 走査の計数)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.tape`・`shibuya.llm`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.cli`・`shibuya.engine.tape`・`shibuya.llm`
 - 読む試験: `tests/vocab/conftest.py`
 - CLI の引数
   - `--out`: 出力 JSON

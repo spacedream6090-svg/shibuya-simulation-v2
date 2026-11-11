@@ -79,7 +79,7 @@ Python 8 本・その他 3 本(このディレクトリの直下)
   - `test_seconds_to_steps_rounding_rule`(関数): 丸めの規則=床(その秒を含む刻み)。整数だけを受ける。
   - `test_time_consts_imports_only_the_standard_library`(関数): 層契約: 標準ライブラリだけ(core の最下層=誰からでも import できる)。
   - `test_values`(関数)
-- import している内部モジュール: `shibuya.engine.activity`・`shibuya.engine.growth_decl`・`shibuya.foundation.growth`・`shibuya.foundation.queues.scheduler`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`・`shibuya.world.facts.weekly_reader`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.opening`・`shibuya.world.ledger.actual_log`
+- import している内部モジュール: `shibuya.act.activity`・`shibuya.engine.growth_decl`・`shibuya.foundation.growth`・`shibuya.foundation.queues.scheduler`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`・`shibuya.world.facts.weekly_reader`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.opening`・`shibuya.world.ledger.actual_log`
 
 ## [test_t0_tm9_fields.py](../../../../../../../tests/engine/time/test_t0_tm9_fields.py)
 

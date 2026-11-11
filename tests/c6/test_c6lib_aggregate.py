@@ -54,7 +54,7 @@ def test_format_error_rate_is_reported_both_effective_and_strict(c6lib):
 
     C6 追加別名(``LABEL_ALIASES_C6``)だけで書けた応答は **実効=合格・厳密=エラー**になる。
     """
-    from shibuya.llm.parser import LABEL_ALIASES_C6, parse_two_line
+    from shibuya.act.intake.parser import LABEL_ALIASES_C6, parse_two_line
 
     c6_only = [
         t
@@ -269,7 +269,7 @@ def test_format_role_marks_a_small_sample_as_insufficient(c6lib):
 def test_format_role_table_separates_effective_and_strict_verdicts(c6lib):
     """実効は合格・厳密は不合格、という組み合わせが表に出る(D-28 の読み分け)。"""
     import format_role_rates as fr
-    from shibuya.llm.parser import LABEL_ALIASES_C6, parse_two_line
+    from shibuya.act.intake.parser import LABEL_ALIASES_C6, parse_two_line
 
     c6_only = next(
         t

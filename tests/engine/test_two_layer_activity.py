@@ -31,7 +31,7 @@ from shibuya.agents.state import (
 from shibuya.foundation.types import EventClass
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.activity import (
+from shibuya.act.activity import (
     ActivityLayer,
     ActivityPayload,
     activity_kind_of,

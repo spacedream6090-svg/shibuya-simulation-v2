@@ -73,7 +73,7 @@ from shibuya.foundation.text.templates import (
 from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE, hash_free_cat_code
 from shibuya.engine.chooser import CHOOSER_NAMES, DEFAULT_CHOOSER
 from shibuya.engine.poi_target import MOVE_SEARCH_RADIUS_CELLS
-from shibuya.engine.intent import INTENT_MAX_TICKS
+from shibuya.act.intent import INTENT_MAX_TICKS
 from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES
 from shibuya.engine.memory import MEMORY_MODES, MEMORY_N, RECALL_TAU
 from shibuya.engine.store_memory import (

@@ -128,7 +128,7 @@ mock 方策の語彙 v3 化(二層の段 3・D-116・第277・アジェンダ §
   - `test_v3_draw_rules`(関数)
   - `test_v3_form_is_read_strictly_by_the_v3_parser`(関数)
   - `test_v3_is_deterministic_and_counter_based`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.llm.parser`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.engine.run`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.mock`
 - 決定の ID: D-116・第 277
 
 ## [test_parser.py](../../../../../../tests/llm/test_parser.py)
@@ -214,7 +214,7 @@ llm.parser のテスト(ラベル基準の寛容行指向・**例外を投げな
   - `test_v3_well_formed_output`(関数)
   - `test_v3_well_formed_output_round_trips`(関数)
   - `test_well_formed_output_round_trips_through_format_two_line`(関数)
-- import している内部モジュール: `shibuya.foundation.vocab.actions`・`shibuya.llm.parser`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.foundation.vocab.actions`
 - 決定の ID: D-89・D-113・D-116・第 223・第 266・第 274・第 275・第 275 #4
 
 ## [test_undefined.py](../../../../../../tests/llm/test_undefined.py)
@@ -279,5 +279,5 @@ llm.undefined のテスト(行動契約書 §7「未定義行動の受理」5段
   - `test_v1_objects_are_untouched`(関数): v1 の語彙・コード・契約表は**同一オブジェクト**(名前を足しただけ)。
   - `test_v2_appends_one_cross_cutting_word`(関数)
   - `test_v2_vocabulary_exceeds_the_declared_limit_by_one`(関数): §2「種別あたり 24 語」を **1 語超える**ことを機械で可視化する(封印は D-71 §3 J 待ち)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.vocab.actions`・`shibuya.llm.parser`・`shibuya.llm.undefined`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.agents.state`・`shibuya.foundation.vocab.actions`・`shibuya.llm.undefined`
 - 決定の ID: D-71・第 274

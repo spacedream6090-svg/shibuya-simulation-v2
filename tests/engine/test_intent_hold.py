@@ -28,9 +28,9 @@ from shibuya.agents.state import (
 )
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.activity import ActivityLayer, ActivityPayload
+from shibuya.act.activity import ActivityLayer, ActivityPayload
 from shibuya.engine.chooser import NearestChooser
-from shibuya.engine.intent import (
+from shibuya.act.intent import (
     INTENT_ACTIONS,
     INTENT_MAX_TICKS,
     INTENT_MAX_TICKS_ARMS,

@@ -23,7 +23,7 @@ from shibuya.llm.mock import (
     MOCK_UNTILS_V3_MOVE,
     MockLLM,
 )
-from shibuya.llm.parser import parse_two_line
+from shibuya.act.intake.parser import parse_two_line
 
 
 def _req(agent: int, tick: int, cls: int = 1) -> LLMRequest:

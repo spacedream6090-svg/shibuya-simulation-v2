@@ -72,7 +72,7 @@ from shibuya.foundation.time_consts import MINUTES_PER_HOUR, NS_PER_SECOND, SECO
 from shibuya.foundation.ports.decision import LENGTHS, Candidate, DecisionContext, compose, present
 from shibuya.engine.decision.sources import build_candidates
 from shibuya.foundation.vocab.actions import cross_action_words, safe_action_word
-from shibuya.llm.parser import parse_two_line
+from shibuya.act.intake.parser import parse_two_line
 
 REPO: Final[Path] = dm_eval.REPO
 EVALSET_DIR: Final[Path] = REPO / "data" / "evalset" / "evalset-1-10"

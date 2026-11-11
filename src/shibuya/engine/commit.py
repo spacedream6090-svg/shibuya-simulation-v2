@@ -47,7 +47,7 @@ from shibuya.foundation.vocab.actions import EAT_ACTION_CODE
 from shibuya.foundation.vocab.actions import NONE_ACTION_CODE
 from shibuya.foundation.vocab.actions import ROLE_ACTION_CODES as _CONTRACT_ROLE_ACTION_CODES
 from shibuya.foundation.vocab.actions import UNDEFINED_ACTION
-from shibuya.llm.parser import parse_two_line
+from shibuya.act.intake.parser import parse_two_line
 from shibuya.llm.undefined import TARGET_HINT_WORDS
 
 __all__ = [

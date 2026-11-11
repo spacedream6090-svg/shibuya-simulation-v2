@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-283 ディレクトリ・2246 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+285 ディレクトリ・2251 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -99,6 +99,10 @@
 ## docs/bench/analysis/move4-346(1 本)
 
 - [README.md](../../../bench/analysis/move4-346/README.md): コードの区分の移動 段 4(割らないファイルを移す)の記録
+
+## docs/bench/analysis/move4-346/act(2 本)
+
+## docs/bench/analysis/move4-346/act/bytecheck(3 本)
 
 ## docs/bench/analysis/move4-346/economy(2 本)
 

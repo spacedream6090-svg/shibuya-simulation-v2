@@ -67,7 +67,7 @@ _style.py — 図の共通設定(書体・配色・保存・サイドカー)。
   - `entropy_bits`(関数): 計数辞書のシャノンエントロピー[bits]。**純関数**。
   - `load_ab7`(関数): 両腕のテープ → 描画に要るデータ dict(比較指標つき)。
   - `main`(関数)
-- import している内部モジュール: `shibuya.engine.tape`・`shibuya.foundation.vocab.actions`・`shibuya.llm.parser`・`shibuya.llm.undefined`・`tools/c6/c6lib.py`・`tools/fig/_style.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.engine.tape`・`shibuya.foundation.vocab.actions`・`shibuya.llm.undefined`・`tools/c6/c6lib.py`・`tools/fig/_style.py`
 - 読む試験: `tests/fig/test_fig_smoke.py`
 - CLI の引数
   - `--arm`
@@ -86,7 +86,7 @@ _style.py — 図の共通設定(書体・配色・保存・サイドカー)。
   - `fold_meal`(関数): 「食事」を「購入」に畳んだ計数(v1 の語彙で読むときの対応表)。**純関数**。
   - `load_ab7c`(関数): 3 腕のテープ → 描画に要るデータ dict(runner との突き合わせつき)。
   - `main`(関数)
-- import している内部モジュール: `shibuya.engine.tape`・`shibuya.llm.parser`・`shibuya.llm.undefined`・`tools/c6/c6lib.py`・`tools/fig/_style.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.engine.tape`・`shibuya.llm.undefined`・`tools/c6/c6lib.py`・`tools/fig/_style.py`
 - 読む試験: `tests/fig/test_fig_smoke.py`
 - CLI の引数
   - `--arm`
@@ -137,7 +137,7 @@ _style.py — 図の共通設定(書体・配色・保存・サイドカー)。
   - `main`(関数)
   - `read_arm`(関数): 1 腕のテープ → 行の list(agent 昇順・tick 昇順・直前行動つき)。
   - `summarize`(関数): 行(agent/tick/hour/kind/station/wc/action/prev)→ (a)(b) の数。**純関数**。
-- import している内部モジュール: `shibuya.engine.tape`・`shibuya.llm.parser`・`shibuya.llm.undefined`・`tools/fig/_style.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.engine.tape`・`shibuya.llm.undefined`・`tools/fig/_style.py`
 - 読む試験: `tests/fig/test_fig_smoke.py`
 - CLI の引数
   - `--arm`

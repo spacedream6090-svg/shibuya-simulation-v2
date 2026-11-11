@@ -57,7 +57,7 @@ tests.c6 の共通フィクスチャ。
   - `test_violation_flags_use_the_banned_action_table`(関数)
   - `test_world_dir_of_returns_none_for_a_missing_path`(関数)
   - `test_write_outputs_writes_both_files`(関数)
-- import している内部モジュール: `shibuya.foundation.vocab.actions`・`shibuya.llm.parser`・`shibuya.llm.undefined`・`tools/c6/ablation1_fixed_vs_ranking.py`・`tools/c6/format_role_rates.py`・`tools/c6/metric_b_rerun.py`・`tools/c6/t6_bit_reproduce.py`・`tools/c6/t7_distribution.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.foundation.vocab.actions`・`shibuya.llm.undefined`・`tools/c6/ablation1_fixed_vs_ranking.py`・`tools/c6/format_role_rates.py`・`tools/c6/metric_b_rerun.py`・`tools/c6/t6_bit_reproduce.py`・`tools/c6/t7_distribution.py`
 - 決定の ID: D-25・D-28
 
 ## [test_c6lib_scenes.py](../../../../../../tests/c6/test_c6lib_scenes.py)

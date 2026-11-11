@@ -568,7 +568,7 @@ def cmd_replay(args: argparse.Namespace) -> int:
 
     from shibuya.world.facts.weekly_reader import load_weekly
     from shibuya.engine import relations as RL
-    from shibuya.llm.parser import parse_two_line
+    from shibuya.act.intake.parser import parse_two_line
     from shibuya.foundation.text import templates as T
 
     unique = json.loads(UNIQUE.read_text(encoding="utf-8"))["unique"]["tapes"]

@@ -1567,8 +1567,8 @@ def counts() -> dict[str, int]:
 #: ここに載るクラスの属性(``self.x = …`` と dataclass の欄)は、**どれかの行の ``items`` か ``EXCLUDED`` に
 #: 必ず載る**(``tests/engine/test_state_ledger_10b.py`` が AST で突き合わせる=新しい状態を足したら宣言する)。
 OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
-    "act_layer": ("engine/activity.py", "ActivityLayer"),
-    "intent_layer": ("engine/intent.py", "IntentLayer"),
+    "act_layer": ("act/activity.py", "ActivityLayer"),
+    "intent_layer": ("act/intent.py", "IntentLayer"),
     "fam_layer": ("engine/familiarity.py", "FamiliarityLayer"),
     "mem_layer": ("engine/memory.py", "MemoryLayer"),
     "mem_layer.store": ("engine/store_memory.py", "StoreMemory"),

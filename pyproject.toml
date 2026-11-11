@@ -50,7 +50,7 @@ markers = [
 ]
 filterwarnings = ["error::DeprecationWarning:shibuya.*"]
 
-# ---- 層契約(段 4 の段 economy の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage economy` が作る。手で直さない)----
+# ---- 層契約(段 4 の段 act の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage act` が作る。手で直さない)----
 [tool.importlinter]
 root_package = "shibuya"
 include_external_packages = false
@@ -97,6 +97,7 @@ name = "〔段 4 の途中の決まり〕1 層(§1-2 の順。下から上と、
 type = "layers"
 layers = [
   "shibuya.world.laws",
+  "shibuya.act",
   "shibuya.world.body",
   "shibuya.world.model | shibuya.world.things | shibuya.economy",
   "shibuya.world.facts | shibuya.world.ledger",
@@ -135,6 +136,7 @@ source_modules = [
 ]
 forbidden_modules = [
   "shibuya.world.laws",
+  "shibuya.act",
   "shibuya.world.body",
   "shibuya.world.model",
   "shibuya.world.things",
@@ -165,6 +167,7 @@ source_modules = [
 ]
 forbidden_modules = [
   "shibuya.world.laws",
+  "shibuya.act",
   "shibuya.world.body",
   "shibuya.world.model",
   "shibuya.world.things",
@@ -177,6 +180,7 @@ name = "〔段 4 の途中の決まり〕8 ランの側は build を読まない
 type = "forbidden"
 source_modules = [
   "shibuya.world.laws",
+  "shibuya.act",
   "shibuya.world.body",
   "shibuya.world.model",
   "shibuya.world.things",

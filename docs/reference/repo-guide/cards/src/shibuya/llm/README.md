@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 5 本・その他 0 本(このディレクトリの直下)
+Python 4 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../src/shibuya/llm/__init__.py)
 
@@ -14,7 +14,7 @@ llm: 艦隊クライアント/パーサ/録画テープ。world/agents を impor
   - `LLMResponse`(クラス): 1回の応答。
   - `TapeLookup`(クラス): 録画テープの完全一致検索(``engine.tape.Replay`` がこの形を満たす)。
   - `estimate_tokens`(関数): 粗いトークン数見積り(expedient: UTF-8 文字数 ÷ 2、最低 1)。
-- import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.llm.fleet`・`shibuya.llm.mock`・`shibuya.llm.parser`・`shibuya.llm.undefined`
+- import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.llm.fleet`・`shibuya.llm.mock`・`shibuya.llm.undefined`
 - 呼び手: `shibuya.engine.classical`・`shibuya.engine.experiment.branch`・`shibuya.engine.llm_bridge`・`shibuya.llm.fleet`・`shibuya.llm.mock`・`shibuya.llm.undefined`・`tools/vocab/adjudicate.py`・`tools/vocab/registry_from_tape.py`
 - 読む試験: `tests/build_pop/test_w21_stage8_9.py`・`tests/c6/test_c6lib_scenes.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_conversation.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_intent_mode_open.py`・`tests/engine/test_llm_mock.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_tape_wiring.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_undefined_action.py`・`tests/engine/test_vocab_v2_eat.py`・`tests/llm/test_fleet.py`・`tests/llm/test_mock_v3.py`・`tests/llm/test_undefined.py`・`tests/perception/test_b6_invite.py`・`tests/vocab/test_adjudicate.py`・`tests/vocab/test_undefined_out.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`・`tests/tools/test_pkgmove.py`
@@ -45,7 +45,7 @@ llm.fleet — 実 vLLM 艦隊クライアント(httpx 非同期 × N レプリ�
   - `route_primary`(関数): レプリカ配分 ``xxhash(call_id) mod N``(実装計画書 §7・N=7 が既定艦隊)。
   - `seed_for`(関数): 呼ごとのデコード seed(``xxh64(call_id, seed=run_seed)`` の下位 31 bit)。
   - `split_system_user`(関数): 描画本文を ``(system, user)`` に割る(B0=system・残り=user)。
-- import している内部モジュール: `shibuya.foundation.budget`・`shibuya.foundation.hashing`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.vocab.actions`・`shibuya.llm`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.foundation.budget`・`shibuya.foundation.hashing`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.vocab.actions`・`shibuya.llm`
 - 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.decide`・`shibuya.engine.systems.llm_io`・`shibuya.engine.systems.run_end`・`shibuya.llm`・`tools/c6/c6lib.py`・`tools/vocab/adjudicate.py`
 - 読む試験: `tests/c6/test_l4_l6_budget.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/llm/test_fleet.py`・`tests/llm/test_fleet_auth.py`・`tests/llm/test_fleet_contract.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/test_cli_l4_scale.py`
 - 読む試験(道筋で): `tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_state_checks_10f.py`・`tests/test_places_guard.py`
@@ -69,19 +69,6 @@ llm.mock — ネットワーク不要の決定論クライアント(MockLLM)と�
 - 読む試験(道筋で): `tests/engine/bridging/test_bridging_ledger.py`・`tests/test_places_guard.py`
 - 決定の ID: D-116・D-119・第 277
 
-## [parser.py](../../../../../../../src/shibuya/llm/parser.py)
-
-llm.parser — 2行形の**ラベル基準・寛容行指向**パーサ(知覚契約書 §2.5 の正典実装)。
-
-- 公開の関数とクラス
-  - `ParseResult`(クラス): 1応答の解釈結果。
-  - `find_action_word`(関数): テキスト中で**最初に現れる**語彙語(同位置なら最長)を返す。
-  - `parse_two_line`(関数): 2行形(および4行形)を寛容に読む。**例外を投げない**。
-- import している内部モジュール: `shibuya.foundation.vocab.actions`・`shibuya.llm.undefined`
-- 呼び手: `shibuya.engine.commit`・`shibuya.llm`・`tools/c6/c6lib.py`・`tools/fig/fig_ab7_actions.py`・`tools/fig/fig_ab7c_vocab.py`・`tools/fig/fig_d91_ride_chain.py`・`tools/instruments/dm_eval/situations.py`
-- 読む試験: `tests/c6/test_c6lib_aggregate.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/speech/test_wom_from_utterance_roundtrip.py`・`tests/engine/tape_analysis.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_parser_contract.py`・`tests/llm/test_mock_v3.py`・`tests/llm/test_parser.py`・`tests/llm/test_vocab_v2.py`・`tests/perception/test_b6_invite.py`
-- 決定の ID: D-71・D-113・D-116・第 266・第 274・第 275
-
 ## [undefined.py](../../../../../../../src/shibuya/llm/undefined.py)
 
 llm.undefined — 未定義行動の受理5段(行動契約書 §7・決定台帳 行16)。
@@ -100,7 +87,7 @@ llm.undefined — 未定義行動の受理5段(行動契約書 §7・決定台�
   - `target_surface_hint`(関数): **「対象」欄**の表層 → 対象ヒント(語彙 v3 だけ・完全一致・NFKC)。それ以外は ``""``。
   - `undefined_feedback`(関数): 段1 の失敗フィードバック文面(**文面凍結**)。
 - import している内部モジュール: `shibuya.foundation.vocab.actions`・`shibuya.llm`
-- 呼び手: `shibuya.cli`・`shibuya.engine.commit`・`shibuya.engine.run`・`shibuya.llm`・`shibuya.llm.parser`・`tools/c6/c6lib.py`・`tools/fig/fig_ab7_actions.py`・`tools/fig/fig_ab7c_vocab.py`・`tools/fig/fig_d91_ride_chain.py`・`tools/vocab/adjudicate.py`
+- 呼び手: `shibuya.act.intake.parser`・`shibuya.cli`・`shibuya.engine.commit`・`shibuya.engine.run`・`shibuya.llm`・`tools/c6/c6lib.py`・`tools/fig/fig_ab7_actions.py`・`tools/fig/fig_ab7c_vocab.py`・`tools/fig/fig_d91_ride_chain.py`・`tools/vocab/adjudicate.py`
 - 読む試験: `tests/c6/test_c6lib_aggregate.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_intent_mode_open.py`・`tests/engine/test_undefined_action.py`・`tests/llm/test_undefined.py`・`tests/llm/test_vocab_v2.py`・`tests/vocab/test_adjudicate.py`・`tests/vocab/test_undefined_out.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
 - 状態台帳の行

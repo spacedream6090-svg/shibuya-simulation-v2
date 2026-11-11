@@ -139,7 +139,7 @@ dm_eval.situations — 状況の読み口(DM4)と候補の口(DM-0)(第 6 期 6-
   - `tape_experience`(関数): 本人の経験の代わり: 同じテープの同じ体の、状況より前の呼(刻みが小さい・繰り延べでない)の行為の語を新しい順に k 呼。
   - `verify_tape_md5`(関数): 状況のあるテープの ``calls.parquet`` の md5 を 1-10 の ``summary.json`` の表(``md5_calls``)と照らす。
   - `word_of_output`(関数): テープの応答(2 行形)の行為の語(語彙 v1 の横断語だけ・それ以外は None)。
-- import している内部モジュール: `shibuya.engine.decision.sources`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.llm.parser`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/read_guard.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.engine.decision.sources`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/read_guard.py`
 - 呼び手: `tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/tools/test_dm_eval.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`

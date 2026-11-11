@@ -80,7 +80,7 @@ def analyze_arm(tape_dir: str | Path) -> dict[str, Any]:
     """1 腕のテープ → 行動分布・生表層・解決経路。"""
     import c6lib
     from shibuya.engine.tape import Tape
-    from shibuya.llm.parser import parse_two_line
+    from shibuya.act.intake.parser import parse_two_line
     from shibuya.llm.undefined import map_synonym
 
     rows = list(Tape(Path(tape_dir)).rows())

@@ -24,7 +24,7 @@ from shibuya.foundation.vocab.actions import (
     UNDEFINED_ACTION,
     format_two_line,
 )
-from shibuya.llm.parser import parse_two_line
+from shibuya.act.intake.parser import parse_two_line
 
 
 @pytest.mark.parametrize("word", sorted(ACTION_SPECS))

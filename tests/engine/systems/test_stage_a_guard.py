@@ -207,7 +207,7 @@ _SOA_TAILS = {"registry", "agents", "cells", "pois", "pstate"}
 _EXEMPT_D6 = {"agents/state.py", "world/model/state.py", "world/model/percept_state.py", "engine/resolve.py", "foundation/soa.py"}
 #: 許す属性(場所・代入の左辺・理由)。どれも凍結の後に作る読むだけの**写し**(int32 → int64 の dtype の変換=別の配列)。
 D6_ALLOW = {
-    ("engine/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",
+    ("act/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",
     ("engine/store_choice.py", "self.poi_cell"): "同上",
     ("engine/store_choice.py", "self.price"): "POI の値段(静的な列)の int64 の写し",
 }

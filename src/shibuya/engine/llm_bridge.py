@@ -101,10 +101,12 @@ from shibuya.foundation.vocab.actions import (
 )
 from shibuya.llm import (
     LLMRequest,
-    ParseResult,
     TapeLLM,
     UndefinedActionRegistry,
     estimate_tokens,
+)
+from shibuya.act.intake.parser import (
+    ParseResult,
     parse_two_line,
 )
 from shibuya.foundation.vocab.actions import (
