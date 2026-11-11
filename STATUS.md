@@ -1,9 +1,9 @@
 # STATUS(索引)
 
-- **今(2026-11-10・第346)**: 整理の段([11-09](docs/design/prompt-2026-11-09-reply7.md) §2〜§4)。段 2 の突き合わせの直し・CLAUDE.md の書き換え(§1 第一目標・§3 背骨)・食い違いの決着・byte-check の道具(37 欄)・旧道の切替口 5 本と死んだ道 2 本の削除(止めた 3 本は判断待ち)・棚卸しの表・docs の索引・最終の全ファイルの表・コードの区分の移動の段 1・段 2(固定の表・名前の凍結・道筋の下ごしらえ=#143・ファイルはまだ動かしていない)まで着地。段 3(移す道具 `tools/pkgmove/`)は作って別の検収役が検収中(予行=foundation の段を写しの木に当てて byte-check 19/19 同じ)。
-- **次の 1 手(セッションが切れてもここから再開)**: 段 3 の検収の直しと commit(枝 `stage/pkgmove2`)→ 段 4 の下ごしらえ(全段の予行・移すと落ちる試験の直し=枝 `stage/prep4`・つなぎの台帳の対応の表)→ 段 4 は問いに左右されない包みから小さな段ごとに(byte-check・試験・CI・タグ)。`interim_bundles` の段と保留の 7 行はユーザーの答えの後。第346 の報告は段 3 の commit の後に出す。**機械が 2 回、作業の途中で止まって再起動した**(11-10 07:01・11-11 00:33=devlog 第346)ので、再開のときは書きかけのファイルが 0 で埋まっていないかを先に見る。PLATEAU は 11/14 に一度止まって報告。5070 の WSL はユーザーの UAC の後。
+- **今(2026-11-11・第346)**: 整理の段([11-09](docs/design/prompt-2026-11-09-reply7.md) §2〜§4)。段 2 の突き合わせの直し・CLAUDE.md の書き換え(§1 第一目標・§3 背骨)・食い違いの決着・byte-check の道具(37 欄)・旧道の切替口 5 本と死んだ道 2 本の削除(止めた 3 本は判断待ち)・棚卸しの表・docs の索引・最終の全ファイルの表・コードの区分の移動の段 1・段 2(固定の表・名前の凍結・道筋の下ごしらえ=#143・ファイルはまだ動かしていない)と、段 3 の移す道具 `tools/pkgmove/`・段 4 の下ごしらえ(#144・5c2e06c・親の byte-check 19/19 同じ)まで着地。本体のファイルはまだ動かしていない。
+- **次の 1 手(セッションが切れてもここから再開)**: 段ごとの import の決まりの検収の直し → 取り込みと commit → 段 4 は問いに左右されない包みから小さな段ごとに(linked の作業木に `move --apply` → `contracts --stage <段> --apply` → import の確かめ → byte-check → 範囲の試験 → commit → タグ → CI)。`interim_bundles` の段と保留の 7 行はユーザーの答えの後。第346 の報告は 11-11 に出した(判断 13 件は答え待ち)。**機械が 2 回、作業の途中で止まって再起動した**(11-10 07:01・11-11 00:33=devlog 第346)ので、再開のときは書きかけのファイルが 0 で埋まっていないかを先に見る。PLATEAU は 11/14 に一度止まって報告。5070 の WSL はユーザーの UAC の後。
 - **判断待ち・実装待ち・研究の題**: [PENDING.md](PENDING.md)
-- **完了実装**: [IMPLEMENTED.md](IMPLEMENTED.md)(#1〜#143)
+- **完了実装**: [IMPLEMENTED.md](IMPLEMENTED.md)(#1〜#144)
 - **版上げの履歴とタグ・戻し方**: [docs/ops/version-history.md](docs/ops/version-history.md)
 - **今のコードと、あるべき姿**: [リポの案内](docs/reference/repo-guide/README.md)・[仕様書 v0](docs/design/spec/README.md)・[差の一覧](docs/design/spec/gaps.md)・[食い違い](docs/design/spec/conflicts.md)
 - **決定の原文**: 索引 [decision-id-index.md](docs/design/decision-id-index.md)・最新 [返事その 7](docs/design/prompt-2026-11-09-reply7.md)・v3 の設計書 [v3-core-design](docs/design/v3-core-design-2026-11-03.md)・理由の記録 [壁打ちの記録](docs/reference/wallbounce-record-2026-11-02_05.md)

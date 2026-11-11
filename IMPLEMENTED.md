@@ -394,6 +394,17 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #144 コードの区分の移動 段 3=移す道具 `tools/pkgmove/` と、段 4 の下ごしらえ(1 バイト不変・ファイルは動かしていない)(11-09 §4-2・第346・2026-11-10〜11・実装役 Opus 5.5 ×2・別の検収役 2・親検収)
+
+- 正典: [返事その 7](docs/design/prompt-2026-11-09-reply7.md) §4-2・計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §7。記録 [pkgmove-346](docs/bench/analysis/pkgmove-346/README.md)(道具)・[prep4-346](docs/bench/analysis/prep4-346/README.md)(試験)。commit 5c2e06c。
+- **移す道具**: `python tools/pkgmove/cli.py map|allow|move|importcheck`。対応表 `map.toml` 328 行。既定は書かない実行で、`--apply` は写しか linked の作業木にだけ当てる(本体の作業木は断る)。書き換えるのは許可の一覧の中だけ(import の文・道の文字列の表・`class_ids.py` の鍵・つなぎの台帳の道の表・頭の `__all__`)。守り 7 つ。当てた後に全モジュールを別プロセスで import して確かめる。保留の 7 行は当てない。
+- **src の下ごしらえ(結果を変えない)**: 包みの頭の再輸出を通さない import 3 か所・`llm/parser.py` の import の位置(act の段で出る循環を切る)・`engine/bridging/ledger_paths.py`(今の道 → つなぎの台帳の道の表。台帳は変えない=[PENDING §1-2](PENDING.md))。
+- **試験の下ごしらえ**: 試験が置き場を字面で持たない形にした(`tests/_places.py`=元の置き場で範囲を決める・`tests/_head_copy_pin.py`・`tests/test_places_guard.py`)。追跡の試験 54 本と `tools/c8` の走査を直した。
+- **結果**: 親の byte-check 19 構成 37 欄 19/19 同じ・終了コード 0(final `c8d68704b7b0760d`)。範囲の試験 6,760 passed・1 failed(前からの 1 本=data のつなぎ)。lint-imports 5 kept。CI 緑(5c2e06c)。予行(段を 1 つずつ重ねた木)=foundation・world・runtime・全段の 4 つの木で、範囲の試験が落ちるのは前からの 1 本だけ・import の落ち 0。
+- **検収**: 道具=別の検収役が条件つき受入(H 0・M 3・L 9)→ 直し → 再検収で受入(H 0・M 0)。試験=別の検収役が 3 回(どれも H 0)。弱めた確かめは無い(同じ突然変異を直す前と後に当てた=第 1 回 61 件・第 2 回 25 件)。
+- **検収の後の直し(次の commit)**: 試験の検収の M-4(移した後に作ったファイルが元の置き場の範囲から外れる)=新しいファイルの行は move の形で書く決まりと、move でない行 122 本の固定。L-6〜L-10(宣言の道の引き方・元の道の重なり・`tools/c8` の写しの規則が同じ答えを返すことの固定 ほか)。再検収=受入(H 0・M 0)。
+- **残り**: world の段から今の import の決まりが落ちる件=段ごとに差し替える道具(検収=条件つき受入・試験の穴 2 つを直し中・[PENDING §1-2](PENDING.md))。
+
 ### #143 コードの区分の移動 段 1・段 2=クラスの名の固定の表・名前の凍結・道筋の下ごしらえ(1 バイト不変・ファイルは動かしていない)(11-09 §4-2 の 3・第346・2026-11-10・実装役 Opus 5.5・別の検収役 2 回・親検収)
 
 - 正典: [返事その 7](docs/design/prompt-2026-11-09-reply7.md) §4-2・計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §7-1〜§7-3。記録 [move-346](docs/bench/analysis/move-346/README.md)。
