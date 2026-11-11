@@ -130,3 +130,9 @@
 - byte-check: 基準 454c55c の写しと作業木の src で 19 構成・37 欄すべて同じ・動いた 0・誤り 0(終了コード 0)。既定の final `c8d68704b7b0760d`・呼数 60,939。JSON は [validation/bytecheck/](validation/bytecheck/)。
 - 性能の参考(既定 w6_v3_default・5,000 体・seed 1・1 日・mock・同じ機械): 壁時計 基準 63.6 秒/後 55.1 秒(19 構成を 6 本並列+裏で範囲の試験を 4 並列。比べない参考値・最大メモリは測っていない)。
 - 範囲の試験: 6,787 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed(32 分 18 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木だけで落ちる)。道具の報告は [validation/pkgmove_validation_report.json](validation/pkgmove_validation_report.json)。
+
+## delete(止めた・2026-11-11)
+
+- 対象は 2 行(`agents/__init__.py` の再輸出を消す・`census/__init__.py` を消す)。棚卸しの表([inventory-vessels-research-heads-2026-11-09.md](../../../reference/inventory-vessels-research-heads-2026-11-09.md))の確認 1 と同じ行で、「消すのは確かめの後」としている。
+- validation の commit(1a1b584)の上に当てて確かめた所まで: 当てた後の import の落ち 0・守り 8 つ「同じ」・import の決まり(`shibuya.census` を外した形)は lint-imports 10 kept。byte-check と範囲の試験は回していない。
+- 変更は取り消した(commit していない)。ユーザーの答えの後に 1 段で当てる。試験の役の予行(git のある作業木)では、delete まで当てた木の範囲の試験は 6,786 passed・1 failed(前からの 1 本)だった([prep4-346 §13](../prep4-346/README.md))。

@@ -394,6 +394,16 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #146 コードの区分の移動 段 4-2〜4-9=world・economy・act・mind・society・runtime・experiments・validation へ移した(1 バイト不変)(11-09 §4-2 の 4・第346・2026-11-11・親が段ごとに当てて検収・試験の役 Opus 5.5 が予行)
+
+- 正典: [返事その 7](docs/design/prompt-2026-11-09-reply7.md) §4-2 の 4・計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §7 の段 4。記録 [move4-346](docs/bench/analysis/move4-346/README.md)(段ごとの表と節・byte-check の JSON・道具と決まりの報告)。
+- **移した数(道具の数え)と commit**: world 48(3b807f4)・economy 3(ddce87e)・act 3(d6fa47c)・mind 25(66d9509)・society 6(37508e6)・runtime 35(b7ab0b9)・experiments 9(454c55c)・validation 6(1a1b584)。foundation の 36 本(#145)と合わせて 171 本。割る行・保留の 7 行(連絡の器 4・`engine/resolve.py`・`engine/run.py`・`engine/removed_switches.py`)・`interim_bundles` の段は当てていない。
+- **段ごとの確かめ(どの段も同じ形)**: 当てた後の import の落ち 0・守り 8 つ「同じ」/byte-check 19 構成 37 欄 19/19 同じ・終了コード 0(基準は直前の commit。既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)/範囲の試験は前からの 1 本だけが落ちる/lint-imports は段ごとに差し替えた決まりが全部 kept(world 9・economy と act 8・mind 9・society から 10)。
+- **import の決まり**: world の段から段ごとの形([PENDING §1-2](PENDING.md) の仮採用)。validation の段の今=古い決まり 3+新しい決まり 7・ignore 43 行(計画の 28 本+表の外の 1 本)。package-data の鍵は world の段で `shibuya.world.ledger` に。
+- **world の段で見つけたこと**: 古い commit の src と比べる試験 1 本が、移した後に落ちた(子のコードの import が新しい道に書き換わる=試験の作り)。予行の写しの木が git の木でなく、git が要る試験 12 本が飛んでいた。試験を直し(fbb2287)、git のある作業木で world から delete までの予行をやり直した。
+- **止めた段**: delete(`census/__init__.py` を消す・`agents/__init__.py` の再輸出を消す)は、棚卸しの表の確認 1 と同じ行なので当てていない(当てて lint 10 kept まで確かめ、取り消した)=[PENDING §1-1](PENDING.md)。
+- **タグ**: 各段の前の commit に `stable-v2-before-move4-<段>`。
+
 ### #145 コードの区分の移動 段 4-1=foundation へ 36 本を移した+移す道具に段ごとの import の決まりと package-data(1 バイト不変)(11-09 §4-2 の 4・第346・2026-11-11・実装役 Opus 5.5・別の検収役・親が当てて検収)
 
 - 正典: [返事その 7](docs/design/prompt-2026-11-09-reply7.md) §4-2 の 4・計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §7 の段 4。記録 [move4-346](docs/bench/analysis/move4-346/README.md)(段ごとの手順と結果)・[pkgmove-346 §10-12](docs/bench/analysis/pkgmove-346/README.md)(import の決まり)。
