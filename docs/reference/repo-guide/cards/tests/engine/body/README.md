@@ -22,7 +22,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `head_felt`(関数): HEAD の ``EnvironmentProcess.step`` の体感温度(``R.set_thermal`` の丸めまで)。
   - `head_stage`(関数)
   - `stub_energy`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.change_detect`・`shibuya.engine.energy`・`shibuya.foundation.time_consts`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.change_detect`・`shibuya.foundation.time_consts`・`shibuya.world.body.energy`
 - 読む試験: `tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_body_same_values.py`
 
 ## [test_body_guard.py](../../../../../../../tests/engine/body/test_body_guard.py)
@@ -38,7 +38,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_body_layer_holds_copies_not_soa_views`(関数): 写し(引き直しの検出)は SoA の配列のビューを持たない(D ⑥ と同じ約束)。
   - `test_the_owner_refuses_rebinding_and_deleting`(関数)
   - `test_the_schedule_refuses_writes_outside_its_ports`(関数): 〔3-5 検収 L7〕予約の列の欄は書く口の外で付け替え・消去・配列の書きを断る(負の対照=書く口の中は書ける)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.body`・`shibuya.engine.body.model`・`shibuya.engine.body.schedule`・`shibuya.engine.systems.allow`・`tests/engine/ast_writers.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.systems.allow`・`shibuya.world.body.model`・`shibuya.world.body.schedule`・`tests/engine/ast_writers.py`
 
 ## [test_body_manifest.py](../../../../../../../tests/engine/body/test_body_manifest.py)
 
@@ -50,7 +50,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_manifest_fields_without_a_layer_are_null`(関数)
   - `test_the_arm_is_not_in_the_fingerprint_and_marks_the_run_kind`(関数)
   - `test_world_assets_reserve_equals_sweep_with_thermal_boundaries`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.body.model`・`shibuya.engine.body.schedule`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.foundation.manifest.sections`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.foundation.manifest.sections`・`shibuya.world.body.model`・`shibuya.world.body.schedule`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3
 
 ## [test_body_reserve.py](../../../../../../../tests/engine/body/test_body_reserve.py)
@@ -66,7 +66,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_reserve_equals_sweep_with_outside_writers`(関数)
   - `test_resume_with_the_reserve_arm_equals_the_straight_run`(関数): 腕 sweep で日の途中と日の境目に保存した状態から腕 reserve で再開=通し(sweep)と同じ(予約の列は状態から引き直す)。
   - `test_run_day_reserve_equals_sweep`(関数)
-- import している内部モジュール: `shibuya.engine.body`・`shibuya.engine.body.model`・`shibuya.engine.body.schedule`・`shibuya.engine.energy`・`shibuya.engine.run`・`tests/engine/body/body_fixtures.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.world.body.energy`・`shibuya.world.body.model`・`shibuya.world.body.schedule`・`tests/engine/body/body_fixtures.py`
 
 ## [test_body_rules_sources.py](../../../../../../../tests/engine/body/test_body_rules_sources.py)
 
@@ -78,7 +78,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_moved_items_left_the_old_headings`(関数)
   - `test_rules_cover_the_inventory_rows_with_conf_and_source`(関数)
   - `test_system1_rows_remove_at_the_spatial_stages`(関数)
-- import している内部モジュール: `shibuya.engine.body.rules`・`shibuya.engine.body.schedule`・`shibuya.engine.body.system1`・`shibuya.engine.bridging.scan`・`shibuya.foundation.decl.bridging`
+- import している内部モジュール: `shibuya.engine.bridging.scan`・`shibuya.foundation.decl.bridging`・`shibuya.world.body.reactions`・`shibuya.world.body.rules`・`shibuya.world.body.schedule`
 
 ## [test_body_same_values.py](../../../../../../../tests/engine/body/test_body_same_values.py)
 
@@ -92,7 +92,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_moved_names_point_to_the_same_values`(関数): 前の場所の名(``resolve``・``environment``・``salient``)は体の層の値を写して出す(読み手の import は変えない)。
   - `test_negative_a_changed_rule_is_seen_by_the_ruler`(関数): 負の対照: 体の規則の値を 1 つ変えると HEAD の写しと食い違う(物差しが空回りしていない)。
   - `test_the_sweep_model_writes_the_same_as_the_pure_rule`(関数): ``BodyModel(arm="sweep").step`` は純関数の値をそのまま返す(計器を数えるだけ)。
-- import している内部モジュール: `shibuya.engine.body`・`shibuya.engine.body.rules`・`shibuya.engine.processes.environment`・`shibuya.engine.processes.salient`・`shibuya.engine.resolve`・`shibuya.foundation.rng`・`tests/engine/body/body_fixtures.py`
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.rng`・`shibuya.world.body.model`・`shibuya.world.body.rules`・`shibuya.world.laws.environment`・`shibuya.world.laws.salient`・`tests/engine/body/body_fixtures.py`
 
 ## [test_meal_default_w17.py](../../../../../../../tests/engine/body/test_meal_default_w17.py)
 
@@ -114,7 +114,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_two_day_run_resume_equals_straight`(関数)
   - `test_w17_default_times_move_with_the_seed`(関数): 〔検収 L3〕既定の時刻は seed で変わる(体ごとの引き)。〔第 2 部〕seed に依らない 1 つの値の旧値の腕は消した。
   - `test_world_two_day_resume_equals_straight`(関数)
-- import している内部モジュール: `shibuya.agents.weekly`・`shibuya.cli`・`shibuya.engine.body.rules`・`shibuya.engine.energy`・`shibuya.engine.run`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.world.body.energy`・`shibuya.world.body.rules`・`shibuya.world.facts.weekly_reader`
 - 環境変数: `SHIBUYA_MEAL_DEFAULT`・`os.environ` をまるごと使う
 - 決定の ID: 10-13b/§7
 
@@ -127,4 +127,4 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_noise_reading_port_reads_w10_only`(関数)
   - `test_percepts_of_a_run_keep_the_fields_empty`(関数): 合成の世界のランで描いた知覚の事実(系 decide が ``TickScratch.percepts`` に書く)の器の欄は None のまま。
   - `test_ports_return_empty_values`(関数)
-- import している内部モジュール: `shibuya.engine.body.system1`・`shibuya.engine.run`・`shibuya.engine.systems.conductor`・`shibuya.foundation.ports.percept`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.systems.conductor`・`shibuya.foundation.ports.percept`・`shibuya.world.body.reactions`・`shibuya.world.model.state`

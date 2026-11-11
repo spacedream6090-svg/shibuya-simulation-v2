@@ -27,7 +27,7 @@ W16 母集団合成の統合テスト(実データ必須・CI では skip)。
   - `test_population_backed_run_conserves_money`(関数): (f) 母集団を載せたランがエンジンを通る・保存則が保たれる・同 seed 同ハッシュ。
   - `test_public_anchors_are_the_source_of_the_targets`(関数): 目標体数が公的値から来ていること(在庫比ではない)。
   - `test_rebuild_is_byte_identical`(関数): D-W20 T1: 同じ入力からの再構築で出力とヘッダがバイト一致する。
-- import している内部モジュール: `shibuya.agents.population`・`shibuya.build.geo.common`・`shibuya.build.pop.w16_population`・`shibuya.engine.run`・`shibuya.world.state`・`tests/_data_ids.py`・`tests/_time_gates.py`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.w16_population`・`shibuya.engine.run`・`shibuya.world.facts.population_reader`・`shibuya.world.model.state`・`tests/_data_ids.py`・`tests/_time_gates.py`
 
 ## [test_pop_units.py](../../../../../../tests/build_pop/test_pop_units.py)
 
@@ -57,7 +57,7 @@ build.pop の単体テスト: Shapefile 最小パーサ・点包含・床面積�
   - `test_two_stage_sampling_is_stratified_and_deterministic`(関数): (d) 統計層は (種別×年齢階級×性別) で比例配分・同 seed 同結果。
   - `test_two_stage_sampling_keeps_the_reserved_layer_whole`(関数): (d) 定員先取り層(``RESERVED_ROLES`` の役割+指令)は縮尺しない。
   - `test_unsupported_shape_type_raises`(関数): 対応範囲外(点)は黙って読まずに例外(範囲の狭さを機械で保証)。
-- import している内部モジュール: `shibuya.agents.population`・`shibuya.agents.state`・`shibuya.build.pop.fitting`・`shibuya.build.pop.shapefile`・`shibuya.build.pop.w16_population`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.build.pop.fitting`・`shibuya.build.pop.shapefile`・`shibuya.build.pop.w16_population`・`shibuya.world.facts.population_reader`
 
 ## [test_w21_activate.py](../../../../../../tests/build_pop/test_w21_activate.py)
 
@@ -165,7 +165,7 @@ W21(第 4 期 4-1 段 1〜3)の材料の台帳と読み口の守り(read_guard)�
   - `test_w20cal_params_are_the_337_version`(関数)
   - `test_w21_columns_are_a_bijection_from_person_ids`(関数)
   - `test_w21_columns_stop_on_unknown_entry_kind_and_gaps`(関数)
-- import している内部モジュール: `shibuya.agents.population`・`shibuya.agents.weekly`・`shibuya.build.geo.common`・`shibuya.build.pop.w21_apply`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`・`shibuya.build.pop.w21_persona`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.build.sched.w20_w21_port`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`・`tools/instruments/dm_eval/situations.py`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.w21_apply`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`・`shibuya.build.pop.w21_persona`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.build.sched.w20_w21_port`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.facts.weekly_reader`・`tools/instruments/dm_eval/situations.py`
 - 決定の ID: 第 337
 
 ## [test_w21_stage4_7.py](../../../../../../tests/build_pop/test_w21_stage4_7.py)
@@ -208,7 +208,7 @@ W21(第 4 期 4-1 段 1〜3)の材料の台帳と読み口の守り(read_guard)�
   - `test_stage_worker_targets_census_number_with_ecen_distribution`(関数)
   - `test_store_owners_same_building_and_industry`(関数)
   - `test_weekly_hours`(関数)
-- import している内部モジュール: `shibuya.build.pop`・`shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_checks`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_org`・`shibuya.build.pop.w21_outside`・`shibuya.build.pop.w21_prior`・`shibuya.build.pop.w21_sources`・`shibuya.build.run`・`shibuya.engine.rights.ledger`
+- import している内部モジュール: `shibuya.build.pop`・`shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_checks`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_org`・`shibuya.build.pop.w21_outside`・`shibuya.build.pop.w21_prior`・`shibuya.build.pop.w21_sources`・`shibuya.build.run`・`shibuya.world.facts.rights.ledger`
 - 決定の ID: 第 337
 
 ## [test_w21_stage8_9.py](../../../../../../tests/build_pop/test_w21_stage8_9.py)
@@ -256,5 +256,5 @@ W21(第 4 期 4-1 段 1〜3)の材料の台帳と読み口の守り(read_guard)�
   - `test_w16_keep_table_actions`(関数)
   - `test_walk_minutes_share_one_function`(関数)
   - `test_words_and_money_formats`(関数)
-- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`・`shibuya.build.pop.w21_check`・`shibuya.build.pop.w21_checks`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_persona`・`shibuya.build.pop.w21_port10`・`shibuya.build.pop.w21_sources`・`shibuya.build.pop.w21_tables`・`shibuya.build.run`・`shibuya.build.sched.w20_w21_port`・`shibuya.engine.geometry`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`・`shibuya.foundation.ports.decision`・`shibuya.llm`・`tests/_places.py`・`tools/instruments/dm_eval/situations.py`
+- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`・`shibuya.build.pop.w21_check`・`shibuya.build.pop.w21_checks`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_persona`・`shibuya.build.pop.w21_port10`・`shibuya.build.pop.w21_sources`・`shibuya.build.pop.w21_tables`・`shibuya.build.run`・`shibuya.build.sched.w20_w21_port`・`shibuya.foundation.ports.decision`・`shibuya.llm`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.model.geometry`・`tests/_places.py`・`tools/instruments/dm_eval/situations.py`
 - 決定の ID: R-110

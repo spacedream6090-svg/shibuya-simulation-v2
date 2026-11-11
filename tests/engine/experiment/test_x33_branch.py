@@ -50,9 +50,9 @@ WKW = dict(n_agents=1000, seed=1, world_dir=str(WORLD_DIR), sim_days=2, vocab_ve
 def _open_at_noon_on_day2() -> list[int]:
     """2 日目(火曜)の正午に W7 で開いている店(番号の昇順)。"""
     from shibuya.engine.calendar import DEFAULT_WORLD_START, SimCalendar, load_holidays
-    from shibuya.engine.processes.opening import rows_of_day
+    from shibuya.world.laws.opening import rows_of_day
     from shibuya.world.assets import load_process_assets_or_synthetic
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     w = World.load(WORLD_DIR)
     pa = load_process_assets_or_synthetic(WORLD_DIR, w.assets)

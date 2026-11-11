@@ -22,7 +22,7 @@ import pytest
 
 from shibuya.economy import taxes as TX
 from shibuya.engine import economy_rules as ER
-from shibuya.engine.rules import table as RT
+from shibuya.world.facts.rules import table as RT
 
 ASOF = "2026-08-25"
 ROOT = Path(__file__).resolve().parents[2]

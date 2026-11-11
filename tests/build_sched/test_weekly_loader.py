@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents import weekly as W
+from shibuya.world.facts import weekly_reader as W
 from shibuya.agents.state import WakeCondition
 from shibuya.build.sched import vocab as V
 from shibuya.build.sched import w17_schedule as W17
@@ -142,7 +142,7 @@ def test_schedule_hash_is_stable_and_sensitive(frozen):
 
 def test_apply_to_mock_schedule_overwrites_the_bases(frozen):
     """結線用の変換関数: 合成日課の拠点セルを W17 の当日の行き先で置き換える。"""
-    from shibuya.agents.schedule import synthesize
+    from shibuya.world.facts.mock_schedule import synthesize
 
     world_dir, facts = frozen
     wk = W.load_weekly(world_dir).restrict_to(np.sort(facts.agent_id))

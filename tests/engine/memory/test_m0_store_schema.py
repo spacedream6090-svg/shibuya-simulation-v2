@@ -64,7 +64,7 @@ def _layers() -> tuple[PL.Names, PL.Names]:
     from shibuya.economy import ledger as ECONOMY
     from shibuya.engine import resolve as ENGINE
     from shibuya.perception import renderer as PERCEPTION
-    from shibuya.world import state as WORLD
+    from shibuya.world.model import state as WORLD
 
     return PL.names_from(ENGINE, PERCEPTION, LLM, AGENTS, WORLD, CORE), PL.names_from(ECONOMY, BUILD)
 

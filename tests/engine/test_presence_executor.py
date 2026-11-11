@@ -14,7 +14,7 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import Activity, AgentState
-from shibuya.agents.weekly import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
+from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
 from shibuya.engine import resolve as R
 from shibuya.engine.presence import (
     ARRIVAL_SPREAD_MAX_TRAINS,
@@ -25,10 +25,10 @@ from shibuya.engine.presence import (
     PlanExecutor,
     _mix64,
 )
-from shibuya.engine.processes.rail import RailProcess
+from shibuya.world.laws.rail import RailProcess
 from shibuya.engine.run import run_day
 from shibuya.world.assets import ProcessAssets
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 from tests import golden_env as GE
 
 WORLD_DIR = Path("data/world/v2")
@@ -887,8 +887,8 @@ def test_derive_folding_matches_the_parent_verified_counts():
     **域外居住 346,445 体の在圏ブロック 306,410 本 / うち 0 本の体 85,766**。
     ここでは 5,000 体標本の実測を golden として釘付ける(親が再実行して検収する値)。
     """
-    from shibuya.agents.population import load_population, sample_population
-    from shibuya.agents.weekly import load_weekly
+    from shibuya.world.facts.population_reader import load_population, sample_population
+    from shibuya.world.facts.weekly_reader import load_weekly
 
     full = load_population(WORLD_DIR, n=None, seed=1)
     wk_full = load_weekly(WORLD_DIR)
@@ -935,7 +935,7 @@ def test_the_real_civic_path_pulls_and_pushes_through_the_layer():
 
     引き込み候補は「その日在圏予定のある域外の体」だけ・退場は翌 tick に戻らない。
     """
-    from shibuya.engine.processes.civic import EVENT_WINDOW, LargeEventProcess
+    from shibuya.world.laws.civic import EVENT_WINDOW, LargeEventProcess
 
     n = 12
     rows = []

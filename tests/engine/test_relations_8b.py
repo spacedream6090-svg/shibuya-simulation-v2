@@ -276,7 +276,7 @@ def test_default_tau_is_the_rederived_value_and_a_single_talk_lives_hours():
 
 
 def test_copresence_days_counts_weekdays_with_any_shared_slot():
-    from shibuya.agents.weekly import WeeklySchedule
+    from shibuya.world.facts.weekly_reader import WeeklySchedule
 
     # 体 0,1 が曜日 0 と 2 に同じセル(曜日 2 は 15 分だけ)・体 2 は別のセル
     rows = {0: [(0, 540, 600, 5), (2, 540, 600, 5)], 1: [(0, 560, 700, 5), (2, 590, 610, 5)], 2: [(0, 540, 600, 6)]}

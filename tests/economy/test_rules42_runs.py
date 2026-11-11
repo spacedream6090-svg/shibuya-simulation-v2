@@ -22,7 +22,7 @@ from shibuya.engine import economy_rules as ER
 from shibuya.engine import economy_stage2 as ES2
 from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 H, S, E, B, G, W = (int(s) for s in Sector)
 N = 300

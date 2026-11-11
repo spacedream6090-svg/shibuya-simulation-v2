@@ -26,7 +26,7 @@ from shibuya.engine.store_choice import CHOICE_REASONS, StoreChoice, walk_m_per_
 from shibuya.foundation.text import templates as T
 from shibuya.foundation.text.channels import estimate_tokens
 from shibuya.perception.renderer import memory_item_text
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 SRC = Path("src/shibuya")
 OK = int(ResultCode.OK)

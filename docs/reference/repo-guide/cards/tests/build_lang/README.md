@@ -127,4 +127,4 @@ W14/W15 → レンダラの結線: 凍結文があれば使い、無ければ従
   - `test_w15_token_cap_derivation_still_holds`(関数): ``w15_cell_static.TOKEN_CAP`` の導出を実資産で再測する。
   - `test_without_frozen_text_b2_is_the_synthesized_one`(関数)
   - `with_frozen`(関数): 合成資産に凍結文を差し込む(``PerceptionAssets.load`` が作る形と同じ)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.build.lang.w15_cell_static`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.build.lang.w15_cell_static`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.world.model.state`

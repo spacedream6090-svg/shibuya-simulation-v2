@@ -15,8 +15,8 @@ import pytest
 from shibuya.agents.state import Activity, AgentState
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine import seat_release as SR
-from shibuya.world.state import World
+from shibuya.world.laws import switch_seat as SR
+from shibuya.world.model.state import World
 
 
 def _world_agents(n: int = 4):
@@ -103,7 +103,7 @@ def test_removed_seat_release_switch_env_and_cli_flag_stop():
     for name in ("arm", "set_arm", "is_walk", "MODES", "_ARM"):
         assert not hasattr(SR, name), name
     env = {**os.environ, "SHIBUYA_SEAT_RELEASE": "legacy", "PYTHONIOENCODING": "utf-8"}
-    r = subprocess.run([sys.executable, "-c", "import shibuya.engine.seat_release"], env=env, capture_output=True,
+    r = subprocess.run([sys.executable, "-c", "import shibuya.world.laws.switch_seat"], env=env, capture_output=True,
                        text=True, encoding="utf-8")
     assert r.returncode != 0 and "消した切替口" in r.stderr
     assert '"--seat-release"' not in inspect.getsource(cli)

@@ -20,6 +20,6 @@ engine.bridging.scan — コードの expedient の宣言を AST で数える(�
   - `scan_package`(関数): このパッケージ(``src/shibuya``)の宣言(A〜E は AST・F はフォールバック台帳を実行して読む)。道筋は
   - `scan_source`(関数): 1 つのファイルの宣言(``path`` はリポの根からの道筋=``declared_in`` に入る)。
   - `scan_tree`(関数): ``root`` の下の ``*.py`` を全部見る(道筋は ``rel_to`` からの posix の相対=既定は ``root`` の親の親)。
-- import している内部モジュール: `shibuya.foundation.decl.ledger_paths`・`shibuya.foundation.paths`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.registry`
+- import している内部モジュール: `shibuya.foundation.decl.ledger_paths`・`shibuya.foundation.paths`・`shibuya.world.ledger.first_batch`・`shibuya.world.ledger.registry`
 - 読む試験: `tests/engine/body/test_body_rules_sources.py`・`tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/state/test_move_prep_stage2.py`
 - 決定の ID: 第 334

@@ -35,7 +35,7 @@ from typing import Any, Final, Mapping
 
 import numpy as np
 
-from shibuya.agents import population as POP
+from shibuya.world.facts import population_reader as POP
 from shibuya.agents.state import WakeCondition
 from shibuya.foundation.rng import stream
 from shibuya.economy import GoodsLedger, Ledger
@@ -49,8 +49,8 @@ from shibuya.engine import economy_stage2 as _ES2
 from shibuya.engine import resolve as R
 from shibuya.engine import run_kind as _RK
 from shibuya.engine.arbiter import call_budget_per_tick
-from shibuya.engine.geometry import DEFAULT_GEOMETRY, GEOMETRY_MODES
-from shibuya.engine.space import nav1 as _NAV1
+from shibuya.world.model.geometry import DEFAULT_GEOMETRY, GEOMETRY_MODES
+from shibuya.world.model.space import nav1 as _NAV1
 from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.run import (
     MINUTES_PER_SIM_DAY,
@@ -88,13 +88,13 @@ from shibuya.engine.classical import (
     DEFAULT_POLICY,
     POLICIES,
 )
-from shibuya.engine.energy import (
+from shibuya.world.body.energy import (
     DEFAULT_ENERGY_RATE,
     DEFAULT_HUNGER_MODEL,
     ENERGY_RATES,
     HUNGER_MODELS,
 )
-from shibuya.world.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
+from shibuya.world.model.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
 from shibuya.foundation.time_consts import STEPS_PER_HOUR
 
 #: **CLI の既定の語彙版**(二層の段 3・第277=``--vocab-version`` を渡さないランは v3)。
@@ -345,7 +345,7 @@ def write_census_files(ledger, goods, day: int, out_dir: str | Path) -> tuple[st
     d.mkdir(parents=True, exist_ok=True)
     row = CS.daily_census(ledger, goods, day=int(day))
     p_daily = CS.write_daily_census([row], d / DAILY_CENSUS_FILENAME)
-    from shibuya.engine import rate_rules as _RRC  # 〔11-01 段 2 の 4・検収 M1〕腕 off は店の廃棄の帯を非該当に
+    from shibuya.world.laws import switch_rate as _RRC  # 〔11-01 段 2 の 4・検収 M1〕腕 off は店の廃棄の帯を非該当に
 
     mer = CS.monthly_mer(ledger, goods, month=0, days=1, waste_band_applies=_RRC.is_legacy())
     p_mer = CS.write_monthly_mer(mer, d / MONTHLY_MER_FILENAME)
@@ -480,10 +480,10 @@ def run(
     if run_kind is None:  # 第 1 期 1-4(検収 M2): 腕は CLI の既定と比べて決める(記録だけ)
         arms = run_arms({**kwargs, "budget": budget, "l4_scale": scale, "use_population": use_population,
                          "store_capital_yen": store_capital_yen})
-        from shibuya.engine import rate_rules as _rate_rules  # 〔11-01 段 2 の 4〕率の形の規則(既定 off と違えば腕)
-        from shibuya.engine import absent_processes as _absent_processes  # 〔11-02r §1 #7〕「無い」の過程(既定 stopped と違えば腕)
+        from shibuya.world.laws import switch_rate as _rate_rules  # 〔11-01 段 2 の 4〕率の形の規則(既定 off と違えば腕)
+        from shibuya.world.laws import switch_absent as _absent_processes  # 〔11-02r §1 #7〕「無い」の過程(既定 stopped と違えば腕)
         from shibuya.foundation.queues import batching as _BATCH  # 〔第 3 期 3-2〕まとめの幅の腕(環境変数か --batch-width-s)
-        from shibuya.engine.body import schedule as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)。〔移す段 4 の下ごしらえ〕定義した schedule を直に読む
+        from shibuya.world.body import schedule as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)。〔移す段 4 の下ごしらえ〕定義した schedule を直に読む
         from shibuya.engine import calendar_shadow as _calendar_shadow  # 〔第 3 期 3-1〕暦 1a の影(既定 w17 と違えば腕)
         from shibuya.engine import calendar_self as _calendar_self  # 〔第 6 期 6-2〕カレンダー 1b(既定 w17 と違えば腕)
         from shibuya.engine import memory_m1 as _memory_m1  # 〔第 6 期 6-5〕記憶の腕(結果を変える腕=既定と違えば腕)
@@ -1597,7 +1597,7 @@ def main(argv: list[str] | None = None) -> int:
 
         _speech_layer.set_arm(str(args.speech_port))
     if args.proximity_d is not None:
-        from shibuya.engine import proximity as _proximity
+        from shibuya.world.model import proximity as _proximity
 
         _proximity.set_d(str(args.proximity_d))
     if args.batch_width_s is not None:  # 〔第 3 期 3-2〕まとめの幅の腕(組み立てと進行役が読む。指定は環境変数より強い)
@@ -1605,15 +1605,15 @@ def main(argv: list[str] | None = None) -> int:
 
         _batching.set_arm(int(args.batch_width_s))
     if args.rate_rules is not None:  # 〔11-01 段 2 の 4〕率の形の規則の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine import rate_rules as _rate_rules
+        from shibuya.world.laws import switch_rate as _rate_rules
 
         _rate_rules.set_arm(str(args.rate_rules))
     if args.absent_processes is not None:  # 〔11-02r §1 #7〕「無い」の過程の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine import absent_processes as _absent_processes
+        from shibuya.world.laws import switch_absent as _absent_processes
 
         _absent_processes.set_arm(str(args.absent_processes))
     if args.body_schedule is not None:  # 〔第 3 期 3-5〕TM5 の体の予約の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine.body import schedule as _body  # 〔移す段 4 の下ごしらえ〕定義した schedule を直に読む
+        from shibuya.world.body import schedule as _body  # 〔移す段 4 の下ごしらえ〕定義した schedule を直に読む
 
         _body.set_arm(str(args.body_schedule))
     if args.talk_clock is not None:  # 〔第 6 期 6-3 T2〕会話の時計の腕(組み立てが読む。指定は環境変数より強い)

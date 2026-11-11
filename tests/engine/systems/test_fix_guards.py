@@ -32,7 +32,7 @@ G_PKG, _, G_LEAF = G_MODULE.rpartition(".")
 HERE = Path(__file__).resolve().parent
 
 # ================================================================= 3: 書きの許可を外す口
-STATE_MODULES = {"agents/state.py", "world/state.py", "perception/state.py"}
+STATE_MODULES = {"agents/state.py", "world/model/state.py", "world/model/percept_state.py"}
 #: write_permit の関数 → 呼んでよい置き場(試験と記録の道具は src の外=ここに出ない)。
 WP_CALLS = {"allows": STATE_MODULES, "scope": {"foundation/write_guard.py"}, "enabled": {"foundation/write_guard.py"},
             "set_enabled": set(), "current": set()}
@@ -44,7 +44,7 @@ GUARD_CALLS = {"system_scope": {"engine/systems/conductor.py"}}
 WP_ATTR_PLACES = WP_IMPORTERS | {"engine/systems/conductor.py"}
 #: 許可を持つモジュール(別名に ``setattr(X, 変数, …)`` をすると許可の大域に届く)。
 PERMIT_MODULES = {"shibuya.foundation.write_permit", "shibuya.foundation.write_guard", "shibuya.agents.state",
-                  "shibuya.world.state", "shibuya.perception.state"}
+                  "shibuya.world.model.state", "shibuya.world.model.percept_state"}
 
 #: 書き換えてはいけない許可の大域(その置き場の外で代入しない)。
 PERMIT_GLOBALS = {"_PERMIT": "foundation/write_permit.py", "_ENABLED": "foundation/write_permit.py",
@@ -197,12 +197,12 @@ def test_permit_check_catches_reexported_names(src, words):
 
 # ================================================================= 5: D⑥ の別名の形を広げる
 _SOA_TAILS = {"registry", "agents", "cells", "pois", "pstate"}
-_EXEMPT_D6 = {"agents/state.py", "world/state.py", "perception/state.py", "engine/resolve.py", "foundation/soa.py"}
+_EXEMPT_D6 = {"agents/state.py", "world/model/state.py", "world/model/percept_state.py", "engine/resolve.py", "foundation/soa.py"}
 D6_ALLOW = {
     ("engine/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",
     ("engine/store_choice.py", "self.poi_cell"): "同上",
     ("engine/store_choice.py", "self.price"): "POI の値段(静的な列)の int64 の写し",
-    ("engine/processes/civic.py", "self.bed_cell[got]"):
+    ("world/laws/civic.py", "self.bed_cell[got]"):
         "層の ndarray の要素への代入(値の写し=別名にならない。AST では的が配列か辞書か分からないので見つける側)",
 }
 _UNWRAP_CALLS = {"asarray", "asanyarray", "ascontiguousarray"}

@@ -53,7 +53,7 @@ economy.anchors — §2.5 の**金額アンカー**(公的値・mechanism)と初
   - `monthly_wage_amounts`(関数): 月次賃金[円] = 労働時間 × 時給 × 割増係数(外生・§2.7 第1陣)。
   - `monthly_wages`(関数): 雇用主(または域外雇用主)→ 世帯の月次賃金を**一括** transfer する。
   - `rule_bridge`(関数): 〔11-01 §5〕規則の表の行の ``params.bridge`` を検査して返す(無い行は ``None``)。
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.engine.rules.table`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.world.facts.rules.table`
 - 呼び手: `shibuya.cli`・`shibuya.economy.goods`・`shibuya.economy.stage2`・`shibuya.economy.taxes`・`shibuya.economy.wages`
 - 読む試験: `tests/economy/cp2/head_goods_136fdbb.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/economy/test_accounts.py`・`tests/economy/test_anchors.py`・`tests/economy/test_entry_capital.py`・`tests/economy/test_goods.py`・`tests/economy/test_min_wage_human_bridge.py`・`tests/economy/test_wage_occupation.py`・`tests/engine/rules/test_rules42_table.py`・`tests/engine/test_waste_sink_report.py`・`tests/test_cli.py`
 - 読む試験(道筋で): `tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/rules/test_rules_table_schema.py`・`tests/test_places_guard.py`
@@ -290,7 +290,7 @@ economy.taxes — 第 4 期 4-2 の規則の表の machine の行の読み手(�
   - `share_50sen`(関数): 額 ``num / den`` 円を「50 銭以下は切り捨て・50 銭を超えれば切り上げ」で円に(R-118 §2-6・額表の注)。
   - `standard_monthly`(関数): 報酬月額 → 標準報酬月額(等級表の下限で引く・健保法 40 条・厚年法 20 条)。
   - `total_volume_cap`(関数): 総量規制(貸金業法 13 条の 2 第 2 項・13 条 3 項)の値: 年収の割合・収入の書類が要る額(1 社・全体)。無ければ ``None``。
-- import している内部モジュール: `shibuya.economy.anchors`・`shibuya.engine.rules.table`
+- import している内部モジュール: `shibuya.economy.anchors`・`shibuya.world.facts.rules.table`
 - 呼び手: `shibuya.economy.credit`・`shibuya.economy.stage2`・`shibuya.economy.tax_deposit`
 - 読む試験: `tests/economy/test_min_wage_human_bridge.py`・`tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42_payroll.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_rules42b_payroll.py`・`tests/engine/rules/test_rules42_table.py`
 - 読む試験(道筋で): `tests/engine/rules/test_rules_table_schema.py`・`tests/test_places_guard.py`

@@ -26,7 +26,7 @@ from shibuya.engine.run import run_day
 from shibuya.foundation.text import channels as ch
 from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import RANKING_PRIOR_SCORES, Renderer
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")

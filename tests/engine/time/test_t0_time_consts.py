@@ -58,13 +58,13 @@ def test_module_level_aliases_elsewhere_are_the_same_value():
     """置き換えで再輸出にした各モジュールの ``MINUTES_PER_DAY`` ほか(読み手が名で引く)は同じ値。"""
     # 〔段 4 の下ごしらえ〕モジュールは import の文で読む(移す道具が import の文を新しい置き場へ書き換える。
     # 前は ``shibuya.`` の無い点の名の文字列から import していた=道具が触らない形)
-    from shibuya.agents import weekly
+    from shibuya.world.facts import weekly_reader as weekly
     from shibuya.foundation import growth
     from shibuya.engine import activity, growth_decl
-    from shibuya.engine.processes import civic, goods_flow, logistics, opening
+    from shibuya.world.laws import civic, goods_flow, logistics, opening
     # scheduler は包みの頭が同じ名の関数を再輸出している(``from shibuya.engine import scheduler`` は関数)=名を直に読む
     from shibuya.foundation.queues.scheduler import HORIZON_TICKS
-    from shibuya.world.processes import actual_log
+    from shibuya.world.ledger import actual_log
 
     for mod in (weekly, activity, civic, goods_flow, logistics, opening):
         assert mod.MINUTES_PER_DAY == TC.MINUTES_PER_DAY, mod.__name__

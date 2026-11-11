@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 11 本・その他 0 本(このディレクトリの直下)
+Python 10 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/engine/contact/__init__.py)
 
@@ -92,24 +92,6 @@ engine.contact.deliver — 届く(エンジン)=メッセージ・電話・既�
     - `CT1IS` Mailbox._sent(送ったメッセージの既読の数=道具の性質・第 6 期 6-4 C1)(挙動 behavior・復元 required・腕 contact-c1) 道筋 `contact.mail._by_sender`・`contact.mail._sent` 書ける系: calendar_3・contact
 - 決定の ID: 10-12/§4-4
 
-## [device.py](../../../../../../../../src/shibuya/engine/contact/device.py)
-
-engine.contact.device — 道具の状態と通知の刺激の形(第 6 期 6-4 C1・C2・決定 10-12 §4-4 CT0 の共通の決まり 2・3)。
-
-- 公開の関数とクラス
-  - `Devices`(クラス): 体ごとの道具の状態(状態台帳の腕の行 ``CT1D``・持ち主の道筋 ``contact.dev``)。
-  - `channel_words`(関数): チャネルのビット → 語の組(音・振動・画面の順)。
-  - `noise_db_of_stage`(関数): 騒音の段 → 代表の dB(段の外は端に寄せる)。
-  - `power_sum_db`(関数): 2 つの音の電力の和[dB]\(``10 lg(10^(a/10) + 10^(b/10))``)。
-  - `signal_ok`(関数): 電波が届くか(本段は全域で届く=つなぎ ``DOC-ct-c1-device-signal``)。
-- import している内部モジュール: `shibuya.foundation.arms.contact`・`shibuya.foundation.rng`・`shibuya.foundation.text.templates`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.engine.contact.layer`
-- 読む試験: `tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_video.py`
-- 状態台帳の行
-  - 持ち主 `contact.dev`(`Devices`)
-    - `CT1D` Devices(道具の状態=電源・電池・マナーモード・置き場・イヤホン・第 6 期 6-4 C1)(挙動 behavior・復元 required・腕 contact-c1) 道筋 `contact.dev._battery`・`contact.dev._ear`・`contact.dev._home`・`contact.dev._home_prev`・`contact.dev._low_known`・`contact.dev._manner`・`contact.dev._on`・`contact.dev._place`・`contact.dev._plugged` 書ける系: calendar_3・contact
-- 決定の ID: 10-12/§4-4・R-78
-
 ## [habit.py](../../../../../../../../src/shibuya/engine/contact/habit.py)
 
 engine.contact.habit — CT4 の習慣(本人の過去の連絡の判断から作る・第 6 期 6-4 C2・腕 ``SHIBUYA_CONTACT_HABIT``)。
@@ -136,7 +118,7 @@ engine.contact.layer — 連絡の道具 C1 の持ち主と系 ``contact`` の�
   - `issued_key`(関数)
   - `manifest_fields`(関数): manifest の ``contact_c1``(腕 c1 のランだけ・ほかは ``None``=欄を出さない)。
   - `sys_contact`(関数): 系 contact(刻みの中・腕 c1 のランだけ立つ)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.body.system1`・`shibuya.engine.contact.attention`・`shibuya.engine.contact.book`・`shibuya.engine.contact.calls`・`shibuya.engine.contact.chat_state`・`shibuya.engine.contact.deliver`・`shibuya.engine.contact.device`・`shibuya.engine.contact.habit`・`shibuya.engine.contact.port`・`shibuya.engine.contact.tools`・`shibuya.engine.conversation`・`shibuya.engine.speech.port`・`shibuya.engine.tools.groups`・`shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.percept_contact`・`shibuya.foundation.queues.batching`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.vocab.events`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.contact.attention`・`shibuya.engine.contact.book`・`shibuya.engine.contact.calls`・`shibuya.engine.contact.chat_state`・`shibuya.engine.contact.deliver`・`shibuya.engine.contact.habit`・`shibuya.engine.contact.port`・`shibuya.engine.contact.tools`・`shibuya.engine.conversation`・`shibuya.engine.speech.port`・`shibuya.engine.tools.groups`・`shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.percept_contact`・`shibuya.foundation.queues.batching`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.vocab.events`・`shibuya.world.body.reactions`・`shibuya.world.things.device`
 - 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.table`
 - 読む試験: `tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_world.py`・`tests/engine/contact/_c1.py`・`tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c1_world.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_exchange.py`・`tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/contact/test_c2_video.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`

@@ -22,7 +22,7 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_the_filing_deadline_row_is_from_r106_and_used_at_the_period_end`(関数)
   - `test_the_grade_tables_are_the_research_copies`(関数)
   - `test_the_two_rows_now_cite_the_world_date_versions`(関数): R-118 §5 ②: 出典の版を世界の時点の版に(値は不変)。
-- import している内部モジュール: `shibuya.economy.anchors`・`shibuya.economy.taxes`・`shibuya.engine.rules.table`
+- import している内部モジュール: `shibuya.economy.anchors`・`shibuya.economy.taxes`・`shibuya.world.facts.rules.table`
 - 決定の ID: 11-01/§5・R-118
 
 ## [test_rules_table_schema.py](../../../../../../../tests/engine/rules/test_rules_table_schema.py)
@@ -46,5 +46,5 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_the_table_sha_is_deterministic_and_is_the_rules_version`(関数)
   - `test_the_values_are_the_r106_values`(関数)
   - `test_two_rows_with_the_same_id_and_asof_are_refused`(関数)
-- import している内部モジュール: `shibuya.engine.rules.table`
+- import している内部モジュール: `shibuya.world.facts.rules.table`
 - 決定の ID: 10-12/§1-12・11-01/§5・R-106・R-118・第 337

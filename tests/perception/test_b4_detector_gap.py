@@ -23,7 +23,7 @@ from shibuya.foundation.text import hashes as H
 from shibuya.foundation.text import normalize as N
 from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import Renderer
-from shibuya.world.state import DENSITY_STAGE_EDGES, World
+from shibuya.world.model.state import DENSITY_STAGE_EDGES, World
 
 
 def _setup(n_cells: int = 64, seed: int = 2):

@@ -25,10 +25,10 @@ from tests import _time_gates as TG
 from shibuya.agents.state import Activity, AgentState, RESULT_TEXT, ResultCode
 from shibuya.foundation.budget import budget_by_id, load_budget_table
 from shibuya.engine import commit as C
-from shibuya.engine import geometry as G
+from shibuya.world.model import geometry as G
 from shibuya.engine import resolve as R
 from shibuya.engine.run import run_day
-from shibuya.world.state import DENSITY_STAGE_EDGES, DENSITY_STAGE_EDGES_PER_M2, World
+from shibuya.world.model.state import DENSITY_STAGE_EDGES, DENSITY_STAGE_EDGES_PER_M2, World
 
 #: 600 tick = 世界内 10:00 まで回す。**体が実際に歩き出すまで回さないと edge の腕が
 #: 「欄が 2 本増えただけ」の検査になる**(120 tick では移動が 1 件も出ない)。

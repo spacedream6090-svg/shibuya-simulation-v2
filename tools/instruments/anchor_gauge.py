@@ -279,7 +279,7 @@ def git_head(repo: Path = REPO) -> dict[str, Any]:
 # ====================================================================== 記録の段(エンジン不変)
 def _plan_from_executor(pe: Any, pop: Any, n_ticks: int) -> dict[str, np.ndarray]:
     """``PlanExecutor`` の参照 → 計画上のセル(刻み × 体)・計画の到着・W17 の勤務の行の始まり。読むだけ。"""
-    from shibuya.agents.weekly import ACTIVITY_WORDS, PLACE_WORDS
+    from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, PLACE_WORDS
     from shibuya.engine.presence import EventType, _day_rows
 
     work_pk, school_pk, home_pk = (PLACE_WORDS.index(w) for w in ("職場", "学校", "自宅"))

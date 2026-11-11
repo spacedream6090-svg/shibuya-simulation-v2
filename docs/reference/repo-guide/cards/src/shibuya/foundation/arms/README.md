@@ -54,7 +54,7 @@ engine.contact.arm — 連絡の道具 C1 の腕(第 6 期 6-4)。
   - `set_send`(関数)
   - `set_unnoticed`(関数)
   - `unnoticed`(関数): 割り込めなかった出来事の載せ方の腕(``i``・``ii``・``iii``)。
-- 呼び手: `shibuya.cli`・`shibuya.engine.contact.attention`・`shibuya.engine.contact.book`・`shibuya.engine.contact.calls`・`shibuya.engine.contact.chat_state`・`shibuya.engine.contact.deliver`・`shibuya.engine.contact.device`・`shibuya.engine.contact.habit`・`shibuya.engine.contact.layer`・`shibuya.engine.systems.build`・`shibuya.engine.systems.conductor`
+- 呼び手: `shibuya.cli`・`shibuya.engine.contact.attention`・`shibuya.engine.contact.book`・`shibuya.engine.contact.calls`・`shibuya.engine.contact.chat_state`・`shibuya.engine.contact.deliver`・`shibuya.engine.contact.habit`・`shibuya.engine.contact.layer`・`shibuya.engine.systems.build`・`shibuya.engine.systems.conductor`・`shibuya.world.things.device`
 - 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar3/_ca3.py`・`tests/engine/contact/_c1.py`・`tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_habit.py`
 - 環境変数: `SHIBUYA_CONTACT`・`SHIBUYA_CONTACT_HABIT`・`SHIBUYA_CONTACT_SEND`・`SHIBUYA_CONTACT_UNNOTICED`・名前を読めない所 1 か所
 - 決定の ID: 10-12/§4-4

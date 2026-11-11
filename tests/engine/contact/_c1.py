@@ -16,7 +16,7 @@ from shibuya.engine.contact import port as P
 from shibuya.engine.contact.layer import ContactLayer
 from shibuya.foundation.journal.log import EventLog
 from shibuya.engine.tools.groups import GroupList
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 ROOT = Path(__file__).resolve().parents[3]
 WORLD = ROOT / "data" / "world" / "v2"

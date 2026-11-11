@@ -11,7 +11,7 @@ from shibuya.agents.state import Activity, AgentState, ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.engine.change_detect import ChangeDetector
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 OPEN_TICK = 700  # 既定営業時間(10:00-22:00)の内側
 CLOSED_TICK = 100

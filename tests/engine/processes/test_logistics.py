@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.engine.processes.logistics import (
+from shibuya.world.laws.logistics import (
     BUS_HEADWAY_MIN,
     BUS_SERVICE_WINDOW,
     CELL_AREA_M2,
@@ -79,7 +79,7 @@ def test_bus_arrives_on_an_equal_interval_plan():
 def test_bus_stops_come_from_osm_and_land_on_cells():
     """OSM の ``highway=bus_stop`` 127 点がセルへ写像される(座標欠落は幹線へ置く=expedient)。"""
     from shibuya.world.assets import load_process_assets
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     world = World.load(WORLD_DIR)
     assets = load_process_assets(WORLD_DIR, world.assets)

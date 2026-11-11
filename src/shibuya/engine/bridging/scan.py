@@ -273,12 +273,12 @@ def fallback_declarations(rows: Iterable[object] | None = None) -> list[Declarat
     行は ``subject_id`` と ``plan_spec_id`` を持つ物(``world.processes.relations.FallbackRow``)。
     """
     if rows is None:
-        from shibuya.world.processes import first_batch as _FB
+        from shibuya.world.ledger import first_batch as _FB
 
         rows = _FB.build_registry().fallback_ledger()
     import inspect
 
-    from shibuya.world.processes.registry import WorldRegistry
+    from shibuya.world.ledger.registry import WorldRegistry
 
     line = int(inspect.getsourcelines(WorldRegistry.fallback_ledger)[1])
     out: list[Declaration] = []

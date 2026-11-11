@@ -327,7 +327,7 @@ def test_the_19_configs_are_the_byte_check_set():
 def test_19_configs_render_the_same_bytes_as_head(config, monkeypatch, tmp_path):
     from shibuya import cli
 
-    from shibuya.engine import proximity as P
+    from shibuya.world.model import proximity as P
 
     kw = dict(_wave2_configs()[config])
     stats = _shadow(monkeypatch)

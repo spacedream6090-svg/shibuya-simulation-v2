@@ -9,7 +9,7 @@ import pytest
 from shibuya.foundation.queues import batching as BA
 from shibuya.engine.contact import attention as AT
 from shibuya.engine.contact import deliver as DL
-from shibuya.engine.contact import device as DV
+from shibuya.world.things import device as DV
 from shibuya.engine.contact import port as P
 from shibuya.engine.contact.layer import (
     W_ANSWER, W_CALL_END, W_DELIVERED, W_DIAL, W_HANG, W_LATER, W_READ, W_RING, W_SENT, audit_causes,

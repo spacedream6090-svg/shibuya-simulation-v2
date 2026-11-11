@@ -468,7 +468,7 @@ def test_payroll_pays_the_outside_employer_from_the_rest_of_the_world(monkeypatc
     """〔第 4 期 4-3 段 10・検収 M3〕外の雇用主(閉じた表の外の組織の番号)の雇用の行は外界から払う(登録済みの faucet
     「域外雇用主の賃金」=外界 → 世帯の口座)・雇用主の原資の行は無い・保存則の残差 0。"""
     from shibuya.economy.stage2 import OUTSIDE_EMPLOYER_ORG
-    from shibuya.engine.rights import initial as RI
+    from shibuya.world.facts.rights import initial as RI
 
     assert OUTSIDE_EMPLOYER_ORG == RI.OUTSIDE_EMPLOYER_ORG  # 経済と権利台帳で同じ番号
 

@@ -70,7 +70,7 @@ import numpy as np
 
 import dataclasses
 
-from shibuya.agents.population import Population, load_population, sample_population
+from shibuya.world.facts.population_reader import Population, load_population, sample_population
 from shibuya.agents.state import (
     N_WAKE_CONDITIONS_ALL,
     Activity,
@@ -100,7 +100,7 @@ from shibuya.engine.relations import (
     REL_TENURE_WEEKS,
 )
 from shibuya.engine.store_memory import DEFAULT_STORE_DECAY, STORE_MEMORY_N
-from shibuya.engine.energy import DEFAULT_ENERGY_RATE, DEFAULT_HOME_MEAL, DEFAULT_MEAL_SLEEP_DEFER
+from shibuya.world.body.energy import DEFAULT_ENERGY_RATE, DEFAULT_HOME_MEAL, DEFAULT_MEAL_SLEEP_DEFER
 from shibuya.engine.arbiter import L4_LINE_PER_AGENT_DAY
 from shibuya.engine.chooser import DEFAULT_CHOOSER, HABIT_P, RANK_TAU
 from shibuya.engine.classical import (
@@ -109,14 +109,14 @@ from shibuya.engine.classical import (
     DEFAULT_MEAL_GATE,
     DEFAULT_POLICY,
 )
-from shibuya.engine.geometry import (
+from shibuya.world.model.geometry import (
     DEFAULT_GEOMETRY,
     DESIRED_SPEED_MAX_MS,
     DESIRED_SPEED_MIN_MS,
     GEOMETRY_MODES,
 )
 from shibuya.foundation.ports.ledger import LedgerBundle
-from shibuya.engine.processes.opening import rows_of_day as _opening_rows_of_day
+from shibuya.world.laws.opening import rows_of_day as _opening_rows_of_day
 from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
 from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
 from shibuya.engine.poi_target import MOVE_SEARCH_RADIUS_CELLS
@@ -131,8 +131,8 @@ from shibuya.foundation.text.channels import BudgetMode
 from shibuya.foundation.ports.percept import percept_manifest as _percept_manifest
 from shibuya.engine.decision import layer as _DECISION
 from shibuya.engine.speech import layer as _SPEECH
-from shibuya.engine import proximity as _PROX
-from shibuya.engine.space import nav1 as _NAV1
+from shibuya.world.model import proximity as _PROX
+from shibuya.world.model.space import nav1 as _NAV1
 from shibuya.engine import calendar_shadow as _CALENDAR_SHADOW
 from shibuya.engine import calendar_self as _CALENDAR_SELF
 from shibuya.engine.experiment import layer as _EXPERIMENT
@@ -140,14 +140,14 @@ from shibuya.foundation.queues import batching as _BATCHING
 from shibuya.engine import regional_clock as _REGIONAL_CLOCK  # 〔第 6 期 6-3 T4〕
 from shibuya.engine import speech_clock as _SPEECH_CLOCK  # 〔第 6 期 6-3 T2〕
 from shibuya.engine import step_scope as _STEP_SCOPE  # 〔第 6 期 6-3 T3〕
-from shibuya.engine.body import model as _BODY_MODEL
+from shibuya.world.body import model as _BODY_MODEL
 from shibuya.perception.renderer import (
     DEFAULT_HUNGER_WORDS,
     SIGNAGE_P_SEE_DEFAULT,
 )
 from shibuya.foundation.text.templates import INTENT_MODES, VOCAB_VERSIONS, check_vocab_version
 from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 from shibuya.foundation.time_consts import CLOCK_KIND, HOURS_PER_DAY, MINUTES_PER_DAY, SECONDS_PER_DAY, SECONDS_PER_MINUTE
 
 __all__ = [
@@ -1211,9 +1211,9 @@ class RunResult:
         """
         from shibuya.foundation.manifest import sections as _MS
         from shibuya.engine import run_kind as _RK
-        from shibuya.engine.rights import record as _RR
+        from shibuya.world.facts.rights import record as _RR
         from shibuya.foundation.decl import bridging as _BR
-        from shibuya.engine.rules import table as _RT
+        from shibuya.world.facts.rules import table as _RT
         from shibuya.foundation.text import templates as _T
 
         runner = getattr(self, "runner", None)

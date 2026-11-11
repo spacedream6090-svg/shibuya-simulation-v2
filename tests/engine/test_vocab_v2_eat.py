@@ -14,7 +14,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.schedule import synthesize
+from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.agents.state import Activity, AgentState, ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
@@ -22,7 +22,7 @@ from shibuya.engine.run import run_day
 from shibuya.llm import LLMResponse
 from shibuya.foundation.vocab.actions import format_two_line
 from shibuya.foundation.vocab.actions import ACTION_WORD_EAT, EAT_ACTION_CODE
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 
 class WordLLM:

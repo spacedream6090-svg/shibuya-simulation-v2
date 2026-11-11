@@ -11,7 +11,7 @@ from shibuya.economy.accounts import ACCOUNT_NAMES
 from shibuya.economy.goods import GOODS_CODE_NAMES
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.vocab import events as V
-from shibuya.engine.processes.runner import PROCESS_ORDER
+from shibuya.world.laws.runner import PROCESS_ORDER
 from shibuya.foundation.vocab.actions import ACTION_VOCAB_V3
 
 

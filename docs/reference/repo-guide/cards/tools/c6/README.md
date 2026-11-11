@@ -12,7 +12,7 @@ ablation1_fixed_vs_ranking.py — **ablation ①(義務)**「チャネル固定�
   - `main`(関数)
   - `probe_switch`(関数): 2 つの ``BudgetMode`` で同じ場面を描き、バイト差分の有無を返す(**純関数寄り**)。
   - `run_arm`(関数): 1 構成のスモーク(budget_mode=tag を run_day へ渡す・09-09 切替口実装後)。
-- import している内部モジュール: `shibuya.agents.schedule`・`shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.engine.tape`・`shibuya.foundation.text.channels`・`shibuya.perception.renderer`・`shibuya.world.state`・`tools/c6/c6lib.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.engine.tape`・`shibuya.foundation.text.channels`・`shibuya.perception.renderer`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.state`・`tools/c6/c6lib.py`
 - 読む試験: `tests/c6/test_c6lib_aggregate.py`・`tests/perception/test_ablation1.py`
 - CLI の引数
   - `--max-tokens`
@@ -131,7 +131,7 @@ run_hash.py — 1 ランの checkpoint ハッシュだけを JSON で吐く(**T3
 
 - 公開の関数とクラス
   - `main`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.world.state`・`tools/c6/c6lib.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.world.model.state`・`tools/c6/c6lib.py`
 - CLI の引数
   - `--cells`: 合成世界のセル数
   - `--no-ledger`: 台帳なし(engine.run.run_day 直呼び)

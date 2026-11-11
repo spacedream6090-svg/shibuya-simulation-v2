@@ -136,7 +136,7 @@ def test_run_rows_and_events_are_one_to_one(monkeypatch):
     from shibuya.engine import economy_stage2 as ES2
 
     monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_rate as RR
 
     # 〔11-01 段 2 の 4〕売れ残りの廃棄率を外すと 200 体では棚が補充点を割らない(補充の行 0)=補充の行の目印を見るため旧道で
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)

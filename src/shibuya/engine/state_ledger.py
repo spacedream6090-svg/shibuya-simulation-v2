@@ -189,25 +189,25 @@ R_, V_, X_, U_ = REQUIRED, DERIVABLE, DISCARDABLE, UNKNOWN
 _ALLOW_BAND = (AstAllow("world/assets.py", 'cells["band"]',
                         "資産の表(W2 の parquet)の列 band を読む行。SoA の agents.band ではない(材料 §2-4 の誤検出 1)"),
                # 〔第 5 期 空間の段 1〕ナビメッシュの資産の階の表(nav1_meta.json の floors の band)を読む行。SoA ではない
-               AstAllow("world/navmesh.py", 'f["band"] for f in floors',
+               AstAllow("world/model/navmesh.py", 'f["band"] for f in floors',
                         "ナビメッシュの資産の階の表の band を読む行。SoA の agents.band ではない(第 5 期 段 1)"),
                # 〔第 2 期 2-2 段 11a〕腕 --proximity distance の読み手。〔改訂(第 2 期 2-4 V2)〕近接の既定が distance に
                # なったので、組み立ての規則(rule_from)は体の層を behavior の列 agents.cell から導く(cell_band[cell]=値は同じ)
                # =この列を読むのは cell_band を持たない規則(試験の合成の規則)の道だけ。描画(B5 の近接行の自分の層)の読みは
                # セルから導く形に替えて消した(軸 1 no のまま)
-               AstAllow("engine/proximity.py", "return np.asarray(r.band)",
+               AstAllow("world/model/proximity.py", "return np.asarray(r.band)",
                         "第 2 期 2-2: cell_band を持たない規則(試験の合成の規則)だけの読み(組み立ての規則はセルから導く=2-4 V2)"))
-_ALLOW_B4 = (AstAllow("world/state.py", "return self.cells.b4_hash",
+_ALLOW_B4 = (AstAllow("world/model/state.py", "return self.cells.b4_hash",
                       "プロパティ World.b4_hash の中の読み。プロパティの呼び手は 0(材料 §2-4 の誤検出 2)"),)
 _ALLOW_REVENUE = (AstAllow("engine/systems/report.py", "result.revenue_end =",
                            "保存則の検査とラン要約の値(RunResult.revenue_end)だけ=診断"),
                   AstAllow("engine/resolve.py", "_require_thawed(world, world.pois.revenue)",
                            "1-0 段 A: ufunc.at の前の配列単位の書き込みの旗の検査(値を見ない=読みではない)"))
-_ALLOW_ENERGY_BALANCE = (AstAllow("engine/energy.py", "bal = np.asarray(r.energy_balance",
+_ALLOW_ENERGY_BALANCE = (AstAllow("world/body/energy.py", "bal = np.asarray(r.energy_balance",
                                   "EnergyLayer.summary(日次センサスと要約)だけ=診断"),)
-_ALLOW_HEADING = (AstAllow("engine/processes/salient.py", "heading = np.asarray(self.pstate.heading)",
+_ALLOW_HEADING = (AstAllow("world/laws/salient.py", "heading = np.asarray(self.pstate.heading)",
                            "顕著行為の p_notice が読む。値は事象の直前に毎回貼り直す派生の値なので状態としては入れない(親の宣言)"),)
-_ALLOW_TASK = (AstAllow("engine/processes/salient.py", "task = np.asarray(self.pstate.task_flag)",
+_ALLOW_TASK = (AstAllow("world/laws/salient.py", "task = np.asarray(self.pstate.task_flag)",
                         "同上(heading と同じ扱い・親の宣言)"),)
 
 _SOA: tuple[LedgerRow, ...] = (
@@ -1585,34 +1585,34 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "wom": ("engine/wom.py", "WomExtractor"),
     "rel_layer": ("engine/relations.py", "RelationLayer"),
     "classical": ("engine/classical.py", "ClassicalPolicy"),
-    "energy": ("engine/energy.py", "EnergyLayer"),
-    "energy.out_of_area": ("engine/energy.py", "OutOfAreaMeals"),
-    "energy.home_meals": ("engine/energy.py", "HomeMeals"),
+    "energy": ("world/body/energy.py", "EnergyLayer"),
+    "energy.out_of_area": ("world/body/energy.py", "OutOfAreaMeals"),
+    "energy.home_meals": ("world/body/energy.py", "HomeMeals"),
     "norm_meter": ("engine/norm_meter.py", "GroupNormMeter"),
     "presence": ("engine/presence.py", "PlanExecutor"),
     "conv": ("engine/conversation.py", "ConversationManager"),
     "arbiter": ("engine/arbiter.py", "Arbiter"),
     "detector": ("engine/change_detect.py", "ChangeDetector"),
-    "runner": ("engine/processes/runner.py", "WorldProcessRunner"),
-    "runner.salient": ("engine/processes/salient.py", "SalientProcess"),
-    "runner.dispatch": ("engine/processes/civic.py", "PublicServiceDispatchProcess"),
-    "runner.hotel": ("engine/processes/civic.py", "HotelProcess"),
-    "runner.large_event": ("engine/processes/civic.py", "LargeEventProcess"),
-    "runner.press": ("engine/processes/civic.py", "PressProcess"),
-    "runner.infra": ("engine/processes/civic.py", "InfraLoadProcess"),
-    "runner.rail": ("engine/processes/rail.py", "RailProcess"),
-    "runner.crowd": ("engine/processes/crowd.py", "CrowdProcess"),
-    "runner.shelf": ("engine/processes/goods_flow.py", "ShelfRestockProcess"),
-    "runner.delivery_inbound": ("engine/processes/goods_flow.py", "DeliveryInboundProcess"),
-    "runner.waste": ("engine/processes/goods_flow.py", "WasteCollectionProcess"),
-    "runner.street_cleaning": ("engine/processes/goods_flow.py", "StreetCleaningProcess"),
-    "runner.last_mile": ("engine/processes/logistics.py", "LastMileProcess"),
-    "runner.bus_taxi": ("engine/processes/logistics.py", "BusTaxiProcess"),
-    "runner.road_works": ("engine/processes/logistics.py", "RoadWorksProcess"),
-    "runner.traffic": ("engine/processes/traffic.py", "TrafficProcess"),
-    "runner.opening": ("engine/processes/opening.py", "OpeningProcess"),
-    "runner.environment": ("engine/processes/environment.py", "EnvironmentProcess"),
-    "runner.log": ("world/processes/actual_log.py", "ActualLog"),
+    "runner": ("world/laws/runner.py", "WorldProcessRunner"),
+    "runner.salient": ("world/laws/salient.py", "SalientProcess"),
+    "runner.dispatch": ("world/laws/civic.py", "PublicServiceDispatchProcess"),
+    "runner.hotel": ("world/laws/civic.py", "HotelProcess"),
+    "runner.large_event": ("world/laws/civic.py", "LargeEventProcess"),
+    "runner.press": ("world/laws/civic.py", "PressProcess"),
+    "runner.infra": ("world/laws/civic.py", "InfraLoadProcess"),
+    "runner.rail": ("world/laws/rail.py", "RailProcess"),
+    "runner.crowd": ("world/laws/crowd.py", "CrowdProcess"),
+    "runner.shelf": ("world/laws/goods_flow.py", "ShelfRestockProcess"),
+    "runner.delivery_inbound": ("world/laws/goods_flow.py", "DeliveryInboundProcess"),
+    "runner.waste": ("world/laws/goods_flow.py", "WasteCollectionProcess"),
+    "runner.street_cleaning": ("world/laws/goods_flow.py", "StreetCleaningProcess"),
+    "runner.last_mile": ("world/laws/logistics.py", "LastMileProcess"),
+    "runner.bus_taxi": ("world/laws/logistics.py", "BusTaxiProcess"),
+    "runner.road_works": ("world/laws/logistics.py", "RoadWorksProcess"),
+    "runner.traffic": ("world/laws/traffic.py", "TrafficProcess"),
+    "runner.opening": ("world/laws/opening.py", "OpeningProcess"),
+    "runner.environment": ("world/laws/environment.py", "EnvironmentProcess"),
+    "runner.log": ("world/ledger/actual_log.py", "ActualLog"),
     "ledger.money": ("economy/ledger.py", "Ledger"),
     "ledger.goods": ("economy/goods.py", "GoodsLedger"),
     "undefined": ("llm/undefined.py", "UndefinedActionRegistry"),
@@ -1627,13 +1627,13 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     # 第 1 期 1-8b: 発話の口(状態台帳の腕の行 S8・S8M・腕 --speech-port on のランだけ)
     "speech": ("engine/speech/port.py", "SpeechPort"),
     # 第 2 期 2-2 段 11a: 近接の層(状態台帳の行 PX・腕 --proximity distance のランだけ)
-    "proximity": ("engine/proximity.py", "ProximityLayer"),
+    "proximity": ("world/model/proximity.py", "ProximityLayer"),
     # 第 3 期 3-3: 申込書の持ち主(状態台帳の行 X・申込書を渡したランだけ)
     "experiment": ("engine/experiment/layer.py", "ExperimentLayer"),
     # 第 3 期 3-2: 計算のまとめの窓(状態台帳の行 BW・進行役が置く)
     "batching": ("foundation/queues/batching.py", "WindowQueue"),
     # 第 3 期 3-5: 本人の体の層(状態台帳の行 BD・どの腕でも置く)
-    "body": ("engine/body/model.py", "BodyModel"),
+    "body": ("world/body/model.py", "BodyModel"),
     # 第 3 期 3-1: 暦 1a の影(状態台帳の行 CAL・腕 --calendar-shadow 1a のランだけ)
     "calendar_shadow": ("engine/calendar_shadow.py", "CalendarShadow"),
     # 第 6 期 6-2: カレンダー 1b(状態台帳の腕の行 C1B・C1BM・腕 --calendar 1b のランだけ)
@@ -1644,7 +1644,7 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "clock": ("engine/regional_clock.py", "RegionalClock"),
     # 〔第 6 期 6-4 C1〕連絡の道具(状態台帳の腕の行 CT1*・腕 --contact c1 のランだけ)と子の持ち主
     "contact": ("engine/contact/layer.py", "ContactLayer"),
-    "contact.dev": ("engine/contact/device.py", "Devices"),
+    "contact.dev": ("world/things/device.py", "Devices"),
     "contact.attn": ("engine/contact/attention.py", "Attention"),
     "contact.mail": ("engine/contact/deliver.py", "Mailbox"),
     "contact.chats": ("engine/conversation.py", "ConversationManager"),

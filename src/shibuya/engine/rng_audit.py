@@ -239,25 +239,25 @@ def scan_sites(root: Path, files: Iterable[Path] | None = None) -> list[StreamSi
 #: 〔第346 死んだ道の削除〕会話の応答率 0.8 の抽選 ``ConversationManager._accepts`` を消した −1=表の今の数は 26 → 25=試験 ``test_k19_static_sites_are_frozen``)。
 SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     # 〔小さな版上げ・meal_w17〕既定の食事時刻の引き(philox_array・k19 の鍵の並べ方・1 ブロック=3 語)
-    ("engine/energy.py", "MealStartDistribution.draw", "energy.meal_default"),
+    ("world/body/energy.py", "MealStartDistribution.draw", "energy.meal_default"),
     # 1 語目が無いか定数(隣の流れが無い)7 か所
-    ("agents/population.py", "sample_population", "w16.sample.reserved"),
+    ("world/facts/population_reader.py", "sample_population", "w16.sample.reserved"),
     ("cli.py", "household_wallets", "wallet.initial"),
-    ("engine/processes/civic.py", "PublicServiceDispatchProcess._counter_stream", "world.public_service_dispatch.counter"),
-    ("engine/processes/rail.py", "RailProcess._assign_external", "engine.processes.rail"),
-    ("engine/processes/rail.py", "RailProcess._build_external_home", "engine.processes.rail"),
-    ("engine/processes/salient.py", "SalientProcess._collapse_events", "world.salient.counter"),
+    ("world/laws/civic.py", "PublicServiceDispatchProcess._counter_stream", "world.public_service_dispatch.counter"),
+    ("world/laws/rail.py", "RailProcess._assign_external", "engine.processes.rail"),
+    ("world/laws/rail.py", "RailProcess._build_external_home", "engine.processes.rail"),
+    ("world/laws/salient.py", "SalientProcess._collapse_events", "world.salient.counter"),
     ("world/assets.py", "synthetic_assets", "world.synthetic"),
     # 引く語数が定数で 4 以内 7 か所(〔第330〕+1・RET −2)
     ("engine/chooser.py", "draw_index", "engine.chooser"),
     ("engine/classical.py", "ClassicalPolicy.answer", "policy.classical"),  # 〔1-8 J0〕render の中身を answer へ移した
     # 〔第330・10e B6〕天気の規則 calendar の再生日の抽選(鍵 1 語=層の名前と日番号のハッシュ・引く語数 2)
-    ("engine/processes/environment.py", "sample_calendar_day", "engine.processes.environment"),
+    ("world/laws/environment.py", "sample_calendar_day", "engine.processes.environment"),
     ("llm/mock.py", "MockLLM._draws", "expr:self.domain"),
     ("llm/mock.py", "MockLLM._move_target", "expr:self.domain + _MOVE_TARGET_DOMAIN_SUFFIX"),
     ("llm/mock.py", "MockLLM._shop_target", "expr:self.domain + _SHOP_TARGET_DOMAIN_SUFFIX"),
     # 〔第 2 期 2-2 段 11a〕知人に気づく抽選(0 語目を空け 1〜3 語目に時刻の鍵・体・相手=k19_counters・1 語だけ引く)
-    ("engine/proximity.py", "ProximityRule.notice_u", "proximity.notice"),
+    ("world/model/proximity.py", "ProximityRule.notice_u", "proximity.notice"),
     # 〔第 6 期 6-5〕忘れる速さの人ごとのばらつき(0 語目を空け 1 語目に体の番号=k19_counter_array・2 語だけ引く)
     ("engine/memory_m1.py", "forgetting_scale", "memory.forgetting_rate"),
     # 〔第 6 期 6-3 T2〕会話の時計の人ごとの話す速さ(0 語目を空け 1 語目に体の番号=k19_counters・1 語だけ引く)と発言ごとの揺れ
@@ -268,7 +268,7 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     ("core/wage_formula.py", "wage_uniform", "economy.wage"),
     # 〔第 6 期 6-4 C1〕最初の道具の状態(0 語目を空け 1・2 語目に体の番号と欄の番号=k19_counter_array・1 語だけ引く)と
     # 連絡の判断の仮のモデルの選び(0 語目を空け刻みの鍵・体・判断の番号=k19_counters・1 語だけ引く)
-    ("engine/contact/device.py", "Devices.__init__", "contact.device"),
+    ("world/things/device.py", "Devices.__init__", "contact.device"),
     ("engine/contact/port.py", "ContactPort._draw", "contact.mock"),
     # 〔第 6 期 6-4 C2〕習慣で答えられるときに判断の口へ戻すか(0 語目を空け刻みの鍵・体・判断の通し番号=k19_counters・1 語だけ引く)
     ("engine/contact/port.py", "habit_recheck_u", "contact.habit"),
@@ -282,21 +282,21 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
 
 #: 静的に決まらない呼び手(ファイル・関数・用途名)→ 実行時の検査での扱い。ここに無い呼び手が出たら落とす。
 UNDETERMINED_SITES: Final[dict[tuple[str, str, str], str]] = {
-    ("agents/population.py", "sample_population", "w16.sample.stratum"):
+    ("world/facts/population_reader.py", "sample_population", "w16.sample.stratum"):
         "permutation の大きさ=層の人数。0 語目を空け 1 語目に層の番号(10e K19・10c 検収 P1 を直した)=実行時に重なり 0 を見る",
-    ("agents/schedule.py", "draw_words", "agent.schedule"):
+    ("world/facts/mock_schedule.py", "draw_words", "agent.schedule"):
         "random_raw の語数が式。1 語目は体 × BLOCKS_PER_AGENT の刻みつきの設計=実行時に重なり 0 を見る",
-    ("agents/schedule.py", "draw_words_per_agent", "agent.schedule"): "同上(体ごとの流れ)",
-    ("engine/energy.py", "EnergyModel.draw_bodies", "body.eer"):
+    ("world/facts/mock_schedule.py", "draw_words_per_agent", "agent.schedule"): "同上(体ごとの流れ)",
+    ("world/body/energy.py", "EnergyModel.draw_bodies", "body.eer"):
         "正規乱数の棄却。まれに 2 ブロック(10c 検収 R3)。0 語目を空けた(10e K19)=実行時に重なり 0 を見る",
-    ("engine/energy.py", "EnergyModel.draw_bodies", "body.weight"): "同上",
-    ("engine/processes/civic.py", "LargeEventProcess._plan", "world.large_event"):
+    ("world/body/energy.py", "EnergyModel.draw_bodies", "body.weight"): "同上",
+    ("world/laws/civic.py", "LargeEventProcess._plan", "world.large_event"):
         "choice の大きさが式(会場の候補)。1 語目は日の鍵=実行時に見る",
-    ("engine/processes/goods_flow.py", "DeliveryInboundProcess._plan", "world.delivery_inbound"):
+    ("world/laws/goods_flow.py", "DeliveryInboundProcess._plan", "world.delivery_inbound"):
         "店の数の random・幾何分布・integers。1 語目は日の鍵(10c 検収 P3)=実行時に見る",
-    ("engine/processes/logistics.py", "LastMileProcess.__init__", "world.delivery_last_mile"):
+    ("world/laws/logistics.py", "LastMileProcess.__init__", "world.delivery_last_mile"):
         "予約だけ(作って引かない=0 ブロック)。実行時に見る",
-    ("engine/processes/logistics.py", "RoadWorksProcess._plan", "world.road_works"):
+    ("world/laws/logistics.py", "RoadWorksProcess._plan", "world.road_works"):
         "choice の大きさが工事の数。1 語目は日の鍵(10c 検収 R4)=実行時に見る",
     ("foundation/ports/decision.py", "present_rng", "decision.present"):
         "Generator を返し、呼び手(present)が permutation(候補の数)を引く。0 語目を空け 1〜3 語目に刻みの鍵・体・候補の数"
@@ -317,7 +317,7 @@ UNDETERMINED_SITES: Final[dict[tuple[str, str, str], str]] = {
         "Generator を返し、呼び手(MockLLM の応答)が引く。1 語目は tick=実行時に見る",
     ("perception/attention.py", "gate_stage1", "perception.attention.p_see"):
         "random(n) の n が式(呼び手はどれも 1 件=10c 検収)=実行時に見る",
-    ("perception/p_notice.py", "notice_event", "perception.p_notice"):
+    ("world/model/notice_reach.py", "notice_event", "perception.p_notice"):
         "random((2, 候補の数))。0 語目を空け事象の番号を 1 語目に(10e K19・10c 検収 P2 を直した)=実行時に重なり 0 を見る",
 }
 

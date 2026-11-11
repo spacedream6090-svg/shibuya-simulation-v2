@@ -27,7 +27,7 @@ from shibuya.engine import economy_stage2 as ES2
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 H, S, E, B, G, W = (int(s) for s in Sector)
 KINDS = np.array([0, 0, 2, 3, 0, 0])

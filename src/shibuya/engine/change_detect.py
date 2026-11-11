@@ -57,7 +57,7 @@ from shibuya.foundation.text import normalize as PN
 from shibuya.foundation.text import templates as PT
 from shibuya.perception.renderer import WALKABLE_FRACTION_SYNTHETIC
 from shibuya.world.assets import CELL_SIZE_M
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 __all__ = [
     "INTERO_UP_EDGES",

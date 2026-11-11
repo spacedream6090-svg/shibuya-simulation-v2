@@ -73,7 +73,7 @@ def set_arms(config: str) -> dict[str, str]:
     _paths()
     from shibuya.engine import economy_stage2 as ES2
     from shibuya.engine import memory_store as MS
-    from shibuya.engine import proximity as PX
+    from shibuya.world.model import proximity as PX
 
     arms = CONFIGS[config]
     # 〔第346 旧道の切替口の削除〕近接の切替口(set_arm)は消した=ランは常に distance(組 b・d の近接は既定と同じ)

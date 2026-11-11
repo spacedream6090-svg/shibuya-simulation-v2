@@ -21,7 +21,7 @@ import pytest
 from tests import _data_ids as D
 from tests import golden_env as GE
 
-from shibuya.agents.weekly import WeeklySchedule
+from shibuya.world.facts.weekly_reader import WeeklySchedule
 from shibuya.engine import relations as RL
 
 SRC = Path("src/shibuya")
@@ -115,8 +115,8 @@ def test_full_population_initial_net_is_uniform_in_every_kind_and_direction():
     8.3% ± 1 ポイント・U と同点の順のハッシュの順位相関 < 0.01・u→v と v→u で同じ・τ の再逆算(8b′ と同じ手順=
     ラン開始時の 15 番目の辺の A の中央値を小数 3 桁で切り下げ)が :data:`REL_TAU_V2`(〔段 10〕差し替えの世界では −∞=下の注)。
     v1 は同じ網で偏る(旧の事実)。"""
-    from shibuya.agents.population import load_population
-    from shibuya.agents.weekly import load_weekly
+    from shibuya.world.facts.population_reader import load_population
+    from shibuya.world.facts.weekly_reader import load_weekly
 
     pop = load_population(WORLD, n=None, seed=1)
     w = load_weekly(WORLD).restrict_to(pop.source_agent_id)

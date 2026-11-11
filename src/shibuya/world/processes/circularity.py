@@ -37,15 +37,15 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Final, Iterable, Mapping
 
-from shibuya.world.processes import absent as _AB
-from shibuya.world.processes.constitution import (
+from shibuya.world.ledger import absent as _AB
+from shibuya.world.ledger.constitution import (
     ENV_PATTERN_MD,
     PATTERN_LEDGER_RELPATH,
     _doc_path,
     _repo_root,
     _split_row,
 )
-from shibuya.world.processes.records import DRIVES_NONE
+from shibuya.world.ledger.records import DRIVES_NONE
 
 __all__ = [
     "COL_SCORING",

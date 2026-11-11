@@ -19,7 +19,7 @@ import json
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 
-from shibuya.world.processes.constitution import DeletionCandidate
+from shibuya.world.ledger.constitution import DeletionCandidate
 
 __all__ = [
     "DEFAULT_LEDGER_PATH",

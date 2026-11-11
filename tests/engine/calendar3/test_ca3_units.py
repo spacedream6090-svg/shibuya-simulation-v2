@@ -53,7 +53,7 @@ def test_roster_units_scheduler_and_weekly_workers_only():
 
 
 def test_roster_outside_employer_and_no_employer_are_not_scheduled():
-    from shibuya.engine.rights.initial import OUTSIDE_EMPLOYER_ORG
+    from shibuya.world.facts.rights.initial import OUTSIDE_EMPLOYER_ORG
 
     n = 20
     ids = np.arange(n, dtype=np.int64)

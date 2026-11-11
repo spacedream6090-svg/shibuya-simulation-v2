@@ -17,11 +17,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.geometry import kladek_speed_factor
-from shibuya.engine.space import nav1 as N
-from shibuya.world import navmesh as NV
-from shibuya.world.navmesh import navmesh_available
-from shibuya.world.state import DENSITY_STAGE_EDGES_PER_M2
+from shibuya.world.model.geometry import kladek_speed_factor
+from shibuya.world.model.space import nav1 as N
+from shibuya.world.model import navmesh as NV
+from shibuya.world.model.navmesh import navmesh_available
+from shibuya.world.model.state import DENSITY_STAGE_EDGES_PER_M2
 from tests.build_space import synth as SY
 
 SCALE = 0.01

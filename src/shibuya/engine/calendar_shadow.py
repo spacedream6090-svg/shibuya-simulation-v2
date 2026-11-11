@@ -35,7 +35,7 @@ from typing import Any, Final, Mapping
 
 import numpy as np
 
-from shibuya.agents.weekly import ACTIVITY_WORDS
+from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS
 from shibuya.foundation.time_consts import MINUTES_PER_DAY
 
 __all__ = [

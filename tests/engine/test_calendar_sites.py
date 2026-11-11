@@ -16,12 +16,12 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.schedule import synthesize
+from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.agents.state import AgentState
 from shibuya.engine.calendar import SimCalendar, load_holidays
 from shibuya.engine import presence as _PRESENCE
-from shibuya.engine.processes import environment as ENV
-from shibuya.engine.processes.runner import WorldProcessRunner
+from shibuya.world.laws import environment as ENV
+from shibuya.world.laws.runner import WorldProcessRunner
 from shibuya.engine.run import (
     DEFAULT_RESPONSE_DELAY,
     _named_closed_lookup,
@@ -29,7 +29,7 @@ from shibuya.engine.run import (
     add_fleet_args,
     calendar_kwargs_from_args,
 )
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 from tests import _data_ids as D
 from tests.engine.test_calendar import write_csv
@@ -79,7 +79,7 @@ def test_runner_reads_the_real_calendar(table):
     assert r.environment._weekday_kind() == "土休"                    # noqa: SLF001 - 祝日は土休
     # 〔第330・10e E3〕祝日は W7 の祝日の行(PH)。PH の規則の無い店(今の W7 は全部)は日曜の行=今と同じ開閉
     from shibuya.engine.calendar import OPENING_ROW_PH
-    from shibuya.engine.processes.opening import rows_of_day
+    from shibuya.world.laws.opening import rows_of_day
     assert r.opening.day_index == OPENING_ROW_PH
     _pd = np.arange(8, dtype=np.int8)
     assert np.array_equal(rows_of_day(np.zeros(8), _pd, OPENING_ROW_PH, None), _pd == 6)   # 祝日は日曜の行
@@ -160,7 +160,7 @@ def test_cli_main_accepts_the_switches():
 # ================================================================= #10 鉄道(実の資産があるときだけ)
 @pytest.mark.requires_data("world_v2")
 def test_rail_timetable_kind_comes_from_the_calendar(table):
-    from shibuya.engine.processes.rail import RailProcess
+    from shibuya.world.laws.rail import RailProcess
     from shibuya.world.assets import load_process_assets_or_synthetic
 
     world = World.load_or_synthetic(Path("data/world/v2"), n_cells=139, seed=1)

@@ -348,7 +348,7 @@ def _classical(n: int = 4):
 
     from shibuya.agents.state import Activity, AgentKind, AgentState
     from shibuya.engine import classical as CL
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     doc, md5 = CL.load_activity_prior()
     w = World.synthetic(n_cells=9, seed=1)

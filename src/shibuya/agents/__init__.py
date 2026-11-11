@@ -5,13 +5,6 @@ C2 第2弾で入るのは**個体状態 SoA**(state)と**mock 専用の合成日
 C5 で **W16 母集団の読み込みと二層抽出**(population)が加わる。
 """
 
-from shibuya.agents.population import (
-    Population,
-    load_population,
-    population_available,
-    sample_population,
-)
-from shibuya.agents.schedule import MockWeeklySchedule, synthesize
 from shibuya.agents.state import (
     N_WAKE_CONDITIONS,
     REFRACTORY_MINUTES,
@@ -35,11 +28,5 @@ __all__ = [
     "REFRACTORY_MINUTES",
     "WAKE_CONDITION_CLASS",
     "RESULT_TEXT",
-    "MockWeeklySchedule",
-    "synthesize",
-    "Population",
-    "load_population",
-    "population_available",
-    "sample_population",
     "MOCK_KIND_COUNT",
 ]

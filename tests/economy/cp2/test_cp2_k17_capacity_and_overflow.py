@@ -38,7 +38,7 @@ from shibuya.economy.ledger import (
 )
 from shibuya.foundation.ports.ledger import EntityRef, LedgerBundle
 from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 ROOT = Path(__file__).resolve().parents[3]
 

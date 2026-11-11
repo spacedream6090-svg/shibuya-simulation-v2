@@ -10,9 +10,9 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.engine.body import system1 as S1
+from shibuya.world.body import reactions as S1
 from shibuya.foundation.ports import percept as F
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 #: HEAD の ``percept_manifest()``(欄 26・空の欄 9=1-2 の凍結と同じ)。
 HEAD_EMPTY = ["eye_dir", "mind_dir", "belongings", "tool_state", "watched_by", "heard_speech", "nearby_change",

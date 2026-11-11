@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from shibuya.world.processes.constitution import DeletionCandidate
+from shibuya.world.ledger.constitution import DeletionCandidate
 from shibuya.world.processes.deletion_candidates import (
     DEFAULT_LEDGER_PATH,
     append_candidates,

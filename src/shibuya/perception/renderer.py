@@ -110,7 +110,7 @@ from shibuya.foundation.ports.percept import (
     WakeView,
 )
 from shibuya.world.assets import CELL_SIZE_M, WorldAssets, array_sha256, file_sha256
-from shibuya.world.state import LANDMARK_CATS, World
+from shibuya.world.model.state import LANDMARK_CATS, World
 from shibuya.foundation.time_consts import (
     HOURS_PER_DAY,
     MINUTES_PER_HOUR,

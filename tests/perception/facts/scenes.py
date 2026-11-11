@@ -17,7 +17,7 @@ from typing import Any
 import numpy as np
 
 from shibuya.agents.state import AgentKind, AgentState
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 from tests import _head_copy_pin as PIN
 
 HERE = Path(__file__).resolve().parent

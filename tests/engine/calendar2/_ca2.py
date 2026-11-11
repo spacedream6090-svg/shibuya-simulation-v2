@@ -16,7 +16,7 @@ from shibuya.engine.calendar2 import port as P
 from shibuya.engine.calendar2.layer import Calendar2Layer
 from shibuya.foundation.arms import contact as AC
 from shibuya.foundation.journal.log import EventLog
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 STEP_NS = STEP_SECONDS * NS_PER_SECOND
 TPD = int(STEPS_PER_DAY)

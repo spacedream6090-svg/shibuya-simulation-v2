@@ -18,7 +18,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `ca2`(関数): 腕 arm(と連絡の道具の腕 c1)を一時的に選ぶ(組み立てが読む)。
   - `choose`(関数): 仮のモデルの選びを試験の規則に差し替える(``rule(ctx, presented) -> 候補の id``)。
   - `groups_fixture`(関数): 合成の世界(母集団が無い=グループの一覧が無い)に、体 2 人ずつの家族と 10 人ずつの職場を入れる(宛先を作る)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar2.port`・`shibuya.engine.tools.groups`・`shibuya.engine.tools.record`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar2.port`・`shibuya.engine.tools.groups`・`shibuya.engine.tools.record`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.world.model.state`
 - 読む試験: `tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar2/test_ca2_units.py`・`tests/engine/calendar2/test_ca2_world.py`
 
 ## [test_ca2_runs.py](../../../../../../../tests/engine/calendar2/test_ca2_runs.py)

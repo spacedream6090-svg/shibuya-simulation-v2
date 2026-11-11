@@ -662,7 +662,7 @@ class Calendar2Layer:
         minute = int((int(start_ns) % self.day_ns) // (SECONDS_PER_MINUTE * NS_PER_SECOND))
         if sday == int(today) or self.calendar is None:
             return not bool(np.asarray(om)[pois, minute % np.asarray(om).shape[1]].any())
-        from shibuya.engine.processes.opening import rows_of_day
+        from shibuya.world.laws.opening import rows_of_day
 
         a = op.assets
         pp = np.asarray(a.plan_poi, dtype=np.int64)

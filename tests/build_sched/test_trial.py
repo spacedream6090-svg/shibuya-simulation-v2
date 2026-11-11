@@ -810,7 +810,7 @@ def test_trial_parquet_has_weekly_columns_plus_block_kind(trial_world, anchor: d
     """下見 parquet は ``agents.weekly._COLUMNS`` をそのまま含み(物差しが読める)+``block_kind``/``arm``。"""
     import pyarrow.parquet as pq
 
-    from shibuya.agents.weekly import _COLUMNS
+    from shibuya.world.facts.weekly_reader import _COLUMNS
 
     world, _ = trial_world
     f = _facts(trial_world)

@@ -52,7 +52,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_port_answers_reach_the_actions_in_a_run`(関数)
   - `test_rejected_rows_drop_their_causes`(関数)
   - `test_transfer_takes_row_causes_and_counts_the_uncaused_rows`(関数)
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.economy.stage2`・`shibuya.engine.commit`・`shibuya.engine.decision.layer`・`shibuya.engine.decision.ports`・`shibuya.engine.economy_stage2`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.ledger`・`shibuya.world.state`・`tests/economy/stage2/test_stage2_runs.py`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.economy.stage2`・`shibuya.engine.commit`・`shibuya.engine.decision.layer`・`shibuya.engine.decision.ports`・`shibuya.engine.economy_stage2`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.ledger`・`shibuya.world.model.state`・`tests/economy/stage2/test_stage2_runs.py`
 
 ## [test_stage2_default_2_4.py](../../../../../../../tests/economy/stage2/test_stage2_default_2_4.py)
 
@@ -92,7 +92,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_payroll_pays_into_the_account_with_exogenous_funding`(関数)
   - `test_withdraw_needs_a_deposit_and_the_part`(関数)
   - `test_withdraw_rule_amount_and_cause`(関数)
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.engine.processes.rail`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.ledger`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.ledger`・`shibuya.world.laws.rail`
 
 ## [test_stage2_resume.py](../../../../../../../tests/economy/stage2/test_stage2_resume.py)
 
@@ -110,7 +110,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `arm`(関数)
   - `test_arm_off_state_files_keep_the_header_and_refuse_an_on_resume`(関数)
   - `test_resume_stops_when_the_arm_or_parts_differ`(関数)
-- import している内部モジュール: `shibuya.engine.economy_stage2`・`shibuya.engine.resume`・`shibuya.world.state`・`tests/economy/stage2/test_stage2_runs.py`
+- import している内部モジュール: `shibuya.engine.economy_stage2`・`shibuya.engine.resume`・`shibuya.world.model.state`・`tests/economy/stage2/test_stage2_runs.py`
 - 決定の ID: 第 346
 
 ## [test_stage2_rules_credit_atm.py](../../../../../../../tests/economy/stage2/test_stage2_rules_credit_atm.py)
@@ -130,7 +130,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_payday_follows_the_calendar_port`(関数)
   - `test_payroll_deductions_is_an_empty_container`(関数)
   - `test_rights_pairs_reads_employment_rows_in_row_order`(関数)
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.credit`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.economy.stage2`・`shibuya.engine.calendar`・`shibuya.engine.economy_stage2`・`shibuya.engine.rights.ledger`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.credit`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.economy.stage2`・`shibuya.engine.calendar`・`shibuya.engine.economy_stage2`・`shibuya.world.facts.rights.ledger`・`shibuya.world.model.state`
 - 決定の ID: 第 337
 
 ## [test_stage2_runs.py](../../../../../../../tests/economy/stage2/test_stage2_runs.py)
@@ -147,7 +147,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_off_parts_spec_without_the_arm_is_ignored`(関数)
   - `test_port_arm_shows_the_candidates_and_keeps_the_mock_actions`(関数)
   - `test_turning_one_part_off_zeroes_its_flow`(関数)
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.engine.decision.layer`・`shibuya.engine.economy_stage2`・`shibuya.engine.run`・`shibuya.engine.systems.boxes`・`shibuya.foundation.ports.ledger`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.engine.decision.layer`・`shibuya.engine.economy_stage2`・`shibuya.engine.run`・`shibuya.engine.systems.boxes`・`shibuya.foundation.ports.ledger`・`shibuya.world.model.state`
 - 読む試験: `tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_resume_arm.py`
 - 決定の ID: 第 337
 

@@ -12,8 +12,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.agents.schedule import synthesize
-from shibuya.agents.weekly import (
+from shibuya.world.facts.mock_schedule import synthesize
+from shibuya.world.facts.weekly_reader import (
     N_DAYS,
     PLACE_KIND_OUTSIDE,
     PLACE_WORDS,
@@ -22,8 +22,8 @@ from shibuya.agents.weekly import (
 )
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.processes.civic import EVENT_WINDOW, LargeEventProcess
-from shibuya.engine.processes.rail import RailProcess
+from shibuya.world.laws.civic import EVENT_WINDOW, LargeEventProcess
+from shibuya.world.laws.rail import RailProcess
 
 from .conftest import fake_timetable_assets, make_agents, make_world
 

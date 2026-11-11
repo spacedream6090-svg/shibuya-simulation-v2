@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.engine.rules import table as RT
+from shibuya.world.facts.rules import table as RT
 
 ROOT = Path(__file__).resolve().parents[3]
 DRAFT = json.loads((ROOT / "docs/research/v2-r118-rules-rows-draft.json").read_text(encoding="utf-8"))

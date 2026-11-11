@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.manifest.world_catalog import WorldCatalog
-from shibuya.world.processes import constitution as C
-from shibuya.world.processes.records import AnnouncementScope, DetailDeclaration
-from shibuya.world.processes.registry import WorldRegistry
+from shibuya.world.ledger.world_catalog import WorldCatalog
+from shibuya.world.ledger import constitution as C
+from shibuya.world.ledger.records import AnnouncementScope, DetailDeclaration
+from shibuya.world.ledger.registry import WorldRegistry
 from tests.world.processes.conftest import make_plan_spec, make_process
 
 

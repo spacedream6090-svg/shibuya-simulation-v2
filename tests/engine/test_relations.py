@@ -18,7 +18,7 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import RELATION_FIELDS, AgentState, ResultCode
-from shibuya.agents.weekly import WeeklySchedule
+from shibuya.world.facts.weekly_reader import WeeklySchedule
 from shibuya.engine import memory as M
 from shibuya.engine import relations as RL
 from shibuya.engine.conversation import ConversationManager
@@ -255,7 +255,7 @@ def test_readers_live_edges_strength_same_cell_and_invite_weights():
 def build_renderer(n: int = 8):
     from shibuya.agents.state import AgentKind
     from shibuya.perception.renderer import Renderer
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     w = World.synthetic(n_cells=9, seed=1)
     a = AgentState(n)

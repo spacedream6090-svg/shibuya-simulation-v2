@@ -106,7 +106,7 @@ EMPLOYER_ITEMS_42: Final[tuple[str, ...]] = EMPLOYER_ITEMS[:4]
 
 
 def _rules(rules: Any) -> Any:
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     return _RT.default_rules() if rules is None else rules
 
@@ -114,7 +114,7 @@ def _rules(rules: Any) -> Any:
 def _get(rule_id: str, asof: "str | _dt.date", rules: Any) -> Any:
     """``asof`` の日に効いている行。施行の前は ``None``(表の無い写し・行の無い表も ``None``)。〔検収 L5〕最初の版の asof が
     下限の印(読んだ版の施行日を下限に置いた)の行を下限より前に引いたときは ``RuleNotInForce`` で止める。"""
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     try:
         rt = _rules(rules)
@@ -131,7 +131,7 @@ def _get(rule_id: str, asof: "str | _dt.date", rules: Any) -> Any:
 
 def _row(rule_id: str, asof: "str | _dt.date", rules: Any = None) -> Any:
     """``asof`` の日に効いている machine の行(施行の前・表の無い写し・行の無い表は ``None``)。machine でない行は止める。"""
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     row = _get(rule_id, asof, rules)
     if row is not None and str(row.kind) != _RT.KIND_MACHINE:
@@ -141,7 +141,7 @@ def _row(rule_id: str, asof: "str | _dt.date", rules: Any = None) -> Any:
 
 def _bridge_row(rule_id: str, asof: "str | _dt.date", rules: Any = None) -> Any:
     """〔検収 L1〕つなぎの読み口: :data:`BRIDGE_READ_RULES` の human の行だけを読む(ほかの id は止める)。"""
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     if rule_id not in BRIDGE_READ_RULES:
         raise ValueError(f"{rule_id} はつなぎで読む行の一覧に無い")
@@ -168,7 +168,7 @@ def _frac(x: Any) -> Fraction:
 def _valid(row: Any, asof: "str | _dt.date") -> Any:
     """行の ``valid_until``(適用期間の終わり=雇用保険の率の年度など)。〔検収 L5〕過ぎた日は黙って 0 にせず
     ``RuleNotInForce`` で止める(次の年度の率は表に無い=足すまでランを止める)。"""
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     if row is None:
         return None

@@ -15,7 +15,7 @@ from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
 from shibuya.engine import resolve as R
 from shibuya.foundation.ports.ledger import LedgerBundle
-from shibuya.engine.processes.goods_flow import (
+from shibuya.world.laws.goods_flow import (
     CLEANING_WINDOWS,
     COLLECT_WINDOW,
     DELIVERY_WINDOW,
@@ -64,7 +64,7 @@ def _deplete(world, bundle, store: int, keep: int = 2) -> None:
 
 def _staffed(world, agents):
     """POI → 担当従業者(``OpeningProcess`` と同じ丸振り)。"""
-    from shibuya.engine.processes.opening import OpeningProcess
+    from shibuya.world.laws.opening import OpeningProcess
 
     from shibuya.world.assets import ProcessAssets
 

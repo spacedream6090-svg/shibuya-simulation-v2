@@ -9,7 +9,7 @@ import pytest
 
 from shibuya.agents.state import Activity, AgentKind, AgentState, ResultCode
 from shibuya.engine import norm_meter as NM
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 
 def meter(n: int = 6, *, station=(2,)):

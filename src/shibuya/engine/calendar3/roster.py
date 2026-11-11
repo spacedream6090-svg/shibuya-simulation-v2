@@ -102,8 +102,8 @@ def build_roster(*, n_agents: int, rights: Any, table: Any, duty_role: Any = Non
         duty_role: 体 → 役割の語(``Population.duty_role``・``None``=語なし=最初の担当)。
         outside_org: 外の雇用主の組織の番号(``engine.rights.initial.OUTSIDE_EMPLOYER_ORG``)。
     """
-    from shibuya.engine.rights.initial import OUTSIDE_EMPLOYER_ORG
-    from shibuya.engine.rights.ledger import AGENT, EMPLOY, ORG, STORE
+    from shibuya.world.facts.rights.initial import OUTSIDE_EMPLOYER_ORG
+    from shibuya.world.facts.rights.ledger import AGENT, EMPLOY, ORG, STORE
 
     n = int(n_agents)
     out_org = int(OUTSIDE_EMPLOYER_ORG if outside_org is None else outside_org)

@@ -129,7 +129,7 @@ def stratified_sample(pop: Any, n: int, seed: int | str = 1, rng_scheme: str = "
 def use_sampler(kind: str) -> None:
     if kind != "stratified":
         return
-    import shibuya.agents.population as POP
+    import shibuya.world.facts.population_reader as POP
     import shibuya.engine.run as RUN
 
     POP.sample_population = stratified_sample  # type: ignore[assignment]
@@ -137,7 +137,7 @@ def use_sampler(kind: str) -> None:
 
 
 def _population(world: str, n: int | None, seed: int, sample: str) -> Any:
-    from shibuya.agents.population import load_population, sample_population
+    from shibuya.world.facts.population_reader import load_population, sample_population
 
     full = load_population(world, n=None, seed=seed)
     if n is None:
@@ -157,7 +157,7 @@ def _curve(init: Any, n: int, A0: np.ndarray, taus: list[float]) -> dict[str, An
 
 
 def cmd_tau(args: argparse.Namespace) -> int:
-    from shibuya.agents.weekly import load_weekly
+    from shibuya.world.facts.weekly_reader import load_weekly
     from shibuya.engine import relations as RL
 
     wk = load_weekly(args.world)
@@ -201,7 +201,7 @@ def cmd_tau(args: argparse.Namespace) -> int:
 # ------------------------------------------------------------------ audit-sample
 def cmd_audit_sample(args: argparse.Namespace) -> int:
     from shibuya.agents.state import AgentKind
-    from shibuya.agents.weekly import load_weekly
+    from shibuya.world.facts.weekly_reader import load_weekly
     from shibuya.engine import relations as RL
 
     wk = load_weekly(args.world)
@@ -511,9 +511,9 @@ def cmd_arms(args: argparse.Namespace) -> int:
 
 # ------------------------------------------------------------------ detect-cost
 def cmd_detect_cost(args: argparse.Namespace) -> int:
-    from shibuya.agents.population import load_population
+    from shibuya.world.facts.population_reader import load_population
     from shibuya.agents.state import AgentState
-    from shibuya.agents.weekly import load_weekly
+    from shibuya.world.facts.weekly_reader import load_weekly
     from shibuya.engine import relations as RL
 
     pop = load_population(args.world, n=None, seed=1)
@@ -566,7 +566,7 @@ def cmd_detect_cost(args: argparse.Namespace) -> int:
 def cmd_replay(args: argparse.Namespace) -> int:
     import pyarrow.parquet as pq
 
-    from shibuya.agents.weekly import load_weekly
+    from shibuya.world.facts.weekly_reader import load_weekly
     from shibuya.engine import relations as RL
     from shibuya.llm.parser import parse_two_line
     from shibuya.foundation.text import templates as T
@@ -645,8 +645,8 @@ def _life_minutes(n: float, tau: float, d: float = 0.5) -> float:
 
 
 def cmd_lifetimes(args: argparse.Namespace) -> int:
-    from shibuya.agents.population import load_population
-    from shibuya.agents.weekly import load_weekly
+    from shibuya.world.facts.population_reader import load_population
+    from shibuya.world.facts.weekly_reader import load_weekly
     from shibuya.engine import relations as RL
 
     pop = load_population(args.world, n=None, seed=1)

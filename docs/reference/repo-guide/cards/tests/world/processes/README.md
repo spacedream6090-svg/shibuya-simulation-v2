@@ -18,7 +18,7 @@ world.processes のテスト用ファクトリ(最小の合法な宣言を作る
   - `make_process`(関数)
   - `registry`(関数)
   - `test_catalog`(関数)
-- import している内部モジュール: `shibuya.foundation.growth`・`shibuya.manifest.world_catalog`・`shibuya.world.processes.records`・`shibuya.world.processes.registry`
+- import している内部モジュール: `shibuya.foundation.growth`・`shibuya.world.ledger.records`・`shibuya.world.ledger.registry`・`shibuya.world.ledger.world_catalog`
 - 読む試験: `tests/world/processes/test_constitution.py`・`tests/world/processes/test_declarations_1101.py`・`tests/world/processes/test_records.py`・`tests/world/processes/test_registry.py`
 
 ## [test_actual_log.py](../../../../../../../tests/world/processes/test_actual_log.py)
@@ -46,7 +46,7 @@ world.processes のテスト用ファクトリ(最小の合法な宣言を作る
   - `test_plan_compliance_uses_realizes_relations`(関数)
   - `test_plan_compliance_without_realizes_raises`(関数)
   - `test_rows_view_is_read_only`(関数)
-- import している内部モジュール: `shibuya.foundation.growth`・`shibuya.world.processes.actual_log`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.records`
+- import している内部モジュール: `shibuya.foundation.growth`・`shibuya.world.ledger.actual_log`・`shibuya.world.ledger.first_batch`・`shibuya.world.ledger.records`
 
 ## [test_constitution.py](../../../../../../../tests/world/processes/test_constitution.py)
 
@@ -74,7 +74,7 @@ world.processes のテスト用ファクトリ(最小の合法な宣言を作る
   - `test_undeclared_detail_becomes_a_deletion_candidate`(関数): 知覚契約書 §1 不変条件2「宣言のない細部は削除候補として台帳に自動掲載」。
   - `test_unknown_ids_are_violations`(関数)
   - `test_vanished_target_becomes_a_deletion_candidate`(関数): 「宣言した届き先が消えた細部は、削除候補として台帳に自動的に載る」(§5)。
-- import している内部モジュール: `shibuya.manifest.world_catalog`・`shibuya.world.processes.constitution`・`shibuya.world.processes.records`・`shibuya.world.processes.registry`・`tests/world/processes/conftest.py`
+- import している内部モジュール: `shibuya.world.ledger.constitution`・`shibuya.world.ledger.records`・`shibuya.world.ledger.registry`・`shibuya.world.ledger.world_catalog`・`tests/world/processes/conftest.py`
 
 ## [test_declarations_1101.py](../../../../../../../tests/world/processes/test_declarations_1101.py)
 
@@ -92,7 +92,7 @@ world.processes のテスト用ファクトリ(最小の合法な宣言を作る
   - `test_inputs_existing_five_filled_and_new_seven_fields_only`(関数)
   - `test_routing_absent_rows_all_have_a_declaration`(関数): routing §1 の行き先「無いと宣言」の 6 行は宣言がある(#102 納品は入力として)。
   - `test_statements_are_copied_from_routing_section_3`(関数): routing §3 に文案のある宣言は文案の写し(「」の中=鉤括弧の文と一致)。
-- import している内部モジュール: `shibuya.world.processes.absent`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.inputs`・`shibuya.world.processes.records`・`tests/_places.py`・`tests/world/processes/conftest.py`
+- import している内部モジュール: `shibuya.world.ledger.absent`・`shibuya.world.ledger.first_batch`・`shibuya.world.ledger.inputs`・`shibuya.world.ledger.records`・`tests/_places.py`・`tests/world/processes/conftest.py`
 - 決定の ID: 11-01/§1・11-01/§2・11-01/§10-3・第 340
 
 ## [test_deletion_candidates.py](../../../../../../../tests/world/processes/test_deletion_candidates.py)
@@ -109,7 +109,7 @@ world.processes のテスト用ファクトリ(最小の合法な宣言を作る
   - `test_first_seen_is_preserved`(関数)
   - `test_load_missing_file_is_empty`(関数)
   - `test_vanished_targets_are_merged`(関数)
-- import している内部モジュール: `shibuya.world.processes.constitution`・`shibuya.world.processes.deletion_candidates`
+- import している内部モジュール: `shibuya.world.ledger.constitution`・`shibuya.world.processes.deletion_candidates`
 
 ## [test_first_batch.py](../../../../../../../tests/world/processes/test_first_batch.py)
 
@@ -135,7 +135,7 @@ world.processes のテスト用ファクトリ(最小の合法な宣言を作る
   - `test_pulled_forward_batch_matches_7_2`(関数)
   - `test_rail_and_opening_are_realized_by_engine_rule_for_now`(関数)
   - `test_registry_hash_is_stable_across_builds`(関数)
-- import している内部モジュール: `shibuya.manifest.world_catalog`・`shibuya.world.processes.constitution`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.records`・`shibuya.world.processes.relations`
+- import している内部モジュール: `shibuya.world.ledger.constitution`・`shibuya.world.ledger.first_batch`・`shibuya.world.ledger.records`・`shibuya.world.ledger.relations`・`shibuya.world.ledger.world_catalog`
 
 ## [test_records.py](../../../../../../../tests/world/processes/test_records.py)
 
@@ -162,7 +162,7 @@ world.processes のテスト用ファクトリ(最小の合法な宣言を作る
   - `test_required_fields`(関数)
   - `test_scheduled_is_the_compliance_numerator`(関数)
   - `test_validity_covers`(関数)
-- import している内部モジュール: `shibuya.world.processes.records`・`tests/world/processes/conftest.py`
+- import している内部モジュール: `shibuya.world.ledger.records`・`tests/world/processes/conftest.py`
 
 ## [test_registry.py](../../../../../../../tests/world/processes/test_registry.py)
 
@@ -181,7 +181,7 @@ world.processes のテスト用ファクトリ(最小の合法な宣言を作る
   - `test_relation_targets_must_exist`(関数)
   - `test_to_json_is_deterministic_and_hash_stable`(関数)
   - `test_unknown_catalog_class_rejected`(関数)
-- import している内部モジュール: `shibuya.manifest.world_catalog`・`shibuya.world.processes.records`・`shibuya.world.processes.registry`・`shibuya.world.processes.relations`・`tests/world/processes/conftest.py`
+- import している内部モジュール: `shibuya.world.ledger.records`・`shibuya.world.ledger.registry`・`shibuya.world.ledger.relations`・`shibuya.world.ledger.world_catalog`・`tests/world/processes/conftest.py`
 
 ## [test_relations.py](../../../../../../../tests/world/processes/test_relations.py)
 
@@ -198,4 +198,4 @@ world.processes のテスト用ファクトリ(最小の合法な宣言を作る
   - `test_realizes_requires_executor_attribute`(関数): §2「realizes … 属性 executor: {llm_agent | engine_rule | none}」。
   - `test_records_requires_target_type`(関数)
   - `test_revises_version_must_be_a_revision`(関数)
-- import している内部モジュール: `shibuya.world.processes.records`・`shibuya.world.processes.relations`
+- import している内部モジュール: `shibuya.world.ledger.records`・`shibuya.world.ledger.relations`

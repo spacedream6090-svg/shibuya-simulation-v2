@@ -20,8 +20,8 @@ import pytest
 from shibuya.foundation.journal import log as EV
 from shibuya.engine.experiment import apply as AP
 from shibuya.foundation.ports import experiment_gate as GT
-from shibuya.engine.processes.environment import WeatherWarning
-from shibuya.engine.processes.opening import build_open_matrix
+from shibuya.world.laws.environment import WeatherWarning
+from shibuya.world.laws.opening import build_open_matrix
 
 from tests.engine.experiment._x33 import NS_DAY, NS_HOUR, STEP_S, at, form, handle, rows, synthetic_world
 

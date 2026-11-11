@@ -74,8 +74,8 @@ for _p in (str(REPO_ROOT / "src"), str(REPO_ROOT / "tools" / "c6")):
 
 import c6lib  # noqa: E402
 
-from shibuya.agents.population import load_population  # noqa: E402
-from shibuya.agents.weekly import (  # noqa: E402
+from shibuya.world.facts.population_reader import load_population  # noqa: E402
+from shibuya.world.facts.weekly_reader import (  # noqa: E402
     ACTIVITY_WORDS,
     CELL_UNRESOLVED,
     MINUTES_PER_DAY,

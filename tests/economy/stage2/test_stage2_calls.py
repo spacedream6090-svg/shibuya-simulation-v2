@@ -193,7 +193,7 @@ def test_port_answers_reach_the_actions_in_a_run(monkeypatch):
     from tests.economy.stage2 import test_stage2_runs as TR
     from shibuya.engine.decision import layer as DL
     from shibuya.engine.decision import ports as PT
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)

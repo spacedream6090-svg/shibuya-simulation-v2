@@ -15,7 +15,7 @@ import pytest
 
 from tests import golden_env as GE
 
-from shibuya.agents.weekly import (
+from shibuya.world.facts.weekly_reader import (
     ACTIVITY_WORDS,
     N_DAYS,
     PLACE_WORDS,
@@ -371,8 +371,8 @@ def test_v2_rule_on_the_real_w17_matches_the_parent_verified_counts():
     v2.1(第173): W17 v1 [101,388 / 244,874 / 183 / 0]・W17 v2 [1,292 / 255,230 / 84,895 / 4,961]
     域内居住者のブロックはどの表・どの読み口でも v1 と同一。
     """
-    from shibuya.agents.population import load_population
-    from shibuya.agents.weekly import load_weekly
+    from shibuya.world.facts.population_reader import load_population
+    from shibuya.world.facts.weekly_reader import load_weekly
 
     full = load_population(WORLD_DIR, n=None, seed=1)
     wk = load_weekly(WORLD_DIR)

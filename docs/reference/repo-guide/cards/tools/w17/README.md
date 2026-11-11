@@ -43,7 +43,7 @@ diversity_yardstick.py — **個体の行動多様性の物差し**(D-68 下見 
   - `signature_stats`(関数): 体ごとの署名ダイジェスト → 種類数・種類率・上位 1 型の占有率。**純関数**。
   - `time_stats`(関数): 開始分の並び → ``:00+:30`` 率・15 分ビンの最頻と占有率・エントロピー。**純関数**。
   - `unverified_anchors`(関数): ``verified_by`` が「未確認」で始まるアンカーの名前(報告に印を出すため)。
-- import している内部モジュール: `shibuya.agents.population`・`shibuya.agents.weekly`・`shibuya.build.sched.vocab`・`tools/c6/c6lib.py`
+- import している内部モジュール: `shibuya.build.sched.vocab`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.weekly_reader`・`tools/c6/c6lib.py`
 - 読む試験: `tests/tools/test_seal_split_337.py`・`tests/w17/conftest.py`
 - CLI の引数
   - `--anchors`: アンカー台帳(複数なら合わせる。既定 構築側+検証側の 2 本=DEFAULT_ANCHORS_PATHS)

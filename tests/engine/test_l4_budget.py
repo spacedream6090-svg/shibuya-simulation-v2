@@ -29,7 +29,7 @@ from shibuya.engine.arbiter import (
     call_budget_per_tick,
 )
 from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 WORLD_DIR = Path("data/world/v2")
 real_data = pytest.mark.requires_data("world_v2:w12_timetables.parquet")

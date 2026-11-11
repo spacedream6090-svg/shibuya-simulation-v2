@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.schedule import synthesize
+from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.agents.state import (
     INTENT_FIELDS,
     INTENT_NONE,

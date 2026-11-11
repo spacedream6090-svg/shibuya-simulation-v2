@@ -114,7 +114,7 @@ def test_rows_not_in_force_give_zero():
     t = TX.payroll_tables("2026-05-25", r42b=R42B)  # 住民税の令和 8 年度の行は 6 月から
     assert int(TX.resident_tax_monthly(np.array([300_000]), t)[0]) == 0
     # 〔検収 L5〕雇用保険の率の適用期間(〜2027-03-31)の後は黙って 0 にせず止まる
-    from shibuya.engine.rules import table as RT
+    from shibuya.world.facts.rules import table as RT
 
     with pytest.raises(RT.RuleNotInForce):
         TX.payroll_tables("2027-04-25", r42b=R42B)
@@ -156,7 +156,7 @@ def test_outside_employer_rows_are_enrolled_as_full_time():
 
 def test_lower_bound_rows_stop_before_the_bound():
     """〔検収 L5〕下限の印の行を下限より前に引くと止まる(施行の前の普通の行は None のまま)。"""
-    from shibuya.engine.rules import table as RT
+    from shibuya.world.facts.rules import table as RT
 
     with pytest.raises(RT.RuleNotInForce):
         TX.total_volume_cap("2020-01-01")

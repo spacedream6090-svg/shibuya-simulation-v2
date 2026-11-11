@@ -574,7 +574,7 @@ def test_prefix_mismatches_and_read_only_facts():
 
 def test_walk_minutes_share_one_function():
     from shibuya.build.sched import w20_w21_port as WP
-    from shibuya.engine.geometry import SPEED_REFERENCE_MS
+    from shibuya.world.model.geometry import SPEED_REFERENCE_MS
 
     assert A.WALK_SPEED_REFERENCE_MS == SPEED_REFERENCE_MS
     t = P.build_tables(_facts())["long"]["text"]
@@ -638,8 +638,8 @@ def test_relation_category_from_the_persons_view():
 
 # ================================================================================ 段 10 の材料
 def test_store_staff_rows_round_robin_head_first_and_engine_grant():
-    from shibuya.engine.rights.ledger import Right, Rights
-    from shibuya.engine.rights.initial import staff_of_poi
+    from shibuya.world.facts.rights.ledger import Right, Rights
+    from shibuya.world.facts.rights.initial import staff_of_poi
 
     p = {"person_id": np.arange(6), "org_index": np.array([0, 0, 0, 1, -1, 0]),
          "is_org_head": np.array([False, True, False, True, False, False]),
@@ -850,8 +850,8 @@ def test_real_structure_and_instruments(built):
 
 @REAL
 def test_real_store_staff_rows_pass_engine_grant(built):
-    from shibuya.engine.rights.ledger import Right, Rights
-    from shibuya.engine.rights.initial import staff_of_poi
+    from shibuya.world.facts.rights.ledger import Right, Rights
+    from shibuya.world.facts.rights.initial import staff_of_poi
 
     out, _man = built
     r = pq.read_table(out / "w21c_rights_store_staff.parquet").to_pydict()

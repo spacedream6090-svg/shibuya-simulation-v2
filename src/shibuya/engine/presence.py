@@ -96,16 +96,16 @@ from typing import Any, Final
 import numpy as np
 
 from shibuya.agents.state import Activity, AgentState, ResultCode
-from shibuya.agents.weekly import (
+from shibuya.world.facts.weekly_reader import (
     ACTIVITY_WORDS,
     MINUTES_PER_DAY,
     N_DAYS,
     PLACE_KIND_OUTSIDE,
     PLACE_WORDS,
 )
-from shibuya.engine import rate_rules as _RATE_RULES
+from shibuya.world.laws import switch_rate as _RATE_RULES
 from shibuya.engine import resolve as R
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 from shibuya.foundation.time_consts import HOURS_PER_DAY, STEPS_PER_HOUR
 
 __all__ = [

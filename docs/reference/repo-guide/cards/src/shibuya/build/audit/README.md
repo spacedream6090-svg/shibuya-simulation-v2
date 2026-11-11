@@ -38,7 +38,7 @@ W18 カタログ写像・世界被覆指標(§1 W18・D-W19)。
   - `parse_n_real`(関数): カタログ「現実数量」欄 → 先頭の数(桁区切りのカンマを外す)。数が無ければ None。
   - `run`(関数)
   - `weight`(関数): w = 1 + log10(1 + N_real)(上限 6)。N_real 不明は 1(expedient)。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.manifest.world_catalog`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.world.ledger.world_catalog`
 - 呼び手: `shibuya.build.audit.run`
 - 読む試験: `tests/build_audit/test_audit_units.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`

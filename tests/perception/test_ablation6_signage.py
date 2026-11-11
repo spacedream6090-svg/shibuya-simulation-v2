@@ -22,7 +22,7 @@ from shibuya.agents.state import AgentKind, AgentState
 from shibuya.engine.run import run_day
 from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import Renderer
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")
 #: 看板ありの参照場面の指紋(``tests/perception/test_ablation1.py`` と**同じ場面・同じ値**)。

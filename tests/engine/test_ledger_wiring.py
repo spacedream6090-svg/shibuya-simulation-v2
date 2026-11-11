@@ -22,7 +22,7 @@ import pytest
 
 from tests import _time_gates as TG
 
-from shibuya.agents.schedule import synthesize
+from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.agents.state import AgentState
 from shibuya.economy import census as CS
 from shibuya.economy import checks as CK
@@ -33,7 +33,7 @@ from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 from tests import golden_env as GE
 
 W2_REPORT_SECONDS = 60.0

@@ -193,7 +193,7 @@ _REPLAY_CHILD = r"""
 import json, sys
 import shibuya
 from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 class BoomLLM:
     def complete(self, request):
@@ -266,7 +266,7 @@ def _child_problems(before: str, now: str, tmp) -> list[str]:  # noqa: ANN001
 def recorded_tape(tmp_path):
     """偽 vLLM で録ったテープ(作業木の src)。"""
     from shibuya.engine.run import run_day
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
     from tests.engine.test_tape_deferred import make_client
     from tests.llm.test_fleet import FakeVLLM
 
@@ -289,7 +289,7 @@ def _replay(monkeypatch, tape, *, drop_percepts: bool = False):
     from shibuya.engine.run import run_day
     from shibuya.engine.state_hashes import to_state
     from shibuya.perception import renderer as R
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
     from tests.engine.test_tape_wiring import BoomLLM
 
     seen = {"inbox_items": 0, "percepts": 0, "bad": []}
@@ -325,7 +325,7 @@ def test_replay_inbox_never_holds_a_percept(recorded_tape, monkeypatch, tmp_path
     from shibuya.engine import resume as RS
     from shibuya.engine.state_hashes import to_state
     from shibuya.llm.fleet import FleetBridgeResult
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     assert "percept" not in {f.name for f in dataclasses.fields(BridgeResult)}
     assert "percept" not in {f.name for f in dataclasses.fields(FleetBridgeResult)}

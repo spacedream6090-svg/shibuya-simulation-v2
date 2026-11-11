@@ -16,13 +16,13 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import ENERGY_FIELDS, Activity, ActivityKind, AgentKind, AgentState
-from shibuya.agents.weekly import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
-from shibuya.engine import energy as E
+from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
+from shibuya.world.body import energy as E
 from shibuya.engine import resolve as R
 from shibuya.engine.change_detect import ChangeDetector
 from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import Renderer
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕錨は構築側の 1 本だけ(旧値の腕 validation と検証側の錨を読む口は消した=前は 2 本を
 # 合わせて読み、第 18-1 表の 1 つの既定の時刻で前の版の値を確かめた)。既定の時刻を全員 1 つの値にする試験は
@@ -446,7 +446,7 @@ def test_hunger_words_live_in_the_templates():
 
 # ================================================================= P4(配列演算だけ)
 _PER_TICK = {
-    "engine/energy.py": ("mets_of", "expenditure", "stage_of", "hunger_copy", "meal_share_of",
+    "world/body/energy.py": ("mets_of", "expenditure", "stage_of", "hunger_copy", "meal_share_of",
                          "meal_share_for_slot", "snack_share_of", "due", "after_tick", "note"),
     "engine/resolve.py": ("advance_body", "_energy_meal", "energy_out_of_area_meal"),
 }
@@ -463,7 +463,7 @@ def test_per_tick_paths_have_no_python_loops():
                     if isinstance(sub, (ast.For, ast.While)):
                         offenders.append(f"{rel}:{node.name}:{sub.lineno}")
     assert not offenders, offenders
-    assert "逐次ループ宣言" in (SRC / "engine/energy.py").read_text(encoding="utf-8")
+    assert "逐次ループ宣言" in (SRC / "world/body/energy.py").read_text(encoding="utf-8")
 
 
 # ================================================================= ラン(合成世界・小)

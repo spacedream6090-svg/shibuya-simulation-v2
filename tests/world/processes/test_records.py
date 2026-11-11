@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.world.processes.records import (
+from shibuya.world.ledger.records import (
     ANNOUNCEMENT_BLOCKS,
     DEVIATION_BY_CODE,
     DEVIATION_CODES,

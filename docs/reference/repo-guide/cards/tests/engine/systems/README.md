@@ -90,7 +90,7 @@ Python 6 本・その他 1 本(このディレクトリの直下)
   - `test_switch_off_restores_the_old_full_thaw`(関数)
   - `test_systems_package_never_thaws`(関数)
   - `test_writable_thaws_only_permitted_columns`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.allow`・`shibuya.foundation.write_permit`・`shibuya.perception.state`・`shibuya.world.state`・`tests/_places.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.allow`・`shibuya.foundation.write_permit`・`shibuya.world.model.percept_state`・`shibuya.world.model.state`・`tests/_places.py`
 
 ## [test_systems_table.py](../../../../../../../tests/engine/systems/test_systems_table.py)
 

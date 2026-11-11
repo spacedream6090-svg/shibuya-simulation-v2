@@ -37,7 +37,7 @@ from shibuya.perception.renderer import (
     Renderer,
     check_signage_p_see,
 )
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")
 #: 看板ありの参照場面の指紋(``tests/perception/test_ablation6_signage.py`` と**同じ値**)。

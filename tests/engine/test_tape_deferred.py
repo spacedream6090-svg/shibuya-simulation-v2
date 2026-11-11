@@ -38,7 +38,7 @@ from shibuya.engine.tape import (
 )
 from shibuya.llm.fleet import FleetClient, FleetConfig, Outcome
 from shibuya.foundation.manifest.schema import Mode
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 from tests import golden_env as GE
 
 from tests.engine.test_tape_wiring import BoomLLM

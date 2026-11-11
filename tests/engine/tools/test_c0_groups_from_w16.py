@@ -11,7 +11,7 @@ import numpy as np
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.agents.population import load_population, sample_population
+from shibuya.world.facts.population_reader import load_population, sample_population
 from shibuya.engine.tools.groups import FAMILY, WORKPLACE, GroupList
 
 WORLD = Path("data/world/v2")

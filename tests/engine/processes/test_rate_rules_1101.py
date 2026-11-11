@@ -13,18 +13,18 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine import rate_rules as RR
+from shibuya.world.laws import switch_rate as RR
 from shibuya.engine import resolve as R
-from shibuya.engine.processes.civic import EVENT_WINDOW, LargeEventProcess
-from shibuya.engine.processes.goods_flow import (
+from shibuya.world.laws.civic import EVENT_WINDOW, LargeEventProcess
+from shibuya.world.laws.goods_flow import (
     LITTER_G_PER_PERSON_TICK,
     WASTE_TO_BIN_MINUTE,
     StreetCleaningProcess,
     WasteCollectionProcess,
 )
-from shibuya.engine.processes.logistics import LastMileProcess
-from shibuya.engine.processes.rail import RailProcess
-from shibuya.engine.processes.salient import COLLAPSE_PER_10K_PER_DAY, SalientProcess
+from shibuya.world.laws.logistics import LastMileProcess
+from shibuya.world.laws.rail import RailProcess
+from shibuya.world.laws.salient import COLLAPSE_PER_10K_PER_DAY, SalientProcess
 from shibuya.engine.presence import PlanExecutor
 from shibuya.engine.run import run_day
 
@@ -141,7 +141,7 @@ def test_legacy_refuses_by_the_acceptance_rate():
 def test_event_injection(mode):
     world = make_world(16)
     agents, _ = make_agents(world, 40)
-    from shibuya.world.processes.actual_log import ActualLog
+    from shibuya.world.ledger.actual_log import ActualLog
 
     alog = ActualLog("actual_log", retention_days=7, ticks_per_day=1_440)
     ev = LargeEventProcess(world, agents, master_seed=2, visitor_delta=5, actual_log=alog, rate_rules=mode)

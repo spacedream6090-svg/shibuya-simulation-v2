@@ -55,7 +55,7 @@ Python 8 本・その他 2 本(このディレクトリの直下)
   - `test_unit_eviction_keeps_the_links_on_their_rows`(関数)
   - `test_unit_no_sink_or_disabled_means_no_mark`(関数)
   - `test_unit_unknown_process_id_is_an_error`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.processes.runner`・`shibuya.engine.run`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.world.processes.actual_log`・`shibuya.world.processes.records`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.world.laws.runner`・`shibuya.world.ledger.actual_log`・`shibuya.world.ledger.records`
 
 ## [test_e_log_schema.py](../../../../../../../tests/engine/events/test_e_log_schema.py)
 
@@ -99,7 +99,7 @@ Python 8 本・その他 2 本(このディレクトリの直下)
   - `test_vocab_size_and_uniqueness`(関数)
   - `test_what_outside_the_table_is_an_error`(関数)
   - `test_word_helper_and_family`(関数)
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.engine.processes.runner`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.world.laws.runner`
 - 決定の ID: 10-13b/§3
 
 ## [test_e_writes_declared.py](../../../../../../../tests/engine/events/test_e_writes_declared.py)

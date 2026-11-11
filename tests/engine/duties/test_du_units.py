@@ -15,7 +15,7 @@ from shibuya.foundation.arms import duties as AD
 from shibuya.engine.duties import layer as LY
 from shibuya.engine.duties import port as PD
 from shibuya.engine.duties.knowledge import UNKNOWN, ShopRules, rules_line
-from shibuya.engine.rights import ledger as L
+from shibuya.world.facts.rights import ledger as L
 
 #: 層のファイル(〔段 4 の下ごしらえ〕置き場をディレクトリの字面で持たず、モジュールの ``__file__`` から作る)。
 LAYER_PY = Path(LY.__file__)

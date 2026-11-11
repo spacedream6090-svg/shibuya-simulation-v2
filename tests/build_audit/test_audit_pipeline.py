@@ -13,7 +13,7 @@ import pytest
 
 from shibuya.build import run as build_run
 from shibuya.build.geo import common as C
-from shibuya.manifest.world_catalog import FROZEN_N_CLASSES, FROZEN_SHA16
+from shibuya.world.ledger.world_catalog import FROZEN_N_CLASSES, FROZEN_SHA16
 from tests import _data_ids as D
 
 REPO_ROOT = Path(__file__).resolve().parents[2]

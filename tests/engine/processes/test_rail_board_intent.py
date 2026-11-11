@@ -21,7 +21,7 @@ import numpy as np
 from shibuya.agents.state import Activity, ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.processes.rail import RailProcess
+from shibuya.world.laws.rail import RailProcess
 
 from .conftest import fake_timetable_assets, make_agents, make_world
 

@@ -19,7 +19,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `ledger_violations`(関数)
   - `ledger_writes`(関数): 台帳の置き場の中の書き(列の中身・差し替え・``_write``/``_grow`` の呼び出し)。
   - `outside_touches`(関数): 台帳の置き場の外から中身に触る所(``path:行 形``)。
-- import している内部モジュール: `shibuya.engine.rights.ledger`
+- import している内部モジュール: `shibuya.world.facts.rights.ledger`
 - 読む試験: `tests/engine/rights/test_rights_schema.py`
 
 ## [test_no_permission_count.py](../../../../../../../tests/engine/rights/test_no_permission_count.py)
@@ -49,7 +49,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_opening_process_records_a_revoked_staff_and_still_opens`(関数)
   - `test_the_word_and_the_cause_name`(関数)
   - `test_without_the_check_nothing_is_counted_and_the_code_is_the_same`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.llm_bridge`・`shibuya.engine.processes.opening`・`shibuya.engine.resolve`・`shibuya.engine.rights.ledger`・`shibuya.engine.rights.record`・`shibuya.engine.run`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.llm`・`shibuya.world.processes.actual_log`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.llm_bridge`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.llm`・`shibuya.world.facts.rights.ledger`・`shibuya.world.facts.rights.record`・`shibuya.world.laws.opening`・`shibuya.world.ledger.actual_log`・`tests/engine/processes/conftest.py`
 - 読む試験: `tests/engine/duties/test_du_runs.py`
 - 決定の ID: 10-12/§1-4
 
@@ -64,7 +64,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_employment_rows_equal_the_bodies_with_an_org_id`(関数)
   - `test_no_population_means_no_employment_rows`(関数)
   - `test_the_four_contents_and_their_blanks`(関数)
-- import している内部モジュール: `shibuya.agents.population`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`・`shibuya.engine.systems.build`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.decl.ledger_paths`・`tests/_places.py`
+- import している内部モジュール: `shibuya.engine.systems.build`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.decl.ledger_paths`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`tests/_places.py`
 - 決定の ID: 10-12/§4-5
 
 ## [test_rights_manifest.py](../../../../../../../tests/engine/rights/test_rights_manifest.py)
@@ -78,7 +78,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_rights_is_the_last_key_and_observed`(関数)
   - `test_the_record_does_not_move_the_result`(関数): 権利台帳の中身を空にしても(担当の表は同じに読む)final と呼数は同じ=manifest の欄は記録だけ。
   - `test_values_come_from_the_ledger`(関数)
-- import している内部モジュール: `shibuya.engine.processes.opening`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`・`shibuya.engine.run`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.opening`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3
 
 ## [test_rights_schema.py](../../../../../../../tests/engine/rights/test_rights_schema.py)
@@ -103,7 +103,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_tables_are_read_only`(関数)
   - `test_the_runtime_limit_is_the_mangled_slot`(関数): 限界(記録 r15/README.md): 名を変えた slot の名を知って ``object.__setattr__`` で触る形は実行時に止まらない
   - `test_values_are_normalised`(関数)
-- import している内部モジュール: `shibuya.engine.rights.ledger`・`tests/engine/rights/rights_writers.py`
+- import している内部モジュール: `shibuya.world.facts.rights.ledger`・`tests/engine/rights/rights_writers.py`
 
 ## [test_rules42_rights.py](../../../../../../../tests/engine/rights/test_rules42_rights.py)
 
@@ -115,7 +115,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_licences_on_road_segments_and_signboards`(関数)
   - `test_old_codes_are_kept_and_new_kinds_are_appended`(関数)
   - `test_own_store_is_in_the_closed_table`(関数)
-- import している内部モジュール: `shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`
+- import している内部モジュール: `shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`
 
 ## [test_staff_of_poi_equivalence.py](../../../../../../../tests/engine/rights/test_staff_of_poi_equivalence.py)
 
@@ -129,4 +129,4 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_same_assignment_on_synthetic_worlds`(関数)
   - `test_same_assignment_on_the_real_population`(関数): 実データ(5,000 体の抽出・seed 1)の種別と POI の数。SoA は母集団の種別を写した形(組み立てと同じ)。
   - `test_zero_pois`(関数)
-- import している内部モジュール: `shibuya.agents.population`・`shibuya.agents.schedule`・`shibuya.agents.state`・`shibuya.engine.processes.opening`・`shibuya.engine.resolve`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`・`shibuya.engine.systems.build`・`shibuya.world.assets`・`shibuya.world.state`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.engine.systems.build`・`shibuya.world.assets`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.opening`・`shibuya.world.model.state`・`tests/engine/processes/conftest.py`

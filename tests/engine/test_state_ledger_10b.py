@@ -32,8 +32,8 @@ from shibuya.engine import state_hashes as SH
 from shibuya.engine import state_ledger as SL
 from shibuya.engine import state_ledger_ast as SA
 from shibuya.engine.run import Checkpoint, run_day
-from shibuya.perception.state import PerceptionState
-from shibuya.world.state import World
+from shibuya.world.model.percept_state import PerceptionState
+from shibuya.world.model.state import World
 
 SRC = Path(__file__).resolve().parents[2] / "src" / "shibuya"
 WORLD_DIR = Path("data/world/v2")
@@ -320,15 +320,15 @@ def test_ast_false_positives_band_and_b4_hash_are_explicit(scanned):
     描画の許可は消した(2 個=誤検出 1+試験の合成の規則の道)。"""
     # 〔第 5 期 空間の段 1〕ナビメッシュの資産の階の表の band(world/navmesh.py)の誤検出を 1 つ足した=3 個
     n_allow = {"agents.band": 3, "cells.b4_hash": 1}
-    for key, path in (("agents.band", "world/assets.py"), ("cells.b4_hash", "world/state.py")):
+    for key, path in (("agents.band", "world/assets.py"), ("cells.b4_hash", "world/model/state.py")):
         r = SL.row(key)
         assert r.behavior == SL.NO and len(r.ast_allow) == n_allow[key] and r.ast_allow[0].path == path
         hits = [s for s in scanned.loose[r.name] if SA._allowed(s, r.ast_allow)]
         assert hits, key
-    assert [a.path for a in SL.row("agents.band").ast_allow[1:]] == ["world/navmesh.py", "engine/proximity.py"]
+    assert [a.path for a in SL.row("agents.band").ast_allow[1:]] == ["world/model/navmesh.py", "world/model/proximity.py"]
     # b4_hash のプロパティ World.b4_hash の呼び手は 0(属性 .b4_hash の読みはプロパティの中の 1 か所だけ)
     assert [str(s) for s in scanned.loose["b4_hash"]] == [str(s) for s in scanned.loose["b4_hash"]
-                                                         if s.path == "world/state.py"]
+                                                         if s.path == "world/model/state.py"]
 
 
 def test_ast_check_detects_a_new_declared_column(tmp_path, scanned):

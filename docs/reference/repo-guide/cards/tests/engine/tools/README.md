@@ -67,7 +67,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_group_list_is_read_only`(関数)
   - `test_rows_equal_households_plus_establishments_on_the_full_population`(関数)
   - `test_rows_on_the_5000_sample`(関数)
-- import している内部モジュール: `shibuya.agents.population`・`shibuya.engine.tools.groups`
+- import している内部モジュール: `shibuya.engine.tools.groups`・`shibuya.world.facts.population_reader`
 
 ## [test_c0_init_recall.py](../../../../../../../tests/engine/tools/test_c0_init_recall.py)
 

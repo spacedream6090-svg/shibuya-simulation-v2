@@ -18,7 +18,7 @@ import pytest
 from shibuya.agents.state import Activity, AgentState, ResultCode, WakeCondition
 from shibuya.engine import resolve as R
 from shibuya.engine.presence import EXIT_WALK_MAX_TICKS, PlanExecutor
-from shibuya.engine.processes.rail import RailProcess
+from shibuya.world.laws.rail import RailProcess
 
 from .test_presence_executor import (
     ACT_WORK,
@@ -207,7 +207,7 @@ def test_leave_with_no_activity_expires_next_tick():
     from shibuya.engine.activity import ActivityLayer, ActivityPayload
     from shibuya.foundation.vocab.actions import NO_TARGET, UNTIL_DEFAULT_MINUTES, UntilKind
 
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     w = World.synthetic(n_cells=9, seed=1)
     a = AgentState(2, activity_columns=True)
@@ -244,7 +244,7 @@ def test_run_walk_mode_accounts_for_every_exit_and_the_leave_switch_is_gone():
     assert ex["walk_departed_by_train"] + ex["boarded_waiting_train_at_end"] == ex["walk_boarded"]
     assert walk.conserved
     # 第302 Q119 (b): 計画の退出=運賃なし(運賃は LLM の乗車だけ・計画の退出の乗車は分けて数える)
-    from shibuya.engine.processes.rail import FARE_YEN
+    from shibuya.world.laws.rail import FARE_YEN
 
     pc = dict(walk.process_counters)
     assert pc["rail.boarded_plan_exit"] == ex["walk_boarded"]

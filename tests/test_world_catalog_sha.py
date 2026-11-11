@@ -17,7 +17,7 @@ from shibuya.build.catalog_freeze import (
     freeze,
     parse_catalog_rows,
 )
-from shibuya.manifest.world_catalog import (
+from shibuya.world.ledger.world_catalog import (
     FROZEN_SHA16,
     FROZEN_VERSION,
     load_world_catalog,
@@ -38,7 +38,7 @@ EXPECTED_COLUMNS = (
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CATALOG_MD = REPO_ROOT / CATALOG_MD_RELPATH
-PACKAGED_JSON = REPO_ROOT / "src/shibuya/manifest/frozen/world_catalog_v0_2.json"
+PACKAGED_JSON = REPO_ROOT / "src/shibuya/world/ledger/frozen/world_catalog_v0_2.json"
 
 
 @pytest.fixture(scope="module")
@@ -120,7 +120,7 @@ def test_manifest_does_not_import_build() -> None:
 
     code = (
         "import sys;"
-        "import shibuya.manifest.world_catalog as wc;"
+        "import shibuya.world.ledger.world_catalog as wc;"
         "assert wc.load_world_catalog().n_classes == 57;"
         "leaked = [m for m in sys.modules if m.startswith('shibuya.build')];"
         "print('LEAKED' if leaked else 'CLEAN')"

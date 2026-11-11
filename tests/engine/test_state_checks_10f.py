@@ -80,7 +80,7 @@ def test_t4_axis1_reading_a_no_attribute_in_a_behavior_place_fails(tmp_path, ext
     """T4 軸 1: 実物の src に「挙動の場所で no/diag の属性を読む」断片を 1 つ足すと落ちる。"""
     import shutil
 
-    from shibuya.engine.processes import opening as PROC
+    from shibuya.world.laws import opening as PROC
 
     root = tmp_path / "src" / "shibuya"
     shutil.copytree(SRC, root, ignore=shutil.ignore_patterns("build", "__pycache__"))
@@ -364,7 +364,7 @@ def test_t5_static_fifth_word_caller_fails(tmp_path):
 
 # ================================================================= K25: K19 の検査(実行時)
 def _record(kw, runner=run_day, extra=None):
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_rate as RR
 
     prev = RR.arm()
     if "salient_rate_per_10k" in kw:  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
@@ -401,7 +401,7 @@ def test_k19_runtime_overlaps_only_in_the_allow_list(k19_runs, monkeypatch):
     assert not ({"world.salient", "world.public_service_dispatch"} & set(st))  # 日の頭の Generator は作らない
     assert RA.K19_ALLOW == {} and not hasattr(RA, "STATEFUL_ONLY") and not hasattr(RA, "OVERLAP")
     # 計器は結果を変えない(包まないランと同じ final)。〔11-01 段 2 の 3・4・検収 L3〕率を渡すランは旧道(_record と同じ腕)
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_rate as RR
 
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
     assert run_day(**dict(SYN1000)).final_hash == res.final_hash

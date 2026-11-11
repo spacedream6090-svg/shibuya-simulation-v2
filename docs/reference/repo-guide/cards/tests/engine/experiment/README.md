@@ -19,7 +19,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `handle`(関数)
   - `rows`(関数)
   - `synthetic_world`(関数): 合成の世界(``World.synthetic``)+手書きの W7・W13 の世界過程 2 つ(営業時間・天気)と暦と出来事の記録。
-- import している内部モジュール: `shibuya.engine.calendar`・`shibuya.engine.experiment.apply`・`shibuya.engine.experiment.form`・`shibuya.engine.processes.environment`・`shibuya.engine.processes.opening`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.engine.calendar`・`shibuya.engine.experiment.apply`・`shibuya.engine.experiment.form`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.world.laws.environment`・`shibuya.world.laws.opening`・`tests/engine/processes/conftest.py`
 - 読む試験: `tests/engine/experiment/test_cf33b_form_checks.py`・`tests/engine/experiment/test_cf33b_manifest.py`・`tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/experiment/test_x33_ensemble.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/experiment/test_x33_run.py`・`tests/tools/test_skill_gauge.py`
 
 ## [test_cf33b_form_checks.py](../../../../../../../tests/engine/experiment/test_cf33b_form_checks.py)
@@ -95,7 +95,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_unapplied_is_recorded_and_the_run_continues`(関数)
   - `test_vocabulary_has_the_two_words`(関数)
   - `test_weather_date_swap_and_reapply`(関数)
-- import している内部モジュール: `shibuya.engine.experiment.apply`・`shibuya.engine.experiment.branch`・`shibuya.engine.processes.environment`・`shibuya.engine.processes.opening`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.vocab.events`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.engine.experiment.apply`・`shibuya.engine.experiment.branch`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.vocab.events`・`shibuya.world.laws.environment`・`shibuya.world.laws.opening`・`tests/engine/experiment/_x33.py`
 - 決定の ID: 10-12/§1-1
 
 ## [test_x33_branch.py](../../../../../../../tests/engine/experiment/test_x33_branch.py)
@@ -118,7 +118,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_world_branch_with_staff_5000`(関数): 〔親の判断 M3〕担当の従業者のいる世界(5,000 体=1-5 の担当 2,337 人)で同じ休業の分岐を回し、担当が実行した件数と
   - `test_world_resume_with_the_same_form_equals_straight`(関数): 申込書つきのラン(1 日目の正午から 200 店の休業)を日の境目で止めて同じ申込書で再開すると、通しのランと同じ
   - `world_branch`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.calendar`・`shibuya.engine.experiment.branch`・`shibuya.engine.experiment.form`・`shibuya.engine.processes.opening`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.world.assets`・`shibuya.world.state`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.calendar`・`shibuya.engine.experiment.branch`・`shibuya.engine.experiment.form`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.world.assets`・`shibuya.world.laws.opening`・`shibuya.world.model.state`・`tests/engine/experiment/_x33.py`
 - 決定の ID: R-71
 
 ## [test_x33_ensemble.py](../../../../../../../tests/engine/experiment/test_x33_ensemble.py)

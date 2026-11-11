@@ -8,7 +8,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.engine.processes.environment import (
+from shibuya.world.laws.environment import (
     FALLBACK_THERMAL,
     HEAT_STAGE_TO_THERMAL,
     SHADE_FACTOR,
@@ -25,7 +25,7 @@ STRATA = {"平日|晴": ["2026-08-03", "2026-08-05", "2026-08-06"], "平日|雨"
 # 〔改訂(第330・RET)〕legacy の実日の選び方 ``select_day`` の 3 件(同じ seed で同じ日・seed で変わる・空の層は止める)は
 # legacy と一緒に消した(ACT の commit で通った)。暦の規則の抽選 ``sample_calendar_day`` は test_weather_calendar_10e.py。
 def test_select_day_is_gone():
-    import shibuya.engine.processes.environment as ENV
+    import shibuya.world.laws.environment as ENV
 
     assert not hasattr(ENV, "select_day")
 

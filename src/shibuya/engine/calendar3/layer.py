@@ -154,7 +154,7 @@ def labor_params(asof: Any) -> dict[str, Any]:
     if asof is None:
         return {}
     try:
-        from shibuya.engine.rules.table import default_rules
+        from shibuya.world.facts.rules.table import default_rules
 
         rules = default_rules()
         h = rules.get("labor.statutory_hours", asof)
@@ -731,7 +731,7 @@ class Calendar3Layer:
         if (poi is None or a is None or self.calendar is None or getattr(a, "plan_poi", None) is None
                 or getattr(a, "plan_day", None) is None):  # 営業の表の無い世界(合成)は数えない
             return
-        from shibuya.engine.processes.opening import rows_of_day
+        from shibuya.world.laws.opening import rows_of_day
 
         pp = np.asarray(a.plan_poi, dtype=np.int64)
         sel = rows_of_day(pp, np.asarray(a.plan_day), int(self.calendar.opening_row(int(d))), a.plan_ph_poi)

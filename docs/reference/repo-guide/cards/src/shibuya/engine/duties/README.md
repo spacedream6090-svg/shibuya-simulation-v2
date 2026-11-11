@@ -16,7 +16,7 @@ engine.duties.knowledge — 店の決まり(営業時間)の問い合わせの�
   - `ShopRules`(クラス): 店の決まりの口(休業日の枠=親クラス+営業時間)。担当だけが自分の店の営業時間を引ける。
   - `origin_mark`(関数): 記録の ``origin`` に入れる出どころの印(``store_rules:<出どころ>``)。
   - `rules_line`(関数): 常識の文の 1 行(「店の決まり: 営業 10:00〜22:00。」の形・知らなければ空)。
-- import している内部モジュール: `shibuya.engine.calendar3.knowledge`・`shibuya.engine.rights.ledger`・`shibuya.foundation.time_consts`
+- import している内部モジュール: `shibuya.engine.calendar3.knowledge`・`shibuya.foundation.time_consts`・`shibuya.world.facts.rights.ledger`
 - 呼び手: `shibuya.engine.duties.layer`
 - 読む試験: `tests/engine/duties/test_du_units.py`
 - 決定の ID: 10-12/§1-4
@@ -32,7 +32,7 @@ engine.duties.layer — 店の仕事を働く人の体へ(開閉店・補充(品
   - `issued_key`(関数)
   - `manifest_fields`(関数): manifest の ``duties``(腕 arm のランだけ・ほかは空=欄を出さない)。
   - `sys_duties`(関数): 系 duties(刻みの中・腕 arm のランだけ立つ)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar3.layer`・`shibuya.engine.duties.knowledge`・`shibuya.engine.duties.port`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.resolve`・`shibuya.engine.rights.ledger`・`shibuya.foundation.arms.duties`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.world.processes.records`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar3.layer`・`shibuya.engine.duties.knowledge`・`shibuya.engine.duties.port`・`shibuya.engine.resolve`・`shibuya.foundation.arms.duties`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.goods_flow`・`shibuya.world.ledger.records`
 - 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.table`
 - 読む試験: `tests/engine/duties/test_du_runs.py`・`tests/engine/duties/test_du_units.py`・`tests/engine/duties/test_du_world.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`

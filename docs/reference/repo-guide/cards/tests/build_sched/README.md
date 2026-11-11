@@ -66,7 +66,7 @@ D-68 下見(``build.sched.trial``): 層化・seed 決定論・逆関数法・文
   - `test_v2_time_fact_repair_switch`(関数): ``--time-fact-repair``: 既定オフは**一致率を数えるだけ**・オンで行を動かして計数。
   - `test_windows_are_not_drawn_for_students_and_visitors`(関数): 通学者・来街者・非就業は窓を引かない(通学は本番のまま)。
   - `trial_world`(関数): 通勤者 ``N_BODIES`` 体(雇用形態が全種類)の世界+プール。
-- import している内部モジュール: `shibuya.agents.weekly`・`shibuya.build.pop.w16_population`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.trial`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`tests/build_sched/conftest.py`
+- import している内部モジュール: `shibuya.build.pop.w16_population`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.trial`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`shibuya.world.facts.weekly_reader`・`tests/build_sched/conftest.py`
 - 決定の ID: D-68
 
 ## [test_w17_ingest.py](../../../../../../tests/build_sched/test_w17_ingest.py)
@@ -265,4 +265,4 @@ W21 → W20 の ``Attributes`` の口(``build.sched.w20_w21_port``・第 4 期 4
   - `test_target_cell_at_uses_the_table_then_the_fallback`(関数)
   - `test_vocabulary_double_definition_agrees`(関数): ``build.sched.vocab`` と ``agents.weekly`` の語彙・写像が一致する。
   - `test_wake_conditions_are_plan_boundaries`(関数)
-- import している内部モジュール: `shibuya.agents.schedule`・`shibuya.agents.state`・`shibuya.agents.weekly`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`tests/build_sched/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.weekly_reader`・`tests/build_sched/conftest.py`

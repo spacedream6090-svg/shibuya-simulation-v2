@@ -175,7 +175,7 @@ shibuya.cli(台帳つき実行入口)の検査。engine↛economy の層契約�
   - `test_wallet_ledger_substitutes_the_amounts_but_keeps_the_transfer_path`(関数): 注入の経路(外界 → 世帯・科目 CARRY_IN)は変えず、金額だけ差し替える。
   - `test_wallets_are_not_used_for_a_synthetic_world`(関数): 実データの母集団を合成小世界へ載せない(engine の判断と同じ)。
   - `test_wallets_come_from_the_anchor_table_and_are_deterministic`(関数): W16 母集団の種別 → ``anchors.initial_wallets``(対数正規)・同 seed 同結果。
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.entry_capital`・`shibuya.world.state`・`tools/c7/c7_accept.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.entry_capital`・`shibuya.world.model.state`・`tools/c7/c7_accept.py`
 - 決定の ID: D-13・第 304
 
 ## [test_cli_help.py](../../../../../tests/test_cli_help.py)
@@ -321,4 +321,4 @@ core.rng の性質テスト(hypothesis)。運用設計書 §1.4 T4(規模不変�
   - `test_row_numbers_are_1_to_57`(関数): (3) `#` 列は "1".."57" で重複がない。
   - `test_sha16_recomputed_from_markdown`(関数): (1) Markdown から再計算した SHA が凍結値と一致する。
   - `test_verify_frozen_rejects_drift`(関数)
-- import している内部モジュール: `shibuya.build.catalog_freeze`・`shibuya.manifest.world_catalog`
+- import している内部モジュール: `shibuya.build.catalog_freeze`・`shibuya.world.ledger.world_catalog`

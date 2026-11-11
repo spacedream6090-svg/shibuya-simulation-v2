@@ -55,7 +55,7 @@ import pytest
 from shibuya.engine.commit import pair_partners
 from shibuya.engine.run import run_day
 from shibuya.llm.mock import MockLLM
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 from .conftest import WORLD_DIR, real_data
 
@@ -132,7 +132,7 @@ def test_t5_report_shape_is_the_three_declared_quantities(c6lib):
 # ---------------------------------------------------------------- 実データ 5,000 体 × 24 tick
 def _real_population(n: int = N_AGENTS, seed: int = 1):
     """``engine.run._resolve_population`` と**同じ規約**で 5,000 体を取る(層=kind を得るため)。"""
-    from shibuya.agents.population import load_population, sample_population
+    from shibuya.world.facts.population_reader import load_population, sample_population
 
     return sample_population(load_population(WORLD_DIR, n=None, seed=seed), n, seed)
 

@@ -22,7 +22,7 @@ from shibuya.engine.duties import port as PD
 from shibuya.foundation.vocab import events as V
 from shibuya.engine.run import run_day
 from shibuya.engine.systems import table as TB
-from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
+from shibuya.world.ledger.records import DEVIATION_CODES, DeviationVocab
 
 from tests.engine.duties._du import KW, RULE_FROM, ST, UN, RULE_TO, STEP_NS, TPD, by_pref, choose, du, duty_events, fresh
 
@@ -172,7 +172,7 @@ def test_a_second_employee_acts_and_coverage_is_split_by_origin(monkeypatch):
 
 # ================================================================= 〔検収 M2〕バックヤードが空なら補充の候補を出さない
 def test_no_restock_offer_when_the_backroom_is_empty(monkeypatch):
-    from shibuya.engine.processes import goods_flow as GF
+    from shibuya.world.laws import goods_flow as GF
 
     monkeypatch.setattr(GF.DeliveryInboundProcess, "step", lambda self, t: None)  # 納品が来ない=バックヤードはいつも 0
     with choose(monkeypatch, by_pref("restock", "unlock", "lock")), du():
@@ -186,7 +186,7 @@ def test_no_restock_offer_when_the_backroom_is_empty(monkeypatch):
 def test_restock_presence_ignores_the_agent_kind(monkeypatch):
     """担当が種別 従業者でない(通勤者=W21c の担当)店を模して has_permission をいつも偽に=腕 arm のつなぎは店に居て起きている
     担当の店を補充しない(本人が補充する)。"""
-    from shibuya.engine.processes import goods_flow as GF
+    from shibuya.world.laws import goods_flow as GF
 
     monkeypatch.setattr(GF.ShelfRestockProcess, "has_permission",
                         lambda self, a, p: np.zeros(np.asarray(a).size, dtype=bool))
@@ -257,9 +257,9 @@ def test_without_the_decision_the_shelf_is_not_restocked_by_the_engine_at_a_staf
 
 # ================================================================= 廃棄は閉店の作業
 def test_discard_is_a_closing_task_and_the_morning_bridge_skips_it(monkeypatch):
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_rate as RR
     from shibuya.engine import resolve as R
-    from shibuya.engine.processes import goods_flow as GF
+    from shibuya.world.laws import goods_flow as GF
 
     # 〔11-01 段 2 の 4〕05:00 の売れ残りのつなぎは旧道(切替口)だけ=つなぎと担当の体の分け方を旧道で見る
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)

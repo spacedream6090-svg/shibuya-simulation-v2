@@ -22,7 +22,7 @@ from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
 from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 WORLD_DIR = Path("data/world/v2")
 W2_REPORT_SECONDS = 60.0
@@ -178,7 +178,7 @@ def _bundle_c4b(world: World, n_agents: int) -> LedgerBundle:
 
 def test_all_declared_process_ids_have_an_implementation():
     """台帳 ⇄ 実装の双方向: 第1陣+前倒しの過程 id は全て実行器が名乗る。"""
-    from shibuya.world.processes import first_batch as FB
+    from shibuya.world.ledger import first_batch as FB
 
     res = run_day(n_agents=100, seed=1, ticks=10, n_cells=16)
     runner = res.runner  # type: ignore[attr-defined]
@@ -204,7 +204,7 @@ def test_new_processes_are_ablatable_by_id():
 
 
 def test_p_notice_ablation_can_be_selected():
-    from shibuya.perception.p_notice import Ablation
+    from shibuya.world.model.notice_reach import Ablation
 
     res = run_day(n_agents=80, seed=1, ticks=10, n_cells=9, p_notice_ablation="A1")
     assert res.runner.salient.ablation == Ablation.A1_DISTANCE  # type: ignore[attr-defined]

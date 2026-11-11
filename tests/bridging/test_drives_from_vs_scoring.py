@@ -19,10 +19,10 @@ import warnings
 
 import pytest
 
-from shibuya.world.processes import absent as AB
+from shibuya.world.ledger import absent as AB
 from shibuya.world.processes import circularity as CI
-from shibuya.world.processes import constitution as C
-from shibuya.world.processes import first_batch as FB
+from shibuya.world.ledger import constitution as C
+from shibuya.world.ledger import first_batch as FB
 
 
 @pytest.fixture(scope="module")
@@ -234,8 +234,8 @@ def test_no_mismatch_after_rate_rules(overlaps):
 def test_engine_stopped_flags():
     """True=口が無い判断・採用と解雇・発注と、率の規則(``engine.rate_rules`` の既定 off)で止まった 5 件と、〔11-02r §1 #7〕
     「無い」の過程(``engine.absent_processes`` の既定 stopped)で止まった 5 件。まだ動くのは納品だけ。"""
-    from shibuya.engine import absent_processes as AP
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_absent as AP
+    from shibuya.world.laws import switch_rate as RR
 
     ab = AB.by_id()
     stopped_by_rate = {"absent.parcel_delivery": "parcels", "absent.collapse": "collapse",

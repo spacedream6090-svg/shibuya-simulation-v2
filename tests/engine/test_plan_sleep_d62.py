@@ -20,12 +20,12 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents import weekly as W
+from shibuya.world.facts import weekly_reader as W
 from shibuya.agents.state import Activity, AgentState, WakeCondition
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 # ================================================================= 道具
 
@@ -181,7 +181,7 @@ def test_sleep_boundary_makes_no_call_and_wake_boundary_does(monkeypatch):
     off = run_day(**DAY, plan_sleep=False)
     calls_on = on.column("calls")
     calls_off = off.column("calls")
-    from shibuya.agents.schedule import synthesize
+    from shibuya.world.facts.mock_schedule import synthesize
 
     sched = synthesize(DAY["n_agents"], DAY["seed"], DAY["n_cells"])
     bed = np.unique(sched.base_ticks[:, 4])

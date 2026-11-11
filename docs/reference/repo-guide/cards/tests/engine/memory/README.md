@@ -100,7 +100,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_value_drift_from_the_table_is_caught_at_write`(関数): 検収 M1: 行の番号が同じでも、器の値(ここでは重要度)が表とずれたら書いた所で落ちる(負の対照)。
   - `test_view_has_words_and_content_but_no_strength_number`(関数)
   - `test_writes_outside_the_declaration_fail`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.build`・`shibuya.economy.ledger`・`shibuya.engine.memory`・`shibuya.engine.memory_store`・`shibuya.engine.resolve`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.table`・`shibuya.engine.tape`・`shibuya.foundation.time_consts`・`shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.llm`・`shibuya.perception.renderer`・`shibuya.world.state`・`tests/_places.py`・`tests/engine/memory/_m0.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.build`・`shibuya.economy.ledger`・`shibuya.engine.memory`・`shibuya.engine.memory_store`・`shibuya.engine.resolve`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.table`・`shibuya.engine.tape`・`shibuya.foundation.time_consts`・`shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.llm`・`shibuya.perception.renderer`・`shibuya.world.model.state`・`tests/_places.py`・`tests/engine/memory/_m0.py`
 
 ## [test_m0_writes_declared.py](../../../../../../../tests/engine/memory/test_m0_writes_declared.py)
 

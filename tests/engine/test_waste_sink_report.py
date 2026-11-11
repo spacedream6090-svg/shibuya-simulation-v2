@@ -46,7 +46,7 @@ def test_run_summary_uses_the_store_band_and_lists_three_sources(mode, monkeypat
     """〔11-01 段 2 の 4・検収 M1〕腕 off(既定)では店の帯は外した売れ残りの廃棄率の期待=判定は非該当(None)・値は残す。"""
     import sys
 
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_rate as RR
 
     monkeypatch.setattr(RR, "_ARM", mode)
     sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools" / "c7"))
@@ -84,7 +84,7 @@ def test_run_summary_uses_the_store_band_and_lists_three_sources(mode, monkeypat
 def test_real_world_store_band_is_0_911_t_per_day_for_any_agent_count():
     """実世界(2,337 POI・初期在庫 64): 0.911 t/日 ±30% = 0.64〜1.18(体数に依らない)。"""
     from shibuya.world.assets import hash_free_cat_code
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     w = World.load_or_synthetic(WORLD_DIR, n_cells=139, seed=1)
     cats = np.array([hash_free_cat_code(c) for c in w.assets.poi_cat], dtype=np.int64)
@@ -99,7 +99,7 @@ def test_monthly_census_uses_the_store_band_and_the_store_collected_mass(mode, m
 
     〔11-01 段 2 の 4・検収 M1〕呼び手が腕 off を渡す(``waste_band_applies=False``)と判定は非該当(None)・値は残す。"""
     from shibuya.economy import census as CS
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_rate as RR
 
     monkeypatch.setattr(RR, "_ARM", mode)
     res = cli.run(n_agents=200, seed=3, world_dir=None, n_cells=16, ticks=720, checkpoint_every=360)

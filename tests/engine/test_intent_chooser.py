@@ -36,7 +36,7 @@ from shibuya.engine.poi_target import (
 )
 from shibuya.engine.run import run_day
 from shibuya.foundation.vocab.actions import parse_target
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 WORLD_DIR = Path("data/world/v2")
 NOON = 720

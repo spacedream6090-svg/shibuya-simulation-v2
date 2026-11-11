@@ -63,15 +63,15 @@ def world_fixture(monkeypatch: Any, *, n_cells: int = 1, unstaffed: int = UN,
     店 0 の棚が廃棄率 0・店 1 の棚に廃棄率のある SKU(売れ残りの試験は店 1 に担当を置く)。``endow=False`` は再開に渡す台帳。
     ``w21c``=〔検収 M1〕差し替えの世界の初期の行の表の店の担当の組 ``[(体, 店), …]``(出どころ W21c・表の店は表の行の順)。"""
     from shibuya import cli
-    from shibuya.engine.rights import initial as RI
+    from shibuya.world.facts.rights import initial as RI
     from shibuya.engine.systems import build as B
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     world = World.synthetic(n_cells=int(n_cells), seed=1)
     pa = plan_assets(world.n_poi, per_poi=per_poi, src=src)
     monkeypatch.setattr(B, "load_process_assets_or_synthetic", lambda world_dir, assets: pa)
     if w21c:
-        from shibuya.engine.rights.ledger import EMPLOY, STORE
+        from shibuya.world.facts.rights.ledger import EMPLOY, STORE
 
         rows = RI.InitialRows([a for a, _p in w21c], [STORE] * len(w21c), [p for _a, p in w21c], [EMPLOY] * len(w21c),
                               ["w21c:試験"] * len(w21c), ["store_staff"] * len(w21c), 0)

@@ -24,7 +24,7 @@ import pytest
 
 from shibuya import cli
 from shibuya.foundation import rng as RNG
-from shibuya.engine import geometry as GEO
+from shibuya.world.model import geometry as GEO
 from shibuya.engine import resume as RS
 from shibuya.engine import run as RUN
 
@@ -209,7 +209,7 @@ _HASH_SITES = {
     ("foundation/text/hashes.py", "block_hash"): "汎用のハッシュ(引数の名前が seed)",
     # 〔第330・RET〕legacy の select_day は消した
     # 〔第330・10e B6〕天気の規則 calendar の再生日の抽選
-    ("engine/processes/environment.py", "sample_calendar_day"): "層の名前と日番号を数にするだけ(乱数は core.rng の環境の流れ)",
+    ("world/laws/environment.py", "sample_calendar_day"): "層の名前と日番号を数にするだけ(乱数は core.rng の環境の流れ)",
     # 〔1-0〕HEAD の ("engine/run.py", "run_day")=「状態のハッシュ(seed を入れない)」は、checkpoint の活動層のハッシュが
     # 系 checkpoint(engine/systems/observe.py・seed を引数に持たない)へ移ったので、この表の対象から外れた
 }
@@ -279,7 +279,7 @@ def _check_split(seen, seed, pop_seed, env_seed):
 
 
 def test_population_and_motion_streams_use_their_own_seed_synthetic(monkeypatch):
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_rate as RR
 
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
     seen = _record_keys(monkeypatch)
@@ -398,7 +398,7 @@ def test_environment_seed_only_changes_weather_events_and_works(monkeypatch):
     気象の再生実日: 既定のランは影のある日に絞る(W9 は 1 再生日ぶん)ので、世界資産では実日は 1 日に決まる。
     そこで実日の選び方は、同じ過程を影の絞りを外して作り、環境の seed で実日が変わることを別に確かめる。
     """
-    from shibuya.engine.processes.environment import EnvironmentProcess
+    from shibuya.world.laws.environment import EnvironmentProcess
 
     kw = dict(n_agents=300, world_dir=str(WORLD), ticks=120, checkpoint_every=60, vocab_version="v3", activity=True)
     seen = _record_keys(monkeypatch)
@@ -426,7 +426,7 @@ def test_environment_seed_only_changes_weather_events_and_works(monkeypatch):
 
 # ---------------------------------------------------------------- T3: 回す役と CRN の健全性
 def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path, monkeypatch):
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_rate as RR
 
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
     monkeypatch.setenv("SHIBUYA_RATE_RULES", RR.MODE_LEGACY)  # 子のプロセス(tools/c7/salt_runs.py)も旧道
@@ -474,7 +474,7 @@ def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path, mon
 
 def test_runner_environment_modes(tmp_path, monkeypatch):
     """S1: 回す役の ``--environment-mode``。fixed は環境の seed が全部同じ(省略=母集団の seed)・salt は salt と同じ。"""
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_rate as RR
 
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
     monkeypatch.setenv("SHIBUYA_RATE_RULES", RR.MODE_LEGACY)  # 子のプロセス(tools/c7/salt_runs.py)も旧道
@@ -511,7 +511,7 @@ def test_runner_environment_modes(tmp_path, monkeypatch):
 
 
 def _large_event_venue(world, agents, env, day):
-    from shibuya.engine.processes.civic import LargeEventProcess
+    from shibuya.world.laws.civic import LargeEventProcess
 
     return LargeEventProcess(world, agents, master_seed=env, day_index=day).venue_cells
 
@@ -524,7 +524,7 @@ def test_road_works_day_key_with_nonzero_day_index():
     暦は real だけ=``day_index`` は開始日をずらすだけで、0 日目の日の鍵は日番号 0。``day_index=14``(2026-07-27・月曜)の
     ランの工事の辺と大きな催しの会場は、鍵 0 と環境の seed で引いた値と同じ(環境の seed を変えると変わる)。
     """
-    from shibuya.engine.processes.logistics import RoadWorksProcess
+    from shibuya.world.laws.logistics import RoadWorksProcess
 
     kw = dict(n_agents=300, world_dir=str(WORLD), ticks=30, checkpoint_every=0)  # 合成世界の資産には工事の辺が無い
     edges = {}

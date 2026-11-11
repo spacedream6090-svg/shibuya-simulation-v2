@@ -41,7 +41,7 @@ from shibuya.engine.tape import (
 from shibuya.foundation.text import templates as T
 from shibuya.foundation.text.channels import estimate_tokens
 from shibuya.perception.renderer import Renderer, memory_item_text
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 from tests import golden_env as GE
 
 SRC = Path("src/shibuya")

@@ -2,43 +2,14 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 5 本・その他 0 本(このディレクトリの直下)
+Python 2 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../src/shibuya/agents/__init__.py)
 
 agents: 個体状態SoA/T0習慣/記憶/関係。core に依存。
 
-- import している内部モジュール: `shibuya.agents.population`・`shibuya.agents.schedule`・`shibuya.agents.state`
+- import している内部モジュール: `shibuya.agents.state`
 - 読む試験(道筋で): `tests/test_places_guard.py`・`tests/tools/test_pkgmove.py`
-
-## [population.py](../../../../../../../src/shibuya/agents/population.py)
-
-agents.population — W16 母集団(``w16_population.parquet``)の読み込みと二層抽出。
-
-- 公開の関数とクラス
-  - `Population`(クラス): W16 母集団の列(行順=``agent_id`` の昇順)。
-  - `PopulationSchemaError`(クラス): 母集団の列が欠けている・知らない語や番号がある(黙って埋めない)。
-  - `load_population`(関数): W16 母集団を読む。資産が無ければ ``None``。
-  - `population_available`(関数): ``<world_dir>/w16_population.parquet`` があるか。
-  - `sample_population`(関数): 二層抽出(定員先取り層+統計層)。同 seed 同結果。
-- import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.rng`
-- 呼び手: `shibuya.agents`・`shibuya.cli`・`shibuya.engine.economy_stage2`・`shibuya.engine.run`・`tools/c7/attr_arms.py`・`tools/w17/diversity_yardstick.py`
-- 読む試験: `tests/build_pop/test_pop_pipeline.py`・`tests/build_pop/test_pop_units.py`・`tests/build_pop/test_w21_stage10_swap.py`・`tests/c6/test_t5_order_bias.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_pop_w21_world.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_relations_tenure.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/tools/test_c0_groups_from_w16.py`
-- 読む試験(道筋で): `tests/engine/bridging/test_bridging_ledger.py`
-
-## [schedule.py](../../../../../../../src/shibuya/agents/schedule.py)
-
-agents.schedule — **mock 専用**の合成 T0 週次スケジュール(計画境界の生成器)。
-
-- 公開の関数とクラス
-  - `MockWeeklySchedule`(クラス): 合成日課(mock)。全て個体ごとの配列で持つ(個体オブジェクトを作らない)。
-  - `draw_words`(関数): 個体 ``start_agent..start_agent+n_agents-1`` の生語を一括生成する(ループなし)。
-  - `draw_words_per_agent`(関数): **参照実装**(T4 の定義そのまま): 個体ごとに独立の Philox から引く。
-  - `synthesize`(関数): 合成日課を作る(**mock 専用**)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.agents`・`shibuya.engine.systems.build`・`tools/c6/ablation1_fixed_vs_ranking.py`
-- 読む試験: `tests/agents/test_schedule.py`・`tests/build_sched/test_weekly_loader.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_ablation23_switches.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_determinism_t1_t2_t4.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_vocab_v2_eat.py`・`tests/engine/test_weather_calendar_10e.py`
-- 読む試験(道筋で): `tests/engine/test_two_phase.py`
 
 ## [state.py](../../../../../../../src/shibuya/agents/state.py)
 
@@ -58,7 +29,7 @@ agents.state — 個体状態の SoA(``core.soa.Registry`` の上)+起床条件�
   - `focus_is_poi`(関数): ``focus_target`` が POI を指しているか。
   - `focus_poi_of`(関数): ``focus_target`` → POI 索引(POI でない要素は ``-1``)。
 - import している内部モジュール: `shibuya.foundation.soa`・`shibuya.foundation.types`・`shibuya.foundation.write_permit`
-- 呼び手: `shibuya.agents`・`shibuya.agents.schedule`・`shibuya.agents.weekly`・`shibuya.cli`・`shibuya.engine.activity`・`shibuya.engine.arbiter`・`shibuya.engine.body.rules`・`shibuya.engine.body.schedule`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar_self`・`shibuya.engine.change_detect`・`shibuya.engine.classical`・`shibuya.engine.commit`・`shibuya.engine.contact.attention`・`shibuya.engine.contact.habit`・`shibuya.engine.contact.layer`・`shibuya.engine.conversation`・`shibuya.engine.decision.ports`・`shibuya.engine.duties.layer`・`shibuya.engine.economy_rules`・`shibuya.engine.energy`・`shibuya.engine.familiarity`・`shibuya.engine.intent`・`shibuya.engine.memory`・`shibuya.engine.memory_shops`・`shibuya.engine.memory_store`・`shibuya.engine.norm_meter`・`shibuya.engine.poi_target`・`shibuya.engine.presence`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.crowd`・`shibuya.engine.processes.environment`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.opening`・`shibuya.engine.processes.rail`・`shibuya.engine.processes.runner`・`shibuya.engine.processes.salient`・`shibuya.engine.relations`・`shibuya.engine.resolve`・`shibuya.engine.rights.initial`・`shibuya.engine.run`・`shibuya.engine.space.nav1`・`shibuya.engine.store_choice`・`shibuya.engine.store_memory`・`shibuya.engine.systems.body`・`shibuya.engine.systems.build`・`shibuya.engine.systems.decide`・`shibuya.engine.systems.judge`・`shibuya.engine.systems.llm_io`・`shibuya.engine.systems.report`・`shibuya.engine.systems.state_io`・`shibuya.engine.systems.talk`・`shibuya.perception.renderer`・`tools/c6/ablation1_fixed_vs_ranking.py`・`tools/c6/t7_distribution.py`・`tools/vocab/adjudicate.py`
+- 呼び手: `shibuya.agents`・`shibuya.cli`・`shibuya.engine.activity`・`shibuya.engine.arbiter`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar_self`・`shibuya.engine.change_detect`・`shibuya.engine.classical`・`shibuya.engine.commit`・`shibuya.engine.contact.attention`・`shibuya.engine.contact.habit`・`shibuya.engine.contact.layer`・`shibuya.engine.conversation`・`shibuya.engine.decision.ports`・`shibuya.engine.duties.layer`・`shibuya.engine.economy_rules`・`shibuya.engine.familiarity`・`shibuya.engine.intent`・`shibuya.engine.memory`・`shibuya.engine.memory_shops`・`shibuya.engine.memory_store`・`shibuya.engine.norm_meter`・`shibuya.engine.poi_target`・`shibuya.engine.presence`・`shibuya.engine.relations`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.engine.store_choice`・`shibuya.engine.store_memory`・`shibuya.engine.systems.body`・`shibuya.engine.systems.build`・`shibuya.engine.systems.decide`・`shibuya.engine.systems.judge`・`shibuya.engine.systems.llm_io`・`shibuya.engine.systems.report`・`shibuya.engine.systems.state_io`・`shibuya.engine.systems.talk`・`shibuya.perception.renderer`・`shibuya.world.body.energy`・`shibuya.world.body.rules`・`shibuya.world.body.schedule`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.weekly_reader`・`shibuya.world.laws.civic`・`shibuya.world.laws.crowd`・`shibuya.world.laws.environment`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.opening`・`shibuya.world.laws.rail`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`・`shibuya.world.model.space.nav1`・`tools/c6/ablation1_fixed_vs_ranking.py`・`tools/c6/t7_distribution.py`・`tools/vocab/adjudicate.py`
 - 読む試験: `tests/agents/test_state.py`・`tests/bench/test_refr20b_tool.py`・`tests/build_lang/test_wiring.py`・`tests/build_pop/test_pop_units.py`・`tests/build_sched/test_w17_prompts.py`・`tests/build_sched/test_weekly_loader.py`・`tests/c6/test_c6lib_scenes.py`・`tests/c6/test_t5_order_bias.py`・`tests/economy/test_accounts.py`・`tests/engine/body/body_fixtures.py`・`tests/engine/body/test_body_guard.py`・`tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/calendar2/_ca2.py`・`tests/engine/calendar2/test_ca2_units.py`・`tests/engine/clock/test_tm3_step_scope.py`・`tests/engine/contact/_c1.py`・`tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_habit.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_m4_m5_people.py`・`tests/engine/multiday/test_md23_body_events.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_civic.py`・`tests/engine/processes/test_crowd.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_opening.py`・`tests/engine/processes/test_rail.py`・`tests/engine/processes/test_rail_board_intent.py`・`tests/engine/processes/test_salient.py`・`tests/engine/proximity/test_switch_sites.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/speech/test_speech_choice_utterance.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/speech/test_wom_from_utterance_roundtrip.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/test_ablation23_switches.py`・`tests/engine/test_add_at_guard.py`・`tests/engine/test_arbiter.py`・`tests/engine/test_area_source_c9c.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_change_detect_p6.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_classical_social.py`・`tests/engine/test_conversation.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_familiarity.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_intent_chooser.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_memory_recall.py`・`tests/engine/test_memory_record.py`・`tests/engine/test_mock_day_w2.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_norm_meter.py`・`tests/engine/test_parser_contract.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_presence_exit_walk.py`・`tests/engine/test_relations.py`・`tests/engine/test_relations_8b.py`・`tests/engine/test_renderer_wiring.py`・`tests/engine/test_resolve.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_seat_release_2_4.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_sleep_suppression_d56.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_store_choice.py`・`tests/engine/test_store_memory.py`・`tests/engine/test_tape_wiring.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_two_phase.py`・`tests/engine/test_undefined_action.py`・`tests/engine/test_vocab_v2_eat.py`・`tests/engine/test_weather_calendar_10e.py`・`tests/engine/test_wom.py`・`tests/engine/tools/test_c0_contacts_in_relations.py`・`tests/llm/test_contract.py`・`tests/llm/test_fleet_contract.py`・`tests/llm/test_vocab_v2.py`・`tests/perception/facts/head_renderer_136fdbb.py`・`tests/perception/facts/scenes.py`・`tests/perception/facts/test_percept_schema.py`・`tests/perception/facts/test_render_from_percept_bytes.py`・`tests/perception/test_ablation1.py`・`tests/perception/test_ablation6_signage.py`・`tests/perception/test_b4_detector_gap.py`・`tests/perception/test_b4b_queue_feed.py`・`tests/perception/test_b6_invite.py`・`tests/perception/test_hashes_state.py`・`tests/perception/test_intent_mode_open.py`・`tests/perception/test_near_tiebreak.py`・`tests/perception/test_nearby_vectorized.py`・`tests/perception/test_p_see_activity.py`・`tests/perception/test_renderer_golden.py`・`tests/perception/test_signage_p_see_gate.py`・`tests/perception/test_templates.py`・`tests/perception/test_vocab_v2_templates.py`
 - 読む試験(道筋で): `tests/engine/systems/test_fix_guards.py`・`tests/test_places_guard.py`
 - 状態台帳の行
@@ -146,20 +117,3 @@ agents.state — 個体状態の SoA(``core.soa.Registry`` の上)+起床条件�
     - `agents.weight_kg` weight_kg(挙動 behavior・復元 derivable) 書ける系: build
     - `agents.xy` xy(挙動 behavior・復元 required) 書ける系: build・close_final・day_close・phase_c・plan_boundary・presence・world
 - 決定の ID: 10-06・11-03・D-51・D-62・D-66・D-71・D-112・D-114・D-116・D-118・D-120・D-122・第 276・第 290・第 291・第 296・第 330・第 334
-
-## [weekly.py](../../../../../../../src/shibuya/agents/weekly.py)
-
-agents.weekly — W17 週次活動表(``w17_schedule.parquet``)の読み込みと計画境界の取り出し。
-
-- 公開の関数とクラス
-  - `InboundStarts`(クラス): その日の**域内活動**(``place_kind != 域外``)の開始分を体行ごとに束ねた索引(D-61)。
-  - `WeeklySchedule`(クラス): 週次活動表(行順=``(agent_id, day, seq)`` 昇順)。
-  - `activity_to_action`(関数): 語彙版 → 活動語 → 行動語の表(v1/v2 は ``ACTIVITY_TO_ACTION`` そのもの)。
-  - `apply_to_mock_schedule`(関数): 合成日課(``MockWeeklySchedule``)の拠点セルを W17 の当日の行き先で上書きする。
-  - `load_weekly`(関数): W17 週次表を読む(``<world_dir>/w17_schedule.parquet``)。資産が無ければ ``None``。
-  - `load_weekly_file`(関数): **ファイル名を問わず**1 つの parquet から週次表を組む。
-  - `weekly_available`(関数): ``<world_dir>/w17_schedule.parquet`` があるか。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.hashing`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.engine.calendar_shadow`・`shibuya.engine.energy`・`shibuya.engine.presence`・`shibuya.engine.systems.build`・`tools/instruments/anchor_gauge.py`・`tools/w17/diversity_yardstick.py`
-- 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_sched/test_trial.py`・`tests/build_sched/test_weekly_loader.py`・`tests/engine/body/test_meal_default_w17.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_relations.py`・`tests/engine/test_relations_8b.py`・`tests/engine/test_relations_tenure.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/time/test_t0_time_consts.py`・`tests/w17/test_diversity_yardstick.py`
-- 決定の ID: D-61・D-62・D-68

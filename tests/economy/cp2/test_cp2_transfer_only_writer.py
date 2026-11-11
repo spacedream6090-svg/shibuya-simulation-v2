@@ -113,7 +113,7 @@ def test_the_apply_cash_alias_rows_are_gone():
 
 def test_the_household_ports_exist_and_move_household_cash():
     """口の名の表(engine 側)は economy の口と突き合う: 世帯を払い手か受け手にする Ledger の口と運賃の口。"""
-    from shibuya.engine.processes.rail import RailProcess
+    from shibuya.world.laws.rail import RailProcess
 
     assert set(AL.TRANSFER_PORTS_HOUSEHOLD) == {"purchase_many", "endow_households", "pay_fares", "withdraw_many"}
     from types import MappingProxyType

@@ -44,7 +44,7 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_the_counts_by_form`(関数): 記録 r14/README.md の表と同じ数(形が増減したら記録も直す)。
   - `test_the_first_contents`(関数)
   - `test_the_ledger_sha_is_canonical`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.bridging.scan`・`shibuya.engine.rules.table`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.decl.ledger_paths`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.relations`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.bridging.scan`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.decl.ledger_paths`・`shibuya.world.facts.rules.table`・`shibuya.world.ledger.first_batch`・`shibuya.world.ledger.relations`
 - 決定の ID: 10-12/§1・10-13b/§4-2・D-44・第 334・第 336・第 337・第 342・第 346
 
 ## [test_manifest_rules_bridges.py](../../../../../../../tests/engine/bridging/test_manifest_rules_bridges.py)
@@ -64,5 +64,5 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_tool_configs_that_call_cli_run_are_arms`(関数): byte-check(10e・19 構成)と 10f の manifest の道具が ``cli.run`` に渡す構成: 既定 v3 だけが再現・ほかは腕(検収 M2)。
   - `test_values_match_the_ledger_and_the_table`(関数)
   - `two_days`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.rules.table`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.world.facts.rules.table`
 - 決定の ID: 11-01・11-02r・11-02r/§1・11-02r/§1 #7・11-03・11-03/§3

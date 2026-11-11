@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.agents import schedule as S
+from shibuya.world.facts import mock_schedule as S
 
 
 def test_bulk_and_per_agent_draws_are_identical():

@@ -19,7 +19,7 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.engine.rules import table as RT
+from shibuya.world.facts.rules import table as RT
 
 ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "src" / "shibuya"

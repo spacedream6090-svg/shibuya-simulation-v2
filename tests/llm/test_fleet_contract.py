@@ -61,7 +61,7 @@ def _forbidden() -> tuple[_places.Names, tuple[str, ...]]:
     from shibuya.economy import ledger as ECONOMY
     from shibuya.engine import resolve as ENGINE
     from shibuya.perception import renderer as PERCEPTION
-    from shibuya.world import state as WORLD
+    from shibuya.world.model import state as WORLD
 
     return _places.names_from(ENGINE, PERCEPTION, WORLD, AGENTS, ECONOMY, BUILD), ("shibuya.census",)
 

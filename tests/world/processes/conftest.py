@@ -7,8 +7,8 @@ from typing import Any
 import pytest
 
 from shibuya.foundation.growth import GrowthDeclaration, Retention
-from shibuya.manifest.world_catalog import WorldCatalog
-from shibuya.world.processes.records import (
+from shibuya.world.ledger.world_catalog import WorldCatalog
+from shibuya.world.ledger.records import (
     AnnouncementScope,
     Clock,
     Executor,
@@ -20,7 +20,7 @@ from shibuya.world.processes.records import (
     Violability,
     WorldProcess,
 )
-from shibuya.world.processes.registry import WorldRegistry
+from shibuya.world.ledger.registry import WorldRegistry
 
 #: テスト用の小さなカタログ(凍結カタログを読まずに済ませる)。
 TEST_CATALOG_CLASSES = (

@@ -118,7 +118,7 @@ def test_other_path_shaped_names_are_kept_by_value_and_count():
 def test_shaped_pattern_finds_both_forms_inside_japanese_text():
     # 〔段 4 の下ごしらえ〕斜線の道は 1 つの定数に置き、入力の文と期待の両方で使う(前は日本語の文の中=移す道具が触らない と、
     # 期待の一覧=移す道具が書き換える に同じ字面を 2 回書いていて、移した後に食い違った)。拾い方の確かめは同じ
-    slash = "engine/energy.py"
+    slash = "world/body/energy.py"
     text = f"D-118 の式({slash} の見出しの項)・HD-engine.energy-cc73b60c・core.rng.philox_array(seed, …)"
     assert SN.shaped(text) == ["engine.energy", "core.rng.philox_array", slash]
     assert SN.shaped("data/world/v2・world_dir・engine・economy.stage2") == ["economy.stage2"]

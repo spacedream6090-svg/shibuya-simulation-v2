@@ -66,7 +66,7 @@ from shibuya.build.space import mesh as M
 from shibuya.foundation.time_consts import SECONDS_PER_MINUTE
 from shibuya.build.space import raster as R
 from shibuya.build.space import sources as S
-from shibuya.world import navmesh as NV
+from shibuya.world.model import navmesh as NV
 
 __all__ = [
     "STAGE",

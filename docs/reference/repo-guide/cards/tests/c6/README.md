@@ -157,7 +157,7 @@ tests.c6 の共通フィクスチャ。
   - `test_t5_order_bias_on_the_synthetic_world`(関数)
   - `test_t5_report_shape_is_the_three_declared_quantities`(関数)
   - `test_t5_reversed_population_shows_the_bias_is_composition_not_order`(関数): ``agent_id`` の写像を反転した対照。
-- import している内部モジュール: `shibuya.agents.population`・`shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.run`・`shibuya.llm.mock`・`shibuya.world.state`・`tests/c6/conftest.py`・`tools/c6/c6lib.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.run`・`shibuya.llm.mock`・`shibuya.world.facts.population_reader`・`shibuya.world.model.state`・`tests/c6/conftest.py`・`tools/c6/c6lib.py`
 - 決定の ID: D-56・D-62・D-64・D-66
 
 ## [test_t9_diagnostics.py](../../../../../../tests/c6/test_t9_diagnostics.py)
@@ -170,5 +170,5 @@ tests.c6 の共通フィクスチャ。
   - `test_t9_the_four_columns_actually_carry_numbers`(関数): 「存在するが常にゼロ」を弾く: 需要 > 予算のランでは繰り延べ・縮退が立つ。
   - `test_t9_the_four_diagnostic_columns_exist_in_the_run_table`(関数)
   - `test_t9_two_conservation_checks_are_present_and_pass`(関数): 保存則 2 検算 = 取引残差(``residual``)と在庫残差(``goods_residual_units``)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.manifest.schema`・`shibuya.world.state`・`tests/c6/conftest.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.manifest.schema`・`shibuya.world.model.state`・`tests/c6/conftest.py`
 - 決定の ID: D-56

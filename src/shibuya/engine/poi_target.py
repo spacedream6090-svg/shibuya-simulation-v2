@@ -77,7 +77,7 @@ from shibuya.engine.chooser import ChoiceContext, Chooser, draw_index, entropy_b
 from shibuya.engine.commit import ACT_EAT as _EAT_CODE
 from shibuya.engine.commit import WANDER_BAD_TARGET
 from shibuya.world.assets import BAND_CODES, SYNTHETIC_POI_CATS
-from shibuya.world.state import LANDMARK_CATS
+from shibuya.world.model.state import LANDMARK_CATS
 
 __all__ = [
     "KIND_NAMED",

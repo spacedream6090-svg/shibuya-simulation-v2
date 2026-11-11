@@ -71,6 +71,6 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_bridging_rows_after_2_3`(関数)
   - `test_shadow_dates_cover_the_seven_day_window`(関数)
   - `test_stage_asset_has_the_window_and_the_fallback_is_used_only_outside`(関数)
-- import している内部モジュール: `shibuya.build.vis.w9_shadow`・`shibuya.engine.processes.environment`・`shibuya.foundation.decl.bridging`・`tests/engine/multiday/_md.py`
+- import している内部モジュール: `shibuya.build.vis.w9_shadow`・`shibuya.foundation.decl.bridging`・`shibuya.world.laws.environment`・`tests/engine/multiday/_md.py`
 - 環境変数: `SHIBUYA_SPACE`
 - 決定の ID: 第 334

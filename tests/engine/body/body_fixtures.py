@@ -17,7 +17,7 @@ import numpy as np
 from shibuya.agents.state import Activity, ActivityKind
 from shibuya.foundation.time_consts import MINUTES_PER_DAY, SECONDS_PER_DAY
 from shibuya.engine.change_detect import INTERO_UP_EDGES
-from shibuya.engine.energy import AVG_METS, EnergyModel
+from shibuya.world.body.energy import AVG_METS, EnergyModel
 
 HEAD = "d35a9b6"
 

@@ -16,10 +16,10 @@ import pytest
 from shibuya.foundation.time_consts import NS_PER_STEP, STEPS_PER_DAY
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.journal.links import ActualLogLink
-from shibuya.engine.processes.runner import PROCESS_ORDER
+from shibuya.world.laws.runner import PROCESS_ORDER
 from shibuya.engine.run import run_day
-from shibuya.world.processes.actual_log import ActualLog
-from shibuya.world.processes.records import DeviationVocab
+from shibuya.world.ledger.actual_log import ActualLog
+from shibuya.world.ledger.records import DeviationVocab
 
 
 def _log_with_link(enabled=True):

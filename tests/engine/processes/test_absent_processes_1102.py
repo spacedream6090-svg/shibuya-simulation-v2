@@ -15,20 +15,20 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.time_consts import SECONDS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
-from shibuya.engine import absent_processes as AP
+from shibuya.world.laws import switch_absent as AP
 from shibuya.engine import resolve as R
-from shibuya.engine.processes.civic import InfraLoadProcess, PublicServiceDispatchProcess
-from shibuya.engine.processes.goods_flow import (
+from shibuya.world.laws.civic import InfraLoadProcess, PublicServiceDispatchProcess
+from shibuya.world.laws.goods_flow import (
     COLLECT_WINDOW,
     HOUSEHOLD_CONSUME_MINUTE,
     StreetCleaningProcess,
     WasteCollectionProcess,
 )
-from shibuya.engine.processes.logistics import ROADWORK_WINDOW, RoadWorksProcess
-from shibuya.engine.processes.runner import WorldProcessRunner
-from shibuya.engine.processes.salient import SalientProcess
+from shibuya.world.laws.logistics import ROADWORK_WINDOW, RoadWorksProcess
+from shibuya.world.laws.runner import WorldProcessRunner
+from shibuya.world.laws.salient import SalientProcess
 from shibuya.world.assets import ProcessAssets
-from shibuya.world.processes.actual_log import ActualLog
+from shibuya.world.ledger.actual_log import ActualLog
 
 from .conftest import make_agents, make_world
 from .test_goods_flow import _setup as goods_setup
@@ -72,7 +72,7 @@ def test_the_default_arm_is_stopped_and_names_are_checked(arm_restore):
     assert AP.stopped_flags("stopped") == {f"absent_{p}_stopped": 1 for p in AP.PROCESSES}
     assert AP.stopped_flags("legacy") == {f"absent_{p}_stopped": 0 for p in AP.PROCESSES}
     # 宣言(world/processes/absent.py)と 1 対 1
-    from shibuya.world.processes import absent as AB
+    from shibuya.world.ledger import absent as AB
 
     ab = AB.by_id()
     for name, v in AP.STOPPED_PROCESSES.items():

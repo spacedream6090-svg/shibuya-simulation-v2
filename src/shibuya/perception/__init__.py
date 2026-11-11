@@ -29,23 +29,7 @@ from shibuya.perception.attention import (
     strip_imperatives,
     tag_world_text,
 )
-from shibuya.perception.p_notice import (
-    CUTOFF_M,
-    D50_DEFAULT_M,
-    MAX_EVENTS_PER_TICK,
-    Ablation,
-    Counters,
-    DensityClass,
-    EventBudget,
-    NoticeResult,
-    PNoticeParams,
-    TaskLoad,
-    notice_event,
-    p1_primary,
-    p2_social,
-)
 from shibuya.perception.renderer import PerceptionAssets, Rendered, Renderer
-from shibuya.perception.state import PerceptionState
 
 __all__ = [
     # templates
@@ -67,22 +51,8 @@ __all__ = [
     "feature_tag",
     "tag_world_text",
     # p_notice
-    "D50_DEFAULT_M",
-    "CUTOFF_M",
-    "MAX_EVENTS_PER_TICK",
-    "Ablation",
-    "PNoticeParams",
-    "NoticeResult",
-    "Counters",
-    "EventBudget",
-    "TaskLoad",
-    "DensityClass",
-    "p1_primary",
-    "p2_social",
-    "notice_event",
     # hashes
     # state
-    "PerceptionState",
     # renderer
     "Renderer",
     "Rendered",

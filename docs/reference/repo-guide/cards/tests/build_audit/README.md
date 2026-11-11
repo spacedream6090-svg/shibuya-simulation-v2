@@ -20,7 +20,7 @@ build.audit の統合テスト(実データ必須・CI では skip)。
   - `test_w18_coverage_index`(関数)
   - `test_w19_freeze_assets_and_seal`(関数)
   - `test_w20_acceptance_pack`(関数)
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.run`・`shibuya.manifest.world_catalog`・`tests/_data_ids.py`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.run`・`shibuya.world.ledger.world_catalog`・`tests/_data_ids.py`
 
 ## [test_audit_units.py](../../../../../../tests/build_audit/test_audit_units.py)
 
@@ -43,7 +43,7 @@ build.audit の単体テスト(実データ不要)。
   - `test_w19_assets_are_only_the_files_w13_reads`(関数): 〔改訂(第330 B5)〕W19 の資産表は W13 が実際に読むファイルだけ。``realworld/amedas``(旧の rglob の先・日次取得の
   - `test_w19_assets_never_list_the_realtime_odpt_layer`(関数): 〔第 2 期 2-3b・検収 L1〕負の対照: data 根に ``realworld_live/odpt_rt/``(検証専用)と別の日付の
   - `test_weight_formula_and_cap`(関数)
-- import している内部モジュール: `shibuya.build.audit.w18_coverage`・`shibuya.build.audit.w19_freeze`・`shibuya.build.audit.w20_acceptance_pack`・`shibuya.build.field.w12_real_timetables`・`shibuya.build.field.w13_weather`・`shibuya.build.geo.common`・`shibuya.manifest.world_catalog`
+- import している内部モジュール: `shibuya.build.audit.w18_coverage`・`shibuya.build.audit.w19_freeze`・`shibuya.build.audit.w20_acceptance_pack`・`shibuya.build.field.w12_real_timetables`・`shibuya.build.field.w13_weather`・`shibuya.build.geo.common`・`shibuya.world.ledger.world_catalog`
 - 決定の ID: 第 330
 
 ## [test_w19_layer_sources.py](../../../../../../tests/build_audit/test_w19_layer_sources.py)

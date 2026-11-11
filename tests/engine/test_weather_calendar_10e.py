@@ -28,11 +28,11 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import AgentState
-from shibuya.engine import solar as SOL
+from shibuya.world.model import solar as SOL
 from shibuya.engine.calendar import SEASON_OF_MONTH, SimCalendar, load_holidays
-from shibuya.engine.processes import environment as ENV
+from shibuya.world.laws import environment as ENV
 from shibuya.world.assets import HEAT_STAGE_ORDER, ProcessAssets
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 REPO = Path(__file__).resolve().parents[2]
 WORLD_DIR = REPO / "data" / "world" / "v2"
@@ -212,8 +212,8 @@ def test_b6_heat_uses_the_replay_weather_and_the_calendar_sun(tmp_path):
 
 
 def test_b6_days_advance_and_only_the_environment_seed_moves_the_draws(tmp_path):
-    from shibuya.agents.schedule import synthesize
-    from shibuya.engine.processes.runner import WorldProcessRunner
+    from shibuya.world.facts.mock_schedule import synthesize
+    from shibuya.world.laws.runner import WorldProcessRunner
 
     pa = _synthetic_w13(tmp_path)
     env = _env(pa, "2026-10-05")

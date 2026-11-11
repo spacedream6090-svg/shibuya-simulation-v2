@@ -124,7 +124,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_the_field_line_is_short`(関数): 親の判断 A6: 指示の行は 10 tok 以下(描画の数え方=文字数 ÷ 2)・届いた発話の行の素性タグも短い形。
   - `test_the_queue_is_bounded_and_overflow_is_counted`(関数)
   - `test_the_window_holds_only_after_the_session_closed`(関数): 親の判断 A7 と第 2 回: 開いているセッションの未読と返事待ちの招待への返事(セッションの外)は窓なし(届け先の次の
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.classical`・`shibuya.engine.speech.layer`・`shibuya.engine.speech.port`・`shibuya.foundation.journal.log`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.llm.parser`・`shibuya.perception.attention`・`shibuya.perception.renderer`・`shibuya.world.state`・`tests/engine/speech/_s8b.py`・`tests/perception/facts/scenes.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.classical`・`shibuya.engine.speech.layer`・`shibuya.engine.speech.port`・`shibuya.foundation.journal.log`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.llm.parser`・`shibuya.perception.attention`・`shibuya.perception.renderer`・`shibuya.world.model.state`・`tests/engine/speech/_s8b.py`・`tests/perception/facts/scenes.py`
 
 ## [test_speech_port_schema.py](../../../../../../../tests/engine/speech/test_speech_port_schema.py)
 

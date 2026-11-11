@@ -14,10 +14,10 @@ import numpy as np
 import pytest
 
 from shibuya.engine import resolve as R
-from shibuya.engine.body import BodyModel
-from shibuya.engine.body import rules as BR
-from shibuya.engine.processes import environment as ENV
-from shibuya.engine.processes import salient as SAL
+from shibuya.world.body.model import BodyModel
+from shibuya.world.body import rules as BR
+from shibuya.world.laws import environment as ENV
+from shibuya.world.laws import salient as SAL
 
 from tests.engine.body.body_fixtures import (
     StubModel,

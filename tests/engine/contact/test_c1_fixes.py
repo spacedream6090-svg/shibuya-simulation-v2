@@ -24,7 +24,7 @@ from shibuya.engine.contact import book as _BOOK
 from shibuya.engine.contact import calls as _CALLS
 from shibuya.engine.contact import chat_state as _CHAT
 from shibuya.engine.contact import deliver as _DELIVER
-from shibuya.engine.contact import device as _DEVICE
+from shibuya.world.things import device as _DEVICE
 from shibuya.engine.contact import layer as LY
 from shibuya.engine.contact import port as P
 from shibuya.engine.contact.layer import W_LOOK, W_READ, audit_causes

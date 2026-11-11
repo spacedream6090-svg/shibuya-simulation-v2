@@ -64,7 +64,7 @@ def applied(monkeypatch):
 
 
 def _fleet_run(servers, tmp_path, delay: int, **kw):
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     client = make_client(servers)
     return run_day(

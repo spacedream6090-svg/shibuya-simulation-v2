@@ -60,5 +60,5 @@ tools/w17/diversity_yardstick.py の検査。
   - `test_responses_sample_and_parse_failures`(関数): jsonl → Sample。壊れた行は ``format`` に計上され parse 失敗率に出る。
   - `test_stratified_weights_and_overall`(関数): w_k = 母集団体数 ÷ 標本体数。重みなし全体と加重全体が別に出る。
   - `test_vocabulary_not_duplicated`(関数): 語彙はツール側で二重定義していない(``agents.weekly`` と ``build.sched.vocab`` が一致)。
-- import している内部モジュール: `shibuya.agents.weekly`・`shibuya.build.sched.vocab`・`tests/w17/conftest.py`
+- import している内部モジュール: `shibuya.build.sched.vocab`・`shibuya.world.facts.weekly_reader`・`tests/w17/conftest.py`
 - 決定の ID: 第 337

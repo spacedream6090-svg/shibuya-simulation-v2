@@ -22,17 +22,17 @@ from shibuya.foundation import budget as BU
 from shibuya.foundation import paths as P
 from shibuya.foundation import rng as RNG
 from shibuya.engine import classical as CL
-from shibuya.engine import energy as EN
+from shibuya.world.body import energy as EN
 from shibuya.engine import resolve as RV
 from shibuya.engine import resume as RS
 from shibuya.engine import rng_audit as RA
 from shibuya.foundation.decl import bridging as BL
 from shibuya.engine.bridging import scan as BS
-from shibuya.engine.rules import table as RT
+from shibuya.world.facts.rules import table as RT
 from shibuya.engine.systems import allow as AL
 from shibuya.engine.systems import static_check as SC
-from shibuya.manifest import world_catalog as WC
-from shibuya.world.processes import constitution as CO
+from shibuya.world.ledger import world_catalog as WC
+from shibuya.world.ledger import constitution as CO
 from tests import _places as PL
 
 PKG = Path(shibuya.__file__).resolve().parent

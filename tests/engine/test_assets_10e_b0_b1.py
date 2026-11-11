@@ -104,7 +104,7 @@ def test_b0_manifest_lists_what_the_run_read_and_the_two_noise_readers_agree():
 @needs_world
 def test_b0_hashes_stay_out_of_the_final(monkeypatch):
     from shibuya import cli
-    from shibuya.engine.processes import environment as ENV
+    from shibuya.world.laws import environment as ENV
     from shibuya.perception import renderer as REN
 
     a = cli.run(world_dir=str(WORLD_DIR), **SMALL)

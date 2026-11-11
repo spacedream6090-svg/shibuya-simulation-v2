@@ -18,7 +18,7 @@ import numpy as np
 from shibuya.agents.state import WAKE_CONDITION_CLASS
 from shibuya.agents.state import WakeCondition
 from shibuya.engine import resolve as R
-from shibuya.engine.energy import DEFAULT_MEAL_SLEEP_DEFER
+from shibuya.world.body.energy import DEFAULT_MEAL_SLEEP_DEFER
 from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
 
 

@@ -27,7 +27,7 @@ attr_arms.py — **KDDI 写像の感度腕**(在圏の形 9b・D-115 ③・解�
   - `recorded_obs`(関数)
   - `save_agent_journal`(関数): 体の journal(``ticks`` (T,)・``cells`` (T, n) int16・``transit`` (T, n) int8・``kind`` (n,) int8・``meta``)。
   - `shape_metrics`(関数): ``(24, 5, 3)`` → H2〜H5 の値(sim)と開封済みの obs との差。**判定しない**(合否は書かない)。
-- import している内部モジュール: `shibuya.agents.population`・`shibuya.engine.resolve`・`tools/c7/c7lib.py`・`tools/c7/occupancy_series.py`
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.world.facts.population_reader`・`tools/c7/c7lib.py`・`tools/c7/occupancy_series.py`
 - 呼び手: `tools/instruments/anchor_gauge.py`
 - 読む試験: `tests/c7/test_attr_arms.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
@@ -161,7 +161,7 @@ occupancy_series.py — C7 の**在圏時系列**(5エリア×24時)を作る。
   - `report_markdown`(関数)
   - `sensitivity`(関数): 境界 ±50m の膨張/収縮で写像がどれだけ動くか(地図読み取り答申の要求「④ expedient 登録:
   - `write_journal`(関数): エンジン側フックと本ツールが共有する journal 形式(``.npz``)。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.world.state`・`tools/c7/c7lib.py`
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.world.model.state`・`tools/c7/c7lib.py`
 - 呼び手: `tools/c7/attr_arms.py`・`tools/c7/presence_yardstick.py`・`tools/c7/seed_ensemble.py`・`tools/fig/fig_presence_24h.py`・`tools/fig/fig_seed_pair.py`
 - 読む試験: `tests/c7/conftest.py`・`tests/c7/test_presence_yardstick.py`
 - CLI の引数

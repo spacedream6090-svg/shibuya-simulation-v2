@@ -16,7 +16,7 @@ import pytest
 
 from shibuya.agents.state import Activity, AgentKind, AgentState
 from shibuya.engine import classical as CL
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 DOC, MD5 = CL.load_activity_prior()
 SRC = Path("src/shibuya")
@@ -184,7 +184,7 @@ def test_hazard_rule_keeps_expected_meals_when_waking_twice_as_often():
 
 # ================================================================= Q-2B-6(親の決定)
 def _energy_policy():
-    from shibuya.engine import energy as E
+    from shibuya.world.body import energy as E
     from shibuya.engine import resolve as R
 
     pol = _bound("per_hour", n=1, hunger=(8,), energy=True)

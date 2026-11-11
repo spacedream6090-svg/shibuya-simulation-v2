@@ -10,7 +10,7 @@ from shibuya.agents.state import Activity, ResultCode
 from shibuya.economy.accounts import AccountCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.processes.rail import (
+from shibuya.world.laws.rail import (
     ACCEPT_FULL_RATIO,
     ACCEPT_MAX_RATIO,
     ACCEPT_MIN_RATE,
@@ -109,7 +109,7 @@ def test_dwell_is_a_per_line_table_terminal_is_two_ticks():
 def test_daily_train_count_matches_the_real_timetable_rows_for_that_calendar():
     """ゲート: 路線別の便数が W12 のその暦の行数と一致する。"""
     world = make_world(9)
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     real = World.load(WORLD_DIR)
     agents, schedule = make_agents(real, 30)
@@ -322,7 +322,7 @@ def test_departure_moves_riders_to_the_external_node():
 
 
 def test_departures_are_logged_as_scheduled():
-    from shibuya.world.processes.actual_log import ActualLog
+    from shibuya.world.ledger.actual_log import ActualLog
 
     world = make_world(9)
     agents, schedule = make_agents(world, 10)

@@ -59,7 +59,7 @@
 | `data/realworld_live/_logs` | 2.3 MB |
 | `data/realworld_live/amedas` | 5.4 MB |
 | `data/realworld_live/jma_xml` | 283.6 MB |
-| `data/realworld_live/odpt_rt` | 703.0 MB |
+| `data/realworld_live/odpt_rt` | 704.1 MB |
 | `data/realworld_live/odpt_static` | 54.9 MB |
 | `data/realworld_live/wbgt` | 233.7 KB |
 | `data/research_cache` | 788.3 MB |

@@ -22,7 +22,7 @@ import pytest
 
 from shibuya.engine import calendar as CAL
 from shibuya.engine.calendar import SimCalendar, load_holidays
-from shibuya.engine.processes import opening as OP
+from shibuya.world.laws import opening as OP
 
 REPO = Path(__file__).resolve().parents[2]
 WORLD_DIR = REPO / "data" / "world" / "v2"

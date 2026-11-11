@@ -25,7 +25,7 @@ from shibuya.perception.renderer import (
     PerceptionAssets,
     Renderer,
 )
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 DATA_DIR = Path("data/world/v2")
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")

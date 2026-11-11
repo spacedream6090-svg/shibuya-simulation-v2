@@ -22,7 +22,7 @@ import pytest
 from shibuya.agents.state import AgentKind, AgentState
 from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import Renderer
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 #: 凍結テンプレの SHA(``tests/perception/test_templates.py`` と**同じ値**)。
 #: 旧 v1.1 の凍結値 = 8f2959d0d3fbe75ee0ca5a634425447bb316baaa6b36af9c570fa34eeb5617ef(6b で v1.2 へ張り替え)

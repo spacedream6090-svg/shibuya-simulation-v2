@@ -29,7 +29,7 @@ from shibuya.build.field import common as C
 from shibuya.build.field import w12_external_nodes as w12
 from shibuya.build.field import w12_rail_events as RE
 from shibuya.build.field import w12_real_timetables as RT
-from shibuya.engine.processes import rail_events as ERE
+from shibuya.world.laws import rail_events as ERE
 from tests import _data_ids as D
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -320,7 +320,7 @@ def test_engine_reader_is_not_called_from_any_process():
 
     assert ERE.READ_RAIL_EVENTS is False
     src = REPO_ROOT / "src" / "shibuya"
-    me = (src / "engine" / "processes" / "rail_events.py").resolve()
+    me = (src / "world" / "laws" / "rail_events.py").resolve()
     # 〔段 4 の下ごしらえ〕読む口のモジュールの名の末尾 2 つ(今は processes.rail_events)はモジュールの __name__ から作る
     ere_tail = ".".join(ERE.__name__.split(".")[-2:])
     hits = []
@@ -341,7 +341,7 @@ def test_engine_reader_is_not_called_from_any_process():
     assert hits == [], hits
     # 過程と系のモジュールは名指しで確かめる(上の走査に含まれる)。〔段 4 の下ごしらえ〕前はディレクトリの字面
     # engine/processes・engine/systems で確かめていた(段 4 で包みが移るとディレクトリが消える)=モジュールの __file__ から
-    from shibuya.engine.processes import opening as PROC
+    from shibuya.world.laws import opening as PROC
     from shibuya.engine.systems import table as SYS
 
     for m in (PROC, SYS):

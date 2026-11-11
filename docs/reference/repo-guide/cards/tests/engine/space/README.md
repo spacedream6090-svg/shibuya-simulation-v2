@@ -24,7 +24,7 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_scale_one_makes_cell_equal_unscaled`(関数)
   - `test_synth_neighbours_follow_the_surface`(関数)
   - `test_three_estimators_match_the_hand_calculation`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.change_detect`・`shibuya.engine.geometry`・`shibuya.engine.space.nav1`・`shibuya.world.navmesh`・`shibuya.world.state`・`tests/build_space/synth.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.change_detect`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.space.nav1`・`shibuya.world.model.state`・`tests/build_space/synth.py`
 - 環境変数: `SHIBUYA_NAV1_DENSITY`・`SHIBUYA_SPACE`
 
 ## [test_nav1_units.py](../../../../../../../tests/engine/space/test_nav1_units.py)
@@ -52,7 +52,7 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_speed_is_the_body_attribute`(関数)
   - `test_turn_weights_fixed_and_person_range_deterministic`(関数)
   - `test_unique_position_per_agent_per_step`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.activity`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar_self`・`shibuya.engine.chooser`・`shibuya.engine.classical`・`shibuya.engine.decision.layer`・`shibuya.engine.geometry`・`shibuya.engine.intent`・`shibuya.engine.proximity`・`shibuya.engine.space.nav1`・`shibuya.llm`・`shibuya.perception.p_notice`・`shibuya.world.navmesh`・`tests/_places.py`・`tests/build_space/synth.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.activity`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar_self`・`shibuya.engine.chooser`・`shibuya.engine.classical`・`shibuya.engine.decision.layer`・`shibuya.engine.intent`・`shibuya.llm`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.notice_reach`・`shibuya.world.model.proximity`・`shibuya.world.model.space.nav1`・`tests/_places.py`・`tests/build_space/synth.py`
 - 環境変数: `SHIBUYA_SPACE`
 - 決定の ID: 10-03/§8・R-63
 
@@ -71,6 +71,6 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_nav1_resume_equals_straight`(関数)
   - `test_nav1_without_assets_runs_legacy_and_says_why`(関数)
   - `test_q4_production_world_without_assets_stops_and_legacy_runs`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.world.navmesh`・`tests/golden_env.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.world.model.navmesh`・`tests/golden_env.py`
 - 環境変数: `SHIBUYA_NAV1_DENSITY`・`SHIBUYA_SPACE`
 - 決定の ID: 11-01・11-03/§3

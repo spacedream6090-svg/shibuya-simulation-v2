@@ -10,7 +10,7 @@ import numpy as np
 
 from shibuya.agents.state import AgentKind, ResultCode
 from shibuya.engine import resolve as R
-from shibuya.engine.processes.opening import OpeningProcess, build_open_matrix
+from shibuya.world.laws.opening import OpeningProcess, build_open_matrix
 
 from .conftest import fake_plan_assets, make_agents, make_world
 

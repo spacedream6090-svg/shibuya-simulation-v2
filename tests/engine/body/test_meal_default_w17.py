@@ -22,8 +22,8 @@ import numpy as np
 import pytest
 
 from shibuya import cli
-from shibuya.agents.weekly import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
-from shibuya.engine import energy as E
+from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
+from shibuya.world.body import energy as E
 from shibuya.engine.run import run_day
 
 WORLD_DIR = Path("data/world/v2")
@@ -134,7 +134,7 @@ def test_removed_switch_env_and_cli_flag_stop():
     import subprocess
 
     env = {**os.environ, "SHIBUYA_MEAL_DEFAULT": "validation", "PYTHONIOENCODING": "utf-8"}
-    r = subprocess.run([sys.executable, "-c", "import shibuya.engine.energy"], env=env, capture_output=True, text=True,
+    r = subprocess.run([sys.executable, "-c", "import shibuya.world.body.energy"], env=env, capture_output=True, text=True,
                        encoding="utf-8")
     assert r.returncode != 0 and "消した切替口" in r.stderr
     with pytest.raises(SystemExit):
@@ -195,7 +195,7 @@ W21_WORLD_MEAL_START_HIST_15MIN = {
 
 @real_data
 def test_draw_from_the_world_w17_matches_its_meal_rows_jsd():
-    from shibuya.agents.weekly import load_weekly
+    from shibuya.world.facts.weekly_reader import load_weekly
 
     w = load_weekly(WORLD_DIR)
     d = E.MealStartDistribution.from_weekly(w, 0)
@@ -246,7 +246,7 @@ def test_out_of_area_defaults_are_drawn_per_body_and_rows_are_kept():
 
 
 def test_initial_hunger_comes_from_the_previous_dinner_and_stays_in_range():
-    from shibuya.engine.body import rules as BR
+    from shibuya.world.body import rules as BR
 
     m = _model("w17")
     n = 400

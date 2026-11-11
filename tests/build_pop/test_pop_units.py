@@ -14,7 +14,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from shibuya.agents.population import Population, sample_population
+from shibuya.world.facts.population_reader import Population, sample_population
 from shibuya.build.pop import fitting as F
 from shibuya.build.pop import shapefile as SH
 from shibuya.build.pop import w16_population as W
@@ -275,7 +275,7 @@ def test_reserved_layer_is_decided_by_role_not_by_pool_layer():
 
 def test_reserved_roles_table_is_the_functional_minimum():
     """役割表そのものの釘付け(答申 §Q6-b: 乗務・指令・議員・警察/消防・公共交通)。"""
-    from shibuya.agents.population import RESERVED_ROLES
+    from shibuya.world.facts.population_reader import RESERVED_ROLES
 
     assert set(RESERVED_ROLES) == {
         "駅員", "電車運転士", "車掌", "バス運転士", "指令",
@@ -358,7 +358,7 @@ def test_kind_codes_are_identical_across_the_layer_boundary():
 
 
 def test_age_edges_are_identical_across_the_layer_boundary():
-    from shibuya.agents import population as PP
+    from shibuya.world.facts import population_reader as PP
 
     assert W.AGE_EDGES.tolist() == PP.AGE_EDGES.tolist()
     # 国勢調査の 5 歳階級 0-4 … 70-74 と「75 歳以上」= 16 階級(2026-09-09 に 15→16)
@@ -369,7 +369,7 @@ def test_age_edges_are_identical_across_the_layer_boundary():
 
 
 def test_reserved_kind_matches_the_dispatcher_code():
-    from shibuya.agents import population as PP
+    from shibuya.world.facts import population_reader as PP
     from shibuya.agents.state import AgentKind
 
     assert PP.RESERVED_KINDS == (int(AgentKind.DISPATCHER),)
@@ -379,7 +379,7 @@ def test_reserved_kind_matches_the_dispatcher_code():
 
 def test_reserved_roles_exist_in_the_build_side_role_vocabulary():
     """役割名は W16 が publish する語(``RAIL_CREW_ROLES``+指令)と綴りが一致する。"""
-    from shibuya.agents import population as PP
+    from shibuya.world.facts import population_reader as PP
 
     assert set(W.RAIL_CREW_ROLES) <= set(PP.RESERVED_ROLES)
     assert "指令" in PP.RESERVED_ROLES

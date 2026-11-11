@@ -68,8 +68,8 @@ from shibuya.engine.duties import port as _P
 from shibuya.engine.duties.knowledge import UNKNOWN, ShopRules, origin_mark, rules_line
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.log import Event, LlmCall
-from shibuya.engine.processes.goods_flow import RESTOCK_STEP_MINUTES, WASTE_TO_BIN_MINUTE
-from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
+from shibuya.world.laws.goods_flow import RESTOCK_STEP_MINUTES, WASTE_TO_BIN_MINUTE
+from shibuya.world.ledger.records import DEVIATION_CODES, DeviationVocab
 
 __all__ = [
     "SCHEMA", "CONFIG_KEYS", "OBSERVED_KEYS", "ARBITRATION", "SHOP_LEAD_MINUTES", "W_UNLOCK", "W_LOCK", "W_RESTOCK",
@@ -217,7 +217,7 @@ class DutiesLayer:
         出どころ=差し替えの世界の初期の行の表(``initial_rights`` の塊 ``store_staff``)にある組なら W21c・ほかは丸振り。"""
         if self._emp_agent is not None:
             return
-        from shibuya.engine.rights.ledger import AGENT, EMPLOY, STORE
+        from shibuya.world.facts.rights.ledger import AGENT, EMPLOY, STORE
 
         h, o = self.shops.rights.pairs(EMPLOY, AGENT, STORE, 0)
         h, o = np.asarray(h, dtype=np.int64), np.asarray(o, dtype=np.int64)
@@ -460,7 +460,7 @@ class DutiesLayer:
                   origin: str) -> None:
         """店を開ける/閉める(本人の行動=``resolve.request_open_close``・ActualLog ``SCHEDULED``・出来事 1 行)。"""
         op = self.shops
-        from shibuya.engine.rights.ledger import AGENT, EMPLOY, STORE
+        from shibuya.world.facts.rights.ledger import AGENT, EMPLOY, STORE
 
         aa, pp = np.array([a], dtype=np.int64), np.array([p], dtype=np.int64)
         R.request_open_close(self.agents, self.world, aa, pp, np.array([unlock]), int(T),

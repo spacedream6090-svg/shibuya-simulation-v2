@@ -17,9 +17,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.body import BodyModel
-from shibuya.engine.body import model as _BM
-from shibuya.engine.body import schedule as _BS
+from shibuya.world.body.model import BodyModel
+from shibuya.world.body import model as _BM
+from shibuya.world.body import schedule as _BS
 from shibuya.engine.systems import allow as AL
 
 from tests.engine.ast_writers import UNKNOWN, scan_writes
@@ -120,7 +120,7 @@ def test_only_the_ports_write_the_body_layer():
     assert sched_bad == [], sched_bad
     assert sorted(set(body_calls)) == sorted({
         "engine/resolve.py:advance_body:step", "engine/resolve.py:initialize:initial",
-        "engine/resolve.py:initialize_energy:initial", "engine/processes/environment.py:EnvironmentProcess.step:step",
+        "engine/resolve.py:initialize_energy:initial", "world/laws/environment.py:EnvironmentProcess.step:step",
     }), body_calls
 
 
@@ -186,7 +186,7 @@ def test_no_new_writer_of_the_body_columns():
 
 #: HEAD の口の呼び手(src の中・``R.<口>(...)``)。
 HEAD_CALLERS = sorted([
-    ("engine/processes/environment.py", "set_thermal"), ("engine/processes/environment.py", "set_thermal"),
+    ("world/laws/environment.py", "set_thermal"), ("world/laws/environment.py", "set_thermal"),
     ("engine/systems/body.py", "advance_body"), ("engine/systems/build.py", "initialize"),
     ("engine/systems/build.py", "initialize_energy"),
 ])

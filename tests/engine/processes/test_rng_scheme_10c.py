@@ -23,16 +23,16 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-import shibuya.engine.processes.civic as CIV
-import shibuya.engine.processes.salient as SAL
+import shibuya.world.laws.civic as CIV
+import shibuya.world.laws.salient as SAL
 import shibuya.engine.run as RUN
 from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
 from shibuya.foundation.rng import RNG_SCHEME, run_tick_key
 from shibuya.foundation.rng import stream as core_stream
 from shibuya.engine import state_hashes as SH
 from shibuya.engine import state_ledger as SL
-from shibuya.engine.processes.civic import DISPATCH_MEDIAN_MIN, PublicServiceDispatchProcess
-from shibuya.engine.processes.salient import COLLAPSE_PER_10K_PER_DAY, SalientProcess
+from shibuya.world.laws.civic import DISPATCH_MEDIAN_MIN, PublicServiceDispatchProcess
+from shibuya.world.laws.salient import COLLAPSE_PER_10K_PER_DAY, SalientProcess
 from shibuya.engine.run import run_day
 
 from .conftest import make_agents, make_world
@@ -42,8 +42,8 @@ from .conftest import make_agents, make_world
 def _rate_rules_legacy(monkeypatch):
     """〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)。
     〔11-02r §1 #7〕出動の経路も旧道(``--absent-processes legacy``)でだけ動く=同じく旧道で回す。"""
-    from shibuya.engine import absent_processes as AP
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_absent as AP
+    from shibuya.world.laws import switch_rate as RR
 
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
     monkeypatch.setattr(AP, "_ARM", AP.MODE_LEGACY)

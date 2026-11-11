@@ -25,7 +25,7 @@ from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE, PerceptionRendererAda
 from shibuya.engine.run import run_day
 from shibuya.foundation.text import templates as PT
 from shibuya.perception.renderer import PerceptionAssets, Renderer as PerceptionRenderer
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 WORLD_DIR = Path("data/world/v2")
 #: ``PerceptionAssets.available(WORLD_DIR)`` と同じ判定(読み込みに要るファイルが全部ある)。

@@ -42,8 +42,8 @@ from shibuya.engine import state_ledger as SL
 
 DECL_FILES: dict[str, str] = {
     "agents": "agents/state.py",
-    "world": "world/state.py",
-    "perception": "perception/state.py",
+    "world": "world/model/state.py",
+    "perception": "world/model/percept_state.py",
 }
 SOA_BASE_TAILS = frozenset({
     "registry", "r", "R", "reg", "agents", "cells", "pois", "pstate", "ps", "state",
@@ -58,7 +58,7 @@ UNRESOLVED_ALLOW: tuple[SL.AstAllow, ...] = (
                 "内受容の段の跨ぎの診断の数え(_count_intero_crossings)。読むのは段の 3 列(どれも behavior)"),
     SL.AstAllow("agents/state.py", 'return self.__dict__["registry"].field(name)',
                 "AgentState.__getattr__ の転送。読み手は呼び手の側の属性の読みとして数える"),
-    SL.AstAllow("perception/state.py", 'return self.__dict__["registry"].field(name)',
+    SL.AstAllow("world/model/percept_state.py", 'return self.__dict__["registry"].field(name)',
                 "PerceptionState.__getattr__ の転送。同上"),
     SL.AstAllow("engine/state_hashes.py", "_feed(f, getattr(v, fl.name), depth + 1, ordered)",
                 "ハッシュの直列化の書き手が dataclass の欄を読む(SoA の列ではない・状態を読んで挙動を決めない)"),
@@ -607,12 +607,12 @@ DIAG_EXITS: tuple[DiagExit, ...] = (
     DiagExit("economy/census.py", "*", "日次・月次のセンサス(保存則の検査と報告)"),
     DiagExit("cli.py", "checkpoints_payload", "checkpoints の JSON の組み立て(報告)"),
     DiagExit("cli.py", "undefined_registry_payload", "未定義行動の台帳の書き出し(報告)"),
-    DiagExit("engine/processes/runner.py", "WorldProcessRunner.counters", "世界過程の計数の要約(報告)"),
-    DiagExit("engine/processes/runner.py", "WorldProcessRunner.summary", "世界過程の要約(報告)"),
-    DiagExit("engine/processes/runner.py", "WorldProcessRunner.waste_sink_report", "廃棄の帯の報告(第304 Q135)"),
-    DiagExit("engine/processes/runner.py", "WorldProcessRunner.projected_waste_tonnes_per_day",
+    DiagExit("world/laws/runner.py", "WorldProcessRunner.counters", "世界過程の計数の要約(報告)"),
+    DiagExit("world/laws/runner.py", "WorldProcessRunner.summary", "世界過程の要約(報告)"),
+    DiagExit("world/laws/runner.py", "WorldProcessRunner.waste_sink_report", "廃棄の帯の報告(第304 Q135)"),
+    DiagExit("world/laws/runner.py", "WorldProcessRunner.projected_waste_tonnes_per_day",
              "廃棄の見込みの報告(RunResult.waste_tonnes_per_day)"),
-    DiagExit("engine/processes/runner.py", "WorldProcessRunner.compliance", "法令遵守率の報告(RunResult)"),
+    DiagExit("world/laws/runner.py", "WorldProcessRunner.compliance", "法令遵守率の報告(RunResult)"),
     DiagExit("engine/llm_bridge.py", "PerceptionRendererAdapter.counters", "描画の計数の要約(報告)"),
     DiagExit("engine/norm_meter.py", "GroupNormMeter.summary", "集団規範の計器の要約(報告)"),
     DiagExit("engine/presence.py", "PlanExecutor.counters", "計画実行層の計数の要約(報告)"),

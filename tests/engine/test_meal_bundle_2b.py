@@ -14,13 +14,13 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import Activity, AgentKind, AgentState
-from shibuya.agents.weekly import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
-from shibuya.engine import energy as E
+from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
+from shibuya.world.body import energy as E
 from shibuya.engine import resolve as R
 from shibuya.engine.change_detect import ChangeDetector
 from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import HUNGER_WORDS_MODES, Renderer, check_hunger_words
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕錨は構築側の 1 本だけ。項 1・項 2 の試験は既定の時刻が全員 1 つの値の分布
 # (``_single_distribution``=凍結の表の中央値)で前の版と同じ形を確かめる(前は旧値の腕 validation=第 18-1 表の時刻 1 つ・
@@ -464,7 +464,7 @@ WORLD = "data/world/v2"
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_run_wiring_defaults_are_old_and_switches_reach_the_run():
     from shibuya import cli
-    from shibuya.agents.weekly import load_weekly
+    from shibuya.world.facts.weekly_reader import load_weekly
     from shibuya.engine.run import _resolve_population
 
     kw = dict(n_agents=1500, seed=1, world_dir=WORLD, vocab_version="v3")

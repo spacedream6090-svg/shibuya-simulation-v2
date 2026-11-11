@@ -27,14 +27,14 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.schedule import synthesize
+from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.agents.state import REFRACTORY_MINUTES, AgentState, WakeCondition
 from shibuya.engine import resolve as R
 from shibuya.engine.arbiter import REFRACTORY_TICKS as ARBITER_MIRROR
-from shibuya.engine.processes.salient import D50_BY_KIND, SalientProcess, ablation_name
+from shibuya.world.laws.salient import D50_BY_KIND, SalientProcess, ablation_name
 from shibuya.engine.run import run_day
-from shibuya.perception import p_notice as PN
-from shibuya.world.state import World
+from shibuya.world.model import notice_reach as PN
+from shibuya.world.model.state import World
 
 PROX = int(WakeCondition.PROXIMITY_SWAP)
 
@@ -234,7 +234,7 @@ def test_manifest_carries_the_first_wave_arms():
 
 
 def test_d50_scale_reaches_the_salient_process_through_run_day(monkeypatch):
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_rate as RR
 
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
     res = run_day(

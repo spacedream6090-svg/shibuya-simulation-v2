@@ -62,7 +62,7 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_scoped_interoception_equals_the_full_one_on_a_superset`(関数)
   - `test_stage_b_declared_writes_with_changed`(関数)
   - `test_two_days_and_resume_with_changed_match_the_straight_default`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.change_detect`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.step_scope`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.change_detect`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.step_scope`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.world.model.state`
 - 環境変数: `os.environ` をまるごと使う
 
 ## [test_tm4_regional_clock.py](../../../../../../../tests/engine/clock/test_tm4_regional_clock.py)
@@ -90,5 +90,5 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_two_days_and_resume_with_regional_match_the_straight_global`(関数)
   - `test_window_mark_passes_the_new_rows`(関数)
   - `test_world_assets_have_29_regions`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.regional_clock`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.speech_clock`・`shibuya.engine.systems.build`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.spec`・`shibuya.engine.systems.table`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.regional_clock`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.speech_clock`・`shibuya.engine.systems.build`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.spec`・`shibuya.engine.systems.table`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.world.model.state`
 - 環境変数: `os.environ` をまるごと使う

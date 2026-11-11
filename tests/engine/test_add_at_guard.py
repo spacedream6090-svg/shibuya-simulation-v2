@@ -24,7 +24,7 @@ import pytest
 
 from shibuya.agents.state import AgentState
 from shibuya.engine import resolve as R
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 from tests import _places as PL
 
 SRC = Path("src/shibuya")

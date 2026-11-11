@@ -32,7 +32,7 @@ from shibuya.engine.run import run_day
 from shibuya.engine.systems import conductor as CO
 from shibuya.engine.systems import probe as PR
 from shibuya.engine.systems.table import SPECS
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 ROOT = Path(__file__).resolve().parents[3]
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")

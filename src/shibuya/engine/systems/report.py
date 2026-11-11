@@ -21,7 +21,7 @@ from shibuya.engine import growth_decl as GD
 from shibuya.engine.calendar import WEATHER_SCHEME
 from shibuya.foundation.rng import RNG_SCHEME
 from shibuya.engine.poi_target import move_resolution_summary, resolution_summary
-from shibuya.engine.processes.salient import ablation_name as _pnotice_ablation_name
+from shibuya.world.laws.salient import ablation_name as _pnotice_ablation_name
 from shibuya.foundation.text.channels import BudgetMode
 from shibuya.perception.renderer import P_SEE_ACTIVITY_KINDS
 from shibuya.foundation.time_consts import SECONDS_PER_MINUTE
@@ -398,10 +398,10 @@ def report(ctx: Any, b: Any) -> Any:
     result.outside_suppression = bool(outside_suppression and plan_exec_on)
     result.outside_wake_candidates = int(rs.n_outside_calls)
     result.exit_mode = str(exit_mode)
-    from shibuya.engine import rate_rules as _RRM  # 〔11-01 段 2 の 3・4〕率の形の規則を外した節(腕・印・旧道の件数)
+    from shibuya.world.laws import switch_rate as _RRM  # 〔11-01 段 2 の 3・4〕率の形の規則を外した節(腕・印・旧道の件数)
 
     result.rate_rules = _RRM.manifest_fields(b.cfg.rate_rules, b.layers.runner, b.layers.presence)
-    from shibuya.engine import absent_processes as _APM  # 〔11-02r §1 #7〕「無い」の過程を止めた節(腕・印・旧道の件数)
+    from shibuya.world.laws import switch_absent as _APM  # 〔11-02r §1 #7〕「無い」の過程を止めた節(腕・印・旧道の件数)
 
     result.absent_processes = _APM.manifest_fields(b.cfg.absent_processes, b.layers.runner)
     from shibuya.engine import defect_fixes_1103 as _DFM  # 〔11-03 §3〕欠陥 4 件の直しの節(腕・直した印・計器)

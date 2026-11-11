@@ -36,7 +36,7 @@ from shibuya.agents.state import (
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.engine.conversation import ConversationManager
-from shibuya.engine.geometry import EdgeGeometry
+from shibuya.world.model.geometry import EdgeGeometry
 from shibuya.engine.run import run_day
 from shibuya.foundation.vocab.actions import TargetKind, parse_target, resolve_landmark
 from shibuya.llm.undefined import (
@@ -48,7 +48,7 @@ from shibuya.llm.undefined import (
     synonym_table_version,
     target_hints,
 )
-from shibuya.world.state import LANDMARK_CATS, World
+from shibuya.world.model.state import LANDMARK_CATS, World
 
 #: 小さい合成世界のラン(C9a の検収と同じ形・体が実際に歩き出すまで回す)。
 SMALL = dict(n_agents=200, seed=1, ticks=600, checkpoint_every=200, n_cells=25)

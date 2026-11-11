@@ -6,8 +6,8 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.growth import check_growth
-from shibuya.world.processes import first_batch as FB
-from shibuya.world.processes.actual_log import (
+from shibuya.world.ledger import first_batch as FB
+from shibuya.world.ledger.actual_log import (
     ACTUAL_LOG_DTYPE,
     ENTRIES_PER_SUBJECT_PER_DAY,
     RAW_ROW_BYTES,
@@ -16,7 +16,7 @@ from shibuya.world.processes.actual_log import (
     ActualLog,
     plan_compliance,
 )
-from shibuya.world.processes.records import DeviationVocab
+from shibuya.world.ledger.records import DeviationVocab
 
 
 def _log(**kw) -> ActualLog:

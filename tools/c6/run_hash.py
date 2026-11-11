@@ -44,7 +44,7 @@ def main(argv: list[str] | None = None) -> int:
             pass
 
     from shibuya.engine.run import run_day
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     world_dir = c6lib.world_dir_of(args)
     world = World.load_or_synthetic(world_dir, n_cells=args.cells, seed=args.seed) if world_dir else None

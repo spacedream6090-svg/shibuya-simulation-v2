@@ -37,7 +37,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
 
-from shibuya.engine.rights import ledger as _LEDGER
+from shibuya.world.facts.rights import ledger as _LEDGER
 
 #: 台帳の包みの名(〔段 4 の下ごしらえ・親の裁定 L-7〕字面で持たず、台帳のモジュールの ``__name__`` から作る。前は
 #: "shibuya.engine.rights"。段 4 で包みごと移る)。

@@ -10,7 +10,7 @@ import json
 import numpy as np
 import pytest
 
-from shibuya.engine.processes.traffic import (
+from shibuya.world.laws.traffic import (
     DAY12_HOURS,
     KLASS_Q12,
     KLASS_Q24,

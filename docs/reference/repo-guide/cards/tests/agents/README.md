@@ -21,7 +21,7 @@ agents.schedule のテスト: T4(規模不変性)とカウンタベース抽選�
   - `test_events_of_day_is_tick_sorted_and_complete`(関数)
   - `test_t4_scale_invariance_5000_vs_5001`(関数): 運用設計書 §1.4 T4: n=5,000 と 5,001 で**既存個体の乱数列が不変**。
   - `test_weekend_pattern_differs_and_day_index_wraps`(関数)
-- import している内部モジュール: `shibuya.agents.schedule`
+- import している内部モジュール: `shibuya.world.facts.mock_schedule`
 
 ## [test_state.py](../../../../../../tests/agents/test_state.py)
 

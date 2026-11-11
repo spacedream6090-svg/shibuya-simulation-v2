@@ -43,6 +43,6 @@ engine.scheduler — 起床イベントの1分tickバケット配列+tick内秒�
   - `ordered_events`(関数): 規約順に並べた ``(n, 4)`` イベント配列(純関数)。
   - `scheduler`(関数): 規約順に並べた **agent_id の配列**(int64)を返す純関数。
 - import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`
-- 呼び手: `shibuya.engine.arbiter`・`shibuya.engine.body.schedule`・`shibuya.engine.run`・`shibuya.engine.systems.observe`・`shibuya.foundation.queues.batching`
+- 呼び手: `shibuya.engine.arbiter`・`shibuya.engine.run`・`shibuya.engine.systems.observe`・`shibuya.foundation.queues.batching`・`shibuya.world.body.schedule`
 - 読む試験: `tests/engine/batching/test_window_queue.py`・`tests/engine/state/test_class_ids.py`・`tests/engine/test_arbiter.py`・`tests/engine/test_mock_day_w2.py`・`tests/engine/test_scheduler.py`・`tests/engine/test_scheduler_p3.py`・`tests/engine/time/test_t0_time_consts.py`
 - 読む試験(道筋で): `tests/engine/body/test_body_guard.py`

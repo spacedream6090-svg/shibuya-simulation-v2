@@ -1,0 +1,471 @@
+"""world.state — セル/POI の状態レジストリ(SoA)と世界オブジェクト ``World``。
+
+正典
+- 実装計画書 §3: 「world: セル/POI/グラフ/可視性(mmap)/騒音場」。SoA・**セル(100m)を
+  第一のチャンク**。
+- 知覚契約書 §6 起床条件(i): 「所属セルの **B4 ハッシュ変化**(密度段階の跨ぎ・騒音段階・
+  構造物・顕著行為の到達)」→ ``b4_hash`` をセル欄に持つ(``engine.change_detect`` が更新)。
+- 行動契約書 §2.1「購入」: 前提=**営業中・在庫>0・所持金≧価格**、効果=
+  在庫−1・所持金−価格・所持+1・**店の売上+同額(保存則)** → POI 側に
+  ``stock`` / ``price`` / ``revenue`` を持つ。
+- 運用設計書 §2.2 Phase C: 書き込み口は ``engine.resolve`` 一本 →
+  ``freeze()``/``writable()`` で機械強制(``.writable(`` を書いてよいのは resolve.py だけ)。
+- 予算宣言表: セル1つあたりのバイト上限行は**存在しない**(``core.soa`` の
+  ``CELL_CAP_BUDGET_ROW = None``)ので cap は総額側(M8)で見る。
+
+逐次ループ宣言(P4): ``freeze``/``thaw`` のフィールド数ぶんのみ。
+
+expedient(本モジュール分)
+- 密度段階 ``DENSITY_STAGE_EDGES``(人/セル)は自前。知覚契約書は「密度段階の跨ぎ」としか
+  言わず段の刻みを与えていない(B4 の段は C3 のレンダラで確定する)。
+- 騒音段階: 静的な W10 昼夜場は ``assets.noise_stage_day/night``(不変・セル別最頻値)に持ち、
+  ``cells.noise_stage`` は**動的上書き欄**(0=上書きなし)として残す。どちらを読むかは
+  ``noise_stage_for_tick`` が一本で決める(合成世界は全セル 0)。
+- 営業時間は W7(PlanSpec)が資産に無いので POI 一律 10:00-22:00(``assets`` の既定値)。
+- 書き込みガードの実装を agents.state と二重に持つ(層契約により共有モジュールを作れない)。
+"""
+
+from __future__ import annotations
+
+from contextlib import contextmanager
+from pathlib import Path
+from typing import Final, Iterator
+
+import numpy as np
+
+from shibuya.foundation import write_permit as _WP
+from shibuya.foundation.hashing import blake3_hex
+from shibuya.foundation.soa import Registry
+from shibuya.world.assets import WorldAssets, load_assets, synthetic_assets
+from shibuya.world.model.graph import WalkGraph
+from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, STEPS_PER_DAY
+
+__all__ = [
+    "DENSITY_STAGE_EDGES",
+    "DENSITY_STAGE_EDGES_PER_M2",
+    "LANDMARK_CATS",
+    "LANDMARK_AFFORDANCES",
+    "EATERY_MODES",
+    "DEFAULT_EATERY_MODE",
+    "PLACE_FOOD_EXCLUDED_NIGHTLIFE_SUBCATS",
+    "check_eatery_mode",
+    "World",
+]
+
+#: **目印**として扱う W6 の POI カテゴリ(C9 決定アジェンダ §1 **G6 (a)**
+#: 「既存 68 件(landmark 56 + attraction 12)を『目印』affordance に昇格」)。
+#: 知覚側(``perception.renderer`` の B2 地物)が同じ 2 値で「目印: …」を描いているので、
+#: **世界側と知覚側で同じ集合**になる(テストが一致を機械検査)。
+LANDMARK_CATS: Final[tuple[str, ...]] = ("landmark", "attraction")
+
+#: 目印 POI が持つ affordance の印(C9b G6 a′)。**列は増やさない**——
+#: ``World.landmark_mask`` の遅延キャッシュが両方の答えを兼ねる(checkpoint 外)。
+#: ``can_meet``= 待ち合わせの目標として指せる(**約束そのものは C10**)。
+#: ``can_look``= 注意の焦点(「見る」の対象)にできる。
+#: §4 改訂の第 2 案(可視領域×流動から目印性を出す)は C9c 以降=いまは ``cat`` で決める
+#: (**expedient**・登録簿へ)。
+LANDMARK_AFFORDANCES: Final[tuple[str, ...]] = ("can_meet", "can_look")
+
+#: 密度段階の境界[人/セル](expedient・B4 の段は C3 のレンダラで確定する)。
+#: **node 幾何(既定)専用**——``geometry="edge"`` では
+#: ``DENSITY_STAGE_EDGES_PER_M2`` を使う(C9 §4 改訂)。
+DENSITY_STAGE_EDGES: Final[tuple[int, ...]] = (1, 5, 20, 60, 150, 400, 1_000)
+
+#: 密度段階の境界[**人/m²**](Fruin 1971 歩行路 LOS の A/B/C/D/E/F 境界)。
+#: C9 決定アジェンダ §4 改訂: 「現行の密度段階(最上段 1,000 人/セル=0.238 人/m²)は
+#: 7 段すべて Fruin LOS A の内側=**減速が実質 no-op**。段の刻みを人/m² で定義し直す」。
+#: **mechanism**: 段の境界は LOS 定義に釘付け(``perception.templates.DENSITY_LOS_EDGES_PER_M2``
+#: と同値。層契約により二重定義=テストが一致を機械検査)。分母(歩行可能面積)は expedient。
+DENSITY_STAGE_EDGES_PER_M2: Final[tuple[float, ...]] = (
+    0.30754, 0.43056, 0.71760, 1.07640, 2.15279,
+)
+
+
+#: 飲食店マスク(語彙 v2/v3 の行動語「食事」の前提)の切替口(段 1b・D-96 nightlife (b))。
+#: ``food``=現行(``hash_free_cat_code(cat) == 1``・既定=checkpoint はバイト不変)/
+#: ``place_food``=W17 の場所語「飲食店」と同じ集合(``food`` ∨ ``nightlife`` のうち
+#: 遊興の subcat でないもの)。価格(``poi_price``)は**どちらでも動かさない**。
+EATERY_MODES: Final[tuple[str, ...]] = ("food", "place_food")
+DEFAULT_EATERY_MODE: Final[str] = EATERY_MODES[0]
+#: ``place_food`` で飲食店から外す ``nightlife`` の subcat(踊る場・歌う場・浴場・ネットカフェ)。
+#: **二重定義**: ``build/sched/w17_schedule.SUBCAT_TO_PLACE`` で ``nightlife`` の subcat が
+#: 「娯楽施設」へ写るものと同じ集合(層契約で world は build を import できない。一致は
+#: ``tests/engine/test_eatery_place_food.py`` が機械検査する)。
+PLACE_FOOD_EXCLUDED_NIGHTLIFE_SUBCATS: Final[frozenset[str]] = frozenset(
+    {"club", "karaoke", "sauna", "net_cafe"}
+)
+
+
+def check_eatery_mode(mode: str) -> str:
+    """``eatery`` の値を検査して返す(``EATERY_MODES`` のどれか)。"""
+    m = str(mode)
+    if m not in EATERY_MODES:
+        raise ValueError(f"eatery は {EATERY_MODES} のどれか(いま {mode!r})")
+    return m
+
+
+class World:
+    """世界状態(セル・POI)+不変資産(グラフ)。
+
+    Example:
+        >>> w = World.synthetic(n_cells=16, seed=1)
+        >>> w.n_cells, w.n_poi
+        (16, 32)
+    """
+
+    def __init__(self, assets: WorldAssets) -> None:
+        self.assets = assets
+        self.graph = WalkGraph(assets)
+        n_cells = assets.n_cells
+        n_poi = assets.n_poi
+
+        self.cells = Registry.for_cells(n_cells)
+        self.cells.declare("density", np.int32, byte_budget_per_agent=4, mechanism=True,
+                           doc="セル在席人数(毎tick np.bincount で再計算・B4 密度段の素)")
+        self.cells.declare("density_stage", np.uint8, byte_budget_per_agent=1, mechanism=False,
+                           doc="密度段階(DENSITY_STAGE_EDGES・expedient=刻みは自前)")
+        self.cells.declare("noise_stage", np.uint8, byte_budget_per_agent=1, mechanism=False,
+                           doc="騒音段階の**動的上書き欄**(0=静的 W10 昼夜場を使う・"
+                               "``noise_stage_for_tick`` が優先順を決める)")
+        self.cells.declare("open_count", np.int32, byte_budget_per_agent=4, mechanism=True,
+                           doc="そのセルで営業中の POI 数(B4 の構成要素)")
+        self.cells.declare("b4_hash", np.uint64, byte_budget_per_agent=8, mechanism=True,
+                           doc="セル動的ブロック B4 の xxh64(起床条件(i)・prefix鍵・三役)")
+
+        self.pois = Registry.for_cells(n_poi)
+        self.pois.declare("cell", np.int32, byte_budget_per_agent=4, mechanism=True,
+                          doc="POI の所属セル索引")
+        self.pois.declare("node", np.int32, byte_budget_per_agent=4, mechanism=True,
+                          doc="POI の最寄ノード(セル代表ノードで代用)")
+        self.pois.declare("stock", np.int32, byte_budget_per_agent=4, mechanism=True,
+                          doc="棚在庫(購入で−1・補充行動は C4)")
+        self.pois.declare("price", np.int32, byte_budget_per_agent=4, mechanism=True,
+                          doc="価格[円](行動契約書 §2.1 購入)")
+        self.pois.declare("revenue", np.int64, byte_budget_per_agent=8, mechanism=True,
+                          doc="累計売上[円](保存則: Σmoney+Σrevenue が不変)")
+        self.pois.declare("capacity", np.int32, byte_budget_per_agent=4, mechanism=False,
+                          doc="1 tick に受け入れる客数(資源の容量・expedient)")
+        self.pois.declare("open_from", np.int16, byte_budget_per_agent=2, mechanism=False,
+                          doc="開店 tick(W7 PlanSpec が無いので既定 10:00)")
+        self.pois.declare("open_to", np.int16, byte_budget_per_agent=2, mechanism=False,
+                          doc="閉店 tick(W7 PlanSpec が無いので既定 22:00)")
+        self.pois.declare("open_now", np.int8, byte_budget_per_agent=1, mechanism=True,
+                          doc="営業フラグの**動的上書き欄**(-1=上書きなし / 0=閉 / 1=開)。"
+                              "C4 の営業時間過程(W7 PlanSpec・複数区間・日跨ぎ)が書く。"
+                              "``open_mask`` が優先順を決める(``noise_stage`` と同型)")
+
+        self.pois.cell[:] = assets.poi_cell
+        self.pois.node[:] = assets.poi_node
+        self.pois.stock[:] = assets.poi_stock0
+        self.pois.price[:] = assets.poi_price
+        self.pois.capacity[:] = assets.poi_capacity
+        self.pois.open_from[:] = assets.poi_open_from
+        self.pois.open_to[:] = assets.poi_open_to
+        self.pois.open_now[:] = -1  # 上書きなし(C2 と同じ 10:00-22:00 の既定へ落ちる)
+        self._frozen = False
+        #: 飲食店マスクの切替口(段 1b)。既定 ``food``=現行。``run_day(eatery=...)`` が
+        #: ラン開始時に必ず書く(同じ World を使い回しても前のランの値が残らない)。
+        self._eatery_mode: str = DEFAULT_EATERY_MODE
+        #: 飲食店マスク(``eatery_mask`` の遅延キャッシュ)。**SoA の欄ではない**
+        #: =``Registry.state_hash`` にも checkpoint にも入らない(既定のバイトは動かない)。
+        self._eatery_mask: np.ndarray | None = None
+        #: 段 2a: POI の「自分のセルの視点から見える数」(W8・``poi_visibility`` の遅延キャッシュ)。
+        #: **SoA の欄ではない**=checkpoint 外。
+        self._poi_visibility: np.ndarray | None = None
+        #: 段 2b: セルから見えている POI(W8・``visible_pois`` の遅延キャッシュ)。checkpoint 外。
+        self._visible_by_cell: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None
+        #: 目印マスク(``landmark_mask`` の遅延キャッシュ・C9b G6 a′)。同じく **SoA の欄では
+        #: ない**=checkpoint 外。
+        self._landmark_mask: np.ndarray | None = None
+        #: 目印の「名 → POI 索引」表(``landmark_targets`` の遅延キャッシュ)。同じく checkpoint 外。
+        self._landmark_targets: dict[str, int] | None = None
+
+    # ---- 生成 ----
+    @classmethod
+    def synthetic(cls, n_cells: int = 139, seed: int | str = 0) -> "World":
+        """CI 用の合成小世界。"""
+        return cls(synthetic_assets(n_cells=n_cells, seed=seed))
+
+    @classmethod
+    def load(cls, path) -> "World":
+        """``data/world/v2`` の資産から作る。"""
+        return cls(load_assets(path))
+
+    @classmethod
+    def load_or_synthetic(cls, path, *, n_cells: int = 139, seed: int | str = 0) -> "World":
+        """資産があれば読み、無ければ合成世界へ落ちる(CLI の既定動作)。"""
+        from shibuya.world.assets import assets_available
+
+        if assets_available(path):
+            return cls.load(path)
+        return cls.synthetic(n_cells=n_cells, seed=seed)
+
+    # ---- 規模 ----
+    @property
+    def n_cells(self) -> int:
+        return self.assets.n_cells
+
+    @property
+    def n_poi(self) -> int:
+        return self.assets.n_poi
+
+    @property
+    def n_nodes(self) -> int:
+        return self.assets.n_nodes
+
+    # ---- 素通し ----
+    @property
+    def density(self) -> np.ndarray:
+        return self.cells.density
+
+    @property
+    def b4_hash(self) -> np.ndarray:
+        return self.cells.b4_hash
+
+    def route_next_node(self, node, target_node) -> np.ndarray:
+        """``WalkGraph.route_next_node`` の委譲(ベクトル化 next-hop)。"""
+        return self.graph.route_next_node(node, target_node)
+
+    # ---- 純関数(書き込みは resolve が行う) ----
+    def compute_density(self, agent_cell) -> np.ndarray:
+        """個体のセル配列 → セル別在席数(``np.bincount``・毎tick 再計算=増分にしない)。"""
+        c = np.asarray(agent_cell, dtype=np.int64).ravel()
+        valid = c[(c >= 0) & (c < self.n_cells)]
+        return np.bincount(valid, minlength=self.n_cells).astype(np.int32)
+
+    def density_stage(self, density=None) -> np.ndarray:
+        """密度 → 段階(``DENSITY_STAGE_EDGES`` の右側挿入位置)。"""
+        d = self.cells.density if density is None else np.asarray(density)
+        return np.searchsorted(np.asarray(DENSITY_STAGE_EDGES), d, side="right").astype(np.uint8)
+
+    @property
+    def poi_visibility(self) -> np.ndarray:
+        """POI ごとの「自分のセルの視点から見える数」(``(n_poi,)`` int32・W8 が無ければ 0)。
+
+        段 2a の既定の選び手(``engine.chooser.NearestChooser``)の可視順。合成世界は全 0。
+        """
+        if self._poi_visibility is None:
+            src = Path(str(self.assets.source))
+            if self.assets.source != "synthetic" and src.is_dir():
+                from shibuya.world.assets import load_poi_own_cell_visibility
+
+                self._poi_visibility = load_poi_own_cell_visibility(src, self.assets.poi_cell)
+            else:
+                self._poi_visibility = np.zeros(self.n_poi, dtype=np.int32)
+        return self._poi_visibility
+
+    def visible_pois(self, cell: int) -> tuple[np.ndarray, np.ndarray]:
+        """セル ``cell`` の視点から見えている POI と、見えている視点数(W8・B2 の可視物)。
+
+        段 2b(行き先を対象欄から)のカテゴリ語の近傍探索が読む。合成世界・資産が無い世界は空。
+        """
+        if self._visible_by_cell is None:
+            src = Path(str(self.assets.source))
+            if self.assets.source != "synthetic" and src.is_dir():
+                from shibuya.world.assets import load_visible_pois_by_cell
+
+                self._visible_by_cell = load_visible_pois_by_cell(src, self.n_cells)
+            else:
+                self._visible_by_cell = (
+                    np.zeros(self.n_cells + 1, dtype=np.int64),
+                    np.zeros(0, dtype=np.int64),
+                    np.zeros(0, dtype=np.int32),
+                )
+        off, poi, nv = self._visible_by_cell
+        if cell < 0 or cell >= off.size - 1:
+            return np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int32)
+        lo, hi = int(off[cell]), int(off[cell + 1])
+        return poi[lo:hi], nv[lo:hi]
+
+    @property
+    def eatery_mode(self) -> str:
+        """飲食店マスクの切替口の値(``EATERY_MODES`` のどれか・既定 ``food``)。"""
+        return self._eatery_mode
+
+    def set_eatery_mode(self, mode: str) -> None:
+        """飲食店マスクの切替口を決める(段 1b)。キャッシュを捨てて次の参照で組み直す。
+
+        ``place_food`` は W6 の ``subcat`` を要る(資産に無いのに ``nightlife`` の POI が
+        あれば ``ValueError``=黙って ``food`` に落ちない)。
+        """
+        m = check_eatery_mode(mode)
+        if m == "place_food":
+            n = self.n_poi
+            subcats = tuple(self.assets.poi_subcat)
+            if len(subcats) != n and any(str(c) == "nightlife" for c in self.assets.poi_cat):
+                raise ValueError(
+                    "eatery='place_food' は W6 の subcat 列が要る(資産に無い)"
+                )
+        if m != self._eatery_mode:
+            self._eatery_mask = None
+        self._eatery_mode = m
+
+    @property
+    def eatery_mask(self) -> np.ndarray:
+        """飲食店の POI マスク(``(n_poi,)`` bool)。**語彙 v2/v3 の行動語「食事」の前提**。
+
+        ``eatery_mode``(段 1b の切替口・``World.set_eatery_mode``)で 2 通り:
+
+        - ``food``(**既定**=現行): ``world.assets.hash_free_cat_code(cat) == 1``
+          (= 価格帯「飲食」)を**そのまま再利用**する。カテゴリ判定の表を 2 つ持たないための
+          選択で、``economy.entry_capital`` の価格帯・``economy.goods.CATEGORY_NAMES[1]``
+          (飲食)と同じ線になる。``cat == "nightlife"``(バー・クラブ)は
+          ``hash_free_cat_code`` が 2 を返すので**含まれない**。
+        - ``place_food``(D-96 nightlife (b)): ``food`` ∨ (``cat == "nightlife"`` ∧
+          ``subcat`` ∉ :data:`PLACE_FOOD_EXCLUDED_NIGHTLIFE_SUBCATS`)。W17 の場所語
+          「飲食店」に写る POI と**同じ集合**(実資産 1,042 件)=LLM が「飲食店」と読む場所で
+          「食事」が成立する。価格帯は動かさない(nightlife は 1,500 円のまま)。
+
+        逐次ループ宣言(P4): **初回の 1 回だけ** POI 数ぶんの Python ループ(カテゴリ名の
+        文字列判定)。以後はキャッシュを返す。tick にも個体数にも比例しない。
+        """
+        if self._eatery_mask is None:
+            from shibuya.world.assets import hash_free_cat_code
+
+            cats = tuple(self.assets.poi_cat)
+            food = [hash_free_cat_code(c) == 1 for c in cats]
+            if self._eatery_mode == "place_food":
+                subcats = tuple(self.assets.poi_subcat)
+                if len(subcats) != len(cats):
+                    subcats = ("",) * len(cats)  # set_eatery_mode が nightlife 無しを保証済み
+                food = [
+                    f or (str(c) == "nightlife" and str(s) not in PLACE_FOOD_EXCLUDED_NIGHTLIFE_SUBCATS)
+                    for f, c, s in zip(food, cats, subcats)
+                ]
+            self._eatery_mask = np.asarray(food, dtype=bool)
+        return self._eatery_mask
+
+    @property
+    def landmark_mask(self) -> np.ndarray:
+        """目印の POI マスク(``(n_poi,)`` bool)。**C9b G6 a′ の affordance の実体**。
+
+        ``poi_cat ∈ LANDMARK_CATS``(landmark / attraction)。実資産では 56 + 12 = 68 件。
+        この 1 本が ``LANDMARK_AFFORDANCES``(``can_meet`` / ``can_look``)の両方を兼ねる
+        ——「待ち合わせに指せる」と「見られる」が同じ集合だからで、分かれる根拠(実測)が
+        出たら列を分ける。
+
+        Note:
+            **SoA の欄ではない**(``eatery_mask`` と同じ遅延キャッシュ)。したがって
+            ``World.state_hash``・checkpoint・バイト予算のどれにも入らない。
+
+        逐次ループ宣言(P4): **初回の 1 回だけ** POI 数ぶん(カテゴリ名の文字列判定)。
+        """
+        if self._landmark_mask is None:
+            self._landmark_mask = np.asarray(
+                [str(c) in LANDMARK_CATS for c in self.assets.poi_cat], dtype=bool
+            )
+        return self._landmark_mask
+
+    def landmark_targets(self) -> dict[str, int]:
+        """目印の「**NFKC 正規化した名** → POI 索引」表(``llm.contract.parse_target`` へ渡す)。
+
+        名の重複は**若い POI 索引**を採る(決定論)。名の無い目印(空文字)は入れない。
+        資産が名を持たない世界(合成)は**空の表**=``parse_target`` は現行どおり動く。
+
+        逐次ループ宣言(P4): **初回の 1 回だけ** 目印数ぶん(実資産 68)。
+        """
+        if self._landmark_targets is None:
+            import unicodedata
+
+            names = self.assets.poi_name
+            out: dict[str, int] = {}
+            if names:
+                mask = self.landmark_mask
+                for j in range(min(len(names), mask.size)):
+                    if not bool(mask[j]):
+                        continue
+                    key = unicodedata.normalize("NFKC", str(names[j])).strip()
+                    if key and key not in out:
+                        out[key] = int(j)
+            self._landmark_targets = out
+        return self._landmark_targets
+
+    def open_mask(self, tick: int) -> np.ndarray:
+        """その tick に営業している POI の bool マスク(1 日 1,440 tick で剰余を取る)。
+
+        優先順(``noise_stage_for_tick`` と同型・黙って一本化しない):
+          1. ``pois.open_now`` に 0 以上がある → **C4 の営業時間過程による上書き**
+             (W7 PlanSpec の複数区間・日跨ぎを 1 本の欄で表す)。
+          2. それ以外 → C2 の単一区間 ``open_from``/``open_to``(既定 10:00-22:00)。
+        """
+        now = self.pois.open_now
+        if now.size and bool(np.any(now >= 0)):
+            return np.asarray(now > 0)
+        t = int(tick) % STEPS_PER_DAY
+        return (self.pois.open_from <= t) & (t < self.pois.open_to)
+
+    def open_count_per_cell(self, tick: int) -> np.ndarray:
+        """セル別の営業中 POI 数(B4 の構成要素**ではない**=描画には出ない。C4 の在庫/混雑用)。"""
+        m = self.open_mask(tick)
+        cells = self.pois.cell[m].astype(np.int64)
+        cells = cells[(cells >= 0) & (cells < self.n_cells)]
+        return np.bincount(cells, minlength=self.n_cells).astype(np.int32)
+
+    def noise_stage_for_tick(self, tick: int, tick_seconds: int = 60) -> np.ndarray:
+        """その tick に使うセル別騒音段階(**W4-C3 結線の単一の出所**)。
+
+        優先順(黙って一本化しない・親へ報告済みの決定):
+          1. ``cells.noise_stage`` に 0 以外がある → **動的上書き**(C4 の世界過程が書く欄)。
+          2. それ以外 → 資産 W10 の**静的昼夜場**(環境基準の昼 6-22 時 / 夜 22-6 時)。
+
+        「2 本のセル配列を World に持ち、時刻でどちらを読むか決める」形を採った(親が挙げた
+        2 案のうち**単純な方**)。``cells.noise_stage`` を 6:00/22:00 に書き換える案は
+        resolve の書き込み窓を毎日 2 回開ける必要があり、静的資産のために単一書き手の
+        規律を使うのは割に合わない。
+
+        Args:
+            tick: 現在 tick。
+            tick_seconds: 1 tick の秒数(既定 60=1 分)。
+        """
+        dyn = self.cells.noise_stage
+        if dyn.size and bool(np.any(dyn)):
+            return np.asarray(dyn, dtype=np.uint8)
+        hour = int(int(tick) * int(tick_seconds) // SECONDS_PER_HOUR) % HOURS_PER_DAY
+        return self.assets.noise_stage_for_hour(hour)
+
+    # ---- 書き込みガード ----
+    @property
+    def frozen(self) -> bool:
+        return self._frozen
+
+    def freeze(self) -> None:
+        """セル・POI の全配列を読み取り専用にする(逐次ループ宣言: フィールド数ぶん)。"""
+        for reg in (self.cells, self.pois):
+            for arr in reg.arrays.values():
+                arr.flags.writeable = False
+        self._frozen = True
+
+    def thaw(self) -> None:
+        """全配列を書き込み可能に戻す(``writable`` 以外から呼ばない)。
+
+        1-0 段 A: 系の許可(``core.write_permit``)があれば許可の列だけを解く(``AgentState.thaw`` と同じ)。
+        """
+        for place, reg in (("cells", self.cells), ("pois", self.pois)):
+            for name, arr in reg.arrays.items():
+                arr.flags.writeable = _WP.allows(place, name)
+        self._frozen = False
+
+    @contextmanager
+    def writable(self) -> Iterator["World"]:
+        """``with world.writable():`` の間だけ書ける。**呼んでよいのは engine/resolve.py だけ**。"""
+        was_frozen = self._frozen
+        if was_frozen:
+            self.thaw()
+        try:
+            yield self
+        finally:
+            if was_frozen:
+                self.freeze()
+
+    # ---- 監査 ----
+    def state_hash(self) -> str:
+        """セル+POI の状態ハッシュ(2 本の ``Registry.state_hash`` を連結して blake3)。"""
+        return blake3_hex(
+            (self.cells.state_hash() + "\x1f" + self.pois.state_hash()).encode("utf-8")
+        )
+
+    def bytes_total(self) -> int:
+        return self.cells.bytes_total() + self.pois.bytes_total()
+
+    def summary(self) -> str:
+        return self.assets.summary()

@@ -31,13 +31,13 @@ from shibuya.engine.activity import UNTIL_MAX_MINUTES, ActivityLayer
 from shibuya.engine.arbiter import Arbiter, WakeCandidates
 from shibuya.engine.calendar import SimCalendar
 from shibuya.engine.chooser import draw_index
-from shibuya.engine.energy import EnergyModel, OutOfAreaMeals, load_anchors
+from shibuya.world.body.energy import EnergyModel, OutOfAreaMeals, load_anchors
 from shibuya.engine.relations import RelationLayer
 from shibuya.engine.run import run_day, run_salt_for
 from shibuya.engine.tape import Tape
 from shibuya.llm import LLMRequest
 from shibuya.llm.mock import MockLLM
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 N = 100
 CELLS = 16
@@ -246,8 +246,8 @@ def test_tick_columns_can_hold_30_days_of_T():
     assert np.iinfo(rel._co_since.dtype).max >= T30         # noqa: SLF001
     assert np.iinfo(rel._co_day.dtype).max >= 30             # noqa: SLF001
     assert np.iinfo(rel._acq_until.dtype).max >= T30         # noqa: SLF001
-    from shibuya.agents.schedule import synthesize
-    from shibuya.engine.processes.runner import WorldProcessRunner
+    from shibuya.world.facts.mock_schedule import synthesize
+    from shibuya.world.laws.runner import WorldProcessRunner
 
     w = World.synthetic(n_cells=9, seed=1)
     runner = WorldProcessRunner(world=w, agents=agents, seed=1, schedule=synthesize(2, 1, w.n_cells))

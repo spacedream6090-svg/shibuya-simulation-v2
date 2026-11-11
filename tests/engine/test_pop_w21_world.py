@@ -21,11 +21,11 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.agents import population as POP
+from shibuya.world.facts import population_reader as POP
 from shibuya.engine.decision import persona as PE
 from shibuya.foundation.ports.decision import compose
-from shibuya.engine.rights import initial as RI
-from shibuya.engine.rights.ledger import AGENT, DWELLING, EMPLOY, LEASE, PARCEL, STORE
+from shibuya.world.facts.rights import initial as RI
+from shibuya.world.facts.rights.ledger import AGENT, DWELLING, EMPLOY, LEASE, PARCEL, STORE
 
 REPO = Path(__file__).resolve().parents[2]
 STAGE = REPO / "data" / "world" / "v2_stage_4-3"

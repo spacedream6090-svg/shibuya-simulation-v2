@@ -14,8 +14,8 @@ from shibuya.engine.calendar import DEFAULT_WORLD_START, SimCalendar
 from shibuya.foundation.journal.log import EventLog
 from shibuya.engine.experiment import apply as AP
 from shibuya.engine.experiment.form import ExperimentForm
-from shibuya.engine.processes.environment import EnvironmentProcess
-from shibuya.engine.processes.opening import OpeningProcess
+from shibuya.world.laws.environment import EnvironmentProcess
+from shibuya.world.laws.opening import OpeningProcess
 
 from tests.engine.processes.conftest import fake_plan_assets, fake_weather_assets, make_agents, make_world
 

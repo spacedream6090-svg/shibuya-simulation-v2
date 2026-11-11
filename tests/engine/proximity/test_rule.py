@@ -20,7 +20,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.engine import proximity as P
+from shibuya.world.model import proximity as P
 from shibuya.engine import resolve as R
 
 
@@ -229,7 +229,7 @@ def test_d_switch_is_checked_and_the_cell_switch_is_removed():
     assert P.DEFAULT_MODE == P.MODE_DISTANCE and P.ENV_REMOVED == "SHIBUYA_PROXIMITY"
     for value in ("cell", "distance"):
         env = {**os.environ, "SHIBUYA_PROXIMITY": value, "PYTHONIOENCODING": "utf-8"}
-        r = subprocess.run([sys.executable, "-c", "import shibuya.engine.proximity"], env=env, capture_output=True,
+        r = subprocess.run([sys.executable, "-c", "import shibuya.world.model.proximity"], env=env, capture_output=True,
                            text=True, encoding="utf-8")
         assert r.returncode != 0 and "消した切替口" in r.stderr
     assert P.ProximityRule().is_distance and not P.ProximityRule(mode="cell").is_distance

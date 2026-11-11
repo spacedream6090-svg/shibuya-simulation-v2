@@ -17,7 +17,7 @@ from shibuya.agents.state import AgentKind, AgentState
 from shibuya.foundation.text import channels as ch
 from shibuya.foundation.ports.percept import SeenPerson
 from shibuya.perception.renderer import Renderer, person_word
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 
 def _reference_nearby_items(self, i: int, cell: int, tc) -> list[tuple[str, float]]:

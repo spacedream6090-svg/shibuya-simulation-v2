@@ -11,7 +11,7 @@ from shibuya import cli
 from shibuya.economy import anchors as AN
 from shibuya.economy import entry_capital as EC
 from shibuya.economy.accounts import BalanceLine, Sector
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 WORLD_DIR = Path(__file__).resolve().parents[1] / "data" / "world" / "v2"
 _HAS_POP = (WORLD_DIR / "w16_population.parquet").exists()

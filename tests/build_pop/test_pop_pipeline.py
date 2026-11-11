@@ -22,7 +22,7 @@ import pytest
 
 from tests import _time_gates as TG
 
-from shibuya.agents.population import load_population, sample_population
+from shibuya.world.facts.population_reader import load_population, sample_population
 from shibuya.build.geo import common as C
 from tests import _data_ids as D
 from shibuya.build.pop import w16_population as W16
@@ -205,7 +205,7 @@ def test_loader_reads_the_published_population():
 def test_population_backed_run_conserves_money():
     """(f) 母集団を載せたランがエンジンを通る・保存則が保たれる・同 seed 同ハッシュ。"""
     from shibuya.engine.run import run_day
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     world = World.load(WORLD_DIR)
     a = run_day(n_agents=500, seed=4, ticks=240, checkpoint_every=120,
@@ -228,7 +228,7 @@ def test_population_backed_run_conserves_money():
 def test_population_backed_full_day_5000_agents():
     """(f) 5,000 体 × 1 シミュ日(mock LLM)・保存則不変(予算行 W2 ≤10 分)。"""
     from shibuya.engine.run import run_day
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     t0 = time.perf_counter()
     res = run_day(n_agents=5_000, seed=1, world=World.load(WORLD_DIR),
@@ -271,7 +271,7 @@ def test_duty_role_column_carries_the_functional_roster(built):
     out, res, _dt = built
     import pyarrow.parquet as pq
 
-    from shibuya.agents.population import RESERVED_ROLES
+    from shibuya.world.facts.population_reader import RESERVED_ROLES
 
     table = pq.read_table(out / "w16_population.parquet", columns=["duty_role"])
     roles = np.asarray(table.column("duty_role").to_numpy(zero_copy_only=False)).astype(str)

@@ -25,7 +25,7 @@ from shibuya.engine.run import run_day
 from shibuya.llm import LLMRequest
 from shibuya.foundation.vocab.actions import parse_target
 from shibuya.llm.mock import MOCK_MOVE_TARGET_WORDS, MockLLM
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 NOON = 720
 # 8 POI: セル 0 に 0..1、セル 1 に 2..3、セル 2 に 4..5、セル 3 に 6..7

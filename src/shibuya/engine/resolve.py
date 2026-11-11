@@ -77,15 +77,15 @@ from shibuya.agents.state import (
     WakeCondition,
 )
 from shibuya.engine.change_detect import DetectResult
-from shibuya.engine.body import rules as _BODY
-from shibuya.engine.body.rules import (  # 〔第 3 期 3-5〕体の層へ移した値(同じ名で写して出す)
+from shibuya.world.body import rules as _BODY
+from shibuya.world.body.rules import (  # 〔第 3 期 3-5〕体の層へ移した値(同じ名で写して出す)
     ACTIVITY_REST_FATIGUE_RELIEF,
     ACTIVITY_REST_PERIOD_TICKS,
     BODY_TICK_PERIOD,
     SLEEP_FATIGUE_RELIEF,
 )
-from shibuya.engine.energy import INTAKE_DRINK, INTAKE_SNACK, EnergyModel
-from shibuya.engine.geometry import EdgeGeometry
+from shibuya.world.body.energy import INTAKE_DRINK, INTAKE_SNACK, EnergyModel
+from shibuya.world.model.geometry import EdgeGeometry
 from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.commit import (
     ACT_ALIGHT,
@@ -112,7 +112,7 @@ from shibuya.engine.commit import (
     IntentBatch,
 )
 from shibuya.foundation.vocab.actions import DEFAULT_VOCAB_VERSION, check_vocab_version
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 from shibuya.foundation.time_consts import MINUTES_PER_DAY
 
 __all__ = [
@@ -1232,7 +1232,7 @@ def _energy_meal(
 
 def _energy_snack(r, buyers: np.ndarray, bought: np.ndarray, tick: int, energy: Any) -> None:
     """飲食系の購入の摂取(K3 (a)): 軽食=第13表「間」の比・飲料=``DRINK_SHARE``(× EER)。"""
-    from shibuya.engine.energy import DRINK_SHARE
+    from shibuya.world.body.energy import DRINK_SHARE
 
     buyers = np.asarray(buyers, dtype=np.int64)
     bought = np.asarray(bought, dtype=np.int64)

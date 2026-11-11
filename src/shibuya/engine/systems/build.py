@@ -26,17 +26,17 @@ from typing import Any
 
 import numpy as np
 
-from shibuya.agents.schedule import synthesize
+from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.agents.state import AgentState
 from shibuya.agents.state import FOCUS_NONE
 from shibuya.agents.state import N_WAKE_CONDITIONS_ALL
 from shibuya.agents.state import WakeCondition
-from shibuya.agents.weekly import apply_to_mock_schedule
-from shibuya.agents.weekly import load_weekly
+from shibuya.world.facts.weekly_reader import apply_to_mock_schedule
+from shibuya.world.facts.weekly_reader import load_weekly
 from shibuya.foundation.rng import RNG_SCHEME
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.space import nav1 as _NAV1
+from shibuya.world.model.space import nav1 as _NAV1
 from shibuya.engine import resume as RS
 from shibuya.engine.activity import ActivityLayer
 from shibuya.engine.arbiter import Arbiter
@@ -59,21 +59,21 @@ from shibuya.engine.classical import check_meal_gate
 from shibuya.engine.classical import check_policy
 from shibuya.engine.classical import load_activity_prior
 from shibuya.engine.conversation import ConversationManager
-from shibuya.engine.body import BodyModel
-from shibuya.engine.energy import EnergyLayer
-from shibuya.engine.energy import EnergyModel
-from shibuya.engine.energy import HomeMeals
-from shibuya.engine.energy import OutOfAreaMeals
-from shibuya.engine.energy import check_energy_rate
-from shibuya.engine.energy import check_home_meal
-from shibuya.engine.energy import check_hunger_model
-from shibuya.engine.energy import check_meal_sleep_defer
-from shibuya.engine.energy import load_anchors
-from shibuya.engine import energy as _EN
+from shibuya.world.body.model import BodyModel
+from shibuya.world.body.energy import EnergyLayer
+from shibuya.world.body.energy import EnergyModel
+from shibuya.world.body.energy import HomeMeals
+from shibuya.world.body.energy import OutOfAreaMeals
+from shibuya.world.body.energy import check_energy_rate
+from shibuya.world.body.energy import check_home_meal
+from shibuya.world.body.energy import check_hunger_model
+from shibuya.world.body.energy import check_meal_sleep_defer
+from shibuya.world.body.energy import load_anchors
+from shibuya.world.body import energy as _EN
 from shibuya.engine.familiarity import FAMILIARITY_MODES
 from shibuya.engine.familiarity import FamiliarityLayer
-from shibuya.engine.geometry import EdgeGeometry
-from shibuya.engine.geometry import check_geometry
+from shibuya.world.model.geometry import EdgeGeometry
+from shibuya.world.model.geometry import check_geometry
 from shibuya.engine.intent import IntentLayer
 from shibuya.engine.llm_bridge import LLMBridge
 from shibuya.engine.llm_bridge import PerceptionRendererAdapter
@@ -85,9 +85,9 @@ from shibuya.engine.poi_target import TargetResolver
 from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
 from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
 from shibuya.engine.presence import PlanExecutor
-from shibuya.engine.processes.crowd import SEAT_AREA_M2
-from shibuya.engine.processes.runner import WorldProcessRunner
-from shibuya.engine.processes.salient import check_d50_scale as _check_d50_scale
+from shibuya.world.laws.crowd import SEAT_AREA_M2
+from shibuya.world.laws.runner import WorldProcessRunner
+from shibuya.world.laws.salient import check_d50_scale as _check_d50_scale
 from shibuya.engine.relations import REL_INIT_DENSITIES
 from shibuya.engine.relations import REL_MODES
 from shibuya.engine.relations import REL_ORIGINS
@@ -119,8 +119,8 @@ from shibuya.world.assets import DEFAULT_AREA_SOURCE
 from shibuya.world.assets import check_area_source
 from shibuya.world.assets import load_process_assets_or_synthetic
 from shibuya.world.assets import load_walkable_area_m2
-from shibuya.world.state import World
-from shibuya.world.state import check_eatery_mode
+from shibuya.world.model.state import World
+from shibuya.world.model.state import check_eatery_mode
 from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_MINUTE
 
 
@@ -281,7 +281,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     # ---- 第 1 期 1-4(検収 L10): つなぎの台帳と規則の表をランの始めに 1 回読む(壊れていればここで落ちる=1 日回した
     # 後の日の締めで落ちない。無い写しは警告して null。読むだけ=状態にも指紋にも入らない) ----
     from shibuya.foundation.decl import bridging as _BR
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     _BR.bridges_count()
     _RT.rules_version()
@@ -415,7 +415,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         if _diff:
             raise ValueError(f"再開の設定が親と違う(欄 {_diff[:8]})")
         # 第 2 期 2-2(検収 M1): 近接の腕は設定の指紋に入れない=見出しの proximity(無ければ cell=〔第346〕再開できない)を見る
-        from shibuya.engine import proximity as _PXR
+        from shibuya.world.model import proximity as _PXR
 
         _PXR.check_resume(_h.get("proximity"))
         # 第 2 期 2-1(検収 A5): 経済の段階 2 の腕は設定の指紋に入れない=見出しの economy_stage2(無ければ off)と今の腕を
@@ -425,15 +425,15 @@ def build(_call_args: dict[str, Any]) -> Any:
         _ES2R.check_resume(_h.get("economy_stage2"),  # 〔2-4 V4〕金の台帳が無いランは腕 on でも挿さない=off と同じ
                            effective=ledger is not None and hasattr(getattr(ledger, "money", None), "attach_stage2"))
         # 〔第 2 期 2-4 V3〕在席の印は設定の指紋に入れない=見出しの seat_release(無ければ legacy=〔第346〕再開できない)を見る
-        from shibuya.engine import seat_release as _SRR
+        from shibuya.world.laws import switch_seat as _SRR
 
         _SRR.check_resume(_h.get("seat_release"))
         # 〔11-01 段 2 の 3・4〕率の形の規則の腕も設定の指紋に入れない=見出しの rate_rules(無ければ legacy)と今の腕を突き合わせる
-        from shibuya.engine import rate_rules as _RRR
+        from shibuya.world.laws import switch_rate as _RRR
 
         _RRR.check_resume(_h.get("rate_rules"))
         # 〔11-02r §1 #7〕「無い」の過程の腕も設定の指紋に入れない=見出しの absent_processes(無ければ legacy)と今の腕を突き合わせる
-        from shibuya.engine import absent_processes as _APR
+        from shibuya.world.laws import switch_absent as _APR
 
         _APR.check_resume(_h.get("absent_processes"))
         # 〔11-03 §3〕欠陥の直しは設定の指紋に入れない=見出しの defect_fixes_1103(無ければ legacy=〔第346〕再開できない)を見る
@@ -707,7 +707,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     # (--proximity-d・環境変数)は run_day の引数にしない=設定の指紋に入れない。下の ``_px_rule is None`` の枝(規則も層も
     # 無い=同じセル)はランでは通らない=試験の口(知覚の分離の試験 test_render_from_percept_bytes の (B) が ``rule_from`` を
     # None に差し替えて HEAD 136fdbb の双子と比べる=検収 M2)として残す ----
-    from shibuya.engine import proximity as _PXM
+    from shibuya.world.model import proximity as _PXM
 
     # 規則はここで作る(古典の交際の候補の閉包が使う)・層は関係の層の後(気づいた印の読み口=関係の層を渡す)
     _px_rule = _PXM.rule_from(mode=_PXM.MODE_DISTANCE, d_m=_PXM.d(), seed=seed, day_key0=int(day_index),
@@ -797,10 +797,10 @@ def build(_call_args: dict[str, Any]) -> Any:
     world.freeze()
 
     # ---- ⓪a 世界過程(C4 第1陣・世界過程設計書 §3 実装原則3=書き込みは resolve 経由) ----
-    from shibuya.engine import rate_rules as _RRB  # 〔11-01 段 2 の 3・4〕率の形の規則の腕(組み立てで 1 回読む)
+    from shibuya.world.laws import switch_rate as _RRB  # 〔11-01 段 2 の 3・4〕率の形の規則の腕(組み立てで 1 回読む)
 
     rate_rules_mode = _RRB.arm()
-    from shibuya.engine import absent_processes as _APB  # 〔11-02r §1 #7〕「無い」の過程の腕(組み立てで 1 回読む)
+    from shibuya.world.laws import switch_absent as _APB  # 〔11-02r §1 #7〕「無い」の過程の腕(組み立てで 1 回読む)
 
     absent_mode = _APB.arm()
     runner: WorldProcessRunner | None = None
@@ -1677,7 +1677,7 @@ def build(_call_args: dict[str, Any]) -> Any:
 def _initial_rights(world_dir: Any, pop: Any, n_agents: int) -> Any:
     """〔第 4 期 4-3 段 10〕差し替えの世界の権利台帳の初期の行(体の番号=ランの SoA の行)。母集団が差し替えの版でなければ
     ``None``(本体の v2=今の口)。差し替えの版なのに表が無ければ止める(黙って丸振りに戻さない)。"""
-    from shibuya.engine.rights import initial as _RIN
+    from shibuya.world.facts.rights import initial as _RIN
 
     if pop is None or not getattr(pop, "is_swapped", False):
         return None

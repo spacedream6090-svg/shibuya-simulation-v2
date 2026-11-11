@@ -305,7 +305,7 @@ def test_a_talking_llm_writes_word_of_mouth_rows_for_listeners_only():
     assert w["counts"]["wom_valence+1"] == w["counts"]["wom_extracted"]
     assert set(w["top_pois"]) == {"スターバックス"} and w["store_rows_with_wom"] > 0
     r = on.agents.registry
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     names = World.load_or_synthetic(WORLD).assets.poi_name
     wom_rows = (r.sm_source & SM.STORE_SOURCE_BIT["wom"]) > 0

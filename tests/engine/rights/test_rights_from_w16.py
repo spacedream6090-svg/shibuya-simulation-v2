@@ -16,10 +16,10 @@ import numpy as np
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.agents.population import load_population
+from shibuya.world.facts.population_reader import load_population
 from shibuya.foundation.decl import bridging as BR
-from shibuya.engine.rights import initial as RI
-from shibuya.engine.rights import ledger as L
+from shibuya.world.facts.rights import initial as RI
+from shibuya.world.facts.rights import ledger as L
 
 WORLD = Path("data/world/v2")
 w16 = pytest.mark.requires_data("world_v2:w16_population.parquet", "world_v2:w6_poi.parquet")

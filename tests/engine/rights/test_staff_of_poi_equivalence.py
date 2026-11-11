@@ -13,13 +13,13 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import AgentKind, AgentState
-from shibuya.agents.schedule import synthesize
+from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.engine import resolve as R
-from shibuya.engine.processes.opening import OpeningProcess
-from shibuya.engine.rights import initial as RI
-from shibuya.engine.rights import ledger as L
+from shibuya.world.laws.opening import OpeningProcess
+from shibuya.world.facts.rights import initial as RI
+from shibuya.world.facts.rights import ledger as L
 from shibuya.world.assets import ProcessAssets
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 
 # ---- HEAD 6b82be2 src/shibuya/engine/processes/opening.py の OpeningProcess._assign_staff の写し(自由関数にした) ----
@@ -116,7 +116,7 @@ def test_same_assignment_on_the_real_population():
     """実データ(5,000 体の抽出・seed 1)の種別と POI の数。SoA は母集団の種別を写した形(組み立てと同じ)。"""
     import pyarrow.parquet as pq
 
-    from shibuya.agents.population import load_population
+    from shibuya.world.facts.population_reader import load_population
     from shibuya.engine.systems.build import _org_of_agent
 
     world_dir = Path("data/world/v2")

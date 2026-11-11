@@ -322,7 +322,7 @@ def population_for(world: str, n_agents: int, seed: int, rng_scheme: str = "coun
 
     10e(検収 L2): ``rng_scheme`` は抽出の鍵の並べ方(engine の既定 counter・10e より前のランは stateful)。
     """
-    from shibuya.agents.population import load_population, sample_population
+    from shibuya.world.facts.population_reader import load_population, sample_population
 
     pop = load_population(world, n=None, seed=seed)
     return sample_population(pop, n_agents, seed, rng_scheme=rng_scheme) if pop.n > n_agents else pop

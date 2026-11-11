@@ -19,9 +19,9 @@ from shibuya.engine import commit as C
 from shibuya.engine import defect_fixes_1103 as DF
 from shibuya.engine import resolve as R
 from shibuya.engine.conversation import ConversationManager
-from shibuya.engine.processes.crowd import CrowdProcess
-from shibuya.engine.processes.rail import RailProcess
-from shibuya.world.state import World
+from shibuya.world.laws.crowd import CrowdProcess
+from shibuya.world.laws.rail import RailProcess
+from shibuya.world.model.state import World
 
 from .processes.conftest import fake_timetable_assets, make_agents, make_world
 

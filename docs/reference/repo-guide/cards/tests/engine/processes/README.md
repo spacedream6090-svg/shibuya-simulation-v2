@@ -18,7 +18,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `fake_weather_assets`(関数): 1 層 2 日・全時刻同じ暑さ段の気象資産(影グリッドは無し)。
   - `make_agents`(関数): 初期化済み(凍結済み)の個体状態と mock 日課。
   - `make_world`(関数)
-- import している内部モジュール: `shibuya.agents.schedule`・`shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.world.assets`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.world.assets`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.state`
 - 読む試験: `tests/engine/experiment/_x33.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_civic.py`・`tests/engine/processes/test_crowd.py`・`tests/engine/processes/test_environment.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_logistics.py`・`tests/engine/processes/test_opening.py`・`tests/engine/processes/test_rail.py`・`tests/engine/processes/test_rail_board_intent.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/processes/test_runner.py`・`tests/engine/processes/test_salient.py`・`tests/engine/processes/test_traffic.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_defect_fixes_1103.py`
 
 ## [test_absent_processes_1102.py](../../../../../../../tests/engine/processes/test_absent_processes_1102.py)
@@ -42,7 +42,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_the_default_arm_is_stopped_and_names_are_checked`(関数)
   - `test_waste_collection`(関数)
   - `tiny_runs`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.absent_processes`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.logistics`・`shibuya.engine.processes.runner`・`shibuya.engine.processes.salient`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.time_consts`・`shibuya.world.assets`・`shibuya.world.processes.absent`・`shibuya.world.processes.actual_log`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.time_consts`・`shibuya.world.assets`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.actual_log`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`
 - 決定の ID: 11-02r・11-02r #7・11-02r/§1・11-02r/§1 #7・11-02r/§2-2・11-03/§3
 
 ## [test_civic.py](../../../../../../../tests/engine/processes/test_civic.py)
@@ -61,7 +61,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_large_event_pulls_visitors_in_and_sends_them_back`(関数)
   - `test_press_is_due_only_at_the_fixed_minutes`(関数)
   - `test_press_line_carries_the_feature_tag_and_no_imperative`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.processes.civic`・`shibuya.engine.resolve`・`shibuya.world.assets`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.world.assets`・`shibuya.world.laws.civic`・`tests/engine/processes/conftest.py`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7
 
 ## [test_crowd.py](../../../../../../../tests/engine/processes/test_crowd.py)
@@ -85,7 +85,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_seats_are_derived_from_the_category`(関数)
   - `test_served_body_that_can_no_longer_pay_leaves_the_queue`(関数)
   - `test_waiting_bodies_take_the_seat_before_newcomers`(関数): FIFO: 空いた席は、この tick に来た買い手より先に並んでいた体が取る。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.processes.crowd`・`shibuya.engine.resolve`・`shibuya.foundation.text.templates`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.foundation.text.templates`・`shibuya.world.laws.crowd`・`tests/engine/processes/conftest.py`
 - 決定の ID: D-113・第 268
 
 ## [test_environment.py](../../../../../../../tests/engine/processes/test_environment.py)
@@ -101,7 +101,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_synthetic_world_falls_back_to_a_fixed_mild_day`(関数)
   - `test_thermal_follows_the_heat_stage_without_shade`(関数)
   - `test_thermal_is_evaluated_on_the_five_minute_grid`(関数): 正規化規約⑨(5 分丸め)= D-W10 の影グリッド刻みと同一。
-- import している内部モジュール: `shibuya.engine.processes.environment`・`shibuya.world.assets`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.world.assets`・`shibuya.world.laws.environment`・`tests/engine/processes/conftest.py`
 - 決定の ID: 第 330
 
 ## [test_goods_flow.py](../../../../../../../tests/engine/processes/test_goods_flow.py)
@@ -120,7 +120,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_restock_permission_is_staff_in_the_same_cell`(関数)
   - `test_shelf_rests_without_a_goods_ledger`(関数)
   - `test_waste_band_is_reported_even_when_out_of_band`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.opening`・`shibuya.engine.resolve`・`shibuya.foundation.ports.ledger`・`shibuya.world.assets`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.resolve`・`shibuya.foundation.ports.ledger`・`shibuya.world.assets`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.opening`・`tests/engine/processes/conftest.py`
 - 読む試験: `tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rate_rules_1101.py`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7
 
@@ -137,7 +137,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_parcels_follow_the_household_weights`(関数)
   - `test_road_works_occupy_at_night_and_clear_in_the_morning`(関数)
   - `test_road_works_rest_without_road_data`(関数)
-- import している内部モジュール: `shibuya.engine.processes.logistics`・`shibuya.world.assets`・`shibuya.world.state`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.world.assets`・`shibuya.world.laws.logistics`・`shibuya.world.model.state`・`tests/engine/processes/conftest.py`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7
 
 ## [test_opening.py](../../../../../../../tests/engine/processes/test_opening.py)
@@ -154,7 +154,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_open_matrix_selects_the_weekday`(関数)
   - `test_open_matrix_wraps_intervals_past_midnight`(関数): W7 の ``end`` は 1440 超(日跨ぎ)がある(実データで 1,918 区間)。
   - `test_role_action_is_used_when_the_staff_is_on_site`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.processes.opening`・`shibuya.engine.resolve`・`shibuya.world.assets`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.world.assets`・`shibuya.world.laws.opening`・`tests/engine/processes/conftest.py`
 
 ## [test_rail.py](../../../../../../../tests/engine/processes/test_rail.py)
 
@@ -182,7 +182,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_riders_are_never_lost`(関数)
   - `test_trains_at_platform_covers_the_dwell_window`(関数)
   - `test_trains_per_line_matches_the_timetable_rows`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.engine.commit`・`shibuya.engine.processes.rail`・`shibuya.engine.resolve`・`shibuya.world.assets`・`shibuya.world.processes.actual_log`・`shibuya.world.state`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.world.assets`・`shibuya.world.laws.rail`・`shibuya.world.ledger.actual_log`・`shibuya.world.model.state`・`tests/engine/processes/conftest.py`
 - 決定の ID: D-51
 
 ## [test_rail_board_intent.py](../../../../../../../tests/engine/processes/test_rail_board_intent.py)
@@ -201,7 +201,7 @@ D-51 乗車の意図保持(2026-09-10・ユーザー決定 (c))のテスト。
   - `test_the_rest_of_the_queue_boards_the_next_train`(関数)
   - `test_the_walk_is_deterministic_for_the_same_situation`(関数): 同じ状況を 2 回作ると ``state_hash`` が一致する(T2・決定論)。
   - `test_waiting_is_cut_off_after_the_limit_and_returns_no_train`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.processes.rail`・`shibuya.engine.resolve`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.world.laws.rail`・`tests/engine/processes/conftest.py`
 - 決定の ID: D-51
 
 ## [test_rail_return.py](../../../../../../../tests/engine/processes/test_rail_return.py)
@@ -224,7 +224,7 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_two_identical_runs_agree_bit_for_bit`(関数)
   - `test_unresolved_cell_activities_still_call_the_rider_back`(関数): **(vi) D-61 追補**: ``target_cell < 0`` でも ``place_kind != 域外`` なら域内活動。
   - `test_without_a_weekly_table_nobody_comes_back`(関数): 週次表の無いラン(合成世界・``--no-population``)= D-61 前の挙動のまま。
-- import している内部モジュール: `shibuya.agents.schedule`・`shibuya.agents.weekly`・`shibuya.engine.commit`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.rail`・`shibuya.engine.resolve`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.weekly_reader`・`shibuya.world.laws.civic`・`shibuya.world.laws.rail`・`tests/engine/processes/conftest.py`
 - 決定の ID: 11-01・D-61
 
 ## [test_rate_rules_1101.py](../../../../../../../tests/engine/processes/test_rate_rules_1101.py)
@@ -250,7 +250,7 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_run_manifest_counts_rise_in_legacy_and_are_zero_off`(関数): 〔検収 L2〕同じ 1 日のランで、旧道は催し・売れ残り・ポイ捨て・宅配の件数が立ち、off は全部 0(倒れる率は off で 0)。
   - `test_state_header_and_resume_check`(関数)
   - `test_the_default_arm_is_off_and_names_are_checked`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.presence`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.logistics`・`shibuya.engine.processes.rail`・`shibuya.engine.processes.salient`・`shibuya.engine.rate_rules`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.world.processes.actual_log`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/test_presence_executor.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.presence`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.rail`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_rate`・`shibuya.world.ledger.actual_log`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/test_presence_executor.py`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7
 
 ## [test_rng_scheme_10c.py](../../../../../../../tests/engine/processes/test_rng_scheme_10c.py)
@@ -280,7 +280,7 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_scheme_values_and_default_is_counter`(関数)
   - `test_the_tape_carries_the_scheme_and_the_replay_matches`(関数): 〔改訂(第330・RET)〕前は「counter で録って stateful で再生すると止まる」「stateful のテープ」も見た(消した)。
   - `test_two_day_counter_keys_carry_T`(関数): (v) 2 日目の顕著行為と出動の鍵が 1 日目と違う(T が鍵に入っている)。〔改訂(第330・RET)〕前は最後に
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.absent_processes`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.salient`・`shibuya.engine.rate_rules`・`shibuya.engine.run`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.state_io`・`shibuya.engine.tape`・`shibuya.foundation.rng`・`tests/engine/processes/conftest.py`・`tests/engine/test_tape_wiring.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.state_io`・`shibuya.engine.tape`・`shibuya.foundation.rng`・`shibuya.world.laws.civic`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`tests/engine/processes/conftest.py`・`tests/engine/test_tape_wiring.py`
 - 読む試験: `tests/engine/test_env_and_sections_10f.py`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・第 330
 
@@ -302,7 +302,7 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_registry_hash_is_exposed_and_stable`(関数)
   - `test_riders_are_conserved_from_the_start`(関数)
   - `test_step_accumulates_per_process_wall_time_and_counters`(関数)
-- import している内部モジュール: `shibuya.build`・`shibuya.economy.ledger`・`shibuya.engine.processes.runner`・`shibuya.world.processes.first_batch`・`tests/_places.py`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.build`・`shibuya.economy.ledger`・`shibuya.world.laws.runner`・`shibuya.world.ledger.first_batch`・`tests/_places.py`・`tests/engine/processes/conftest.py`
 
 ## [test_salient.py](../../../../../../../tests/engine/processes/test_salient.py)
 
@@ -321,7 +321,7 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_event_seen_tick_marks_everyone_in_the_event_cell_d113_2`(関数): 事象のセルに居た全員(B4 に行が出た体)の ``event_seen_tick`` がその tick になる。
   - `test_event_seen_within_uses_an_inclusive_window`(関数)
   - `test_notice_state_is_two_bytes_per_agent_and_written_through_resolve`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.absent_processes`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.salient`・`shibuya.engine.rate_rules`・`shibuya.foundation.types`・`shibuya.perception.attention`・`shibuya.perception.p_notice`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.types`・`shibuya.perception.attention`・`shibuya.world.laws.civic`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.notice_reach`・`tests/engine/processes/conftest.py`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・D-113・第 267
 
 ## [test_traffic.py](../../../../../../../tests/engine/processes/test_traffic.py)
@@ -337,4 +337,4 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_klass_defaults_match_the_w10_header`(関数): ``build`` は実行時に import できないので値を転記した。ずれを機械検査する。
   - `test_non_road_klasses_carry_no_traffic`(関数)
   - `test_step_only_switches_on_the_hour`(関数)
-- import している内部モジュール: `shibuya.engine.processes.traffic`・`shibuya.world.assets`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.world.assets`・`shibuya.world.laws.traffic`・`tests/engine/processes/conftest.py`

@@ -26,7 +26,7 @@ from shibuya.engine.conversation import (
 )
 from shibuya.engine.run import run_day
 from shibuya.llm import LLMResponse
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 TALK_TO = "理由: 知人を見かけたから\n行動: 会話 対象: P-{}　ひと言: こんにちは"
 WAIT = "理由: 様子を見るから\n行動: 待機 対象: なし ひと言: なし"
@@ -76,7 +76,7 @@ def test_alone_in_the_cell_yields_no_partner_and_source_absent():
 def test_intents_from_responses_fills_the_stats(monkeypatch):
     w = World.synthetic(n_cells=1, seed=1)
     ag = AgentState(6)
-    from shibuya.agents.schedule import synthesize
+    from shibuya.world.facts.mock_schedule import synthesize
 
     R.initialize(ag, w, synthesize(6, 1, w.n_cells), day_index=0, ledger=None)
     space = C.ResourceSpace(w.n_poi, 6, w.n_cells)
@@ -160,7 +160,7 @@ def test_register_pending_rejects_other_cell_self_and_busy():
 def test_set_conversing_marks_both_sides():
     w = World.synthetic(n_cells=1, seed=1)
     ag = AgentState(4)
-    from shibuya.agents.schedule import synthesize
+    from shibuya.world.facts.mock_schedule import synthesize
 
     R.initialize(ag, w, synthesize(4, 1, w.n_cells), day_index=0, ledger=None)
     R.set_conversing(ag, np.array([0]), np.array([1]))
@@ -286,7 +286,7 @@ def test_mock_llm_never_names_a_partner_so_the_fallback_path_is_unchanged():
 
 
 def _world_agents(n: int = 8, n_cells: int = 1):
-    from shibuya.agents.schedule import synthesize
+    from shibuya.world.facts.mock_schedule import synthesize
 
     w = World.synthetic(n_cells=n_cells, seed=1)
     ag = AgentState(n)

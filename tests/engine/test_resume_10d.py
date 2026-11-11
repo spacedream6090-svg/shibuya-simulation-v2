@@ -220,7 +220,7 @@ def test_resume_in_a_fresh_process_with_empty_caches(world_straight, tmp_path):
 
 # ================================================================= (iv) 日次の締め・保存則・体の数
 def test_daily_close_runs_once_per_day(monkeypatch):
-    from shibuya.engine.processes.runner import WorldProcessRunner
+    from shibuya.world.laws.runner import WorldProcessRunner
 
     seen: list[tuple[int, bool]] = []
     orig = WorldProcessRunner.end_of_day
@@ -373,10 +373,10 @@ def test_resume_refuses_a_ledger_that_was_already_endowed(tmp_path, monkeypatch)
 
 # ================================================================= (vii) counter の乱数
 def test_counter_rng_resume_draws_once(tmp_path, monkeypatch):
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_rate as RR
 
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
-    from shibuya.engine import absent_processes as AP
+    from shibuya.world.laws import switch_absent as AP
 
     monkeypatch.setattr(AP, "_ARM", AP.MODE_LEGACY)  # 〔11-02r §1 #7〕出動の経路も旧道でだけ動く(次の版上げで書き直す)
     kw = dict(n_agents=200, seed=1, n_cells=25, ticks=TPD, sim_days=2, checkpoint_every=10,
@@ -493,7 +493,7 @@ def test_cli_switches_for_sim_days_and_resume(tmp_path):
 def test_daily_tables_are_relaid_from_the_calendar_day(tmp_path, monkeypatch):
     """親の答え 5: 2 日目の頭で W7 の曜日の行と世界過程の日ごとの乱数の表を暦の口の日で引き直す。"""
     from shibuya.foundation.rng import stream
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_rate as RR
 
     # 〔11-01 段 2 の 3・4〕宅配の配達済みの張り直しは旧道(切替口)だけ=旧道で見る
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
@@ -502,7 +502,7 @@ def test_daily_tables_are_relaid_from_the_calendar_day(tmp_path, monkeypatch):
     rn = res.runner
     cal_key1 = 1  # 1 日目の日の鍵=日番号 1(〔第330・RET〕前の注: day_index モードの 0+1=同じ値)
     assert rn.opening.day_index == 1                     # 火曜の行(table_weekday(1))
-    from shibuya.engine.processes.goods_flow import DELIVERY_WINDOW
+    from shibuya.world.laws.goods_flow import DELIVERY_WINDOW
 
     from shibuya.foundation.rng import k19_counters
 
@@ -646,7 +646,7 @@ def test_fleet_inflight_calls_at_the_day_boundary(tmp_path, monkeypatch):
 
     合成の日課は 23 時台に起床が無いので、体 0〜4 に 23:59 の計画境界を足して、日の最後の tick に呼を出す。
     """
-    from shibuya.agents import schedule as SCH
+    from shibuya.world.facts import mock_schedule as SCH
     from tests.engine.test_fleet_wiring import make_client
     from tests.llm.test_fleet import FakeVLLM
 
@@ -718,7 +718,7 @@ def test_b3_weather_follows_the_replay_date_of_each_day():
     from shibuya.foundation.text import normalize as N
     from shibuya.perception import renderer as RD
     from shibuya.foundation.text import templates as T
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     w = World.synthetic(n_cells=4, seed=1)
     a = AgentState(2)

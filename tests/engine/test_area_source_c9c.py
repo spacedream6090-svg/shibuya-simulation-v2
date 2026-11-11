@@ -20,8 +20,8 @@ import numpy as np
 import pytest
 
 from shibuya.engine.change_detect import ChangeDetector
-from shibuya.engine.geometry import EdgeGeometry
-from shibuya.engine.processes.crowd import (
+from shibuya.world.model.geometry import EdgeGeometry
+from shibuya.world.laws.crowd import (
     DEFAULT_SEAT_AREA_M2,
     SEAT_AREA_M2,
     CrowdProcess,
@@ -30,7 +30,7 @@ from shibuya.engine.processes.crowd import (
 from shibuya.engine.run import run_day
 from shibuya.perception.renderer import PerceptionAssets
 from shibuya.world import assets as WA
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 WORLD_DIR = Path(__file__).resolve().parents[2] / "data" / "world" / "v2"
 ASSET = WORLD_DIR / WA.WALKABLE_AREA_FILENAME

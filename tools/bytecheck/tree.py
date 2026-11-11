@@ -46,10 +46,10 @@ TRACKED_READS: Final[dict[str, str]] = {
     "docs/design/rules-table.json": "engine/rules/table.py TABLE_RELPATH(無いと規則の表が空=rules_version が null)",
     "docs/design/bridging-ledger.json": "engine/bridging/ledger.py LEDGER_RELPATH・world/processes/circularity.py",
     "docs/design/v2-budget-declaration.md": "core/budget.py BUDGET_MD_RELPATH(リポの根を上へ探す)",
-    "docs/design/v2-perception-contract.md": "world/processes/constitution.py PERCEPTION_CONTRACT_RELPATH",
+    "docs/design/v2-perception-contract.md": "world/ledger/constitution.py PERCEPTION_CONTRACT_RELPATH",
     "docs/design/v2-pattern-ledger.md": "world/processes/constitution.py PATTERN_LEDGER_RELPATH・circularity.py",
-    "docs/bench/anchors/hunger_energy_build_anchors_v0.json": "engine/energy.py ANCHORS_BUILD_PATH",
-    "docs/bench/anchors/hunger_energy_validation_anchors_v0.json": "engine/energy.py ANCHORS_VALIDATION_PATH",
+    "docs/bench/anchors/hunger_energy_build_anchors_v0.json": "world/body/energy.py ANCHORS_BUILD_PATH",
+    "docs/bench/anchors/hunger_energy_validation_anchors_v0.json": "world/body/energy.py ANCHORS_VALIDATION_PATH",
     "docs/bench/anchors/ssb2021_activity_prior_v0.json": "engine/classical.py(活動の事前分布)",
 }
 
@@ -96,13 +96,13 @@ ROOT_READERS: Final[dict[str, str]] = {
     "shibuya/engine/calendar.py": "resolve_repo_path の呼び(定義は core/paths.py)・data/calendar/syukujitsu.csv(DATA_READS)",
     "shibuya/engine/classical.py": "docs/bench/anchors/ssb2021_activity_prior_v0.json(TRACKED_READS)",
     "shibuya/engine/economy_stage2.py": "data/realworld/osm の 2 本・data/persona_pool_v2(DATA_READS)",
-    "shibuya/engine/energy.py": "docs/bench/anchors の 2 本(TRACKED_READS)",
+    "shibuya/world/body/energy.py": "docs/bench/anchors の 2 本(TRACKED_READS)",
     "shibuya/engine/resume.py": "渡された相対の道筋の同定(path_identity)と .git の commit(写しの木はリポの外=空の値)",
-    "shibuya/engine/rules/table.py": "docs/design/rules-table.json(TRACKED_READS)",
+    "shibuya/world/facts/rules/table.py": "docs/design/rules-table.json(TRACKED_READS)",
     "shibuya/engine/systems/allow.py": "包みの根 PACKAGE_ROOT から RESOLVE_FILES(src の中)を読むだけ(移す段 2-2)",
     "shibuya/engine/systems/static_check.py": "module_dir(__name__)=このモジュールのディレクトリ(呼び手は無い・移す段 2-2)",
     "shibuya/world/processes/circularity.py": "docs/design/bridging-ledger.json・v2-pattern-ledger.md(TRACKED_READS)",
-    "shibuya/world/processes/constitution.py": "docs/design/v2-perception-contract.md・v2-pattern-ledger.md(TRACKED_READS)",
+    "shibuya/world/ledger/constitution.py": "docs/design/v2-perception-contract.md・v2-pattern-ledger.md(TRACKED_READS)",
 }
 
 #: 追跡ファイルの最上位のディレクトリ(src の外)。``data`` は追跡しない(つなぎで見せる)。

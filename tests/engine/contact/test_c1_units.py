@@ -12,7 +12,7 @@ import pytest
 from shibuya.agents.state import WakeCondition
 from shibuya.foundation.arms import contact as A
 from shibuya.engine.contact import attention as AT
-from shibuya.engine.contact import device as DV
+from shibuya.world.things import device as DV
 from shibuya.engine.contact import port as P
 from shibuya.engine.contact.book import ContactBook
 from shibuya.engine.contact.chat_state import CHAT_MAX_BLOCKS, CHAT_SILENCE_STEPS, ChatBook, pair_key

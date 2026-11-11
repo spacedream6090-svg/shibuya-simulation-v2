@@ -46,5 +46,5 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_synth_assets_and_gates`(関数)
   - `test_synth_build_twice_same_sha`(関数)
   - `test_synth_routes_inside_and_across_floors`(関数)
-- import している内部モジュール: `shibuya.build.space.mesh`・`shibuya.build.space.navmesh1`・`shibuya.build.space.raster`・`shibuya.world.navmesh`・`shibuya.world.navmesh_route`・`tests/build_space/synth.py`
+- import している内部モジュール: `shibuya.build.space.mesh`・`shibuya.build.space.navmesh1`・`shibuya.build.space.raster`・`shibuya.world.model.navmesh`・`shibuya.world.model.navmesh_route`・`tests/build_space/synth.py`
 - 決定の ID: 第 219

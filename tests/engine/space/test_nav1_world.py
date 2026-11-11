@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 from shibuya import cli
-from shibuya.world.navmesh import navmesh_available
+from shibuya.world.model.navmesh import navmesh_available
 
 STAGE = Path("data/world/v2_stage_5-1")
 needs_stage = pytest.mark.skipif(not navmesh_available(STAGE), reason="組んだ資産 v2_stage_5-1 が無い")

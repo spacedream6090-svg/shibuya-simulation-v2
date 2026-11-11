@@ -18,7 +18,7 @@ from shibuya.foundation import write_permit as WP
 from shibuya.engine import resolve as R
 from shibuya.engine import state_ledger_ast as A
 from shibuya.engine.systems import allow as AL
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 SRC = Path("src/shibuya")
 
@@ -85,7 +85,7 @@ def test_scope_nests_and_restores():
 
 
 def test_perception_state_thaws_only_permitted_columns():
-    from shibuya.perception.state import PerceptionState
+    from shibuya.world.model.percept_state import PerceptionState
 
     ps = PerceptionState(4)
     ps.freeze()
@@ -161,12 +161,12 @@ def test_every_state_ufunc_at_in_resolve_checks_the_written_array():
 #: 旗を立て得る直書き(値が定数 False でない ``flags.writeable =``・``setflags(write=...)``)を許す (ファイル, 関数)。
 FLAG_WRITERS = {
     ("agents/state.py", "thaw"), ("agents/state.py", "freeze"),
-    ("world/state.py", "thaw"), ("world/state.py", "freeze"),
-    ("perception/state.py", "_set_writeable"),
+    ("world/model/state.py", "thaw"), ("world/model/state.py", "freeze"),
+    ("world/model/percept_state.py", "_set_writeable"),
     ("economy/goods.py", "*"), ("economy/ledger.py", "*"),
     ("engine/resolve.py", "_restore_array_into"),
     # 〔第 3 期 3-5 検収 L7〕体の層の予約の列(BodySchedule)が自分の配列(SoA ではない)を書く口の中だけ書けるようにする
-    ("engine/body/schedule.py", "_enter_port_and_call"),
+    ("world/body/schedule.py", "_enter_port_and_call"),
 }
 
 
@@ -204,7 +204,7 @@ def test_direct_flag_writes_live_only_in_known_places():
 
 # ================================================================= D ⑥: SoA の配列・ビュー・別名を層の属性に持たせない
 _SOA_TAILS = {"registry", "agents", "cells", "pois", "pstate"}
-_EXEMPT_D6 = {"agents/state.py", "world/state.py", "perception/state.py", "engine/resolve.py", "foundation/soa.py"}
+_EXEMPT_D6 = {"agents/state.py", "world/model/state.py", "world/model/percept_state.py", "engine/resolve.py", "foundation/soa.py"}
 #: 許す属性(場所・代入の左辺・理由)。どれも凍結の後に作る読むだけの**写し**(int32 → int64 の dtype の変換=別の配列)。
 D6_ALLOW = {
     ("engine/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",

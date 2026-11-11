@@ -318,7 +318,7 @@ def test_e4_l1_tape_meta_carries_the_rng_layout_and_old_counter_tapes_stop(tmp_p
     """L1: テープの脇の meta に鍵の配置の印(``rng_layout``)。10c〜10f の counter で録ったテープ(印が無い)は再生で
     明示的に止まる。〔改訂(第330・RET)〕前は「stateful のテープは印が無くても回る(meta の無い実テープと同じ扱い)」も
     見た=stateful を消したので、印が無いテープ・stateful のテープ・meta の無いテープはどれも止まる。"""
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_rate as RR
 
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
     import json
@@ -353,7 +353,7 @@ def test_e4_l2_load_population_and_three_argument_samplers_follow_the_engine(mon
     import numpy as np
 
     import shibuya.engine.run as RUN
-    from shibuya.agents import population as POP
+    from shibuya.world.facts import population_reader as POP
 
     full = POP.load_population(WORLD_DIR, n=None, seed=1)
     a = POP.load_population(WORLD_DIR, n=500, seed=1)
@@ -385,7 +385,7 @@ def test_e5_t1_fleet_rows_carry_b5_b6_and_rebuild_the_prompt_hash(tmp_path):
     """T1: 艦隊の経路(``FleetBridge``)の応答の行と繰り延べの行にも B5・B6 が入り、``prompt_hash`` を本文から作り直せる。"""
     from shibuya.foundation.hashing import sha256_cbor
     from shibuya.engine import tape as TP
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
     from tests.engine.test_tape_deferred import make_client
     from tests.llm.test_fleet import FakeVLLM
 

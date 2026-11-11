@@ -27,8 +27,8 @@ REPO = Path(__file__).resolve().parents[2]
 if str(REPO / "src") not in sys.path:  # pragma: no cover - 実行時の経路(宣言は world の側)
     sys.path.insert(0, str(REPO / "src"))
 
-from shibuya.world.processes import absent as AB  # noqa: E402
-from shibuya.world.processes import inputs as INP  # noqa: E402
+from shibuya.world.ledger import absent as AB  # noqa: E402
+from shibuya.world.ledger import inputs as INP  # noqa: E402
 
 __all__ = ["fingerprint", "render", "main"]
 

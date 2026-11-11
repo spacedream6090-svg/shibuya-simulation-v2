@@ -24,7 +24,7 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.ports import percept as F
-from shibuya.perception import p_notice as P
+from shibuya.world.model import notice_reach as P
 from shibuya.perception import renderer as R
 
 ROOT = Path(__file__).resolve().parents[3]

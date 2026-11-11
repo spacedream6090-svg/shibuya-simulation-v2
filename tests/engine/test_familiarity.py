@@ -154,7 +154,7 @@ def test_the_approximation_versus_the_exact_base_level():
 # ------------------------------------------------------------------ (e) 控え(描画・resolve)
 def test_the_renderer_notes_signage_only_when_asked_and_seen():
     from shibuya.perception.renderer import Renderer
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     w = World.synthetic(n_cells=9, seed=2)
     a = AgentState(2)
@@ -299,7 +299,7 @@ def test_the_entry_gate_draws_the_same_stream_as_the_renderer():
 
 def test_the_renderer_publishes_the_same_signage_set_it_draws():
     from shibuya.perception.renderer import Renderer
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     w = World.synthetic(n_cells=9, seed=2)
     a = AgentState(2)

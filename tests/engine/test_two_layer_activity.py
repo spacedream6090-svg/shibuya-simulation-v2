@@ -18,7 +18,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.schedule import synthesize
+from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.agents.state import (
     N_WAKE_CONDITIONS,
     WAKE_CONDITION_CLASS,
@@ -51,7 +51,7 @@ from shibuya.foundation.vocab.actions import (
 from shibuya.perception import renderer as PR
 from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import Renderer
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 from tests import golden_env as GE
 
 SALT = b"s" * 16
@@ -417,7 +417,7 @@ def test_v3_option_and_word_tables_are_the_compat_reading():
         dict.fromkeys(compat_word(w, "v1", "v3") for w in T.DEFAULT_OPTIONS)
     )
     assert PR.ACTIVITY_WORDS_V3 == tuple(compat_word(w, "v1", "v3") for w in PR.ACTIVITY_WORDS)
-    from shibuya.agents import weekly as W
+    from shibuya.world.facts import weekly_reader as W
 
     assert W.ACTIVITY_TO_ACTION_V3 == {
         k: compat_word(v, "v1", "v3") for k, v in W.ACTIVITY_TO_ACTION.items()

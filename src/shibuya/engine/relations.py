@@ -1159,7 +1159,7 @@ class RelationLayer:
         逐次ループ宣言: 抽選は引く組の数ぶん(``ProximityRule.notice_u``=範囲の中で、まだ気づいていない辺の数)。ほかは
         配列演算(毎刻み)。
         """
-        from shibuya.engine.proximity import notice_p
+        from shibuya.world.model.proximity import notice_p
 
         z = np.zeros(0, dtype=np.int64)
         ea, ej, ev, inr, dist, _reach = self._edge_view(agents, tick, proximity)

@@ -428,7 +428,7 @@ def execution_breakdown(res: Any, t0_step: int) -> dict[str, Any] | None:
     conf 0.5 のつなぎ)と担当のいる店の数。営業時間の過程か控えの無いランは ``None``。"""
     import numpy as np
 
-    from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
+    from shibuya.world.ledger.records import DEVIATION_CODES, DeviationVocab
 
     layer = getattr(res, "experiment_layer", None)
     runner = getattr(res, "runner", None)

@@ -13,12 +13,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.geometry import desired_speeds
-from shibuya.engine.space import nav1 as N
-from shibuya.world import navmesh as NV
+from shibuya.world.model.geometry import desired_speeds
+from shibuya.world.model.space import nav1 as N
+from shibuya.world.model import navmesh as NV
 from tests.build_space import synth as SY
 
-SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya" / "engine" / "space" / "nav1.py"
+SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya" / "world" / "model" / "space" / "nav1.py"
 
 
 @pytest.fixture(scope="module")
@@ -203,7 +203,7 @@ def test_p_notice_tiny_distance_is_one_without_overflow():
     """連続の位置で出る、ごく近い距離の一次検出(s^e が溢れる所)は極限の 1(NaN にしない)。"""
     import warnings
 
-    from shibuya.perception.p_notice import p1_primary
+    from shibuya.world.model.notice_reach import p1_primary
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
@@ -282,7 +282,7 @@ def test_m5_hop_walk_steps_legacy_is_one_step_per_node_and_nav1_uses_the_speed()
 
 
 def test_q3_b6_mark_text_for_nav1_and_no_b8():
-    from shibuya.engine import proximity as P
+    from shibuya.world.model import proximity as P
 
     m = P.marks_for("nav1")
     assert set(m) == {"B6"} and "面の上" in m["B6"]

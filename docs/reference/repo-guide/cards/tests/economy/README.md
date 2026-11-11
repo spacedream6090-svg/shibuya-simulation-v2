@@ -172,7 +172,7 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
   - `test_the_hours_times_hourly_path_counts_but_has_no_floor`(関数): 2-1 の道(賃金の表の無い写し=月の時間 × 時給): 床の式は前から無い=数えるだけ。時給が既定(最低賃金)なら 0・
   - `test_the_repo_rows_are_human_with_a_machine_bridge`(関数)
   - `test_without_the_bridge_the_wage_stays_below_and_the_violation_is_recorded`(関数): つなぎを外した表(human だけ): 床を当てず下回ったまま払う=起きた違反を記録(金は湧かない=保存則の残差 0)。
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.taxes`・`shibuya.economy.wages`・`shibuya.engine.rules.table`・`shibuya.foundation.decl.bridging`・`tests/economy/test_wage_occupation.py`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.taxes`・`shibuya.economy.wages`・`shibuya.foundation.decl.bridging`・`shibuya.world.facts.rules.table`・`tests/economy/test_wage_occupation.py`
 - 決定の ID: 11-01・11-01/§5
 
 ## [test_pricing.py](../../../../../../tests/economy/test_pricing.py)
@@ -201,7 +201,7 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
   - `test_income_document_rule_is_a_field`(関数)
   - `test_interest_cap_bands`(関数)
   - `test_total_volume_cap_is_one_third_of_the_income`(関数)
-- import している内部モジュール: `shibuya.economy.credit`・`shibuya.engine.rules.table`
+- import している内部モジュール: `shibuya.economy.credit`・`shibuya.world.facts.rules.table`
 - 決定の ID: R-118
 
 ## [test_rules42_ledger.py](../../../../../../tests/economy/test_rules42_ledger.py)
@@ -236,7 +236,7 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
   - `test_the_50_sen_rule`(関数)
   - `test_the_care_rate_is_only_for_ages_40_to_64`(関数)
   - `test_without_inputs_nothing_is_enrolled_but_taxes_apply`(関数)
-- import している内部モジュール: `shibuya.economy.taxes`・`shibuya.engine.economy_rules`・`shibuya.engine.rules.table`
+- import している内部モジュール: `shibuya.economy.taxes`・`shibuya.engine.economy_rules`・`shibuya.world.facts.rules.table`
 - 決定の ID: R-118・R-118 §1-2 #9・第 346
 
 ## [test_rules42_runs.py](../../../../../../tests/economy/test_rules42_runs.py)
@@ -251,7 +251,7 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
   - `test_resume_equals_straight_with_the_deposit`(関数)
   - `test_resume_from_a_state_without_the_rules_key_is_refused`(関数): 〔第346〕見出しの ``economy_stage2`` に ``rules_42``(4-2 の前のラン)か ``rules_42b``(4-2 の値のラン)の無い状態の
   - `test_resume_refuses_a_header_without_rules_42`(関数): 見出しの ``rules_42`` が無い状態のファイル(4-2 の前のラン)からは再開できない(〔第346〕切替口は消した・天引きは状態を
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.economy_rules`・`shibuya.engine.economy_stage2`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.foundation.ports.ledger`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.economy_rules`・`shibuya.engine.economy_stage2`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.foundation.ports.ledger`・`shibuya.world.model.state`
 - 環境変数: `SHIBUYA_RULES_42`・`os.environ` をまるごと使う
 - 決定の ID: 第 346
 
@@ -269,7 +269,7 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
   - `test_stage_b_payday_has_no_undeclared_writes`(関数): 段 B(系の前後で変わった欄 ⊆ 宣言・``SHIBUYA_SYSTEMS_CHECK=1``): 給料日(2026-08-25 の締め)を含む合成の 2 日で宣言の外 0。
   - `test_the_unit_base_port_keeps_the_4_2_values_and_records`(関数): 部品の単体試験の基準の口(``rules_42b=False`` を直に作る=ランの口からは選べない)は 4-2 の値と記録のまま。
   - `test_two_synthetic_days`(関数): 合成の世界の 2 日(給料日をまたぐ)=4-2b の値で天引き(〔第346〕4-2 の値のランとの比べは旧値の切替口と一緒に消した=
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.taxes`・`shibuya.engine.economy_rules`・`shibuya.engine.economy_stage2`・`shibuya.engine.run`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.ledger`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.taxes`・`shibuya.engine.economy_rules`・`shibuya.engine.economy_stage2`・`shibuya.engine.run`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.ledger`・`shibuya.world.model.state`
 - 環境変数: `SHIBUYA_RULES_42B`・`SHIBUYA_SYSTEMS_CHECK`・`os.environ` をまるごと使う
 - 決定の ID: 第 346
 
@@ -294,7 +294,7 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
   - `test_rows_absent_from_the_table_give_zero`(関数): 表に 4-2b の行が無い写し(行の無い項目は 0=控除なし・非課税なし・拠出金 0・年齢の上限なし)。
   - `test_the_rows_are_the_r118_10_2_values`(関数): 写し検査: 表の値は R-118 §10-2 の表の値(43/29/15 万円・2,400/2,450/2,500 万円・5%・200 万円・2,500 円・45 万円・
   - `test_unknown_age_stays_inside_the_caps`(関数)
-- import している内部モジュール: `shibuya.economy.taxes`・`shibuya.engine.economy_rules`・`shibuya.engine.rules.table`
+- import している内部モジュール: `shibuya.economy.taxes`・`shibuya.engine.economy_rules`・`shibuya.world.facts.rules.table`
 - 決定の ID: R-118・第 346
 
 ## [test_single_write_path.py](../../../../../../tests/economy/test_single_write_path.py)
@@ -353,7 +353,7 @@ T3(SFC の冗長方程式)の毎期検算(D-85 (a)・ユーザー決定 2026-09-
   - `test_wage_inputs_without_population_and_with_a_fake_population`(関数)
   - `test_wage_path_does_not_read_w17_hours_ast_with_a_negative_control`(関数)
   - `test_wage_path_header_and_resume_check`(関数): 賃金の道は occupation だけ(〔第 2 部〕腕 w17 と切替口は消した)。見出しは賃金の道を持ち、見出しに無い(版上げの前)・
-- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_sources`・`shibuya.cli`・`shibuya.core.wage_formula`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.wages`・`shibuya.engine.economy_stage2`・`shibuya.engine.rights.initial`・`shibuya.foundation.journal.log`
+- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_sources`・`shibuya.cli`・`shibuya.core.wage_formula`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.wages`・`shibuya.engine.economy_stage2`・`shibuya.foundation.journal.log`・`shibuya.world.facts.rights.initial`
 - 読む試験: `tests/economy/test_min_wage_human_bridge.py`
 - 環境変数: `SHIBUYA_WAGE`・`os.environ` をまるごと使う
 - 決定の ID: 10-13b/§7・第 337・第 346

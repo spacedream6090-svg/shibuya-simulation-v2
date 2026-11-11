@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.text import hashes as H
-from shibuya.perception.state import PERCEPTION_BYTE_CAP, PerceptionState, heading_from_vector
+from shibuya.world.model.percept_state import PERCEPTION_BYTE_CAP, PerceptionState, heading_from_vector
 
 
 # ---------------------------------------------------------------- ハッシュ三役

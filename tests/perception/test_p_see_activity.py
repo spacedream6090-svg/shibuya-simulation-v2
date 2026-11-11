@@ -27,7 +27,7 @@ from shibuya.engine.familiarity import FamiliarityLayer
 from shibuya.perception import renderer as RD
 from shibuya.perception.attention import gate_stage1
 from shibuya.perception.renderer import P_SEE_ACTIVITY_KINDS, Renderer
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 
 def crowd(n: int = 60, *, activity_columns: bool = False, seed: int = 13):

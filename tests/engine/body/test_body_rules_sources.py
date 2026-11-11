@@ -13,9 +13,9 @@ import pytest
 
 from shibuya.foundation.decl import bridging as L
 from shibuya.engine.bridging import scan as S
-from shibuya.engine.body import rules as BR
-from shibuya.engine.body import schedule as BS
-from shibuya.engine.body import system1 as S1
+from shibuya.world.body import rules as BR
+from shibuya.world.body import schedule as BS
+from shibuya.world.body import reactions as S1
 
 
 @pytest.fixture(scope="module")
@@ -45,9 +45,9 @@ def test_rules_cover_the_inventory_rows_with_conf_and_source(ledger):
 
 
 @pytest.mark.parametrize("table,prefix,path", [
-    (BR.BODY_EXPEDIENTS, "BR-BODY-", "src/shibuya/engine/body/rules.py"),
-    (BS.RESERVE_EXPEDIENTS, "BR-BODY-RESERVE-", "src/shibuya/engine/body/schedule.py"),
-    (S1.SYSTEM1_EXPEDIENTS, "BR-SYSTEM1-", "src/shibuya/engine/body/system1.py"),
+    (BR.BODY_EXPEDIENTS, "BR-BODY-", "src/shibuya/world/body/rules.py"),
+    (BS.RESERVE_EXPEDIENTS, "BR-BODY-RESERVE-", "src/shibuya/world/body/schedule.py"),
+    (S1.SYSTEM1_EXPEDIENTS, "BR-SYSTEM1-", "src/shibuya/world/body/reactions.py"),
 ])
 def test_declaration_tables_are_one_to_one_with_ledger_rows(ledger, table, prefix, path):
     by_key = {r.declared_in: r for r in ledger}

@@ -245,7 +245,7 @@ def test_the_two_prompt_hashes_are_both_deterministic_and_different():
     from shibuya.agents.state import AgentState
     from shibuya.engine.llm_bridge import PerceptionRendererAdapter
     from shibuya.perception.renderer import Renderer as PerceptionRenderer
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     w = World.synthetic(n_cells=9, seed=1)
     a = AgentState(4)

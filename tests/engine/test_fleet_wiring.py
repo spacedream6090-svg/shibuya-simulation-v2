@@ -24,7 +24,7 @@ from shibuya.engine.run import run_day
 from shibuya.engine.tape import Replay
 from shibuya.llm.fleet import FleetClient, FleetConfig
 from shibuya.foundation.manifest.schema import Mode
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 from tests.llm.test_fleet import BAD, GOOD, FakeVLLM
 

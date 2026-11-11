@@ -14,7 +14,7 @@ absent_declarations — 「無いと宣言」の一覧を Markdown に出す計�
   - `fingerprint`(関数): 宣言の中身の指紋(absent と inputs の as_dict を正規化した JSON の sha256 の先頭 16 桁)。
   - `main`(関数)
   - `render`(関数)
-- import している内部モジュール: `shibuya.world.processes.absent`・`shibuya.world.processes.inputs`
+- import している内部モジュール: `shibuya.world.ledger.absent`・`shibuya.world.ledger.inputs`
 - 読む試験(道筋で): `tests/tools/test_absent_declarations.py`
 - CLI の引数
   - `--out`: 出力の Markdown(既定は標準出力)
@@ -84,7 +84,7 @@ anchor_gauge — 第 2 期 2-0 **較正側の錨の計器**(記録を読むだ�
   - `work_targets`(関数)
   - `wquantiles`(関数)
   - `write_outputs`(関数)
-- import している内部モジュール: `shibuya`・`shibuya.agents.weekly`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.trial`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`shibuya.cli`・`shibuya.engine.calendar_shadow`・`shibuya.engine.presence`・`shibuya.engine.run`・`shibuya.foundation.time_consts`・`tools/c7/attr_arms.py`・`tools/c7/c7lib.py`・`tools/instruments/read_guard.py`
+- import している内部モジュール: `shibuya`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.trial`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`shibuya.cli`・`shibuya.engine.calendar_shadow`・`shibuya.engine.presence`・`shibuya.engine.run`・`shibuya.foundation.time_consts`・`shibuya.world.facts.weekly_reader`・`tools/c7/attr_arms.py`・`tools/c7/c7lib.py`・`tools/instruments/read_guard.py`
 - CLI の引数
   - サブコマンド `compare`
   - サブコマンド `gauge`

@@ -27,4 +27,4 @@ world のテスト: 合成小世界・資産読み込み・next-hop・セル/POI
   - `test_synthetic_is_deterministic`(関数)
   - `test_synthetic_shapes`(関数)
   - `test_world_freeze_guard`(関数)
-- import している内部モジュール: `shibuya.world.assets`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.world.assets`・`shibuya.world.model.state`

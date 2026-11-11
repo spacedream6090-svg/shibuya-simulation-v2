@@ -24,7 +24,7 @@ from shibuya.economy import stage2 as S2
 from shibuya.economy import wages as WG
 from shibuya.economy.accounts import BalanceLine
 from shibuya.economy.ledger import Ledger
-from shibuya.engine.rules import table as RT
+from shibuya.world.facts.rules import table as RT
 from tests.economy.test_wage_occupation import E, H, NO_FLOOR_DAY, _inputs, _low_tables, _plan, _tables
 
 FLOOR_DAY = dt.date(2026, 10, 23)

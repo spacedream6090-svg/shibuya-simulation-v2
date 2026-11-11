@@ -10,7 +10,7 @@ import numpy as np
 from shibuya.agents.state import Activity, ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.processes.crowd import (
+from shibuya.world.laws.crowd import (
     DWELL_MAX_TICKS,
     FLOW_NONE,
     WAIT_MAX_TICKS,

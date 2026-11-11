@@ -63,7 +63,7 @@ def test_every_row_has_remove_at_declared_in_and_conf(ledger):
 
 def test_rule_ids_point_to_the_rules_table(ledger):
     """検収 L7: 直書きの係数の行は規則の表の行に結ぶ(``rule_id`` は表にある id)。"""
-    from shibuya.engine.rules import table as RT
+    from shibuya.world.facts.rules import table as RT
 
     linked = [r for r in ledger if r.rule_id]
     # 〔段 2 の 5〕最低賃金の床のつなぎ(規則の表の params.bridge・道具 docs/bench/analysis/s2-rules-1101/tools/add_bridges_s2rules.py)
@@ -171,7 +171,7 @@ def test_the_counts_by_form(decls):
 
 def test_process_and_fallback_rows(ledger, decls):
     """第 5 形(世界過程 16+PlanSpec 2)と第 6 形(フォールバック台帳 5 行)=検収 M1。外す段は返済期限から。"""
-    from shibuya.world.processes import first_batch as FB
+    from shibuya.world.ledger import first_batch as FB
 
     reg = FB.build_registry()
     by_key = {r.declared_in: r for r in ledger}
@@ -326,11 +326,11 @@ def test_negative_a_new_heading_fails(ledger):
 
 def test_negative_a_changed_item_count_is_caught(ledger, decls):
     """見出しの下の項が増えると、同定(見出しの文)は同じでも台帳の ``what`` の項数と合わなくなる(試験が落ちる)。"""
-    path = ROOT / "src" / "shibuya" / "engine" / "processes" / "logistics.py"
+    path = ROOT / "src" / "shibuya" / "world" / "laws" / "logistics.py"
     text = path.read_text(encoding="utf-8")
     anchor = "- 宅配: 区按分"
     assert text.count(anchor) == 1
-    rel = "src/shibuya/engine/processes/logistics.py"
+    rel = "src/shibuya/world/laws/logistics.py"
     d0 = next(d for d in S.scan_source(text, rel) if d.form == S.FORM_HEADING)
     d1 = next(d for d in S.scan_source(text.replace(anchor, "- 仮の項(負の対照)。\n" + anchor), rel)
               if d.form == S.FORM_HEADING)
@@ -354,7 +354,7 @@ def test_doc_rows_need_no_code_declaration(ledger, decls):
     led = L.BridgeLedger([*ledger, extra])
     assert L.code_mismatch(led, [d.declared_in for d in decls]) == ([], [])
     # 検収 M1 (c): コードが「繋ぎ」と明記した 3 か所は文書の行(関わるコードの場所つき)
-    for rid, path in (("BR-START-CELL-OUTSIDE-HOME", "src/shibuya/agents/population.py"),
+    for rid, path in (("BR-START-CELL-OUTSIDE-HOME", "src/shibuya/world/facts/population_reader.py"),
                       ("BR-MOCK-SCHEDULE-POPULATION", "src/shibuya/engine/run.py"),
                       ("BR-MOCK-ACTION-ANCHOR", "src/shibuya/llm/mock.py")):
         r = ledger.get(rid)
@@ -392,8 +392,8 @@ def test_negative_a_new_process_declaration_fails(ledger):
 
 def test_negative_a_new_fallback_row_fails(ledger):
     """第 6 形: フォールバック台帳に行が増えると、台帳に行が無いので落ちる。"""
-    from shibuya.world.processes import first_batch as FB
-    from shibuya.world.processes.relations import FallbackRow
+    from shibuya.world.ledger import first_batch as FB
+    from shibuya.world.ledger.relations import FallbackRow
 
     rows = list(FB.build_registry().fallback_ledger())
     fake = dataclasses.replace(rows[0], subject_id="fake_engine_rule", plan_spec_id="")

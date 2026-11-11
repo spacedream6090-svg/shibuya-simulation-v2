@@ -37,7 +37,7 @@ dev = [
 where = ["src"]
 
 [tool.setuptools.package-data]
-"shibuya.manifest" = ["frozen/*.json"]
+"shibuya.world.ledger" = ["frozen/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -50,7 +50,7 @@ markers = [
 ]
 filterwarnings = ["error::DeprecationWarning:shibuya.*"]
 
-# ---- 層契約(実装計画書 §3): 上→下の import のみ・循環禁止 ----
+# ---- 層契約(段 4 の段 world の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage world` が作る。手で直さない)----
 [tool.importlinter]
 root_package = "shibuya"
 include_external_packages = false
@@ -63,34 +63,148 @@ layers = [
   "shibuya.economy",
   "shibuya.engine",
   "shibuya.perception | shibuya.llm",
-  "shibuya.world | shibuya.agents",
+  "shibuya.agents",
   "shibuya.core",
-  "shibuya.manifest",
 ]
-
-[[tool.importlinter.contracts]]
-name = "core は何にも依存しない(manifest も import しない)"
-type = "forbidden"
-source_modules = ["shibuya.core"]
-forbidden_modules = ["shibuya.manifest"]
 
 [[tool.importlinter.contracts]]
 name = "llm は world/agents を import しない(mock LLM が成立する)"
 type = "forbidden"
-source_modules = ["shibuya.llm"]
-forbidden_modules = ["shibuya.world", "shibuya.agents", "shibuya.perception", "shibuya.engine", "shibuya.economy", "shibuya.census"]
+source_modules = [
+  "shibuya.llm",
+]
+forbidden_modules = [
+  "shibuya.agents",
+  "shibuya.perception",
+  "shibuya.engine",
+  "shibuya.economy",
+  "shibuya.census",
+]
 
 [[tool.importlinter.contracts]]
 name = "build は実行時に import されない"
 type = "forbidden"
 source_modules = [
-  "shibuya.manifest", "shibuya.core", "shibuya.world", "shibuya.agents",
-  "shibuya.perception", "shibuya.llm", "shibuya.engine", "shibuya.economy", "shibuya.census",
+  "shibuya.core",
+  "shibuya.agents",
+  "shibuya.perception",
+  "shibuya.llm",
+  "shibuya.engine",
+  "shibuya.economy",
+  "shibuya.census",
 ]
-forbidden_modules = ["shibuya.build"]
+forbidden_modules = [
+  "shibuya.build",
+]
 
 [[tool.importlinter.contracts]]
 name = "economy は engine の transfer 単一API経由のみ(world/agents 直接書き込み禁止)"
 type = "forbidden"
-source_modules = ["shibuya.economy"]
-forbidden_modules = ["shibuya.world", "shibuya.agents", "shibuya.perception", "shibuya.llm"]
+source_modules = [
+  "shibuya.economy",
+]
+forbidden_modules = [
+  "shibuya.agents",
+  "shibuya.perception",
+  "shibuya.llm",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕1 層(§1-2 の順。下から上と、`|` の兄弟の間を読まない)"
+type = "layers"
+layers = [
+  "shibuya.world.laws",
+  "shibuya.world.body",
+  "shibuya.world.model | shibuya.world.things | shibuya.economy",
+  "shibuya.world.facts | shibuya.world.ledger",
+  "shibuya.foundation",
+]
+ignore_imports = [
+  "shibuya.engine.calendar2.layer -> shibuya.llm.mock",
+  "shibuya.engine.classical -> shibuya.llm.mock",
+  "shibuya.engine.contact.port -> shibuya.llm.mock",
+  "shibuya.engine.decision.layer -> shibuya.engine.commit",
+  "shibuya.engine.decision.layer -> shibuya.engine.tools.registry",
+  "shibuya.engine.events.body -> shibuya.engine.tools.record",
+  "shibuya.engine.familiarity -> shibuya.engine.resolve",
+  "shibuya.engine.memory -> shibuya.engine.commit",
+  "shibuya.engine.memory -> shibuya.engine.resolve",
+  "shibuya.engine.poi_target -> shibuya.engine.chooser",
+  "shibuya.engine.relations -> shibuya.engine.resolve",
+  "shibuya.engine.resolve -> shibuya.engine.change_detect",
+  "shibuya.engine.resolve -> shibuya.engine.resume",
+  "shibuya.engine.resolve -> shibuya.engine.state_hashes",
+  "shibuya.engine.resolve -> shibuya.engine.state_ledger",
+  "shibuya.engine.speech.layer -> shibuya.engine.wom",
+  "shibuya.engine.speech.layer -> shibuya.llm.mock",
+  "shibuya.engine.store_memory -> shibuya.engine.resolve",
+  "shibuya.engine.wom -> shibuya.engine.poi_target",
+  "shibuya.llm -> shibuya.llm.fleet",
+  "shibuya.world.body.rules -> shibuya.engine.change_detect",
+  "shibuya.world.model.geometry -> shibuya.engine.change_detect",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕2 foundation は何も読まない"
+type = "forbidden"
+source_modules = [
+  "shibuya.foundation",
+]
+forbidden_modules = [
+  "shibuya.world.laws",
+  "shibuya.world.body",
+  "shibuya.world.model",
+  "shibuya.world.things",
+  "shibuya.economy",
+  "shibuya.world.facts",
+  "shibuya.world.ledger",
+  "shibuya.build",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕5 お金と物の書き手(`economy.ops`・`economy.goods`・`economy.ledger`)を読めるのは economy・interfaces だけ"
+type = "protected"
+protected_modules = [
+  "shibuya.economy.ops",
+  "shibuya.economy.goods",
+  "shibuya.economy.ledger",
+]
+allowed_importers = [
+  "shibuya.economy",
+  "shibuya.cli",
+  "shibuya.core.wage_formula",
+  "shibuya.engine.economy_rules",
+  "shibuya.engine.economy_stage2",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕6 economy は world.facts と foundation だけを読む"
+type = "forbidden"
+source_modules = [
+  "shibuya.economy",
+]
+forbidden_modules = [
+  "shibuya.world.laws",
+  "shibuya.world.body",
+  "shibuya.world.model",
+  "shibuya.world.things",
+  "shibuya.world.ledger",
+  "shibuya.build",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕8 ランの側は build を読まない"
+type = "forbidden"
+source_modules = [
+  "shibuya.world.laws",
+  "shibuya.world.body",
+  "shibuya.world.model",
+  "shibuya.world.things",
+  "shibuya.economy",
+  "shibuya.world.facts",
+  "shibuya.world.ledger",
+  "shibuya.foundation",
+]
+forbidden_modules = [
+  "shibuya.build",
+]

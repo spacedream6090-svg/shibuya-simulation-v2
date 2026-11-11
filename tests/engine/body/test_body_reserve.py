@@ -15,8 +15,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.engine.body import BodyModel
-from shibuya.engine.body import schedule as BS
+from shibuya.world.body.model import BodyModel
+from shibuya.world.body import schedule as BS
 from shibuya.engine.run import run_day
 
 from tests.engine.body.body_fixtures import apply_update, copy_registry, fake_registry, stub_energy
@@ -25,7 +25,7 @@ from tests.engine.body.body_fixtures import apply_update, copy_registry, fake_re
 @pytest.fixture(autouse=True)
 def _arm_back(monkeypatch):
     # 〔3-5 検収 L6〕段の境目の計器は既定で数えない=一致の試験は環境変数を立てて回す
-    from shibuya.engine.body.model import GAUGE_ENV
+    from shibuya.world.body.model import GAUGE_ENV
 
     monkeypatch.setenv(GAUGE_ENV, "1")
     yield
@@ -46,7 +46,7 @@ def _external(rr, rng: np.random.Generator, t: int, energy: bool, ac: bool) -> N
     if energy:
         rr.since_meal_kcal[k[10:11]] = 0.0
         rr.since_meal_kcal[k[11:12]] = np.maximum(rr.since_meal_kcal[k[11:12]] - np.float32(200.0), np.float32(0.0))
-        from shibuya.engine.energy import EnergyModel as EM
+        from shibuya.world.body.energy import EnergyModel as EM
         rr.hunger[k[10:12]] = EM.hunger_copy(EM.stage_of(rr.since_meal_kcal[k[10:12]], rr.eer_kcal[k[10:12]]))
     else:
         rr.hunger[k[10:12]] = np.maximum(rr.hunger[k[10:12]].astype(np.int16) - 4, 0).astype(np.uint8)
@@ -113,7 +113,7 @@ def test_activity_change_replans_the_reservation():
     r.fatigue[:] = 0
     r.transit_state[:] = 0
     r.since_meal_kcal[:] = 2.0 * r.eer_kcal  # 比 6 ≥ 1.5=とても空腹(次の境目が無い)
-    from shibuya.engine.energy import EnergyModel as EM
+    from shibuya.world.body.energy import EnergyModel as EM
     r.hunger[:] = EM.hunger_copy(EM.stage_of(r.since_meal_kcal, r.eer_kcal))
     bm = BodyModel(4, arm="reserve")
     en = stub_energy()

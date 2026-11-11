@@ -11,10 +11,10 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import AgentState
-from shibuya.agents.schedule import synthesize
+from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.engine import resolve as R
 from shibuya.world.assets import ProcessAssets
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 WORLD_DIR = Path("data/world/v2")
 real_data = pytest.mark.requires_data("world_v2:w12_timetables.parquet")

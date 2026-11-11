@@ -26,7 +26,7 @@ from shibuya.engine.systems import conductor as CD
 from shibuya.engine.systems import overrides as OV
 from shibuya.engine.systems import probe as PR
 from shibuya.engine.systems.table import SPECS, SYSTEMS
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 PAT = "A:ledger.*"
 TICKS = frozenset(range(0, 720, 5)) | frozenset({719})

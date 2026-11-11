@@ -22,7 +22,7 @@ from shibuya.perception.renderer import (
     near_tie_keys,
     near_tie_salt64,
 )
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 from tests import golden_env as GE
 

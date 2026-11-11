@@ -564,7 +564,7 @@ def _talk_partners_reach(agents, a: np.ndarray, is_talk: np.ndarray, named: np.n
     3. どちらも居なければ −1(``source=2``)。会話でない行は −1・``source=2``(使わない)。
     逐次ループ宣言: なし。
     """
-    from shibuya.engine.proximity import batch_partners
+    from shibuya.world.model.proximity import batch_partners
 
     n = a.size
     partner = np.full(n, -1, dtype=np.int64)

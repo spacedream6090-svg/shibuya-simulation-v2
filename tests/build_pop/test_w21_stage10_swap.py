@@ -223,7 +223,7 @@ def test_reserved_mask_skips_commuter_and_worker_kinds():
     """〔検収 M2〕差し替えの母集団の W21 の行は、役割の名を持っていても種別 0・2 なら先取りしない(機能定員の外=統計層)。
     W16 の行(``w21_person_id``=−1)と列の無い母集団(本体の v2 の W16)は前と同じ(役割で先取り・本体の v2 の W16 には役割を
     持つ種別 0・2 が居ない=実測)。"""
-    from shibuya.agents.population import Population
+    from shibuya.world.facts.population_reader import Population
 
     n = 5
     z = np.zeros(n, dtype=np.int32)
@@ -261,8 +261,8 @@ def _rights_b():
 
 
 def test_rights_rows_pass_the_engine_initial_table(tmp_path):
-    from shibuya.engine.rights import initial as RI
-    from shibuya.engine.rights.ledger import AGENT, DWELLING, EMPLOY, STORE
+    from shibuya.world.facts.rights import initial as RI
+    from shibuya.world.facts.rights.ledger import AGENT, DWELLING, EMPLOY, STORE
 
     rows = AP.rights_run_rows(_staff(), _rights_b(), base=100)
     assert rows["block"].tolist() == ["store_staff", "store_staff", "dwelling"]
@@ -416,8 +416,8 @@ def test_real_asset_gates_and_counts():
 
 @REAL
 def test_real_engine_reads_the_swapped_population_and_w17():
-    from shibuya.agents.population import load_population
-    from shibuya.agents.weekly import load_weekly
+    from shibuya.world.facts.population_reader import load_population
+    from shibuya.world.facts.weekly_reader import load_weekly
 
     pop = load_population(STAGE)
     assert pop.is_swapped and pop.n == GOLDEN_COUNTS["population"]

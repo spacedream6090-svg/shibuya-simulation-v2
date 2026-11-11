@@ -82,7 +82,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `test_roster_store_unit_and_self_scheduling`(関数)
   - `test_roster_units_scheduler_and_weekly_workers_only`(関数)
   - `test_roster_without_table_or_population_is_empty`(関数)
-- import している内部モジュール: `shibuya.engine.calendar`・`shibuya.engine.calendar2.book`・`shibuya.engine.calendar2.port`・`shibuya.engine.calendar3.knowledge`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar3.port`・`shibuya.engine.calendar3.roster`・`shibuya.engine.contact.port`・`shibuya.engine.rights.initial`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`tests/engine/calendar3/_ca3.py`
+- import している内部モジュール: `shibuya.engine.calendar`・`shibuya.engine.calendar2.book`・`shibuya.engine.calendar2.port`・`shibuya.engine.calendar3.knowledge`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar3.port`・`shibuya.engine.calendar3.roster`・`shibuya.engine.contact.port`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.world.facts.rights.initial`・`tests/engine/calendar3/_ca3.py`
 
 ## [test_ca3_world.py](../../../../../../../tests/engine/calendar3/test_ca3_world.py)
 

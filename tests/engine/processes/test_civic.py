@@ -7,7 +7,7 @@ import numpy as np
 from shibuya.agents.state import Activity, AgentKind, ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.processes.civic import (
+from shibuya.world.laws.civic import (
     DISPATCH_MEDIAN_MIN,
     EVENT_WINDOW,
     HOTEL_CHECKIN_MINUTE,

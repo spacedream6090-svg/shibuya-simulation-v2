@@ -18,10 +18,10 @@ import numpy as np
 from shibuya.foundation.hashing import blake3_hex
 from shibuya.foundation.time_consts import CLOCK_KIND
 from shibuya.engine.regional_clock import CLOCK_KIND_REGIONAL as _CLOCK_KIND_REGIONAL
-from shibuya.engine import proximity as _PROX
+from shibuya.world.model import proximity as _PROX
 from shibuya.engine import economy_stage2 as _ES2
 from shibuya.foundation.decl import bridging as _BR
-from shibuya.engine.rules import table as _RT
+from shibuya.world.facts.rules import table as _RT
 from shibuya.engine.state_hashes import behavior_hash as behavior_state_hash
 from shibuya.engine.state_hashes import component_digests
 from shibuya.engine.state_hashes import full_hash as full_state_hash
@@ -414,19 +414,19 @@ def save_state(b: Any, T_next: int, *, finished: bool, closed: bool) -> None:
     if _es2 is not None:
         header["economy_stage2"] = _es2
     # 〔第 2 期 2-4 V3〕在席の印を歩き出しで解く腕(walk=〔第346〕切替口 legacy は消した=見出しは常に書く)
-    from shibuya.engine import seat_release as _SR
+    from shibuya.world.laws import switch_seat as _SR
 
     _sr = _SR.header_fields(_SR.DEFAULT_MODE)
     if _sr is not None:
         header["seat_release"] = _sr
     # 〔11-01 段 2 の 3・4〕率の形の規則の腕(既定の off のランだけ書く=legacy は版上げの前の見出しのまま)
-    from shibuya.engine import rate_rules as _RRS
+    from shibuya.world.laws import switch_rate as _RRS
 
     _rr = _RRS.header_fields(b.cfg.rate_rules)
     if _rr is not None:
         header["rate_rules"] = _rr
     # 〔11-02r §1 #7〕「無い」の過程の腕(既定の stopped のランだけ書く=legacy は版上げの前の見出しのまま)
-    from shibuya.engine import absent_processes as _APS
+    from shibuya.world.laws import switch_absent as _APS
 
     _ap = _APS.header_fields(b.cfg.absent_processes)
     if _ap is not None:

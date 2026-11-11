@@ -14,7 +14,7 @@ import numpy as np
 from shibuya.agents.state import AgentKind, AgentState
 from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import Renderer
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 
 def _build(n_agents: int = 40, n_cells: int = 16, seed: int = 3):

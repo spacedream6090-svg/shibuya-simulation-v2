@@ -74,7 +74,7 @@ def test_ret_a_tape_from_before_the_activation_is_not_replayed(tmp_path):
 
 def test_act_weather_manifest_declares_the_two_expedients(tmp_path):
     """親の決定 (3): 層を広げる順と「同じ近さの影は前の日」は expedient として manifest に載る。"""
-    from shibuya.engine.processes.environment import WEATHER_EXPEDIENTS
+    from shibuya.world.laws.environment import WEATHER_EXPEDIENTS
 
     new = _rec(tmp_path, "m")
     w = new.run_manifest_fields()["weather"]

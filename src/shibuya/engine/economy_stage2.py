@@ -707,7 +707,7 @@ class Stage2Plan:
     def employment(self, day: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """その日の締めの時刻に効いている雇用の行(体 → 雇用主の組織=部門 雇用主・店=部門 店舗)を体ごとに 1 行(最初の行)。"""
         from shibuya.foundation.ports.ledger import SECTOR_EMPLOYER, SECTOR_STORE
-        from shibuya.engine.rights.ledger import AGENT, EMPLOY, ORG, STORE
+        from shibuya.world.facts.rights.ledger import AGENT, EMPLOY, ORG, STORE
 
         e = np.zeros(0, dtype=np.int64)
         rights = getattr(self.runner, "rights", None) if self.runner is not None else None
@@ -758,7 +758,7 @@ def population_total(world_dir: Any) -> int | None:
     """W16 母集団の体の数(縮小ランの比の分母・Parquet の見出しだけを読む)。無ければ ``None``。"""
     if world_dir is None:
         return None
-    from shibuya.agents.population import POPULATION_FILE
+    from shibuya.world.facts.population_reader import POPULATION_FILE
 
     p = Path(world_dir) / POPULATION_FILE
     if not p.exists():

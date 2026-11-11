@@ -12,9 +12,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.processes import runner as _RUNNER
-from shibuya.engine.processes.runner import PROCESS_ORDER, WorldProcessRunner
-from shibuya.world.processes.first_batch import build_registry
+from shibuya.world.laws import runner as _RUNNER
+from shibuya.world.laws.runner import PROCESS_ORDER, WorldProcessRunner
+from shibuya.world.ledger.first_batch import build_registry
 from tests import _places as PL
 
 from .conftest import fake_timetable_assets, make_agents, make_world

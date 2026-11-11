@@ -11,8 +11,8 @@ import pytest
 
 from shibuya.agents.state import WakeCondition
 from shibuya.foundation.types import EventClass
-from shibuya.engine.processes.civic import PressProcess, PublicServiceDispatchProcess
-from shibuya.engine.processes.salient import (
+from shibuya.world.laws.civic import PressProcess, PublicServiceDispatchProcess
+from shibuya.world.laws.salient import (
     ABLATION_IDS,
     SalientEvent,
     SalientProcess,
@@ -20,7 +20,7 @@ from shibuya.engine.processes.salient import (
     _cross_neighbours,
 )
 from shibuya.perception import attention as AT
-from shibuya.perception import p_notice as PN
+from shibuya.world.model import notice_reach as PN
 
 from .conftest import make_agents, make_world
 
@@ -29,8 +29,8 @@ from .conftest import make_agents, make_world
 def _rate_rules_legacy(monkeypatch):
     """〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)。
     〔11-02r §1 #7〕出動の経路も旧道(``--absent-processes legacy``)でだけ動く=同じく旧道で回す。"""
-    from shibuya.engine import absent_processes as AP
-    from shibuya.engine import rate_rules as RR
+    from shibuya.world.laws import switch_absent as AP
+    from shibuya.world.laws import switch_rate as RR
 
     monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
     monkeypatch.setattr(AP, "_ARM", AP.MODE_LEGACY)

@@ -76,7 +76,7 @@ class ShopRules(StoreRules):
 
     def knows(self, agents: Any, pois: Any, t_ns: int) -> np.ndarray:
         """体 ``agents[i]`` が店 ``pois[i]`` の決まりを知っているか(雇用の行 体 → 店がある・表のある店)。"""
-        from shibuya.engine.rights.ledger import AGENT, EMPLOY, STORE
+        from shibuya.world.facts.rights.ledger import AGENT, EMPLOY, STORE
 
         a = np.asarray(agents, dtype=np.int64).ravel()
         p = np.asarray(pois, dtype=np.int64).ravel()

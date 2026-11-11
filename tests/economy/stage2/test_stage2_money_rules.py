@@ -144,7 +144,7 @@ def test_withdraw_needs_a_deposit_and_the_part():
 
 
 def test_ic_fares_from_the_account_and_cash_fallback_through_the_rail_port():
-    from shibuya.engine.processes.rail import RailProcess
+    from shibuya.world.laws.rail import RailProcess
 
     led = _led(parts=("payment",), wallets=(500, 500, 500, 500))  # visitors を止めた=来街者 1 の口座は 0
     stub = types.SimpleNamespace(n_fare_rejected=0)

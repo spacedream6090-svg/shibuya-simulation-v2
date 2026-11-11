@@ -13,10 +13,10 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.world.processes import absent as AB
-from shibuya.world.processes import first_batch as FB
-from shibuya.world.processes import inputs as INP
-from shibuya.world.processes.records import Absence, InputDecl
+from shibuya.world.ledger import absent as AB
+from shibuya.world.ledger import first_batch as FB
+from shibuya.world.ledger import inputs as INP
+from shibuya.world.ledger.records import Absence, InputDecl
 from tests.world.processes.conftest import make_plan_spec, make_process
 
 ROOT = Path(__file__).resolve().parents[3]

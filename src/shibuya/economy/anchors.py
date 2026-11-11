@@ -251,7 +251,7 @@ def min_wage_hourly(asof: "str | _dt.date", rules=None) -> tuple[int, str]:  # n
     Returns:
         ``(円/時, 出どころ)``(出どころは ``"rules:<id>@<asof>"`` か ``"anchors.MIN_WAGE_HOURLY"``)。
     """
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     try:
         rt = _RT.default_rules() if rules is None else rules
@@ -312,7 +312,7 @@ def check_rule_bridges(rules=None) -> tuple[str, ...]:  # noqa: ANN001
 
     戻り=つなぎのある行の ``<id>@<asof>`` の並び(表の順)。表の無い写しは空(ランは止めない=``rules_version`` と同じ扱い)。
     """
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     try:
         rt = _RT.default_rules() if rules is None else rules
@@ -359,7 +359,7 @@ class MinWageTerms:
 
 def min_wage_terms(asof: "str | _dt.date", rules=None) -> MinWageTerms:  # noqa: ANN001
     """〔11-01 §5〕``asof`` の日に効いている ``minimum_wage.tokyo`` の版の読み(**直書きの値に戻さない**)。"""
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     try:
         rt = _RT.default_rules() if rules is None else rules
@@ -389,7 +389,7 @@ def consumption_tax_rate(asof: "str | _dt.date", rules=None) -> tuple[Fraction, 
     率は表の ``national_rate``(7.8%)× (1 + 地方の比 22/78)=10%(表の ``combined_rate`` と同じことを確かめる)。
     表に版の無い日・表の無い写しは率 0(=税を取らない)と出どころ ``"none"``。
     """
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     try:
         rt = _RT.default_rules() if rules is None else rules

@@ -10,7 +10,7 @@ import pytest
 
 from shibuya.engine import economy_stage2 as ES2
 from shibuya.engine import resume as RS
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 from tests.economy.stage2 import test_stage2_runs as TR
 
 STOP = 1_440 + 75

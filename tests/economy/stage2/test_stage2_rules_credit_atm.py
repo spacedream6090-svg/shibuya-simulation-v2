@@ -129,7 +129,7 @@ def test_atm_table_open_cells_follow_the_weekday_and_minute():
 
 @pytest.mark.requires_data("world_v2", "osm:poi_tags_overpass_20260928.json", "osm:poi_opening_hours_overpass_20260907.json")
 def test_atm_table_from_osm_has_the_55_points():
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     world = World.load("data/world/v2")
     t = ES2.build_atm_table(world)
@@ -161,7 +161,7 @@ def test_payday_follows_the_calendar_port():
 
 
 def test_rights_pairs_reads_employment_rows_in_row_order():
-    from shibuya.engine.rights.ledger import AGENT, EMPLOY, ORG, STORE, Right, Rights
+    from shibuya.world.facts.rights.ledger import AGENT, EMPLOY, ORG, STORE, Right, Rights
 
     r = Rights(capacity=4)
     r.grant(Right(holder=(AGENT, 5), object=(ORG, 9), kind=EMPLOY, source="t"))
