@@ -564,3 +564,196 @@ data を持たなかった(1 回目は終了コード 2=記録には残してい
 
 - 〔取り込みの木での直し・親の裁定〕`test_pkgmove.py` は本物の tests の字面と本数を前提にしない: `/` の結合の 3 本と `test_cp2_event_links.py`・頭を通す import の `test_manifest_roundtrip.py`・記録の道具が 1 本以上書き換わる、の 3 つの前提を外し、
   m28・m12 を落とす力は作った見本の木の試験 2 本(`…_in_a_sample`)で持つ(試験は 48 本)。
+- 〔前の直しの続き〕記録の道具が 1 本も書き換わらない木でも試験が働くように、見本の木の試験
+  `test_record_tools_get_only_their_import_statements_rewritten_in_a_sample` を足した。docs の記録の道具に当たるファイルでは、
+  import の文(頭・関数の中・別名つきの 3 つ)だけが書き換わり、同じ道を持つ文字列・注・docstring・コードの形の文字列は
+  1 バイトも変わらないことを確かめる。負の対照として、記録の道具の文字列も書き換える変異(`docs/` を全部の記号で書き換える)を
+  入れると落ちた。試験は 49 本。
+
+### 10-12 段ごとの import の決まり(親の決定=`brief_contracts`・仮採用)
+
+CI の ci-0 は `lint-imports` を毎回 push で回す。今の 5 つの決まりは world の段から通らない(`shibuya.manifest`・`core`・`census` が
+無くなる)。そこで、段ごとに pyproject の `[tool.importlinter]` の節を作り直す道具を足した。
+
+**作った物**
+
+| ファイル | 中身 |
+|---|---|
+| `tools/pkgmove/contracts.toml` | 決まりの元。§1-2 の層(上から)・§6-4 の決まり 1〜8・今の 5 つの決まり・§6-4 の表の 28 本・段の順(interim_bundles は最後)・今の 5 つを使い続ける段(foundation) |
+| `tools/pkgmove/contracts.py` | 段と木から節を作る。`build`(契約と報告)・`render`(節の文)・`split_pyproject`・`same_section`(中身を比べる)・`stage_of`(木の段) |
+| `cli.py contracts --stage <段> --tree <木> [--check \| --apply] [--out <JSON>]` | 節を作る口。`--apply` は木の pyproject の節だけを書き換える。本体の作業木と、本体の中の `--out` は断る。木の当たっている行が段と食い違えば断る。pyproject のほかの行は触らない |
+| 試験 4 本 | 元のファイルが計画の表と同じ(層・28 本)・木の pyproject の節が木の段の作り直しと同じ(移す前の木は今の 5 つ)・見本の木で、木に無い名が節に入らず、意味が変わった古い名を外す・`contracts --apply` が本体の作業木を断る |
+
+**作り方**
+
+- foundation の段まで: 今の 5 つの決まりのまま(親の決定)。
+- world の段から: 新しい決まりを、その段の木で「最終の名に在るモジュール」だけで言う。層の語(と build)ごとに、包みが木に在り、
+  頭を除く中身が全部最終の名のときだけ使う。まだ移っていないファイルは新しい決まりの外。例外が 1 つある。決まり 5(お金と物の書き手を
+  読めるのは economy と interfaces だけ)は、まだ移っていない読み手のうち、最終の置き場が読んでよい側に入るもの(`shibuya.cli`=最終は
+  interfaces)を読んでよい側に足した。移していないことだけで落とさないためで、最終の置き場が読んでよくない側なら落とす。
+- 古い決まり: 名が木に無いか、名の意味が変わった名を外して残す(外した名は報告に出す)。意味が変わったとは、ほかの置き場からファイルが
+  入ったこと。world の段の `world` と、economy の段の `economy` がこれに当たる。残る層が 2 つ未満の契約、元の側か禁じる側が空になった
+  契約は消す。
+- 28 本: 最終の名を、その段の木の今の名に引き直す(割るファイルは割る前なので古い置き場の名)。両側のモジュールが木に在る物だけを、
+  当たる決まりの契約の `ignore_imports` に載せる。
+- 確かめ: import-linter 2.15 は、在らない名の ignore と、辺の無い対の ignore のどちらも「No matches for ignored import」で落とす
+  (終了コード 1。黙って通さない)。だから両側が在る物だけを載せる。world の段からの全段で、載せた ignore は全部、木の辺に当たった。
+
+**段ごとの決まりと lint**(同じ木に段を重ねて当て、段ごとに節を当てて `lint-imports --no-cache`。cwd はその木・`PYTHONPATH` は
+その木の src)
+
+〔検収 第 3 回 L-6〕この表は**親の裁定の前**(候補 A=表の外の 1 本を入れる前)の数。今の数は §10-12c の表(ignore の行
+22/22/22/22/41/43・計 43・全段 KEPT)。
+
+| 段 | 古い決まり | 新しい決まり | ignore の行 | lint(既定) | lint(下の候補の ignore を足すと) |
+|---|---:|---:|---:|---|---|
+| 移す前 | 5 | 0 | 0 | 5 KEPT | — |
+| foundation | 5 | 0 | 0 | 5 KEPT | — |
+| world | 4 | 5 | 21 | 9 KEPT | — |
+| economy | 3 | 5 | 21 | 8 KEPT | — |
+| act | 3 | 5 | 21 | 8 KEPT | — |
+| mind | 3 | 6 | 39 | **7 KEPT・2 BROKEN**(決まり 1・3) | 9 KEPT |
+| society | 3 | 7 | 41 | **8 KEPT・2 BROKEN** | 10 KEPT |
+| runtime | 3 | 7 | 41 | **8 KEPT・2 BROKEN** | 10 KEPT |
+| experiments | 3 | 7 | 41 | **8 KEPT・2 BROKEN** | 10 KEPT |
+| validation | 3 | 7 | 41 | **8 KEPT・2 BROKEN** | 10 KEPT |
+| delete | 3 | 7 | 41 | **8 KEPT・2 BROKEN** | 10 KEPT |
+| interim_bundles(答えの後) | 3 | 7 | 41 | **8 KEPT・2 BROKEN** | 10 KEPT |
+
+- 新しい決まりのうち言えないもの: 決まり 4(act の書く関数)は全段で言えない(`act.apply`・`act.ops` は resolve を割る段 6 の後)。
+  決まり 3 は mind の段から、決まり 7 は society の段から言える。interfaces は全段で無い(`cli.py` を割る段 5b の後)。
+- `contracts --check` は、どの段でも作り直しと同じ(終了コード 0)。
+
+**見られなくなる古い決まり**(どの段で、何が外れるか)
+
+| 段 | 外れる名・契約 | 理由 | 代わりに見るもの(覆う範囲だけ。見られないものは表の下) |
+|---|---|---|---|
+| world | 層の `manifest`・`world`。「core は manifest を読まない」の契約ごと。「llm は … を読まない」の `world`。「build は実行時に …」の `manifest`・`world`。「economy は …」の `world` | manifest が無くなる。world に engine から移ったファイルが入る | 新しい決まり 1(層の world.*)・2(foundation は何も読まない=core と manifest の移り先)・8(build) |
+| economy | 層の `core`・`economy`。「llm は …」の `economy`。「build は …」の `core`・`economy`。「economy は engine の transfer …」の契約ごと | core が無くなる。economy にほかの置き場から 3 本が入る | 新しい決まり 6(economy は world.facts と foundation だけを読む)・8 |
+| delete | 層・「llm は …」・「build は …」の `census` | census が無くなる | 決まり 8 |
+
+- 〔検収 第 3 回 L-3・L-4〕**見られないもの**(「代わりに見るもの」は覆う範囲だけを見る):
+  - どの契約の元の側(層の名・`source_modules`)にも入らないモジュールから出る辺は、覆われたモジュールを通る連なりのほかは見ない。
+    段ごとの一覧は `contracts` の報告の `uncovered` に出す。foundation の段 37(移した foundation の 36 本=古い 5 つの名の外と
+    `shibuya.cli`)・world〜experiments の段 4(`shibuya.cli`・`world.assets`・`world.processes.circularity`・
+    `world.processes.deletion_candidates`)・validation から 2(`shibuya.cli`・`world.assets`)。覆われたモジュールから読まれない物
+    (`shibuya.cli`・`circularity`・`deletion_candidates`)は、連なりでも拾われない。
+  - economy の段から、economy が古い包みのモジュール(まだ移っていない物)を読んでも、その先が単位(最終の名の包み)に届かなければ、
+    どの決まりも見ない。古い決まり「economy は … を読まない」の契約が消え、新しい決まり 6 は最終の名の単位だけを禁じるため。
+    今の木で当たる辺は 2 本(`economy.rules_bind` → `agents.state`=`AgentKind`・→ `engine.removed_switches`=保留の 224a)。
+  - 表の外の ignore(`llm -> llm.fleet`・§10-12b)が隠す範囲: mind の新しいモジュールが llm の頭を読んでも KEPT(頭の最終の置き場
+    `foundation.ports.inference` は最終の名では当たらない)・llm.fleet から先の辺は mind からは見えない(段 5a で頭を割れば消える)。
+  - 決まりそのものは変えていない(広げる・足すなら判断が要る)。
+- 古い決まりの残り 3 つ(層 engine > perception | llm > agents、llm は agents・perception・engine を読まない、build)は delete の段まで残る。
+
+**28 本と計画の表の突き合わせ**: 28 本とも、world の段からの全段で両側が木に在る。名は今の木の名に引き直した。
+
+- 例: #13・#14・#16・#21 の `act.apply` は `engine.resolve`、#6・#7・#20・#26 の `runtime.inference.mock` は `llm.mock` に引き直した。
+- 決まりごとの行の数: 決まり 1 が 21・決まり 3 が 18・決まり 7 が 2(計 41=裁定の前。今は表の外の 1 本を 1・3 に足して
+  22・19・2=計 43)。決まり 4 の行は契約が無いので載せない。
+- **食い違い 1 つ**: #9・#15 の `act.commit` は、対応表の既定の割り先(`engine/commit.py` の new=`act/intake/from_words.py`)と違う。
+  割り先の一覧(`split_to`)の名なので、割る前の今の名 `engine.commit` に引き直した。段 4 の木では結果は同じ。
+
+**負の対照**(全段を当てた木と、下の候補の ignore を足した設定=10 KEPT。決まりごとに 1 行足して lint・1 本ずつ順に・元に戻した)
+
+| 決まり | 足した import | 結果 |
+|---|---|---|
+| 1 層 | `world.facts.mock_schedule` → `runtime.clock` | 1 が BROKEN |
+| 2 foundation は何も読まない | `foundation.arms.calendar2` → `world.facts.mock_schedule` | 2 が BROKEN(連なりで 1・3 も) |
+| 3 mind | `mind.judge.classical` → `world.model.geometry` | 3 が BROKEN |
+| 5 お金と物の書き手 | `world.laws.civic` → `economy.ledger` | 5 が BROKEN |
+| 6 economy | `economy.accounts` → `world.ledger.absent` | 6 が BROKEN |
+| 7 society | `society.conversation` → `interim_bundles.calendar2.layer` | 7 が BROKEN(層の 1 も) |
+| 8 build | `runtime.clock` → `build.audit.run` | 8 が BROKEN |
+
+**判断が要る点**(この役は決めていない)
+
+1. **mind の段から決まり 1・3 が落ちる**。連なりは `mind.judge.classical` → `shibuya.llm`(llm の頭=割るファイル。頭で定義した
+   `LLMRequest` ほかを読む。最終は `foundation.ports.inference`)→ `shibuya.llm.fleet`(頭の再輸出)→ `act.intake.parser`。
+   計画 §6-1 が「移す段で消える」として数えていない「llm の頭の再輸出の 45 本」の 1 本で、28 本の外です。段 4 では llm の頭を割らない
+   (段 5a)ので残る。
+   - 候補 A: ignore に `shibuya.llm -> shibuya.llm.fleet`(決まり 1・3・注「段 5a で消える・28 本の外」)を足す。上の表のとおり、全段で
+     全部 KEPT になる。
+   - 候補 B: 段 5a まで決まり 3 を入れず、決まり 1 から mind を外す。
+   - 候補 C: 段 4 の中で llm の頭の再輸出を減らす(道具か src の下ごしらえ。結果を変えないことの確かめが要る)。
+2. **pyproject の `package-data` の `"shibuya.manifest" = ["frozen/*.json"]`**: world の段から `shibuya.manifest` が無い(JSON は
+   `shibuya/world/ledger/frozen/` へ移る)。editable でない入れ方(wheel・sdist)では、world の段から JSON が入らない。今回は触っていない。
+3. 計画の表 #9・#15 の名(`act.commit`)と、対応表の既定の割り先の食い違い(上)。
+4. 計画 §6-6 の 2 つ(一時の区分を読めるのは runtime と interfaces だけ・runtime の核は中身を読まない)は入れていない(親の決定)。
+5. 新しいファイル(`contracts.py`・`contracts.toml`)と試験の変更で、リポの案内のカード(`tools/repo_guide/build.py --check`=CI)の
+   作り直しが要る。この役は作り直していない。
+6. 取り込みの後、段 4 の各段の commit で `python tools/pkgmove/cli.py contracts --stage <段> --tree <木> --apply` を回す(本体の作業木は
+   断るので、段 4 を当てる作業木で)。試験 `test_pyproject_section_is_the_one_made_for_the_tree_stage` が、木の節が段の作り直しと
+   同じかを見る(作り直しを忘れると落ちる)。
+
+**試験**: 写しの木 dev_contracts(取り込みの木の今の中身)で `tests/tools/test_pkgmove.py tests/test_places_guard.py -n 4` が
+61 passed・終了コード 0(test_pkgmove 53 本)。全段を当てた木(ct2)で test_pkgmove は 35 passed・18 skipped。
+
+#### 10-12b 親の裁定(2026-11-11)の後
+
+1. **判断 1=候補 A(親の仮採用)**: `contracts.toml` に、28 本の表とは別の一覧「計画の表の外の辺」(`[[extra_ignore]]`)を足した。
+   `shibuya.llm -> shibuya.llm.fleet` を決まり 1・3 に載せる。注は「llm の頭の再輸出・段 5a で消える・計画 §6-4 の 28 本の外・
+   親の仮採用 2026-11-11」。名は段 4 の木の今の名(最終の名でない)。28 本の表と数は変えていない。
+   - 試験が、表の外の辺はこの 1 本だけだと固定する(増やせば落ちる)。
+   - 載せるのは、その段の木で両側が在り、辺が在るときだけ。辺の確かめ(`contracts.has_edge`=読む側のファイルの import の文を
+     AST で見る・相対も解く)は 28 本にも当てた。全段で 28 本とも辺が在った。
+2. **判断 2=package-data は JSON が移る段で一緒に直す**: 許可の一覧に (f) を足した(`tools/pkgmove/pkgdata.py`)。書き換えるのは
+   `[tool.setuptools.package-data]` の鍵のうち、この段で無くなる包みの名だけ。glob に当たっていたファイルが同じ形で 1 つの包みへ
+   移ったとき、鍵をその包みの名にする。world の段で `"shibuya.manifest" = ["frozen/*.json"]` → `"shibuya.world.ledger" =
+   ["frozen/*.json"]` になる。`move --apply` が pyproject を読み、書き換えて書く。
+   - 守り `package_data`: 鍵は全部、木に在る包みで、glob が 1 本以上に当たる。移す前の木で食い違えば止める。
+   - 試験 3 本: 段の木で鍵が JSON と一緒に動き、変わる行はその 1 行だけ・見本の木で書き換えと守り(木に無い包み・当たらない
+     glob・行き先が 2 つに分かれれば書き換えない)・負の対照(書き換えない書き手を差し込むと守りが止める)。
+   - `filterwarnings = ["error::DeprecationWarning:shibuya.*"]` は包みの名を指さない形(`shibuya.*` の正規表現)なので、段の途中の
+     木で無い名を指すことは無い。ほかの pyproject の行で包みの名を書くのは package-data と import の決まりの節だけ。
+3. 判断 3: #9・#15 の `act.commit` は、段 4 の木では `engine.commit` に引き直す(親の裁定でそのまま)。
+
+**同じ木に段を重ねて当てる予行の回し直し(ct3)**: move・contracts・lint を段ごとに回した。どの段も `move --apply` は終了コード 0
+(守りは 8 つとも「同じ」)、`contracts --check` も 0。lint は全段で全部 KEPT。
+
+| 段 | 古い決まり・新しい決まり | lint |
+|---|---|---|
+| 移す前・foundation | 5・0 | 5 KEPT |
+| world | 4・5 | 9 KEPT |
+| economy・act | 3・5 | 8 KEPT |
+| mind | 3・6 | 9 KEPT |
+| society 〜 delete・interim_bundles | 3・7 | 10 KEPT |
+
+**決まり 1・3 の負の対照**(全段を当てた木・既定の節=10 KEPT。1 本ずつ・元に戻した)
+
+| 足した辺 | 結果 |
+|---|---|
+| `shibuya.llm`(頭)→ `shibuya.act.intent` | 決まり 1・3 が BROKEN(古い層と「llm は … を読まない」も)。ignore を足しても、llm の頭から act のほかのモジュールへの辺は隠れない |
+| `shibuya.llm.fleet` → `shibuya.act.intent` | 決まり 1・3 は KEPT・古い 2 つが BROKEN。llm.fleet から先の辺は、mind からは ignore した辺(llm → llm.fleet)の先にあるので、新しい決まりでは見えない。古い決まり(llm は agents ほかを読まない)は見る。ignore が隠す範囲はこの辺の先だけで、段 5a で頭を割れば無くなる |
+
+**試験**: 写しの木 dev_contracts で `tests/tools/test_pkgmove.py tests/test_places_guard.py -n 4` が 64 passed・終了コード 0
+(test_pkgmove 56 本)。全段を当てた木 ct3 で test_pkgmove は 37 passed・19 skipped(理由つき)・終了コード 0。
+
+#### 10-12c 検収 第 3 回(条件つき受入・H 0・M 2・L 7)の直し
+
+| 指摘 | 直し | 試験(突然変異) |
+|---|---|---|
+| M-1 決まり 2〜8 の中身を計画に固定する試験が無い | 試験の中の表(計画 §6-4 の文から読んだ型と名の並び)と `contracts.toml` を比べ、表の名が全部その決まりの計画の文に出てくることを見る。決まり 1〜8 の名も計画の文そのまま | `test_contract_rules_are_the_plan_sentences`(k02 決まり 6 を弱める・k03 決まり 7 から act を落とす=落ちる) |
+| M-2 `--apply` が pyproject を書く道 | 見本の木へ `apply` し、pyproject の package-data の鍵だけが変わり、ほかのバイト(CRLF・filterwarnings)は 1 バイトも変わらない・2 回目は何も変えない | `test_apply_writes_the_package_data_key_and_nothing_else_of_pyproject_in_a_sample`(k15=落ちる) |
+| M-2 決まり 5 のまだ移っていない読み手 | 見本の木で、読んでよい側に足すのは最終の置き場が読んでよい側(interfaces)の `shibuya.cli` だけで、最終が mind の読み手は足さない | `test_rule_5_adds_only_late_readers_whose_final_place_may_read_in_a_sample`(k10 足さない・k11 全部足す=落ちる) |
+| L-1 dry-run の差分に pyproject が出ない | `pkgmove_<段>.diff` に pyproject の差分も出す | 上の apply の試験で確かめる |
+| L-2 どの契約の元の側にも入らないモジュールが報告に出ない | `contracts` の報告と要約に `uncovered` を足した(一覧は §10-12 の「見られないもの」) | 決まり 5 の見本の試験で確かめる |
+| L-3・L-4 記録の言い過ぎ | §10-12 の「代わりに見るもの」を覆う範囲に限り、見られないものを書いた | — |
+| L-5 k18(glob の当たるファイルの形を見ない) | 包みの道からの相対の形を変えて移ったら書き換えない | `test_package_data_is_not_rewritten_when_the_file_changes_shape`(k18=落ちる) |
+| L-6 古い表の数 | §10-12 の表と「計 41」に「裁定の前」の注を付け、今の数をここに書いた | — |
+| L-7 決まり 1 の名の字面 | 決まり 1〜8 の名を計画 §6-4 の文そのまま(`` `|` ``・`` `act.apply` `` の書き方)にした=節の名が変わる | M-1 の試験 |
+
+- k08(単位の中の最終でないモジュールを見ない変異)は同値(どの段にも当たる物が無い)。k09(辺の無い ignore も載せる変異)は
+  lint が「No matches for ignored import」で落とすので、実害は lint で出る。どちらも試験は足していない。
+- 決まりの名を変えたので、同じ木に段を重ねる予行をやり直した(ct4)。どの段も `move --apply` は 0・`contracts --check` は 0・lint は
+  全部 KEPT。
+
+| 段 | 古い決まり・新しい決まり | ignore の行 | lint | どの契約の元の側にも入らない |
+|---|---|---:|---|---:|
+| 移す前・foundation | 5・0 | 0 | 5 KEPT | foundation の段 37 |
+| world・economy・act | 4・5/3・5/3・5 | 22 | 9/8/8 KEPT | 4 |
+| mind | 3・6 | 41 | 9 KEPT | 4 |
+| society・runtime・experiments | 3・7 | 43 | 10 KEPT | 4 |
+| validation・delete・interim_bundles | 3・7 | 43 | 10 KEPT | 2 |
+
+**試験**: 写しの木 dev_contracts で `tests/tools/test_pkgmove.py tests/test_places_guard.py -n 4`が 68 passed・終了コード 0(test_pkgmove は 60 本)。

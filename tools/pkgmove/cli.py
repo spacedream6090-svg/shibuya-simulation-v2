@@ -154,7 +154,9 @@ def cmd_move(a: argparse.Namespace) -> int:
     ledger = root / MV.LEDGER_REL
     try:
         plan = MV.make_plan(tree, mapdoc, stages, only=a.only or (), allow_tt=AL.load_tests_tools(REPO), frozen=frozen,
-                            ledger_text=ledger.read_text(encoding="utf-8") if ledger.is_file() else None)
+                            ledger_text=ledger.read_text(encoding="utf-8") if ledger.is_file() else None,
+                            pyproject_text=(root / "pyproject.toml").read_bytes().decode("utf-8")
+                            if (root / "pyproject.toml").is_file() else None)
     except MV.Refused as e:
         print(f"断った: {e}", file=sys.stderr)
         return EXIT_REFUSE
@@ -182,6 +184,7 @@ def cmd_move(a: argparse.Namespace) -> int:
     summary["warnings"] = len(rep["warnings"])
     summary["dropped_reexports"] = {k: len(v) for k, v in rep["dropped_reexports"].items()}
     summary["dropped_all"] = {k: len(v) for k, v in rep["dropped_all"].items()}
+    summary["package_data_keys"] = rep["package_data_keys"]
     summary["ledger_paths_added"] = rep["ledger_paths_added"]
     print(json.dumps(summary, ensure_ascii=False, indent=1))
     if a.apply:
@@ -221,8 +224,15 @@ def main(argv: list[str] | None = None) -> int:
     sp.add_argument("--tree", required=True)
     sp.add_argument("--out", default="", help="結果の JSON を書く道(木の外)")
     sp.add_argument("--jobs", type=int, default=4)
+    sp = sub.add_parser("contracts", help="段の木の import の決まり(pyproject の [tool.importlinter] の節)を作る")
+    sp.add_argument("--stage", required=True, help="段の名(contracts.toml の stage_order)")
+    sp.add_argument("--tree", required=True, help="段を当てた木の根")
+    sp.add_argument("--check", action="store_true", help="木の pyproject の節が作り直しと同じかを見る(違えば 1)")
+    sp.add_argument("--apply", action="store_true", help="木の pyproject の節を書き換える(本体の作業木は断る)")
+    sp.add_argument("--out", default="", help="報告の JSON を書く道(木の外)")
     a = ap.parse_args(argv)
-    return {"map": cmd_map, "allow": cmd_allow, "move": cmd_move, "importcheck": cmd_importcheck}[a.cmd](a)
+    return {"map": cmd_map, "allow": cmd_allow, "move": cmd_move, "importcheck": cmd_importcheck,
+            "contracts": cmd_contracts}[a.cmd](a)
 
 
 def cmd_importcheck(a: argparse.Namespace) -> int:
@@ -240,6 +250,55 @@ def cmd_importcheck(a: argparse.Namespace) -> int:
     for m, e in list(doc["bad"].items())[:20]:
         print(f"  {m}: {e[:300]}")
     return EXIT_OK if IC.ok(doc) else EXIT_IMPORT
+
+
+def cmd_contracts(a: argparse.Namespace) -> int:
+    """段の木の import の決まり(親の決定=brief_contracts)。--apply は木の pyproject の節だけを書き換える。"""
+    from pkgmove import contracts as CT
+
+    root = Path(a.tree).resolve()
+    if a.apply and is_main_worktree(root):
+        print(f"本体の作業木(か、その中)へは書かない: {root}", file=sys.stderr)
+        return EXIT_REFUSE
+    if a.out and is_main_worktree(Path(a.out)):
+        print(f"報告の置き場が本体の作業木(か、その中)にある: {a.out}", file=sys.stderr)
+        return EXIT_REFUSE
+    if not (root / "src" / "shibuya").is_dir() or not (root / "pyproject.toml").is_file():
+        print(f"木に src/shibuya か pyproject.toml が無い: {root}", file=sys.stderr)
+        return EXIT_REFUSE
+    spec = CT.load_spec(REPO / CT.CONTRACTS_REL)
+    try:
+        contracts, rep = CT.build(spec, load_map(REPO / MAP_REL), Tree.load(root), a.stage)
+        raw = (root / "pyproject.toml").read_bytes().decode("utf-8")
+        head, cur = CT.split_pyproject(raw)
+    except CT.ContractsError as e:
+        print(f"断った: {e}", file=sys.stderr)
+        return EXIT_REFUSE
+    text = CT.render(spec, a.stage, contracts)
+    same = CT.same_section(cur, text)
+    summary = {"stage": a.stage, "contracts_old": rep["n_old"], "contracts_new": rep["n_new"],
+               "ignore_lines": sum(len(c.get("ignore_imports", [])) for c in contracts),
+               "dropped_old": rep["dropped_old"], "not_expressed": rep["not_expressed"], "fallbacks": rep["fallbacks"],
+               "uncovered": rep.get("uncovered", []),
+               "same_as_tree": same}
+    print(json.dumps(summary, ensure_ascii=False, indent=1))
+    if a.out:
+        Path(a.out).write_text(json.dumps({**rep, "section": text}, ensure_ascii=False, indent=1) + "\n",
+                               encoding="utf-8", newline="\n")
+    if a.check:
+        print("同じ" if same else "違う(cli.py contracts --apply で作り直す)")
+        return EXIT_OK if same else EXIT_STOP
+    if a.apply:
+        if same:
+            print("同じ(書いていない)")
+            return EXIT_OK
+        eol = "\r\n" if "\r\n" in raw else "\n"
+        with open(root / "pyproject.toml", "w", encoding="utf-8", newline="") as f:
+            f.write(head + text.replace("\n", eol))
+        print(f"書いた: {root.name}/pyproject.toml の [tool.importlinter](契約 {len(contracts)})")
+        return EXIT_OK
+    print(text, end="")
+    return EXIT_OK
 
 
 if __name__ == "__main__":

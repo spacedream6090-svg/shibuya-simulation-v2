@@ -21,6 +21,7 @@ python tools/pkgmove/cli.py move --stage foundation --out-dir <置き場>       
 python tools/pkgmove/cli.py move --stage all --out-dir <置き場>                             # 段 4 の全段をまとめて(書かない)
 python tools/pkgmove/cli.py move --stage foundation --apply --tree <木> --out-dir <置き場>  # 書く(書いた後に import の確かめ)
 python tools/pkgmove/cli.py importcheck --tree <木> [--out <JSON>]                         # import の確かめだけ
+python tools/pkgmove/cli.py contracts --stage <段> --tree <木> [--check|--apply] [--out <JSON>]  # 段の import の決まり(pyproject の節)
 ```
 
 - `--stage`: 段 4 の小さな段の名(`foundation`・`world`・`economy`・`act`・`mind`・`society`・`interim_bundles`・`runtime`・
@@ -66,6 +67,7 @@ python tools/pkgmove/cli.py importcheck --tree <木> [--out <JSON>]             
 | (c) | 固定の表 `class_ids.py` の鍵だけ(値=凍結の名は変えない) | `allow.py` の `CLASS_IDS_TABLE`・`classids.py` |
 | (d) | つなぎの台帳の道の対応の表 `engine/bridging/ledger_paths.py` の `LEDGER_PATHS`。移したファイルごとに「今の道 → 台帳に書いてある道」を足す(台帳の JSON は書き換えない=親の決定 1・案 (b)) | `allow.py` の `LEDGER_PATHS_TABLE`・`ledgerpaths.py` |
 | (e) | この段で頭から除いた再輸出の名だけを、その頭の `__all__` から除く(1 行 1 要素の行を行ごと。行の終わりの注は注の行として残す。ほかの形は除かずに注意=守り `head_all` が止める) | `imports.py` の `all_drops` |
+| (f) | pyproject の `[tool.setuptools.package-data]` の鍵のうち、この段で無くなる包みの名だけ。glob に当たっていたファイルが同じ形で 1 つの包みへ移ったとき、鍵をその包みの名にする(親の裁定 2026-11-11 判断 2。world の段で `shibuya.manifest` → `shibuya.world.ledger`)。pyproject のほかの行は触らない | `pkgdata.py` |
 | (a) の範囲の追加 | tests が道で読む docs の記録の道具 11 本(import の文だけ。文字列は書き換えない=親の決定 7)。一覧は tests の走査と同じ(試験) | `allow.py` の `RECORD_TOOLS`・`scan_record_tools` |
 
 (b-src) の (ファイル, 記号): `engine/state_ledger.py` の `OWNER_CLASSES`・`OWNER_ALT_CLASSES`・`_ALLOW_BAND`・`_ALLOW_B4`・
@@ -121,7 +123,8 @@ python tools/pkgmove/cli.py importcheck --tree <木> [--out <JSON>]             
    (検収 m14。頭から除いた再輸出の名だけは減ってよい)。
 7. `head_all`: 空にしない頭の `__all__` の名は全部その頭で結ばれている(定義・代入・import・子のモジュール)。(e) で `__all__`
    を書き換えた頭は「前の `__all__` から除いた再輸出の名を抜いたもの」と同じ(並びも)。
-8. 移す前の木が凍結と既に違えば、何もせずに止める。移す前の木の頭の `__all__` に結ばれない名があっても止める(前の道具で
+8. `package_data`(pyproject を渡したとき): package-data の鍵は全部、木に在る包みで、glob が 1 本以上に当たる。
+9. 移す前の木が凍結と既に違えば、何もせずに止める。移す前の木の頭の `__all__` に結ばれない名があっても止める(前の道具で
    当てた木)。
 
 書いた後の import の確かめ(`importcheck.py`): `src/shibuya` の全モジュールを、子のプロセスで 1 つずつ(`shibuya` のモジュールを
@@ -154,3 +157,7 @@ python tools/pkgmove/cli.py importcheck --tree <木> [--out <JSON>]             
 `tests/tools/test_pkgmove.py`(data は要らない)。一時のコピーの木で回し、import の文と許可の一覧の行のほかは 1 バイトも変わら
 ないこと・許可の一覧の外の定数が変わらないこと・凍結の値が残ること(負の対照つき)・書かない実行が何も書かないこと・保留と本体の
 作業木を断ること・冪等・対応表と許可の一覧が作り直しと同じことを確かめる。
+
+## 段ごとの import の決まり(`contracts.py`・`contracts.toml`)
+
+段 4 の各段の木で CI の `lint-imports` が通るように、pyproject の `[tool.importlinter]` の節を段ごとに作る(親の決定=brief_contracts)。元は `contracts.toml`(計画 §1-2 の層・§6-4 の決まり 1〜8・今の 5 つ・28 本・計画の表の外の辺 1 本=親の仮採用)。作り方と段ごとの結果は記録 `docs/bench/analysis/pkgmove-346/README.md` の §10-12。`--apply` は本体の作業木を断り、木の当たっている行が段と食い違えば断る。

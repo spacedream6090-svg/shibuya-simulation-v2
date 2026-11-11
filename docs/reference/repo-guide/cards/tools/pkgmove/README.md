@@ -2,9 +2,9 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 12 本・その他 3 本(このディレクトリの直下)
+Python 14 本・その他 4 本(このディレクトリの直下)
 
-その他のファイル: `README.md`・`allow_tests_tools.toml`・`map.toml`
+その他のファイル: `README.md`・`allow_tests_tools.toml`・`contracts.toml`・`map.toml`
 
 ## [__init__.py](../../../../../../tools/pkgmove/__init__.py)
 
@@ -46,29 +46,55 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
 
 - 公開の関数とクラス
   - `cmd_allow`(関数)
+  - `cmd_contracts`(関数): 段の木の import の決まり(親の決定=brief_contracts)。--apply は木の pyproject の節だけを書き換える。
   - `cmd_importcheck`(関数)
   - `cmd_map`(関数)
   - `cmd_move`(関数)
   - `is_main_worktree`(関数): ``path`` が git の本体の作業木(か、その中)なら ``True``=書かない。
   - `main`(関数)
   - `scan_allow`(関数): tests と tools の走査: 段 4 の全段(保留を除く)で道の文字列の書き換えが起きる (ファイル, 記号)。
-- import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/importcheck.py`・`tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
+- import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/importcheck.py`・`tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 - CLI の引数
   - サブコマンド `allow`
+  - サブコマンド `contracts`
   - サブコマンド `importcheck`
   - サブコマンド `map`
   - サブコマンド `move`
-  - `--apply`: 木へ書く(本体の作業木は断る)。書いた後に import の確かめを回す
-  - `--check`
+  - `--apply`: 木の pyproject の節を書き換える(本体の作業木は断る)
+  - `--check`: 木の pyproject の節が作り直しと同じかを見る(違えば 1)
   - `--import-jobs`: 書いた後の import の確かめの並べる数(既定 4)
   - `--jobs`
   - `--only`: 今の道筋(src/shibuya からの相対)で行を名指す(何回でも)
-  - `--out`: 結果の JSON を書く道(木の外)
+  - `--out`: 報告の JSON を書く道(木の外)
   - `--out-dir`: 報告の JSON と差分を書く置き場(木の外)
-  - `--stage`: (help を読めない)
-  - `--tree`
+  - `--stage`: 段の名(contracts.toml の stage_order)
+  - `--tree`: 段を当てた木の根
 - 環境変数: `os.environ` をまるごと使う
+
+## [contracts.py](../../../../../../tools/pkgmove/contracts.py)
+
+段ごとの import の決まり(pyproject の ``[tool.importlinter]`` の節)を、元のファイル ``contracts.toml`` と木の今の形から作る(親の決定=brief_contracts・2026-11-11・仮採用)。
+
+- 公開の関数とクラス
+  - `ContractsError`(クラス): 木の形が段と合わない・pyproject の節の形が読めない。
+  - `Spec`(クラス)
+  - `TreeView`(クラス): 木の今の形: モジュールの集合・今の名 → 最終の名・ほかの置き場から入ったファイル(古い名, 新しい名)。
+  - `build`(関数): (契約の一覧=pyproject の [[tool.importlinter.contracts]] の形, 報告)。
+  - `check_stage`(関数): 木の当たっている行が「段の順で ``stage`` まで」と同じか(保留の行を除く)。
+  - `has_edge`(関数): 木で ``importer`` が ``imported`` を読む import の文が在るか(関数の中を含む・相対も解く)。
+  - `load_spec`(関数)
+  - `old_contracts`(関数): 今の 5 つの決まり(移す前と old_only_through の段まで)の契約。
+  - `render`(関数)
+  - `same_section`(関数): 節の中身(名・型・名の並び)が同じか(書き方の違いは見ない)。
+  - `section_dict`(関数)
+  - `split_pyproject`(関数): (節の前, 節)。節は「# ---- 層契約」の行(無ければ ``[tool.importlinter]`` の行)から終わりまで。後ろに別の表があれば断る。
+  - `stage_of`(関数): 木の段: どの段の行も当たっていなければ ``""``・段の順で ``S`` までが当たっていれば ``S``・どちらでもなければ ``None``。
+  - `uncovered`(関数): どの契約の元の側(層の名・``source_modules``)にも入らないランの側のモジュール(頭・根・build を除く)。そのモジュールから
+  - `view`(関数)
+- import している内部モジュール: `tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/table.py`
+- 呼び手: `tools/pkgmove/cli.py`
+- 読む試験: `tests/tools/test_pkgmove.py`
 
 ## [guard.py](../../../../../../tools/pkgmove/guard.py)
 
@@ -160,7 +186,7 @@ import の文の書き換え(許可の一覧の (a))。
   - `resolve_from`(関数): ``from … import`` のモジュールの名(相対は ``pkg`` から解く)。
   - `symbol_map`(関数): 木の中の各ノード(``id``)→ 記号の名。頂上の関数とクラスはその名(メソッドは ``クラス.メソッド``・関数の中の
   - `symbols_of`(関数): :func:`symbol_map` の覚え書き(:func:`parse` の木に対して)。
-- 呼び手: `tools/pkgmove/classids.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/move.py`・`tools/pkgmove/strings.py`
+- 呼び手: `tools/pkgmove/classids.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/move.py`・`tools/pkgmove/pkgdata.py`・`tools/pkgmove/strings.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 
 ## [move.py](../../../../../../tools/pkgmove/move.py)
@@ -181,8 +207,20 @@ import の文の書き換え(許可の一覧の (a))。
   - `report`(関数)
   - `select_rows`(関数): (当てる候補の行, 保留で断る行)。``only`` で保留の行を名指せば :class:`Refused`。
   - `unified_diff`(関数)
-- import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/classids.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/model.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
-- 呼び手: `tools/pkgmove/cli.py`
+- import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/classids.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/model.py`・`tools/pkgmove/pkgdata.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
+- 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`
+- 読む試験: `tests/tools/test_pkgmove.py`
+
+## [pkgdata.py](../../../../../../tools/pkgmove/pkgdata.py)
+
+pyproject の ``[tool.setuptools.package-data]`` の鍵(親の裁定 2026-11-11・判断 2=許可の一覧の (f))。
+
+- 公開の関数とクラス
+  - `check`(関数): 鍵は全部、木に在る包みで、glob が 1 本以上に当たる。
+  - `entries`(関数)
+  - `rewrite`(関数): (書き換えた文, 書き換えた鍵 (古い, 新しい), 注意)。書き換えるのは、この段で無くなる包みの鍵だけ。
+- import している内部モジュール: `tools/pkgmove/model.py`
+- 呼び手: `tools/pkgmove/move.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 
 ## [strings.py](../../../../../../tools/pkgmove/strings.py)
@@ -214,5 +252,5 @@ import の文の書き換え(許可の一覧の (a))。
   - `parse_table`(関数): 表の §3 の行を読む(行の数と道筋の重なりを確かめる)。
   - `render_map`(関数): 対応表 TOML の文(行の順は表の順)。
   - `sha256_text`(関数)
-- 呼び手: `tools/pkgmove/allow.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/move.py`
+- 呼び手: `tools/pkgmove/allow.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/move.py`
 - 読む試験: `tests/tools/test_pkgmove.py`

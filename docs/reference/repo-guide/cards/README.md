@@ -131,7 +131,7 @@
 | [tools/instruments/leak_check/question_sets](tools/instruments/leak_check/question_sets/README.md) | 0 | 4 |
 | [tools/ledger](tools/ledger/README.md) | 3 | 0 |
 | [tools/night5070](tools/night5070/README.md) | 2 | 2 |
-| [tools/pkgmove](tools/pkgmove/README.md) | 12 | 3 |
+| [tools/pkgmove](tools/pkgmove/README.md) | 14 | 4 |
 | [tools/quality_probe_v0](tools/quality_probe_v0/README.md) | 8 | 9 |
 | [tools/realworld_fetch](tools/realworld_fetch/README.md) | 15 | 0 |
 | [tools/repo_guide](tools/repo_guide/README.md) | 4 | 0 |
@@ -143,7 +143,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 279 ディレクトリ・2236 本
+- [docs の索引](docs.md): 279 ディレクトリ・2237 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

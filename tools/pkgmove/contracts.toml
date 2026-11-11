@@ -1,0 +1,352 @@
+# 段ごとの import の決まり(pyproject の [tool.importlinter])の元。親の決定(brief_contracts・2026-11-11・仮採用)と
+# 計画 docs/reference/package-map-final-2026-11-09.md の §1-2(層)・§6-4(8 つの決まりと 28 本)から。
+# 段を渡すと `python tools/pkgmove/cli.py contracts --stage <段> --tree <木>` が節を作る(作り方は contracts.py)。
+#
+# - old_only_through の段まで: 今の 5 つの決まり([[old]])をそのまま。
+# - その後の段: 新しい決まり([[rule]])を、その段の木で「最終の名に在るモジュール」だけで言う(まだ移っていないファイルは
+#   新しい決まりの外=親の決定)。古い決まりは、名が無くなったか、名の意味が変わった(ほかの置き場からファイルが入った)名を
+#   外して残す(外した名は報告の dropped_old に出す=黙って弱めない)。28 本は、その段の木の今の名に引き直し、両側のモジュールが
+#   在る物だけを、当たる決まりの契約の ignore_imports に載せる。
+# - 計画 §6-6 の 2 つ(一時の区分を読めるのは runtime と interfaces だけ・runtime の核は中身を読まない)は入れない(親の決定=
+#   問い 7 の答え待ち・核の一覧が未確定)。
+schema = "shibuya.tools/pkgmove/contracts/1"
+source = "docs/reference/package-map-final-2026-11-09.md"
+root_package = "shibuya"
+old_only_through = "foundation"
+#: 段の順(親の決定: interim_bundles は答えの後=最後)
+stage_order = ["foundation", "world", "economy", "act", "mind", "society", "runtime", "experiments", "validation", "delete",
+               "interim_bundles"]
+
+#: §1-2 の層(上から。「|」は互いに読まない兄弟)。build は横に置く(ランの側から読まれない)。
+layers = [
+  "interfaces",
+  "validation.static",
+  "experiments.drive",
+  "runtime",
+  "interim_bundles",
+  "world.laws",
+  "mind | act | society",
+  "world.body",
+  "world.model | world.things | economy",
+  "world.facts | world.ledger | experiments.port",
+  "foundation",
+]
+side = ["build"]
+
+# ---- 新しい決まり(計画 §6-4 の 1〜8)。名は shibuya. を除いた単位(層の語と build)。
+[[rule]]
+id = 1
+type = "layers"
+name = "1 層(§1-2 の順。下から上と、`|` の兄弟の間を読まない)"
+
+[[rule]]
+id = 2
+type = "forbidden"
+name = "2 foundation は何も読まない"
+source = ["foundation"]
+forbidden_all_except = ["foundation"]
+
+[[rule]]
+id = 3
+type = "forbidden"
+name = "3 mind は foundation(と mind)だけを読む"
+source = ["mind"]
+forbidden_all_except = ["foundation", "mind"]
+
+[[rule]]
+id = 4
+type = "protected"
+name = "4 act の書く関数(`act.apply`・`act.ops`)を読めるのは act・world.laws・interim_bundles・runtime・interfaces だけ"
+protected = ["act.apply", "act.ops"]
+allowed = ["act", "world.laws", "interim_bundles", "runtime", "interfaces"]
+
+[[rule]]
+id = 5
+type = "protected"
+name = "5 お金と物の書き手(`economy.ops`・`economy.goods`・`economy.ledger`)を読めるのは economy・interfaces だけ"
+protected = ["economy.ops", "economy.goods", "economy.ledger"]
+allowed = ["economy", "interfaces"]
+
+[[rule]]
+id = 6
+type = "forbidden"
+name = "6 economy は world.facts と foundation だけを読む"
+source = ["economy"]
+forbidden_all_except = ["world.facts", "foundation", "economy"]
+
+[[rule]]
+id = 7
+type = "forbidden"
+name = "7 society は act・mind・runtime・world.laws・interim_bundles を読まない"
+source = ["society"]
+forbidden = ["act", "mind", "runtime", "world.laws", "interim_bundles"]
+
+[[rule]]
+id = 8
+type = "forbidden"
+name = "8 ランの側は build を読まない"
+source_all_except = ["build"]
+forbidden = ["build"]
+
+# ---- 今の 5 つの決まり(pyproject の今の節。名は shibuya. を除いた包み)
+[[old]]
+type = "layers"
+name = "layers: census > economy > engine > (perception | llm) > (world | agents) > core > manifest"
+layers = ["census", "economy", "engine", "perception | llm", "world | agents", "core", "manifest"]
+
+[[old]]
+type = "forbidden"
+name = "core は何にも依存しない(manifest も import しない)"
+source = ["core"]
+forbidden = ["manifest"]
+
+[[old]]
+type = "forbidden"
+name = "llm は world/agents を import しない(mock LLM が成立する)"
+source = ["llm"]
+forbidden = ["world", "agents", "perception", "engine", "economy", "census"]
+
+[[old]]
+type = "forbidden"
+name = "build は実行時に import されない"
+source = ["manifest", "core", "world", "agents", "perception", "llm", "engine", "economy", "census"]
+forbidden = ["build"]
+
+[[old]]
+type = "forbidden"
+name = "economy は engine の transfer 単一API経由のみ(world/agents 直接書き込み禁止)"
+source = ["economy"]
+forbidden = ["world", "agents", "perception", "llm"]
+
+# ---- 計画の表の外の辺(親の仮採用 2026-11-11・判断 1=候補 A)。28 本の表とは別の一覧。名は段 4 の木の今の名(最終の名でない)。
+# 試験が「この 1 本だけ」と固定する(増やせば落ちる)。載せるのは、その段の木で両側が在り、辺が在るときだけ。
+[[extra_ignore]]
+importer = "llm"
+imported = "llm.fleet"
+rules = [1, 3]
+note = "llm の頭の再輸出・段 5a で消える・計画 §6-4 の 28 本の外・親の仮採用 2026-11-11"
+
+# ---- 計画 §6-4 の表の 28 本(移すだけの状態で当たる辺・名は最終の置き場)。試験が計画の表と突き合わせる。
+[[ignore]]
+num = 1
+importer = "act.apply"
+imported = "mind.system1.change_detect"
+form = "頭"
+rules = [1]
+gone_at = "段 6"
+
+[[ignore]]
+num = 2
+importer = "act.apply"
+imported = "runtime.state.hashes"
+form = "関数の中"
+rules = [1]
+gone_at = "段 6"
+
+[[ignore]]
+num = 3
+importer = "act.apply"
+imported = "runtime.state.ledger"
+form = "関数の中"
+rules = [1]
+gone_at = "段 6"
+
+[[ignore]]
+num = 4
+importer = "act.apply"
+imported = "runtime.state.resume"
+form = "関数の中"
+rules = [1]
+gone_at = "段 6"
+
+[[ignore]]
+num = 5
+importer = "act.target"
+imported = "mind.judge.chooser"
+form = "頭"
+rules = [1]
+gone_at = "段 5a"
+
+[[ignore]]
+num = 6
+importer = "interim_bundles.calendar2.layer"
+imported = "runtime.inference.mock"
+form = "頭"
+rules = [1]
+gone_at = "段 5a"
+
+[[ignore]]
+num = 7
+importer = "mind.judge.classical"
+imported = "runtime.inference.mock"
+form = "頭"
+rules = [1, 3]
+gone_at = "段 5a"
+
+[[ignore]]
+num = 8
+importer = "mind.judge.classical"
+imported = "world.facts.calendar"
+form = "頭"
+rules = [3]
+gone_at = "段 5a"
+
+[[ignore]]
+num = 9
+importer = "mind.judge.decision.layer"
+imported = "act.commit"
+form = "関数の中"
+rules = [1, 3]
+gone_at = "段 5b"
+
+[[ignore]]
+num = 10
+importer = "mind.judge.decision.layer"
+imported = "economy.stage2_bind"
+form = "頭"
+rules = [3]
+gone_at = "残る"
+
+[[ignore]]
+num = 11
+importer = "mind.judge.decision.layer"
+imported = "society.tools.registry"
+form = "関数の中"
+rules = [1, 3]
+gone_at = "残る"
+
+[[ignore]]
+num = 12
+importer = "mind.memory.body_events"
+imported = "society.tools.record"
+form = "頭"
+rules = [1, 3]
+gone_at = "段 5a"
+
+[[ignore]]
+num = 13
+importer = "mind.memory.familiarity"
+imported = "act.apply"
+form = "頭"
+rules = [1, 3, 4]
+gone_at = "段 6"
+
+[[ignore]]
+num = 14
+importer = "mind.memory.memory"
+imported = "act.apply"
+form = "頭"
+rules = [1, 3, 4]
+gone_at = "段 6"
+
+[[ignore]]
+num = 15
+importer = "mind.memory.memory"
+imported = "act.commit"
+form = "関数の中"
+rules = [1, 3]
+gone_at = "段 5b"
+
+[[ignore]]
+num = 16
+importer = "mind.memory.store_memory"
+imported = "act.apply"
+form = "頭"
+rules = [1, 3, 4]
+gone_at = "段 6"
+
+[[ignore]]
+num = 17
+importer = "mind.memory.wom"
+imported = "act.target"
+form = "頭"
+rules = [1, 3]
+gone_at = "段 5a"
+
+[[ignore]]
+num = 18
+importer = "mind.percept.draw"
+imported = "world.model.assets"
+form = "頭"
+rules = [3]
+gone_at = "段 7"
+
+[[ignore]]
+num = 19
+importer = "mind.percept.draw"
+imported = "world.model.state"
+form = "頭"
+rules = [3]
+gone_at = "段 7"
+
+[[ignore]]
+num = 20
+importer = "mind.plan.contact_port"
+imported = "runtime.inference.mock"
+form = "頭"
+rules = [1, 3]
+gone_at = "段 5a"
+
+[[ignore]]
+num = 21
+importer = "mind.relations.layer"
+imported = "act.apply"
+form = "頭"
+rules = [1, 3, 4]
+gone_at = "段 6"
+
+[[ignore]]
+num = 22
+importer = "mind.relations.layer"
+imported = "world.model.proximity"
+form = "関数の中"
+rules = [3]
+gone_at = "残る"
+
+[[ignore]]
+num = 23
+importer = "mind.system1.change_detect"
+imported = "world.model.assets"
+form = "頭"
+rules = [3]
+gone_at = "段 5a"
+
+[[ignore]]
+num = 24
+importer = "mind.system1.change_detect"
+imported = "world.model.state"
+form = "頭"
+rules = [3]
+gone_at = "注釈だけ"
+
+[[ignore]]
+num = 25
+importer = "society.speech.layer"
+imported = "mind.memory.wom"
+form = "関数の中"
+rules = [1, 7]
+gone_at = "残る"
+
+[[ignore]]
+num = 26
+importer = "society.speech.layer"
+imported = "runtime.inference.mock"
+form = "頭"
+rules = [1, 7]
+gone_at = "段 5a"
+
+[[ignore]]
+num = 27
+importer = "world.body.rules"
+imported = "mind.system1.change_detect"
+form = "頭"
+rules = [1]
+gone_at = "段 5a"
+
+[[ignore]]
+num = 28
+importer = "world.model.geometry"
+imported = "mind.system1.change_detect"
+form = "頭"
+rules = [1]
+gone_at = "段 5a"

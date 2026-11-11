@@ -11,7 +11,7 @@ Python 3 本・その他 0 本(このディレクトリの直下)
 build: オフラインの世界データ構築(W0-W20)。成果物=不変資産。実行時にimportされない。
 
 - 読む試験: `tests/engine/memory/test_m0_store_schema.py`・`tests/engine/processes/test_runner.py`・`tests/engine/test_add_at_guard.py`・`tests/llm/test_fleet_contract.py`
-- 読む試験(道筋で): `tests/test_places_guard.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`・`tests/tools/test_pkgmove.py`
 
 ## [catalog_freeze.py](../../../../../../../src/shibuya/build/catalog_freeze.py)
 

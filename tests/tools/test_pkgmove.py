@@ -44,7 +44,7 @@ from pkgmove import ledgerpaths as LPT  # noqa: E402
 from pkgmove import move as MV  # noqa: E402
 from pkgmove import strings as ST  # noqa: E402
 from pkgmove.model import SRC_PREFIX, Ctx, Index, Tree, apply_edits, docstring_ids, mod_of, symbol_map  # noqa: E402
-from pkgmove.table import HELD, MAP_REL, STAGES, build_map_text, load_map, parse_table  # noqa: E402
+from pkgmove.table import HELD, MAP_REL, STAGES, Row, build_map_text, load_map, parse_table  # noqa: E402
 
 CLI_PY = ROOT / "tools" / "pkgmove" / "cli.py"
 FROZEN_FILES = ("tests/engine/state/names_frozen.json", "tests/engine/state/class_ids_frozen.json",
@@ -60,7 +60,7 @@ def make_copy(dst: Path) -> Path:
     """一時のコピーの木(src/shibuya・tests・tools・凍結の JSON とつなぎの台帳・tests が読む docs の記録の道具)。"""
     for top in ("src/shibuya", "tests", "tools"):
         shutil.copytree(ROOT / top, dst / top, ignore=_ignore)
-    for f in (*FROZEN_FILES, *AL.RECORD_TOOLS):
+    for f in (*FROZEN_FILES, *AL.RECORD_TOOLS, "pyproject.toml"):
         if (ROOT / f).is_file():
             (dst / f).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / f, dst / f)
@@ -88,7 +88,13 @@ def frozen_of(root: Path) -> G.Frozen:
 
 def plan_for(root: Path, stages, **kw) -> MV.Plan:
     return MV.make_plan(Tree.load(root, extra=AL.RECORD_TOOLS), MAPDOC, stages, allow_tt=AL.load_tests_tools(ROOT),
-                        frozen=frozen_of(root), ledger_text=(root / MV.LEDGER_REL).read_text(encoding="utf-8"), **kw)
+                        frozen=frozen_of(root), ledger_text=(root / MV.LEDGER_REL).read_text(encoding="utf-8"),
+                        pyproject_text=_pyproject_of(root), **kw)
+
+
+def _pyproject_of(root: Path) -> str | None:
+    p = root / "pyproject.toml"
+    return p.read_bytes().decode("utf-8") if p.is_file() else None
 
 
 def apply_rows(tree: Tree, stage: str) -> list[Row]:
@@ -360,7 +366,7 @@ def test_mora_rule_and_other_untouched_path_shaped_strings_stay_in_the_rest_plan
     assert plan.ledger["rows_src"] == 398
     assert MV.LEDGER_REL not in plan.after.files
     assert set(plan.guards) == {"names_frozen", "class_ids", "shaped_74", "outside_allowlist", "ledger_paths",
-                                "import_names", "head_all"}
+                                "import_names", "head_all", "package_data"}
     assert all(v.startswith("同じ") for v in plan.guards.values()), plan.guards
     _rows, held = MV.select_rows(MAPDOC, stages)
     assert {r.old for r in plan.refused} == {r.old for r in held}
@@ -625,6 +631,42 @@ def test_record_tools_get_only_their_import_statements_rewritten(staged):
     changed = [p for p in AL.RECORD_TOOLS if staged.after.files.get(p) != staged.before.files.get(p)]
     assert all(p in staged.changed for p in changed)
     assert all(e.kind == "import" for p in changed for e in staged.changed[p])
+
+
+_REC_TOOL = ('"""記録の道具の見本: src/shibuya/pk/a.py と shibuya.pk.a を読む。"""\n'
+             "from shibuya.pk.a import X  # src/shibuya/pk/a.py の X\n"
+             "import shibuya.pk.a as A\n\n"
+             'PATH = "src/shibuya/pk/a.py"\n'
+             'MOD = "shibuya.pk.a"\n'
+             'CODE = "from shibuya.pk.a import X"\n\n\n'
+             "def f():\n"
+             '    """engine と同じ形の道 src/shibuya/pk/a.py を返す。"""\n'
+             '    from shibuya.pk.a import X as Y  # 関数の中\n'
+             '    return Y, "pk/a.py"\n')
+
+
+def _rec_plan(**kw) -> MV.Plan:
+    rel = "docs/bench/rec/tool.py"
+    tree = Tree(files={"src/shibuya/__init__.py": "", "src/shibuya/pk/__init__.py": "", "src/shibuya/pk/a.py": "X = 1\n",
+                       rel: _REC_TOOL})
+    rows = [Row(num="1", old="pk/a.py", package="x", kind="move", new="qq/a.py", stage="foundation")]
+    return MV.make_plan(tree, MV.MapDoc(rows=rows), ("foundation",), **kw)
+
+
+def test_record_tools_get_only_their_import_statements_rewritten_in_a_sample():
+    """〔親の決定 7・作った見本の木〕記録の道具に当たるファイル(docs の ``.py``・許可の一覧の外)では、import の文だけが書き換わり、
+    同じ道を持つ文字列・注・docstring・コードの形の文字列は 1 バイトも変わらない。負の対照: その文字列の記号を許可の一覧に
+    差し込むと(記録の道具の文字列も書き換える書き手)、変わったことを見つける。"""
+    rel = "docs/bench/rec/tool.py"
+    plan = _rec_plan()
+    want = (_REC_TOOL.replace("from shibuya.pk.a import X  #", "from shibuya.qq.a import X  #")
+            .replace("import shibuya.pk.a as A", "import shibuya.qq.a as A")
+            .replace("    from shibuya.pk.a import X as Y", "    from shibuya.qq.a import X as Y"))
+    assert plan.after.files[rel] == want
+    assert {e.kind for e in plan.changed[rel]} == {"import"} and len(plan.changed[rel]) == 3
+    bad = _rec_plan(extra_sites=[AL.Site(rel, "PATH", "paths"), AL.Site(rel, "f", "paths")])
+    assert bad.after.files[rel] != want
+    assert '"src/shibuya/qq/a.py"' in bad.after.files[rel] and "path" in {e.kind for e in bad.changed[rel]}
 
 
 def test_skipping_interim_bundles_then_applying_it_keeps_the_guards(base_copy):
@@ -1129,3 +1171,276 @@ def test_negative_head_all_guards_stop_a_writer_that_keeps_or_overdrops_names(ba
     with pytest.raises(MV.Stopped) as e:
         plan_for(base_copy, staged.stages)
     assert any(x.startswith("頭の __all__ が除いた再輸出の名のほかで変わった") for x in e.value.errors), e.value.errors[:3]
+
+
+# ------------------------------------------------------------------ 段ごとの import の決まり(brief_contracts・親の決定)
+def _plan_text() -> str:
+    return (ROOT / "docs/reference/package-map-final-2026-11-09.md").read_text(encoding="utf-8")
+
+
+def test_contracts_toml_matches_the_plan_tables():
+    """元のファイルの層は計画 §1-2 の図、28 本は §6-4 の表と同じ(写しの誤りを止める)。決まりは 1〜8。"""
+    from pkgmove import contracts as CT
+
+    spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
+    t = _plan_text()
+    block = t.split("### 1-2", 1)[1].split("```text", 1)[1].split("```", 1)[0]
+    lay = [x.split("←")[0].strip() for x in block.splitlines() if x.strip() and not x.startswith("build")]
+    assert spec.layers == lay and spec.side == ["build"]
+    sec = t.split("### 6-4", 1)[1].split("### 6-5", 1)[0]
+    rows = re.findall(r"^\| (\d+) \| `([\w.]+)` \| `([\w.]+)` \| (頭|関数の中) \| ([\d・]+) \| .*? \| (.*?) \| .*? \|$", sec, re.M)
+    want = [(int(n), a, b, f, [int(x) for x in r.split("・")], g) for n, a, b, f, r, g in rows]
+    got = [(g["num"], g["importer"], g["imported"], g["form"], list(g["rules"]), g["gone_at"]) for g in spec.ignores]
+    assert len(want) == 28 and got == want
+    assert [r["id"] for r in spec.rules] == list(range(1, 9))
+    # 計画の表の外の辺は、親の仮採用(2026-11-11・判断 1=候補 A)の 1 本だけ(増やせば落ちる)
+    assert [(e["importer"], e["imported"], list(e["rules"])) for e in spec.extras] == [("llm", "llm.fleet", [1, 3])]
+    assert all(w in spec.extras[0]["note"] for w in ("段 5a で消える", "28 本の外", "親の仮採用"))
+    assert spec.stage_order[-1] == "interim_bundles" and set(spec.stage_order) == set(STAGES)
+
+
+def test_pyproject_section_is_the_one_made_for_the_tree_stage():
+    """木の pyproject の [tool.importlinter] の節は、木の段の作り直しと同じ(段 4 の各段の commit で作り直す)。どの段も当たって
+    いない木は今の 5 つの決まり。段の境目でない木は飛ばす。"""
+    from pkgmove import contracts as CT
+
+    spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
+    tree = _root_tree()
+    stage = CT.stage_of(tree, MAPDOC, spec)
+    if stage is None:
+        pytest.skip("段の境目でない木(当たっている行が段の順と合わない)")
+    _head, cur = CT.split_pyproject((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    if stage == "":
+        contracts = CT.old_contracts(spec)
+        stage_name = "(移す前)"
+    else:
+        contracts, _rep = CT.build(spec, MAPDOC, tree, stage)
+        stage_name = stage
+    assert CT.same_section(cur, CT.render(spec, stage_name, contracts)), stage_name
+    names = {m for c in contracts for k in ("layers", "source_modules", "forbidden_modules", "protected_modules",
+                                            "allowed_importers") for x in c.get(k, []) for m in x.split(" | ")}
+    names |= {m for c in contracts for x in c.get("ignore_imports", []) for m in x.split(" -> ")}
+    ix = Index(tree)
+    assert sorted(n for n in names if not ix.exists(n)) == []
+
+
+def _ct_sample_tree() -> tuple[Tree, MV.MapDoc]:
+    rows = [Row(num="1", old="core/rng.py", package="foundation", kind="move", new="foundation/rng.py", stage="foundation"),
+            Row(num="2", old="world/state.py", package="world", kind="move", new="world/model/state.py", stage="world"),
+            Row(num="3", old="engine/body/rules.py", package="world", kind="move", new="world/body/rules.py",
+                stage="world"),
+            Row(num="4", old="engine/clock.py", package="runtime", kind="move", new="runtime/clock.py", stage="runtime"),
+            Row(num="5", old="economy/wages.py", package="economy", kind="keep", new="economy/wages.py"),
+            Row(num="6", old="build/x.py", package="build", kind="keep", new="build/x.py"),
+            Row(num="7", old="engine/run.py", package="runtime", kind="split", new="runtime/result.py",
+                split_to=("runtime/result.py", "runtime/run.py"))]
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/foundation/__init__.py": "", "src/shibuya/foundation/rng.py": "",
+             "src/shibuya/world/__init__.py": "", "src/shibuya/world/model/__init__.py": "",
+             "src/shibuya/world/model/state.py": "from shibuya.foundation import rng\n",
+             "src/shibuya/world/body/__init__.py": "", "src/shibuya/world/body/rules.py": "import shibuya.engine.clock\n",
+             "src/shibuya/engine/__init__.py": "", "src/shibuya/engine/clock.py": "", "src/shibuya/engine/run.py": "",
+             "src/shibuya/economy/__init__.py": "", "src/shibuya/economy/wages.py": "",
+             "src/shibuya/build/__init__.py": "", "src/shibuya/build/x.py": ""}
+    return Tree(files=files), MV.MapDoc(rows=rows)
+
+
+def test_contracts_name_only_modules_in_the_tree_and_drop_changed_old_names():
+    """〔作った見本の木・world の段〕作った節に、木に無い包みの名は入らない。古い決まりは、無くなった名(core・manifest ほか)と
+    意味が変わった名(engine から world/body へファイルが入った world)を外し、外した名を報告に出す。新しい決まりは最終の名に
+    在る単位だけ(runtime はまだ移っていない=言わない)。木の当たっている行が段と食い違えば断る。"""
+    from pkgmove import contracts as CT
+
+    spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
+    tree, md = _ct_sample_tree()
+    contracts, rep = CT.build(spec, md, tree, "world")
+    ix = Index(tree)
+    names = {m for c in contracts for k in ("layers", "source_modules", "forbidden_modules", "protected_modules",
+                                            "allowed_importers") for x in c.get(k, []) for m in x.split(" | ")}
+    assert names and sorted(n for n in names if not ix.exists(n)) == []
+    assert "shibuya.runtime" not in names and "shibuya.core" not in names
+    new_layers = next(c for c in contracts if c["name"].startswith("〔段 4 の途中の決まり〕1 "))["layers"]
+    assert new_layers == ["shibuya.world.body", "shibuya.world.model | shibuya.economy", "shibuya.foundation"]
+    old_layers = next(c for c in contracts if c["type"] == "layers" and not c["name"].startswith("〔"))["layers"]
+    assert old_layers == ["shibuya.economy", "shibuya.engine"]
+    dropped = {(d["name"], d["why"]) for d in rep["dropped_old"]}
+    assert ("world", "名の意味が変わった(ほかの置き場からファイルが入った)") in dropped and ("core", "木に無い") in dropped
+    assert all(g.get("skipped") for g in rep["ignores"])  # 28 本の対はこの木に無い=載せない
+    assert not any("ignore_imports" in c for c in contracts)
+    with pytest.raises(CT.ContractsError, match="食い違う"):
+        CT.build(spec, md, tree, "runtime")
+    text = CT.render(spec, "world", contracts)
+    assert CT.same_section(text, text) and CT.section_dict(text)["root_package"] == "shibuya"
+
+
+def test_contracts_cli_refuses_a_main_worktree(tmp_path):
+    """``contracts --apply`` も本体の作業木へは書かない(move --apply と同じ守り)。"""
+    main = tmp_path / "main"
+    main.mkdir()
+    _git(main, "init", "-q")
+    r = run_cli("contracts", "--stage", "foundation", "--tree", str(main), "--apply")
+    assert r.returncode == 2 and "本体の作業木" in r.stderr
+
+
+# ------------------------------------------------------------------ pyproject の package-data の鍵(親の裁定 2026-11-11・判断 2)
+def test_package_data_key_moves_with_the_json(base_copy):
+    """(f) 凍結の JSON が移る段で、package-data の鍵を新しい包みの名にする(glob はそのまま・ほかの行は変えない)。JSON が
+    もう移った木では、今の鍵が木に在る包みで glob が当たる。"""
+    from pkgmove import pkgdata as PD
+
+    row = next(r for r in MAPDOC.rows if r.old == "manifest/frozen/world_catalog_v0_2.json")
+    text = _pyproject_of(base_copy)
+    if row.stage in pending():
+        plan = plan_for(base_copy, pending()[: pending().index(row.stage) + 1])
+        new_key = mod_of(row.new.rsplit("/", 2)[0] + "/__init__.py")
+        assert PD.entries(plan.pyproject_after) == {**{k: v for k, v in PD.entries(text).items() if k != "shibuya.manifest"},
+                                                    new_key: ["frozen/*.json"]}
+        assert ("shibuya.manifest", new_key) in plan.package_data_keys
+        assert plan.guards["package_data"].startswith("同じ")
+        changed = [(a, b) for a, b in zip(text.splitlines(), plan.pyproject_after.splitlines()) if a != b]
+        assert changed == [('"shibuya.manifest" = ["frozen/*.json"]', f'"{new_key}" = ["frozen/*.json"]')]
+    else:
+        assert PD.check(text, Tree.load(base_copy)) == []
+
+
+def test_package_data_rewrite_and_guard_in_a_sample():
+    """作った見本の木で: 無くなる包みの鍵だけを、ファイルが同じ形で移った 1 つの包みへ書き換える。ほかの節の行(filterwarnings)は
+    変えない。守り: 木に無い包みの鍵・どれにも当たらない glob を見つける。行き先が 2 つに分かれれば書き換えない。"""
+    from pkgmove import pkgdata as PD
+
+    text = ('[tool.setuptools.package-data]\n"shibuya.old" = ["frozen/*.json"]\n"shibuya.keep" = ["*.txt"]\n\n'
+            '[tool.pytest.ini_options]\nfilterwarnings = ["error::DeprecationWarning:shibuya.old.*"]\n')
+    before = Tree(files={"src/shibuya/__init__.py": "", "src/shibuya/old/__init__.py": "", "src/shibuya/keep/__init__.py": ""},
+                  blobs={"src/shibuya/old/frozen/a.json": b"{}", "src/shibuya/keep/n.txt": b"x"})
+    after = Tree(files={"src/shibuya/__init__.py": "", "src/shibuya/new/pk/__init__.py": "", "src/shibuya/keep/__init__.py": ""},
+                 blobs={"src/shibuya/new/pk/frozen/a.json": b"{}", "src/shibuya/keep/n.txt": b"x"})
+    moves = {"src/shibuya/old/frozen/a.json": "src/shibuya/new/pk/frozen/a.json"}
+    out, keys, warns = PD.rewrite(text, before, after, moves)
+    assert keys == [("shibuya.old", "shibuya.new.pk")] and warns == []
+    assert out == text.replace('"shibuya.old" = ["frozen/*.json"]', '"shibuya.new.pk" = ["frozen/*.json"]')
+    assert 'filterwarnings = ["error::DeprecationWarning:shibuya.old.*"]' in out
+    assert PD.check(out, after) == []
+    assert PD.check(text, after) == ["package-data の鍵の包みが木に無い: shibuya.old"]
+    bad_glob = out.replace('["*.txt"]', '["*.csv"]')
+    assert PD.check(bad_glob, after) == ["package-data の glob がどのファイルにも当たらない: shibuya.keep ['*.csv']"]
+    before2 = Tree(files=before.files, blobs={**before.blobs, "src/shibuya/old/frozen/b.json": b"{}"})
+    after2 = Tree(files={**after.files, "src/shibuya/other/__init__.py": ""},
+                  blobs={**after.blobs, "src/shibuya/other/frozen/b.json": b"{}"})
+    out2, keys2, warns2 = PD.rewrite(text, before2, after2, {**moves, "src/shibuya/old/frozen/b.json":
+                                                             "src/shibuya/other/frozen/b.json"})
+    assert out2 == text and keys2 == [] and "行き先が 1 つに決まらない" in warns2[0]
+
+
+def test_negative_a_plan_that_does_not_rewrite_package_data_is_stopped(base_copy, monkeypatch):
+    """負の対照: package-data の鍵を書き換えない書き手を差し込むと、JSON が移る段で守りが止める。"""
+    from pkgmove import pkgdata as PD
+
+    row = next(r for r in MAPDOC.rows if r.old == "manifest/frozen/world_catalog_v0_2.json")
+    if row.stage not in pending():
+        pytest.skip("凍結の JSON がもう移った木")
+    monkeypatch.setattr(PD, "rewrite", lambda text, before, after, moves: (text, [], []))
+    with pytest.raises(MV.Stopped) as e:
+        plan_for(base_copy, pending()[: pending().index(row.stage) + 1])
+    assert any("package-data の鍵の包みが木に無い: shibuya.manifest" in x for x in e.value.errors), e.value.errors[:3]
+
+
+# ------------------------------------------------------------------ 検収 第 3 回(M-1・M-2・L-5)
+#: 計画 §6-4 の決まり 2〜8 の文から読んだ型と名の並び(この表は toml から作らない。計画の文の語と下の試験で照らす)。
+_PLAN_RULES = {
+    2: ("forbidden", {"source": ["foundation"], "forbidden_all_except": ["foundation"]}),
+    3: ("forbidden", {"source": ["mind"], "forbidden_all_except": ["foundation", "mind"]}),
+    4: ("protected", {"protected": ["act.apply", "act.ops"],
+                      "allowed": ["act", "world.laws", "interim_bundles", "runtime", "interfaces"]}),
+    5: ("protected", {"protected": ["economy.ops", "economy.goods", "economy.ledger"], "allowed": ["economy", "interfaces"]}),
+    6: ("forbidden", {"source": ["economy"], "forbidden_all_except": ["world.facts", "foundation", "economy"]}),
+    7: ("forbidden", {"source": ["society"], "forbidden": ["act", "mind", "runtime", "world.laws", "interim_bundles"]}),
+    8: ("forbidden", {"source_all_except": ["build"], "forbidden": ["build"]}),
+}
+
+
+def test_contract_rules_are_the_plan_sentences():
+    """〔検収 M-1・L-7〕決まり 1〜8 の名は計画 §6-4 の文そのまま(番号つき)。決まり 2〜8 の型と名の並びは、試験の中の表
+    (計画の文から読んだもの)と同じで、表の名は全部、その決まりの計画の文に出てくる。"""
+    from pkgmove import contracts as CT
+
+    spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
+    sec = _plan_text().split("### 6-4", 1)[1].split("### 6-5", 1)[0]
+    lines = {int(n): t for n, t in re.findall(r"^([1-8])\. (.+)$", sec, re.M)}
+    assert {r["id"]: r["name"] for r in spec.rules} == {n: f"{n} {t}" for n, t in lines.items()}
+    assert spec.rules[0]["type"] == "layers" and set(spec.rules[0]) == {"id", "type", "name"}
+    for r in spec.rules[1:]:
+        typ, body = _PLAN_RULES[r["id"]]
+        assert r["type"] == typ, r["id"]
+        assert {k: v for k, v in r.items() if k not in ("id", "name", "type")} == body, r["id"]
+        for names in body.values():
+            for x in names:
+                assert x in lines[r["id"]], (r["id"], x)
+
+
+def _pd_sample(root: Path) -> tuple[Tree, MV.MapDoc, str]:
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/old/__init__.py": "", "src/shibuya/old/mod.py": "X = 1\n"}
+    for rel, text in files.items():
+        (root / rel).parent.mkdir(parents=True, exist_ok=True)
+        (root / rel).write_text(text, encoding="utf-8", newline="")
+    (root / "src/shibuya/old/frozen").mkdir()
+    (root / "src/shibuya/old/frozen/a.json").write_bytes(b"{}\n")
+    py = ('[project]\r\nname = "x"\r\n\r\n[tool.setuptools.package-data]\r\n"shibuya.old" = ["frozen/*.json"]\r\n\r\n'
+          '[tool.pytest.ini_options]\r\nfilterwarnings = ["error::DeprecationWarning:shibuya.old.*"]\r\n')
+    (root / "pyproject.toml").write_bytes(py.encode("utf-8"))
+    rows = [Row(num="1", old="old/mod.py", package="x", kind="move", new="new/pk/mod.py", stage="foundation"),
+            Row(num="2", old="old/frozen/a.json", package="x", kind="move", new="new/pk/frozen/a.json", stage="foundation"),
+            Row(num="3", old="old/__init__.py", package="x", kind="delete", stage="foundation")]
+    return Tree.load(root), MV.MapDoc(rows=rows), py
+
+
+def test_apply_writes_the_package_data_key_and_nothing_else_of_pyproject_in_a_sample(tmp_path):
+    """〔検収 M-2・k15〕作った見本の木へ ``apply`` すると、木の pyproject の package-data の鍵だけが新しい包みの名になり、ほかの
+    バイト(改行の CRLF・ほかの節の filterwarnings を含む)は 1 バイトも変わらない。2 回目は何も変えない。"""
+    root = tmp_path / "t"
+    tree, md, py = _pd_sample(root)
+    plan = MV.make_plan(tree, md, ("foundation",), pyproject_text=py)
+    assert plan.package_data_keys == [("shibuya.old", "shibuya.new.pk")]
+    MV.apply(plan, root)
+    got = (root / "pyproject.toml").read_bytes().decode("utf-8")
+    assert got == py.replace('"shibuya.old" = ["frozen/*.json"]', '"shibuya.new.pk" = ["frozen/*.json"]')
+    assert (root / "src/shibuya/new/pk/frozen/a.json").is_file() and not (root / "src/shibuya/old").exists()
+    again = MV.make_plan(Tree.load(root), md, ("foundation",), pyproject_text=got)
+    assert again.package_data_keys == [] and again.pyproject_after == got
+    assert "b/pyproject.toml" in MV.unified_diff(plan)  # 〔L-1〕書かない実行の差分にも出る
+
+
+def test_rule_5_adds_only_late_readers_whose_final_place_may_read_in_a_sample():
+    """〔検収 M-2・k10・k11〕決まり 5 の読んでよい側に足すのは、まだ移っていない読み手のうち、最終の置き場が読んでよい側
+    (economy・interfaces)にあるものだけ。最終の置き場が読んでよくない側(mind)の読み手は足さない。"""
+    from pkgmove import contracts as CT
+
+    spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
+    rows = [Row(num="1", old="core/rng.py", package="foundation", kind="move", new="foundation/rng.py", stage="foundation"),
+            Row(num="2", old="economy/ledger.py", package="economy", kind="keep", new="economy/ledger.py"),
+            Row(num="3", old="cli.py", package="interfaces", kind="split", new="interfaces/cli/main.py",
+                split_to=("interfaces/cli/main.py",)),
+            Row(num="4", old="engine/reader.py", package="mind", kind="move", new="mind/reader.py", stage="mind")]
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/foundation/__init__.py": "", "src/shibuya/foundation/rng.py": "",
+             "src/shibuya/economy/__init__.py": "", "src/shibuya/economy/ledger.py": "",
+             "src/shibuya/cli.py": "from shibuya.economy import ledger\n",
+             "src/shibuya/engine/__init__.py": "", "src/shibuya/engine/reader.py": "from shibuya.economy import ledger\n"}
+    contracts, rep = CT.build(spec, MV.MapDoc(rows=rows), Tree(files=files), "world")
+    c5 = next(c for c in contracts if c["name"].startswith("〔段 4 の途中の決まり〕5 "))
+    assert c5["protected_modules"] == ["shibuya.economy.ledger"]
+    assert c5["allowed_importers"] == ["shibuya.economy", "shibuya.cli"]
+    assert rep["late_allowed"] == [{"rule": 5, "modules": ["shibuya.cli"]}]
+    assert rep["uncovered"] == ["shibuya.cli"]  # engine.reader は古い層の engine で覆われる
+
+
+def test_package_data_is_not_rewritten_when_the_file_changes_shape():
+    """〔検収 L-5・k18〕glob に当たっていたファイルが、包みの道からの相対の形を変えて移ったら(``frozen/a.json`` →
+    ``data/a.json``)、行き先の包みが決まらないので鍵を書き換えない(守りが止める)。"""
+    from pkgmove import pkgdata as PD
+
+    text = '[tool.setuptools.package-data]\n"shibuya.old" = ["frozen/*.json"]\n'
+    before = Tree(files={"src/shibuya/__init__.py": "", "src/shibuya/old/__init__.py": ""},
+                  blobs={"src/shibuya/old/frozen/a.json": b"{}"})
+    after = Tree(files={"src/shibuya/__init__.py": "", "src/shibuya/new/pk/__init__.py": ""},
+                 blobs={"src/shibuya/new/pk/data/a.json": b"{}"})
+    out, keys, warns = PD.rewrite(text, before, after, {"src/shibuya/old/frozen/a.json": "src/shibuya/new/pk/data/a.json"})
+    assert out == text and keys == [] and "行き先が 1 つに決まらない" in warns[0]
+    assert PD.check(out, after) == ["package-data の鍵の包みが木に無い: shibuya.old"]

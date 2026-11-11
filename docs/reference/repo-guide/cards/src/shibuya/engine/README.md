@@ -243,7 +243,7 @@ engine.clock — シミュレーション時計(壁時計に一切依存しな�
 - import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.foundation.types`
 - 呼び手: `shibuya.engine`
 - 読む試験: `tests/engine/test_clock.py`
-- 読む試験(道筋で): `tests/engine/test_state_checks_10f.py`
+- 読む試験(道筋で): `tests/engine/test_state_checks_10f.py`・`tests/tools/test_pkgmove.py`
 
 ## [commit.py](../../../../../../../src/shibuya/engine/commit.py)
 

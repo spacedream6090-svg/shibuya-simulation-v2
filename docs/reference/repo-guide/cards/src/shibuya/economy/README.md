@@ -10,7 +10,7 @@ economy: 台帳/transfer/検算/センサス入力。engine の transfer 単一A
 
 - import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.checks`・`shibuya.economy.entry_capital`・`shibuya.economy.goods`・`shibuya.economy.ledger`
 - 呼び手: `shibuya.cli`
-- 読む試験(道筋で): `tests/test_places_guard.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`・`tests/tools/test_pkgmove.py`
 - 決定の ID: D-13
 
 ## [accounts.py](../../../../../../../src/shibuya/economy/accounts.py)
@@ -187,7 +187,7 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
 - import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.checks`・`shibuya.economy.credit`・`shibuya.economy.ops`・`shibuya.economy.stage2`・`shibuya.foundation.growth`・`shibuya.foundation.hashing`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.cli`・`shibuya.economy`・`shibuya.economy.ops`
 - 読む試験: `tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/cp2/test_cp2_flow_sum.py`・`tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/cp2/test_cp2_nine_ops_equivalence.py`・`tests/economy/cp2/test_cp2_transfer_only_writer.py`・`tests/economy/cp2/test_cp2_write_window.py`・`tests/economy/cp2/test_cp2_writes_declared.py`・`tests/economy/stage2/test_stage2_account_and_conservation.py`・`tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_guards.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/test_anchors.py`・`tests/economy/test_census.py`・`tests/economy/test_entry_capital.py`・`tests/economy/test_goods.py`・`tests/economy/test_ledger.py`・`tests/economy/test_min_wage_human_bridge.py`・`tests/economy/test_pricing.py`・`tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_single_write_path.py`・`tests/economy/test_t3_redundant_equation.py`・`tests/economy/test_wage_occupation.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_runner.py`・`tests/engine/test_add_at_guard.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_processes_run.py`・`tests/engine/test_resume_10d.py`・`tests/llm/test_fleet_contract.py`
-- 読む試験(道筋で): `tests/engine/speech/test_speech_writers_ast.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/test_places_guard.py`
+- 読む試験(道筋で): `tests/engine/speech/test_speech_writers_ast.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/test_places_guard.py`・`tests/tools/test_pkgmove.py`
 - 状態台帳の行
   - 持ち主 `ledger.money`(`Ledger`)
     - `A` 金と物の台帳の行の目印の列・transfer の計器(第 1 期 1-9)(挙動 diag・復元 discardable) 道筋 `ledger.money._raw_event_seq`・`ledger.money._raw_event_t_ns`・`ledger.money.meter` 書ける系: close_final・day_close・duties・phase_c・world
@@ -309,5 +309,5 @@ economy.wages — 職業 × 性 × 年齢 × 雇用形態の賃金(賃金構造�
 - import している内部モジュール: `shibuya.core.wage_formula`・`shibuya.economy.anchors`・`shibuya.foundation.paths`
 - 呼び手: `shibuya.economy.stage2`
 - 読む試験: `tests/economy/stage2/test_wage_occupation_runs.py`・`tests/economy/test_min_wage_human_bridge.py`・`tests/economy/test_wage_occupation.py`
-- 読む試験(道筋で): `tests/test_places_guard.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`・`tests/tools/test_pkgmove.py`
 - 決定の ID: 10-12/§4-11・10-13b/§7・11-01/§5・R-107

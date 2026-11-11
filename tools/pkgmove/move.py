@@ -30,6 +30,7 @@ from pkgmove import classids as CI
 from pkgmove import guard as G
 from pkgmove import imports as IM
 from pkgmove import ledgerpaths as LPT
+from pkgmove import pkgdata as PD
 from pkgmove import strings as ST
 from pkgmove.model import (SRC_PREFIX, Ctx, Edit, Index, Tree, apply_edits, area_of, is_self, mod_of, parse,
                            symbols_of)
@@ -85,6 +86,10 @@ class Plan:
     #: (d) 台帳の道の対応の表に足した行の数。
     ledger_paths_added: int = 0
     ledger_text: str | None = None
+    #: 〔親の裁定 2026-11-11 判断 2〕pyproject の文(前と、package-data の鍵を書き換えた後)と書き換えた鍵=許可の一覧の (f)。
+    pyproject_text: str | None = None
+    pyproject_after: str | None = None
+    package_data_keys: list[tuple[str, str]] = field(default_factory=list)
 
 
 def locate(tree: Tree, mapdoc: MapDoc, rel: str) -> str:
@@ -171,7 +176,8 @@ def make_ctx(tree: Tree, rows: list[Row], frozen: G.Frozen | None) -> tuple[Ctx,
 
 def make_plan(tree: Tree, mapdoc: MapDoc, stages: Iterable[str], *, only: Iterable[str] = (),
               allow_tt: list[AL.Site] | None = None, frozen: G.Frozen | None = None, keyfn=None,
-              extra_sites: Iterable[AL.Site] = (), ledger_text: str | None = None) -> Plan:
+              extra_sites: Iterable[AL.Site] = (), ledger_text: str | None = None,
+              pyproject_text: str | None = None) -> Plan:
     """計画(書き換えた後の木)を作り、守りを通す(当たれば :class:`Stopped`)。``extra_sites``・``keyfn`` は試験の口。"""
     stages = tuple(stages)
     cand, refused = select_rows(mapdoc, stages, only)
@@ -306,6 +312,12 @@ def make_plan(tree: Tree, mapdoc: MapDoc, stages: Iterable[str], *, only: Iterab
                 plan.after.files[h] = ""
                 plan.created_heads.append(h)
     plan.created_heads = sorted(set(plan.created_heads))
+    # (f) pyproject の package-data の鍵(この段で無くなる包みの名だけ)
+    plan.pyproject_text = pyproject_text
+    if pyproject_text is not None:
+        new_py, keys, pw = PD.rewrite(pyproject_text, tree, plan.after, plan.file_moves)
+        plan.pyproject_after, plan.package_data_keys = new_py, keys
+        plan.warnings += pw
     # 3) 報告の材料
     _untouched(plan, ctx, rules, tree, allowed)
     plan.ledger = ledger_rows(ledger_text, relmap)
@@ -399,6 +411,14 @@ def _guards(plan: Plan, mapdoc: MapDoc, frozen: G.Frozen, allowed_before: set[tu
     n_all = sum(len(v) for v in plan.dropped_all.values())
     plan.guards["head_all"] = f"同じ(頭の __all__ は結ばれた名だけ・除いた名 {n_all})" if not e7 else f"違う {len(e7)}"
     errs += e7
+    if plan.pyproject_text is not None:  # (f) package-data の鍵は全部、木に在る包みで glob が当たる
+        pre_pd = PD.check(plan.pyproject_text, before)
+        if pre_pd:
+            raise Stopped(["移す前の木の package-data が既に食い違う: " + "; ".join(pre_pd)])
+        e8 = PD.check(plan.pyproject_after or plan.pyproject_text, after)
+        plan.guards["package_data"] = (f"同じ(鍵は木に在る包み・glob が当たる・書き換えた鍵 {len(plan.package_data_keys)})"
+                                       if not e8 else f"違う {len(e8)}")
+        errs += e8
     for h in head_paths:
         try:
             t = parse(before.files[h])
@@ -455,6 +475,7 @@ def report(plan: Plan) -> dict:
         "path_string_sites_by_file": sorted({f"{f}::{s}" for (f, s) in plan.str_stats.sites}),
         "dropped_reexports": plan.dropped_reexports,
         "dropped_all": plan.dropped_all,
+        "package_data_keys": plan.package_data_keys,
         "ledger_paths_added": plan.ledger_paths_added,
         "class_id_keys": plan.class_keys,
         "class_ids_resorted": plan.class_resorted,
@@ -498,6 +519,11 @@ def unified_diff(plan: Plan) -> str:
     for o, n in sorted(plan.file_moves.items()):
         if o in b.blobs:
             out.append(f"rename {o} → {n}(バイト列)\n")
+    if plan.pyproject_after is not None and plan.pyproject_after != plan.pyproject_text:  # (f) package-data の鍵
+        out += difflib.unified_diff((plan.pyproject_text or "").splitlines(keepends=True),
+                                    plan.pyproject_after.splitlines(keepends=True), "a/pyproject.toml", "b/pyproject.toml", n=1)
+        if out and not out[-1].endswith("\n"):
+            out.append("\n")
     return "".join(out)
 
 
@@ -512,6 +538,9 @@ def apply(plan: Plan, root: Path) -> list[str]:
         dst.parent.mkdir(parents=True, exist_ok=True)
         with open(dst, "w", encoding="utf-8", newline="") as f:
             f.write(text)
+    if plan.pyproject_after is not None and plan.pyproject_after != plan.pyproject_text:
+        with open(root / "pyproject.toml", "w", encoding="utf-8", newline="") as f:
+            f.write(plan.pyproject_after)
     for p, data in a.blobs.items():
         if b.blobs.get(p) != data:
             dst = root / p
