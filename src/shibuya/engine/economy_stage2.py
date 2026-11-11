@@ -49,7 +49,7 @@ from typing import Any, Final, Iterable, Mapping
 
 import numpy as np
 
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
 
 __all__ = [
     "DataAbsentWarning",
@@ -382,7 +382,7 @@ def build_atm_table(world: Any, *, tags_path: str | Path | None = None,
     セル: 緯度経度 → 世界のローカル座標(``build.geo.common.latlon_to_local`` の写し)→ 100 m の格子 → 地上の層(GL)の
     セル(無ければ同じ格子の DECK・UG の順)。取得物が無い写し(データの無い試験)は空の表(警告を 1 回)。
     """
-    from shibuya.core.paths import resolve_repo_path  # 〔移す段 2-2〕暦から根の道の口を出した
+    from shibuya.foundation.paths import resolve_repo_path  # 〔移す段 2-2〕暦から根の道の口を出した
 
     tp = resolve_repo_path(tags_path or OSM_TAGS_RELPATH)
     hp = resolve_repo_path(hours_path or OSM_HOURS_RELPATH)
@@ -581,7 +581,7 @@ def persona_words(pool_root: Any, layer: Any, index: Any,
 def wage_inputs(schedule: Any, pop: Any, n_agents: int, *, pool_root: Any = None) -> WageInputs:
     """賃金の関数の入力を組み立てる(母集団の体=ペルソナの職業と雇用の語+W16 の性と年齢・母集団の無いラン=語も性も年齢も
     分からない=写せない体の平均)。**W17 の週次表を読まない**(試験が AST で見る)。"""
-    from shibuya.core.paths import resolve_repo_path  # 〔移す段 2-2〕暦から根の道の口を出した
+    from shibuya.foundation.paths import resolve_repo_path  # 〔移す段 2-2〕暦から根の道の口を出した
 
     n = int(n_agents)
     sex = np.full(n, -1, dtype=np.int8)
@@ -700,13 +700,13 @@ class Stage2Plan:
 
     def llm_cause(self, call_id: Any) -> Any:
         """〔検収 A1〕呼の id → 原因 ``LlmCall(call_id)``(1-3 の型・economy は engine.events を読めない=依存逆転)。"""
-        from shibuya.engine.events.log import LlmCall
+        from shibuya.foundation.journal.log import LlmCall
 
         return LlmCall(str(call_id))
 
     def employment(self, day: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """その日の締めの時刻に効いている雇用の行(体 → 雇用主の組織=部門 雇用主・店=部門 店舗)を体ごとに 1 行(最初の行)。"""
-        from shibuya.engine.ledger_api import SECTOR_EMPLOYER, SECTOR_STORE
+        from shibuya.foundation.ports.ledger import SECTOR_EMPLOYER, SECTOR_STORE
         from shibuya.engine.rights.ledger import AGENT, EMPLOY, ORG, STORE
 
         e = np.zeros(0, dtype=np.int64)
@@ -780,7 +780,7 @@ def attach(ledger_bundle: Any, *, schedule: Any, weekly: Any, calendar: Any, wor
     money = getattr(ledger_bundle, "money", None) if ledger_bundle is not None else None
     if money is None or not hasattr(money, "attach_stage2"):
         return None
-    from shibuya.engine.events.log import Process
+    from shibuya.foundation.journal.log import Process
 
     atms = _ATM_OVERRIDE if _ATM_OVERRIDE is not None else build_atm_table(world)
     # 〔賃金の小さな版上げ〕W17 の勤務時間は賃金に使わない(読まない=週次表 ``weekly`` は賃金の口に渡さない)

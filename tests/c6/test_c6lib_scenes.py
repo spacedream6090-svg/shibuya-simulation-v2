@@ -13,7 +13,7 @@ import pytest
 
 from shibuya.agents.state import RESULT_TEXT, ResultCode
 from shibuya.engine.tape import TapeRow, TapeWriter
-from shibuya.perception import templates as T
+from shibuya.foundation.text import templates as T
 
 
 # ---------------------------------------------------------------- 表が正典と一致する

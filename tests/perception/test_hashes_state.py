@@ -5,13 +5,13 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.perception import hashes as H
+from shibuya.foundation.text import hashes as H
 from shibuya.perception.state import PERCEPTION_BYTE_CAP, PerceptionState, heading_from_vector
 
 
 # ---------------------------------------------------------------- ハッシュ三役
 def test_block_hash_is_xxh64_of_the_rendered_bytes():
-    from shibuya.core.hashing import xxh64
+    from shibuya.foundation.hashing import xxh64
 
     data = "[B4 密度] 歩行者密度は段階Cです。".encode("utf-8")
     assert H.block_hash(data) == xxh64(data)

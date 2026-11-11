@@ -305,7 +305,7 @@ def diversity(cols: Mapping[str, np.ndarray]) -> dict[str, Any]:
 def pair_distance(codes: np.ndarray, n_pairs: int, seed: int | str, domain: str) -> dict[str, Any]:
     """属性の組(``codes``=(人, 属性) の番号)の無作為なペアのハミング距離の分布(0〜属性の数)。ペアは Philox の鍵
     (``seed``・``domain``・ペアの番号)で決まる=同じ入力で同じ値。同じ人のペアは数えない。"""
-    from shibuya.core.rng import k19_counter_array, philox_array, unit_float
+    from shibuya.foundation.rng import k19_counter_array, philox_array, unit_float
 
     X = np.asarray(codes)
     n, k = X.shape

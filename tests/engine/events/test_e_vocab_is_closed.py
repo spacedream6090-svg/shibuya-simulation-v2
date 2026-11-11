@@ -9,10 +9,10 @@ import pytest
 
 from shibuya.economy.accounts import ACCOUNT_NAMES
 from shibuya.economy.goods import GOODS_CODE_NAMES
-from shibuya.engine.events import log as EV
-from shibuya.engine.events import vocab as V
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.vocab import events as V
 from shibuya.engine.processes.runner import PROCESS_ORDER
-from shibuya.llm.contract import ACTION_VOCAB_V3
+from shibuya.foundation.vocab.actions import ACTION_VOCAB_V3
 
 
 def test_families_are_copies_of_their_sources():

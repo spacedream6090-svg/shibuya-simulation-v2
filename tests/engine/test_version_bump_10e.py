@@ -146,7 +146,7 @@ def test_e4_default_rng_scheme_is_counter_and_stateful_is_the_old_switch():
     (前: 既定 counter・stateful は旧値の再現の切替口・``k19_counters("stateful", 7) == (7,)``)。"""
     import argparse
 
-    from shibuya.core import rng as R
+    from shibuya.foundation import rng as R
     from shibuya.engine.run import add_calendar_args, calendar_kwargs_from_args
 
     assert R.RNG_SCHEME == "counter" and not hasattr(R, "RNG_SCHEMES") and not hasattr(R, "DEFAULT_RNG_SCHEME")
@@ -168,7 +168,7 @@ def test_e4_u2_next_key_is_no_longer_a_shifted_copy(domain):
     """U2(既知の答え): 旧の並び(鍵を 0 語目に置く)では「鍵 d+1 の流れ」が「鍵 d の流れを 1 ブロック(4 語)ずらした写し」に
     なる。counter では 0 語目を空けたので、鍵 d の流れを何ブロック引いても鍵 d+1 の流れと同じ語は出ない。
     〔改訂(第330・RET)〕旧の並びは ``k19_counters("stateful", d)`` を消したので ``stream(seed, 用途名, d)`` で直に作る。"""
-    from shibuya.core.rng import k19_counters, stream
+    from shibuya.foundation.rng import k19_counters, stream
 
     for d in (0, 3):
         old_d = stream(1, domain, d).integers(0, 2**63, 40, dtype=np.int64)
@@ -194,7 +194,7 @@ def test_e4_u2_two_day_run_has_independent_day_streams():
 
 def test_e4_recorder_groups_by_seed_u8():
     """U8: 束ねる鍵に master seed を入れた=seed の違う同じ用途名・同じカウンタの流れを重なりと数えない。"""
-    from shibuya.core.rng import stream
+    from shibuya.foundation.rng import stream
     from shibuya.engine import rng_audit as RA
 
     with RA.StreamRecorder() as rec:
@@ -275,7 +275,7 @@ def v4_tape(tmp_path_factory):
 
 def test_e5_b5_b6_texts_rebuild_the_prompt_hash(v4_tape):
     """B5 は列に直接・B6 は intern(K1): 共有ブロック 6 本+B5+B6 の本文から ``prompt_hash`` を作り直せる(再描画の検算)。"""
-    from shibuya.core.hashing import sha256_cbor
+    from shibuya.foundation.hashing import sha256_cbor
 
     _res, tape, _d = v4_tape
     rows = [r for r in tape.rows() if not r.deferred]
@@ -383,7 +383,7 @@ def test_e4_l3_checkpoints_payload_is_version_2():
 # ================================================================= E5 の検収の直し(T1・T3)
 def test_e5_t1_fleet_rows_carry_b5_b6_and_rebuild_the_prompt_hash(tmp_path):
     """T1: 艦隊の経路(``FleetBridge``)の応答の行と繰り延べの行にも B5・B6 が入り、``prompt_hash`` を本文から作り直せる。"""
-    from shibuya.core.hashing import sha256_cbor
+    from shibuya.foundation.hashing import sha256_cbor
     from shibuya.engine import tape as TP
     from shibuya.world.state import World
     from tests.engine.test_tape_deferred import make_client

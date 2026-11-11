@@ -23,7 +23,7 @@ import pytest
 
 from shibuya.agents import population as POP
 from shibuya.engine.decision import persona as PE
-from shibuya.engine.decision.port import compose
+from shibuya.foundation.ports.decision import compose
 from shibuya.engine.rights import initial as RI
 from shibuya.engine.rights.ledger import AGENT, DWELLING, EMPLOY, LEASE, PARCEL, STORE
 

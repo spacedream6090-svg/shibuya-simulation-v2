@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.llm.contract import (
+from shibuya.foundation.vocab.actions import (
     ACTION_CODES,
     ACTION_SPECS,
     ACTION_VOCAB_12,
@@ -172,7 +172,7 @@ def test_parse_target_never_raises_on_odd_input():
 
 def test_target_placeholder_words_are_read_as_no_target_but_keep_raw():
     """第223(D-89): 観測テンプレートの欄説明語を写した応答は対象なし(raw は診断用に残す)。"""
-    from shibuya.llm.contract import TargetKind, parse_target, NO_TARGET
+    from shibuya.foundation.vocab.actions import TargetKind, parse_target, NO_TARGET
     for w in ("物のカテゴリ", "セルID", "人ID", "<セルID / 物のカテゴリ / 人ID / なし>"):
         tg = parse_target(w)
         assert tg.kind is TargetKind.NONE, w
@@ -185,7 +185,7 @@ def test_cell_prefix_is_stripped_only_when_the_rest_is_a_cell_id():
     テープ 28 本で 移動 10,751 呼・食事 921 呼が自由記述に落ちていた。``raw`` は逐語のまま、
     ``cell_id`` は接頭辞を剥がした形。説明語「セルID」は NONE のまま(第223 の読みを動かさない)。
     """
-    from shibuya.llm.contract import TargetKind, parse_target
+    from shibuya.foundation.vocab.actions import TargetKind, parse_target
     tg = parse_target("セルg-1_0_GL")
     assert tg.kind is TargetKind.CELL and tg.raw == "セルg-1_0_GL" and tg.cell_id == "g-1_0_GL" and tg.band == "GL"
     tg = parse_target("セルID: g0_-3_DECK")
@@ -199,7 +199,7 @@ def test_cell_prefix_is_stripped_only_when_the_rest_is_a_cell_id():
 
 def test_target_category_suffix_is_stripped_before_parsing():
     """「食品のカテゴリ」→ 物カテゴリ「食品」。実在名・セル・人 ID の読み方は不変。"""
-    from shibuya.llm.contract import TargetKind, parse_target
+    from shibuya.foundation.vocab.actions import TargetKind, parse_target
     tg = parse_target("食品のカテゴリ")
     assert tg.kind is TargetKind.ITEM_CATEGORY and tg.category == "食品"
     assert parse_target("C-0117").kind is TargetKind.CELL
@@ -212,7 +212,7 @@ def test_target_category_suffix_is_stripped_before_parsing():
 import inspect  # noqa: E402
 
 from shibuya.agents.state import ResultCode  # noqa: E402
-from shibuya.llm import contract as C  # noqa: E402
+from shibuya.foundation.vocab import actions as C  # noqa: E402
 
 #: アジェンダ §1-1 の表(テスト側に独立に書き写す=片方だけ直せば落ちる)。
 V3_CROSS = ("移動", "乗車", "購入", "食事", "会話", "退去", "通報", "手伝い", "断る", "就寝", "並ぶ", "なし")

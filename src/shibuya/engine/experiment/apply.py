@@ -40,8 +40,8 @@ from typing import Any, Callable, Final, Mapping
 
 import numpy as np
 
-from shibuya.core.time_consts import MINUTES_PER_DAY, NS_PER_SECOND
-from shibuya.engine.experiment import gate as _GATE
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, NS_PER_SECOND
+from shibuya.foundation.ports import experiment_gate as _GATE
 from shibuya.engine.experiment.form import DECISIONS, NOTICE_STAFF, ExperimentForm
 
 __all__ = [

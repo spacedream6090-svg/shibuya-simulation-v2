@@ -34,7 +34,7 @@ import numpy as np
 
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.state import World
-from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR
+from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR
 
 __all__ = [
     "KLASS_Q12",

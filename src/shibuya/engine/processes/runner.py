@@ -64,7 +64,7 @@ from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.actual_log import ActualLog
 from shibuya.world.processes.first_batch import build_registry
 from shibuya.world.state import World
-from shibuya.core.time_consts import SECONDS_PER_DAY
+from shibuya.foundation.time_consts import SECONDS_PER_DAY
 
 __all__ = ["PROCESS_ORDER", "WorldProcessRunner"]
 
@@ -387,7 +387,7 @@ class WorldProcessRunner:
         台帳の過程の id(``rail_operation_static`` など)→ 実行器の過程の名(``rail`` など=語彙表の「過程」)の表を渡す。
         記録の物は ActualLog の口(``event_sink``)だけが持つ(実行器の属性は増やさない)。
         """
-        from shibuya.engine.events.links import ActualLogLink
+        from shibuya.foundation.journal.links import ActualLogLink
 
         proc_of = {pid: key for key in PROCESS_ORDER for pid in getattr(self._procs[key], "process_ids", ())}
         self.log.event_sink = ActualLogLink(events, proc_of)

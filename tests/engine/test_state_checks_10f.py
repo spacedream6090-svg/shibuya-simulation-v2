@@ -416,7 +416,7 @@ def test_k19_empty_allow_list_reports_every_overlap(k19_runs):
 
 def test_t5_runtime_fifth_word_caller_fails(monkeypatch):
     """T5: 体ごとの流れ(1 語目=体)から 5 語引く呼び手を足すと、隣の体の流れと重なって落ちる。"""
-    from shibuya.core.rng import stream
+    from shibuya.foundation.rng import stream
     from shibuya.engine import resolve as R
 
     orig = R.advance_body

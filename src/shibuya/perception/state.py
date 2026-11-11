@@ -39,8 +39,8 @@ from typing import Final, Iterator
 
 import numpy as np
 
-from shibuya.core import write_permit as _WP
-from shibuya.core.soa import Registry
+from shibuya.foundation import write_permit as _WP
+from shibuya.foundation.soa import Registry
 from shibuya.perception.p_notice import HEADING_SECTORS, DensityClass, TaskLoad
 
 __all__ = [

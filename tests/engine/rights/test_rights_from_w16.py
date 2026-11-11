@@ -17,7 +17,7 @@ import pyarrow.parquet as pq
 import pytest
 
 from shibuya.agents.population import load_population
-from shibuya.engine.bridging import ledger as BR
+from shibuya.foundation.decl import bridging as BR
 from shibuya.engine.rights import initial as RI
 from shibuya.engine.rights import ledger as L
 
@@ -97,7 +97,7 @@ def test_blank_bridges_are_active_rows_of_the_ledger():
         r = led.get(rid)
         # 〔第 4 期 4-2・親の判断(問い 8)〕家賃と営業許可の空欄は外す段 7(段 10 の活性化の後に閉じる住まいは 4-2 のまま)
         assert r.status == "active" and r.remove_at in ("4-2", "7"), (key, rid)
-    from shibuya.engine.bridging import ledger_paths as LP
+    from shibuya.foundation.decl import ledger_paths as LP
 
     from tests import _places as PL
 

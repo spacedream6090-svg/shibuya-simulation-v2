@@ -18,8 +18,8 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import Activity, AgentKind, AgentState, ResultCode
-from shibuya.perception import hashes as H
-from shibuya.perception import templates as T
+from shibuya.foundation.text import hashes as H
+from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import (
     DEFAULT_START_DATETIME,
     PerceptionAssets,
@@ -127,7 +127,7 @@ def test_c_rendering_is_deterministic():
 
 
 def test_c2_prompt_hash_is_blake3_of_the_concatenated_blocks():
-    from shibuya.core.hashing import blake3_hex
+    from shibuya.foundation.hashing import blake3_hex
 
     w, a = build()
     out = Renderer(w, a, seed=7).render(0, 760, 3)
@@ -192,7 +192,7 @@ def test_f_five_minute_rounding_gives_identical_b3():
 # ---------------------------------------------------------------- (g)
 def test_g_guard_catches_a_planted_person_id_in_b2():
     """§2.4 ⑧ の機械検査: B2 に ``P-12`` を仕込むと描画が例外で落ちる。"""
-    from shibuya.perception.normalize import AgentDependentWordError
+    from shibuya.foundation.text.normalize import AgentDependentWordError
 
     w, a = build()
     assets = PerceptionAssets.synthetic(w)
@@ -385,7 +385,7 @@ def test_out_of_world_agent_renders_the_fixed_empty_phrases():
 @pytest.mark.requires_data("world_v2:w8_t1_cell.parquet")
 def test_j_real_world_render_100_agents(capsys):
     """実資産(520 セル)で 100 体描画 → 予算・⑧・キャッシュ命中率を検査する。"""
-    from shibuya.perception.normalize import assert_no_agent_dependent_words
+    from shibuya.foundation.text.normalize import assert_no_agent_dependent_words
 
     w = World.load(DATA_DIR)
     assets = PerceptionAssets.load(DATA_DIR, w)

@@ -43,7 +43,7 @@ import numpy as np
 from shibuya.agents.state import STORE_MEMORY_EMPTY
 from shibuya.engine.chooser import draw_index, hunger_stage_of
 from shibuya.engine.store_memory import STORE_SOURCE_BIT, STORE_SOURCES
-from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     "CHOICE_REASONS",

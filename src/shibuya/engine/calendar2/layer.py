@@ -68,16 +68,16 @@ from typing import Any, Final, Iterable, Mapping, Sequence
 import numpy as np
 
 from shibuya.agents.state import Activity
-from shibuya.core.rng import key_time_from_t_ns
-from shibuya.core.time_consts import HOURS_PER_DAY, NS_PER_SECOND, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
+from shibuya.foundation.rng import key_time_from_t_ns
+from shibuya.foundation.time_consts import HOURS_PER_DAY, NS_PER_SECOND, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
 from shibuya.engine import resolve as R
-from shibuya.engine.calendar2 import arm as _ARM
+from shibuya.foundation.arms import calendar2 as _ARM
 from shibuya.engine.calendar2 import book as _B
 from shibuya.engine.calendar2 import port as _P
 from shibuya.engine.calendar2.recall import IMPORTANCE_HEAD, HeadRecall
-from shibuya.engine.decision.port import Candidate, DecisionContext
-from shibuya.engine.events import vocab as V
-from shibuya.engine.events.log import Event, LlmCall, Process
+from shibuya.foundation.ports.decision import Candidate, DecisionContext
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.journal.log import Event, LlmCall, Process
 from shibuya.llm.mock import MOCK_UTTERANCE
 
 __all__ = [

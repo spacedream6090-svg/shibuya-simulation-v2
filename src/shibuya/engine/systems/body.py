@@ -19,7 +19,7 @@ from shibuya.agents.state import WAKE_CONDITION_CLASS
 from shibuya.agents.state import WakeCondition
 from shibuya.engine import resolve as R
 from shibuya.engine.energy import DEFAULT_MEAL_SLEEP_DEFER
-from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
 
 
 def sys_body(ctx: Any, b: Any) -> None:

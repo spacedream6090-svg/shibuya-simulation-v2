@@ -43,56 +43,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Mapping, Protocol, runtime_checkable
 
-from shibuya.core.hashing import sha256_cbor
-from shibuya.llm.contract import (
-    ACTION_CODES,
-    ACTION_SPECS,
-    ACTION_VOCAB_12,
-    ACTION_VOCAB_ROLE,
-    ALL_ACTION_WORDS,
-    COMMENT_MAX_CHARS,
-    NO_TARGET,
-    NO_TARGET_VALUE,
-    REASON_MAX_CHARS,
-    ROLE_ACTION_CODES,
-    ROLE_ACTION_WORDS,
-    ROLE_ACTIONS,
-    TWO_LINE_RE,
-    UNDEFINED_ACTION,
-    ActionSpec,
-    Target,
-    TargetKind,
-    action_code_of,
-    format_two_line,
-    is_role_action,
-    parse_target,
-    spec_of,
-)
+from shibuya.foundation.hashing import sha256_cbor
 
 __all__ = [
     # 行動契約(llm.contract の再輸出)
-    "ACTION_VOCAB_12",
-    "ACTION_VOCAB_ROLE",
-    "ROLE_ACTION_WORDS",
-    "ALL_ACTION_WORDS",
-    "ROLE_ACTIONS",
-    "ACTION_CODES",
-    "ROLE_ACTION_CODES",
-    "ACTION_SPECS",
-    "ActionSpec",
-    "Target",
-    "TargetKind",
-    "NO_TARGET",
-    "NO_TARGET_VALUE",
-    "REASON_MAX_CHARS",
-    "COMMENT_MAX_CHARS",
-    "UNDEFINED_ACTION",
-    "TWO_LINE_RE",
-    "format_two_line",
-    "parse_target",
-    "action_code_of",
-    "spec_of",
-    "is_role_action",
     # パーサ(llm.parser の再輸出)
     "ParseResult",
     "parse_two_line",

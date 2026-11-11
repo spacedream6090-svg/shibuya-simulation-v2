@@ -24,7 +24,7 @@ from typing import Any, Final
 
 import numpy as np
 
-from shibuya.perception.facts import NEARBY_CHANGE_KINDS
+from shibuya.foundation.ports.percept import NEARBY_CHANGE_KINDS
 
 __all__ = ["SYSTEM1_EXPEDIENTS", "System1Slot", "SLOTS", "speech_loudness", "noise_stage_at", "crowd_gait",
            "loud_sound_notice", "manifest_rows", "LOUD_SOUND"]

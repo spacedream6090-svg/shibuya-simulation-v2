@@ -770,7 +770,7 @@ def test_root_scanner_counts_the_paths_helpers(tmp_path: Path):
 
     〔段 4 の下ごしらえ〕試験の木の根の道のモジュールの置き場と import の文は、今の置き場(モジュールの ``__name__``)から
     組み立てる(前は字面で、移す道具がファイルの道と import の文だけを書き換え、ディレクトリの名が残って食い違った)。"""
-    from shibuya.core import paths as PATHS
+    from shibuya.foundation import paths as PATHS
 
     mod = PATHS.__name__
     pkg_name, _, leaf = mod.rpartition(".")

@@ -14,14 +14,14 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import NS_PER_SECOND
+from shibuya.foundation.time_consts import NS_PER_SECOND
 from shibuya.economy import ops as OPS
 from shibuya.economy.accounts import AccountCode, Sector
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
-from shibuya.engine.events import vocab as V
-from shibuya.engine.events.links import MoneyEventLink
-from shibuya.engine.events.log import EventLog, LlmCall, Process
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.journal.links import MoneyEventLink
+from shibuya.foundation.journal.log import EventLog, LlmCall, Process
 
 H, S, W = int(Sector.HOUSEHOLD), int(Sector.STORE), int(Sector.ROW)
 RAIL, SHELF = Process("rail"), Process("shelf")
@@ -170,7 +170,7 @@ def test_run_rows_and_events_are_one_to_one(monkeypatch):
 
 def test_economy_constants_match_the_events_vocabulary():
     """economy は engine.events を import しない(層の契約)=金の語・原因の種類の名を写しで持つ。写しが 1-3 と同じ。"""
-    from shibuya.engine.events import log as EV
+    from shibuya.foundation.journal import log as EV
 
     assert OPS.MONEY_FAMILY == V.FAMILY_MONEY
     assert OPS.CAUSE_KINDS == EV.CAUSE_KINDS
@@ -186,7 +186,7 @@ def test_economy_and_the_ledger_api_do_not_import_engine_events():
     from pathlib import Path
 
     import shibuya.llm as LLM
-    from shibuya.engine import ledger_api as LAPI
+    from shibuya.foundation.ports import ledger as LAPI
 
     from tests import _places as PL
 

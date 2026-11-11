@@ -14,7 +14,7 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import AgentState
-from shibuya.core import write_permit as WP
+from shibuya.foundation import write_permit as WP
 from shibuya.engine import resolve as R
 from shibuya.engine import state_ledger_ast as A
 from shibuya.engine.systems import allow as AL
@@ -204,7 +204,7 @@ def test_direct_flag_writes_live_only_in_known_places():
 
 # ================================================================= D ⑥: SoA の配列・ビュー・別名を層の属性に持たせない
 _SOA_TAILS = {"registry", "agents", "cells", "pois", "pstate"}
-_EXEMPT_D6 = {"agents/state.py", "world/state.py", "perception/state.py", "engine/resolve.py", "core/soa.py"}
+_EXEMPT_D6 = {"agents/state.py", "world/state.py", "perception/state.py", "engine/resolve.py", "foundation/soa.py"}
 #: 許す属性(場所・代入の左辺・理由)。どれも凍結の後に作る読むだけの**写し**(int32 → int64 の dtype の変換=別の配列)。
 D6_ALLOW = {
     ("engine/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",

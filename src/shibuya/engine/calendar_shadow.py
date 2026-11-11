@@ -36,7 +36,7 @@ from typing import Any, Final, Mapping
 import numpy as np
 
 from shibuya.agents.weekly import ACTIVITY_WORDS
-from shibuya.core.time_consts import MINUTES_PER_DAY
+from shibuya.foundation.time_consts import MINUTES_PER_DAY
 
 __all__ = [
     "MODE_W17", "MODE_1A", "MODES", "DEFAULT_MODE", "SCHEMA", "FILE_NAME", "HEADER_NAME", "WEEK0_MONDAY",

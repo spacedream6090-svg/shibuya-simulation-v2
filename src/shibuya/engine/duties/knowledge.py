@@ -29,7 +29,7 @@ from typing import Any, Final
 
 import numpy as np
 
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 from shibuya.engine.calendar3.knowledge import StoreRules
 
 __all__ = ["ShopRules", "rules_line", "UNKNOWN", "SRC_UNKNOWN", "REAL_SOURCES", "origin_mark"]

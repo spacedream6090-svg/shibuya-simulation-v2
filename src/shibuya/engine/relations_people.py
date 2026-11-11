@@ -44,7 +44,7 @@ from shibuya.engine.relations import (
     RelationEdges,
     RelationLayer,
 )
-from shibuya.engine.tools import contacts as _CT
+from shibuya.foundation.vocab import contact_flags as _CT
 
 __all__ = ["PeopleRelationLayer"]
 

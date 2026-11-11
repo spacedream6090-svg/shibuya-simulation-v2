@@ -82,12 +82,12 @@ from typing import Any, Final
 import numpy as np
 
 from shibuya.agents.state import AgentState
-from shibuya.core.rng import philox
+from shibuya.foundation.rng import philox
 from shibuya.engine import rate_rules as _RATE_RULES
 from shibuya.engine import resolve as R
 from shibuya.engine.calendar import SimCalendar
-from shibuya.engine.events.log import Process
-from shibuya.engine.ledger_api import SECTOR_HOUSEHOLD, SECTOR_ROW
+from shibuya.foundation.journal.log import Process
+from shibuya.foundation.ports.ledger import SECTOR_HOUSEHOLD, SECTOR_ROW
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.records import DeviationVocab
 from shibuya.world.state import World

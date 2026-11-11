@@ -103,7 +103,7 @@ golden を環境ごとの行で持つための小道具(10f・K26 (1))。
   - `row`(関数): ``{platform_id: 値}`` の表から今の環境の行(無ければ ``None``=未登録の警告を出す)。
   - `soa_combined`(関数): 〔第330・RET〕checkpoint の「SoA の全列+母集団+予定表(+活動)」の組み立て(10e より前の final の式)。
   - `warn_unregistered`(関数): 未登録の環境で golden の比較を飛ばしたことを警告する(pytest の要約に出る)。
-- import している内部モジュール: `shibuya.core.hashing`・`shibuya.engine.resume`
+- import している内部モジュール: `shibuya.engine.resume`・`shibuya.foundation.hashing`
 - 読む試験: `tests/engine/space/test_nav1_world.py`・`tests/engine/test_classical_social.py`・`tests/engine/test_env_and_sections_10f.py`・`tests/engine/test_familiarity.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_memory_recall.py`・`tests/engine/test_memory_record.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_relations.py`・`tests/engine/test_relations_tenure.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_store_memory.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_wom.py`・`tests/perception/test_near_tiebreak.py`
 - 決定の ID: 第 330
 
@@ -128,7 +128,7 @@ golden を環境ごとの行で持つための小道具(10f・K26 (1))。
   - `test_parse_limit_s1_storage`(関数): S1 = 恒久記録 ≤5GB/シミュ日(太字でないセルからも拾える)。
   - `test_rows_are_in_document_order`(関数)
   - `test_sections_are_1_to_5`(関数): §6(ハードウェアプロファイル)の表は読み込まれていない。
-- import している内部モジュール: `shibuya.core.budget`
+- import している内部モジュール: `shibuya.foundation.budget`
 - 環境変数: `SHIBUYA_BUDGET_MD`
 
 ## [test_build_run_keep_stage.py](../../../../../tests/test_build_run_keep_stage.py)
@@ -196,7 +196,7 @@ CLI ``--intent-mode {vocab,open,hint}``(AB7 自由意図の腕の切替口・仕
   - `test_cli_main_has_the_intent_mode_flag`(関数)
   - `test_cli_run_defaults_to_vocab`(関数)
   - `test_cli_run_passes_intent_mode_through_kwargs`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.perception.templates`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.text.templates`
 - 決定の ID: 第 277
 
 ## [test_cli_l4_scale.py](../../../../../tests/test_cli_l4_scale.py)
@@ -232,7 +232,7 @@ CLI ``--vocab-version {v1,v2}``(語彙成長 v0 の切替口・D-71 §3 F)。
   - `test_intent_mode_and_vocab_version_are_orthogonal`(関数): 3 腕 × 2 版のどの組み合わせでも回り、manifest に両方が載る。
   - `test_open_and_hint_arms_need_an_explicit_v1_or_v2_on_the_cli`(関数): v3 の B0 は vocab 腕だけ=CLI の既定(v3)のまま open/hint を頼むと usage で落とす。
   - `test_the_default_run_is_byte_identical_with_the_explicit_v1`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.llm.contract`・`shibuya.perception.templates`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`
 - 決定の ID: D-71・第 274・第 276・第 277
 
 ## [test_fixture_holiday_csv.py](../../../../../tests/test_fixture_holiday_csv.py)
@@ -262,7 +262,7 @@ U8 run manifest: 往復一致・自己ハッシュ(T1)・機械化される規�
   - `test_roundtrip_yaml`(関数): load → with_run_id → dump → load でモデルも正規化本文も一致する。
   - `test_run_id_mismatch_detected`(関数): 記録された run_id が本文と食い違えば verify は False。
   - `test_t1_self_hash`(関数): T1: run_id = blake3(正規化本文)。run_id 自身は本文に入らない。
-- import している内部モジュール: `shibuya.manifest`
+- import している内部モジュール: `shibuya.foundation.manifest.canonical`・`shibuya.foundation.manifest.schema`
 
 ## [test_manifest_rules_extra.py](../../../../../tests/test_manifest_rules_extra.py)
 
@@ -273,7 +273,7 @@ manifest 機械化規則の追加検査(層2レビュー指摘・C0出口): MARL
   - `test_marlin_atomic_add_not_enforced_for_smoke`(関数)
   - `test_marlin_atomic_add_required_for_verification_modes`(関数)
   - `test_phases_are_fixed_sequence`(関数)
-- import している内部モジュール: `shibuya.manifest.schema`
+- import している内部モジュール: `shibuya.foundation.manifest.schema`
 
 ## [test_places_guard.py](../../../../../tests/test_places_guard.py)
 
@@ -304,7 +304,7 @@ core.rng の性質テスト(hypothesis)。運用設計書 §1.4 T4(規模不変�
   - `test_rejects_bad_inputs`(関数)
   - `test_same_inputs_same_stream`(関数)
   - `test_t4_scale_invariance`(関数): 個体 agent_id の列は、個体総数(5,000 か 5,001 か)に依存しない=カウンタベースの実証(T4)。
-- import している内部モジュール: `shibuya.core.rng`
+- import している内部モジュール: `shibuya.foundation.rng`
 
 ## [test_world_catalog_sha.py](../../../../../tests/test_world_catalog_sha.py)
 

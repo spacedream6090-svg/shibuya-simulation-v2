@@ -17,10 +17,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.decision import port as P
+from shibuya.foundation.ports import decision as P
 from shibuya.engine.decision import ports as PS
 from shibuya.engine.decision import sources as SR
-from shibuya.llm.contract import cross_action_words
+from shibuya.foundation.vocab.actions import cross_action_words
 
 from tests.engine.decision._j0 import FakeBridge, FakePolicy, ctx_of, vocab_candidates
 
@@ -160,7 +160,7 @@ def test_choose_returns_the_original_id_and_the_presented_number():
 
 def test_candidates_come_from_the_sources_and_keep_the_vocab():
     from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE
-    from shibuya.llm.contract import safe_action_word
+    from shibuya.foundation.vocab.actions import safe_action_word
 
     for v in ("v1", "v2", "v3"):
         cands = vocab_candidates(v)
@@ -169,7 +169,7 @@ def test_candidates_come_from_the_sources_and_keep_the_vocab():
         assert cands[0].source == "continue" and cands[-1].id == SR.DELIBERATE_ID and cands[-1].source == "deliberate"
         assert len({c.id for c in cands}) == len(cands)
     # 予定(今の意図)・経験(想起)・周りが示すできこと
-    from shibuya.perception.facts import IntentView
+    from shibuya.foundation.ports.percept import IntentView
 
     class _P:
         intent = IntentView(action=0, target_kind=0, target=-1)  # 0=移動

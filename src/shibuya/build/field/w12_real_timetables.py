@@ -88,7 +88,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
-from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR
 
 #: 段の印(記録・版の表に書く)。
 STAGE_TAG = "2-3b"

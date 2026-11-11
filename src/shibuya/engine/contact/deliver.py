@@ -41,10 +41,10 @@ from __future__ import annotations
 
 from typing import Any, Final, Iterable, Sequence
 
-from shibuya.core.time_consts import SECONDS_PER_DAY
-from shibuya.engine.batching import BOUNDARY
-from shibuya.engine.contact.arm import LEDGER_ARM
-from shibuya.perception import contact_view as _CV
+from shibuya.foundation.time_consts import SECONDS_PER_DAY
+from shibuya.foundation.queues.batching import BOUNDARY
+from shibuya.foundation.arms.contact import LEDGER_ARM
+from shibuya.foundation.ports import percept_contact as _CV
 
 __all__ = [
     "VIA_MESSAGE", "VIA_GROUP", "VIA_CALL", "VIA_VIDEO", "VIAS", "KIND_RING", "KIND_SEND", "RANK_RING", "RANK_SEND",

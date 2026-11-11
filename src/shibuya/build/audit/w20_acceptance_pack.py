@@ -31,7 +31,7 @@ import numpy as np
 
 from ..geo import common as C
 from ..vis.png import Canvas, ramp_rgb, write_png
-from shibuya.core.time_consts import MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import MINUTES_PER_HOUR
 
 STAGE = "W20"
 STAGE_VERSION = "1.0.0"

@@ -10,7 +10,7 @@ import numpy as np
 import pytest
 
 from shibuya.agents import schedule as S
-from shibuya.core import serialize as SZ
+from shibuya.foundation import serialize as SZ
 from shibuya.engine.run import run_day, run_salt_for
 from shibuya.world.state import World
 

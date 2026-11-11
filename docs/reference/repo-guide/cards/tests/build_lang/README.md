@@ -77,7 +77,7 @@ W14 看板(a)文面: プロンプト生成の決定論・取り込みゲート�
   - `test_run_with_responses_freezes_and_records_hashes`(関数)
   - `test_run_without_responses_writes_prompts_only`(関数)
   - `test_whitespace_and_quotes_are_normalized`(関数): 全角空白・引用符・句点まわりの空白は正規化して凍結する(通したものを凍結)。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.lang.common`・`shibuya.build.lang.w14_signage`・`shibuya.perception.attention`・`shibuya.perception.channels`・`tests/build_lang/conftest.py`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.lang.common`・`shibuya.build.lang.w14_signage`・`shibuya.foundation.text.channels`・`shibuya.perception.attention`・`tests/build_lang/conftest.py`
 
 ## [test_w15_cell_static.py](../../../../../../tests/build_lang/test_w15_cell_static.py)
 
@@ -103,7 +103,7 @@ W15 B2 セル静的文: プロンプト生成の決定論・取り込みゲー�
   - `test_run_without_responses_writes_prompts_only`(関数)
   - `test_trailing_kuten_is_stripped_for_the_template`(関数): テンプレ ``B2.visible`` が「。」を持つので、凍結文の末尾句点は落とす。
   - `test_w14_prompt_rows_have_no_regex_key`(関数): W14 は生成済み=**行の形を動かさない**(regex キーを足すと SHA が動く)。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.lang.common`・`shibuya.build.lang.w14_signage`・`shibuya.build.lang.w15_cell_static`・`shibuya.perception.channels`・`tests/build_lang/conftest.py`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.lang.common`・`shibuya.build.lang.w14_signage`・`shibuya.build.lang.w15_cell_static`・`shibuya.foundation.text.channels`・`tests/build_lang/conftest.py`
 
 ## [test_wiring.py](../../../../../../tests/build_lang/test_wiring.py)
 
@@ -127,4 +127,4 @@ W14/W15 → レンダラの結線: 凍結文があれば使い、無ければ従
   - `test_w15_token_cap_derivation_still_holds`(関数): ``w15_cell_static.TOKEN_CAP`` の導出を実資産で再測する。
   - `test_without_frozen_text_b2_is_the_synthesized_one`(関数)
   - `with_frozen`(関数): 合成資産に凍結文を差し込む(``PerceptionAssets.load`` が作る形と同じ)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.build.lang.w15_cell_static`・`shibuya.perception.channels`・`shibuya.perception.normalize`・`shibuya.perception.renderer`・`shibuya.perception.templates`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.build.lang.w15_cell_static`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.world.state`

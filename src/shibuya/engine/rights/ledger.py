@@ -48,7 +48,7 @@ from typing import Any, Final, Iterator, Mapping
 
 import numpy as np
 
-from shibuya.core.types import SimTime
+from shibuya.foundation.types import SimTime
 
 __all__ = [
     "AGENT", "ORG", "STORE", "PARCEL", "DWELLING", "ROAD_SEGMENT", "SIGNBOARD", "CREDIT_CONTRACT", "ENTITY_KINDS",

@@ -37,7 +37,7 @@ from shibuya.engine.tape import (
     TapeWriter,
 )
 from shibuya.llm.fleet import FleetClient, FleetConfig, Outcome
-from shibuya.manifest.schema import Mode
+from shibuya.foundation.manifest.schema import Mode
 from shibuya.world.state import World
 from tests import golden_env as GE
 

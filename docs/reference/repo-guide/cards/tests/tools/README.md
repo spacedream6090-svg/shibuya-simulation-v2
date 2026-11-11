@@ -162,7 +162,7 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
   - `test_worktree_commit_marks_dirty_tracked_reads`(関数): 検収 M1(M17)・L9: 作業木の src なら HEAD・src の外のエンジンが読む追跡ファイルの変更も +dirty に数える。
   - `wave2`(関数)
   - `wired`(関数)
-- import している内部モジュール: `shibuya.core.paths`・`tools/bytecheck/check.py`・`tools/bytecheck/cli.py`・`tools/bytecheck/configs.py`・`tools/bytecheck/fields.py`・`tools/bytecheck/tree.py`
+- import している内部モジュール: `shibuya.foundation.paths`・`tools/bytecheck/check.py`・`tools/bytecheck/cli.py`・`tools/bytecheck/configs.py`・`tools/bytecheck/fields.py`・`tools/bytecheck/tree.py`
 - 環境変数: `SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CONTACT`・`SHIBUYA_FLEET_API_KEY`・名前を読めない所 5 か所・`os.environ` をまるごと使う
 - 決定の ID: 11-09/§2・第 346
 
@@ -258,7 +258,7 @@ tools/instruments/dm_eval(第 6 期 6-1 判断モデルの評価の器・GPU の
   - `test_vllm_prompt_logprobs_first_token_and_generate`(関数)
   - `test_vllm_token_boundary_and_http_errors`(関数)
   - `test_write_outputs_refuses_overwrite`(関数)
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.decision.port`・`shibuya.llm.contract`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/backends/__init__.py`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/backends/hf.py`・`tools/instruments/dm_eval/backends/vllm.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`・`tools/instruments/read_guard.py`
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/backends/__init__.py`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/backends/hf.py`・`tools/instruments/dm_eval/backends/vllm.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`・`tools/instruments/read_guard.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
 - 決定の ID: 11-01
 
@@ -666,7 +666,7 @@ tools/repo_guide(段 3 ファイルのカード・11-05/§3-1 の 1)の試験。
   - `test_unparsable_file_is_reported_not_guessed`(関数)
   - `test_unresolved_bare_import_gets_a_mark`(関数)
   - `test_write_permits_from_table`(関数)
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.allow`・`shibuya.engine.systems.spec`・`shibuya.engine.systems.table`・`tests/_places.py`
+- import している内部モジュール: `shibuya.engine.state_ledger`・`shibuya.engine.systems.allow`・`shibuya.engine.systems.spec`・`shibuya.engine.systems.table`・`shibuya.foundation.time_consts`・`tests/_places.py`
 - 環境変数: `os.environ` をまるごと使う
 - 決定の ID: 10-12・10-12/D-9・10-13b・10-13b/K3・10-13b/K3 #5・10-25・10-25/§2-5・11-01・11-01/A1-2・11-01/a01・11-01/a1・11-01/§1・11-01/§1 #7・11-01/§1 #8・11-01/§1 #12・11-05/§3-1・R-9・R-9 #3・R-126・R-126 §1-4 #46・D-74・D-74 #4・第 170・第 275・第 275 #7・第 340・第 345・第 345 #2・第 1000
 

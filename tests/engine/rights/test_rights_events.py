@@ -18,15 +18,16 @@ import pytest
 
 from shibuya.agents.state import ResultCode
 from shibuya.engine import resolve as R
-from shibuya.engine.events import log as EV
-from shibuya.engine.events import vocab as V
-from shibuya.engine.events.links import ActualLogLink
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.journal.links import ActualLogLink
 from shibuya.engine.llm_bridge import LLMBridge
 from shibuya.engine.processes.opening import OpeningProcess
 from shibuya.engine.rights import ledger as L
 from shibuya.engine.rights import record as RR
-from shibuya.llm import LLMResponse, format_two_line
-from shibuya.llm.contract import ACTION_CODES
+from shibuya.llm import LLMResponse
+from shibuya.foundation.vocab.actions import format_two_line
+from shibuya.foundation.vocab.actions import ACTION_CODES
 from shibuya.world.processes.actual_log import ActualLog
 
 from tests.engine.processes.conftest import fake_plan_assets, make_agents, make_world

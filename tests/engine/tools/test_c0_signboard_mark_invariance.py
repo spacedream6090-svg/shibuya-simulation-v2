@@ -17,16 +17,16 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.core import write_permit as WP
-from shibuya.engine.bridging import ledger as BR
-from shibuya.engine.events import log as EV
-from shibuya.engine.events import vocab as V
+from shibuya.foundation import write_permit as WP
+from shibuya.foundation.decl import bridging as BR
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.vocab import events as V
 from shibuya.engine.run import run_day
 from shibuya.engine.systems import overrides as OV
 from shibuya.engine.tools import record as TR
 from shibuya.engine.tools.registry import SIGNAGE_BRIDGE
 from shibuya.perception import renderer as RD
-from shibuya.perception.facts import SeenObject
+from shibuya.foundation.ports.percept import SeenObject
 
 KW = dict(n_agents=60, seed=2, n_cells=9, ticks=240, budget=60.0, sleep_suppression=False, vocab_version="v3",
           checkpoint_every=60)

@@ -85,11 +85,11 @@ from typing import Any, Callable, Final, Iterable, Mapping, Sequence
 import numpy as np
 
 from shibuya.agents.state import Activity
-from shibuya.core.rng import key_time_from_t_ns
-from shibuya.core.time_consts import NS_PER_SECOND, SECONDS_PER_MINUTE
-from shibuya.engine.batching import WORLD
+from shibuya.foundation.rng import key_time_from_t_ns
+from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_MINUTE
+from shibuya.foundation.queues.batching import WORLD
 from shibuya.engine.body.system1 import loud_sound_notice, noise_stage_at
-from shibuya.engine.contact import arm as _ARM
+from shibuya.foundation.arms import contact as _ARM
 from shibuya.engine.contact import attention as _AT
 from shibuya.engine.contact import device as _DV
 from shibuya.engine.contact import deliver as _DL
@@ -100,13 +100,13 @@ from shibuya.engine.contact.book import ContactBook
 from shibuya.engine.contact.calls import CallManager, CallSpeechPort
 from shibuya.engine.contact.chat_state import CHAT_SILENCE_STEPS, ChatBook, group_key, pair_key
 from shibuya.engine.conversation import ConvState
-from shibuya.engine.decision.port import SOURCE_AFFORDANCE, SOURCE_EXPERIENCE, Candidate, DecisionContext
-from shibuya.engine.events import vocab as V
-from shibuya.engine.events.log import Event, LlmCall, Process
+from shibuya.foundation.ports.decision import SOURCE_AFFORDANCE, SOURCE_EXPERIENCE, Candidate, DecisionContext
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.journal.log import Event, LlmCall, Process
 from shibuya.engine.speech.port import SpeechContext, Utterance
-from shibuya.engine.tools import contacts as _CT
+from shibuya.foundation.vocab import contact_flags as _CT
 from shibuya.engine.tools.groups import GROUP_KINDS
-from shibuya.perception.contact_view import DeviceView
+from shibuya.foundation.ports.percept_contact import DeviceView
 
 __all__ = [
     "SCHEMA", "CONFIG_KEYS", "OBSERVED_KEYS", "W_SENT", "W_DELIVERED", "W_READ", "W_LATER", "W_IGNORE", "W_HELD",

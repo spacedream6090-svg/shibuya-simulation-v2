@@ -24,7 +24,7 @@ engine.rules.table — 規則の表(第 1 期 1-4・CP10・決定 10-12 §1-12�
   - `default_rules`(関数): リポの表(1 回だけ読む)。
   - `load`(関数): 表を読む(形式の版・欄の検査つき)。
   - `rules_version`(関数): manifest と日次の記録の ``rules_version``(表の sha)。表のファイルが無い写しでは ``None``(ランは止めない)。
-- import している内部モジュール: `shibuya.core.paths`
+- import している内部モジュール: `shibuya.foundation.paths`
 - 呼び手: `shibuya.economy.anchors`・`shibuya.economy.taxes`・`shibuya.engine.calendar3.layer`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.state_io`
 - 読む試験: `tests/economy/test_min_wage_human_bridge.py`・`tests/economy/test_rules42_credit.py`・`tests/economy/test_rules42_payroll.py`・`tests/economy/test_rules42b_payroll.py`・`tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/bridging/test_manifest_rules_bridges.py`・`tests/engine/rules/test_rules42_table.py`・`tests/engine/rules/test_rules_table_schema.py`・`tests/engine/state/test_move_prep_stage2.py`
 - 決定の ID: 10-12/§1-12・R-106・R-113・R-118

@@ -44,7 +44,7 @@ def _roundtrip(v):
 # ================================================================= 印の往復
 def test_marks_roundtrip_types_order_and_values():
     from shibuya.engine.conversation import ConvState, PendingInvite, Session
-    from shibuya.llm.contract import Target, TargetKind
+    from shibuya.foundation.vocab.actions import Target, TargetKind
 
     od = collections.OrderedDict([(3, "c"), (1, "a"), (2, "b")])
     cnt = collections.Counter({"x": 2, "y": 1})
@@ -84,7 +84,7 @@ def test_marks_roundtrip_types_order_and_values():
 
 
 def test_generator_state_continues_the_same_draws():
-    from shibuya.core.rng import stream
+    from shibuya.foundation.rng import stream
 
     g = stream(1, "test.codec", 5)
     g.random(7)
@@ -95,7 +95,7 @@ def test_generator_state_continues_the_same_draws():
 
 def test_shared_objects_keep_their_identity():
     """同じオブジェクトを 2 か所から指す値(凍結した Target・配列・list)は 1 つのまま戻る(pickle と同じ)。"""
-    from shibuya.llm.contract import Target, TargetKind
+    from shibuya.foundation.vocab.actions import Target, TargetKind
 
     t = Target(kind=TargetKind.CELL, raw="C-1", cell_id="C-1", cell_index=1)
     arr = np.arange(5, dtype=np.int64)

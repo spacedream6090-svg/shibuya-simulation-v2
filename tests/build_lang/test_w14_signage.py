@@ -299,7 +299,7 @@ def test_property_unknown_katakana_is_always_caught(word: str):
 @pytest.mark.requires_data("world_v2:w7_plan_spec.parquet")
 def test_real_data_prompt_count_and_sha(capsys):
     """実資産で 2,337 件・プロンプト SHA・平均トークンを出す(§1 W14 の呼数)。"""
-    from shibuya.perception.channels import estimate_tokens
+    from shibuya.foundation.text.channels import estimate_tokens
 
     prompts = W14.build_prompts(DATA_DIR)
     assert len(prompts) == W14.EXPECTED_POI_ROWS

@@ -20,7 +20,7 @@ from shibuya.engine import chooser as CH
 from shibuya.engine import classical as CL
 from shibuya.llm import LLMRequest
 from shibuya.llm.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
-from shibuya.llm.contract import format_two_line_v3
+from shibuya.foundation.vocab.actions import format_two_line_v3
 from shibuya.world.state import World
 
 DOC, MD5 = CL.load_activity_prior()

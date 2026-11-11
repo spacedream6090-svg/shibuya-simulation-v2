@@ -13,7 +13,7 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import Activity
-from shibuya.engine.contact import arm as A
+from shibuya.foundation.arms import contact as A
 from shibuya.engine.contact import book as _BOOK
 from shibuya.engine.contact import habit as HB
 from shibuya.engine.contact import layer as _LAYER

@@ -33,7 +33,7 @@ from typing import Any, Final, Mapping
 import numpy as np
 
 from shibuya.agents.state import Activity, ActivityKind
-from shibuya.core.time_consts import SECONDS_PER_DAY
+from shibuya.foundation.time_consts import SECONDS_PER_DAY
 from shibuya.engine.change_detect import INTERO_UP_EDGES
 from shibuya.engine.energy import HUNGER_RATIO_EDGES
 

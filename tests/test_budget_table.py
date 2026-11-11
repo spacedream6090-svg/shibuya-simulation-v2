@@ -9,7 +9,7 @@ import re
 
 import pytest
 
-from shibuya.core.budget import (
+from shibuya.foundation.budget import (
     BudgetRow,
     budget_by_id,
     load_budget_table,

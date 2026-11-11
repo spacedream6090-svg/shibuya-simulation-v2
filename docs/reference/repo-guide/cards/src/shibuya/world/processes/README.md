@@ -32,7 +32,7 @@ world.processes.actual_log — **追記専用 ActualLog**(固定幅 numpy レコ
   - `ActualLog`(クラス): 追記専用の実績ログ(固定幅 numpy + 保持窓 + 増分索引)。
   - `ComplianceRate`(クラス): PlanSpec の「遵守率の観測欄」の実測値。
   - `plan_compliance`(関数): PlanSpec の遵守率(``realizes`` 関係で結ばれた世界過程の記録から計算)。
-- import している内部モジュール: `shibuya.core.growth`・`shibuya.core.time_consts`・`shibuya.world.processes.records`・`shibuya.world.processes.relations`
+- import している内部モジュール: `shibuya.foundation.growth`・`shibuya.foundation.time_consts`・`shibuya.world.processes.records`・`shibuya.world.processes.relations`
 - 呼び手: `shibuya.engine.processes.runner`・`shibuya.world.processes`
 - 読む試験: `tests/engine/events/test_e_log_links_actual.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rail.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/time/test_t0_time_consts.py`・`tests/world/processes/test_actual_log.py`
 - 状態台帳の行
@@ -74,7 +74,7 @@ world.processes.constitution — **憲法5 の機械検査**(D-R2-4・決定2026
   - `check_declaration`(関数): 1件ぶんの (a)/(b) 検査。
   - `parse_pattern_ledger_ids`(関数): パターン台帳の表(先頭列見出しが ``ID`` または ``行``)から行 id を読む。
   - `parse_perception_channel_ids`(関数): 知覚契約書 §3 チャネル仕様表の**チャネル列**を出現順で返す。
-- import している内部モジュール: `shibuya.core.paths`・`shibuya.world.processes.records`
+- import している内部モジュール: `shibuya.foundation.paths`・`shibuya.world.processes.records`
 - 呼び手: `shibuya.world.processes`・`shibuya.world.processes.circularity`・`shibuya.world.processes.deletion_candidates`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.registry`
 - 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/world/processes/test_constitution.py`・`tests/world/processes/test_deletion_candidates.py`・`tests/world/processes/test_first_batch.py`
 - 環境変数: `SHIBUYA_PATTERN_LEDGER_MD`・`SHIBUYA_PERCEPTION_MD`・名前を読めない所 1 か所
@@ -98,7 +98,7 @@ world.processes.first_batch — **第1陣の宣言(データのみ・振る舞�
 - 公開の関数とクラス
   - `build_registry`(関数): 第1陣(+前倒し分)を積んだ ``WorldRegistry`` を作る。
   - `growth_declarations`(関数): 宣言済み世界過程の成長宣言(名前 → 宣言)。``core.growth.check_growth`` に渡す。
-- import している内部モジュール: `shibuya.core.growth`・`shibuya.world.processes.absent`・`shibuya.world.processes.constitution`・`shibuya.world.processes.inputs`・`shibuya.world.processes.records`・`shibuya.world.processes.registry`・`shibuya.world.processes.relations`
+- import している内部モジュール: `shibuya.foundation.growth`・`shibuya.world.processes.absent`・`shibuya.world.processes.constitution`・`shibuya.world.processes.inputs`・`shibuya.world.processes.records`・`shibuya.world.processes.registry`・`shibuya.world.processes.relations`
 - 呼び手: `shibuya.engine.bridging.scan`・`shibuya.engine.processes.runner`
 - 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/processes/test_runner.py`・`tests/engine/test_processes_run.py`・`tests/world/processes/test_actual_log.py`・`tests/world/processes/test_declarations_1101.py`・`tests/world/processes/test_first_batch.py`
 - 決定の ID: 第 340
@@ -134,7 +134,7 @@ world.processes.records — 世界側台帳の**レコード型3つ**(D-R2-2・�
   - `Validity`(クラス): 有効期間(valid time・§2 PlanSpec)。tick 単位。``valid_to=None`` = 無期限。
   - `Violability`(クラス): 軸4 違反可能性(§2・Grossi et al.)。
   - `WorldProcess`(クラス): §2 の ``WorldProcess`` 行。
-- import している内部モジュール: `shibuya.core.growth`
+- import している内部モジュール: `shibuya.foundation.growth`
 - 呼び手: `shibuya.engine.duties.layer`・`shibuya.engine.experiment.branch`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.logistics`・`shibuya.engine.processes.opening`・`shibuya.engine.processes.rail`・`shibuya.world.processes`・`shibuya.world.processes.absent`・`shibuya.world.processes.actual_log`・`shibuya.world.processes.circularity`・`shibuya.world.processes.constitution`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.inputs`・`shibuya.world.processes.registry`・`shibuya.world.processes.relations`
 - 読む試験: `tests/engine/duties/test_du_runs.py`・`tests/engine/events/test_e_log_links_actual.py`・`tests/world/processes/conftest.py`・`tests/world/processes/test_actual_log.py`・`tests/world/processes/test_constitution.py`・`tests/world/processes/test_declarations_1101.py`・`tests/world/processes/test_first_batch.py`・`tests/world/processes/test_records.py`・`tests/world/processes/test_registry.py`・`tests/world/processes/test_relations.py`
 - 決定の ID: 11-01・11-01/§1・11-01/§2・第 340
@@ -146,7 +146,7 @@ world.processes.registry — 世界側台帳(**名前空間・ID体系は1つ**�
 - 公開の関数とクラス
   - `CoverageReport`(クラス): executor 別の内訳と、世界カタログ(分母57)の被覆。
   - `WorldRegistry`(クラス): 世界過程・計画仕様・細部・関係を1つの名前空間で保持する台帳。
-- import している内部モジュール: `shibuya.core.hashing`・`shibuya.manifest.world_catalog`・`shibuya.world.processes.constitution`・`shibuya.world.processes.records`・`shibuya.world.processes.relations`
+- import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.manifest.world_catalog`・`shibuya.world.processes.constitution`・`shibuya.world.processes.records`・`shibuya.world.processes.relations`
 - 呼び手: `shibuya.engine.bridging.scan`・`shibuya.world.processes`・`shibuya.world.processes.first_batch`
 - 読む試験: `tests/world/processes/conftest.py`・`tests/world/processes/test_constitution.py`・`tests/world/processes/test_registry.py`
 

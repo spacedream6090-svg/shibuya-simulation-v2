@@ -21,7 +21,7 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_rows_load_as_bridges_with_the_new_fields`(関数)
   - `test_tool_is_idempotent_on_the_current_ledger`(関数)
   - `tool`(関数)
-- import している内部モジュール: `shibuya.engine.bridging.ledger`
+- import している内部モジュール: `shibuya.foundation.decl.bridging`
 - 決定の ID: 11-01/§10-1・11-02r/§1・11-02r/§1 #7・11-03/§3・第 340・第 342・第 346
 
 ## [test_drives_from_vs_scoring.py](../../../../../../tests/bridging/test_drives_from_vs_scoring.py)

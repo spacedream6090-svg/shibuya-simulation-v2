@@ -15,12 +15,12 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core.time_consts import STEPS_PER_DAY
+from shibuya.foundation.time_consts import STEPS_PER_DAY
 from shibuya.engine import resume as RS
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.speech import layer as SPL
 from shibuya.llm import LLMRequest
-from shibuya.llm.contract import SPEECH_FIELD_LINE, append_comment, format_two_line_v3
+from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE, append_comment, format_two_line_v3
 from shibuya.llm.mock import MOCK_UTTERANCE, MockLLM
 from tests.engine.speech._s8b import run_small, tape_rows
 

@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.core.types import EventClass
+from shibuya.foundation.types import EventClass
 from shibuya.engine.arbiter import (
     DEGRADE_COST_FACTOR,
     POOL_CAP_TICKS,

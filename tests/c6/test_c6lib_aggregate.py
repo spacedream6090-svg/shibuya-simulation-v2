@@ -10,7 +10,7 @@ import json
 
 import pytest
 
-from shibuya.llm.contract import ROLE_ACTION_WORDS, format_two_line
+from shibuya.foundation.vocab.actions import ROLE_ACTION_WORDS, format_two_line
 
 GOOD = "理由: 予定の時間になったから\n行動: 移動 対象: C-0001 ひと言: なし"
 BAD = "うーん、なんとも言えませんね。"

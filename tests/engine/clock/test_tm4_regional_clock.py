@@ -23,8 +23,8 @@ import numpy as np
 import pytest
 
 from shibuya import cli
-from shibuya.core.time_consts import CLOCK_KIND, NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
-from shibuya.engine import manifest_sections as MS
+from shibuya.foundation.time_consts import CLOCK_KIND, NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
+from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import regional_clock as RC
 from shibuya.engine import resume as RS
 from shibuya.engine import speech_clock as TC

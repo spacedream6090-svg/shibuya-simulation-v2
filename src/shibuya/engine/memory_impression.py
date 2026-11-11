@@ -27,7 +27,7 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any, Callable, Final, NamedTuple, Sequence
 
-from shibuya.engine.events.log import LlmCall
+from shibuya.foundation.journal.log import LlmCall
 
 __all__ = ["KIND_AFTER_TALK", "KIND_SLEEP_REWRITE", "KINDS", "ImpressionEntry", "ImpressionBook"]
 

@@ -29,7 +29,7 @@ core.growth のテスト: **D-R2-6 の 5 欄が正典**+24step→1日/30日外�
   - `test_retention_window_caps_the_horizon`(関数): 保持窓 7 日なら 30 日外挿でも 7 日分しか積まない(D-R2-6 の日次集約+保持窓)。
   - `test_steady_bytes`(関数)
   - `test_yaml_row_has_exactly_the_five_canonical_keys`(関数)
-- import している内部モジュール: `shibuya.core.growth`
+- import している内部モジュール: `shibuya.foundation.growth`
 
 ## [test_serialize.py](../../../../../../tests/core/test_serialize.py)
 
@@ -41,7 +41,7 @@ core.serialize のテスト: checkpoint 往復一致と M7(膨張率 ≤2.0x)。
   - `test_property_roundtrip_preserves_state_hash`(関数)
   - `test_roundtrip_and_m7_bloat`(関数)
   - `test_zeros_registry_shows_why_denominator_matters`(関数): 全ゼロ=zstd がよく効く場合。非圧縮基準の比は 1.0 付近、圧縮後基準は跳ね上がる。
-- import している内部モジュール: `shibuya.core.serialize`・`shibuya.core.soa`
+- import している内部モジュール: `shibuya.foundation.serialize`・`shibuya.foundation.soa`
 
 ## [test_soa.py](../../../../../../tests/core/test_soa.py)
 
@@ -58,7 +58,7 @@ core.soa のテスト: M9(宣言なきフィールドはマージ不可)と stat
   - `test_property_state_hash_changes_iff_bytes_change`(関数): 性質: state_hash が変わる ⟺ 配列のバイト列が変わる。
   - `test_state_hash_changes_on_any_byte_change`(関数)
   - `test_state_hash_is_stable_and_order_sensitive`(関数)
-- import している内部モジュール: `shibuya.core.budget`・`shibuya.core.soa`
+- import している内部モジュール: `shibuya.foundation.budget`・`shibuya.foundation.soa`
 
 ## [test_types_hashing.py](../../../../../../tests/core/test_types_hashing.py)
 
@@ -78,4 +78,4 @@ core.types / core.hashing のテスト(golden 値の凍結を含む)。
   - `test_t_sim_ns_overflow_is_loud`(関数): int64 の限界(60秒tickで約 292 年)を黙って回さない。
   - `test_t_sim_ns_rejects_out_of_range_offset`(関数)
   - `test_t_sim_ns_roundtrip`(関数)
-- import している内部モジュール: `shibuya.core.hashing`・`shibuya.core.types`
+- import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.types`

@@ -23,7 +23,7 @@ import numpy as np
 import pytest
 
 from shibuya import cli
-from shibuya.core import rng as RNG
+from shibuya.foundation import rng as RNG
 from shibuya.engine import geometry as GEO
 from shibuya.engine import resume as RS
 from shibuya.engine import run as RUN
@@ -55,9 +55,9 @@ _DYNAMIC = {
 }
 _IGNORE = {"seed.check", "/v1/chat/completions"}  # 型の検査だけ・httpx の stream
 #: 変数の用途名をそのまま渡す呼び出しを許す場所(再検収 T4: ``core.rng`` の中の ``philox``・``stream`` だけ)。
-_PASSTHROUGH_OK = {"?domain": {"core/rng.py"}}
+_PASSTHROUGH_OK = {"?domain": {"foundation/rng.py"}}
 _RNG_FUNCS = ("stream", "philox", "derive_key", "philox_array")  # 〔第 2 期 2-2〕配列で回す Philox
-_RNG_MODULES = ("shibuya.core.rng", "core.rng", "rng")
+_RNG_MODULES = ("shibuya.foundation.rng", "core.rng", "rng")
 
 
 #: 乱数のモジュールの名の部品(〔段 4 の下ごしらえ〕置き場を字面で持たず、モジュールの ``__name__`` から作る。
@@ -149,8 +149,8 @@ def test_every_rng_domain_in_src_is_classified():
 def test_static_scan_catches_aliases_and_keyword_domains():
     """検収 S3-1 の 1・2: 別名の import と名前つきの ``domain=`` を拾う(わざと書いた断片で)。"""
     snippet = (
-        "from shibuya.core.rng import stream as _s, philox\n"
-        "from shibuya.core import rng as R\n"
+        "from shibuya.foundation.rng import stream as _s, philox\n"
+        "from shibuya.foundation import rng as R\n"
         "def f(seed):\n"
         "    _s(seed, 'x.alias').random()\n"
         "    philox(seed, domain='x.keyword')\n"
@@ -203,10 +203,10 @@ _HASH_SITES = {
     # 〔第 6 期 6-2〕腕 1b の体ごとの割り振り(動きの seed=salt・母集団の seed は使わない)
     ("engine/calendar_self.py", "_key_draw"): "calendar_1b",
     ("llm/fleet.py", "seed_for"): "fleet.call_seed",
-    ("core/rng.py", "derive_key"): "core.rng の鍵の導出そのもの",
-    ("core/hashing.py", "xxh64"): "汎用のハッシュ(引数の名前が seed)",
-    ("core/hashing.py", "xxh64_array"): "汎用のハッシュ(引数の名前が seed)",
-    ("perception/hashes.py", "block_hash"): "汎用のハッシュ(引数の名前が seed)",
+    ("foundation/rng.py", "derive_key"): "core.rng の鍵の導出そのもの",
+    ("foundation/hashing.py", "xxh64"): "汎用のハッシュ(引数の名前が seed)",
+    ("foundation/hashing.py", "xxh64_array"): "汎用のハッシュ(引数の名前が seed)",
+    ("foundation/text/hashes.py", "block_hash"): "汎用のハッシュ(引数の名前が seed)",
     # 〔第330・RET〕legacy の select_day は消した
     # 〔第330・10e B6〕天気の規則 calendar の再生日の抽選
     ("engine/processes/environment.py", "sample_calendar_day"): "層の名前と日番号を数にするだけ(乱数は core.rng の環境の流れ)",

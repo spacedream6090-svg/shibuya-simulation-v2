@@ -50,14 +50,14 @@ from typing import Final
 import numpy as np
 
 from shibuya.agents.state import AgentKind, AgentState
-from shibuya.core.rng import k19_counters, stream
+from shibuya.foundation.rng import k19_counters, stream
 from shibuya.engine import absent_processes as _ABSENT
 from shibuya.engine import rate_rules as _RATE_RULES
 from shibuya.engine import resolve as R
-from shibuya.engine.events.log import Process
+from shibuya.foundation.journal.log import Process
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "REORDER_FILL_RATIO",

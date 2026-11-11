@@ -29,37 +29,6 @@ from shibuya.perception.attention import (
     strip_imperatives,
     tag_world_text,
 )
-from shibuya.perception.channels import (
-    CHANNEL_BY_ID,
-    CHANNEL_LIMITS,
-    BudgetMode,
-    ChannelLimit,
-    Grade,
-    TruncationReport,
-    estimate_tokens,
-    truncate_lines,
-)
-from shibuya.perception.hashes import (
-    b4_field_row,
-    block_hash,
-    block_hashes,
-    field_row_hashes,
-    prefix_key,
-    should_resend,
-)
-from shibuya.perception.normalize import (
-    AgentDependentWordError,
-    assert_no_abbreviation,
-    assert_no_agent_dependent_words,
-    canonical_whitespace,
-    format_time,
-    join_lines,
-    peg_stage,
-    peg_stage_array,
-    round_time_5min,
-    sort_ids,
-    time_band,
-)
 from shibuya.perception.p_notice import (
     CUTOFF_M,
     D50_DEFAULT_M,
@@ -77,42 +46,11 @@ from shibuya.perception.p_notice import (
 )
 from shibuya.perception.renderer import PerceptionAssets, Rendered, Renderer
 from shibuya.perception.state import PerceptionState
-from shibuya.perception.templates import (
-    BLOCK_IDS,
-    BLOCK_TOKEN_BUDGET,
-    GROUP_TOKEN_BUDGET,
-    TEMPLATE_VERSION,
-    template_sha256,
-)
 
 __all__ = [
     # templates
-    "TEMPLATE_VERSION",
-    "BLOCK_IDS",
-    "BLOCK_TOKEN_BUDGET",
-    "GROUP_TOKEN_BUDGET",
-    "template_sha256",
     # normalize
-    "AgentDependentWordError",
-    "assert_no_abbreviation",
-    "assert_no_agent_dependent_words",
-    "canonical_whitespace",
-    "format_time",
-    "join_lines",
-    "peg_stage",
-    "peg_stage_array",
-    "round_time_5min",
-    "sort_ids",
-    "time_band",
     # channels
-    "CHANNEL_LIMITS",
-    "CHANNEL_BY_ID",
-    "ChannelLimit",
-    "Grade",
-    "BudgetMode",
-    "TruncationReport",
-    "estimate_tokens",
-    "truncate_lines",
     # attention
     "P_SEE_LARGE_VISION",
     "BUDGET_ADS",
@@ -143,12 +81,6 @@ __all__ = [
     "p2_social",
     "notice_event",
     # hashes
-    "block_hash",
-    "block_hashes",
-    "prefix_key",
-    "should_resend",
-    "b4_field_row",
-    "field_row_hashes",
     # state
     "PerceptionState",
     # renderer

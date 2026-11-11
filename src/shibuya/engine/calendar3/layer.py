@@ -62,16 +62,16 @@ from typing import Any, Callable, Final, Iterable, Mapping, Sequence
 import numpy as np
 
 from shibuya.agents.state import Activity
-from shibuya.core.rng import key_time_from_t_ns
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
+from shibuya.foundation.rng import key_time_from_t_ns
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
 from shibuya.engine.calendar2 import book as _B
 from shibuya.engine.calendar2.port import NOTIFY_LEAD_MIN
-from shibuya.engine.calendar3 import arm as _ARM
+from shibuya.foundation.arms import calendar3 as _ARM
 from shibuya.engine.calendar3 import port as _P
 from shibuya.engine.calendar3.knowledge import CommonCalendar, StoreRules, common_line
-from shibuya.engine.decision.port import Candidate, DecisionContext
-from shibuya.engine.events import vocab as V
-from shibuya.engine.events.log import Event, LlmCall, Process
+from shibuya.foundation.ports.decision import Candidate, DecisionContext
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.journal.log import Event, LlmCall, Process
 
 __all__ = [
     "SCHEMA", "CONFIG_KEYS", "OBSERVED_KEYS", "ARBITRATION", "MAX_SEND_TRIES", "WEEK_DAYS", "COMPOSE_WEEKDAY",

@@ -17,7 +17,7 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import AgentState, ResultCode
-from shibuya.core import write_permit as WP
+from shibuya.foundation import write_permit as WP
 from shibuya.engine import memory as M
 from shibuya.engine import relations as RL
 from shibuya.engine import state_ledger as SL
@@ -26,7 +26,7 @@ from shibuya.engine.systems import conductor as CD
 from shibuya.engine.systems import overrides as OV
 from shibuya.engine.systems import probe as PR
 from shibuya.engine.systems.table import SPECS
-from shibuya.engine.tools import contacts as CT
+from shibuya.foundation.vocab import contact_flags as CT
 from tests.engine.tools import contacts_writers as CW
 
 ROOT = Path(__file__).resolve().parents[3]

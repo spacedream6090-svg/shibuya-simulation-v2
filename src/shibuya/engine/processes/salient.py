@@ -55,7 +55,7 @@ from typing import Final, Sequence
 import numpy as np
 
 from shibuya.agents.state import Activity, AgentState, WakeCondition
-from shibuya.core.rng import run_tick_key, stream
+from shibuya.foundation.rng import run_tick_key, stream
 from shibuya.engine import rate_rules as _RATE_RULES
 from shibuya.engine import resolve as R
 from shibuya.engine.body.model import BodyModel as _BodyModel
@@ -64,7 +64,7 @@ from shibuya.perception import attention as AT
 from shibuya.perception import p_notice as PN
 from shibuya.perception.state import PerceptionState, heading_from_vector
 from shibuya.world.state import World
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "COLLAPSE_PER_10K_PER_DAY",

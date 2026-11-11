@@ -15,7 +15,7 @@ from typing import Any
 
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR
+from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR
 
 
 def sys_phase_a(ctx: Any, b: Any) -> None:

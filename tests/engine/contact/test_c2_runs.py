@@ -10,15 +10,15 @@ import dataclasses
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import STEPS_PER_DAY
-from shibuya.engine import manifest_sections as MS
+from shibuya.foundation.time_consts import STEPS_PER_DAY
+from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import resume as RS
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.contact import habit as HB
 from shibuya.engine.contact import layer as LY
 from shibuya.engine.contact import port as P
 from shibuya.engine.contact import tools as TL
-from shibuya.engine.events import log as EV
+from shibuya.foundation.journal import log as EV
 from shibuya.engine.run import run_day
 from shibuya.engine.tools import record as TR
 from shibuya.engine.tools.groups import GroupList

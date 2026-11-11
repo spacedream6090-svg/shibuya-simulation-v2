@@ -190,7 +190,7 @@ def test_fig2_event_classes_match_src():
     """和名表が ``EventClass`` を**全部**覆っている(src が増えたら落ちる)。"""
     import fig_calls_by_hour as f2
 
-    from shibuya.core.types import EventClass
+    from shibuya.foundation.types import EventClass
 
     got = f2.event_classes()
     assert [c["value"] for c in got] == sorted(int(m) for m in EventClass)

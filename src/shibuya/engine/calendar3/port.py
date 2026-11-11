@@ -35,8 +35,8 @@ from __future__ import annotations
 from types import MappingProxyType
 from typing import Any, Final, Sequence
 
-from shibuya.core.rng import k19_counters, stream
-from shibuya.engine.decision.port import (
+from shibuya.foundation.rng import k19_counters, stream
+from shibuya.foundation.ports.decision import (
     OTHER_ID,
     SOURCE_CONTINUE,
     SOURCE_EXPERIENCE,

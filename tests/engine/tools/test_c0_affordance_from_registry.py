@@ -23,7 +23,7 @@ from shibuya.engine.run import run_day
 from shibuya.engine.tools import record as REC
 from shibuya.engine.tools import registry as TR
 from shibuya.engine.tools.registry import KnownBy, Tool, ToolRegistry
-from shibuya.llm.contract import cross_action_words, safe_action_word
+from shibuya.foundation.vocab.actions import cross_action_words, safe_action_word
 from tests.engine.decision._j0 import SMALL, ctx_of, decision_arm
 
 V3 = cross_action_words("v3")

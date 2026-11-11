@@ -30,7 +30,7 @@ from shibuya.economy.accounts import (
     registered_cells,
 )
 from shibuya.economy.ledger import Ledger
-from shibuya.engine.ledger_api import TransferStatus
+from shibuya.foundation.ports.ledger import TransferStatus
 
 H, S, E, B, G, W = (int(s) for s in Sector)
 
@@ -154,7 +154,7 @@ def test_cash_method_writes_zero_in_the_method_column():
 
 # ================================================================= 金の語・段階 2 の組
 def test_extra_money_words_map_to_deposit_net_and_are_in_the_vocab():
-    from shibuya.engine.events import vocab as V
+    from shibuya.foundation.vocab import events as V
 
     assert tuple(w.split(":", 1)[1] for w in OPS.MONEY_EXTRA_WHAT) == V.MONEY_EXTRA_WORDS
     assert all(c == AccountCode.DEPOSIT_NET for c in OPS.MONEY_EXTRA_WHAT.values())

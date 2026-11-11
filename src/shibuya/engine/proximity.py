@@ -65,7 +65,7 @@ from typing import Any, Callable, Final, Mapping
 
 import numpy as np
 
-from shibuya.core.rng import k19_counter_array, philox_array, run_tick_key, unit_float
+from shibuya.foundation.rng import k19_counter_array, philox_array, run_tick_key, unit_float
 from shibuya.engine import removed_switches as _RSW
 from shibuya.engine.spatial_index import INDEX_CELL_M, SpatialIndex
 

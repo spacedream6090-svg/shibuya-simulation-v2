@@ -33,12 +33,12 @@ from typing import Final, Iterator
 
 import numpy as np
 
-from shibuya.core import write_permit as _WP
-from shibuya.core.hashing import blake3_hex
-from shibuya.core.soa import Registry
+from shibuya.foundation import write_permit as _WP
+from shibuya.foundation.hashing import blake3_hex
+from shibuya.foundation.soa import Registry
 from shibuya.world.assets import WorldAssets, load_assets, synthetic_assets
 from shibuya.world.graph import WalkGraph
-from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, STEPS_PER_DAY
+from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, STEPS_PER_DAY
 
 __all__ = [
     "DENSITY_STAGE_EDGES",

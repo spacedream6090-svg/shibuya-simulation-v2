@@ -14,8 +14,8 @@ from shibuya.engine import resolve as R
 from shibuya.engine.chooser import NearestChooser
 from shibuya.engine.poi_target import TargetResolver
 from shibuya.engine.run import _named_closed_lookup
-from shibuya.llm.contract import UntilKind, parse_target
-from shibuya.perception import channels as ch
+from shibuya.foundation.vocab.actions import UntilKind, parse_target
+from shibuya.foundation.text import channels as ch
 from shibuya.perception import renderer as PR
 from shibuya.perception.renderer import Renderer
 

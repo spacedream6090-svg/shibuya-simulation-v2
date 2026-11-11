@@ -17,9 +17,9 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core import time_consts as TC
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine.bridging import ledger as BR
+from shibuya.foundation import time_consts as TC
+from shibuya.foundation.manifest import sections as MS
+from shibuya.foundation.decl import bridging as BR
 from shibuya.engine.run import run_day
 
 FROZEN = Path(__file__).with_name("manifest_keys_frozen.json")

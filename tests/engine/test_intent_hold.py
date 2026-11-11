@@ -40,7 +40,7 @@ from shibuya.engine.intent import (
 from shibuya.engine.poi_target import MOVE_BAD_TARGET, TargetResolver, resolution_summary
 from shibuya.engine.run import run_day
 from shibuya.llm import LLMRequest
-from shibuya.llm.contract import ACTION_CODES, UntilKind, parse_target
+from shibuya.foundation.vocab.actions import ACTION_CODES, UntilKind, parse_target
 from shibuya.llm.mock import MockLLM
 from shibuya.perception import renderer as PR
 from shibuya.perception.renderer import Renderer

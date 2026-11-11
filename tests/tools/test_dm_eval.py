@@ -39,8 +39,8 @@ from dm_eval import cli as C  # noqa: E402
 from dm_eval import judge as J  # noqa: E402
 from dm_eval import situations as S  # noqa: E402
 from dm_eval import table as T  # noqa: E402
-from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_HOUR  # noqa: E402
-from shibuya.engine.decision.port import OTHER_ID, SURPRISE_WORDS, Candidate, compose  # noqa: E402
+from shibuya.foundation.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_HOUR  # noqa: E402
+from shibuya.foundation.ports.decision import OTHER_ID, SURPRISE_WORDS, Candidate, compose  # noqa: E402
 
 
 PKG = _INSTR / "dm_eval"
@@ -636,7 +636,7 @@ import shutil  # noqa: E402
 from types import SimpleNamespace  # noqa: E402
 
 from dm_eval import backends as BK  # noqa: E402
-from shibuya.engine.decision.port import ALL_SOURCES, OTHER_TEXT  # noqa: E402
+from shibuya.foundation.ports.decision import ALL_SOURCES, OTHER_TEXT  # noqa: E402
 from dm_eval.backends import base as BB  # noqa: E402
 from dm_eval.backends import hf as BH  # noqa: E402
 from dm_eval.backends import vllm as BV  # noqa: E402
@@ -750,7 +750,7 @@ def test_scene_loader_rejects_bad_rows(tmp_path):
 
 
 def test_consumption_scenes_shape_and_new_words(scenes):
-    from shibuya.llm.contract import cross_action_words
+    from shibuya.foundation.vocab.actions import cross_action_words
 
     v3 = set(cross_action_words(S.CONSUMPTION_VOCAB_VERSION))
     words_by_point = {p: set() for p in S.DECISION_POINTS}

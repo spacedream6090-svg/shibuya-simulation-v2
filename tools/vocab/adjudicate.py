@@ -54,7 +54,7 @@ if str(REPO_ROOT / "src") not in sys.path:  # pragma: no cover - 実行時の経
 
 from shibuya.agents.state import ResultCode  # noqa: E402
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector  # noqa: E402
-from shibuya.llm.contract import ALL_ACTION_WORDS  # noqa: E402
+from shibuya.foundation.vocab.actions import ALL_ACTION_WORDS  # noqa: E402
 from shibuya.llm.undefined import (  # noqa: E402
     ADJUDICATION_TEMPLATE,
     DEFAULT_THRESHOLD_AGENTS,

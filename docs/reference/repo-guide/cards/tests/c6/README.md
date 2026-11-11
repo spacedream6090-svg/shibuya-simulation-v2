@@ -57,7 +57,7 @@ tests.c6 の共通フィクスチャ。
   - `test_violation_flags_use_the_banned_action_table`(関数)
   - `test_world_dir_of_returns_none_for_a_missing_path`(関数)
   - `test_write_outputs_writes_both_files`(関数)
-- import している内部モジュール: `shibuya.llm.contract`・`shibuya.llm.parser`・`shibuya.llm.undefined`・`tools/c6/ablation1_fixed_vs_ranking.py`・`tools/c6/format_role_rates.py`・`tools/c6/metric_b_rerun.py`・`tools/c6/t6_bit_reproduce.py`・`tools/c6/t7_distribution.py`
+- import している内部モジュール: `shibuya.foundation.vocab.actions`・`shibuya.llm.parser`・`shibuya.llm.undefined`・`tools/c6/ablation1_fixed_vs_ranking.py`・`tools/c6/format_role_rates.py`・`tools/c6/metric_b_rerun.py`・`tools/c6/t6_bit_reproduce.py`・`tools/c6/t7_distribution.py`
 - 決定の ID: D-25・D-28
 
 ## [test_c6lib_scenes.py](../../../../../../tests/c6/test_c6lib_scenes.py)
@@ -80,7 +80,7 @@ tests.c6 の共通フィクスチャ。
   - `test_selection_can_be_restricted_to_other_kinds`(関数)
   - `test_selection_is_deterministic_and_disjoint`(関数)
   - `test_unknown_failure_word_is_not_forced_into_a_kind`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.tape`・`shibuya.llm`・`shibuya.perception.templates`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.tape`・`shibuya.foundation.text.templates`・`shibuya.llm`
 
 ## [test_c6lib_stats.py](../../../../../../tests/c6/test_c6lib_stats.py)
 
@@ -130,7 +130,7 @@ tests.c6 の共通フィクスチャ。
   - `test_l4_cap_holds_for_a_5000_agent_day_on_the_synthetic_world`(関数)
   - `test_l4_cap_holds_on_the_real_world`(関数): 上限スイッチ ``l4_scale=1.0``(旧挙動)で按分上限と制御目標が守られる。
   - `test_l6_caps_are_derived_from_the_table_not_hard_coded`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.arbiter`・`shibuya.engine.run`・`shibuya.llm.fleet`・`shibuya.manifest.schema`・`tests/c6/_fake_vllm.py`・`tests/c6/conftest.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.arbiter`・`shibuya.engine.run`・`shibuya.foundation.manifest.schema`・`shibuya.llm.fleet`・`tests/c6/_fake_vllm.py`・`tests/c6/conftest.py`
 - 環境変数: `SHIBUYA_C6_FLEET_COUNTERS`
 - 決定の ID: D-55・D-56・D-99・D-110・第 289・第 337
 
@@ -170,5 +170,5 @@ tests.c6 の共通フィクスチャ。
   - `test_t9_the_four_columns_actually_carry_numbers`(関数): 「存在するが常にゼロ」を弾く: 需要 > 予算のランでは繰り延べ・縮退が立つ。
   - `test_t9_the_four_diagnostic_columns_exist_in_the_run_table`(関数)
   - `test_t9_two_conservation_checks_are_present_and_pass`(関数): 保存則 2 検算 = 取引残差(``residual``)と在庫残差(``goods_residual_units``)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.manifest.schema`・`shibuya.world.state`・`tests/c6/conftest.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.manifest.schema`・`shibuya.world.state`・`tests/c6/conftest.py`
 - 決定の ID: D-56

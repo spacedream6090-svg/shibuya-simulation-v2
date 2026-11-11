@@ -10,12 +10,12 @@ from typing import Any, Iterator
 import numpy as np
 
 from shibuya.agents.state import AgentState
-from shibuya.core.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
-from shibuya.engine.calendar2 import arm as A
+from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
+from shibuya.foundation.arms import calendar2 as A
 from shibuya.engine.calendar2 import port as P
 from shibuya.engine.calendar2.layer import Calendar2Layer
-from shibuya.engine.contact import arm as AC
-from shibuya.engine.events.log import EventLog
+from shibuya.foundation.arms import contact as AC
+from shibuya.foundation.journal.log import EventLog
 from shibuya.world.state import World
 
 STEP_NS = STEP_SECONDS * NS_PER_SECOND

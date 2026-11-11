@@ -11,7 +11,7 @@ from __future__ import annotations
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.core.time_consts import NS_PER_STEP
+from shibuya.foundation.time_consts import NS_PER_STEP
 from shibuya.engine.run import run_day
 from shibuya.engine.tape import (
     ARM_COLUMNS,

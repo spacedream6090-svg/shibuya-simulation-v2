@@ -26,7 +26,7 @@ import numpy as np
 
 from shibuya.economy import taxes as _TX
 from shibuya.economy.accounts import AccountCode, Sector
-from shibuya.engine.ledger_api import TransferStatus
+from shibuya.foundation.ports.ledger import TransferStatus
 
 __all__ = ["TaxDeposit", "LEDGER_ARM"]
 

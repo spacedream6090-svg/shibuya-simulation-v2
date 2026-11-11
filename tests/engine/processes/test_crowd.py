@@ -17,7 +17,7 @@ from shibuya.engine.processes.crowd import (
     CrowdProcess,
     seats_for_categories,
 )
-from shibuya.perception import templates as PT
+from shibuya.foundation.text import templates as PT
 
 from .conftest import make_agents, make_world
 

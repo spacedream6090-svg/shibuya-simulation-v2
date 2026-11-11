@@ -30,7 +30,7 @@ import pytest
 
 from shibuya.agents.state import AgentKind, AgentState
 from shibuya.engine.run import run_day
-from shibuya.perception import templates as T
+from shibuya.foundation.text import templates as T
 from shibuya.perception.attention import P_SEE_MEDIUM_RANGE, gate_stage1
 from shibuya.perception.renderer import (
     SIGNAGE_P_SEE_DEFAULT,

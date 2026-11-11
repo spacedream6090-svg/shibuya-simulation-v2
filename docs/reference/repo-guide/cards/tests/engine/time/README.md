@@ -38,7 +38,7 @@ Python 8 本・その他 3 本(このディレクトリの直下)
   - `test_no_bare_word_in_comments_and_docstrings_of_core_and_systems`(関数)
   - `test_no_new_identifier_with_the_word`(関数)
   - `tree_identifiers`(関数)
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.systems.table`・`tests/_places.py`
+- import している内部モジュール: `shibuya.engine.systems.table`・`shibuya.foundation.time_consts`・`tests/_places.py`
 
 ## [test_t0_rng_key.py](../../../../../../../tests/engine/time/test_t0_rng_key.py)
 
@@ -51,7 +51,7 @@ Python 8 本・その他 3 本(このディレクトリの直下)
   - `test_key_time_is_the_step_number`(関数): 〔v3-0a 案 A〕``key_time_from_t_ns`` は刻みの頭の時刻から今の刻みの番号を返す(全刻み・2 日ぶん・ほかの幅・刻みの中は床)。
   - `test_other_widths`(関数)
   - `test_same_key_for_every_step_of_two_days`(関数)
-- import している内部モジュール: `shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.systems.boxes`
+- import している内部モジュール: `shibuya.engine.systems.boxes`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`
 - 決定の ID: 11-04/§2-1
 
 ## [test_t0_tickctx_equivalence.py](../../../../../../../tests/engine/time/test_t0_tickctx_equivalence.py)
@@ -63,7 +63,7 @@ Python 8 本・その他 3 本(このディレクトリの直下)
   - `test_default_width_and_the_old_call_form`(関数): 1-0 の呼び口 ``TickCtx.of(T, tpd)`` は残る(幅の既定は 60 秒=``STEP_SECONDS``)。1-0 の欄の値は前と同じ。
   - `test_other_widths_keep_the_relations`(関数)
   - `test_the_conductor_passes_the_run_width`(関数): 進行役(``conductor``)は ``RunConfig.tick_seconds`` を幅として渡す(合成の世界・20 体・30 刻み)。
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.core.types`・`shibuya.engine.run`・`shibuya.engine.systems.boxes`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.systems.boxes`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`
 
 ## [test_t0_time_consts.py](../../../../../../../tests/engine/time/test_t0_time_consts.py)
 
@@ -79,7 +79,7 @@ Python 8 本・その他 3 本(このディレクトリの直下)
   - `test_seconds_to_steps_rounding_rule`(関数): 丸めの規則=床(その秒を含む刻み)。整数だけを受ける。
   - `test_time_consts_imports_only_the_standard_library`(関数): 層契約: 標準ライブラリだけ(core の最下層=誰からでも import できる)。
   - `test_values`(関数)
-- import している内部モジュール: `shibuya.agents.weekly`・`shibuya.core.growth`・`shibuya.core.time_consts`・`shibuya.core.types`・`shibuya.engine.activity`・`shibuya.engine.growth_decl`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.logistics`・`shibuya.engine.processes.opening`・`shibuya.engine.scheduler`・`shibuya.world.processes.actual_log`
+- import している内部モジュール: `shibuya.agents.weekly`・`shibuya.engine.activity`・`shibuya.engine.growth_decl`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.logistics`・`shibuya.engine.processes.opening`・`shibuya.foundation.growth`・`shibuya.foundation.queues.scheduler`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`・`shibuya.world.processes.actual_log`
 
 ## [test_t0_tm9_fields.py](../../../../../../../tests/engine/time/test_t0_tm9_fields.py)
 
@@ -94,7 +94,7 @@ Python 8 本・その他 3 本(このディレクトリの直下)
   - `test_sections_of_tm9_fields`(関数)
   - `test_tm9_fields_do_not_feed_the_final_hash`(関数): 欄の値(時計の種類)を変えても final と呼数は同じ(TM9 の欄は記録だけ)。
   - `two_days`(関数)
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.bridging.ledger`・`shibuya.engine.manifest_sections`・`shibuya.engine.run`・`shibuya.engine.systems.state_io`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.systems.state_io`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3
 
 ## [test_v30a_key_sites.py](../../../../../../../tests/engine/time/test_v30a_key_sites.py)
@@ -112,5 +112,5 @@ Python 8 本・その他 3 本(このディレクトリの直下)
   - `test_fleet_call_ids_and_time_bucket_are_the_old_ones`(関数): #1・#2: 艦隊の道で発射した呼び(偽の艦隊・合成の世界)の id と時間帯が旧の形(``f"{T}:{体}:{級}"``・``T // 5``)。
   - `test_old_copy_only_swaps_the_key`(関数): (この試験の道具の検査)旧の写しは鍵の口だけを差し替える(元の口は変えない)。
   - `test_port_key_from_time_is_the_old_key`(関数)
-- import している内部モジュール: `shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar2.port`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar3.port`・`shibuya.engine.contact.habit`・`shibuya.engine.contact.layer`・`shibuya.engine.contact.port`・`shibuya.engine.decision.layer`・`shibuya.engine.decision.port`・`shibuya.engine.duties.layer`・`shibuya.engine.duties.port`・`shibuya.engine.run`・`shibuya.engine.systems.boxes`・`shibuya.llm.fleet`・`tests/engine/calendar3/_ca3.py`・`tests/engine/contact/_c2.py`・`tests/engine/decision/_j0.py`・`tests/engine/duties/_du.py`・`tests/engine/test_fleet_wiring.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.engine.calendar2.layer`・`shibuya.engine.calendar2.port`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar3.port`・`shibuya.engine.contact.habit`・`shibuya.engine.contact.layer`・`shibuya.engine.contact.port`・`shibuya.engine.decision.layer`・`shibuya.engine.duties.layer`・`shibuya.engine.duties.port`・`shibuya.engine.run`・`shibuya.engine.systems.boxes`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.llm.fleet`・`tests/engine/calendar3/_ca3.py`・`tests/engine/contact/_c2.py`・`tests/engine/decision/_j0.py`・`tests/engine/duties/_du.py`・`tests/engine/test_fleet_wiring.py`・`tests/llm/test_fleet.py`
 - 決定の ID: 11-04/§2-1

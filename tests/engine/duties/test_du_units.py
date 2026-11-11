@@ -10,8 +10,8 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.engine.decision.port import DecisionContext
-from shibuya.engine.duties import arm as AD
+from shibuya.foundation.ports.decision import DecisionContext
+from shibuya.foundation.arms import duties as AD
 from shibuya.engine.duties import layer as LY
 from shibuya.engine.duties import port as PD
 from shibuya.engine.duties.knowledge import UNKNOWN, ShopRules, rules_line

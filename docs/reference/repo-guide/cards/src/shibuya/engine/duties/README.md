@@ -2,24 +2,11 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 5 本・その他 0 本(このディレクトリの直下)
+Python 4 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/engine/duties/__init__.py)
 
 engine.duties — 店の仕事を働く人の体へ(第 6 期 6-6 ② 第 1 部=開閉店・補充(品出し)・廃棄・腕 ``--duties arm``・既定 off)。
-
-## [arm.py](../../../../../../../../src/shibuya/engine/duties/arm.py)
-
-engine.duties.arm — 店の仕事の腕(第 6 期 6-6 ② 第 1 部=開閉店・補充・廃棄を担当の体の判断に)。
-
-- 公開の関数とクラス
-  - `arm`(関数): いまの腕(``off``=既定・``arm``)。組み立てのときに読む。
-  - `config`(関数): 設定の指紋と manifest の設定の子に出す腕の組(腕 off は ``None``=指紋に何も足さない)。
-  - `is_on`(関数)
-  - `set_arm`(関数): 腕を選ぶ(CLI ``--duties``・試験の切替口)。
-- 呼び手: `shibuya.cli`・`shibuya.engine.duties.layer`・`shibuya.engine.systems.build`
-- 読む試験: `tests/engine/duties/_du.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/duties/test_du_units.py`
-- 環境変数: `SHIBUYA_DUTIES`・名前を読めない所 1 か所
 
 ## [knowledge.py](../../../../../../../../src/shibuya/engine/duties/knowledge.py)
 
@@ -29,7 +16,7 @@ engine.duties.knowledge — 店の決まり(営業時間)の問い合わせの�
   - `ShopRules`(クラス): 店の決まりの口(休業日の枠=親クラス+営業時間)。担当だけが自分の店の営業時間を引ける。
   - `origin_mark`(関数): 記録の ``origin`` に入れる出どころの印(``store_rules:<出どころ>``)。
   - `rules_line`(関数): 常識の文の 1 行(「店の決まり: 営業 10:00〜22:00。」の形・知らなければ空)。
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.calendar3.knowledge`・`shibuya.engine.rights.ledger`
+- import している内部モジュール: `shibuya.engine.calendar3.knowledge`・`shibuya.engine.rights.ledger`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.engine.duties.layer`
 - 読む試験: `tests/engine/duties/test_du_units.py`
 - 決定の ID: 10-12/§1-4
@@ -45,7 +32,7 @@ engine.duties.layer — 店の仕事を働く人の体へ(開閉店・補充(品
   - `issued_key`(関数)
   - `manifest_fields`(関数): manifest の ``duties``(腕 arm のランだけ・ほかは空=欄を出さない)。
   - `sys_duties`(関数): 系 duties(刻みの中・腕 arm のランだけ立つ)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.calendar3.layer`・`shibuya.engine.decision.port`・`shibuya.engine.duties.arm`・`shibuya.engine.duties.knowledge`・`shibuya.engine.duties.port`・`shibuya.engine.events.log`・`shibuya.engine.events.vocab`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.resolve`・`shibuya.engine.rights.ledger`・`shibuya.world.processes.records`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar3.layer`・`shibuya.engine.duties.knowledge`・`shibuya.engine.duties.port`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.resolve`・`shibuya.engine.rights.ledger`・`shibuya.foundation.arms.duties`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.world.processes.records`
 - 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.table`
 - 読む試験: `tests/engine/duties/test_du_runs.py`・`tests/engine/duties/test_du_units.py`・`tests/engine/duties/test_du_world.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
@@ -73,7 +60,7 @@ engine.duties.port — 店の仕事の本人の判断(候補の口 J0 の形)の
   - `parse_call_id`(関数): 店の仕事の判断の呼びの id → ``(刻み, 体, 通し番号)``(この形でなければ ``None``)。
   - `purpose_of_serial`(関数)
   - `serial_of`(関数): 判断の通し番号(``SERIAL_BASE``+その刻みのその体の k 回目 × 16+判断の種類)。上限を超えたら ``ValueError``。
-- import している内部モジュール: `shibuya.core.rng`・`shibuya.engine.decision.port`・`shibuya.llm.contract`
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.vocab.actions`
 - 呼び手: `shibuya.engine.duties.layer`
 - 読む試験: `tests/engine/duties/_du.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/duties/test_du_units.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`

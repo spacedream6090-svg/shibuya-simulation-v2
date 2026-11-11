@@ -12,7 +12,7 @@ import pytest
 
 from shibuya import cli
 from shibuya.engine.run import DIAG_DAY_ROWS, DIAG_RUN_COLUMNS, run_day
-from shibuya.manifest.schema import CONSERVATION_CHECKS, DIAG_COLUMNS
+from shibuya.foundation.manifest.schema import CONSERVATION_CHECKS, DIAG_COLUMNS
 from shibuya.world.state import World
 
 from .conftest import WORLD_DIR, real_data

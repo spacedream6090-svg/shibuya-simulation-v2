@@ -30,7 +30,7 @@ from __future__ import annotations
 from types import MappingProxyType
 from typing import Any, Final, Mapping
 
-from shibuya.engine.calendar2.arm import LEDGER_ARM
+from shibuya.foundation.arms.calendar2 import LEDGER_ARM
 
 __all__ = [
     "PLACEMENTS", "PL_APP", "PL_ALARM", "PL_PLANNER", "PL_HEAD", "PLACEMENT_TRAITS", "KINDS", "K_PROMISE", "K_OWN",

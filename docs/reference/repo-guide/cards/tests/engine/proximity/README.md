@@ -31,7 +31,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_philox_array_equals_numpy_philox_on_10000_rows`(関数)
   - `test_philox_array_input_checks`(関数)
   - `test_unit_float_equals_generator_random_and_k19_layout`(関数)
-- import している内部モジュール: `shibuya.core.rng`
+- import している内部モジュール: `shibuya.foundation.rng`
 
 ## [test_rule.py](../../../../../../../tests/engine/proximity/test_rule.py)
 
@@ -59,7 +59,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_same_unit_talks_without_distance_b5`(関数)
   - `test_sensitivity_arms`(関数)
   - `test_unit_needs_the_store_cell`(関数): 在席の印があっても、その店のセルの外に居る体(店を出て歩いている体)は単位に数えない。
-- import している内部モジュール: `shibuya.core.rng`・`shibuya.engine.proximity`・`shibuya.engine.resolve`・`shibuya.engine.rng_audit`
+- import している内部モジュール: `shibuya.engine.proximity`・`shibuya.engine.resolve`・`shibuya.engine.rng_audit`・`shibuya.foundation.rng`
 - 環境変数: `SHIBUYA_PROXIMITY`・`os.environ` をまるごと使う
 - 決定の ID: R-62・R-79・第 346
 
@@ -82,7 +82,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_same_input_same_result`(関数)
   - `test_sensitivity_arms_keep_every_conversation_within_their_d`(関数)
   - `test_world_resume_equals_straight_and_the_marks_matter`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.core.write_permit`・`shibuya.engine.proximity`・`shibuya.engine.relations`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.rng_audit`・`shibuya.engine.run`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.perception.renderer`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.proximity`・`shibuya.engine.relations`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.rng_audit`・`shibuya.engine.run`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.write_permit`・`shibuya.perception.renderer`
 - 環境変数: `SHIBUYA_PROXIMITY_D`・`os.environ` をまるごと使う
 - 決定の ID: 11-01・11-03/§3・第 346
 

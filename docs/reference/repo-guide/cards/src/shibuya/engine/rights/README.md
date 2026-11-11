@@ -30,7 +30,7 @@ engine.rights.ledger — 権利台帳の器(第 1 期 1-5・CP4・CP3)。
 - 公開の関数とクラス
   - `Right`(クラス): 権利台帳の 1 行(凍結)。欄の名と順は口の約束 1-5。
   - `Rights`(クラス): 権利台帳(列ごとの配列)。書く口は ``grant`` と ``revoke`` の 2 つだけ。
-- import している内部モジュール: `shibuya.core.types`
+- import している内部モジュール: `shibuya.foundation.types`
 - 呼び手: `shibuya.engine.calendar3.roster`・`shibuya.engine.duties.knowledge`・`shibuya.engine.duties.layer`・`shibuya.engine.economy_stage2`・`shibuya.engine.processes.opening`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.record`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_pop/test_w21_stage4_7.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/engine/duties/_du.py`・`tests/engine/duties/test_du_units.py`・`tests/engine/rights/rights_writers.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/rights/test_rights_manifest.py`・`tests/engine/rights/test_rights_schema.py`・`tests/engine/rights/test_rules42_rights.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_pop_w21_world.py`
 - 決定の ID: 10-12/§4-5・R-113・R-118
@@ -44,7 +44,7 @@ engine.rights.record — 許可のない行動の記録と、役割語の権利�
   - `events_of`(関数): 過程の ActualLog に挿した出来事の記録(``ActualLogLink.log``)。挿していなければ ``None``。
   - `manifest_fields`(関数): manifest の ``rights``: 実行器の権利台帳の欄に、判断の口の役割語の数え(許可なし・判定しない)を足す。
   - `record_unauthorized`(関数): 起きた許可のない行為を体ごとに 1 行書く(``events`` が ``None`` なら書かない)。行の数を返す。
-- import している内部モジュール: `shibuya.core.types`・`shibuya.engine.events.log`・`shibuya.engine.rights.ledger`・`shibuya.llm.contract`
+- import している内部モジュール: `shibuya.engine.rights.ledger`・`shibuya.foundation.journal.log`・`shibuya.foundation.types`・`shibuya.foundation.vocab.actions`
 - 呼び手: `shibuya.engine.processes.opening`・`shibuya.engine.processes.runner`・`shibuya.engine.run`
 - 読む試験: `tests/engine/rights/test_rights_events.py`
 - 決定の ID: 10-12/§1-4

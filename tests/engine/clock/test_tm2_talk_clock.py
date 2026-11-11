@@ -25,9 +25,9 @@ import numpy as np
 import pytest
 
 from shibuya import cli
-from shibuya.core.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
-from shibuya.engine import batching as BA
-from shibuya.engine import manifest_sections as MS
+from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
+from shibuya.foundation.queues import batching as BA
+from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import resume as RS
 from shibuya.engine import speech_clock as TC
 from shibuya.engine.llm_bridge import LANE_SECONDS

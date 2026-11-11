@@ -26,9 +26,10 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core.hashing import sha256_cbor
+from shibuya.foundation.hashing import sha256_cbor
 from shibuya.engine.tape import Replay, TapeRow, TapeWriter
-from shibuya.llm import ACTION_CODES, UndefinedActionRegistry
+from shibuya.foundation.vocab.actions import ACTION_CODES
+from shibuya.llm import UndefinedActionRegistry
 from shibuya.llm.fleet import (
     Deferred,
     FleetBridge,
@@ -40,7 +41,7 @@ from shibuya.llm.fleet import (
     plan_batch,
     route_primary,
 )
-from shibuya.manifest.schema import Mode
+from shibuya.foundation.manifest.schema import Mode
 
 GOOD = "理由: 予定の時間になったから\n行動: 移動 対象: C-0001 ひと言: なし"
 BAD = "うーん、なんとも言えませんね。"

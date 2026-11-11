@@ -9,7 +9,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.core.rng import stream
+from shibuya.foundation.rng import stream
 from shibuya.economy import pricing as P
 
 

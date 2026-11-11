@@ -21,7 +21,7 @@ import pytest
 
 from shibuya import cli
 from shibuya.engine import calendar_shadow as CS
-from shibuya.engine import manifest_sections as MS
+from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.run import run_day
 from shibuya.engine.systems.table import SPECS

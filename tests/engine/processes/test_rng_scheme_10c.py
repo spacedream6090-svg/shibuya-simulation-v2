@@ -27,8 +27,8 @@ import shibuya.engine.processes.civic as CIV
 import shibuya.engine.processes.salient as SAL
 import shibuya.engine.run as RUN
 from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
-from shibuya.core.rng import RNG_SCHEME, run_tick_key
-from shibuya.core.rng import stream as core_stream
+from shibuya.foundation.rng import RNG_SCHEME, run_tick_key
+from shibuya.foundation.rng import stream as core_stream
 from shibuya.engine import state_hashes as SH
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.processes.civic import DISPATCH_MEDIAN_MIN, PublicServiceDispatchProcess
@@ -62,7 +62,7 @@ Z_MAX = 3.0
 def test_scheme_values_and_default_is_counter():
     # 〔改訂(第330・RET)〕方式は counter だけ(stateful と切替口を消した)。過程は rng_scheme を受け取らない
     assert RNG_SCHEME == "counter"
-    import shibuya.core.rng as RNG
+    import shibuya.foundation.rng as RNG
 
     assert not hasattr(RNG, "RNG_SCHEMES") and not hasattr(RNG, "check_rng_scheme")
     with pytest.raises(TypeError):

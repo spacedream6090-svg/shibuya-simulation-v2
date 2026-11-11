@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.core.growth import check_growth
+from shibuya.foundation.growth import check_growth
 from shibuya.world.processes import first_batch as FB
 from shibuya.world.processes.actual_log import (
     ACTUAL_LOG_DTYPE,

@@ -20,13 +20,13 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.core import write_permit as WP
-from shibuya.core.time_consts import NS_PER_STEP
+from shibuya.foundation import write_permit as WP
+from shibuya.foundation.time_consts import NS_PER_STEP
 from shibuya.engine import state_ledger as SL
 from shibuya.engine import state_ledger_ast as SA
 from shibuya.engine.memory import GIST_PER_AGENT, IMPORTANCE_MAX, MemoryLayer
 from shibuya.engine import memory_store as MS
-from shibuya.engine.systems import guard as G
+from shibuya.foundation import write_guard as G
 from shibuya.engine.systems.table import SPECS
 from tests import _places as PL
 
@@ -60,7 +60,7 @@ def _layers() -> tuple[PL.Names, PL.Names]:
     import shibuya.build as BUILD
     import shibuya.llm as LLM
     from shibuya.agents import state as AGENTS
-    from shibuya.core import time_consts as CORE
+    from shibuya.foundation import time_consts as CORE
     from shibuya.economy import ledger as ECONOMY
     from shibuya.engine import resolve as ENGINE
     from shibuya.perception import renderer as PERCEPTION

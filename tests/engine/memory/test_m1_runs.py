@@ -17,12 +17,12 @@ from collections import Counter
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import NS_PER_SECOND, STEPS_PER_DAY
+from shibuya.foundation.time_consts import NS_PER_SECOND, STEPS_PER_DAY
 from shibuya.engine import memory_m1 as M1
 from shibuya.engine import memory_store as MS
 from shibuya.engine.memory_store import LegacyEvent, MemoryStore
 from shibuya.engine.run import run_day
-from shibuya.engine.systems import guard as G
+from shibuya.foundation import write_guard as G
 from shibuya.engine.tape import Tape
 
 from tests.engine.memory._mr65 import KW, arms, mr65

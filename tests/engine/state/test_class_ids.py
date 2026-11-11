@@ -35,17 +35,17 @@ from types import MappingProxyType
 import numpy as np
 import pytest
 
-from shibuya.core.types import EventClass
+from shibuya.foundation.types import EventClass
 from shibuya.engine import class_ids as CI
 from shibuya.engine import resume as RS
 from shibuya.engine import state_codec as SC
 from shibuya.engine import state_hashes as SH
 from shibuya.engine.arbiter import WakeCandidates
 from shibuya.engine.class_ids import CLASS_IDS, class_id, class_path
-from shibuya.engine.events import log as EV
-from shibuya.engine.experiment import gate as GATE
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.ports import experiment_gate as GATE
 from shibuya.engine.run import run_day
-from shibuya.engine.scheduler import DeferralQueue
+from shibuya.foundation.queues.scheduler import DeferralQueue
 from shibuya.engine.systems import probe as PR
 
 ROOT = Path(__file__).resolve().parents[3]

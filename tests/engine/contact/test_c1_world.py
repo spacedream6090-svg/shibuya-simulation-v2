@@ -16,7 +16,7 @@ import pyarrow.parquet as pq
 import pytest
 
 from shibuya.engine.contact.layer import W_DIAL, W_RING, W_VIDEO_DIAL, audit_causes
-from shibuya.perception import contact_view as CV
+from shibuya.foundation.ports import percept_contact as CV
 
 from tests.engine.contact._c1 import STEP_NS, WORLD, c1
 

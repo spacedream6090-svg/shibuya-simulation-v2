@@ -35,8 +35,8 @@ from typing import Final
 import numpy as np
 
 from shibuya.agents.state import MOCK_KIND_COUNT, Activity
-from shibuya.core.rng import philox
-from shibuya.core.time_consts import MINUTES_PER_DAY
+from shibuya.foundation.rng import philox
+from shibuya.foundation.time_consts import MINUTES_PER_DAY
 
 __all__ = [
     "SCHEDULE_DOMAIN",

@@ -58,10 +58,10 @@ import numpy as np
 
 import dm_eval  # noqa: F401
 from dm_eval.situations import CONTINUE_WORD, VOCAB_VERSION, Situation, word_of_output
-from shibuya.core.rng import stream
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_HOUR
-from shibuya.engine.decision.port import OTHER_ID, SURPRISE_WORDS, Candidate, Hesitation
-from shibuya.llm.contract import compat_word
+from shibuya.foundation.rng import stream
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_HOUR
+from shibuya.foundation.ports.decision import OTHER_ID, SURPRISE_WORDS, Candidate, Hesitation
+from shibuya.foundation.vocab.actions import compat_word
 
 __all__ = [
     "ScorerUnavailable", "Scorer", "MockScorer", "ClassicalScorer", "TapeScorer", "ClefScorer", "KevScorer",

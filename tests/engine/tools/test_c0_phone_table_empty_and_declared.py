@@ -12,7 +12,7 @@ from types import MappingProxyType
 
 import pytest
 
-from shibuya.engine.bridging import ledger as BR
+from shibuya.foundation.decl import bridging as BR
 from shibuya.engine.run import run_day
 from shibuya.engine.tools import places as PL
 from shibuya.engine.tools.places import PhoneTable, osm_phone_of
@@ -56,7 +56,7 @@ def test_the_blank_is_declared_in_the_bridging_ledger():
     # 〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7(W6 の POI の欄を足す段が計画に無い)
     assert row.remove_at == "7" and row.conf == "expedient" and row.status == "active"
     assert row.declared_in.startswith("docs/design/v2-foundation-contracts-2026-10-13.md")
-    from shibuya.engine.bridging import ledger_paths as LP
+    from shibuya.foundation.decl import ledger_paths as LP
 
     from tests import _places as PLACES
 

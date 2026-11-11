@@ -36,17 +36,17 @@ from typing import Final, Sequence
 
 import numpy as np
 
-from shibuya.core.hashing import wake_tiebreak_array
+from shibuya.foundation.hashing import wake_tiebreak_array
 
 from shibuya.agents.state import WakeCondition
-from shibuya.core.hashing import priority_key_array
-from shibuya.core.types import DEFAULT_TICK_SECONDS, NS_PER_SECOND
-from shibuya.llm.contract import ACTION_CODES as _CONTRACT_ACTION_CODES
-from shibuya.llm.contract import ACTION_VOCAB_12
-from shibuya.llm.contract import EAT_ACTION_CODE
-from shibuya.llm.contract import NONE_ACTION_CODE
-from shibuya.llm.contract import ROLE_ACTION_CODES as _CONTRACT_ROLE_ACTION_CODES
-from shibuya.llm.contract import UNDEFINED_ACTION
+from shibuya.foundation.hashing import priority_key_array
+from shibuya.foundation.types import DEFAULT_TICK_SECONDS, NS_PER_SECOND
+from shibuya.foundation.vocab.actions import ACTION_CODES as _CONTRACT_ACTION_CODES
+from shibuya.foundation.vocab.actions import ACTION_VOCAB_12
+from shibuya.foundation.vocab.actions import EAT_ACTION_CODE
+from shibuya.foundation.vocab.actions import NONE_ACTION_CODE
+from shibuya.foundation.vocab.actions import ROLE_ACTION_CODES as _CONTRACT_ROLE_ACTION_CODES
+from shibuya.foundation.vocab.actions import UNDEFINED_ACTION
 from shibuya.llm.parser import parse_two_line
 from shibuya.llm.undefined import TARGET_HINT_WORDS
 

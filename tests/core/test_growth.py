@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.core import growth as G
+from shibuya.foundation import growth as G
 
 #: 24 step × 1 分 = 1/60 シミュ日。
 STEPS = G.DEFAULT_SMOKE_STEPS

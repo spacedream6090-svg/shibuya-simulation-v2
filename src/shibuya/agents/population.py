@@ -40,8 +40,8 @@ from typing import Final, Sequence
 
 import numpy as np
 
-from shibuya.core.hashing import blake3_hex
-from shibuya.core.rng import stream, k19_counters
+from shibuya.foundation.hashing import blake3_hex
+from shibuya.foundation.rng import stream, k19_counters
 
 __all__ = [
     "POPULATION_FILE",

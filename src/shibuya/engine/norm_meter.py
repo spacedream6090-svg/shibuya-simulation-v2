@@ -36,7 +36,7 @@ from typing import Any, Final, Mapping
 import numpy as np
 
 from shibuya.agents.state import Activity, AgentState, ResultCode
-from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "PLACE_KINDS",
@@ -464,7 +464,7 @@ class GroupNormMeter:
 
 def role_code_table(vocab_version: str) -> dict[str, int]:
     """語彙の版 → 役割語 → 行動コード(``llm.contract``)。"""
-    from shibuya.llm import contract as C
+    from shibuya.foundation.vocab import actions as C
 
     if str(vocab_version) == "v3":
         return dict(C.ROLE_ACTION_CODES_V3)

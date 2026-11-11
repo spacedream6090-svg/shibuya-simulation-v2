@@ -42,7 +42,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_the_default_arm_is_stopped_and_names_are_checked`(関数)
   - `test_waste_collection`(関数)
   - `tiny_runs`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.core.time_consts`・`shibuya.engine.absent_processes`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.logistics`・`shibuya.engine.processes.runner`・`shibuya.engine.processes.salient`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.world.assets`・`shibuya.world.processes.absent`・`shibuya.world.processes.actual_log`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.absent_processes`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.logistics`・`shibuya.engine.processes.runner`・`shibuya.engine.processes.salient`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.time_consts`・`shibuya.world.assets`・`shibuya.world.processes.absent`・`shibuya.world.processes.actual_log`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`
 - 決定の ID: 11-02r・11-02r #7・11-02r/§1・11-02r/§1 #7・11-02r/§2-2・11-03/§3
 
 ## [test_civic.py](../../../../../../../tests/engine/processes/test_civic.py)
@@ -85,7 +85,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_seats_are_derived_from_the_category`(関数)
   - `test_served_body_that_can_no_longer_pay_leaves_the_queue`(関数)
   - `test_waiting_bodies_take_the_seat_before_newcomers`(関数): FIFO: 空いた席は、この tick に来た買い手より先に並んでいた体が取る。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.processes.crowd`・`shibuya.engine.resolve`・`shibuya.perception.templates`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.processes.crowd`・`shibuya.engine.resolve`・`shibuya.foundation.text.templates`・`tests/engine/processes/conftest.py`
 - 決定の ID: D-113・第 268
 
 ## [test_environment.py](../../../../../../../tests/engine/processes/test_environment.py)
@@ -120,7 +120,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_restock_permission_is_staff_in_the_same_cell`(関数)
   - `test_shelf_rests_without_a_goods_ledger`(関数)
   - `test_waste_band_is_reported_even_when_out_of_band`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.ledger_api`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.opening`・`shibuya.engine.resolve`・`shibuya.world.assets`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.opening`・`shibuya.engine.resolve`・`shibuya.foundation.ports.ledger`・`shibuya.world.assets`・`tests/engine/processes/conftest.py`
 - 読む試験: `tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rate_rules_1101.py`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7
 
@@ -280,7 +280,7 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_scheme_values_and_default_is_counter`(関数)
   - `test_the_tape_carries_the_scheme_and_the_replay_matches`(関数): 〔改訂(第330・RET)〕前は「counter で録って stateful で再生すると止まる」「stateful のテープ」も見た(消した)。
   - `test_two_day_counter_keys_carry_T`(関数): (v) 2 日目の顕著行為と出動の鍵が 1 日目と違う(T が鍵に入っている)。〔改訂(第330・RET)〕前は最後に
-- import している内部モジュール: `shibuya.cli`・`shibuya.core.rng`・`shibuya.engine.absent_processes`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.salient`・`shibuya.engine.rate_rules`・`shibuya.engine.run`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.state_io`・`shibuya.engine.tape`・`tests/engine/processes/conftest.py`・`tests/engine/test_tape_wiring.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.absent_processes`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.salient`・`shibuya.engine.rate_rules`・`shibuya.engine.run`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.state_io`・`shibuya.engine.tape`・`shibuya.foundation.rng`・`tests/engine/processes/conftest.py`・`tests/engine/test_tape_wiring.py`
 - 読む試験: `tests/engine/test_env_and_sections_10f.py`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・第 330
 
@@ -321,7 +321,7 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_event_seen_tick_marks_everyone_in_the_event_cell_d113_2`(関数): 事象のセルに居た全員(B4 に行が出た体)の ``event_seen_tick`` がその tick になる。
   - `test_event_seen_within_uses_an_inclusive_window`(関数)
   - `test_notice_state_is_two_bytes_per_agent_and_written_through_resolve`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.types`・`shibuya.engine.absent_processes`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.salient`・`shibuya.engine.rate_rules`・`shibuya.perception.attention`・`shibuya.perception.p_notice`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.absent_processes`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.salient`・`shibuya.engine.rate_rules`・`shibuya.foundation.types`・`shibuya.perception.attention`・`shibuya.perception.p_notice`・`tests/engine/processes/conftest.py`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・D-113・第 267
 
 ## [test_traffic.py](../../../../../../../tests/engine/processes/test_traffic.py)

@@ -61,7 +61,7 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_route_steps_counts_nodes_on_the_walk_graph`(関数)
   - `test_tool_registry_has_clock_and_forecast`(関数)
   - `test_w20_place_words_are_the_build_side_copy`(関数)
-- import している内部モジュール: `shibuya.build.sched.w20_calendar_1a`・`shibuya.engine.bridging.ledger`・`shibuya.engine.calendar_self`・`shibuya.engine.calendar_shadow`・`shibuya.engine.decision.port`・`shibuya.engine.manifest_sections`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.table`・`shibuya.engine.tools.registry`
+- import している内部モジュール: `shibuya.build.sched.w20_calendar_1a`・`shibuya.engine.calendar_self`・`shibuya.engine.calendar_shadow`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.table`・`shibuya.engine.tools.registry`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.ports.decision`
 - 決定の ID: R-111・R-111 §1-2 #1
 
 ## [test_calendar_shadow.py](../../../../../../../tests/engine/calendar/test_calendar_shadow.py)
@@ -87,5 +87,5 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_manifest_section_ledger_row_and_system_declarations`(関数)
   - `test_unit_relay_day_records_follow_the_table`(関数)
   - `w20_table`(関数): W16 の全員に作り物の材料で W20 の週の表を作る(エンジンの読み口の試験=表の中身の正しさは構築側の試験)。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.cli`・`shibuya.engine.calendar`・`shibuya.engine.calendar_shadow`・`shibuya.engine.manifest_sections`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.table`・`tests/build_sched/test_w20_calendar_1a.py`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.cli`・`shibuya.engine.calendar`・`shibuya.engine.calendar_shadow`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.table`・`shibuya.foundation.manifest.sections`・`tests/build_sched/test_w20_calendar_1a.py`
 - 環境変数: `SHIBUYA_CALENDAR_W20`・`SHIBUYA_SYSTEMS_CHECK`・`os.environ` をまるごと使う

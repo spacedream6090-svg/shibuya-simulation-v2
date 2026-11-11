@@ -24,7 +24,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import NS_PER_SECOND, STEPS_PER_DAY
+from shibuya.foundation.time_consts import NS_PER_SECOND, STEPS_PER_DAY
 from shibuya.engine import memory_m1 as M1
 from shibuya.engine import relations as REL
 from shibuya.engine import relations_people as RP

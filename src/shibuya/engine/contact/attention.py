@@ -39,9 +39,9 @@ from typing import Any, Final
 import numpy as np
 
 from shibuya.agents.state import Activity, WakeCondition
-from shibuya.core.time_consts import NS_PER_SECOND, SECONDS_PER_MINUTE
-from shibuya.engine.contact.arm import LEDGER_ARM
-from shibuya.perception.contact_view import FOCUS_WORDS, GAZE_WORDS, AttentionView
+from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_MINUTE
+from shibuya.foundation.arms.contact import LEDGER_ARM
+from shibuya.foundation.ports.percept_contact import FOCUS_WORDS, GAZE_WORDS, AttentionView
 
 __all__ = [
     "GAZE_FRONT", "GAZE_SCREEN", "GAZE_HAND", "GAZE_PARTNER", "FOCUS_SURROUND", "FOCUS_SCREEN", "FOCUS_CALL",

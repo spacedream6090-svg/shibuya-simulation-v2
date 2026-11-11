@@ -18,7 +18,7 @@ world.processes のテスト用ファクトリ(最小の合法な宣言を作る
   - `make_process`(関数)
   - `registry`(関数)
   - `test_catalog`(関数)
-- import している内部モジュール: `shibuya.core.growth`・`shibuya.manifest.world_catalog`・`shibuya.world.processes.records`・`shibuya.world.processes.registry`
+- import している内部モジュール: `shibuya.foundation.growth`・`shibuya.manifest.world_catalog`・`shibuya.world.processes.records`・`shibuya.world.processes.registry`
 - 読む試験: `tests/world/processes/test_constitution.py`・`tests/world/processes/test_declarations_1101.py`・`tests/world/processes/test_records.py`・`tests/world/processes/test_registry.py`
 
 ## [test_actual_log.py](../../../../../../../tests/world/processes/test_actual_log.py)
@@ -46,7 +46,7 @@ world.processes のテスト用ファクトリ(最小の合法な宣言を作る
   - `test_plan_compliance_uses_realizes_relations`(関数)
   - `test_plan_compliance_without_realizes_raises`(関数)
   - `test_rows_view_is_read_only`(関数)
-- import している内部モジュール: `shibuya.core.growth`・`shibuya.world.processes.actual_log`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.records`
+- import している内部モジュール: `shibuya.foundation.growth`・`shibuya.world.processes.actual_log`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.records`
 
 ## [test_constitution.py](../../../../../../../tests/world/processes/test_constitution.py)
 

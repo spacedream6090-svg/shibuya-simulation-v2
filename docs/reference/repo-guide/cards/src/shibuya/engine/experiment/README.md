@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 10 本・その他 0 本(このディレクトリの直下)
+Python 9 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/engine/experiment/__init__.py)
 
@@ -21,7 +21,7 @@ engine.experiment.apply — 申込書の改変を世界に入れる口 ``apply``
   - `cond_id_of`(関数): 実験の条件の名(``<申込書の指紋の先頭 16 字>:<決定の番号か notice>``)。
   - `hours_mask`(関数): 営業時間の区間の列 → 1 日の分の真偽の列(閉じる分が 1 日を超える区間は同じ日の頭へ回す=W7 の畳み方と同じ)。
   - `targets_of`(関数): 対象の店の番号(昇順・空もある)。読むだけ(分岐の報告の実行の内訳が使う)。
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.gate`
+- import している内部モジュール: `shibuya.engine.experiment.form`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.engine.experiment.layer`
 - 読む試験: `tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_form.py`
 - 決定の ID: 10-12/§1-1
@@ -45,7 +45,7 @@ engine.experiment.branch — 「T0 までテープを再生して T0 から今�
   - `pre_t0_match`(関数): (b) T0 より前の checkpoint(刻み < T0)の behavior-hash が全部基準と同じ・テープ外 0・古典の食い違い 0。
   - `probe_first_divergence`(関数): 2 本の系ごとの指紋の行(``(刻み, 系, ((欄, digest), …))``)の最初の食い違い(同じなら ``None``)。
   - `run_branch`(関数): 基準のランの記録 ``base_dir`` から申込書 ``form`` の分岐を回し、4 つの確認をして ``branch_report.json`` を書く。
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.classical`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.switch`・`shibuya.engine.manifest_sections`・`shibuya.engine.systems.probe`・`shibuya.engine.tape`・`shibuya.llm`・`shibuya.world.processes.records`
+- import している内部モジュール: `shibuya.engine.classical`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.switch`・`shibuya.engine.systems.probe`・`shibuya.engine.tape`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.llm`・`shibuya.world.processes.records`
 - 呼び手: `shibuya.cli`・`shibuya.engine.experiment.switch`
 - 読む試験: `tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/experiment/test_x33_form.py`
 - 決定の ID: 10-12/§1-1・10-12/§4-5・R-71
@@ -101,21 +101,10 @@ engine.experiment.form — 反実仮想の申込書 ``ExperimentForm``(第 3 期
   - `ExperimentForm`(クラス): 反実仮想の申込書(凍結・入れ子も読み取り専用)。作るのは ``from_dict``・``from_json``・``load``。
   - `canonical_json`(関数): 決定的な JSON(鍵の昇順・区切りの空白なし・ASCII の外もそのまま)。
   - `sha256_hex`(関数): ``canonical_json`` の UTF-8 の sha256(16 進 64 字)。
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.events.vocab`
+- import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`
 - 呼び手: `shibuya.cli`・`shibuya.engine.experiment.apply`・`shibuya.engine.experiment.branch`・`shibuya.engine.experiment.checks`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.layer`・`shibuya.engine.experiment.warmup`
 - 読む試験: `tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_cf33b_form_checks.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/experiment/test_x33_ensemble.py`・`tests/engine/experiment/test_x33_form.py`
 - 決定の ID: 10-12/§4-5
-
-## [gate.py](../../../../../../../../src/shibuya/engine/experiment/gate.py)
-
-engine.experiment.gate — 実験が世界に入る口(第 1 期 1-3・CP12)。**この 1 関数 ``admit`` だけ**。
-
-- 公開の関数とクラス
-  - `admit`(関数): 実験の条件 ``cond_id`` を原因とする出来事を記録の時計の時刻で 1 行書き、id を返す(CP12 の唯一の口)。
-- import している内部モジュール: `shibuya.engine.events.log`・`shibuya.engine.events.vocab`
-- 呼び手: `shibuya.engine.events.log`・`shibuya.engine.experiment.apply`
-- 読む試験: `tests/engine/decision/test_j0_cause_columns.py`・`tests/engine/events/test_e_cause_three_kinds.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/state/test_class_ids.py`
-- 決定の ID: 10-12/§4-5・R-113
 
 ## [layer.py](../../../../../../../../src/shibuya/engine/experiment/layer.py)
 
@@ -132,7 +121,7 @@ engine.experiment.layer — 申込書をランに置く口(組み立て)・系 `
   - `staged`(関数): この中で呼んだ ``run_day`` の組み立てが申込書を受け取る(出るときに外す)。``model`` は申込書のアンサンブルのモデルの札
   - `state_header`(関数): 状態のファイルの見出しに書く欄(申込書の無いランは ``None``=見出しは今のまま)。
   - `sys_experiment`(関数): 系 ``experiment``(刻みの中の最初の系): 申込書の改変を効かせる口 ``apply`` を 1 回呼ぶ。
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.experiment.apply`・`shibuya.engine.experiment.checks`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.warmup`
+- import している内部モジュール: `shibuya.engine.experiment.apply`・`shibuya.engine.experiment.checks`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.warmup`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.state_io`・`shibuya.engine.systems.table`
 - 読む試験: `tests/engine/experiment/test_cf33b_manifest.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/experiment/test_x33_run.py`
 - 状態台帳の行

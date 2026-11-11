@@ -14,13 +14,13 @@ import pytest
 from shibuya.engine.calendar import SimCalendar, load_holidays
 from shibuya.engine.calendar2 import book as B2
 from shibuya.engine.calendar2 import port as P2
-from shibuya.engine.calendar3 import arm as A3
+from shibuya.foundation.arms import calendar3 as A3
 from shibuya.engine.calendar3 import layer as L3
 from shibuya.engine.calendar3 import port as P3
 from shibuya.engine.calendar3 import roster as R3
 from shibuya.engine.calendar3.knowledge import CommonCalendar, StoreRules, common_line
 from shibuya.engine.contact import port as PC
-from shibuya.engine.events.log import Event, LlmCall, Process
+from shibuya.foundation.journal.log import Event, LlmCall, Process
 
 from tests.engine.calendar3._ca3 import FRAME_A, FRAME_B, FRAME_LONG, MANAGER, UNIT, FakeRights, STEP_NS, \
     synthetic_roster, synthetic_table
@@ -123,7 +123,7 @@ def test_call_ids_do_not_collide_with_contact_or_calendar2():
 
 
 def test_port_mock_is_uniform_over_candidates_and_deterministic():
-    from shibuya.engine.decision.port import DecisionContext
+    from shibuya.foundation.ports.decision import DecisionContext
 
     port = P3.Calendar3Port(seed=1)
     cands = [P3.cand(P3.K_DAY_OFF, id="off")] + [P3.cand(P3.K_FRAME, f"枠 {i}", id=f"frame:{i}") for i in range(3)]

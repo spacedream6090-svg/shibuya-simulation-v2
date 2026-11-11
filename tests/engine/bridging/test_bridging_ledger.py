@@ -22,8 +22,8 @@ from pathlib import Path
 import pytest
 
 from shibuya.agents.state import REFRACTORY_MINUTES, WakeCondition
-from shibuya.engine.bridging import ledger as L
-from shibuya.engine.bridging import ledger_paths as LP
+from shibuya.foundation.decl import bridging as L
+from shibuya.foundation.decl import ledger_paths as LP
 from shibuya.engine.bridging import scan as S
 
 ROOT = Path(__file__).resolve().parents[3]

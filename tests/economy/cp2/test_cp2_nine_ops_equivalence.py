@@ -30,9 +30,9 @@ import pytest
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
-from shibuya.engine.events.links import MoneyEventLink
-from shibuya.engine.events.log import EventLog, Process
-from shibuya.engine.ledger_api import EntityRef
+from shibuya.foundation.journal.links import MoneyEventLink
+from shibuya.foundation.journal.log import EventLog, Process
+from shibuya.foundation.ports.ledger import EntityRef
 from tests.economy.cp2 import head_copies as CP
 
 H, S, E, B, G, W = (int(Sector.HOUSEHOLD), int(Sector.STORE), int(Sector.EMPLOYER), int(Sector.BANK),

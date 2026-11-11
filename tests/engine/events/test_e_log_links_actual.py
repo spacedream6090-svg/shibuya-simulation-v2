@@ -13,9 +13,9 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import NS_PER_STEP, STEPS_PER_DAY
-from shibuya.engine.events import log as EV
-from shibuya.engine.events.links import ActualLogLink
+from shibuya.foundation.time_consts import NS_PER_STEP, STEPS_PER_DAY
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.journal.links import ActualLogLink
 from shibuya.engine.processes.runner import PROCESS_ORDER
 from shibuya.engine.run import run_day
 from shibuya.world.processes.actual_log import ActualLog

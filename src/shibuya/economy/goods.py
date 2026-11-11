@@ -56,7 +56,7 @@ from typing import Final, Iterator, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.core.growth import GrowthDeclaration, Retention
+from shibuya.foundation.growth import GrowthDeclaration, Retention
 from shibuya.economy import pricing
 from shibuya.economy.accounts import AccountCode, FlowKind, Sector
 from shibuya.economy.anchors import WASTE_BAND_RATIO, WASTE_TONNES_PER_DAY

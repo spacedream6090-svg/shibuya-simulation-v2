@@ -15,7 +15,7 @@ from shibuya.engine.contact.book import FRIEND
 from shibuya.engine.contact.layer import (
     W_EXCH_ASK, W_EXCH_NO, W_EXCH_OK, W_GINVITE, W_GJOIN, W_GLEAVE, W_GMAKE, W_GREFUSE, W_LOOKUP, audit_causes,
 )
-from shibuya.engine.tools import contacts as CT
+from shibuya.foundation.vocab import contact_flags as CT
 from shibuya.engine.tools.places import PhoneTable
 
 from tests.engine.contact._c1 import STEP_NS, by_kind, choose

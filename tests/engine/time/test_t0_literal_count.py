@@ -100,4 +100,4 @@ def test_negative_control_detects_every_form(tmp_path):
 
 
 def test_time_consts_module_itself_has_no_hits():
-    assert scan_source((SRC / "core" / "time_consts.py").read_text(encoding="utf-8")) == []
+    assert scan_source((SRC / "foundation" / "time_consts.py").read_text(encoding="utf-8")) == []

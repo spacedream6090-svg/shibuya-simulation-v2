@@ -185,7 +185,7 @@ def test_fleet_smoke_unlimited_defaults_the_queue_to_the_agent_count(tmp_path):
     w17 31,787)。穴は台帳 ``DOC-fleet-resend-while-waiting`` に宣言・直しは判断待ち(記録 meal_w17/README.md §12)。
     """
     from shibuya.llm.fleet import FleetClient
-    from shibuya.manifest.schema import Mode
+    from shibuya.foundation.manifest.schema import Mode
 
     from ._fake_vllm import FakeVLLM
 

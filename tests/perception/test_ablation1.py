@@ -23,8 +23,8 @@ import pytest
 
 from shibuya.agents.state import AgentKind, AgentState
 from shibuya.engine.run import run_day
-from shibuya.perception import channels as ch
-from shibuya.perception import templates as T
+from shibuya.foundation.text import channels as ch
+from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import RANKING_PRIOR_SCORES, Renderer
 from shibuya.world.state import World
 

@@ -15,7 +15,7 @@ import datetime as dt
 import pytest
 
 from shibuya.build.vis import w9_shadow as W9
-from shibuya.engine.bridging.ledger import load as load_ledger
+from shibuya.foundation.decl.bridging import load as load_ledger
 from shibuya.engine.processes import environment as ENV
 
 from tests.engine.multiday._md import STAGE, tool

@@ -18,7 +18,7 @@ import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from shibuya.core.budget import budget_by_id, load_budget_table
+from shibuya.foundation.budget import budget_by_id, load_budget_table
 from shibuya.llm.fleet import (
     DEFAULT_E2E_TIMEOUT_S,
     DEFAULT_TTFT_TIMEOUT_S,
@@ -39,7 +39,7 @@ from shibuya.llm.fleet import (
     seed_for,
     split_system_user,
 )
-from shibuya.manifest.schema import Mode
+from shibuya.foundation.manifest.schema import Mode
 from tests import _places
 
 GOOD = "理由: 予定の時間になったから\n行動: 移動 対象: C-0001 ひと言: なし"

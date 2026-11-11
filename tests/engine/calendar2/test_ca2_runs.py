@@ -12,10 +12,10 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.engine import manifest_sections as MS
+from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import resume as RS
 from shibuya.engine import state_ledger as SL
-from shibuya.engine.calendar2 import arm as A
+from shibuya.foundation.arms import calendar2 as A
 from shibuya.engine.calendar2 import layer as LY
 from shibuya.engine.run import run_day
 from shibuya.engine.systems import table as TB
@@ -324,7 +324,7 @@ def test_ast_book_is_written_only_through_its_ports():
 
 # ================================================================= 〔検収 M3〕記録の有無で腕のランの behavior-hash と final が同じ
 def test_event_log_on_off_does_not_change_the_arm_run(with_groups):
-    from shibuya.engine.events import log as EV
+    from shibuya.foundation.journal import log as EV
 
     prev = EV.enabled()
     try:

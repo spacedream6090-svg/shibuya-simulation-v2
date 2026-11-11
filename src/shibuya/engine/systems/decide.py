@@ -34,8 +34,8 @@ from shibuya.engine import resolve as R
 from shibuya.engine.systems import llm_io as _LLM_IO
 from shibuya.llm.fleet import LLMCall
 from shibuya.llm.fleet import split_system_user
-from shibuya.core.rng import key_time_from_t_ns
-from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, STEPS_PER_HOUR
+from shibuya.foundation.rng import key_time_from_t_ns
+from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, STEPS_PER_HOUR
 
 
 def sys_decide(ctx: Any, b: Any) -> None:

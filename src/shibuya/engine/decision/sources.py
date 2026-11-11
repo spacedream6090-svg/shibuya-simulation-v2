@@ -31,7 +31,7 @@ import functools
 from types import MappingProxyType
 from typing import Any, Callable, Final, Iterable, Mapping, Sequence
 
-from shibuya.engine.decision.port import (
+from shibuya.foundation.ports.decision import (
     DELIBERATE_KIND,
     SOURCE_AFFORDANCE,
     SOURCE_CONTINUE,

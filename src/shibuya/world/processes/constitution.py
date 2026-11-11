@@ -34,7 +34,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Final, Iterable, Protocol, Sequence
 
-from shibuya.core.paths import find_upward, module_dir
+from shibuya.foundation.paths import find_upward, module_dir
 from shibuya.world.processes.records import (
     DetailDeclaration,
     PlanSpec,

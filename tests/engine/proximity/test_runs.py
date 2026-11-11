@@ -28,7 +28,7 @@ import numpy as np
 import pytest
 
 from shibuya import cli
-from shibuya.core import write_permit as WP
+from shibuya.foundation import write_permit as WP
 from shibuya.engine import proximity as P
 from shibuya.engine import resolve as R
 from shibuya.engine.run import run_day

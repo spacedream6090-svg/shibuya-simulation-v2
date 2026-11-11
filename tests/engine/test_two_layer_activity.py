@@ -28,7 +28,7 @@ from shibuya.agents.state import (
     ResultCode,
     WakeCondition,
 )
-from shibuya.core.types import EventClass
+from shibuya.foundation.types import EventClass
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.engine.activity import (
@@ -39,9 +39,9 @@ from shibuya.engine.activity import (
 )
 from shibuya.engine.arbiter import Arbiter, WakeCandidates
 from shibuya.engine.run import Checkpoint, run_day
-from shibuya.core.hashing import blake3_hex
+from shibuya.foundation.hashing import blake3_hex
 from shibuya.llm import LLMResponse
-from shibuya.llm.contract import (
+from shibuya.foundation.vocab.actions import (
     NONE_ACTION_CODE,
     UNDEFINED_ACTION,
     UntilKind,
@@ -49,7 +49,7 @@ from shibuya.llm.contract import (
     format_two_line_v3,
 )
 from shibuya.perception import renderer as PR
-from shibuya.perception import templates as T
+from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import Renderer
 from shibuya.world.state import World
 from tests import golden_env as GE
@@ -212,7 +212,7 @@ def test_activity_line_budget_and_filters():
     assert PR.activity_line([]) == ""
     long = PR.activity_line([("とても長い活動の文章", 3), ("散歩", 2)])
     assert T.TEMPLATES["B4b.near"] not in long
-    from shibuya.perception.channels import estimate_tokens
+    from shibuya.foundation.text.channels import estimate_tokens
 
     assert estimate_tokens(long) <= PR.ACTIVITY_LINE_MAX_TOKENS
     assert PR.activity_line([("P-3を待つ", 2)]) == "", "個体依存語は出さない(規約⑧)"

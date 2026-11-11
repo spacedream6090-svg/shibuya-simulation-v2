@@ -7,7 +7,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from shibuya.core import rng
+from shibuya.foundation import rng
 
 seeds = st.integers(min_value=0, max_value=rng.MASK64)
 domains = st.text(

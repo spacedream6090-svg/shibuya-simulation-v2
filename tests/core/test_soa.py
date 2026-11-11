@@ -7,8 +7,8 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from shibuya.core import budget as B
-from shibuya.core import soa
+from shibuya.foundation import budget as B
+from shibuya.foundation import soa
 
 
 def _small_registry(n: int = 64) -> soa.Registry:

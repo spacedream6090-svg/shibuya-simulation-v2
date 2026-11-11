@@ -31,7 +31,7 @@ from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.ledger_api import LedgerBundle
+from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.run import run_day
 from shibuya.world.state import World
 from tests import golden_env as GE
@@ -223,7 +223,7 @@ def test_the_bundle_declaration_survives_the_c7_scale(wired):
     リング容量が固定で N に比例せず、宣言投影 28.1 MB / 12.5 MB が cap 6.29 MB / 2.10 MB を
     超えたため。容量を N 比例にした後は cap = 宣言投影で通る。
     """
-    from shibuya.core.growth import check_growth
+    from shibuya.foundation.growth import check_growth
 
     n = 390_067
     led = Ledger(n, 8)

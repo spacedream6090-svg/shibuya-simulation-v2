@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.core import time_consts as TC
-from shibuya.core import types as TY
+from shibuya.foundation import time_consts as TC
+from shibuya.foundation import types as TY
 from shibuya.engine.systems import boxes as BX
 
 TPD = TC.STEPS_PER_DAY

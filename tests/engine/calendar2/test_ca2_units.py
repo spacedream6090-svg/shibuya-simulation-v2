@@ -11,12 +11,12 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import Activity
-from shibuya.core.time_consts import NS_PER_SECOND, SECONDS_PER_HOUR
+from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_HOUR
 from shibuya.engine.calendar2 import book as B
 from shibuya.engine.calendar2 import layer as LY
 from shibuya.engine.calendar2 import port as P
 from shibuya.engine.contact import port as CP
-from shibuya.engine.events.log import Event, LlmCall, Process
+from shibuya.foundation.journal.log import Event, LlmCall, Process
 
 from tests.engine.calendar2._ca2 import STEP_NS, Harness, choose
 

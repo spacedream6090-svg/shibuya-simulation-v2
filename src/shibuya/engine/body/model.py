@@ -33,7 +33,7 @@ from typing import Any, Callable, Final, Mapping
 
 import numpy as np
 
-from shibuya.core.time_consts import STEP_SECONDS
+from shibuya.foundation.time_consts import STEP_SECONDS
 from shibuya.engine.body import rules as BR
 from shibuya.engine.body import schedule as BS
 from shibuya.engine.body import system1 as S1

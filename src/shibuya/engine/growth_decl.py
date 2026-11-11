@@ -25,8 +25,8 @@ from __future__ import annotations
 
 from typing import Final, Mapping
 
-from shibuya.core.growth import GrowthDeclaration, Retention
-from shibuya.core.time_consts import STEPS_PER_DAY
+from shibuya.foundation.growth import GrowthDeclaration, Retention
+from shibuya.foundation.time_consts import STEPS_PER_DAY
 
 __all__ = [
     "PENDING_APPLY_ROW_BYTES",

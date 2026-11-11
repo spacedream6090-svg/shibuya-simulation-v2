@@ -43,8 +43,8 @@ from typing import Any, Final
 
 import numpy as np
 
-from shibuya.engine.contact.arm import LEDGER_ARM
-from shibuya.engine.tools import contacts as _CT
+from shibuya.foundation.arms.contact import LEDGER_ARM
+from shibuya.foundation.vocab import contact_flags as _CT
 from shibuya.engine.tools.groups import FAMILY, GROUP_KINDS
 
 __all__ = ["ContactBook", "FRIEND"]

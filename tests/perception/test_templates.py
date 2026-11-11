@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.perception import templates as T
-from shibuya.perception.channels import estimate_tokens
+from shibuya.foundation.text import templates as T
+from shibuya.foundation.text.channels import estimate_tokens
 
 #: **凍結値**。この値が変わる変更 = 改版(delta+感度試験が要る・知覚契約書 §1 条5)。
 #: v1.1(5 段目 5a・D-118 K2・第291): B5 の空腹の語の項 ``HUNGER_ITEM_TEMPLATE`` と ``HUNGER_WORDS`` を足した。
@@ -115,7 +115,7 @@ def test_noise_vocab_matches_the_build_side_definition():
 
 def test_action_vocab_matches_llm_contract():
     """``llm.contract.ACTION_VOCAB_12`` との二重定義が一致している(同層で import 不可)。"""
-    contract = pytest.importorskip("shibuya.llm.contract")
+    contract = pytest.importorskip("shibuya.foundation.vocab.actions")
     assert tuple(contract.ACTION_VOCAB_12) == T.ACTION_WORDS_12
 
 
@@ -144,7 +144,7 @@ def test_default_options_always_contain_the_never_failing_action():
 # ---------------------------------------------------------------- D-113 ④ 役割語の提示(第269)
 def test_role_words_match_llm_contract():
     """``llm.contract.ROLE_ACTION_WORDS`` との二重定義が一致している(同層で import 不可)。"""
-    from shibuya.llm import contract
+    from shibuya.foundation.vocab import actions as contract
 
     assert tuple(contract.ROLE_ACTION_WORDS) == T.ROLE_WORDS_12
     assert len(T.ROLE_WORDS_12) == 12
@@ -258,7 +258,7 @@ def test_v3_b0_differs_only_in_the_target_knowledge_and_the_output_spec():
 
 
 def test_v3_vocab_twins_match_llm_contract():
-    from shibuya.llm import contract
+    from shibuya.foundation.vocab import actions as contract
 
     assert T.VOCAB_VERSIONS == contract.VOCAB_VERSIONS
     assert T.ACTION_WORDS_V3 == contract.ACTION_VOCAB_V3

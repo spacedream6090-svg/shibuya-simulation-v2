@@ -8,9 +8,9 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core import write_permit as WP
+from shibuya.foundation import write_permit as WP
 from shibuya.engine.systems import boxes as BX
-from shibuya.engine.systems import guard as G
+from shibuya.foundation import write_guard as G
 
 TABLE = Path("docs/bench/analysis/wallbounce-1012/run-day-decomp/local-assignment.json")
 BOX_CLASSES = {

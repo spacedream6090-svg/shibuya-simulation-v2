@@ -21,9 +21,9 @@ import pytest
 
 from shibuya import cli
 from shibuya.agents.state import AgentState
-from shibuya.core.time_consts import STEPS_PER_DAY
+from shibuya.foundation.time_consts import STEPS_PER_DAY
 from shibuya.engine import change_detect as CD
-from shibuya.engine import manifest_sections as MS
+from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import resume as RS
 from shibuya.engine import step_scope as SS
 from shibuya.engine.run import run_day

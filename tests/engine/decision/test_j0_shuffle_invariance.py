@@ -10,9 +10,9 @@ import itertools
 
 import pytest
 
-from shibuya.engine.decision import port as P
+from shibuya.foundation.ports import decision as P
 from shibuya.engine.decision import ports as PS
-from shibuya.llm.contract import cross_action_words
+from shibuya.foundation.vocab.actions import cross_action_words
 from shibuya.llm.mock import MockLLM
 
 from tests.engine.decision._j0 import FakeBridge, FakePolicy, ctx_of, vocab_candidates

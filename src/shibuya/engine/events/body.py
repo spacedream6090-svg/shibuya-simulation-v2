@@ -37,8 +37,8 @@ from typing import Any, Final, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.engine.events import vocab as V
-from shibuya.engine.events.log import Event, EventLog, LlmCall, Process
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.journal.log import Event, EventLog, LlmCall, Process
 from shibuya.engine.tools.record import SIGNBOARD_CAUSE, SIGNBOARD_ORIGIN, SIGNBOARD_WHAT
 
 __all__ = [

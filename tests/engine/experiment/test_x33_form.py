@@ -19,7 +19,7 @@ from shibuya.engine.experiment import apply as AP
 from shibuya.engine.experiment import branch as BR
 from shibuya.engine.experiment import ensemble as EN
 from shibuya.engine.experiment import form as F
-from shibuya.engine.experiment import gate as GT
+from shibuya.foundation.ports import experiment_gate as GT
 from shibuya.engine.experiment import layer as LY
 from shibuya.engine.experiment.form import DECISIONS, ExperimentForm
 

@@ -20,7 +20,7 @@ from shibuya.agents.weekly import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySch
 from shibuya.engine import energy as E
 from shibuya.engine import resolve as R
 from shibuya.engine.change_detect import ChangeDetector
-from shibuya.perception import templates as T
+from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import Renderer
 from shibuya.world.state import World
 

@@ -62,11 +62,11 @@ from typing import Any, Final, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.core.rng import k19_counters, stream
-from shibuya.core.time_consts import NS_PER_SECOND, STEP_SECONDS
+from shibuya.foundation.rng import k19_counters, stream
+from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS
 from shibuya.engine import owner_guard as _OG
 from shibuya.engine.speech.port import mora_count
-from shibuya.llm.contract import NO_TARGET
+from shibuya.foundation.vocab.actions import NO_TARGET
 
 __all__ = [
     "SCHEMA", "ENV", "FP_KEY", "ARM_TABLE", "ARM_MORA", "ARMS", "DEFAULT_ARM", "arm", "set_arm", "is_default",

@@ -17,7 +17,7 @@ import sys
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import STEPS_PER_DAY
+from shibuya.foundation.time_consts import STEPS_PER_DAY
 from shibuya.engine.run import run_day
 from shibuya.engine.tape import Tape
 

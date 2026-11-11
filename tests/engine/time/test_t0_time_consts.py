@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core import time_consts as TC
-from shibuya.core import types as TY
+from shibuya.foundation import time_consts as TC
+from shibuya.foundation import types as TY
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -59,11 +59,11 @@ def test_module_level_aliases_elsewhere_are_the_same_value():
     # 〔段 4 の下ごしらえ〕モジュールは import の文で読む(移す道具が import の文を新しい置き場へ書き換える。
     # 前は ``shibuya.`` の無い点の名の文字列から import していた=道具が触らない形)
     from shibuya.agents import weekly
-    from shibuya.core import growth
+    from shibuya.foundation import growth
     from shibuya.engine import activity, growth_decl
     from shibuya.engine.processes import civic, goods_flow, logistics, opening
     # scheduler は包みの頭が同じ名の関数を再輸出している(``from shibuya.engine import scheduler`` は関数)=名を直に読む
-    from shibuya.engine.scheduler import HORIZON_TICKS
+    from shibuya.foundation.queues.scheduler import HORIZON_TICKS
     from shibuya.world.processes import actual_log
 
     for mod in (weekly, activity, civic, goods_flow, logistics, opening):
@@ -116,7 +116,7 @@ def test_doctests():
 
 def test_time_consts_imports_only_the_standard_library():
     """層契約: 標準ライブラリだけ(core の最下層=誰からでも import できる)。"""
-    tree = ast.parse((ROOT / "src" / "shibuya" / "core" / "time_consts.py").read_text(encoding="utf-8"))
+    tree = ast.parse((ROOT / "src" / "shibuya" / "foundation" / "time_consts.py").read_text(encoding="utf-8"))
     mods = set()
     for n in ast.walk(tree):
         if isinstance(n, ast.Import):

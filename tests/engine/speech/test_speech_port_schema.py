@@ -16,11 +16,11 @@ import inspect
 import pytest
 
 from shibuya.engine import state_ledger as SL
-from shibuya.engine.events import vocab as V
-from shibuya.engine.events.log import EventLog
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.journal.log import EventLog
 from shibuya.engine.speech import layer as SPL
 from shibuya.engine.speech import port as P
-from shibuya.llm import contract as C
+from shibuya.foundation.vocab import actions as C
 from shibuya.perception import renderer as R
 
 FIELDS = ("speaker", "t_ns", "text", "addressees", "via", "mora", "event_id", "modality")

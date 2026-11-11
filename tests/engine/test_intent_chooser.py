@@ -35,7 +35,7 @@ from shibuya.engine.poi_target import (
     resolution_summary,
 )
 from shibuya.engine.run import run_day
-from shibuya.llm.contract import parse_target
+from shibuya.foundation.vocab.actions import parse_target
 from shibuya.world.state import World
 
 WORLD_DIR = Path("data/world/v2")

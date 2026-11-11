@@ -1621,7 +1621,7 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "bridge.tape": ("engine/tape.py", "TapeWriter"),
     "fleet_bridge": ("llm/fleet.py", "FleetBridge"),
     # 第 1 期 1-3: 出来事の記録(状態台帳の行 E)
-    "events": ("engine/events/log.py", "EventLog"),
+    "events": ("foundation/journal/log.py", "EventLog"),
     # 第 1 期 1-8 J0: 候補の口の層(状態台帳の行 J0・腕 --decision-port port のランだけ)
     "decision": ("engine/decision/layer.py", "DecisionLayer"),
     # 第 1 期 1-8b: 発話の口(状態台帳の腕の行 S8・S8M・腕 --speech-port on のランだけ)
@@ -1631,7 +1631,7 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     # 第 3 期 3-3: 申込書の持ち主(状態台帳の行 X・申込書を渡したランだけ)
     "experiment": ("engine/experiment/layer.py", "ExperimentLayer"),
     # 第 3 期 3-2: 計算のまとめの窓(状態台帳の行 BW・進行役が置く)
-    "batching": ("engine/batching.py", "WindowQueue"),
+    "batching": ("foundation/queues/batching.py", "WindowQueue"),
     # 第 3 期 3-5: 本人の体の層(状態台帳の行 BD・どの腕でも置く)
     "body": ("engine/body/model.py", "BodyModel"),
     # 第 3 期 3-1: 暦 1a の影(状態台帳の行 CAL・腕 --calendar-shadow 1a のランだけ)

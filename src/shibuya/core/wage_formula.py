@@ -27,7 +27,7 @@ from typing import Any, Final, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.core.rng import k19_counter_array, philox_array, unit_float
+from shibuya.foundation.rng import k19_counter_array, philox_array, unit_float
 
 __all__ = [
     "WAGE_OCCUPATIONS", "WAGE_AGE_EDGES", "WAGE_CLASS_FLOOR_YEN", "WAGE_TOP_FACTOR", "SEXES",

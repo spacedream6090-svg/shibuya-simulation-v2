@@ -6,7 +6,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.engine import batching as BA
+from shibuya.foundation.queues import batching as BA
 from shibuya.engine.contact import attention as AT
 from shibuya.engine.contact import deliver as DL
 from shibuya.engine.contact import device as DV
@@ -15,7 +15,7 @@ from shibuya.engine.contact.layer import (
     W_ANSWER, W_CALL_END, W_DELIVERED, W_DIAL, W_HANG, W_LATER, W_READ, W_RING, W_SENT, audit_causes,
 )
 from shibuya.engine.conversation import ConvState
-from shibuya.engine.events.log import LlmCall, Process
+from shibuya.foundation.journal.log import LlmCall, Process
 
 from tests.engine.contact._c1 import STEP_NS, Harness, by_kind, choose
 

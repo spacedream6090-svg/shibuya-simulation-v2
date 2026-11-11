@@ -160,7 +160,7 @@ def test_ab7b_switch_and_runs(ablation_runner, table):
 
 def test_ab7b_freezes_the_hint_b0_sha256(table, ablation_runner):
     """腕定義に書いた B0 の指紋が**実装の値と一致する**(文面を変えたら両方が動く)。"""
-    from shibuya.perception.templates import b0_sha256
+    from shibuya.foundation.text.templates import b0_sha256
 
     arm = ablation_runner.arm_by_id(table, ARM_B_ID)
     assert b0_sha256("hint") in arm["switch"]["verified"]
@@ -269,7 +269,7 @@ def test_m1_two_stage_grounding_is_recomputable(ablation_runner):
 def test_grounding_matches_score_texts_on_real_texts(ablation_runner, tmp_path):
     """テープの本文から出す道筋が ``c6lib.score_texts`` と同じ分母・分子であること。"""
     from c8lib import c6lib
-    from shibuya.llm import format_two_line
+    from shibuya.foundation.vocab.actions import format_two_line
 
     texts = (
         [format_two_line("理由", "移動", "なし", "なし")] * 5      # 24 語に直接一致

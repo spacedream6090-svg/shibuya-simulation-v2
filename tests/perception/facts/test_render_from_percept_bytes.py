@@ -283,7 +283,7 @@ def _shadow(monkeypatch: pytest.MonkeyPatch) -> dict:
         if los is not None:
             import dataclasses as _dc
 
-            from shibuya.perception import hashes as _H
+            from shibuya.foundation.text import hashes as _H
 
             tc = h._tickc
             ls = np.asarray(los, dtype=np.uint8).copy()

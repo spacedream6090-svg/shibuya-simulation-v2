@@ -67,7 +67,7 @@ _style.py — 図の共通設定(書体・配色・保存・サイドカー)。
   - `entropy_bits`(関数): 計数辞書のシャノンエントロピー[bits]。**純関数**。
   - `load_ab7`(関数): 両腕のテープ → 描画に要るデータ dict(比較指標つき)。
   - `main`(関数)
-- import している内部モジュール: `shibuya.engine.tape`・`shibuya.llm.contract`・`shibuya.llm.parser`・`shibuya.llm.undefined`・`tools/c6/c6lib.py`・`tools/fig/_style.py`
+- import している内部モジュール: `shibuya.engine.tape`・`shibuya.foundation.vocab.actions`・`shibuya.llm.parser`・`shibuya.llm.undefined`・`tools/c6/c6lib.py`・`tools/fig/_style.py`
 - 読む試験: `tests/fig/test_fig_smoke.py`
 - CLI の引数
   - `--arm`
@@ -119,7 +119,7 @@ _style.py — 図の共通設定(書体・配色・保存・サイドカー)。
   - `event_classes`(関数): ``EventClass`` を**優先順(昇順)**に並べた記述。値と並びは src から取る。
   - `load_calls`(関数): ``calls.parquet`` の必要 3 列だけを読む(``response`` 列は読まない=メモリ節約)。
   - `main`(関数)
-- import している内部モジュール: `shibuya.core.types`・`tools/fig/_style.py`
+- import している内部モジュール: `shibuya.foundation.types`・`tools/fig/_style.py`
 - 読む試験: `tests/fig/test_fig_smoke.py`
 - CLI の引数
   - `--anchors`: 体数(full_population)の出どころ

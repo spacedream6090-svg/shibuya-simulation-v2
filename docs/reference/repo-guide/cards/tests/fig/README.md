@@ -38,5 +38,5 @@ tests.fig — 論文用の図(``tools/fig``)の煙検査。
   - `test_rel_never_returns_absolute`(関数): ``rel`` はリポジトリ相対 / 外のものはファイル名だけ(絶対パスを出さない)。
   - `test_tables_build_markdown_and_render`(関数)
   - `test_write_sidecar_is_utf8_lf`(関数)
-- import している内部モジュール: `shibuya.core.types`・`tools/fig/_style.py`・`tools/fig/fig_ab6b_signage.py`・`tools/fig/fig_ab6c_uncapped.py`・`tools/fig/fig_ab7_actions.py`・`tools/fig/fig_ab7c_vocab.py`・`tools/fig/fig_ab8_budget.py`・`tools/fig/fig_calls_by_hour.py`・`tools/fig/fig_d91_ride_chain.py`・`tools/fig/fig_presence_24h.py`・`tools/fig/fig_seed_pair.py`・`tools/fig/tbl_ablation.py`
+- import している内部モジュール: `shibuya.foundation.types`・`tools/fig/_style.py`・`tools/fig/fig_ab6b_signage.py`・`tools/fig/fig_ab6c_uncapped.py`・`tools/fig/fig_ab7_actions.py`・`tools/fig/fig_ab7c_vocab.py`・`tools/fig/fig_ab8_budget.py`・`tools/fig/fig_calls_by_hour.py`・`tools/fig/fig_d91_ride_chain.py`・`tools/fig/fig_presence_24h.py`・`tools/fig/fig_seed_pair.py`・`tools/fig/tbl_ablation.py`
 - 決定の ID: 第 235・第 248

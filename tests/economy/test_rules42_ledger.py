@@ -21,7 +21,7 @@ from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.checks import tax_deposit_check
 from shibuya.economy.ledger import Ledger
 from shibuya.engine import economy_rules as ER
-from shibuya.engine.events import log as EV
+from shibuya.foundation.journal import log as EV
 
 H, S, E, B, G, W = (int(s) for s in Sector)
 KINDS = np.array([0, 0, 2, 3])

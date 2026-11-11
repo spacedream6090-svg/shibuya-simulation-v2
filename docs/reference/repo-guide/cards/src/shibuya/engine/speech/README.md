@@ -20,7 +20,7 @@ engine.speech.layer — 発話の口の腕と、会話の番の答えから発�
   - `manifest_fields`(関数): manifest の ``speech_port``(腕が off のランは口が無い=観測の子は null)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--speech-port``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
   - `speak_turn`(関数): 会話の番の答え 1 つ → 発話(``Utterance``)→ 口。返り値=目印(発話が無ければ ``None``)。
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.speech.port`・`shibuya.engine.wom`・`shibuya.llm.contract`・`shibuya.llm.mock`
+- import している内部モジュール: `shibuya.engine.speech.port`・`shibuya.engine.wom`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.llm.mock`
 - 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.llm_io`
 - 読む試験: `tests/engine/speech/_s8b.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_empty_text_errors.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/speech/test_speech_port_schema.py`・`tests/engine/speech/test_wom_from_utterance_roundtrip.py`
 - 読む試験(道筋で): `tests/engine/speech/test_speech_writers_ast.py`
@@ -35,7 +35,7 @@ engine.speech.port — 発話の口(第 1 期 1-8b・Q57 (d)・10-03 §6 ⑤・1
   - `SpeechPort`(クラス): 発話の口(書く口は ``say`` の 1 つ・読み口は ``take_heard``)。腕 ``--speech-port on`` のランだけ組み立てが作る。
   - `Utterance`(クラス): 発話 1 つ(口が出来事ログに書く前の形=``event_id`` は ``None``・口が付ける)。``mora`` は本文から数える。
   - `mora_count`(関数): 本文のモーラ数(TM3 の入力=発言の長さ=モーラ数 × 話す速さ)。
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.core.types`・`shibuya.engine.conversation`・`shibuya.engine.events.log`・`shibuya.engine.events.vocab`
+- import している内部モジュール: `shibuya.engine.conversation`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`・`shibuya.foundation.vocab.events`
 - 呼び手: `shibuya.engine.contact.calls`・`shibuya.engine.contact.layer`・`shibuya.engine.speech.layer`・`shibuya.engine.speech_clock`
 - 読む試験: `tests/engine/clock/test_tm2_talk_clock.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/speech/test_s8_event_log_onoff.py`・`tests/engine/speech/test_speech_arm_rows_resume.py`・`tests/engine/speech/test_speech_empty_text_errors.py`・`tests/engine/speech/test_speech_modality_field_empty.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/speech/test_speech_port_schema.py`
 - 読む試験(道筋で): `tests/engine/speech/test_speech_writers_ast.py`・`tests/tools/test_pkgmove.py`

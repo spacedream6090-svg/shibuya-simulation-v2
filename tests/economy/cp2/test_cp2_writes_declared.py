@@ -15,12 +15,12 @@ import fnmatch
 import numpy as np
 import pytest
 
-from shibuya.core import write_permit as WP
+from shibuya.foundation import write_permit as WP
 from shibuya.economy import census as CS
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
 from shibuya.engine import state_ledger as SL
-from shibuya.engine.ledger_api import LedgerBundle
+from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.run import run_day
 from shibuya.engine.systems import conductor as CD
 from shibuya.engine.systems import overrides as OV

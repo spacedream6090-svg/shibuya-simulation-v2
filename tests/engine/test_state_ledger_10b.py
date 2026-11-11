@@ -26,8 +26,8 @@ import shibuya.engine.resolve as RES
 import shibuya.engine.run as RUN
 from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
 from shibuya.agents.state import AgentState
-from shibuya.core.hashing import blake3_hex
-from shibuya.core.soa import Registry
+from shibuya.foundation.hashing import blake3_hex
+from shibuya.foundation.soa import Registry
 from shibuya.engine import state_hashes as SH
 from shibuya.engine import state_ledger as SL
 from shibuya.engine import state_ledger_ast as SA
@@ -415,7 +415,7 @@ def test_e1_retire_and_the_retired_hash_are_gone():
     """〔改訂(第330・RET)〕10e(E1)の「消した死蔵の 3 列を旧い final の再現のためにハッシュの中で元の位置に並べ直す」口
     (``Registry.retire``・``core.soa.retired_columns_in_hash``)を消した(前の試験は消す前の宣言を組み直した写しと同じ
     ハッシュになることを見ていた=第330 ACT の commit で通った)。消した列はどこにも現れない。"""
-    import shibuya.core.soa as SOA
+    import shibuya.foundation.soa as SOA
 
     assert not hasattr(Registry, "retire") and not hasattr(SOA, "retired_columns_in_hash")
     for a in (AgentState(7), _all_columns_state(9)[0]):

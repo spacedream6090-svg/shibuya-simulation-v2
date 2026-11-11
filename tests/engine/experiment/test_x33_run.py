@@ -16,8 +16,8 @@ import json
 import pytest
 
 from shibuya import cli
-from shibuya.core import write_permit as WP
-from shibuya.engine import manifest_sections as MS
+from shibuya.foundation import write_permit as WP
+from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import run_kind as RK
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.experiment import layer as XL

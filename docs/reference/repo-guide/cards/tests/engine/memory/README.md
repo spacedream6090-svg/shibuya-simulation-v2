@@ -59,7 +59,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_b5_text_is_the_same_with_and_without_the_store`(関数)
   - `test_render_memories_edges`(関数)
   - `test_render_memories_equals_the_b5_memory_line`(関数)
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.llm_bridge`・`shibuya.engine.memory_store`・`shibuya.engine.run`・`tests/engine/memory/_m0.py`
+- import している内部モジュール: `shibuya.engine.llm_bridge`・`shibuya.engine.memory_store`・`shibuya.engine.run`・`shibuya.foundation.time_consts`・`tests/engine/memory/_m0.py`
 
 ## [test_m0_shown_recorded.py](../../../../../../../tests/engine/memory/test_m0_shown_recorded.py)
 
@@ -71,7 +71,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_event_ids_follow_the_recalled_rows`(関数)
   - `test_last_shown_time_matches_the_tape`(関数): 器の「最後に見せた時刻」=テープでその行(同じ目印)を見せた最後の呼び出しの時刻。
   - `test_tape_writer_arm_columns_are_a_closed_table`(関数)
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.memory`・`shibuya.engine.run`・`shibuya.engine.tape`・`tests/engine/memory/_m0.py`
+- import している内部モジュール: `shibuya.engine.memory`・`shibuya.engine.run`・`shibuya.engine.tape`・`shibuya.foundation.time_consts`・`tests/engine/memory/_m0.py`
 
 ## [test_m0_store_schema.py](../../../../../../../tests/engine/memory/test_m0_store_schema.py)
 
@@ -100,7 +100,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_value_drift_from_the_table_is_caught_at_write`(関数): 検収 M1: 行の番号が同じでも、器の値(ここでは重要度)が表とずれたら書いた所で落ちる(負の対照)。
   - `test_view_has_words_and_content_but_no_strength_number`(関数)
   - `test_writes_outside_the_declaration_fail`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.build`・`shibuya.core.time_consts`・`shibuya.core.write_permit`・`shibuya.economy.ledger`・`shibuya.engine.memory`・`shibuya.engine.memory_store`・`shibuya.engine.resolve`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.guard`・`shibuya.engine.systems.table`・`shibuya.engine.tape`・`shibuya.llm`・`shibuya.perception.renderer`・`shibuya.world.state`・`tests/_places.py`・`tests/engine/memory/_m0.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.build`・`shibuya.economy.ledger`・`shibuya.engine.memory`・`shibuya.engine.memory_store`・`shibuya.engine.resolve`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.table`・`shibuya.engine.tape`・`shibuya.foundation.time_consts`・`shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.llm`・`shibuya.perception.renderer`・`shibuya.world.state`・`tests/_places.py`・`tests/engine/memory/_m0.py`
 
 ## [test_m0_writes_declared.py](../../../../../../../tests/engine/memory/test_m0_writes_declared.py)
 
@@ -109,7 +109,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
 - 公開の関数とクラス
   - `test_declared_writes_cover_the_store_changes`(関数)
   - `test_dropping_the_store_path_fails_where_it_is_written`(関数)
-- import している内部モジュール: `shibuya.core.write_permit`・`shibuya.engine.run`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.overrides`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`tests/engine/memory/_m0.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.overrides`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.write_permit`・`tests/engine/memory/_m0.py`
 
 ## [test_m1_runs.py](../../../../../../../tests/engine/memory/test_m1_runs.py)
 
@@ -127,7 +127,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_render_words_port_marks_vague_items`(関数)
   - `test_store_unit_touch_times_strength_and_words`(関数)
   - `test_write_needs_the_declared_m0m_path`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.core.time_consts`・`shibuya.engine.memory`・`shibuya.engine.memory_m1`・`shibuya.engine.memory_store`・`shibuya.engine.run`・`shibuya.engine.systems.guard`・`shibuya.engine.tape`・`tests/engine/memory/_mr65.py`・`tests/engine/test_salt_seed_split_10f.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.memory`・`shibuya.engine.memory_m1`・`shibuya.engine.memory_store`・`shibuya.engine.run`・`shibuya.engine.tape`・`shibuya.foundation.time_consts`・`shibuya.foundation.write_guard`・`tests/engine/memory/_mr65.py`・`tests/engine/test_salt_seed_split_10f.py`
 
 ## [test_m1_strength.py](../../../../../../../tests/engine/memory/test_m1_strength.py)
 
@@ -144,7 +144,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_tau_from_m0_matches_the_m0_crossing_time`(関数)
   - `test_touch_times_shifts_newest_first`(関数)
   - `test_units_shift_all_strengths_by_the_same_amount`(関数): MR1: 単位を c 倍にすると全部の強さが −d·ln c だけ同じにずれる(+1 の無い式)=τ に吸収される。
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.memory`・`shibuya.engine.memory_m1`
+- import している内部モジュール: `shibuya.engine.memory`・`shibuya.engine.memory_m1`・`shibuya.foundation.time_consts`
 
 ## [test_m2_cue.py](../../../../../../../tests/engine/memory/test_m2_cue.py)
 
@@ -159,7 +159,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_ngram_embedder_is_deterministic_and_normalized`(関数)
   - `test_ruri_close_sentence_ranks_first`(関数)
   - `test_ruri_pins_and_missing_weights`(関数)
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.memory_embed`・`shibuya.engine.memory_store`・`shibuya.engine.run`・`shibuya.engine.tape`・`tests/engine/memory/_mr65.py`
+- import している内部モジュール: `shibuya.engine.memory_embed`・`shibuya.engine.memory_store`・`shibuya.engine.run`・`shibuya.engine.tape`・`shibuya.foundation.time_consts`・`tests/engine/memory/_mr65.py`
 
 ## [test_m3_impression_and_trace.py](../../../../../../../tests/engine/memory/test_m3_impression_and_trace.py)
 
@@ -171,7 +171,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_impressions_need_an_llm_call_cause`(関数)
   - `test_played_along_share_gauge`(関数)
   - `test_shallow_trace_from_the_shared_log`(関数)
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.events.log`・`shibuya.engine.memory_impression`・`shibuya.engine.memory_trace`・`shibuya.perception.facts`
+- import している内部モジュール: `shibuya.engine.memory_impression`・`shibuya.engine.memory_trace`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.percept`・`shibuya.foundation.time_consts`
 
 ## [test_m4_m5_people.py](../../../../../../../tests/engine/memory/test_m4_m5_people.py)
 
@@ -193,7 +193,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_shop_table_grows_to_the_cap_then_overwrites_the_lowest_a`(関数)
   - `test_shop_table_ties_and_bounds`(関数)
   - `test_world_5000_one_day_uncapped_grows_and_reads_people`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.core.time_consts`・`shibuya.engine.memory`・`shibuya.engine.memory_m1`・`shibuya.engine.memory_shops`・`shibuya.engine.memory_store`・`shibuya.engine.relations`・`shibuya.engine.relations_people`・`shibuya.engine.resolve`・`shibuya.engine.run`・`tests/engine/memory/_mr65.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.memory`・`shibuya.engine.memory_m1`・`shibuya.engine.memory_shops`・`shibuya.engine.memory_store`・`shibuya.engine.relations`・`shibuya.engine.relations_people`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.time_consts`・`tests/engine/memory/_mr65.py`
 
 ## [test_mr65_grain_and_cli.py](../../../../../../../tests/engine/memory/test_mr65_grain_and_cli.py)
 
@@ -204,7 +204,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_cli_run_kind_counts_the_memory_arms`(関数)
   - `test_grain_day_refuses_to_resume`(関数)
   - `test_grain_day_writes_fewer_rows_and_keeps_the_recall`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.core.time_consts`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.engine.tape`・`tests/engine/memory/_mr65.py`・`tests/engine/multiday/_md.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.engine.tape`・`shibuya.foundation.time_consts`・`tests/engine/memory/_mr65.py`・`tests/engine/multiday/_md.py`
 - 環境変数: `SHIBUYA_MEMORY_GRAIN`・`SHIBUYA_MEMORY_MODEL`・`SHIBUYA_MEMORY_PEOPLE`・`os.environ` をまるごと使う
 
 ## [test_mr65_guards.py](../../../../../../../tests/engine/memory/test_mr65_guards.py)
@@ -233,5 +233,5 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_params_tables_are_read_only_and_the_summary_is_a_plain_copy`(関数)
   - `test_people_readers_compute_each_strength_once`(関数)
   - `test_resume_refuses_another_embed_model_or_another_arm`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.core.time_consts`・`shibuya.engine.bridging.ledger_paths`・`shibuya.engine.manifest_sections`・`shibuya.engine.memory_embed`・`shibuya.engine.memory_m1`・`shibuya.engine.memory_store`・`shibuya.engine.relations_people`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.build`・`tests/_places.py`・`tests/engine/memory/_mr65.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.memory_embed`・`shibuya.engine.memory_m1`・`shibuya.engine.memory_store`・`shibuya.engine.relations_people`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.build`・`shibuya.foundation.decl.ledger_paths`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`tests/_places.py`・`tests/engine/memory/_mr65.py`
 - 決定の ID: 10-12

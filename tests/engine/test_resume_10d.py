@@ -239,7 +239,7 @@ def test_daily_close_runs_once_per_day(monkeypatch):
 
 @real_data
 def test_two_day_world_run_closes_money_goods_and_bodies_each_day(monkeypatch):
-    from shibuya.engine.ledger_api import LedgerBundle
+    from shibuya.foundation.ports.ledger import LedgerBundle
 
     closes: list[int] = []
     orig = LedgerBundle.end_of_day
@@ -492,7 +492,7 @@ def test_cli_switches_for_sim_days_and_resume(tmp_path):
 @real_data
 def test_daily_tables_are_relaid_from_the_calendar_day(tmp_path, monkeypatch):
     """親の答え 5: 2 日目の頭で W7 の曜日の行と世界過程の日ごとの乱数の表を暦の口の日で引き直す。"""
-    from shibuya.core.rng import stream
+    from shibuya.foundation.rng import stream
     from shibuya.engine import rate_rules as RR
 
     # 〔11-01 段 2 の 3・4〕宅配の配達済みの張り直しは旧道(切替口)だけ=旧道で見る
@@ -504,7 +504,7 @@ def test_daily_tables_are_relaid_from_the_calendar_day(tmp_path, monkeypatch):
     assert rn.opening.day_index == 1                     # 火曜の行(table_weekday(1))
     from shibuya.engine.processes.goods_flow import DELIVERY_WINDOW
 
-    from shibuya.core.rng import k19_counters
+    from shibuya.foundation.rng import k19_counters
 
     # 10e(E4・K19・U2): counter(既定)は日の鍵を 1 語目に置く
     plan = stream(1, "world.delivery_inbound", *k19_counters(cal_key1)).integers(  # 〔第330・RET〕方式の引数を消した
@@ -542,7 +542,7 @@ def test_b3_weather_and_the_environment_read_the_same_day_on_day_two(tmp_path):
     """検収 D1・T2: 2 日目の 12 時の B3 の天候の語と、環境の過程の暑さの段が、同じ再生の実日の W13 の行から来る。"""
     import pyarrow.parquet as pq
 
-    from shibuya.perception import templates as T
+    from shibuya.foundation.text import templates as T
     from shibuya.perception.renderer import PerceptionAssets
 
     res = cli.run(checkpoint_every=360, tape_path=tmp_path / "tape", **WORLD_KW)
@@ -715,9 +715,9 @@ def test_b3_weather_follows_the_replay_date_of_each_day():
     from datetime import datetime
 
     from shibuya.agents.state import AgentState
-    from shibuya.perception import normalize as N
+    from shibuya.foundation.text import normalize as N
     from shibuya.perception import renderer as RD
-    from shibuya.perception import templates as T
+    from shibuya.foundation.text import templates as T
     from shibuya.world.state import World
 
     w = World.synthetic(n_cells=4, seed=1)

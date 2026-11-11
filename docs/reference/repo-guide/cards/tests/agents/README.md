@@ -38,5 +38,5 @@ agents.state のテスト: M9 バイト予算・§6 不応期表・書き込み�
   - `test_result_codes_cover_action_contract_failures`(関数)
   - `test_state_hash_changes_with_state`(関数)
   - `test_unknown_field_raises`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.types`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.types`
 - 決定の ID: 第 276

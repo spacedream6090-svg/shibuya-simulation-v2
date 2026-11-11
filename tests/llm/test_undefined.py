@@ -9,7 +9,7 @@ from __future__ import annotations
 import pytest
 
 from shibuya.llm import LLMRequest, LLMResponse, MockLLM
-from shibuya.llm.contract import ACTION_CODES, TargetKind, ActionSpec
+from shibuya.foundation.vocab.actions import ACTION_CODES, TargetKind, ActionSpec
 from shibuya.llm.undefined import (
     ADJUDICATION_TEMPLATE,
     DEFAULT_THRESHOLD_AGENTS,
@@ -316,7 +316,7 @@ def test_registry_works_with_the_project_mock_llm():
 
 
 # ================================================================ 段0 辞書 v5(第274・語彙 v3・D-116 H)
-from shibuya.llm.contract import NONE_ACTION_CODE, action_words  # noqa: E402
+from shibuya.foundation.vocab.actions import NONE_ACTION_CODE, action_words  # noqa: E402
 from shibuya.llm.undefined import (  # noqa: E402
     FALLBACK_ACTIONS,
     FALLBACK_ACTIONS_V3,

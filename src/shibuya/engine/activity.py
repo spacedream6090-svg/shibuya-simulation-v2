@@ -50,18 +50,18 @@ from shibuya.agents.state import (
     ResultCode,
     WakeCondition,
 )
-from shibuya.core.hashing import wander_key_array
+from shibuya.foundation.hashing import wander_key_array
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
-from shibuya.llm.contract import (
+from shibuya.foundation.vocab.actions import (
     NO_TARGET,
     UNTIL_DEFAULT_MINUTES,
     UNTIL_MAX_MINUTES,
     UntilKind,
 )
-from shibuya.perception import normalize as PN
-from shibuya.core.time_consts import MINUTES_PER_DAY, SECONDS_PER_MINUTE  # MINUTES_PER_DAY は再輸出(1 日の分=時刻 HH:MM の解決に使う)
+from shibuya.foundation.text import normalize as PN
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, SECONDS_PER_MINUTE  # MINUTES_PER_DAY は再輸出(1 日の分=時刻 HH:MM の解決に使う)
 
 __all__ = [
     "WANDER_RADIUS_CELLS",

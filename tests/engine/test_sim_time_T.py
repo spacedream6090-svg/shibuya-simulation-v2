@@ -22,8 +22,8 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import N_WAKE_CONDITIONS, AgentState, ResultCode, WakeCondition
-from shibuya.core.hashing import apply_key_array
-from shibuya.core.types import EventClass
+from shibuya.foundation.hashing import apply_key_array
+from shibuya.foundation.types import EventClass
 from shibuya.engine import resolve as R
 from shibuya.engine import run as RUN
 from shibuya.engine.systems import build as BLD  # 1-0: 層の組み立ての名前の差し替えの的

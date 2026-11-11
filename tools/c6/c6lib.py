@@ -903,7 +903,7 @@ def score_texts(texts: Sequence[str], vocab_version: str = "v1") -> dict[str, An
     割合。辞書で救えた分は ``dictionary_mapped_rate`` に分け、行動分布では**写像先の契約語**
     として数える(エンジンの ``UndefinedActionRegistry.observe`` と同じ扱い)。
     """
-    from shibuya.llm.contract import ROLE_ACTION_WORDS, is_role_action
+    from shibuya.foundation.vocab.actions import ROLE_ACTION_WORDS, is_role_action
     from shibuya.llm.parser import parse_two_line
     from shibuya.llm.undefined import map_synonym
 
@@ -1112,7 +1112,7 @@ def build_fleet_client(
 ) -> Any:
     """``llm.fleet.FleetClient`` を組む(実サーバーに繋ぐのは呼び出し側の責任)。"""
     from shibuya.llm.fleet import FleetClient, FleetConfig
-    from shibuya.manifest.schema import Mode
+    from shibuya.foundation.manifest.schema import Mode
 
     cfg = FleetConfig(
         endpoints=tuple(endpoints),

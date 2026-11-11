@@ -65,7 +65,7 @@ tests.c8 の共通フィクスチャ。
   - `test_m2_m3_from_the_registry`(関数): M2 未定義率=undefined_records ÷ 解釈まで進んだ呼・M3=top_words+distinct agents。
   - `test_registry_absent_leaves_the_column_empty`(関数): 台帳が無い結果では**空辞書**(推測で埋めない)。
   - `test_the_existing_arms_are_byte_identical`(関数): **後から腕を足しても既存の腕の定義は 1 バイトも動かない**(golden は追加前の値)。
-- import している内部モジュール: `shibuya.llm`・`shibuya.perception.templates`・`tools/c8/c8lib.py`
+- import している内部モジュール: `shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`tools/c8/c8lib.py`
 - 読む試験: `tests/c8/test_ablations_ab6b.py`・`tests/c8/test_ablations_ab8.py`
 - 決定の ID: D-59・第 290
 
@@ -239,7 +239,7 @@ c8lib の純関数と**設計書の走査**(漏れ検出の分母)。
   - `test_spread_skill_ratio_about_one_when_calibrated`(関数): **観測もメンバーの 1 本**であるとき(完全に信頼できるアンサンブル)比は 1 の近く。
   - `test_spread_skill_ratio_detects_underdispersion`(関数): 幅が狭すぎる(自信過剰)アンサンブルは比が 1 を大きく下回る。
   - `test_spread_skill_ratio_shape_checks`(関数)
-- import している内部モジュール: `shibuya.core.rng`
+- import している内部モジュール: `shibuya.foundation.rng`
 
 ## [test_places_rule_copies.py](../../../../../../tests/c8/test_places_rule_copies.py)
 

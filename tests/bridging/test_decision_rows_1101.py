@@ -90,7 +90,7 @@ def test_base_rows_are_byte_identical(doc):
 
 
 def test_rows_load_as_bridges_with_the_new_fields():
-    from shibuya.engine.bridging import ledger as L
+    from shibuya.foundation.decl import bridging as L
 
     led = L.load(LEDGER)
     r = led.get("DEC-109-driveCars")

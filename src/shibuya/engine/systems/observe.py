@@ -18,8 +18,8 @@ from typing import Any
 
 import numpy as np
 
-from shibuya.core.hashing import blake3_hex
-from shibuya.engine.scheduler import DIAG_COLUMNS
+from shibuya.foundation.hashing import blake3_hex
+from shibuya.foundation.queues.scheduler import DIAG_COLUMNS
 from shibuya.engine.systems import state_io as SIO
 
 __all__ = ["observe", "checkpoint"]

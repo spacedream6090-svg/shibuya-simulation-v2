@@ -20,14 +20,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
-from shibuya.core.types import (
+from shibuya.foundation.types import (
     DEFAULT_TICK_SECONDS,
     MINUTES_PER_SIM_DAY,
     NS_PER_SECOND,
     split_t_sim_ns,
     t_sim_ns as _t_sim_ns,
 )
-from shibuya.core.time_consts import SECONDS_PER_DAY, SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import SECONDS_PER_DAY, SECONDS_PER_MINUTE
 
 __all__ = ["SimClock"]
 

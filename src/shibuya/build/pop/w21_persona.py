@@ -45,7 +45,7 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.compute as pc
 
-from shibuya.core.time_consts import SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import SECONDS_PER_MINUTE
 
 from . import attr_fns as A
 

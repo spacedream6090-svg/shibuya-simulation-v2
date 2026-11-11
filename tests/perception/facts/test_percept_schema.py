@@ -18,10 +18,10 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import INTEROCEPTION_FIELDS, IntentKind
-from shibuya.perception import facts as F
-from shibuya.perception import normalize as N
+from shibuya.foundation.ports import percept as F
+from shibuya.foundation.text import normalize as N
 from shibuya.perception import renderer as R
-from shibuya.perception import templates as T
+from shibuya.foundation.text import templates as T
 from tests.perception.facts.scenes import build
 
 #: 欄の名と並び(凍結。足したら ``PERCEPT_SCHEMA`` を上げて記録に書く)。
@@ -180,7 +180,7 @@ def test_intent_wake_and_memories_are_carried():
 
 # ---------------------------------------------------------------- (d)
 def test_event_ref_has_the_shape_of_the_event_id():
-    from shibuya.engine.events.log import EventId
+    from shibuya.foundation.journal.log import EventId
 
     assert F.EventRef == EventId == tuple[int, int]
     hint = typing.get_type_hints(F.Percept, globalns=vars(F))["heard_speech"]

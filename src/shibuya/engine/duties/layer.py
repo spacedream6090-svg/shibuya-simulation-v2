@@ -58,16 +58,16 @@ from typing import Any, Final, Iterable, Mapping, Sequence
 import numpy as np
 
 from shibuya.agents.state import Activity
-from shibuya.core.rng import key_time_from_t_ns
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
+from shibuya.foundation.rng import key_time_from_t_ns
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
 from shibuya.engine import resolve as R
 from shibuya.engine.calendar3.layer import labor_params
-from shibuya.engine.decision.port import Candidate, DecisionContext
-from shibuya.engine.duties import arm as _ARM
+from shibuya.foundation.ports.decision import Candidate, DecisionContext
+from shibuya.foundation.arms import duties as _ARM
 from shibuya.engine.duties import port as _P
 from shibuya.engine.duties.knowledge import UNKNOWN, ShopRules, origin_mark, rules_line
-from shibuya.engine.events import vocab as V
-from shibuya.engine.events.log import Event, LlmCall
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.journal.log import Event, LlmCall
 from shibuya.engine.processes.goods_flow import RESTOCK_STEP_MINUTES, WASTE_TO_BIN_MINUTE
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 

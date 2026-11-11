@@ -34,7 +34,7 @@ from dataclasses import dataclass, replace
 from enum import Enum
 from typing import Any, Final
 
-from shibuya.core.growth import GrowthDeclaration
+from shibuya.foundation.growth import GrowthDeclaration
 
 __all__ = [
     "Executor",

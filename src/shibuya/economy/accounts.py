@@ -35,7 +35,7 @@ from enum import IntEnum
 from types import MappingProxyType
 from typing import Final, Mapping
 
-from shibuya.engine import ledger_api as api
+from shibuya.foundation.ports import ledger as api
 
 __all__ = [
     "Sector",

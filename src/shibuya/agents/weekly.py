@@ -30,8 +30,8 @@ from typing import Final
 import numpy as np
 
 from shibuya.agents.state import Activity, WakeCondition
-from shibuya.core.hashing import blake3_hex
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.hashing import blake3_hex
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     "WEEKLY_FILE",

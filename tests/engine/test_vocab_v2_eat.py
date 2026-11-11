@@ -19,8 +19,9 @@ from shibuya.agents.state import Activity, AgentState, ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.engine.run import run_day
-from shibuya.llm import LLMResponse, format_two_line
-from shibuya.llm.contract import ACTION_WORD_EAT, EAT_ACTION_CODE
+from shibuya.llm import LLMResponse
+from shibuya.foundation.vocab.actions import format_two_line
+from shibuya.foundation.vocab.actions import ACTION_WORD_EAT, EAT_ACTION_CODE
 from shibuya.world.state import World
 
 
@@ -224,7 +225,7 @@ def test_action_usage_reaches_the_run_manifest():
 
 
 def test_action_usage_of_the_default_run_carries_the_v1_version():
-    from shibuya.llm.contract import ACTION_VOCAB_12
+    from shibuya.foundation.vocab.actions import ACTION_VOCAB_12
 
     res = run_day(**SMALL)
     fields = res.run_manifest_fields()

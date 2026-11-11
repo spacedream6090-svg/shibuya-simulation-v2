@@ -12,11 +12,11 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.engine import manifest_sections as MS
+from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import resume as RS
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.calendar2 import book as B2
-from shibuya.engine.calendar3 import arm as A3
+from shibuya.foundation.arms import calendar3 as A3
 from shibuya.engine.calendar3 import layer as LY
 from shibuya.engine.calendar3 import port as P3
 from shibuya.engine.contact import layer as CL
@@ -279,7 +279,7 @@ def test_stage_b_negative_control_without_the_read_declaration_fails(with_roster
 
 
 def test_event_log_on_off_does_not_change_the_arm_run(with_roster):
-    from shibuya.engine.events import log as EV
+    from shibuya.foundation.journal import log as EV
 
     prev = EV.enabled()
     try:

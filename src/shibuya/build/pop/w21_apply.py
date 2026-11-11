@@ -63,7 +63,7 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from shibuya.core.rng import k19_counter_array, philox_array, unit_float
+from shibuya.foundation.rng import k19_counter_array, philox_array, unit_float
 
 from ..geo import common as C
 from ..sched import w20_calendar_1a as W20

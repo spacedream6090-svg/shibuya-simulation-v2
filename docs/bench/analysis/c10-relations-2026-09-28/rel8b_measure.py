@@ -90,7 +90,7 @@ def stratified_sample(pop: Any, n: int, seed: int | str = 1, rng_scheme: str = "
 
     〔10e(検収 L2)〕``rng_scheme`` は ``engine.run`` が渡す引数を受けるだけ(この抽出は自前の鍵=使わない)。
     """
-    from shibuya.core.rng import stream
+    from shibuya.foundation.rng import stream
 
     n = int(n)
     if n >= pop.n:
@@ -242,7 +242,7 @@ def cmd_audit_sample(args: argparse.Namespace) -> int:
 
 # ------------------------------------------------------------------ bytecheck
 def _final_wo(res: Any, rec: list[str]) -> str:
-    from shibuya.core.hashing import blake3_hex
+    from shibuya.foundation.hashing import blake3_hex
 
     if not rec or len(rec) != len(res.checkpoints):
         return ""
@@ -569,7 +569,7 @@ def cmd_replay(args: argparse.Namespace) -> int:
     from shibuya.agents.weekly import load_weekly
     from shibuya.engine import relations as RL
     from shibuya.llm.parser import parse_two_line
-    from shibuya.perception import templates as T
+    from shibuya.foundation.text import templates as T
 
     unique = json.loads(UNIQUE.read_text(encoding="utf-8"))["unique"]["tapes"]
     wk = load_weekly(args.world)

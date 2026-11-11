@@ -32,7 +32,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_table_is_empty_and_frozen`(関数)
   - `test_unknown_agents_get_nothing`(関数)
   - `test_unmet_requirements_hide_the_tool`(関数)
-- import している内部モジュール: `shibuya.engine.decision.layer`・`shibuya.engine.decision.sources`・`shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.engine.tools.record`・`shibuya.engine.tools.registry`・`shibuya.llm.contract`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.engine.decision.layer`・`shibuya.engine.decision.sources`・`shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.engine.tools.record`・`shibuya.engine.tools.registry`・`shibuya.foundation.vocab.actions`・`tests/engine/decision/_j0.py`
 
 ## [test_c0_contacts_in_relations.py](../../../../../../../tests/engine/tools/test_c0_contacts_in_relations.py)
 
@@ -54,7 +54,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_state_ledger_row_and_declaration`(関数)
   - `test_world_run_family_and_work_flags_and_rel_columns_unchanged`(関数)
   - `test_writing_contacts_does_not_change_the_existing_rel_columns`(関数): 初めの辺・新しい相手・押し出しの全部で、印を書く口を止めた層と ``rel_*`` が値まで同じ。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.core.write_permit`・`shibuya.engine.memory`・`shibuya.engine.relations`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.overrides`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.engine.tools.contacts`・`tests/engine/tools/contacts_writers.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.memory`・`shibuya.engine.relations`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.overrides`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.write_permit`・`tests/engine/tools/contacts_writers.py`
 
 ## [test_c0_groups_from_w16.py](../../../../../../../tests/engine/tools/test_c0_groups_from_w16.py)
 
@@ -88,7 +88,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_recorded_count_is_reproduced_with_the_same_rule`(関数)
   - `test_the_table_is_empty_and_answers_none`(関数)
   - `test_the_table_is_read_only_after_construction`(関数)
-- import している内部モジュール: `shibuya.engine.bridging.ledger`・`shibuya.engine.bridging.ledger_paths`・`shibuya.engine.run`・`shibuya.engine.tools.places`・`shibuya.engine.tools.registry`・`tests/_places.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.tools.places`・`shibuya.engine.tools.registry`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.decl.ledger_paths`・`tests/_places.py`
 - 決定の ID: 10-13b/§3・11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・第 334
 
 ## [test_c0_signboard_mark_invariance.py](../../../../../../../tests/engine/tools/test_c0_signboard_mark_invariance.py)
@@ -104,7 +104,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_mark_is_tied_to_the_ledger_and_the_vocab`(関数)
   - `test_undeclared_write_from_decide_fails_at_run_time`(関数)
   - `test_world_run_arm_on_and_off_render_the_same_bytes`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.core.write_permit`・`shibuya.engine.bridging.ledger`・`shibuya.engine.events.log`・`shibuya.engine.events.vocab`・`shibuya.engine.run`・`shibuya.engine.systems.overrides`・`shibuya.engine.tools.record`・`shibuya.engine.tools.registry`・`shibuya.perception.facts`・`shibuya.perception.renderer`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.systems.overrides`・`shibuya.engine.tools.record`・`shibuya.engine.tools.registry`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.percept`・`shibuya.foundation.vocab.events`・`shibuya.foundation.write_permit`・`shibuya.perception.renderer`
 - 環境変数: `SHIBUYA_TOOL_EVENTS`
 
 ## [test_c0_tool_registry.py](../../../../../../../tests/engine/tools/test_c0_tool_registry.py)
@@ -126,5 +126,5 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_registry_cannot_be_rewritten`(関数)
   - `test_tool_is_frozen_with_slots`(関数)
   - `test_tool_words_are_names_of_the_registry_and_appended_at_the_end`(関数)
-- import している内部モジュール: `shibuya.engine.bridging.ledger`・`shibuya.engine.events.vocab`・`shibuya.engine.tools.registry`
+- import している内部モジュール: `shibuya.engine.tools.registry`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.vocab.events`
 - 決定の ID: 10-12/§4-4・10-13b/§1

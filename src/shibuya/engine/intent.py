@@ -85,7 +85,7 @@ from shibuya.agents.state import (
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.engine.activity import ActivityPayload
-from shibuya.llm.contract import NO_TARGET, UNTIL_DEFAULT_MINUTES, UntilKind
+from shibuya.foundation.vocab.actions import NO_TARGET, UNTIL_DEFAULT_MINUTES, UntilKind
 
 __all__ = [
     "INTENT_MAX_TICKS",

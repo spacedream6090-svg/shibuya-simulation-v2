@@ -81,7 +81,7 @@ import json
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from shibuya.core.hashing import blake3_hex
+from shibuya.foundation.hashing import blake3_hex
 
 __all__ = [
     "CALLS_FILENAME",
@@ -257,7 +257,7 @@ def tape_v4_fields(src: Any, tape: Any) -> dict[str, Any]:
     B6 の本文は ``tape.intern_block`` でブロック表に入れて ``block_id`` を返す(同じ本文は 1 回だけ保存)。
     ``recalled_source`` は予約(記憶の作り直しまでは空)。
     """
-    from shibuya.perception.channels import estimate_tokens
+    from shibuya.foundation.text.channels import estimate_tokens
 
     b6 = str(getattr(src, "b6_text", "") or "")
     return {

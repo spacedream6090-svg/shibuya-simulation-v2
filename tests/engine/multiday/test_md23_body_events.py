@@ -18,13 +18,13 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import AgentState, ResultCode
-from shibuya.core.time_consts import NS_PER_STEP
+from shibuya.foundation.time_consts import NS_PER_STEP
 from shibuya.engine import memory as M
 from shibuya.engine import memory_store as MS
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.events import body as B
-from shibuya.engine.events import log as EV
-from shibuya.engine.events import vocab as V
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.vocab import events as V
 from shibuya.engine.run import run_day
 from shibuya.engine.tape import CALLS_SCHEMA, Tape
 from shibuya.engine.tools import record as TR

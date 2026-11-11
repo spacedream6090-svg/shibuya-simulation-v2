@@ -20,10 +20,10 @@ from pathlib import Path
 import pytest
 
 from shibuya import cli
-from shibuya.core.time_consts import STEPS_PER_DAY
-from shibuya.engine import manifest_sections as MS
+from shibuya.foundation.time_consts import STEPS_PER_DAY
+from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import run_kind as RK
-from shibuya.engine.bridging import ledger as BR
+from shibuya.foundation.decl import bridging as BR
 from shibuya.engine.rules import table as RT
 from shibuya.engine.run import run_day
 

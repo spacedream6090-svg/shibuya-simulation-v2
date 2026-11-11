@@ -63,7 +63,7 @@ W9 影グリッド(§1 W9・D-W10「5分刻み」)。
   - `remove_stale_shadows`(関数): ``out`` の ``w9_shadow_<日付>.npy`` のうち ``dates`` に無い日のファイルを消し、消した名前を返す。
   - `run`(関数)
   - `sun_vector`(関数): (高度 [deg], 方位 [deg・北から時計回り], 単位水平方向の x 成分…) ではなく
-- import している内部モジュール: `shibuya.build.field.w13_weather`・`shibuya.build.geo.common`・`shibuya.build.vis.w8_visibility`・`shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.build.field.w13_weather`・`shibuya.build.geo.common`・`shibuya.build.vis.w8_visibility`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.vis.run`
 - 読む試験: `tests/build_vis/test_vis_pipeline.py`・`tests/build_vis/test_vis_units.py`・`tests/engine/multiday/test_md23_w9_window.py`・`tests/engine/test_activation_2_4.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`

@@ -193,7 +193,7 @@ class Tool:
                 raise ValueError("Tool.modality は空でない文字列の組か None")
             object.__setattr__(self, "modality", mod)
         if self.stage is not None:
-            from shibuya.engine.bridging.ledger import PLAN_STAGES
+            from shibuya.foundation.decl.bridging import PLAN_STAGES
 
             if self.stage not in PLAN_STAGES:
                 raise ValueError(f"Tool.stage は計画の段の番号か None(いま {self.stage!r})")

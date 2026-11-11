@@ -32,7 +32,7 @@ build.space.navmesh1 — 第 5 期 空間の段 1: 多層の歩ける面のナ�
   - `FloorRaster`(クラス): 1 つの階の塗り(札 uint8)と高さ(float32・NaN=未設定)。
   - `build`(関数): 材料を読んで ``out_dir`` に ``nav1_*`` と ``navmesh1.header.json`` を書く(既存の世界の資産は書き換えない)。
   - `main`(関数)
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.space.mesh`・`shibuya.build.space.raster`・`shibuya.build.space.sources`・`shibuya.core.time_consts`・`shibuya.world.navmesh`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.space.mesh`・`shibuya.build.space.raster`・`shibuya.build.space.sources`・`shibuya.foundation.time_consts`・`shibuya.world.navmesh`
 - 読む試験: `tests/build_space/synth.py`・`tests/build_space/test_navmesh1_units.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数

@@ -34,7 +34,7 @@ from typing import Any, Final, Mapping
 import numpy as np
 
 from shibuya.agents.state import Activity
-from shibuya.engine.contact.arm import LEDGER_ARM
+from shibuya.foundation.arms.contact import LEDGER_ARM
 
 __all__ = [
     "STATE_WORK", "STATE_HOME", "STATE_MOVING", "STATE_OTHER", "STATE_WORDS", "HABIT_KINDS", "HABIT_MIN_RECORDS",

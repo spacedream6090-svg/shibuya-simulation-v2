@@ -868,7 +868,7 @@ def dir_bytes(path: str | Path, patterns: Sequence[str] = ("*",)) -> int:
 
 def budget_limits(ids: Iterable[str] = ("W1", "M8", "S1", "P2", "M1", "L4", "L6")) -> dict[str, Any]:
     """予算宣言表から上限を読む(**Markdown が正典**・複製しない)。"""
-    from shibuya.core.budget import budget_by_id, load_budget_table, parse_limit
+    from shibuya.foundation.budget import budget_by_id, load_budget_table, parse_limit
 
     rows = budget_by_id(load_budget_table())
     out: dict[str, Any] = {}

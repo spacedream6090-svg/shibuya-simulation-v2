@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import NS_PER_SECOND
+from shibuya.foundation.time_consts import NS_PER_SECOND
 from shibuya.engine import memory_m1 as M1
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.memory_store import LegacyEvent, MemoryStore
@@ -37,7 +37,7 @@ def _head(d: Path) -> dict:
 
 
 def test_arms_enter_the_config_section_and_the_fingerprint(tmp_path):
-    from shibuya.engine import manifest_sections as MSEC
+    from shibuya.foundation.manifest import sections as MSEC
 
     kw = dict(KW, ticks=240)
     with arms("events", model="m1", cue="embed", embed_model="ngram-test"):
@@ -185,7 +185,7 @@ def test_bridge_ids_use_the_stage_names_of_answer_6_2():
     assert "発注の M4" in rows["DOC-mr65-m1-recognition"]["why"]
     assert "発注の M5" in rows["DOC-mr65-m1-people-initial"]["why"]
     from shibuya import cli as CLI
-    from shibuya.engine.bridging import ledger_paths as LP
+    from shibuya.foundation.decl import ledger_paths as LP
     from shibuya.engine.systems import build as SYS_BUILD
 
     from tests import _places as PL

@@ -84,7 +84,7 @@ anchor_gauge — 第 2 期 2-0 **較正側の錨の計器**(記録を読むだ�
   - `work_targets`(関数)
   - `wquantiles`(関数)
   - `write_outputs`(関数)
-- import している内部モジュール: `shibuya`・`shibuya.agents.weekly`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.trial`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`shibuya.cli`・`shibuya.core.time_consts`・`shibuya.engine.calendar_shadow`・`shibuya.engine.presence`・`shibuya.engine.run`・`tools/c7/attr_arms.py`・`tools/c7/c7lib.py`・`tools/instruments/read_guard.py`
+- import している内部モジュール: `shibuya`・`shibuya.agents.weekly`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.trial`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`shibuya.cli`・`shibuya.engine.calendar_shadow`・`shibuya.engine.presence`・`shibuya.engine.run`・`shibuya.foundation.time_consts`・`tools/c7/attr_arms.py`・`tools/c7/c7lib.py`・`tools/instruments/read_guard.py`
 - CLI の引数
   - サブコマンド `compare`
   - サブコマンド `gauge`
@@ -141,7 +141,7 @@ batch_width_gauge — 第 3 期 3-2 **TM4 の既定の幅の試験の道具**(�
   - `read_records`(関数)
   - `run_one`(関数)
   - `table`(関数): 記録(1 行=1 本のラン: ``width_s``・``salt``・``final``・指標の欄)から幅ごとの表を作る。
-- import している内部モジュール: `shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.foundation.time_consts`
 - 読む試験(道筋で): `tests/engine/clock/test_tm4_regional_clock.py`・`tests/tools/test_batch_width_gauge.py`
 - CLI の引数
   - サブコマンド `run`

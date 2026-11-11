@@ -14,10 +14,11 @@ from __future__ import annotations
 import pytest
 
 from shibuya.engine.run import run_day
-from shibuya.llm import LLMResponse, format_two_line
-from shibuya.llm.contract import ACTION_CODES, action_code_of
+from shibuya.llm import LLMResponse
+from shibuya.foundation.vocab.actions import format_two_line
+from shibuya.foundation.vocab.actions import ACTION_CODES, action_code_of
 from shibuya.llm.undefined import map_synonym
-from shibuya.perception.templates import INTENT_MODES
+from shibuya.foundation.text.templates import INTENT_MODES
 
 
 class WordLLM:
@@ -96,7 +97,7 @@ def test_unknown_intent_mode_is_refused():
 # ------------------------------------------------------------------ D-113 ④ 役割語の提示(第269)
 def test_role_words_default_on_and_round_trips_into_the_run_manifest():
     """ランの既定は役割語あり(契約書 §2.2)。off は第268 以前の B0(prompt_hash が違う)。"""
-    from shibuya.perception import templates as T
+    from shibuya.foundation.text import templates as T
 
     on = run_day(**SMALL)
     off = run_day(role_words=False, **SMALL)

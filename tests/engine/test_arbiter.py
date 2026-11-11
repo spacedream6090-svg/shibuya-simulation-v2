@@ -11,7 +11,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from shibuya.agents.state import N_WAKE_CONDITIONS, WakeCondition
-from shibuya.core.types import EventClass
+from shibuya.foundation.types import EventClass
 from shibuya.engine.arbiter import (
     DEGRADE_COST_FACTOR,
     T_MAX_TICKS,
@@ -20,7 +20,7 @@ from shibuya.engine.arbiter import (
     arbitrate,
     call_budget_per_tick,
 )
-from shibuya.engine.scheduler import DIAG_COLUMNS
+from shibuya.foundation.queues.scheduler import DIAG_COLUMNS
 
 SALT = b"\x01\x02\x03\x04"
 

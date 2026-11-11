@@ -16,7 +16,7 @@ from shibuya.agents.state import (
     ResultCode,
     WakeCondition,
 )
-from shibuya.core.types import EventClass
+from shibuya.foundation.types import EventClass
 
 
 def test_m9_every_field_declared_and_within_m1():

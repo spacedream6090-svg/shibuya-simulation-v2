@@ -39,9 +39,9 @@ from typing import Any, Final, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.core.rng import key_time_from_t_ns
+from shibuya.foundation.rng import key_time_from_t_ns
 from shibuya.engine import economy_stage2 as _ES2
-from shibuya.engine.decision.port import (
+from shibuya.foundation.ports.decision import (
     ALL_SOURCES,
     OTHER_ID,
     OTHER_SHARE_BASIS,
@@ -55,7 +55,7 @@ from shibuya.engine.decision.port import (
     DecisionPort,
 )
 from shibuya.engine.decision.sources import build_candidates, memory_kind_words
-from shibuya.engine.events import vocab as V
+from shibuya.foundation.vocab import events as V
 
 __all__ = [
     "ARM_LEGACY", "ARM_PORT", "ARMS", "arm", "set_arm", "DecisionLayer", "manifest_fields", "METER_KEYS",
@@ -154,7 +154,7 @@ class DecisionLayer:
         tools: Any = None,
         money_stage2: Any = None,
     ) -> None:
-        from shibuya.engine.events.log import CANDIDATE_SOURCES
+        from shibuya.foundation.journal.log import CANDIDATE_SOURCES
 
         if tuple(ALL_SOURCES) != tuple(CANDIDATE_SOURCES):  # 検収 M1: 原因の列の源の番号と口の源の並びを 1 つに
             raise RuntimeError(f"口の源 {ALL_SOURCES} と出来事の原因の源 {CANDIDATE_SOURCES} が違う")
@@ -242,7 +242,7 @@ class DecisionLayer:
     def _stage2_candidates(self, ctx: DecisionContext, cands: Sequence[Any]) -> tuple[Any, ...]:
         """腕 ``--economy-stage2 on`` のラン: 営業中の ATM のセルで「お金を下ろす」(源 affordance)を足し、購入・食事の候補の
         文に支払いの注を添える(行為の語は変えない=mock と古典の番号は今と同じ)。"""
-        from shibuya.engine.decision.port import Candidate
+        from shibuya.foundation.ports.decision import Candidate
 
         plan = self.money_stage2
         out = list(cands)
@@ -390,7 +390,7 @@ class DecisionLayer:
         if choice.is_other or choice.kind not in self.event_words:
             self.meter["events_unlogged"] += 1
             return
-        from shibuya.engine.events.log import Event, LlmCall
+        from shibuya.foundation.journal.log import Event, LlmCall
 
         seen: dict[tuple[int, int], None] = {}
         src = None

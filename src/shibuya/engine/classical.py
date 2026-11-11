@@ -51,13 +51,13 @@ from typing import Any, Final, Mapping
 import numpy as np
 
 from shibuya.agents.state import Activity, AgentKind, WakeCondition
-from shibuya.core.paths import REPO_ROOT
-from shibuya.core.rng import stream
+from shibuya.foundation.paths import REPO_ROOT
+from shibuya.foundation.rng import stream
 from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
 from shibuya.llm import LLMRequest, LLMResponse, estimate_tokens
-from shibuya.llm.contract import SPEECH_FIELD_LINE, TARGET_WANDER, append_comment, format_two_line_v3
+from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE, TARGET_WANDER, append_comment, format_two_line_v3
 from shibuya.llm.mock import MOCK_UTTERANCE
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "ACTIVITY_PRIOR_PATH",
@@ -715,7 +715,7 @@ def _near_persons(prompt: str, aid: int) -> list[int]:
 
 def _near_strangers(prompt: str, aid: int) -> list[int]:
     """B5 の近接行で印が「未知」の人(自分を除く)の id(行の順)。C10 8b の「残り」の層の候補。"""
-    from shibuya.perception.templates import NEAR_PERSON_MARKS
+    from shibuya.foundation.text.templates import NEAR_PERSON_MARKS
 
     mark = f"({NEAR_PERSON_MARKS[0]})"
     out: list[int] = []

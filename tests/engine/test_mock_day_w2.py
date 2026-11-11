@@ -14,7 +14,7 @@ from tests import _time_gates as TG
 from shibuya.agents.state import Activity, ResultCode
 from shibuya.engine import growth_decl as GD
 from shibuya.engine.run import DIAG_RUN_COLUMNS, main, run_day
-from shibuya.engine.scheduler import DIAG_COLUMNS
+from shibuya.foundation.queues.scheduler import DIAG_COLUMNS
 
 W2_LIMIT_SECONDS = 600.0
 P2_LIMIT_MS = 5.0

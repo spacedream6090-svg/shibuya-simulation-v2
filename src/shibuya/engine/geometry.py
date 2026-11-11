@@ -56,7 +56,7 @@ from typing import Final
 
 import numpy as np
 
-from shibuya.core.rng import derive_key
+from shibuya.foundation.rng import derive_key
 from shibuya.engine.change_detect import DEFAULT_WALKABLE_AREA_M2
 from shibuya.world.assets import WorldAssets
 from shibuya.world.state import DENSITY_STAGE_EDGES_PER_M2

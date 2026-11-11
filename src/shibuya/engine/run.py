@@ -77,9 +77,9 @@ from shibuya.agents.state import (
     AgentState,
     WakeCondition,
 )
-from shibuya.core.growth import GrowthReport
-from shibuya.core.rng import RNG_SCHEME
-from shibuya.core.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
+from shibuya.foundation.growth import GrowthReport
+from shibuya.foundation.rng import RNG_SCHEME
+from shibuya.foundation.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
 from shibuya.engine import commit as C
 from shibuya.engine import growth_decl as GD
 from shibuya.engine import resolve as R
@@ -115,20 +115,20 @@ from shibuya.engine.geometry import (
     DESIRED_SPEED_MIN_MS,
     GEOMETRY_MODES,
 )
-from shibuya.engine.ledger_api import LedgerBundle
+from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.processes.opening import rows_of_day as _opening_rows_of_day
 from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
 from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
 from shibuya.engine.poi_target import MOVE_SEARCH_RADIUS_CELLS
 from shibuya.engine.llm_bridge import DEFAULT_LANE, delta_think_ticks
-from shibuya.engine.scheduler import DIAG_COLUMNS
+from shibuya.foundation.queues.scheduler import DIAG_COLUMNS
 from shibuya.engine.state_hashes import FINAL_DEFINITION
 from shibuya.engine.tape import Replay, read_run_meta
-from shibuya.llm.contract import TargetKind
+from shibuya.foundation.vocab.actions import TargetKind
 from shibuya.llm.fleet import FleetClient
 from shibuya.llm.mock import MockLLM
-from shibuya.perception.channels import BudgetMode
-from shibuya.perception.facts import percept_manifest as _percept_manifest
+from shibuya.foundation.text.channels import BudgetMode
+from shibuya.foundation.ports.percept import percept_manifest as _percept_manifest
 from shibuya.engine.decision import layer as _DECISION
 from shibuya.engine.speech import layer as _SPEECH
 from shibuya.engine import proximity as _PROX
@@ -136,7 +136,7 @@ from shibuya.engine.space import nav1 as _NAV1
 from shibuya.engine import calendar_shadow as _CALENDAR_SHADOW
 from shibuya.engine import calendar_self as _CALENDAR_SELF
 from shibuya.engine.experiment import layer as _EXPERIMENT
-from shibuya.engine import batching as _BATCHING
+from shibuya.foundation.queues import batching as _BATCHING
 from shibuya.engine import regional_clock as _REGIONAL_CLOCK  # 〔第 6 期 6-3 T4〕
 from shibuya.engine import speech_clock as _SPEECH_CLOCK  # 〔第 6 期 6-3 T2〕
 from shibuya.engine import step_scope as _STEP_SCOPE  # 〔第 6 期 6-3 T3〕
@@ -145,10 +145,10 @@ from shibuya.perception.renderer import (
     DEFAULT_HUNGER_WORDS,
     SIGNAGE_P_SEE_DEFAULT,
 )
-from shibuya.perception.templates import INTENT_MODES, VOCAB_VERSIONS, check_vocab_version
+from shibuya.foundation.text.templates import INTENT_MODES, VOCAB_VERSIONS, check_vocab_version
 from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE
 from shibuya.world.state import World
-from shibuya.core.time_consts import CLOCK_KIND, HOURS_PER_DAY, MINUTES_PER_DAY, SECONDS_PER_DAY, SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import CLOCK_KIND, HOURS_PER_DAY, MINUTES_PER_DAY, SECONDS_PER_DAY, SECONDS_PER_MINUTE
 
 __all__ = [
     "DIAG_RUN_COLUMNS",
@@ -395,7 +395,7 @@ def _default_mock(
     引く**という既存の規約をそのまま版に従わせる。既定 ``"v1"`` では
     ``MockLLM(master_seed=seed)`` と**同一**(引数も乱数列も同じ)。
     """
-    from shibuya.llm.contract import cross_action_words
+    from shibuya.foundation.vocab.actions import cross_action_words
 
     if str(vocab_version) == VOCAB_VERSIONS[0]:
         return MockLLM(master_seed=seed)
@@ -583,7 +583,7 @@ def resolve_sub_seed(seed: int | str, sub_seed: int | str | None) -> int | str:
     """
     if sub_seed is None:
         return seed
-    from shibuya.core.rng import derive_key
+    from shibuya.foundation.rng import derive_key
 
     derive_key(sub_seed, "seed.check")  # 検査だけ(鍵は使わない)
     return sub_seed
@@ -1209,12 +1209,12 @@ class RunResult:
             第 3 期 3-2: 末尾に ``batching``(計算のまとめの窓の幅・上限・窓の中の順と、窓の数・持ち越し・上限に当たった数。
             進行役を通らない結果は ``None``)。
         """
-        from shibuya.engine import manifest_sections as _MS
+        from shibuya.foundation.manifest import sections as _MS
         from shibuya.engine import run_kind as _RK
         from shibuya.engine.rights import record as _RR
-        from shibuya.engine.bridging import ledger as _BR
+        from shibuya.foundation.decl import bridging as _BR
         from shibuya.engine.rules import table as _RT
-        from shibuya.perception import templates as _T
+        from shibuya.foundation.text import templates as _T
 
         runner = getattr(self, "runner", None)
         catalog_sha16 = ""
@@ -2492,7 +2492,7 @@ def add_fleet_args(ap: "argparse.ArgumentParser") -> None:
     ``cache_salt`` の勘定分離(較正と holdout が prefix キャッシュを共有しない)に効く。
     """
     from shibuya.llm.fleet import DEFAULT_T1_MAX_TOKENS, DEFAULT_TEMPERATURE
-    from shibuya.manifest.schema import Mode as _Mode
+    from shibuya.foundation.manifest.schema import Mode as _Mode
 
     ap.add_argument("--llm", choices=("mock", "fleet"), default="mock",
                     help="LLM 経路(fleet=実 vLLM 艦隊・--endpoints 必須)")
@@ -2573,7 +2573,7 @@ def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
 def fleet_from_args(args: Any, ap: "argparse.ArgumentParser | None" = None) -> FleetClient | None:
     """``add_fleet_args`` の結果 → ``FleetClient``(``--llm mock`` なら ``None``)。"""
     from shibuya.llm.fleet import FleetConfig
-    from shibuya.manifest.schema import Mode as _Mode
+    from shibuya.foundation.manifest.schema import Mode as _Mode
 
     if getattr(args, "llm", "mock") != "fleet":
         return None

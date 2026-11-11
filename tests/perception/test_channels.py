@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.perception import channels as C
-from shibuya.perception.templates import BLOCK_TOKEN_BUDGET
+from shibuya.foundation.text import channels as C
+from shibuya.foundation.text.templates import BLOCK_TOKEN_BUDGET
 
 
 def test_channel_table_matches_contract_section_3_2():

@@ -11,10 +11,12 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from shibuya.engine.tape import Replay, TapeMiss, TapeRow, TapeWriter
-from shibuya.llm import (
+from shibuya.foundation.vocab.actions import (
     ACTION_VOCAB_12,
     NO_TARGET,
     TWO_LINE_RE,
+)
+from shibuya.llm import (
     LLMClient,
     LLMRequest,
     MockLLM,

@@ -27,7 +27,7 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_two_days_and_resume_match_the_straight_run_for_the_arm`(関数)
   - `test_window_changes_are_attributed_to_the_window_mark_and_fingerprints_do_not_move`(関数)
   - `width`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.core.time_consts`・`shibuya.engine.batching`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.day`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.day`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.queues.batching`・`shibuya.foundation.time_consts`
 - 環境変数: `SHIBUYA_SYSTEMS_CHECK`・`os.environ` をまるごと使う
 
 ## [test_window_queue.py](../../../../../../../tests/engine/batching/test_window_queue.py)
@@ -57,5 +57,5 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_set_arm_and_is_default`(関数)
   - `test_unknown_kind_and_bad_shapes_raise`(関数)
   - `test_widths_are_the_divisors_of_the_step_and_the_default_is_the_step`(関数)
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.batching`・`shibuya.engine.manifest_sections`・`shibuya.engine.scheduler`
+- import している内部モジュール: `shibuya.foundation.manifest.sections`・`shibuya.foundation.queues.batching`・`shibuya.foundation.queues.scheduler`・`shibuya.foundation.time_consts`
 - 決定の ID: 10-03/§7-5

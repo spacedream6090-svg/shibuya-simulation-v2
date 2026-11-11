@@ -37,7 +37,7 @@ import numpy as np
 
 from shibuya.agents import population as POP
 from shibuya.agents.state import WakeCondition
-from shibuya.core.rng import stream
+from shibuya.foundation.rng import stream
 from shibuya.economy import GoodsLedger, Ledger
 from shibuya.economy import anchors as AN
 from shibuya.economy import census as CS
@@ -51,7 +51,7 @@ from shibuya.engine import run_kind as _RK
 from shibuya.engine.arbiter import call_budget_per_tick
 from shibuya.engine.geometry import DEFAULT_GEOMETRY, GEOMETRY_MODES
 from shibuya.engine.space import nav1 as _NAV1
-from shibuya.engine.ledger_api import LedgerBundle
+from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.run import (
     MINUTES_PER_SIM_DAY,
     RunResult,
@@ -63,7 +63,7 @@ from shibuya.engine.run import (
     run_day,
 )
 from shibuya.perception.renderer import SIGNAGE_P_SEE_DEFAULT
-from shibuya.perception.templates import (
+from shibuya.foundation.text.templates import (
     DEFAULT_INTENT_MODE,
     DEFAULT_VOCAB_VERSION,
     INTENT_MODES,
@@ -95,7 +95,7 @@ from shibuya.engine.energy import (
     HUNGER_MODELS,
 )
 from shibuya.world.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
-from shibuya.core.time_consts import STEPS_PER_HOUR
+from shibuya.foundation.time_consts import STEPS_PER_HOUR
 
 #: **CLI の既定の語彙版**(二層の段 3・第277=``--vocab-version`` を渡さないランは v3)。
 #: ライブラリの既定(``templates.DEFAULT_VOCAB_VERSION``/``run_day``/``cli.run``)は **v1 のまま**
@@ -482,7 +482,7 @@ def run(
                          "store_capital_yen": store_capital_yen})
         from shibuya.engine import rate_rules as _rate_rules  # 〔11-01 段 2 の 4〕率の形の規則(既定 off と違えば腕)
         from shibuya.engine import absent_processes as _absent_processes  # 〔11-02r §1 #7〕「無い」の過程(既定 stopped と違えば腕)
-        from shibuya.engine import batching as _BATCH  # 〔第 3 期 3-2〕まとめの幅の腕(環境変数か --batch-width-s)
+        from shibuya.foundation.queues import batching as _BATCH  # 〔第 3 期 3-2〕まとめの幅の腕(環境変数か --batch-width-s)
         from shibuya.engine.body import schedule as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)。〔移す段 4 の下ごしらえ〕定義した schedule を直に読む
         from shibuya.engine import calendar_shadow as _calendar_shadow  # 〔第 3 期 3-1〕暦 1a の影(既定 w17 と違えば腕)
         from shibuya.engine import calendar_self as _calendar_self  # 〔第 6 期 6-2〕カレンダー 1b(既定 w17 と違えば腕)
@@ -490,10 +490,10 @@ def run(
         from shibuya.engine import regional_clock as _regional_clock  # 〔第 6 期 6-3〕時計の段 T2〜T4 の腕(既定と違えば腕)
         from shibuya.engine import speech_clock as _speech_clock
         from shibuya.engine import step_scope as _step_scope
-        from shibuya.engine.contact import arm as _contact_arm  # 〔第 6 期 6-4 C1〕連絡の道具の腕(c1 は結果を変える=腕)
-        from shibuya.engine.calendar2 import arm as _calendar2_arm  # 〔第 6 期 6-2 カレンダー 2〕(arm は結果を変える=腕)
-        from shibuya.engine.calendar3 import arm as _calendar3_arm  # 〔第 6 期 6-2 カレンダー 3〕(arm は結果を変える=腕)
-        from shibuya.engine.duties import arm as _duties_arm  # 〔第 6 期 6-6 ② 第 1 部〕店の仕事(arm は結果を変える=腕)
+        from shibuya.foundation.arms import contact as _contact_arm  # 〔第 6 期 6-4 C1〕連絡の道具の腕(c1 は結果を変える=腕)
+        from shibuya.foundation.arms import calendar2 as _calendar2_arm  # 〔第 6 期 6-2 カレンダー 2〕(arm は結果を変える=腕)
+        from shibuya.foundation.arms import calendar3 as _calendar3_arm  # 〔第 6 期 6-2 カレンダー 3〕(arm は結果を変える=腕)
+        from shibuya.foundation.arms import duties as _duties_arm  # 〔第 6 期 6-6 ② 第 1 部〕店の仕事(arm は結果を変える=腕)
         from shibuya.engine.speech import layer as _speech_layer
 
         # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
@@ -575,7 +575,7 @@ def run(
 
 def _batch_widths() -> tuple[int, ...]:
     """〔第 3 期 3-2〕``--batch-width-s`` で選べる幅(``engine.batching.WIDTHS_S``=刻みの幅の約数)。"""
-    from shibuya.engine import batching as _batching
+    from shibuya.foundation.queues import batching as _batching
 
     return tuple(_batching.WIDTHS_S)
 
@@ -793,7 +793,7 @@ def _arm_norm(key: str, v: Any) -> Any:
     """比べるための値の形(``on``→真・``off``→偽・空→None・列挙→値・``budget_mode`` は列挙の値に)。"""
     import enum
 
-    from shibuya.perception.channels import BudgetMode
+    from shibuya.foundation.text.channels import BudgetMode
 
     if key == "budget_mode" and v is not None:
         return BudgetMode.parse(v).value
@@ -1574,7 +1574,7 @@ def main(argv: list[str] | None = None) -> int:
     except argparse.ArgumentTypeError as exc:  # 使い方の誤りは traceback ではなく usage で返す
         ap.error(str(exc))
     if str(args.events) in ("off", "on"):  # 第 1 期 1-3: 出来事の記録の切替口(組み立てが読む。CLI は環境変数より強い=検収 L3)
-        from shibuya.engine.events import log as _events_log
+        from shibuya.foundation.journal import log as _events_log
 
         _events_log.set_enabled(str(args.events) == "on")
     if args.memory_store is not None:  # 第 1 期 1-6: 記憶の器の腕(組み立てが読む。指定は環境変数より強い)
@@ -1601,7 +1601,7 @@ def main(argv: list[str] | None = None) -> int:
 
         _proximity.set_d(str(args.proximity_d))
     if args.batch_width_s is not None:  # 〔第 3 期 3-2〕まとめの幅の腕(組み立てと進行役が読む。指定は環境変数より強い)
-        from shibuya.engine import batching as _batching
+        from shibuya.foundation.queues import batching as _batching
 
         _batching.set_arm(int(args.batch_width_s))
     if args.rate_rules is not None:  # 〔11-01 段 2 の 4〕率の形の規則の腕(組み立てが読む。指定は環境変数より強い)
@@ -1637,19 +1637,19 @@ def main(argv: list[str] | None = None) -> int:
 
         _calendar_self.set_arm(str(args.calendar))
     if args.contact is not None:  # 〔第 6 期 6-4 C1〕連絡の道具の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine.contact import arm as _contact_arm
+        from shibuya.foundation.arms import contact as _contact_arm
 
         _contact_arm.set_arm(str(args.contact))
     if args.calendar_2 is not None:  # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine.calendar2 import arm as _calendar2_arm
+        from shibuya.foundation.arms import calendar2 as _calendar2_arm
 
         _calendar2_arm.set_arm(str(args.calendar_2))
     if args.calendar_3 is not None:  # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine.calendar3 import arm as _calendar3_arm
+        from shibuya.foundation.arms import calendar3 as _calendar3_arm
 
         _calendar3_arm.set_arm(str(args.calendar_3))
     if args.duties is not None:  # 〔第 6 期 6-6 ② 第 1 部〕店の仕事の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine.duties import arm as _duties_arm
+        from shibuya.foundation.arms import duties as _duties_arm
 
         _duties_arm.set_arm(str(args.duties))
     if args.economy_stage2 is not None:  # 第 2 期 2-1: 経済の段階 2 の腕(組み立てと台帳の組み立てが読む)

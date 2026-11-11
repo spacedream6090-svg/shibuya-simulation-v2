@@ -23,8 +23,8 @@ from shibuya.engine import store_memory as SM
 from shibuya.engine.chooser import ClassicalChooser, NearestChooser
 from shibuya.engine.poi_target import TargetResolver
 from shibuya.engine.store_choice import CHOICE_REASONS, StoreChoice, walk_m_per_tick
-from shibuya.perception import templates as T
-from shibuya.perception.channels import estimate_tokens
+from shibuya.foundation.text import templates as T
+from shibuya.foundation.text.channels import estimate_tokens
 from shibuya.perception.renderer import memory_item_text
 from shibuya.world.state import World
 

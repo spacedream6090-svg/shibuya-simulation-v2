@@ -45,7 +45,7 @@ SCHED_PORTS = frozenset({"reset", "intero_due", "intero_plan", "intero_snapshot"
 PORT_CALLERS = frozenset({f"{MODEL}:BodyModel.{m}" for m in ("__init__", "initial", "_reserve_intero", "_step_felt")})
 #: 同じ名の欄を持つ別の持ち主(体の層の対象の外): 予約の列の道具そのもの。持ち主の欄の名 ``_reservations``・``_body_meter``
 #: はほかの持ち主と重ならない名にした(10f の外の状態の軸 1 の AST の検査の名の衝突を避ける)。
-OTHER_OWNERS = frozenset({"engine/scheduler.py"})
+OTHER_OWNERS = frozenset({"foundation/queues/scheduler.py"})
 MUTATORS = frozenset({"setdefault", "append", "pop", "popitem", "clear", "update", "extend", "insert", "remove"})
 
 

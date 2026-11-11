@@ -40,8 +40,8 @@ from typing import Any, Final, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.core.rng import stream
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.rng import stream
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     # ---- 10e(B0・B1): 資産の指紋と旧資産の切替口 ----

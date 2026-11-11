@@ -10,7 +10,7 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import WakeCondition
-from shibuya.core.types import EventClass
+from shibuya.foundation.types import EventClass
 from shibuya.engine.processes.civic import PressProcess, PublicServiceDispatchProcess
 from shibuya.engine.processes.salient import (
     ABLATION_IDS,

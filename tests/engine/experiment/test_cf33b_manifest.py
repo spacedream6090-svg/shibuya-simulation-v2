@@ -16,7 +16,7 @@ import json
 import pytest
 
 from shibuya import cli
-from shibuya.engine import manifest_sections as MS
+from shibuya.foundation.manifest import sections as MS
 from shibuya.engine.experiment import ensemble as EN
 from shibuya.engine.experiment import layer as XL
 from shibuya.engine.experiment import warmup as WU

@@ -106,7 +106,7 @@ from shibuya.agents.weekly import (
 from shibuya.engine import rate_rules as _RATE_RULES
 from shibuya.engine import resolve as R
 from shibuya.world.state import World
-from shibuya.core.time_consts import HOURS_PER_DAY, STEPS_PER_HOUR
+from shibuya.foundation.time_consts import HOURS_PER_DAY, STEPS_PER_HOUR
 
 __all__ = [
     "ARRIVAL_SPREAD_MAX_TRAINS",

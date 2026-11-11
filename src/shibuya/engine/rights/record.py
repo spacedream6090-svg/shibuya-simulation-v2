@@ -27,8 +27,8 @@ from typing import Any, Final
 
 import numpy as np
 
-from shibuya.core.types import t_sim_ns
-from shibuya.engine.events import log as _EV
+from shibuya.foundation.types import t_sim_ns
+from shibuya.foundation.journal import log as _EV
 from shibuya.engine.rights.ledger import AGENT, EMPLOY
 
 __all__ = ["WHAT_UNAUTHORIZED", "CAUSE_NAME", "EMPLOYEE_HOLDER", "EVERYONE_HOLDER", "events_of",
@@ -80,7 +80,7 @@ class RoleActCheck:
 
     def __call__(self, agent_id: int, step: int, word: str) -> bool | None:
         """許可あり=True・許可なし=False・判定しない語(職務・役割語の外)=None。``step`` は通しの刻みの番号。"""
-        from shibuya.llm.contract import ROLE_ACTIONS
+        from shibuya.foundation.vocab.actions import ROLE_ACTIONS
 
         holder = str(ROLE_ACTIONS.get(str(word), ""))
         if holder == EVERYONE_HOLDER:

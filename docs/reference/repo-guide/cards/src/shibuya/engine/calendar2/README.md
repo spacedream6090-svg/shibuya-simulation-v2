@@ -2,24 +2,11 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 6 本・その他 0 本(このディレクトリの直下)
+Python 5 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/engine/calendar2/__init__.py)
 
 engine.calendar2 — カレンダー 2「会話とメッセージから生まれる予定」(第 6 期 6-2・腕 ``--calendar-2 arm``・既定 off)。
-
-## [arm.py](../../../../../../../../src/shibuya/engine/calendar2/arm.py)
-
-engine.calendar2.arm — カレンダー 2 の腕(第 6 期 6-2・CA2 (c)(d)・CA3・CA4・CA6・CA7・CA8)。
-
-- 公開の関数とクラス
-  - `arm`(関数): いまの腕(``off``=既定・``arm``)。組み立てのときに読む。
-  - `config`(関数): 設定の指紋と manifest の設定の子に出す腕の組(腕 off は ``None``=指紋に何も足さない)。
-  - `is_on`(関数)
-  - `set_arm`(関数): 腕を選ぶ(CLI ``--calendar-2``・試験の切替口)。
-- 呼び手: `shibuya.cli`・`shibuya.engine.calendar2.book`・`shibuya.engine.calendar2.layer`・`shibuya.engine.systems.build`
-- 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/_ca3.py`
-- 環境変数: `SHIBUYA_CALENDAR_2`
 
 ## [book.py](../../../../../../../../src/shibuya/engine/calendar2/book.py)
 
@@ -28,7 +15,7 @@ engine.calendar2.book — 本人の予定の器(第 6 期 6-2 カレンダー 2�
 - 公開の関数とクラス
   - `PromiseBook`(クラス): 本人の予定の器(状態台帳の腕の行 ``CA2B``)。行は持ち主ごと=二人の約束も各自が自分の行を持つ。
   - `broken`(関数): 壊れた予定(CA4 (d))なら理由・そうでなければ ``None``。
-- import している内部モジュール: `shibuya.engine.calendar2.arm`
+- import している内部モジュール: `shibuya.foundation.arms.calendar2`
 - 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.calendar3.layer`
 - 読む試験: `tests/engine/calendar2/test_ca2_units.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`
 - 状態台帳の行
@@ -46,7 +33,7 @@ engine.calendar2.layer — カレンダー 2「会話とメッセージから生
   - `issued_key`(関数)
   - `manifest_fields`(関数): manifest の ``calendar_2``(腕 arm のランだけ・ほかは空=欄を出さない)。
   - `sys_calendar_2`(関数): 系 calendar_2(刻みの中・腕 arm のランだけ立つ)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.calendar2.arm`・`shibuya.engine.calendar2.book`・`shibuya.engine.calendar2.port`・`shibuya.engine.calendar2.recall`・`shibuya.engine.calendar_self`・`shibuya.engine.contact.attention`・`shibuya.engine.decision.port`・`shibuya.engine.events.log`・`shibuya.engine.events.vocab`・`shibuya.engine.processes.opening`・`shibuya.engine.resolve`・`shibuya.llm.mock`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar2.book`・`shibuya.engine.calendar2.port`・`shibuya.engine.calendar2.recall`・`shibuya.engine.calendar_self`・`shibuya.engine.contact.attention`・`shibuya.engine.processes.opening`・`shibuya.engine.resolve`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.llm.mock`
 - 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.table`
 - 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar2/test_ca2_units.py`・`tests/engine/calendar2/test_ca2_world.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
@@ -74,7 +61,7 @@ engine.calendar2.port — カレンダー 2 の本人の判断(候補の口 J0 �
   - `parse_call_id`(関数): カレンダー 2 の判断の呼びの id → ``(刻み, 体, 通し番号)``(この形でなければ ``None``)。
   - `purpose_of_serial`(関数)
   - `serial_of`(関数): 判断の通し番号(``SERIAL_BASE``+その刻みのその体の k 回目 × 16+判断の種類)。上限を超えたら ``ValueError``。
-- import している内部モジュール: `shibuya.core.rng`・`shibuya.engine.decision.port`
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.rng`
 - 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.calendar3.layer`
 - 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar2/test_ca2_units.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`

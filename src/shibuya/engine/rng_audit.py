@@ -30,7 +30,7 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Final, Iterable, Mapping
 
-from shibuya.core import rng as _RNG
+from shibuya.foundation import rng as _RNG
 
 # ================================================================ 静的(AST)
 #: 〔移す段 2-4〕``core.rng`` のモジュールの名(``__name__`` から作る=段 4 で動かしても検査が呼び手を見落とさない)。
@@ -151,7 +151,7 @@ def scan_sites(root: Path, files: Iterable[Path] | None = None) -> list[StreamSi
     out: list[StreamSite] = []
     for p in fl:
         rel = p.relative_to(root).as_posix()
-        if rel == "core/rng.py":
+        if rel == "foundation/rng.py":
             continue
         tree = ast.parse(p.read_text(encoding="utf-8"))
         consts = _str_consts(tree)
@@ -298,7 +298,7 @@ UNDETERMINED_SITES: Final[dict[tuple[str, str, str], str]] = {
         "予約だけ(作って引かない=0 ブロック)。実行時に見る",
     ("engine/processes/logistics.py", "RoadWorksProcess._plan", "world.road_works"):
         "choice の大きさが工事の数。1 語目は日の鍵(10c 検収 R4)=実行時に見る",
-    ("engine/decision/port.py", "present_rng", "decision.present"):
+    ("foundation/ports/decision.py", "present_rng", "decision.present"):
         "Generator を返し、呼び手(present)が permutation(候補の数)を引く。0 語目を空け 1〜3 語目に刻みの鍵・体・候補の数"
         "(k19)=実行時に重なり 0 を見る(第 1 期 1-8 J0)",
     ("engine/contact/port.py", "ContactPort.choose", "contact.present"):
@@ -386,7 +386,7 @@ class StreamRecorder:
     def install(self) -> "StreamRecorder":
         import sys
 
-        import shibuya.core.rng as RNG
+        import shibuya.foundation.rng as RNG
 
         orig = RNG.philox
         made = self.made

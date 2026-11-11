@@ -22,12 +22,12 @@ from collections import defaultdict
 import pytest
 
 from shibuya.agents.state import WakeCondition
-from shibuya.engine.events.log import EventLog, LlmCall
+from shibuya.foundation.journal.log import EventLog, LlmCall
 from shibuya.engine.speech import port as P
-from shibuya.llm.contract import SPEECH_FIELD_LINE
+from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE
 from shibuya.llm.mock import MOCK_UTTERANCE
 from shibuya.perception import renderer as R
-from shibuya.perception import templates as T
+from shibuya.foundation.text import templates as T
 from tests.engine.speech._s8b import run_small, tape_rows
 from tests.perception.facts.scenes import build, twin
 
@@ -153,7 +153,7 @@ def test_heard_line_and_field_line_at_the_end_of_b6(reason, want_field):
 
 def test_the_field_line_is_short():
     """親の判断 A6: 指示の行は 10 tok 以下(描画の数え方=文字数 ÷ 2)・届いた発話の行の素性タグも短い形。"""
-    from shibuya.perception import channels as ch
+    from shibuya.foundation.text import channels as ch
 
     assert ch.estimate_tokens(SPEECH_FIELD_LINE) <= 10
     # 届いた発話の行の固定の部分(本文の外)は 5 桁の人 ID で 15 tok(前の形は 21 tok)

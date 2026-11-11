@@ -63,7 +63,7 @@ from shibuya.build.geo.common import (
     write_parquet,
 )
 from shibuya.build.space import mesh as M
-from shibuya.core.time_consts import SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import SECONDS_PER_MINUTE
 from shibuya.build.space import raster as R
 from shibuya.build.space import sources as S
 from shibuya.world import navmesh as NV

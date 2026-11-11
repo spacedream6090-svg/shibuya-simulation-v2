@@ -62,8 +62,8 @@ from typing import Any, Final
 import numpy as np
 
 from shibuya.agents.state import AgentState
-from shibuya.core.hashing import blake3_hex
-from shibuya.core.rng import stream
+from shibuya.foundation.hashing import blake3_hex
+from shibuya.foundation.rng import stream
 from shibuya.engine import resolve as R
 from shibuya.engine import solar as SOL
 from shibuya.engine.body.model import BodyModel as _BodyModel
@@ -81,7 +81,7 @@ from shibuya.world.assets import (
     file_sha256,
 )
 from shibuya.world.state import World
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "DAYLIGHT_VOCAB",

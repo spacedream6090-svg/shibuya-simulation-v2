@@ -85,7 +85,7 @@ from shibuya.economy.accounts import (
     flow_registry_table,
     registered_cells,
 )
-from shibuya.engine.ledger_api import TransferStatus
+from shibuya.foundation.ports.ledger import TransferStatus
 
 __all__ = [
     "PARTS",
@@ -947,7 +947,7 @@ class MoneyStage2:
 
     def growth_declaration(self, *, employers: int) -> Any:
         """腕のランの成長の宣言(体あたりの定常バイト・ATM の表と雇用主の口は定数・伸びない=D-R2-6 の 5 欄)。"""
-        from shibuya.core.growth import GrowthDeclaration, Retention
+        from shibuya.foundation.growth import GrowthDeclaration, Retention
 
         n_atm = int(getattr(self.atms, "n", 0) or 0)
         fixed = n_atm * ATM_ROW_BYTES + int(employers) * EMPLOYER_ROW_BYTES

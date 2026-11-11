@@ -48,7 +48,7 @@ from typing import Any, Callable, Final
 import numpy as np
 
 from shibuya.agents.state import Activity
-from shibuya.engine.scheduler import COL_AGENT, COL_SEQ, Scheduler
+from shibuya.foundation.queues.scheduler import COL_AGENT, COL_SEQ, Scheduler
 from shibuya.engine.body import rules as BR
 from shibuya.engine.energy import HUNGER_RATIO_EDGES
 

@@ -38,7 +38,7 @@ from shibuya.engine import resolve as R
 from shibuya.engine.conversation import ConversationManager
 from shibuya.engine.geometry import EdgeGeometry
 from shibuya.engine.run import run_day
-from shibuya.llm.contract import TargetKind, parse_target, resolve_landmark
+from shibuya.foundation.vocab.actions import TargetKind, parse_target, resolve_landmark
 from shibuya.llm.undefined import (
     SYNONYM_TABLE_VERSION,
     SYNONYMS,

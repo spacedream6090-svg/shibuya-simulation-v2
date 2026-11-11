@@ -36,9 +36,9 @@ from pathlib import Path
 from typing import Any, Final, Iterable, Sequence
 
 # --- 層契約の例外(build → perception・__init__ の docstring に理由)------------------
-from shibuya.perception import normalize as N
+from shibuya.foundation.text import normalize as N
 from shibuya.perception.attention import strip_imperatives
-from shibuya.perception.channels import estimate_tokens
+from shibuya.foundation.text.channels import estimate_tokens
 
 from ..geo import common as C
 

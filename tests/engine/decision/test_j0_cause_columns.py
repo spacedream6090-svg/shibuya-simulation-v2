@@ -20,10 +20,10 @@ import tracemalloc
 
 import pytest
 
-from shibuya.core.time_consts import NS_PER_STEP, STEPS_PER_DAY
-from shibuya.engine.events import log as EV
-from shibuya.engine.events import vocab as V
-from shibuya.engine.experiment import gate as GATE
+from shibuya.foundation.time_consts import NS_PER_STEP, STEPS_PER_DAY
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.ports import experiment_gate as GATE
 from shibuya.engine.run import run_day
 
 from tests.engine.decision._j0 import SMALL, decision_arm
@@ -66,7 +66,7 @@ def test_llm_call_source_and_number_are_checked(kw):
     with pytest.raises(ValueError):
         EV.LlmCall("1:2:3", **kw)
     assert EV.CANDIDATE_SOURCES == ("experience", "affordance", "plan", "continue", "deliberate", "vocab")
-    from shibuya.engine.decision.port import ALL_SOURCES
+    from shibuya.foundation.ports.decision import ALL_SOURCES
 
     assert tuple(ALL_SOURCES) == EV.CANDIDATE_SOURCES
 

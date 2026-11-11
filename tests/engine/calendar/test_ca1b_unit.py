@@ -20,9 +20,9 @@ import pytest
 
 from shibuya.engine import calendar_self as CS1
 from shibuya.engine import calendar_shadow as CSH
-from shibuya.engine import manifest_sections as MS
+from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import state_ledger as SL
-from shibuya.engine.decision.port import (
+from shibuya.foundation.ports.decision import (
     DELIBERATE_KIND, SOURCE_CONTINUE, SOURCE_DELIBERATE, SOURCE_PLAN, Choice, DecisionContext, DecisionPort,
 )
 from shibuya.engine.systems.table import SPECS
@@ -80,7 +80,7 @@ def test_tool_registry_has_clock_and_forecast():
 
 
 def test_bridges_rows_are_in_the_ledger():
-    from shibuya.engine.bridging import ledger as BR
+    from shibuya.foundation.decl import bridging as BR
 
     led = BR.default_ledger()
     for b in CS1.BRIDGES:

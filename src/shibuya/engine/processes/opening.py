@@ -49,7 +49,7 @@ from typing import Final
 import numpy as np
 
 from shibuya.agents.state import AgentKind, AgentState
-from shibuya.core.types import t_sim_ns
+from shibuya.foundation.types import t_sim_ns
 from shibuya.engine import resolve as R
 from shibuya.engine.calendar import OPENING_ROW_PH
 from shibuya.engine.rights import initial as _RI
@@ -58,7 +58,7 @@ from shibuya.engine.rights.ledger import AGENT, EMPLOY, STORE
 from shibuya.world.assets import ProcessAssets
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.state import World
-from shibuya.core.time_consts import MINUTES_PER_DAY, SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, SECONDS_PER_MINUTE
 
 __all__ = ["STEP_MINUTES", "MINUTES_PER_DAY", "OpeningProcess"]
 

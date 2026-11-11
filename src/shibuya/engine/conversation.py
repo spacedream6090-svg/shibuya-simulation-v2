@@ -46,7 +46,7 @@ from typing import Any, Final, Mapping, Sequence
 import numpy as np
 
 from shibuya.agents.state import WakeCondition
-from shibuya.core.types import EventClass
+from shibuya.foundation.types import EventClass
 
 __all__ = [
     "D_TALK_METERS",

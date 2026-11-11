@@ -76,7 +76,7 @@ from read_guard import (  # noqa: E402
     GAUGE_EXTRA_DENY_TOKENS, JOURNAL_PREFIX, JOURNAL_SUFFIX, NotAllowedError, ReadGuard, deny_hit, files_listing,
     roles_table,
 )
-from shibuya.core.time_consts import (  # noqa: E402
+from shibuya.foundation.time_consts import (  # noqa: E402
     HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_HOUR, SECONDS_PER_MINUTE, STEP_SECONDS,
 )
 # 〔第 3 期 3-1・検収 低 7〕W20cal の組んだ資産の置き場と名はエンジンの読み口の定数を 1 か所で読む

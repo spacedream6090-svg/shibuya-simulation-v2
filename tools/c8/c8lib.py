@@ -441,7 +441,7 @@ def gpu_hours_for_calls(calls: float, calls_per_second: float = CALLS_PER_SECOND
 
 def budget_row(row_id: str) -> dict[str, Any] | None:
     """予算宣言表の 1 行(Markdown が正典・数値をここに複製しない)。"""
-    from shibuya.core.budget import budget_by_id, load_budget_table, parse_limit
+    from shibuya.foundation.budget import budget_by_id, load_budget_table, parse_limit
 
     row = budget_by_id(load_budget_table()).get(row_id)
     if row is None:

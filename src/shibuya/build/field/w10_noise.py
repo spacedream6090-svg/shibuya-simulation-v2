@@ -58,7 +58,7 @@ import numpy as np
 from . import common as C
 from . import road_names as RN
 from .street_grid import segment_arrays, street_points
-from shibuya.core.time_consts import SECONDS_PER_HOUR
+from shibuya.foundation.time_consts import SECONDS_PER_HOUR
 
 STAGE = "W10"
 #: 1.0.0 = 対応表は空(全辺 klass 既定)/ 1.1.0 = 道路名の突合(段 1c・D-1 (a))+対応表の出力。

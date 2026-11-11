@@ -39,7 +39,7 @@ llm.contract の**転記テスト**(行動契約書 §2.1/§2.2 の表が1行も
   - `test_v3_two_line_form_round_trips`(関数)
   - `test_v3_word_sets_follow_the_agenda_table`(関数)
   - `test_vocabulary_limit_of_the_contract_is_respected`(関数): §2「種別あたりの語彙上限24語」。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.llm.contract`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.vocab.actions`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
 - 決定の ID: D-89・D-92・D-116・第 223・第 271・第 274・第 275・第 275 #6・第 275 #7
 
@@ -81,7 +81,7 @@ C6-a 艦隊接続の検収テスト(**プロセス内の偽 vLLM**・実サー�
   - `test_t2_lane_uses_thinking_and_infra_clip_ceiling`(関数)
   - `test_temperature_and_max_tokens_are_configurable_and_recorded`(関数): ``--temperature 0.7 --max-tokens 96`` 相当が payload と manifest 欄に載る。
   - `test_ttft_timeout_defers_not_discards`(関数): TTFT 超過 = 繰り延べ(破棄禁止・憲法1)。再試行はしない。
-- import している内部モジュール: `shibuya.core.hashing`・`shibuya.engine.llm_bridge`・`shibuya.engine.tape`・`shibuya.llm`・`shibuya.llm.fleet`・`shibuya.manifest.schema`
+- import している内部モジュール: `shibuya.engine.llm_bridge`・`shibuya.engine.tape`・`shibuya.foundation.hashing`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.fleet`
 - 読む試験: `tests/engine/test_10a_review_fixes.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/perception/facts/test_percept_is_scratch.py`
 
 ## [test_fleet_auth.py](../../../../../../tests/llm/test_fleet_auth.py)
@@ -114,7 +114,7 @@ C6-a 艦隊接続の契約テスト(層契約・純関数・性質)。HTTP サ�
   - `test_seed_is_a_function_of_call_id_and_run_seed`(関数)
   - `test_single_replica_has_no_alternate_and_is_counted`(関数): レプリカ 1 本では「別レプリカ 1 回」が退化する=診断行に残す。
   - `test_split_system_user`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.build`・`shibuya.core.budget`・`shibuya.economy.ledger`・`shibuya.engine.llm_bridge`・`shibuya.engine.resolve`・`shibuya.llm.fleet`・`shibuya.manifest.schema`・`shibuya.perception.renderer`・`shibuya.world.state`・`tests/_places.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.build`・`shibuya.economy.ledger`・`shibuya.engine.llm_bridge`・`shibuya.engine.resolve`・`shibuya.foundation.budget`・`shibuya.foundation.manifest.schema`・`shibuya.llm.fleet`・`shibuya.perception.renderer`・`shibuya.world.state`・`tests/_places.py`
 - 決定の ID: D-58
 
 ## [test_mock_v3.py](../../../../../../tests/llm/test_mock_v3.py)
@@ -128,7 +128,7 @@ mock 方策の語彙 v3 化(二層の段 3・D-116・第277・アジェンダ §
   - `test_v3_draw_rules`(関数)
   - `test_v3_form_is_read_strictly_by_the_v3_parser`(関数)
   - `test_v3_is_deterministic_and_counter_based`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.llm`・`shibuya.llm.contract`・`shibuya.llm.mock`・`shibuya.llm.parser`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.llm.parser`
 - 決定の ID: D-116・第 277
 
 ## [test_parser.py](../../../../../../tests/llm/test_parser.py)
@@ -214,7 +214,7 @@ llm.parser のテスト(ラベル基準の寛容行指向・**例外を投げな
   - `test_v3_well_formed_output`(関数)
   - `test_v3_well_formed_output_round_trips`(関数)
   - `test_well_formed_output_round_trips_through_format_two_line`(関数)
-- import している内部モジュール: `shibuya.llm.contract`・`shibuya.llm.parser`
+- import している内部モジュール: `shibuya.foundation.vocab.actions`・`shibuya.llm.parser`
 - 決定の ID: D-89・D-113・D-116・第 223・第 266・第 274・第 275・第 275 #4
 
 ## [test_undefined.py](../../../../../../tests/llm/test_undefined.py)
@@ -255,7 +255,7 @@ llm.undefined のテスト(行動契約書 §7「未定義行動の受理」5段
   - `test_stage4_needs_parent_review_rows_are_only_adopted_explicitly`(関数)
   - `test_synonym_table_is_versioned`(関数)
   - `test_target_hints_v5_add_the_base_words_for_the_target_field`(関数)
-- import している内部モジュール: `shibuya.llm`・`shibuya.llm.contract`・`shibuya.llm.undefined`
+- import している内部モジュール: `shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.undefined`
 - 決定の ID: D-116・第 274
 
 ## [test_vocab_v2.py](../../../../../../tests/llm/test_vocab_v2.py)
@@ -279,5 +279,5 @@ llm.undefined のテスト(行動契約書 §7「未定義行動の受理」5段
   - `test_v1_objects_are_untouched`(関数): v1 の語彙・コード・契約表は**同一オブジェクト**(名前を足しただけ)。
   - `test_v2_appends_one_cross_cutting_word`(関数)
   - `test_v2_vocabulary_exceeds_the_declared_limit_by_one`(関数): §2「種別あたり 24 語」を **1 語超える**ことを機械で可視化する(封印は D-71 §3 J 待ち)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.llm.contract`・`shibuya.llm.parser`・`shibuya.llm.undefined`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.vocab.actions`・`shibuya.llm.parser`・`shibuya.llm.undefined`
 - 決定の ID: D-71・第 274

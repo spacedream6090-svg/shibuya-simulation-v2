@@ -12,7 +12,7 @@ ablation1_fixed_vs_ranking.py — **ablation ①(義務)**「チャネル固定�
   - `main`(関数)
   - `probe_switch`(関数): 2 つの ``BudgetMode`` で同じ場面を描き、バイト差分の有無を返す(**純関数寄り**)。
   - `run_arm`(関数): 1 構成のスモーク(budget_mode=tag を run_day へ渡す・09-09 切替口実装後)。
-- import している内部モジュール: `shibuya.agents.schedule`・`shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.engine.tape`・`shibuya.perception.channels`・`shibuya.perception.renderer`・`shibuya.world.state`・`tools/c6/c6lib.py`
+- import している内部モジュール: `shibuya.agents.schedule`・`shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.engine.tape`・`shibuya.foundation.text.channels`・`shibuya.perception.renderer`・`shibuya.world.state`・`tools/c6/c6lib.py`
 - 読む試験: `tests/c6/test_c6lib_aggregate.py`・`tests/perception/test_ablation1.py`
 - CLI の引数
   - `--max-tokens`
@@ -67,7 +67,7 @@ c6lib — C6-b 検証ハーネスの純関数と共通部品(標準ライブラ�
   - `wilson_ci`(関数): 二項比率の Wilson 信頼区間(品質プローブv0 の ``wilson_ci`` と同定義)。
   - `world_dir_of`(関数)
   - `write_outputs`(関数): ``<out>/<stem>.json`` と ``<out>/<stem>.md`` を書く(改行は LF=Windows でも CRLF にしない・第307)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.tape`・`shibuya.llm.contract`・`shibuya.llm.fleet`・`shibuya.llm.parser`・`shibuya.llm.undefined`・`shibuya.manifest.schema`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.tape`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.vocab.actions`・`shibuya.llm.fleet`・`shibuya.llm.parser`・`shibuya.llm.undefined`
 - 呼び手: `tools/c6/ablation1_fixed_vs_ranking.py`・`tools/c6/format_role_rates.py`・`tools/c6/metric_b_rerun.py`・`tools/c6/run_hash.py`・`tools/c6/t6_bit_reproduce.py`・`tools/c6/t7_distribution.py`・`tools/c7/c7lib.py`・`tools/c8/c8lib.py`・`tools/fig/fig_ab7_actions.py`・`tools/fig/fig_ab7c_vocab.py`・`tools/w17/diversity_yardstick.py`
 - 読む試験: `tests/c6/conftest.py`・`tests/c6/test_t5_order_bias.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`

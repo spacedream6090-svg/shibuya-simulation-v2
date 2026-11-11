@@ -620,7 +620,7 @@ DIAG_EXITS: tuple[DiagExit, ...] = (
     # 読む no/diag の属性(流れの表・生ログの位置と容量・最後に動いた日・計器)は移動の記録と計器にしか使わず、
     # 行動の選びは決めない(書き手は 1 つ=tests/economy/cp2/test_cp2_transfer_only_writer.py)
     DiagExit("economy/ops.py", "transfer", "お金の基本操作(1-9)=台帳の書き手。移動の記録・生ログの位置・計器だけを読む"),
-    DiagExit("engine/ledger_api.py", "LedgerBundle.economy_day_record", "日次の記録の金の計器(1-9・報告)"),
+    DiagExit("foundation/ports/ledger.py", "LedgerBundle.economy_day_record", "日次の記録の金の計器(1-9・報告)"),
     # 〔第 6 期 6-3 T4〕場所ごとの時計の遅刻の計器(計画実行層の日の表の到着の刻みとブロックの始めを読むだけ=manifest の clock の
     # late_*=TM4 の指標・行動の選びは決めない)
     DiagExit("engine/regional_clock.py", "RegionalClock._lateness", "遅刻の計器(6-3 T4・manifest の clock・報告)"),

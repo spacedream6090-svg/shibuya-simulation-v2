@@ -23,7 +23,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.perception import facts as F
+from shibuya.foundation.ports import percept as F
 from shibuya.perception import p_notice as P
 from shibuya.perception import renderer as R
 

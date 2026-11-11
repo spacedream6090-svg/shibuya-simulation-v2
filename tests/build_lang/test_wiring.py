@@ -19,8 +19,8 @@ import pyarrow.parquet as pq
 import pytest
 
 from shibuya.agents.state import AgentKind, AgentState
-from shibuya.perception import templates as T
-from shibuya.perception.normalize import AgentDependentWordError
+from shibuya.foundation.text import templates as T
+from shibuya.foundation.text.normalize import AgentDependentWordError
 from shibuya.perception.renderer import PerceptionAssets, Renderer, _load_frozen_text
 from shibuya.world.state import World
 
@@ -262,7 +262,7 @@ def test_w15_token_cap_derivation_still_holds(capsys):
     +[B2 地物])。W6/W8 が更新されて他行が伸びたらここで気づく。
     """
     from shibuya.build.lang import w15_cell_static as W15
-    from shibuya.perception.channels import estimate_tokens
+    from shibuya.foundation.text.channels import estimate_tokens
 
     d = Path("data/world/v2")
     w = World.load(d)

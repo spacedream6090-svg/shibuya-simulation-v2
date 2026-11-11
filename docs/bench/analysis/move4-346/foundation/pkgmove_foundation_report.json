@@ -1,0 +1,824 @@
+{
+ "stages": [
+  "foundation"
+ ],
+ "rows_applied": 40,
+ "rows_applied_by_kind": {
+  "move": 40
+ },
+ "rows_already": [],
+ "refused_held": [
+  {
+   "num": "224a",
+   "old": "engine/removed_switches.py",
+   "held": "行 224a 置き場は段 4 の前に親が確かめる(move-346 の記録 §7-2 の (3))"
+  }
+ ],
+ "file_moves": 36,
+ "created_heads": [
+  "src/shibuya/foundation/__init__.py",
+  "src/shibuya/foundation/arms/__init__.py",
+  "src/shibuya/foundation/decl/__init__.py",
+  "src/shibuya/foundation/journal/__init__.py",
+  "src/shibuya/foundation/manifest/__init__.py",
+  "src/shibuya/foundation/ports/__init__.py",
+  "src/shibuya/foundation/queues/__init__.py",
+  "src/shibuya/foundation/text/__init__.py",
+  "src/shibuya/foundation/vocab/__init__.py"
+ ],
+ "emptied_heads": [
+  "src/shibuya/core/__init__.py",
+  "src/shibuya/engine/bridging/__init__.py",
+  "src/shibuya/engine/events/__init__.py",
+  "src/shibuya/manifest/__init__.py"
+ ],
+ "deleted": [],
+ "import_statements": {
+  "src": 382,
+  "build": 33,
+  "tests": 471,
+  "tools": 22,
+  "docs": 5
+ },
+ "import_files": {
+  "src": 148,
+  "build": 28,
+  "tests": 235,
+  "tools": 14
+ },
+ "import_via_head": {
+  "src": 3,
+  "build": 0,
+  "tests": 10,
+  "tools": 0
+ },
+ "import_split_statements": {
+  "src": 3,
+  "build": 0,
+  "tests": 9,
+  "tools": 0
+ },
+ "import_via_package": {
+  "src": 83,
+  "build": 2,
+  "tests": 219,
+  "tools": 1
+ },
+ "plan_estimate_stage4": {
+  "statements": {
+   "src": 855,
+   "build": 38,
+   "tests": 1378,
+   "tools": 52
+  },
+  "files": {
+   "src": 179,
+   "build": 30,
+   "tests": 349,
+   "tools": 28
+  },
+  "via_head": {
+   "src": 10,
+   "build": 14,
+   "tests": 40,
+   "tools": 3
+  }
+ },
+ "path_strings": {
+  "src_table": 5,
+  "dotted": 6,
+  "code_import": 4,
+  "slash": 25,
+  "chain": 2
+ },
+ "path_string_sites": 26,
+ "path_string_sites_by_file": [
+  "src/shibuya/engine/rng_audit.py::UNDETERMINED_SITES",
+  "src/shibuya/engine/rng_audit.py::scan_sites",
+  "src/shibuya/engine/state_ledger.py::OWNER_CLASSES",
+  "src/shibuya/engine/state_ledger_ast.py::DIAG_EXITS",
+  "tests/economy/test_wage_occupation.py::test_build_and_runtime_share_one_function",
+  "tests/engine/batching/test_conductor_windows.py::test_a_bad_environment_width_fails_at_import",
+  "tests/engine/body/test_body_guard.py::OTHER_OWNERS",
+  "tests/engine/events/test_e_writes_declared.py::test_paths_permit_is_assigned_only_in_the_guard",
+  "tests/engine/state/test_move_prep_stage2.py::test_only_core_paths_reads_dunder_file_on_the_run_side",
+  "tests/engine/state/test_move_prep_stage2.py::test_rng_audit_names_come_from_the_rng_module",
+  "tests/engine/systems/test_fix_guards.py::PERMIT_GLOBALS",
+  "tests/engine/systems/test_fix_guards.py::PERMIT_MODULES",
+  "tests/engine/systems/test_fix_guards.py::WP_CALLS",
+  "tests/engine/systems/test_fix_guards.py::WP_IMPORTERS",
+  "tests/engine/systems/test_fix_guards.py::_EXEMPT_D6",
+  "tests/engine/systems/test_stage_a_guard.py::_EXEMPT_D6",
+  "tests/engine/test_salt_seed_split_10f.py::_HASH_SITES",
+  "tests/engine/test_salt_seed_split_10f.py::_PASSTHROUGH_OK",
+  "tests/engine/test_salt_seed_split_10f.py::_RNG_MODULES",
+  "tests/engine/test_salt_seed_split_10f.py::test_static_scan_catches_aliases_and_keyword_domains",
+  "tests/engine/time/test_t0_literal_count.py::test_time_consts_module_itself_has_no_hits",
+  "tests/engine/time/test_t0_rng_key.py::PLAN_A_CALLERS",
+  "tests/engine/time/test_t0_time_consts.py::test_time_consts_imports_only_the_standard_library",
+  "tests/perception/test_templates.py::test_action_vocab_matches_llm_contract",
+  "tools/bytecheck/tree.py::ROOT_READERS",
+  "tools/instruments/batch_width_gauge.py::_CHILD"
+ ],
+ "dropped_reexports": {
+  "src/shibuya/engine/__init__.py": [
+   "DIAG_COLUMNS",
+   "HORIZON_TICKS",
+   "DeferralQueue",
+   "Scheduler",
+   "TickState",
+   "coalesce_agents",
+   "order_indices",
+   "ordered_events",
+   "scheduler"
+  ],
+  "src/shibuya/llm/__init__.py": [
+   "ACTION_CODES",
+   "ACTION_SPECS",
+   "ACTION_VOCAB_12",
+   "ACTION_VOCAB_ROLE",
+   "ALL_ACTION_WORDS",
+   "COMMENT_MAX_CHARS",
+   "NO_TARGET",
+   "NO_TARGET_VALUE",
+   "REASON_MAX_CHARS",
+   "ROLE_ACTION_CODES",
+   "ROLE_ACTION_WORDS",
+   "ROLE_ACTIONS",
+   "TWO_LINE_RE",
+   "UNDEFINED_ACTION",
+   "ActionSpec",
+   "Target",
+   "TargetKind",
+   "action_code_of",
+   "format_two_line",
+   "is_role_action",
+   "parse_target",
+   "spec_of"
+  ],
+  "src/shibuya/perception/__init__.py": [
+   "CHANNEL_BY_ID",
+   "CHANNEL_LIMITS",
+   "BudgetMode",
+   "ChannelLimit",
+   "Grade",
+   "TruncationReport",
+   "estimate_tokens",
+   "truncate_lines",
+   "b4_field_row",
+   "block_hash",
+   "block_hashes",
+   "field_row_hashes",
+   "prefix_key",
+   "should_resend",
+   "AgentDependentWordError",
+   "assert_no_abbreviation",
+   "assert_no_agent_dependent_words",
+   "canonical_whitespace",
+   "format_time",
+   "join_lines",
+   "peg_stage",
+   "peg_stage_array",
+   "round_time_5min",
+   "sort_ids",
+   "time_band",
+   "BLOCK_IDS",
+   "BLOCK_TOKEN_BUDGET",
+   "GROUP_TOKEN_BUDGET",
+   "TEMPLATE_VERSION",
+   "template_sha256"
+  ]
+ },
+ "dropped_all": {
+  "src/shibuya/engine/__init__.py": [
+   "Scheduler",
+   "TickState",
+   "scheduler",
+   "order_indices",
+   "ordered_events",
+   "coalesce_agents",
+   "DeferralQueue",
+   "DIAG_COLUMNS",
+   "HORIZON_TICKS"
+  ],
+  "src/shibuya/llm/__init__.py": [
+   "ACTION_VOCAB_12",
+   "ACTION_VOCAB_ROLE",
+   "ROLE_ACTION_WORDS",
+   "ALL_ACTION_WORDS",
+   "ROLE_ACTIONS",
+   "ACTION_CODES",
+   "ROLE_ACTION_CODES",
+   "ACTION_SPECS",
+   "ActionSpec",
+   "Target",
+   "TargetKind",
+   "NO_TARGET",
+   "NO_TARGET_VALUE",
+   "REASON_MAX_CHARS",
+   "COMMENT_MAX_CHARS",
+   "UNDEFINED_ACTION",
+   "TWO_LINE_RE",
+   "format_two_line",
+   "parse_target",
+   "action_code_of",
+   "spec_of",
+   "is_role_action"
+  ],
+  "src/shibuya/perception/__init__.py": [
+   "TEMPLATE_VERSION",
+   "BLOCK_IDS",
+   "BLOCK_TOKEN_BUDGET",
+   "GROUP_TOKEN_BUDGET",
+   "template_sha256",
+   "AgentDependentWordError",
+   "assert_no_abbreviation",
+   "assert_no_agent_dependent_words",
+   "canonical_whitespace",
+   "format_time",
+   "join_lines",
+   "peg_stage",
+   "peg_stage_array",
+   "round_time_5min",
+   "sort_ids",
+   "time_band",
+   "CHANNEL_LIMITS",
+   "CHANNEL_BY_ID",
+   "ChannelLimit",
+   "Grade",
+   "BudgetMode",
+   "TruncationReport",
+   "estimate_tokens",
+   "truncate_lines",
+   "block_hash",
+   "block_hashes",
+   "prefix_key",
+   "should_resend",
+   "b4_field_row",
+   "field_row_hashes"
+  ]
+ },
+ "ledger_paths_added": 36,
+ "class_id_keys": 92,
+ "class_ids_resorted": true,
+ "changed_files": 434,
+ "untouched_count": {
+  "build:bare_dotted": 3,
+  "src:bare_dotted": 5,
+  "src:dotted": 8,
+  "src:slash": 5,
+  "tests:bare_dotted": 18,
+  "tests:dotted": 7,
+  "tests:slash": 1,
+  "tools:bare_dotted": 1,
+  "tools:dotted": 2,
+  "tools:slash": 1
+ },
+ "untouched_broad_constants": {
+  "docs": 16,
+  "src": 311,
+  "build": 20,
+  "tests": 310,
+  "tools": 27
+ },
+ "skipped_in_allowlist": [
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "TRACKED_READS",
+   "kind": "slash",
+   "token": "engine/bridging/ledger.py",
+   "reason": "ASCII の外の字を含む文(記録の文)=書き換えない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "TRACKED_READS",
+   "kind": "slash",
+   "token": "core/budget.py",
+   "reason": "ASCII の外の字を含む文(記録の文)=書き換えない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "ROOT_READERS",
+   "kind": "slash",
+   "token": "core/paths.py",
+   "reason": "ASCII の外の字を含む文(記録の文)=書き換えない"
+  }
+ ],
+ "bridging_ledger": {
+  "rows_total": 794,
+  "rows_src": 398,
+  "rows_moving": 14,
+  "rows_moving_active": 14
+ },
+ "bridging_ledger_moving": [
+  {
+   "id": "BR-DOC-RNG-KEY-FORMAT",
+   "declared_in": "src/shibuya/core/rng.py#docstring:6d4234a1",
+   "status": "active",
+   "new": "src/shibuya/foundation/rng.py#docstring:6d4234a1"
+  },
+  {
+   "id": "BR-DOC-DECODING-FIELDS",
+   "declared_in": "src/shibuya/manifest/schema.py#docstring:fdde13ed",
+   "status": "active",
+   "new": "src/shibuya/foundation/manifest/schema.py#docstring:fdde13ed"
+  },
+  {
+   "id": "HD-core.growth-1af925f4",
+   "declared_in": "src/shibuya/core/growth.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/growth.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-core.soa-1af925f4",
+   "declared_in": "src/shibuya/core/soa.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/soa.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-core.types-1af925f4",
+   "declared_in": "src/shibuya/core/types.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/types.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.ledger_api-1af925f4",
+   "declared_in": "src/shibuya/engine/ledger_api.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/ports/ledger.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.scheduler-1af925f4",
+   "declared_in": "src/shibuya/engine/scheduler.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/queues/scheduler.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-llm.contract-1af925f4",
+   "declared_in": "src/shibuya/llm/contract.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/vocab/actions.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-perception.channels-1af925f4",
+   "declared_in": "src/shibuya/perception/channels.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/text/channels.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-perception.hashes-1af925f4",
+   "declared_in": "src/shibuya/perception/hashes.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/text/hashes.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-perception.normalize-1af925f4",
+   "declared_in": "src/shibuya/perception/normalize.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/text/normalize.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-perception.templates-1af925f4",
+   "declared_in": "src/shibuya/perception/templates.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/text/templates.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.decision.port-1af925f4",
+   "declared_in": "src/shibuya/engine/decision/port.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/ports/decision.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.tools.contacts-1af925f4",
+   "declared_in": "src/shibuya/engine/tools/contacts.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/vocab/contact_flags.py#heading:1af925f4"
+  }
+ ],
+ "guards": {
+  "names_frozen": "同じ",
+  "class_ids": "同じ",
+  "shaped_74": "同じ(74 種・前の出てくる数の和 460)",
+  "ledger_paths": "同じ(台帳の道は全部、表を通して今のファイルに届く)",
+  "outside_allowlist": "同じ",
+  "import_names": "同じ(import の文が結ぶ名)",
+  "head_all": "同じ(頭の __all__ は結ばれた名だけ・除いた名 61)"
+ },
+ "warnings": [
+  "src/shibuya/engine/__init__.py: 頭の再輸出 9 個を除いた",
+  "src/shibuya/llm/__init__.py:46: 頭が再輸出の名 ['sha256_cbor'] を中で使う=除かない(循環の import が残りうる)",
+  "src/shibuya/llm/__init__.py: 頭の再輸出 22 個を除いた",
+  "src/shibuya/perception/__init__.py: 頭の再輸出 30 個を除いた"
+ ],
+ "untouched": [
+  {
+   "file": "src/shibuya/agents/state.py",
+   "symbol": "AgentState.__init__",
+   "kind": "bare_dotted",
+   "token": "llm.contract.ACTION_CODES",
+   "line": 712,
+   "excerpt": "直前に**試みた**行動コード(llm.contract.ACTION_CODES・§6「直前の結果」の主語。-1=まだ何も試みていない=LAST_ACTION_NONE)"
+  },
+  {
+   "file": "src/shibuya/build/lang/w14_signage.py",
+   "symbol": "run",
+   "kind": "bare_dotted",
+   "token": "perception.channels.estimate_tokens",
+   "line": 370,
+   "excerpt": "perception.channels.estimate_tokens(UTF-8 文字数 ÷ 2)"
+  },
+  {
+   "file": "src/shibuya/build/lang/w15_cell_static.py",
+   "symbol": "run",
+   "kind": "bare_dotted",
+   "token": "perception.channels.estimate_tokens",
+   "line": 363,
+   "excerpt": "perception.channels.estimate_tokens(UTF-8 文字数 ÷ 2)"
+  },
+  {
+   "file": "src/shibuya/build/sched/w17_schedule.py",
+   "symbol": "run",
+   "kind": "bare_dotted",
+   "token": "perception.channels.estimate_tokens",
+   "line": 1848,
+   "excerpt": "UTF-8 文字数 ÷ 2(perception.channels.estimate_tokens と同規約)"
+  },
+  {
+   "file": "src/shibuya/engine/body/system1.py",
+   "symbol": "<module>",
+   "kind": "bare_dotted",
+   "token": "perception.facts.NEARBY_CHANGE_KINDS",
+   "line": 35,
+   "excerpt": "perception.facts.NEARBY_CHANGE_KINDS に loud_sound が無い"
+  },
+  {
+   "file": "src/shibuya/engine/events/log.py",
+   "symbol": "Experiment",
+   "kind": "dotted",
+   "token": "shibuya.engine.events.log.Experiment",
+   "line": 187,
+   "excerpt": "shibuya.engine.events.log.Experiment"
+  },
+  {
+   "file": "src/shibuya/engine/events/log.py",
+   "symbol": "_only_from_gate",
+   "kind": "slash",
+   "token": "engine/experiment/gate.py",
+   "line": 174,
+   "excerpt": "CP12: 実験の条件(原因の種類 experiment)を作れるのは engine/experiment/gate.py の admit だけ(呼び手 "
+  },
+  {
+   "file": "src/shibuya/engine/proximity.py",
+   "symbol": "manifest_fields",
+   "kind": "bare_dotted",
+   "token": "core.rng.philox_array",
+   "line": 515,
+   "excerpt": "core.rng.philox_array(seed, "
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.llm.contract.Target",
+   "line": 60,
+   "excerpt": "shibuya.llm.contract.Target"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.llm.contract.TargetKind",
+   "line": 61,
+   "excerpt": "shibuya.llm.contract.TargetKind"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.engine.scheduler.DeferralQueue",
+   "line": 65,
+   "excerpt": "shibuya.engine.scheduler.DeferralQueue"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.core.types.EventClass",
+   "line": 66,
+   "excerpt": "shibuya.core.types.EventClass"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "CLASS_FIELDS",
+   "kind": "dotted",
+   "token": "shibuya.engine.scheduler.DeferralQueue",
+   "line": 86,
+   "excerpt": "shibuya.engine.scheduler.DeferralQueue"
+  },
+  {
+   "file": "src/shibuya/engine/state_hashes.py",
+   "symbol": "VALUE_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.engine.scheduler.DeferralQueue",
+   "line": 50,
+   "excerpt": "shibuya.engine.scheduler.DeferralQueue"
+  },
+  {
+   "file": "src/shibuya/engine/state_hashes.py",
+   "symbol": "VALUE_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.engine.scheduler.Scheduler",
+   "line": 56,
+   "excerpt": "shibuya.engine.scheduler.Scheduler"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/events/log.py",
+   "line": 730,
+   "excerpt": "engine/events/log.py(EventLog)・engine/systems/state_io.py(day_record の計器)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "bare_dotted",
+   "token": "perception.facts.Percept",
+   "line": 788,
+   "excerpt": "体 → perception.facts.Percept(凍結の dataclass)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "perception/facts.py",
+   "line": 790,
+   "excerpt": "perception/facts.py(Percept)・perception/renderer.py(perceive・render_percept)・engine/systems/decide.py(書く)・engine/systems"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/tools/contacts.py",
+   "line": 818,
+   "excerpt": "engine/relations.py(_write_contacts・seed_initial・_reset_slots・rebuild_contacts)・engine/tools/contacts.py(印の作り方と数え方)・engi"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/batching.py",
+   "line": 978,
+   "excerpt": "engine/batching.py(WindowQueue・manifest_fields)・engine/systems/conductor.py(conduct が置いて窓ごとに回す)"
+  },
+  {
+   "file": "src/shibuya/world/processes/records.py",
+   "symbol": "WorldProcess.__post_init__",
+   "kind": "bare_dotted",
+   "token": "core.growth.GrowthDeclaration",
+   "line": 457,
+   "excerpt": ": growth は core.growth.GrowthDeclaration(§3 実装原則2)"
+  },
+  {
+   "file": "tests/economy/cp2/head_copies.py",
+   "symbol": "PINS",
+   "kind": "bare_dotted",
+   "token": "engine.ledger_api",
+   "line": 53,
+   "excerpt": "def engine.ledger_api EntityRef"
+  },
+  {
+   "file": "tests/economy/cp2/head_copies.py",
+   "symbol": "PINS",
+   "kind": "bare_dotted",
+   "token": "core.growth",
+   "line": 54,
+   "excerpt": "def core.growth GrowthDeclaration"
+  },
+  {
+   "file": "tests/economy/cp2/head_copies.py",
+   "symbol": "PINS",
+   "kind": "bare_dotted",
+   "token": "core.growth",
+   "line": 56,
+   "excerpt": "def core.growth Retention"
+  },
+  {
+   "file": "tests/economy/cp2/head_copies.py",
+   "symbol": "PINS",
+   "kind": "bare_dotted",
+   "token": "core.time_consts",
+   "line": 57,
+   "excerpt": "value core.time_consts a4ff3ad278c7b057"
+  },
+  {
+   "file": "tests/economy/cp2/head_copies.py",
+   "symbol": "PINS",
+   "kind": "bare_dotted",
+   "token": "engine.ledger_api",
+   "line": 60,
+   "excerpt": "def engine.ledger_api TransferStatus"
+  },
+  {
+   "file": "tests/economy/cp2/head_copies.py",
+   "symbol": "PINS",
+   "kind": "bare_dotted",
+   "token": "core.hashing",
+   "line": 62,
+   "excerpt": "def core.hashing blake3_hex"
+  },
+  {
+   "file": "tests/economy/cp2/head_copies.py",
+   "symbol": "PINS",
+   "kind": "bare_dotted",
+   "token": "core.growth",
+   "line": 79,
+   "excerpt": "def core.growth GrowthDeclaration"
+  },
+  {
+   "file": "tests/economy/cp2/head_copies.py",
+   "symbol": "PINS",
+   "kind": "bare_dotted",
+   "token": "core.growth",
+   "line": 80,
+   "excerpt": "def core.growth Retention"
+  },
+  {
+   "file": "tests/engine/state/test_class_ids.py",
+   "symbol": "EXP_ID",
+   "kind": "dotted",
+   "token": "shibuya.engine.events.log.Experiment",
+   "line": 63,
+   "excerpt": "shibuya.engine.events.log.Experiment"
+  },
+  {
+   "file": "tests/engine/state/test_class_ids.py",
+   "symbol": "test_allowed_class_refuses_a_path_that_points_to_another_class",
+   "kind": "dotted",
+   "token": "shibuya.engine.scheduler.DeferralQueue",
+   "line": 222,
+   "excerpt": "shibuya.engine.scheduler.DeferralQueue"
+  },
+  {
+   "file": "tests/engine/state/test_class_ids.py",
+   "symbol": "test_pretend_move_keeps_a_short_run_and_resume",
+   "kind": "dotted",
+   "token": "shibuya.core.types.EventClass",
+   "line": 367,
+   "excerpt": "shibuya.core.types.EventClass"
+  },
+  {
+   "file": "tests/engine/state/test_class_ids.py",
+   "symbol": "test_pretend_move_keeps_a_short_run_and_resume",
+   "kind": "dotted",
+   "token": "shibuya.engine.scheduler.DeferralQueue",
+   "line": 368,
+   "excerpt": "shibuya.engine.scheduler.DeferralQueue"
+  },
+  {
+   "file": "tests/engine/test_env_and_sections_10f.py",
+   "symbol": "test_every_top_level_manifest_field_has_a_section",
+   "kind": "slash",
+   "token": "engine/manifest_sections.py",
+   "line": 469,
+   "excerpt": "節の決まっていない manifest の欄(engine/manifest_sections.py に足す): "
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_unknown_classes_and_marks_are_refused",
+   "kind": "dotted",
+   "token": "shibuya.llm.contract.TargetKind",
+   "line": 167,
+   "excerpt": "shibuya.llm.contract.TargetKind"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_unknown_classes_and_marks_are_refused",
+   "kind": "dotted",
+   "token": "shibuya.llm.contract.TargetKind",
+   "line": 182,
+   "excerpt": "shibuya.llm.contract.TargetKind"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_allowed_class_table_is_importable_and_has_no_custom_pickling",
+   "kind": "dotted",
+   "token": "shibuya.engine.scheduler.DeferralQueue",
+   "line": 230,
+   "excerpt": "shibuya.engine.scheduler.DeferralQueue"
+  },
+  {
+   "file": "tests/engine/time/test_t0_literal_count.py",
+   "symbol": "test_no_time_literals_outside_the_allow_table",
+   "kind": "bare_dotted",
+   "token": "core.time_consts",
+   "line": 61,
+   "excerpt": "時間の直書き(core.time_consts の名に置き換えるか、allow の表に理由つきで載せる): "
+  },
+  {
+   "file": "tests/perception/facts/scenes.py",
+   "symbol": "HEAD_RENDERER_REFS",
+   "kind": "bare_dotted",
+   "token": "perception.hashes",
+   "line": 54,
+   "excerpt": "module perception.hashes"
+  },
+  {
+   "file": "tests/perception/facts/scenes.py",
+   "symbol": "HEAD_RENDERER_REFS",
+   "kind": "bare_dotted",
+   "token": "core.time_consts",
+   "line": 55,
+   "excerpt": "value core.time_consts c2356069e9d1e79c"
+  },
+  {
+   "file": "tests/perception/facts/scenes.py",
+   "symbol": "HEAD_RENDERER_REFS",
+   "kind": "bare_dotted",
+   "token": "core.time_consts",
+   "line": 60,
+   "excerpt": "value core.time_consts 39fa9ec190eee7b6"
+  },
+  {
+   "file": "tests/perception/facts/scenes.py",
+   "symbol": "HEAD_RENDERER_REFS",
+   "kind": "bare_dotted",
+   "token": "perception.normalize",
+   "line": 61,
+   "excerpt": "module perception.normalize"
+  },
+  {
+   "file": "tests/perception/facts/scenes.py",
+   "symbol": "HEAD_RENDERER_REFS",
+   "kind": "bare_dotted",
+   "token": "perception.templates",
+   "line": 66,
+   "excerpt": "module perception.templates"
+  },
+  {
+   "file": "tests/perception/facts/scenes.py",
+   "symbol": "HEAD_RENDERER_REFS",
+   "kind": "bare_dotted",
+   "token": "core.hashing",
+   "line": 71,
+   "excerpt": "def core.hashing blake3_hex"
+  },
+  {
+   "file": "tests/perception/facts/scenes.py",
+   "symbol": "HEAD_RENDERER_REFS",
+   "kind": "bare_dotted",
+   "token": "core.hashing",
+   "line": 72,
+   "excerpt": "def core.hashing blake3_u64"
+  },
+  {
+   "file": "tests/perception/facts/scenes.py",
+   "symbol": "HEAD_RENDERER_REFS",
+   "kind": "bare_dotted",
+   "token": "perception.channels",
+   "line": 73,
+   "excerpt": "module perception.channels"
+  },
+  {
+   "file": "tests/perception/facts/scenes.py",
+   "symbol": "HEAD_RENDERER_REFS",
+   "kind": "bare_dotted",
+   "token": "core.hashing",
+   "line": 78,
+   "excerpt": "def core.hashing xxh64"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "NOT_COPIED",
+   "kind": "slash",
+   "token": "engine/bridging/ledger.py",
+   "line": 82,
+   "excerpt": "接頭辞の文字列(engine/bridging/ledger.py の _DOC_PREFIX=台帳の行の出典の形の検査)。開かない"
+  },
+  {
+   "file": "tools/c8/ablation_runner.py",
+   "symbol": "arm_markdown",
+   "kind": "bare_dotted",
+   "token": "core.rng",
+   "line": 638,
+   "excerpt": "> p_see=1.0 は現行の描画(在圏セルの看板行が必ず入る)。抽選は **体×看板×tick** の決定論ベルヌーイ(core.rng Philox・ドメイン perception.attention.p_see・カウンタ (tick"
+  },
+  {
+   "file": "tools/fig/fig_calls_by_hour.py",
+   "symbol": "draw",
+   "kind": "dotted",
+   "token": "shibuya.core.types.EventClass",
+   "line": 271,
+   "excerpt": "wake_class = shibuya.core.types.EventClass(昇順が優先)。24×クラスの表は fig2_calls_by_hour.json。"
+  },
+  {
+   "file": "tools/fig/fig_calls_by_hour.py",
+   "symbol": "draw",
+   "kind": "dotted",
+   "token": "shibuya.core.types.EventClass",
+   "line": 272,
+   "excerpt": "wake_class = shibuya.core.types.EventClass (ascending = higher priority). Table: fig2_calls_by_hour.json."
+  }
+ ]
+}

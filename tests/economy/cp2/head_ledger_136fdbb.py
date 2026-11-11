@@ -53,8 +53,8 @@ from typing import Final, Iterator, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.core.growth import GrowthDeclaration, Retention
-from shibuya.core.hashing import blake3_hex
+from shibuya.foundation.growth import GrowthDeclaration, Retention
+from shibuya.foundation.hashing import blake3_hex
 from shibuya.economy.accounts import (
     ACCOUNT_NAMES,
     ENTRY_CAPITAL_PAYERS,
@@ -66,8 +66,8 @@ from shibuya.economy.accounts import (
     Sector,
     is_allowed,
 )
-from shibuya.engine.ledger_api import EntityRef, TransferStatus
-from shibuya.core.time_consts import STEPS_PER_DAY
+from shibuya.foundation.ports.ledger import EntityRef, TransferStatus
+from shibuya.foundation.time_consts import STEPS_PER_DAY
 
 __all__ = [
     "RAW_ROW_BYTES",

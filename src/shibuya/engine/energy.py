@@ -92,10 +92,10 @@ from typing import Any, Final, Mapping
 import numpy as np
 
 from shibuya.agents.state import Activity, ActivityKind
-from shibuya.core.paths import REPO_ROOT
-from shibuya.core.rng import stream, k19_counters, k19_counter_array, philox_array, unit_float
+from shibuya.foundation.paths import REPO_ROOT
+from shibuya.foundation.rng import stream, k19_counters, k19_counter_array, philox_array, unit_float
 from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [
     "ANCHORS_BUILD_PATH",

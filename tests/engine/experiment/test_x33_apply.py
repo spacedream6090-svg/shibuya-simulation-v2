@@ -17,9 +17,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.events import log as EV
+from shibuya.foundation.journal import log as EV
 from shibuya.engine.experiment import apply as AP
-from shibuya.engine.experiment import gate as GT
+from shibuya.foundation.ports import experiment_gate as GT
 from shibuya.engine.processes.environment import WeatherWarning
 from shibuya.engine.processes.opening import build_open_matrix
 
@@ -273,7 +273,7 @@ def test_the_cause_still_cannot_be_made_outside_the_gate():
 
 
 def test_vocabulary_has_the_two_words():
-    from shibuya.engine.events import vocab as V
+    from shibuya.foundation.vocab import events as V
 
     assert V.code_of(AP.WHAT_DECISION) == 60 and V.code_of(AP.WHAT_NOTICE) == 61  # 2-1 の金の 2 語(58・59)の後ろ
     # 〔第 2 期 2-3〕その後ろに体の出来事の 3 語を足して版を events-vocab/2-3 にした(60・61 は動かない)

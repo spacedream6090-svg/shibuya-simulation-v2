@@ -19,8 +19,8 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core.hashing import blake3_hex
-from shibuya.engine import manifest_sections as MS
+from shibuya.foundation.hashing import blake3_hex
+from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import resume as RS
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.run import run_day

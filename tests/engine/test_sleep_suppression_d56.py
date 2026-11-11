@@ -19,7 +19,7 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import N_WAKE_CONDITIONS, Activity, WakeCondition
-from shibuya.core.types import EventClass
+from shibuya.foundation.types import EventClass
 from shibuya.engine.arbiter import Arbiter, WakeCandidates, arbitrate
 from shibuya.engine.run import DIAG_RUN_COLUMNS, run_day
 from shibuya.world.state import World

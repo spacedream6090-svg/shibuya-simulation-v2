@@ -45,8 +45,8 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Final, Mapping
 
-from shibuya.core.time_consts import NS_PER_SECOND
-from shibuya.engine.events import vocab as _V
+from shibuya.foundation.time_consts import NS_PER_SECOND
+from shibuya.foundation.vocab import events as _V
 
 __all__ = [
     "FORM_SCHEMA", "KINDS", "EXPLORE", "CONFIRM", "LEVELS", "DECISIONS", "DecisionSpec", "FORM_FIELDS",
@@ -181,7 +181,7 @@ def _date(where: str, v: Any) -> str:
 
 def _hours(where: str, v: Any) -> tuple[tuple[int, int], ...]:
     """営業時間の区間の列 ``[[開く分, 閉じる分], …]``(日の 0 時からの分・閉じる分は翌日の分まで=W7 の書き方と同じ)。"""
-    from shibuya.core.time_consts import MINUTES_PER_DAY
+    from shibuya.foundation.time_consts import MINUTES_PER_DAY
 
     if not isinstance(v, (list, tuple)):
         raise ValueError(f"申込書の {where} は [[開く分, 閉じる分], …] の列")

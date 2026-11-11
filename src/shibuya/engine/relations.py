@@ -82,10 +82,10 @@ from typing import Any, Final, NamedTuple
 import numpy as np
 
 from shibuya.agents.state import REL_EMPTY, WAKE_CONDITION_CLASS, ResultCode, WakeCondition
-from shibuya.core.hashing import relation_invite_key_array
+from shibuya.foundation.hashing import relation_invite_key_array
 from shibuya.engine import resolve as R
-from shibuya.engine.tools import contacts as _CT
-from shibuya.core.time_consts import MINUTES_PER_DAY
+from shibuya.foundation.vocab import contact_flags as _CT
+from shibuya.foundation.time_consts import MINUTES_PER_DAY
 
 __all__ = [
     "REL_K",

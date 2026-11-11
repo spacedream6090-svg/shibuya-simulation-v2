@@ -33,7 +33,7 @@ from typing import Any, Final
 import blake3 as _blake3
 import numpy as np
 
-from shibuya.core.hashing import blake3_hex
+from shibuya.foundation.hashing import blake3_hex
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.class_ids import class_id
 

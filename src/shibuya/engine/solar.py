@@ -25,7 +25,7 @@ import datetime as dt
 import math
 from typing import Final
 
-from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     "DAYLIGHT_VOCAB",

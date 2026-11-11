@@ -22,7 +22,7 @@ from shibuya.agents.weekly import WeeklySchedule
 from shibuya.engine import memory as M
 from shibuya.engine import relations as RL
 from shibuya.engine.conversation import ConversationManager
-from shibuya.perception import templates as T
+from shibuya.foundation.text import templates as T
 from tests import golden_env as GE
 
 SRC = Path("src/shibuya")

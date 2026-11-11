@@ -58,8 +58,8 @@ from typing import Any, Final, Mapping, NamedTuple
 
 import numpy as np
 
-from shibuya.core.rng import k19_counter_array, philox_array, unit_float
-from shibuya.core.time_consts import NS_PER_SECOND, SECONDS_PER_MINUTE
+from shibuya.foundation.rng import k19_counter_array, philox_array, unit_float
+from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_MINUTE
 
 __all__ = [
     "MODEL_M0", "MODEL_M1", "MODELS",

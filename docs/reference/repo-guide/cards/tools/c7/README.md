@@ -97,7 +97,7 @@ c7lib — C7(40万体×1シミュ日・本番相当)受入計器の純関数。
   - `peak_hours`(関数): ``(5, 24)`` シェア → 各エリアのピーク時刻(0-23)。
   - `polyline_side`(関数): 折れ線に対する点の**符号つき側**(最近傍セグメントの外積の符号)。
   - `sample_ticks`(関数): 標本 tick(``every`` の倍数・最終 tick を必ず含めない=時×24 を崩さないため)。
-- import している内部モジュール: `shibuya.core.budget`・`tools/c6/c6lib.py`
+- import している内部モジュール: `shibuya.foundation.budget`・`tools/c6/c6lib.py`
 - 呼び手: `tools/c7/attr_arms.py`・`tools/c7/c7_accept.py`・`tools/c7/holdout_compare.py`・`tools/c7/occupancy_series.py`・`tools/c7/prereg_v13.py`・`tools/c7/presence_yardstick.py`・`tools/instruments/anchor_gauge.py`
 - 読む試験: `tests/c7/conftest.py`・`tests/c7/test_presence_yardstick.py`・`tests/engine/test_waste_sink_report.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`

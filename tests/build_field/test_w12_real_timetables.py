@@ -23,7 +23,7 @@ from shibuya.build.audit import w19_freeze as W19
 from shibuya.build.field import common as C
 from shibuya.build.field import w12_external_nodes as w12
 from shibuya.build.field import w12_real_timetables as RT
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 from tests import _data_ids as D
 
 REPO_ROOT = Path(__file__).resolve().parents[2]

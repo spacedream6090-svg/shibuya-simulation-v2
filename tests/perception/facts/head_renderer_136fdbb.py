@@ -75,11 +75,11 @@ from shibuya.agents.state import (
     ResultCode,
     WakeCondition,
 )
-from shibuya.core.hashing import blake3_hex, blake3_u64, xxh64
-from shibuya.perception import channels as ch
-from shibuya.perception import hashes as H
-from shibuya.perception import normalize as N
-from shibuya.perception import templates as T
+from shibuya.foundation.hashing import blake3_hex, blake3_u64, xxh64
+from shibuya.foundation.text import channels as ch
+from shibuya.foundation.text import hashes as H
+from shibuya.foundation.text import normalize as N
+from shibuya.foundation.text import templates as T
 from shibuya.perception.attention import (
     P_SEE_MEDIUM_RANGE,
     SalientItem,
@@ -89,7 +89,7 @@ from shibuya.perception.attention import (
 )
 from shibuya.world.assets import CELL_SIZE_M, WorldAssets, array_sha256, file_sha256
 from shibuya.world.state import LANDMARK_CATS, World
-from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     "HUNGER_WORDS_MODES",

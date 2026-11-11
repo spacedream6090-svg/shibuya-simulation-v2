@@ -59,7 +59,7 @@ def test_the_repo_rows_are_human_with_a_machine_bridge():
                                                                        "consumption_tax.filing_deadline"}
     assert all(AN.rule_bridge(r)["kind"] == "machine" and r.kind == "human" for r in rules if "bridge" in r.params)
     # remove_at は計画の段の語(つなぎの台帳の PLAN_STAGES)で統一(説明の文は remove_note)
-    from shibuya.engine.bridging import ledger as BL
+    from shibuya.foundation.decl import bridging as BL
 
     assert {AN.rule_bridge(r)["remove_at"] for r in rules if "bridge" in r.params} <= BL.PLAN_STAGES
     # 法定労働時間の行は前から human(床の機械の側が無い=つなぎを足さない)

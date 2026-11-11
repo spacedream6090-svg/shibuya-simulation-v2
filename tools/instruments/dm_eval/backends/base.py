@@ -49,7 +49,7 @@ from typing import Any, Final, Mapping, Sequence
 import dm_eval  # noqa: F401
 from dm_eval.judge import ROLE_CANDIDATE, Scorer, ScoreFailed
 from dm_eval.situations import Situation
-from shibuya.engine.decision.port import OTHER_ID, OTHER_TEXT, Candidate
+from shibuya.foundation.ports.decision import OTHER_ID, OTHER_TEXT, Candidate
 
 __all__ = [
     "FORM_CHOICE", "FORM_SCORE", "FORM_NOUL", "FORM_LABELS", "MASS_FLOOR", "BackendUnavailable", "BackendError",

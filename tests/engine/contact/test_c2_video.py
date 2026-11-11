@@ -7,8 +7,8 @@ from shibuya.engine.contact import attention as AT
 from shibuya.engine.contact import device as DV
 from shibuya.engine.contact import port as P
 from shibuya.engine.contact.layer import W_ANSWER, W_CALL_END, W_DIAL, W_RING, W_VIDEO_DIAL, audit_causes
-from shibuya.engine.events import vocab as V
-from shibuya.perception import contact_view as CV
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.ports import percept_contact as CV
 
 from tests.engine.contact._c1 import STEP_NS
 from tests.engine.contact._c2 import Harness2, loud
@@ -88,7 +88,7 @@ def test_percept_value_marks_the_face_without_changing_the_shape():
         ["[B6 着信] P-3からのビデオ通話が鳴っている。"]  # 〔検収 L8〕着信の行で via を区別
     from shibuya.engine.contact import calls as CL
     from shibuya.engine.contact import deliver as DL
-    from shibuya.perception.facts import PERCEPT_SCHEMA
+    from shibuya.foundation.ports.percept import PERCEPT_SCHEMA
 
     assert PERCEPT_SCHEMA == "shibuya.perception/percept/2"  # Percept の形の版は触っていない(値は既存の欄 tool_state)
     assert DL.VIA_VIDEO is CV.VIA_VIDEO and CL.VIA_VIDEO is CV.VIA_VIDEO and CV.VIA_VIDEO in V.VIA_WORDS  # 定義は 1 か所

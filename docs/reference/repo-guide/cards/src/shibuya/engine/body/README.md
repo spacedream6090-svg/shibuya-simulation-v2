@@ -21,7 +21,7 @@ engine.body.model — 本人の体の層 ``BodyModel``(状態台帳の外の状�
   - `BodyModel`(クラス): 本人の体の層(持ち主 ``body``)。``arm``=TM5 の腕(``sweep``/``reserve``)・``n``=体の数・``gauge``=段の境目の計器を
   - `gauge_on`(関数): 段の境目の計器を数えるか(環境変数 ``SHIBUYA_BODY_BOUNDARY_GAUGE`` が ``1``)。組み立てのときに読む。
   - `manifest_fields`(関数): manifest の ``body``(持ち主・腕・規則の出典の表・器だけの 3 件=設定/予約と段の境目の計器=観測)。
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.body.rules`・`shibuya.engine.body.schedule`・`shibuya.engine.body.system1`
+- import している内部モジュール: `shibuya.engine.body.rules`・`shibuya.engine.body.schedule`・`shibuya.engine.body.system1`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.engine.body`・`shibuya.engine.processes.environment`・`shibuya.engine.processes.salient`・`shibuya.engine.run`
 - 読む試験: `tests/engine/body/test_body_guard.py`・`tests/engine/body/test_body_manifest.py`・`tests/engine/body/test_body_reserve.py`
 - 状態台帳の行
@@ -53,7 +53,7 @@ engine.body.rules — 本人の体の規則(③ 意図しない体と System 1�
   - `rule_steps`(関数): ``now`` が体の刻み(空腹+1・疲れ+1・就寝の回復)か・休みの回復の刻みか。
   - `stage_values`(関数): 内受容の値 → 段(``INTERO_UP_EDGES`` を何本越えたか・``int8``)。
   - `steps_to_hunger_edge`(関数): 今の食後の消費 ``since`` から、1 刻みに ``spent`` ずつ足して次の語の段の境目を越えるまでの刻みの数の見込み
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.time_consts`・`shibuya.engine.change_detect`・`shibuya.engine.energy`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.change_detect`・`shibuya.engine.energy`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.engine.body.model`・`shibuya.engine.body.schedule`・`shibuya.engine.processes.environment`・`shibuya.engine.processes.salient`・`shibuya.engine.resolve`
 - 読む試験: `tests/engine/body/test_body_rules_sources.py`・`tests/engine/body/test_body_same_values.py`・`tests/engine/body/test_meal_default_w17.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
@@ -70,7 +70,7 @@ engine.body.schedule — TM5「次に段階の境目を越える時刻を予約�
   - `next_felt_frames`(関数): 窓 ``frame`` の次に、列 ``cols`` の体感温度が変わる窓(``int64``・その日の中に無ければ :data:`NEVER`)。
   - `next_intero_steps`(関数): 規則に通した直後(刻み ``now``)の値から、次に空腹か疲れが変わりうる最初の刻み(``int64``・無ければ :data:`NEVER`)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--body-schedule``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.body.rules`・`shibuya.engine.energy`・`shibuya.engine.scheduler`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.body.rules`・`shibuya.engine.energy`・`shibuya.foundation.queues.scheduler`
 - 呼び手: `shibuya.cli`・`shibuya.engine.body`・`shibuya.engine.body.model`
 - 読む試験: `tests/engine/body/test_body_guard.py`・`tests/engine/body/test_body_manifest.py`・`tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_body_rules_sources.py`
 - 読む試験(道筋で): `tests/engine/systems/test_stage_a_guard.py`
@@ -88,7 +88,7 @@ engine.body.system1 — 意図しない System 1 の反応の**器だけ**の 3 
   - `manifest_rows`(関数): manifest の ``body.system1``(器の一覧・設定)。
   - `noise_stage_at`(関数): W10 の騒音の段の読みの口(``World.noise_stage_for_tick`` の値をセルで引く・読むだけ)。舞台の外の体は 0。
   - `speech_loudness`(関数): ロンバード効果の口: 周りの騒音の段 → 話す大きさ。**値は空**(None=仕組みがまだ無い・空間の段 3)。
-- import している内部モジュール: `shibuya.perception.facts`
+- import している内部モジュール: `shibuya.foundation.ports.percept`
 - 呼び手: `shibuya.engine.body.model`・`shibuya.engine.contact.layer`
 - 読む試験: `tests/engine/body/test_body_rules_sources.py`・`tests/engine/body/test_system1_placeholders.py`
 - 決定の ID: 10-12・10-12/§1-5

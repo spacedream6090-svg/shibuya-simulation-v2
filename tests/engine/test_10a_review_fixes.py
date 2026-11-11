@@ -20,7 +20,7 @@ import pytest
 
 from shibuya.engine import run as RUN
 from shibuya.engine.systems import build as BLD  # 1-0: 層の組み立ての名前の差し替えの的
-from shibuya.core.paths import resolve_repo_path
+from shibuya.foundation.paths import resolve_repo_path
 from shibuya.engine.calendar import CalendarWarning, SimCalendar, load_holidays
 from shibuya.engine.energy import HomeMeals
 from shibuya.engine.run import run_day

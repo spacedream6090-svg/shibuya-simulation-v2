@@ -26,31 +26,11 @@ from shibuya.engine.commit import (
     arbitrate_resources,
     parse_action,
 )
-from shibuya.engine.scheduler import (
-    DIAG_COLUMNS,
-    HORIZON_TICKS,
-    DeferralQueue,
-    Scheduler,
-    TickState,
-    coalesce_agents,
-    order_indices,
-    ordered_events,
-    scheduler,
-)
 from shibuya.engine.tape import Replay, Tape, TapeMiss, TapeRow, TapeWriter
 
 __all__ = [
     # C2 第1弾
     "SimClock",
-    "Scheduler",
-    "TickState",
-    "scheduler",
-    "order_indices",
-    "ordered_events",
-    "coalesce_agents",
-    "DeferralQueue",
-    "DIAG_COLUMNS",
-    "HORIZON_TICKS",
     "Tape",
     "TapeWriter",
     "TapeRow",

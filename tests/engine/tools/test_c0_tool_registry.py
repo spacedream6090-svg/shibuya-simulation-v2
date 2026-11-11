@@ -13,8 +13,8 @@ from types import MappingProxyType
 
 import pytest
 
-from shibuya.engine.bridging import ledger as BR
-from shibuya.engine.events import vocab as V
+from shibuya.foundation.decl import bridging as BR
+from shibuya.foundation.vocab import events as V
 from shibuya.engine.tools import registry as TR
 from shibuya.engine.tools.registry import EVERYONE, NOBODY, KnownBy, Tool, ToolRegistry
 

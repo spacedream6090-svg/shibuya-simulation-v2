@@ -13,13 +13,13 @@ import dataclasses
 import numpy as np
 import pytest
 
-from shibuya.engine import manifest_sections as MS
+from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import resume as RS
 from shibuya.engine import state_ledger as SL
-from shibuya.engine.duties import arm as AD
+from shibuya.foundation.arms import duties as AD
 from shibuya.engine.duties import layer as LY
 from shibuya.engine.duties import port as PD
-from shibuya.engine.events import vocab as V
+from shibuya.foundation.vocab import events as V
 from shibuya.engine.run import run_day
 from shibuya.engine.systems import table as TB
 from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
@@ -335,7 +335,7 @@ def test_resuming_with_the_arm_off_stops(monkeypatch, tmp_path):
 
 
 def test_event_log_on_off_does_not_change_the_arm_run(monkeypatch):
-    from shibuya.engine.events import log as EV
+    from shibuya.foundation.journal import log as EV
 
     prev = EV.enabled()
     try:
@@ -402,7 +402,7 @@ def test_role_words_from_the_main_decision_take_effect_at_the_store(monkeypatch)
 
 def test_llm_bridge_hands_the_role_word_to_the_sink():
     from shibuya.engine.llm_bridge import LLMBridge
-    from shibuya.llm.contract import ACTION_CODES
+    from shibuya.foundation.vocab.actions import ACTION_CODES
     from tests.engine.rights.test_rights_events import WordLLM
 
     got = []
@@ -416,7 +416,7 @@ def test_llm_bridge_hands_the_role_word_to_the_sink():
 
 # ================================================================= 監査・語彙・腕の行・系・CLI
 def test_audit_catches_forged_causes(day_run):
-    from shibuya.engine.events.log import Event, LlmCall, Process
+    from shibuya.foundation.journal.log import Event, LlmCall, Process
 
     r = day_run
     lay = r.duties_layer

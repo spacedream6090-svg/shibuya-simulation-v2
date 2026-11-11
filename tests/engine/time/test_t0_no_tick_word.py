@@ -25,7 +25,7 @@ ALLOW = Path(__file__).with_name("tick_word_allow.json")
 def _word_files() -> list[Path]:
     """(a) の対象: 元の置き場が core と engine/systems のファイル。〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面のディレクトリ
     ``SRC / "core"``・``SRC / "engine" / "systems"`` の走査(段 4 で core は無くなり、systems は別の包みへ移る)。"""
-    from shibuya.core import time_consts as CORE
+    from shibuya.foundation import time_consts as CORE
     from shibuya.engine.systems import table as SYSTEMS
 
     from tests import _places as PL

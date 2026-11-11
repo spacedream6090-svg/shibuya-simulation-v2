@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.core.rng import stream
+from shibuya.foundation.rng import stream
 from shibuya.economy import anchors as A
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.ledger import Ledger

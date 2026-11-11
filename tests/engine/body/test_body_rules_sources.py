@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.engine.bridging import ledger as L
+from shibuya.foundation.decl import bridging as L
 from shibuya.engine.bridging import scan as S
 from shibuya.engine.body import rules as BR
 from shibuya.engine.body import schedule as BS

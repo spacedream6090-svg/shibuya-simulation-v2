@@ -38,8 +38,8 @@ from shibuya.engine.tape import (
     TapeRow,
     TapeWriter,
 )
-from shibuya.perception import templates as T
-from shibuya.perception.channels import estimate_tokens
+from shibuya.foundation.text import templates as T
+from shibuya.foundation.text.channels import estimate_tokens
 from shibuya.perception.renderer import Renderer, memory_item_text
 from shibuya.world.state import World
 from tests import golden_env as GE
@@ -166,7 +166,7 @@ def test_item_templates():
 
 def test_abbreviation_words_fall_back_to_the_cell_id_and_drop_the_gist():
     """⑥ 省略記法: POI 名に禁止語 → その行のセルの ID・要旨に禁止語 → 要旨を載せない(宣言)。"""
-    from shibuya.perception import normalize as N
+    from shibuya.foundation.text import normalize as N
 
     ok = RESULT_TEXT[int(ResultCode.OK)]
     assert fmt(item(kind=1, obj=0, cell=2), names=("理容等の店",)) == f"9:05 c2で購入({ok})。"

@@ -16,15 +16,15 @@ from typing import Any
 import numpy as np
 
 from shibuya.agents.state import N_WAKE_CONDITIONS_ALL, Activity, WakeCondition
-from shibuya.core.growth import check_growth
+from shibuya.foundation.growth import check_growth
 from shibuya.engine import growth_decl as GD
 from shibuya.engine.calendar import WEATHER_SCHEME
-from shibuya.core.rng import RNG_SCHEME
+from shibuya.foundation.rng import RNG_SCHEME
 from shibuya.engine.poi_target import move_resolution_summary, resolution_summary
 from shibuya.engine.processes.salient import ablation_name as _pnotice_ablation_name
-from shibuya.perception.channels import BudgetMode
+from shibuya.foundation.text.channels import BudgetMode
 from shibuya.perception.renderer import P_SEE_ACTIVITY_KINDS
-from shibuya.core.time_consts import SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import SECONDS_PER_MINUTE
 
 __all__ = ["report"]
 

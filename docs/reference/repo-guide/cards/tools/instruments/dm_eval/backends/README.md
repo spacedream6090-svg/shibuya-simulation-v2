@@ -35,7 +35,7 @@ dm_eval.backends.base — モデルの当て口の抽象(〔11-01 段 1 の 3〕
   - `softmax_dist`(関数): まとめた logprob → 確率(最大を引いてから exp・-inf は 0)。全部 -inf なら ``BackendError``。
   - `verb_forms`(関数): 動詞の語(辞書形か「〜ない」)→ 当たりの形の集合(五段と一段の両方の読みを足す=多めに作る)。
   - `wrap_prompt`(関数): 判断の文(DM4 の版)を口に渡す形に包む(答えの頭 ``cue`` はこの後ろに付ける)。
-- import している内部モジュール: `shibuya.engine.decision.port`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`
 - 呼び手: `tools/instruments/dm_eval/backends/__init__.py`・`tools/instruments/dm_eval/backends/hf.py`・`tools/instruments/dm_eval/backends/vllm.py`・`tools/instruments/dm_eval/cli.py`
 - 読む試験: `tests/tools/test_dm_eval.py`
 - 決定の ID: 11-01・R-83・R-125

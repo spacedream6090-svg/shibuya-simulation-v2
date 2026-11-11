@@ -33,8 +33,8 @@ from __future__ import annotations
 from types import MappingProxyType
 from typing import Any, Final, Sequence
 
-from shibuya.core.rng import k19_counters, stream
-from shibuya.engine.decision.port import (
+from shibuya.foundation.rng import k19_counters, stream
+from shibuya.foundation.ports.decision import (
     OTHER_ID,
     SOURCE_AFFORDANCE,
     SOURCE_CONTINUE,
@@ -45,7 +45,7 @@ from shibuya.engine.decision.port import (
     DecisionPort,
     present,
 )
-from shibuya.llm.contract import ACTION_WORD_NONE
+from shibuya.foundation.vocab.actions import ACTION_WORD_NONE
 
 __all__ = [
     "MOCK_DOMAIN", "PRESENT_DOMAIN", "SERIAL_BASE", "MAX_DECISIONS_PER_STEP", "PURPOSES", "P_SHOP", "P_SHELF",

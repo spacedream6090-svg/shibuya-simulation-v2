@@ -25,9 +25,9 @@ from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.ledger import Ledger
 from shibuya.engine import commit as C
 from shibuya.engine import economy_stage2 as ES2
-from shibuya.engine.events import log as EV
-from shibuya.engine.events.links import MoneyEventLink
-from shibuya.engine.ledger_api import TransferStatus
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.journal.links import MoneyEventLink
+from shibuya.foundation.ports.ledger import TransferStatus
 
 H, S, E, B, G, W = (int(s) for s in Sector)
 KINDS = np.array([0, 1, 3, 7])
@@ -172,7 +172,7 @@ def test_a_chosen_withdrawal_skips_the_rule_and_takes_the_call_as_cause():
 # ================================================================= 判断の口の層の印
 def test_decision_layer_hints_are_taken_once():
     from shibuya.engine.decision import layer as DL
-    from shibuya.engine.decision.port import Choice
+    from shibuya.foundation.ports.decision import Choice
 
     lay = DL.DecisionLayer.__new__(DL.DecisionLayer)
     lay.meter = DL._empty_meter()

@@ -86,7 +86,7 @@ def test_felt_temperature_equals_head(stage):
 
 
 def test_collapse_draw_equals_head_on_the_same_stream():
-    from shibuya.core.rng import run_tick_key, stream
+    from shibuya.foundation.rng import run_tick_key, stream
 
     rng = np.random.default_rng(4)
     cell = rng.integers(-1, 30, 5_000).astype(np.int32)

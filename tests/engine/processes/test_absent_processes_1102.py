@@ -14,7 +14,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import SECONDS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import SECONDS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
 from shibuya.engine import absent_processes as AP
 from shibuya.engine import resolve as R
 from shibuya.engine.processes.civic import InfraLoadProcess, PublicServiceDispatchProcess

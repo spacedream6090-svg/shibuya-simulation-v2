@@ -46,7 +46,7 @@ from dm_eval import bias as B  # noqa: E402
 from dm_eval import judge as J  # noqa: E402
 from dm_eval import situations as S  # noqa: E402
 from dm_eval import table as T  # noqa: E402
-from shibuya.engine.decision.port import OTHER_ID, Candidate  # noqa: E402
+from shibuya.foundation.ports.decision import OTHER_ID, Candidate  # noqa: E402
 
 #: 決定的でない欄(digest から外す)。
 _VOLATILE_KEYS = frozenset({"wall_s_per_item", "wall_s", "timing"})

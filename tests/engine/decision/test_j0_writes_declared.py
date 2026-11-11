@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.core import write_permit as WP
+from shibuya.foundation import write_permit as WP
 from shibuya.engine.run import run_day
 from shibuya.engine.systems import conductor as CD
 from shibuya.engine.systems import overrides as OV

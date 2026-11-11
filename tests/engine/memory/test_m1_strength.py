@@ -16,7 +16,7 @@ import math
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import NS_PER_SECOND, SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_MINUTE
 from shibuya.engine import memory_m1 as M1
 from shibuya.engine.memory import RECALL_TAU, activation_rows
 

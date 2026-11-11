@@ -25,7 +25,7 @@ dm_eval.bias — 位置の偏りの対照試験(R-108 §1-1・§1-4・§3-1・C-
   - `salt_compare`(関数): 10f の salt の比較(``tools/c7/salt_compare.py``)を道筋から読む(1 回だけ)。
   - `score_orders`(関数): 状況 × 並びの全部を採点する → (状況 → [(提示, 分布)]・1 件あたりの壁時計の秒)。
   - `tape_fixed_order`(関数): テープの LLM が見た B0 の固定の並び(語彙 v1 の順)での選んだ位置の分布(記録だけ=位置と中身が分けられない)。
-- import している内部モジュール: `shibuya.core.rng`・`shibuya.engine.decision.port`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`
 - 呼び手: `tools/instruments/dm_eval/cli.py`
 - 読む試験: `tests/tools/test_dm_eval.py`
 - 決定の ID: 11-01・R-108
@@ -44,7 +44,7 @@ dm_eval.cli — 評価の器を 1 回通して、記録の JSON と表を書く(
   - `qty_measures`(関数): 〔11-01 検収 低 7〕何をいくつの数の指標(数の欄 ``qty`` が 2 通り以上ある場面=何をいくつだけ)。
   - `table_footnotes`(関数): 表の脚注(PBS の帰無の床=フロア併記・提示の並びを見ていない当て口の注・比べの列の読み方)。
   - `write_outputs`(関数): ``result.json``・``table.md``・``table.json`` を書く(LF・UTF-8)。
-- import している内部モジュール: `shibuya.engine.decision.port`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/backends/hf.py`・`tools/instruments/dm_eval/backends/vllm.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/backends/hf.py`・`tools/instruments/dm_eval/backends/vllm.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`
 - 読む試験: `tests/tools/test_dm_eval.py`
 - CLI の引数
   - サブコマンド `run`
@@ -101,7 +101,7 @@ dm_eval.judge — 候補の当て口 ``Scorer`` と採点の器(第 6 期 6-1・
   - `strict_check`(関数): 同じ入力を ``repeats`` 回(同じ並び)と、まとめ方を変えた 1 回(並びを逆)で、状況ごとの分布がバイト単位で同じか。
   - `surprise_of`(関数): 驚きの語(DM5 の 6 語)→ 0〜5。前後の空白と句読点を除いて 6 語のどれかと同じときだけ(それ以外は None)。
   - `top1`(関数): 1 位の候補の id(同点は id の順=中身で決める)。
-- import している内部モジュール: `shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.classical`・`shibuya.engine.decision.port`・`shibuya.llm.contract`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/situations.py`
+- import している内部モジュール: `shibuya.engine.classical`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/situations.py`
 - 呼び手: `tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/table.py`
 - 読む試験: `tests/tools/test_dm_eval.py`
 - 決定の ID: 11-01・11-01/§11・R-83・R-94・R-94 §0 #2・R-108・R-125・第 323
@@ -139,7 +139,7 @@ dm_eval.situations — 状況の読み口(DM4)と候補の口(DM-0)(第 6 期 6-
   - `tape_experience`(関数): 本人の経験の代わり: 同じテープの同じ体の、状況より前の呼(刻みが小さい・繰り延べでない)の行為の語を新しい順に k 呼。
   - `verify_tape_md5`(関数): 状況のあるテープの ``calls.parquet`` の md5 を 1-10 の ``summary.json`` の表(``md5_calls``)と照らす。
   - `word_of_output`(関数): テープの応答(2 行形)の行為の語(語彙 v1 の横断語だけ・それ以外は None)。
-- import している内部モジュール: `shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.decision.port`・`shibuya.engine.decision.sources`・`shibuya.llm.contract`・`shibuya.llm.parser`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/read_guard.py`
+- import している内部モジュール: `shibuya.engine.decision.sources`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.llm.parser`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/read_guard.py`
 - 呼び手: `tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/tools/test_dm_eval.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`

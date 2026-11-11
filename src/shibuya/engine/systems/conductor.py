@@ -19,7 +19,7 @@ import os
 import time
 from typing import Any
 
-from shibuya.engine.systems import guard as _G
+from shibuya.foundation import write_guard as _G
 from shibuya.engine.systems import probe as _PR
 from shibuya.engine.systems.spec import SystemSpec, path_allowed
 
@@ -55,8 +55,8 @@ def declared_check(specs: dict[str, SystemSpec], window_paths: frozenset[str] | 
     送った判断の call_id の中身をメッセージの番号へ移す)も足す。
     """
     if window_paths is None:
-        from shibuya.engine.calendar3 import arm as _CA3A
-        from shibuya.engine.contact import arm as _CTA
+        from shibuya.foundation.arms import calendar3 as _CA3A
+        from shibuya.foundation.arms import contact as _CTA
 
         window_paths = WINDOW_PATHS if _CTA.is_on() else frozenset()
         if _CTA.is_on() and _CA3A.is_on():
@@ -137,8 +137,8 @@ def conduct(call_args: dict) -> Any:
     ``engine.batching.WindowQueue.run_window`` の宣言(相異なる時刻の数ぶん・種類の続きの数ぶん)。刻みの事象 1 つの中身は
     前と同じ系の並び(10a: ``T`` は通しの時刻・``td`` はその日の中の刻み)。
     """
-    from shibuya.core.time_consts import NS_PER_SECOND
-    from shibuya.engine import batching as _BA
+    from shibuya.foundation.time_consts import NS_PER_SECOND
+    from shibuya.foundation.queues import batching as _BA
     from shibuya.engine.systems import boxes as _BX
     from shibuya.engine.systems import build as _BLD
     from shibuya.engine.systems import day as _DAY

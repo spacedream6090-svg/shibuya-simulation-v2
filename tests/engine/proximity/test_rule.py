@@ -115,7 +115,7 @@ def test_notice_curve_passes_r62_two_points():
 
 def test_notice_draws_are_counter_streams_stateless_and_uniform():
     """検収・親の判断 A1: 気づく抽選は 10c の counter の流れ(用途名 proximity.notice・k19 の並べ方=時刻の鍵・体・相手)。"""
-    from shibuya.core.rng import k19_counters, run_tick_key, stream
+    from shibuya.foundation.rng import k19_counters, run_tick_key, stream
 
     rule = P.ProximityRule(seed=11, day_key0=3, step_seconds=60)
     a = np.arange(4_000) % 500

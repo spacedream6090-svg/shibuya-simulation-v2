@@ -84,10 +84,10 @@ from typing import Final, Mapping, Sequence
 import numpy as np
 
 from shibuya.agents.state import N_WAKE_CONDITIONS, REFRACTORY_MINUTES
-from shibuya.core.hashing import wake_tiebreak_array
-from shibuya.core.types import DEFERRAL_CLASSES, EventClass
-from shibuya.engine.scheduler import DIAG_COLUMNS, DeferralQueue
-from shibuya.core.time_consts import STEPS_PER_DAY
+from shibuya.foundation.hashing import wake_tiebreak_array
+from shibuya.foundation.types import DEFERRAL_CLASSES, EventClass
+from shibuya.foundation.queues.scheduler import DIAG_COLUMNS, DeferralQueue
+from shibuya.foundation.time_consts import STEPS_PER_DAY
 
 __all__ = [
     "T_MAX_TICKS",

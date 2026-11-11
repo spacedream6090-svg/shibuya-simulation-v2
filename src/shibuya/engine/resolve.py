@@ -86,7 +86,7 @@ from shibuya.engine.body.rules import (  # 〔第 3 期 3-5〕体の層へ移し
 )
 from shibuya.engine.energy import INTAKE_DRINK, INTAKE_SNACK, EnergyModel
 from shibuya.engine.geometry import EdgeGeometry
-from shibuya.engine.ledger_api import LedgerBundle
+from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.commit import (
     ACT_ALIGHT,
     ACT_BOARD,
@@ -111,9 +111,9 @@ from shibuya.engine.commit import (
     WANDER_BAD_TARGET,
     IntentBatch,
 )
-from shibuya.llm.contract import DEFAULT_VOCAB_VERSION, check_vocab_version
+from shibuya.foundation.vocab.actions import DEFAULT_VOCAB_VERSION, check_vocab_version
 from shibuya.world.state import World
-from shibuya.core.time_consts import MINUTES_PER_DAY
+from shibuya.foundation.time_consts import MINUTES_PER_DAY
 
 __all__ = [
     "revert_conversation",

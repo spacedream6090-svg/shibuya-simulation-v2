@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.core.time_consts import SECONDS_PER_HOUR, STEP_SECONDS
-from shibuya.engine.bridging import ledger as BR
+from shibuya.foundation.time_consts import SECONDS_PER_HOUR, STEP_SECONDS
+from shibuya.foundation.decl import bridging as BR
 from shibuya.engine.contact import deliver as DL
 from shibuya.engine.contact import device as DV
 from shibuya.engine.contact import port as P

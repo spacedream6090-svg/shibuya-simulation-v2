@@ -42,7 +42,7 @@ Python 5 本・その他 2 本(このディレクトリの直下)
   - `test_swapping_two_values_is_caught`(関数): 突然変異(``ActivityKind`` と ``AgentKind`` の値の入れ替え)を、名の集合でなく写像が落とす。
   - `test_table_keys_and_declarations_are_exactly_the_classes_in_src`(関数)
   - `test_unknown_shibuya_types_stop_and_others_keep_their_names`(関数)
-- import している内部モジュール: `shibuya.core.types`・`shibuya.engine.arbiter`・`shibuya.engine.class_ids`・`shibuya.engine.events.log`・`shibuya.engine.experiment.gate`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.scheduler`・`shibuya.engine.state_codec`・`shibuya.engine.state_hashes`・`shibuya.engine.systems.probe`
+- import している内部モジュール: `shibuya.engine.arbiter`・`shibuya.engine.class_ids`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.state_codec`・`shibuya.engine.state_hashes`・`shibuya.engine.systems.probe`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.queues.scheduler`・`shibuya.foundation.types`
 
 ## [test_move_prep_stage2.py](../../../../../../../tests/engine/state/test_move_prep_stage2.py)
 
@@ -60,7 +60,7 @@ Python 5 本・その他 2 本(このディレクトリの直下)
   - `test_roots_are_the_same_paths_as_before`(関数)
   - `test_static_check_names_come_from_the_modules`(関数)
   - `test_world_catalog_package_name_comes_from_the_module`(関数)
-- import している内部モジュール: `shibuya`・`shibuya.core.budget`・`shibuya.core.paths`・`shibuya.core.rng`・`shibuya.engine.bridging.ledger`・`shibuya.engine.bridging.scan`・`shibuya.engine.classical`・`shibuya.engine.energy`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.rng_audit`・`shibuya.engine.rules.table`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.allow`・`shibuya.engine.systems.static_check`・`shibuya.manifest.world_catalog`・`shibuya.world.processes.constitution`・`tests/_places.py`
+- import している内部モジュール: `shibuya`・`shibuya.engine.bridging.scan`・`shibuya.engine.classical`・`shibuya.engine.energy`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.rng_audit`・`shibuya.engine.rules.table`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.allow`・`shibuya.engine.systems.static_check`・`shibuya.foundation.budget`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.paths`・`shibuya.foundation.rng`・`shibuya.manifest.world_catalog`・`shibuya.world.processes.constitution`・`tests/_places.py`
 
 ## [test_names_frozen.py](../../../../../../../tests/engine/state/test_names_frozen.py)
 

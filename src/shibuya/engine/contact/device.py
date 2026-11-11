@@ -50,10 +50,10 @@ from typing import Any, Final
 
 import numpy as np
 
-from shibuya.core.rng import k19_counter_array, philox_array, unit_float
-from shibuya.core.time_consts import SECONDS_PER_HOUR
-from shibuya.engine.contact.arm import LEDGER_ARM
-from shibuya.perception import templates as _T
+from shibuya.foundation.rng import k19_counter_array, philox_array, unit_float
+from shibuya.foundation.time_consts import SECONDS_PER_HOUR
+from shibuya.foundation.arms.contact import LEDGER_ARM
+from shibuya.foundation.text import templates as _T
 
 __all__ = [
     "PLACE_HAND", "PLACE_POCKET", "PLACE_BAG", "PLACE_WORDS", "LEVEL_NONE", "LEVEL_WEAK", "LEVEL_STRONG",

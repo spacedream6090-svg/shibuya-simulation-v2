@@ -43,7 +43,7 @@ from typing import Final, Sequence
 
 import numpy as np
 
-from shibuya.core.rng import stream
+from shibuya.foundation.rng import stream
 
 __all__ = [
     "P_SEE_LARGE_VISION",

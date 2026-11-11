@@ -34,7 +34,7 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Iterable, Mapping
 
-from shibuya.core.paths import PACKAGE_ROOT
+from shibuya.foundation.paths import PACKAGE_ROOT
 
 __all__ = ["ALIAS_WRITES", "TRANSFER_PORTS_HOUSEHOLD", "TRANSFER_WRITES", "RESOLVE_FILES", "ResolveIndex", "index",
            "closure", "writes_for_ops", "place_of", "src_root"]

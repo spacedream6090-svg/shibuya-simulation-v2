@@ -18,7 +18,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `ca2`(関数): 腕 arm(と連絡の道具の腕 c1)を一時的に選ぶ(組み立てが読む)。
   - `choose`(関数): 仮のモデルの選びを試験の規則に差し替える(``rule(ctx, presented) -> 候補の id``)。
   - `groups_fixture`(関数): 合成の世界(母集団が無い=グループの一覧が無い)に、体 2 人ずつの家族と 10 人ずつの職場を入れる(宛先を作る)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.time_consts`・`shibuya.engine.calendar2.arm`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar2.port`・`shibuya.engine.contact.arm`・`shibuya.engine.events.log`・`shibuya.engine.tools.groups`・`shibuya.engine.tools.record`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar2.port`・`shibuya.engine.tools.groups`・`shibuya.engine.tools.record`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.world.state`
 - 読む試験: `tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar2/test_ca2_units.py`・`tests/engine/calendar2/test_ca2_world.py`
 
 ## [test_ca2_runs.py](../../../../../../../tests/engine/calendar2/test_ca2_runs.py)
@@ -43,7 +43,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `test_system_declarations`(関数)
   - `test_two_days_and_resume_is_the_straight_run`(関数)
   - `with_groups`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.calendar2.arm`・`shibuya.engine.calendar2.layer`・`shibuya.engine.events.log`・`shibuya.engine.manifest_sections`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.table`・`tests/engine/calendar2/_ca2.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.calendar2.layer`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.table`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.journal.log`・`shibuya.foundation.manifest.sections`・`tests/engine/calendar2/_ca2.py`
 - 環境変数: `SHIBUYA_SYSTEMS_CHECK`
 
 ## [test_ca2_units.py](../../../../../../../tests/engine/calendar2/test_ca2_units.py)
@@ -76,7 +76,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `test_tentative_answer_gives_tentative_rows`(関数)
   - `test_the_proposer_chooses_own_certainty_not_the_engine`(関数): 〔検収 L1〕出した人の確かさは返事を聞いた本人が選ぶ(エンジンが返事から決めない)=相手が仮でも確定で書ける。
   - `test_time_change_moves_the_app_notification`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.time_consts`・`shibuya.engine.calendar2.book`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar2.port`・`shibuya.engine.contact.port`・`shibuya.engine.events.log`・`tests/engine/calendar2/_ca2.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar2.book`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar2.port`・`shibuya.engine.contact.port`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`tests/engine/calendar2/_ca2.py`
 
 ## [test_ca2_world.py](../../../../../../../tests/engine/calendar2/test_ca2_world.py)
 

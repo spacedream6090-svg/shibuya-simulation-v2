@@ -41,7 +41,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_signboard_rows_of_the_1_7_arm_are_reused`(関数)
   - `test_store_pointers_are_log_events`(関数)
   - `test_word_tables_agree_with_the_memory_and_the_vocab`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.time_consts`・`shibuya.engine.events.body`・`shibuya.engine.events.log`・`shibuya.engine.events.vocab`・`shibuya.engine.memory`・`shibuya.engine.memory_store`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.tape`・`shibuya.engine.tools.record`・`tests/engine/multiday/_md.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.events.body`・`shibuya.engine.memory`・`shibuya.engine.memory_store`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.tape`・`shibuya.engine.tools.record`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`tests/engine/multiday/_md.py`
 
 ## [test_md23_resume.py](../../../../../../../tests/engine/multiday/test_md23_resume.py)
 
@@ -50,7 +50,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
 - 公開の関数とクラス
   - `test_synthetic_two_days_resume_at_the_day_boundary`(関数)
   - `test_world_two_days_resume_default_and_arm_d`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.core.time_consts`・`shibuya.engine.run`・`shibuya.engine.tape`・`tests/engine/multiday/_md.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.tape`・`shibuya.foundation.time_consts`・`tests/engine/multiday/_md.py`
 
 ## [test_md23_tool.py](../../../../../../../tests/engine/multiday/test_md23_tool.py)
 
@@ -61,7 +61,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_days_to_full`(関数)
   - `test_the_tool_collects_three_synthetic_days`(関数)
   - `test_world_five_days_default`(関数): 実データの 5 日(月〜金・5,000 体・seed 1・既定の腕=土台 v3_mem_rel・開始日の検査 A1-3 は外さない=親の判断 M1)。
-- import している内部モジュール: `shibuya.core.time_consts`・`tests/engine/multiday/_md.py`
+- import している内部モジュール: `shibuya.foundation.time_consts`・`tests/engine/multiday/_md.py`
 
 ## [test_md23_w9_window.py](../../../../../../../tests/engine/multiday/test_md23_w9_window.py)
 
@@ -71,6 +71,6 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_bridging_rows_after_2_3`(関数)
   - `test_shadow_dates_cover_the_seven_day_window`(関数)
   - `test_stage_asset_has_the_window_and_the_fallback_is_used_only_outside`(関数)
-- import している内部モジュール: `shibuya.build.vis.w9_shadow`・`shibuya.engine.bridging.ledger`・`shibuya.engine.processes.environment`・`tests/engine/multiday/_md.py`
+- import している内部モジュール: `shibuya.build.vis.w9_shadow`・`shibuya.engine.processes.environment`・`shibuya.foundation.decl.bridging`・`tests/engine/multiday/_md.py`
 - 環境変数: `SHIBUYA_SPACE`
 - 決定の ID: 第 334

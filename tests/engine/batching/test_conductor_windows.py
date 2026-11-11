@@ -22,8 +22,8 @@ import sys
 import pytest
 
 from shibuya import cli
-from shibuya.core.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
-from shibuya.engine import batching as BA
+from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
+from shibuya.foundation.queues import batching as BA
 from shibuya.engine import resume as RS
 from shibuya.engine import run_kind as RK
 from shibuya.engine.run import run_day
@@ -225,7 +225,7 @@ def test_cli_rejects_a_width_that_does_not_divide_the_step(tmp_path):
 
 def test_a_bad_environment_width_fails_at_import():
     env = dict(os.environ, PYTHONIOENCODING="utf-8", **{BA.ENV: "7"})
-    r = subprocess.run([sys.executable, "-c", "import shibuya.engine.batching"], capture_output=True, text=True,
+    r = subprocess.run([sys.executable, "-c", "import shibuya.foundation.queues.batching"], capture_output=True, text=True,
                        encoding="utf-8", env=env, timeout=120)
     assert r.returncode != 0 and "まとめの幅" in r.stderr
 

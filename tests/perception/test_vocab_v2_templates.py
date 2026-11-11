@@ -14,8 +14,8 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import AgentKind, AgentState
-from shibuya.llm.contract import ACTION_VOCAB_13, ALL_ACTION_WORDS
-from shibuya.perception import templates as T
+from shibuya.foundation.vocab.actions import ACTION_VOCAB_13, ALL_ACTION_WORDS
+from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import Renderer
 from shibuya.world.state import World
 

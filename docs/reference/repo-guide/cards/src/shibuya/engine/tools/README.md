@@ -2,22 +2,11 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 6 本・その他 0 本(このディレクトリの直下)
+Python 5 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/engine/tools/__init__.py)
 
 engine.tools — 道具の台帳 C0(第 1 期 1-7・CT0・CT5・CT9・CT10)。
-
-## [contacts.py](../../../../../../../../src/shibuya/engine/tools/contacts.py)
-
-engine.tools.contacts — 個人の連絡先の手段ごとの印(第 1 期 1-7 C0・CT5)。
-
-- 公開の関数とクラス
-  - `flags_from_kinds`(関数): 辺の種別 → 初めの印(``uint8``・形は ``kind`` と同じ)。``partner`` を渡すと空の辺(-1)は 0。
-  - `tally`(関数): manifest の ``tools.contact_flags``: 印を持つ辺の数・手段ごとの辺の数・種別ごとの印を持つ辺の数・バイト。
-- 呼び手: `shibuya.engine.contact.book`・`shibuya.engine.contact.layer`・`shibuya.engine.relations`・`shibuya.engine.relations_people`
-- 読む試験: `tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_exchange.py`・`tests/engine/tools/test_c0_contacts_in_relations.py`
-- 決定の ID: 10-12/§4-4・R-85
 
 ## [groups.py](../../../../../../../../src/shibuya/engine/tools/groups.py)
 
@@ -53,7 +42,7 @@ engine.tools.record — 道具の記録の欄(CT9)と、ランの道具の一式
   - `enabled`(関数): 看板を読んだ出来事を書くか(切替口 ``SHIBUYA_TOOL_EVENTS``・``set_enabled``。既定 off)。
   - `manifest_fields`(関数): manifest の ``tools``(計器): 道具の数と名・登録だけの道具・グループの数・連絡先の印の数・店の番号の表・看板の印。
   - `set_enabled`(関数): 腕を入れる/外す(組み立ての時に読む=ランの途中で変えても、そのランは変わらない)。
-- import している内部モジュール: `shibuya.engine.events.log`・`shibuya.engine.events.vocab`・`shibuya.engine.tools.groups`・`shibuya.engine.tools.places`・`shibuya.engine.tools.registry`
+- import している内部モジュール: `shibuya.engine.tools.groups`・`shibuya.engine.tools.places`・`shibuya.engine.tools.registry`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.events`
 - 呼び手: `shibuya.engine.events.body`・`shibuya.engine.systems.build`・`shibuya.engine.systems.report`
 - 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar3/_ca3.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/multiday/test_md23_body_events.py`・`tests/engine/tools/test_c0_affordance_from_registry.py`・`tests/engine/tools/test_c0_signboard_mark_invariance.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
@@ -70,7 +59,7 @@ engine.tools.registry — 道具の台帳(第 1 期 1-7 C0・CT0)。
   - `ToolRegistry`(クラス): 道具の台帳。**書く口は ``register`` の 1 つ**(足すだけ)。
   - `affordance_words`(関数): 体 ``agent`` が使える道具を、``TOOL_ACTION_WORDS`` で判断の語彙の語に写した語(台帳の並び・重ねない)。
   - `default_registry`(関数): 最初の中身の台帳(呼ぶたびに新しい物=ランごとに 1 つ)。
-- import している内部モジュール: `shibuya.engine.bridging.ledger`
+- import している内部モジュール: `shibuya.foundation.decl.bridging`
 - 呼び手: `shibuya.engine.calendar_self`・`shibuya.engine.contact.tools`・`shibuya.engine.decision.layer`・`shibuya.engine.tools.places`・`shibuya.engine.tools.record`
 - 読む試験: `tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/tools/test_c0_affordance_from_registry.py`・`tests/engine/tools/test_c0_init_recall.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`・`tests/engine/tools/test_c0_signboard_mark_invariance.py`・`tests/engine/tools/test_c0_tool_registry.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`

@@ -19,8 +19,8 @@ from shibuya.economy import anchors as AN
 from shibuya.economy import stage2 as S2
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.ledger import Ledger
-from shibuya.engine.events import log as EV
-from shibuya.engine.ledger_api import TransferStatus
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.ports.ledger import TransferStatus
 
 H, S, E, B, G, W = (int(s) for s in Sector)
 KINDS = np.array([0, 1, 3, 7])  # 通勤者・来街者・居住者・訪日来街者
@@ -116,7 +116,7 @@ def test_negative_deposit_short_card_falls_back_to_cash():
 def test_withdraw_rule_amount_and_cause():
     log = EV.EventLog()
     led = _led(wallets=(1_000, 50_000, 999, 20_000))
-    from shibuya.engine.events.links import MoneyEventLink
+    from shibuya.foundation.journal.links import MoneyEventLink
 
     led.attach_events(MoneyEventLink(log), step_seconds=60)
     dep0, cash0 = _dep(led), _cash(led)

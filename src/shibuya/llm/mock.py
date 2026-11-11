@@ -38,18 +38,20 @@ from __future__ import annotations
 import re
 from typing import Any, Final
 
-from shibuya.core.rng import stream
-from shibuya.core.types import EventClass
-from shibuya.llm import (
+from shibuya.foundation.rng import stream
+from shibuya.foundation.types import EventClass
+from shibuya.foundation.vocab.actions import (
     ACTION_VOCAB_12,
     NO_TARGET,
+    format_two_line,
+)
+from shibuya.llm import (
     LLMRequest,
     LLMResponse,
     TapeLookup,
     estimate_tokens,
-    format_two_line,
 )
-from shibuya.llm.contract import SPEECH_FIELD_LINE, TARGET_WANDER, append_comment, format_two_line_v3
+from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE, TARGET_WANDER, append_comment, format_two_line_v3
 
 __all__ = [
     "MOCK_REASONS",

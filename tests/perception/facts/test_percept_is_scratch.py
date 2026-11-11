@@ -21,9 +21,9 @@ import pytest
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.systems import boxes as BX
 from shibuya.engine.systems import conductor as CD
-from shibuya.engine.systems import guard as G
+from shibuya.foundation import write_guard as G
 from shibuya.engine.systems.table import SPECS, SYSTEMS
-from shibuya.perception import facts as F
+from shibuya.foundation.ports import percept as F
 
 
 # ---------------------------------------------------------------- (a)

@@ -19,11 +19,11 @@ import numpy as np
 from shibuya.agents.state import Activity
 from shibuya.agents.state import FOCUS_NONE
 from shibuya.agents.state import WakeCondition
-from shibuya.core.hashing import apply_key_array
+from shibuya.foundation.hashing import apply_key_array
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.engine.arbiter import WakeCandidates
-from shibuya.core.time_consts import HOURS_PER_DAY, STEPS_PER_HOUR
+from shibuya.foundation.time_consts import HOURS_PER_DAY, STEPS_PER_HOUR
 
 
 def sys_arbiter(ctx: Any, b: Any) -> None:

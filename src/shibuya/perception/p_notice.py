@@ -47,7 +47,7 @@ from typing import Final
 
 import numpy as np
 
-from shibuya.core.rng import stream, k19_counters
+from shibuya.foundation.rng import stream, k19_counters
 
 __all__ = [
     "D50_DEFAULT_M",

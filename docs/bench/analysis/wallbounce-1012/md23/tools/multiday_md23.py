@@ -291,7 +291,7 @@ def run_collect(config: str, *, days: int, agents: int, seed: int, world: str | 
         CAL.SimCalendar.check_start = orig_cs  # type: ignore[method-assign]
     wall = time.perf_counter() - t0
     man = res.run_manifest_fields()
-    from shibuya.core.time_consts import STEPS_PER_DAY
+    from shibuya.foundation.time_consts import STEPS_PER_DAY
 
     tpd = int(STEPS_PER_DAY)
     g = gauge_days(rec, cap.get("pop"), days, tpd) if rec is not None else None
@@ -357,7 +357,7 @@ def cmd_resume(args: argparse.Namespace) -> int:
     arms = set_arms(args.config)
     from shibuya import cli
 
-    from shibuya.core.time_consts import STEPS_PER_DAY
+    from shibuya.foundation.time_consts import STEPS_PER_DAY
 
     tpd = int(STEPS_PER_DAY)
     kw: dict[str, Any] = dict(BASE, n_agents=args.agents, seed=args.seed, sim_days=2, world_dir=args.world)

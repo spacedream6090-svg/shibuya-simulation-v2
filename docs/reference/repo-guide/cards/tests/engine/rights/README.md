@@ -49,7 +49,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_opening_process_records_a_revoked_staff_and_still_opens`(関数)
   - `test_the_word_and_the_cause_name`(関数)
   - `test_without_the_check_nothing_is_counted_and_the_code_is_the_same`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.events.links`・`shibuya.engine.events.log`・`shibuya.engine.events.vocab`・`shibuya.engine.llm_bridge`・`shibuya.engine.processes.opening`・`shibuya.engine.resolve`・`shibuya.engine.rights.ledger`・`shibuya.engine.rights.record`・`shibuya.engine.run`・`shibuya.llm`・`shibuya.llm.contract`・`shibuya.world.processes.actual_log`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.llm_bridge`・`shibuya.engine.processes.opening`・`shibuya.engine.resolve`・`shibuya.engine.rights.ledger`・`shibuya.engine.rights.record`・`shibuya.engine.run`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.llm`・`shibuya.world.processes.actual_log`・`tests/engine/processes/conftest.py`
 - 読む試験: `tests/engine/duties/test_du_runs.py`
 - 決定の ID: 10-12/§1-4
 
@@ -64,7 +64,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_employment_rows_equal_the_bodies_with_an_org_id`(関数)
   - `test_no_population_means_no_employment_rows`(関数)
   - `test_the_four_contents_and_their_blanks`(関数)
-- import している内部モジュール: `shibuya.agents.population`・`shibuya.engine.bridging.ledger`・`shibuya.engine.bridging.ledger_paths`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`・`shibuya.engine.systems.build`・`tests/_places.py`
+- import している内部モジュール: `shibuya.agents.population`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`・`shibuya.engine.systems.build`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.decl.ledger_paths`・`tests/_places.py`
 - 決定の ID: 10-12/§4-5
 
 ## [test_rights_manifest.py](../../../../../../../tests/engine/rights/test_rights_manifest.py)
@@ -78,7 +78,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_rights_is_the_last_key_and_observed`(関数)
   - `test_the_record_does_not_move_the_result`(関数): 権利台帳の中身を空にしても(担当の表は同じに読む)final と呼数は同じ=manifest の欄は記録だけ。
   - `test_values_come_from_the_ledger`(関数)
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.manifest_sections`・`shibuya.engine.processes.opening`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`・`shibuya.engine.run`
+- import している内部モジュール: `shibuya.engine.processes.opening`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`・`shibuya.engine.run`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3
 
 ## [test_rights_schema.py](../../../../../../../tests/engine/rights/test_rights_schema.py)

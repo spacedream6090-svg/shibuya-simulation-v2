@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from shibuya.core.growth import GrowthDeclaration, Retention
+from shibuya.foundation.growth import GrowthDeclaration, Retention
 from shibuya.manifest.world_catalog import WorldCatalog
 from shibuya.world.processes.records import (
     AnnouncementScope,

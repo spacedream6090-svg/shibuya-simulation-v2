@@ -20,7 +20,7 @@ from pathlib import Path
 import pytest
 
 from shibuya import cli
-from shibuya.core.time_consts import NS_PER_SECOND, SECONDS_PER_DAY
+from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_DAY
 from shibuya.engine.experiment import branch as BR
 from shibuya.engine.experiment import switch as SW
 from shibuya.engine.tape import TapeRow, TapeWriter

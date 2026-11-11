@@ -81,11 +81,11 @@ from typing import Any, Final, Mapping, Sequence
 import numpy as np
 
 from shibuya.agents.state import Activity
-from shibuya.core.hashing import blake3_hex
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
+from shibuya.foundation.hashing import blake3_hex
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
 from shibuya.engine import calendar_shadow as _CS
 from shibuya.engine import resolve as R
-from shibuya.engine.decision.port import (
+from shibuya.foundation.ports.decision import (
     DELIBERATE_KIND,
     SOURCE_CONTINUE,
     SOURCE_DELIBERATE,
@@ -1477,8 +1477,8 @@ class CalendarSelf:
 
     def _write_event(self, log: Any, a: int, choice: Any, cands: Sequence[Candidate], ctx: DecisionContext) -> None:
         """判断の出来事(1-3)=``行為:移動``・原因 ``LlmCall``(選んだ候補の源と提示の番号=口の約束 1-8 の約束 (3))。"""
-        from shibuya.engine.events import vocab as V
-        from shibuya.engine.events.log import Event, LlmCall
+        from shibuya.foundation.vocab import events as V
+        from shibuya.foundation.journal.log import Event, LlmCall
 
         log.append(Event(t_ns=log.now_ns, who=int(a), what=V.word(V.FAMILY_ACT, "移動"),
                          where=("cell", int(ctx.cell)) if int(ctx.cell) >= 0 else None,
@@ -1675,7 +1675,7 @@ class CalendarSelf:
         return out
 
     def manifest(self) -> dict[str, Any]:
-        from shibuya.engine.bridging import ledger as _BR
+        from shibuya.foundation.decl import bridging as _BR
 
         m = self.cal_meter
         days = [m["days"][k] for k in sorted(m["days"], key=int)]

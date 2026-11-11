@@ -41,7 +41,7 @@ from typing import Any, Final, Iterable, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.core.growth import GrowthDeclaration, Retention
+from shibuya.foundation.growth import GrowthDeclaration, Retention
 from shibuya.world.processes.records import (
     DEVIATION_BY_CODE,
     DEVIATION_CODES,
@@ -50,7 +50,7 @@ from shibuya.world.processes.records import (
     PlanSpec,
 )
 from shibuya.world.processes.relations import Realizes, Relation
-from shibuya.core.time_consts import STEPS_PER_DAY, STEPS_PER_HOUR
+from shibuya.foundation.time_consts import STEPS_PER_DAY, STEPS_PER_HOUR
 
 __all__ = [
     "ACTUAL_LOG_DTYPE",

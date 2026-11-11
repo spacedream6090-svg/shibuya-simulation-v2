@@ -20,8 +20,8 @@ from typing import Any
 
 import pytest
 
-from shibuya.core import rng as RNG
-from shibuya.core import time_consts as TC
+from shibuya.foundation import rng as RNG
+from shibuya.foundation import time_consts as TC
 from shibuya.engine import run as RUN
 from shibuya.engine.calendar2 import layer as L2
 from shibuya.engine.calendar2 import port as P2
@@ -30,7 +30,7 @@ from shibuya.engine.calendar3 import port as P3
 from shibuya.engine.contact import layer as CL
 from shibuya.engine.contact import port as PC
 from shibuya.engine.decision import layer as DLY
-from shibuya.engine.decision.port import SOURCE_AFFORDANCE, Candidate, DecisionContext, DecisionPort
+from shibuya.foundation.ports.decision import SOURCE_AFFORDANCE, Candidate, DecisionContext, DecisionPort
 from shibuya.engine.duties import layer as LD
 from shibuya.engine.duties import port as PD
 from shibuya.engine.systems import boxes as BX

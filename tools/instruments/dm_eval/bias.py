@@ -38,7 +38,7 @@ import numpy as np
 import dm_eval  # noqa: F401
 from dm_eval.judge import ScoreFailed, Scorer, failure_record, top1
 from dm_eval.situations import VOCAB, Situation, render, word_of_output
-from shibuya.engine.decision.port import OTHER_ID, Candidate
+from shibuya.foundation.ports.decision import OTHER_ID, Candidate
 
 SALT_COMPARE_PATH: Final = dm_eval.REPO / "tools" / "c7" / "salt_compare.py"
 _SALT_NAME: Final[str] = "dm_eval_salt_compare"
@@ -182,7 +182,7 @@ def pbs_null_floor(n_situations: int, n: int, offsets: Sequence[int], *, reps: i
     位置 r の並びでは (位置 − r) mod n に来る。状況 ``n_situations`` 件 × 並び ``len(offsets)`` 通りの位置の分布と一様の
     L2 の距離を ``reps`` 回(「その他」は選ばない)。
     """
-    from shibuya.core.rng import stream
+    from shibuya.foundation.rng import stream
 
     if n_situations < 1 or n < 1:
         return {"reps": 0, "mean": None, "p05": None, "p50": None, "p95": None}

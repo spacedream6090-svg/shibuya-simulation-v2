@@ -24,7 +24,7 @@ import pytest
 
 from shibuya.economy.accounts import BalanceLine, Sector
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import ledger_api as API
+from shibuya.foundation.ports import ledger as API
 
 from tests.economy.cp2 import money_writers as MW
 

@@ -39,8 +39,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Iterator
 
-from shibuya.core.paths import PACKAGE_ROOT
-from shibuya.engine.bridging.ledger_paths import ledger_path
+from shibuya.foundation.paths import PACKAGE_ROOT
+from shibuya.foundation.decl.ledger_paths import ledger_path
 
 __all__ = [
     "FORMS", "FORM_CONF", "FORM_EXPEDIENTS", "FORM_DOCSTRING", "FORM_HEADING", "FORM_PROCESS", "FORM_FALLBACK",

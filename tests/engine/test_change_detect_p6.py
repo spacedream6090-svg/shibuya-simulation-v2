@@ -16,7 +16,7 @@ import pytest
 from tests import _time_gates as TG
 
 from shibuya.agents.state import AgentState, WakeCondition
-from shibuya.core.types import EventClass
+from shibuya.foundation.types import EventClass
 from shibuya.engine import change_detect as CD
 from shibuya.world.state import World
 

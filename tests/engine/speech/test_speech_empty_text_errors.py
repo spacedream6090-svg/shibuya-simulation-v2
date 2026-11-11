@@ -13,7 +13,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.engine.events.log import EventLog
+from shibuya.foundation.journal.log import EventLog
 from shibuya.engine.speech import layer as SPL
 from shibuya.engine.speech import port as P
 

@@ -92,7 +92,7 @@ def soa_combined(c: Any) -> str:
     ``hash_scheme="full"``(``Checkpoint.legacy_combined``)で final をこの式にしていた。切替口を消したので、試験の側で
     checkpoint の欄(``agents_hash`` は差し替えた ``state_hash`` の値)から組み立てる。final(behavior-hash)とは別物。
     """
-    from shibuya.core.hashing import blake3_hex
+    from shibuya.foundation.hashing import blake3_hex
 
     parts = [c.agents_hash, c.world_hash, c.population_hash, c.schedule_hash]
     if c.activity_hash:

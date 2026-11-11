@@ -15,12 +15,12 @@ from typing import Any
 
 import numpy as np
 
-from shibuya.core.hashing import blake3_hex
-from shibuya.core.time_consts import CLOCK_KIND
+from shibuya.foundation.hashing import blake3_hex
+from shibuya.foundation.time_consts import CLOCK_KIND
 from shibuya.engine.regional_clock import CLOCK_KIND_REGIONAL as _CLOCK_KIND_REGIONAL
 from shibuya.engine import proximity as _PROX
 from shibuya.engine import economy_stage2 as _ES2
-from shibuya.engine.bridging import ledger as _BR
+from shibuya.foundation.decl import bridging as _BR
 from shibuya.engine.rules import table as _RT
 from shibuya.engine.state_hashes import behavior_hash as behavior_state_hash
 from shibuya.engine.state_hashes import component_digests
@@ -328,8 +328,8 @@ def mark_boundary(events: Any, name: str) -> None:
     """
     if events is None or not events.enabled:
         return
-    from shibuya.engine.events import log as _EV
-    from shibuya.engine.events import vocab as _V
+    from shibuya.foundation.journal import log as _EV
+    from shibuya.foundation.vocab import events as _V
 
     events.append(_EV.Event(t_ns=events.now_ns, who=BOUNDARY_WHO, what=_V.word(_V.FAMILY_PROCESS, name),
                             cause=_EV.Process(name)))

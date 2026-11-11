@@ -30,7 +30,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field, fields
 from typing import Any
 
-from shibuya.core.time_consts import NS_PER_SECOND, STEP_SECONDS
+from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS
 
 __all__ = [
     "RunConfig", "SoAState", "Layers", "LlmIo", "DayTables", "Buffers", "TickScratch", "TickScratchStrict",
@@ -309,7 +309,7 @@ class Buffers:
     focus_request: Any
 
     def __setattr__(self, name: str, value: Any) -> None:
-        from shibuya.engine.systems import guard as _G
+        from shibuya.foundation import write_guard as _G
 
         p = _G.BUFFERS_PERMIT
         if p is not None and name not in p:
@@ -380,7 +380,7 @@ class TickScratch:
             object.__setattr__(self, f, value)
 
     def __setattr__(self, name: str, value: Any) -> None:
-        from shibuya.engine.systems import guard as _G
+        from shibuya.foundation import write_guard as _G
 
         p = _G.SCRATCH_PERMIT
         if p is not None and name not in p:

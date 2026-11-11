@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import REFRACTORY_MINUTES, WakeCondition
-from shibuya.core.types import EventClass
+from shibuya.foundation.types import EventClass
 from shibuya.engine.conversation import (
     BACKCHANNELS,
     CLOSING_UTTERANCE,
@@ -293,7 +293,8 @@ class _TalkLLM:
         self.n_calls = 0
 
     def complete(self, request):
-        from shibuya.llm import LLMResponse, format_two_line
+        from shibuya.llm import LLMResponse
+        from shibuya.foundation.vocab.actions import format_two_line
 
         self.n_calls += 1
         word = "会話" if request.tick % 2 else "退去"

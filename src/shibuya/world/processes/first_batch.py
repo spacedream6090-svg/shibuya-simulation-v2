@@ -28,7 +28,7 @@ from __future__ import annotations
 
 from typing import Final, Mapping
 
-from shibuya.core.growth import GrowthDeclaration, Retention
+from shibuya.foundation.growth import GrowthDeclaration, Retention
 from shibuya.world.processes import absent as _AB
 from shibuya.world.processes import inputs as INP
 from shibuya.world.processes.constitution import PROPOSED_CHANNEL_IDS

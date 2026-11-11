@@ -26,8 +26,8 @@ from __future__ import annotations
 from typing import Any
 
 from shibuya.agents.state import WakeCondition
-from shibuya.engine.decision.port import OTHER_ID, Candidate, DecisionContext, DecisionPort
-from shibuya.llm.contract import NO_TARGET
+from shibuya.foundation.ports.decision import OTHER_ID, Candidate, DecisionContext, DecisionPort
+from shibuya.foundation.vocab.actions import NO_TARGET
 
 __all__ = ["LlmPort", "MockPort", "ClassicalPort", "PORT_NAMES"]
 

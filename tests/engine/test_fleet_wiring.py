@@ -23,7 +23,7 @@ import pytest
 from shibuya.engine.run import run_day
 from shibuya.engine.tape import Replay
 from shibuya.llm.fleet import FleetClient, FleetConfig
-from shibuya.manifest.schema import Mode
+from shibuya.foundation.manifest.schema import Mode
 from shibuya.world.state import World
 
 from tests.llm.test_fleet import BAD, GOOD, FakeVLLM
@@ -258,7 +258,7 @@ def test_fleet_and_mock_runs_use_the_same_prompts(fleet_servers):
 
     艦隊経路は描画を素通しするだけ=知覚側は 1 バイトも変わらない、の機械検査。
     """
-    from shibuya.core.hashing import sha256_cbor
+    from shibuya.foundation.hashing import sha256_cbor
 
     client = make_client(fleet_servers)
     run_fleet(client)
@@ -444,7 +444,7 @@ def test_conversations_need_awake_partners_so_night_only_runs_barely_open_any():
     # (この台本の「対象: P-1」が決まらない体=resolve は活動を変えない)も招待側の戻しで IDLE にしていたので、寝ている体を
     # 起こしていた(この試験の 600 刻みで寝ていて戻されなかった体 126=計器 no_target。成立 1 件)。直した道では寝た体は寝たまま=
     # 600 刻みでは成立 0・1 日で 6(記録 fix4-1103 §4)。旧道(SHIBUYA_DEFECT_FIXES_1103=legacy)は 600 刻みで前のとおり通る
-    from shibuya.core.time_consts import STEPS_PER_DAY
+    from shibuya.foundation.time_consts import STEPS_PER_DAY
 
     day, d_open, d_calls = rate(STEPS_PER_DAY, sleep_suppression=False)
     assert n_calls > 0 and d_calls > 0

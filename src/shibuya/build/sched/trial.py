@@ -70,7 +70,7 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from shibuya.core.hashing import blake3_u64
+from shibuya.foundation.hashing import blake3_u64
 
 from ..geo import common as C
 from ..pop.w16_population import (
@@ -88,7 +88,7 @@ from ..pop.w16_population import (
 from . import pool_facts as PF
 from . import vocab as V
 from . import w17_schedule as W17
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     "TRIAL_VERSION",

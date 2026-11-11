@@ -14,8 +14,8 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import AgentKind, AgentState
-from shibuya.perception import channels as ch
-from shibuya.perception.facts import SeenPerson
+from shibuya.foundation.text import channels as ch
+from shibuya.foundation.ports.percept import SeenPerson
 from shibuya.perception.renderer import Renderer, person_word
 from shibuya.world.state import World
 

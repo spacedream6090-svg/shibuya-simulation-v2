@@ -16,7 +16,7 @@ import pytest
 from shibuya.agents.state import ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.llm.contract import (
+from shibuya.foundation.vocab.actions import (
     ACTION_CODES,
     ACTION_SPECS,
     ACTION_VOCAB_12,

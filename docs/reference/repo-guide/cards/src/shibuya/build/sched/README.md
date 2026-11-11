@@ -24,7 +24,7 @@ build.sched.pool_facts — ペルソナプールの「生活の素材」欄だ�
   - `parse_days`(関数): ``"mon-fri"`` / ``"all"`` / ``"sat,sun"`` → 曜日ビットマスク(bit d = 曜日 d)。
   - `parse_hhmm`(関数): ``"09:00"`` / ``"0900"`` → 分。読めなければ ``-1``。
   - `read_facts`(関数): ``(pool_layer, pool_index)`` の並びに対応する素材を読む。
-- import している内部モジュール: `shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.sched.trial`・`shibuya.build.sched.w17_schedule`・`shibuya.build.sched.w20_calendar_1a`・`tools/instruments/anchor_gauge.py`
 - 読む試験: `tests/build_sched/test_trial.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
@@ -100,7 +100,7 @@ build.sched.trial — D-68 下見(2,000 体・多腕)の**別経路**モジュ�
   - `write_mock_responses`(関数): 検収のドライラン用のモック応答 jsonl(``fleet_gen`` の出力形式)。
   - `write_production`(関数): ``w17_schedule.parquet`` / ``W17.header.json`` / ``w17_gates.json`` を**隔離先へ**書く。
   - `write_production_prompts`(関数): 本番 v2 のプロンプト jsonl を**ストリーミングで**書く(39 万行をメモリに載せない)。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.w16_population`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`shibuya.core.hashing`・`shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.w16_population`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`shibuya.foundation.hashing`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.sched.w20_calendar_1a`・`tools/instruments/anchor_gauge.py`
 - 読む試験: `tests/build_sched/test_trial.py`・`tests/build_sched/test_w20_calendar_1a.py`・`tests/tools/test_anchor_gauge.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
@@ -143,7 +143,7 @@ build.sched.vocab — W17 週次活動表の**凍結語彙と行書式**(整形�
   - `format_schedule_flat`(関数): 活動列 → **旧形式**(1 行に曜日)。互換テスト用。
   - `parse_line`(関数): 1 行 → (活動 0-2 件, 不採用理由, 直した印)。理由が空文字なら採用。
   - `parse_text`(関数): 応答本文 → (活動列, 理由の計数)。**壊れた行はその活動だけ捨てる**。
-- import している内部モジュール: `shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.sched.trial`・`shibuya.build.sched.w17_schedule`・`tools/instruments/anchor_gauge.py`・`tools/w17/diversity_yardstick.py`
 - 読む試験: `tests/build_geo/test_poi_class.py`・`tests/build_sched/conftest.py`・`tests/build_sched/test_trial.py`・`tests/build_sched/test_w17_ingest.py`・`tests/build_sched/test_w17_parse.py`・`tests/build_sched/test_w17_prompts.py`・`tests/build_sched/test_w17_repair.py`・`tests/build_sched/test_weekly_loader.py`・`tests/engine/test_eatery_place_food.py`・`tests/w17/test_diversity_yardstick.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
@@ -188,7 +188,7 @@ W17 スケジュール生成(§1 W17・D-W17・決定台帳「母集団合成」
   - `write_pilot_prompts`(関数): 種別ごとに ``per_kind`` 体のパイロット用プロンプト jsonl を書く。
   - `write_prompts`(関数): プロンプト jsonl を**ストリーミングで**書く(39 万行をメモリに載せない)。
   - `write_schedule`(関数): SoA → ``w17_schedule.parquet``(行グループ単位で書く=全体を 1 テーブルに積まない)。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.w16_population`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.vocab`・`shibuya.core.hashing`・`shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.w16_population`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.vocab`・`shibuya.foundation.hashing`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.sched.run`・`shibuya.build.sched.trial`・`tools/c8/sensitivity.py`・`tools/instruments/anchor_gauge.py`
 - 読む試験: `tests/build_geo/test_poi_class.py`・`tests/build_sched/test_trial.py`・`tests/build_sched/test_w17_ingest.py`・`tests/build_sched/test_w17_prompts.py`・`tests/build_sched/test_w17_repair.py`・`tests/build_sched/test_weekly_loader.py`・`tests/engine/test_eatery_place_food.py`・`tests/engine/test_presence_executor.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
@@ -229,7 +229,7 @@ build.sched.w20_calendar_1a — 構築側の段 W20(暦 1a・勤務と授業の�
   - `stage_params`(関数): 段の ``params``(``param_hash`` の元)。〔第 4 期 4-3 段 10〕差し替えの母集団で組む口(``build.pop.w21_apply``)も同じ関数を
   - `table_stats`(関数): 週の表の統計(曜日ごとの約束の数・空欄の数・出勤・始業・終業・帰宅の分位・通勤時間・日数の分布)。
   - `week_of`(関数): 日付 → 週の番号(:data:`WEEK0_MONDAY` の週を 0)。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.w16_population`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.trial`・`shibuya.core.rng`・`shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.w16_population`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.trial`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.pop.w21_apply`・`shibuya.build.sched.w20_w21_port`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_sched/test_w20_calendar_1a.py`・`tests/build_sched/test_w20_w21_port.py`・`tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/calendar/test_calendar_shadow.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
@@ -250,7 +250,7 @@ build.sched.w20_w21_port — W21(人口の作り直し)の人の表 → W20(暦 
   - `duty_role_spec`(関数): 本口が引く担当の語の表(W20 の 22 語+W21 の 4 語=鍵は重ならない)。
   - `employment_from_w21`(関数): W21 の体の従業上の地位(8 区分)→ W20 の ``Employment``(第6-2表の 6 区分・第 31/36 表の行)を直接写す。
   - `lead_minutes`(関数): 片道の通勤時間[分]: 歩き=道のり ÷ 歩く速さの参照値(切り上げ・少なくとも 1)・自宅=0・ほか(電車の人)は −1(空欄=W20 の
-- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.pop.w21_apply`・`shibuya.build.pop.w21_build_c`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/build_sched/test_w20_w21_port.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`

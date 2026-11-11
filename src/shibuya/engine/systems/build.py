@@ -33,7 +33,7 @@ from shibuya.agents.state import N_WAKE_CONDITIONS_ALL
 from shibuya.agents.state import WakeCondition
 from shibuya.agents.weekly import apply_to_mock_schedule
 from shibuya.agents.weekly import load_weekly
-from shibuya.core.rng import RNG_SCHEME
+from shibuya.foundation.rng import RNG_SCHEME
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.engine.space import nav1 as _NAV1
@@ -107,21 +107,21 @@ from shibuya.engine.tape import read_run_meta
 from shibuya.engine.wom import WomExtractor
 from shibuya.engine.wom import check_wom_source
 from shibuya.llm.fleet import FleetBridge
-from shibuya.perception.channels import BudgetMode
+from shibuya.foundation.text.channels import BudgetMode
 from shibuya.perception.renderer import PerceptionAssets
 from shibuya.perception.renderer import Renderer as PerceptionRenderer
 from shibuya.perception.renderer import check_hunger_words
 from shibuya.perception.renderer import check_signage_p_see
-from shibuya.perception.templates import check_intent_mode
-from shibuya.perception.templates import check_role_words
-from shibuya.perception.templates import check_vocab_version
+from shibuya.foundation.text.templates import check_intent_mode
+from shibuya.foundation.text.templates import check_role_words
+from shibuya.foundation.text.templates import check_vocab_version
 from shibuya.world.assets import DEFAULT_AREA_SOURCE
 from shibuya.world.assets import check_area_source
 from shibuya.world.assets import load_process_assets_or_synthetic
 from shibuya.world.assets import load_walkable_area_m2
 from shibuya.world.state import World
 from shibuya.world.state import check_eatery_mode
-from shibuya.core.time_consts import HOURS_PER_DAY, SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_MINUTE
 
 
 __all__ = ["build"]
@@ -280,7 +280,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     budget_mode_enum = BudgetMode.parse(budget_mode)
     # ---- 第 1 期 1-4(検収 L10): つなぎの台帳と規則の表をランの始めに 1 回読む(壊れていればここで落ちる=1 日回した
     # 後の日の締めで落ちない。無い写しは警告して null。読むだけ=状態にも指紋にも入らない) ----
-    from shibuya.engine.bridging import ledger as _BR
+    from shibuya.foundation.decl import bridging as _BR
     from shibuya.engine.rules import table as _RT
 
     _BR.bridges_count()
@@ -321,7 +321,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     if _SPEECH.arm() == _SPEECH.ARM_ON:
         # 第 1 期 1-8b: 発話の口の腕は結果を変える(相手の入力に発話が載る)=on のときだけ設定の指紋に足す(既定は今の指紋)
         _fp["speech_port"] = _SPEECH.ARM_ON
-    from shibuya.engine import batching as _BATCH
+    from shibuya.foundation.queues import batching as _BATCH
 
     if not _BATCH.is_default():
         # 第 3 期 3-2: まとめの幅の腕は既定(刻みの幅)のときだけ設定の指紋に入れない(腕のときは入れる=再開で親と照合)
@@ -355,21 +355,21 @@ def build(_call_args: dict[str, Any]) -> Any:
             _fp[_tm_mod.FP_KEY] = _tm_mod.arm()
     if _RCK.arm() == _RCK.ARM_MIXED:  # 〔6-3 検収 L7〕混合の時計は口だけ=組み立ての段で止める
         raise NotImplementedError(_RCK.MIXED_NOTE)
-    from shibuya.engine.contact import arm as _CTA
+    from shibuya.foundation.arms import contact as _CTA
 
     _ct_cfg = _CTA.config()
     if _ct_cfg is not None:
         # 〔第 6 期 6-4 C1〕連絡の道具の腕は結果を変える=c1 のときだけ設定の指紋に足す(腕と下の腕=再開で取り違えを止める。
         # 既定 off のランの指紋は今のまま)
         _fp[_CTA.FP_KEY] = _ct_cfg
-    from shibuya.engine.calendar2 import arm as _CA2A
+    from shibuya.foundation.arms import calendar2 as _CA2A
 
     _ca2_cfg = _CA2A.config()
     if _ca2_cfg is not None:
         # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定の腕は結果を変える(本人が約束の場所へ歩く)=arm のときだけ設定の指紋に
         # 足す(再開で取り違えを止める。既定 off のランの指紋は今のまま)
         _fp[_CA2A.FP_KEY] = _ca2_cfg
-    from shibuya.engine.calendar3 import arm as _CA3A
+    from shibuya.foundation.arms import calendar3 as _CA3A
 
     _ca3_cfg = _CA3A.config()
     if _ca3_cfg is not None:
@@ -379,7 +379,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             raise ValueError("腕 --calendar-3 arm は --contact c1(職場の連絡を送る口)と --calendar-2 arm(本人の予定の器)の"
                              "ランだけ(層を再利用する=二重に作らない)")
         _fp[_CA3A.FP_KEY] = _ca3_cfg
-    from shibuya.engine.duties import arm as _DUA
+    from shibuya.foundation.arms import duties as _DUA
 
     _du_cfg = _DUA.config()
     if _du_cfg is not None:
@@ -1379,7 +1379,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     # ---- 第 1 期 1-3: 出来事の記録(CP12・既定 on・切替口 SHIBUYA_EVENTS=off/CLI --events off)。状態台帳の行 E
     # (軸 1 diag・軸 2 discardable)=ハッシュにも状態のファイルにも入らない。再開のランは空から書く(id は (t_ns, seq)
     # なので刻みの境目からの再開でも通しのランと同じ id になる)。ActualLog の行に id の目印を付ける口を実行器に挿す ----
-    from shibuya.engine.events import log as _EV
+    from shibuya.foundation.journal import log as _EV
 
     events = _EV.EventLog(enabled=_EV.enabled())
     if runner is not None:
@@ -1387,7 +1387,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         # 第 1 期 1-5(CP3): 判断の応答の役割語を権利台帳で確かめて数える(止めない・行動は起きない=出来事は書かない)
         bridge.attach_role_rights(runner.role_act_check())
     if ledger is not None:  # 第 1 期 1-9: 原因を渡した金の移動が出来事を書き、金と物の台帳の行に id の目印を付ける
-        from shibuya.engine.events.links import MoneyEventLink
+        from shibuya.foundation.journal.links import MoneyEventLink
 
         ledger.attach_events(MoneyEventLink(events), step_seconds=int(tick_seconds))
     # ---- 第 1 期 1-7(道具の台帳 C0): 道具の一式(台帳・グループの一覧=W16・店の番号の表=空・看板の口=腕のときだけ)。
@@ -1412,7 +1412,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     if _DL.arm() == _DL.ARM_PORT:
         from shibuya.engine.decision import ports as _DP
         from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE as _WORDS
-        from shibuya.llm.contract import cross_action_words, safe_action_word
+        from shibuya.foundation.vocab.actions import cross_action_words, safe_action_word
         from shibuya.llm.mock import MockLLM as _MockLLM
 
         _pkw = dict(seed=seed, day_key0=int(day_index), step_seconds=int(tick_seconds))

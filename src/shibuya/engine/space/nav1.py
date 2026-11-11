@@ -41,8 +41,8 @@ import numba as nb
 import numpy as np
 
 from shibuya.agents.state import Activity
-from shibuya.core.rng import derive_key
-from shibuya.core.time_consts import SECONDS_PER_MINUTE
+from shibuya.foundation.rng import derive_key
+from shibuya.foundation.time_consts import SECONDS_PER_MINUTE
 from shibuya.engine.geometry import DESIRED_SPEED_MIN_MS, desired_speeds, kladek_speed_factor
 from shibuya.world.navmesh import (
     LINK_ELEVATOR,

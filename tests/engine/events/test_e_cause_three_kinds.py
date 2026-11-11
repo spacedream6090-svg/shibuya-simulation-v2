@@ -23,9 +23,9 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core import write_permit as WP
-from shibuya.engine.events import log as EV
-from shibuya.engine.experiment import gate as GATE
+from shibuya.foundation import write_permit as WP
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.ports import experiment_gate as GATE
 
 SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya"
 TYPE = "Experiment"

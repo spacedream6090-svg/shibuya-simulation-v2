@@ -295,7 +295,7 @@ def test_b6_b3_words_body_heat_and_sun_follow_one_rule(monkeypatch):
     分けていた。W13 の年間化(B5)と影 6 日(ACT)の後は 07-13 が窓の中で影もあるので、既定のランは実際の天気
     (再生日=暦の日付・警告なし)。再生日と暦の日付を分けるのは ``weather_perturb=True``(同じ層から引く)で行う。"""
     from shibuya import cli
-    from shibuya.perception import normalize as N
+    from shibuya.foundation.text import normalize as N
     from shibuya.perception import renderer as REN
 
     made: list = []

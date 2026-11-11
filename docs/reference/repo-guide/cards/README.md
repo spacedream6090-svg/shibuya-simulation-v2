@@ -21,29 +21,38 @@
 | [src/shibuya/build/space](src/shibuya/build/space/README.md) | 5 | 0 |
 | [src/shibuya/build/vis](src/shibuya/build/vis/README.md) | 5 | 0 |
 | [src/shibuya/census](src/shibuya/census/README.md) | 1 | 0 |
-| [src/shibuya/core](src/shibuya/core/README.md) | 12 | 0 |
+| [src/shibuya/core](src/shibuya/core/README.md) | 2 | 0 |
 | [src/shibuya/economy](src/shibuya/economy/README.md) | 15 | 0 |
-| [src/shibuya/engine](src/shibuya/engine/README.md) | 62 | 0 |
+| [src/shibuya/engine](src/shibuya/engine/README.md) | 58 | 0 |
 | [src/shibuya/engine/body](src/shibuya/engine/body/README.md) | 5 | 0 |
-| [src/shibuya/engine/bridging](src/shibuya/engine/bridging/README.md) | 4 | 0 |
-| [src/shibuya/engine/calendar2](src/shibuya/engine/calendar2/README.md) | 6 | 0 |
-| [src/shibuya/engine/calendar3](src/shibuya/engine/calendar3/README.md) | 6 | 0 |
-| [src/shibuya/engine/contact](src/shibuya/engine/contact/README.md) | 12 | 0 |
-| [src/shibuya/engine/decision](src/shibuya/engine/decision/README.md) | 6 | 0 |
-| [src/shibuya/engine/duties](src/shibuya/engine/duties/README.md) | 5 | 0 |
-| [src/shibuya/engine/events](src/shibuya/engine/events/README.md) | 5 | 0 |
-| [src/shibuya/engine/experiment](src/shibuya/engine/experiment/README.md) | 10 | 0 |
+| [src/shibuya/engine/bridging](src/shibuya/engine/bridging/README.md) | 2 | 0 |
+| [src/shibuya/engine/calendar2](src/shibuya/engine/calendar2/README.md) | 5 | 0 |
+| [src/shibuya/engine/calendar3](src/shibuya/engine/calendar3/README.md) | 5 | 0 |
+| [src/shibuya/engine/contact](src/shibuya/engine/contact/README.md) | 11 | 0 |
+| [src/shibuya/engine/decision](src/shibuya/engine/decision/README.md) | 5 | 0 |
+| [src/shibuya/engine/duties](src/shibuya/engine/duties/README.md) | 4 | 0 |
+| [src/shibuya/engine/events](src/shibuya/engine/events/README.md) | 2 | 0 |
+| [src/shibuya/engine/experiment](src/shibuya/engine/experiment/README.md) | 9 | 0 |
 | [src/shibuya/engine/processes](src/shibuya/engine/processes/README.md) | 12 | 0 |
 | [src/shibuya/engine/rights](src/shibuya/engine/rights/README.md) | 4 | 0 |
 | [src/shibuya/engine/rules](src/shibuya/engine/rules/README.md) | 2 | 0 |
 | [src/shibuya/engine/space](src/shibuya/engine/space/README.md) | 2 | 0 |
 | [src/shibuya/engine/speech](src/shibuya/engine/speech/README.md) | 3 | 0 |
-| [src/shibuya/engine/systems](src/shibuya/engine/systems/README.md) | 25 | 0 |
-| [src/shibuya/engine/tools](src/shibuya/engine/tools/README.md) | 6 | 0 |
-| [src/shibuya/llm](src/shibuya/llm/README.md) | 6 | 0 |
-| [src/shibuya/manifest](src/shibuya/manifest/README.md) | 4 | 0 |
+| [src/shibuya/engine/systems](src/shibuya/engine/systems/README.md) | 24 | 0 |
+| [src/shibuya/engine/tools](src/shibuya/engine/tools/README.md) | 5 | 0 |
+| [src/shibuya/foundation](src/shibuya/foundation/README.md) | 12 | 0 |
+| [src/shibuya/foundation/arms](src/shibuya/foundation/arms/README.md) | 5 | 0 |
+| [src/shibuya/foundation/decl](src/shibuya/foundation/decl/README.md) | 3 | 0 |
+| [src/shibuya/foundation/journal](src/shibuya/foundation/journal/README.md) | 3 | 0 |
+| [src/shibuya/foundation/manifest](src/shibuya/foundation/manifest/README.md) | 4 | 0 |
+| [src/shibuya/foundation/ports](src/shibuya/foundation/ports/README.md) | 6 | 0 |
+| [src/shibuya/foundation/queues](src/shibuya/foundation/queues/README.md) | 3 | 0 |
+| [src/shibuya/foundation/text](src/shibuya/foundation/text/README.md) | 5 | 0 |
+| [src/shibuya/foundation/vocab](src/shibuya/foundation/vocab/README.md) | 4 | 0 |
+| [src/shibuya/llm](src/shibuya/llm/README.md) | 5 | 0 |
+| [src/shibuya/manifest](src/shibuya/manifest/README.md) | 2 | 0 |
 | [src/shibuya/manifest/frozen](src/shibuya/manifest/frozen/README.md) | 0 | 1 |
-| [src/shibuya/perception](src/shibuya/perception/README.md) | 11 | 0 |
+| [src/shibuya/perception](src/shibuya/perception/README.md) | 5 | 0 |
 | [src/shibuya/world](src/shibuya/world/README.md) | 6 | 0 |
 | [src/shibuya/world/processes](src/shibuya/world/processes/README.md) | 11 | 0 |
 | [tests](tests/README.md) | 21 | 0 |
@@ -134,7 +143,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 276 ディレクトリ・2232 本
+- [docs の索引](docs.md): 279 ディレクトリ・2236 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

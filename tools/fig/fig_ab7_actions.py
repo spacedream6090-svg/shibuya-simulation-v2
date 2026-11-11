@@ -136,7 +136,7 @@ def load_ab7(tape_root: str | Path = DEFAULT_TAPE_ROOT, arm: str = DEFAULT_ARM,
              arms: Sequence[Mapping[str, str]] = ARMS) -> dict[str, Any]:
     """両腕のテープ → 描画に要るデータ dict(比較指標つき)。"""
     import c6lib
-    from shibuya.llm.contract import ALL_ACTION_WORDS
+    from shibuya.foundation.vocab.actions import ALL_ACTION_WORDS
 
     per: dict[str, Any] = {}
     for spec in arms:

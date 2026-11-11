@@ -7,10 +7,10 @@ from dataclasses import dataclass
 from typing import Any, Iterator
 
 from shibuya.engine.decision import layer as DL
-from shibuya.engine.decision.port import DecisionContext
+from shibuya.foundation.ports.decision import DecisionContext
 from shibuya.engine.decision.sources import build_candidates
 from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE
-from shibuya.llm.contract import cross_action_words, safe_action_word
+from shibuya.foundation.vocab.actions import cross_action_words, safe_action_word
 
 
 @contextlib.contextmanager

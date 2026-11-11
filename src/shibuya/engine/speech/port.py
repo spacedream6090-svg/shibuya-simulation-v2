@@ -45,11 +45,11 @@ import unicodedata
 from dataclasses import dataclass, field
 from typing import Any, Callable, Final
 
-from shibuya.core.time_consts import NS_PER_SECOND, STEP_SECONDS
-from shibuya.core.types import SimTime
+from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS
+from shibuya.foundation.types import SimTime
 from shibuya.engine.conversation import SILENCE_TICKS
-from shibuya.engine.events import vocab as V
-from shibuya.engine.events.log import EventId
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.journal.log import EventId
 
 __all__ = [
     "SPEECH_SCHEMA", "WHAT", "VIA_FACE", "HEARD_TTL_STEPS", "HEARD_MAX_PER_ADDRESSEE", "METER_KEYS",
@@ -266,7 +266,7 @@ class SpeechPort:
         """出来事ログに 1 回書き、書いた出来事の id を返す(記録しないランは ``None``)。"""
         log = self.events
         if log is not None and bool(getattr(log, "enabled", False)):
-            from shibuya.engine.events.log import Event, LlmCall
+            from shibuya.foundation.journal.log import Event, LlmCall
 
             eid = log.append(Event(
                 t_ns=int(u.t_ns), who=int(u.speaker), what=WHAT, whom=int(u.addressees[0]),

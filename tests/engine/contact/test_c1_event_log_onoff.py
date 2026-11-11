@@ -18,8 +18,8 @@ from shibuya.engine.contact import layer as LY
 from shibuya.engine.contact import port as P
 from shibuya.engine.contact.calls import CallSpeechPort
 from shibuya.engine.contact.layer import W_DELIVERED, W_READ, W_SENT
-from shibuya.engine.events import log as EV
-from shibuya.engine.events.log import EventLog, LlmCall
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.journal.log import EventLog, LlmCall
 from shibuya.engine.run import run_day
 from shibuya.engine.speech.port import WHAT as W_SPEECH
 from shibuya.engine.speech.port import SpeechContext, Utterance

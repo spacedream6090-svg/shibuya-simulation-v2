@@ -24,7 +24,7 @@ import json
 from dataclasses import dataclass
 from typing import Any, Iterable, Mapping, Sequence
 
-from shibuya.core.hashing import blake3_hex
+from shibuya.foundation.hashing import blake3_hex
 from shibuya.manifest.world_catalog import WorldCatalog, load_world_catalog, verify_frozen
 from shibuya.world.processes import constitution as C
 from shibuya.world.processes.records import (

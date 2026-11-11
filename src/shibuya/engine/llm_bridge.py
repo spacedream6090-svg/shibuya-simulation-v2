@@ -94,18 +94,20 @@ from shibuya.engine.tape import (
     block_id_for,
     tape_v4_fields,
 )
-from shibuya.llm import (
+from shibuya.foundation.vocab.actions import (
     ACTION_CODES,
     UNDEFINED_ACTION,
+    Target,
+)
+from shibuya.llm import (
     LLMRequest,
     ParseResult,
-    Target,
     TapeLLM,
     UndefinedActionRegistry,
     estimate_tokens,
     parse_two_line,
 )
-from shibuya.llm.contract import (
+from shibuya.foundation.vocab.actions import (
     ACTION_WORD_NONE,
     ACTION_WORD_QUEUE,
     DEFAULT_VOCAB_VERSION,
@@ -118,7 +120,7 @@ from shibuya.llm.contract import (
     engine_action_codes,
     safe_action_word,
 )
-from shibuya.perception import templates as PT
+from shibuya.foundation.text import templates as PT
 
 __all__ = [
     "ALPHA_THINK_SECONDS_PER_TOKEN",
@@ -763,7 +765,7 @@ class LLMBridge:
 
     def code_of_word(self, word: str) -> int:
         """語彙の語 → エンジンの行動コード(``call`` がパーサの語に当てるのと同じ: 役割語は安全弁・ほかは版のコード)。"""
-        from shibuya.llm.contract import action_code_of, is_role_action
+        from shibuya.foundation.vocab.actions import action_code_of, is_role_action
 
         if is_role_action(word, self.vocab_version):
             return int(self._engine_codes[safe_action_word(self.vocab_version)])

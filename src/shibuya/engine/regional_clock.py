@@ -40,7 +40,7 @@ from typing import Any, Callable, Final, Mapping
 
 import numpy as np
 
-from shibuya.core.time_consts import CLOCK_KIND, NS_PER_SECOND, SECONDS_PER_MINUTE, STEP_SECONDS
+from shibuya.foundation.time_consts import CLOCK_KIND, NS_PER_SECOND, SECONDS_PER_MINUTE, STEP_SECONDS
 from shibuya.engine import owner_guard as _OG
 
 __all__ = [

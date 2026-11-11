@@ -8,8 +8,8 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from shibuya.perception import normalize as N
-from shibuya.perception.templates import DENSITY_LOS_EDGES_PER_M2
+from shibuya.foundation.text import normalize as N
+from shibuya.foundation.text.templates import DENSITY_LOS_EDGES_PER_M2
 
 
 # ---------------------------------------------------------------- ⑨ 5分丸め
@@ -127,6 +127,6 @@ def test_rule8_guard_catches_agent_dependent_words(text):
 
 def test_rule8_guard_accepts_the_frozen_b0_prose():
     """B0 の散文(「所持金を超える支払い」「空腹・体力・体感温度は0から10」)は個体依存語ではない。"""
-    from shibuya.perception.templates import TEMPLATES
+    from shibuya.foundation.text.templates import TEMPLATES
 
     N.assert_no_agent_dependent_words(N.canonical_whitespace(TEMPLATES["B0.system"]))

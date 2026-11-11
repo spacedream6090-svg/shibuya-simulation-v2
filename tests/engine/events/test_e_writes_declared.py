@@ -20,11 +20,11 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core import write_permit as WP
+from shibuya.foundation import write_permit as WP
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.run import run_day
 from shibuya.engine.systems import conductor as CD
-from shibuya.engine.systems import guard as G
+from shibuya.foundation import write_guard as G
 from shibuya.engine.systems import overrides as OV
 from shibuya.engine.systems import probe as PR
 from shibuya.engine.systems.table import SPECS, SYSTEMS
@@ -108,7 +108,7 @@ def test_paths_permit_is_assigned_only_in_the_guard():
     bad = []
     for fp in sorted(SRC.rglob("*.py")):
         rel = fp.relative_to(SRC).as_posix()
-        if rel == "engine/systems/guard.py":
+        if rel == "foundation/write_guard.py":
             continue
         for n in ast.walk(ast.parse(fp.read_text(encoding="utf-8"))):
             tgts = n.targets if isinstance(n, ast.Assign) else [n.target] if isinstance(n, (ast.AugAssign,

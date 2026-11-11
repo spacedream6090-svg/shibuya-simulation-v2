@@ -13,10 +13,12 @@ import pytest
 import yaml
 from pydantic import ValidationError
 
-from shibuya.manifest import (
+from shibuya.foundation.manifest.schema import (
     CONSERVATION_CHECKS,
     DIAG_COLUMNS,
     RunManifest,
+)
+from shibuya.foundation.manifest.canonical import (
     canonical_bytes,
     compute_run_id,
     dump_yaml,

@@ -24,7 +24,7 @@ adjudicate — 未定義行動台帳 → 契約行の草案(段2)+静的検査(�
   - `render_report`(関数): 親検収用の Markdown(上位 k 語の表・不採用理由・要動的検査)。**相対パスのみ**。
   - `run_batch`(関数): 段2 起草 + 段3 静的検査を 1 バッチぶん回す(**純関数**・I/O は呼び出し側)。
   - `static_checks`(関数): 段3 の**静的**検査 (s1)〜(s6) → ``(checks, verdict, reasons)``。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.llm`・`shibuya.llm.contract`・`shibuya.llm.fleet`・`shibuya.llm.undefined`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.fleet`・`shibuya.llm.undefined`
 - 読む試験: `tests/vocab/conftest.py`
 - CLI の引数
   - `--budget`: 1 バッチの件数予算(決定 A)

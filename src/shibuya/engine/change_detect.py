@@ -52,9 +52,9 @@ from typing import Final
 import numpy as np
 
 from shibuya.agents.state import WAKE_CONDITION_CLASS, AgentState, WakeCondition
-from shibuya.perception import hashes as PH
-from shibuya.perception import normalize as PN
-from shibuya.perception import templates as PT
+from shibuya.foundation.text import hashes as PH
+from shibuya.foundation.text import normalize as PN
+from shibuya.foundation.text import templates as PT
 from shibuya.perception.renderer import WALKABLE_FRACTION_SYNTHETIC
 from shibuya.world.assets import CELL_SIZE_M
 from shibuya.world.state import World

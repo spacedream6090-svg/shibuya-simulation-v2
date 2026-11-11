@@ -39,7 +39,7 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Final, Iterable, Iterator, Mapping
 
-from shibuya.core.paths import REPO_ROOT
+from shibuya.foundation.paths import REPO_ROOT
 
 __all__ = [
     "SCHEMA", "TABLE_RELPATH", "KINDS", "KIND_MACHINE", "KIND_HUMAN", "KIND_NORM", "ASOF_BASES", "ASOF_IN_FORCE",

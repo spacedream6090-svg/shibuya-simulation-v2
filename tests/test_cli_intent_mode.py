@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.perception.templates import DEFAULT_INTENT_MODE, INTENT_MODES
+from shibuya.foundation.text.templates import DEFAULT_INTENT_MODE, INTENT_MODES
 
 SMALL = dict(
     n_agents=32, seed=1, world_dir=None, n_cells=9, ticks=2, checkpoint_every=2,

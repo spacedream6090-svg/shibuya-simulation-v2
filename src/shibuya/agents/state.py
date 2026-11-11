@@ -94,9 +94,9 @@ from typing import Final, Iterator
 
 import numpy as np
 
-from shibuya.core import write_permit as _WP
-from shibuya.core.soa import Registry
-from shibuya.core.types import EventClass
+from shibuya.foundation import write_permit as _WP
+from shibuya.foundation.soa import Registry
+from shibuya.foundation.types import EventClass
 
 __all__ = [
     "AgentKind",

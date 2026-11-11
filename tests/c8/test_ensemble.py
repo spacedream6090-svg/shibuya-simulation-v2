@@ -33,7 +33,7 @@ def test_run_seed_rejects_negative_index(ensemble):
 
 def test_run_seed_feeds_core_rng(ensemble):
     """出た seed が実際に ``core.rng`` の鍵導出に通ること(型の相性)。"""
-    from shibuya.core.rng import stream
+    from shibuya.foundation.rng import stream
 
     a = stream(ensemble.run_seed(SHA, 0), "test.domain")
     b = stream(ensemble.run_seed(SHA, 1), "test.domain")

@@ -18,15 +18,15 @@ from pathlib import Path
 import pytest
 
 import shibuya
-from shibuya.core import budget as BU
-from shibuya.core import paths as P
-from shibuya.core import rng as RNG
+from shibuya.foundation import budget as BU
+from shibuya.foundation import paths as P
+from shibuya.foundation import rng as RNG
 from shibuya.engine import classical as CL
 from shibuya.engine import energy as EN
 from shibuya.engine import resolve as RV
 from shibuya.engine import resume as RS
 from shibuya.engine import rng_audit as RA
-from shibuya.engine.bridging import ledger as BL
+from shibuya.foundation.decl import bridging as BL
 from shibuya.engine.bridging import scan as BS
 from shibuya.engine.rules import table as RT
 from shibuya.engine.systems import allow as AL
@@ -49,7 +49,7 @@ def test_only_core_paths_reads_dunder_file_on_the_run_side():
         tree = ast.parse(p.read_text(encoding="utf-8"))
         if any(isinstance(n, ast.Name) and n.id == "__file__" for n in ast.walk(tree)):
             users.append(rel)
-    assert users == ["core/paths.py"]
+    assert users == ["foundation/paths.py"]
 
 
 def test_roots_are_the_same_paths_as_before():
@@ -164,7 +164,7 @@ def test_rng_audit_names_come_from_the_rng_module():
     assert RA._RNG_TAIL == RNG.__name__.partition(".")[2]
     text = Path(RA.__file__).read_text(encoding="utf-8")
     consts = {n.value for n in ast.walk(ast.parse(text)) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
-    assert not {"core.rng", "shibuya.core.rng", "core", "rng"} & consts
+    assert not {"core.rng", "shibuya.foundation.rng", "core", "rng"} & consts
 
 
 @pytest.mark.parametrize("moved", [None, "shibuya.foundation.rng"])

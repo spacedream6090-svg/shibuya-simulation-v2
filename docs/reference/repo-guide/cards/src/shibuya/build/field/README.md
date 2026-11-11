@@ -26,7 +26,7 @@ build.field.common — 場・境界レーンの共有ヘルパ。
   - `normalize_jp`(関数): 路線名などの日本語キーを突合可能な形へ正規化する。
   - `power_from_db`(関数): dB → 相対エネルギー。
   - `read_holidays_csv`(関数): 内閣府の祝日 CSV → {``YYYY-MM-DD``: 名称}(全行・日付順)。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.field.road_names`・`shibuya.build.field.run`・`shibuya.build.field.w10_noise`・`shibuya.build.field.w10_ruler`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w13_weather`・`shibuya.build.field.w7_planspec`
 - 読む試験: `tests/build_field/test_field_units.py`・`tests/build_field/test_w10_road_names.py`・`tests/build_field/test_w10_ruler.py`・`tests/build_field/test_w12_keio_switch_2_4.py`・`tests/build_field/test_w12_pm_peak_switch.py`・`tests/build_field/test_w12_real_timetables.py`・`tests/build_rail/test_w12_arrivals_2_3c.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
@@ -100,7 +100,7 @@ W10 静的騒音場(§1 W10・D-W11)。
   - `read_r5_points`(関数): 常時監視測定地点 CSV → 渋谷区5点+隣接2点(D-W11 の較正点)。
   - `route_match`(関数): 路線名(+市区町村)でセンサス区間を引く。正規化一致→末尾「線」を落とした前方一致。
   - `run`(関数)
-- import している内部モジュール: `shibuya.build.field.common`・`shibuya.build.field.road_names`・`shibuya.build.field.street_grid`・`shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.build.field.common`・`shibuya.build.field.road_names`・`shibuya.build.field.street_grid`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.run`・`shibuya.build.field.w10_ruler`
 - 読む試験: `tests/build_field/test_field_units.py`・`tests/build_field/test_w10_road_names.py`・`tests/build_field/test_w10_ruler.py`
 - 読む試験(道筋で): `tests/engine/bridging/test_bridging_ledger.py`・`tests/test_places_guard.py`
@@ -142,7 +142,7 @@ W12 外界ノード(§1 W12・D-W14・境界経済設計書 §1 U10)。
   - `rail_flows`(関数): 駅別発着表+乗換行列 → 路線別の (乗車/降車, 乗換流出, 乗換流入)。
   - `run`(関数)
   - `timetable_versions_doc`(関数): 〔2-3b〕``w12_timetable_versions.json``: 線ごとの版の宣言(世界の時点との前後)と入力の md5。
-- import している内部モジュール: `shibuya.build.field.common`・`shibuya.build.field.w12_rail_events`・`shibuya.build.field.w12_real_timetables`・`shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.build.field.common`・`shibuya.build.field.w12_rail_events`・`shibuya.build.field.w12_real_timetables`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.run`・`shibuya.build.field.w12_rail_events`
 - 読む試験: `tests/build_field/test_field_units.py`・`tests/build_field/test_w12_keio_switch_2_4.py`・`tests/build_field/test_w12_pm_peak_switch.py`・`tests/build_field/test_w12_real_timetables.py`・`tests/build_rail/test_w12_arrivals_2_3c.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
@@ -196,7 +196,7 @@ W12 の実ダイヤの読み口(第 2 期 2-3b・回答 10-13 の 7・回答 10-
   - `split_temporary`(関数): (残す行, 外す行)。外す行に ◆ が付いていなければ ValueError(黙って外さない)。
   - `table_rel_paths`(関数): 表 1 つの 2 ファイル(平日・土休)の data 根からの相対パス。
   - `tables_in_use`(関数): 〔2-4〕読む表=:data:`USER_TABLES` から、切替口 :data:`USE_ODPT_CHALLENGE` が False ならチャレンジ枠の表を除く。
-- import している内部モジュール: `shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w12_rail_events`
 - 読む試験: `tests/build_audit/test_audit_units.py`・`tests/build_field/test_w12_keio_switch_2_4.py`・`tests/build_field/test_w12_pm_peak_switch.py`・`tests/build_field/test_w12_real_timetables.py`・`tests/build_rail/test_w12_arrivals_2_3c.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
@@ -222,7 +222,7 @@ W13 気象日再生(§1 W13・D-W15・知覚契約書 §3 B3 語彙)。
   - `wbgt_estimate`(関数): WBGT 推定式(屋外・実況未取得時の代替=expedient)。
   - `weekday_kind`(関数): 平日 / 土休(土日+国民の祝日=内閣府の CSV)。
   - `window_dates`(関数)
-- import している内部モジュール: `shibuya.build.field.common`・`shibuya.core.rng`・`shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.build.field.common`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.run`・`shibuya.build.vis.w9_shadow`・`tools/c8/sensitivity.py`
 - 読む試験: `tests/build_audit/test_audit_units.py`・`tests/build_field/test_field_units.py`・`tests/build_vis/test_vis_units.py`・`tests/engine/test_weather_calendar_10e.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
@@ -244,7 +244,7 @@ W7 営業時間・価格帯(PlanSpec)(§1 W7・D-W8)。
   - `prohibited_intervals`(関数): 毎日繰り返す営業不可窓を絶対軸 ``[0, span_min)`` へ展開する。
   - `run`(関数)
   - `weekly_open_minutes`(関数)
-- import している内部モジュール: `shibuya.build.field.common`・`shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.build.field.common`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.run`
 - 読む試験: `tests/build_field/test_field_units.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`

@@ -14,7 +14,7 @@ from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
 from shibuya.engine import resolve as R
-from shibuya.engine.ledger_api import LedgerBundle
+from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.processes.goods_flow import (
     CLEANING_WINDOWS,
     COLLECT_WINDOW,

@@ -26,7 +26,7 @@ from __future__ import annotations
 import os
 from typing import Any, Callable, Final
 
-from shibuya.core.time_consts import NS_PER_SECOND
+from shibuya.foundation.time_consts import NS_PER_SECOND
 from shibuya.engine.speech.port import (
     HEARD_MAX_PER_ADDRESSEE,
     HEARD_TTL_STEPS,
@@ -37,7 +37,7 @@ from shibuya.engine.speech.port import (
     SpeechPort,
     Utterance,
 )
-from shibuya.llm.contract import NO_TARGET, SPEECH_FIELD_LINE
+from shibuya.foundation.vocab.actions import NO_TARGET, SPEECH_FIELD_LINE
 from shibuya.llm.mock import MOCK_UTTERANCE
 
 __all__ = [

@@ -191,5 +191,5 @@ W12 の実ダイヤの読み口(第 2 期 2-3b・``build/field/w12_real_timetabl
   - `test_temporary_trains_need_the_diamond_mark`(関数)
   - `test_w19_input_families_and_asset_paths`(関数)
   - `test_world_time_point_matches_the_calendar_default`(関数)
-- import している内部モジュール: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.common`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w12_real_timetables`・`shibuya.core.time_consts`・`shibuya.engine.calendar`・`tests/_data_ids.py`
+- import している内部モジュール: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.common`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w12_real_timetables`・`shibuya.engine.calendar`・`shibuya.foundation.time_consts`・`tests/_data_ids.py`
 - 決定の ID: 第 330

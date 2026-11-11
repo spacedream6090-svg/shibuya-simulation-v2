@@ -19,9 +19,9 @@ from __future__ import annotations
 import numpy as np
 
 from shibuya.agents.state import AgentState
-from shibuya.perception import hashes as H
-from shibuya.perception import normalize as N
-from shibuya.perception import templates as T
+from shibuya.foundation.text import hashes as H
+from shibuya.foundation.text import normalize as N
+from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import Renderer
 from shibuya.world.state import DENSITY_STAGE_EDGES, World
 

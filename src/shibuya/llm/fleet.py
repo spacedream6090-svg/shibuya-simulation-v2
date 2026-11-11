@@ -91,26 +91,28 @@ from typing import Any, Callable, Final, Mapping, Protocol, Sequence, runtime_ch
 
 import httpx
 
-from shibuya.core.budget import budget_by_id, load_budget_table
-from shibuya.core.hashing import blake3_hex, sha256_cbor, xxh64
-from shibuya.llm import (
+from shibuya.foundation.budget import budget_by_id, load_budget_table
+from shibuya.foundation.hashing import blake3_hex, sha256_cbor, xxh64
+from shibuya.foundation.vocab.actions import (
     UNDEFINED_ACTION,
+    Target,
+)
+from shibuya.llm import (
     LLMRequest,
     LLMResponse,
     ParseResult,
-    Target,
     UndefinedActionRegistry,
     estimate_tokens,
     parse_two_line,
 )
-from shibuya.llm.contract import (
+from shibuya.foundation.vocab.actions import (
     DEFAULT_VOCAB_VERSION,
     NO_TARGET_VALUE,
     check_vocab_version,
     engine_action_codes,
     safe_action_word,
 )
-from shibuya.manifest.schema import Mode
+from shibuya.foundation.manifest.schema import Mode
 
 __all__ = [
     "LANE_THINK_TOKENS",

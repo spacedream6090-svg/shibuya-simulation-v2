@@ -11,8 +11,8 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from shibuya.core import serialize as S
-from shibuya.core.soa import Registry
+from shibuya.foundation import serialize as S
+from shibuya.foundation.soa import Registry
 
 N_AGENTS = 5_000
 

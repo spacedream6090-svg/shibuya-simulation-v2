@@ -29,7 +29,7 @@ economy.accounts — 部門・貸借対照表の行・**取引科目の列挙と
   - `flow_registry_table`(関数): 名前のある流れの全登録を人が読む形で(名前・科目・支払・受取・区分・段)。
   - `is_allowed`(関数): (科目, 支払部門, 受取部門)が faucet/sink 表にあるか。
   - `registered_cells`(関数): 登録の (科目, 支払, 受取) → 区分(同じ組の名前が 2 つ以上あっても区分は 1 つ=登録の試験が見る)。
-- import している内部モジュール: `shibuya.engine.ledger_api`
+- import している内部モジュール: `shibuya.foundation.ports.ledger`
 - 呼び手: `shibuya.cli`・`shibuya.economy`・`shibuya.economy.anchors`・`shibuya.economy.census`・`shibuya.economy.checks`・`shibuya.economy.credit`・`shibuya.economy.entry_capital`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.economy.pricing`・`shibuya.economy.stage2`・`shibuya.economy.tax_deposit`・`tools/vocab/adjudicate.py`
 - 読む試験: `tests/economy/cp2/head_goods_136fdbb.py`・`tests/economy/cp2/head_ledger_136fdbb.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/cp2/test_cp2_flow_sum.py`・`tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/cp2/test_cp2_nine_ops_equivalence.py`・`tests/economy/cp2/test_cp2_write_window.py`・`tests/economy/stage2/test_stage2_account_and_conservation.py`・`tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_default_2_4.py`・`tests/economy/stage2/test_stage2_guards.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/economy/stage2/test_stage2_resume.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/stage2/test_stage2_world_two_day.py`・`tests/economy/stage2/test_wage_occupation_runs.py`・`tests/economy/test_accounts.py`・`tests/economy/test_anchors.py`・`tests/economy/test_census.py`・`tests/economy/test_entry_capital.py`・`tests/economy/test_goods.py`・`tests/economy/test_ledger.py`・`tests/economy/test_min_wage_human_bridge.py`・`tests/economy/test_pricing.py`・`tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_single_write_path.py`・`tests/economy/test_t3_redundant_equation.py`・`tests/economy/test_wage_occupation.py`・`tests/engine/events/test_e_vocab_is_closed.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_rail.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_processes_run.py`・`tests/test_cli.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
@@ -157,7 +157,7 @@ economy.goods — 物の保存則(U-Goods)。``move_goods`` **単一API**と SKU
   - `goods_flow_kind`(関数): faucet / sink / internal の判定(§7.1 の列挙をそのまま規則化)。
   - `goods_is_allowed`(関数): (科目, 置き場, 置き場)が物の faucet/sink 表にあるか。
   - `growth_declarations`(関数): 物の台帳の状態成長宣言(D-R2-6 の 5 欄)。
-- import している内部モジュール: `shibuya.core.growth`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.pricing`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.pricing`・`shibuya.foundation.growth`
 - 呼び手: `shibuya.economy`・`shibuya.economy.entry_capital`
 - 読む試験: `tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/cp2/test_cp2_flow_sum.py`・`tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/cp2/test_cp2_nine_ops_equivalence.py`・`tests/economy/cp2/test_cp2_writes_declared.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/test_census.py`・`tests/economy/test_entry_capital.py`・`tests/economy/test_goods.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_single_write_path.py`・`tests/engine/events/test_e_vocab_is_closed.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_processes_run.py`・`tests/engine/test_waste_sink_report.py`
 - 読む試験(道筋で): `tests/economy/cp2/test_cp2_transfer_only_writer.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/test_places_guard.py`
@@ -184,7 +184,7 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `growth_declarations`(関数): 金の台帳の状態成長宣言(D-R2-6 の 5 欄)。
   - `load_employers`(関数): 雇用主の表を読む(無ければ合成)。
   - `raw_capacity_for`(関数): 生ログのリングバッファ容量[行]を **N から**決める(D-53・2026-09-10)。
-- import している内部モジュール: `shibuya.core.growth`・`shibuya.core.hashing`・`shibuya.core.time_consts`・`shibuya.economy.accounts`・`shibuya.economy.checks`・`shibuya.economy.credit`・`shibuya.economy.ops`・`shibuya.economy.stage2`・`shibuya.engine.ledger_api`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.checks`・`shibuya.economy.credit`・`shibuya.economy.ops`・`shibuya.economy.stage2`・`shibuya.foundation.growth`・`shibuya.foundation.hashing`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.cli`・`shibuya.economy`・`shibuya.economy.ops`
 - 読む試験: `tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/cp2/test_cp2_flow_sum.py`・`tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/cp2/test_cp2_nine_ops_equivalence.py`・`tests/economy/cp2/test_cp2_transfer_only_writer.py`・`tests/economy/cp2/test_cp2_write_window.py`・`tests/economy/cp2/test_cp2_writes_declared.py`・`tests/economy/stage2/test_stage2_account_and_conservation.py`・`tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_guards.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/test_anchors.py`・`tests/economy/test_census.py`・`tests/economy/test_entry_capital.py`・`tests/economy/test_goods.py`・`tests/economy/test_ledger.py`・`tests/economy/test_min_wage_human_bridge.py`・`tests/economy/test_pricing.py`・`tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_single_write_path.py`・`tests/economy/test_t3_redundant_equation.py`・`tests/economy/test_wage_occupation.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_runner.py`・`tests/engine/test_add_at_guard.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_processes_run.py`・`tests/engine/test_resume_10d.py`・`tests/llm/test_fleet_contract.py`
 - 読む試験(道筋で): `tests/engine/speech/test_speech_writers_ast.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/test_places_guard.py`
@@ -248,7 +248,7 @@ economy.stage2 — 経済の段階 2(第 2 期 2-1・CP2 の段階 2・腕 ``--e
   - `MoneyStage2`(クラス): 経済の段階 2 の中身(``Ledger.attach_stage2`` が作る=状態台帳の行 EC・計器 ``s2_meter`` は行 EM)。
   - `payroll_deductions`(関数): 給与の天引き(本人の分の合計[円]と内訳)。
   - `tax_of`(関数): 税込の額の中の消費税[円]\(``額 × 率 / (1 + 率)`` の切り捨て=レジの端数=未リサーチ(expedient)・4-2 で表に)。
-- import している内部モジュール: `shibuya.core.growth`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.checks`・`shibuya.economy.ops`・`shibuya.economy.tax_deposit`・`shibuya.economy.taxes`・`shibuya.economy.wages`・`shibuya.engine.ledger_api`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.checks`・`shibuya.economy.ops`・`shibuya.economy.tax_deposit`・`shibuya.economy.taxes`・`shibuya.economy.wages`・`shibuya.foundation.growth`・`shibuya.foundation.ports.ledger`
 - 呼び手: `shibuya.cli`・`shibuya.economy.ledger`
 - 読む試験: `tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_default_2_4.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/test_min_wage_human_bridge.py`・`tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_wage_occupation.py`
 - 読む試験(道筋で): `tests/economy/stage2/test_stage2_writers.py`・`tests/test_places_guard.py`
@@ -260,7 +260,7 @@ economy.tax_deposit — 店の預かり消費税(第 4 期 4-2・Q1=PENDING 仮-
 
 - 公開の関数とクラス
   - `TaxDeposit`(クラス): 店ごとの預かり消費税(課税期間の年ごと)。書くのは :meth:`collect` と :meth:`remit_due` だけ。
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.taxes`・`shibuya.engine.ledger_api`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.taxes`・`shibuya.foundation.ports.ledger`
 - 呼び手: `shibuya.economy.stage2`
 - 読む試験(道筋で): `tests/test_places_guard.py`
 - 状態台帳の行
@@ -306,7 +306,7 @@ economy.wages — 職業 × 性 × 年齢 × 雇用形態の賃金(賃金構造�
   - `load_wage_tables`(関数): 構築側の写し 4 本(:data:`DERIVED_FILES`)を md5 を照らして読む。無い写しは ``None``(md5 が違えば止める)。
   - `min_wage_floor`(関数): 〔検収 M1〕``asof`` の日に効いている最低賃金の床[円/時]と出どころ(規則の表の ``minimum_wage.tokyo``)。
   - `min_wage_terms`(関数): 〔11-01 §5〕``asof`` の日の最低賃金の行の読み(``economy.anchors.MinWageTerms``=値・出どころ・kind・つなぎ)。
-- import している内部モジュール: `shibuya.core.paths`・`shibuya.core.wage_formula`・`shibuya.economy.anchors`
+- import している内部モジュール: `shibuya.core.wage_formula`・`shibuya.economy.anchors`・`shibuya.foundation.paths`
 - 呼び手: `shibuya.economy.stage2`
 - 読む試験: `tests/economy/stage2/test_wage_occupation_runs.py`・`tests/economy/test_min_wage_human_bridge.py`・`tests/economy/test_wage_occupation.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`

@@ -49,7 +49,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Final, Iterable, Mapping, Sequence
 
-from shibuya.llm.contract import (
+from shibuya.foundation.vocab.actions import (
     ACTION_SPECS,
     ACTION_WORD_NONE,
     DEFAULT_VOCAB_VERSION,

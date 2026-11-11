@@ -62,7 +62,7 @@ REPO = HERE.parent.parent
 if str(REPO / "src") not in sys.path:  # pragma: no cover - 実行時の経路(時間の定数を core.time_consts から)
     sys.path.insert(0, str(REPO / "src"))
 
-from shibuya.core.time_consts import STEP_SECONDS  # noqa: E402
+from shibuya.foundation.time_consts import STEP_SECONDS  # noqa: E402
 SCHEMA = "shibuya.tools.instruments/batch_width_gauge/1"
 #: 正解の幅の既定(T1 の世界の事象の時刻の粒度=刻みの幅 ``STEP_SECONDS``=60 秒)。
 DEFAULT_REF_WIDTH = STEP_SECONDS
@@ -209,7 +209,7 @@ def markdown(tab: Mapping[str, Any]) -> str:
 _CHILD = r"""
 import json, sys
 from shibuya import cli
-from shibuya.core.time_consts import NS_PER_SECOND
+from shibuya.foundation.time_consts import NS_PER_SECOND
 kw = json.loads(sys.argv[1])
 res = cli.run(**kw)
 m = res.run_manifest_fields()

@@ -35,7 +35,7 @@ build.lang.common — W14/W15 が共有する純粋ヘルパ。
   - `scan_proper_nouns`(関数): 固有名詞・数字の捏造検査(D-W18 のゲート「固有名詞は入力(POI名)由来のみ」)。
   - `verify_one`(関数): 1 プロンプトぶんの応答を検証して凍結可否を決める。
   - `write_prompts`(関数): プロンプト jsonl を書く(``common.write_json`` と同じ記録を返す)。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.perception.attention`・`shibuya.perception.channels`・`shibuya.perception.normalize`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.normalize`・`shibuya.perception.attention`
 - 呼び手: `shibuya.build.lang.w14_signage`・`shibuya.build.lang.w15_cell_static`
 - 読む試験: `tests/build_lang/test_checker.py`・`tests/build_lang/test_w14_signage.py`・`tests/build_lang/test_w15_cell_static.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
@@ -66,7 +66,7 @@ W14 看板(a)文面(§1 W14・D-W18)。
   - `format_opening_hours`(関数): W7 ``content``(7 日 × 区間の JSON)→ (営業時間の文, 定休日の文)。
   - `ingest`(関数): 応答 jsonl を読み、ゲートを掛けて凍結対象を決める(ファイルは書かない)。
   - `run`(関数): W14: プロンプトを書き、応答があれば凍結する(純関数)。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.lang.common`・`shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.lang.common`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.lang.run`・`shibuya.build.lang.w15_cell_static`
 - 読む試験: `tests/build_lang/test_w14_signage.py`・`tests/build_lang/test_w15_cell_static.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`

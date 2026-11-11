@@ -8,8 +8,8 @@ import dataclasses
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import STEPS_PER_DAY
-from shibuya.engine import manifest_sections as MS
+from shibuya.foundation.time_consts import STEPS_PER_DAY
+from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import resume as RS
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.contact import layer as LY
@@ -135,7 +135,7 @@ def test_cli_run_kind_is_arm(monkeypatch):
 def test_cli_flag_sets_the_arm(monkeypatch):
     """CLI の ``--contact`` は環境変数より強い(組み立てが読む切替口を置く)。"""
     from shibuya import cli
-    from shibuya.engine.contact import arm as A
+    from shibuya.foundation.arms import contact as A
 
     seen = {}
 

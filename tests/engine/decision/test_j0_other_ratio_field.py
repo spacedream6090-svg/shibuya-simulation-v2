@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 from shibuya.engine.decision import layer as DL
-from shibuya.engine.decision import port as P
+from shibuya.foundation.ports import decision as P
 from shibuya.engine.decision import ports as PS
 from shibuya.engine.run import run_day
 

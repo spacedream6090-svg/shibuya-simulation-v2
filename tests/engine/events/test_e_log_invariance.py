@@ -15,8 +15,8 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core.time_consts import STEPS_PER_DAY
-from shibuya.engine.events import log as EV
+from shibuya.foundation.time_consts import STEPS_PER_DAY
+from shibuya.foundation.journal import log as EV
 from shibuya.engine.run import run_day
 
 ROOT = Path(__file__).resolve().parents[3]

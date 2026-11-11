@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.core.time_consts import NS_PER_STEP
+from shibuya.foundation.time_consts import NS_PER_STEP
 from shibuya.engine.llm_bridge import PerceptionRendererAdapter
 from shibuya.engine import memory_store as MS
 from shibuya.engine.run import run_day

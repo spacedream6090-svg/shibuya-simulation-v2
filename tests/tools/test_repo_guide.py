@@ -948,7 +948,7 @@ def _public_in_card(block: str) -> set[str]:
 
 def test_real_public_names_match_import(real_blocks):
     """公開の関数とクラス: カードと、実物を import した ``vars()`` を比べる(軽いモジュールの全部)。"""
-    from shibuya.core import time_consts as CORE
+    from shibuya.foundation import time_consts as CORE
     from shibuya.engine.systems import table as SYSTEMS
 
     from tests import _places as PL

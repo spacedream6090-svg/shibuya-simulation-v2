@@ -23,7 +23,7 @@ import pytest
 from tests import _time_gates as TG
 
 from shibuya.agents.state import Activity, AgentState, RESULT_TEXT, ResultCode
-from shibuya.core.budget import budget_by_id, load_budget_table
+from shibuya.foundation.budget import budget_by_id, load_budget_table
 from shibuya.engine import commit as C
 from shibuya.engine import geometry as G
 from shibuya.engine import resolve as R
@@ -81,7 +81,7 @@ def test_kladek_curve_reproduces_the_recomputed_values():
 
 def test_density_stage_edges_are_the_fruin_los_boundaries():
     """edge 幾何の段は **Fruin LOS**(人/m²)。``perception`` 側の表と 1 対 1(二重定義の検査)。"""
-    from shibuya.perception import templates as T
+    from shibuya.foundation.text import templates as T
 
     assert DENSITY_STAGE_EDGES_PER_M2 == T.DENSITY_LOS_EDGES_PER_M2
     assert len(DENSITY_STAGE_EDGES_PER_M2) == len(T.DENSITY_LOS_LETTERS) - 1

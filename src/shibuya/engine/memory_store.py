@@ -78,11 +78,11 @@ from typing import Any, Callable, Final, Mapping, NamedTuple, Sequence
 
 import numpy as np
 
-from shibuya.core.time_consts import NS_PER_SECOND, NS_PER_STEP
+from shibuya.foundation.time_consts import NS_PER_SECOND, NS_PER_STEP
 from shibuya.engine import memory_m1 as _M1
 from shibuya.engine.events import body as _BODY
-from shibuya.engine.events import vocab as _VOCAB
-from shibuya.engine.events.log import NS_PER_DAY, RETENTION_DAYS, EventId
+from shibuya.foundation.vocab import events as _VOCAB
+from shibuya.foundation.journal.log import NS_PER_DAY, RETENTION_DAYS, EventId
 from shibuya.engine.familiarity import place_thing
 from shibuya.engine.memory import (
     EVENT_KINDS,
@@ -98,7 +98,7 @@ from shibuya.engine.memory import (
     RecallItem,
     activation_rows,
 )
-from shibuya.engine.systems import guard as _G
+from shibuya.foundation import write_guard as _G
 
 __all__ = [
     "ARM_MEM",
@@ -1420,7 +1420,7 @@ def render_memories(views: Sequence[MemoryView], *, clock: Callable[[int], datet
     言葉を見せるのは描画の側の 1 か所(テンプレの版が動く=親の判断・記録 mr65/README.md)。
     """
     from shibuya.agents.state import RESULT_TEXT
-    from shibuya.perception import normalize as _N
+    from shibuya.foundation.text import normalize as _N
     from shibuya.perception.renderer import compose_memory_line, memory_item_text
 
     texts: list[str] = []

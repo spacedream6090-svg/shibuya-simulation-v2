@@ -35,7 +35,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any, Final, Iterator, Mapping
 
-from shibuya.core.time_consts import NS_PER_SECOND
+from shibuya.foundation.time_consts import NS_PER_SECOND
 from shibuya.engine.experiment import apply as _AP
 from shibuya.engine.experiment.form import ExperimentForm
 

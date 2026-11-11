@@ -21,7 +21,7 @@ from typing import Final
 
 import numpy as np
 
-from shibuya.core.time_consts import MINUTES_PER_DAY
+from shibuya.foundation.time_consts import MINUTES_PER_DAY
 
 __all__ = ["RAIL_EVENTS_FILE", "READ_RAIL_EVENTS", "EVENTS", "CALL_KINDS", "RailEventsAsset", "load_rail_events"]
 

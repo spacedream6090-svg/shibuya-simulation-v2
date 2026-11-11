@@ -43,7 +43,7 @@ import pyarrow as pa
 
 from ..geo import common as C
 from . import common as L
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 STAGE = "W14"
 STAGE_VERSION = "1.0.0"

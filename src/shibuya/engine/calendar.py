@@ -47,9 +47,9 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Final, Iterable, Mapping
 
-from shibuya.core.paths import resolve_repo_path  # 〔移す段 2-2〕根の道の口は core.paths(暦は使うだけ)
-from shibuya.core.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
-from shibuya.core.time_consts import SECONDS_PER_MINUTE
+from shibuya.foundation.paths import resolve_repo_path  # 〔移す段 2-2〕根の道の口は core.paths(暦は使うだけ)
+from shibuya.foundation.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
+from shibuya.foundation.time_consts import SECONDS_PER_MINUTE
 
 __all__ = [
     "CalendarWarning",

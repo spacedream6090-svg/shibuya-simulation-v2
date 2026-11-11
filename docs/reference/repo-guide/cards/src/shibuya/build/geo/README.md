@@ -128,7 +128,7 @@ W3 全点対距離(§1 W3・D-W4)。
 - 公開の関数とクラス
   - `build_csr`(関数): 無向辺(平行辺は最小長を採用・自己ループ除去)→ CSR 有向弧。
   - `run`(関数)
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.core.rng`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.foundation.rng`
 - 呼び手: `shibuya.build.geo.run`
 - 読む試験: `tests/build_geo/test_geo_units.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`

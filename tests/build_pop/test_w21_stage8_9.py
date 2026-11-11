@@ -592,7 +592,7 @@ def test_cp5_3_naming_check_finds_planted_names():
 
 
 def test_compose_blocks_with_the_engine_compose_and_6_1_lengths():
-    from shibuya.engine.decision.port import Candidate, compose
+    from shibuya.foundation.ports.decision import Candidate, compose
 
     tabs = P.build_tables(_facts())
     blocks = {"B0": "[B0 共通] 前置き", "B1": "[B1 種別] 住民", "B6": "[B6 起床] 9時の目覚まし"}

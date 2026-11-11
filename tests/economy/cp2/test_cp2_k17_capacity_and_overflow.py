@@ -21,7 +21,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.core.growth import check_growth
+from shibuya.foundation.growth import check_growth
 from shibuya.economy import census as CS
 from shibuya.economy import ledger as LED
 from shibuya.economy.accounts import AccountCode, Sector
@@ -36,7 +36,7 @@ from shibuya.economy.ledger import (
     Ledger,
     raw_capacity_for,
 )
-from shibuya.engine.ledger_api import EntityRef, LedgerBundle
+from shibuya.foundation.ports.ledger import EntityRef, LedgerBundle
 from shibuya.engine.run import run_day
 from shibuya.world.state import World
 

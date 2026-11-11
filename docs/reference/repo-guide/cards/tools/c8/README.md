@@ -57,7 +57,7 @@ c8lib — C8(ablation・感度・計器盤)の純関数と共通部品。
   - `scan_plan_sensitivities`(関数): 実装計画書 §8 登録簿のうち「感度(試験)?:」を宣言している行を拾う(**報告用**)。
   - `src_origins`(関数): 今の src の全部の ``.py``(``src/shibuya`` からの道)→ 元の道(移す前の置き場)。
   - `verdict_from_stage`(関数): 構築段階の対照から**言えること**(片側の論法)。
-- import している内部モジュール: `shibuya.core.budget`・`tools/c6/c6lib.py`
+- import している内部モジュール: `shibuya.foundation.budget`・`tools/c6/c6lib.py`
 - 呼び手: `tools/c8/ablation_runner.py`・`tools/c8/dashboard.py`・`tools/c8/ensemble.py`・`tools/c8/sensitivity.py`
 - 読む試験: `tests/c8/conftest.py`・`tests/c8/test_ablations_ab7.py`
 - 決定の ID: D-66

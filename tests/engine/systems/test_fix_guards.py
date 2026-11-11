@@ -17,8 +17,8 @@ import pytest
 
 from shibuya.engine import state_ledger_ast as A
 from shibuya.engine.systems import allow as AL
-from shibuya.core import write_permit as _WP_MOD
-from shibuya.engine.systems import guard as _G_MOD
+from shibuya.foundation import write_permit as _WP_MOD
+from shibuya.foundation import write_guard as _G_MOD
 from shibuya.engine.systems import static_check as SC
 from shibuya.engine.systems.table import SPECS, SYSTEMS
 
@@ -34,22 +34,22 @@ HERE = Path(__file__).resolve().parent
 # ================================================================= 3: 書きの許可を外す口
 STATE_MODULES = {"agents/state.py", "world/state.py", "perception/state.py"}
 #: write_permit の関数 → 呼んでよい置き場(試験と記録の道具は src の外=ここに出ない)。
-WP_CALLS = {"allows": STATE_MODULES, "scope": {"engine/systems/guard.py"}, "enabled": {"engine/systems/guard.py"},
+WP_CALLS = {"allows": STATE_MODULES, "scope": {"foundation/write_guard.py"}, "enabled": {"foundation/write_guard.py"},
             "set_enabled": set(), "current": set()}
-WP_IMPORTERS = STATE_MODULES | {"engine/systems/guard.py", "core/write_permit.py"}
+WP_IMPORTERS = STATE_MODULES | {"foundation/write_guard.py", "foundation/write_permit.py"}
 #: guard の口 → 呼んでよい置き場。
 GUARD_CALLS = {"system_scope": {"engine/systems/conductor.py"}}
 #: 属性 ``_WP``(状態のモジュールと guard が持つ write_permit の再輸出の名)を読んでよい置き場(段 FIX2・再検収 R1)。
 #: 試験は src の外=ここに出ない。conductor は今は読まないが、指示書どおり置き場に入れておく。
 WP_ATTR_PLACES = WP_IMPORTERS | {"engine/systems/conductor.py"}
 #: 許可を持つモジュール(別名に ``setattr(X, 変数, …)`` をすると許可の大域に届く)。
-PERMIT_MODULES = {"shibuya.core.write_permit", "shibuya.engine.systems.guard", "shibuya.agents.state",
+PERMIT_MODULES = {"shibuya.foundation.write_permit", "shibuya.foundation.write_guard", "shibuya.agents.state",
                   "shibuya.world.state", "shibuya.perception.state"}
 
 #: 書き換えてはいけない許可の大域(その置き場の外で代入しない)。
-PERMIT_GLOBALS = {"_PERMIT": "core/write_permit.py", "_ENABLED": "core/write_permit.py",
-                  "SCRATCH_PERMIT": "engine/systems/guard.py", "BUFFERS_PERMIT": "engine/systems/guard.py",
-                  "CURRENT": "engine/systems/guard.py"}
+PERMIT_GLOBALS = {"_PERMIT": "foundation/write_permit.py", "_ENABLED": "foundation/write_permit.py",
+                  "SCRATCH_PERMIT": "foundation/write_guard.py", "BUFFERS_PERMIT": "foundation/write_guard.py",
+                  "CURRENT": "foundation/write_guard.py"}
 
 
 def _chain(expr: ast.AST) -> list[str]:
@@ -197,7 +197,7 @@ def test_permit_check_catches_reexported_names(src, words):
 
 # ================================================================= 5: D⑥ の別名の形を広げる
 _SOA_TAILS = {"registry", "agents", "cells", "pois", "pstate"}
-_EXEMPT_D6 = {"agents/state.py", "world/state.py", "perception/state.py", "engine/resolve.py", "core/soa.py"}
+_EXEMPT_D6 = {"agents/state.py", "world/state.py", "perception/state.py", "engine/resolve.py", "foundation/soa.py"}
 D6_ALLOW = {
     ("engine/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",
     ("engine/store_choice.py", "self.poi_cell"): "同上",

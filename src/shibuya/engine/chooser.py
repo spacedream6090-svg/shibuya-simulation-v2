@@ -32,7 +32,7 @@ from typing import Final, Protocol, runtime_checkable
 
 import numpy as np
 
-from shibuya.core.rng import stream
+from shibuya.foundation.rng import stream
 
 __all__ = [
     "HABIT_P",

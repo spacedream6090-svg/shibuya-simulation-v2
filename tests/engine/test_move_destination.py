@@ -23,7 +23,7 @@ from shibuya.engine.poi_target import (
 )
 from shibuya.engine.run import run_day
 from shibuya.llm import LLMRequest
-from shibuya.llm.contract import parse_target
+from shibuya.foundation.vocab.actions import parse_target
 from shibuya.llm.mock import MOCK_MOVE_TARGET_WORDS, MockLLM
 from shibuya.world.state import World
 

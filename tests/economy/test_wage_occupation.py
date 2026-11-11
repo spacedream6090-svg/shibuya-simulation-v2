@@ -28,7 +28,7 @@ from shibuya.economy import wages as WG
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.ledger import Ledger
 from shibuya.engine import economy_stage2 as ES2
-from shibuya.engine.events import log as EV
+from shibuya.foundation.journal import log as EV
 
 H, S, E, B, G, W = (int(s) for s in Sector)
 O_ = len(WG.WAGE_OCCUPATIONS)
@@ -69,7 +69,7 @@ def test_build_and_runtime_share_one_function():
     # 式の置き場は numpy と core.rng だけを読む(build が読んでも engine と llm が読まれない)
     imports = {n.module for n in ast.walk(ast.parse(Path(WF.__file__).read_text(encoding="utf-8")))
                if isinstance(n, ast.ImportFrom) and n.module}
-    assert {m for m in imports if m.startswith("shibuya")} == {"shibuya.core.rng"}
+    assert {m for m in imports if m.startswith("shibuya")} == {"shibuya.foundation.rng"}
     from shibuya.build.pop import w21_money as M
 
     assert M.WAGE_CLASS_FLOOR_YEN == WG.WAGE_CLASS_FLOOR_YEN and M.WAGE_TOP_FACTOR == WG.WAGE_TOP_FACTOR

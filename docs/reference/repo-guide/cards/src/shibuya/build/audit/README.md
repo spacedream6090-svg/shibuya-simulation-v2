@@ -68,7 +68,7 @@ W20 検収パック(§1 W20)。
   - `gate_table_markdown`(関数): 全段階のゲート表(markdown)。``build_hash`` を渡すと先頭に出す。
   - `run`(関数)
   - `upstream_build_hash`(関数): W20 より前の段階の出力 sha256 を W 番号順に連結した文字列の sha256。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.vis.png`・`shibuya.core.time_consts`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.vis.png`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.audit.run`
 - 読む試験: `tests/build_audit/test_audit_units.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`

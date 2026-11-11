@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.perception.templates import DEFAULT_VOCAB_VERSION, VOCAB_VERSIONS
+from shibuya.foundation.text.templates import DEFAULT_VOCAB_VERSION, VOCAB_VERSIONS
 
 SMALL = dict(
     n_agents=32, seed=1, world_dir=None, n_cells=9, ticks=2, checkpoint_every=2,
@@ -122,7 +122,7 @@ def test_cli_main_has_the_activity_flag(monkeypatch, argv, expected):
 def test_cli_default_is_v3_but_the_library_default_stays_v1():
     """第277: CLI の既定だけが v3。ライブラリの既定(=退化検査・golden の切替口)は v1 のまま。"""
     from shibuya import cli
-    from shibuya.llm.contract import DEFAULT_VOCAB_VERSION as LIB_DEFAULT
+    from shibuya.foundation.vocab.actions import DEFAULT_VOCAB_VERSION as LIB_DEFAULT
 
     assert cli.CLI_DEFAULT_VOCAB_VERSION == "v3"
     assert LIB_DEFAULT == DEFAULT_VOCAB_VERSION == "v1"

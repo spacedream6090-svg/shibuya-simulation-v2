@@ -74,7 +74,7 @@ import re
 from dataclasses import dataclass, field, replace
 from typing import Final, Mapping
 
-from shibuya.llm.contract import (
+from shibuya.foundation.vocab.actions import (
     ACTION_WORD_NONE,
     ACTIVITY_MAX_CHARS,
     DEFAULT_UNTIL,
@@ -876,7 +876,7 @@ def _outside_labels(text: str, spans: list[tuple[int, int]]) -> str:
 
 def _is_strict_two_line(text: str) -> bool:
     """``contract.TWO_LINE_RE`` に一致する厳密2行か(B11 の「厳密2行」指標)。"""
-    from shibuya.llm.contract import TWO_LINE_RE
+    from shibuya.foundation.vocab.actions import TWO_LINE_RE
 
     return bool(TWO_LINE_RE.match(text.strip()))
 

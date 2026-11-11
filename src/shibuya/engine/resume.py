@@ -44,8 +44,8 @@ from typing import Any, Final, Mapping
 
 import numpy as np
 
-from shibuya.core.hashing import blake3_hex
-from shibuya.core.paths import REPO_ROOT, resolve_repo_path
+from shibuya.foundation.hashing import blake3_hex
+from shibuya.foundation.paths import REPO_ROOT, resolve_repo_path
 from shibuya.engine import state_ledger as SL
 from shibuya.engine import state_codec as SC
 from shibuya.engine.class_ids import class_id

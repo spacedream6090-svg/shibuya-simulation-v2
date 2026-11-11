@@ -39,7 +39,7 @@ ablation ①「チャネル固定枠 vs 同一総トークンの単一ランキ�
   - `test_tool_probe_reports_that_the_switch_is_effective`(関数)
   - `test_tool_runs_end_to_end_against_a_fake_vllm`(関数): 偽 vLLM 2 本に対して ``ablation1_fixed_vs_ranking.py`` を端から端まで回す。
   - `test_two_runs_give_the_same_bytes`(関数): 同入力 → 同バイト(2 回組み直して比較)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.run`・`shibuya.perception.channels`・`shibuya.perception.renderer`・`shibuya.perception.templates`・`shibuya.world.state`・`tools/c6/ablation1_fixed_vs_ranking.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.world.state`・`tools/c6/ablation1_fixed_vs_ranking.py`
 - 決定の ID: D-56・第 304
 
 ## [test_ablation6_signage.py](../../../../../../tests/perception/test_ablation6_signage.py)
@@ -61,7 +61,7 @@ ablation ⑥「広告ゼロ」(知覚契約書 §8 第1陣 ⑥)の切替口。
   - `test_signage_off_renders_the_empty_line_in_both_modes`(関数): 看板行は「表示が無いセル」と**同じ描画**になる(テンプレは元からある空文言)。
   - `test_templates_and_sha_are_untouched`(関数): 凍結テンプレの payload に 1 文字も足していない(v1.1 delta は不要)。
   - `test_the_switch_is_not_a_no_op`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.run`・`shibuya.perception.renderer`・`shibuya.perception.templates`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.world.state`
 - 決定の ID: D-56・第 304
 
 ## [test_attention.py](../../../../../../tests/perception/test_attention.py)
@@ -94,7 +94,7 @@ B4 の「安い変化検出器」と「描画バイト」の関係を測る診�
   - `test_c3_field_row_misses_nothing_and_never_over_detects`(関数): ゲート: 結線後の欄(``hashes.b4_field_row``)は描画バイト変化を**1件も落とさない**。
   - `test_perception_field_hash_is_a_true_refinement`(関数): 知覚側の欄ハッシュは描画バイトの refinement(欄が同じ ⇒ バイトも同じ)。
   - `test_prepare_tick_publishes_the_rows_the_engine_hashes`(関数): ``Renderer.b4_field_rows`` が ``prepare_tick`` の欄そのもの(engine が読む 1 本)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.perception.hashes`・`shibuya.perception.normalize`・`shibuya.perception.renderer`・`shibuya.perception.templates`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.text.hashes`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.world.state`
 
 ## [test_b4b_queue_feed.py](../../../../../../tests/perception/test_b4b_queue_feed.py)
 
@@ -107,7 +107,7 @@ B4b「近景」への待ち行列の差し込み(C4 後半で付けた唯一の�
   - `test_b4b_stays_cell_shared_bytes_rule_eight`(関数): 規約⑧: 同じセルの 2 体は B4b もバイト一致(行列は POI 単位=セル共有)。
   - `test_queue_rows_reach_b4b_for_the_cell_that_holds_the_poi`(関数)
   - `test_the_largest_queue_wins_inside_a_cell`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.perception.renderer`・`shibuya.perception.templates`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.world.state`
 
 ## [test_b6_invite.py](../../../../../../tests/perception/test_b6_invite.py)
 
@@ -124,7 +124,7 @@ B4b「近景」への待ち行列の差し込み(C4 後半で付けた唯一の�
   - `test_rule8_and_b5_do_not_move_for_the_invitee`(関数): B6 は**個体ブロック**なので、被招待でも B0-B4b と B5 は 1 バイトも動かない。
   - `test_template_sha256_is_untouched`(関数): テンプレ本体(``TEMPLATES``/``WAKE_REASON_TEXT``)に行を足していない。
   - `test_the_invitee_is_told_who_spoke_to_them`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.run`・`shibuya.llm`・`shibuya.llm.parser`・`shibuya.perception.renderer`・`shibuya.perception.templates`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.run`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.parser`・`shibuya.perception.renderer`・`shibuya.world.state`
 - 決定の ID: D-62・第 137
 
 ## [test_channels.py](../../../../../../tests/perception/test_channels.py)
@@ -142,7 +142,7 @@ channels: §3.2 チャネル別トークン上限表・根拠等級・有界化(
   - `test_truncation_reports_no_truncation_when_it_fits`(関数)
   - `test_truncation_respects_item_count_cap`(関数)
   - `test_unknown_channel_requires_explicit_limit`(関数)
-- import している内部モジュール: `shibuya.perception.channels`・`shibuya.perception.templates`
+- import している内部モジュール: `shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`
 
 ## [test_hashes_state.py](../../../../../../tests/perception/test_hashes_state.py)
 
@@ -159,7 +159,7 @@ hashes / state: ハッシュ三役(§2.2/§5)と M12 バイト予算(§3.1/§7)�
   - `test_should_resend_is_the_dormant_suppressor`(関数)
   - `test_state_hash_changes_with_content`(関数)
   - `test_write_guard`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.hashing`・`shibuya.perception.hashes`・`shibuya.perception.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.hashing`・`shibuya.foundation.text.hashes`・`shibuya.perception.state`
 
 ## [test_intent_mode_open.py](../../../../../../tests/perception/test_intent_mode_open.py)
 
@@ -179,7 +179,7 @@ AB7 自由意図の腕の切替口 — 描画側(``docs/design/v2-open-intent-ar
   - `test_renderer_hint_mode_changes_the_rendered_bytes`(関数)
   - `test_renderer_open_mode_changes_the_rendered_bytes`(関数): レンダラ経由でも切替が効く(B0 ブロックと prompt_hash が動く)。
   - `test_unknown_intent_mode_is_refused`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.perception.renderer`・`shibuya.perception.templates`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.world.state`
 - 決定の ID: 第 304
 
 ## [test_near_tiebreak.py](../../../../../../tests/perception/test_near_tiebreak.py)
@@ -218,7 +218,7 @@ B5 近接候補のベクトル化(C7 性能修正)が**挙動を 1 ビットも�
   - `test_rendered_bytes_are_unchanged_in_both_modes`(関数): 描画バイトが新旧で一致(B5 の行・順序・ランキングの距離まで)。
   - `test_tick_cache_arrays_are_consistent_with_the_soa`(関数): ``cell_pos``(逆置換)と ``cell_x/cell_y``(セル順の連続座標)の不変条件。
   - `test_vectorized_nearby_matches_the_previous_implementation`(関数): 全個体で新旧の出力が**完全一致**(語も距離もビット一致)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.perception.channels`・`shibuya.perception.facts`・`shibuya.perception.renderer`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.ports.percept`・`shibuya.foundation.text.channels`・`shibuya.perception.renderer`・`shibuya.world.state`
 - 読む試験: `tests/perception/test_near_tiebreak.py`
 - 決定の ID: 第 304
 
@@ -243,7 +243,7 @@ normalize: バイト一致の正規化規約 9 項(知覚契約書 §2.4)。hypo
   - `test_rule9_1231_and_1234_are_the_same_band`(関数)
   - `test_rule9_rejects_bad_round_width`(関数)
   - `test_rule9_time_is_floored_to_5min`(関数)
-- import している内部モジュール: `shibuya.perception.normalize`・`shibuya.perception.templates`
+- import している内部モジュール: `shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`
 
 ## [test_p_notice.py](../../../../../../tests/perception/test_p_notice.py)
 
@@ -318,7 +318,7 @@ renderer: golden テスト(§2.4 ⑧ バイト一致・決定論・予算・5分
   - `test_salient_events_reach_b4_and_change_its_hash`(関数)
   - `test_signage_is_feature_tagged_and_imperative_free`(関数): §1 条6: 世界内テキストは素性タグつき・命令文除去済み。
   - `test_watched_by_renders_the_fixed_empty_phrase`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.hashing`・`shibuya.perception.hashes`・`shibuya.perception.normalize`・`shibuya.perception.renderer`・`shibuya.perception.templates`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.hashing`・`shibuya.foundation.text.hashes`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.world.state`
 
 ## [test_signage_p_see_gate.py](../../../../../../tests/perception/test_signage_p_see_gate.py)
 
@@ -351,7 +351,7 @@ renderer: golden テスト(§2.4 ⑧ バイト一致・決定論・予算・5分
   - `test_zero_is_not_a_no_op`(関数)
   - `test_zero_matches_the_ad_zero_arm_bytes`(関数): ``p_see=0.0`` の B2 は ⑥(``signage_enabled=False``)の B2 とバイト一致。
   - `test_zero_removes_every_signage_line`(関数): ``p_see=0.0`` は全員・全 tick で看板行が空文言になる(=⑥ 広告ゼロと同じ描画)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.run`・`shibuya.perception.attention`・`shibuya.perception.renderer`・`shibuya.perception.templates`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.text.templates`・`shibuya.perception.attention`・`shibuya.perception.renderer`・`shibuya.world.state`
 - 決定の ID: D-56・D-59・第 304
 
 ## [test_templates.py](../../../../../../tests/perception/test_templates.py)
@@ -383,7 +383,7 @@ templates: 文面凍結(§1 条5)・ブロック表(§2.2)・段階語彙の釘�
   - `test_v3_output_spec_has_the_five_slots_and_the_note`(関数)
   - `test_v3_vocab_twins_match_llm_contract`(関数)
   - `test_wake_reason_text_covers_all_wake_conditions`(関数): §6 不応期表の 11 行(``agents.state.WakeCondition``)と 1 対 1。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.llm.contract`・`shibuya.perception.channels`・`shibuya.perception.renderer`・`shibuya.perception.templates`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.perception.renderer`・`shibuya.world.state`
 - 決定の ID: D-89・D-113・D-116・D-118・D-120・第 269・第 274・第 276・第 291・第 295・第 298・第 299
 
 ## [test_vocab_v2_templates.py](../../../../../../tests/perception/test_vocab_v2_templates.py)
@@ -402,5 +402,5 @@ templates: 文面凍結(§1 条5)・ブロック表(§2.2)・段階語彙の釘�
   - `test_the_thirteen_word_list_matches_the_contract`(関数): 層契約で二重定義になっている 13 語の並びが ``llm.contract`` と一致する。
   - `test_unknown_vocab_version_is_refused`(関数)
   - `test_v2_changes_the_b0_and_shows_the_new_word`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.llm.contract`・`shibuya.perception.renderer`・`shibuya.perception.templates`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.perception.renderer`・`shibuya.world.state`
 - 決定の ID: D-71・第 274・第 304

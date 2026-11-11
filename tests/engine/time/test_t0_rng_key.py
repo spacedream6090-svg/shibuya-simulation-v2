@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core import rng as RNG
-from shibuya.core import time_consts as TC
+from shibuya.foundation import rng as RNG
+from shibuya.foundation import time_consts as TC
 from shibuya.engine.systems import boxes as BX
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -48,7 +48,7 @@ def test_bad_width():
 #: ``time_key_from_t_ns`` の中。v3-0b で呼び手を足すときはこの表を書き直す。
 PLAN_A_CALLERS: dict[str, dict[str, int]] = {
     "key_time_from_t_ns": {
-        "core/rng.py": 1,
+        "foundation/rng.py": 1,
         "engine/systems/decide.py": 1,
         "engine/decision/layer.py": 1,
         "engine/contact/layer.py": 2,
@@ -56,9 +56,9 @@ PLAN_A_CALLERS: dict[str, dict[str, int]] = {
         "engine/calendar3/layer.py": 1,
         "engine/duties/layer.py": 1,
     },
-    "time_key_from_t_ns": {"engine/decision/port.py": 1},
+    "time_key_from_t_ns": {"foundation/ports/decision.py": 1},
     "time_key_at": {
-        "engine/decision/port.py": 1,
+        "foundation/ports/decision.py": 1,
         "engine/contact/port.py": 2,
         "engine/calendar2/port.py": 2,
         "engine/calendar3/port.py": 2,
