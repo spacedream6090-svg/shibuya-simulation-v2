@@ -12,7 +12,7 @@ shibuya-simulation-v2: 現実の渋谷を舞台にしたLLM社会シミュレー
 
 - 呼び手: `tools/bytecheck/check.py`・`tools/instruments/anchor_gauge.py`
 - 読む試験: `tests/engine/state/test_move_prep_stage2.py`・`tests/engine/state/test_names_frozen.py`・`tests/test_child_imports_this_tree.py`
-- 読む試験(道筋で): `tests/_head_copy_pin.py`・`tests/_places.py`・`tests/engine/test_two_phase.py`・`tests/test_places_guard.py`・`tests/tools/test_bytecheck.py`・`tests/tools/test_dm_eval.py`・`tests/tools/test_pkgmove.py`・`tests/tools/test_repo_guide.py`
+- 読む試験(道筋で): `tests/_head_copy_pin.py`・`tests/_places.py`・`tests/c8/test_places_rule_copies.py`・`tests/engine/test_two_phase.py`・`tests/test_places_guard.py`・`tests/tools/test_bytecheck.py`・`tests/tools/test_dm_eval.py`・`tests/tools/test_pkgmove.py`・`tests/tools/test_repo_guide.py`
 
 ## [cli.py](../../../../../../src/shibuya/cli.py)
 

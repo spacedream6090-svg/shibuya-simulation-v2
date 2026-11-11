@@ -9,6 +9,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
 build.vis — 世界データ構築 W8/W9(可視性・影レーン)。
 
 - 呼び手: `shibuya.build.run`・`shibuya.build.vis.run`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [png.py](../../../../../../../../src/shibuya/build/vis/png.py)
 
@@ -21,6 +22,7 @@ build.vis — 世界データ構築 W8/W9(可視性・影レーン)。
   - `write_png`(関数): PNG を書いてバイト数を返す。
 - 呼び手: `shibuya.build.audit.w20_acceptance_pack`
 - 読む試験: `tests/build_vis/test_vis_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [run.py](../../../../../../../../src/shibuya/build/vis/run.py)
 
@@ -32,6 +34,7 @@ build.vis.run — 可視性・影レーンの段階を W 番号順に実行す�
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.geo.run`・`shibuya.build.vis`・`shibuya.build.vis.w8_visibility`・`shibuya.build.vis.w9_shadow`
 - 呼び手: `shibuya.build.run`
 - 読む試験: `tests/build_vis/test_vis_pipeline.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--data`: 入力データ根(既定 data)
   - `--out`: 出力ディレクトリ(例 data/world/v2)
@@ -49,6 +52,7 @@ W8 可視性テーブル(§1 W8・D-W9)。
 - import している内部モジュール: `shibuya.build.geo.common`
 - 呼び手: `shibuya.build.vis.run`・`shibuya.build.vis.w9_shadow`
 - 読む試験: `tests/build_vis/test_vis_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w9_shadow.py](../../../../../../../../src/shibuya/build/vis/w9_shadow.py)
 
@@ -62,4 +66,5 @@ W9 影グリッド(§1 W9・D-W10「5分刻み」)。
 - import している内部モジュール: `shibuya.build.field.w13_weather`・`shibuya.build.geo.common`・`shibuya.build.vis.w8_visibility`・`shibuya.core.time_consts`
 - 呼び手: `shibuya.build.vis.run`
 - 読む試験: `tests/build_vis/test_vis_pipeline.py`・`tests/build_vis/test_vis_units.py`・`tests/engine/multiday/test_md23_w9_window.py`・`tests/engine/test_activation_2_4.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 10-12b・第 330

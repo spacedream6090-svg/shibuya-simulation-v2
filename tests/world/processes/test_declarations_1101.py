@@ -135,10 +135,14 @@ def test_inputs_existing_five_filled_and_new_seven_fields_only():
         for row in d.source_rows:
             path = row.split(" ", 1)[0].split("(", 1)[0]
             # 〔段 4 の下ごしらえ〕宣言の文(src の中の記録の文=移す道具は書き換えない)は元の置き場の道で書く。src の .py は
-            # 元の道から今の道を引いて在ることを確かめる(移す前の木では同じ道)
+            # 元の道から今の道を引いて在ることを確かめる(移す前の木では同じ道)。〔再検収 L-6〕元の道として引けなければ、
+            # その道が今の木に在るか(段 4 の後に新しい道で書いた宣言)
             if path.startswith(src_head) and path.endswith(".py"):
-                path = src_head + PL.current_of(path[len(src_head):])
+                path = src_head + PL.declared_path_now(path[len(src_head):])
             assert (ROOT / path).is_file(), (d.id, row)
+    # 負の対照: 元の道でも今の木の道でもない道は引けない
+    with pytest.raises(KeyError):
+        PL.declared_path_now("zz_no_such_dir/zz_not_declared.py")
 
 
 def test_inputs_attached_to_world_processes():

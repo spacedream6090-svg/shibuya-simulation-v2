@@ -17,7 +17,7 @@ llm: 艦隊クライアント/パーサ/録画テープ。world/agents を impor
 - import している内部モジュール: `shibuya.core.hashing`・`shibuya.llm.contract`・`shibuya.llm.fleet`・`shibuya.llm.mock`・`shibuya.llm.parser`・`shibuya.llm.undefined`
 - 呼び手: `shibuya.engine.classical`・`shibuya.engine.experiment.branch`・`shibuya.engine.llm_bridge`・`shibuya.llm.fleet`・`shibuya.llm.mock`・`shibuya.llm.undefined`・`tools/vocab/adjudicate.py`・`tools/vocab/registry_from_tape.py`
 - 読む試験: `tests/build_pop/test_w21_stage8_9.py`・`tests/c6/test_c6lib_scenes.py`・`tests/c8/test_ablations_ab7.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_conversation.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_intent_mode_open.py`・`tests/engine/test_llm_mock.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_tape_wiring.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_undefined_action.py`・`tests/engine/test_vocab_v2_eat.py`・`tests/llm/test_fleet.py`・`tests/llm/test_mock_v3.py`・`tests/llm/test_undefined.py`・`tests/perception/test_b6_invite.py`・`tests/vocab/test_adjudicate.py`・`tests/vocab/test_undefined_out.py`
-- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`・`tests/tools/test_pkgmove.py`
 
 ## [contract.py](../../../../../../../src/shibuya/llm/contract.py)
 
@@ -79,7 +79,7 @@ llm.fleet — 実 vLLM 艦隊クライアント(httpx 非同期 × N レプリ�
 - import している内部モジュール: `shibuya.core.budget`・`shibuya.core.hashing`・`shibuya.llm`・`shibuya.llm.contract`・`shibuya.manifest.schema`
 - 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.decide`・`shibuya.engine.systems.llm_io`・`shibuya.engine.systems.run_end`・`shibuya.llm`・`tools/c6/c6lib.py`・`tools/vocab/adjudicate.py`
 - 読む試験: `tests/c6/test_l4_l6_budget.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/llm/test_fleet.py`・`tests/llm/test_fleet_auth.py`・`tests/llm/test_fleet_contract.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/test_cli_l4_scale.py`
-- 読む試験(道筋で): `tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_state_checks_10f.py`
+- 読む試験(道筋で): `tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_state_checks_10f.py`・`tests/test_places_guard.py`
 - 状態台帳の行
   - 持ち主 `fleet_bridge`(`FleetBridge`)
     - `O88` FleetBridge _interned(挙動 no・復元 required) 道筋 `fleet_bridge._interned` 書ける系: decide・drain・llm_receive
@@ -97,7 +97,7 @@ llm.mock — ネットワーク不要の決定論クライアント(MockLLM)と�
 - import している内部モジュール: `shibuya.core.rng`・`shibuya.core.types`・`shibuya.llm`・`shibuya.llm.contract`
 - 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.classical`・`shibuya.engine.contact.port`・`shibuya.engine.experiment.switch`・`shibuya.engine.run`・`shibuya.engine.speech.layer`・`shibuya.engine.systems.build`・`shibuya.llm`・`tools/c6/metric_b_rerun.py`
 - 読む試験: `tests/c6/test_t5_order_bias.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/decision/test_j0_port_schema.py`・`tests/engine/decision/test_j0_shuffle_invariance.py`・`tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/speech/test_speech_choice_utterance.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/speech/test_wom_from_utterance_roundtrip.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_mock_v3.py`
-- 読む試験(道筋で): `tests/engine/bridging/test_bridging_ledger.py`
+- 読む試験(道筋で): `tests/engine/bridging/test_bridging_ledger.py`・`tests/test_places_guard.py`
 - 決定の ID: D-116・D-119・第 277
 
 ## [parser.py](../../../../../../../src/shibuya/llm/parser.py)
@@ -133,6 +133,7 @@ llm.undefined — 未定義行動の受理5段(行動契約書 §7・決定台�
 - import している内部モジュール: `shibuya.llm`・`shibuya.llm.contract`
 - 呼び手: `shibuya.cli`・`shibuya.engine.commit`・`shibuya.engine.run`・`shibuya.llm`・`shibuya.llm.parser`・`tools/c6/c6lib.py`・`tools/fig/fig_ab7_actions.py`・`tools/fig/fig_ab7c_vocab.py`・`tools/fig/fig_d91_ride_chain.py`・`tools/vocab/adjudicate.py`
 - 読む試験: `tests/c6/test_c6lib_aggregate.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_intent_mode_open.py`・`tests/engine/test_undefined_action.py`・`tests/llm/test_undefined.py`・`tests/llm/test_vocab_v2.py`・`tests/vocab/test_adjudicate.py`・`tests/vocab/test_undefined_out.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 状態台帳の行
   - 持ち主 `undefined`(`UndefinedActionRegistry`)
     - `O62` UndefinedActionRegistry log・counts・precedents(挙動 no・復元 discardable) 道筋 `undefined.counts`・`undefined.log`・`undefined.precedents` 書ける系: decide・llm_receive

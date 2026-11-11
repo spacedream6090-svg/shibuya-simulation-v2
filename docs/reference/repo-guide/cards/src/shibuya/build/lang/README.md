@@ -12,6 +12,7 @@ build.lang — 世界データ構築 W14/W15(静的言語化レーン)。
   - `stage_funcs`(関数): 段階名 → 段階関数(``run.STAGE_FUNCS`` の遅延取得)。
 - import している内部モジュール: `shibuya.build.lang.run`
 - 呼び手: `shibuya.build.lang.run`・`shibuya.build.run`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [common.py](../../../../../../../../src/shibuya/build/lang/common.py)
 
@@ -37,6 +38,7 @@ build.lang.common — W14/W15 が共有する純粋ヘルパ。
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.perception.attention`・`shibuya.perception.channels`・`shibuya.perception.normalize`
 - 呼び手: `shibuya.build.lang.w14_signage`・`shibuya.build.lang.w15_cell_static`
 - 読む試験: `tests/build_lang/test_checker.py`・`tests/build_lang/test_w14_signage.py`・`tests/build_lang/test_w15_cell_static.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [run.py](../../../../../../../../src/shibuya/build/lang/run.py)
 
@@ -47,6 +49,7 @@ build.lang.run — 静的言語化レーン(W14/W15)の段階を W 番号順に�
   - `run_stages`(関数)
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.geo.run`・`shibuya.build.lang`・`shibuya.build.lang.w14_signage`・`shibuya.build.lang.w15_cell_static`
 - 呼び手: `shibuya.build.lang`・`shibuya.build.run`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--data`: 入力データ根(既定 data)
   - `--out`: 出力ディレクトリ(例 data/world/v2)
@@ -66,6 +69,7 @@ W14 看板(a)文面(§1 W14・D-W18)。
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.lang.common`・`shibuya.core.time_consts`
 - 呼び手: `shibuya.build.lang.run`・`shibuya.build.lang.w15_cell_static`
 - 読む試験: `tests/build_lang/test_w14_signage.py`・`tests/build_lang/test_w15_cell_static.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w15_cell_static.py](../../../../../../../../src/shibuya/build/lang/w15_cell_static.py)
 
@@ -78,3 +82,4 @@ W15 B2 セル静的文(§1 W15・D-W18)。
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.lang.common`・`shibuya.build.lang.w14_signage`
 - 呼び手: `shibuya.build.lang.run`
 - 読む試験: `tests/build_lang/test_w15_cell_static.py`・`tests/build_lang/test_wiring.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`

@@ -11,7 +11,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
 world: セル/POI/歩行グラフ/可視性(mmap)/騒音場。core に依存。
 
 - import している内部モジュール: `shibuya.world.assets`・`shibuya.world.graph`・`shibuya.world.state`
-- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`・`tests/tools/test_pkgmove.py`
 
 ## [assets.py](../../../../../../../src/shibuya/world/assets.py)
 
@@ -35,7 +35,7 @@ world.assets — 世界データ資産(W1/W2/W3/W6)の読み込みと、CI 用�
 - import している内部モジュール: `shibuya.core.rng`・`shibuya.core.time_consts`
 - 呼び手: `shibuya.cli`・`shibuya.engine.change_detect`・`shibuya.engine.geometry`・`shibuya.engine.poi_target`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.environment`・`shibuya.engine.processes.logistics`・`shibuya.engine.processes.opening`・`shibuya.engine.processes.rail`・`shibuya.engine.processes.runner`・`shibuya.engine.processes.traffic`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.perception.renderer`・`shibuya.world`・`shibuya.world.graph`・`shibuya.world.state`
 - 読む試験: `tests/_data_ids.py`・`tests/economy/test_entry_capital.py`・`tests/engine/duties/_du.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_civic.py`・`tests/engine/processes/test_environment.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_logistics.py`・`tests/engine/processes/test_opening.py`・`tests/engine/processes/test_rail.py`・`tests/engine/processes/test_traffic.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_activation_2_4.py`・`tests/engine/test_area_source_c9c.py`・`tests/engine/test_assets_10e_b0_b1.py`・`tests/engine/test_calendar_10e_e3.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_intent_chooser.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_processes_run.py`・`tests/engine/test_waste_sink_report.py`・`tests/engine/test_weather_calendar_10e.py`・`tests/perception/facts/head_renderer_136fdbb.py`・`tests/world/test_world.py`
-- 読む試験(道筋で): `tests/engine/test_state_ledger_10b.py`・`tests/engine/test_two_phase.py`
+- 読む試験(道筋で): `tests/engine/test_state_ledger_10b.py`・`tests/engine/test_two_phase.py`・`tests/test_places_guard.py`
 - 決定の ID: 11-03・11-03/§2・D-66・D-84・D-96・D-112・D-114・第 330
 
 ## [graph.py](../../../../../../../src/shibuya/world/graph.py)

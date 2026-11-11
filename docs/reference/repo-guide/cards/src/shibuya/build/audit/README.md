@@ -9,6 +9,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
 build.audit — 世界データ構築 W18/W19/W20(被覆指標・凍結・検収パック)。
 
 - 呼び手: `shibuya.build.audit.run`・`shibuya.build.run`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [run.py](../../../../../../../../src/shibuya/build/audit/run.py)
 
@@ -19,6 +20,7 @@ build.audit.run — 被覆指標・凍結・検収パックを W 番号順に実
   - `run_stages`(関数)
 - import している内部モジュール: `shibuya.build.audit`・`shibuya.build.audit.w18_coverage`・`shibuya.build.audit.w19_freeze`・`shibuya.build.audit.w20_acceptance_pack`・`shibuya.build.geo.common`・`shibuya.build.geo.run`
 - 呼び手: `shibuya.build.run`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--data`: 入力データ根(既定 data)
   - `--out`: 出力ディレクトリ(例 data/world/v2)
@@ -39,6 +41,7 @@ W18 カタログ写像・世界被覆指標(§1 W18・D-W19)。
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.manifest.world_catalog`
 - 呼び手: `shibuya.build.audit.run`
 - 読む試験: `tests/build_audit/test_audit_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w19_freeze.py](../../../../../../../../src/shibuya/build/audit/w19_freeze.py)
 
@@ -54,6 +57,7 @@ W19 manifest 凍結(§1 W19・D-W20・運用設計書 §1.2「データ資産」
 - import している内部モジュール: `shibuya.build.field.w10_noise`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w12_real_timetables`・`shibuya.build.field.w13_weather`・`shibuya.build.field.w7_planspec`・`shibuya.build.geo.common`・`shibuya.build.geo.w0_crs`・`shibuya.build.geo.w11_station_exits`・`shibuya.build.geo.w1_walk_graph`・`shibuya.build.geo.w4_heights`・`shibuya.build.geo.w5_entrances`・`shibuya.build.geo.w6_poi_org`・`shibuya.build.pop.w16_population`・`shibuya.build.sched.w20_calendar_1a`
 - 呼び手: `shibuya.build.audit.run`・`shibuya.build.pop.w21_sources`
 - 読む試験: `tests/build_audit/test_audit_units.py`・`tests/build_audit/test_w19_layer_sources.py`・`tests/build_field/test_w12_keio_switch_2_4.py`・`tests/build_field/test_w12_real_timetables.py`・`tests/build_pop/test_w21_sources.py`・`tests/build_rail/test_w12_arrivals_2_3c.py`・`tests/build_sched/test_w20_calendar_1a.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 10-13b/§1・第 330・第 333
 
 ## [w20_acceptance_pack.py](../../../../../../../../src/shibuya/build/audit/w20_acceptance_pack.py)
@@ -67,4 +71,5 @@ W20 検収パック(§1 W20)。
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.vis.png`・`shibuya.core.time_consts`
 - 呼び手: `shibuya.build.audit.run`
 - 読む試験: `tests/build_audit/test_audit_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 第 330

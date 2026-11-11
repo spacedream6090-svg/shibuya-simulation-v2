@@ -8,6 +8,8 @@ Python 5 本・その他 0 本(このディレクトリの直下)
 
 build.space — 第 5 期 空間の段の構築側(段 1 ナビメッシュ ``navmesh1``)。
 
+- 読む試験(道筋で): `tests/test_places_guard.py`
+
 ## [mesh.py](../../../../../../../../src/shibuya/build/space/mesh.py)
 
 build.space.mesh — 塗った格子 → ラン・門・帯(ナビメッシュの形・numba・SR13=自前)。
@@ -20,6 +22,7 @@ build.space.mesh — 塗った格子 → ラン・門・帯(ナビメッシュ�
   - `union_find_components`(関数): 節 n 個・辺 (ea, eb) → 連結成分の番号(各成分の最小の節の番号を代表=決定論)。
 - 呼び手: `shibuya.build.space.navmesh1`
 - 読む試験: `tests/build_space/test_navmesh1_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [navmesh1.py](../../../../../../../../src/shibuya/build/space/navmesh1.py)
 
@@ -31,6 +34,7 @@ build.space.navmesh1 — 第 5 期 空間の段 1: 多層の歩ける面のナ�
   - `main`(関数)
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.space.mesh`・`shibuya.build.space.raster`・`shibuya.build.space.sources`・`shibuya.core.time_consts`・`shibuya.world.navmesh`
 - 読む試験: `tests/build_space/synth.py`・`tests/build_space/test_navmesh1_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--data`
   - `--out`
@@ -52,6 +56,7 @@ build.space.raster — 歩ける面の格子(0.5 m)に多角形・帯・三角�
   - `polygon_edges`(関数): 環(外周と穴・閉じていてもいなくてもよい)の並び → 辺の 4 配列(:func:`fill_polygon` の入力)。
 - 呼び手: `shibuya.build.space.navmesh1`
 - 読む試験: `tests/build_space/synth.py`・`tests/build_space/test_navmesh1_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [sources.py](../../../../../../../../src/shibuya/build/space/sources.py)
 
@@ -70,4 +75,5 @@ build.space.sources — 段 1 のナビメッシュの材料を読む(手元の�
   - `to_local`(関数): 緯度経度 → 世界の平面座標 [m]\(W0 の CRS と同じ式)。
 - import している内部モジュール: `shibuya.build.geo.common`
 - 呼び手: `shibuya.build.space.navmesh1`・`tools/spatial/las_pointcloud_agg.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: R-119

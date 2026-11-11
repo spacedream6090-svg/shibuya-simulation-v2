@@ -313,11 +313,15 @@ def test_gates_outside_table_symbols_are_defined_in_their_files(M):
         for path, sym in refs:
             assert re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", sym), sym
             # 〔段 4 の下ごしらえ〕出典の文(記録の道具の記録の文=移す道具は書き換えない)は元の置き場の道で書く。src の .py は
-            # 元の道から今の道を引いて読む(移す前の木では同じ道)
+            # 元の道から今の道を引いて読む(移す前の木では同じ道)。〔再検収 L-6〕元の道として引けなければ、その道が今の木に
+            # 在るか(段 4 の後に新しい道で書いた出典)
             if path.startswith(src_head) and path.endswith(".py"):
-                path = src_head + PL.current_of(path[len(src_head):])
+                path = src_head + PL.declared_path_now(path[len(src_head):])
             text = (ROOT / path).read_text(encoding="utf-8")
             assert M.symbol_defined(text, sym), (path, sym)
+    # 負の対照: 元の道でも今の木の道でもない出典は引けない
+    with pytest.raises(KeyError):
+        PL.declared_path_now("zz_no_such_dir/zz_not_declared.py")
     # 負の対照: 無い記号・使うだけで定義の無い名は通らない
     assert not M.symbol_defined("x = REL_ACQ_PAIR_REFRACTORY_MIN + 1\n", "REL_ACQ_PAIR_REFRACTORY_MIN")
     assert M.symbol_defined("REL_ACQ_PAIR_REFRACTORY_MIN: Final[int] = 60\n", "REL_ACQ_PAIR_REFRACTORY_MIN")

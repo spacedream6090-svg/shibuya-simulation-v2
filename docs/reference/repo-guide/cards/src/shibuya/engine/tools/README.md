@@ -56,6 +56,7 @@ engine.tools.record — 道具の記録の欄(CT9)と、ランの道具の一式
 - import している内部モジュール: `shibuya.engine.events.log`・`shibuya.engine.events.vocab`・`shibuya.engine.tools.groups`・`shibuya.engine.tools.places`・`shibuya.engine.tools.registry`
 - 呼び手: `shibuya.engine.events.body`・`shibuya.engine.systems.build`・`shibuya.engine.systems.report`
 - 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar3/_ca3.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/multiday/test_md23_body_events.py`・`tests/engine/tools/test_c0_affordance_from_registry.py`・`tests/engine/tools/test_c0_signboard_mark_invariance.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 環境変数: `SHIBUYA_TOOL_EVENTS`
 - 決定の ID: 10-12/§4-4・R-113
 
@@ -72,4 +73,5 @@ engine.tools.registry — 道具の台帳(第 1 期 1-7 C0・CT0)。
 - import している内部モジュール: `shibuya.engine.bridging.ledger`
 - 呼び手: `shibuya.engine.calendar_self`・`shibuya.engine.contact.tools`・`shibuya.engine.decision.layer`・`shibuya.engine.tools.places`・`shibuya.engine.tools.record`
 - 読む試験: `tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/tools/test_c0_affordance_from_registry.py`・`tests/engine/tools/test_c0_init_recall.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`・`tests/engine/tools/test_c0_signboard_mark_invariance.py`・`tests/engine/tools/test_c0_tool_registry.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 10-12/§1-13・10-12/§4-4・10-13b/§1・R-85・R-113

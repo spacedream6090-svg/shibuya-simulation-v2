@@ -30,6 +30,9 @@
   残り(類 I・E・D・B・H=`tools/c8`)を直した。範囲の試験は、移す前の木で 2 failed(前からの 1・道具の試験 1=§10-7)・6,750 passed、
   foundation・world・runtime・全段を当てた木で、どれも前からの 1 本だけが落ちる。ほかの段の木では落ちた試験のファイル 44 本が全部
   通る。突然変異 46 件(期待を決めた 44 件は全部期待どおり)。
+- **第 3 回**(§11): 再検収 M-4(移した後に keep の行で足したファイルが範囲から黙って外れる)を、old と new が同じ行の集合の固定と
+  「新しいファイルの行は move の形」の決まりで閉じ、写しの 2 か所が同じ答えを返すことを試験で固定し、宣言の道の引き方(L-6)と
+  元の道の重なり(L-7)を直した。変えた試験は作業木と全段の木でどちらも 231 passed・突然変異 22 件とも期待どおり。
 
 ## 1. 直した試験
 
@@ -336,7 +339,14 @@ old にも new にも無いのは 0 バイトの新しい頭だけ)。
    ときは、表を読む所が止める(検収 M-2・§1-7)。表に無い `.py` を src に足すと、`_places` を使う試験が `PlacesMapError` で落ちる
    (表を作り直す合図。ほかの試験は走る=〔再検収 M-3〕§10-1)。表に行を足す手順: 全ファイルの表
    `docs/reference/package-map-final-2026-11-09-files.md` に行を足し、`python tools/pkgmove/cli.py map` で `map.toml` を作り直す(手で
-   書かない)。`tools/c8/` も同じ表を同じ規則で読む(§10-3-1)。
+   書かない)。`tools/c8/` も同じ表を同じ規則で読む(§10-3-1)。2 か所が同じ答えを返すことは試験で固定した(§11-2)。
+   〔再検収 M-4・親の裁定〕**段 4 の終わりに範囲を新しい包みへ移すまでは、新しいファイルの行は move の形で書く**: `old` に
+   「移す前の置き場に在ったとしたらの道」(=どの範囲の守りを受けるかを決める道)、`new` に今の道。〔再検収 L-9〕`old` は範囲を
+   決める道なので偽らない(そのファイルが受けるはずの範囲の外の置き場=例えば build を書かない。偽った `old` は試験では見分け
+   られない)。道が変わらない行(〔再検収 L-8〕move でない行=keep・split・delete・empty と、`old` と `new` が同じ move の行)で
+   載せると、元の置き場が今の道になり、元の置き場で決める範囲(層の守り・c8 の漏れの確かめ)から黙って外れる。道が変わらない
+   行は、移す前から在って動かない置き場(build・economy の直下など)に足すときだけにし、`tests/test_places_guard.py` の固定の一覧
+   `NON_MOVE_ROWS` にも足す(固定の一覧と違えば試験が落ちる=§11-1・§12)。
 3. **census の包みの名だけは字面のまま**(`test_m0_store_schema.CENSUS`・`test_fleet_contract`)。census は頭 1 本だけの包みで、段 4 の
    delete の段で消える(残るモジュールが無い)ので、元の置き場から引く物が無い。消えた後は字面の確かめが空回りする(読むモジュールが
    無いので落ちない)。
@@ -556,3 +566,128 @@ economy・act・mind・society・experiments・validation・delete の 7 つの�
 - 写しの木は段を当てた後に手で直していない(第 1 回の §5 の手直しは第 2 回では要らなかった)。
 - commit・git add・タグ・枝の作成・子のエージェントの起動・STATUS/PENDING/IMPLEMENTED/devlog/CLAUDE.md の書き換えはしていない。
   封印の層・tests/c7 ほか発注で開かないとしたものは開いていない。Web は使っていない。pip で何も入れていない。
+
+## 11. 第 3 回(再検収 M-4・写しの 2 か所・L-6・L-7)
+
+> 発注: 親の発注文(試験の役 第 3 回・11-11)。第 2 回の再検収は条件つき受入(H 0・M 1・L 2)。置き場は取り込みの作業木(前と同じ)。
+
+変えたファイル: 試験の補助 `tests/_places.py`・`tests/test_places_guard.py`・`tests/world/processes/test_declarations_1101.py`・
+`tests/bench/test_refr20b_tool.py`・`tools/c8/c8lib.py`・本書。足したファイル: `tests/c8/test_places_rule_copies.py`。許可の一覧は
+`cli.py allow` で作り直して変わらない(記号 98・ファイル 60・`--check` は「同じ」)。
+
+### 11-1 再検収 M-4(移した後に作ったファイルが、範囲を使う試験から黙って外れる)
+
+検収役の再現(A10〜A12): 全段の木で、表に `old = new = 今の道` の行(keep)を足して新しいファイルを作ると、元の置き場が今の道
+(`runtime/systems/…`・`world/laws/…`)になり、`engine/systems` 生まれなどの範囲に入らない。層の守りと c8 の漏れの確かめを通り抜ける。
+
+親の裁定に沿って直した:
+
+| ファイル | 直し方 | 保たれていること |
+|---|---|---|
+| `tests/test_places_guard.py` | 固定の一覧 `SAME_PLACE_ROWS`(表の `old` と `new` が同じ行と kind が keep の行の道。今の表から数えて 96 行=keep 94〔build 79・economy の直下 14・根の頭 1〕・empty 2〔economy と world の頭〕)と、試験 `test_rows_that_keep_their_place_are_frozen`(表の集合が一覧と同じ。増えたら決まりの文つきで落ち、減ったら一覧からも消すよう求める)。負の対照 `test_a_keep_row_for_a_new_file_is_caught_and_a_move_row_is_not`(keep の行は一覧に当たり、move の形の行は当たらない・どちらの表も `origins_from` は受ける) | `origins_from` と `c8lib.src_origins` の規則は変えていない(表に無いファイルは今のとおり止まる) |
+| `tests/_places.py`・`tools/c8/c8lib.py` | 表に行を足す手順の文(`ADD_ROW_HELP`・`PLACES_ADD_ROW_HELP`=同じ文)に、決まり(新しいファイルの行は move の形・keep の行は動かない置き場だけで固定の一覧にも足す)と期限(段 4 の終わりに範囲を新しい包みへ移すまで)を書いた。§8-1 の 2 にも書いた | — |
+
+道具の側の表(`tests/tools/test_pkgmove.py::test_map_toml_is_made_from_the_table_and_is_current`)も行の数と kind ごとの数(keep 94)を
+固定している。新しいファイルの行を足すときは、そちらの数も変わる(§11-6)。
+
+### 11-2 規則の写しが 2 か所にある件(写しのまま・同じ答えを固定)
+
+新 `tests/c8/test_places_rule_copies.py`(c8 を読める置き場): 今の木で 2 つの対応が完全に一致する(どちらも `PL.origins()` と同じ・
+300 本を超える)・形の名と手順の文と表と包みの置き場が同じ・作った木と表(keep・move・移す前の置き場に在ったとしたらの道の move・
+中身のある頭の keep・古い道にファイルが残る move)で同じ答え・同じ悪い表(空・形の名が違う・読めない・行の鍵が違う・move に new が
+無い・1 行欠けた=古い)でどちらも止まる・表に無い中身のある頭でどちらも止まり、0 バイトの新しい頭はどちらも受ける。
+
+そのために `c8lib.src_origins(map_path=None, pkg=None)` に表と木を渡せるようにした(既定は本物の表と `src/shibuya`)。あわせて、写しの
+止まり方を `_places` に揃えた(読めない表・行が表でない・move に new が無い表を `RuntimeError` で止める。前は `TOMLDecodeError`・
+`AttributeError`・`KeyError` で止まっていた=止まることは同じ)。既定の答えは変わらない: c8 の出力(22 の id・読み口の判定)は、直す前の
+作業木の出力と、移す前の木でも全段を当てた木でもバイトが同じ。
+
+### 11-3 L-6(宣言の道の引き方)
+
+`tests/_places.py` に `declared_path_now(rel, org=None, pkg=None)`: **表の元の道として引ければ今の道へ・引けなければ、その道が今の木に
+在るか**の順。どちらでもなければ `KeyError`。`current_of` は厳しいまま残した。`test_declarations_1101` と `test_refr20b_tool` の宣言の道は
+これで引き、どちらの試験にも負の対照(元の道でも今の木の道でもない道は `KeyError`)を 1 行足した。補助の試験
+`test_declared_path_now_reads_the_origin_first_then_the_tree`(移したファイルの古い道に別のファイルが在っても元のファイルを指す・表に
+無い新しい道は木に在れば通る・無い道は止まる)。第 2 回の §10-9 の 1(段 4 の後に新しい道で書いた宣言が `KeyError` で落ちる)は
+これで閉じた。
+
+| ファイル | 保たれていること |
+|---|---|
+| `test_declarations_1101.py`・`test_refr20b_tool.py` | 宣言が指すファイルが在る・門の記号がそのファイルに定義されている。移す前の木では前と同じ道 |
+
+### 11-4 L-7(`current_of` の重なり)
+
+`current_index(org)`(元の道 → 今の道の索引)を分け、2 つの今のファイルが同じ元の道を持てば assert で止める。`current_of` と
+`declared_path_now` はこれを使う。試験 `test_current_index_stops_when_two_files_share_one_origin`。
+
+### 11-5 確かめ
+
+- 取り込みの作業木(cwd): `tests/test_places_guard.py`・`tests/c8`・`test_declarations_1101.py`・`test_refr20b_tool.py` → **231 passed**
+  (終了コード 0)。
+- 全段の木(〔git の作業木の外の置き場〕に作業木の今の中身を写し、**入れ替えた後の道具**で `--stage all --apply` を 1 回=書いた
+  ファイル 784・移した 180・古いディレクトリの消去 0・import の確かめ 356 モジュールで落ちた 0): 同じファイル → **231 passed**。
+- 範囲の試験の全体は回していない(発注どおり=親が回す)。
+
+突然変異(1 本ずつ順に・〔スクラッチの mut3.py と specs_r3.py〕): **22 件とも期待どおり**。移す前の木は第 2 回の段の木の s00 に
+第 3 回の 6 本を重ねた写し。
+
+| 変異 | 木 | 期待 | 結果 |
+|---|---|---|---|
+| A10k・A11k・A12k(検収役の A10〜A12 の形=keep の行で新しいファイル) | 全段 | 落ちる | 固定の試験が「old と new が同じ行が増えた」と決まりの文で落とした |
+| A10k-r・A11k-r・A12k-r(同じ形で範囲の試験だけを回す) | 全段 | 通る | 通った(範囲は通り抜ける=固定が要る理由) |
+| A10m・A11m・A12m(move の形の行=old `engine/systems/zz_new.py`・`engine/processes/zz_new.py`) | 全段 | 落ちる | `test_two_phase` の 2 本・c8 の `test_process_ablation_ids_match_source`・`test_fix_guards` の箱を通さない書き換えと `test_stage_a_guard` の thaw |
+| A10m-f(move の形の行で固定の試験) | 全段 | 通る | 通った |
+| E1(c8 の写しが中身のある頭を行なしで受ける)・E2(c8 の写しが古い道にファイルが残っても古い道を元にする) | 移す前・全段 | 落ちる | `test_places_rule_copies.py`(E2 の全段の木では今の木の一致の試験も落ちる) |
+| L6a(引く順を逆に=木を先に)・L6b(無い道で止まらない) | 移す前・全段 | 落ちる | 補助の試験(L6b は宣言の 2 本の負の対照も) |
+| L7(重なりの assert を外す) | 移す前・全段 | 落ちる | `test_current_index_stops…` |
+
+### 11-6 道具の役へ渡すこと
+
+1. 新しいファイルの行を move の形(`old` に移す前の置き場に在ったとしたらの道)で書く決まりは、道具の今の作りで受けられる(読んで
+   確かめた範囲): 全ファイルの表の §3 の行の `old` は在るかを確かめずに読み(`table.parse_table`)、表の包みが build でなく `old` と
+   `new` が違えば move になる。当てるとき(`move._row_state`)は、古い道が無く新しい道が在れば「当たっている」、移す前の木で古い道に
+   ファイルを置いていれば「当てる」。直しは要らないと見ている(当てて確かめてはいない)。
+2. ただし、全ファイルの表の書き方(§3 の `old` の列は「今の道」と読める)に、この決まり(移した後に作るファイルの `old` は在ったと
+   したらの道)を書き足すかは、表の持ち主の判断。
+3. 道具の試験 `test_map_toml_is_made_from_the_table_and_is_current` は行の数(328)と kind ごとの数を固定している。新しいファイルの行を
+   足すたびに、その数とこの役の固定の一覧(keep のときだけ)の両方を直すことになる。
+4. 第 2 回の §10-7 の 1 本(`test_every_rewritten_path_chain_points_to_a_file_in_the_applied_tree` の前提)はそのまま。
+
+### 11-7 判断が要る点
+
+1. **固定の一覧に empty の行(economy と world の頭)も入れた**: 発注の「keep の行(old と new が同じ)」を、kind でなく「old と new が
+   同じ」で数えた(kind を move にして old と new を同じに書く抜け道も止まる)。kind が keep の行だけにするなら、2 行を外す。
+2. **build に新しいファイルを足すと、固定の試験が落ちる**: build は動かない置き場なので keep の行が正しく、一覧に足せば通る(決まりの
+   文にも書いた)。build の下を一覧から外して「build の下の keep は自由」にする形もあるが、裁定の「keep の行を黙って足せない」に
+   合わせて、今は外していない。
+
+### 11-8 作った写しの木とつなぎ
+
+〔git の作業木の外の置き場〕に全段の木 1 つ(r3all)と、その報告の置き場。data のつなぎ 1 つ。第 2 回の段の木の s00 には第 3 回の
+6 本を上書きした(突然変異の移す前の木)。どれも消していない(親が外して消す)。
+
+## 12. 第 4 回(再検収 L-8・L-9・L-10)
+
+> 発注: 親の指示(第 3 回の再検収=受入・H 0・M 0・L 3 の残り)。変えたファイル: `tests/test_places_guard.py`・`tests/_places.py`・
+> `tools/c8/c8lib.py`・`tests/c8/test_places_rule_copies.py`・本書。許可の一覧は `allow --check` で「同じ」。
+
+| 指摘 | 直し方 | 保たれていること |
+|---|---|---|
+| L-8 新しいファイルを split か delete の行(old=今の道)で載せると、固定の一覧をすり抜ける(検収の K03・K04) | 固定する集合を「**move でない行の old の全部+move で old と new が同じ行の old**」に広げた。名を `SAME_PLACE_ROWS` から `NON_MOVE_ROWS`、補助を `non_move_rows` に。今の表から数え直して 122 行(keep 94・split 24・delete 2・empty 2。move で old と new が同じ行は 0)。負の対照を kind ごと(keep・split・delete・empty・old と new が同じ move)の 5 本に | 表の規則(`origins_from`・`c8lib.src_origins`)は変えていない。move の形の行は一覧に当たらない |
+| L-9 old を偽る(範囲の外の置き場を書く)と見分けられない(K05=決まりの外) | 決まりの文(`ADD_ROW_HELP`・`c8lib.PLACES_ADD_ROW_HELP`=同じ文)と §8-1 の 2 に「old は範囲を決める道なので偽らない(そのファイルが受けるはずの範囲の外の置き場=例えば build を書かない)」を足した。道が変わらない行の言い方も L-8 に合わせた | — |
+| L-10 写しの試験の悪い表 `move_without_new` が、c8 の「move の行に new が無い」の止まり方を見ていない(K14) | 悪い表の例ごとに、止まった理由を両方の写しの文で見る(`match=`)。`move_without_new` は、作った木から新しい道のファイルを外して古い道のファイルだけを置く(new の無い move の行を読み飛ばしても、ほかの確かめでは止まらない木)。その木で正しい表なら両方が同じ答えを返すことも見る | 6 種の悪い表でどちらも止まる(理由まで) |
+
+確かめ:
+- 取り込みの作業木と全段の木(第 3 回の r3all に第 4 回の 4 本を重ねた。`c8lib.py` は道具が書き換えた import の 1 行を保って当てた):
+  `tests/test_places_guard.py`・`tests/c8` → どちらも **212 passed**(終了コード 0)。
+- 突然変異(1 本ずつ順に・〔スクラッチの mut4.py と specs_r4.py〕): **7 件とも期待どおり**。
+
+| 変異 | 木 | 期待 | 結果 |
+|---|---|---|---|
+| K03(新しい系のファイルを split の行で載せる)・K04(delete の行で載せる) | 全段 | 落ちる | 固定の試験が「道が変わらない行が増えた」と決まりの文で落とした |
+| K03-r・K04-r(同じ形で範囲の試験だけ) | 全段 | 通る | 通った(範囲は通り抜ける=固定が要る理由) |
+| K14(c8 の写しが new の無い move の行を読み飛ばす) | 移す前・全段 | 落ちる | `test_both_copies_stop_on_the_same_bad_maps[move_without_new]`(DID NOT RAISE) |
+| K15(c8 の写しが形の名を見ない) | 移す前 | 落ちる | `…[schema]` |
+
+判断が要る点: 固定の一覧に split の 24 行が入ったので、段 5〜7 で割る行を move などに替えるたびに、この一覧も直すことになる(試験が
+「減った」と知らせる)。

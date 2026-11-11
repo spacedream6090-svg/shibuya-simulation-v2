@@ -10,6 +10,7 @@ build.pop — 世界データ構築 W16(母集団合成)。
 
 - 呼び手: `shibuya.build.pop.run`・`shibuya.build.run`
 - 読む試験: `tests/build_pop/test_w21_build_real.py`・`tests/build_pop/test_w21_stage4_7.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [attr_fns.py](../../../../../../../../src/shibuya/build/pop/attr_fns.py)
 
@@ -69,6 +70,7 @@ build.pop — 世界データ構築 W16(母集団合成)。
 - import している内部モジュール: `shibuya.core.rng`・`shibuya.core.wage_formula`
 - 呼び手: `shibuya.build.pop.w21_apply`・`shibuya.build.pop.w21_attrs`・`shibuya.build.pop.w21_build`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`・`shibuya.build.pop.w21_check`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_org`・`shibuya.build.pop.w21_persona`・`shibuya.build.pop.w21_port10`・`shibuya.build.pop.w21_prior`・`shibuya.build.sched.w20_w21_port`
 - 読む試験: `tests/build_pop/test_w21_attr_fns.py`・`tests/build_pop/test_w21_stage4_7.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/build_sched/test_w20_w21_port.py`・`tests/economy/test_wage_occupation.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 10-12b/§3・R-80・R-107・R-110・R-116
 
 ## [fitting.py](../../../../../../../../src/shibuya/build/pop/fitting.py)
@@ -83,6 +85,7 @@ build.pop.fitting — IPF(raking)・整数配分・適合度指標(SRMSE / JSD)�
   - `srmse`(関数): 標準化 RMSE。``sim``/``obs`` はカウントでも割合でもよい(内部で割合に直す)。
 - 呼び手: `shibuya.build.pop.w16_population`・`shibuya.build.pop.w21_build`・`shibuya.build.pop.w21_checks`・`shibuya.build.pop.w21_households`・`shibuya.build.pop.w21_org`・`shibuya.build.pop.w21_tables`・`tools/c8/sensitivity.py`
 - 読む試験: `tests/build_pop/test_pop_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [pool.py](../../../../../../../../src/shibuya/build/pop/pool.py)
 
@@ -95,6 +98,7 @@ build.pop.pool — v1 ペルソナプール(素材)の読み取りと列化。
   - `read_layer`(関数): 1 層を読んで列化する。逐次ループ宣言(P4): プール行数ぶん。
   - `read_pool`(関数): ``data/persona_pool_v2`` を読む。
 - 呼び手: `shibuya.build.pop.w16_population`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [run.py](../../../../../../../../src/shibuya/build/pop/run.py)
 
@@ -105,6 +109,7 @@ build.pop.run — 母集団レーンの段階を W 番号順に実行する CLI�
   - `run_stages`(関数): 段階を順に実行してヘッダを書く(geo.run.run_stages と同形)。
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.geo.run`・`shibuya.build.pop`・`shibuya.build.pop.w16_population`
 - 呼び手: `shibuya.build.run`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--data`: 入力データ根(既定 data)
   - `--out`: 出力ディレクトリ(例 data/world/v2)
@@ -127,6 +132,7 @@ build.pop.shapefile — ESRI Shapefile(.shp/.dbf)の最小パーサと点包含�
   - `ring_area`(関数): 符号つき面積(反時計回りが正)。
 - 呼び手: `shibuya.build.field.w10_ruler`・`shibuya.build.pop.w16_population`・`shibuya.build.pop.w21_build`・`shibuya.build.pop.w21_build_b`・`tools/c8/sensitivity.py`
 - 読む試験: `tests/build_field/test_w10_ruler.py`・`tests/build_pop/test_pop_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w16_population.py](../../../../../../../../src/shibuya/build/pop/w16_population.py)
 
@@ -137,6 +143,7 @@ W16 母集団合成(§1 W16・D-W16・決定台帳「母集団合成」7 段の�
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.fitting`・`shibuya.build.pop.pool`・`shibuya.build.pop.shapefile`・`shibuya.core.rng`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.pop.run`・`shibuya.build.pop.w21_build`・`shibuya.build.pop.w21_tables`・`shibuya.build.sched.trial`・`shibuya.build.sched.w17_schedule`・`shibuya.build.sched.w20_calendar_1a`・`tools/c8/sensitivity.py`
 - 読む試験: `tests/build_pop/test_pop_pipeline.py`・`tests/build_pop/test_pop_units.py`・`tests/build_sched/test_trial.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w21_apply.py](../../../../../../../../src/shibuya/build/pop/w21_apply.py)
 
@@ -156,6 +163,7 @@ W21 段 10「差し替え」(第 4 期 4-1 段 10=4-3 版上げ 3 回目)の組�
   - `w21_population_columns`(関数): W21 の人の表(``w21_people``・段 1〜3 の ``w21_persons``・段 5 の ``w21_money``)→ W16 の母集団の列(:data:`POPULATION_COLUMNS`
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_build`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`・`shibuya.build.pop.w21_sources`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.build.sched.w20_w21_port`・`shibuya.core.rng`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--data`
   - `--out`
@@ -173,6 +181,7 @@ W21 段 3「属性」: 材料の表から ``attr_fns.AttrTables`` を組み、�
 - import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_sources`・`shibuya.build.pop.w21_tables`
 - 呼び手: `shibuya.build.pop.w21_build`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`
 - 読む試験: `tests/build_pop/test_w21_attr_fns.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: R-116
 
 ## [w21_build.py](../../../../../../../../src/shibuya/build/pop/w21_build.py)
@@ -189,6 +198,7 @@ W21(第 4 期 4-1 段 1〜3「人数の枠・世帯と人・属性」)の組み�
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.attr_fns`・`shibuya.build.pop.fitting`・`shibuya.build.pop.shapefile`・`shibuya.build.pop.w16_population`・`shibuya.build.pop.w21_attrs`・`shibuya.build.pop.w21_checks`・`shibuya.build.pop.w21_frame`・`shibuya.build.pop.w21_households`・`shibuya.build.pop.w21_sources`・`shibuya.build.pop.w21_tables`・`shibuya.core.rng`
 - 呼び手: `shibuya.build.pop.w21_apply`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`
 - 読む試験: `tests/build_pop/test_w21_attr_fns.py`・`tests/build_pop/test_w21_build_real.py`・`tests/build_pop/test_w21_sources.py`・`tests/build_sched/test_w20_calendar_1a.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--anneal-iter`
   - `--data`
@@ -210,6 +220,7 @@ W21 段 4〜7(第 4 期 4-1「組織と関係・お金・開始前の経験・�
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.attr_fns`・`shibuya.build.pop.shapefile`・`shibuya.build.pop.w21_attrs`・`shibuya.build.pop.w21_build`・`shibuya.build.pop.w21_checks`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_org`・`shibuya.build.pop.w21_outside`・`shibuya.build.pop.w21_port10`・`shibuya.build.pop.w21_prior`・`shibuya.build.pop.w21_sources`・`shibuya.build.pop.w21_tables`・`shibuya.core.rng`
 - 呼び手: `shibuya.build.pop.w21_apply`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_pop/test_w21_stage4_7.py`・`tests/build_pop/test_w21_stage8_9.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--affinity`
   - `--base`: 段 1〜3 の資産(既定 <data>/world/v2_stage_4-1・読むだけ)
@@ -236,6 +247,7 @@ W21 段 8〜9 と段 10 の材料(第 4 期 4-1「点検・見せ方・差し替
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_attrs`・`shibuya.build.pop.w21_build`・`shibuya.build.pop.w21_check`・`shibuya.build.pop.w21_checks`・`shibuya.build.pop.w21_outside`・`shibuya.build.pop.w21_persona`・`shibuya.build.pop.w21_port10`・`shibuya.build.pop.w21_sources`・`shibuya.build.sched.w20_w21_port`
 - 呼び手: `shibuya.build.pop.w21_apply`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/engine/test_pop_w21_world.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--base`: 段 1〜7 の資産(既定 <data>/world/v2_stage_4-1b・読むだけ)
   - `--data`
@@ -259,6 +271,7 @@ W21 段 8「点検」(PS6): 段 1〜7 の資産(住民・外から来て働く�
 - import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_checks`・`shibuya.build.pop.w21_sources`・`shibuya.build.pop.w21_tables`
 - 呼び手: `shibuya.build.pop.w21_build_c`
 - 読む試験: `tests/build_pop/test_w21_stage8_9.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: R-110・D-68
 
 ## [w21_checks.py](../../../../../../../../src/shibuya/build/pop/w21_checks.py)
@@ -286,6 +299,7 @@ W21 の計器(答申 R-116 §3-4=段 8 の先取り・**合否は付けない**)
 - import している内部モジュール: `shibuya.build.pop.fitting`・`shibuya.core.rng`
 - 呼び手: `shibuya.build.pop.w21_build`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`・`shibuya.build.pop.w21_check`・`shibuya.build.pop.w21_org`・`shibuya.build.pop.w21_port10`
 - 読む試験: `tests/build_pop/test_w21_stage4_7.py`・`tests/build_pop/test_w21_stage8_9.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: R-109・R-116
 
 ## [w21_frame.py](../../../../../../../../src/shibuya/build/pop/w21_frame.py)
@@ -298,6 +312,7 @@ W21 段 1「人数の枠」: 層 × 人数の目安を 1 行 1 出典で ``w21_f
   - `thaw`(関数): ``freeze`` の逆(JSON に書くため)。
 - 呼び手: `shibuya.build.pop.w21_build`
 - 読む試験: `tests/build_pop/test_w21_attr_fns.py`・`tests/build_pop/test_w21_build_real.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 10-13b/§1・R-99・R-100・R-109・R-116
 
 ## [w21_households.py](../../../../../../../../src/shibuya/build/pop/w21_households.py)
@@ -322,6 +337,7 @@ W21 段 2「世帯と人」(答申 R-116 §3-2 の手順 3〜7・標本なしの
 - import している内部モジュール: `shibuya.build.pop.fitting`・`shibuya.build.pop.w21_tables`・`shibuya.core.rng`
 - 呼び手: `shibuya.build.pop.w21_build`
 - 読む試験: `tests/build_pop/test_w21_attr_fns.py`・`tests/build_pop/test_w21_build_real.py`・`tests/build_pop/test_w21_households.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: R-116
 
 ## [w21_money.py](../../../../../../../../src/shibuya/build/pop/w21_money.py)
@@ -338,6 +354,7 @@ W21 段 5「お金」(EC2・決定 10-12 §4-11・計画 第 4 期 段 5・回�
 - import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_sources`・`shibuya.core.wage_formula`
 - 呼び手: `shibuya.build.pop.w21_build_b`
 - 読む試験: `tests/build_pop/test_w21_stage4_7.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/economy/test_wage_occupation.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 10-12/§4-11・10-12b/§3・R-107・R-116・R-116 §1-4 #46
 
 ## [w21_org.py](../../../../../../../../src/shibuya/build/pop/w21_org.py)
@@ -360,6 +377,7 @@ W21 段 4「組織と関係」(PS5・設計書 §2-5・§2-7・計画 第 4 期 
 - import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.fitting`・`shibuya.build.pop.w21_checks`
 - 呼び手: `shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_persona`・`shibuya.build.pop.w21_port10`
 - 読む試験: `tests/build_pop/test_w21_stage4_7.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: R-80・R-116
 
 ## [w21_outside.py](../../../../../../../../src/shibuya/build/pop/w21_outside.py)
@@ -374,6 +392,7 @@ W21 段 7「外の人」(計画 第 4 期 段 7・設計書 §2-1 の 3 種類�
 - import している内部モジュール: `shibuya.build.pop.w21_sources`・`shibuya.build.pop.w21_tables`
 - 呼び手: `shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`
 - 読む試験: `tests/build_pop/test_w21_stage4_7.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: R-109・R-110・R-116・R-116 §1-5 #52
 
 ## [w21_persona.py](../../../../../../../../src/shibuya/build/pop/w21_persona.py)
@@ -404,6 +423,7 @@ W21 段 9「見せ方」(PS7・4-1b の器): 体ごとの人物の説明文を**
 - import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_org`・`shibuya.core.time_consts`・`shibuya.engine.experiment.checks`
 - 呼び手: `shibuya.build.pop.w21_build_c`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_pop/test_w21_stage8_9.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 10-12/§4-7
 
 ## [w21_port10.py](../../../../../../../../src/shibuya/build/pop/w21_port10.py)
@@ -418,6 +438,7 @@ W21 段 10 の材料(第 4 期 4-1・差し替えそのもの=版上げ 3 回目
 - import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_checks`・`shibuya.build.pop.w21_org`・`shibuya.core.rng`
 - 呼び手: `shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`
 - 読む試験: `tests/build_pop/test_w21_stage8_9.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w21_prior.py](../../../../../../../../src/shibuya/build/pop/w21_prior.py)
 
@@ -432,6 +453,7 @@ W21 段 6「開始前の経験」(PS4・設計書 §2-5・§2-6・計画 第 4 �
 - import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.core.rng`
 - 呼び手: `shibuya.build.pop.w21_build_b`
 - 読む試験: `tests/build_pop/test_w21_stage4_7.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w21_sources.py](../../../../../../../../src/shibuya/build/pop/w21_sources.py)
 
@@ -459,6 +481,7 @@ W21(第 4 期 4-1 段 1〜3)の材料の台帳と読み口の守り(read_guard)�
 - import している内部モジュール: `shibuya.build.audit.w19_freeze`
 - 呼び手: `shibuya.build.pop.w21_apply`・`shibuya.build.pop.w21_attrs`・`shibuya.build.pop.w21_build`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`・`shibuya.build.pop.w21_check`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_outside`・`shibuya.build.pop.w21_tables`
 - 読む試験: `tests/build_pop/test_w21_build_real.py`・`tests/build_pop/test_w21_sources.py`・`tests/build_pop/test_w21_stage4_7.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/economy/test_wage_occupation.py`・`tests/tools/test_seal_split_337.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 10-12b/§3・10-13b/§1・R-57・R-107・R-116・R-116 #38
 
 ## [w21_tables.py](../../../../../../../../src/shibuya/build/pop/w21_tables.py)
@@ -479,4 +502,5 @@ W21 の表の組み立て(段 2 の手順 1・2=区の雛形と町丁目への�
 - import している内部モジュール: `shibuya.build.pop.fitting`・`shibuya.build.pop.w16_population`・`shibuya.build.pop.w21_sources`
 - 呼び手: `shibuya.build.pop.w21_attrs`・`shibuya.build.pop.w21_build`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_check`・`shibuya.build.pop.w21_households`・`shibuya.build.pop.w21_outside`
 - 読む試験: `tests/build_pop/test_w21_attr_fns.py`・`tests/build_pop/test_w21_households.py`・`tests/build_pop/test_w21_stage8_9.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: R-116

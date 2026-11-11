@@ -109,45 +109,62 @@ FLEET_GPUS: int = 7
 SRC_PKG = REPO_ROOT / "src" / "shibuya"
 PLACES_MAP = REPO_ROOT / "tools" / "pkgmove" / "map.toml"
 PLACES_MAP_SCHEMA = "shibuya.tools/pkgmove/map/1"
+#: 表に行を足す手順(``tests/_places.py`` の ``ADD_ROW_HELP`` と同じ文=〔再検収 M-4・L-8・L-9〕の決まりと期限つき)。
+PLACES_ADD_ROW_HELP = (
+    "src にファイルを足したら、全ファイルの表 docs/reference/package-map-final-2026-11-09-files.md に行を足し、"
+    "python tools/pkgmove/cli.py map で tools/pkgmove/map.toml を作り直す(手で書かない)。"
+    "段 4 の終わりに範囲を新しい包みへ移すまでは、新しいファイルの行は move の形で書く"
+    "(old=移す前の置き場に在ったとしたらの道=どの範囲の守りを受けるかを決める道・new=今の道)。"
+    "old は範囲を決める道なので偽らない(そのファイルが受けるはずの範囲の外の置き場=例えば build を書かない)。"
+    "道が変わらない行(keep・split・delete・empty か、old と new が同じ move)は、移す前から在って動かない置き場"
+    "(build・economy の直下など)に足すときだけにし、tests/test_places_guard.py の固定の一覧にも足す")
 
 
-def src_origins() -> dict[str, str]:
+def src_origins(map_path: Path | None = None, pkg: Path | None = None) -> dict[str, str]:
     """今の src の全部の ``.py``(``src/shibuya`` からの道)→ 元の道(移す前の置き場)。
 
     〔コードの区分の移動 段 4〕走査の範囲とファイルの名を、移す前の置き場で決める(包みやディレクトリの字面で決めると、段 4 で
     ファイルが別の包みへ移ったときに範囲が黙って変わる)。移す前の木では元の道=今の道。対応表を確かめてから使う(形の名・行が
-    空でない・今の木の ``.py`` は表の ``old`` か ``move`` の ``new`` に必ず在る。在らなくてよいのは 0 バイトの ``__init__.py`` だけ)。
-    外れたら ``RuntimeError``(表に行を足す手順: 全ファイルの表 docs/reference/package-map-final-2026-11-09-files.md に行を足し、
-    python tools/pkgmove/cli.py map で map.toml を作り直す)。``tests/_places.py`` の ``origins_from`` と同じ規則(tools は tests を
-    読まないので写した)。
+    空でない・どの行にも ``old`` と ``kind``・``move`` の行には ``new``・今の木の ``.py`` は表の ``old`` か ``move`` の ``new`` に
+    必ず在る。在らなくてよいのは 0 バイトの ``__init__.py`` だけ)。外れたら ``RuntimeError``(:data:`PLACES_ADD_ROW_HELP`)。
+    ``tests/_places.py`` の ``origins_from`` と同じ規則(tools は tests を読まないので写した。2 つが同じ答えを返すことは
+    ``tests/c8/test_places_rule_copies.py`` が確かめる)。``map_path``・``pkg`` は既定で本物の表と ``src/shibuya``(試験が作った
+    表と木を渡すため)。
     """
     import tomllib
 
-    doc = tomllib.loads(PLACES_MAP.read_text(encoding="utf-8"))
+    map_path = PLACES_MAP if map_path is None else Path(map_path)
+    pkg = SRC_PKG if pkg is None else Path(pkg)
+    try:
+        doc = tomllib.loads(map_path.read_text(encoding="utf-8"))
+    except tomllib.TOMLDecodeError as e:
+        raise RuntimeError(f"対応表 {map_path.name} を読めない: {e}") from e
     rows = doc.get("row")
     if doc.get("schema") != PLACES_MAP_SCHEMA or not isinstance(rows, list) or not rows:
-        raise RuntimeError(f"対応表 {PLACES_MAP.relative_to(REPO_ROOT).as_posix()} の形の名か行が違う")
+        raise RuntimeError(f"対応表 {map_path.name} の形の名か行が違う")
     olds: set[str] = set()
     moved: dict[str, str] = {}
     for r in rows:
-        if not isinstance(r.get("old"), str) or not isinstance(r.get("kind"), str):
+        if not isinstance(r, dict) or not isinstance(r.get("old"), str) or not isinstance(r.get("kind"), str):
             raise RuntimeError(f"対応表の行に old か kind が無い: {r!r}")
         olds.add(r["old"])
-        if r["kind"] == "move" and str(r["old"]).endswith(".py"):
-            moved[str(r["new"])] = r["old"]
+        if r["kind"] == "move":
+            if not isinstance(r.get("new"), str):
+                raise RuntimeError(f"対応表の行(move)に new が無い: {r!r}")
+            if r["old"].endswith(".py"):
+                moved[r["new"]] = r["old"]
     out: dict[str, str] = {}
     unknown: list[str] = []
-    for p in sorted(SRC_PKG.rglob("*.py")):
+    for p in sorted(pkg.rglob("*.py")):
         if "__pycache__" in p.parts:
             continue
-        rel = p.relative_to(SRC_PKG).as_posix()
+        rel = p.relative_to(pkg).as_posix()
         if rel not in olds and rel not in moved and not (p.name == "__init__.py" and p.stat().st_size == 0):
             unknown.append(rel)
         old = moved.get(rel)
-        out[rel] = old if old is not None and not (SRC_PKG / old).is_file() else rel
+        out[rel] = old if old is not None and not (pkg / old).is_file() else rel
     if unknown:
-        raise RuntimeError(f"対応表に無いファイル {unknown[:10]}(全ファイルの表に行を足し、python tools/pkgmove/cli.py map で"
-                           " 表を作り直す)")
+        raise RuntimeError(f"対応表に無いファイル {unknown[:10]}({PLACES_ADD_ROW_HELP})")
     return out
 
 # ------------------------------------------------------------------ 入出力(c6lib の再利用)

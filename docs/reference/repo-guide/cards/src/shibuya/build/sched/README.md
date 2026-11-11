@@ -12,6 +12,7 @@ build.sched — 世界データ構築 W17(週次スケジュール生成・T0 �
   - `stage_funcs`(関数): 段階名 → 段階関数(``run.STAGE_FUNCS`` の遅延取得)。
 - import している内部モジュール: `shibuya.build.sched.run`
 - 呼び手: `shibuya.build.run`・`shibuya.build.sched.run`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [pool_facts.py](../../../../../../../../src/shibuya/build/sched/pool_facts.py)
 
@@ -26,6 +27,7 @@ build.sched.pool_facts — ペルソナプールの「生活の素材」欄だ�
 - import している内部モジュール: `shibuya.core.time_consts`
 - 呼び手: `shibuya.build.sched.trial`・`shibuya.build.sched.w17_schedule`・`shibuya.build.sched.w20_calendar_1a`・`tools/instruments/anchor_gauge.py`
 - 読む試験: `tests/build_sched/test_trial.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: D-68
 
 ## [run.py](../../../../../../../../src/shibuya/build/sched/run.py)
@@ -40,6 +42,7 @@ build.sched.run — スケジュール生成レーン(W17)の段階を実行す�
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.geo.run`・`shibuya.build.sched`・`shibuya.build.sched.w17_schedule`
 - 呼び手: `shibuya.build.run`・`shibuya.build.sched`
 - 読む試験: `tests/build_sched/test_w17_ingest.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--data`: 入力データ根(既定 data)
   - `--out`: 出力ディレクトリ(例 data/world/v2)
@@ -100,6 +103,7 @@ build.sched.trial — D-68 下見(2,000 体・多腕)の**別経路**モジュ�
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.w16_population`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`shibuya.core.hashing`・`shibuya.core.time_consts`
 - 呼び手: `shibuya.build.sched.w20_calendar_1a`・`tools/instruments/anchor_gauge.py`
 - 読む試験: `tests/build_sched/test_trial.py`・`tests/build_sched/test_w20_calendar_1a.py`・`tests/tools/test_anchor_gauge.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--anchor`: commute_time_dist_r3.json の場所
   - `--arm`: (help を読めない)
@@ -142,6 +146,7 @@ build.sched.vocab — W17 週次活動表の**凍結語彙と行書式**(整形�
 - import している内部モジュール: `shibuya.core.time_consts`
 - 呼び手: `shibuya.build.sched.trial`・`shibuya.build.sched.w17_schedule`・`tools/instruments/anchor_gauge.py`・`tools/w17/diversity_yardstick.py`
 - 読む試験: `tests/build_geo/test_poi_class.py`・`tests/build_sched/conftest.py`・`tests/build_sched/test_trial.py`・`tests/build_sched/test_w17_ingest.py`・`tests/build_sched/test_w17_parse.py`・`tests/build_sched/test_w17_prompts.py`・`tests/build_sched/test_w17_repair.py`・`tests/build_sched/test_weekly_loader.py`・`tests/engine/test_eatery_place_food.py`・`tests/w17/test_diversity_yardstick.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w17_schedule.py](../../../../../../../../src/shibuya/build/sched/w17_schedule.py)
 
@@ -186,6 +191,7 @@ W17 スケジュール生成(§1 W17・D-W17・決定台帳「母集団合成」
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.w16_population`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.vocab`・`shibuya.core.hashing`・`shibuya.core.time_consts`
 - 呼び手: `shibuya.build.sched.run`・`shibuya.build.sched.trial`・`tools/c8/sensitivity.py`・`tools/instruments/anchor_gauge.py`
 - 読む試験: `tests/build_geo/test_poi_class.py`・`tests/build_sched/test_trial.py`・`tests/build_sched/test_w17_ingest.py`・`tests/build_sched/test_w17_prompts.py`・`tests/build_sched/test_w17_repair.py`・`tests/build_sched/test_weekly_loader.py`・`tests/engine/test_eatery_place_food.py`・`tests/engine/test_presence_executor.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w20_calendar_1a.py](../../../../../../../../src/shibuya/build/sched/w20_calendar_1a.py)
 
@@ -226,6 +232,7 @@ build.sched.w20_calendar_1a — 構築側の段 W20(暦 1a・勤務と授業の�
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.w16_population`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.trial`・`shibuya.core.rng`・`shibuya.core.time_consts`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.pop.w21_apply`・`shibuya.build.sched.w20_w21_port`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_sched/test_w20_calendar_1a.py`・`tests/build_sched/test_w20_w21_port.py`・`tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/calendar/test_calendar_shadow.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--data`
   - `--out`: W16 の出力がある置き場(例 data/world/v2_stage_3-1)
@@ -246,4 +253,5 @@ build.sched.w20_w21_port — W21(人口の作り直し)の人の表 → W20(暦 
 - import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.core.time_consts`
 - 呼び手: `shibuya.build.pop.w21_apply`・`shibuya.build.pop.w21_build_c`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/build_sched/test_w20_w21_port.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 第 337

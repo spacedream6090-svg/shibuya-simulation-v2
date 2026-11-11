@@ -42,9 +42,18 @@ def module_of(rel: str) -> str:
 MAP_SCHEMA = "shibuya.tools/pkgmove/map/1"
 
 
-#: 表に行を足す手順(``PlacesMapError`` の文に添える)。
-ADD_ROW_HELP = ("src にファイルを足したら、全ファイルの表 docs/reference/package-map-final-2026-11-09-files.md に行を足し、"
-                "python tools/pkgmove/cli.py map で tools/pkgmove/map.toml を作り直す(手で書かない)")
+#: 表に行を足す手順(``PlacesMapError`` の文に添える)。〔再検収 M-4〕段 4 の終わりに範囲を新しい包みへ移すまでは、新しい
+#: ファイルの行を move の形で書く決まり(道が変わらない行で載せると、元の置き場で決める範囲から黙って外れる)。〔L-8・L-9〕
+#: 道が変わらない行=move でない行(keep・split・delete・empty)と old と new が同じ move の行・old は偽らない。
+#: ``tools/c8/c8lib.py`` の ``PLACES_ADD_ROW_HELP`` と同じ文(``tests/c8/test_places_rule_copies.py`` が確かめる)。
+ADD_ROW_HELP = (
+    "src にファイルを足したら、全ファイルの表 docs/reference/package-map-final-2026-11-09-files.md に行を足し、"
+    "python tools/pkgmove/cli.py map で tools/pkgmove/map.toml を作り直す(手で書かない)。"
+    "段 4 の終わりに範囲を新しい包みへ移すまでは、新しいファイルの行は move の形で書く"
+    "(old=移す前の置き場に在ったとしたらの道=どの範囲の守りを受けるかを決める道・new=今の道)。"
+    "old は範囲を決める道なので偽らない(そのファイルが受けるはずの範囲の外の置き場=例えば build を書かない)。"
+    "道が変わらない行(keep・split・delete・empty か、old と new が同じ move)は、移す前から在って動かない置き場"
+    "(build・economy の直下など)に足すときだけにし、tests/test_places_guard.py の固定の一覧にも足す")
 
 
 class PlacesMapError(AssertionError):
@@ -114,11 +123,34 @@ def origin_of(rel: str) -> str:
     return origins()[rel]
 
 
+def current_index(org: dict[str, str]) -> dict[str, str]:
+    """「今の道 → 元の道」から「元の道 → 今の道」の索引を作る。〔再検収 L-7〕2 つの今のファイルが同じ元の道を持てば止める
+    (どちらを返すかが決まらない)。"""
+    back = {v: k for k, v in org.items()}
+    assert len(back) == len(org), f"元の道が重なる今のファイルがある: {sorted(o for o in back if list(org.values()).count(o) > 1)}"
+    return back
+
+
 def current_of(old: str) -> str:
     """元の道 → 今の道(``.py`` だけ。移す前の木では同じ道。今の木に無い元の道は ``KeyError``)。src の宣言の文などが元の道で
     書くファイルを、今の木で引くのに使う。"""
-    back = {v: k for k, v in origins().items()}
-    return back[old]
+    return current_index(origins())[old]
+
+
+def declared_path_now(rel: str, org: dict[str, str] | None = None, pkg: Path | None = None) -> str:
+    """src の宣言の文が書く ``.py`` の道(``src/shibuya`` からの相対)→ 今の木の道。
+
+    〔再検収 L-6〕**表の元の道として引ければ今の道へ。引けなければ、その道が今の木に在るか**の順で引く(段 4 の後に新しい道で
+    書いた宣言も通る。元の道を先に引くので、移したファイルの古い道に別のファイルが在っても、元のファイルを指す)。どちらでも
+    なければ ``KeyError``。``org``・``pkg`` は既定で今の木(試験が作った索引と木を渡すため)。"""
+    org = origins() if org is None else org
+    pkg = PKG if pkg is None else pkg
+    back = current_index(org)
+    if rel in back:
+        return back[rel]
+    if (pkg / rel).is_file():
+        return rel
+    raise KeyError(rel)
 
 
 def origin_dir(mod: ModuleType) -> str:

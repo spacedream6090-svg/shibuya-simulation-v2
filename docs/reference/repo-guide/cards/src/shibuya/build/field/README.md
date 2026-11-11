@@ -9,6 +9,7 @@ Python 12 本・その他 0 本(このディレクトリの直下)
 build.field — 世界データ構築 W7/W10/W12/W13(場・境界レーン)。
 
 - 呼び手: `shibuya.build.field.run`・`shibuya.build.run`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [common.py](../../../../../../../../src/shibuya/build/field/common.py)
 
@@ -28,6 +29,7 @@ build.field.common — 場・境界レーンの共有ヘルパ。
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.core.time_consts`
 - 呼び手: `shibuya.build.field.road_names`・`shibuya.build.field.run`・`shibuya.build.field.w10_noise`・`shibuya.build.field.w10_ruler`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w13_weather`・`shibuya.build.field.w7_planspec`
 - 読む試験: `tests/build_field/test_field_units.py`・`tests/build_field/test_w10_road_names.py`・`tests/build_field/test_w10_ruler.py`・`tests/build_field/test_w12_keio_switch_2_4.py`・`tests/build_field/test_w12_pm_peak_switch.py`・`tests/build_field/test_w12_real_timetables.py`・`tests/build_rail/test_w12_arrivals_2_3c.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 第 330
 
 ## [road_names.py](../../../../../../../../src/shibuya/build/field/road_names.py)
@@ -47,6 +49,7 @@ W10 の道路名の突合(段 1c・D-1 (a)・2026-09-28)。
 - import している内部モジュール: `shibuya.build.field.common`・`shibuya.build.geo.common`
 - 呼び手: `shibuya.build.field.w10_noise`
 - 読む試験: `tests/build_field/test_w10_road_names.py`・`tests/build_field/test_w10_ruler.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: D-1
 
 ## [run.py](../../../../../../../../src/shibuya/build/field/run.py)
@@ -58,6 +61,7 @@ build.field.run — 場・境界レーンの段階を W 番号順に実行する
   - `run_stages`(関数): 段階を順に実行してヘッダを書く(geo.run.run_stages と同形・段階表だけが違う)。
 - import している内部モジュール: `shibuya.build.field`・`shibuya.build.field.common`・`shibuya.build.field.w10_noise`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w13_weather`・`shibuya.build.field.w7_planspec`・`shibuya.build.geo.run`
 - 呼び手: `shibuya.build.run`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--data`: 入力データ根(既定 data)
   - `--out`: 出力ディレクトリ(例 data/world/v2)
@@ -74,6 +78,7 @@ build.field.run — 場・境界レーンの段階を W 番号順に実行する
   - `street_points`(関数): 歩行グラフ → 街路面格子点(層バンド別)。
 - 呼び手: `shibuya.build.field.w10_noise`・`shibuya.build.field.w10_ruler`
 - 読む試験: `tests/build_field/test_field_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w10_noise.py](../../../../../../../../src/shibuya/build/field/w10_noise.py)
 
@@ -98,7 +103,7 @@ W10 静的騒音場(§1 W10・D-W11)。
 - import している内部モジュール: `shibuya.build.field.common`・`shibuya.build.field.road_names`・`shibuya.build.field.street_grid`・`shibuya.core.time_consts`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.run`・`shibuya.build.field.w10_ruler`
 - 読む試験: `tests/build_field/test_field_units.py`・`tests/build_field/test_w10_road_names.py`・`tests/build_field/test_w10_ruler.py`
-- 読む試験(道筋で): `tests/engine/bridging/test_bridging_ledger.py`
+- 読む試験(道筋で): `tests/engine/bridging/test_bridging_ledger.py`・`tests/test_places_guard.py`
 - 決定の ID: 09-30・10-03/§9-4・R-67・D-1・第 330
 
 ## [w10_ruler.py](../../../../../../../../src/shibuya/build/field/w10_ruler.py)
@@ -121,6 +126,7 @@ W10 の物差し(W10 の Q6・2026-09-30): 較正点に町丁目の代表点の�
   - `summarize_diffs`(関数): 点ごとの差(``[昼, 夜]`` or None)→ 平均・平均絶対値(評価できた点だけ)。
 - import している内部モジュール: `shibuya.build.field.common`・`shibuya.build.field.street_grid`・`shibuya.build.field.w10_noise`・`shibuya.build.geo.common`・`shibuya.build.pop.shapefile`
 - 読む試験: `tests/build_field/test_w10_ruler.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w12_external_nodes.py](../../../../../../../../src/shibuya/build/field/w12_external_nodes.py)
 
@@ -139,6 +145,7 @@ W12 外界ノード(§1 W12・D-W14・境界経済設計書 §1 U10)。
 - import している内部モジュール: `shibuya.build.field.common`・`shibuya.build.field.w12_rail_events`・`shibuya.build.field.w12_real_timetables`・`shibuya.core.time_consts`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.run`・`shibuya.build.field.w12_rail_events`
 - 読む試験: `tests/build_field/test_field_units.py`・`tests/build_field/test_w12_keio_switch_2_4.py`・`tests/build_field/test_w12_pm_peak_switch.py`・`tests/build_field/test_w12_real_timetables.py`・`tests/build_rail/test_w12_arrivals_2_3c.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 10-12b・10-13・10-13b/§2・第 330
 
 ## [w12_rail_events.py](../../../../../../../../src/shibuya/build/field/w12_rail_events.py)
@@ -161,6 +168,7 @@ W12 の渋谷の発着の表(第 2 期 2-3c・計画 2-3c の行=2-3b の検収 
 - import している内部モジュール: `shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w12_real_timetables`
 - 呼び手: `shibuya.build.field.w12_external_nodes`
 - 読む試験: `tests/build_rail/test_w12_arrivals_2_3c.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 第 330
 
 ## [w12_real_timetables.py](../../../../../../../../src/shibuya/build/field/w12_real_timetables.py)
@@ -191,6 +199,7 @@ W12 の実ダイヤの読み口(第 2 期 2-3b・回答 10-13 の 7・回答 10-
 - import している内部モジュール: `shibuya.core.time_consts`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w12_rail_events`
 - 読む試験: `tests/build_audit/test_audit_units.py`・`tests/build_field/test_w12_keio_switch_2_4.py`・`tests/build_field/test_w12_pm_peak_switch.py`・`tests/build_field/test_w12_real_timetables.py`・`tests/build_rail/test_w12_arrivals_2_3c.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 10-13・10-13b/§2・第 330
 
 ## [w13_weather.py](../../../../../../../../src/shibuya/build/field/w13_weather.py)
@@ -216,6 +225,7 @@ W13 気象日再生(§1 W13・D-W15・知覚契約書 §3 B3 語彙)。
 - import している内部モジュール: `shibuya.build.field.common`・`shibuya.core.rng`・`shibuya.core.time_consts`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.run`・`shibuya.build.vis.w9_shadow`・`tools/c8/sensitivity.py`
 - 読む試験: `tests/build_audit/test_audit_units.py`・`tests/build_field/test_field_units.py`・`tests/build_vis/test_vis_units.py`・`tests/engine/test_weather_calendar_10e.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 10-12b・第 330
 
 ## [w7_planspec.py](../../../../../../../../src/shibuya/build/field/w7_planspec.py)
@@ -237,4 +247,5 @@ W7 営業時間・価格帯(PlanSpec)(§1 W7・D-W8)。
 - import している内部モジュール: `shibuya.build.field.common`・`shibuya.core.time_consts`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.run`
 - 読む試験: `tests/build_field/test_field_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 10-12b・D-72・第 330

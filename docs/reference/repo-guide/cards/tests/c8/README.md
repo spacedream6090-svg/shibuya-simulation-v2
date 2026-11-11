@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 12 本・その他 0 本(このディレクトリの直下)
+Python 13 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../tests/c8/__init__.py)
 
@@ -240,6 +240,19 @@ c8lib の純関数と**設計書の走査**(漏れ検出の分母)。
   - `test_spread_skill_ratio_detects_underdispersion`(関数): 幅が狭すぎる(自信過剰)アンサンブルは比が 1 を大きく下回る。
   - `test_spread_skill_ratio_shape_checks`(関数)
 - import している内部モジュール: `shibuya.core.rng`
+
+## [test_places_rule_copies.py](../../../../../../tests/c8/test_places_rule_copies.py)
+
+元の置き場の規則の写し 2 か所が同じ答えを返すこと(再検収 第 3 回 5 の (2))。
+
+- 公開の関数とクラス
+  - `test_both_copies_give_the_same_answer_on_a_made_tree`(関数)
+  - `test_both_copies_give_the_same_answer_on_the_current_tree`(関数)
+  - `test_both_copies_share_the_schema_and_the_help`(関数)
+  - `test_both_copies_stop_on_a_file_without_a_row`(関数): 表に無いファイル(中身のある新しい頭・新しいファイル)はどちらも止まり、0 バイトの新しい頭はどちらも受ける。
+  - `test_both_copies_stop_on_the_same_bad_maps`(関数)
+  - `tree`(関数)
+- import している内部モジュール: `tests/_places.py`
 
 ## [test_sensitivity_ledger.py](../../../../../../tests/c8/test_sensitivity_ledger.py)
 

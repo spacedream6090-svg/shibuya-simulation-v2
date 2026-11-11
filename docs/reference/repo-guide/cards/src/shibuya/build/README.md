@@ -11,6 +11,7 @@ Python 3 本・その他 0 本(このディレクトリの直下)
 build: オフラインの世界データ構築(W0-W20)。成果物=不変資産。実行時にimportされない。
 
 - 読む試験: `tests/engine/memory/test_m0_store_schema.py`・`tests/engine/processes/test_runner.py`・`tests/engine/test_add_at_guard.py`・`tests/llm/test_fleet_contract.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [catalog_freeze.py](../../../../../../../src/shibuya/build/catalog_freeze.py)
 
@@ -23,7 +24,7 @@ build: オフラインの世界データ構築(W0-W20)。成果物=不変資産�
   - `main`(関数)
   - `parse_catalog_rows`(関数): 本表を行の辞書リストへ。キーは見出し行の9列名、値はセルを strip したもの。
 - 読む試験: `tests/test_world_catalog_sha.py`
-- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`・`tests/tools/test_pkgmove.py`
 - CLI の引数
   - `--md`
   - `--out`
@@ -43,6 +44,7 @@ build.run — 世界データ構築の通し実行(地理 W0-W6/W11 + 場・境�
   - `write_build_manifest`(関数): out に存在する**全段階**のヘッダから manifest を組む(W 番号順)。
 - import している内部モジュール: `shibuya.build.audit`・`shibuya.build.audit.run`・`shibuya.build.field`・`shibuya.build.field.run`・`shibuya.build.geo`・`shibuya.build.geo.common`・`shibuya.build.geo.run`・`shibuya.build.lang`・`shibuya.build.lang.run`・`shibuya.build.pop`・`shibuya.build.pop.run`・`shibuya.build.sched`・`shibuya.build.sched.run`・`shibuya.build.vis`・`shibuya.build.vis.run`
 - 読む試験: `tests/_data_ids.py`・`tests/build_audit/test_audit_pipeline.py`・`tests/build_field/test_field_pipeline.py`・`tests/build_field/test_field_units.py`・`tests/build_pop/test_w21_build_real.py`・`tests/build_pop/test_w21_stage4_7.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/build_vis/test_vis_pipeline.py`・`tests/test_build_run_keep_stage.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--data`: 入力データ根(既定 data)
   - `--keep-stage`: 再構築せずディスク上の出力と既存ヘッダを採る段階(繰り返し可・例 W17)

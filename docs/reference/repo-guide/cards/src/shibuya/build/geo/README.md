@@ -10,6 +10,7 @@ build.geo — 世界データ構築 W0-W6/W11(地理レーン)。
 
 - 呼び手: `shibuya.build.geo.run`・`shibuya.build.run`
 - 読む試験: `tests/build_geo/test_geo_pipeline.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [common.py](../../../../../../../../src/shibuya/build/geo/common.py)
 
@@ -39,6 +40,7 @@ build.geo.common — 全段階で共有する純粋ヘルパ(ハッシュ・ヘ�
   - `write_parquet`(関数): 列辞書 → Parquet(zstd)。列順=辞書順。
 - 呼び手: `shibuya.build.audit.run`・`shibuya.build.audit.w18_coverage`・`shibuya.build.audit.w19_freeze`・`shibuya.build.audit.w20_acceptance_pack`・`shibuya.build.field.common`・`shibuya.build.field.road_names`・`shibuya.build.field.w10_ruler`・`shibuya.build.geo.run`・`shibuya.build.geo.w0_crs`・`shibuya.build.geo.w11_station_exits`・`shibuya.build.geo.w1_walk_graph`・`shibuya.build.geo.w2_cells`・`shibuya.build.geo.w3_distances`・`shibuya.build.geo.w4_heights`・`shibuya.build.geo.w5_entrances`・`shibuya.build.geo.w6_poi_org`・`shibuya.build.lang.common`・`shibuya.build.lang.run`・`shibuya.build.lang.w14_signage`・`shibuya.build.lang.w15_cell_static`・`shibuya.build.pop.run`・`shibuya.build.pop.w16_population`・`shibuya.build.pop.w21_apply`・`shibuya.build.pop.w21_build`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`・`shibuya.build.run`・`shibuya.build.sched.run`・`shibuya.build.sched.trial`・`shibuya.build.sched.w17_schedule`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.build.space.navmesh1`・`shibuya.build.space.sources`・`shibuya.build.vis.run`・`shibuya.build.vis.w8_visibility`・`shibuya.build.vis.w9_shadow`・`tools/build_geo/walkable_area.py`・`tools/c8/sensitivity.py`・`tools/spatial/las_pointcloud_agg.py`
 - 読む試験: `tests/build_audit/test_audit_pipeline.py`・`tests/build_audit/test_audit_units.py`・`tests/build_field/test_field_pipeline.py`・`tests/build_field/test_w10_ruler.py`・`tests/build_geo/test_geo_pipeline.py`・`tests/build_geo/test_geo_units.py`・`tests/build_lang/test_w14_signage.py`・`tests/build_lang/test_w15_cell_static.py`・`tests/build_pop/test_pop_pipeline.py`・`tests/build_pop/test_w21_stage10_swap.py`・`tests/build_sched/test_w17_ingest.py`・`tests/build_sched/test_w20_w21_port.py`・`tests/build_vis/test_vis_pipeline.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/engine/calendar/test_calendar_shadow.py`・`tests/engine/test_weather_calendar_10e.py`・`tests/test_build_run_keep_stage.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [poi_class.py](../../../../../../../../src/shibuya/build/geo/poi_class.py)
 
@@ -54,6 +56,7 @@ W6 POI の種別(cat)・サブカテゴリ(subcat)分類。**OSM タグが一次
   - `tag_tier_report`(関数): 新旧 2 群の生タグを POI ごとに比べた件数(W6 の notes 用・決定論)。
 - 呼び手: `shibuya.build.geo.w6_poi_org`
 - 読む試験: `tests/build_field/test_field_units.py`・`tests/build_geo/test_poi_class.py`・`tests/engine/test_eatery_place_food.py`・`tests/engine/test_intent_chooser.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [run.py](../../../../../../../../src/shibuya/build/geo/run.py)
 
@@ -67,6 +70,7 @@ build.geo.run — 段階を W 番号順に実行し、ヘッダと build_manifes
 - import している内部モジュール: `shibuya.build.geo`・`shibuya.build.geo.common`・`shibuya.build.geo.w0_crs`・`shibuya.build.geo.w11_station_exits`・`shibuya.build.geo.w1_walk_graph`・`shibuya.build.geo.w2_cells`・`shibuya.build.geo.w3_distances`・`shibuya.build.geo.w4_heights`・`shibuya.build.geo.w5_entrances`・`shibuya.build.geo.w6_poi_org`
 - 呼び手: `shibuya.build.audit.run`・`shibuya.build.field.run`・`shibuya.build.lang.run`・`shibuya.build.pop.run`・`shibuya.build.run`・`shibuya.build.sched.run`・`shibuya.build.vis.run`
 - 読む試験: `tests/build_geo/test_geo_pipeline.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - CLI の引数
   - `--data`: 入力データ根(既定 data)
   - `--out`: 出力ディレクトリ(例 data/world/v2)
@@ -81,6 +85,7 @@ W0 原点・座標系凍結(§1 W0)。
   - `run`(関数)
 - import している内部モジュール: `shibuya.build.geo.common`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.geo.run`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w11_station_exits.py](../../../../../../../../src/shibuya/build/geo/w11_station_exits.py)
 
@@ -90,6 +95,7 @@ W11 駅・出口(§1 W11・D-W13)。
   - `run`(関数)
 - import している内部モジュール: `shibuya.build.geo.common`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.geo.run`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w1_walk_graph.py](../../../../../../../../src/shibuya/build/geo/w1_walk_graph.py)
 
@@ -102,6 +108,7 @@ W1 歩行グラフ(§1 W1・D-W3・D-W4)。
 - import している内部モジュール: `shibuya.build.geo.common`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.geo.run`
 - 読む試験: `tests/build_geo/test_geo_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w2_cells.py](../../../../../../../../src/shibuya/build/geo/w2_cells.py)
 
@@ -112,6 +119,7 @@ W2 セル生成(§1 W2・D-W2)。
 - import している内部モジュール: `shibuya.build.geo.common`
 - 呼び手: `shibuya.build.geo.run`
 - 読む試験: `tests/build_geo/test_geo_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w3_distances.py](../../../../../../../../src/shibuya/build/geo/w3_distances.py)
 
@@ -123,6 +131,7 @@ W3 全点対距離(§1 W3・D-W4)。
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.core.rng`
 - 呼び手: `shibuya.build.geo.run`
 - 読む試験: `tests/build_geo/test_geo_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w4_heights.py](../../../../../../../../src/shibuya/build/geo/w4_heights.py)
 
@@ -135,6 +144,7 @@ W4 建物・高さ(§1 W4・D-W5)。
 - import している内部モジュール: `shibuya.build.geo.common`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.geo.run`
 - 読む試験: `tests/build_geo/test_geo_units.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w5_entrances.py](../../../../../../../../src/shibuya/build/geo/w5_entrances.py)
 
@@ -145,6 +155,7 @@ W5 入口点(§1 W5・D-W6)。
   - `run`(関数)
 - import している内部モジュール: `shibuya.build.geo.common`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.geo.run`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 
 ## [w6_poi_org.py](../../../../../../../../src/shibuya/build/geo/w6_poi_org.py)
 
@@ -155,4 +166,5 @@ W6 POI・組織の束縛(§1 W6・D-W7)。
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.geo.poi_class`
 - 呼び手: `shibuya.build.audit.w19_freeze`・`shibuya.build.geo.run`
 - 読む試験: `tests/build_geo/test_geo_pipeline.py`・`tests/build_geo/test_poi_class.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: D-97・第 281

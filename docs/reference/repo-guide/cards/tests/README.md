@@ -49,7 +49,9 @@ data が要る試験の印 ``requires_data(<id>, ...)`` の登録表(第333・3-
 - 公開の関数とクラス
   - `Names`(クラス): モジュールの名の集まり。頭(包み)は名の一致だけ、頭でないモジュールは中の名(``mod.名``)も含む。
   - `PlacesMapError`(クラス): 対応表が今の木を説明しない(空・形が違う・古い)。試験を黙って通さず落とす(検収 M-2)。
+  - `current_index`(関数): 「今の道 → 元の道」から「元の道 → 今の道」の索引を作る。〔再検収 L-7〕2 つの今のファイルが同じ元の道を持てば止める
   - `current_of`(関数): 元の道 → 今の道(``.py`` だけ。移す前の木では同じ道。今の木に無い元の道は ``KeyError``)。src の宣言の文などが元の道で
+  - `declared_path_now`(関数): src の宣言の文が書く ``.py`` の道(``src/shibuya`` からの相対)→ 今の木の道。
   - `files_from`(関数): :func:`rels_from` の今のファイル。
   - `imported`(関数): import の文が読むモジュール: ``import a.b`` は ``a.b``。``from P import c`` は、``P.c`` が木のモジュール(子の
   - `module_names`(関数): モジュールそのものの名(包みの代わりでなく 1 本ずつ)。
@@ -64,7 +66,7 @@ data が要る試験の印 ``requires_data(<id>, ...)`` の登録表(第333・3-
   - `rels_from`(関数): 元の置き場が ``mods`` の元のディレクトリ(``recursive`` なら下の包みも)にある、今のファイルの道(並べたもの)。
   - `tree_modules`(関数): 今の木の全部のモジュールの名(包みの頭を含む)。
   - `unknown`(関数): ``shibuya.`` で始まるのに、木のどのモジュールにも包みにも解けない名(:func:`imported` が返す名に使う)。
-- 読む試験: `tests/_head_copy_pin.py`・`tests/bench/test_refr20b_tool.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/c6/test_t3_parallel_invariance.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/test_single_write_path.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/processes/test_runner.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/test_add_at_guard.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_two_phase.py`・`tests/engine/time/test_t0_no_tick_word.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`・`tests/llm/test_fleet_contract.py`・`tests/test_places_guard.py`・`tests/tools/test_repo_guide.py`・`tests/world/processes/test_declarations_1101.py`
+- 読む試験: `tests/_head_copy_pin.py`・`tests/bench/test_refr20b_tool.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/c6/test_t3_parallel_invariance.py`・`tests/c8/test_places_rule_copies.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/test_single_write_path.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/processes/test_runner.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/test_add_at_guard.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_two_phase.py`・`tests/engine/time/test_t0_no_tick_word.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`・`tests/llm/test_fleet_contract.py`・`tests/test_places_guard.py`・`tests/tools/test_repo_guide.py`・`tests/world/processes/test_declarations_1101.py`
 
 ## [_time_gates.py](../../../../../tests/_time_gates.py)
 
@@ -278,10 +280,15 @@ manifest 機械化規則の追加検査(層2レビュー指摘・C0出口): MARL
 ``tests/_places.py`` の対応表の確かめ(検収 M-2)と、解けない名の扱い(検収 L-1)。
 
 - 公開の関数とクラス
+  - `non_move_rows`(関数): 表の move でない行の old と、move で old と new が同じ行の old。
   - `test_a_fake_tree_maps_moves_and_allows_only_empty_new_heads`(関数)
   - `test_a_map_missing_one_row_stops`(関数): 1 行欠けた(古い)表: 今の木にある ``cli.py`` の行を抜くと、``cli.py`` が表に無いファイルとして止まる。
   - `test_a_map_with_renamed_row_keys_stops`(関数)
+  - `test_a_non_move_row_for_a_new_file_is_caught_and_a_move_row_is_not`(関数): 負の対照: 新しい置き場のファイルを道が変わらない行(keep・split・delete・empty か、old と new が同じ move)で載せた表は
   - `test_an_empty_or_foreign_map_stops`(関数)
+  - `test_current_index_stops_when_two_files_share_one_origin`(関数): 〔再検収 L-7〕2 つの今のファイルが同じ元の道を持てば ``current_of`` の索引は止める。
+  - `test_declared_path_now_reads_the_origin_first_then_the_tree`(関数): 〔再検収 L-6〕宣言の道は、表の元の道として引ければ今の道へ・引けなければ今の木に在るか・どちらでもなければ止める。
+  - `test_rows_that_keep_their_place_are_frozen`(関数): 〔再検収 M-4・L-8〕道が変わらない行(move でない行と、move で old と new が同じ行)は黙って足せない: 表の集合が固定の
   - `test_the_real_map_explains_the_current_tree`(関数)
   - `test_unresolvable_shibuya_names_are_hits`(関数): 検収 L-1: 木のどのモジュールにも包みにも解けない ``shibuya.`` の名は、層の試験の違反(``Names.hits``)。
 - import している内部モジュール: `shibuya.cli`・`tests/_places.py`
