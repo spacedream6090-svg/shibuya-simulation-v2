@@ -394,6 +394,14 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #145 コードの区分の移動 段 4-1=foundation へ 36 本を移した+移す道具に段ごとの import の決まりと package-data(1 バイト不変)(11-09 §4-2 の 4・第346・2026-11-11・実装役 Opus 5.5・別の検収役・親が当てて検収)
+
+- 正典: [返事その 7](docs/design/prompt-2026-11-09-reply7.md) §4-2 の 4・計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §7 の段 4。記録 [move4-346](docs/bench/analysis/move4-346/README.md)(段ごとの手順と結果)・[pkgmove-346 §10-12](docs/bench/analysis/pkgmove-346/README.md)(import の決まり)。
+- **foundation(f0a550a)**: core 10・engine 17・perception 6・manifest 2・llm 1 の 36 本を `src/shibuya/foundation/` へ。書き換えは許可の一覧の中だけ(import の文・道の文字列 26 か所・`class_ids.py` の鍵 92・つなぎの台帳の道の表 36 行・頭の再輸出 61)。守り 7 つは全部「同じ」・当てた後の import の落ち 0。
+- **結果**: byte-check 19 構成 37 欄 19/19 同じ・終了コード 0(final `c8d68704b7b0760d`・呼数 60,939)。範囲の試験 6,777 passed・1 failed(前からの 1 本)。lint-imports 5 kept。CI 緑(276019c)。安定版のタグ `stable-v2-before-move4-foundation`(aabfa0d)。
+- **道具の更新(276019c)**: `cli.py contracts --stage <段>`=import の決まりを段ごとに差し替える(world の段から。計画 §6-4 の 8 つのうちその段の木で言えるもの+計画の 28 本と表の外の 1 本の ignore)。`move --apply` が package-data の鍵を JSON の移る段で書き換える。予行=同じ木に 11 段を重ねて全段 KEPT。検収=条件つき受入(H 0・M 2=試験の穴)→ 直し → 受入。親の仮採用は [PENDING §1-2](PENDING.md)。
+- **残り**: world の段は当てて byte-check 19/19 同じまで済み、範囲の試験で 1 本(古い commit の src を取り出して比べる試験。子のコードの import が新しい道に書き換わる)が落ちたので commit していない=試験の直しと、git のある木での残りの段の予行(試験の役)の後。
+
 ### #144 コードの区分の移動 段 3=移す道具 `tools/pkgmove/` と、段 4 の下ごしらえ(1 バイト不変・ファイルは動かしていない)(11-09 §4-2・第346・2026-11-10〜11・実装役 Opus 5.5 ×2・別の検収役 2・親検収)
 
 - 正典: [返事その 7](docs/design/prompt-2026-11-09-reply7.md) §4-2・計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §7。記録 [pkgmove-346](docs/bench/analysis/pkgmove-346/README.md)(道具)・[prep4-346](docs/bench/analysis/prep4-346/README.md)(試験)。commit 5c2e06c。

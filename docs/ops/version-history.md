@@ -17,6 +17,7 @@
 | 小 | 棚卸し B の欠陥 4 件(M10・M11・M28・M16)の直し(#138・11-03 §3)。既定の final 73aa01d9 → c8d68704・呼数 61,066 → 60,939。性能 5,000 体 60.5/61.8 s・42〜43 ms・最大 520〜527 MB(同じ巡の土台 62.8/61.8 s=揺れの範囲) | 8165b3d | `stable-v2-before-defect-fixes-1103`(3b375dc) | `git checkout stable-v2-before-defect-fixes-1103` か `--defect-fixes-1103 legacy`(環境変数 `SHIBUYA_DEFECT_FIXES_1103=legacy`・次の版上げで消す) |
 | 実証の線 | 39 万体 × 1 日の実 LLM(C7 受入) | 8f78065 | `v2-c7-day-4-accepted` | — |
 | 整理 | 旧道の切替口 5 本(SHIBUYA_RULES_42B・SHIBUYA_RULES_42・--seat-release legacy・--proximity cell・--defect-fixes-1103 legacy)と死んだ道 2 本を消した(#142・第346・既定の結果は不変=37 欄のうち台帳の件数の 3 欄だけ動いた)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 59.7 秒/後 50.9 秒(19 構成を 6 本並列・同じ機械で。並列の混み方で揺れるので比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | 7e595d9〜3d88da1 | `stable-v2-before-switch-removal-346`(6753891) | `git checkout stable-v2-before-switch-removal-346`(消した旧道の値の再現) |
+| 整理 | コードの区分の移動 段 4-1=foundation へ 36 本を移した(#145・第346・1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 89.7 秒/後 81.2 秒(19 構成を 6 本並列+裏で範囲の試験を 4 並列・同じ機械で。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | f0a550a | `stable-v2-before-move4-foundation`(aabfa0d) | `git checkout stable-v2-before-move4-foundation`(移す前の置き場) |
 
 ## 版上げと整理の段の手順(byte-check)
 
