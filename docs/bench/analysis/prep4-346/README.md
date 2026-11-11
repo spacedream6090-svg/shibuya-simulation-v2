@@ -691,3 +691,107 @@ economy・act・mind・society・experiments・validation・delete の 7 つの�
 
 判断が要る点: 固定の一覧に split の 24 行が入ったので、段 5〜7 で割る行を move などに替えるたびに、この一覧も直すことになる(試験が
 「減った」と知らせる)。
+
+## 13. 第 5 回(段 4 の本番の world の段で落ちた試験・git の要る試験の総点検)
+
+> 発注: 親の指示(段 4 の本番=foundation の段の commit `f0a550a` と道具の更新 `276019c` の上で、world の段を当てた木の範囲の試験で
+> `test_percept_is_scratch.py::test_replay_full_hash_matches_the_head_copy` が落ちた)。置き場は foundation を当てた本体の頭の
+> linked の作業木。変えたファイルは `tests/perception/facts/test_percept_is_scratch.py` と本書だけ。
+
+### 13-1 何が起きたか・予行で見えなかった理由
+
+試験は古い commit(`a3a8104`)の src を `git archive` で取り出し、子のプロセスのコード `_REPLAY_CHILD` を**古い src と今の src の
+両方**で回す。`_REPLAY_CHILD` は許可の一覧の記号なので、移す道具が import の文を新しい置き場の名(world の段で
+`shibuya.world.model…`)に書き換える。古い src にその名は無いので、古い src の子が `ModuleNotFoundError` で落ちた。
+
+この役と検収役の写しの木は git の木でなかったので、git の要る 12 本(`test_bytecheck` 10・`test_state_format_10f` の u1・この試験)は
+「git が無い」「commit が無い」で飛んでいた(§10-4 の飛ばした理由)。linked の作業木と CI(fetch-depth 0)では走る。
+
+### 13-2 直し(親の案 (c))
+
+| ファイル | 直し方 | 保たれていること |
+|---|---|---|
+| `tests/perception/facts/test_percept_is_scratch.py` | 古い src で回す子のコードは、**ファイルを移す前の commit の、このファイルの** `_REPLAY_CHILD` を使う: 定数 `CHILD_COMMIT`(安定版のタグ stable-v2-before-move4-foundation の commit の完全な sha)・`git show <CHILD_COMMIT>:<このファイルの道>` を AST で読んで `_REPLAY_CHILD` の値を取る(`_child_before_the_move`。道は `__file__` から作る=新しい道の字面を足さない)。取り出せなければ今と同じく skip。使う前に `_child_problems` で、取り出した子のコードと今の `_REPLAY_CHILD` が「import の文のほかは同じ」(`tests/_head_copy_pin.py` の字面の sha256 と束ごとの文の置く名)・「import の文が読むモジュールの元の置き場が同じ」(今の名の元の置き場=`tests/_places.origin_module` が移す前の名と同じ)ことを確かめる。今の src の子は今の `_REPLAY_CHILD`(道具が書き換えた import の文)で回す。`_REPLAY_CHILD` そのものは変えていない | **同じテープを古い src(1-2 の前)と今の src で再生し、全部の checkpoint の full-hash・behavior-hash・final が同じ**(変えていない・弱めていない)。古い src の子と今の src の子が、import の文の書き方のほかは同じコード |
+
+許可の一覧: 直しで足した字面に、移す道具の走査が拾う形(src の道・点の名・import の文)は無い。走査(`cli.py allow` と同じ
+`scan_allow`)を、直す前と後のファイルで比べて同じ(移す前の木で記号 98・foundation を当てた木で記号 82。どちらも記号と書き換えの
+数の差 0)。許可の一覧は作り直していない。
+
+ほかの形(採らなかった): 子のコードに読むモジュールの名を引数で渡す形は `_REPLAY_CHILD` の import の文を変える=許可の一覧が
+変わる(段 4 の間は作り直さない運用)。今の `_REPLAY_CHILD` の import の文を対応表で逆に書き戻す形は、文字列の書き換えを試験の中に
+持つことになり、(c) より壊れやすい。
+
+### 13-3 git の要る試験の総点検
+
+古い commit の src や記録を取り出す試験と、git を使う試験の全部(tests/c7 を除く。`"git"`・`git archive`・`git show`・
+`BASE_COMMIT`・`rev-parse` などで探した 10 本のファイル)。
+
+| 試験のファイル | 何を取り出す・git で何をするか | 道具が書き換える字面と一緒に使うか | 結果 |
+|---|---|---|---|
+| `tests/perception/facts/test_percept_is_scratch.py` | `git archive a3a8104`(src と錨 2 本と予算の宣言)+`git show <CHILD_COMMIT>`(移す前の子のコード) | 使う(`_REPLAY_CHILD`=許可の一覧の記号)→ 直した(§13-2) | 全部の段で通る |
+| `tests/engine/test_state_format_10f.py`(u1) | `git archive 129da80`(src と錨と予算の宣言)。子のコード `_HEAD_CHILD` は古い src でだけ回す | 子のコードは `shibuya.engine.run` を読む。engine/run.py は段 4 で動かない(割る行・保留)ので書き換わらない(許可の一覧の記号でもない) | 全部の段で通る(段 5〜7 は §13-7) |
+| `tests/tools/test_bytecheck.py`(10 本) | `git ls-files`・`rev-parse HEAD`・今の commit の `git archive`・`git init` | 使わない(今の木と今の commit) | 全部の段で通る |
+| `tests/tools/test_repo_guide.py` | 試験の中の合成のリポで `git init`・`add` | 見本の木は道具の定数から(§10-3) | 全部の段で通る |
+| `tests/engine/test_env_and_sections_10f.py` | ランの git の欄(`rev-parse`・`status`・`diff`) | 使わない | 全部の段で通る |
+| `tests/tools/test_pkgmove.py` | 道具の試験(git の木が前提) | 道具の役の持ち物 | 全部の段で通る(段ごとの理由つきの skip だけ) |
+| `tests/engine/bridging/test_manifest_rules_bridges.py` | git は使わない(`git archive` の写しの形を合成で作る) | 使わない | 全部の段で通る |
+| `tests/engine/proximity/test_runs.py` | git は使わない(古い commit の写しで回した値の記録) | 使わない | 全部の段で通る |
+| `tests/economy/cp2/test_cp2_nine_ops_equivalence.py` | git は使わない(`git show 136fdbb` の写しを固定=§1-1) | 写しの import の文は道具が書き換える。固定は字面・文の順・意味で見る | 全部の段で通る |
+| `tests/perception/facts/test_render_from_percept_bytes.py` | 同上(描画の写し) | 同上 | 全部の段で通る |
+
+### 13-4 段ごとの結果(git のある木)
+
+foundation を当てた本体の頭(`276019c`)の linked の作業木で、直した試験の 1 本のファイル=11 passed、上の 10 本のファイル=404 passed・
+1 skipped。段を重ねる予行は、同じ頭から作った別の linked の作業木(detached・data はつなぎ)に直しを写し、取り込みの作業木の道具で
+world から 1 段ずつ `move --stage <段> --apply` と `contracts --stage <段> --apply` を当て、段ごとに上の 10 本のファイルを回した。
+
+| 段 | move(書いた・移した) | import の確かめ | 10 本のファイル |
+|---|---|---|---|
+| world | 322・48 | 340 モジュール・落ちた 0 | 402 passed・3 skipped |
+| economy | 41・3 | 339・0 | 403 passed・2 skipped |
+| act | 40・3 | 341・0 | 402 passed・3 skipped |
+| mind | 134・25 | 347・0 | 402 passed・3 skipped |
+| society | 62・6 | 349・0 | 402 passed・3 skipped |
+| runtime | 180・35 | 354・0 | 402 passed・3 skipped |
+| experiments | 48・9 | 356・0 | 402 passed・3 skipped |
+| validation | 30・6 | 355・0 | 402 passed・3 skipped |
+| delete | 0・0 | 354・0 | 401 passed・4 skipped |
+| (参考)interim_bundles | 53・9 | 356・0 | 386 passed・19 skipped |
+
+contracts はどの段も終了コード 0。飛ばしたのはどの段も `test_pkgmove.py` の理由つき(foundation の段が当たった木・次に当てる段に頭の
+再輸出を除く頭が無い・凍結の JSON がもう移った木・当てる段が無い木など)。前に写しの木で飛んでいた 12 本は、どの段でも走って通った。
+
+**delete の段の木で範囲の試験の全体**(`pytest tests --ignore=tests/c7 -m "not gpu and not slow" -n 4 --dist loadfile`・35 分):
+**1 failed・6,786 passed・5 skipped・1 xfailed**。落ちたのは前からの `test_ab7_seed1_open_matches_the_parent_report` だけ。飛ばした 5 本は
+`test_pkgmove.py` 4(理由つき)と Ruri の重み 1。
+
+### 13-5 突然変異(1 本ずつ順に)
+
+| 変異 | 木 | 期待 | 結果 |
+|---|---|---|---|
+| P1 今の `_REPLAY_CHILD` の import の文のほか(出力の欄)を変える | foundation・全段 | 落ちる | 「import の文のほかの字面が違う」 |
+| P2 今の `_REPLAY_CHILD` が `World` を別のモジュールから読む | foundation | 落ちる | 「読むモジュールの元の置き場が違う」 |
+| P3 古い src の子にも今の `_REPLAY_CHILD` を使う(直す前の形) | 全段(delete まで) | 落ちる | `ModuleNotFoundError`(本番の world の段の落ち方を再現) |
+| P4 対照: 同じ変異を foundation を当てた木で(古い道と今の道が同じ) | foundation | 通る | 通った |
+
+### 13-6 道具の役へ渡すこと
+
+1. 予行の写しの木は git の木にする(linked の作業木)。git の木でない写しでは、git の要る 12 本が理由つきで飛び、今回の落ち方が
+   見えなかった。
+2. 古い commit の src で回す子のコードは、許可の一覧の記号にすると古い src で import できなくなる。今は `_REPLAY_CHILD` だけ
+   (§13-2 で試験の側が直した)。
+
+### 13-7 判断が要る点
+
+1. **`CHILD_COMMIT` を移す前の commit に固定した**: 段 4 の後に `_REPLAY_CHILD` の import の文のほか(出力の欄など)を変えると、取り出した
+   子のコードと違うので試験が落ちる(P1)。そのときは、古い src(`a3a8104`)で回せる子のコードを別に持つか、`BASE_COMMIT` と
+   `CHILD_COMMIT` を一緒に見直す。
+2. **`test_state_format_10f` の `_HEAD_CHILD`**: 古い src でだけ回す子のコードで、`shibuya.engine.run` を読む。engine/run.py は段 4 では
+   動かない(割る行・保留)ので通るが、段 5〜7 で割って動かし、`_HEAD_CHILD` が許可の一覧に入ると同じ落ち方になる。そのときは同じ形
+   (移す前の commit から取り出す)で直す。
+3. git の要る試験は、浅い clone では commit が無くて skip する(今と同じ)。CI は fetch-depth 0 なので走る。
+
+### 13-8 作った作業木とつなぎ(消していない・親が片付ける)
+
+〔git の作業木の外の置き場〕に linked の作業木 1 つ(detached・`276019c`。world から interim_bundles までを当て、作業木に変更が
+残っている)と、その data のつなぎ 1 つ、段ごとの報告の置き場 1 つ。枝は作っていない。

@@ -207,6 +207,60 @@ print(json.dumps({"src": shibuya.__file__, "full": [c.full_hash for c in res.che
                   "misses": int(res.tape_miss_count), "calls": int(res.llm_calls)}))
 """
 
+#: 〔段 4〕古い src(``BASE_COMMIT``)で回す子のコードは、**ファイルを移す前の commit の、このファイルの** ``_REPLAY_CHILD``
+#: (安定版のタグ stable-v2-before-move4-foundation の commit)。上の ``_REPLAY_CHILD`` は、移す道具が import の文を新しい置き場の
+#: 名に書き換える(今の src で回すため)ので、古い src では import できない。取り出した子のコードと上の子のコードは、import の文の
+#: ほかは同じ・import の文は同じ名を同じ元の置き場から読むことを確かめてから使う(:func:`_child_problems`)。
+CHILD_COMMIT = "aabfa0d081fa2f409bd852072f7581a8287ec31a"
+
+
+def _child_before_the_move(root):  # noqa: ANN001, ANN202
+    """移す前の commit の、このファイルの ``_REPLAY_CHILD`` の値(git が無い・commit が無い・見つからなければ None)。"""
+    import ast
+    import subprocess
+    from pathlib import Path
+
+    rel = Path(__file__).resolve().relative_to(root.resolve()).as_posix()
+    r = subprocess.run(["git", "-C", str(root), "show", f"{CHILD_COMMIT}:{rel}"], capture_output=True)
+    if r.returncode != 0:
+        return None
+    for node in ast.parse(r.stdout).body:
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == "_REPLAY_CHILD"):
+            return ast.literal_eval(node.value)
+    return None
+
+
+def _child_problems(before: str, now: str, tmp) -> list[str]:  # noqa: ANN001
+    """移す前の子のコードと今の子のコードの違い(import の文のほかの字面・import の文の置く名と順・読むモジュールの元の置き場)。
+
+    字面と置く名は ``tests/_head_copy_pin.py`` の比べ方(``shibuya`` を読む import の文を印の行に替えた全体の sha256・束ごとの
+    文の置く名)。読むモジュールは、今の名の元の置き場(``tests/_places.py``)が移す前の名と同じこと。"""
+    import ast
+
+    from tests import _head_copy_pin as HC
+    from tests import _places as PL
+
+    a, b = tmp / "child_before_the_move.py", tmp / "child_now.py"
+    a.write_text(before, encoding="utf-8")
+    b.write_text(now, encoding="utf-8")
+    out = []
+    if HC.text_sha256(a, lf=True) != HC.text_sha256(b, lf=True):
+        out.append("import の文のほかの字面が違う")
+    if HC.statement_names(a, lf=True) != HC.statement_names(b, lf=True):
+        out.append("import の文の置く名か順が違う")
+
+    def mods(code: str) -> list[list[str]]:
+        rows = []
+        for n in HC.shibuya_imports(ast.parse(code)):
+            rows.append([n.module] if isinstance(n, ast.ImportFrom) else [x.name for x in n.names])
+        return rows
+
+    mb, mn = mods(before), mods(now)
+    if len(mb) != len(mn) or any([PL.origin_module(m) for m in y] != x for x, y in zip(mb, mn)):
+        out.append(f"読むモジュールの元の置き場が違う: {mb} と {mn}")
+    return out
+
 
 @pytest.fixture
 def recorded_tape(tmp_path):
@@ -334,6 +388,10 @@ def test_replay_full_hash_matches_the_head_copy(recorded_tape, tmp_path):
                         "docs/design/v2-budget-declaration.md"], capture_output=True)
     if r.returncode != 0:
         pytest.skip(f"commit {BASE_COMMIT} が無い")
+    before = _child_before_the_move(root)
+    if before is None:
+        pytest.skip(f"commit {CHILD_COMMIT} が無い")
+    assert _child_problems(before, _REPLAY_CHILD, tmp_path) == []
     head = tmp_path / "head_src"
     with tarfile.open(fileobj=io.BytesIO(r.stdout)) as tf:
         tf.extractall(head, filter="data")
@@ -342,15 +400,16 @@ def test_replay_full_hash_matches_the_head_copy(recorded_tape, tmp_path):
     tape, rec = recorded_tape
     kw = json.dumps({**FLEET_KW, "_cells": FLEET_CELLS})
 
-    def child(src: Path) -> dict:
+    def child(src: Path, code: str) -> dict:
         env = dict(os.environ, PYTHONPATH=str(src), PYTHONIOENCODING="utf-8", PYTHONHASHSEED="0")
-        c = subprocess.run([sys.executable, "-c", _REPLAY_CHILD, str(tape), kw], cwd=str(root), env=env,
+        c = subprocess.run([sys.executable, "-c", code, str(tape), kw], cwd=str(root), env=env,
                            capture_output=True, text=True, encoding="utf-8", timeout=600)
         assert c.returncode == 0, c.stderr[-3000:]
         return json.loads(c.stdout.strip().splitlines()[-1])
 
-    h = child(head / "src")
-    w = child(root / "src")
+    # 〔段 4〕古い src は移す前の子のコードで、今の src は今の子のコード(移す道具が書き換えた import の文)で回す
+    h = child(head / "src", before)
+    w = child(root / "src", _REPLAY_CHILD)
     assert "head_src" in h["src"] and "head_src" not in w["src"]
     assert h["misses"] == w["misses"] == 0 and h["calls"] == w["calls"] == rec.llm_calls
     assert len(h["full"]) == FLEET_KW["ticks"] // FLEET_KW["checkpoint_every"]

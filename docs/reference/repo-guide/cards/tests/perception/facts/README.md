@@ -76,7 +76,7 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `test_scratch_field_and_its_single_writer`(関数)
   - `test_stage_c_stops_a_write_from_another_system`(関数)
   - `test_stub_renderer_writes_an_empty_mapping`(関数)
-- import している内部モジュール: `shibuya.engine.llm_bridge`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.boxes`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.decide`・`shibuya.engine.systems.table`・`shibuya.foundation.ports.percept`・`shibuya.foundation.write_guard`・`shibuya.llm.fleet`・`shibuya.perception.renderer`・`shibuya.world.state`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.engine.llm_bridge`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.boxes`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.decide`・`shibuya.engine.systems.table`・`shibuya.foundation.ports.percept`・`shibuya.foundation.write_guard`・`shibuya.llm.fleet`・`shibuya.perception.renderer`・`shibuya.world.state`・`tests/_head_copy_pin.py`・`tests/_places.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
 - 環境変数: `SHIBUYA_SYSTEMS_CHECK`・`os.environ` をまるごと使う
 - 決定の ID: D-58・第 337
 

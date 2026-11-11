@@ -40,7 +40,7 @@ data が要る試験の印 ``requires_data(<id>, ...)`` の登録表(第333・3-
   - `statement_names`(関数): 束ごとに、文ごとの置く名(文の中の順)。移す前の写しで作ったものが文の順の固定の表になる。
   - `text_sha256`(関数): 字面の固定: 束を印の行に替えた全体の sha256(``lf`` なら先に CRLF を LF に揃える)。
 - import している内部モジュール: `tests/_places.py`
-- 読む試験: `tests/economy/cp2/head_copies.py`・`tests/perception/facts/scenes.py`
+- 読む試験: `tests/economy/cp2/head_copies.py`・`tests/perception/facts/scenes.py`・`tests/perception/facts/test_percept_is_scratch.py`
 
 ## [_places.py](../../../../../tests/_places.py)
 
@@ -66,7 +66,7 @@ data が要る試験の印 ``requires_data(<id>, ...)`` の登録表(第333・3-
   - `rels_from`(関数): 元の置き場が ``mods`` の元のディレクトリ(``recursive`` なら下の包みも)にある、今のファイルの道(並べたもの)。
   - `tree_modules`(関数): 今の木の全部のモジュールの名(包みの頭を含む)。
   - `unknown`(関数): ``shibuya.`` で始まるのに、木のどのモジュールにも包みにも解けない名(:func:`imported` が返す名に使う)。
-- 読む試験: `tests/_head_copy_pin.py`・`tests/bench/test_refr20b_tool.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/c6/test_t3_parallel_invariance.py`・`tests/c8/test_places_rule_copies.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/test_single_write_path.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/processes/test_runner.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/test_add_at_guard.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_two_phase.py`・`tests/engine/time/test_t0_no_tick_word.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`・`tests/llm/test_fleet_contract.py`・`tests/test_places_guard.py`・`tests/tools/test_repo_guide.py`・`tests/world/processes/test_declarations_1101.py`
+- 読む試験: `tests/_head_copy_pin.py`・`tests/bench/test_refr20b_tool.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/c6/test_t3_parallel_invariance.py`・`tests/c8/test_places_rule_copies.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/test_single_write_path.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/processes/test_runner.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/test_add_at_guard.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_two_phase.py`・`tests/engine/time/test_t0_no_tick_word.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`・`tests/llm/test_fleet_contract.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/test_places_guard.py`・`tests/tools/test_repo_guide.py`・`tests/world/processes/test_declarations_1101.py`
 
 ## [_time_gates.py](../../../../../tests/_time_gates.py)
 
