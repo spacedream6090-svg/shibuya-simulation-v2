@@ -67,7 +67,7 @@ def _bundle(world: World, n_agents: int) -> LedgerBundle:
 def _stage2_off():
     """〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=本ファイル(台帳の配線=段階 2 の外の C4 の帳簿)は切替口 off で見る
     (段階 2 の帳簿・語・保存則は ``tests/economy/stage2``)。"""
-    from shibuya.engine import economy_stage2 as ES2
+    from shibuya.economy import stage2_bind as ES2
 
     mp = pytest.MonkeyPatch()
     mp.setattr(ES2, "_ARM", ES2.ARM_OFF)

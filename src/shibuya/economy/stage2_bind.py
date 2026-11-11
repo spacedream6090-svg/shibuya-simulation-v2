@@ -192,7 +192,7 @@ def check_resume(saved: Any, *, effective: bool = True) -> None:
                          "(安定版のタグ stable-v2-before-wage-occupation で回す)")
     # 〔第 4 期 4-2〕規則の表の中身(見出しに無い=off=4-2 の前の状態)。〔第346〕旧値の切替口 SHIBUYA_RULES_42=off は消した=
     # 見出しに on が無い状態のファイルからは再開できない
-    from shibuya.engine import economy_rules as _ER
+    from shibuya.economy import rules_bind as _ER
 
     s_law = str(s.get("rules_42", _ER.ARM_OFF))
     if now_arm == ARM_ON and s_law != _ER.ARM_ON:
@@ -788,7 +788,7 @@ def attach(ledger_bundle: Any, *, schedule: Any, weekly: Any, calendar: Any, wor
     winp = wage_inputs(schedule, pop, n_agents)
     total = population_total(world_dir) if pop is not None else None
     scale = (float(n_agents) / float(total)) if total else None
-    from shibuya.engine import economy_rules as _ER  # 〔第 4 期 4-2〕給与の天引きと預かり消費税の材料(〔第346〕常に挿す)
+    from shibuya.economy import rules_bind as _ER  # 〔第 4 期 4-2〕給与の天引きと預かり消費税の材料(〔第346〕常に挿す)
 
     law = _ER.payroll_inputs(pop, world_dir, n_agents, np.asarray(schedule.kind)[: int(n_agents)])
     plan = Stage2Plan(parts=_PARTS, kinds=np.asarray(schedule.kind)[: int(n_agents)], monthly_hours=hours,

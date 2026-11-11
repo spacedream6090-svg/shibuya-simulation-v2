@@ -38,7 +38,7 @@ from typing import Any, Final, Mapping
 
 import numpy as np
 
-from shibuya.core.wage_formula import (  # noqa: F401 — 同じ物を見せる(二重に作らない)
+from shibuya.economy.wage_formula import (  # noqa: F401 — 同じ物を見せる(二重に作らない)
     WAGE_OCCUPATIONS,
     WAGE_AGE_EDGES,
     WAGE_CLASS_FLOOR_YEN,

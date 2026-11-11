@@ -161,7 +161,7 @@ def payroll_inputs(pop: Any, world_dir: Any, n_agents: int, kinds: Any) -> Payro
     path = None if world_dir is None else Path(world_dir) / RIGHTS_INITIAL_FILE
     if pid_all is None or path is None or not path.exists():
         if pid_all is not None:
-            from shibuya.engine.economy_stage2 import DataAbsentWarning
+            from shibuya.economy.stage2_bind import DataAbsentWarning
 
             warnings.warn(f"{RIGHTS_INITIAL_FILE} が無い写し: 給与の天引きの加入の判定の材料なし(社会保険は未加入)",
                           DataAbsentWarning, stacklevel=2)

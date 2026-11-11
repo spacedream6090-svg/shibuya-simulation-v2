@@ -804,7 +804,7 @@ AB7 自由意図の腕の切替口 — エンジン側(``docs/design/v2-open-int
   - `test_wiring_does_not_change_the_state_hashes_when_goods_processes_are_off`(関数): 物の過程を切れば、台帳を注入しても checkpoint ハッシュは同じ(帳簿を足すだけ)。
   - `test_world_stock_is_a_mirror_of_the_shelf`(関数): ``world.pois.stock`` は棚(SKU 別)の写し。真値は物の台帳にある。
   - `wired`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.checks`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.commit`・`shibuya.engine.economy_stage2`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.growth`・`shibuya.foundation.ports.ledger`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.state`・`tests/_time_gates.py`・`tests/engine/time/__init__.py`・`tests/golden_env.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.checks`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2_bind`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.growth`・`shibuya.foundation.ports.ledger`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.state`・`tests/_time_gates.py`・`tests/engine/time/__init__.py`・`tests/golden_env.py`
 - 決定の ID: 11-01・D-53・D-56・第 330
 
 ## [test_llm_mock.py](../../../../../../tests/engine/test_llm_mock.py)
@@ -1039,7 +1039,7 @@ D-62「就寝は計画の実行」(ユーザー決定 (a)+(b)・2026-09-10)の�
   - `test_w16_shaped_population_has_no_swap_columns`(関数)
   - `test_wage_inputs_take_w21_words_and_given_wages`(関数)
   - `test_without_the_table_the_rows_are_the_same_as_before`(関数)
-- import している内部モジュール: `shibuya.build.pop.w21_build_c`・`shibuya.cli`・`shibuya.engine.decision.persona`・`shibuya.engine.economy_stage2`・`shibuya.engine.systems.build`・`shibuya.foundation.ports.decision`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`
+- import している内部モジュール: `shibuya.build.pop.w21_build_c`・`shibuya.cli`・`shibuya.economy.stage2_bind`・`shibuya.engine.decision.persona`・`shibuya.engine.systems.build`・`shibuya.foundation.ports.decision`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`
 
 ## [test_presence_derive_v2.py](../../../../../../tests/engine/test_presence_derive_v2.py)
 

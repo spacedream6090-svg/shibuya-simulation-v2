@@ -224,7 +224,7 @@ def _mock_day(monkeypatch, *, head: bool, rate: float):
     from shibuya import cli
     from shibuya.economy import ledger as LED
 
-    from shibuya.engine import economy_stage2 as ES2
+    from shibuya.economy import stage2_bind as ES2
 
     HL, HG, HW = CP.shims()
     # 〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=1-9 の台帳と HEAD の写しの同値は段階 2 の外=切替口 off で見る

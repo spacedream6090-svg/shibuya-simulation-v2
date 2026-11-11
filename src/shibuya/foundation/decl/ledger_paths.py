@@ -22,6 +22,9 @@ __all__ = ["LEDGER_PATHS", "ledger_path", "current_path"]
 
 #: 今の道 → 台帳に書いてある道(リポの根からの道筋・``/`` 区切り)。移す道具が書き足す(鍵の昇順・1 行 1 組)。
 LEDGER_PATHS: Final[Mapping[str, str]] = MappingProxyType({
+    "src/shibuya/economy/rules_bind.py": "src/shibuya/engine/economy_rules.py",
+    "src/shibuya/economy/stage2_bind.py": "src/shibuya/engine/economy_stage2.py",
+    "src/shibuya/economy/wage_formula.py": "src/shibuya/core/wage_formula.py",
     "src/shibuya/foundation/arms/calendar2.py": "src/shibuya/engine/calendar2/arm.py",
     "src/shibuya/foundation/arms/calendar3.py": "src/shibuya/engine/calendar3/arm.py",
     "src/shibuya/foundation/arms/contact.py": "src/shibuya/engine/contact/arm.py",

@@ -71,7 +71,7 @@ def _paths() -> None:
 def set_arms(config: str) -> dict[str, str]:
     """腕を選ぶ(組み立てが読む切替口)。このプロセスの中だけ。"""
     _paths()
-    from shibuya.engine import economy_stage2 as ES2
+    from shibuya.economy import stage2_bind as ES2
     from shibuya.engine import memory_store as MS
     from shibuya.world.model import proximity as PX
 

@@ -95,7 +95,7 @@ ROOT_READERS: Final[dict[str, str]] = {
     "shibuya/engine/bridging/scan.py": "包みの根 PACKAGE_ROOT の下(src の中)を走査するだけ(移す段 2-2)",
     "shibuya/engine/calendar.py": "resolve_repo_path の呼び(定義は core/paths.py)・data/calendar/syukujitsu.csv(DATA_READS)",
     "shibuya/engine/classical.py": "docs/bench/anchors/ssb2021_activity_prior_v0.json(TRACKED_READS)",
-    "shibuya/engine/economy_stage2.py": "data/realworld/osm の 2 本・data/persona_pool_v2(DATA_READS)",
+    "shibuya/economy/stage2_bind.py": "data/realworld/osm の 2 本・data/persona_pool_v2(DATA_READS)",
     "shibuya/world/body/energy.py": "docs/bench/anchors の 2 本(TRACKED_READS)",
     "shibuya/engine/resume.py": "渡された相対の道筋の同定(path_identity)と .git の commit(写しの木はリポの外=空の値)",
     "shibuya/world/facts/rules/table.py": "docs/design/rules-table.json(TRACKED_READS)",

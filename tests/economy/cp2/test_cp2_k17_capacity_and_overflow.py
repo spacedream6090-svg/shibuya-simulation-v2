@@ -205,7 +205,7 @@ def test_5k_default_day_does_not_overflow(monkeypatch):
     ``test_nineteen_configs_stay_under_the_coefficient``)。
     """
     from shibuya import cli
-    from shibuya.engine import economy_stage2 as ES2
+    from shibuya.economy import stage2_bind as ES2
 
     monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
     res = cli.run(n_agents=5_000, seed=1, world_dir="data/world/v2", vocab_version="v3")

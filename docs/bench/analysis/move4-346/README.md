@@ -22,6 +22,7 @@
 |---|---|---:|---:|---|---|---|---|
 | foundation | aabfa0d | 36(表の行 40) | 434 | モジュール 336・落ちた 0 | 19/19 同じ・終了コード 0 | 6,777 passed・1 failed(前からの 1 本)・2 skipped・1 xfailed | 5 kept(今の決まりのまま) |
 | world | fbb2287 | 48(表の行 55=move 54・empty 1) | 274 | モジュール 340・落ちた 0 | 19/19 同じ・終了コード 0 | 6,787 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed | 9 kept(古い 4+新しい 5) |
+| economy | 3b807f4 | 3(表の行 4=move 3・empty 1) | 38 | モジュール 339・落ちた 0 | 19/19 同じ・終了コード 0 | 6,788 passed・1 failed(前からの 1 本)・3 skipped・1 xfailed | 8 kept(古い 3+新しい 5) |
 
 ## foundation(2026-11-11)
 
@@ -46,3 +47,14 @@
 - 性能の参考(既定 w6_v3_default・5,000 体・seed 1・1 日・mock・同じ機械): 壁時計 基準 76.0 秒/後 75.3 秒(19 構成を 6 本並列+裏で範囲の試験を 4 並列。比べない参考値・最大メモリは測っていない)。
 - 範囲の試験: 6,787 passed・1 failed・4 skipped・1 xfailed(39 分 35 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`。道具の報告は [world/pkgmove_world_report.json](world/pkgmove_world_report.json)。
 - **1 回目の当て(基準 276019c)で見つけたこと**: 範囲の試験で `test_replay_full_hash_matches_the_head_copy` が落ちた(古い commit の src を取り出して子のコードで回す試験。道具が子のコードの import を新しい道に書き換える=結果の違いではなく試験の作り)。予行で見えなかったのは、役の写しの木が git の木でなく、git が要る試験 12 本が飛んでいたため。試験を直し(fbb2287・[prep4-346 §13](../prep4-346/README.md))、git のある作業木で world から delete までの予行をやり直してから、この段を当て直した。byte-check は 1 回目(基準 276019c)も 19/19 同じだった。
+
+## economy(2026-11-11)
+
+- 当てた行 4(move 3・empty 1)。ファイルの移動 3・新しい頭 0・空にした頭 1・消えた古いディレクトリやファイル 1・保留で当てなかった行 0。
+- import の文: src 12・build 2・tests 26・tools 0・docs の記録の道具 1。道の文字列 6 か所(src の表 1・斜線の道 2・子のプロセスへ渡すコードの import 3)。
+- 頭から除いた再輸出: 無し。`class_ids.py` の鍵 6 本。つなぎの台帳の道の表に 3 行。pyproject の package-data の鍵: 変えていない。
+- 守り 8 つは全部「同じ」。当てた後の import の確かめ=モジュール 339・落ちた 0。
+- import の決まり(`contracts --stage economy --apply`): 古い決まり 3+新しい決まり 5=lint-imports 8 kept。ignore 22 行。まだ移っていない読み手で読んでよい側に足したもの: 決まり 5: `cli`。どの決まりの元の側にも入らないモジュール: `cli`・`world.assets`・`world.processes.circularity`・`world.processes.deletion_candidates`。報告 [economy/contracts_economy.json](economy/contracts_economy.json)。
+- byte-check: 基準 3b807f4 の写しと作業木の src で 19 構成・37 欄すべて同じ・動いた 0・誤り 0(終了コード 0)。既定の final `c8d68704b7b0760d`・呼数 60,939。JSON は [economy/bytecheck/](economy/bytecheck/)。
+- 性能の参考(既定 w6_v3_default・5,000 体・seed 1・1 日・mock・同じ機械): 壁時計 基準 74.6 秒/後 65.2 秒(19 構成を 6 本並列+裏で範囲の試験を 4 並列。比べない参考値・最大メモリは測っていない)。
+- 範囲の試験: 6,788 passed・1 failed(前からの 1 本)・3 skipped・1 xfailed(37 分 36 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木だけで落ちる)。道具の報告は [economy/pkgmove_economy_report.json](economy/pkgmove_economy_report.json)。

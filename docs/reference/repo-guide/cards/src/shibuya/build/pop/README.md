@@ -67,7 +67,7 @@ build.pop — 世界データ構築 W16(母集団合成)。
   - `registry_versions`(関数): 登録表の名 → 版(``stages`` の段の関数だけ・登録の順)。
   - `savings_class`(関数): 貯蓄[円] → 貯蓄現在高の階級(0=25 万円未満=0 円を含む)。
   - `walk_seconds`(関数): 歩く道のり[m] → 秒(参照の速さで割るだけ・−1 と負は NaN)。人物の文(分に四捨五入=丸めた言葉)と W20 の片道の時間
-- import している内部モジュール: `shibuya.core.wage_formula`・`shibuya.foundation.rng`
+- import している内部モジュール: `shibuya.economy.wage_formula`・`shibuya.foundation.rng`
 - 呼び手: `shibuya.build.pop.w21_apply`・`shibuya.build.pop.w21_attrs`・`shibuya.build.pop.w21_build`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`・`shibuya.build.pop.w21_check`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_org`・`shibuya.build.pop.w21_persona`・`shibuya.build.pop.w21_port10`・`shibuya.build.pop.w21_prior`・`shibuya.build.sched.w20_w21_port`
 - 読む試験: `tests/build_pop/test_w21_attr_fns.py`・`tests/build_pop/test_w21_stage4_7.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/build_sched/test_w20_w21_port.py`・`tests/economy/test_wage_occupation.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
@@ -351,7 +351,7 @@ W21 段 5「お金」(EC2・決定 10-12 §4-11・計画 第 4 期 段 5・回�
   - `load_asset_tables`(関数): 全国家計構造調査 2024(東京都 第31-0・23-0 表・全国 第4-4 表)→ ``AttrTablesB`` の資産の欄(円・%)。
   - `load_wage_tables`(関数): 賃金構造 令和 7 年(第9・6・18 表と短時間 第2表)→ ``AttrTablesB`` の賃金の欄(企業規模計・円と時間)。
   - `solve_tilt`(関数): 重み base × mean^λ の平均が target になる λ(二分法・届かなければ端)。
-- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_sources`・`shibuya.core.wage_formula`
+- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_sources`・`shibuya.economy.wage_formula`
 - 呼び手: `shibuya.build.pop.w21_build_b`
 - 読む試験: `tests/build_pop/test_w21_stage4_7.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/economy/test_wage_occupation.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`

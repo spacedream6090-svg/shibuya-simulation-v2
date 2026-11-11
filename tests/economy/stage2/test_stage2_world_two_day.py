@@ -10,7 +10,7 @@ from __future__ import annotations
 import pytest
 
 from shibuya.economy.accounts import AccountCode, Sector
-from shibuya.engine import economy_stage2 as ES2
+from shibuya.economy import stage2_bind as ES2
 
 pytestmark = [pytest.mark.slow,
               pytest.mark.requires_data("world_v2:w17_schedule.parquet", "osm:poi_tags_overpass_20260928.json",

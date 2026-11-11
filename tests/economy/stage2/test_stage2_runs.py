@@ -21,7 +21,7 @@ from shibuya.economy import stage2 as S2
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import economy_stage2 as ES2
+from shibuya.economy import stage2_bind as ES2
 from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.run import run_day
 from shibuya.world.model.state import World

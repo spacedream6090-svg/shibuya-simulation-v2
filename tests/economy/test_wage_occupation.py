@@ -27,7 +27,7 @@ from shibuya.economy import stage2 as S2
 from shibuya.economy import wages as WG
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import economy_stage2 as ES2
+from shibuya.economy import stage2_bind as ES2
 from shibuya.foundation.journal import log as EV
 
 H, S, E, B, G, W = (int(s) for s in Sector)
@@ -63,7 +63,7 @@ def _status(words) -> np.ndarray:
 def test_build_and_runtime_share_one_function():
     assert A.WAGE_OCCUPATIONS is WG.WAGE_OCCUPATIONS and A.WAGE_AGE_EDGES is WG.WAGE_AGE_EDGES
     assert A._wage_quantile is WG.wage_quantile
-    from shibuya.core import wage_formula as WF
+    from shibuya.economy import wage_formula as WF
 
     assert WG.wage_values is WF.wage_values and WG.occupation_wages is WF.occupation_wages
     # 式の置き場は numpy と core.rng だけを読む(build が読んでも engine と llm が読まれない)
@@ -200,7 +200,7 @@ def _w17_hits(tree: ast.AST) -> list[str]:
 
 
 def test_wage_path_does_not_read_w17_hours_ast_with_a_negative_control():
-    from shibuya.core import wage_formula as WF
+    from shibuya.economy import wage_formula as WF
 
     for f in (WG.__file__, WF.__file__):
         assert _w17_hits(ast.parse(Path(f).read_text(encoding="utf-8"))) == [], f
@@ -378,7 +378,7 @@ def test_removed_wage_switch_env_and_cli_flag_stop():
     from shibuya import cli
 
     env = {**os.environ, "SHIBUYA_WAGE": "w17", "PYTHONIOENCODING": "utf-8"}
-    r = subprocess.run([sys.executable, "-c", "import shibuya.engine.economy_stage2"], env=env, capture_output=True,
+    r = subprocess.run([sys.executable, "-c", "import shibuya.economy.stage2_bind"], env=env, capture_output=True,
                        text=True, encoding="utf-8")
     assert r.returncode != 0 and "消した切替口" in r.stderr
     src = inspect.getsource(cli)

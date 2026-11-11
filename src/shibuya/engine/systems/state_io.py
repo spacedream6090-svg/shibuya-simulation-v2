@@ -19,7 +19,7 @@ from shibuya.foundation.hashing import blake3_hex
 from shibuya.foundation.time_consts import CLOCK_KIND
 from shibuya.engine.regional_clock import CLOCK_KIND_REGIONAL as _CLOCK_KIND_REGIONAL
 from shibuya.world.model import proximity as _PROX
-from shibuya.engine import economy_stage2 as _ES2
+from shibuya.economy import stage2_bind as _ES2
 from shibuya.foundation.decl import bridging as _BR
 from shibuya.world.facts.rules import table as _RT
 from shibuya.engine.state_hashes import behavior_hash as behavior_state_hash

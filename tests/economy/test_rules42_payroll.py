@@ -22,7 +22,7 @@ import numpy as np
 import pytest
 
 from shibuya.economy import taxes as TX
-from shibuya.engine import economy_rules as ER
+from shibuya.economy import rules_bind as ER
 
 ASOF = "2026-08-25"
 #: 〔第 4 期 4-2b〕本書は 4-2 の値(``r42b=False``=部品の単体試験の基準の口・〔第346〕ランの切替口は消した)の手計算をそのまま

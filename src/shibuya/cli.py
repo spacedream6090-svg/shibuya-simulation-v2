@@ -38,14 +38,15 @@ import numpy as np
 from shibuya.world.facts import population_reader as POP
 from shibuya.agents.state import WakeCondition
 from shibuya.foundation.rng import stream
-from shibuya.economy import GoodsLedger, Ledger
+from shibuya.economy.goods import GoodsLedger
+from shibuya.economy.ledger import Ledger
 from shibuya.economy import anchors as AN
 from shibuya.economy import census as CS
 from shibuya.economy import entry_capital as EC
 from shibuya.economy import ledger as LED
 from shibuya.economy import stage2 as S2
 from shibuya.economy.accounts import BalanceLine, Sector
-from shibuya.engine import economy_stage2 as _ES2
+from shibuya.economy import stage2_bind as _ES2
 from shibuya.engine import resolve as R
 from shibuya.engine import run_kind as _RK
 from shibuya.engine.arbiter import call_budget_per_tick

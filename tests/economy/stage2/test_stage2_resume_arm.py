@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.engine import economy_stage2 as ES2
+from shibuya.economy import stage2_bind as ES2
 from shibuya.engine import resume as RS
 from shibuya.world.model.state import World
 from tests.economy.stage2 import test_stage2_runs as TR

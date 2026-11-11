@@ -20,7 +20,7 @@ from shibuya.economy import taxes as TX
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.checks import tax_deposit_check
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import economy_rules as ER
+from shibuya.economy import rules_bind as ER
 from shibuya.foundation.journal import log as EV
 
 H, S, E, B, G, W = (int(s) for s in Sector)

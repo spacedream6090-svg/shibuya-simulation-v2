@@ -2400,7 +2400,7 @@ def _stage2_withdraw(agents: AgentState, aid: np.ndarray, step: int, out: Resolv
     s2 = _stage2_money(out)
     if s2 is None or not s2.part("withdraw") or aid.size == 0:
         return
-    from shibuya.engine import economy_stage2 as _ES2
+    from shibuya.economy import stage2_bind as _ES2
 
     open_cells = _ES2.atm_open_cells(s2.plan, int(step))
     if open_cells.size == 0:

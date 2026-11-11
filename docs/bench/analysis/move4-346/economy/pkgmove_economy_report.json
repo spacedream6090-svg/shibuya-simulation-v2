@@ -1,0 +1,164 @@
+{
+ "stages": [
+  "economy"
+ ],
+ "rows_applied": 4,
+ "rows_applied_by_kind": {
+  "move": 3,
+  "empty": 1
+ },
+ "rows_already": [],
+ "refused_held": [],
+ "file_moves": 3,
+ "created_heads": [],
+ "emptied_heads": [
+  "src/shibuya/economy/__init__.py"
+ ],
+ "deleted": [
+  "src/shibuya/core/__init__.py"
+ ],
+ "import_statements": {
+  "src": 12,
+  "build": 2,
+  "tests": 26,
+  "tools": 0,
+  "docs": 1
+ },
+ "import_files": {
+  "src": 8,
+  "build": 2,
+  "tests": 22,
+  "tools": 0
+ },
+ "import_via_head": {
+  "src": 1,
+  "build": 0,
+  "tests": 0,
+  "tools": 0
+ },
+ "import_split_statements": {
+  "src": 1,
+  "build": 0,
+  "tests": 0,
+  "tools": 0
+ },
+ "import_via_package": {
+  "src": 8,
+  "build": 2,
+  "tests": 26,
+  "tools": 0
+ },
+ "plan_estimate_stage4": {
+  "statements": {
+   "src": 855,
+   "build": 38,
+   "tests": 1378,
+   "tools": 52
+  },
+  "files": {
+   "src": 179,
+   "build": 30,
+   "tests": 349,
+   "tools": 28
+  },
+  "via_head": {
+   "src": 10,
+   "build": 14,
+   "tests": 40,
+   "tools": 3
+  }
+ },
+ "path_strings": {
+  "src_table": 1,
+  "slash": 2,
+  "code_import": 3
+ },
+ "path_string_sites": 6,
+ "path_string_sites_by_file": [
+  "src/shibuya/engine/rng_audit.py::SAFE_SITES",
+  "tests/economy/stage2/test_stage2_writers.py::NEW_MODULES",
+  "tests/economy/test_rules42_runs.py::test_removed_rules_42_switch_env_stops",
+  "tests/economy/test_rules42b_ledger.py::test_removed_rules_42b_switch_env_stops",
+  "tests/economy/test_wage_occupation.py::test_removed_wage_switch_env_and_cli_flag_stop",
+  "tools/bytecheck/tree.py::ROOT_READERS"
+ ],
+ "dropped_reexports": {},
+ "dropped_all": {},
+ "package_data_keys": [],
+ "ledger_paths_added": 3,
+ "class_id_keys": 6,
+ "class_ids_resorted": true,
+ "changed_files": 38,
+ "untouched_count": {
+  "src:bare_dotted": 3,
+  "src:slash": 2
+ },
+ "untouched_broad_constants": {
+  "docs": 16,
+  "src": 243,
+  "build": 15,
+  "tests": 283,
+  "tools": 18
+ },
+ "skipped_in_allowlist": [],
+ "bridging_ledger": {
+  "rows_total": 794,
+  "rows_src": 398,
+  "rows_moving": 0,
+  "rows_moving_active": 0
+ },
+ "bridging_ledger_moving": [],
+ "guards": {
+  "names_frozen": "同じ",
+  "class_ids": "同じ",
+  "shaped_74": "同じ(74 種・前の出てくる数の和 453)",
+  "ledger_paths": "同じ(台帳の道は全部、表を通して今のファイルに届く)",
+  "outside_allowlist": "同じ",
+  "import_names": "同じ(import の文が結ぶ名)",
+  "head_all": "同じ(頭の __all__ は結ばれた名だけ・除いた名 0)",
+  "package_data": "同じ(鍵は木に在る包み・glob が当たる・書き換えた鍵 0)"
+ },
+ "warnings": [],
+ "untouched": [
+  {
+   "file": "src/shibuya/engine/removed_switches.py",
+   "symbol": "REMOVED_ENV",
+   "kind": "bare_dotted",
+   "token": "engine.economy_rules",
+   "line": 31,
+   "excerpt": "規則の表の空欄 3 件を埋める前の 4-2 の値(engine.economy_rules)"
+  },
+  {
+   "file": "src/shibuya/engine/removed_switches.py",
+   "symbol": "REMOVED_ENV",
+   "kind": "bare_dotted",
+   "token": "engine.economy_rules",
+   "line": 32,
+   "excerpt": "規則の表の中身を挿す前の 4-2 の前の値(engine.economy_rules)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "POPULATION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "core.wage_formula",
+   "line": 464,
+   "excerpt": "〔賃金の小さな版上げ〕体ごとの月の賃金の分位(core.wage_formula・第18表の階級の度数・賃金の腕 occupation のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/economy_stage2.py",
+   "line": 897,
+   "excerpt": "economy/stage2.py(MoneyStage2)・economy/ledger.py(attach_stage2・purchase_many・endow_households・on_day_end)・engine/economy"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/economy_stage2.py",
+   "line": 912,
+   "excerpt": "engine/economy_stage2.py(AtmTable・build_atm_table・atm_open_cells)・engine/systems/build.py(Fixtures)"
+  }
+ ]
+}

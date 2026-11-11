@@ -21,7 +21,7 @@ import numpy as np
 import pytest
 
 from shibuya.economy import taxes as TX
-from shibuya.engine import economy_rules as ER
+from shibuya.economy import rules_bind as ER
 from shibuya.world.facts.rules import table as RT
 
 ASOF = "2026-08-25"

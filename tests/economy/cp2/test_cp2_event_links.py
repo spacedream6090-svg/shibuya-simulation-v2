@@ -133,7 +133,7 @@ def test_run_rows_and_events_are_one_to_one(monkeypatch):
     見る。段階 2 の語(賃金・引き出し・カード・税ほか)と原因の 1 対 1 は ``tests/economy/stage2`` が見る。
     """
     from shibuya import cli
-    from shibuya.engine import economy_stage2 as ES2
+    from shibuya.economy import stage2_bind as ES2
 
     monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
     from shibuya.world.laws import switch_rate as RR

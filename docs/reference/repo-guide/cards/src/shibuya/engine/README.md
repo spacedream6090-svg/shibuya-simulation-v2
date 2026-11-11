@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 50 本・その他 0 本(このディレクトリの直下)
+Python 48 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [bridging](bridging/README.md)・[calendar2](calendar2/README.md)・[calendar3](calendar3/README.md)・[contact](contact/README.md)・[decision](decision/README.md)・[duties](duties/README.md)・[events](events/README.md)・[experiment](experiment/README.md)・[speech](speech/README.md)・[systems](systems/README.md)・[tools](tools/README.md)
 
@@ -297,53 +297,6 @@ engine.defect_fixes_1103 — 棚卸し B で見つけた欠陥 4 件の直しの
 - 読む試験: `tests/engine/test_defect_fixes_1103.py`
 - 環境変数: `SHIBUYA_DEFECT_FIXES_1103`
 - 決定の ID: 10-13b/§0-6・11-02r/§2-2・11-03・11-03/§3・第 346
-
-## [economy_rules.py](../../../../../../../src/shibuya/engine/economy_rules.py)
-
-engine.economy_rules — 第 4 期 4-2 の規則の表の中身を経済の段階 2 に挿す組み立ての材料(給与の天引きの加入の判定の材料)。
-
-- 公開の関数とクラス
-  - `PayrollInputs`(クラス): 給与の天引きの加入の判定の材料(体ごと・読むだけ)。
-  - `payroll_inputs`(関数): 体ごとの加入の判定の材料を組み立てる(:class:`PayrollInputs`)。表の無い世界・母集団の無いランは材料なし。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.economy_stage2`・`shibuya.engine.removed_switches`
-- 呼び手: `shibuya.engine.economy_stage2`
-- 読む試験: `tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42_payroll.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_rules42b_payroll.py`
-- 環境変数: `SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`
-- 決定の ID: 10-12・R-118・第 346
-
-## [economy_stage2.py](../../../../../../../src/shibuya/engine/economy_stage2.py)
-
-engine.economy_stage2 — 経済の段階 2 の腕と engine の側の組み立て(第 2 期 2-1・CP2 の段階 2)。
-
-- 公開の関数とクラス
-  - `AtmTable`(クラス): ATM の表(``Fixtures.atms``・状態台帳の行 ATM=軸 1 behavior・軸 2 derivable・中身は hash_skip)。銀行名は持たない。
-  - `DataAbsentWarning`(クラス): 取得物(data/ の下)が無い写しで出す注記。〔第335・CI の直し〕data の無い CI でも経済の段階 2 は既定 on なので、
-  - `Stage2Plan`(クラス): engine の側の段階 2 の組み立ての物(``Ledger.attach_stage2`` に渡す・``MoneyStage2.plan``)。
-  - `WageInputs`(クラス): 賃金の関数(``economy.wages.occupation_wages``)に渡す体ごとの属性(engine の側が読む・額は economy が出す)。
-  - `active_parts`(関数): 腕が on のときの部品(off なら空)。
-  - `arm`(関数): いまの腕(``off``=既定・``on``)。組み立てのときに読む。
-  - `atm_open_cells`(関数): 刻み ``step`` に営業中の ATM のあるセル(``(n_cells,)`` bool・ATM の表が無ければ全部 False)。
-  - `attach`(関数): 腕が on なら段階 2 を組み立てて金の台帳に挿す(世帯の初期の財布の前=``resolve.initialize`` の前に呼ぶ)。
-  - `build_atm_table`(関数): OSM の取得物から引き出しの場所の表を作る(``amenity=atm``・``atm=yes``・``amenity=bank``=銀行の支店は全部)。
-  - `check_resume`(関数): 〔検収 A5〕再開のときに、保存したランの腕と部品(見出しの ``economy_stage2``・無ければ off)と今の腕が同じかを
-  - `header_fields`(関数): 〔検収 A5〕状態のファイルの見出しの ``economy_stage2``(腕 off のランは書かない=None=今の見出しのまま)。
-  - `money_stage2`(関数): 台帳の束から economy の段階 2 の中身(``MoneyStage2``)を引く(腕の無いランは ``None``)。
-  - `parse_opening_hours`(関数): OSM の ``opening_hours`` → 曜日 × 区間の ``(7, 2, 2)`` int16(``[曜日, 区間, (始め, 終わり)]`` の分・空は -1)。
-  - `parse_parts`(関数): 部品の指定(``"wages,withdraw"``・並び・空=全部)→ 部品の並び(``PARTS`` の順)。
-  - `parts`(関数): いまの部品(腕が off でも指定は持つ=腕が on のときだけ効く)。
-  - `persona_words`(関数): ペルソナの在庫の ``(pool_layer, pool_index)`` の行の語の欄(行の順=引数の並び・無い行は "")と読んだ行の数。
-  - `population_total`(関数): W16 母集団の体の数(縮小ランの比の分母・Parquet の見出しだけを読む)。無ければ ``None``。
-  - `set_arm`(関数): 腕を選ぶ(CLI ``--economy-stage2``・試験の切替口)。
-  - `set_atm_table`(関数): 試験の切替口(合成の世界の ATM の表を渡す)。``None`` で OSM から作る既定に戻す。
-  - `set_parts`(関数): 部品を選ぶ(CLI ``--economy-stage2-parts``・試験の切替口)。
-  - `wage_arm`(関数): 賃金の道(``occupation`` だけ)。
-  - `wage_inputs`(関数): 賃金の関数の入力を組み立てる(母集団の体=ペルソナの職業と雇用の語+W16 の性と年齢・母集団の無いラン=語も性も年齢も
-- import している内部モジュール: `shibuya.engine.economy_rules`・`shibuya.foundation.journal.log`・`shibuya.foundation.paths`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.time_consts`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.ledger`
-- 呼び手: `shibuya.cli`・`shibuya.engine.decision.layer`・`shibuya.engine.economy_rules`・`shibuya.engine.resolve`・`shibuya.engine.systems.build`・`shibuya.engine.systems.state_io`
-- 読む試験: `tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/cp2/test_cp2_nine_ops_equivalence.py`・`tests/economy/stage2/test_stage2_atm_absent_warning.py`・`tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_default_2_4.py`・`tests/economy/stage2/test_stage2_guards.py`・`tests/economy/stage2/test_stage2_resume.py`・`tests/economy/stage2/test_stage2_resume_arm.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/stage2/test_stage2_world_two_day.py`・`tests/economy/stage2/test_wage_occupation_runs.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_wage_occupation.py`・`tests/engine/multiday/_md.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_pop_w21_world.py`
-- 読む試験(道筋で): `tests/economy/stage2/test_stage2_writers.py`
-- 環境変数: `SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_ECONOMY_STAGE2_PARTS`・`SHIBUYA_WAGE`
-- 決定の ID: 10-13b/§7・第 335・第 346
 
 ## [familiarity.py](../../../../../../../src/shibuya/engine/familiarity.py)
 
@@ -704,7 +657,7 @@ engine.removed_switches — 消した旧道の切替口の一覧と、渡され�
   - `check_environment`(関数): 消した切替口の環境変数(:data:`REMOVED_ENV` の全部)のどれかが置かれていれば止める(ランの入口で呼ぶ)。
   - `message`(関数): 止めるときの文(名・消した段・安定版のタグ)。
   - `stop_if_set`(関数): ``names`` の環境変数のどれかが置かれていれば(空でない値)止める(``ValueError``)。
-- 呼び手: `shibuya.cli`・`shibuya.engine.defect_fixes_1103`・`shibuya.engine.economy_rules`・`shibuya.engine.systems.build`・`shibuya.world.laws.switch_seat`・`shibuya.world.model.proximity`
+- 呼び手: `shibuya.cli`・`shibuya.economy.rules_bind`・`shibuya.engine.defect_fixes_1103`・`shibuya.engine.systems.build`・`shibuya.world.laws.switch_seat`・`shibuya.world.model.proximity`
 - 読む試験: `tests/engine/test_removed_switches_346.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
@@ -768,7 +721,7 @@ engine.resolve — **世界状態への唯一の書き込み口**(二相コミ�
   - `write_memory`(関数): **記憶の表の行を書く**(6 段目 6a・値と行の選び方は ``engine.memory`` が決める)。
   - `write_relations`(関数): **関係辺を書く**(C10 8a・値と辺の選び方は ``engine.relations`` が決める)。
   - `write_store_memory`(関数): **店の評価の記憶の行を書く**(D-120 7a・値と行の選び方は ``engine.memory`` が決める)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.change_detect`・`shibuya.engine.commit`・`shibuya.engine.economy_stage2`・`shibuya.engine.resume`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.world.body.energy`・`shibuya.world.body.rules`・`shibuya.world.model.geometry`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.stage2_bind`・`shibuya.engine.change_detect`・`shibuya.engine.commit`・`shibuya.engine.resume`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.world.body.energy`・`shibuya.world.body.rules`・`shibuya.world.model.geometry`・`shibuya.world.model.state`
 - 呼び手: `shibuya.cli`・`shibuya.engine.activity`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar_self`・`shibuya.engine.duties.layer`・`shibuya.engine.familiarity`・`shibuya.engine.intent`・`shibuya.engine.memory`・`shibuya.engine.presence`・`shibuya.engine.relations`・`shibuya.engine.run`・`shibuya.engine.store_memory`・`shibuya.engine.systems.act`・`shibuya.engine.systems.body`・`shibuya.engine.systems.build`・`shibuya.engine.systems.decide`・`shibuya.engine.systems.judge`・`shibuya.engine.systems.perceive`・`shibuya.engine.systems.static_check`・`shibuya.engine.systems.talk`・`shibuya.world.laws.civic`・`shibuya.world.laws.crowd`・`shibuya.world.laws.environment`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.opening`・`shibuya.world.laws.rail`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`・`tools/c6/ablation1_fixed_vs_ranking.py`・`tools/c7/attr_arms.py`・`tools/c7/occupancy_series.py`
 - 読む試験: `tests/bench/test_refr20b_tool.py`・`tests/c6/test_t3_parallel_invariance.py`・`tests/c7/test_attr_arms.py`・`tests/economy/test_single_write_path.py`・`tests/engine/body/test_body_same_values.py`・`tests/engine/calendar/test_ca1b_runs.py`・`tests/engine/clock/test_tm3_step_scope.py`・`tests/engine/discard_probe.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_m4_m5_people.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_civic.py`・`tests/engine/processes/test_crowd.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_opening.py`・`tests/engine/processes/test_rail.py`・`tests/engine/processes/test_rail_board_intent.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/proximity/test_rule.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/rights/test_no_permission_count.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/systems/test_systems_table.py`・`tests/engine/test_ablation23_switches.py`・`tests/engine/test_add_at_guard.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_familiarity.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_intent_chooser.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_parser_contract.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_presence_exit_walk.py`・`tests/engine/test_renderer_wiring.py`・`tests/engine/test_resolve.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_seat_release_2_4.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_two_phase.py`・`tests/engine/test_vocab_v2_eat.py`・`tests/llm/test_fleet_contract.py`
 - 読む試験(道筋で): `tests/economy/cp2/test_cp2_write_window.py`・`tests/economy/stage2/test_stage2_writers.py`・`tests/engine/systems/test_fix_guards.py`・`tests/test_places_guard.py`・`tests/tools/test_pkgmove.py`

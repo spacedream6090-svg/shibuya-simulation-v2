@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 from shibuya.economy import stage2 as S2
-from shibuya.engine import economy_stage2 as ES2
+from shibuya.economy import stage2_bind as ES2
 
 
 def test_default_arm_is_on_and_off_is_the_switch(monkeypatch):

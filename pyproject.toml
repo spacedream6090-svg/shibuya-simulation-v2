@@ -50,7 +50,7 @@ markers = [
 ]
 filterwarnings = ["error::DeprecationWarning:shibuya.*"]
 
-# ---- 層契約(段 4 の段 world の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage world` が作る。手で直さない)----
+# ---- 層契約(段 4 の段 economy の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage economy` が作る。手で直さない)----
 [tool.importlinter]
 root_package = "shibuya"
 include_external_packages = false
@@ -60,11 +60,9 @@ name = "layers: census > economy > engine > (perception | llm) > (world | agents
 type = "layers"
 layers = [
   "shibuya.census",
-  "shibuya.economy",
   "shibuya.engine",
   "shibuya.perception | shibuya.llm",
   "shibuya.agents",
-  "shibuya.core",
 ]
 
 [[tool.importlinter.contracts]]
@@ -77,7 +75,6 @@ forbidden_modules = [
   "shibuya.agents",
   "shibuya.perception",
   "shibuya.engine",
-  "shibuya.economy",
   "shibuya.census",
 ]
 
@@ -85,28 +82,14 @@ forbidden_modules = [
 name = "build は実行時に import されない"
 type = "forbidden"
 source_modules = [
-  "shibuya.core",
   "shibuya.agents",
   "shibuya.perception",
   "shibuya.llm",
   "shibuya.engine",
-  "shibuya.economy",
   "shibuya.census",
 ]
 forbidden_modules = [
   "shibuya.build",
-]
-
-[[tool.importlinter.contracts]]
-name = "economy は engine の transfer 単一API経由のみ(world/agents 直接書き込み禁止)"
-type = "forbidden"
-source_modules = [
-  "shibuya.economy",
-]
-forbidden_modules = [
-  "shibuya.agents",
-  "shibuya.perception",
-  "shibuya.llm",
 ]
 
 [[tool.importlinter.contracts]]
@@ -172,9 +155,6 @@ protected_modules = [
 allowed_importers = [
   "shibuya.economy",
   "shibuya.cli",
-  "shibuya.core.wage_formula",
-  "shibuya.engine.economy_rules",
-  "shibuya.engine.economy_stage2",
 ]
 
 [[tool.importlinter.contracts]]

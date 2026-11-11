@@ -26,7 +26,7 @@ from typing import Any, Final, Mapping
 
 import numpy as np
 
-from shibuya.core import wage_formula as _WG
+from shibuya.economy import wage_formula as _WG
 
 from . import attr_fns as A
 from . import w21_sources as S

@@ -23,7 +23,7 @@ HERE = Path(__file__).resolve().parent
 SRC = HERE.parents[2] / "src" / "shibuya"
 FROZEN = json.loads((HERE.parent / "cp2" / "money_writers_frozen.json").read_text(encoding="utf-8"))
 DECLARED = {(w["path"], w["func"]): set(w["attrs"]) for w in FROZEN["writers"]}
-NEW_MODULES = ("economy/stage2.py", "economy/credit.py", "engine/economy_stage2.py")
+NEW_MODULES = ("economy/stage2.py", "economy/credit.py", "economy/stage2_bind.py")
 STAGE2_PORTS = ("withdraw_many", "can_pay_many", "pay_fares_many")
 
 

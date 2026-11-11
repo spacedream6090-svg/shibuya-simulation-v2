@@ -420,7 +420,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         _PXR.check_resume(_h.get("proximity"))
         # 第 2 期 2-1(検収 A5): 経済の段階 2 の腕は設定の指紋に入れない=見出しの economy_stage2(無ければ off)と今の腕を
         # 突き合わせる
-        from shibuya.engine import economy_stage2 as _ES2R
+        from shibuya.economy import stage2_bind as _ES2R
 
         _ES2R.check_resume(_h.get("economy_stage2"),  # 〔2-4 V4〕金の台帳が無いランは腕 on でも挿さない=off と同じ
                            effective=ledger is not None and hasattr(getattr(ledger, "money", None), "attach_stage2"))
@@ -747,7 +747,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         )
     # ---- 第 2 期 2-1: 経済の段階 2 の腕(既定 off=何もしない)。世帯の初期の財布より前に金の台帳へ挿す(初期の預金)。
     # 再開でも挿す(設定=組み立てで作り直す・残高は保存した状態から戻す) ----
-    from shibuya.engine import economy_stage2 as _ES2
+    from shibuya.economy import stage2_bind as _ES2
 
     economy_plan = _ES2.attach(ledger, schedule=schedule, weekly=weekly, calendar=calendar, world=world,
                                n_agents=n_agents, tick_seconds=tick_seconds, pop=pop, world_dir=world_dir)
@@ -1016,7 +1016,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     # ---- 〔第 5 期 空間の段 1〕nav1: 位置幾何をナビメッシュの移動に替える(edge の道具は作らない・欄は geometry のまま) ----
     if nav_on:
         # 〔段 1 の検収 M4〕密度の分母の抽出の割合=経済と同じ population_scale(体の数 ÷ 母集団の総数・総数が無ければ 1)
-        from shibuya.engine.economy_stage2 import population_total as _pop_total
+        from shibuya.economy.stage2_bind import population_total as _pop_total
 
         _pt = _pop_total(world_dir) if pop is not None else None
         geom = _NAV1.load_space(world_dir, world.assets, seed=seed, n_agents=n_agents, tick_seconds=tick_seconds,

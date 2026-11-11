@@ -265,7 +265,7 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     ("engine/speech_clock.py", "person_mora_len_s", "talk.rate"),
     ("engine/speech_clock.py", "utterance_jitter", "talk.jitter"),
     # 〔賃金の小さな版上げ・2026-10-17〕賃金の分位(0 語目を空け 1 語目に体の鍵=k19_counter_array・1 語だけ引く)
-    ("core/wage_formula.py", "wage_uniform", "economy.wage"),
+    ("economy/wage_formula.py", "wage_uniform", "economy.wage"),
     # 〔第 6 期 6-4 C1〕最初の道具の状態(0 語目を空け 1・2 語目に体の番号と欄の番号=k19_counter_array・1 語だけ引く)と
     # 連絡の判断の仮のモデルの選び(0 語目を空け刻みの鍵・体・判断の番号=k19_counters・1 語だけ引く)
     ("world/things/device.py", "Devices.__init__", "contact.device"),

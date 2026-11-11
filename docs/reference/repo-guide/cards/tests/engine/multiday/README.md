@@ -16,7 +16,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `Capture`(クラス): 器に口を置く所を包み、ランの器と記録を控える(戻り値は変えない)。
   - `arms`(関数): 腕を一時的に選ぶ(組み立てが読む)。〔第346〕近接は常に distance(切替口 cell は消した)。
   - `tool`(関数): 記録の道具(``md23/tools/multiday_md23.py``)を読み込む。
-- import している内部モジュール: `shibuya.engine.economy_stage2`・`shibuya.engine.memory_store`
+- import している内部モジュール: `shibuya.economy.stage2_bind`・`shibuya.engine.memory_store`
 - 読む試験: `tests/engine/memory/test_mr65_grain_and_cli.py`・`tests/engine/multiday/test_md23_body_events.py`・`tests/engine/multiday/test_md23_resume.py`・`tests/engine/multiday/test_md23_tool.py`・`tests/engine/multiday/test_md23_w9_window.py`
 - 決定の ID: 第 346
 

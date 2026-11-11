@@ -24,7 +24,7 @@ from shibuya.economy import stage2 as S2
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.ledger import Ledger
 from shibuya.engine import commit as C
-from shibuya.engine import economy_stage2 as ES2
+from shibuya.economy import stage2_bind as ES2
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.journal.links import MoneyEventLink
 from shibuya.foundation.ports.ledger import TransferStatus

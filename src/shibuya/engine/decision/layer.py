@@ -40,7 +40,7 @@ from typing import Any, Final, Mapping, Sequence
 import numpy as np
 
 from shibuya.foundation.rng import key_time_from_t_ns
-from shibuya.engine import economy_stage2 as _ES2
+from shibuya.economy import stage2_bind as _ES2
 from shibuya.foundation.ports.decision import (
     ALL_SOURCES,
     OTHER_ID,

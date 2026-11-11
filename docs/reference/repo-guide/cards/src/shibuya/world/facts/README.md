@@ -35,7 +35,7 @@ agents.population — W16 母集団(``w16_population.parquet``)の読み込み�
   - `population_available`(関数): ``<world_dir>/w16_population.parquet`` があるか。
   - `sample_population`(関数): 二層抽出(定員先取り層+統計層)。同 seed 同結果。
 - import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.rng`
-- 呼び手: `shibuya.cli`・`shibuya.engine.economy_stage2`・`shibuya.engine.run`・`tools/c7/attr_arms.py`・`tools/w17/diversity_yardstick.py`
+- 呼び手: `shibuya.cli`・`shibuya.economy.stage2_bind`・`shibuya.engine.run`・`tools/c7/attr_arms.py`・`tools/w17/diversity_yardstick.py`
 - 読む試験: `tests/build_pop/test_pop_pipeline.py`・`tests/build_pop/test_pop_units.py`・`tests/build_pop/test_w21_stage10_swap.py`・`tests/c6/test_t5_order_bias.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_pop_w21_world.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_relations_tenure.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/tools/test_c0_groups_from_w16.py`
 - 読む試験(道筋で): `tests/engine/bridging/test_bridging_ledger.py`
 

@@ -99,7 +99,7 @@ def test_missing_columns_and_unknown_words_stop(tmp_path):
 
 
 def test_wage_inputs_take_w21_words_and_given_wages(tmp_path, monkeypatch):
-    from shibuya.engine import economy_stage2 as ES2
+    from shibuya.economy import stage2_bind as ES2
 
     pop = POP.load_population(_write(tmp_path, _pop_table()))
     monkeypatch.setattr(ES2, "persona_words",

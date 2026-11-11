@@ -21,9 +21,8 @@
 | [src/shibuya/build/space](src/shibuya/build/space/README.md) | 5 | 0 |
 | [src/shibuya/build/vis](src/shibuya/build/vis/README.md) | 5 | 0 |
 | [src/shibuya/census](src/shibuya/census/README.md) | 1 | 0 |
-| [src/shibuya/core](src/shibuya/core/README.md) | 2 | 0 |
-| [src/shibuya/economy](src/shibuya/economy/README.md) | 15 | 0 |
-| [src/shibuya/engine](src/shibuya/engine/README.md) | 50 | 0 |
+| [src/shibuya/economy](src/shibuya/economy/README.md) | 18 | 0 |
+| [src/shibuya/engine](src/shibuya/engine/README.md) | 48 | 0 |
 | [src/shibuya/engine/bridging](src/shibuya/engine/bridging/README.md) | 2 | 0 |
 | [src/shibuya/engine/calendar2](src/shibuya/engine/calendar2/README.md) | 5 | 0 |
 | [src/shibuya/engine/calendar3](src/shibuya/engine/calendar3/README.md) | 5 | 0 |
@@ -146,7 +145,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 281 ディレクトリ・2241 本
+- [docs の索引](docs.md): 283 ディレクトリ・2246 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

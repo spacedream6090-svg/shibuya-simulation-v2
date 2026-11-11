@@ -16,7 +16,7 @@ import pytest
 from shibuya.economy import credit as CR
 from shibuya.economy.accounts import STAGE2_PAIRS, AccountCode, Sector, is_allowed
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import economy_stage2 as ES2
+from shibuya.economy import stage2_bind as ES2
 
 
 def _table() -> ES2.AtmTable:
