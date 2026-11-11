@@ -342,7 +342,7 @@ def test_engine_reader_is_not_called_from_any_process():
     # 過程と系のモジュールは名指しで確かめる(上の走査に含まれる)。〔段 4 の下ごしらえ〕前はディレクトリの字面
     # engine/processes・engine/systems で確かめていた(段 4 で包みが移るとディレクトリが消える)=モジュールの __file__ から
     from shibuya.world.laws import opening as PROC
-    from shibuya.engine.systems import table as SYS
+    from shibuya.runtime.systems import table as SYS
 
     for m in (PROC, SYS):
         assert Path(m.__file__).resolve().is_relative_to(src.resolve()), m.__name__

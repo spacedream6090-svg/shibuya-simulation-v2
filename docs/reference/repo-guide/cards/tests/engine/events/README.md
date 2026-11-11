@@ -113,4 +113,4 @@ Python 8 本・その他 2 本(このディレクトリの直下)
   - `test_paths_permit_is_assigned_only_in_the_guard`(関数)
   - `test_undeclared_write_fails_at_run_time`(関数)
   - `test_undeclared_write_shows_in_stage_b`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.overrides`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.systems.overrides`・`shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`

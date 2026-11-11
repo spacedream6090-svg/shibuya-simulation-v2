@@ -36,17 +36,17 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.types import EventClass
-from shibuya.engine import class_ids as CI
-from shibuya.engine import resume as RS
-from shibuya.engine import state_codec as SC
-from shibuya.engine import state_hashes as SH
+from shibuya.runtime.state import class_ids as CI
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import codec as SC
+from shibuya.runtime.state import hashes as SH
 from shibuya.engine.arbiter import WakeCandidates
-from shibuya.engine.class_ids import CLASS_IDS, class_id, class_path
+from shibuya.runtime.state.class_ids import CLASS_IDS, class_id, class_path
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.ports import experiment_gate as GATE
 from shibuya.engine.run import run_day
 from shibuya.foundation.queues.scheduler import DeferralQueue
-from shibuya.engine.systems import probe as PR
+from shibuya.runtime.systems import probe as PR
 
 ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "src"
@@ -54,10 +54,10 @@ PKG = SRC / "shibuya"
 FROZEN = json.loads(Path(__file__).with_name("class_ids_frozen.json").read_text(encoding="utf-8"))["names"]
 #: 入口の 4 ファイル(src/shibuya からの道筋)と、表を通る関数(関数の名 → 呼ぶはずの名)。
 ENTRY_FILES: dict[str, dict[str, set[str]]] = {
-    "engine/state_hashes.py": {"_qual": {"class_id"}},
-    "engine/state_codec.py": {"qualname": {"class_id"}, "allowed_class": {"class_path", "qualname"}},
-    "engine/resume.py": {"_canon": {"class_id"}},
-    "engine/systems/probe.py": {"plain": {"class_id"}},
+    "runtime/state/hashes.py": {"_qual": {"class_id"}},
+    "runtime/state/codec.py": {"qualname": {"class_id"}, "allowed_class": {"class_path", "qualname"}},
+    "runtime/state/resume.py": {"_canon": {"class_id"}},
+    "runtime/systems/probe.py": {"plain": {"class_id"}},
 }
 #: CP12 の実験の条件の型の凍結の名(試験は src の外なので書いてよい)。
 EXP_ID = "shibuya.engine.events.log.Experiment"
@@ -212,7 +212,7 @@ def test_entry_functions_go_through_the_table():
                       if isinstance(c, ast.Call) and isinstance(c.func, ast.Name)}
             assert need <= called, f"{rel}:{fname} が {sorted(need - called)} を呼ばない"
     # 名を連ねるのは表の 1 か所だけ
-    ci = ast.parse((PKG / "engine" / "class_ids.py").read_text(encoding="utf-8"))
+    ci = ast.parse((PKG / "runtime" / "state" / "class_ids.py").read_text(encoding="utf-8"))
     assert len(_has_module_qualname_chain(ci)) == 1
 
 

@@ -20,12 +20,12 @@ from shibuya.agents.state import AgentState, ResultCode
 from shibuya.foundation import write_permit as WP
 from shibuya.mind.memory import memory as M
 from shibuya.engine import relations as RL
-from shibuya.engine import state_ledger as SL
+from shibuya.runtime.state import ledger as SL
 from shibuya.engine.run import run_day
-from shibuya.engine.systems import conductor as CD
+from shibuya.runtime.systems import conductor as CD
 from shibuya.engine.systems import overrides as OV
-from shibuya.engine.systems import probe as PR
-from shibuya.engine.systems.table import SPECS
+from shibuya.runtime.systems import probe as PR
+from shibuya.runtime.systems.table import SPECS
 from shibuya.foundation.vocab import contact_flags as CT
 from tests.engine.tools import contacts_writers as CW
 

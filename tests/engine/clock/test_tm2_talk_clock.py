@@ -28,8 +28,8 @@ from shibuya import cli
 from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
 from shibuya.foundation.queues import batching as BA
 from shibuya.foundation.manifest import sections as MS
-from shibuya.engine import resume as RS
-from shibuya.engine import speech_clock as TC
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.clocks import speech as TC
 from shibuya.engine.llm_bridge import LANE_SECONDS
 from shibuya.society.speech.port import mora_count
 
@@ -154,7 +154,7 @@ def test_think_time_is_not_added_to_the_gap():
     first, nxt, end = c._tc_line[9][:3]
     assert nxt - end == TC.GAP_NS == 7_000_000
     assert "TM2" in TC.THINK_TIME_COUNTED_BY
-    tree = ast.parse((ROOT / "src" / "shibuya" / "engine" / "speech_clock.py").read_text(encoding="utf-8"))
+    tree = ast.parse((ROOT / "src" / "shibuya" / "runtime" / "clocks" / "speech.py").read_text(encoding="utf-8"))
     names = {a.name for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) for a in n.names}
     mods = {n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)}
     assert "shibuya.engine.llm_bridge" not in mods and "LANE_SECONDS" not in names
@@ -408,7 +408,7 @@ def test_arm_plumbing():
 
 def test_a_bad_environment_arm_fails_at_import():
     env = dict(os.environ, PYTHONIOENCODING="utf-8", **{TC.ENV: "bogus"})
-    r = subprocess.run([sys.executable, "-c", "import shibuya.engine.speech_clock"], capture_output=True, text=True,
+    r = subprocess.run([sys.executable, "-c", "import shibuya.runtime.clocks.speech"], capture_output=True, text=True,
                        encoding="utf-8", env=env, timeout=120)
     assert r.returncode != 0 and TC.ENV in r.stderr
 

@@ -25,9 +25,9 @@ import pytest
 from tests import _time_gates as TG
 
 from shibuya import cli
-from shibuya.engine import resume as RS
-from shibuya.engine import state_codec as SC
-from shibuya.engine import state_ledger as SL
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import codec as SC
+from shibuya.runtime.state import ledger as SL
 from shibuya.engine.run import run_day
 
 WORLD_DIR = Path("data/world/v2")
@@ -313,7 +313,7 @@ def test_item_kinds_are_checked_before_restoring(mid_state, tmp_path):
 
 
 def test_check_item_kinds_ignores_none_and_numbers():
-    from shibuya.engine.state_hashes import resolve_item  # noqa: F401 - 道筋の引き方は同じ
+    from shibuya.runtime.state.hashes import resolve_item  # noqa: F401 - 道筋の引き方は同じ
 
     class O:
         pass
@@ -521,8 +521,8 @@ def test_u3_value_class_fields_match_the_class():
     """U3: dataclass でない値のクラスの欄の一覧が、クラスの属性(AST の ``self.x = …``)と同じ。"""
     import importlib
 
-    from shibuya.engine import state_ledger_ast as SA
-    from shibuya.engine.class_ids import class_path
+    from shibuya.runtime.state import ledger_ast as SA
+    from shibuya.runtime.state.class_ids import class_path
 
     assert SC.CLASS_FIELDS
     for name, fields in SC.CLASS_FIELDS.items():
@@ -587,7 +587,7 @@ def test_real_state_keeps_shared_identity_and_roundtrips(tmp_path, monkeypatch):
     flow = [p for p in want if any("_last_close" in x for x in p)]
     assert flow, "金の台帳の _last_close.flow と _flow_daily[0] の共有が見つからない"
     # 値も同じ(full-hash の直列化で比べる)
-    from shibuya.engine.state_hashes import to_state
+    from shibuya.runtime.state.hashes import to_state
 
     for p in b0.items:
         assert to_state(b1.items[p]) == to_state(b0.items[p]), p

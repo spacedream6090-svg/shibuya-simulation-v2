@@ -22,9 +22,9 @@ import pytest
 from shibuya import cli
 from shibuya.engine import calendar_shadow as CS
 from shibuya.foundation.manifest import sections as MS
-from shibuya.engine import state_ledger as SL
+from shibuya.runtime.state import ledger as SL
 from shibuya.engine.run import run_day
-from shibuya.engine.systems.table import SPECS
+from shibuya.runtime.systems.table import SPECS
 
 WORLD = Path("data/world/v2")
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
@@ -366,7 +366,7 @@ def test_cli_flag_beats_the_environment(tmp_path):
 @real_data
 def test_cli_run_kind_and_fingerprint_follow_the_arm(w20_table, tmp_path, monkeypatch, keep_arm):
     """CLI の 1a はランの種類 arm(w17 は reproduction)・設定の指紋には 1a のときだけ ``calendar_shadow: "1a"``。"""
-    from shibuya.engine import resume as RS
+    from shibuya.runtime.state import resume as RS
 
     monkeypatch.setenv("SHIBUYA_CALENDAR_W20", str(w20_table))
     monkeypatch.delenv("PYTEST_CURRENT_TEST", raising=False)  # ランの種類を CLI の規則で決めさせる(試験の印を外す)

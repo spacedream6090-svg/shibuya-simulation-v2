@@ -47,7 +47,7 @@ engine.processes.crowd — 混雑場・流れ・屋内占有・待ち行列(D-R2
   - `CrowdProcess`(クラス): 密度・流れ(人物①)と屋内占有・待ち行列(人物②)の集約。
   - `seats_for_categories`(関数): POI カテゴリ列 → 席数(容量 c)。**全部 expedient**(16行表 行2)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.world.model.state`
-- 呼び手: `shibuya.engine.systems.build`・`shibuya.world.laws.runner`
+- 呼び手: `shibuya.runtime.systems.assemble`・`shibuya.world.laws.runner`
 - 読む試験: `tests/engine/processes/test_crowd.py`・`tests/engine/test_area_source_c9c.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_env_and_sections_10f.py`
 - 状態台帳の行
   - 持ち主 `runner.crowd`(`CrowdProcess`)
@@ -178,7 +178,7 @@ engine.processes.runner — 世界過程の実行器(台帳 → 実装の唯一�
 - 公開の関数とクラス
   - `WorldProcessRunner`(クラス): 世界過程 第1陣(前半)の実行器。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar`・`shibuya.engine.resolve`・`shibuya.foundation.journal.links`・`shibuya.foundation.time_consts`・`shibuya.world.assets`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.record`・`shibuya.world.laws.civic`・`shibuya.world.laws.crowd`・`shibuya.world.laws.environment`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.opening`・`shibuya.world.laws.rail`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.laws.traffic`・`shibuya.world.ledger.actual_log`・`shibuya.world.ledger.first_batch`・`shibuya.world.model.state`
-- 呼び手: `shibuya.engine.systems.build`
+- 呼び手: `shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/events/test_e_log_links_actual.py`・`tests/engine/events/test_e_vocab_is_closed.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_runner.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_weather_calendar_10e.py`
 - 状態台帳の行
   - 持ち主 `runner`(`WorldProcessRunner`)
@@ -196,7 +196,7 @@ engine.processes.salient — 顕著行為(人物③)と ``p_notice`` の結線�
   - `build_salient_feed`(関数): ``SalientEvent`` の列 → ``Renderer.prepare_tick(salient_events=…)`` の形。
   - `check_d50_scale`(関数): ``d50_scale`` の検査(ablation ②)。正の有限値だけ許す。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.perception.attention`・`shibuya.world.body.model`・`shibuya.world.body.rules`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.notice_reach`・`shibuya.world.model.percept_state`・`shibuya.world.model.state`
-- 呼び手: `shibuya.engine.systems.build`・`shibuya.engine.systems.report`・`shibuya.world.laws.runner`
+- 呼び手: `shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.world.laws.runner`
 - 読む試験: `tests/engine/body/test_body_same_values.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/processes/test_salient.py`・`tests/engine/test_ablation23_switches.py`
 - 状態台帳の行
   - 持ち主 `runner.salient`(`SalientProcess`)
@@ -217,7 +217,7 @@ engine.absent_processes — 「無い」と宣言した世界過程 5 件を止�
   - `resolve`(関数): 過程の引数の腕(``None``=今の腕)を名に直す(名の誤りは止める)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--absent-processes``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
   - `stopped_flags`(関数): 過程ごとの ``absent_<名>_stopped``(1=止めた・0=旧道)。腕だけで決まる印(設定)。
-- 呼び手: `shibuya.cli`・`shibuya.engine.systems.build`・`shibuya.engine.systems.report`・`shibuya.engine.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.runner`
+- 呼び手: `shibuya.cli`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.runner`
 - 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/processes/test_salient.py`・`tests/engine/test_resume_10d.py`
 - 環境変数: `SHIBUYA_ABSENT_PROCESSES`
 - 決定の ID: 10-13b/§0-6・11-01/§2・11-02・11-02r・11-02r #7・11-02r/§1・11-02r/§1 #7・11-02r/§1 #8・11-02r/§2-2
@@ -235,7 +235,7 @@ engine.rate_rules — 率の形の規則を外す切替口(指示書 11-01 段 2
   - `removed_flags`(関数): 規則ごとの ``rate_rule_<名>_removed``(1=外した・0=旧道)。腕だけで決まる印(設定)。
   - `resolve`(関数): 過程の引数の腕(``None``=今の腕)を名に直す(名の誤りは止める)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--rate-rules``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
-- 呼び手: `shibuya.cli`・`shibuya.engine.presence`・`shibuya.engine.systems.build`・`shibuya.engine.systems.report`・`shibuya.engine.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.rail`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`
+- 呼び手: `shibuya.cli`・`shibuya.engine.presence`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.rail`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`
 - 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/processes/test_salient.py`・`tests/engine/test_ablation23_switches.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/test_waste_sink_report.py`
 - 環境変数: `SHIBUYA_RATE_RULES`
 - 決定の ID: 10-13b/§0-6・11-01・11-01/§2
@@ -248,7 +248,7 @@ engine.seat_release — 在席の印を歩き出しで解く(第 2 期 2-4 V3・
   - `check_resume`(関数): 再開のときに、保存したランの見出しの ``seat_release``(無ければ legacy=2-4 より前のラン)が walk かを確かめる(違えば止める)。
   - `header_fields`(関数): 状態のファイルの見出しの ``seat_release``(ランは常に ``{"mode": "walk"}``・walk の外の名は None)。
 - import している内部モジュール: `shibuya.engine.removed_switches`
-- 呼び手: `shibuya.engine.systems.build`・`shibuya.engine.systems.state_io`
+- 呼び手: `shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`
 - 読む試験: `tests/engine/test_seat_release_2_4.py`
 - 環境変数: `SHIBUYA_SEAT_RELEASE`
 - 決定の ID: 第 346

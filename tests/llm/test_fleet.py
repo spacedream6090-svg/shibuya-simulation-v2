@@ -27,7 +27,7 @@ from pathlib import Path
 import pytest
 
 from shibuya.foundation.hashing import sha256_cbor
-from shibuya.engine.tape import Replay, TapeRow, TapeWriter
+from shibuya.runtime.inference.tape import Replay, TapeRow, TapeWriter
 from shibuya.foundation.vocab.actions import ACTION_CODES
 from shibuya.llm import UndefinedActionRegistry
 from shibuya.llm.fleet import (

@@ -13,7 +13,7 @@ import pytest
 
 from shibuya.foundation.time_consts import NS_PER_STEP
 from shibuya.engine.run import run_day
-from shibuya.engine.tape import (
+from shibuya.runtime.inference.tape import (
     ARM_COLUMNS,
     CALLS_FILENAME,
     CALLS_SCHEMA,

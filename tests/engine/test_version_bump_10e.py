@@ -13,7 +13,7 @@ import pytest
 from tests import _data_ids as D
 
 import shibuya.engine.run as RUN
-from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
+from shibuya.runtime.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
 from shibuya.society.conversation import (
     PAIR_INVITE_REFRACTORY_TICKS,
     SPEAKER_INVITE_REFRACTORY_TICKS,
@@ -117,7 +117,7 @@ def test_e2_dicts_stay_bounded_over_days(purge_runs):
 def test_e2_o64_signage_exposures_are_empty_at_every_checkpoint():
     """O64 の ``renderer.signage_exposures`` は tick の中だけの口=checkpoint の時点では常に空(no のままでよい根拠)。"""
     from shibuya import cli
-    from shibuya.engine import state_ledger as SL
+    from shibuya.runtime.state import ledger as SL
 
     row = SL.row("O64")
     assert (row.behavior, row.restore) == (SL.NO, SL.DISCARDABLE) and "renderer.signage_exposures" in row.items
@@ -207,7 +207,7 @@ def test_e4_recorder_groups_by_seed_u8():
 
 # ================================================================= E5: テープ版 4(A8・K1)
 def test_e5_schema_is_version_4_and_appends_seven_columns():
-    from shibuya.engine import tape as TP
+    from shibuya.runtime.inference import tape as TP
 
     assert TP.TAPE_SCHEMA_VERSION == "shibuya.tape/4"
     names = TP.CALLS_SCHEMA.names
@@ -223,7 +223,7 @@ def test_e5_a_version_3_tape_reads_as_day_0_and_replays(tmp_path):
     import pyarrow as pa
     import pyarrow.parquet as pq
 
-    from shibuya.engine import tape as TP
+    from shibuya.runtime.inference import tape as TP
 
     kw = dict(n_agents=60, seed=1, n_cells=9, ticks=360, checkpoint_every=60, budget=60.0, vocab_version="v3")
     rec = run_day(tape_path=tmp_path / "rec", **kw)
@@ -249,7 +249,7 @@ def test_e5_a_version_3_tape_reads_as_day_0_and_replays(tmp_path):
 
 def test_e5_key_has_the_day_through_T(tmp_path):
     """鍵に日(A8 の 1): 2 日のランのテープの tick は通しの T(1 日目は 1,440 以上)・鍵は日をまたいで衝突しない。"""
-    from shibuya.engine import tape as TP
+    from shibuya.runtime.inference import tape as TP
 
     run_day(n_agents=40, seed=1, n_cells=9, ticks=TPD, sim_days=2, checkpoint_every=360, budget=40.0,
             vocab_version="v3", tape_path=tmp_path / "t")
@@ -265,7 +265,7 @@ def v4_tape(tmp_path_factory):
     """世界資産 300 体・1 日・語彙 v3・記憶 on・関係 on(初期の関係辺がある=知人の印が出る)。"""
     D.skip_unless("world_v2:w17_schedule.parquet")
     from shibuya import cli
-    from shibuya.engine import tape as TP
+    from shibuya.runtime.inference import tape as TP
 
     d = tmp_path_factory.mktemp("e5")
     res = cli.run(n_agents=300, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", memory="on", relations="on",
@@ -324,7 +324,7 @@ def test_e4_l1_tape_meta_carries_the_rng_layout_and_old_counter_tapes_stop(tmp_p
     import json
 
     from shibuya.engine.run import RNG_LAYOUT
-    from shibuya.engine.tape import RUN_META_FILENAME, read_run_meta
+    from shibuya.runtime.inference.tape import RUN_META_FILENAME, read_run_meta
     from tests.engine.test_tape_wiring import BoomLLM
 
     kw = dict(n_agents=40, seed=3, n_cells=9, ticks=120, checkpoint_every=60, budget=40.0,
@@ -384,7 +384,7 @@ def test_e4_l3_checkpoints_payload_is_version_2():
 def test_e5_t1_fleet_rows_carry_b5_b6_and_rebuild_the_prompt_hash(tmp_path):
     """T1: 艦隊の経路(``FleetBridge``)の応答の行と繰り延べの行にも B5・B6 が入り、``prompt_hash`` を本文から作り直せる。"""
     from shibuya.foundation.hashing import sha256_cbor
-    from shibuya.engine import tape as TP
+    from shibuya.runtime.inference import tape as TP
     from shibuya.world.model.state import World
     from tests.engine.test_tape_deferred import make_client
     from tests.llm.test_fleet import FakeVLLM
@@ -414,7 +414,7 @@ def test_e5_t1_fleet_rows_carry_b5_b6_and_rebuild_the_prompt_hash(tmp_path):
 def test_e5_t3_recalled_identity_matches_the_memory_table(tmp_path, monkeypatch):
     """T3: 引いた記憶の同定 3 列を、想起した時点の記憶の表(``mem_tick``・``mem_kind``・``mem_object``・店の行は
     ``sm_first``・``sm_poi``)と突き合わせる。並びのずれ・種類と対象の取り違えで落ちる。"""
-    from shibuya.engine import tape as TP
+    from shibuya.runtime.inference import tape as TP
     from shibuya.mind.memory.memory import STORE_ITEM_KIND, MemoryLayer
 
     seen: dict[tuple[int, int], list[tuple[int, tuple[int, int, int]]]] = {}

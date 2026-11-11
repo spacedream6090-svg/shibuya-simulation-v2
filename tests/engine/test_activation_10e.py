@@ -15,7 +15,7 @@ from pathlib import Path
 import pytest
 
 import shibuya.engine.run as RUN
-from shibuya.engine.tape import RUN_META_FILENAME, read_run_meta
+from shibuya.runtime.inference.tape import RUN_META_FILENAME, read_run_meta
 
 REPO = Path(__file__).resolve().parents[2]
 WORLD_DIR = REPO / "data" / "world" / "v2"

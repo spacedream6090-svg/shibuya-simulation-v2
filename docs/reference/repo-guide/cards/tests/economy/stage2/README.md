@@ -110,7 +110,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `arm`(関数)
   - `test_arm_off_state_files_keep_the_header_and_refuse_an_on_resume`(関数)
   - `test_resume_stops_when_the_arm_or_parts_differ`(関数)
-- import している内部モジュール: `shibuya.economy.stage2_bind`・`shibuya.engine.resume`・`shibuya.world.model.state`・`tests/economy/stage2/test_stage2_runs.py`
+- import している内部モジュール: `shibuya.economy.stage2_bind`・`shibuya.runtime.state.resume`・`shibuya.world.model.state`・`tests/economy/stage2/test_stage2_runs.py`
 - 決定の ID: 第 346
 
 ## [test_stage2_rules_credit_atm.py](../../../../../../../tests/economy/stage2/test_stage2_rules_credit_atm.py)
@@ -147,7 +147,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_off_parts_spec_without_the_arm_is_ignored`(関数)
   - `test_port_arm_shows_the_candidates_and_keeps_the_mock_actions`(関数)
   - `test_turning_one_part_off_zeroes_its_flow`(関数)
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.engine.run`・`shibuya.engine.systems.boxes`・`shibuya.foundation.ports.ledger`・`shibuya.mind.judge.decision.layer`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.engine.run`・`shibuya.foundation.ports.ledger`・`shibuya.mind.judge.decision.layer`・`shibuya.runtime.systems.boxes`・`shibuya.world.model.state`
 - 読む試験: `tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_resume_arm.py`
 - 決定の ID: 第 337
 
@@ -169,7 +169,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_new_modules_write_no_money_column`(関数)
   - `test_rail_and_ledger_route_through_the_generic_port`(関数): 運賃の IC の口(``pay_fares_many``)と賃金・引き出し・カードは ``Ledger.transfer_many`` だけを呼ぶ(``ops.transfer`` を直に
   - `test_stage2_ports_in_resolve_are_inside_a_money_writing_closure`(関数)
-- import している内部モジュール: `shibuya.engine.systems.allow`・`shibuya.engine.systems.table`・`tests/economy/cp2/money_writers.py`
+- import している内部モジュール: `shibuya.runtime.systems.allow`・`shibuya.runtime.systems.table`・`tests/economy/cp2/money_writers.py`
 
 ## [test_wage_occupation_runs.py](../../../../../../../tests/economy/stage2/test_wage_occupation_runs.py)
 

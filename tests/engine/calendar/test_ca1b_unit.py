@@ -21,11 +21,11 @@ import pytest
 from shibuya.engine import calendar_self as CS1
 from shibuya.engine import calendar_shadow as CSH
 from shibuya.foundation.manifest import sections as MS
-from shibuya.engine import state_ledger as SL
+from shibuya.runtime.state import ledger as SL
 from shibuya.foundation.ports.decision import (
     DELIBERATE_KIND, SOURCE_CONTINUE, SOURCE_DELIBERATE, SOURCE_PLAN, Choice, DecisionContext, DecisionPort,
 )
-from shibuya.engine.systems.table import SPECS
+from shibuya.runtime.systems.table import SPECS
 
 
 # ================================================================= 宣言

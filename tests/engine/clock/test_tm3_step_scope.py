@@ -24,12 +24,12 @@ from shibuya.agents.state import AgentState
 from shibuya.foundation.time_consts import STEPS_PER_DAY
 from shibuya.engine import change_detect as CD
 from shibuya.foundation.manifest import sections as MS
-from shibuya.engine import resume as RS
-from shibuya.engine import step_scope as SS
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.clocks import step_scope as SS
 from shibuya.engine.run import run_day
-from shibuya.engine.systems import conductor as CO
-from shibuya.engine.systems import probe as PR
-from shibuya.engine.systems.table import SPECS
+from shibuya.runtime.systems import conductor as CO
+from shibuya.runtime.systems import probe as PR
+from shibuya.runtime.systems.table import SPECS
 from shibuya.world.model.state import World
 
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")

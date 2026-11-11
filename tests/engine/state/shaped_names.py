@@ -76,7 +76,7 @@ def collect_here(name: str) -> dict[str, list[str]]:
     """このプロセスで構成 ``name`` を回して拾う(子のプロセスの中で呼ぶ=ハッシュの口を差し替える)。"""
     import pyarrow.parquet as pq
 
-    from shibuya.engine import state_hashes as SH
+    from shibuya.runtime.state import hashes as SH
 
     kind, kw, _env = CONFIGS[name]
     seen: dict[str, set[str]] = {s: set() for s in SOURCES}

@@ -85,7 +85,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Final, Mapping, Protocol, runtime_checkable
 
-from shibuya.engine.tape import (
+from shibuya.runtime.inference.tape import (
     Replay,
     Tape,
     TapeMiss,

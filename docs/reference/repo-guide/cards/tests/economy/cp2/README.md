@@ -150,7 +150,7 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `test_the_money_paths_are_declared_once`(関数)
   - `test_the_primitive_writes_every_money_column_of_the_ledger`(関数): 正の対照: transfer は帳簿の残高・流れの表・最後に動いた日・生ログの全部の列を書く(道具が書きを見ている)。
   - `writes`(関数)
-- import している内部モジュール: `shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.engine.systems.allow`・`shibuya.world.laws.rail`・`tests/economy/cp2/money_writers.py`
+- import している内部モジュール: `shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.runtime.systems.allow`・`shibuya.world.laws.rail`・`tests/economy/cp2/money_writers.py`
 
 ## [test_cp2_write_window.py](../../../../../../../tests/economy/cp2/test_cp2_write_window.py)
 
@@ -174,4 +174,4 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `test_declaring_systems`(関数)
   - `test_phase_c_without_the_events_declaration_fails_at_the_first_fare`(関数)
   - `test_undeclared_money_meter_write_shows_in_stage_b`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.overrides`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.write_permit`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.cli`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.run`・`shibuya.engine.systems.overrides`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.world.model.state`

@@ -114,7 +114,7 @@ def run_arm(args, tag: str, endpoints: list[str], tape_root: Path) -> dict:
     finally:
         if client is not None:
             client.close()
-    from shibuya.engine.tape import Tape
+    from shibuya.runtime.inference.tape import Tape
 
     # D-58: 繰り延べ行(応答空)は書式・行動の分母に入れない
     texts = [str(r.response) for r in Tape(tape_root / tag).rows() if not r.deferred]

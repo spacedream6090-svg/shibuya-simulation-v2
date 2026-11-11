@@ -25,13 +25,13 @@ import pytest
 from shibuya import cli
 from shibuya.foundation.time_consts import CLOCK_KIND, NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
 from shibuya.foundation.manifest import sections as MS
-from shibuya.engine import regional_clock as RC
-from shibuya.engine import resume as RS
-from shibuya.engine import speech_clock as TC
+from shibuya.runtime.clocks import regional as RC
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.clocks import speech as TC
 from shibuya.engine.run import run_day
-from shibuya.engine.systems import conductor as CO
-from shibuya.engine.systems import probe as PR
-from shibuya.engine.systems.table import SPECS
+from shibuya.runtime.systems import conductor as CO
+from shibuya.runtime.systems import probe as PR
+from shibuya.runtime.systems.table import SPECS
 from shibuya.world.model.state import World
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -161,7 +161,7 @@ def test_lateness_from_the_plan_tables():
 
 
 def test_mixed_is_a_port_only():
-    from shibuya.engine.systems import build as BLD
+    from shibuya.runtime.systems import assemble as BLD
 
     with arms(clock="mixed"):
         with pytest.raises(NotImplementedError, match="口だけ") as exc:
@@ -233,7 +233,7 @@ def test_negative_control_stage_b_catches_the_missing_declaration(monkeypatch):
     """負の対照: decide の宣言から行 BW を外すと、発言のある構成の段 B が宣言の外の書きを捕まえる。"""
     import dataclasses as dc
 
-    from shibuya.engine.systems import spec as SPM
+    from shibuya.runtime.systems import spec as SPM
 
     sp = SPECS["decide"]
     paths = frozenset(x for x in sp.writes.paths if not x.startswith("BW:"))

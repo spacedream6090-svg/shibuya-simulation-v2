@@ -178,7 +178,7 @@ def _system_lines(s: System) -> list[str]:
 def permit_lines_by_file(p: Permits) -> dict[str, list[str]]:
     out: dict[str, list[str]] = {}
     for s in sorted(p.systems, key=lambda x: x.name):
-        out.setdefault(s.fn_file or "src/shibuya/engine/systems/table.py", []).extend(_system_lines(s))
+        out.setdefault(s.fn_file or "src/shibuya/runtime/systems/table.py", []).extend(_system_lines(s))
     resolve_lines: list[str] = []
     for fname in sorted(set(p.direct) | set(p.op_systems)):
         writes = sorted(p.direct.get(fname, frozenset()))

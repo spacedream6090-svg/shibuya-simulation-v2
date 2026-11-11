@@ -24,7 +24,7 @@ from shibuya.mind.memory import wom as W
 from shibuya.society.conversation import ConversationManager
 from shibuya.foundation.journal.log import EventLog
 from shibuya.society.speech import layer as SPL
-from shibuya.engine.systems import llm_io as IO
+from shibuya.runtime.systems import llm_io as IO
 from shibuya.act.intake.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
 from shibuya.foundation.vocab.actions import append_comment, format_two_line_v3
 from shibuya.llm.mock import MOCK_UTTERANCE

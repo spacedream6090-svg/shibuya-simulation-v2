@@ -18,11 +18,11 @@ from types import MappingProxyType
 
 import pytest
 
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.systems import boxes as BX
-from shibuya.engine.systems import conductor as CD
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.systems import boxes as BX
+from shibuya.runtime.systems import conductor as CD
 from shibuya.foundation import write_guard as G
-from shibuya.engine.systems.table import SPECS, SYSTEMS
+from shibuya.runtime.systems.table import SPECS, SYSTEMS
 from shibuya.foundation.ports import percept as F
 
 
@@ -157,7 +157,7 @@ def test_stub_renderer_writes_an_empty_mapping(monkeypatch):
 def test_percepts_are_not_in_the_final_or_the_state_files(monkeypatch, tmp_path):
     """Percept の有無は状態に入らない: 描いた Percept を捨てても(scratch に書かない形)final は同じ。"""
     from shibuya.engine.run import run_day
-    from shibuya.engine.systems import decide as DC
+    from shibuya.runtime.systems import decide as DC
 
     kw = {**KW, "checkpoint_every": 120}
     base = run_day(**kw)
@@ -287,7 +287,7 @@ def recorded_tape(tmp_path):
 def _replay(monkeypatch, tape, *, drop_percepts: bool = False):
     """作業木の src で再生し、刻みごとの到着待ち(``replay_inbox``)を見る。"""
     from shibuya.engine.run import run_day
-    from shibuya.engine.state_hashes import to_state
+    from shibuya.runtime.state.hashes import to_state
     from shibuya.perception import renderer as R
     from shibuya.world.model.state import World
     from tests.engine.test_tape_wiring import BoomLLM
@@ -322,8 +322,8 @@ def _replay(monkeypatch, tape, *, drop_percepts: bool = False):
 def test_replay_inbox_never_holds_a_percept(recorded_tape, monkeypatch, tmp_path):
     from shibuya.engine.llm_bridge import BridgeResult
     from shibuya.engine.run import run_day
-    from shibuya.engine import resume as RS
-    from shibuya.engine.state_hashes import to_state
+    from shibuya.runtime.state import resume as RS
+    from shibuya.runtime.state.hashes import to_state
     from shibuya.llm.fleet import FleetBridgeResult
     from shibuya.world.model.state import World
 

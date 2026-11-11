@@ -32,7 +32,7 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_negative_forced_exit_by_time_is_caught`(関数): 植えた写し: 計画実行層が管理する体の W17 の DEPART を実行する(時刻で強制的に退出)→ 検査が数える。
   - `test_negative_selecting_the_train_in_time_is_caught`(関数): 植えた写し: エンジンが約束に間に合う最も遅い便(E1)を選ぶ → 到着の便が「来た便」でないので検査が数える。
   - `w20`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.calendar_self`・`shibuya.engine.presence`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.run`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.calendar_self`・`shibuya.engine.presence`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.runtime.state.resume`
 - 環境変数: `SHIBUYA_CALENDAR_W20`・`SHIBUYA_SYSTEMS_CHECK`
 - 決定の ID: 11-01
 
@@ -61,7 +61,7 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_route_steps_counts_nodes_on_the_walk_graph`(関数)
   - `test_tool_registry_has_clock_and_forecast`(関数)
   - `test_w20_place_words_are_the_build_side_copy`(関数)
-- import している内部モジュール: `shibuya.build.sched.w20_calendar_1a`・`shibuya.engine.calendar_self`・`shibuya.engine.calendar_shadow`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.table`・`shibuya.engine.tools.registry`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.ports.decision`
+- import している内部モジュール: `shibuya.build.sched.w20_calendar_1a`・`shibuya.engine.calendar_self`・`shibuya.engine.calendar_shadow`・`shibuya.engine.tools.registry`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.ports.decision`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.table`
 - 決定の ID: R-111・R-111 §1-2 #1
 
 ## [test_calendar_shadow.py](../../../../../../../tests/engine/calendar/test_calendar_shadow.py)
@@ -87,5 +87,5 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_manifest_section_ledger_row_and_system_declarations`(関数)
   - `test_unit_relay_day_records_follow_the_table`(関数)
   - `w20_table`(関数): W16 の全員に作り物の材料で W20 の週の表を作る(エンジンの読み口の試験=表の中身の正しさは構築側の試験)。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.cli`・`shibuya.engine.calendar`・`shibuya.engine.calendar_shadow`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.table`・`shibuya.foundation.manifest.sections`・`tests/build_sched/test_w20_calendar_1a.py`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.cli`・`shibuya.engine.calendar`・`shibuya.engine.calendar_shadow`・`shibuya.engine.run`・`shibuya.foundation.manifest.sections`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.table`・`tests/build_sched/test_w20_calendar_1a.py`
 - 環境変数: `SHIBUYA_CALENDAR_W20`・`SHIBUYA_SYSTEMS_CHECK`・`os.environ` をまるごと使う

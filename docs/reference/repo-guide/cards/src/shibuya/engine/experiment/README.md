@@ -45,7 +45,7 @@ engine.experiment.branch — 「T0 までテープを再生して T0 から今�
   - `pre_t0_match`(関数): (b) T0 より前の checkpoint(刻み < T0)の behavior-hash が全部基準と同じ・テープ外 0・古典の食い違い 0。
   - `probe_first_divergence`(関数): 2 本の系ごとの指紋の行(``(刻み, 系, ((欄, digest), …))``)の最初の食い違い(同じなら ``None``)。
   - `run_branch`(関数): 基準のランの記録 ``base_dir`` から申込書 ``form`` の分岐を回し、4 つの確認をして ``branch_report.json`` を書く。
-- import している内部モジュール: `shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.switch`・`shibuya.engine.systems.probe`・`shibuya.engine.tape`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.llm`・`shibuya.mind.judge.classical`・`shibuya.world.ledger.records`
+- import している内部モジュール: `shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.switch`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.llm`・`shibuya.mind.judge.classical`・`shibuya.runtime.inference.tape`・`shibuya.runtime.systems.probe`・`shibuya.world.ledger.records`
 - 呼び手: `shibuya.cli`・`shibuya.engine.experiment.switch`
 - 読む試験: `tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/experiment/test_x33_form.py`
 - 決定の ID: 10-12/§1-1・10-12/§4-5・R-71
@@ -122,7 +122,7 @@ engine.experiment.layer — 申込書をランに置く口(組み立て)・系 `
   - `state_header`(関数): 状態のファイルの見出しに書く欄(申込書の無いランは ``None``=見出しは今のまま)。
   - `sys_experiment`(関数): 系 ``experiment``(刻みの中の最初の系): 申込書の改変を効かせる口 ``apply`` を 1 回呼ぶ。
 - import している内部モジュール: `shibuya.engine.experiment.apply`・`shibuya.engine.experiment.checks`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.warmup`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.state_io`・`shibuya.engine.systems.table`
+- 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`・`shibuya.runtime.systems.table`
 - 読む試験: `tests/engine/experiment/test_cf33b_manifest.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/experiment/test_x33_run.py`
 - 状態台帳の行
   - 持ち主 `experiment`(`ExperimentLayer`)

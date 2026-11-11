@@ -7,7 +7,7 @@ import pytest
 
 from shibuya.foundation import time_consts as TC
 from shibuya.foundation import types as TY
-from shibuya.engine.systems import boxes as BX
+from shibuya.runtime.systems import boxes as BX
 
 TPD = TC.STEPS_PER_DAY
 

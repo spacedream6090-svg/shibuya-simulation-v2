@@ -165,7 +165,7 @@ def test_table_rows_give_store_staff_and_dwellings(tmp_path):
 
 
 def test_swapped_population_without_the_table_stops(tmp_path):
-    from shibuya.engine.systems import build as SB
+    from shibuya.runtime.systems import assemble as SB
 
     pop = POP.load_population(_write(tmp_path, _pop_table()))
     with pytest.raises(ValueError):

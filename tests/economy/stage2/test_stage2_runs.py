@@ -204,7 +204,7 @@ def test_port_arm_shows_the_candidates_and_keeps_the_mock_actions(arm, monkeypat
 
 
 def test_atms_live_in_the_fixtures(arm):
-    from shibuya.engine.systems import boxes as BX
+    from shibuya.runtime.systems import boxes as BX
 
     arm("on")
     seen = {}

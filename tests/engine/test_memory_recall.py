@@ -28,7 +28,7 @@ from shibuya.agents.state import (
 )
 from shibuya.mind.memory import memory as M
 from shibuya.mind.memory.familiarity import place_thing
-from shibuya.engine.tape import (
+from shibuya.runtime.inference.tape import (
     CALLS_FILENAME,
     CALLS_SCHEMA,
     CALLS_SCHEMA_V2_DEFAULTS,

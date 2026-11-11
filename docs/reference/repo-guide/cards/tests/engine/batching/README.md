@@ -27,7 +27,7 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_two_days_and_resume_match_the_straight_run_for_the_arm`(関数)
   - `test_window_changes_are_attributed_to_the_window_mark_and_fingerprints_do_not_move`(関数)
   - `width`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.day`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.queues.batching`・`shibuya.foundation.time_consts`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.foundation.queues.batching`・`shibuya.foundation.time_consts`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.day`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`
 - 環境変数: `SHIBUYA_SYSTEMS_CHECK`・`os.environ` をまるごと使う
 
 ## [test_window_queue.py](../../../../../../../tests/engine/batching/test_window_queue.py)

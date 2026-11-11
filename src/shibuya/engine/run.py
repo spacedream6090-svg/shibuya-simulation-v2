@@ -81,7 +81,7 @@ from shibuya.foundation.growth import GrowthReport
 from shibuya.foundation.rng import RNG_SCHEME
 from shibuya.foundation.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
 from shibuya.engine import commit as C
-from shibuya.engine import growth_decl as GD
+from shibuya.runtime.state import growth_decl as GD
 from shibuya.engine import resolve as R
 from shibuya.act.activity import payload_of
 from shibuya.engine.calendar import (
@@ -122,8 +122,8 @@ from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
 from shibuya.engine.poi_target import MOVE_SEARCH_RADIUS_CELLS
 from shibuya.engine.llm_bridge import DEFAULT_LANE, delta_think_ticks
 from shibuya.foundation.queues.scheduler import DIAG_COLUMNS
-from shibuya.engine.state_hashes import FINAL_DEFINITION
-from shibuya.engine.tape import Replay, read_run_meta
+from shibuya.runtime.state.hashes import FINAL_DEFINITION
+from shibuya.runtime.inference.tape import Replay, read_run_meta
 from shibuya.foundation.vocab.actions import TargetKind
 from shibuya.llm.fleet import FleetClient
 from shibuya.llm.mock import MockLLM
@@ -137,9 +137,9 @@ from shibuya.engine import calendar_shadow as _CALENDAR_SHADOW
 from shibuya.engine import calendar_self as _CALENDAR_SELF
 from shibuya.engine.experiment import layer as _EXPERIMENT
 from shibuya.foundation.queues import batching as _BATCHING
-from shibuya.engine import regional_clock as _REGIONAL_CLOCK  # 〔第 6 期 6-3 T4〕
-from shibuya.engine import speech_clock as _SPEECH_CLOCK  # 〔第 6 期 6-3 T2〕
-from shibuya.engine import step_scope as _STEP_SCOPE  # 〔第 6 期 6-3 T3〕
+from shibuya.runtime.clocks import regional as _REGIONAL_CLOCK  # 〔第 6 期 6-3 T4〕
+from shibuya.runtime.clocks import speech as _SPEECH_CLOCK  # 〔第 6 期 6-3 T2〕
+from shibuya.runtime.clocks import step_scope as _STEP_SCOPE  # 〔第 6 期 6-3 T3〕
 from shibuya.world.body import model as _BODY_MODEL
 from shibuya.perception.renderer import (
     DEFAULT_HUNGER_WORDS,
@@ -1164,7 +1164,7 @@ class RunResult:
 
     def state_hashes_fields(self) -> dict[str, Any]:
         """10b: 状態台帳の版・最後の checkpoint の behavior-hash と full-hash・外の状態の直列化のバイト数。"""
-        from shibuya.engine.state_ledger import LEDGER_VERSION
+        from shibuya.runtime.state.ledger import LEDGER_VERSION
 
         last = self.checkpoints[-1] if self.checkpoints else None
         return {
@@ -2478,7 +2478,7 @@ def run_day(
     """
     _call_args = dict(locals())  # 10d: 設定の指紋(先頭で引数だけを写す)
     # 1-0 段 F: 組み立て・tick のループ・ランの終わりは engine.systems(状態の箱+系+進行役)。結果は HEAD と同じ。
-    from shibuya.engine.systems.conductor import conduct
+    from shibuya.runtime.systems.conductor import conduct
 
     return conduct(_call_args)
 

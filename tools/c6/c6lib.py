@@ -793,7 +793,7 @@ def scenes_from_tape(tape: Any) -> list[Scene]:
     指標B は ``RecordingLLM`` が出す ``scenes.jsonl``(全文)を使うこと。
     本関数は **モックテープでの純関数テスト**と、テープしか無いときの診断用に置く。
     """
-    from shibuya.engine.tape import Tape  # 遅延 import(pyarrow を要する)
+    from shibuya.runtime.inference.tape import Tape  # 遅延 import(pyarrow を要する)
 
     t = tape if isinstance(tape, Tape) else Tape(tape)
     out: list[Scene] = []

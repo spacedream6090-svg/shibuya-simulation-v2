@@ -41,7 +41,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_resume_right_after_an_utterance_gives_the_straight_result`(関数)
   - `test_resuming_with_the_other_arm_stops`(関数)
   - `test_the_unread_queue_moves_both_hashes_only_when_the_arm_is_on`(関数)
-- import している内部モジュール: `shibuya.engine.resume`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.society.speech.port`・`tests/engine/speech/_s8b.py`
+- import している内部モジュール: `shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.society.speech.port`・`tests/engine/speech/_s8b.py`
 
 ## [test_speech_choice_utterance.py](../../../../../../../tests/engine/speech/test_speech_choice_utterance.py)
 
@@ -73,7 +73,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_default_arm_is_off`(関数)
   - `test_mock_text_is_unchanged_without_the_field_line`(関数)
   - `test_off_state_files_and_fingerprint_have_no_speech_paths`(関数)
-- import している内部モジュール: `shibuya.engine.resume`・`shibuya.engine.state_ledger`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.mind.judge.classical`・`shibuya.society.speech.layer`・`tests/engine/speech/_s8b.py`
+- import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.mind.judge.classical`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.society.speech.layer`・`tests/engine/speech/_s8b.py`
 
 ## [test_speech_empty_text_errors.py](../../../../../../../tests/engine/speech/test_speech_empty_text_errors.py)
 
@@ -141,7 +141,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_utterance_fields_frozen_and_mora_from_the_text`(関数)
   - `test_utterance_rejects_bad_fields`(関数)
   - `test_via_is_the_1_3_vocabulary_and_three_participants_are_allowed`(関数)
-- import している内部モジュール: `shibuya.engine.state_ledger`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.perception.renderer`・`shibuya.society.speech.layer`・`shibuya.society.speech.port`
+- import している内部モジュール: `shibuya.foundation.journal.log`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.perception.renderer`・`shibuya.runtime.state.ledger`・`shibuya.society.speech.layer`・`shibuya.society.speech.port`
 
 ## [test_speech_writers_ast.py](../../../../../../../tests/engine/speech/test_speech_writers_ast.py)
 
@@ -162,7 +162,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_dropping_the_events_path_fails_where_the_utterance_is_written`(関数)
   - `test_dropping_the_s8_path_is_caught_by_stage_b`(関数)
   - `test_the_writing_systems_are_declared`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.overrides`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.write_permit`・`tests/engine/speech/_s8b.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.systems.overrides`・`shibuya.foundation.write_permit`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`tests/engine/speech/_s8b.py`
 
 ## [test_wom_from_utterance_roundtrip.py](../../../../../../../tests/engine/speech/test_wom_from_utterance_roundtrip.py)
 
@@ -172,4 +172,4 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_legacy_path_and_the_port_write_the_same_word_of_mouth`(関数)
   - `test_the_mock_utterance_extracts_nothing`(関数)
   - `test_the_v3_parser_receives_the_comment_without_code_changes`(関数)
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.agents.state`・`shibuya.engine.systems.llm_io`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.actions`・`shibuya.llm.mock`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.store_memory`・`shibuya.mind.memory.wom`・`shibuya.society.conversation`・`shibuya.society.speech.layer`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.agents.state`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.actions`・`shibuya.llm.mock`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.store_memory`・`shibuya.mind.memory.wom`・`shibuya.runtime.systems.llm_io`・`shibuya.society.conversation`・`shibuya.society.speech.layer`

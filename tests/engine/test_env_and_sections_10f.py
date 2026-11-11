@@ -21,10 +21,10 @@ import pytest
 
 from shibuya.foundation.hashing import blake3_hex
 from shibuya.foundation.manifest import sections as MS
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
 from shibuya.engine.run import run_day
-from shibuya.engine.tape import RUN_META_FILENAME, read_run_meta
+from shibuya.runtime.inference.tape import RUN_META_FILENAME, read_run_meta
 from tests import golden_env as GE
 
 ROOT = Path(__file__).resolve().parents[2]

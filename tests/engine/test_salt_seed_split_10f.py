@@ -25,7 +25,7 @@ import pytest
 from shibuya import cli
 from shibuya.foundation import rng as RNG
 from shibuya.world.model import geometry as GEO
-from shibuya.engine import resume as RS
+from shibuya.runtime.state import resume as RS
 from shibuya.engine import run as RUN
 
 ROOT = Path(__file__).resolve().parents[2]

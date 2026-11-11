@@ -21,7 +21,7 @@ engine.conversation — 会話プロトコル(行動契約書 §3)のセッシ�
   - `PendingInvite`(クラス): **返事待ちの招待**(C6・09-09)。
   - `Session`(クラス): 1会話セッション。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.types`
-- 呼び手: `shibuya.engine.contact.calls`・`shibuya.engine.contact.chat_state`・`shibuya.engine.contact.layer`・`shibuya.engine.systems.build`・`shibuya.society.speech.port`
+- 呼び手: `shibuya.engine.contact.calls`・`shibuya.engine.contact.chat_state`・`shibuya.engine.contact.layer`・`shibuya.runtime.systems.assemble`・`shibuya.society.speech.port`
 - 読む試験: `tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/proximity/test_switch_sites.py`・`tests/engine/speech/test_speech_empty_text_errors.py`・`tests/engine/speech/test_wom_from_utterance_roundtrip.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_conversation.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_relations.py`・`tests/engine/test_relations_8b.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_state_format_10f.py`・`tests/engine/test_version_bump_10e.py`
 - 読む試験(道筋で): `tests/economy/cp2/test_cp2_write_window.py`
 - 状態台帳の行
@@ -47,7 +47,7 @@ engine.norm_meter — **群・規範の計器**(D-107 (a)・第255 決定・第2
   - `entropy_bits`(関数): 度数 → シャノンエントロピー[bit]\(D-68 の M3b と同じ計算)。度数 0 は 0。
   - `role_code_table`(関数): 語彙の版 → 役割語 → 行動コード(``llm.contract``)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`
-- 呼び手: `shibuya.engine.systems.build`
+- 呼び手: `shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/test_norm_meter.py`
 - 状態台帳の行
   - 持ち主 `norm_meter`(`GroupNormMeter`)

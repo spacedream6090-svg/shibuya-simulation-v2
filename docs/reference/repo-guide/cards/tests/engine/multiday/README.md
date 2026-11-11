@@ -41,7 +41,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_signboard_rows_of_the_1_7_arm_are_reused`(関数)
   - `test_store_pointers_are_log_events`(関数)
   - `test_word_tables_agree_with_the_memory_and_the_vocab`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.events.body`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.tape`・`shibuya.engine.tools.record`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_store`・`tests/engine/multiday/_md.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.events.body`・`shibuya.engine.run`・`shibuya.engine.tools.record`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_store`・`shibuya.runtime.inference.tape`・`shibuya.runtime.state.ledger`・`tests/engine/multiday/_md.py`
 
 ## [test_md23_resume.py](../../../../../../../tests/engine/multiday/test_md23_resume.py)
 
@@ -50,7 +50,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
 - 公開の関数とクラス
   - `test_synthetic_two_days_resume_at_the_day_boundary`(関数)
   - `test_world_two_days_resume_default_and_arm_d`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.tape`・`shibuya.foundation.time_consts`・`tests/engine/multiday/_md.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.time_consts`・`shibuya.runtime.inference.tape`・`tests/engine/multiday/_md.py`
 
 ## [test_md23_tool.py](../../../../../../../tests/engine/multiday/test_md23_tool.py)
 

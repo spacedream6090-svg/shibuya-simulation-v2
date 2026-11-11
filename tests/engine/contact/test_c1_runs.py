@@ -10,8 +10,8 @@ import pytest
 
 from shibuya.foundation.time_consts import STEPS_PER_DAY
 from shibuya.foundation.manifest import sections as MS
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
 from shibuya.engine.contact import layer as LY
 from shibuya.engine.run import run_day
 from shibuya.engine.tools import record as TR
@@ -151,8 +151,8 @@ def test_cli_flag_sets_the_arm(monkeypatch):
 
 
 def test_the_contact_system_runs_only_on_the_arm():
-    from shibuya.engine.systems import conductor as CD
-    from shibuya.engine.systems.table import SPECS
+    from shibuya.runtime.systems import conductor as CD
+    from shibuya.runtime.systems.table import SPECS
 
     sp = SPECS["contact"]
     assert sp.when == "contact" and sp.timing == "tick" and sp.writes.soa == frozenset()

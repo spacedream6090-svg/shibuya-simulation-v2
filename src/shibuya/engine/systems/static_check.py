@@ -29,7 +29,7 @@ from typing import Any, Callable
 
 from shibuya.foundation.paths import module_dir
 from shibuya.engine import resolve as _RESOLVE
-from shibuya.engine.systems import allow as _SYSTEMS_MEMBER  # 〔移す段 4 の下ごしらえ〕包みの頭でなく中のモジュールを直に読む
+from shibuya.runtime.systems import allow as _SYSTEMS_MEMBER  # 〔移す段 4 の下ごしらえ〕包みの頭でなく中のモジュールを直に読む
 
 __all__ = ["SystemCode", "analyze", "analyze_spec"]
 

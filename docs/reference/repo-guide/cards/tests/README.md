@@ -103,7 +103,7 @@ golden を環境ごとの行で持つための小道具(10f・K26 (1))。
   - `row`(関数): ``{platform_id: 値}`` の表から今の環境の行(無ければ ``None``=未登録の警告を出す)。
   - `soa_combined`(関数): 〔第330・RET〕checkpoint の「SoA の全列+母集団+予定表(+活動)」の組み立て(10e より前の final の式)。
   - `warn_unregistered`(関数): 未登録の環境で golden の比較を飛ばしたことを警告する(pytest の要約に出る)。
-- import している内部モジュール: `shibuya.engine.resume`・`shibuya.foundation.hashing`
+- import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.runtime.state.resume`
 - 読む試験: `tests/engine/space/test_nav1_world.py`・`tests/engine/test_classical_social.py`・`tests/engine/test_env_and_sections_10f.py`・`tests/engine/test_familiarity.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_memory_recall.py`・`tests/engine/test_memory_record.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_relations.py`・`tests/engine/test_relations_tenure.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_store_memory.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_wom.py`・`tests/perception/test_near_tiebreak.py`
 - 決定の ID: 第 330
 

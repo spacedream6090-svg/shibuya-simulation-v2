@@ -56,7 +56,7 @@ def result_code_counts(agents: object) -> dict[str, int]:
 
 def action_counts_from_tape(tape_dir: Path) -> dict[str, int]:
     """テープの応答本文 → 行動語の度数(``llm.parser`` で解釈)。"""
-    from shibuya.engine.tape import Tape
+    from shibuya.runtime.inference.tape import Tape
 
     texts = [str(r.response) for r in Tape(tape_dir).rows()]
     return {k: int(v) for k, v in c6lib.score_texts(texts)["action_counts"].items()}

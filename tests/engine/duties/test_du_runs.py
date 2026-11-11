@@ -14,14 +14,14 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.manifest import sections as MS
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
 from shibuya.foundation.arms import duties as AD
 from shibuya.engine.duties import layer as LY
 from shibuya.mind.plan import duties_port as PD
 from shibuya.foundation.vocab import events as V
 from shibuya.engine.run import run_day
-from shibuya.engine.systems import table as TB
+from shibuya.runtime.systems import table as TB
 from shibuya.world.ledger.records import DEVIATION_CODES, DeviationVocab
 
 from tests.engine.duties._du import KW, RULE_FROM, ST, UN, RULE_TO, STEP_NS, TPD, by_pref, choose, du, duty_events, fresh

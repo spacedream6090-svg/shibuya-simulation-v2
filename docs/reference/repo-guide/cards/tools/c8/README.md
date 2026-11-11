@@ -20,7 +20,7 @@ ablation_runner.py — ablation **第1陣 6 本**(知覚契約書 §8)の腕定�
   - `run_metrics`(関数): 1 ランの結果 → 指標辞書(**腕の比較はこの辞書の上で行う**)。
   - `table_markdown`(関数): 腕定義表 → Markdown(``--list`` と計器盤が使う・**純関数**)。
   - `validate_table`(関数): 腕定義表の自己検査(テストと ``--list`` が使う)。**問題の一覧を返す**(例外にしない)。
-- import している内部モジュール: `shibuya.engine.tape`・`tools/c8/c8lib.py`
+- import している内部モジュール: `shibuya.runtime.inference.tape`・`tools/c8/c8lib.py`
 - 読む試験: `tests/c8/conftest.py`
 - CLI の引数
   - `--arm`: 回す腕の id(例 AB1-BUDGET-MODE / AB1 / ①)

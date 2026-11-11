@@ -33,7 +33,7 @@ from shibuya.mind.judge.decision import layer as DLY
 from shibuya.foundation.ports.decision import SOURCE_AFFORDANCE, Candidate, DecisionContext, DecisionPort
 from shibuya.engine.duties import layer as LD
 from shibuya.mind.plan import duties_port as PD
-from shibuya.engine.systems import boxes as BX
+from shibuya.runtime.systems import boxes as BX
 
 TPD = TC.STEPS_PER_DAY
 #: 日をまたぐ境・2 日目・再開の位置(試験の再開は TPD+300 で止める)。

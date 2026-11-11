@@ -21,7 +21,7 @@ from shibuya.engine.llm_bridge import (
     delta_think_ticks,
 )
 from shibuya.engine.run import DIAG_DAY_ROWS, DIAG_RUN_COLUMNS, run_day
-from shibuya.engine.tape import BLOCKS_FILENAME, CALLS_FILENAME, Replay, Tape, TapeWriter
+from shibuya.runtime.inference.tape import BLOCKS_FILENAME, CALLS_FILENAME, Replay, Tape, TapeWriter
 from shibuya.llm import MockLLM
 from shibuya.llm.mock import MOCK_RNG_DOMAIN
 

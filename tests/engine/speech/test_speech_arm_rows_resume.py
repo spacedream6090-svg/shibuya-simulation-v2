@@ -10,9 +10,9 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
-from shibuya.engine import state_hashes as SH
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.state import hashes as SH
 from shibuya.society.speech import port as P
 from tests.engine.speech._s8b import run_small
 

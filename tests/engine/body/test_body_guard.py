@@ -20,7 +20,7 @@ import pytest
 from shibuya.world.body.model import BodyModel
 from shibuya.world.body import model as _BM
 from shibuya.world.body import schedule as _BS
-from shibuya.engine.systems import allow as AL
+from shibuya.runtime.systems import allow as AL
 
 from tests.engine.ast_writers import UNKNOWN, scan_writes
 
@@ -187,8 +187,8 @@ def test_no_new_writer_of_the_body_columns():
 #: HEAD の口の呼び手(src の中・``R.<口>(...)``)。
 HEAD_CALLERS = sorted([
     ("world/laws/environment.py", "set_thermal"), ("world/laws/environment.py", "set_thermal"),
-    ("engine/systems/body.py", "advance_body"), ("engine/systems/build.py", "initialize"),
-    ("engine/systems/build.py", "initialize_energy"),
+    ("runtime/systems/body.py", "advance_body"), ("runtime/systems/assemble.py", "initialize"),
+    ("runtime/systems/assemble.py", "initialize_energy"),
 ])
 
 

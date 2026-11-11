@@ -66,7 +66,7 @@ def dump(res: Any, path: str | Path, *, label: str = "", tape: str | Path | None
         doc["diag_columns"] = list(DIAG_RUN_COLUMNS)
         doc["diag_by_tick"] = {str(int(row[0])): [int(x) for x in row] for row in res.diagnostics.tolist()}
     if tape is not None:
-        from shibuya.engine.tape import Tape
+        from shibuya.runtime.inference.tape import Tape
 
         doc["tape"] = sorted(
             [int(r.tick), int(r.agent_id), int(r.wake_class), str(r.prompt_hash)]
@@ -85,7 +85,7 @@ def _load(path: str | Path) -> dict[str, Any]:
 
 def _row_info(key: str) -> dict[str, Any]:
     """``agents.cell`` か ``O10:mem_layer._next_session`` → 状態台帳の行の鍵・名前・軸。"""
-    from shibuya.engine import state_ledger as SL
+    from shibuya.runtime.state import ledger as SL
 
     rk = key.split(":", 1)[0]
     try:

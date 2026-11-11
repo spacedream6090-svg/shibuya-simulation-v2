@@ -18,7 +18,7 @@ from hypothesis import strategies as st
 from shibuya.agents.state import Activity, AgentState, ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.systems import table as _SYSTEMS
+from shibuya.runtime.systems import table as _SYSTEMS
 from shibuya.world.model.state import World
 from tests import _places as _PL
 

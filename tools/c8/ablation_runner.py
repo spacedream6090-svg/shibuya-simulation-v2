@@ -294,7 +294,7 @@ def run_metrics(res: Any, tape_path: Path | None) -> dict[str, Any]:
         }
     out["undefined_registry"] = _undefined_registry(res)  # M2/M3(台帳側)
     if tape_path is not None and Path(tape_path).exists():
-        from shibuya.engine.tape import Tape
+        from shibuya.runtime.inference.tape import Tape
 
         # D-58: 繰り延べ行(応答空)は行動分布・書式の分母に入れない
         texts = [str(r.response) for r in Tape(tape_path).rows() if not r.deferred]

@@ -50,7 +50,7 @@ def test_loud_sound_is_a_nearby_change_kind_and_the_percept_shape_is_unchanged()
 def test_percepts_of_a_run_keep_the_fields_empty(monkeypatch):
     """合成の世界のランで描いた知覚の事実(系 decide が ``TickScratch.percepts`` に書く)の器の欄は None のまま。"""
     from shibuya.engine.run import run_day
-    from shibuya.engine.systems import conductor as CD
+    from shibuya.runtime.systems import conductor as CD
 
     seen: list = []
     orig = CD.run_system

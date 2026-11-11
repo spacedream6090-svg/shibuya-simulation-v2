@@ -72,7 +72,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_switch_with_the_classical_policy`(関数)
   - `test_switch_with_the_mock_is_deterministic`(関数)
   - `test_window_head_step`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.experiment.branch`・`shibuya.engine.experiment.switch`・`shibuya.engine.tape`・`shibuya.foundation.time_consts`・`shibuya.llm`・`shibuya.llm.mock`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.experiment.branch`・`shibuya.engine.experiment.switch`・`shibuya.foundation.time_consts`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.runtime.inference.tape`・`tests/engine/experiment/_x33.py`
 
 ## [test_x33_apply.py](../../../../../../../tests/engine/experiment/test_x33_apply.py)
 
@@ -176,4 +176,4 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_state_header_and_resume_checks`(関数)
   - `test_the_seal_is_enforced_at_the_run_entrance`(関数)
   - `test_undeclared_experiment_write_shows_in_stage_b`(関数): 負の対照: 系 experiment の宣言から X:experiment.* を外すと、段 B が宣言の外の書きとして見つける。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.layer`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.overrides`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.write_permit`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.layer`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.engine.systems.overrides`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`tests/engine/experiment/_x33.py`

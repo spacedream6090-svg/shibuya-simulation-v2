@@ -34,10 +34,10 @@ import numpy as np
 import pytest
 
 from shibuya import cli
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
 from shibuya.engine.run import run_day
-from shibuya.engine.tape import Tape
+from shibuya.runtime.inference.tape import Tape
 
 from tests.engine.test_sim_time_T import ALL_ARMS
 
@@ -196,7 +196,7 @@ def test_ledger_rows_moved_by_10d():
 _CHILD = r"""
 import json, sys
 from shibuya import cli
-from shibuya.engine import resume as RS
+from shibuya.runtime.state import resume as RS
 kw = json.loads(sys.argv[1])
 res = cli.run(resume_from=sys.argv[2], tape_path=sys.argv[3], **kw)
 print(json.dumps([[c.tick, c.combined, c.behavior_hash, c.full_hash] for c in res.checkpoints]))

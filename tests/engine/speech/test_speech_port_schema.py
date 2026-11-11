@@ -15,7 +15,7 @@ import inspect
 
 import pytest
 
-from shibuya.engine import state_ledger as SL
+from shibuya.runtime.state import ledger as SL
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.log import EventLog
 from shibuya.society.speech import layer as SPL

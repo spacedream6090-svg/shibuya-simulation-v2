@@ -24,12 +24,12 @@ from shibuya.foundation import rng as RNG
 from shibuya.mind.judge import classical as CL
 from shibuya.world.body import energy as EN
 from shibuya.engine import resolve as RV
-from shibuya.engine import resume as RS
+from shibuya.runtime.state import resume as RS
 from shibuya.engine import rng_audit as RA
 from shibuya.foundation.decl import bridging as BL
 from shibuya.engine.bridging import scan as BS
 from shibuya.world.facts.rules import table as RT
-from shibuya.engine.systems import allow as AL
+from shibuya.runtime.systems import allow as AL
 from shibuya.engine.systems import static_check as SC
 from shibuya.world.ledger import world_catalog as WC
 from shibuya.world.ledger import constitution as CO
@@ -115,7 +115,7 @@ def test_index_refuses_a_function_name_split_across_files(tmp_path, monkeypatch)
 
 def _split_tree(tmp_path: Path, part: str) -> Path:
     """resolve.py と、割った先のふりのファイル 1 本と、``declared_columns`` が読むファイルを置いた木(``src/shibuya`` の形)。"""
-    from shibuya.engine import state_ledger_ast as A
+    from shibuya.runtime.state import ledger_ast as A
 
     root = tmp_path / "shibuya"
     (root / "engine").mkdir(parents=True)

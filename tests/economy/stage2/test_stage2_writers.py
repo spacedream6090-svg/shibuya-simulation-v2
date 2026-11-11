@@ -15,8 +15,8 @@ import ast
 import json
 from pathlib import Path
 
-from shibuya.engine.systems import allow as AL
-from shibuya.engine.systems.table import SYSTEMS
+from shibuya.runtime.systems import allow as AL
+from shibuya.runtime.systems.table import SYSTEMS
 from tests.economy.cp2 import money_writers as MW
 
 HERE = Path(__file__).resolve().parent

@@ -19,13 +19,13 @@ from shibuya import cli
 from shibuya.foundation import write_permit as WP
 from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import run_kind as RK
-from shibuya.engine import state_ledger as SL
+from shibuya.runtime.state import ledger as SL
 from shibuya.engine.experiment import layer as XL
 from shibuya.engine.run import run_day
-from shibuya.engine.systems import conductor as CD
+from shibuya.runtime.systems import conductor as CD
 from shibuya.engine.systems import overrides as OV
-from shibuya.engine.systems import probe as PR
-from shibuya.engine.systems.table import SPECS
+from shibuya.runtime.systems import probe as PR
+from shibuya.runtime.systems.table import SPECS
 
 from tests.engine.experiment._x33 import NS_HOUR, form
 
@@ -54,7 +54,7 @@ def test_no_form_no_system_and_null_manifest(plain, monkeypatch):
     import dataclasses
 
     boom = dataclasses.replace(SPECS["experiment"], fn=lambda ctx, b: (_ for _ in ()).throw(AssertionError("呼んだ")))
-    from shibuya.engine.systems import table as TB
+    from shibuya.runtime.systems import table as TB
 
     monkeypatch.setattr(TB, "SYSTEMS", tuple(boom if s.name == "experiment" else s for s in TB.SYSTEMS))
     again = run_day(**KW)
@@ -208,7 +208,7 @@ def test_undeclared_experiment_write_shows_in_stage_b():
 
 def test_runtime_owner_instance_is_fully_declared():
     """状態台帳の網羅(10b-2・検収 2-6 の実行時の形): 申込書の持ち主のインスタンスの属性は行 X の道筋か除外の一覧にある。"""
-    from shibuya.engine import state_ledger_ast as SA
+    from shibuya.runtime.state import ledger_ast as SA
 
     res = _run(form(start=T0_NS, content=[{"decision": "event"}]))
     layer = res.experiment_layer

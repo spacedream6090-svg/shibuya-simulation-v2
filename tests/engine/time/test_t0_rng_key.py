@@ -11,7 +11,7 @@ import pytest
 
 from shibuya.foundation import rng as RNG
 from shibuya.foundation import time_consts as TC
-from shibuya.engine.systems import boxes as BX
+from shibuya.runtime.systems import boxes as BX
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -49,7 +49,7 @@ def test_bad_width():
 PLAN_A_CALLERS: dict[str, dict[str, int]] = {
     "key_time_from_t_ns": {
         "foundation/rng.py": 1,
-        "engine/systems/decide.py": 1,
+        "runtime/systems/decide.py": 1,
         "mind/judge/decision/layer.py": 1,
         "engine/contact/layer.py": 2,
         "engine/calendar2/layer.py": 1,

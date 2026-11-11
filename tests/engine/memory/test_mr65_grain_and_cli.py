@@ -19,7 +19,7 @@ import pytest
 
 from shibuya.foundation.time_consts import STEPS_PER_DAY
 from shibuya.engine.run import run_day
-from shibuya.engine.tape import Tape
+from shibuya.runtime.inference.tape import Tape
 
 from tests.engine.memory._mr65 import KW, arms, mr65
 from tests.engine.multiday._md import Capture

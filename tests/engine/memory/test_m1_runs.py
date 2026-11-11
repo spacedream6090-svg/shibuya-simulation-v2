@@ -23,7 +23,7 @@ from shibuya.mind.memory import memory_store as MS
 from shibuya.mind.memory.memory_store import LegacyEvent, MemoryStore
 from shibuya.engine.run import run_day
 from shibuya.foundation import write_guard as G
-from shibuya.engine.tape import Tape
+from shibuya.runtime.inference.tape import Tape
 
 from tests.engine.memory._mr65 import KW, arms, mr65
 

@@ -44,7 +44,7 @@ WATCHED_ROLE_WORDS: tuple[str, ...] = ("補充", "開閉店", "発車", "停車"
 
 
 def texts_from_tape(path: str | Path) -> list[str]:
-    from shibuya.engine.tape import Tape
+    from shibuya.runtime.inference.tape import Tape
 
     # D-58: 繰り延べ行(応答空)は書式エラー率の分母に入れない
     return [str(r.response) for r in Tape(path).rows() if not r.deferred]

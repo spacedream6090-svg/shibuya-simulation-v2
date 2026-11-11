@@ -3565,7 +3565,7 @@ def restore_soa(agents: AgentState, world: World, pstate: Any,
     列の集合・形・型が 1 つでも違えば止める(構成の取り違え=黙って一部だけ戻さない)。値は配列の中身を
     書き換える(配列そのものは替えない=世帯の現金を共有する金の台帳の行もそのまま同じ値になる)。
     """
-    from shibuya.engine import state_ledger as SL
+    from shibuya.runtime.state import ledger as SL
 
     targets: dict[str, tuple[Any, Any]] = {
         "agents": (agents, agents.registry),
@@ -3669,9 +3669,9 @@ def restore_items(owners: Mapping[str, Any], items: Mapping[str, Any]) -> int:
     無いときだけ通す(片方だけ無い=構成の取り違え)。〔第 1 期 1-8b〕腕の行は今の側で持ち主の居る行だけ道筋に足す
     (``SL.arm_items``)=保存と今で腕が違えば道筋の集合の食い違いで止まる。
     """
-    from shibuya.engine import state_ledger as SL
-    from shibuya.engine.resume import ABSENT_MARK
-    from shibuya.engine.state_hashes import _ABSENT, resolve_item
+    from shibuya.runtime.state import ledger as SL
+    from shibuya.runtime.state.resume import ABSENT_MARK
+    from shibuya.runtime.state.hashes import _ABSENT, resolve_item
 
     paths = [p for _k, p in SL.full_items() + SL.arm_items(owners, behavior=False)]
     if set(paths) != set(items):

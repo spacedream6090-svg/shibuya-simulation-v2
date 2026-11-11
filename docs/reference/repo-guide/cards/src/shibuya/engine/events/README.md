@@ -16,6 +16,6 @@ engine.events.body — 体の出来事を出来事の記録(1-3)に書く口(第
   - `BodyEventLink`(クラス): 体の出来事の口(記憶の器が持つ=``MemoryStore.body_events``・組み立てが腕のランだけ作る)。
   - `kind_of_what`(関数): 出来事の語のコード → 記憶の種類(記憶の器の中身の写像の検査=``MemoryStore.remember``)。表の外は ``0``。
 - import している内部モジュール: `shibuya.engine.tools.record`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.events`
-- 呼び手: `shibuya.engine.systems.build`・`shibuya.mind.memory.memory_store`
+- 呼び手: `shibuya.mind.memory.memory_store`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/multiday/test_md23_body_events.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`

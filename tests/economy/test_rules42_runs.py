@@ -135,7 +135,7 @@ def test_resume_refuses_a_header_without_rules_42(law):
 def test_resume_from_a_state_without_the_rules_key_is_refused(tmp_path, law, key, match):
     """〔第346〕見出しの ``economy_stage2`` に ``rules_42``(4-2 の前のラン)か ``rules_42b``(4-2 の値のラン)の無い状態の
     ファイルは再開で止まる: 保存の間だけ見出しからその鍵を外し、戻してから再開する(検収 M3)。"""
-    from shibuya.engine import resume as RS
+    from shibuya.runtime.state import resume as RS
 
     orig = ES2.header_fields
     with pytest.MonkeyPatch.context() as mp:

@@ -13,8 +13,8 @@ from pathlib import Path
 import pytest
 
 from shibuya.foundation.manifest import sections as MS
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
 from shibuya.mind.plan import promise_book as B2
 from shibuya.foundation.arms import calendar3 as A3
 from shibuya.engine.calendar3 import layer as LY
@@ -22,7 +22,7 @@ from shibuya.mind.plan import calendar3_port as P3
 from shibuya.engine.contact import layer as CL
 from shibuya.mind.plan import contact_port as PC
 from shibuya.engine.run import run_day
-from shibuya.engine.systems import table as TB
+from shibuya.runtime.systems import table as TB
 
 from tests.engine.calendar3._ca3 import (FRAME_LONG, HOLIDAY_SUNDAY, KW, MANAGER, STEP_NS, TPD, UNIT, by_pref, ca3,
                                          choose, roster_fixture)
@@ -515,7 +515,7 @@ def test_roster_is_built_after_restore_and_resume_matches_without_monkeypatch(wi
 
 def test_roster_is_not_built_at_assembly():
     """組み立ての口は表を作る口だけを渡す(表は最初の刻みの頭=ensure_roster)。"""
-    src = (Path(__file__).resolve().parents[3] / "src" / "shibuya" / "engine" / "systems" / "build.py").read_text(
+    src = (Path(__file__).resolve().parents[3] / "src" / "shibuya" / "runtime" / "systems" / "assemble.py").read_text(
         encoding="utf-8")
     assert "roster_fn=lambda: _R3.roster_for_run(" in src and "roster=_R3." not in src
 
@@ -591,7 +591,7 @@ def test_trial_run_fills_the_start_check_field(sunday_run):
 
 
 def test_contact_without_calendar3_has_no_sinks_and_no_window_paths(with_roster):
-    from shibuya.engine.systems import conductor as CD
+    from shibuya.runtime.systems import conductor as CD
 
     with ca3(on=False, trial=False):
         r = run_day(**dict(KW, ticks=60, start_sim_datetime=None))

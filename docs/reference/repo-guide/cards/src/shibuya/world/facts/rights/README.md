@@ -19,7 +19,7 @@ engine.rights.initial — 権利台帳の最初の中身(第 1 期 1-5・計画 
   - `staff_assignment`(関数): 店(POI)→ 担当の体(-1=担当なし)。種別 従業者 の体を決定論で丸振りする(HEAD の ``_assign_staff`` と同じ規則)。
   - `staff_of_poi`(関数): 権利台帳の ``employ`` の行(体 → 店)から、店(POI)→ 担当の体の表を読む(-1=担当なし・複数なら最初の行)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.world.facts.rights.ledger`
-- 呼び手: `shibuya.engine.calendar3.roster`・`shibuya.engine.systems.build`・`shibuya.world.laws.opening`・`shibuya.world.laws.runner`
+- 呼び手: `shibuya.engine.calendar3.roster`・`shibuya.runtime.systems.assemble`・`shibuya.world.laws.opening`・`shibuya.world.laws.runner`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/economy/test_wage_occupation.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/duties/_du.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/rights/test_rights_manifest.py`・`tests/engine/rights/test_rules42_rights.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_pop_w21_world.py`
 - 決定の ID: 10-12/§4-5・R-76・R-76 #17・R-106
 

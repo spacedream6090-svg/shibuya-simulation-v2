@@ -16,7 +16,7 @@ import pytest
 
 from shibuya.agents.state import Activity, AgentState, ResultCode
 from shibuya.engine import commit as C
-from shibuya.engine import defect_fixes_1103 as DF
+from shibuya.runtime import switch_defects as DF
 from shibuya.engine import resolve as R
 from shibuya.society.conversation import ConversationManager
 from shibuya.world.laws.crowd import CrowdProcess
@@ -73,15 +73,15 @@ def test_removed_defect_fixes_switch_env_and_cli_flag_stop():
     import sys
 
     from shibuya import cli
-    from shibuya.engine.systems import boxes as BX
-    from shibuya.engine.systems import talk as TK
+    from shibuya.runtime.systems import boxes as BX
+    from shibuya.runtime.systems import talk as TK
 
     for name in ("arm", "set_arm", "_ARM"):
         assert not hasattr(DF, name), name
     assert "defect_fixes_1103" not in {f.name for f in dataclasses.fields(BX.RunConfig)}
     assert "cfg.defect_fixes_1103" not in inspect.getsource(TK)
     env = {**os.environ, "SHIBUYA_DEFECT_FIXES_1103": "legacy", "PYTHONIOENCODING": "utf-8"}
-    r = subprocess.run([sys.executable, "-c", "import shibuya.engine.defect_fixes_1103"], env=env, capture_output=True,
+    r = subprocess.run([sys.executable, "-c", "import shibuya.runtime.switch_defects"], env=env, capture_output=True,
                        text=True, encoding="utf-8")
     assert r.returncode != 0 and "消した切替口" in r.stderr
     assert '"--defect-fixes-1103"' not in inspect.getsource(cli)
@@ -149,7 +149,7 @@ def _conversation_box(agents, conv):
 def test_the_conversation_system_releases_only_conversing_bodies():
     """会話の番で「移動」を選んで歩き出した体(MOVING)は、セッションの終わりで止まらない(〔第346〕系の旧道=全員を IDLE は
     消した)。"""
-    from shibuya.engine.systems.talk import sys_conversation
+    from shibuya.runtime.systems.talk import sys_conversation
 
     world, agents = _talk_agents()
     conv = ConversationManager(master_seed=1)
@@ -375,7 +375,7 @@ def test_run_manifest_section(tiny_runs):
 def test_resume_without_the_header_is_refused(tmp_path):
     """腕は設定の指紋に入れない=状態のファイルの見出しの ``defect_fixes_1103``(常に on)を見る。〔第346〕見出しに無い状態の
     ファイル(版上げの前のラン)は再開で止まる: 保存の間だけ見出しを書かない形にし、戻してから再開する(検収 M3)。"""
-    from shibuya.engine import resume as RS
+    from shibuya.runtime.state import resume as RS
     from shibuya.engine.run import run_day
 
     kw = dict(n_agents=40, seed=1, n_cells=9, ticks=240, budget=40.0, vocab_version="v3")
@@ -405,7 +405,7 @@ def _waiting_inviter(activity):
 def test_an_expired_invite_keeps_the_inviters_new_activity():
     """返事待ちの間に歩き出した招待側(MOVING)は、期限切れの戻しで MOVING のまま(〔第346〕系の旧道=IDLE は消した)。"""
     from shibuya.society.conversation import PENDING_INVITE_TTL_TICKS
-    from shibuya.engine.systems.talk import sys_conversation
+    from shibuya.runtime.systems.talk import sys_conversation
 
     agents, conv = _waiting_inviter(Activity.MOVING)
     b = _conversation_box(agents, conv)
@@ -419,7 +419,7 @@ def test_an_expired_invite_keeps_the_inviters_new_activity():
 def test_an_expired_invite_still_releases_a_waiting_conversing_inviter():
     """返事を待って CONVERSING のままの招待側は IDLE に戻る(戻しの意図そのもの)。"""
     from shibuya.society.conversation import PENDING_INVITE_TTL_TICKS
-    from shibuya.engine.systems.talk import sys_conversation
+    from shibuya.runtime.systems.talk import sys_conversation
 
     agents, conv = _waiting_inviter(Activity.CONVERSING)
     sys_conversation(SimpleNamespace(T=5 + PENDING_INVITE_TTL_TICKS + 1), _conversation_box(agents, conv))
@@ -445,7 +445,7 @@ def test_a_refusal_keeps_the_inviters_new_activity(keep):
 def test_a_body_choosing_a_talk_without_a_target_keeps_its_activity():
     """〔中-2〕対象の決まらない会話(resolve が失敗させた体=活動は変わっていない)。旧道は寝ている体を IDLE にして起こしていた
     (〔第346〕系の旧道は消した)。CONVERSING でない体を戻さない(対象のある失敗と揃う)。計器の原因は no_target。"""
-    from shibuya.engine.systems.talk import sys_conversation
+    from shibuya.runtime.systems.talk import sys_conversation
 
     _, agents = _talk_agents()  # 体 4 は SLEEPING
     conv = ConversationManager(master_seed=1)

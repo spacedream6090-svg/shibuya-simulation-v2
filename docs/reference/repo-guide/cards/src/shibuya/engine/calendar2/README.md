@@ -19,7 +19,7 @@ engine.calendar2.layer — カレンダー 2「会話とメッセージから生
   - `manifest_fields`(関数): manifest の ``calendar_2``(腕 arm のランだけ・ほかは空=欄を出さない)。
   - `sys_calendar_2`(関数): 系 calendar_2(刻みの中・腕 arm のランだけ立つ)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar_self`・`shibuya.engine.resolve`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.llm.mock`・`shibuya.mind.plan.calendar2_port`・`shibuya.mind.plan.contact_attention`・`shibuya.mind.plan.head_recall`・`shibuya.mind.plan.promise_book`・`shibuya.world.laws.opening`
-- 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.table`
+- 呼び手: `shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.table`
 - 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar2/test_ca2_units.py`・`tests/engine/calendar2/test_ca2_world.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
 - 状態台帳の行

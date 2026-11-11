@@ -120,7 +120,7 @@ class BranchClient:
 
     def __init__(self, live: Any, spec: BranchSpec) -> None:
         from shibuya.mind.judge.classical import ClassicalPolicy
-        from shibuya.engine.tape import Replay
+        from shibuya.runtime.inference.tape import Replay
 
         self.live = live
         self._meters: dict[str, Any] = {k: 0 for k in self.METER_NAMES}
@@ -135,7 +135,7 @@ class BranchClient:
     n_live = property(lambda self: self._meters["n_live"], doc="T0 から今の方策が答えた呼の数")
 
     def complete(self, request: Any) -> Any:
-        from shibuya.engine.tape import TapeMiss
+        from shibuya.runtime.inference.tape import TapeMiss
         from shibuya.llm import LLMResponse, estimate_tokens
 
         m = self._meters
@@ -339,7 +339,7 @@ def aa_match(a: Mapping[str, Any], b: Mapping[str, Any], *, probe_a: Sequence[An
 
 # ================================================================ 系ごとの指紋の記録(probe の形・欄ごとの digest を残す)
 def _recorder(steps: frozenset[int]) -> Any:
-    from shibuya.engine.systems import probe as _PR
+    from shibuya.runtime.systems import probe as _PR
 
     class _Recorder(_PR.Probe):
         """``Probe`` の帰属をそのまま使い、行に欄ごとの digest を残す(欄を除いて比べるため)。"""
@@ -353,7 +353,7 @@ def _recorder(steps: frozenset[int]) -> Any:
 
 
 def _run_probed(runner: Callable[..., Any], kw: Mapping[str, Any], steps: frozenset[int]) -> tuple[Any, list, float]:
-    from shibuya.engine.systems import probe as _PR
+    from shibuya.runtime.systems import probe as _PR
 
     rec = _recorder(steps)
     prev = _PR.ACTIVE
@@ -491,7 +491,7 @@ def run_branch(form: ExperimentForm, base_dir: str | Path, *, runner: Callable[.
     from shibuya.foundation.time_consts import NS_PER_SECOND
     from shibuya.engine.experiment import ensemble as _EN
     from shibuya.engine.experiment import switch as _SW
-    from shibuya.engine.tape import Tape
+    from shibuya.runtime.inference.tape import Tape
 
     base_dir = Path(base_dir)
     base = json.loads((base_dir / BASE_CHECKPOINTS).read_text(encoding="utf-8"))

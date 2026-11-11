@@ -13,7 +13,7 @@ import sys
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.engine.tape import CALLS_FILENAME
+from shibuya.runtime.inference.tape import CALLS_FILENAME
 
 ARGS = ["--agents", "40", "--seed", "1", "--world", "__no_such_dir__", "--cells", "9", "--ticks", "120",
         "--memory", "on"]

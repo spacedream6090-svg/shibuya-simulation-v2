@@ -15,12 +15,12 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.engine import state_ledger_ast as A
-from shibuya.engine.systems import allow as AL
+from shibuya.runtime.state import ledger_ast as A
+from shibuya.runtime.systems import allow as AL
 from shibuya.foundation import write_permit as _WP_MOD
 from shibuya.foundation import write_guard as _G_MOD
 from shibuya.engine.systems import static_check as SC
-from shibuya.engine.systems.table import SPECS, SYSTEMS
+from shibuya.runtime.systems.table import SPECS, SYSTEMS
 
 SRC = Path("src/shibuya")
 #: 許可の口のモジュールの名と、その包み・包みの中の名(〔段 4 の下ごしらえ〕字面で持たず、モジュールの ``__name__`` から
@@ -38,10 +38,10 @@ WP_CALLS = {"allows": STATE_MODULES, "scope": {"foundation/write_guard.py"}, "en
             "set_enabled": set(), "current": set()}
 WP_IMPORTERS = STATE_MODULES | {"foundation/write_guard.py", "foundation/write_permit.py"}
 #: guard の口 → 呼んでよい置き場。
-GUARD_CALLS = {"system_scope": {"engine/systems/conductor.py"}}
+GUARD_CALLS = {"system_scope": {"runtime/systems/conductor.py"}}
 #: 属性 ``_WP``(状態のモジュールと guard が持つ write_permit の再輸出の名)を読んでよい置き場(段 FIX2・再検収 R1)。
 #: 試験は src の外=ここに出ない。conductor は今は読まないが、指示書どおり置き場に入れておく。
-WP_ATTR_PLACES = WP_IMPORTERS | {"engine/systems/conductor.py"}
+WP_ATTR_PLACES = WP_IMPORTERS | {"runtime/systems/conductor.py"}
 #: 許可を持つモジュール(別名に ``setattr(X, 変数, …)`` をすると許可の大域に届く)。
 PERMIT_MODULES = {"shibuya.foundation.write_permit", "shibuya.foundation.write_guard", "shibuya.agents.state",
                   "shibuya.world.model.state", "shibuya.world.model.percept_state"}
@@ -424,7 +424,7 @@ def bypass_setattr_sites(rel: str, tree: ast.AST) -> list[str]:
 
 def test_systems_modules_do_not_bypass_the_box_setattr():
     """系のモジュール(箱の定義 ``boxes.py`` の外)は ``object.__setattr__`` を使わない(段 C を素通りしない)。"""
-    from shibuya.engine.systems import boxes as BOXES
+    from shibuya.runtime.systems import boxes as BOXES
 
     from tests import _places as PL
 

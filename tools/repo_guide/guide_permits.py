@@ -34,10 +34,10 @@ def _src_file(module: str) -> str:
     return "src/" + module.replace(".", "/") + ".py"
 
 
-LEDGER_FILE = _src_file("shibuya.engine.state_ledger")
-LEDGER_AST_FILE = _src_file("shibuya.engine.state_ledger_ast")
-TABLE_FILE = _src_file("shibuya.engine.systems.table")
-ALLOW_FILE = _src_file("shibuya.engine.systems.allow")
+LEDGER_FILE = _src_file("shibuya.runtime.state.ledger")
+LEDGER_AST_FILE = _src_file("shibuya.runtime.state.ledger_ast")
+TABLE_FILE = _src_file("shibuya.runtime.systems.table")
+ALLOW_FILE = _src_file("shibuya.runtime.systems.allow")
 RESOLVE_FILE = _src_file("shibuya.engine.resolve")
 
 

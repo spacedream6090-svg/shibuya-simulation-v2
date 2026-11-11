@@ -22,12 +22,12 @@ import pytest
 
 from shibuya.foundation import write_permit as WP
 from shibuya.foundation.time_consts import NS_PER_STEP
-from shibuya.engine import state_ledger as SL
-from shibuya.engine import state_ledger_ast as SA
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.state import ledger_ast as SA
 from shibuya.mind.memory.memory import GIST_PER_AGENT, IMPORTANCE_MAX, MemoryLayer
 from shibuya.mind.memory import memory_store as MS
 from shibuya.foundation import write_guard as G
-from shibuya.engine.systems.table import SPECS
+from shibuya.runtime.systems.table import SPECS
 from tests import _places as PL
 
 SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya"
@@ -134,7 +134,7 @@ def test_delattr_is_closed():
 
 def test_closed_tables_cannot_be_changed():
     """検収 L2: 閉じた表(器の列の表・テープの腕の列の表)は書き換えられない。"""
-    from shibuya.engine import tape as TP
+    from shibuya.runtime.inference import tape as TP
 
     with pytest.raises(TypeError):
         MS._COL_SPEC["_ms_new"] = (np.int8, 0)  # type: ignore[index]

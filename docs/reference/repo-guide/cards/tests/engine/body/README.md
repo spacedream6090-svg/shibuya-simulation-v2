@@ -38,7 +38,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_body_layer_holds_copies_not_soa_views`(関数): 写し(引き直しの検出)は SoA の配列のビューを持たない(D ⑥ と同じ約束)。
   - `test_the_owner_refuses_rebinding_and_deleting`(関数)
   - `test_the_schedule_refuses_writes_outside_its_ports`(関数): 〔3-5 検収 L7〕予約の列の欄は書く口の外で付け替え・消去・配列の書きを断る(負の対照=書く口の中は書ける)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.systems.allow`・`shibuya.world.body.model`・`shibuya.world.body.schedule`・`tests/engine/ast_writers.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.runtime.systems.allow`・`shibuya.world.body.model`・`shibuya.world.body.schedule`・`tests/engine/ast_writers.py`
 
 ## [test_body_manifest.py](../../../../../../../tests/engine/body/test_body_manifest.py)
 
@@ -127,4 +127,4 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_noise_reading_port_reads_w10_only`(関数)
   - `test_percepts_of_a_run_keep_the_fields_empty`(関数): 合成の世界のランで描いた知覚の事実(系 decide が ``TickScratch.percepts`` に書く)の器の欄は None のまま。
   - `test_ports_return_empty_values`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.systems.conductor`・`shibuya.foundation.ports.percept`・`shibuya.world.body.reactions`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.ports.percept`・`shibuya.runtime.systems.conductor`・`shibuya.world.body.reactions`・`shibuya.world.model.state`

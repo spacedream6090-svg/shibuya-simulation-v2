@@ -53,7 +53,7 @@ MANIFEST_NOTE_NG = (
 
 def _tape_map(path: Path) -> dict[tuple[int, int, int, str], tuple[str, str]]:
     """テープ → ``鍵 → (応答本文, call_id)``。"""
-    from shibuya.engine.tape import Tape
+    from shibuya.runtime.inference.tape import Tape
 
     out: dict[tuple[int, int, int, str], tuple[str, str]] = {}
     for row in Tape(path).rows():

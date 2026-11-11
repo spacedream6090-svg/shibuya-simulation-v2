@@ -23,7 +23,7 @@ perception.channels — チャネル別トークン上限表(知覚契約書 §3
   - `pool_token_budget`(関数): §3.2「**同一総トークン**」= そのブロック群のチャネル上限の総和。
   - `take_within_pool`(関数): **順位順**に並んだ行列から、池の予算に収まる**先頭 n 件**を返す。
   - `truncate_lines`(関数): チャネル上限までの行を残す(**行の途中では絶対に切らない**)。
-- 呼び手: `shibuya.build.lang.common`・`shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.report`・`shibuya.engine.tape`・`shibuya.perception.renderer`・`tools/c6/ablation1_fixed_vs_ranking.py`
+- 呼び手: `shibuya.build.lang.common`・`shibuya.cli`・`shibuya.engine.run`・`shibuya.perception.renderer`・`shibuya.runtime.inference.tape`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`tools/c6/ablation1_fixed_vs_ranking.py`
 - 読む試験: `tests/build_lang/test_w14_signage.py`・`tests/build_lang/test_w15_cell_static.py`・`tests/build_lang/test_wiring.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/test_memory_recall.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/engine/test_store_choice.py`・`tests/engine/test_two_layer_activity.py`・`tests/perception/facts/head_renderer_136fdbb.py`・`tests/perception/test_ablation1.py`・`tests/perception/test_channels.py`・`tests/perception/test_nearby_vectorized.py`・`tests/perception/test_templates.py`
 - 決定の ID: 11-03・11-03/§2
 
@@ -84,6 +84,6 @@ perception.templates — **凍結された観測テンプレ v1**(知覚契約�
   - `role_words_line`(関数): 語彙版 → B0 の末尾に足す役割語の 1 行(v3 は 11 語)。
   - `template_sha256`(関数): テンプレ全体の版ハッシュ(§1 条5「ハッシュで版管理」)。
 - import している内部モジュール: `shibuya.foundation.hashing`
-- 呼び手: `shibuya.cli`・`shibuya.engine.change_detect`・`shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.mind.judge.classical`・`shibuya.perception.renderer`・`shibuya.world.things.device`
+- 呼び手: `shibuya.cli`・`shibuya.engine.change_detect`・`shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.mind.judge.classical`・`shibuya.perception.renderer`・`shibuya.runtime.systems.assemble`・`shibuya.world.things.device`
 - 読む試験: `tests/build_lang/test_wiring.py`・`tests/c6/test_c6lib_scenes.py`・`tests/c8/test_ablations_ab7.py`・`tests/engine/processes/test_crowd.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_intent_mode_open.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_memory_recall.py`・`tests/engine/test_relations.py`・`tests/engine/test_renderer_wiring.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_store_choice.py`・`tests/engine/test_two_layer_activity.py`・`tests/perception/facts/head_renderer_136fdbb.py`・`tests/perception/facts/test_percept_schema.py`・`tests/perception/test_ablation1.py`・`tests/perception/test_ablation6_signage.py`・`tests/perception/test_b4_detector_gap.py`・`tests/perception/test_b4b_queue_feed.py`・`tests/perception/test_b6_invite.py`・`tests/perception/test_channels.py`・`tests/perception/test_intent_mode_open.py`・`tests/perception/test_normalize.py`・`tests/perception/test_renderer_golden.py`・`tests/perception/test_signage_p_see_gate.py`・`tests/perception/test_templates.py`・`tests/perception/test_vocab_v2_templates.py`・`tests/test_cli_intent_mode.py`・`tests/test_cli_vocab_version.py`
 - 決定の ID: 11-03・11-03/§2・D-38・D-71・D-73・D-89・D-113・D-116・D-118・D-120・第 268・第 269・第 274・第 291・第 295・第 298・第 299

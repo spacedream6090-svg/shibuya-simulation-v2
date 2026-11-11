@@ -21,8 +21,8 @@ import pytest
 
 from shibuya import cli
 from shibuya.engine import rng_audit as RA
-from shibuya.engine import state_ledger as SL
-from shibuya.engine import state_ledger_ast as SA
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.state import ledger_ast as SA
 from shibuya.engine.run import run_day
 from tests.engine import discard_probe as DP
 from tests.engine.test_sim_time_T import ALL_ARMS
@@ -138,7 +138,7 @@ def test_u5_allow_entries_have_a_fixed_hit_count(tmp_path, ext_scan):
     assert any("当たる数が 1(宣言は 2)" in x for x in SA.check_external(ext_scan, allow=wrong))
     root = tmp_path / "src" / "shibuya"
     shutil.copytree(SRC, root, ignore=shutil.ignore_patterns("build", "__pycache__"))
-    run_py = root / "engine" / "systems" / "body.py"  # 1-0: 層別の起床の数えは系 presence(engine/systems/body.py)
+    run_py = root / "runtime" / "systems" / "body.py"  # 1-0: 層別の起床の数えは系 presence(engine/systems/body.py)
     text = run_py.read_text(encoding="utf-8")
     # 許可した行(層別の起床の数えの基準)と同じ文字列の行を、同じファイルの別の関数に足す
     run_py.write_text(text + "\n\ndef _copied(presence):\n    _pres0 = int(presence.n_arrivals) + 1\n    return _pres0\n",
@@ -157,7 +157,7 @@ def test_v3_allow_entries_pin_the_function_of_the_line(tmp_path, ext_scan):
     assert any("当たる行の関数" in x and "seconds" in x for x in SA.check_external(ext_scan, allow=wrong))
     root = tmp_path / "src" / "shibuya"
     shutil.copytree(SRC, root, ignore=shutil.ignore_patterns("build", "__pycache__"))
-    clock = root / "engine" / "clock.py"
+    clock = root / "runtime" / "clock.py"
     text = clock.read_text(encoding="utf-8")
     assert text.count("delta.seconds") == 1
     # 許可した行(timedelta.seconds)の式を元の関数から消し、同じ式を別の関数(挙動の場所のつもり)へ移す

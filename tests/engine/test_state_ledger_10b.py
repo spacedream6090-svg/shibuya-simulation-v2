@@ -24,13 +24,13 @@ from tests import golden_env as GE
 
 import shibuya.engine.resolve as RES
 import shibuya.engine.run as RUN
-from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
+from shibuya.runtime.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
 from shibuya.agents.state import AgentState
 from shibuya.foundation.hashing import blake3_hex
 from shibuya.foundation.soa import Registry
-from shibuya.engine import state_hashes as SH
-from shibuya.engine import state_ledger as SL
-from shibuya.engine import state_ledger_ast as SA
+from shibuya.runtime.state import hashes as SH
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.state import ledger_ast as SA
 from shibuya.engine.run import Checkpoint, run_day
 from shibuya.world.model.percept_state import PerceptionState
 from shibuya.world.model.state import World
@@ -1141,9 +1141,9 @@ def _call_ref_sites() -> dict[tuple[str, int], str]:
     (到着の受け取り ``llm_io.receive_arrivals``・呼 ``decide.sys_decide``・ランの終わり ``run_end.sys_drain``)。"""
     import inspect
 
-    from shibuya.engine.systems import decide as DEC
-    from shibuya.engine.systems import llm_io as LIO
-    from shibuya.engine.systems import run_end as RE
+    from shibuya.runtime.systems import decide as DEC
+    from shibuya.runtime.systems import llm_io as LIO
+    from shibuya.runtime.systems import run_end as RE
 
     lines: list[tuple[str, int]] = []
     for fn in (LIO.receive_arrivals, DEC.sys_decide, RE.sys_drain):

@@ -157,7 +157,7 @@ class DayProbe:
         self._mod: Any = None
 
     def attach(self) -> "DayProbe":
-        from shibuya.engine.systems import state_io as SIO
+        from shibuya.runtime.systems import state_io as SIO
 
         self._mod, self._orig = SIO, SIO.day_record
         probe = self

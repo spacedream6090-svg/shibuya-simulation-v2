@@ -19,12 +19,12 @@ import numpy as np
 import pytest
 
 from shibuya.engine import run as RUN
-from shibuya.engine.systems import build as BLD  # 1-0: 層の組み立ての名前の差し替えの的
+from shibuya.runtime.systems import assemble as BLD  # 1-0: 層の組み立ての名前の差し替えの的
 from shibuya.foundation.paths import resolve_repo_path
 from shibuya.engine.calendar import CalendarWarning, SimCalendar, load_holidays
 from shibuya.world.body.energy import HomeMeals
 from shibuya.engine.run import run_day
-from shibuya.engine.tape import RUN_META_FILENAME, read_run_meta
+from shibuya.runtime.inference.tape import RUN_META_FILENAME, read_run_meta
 from shibuya.world.model.state import World
 
 from tests.engine.test_calendar import write_csv
@@ -229,7 +229,7 @@ def test_august_is_summer():
 
 
 def test_tape_meta_does_not_touch_the_parquet(tmp_path):
-    from shibuya.engine.tape import Tape
+    from shibuya.runtime.inference.tape import Tape
 
     run_day(n_agents=30, n_cells=9, ticks=10, tape_path=tmp_path / "t", renderer="stub", sleep_suppression=False)
     t = Tape(tmp_path / "t")

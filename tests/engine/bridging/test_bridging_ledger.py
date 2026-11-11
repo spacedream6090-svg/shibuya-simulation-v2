@@ -466,7 +466,7 @@ def test_the_ledger_sha_is_canonical(tmp_path):
 def test_a_broken_ledger_stops_the_run_at_the_start(monkeypatch, tmp_path):
     """検収 L10: 壊れた台帳は組み立て(ランの始め)で落ちる=1 日回した後の日の締めまで待たない。"""
     from shibuya.engine.run import run_day
-    from shibuya.engine.systems import build as _ASSEMBLE  # 組み立て(移す段 4 で置き場と名が変わる=名は __file__ から)
+    from shibuya.runtime.systems import assemble as _ASSEMBLE  # 組み立て(移す段 4 で置き場と名が変わる=名は __file__ から)
 
     p = tmp_path / "broken.json"
     p.write_text('{"schema": "shibuya.bridging-ledger/1", "bridges": [{"id": "x"}]}', encoding="utf-8")

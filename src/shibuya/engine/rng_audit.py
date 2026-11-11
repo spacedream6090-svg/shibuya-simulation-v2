@@ -262,8 +262,8 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     ("mind/memory/memory_m1.py", "forgetting_scale", "memory.forgetting_rate"),
     # 〔第 6 期 6-3 T2〕会話の時計の人ごとの話す速さ(0 語目を空け 1 語目に体の番号=k19_counters・1 語だけ引く)と発言ごとの揺れ
     # (0 語目を空け 1〜3 語目に話し手・作った時刻・会話の番号=k19_counters・1 語だけ引く)
-    ("engine/speech_clock.py", "person_mora_len_s", "talk.rate"),
-    ("engine/speech_clock.py", "utterance_jitter", "talk.jitter"),
+    ("runtime/clocks/speech.py", "person_mora_len_s", "talk.rate"),
+    ("runtime/clocks/speech.py", "utterance_jitter", "talk.jitter"),
     # 〔賃金の小さな版上げ・2026-10-17〕賃金の分位(0 語目を空け 1 語目に体の鍵=k19_counter_array・1 語だけ引く)
     ("economy/wage_formula.py", "wage_uniform", "economy.wage"),
     # 〔第 6 期 6-4 C1〕最初の道具の状態(0 語目を空け 1・2 語目に体の番号と欄の番号=k19_counter_array・1 語だけ引く)と

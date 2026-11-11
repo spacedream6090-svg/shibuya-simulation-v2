@@ -283,7 +283,7 @@ def test_only_the_manifest_and_the_daily_record_import_the_table():
     〔第 4 期 4-2〕``economy/taxes.py``(税・社会保険・消費税の端数と期限・信用の上限・割増=machine の行の読み手)。
     〔第 6 期 6-2 カレンダー 3〕``engine/calendar3/layer.py``(労働時間の human の行を読むだけ=超えた数を記録=止めない・腕 arm の
     ランだけ=既定の挙動は不変)。"""
-    assert _readers() == {"engine/run.py", "engine/systems/state_io.py", "engine/systems/build.py", "economy/anchors.py",
+    assert _readers() == {"engine/run.py", "runtime/systems/state_io.py", "runtime/systems/assemble.py", "economy/anchors.py",
                           "economy/taxes.py", "engine/calendar3/layer.py"}
 
 

@@ -115,4 +115,4 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_declared_writes_cover_the_port_changes`(関数)
   - `test_dropping_the_events_path_fails_where_the_decision_event_is_written`(関数)
   - `test_dropping_the_j0_path_is_caught_by_stage_b`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.overrides`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.write_permit`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.systems.overrides`・`shibuya.foundation.write_permit`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`tests/engine/decision/_j0.py`

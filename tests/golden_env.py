@@ -20,7 +20,7 @@ import sys
 import warnings
 from typing import Any, Callable, Mapping, TypeVar
 
-from shibuya.engine.resume import environment_fields
+from shibuya.runtime.state.resume import environment_fields
 
 #: 10f で登録した環境(Windows 11・x86-64・Python 3.12.10・numpy 2.5.3・numba 0.67.0・llvmlite 0.49.0・
 #: blake3 1.0.9)。golden の 5 つの辞書と T7 の直書きの行の鍵。

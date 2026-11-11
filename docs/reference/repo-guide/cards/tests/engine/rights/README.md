@@ -64,7 +64,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_employment_rows_equal_the_bodies_with_an_org_id`(関数)
   - `test_no_population_means_no_employment_rows`(関数)
   - `test_the_four_contents_and_their_blanks`(関数)
-- import している内部モジュール: `shibuya.engine.systems.build`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.decl.ledger_paths`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`tests/_places.py`
+- import している内部モジュール: `shibuya.foundation.decl.bridging`・`shibuya.foundation.decl.ledger_paths`・`shibuya.runtime.systems.assemble`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`tests/_places.py`
 - 決定の ID: 10-12/§4-5
 
 ## [test_rights_manifest.py](../../../../../../../tests/engine/rights/test_rights_manifest.py)
@@ -129,4 +129,4 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_same_assignment_on_synthetic_worlds`(関数)
   - `test_same_assignment_on_the_real_population`(関数): 実データ(5,000 体の抽出・seed 1)の種別と POI の数。SoA は母集団の種別を写した形(組み立てと同じ)。
   - `test_zero_pois`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.engine.systems.build`・`shibuya.world.assets`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.opening`・`shibuya.world.model.state`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.runtime.systems.assemble`・`shibuya.world.assets`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.opening`・`shibuya.world.model.state`・`tests/engine/processes/conftest.py`

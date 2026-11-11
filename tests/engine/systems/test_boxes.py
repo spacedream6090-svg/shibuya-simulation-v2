@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from shibuya.foundation import write_permit as WP
-from shibuya.engine.systems import boxes as BX
+from shibuya.runtime.systems import boxes as BX
 from shibuya.foundation import write_guard as G
 
 TABLE = Path("docs/bench/analysis/wallbounce-1012/run-day-decomp/local-assignment.json")
@@ -73,7 +73,7 @@ def test_scratch_fields_cover_the_table():
 
 
 def test_owner_names_match_the_hash_owners():
-    from shibuya.engine.systems import state_io as SIO
+    from shibuya.runtime.systems import state_io as SIO
 
     layers = BX.Layers(**{f.name: None for f in dataclasses.fields(BX.Layers)})
     layers.bridge = type("B", (), {"undefined": "U"})()
@@ -143,7 +143,7 @@ def test_run_day_signature_is_unchanged_and_build_unpacks_every_argument():
     body = ast.parse(src).body[0].body
     first = body[1] if isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant) else body[0]
     assert ast.unparse(first) == "_call_args = dict(locals())"
-    bsrc = Path("src/shibuya/engine/systems/build.py").read_text(encoding="utf-8")
+    bsrc = Path("src/shibuya/runtime/systems/assemble.py").read_text(encoding="utf-8")
     import re
 
     got = re.findall(r"^    (\w+) = _call_args\['(\w+)'\]$", bsrc, flags=re.M)

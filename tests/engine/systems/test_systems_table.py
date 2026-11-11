@@ -16,12 +16,12 @@ import fnmatch
 
 import pytest
 
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.systems import allow as AL
-from shibuya.engine.systems import boxes as BX
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.systems import allow as AL
+from shibuya.runtime.systems import boxes as BX
 from shibuya.engine.systems import static_check as SC
-from shibuya.engine.systems.spec import TIMINGS
-from shibuya.engine.systems.table import SPECS, SYSTEMS
+from shibuya.runtime.systems.spec import TIMINGS
+from shibuya.runtime.systems.table import SPECS, SYSTEMS
 
 ORDER = (
     "build", "day_head",

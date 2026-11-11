@@ -26,11 +26,11 @@ import pytest
 import shibuya.world.laws.civic as CIV
 import shibuya.world.laws.salient as SAL
 import shibuya.engine.run as RUN
-from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
+from shibuya.runtime.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
 from shibuya.foundation.rng import RNG_SCHEME, run_tick_key
 from shibuya.foundation.rng import stream as core_stream
-from shibuya.engine import state_hashes as SH
-from shibuya.engine import state_ledger as SL
+from shibuya.runtime.state import hashes as SH
+from shibuya.runtime.state import ledger as SL
 from shibuya.world.laws.civic import DISPATCH_MEDIAN_MIN, PublicServiceDispatchProcess
 from shibuya.world.laws.salient import COLLAPSE_PER_10K_PER_DAY, SalientProcess
 from shibuya.engine.run import run_day
@@ -416,7 +416,7 @@ def _rep(tmp_path, name: str, **kw):
 
 def test_the_tape_carries_the_scheme_and_the_replay_matches(tmp_path):
     """〔改訂(第330・RET)〕前は「counter で録って stateful で再生すると止まる」「stateful のテープ」も見た(消した)。"""
-    from shibuya.engine.tape import read_run_meta
+    from shibuya.runtime.inference.tape import read_run_meta
 
     rec = _rec(tmp_path, "c")
     assert rec.dispatches > 0
@@ -431,7 +431,7 @@ def test_a_tape_from_before_10e_is_not_replayed(tmp_path):
     消したので、記録の無いテープ・stateful のテープ・10c〜10f の counter のテープは止める(警告でなく例外)。"""
     import json
 
-    from shibuya.engine.tape import RUN_META_FILENAME
+    from shibuya.runtime.inference.tape import RUN_META_FILENAME
 
     _rec(tmp_path, "t")
     meta = tmp_path / "t" / RUN_META_FILENAME

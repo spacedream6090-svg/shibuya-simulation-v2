@@ -16,8 +16,8 @@ from pathlib import Path
 import pytest
 
 from shibuya.foundation.time_consts import STEPS_PER_DAY
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
 from shibuya.society.speech import layer as SPL
 from shibuya.llm import LLMRequest
 from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE, append_comment, format_two_line_v3

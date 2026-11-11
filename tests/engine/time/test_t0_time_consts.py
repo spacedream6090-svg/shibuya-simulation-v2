@@ -61,7 +61,7 @@ def test_module_level_aliases_elsewhere_are_the_same_value():
     from shibuya.world.facts import weekly_reader as weekly
     from shibuya.foundation import growth
     from shibuya.act import activity
-    from shibuya.engine import growth_decl
+    from shibuya.runtime.state import growth_decl
     from shibuya.world.laws import civic, goods_flow, logistics, opening
     # scheduler は包みの頭が同じ名の関数を再輸出している(``from shibuya.engine import scheduler`` は関数)=名を直に読む
     from shibuya.foundation.queues.scheduler import HORIZON_TICKS

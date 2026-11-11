@@ -117,7 +117,7 @@ def test_same_assignment_on_the_real_population():
     import pyarrow.parquet as pq
 
     from shibuya.world.facts.population_reader import load_population
-    from shibuya.engine.systems.build import _org_of_agent
+    from shibuya.runtime.systems.assemble import _org_of_agent
 
     world_dir = Path("data/world/v2")
     pop = load_population(world_dir, 5_000, 1)

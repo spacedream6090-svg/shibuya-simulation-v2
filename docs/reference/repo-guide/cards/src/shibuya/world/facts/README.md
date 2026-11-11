@@ -20,7 +20,7 @@ agents.schedule — **mock 専用**の合成 T0 週次スケジュール(計画�
   - `draw_words_per_agent`(関数): **参照実装**(T4 の定義そのまま): 個体ごとに独立の Philox から引く。
   - `synthesize`(関数): 合成日課を作る(**mock 専用**)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.engine.systems.build`・`tools/c6/ablation1_fixed_vs_ranking.py`
+- 呼び手: `shibuya.runtime.systems.assemble`・`tools/c6/ablation1_fixed_vs_ranking.py`
 - 読む試験: `tests/agents/test_schedule.py`・`tests/build_sched/test_weekly_loader.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_ablation23_switches.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_determinism_t1_t2_t4.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_vocab_v2_eat.py`・`tests/engine/test_weather_calendar_10e.py`
 - 読む試験(道筋で): `tests/engine/test_two_phase.py`
 
@@ -52,6 +52,6 @@ agents.weekly — W17 週次活動表(``w17_schedule.parquet``)の読み込み�
   - `load_weekly_file`(関数): **ファイル名を問わず**1 つの parquet から週次表を組む。
   - `weekly_available`(関数): ``<world_dir>/w17_schedule.parquet`` があるか。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.hashing`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.engine.calendar_shadow`・`shibuya.engine.presence`・`shibuya.engine.systems.build`・`shibuya.world.body.energy`・`tools/instruments/anchor_gauge.py`・`tools/w17/diversity_yardstick.py`
+- 呼び手: `shibuya.engine.calendar_shadow`・`shibuya.engine.presence`・`shibuya.runtime.systems.assemble`・`shibuya.world.body.energy`・`tools/instruments/anchor_gauge.py`・`tools/w17/diversity_yardstick.py`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_sched/test_trial.py`・`tests/build_sched/test_weekly_loader.py`・`tests/engine/body/test_meal_default_w17.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_relations.py`・`tests/engine/test_relations_8b.py`・`tests/engine/test_relations_tenure.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/time/test_t0_time_consts.py`・`tests/w17/test_diversity_yardstick.py`
 - 決定の ID: D-61・D-62・D-68

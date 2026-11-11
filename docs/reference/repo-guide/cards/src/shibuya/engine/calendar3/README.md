@@ -32,7 +32,7 @@ engine.calendar3.layer — カレンダー 3「雇い主・祝日」の持ち主
   - `manifest_fields`(関数): manifest の ``calendar_3``(腕 arm のランだけ・ほかは空=欄を出さない)。
   - `sys_calendar_3`(関数): 系 calendar_3(刻みの中・腕 arm のランだけ立つ)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar3.knowledge`・`shibuya.engine.calendar_self`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.mind.plan.calendar2_port`・`shibuya.mind.plan.calendar3_port`・`shibuya.mind.plan.promise_book`・`shibuya.world.facts.rules.table`・`shibuya.world.laws.opening`
-- 呼び手: `shibuya.engine.duties.layer`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.table`
+- 呼び手: `shibuya.engine.duties.layer`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.table`
 - 読む試験: `tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/calendar3/test_ca3_world.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/rules/test_rules_table_schema.py`・`tests/engine/time/test_t0_rng_key.py`
 - 状態台帳の行
@@ -58,6 +58,6 @@ engine.calendar3.roster — 雇い主の口のつなぎの形(第 6 期 6-2 カ�
   - `roster_for_run`(関数): ランの雇い主の口の表(〔検収 H1〕最初の刻みの頭に呼ぶ=再開では状態を戻して権利台帳を作り直した後)。W20 の表が無い
   - `w20_table_for_run`(関数): 組み立ての口: ランの W20 の週の表(世界の資産=状態でない・母集団の無いラン=合成の世界は ``None``)。
 - import している内部モジュール: `shibuya.engine.calendar_shadow`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`
-- 呼び手: `shibuya.engine.systems.build`
+- 呼び手: `shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/calendar3/_ca3.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`
 - 決定の ID: 10-12/§4-1

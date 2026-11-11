@@ -23,7 +23,7 @@ from shibuya import cli
 from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_DAY
 from shibuya.engine.experiment import branch as BR
 from shibuya.engine.experiment import switch as SW
-from shibuya.engine.tape import TapeRow, TapeWriter
+from shibuya.runtime.inference.tape import TapeRow, TapeWriter
 from shibuya.llm import LLMRequest, LLMResponse
 
 from tests.engine.experiment._x33 import form
@@ -79,7 +79,7 @@ def test_run_branch_refuses_a_tape_with_rows_crossing_t0(tmp_path):
     base = _fake_base(tmp_path, rows=[_row(1, 10), _row(2, T0 - 1, observed=T0 + 1)])
     with pytest.raises(ValueError, match="刻みの外の物"):
         BR.run_branch(form(start=NOON_DAY2_NS), base, runner=cli.run, run_kwargs={})
-    from shibuya.engine.tape import Tape
+    from shibuya.runtime.inference.tape import Tape
 
     assert SW.tape_crossing(Tape(base / BR.BASE_TAPE), T0) == {"fleet_rows_before_t0": 1, "rows_crossing_t0": 1}
     assert SW.tape_crossing(Tape(base / BR.BASE_TAPE), T0 - 1) == {"fleet_rows_before_t0": 0, "rows_crossing_t0": 0}

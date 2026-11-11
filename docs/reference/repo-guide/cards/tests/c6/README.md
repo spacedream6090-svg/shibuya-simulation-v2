@@ -80,7 +80,7 @@ tests.c6 の共通フィクスチャ。
   - `test_selection_can_be_restricted_to_other_kinds`(関数)
   - `test_selection_is_deterministic_and_disjoint`(関数)
   - `test_unknown_failure_word_is_not_forced_into_a_kind`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.tape`・`shibuya.foundation.text.templates`・`shibuya.llm`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.text.templates`・`shibuya.llm`・`shibuya.runtime.inference.tape`
 
 ## [test_c6lib_stats.py](../../../../../../tests/c6/test_c6lib_stats.py)
 

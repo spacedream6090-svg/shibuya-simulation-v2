@@ -32,9 +32,9 @@ from shibuya.foundation import write_permit as WP
 from shibuya.world.model import proximity as P
 from shibuya.engine import resolve as R
 from shibuya.engine.run import run_day
-from shibuya.engine.systems import conductor as CD
-from shibuya.engine.systems import probe as PR
-from shibuya.engine.systems.table import SPECS
+from shibuya.runtime.systems import conductor as CD
+from shibuya.runtime.systems import probe as PR
+from shibuya.runtime.systems.table import SPECS
 from shibuya.perception import renderer as RD
 
 WORLD = "data/world/v2"
@@ -270,7 +270,7 @@ def test_resume_with_another_proximity_arm_is_refused(tmp_path, first, second):
               relations="on")
     with arm(*first):
         a = run_day(state_out=tmp_path / "st", stop_at_tick=120, **kw)
-    from shibuya.engine import resume as RS
+    from shibuya.runtime.state import resume as RS
 
     f = tmp_path / "st" / a.resume["state_files"][-1]["file"]
     head = RS.read_state(f).header
@@ -287,7 +287,7 @@ def test_resume_with_another_proximity_arm_is_refused(tmp_path, first, second):
 def test_resume_without_the_proximity_header_is_refused(tmp_path):
     """〔第346〕見出しに ``proximity`` の無い状態のファイル(cell のラン)は再開で止まる: 保存の間だけ見出しを書かない形にし、
     戻してから再開する(検収 M3)。"""
-    from shibuya.engine import resume as RS
+    from shibuya.runtime.state import resume as RS
 
     kw = dict(n_agents=40, seed=1, n_cells=9, ticks=240, budget=40.0, vocab_version="v3", memory="on",
               relations="on")

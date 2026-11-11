@@ -22,7 +22,7 @@ engine.batching — 計算のまとめ(バッチ)の窓(第 3 期 3-2・時計�
   - `parse_width`(関数): 幅の値(秒の整数・文字列も可)を検査して返す。``WIDTHS_S`` の外は ``ValueError``。
   - `set_arm`(関数): 幅の腕を選ぶ(CLI ``--batch-width-s``・試験の切替口)。ランの始めに読む(ランの途中で変えてもそのランは変わらない)。
 - import している内部モジュール: `shibuya.foundation.queues.scheduler`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.cli`・`shibuya.engine.contact.deliver`・`shibuya.engine.contact.layer`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.conductor`
+- 呼び手: `shibuya.cli`・`shibuya.engine.contact.deliver`・`shibuya.engine.contact.layer`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`
 - 読む試験: `tests/engine/batching/test_conductor_windows.py`・`tests/engine/batching/test_window_queue.py`・`tests/engine/clock/test_tm2_talk_clock.py`・`tests/engine/contact/_c1.py`・`tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_flow.py`
 - 状態台帳の行
   - 持ち主 `batching`(`WindowQueue`)
@@ -43,6 +43,6 @@ engine.scheduler — 起床イベントの1分tickバケット配列+tick内秒�
   - `ordered_events`(関数): 規約順に並べた ``(n, 4)`` イベント配列(純関数)。
   - `scheduler`(関数): 規約順に並べた **agent_id の配列**(int64)を返す純関数。
 - import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`
-- 呼び手: `shibuya.engine.arbiter`・`shibuya.engine.run`・`shibuya.engine.systems.observe`・`shibuya.foundation.queues.batching`・`shibuya.world.body.schedule`
+- 呼び手: `shibuya.engine.arbiter`・`shibuya.engine.run`・`shibuya.foundation.queues.batching`・`shibuya.runtime.systems.observe`・`shibuya.world.body.schedule`
 - 読む試験: `tests/engine/batching/test_window_queue.py`・`tests/engine/state/test_class_ids.py`・`tests/engine/test_arbiter.py`・`tests/engine/test_mock_day_w2.py`・`tests/engine/test_scheduler.py`・`tests/engine/test_scheduler_p3.py`・`tests/engine/time/test_t0_time_consts.py`
 - 読む試験(道筋で): `tests/engine/body/test_body_guard.py`

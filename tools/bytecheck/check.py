@@ -258,13 +258,13 @@ def cmd_one(*, config: str, tape: str, world: str, agents: int, seed: int, kw: s
     kwd = dict(C.configs()[config])
     kwd.update(parse_kw(kw))
     if drop_behavior_item:  # 検収 R1 の照合: behavior-hash の項から道筋を外して回す(10e と同じ口)
-        from shibuya.engine import state_ledger as SL
+        from shibuya.runtime.state import ledger as SL
 
         _real = SL.behavior_items
         _drop = set(drop_behavior_item.split(","))
         SL.behavior_items = lambda: tuple(x for x in _real() if x[1] not in _drop)  # type: ignore[assignment]
     if multiset_items:  # 検収 R1 の照合: list の並びを状態から外す(多重集合でハッシュ・10e と同じ口)
-        from shibuya.engine import state_hashes as SH
+        from shibuya.runtime.state import hashes as SH
 
         _res = SH.resolve_item
         _ms = set(multiset_items.split(","))

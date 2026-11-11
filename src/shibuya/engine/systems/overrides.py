@@ -13,7 +13,7 @@ from contextlib import contextmanager
 from dataclasses import replace
 from typing import Iterator
 
-from shibuya.engine.systems import table as _TB
+from shibuya.runtime.systems import table as _TB
 
 __all__ = ["drop_soa", "drop_scratch", "drop_path", "replace_spec", "wrap_fn"]
 

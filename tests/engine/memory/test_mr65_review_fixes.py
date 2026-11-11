@@ -21,7 +21,7 @@ import pytest
 
 from shibuya.foundation.time_consts import NS_PER_SECOND
 from shibuya.mind.memory import memory_m1 as M1
-from shibuya.engine import state_ledger as SL
+from shibuya.runtime.state import ledger as SL
 from shibuya.mind.memory.memory_store import LegacyEvent, MemoryStore
 from shibuya.engine.run import run_day
 
@@ -186,7 +186,7 @@ def test_bridge_ids_use_the_stage_names_of_answer_6_2():
     assert "発注の M5" in rows["DOC-mr65-m1-people-initial"]["why"]
     from shibuya import cli as CLI
     from shibuya.foundation.decl import ledger_paths as LP
-    from shibuya.engine.systems import build as SYS_BUILD
+    from shibuya.runtime.systems import assemble as SYS_BUILD
 
     from tests import _places as PL
 

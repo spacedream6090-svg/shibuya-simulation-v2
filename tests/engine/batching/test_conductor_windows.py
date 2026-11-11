@@ -24,12 +24,12 @@ import pytest
 from shibuya import cli
 from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
 from shibuya.foundation.queues import batching as BA
-from shibuya.engine import resume as RS
+from shibuya.runtime.state import resume as RS
 from shibuya.engine import run_kind as RK
 from shibuya.engine.run import run_day
-from shibuya.engine.systems import conductor as CD
-from shibuya.engine.systems import probe as PR
-from shibuya.engine.systems.table import SPECS
+from shibuya.runtime.systems import conductor as CD
+from shibuya.runtime.systems import probe as PR
+from shibuya.runtime.systems.table import SPECS
 
 TPD = STEPS_PER_DAY
 #: 合成の世界の構成(記憶・関係・店の記憶=会話と関係の初期化が走る)。
@@ -101,7 +101,7 @@ def test_finer_widths_give_the_same_calls_order_final_and_checkpoints(monkeypatc
 def test_the_system_order_is_the_old_step_loop(monkeypatch):
     """系の並びは前の刻みのループ(``for T in range(t_begin, t_end)``)と同じ: 刻みごとに 日の頭(立つ日)→ 刻みの系の表の順 →
     途中の日の締め(立つ日)・ランの終わりに drain・close_final・report。2 日のランを幅 10 秒で回して組み立て直した並びと比べる。"""
-    from shibuya.engine.systems import day as DAY
+    from shibuya.runtime.systems import day as DAY
 
     seen = _calls(monkeypatch)
     total = 2 * TPD

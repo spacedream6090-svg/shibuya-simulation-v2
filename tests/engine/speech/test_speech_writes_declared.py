@@ -12,10 +12,10 @@ import pytest
 
 from shibuya.foundation import write_permit as WP
 from shibuya.engine.run import run_day
-from shibuya.engine.systems import conductor as CD
+from shibuya.runtime.systems import conductor as CD
 from shibuya.engine.systems import overrides as OV
-from shibuya.engine.systems import probe as PR
-from shibuya.engine.systems.table import SPECS, SYSTEMS
+from shibuya.runtime.systems import probe as PR
+from shibuya.runtime.systems.table import SPECS, SYSTEMS
 
 from tests.engine.speech._s8b import SMALL, speech_arm
 

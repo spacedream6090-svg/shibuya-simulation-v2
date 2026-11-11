@@ -46,7 +46,7 @@ llm.fleet — 実 vLLM 艦隊クライアント(httpx 非同期 × N レプリ�
   - `seed_for`(関数): 呼ごとのデコード seed(``xxh64(call_id, seed=run_seed)`` の下位 31 bit)。
   - `split_system_user`(関数): 描画本文を ``(system, user)`` に割る(B0=system・残り=user)。
 - import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.foundation.budget`・`shibuya.foundation.hashing`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.vocab.actions`・`shibuya.llm`
-- 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.decide`・`shibuya.engine.systems.llm_io`・`shibuya.engine.systems.run_end`・`shibuya.llm`・`tools/c6/c6lib.py`・`tools/vocab/adjudicate.py`
+- 呼び手: `shibuya.engine.run`・`shibuya.llm`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.decide`・`shibuya.runtime.systems.llm_io`・`shibuya.runtime.systems.run_end`・`tools/c6/c6lib.py`・`tools/vocab/adjudicate.py`
 - 読む試験: `tests/c6/test_l4_l6_budget.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/llm/test_fleet.py`・`tests/llm/test_fleet_auth.py`・`tests/llm/test_fleet_contract.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/test_cli_l4_scale.py`
 - 読む試験(道筋で): `tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_state_checks_10f.py`・`tests/test_places_guard.py`
 - 状態台帳の行
@@ -64,7 +64,7 @@ llm.mock — ネットワーク不要の決定論クライアント(MockLLM)と�
   - `MockLLM`(クラス): 決定論の 2 行形を返す mock クライアント(ネットワーク・GPU 不要)。
   - `TapeLLM`(クラス): 録画テープから答えるクライアント。**テープ外は例外**(黙って実LLMへ落とさない)。
 - import している内部モジュール: `shibuya.foundation.rng`・`shibuya.foundation.types`・`shibuya.foundation.vocab.actions`・`shibuya.llm`
-- 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.experiment.switch`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.llm`・`shibuya.mind.judge.classical`・`shibuya.mind.plan.contact_port`・`shibuya.society.speech.layer`・`tools/c6/metric_b_rerun.py`
+- 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.experiment.switch`・`shibuya.engine.run`・`shibuya.llm`・`shibuya.mind.judge.classical`・`shibuya.mind.plan.contact_port`・`shibuya.runtime.systems.assemble`・`shibuya.society.speech.layer`・`tools/c6/metric_b_rerun.py`
 - 読む試験: `tests/c6/test_t5_order_bias.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/decision/test_j0_port_schema.py`・`tests/engine/decision/test_j0_shuffle_invariance.py`・`tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/speech/test_speech_choice_utterance.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/speech/test_wom_from_utterance_roundtrip.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_mock_v3.py`
 - 読む試験(道筋で): `tests/engine/bridging/test_bridging_ledger.py`・`tests/test_places_guard.py`
 - 決定の ID: D-116・D-119・第 277

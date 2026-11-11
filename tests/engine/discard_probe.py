@@ -33,9 +33,9 @@ import numpy as np
 
 from shibuya.engine import resolve as R
 from shibuya.engine import run as RUN
-from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.state_hashes import _ABSENT, resolve_item
+from shibuya.runtime.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.state.hashes import _ABSENT, resolve_item
 
 
 def discardable_paths() -> tuple[str, ...]:

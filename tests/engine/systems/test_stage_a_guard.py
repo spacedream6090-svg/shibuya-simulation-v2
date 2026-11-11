@@ -16,8 +16,8 @@ import pytest
 from shibuya.agents.state import AgentState
 from shibuya.foundation import write_permit as WP
 from shibuya.engine import resolve as R
-from shibuya.engine import state_ledger_ast as A
-from shibuya.engine.systems import allow as AL
+from shibuya.runtime.state import ledger_ast as A
+from shibuya.runtime.systems import allow as AL
 from shibuya.world.model.state import World
 
 SRC = Path("src/shibuya")

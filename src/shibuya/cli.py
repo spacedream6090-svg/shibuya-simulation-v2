@@ -488,9 +488,9 @@ def run(
         from shibuya.engine import calendar_shadow as _calendar_shadow  # 〔第 3 期 3-1〕暦 1a の影(既定 w17 と違えば腕)
         from shibuya.engine import calendar_self as _calendar_self  # 〔第 6 期 6-2〕カレンダー 1b(既定 w17 と違えば腕)
         from shibuya.mind.memory import memory_m1 as _memory_m1  # 〔第 6 期 6-5〕記憶の腕(結果を変える腕=既定と違えば腕)
-        from shibuya.engine import regional_clock as _regional_clock  # 〔第 6 期 6-3〕時計の段 T2〜T4 の腕(既定と違えば腕)
-        from shibuya.engine import speech_clock as _speech_clock
-        from shibuya.engine import step_scope as _step_scope
+        from shibuya.runtime.clocks import regional as _regional_clock  # 〔第 6 期 6-3〕時計の段 T2〜T4 の腕(既定と違えば腕)
+        from shibuya.runtime.clocks import speech as _speech_clock
+        from shibuya.runtime.clocks import step_scope as _step_scope
         from shibuya.foundation.arms import contact as _contact_arm  # 〔第 6 期 6-4 C1〕連絡の道具の腕(c1 は結果を変える=腕)
         from shibuya.foundation.arms import calendar2 as _calendar2_arm  # 〔第 6 期 6-2 カレンダー 2〕(arm は結果を変える=腕)
         from shibuya.foundation.arms import calendar3 as _calendar3_arm  # 〔第 6 期 6-2 カレンダー 3〕(arm は結果を変える=腕)
@@ -1618,15 +1618,15 @@ def main(argv: list[str] | None = None) -> int:
 
         _body.set_arm(str(args.body_schedule))
     if args.talk_clock is not None:  # 〔第 6 期 6-3 T2〕会話の時計の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine import speech_clock as _speech_clock
+        from shibuya.runtime.clocks import speech as _speech_clock
 
         _speech_clock.set_arm(str(args.talk_clock))
     if args.step_scope is not None:  # 〔第 6 期 6-3 T3〕何かあった体だけの腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine import step_scope as _step_scope
+        from shibuya.runtime.clocks import step_scope as _step_scope
 
         _step_scope.set_arm(str(args.step_scope))
     if args.clock is not None:  # 〔第 6 期 6-3 T4〕場所ごとの時計の腕(組み立てと進行役が読む。指定は環境変数より強い)
-        from shibuya.engine import regional_clock as _regional_clock
+        from shibuya.runtime.clocks import regional as _regional_clock
 
         _regional_clock.set_arm(str(args.clock))
     if args.calendar_shadow is not None:  # 〔第 3 期 3-1〕暦 1a の影の腕(組み立てが読む。指定は環境変数より強い)

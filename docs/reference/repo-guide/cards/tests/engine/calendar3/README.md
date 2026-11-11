@@ -63,7 +63,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `test_workers_per_unit_match_the_roster_fixture`(関数)
   - `with_real_rights`(関数): 雇い主の口の表は差し替えない(権利台帳=合成の世界の開閉の過程の台帳から本物の道で作る)。W20 の週の表(世界の資産)と
   - `with_roster`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.calendar`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar3.roster`・`shibuya.engine.contact.layer`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.table`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.journal.log`・`shibuya.foundation.manifest.sections`・`shibuya.mind.plan.calendar3_port`・`shibuya.mind.plan.contact_port`・`shibuya.mind.plan.promise_book`・`tests/engine/calendar3/_ca3.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.calendar`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar3.roster`・`shibuya.engine.contact.layer`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.journal.log`・`shibuya.foundation.manifest.sections`・`shibuya.mind.plan.calendar3_port`・`shibuya.mind.plan.contact_port`・`shibuya.mind.plan.promise_book`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.table`・`tests/engine/calendar3/_ca3.py`
 - 環境変数: `SHIBUYA_SYSTEMS_CHECK`
 
 ## [test_ca3_units.py](../../../../../../../tests/engine/calendar3/test_ca3_units.py)

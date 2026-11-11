@@ -54,7 +54,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_state_ledger_row_and_declaration`(関数)
   - `test_world_run_family_and_work_flags_and_rel_columns_unchanged`(関数)
   - `test_writing_contacts_does_not_change_the_existing_rel_columns`(関数): 初めの辺・新しい相手・押し出しの全部で、印を書く口を止めた層と ``rel_*`` が値まで同じ。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.relations`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.overrides`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.write_permit`・`shibuya.mind.memory.memory`・`tests/engine/tools/contacts_writers.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.relations`・`shibuya.engine.run`・`shibuya.engine.systems.overrides`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.write_permit`・`shibuya.mind.memory.memory`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`tests/engine/tools/contacts_writers.py`
 
 ## [test_c0_groups_from_w16.py](../../../../../../../tests/engine/tools/test_c0_groups_from_w16.py)
 

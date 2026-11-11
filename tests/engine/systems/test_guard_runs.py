@@ -15,10 +15,10 @@ import pytest
 
 from shibuya.foundation import write_permit as WP
 from shibuya.engine.run import run_day
-from shibuya.engine.systems import conductor as CD
+from shibuya.runtime.systems import conductor as CD
 from shibuya.engine.systems import overrides as OV
-from shibuya.engine.systems import probe as PR
-from shibuya.engine.systems.table import SPECS
+from shibuya.runtime.systems import probe as PR
+from shibuya.runtime.systems.table import SPECS
 
 KW = dict(n_agents=80, seed=1, n_cells=9, ticks=720, budget=80.0, sleep_suppression=False, vocab_version="v3",
           memory="on", relations="on", rel_copresent="on", store_memory="on", checkpoint_every=60)

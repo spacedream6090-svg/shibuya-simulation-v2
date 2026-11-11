@@ -33,7 +33,7 @@ engine.energy — 体のエネルギー収支(5 段目 5a・D-118 K1〜K9・第2
   - `minute_slot`(関数): その日の分 → 時間帯(朝 0 / 昼 1 / 夕 2 / その他 3)。
   - `w17_wake_minute`(関数): 体 ``agent`` がその日の ``minute`` に W17 の「就寝」の行の中に居れば、**起床の分**
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar`・`shibuya.foundation.paths`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.world.facts.weekly_reader`
-- 呼び手: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.engine.systems.body`・`shibuya.engine.systems.build`・`shibuya.world.body.rules`・`shibuya.world.body.schedule`
+- 呼び手: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.body`・`shibuya.world.body.rules`・`shibuya.world.body.schedule`
 - 読む試験: `tests/engine/body/body_fixtures.py`・`tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_meal_default_w17.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_sim_time_T.py`
 - 読む試験(道筋で): `tests/engine/state/test_names_frozen.py`・`tests/tools/test_pkgmove.py`
 - 状態台帳の行
@@ -60,7 +60,7 @@ engine.body.model — 本人の体の層 ``BodyModel``(状態台帳の外の状�
   - `gauge_on`(関数): 段の境目の計器を数えるか(環境変数 ``SHIBUYA_BODY_BOUNDARY_GAUGE`` が ``1``)。組み立てのときに読む。
   - `manifest_fields`(関数): manifest の ``body``(持ち主・腕・規則の出典の表・器だけの 3 件=設定/予約と段の境目の計器=観測)。
 - import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.world.body.reactions`・`shibuya.world.body.rules`・`shibuya.world.body.schedule`
-- 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.world.laws.environment`・`shibuya.world.laws.salient`
+- 呼び手: `shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.world.laws.environment`・`shibuya.world.laws.salient`
 - 読む試験: `tests/engine/body/test_body_guard.py`・`tests/engine/body/test_body_manifest.py`・`tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_body_same_values.py`
 - 状態台帳の行
   - 持ち主 `body`(`BodyModel`)

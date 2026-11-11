@@ -14,7 +14,7 @@ from shibuya.agents.state import Activity, ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine.llm_bridge import LLMBridge
 from shibuya.engine.run import run_day
-from shibuya.engine.tape import Tape, TapeWriter
+from shibuya.runtime.inference.tape import Tape, TapeWriter
 from shibuya.llm import LLMResponse, MockLLM
 from shibuya.foundation.vocab.actions import format_two_line
 from shibuya.foundation.vocab.actions import ACTION_CODES, UNDEFINED_ACTION

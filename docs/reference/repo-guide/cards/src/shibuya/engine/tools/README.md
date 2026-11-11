@@ -21,7 +21,7 @@ engine.tools.record — 道具の記録の欄(CT9)と、ランの道具の一式
   - `manifest_fields`(関数): manifest の ``tools``(計器): 道具の数と名・登録だけの道具・グループの数・連絡先の印の数・店の番号の表・看板の印。
   - `set_enabled`(関数): 腕を入れる/外す(組み立ての時に読む=ランの途中で変えても、そのランは変わらない)。
 - import している内部モジュール: `shibuya.engine.tools.registry`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.events`・`shibuya.society.tools.groups`・`shibuya.society.tools.places`
-- 呼び手: `shibuya.engine.events.body`・`shibuya.engine.systems.build`・`shibuya.engine.systems.report`
+- 呼び手: `shibuya.engine.events.body`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`
 - 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar3/_ca3.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/multiday/test_md23_body_events.py`・`tests/engine/tools/test_c0_affordance_from_registry.py`・`tests/engine/tools/test_c0_signboard_mark_invariance.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
 - 環境変数: `SHIBUYA_TOOL_EVENTS`

@@ -213,7 +213,7 @@ def test_box_rooted_and_aliased_ufunc_at_outside_resolve_is_found(tmp_path):
 
 def test_systems_modules_have_no_state_ufunc_at():
     """系のモジュール(engine/systems)にも世界状態への ``ufunc.at`` は無い(書きは resolve の口だけ)。"""
-    from shibuya.engine.systems import table as SYSTEMS
+    from shibuya.runtime.systems import table as SYSTEMS
 
     # 〔段 4 の下ごしらえ〕前は字面のディレクトリ engine/systems の直下。元の置き場が系の包みの直下のファイルを対応表で引く
     # (段 4 で系の包みは 3 つの包みへ分かれる)

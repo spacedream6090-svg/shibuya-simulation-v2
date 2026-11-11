@@ -86,7 +86,7 @@ engine.contact.layer — 連絡の道具 C1 の持ち主と系 ``contact`` の�
   - `manifest_fields`(関数): manifest の ``contact_c1``(腕 c1 のランだけ・ほかは ``None``=欄を出さない)。
   - `sys_contact`(関数): 系 contact(刻みの中・腕 c1 のランだけ立つ)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.contact.book`・`shibuya.engine.contact.calls`・`shibuya.engine.contact.chat_state`・`shibuya.engine.contact.deliver`・`shibuya.engine.contact.tools`・`shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.percept_contact`・`shibuya.foundation.queues.batching`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.vocab.events`・`shibuya.mind.plan.contact_attention`・`shibuya.mind.plan.contact_habit`・`shibuya.mind.plan.contact_port`・`shibuya.society.conversation`・`shibuya.society.speech.port`・`shibuya.society.tools.groups`・`shibuya.world.body.reactions`・`shibuya.world.things.device`
-- 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.table`
+- 呼び手: `shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.table`
 - 読む試験: `tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_world.py`・`tests/engine/contact/_c1.py`・`tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c1_world.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_exchange.py`・`tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/contact/test_c2_video.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
 - 状態台帳の行
@@ -106,7 +106,7 @@ engine.contact.tools — 連絡の道具の台帳の行(第 6 期 6-4 C1 の限�
 - 公開の関数とクラス
   - `register_into`(関数): ランの道具の台帳に足す(腕 c1 の組み立てだけが呼ぶ)。もうある名は足さない(差し替えない)。足した行の数。
 - import している内部モジュール: `shibuya.engine.tools.registry`
-- 呼び手: `shibuya.engine.contact.layer`・`shibuya.engine.systems.build`
+- 呼び手: `shibuya.engine.contact.layer`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 決定の ID: 10-12/§4-4

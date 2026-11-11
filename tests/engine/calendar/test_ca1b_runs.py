@@ -327,7 +327,7 @@ def test_1b_writes_stay_inside_the_declarations(w20, monkeypatch, arm_1b):
 
 @real_data
 def test_cli_flag_run_kind_and_fingerprint(w20, tmp_path, monkeypatch):
-    from shibuya.engine import resume as RS
+    from shibuya.runtime.state import resume as RS
 
     monkeypatch.delenv("PYTEST_CURRENT_TEST", raising=False)  # ランの種類を CLI の規則で決めさせる
     prev = CS1.arm()

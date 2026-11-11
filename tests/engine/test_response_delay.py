@@ -22,7 +22,7 @@ import pytest
 from shibuya.engine import commit as C
 from shibuya.engine import run as RUN
 from shibuya.engine.run import run_day
-from shibuya.engine.tape import Tape
+from shibuya.runtime.inference.tape import Tape
 from shibuya.llm.fleet import FleetBridge  # 1-0: run.py は FleetBridge を import しない(組み立ては engine.systems.build)
 
 from tests.engine.test_fleet_wiring import (
@@ -120,7 +120,7 @@ def test_replay_of_a_plus2_tape_stops(tmp_path):
     タグ)。前は +2 で録って +2 で再生できた。"""
     import json
 
-    from shibuya.engine.tape import RUN_META_FILENAME
+    from shibuya.runtime.inference.tape import RUN_META_FILENAME
     from tests.engine.test_tape_wiring import BoomLLM
 
     servers = [FakeVLLM(), FakeVLLM()]

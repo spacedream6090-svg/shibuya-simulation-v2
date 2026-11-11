@@ -64,7 +64,7 @@ def world_fixture(monkeypatch: Any, *, n_cells: int = 1, unstaffed: int = UN,
     ``w21c``=〔検収 M1〕差し替えの世界の初期の行の表の店の担当の組 ``[(体, 店), …]``(出どころ W21c・表の店は表の行の順)。"""
     from shibuya import cli
     from shibuya.world.facts.rights import initial as RI
-    from shibuya.engine.systems import build as B
+    from shibuya.runtime.systems import assemble as B
     from shibuya.world.model.state import World
 
     world = World.synthetic(n_cells=int(n_cells), seed=1)

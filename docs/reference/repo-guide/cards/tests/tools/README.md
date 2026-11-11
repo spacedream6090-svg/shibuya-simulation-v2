@@ -678,7 +678,7 @@ tools/repo_guide(段 3 ファイルのカード・11-05/§3-1 の 1)の試験。
   - `test_unparsable_file_is_reported_not_guessed`(関数)
   - `test_unresolved_bare_import_gets_a_mark`(関数)
   - `test_write_permits_from_table`(関数)
-- import している内部モジュール: `shibuya.engine.state_ledger`・`shibuya.engine.systems.allow`・`shibuya.engine.systems.spec`・`shibuya.engine.systems.table`・`shibuya.foundation.time_consts`・`tests/_places.py`
+- import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.allow`・`shibuya.runtime.systems.spec`・`shibuya.runtime.systems.table`・`tests/_places.py`
 - 環境変数: `os.environ` をまるごと使う
 - 決定の ID: 10-12・10-12/D-9・10-13b・10-13b/K3・10-13b/K3 #5・10-25・10-25/§2-5・11-01・11-01/A1-2・11-01/a01・11-01/a1・11-01/§1・11-01/§1 #7・11-01/§1 #8・11-01/§1 #12・11-05/§3-1・R-9・R-9 #3・R-126・R-126 §1-4 #46・D-74・D-74 #4・第 170・第 275・第 275 #7・第 340・第 345・第 345 #2・第 1000
 

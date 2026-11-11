@@ -23,7 +23,7 @@ import pytest
 
 from shibuya.economy import ops as OPS
 from shibuya.economy.ledger import Ledger
-from shibuya.engine.systems import allow as AL
+from shibuya.runtime.systems import allow as AL
 
 from tests.economy.cp2 import money_writers as MW
 
@@ -160,7 +160,7 @@ def test_negative_ufunc_at():
 def test_negative_attribute_chain():
     """負の対照 3(属性の鎖): 箱から台帳をたどって生ログと売上の写しを書く。"""
     bad = _bad("def leak(b, world):\n    b.layers.ledger.money._raw_amt[0] = 1\n    world.pois.revenue[3] += 7\n"
-               "    b.layers.ledger.money._raw_pos += 1\n", "engine/systems/act.py")
+               "    b.layers.ledger.money._raw_pos += 1\n", "runtime/systems/act.py")
     assert [(w.attr, w.form) for w in bad] == [("_raw_amt", "添字への代入"), ("revenue", "添字への代入(+=)"),
                                               ("_raw_pos", "属性の差し替え(+=)")]
 

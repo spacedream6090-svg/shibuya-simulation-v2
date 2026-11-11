@@ -20,8 +20,8 @@ import pytest
 
 from shibuya.mind.memory import memory_embed, memory_impression, memory_m1, memory_shops, memory_trace
 from shibuya.mind.relations import people as relations_people
-from shibuya.engine import state_ledger as SL
-from shibuya.engine import state_ledger_ast as SA
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.state import ledger_ast as SA
 from shibuya.engine.run import run_day
 
 from tests.engine.memory._mr65 import KW, arms

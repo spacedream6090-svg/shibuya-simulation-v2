@@ -33,7 +33,7 @@ engine 層のテスト(llm.mock の結線テストを含む)。
   - `discardable_paths`(関数): 台帳の外の状態の行のうち軸 2 が ``discardable`` の属性の道筋(``run_day`` の局所の行と持ち主の丸ごとを除く)。
   - `hashes`(関数)
   - `install`(関数): ``monkeypatch`` で計器を入れる(戻すのは ``monkeypatch`` の後始末)。返す報告はランの後に読む。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.state_io`
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.state_io`
 - 読む試験: `tests/engine/test_state_checks_10f.py`
 
 ## [tape_analysis.py](../../../../../../tests/engine/tape_analysis.py)
@@ -44,7 +44,7 @@ engine 層のテスト(llm.mock の結線テストを含む)。
   - `analyze`(関数): テープ 1 本を読んで診断 dict を返す(読み取り専用)。
   - `format_report`(関数)
   - `main`(関数)
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.engine.tape`・`shibuya.foundation.vocab.actions`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.foundation.vocab.actions`・`shibuya.runtime.inference.tape`
 - 読む試験: `tests/engine/test_fleet_wiring.py`
 - CLI の引数
   - `--json`: 診断 dict を JSON で書き出す先
@@ -71,7 +71,7 @@ engine 層のテスト(llm.mock の結線テストを含む)。
   - `test_tape_meta_does_not_touch_the_parquet`(関数)
   - `test_the_tape_carries_the_response_delay_and_old_tapes_stop`(関数): テープの脇の meta に応答の遅れ(1)を書く・〔第 4 期 4-3 版上げ 3 回目の第 2 部〕+2(旧)の切替口は消した=値 2 の
   - `test_unreadable_csv_stops_real_and_nulls_the_manifest_in_day_index`(関数): 〔改訂(第330・RET)〕前は「day_index では止めず manifest の md5・範囲を null」も見た(day_index を消した)。暦は real
-- import している内部モジュール: `shibuya.engine.calendar`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.tape`・`shibuya.foundation.paths`・`shibuya.world.body.energy`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.weekly_reader`・`shibuya.world.model.state`・`tests/engine/test_calendar.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.engine.calendar`・`shibuya.engine.run`・`shibuya.foundation.paths`・`shibuya.runtime.inference.tape`・`shibuya.runtime.systems.assemble`・`shibuya.world.body.energy`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.weekly_reader`・`shibuya.world.model.state`・`tests/engine/test_calendar.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
 - 決定の ID: 第 330
 
 ## [test_ablation23_switches.py](../../../../../../tests/engine/test_ablation23_switches.py)
@@ -116,7 +116,7 @@ ablation ②「p_notice の d50 を 0.5×/2×」・③「近接入替の不応�
   - `test_act_weather_manifest_declares_the_two_expedients`(関数): 親の決定 (3): 層を広げる順と「同じ近さの影は前の日」は expedient として manifest に載る。
   - `test_ret_a_tape_from_before_the_activation_is_not_replayed`(関数): 〔改訂(第330・RET)〕暦の規則の記録が無いテープ(活性化より前の録画)と旧い値(day_index・legacy)のテープは止める。
   - `test_ret_check_replay_tape_does_nothing_outside_replay`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.tape`・`shibuya.world.laws.environment`・`tests/engine/test_tape_wiring.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.inference.tape`・`shibuya.world.laws.environment`・`tests/engine/test_tape_wiring.py`
 - 決定の ID: 第 330
 
 ## [test_activation_2_4.py](../../../../../../tests/engine/test_activation_2_4.py)
@@ -147,7 +147,7 @@ ablation ②「p_notice の d50 を 0.5×/2×」・③「近接入替の不応�
   - `test_set_refractory_is_blocked_when_someone_forgets_the_window`(関数): ``set_refractory`` は ``np.maximum.at`` を撃つ前に ``frozen`` を見る。
   - `test_systems_modules_have_no_state_ufunc_at`(関数): 系のモジュール(engine/systems)にも世界状態への ``ufunc.at`` は無い(書きは resolve の口だけ)。
   - `test_ufunc_at_on_world_or_agent_arrays_lives_only_in_resolve`(関数): ``np.add.at``(等)で世界状態を書けるのは resolve.py だけ。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.build`・`shibuya.economy.ledger`・`shibuya.engine.resolve`・`shibuya.engine.systems.table`・`shibuya.world.model.state`・`tests/_places.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.build`・`shibuya.economy.ledger`・`shibuya.engine.resolve`・`shibuya.runtime.systems.table`・`shibuya.world.model.state`・`tests/_places.py`
 
 ## [test_arbiter.py](../../../../../../tests/engine/test_arbiter.py)
 
@@ -392,7 +392,7 @@ engine.clock のテスト(壁時計非依存・tick↔日時・δ_perc のナノ
   - `test_tick_datetime_roundtrip`(関数)
   - `test_ticks_per_sim_day`(関数)
   - `test_timezone_mismatch_is_rejected`(関数)
-- import している内部モジュール: `shibuya.engine.clock`・`shibuya.foundation.types`
+- import している内部モジュール: `shibuya.foundation.types`・`shibuya.runtime.clock`
 
 ## [test_conversation.py](../../../../../../tests/engine/test_conversation.py)
 
@@ -491,7 +491,7 @@ C6 会話招待の設計準拠(09-09): 「対象」欄で名指し → 被招待
   - `test_the_queue_checks_payment_like_a_new_purchase`(関数)
   - `test_the_unreachable_origin_key_is_there_from_the_start_only_when_counted`(関数): 〔低-4〕起点の計数の鍵は最初から全部ある作り=腕 on のランは unreachable も最初から 0 で置く(旧道は鍵を足さない)。
   - `tiny_runs`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.commit`・`shibuya.engine.defect_fixes_1103`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.systems.boxes`・`shibuya.engine.systems.talk`・`shibuya.society.conversation`・`shibuya.world.laws.crowd`・`shibuya.world.laws.rail`・`shibuya.world.model.state`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.runtime.state.resume`・`shibuya.runtime.switch_defects`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.talk`・`shibuya.society.conversation`・`shibuya.world.laws.crowd`・`shibuya.world.laws.rail`・`shibuya.world.model.state`・`tests/engine/processes/conftest.py`
 - 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`os.environ` をまるごと使う
 - 決定の ID: 11-03・11-03/§3・第 346
 
@@ -593,7 +593,7 @@ C6 会話招待の設計準拠(09-09): 「対象」欄で名指し → 被招待
   - `test_seed_exchangeability_sections_mode_on_synthetic_runs`(関数): 合成世界: 観測の欄だけ違う manifest は PASS・設定の欄を変えると FAIL・環境の欄の差は警告だけ。
   - `test_t1_two_processes_write_the_same_env_id_and_final_to_the_files`(関数): T1(検収 N9): 別々のプロセスで 2 回回し、書かれたファイルを読んで比べる。
   - `test_unregistered_environment_warns_and_falls_back_to_aa`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.tape`・`shibuya.foundation.hashing`・`shibuya.foundation.manifest.sections`・`shibuya.world.laws.crowd`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/test_classical_social.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_relations_tenure.py`・`tests/golden_env.py`・`tests/perception/test_near_tiebreak.py`・`tools/c7/seed_exchangeability.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.hashing`・`shibuya.foundation.manifest.sections`・`shibuya.runtime.inference.tape`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.world.laws.crowd`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/test_classical_social.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_relations_tenure.py`・`tests/golden_env.py`・`tests/perception/test_near_tiebreak.py`・`tools/c7/seed_exchangeability.py`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・第 330・第 333・第 334・第 346
 
 ## [test_familiarity.py](../../../../../../tests/engine/test_familiarity.py)
@@ -652,7 +652,7 @@ C6-a 結線の検収テスト(``run_day(fleet=…)``・**プロセス内の偽 v
   - `test_run_reports_effective_and_strict_format_error_rates`(関数): ラベル別名は**実効 0 / 厳密 >0**。要約行に両方が出る。
   - `test_tape_analysis_reads_a_fleet_tape`(関数): (2) テープ解析スクリプトが艦隊テープを読めて、会話の切り分け欄を出す。
   - `test_timeout_defers_then_reinjects_and_is_finally_answered`(関数): タイムアウト注入 → 繰り延べ → 次 tick 再投入(不応期免除)→ 最終的に処理される。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.tape`・`shibuya.foundation.hashing`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.time_consts`・`shibuya.llm`・`shibuya.llm.fleet`・`shibuya.world.model.state`・`tests/engine/tape_analysis.py`・`tests/engine/time/__init__.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.hashing`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.time_consts`・`shibuya.llm`・`shibuya.llm.fleet`・`shibuya.runtime.inference.tape`・`shibuya.runtime.systems.assemble`・`shibuya.world.model.state`・`tests/engine/tape_analysis.py`・`tests/engine/time/__init__.py`・`tests/llm/test_fleet.py`
 - 読む試験: `tests/engine/test_response_delay.py`・`tests/engine/test_resume_10d.py`・`tests/engine/time/test_v30a_key_sites.py`
 - CLI の引数
   - `--seed`
@@ -823,7 +823,7 @@ llm.mock のテスト(2行形・決定論・テープ再生)。
   - `test_tape_llm_rejects_non_lookup_object`(関数)
   - `test_tape_llm_replays_recorded_mock_answers`(関数): mock で録って TapeLLM で再生 → 完全一致(bit 再現の最小単位)。
   - `test_vocab_is_the_12_words_of_the_action_contract`(関数)
-- import している内部モジュール: `shibuya.engine.tape`・`shibuya.foundation.vocab.actions`・`shibuya.llm`
+- import している内部モジュール: `shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.runtime.inference.tape`
 
 ## [test_meal_bundle_2b.py](../../../../../../tests/engine/test_meal_bundle_2b.py)
 
@@ -898,7 +898,7 @@ llm.mock のテスト(2行形・決定論・テープ再生)。
   - `test_tape_v3_writes_recalled_rows_and_keeps_the_v2_columns_in_place`(関数)
   - `test_tau_cuts_old_rows`(関数)
   - `test_the_channel_keeps_the_whole_line_within_60_tokens`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.run`・`shibuya.engine.tape`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.mind.memory.familiarity`・`shibuya.mind.memory.memory`・`shibuya.perception.renderer`・`shibuya.world.model.state`・`tests/golden_env.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.run`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.mind.memory.familiarity`・`shibuya.mind.memory.memory`・`shibuya.perception.renderer`・`shibuya.runtime.inference.tape`・`shibuya.world.model.state`・`tests/golden_env.py`
 - 決定の ID: 第 295・第 330
 
 ## [test_memory_record.py](../../../../../../tests/engine/test_memory_record.py)
@@ -944,7 +944,7 @@ llm.mock のテスト(2行形・決定論・テープ再生)。
   - `test_state_growth_declaration_passes`(関数): D-R2-6: 24step→1日/30日 外挿が予算 M 行の内側。
   - `test_state_stays_frozen_outside_resolve`(関数)
   - `test_w2_five_thousand_agents_one_sim_day_under_ten_minutes`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.growth_decl`・`shibuya.engine.run`・`shibuya.foundation.queues.scheduler`・`tests/_time_gates.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.run`・`shibuya.foundation.queues.scheduler`・`shibuya.runtime.state.growth_decl`・`tests/_time_gates.py`
 
 ## [test_move_destination.py](../../../../../../tests/engine/test_move_destination.py)
 
@@ -1039,7 +1039,7 @@ D-62「就寝は計画の実行」(ユーザー決定 (a)+(b)・2026-09-10)の�
   - `test_w16_shaped_population_has_no_swap_columns`(関数)
   - `test_wage_inputs_take_w21_words_and_given_wages`(関数)
   - `test_without_the_table_the_rows_are_the_same_as_before`(関数)
-- import している内部モジュール: `shibuya.build.pop.w21_build_c`・`shibuya.cli`・`shibuya.economy.stage2_bind`・`shibuya.engine.systems.build`・`shibuya.foundation.ports.decision`・`shibuya.mind.judge.decision.persona`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`
+- import している内部モジュール: `shibuya.build.pop.w21_build_c`・`shibuya.cli`・`shibuya.economy.stage2_bind`・`shibuya.foundation.ports.decision`・`shibuya.mind.judge.decision.persona`・`shibuya.runtime.systems.assemble`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`
 
 ## [test_presence_derive_v2.py](../../../../../../tests/engine/test_presence_derive_v2.py)
 
@@ -1324,7 +1324,7 @@ engine.resolve のテスト: 行動契約書 §2.1 の 12 語(前提・効果・
   - `test_record_and_replay_match_under_each_delay`(関数)
   - `test_replay_of_a_plus2_tape_stops`(関数): 〔第 2 部〕+2(旧)で録ったテープ(meta の値 2)と値の無いテープ(10a より前)は再生しない=止まる(旧値の再現は安定版の
   - `test_utterances_are_recorded_at_the_receiving_tick`(関数): 会話ターンの発話は受け取った tick(発射 +1)で記録される=+1 でも +2 でも tick は動かない。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.run`・`shibuya.engine.tape`・`shibuya.llm.fleet`・`shibuya.society.conversation`・`shibuya.world.model.state`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.run`・`shibuya.llm.fleet`・`shibuya.runtime.inference.tape`・`shibuya.society.conversation`・`shibuya.world.model.state`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
 - 決定の ID: 10-03/§3-5
 
 ## [test_resume_10d.py](../../../../../../tests/engine/test_resume_10d.py)
@@ -1359,7 +1359,7 @@ engine.resolve のテスト: 行動契約書 §2.1 の 12 語(前提・効果・
   - `test_world_arms_resume_equals_straight`(関数)
   - `test_world_resume_equals_straight_at_every_tick`(関数)
   - `world_straight`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.economy.ledger`・`shibuya.engine.poi_target`・`shibuya.engine.presence`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.tape`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.rng`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.mind.judge.classical`・`shibuya.perception.renderer`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.runner`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.state`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_sim_time_T.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.economy.ledger`・`shibuya.engine.poi_target`・`shibuya.engine.presence`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.rng`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.mind.judge.classical`・`shibuya.perception.renderer`・`shibuya.runtime.inference.tape`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.runner`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.state`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_sim_time_T.py`・`tests/llm/test_fleet.py`
 - 環境変数: `os.environ` をまるごと使う
 - 決定の ID: 10-03/§3-6・11-01・11-02r/§1・11-02r/§1 #7・D-102・第 330
 
@@ -1383,7 +1383,7 @@ engine.resolve のテスト: 行動契約書 §2.1 の 12 語(前提・効果・
   - `test_seeded_hash_sites_are_classified`(関数)
   - `test_static_scan_catches_aliases_and_keyword_domains`(関数): 検収 S3-1 の 1・2: 別名の import と名前つきの ``domain=`` を拾う(わざと書いた断片で)。
   - `test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.foundation.rng`・`shibuya.llm.mock`・`shibuya.society.conversation`・`shibuya.world.laws.civic`・`shibuya.world.laws.environment`・`shibuya.world.laws.logistics`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.geometry`・`tools/c7/salt_compare.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.rng`・`shibuya.llm.mock`・`shibuya.runtime.state.resume`・`shibuya.society.conversation`・`shibuya.world.laws.civic`・`shibuya.world.laws.environment`・`shibuya.world.laws.logistics`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.geometry`・`tools/c7/salt_compare.py`
 - 読む試験: `tests/engine/memory/test_m1_runs.py`
 - 環境変数: `SHIBUYA_RATE_RULES`・`os.environ` をまるごと使う
 - 決定の ID: 11-01・第 330・第 346
@@ -1435,7 +1435,7 @@ P3 ゲート: イベント処理スループット **≥10万イベント/秒**(
   - `test_run_manifest_reports_the_arm_and_the_count`(関数): 合成の世界のランの manifest の ``leave_effects`` に腕(walk に固定)と解いた数が出る・見出しにも walk。
   - `test_unseated_walkers_are_not_counted`(関数)
   - `test_walkers_release_the_seat_only_with_the_walk_arm`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.world.laws.switch_seat`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.runtime.state.resume`・`shibuya.world.laws.switch_seat`・`shibuya.world.model.state`
 - 環境変数: `SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
 - 決定の ID: 第 346
 
@@ -1459,7 +1459,7 @@ P3 ゲート: イベント処理スループット **≥10万イベント/秒**(
   - `test_start_date_moves_the_prompt_clock`(関数): 開始日を渡すとプロンプトの日付(世界内日時)がその日になる。渡さないランは今の日付のまま。
   - `test_tape_and_call_keys_use_T`(関数)
   - `test_tick_columns_can_hold_30_days_of_T`(関数)
-- import している内部モジュール: `shibuya.act.activity`・`shibuya.agents.state`・`shibuya.engine.arbiter`・`shibuya.engine.calendar`・`shibuya.engine.chooser`・`shibuya.engine.relations`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.tape`・`shibuya.foundation.hashing`・`shibuya.foundation.types`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.mind.judge.classical`・`shibuya.mind.judge.store_choice`・`shibuya.perception.renderer`・`shibuya.world.body.energy`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.runner`・`shibuya.world.model.state`・`tests/engine/test_calendar.py`
+- import している内部モジュール: `shibuya.act.activity`・`shibuya.agents.state`・`shibuya.engine.arbiter`・`shibuya.engine.calendar`・`shibuya.engine.chooser`・`shibuya.engine.relations`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.hashing`・`shibuya.foundation.types`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.mind.judge.classical`・`shibuya.mind.judge.store_choice`・`shibuya.perception.renderer`・`shibuya.runtime.inference.tape`・`shibuya.runtime.systems.assemble`・`shibuya.world.body.energy`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.runner`・`shibuya.world.model.state`・`tests/engine/test_calendar.py`
 - 読む試験: `tests/engine/test_resume_10d.py`・`tests/engine/test_state_checks_10f.py`
 - 決定の ID: 10-03/§3-1・第 330
 
@@ -1530,7 +1530,7 @@ D-56 就寝抑止(ユーザー決定 (a)・2026-09-10)のテスト。
   - `test_u7_ipf_cache_with_a_multiplier_is_caught`(関数): U7: O90 ``classical._ipf_cache`` は乗数が全部 1 の classical では使われない(10d の記録・検収で捕まらなかった)。
   - `test_u7_pulled_in_today_is_outside_this_check`(関数): U7: O37 ``presence._pulled_in_today``(軸 1 diag)は、わざと discardable にして日の境目の直後(T=1441)に捨てても
   - `test_v3_allow_entries_pin_the_function_of_the_line`(関数): 10e(E2・10f 第 3 段の検収 V3): 許可した行を別の関数へ**移す**(数は同じ)と、関数の名前で落ちる。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.rng_audit`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`shibuya.foundation.rng`・`shibuya.mind.judge.classical`・`shibuya.world.laws.opening`・`shibuya.world.laws.switch_rate`・`tests/engine/discard_probe.py`・`tests/engine/test_sim_time_T.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.rng_audit`・`shibuya.engine.run`・`shibuya.foundation.rng`・`shibuya.mind.judge.classical`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.world.laws.opening`・`shibuya.world.laws.switch_rate`・`tests/engine/discard_probe.py`・`tests/engine/test_sim_time_T.py`
 - 決定の ID: 11-01・11-03/§3・第 330・第 337・第 346
 
 ## [test_state_format_10f.py](../../../../../../tests/engine/test_state_format_10f.py)
@@ -1560,7 +1560,7 @@ D-56 就寝抑止(ユーザー決定 (a)・2026-09-10)のテスト。
   - `test_u4_member_checks_and_size_cap`(関数)
   - `test_unknown_classes_and_marks_are_refused`(関数)
   - `test_unwritable_values_are_refused_with_the_place`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.class_ids`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.state_codec`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`shibuya.foundation.rng`・`shibuya.foundation.vocab.actions`・`shibuya.society.conversation`・`tests/_time_gates.py`・`tests/engine/time/__init__.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.rng`・`shibuya.foundation.vocab.actions`・`shibuya.runtime.state.class_ids`・`shibuya.runtime.state.codec`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.state.resume`・`shibuya.society.conversation`・`tests/_time_gates.py`・`tests/engine/time/__init__.py`
 - 環境変数: `os.environ` をまるごと使う
 - 決定の ID: 第 337
 
@@ -1621,7 +1621,7 @@ D-56 就寝抑止(ユーザー決定 (a)・2026-09-10)のテスト。
   - `test_t7_hash_cost_within_the_declared_cap`(関数): T7(10e で門の形を確定・ユーザー決定 10-12=10f のアジェンダ §6-2): **門は checkpoint のハッシュの壁時計が
   - `test_to_state_is_canonical_and_strict`(関数)
   - `test_two_day_run_reports_both_hashes_every_day`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.decide`・`shibuya.engine.systems.llm_io`・`shibuya.engine.systems.run_end`・`shibuya.engine.systems.state_io`・`shibuya.foundation.hashing`・`shibuya.foundation.soa`・`shibuya.world.model.percept_state`・`shibuya.world.model.state`・`tests/_places.py`・`tests/engine/test_tape_deferred.py`・`tests/golden_env.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.hashing`・`shibuya.foundation.soa`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.systems.decide`・`shibuya.runtime.systems.llm_io`・`shibuya.runtime.systems.run_end`・`shibuya.runtime.systems.state_io`・`shibuya.world.model.percept_state`・`shibuya.world.model.state`・`tests/_places.py`・`tests/engine/test_tape_deferred.py`・`tests/golden_env.py`・`tests/llm/test_fleet.py`
 - 読む試験: `tests/engine/memory/test_mr65_guards.py`
 - 決定の ID: 10-06/§6・10-12・11-01・11-03/§3・第 321・第 330・第 346
 
@@ -1703,7 +1703,7 @@ engine.tape のテスト: 1呼=1行 Parquet(zstd)・ブロック intern・完全
   - `test_replay_hit_and_miss`(関数)
   - `test_replay_key_is_all_four_fields`(関数)
   - `test_write_read_roundtrip`(関数)
-- import している内部モジュール: `shibuya.engine.tape`
+- import している内部モジュール: `shibuya.runtime.inference.tape`
 
 ## [test_tape_deferred.py](../../../../../../tests/engine/test_tape_deferred.py)
 
@@ -1724,7 +1724,7 @@ D-58 テープ繰り延べ行: 録画→再生が**繰り延べごと**一致す
   - `test_t2_fleet_record_equals_replay_on_the_default_final`(関数): 10e(E1・検収 R1・T2): 艦隊で録ったランとその再生が、既定の final(behavior-hash)で全 checkpoint 一致する。
   - `test_timeout_run_replays_bit_for_bit`(関数): タイムアウト(=発射より**後の tick** で観測)も同じ tick で再現される。
   - `test_writer_counts_deferred_rows`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.tape`・`shibuya.foundation.manifest.schema`・`shibuya.llm.fleet`・`shibuya.world.model.state`・`tests/engine/test_tape_wiring.py`・`tests/golden_env.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.manifest.schema`・`shibuya.llm.fleet`・`shibuya.runtime.inference.tape`・`shibuya.runtime.state.ledger`・`shibuya.world.model.state`・`tests/engine/test_tape_wiring.py`・`tests/golden_env.py`・`tests/llm/test_fleet.py`
 - 読む試験: `tests/engine/test_10a_review_fixes.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_version_bump_10e.py`・`tests/perception/facts/test_percept_is_scratch.py`
 - 決定の ID: D-56・D-58・第 330
 
@@ -1752,7 +1752,7 @@ engine.llm_bridge の結線テスト(録画テープ・δ_think レーン・reco
   - `test_the_default_renderer_is_the_real_one`(関数): ``run_day`` の既定は本物の ``perception.renderer.Renderer``(C3 結線)。
   - `test_the_five_diagnostic_rows_exist`(関数)
   - `test_the_two_prompt_hashes_are_both_deterministic_and_different`(関数): ``BridgeResult.prompt_hash``(レンダラ blake3)と ``tape_prompt_hash``(テープ鍵)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.engine.tape`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.perception.renderer`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.perception.renderer`・`shibuya.runtime.inference.tape`・`shibuya.world.model.state`
 - 読む試験: `tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_activation_10e.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_version_bump_10e.py`・`tests/perception/facts/test_percept_is_scratch.py`
 - 決定の ID: D-56
 
@@ -1809,7 +1809,7 @@ engine.llm_bridge の結線テスト(録画テープ・δ_think レーン・reco
   - `test_phase_c_outcome_is_independent_of_intent_order`(関数): T3 相当: Phase A の intent の並び順を変えても Phase C の結果は同一。
   - `test_stock_zero_means_nobody_wins`(関数)
   - `test_thaw_is_never_called_outside_the_state_modules`(関数): ``.thaw(`` は書き込みガードの解除口。呼び出しは agents/state.py・world/state.py の内部だけ
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.engine.systems.table`・`shibuya.world.model.state`・`tests/_places.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.runtime.systems.table`・`shibuya.world.model.state`・`tests/_places.py`
 - 決定の ID: 第 330
 
 ## [test_undefined_action.py](../../../../../../tests/engine/test_undefined_action.py)
@@ -1827,7 +1827,7 @@ engine.llm_bridge の結線テスト(録画テープ・δ_think レーン・reco
   - `test_stage1_records_and_falls_back_to_waiting`(関数)
   - `test_stage2_needs_n_distinct_agents_through_the_bridge`(関数)
   - `test_tape_writer_can_be_shared_by_a_bridge_and_closed_once`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.engine.tape`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.undefined`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.undefined`・`shibuya.runtime.inference.tape`
 - 決定の ID: D-56
 
 ## [test_version_bump_10e.py](../../../../../../tests/engine/test_version_bump_10e.py)
@@ -1855,7 +1855,7 @@ engine.llm_bridge の結線テスト(録画テープ・δ_think レーン・reco
   - `test_e5_t1_fleet_rows_carry_b5_b6_and_rebuild_the_prompt_hash`(関数): T1: 艦隊の経路(``FleetBridge``)の応答の行と繰り延べの行にも B5・B6 が入り、``prompt_hash`` を本文から作り直せる。
   - `test_e5_t3_recalled_identity_matches_the_memory_table`(関数): T3: 引いた記憶の同定 3 列を、想起した時点の記憶の表(``mem_tick``・``mem_kind``・``mem_object``・店の行は
   - `v4_tape`(関数): 世界資産 300 体・1 日・語彙 v3・記憶 on・関係 on(初期の関係辺がある=知人の印が出る)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.rng_audit`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.state_io`・`shibuya.engine.tape`・`shibuya.foundation.hashing`・`shibuya.foundation.rng`・`shibuya.mind.memory.memory`・`shibuya.society.conversation`・`shibuya.world.facts.population_reader`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.state`・`tests/_data_ids.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.rng_audit`・`shibuya.engine.run`・`shibuya.foundation.hashing`・`shibuya.foundation.rng`・`shibuya.mind.memory.memory`・`shibuya.runtime.inference.tape`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.state_io`・`shibuya.society.conversation`・`shibuya.world.facts.population_reader`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.state`・`tests/_data_ids.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
 - 決定の ID: 11-01・第 330
 
 ## [test_vocab_v2_eat.py](../../../../../../tests/engine/test_vocab_v2_eat.py)

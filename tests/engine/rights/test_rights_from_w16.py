@@ -70,7 +70,7 @@ def test_the_four_contents_and_their_blanks(full):
 @w16
 def test_a_sampled_run_population():
     """5,000 体の抽出(byte-check と同じ seed 1)でも、雇用の行=``org_id`` を持つ体。組み立ての材料の関数を通す。"""
-    from shibuya.engine.systems.build import _org_of_agent
+    from shibuya.runtime.systems.assemble import _org_of_agent
 
     pop = load_population(WORLD, 5_000, 1)
     org = _org_of_agent(pop, 5_000)

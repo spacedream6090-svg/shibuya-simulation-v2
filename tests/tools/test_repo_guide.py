@@ -113,7 +113,7 @@ def write_cells(cells):
 
 TABLE_SRC = '''"""見本。"""
 from shibuya.engine.systems import mover as _MV
-from shibuya.engine.systems.spec import make
+from shibuya.runtime.systems.spec import make
 def _build_fn(ctx, b):
     raise RuntimeError
 SYSTEMS = (
@@ -903,7 +903,7 @@ def real_blocks(guide, real_code) -> dict[str, str]:
 
 
 def test_real_ledger_rows_match_import(real_code):
-    from shibuya.engine import state_ledger as SL
+    from shibuya.runtime.state import ledger as SL
 
     permits = real_code.permits
     assert permits.problems == []
@@ -915,9 +915,9 @@ def test_real_ledger_rows_match_import(real_code):
 
 
 def test_real_write_permits_match_import(real_code):
-    from shibuya.engine.systems import allow as AL
-    from shibuya.engine.systems import spec as SP
-    from shibuya.engine.systems.table import SPECS, SYSTEMS
+    from shibuya.runtime.systems import allow as AL
+    from shibuya.runtime.systems import spec as SP
+    from shibuya.runtime.systems.table import SPECS, SYSTEMS
 
     permits = real_code.permits
     assert [s.name for s in permits.systems] == [s.name for s in SYSTEMS]
@@ -949,7 +949,7 @@ def _public_in_card(block: str) -> set[str]:
 def test_real_public_names_match_import(real_blocks):
     """公開の関数とクラス: カードと、実物を import した ``vars()`` を比べる(軽いモジュールの全部)。"""
     from shibuya.foundation import time_consts as CORE
-    from shibuya.engine.systems import table as SYSTEMS
+    from shibuya.runtime.systems import table as SYSTEMS
 
     from tests import _places as PL
 

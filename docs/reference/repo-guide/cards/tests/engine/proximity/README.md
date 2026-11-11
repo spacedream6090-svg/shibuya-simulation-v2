@@ -82,7 +82,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_same_input_same_result`(関数)
   - `test_sensitivity_arms_keep_every_conversation_within_their_d`(関数)
   - `test_world_resume_equals_straight_and_the_marks_matter`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.relations`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.rng_audit`・`shibuya.engine.run`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.write_permit`・`shibuya.perception.renderer`・`shibuya.world.model.proximity`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.relations`・`shibuya.engine.resolve`・`shibuya.engine.rng_audit`・`shibuya.engine.run`・`shibuya.foundation.write_permit`・`shibuya.perception.renderer`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.world.model.proximity`
 - 環境変数: `SHIBUYA_PROXIMITY_D`・`os.environ` をまるごと使う
 - 決定の ID: 11-01・11-03/§3・第 346
 

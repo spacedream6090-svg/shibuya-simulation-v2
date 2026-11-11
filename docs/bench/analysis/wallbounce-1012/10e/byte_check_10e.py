@@ -89,13 +89,13 @@ def cmd_one(args: argparse.Namespace) -> int:
     kw = dict(w2.configs()[args.config])
     kw.update(json.loads(args.kw or "{}"))
     if args.drop_behavior_item:  # 検収 R1 の照合: HEAD の写しで behavior-hash の項から道筋を外して回す
-        from shibuya.engine import state_ledger as SL
+        from shibuya.runtime.state import ledger as SL
 
         _real = SL.behavior_items
         _drop = set(args.drop_behavior_item.split(","))
         SL.behavior_items = lambda: tuple(x for x in _real() if x[1] not in _drop)  # type: ignore[assignment]
     if args.multiset_items:  # 検収 R1 の照合: HEAD の写しで list の並びを状態から外す(多重集合でハッシュ)
-        from shibuya.engine import state_hashes as SH
+        from shibuya.runtime.state import hashes as SH
 
         _res = SH.resolve_item
         _ms = set(args.multiset_items.split(","))

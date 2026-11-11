@@ -18,7 +18,7 @@ engine.decision.layer — 候補の口 J0 の腕と層(1 呼の判断を口に�
   - `manifest_fields`(関数): manifest の ``decision_port``(腕が legacy のランは層が無い=観測の子は null)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--decision-port``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
 - import している内部モジュール: `shibuya.economy.stage2_bind`・`shibuya.engine.commit`・`shibuya.engine.tools.registry`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.vocab.events`・`shibuya.mind.judge.decision.sources`
-- 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.systems.build`
+- 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/decision/_j0.py`・`tests/engine/decision/test_j0_cause_columns.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/decision/test_j0_other_ratio_field.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/engine/tools/test_c0_affordance_from_registry.py`
 - 読む試験(道筋で): `tests/engine/speech/test_speech_writers_ast.py`・`tests/engine/time/test_t0_rng_key.py`
 - 状態台帳の行
@@ -49,7 +49,7 @@ engine.decision.ports — 候補の口の 3 つの実装(同じ入口 ``Decision
   - `LlmPort`(クラス): 口の後ろに今の LLM の道(``bridge``=``engine.llm_bridge.LLMBridge``)を置く実装。
   - `MockPort`(クラス): 今の mock(``llm.mock.MockLLM``)と同じ鍵から同じ番号を選ぶ実装(判断モデルの代役)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.ports.decision`・`shibuya.foundation.vocab.actions`
-- 呼び手: `shibuya.engine.systems.build`
+- 呼び手: `shibuya.runtime.systems.assemble`
 - 読む試験: `tests/economy/stage2/test_stage2_calls.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/decision/test_j0_other_ratio_field.py`・`tests/engine/decision/test_j0_port_schema.py`・`tests/engine/decision/test_j0_shuffle_invariance.py`・`tests/engine/speech/test_speech_choice_utterance.py`
 - 決定の ID: R-113
 
