@@ -21,7 +21,7 @@ from shibuya.agents.state import RELATION_FIELDS, AgentState, ResultCode
 from shibuya.world.facts.weekly_reader import WeeklySchedule
 from shibuya.mind.memory import memory as M
 from shibuya.engine import relations as RL
-from shibuya.engine.conversation import ConversationManager
+from shibuya.society.conversation import ConversationManager
 from shibuya.foundation.text import templates as T
 from tests import golden_env as GE
 

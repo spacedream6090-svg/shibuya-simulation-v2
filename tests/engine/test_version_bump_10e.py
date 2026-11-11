@@ -14,7 +14,7 @@ from tests import _data_ids as D
 
 import shibuya.engine.run as RUN
 from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
-from shibuya.engine.conversation import (
+from shibuya.society.conversation import (
     PAIR_INVITE_REFRACTORY_TICKS,
     SPEAKER_INVITE_REFRACTORY_TICKS,
     ConversationManager,

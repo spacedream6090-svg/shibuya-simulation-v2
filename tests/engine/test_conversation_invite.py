@@ -18,7 +18,7 @@ import pytest
 from shibuya.agents.state import Activity, AgentState, WakeCondition
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.conversation import (
+from shibuya.society.conversation import (
     PAIR_INVITE_REFRACTORY_TICKS,
     PENDING_INVITE_TTL_TICKS,
     SPEAKER_INVITE_REFRACTORY_TICKS,

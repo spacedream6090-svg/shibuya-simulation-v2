@@ -104,4 +104,4 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_commit_talk_partner_named_only_when_reachable`(関数)
   - `test_copresent_counts_reachable_edges_not_same_cell`(関数)
   - `test_leave_uses_the_rule_with_hysteresis_and_ignores_cells`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.conversation`・`shibuya.mind.memory.memory`・`shibuya.world.model.proximity`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.mind.memory.memory`・`shibuya.society.conversation`・`shibuya.world.model.proximity`

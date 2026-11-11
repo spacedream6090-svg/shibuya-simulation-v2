@@ -13,7 +13,7 @@ import pytest
 from shibuya.engine import resume as RS
 from shibuya.engine import state_ledger as SL
 from shibuya.engine import state_hashes as SH
-from shibuya.engine.speech import port as P
+from shibuya.society.speech import port as P
 from tests.engine.speech._s8b import run_small
 
 NS = 60 * 10**9

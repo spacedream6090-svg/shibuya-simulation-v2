@@ -22,8 +22,8 @@ from __future__ import annotations
 from typing import Final
 
 from shibuya.foundation.arms.contact import LEDGER_ARM
-from shibuya.engine.conversation import ConversationManager
-from shibuya.engine.speech.port import SpeechPort
+from shibuya.society.conversation import ConversationManager
+from shibuya.society.speech.port import SpeechPort
 from shibuya.foundation.ports import percept_contact as _CV
 
 __all__ = ["CallManager", "CallSpeechPort", "VIA_CALL", "VIA_VIDEO"]

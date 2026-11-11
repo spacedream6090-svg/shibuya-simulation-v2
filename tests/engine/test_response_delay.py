@@ -149,7 +149,7 @@ def test_replay_of_a_plus2_tape_stops(tmp_path):
 def test_utterances_are_recorded_at_the_receiving_tick(fleet_servers, monkeypatch, delay):
     """会話ターンの発話は受け取った tick(発射 +1)で記録される=+1 でも +2 でも tick は動かない。"""
     from shibuya.agents.state import WakeCondition
-    from shibuya.engine.conversation import ConversationManager
+    from shibuya.society.conversation import ConversationManager
 
     for s in fleet_servers:
         s.pair_talk = True

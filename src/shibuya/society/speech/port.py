@@ -47,7 +47,7 @@ from typing import Any, Callable, Final
 
 from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS
 from shibuya.foundation.types import SimTime
-from shibuya.engine.conversation import SILENCE_TICKS
+from shibuya.society.conversation import SILENCE_TICKS
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.log import EventId
 

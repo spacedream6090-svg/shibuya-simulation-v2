@@ -20,7 +20,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `roster_fixture`(関数): 合成の世界(母集団が無い=W20 と雇用の行が無い)に、合成の雇い主の口の表とグループの一覧(家族 2 人・職場 10 人)を入れる。
   - `synthetic_roster`(関数)
   - `synthetic_table`(関数): 合成の W20 の週の表(奇数の体=週ごと・偶数の体=毎週固定・月〜金に勤務・場所の種類=建物)。
-- import している内部モジュール: `shibuya.engine.calendar3.roster`・`shibuya.engine.tools.groups`・`shibuya.engine.tools.record`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.arms.contact`・`shibuya.foundation.time_consts`・`shibuya.mind.plan.calendar3_port`
+- import している内部モジュール: `shibuya.engine.calendar3.roster`・`shibuya.engine.tools.record`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.arms.contact`・`shibuya.foundation.time_consts`・`shibuya.mind.plan.calendar3_port`・`shibuya.society.tools.groups`
 - 読む試験: `tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/calendar3/test_ca3_world.py`・`tests/engine/time/test_v30a_key_sites.py`
 
 ## [test_ca3_runs.py](../../../../../../../tests/engine/calendar3/test_ca3_runs.py)

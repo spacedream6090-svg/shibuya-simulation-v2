@@ -14,7 +14,7 @@ from shibuya.foundation.arms import contact as A
 from shibuya.world.things import device as DV
 from shibuya.engine.contact.layer import ContactLayer
 from shibuya.foundation.journal.log import EventLog
-from shibuya.engine.tools.groups import GroupList
+from shibuya.society.tools.groups import GroupList
 from shibuya.world.model.state import World
 
 from tests.engine.contact._c1 import STEP_NS

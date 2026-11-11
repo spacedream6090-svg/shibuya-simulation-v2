@@ -19,11 +19,11 @@ from shibuya.engine.contact.chat_state import CHAT_MAX_BLOCKS, CHAT_SILENCE_STEP
 from shibuya.engine.contact.deliver import Mailbox
 from shibuya.engine.contact import layer as LY
 from shibuya.engine.contact.layer import ENGINE_WORDS, PERSON_WORDS, W_DELIVERED, W_LATER, W_READ, W_SENT, audit_causes
-from shibuya.engine.conversation import ConvState
+from shibuya.society.conversation import ConvState
 from shibuya.foundation.ports.decision import DecisionContext
 from shibuya.foundation.journal.log import Event, LlmCall, Process
 from shibuya.foundation.vocab import contact_flags as CT
-from shibuya.engine.tools.groups import GroupList
+from shibuya.society.tools.groups import GroupList
 from shibuya.foundation.ports import percept_contact as CV
 from shibuya.foundation.ports.percept import (
     BodyView, IntentView, Percept, SceneView, SeenObject, SeenPerson, SelfView, Sound, TimeView, WakeView,

@@ -860,7 +860,7 @@ def test_coverage_fails_when_a_new_state_is_not_declared(monkeypatch, tmp_path):
 
     root = tmp_path / "shibuya"
     shutil.copytree(SRC, root, ignore=shutil.ignore_patterns("__pycache__"))
-    fp = root / "engine" / "conversation.py"
+    fp = root / "society" / "conversation.py"
     src = fp.read_text(encoding="utf-8")
     anchor = "        self.n_opened = 0\n"
     assert anchor in src

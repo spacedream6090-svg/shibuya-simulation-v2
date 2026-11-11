@@ -14,7 +14,7 @@ from shibuya.mind.plan import contact_port as P
 from shibuya.engine.contact.layer import (
     W_ANSWER, W_CALL_END, W_DELIVERED, W_DIAL, W_HANG, W_LATER, W_READ, W_RING, W_SENT, audit_causes,
 )
-from shibuya.engine.conversation import ConvState
+from shibuya.society.conversation import ConvState
 from shibuya.foundation.journal.log import LlmCall, Process
 
 from tests.engine.contact._c1 import STEP_NS, Harness, by_kind, choose

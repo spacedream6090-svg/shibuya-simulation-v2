@@ -34,8 +34,8 @@ from typing import Any, Final, Mapping
 
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.log import Event, EventLog, Process
-from shibuya.engine.tools.groups import GroupList
-from shibuya.engine.tools.places import PhoneTable
+from shibuya.society.tools.groups import GroupList
+from shibuya.society.tools.places import PhoneTable
 from shibuya.engine.tools.registry import SIGNAGE_BRIDGE, SIGNBOARD, ToolRegistry, default_registry
 
 __all__ = [

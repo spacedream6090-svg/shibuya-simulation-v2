@@ -14,8 +14,8 @@ import pytest
 
 from shibuya.foundation.decl import bridging as BR
 from shibuya.engine.run import run_day
-from shibuya.engine.tools import places as PL
-from shibuya.engine.tools.places import PhoneTable, osm_phone_of
+from shibuya.society.tools import places as PL
+from shibuya.society.tools.places import PhoneTable, osm_phone_of
 from shibuya.engine.tools.registry import PHONE, PHONE_BRIDGE, default_registry
 
 ROOT = Path(__file__).resolve().parents[3]

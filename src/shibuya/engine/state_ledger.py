@@ -1588,9 +1588,9 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "energy": ("world/body/energy.py", "EnergyLayer"),
     "energy.out_of_area": ("world/body/energy.py", "OutOfAreaMeals"),
     "energy.home_meals": ("world/body/energy.py", "HomeMeals"),
-    "norm_meter": ("engine/norm_meter.py", "GroupNormMeter"),
+    "norm_meter": ("society/norm_meter.py", "GroupNormMeter"),
     "presence": ("engine/presence.py", "PlanExecutor"),
-    "conv": ("engine/conversation.py", "ConversationManager"),
+    "conv": ("society/conversation.py", "ConversationManager"),
     "arbiter": ("engine/arbiter.py", "Arbiter"),
     "detector": ("engine/change_detect.py", "ChangeDetector"),
     "runner": ("world/laws/runner.py", "WorldProcessRunner"),
@@ -1625,7 +1625,7 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     # 第 1 期 1-8 J0: 候補の口の層(状態台帳の行 J0・腕 --decision-port port のランだけ)
     "decision": ("mind/judge/decision/layer.py", "DecisionLayer"),
     # 第 1 期 1-8b: 発話の口(状態台帳の腕の行 S8・S8M・腕 --speech-port on のランだけ)
-    "speech": ("engine/speech/port.py", "SpeechPort"),
+    "speech": ("society/speech/port.py", "SpeechPort"),
     # 第 2 期 2-2 段 11a: 近接の層(状態台帳の行 PX・腕 --proximity distance のランだけ)
     "proximity": ("world/model/proximity.py", "ProximityLayer"),
     # 第 3 期 3-3: 申込書の持ち主(状態台帳の行 X・申込書を渡したランだけ)
@@ -1647,9 +1647,9 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "contact.dev": ("world/things/device.py", "Devices"),
     "contact.attn": ("mind/plan/contact_attention.py", "Attention"),
     "contact.mail": ("engine/contact/deliver.py", "Mailbox"),
-    "contact.chats": ("engine/conversation.py", "ConversationManager"),
-    "contact.calls": ("engine/conversation.py", "ConversationManager"),
-    "contact.speech": ("engine/speech/port.py", "SpeechPort"),
+    "contact.chats": ("society/conversation.py", "ConversationManager"),
+    "contact.calls": ("society/conversation.py", "ConversationManager"),
+    "contact.speech": ("society/speech/port.py", "SpeechPort"),
     "contact.book": ("engine/contact/book.py", "ContactBook"),  # 〔C2〕本人の行動で動く帳(行 CT1B)
     "contact.habit": ("mind/plan/contact_habit.py", "HabitBook"),  # 〔C2〕習慣の表(行 CT1H)
     # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定(状態台帳の腕の行 CA2*・腕 --calendar-2 arm のランだけ)と子の持ち主

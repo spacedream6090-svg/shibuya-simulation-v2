@@ -11,7 +11,7 @@ import dataclasses
 import pytest
 
 from shibuya.foundation.journal.log import EventLog
-from shibuya.engine.speech import port as P
+from shibuya.society.speech import port as P
 
 from tests.engine.speech._s8b import run_small
 

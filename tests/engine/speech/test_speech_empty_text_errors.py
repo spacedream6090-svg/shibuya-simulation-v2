@@ -14,8 +14,8 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.journal.log import EventLog
-from shibuya.engine.speech import layer as SPL
-from shibuya.engine.speech import port as P
+from shibuya.society.speech import layer as SPL
+from shibuya.society.speech import port as P
 
 
 @pytest.mark.parametrize("text", ["", " ", "　\n", None, 5])
@@ -46,7 +46,7 @@ def test_silent_turns_do_not_reach_the_port(comment):
 
 def test_turns_outside_a_session_do_not_reach_the_port():
     """セッションも返事待ちの招待も無い番は口を通さない(``no_session``)。"""
-    from shibuya.engine.conversation import ConversationManager
+    from shibuya.society.conversation import ConversationManager
 
     log = EventLog()
     port = P.SpeechPort(events=log)
@@ -58,7 +58,7 @@ def test_turns_outside_a_session_do_not_reach_the_port():
 
 def test_an_invitee_reply_reaches_the_inviter():
     """親の判断 A2: 返事待ちの招待への返事(セッションはまだ無い)は招待した人に届く(``to_inviter``)。空の返事は数えるだけ。"""
-    from shibuya.engine.conversation import ConversationManager
+    from shibuya.society.conversation import ConversationManager
 
     conv = ConversationManager(1)
     assert conv.register_pending(3, 1, 9, 0, same_cell=True)

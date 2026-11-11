@@ -342,7 +342,7 @@ def _q(x: Any) -> dict[str, float]:
 def cmd_one(args: argparse.Namespace) -> int:
     from shibuya import cli
     from shibuya.agents.state import AgentKind
-    from shibuya.engine import conversation as CV
+    from shibuya.society import conversation as CV
     from shibuya.mind.memory import memory as MEM
     from shibuya.engine import relations as RL
 

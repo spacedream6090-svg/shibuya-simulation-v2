@@ -18,7 +18,7 @@ from pathlib import Path
 from tests.engine.ast_writers import UNKNOWN, scan_writes
 
 SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya"
-PORT = "engine/speech/port.py"
+PORT = "society/speech/port.py"
 #: 〔1-3 の (1) の直し〕口の目印 → 記録の id の診断の表(S8E)と渡した発話の控え(S8M)も同じく口だけが書く。
 COLS = frozenset({"inbox", "meter", "_last_input", "_mark_event_of", "_heard_taken"})
 #: 口の中だけで書いてよい(持ち主のメソッド)。
@@ -108,6 +108,6 @@ def test_negative_control_planted_writes_are_found():
         "    port._last_input.pop(a, None)\n"
         "    del port.inbox[a]\n"
     )
-    bad = _violations("engine/speech/layer.py", planted)
+    bad = _violations("society/speech/layer.py", planted)
     assert {int(b.split(":")[1].split(" ")[0]) for b in bad} == {2, 3, 4, 5, 6}, bad
-    assert _violations("engine/speech/layer.py", "def g(port):\n    return port.observed()\n") == []
+    assert _violations("society/speech/layer.py", "def g(port):\n    return port.observed()\n") == []

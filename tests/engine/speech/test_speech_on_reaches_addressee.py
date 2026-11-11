@@ -23,7 +23,7 @@ import pytest
 
 from shibuya.agents.state import WakeCondition
 from shibuya.foundation.journal.log import EventLog, LlmCall
-from shibuya.engine.speech import port as P
+from shibuya.society.speech import port as P
 from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE
 from shibuya.llm.mock import MOCK_UTTERANCE
 from shibuya.perception import renderer as R
@@ -374,7 +374,7 @@ def test_the_classical_policy_speaks_through_the_same_port():
 
     import numpy as np
 
-    from shibuya.engine.speech import layer as SPL
+    from shibuya.society.speech import layer as SPL
     from shibuya.llm import LLMRequest
     from shibuya.act.intake.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
 

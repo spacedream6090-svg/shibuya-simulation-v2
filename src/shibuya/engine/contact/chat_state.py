@@ -29,7 +29,7 @@ from __future__ import annotations
 from typing import Any, Final, Sequence
 
 from shibuya.foundation.arms.contact import LEDGER_ARM
-from shibuya.engine.conversation import CLOSE_REASONS, SILENCE_TICKS, ConversationManager, ConvState, Session
+from shibuya.society.conversation import CLOSE_REASONS, SILENCE_TICKS, ConversationManager, ConvState, Session
 
 __all__ = ["CHAT_SILENCE_STEPS", "CHAT_MAX_BLOCKS", "ChatBook", "pair_key", "group_key"]
 

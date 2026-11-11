@@ -50,7 +50,7 @@ markers = [
 ]
 filterwarnings = ["error::DeprecationWarning:shibuya.*"]
 
-# ---- 層契約(段 4 の段 mind の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage mind` が作る。手で直さない)----
+# ---- 層契約(段 4 の段 society の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage society` が作る。手で直さない)----
 [tool.importlinter]
 root_package = "shibuya"
 include_external_packages = false
@@ -97,7 +97,7 @@ name = "〔段 4 の途中の決まり〕1 層(§1-2 の順。下から上と、
 type = "layers"
 layers = [
   "shibuya.world.laws",
-  "shibuya.mind | shibuya.act",
+  "shibuya.mind | shibuya.act | shibuya.society",
   "shibuya.world.body",
   "shibuya.world.model | shibuya.world.things | shibuya.economy",
   "shibuya.world.facts | shibuya.world.ledger",
@@ -112,8 +112,6 @@ ignore_imports = [
   "shibuya.engine.resolve -> shibuya.engine.resume",
   "shibuya.engine.resolve -> shibuya.engine.state_hashes",
   "shibuya.engine.resolve -> shibuya.engine.state_ledger",
-  "shibuya.engine.speech.layer -> shibuya.llm.mock",
-  "shibuya.engine.speech.layer -> shibuya.mind.memory.wom",
   "shibuya.llm -> shibuya.llm.fleet",
   "shibuya.mind.judge.classical -> shibuya.llm.mock",
   "shibuya.mind.judge.decision.layer -> shibuya.engine.commit",
@@ -124,6 +122,8 @@ ignore_imports = [
   "shibuya.mind.memory.store_memory -> shibuya.engine.resolve",
   "shibuya.mind.memory.wom -> shibuya.engine.poi_target",
   "shibuya.mind.plan.contact_port -> shibuya.llm.mock",
+  "shibuya.society.speech.layer -> shibuya.llm.mock",
+  "shibuya.society.speech.layer -> shibuya.mind.memory.wom",
   "shibuya.world.body.rules -> shibuya.engine.change_detect",
   "shibuya.world.model.geometry -> shibuya.engine.change_detect",
 ]
@@ -138,6 +138,7 @@ forbidden_modules = [
   "shibuya.world.laws",
   "shibuya.mind",
   "shibuya.act",
+  "shibuya.society",
   "shibuya.world.body",
   "shibuya.world.model",
   "shibuya.world.things",
@@ -156,6 +157,7 @@ source_modules = [
 forbidden_modules = [
   "shibuya.world.laws",
   "shibuya.act",
+  "shibuya.society",
   "shibuya.world.body",
   "shibuya.world.model",
   "shibuya.world.things",
@@ -209,11 +211,28 @@ forbidden_modules = [
   "shibuya.world.laws",
   "shibuya.mind",
   "shibuya.act",
+  "shibuya.society",
   "shibuya.world.body",
   "shibuya.world.model",
   "shibuya.world.things",
   "shibuya.world.ledger",
   "shibuya.build",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕7 society は act・mind・runtime・world.laws・interim_bundles を読まない"
+type = "forbidden"
+source_modules = [
+  "shibuya.society",
+]
+forbidden_modules = [
+  "shibuya.act",
+  "shibuya.mind",
+  "shibuya.world.laws",
+]
+ignore_imports = [
+  "shibuya.society.speech.layer -> shibuya.llm.mock",
+  "shibuya.society.speech.layer -> shibuya.mind.memory.wom",
 ]
 
 [[tool.importlinter.contracts]]
@@ -223,6 +242,7 @@ source_modules = [
   "shibuya.world.laws",
   "shibuya.mind",
   "shibuya.act",
+  "shibuya.society",
   "shibuya.world.body",
   "shibuya.world.model",
   "shibuya.world.things",

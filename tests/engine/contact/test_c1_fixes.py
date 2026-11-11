@@ -28,7 +28,7 @@ from shibuya.world.things import device as _DEVICE
 from shibuya.engine.contact import layer as LY
 from shibuya.mind.plan import contact_port as P
 from shibuya.engine.contact.layer import W_LOOK, W_READ, audit_causes
-from shibuya.engine.conversation import ConvState
+from shibuya.society.conversation import ConvState
 from shibuya.mind.judge.decision import layer as DCL
 from shibuya.mind.judge.decision import ports as DPS
 from shibuya.foundation.ports.decision import DecisionContext
@@ -36,7 +36,7 @@ from shibuya.foundation.journal.log import LlmCall
 from shibuya.engine.run import run_day
 from shibuya.engine.systems import table as TB
 from shibuya.engine.tools import record as TR
-from shibuya.engine.tools.groups import GroupList
+from shibuya.society.tools.groups import GroupList
 
 from tests.engine.contact._c1 import KW, ROOT, STEP_NS, Harness, by_kind, c1, choose
 

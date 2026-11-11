@@ -67,7 +67,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_group_list_is_read_only`(関数)
   - `test_rows_equal_households_plus_establishments_on_the_full_population`(関数)
   - `test_rows_on_the_5000_sample`(関数)
-- import している内部モジュール: `shibuya.engine.tools.groups`・`shibuya.world.facts.population_reader`
+- import している内部モジュール: `shibuya.society.tools.groups`・`shibuya.world.facts.population_reader`
 
 ## [test_c0_init_recall.py](../../../../../../../tests/engine/tools/test_c0_init_recall.py)
 
@@ -75,7 +75,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
 
 - 公開の関数とクラス
   - `test_init_cannot_be_called_again`(関数)
-- import している内部モジュール: `shibuya.engine.tools.groups`・`shibuya.engine.tools.places`・`shibuya.engine.tools.registry`
+- import している内部モジュール: `shibuya.engine.tools.registry`・`shibuya.society.tools.groups`・`shibuya.society.tools.places`
 
 ## [test_c0_phone_table_empty_and_declared.py](../../../../../../../tests/engine/tools/test_c0_phone_table_empty_and_declared.py)
 
@@ -88,7 +88,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_recorded_count_is_reproduced_with_the_same_rule`(関数)
   - `test_the_table_is_empty_and_answers_none`(関数)
   - `test_the_table_is_read_only_after_construction`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.tools.places`・`shibuya.engine.tools.registry`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.decl.ledger_paths`・`tests/_places.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.tools.registry`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.decl.ledger_paths`・`shibuya.society.tools.places`・`tests/_places.py`
 - 決定の ID: 10-13b/§3・11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・第 334
 
 ## [test_c0_signboard_mark_invariance.py](../../../../../../../tests/engine/tools/test_c0_signboard_mark_invariance.py)

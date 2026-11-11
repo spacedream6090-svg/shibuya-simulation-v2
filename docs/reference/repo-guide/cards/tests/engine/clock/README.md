@@ -42,7 +42,7 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_think_time_is_not_added_to_the_gap`(関数)
   - `test_two_days_and_resume_with_mora_match_the_straight_default`(関数): 〔検収 L4〕会話の番のある構成(合成の世界・語彙 v1・150 体)で 2 日と日の境目・2 日目の途中からの再開=通し。
   - `test_within_speaker_jitter_has_mean_one_and_cv_042_and_is_keyed_by_the_event`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.llm_bridge`・`shibuya.engine.resume`・`shibuya.engine.speech.port`・`shibuya.engine.speech_clock`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.queues.batching`・`shibuya.foundation.time_consts`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.llm_bridge`・`shibuya.engine.resume`・`shibuya.engine.speech_clock`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.queues.batching`・`shibuya.foundation.time_consts`・`shibuya.society.speech.port`
 - 環境変数: `os.environ` をまるごと使う
 - 決定の ID: R-73・R-111
 

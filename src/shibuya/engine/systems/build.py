@@ -58,7 +58,7 @@ from shibuya.mind.judge.classical import check_classical_social
 from shibuya.mind.judge.classical import check_meal_gate
 from shibuya.mind.judge.classical import check_policy
 from shibuya.mind.judge.classical import load_activity_prior
-from shibuya.engine.conversation import ConversationManager
+from shibuya.society.conversation import ConversationManager
 from shibuya.world.body.model import BodyModel
 from shibuya.world.body.energy import EnergyLayer
 from shibuya.world.body.energy import EnergyModel
@@ -316,7 +316,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     total_ticks = int(ticks) if sim_days == 1 else sim_days * tpd
     # ---- 10d: 再開の読み込み(世界を触る前に見出しを検査する)・止める時刻・ラン ID ----
     _fp = RS.fingerprint(_call_args)
-    from shibuya.engine.speech import layer as _SPEECH
+    from shibuya.society.speech import layer as _SPEECH
 
     if _SPEECH.arm() == _SPEECH.ARM_ON:
         # 第 1 期 1-8b: 発話の口の腕は結果を変える(相手の入力に発話が載る)=on のときだけ設定の指紋に足す(既定は今の指紋)
@@ -1309,7 +1309,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     per_action_total: dict[int, int] = {}
     # 第308 D-107 (a): 群・規範の計器(**読むだけ**=状態・乱数・テープに触れない)
     from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE as _AWBC
-    from shibuya.engine.norm_meter import GroupNormMeter, role_code_table
+    from shibuya.society.norm_meter import GroupNormMeter, role_code_table
 
     norm_meter = (GroupNormMeter(agents, world, role_codes=role_code_table(vocab_version),
                                  code_words=_AWBC, tick_seconds=int(tick_seconds),

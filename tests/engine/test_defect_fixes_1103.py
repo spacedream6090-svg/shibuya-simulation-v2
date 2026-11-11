@@ -18,7 +18,7 @@ from shibuya.agents.state import Activity, AgentState, ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import defect_fixes_1103 as DF
 from shibuya.engine import resolve as R
-from shibuya.engine.conversation import ConversationManager
+from shibuya.society.conversation import ConversationManager
 from shibuya.world.laws.crowd import CrowdProcess
 from shibuya.world.laws.rail import RailProcess
 from shibuya.world.model.state import World
@@ -404,7 +404,7 @@ def _waiting_inviter(activity):
 
 def test_an_expired_invite_keeps_the_inviters_new_activity():
     """返事待ちの間に歩き出した招待側(MOVING)は、期限切れの戻しで MOVING のまま(〔第346〕系の旧道=IDLE は消した)。"""
-    from shibuya.engine.conversation import PENDING_INVITE_TTL_TICKS
+    from shibuya.society.conversation import PENDING_INVITE_TTL_TICKS
     from shibuya.engine.systems.talk import sys_conversation
 
     agents, conv = _waiting_inviter(Activity.MOVING)
@@ -418,7 +418,7 @@ def test_an_expired_invite_keeps_the_inviters_new_activity():
 
 def test_an_expired_invite_still_releases_a_waiting_conversing_inviter():
     """返事を待って CONVERSING のままの招待側は IDLE に戻る(戻しの意図そのもの)。"""
-    from shibuya.engine.conversation import PENDING_INVITE_TTL_TICKS
+    from shibuya.society.conversation import PENDING_INVITE_TTL_TICKS
     from shibuya.engine.systems.talk import sys_conversation
 
     agents, conv = _waiting_inviter(Activity.CONVERSING)

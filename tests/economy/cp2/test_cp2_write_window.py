@@ -128,7 +128,7 @@ def test_negative_window_and_balance_write():
     # ops.py でも transfer の外なら落ちる
     assert _outside(window_refs("def helper(led):\n    with led._unlocked():\n        pass\n", "economy/ops.py"))
     # 自分の _open(self)は窓の参照ではない(会話の管理の _open など)
-    assert window_refs("class C:\n    def g(self):\n        return self._open()\n", "engine/conversation.py") == []
+    assert window_refs("class C:\n    def g(self):\n        return self._open()\n", "society/conversation.py") == []
 
 
 def test_negative_setattr_and_named_writes():

@@ -21,10 +21,10 @@ from shibuya.engine.contact.layer import W_DELIVERED, W_READ, W_SENT
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.journal.log import EventLog, LlmCall
 from shibuya.engine.run import run_day
-from shibuya.engine.speech.port import WHAT as W_SPEECH
-from shibuya.engine.speech.port import SpeechContext, Utterance
+from shibuya.society.speech.port import WHAT as W_SPEECH
+from shibuya.society.speech.port import SpeechContext, Utterance
 from shibuya.engine.tools import record as TR
-from shibuya.engine.tools.groups import GroupList
+from shibuya.society.tools.groups import GroupList
 
 from tests.engine.contact._c1 import KW, STEP_NS, c1
 

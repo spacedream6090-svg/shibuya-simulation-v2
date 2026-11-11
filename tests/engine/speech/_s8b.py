@@ -8,7 +8,7 @@ from typing import Any, Iterator
 
 import pyarrow.parquet as pq
 
-from shibuya.engine.speech import layer as SPL
+from shibuya.society.speech import layer as SPL
 
 #: 合成の世界(data 無し)の小さなラン(会話が起きる=関係 on・会話の相手が見える 9 セル)。
 SMALL: dict[str, Any] = dict(n_agents=200, seed=1, n_cells=9, ticks=720, budget=80.0, sleep_suppression=False,

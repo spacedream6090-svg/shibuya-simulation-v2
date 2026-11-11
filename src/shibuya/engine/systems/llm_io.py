@@ -59,7 +59,7 @@ def utter(b: Any, agent_id: int, t_now: int, action: Any, comment: str, reason: 
     if mem_layer is not None:
         mem_layer.note_utterance(agents, int(agent_id), int(t_now), s, comment, reason, call_id=call_id)
     if speech is not None:
-        from shibuya.engine.speech.layer import speak_turn
+        from shibuya.society.speech.layer import speak_turn
 
         speak_turn(b, speech, int(agent_id), int(t_now), s, comment, reason, parse, call_id, partner_before)
         return

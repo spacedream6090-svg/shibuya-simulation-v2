@@ -77,7 +77,7 @@ def synthetic_roster(n: int) -> R3.Roster:
 def roster_fixture(monkeypatch: Any) -> None:
     """合成の世界(母集団が無い=W20 と雇用の行が無い)に、合成の雇い主の口の表とグループの一覧(家族 2 人・職場 10 人)を入れる。"""
     from shibuya.engine.tools import record as TR
-    from shibuya.engine.tools.groups import GroupList
+    from shibuya.society.tools.groups import GroupList
 
     monkeypatch.setattr(R3, "roster_for_run", lambda table, pop, runner, n: synthetic_roster(int(n)))
     real = TR.build_fixture

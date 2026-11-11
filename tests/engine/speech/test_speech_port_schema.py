@@ -18,8 +18,8 @@ import pytest
 from shibuya.engine import state_ledger as SL
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.log import EventLog
-from shibuya.engine.speech import layer as SPL
-from shibuya.engine.speech import port as P
+from shibuya.society.speech import layer as SPL
+from shibuya.society.speech import port as P
 from shibuya.foundation.vocab import actions as C
 from shibuya.perception import renderer as R
 
@@ -175,7 +175,7 @@ def test_ledger_arm_rows_and_arm_items():
     port = P.SpeechPort()
     assert SL.arm_items({"speech": port}, behavior=True) == (("S8", "speech.inbox"),)
     assert SL.arm_items({"speech": port}, behavior=False) == (("S8", "speech.inbox"), ("S8E", "speech._mark_event_of"))
-    assert SL.OWNER_CLASSES["speech"] == ("engine/speech/port.py", "SpeechPort")
+    assert SL.OWNER_CLASSES["speech"] == ("society/speech/port.py", "SpeechPort")
     # 検収 低7: 持ち主の腕の名(LEDGER_ARM)を行の arm と照合する=別の腕の物を同じ根の名に挿すと落ちる
     assert P.SpeechPort.LEDGER_ARM == s8.arm
 

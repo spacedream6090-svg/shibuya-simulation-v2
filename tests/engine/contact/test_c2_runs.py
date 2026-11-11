@@ -21,7 +21,7 @@ from shibuya.engine.contact import tools as TL
 from shibuya.foundation.journal import log as EV
 from shibuya.engine.run import run_day
 from shibuya.engine.tools import record as TR
-from shibuya.engine.tools.groups import GroupList
+from shibuya.society.tools.groups import GroupList
 
 from tests.engine.contact._c1 import KW, STEP_NS, by_kind, c1, choose
 from tests.engine.contact._c2 import Harness2, habit_arm, loud

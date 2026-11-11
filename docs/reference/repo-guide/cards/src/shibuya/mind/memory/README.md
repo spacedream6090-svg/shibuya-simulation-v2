@@ -206,7 +206,7 @@ engine.wom — **会話からの店の抽出**(D-120 7b・N3 (a)・口コミ=伝
   - `hear`(関数): 抽出した店を聞き手(宛先)の店の行へ(出どころ=伝聞・精度 +重み × 1/σ²)→ 書いた行の数。
   - `normalize_v0`(関数): 正規化 v0: NFKC(全角/半角)・英字は小文字・空白を全部消す。
 - import している内部モジュール: `shibuya.engine.poi_target`・`shibuya.mind.memory.store_memory`
-- 呼び手: `shibuya.engine.run`・`shibuya.engine.speech.layer`・`shibuya.engine.systems.build`・`shibuya.engine.systems.llm_io`
+- 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.llm_io`・`shibuya.society.speech.layer`
 - 読む試験: `tests/engine/speech/test_wom_from_utterance_roundtrip.py`・`tests/engine/test_wom.py`
 - 状態台帳の行
   - 持ち主 `wom`(`WomExtractor`)

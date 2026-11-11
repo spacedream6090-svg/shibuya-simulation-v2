@@ -35,7 +35,7 @@ from shibuya.agents.state import (
 )
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.conversation import ConversationManager
+from shibuya.society.conversation import ConversationManager
 from shibuya.world.model.geometry import EdgeGeometry
 from shibuya.engine.run import run_day
 from shibuya.foundation.vocab.actions import TargetKind, parse_target, resolve_landmark

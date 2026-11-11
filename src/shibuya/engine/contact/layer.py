@@ -99,13 +99,13 @@ from shibuya.engine.contact import tools as _TL
 from shibuya.engine.contact.book import ContactBook
 from shibuya.engine.contact.calls import CallManager, CallSpeechPort
 from shibuya.engine.contact.chat_state import CHAT_SILENCE_STEPS, ChatBook, group_key, pair_key
-from shibuya.engine.conversation import ConvState
+from shibuya.society.conversation import ConvState
 from shibuya.foundation.ports.decision import SOURCE_AFFORDANCE, SOURCE_EXPERIENCE, Candidate, DecisionContext
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.log import Event, LlmCall, Process
-from shibuya.engine.speech.port import SpeechContext, Utterance
+from shibuya.society.speech.port import SpeechContext, Utterance
 from shibuya.foundation.vocab import contact_flags as _CT
-from shibuya.engine.tools.groups import GROUP_KINDS
+from shibuya.society.tools.groups import GROUP_KINDS
 from shibuya.foundation.ports.percept_contact import DeviceView
 
 __all__ = [

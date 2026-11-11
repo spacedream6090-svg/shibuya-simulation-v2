@@ -130,7 +130,7 @@ from shibuya.llm.mock import MockLLM
 from shibuya.foundation.text.channels import BudgetMode
 from shibuya.foundation.ports.percept import percept_manifest as _percept_manifest
 from shibuya.mind.judge.decision import layer as _DECISION
-from shibuya.engine.speech import layer as _SPEECH
+from shibuya.society.speech import layer as _SPEECH
 from shibuya.world.model import proximity as _PROX
 from shibuya.world.model.space import nav1 as _NAV1
 from shibuya.engine import calendar_shadow as _CALENDAR_SHADOW

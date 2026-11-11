@@ -20,7 +20,7 @@ import pytest
 from shibuya.agents.state import AgentState, ResultCode, WakeCondition
 from shibuya.mind.memory import memory as M
 from shibuya.engine import relations as RL
-from shibuya.engine.conversation import ConversationManager
+from shibuya.society.conversation import ConversationManager
 
 SRC = Path("src/shibuya")
 OK = int(ResultCode.OK)

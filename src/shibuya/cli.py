@@ -495,7 +495,7 @@ def run(
         from shibuya.foundation.arms import calendar2 as _calendar2_arm  # 〔第 6 期 6-2 カレンダー 2〕(arm は結果を変える=腕)
         from shibuya.foundation.arms import calendar3 as _calendar3_arm  # 〔第 6 期 6-2 カレンダー 3〕(arm は結果を変える=腕)
         from shibuya.foundation.arms import duties as _duties_arm  # 〔第 6 期 6-6 ② 第 1 部〕店の仕事(arm は結果を変える=腕)
-        from shibuya.engine.speech import layer as _speech_layer
+        from shibuya.society.speech import layer as _speech_layer
 
         # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
         # 〔第 3 期 3-3〕申込書を渡したランは反実仮想(試験 > 反実仮想 > 腕 > 再現)
@@ -1594,7 +1594,7 @@ def main(argv: list[str] | None = None) -> int:
 
         _decision_layer.set_arm(str(args.decision_port))
     if args.speech_port is not None:  # 第 1 期 1-8b: 発話の口の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine.speech import layer as _speech_layer
+        from shibuya.society.speech import layer as _speech_layer
 
         _speech_layer.set_arm(str(args.speech_port))
     if args.proximity_d is not None:

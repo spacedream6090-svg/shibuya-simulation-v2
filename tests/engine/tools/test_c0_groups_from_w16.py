@@ -12,7 +12,7 @@ import pyarrow.parquet as pq
 import pytest
 
 from shibuya.world.facts.population_reader import load_population, sample_population
-from shibuya.engine.tools.groups import FAMILY, WORKPLACE, GroupList
+from shibuya.society.tools.groups import FAMILY, WORKPLACE, GroupList
 
 WORLD = Path("data/world/v2")
 w16 = pytest.mark.requires_data("world_v2:w16_population.parquet", "world_v2:w16_households.parquet",

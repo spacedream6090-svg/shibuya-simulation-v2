@@ -182,7 +182,7 @@ def test_static_scan_catches_aliases_and_keyword_domains():
 
 def test_dynamic_domains_match_the_defaults():
     """検収 S3-1 の 4: ``self.domain`` の手書きの対応を、実物の既定の値と突き合わせる。"""
-    from shibuya.engine.conversation import ConversationManager
+    from shibuya.society.conversation import ConversationManager
     from shibuya.llm import mock as MOCK
     from shibuya.llm.mock import MockLLM
 

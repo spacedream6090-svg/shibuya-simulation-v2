@@ -614,7 +614,7 @@ DIAG_EXITS: tuple[DiagExit, ...] = (
              "廃棄の見込みの報告(RunResult.waste_tonnes_per_day)"),
     DiagExit("world/laws/runner.py", "WorldProcessRunner.compliance", "法令遵守率の報告(RunResult)"),
     DiagExit("engine/llm_bridge.py", "PerceptionRendererAdapter.counters", "描画の計数の要約(報告)"),
-    DiagExit("engine/norm_meter.py", "GroupNormMeter.summary", "集団規範の計器の要約(報告)"),
+    DiagExit("society/norm_meter.py", "GroupNormMeter.summary", "集団規範の計器の要約(報告)"),
     DiagExit("engine/presence.py", "PlanExecutor.counters", "計画実行層の計数の要約(報告)"),
     # 第 1 期 1-9: 基本操作 transfer は台帳(持ち主 economy/ledger.py:Ledger)の中の旧 _apply_cash・_record を移したもの。
     # 読む no/diag の属性(流れの表・生ログの位置と容量・最後に動いた日・計器)は移動の記録と計器にしか使わず、

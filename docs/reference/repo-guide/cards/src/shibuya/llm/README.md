@@ -64,7 +64,7 @@ llm.mock — ネットワーク不要の決定論クライアント(MockLLM)と�
   - `MockLLM`(クラス): 決定論の 2 行形を返す mock クライアント(ネットワーク・GPU 不要)。
   - `TapeLLM`(クラス): 録画テープから答えるクライアント。**テープ外は例外**(黙って実LLMへ落とさない)。
 - import している内部モジュール: `shibuya.foundation.rng`・`shibuya.foundation.types`・`shibuya.foundation.vocab.actions`・`shibuya.llm`
-- 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.experiment.switch`・`shibuya.engine.run`・`shibuya.engine.speech.layer`・`shibuya.engine.systems.build`・`shibuya.llm`・`shibuya.mind.judge.classical`・`shibuya.mind.plan.contact_port`・`tools/c6/metric_b_rerun.py`
+- 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.experiment.switch`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.llm`・`shibuya.mind.judge.classical`・`shibuya.mind.plan.contact_port`・`shibuya.society.speech.layer`・`tools/c6/metric_b_rerun.py`
 - 読む試験: `tests/c6/test_t5_order_bias.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/decision/test_j0_port_schema.py`・`tests/engine/decision/test_j0_shuffle_invariance.py`・`tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/speech/test_speech_choice_utterance.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/speech/test_wom_from_utterance_roundtrip.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_mock_v3.py`
 - 読む試験(道筋で): `tests/engine/bridging/test_bridging_ledger.py`・`tests/test_places_guard.py`
 - 決定の ID: D-116・D-119・第 277

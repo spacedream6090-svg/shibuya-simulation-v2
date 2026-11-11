@@ -41,7 +41,7 @@ def ca2(*, on: bool = True, contact: bool = False) -> Iterator[None]:
 def groups_fixture(monkeypatch: Any) -> None:
     """合成の世界(母集団が無い=グループの一覧が無い)に、体 2 人ずつの家族と 10 人ずつの職場を入れる(宛先を作る)。"""
     from shibuya.engine.tools import record as TR
-    from shibuya.engine.tools.groups import GroupList
+    from shibuya.society.tools.groups import GroupList
 
     real = TR.build_fixture
 

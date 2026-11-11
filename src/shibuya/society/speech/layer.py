@@ -27,7 +27,7 @@ import os
 from typing import Any, Callable, Final
 
 from shibuya.foundation.time_consts import NS_PER_SECOND
-from shibuya.engine.speech.port import (
+from shibuya.society.speech.port import (
     HEARD_MAX_PER_ADDRESSEE,
     HEARD_TTL_STEPS,
     METER_KEYS,

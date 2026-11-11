@@ -13,7 +13,7 @@ import pytest
 
 from shibuya.agents.state import REFRACTORY_MINUTES, WakeCondition
 from shibuya.foundation.types import EventClass
-from shibuya.engine.conversation import (
+from shibuya.society.conversation import (
     BACKCHANNELS,
     CLOSING_UTTERANCE,
     D_TALK_METERS,
@@ -87,7 +87,7 @@ def test_the_dead_accept_lottery_is_removed():
     """〔第346 死んだ道の削除〕応答率 0.8 の抽選(``answered=None`` のときだけ引いた)は消した=返事は必ず渡す。"""
     import inspect
 
-    from shibuya.engine import conversation as CV
+    from shibuya.society import conversation as CV
 
     m = ConversationManager(SEED)
     for name in ("_accepts", "accept_probability"):
@@ -190,7 +190,7 @@ def test_hard_stop_at_max_turns_three_calls_per_agent():
 
 def test_the_dead_important_extra_calls_are_removed():
     """〔第346 死んだ道の削除〕重要度上位の +2 呼(組み立ては対象を渡さなかった)は消した=全員 ``max_turns``。"""
-    from shibuya.engine import conversation as CV
+    from shibuya.society import conversation as CV
 
     assert not hasattr(CV, "IMPORTANT_EXTRA_TURNS")
     with pytest.raises(TypeError):

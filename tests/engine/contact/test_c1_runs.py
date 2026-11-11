@@ -15,7 +15,7 @@ from shibuya.engine import state_ledger as SL
 from shibuya.engine.contact import layer as LY
 from shibuya.engine.run import run_day
 from shibuya.engine.tools import record as TR
-from shibuya.engine.tools.groups import GroupList
+from shibuya.society.tools.groups import GroupList
 
 from tests.engine.contact._c1 import KW, STEP_NS, c1
 

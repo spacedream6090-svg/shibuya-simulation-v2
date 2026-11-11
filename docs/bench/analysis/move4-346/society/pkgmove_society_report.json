@@ -1,0 +1,300 @@
+{
+ "stages": [
+  "society"
+ ],
+ "rows_applied": 8,
+ "rows_applied_by_kind": {
+  "move": 8
+ },
+ "rows_already": [],
+ "refused_held": [],
+ "file_moves": 6,
+ "created_heads": [
+  "src/shibuya/society/__init__.py",
+  "src/shibuya/society/speech/__init__.py",
+  "src/shibuya/society/tools/__init__.py"
+ ],
+ "emptied_heads": [
+  "src/shibuya/engine/tools/__init__.py"
+ ],
+ "deleted": [
+  "src/shibuya/engine/speech/__init__.py"
+ ],
+ "import_statements": {
+  "src": 19,
+  "build": 0,
+  "tests": 53,
+  "tools": 0,
+  "docs": 1
+ },
+ "import_files": {
+  "src": 12,
+  "build": 0,
+  "tests": 36,
+  "tools": 0
+ },
+ "import_via_head": {
+  "src": 0,
+  "build": 0,
+  "tests": 0,
+  "tools": 0
+ },
+ "import_split_statements": {
+  "src": 0,
+  "build": 0,
+  "tests": 0,
+  "tools": 0
+ },
+ "import_via_package": {
+  "src": 4,
+  "build": 0,
+  "tests": 16,
+  "tools": 0
+ },
+ "plan_estimate_stage4": {
+  "statements": {
+   "src": 855,
+   "build": 38,
+   "tests": 1378,
+   "tools": 52
+  },
+  "files": {
+   "src": 179,
+   "build": 30,
+   "tests": 349,
+   "tools": 28
+  },
+  "via_head": {
+   "src": 10,
+   "build": 14,
+   "tests": 40,
+   "tools": 3
+  }
+ },
+ "path_strings": {
+  "src_table": 7,
+  "slash": 5,
+  "chain": 1
+ },
+ "path_string_sites": 7,
+ "path_string_sites_by_file": [
+  "src/shibuya/engine/state_ledger.py::OWNER_CLASSES",
+  "src/shibuya/engine/state_ledger_ast.py::DIAG_EXITS",
+  "tests/economy/cp2/test_cp2_write_window.py::test_negative_window_and_balance_write",
+  "tests/engine/speech/test_speech_port_schema.py::test_ledger_arm_rows_and_arm_items",
+  "tests/engine/speech/test_speech_writers_ast.py::PORT",
+  "tests/engine/speech/test_speech_writers_ast.py::test_negative_control_planted_writes_are_found",
+  "tests/engine/test_state_ledger_10b.py::test_coverage_fails_when_a_new_state_is_not_declared"
+ ],
+ "dropped_reexports": {},
+ "dropped_all": {},
+ "package_data_keys": [],
+ "ledger_paths_added": 6,
+ "class_id_keys": 12,
+ "class_ids_resorted": true,
+ "changed_files": 56,
+ "untouched_count": {
+  "docs:slash": 1,
+  "src:bare_dotted": 1,
+  "src:dotted": 3,
+  "src:slash": 9,
+  "tests:dotted": 4
+ },
+ "untouched_broad_constants": {
+  "docs": 14,
+  "src": 231,
+  "build": 15,
+  "tests": 281,
+  "tools": 15
+ },
+ "skipped_in_allowlist": [],
+ "bridging_ledger": {
+  "rows_total": 794,
+  "rows_src": 398,
+  "rows_moving": 4,
+  "rows_moving_active": 4
+ },
+ "bridging_ledger_moving": [
+  {
+   "id": "HD-engine.conversation-1af925f4",
+   "declared_in": "src/shibuya/engine/conversation.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/society/conversation.py#heading:1af925f4"
+  },
+  {
+   "id": "BR-DOC-SPEECH-MORA-KANA",
+   "declared_in": "src/shibuya/engine/speech/port.py#docstring:67c85df9",
+   "status": "active",
+   "new": "src/shibuya/society/speech/port.py#docstring:67c85df9"
+  },
+  {
+   "id": "HD-engine.speech.port-6f282ea4",
+   "declared_in": "src/shibuya/engine/speech/port.py#heading:6f282ea4",
+   "status": "active",
+   "new": "src/shibuya/society/speech/port.py#heading:6f282ea4"
+  },
+  {
+   "id": "HD-engine.speech.layer-1af925f4",
+   "declared_in": "src/shibuya/engine/speech/layer.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/society/speech/layer.py#heading:1af925f4"
+  }
+ ],
+ "guards": {
+  "names_frozen": "同じ",
+  "class_ids": "同じ",
+  "shaped_74": "同じ(74 種・前の出てくる数の和 453)",
+  "ledger_paths": "同じ(台帳の道は全部、表を通して今のファイルに届く)",
+  "outside_allowlist": "同じ",
+  "import_names": "同じ(import の文が結ぶ名)",
+  "head_all": "同じ(頭の __all__ は結ばれた名だけ・除いた名 0)",
+  "package_data": "同じ(鍵は木に在る包み・glob が当たる・書き換えた鍵 0)"
+ },
+ "warnings": [],
+ "untouched": [
+  {
+   "file": "docs/bench/analysis/wallbounce-1012/refr20b/tools/measure_refractory.py",
+   "symbol": "GATES_OUTSIDE_TABLE",
+   "kind": "slash",
+   "token": "src/shibuya/engine/conversation.py",
+   "line": 126,
+   "excerpt": "src/shibuya/engine/conversation.py PAIR_INVITE_REFRACTORY_TICKS・SPEAKER_INVITE_REFRACTORY_TICKS"
+  },
+  {
+   "file": "src/shibuya/engine/speech_clock.py",
+   "symbol": "manifest_fields",
+   "kind": "bare_dotted",
+   "token": "engine.speech.port.mora_count",
+   "line": 599,
+   "excerpt": "engine.speech.port.mora_count(仮名の数の近似・漢字 2 拍)"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.engine.conversation.Session",
+   "line": 77,
+   "excerpt": "shibuya.engine.conversation.Session"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.engine.conversation.PendingInvite",
+   "line": 78,
+   "excerpt": "shibuya.engine.conversation.PendingInvite"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.engine.conversation.ConvState",
+   "line": 79,
+   "excerpt": "shibuya.engine.conversation.ConvState"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/speech/port.py",
+   "line": 835,
+   "excerpt": "engine/speech/port.py(SpeechPort.say・take_heard)・perception/renderer.py(perceive・_b6)・engine/systems/llm_io.py(utter)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/speech/port.py",
+   "line": 847,
+   "excerpt": "engine/speech/port.py(meter・take_heard・report_shown・event_ids・take_input_ids)・engine/run.py(manifest の speech_port)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/speech/port.py",
+   "line": 862,
+   "excerpt": "engine/speech/port.py(say・_next_mark・_forget_mark・take_heard)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/conversation.py",
+   "line": 1210,
+   "excerpt": "engine/conversation.py(ConversationManager.step・_close・_terminate・purge_terminal)・engine/contact/chat_state.py(ChatBook."
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/conversation.py",
+   "line": 1222,
+   "excerpt": "engine/conversation.py(ConversationManager)・engine/contact/calls.py(CallManager)・engine/contact/layer.py(_calls_turns・_r"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/speech/port.py",
+   "line": 1234,
+   "excerpt": "engine/speech/port.py(SpeechPort.say・take_heard)・engine/contact/layer.py(_calls_turns)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/conversation.py",
+   "line": 1243,
+   "excerpt": "engine/contact/layer.py(_bump・_hist_add・manifest)・engine/contact/chat_state.py(counts)・engine/conversation.py(counters)・"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/speech/port.py",
+   "line": 1243,
+   "excerpt": "engine/contact/layer.py(_bump・_hist_add・manifest)・engine/contact/chat_state.py(counts)・engine/conversation.py(counters)・"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/speech/port.py",
+   "line": 1285,
+   "excerpt": "engine/contact/layer.py(_issue・issued_keys・model_calls・audit_causes・_send_now・_unread_basis・_drop_read_marks・_calls_turn"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_unknown_classes_and_marks_are_refused",
+   "kind": "dotted",
+   "token": "shibuya.engine.conversation.PendingInvite",
+   "line": 168,
+   "excerpt": "shibuya.engine.conversation.PendingInvite"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_unknown_classes_and_marks_are_refused",
+   "kind": "dotted",
+   "token": "shibuya.engine.conversation.PendingInvite",
+   "line": 170,
+   "excerpt": "shibuya.engine.conversation.PendingInvite"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_unknown_classes_and_marks_are_refused",
+   "kind": "dotted",
+   "token": "shibuya.engine.conversation.PendingInvite",
+   "line": 172,
+   "excerpt": "shibuya.engine.conversation.PendingInvite"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_unknown_classes_and_marks_are_refused",
+   "kind": "dotted",
+   "token": "shibuya.engine.conversation.PendingInvite",
+   "line": 175,
+   "excerpt": "shibuya.engine.conversation.PendingInvite"
+  }
+ ]
+}

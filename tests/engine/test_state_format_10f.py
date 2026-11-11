@@ -43,7 +43,7 @@ def _roundtrip(v):
 
 # ================================================================= 印の往復
 def test_marks_roundtrip_types_order_and_values():
-    from shibuya.engine.conversation import ConvState, PendingInvite, Session
+    from shibuya.society.conversation import ConvState, PendingInvite, Session
     from shibuya.foundation.vocab.actions import Target, TargetKind
 
     od = collections.OrderedDict([(3, "c"), (1, "a"), (2, "b")])

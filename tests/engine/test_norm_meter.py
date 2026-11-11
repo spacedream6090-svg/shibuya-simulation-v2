@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import Activity, AgentKind, AgentState, ResultCode
-from shibuya.engine import norm_meter as NM
+from shibuya.society import norm_meter as NM
 from shibuya.world.model.state import World
 
 
