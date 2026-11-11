@@ -87,7 +87,7 @@ def test_cli_memory_arms_beat_the_environment():
 
 def test_cli_run_kind_counts_the_memory_arms(monkeypatch):
     from shibuya import cli
-    from shibuya.engine import run_kind as RK
+    from shibuya.experiments.port import run_kind as RK
 
     monkeypatch.delenv(RK.PYTEST_ENV, raising=False)  # 試験の中は種類が test になる=外して腕の数え方を見る
     kw = dict(n_agents=30, seed=1, n_cells=9, ticks=60, memory="on", vocab_version="v3")

@@ -420,7 +420,7 @@ W21 段 9「見せ方」(PS7・4-1b の器): 体ごとの人物の説明文を**
   - `render`(関数): 事実の表 → 全員の文(``lang`` の型・``version`` の版)。同じ入力からは同じ文(決定的)。長い版は短い版の文に足す行を
   - `text_groups`(関数): 同じ文の組の番号(``np.unique`` の逆引き=区別できない組の数え・記録に文を写さない)。
   - `with_big_five`(関数): Big Five(TIPI-J)の腕: 体の番号と 5 次元の得点((m, 5)・2〜14 点=川本ほか 2015 の尺度・並びは
-- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_org`・`shibuya.engine.experiment.checks`・`shibuya.foundation.time_consts`
+- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_org`・`shibuya.experiments.port.checks`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.build.pop.w21_build_c`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_pop/test_w21_stage8_9.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`

@@ -42,7 +42,7 @@ import numpy as np
 
 from shibuya.foundation.time_consts import MINUTES_PER_DAY, NS_PER_SECOND
 from shibuya.foundation.ports import experiment_gate as _GATE
-from shibuya.engine.experiment.form import DECISIONS, NOTICE_STAFF, ExperimentForm
+from shibuya.experiments.port.form import DECISIONS, NOTICE_STAFF, ExperimentForm
 
 __all__ = [
     "ApplyRecord", "WorldHandle", "apply", "WHAT_DECISION", "WHAT_NOTICE", "WHO", "ORIGIN_OUTSIDE", "ORIGIN_NATURE",

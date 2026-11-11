@@ -35,7 +35,7 @@ engine.experiment.gate — 実験が世界に入る口(第 1 期 1-3・CP12)。*
 - 公開の関数とクラス
   - `admit`(関数): 実験の条件 ``cond_id`` を原因とする出来事を記録の時計の時刻で 1 行書き、id を返す(CP12 の唯一の口)。
 - import している内部モジュール: `shibuya.foundation.journal.log`・`shibuya.foundation.vocab.events`
-- 呼び手: `shibuya.engine.experiment.apply`・`shibuya.foundation.journal.log`
+- 呼び手: `shibuya.experiments.port.apply`・`shibuya.foundation.journal.log`
 - 読む試験: `tests/engine/decision/test_j0_cause_columns.py`・`tests/engine/events/test_e_cause_three_kinds.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/state/test_class_ids.py`
 - 決定の ID: 10-12/§4-5・R-113
 

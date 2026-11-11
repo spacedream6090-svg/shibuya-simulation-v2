@@ -19,7 +19,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `handle`(関数)
   - `rows`(関数)
   - `synthetic_world`(関数): 合成の世界(``World.synthetic``)+手書きの W7・W13 の世界過程 2 つ(営業時間・天気)と暦と出来事の記録。
-- import している内部モジュール: `shibuya.engine.calendar`・`shibuya.engine.experiment.apply`・`shibuya.engine.experiment.form`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.world.laws.environment`・`shibuya.world.laws.opening`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.engine.calendar`・`shibuya.experiments.port.apply`・`shibuya.experiments.port.form`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.world.laws.environment`・`shibuya.world.laws.opening`・`tests/engine/processes/conftest.py`
 - 読む試験: `tests/engine/experiment/test_cf33b_form_checks.py`・`tests/engine/experiment/test_cf33b_manifest.py`・`tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/experiment/test_x33_ensemble.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/experiment/test_x33_run.py`・`tests/tools/test_skill_gauge.py`
 
 ## [test_cf33b_form_checks.py](../../../../../../../tests/engine/experiment/test_cf33b_form_checks.py)
@@ -35,7 +35,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_optional_fields_do_not_change_old_forms`(関数)
   - `test_start0_check_flags_unexpected_changes_from_the_start`(関数)
   - `test_start0_warns_and_records_but_does_not_refuse`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.experiment.checks`・`shibuya.engine.experiment.form`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.experiments.port.checks`・`shibuya.experiments.port.form`・`tests/engine/experiment/_x33.py`
 
 ## [test_cf33b_manifest.py](../../../../../../../tests/engine/experiment/test_cf33b_manifest.py)
 
@@ -49,7 +49,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_preregistration_has_the_evidence_slot_and_the_warmup_rule`(関数)
   - `test_skill_container_has_raw_scores_next_to_the_skill`(関数)
   - `test_warmup_rule_is_a_registered_rule_not_dates`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.layer`・`shibuya.engine.experiment.warmup`・`shibuya.foundation.manifest.sections`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.experiments.port.ensemble`・`shibuya.experiments.port.layer`・`shibuya.experiments.port.warmup`・`shibuya.foundation.manifest.sections`・`tests/engine/experiment/_x33.py`
 - 決定の ID: R-117
 
 ## [test_cf33b_switch.py](../../../../../../../tests/engine/experiment/test_cf33b_switch.py)
@@ -72,7 +72,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_switch_with_the_classical_policy`(関数)
   - `test_switch_with_the_mock_is_deterministic`(関数)
   - `test_window_head_step`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.experiment.branch`・`shibuya.engine.experiment.switch`・`shibuya.foundation.time_consts`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.runtime.inference.tape`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.experiments.drive.branch`・`shibuya.experiments.drive.switch`・`shibuya.foundation.time_consts`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.runtime.inference.tape`・`tests/engine/experiment/_x33.py`
 
 ## [test_x33_apply.py](../../../../../../../tests/engine/experiment/test_x33_apply.py)
 
@@ -95,7 +95,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_unapplied_is_recorded_and_the_run_continues`(関数)
   - `test_vocabulary_has_the_two_words`(関数)
   - `test_weather_date_swap_and_reapply`(関数)
-- import している内部モジュール: `shibuya.engine.experiment.apply`・`shibuya.engine.experiment.branch`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.vocab.events`・`shibuya.world.laws.environment`・`shibuya.world.laws.opening`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.experiments.drive.branch`・`shibuya.experiments.port.apply`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.vocab.events`・`shibuya.world.laws.environment`・`shibuya.world.laws.opening`・`tests/engine/experiment/_x33.py`
 - 決定の ID: 10-12/§1-1
 
 ## [test_x33_branch.py](../../../../../../../tests/engine/experiment/test_x33_branch.py)
@@ -118,7 +118,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_world_branch_with_staff_5000`(関数): 〔親の判断 M3〕担当の従業者のいる世界(5,000 体=1-5 の担当 2,337 人)で同じ休業の分岐を回し、担当が実行した件数と
   - `test_world_resume_with_the_same_form_equals_straight`(関数): 申込書つきのラン(1 日目の正午から 200 店の休業)を日の境目で止めて同じ申込書で再開すると、通しのランと同じ
   - `world_branch`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.calendar`・`shibuya.engine.experiment.branch`・`shibuya.engine.experiment.form`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.world.assets`・`shibuya.world.laws.opening`・`shibuya.world.model.state`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.calendar`・`shibuya.experiments.drive.branch`・`shibuya.experiments.port.form`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.world.assets`・`shibuya.world.laws.opening`・`shibuya.world.model.state`・`tests/engine/experiment/_x33.py`
 - 決定の ID: R-71
 
 ## [test_x33_ensemble.py](../../../../../../../tests/engine/experiment/test_x33_ensemble.py)
@@ -133,7 +133,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_paired_values_go_to_salt_compare_and_give_a_p`(関数)
   - `test_seal_is_deterministic_and_exposes_only_fingerprints`(関数)
   - `test_skill_score_is_a_container_with_a_formula`(関数)
-- import している内部モジュール: `shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.experiments.port.ensemble`・`shibuya.experiments.port.form`・`tests/engine/experiment/_x33.py`
 
 ## [test_x33_form.py](../../../../../../../tests/engine/experiment/test_x33_form.py)
 
@@ -153,7 +153,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_no_place_or_business_names_in_the_experiment_code`(関数)
   - `test_preregistration_only_for_confirm_and_must_match`(関数)
   - `test_unknown_fields_are_errors`(関数)
-- import している内部モジュール: `shibuya.engine.experiment.apply`・`shibuya.engine.experiment.branch`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.layer`・`shibuya.foundation.ports.experiment_gate`・`tests/_places.py`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.experiments.drive.branch`・`shibuya.experiments.port.apply`・`shibuya.experiments.port.ensemble`・`shibuya.experiments.port.form`・`shibuya.experiments.port.layer`・`shibuya.foundation.ports.experiment_gate`・`tests/_places.py`・`tests/engine/experiment/_x33.py`
 - 決定の ID: 10-12/§4-5
 
 ## [test_x33_run.py](../../../../../../../tests/engine/experiment/test_x33_run.py)
@@ -176,4 +176,4 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_state_header_and_resume_checks`(関数)
   - `test_the_seal_is_enforced_at_the_run_entrance`(関数)
   - `test_undeclared_experiment_write_shows_in_stage_b`(関数): 負の対照: 系 experiment の宣言から X:experiment.* を外すと、段 B が宣言の外の書きとして見つける。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.layer`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.engine.systems.overrides`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.systems.overrides`・`shibuya.experiments.port.ensemble`・`shibuya.experiments.port.layer`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`tests/engine/experiment/_x33.py`

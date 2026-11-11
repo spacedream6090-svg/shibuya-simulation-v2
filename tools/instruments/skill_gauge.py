@@ -53,7 +53,7 @@ REPO = HERE.parent.parent
 if str(REPO / "src") not in sys.path:  # pragma: no cover - 実行時の経路(器の欄はエンジンの側)
     sys.path.insert(0, str(REPO / "src"))
 
-from shibuya.engine.experiment.ensemble import SKILL_BASELINES, skill_score  # noqa: E402
+from shibuya.experiments.port.ensemble import SKILL_BASELINES, skill_score  # noqa: E402
 
 SCHEMA = "shibuya.tools.instruments/skill_gauge/1"
 TIE_SEED = 0

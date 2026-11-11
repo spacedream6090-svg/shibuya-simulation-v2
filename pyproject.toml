@@ -50,7 +50,7 @@ markers = [
 ]
 filterwarnings = ["error::DeprecationWarning:shibuya.*"]
 
-# ---- 層契約(段 4 の段 runtime の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage runtime` が作る。手で直さない)----
+# ---- 層契約(段 4 の段 experiments の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage experiments` が作る。手で直さない)----
 [tool.importlinter]
 root_package = "shibuya"
 include_external_packages = false
@@ -96,12 +96,13 @@ forbidden_modules = [
 name = "〔段 4 の途中の決まり〕1 層(§1-2 の順。下から上と、`|` の兄弟の間を読まない)"
 type = "layers"
 layers = [
+  "shibuya.experiments.drive",
   "shibuya.runtime",
   "shibuya.world.laws",
   "shibuya.mind | shibuya.act | shibuya.society",
   "shibuya.world.body",
   "shibuya.world.model | shibuya.world.things | shibuya.economy",
-  "shibuya.world.facts | shibuya.world.ledger",
+  "shibuya.world.facts | shibuya.world.ledger | shibuya.experiments.port",
   "shibuya.foundation",
 ]
 ignore_imports = [
@@ -136,6 +137,7 @@ source_modules = [
   "shibuya.foundation",
 ]
 forbidden_modules = [
+  "shibuya.experiments.drive",
   "shibuya.runtime",
   "shibuya.world.laws",
   "shibuya.mind",
@@ -147,6 +149,7 @@ forbidden_modules = [
   "shibuya.economy",
   "shibuya.world.facts",
   "shibuya.world.ledger",
+  "shibuya.experiments.port",
   "shibuya.build",
 ]
 
@@ -157,6 +160,7 @@ source_modules = [
   "shibuya.mind",
 ]
 forbidden_modules = [
+  "shibuya.experiments.drive",
   "shibuya.runtime",
   "shibuya.world.laws",
   "shibuya.act",
@@ -167,6 +171,7 @@ forbidden_modules = [
   "shibuya.economy",
   "shibuya.world.facts",
   "shibuya.world.ledger",
+  "shibuya.experiments.port",
   "shibuya.build",
 ]
 ignore_imports = [
@@ -211,6 +216,7 @@ source_modules = [
   "shibuya.economy",
 ]
 forbidden_modules = [
+  "shibuya.experiments.drive",
   "shibuya.runtime",
   "shibuya.world.laws",
   "shibuya.mind",
@@ -220,6 +226,7 @@ forbidden_modules = [
   "shibuya.world.model",
   "shibuya.world.things",
   "shibuya.world.ledger",
+  "shibuya.experiments.port",
   "shibuya.build",
 ]
 
@@ -244,6 +251,7 @@ ignore_imports = [
 name = "〔段 4 の途中の決まり〕8 ランの側は build を読まない"
 type = "forbidden"
 source_modules = [
+  "shibuya.experiments.drive",
   "shibuya.runtime",
   "shibuya.world.laws",
   "shibuya.mind",
@@ -255,6 +263,7 @@ source_modules = [
   "shibuya.economy",
   "shibuya.world.facts",
   "shibuya.world.ledger",
+  "shibuya.experiments.port",
   "shibuya.foundation",
 ]
 forbidden_modules = [

@@ -214,7 +214,7 @@ skill_gauge — 第 3 期 3-3b **CP14 の技量スコアの隣に生の点数を
   - `score`(関数): 入力の全部の指標の点数(``SCHEMA``)。
   - `score_metric`(関数): 1 つの指標の点数: 生の点数(fair CRPS の平均・基準の CRPS の平均・rank histogram・広がりと誤差の比)と技量スコア。
   - `spread_skill`(関数): 広がり(√ 平均の 1/(M−1) の分散)・誤差(平均の RMSE)・比=√((M+1)/M)·広がり/誤差(Fortin ら 2014 の式 15)。
-- import している内部モジュール: `shibuya.engine.experiment.ensemble`
+- import している内部モジュール: `shibuya.experiments.port.ensemble`
 - 読む試験(道筋で): `tests/tools/test_skill_gauge.py`
 - CLI の引数
   - サブコマンド `score`
@@ -244,7 +244,7 @@ warmup_gauge — 第 3 期 3-3b **CP5-6 慣らしの自動判定の器**(MSER �
   - `question1`(関数): 問い 1(基準のランの慣らしの日数): (A=開始日から, B=k 日前から, k) の列。差の系列 A − B を日ごとに平均して当てる。
   - `question2`(関数): 問い 2(3 区間): (改変の枝, A/A の枝) の列。実行の日から先の差の系列(改変 − A/A)の日ごとの平均に同じ規則を当て、
   - `to_flow`(関数): 在庫 → 流量(総流量の欄が無い間の代わり=日ごとの差=純流量・expedient)・累計 → その日の数(〔検収 M1〕)。
-- import している内部モジュール: `shibuya.engine.experiment.warmup`
+- import している内部モジュール: `shibuya.experiments.port.warmup`
 - 読む試験(道筋で): `tests/engine/experiment/test_cf33b_manifest.py`・`tests/tools/test_warmup_gauge.py`
 - CLI の引数
   - `--input`

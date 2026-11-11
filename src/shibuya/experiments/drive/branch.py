@@ -55,7 +55,7 @@ from typing import Any, Callable, ClassVar, Final, Mapping, Sequence
 
 from shibuya.foundation.time_consts import SECONDS_PER_DAY
 from shibuya.foundation.manifest import sections as _MS
-from shibuya.engine.experiment.form import ExperimentForm
+from shibuya.experiments.port.form import ExperimentForm
 
 __all__ = [
     "BranchSpec", "BranchClient", "BranchOutcome", "run_branch", "payload_of", "input_match", "pre_t0_match",
@@ -489,8 +489,8 @@ def run_branch(form: ExperimentForm, base_dir: str | Path, *, runner: Callable[.
     決定論の確認(``d_determinism``)と床の分布(``d_floor``)に分けた欄を足した(3-3 の欄はそのまま)。
     """
     from shibuya.foundation.time_consts import NS_PER_SECOND
-    from shibuya.engine.experiment import ensemble as _EN
-    from shibuya.engine.experiment import switch as _SW
+    from shibuya.experiments.port import ensemble as _EN
+    from shibuya.experiments.drive import switch as _SW
     from shibuya.runtime.inference.tape import Tape
 
     base_dir = Path(base_dir)

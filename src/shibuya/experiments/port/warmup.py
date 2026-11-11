@@ -37,7 +37,7 @@ from __future__ import annotations
 from types import MappingProxyType
 from typing import Any, Final, Mapping
 
-from shibuya.engine.experiment.form import sha256_hex
+from shibuya.experiments.port.form import sha256_hex
 
 __all__ = ["WARMUP_SCHEMA", "RULE", "MARKS", "MARK_VALUES", "rule_items", "rule_record", "rule_sha256"]
 

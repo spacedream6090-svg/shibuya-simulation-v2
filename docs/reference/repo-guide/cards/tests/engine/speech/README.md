@@ -59,7 +59,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
 - 公開の関数とクラス
   - `test_cli_speech_port_beats_the_environment`(関数)
   - `test_the_on_arm_is_an_arm_run`(関数): ランの種類(試験の外): 既定 off の既定の構成=再現・腕 on=腕(指紋の on の欄は ``test_speech_arm_rows_resume`` と
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run_kind`・`tests/engine/speech/_s8b.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.experiments.port.run_kind`・`tests/engine/speech/_s8b.py`
 - 環境変数: `os.environ` をまるごと使う
 
 ## [test_speech_default_off_invariance.py](../../../../../../../tests/engine/speech/test_speech_default_off_invariance.py)

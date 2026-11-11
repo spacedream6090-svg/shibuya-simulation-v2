@@ -100,7 +100,7 @@ world.processes.records — 世界側台帳の**レコード型3つ**(D-R2-2・�
   - `Violability`(クラス): 軸4 違反可能性(§2・Grossi et al.)。
   - `WorldProcess`(クラス): §2 の ``WorldProcess`` 行。
 - import している内部モジュール: `shibuya.foundation.growth`
-- 呼び手: `shibuya.engine.duties.layer`・`shibuya.engine.experiment.branch`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.opening`・`shibuya.world.laws.rail`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.actual_log`・`shibuya.world.ledger.constitution`・`shibuya.world.ledger.first_batch`・`shibuya.world.ledger.inputs`・`shibuya.world.ledger.registry`・`shibuya.world.ledger.relations`・`shibuya.world.processes.circularity`
+- 呼び手: `shibuya.engine.duties.layer`・`shibuya.experiments.drive.branch`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.opening`・`shibuya.world.laws.rail`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.actual_log`・`shibuya.world.ledger.constitution`・`shibuya.world.ledger.first_batch`・`shibuya.world.ledger.inputs`・`shibuya.world.ledger.registry`・`shibuya.world.ledger.relations`・`shibuya.world.processes.circularity`
 - 読む試験: `tests/engine/duties/test_du_runs.py`・`tests/engine/events/test_e_log_links_actual.py`・`tests/world/processes/conftest.py`・`tests/world/processes/test_actual_log.py`・`tests/world/processes/test_constitution.py`・`tests/world/processes/test_declarations_1101.py`・`tests/world/processes/test_first_batch.py`・`tests/world/processes/test_records.py`・`tests/world/processes/test_registry.py`・`tests/world/processes/test_relations.py`
 - 決定の ID: 11-01・11-01/§1・11-01/§2・第 340
 

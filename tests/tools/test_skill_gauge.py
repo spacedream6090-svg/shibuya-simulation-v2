@@ -18,7 +18,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.experiment import ensemble as EN
+from shibuya.experiments.port import ensemble as EN
 
 from tests.engine.experiment._x33 import form
 

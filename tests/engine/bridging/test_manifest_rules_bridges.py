@@ -22,7 +22,7 @@ import pytest
 from shibuya import cli
 from shibuya.foundation.time_consts import STEPS_PER_DAY
 from shibuya.foundation.manifest import sections as MS
-from shibuya.engine import run_kind as RK
+from shibuya.experiments.port import run_kind as RK
 from shibuya.foundation.decl import bridging as BR
 from shibuya.world.facts.rules import table as RT
 from shibuya.engine.run import run_day

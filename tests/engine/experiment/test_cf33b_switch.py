@@ -21,8 +21,8 @@ import pytest
 
 from shibuya import cli
 from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_DAY
-from shibuya.engine.experiment import branch as BR
-from shibuya.engine.experiment import switch as SW
+from shibuya.experiments.drive import branch as BR
+from shibuya.experiments.drive import switch as SW
 from shibuya.runtime.inference.tape import TapeRow, TapeWriter
 from shibuya.llm import LLMRequest, LLMResponse
 

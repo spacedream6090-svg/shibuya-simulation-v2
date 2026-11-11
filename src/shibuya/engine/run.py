@@ -135,7 +135,7 @@ from shibuya.world.model import proximity as _PROX
 from shibuya.world.model.space import nav1 as _NAV1
 from shibuya.engine import calendar_shadow as _CALENDAR_SHADOW
 from shibuya.engine import calendar_self as _CALENDAR_SELF
-from shibuya.engine.experiment import layer as _EXPERIMENT
+from shibuya.experiments.port import layer as _EXPERIMENT
 from shibuya.foundation.queues import batching as _BATCHING
 from shibuya.runtime.clocks import regional as _REGIONAL_CLOCK  # 〔第 6 期 6-3 T4〕
 from shibuya.runtime.clocks import speech as _SPEECH_CLOCK  # 〔第 6 期 6-3 T2〕
@@ -1210,7 +1210,7 @@ class RunResult:
             進行役を通らない結果は ``None``)。
         """
         from shibuya.foundation.manifest import sections as _MS
-        from shibuya.engine import run_kind as _RK
+        from shibuya.experiments.port import run_kind as _RK
         from shibuya.world.facts.rights import record as _RR
         from shibuya.foundation.decl import bridging as _BR
         from shibuya.world.facts.rules import table as _RT

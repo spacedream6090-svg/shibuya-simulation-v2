@@ -437,7 +437,7 @@ def save_state(b: Any, T_next: int, *, finished: bool, closed: bool) -> None:
     _df = _DFS.header_fields(_DFS.DEFAULT_MODE)
     if _df is not None:
         header["defect_fixes_1103"] = _df
-    from shibuya.engine.experiment import layer as _EXPL
+    from shibuya.experiments.port import layer as _EXPL
 
     _exp_h = _EXPL.state_header(getattr(b.layers, "experiment", None))
     if _exp_h is not None:  # 〔第 3 期 3-3〕申込書つきのランだけ(既定のランの見出しは今のまま)=再開で違えば止める

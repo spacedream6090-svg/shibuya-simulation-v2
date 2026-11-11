@@ -64,5 +64,5 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_tool_configs_that_call_cli_run_are_arms`(関数): byte-check(10e・19 構成)と 10f の manifest の道具が ``cli.run`` に渡す構成: 既定 v3 だけが再現・ほかは腕(検収 M2)。
   - `test_values_match_the_ledger_and_the_table`(関数)
   - `two_days`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.world.facts.rules.table`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.world.facts.rules.table`
 - 決定の ID: 11-01・11-02r・11-02r/§1・11-02r/§1 #7・11-03・11-03/§3

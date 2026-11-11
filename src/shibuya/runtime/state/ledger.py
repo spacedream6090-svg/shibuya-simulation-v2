@@ -1629,7 +1629,7 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     # 第 2 期 2-2 段 11a: 近接の層(状態台帳の行 PX・腕 --proximity distance のランだけ)
     "proximity": ("world/model/proximity.py", "ProximityLayer"),
     # 第 3 期 3-3: 申込書の持ち主(状態台帳の行 X・申込書を渡したランだけ)
-    "experiment": ("engine/experiment/layer.py", "ExperimentLayer"),
+    "experiment": ("experiments/port/layer.py", "ExperimentLayer"),
     # 第 3 期 3-2: 計算のまとめの窓(状態台帳の行 BW・進行役が置く)
     "batching": ("foundation/queues/batching.py", "WindowQueue"),
     # 第 3 期 3-5: 本人の体の層(状態台帳の行 BD・どの腕でも置く)

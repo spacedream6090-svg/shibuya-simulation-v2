@@ -50,7 +50,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_manifest_fields_without_a_layer_are_null`(関数)
   - `test_the_arm_is_not_in_the_fingerprint_and_marks_the_run_kind`(関数)
   - `test_world_assets_reserve_equals_sweep_with_thermal_boundaries`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.foundation.manifest.sections`・`shibuya.world.body.model`・`shibuya.world.body.schedule`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.manifest.sections`・`shibuya.world.body.model`・`shibuya.world.body.schedule`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3
 
 ## [test_body_reserve.py](../../../../../../../tests/engine/body/test_body_reserve.py)

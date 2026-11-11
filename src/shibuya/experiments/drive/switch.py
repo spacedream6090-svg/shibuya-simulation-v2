@@ -48,7 +48,7 @@ from typing import Any, Callable, ClassVar, Final, Mapping
 
 import numpy as np
 
-from shibuya.engine.experiment.branch import BranchClient, BranchSpec
+from shibuya.experiments.drive.branch import BranchClient, BranchSpec
 
 __all__ = [
     "SWITCH_SCHEMA", "DETERMINISTIC_MODELS", "DETERMINISM_ATTR", "SwitchSpec", "ReplaySwitch", "window_head_step",

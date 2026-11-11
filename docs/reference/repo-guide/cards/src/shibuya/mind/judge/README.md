@@ -27,7 +27,7 @@ engine.classical — System 1.5 の古典的選択モデル=方策 ``classical``
   - `meal_gate_interval_p`(関数): 1 時間あたりの確率 ``p_hour`` → 経過 ``dt_minutes`` 分の間に 1 回以上通る確率 ``1 − (1 − p)^(Δt/60)``。
   - `ok_self`(関数): 体 ``aid`` 自身が食事中か(同じセルの食事中の人数から自分を引くため)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar`・`shibuya.engine.chooser`・`shibuya.foundation.paths`・`shibuya.foundation.rng`・`shibuya.foundation.text.templates`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.mock`
-- 呼び手: `shibuya.cli`・`shibuya.engine.experiment.branch`・`shibuya.engine.experiment.switch`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`tools/instruments/dm_eval/judge.py`
+- 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.experiments.drive.branch`・`shibuya.experiments.drive.switch`・`shibuya.runtime.systems.assemble`・`tools/instruments/dm_eval/judge.py`
 - 読む試験: `tests/engine/space/test_nav1_units.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_calendar.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_classical_social.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_relations_8b.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_state_checks_10f.py`
 - 状態台帳の行
   - 持ち主 `classical`(`ClassicalPolicy`)

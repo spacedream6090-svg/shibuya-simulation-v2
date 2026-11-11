@@ -23,7 +23,7 @@ from __future__ import annotations
 import warnings
 from typing import Any, Final, Iterable, Mapping
 
-from shibuya.engine.experiment.form import ExperimentForm
+from shibuya.experiments.port.form import ExperimentForm
 
 __all__ = [
     "ExperimentWarning", "START0_SCHEMA", "START0_RULE", "START0_ORDER", "start0_check", "warn_start0",

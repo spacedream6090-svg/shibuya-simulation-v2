@@ -48,7 +48,7 @@ from shibuya.economy import stage2 as S2
 from shibuya.economy.accounts import BalanceLine, Sector
 from shibuya.economy import stage2_bind as _ES2
 from shibuya.engine import resolve as R
-from shibuya.engine import run_kind as _RK
+from shibuya.experiments.port import run_kind as _RK
 from shibuya.engine.arbiter import call_budget_per_tick
 from shibuya.world.model.geometry import DEFAULT_GEOMETRY, GEOMETRY_MODES
 from shibuya.world.model.space import nav1 as _NAV1
@@ -547,7 +547,7 @@ def run(
     )
     import contextlib
 
-    from shibuya.engine.experiment import layer as _EXPL
+    from shibuya.experiments.port import layer as _EXPL
 
     _stage = (contextlib.nullcontext() if exp_form is None
               else _EXPL.staged(exp_form, branch=experiment_branch, model=experiment_model))
@@ -583,7 +583,7 @@ def _batch_widths() -> tuple[int, ...]:
 
 def _experiment_form(experiment: Any, *, aa: bool = False, branch: Any = None) -> Any:
     """〔第 3 期 3-3〕``cli.run`` の ``experiment`` → 申込書(``None``=渡さない)。``aa`` は改変を空にした A/A の枝。"""
-    from shibuya.engine.experiment.form import ExperimentForm
+    from shibuya.experiments.port.form import ExperimentForm
 
     if experiment is None or (isinstance(experiment, str) and not experiment):
         if aa or branch is not None:
@@ -1749,7 +1749,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.experiment_branch:  # 第 3 期 3-3: 分岐(T0 までテープを再生・A/A の枝 2 本+改変の枝 1 本・4 つの確認)
         if not args.experiment:
             ap.error("--experiment-branch には --experiment(申込書)が要る")
-        from shibuya.engine.experiment import branch as _BRANCH
+        from shibuya.experiments.drive import branch as _BRANCH
 
         outcome = _BRANCH.run_branch(_experiment_form(args.experiment), args.experiment_branch, runner=run,
                                      run_kwargs=run_kwargs, aa_only=bool(args.experiment_aa))

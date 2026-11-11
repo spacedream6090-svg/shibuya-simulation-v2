@@ -15,13 +15,13 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.engine.experiment import apply as AP
-from shibuya.engine.experiment import branch as BR
-from shibuya.engine.experiment import ensemble as EN
-from shibuya.engine.experiment import form as F
+from shibuya.experiments.port import apply as AP
+from shibuya.experiments.drive import branch as BR
+from shibuya.experiments.port import ensemble as EN
+from shibuya.experiments.port import form as F
 from shibuya.foundation.ports import experiment_gate as GT
-from shibuya.engine.experiment import layer as LY
-from shibuya.engine.experiment.form import DECISIONS, ExperimentForm
+from shibuya.experiments.port import layer as LY
+from shibuya.experiments.port.form import DECISIONS, ExperimentForm
 
 from tests import _places as PL
 from tests.engine.experiment._x33 import NS_DAY, NS_HOUR, form, form_dict
@@ -191,7 +191,7 @@ def test_direct_construction_is_checked_too():
 
 def test_aa_of_a_confirm_form_round_trips():
     """〔検収 L4〕確認の申込書の A/A の枝は事前登録を引き継ぎ、元の登録の指紋を aa_of に残す=JSON の往復で通る。"""
-    from shibuya.engine.experiment import ensemble as EN
+    from shibuya.experiments.port import ensemble as EN
 
     ens = {"initial": 2, "model": ["mock"], "chance": 1}
     _rec, cf = EN.preregister(form_dict(ensemble=ens), EN.seal(form(ensemble=ens)))

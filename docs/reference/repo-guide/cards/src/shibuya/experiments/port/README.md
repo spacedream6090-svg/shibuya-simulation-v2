@@ -1,16 +1,14 @@
-# src/shibuya/engine/experiment
+# src/shibuya/experiments/port
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 9 本・その他 0 本(このディレクトリの直下)
+Python 8 本・その他 0 本(このディレクトリの直下)
 
-## [__init__.py](../../../../../../../../src/shibuya/engine/experiment/__init__.py)
+## [__init__.py](../../../../../../../../src/shibuya/experiments/port/__init__.py)
 
-engine.experiment — 実験が世界に入る口(第 1 期 1-3・CP12)と反実仮想の器(第 3 期 3-3・CP5・CP14)。
+(冒頭の説明なし)
 
-- 決定の ID: R-71
-
-## [apply.py](../../../../../../../../src/shibuya/engine/experiment/apply.py)
+## [apply.py](../../../../../../../../src/shibuya/experiments/port/apply.py)
 
 engine.experiment.apply — 申込書の改変を世界に入れる口 ``apply``(第 3 期 3-3・決定 10-12 §1-1 CP6・§4-5 CP5・CP12)。
 
@@ -21,36 +19,12 @@ engine.experiment.apply — 申込書の改変を世界に入れる口 ``apply``
   - `cond_id_of`(関数): 実験の条件の名(``<申込書の指紋の先頭 16 字>:<決定の番号か notice>``)。
   - `hours_mask`(関数): 営業時間の区間の列 → 1 日の分の真偽の列(閉じる分が 1 日を超える区間は同じ日の頭へ回す=W7 の畳み方と同じ)。
   - `targets_of`(関数): 対象の店の番号(昇順・空もある)。読むだけ(分岐の報告の実行の内訳が使う)。
-- import している内部モジュール: `shibuya.engine.experiment.form`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.engine.experiment.layer`
+- import している内部モジュール: `shibuya.experiments.port.form`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.time_consts`
+- 呼び手: `shibuya.experiments.port.layer`
 - 読む試験: `tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_form.py`
 - 決定の ID: 10-12/§1-1
 
-## [branch.py](../../../../../../../../src/shibuya/engine/experiment/branch.py)
-
-engine.experiment.branch — 「T0 までテープを再生して T0 から今の方策」の分岐と R-71 の 4 つの確認(第 3 期 3-3・CP5-2)。
-
-- 公開の関数とクラス
-  - `BranchClient`(クラス): LLM の口(``LLMClient`` 契約=``complete``)を T0 で切り替える。T0 より前はテープ・T0 からは今の方策。
-  - `BranchOutcome`(クラス): ``run_branch`` の結果(報告と 4 本のランの結果=A/A の枝 2 本・改変の枝 2 本(指紋の窓の回し直し))。
-  - `BranchSpec`(クラス): 分岐の指定(基準のランのテープのディレクトリ・T0 の刻み)。``cli.run`` が組み立てに渡す(``layer.staged``)。
-  - `aa_match`(関数): (d) A/A: 全 checkpoint(刻み・behavior・full)と final と系ごとの指紋が厳密に同じか。
-  - `choose_state`(関数): T0 より前(next_T < T0)の最後の日の境目の状態(``finished: false``)と見出しの写し。無ければ ``(None, None)``=0 から。
-  - `executed_by_agents`(関数): 〔親の判断 M3〕決定 10-12 §1-1「分岐の実験ではエンジンが代わりに実行する仕組みを使わない」の判定(4 つの確認とは別の欄)。
-  - `execution_breakdown`(関数): 〔親の判断 M3〕対象の店の T0 以後の開け閉めの実行の内訳(ActualLog の ``store_opening`` の行=担当の従業者の役割行動 /
-  - `first_divergence_coarse`(関数): (c) の粗い比べ: 刻み ≥ ``from_step`` の checkpoint で最初に behavior-hash が違う刻みと、違うハッシュの名。
-  - `input_match`(関数): (a) 入力の一致(基準と枝の manifest の設定の節の差が腕の欄と導かれる欄だけ・seed と母集団と日課が同じ)。
-  - `nonportable_keys`(関数): ランをまたいで比べられない digest の欄の名(報告の限界の表)。
-  - `payload_of`(関数): ``RunResult`` → checkpoint の 2 つのハッシュと manifest(``cli.checkpoints_payload`` と同じ鍵の部分)。
-  - `pre_t0_match`(関数): (b) T0 より前の checkpoint(刻み < T0)の behavior-hash が全部基準と同じ・テープ外 0・古典の食い違い 0。
-  - `probe_first_divergence`(関数): 2 本の系ごとの指紋の行(``(刻み, 系, ((欄, digest), …))``)の最初の食い違い(同じなら ``None``)。
-  - `run_branch`(関数): 基準のランの記録 ``base_dir`` から申込書 ``form`` の分岐を回し、4 つの確認をして ``branch_report.json`` を書く。
-- import している内部モジュール: `shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.switch`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.llm`・`shibuya.mind.judge.classical`・`shibuya.runtime.inference.tape`・`shibuya.runtime.systems.probe`・`shibuya.world.ledger.records`
-- 呼び手: `shibuya.cli`・`shibuya.engine.experiment.switch`
-- 読む試験: `tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/experiment/test_x33_form.py`
-- 決定の ID: 10-12/§1-1・10-12/§4-5・R-71
-
-## [checks.py](../../../../../../../../src/shibuya/engine/experiment/checks.py)
+## [checks.py](../../../../../../../../src/shibuya/experiments/port/checks.py)
 
 engine.experiment.checks — 申込書の点検(第 3 期 3-3b・CP5-1 の「始まり 0 の予期しない改変」・CP5-3 の名指しと混入の疑い)。
 
@@ -61,12 +35,12 @@ engine.experiment.checks — 申込書の点検(第 3 期 3-3b・CP5-1 の「始
   - `persona_naming`(関数): CP5-3: ペルソナの文(id → 文)が改変した物の名(``names``)を名指ししていないか。見つけた文と名の行を返す。
   - `start0_check`(関数): CP5-1: 始まり 0 の予期しない改変の点検(manifest の ``experiment.start0``)。旗 ``warning`` は真偽・理由は文。
   - `warn_start0`(関数): ``start0_check`` の旗が立っていれば ``ExperimentWarning`` を出す(拒まない)。記録を返す。
-- import している内部モジュール: `shibuya.engine.experiment.form`
-- 呼び手: `shibuya.build.pop.w21_persona`・`shibuya.engine.experiment.layer`
+- import している内部モジュール: `shibuya.experiments.port.form`
+- 呼び手: `shibuya.build.pop.w21_persona`・`shibuya.experiments.port.layer`
 - 読む試験: `tests/engine/experiment/test_cf33b_form_checks.py`
 - 決定の ID: 10-12/§4-5・R-117
 
-## [ensemble.py](../../../../../../../../src/shibuya/engine/experiment/ensemble.py)
+## [ensemble.py](../../../../../../../../src/shibuya/experiments/port/ensemble.py)
 
 engine.experiment.ensemble — 探索と確認・アンサンブルの封印・事前登録(CP14)・対の差の形・技量スコアの器(第 3 期 3-3)。
 
@@ -87,12 +61,12 @@ engine.experiment.ensemble — 探索と確認・アンサンブルの封印・�
   - `seal_record`(関数): 封印の記録(封印の中身は書かない=指紋と数と、探索の申込書なら封印していない半分)。
   - `skill_container`(関数): 技量スコアの器(指標ごとに単純な基準 3 つの誤差と値の欄・**値は空**=答え合わせの段で埋める)。
   - `skill_score`(関数): CP14 の技量スコア=1 − 誤差/基準の誤差(気象と同じ。基準の誤差 0 は ``ValueError``)。
-- import している内部モジュール: `shibuya.engine.experiment.form`・`shibuya.engine.experiment.warmup`
-- 呼び手: `shibuya.engine.experiment.branch`・`shibuya.engine.experiment.layer`・`tools/instruments/skill_gauge.py`
+- import している内部モジュール: `shibuya.experiments.port.form`・`shibuya.experiments.port.warmup`
+- 呼び手: `shibuya.experiments.drive.branch`・`shibuya.experiments.port.layer`・`tools/instruments/skill_gauge.py`
 - 読む試験: `tests/engine/experiment/test_cf33b_manifest.py`・`tests/engine/experiment/test_x33_ensemble.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/experiment/test_x33_run.py`・`tests/tools/test_skill_gauge.py`
 - 決定の ID: 10-12/§4-5・R-71・R-117
 
-## [form.py](../../../../../../../../src/shibuya/engine/experiment/form.py)
+## [form.py](../../../../../../../../src/shibuya/experiments/port/form.py)
 
 engine.experiment.form — 反実仮想の申込書 ``ExperimentForm``(第 3 期 3-3・決定 10-12 §4-5 CP5-4・探索と確認・CP14)。
 
@@ -102,11 +76,11 @@ engine.experiment.form — 反実仮想の申込書 ``ExperimentForm``(第 3 期
   - `canonical_json`(関数): 決定的な JSON(鍵の昇順・区切りの空白なし・ASCII の外もそのまま)。
   - `sha256_hex`(関数): ``canonical_json`` の UTF-8 の sha256(16 進 64 字)。
 - import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`
-- 呼び手: `shibuya.cli`・`shibuya.engine.experiment.apply`・`shibuya.engine.experiment.branch`・`shibuya.engine.experiment.checks`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.layer`・`shibuya.engine.experiment.warmup`
+- 呼び手: `shibuya.cli`・`shibuya.experiments.drive.branch`・`shibuya.experiments.port.apply`・`shibuya.experiments.port.checks`・`shibuya.experiments.port.ensemble`・`shibuya.experiments.port.layer`・`shibuya.experiments.port.warmup`
 - 読む試験: `tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_cf33b_form_checks.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/experiment/test_x33_ensemble.py`・`tests/engine/experiment/test_x33_form.py`
 - 決定の ID: 10-12/§4-5
 
-## [layer.py](../../../../../../../../src/shibuya/engine/experiment/layer.py)
+## [layer.py](../../../../../../../../src/shibuya/experiments/port/layer.py)
 
 engine.experiment.layer — 申込書をランに置く口(組み立て)・系 ``experiment``・manifest の節(第 3 期 3-3)。
 
@@ -121,7 +95,7 @@ engine.experiment.layer — 申込書をランに置く口(組み立て)・系 `
   - `staged`(関数): この中で呼んだ ``run_day`` の組み立てが申込書を受け取る(出るときに外す)。``model`` は申込書のアンサンブルのモデルの札
   - `state_header`(関数): 状態のファイルの見出しに書く欄(申込書の無いランは ``None``=見出しは今のまま)。
   - `sys_experiment`(関数): 系 ``experiment``(刻みの中の最初の系): 申込書の改変を効かせる口 ``apply`` を 1 回呼ぶ。
-- import している内部モジュール: `shibuya.engine.experiment.apply`・`shibuya.engine.experiment.checks`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.warmup`・`shibuya.foundation.time_consts`
+- import している内部モジュール: `shibuya.experiments.port.apply`・`shibuya.experiments.port.checks`・`shibuya.experiments.port.ensemble`・`shibuya.experiments.port.form`・`shibuya.experiments.port.warmup`・`shibuya.foundation.time_consts`
 - 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`・`shibuya.runtime.systems.table`
 - 読む試験: `tests/engine/experiment/test_cf33b_manifest.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/experiment/test_x33_run.py`
 - 状態台帳の行
@@ -131,26 +105,21 @@ engine.experiment.layer — 申込書をランに置く口(組み立て)・系 `
   - 系 `experiment`(群 実験・時 `tick`・立つ条件 `experiment`・関数 `sys_experiment`)
     - 書いてよい外の道筋: `E:events.*`・`O56:runner.environment.*`・`X:experiment.*`
 
-## [switch.py](../../../../../../../../src/shibuya/engine/experiment/switch.py)
+## [run_kind.py](../../../../../../../../src/shibuya/experiments/port/run_kind.py)
 
-engine.experiment.switch — T からの切り替えの口(第 3 期 3-3b・CP5-2 の完成)と 4 つの確認の (c)(d) の分け(仮-24)。
+engine.run_kind — ランの種類(第 1 期 1-4・決定 10-12 §4-5 CP5-5「ランの種類を manifest に記録」)。
 
 - 公開の関数とクラス
-  - `ReplaySwitch`(クラス): T からの切り替えの口(T より前=テープの再生(古典の方策は状態を進めて食い違いを数える)・T から=仮のモデル)。
-  - `SwitchSpec`(クラス): T からの切り替えの指定(``BranchSpec`` に窓と仮のモデルを足した形)。``cli.run`` の ``experiment_branch`` で渡す。
-  - `declared_determinism`(関数): 〔検収 L2〕口が自分で宣言した決定論(属性 ``DETERMINISM_ATTR`` が真偽の値のときだけ・無ければ ``None``=宣言なし)。
-  - `determinism`(関数): (d) の 1=決定論の確認。
-  - `is_deterministic`(関数): 決定論の確認をかけるか(宣言があれば宣言・無ければ札が ``DETERMINISTIC_MODELS`` にあるか)。
-  - `model_label`(関数): 口の札(古典の方策=``classical``・mock=``mock``・ほかは ``source`` の欄か型の名)。
-  - `tape_crossing`(関数): テープの行のうち T0 より前に出した艦隊の到着待ちの行(``deferred`` か ``observed_tick`` ≥ 0)の数と、そのうち T0 以後に
-  - `vs_aa`(関数): (c) 改変の枝の最初の食い違い(A/A の枝 a との比べ)と A/A の枝 2 本の最初の食い違いの刻みの差(A/A − 改変)。
-  - `window_head_step`(関数): T0 が計算のまとめの窓の頭か(窓の頭=ランの始め 0 から ``window_ns`` ずつ)を確かめ、切り替わる刻み(T0 以後の最初の
-- import している内部モジュール: `shibuya.engine.experiment.branch`・`shibuya.llm.mock`・`shibuya.mind.judge.classical`
-- 呼び手: `shibuya.engine.experiment.branch`
-- 読む試験: `tests/engine/experiment/test_cf33b_switch.py`
-- 決定の ID: 10-12/§4-5・R-71・R-117
+  - `check`(関数): 種類の名の検査(4 つの外は ``ValueError``)。
+  - `decide`(関数): ``cli.run`` の規則: 試験 > 反実仮想(〔3-3〕申込書を渡した)> 腕 > 再現 の順。``testing`` を省くと ``in_test()``。
+  - `in_test`(関数): pytest の試験の中か(``PYTEST_CURRENT_TEST`` が立っているか)。
+  - `resolve`(関数): manifest に書く種類(``None``=決めていない=null のまま)。
+- 呼び手: `shibuya.cli`・`shibuya.engine.run`
+- 読む試験: `tests/engine/batching/test_conductor_windows.py`・`tests/engine/body/test_body_manifest.py`・`tests/engine/bridging/test_manifest_rules_bridges.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_mr65_grain_and_cli.py`・`tests/engine/speech/test_speech_cli.py`
+- 環境変数: `PYTEST_CURRENT_TEST`
+- 決定の ID: 10-12/§4-5
 
-## [warmup.py](../../../../../../../../src/shibuya/engine/experiment/warmup.py)
+## [warmup.py](../../../../../../../../src/shibuya/experiments/port/warmup.py)
 
 engine.experiment.warmup — 慣らし(CP5-6)の自動判定の規則と parameter の事前登録(第 3 期 3-3b・仮-24・答申 R-117 §4-6)。
 
@@ -158,7 +127,7 @@ engine.experiment.warmup — 慣らし(CP5-6)の自動判定の規則と paramet
   - `rule_items`(関数): ``RULE`` の葉の項の名(入れ子の ``q1``・``q2`` は ``q1.…`` の形=``MARKS`` の鍵と同じ形)。
   - `rule_record`(関数): manifest の ``experiment.warmup``・事前登録の記録の ``warmup``(規則・印・指紋・判定の道具の名)。
   - `rule_sha256`(関数): 規則と印の正準の JSON の sha256(事前登録の指紋)。
-- import している内部モジュール: `shibuya.engine.experiment.form`
-- 呼び手: `shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.layer`・`tools/instruments/warmup_gauge.py`
+- import している内部モジュール: `shibuya.experiments.port.form`
+- 呼び手: `shibuya.experiments.port.ensemble`・`shibuya.experiments.port.layer`・`tools/instruments/warmup_gauge.py`
 - 読む試験: `tests/engine/experiment/test_cf33b_manifest.py`・`tests/tools/test_warmup_gauge.py`
 - 決定の ID: 10-12・10-12/§4-5・R-71・R-117

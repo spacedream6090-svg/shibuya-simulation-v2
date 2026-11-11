@@ -1063,7 +1063,7 @@ def naming_check(table: Mapping[str, Any], names: Sequence[str]) -> dict[str, An
     この口だけが engine を import する(呼んだときに遅れて=engine のパッケージが ``shibuya.llm`` を読み込む・LLM は
     呼ばない=試験)。文の組み立て(``render``・``build_tables``)は engine を import しない。体ごとの文を写像に渡すので
     逐次: 文の数(呼び手の道具=組み立てでは呼ばない)。"""
-    from shibuya.engine.experiment.checks import persona_naming
+    from shibuya.experiments.port.checks import persona_naming
 
     pid = np.asarray(table["person_id"], dtype=np.int64)
     text = np.asarray(table["text"], dtype=object)

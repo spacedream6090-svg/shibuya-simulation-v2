@@ -36,8 +36,8 @@ from dataclasses import dataclass
 from typing import Any, Final, Iterator, Mapping
 
 from shibuya.foundation.time_consts import NS_PER_SECOND
-from shibuya.engine.experiment import apply as _AP
-from shibuya.engine.experiment.form import ExperimentForm
+from shibuya.experiments.port import apply as _AP
+from shibuya.experiments.port.form import ExperimentForm
 
 __all__ = [
     "Staged", "staged", "current", "entrance", "ExperimentLayer", "make_layer", "sys_experiment", "check_resume",
@@ -94,7 +94,7 @@ def entrance(st: Staged | None, *, seed: Any, population_seed: Any, environment_
     探索の申込書が封印した半分の初期状態で回ろうとしたら ``ValueError``(``engine.experiment.ensemble.entrance``)。"""
     if st is None:
         return None
-    from shibuya.engine.experiment import ensemble as _EN
+    from shibuya.experiments.port import ensemble as _EN
 
     return _EN.entrance(st.form, seed=seed, population_seed=population_seed, environment_seed=environment_seed,
                         model=st.model)
@@ -161,8 +161,8 @@ class ExperimentLayer:
 
     def manifest(self, *, finished: bool = True) -> dict[str, Any]:
         """manifest の ``experiment``(設定 ``MANIFEST_CONFIG``・観測 ``MANIFEST_OBSERVED``)。"""
-        from shibuya.engine.experiment import checks as _CK
-        from shibuya.engine.experiment import warmup as _WU
+        from shibuya.experiments.port import checks as _CK
+        from shibuya.experiments.port import warmup as _WU
 
         f, rec, branch = self.form, self.handle.rec, self.branch
         pre = f.preregistration
@@ -196,7 +196,7 @@ def make_layer(st: Staged | None, *, world: Any, runner: Any, calendar: Any, eve
     if st is None:
         return None
     form = st.form
-    from shibuya.engine.experiment import checks as _CK
+    from shibuya.experiments.port import checks as _CK
 
     _CK.warn_start0(form)  # 〔3-3b〕CP5-1: 警告と記録(manifest の start0)・拒まない
     branch_client = None

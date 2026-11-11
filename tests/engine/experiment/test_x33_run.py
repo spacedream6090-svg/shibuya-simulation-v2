@@ -18,9 +18,9 @@ import pytest
 from shibuya import cli
 from shibuya.foundation import write_permit as WP
 from shibuya.foundation.manifest import sections as MS
-from shibuya.engine import run_kind as RK
+from shibuya.experiments.port import run_kind as RK
 from shibuya.runtime.state import ledger as SL
-from shibuya.engine.experiment import layer as XL
+from shibuya.experiments.port import layer as XL
 from shibuya.engine.run import run_day
 from shibuya.runtime.systems import conductor as CD
 from shibuya.engine.systems import overrides as OV
@@ -101,7 +101,7 @@ def test_ledger_row_x_enters_no_hash():
     assert (r.behavior, r.restore) == (SL.DIAG, SL.DISCARDABLE) and r.items == ("experiment.handle", "experiment.xchecks")
     paths = {p for _k, p in SL.full_items()} | {p for _k, p in SL.behavior_items()}
     assert not any(p.startswith("experiment.") for p in paths)
-    assert SL.OWNER_CLASSES["experiment"] == ("engine/experiment/layer.py", "ExperimentLayer")
+    assert SL.OWNER_CLASSES["experiment"] == ("experiments/port/layer.py", "ExperimentLayer")
 
 
 # ================================================================= ランの種類
@@ -240,7 +240,7 @@ ENS2 = {"initial": 4, "model": ["mock"], "chance": 2, "seed0": 1}
 
 
 def test_the_seal_is_enforced_at_the_run_entrance():
-    from shibuya.engine.experiment import ensemble as EN
+    from shibuya.experiments.port import ensemble as EN
 
     f = form(start=T0_NS, content=[{"decision": "event"}], ensemble=ENS2)
     mine = EN.members(f)

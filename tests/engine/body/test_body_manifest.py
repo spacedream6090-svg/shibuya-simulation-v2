@@ -15,7 +15,7 @@ import pytest
 
 from shibuya import cli
 from shibuya.foundation.manifest import sections as MS
-from shibuya.engine import run_kind as RK
+from shibuya.experiments.port import run_kind as RK
 from shibuya.world.body import model as BM
 # 〔段 4 の下ごしらえ・親の決定 3〕腕の口は定義したモジュール(schedule)を直に読む(包みの頭の再輸出に頼らない)
 from shibuya.world.body import schedule as B

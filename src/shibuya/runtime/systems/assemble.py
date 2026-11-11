@@ -390,7 +390,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         _fp[_DUA.FP_KEY] = _du_cfg
     # ---- 第 3 期 3-3: 反実仮想の申込書(``cli.run`` が ``engine.experiment.layer.staged`` で置いた物・無ければ None=今の道)。
     # 設定の指紋には入れない(申込書の指紋は manifest の experiment の節=分岐が基準のランの状態から再開できる) ----
-    from shibuya.engine.experiment import layer as _EXPL
+    from shibuya.experiments.port import layer as _EXPL
 
     _exp_staged = _EXPL.current()
     # 〔親の判断 M1〕封印の入口: ランの seed の 3 つとモデルの札がアンサンブルのどの半分か(探索が封印した半分なら止める)

@@ -1,0 +1,173 @@
+{
+ "stages": [
+  "experiments"
+ ],
+ "rows_applied": 10,
+ "rows_applied_by_kind": {
+  "move": 10
+ },
+ "rows_already": [],
+ "refused_held": [],
+ "file_moves": 9,
+ "created_heads": [
+  "src/shibuya/experiments/__init__.py",
+  "src/shibuya/experiments/drive/__init__.py",
+  "src/shibuya/experiments/port/__init__.py"
+ ],
+ "emptied_heads": [],
+ "deleted": [
+  "src/shibuya/engine/experiment/__init__.py"
+ ],
+ "import_statements": {
+  "src": 24,
+  "build": 1,
+  "tests": 37,
+  "tools": 2,
+  "docs": 0
+ },
+ "import_files": {
+  "src": 12,
+  "build": 1,
+  "tests": 20,
+  "tools": 2
+ },
+ "import_via_head": {
+  "src": 0,
+  "build": 0,
+  "tests": 0,
+  "tools": 0
+ },
+ "import_split_statements": {
+  "src": 0,
+  "build": 0,
+  "tests": 0,
+  "tools": 0
+ },
+ "import_via_package": {
+  "src": 16,
+  "build": 0,
+  "tests": 32,
+  "tools": 0
+ },
+ "plan_estimate_stage4": {
+  "statements": {
+   "src": 855,
+   "build": 38,
+   "tests": 1378,
+   "tools": 52
+  },
+  "files": {
+   "src": 179,
+   "build": 30,
+   "tests": 349,
+   "tools": 28
+  },
+  "via_head": {
+   "src": 10,
+   "build": 14,
+   "tests": 40,
+   "tools": 3
+  }
+ },
+ "path_strings": {
+  "src_table": 1,
+  "code_import": 1,
+  "slash": 2,
+  "chain": 1
+ },
+ "path_string_sites": 5,
+ "path_string_sites_by_file": [
+  "src/shibuya/runtime/state/ledger.py::OWNER_CLASSES",
+  "tests/build_pop/test_w21_stage8_9.py::test_persona_build_does_not_import_or_call_llm",
+  "tests/engine/experiment/test_x33_apply.py::test_admit_and_the_table_writers_are_called_only_from_apply",
+  "tests/engine/experiment/test_x33_apply.py::test_the_calendar_is_written_through_its_one_mouth",
+  "tests/engine/experiment/test_x33_run.py::test_ledger_row_x_enters_no_hash"
+ ],
+ "dropped_reexports": {},
+ "dropped_all": {},
+ "package_data_keys": [],
+ "ledger_paths_added": 9,
+ "class_id_keys": 15,
+ "class_ids_resorted": true,
+ "changed_files": 39,
+ "untouched_count": {
+  "src:bare_dotted": 1,
+  "src:slash": 3,
+  "tools:slash": 1
+ },
+ "untouched_broad_constants": {
+  "docs": 12,
+  "src": 217,
+  "build": 15,
+  "tests": 281,
+  "tools": 15
+ },
+ "skipped_in_allowlist": [],
+ "bridging_ledger": {
+  "rows_total": 794,
+  "rows_src": 398,
+  "rows_moving": 1,
+  "rows_moving_active": 1
+ },
+ "bridging_ledger_moving": [
+  {
+   "id": "BR-RUN-KIND-CLI-ARMS",
+   "declared_in": "src/shibuya/engine/run_kind.py#docstring:f3df880b",
+   "status": "active",
+   "new": "src/shibuya/experiments/port/run_kind.py#docstring:f3df880b"
+  }
+ ],
+ "guards": {
+  "names_frozen": "同じ",
+  "class_ids": "同じ",
+  "shaped_74": "同じ(74 種・前の出てくる数の和 452)",
+  "ledger_paths": "同じ(台帳の道は全部、表を通して今のファイルに届く)",
+  "outside_allowlist": "同じ",
+  "import_names": "同じ(import の文が結ぶ名)",
+  "head_all": "同じ(頭の __all__ は結ばれた名だけ・除いた名 0)",
+  "package_data": "同じ(鍵は木に在る包み・glob が当たる・書き換えた鍵 0)"
+ },
+ "warnings": [],
+ "untouched": [
+  {
+   "file": "src/shibuya/cli.py",
+   "symbol": "main",
+   "kind": "bare_dotted",
+   "token": "engine.experiment.form",
+   "line": 1532,
+   "excerpt": "第 3 期 3-3 反実仮想の申込書(JSON のパス・engine.experiment.form)。既定なし=今と同じ。渡すとランの種類は counterfactual・申込書の指紋は manifest の experiment に出る"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/experiment/apply.py",
+   "line": 946,
+   "excerpt": "engine/experiment/apply.py(ApplyRecord・WorldHandle・apply)・engine/experiment/layer.py(ExperimentLayer・manifest・record_che"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/experiment/layer.py",
+   "line": 946,
+   "excerpt": "engine/experiment/apply.py(ApplyRecord・WorldHandle・apply)・engine/experiment/layer.py(ExperimentLayer・manifest・record_che"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/experiment/branch.py",
+   "line": 946,
+   "excerpt": "engine/experiment/apply.py(ApplyRecord・WorldHandle・apply)・engine/experiment/layer.py(ExperimentLayer・manifest・record_che"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "NOT_COPIED",
+   "kind": "slash",
+   "token": "engine/experiment/warmup.py",
+   "line": 81,
+   "excerpt": "manifest に書く計器の名(engine/experiment/warmup.py)。開かない"
+  }
+ ]
+}

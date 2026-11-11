@@ -120,7 +120,7 @@ def test_arm_rows_enter_the_hashes_only_when_the_owner_exists():
 
 def test_cli_run_kind_is_arm(monkeypatch):
     from shibuya import cli
-    from shibuya.engine import run_kind as RK
+    from shibuya.experiments.port import run_kind as RK
 
     monkeypatch.delenv(RK.PYTEST_ENV, raising=False)  # 試験の中は種類が test になる=外して腕の数え方を見る
     kw = dict(n_agents=30, seed=1, world_dir=None, n_cells=9, ticks=30, checkpoint_every=30, vocab_version="v3")

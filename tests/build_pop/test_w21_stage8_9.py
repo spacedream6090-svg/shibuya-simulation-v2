@@ -475,7 +475,7 @@ def test_persona_build_does_not_import_or_call_llm(tmp_path):
         "def prof(frame, event, arg):\n"
         "    if event == 'call' and os.path.normcase(os.path.realpath(frame.f_code.co_filename)) in LLM_FILES:\n"
         "        calls.append(frame.f_code.co_name)\n"
-        "import shibuya.engine.experiment.checks\n"  # 遅れて読まれる import を先に済ませる(import の実行は数えない)
+        "import shibuya.experiments.port.checks\n"  # 遅れて読まれる import を先に済ませる(import の実行は数えない)
         "print('llm_loaded_by_engine', 'shibuya.llm' in sys.modules)\n"
         "sys.setprofile(prof)\n"
         "r = P.naming_check(tab, ['例の書店'])\n"

@@ -155,7 +155,7 @@ def test_system_declarations():
 
 def test_cli_flag_and_run_kind(monkeypatch):
     from shibuya import cli
-    from shibuya.engine import run_kind as RK
+    from shibuya.experiments.port import run_kind as RK
 
     monkeypatch.delenv(RK.PYTEST_ENV, raising=False)
     kw = dict(n_agents=30, seed=1, world_dir=None, n_cells=9, ticks=30, checkpoint_every=30, vocab_version="v3")

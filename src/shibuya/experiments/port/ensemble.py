@@ -41,7 +41,7 @@ import hashlib
 from dataclasses import dataclass
 from typing import Any, Final, Mapping, Sequence
 
-from shibuya.engine.experiment.form import CONFIRM, EXPLORE, ExperimentForm, canonical_json, sha256_hex
+from shibuya.experiments.port.form import CONFIRM, EXPLORE, ExperimentForm, canonical_json, sha256_hex
 
 __all__ = [
     "Member", "members", "Seal", "seal", "seal_record", "entrance", "HALF_EXPLORE", "HALF_CONFIRM", "preregister",
@@ -352,7 +352,7 @@ def evidence_container() -> dict[str, Any]:
 
 
 def _warmup_record() -> dict[str, Any]:
-    from shibuya.engine.experiment import warmup as _WU
+    from shibuya.experiments.port import warmup as _WU
 
     return _WU.rule_record()
 

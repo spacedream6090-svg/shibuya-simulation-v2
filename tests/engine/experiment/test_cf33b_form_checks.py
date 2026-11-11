@@ -15,9 +15,9 @@ import warnings
 import pytest
 
 from shibuya import cli
-from shibuya.engine.experiment import checks as CK
-from shibuya.engine.experiment import form as F
-from shibuya.engine.experiment.form import ExperimentForm, canonical_json
+from shibuya.experiments.port import checks as CK
+from shibuya.experiments.port import form as F
+from shibuya.experiments.port.form import ExperimentForm, canonical_json
 
 from tests.engine.experiment._x33 import BASE, NS_HOUR, form, form_dict
 

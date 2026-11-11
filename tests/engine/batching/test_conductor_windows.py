@@ -25,7 +25,7 @@ from shibuya import cli
 from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
 from shibuya.foundation.queues import batching as BA
 from shibuya.runtime.state import resume as RS
-from shibuya.engine import run_kind as RK
+from shibuya.experiments.port import run_kind as RK
 from shibuya.engine.run import run_day
 from shibuya.runtime.systems import conductor as CD
 from shibuya.runtime.systems import probe as PR

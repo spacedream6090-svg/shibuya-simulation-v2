@@ -24,16 +24,18 @@
 | [src/shibuya/build/vis](src/shibuya/build/vis/README.md) | 5 | 0 |
 | [src/shibuya/census](src/shibuya/census/README.md) | 1 | 0 |
 | [src/shibuya/economy](src/shibuya/economy/README.md) | 18 | 0 |
-| [src/shibuya/engine](src/shibuya/engine/README.md) | 17 | 0 |
+| [src/shibuya/engine](src/shibuya/engine/README.md) | 16 | 0 |
 | [src/shibuya/engine/bridging](src/shibuya/engine/bridging/README.md) | 2 | 0 |
 | [src/shibuya/engine/calendar2](src/shibuya/engine/calendar2/README.md) | 2 | 0 |
 | [src/shibuya/engine/calendar3](src/shibuya/engine/calendar3/README.md) | 4 | 0 |
 | [src/shibuya/engine/contact](src/shibuya/engine/contact/README.md) | 7 | 0 |
 | [src/shibuya/engine/duties](src/shibuya/engine/duties/README.md) | 3 | 0 |
 | [src/shibuya/engine/events](src/shibuya/engine/events/README.md) | 2 | 0 |
-| [src/shibuya/engine/experiment](src/shibuya/engine/experiment/README.md) | 9 | 0 |
 | [src/shibuya/engine/systems](src/shibuya/engine/systems/README.md) | 3 | 0 |
 | [src/shibuya/engine/tools](src/shibuya/engine/tools/README.md) | 3 | 0 |
+| [src/shibuya/experiments](src/shibuya/experiments/README.md) | 1 | 0 |
+| [src/shibuya/experiments/drive](src/shibuya/experiments/drive/README.md) | 3 | 0 |
+| [src/shibuya/experiments/port](src/shibuya/experiments/port/README.md) | 8 | 0 |
 | [src/shibuya/foundation](src/shibuya/foundation/README.md) | 12 | 0 |
 | [src/shibuya/foundation/arms](src/shibuya/foundation/arms/README.md) | 5 | 0 |
 | [src/shibuya/foundation/decl](src/shibuya/foundation/decl/README.md) | 3 | 0 |
@@ -160,7 +162,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 291 ディレクトリ・2266 本
+- [docs の索引](docs.md): 293 ディレクトリ・2271 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

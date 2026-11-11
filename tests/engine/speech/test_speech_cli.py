@@ -15,7 +15,7 @@ import sys
 import pytest
 
 from shibuya import cli
-from shibuya.engine import run_kind as RK
+from shibuya.experiments.port import run_kind as RK
 from tests.engine.speech._s8b import speech_arm
 
 ARGS = ["--agents", "40", "--seed", "1", "--world", "__no_such_dir__", "--cells", "9", "--ticks", "360"]

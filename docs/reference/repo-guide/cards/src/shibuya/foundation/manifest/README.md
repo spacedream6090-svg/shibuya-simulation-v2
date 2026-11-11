@@ -72,6 +72,6 @@ manifest.schema: U8 run manifest の型(13節)と機械化される規則。
   - `sections_table`(関数): manifest に置く表(``manifest_sections``)。
   - `split`(関数): manifest の一番上の欄を節ごとに分けた写し(入れ子の中は分けない=読み手の便利のため)。表に無い欄は ``unlisted``。
   - `unlisted_in_mixed`(関数): 混ざった辞書の下の葉のうち、表の道筋が混ざった辞書そのものにしか当たらないもの(=節の決まっていない鍵)。
-- 呼び手: `shibuya.engine.experiment.branch`・`shibuya.engine.run`
+- 呼び手: `shibuya.engine.run`・`shibuya.experiments.drive.branch`
 - 読む試験: `tests/engine/batching/test_window_queue.py`・`tests/engine/body/test_body_manifest.py`・`tests/engine/bridging/test_manifest_rules_bridges.py`・`tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/calendar/test_calendar_shadow.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/clock/test_tm2_talk_clock.py`・`tests/engine/clock/test_tm3_step_scope.py`・`tests/engine/clock/test_tm4_regional_clock.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/events/test_e_manifest_events.py`・`tests/engine/experiment/test_cf33b_manifest.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/rights/test_rights_manifest.py`・`tests/engine/test_env_and_sections_10f.py`・`tests/engine/time/test_t0_tm9_fields.py`
 - 決定の ID: 10-13b/§7・11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・第 330

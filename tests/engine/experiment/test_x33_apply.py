@@ -18,7 +18,7 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.journal import log as EV
-from shibuya.engine.experiment import apply as AP
+from shibuya.experiments.port import apply as AP
 from shibuya.foundation.ports import experiment_gate as GT
 from shibuya.world.laws.environment import WeatherWarning
 from shibuya.world.laws.opening import build_open_matrix
@@ -248,7 +248,7 @@ def test_admit_and_the_table_writers_are_called_only_from_apply():
         got = _calls(ast.parse(p.read_text(encoding="utf-8")))
         if got:
             hits[rel] = got
-    assert set(hits) == {"engine/experiment/apply.py"}, hits
+    assert set(hits) == {"experiments/port/apply.py"}, hits
 
 
 def test_the_entry_check_catches_a_planted_call():
@@ -282,7 +282,7 @@ def test_vocabulary_has_the_two_words():
 
 def test_module_tables_are_read_only():
     """〔検収 L6〕口の表(決定の実装・理由の語)と分岐の表は読み取り専用。"""
-    from shibuya.engine.experiment import branch as BR
+    from shibuya.experiments.drive import branch as BR
 
     for table in (AP._IMPL, AP.REASONS, BR.DERIVED_BY_DECISION, BR.RESUME_DERIVED):
         with pytest.raises(TypeError):
@@ -291,5 +291,5 @@ def test_module_tables_are_read_only():
 
 def test_the_calendar_is_written_through_its_one_mouth():
     """〔検収 L5〕祝日の表を書くのは暦の口 ``SimCalendar.set_holiday`` だけ(apply は辞書を直に書かない)。"""
-    src = (SRC / "engine" / "experiment" / "apply.py").read_text(encoding="utf-8")
+    src = (SRC / "experiments" / "port" / "apply.py").read_text(encoding="utf-8")
     assert "set_holiday(" in src and "days[" not in src and ".pop(d" not in src

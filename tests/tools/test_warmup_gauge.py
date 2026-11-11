@@ -167,7 +167,7 @@ def test_metric_table_stock_transition_placeholder_and_bundle(G):
     assert w["W"] == max(r["warmup_days"] for r in out["metrics"] if r["status"] == G.VALID) == 5
     assert w["unit"] == "days_from_series_head"
     assert not out["pairs_enough"] and out["pairs_min"] == 5
-    from shibuya.engine.experiment import warmup as WU
+    from shibuya.experiments.port import warmup as WU
 
     assert out["rule_sha256"] == WU.rule_sha256() and out["rule"] == WU.rule_record()["rule"]
     assert {m["id"] for m in G.METRICS} >= {"acquaintances_new", "acquaintances_forgotten", "promises_new", "wages"}

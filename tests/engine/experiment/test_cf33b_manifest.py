@@ -17,9 +17,9 @@ import pytest
 
 from shibuya import cli
 from shibuya.foundation.manifest import sections as MS
-from shibuya.engine.experiment import ensemble as EN
-from shibuya.engine.experiment import layer as XL
-from shibuya.engine.experiment import warmup as WU
+from shibuya.experiments.port import ensemble as EN
+from shibuya.experiments.port import layer as XL
+from shibuya.experiments.port import warmup as WU
 
 from tests.engine.experiment._x33 import NS_HOUR, form, form_dict
 

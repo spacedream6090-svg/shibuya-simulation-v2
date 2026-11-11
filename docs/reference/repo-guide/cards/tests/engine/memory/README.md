@@ -204,7 +204,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_cli_run_kind_counts_the_memory_arms`(関数)
   - `test_grain_day_refuses_to_resume`(関数)
   - `test_grain_day_writes_fewer_rows_and_keeps_the_recall`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.foundation.time_consts`・`shibuya.runtime.inference.tape`・`tests/engine/memory/_mr65.py`・`tests/engine/multiday/_md.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.time_consts`・`shibuya.runtime.inference.tape`・`tests/engine/memory/_mr65.py`・`tests/engine/multiday/_md.py`
 - 環境変数: `SHIBUYA_MEMORY_GRAIN`・`SHIBUYA_MEMORY_MODEL`・`SHIBUYA_MEMORY_PEOPLE`・`os.environ` をまるごと使う
 
 ## [test_mr65_guards.py](../../../../../../../tests/engine/memory/test_mr65_guards.py)

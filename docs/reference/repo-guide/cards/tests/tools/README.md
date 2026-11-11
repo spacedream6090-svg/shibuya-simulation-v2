@@ -721,7 +721,7 @@ tools/instruments/skill_gauge.py(第 3 期 3-3b・CP14 の技量スコアの隣�
   - `test_read_guard_on_the_input`(関数)
   - `test_scores_of_a_mock_ensemble`(関数)
   - `test_skill_next_to_raw_scores_and_fill_the_container`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.experiment.ensemble`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.experiments.port.ensemble`・`tests/engine/experiment/_x33.py`
 
 ## [test_warmup_gauge.py](../../../../../../tests/tools/test_warmup_gauge.py)
 
@@ -741,4 +741,4 @@ tools/instruments/warmup_gauge.py(第 3 期 3-3b・CP5-6 慣らしの自動判�
   - `test_question2_intervals`(関数)
   - `test_read_guard_catches_upper_case_and_junction`(関数)
   - `test_stock_warmup_days_count_from_the_series_head`(関数)
-- import している内部モジュール: `shibuya.engine.experiment.warmup`
+- import している内部モジュール: `shibuya.experiments.port.warmup`
