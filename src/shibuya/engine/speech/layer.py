@@ -99,7 +99,7 @@ def make_port(*, events: Any, wom: Any, vocab_version: str, agents: Any, mem_lay
     持ち主をまたぐ呼び出し(親の判断 A8 で認めた形・別名で他の持ち主の配列を書く形ではない・系の宣言は decide と llm_receive)。"""
     wom_fn: Callable[[Utterance, SpeechContext], int] | None = None
     if wom is not None:
-        from shibuya.engine.wom import hear as _hear
+        from shibuya.mind.memory.wom import hear as _hear
 
         def wom_fn(u: Utterance, ctx: SpeechContext) -> int:
             text = wom.utterance_text(vocab_version, comment=u.text, reason=ctx.reason, target=ctx.target)

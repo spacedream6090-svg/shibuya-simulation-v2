@@ -18,7 +18,7 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import AgentState, ResultCode, WakeCondition
-from shibuya.engine import memory as M
+from shibuya.mind.memory import memory as M
 from shibuya.engine import relations as RL
 from shibuya.engine.conversation import ConversationManager
 
@@ -241,7 +241,7 @@ def test_conversation_origin_counts_and_default_counters_unchanged():
 
 # ================================================================= (g) classical の「最初の未知の人」
 def test_classical_near_strangers_and_rest_pick_is_hashed():
-    from shibuya.engine.classical import _near_strangers
+    from shibuya.mind.judge.classical import _near_strangers
 
     prompt = "x\n[B5 近接] 近くの人物: P-3(知人)(距離 2m)、P-8(未知)(距離 5m)、P-9(未知)\ny"
     assert _near_strangers(prompt, 0) == [8, 9]

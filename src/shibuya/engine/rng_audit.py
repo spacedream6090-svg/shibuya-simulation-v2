@@ -250,7 +250,7 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     ("world/assets.py", "synthetic_assets", "world.synthetic"),
     # 引く語数が定数で 4 以内 7 か所(〔第330〕+1・RET −2)
     ("engine/chooser.py", "draw_index", "engine.chooser"),
-    ("engine/classical.py", "ClassicalPolicy.answer", "policy.classical"),  # 〔1-8 J0〕render の中身を answer へ移した
+    ("mind/judge/classical.py", "ClassicalPolicy.answer", "policy.classical"),  # 〔1-8 J0〕render の中身を answer へ移した
     # 〔第330・10e B6〕天気の規則 calendar の再生日の抽選(鍵 1 語=層の名前と日番号のハッシュ・引く語数 2)
     ("world/laws/environment.py", "sample_calendar_day", "engine.processes.environment"),
     ("llm/mock.py", "MockLLM._draws", "expr:self.domain"),
@@ -259,7 +259,7 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     # 〔第 2 期 2-2 段 11a〕知人に気づく抽選(0 語目を空け 1〜3 語目に時刻の鍵・体・相手=k19_counters・1 語だけ引く)
     ("world/model/proximity.py", "ProximityRule.notice_u", "proximity.notice"),
     # 〔第 6 期 6-5〕忘れる速さの人ごとのばらつき(0 語目を空け 1 語目に体の番号=k19_counter_array・2 語だけ引く)
-    ("engine/memory_m1.py", "forgetting_scale", "memory.forgetting_rate"),
+    ("mind/memory/memory_m1.py", "forgetting_scale", "memory.forgetting_rate"),
     # 〔第 6 期 6-3 T2〕会話の時計の人ごとの話す速さ(0 語目を空け 1 語目に体の番号=k19_counters・1 語だけ引く)と発言ごとの揺れ
     # (0 語目を空け 1〜3 語目に話し手・作った時刻・会話の番号=k19_counters・1 語だけ引く)
     ("engine/speech_clock.py", "person_mora_len_s", "talk.rate"),
@@ -269,15 +269,15 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     # 〔第 6 期 6-4 C1〕最初の道具の状態(0 語目を空け 1・2 語目に体の番号と欄の番号=k19_counter_array・1 語だけ引く)と
     # 連絡の判断の仮のモデルの選び(0 語目を空け刻みの鍵・体・判断の番号=k19_counters・1 語だけ引く)
     ("world/things/device.py", "Devices.__init__", "contact.device"),
-    ("engine/contact/port.py", "ContactPort._draw", "contact.mock"),
+    ("mind/plan/contact_port.py", "ContactPort._draw", "contact.mock"),
     # 〔第 6 期 6-4 C2〕習慣で答えられるときに判断の口へ戻すか(0 語目を空け刻みの鍵・体・判断の通し番号=k19_counters・1 語だけ引く)
-    ("engine/contact/port.py", "habit_recheck_u", "contact.habit"),
+    ("mind/plan/contact_port.py", "habit_recheck_u", "contact.habit"),
     # 〔第 6 期 6-2 カレンダー 2〕予定の判断の仮のモデルの選び(0 語目を空け刻みの鍵・体・判断の番号=k19_counters・1 語だけ引く)
-    ("engine/calendar2/port.py", "Calendar2Port._draw", "calendar2.mock"),
+    ("mind/plan/calendar2_port.py", "Calendar2Port._draw", "calendar2.mock"),
     # 〔第 6 期 6-2 カレンダー 3〕勤務の判断の仮のモデルの選び(0 語目を空け刻みの鍵・体・判断の番号=k19_counters・1 語だけ引く)
-    ("engine/calendar3/port.py", "Calendar3Port._draw", "calendar3.mock"),
+    ("mind/plan/calendar3_port.py", "Calendar3Port._draw", "calendar3.mock"),
     # 〔第 6 期 6-6 ② 第 1 部〕店の仕事の判断の仮のモデルの選び(0 語目を空け刻みの鍵・体・判断の番号=k19_counters・1 語だけ引く)
-    ("engine/duties/port.py", "DutiesPort._draw", "duties.mock"),
+    ("mind/plan/duties_port.py", "DutiesPort._draw", "duties.mock"),
 })
 
 #: 静的に決まらない呼び手(ファイル・関数・用途名)→ 実行時の検査での扱い。ここに無い呼び手が出たら落とす。
@@ -301,16 +301,16 @@ UNDETERMINED_SITES: Final[dict[tuple[str, str, str], str]] = {
     ("foundation/ports/decision.py", "present_rng", "decision.present"):
         "Generator を返し、呼び手(present)が permutation(候補の数)を引く。0 語目を空け 1〜3 語目に刻みの鍵・体・候補の数"
         "(k19)=実行時に重なり 0 を見る(第 1 期 1-8 J0)",
-    ("engine/contact/port.py", "ContactPort.choose", "contact.present"):
+    ("mind/plan/contact_port.py", "ContactPort.choose", "contact.present"):
         "Generator を present に渡し、present が permutation(候補の数)を引く。0 語目を空け 1〜3 語目に刻みの鍵・体・その刻みの"
         "その体の判断の番号(k19)=実行時に重なり 0 を見る(第 6 期 6-4 C1)",
-    ("engine/calendar2/port.py", "Calendar2Port.choose", "calendar2.present"):
+    ("mind/plan/calendar2_port.py", "Calendar2Port.choose", "calendar2.present"):
         "Generator を present に渡し、present が permutation(候補の数)を引く。0 語目を空け 1〜3 語目に刻みの鍵・体・その刻みの"
         "その体の判断の番号(k19)=実行時に重なり 0 を見る(第 6 期 6-2 カレンダー 2)",
-    ("engine/calendar3/port.py", "Calendar3Port.choose", "calendar3.present"):
+    ("mind/plan/calendar3_port.py", "Calendar3Port.choose", "calendar3.present"):
         "Generator を present に渡し、present が permutation(候補の数)を引く。0 語目を空け 1〜3 語目に刻みの鍵・体・その刻みの"
         "その体の判断の番号(k19)=実行時に重なり 0 を見る(第 6 期 6-2 カレンダー 3)",
-    ("engine/duties/port.py", "DutiesPort.choose", "duties.present"):
+    ("mind/plan/duties_port.py", "DutiesPort.choose", "duties.present"):
         "Generator を present に渡し、present が permutation(候補の数)を引く。0 語目を空け 1〜3 語目に刻みの鍵・体・その刻みの"
         "その体の判断の番号(k19)=実行時に重なり 0 を見る(第 6 期 6-6 ② 第 1 部)",
     ("llm/mock.py", "MockLLM._stream", "expr:self.domain"):

@@ -266,8 +266,8 @@ def test_next_boundary_tables_are_read_by_tick_of_day():
 
 
 def test_classical_and_store_choice_read_the_next_plan_by_tick_of_day():
-    from shibuya.engine import classical as CL
-    from shibuya.engine.store_choice import StoreChoice
+    from shibuya.mind.judge import classical as CL
+    from shibuya.mind.judge.store_choice import StoreChoice
 
     doc, md5 = CL.load_activity_prior()
     w = World.synthetic(n_cells=9, seed=1)

@@ -79,12 +79,12 @@ from typing import Any, Callable, Final, Mapping, NamedTuple, Sequence
 import numpy as np
 
 from shibuya.foundation.time_consts import NS_PER_SECOND, NS_PER_STEP
-from shibuya.engine import memory_m1 as _M1
+from shibuya.mind.memory import memory_m1 as _M1
 from shibuya.engine.events import body as _BODY
 from shibuya.foundation.vocab import events as _VOCAB
 from shibuya.foundation.journal.log import NS_PER_DAY, RETENTION_DAYS, EventId
-from shibuya.engine.familiarity import place_thing
-from shibuya.engine.memory import (
+from shibuya.mind.memory.familiarity import place_thing
+from shibuya.mind.memory.memory import (
     EVENT_KINDS,
     GIST_PER_AGENT,
     IMPORTANCE,
@@ -1117,7 +1117,7 @@ class MemoryStore:
         if int(c.kind) > 0 and 0 <= int(c.result) <= 255:
             match |= (kind == int(c.kind)) & (res == int(c.result))
         if self.cue is not None:  # 〔6-5 MR2〕意味の手がかりだけの腕: 一致=cos ≥ COS_MATCH・score に W_CTX·cos
-            from shibuya.engine.memory_embed import COS_MATCH, W_CTX
+            from shibuya.mind.memory.memory_embed import COS_MATCH, W_CTX
 
             _check_permit(CUE_PATH, "手がかりの文の埋め込みの控え")
             cosv = self.cue.cue_cos(np.arange(g0, g1, dtype=np.int64), cue_text)

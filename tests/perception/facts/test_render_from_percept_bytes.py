@@ -32,7 +32,7 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import Activity, ActivityKind, IntentKind, ResultCode, WakeCondition
-from shibuya.engine.memory import RecallItem
+from shibuya.mind.memory.memory import RecallItem
 from shibuya.perception import renderer as R
 from tests.perception.facts.scenes import build, head_module, twin
 

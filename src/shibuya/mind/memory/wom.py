@@ -50,7 +50,7 @@ from typing import Any, Final, NamedTuple, Sequence
 import numpy as np
 
 from shibuya.engine.poi_target import BUYABLE_CATS, CATEGORY_WORDS, GENERIC_WORDS, SYNTHETIC_BUYABLE_CATS
-from shibuya.engine.store_memory import STORE_SOURCE_BIT
+from shibuya.mind.memory.store_memory import STORE_SOURCE_BIT
 
 __all__ = [
     "WOM_TEXT_FIELDS",

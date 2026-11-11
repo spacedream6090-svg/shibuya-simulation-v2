@@ -18,7 +18,7 @@ import pytest
 
 from shibuya.agents.state import AgentState, ResultCode
 from shibuya.foundation import write_permit as WP
-from shibuya.engine import memory as M
+from shibuya.mind.memory import memory as M
 from shibuya.engine import relations as RL
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.run import run_day

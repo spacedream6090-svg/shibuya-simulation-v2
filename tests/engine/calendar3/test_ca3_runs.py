@@ -15,12 +15,12 @@ import pytest
 from shibuya.foundation.manifest import sections as MS
 from shibuya.engine import resume as RS
 from shibuya.engine import state_ledger as SL
-from shibuya.engine.calendar2 import book as B2
+from shibuya.mind.plan import promise_book as B2
 from shibuya.foundation.arms import calendar3 as A3
 from shibuya.engine.calendar3 import layer as LY
-from shibuya.engine.calendar3 import port as P3
+from shibuya.mind.plan import calendar3_port as P3
 from shibuya.engine.contact import layer as CL
-from shibuya.engine.contact import port as PC
+from shibuya.mind.plan import contact_port as PC
 from shibuya.engine.run import run_day
 from shibuya.engine.systems import table as TB
 
@@ -561,7 +561,7 @@ def test_seven_days_with_the_trial_mark_compose_once_on_friday(with_roster):
 def test_seven_days_negative_control_no_charge_decision(with_roster, monkeypatch):
     """〔第 6 期 6-4 C2 検収 L10〕負の対照: 充電の判断を「このまま」に固定すると、7 日で誰も充電せず(電池が増えない)、電源の切れた体と
     電源が無くて送れない C3 の連絡が、本人が充電するランより多い。"""
-    from shibuya.engine.contact import port as CP
+    from shibuya.mind.plan import contact_port as CP
 
     kw = dict(KW, sim_days=7, start_sim_datetime="2026-07-27")
     with ca3():

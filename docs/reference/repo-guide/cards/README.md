@@ -24,13 +24,12 @@
 | [src/shibuya/build/vis](src/shibuya/build/vis/README.md) | 5 | 0 |
 | [src/shibuya/census](src/shibuya/census/README.md) | 1 | 0 |
 | [src/shibuya/economy](src/shibuya/economy/README.md) | 18 | 0 |
-| [src/shibuya/engine](src/shibuya/engine/README.md) | 46 | 0 |
+| [src/shibuya/engine](src/shibuya/engine/README.md) | 33 | 0 |
 | [src/shibuya/engine/bridging](src/shibuya/engine/bridging/README.md) | 2 | 0 |
-| [src/shibuya/engine/calendar2](src/shibuya/engine/calendar2/README.md) | 5 | 0 |
-| [src/shibuya/engine/calendar3](src/shibuya/engine/calendar3/README.md) | 5 | 0 |
-| [src/shibuya/engine/contact](src/shibuya/engine/contact/README.md) | 10 | 0 |
-| [src/shibuya/engine/decision](src/shibuya/engine/decision/README.md) | 5 | 0 |
-| [src/shibuya/engine/duties](src/shibuya/engine/duties/README.md) | 4 | 0 |
+| [src/shibuya/engine/calendar2](src/shibuya/engine/calendar2/README.md) | 2 | 0 |
+| [src/shibuya/engine/calendar3](src/shibuya/engine/calendar3/README.md) | 4 | 0 |
+| [src/shibuya/engine/contact](src/shibuya/engine/contact/README.md) | 7 | 0 |
+| [src/shibuya/engine/duties](src/shibuya/engine/duties/README.md) | 3 | 0 |
 | [src/shibuya/engine/events](src/shibuya/engine/events/README.md) | 2 | 0 |
 | [src/shibuya/engine/experiment](src/shibuya/engine/experiment/README.md) | 9 | 0 |
 | [src/shibuya/engine/speech](src/shibuya/engine/speech/README.md) | 3 | 0 |
@@ -46,6 +45,13 @@
 | [src/shibuya/foundation/text](src/shibuya/foundation/text/README.md) | 5 | 0 |
 | [src/shibuya/foundation/vocab](src/shibuya/foundation/vocab/README.md) | 4 | 0 |
 | [src/shibuya/llm](src/shibuya/llm/README.md) | 4 | 0 |
+| [src/shibuya/mind](src/shibuya/mind/README.md) | 1 | 0 |
+| [src/shibuya/mind/judge](src/shibuya/mind/judge/README.md) | 3 | 0 |
+| [src/shibuya/mind/judge/decision](src/shibuya/mind/judge/decision/README.md) | 5 | 0 |
+| [src/shibuya/mind/memory](src/shibuya/mind/memory/README.md) | 11 | 0 |
+| [src/shibuya/mind/percept](src/shibuya/mind/percept/README.md) | 1 | 0 |
+| [src/shibuya/mind/plan](src/shibuya/mind/plan/README.md) | 9 | 0 |
+| [src/shibuya/mind/relations](src/shibuya/mind/relations/README.md) | 2 | 0 |
 | [src/shibuya/perception](src/shibuya/perception/README.md) | 3 | 0 |
 | [src/shibuya/world](src/shibuya/world/README.md) | 2 | 0 |
 | [src/shibuya/world/body](src/shibuya/world/body/README.md) | 6 | 0 |
@@ -147,7 +153,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 285 ディレクトリ・2251 本
+- [docs の索引](docs.md): 287 ディレクトリ・2256 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

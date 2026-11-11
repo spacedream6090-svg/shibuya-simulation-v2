@@ -170,7 +170,7 @@ def config_of(a: MemoryArms, *, row_caps: Mapping[str, int] | None = None) -> di
         return {}
     out: dict[str, Any] = {"model": a.model, "cue": a.cue, "people": a.people, "grain": a.grain}
     if a.cue == CUE_EMBED:
-        from shibuya.engine.memory_embed import model_identity
+        from shibuya.mind.memory.memory_embed import model_identity
 
         out["embed_model"] = a.embed_model
         out["embed_identity"] = model_identity(a.embed_model)

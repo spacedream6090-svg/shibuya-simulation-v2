@@ -50,7 +50,7 @@ PLAN_A_CALLERS: dict[str, dict[str, int]] = {
     "key_time_from_t_ns": {
         "foundation/rng.py": 1,
         "engine/systems/decide.py": 1,
-        "engine/decision/layer.py": 1,
+        "mind/judge/decision/layer.py": 1,
         "engine/contact/layer.py": 2,
         "engine/calendar2/layer.py": 1,
         "engine/calendar3/layer.py": 1,
@@ -59,10 +59,10 @@ PLAN_A_CALLERS: dict[str, dict[str, int]] = {
     "time_key_from_t_ns": {"foundation/ports/decision.py": 1},
     "time_key_at": {
         "foundation/ports/decision.py": 1,
-        "engine/contact/port.py": 2,
-        "engine/calendar2/port.py": 2,
-        "engine/calendar3/port.py": 2,
-        "engine/duties/port.py": 2,
+        "mind/plan/contact_port.py": 2,
+        "mind/plan/calendar2_port.py": 2,
+        "mind/plan/calendar3_port.py": 2,
+        "mind/plan/duties_port.py": 2,
         "engine/contact/layer.py": 1,
     },
     # 刻みの番号から鍵を作る旧の口(``DecisionPort.step_key``)は src から呼ばない(試験と比べる側だけ)

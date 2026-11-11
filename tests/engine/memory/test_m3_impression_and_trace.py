@@ -13,9 +13,9 @@ from __future__ import annotations
 import pytest
 
 from shibuya.foundation.time_consts import NS_PER_STEP
-from shibuya.engine import memory_trace as MT
+from shibuya.mind.memory import memory_trace as MT
 from shibuya.foundation.journal.log import Event, EventLog, LlmCall, Process
-from shibuya.engine.memory_impression import KIND_AFTER_TALK, KIND_SLEEP_REWRITE, ImpressionBook
+from shibuya.mind.memory.memory_impression import KIND_AFTER_TALK, KIND_SLEEP_REWRITE, ImpressionBook
 from shibuya.foundation.ports import percept as F
 
 

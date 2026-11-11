@@ -61,7 +61,7 @@ def test_grain_day_refuses_to_resume(tmp_path):
 
 ARGS = ["--agents", "40", "--seed", "1", "--world", "__no_such_dir__", "--cells", "9", "--ticks", "120",
         "--memory", "on", "--memory-store", "events"]
-CODE = ("import sys, json; from shibuya import cli; from shibuya.engine import memory_m1 as M; "
+CODE = ("import sys, json; from shibuya import cli; from shibuya.mind.memory import memory_m1 as M; "
         "rc = cli.main(sys.argv[1:]); print('ARMS=' + json.dumps(M.arms()._asdict())); sys.exit(rc)")
 
 

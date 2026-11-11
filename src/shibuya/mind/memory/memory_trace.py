@@ -28,7 +28,7 @@ from typing import Any, Final, Iterable, NamedTuple
 import numpy as np
 
 from shibuya.foundation.time_consts import NS_PER_STEP
-from shibuya.engine.memory_m1 import WORD_TRACE
+from shibuya.mind.memory.memory_m1 import WORD_TRACE
 
 __all__ = ["CO_WINDOW_NS", "TraceView", "shallow_trace", "trace_word", "played_along_share"]
 

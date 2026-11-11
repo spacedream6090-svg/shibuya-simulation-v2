@@ -26,7 +26,7 @@ ALLOWED = frozenset({"SpeechPort.__init__", "SpeechPort.say", "SpeechPort._write
                      "SpeechPort.report_shown", "SpeechPort.event_ids", "SpeechPort._forget_mark",
                      "SpeechPort.take_input_ids", "SpeechPort.note", "SpeechPort.__setattr__", "SpeechPort.__delattr__"})
 #: 同じ名の欄を持つ別の持ち主の置き場(1-8b の対象の外)。
-OTHER_OWNERS = frozenset({"engine/decision/layer.py", "economy/ops.py", "economy/ledger.py"})
+OTHER_OWNERS = frozenset({"mind/judge/decision/layer.py", "economy/ops.py", "economy/ledger.py"})
 DICT_MUTATORS = frozenset({"setdefault", "append", "pop", "popitem", "clear", "update", "extend", "insert", "remove",
                            "__setitem__", "__delitem__"})
 

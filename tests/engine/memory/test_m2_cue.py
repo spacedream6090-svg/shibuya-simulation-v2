@@ -18,8 +18,8 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.time_consts import NS_PER_SECOND
-from shibuya.engine import memory_embed as ME
-from shibuya.engine.memory_store import Cue, LegacyEvent, MemoryStore
+from shibuya.mind.memory import memory_embed as ME
+from shibuya.mind.memory.memory_store import Cue, LegacyEvent, MemoryStore
 from shibuya.engine.run import run_day
 from shibuya.engine.tape import Tape
 

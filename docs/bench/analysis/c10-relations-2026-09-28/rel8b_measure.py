@@ -343,7 +343,7 @@ def cmd_one(args: argparse.Namespace) -> int:
     from shibuya import cli
     from shibuya.agents.state import AgentKind
     from shibuya.engine import conversation as CV
-    from shibuya.engine import memory as MEM
+    from shibuya.mind.memory import memory as MEM
     from shibuya.engine import relations as RL
 
     sample, extra = ARMS[args.arm]
@@ -384,7 +384,7 @@ def cmd_one(args: argparse.Namespace) -> int:
 
     RL.RelationLayer.choose_talk_partners = choose  # type: ignore[method-assign]
     # classical の従来の相手選び(近接行の最初の人)=関係 off/8a の腕の基準の T5(同じ道具で数える)
-    from shibuya.engine import classical as CL
+    from shibuya.mind.judge import classical as CL
 
     orig_first = CL._first_near_person
 

@@ -179,7 +179,7 @@ def test_decision_events_carry_the_source_and_the_number():
 
 def test_growth_declaration_adds_the_decision_events_only_on_the_port_arm():
     """検収 L2: 成長の宣言=腕 legacy は今のまま・腕 port は判断の出来事の行(出来事の行+原因の表の行)を足す。"""
-    from shibuya.engine.decision import layer as DL
+    from shibuya.mind.judge.decision import layer as DL
 
     log = EV.EventLog()
     base = log.growth_declaration()

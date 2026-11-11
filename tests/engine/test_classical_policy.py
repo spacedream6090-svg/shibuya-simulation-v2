@@ -17,7 +17,7 @@ import pytest
 
 from shibuya.agents.state import Activity, AgentKind, AgentState, WakeCondition
 from shibuya.engine import chooser as CH
-from shibuya.engine import classical as CL
+from shibuya.mind.judge import classical as CL
 from shibuya.llm import LLMRequest
 from shibuya.act.intake.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
 from shibuya.foundation.vocab.actions import format_two_line_v3
@@ -257,7 +257,7 @@ def test_cli_exposes_the_5b_flags():
 
 # ================================================================= P4
 _PER_CALL = {
-    "engine/classical.py": ("render", "complete", "meal_probability", "activity_probs",
+    "mind/judge/classical.py": ("render", "complete", "meal_probability", "activity_probs",
                             "_respond", "_next_plan_minutes", "_eating_by_cell", "ipf_constants"),
     "engine/chooser.py": ("probs",),
 }
@@ -273,4 +273,4 @@ def test_per_call_paths_have_no_python_loops_over_agents():
                     if isinstance(sub, (ast.For, ast.While)):
                         offenders.append(f"{rel}:{node.name}:{sub.lineno}")
     assert not offenders, offenders
-    assert "逐次ループ宣言" in (SRC / "engine/classical.py").read_text(encoding="utf-8")
+    assert "逐次ループ宣言" in (SRC / "mind/judge/classical.py").read_text(encoding="utf-8")

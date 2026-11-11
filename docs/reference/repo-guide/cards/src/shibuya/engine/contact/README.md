@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 10 本・その他 0 本(このディレクトリの直下)
+Python 7 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/engine/contact/__init__.py)
 
@@ -10,31 +10,13 @@ engine.contact — 連絡の道具 C1(第 6 期 6-4・決定 10-12 §4-4 CT0〜C
 
 - 決定の ID: 10-12/§4-4・R-78
 
-## [attention.py](../../../../../../../../src/shibuya/engine/contact/attention.py)
-
-engine.contact.attention — 目と心の向き(第 6 期 6-4 C1・決定 10-12 §4-4 CT0「使っている間の気づきにくさ」=係数を掛けない)。
-
-- 公開の関数とクラス
-  - `Attention`(クラス): 体ごとの目と心の向き(状態台帳の腕の行 ``CT1A``・持ち主の道筋 ``contact.attn``)。
-  - `coarsen`(関数): 知覚の事実 ``p`` を目と心の向きの形にした写し(``mind_dir``=:class:`AttentionView`・``tool_state``=道具の状態)。
-  - `gate_salient`(関数): その刻みの顕著行為ごとの「気づいた体」から、関心の的が周りでなく割り込めなかった体を外した写しを返す(〔検収 M1〕
-  - `interrupted_of`(関数): 起きた理由が驚き駆動の入口(セルの B4 の変化)か。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.arms.contact`・`shibuya.foundation.ports.percept_contact`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.contact.layer`
-- 読む試験: `tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_video.py`
-- 状態台帳の行
-  - 持ち主 `contact.attn`(`Attention`)
-    - `CT1A` Attention(目と心の向き=視線の先・関心の的・前の刻みの活動・最後に気づいた通知・第 6 期 6-4 C1)(挙動 behavior・復元 required・腕 contact-c1) 道筋 `contact.attn._focus`・`contact.attn._gaze`・`contact.attn._notice`・`contact.attn._prev_act` 書ける系: calendar_3・contact
-    - `CT1AS` Attention._gaze_since(今の視線になった時刻=画面を見ていた長さの計器の素・第 6 期 6-4 C1)(挙動 diag・復元 required・腕 contact-c1) 道筋 `contact.attn._gaze_since` 書ける系: calendar_3・contact
-- 決定の ID: 10-12/§4-4・D-121
-
 ## [book.py](../../../../../../../../src/shibuya/engine/contact/book.py)
 
 engine.contact.book — 宛先(連絡先とグループ)の持ち主(第 6 期 6-4 C1・C2・決定 10-12 §4-4 CT5・口の約束 1-7 の器)。
 
 - 公開の関数とクラス
   - `ContactBook`(クラス): 宛先の持ち主(関係の層・グループの一覧を読む+〔C2〕本人が交換した連絡先・作ったグループ・招待・調べた店の番号)。
-- import している内部モジュール: `shibuya.engine.relations_people`・`shibuya.engine.tools.groups`・`shibuya.foundation.arms.contact`・`shibuya.foundation.vocab.contact_flags`
+- import している内部モジュール: `shibuya.engine.tools.groups`・`shibuya.foundation.arms.contact`・`shibuya.foundation.vocab.contact_flags`・`shibuya.mind.relations.people`
 - 呼び手: `shibuya.engine.contact.layer`
 - 読む試験: `tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_exchange.py`・`tests/engine/contact/test_c2_habit.py`
 - 状態台帳の行
@@ -92,21 +74,6 @@ engine.contact.deliver — 届く(エンジン)=メッセージ・電話・既�
     - `CT1IS` Mailbox._sent(送ったメッセージの既読の数=道具の性質・第 6 期 6-4 C1)(挙動 behavior・復元 required・腕 contact-c1) 道筋 `contact.mail._by_sender`・`contact.mail._sent` 書ける系: calendar_3・contact
 - 決定の ID: 10-12/§4-4
 
-## [habit.py](../../../../../../../../src/shibuya/engine/contact/habit.py)
-
-engine.contact.habit — CT4 の習慣(本人の過去の連絡の判断から作る・第 6 期 6-4 C2・腕 ``SHIBUYA_CONTACT_HABIT``)。
-
-- 公開の関数とクラス
-  - `HabitBook`(クラス): 体ごとの連絡の選びの回数(状態台帳の腕の行 ``CT1H``・持ち主の道筋 ``contact.habit``)。
-  - `states_of`(関数): 体ごとの状態(勤務中・家・移動中・ほか)。``work_cell`` が ``None`` なら勤務中は無い。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.arms.contact`
-- 呼び手: `shibuya.engine.contact.layer`
-- 読む試験: `tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/time/test_v30a_key_sites.py`
-- 状態台帳の行
-  - 持ち主 `contact.habit`(`HabitBook`)
-    - `CT1H` HabitBook(CT4 の習慣=体ごとの状態 × 判断 × 語の選びの回数・第 6 期 6-4 C2)(挙動 behavior・復元 required・腕 contact-c1) 道筋 `contact.habit._counts` 書ける系: calendar_3・contact
-- 決定の ID: 10-03/§7-3・10-12/§4-4
-
 ## [layer.py](../../../../../../../../src/shibuya/engine/contact/layer.py)
 
 engine.contact.layer — 連絡の道具 C1 の持ち主と系 ``contact`` の本体(第 6 期 6-4・腕 ``--contact c1``・既定 off)。
@@ -118,7 +85,7 @@ engine.contact.layer — 連絡の道具 C1 の持ち主と系 ``contact`` の�
   - `issued_key`(関数)
   - `manifest_fields`(関数): manifest の ``contact_c1``(腕 c1 のランだけ・ほかは ``None``=欄を出さない)。
   - `sys_contact`(関数): 系 contact(刻みの中・腕 c1 のランだけ立つ)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.contact.attention`・`shibuya.engine.contact.book`・`shibuya.engine.contact.calls`・`shibuya.engine.contact.chat_state`・`shibuya.engine.contact.deliver`・`shibuya.engine.contact.habit`・`shibuya.engine.contact.port`・`shibuya.engine.contact.tools`・`shibuya.engine.conversation`・`shibuya.engine.speech.port`・`shibuya.engine.tools.groups`・`shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.percept_contact`・`shibuya.foundation.queues.batching`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.vocab.events`・`shibuya.world.body.reactions`・`shibuya.world.things.device`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.contact.book`・`shibuya.engine.contact.calls`・`shibuya.engine.contact.chat_state`・`shibuya.engine.contact.deliver`・`shibuya.engine.contact.tools`・`shibuya.engine.conversation`・`shibuya.engine.speech.port`・`shibuya.engine.tools.groups`・`shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.percept_contact`・`shibuya.foundation.queues.batching`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.vocab.events`・`shibuya.mind.plan.contact_attention`・`shibuya.mind.plan.contact_habit`・`shibuya.mind.plan.contact_port`・`shibuya.world.body.reactions`・`shibuya.world.things.device`
 - 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.table`
 - 読む試験: `tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_world.py`・`tests/engine/contact/_c1.py`・`tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c1_world.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_exchange.py`・`tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/contact/test_c2_video.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
@@ -130,27 +97,6 @@ engine.contact.layer — 連絡の道具 C1 の持ち主と系 ``contact`` の�
 - 書きの許可
   - 系 `contact`(群 連絡・時 `tick`・立つ条件 `contact`・関数 `sys_contact`)
     - 書いてよい外の道筋: `BW:batching.*`・`CA2G:calendar2._turns`・`CA3G:calendar3._reads`・`CT1*:contact.*`・`E:events.*`
-- 決定の ID: 10-12/§4-4
-
-## [port.py](../../../../../../../../src/shibuya/engine/contact/port.py)
-
-engine.contact.port — 連絡の本人の判断(候補の口 J0 の形)の仮のモデル・文の口・習慣の口(第 6 期 6-4 C1)。
-
-- 公開の関数とクラス
-  - `ContactPort`(クラス): 連絡の判断の仮のモデル(mock・判断モデルの代わり)。乱数の鍵はその刻みのその体の判断の通し番号(``ctx.call_id`` から読む・
-  - `MockTextPort`(クラス): 文の口の仮のモデル(LLM の口の代わり=定型の文 1 つ)。
-  - `call_id_of`(関数): 判断の呼びの id(テープの形 ``<刻み>:<体>:<−通し番号>``=主の判断の起床の級 ≥ 0 と分ける)。
-  - `cand`(関数): 候補 1 つ(源は語から・見せ方の文は省略で語そのもの・id は省略で語)。
-  - `cap_text`(関数): 長さの上限(安全装置): 超えたら切って ``True``。
-  - `habit_recheck_u`(関数): 〔C2〕習慣で答えられるときに判断の口へ戻すかの一様乱数(用途名 ``contact.habit``・0 語目を空け 1〜3 語目に刻みの鍵・体・
-  - `parse_call_id`(関数): 連絡の判断の呼びの id → ``(刻み, 体, 通し番号)``(連絡の形でなければ ``None``)。
-  - `purpose_of_serial`(関数)
-  - `serial_of`(関数): 判断の通し番号(その刻みのその体の k 回目 × 16+判断の種類)。上限を超えたら ``ValueError``(番号がぶつからない)。
-  - `step_of_call_id`(関数): 判断の呼びの id → 刻み(連絡の形でなければ ``None``)。負の対照の試験と監査が読む。
-- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.llm.mock`
-- 呼び手: `shibuya.engine.contact.layer`
-- 読む試験: `tests/engine/calendar2/test_ca2_units.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/contact/_c1.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_exchange.py`・`tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/contact/test_c2_video.py`・`tests/engine/time/test_v30a_key_sites.py`
-- 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
 - 決定の ID: 10-12/§4-4
 
 ## [tools.py](../../../../../../../../src/shibuya/engine/contact/tools.py)

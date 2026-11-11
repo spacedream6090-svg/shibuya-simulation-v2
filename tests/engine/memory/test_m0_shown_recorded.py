@@ -77,7 +77,7 @@ def test_event_ids_follow_the_recalled_rows(runs):
 
 def test_last_shown_time_matches_the_tape(runs, monkeypatch):
     """器の「最後に見せた時刻」=テープでその行(同じ目印)を見せた最後の呼び出しの時刻。"""
-    from shibuya.engine.memory import MemoryLayer
+    from shibuya.mind.memory.memory import MemoryLayer
 
     seen = {}
     orig = MemoryLayer.after_tick

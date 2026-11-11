@@ -16,8 +16,8 @@ from types import MappingProxyType, SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.engine.decision import layer as DL
-from shibuya.engine.decision.sources import build_candidates
+from shibuya.mind.judge.decision import layer as DL
+from shibuya.mind.judge.decision.sources import build_candidates
 from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE
 from shibuya.engine.run import run_day
 from shibuya.engine.tools import record as REC

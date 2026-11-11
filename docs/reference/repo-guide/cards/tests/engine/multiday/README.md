@@ -16,7 +16,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `Capture`(クラス): 器に口を置く所を包み、ランの器と記録を控える(戻り値は変えない)。
   - `arms`(関数): 腕を一時的に選ぶ(組み立てが読む)。〔第346〕近接は常に distance(切替口 cell は消した)。
   - `tool`(関数): 記録の道具(``md23/tools/multiday_md23.py``)を読み込む。
-- import している内部モジュール: `shibuya.economy.stage2_bind`・`shibuya.engine.memory_store`
+- import している内部モジュール: `shibuya.economy.stage2_bind`・`shibuya.mind.memory.memory_store`
 - 読む試験: `tests/engine/memory/test_mr65_grain_and_cli.py`・`tests/engine/multiday/test_md23_body_events.py`・`tests/engine/multiday/test_md23_resume.py`・`tests/engine/multiday/test_md23_tool.py`・`tests/engine/multiday/test_md23_w9_window.py`
 - 決定の ID: 第 346
 
@@ -41,7 +41,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_signboard_rows_of_the_1_7_arm_are_reused`(関数)
   - `test_store_pointers_are_log_events`(関数)
   - `test_word_tables_agree_with_the_memory_and_the_vocab`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.events.body`・`shibuya.engine.memory`・`shibuya.engine.memory_store`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.tape`・`shibuya.engine.tools.record`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`tests/engine/multiday/_md.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.events.body`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.tape`・`shibuya.engine.tools.record`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_store`・`tests/engine/multiday/_md.py`
 
 ## [test_md23_resume.py](../../../../../../../tests/engine/multiday/test_md23_resume.py)
 

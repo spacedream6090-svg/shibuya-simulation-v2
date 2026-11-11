@@ -23,7 +23,7 @@ engine.decision.port — 候補の口 J0 の型と、提示(順のシャッフ�
   - `present`(関数): 候補を並べ替え、提示の番号(1〜n)を**最後に**振った写しを返す(C-2 の 1・Concordia の形)。
   - `present_rng`(関数): 並べ替えの乱数(10c の counter の鍵=``core.rng.k19_counters``(刻みの鍵・体・候補の数))。
 - import している内部モジュール: `shibuya.foundation.rng`
-- 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.calendar2.port`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar3.port`・`shibuya.engine.calendar_self`・`shibuya.engine.contact.layer`・`shibuya.engine.contact.port`・`shibuya.engine.decision.layer`・`shibuya.engine.decision.ports`・`shibuya.engine.decision.sources`・`shibuya.engine.duties.layer`・`shibuya.engine.duties.port`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`
+- 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar_self`・`shibuya.engine.contact.layer`・`shibuya.engine.duties.layer`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.ports`・`shibuya.mind.judge.decision.sources`・`shibuya.mind.plan.calendar2_port`・`shibuya.mind.plan.calendar3_port`・`shibuya.mind.plan.contact_port`・`shibuya.mind.plan.duties_port`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`
 - 読む試験: `tests/build_pop/test_w21_stage8_9.py`・`tests/economy/stage2/test_stage2_calls.py`・`tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/decision/_j0.py`・`tests/engine/decision/test_j0_cause_columns.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/decision/test_j0_other_ratio_field.py`・`tests/engine/decision/test_j0_port_schema.py`・`tests/engine/decision/test_j0_shuffle_invariance.py`・`tests/engine/duties/test_du_units.py`・`tests/engine/test_pop_w21_world.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/tools/test_dm_eval.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
 - 決定の ID: 10-12/§4-7・10-13b/§4-2・R-108・R-113
@@ -88,6 +88,6 @@ perception.contact_view — 連絡の道具 C1 の知覚の事実の値(目と�
   - `DeviceView`(クラス): 道具の状態と通知(``Percept.tool_state`` の値=腕 c1 のランだけ)。返すのは現実の道具が知り得ることだけ(CT0 の 4)。
   - `contact_lines`(関数): B6 の末尾に足す行(通話 → 着信 → 通知 → 未読 → 割り込めなかった出来事の順)。
   - `people_hint_word`(関数): 人の気配の数 → 粗い語(周辺視=数えない)。
-- 呼び手: `shibuya.engine.contact.attention`・`shibuya.engine.contact.calls`・`shibuya.engine.contact.deliver`・`shibuya.engine.contact.layer`・`shibuya.perception.renderer`
+- 呼び手: `shibuya.engine.contact.calls`・`shibuya.engine.contact.deliver`・`shibuya.engine.contact.layer`・`shibuya.mind.plan.contact_attention`・`shibuya.perception.renderer`
 - 読む試験: `tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c1_world.py`・`tests/engine/contact/test_c2_video.py`
 - 決定の ID: 10-12/§4-4

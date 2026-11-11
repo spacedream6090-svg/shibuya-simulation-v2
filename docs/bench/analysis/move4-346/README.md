@@ -24,6 +24,7 @@
 | world | fbb2287 | 48(表の行 55=move 54・empty 1) | 274 | モジュール 340・落ちた 0 | 19/19 同じ・終了コード 0 | 6,787 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed | 9 kept(古い 4+新しい 5) |
 | economy | 3b807f4 | 3(表の行 4=move 3・empty 1) | 38 | モジュール 339・落ちた 0 | 19/19 同じ・終了コード 0 | 6,788 passed・1 failed(前からの 1 本)・3 skipped・1 xfailed | 8 kept(古い 3+新しい 5) |
 | act | ddce87e | 3(表の行 3=move 3) | 37 | モジュール 341・落ちた 0 | 19/19 同じ・終了コード 0 | 6,787 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed | 8 kept(古い 3+新しい 5) |
+| mind | d6fa47c | 25(表の行 27=move 27) | 109 | モジュール 347・落ちた 0 | 19/19 同じ・終了コード 0 | 6,787 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed | 9 kept(古い 3+新しい 6) |
 
 ## foundation(2026-11-11)
 
@@ -70,3 +71,14 @@
 - byte-check: 基準 ddce87e の写しと作業木の src で 19 構成・37 欄すべて同じ・動いた 0・誤り 0(終了コード 0)。既定の final `c8d68704b7b0760d`・呼数 60,939。JSON は [act/bytecheck/](act/bytecheck/)。
 - 性能の参考(既定 w6_v3_default・5,000 体・seed 1・1 日・mock・同じ機械): 壁時計 基準 75.5 秒/後 68.8 秒(19 構成を 6 本並列+裏で範囲の試験を 4 並列。比べない参考値・最大メモリは測っていない)。
 - 範囲の試験: 6,787 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed(37 分 56 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木だけで落ちる)。道具の報告は [act/pkgmove_act_report.json](act/pkgmove_act_report.json)。
+
+## mind(2026-11-11)
+
+- 当てた行 27(move 27)。ファイルの移動 25・新しい頭 7・空にした頭 1・消えた古いディレクトリやファイル 1・保留で当てなかった行 0。
+- import の文: src 88・build 0・tests 135・tools 2・docs の記録の道具 4。道の文字列 23 か所(src の表 27・点の道 1・斜線の道 29・`/` の結合 1・子のプロセスへ渡すコードの import 1)。
+- 頭から除いた再輸出: 無し。`class_ids.py` の鍵 48 本。つなぎの台帳の道の表に 25 行。pyproject の package-data の鍵: 変えていない。
+- 守り 8 つは全部「同じ」。当てた後の import の確かめ=モジュール 347・落ちた 0。
+- import の決まり(`contracts --stage mind --apply`): 古い決まり 3+新しい決まり 6=lint-imports 9 kept。ignore 41 行。まだ移っていない読み手で読んでよい側に足したもの: 決まり 5: `cli`。どの決まりの元の側にも入らないモジュール: `cli`・`world.assets`・`world.processes.circularity`・`world.processes.deletion_candidates`。報告 [mind/contracts_mind.json](mind/contracts_mind.json)。
+- byte-check: 基準 d6fa47c の写しと作業木の src で 19 構成・37 欄すべて同じ・動いた 0・誤り 0(終了コード 0)。既定の final `c8d68704b7b0760d`・呼数 60,939。JSON は [mind/bytecheck/](mind/bytecheck/)。
+- 性能の参考(既定 w6_v3_default・5,000 体・seed 1・1 日・mock・同じ機械): 壁時計 基準 68.4 秒/後 91.6 秒(19 構成を 6 本並列+裏で範囲の試験を 4 並列。比べない参考値・最大メモリは測っていない)。
+- 範囲の試験: 6,787 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed(38 分 5 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木だけで落ちる)。道具の報告は [mind/pkgmove_mind_report.json](mind/pkgmove_mind_report.json)。

@@ -18,8 +18,8 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.ports import decision as P
-from shibuya.engine.decision import ports as PS
-from shibuya.engine.decision import sources as SR
+from shibuya.mind.judge.decision import ports as PS
+from shibuya.mind.judge.decision import sources as SR
 from shibuya.foundation.vocab.actions import cross_action_words
 
 from tests.engine.decision._j0 import FakeBridge, FakePolicy, ctx_of, vocab_candidates

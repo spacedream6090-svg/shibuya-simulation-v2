@@ -18,9 +18,9 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import AgentState
-from shibuya.engine import memory as M
-from shibuya.engine import store_memory as SM
-from shibuya.engine import wom as W
+from shibuya.mind.memory import memory as M
+from shibuya.mind.memory import store_memory as SM
+from shibuya.mind.memory import wom as W
 from shibuya.engine.conversation import ConversationManager
 from shibuya.foundation.journal.log import EventLog
 from shibuya.engine.speech import layer as SPL

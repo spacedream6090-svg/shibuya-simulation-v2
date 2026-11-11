@@ -19,7 +19,7 @@ import pytest
 
 from shibuya.agents.state import RELATION_FIELDS, AgentState, ResultCode
 from shibuya.world.facts.weekly_reader import WeeklySchedule
-from shibuya.engine import memory as M
+from shibuya.mind.memory import memory as M
 from shibuya.engine import relations as RL
 from shibuya.engine.conversation import ConversationManager
 from shibuya.foundation.text import templates as T

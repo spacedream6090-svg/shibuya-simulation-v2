@@ -84,7 +84,7 @@ def test_mock_text_is_unchanged_without_the_field_line(form, vocab):
 
 
 def test_classical_text_is_unchanged_without_the_field_line():
-    from shibuya.engine import classical as CL
+    from shibuya.mind.judge import classical as CL
 
     req = LLMRequest(agent_id=1, tick=3, wake_class=0, prompt="[B6 問い] いま何をしますか。")
     text = format_two_line_v3("r", "なし", "なし", "休む", "30分")

@@ -10,7 +10,7 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from shibuya.engine.contact import port as P
+from shibuya.mind.plan import contact_port as P
 from shibuya.engine.contact.book import FRIEND
 from shibuya.engine.contact.layer import (
     W_EXCH_ASK, W_EXCH_NO, W_EXCH_OK, W_GINVITE, W_GJOIN, W_GLEAVE, W_GMAKE, W_GREFUSE, W_LOOKUP, audit_causes,

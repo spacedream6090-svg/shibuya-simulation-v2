@@ -18,9 +18,9 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.time_consts import NS_PER_SECOND, STEPS_PER_DAY
-from shibuya.engine import memory_m1 as M1
-from shibuya.engine import memory_store as MS
-from shibuya.engine.memory_store import LegacyEvent, MemoryStore
+from shibuya.mind.memory import memory_m1 as M1
+from shibuya.mind.memory import memory_store as MS
+from shibuya.mind.memory.memory_store import LegacyEvent, MemoryStore
 from shibuya.engine.run import run_day
 from shibuya.foundation import write_guard as G
 from shibuya.engine.tape import Tape
@@ -185,7 +185,7 @@ def test_m1_rate_seed_is_the_population_seed(monkeypatch):
 
 def test_m1_needs_the_population_seed_at_assembly():
     """〔検収 M1〕器に腕 m1 を置くときに母集団の seed が無ければ止める(既定の 0 で黙って引かない)。"""
-    from shibuya.engine.memory import MemoryLayer
+    from shibuya.mind.memory.memory import MemoryLayer
 
     with arms("events", model="m1"):
         layer = MemoryLayer(4, 8)

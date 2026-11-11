@@ -17,8 +17,8 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_MINUTE
-from shibuya.engine import memory_m1 as M1
-from shibuya.engine.memory import RECALL_TAU, activation_rows
+from shibuya.mind.memory import memory_m1 as M1
+from shibuya.mind.memory.memory import RECALL_TAU, activation_rows
 
 S = NS_PER_SECOND
 NOW = 10**15

@@ -45,7 +45,7 @@ engine.experiment.branch — 「T0 までテープを再生して T0 から今�
   - `pre_t0_match`(関数): (b) T0 より前の checkpoint(刻み < T0)の behavior-hash が全部基準と同じ・テープ外 0・古典の食い違い 0。
   - `probe_first_divergence`(関数): 2 本の系ごとの指紋の行(``(刻み, 系, ((欄, digest), …))``)の最初の食い違い(同じなら ``None``)。
   - `run_branch`(関数): 基準のランの記録 ``base_dir`` から申込書 ``form`` の分岐を回し、4 つの確認をして ``branch_report.json`` を書く。
-- import している内部モジュール: `shibuya.engine.classical`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.switch`・`shibuya.engine.systems.probe`・`shibuya.engine.tape`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.llm`・`shibuya.world.ledger.records`
+- import している内部モジュール: `shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.switch`・`shibuya.engine.systems.probe`・`shibuya.engine.tape`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.llm`・`shibuya.mind.judge.classical`・`shibuya.world.ledger.records`
 - 呼び手: `shibuya.cli`・`shibuya.engine.experiment.switch`
 - 読む試験: `tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/experiment/test_x33_form.py`
 - 決定の ID: 10-12/§1-1・10-12/§4-5・R-71
@@ -145,7 +145,7 @@ engine.experiment.switch — T からの切り替えの口(第 3 期 3-3b・CP5-
   - `tape_crossing`(関数): テープの行のうち T0 より前に出した艦隊の到着待ちの行(``deferred`` か ``observed_tick`` ≥ 0)の数と、そのうち T0 以後に
   - `vs_aa`(関数): (c) 改変の枝の最初の食い違い(A/A の枝 a との比べ)と A/A の枝 2 本の最初の食い違いの刻みの差(A/A − 改変)。
   - `window_head_step`(関数): T0 が計算のまとめの窓の頭か(窓の頭=ランの始め 0 から ``window_ns`` ずつ)を確かめ、切り替わる刻み(T0 以後の最初の
-- import している内部モジュール: `shibuya.engine.classical`・`shibuya.engine.experiment.branch`・`shibuya.llm.mock`
+- import している内部モジュール: `shibuya.engine.experiment.branch`・`shibuya.llm.mock`・`shibuya.mind.judge.classical`
 - 呼び手: `shibuya.engine.experiment.branch`
 - 読む試験: `tests/engine/experiment/test_cf33b_switch.py`
 - 決定の ID: 10-12/§4-5・R-71・R-117

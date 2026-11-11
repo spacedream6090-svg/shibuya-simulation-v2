@@ -24,8 +24,8 @@ from shibuya.foundation import write_permit as WP
 from shibuya.foundation.time_consts import NS_PER_STEP
 from shibuya.engine import state_ledger as SL
 from shibuya.engine import state_ledger_ast as SA
-from shibuya.engine.memory import GIST_PER_AGENT, IMPORTANCE_MAX, MemoryLayer
-from shibuya.engine import memory_store as MS
+from shibuya.mind.memory.memory import GIST_PER_AGENT, IMPORTANCE_MAX, MemoryLayer
+from shibuya.mind.memory import memory_store as MS
 from shibuya.foundation import write_guard as G
 from shibuya.engine.systems.table import SPECS
 from tests import _places as PL
@@ -43,10 +43,10 @@ def _ev(step: int, kind: int, partner: int = -1, obj: int = 5, result: int = 0, 
 
 # ================================================================= 置き場と層
 def test_store_is_one_module_beside_the_memory_table():
-    import shibuya.engine.memory as M
+    import shibuya.mind.memory.memory as M
 
-    assert Path(MS.__file__).resolve() == (SRC / "engine" / "memory_store.py").resolve()
-    assert MS.__name__ == "shibuya.engine.memory_store"
+    assert Path(MS.__file__).resolve() == (SRC / "mind" / "memory" / "memory_store.py").resolve()
+    assert MS.__name__ == "shibuya.mind.memory.memory_store"
     assert Path(M.__file__).name == "memory.py" and not hasattr(M, "__path__")  # 今の表のモジュールは package にしない
     # 表のモジュールと同じ名のディレクトリが無い(〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面のディレクトリ engine/memory)
     assert not Path(M.__file__).with_suffix("").exists()
@@ -307,7 +307,7 @@ def test_ledger_rows_are_out_of_both_hashes_and_the_state_file():
     assert (m0r.behavior, m0r.restore) == (SL.DIAG, SL.DISCARDABLE)
     paths = [p for _k, p in SL.full_items()] + [p for _k, p in SL.behavior_items()]
     assert not [p for p in paths if "memory_store" in p]
-    assert SL.OWNER_CLASSES["mem_layer.memory_store"] == ("engine/memory_store.py", "MemoryStore")
+    assert SL.OWNER_CLASSES["mem_layer.memory_store"] == ("mind/memory/memory_store.py", "MemoryStore")
     slots = set(MS.MemoryStore.__slots__)
     # 〔第 2 期 2-3〕記録の目印の seq は腕の行 M0L(軸 1 no・軸 2 required=腕のランだけ full-hash と状態のファイル)
     m0l = SL.row("M0L")

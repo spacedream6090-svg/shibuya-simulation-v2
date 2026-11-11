@@ -415,7 +415,7 @@ def test_e5_t3_recalled_identity_matches_the_memory_table(tmp_path, monkeypatch)
     """T3: 引いた記憶の同定 3 列を、想起した時点の記憶の表(``mem_tick``・``mem_kind``・``mem_object``・店の行は
     ``sm_first``・``sm_poi``)と突き合わせる。並びのずれ・種類と対象の取り違えで落ちる。"""
     from shibuya.engine import tape as TP
-    from shibuya.engine.memory import STORE_ITEM_KIND, MemoryLayer
+    from shibuya.mind.memory.memory import STORE_ITEM_KIND, MemoryLayer
 
     seen: dict[tuple[int, int], list[tuple[int, tuple[int, int, int]]]] = {}
     real = MemoryLayer.recall

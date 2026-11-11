@@ -20,7 +20,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `fresh`(関数): 毎回作り直す世界と台帳(ランごとに新しい物が要る)。
   - `plan_assets`(関数): 店の決まり(W7 の形の営業時間の表)。曜日 0〜6 と祝日の行(7)に同じ区間。``per_poi`` で店ごとに替えられる。``src`` は
   - `world_fixture`(関数): 合成の世界・物の台帳・店の決まりを組み立ての口に入れる(``run_day(**kw, **extra)`` の ``extra`` を返す)。店の担当は今の
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.duties.port`・`shibuya.engine.systems.build`・`shibuya.foundation.arms.duties`・`shibuya.foundation.time_consts`・`shibuya.world.assets`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.systems.build`・`shibuya.foundation.arms.duties`・`shibuya.foundation.time_consts`・`shibuya.mind.plan.duties_port`・`shibuya.world.assets`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.model.state`
 - 読む試験: `tests/engine/duties/test_du_runs.py`・`tests/engine/duties/test_du_world.py`・`tests/engine/time/test_v30a_key_sites.py`
 
 ## [test_du_runs.py](../../../../../../../tests/engine/duties/test_du_runs.py)
@@ -55,7 +55,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `test_vocabulary_is_closed_and_appended`(関数)
   - `test_without_the_decision_the_shelf_is_not_restocked_by_the_engine_at_a_staffed_store`(関数)
   - `test_without_the_decision_the_staffed_store_stays_closed`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.duties.layer`・`shibuya.engine.duties.port`・`shibuya.engine.llm_bridge`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.table`・`shibuya.foundation.arms.duties`・`shibuya.foundation.journal.log`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.switch_rate`・`shibuya.world.ledger.records`・`tests/engine/duties/_du.py`・`tests/engine/rights/test_rights_events.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.duties.layer`・`shibuya.engine.llm_bridge`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.run_kind`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.table`・`shibuya.foundation.arms.duties`・`shibuya.foundation.journal.log`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.mind.plan.duties_port`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.switch_rate`・`shibuya.world.ledger.records`・`tests/engine/duties/_du.py`・`tests/engine/rights/test_rights_events.py`
 - 環境変数: `SHIBUYA_SYSTEMS_CHECK`
 - 決定の ID: 11-01
 
@@ -76,7 +76,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `test_store_rules_follow_the_table_rows`(関数)
   - `test_store_rules_source_mark`(関数): 〔検収 M3〕出どころの印(W7 の列 src)・実データには印を付けない・列が無ければ不明。
   - `test_store_rules_without_a_table_know_nothing`(関数)
-- import している内部モジュール: `shibuya.engine.calendar3.port`・`shibuya.engine.duties.knowledge`・`shibuya.engine.duties.layer`・`shibuya.engine.duties.port`・`shibuya.foundation.arms.duties`・`shibuya.foundation.ports.decision`・`shibuya.world.facts.rights.ledger`
+- import している内部モジュール: `shibuya.engine.duties.knowledge`・`shibuya.engine.duties.layer`・`shibuya.foundation.arms.duties`・`shibuya.foundation.ports.decision`・`shibuya.mind.plan.calendar3_port`・`shibuya.mind.plan.duties_port`・`shibuya.world.facts.rights.ledger`
 
 ## [test_du_world.py](../../../../../../../tests/engine/duties/test_du_world.py)
 

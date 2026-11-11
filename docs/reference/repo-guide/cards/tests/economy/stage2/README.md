@@ -52,7 +52,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_port_answers_reach_the_actions_in_a_run`(関数)
   - `test_rejected_rows_drop_their_causes`(関数)
   - `test_transfer_takes_row_causes_and_counts_the_uncaused_rows`(関数)
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.engine.commit`・`shibuya.engine.decision.layer`・`shibuya.engine.decision.ports`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.ledger`・`shibuya.world.model.state`・`tests/economy/stage2/test_stage2_runs.py`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.engine.commit`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.ledger`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.ports`・`shibuya.world.model.state`・`tests/economy/stage2/test_stage2_runs.py`
 
 ## [test_stage2_default_2_4.py](../../../../../../../tests/economy/stage2/test_stage2_default_2_4.py)
 
@@ -147,7 +147,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_off_parts_spec_without_the_arm_is_ignored`(関数)
   - `test_port_arm_shows_the_candidates_and_keeps_the_mock_actions`(関数)
   - `test_turning_one_part_off_zeroes_its_flow`(関数)
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.engine.decision.layer`・`shibuya.engine.run`・`shibuya.engine.systems.boxes`・`shibuya.foundation.ports.ledger`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.engine.run`・`shibuya.engine.systems.boxes`・`shibuya.foundation.ports.ledger`・`shibuya.mind.judge.decision.layer`・`shibuya.world.model.state`
 - 読む試験: `tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_resume_arm.py`
 - 決定の ID: 第 337
 

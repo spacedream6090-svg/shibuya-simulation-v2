@@ -101,7 +101,7 @@ dm_eval.judge — 候補の当て口 ``Scorer`` と採点の器(第 6 期 6-1・
   - `strict_check`(関数): 同じ入力を ``repeats`` 回(同じ並び)と、まとめ方を変えた 1 回(並びを逆)で、状況ごとの分布がバイト単位で同じか。
   - `surprise_of`(関数): 驚きの語(DM5 の 6 語)→ 0〜5。前後の空白と句読点を除いて 6 語のどれかと同じときだけ(それ以外は None)。
   - `top1`(関数): 1 位の候補の id(同点は id の順=中身で決める)。
-- import している内部モジュール: `shibuya.engine.classical`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/situations.py`
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.mind.judge.classical`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/situations.py`
 - 呼び手: `tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/table.py`
 - 読む試験: `tests/tools/test_dm_eval.py`
 - 決定の ID: 11-01・11-01/§11・R-83・R-94・R-94 §0 #2・R-108・R-125・第 323
@@ -139,7 +139,7 @@ dm_eval.situations — 状況の読み口(DM4)と候補の口(DM-0)(第 6 期 6-
   - `tape_experience`(関数): 本人の経験の代わり: 同じテープの同じ体の、状況より前の呼(刻みが小さい・繰り延べでない)の行為の語を新しい順に k 呼。
   - `verify_tape_md5`(関数): 状況のあるテープの ``calls.parquet`` の md5 を 1-10 の ``summary.json`` の表(``md5_calls``)と照らす。
   - `word_of_output`(関数): テープの応答(2 行形)の行為の語(語彙 v1 の横断語だけ・それ以外は None)。
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.engine.decision.sources`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/read_guard.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.mind.judge.decision.sources`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/read_guard.py`
 - 呼び手: `tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/tools/test_dm_eval.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`

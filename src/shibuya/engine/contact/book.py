@@ -87,7 +87,7 @@ class ContactBook:
 
     def source(self) -> str:
         """個人の連絡先の出どころ(manifest の設定)。"""
-        from shibuya.engine.relations_people import PeopleRelationLayer
+        from shibuya.mind.relations.people import PeopleRelationLayer
 
         r = self.rel_layer
         if r is None:
@@ -189,7 +189,7 @@ class ContactBook:
         return np.unique(ids[ok])
 
     def _base(self, agents: Any, a: int, means_bit: int, step: int) -> np.ndarray:
-        from shibuya.engine.relations_people import PeopleRelationLayer
+        from shibuya.mind.relations.people import PeopleRelationLayer
 
         r = self.rel_layer
         if r is None:

@@ -54,7 +54,7 @@ from shibuya.foundation.ports.decision import (
     DecisionContext,
     DecisionPort,
 )
-from shibuya.engine.decision.sources import build_candidates, memory_kind_words
+from shibuya.mind.judge.decision.sources import build_candidates, memory_kind_words
 from shibuya.foundation.vocab import events as V
 
 __all__ = [

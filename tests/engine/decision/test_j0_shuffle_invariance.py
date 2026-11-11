@@ -11,7 +11,7 @@ import itertools
 import pytest
 
 from shibuya.foundation.ports import decision as P
-from shibuya.engine.decision import ports as PS
+from shibuya.mind.judge.decision import ports as PS
 from shibuya.foundation.vocab.actions import cross_action_words
 from shibuya.llm.mock import MockLLM
 

@@ -72,9 +72,9 @@ from shibuya.foundation.rng import key_time_from_t_ns
 from shibuya.foundation.time_consts import HOURS_PER_DAY, NS_PER_SECOND, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
 from shibuya.engine import resolve as R
 from shibuya.foundation.arms import calendar2 as _ARM
-from shibuya.engine.calendar2 import book as _B
-from shibuya.engine.calendar2 import port as _P
-from shibuya.engine.calendar2.recall import IMPORTANCE_HEAD, HeadRecall
+from shibuya.mind.plan import promise_book as _B
+from shibuya.mind.plan import calendar2_port as _P
+from shibuya.mind.plan.head_recall import IMPORTANCE_HEAD, HeadRecall
 from shibuya.foundation.ports.decision import Candidate, DecisionContext
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.log import Event, LlmCall, Process
@@ -823,7 +823,7 @@ class Calendar2Layer:
         if pl == _B.PL_APP:
             if self.contact is None:
                 return True
-            from shibuya.engine.contact.attention import GAZE_SCREEN
+            from shibuya.mind.plan.contact_attention import GAZE_SCREEN
 
             return int(self.contact.attn._gaze[a]) == GAZE_SCREEN
         if pl == _B.PL_PLANNER:

@@ -18,9 +18,9 @@ import json
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.engine.decision import layer as DL
+from shibuya.mind.judge.decision import layer as DL
 from shibuya.foundation.ports import decision as P
-from shibuya.engine.decision import ports as PS
+from shibuya.mind.judge.decision import ports as PS
 from shibuya.engine.llm_bridge import LLMBridge
 from shibuya.engine.run import run_day
 from shibuya.llm import LLMRequest

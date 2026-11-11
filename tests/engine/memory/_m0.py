@@ -8,7 +8,7 @@ from typing import Any, Iterator
 
 import numpy as np
 
-from shibuya.engine import memory_store as MS
+from shibuya.mind.memory import memory_store as MS
 
 ROOT = Path(__file__).resolve().parents[3]
 WORLD = ROOT / "data" / "world" / "v2"

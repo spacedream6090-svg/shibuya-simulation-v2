@@ -18,11 +18,11 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import AgentState, IntentKind, ResultCode
-from shibuya.engine import memory as M
-from shibuya.engine import store_memory as SM
+from shibuya.mind.memory import memory as M
+from shibuya.mind.memory import store_memory as SM
 from shibuya.engine.chooser import ClassicalChooser, NearestChooser
 from shibuya.engine.poi_target import TargetResolver
-from shibuya.engine.store_choice import CHOICE_REASONS, StoreChoice, walk_m_per_tick
+from shibuya.mind.judge.store_choice import CHOICE_REASONS, StoreChoice, walk_m_per_tick
 from shibuya.foundation.text import templates as T
 from shibuya.foundation.text.channels import estimate_tokens
 from shibuya.perception.renderer import memory_item_text
@@ -260,7 +260,7 @@ def test_arm_switches_are_checked():
 
 def test_recall_first_is_array_ops():
     """P4: 想起優先と到達可能性は 1 体の ≤ 32 行の配列演算(for/while を書かない)。"""
-    tree = ast.parse((SRC / "engine/store_choice.py").read_text(encoding="utf-8"))
+    tree = ast.parse((SRC / "mind/judge/store_choice.py").read_text(encoding="utf-8"))
     names = {"recall", "reachable", "ticks_to_next_plan", "on_visit"}
     bad = [f"{n.name}:{s.lineno}" for n in ast.walk(tree)
            if isinstance(n, ast.FunctionDef) and n.name in names

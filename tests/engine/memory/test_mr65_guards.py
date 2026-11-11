@@ -18,7 +18,8 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.engine import memory_embed, memory_impression, memory_m1, memory_shops, memory_trace, relations_people
+from shibuya.mind.memory import memory_embed, memory_impression, memory_m1, memory_shops, memory_trace
+from shibuya.mind.relations import people as relations_people
 from shibuya.engine import state_ledger as SL
 from shibuya.engine import state_ledger_ast as SA
 from shibuya.engine.run import run_day
@@ -52,7 +53,7 @@ def _port_calls(root: Path) -> list[tuple[str, str, str]]:
 
 def test_child_owner_ports_are_called_only_from_the_store():
     calls = _port_calls(SRC)
-    assert calls and {f for f, _r, _p in calls} == {"engine/memory_store.py"}, calls
+    assert calls and {f for f, _r, _p in calls} == {"mind/memory/memory_store.py"}, calls
 
 
 def test_negative_control_finds_an_outside_call(tmp_path):
@@ -68,7 +69,7 @@ def test_child_columns_are_assigned_only_inside_their_classes():
     bad = []
     for p in sorted(SRC.rglob("*.py")):
         rel = p.relative_to(SRC).as_posix()
-        if rel in ("engine/memory_m1.py", "engine/memory_embed.py"):
+        if rel in ("mind/memory/memory_m1.py", "mind/memory/memory_embed.py"):
             continue
         for n in ast.walk(ast.parse(p.read_text(encoding="utf-8"))):
             tgs = n.targets if isinstance(n, ast.Assign) else [n.target] if isinstance(n, (ast.AugAssign,
@@ -95,7 +96,7 @@ def _shop_port_calls(root: Path) -> list[tuple[str, str, str]]:
 
 def test_shop_table_ports_are_called_only_from_the_uncapped_store(tmp_path):
     calls = _shop_port_calls(SRC)
-    assert calls and {f for f, _r, _p in calls} == {"engine/memory_shops.py"}, calls
+    assert calls and {f for f, _r, _p in calls} == {"mind/memory/memory_shops.py"}, calls
     # 負の対照: 外から呼ぶ行を足した写しで見つかる
     root = tmp_path / "shibuya"
     (root / "engine").mkdir(parents=True)
@@ -104,7 +105,7 @@ def test_shop_table_ports_are_called_only_from_the_uncapped_store(tmp_path):
     bad = []
     for p in sorted(SRC.rglob("*.py")):
         rel = p.relative_to(SRC).as_posix()
-        if rel == "engine/memory_shops.py":
+        if rel == "mind/memory/memory_shops.py":
             continue
         for n in ast.walk(ast.parse(p.read_text(encoding="utf-8"))):
             tgs = n.targets if isinstance(n, ast.Assign) else [n.target] if isinstance(n, ast.AugAssign) else []
@@ -122,14 +123,14 @@ def test_ledger_rows_and_axes():
                                                                                    "memory-cue")
     assert set(SL.row("M0C").hash_skip) == {"mem_layer.memory_store.cue._vec", "mem_layer.memory_store.cue._qcache"}
     assert (SL.row("M0X").behavior, SL.row("M0X").restore, SL.row("M0X").arm) == (SL.DIAG, SL.DISCARDABLE, "")
-    assert SL.OWNER_CLASSES["mem_layer.memory_store.m1"] == ("engine/memory_m1.py", "M1State")
-    assert SL.OWNER_CLASSES["mem_layer.memory_store.cue"] == ("engine/memory_embed.py", "CueState")
+    assert SL.OWNER_CLASSES["mem_layer.memory_store.m1"] == ("mind/memory/memory_m1.py", "M1State")
+    assert SL.OWNER_CLASSES["mem_layer.memory_store.cue"] == ("mind/memory/memory_embed.py", "CueState")
     # 〔検収 M4〕店の行の表(腕の行 M0S=腕 memory-people)と店の記憶の子クラス
     assert (SL.row("M0S").behavior, SL.row("M0S").restore, SL.row("M0S").arm) == (SL.BEHAVIOR, SL.REQUIRED,
                                                                                    "memory-people")
     assert SL.row("M0S").arm_owner == "mem_layer.memory_store.shops"
-    assert SL.OWNER_CLASSES["mem_layer.memory_store.shops"] == ("engine/memory_shops.py", "ShopTable")
-    assert ("engine/memory_shops.py", "UncappedStoreMemory") in SL.OWNER_ALT_CLASSES["mem_layer.store"]
+    assert SL.OWNER_CLASSES["mem_layer.memory_store.shops"] == ("mind/memory/memory_shops.py", "ShopTable")
+    assert ("mind/memory/memory_shops.py", "UncappedStoreMemory") in SL.OWNER_ALT_CLASSES["mem_layer.store"]
     assert "mem_layer.memory_store.shops._shop_stats" in SL.row("M0X").items
 
 

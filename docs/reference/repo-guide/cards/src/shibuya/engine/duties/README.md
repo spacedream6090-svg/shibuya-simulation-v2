@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 4 本・その他 0 本(このディレクトリの直下)
+Python 3 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/engine/duties/__init__.py)
 
@@ -32,7 +32,7 @@ engine.duties.layer — 店の仕事を働く人の体へ(開閉店・補充(品
   - `issued_key`(関数)
   - `manifest_fields`(関数): manifest の ``duties``(腕 arm のランだけ・ほかは空=欄を出さない)。
   - `sys_duties`(関数): 系 duties(刻みの中・腕 arm のランだけ立つ)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar3.layer`・`shibuya.engine.duties.knowledge`・`shibuya.engine.duties.port`・`shibuya.engine.resolve`・`shibuya.foundation.arms.duties`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.goods_flow`・`shibuya.world.ledger.records`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar3.layer`・`shibuya.engine.duties.knowledge`・`shibuya.engine.resolve`・`shibuya.foundation.arms.duties`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.mind.plan.duties_port`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.goods_flow`・`shibuya.world.ledger.records`
 - 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.table`
 - 読む試験: `tests/engine/duties/test_du_runs.py`・`tests/engine/duties/test_du_units.py`・`tests/engine/duties/test_du_world.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
@@ -48,20 +48,3 @@ engine.duties.layer — 店の仕事を働く人の体へ(開閉店・補充(品
     - 書いてよい SoA の列(閉包): `agents.last_result`・`agents.last_result_tick`・`pois.open_now`・`pois.stock`
     - 書いてよい外の道筋: `A:ledger.*`・`DU*:duties.*`・`E:events.*`・`EM:ledger.*`・`O5[23]:runner.*`・`O5[7-9]:ledger.*`・`O60:ledger.*`・`O61:runner.*`・`O73:runner.*`・`O7[7-9]:ledger.*`・`O8[01]:ledger.*`・`O9[23]:ledger.*`
 - 決定の ID: 10-12/§1-5・10-13b/§0-3
-
-## [port.py](../../../../../../../../src/shibuya/engine/duties/port.py)
-
-engine.duties.port — 店の仕事の本人の判断(候補の口 J0 の形)の仮のモデルと候補の語(第 6 期 6-6 ② 第 1 部)。
-
-- 公開の関数とクラス
-  - `DutiesPort`(クラス): 店の仕事の判断の仮のモデル(mock・判断モデルの代わり)。乱数の鍵はその刻みのその体の判断の通し番号。
-  - `call_id_of`(関数): 判断の呼びの id(テープの形 ``<刻み>:<体>:<−通し番号>``)。
-  - `cand`(関数): 候補 1 つ(源は語から・id は省略で語)。語が閉じた表の外なら ``KeyError``。
-  - `parse_call_id`(関数): 店の仕事の判断の呼びの id → ``(刻み, 体, 通し番号)``(この形でなければ ``None``)。
-  - `purpose_of_serial`(関数)
-  - `serial_of`(関数): 判断の通し番号(``SERIAL_BASE``+その刻みのその体の k 回目 × 16+判断の種類)。上限を超えたら ``ValueError``。
-- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.vocab.actions`
-- 呼び手: `shibuya.engine.duties.layer`
-- 読む試験: `tests/engine/duties/_du.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/duties/test_du_units.py`・`tests/engine/time/test_v30a_key_sites.py`
-- 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
-- 決定の ID: 10-12/§1-5

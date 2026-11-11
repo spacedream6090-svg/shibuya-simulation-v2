@@ -18,7 +18,7 @@ from shibuya.engine import resume as RS
 from shibuya.engine import state_ledger as SL
 from shibuya.foundation.arms import duties as AD
 from shibuya.engine.duties import layer as LY
-from shibuya.engine.duties import port as PD
+from shibuya.mind.plan import duties_port as PD
 from shibuya.foundation.vocab import events as V
 from shibuya.engine.run import run_day
 from shibuya.engine.systems import table as TB

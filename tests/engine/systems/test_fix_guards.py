@@ -200,8 +200,8 @@ _SOA_TAILS = {"registry", "agents", "cells", "pois", "pstate"}
 _EXEMPT_D6 = {"agents/state.py", "world/model/state.py", "world/model/percept_state.py", "engine/resolve.py", "foundation/soa.py"}
 D6_ALLOW = {
     ("act/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",
-    ("engine/store_choice.py", "self.poi_cell"): "同上",
-    ("engine/store_choice.py", "self.price"): "POI の値段(静的な列)の int64 の写し",
+    ("mind/judge/store_choice.py", "self.poi_cell"): "同上",
+    ("mind/judge/store_choice.py", "self.price"): "POI の値段(静的な列)の int64 の写し",
     ("world/laws/civic.py", "self.bed_cell[got]"):
         "層の ndarray の要素への代入(値の写し=別名にならない。AST では的が配列か辞書か分からないので見つける側)",
 }

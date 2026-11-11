@@ -60,7 +60,7 @@ engine.tools.registry — 道具の台帳(第 1 期 1-7 C0・CT0)。
   - `affordance_words`(関数): 体 ``agent`` が使える道具を、``TOOL_ACTION_WORDS`` で判断の語彙の語に写した語(台帳の並び・重ねない)。
   - `default_registry`(関数): 最初の中身の台帳(呼ぶたびに新しい物=ランごとに 1 つ)。
 - import している内部モジュール: `shibuya.foundation.decl.bridging`
-- 呼び手: `shibuya.engine.calendar_self`・`shibuya.engine.contact.tools`・`shibuya.engine.decision.layer`・`shibuya.engine.tools.places`・`shibuya.engine.tools.record`
+- 呼び手: `shibuya.engine.calendar_self`・`shibuya.engine.contact.tools`・`shibuya.engine.tools.places`・`shibuya.engine.tools.record`・`shibuya.mind.judge.decision.layer`
 - 読む試験: `tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/tools/test_c0_affordance_from_registry.py`・`tests/engine/tools/test_c0_init_recall.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`・`tests/engine/tools/test_c0_signboard_mark_invariance.py`・`tests/engine/tools/test_c0_tool_registry.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 10-12/§1-13・10-12/§4-4・10-13b/§1・R-85・R-113

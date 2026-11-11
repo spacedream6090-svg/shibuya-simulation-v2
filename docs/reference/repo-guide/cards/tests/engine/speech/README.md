@@ -50,7 +50,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
 - 公開の関数とクラス
   - `test_a_conversation_turn_with_a_comment_fills_the_field`(関数)
   - `test_otherwise_the_field_stays_empty`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.decision.ports`・`shibuya.foundation.vocab.actions`・`shibuya.llm.mock`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.vocab.actions`・`shibuya.llm.mock`・`shibuya.mind.judge.decision.ports`・`tests/engine/decision/_j0.py`
 
 ## [test_speech_cli.py](../../../../../../../tests/engine/speech/test_speech_cli.py)
 
@@ -73,7 +73,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_default_arm_is_off`(関数)
   - `test_mock_text_is_unchanged_without_the_field_line`(関数)
   - `test_off_state_files_and_fingerprint_have_no_speech_paths`(関数)
-- import している内部モジュール: `shibuya.engine.classical`・`shibuya.engine.resume`・`shibuya.engine.speech.layer`・`shibuya.engine.state_ledger`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.mock`・`tests/engine/speech/_s8b.py`
+- import している内部モジュール: `shibuya.engine.resume`・`shibuya.engine.speech.layer`・`shibuya.engine.state_ledger`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.mind.judge.classical`・`tests/engine/speech/_s8b.py`
 
 ## [test_speech_empty_text_errors.py](../../../../../../../tests/engine/speech/test_speech_empty_text_errors.py)
 
@@ -124,7 +124,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_the_field_line_is_short`(関数): 親の判断 A6: 指示の行は 10 tok 以下(描画の数え方=文字数 ÷ 2)・届いた発話の行の素性タグも短い形。
   - `test_the_queue_is_bounded_and_overflow_is_counted`(関数)
   - `test_the_window_holds_only_after_the_session_closed`(関数): 親の判断 A7 と第 2 回: 開いているセッションの未読と返事待ちの招待への返事(セッションの外)は窓なし(届け先の次の
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.agents.state`・`shibuya.engine.classical`・`shibuya.engine.speech.layer`・`shibuya.engine.speech.port`・`shibuya.foundation.journal.log`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.perception.attention`・`shibuya.perception.renderer`・`shibuya.world.model.state`・`tests/engine/speech/_s8b.py`・`tests/perception/facts/scenes.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.agents.state`・`shibuya.engine.speech.layer`・`shibuya.engine.speech.port`・`shibuya.foundation.journal.log`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.mind.judge.classical`・`shibuya.perception.attention`・`shibuya.perception.renderer`・`shibuya.world.model.state`・`tests/engine/speech/_s8b.py`・`tests/perception/facts/scenes.py`
 
 ## [test_speech_port_schema.py](../../../../../../../tests/engine/speech/test_speech_port_schema.py)
 
@@ -172,4 +172,4 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_legacy_path_and_the_port_write_the_same_word_of_mouth`(関数)
   - `test_the_mock_utterance_extracts_nothing`(関数)
   - `test_the_v3_parser_receives_the_comment_without_code_changes`(関数)
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.agents.state`・`shibuya.engine.conversation`・`shibuya.engine.memory`・`shibuya.engine.speech.layer`・`shibuya.engine.store_memory`・`shibuya.engine.systems.llm_io`・`shibuya.engine.wom`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.actions`・`shibuya.llm.mock`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.agents.state`・`shibuya.engine.conversation`・`shibuya.engine.speech.layer`・`shibuya.engine.systems.llm_io`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.actions`・`shibuya.llm.mock`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.store_memory`・`shibuya.mind.memory.wom`

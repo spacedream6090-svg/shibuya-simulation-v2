@@ -89,7 +89,7 @@ def tape_crossing(tape: Any, t0_step: int) -> dict[str, int]:
 
 def model_label(client: Any) -> str:
     """口の札(古典の方策=``classical``・mock=``mock``・ほかは ``source`` の欄か型の名)。"""
-    from shibuya.engine.classical import ClassicalPolicy
+    from shibuya.mind.judge.classical import ClassicalPolicy
     from shibuya.llm.mock import MockLLM
 
     if isinstance(client, ClassicalPolicy):

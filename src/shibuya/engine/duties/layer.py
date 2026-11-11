@@ -64,7 +64,7 @@ from shibuya.engine import resolve as R
 from shibuya.engine.calendar3.layer import labor_params
 from shibuya.foundation.ports.decision import Candidate, DecisionContext
 from shibuya.foundation.arms import duties as _ARM
-from shibuya.engine.duties import port as _P
+from shibuya.mind.plan import duties_port as _P
 from shibuya.engine.duties.knowledge import UNKNOWN, ShopRules, origin_mark, rules_line
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.log import Event, LlmCall

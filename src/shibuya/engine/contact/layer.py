@@ -90,11 +90,11 @@ from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_MINUTE
 from shibuya.foundation.queues.batching import WORLD
 from shibuya.world.body.reactions import loud_sound_notice, noise_stage_at
 from shibuya.foundation.arms import contact as _ARM
-from shibuya.engine.contact import attention as _AT
+from shibuya.mind.plan import contact_attention as _AT
 from shibuya.world.things import device as _DV
 from shibuya.engine.contact import deliver as _DL
-from shibuya.engine.contact import habit as _HB
-from shibuya.engine.contact import port as _P
+from shibuya.mind.plan import contact_habit as _HB
+from shibuya.mind.plan import contact_port as _P
 from shibuya.engine.contact import tools as _TL
 from shibuya.engine.contact.book import ContactBook
 from shibuya.engine.contact.calls import CallManager, CallSpeechPort

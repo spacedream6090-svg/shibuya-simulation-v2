@@ -264,7 +264,7 @@ def test_u7_ipf_cache_with_a_multiplier_is_caught(monkeypatch):
     軸 1 が behavior の行なので、属性そのもののハッシュで捕まる)。"""
     import numpy as np
 
-    from shibuya.engine import classical as CL
+    from shibuya.mind.judge import classical as CL
 
     orig_bind = CL.ClassicalPolicy.bind
 

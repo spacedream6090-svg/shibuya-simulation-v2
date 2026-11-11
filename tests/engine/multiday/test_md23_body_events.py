@@ -19,8 +19,8 @@ import pytest
 
 from shibuya.agents.state import AgentState, ResultCode
 from shibuya.foundation.time_consts import NS_PER_STEP
-from shibuya.engine import memory as M
-from shibuya.engine import memory_store as MS
+from shibuya.mind.memory import memory as M
+from shibuya.mind.memory import memory_store as MS
 from shibuya.engine import state_ledger as SL
 from shibuya.engine.events import body as B
 from shibuya.foundation.journal import log as EV

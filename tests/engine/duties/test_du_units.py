@@ -13,7 +13,7 @@ import pytest
 from shibuya.foundation.ports.decision import DecisionContext
 from shibuya.foundation.arms import duties as AD
 from shibuya.engine.duties import layer as LY
-from shibuya.engine.duties import port as PD
+from shibuya.mind.plan import duties_port as PD
 from shibuya.engine.duties.knowledge import UNKNOWN, ShopRules, rules_line
 from shibuya.world.facts.rights import ledger as L
 
@@ -70,7 +70,7 @@ def test_mock_port_is_uniform_deterministic_and_closed():
 
 
 def test_call_ids_do_not_collide_with_other_ports():
-    from shibuya.engine.calendar3 import port as P3
+    from shibuya.mind.plan import calendar3_port as P3
 
     s = PD.serial_of(PD.P_WASTE, PD.MAX_DECISIONS_PER_STEP - 1)
     assert PD.SERIAL_BASE > P3.SERIAL_BASE + 16 * P3.MAX_DECISIONS_PER_STEP

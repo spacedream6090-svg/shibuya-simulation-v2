@@ -94,7 +94,7 @@ from shibuya.foundation.ports.decision import (
     DecisionContext,
     DecisionPort,
 )
-from shibuya.engine.decision.sources import DELIBERATE_ID
+from shibuya.mind.judge.decision.sources import DELIBERATE_ID
 
 __all__ = [
     "MODE_W17", "MODE_1B", "MODES", "DEFAULT_MODE", "SCHEMA", "FP_KEY", "MANIFEST_KEY", "MANIFEST_CONFIG",

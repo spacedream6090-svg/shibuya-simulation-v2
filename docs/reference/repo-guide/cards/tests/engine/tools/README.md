@@ -32,7 +32,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_table_is_empty_and_frozen`(関数)
   - `test_unknown_agents_get_nothing`(関数)
   - `test_unmet_requirements_hide_the_tool`(関数)
-- import している内部モジュール: `shibuya.engine.decision.layer`・`shibuya.engine.decision.sources`・`shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.engine.tools.record`・`shibuya.engine.tools.registry`・`shibuya.foundation.vocab.actions`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.engine.tools.record`・`shibuya.engine.tools.registry`・`shibuya.foundation.vocab.actions`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.sources`・`tests/engine/decision/_j0.py`
 
 ## [test_c0_contacts_in_relations.py](../../../../../../../tests/engine/tools/test_c0_contacts_in_relations.py)
 
@@ -54,7 +54,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_state_ledger_row_and_declaration`(関数)
   - `test_world_run_family_and_work_flags_and_rel_columns_unchanged`(関数)
   - `test_writing_contacts_does_not_change_the_existing_rel_columns`(関数): 初めの辺・新しい相手・押し出しの全部で、印を書く口を止めた層と ``rel_*`` が値まで同じ。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.memory`・`shibuya.engine.relations`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.overrides`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.write_permit`・`tests/engine/tools/contacts_writers.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.relations`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.conductor`・`shibuya.engine.systems.overrides`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.table`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.write_permit`・`shibuya.mind.memory.memory`・`tests/engine/tools/contacts_writers.py`
 
 ## [test_c0_groups_from_w16.py](../../../../../../../tests/engine/tools/test_c0_groups_from_w16.py)
 

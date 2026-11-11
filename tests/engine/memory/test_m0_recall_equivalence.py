@@ -19,7 +19,7 @@ from typing import Any, Callable
 
 import pytest
 
-from shibuya.engine.memory import MemoryLayer
+from shibuya.mind.memory.memory import MemoryLayer
 from shibuya.engine.run import run_day
 from shibuya.engine.tape import Tape
 

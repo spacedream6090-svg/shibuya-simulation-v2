@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Any, Iterator
 
 from shibuya.economy import stage2_bind as ES2
-from shibuya.engine import memory_store as MS
-from shibuya.engine.memory_store import MemoryStore
+from shibuya.mind.memory import memory_store as MS
+from shibuya.mind.memory.memory_store import MemoryStore
 
 ROOT = Path(__file__).resolve().parents[3]
 WORLD = ROOT / "data" / "world" / "v2"

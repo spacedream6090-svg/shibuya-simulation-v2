@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
-from shibuya.engine.contact import attention as AT
+from shibuya.mind.plan import contact_attention as AT
 from shibuya.world.things import device as DV
-from shibuya.engine.contact import port as P
+from shibuya.mind.plan import contact_port as P
 from shibuya.engine.contact.layer import W_ANSWER, W_CALL_END, W_DIAL, W_RING, W_VIDEO_DIAL, audit_causes
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.ports import percept_contact as CV

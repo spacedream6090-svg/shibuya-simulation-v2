@@ -19,18 +19,18 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import Activity
-from shibuya.engine.contact import attention as AT
+from shibuya.mind.plan import contact_attention as AT
 from shibuya.engine.contact import book as _BOOK
 from shibuya.engine.contact import calls as _CALLS
 from shibuya.engine.contact import chat_state as _CHAT
 from shibuya.engine.contact import deliver as _DELIVER
 from shibuya.world.things import device as _DEVICE
 from shibuya.engine.contact import layer as LY
-from shibuya.engine.contact import port as P
+from shibuya.mind.plan import contact_port as P
 from shibuya.engine.contact.layer import W_LOOK, W_READ, audit_causes
 from shibuya.engine.conversation import ConvState
-from shibuya.engine.decision import layer as DCL
-from shibuya.engine.decision import ports as DPS
+from shibuya.mind.judge.decision import layer as DCL
+from shibuya.mind.judge.decision import ports as DPS
 from shibuya.foundation.ports.decision import DecisionContext
 from shibuya.foundation.journal.log import LlmCall
 from shibuya.engine.run import run_day

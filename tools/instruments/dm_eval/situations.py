@@ -70,7 +70,7 @@ from read_guard import GAUGE_DENY_TOKENS, SealedPathError, deny_hit
 from shibuya.foundation.rng import stream
 from shibuya.foundation.time_consts import MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
 from shibuya.foundation.ports.decision import LENGTHS, Candidate, DecisionContext, compose, present
-from shibuya.engine.decision.sources import build_candidates
+from shibuya.mind.judge.decision.sources import build_candidates
 from shibuya.foundation.vocab.actions import cross_action_words, safe_action_word
 from shibuya.act.intake.parser import parse_two_line
 

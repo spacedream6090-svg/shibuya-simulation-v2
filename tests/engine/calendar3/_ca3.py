@@ -12,7 +12,7 @@ import numpy as np
 from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
 from shibuya.foundation.arms import calendar2 as A2
 from shibuya.foundation.arms import calendar3 as A3
-from shibuya.engine.calendar3 import port as P3
+from shibuya.mind.plan import calendar3_port as P3
 from shibuya.engine.calendar3 import roster as R3
 from shibuya.foundation.arms import contact as AC
 

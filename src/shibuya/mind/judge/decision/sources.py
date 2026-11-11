@@ -57,7 +57,7 @@ DELIBERATE_ID: Final[str] = "deliberate"
 
 def memory_kind_words(word_of_code: Mapping[int, str]) -> Mapping[int, str]:
     """記憶の種類 → 行為の語(``engine.memory.ACTION_KIND``=行動コード → 種類 の逆)。"""
-    from shibuya.engine.memory import ACTION_KIND
+    from shibuya.mind.memory.memory import ACTION_KIND
 
     out: dict[int, str] = {}
     for code, kind in ACTION_KIND.items():

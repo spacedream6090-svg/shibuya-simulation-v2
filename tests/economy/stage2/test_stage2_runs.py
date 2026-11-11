@@ -190,7 +190,7 @@ def test_off_parts_spec_without_the_arm_is_ignored(arm):
 
 
 def test_port_arm_shows_the_candidates_and_keeps_the_mock_actions(arm, monkeypatch):
-    from shibuya.engine.decision import layer as DL
+    from shibuya.mind.judge.decision import layer as DL
 
     arm("on")
     base, _ = _run(sim_days=1)

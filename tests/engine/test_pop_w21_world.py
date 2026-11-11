@@ -22,7 +22,7 @@ import pyarrow.parquet as pq
 import pytest
 
 from shibuya.world.facts import population_reader as POP
-from shibuya.engine.decision import persona as PE
+from shibuya.mind.judge.decision import persona as PE
 from shibuya.foundation.ports.decision import compose
 from shibuya.world.facts.rights import initial as RI
 from shibuya.world.facts.rights.ledger import AGENT, DWELLING, EMPLOY, LEASE, PARCEL, STORE

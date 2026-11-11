@@ -25,11 +25,11 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.time_consts import NS_PER_SECOND, STEPS_PER_DAY
-from shibuya.engine import memory_m1 as M1
+from shibuya.mind.memory import memory_m1 as M1
 from shibuya.engine import relations as REL
-from shibuya.engine import relations_people as RP
+from shibuya.mind.relations import people as RP
 from shibuya.engine import resolve as R
-from shibuya.engine.memory_store import LegacyEvent, MemoryStore
+from shibuya.mind.memory.memory_store import LegacyEvent, MemoryStore
 from shibuya.engine.run import run_day
 
 from tests.engine.memory._mr65 import KW, arms, mr65
@@ -191,7 +191,7 @@ def test_world_5000_one_day_uncapped_grows_and_reads_people():
 
 # ---------------------------------------------------------------- 〔検収 M2〕種類ごとの上限と A で消す
 def _capped(n: int, rows: int, **caps: int) -> MemoryStore:
-    import shibuya.engine.memory_store as MS
+    import shibuya.mind.memory.memory_store as MS
 
     prev = MS.row_caps()
     MS.set_row_caps(**caps)
@@ -259,7 +259,7 @@ def test_seed_people_over_the_person_cap_is_refused():
 
 
 def test_rows0_over_the_width_cap_is_refused():
-    import shibuya.engine.memory_store as MS
+    import shibuya.mind.memory.memory_store as MS
 
     prev = (MS.row_caps(), MS.rows0())
     MS.set_row_caps(episode=2, person=1)
@@ -275,7 +275,7 @@ def test_rows0_over_the_width_cap_is_refused():
 
 # ---------------------------------------------------------------- 〔検収 M4〕店の評価の行も同じ作り
 def _shop_store(width: int = 2, cap: int = 4):
-    from shibuya.engine.memory_shops import ShopTable, UncappedStoreMemory
+    from shibuya.mind.memory.memory_shops import ShopTable, UncappedStoreMemory
 
     tab = ShopTable(2, width, cap=cap)
     return tab, UncappedStoreMemory(2, table=tab, minutes_per_tick=1.0)
@@ -309,7 +309,7 @@ def test_shop_table_grows_to_the_cap_then_overwrites_the_lowest_a():
 
 
 def test_shop_table_ties_and_bounds():
-    from shibuya.engine.memory_shops import ShopTable
+    from shibuya.mind.memory.memory_shops import ShopTable
 
     with pytest.raises(ValueError):
         ShopTable(2, 8, cap=4)
@@ -325,8 +325,8 @@ def test_people_arm_run_keeps_shops_in_the_store_table():
     from shibuya.agents.state import STORE_MEMORY_EMPTY
 
     box = {}
-    import shibuya.engine.memory as MEM
-    from shibuya.engine.memory_shops import UncappedStoreMemory
+    import shibuya.mind.memory.memory as MEM
+    from shibuya.mind.memory.memory_shops import UncappedStoreMemory
 
     orig = MEM.MemoryLayer.enable_store
     orig_eps = UncappedStoreMemory.on_episodes

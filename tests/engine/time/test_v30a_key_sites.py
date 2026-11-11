@@ -24,15 +24,15 @@ from shibuya.foundation import rng as RNG
 from shibuya.foundation import time_consts as TC
 from shibuya.engine import run as RUN
 from shibuya.engine.calendar2 import layer as L2
-from shibuya.engine.calendar2 import port as P2
+from shibuya.mind.plan import calendar2_port as P2
 from shibuya.engine.calendar3 import layer as L3
-from shibuya.engine.calendar3 import port as P3
+from shibuya.mind.plan import calendar3_port as P3
 from shibuya.engine.contact import layer as CL
-from shibuya.engine.contact import port as PC
-from shibuya.engine.decision import layer as DLY
+from shibuya.mind.plan import contact_port as PC
+from shibuya.mind.judge.decision import layer as DLY
 from shibuya.foundation.ports.decision import SOURCE_AFFORDANCE, Candidate, DecisionContext, DecisionPort
 from shibuya.engine.duties import layer as LD
-from shibuya.engine.duties import port as PD
+from shibuya.mind.plan import duties_port as PD
 from shibuya.engine.systems import boxes as BX
 
 TPD = TC.STEPS_PER_DAY
@@ -126,7 +126,7 @@ def test_call_ids_and_time_bucket_from_time_are_the_old_ones(w):
 
 # ================================================================= 習慣の戻し(#13・#15)
 def test_contact_habit_key_and_call_id_are_the_old_ones(monkeypatch):
-    from shibuya.engine.contact import habit as HB
+    from shibuya.mind.plan import contact_habit as HB
     from tests.engine.contact._c2 import Harness2, loud
 
     seen: list[tuple[int, int]] = []

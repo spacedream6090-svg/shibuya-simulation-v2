@@ -91,19 +91,19 @@ from shibuya.engine.calendar import (
     SimCalendar,
 )
 from shibuya.act.intent import INTENT_MAX_TICKS
-from shibuya.engine.familiarity import FAMILIARITY_K
-from shibuya.engine.memory import MEMORY_N, RECALL_TAU
-from shibuya.engine.wom import DEFAULT_WOM_SOURCE
+from shibuya.mind.memory.familiarity import FAMILIARITY_K
+from shibuya.mind.memory.memory import MEMORY_N, RECALL_TAU
+from shibuya.mind.memory.wom import DEFAULT_WOM_SOURCE
 from shibuya.engine.relations import (
     REL_D,
     REL_K,
     REL_TENURE_WEEKS,
 )
-from shibuya.engine.store_memory import DEFAULT_STORE_DECAY, STORE_MEMORY_N
+from shibuya.mind.memory.store_memory import DEFAULT_STORE_DECAY, STORE_MEMORY_N
 from shibuya.world.body.energy import DEFAULT_ENERGY_RATE, DEFAULT_HOME_MEAL, DEFAULT_MEAL_SLEEP_DEFER
 from shibuya.engine.arbiter import L4_LINE_PER_AGENT_DAY
 from shibuya.engine.chooser import DEFAULT_CHOOSER, HABIT_P, RANK_TAU
-from shibuya.engine.classical import (
+from shibuya.mind.judge.classical import (
     DEFAULT_ACTIVITY_REGION,
     DEFAULT_CLASSICAL_SOCIAL,
     DEFAULT_MEAL_GATE,
@@ -129,7 +129,7 @@ from shibuya.llm.fleet import FleetClient
 from shibuya.llm.mock import MockLLM
 from shibuya.foundation.text.channels import BudgetMode
 from shibuya.foundation.ports.percept import percept_manifest as _percept_manifest
-from shibuya.engine.decision import layer as _DECISION
+from shibuya.mind.judge.decision import layer as _DECISION
 from shibuya.engine.speech import layer as _SPEECH
 from shibuya.world.model import proximity as _PROX
 from shibuya.world.model.space import nav1 as _NAV1

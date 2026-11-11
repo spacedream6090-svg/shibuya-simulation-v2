@@ -16,9 +16,9 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import STORE_MEMORY_FIELDS, AgentState, ResultCode
-from shibuya.engine import memory as M
-from shibuya.engine import store_memory as SM
-from shibuya.engine import wom as W
+from shibuya.mind.memory import memory as M
+from shibuya.mind.memory import store_memory as SM
+from shibuya.mind.memory import wom as W
 from tests import golden_env as GE
 
 SRC = Path("src/shibuya")
@@ -317,7 +317,7 @@ def test_a_talking_llm_writes_word_of_mouth_rows_for_listeners_only():
 
 def test_extraction_is_per_call_string_work():
     """P4: 抽出は呼ごとの文字列処理(体数に比例するループを書かない)=宣言が本文にある。"""
-    src = (SRC / "engine/wom.py").read_text(encoding="utf-8")
+    src = (SRC / "mind/memory/wom.py").read_text(encoding="utf-8")
     assert "逐次ループ宣言" in src and "呼数比例" in src
 
 

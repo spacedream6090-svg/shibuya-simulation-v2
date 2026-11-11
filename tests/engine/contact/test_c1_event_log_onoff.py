@@ -15,7 +15,7 @@ import numpy as np
 import pytest
 
 from shibuya.engine.contact import layer as LY
-from shibuya.engine.contact import port as P
+from shibuya.mind.plan import contact_port as P
 from shibuya.engine.contact.calls import CallSpeechPort
 from shibuya.engine.contact.layer import W_DELIVERED, W_READ, W_SENT
 from shibuya.foundation.journal import log as EV

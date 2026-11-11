@@ -5,8 +5,8 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import Any, Iterator
 
-from shibuya.engine import memory_m1 as M1
-from shibuya.engine import memory_store as MS
+from shibuya.mind.memory import memory_m1 as M1
+from shibuya.mind.memory import memory_store as MS
 
 #: 合成の世界の小さなラン(記憶+関係+店の記憶・同席なし=人も記憶の腕も同じ設定で回せる)。
 KW = dict(n_agents=80, seed=1, n_cells=9, ticks=720, budget=80.0, sleep_suppression=False, vocab_version="v3",

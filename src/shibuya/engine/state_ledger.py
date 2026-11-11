@@ -1569,22 +1569,22 @@ def counts() -> dict[str, int]:
 OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "act_layer": ("act/activity.py", "ActivityLayer"),
     "intent_layer": ("act/intent.py", "IntentLayer"),
-    "fam_layer": ("engine/familiarity.py", "FamiliarityLayer"),
-    "mem_layer": ("engine/memory.py", "MemoryLayer"),
-    "mem_layer.store": ("engine/store_memory.py", "StoreMemory"),
+    "fam_layer": ("mind/memory/familiarity.py", "FamiliarityLayer"),
+    "mem_layer": ("mind/memory/memory.py", "MemoryLayer"),
+    "mem_layer.store": ("mind/memory/store_memory.py", "StoreMemory"),
     # 第 1 期 1-6: 記憶の器 M0(状態台帳の行 M0・M0R・腕 --memory-store events のランだけ)
-    "mem_layer.memory_store": ("engine/memory_store.py", "MemoryStore"),
+    "mem_layer.memory_store": ("mind/memory/memory_store.py", "MemoryStore"),
     # 〔第 6 期 6-5〕器の子の持ち主(腕 --memory-model m1 の M1 の状態・腕 --memory-cue embed の意味の手がかり)
-    "mem_layer.memory_store.m1": ("engine/memory_m1.py", "M1State"),
-    "mem_layer.memory_store.cue": ("engine/memory_embed.py", "CueState"),
+    "mem_layer.memory_store.m1": ("mind/memory/memory_m1.py", "M1State"),
+    "mem_layer.memory_store.cue": ("mind/memory/memory_embed.py", "CueState"),
     # 〔第 6 期 6-5・検収 M4〕人も記憶の一つの腕の店の評価の行(腕 --memory-people memory で店の記憶のあるラン)
-    "mem_layer.memory_store.shops": ("engine/memory_shops.py", "ShopTable"),
+    "mem_layer.memory_store.shops": ("mind/memory/memory_shops.py", "ShopTable"),
     "poi_resolver": ("engine/poi_target.py", "TargetResolver"),
-    "poi_resolver.store_choice": ("engine/store_choice.py", "StoreChoice"),
+    "poi_resolver.store_choice": ("mind/judge/store_choice.py", "StoreChoice"),
     "poi_resolver.chooser": ("engine/chooser.py", "ClassicalChooser"),
-    "wom": ("engine/wom.py", "WomExtractor"),
+    "wom": ("mind/memory/wom.py", "WomExtractor"),
     "rel_layer": ("engine/relations.py", "RelationLayer"),
-    "classical": ("engine/classical.py", "ClassicalPolicy"),
+    "classical": ("mind/judge/classical.py", "ClassicalPolicy"),
     "energy": ("world/body/energy.py", "EnergyLayer"),
     "energy.out_of_area": ("world/body/energy.py", "OutOfAreaMeals"),
     "energy.home_meals": ("world/body/energy.py", "HomeMeals"),
@@ -1623,7 +1623,7 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     # 第 1 期 1-3: 出来事の記録(状態台帳の行 E)
     "events": ("foundation/journal/log.py", "EventLog"),
     # 第 1 期 1-8 J0: 候補の口の層(状態台帳の行 J0・腕 --decision-port port のランだけ)
-    "decision": ("engine/decision/layer.py", "DecisionLayer"),
+    "decision": ("mind/judge/decision/layer.py", "DecisionLayer"),
     # 第 1 期 1-8b: 発話の口(状態台帳の腕の行 S8・S8M・腕 --speech-port on のランだけ)
     "speech": ("engine/speech/port.py", "SpeechPort"),
     # 第 2 期 2-2 段 11a: 近接の層(状態台帳の行 PX・腕 --proximity distance のランだけ)
@@ -1645,16 +1645,16 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     # 〔第 6 期 6-4 C1〕連絡の道具(状態台帳の腕の行 CT1*・腕 --contact c1 のランだけ)と子の持ち主
     "contact": ("engine/contact/layer.py", "ContactLayer"),
     "contact.dev": ("world/things/device.py", "Devices"),
-    "contact.attn": ("engine/contact/attention.py", "Attention"),
+    "contact.attn": ("mind/plan/contact_attention.py", "Attention"),
     "contact.mail": ("engine/contact/deliver.py", "Mailbox"),
     "contact.chats": ("engine/conversation.py", "ConversationManager"),
     "contact.calls": ("engine/conversation.py", "ConversationManager"),
     "contact.speech": ("engine/speech/port.py", "SpeechPort"),
     "contact.book": ("engine/contact/book.py", "ContactBook"),  # 〔C2〕本人の行動で動く帳(行 CT1B)
-    "contact.habit": ("engine/contact/habit.py", "HabitBook"),  # 〔C2〕習慣の表(行 CT1H)
+    "contact.habit": ("mind/plan/contact_habit.py", "HabitBook"),  # 〔C2〕習慣の表(行 CT1H)
     # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定(状態台帳の腕の行 CA2*・腕 --calendar-2 arm のランだけ)と子の持ち主
     "calendar2": ("engine/calendar2/layer.py", "Calendar2Layer"),
-    "calendar2.book": ("engine/calendar2/book.py", "PromiseBook"),
+    "calendar2.book": ("mind/plan/promise_book.py", "PromiseBook"),
     # 〔第 4 期 4-2〕店の預かり消費税(状態台帳の腕の行 TXD・税の部品が動くランだけ)
     "ledger.money.stage2.tax_deposit": ("economy/tax_deposit.py", "TaxDeposit"),
     # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日(状態台帳の腕の行 CA3*・腕 --calendar-3 arm のランだけ)
@@ -1673,9 +1673,9 @@ OWNER_ALT_CLASSES: Final[dict[str, tuple[tuple[str, str], ...]]] = {
     "poi_resolver.chooser": (("engine/chooser.py", "NearestChooser"),),
     "ledger.money": (("cli.py", "_HouseholdWalletLedger"),),
     # 〔第 6 期 6-5〕人も記憶の一つの腕(--memory-people memory)の関係の読み口=RelationLayer の子クラス
-    "rel_layer": (("engine/relations_people.py", "PeopleRelationLayer"),),
+    "rel_layer": (("mind/relations/people.py", "PeopleRelationLayer"),),
     # 〔第 6 期 6-5・検収 M4〕人も記憶の一つの腕の店の評価の記憶=StoreMemory の子クラス(行の口だけ差し替える)
-    "mem_layer.store": (("engine/memory_shops.py", "UncappedStoreMemory"),),
+    "mem_layer.store": (("mind/memory/memory_shops.py", "UncappedStoreMemory"),),
     # 〔第 6 期 6-4 C1〕電話の会話と通話の発話の口=対面の会話と発話の口の子クラス(腕の名だけ足す)
     "contact.calls": (("engine/contact/calls.py", "CallManager"),),
     "contact.chats": (("engine/contact/chat_state.py", "ChatBook"),),

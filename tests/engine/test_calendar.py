@@ -22,7 +22,7 @@ import pytest
 
 from shibuya.engine import calendar as CAL
 from shibuya.engine.calendar import CalendarWarning, SimCalendar, load_holidays, parse_school_holidays
-from shibuya.engine.classical import day_kind_of
+from shibuya.mind.judge.classical import day_kind_of
 
 REAL_CSV = Path(CAL.DEFAULT_HOLIDAY_CSV)
 

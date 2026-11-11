@@ -119,7 +119,7 @@ class BranchClient:
     METER_NAMES: ClassVar[tuple[str, ...]] = ("n_replayed", "n_miss", "n_policy_before", "n_mismatch", "n_live")
 
     def __init__(self, live: Any, spec: BranchSpec) -> None:
-        from shibuya.engine.classical import ClassicalPolicy
+        from shibuya.mind.judge.classical import ClassicalPolicy
         from shibuya.engine.tape import Replay
 
         self.live = live

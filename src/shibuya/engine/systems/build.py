@@ -51,13 +51,13 @@ from shibuya.engine.calendar import parse_start
 from shibuya.engine.change_detect import ChangeDetector
 from shibuya.engine.chooser import check_chooser
 from shibuya.engine.chooser import make_chooser
-from shibuya.engine.classical import ActivityPrior
-from shibuya.engine.classical import ClassicalPolicy
-from shibuya.engine.classical import check_activity_region
-from shibuya.engine.classical import check_classical_social
-from shibuya.engine.classical import check_meal_gate
-from shibuya.engine.classical import check_policy
-from shibuya.engine.classical import load_activity_prior
+from shibuya.mind.judge.classical import ActivityPrior
+from shibuya.mind.judge.classical import ClassicalPolicy
+from shibuya.mind.judge.classical import check_activity_region
+from shibuya.mind.judge.classical import check_classical_social
+from shibuya.mind.judge.classical import check_meal_gate
+from shibuya.mind.judge.classical import check_policy
+from shibuya.mind.judge.classical import load_activity_prior
 from shibuya.engine.conversation import ConversationManager
 from shibuya.world.body.model import BodyModel
 from shibuya.world.body.energy import EnergyLayer
@@ -70,17 +70,17 @@ from shibuya.world.body.energy import check_hunger_model
 from shibuya.world.body.energy import check_meal_sleep_defer
 from shibuya.world.body.energy import load_anchors
 from shibuya.world.body import energy as _EN
-from shibuya.engine.familiarity import FAMILIARITY_MODES
-from shibuya.engine.familiarity import FamiliarityLayer
+from shibuya.mind.memory.familiarity import FAMILIARITY_MODES
+from shibuya.mind.memory.familiarity import FamiliarityLayer
 from shibuya.world.model.geometry import EdgeGeometry
 from shibuya.world.model.geometry import check_geometry
 from shibuya.act.intent import IntentLayer
 from shibuya.engine.llm_bridge import LLMBridge
 from shibuya.engine.llm_bridge import PerceptionRendererAdapter
 from shibuya.engine.llm_bridge import StubRenderer
-from shibuya.engine.memory import MEMORY_MODES
-from shibuya.engine.memory import MemoryLayer
-from shibuya.engine.memory import STORE_RECALL_SCOPES
+from shibuya.mind.memory.memory import MEMORY_MODES
+from shibuya.mind.memory.memory import MemoryLayer
+from shibuya.mind.memory.memory import STORE_RECALL_SCOPES
 from shibuya.engine.poi_target import TargetResolver
 from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
 from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
@@ -94,18 +94,18 @@ from shibuya.engine.relations import REL_ORIGINS
 from shibuya.engine.relations import DEFAULT_REL_TENURE_HASH
 from shibuya.engine.relations import REL_TAU_BY_TENURE_HASH
 from shibuya.engine.relations import initial_edges as _rel_initial_edges
-from shibuya.engine.store_choice import StoreChoice
-from shibuya.engine.store_choice import walk_m_per_tick as _walk_m_per_tick
-from shibuya.engine.store_memory import STORE_MEMORY_MODES
-from shibuya.engine.store_memory import check_store_decay
-from shibuya.engine.store_memory import check_store_sigma
+from shibuya.mind.judge.store_choice import StoreChoice
+from shibuya.mind.judge.store_choice import walk_m_per_tick as _walk_m_per_tick
+from shibuya.mind.memory.store_memory import STORE_MEMORY_MODES
+from shibuya.mind.memory.store_memory import check_store_decay
+from shibuya.mind.memory.store_memory import check_store_sigma
 from shibuya.engine.systems import boxes as _BX
 from shibuya.engine.systems import state_io as _SIO
 from shibuya.engine.tape import TapeRow
 from shibuya.engine.tape import TapeWriter
 from shibuya.engine.tape import read_run_meta
-from shibuya.engine.wom import WomExtractor
-from shibuya.engine.wom import check_wom_source
+from shibuya.mind.memory.wom import WomExtractor
+from shibuya.mind.memory.wom import check_wom_source
 from shibuya.llm.fleet import FleetBridge
 from shibuya.foundation.text.channels import BudgetMode
 from shibuya.perception.renderer import PerceptionAssets
@@ -326,8 +326,8 @@ def build(_call_args: dict[str, Any]) -> Any:
     if not _BATCH.is_default():
         # 第 3 期 3-2: まとめの幅の腕は既定(刻みの幅)のときだけ設定の指紋に入れない(腕のときは入れる=再開で親と照合)
         _fp[_BATCH.FP_KEY] = int(_BATCH.arm())
-    from shibuya.engine import memory_m1 as _MR65
-    from shibuya.engine import memory_store as _MSR65
+    from shibuya.mind.memory import memory_m1 as _MR65
+    from shibuya.mind.memory import memory_store as _MSR65
 
     _mr65_cfg = _MR65.config_of(_MR65.arms(), row_caps=_MSR65.row_caps())
     if _mr65_cfg:
@@ -1185,7 +1185,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     # ---- 第 1 期 1-6 記憶の器 M0(腕 --memory-store events・既定 mem=器を作らない)。器は記憶の表と同じ規則の写しで、
     # 表に書く所で同じ出来事を書き、想起を器から引く。見せた行の録画(描画の口)とテープの列 recalled_event_ids
     # (版 4 の中・腕のランだけ)。状態台帳の行 M0(作り直せる)・M0R(録画と計数=捨ててよい) ----
-    from shibuya.engine import memory_store as _MS
+    from shibuya.mind.memory import memory_store as _MS
 
     if mem_layer is not None and _MS.arm() == _MS.ARM_EVENTS:
         # 〔第 6 期 6-5・検収 M1〕腕 m1 の人ごとの忘れる速さの鍵はランごとの母集団の seed(10f S1)
@@ -1406,11 +1406,11 @@ def build(_call_args: dict[str, Any]) -> Any:
     # ---- 第 1 期 1-8 J0: 候補の口の腕(既定 legacy=層を作らない=今の道)。port のランだけ層を作り、判断の系が 1 呼を口に通す
     # (状態台帳の行 J0=軸 1 diag・軸 2 discardable)。実装は方策で選ぶ(古典 → ClassicalPort・記録の mock → MockPort・
     # ほか(テープの再生・注入の LLM)→ LlmPort) ----
-    from shibuya.engine.decision import layer as _DL
+    from shibuya.mind.judge.decision import layer as _DL
 
     decision_layer = None
     if _DL.arm() == _DL.ARM_PORT:
-        from shibuya.engine.decision import ports as _DP
+        from shibuya.mind.judge.decision import ports as _DP
         from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE as _WORDS
         from shibuya.foundation.vocab.actions import cross_action_words, safe_action_word
         from shibuya.llm.mock import MockLLM as _MockLLM

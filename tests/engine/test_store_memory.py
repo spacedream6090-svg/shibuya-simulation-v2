@@ -21,9 +21,9 @@ from shibuya.agents.state import (
     AgentState,
     ResultCode,
 )
-from shibuya.engine import memory as M
-from shibuya.engine import store_memory as SM
-from shibuya.engine.familiarity import place_thing
+from shibuya.mind.memory import memory as M
+from shibuya.mind.memory import store_memory as SM
+from shibuya.mind.memory.familiarity import place_thing
 from tests import golden_env as GE
 
 SRC = Path("src/shibuya")
@@ -274,7 +274,7 @@ def test_store_memory_needs_memory_and_checks_its_knobs():
 
 def test_store_readers_and_writer_rounds_are_array_ops():
     """P4: 読み口と 1 回の書き込みに for/while を書かない(体数比例の逐次ループなし)。"""
-    tree = ast.parse((SRC / "engine/store_memory.py").read_text(encoding="utf-8"))
+    tree = ast.parse((SRC / "mind/memory/store_memory.py").read_text(encoding="utf-8"))
     names = {"activation", "valence_now", "scores", "rows", "known", "_write_round", "valence_of_result"}
     bad = [f"{n.name}:{s.lineno}" for n in ast.walk(tree)
            if isinstance(n, ast.FunctionDef) and n.name in names

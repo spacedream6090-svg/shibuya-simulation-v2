@@ -20,7 +20,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `ctx_of`(関数)
   - `decision_arm`(関数): 腕を一時的に切り替える(試験の後は元に戻す)。
   - `vocab_candidates`(関数): 語彙の全語+よく考える(源は続ける・語彙の残り・よく考える)。
-- import している内部モジュール: `shibuya.engine.decision.layer`・`shibuya.engine.decision.sources`・`shibuya.engine.llm_bridge`・`shibuya.foundation.ports.decision`・`shibuya.foundation.vocab.actions`
+- import している内部モジュール: `shibuya.engine.llm_bridge`・`shibuya.foundation.ports.decision`・`shibuya.foundation.vocab.actions`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.sources`
 - 読む試験: `tests/engine/decision/test_j0_cause_columns.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/decision/test_j0_other_ratio_field.py`・`tests/engine/decision/test_j0_port_schema.py`・`tests/engine/decision/test_j0_shuffle_invariance.py`・`tests/engine/decision/test_j0_writes_declared.py`・`tests/engine/speech/test_speech_choice_utterance.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/engine/tools/test_c0_affordance_from_registry.py`
 
 ## [test_j0_cause_columns.py](../../../../../../../tests/engine/decision/test_j0_cause_columns.py)
@@ -39,7 +39,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_llm_call_still_validates`(関数)
   - `test_round_trip_of_the_three_kinds`(関数)
   - `test_same_cause_rows_are_merged`(関数)
-- import している内部モジュール: `shibuya.engine.decision.layer`・`shibuya.engine.run`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.mind.judge.decision.layer`・`tests/engine/decision/_j0.py`
 
 ## [test_j0_cli.py](../../../../../../../tests/engine/decision/test_j0_cli.py)
 
@@ -60,7 +60,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_mock_port_ignores_the_presented_order`(関数)
   - `test_mock_port_picks_the_word_the_mock_writes`(関数)
   - `test_negative_control_shifting_the_mock_number_moves_the_final`(関数)
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.cli`・`shibuya.engine.decision.layer`・`shibuya.engine.decision.ports`・`shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.foundation.ports.decision`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.mock`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.cli`・`shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.foundation.ports.decision`・`shibuya.foundation.vocab.actions`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.ports`・`tests/engine/decision/_j0.py`
 
 ## [test_j0_other_ratio_field.py](../../../../../../../tests/engine/decision/test_j0_other_ratio_field.py)
 
@@ -71,7 +71,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_default_other_share_is_unset_with_the_r108_basis`(関数)
   - `test_llm_port_puts_an_unmatched_answer_in_other`(関数)
   - `test_manifest_carries_the_ratio_field`(関数)
-- import している内部モジュール: `shibuya.engine.decision.layer`・`shibuya.engine.decision.ports`・`shibuya.engine.run`・`shibuya.foundation.ports.decision`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.ports.decision`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.ports`・`tests/engine/decision/_j0.py`
 - 決定の ID: R-108
 
 ## [test_j0_port_schema.py](../../../../../../../tests/engine/decision/test_j0_port_schema.py)
@@ -91,7 +91,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_surprise_words_and_hesitation`(関数)
   - `test_the_port_does_not_read_the_prediction`(関数): 口(と 3 つの実装)は予想の値を解釈しない: 予想を入れても同じ答え(驚くかは判断の側=10-03 §7)。
   - `test_three_implementations_share_one_entry`(関数)
-- import している内部モジュール: `shibuya.engine.decision.ports`・`shibuya.engine.decision.sources`・`shibuya.engine.llm_bridge`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.percept`・`shibuya.foundation.vocab.actions`・`shibuya.llm.mock`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.engine.llm_bridge`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.percept`・`shibuya.foundation.vocab.actions`・`shibuya.llm.mock`・`shibuya.mind.judge.decision.ports`・`shibuya.mind.judge.decision.sources`・`tests/engine/decision/_j0.py`
 - 決定の ID: 10-03/§7・R-97
 
 ## [test_j0_shuffle_invariance.py](../../../../../../../tests/engine/decision/test_j0_shuffle_invariance.py)
@@ -104,7 +104,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_permutation_test_spreads_the_position`(関数): 並べ替えの試験: 同じ問いを巡回のずらし全部で出し、選ばれた位置の分布を見る(内容は 1 つ・位置は 13 か所に散る)。
   - `test_reordering_the_candidates_keeps_the_choice`(関数)
   - `test_the_present_key_follows_agent_step_and_count`(関数)
-- import している内部モジュール: `shibuya.engine.decision.ports`・`shibuya.engine.rng_audit`・`shibuya.engine.run`・`shibuya.foundation.ports.decision`・`shibuya.foundation.vocab.actions`・`shibuya.llm.mock`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.engine.rng_audit`・`shibuya.engine.run`・`shibuya.foundation.ports.decision`・`shibuya.foundation.vocab.actions`・`shibuya.llm.mock`・`shibuya.mind.judge.decision.ports`・`tests/engine/decision/_j0.py`
 - 決定の ID: R-108
 
 ## [test_j0_writes_declared.py](../../../../../../../tests/engine/decision/test_j0_writes_declared.py)

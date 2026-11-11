@@ -518,7 +518,7 @@ def test_daily_tables_are_relaid_from_the_calendar_day(tmp_path, monkeypatch):
 
 def test_ipf_cache_key_has_the_day(monkeypatch):
     """親の答え 4: classical の c_t の覚え書きの鍵に日がある(2 日目は 2 日目の状態から作る)。"""
-    from shibuya.engine import classical as CL
+    from shibuya.mind.judge import classical as CL
 
     orig_bind = CL.ClassicalPolicy.bind
     seen: list = []

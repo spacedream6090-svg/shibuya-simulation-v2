@@ -14,8 +14,8 @@ import pytest
 
 from shibuya.agents.state import MEMORY_FIELDS, AgentState, ResultCode
 from shibuya.engine import commit as C
-from shibuya.engine import memory as M
-from shibuya.engine.familiarity import place_thing
+from shibuya.mind.memory import memory as M
+from shibuya.mind.memory.familiarity import place_thing
 from tests import golden_env as GE
 
 SRC = Path("src/shibuya")
@@ -242,11 +242,11 @@ def test_cli_flags():
 
 def test_row_writers_are_array_ops():
     """P4: 1 回の書き込み(統合/新規/追い出し)と読み口に for/while を書かない。"""
-    tree = ast.parse((SRC / "engine/memory.py").read_text(encoding="utf-8"))
+    tree = ast.parse((SRC / "mind/memory/memory.py").read_text(encoding="utf-8"))
     names = {"scores", "importance_of", "activation_rows"}
     bad = [f"{n.name}:{s.lineno}" for n in ast.walk(tree)
            if isinstance(n, ast.FunctionDef) and n.name in names
            for s in ast.walk(n) if isinstance(s, (ast.For, ast.While))]
     assert not bad, bad
-    src = (SRC / "engine/memory.py").read_text(encoding="utf-8")
+    src = (SRC / "mind/memory/memory.py").read_text(encoding="utf-8")
     assert "逐次ループ宣言" in src

@@ -64,7 +64,7 @@ import numpy as np
 
 from shibuya.agents.state import STORE_MEMORY_EMPTY, ResultCode
 from shibuya.engine import resolve as R
-from shibuya.engine.memory import EVENT_KINDS
+from shibuya.mind.memory.memory import EVENT_KINDS
 from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [

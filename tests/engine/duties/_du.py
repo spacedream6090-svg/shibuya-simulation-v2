@@ -16,7 +16,7 @@ import numpy as np
 
 from shibuya.foundation.time_consts import MINUTES_PER_HOUR, NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
 from shibuya.foundation.arms import duties as AD
-from shibuya.engine.duties import port as PD
+from shibuya.mind.plan import duties_port as PD
 
 STEP_NS = STEP_SECONDS * NS_PER_SECOND
 TPD = int(STEPS_PER_DAY)

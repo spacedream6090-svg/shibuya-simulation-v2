@@ -12,7 +12,7 @@ from shibuya.agents.state import AgentState
 from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
 from shibuya.foundation.queues import batching as BA
 from shibuya.foundation.arms import contact as A
-from shibuya.engine.contact import port as P
+from shibuya.mind.plan import contact_port as P
 from shibuya.engine.contact.layer import ContactLayer
 from shibuya.foundation.journal.log import EventLog
 from shibuya.engine.tools.groups import GroupList

@@ -184,8 +184,9 @@ def test_engine_does_not_decide_for_the_person():
     """AST: nav1 は判断の層・LLM・選び手を読まない(速さは体の属性・経路は既定の重み=宣言)。"""
     import shibuya.llm as LLM
     from shibuya.act import activity, intent
-    from shibuya.engine import chooser, classical
-    from shibuya.engine.decision import layer as DLAYER
+    from shibuya.engine import chooser
+    from shibuya.mind.judge import classical
+    from shibuya.mind.judge.decision import layer as DLAYER
 
     from tests import _places as PL
 

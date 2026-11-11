@@ -112,7 +112,7 @@ class PeopleRelationLayer(RelationLayer):
 
     def recognized(self, agents: Any, agent_id: int, ids: Any, tick: int) -> np.ndarray:
         """見覚え(MR4・MR5): 目の前の人 ``ids`` のうち、見覚えの強さに手がかりを足すと τ を超える人か(思い浮かぶ人を含む)。"""
-        from shibuya.engine.memory_m1 import recognize_mask
+        from shibuya.mind.memory.memory_m1 import recognize_mask
 
         ids = np.atleast_1d(np.asarray(ids, dtype=np.int64))
         partner, _rel, A, A_fam, _row = self._ms.people_rows(np.asarray([int(agent_id)]), self._now_ns(tick))

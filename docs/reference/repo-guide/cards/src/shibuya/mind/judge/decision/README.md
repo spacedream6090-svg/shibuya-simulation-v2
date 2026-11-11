@@ -1,14 +1,14 @@
-# src/shibuya/engine/decision
+# src/shibuya/mind/judge/decision
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
 Python 5 本・その他 0 本(このディレクトリの直下)
 
-## [__init__.py](../../../../../../../../src/shibuya/engine/decision/__init__.py)
+## [__init__.py](../../../../../../../../../src/shibuya/mind/judge/decision/__init__.py)
 
-engine.decision — 候補の口 J0(第 1 期 1-8・DM-0・DM4・DM5・DM13・C-2)。
+(冒頭の説明なし)
 
-## [layer.py](../../../../../../../../src/shibuya/engine/decision/layer.py)
+## [layer.py](../../../../../../../../../src/shibuya/mind/judge/decision/layer.py)
 
 engine.decision.layer — 候補の口 J0 の腕と層(1 呼の判断を口に通す・候補の源の計器・判断の出来事)(第 1 期 1-8)。
 
@@ -17,7 +17,7 @@ engine.decision.layer — 候補の口 J0 の腕と層(1 呼の判断を口に�
   - `arm`(関数): いまの腕(``legacy``=既定・``port``=候補の口)。組み立てのときに読む。
   - `manifest_fields`(関数): manifest の ``decision_port``(腕が legacy のランは層が無い=観測の子は null)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--decision-port``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
-- import している内部モジュール: `shibuya.economy.stage2_bind`・`shibuya.engine.commit`・`shibuya.engine.decision.sources`・`shibuya.engine.tools.registry`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.vocab.events`
+- import している内部モジュール: `shibuya.economy.stage2_bind`・`shibuya.engine.commit`・`shibuya.engine.tools.registry`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.vocab.events`・`shibuya.mind.judge.decision.sources`
 - 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.systems.build`
 - 読む試験: `tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/decision/_j0.py`・`tests/engine/decision/test_j0_cause_columns.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/decision/test_j0_other_ratio_field.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/engine/tools/test_c0_affordance_from_registry.py`
 - 読む試験(道筋で): `tests/engine/speech/test_speech_writers_ast.py`・`tests/engine/time/test_t0_rng_key.py`
@@ -27,7 +27,7 @@ engine.decision.layer — 候補の口 J0 の腕と層(1 呼の判断を口に�
 - 環境変数: `SHIBUYA_DECISION_PORT`
 - 決定の ID: R-108
 
-## [persona.py](../../../../../../../../src/shibuya/engine/decision/persona.py)
+## [persona.py](../../../../../../../../../src/shibuya/mind/judge/decision/persona.py)
 
 engine.decision.persona — 人物の欄(第 4 期 4-3 段 10・親の判断 仮-33 (6)=判断の入力に短い版・LLM の入力に長い版)。
 
@@ -40,7 +40,7 @@ engine.decision.persona — 人物の欄(第 4 期 4-3 段 10・親の判断 仮
 - 読む試験: `tests/engine/test_pop_w21_world.py`
 - 決定の ID: 10-12/§4-7
 
-## [ports.py](../../../../../../../../src/shibuya/engine/decision/ports.py)
+## [ports.py](../../../../../../../../../src/shibuya/mind/judge/decision/ports.py)
 
 engine.decision.ports — 候補の口の 3 つの実装(同じ入口 ``DecisionPort.choose``)(第 1 期 1-8 J0)。
 
@@ -53,14 +53,14 @@ engine.decision.ports — 候補の口の 3 つの実装(同じ入口 ``Decision
 - 読む試験: `tests/economy/stage2/test_stage2_calls.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/decision/test_j0_other_ratio_field.py`・`tests/engine/decision/test_j0_port_schema.py`・`tests/engine/decision/test_j0_shuffle_invariance.py`・`tests/engine/speech/test_speech_choice_utterance.py`
 - 決定の ID: R-113
 
-## [sources.py](../../../../../../../../src/shibuya/engine/decision/sources.py)
+## [sources.py](../../../../../../../../../src/shibuya/mind/judge/decision/sources.py)
 
 engine.decision.sources — 候補を 5 つの源から作る(第 1 期 1-8 J0・DM-0)。
 
 - 公開の関数とクラス
   - `build_candidates`(関数): 5 つの源と語彙の残りから候補の列を作る(作る側は番号を振らない=``present`` が振る)。読むだけ。
   - `memory_kind_words`(関数): 記憶の種類 → 行為の語(``engine.memory.ACTION_KIND``=行動コード → 種類 の逆)。
-- import している内部モジュール: `shibuya.engine.memory`・`shibuya.foundation.ports.decision`
-- 呼び手: `shibuya.engine.calendar_self`・`shibuya.engine.decision.layer`・`tools/instruments/dm_eval/situations.py`
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.mind.memory.memory`
+- 呼び手: `shibuya.engine.calendar_self`・`shibuya.mind.judge.decision.layer`・`tools/instruments/dm_eval/situations.py`
 - 読む試験: `tests/engine/decision/_j0.py`・`tests/engine/decision/test_j0_port_schema.py`・`tests/engine/tools/test_c0_affordance_from_registry.py`
 - 決定の ID: 10-12/§4-7

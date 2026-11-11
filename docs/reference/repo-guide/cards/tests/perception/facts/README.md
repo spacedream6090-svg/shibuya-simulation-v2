@@ -116,5 +116,5 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `test_render_without_prepare_and_out_of_area_cells`(関数): ``prepare_tick`` を呼ばずに描く道(``render`` が自分で前計算する)と、セルの外の体も同じ。
   - `test_synthetic_scenes_render_the_same_bytes_as_head`(関数)
   - `test_the_19_configs_are_the_byte_check_set`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.memory`・`shibuya.foundation.text.hashes`・`shibuya.perception.renderer`・`shibuya.world.model.proximity`・`tests/perception/facts/scenes.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.foundation.text.hashes`・`shibuya.mind.memory.memory`・`shibuya.perception.renderer`・`shibuya.world.model.proximity`・`tests/perception/facts/scenes.py`
 - 決定の ID: 第 346

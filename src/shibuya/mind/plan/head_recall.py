@@ -24,8 +24,8 @@ from typing import Any, Final
 
 import numpy as np
 
-from shibuya.engine import memory_m1 as _M1
-from shibuya.engine.memory import IMPORTANCE, IMPORTANCE_MAX, RECALL_TAU
+from shibuya.mind.memory import memory_m1 as _M1
+from shibuya.mind.memory.memory import IMPORTANCE, IMPORTANCE_MAX, RECALL_TAU
 
 __all__ = ["IMPORTANCE_HEAD", "TAU", "HeadRecall"]
 

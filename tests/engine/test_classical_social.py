@@ -16,7 +16,7 @@ import pytest
 from tests import golden_env as GE
 
 from shibuya.agents.state import Activity, AgentKind, AgentState
-from shibuya.engine import classical as CL
+from shibuya.mind.judge import classical as CL
 from shibuya.world.model.state import World
 
 DOC, MD5 = CL.load_activity_prior()

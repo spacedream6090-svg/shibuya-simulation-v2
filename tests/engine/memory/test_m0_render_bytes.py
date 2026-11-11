@@ -12,7 +12,7 @@ import pytest
 
 from shibuya.foundation.time_consts import NS_PER_STEP
 from shibuya.engine.llm_bridge import PerceptionRendererAdapter
-from shibuya.engine import memory_store as MS
+from shibuya.mind.memory import memory_store as MS
 from shibuya.engine.run import run_day
 
 from tests.engine.memory._m0 import KW, run_with_arm

@@ -13,7 +13,7 @@ from typing import Any
 import pytest
 
 from shibuya.agents.state import WakeCondition
-from shibuya.engine.decision import ports as PS
+from shibuya.mind.judge.decision import ports as PS
 from shibuya.foundation.vocab.actions import cross_action_words
 from shibuya.llm.mock import MockLLM
 from tests.engine.decision._j0 import FakePolicy, ctx_of, vocab_candidates

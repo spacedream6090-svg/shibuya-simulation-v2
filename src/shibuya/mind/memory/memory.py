@@ -90,7 +90,7 @@ import numpy as np
 from shibuya.agents.state import WAKE_CONDITION_CLASS, IntentKind, ResultCode, WakeCondition
 from shibuya.foundation.types import EventClass
 from shibuya.engine import resolve as R
-from shibuya.engine.familiarity import place_thing
+from shibuya.mind.memory.familiarity import place_thing
 
 __all__ = [
     "MEMORY_N",
@@ -276,8 +276,8 @@ class MemoryLayer:
     def __init__(self, n_agents: int, n_rows: int = MEMORY_N, *, minutes_per_tick: float = 1.0,
                  d: float = MEMORY_D, w_r: float = MEMORY_W_R, w_i: float = MEMORY_W_I) -> None:
         # 〔第 6 期 6-5〕記憶の腕(--memory-model/-cue/-people/-grain)は器のランだけ=器の無いランで既定と違えば止める
-        from shibuya.engine import memory_m1 as _M1
-        from shibuya.engine import memory_store as _MS
+        from shibuya.mind.memory import memory_m1 as _M1
+        from shibuya.mind.memory import memory_store as _MS
 
         _M1.check_arms(store_on=_MS.arm() == _MS.ARM_EVENTS)
         self.n = int(n_agents)
@@ -315,7 +315,7 @@ class MemoryLayer:
         ``population_seed``(〔第 6 期 6-5・検収 M1〕)=母集団の seed。腕 ``--memory-model m1`` の人ごとの忘れる速さの鍵
         (10f S1=母集団の側の乱数は母集団の seed から)。組み立て(``engine.systems.build``)がランごとに渡す。
         """
-        from shibuya.engine.memory_store import MemoryStore
+        from shibuya.mind.memory.memory_store import MemoryStore
 
         self.memory_store = MemoryStore(
             self.n, self.n_rows, step_seconds=int(step_seconds), minutes_per_step=self.minutes_per_tick,
@@ -329,8 +329,8 @@ class MemoryLayer:
         ``memory_m1.tau_from_m0`` で導く仮の値。埋め込みの腕のモデルが使えなければ ``EmbedUnavailable`` で止める。
         〔検収 M1〕人ごとの忘れる速さの seed はこの呼びの ``population_seed``(プロセスの大域の値を持たない)。
         〔検収 L1〕腕の設定の値(``memory_m1.config_of``)を器に置く(manifest の ``memory_summary.mr65_arms``)。"""
-        from shibuya.engine import memory_m1 as _M1
-        from shibuya.engine.memory_store import row_caps
+        from shibuya.mind.memory import memory_m1 as _M1
+        from shibuya.mind.memory.memory_store import row_caps
 
         a = _M1.check_arms(store_on=True)
         if not _M1.arms_on() and a.cue == _M1.CUE_ID:
@@ -342,7 +342,7 @@ class MemoryLayer:
             m1 = _M1.M1State(self.n, ms.n * ms.n_rows, tau=_M1.tau_from_m0(self.tau), seed=population_seed)
         cue = None
         if a.cue == _M1.CUE_EMBED:
-            from shibuya.engine.memory_embed import CueState, make_embedder
+            from shibuya.mind.memory.memory_embed import CueState, make_embedder
 
             cue = CueState(make_embedder(a.embed_model))
         ms.enable_arms(m1=m1, cue=cue, uncapped=a.people == _M1.PEOPLE_MEMORY, grain=a.grain,
@@ -381,7 +381,7 @@ class MemoryLayer:
 
         ms = self.memory_store
         if ms is not None and ms.uncapped:  # 〔第 6 期 6-5〕人も記憶の一つの腕: 関係の読み口を器の人の行から
-            from shibuya.engine.relations_people import PeopleRelationLayer
+            from shibuya.mind.relations.people import PeopleRelationLayer
 
             self.relations = PeopleRelationLayer(
                 self.n, REL_K if k is None else int(k), store=ms, minutes_per_tick=self.minutes_per_tick,
@@ -402,12 +402,12 @@ class MemoryLayer:
         書き手はエピソードの書き手(:meth:`record`)に乗る=記憶の表と同じ回・同じ配列。想起できる店の
         τ は記憶の想起と同じ :attr:`tau`(宣言)。
         """
-        from shibuya.engine.store_memory import DEFAULT_STORE_DECAY, STORE_MEMORY_N, StoreMemory
+        from shibuya.mind.memory.store_memory import DEFAULT_STORE_DECAY, STORE_MEMORY_N, StoreMemory
 
         ms = self.memory_store
         if ms is not None and ms.uncapped:
             # 〔第 6 期 6-5・検収 M4〕人も記憶の一つの腕: 店の評価の行は器の店の行の表(上限 32 の体の表 sm_* を外す道)
-            from shibuya.engine.memory_shops import ShopTable, UncappedStoreMemory
+            from shibuya.mind.memory.memory_shops import ShopTable, UncappedStoreMemory
 
             table = ShopTable(self.n, STORE_MEMORY_N if n_rows is None else int(n_rows), cap=int(ms.caps["shop"]))
             ms.attach_shops(table)
@@ -487,7 +487,7 @@ class MemoryLayer:
     def _shop_arrays(self, agents: Any, i: int, step: int, s_used: np.ndarray, q_obj: int,
                      q_cell: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """7c: 店の評価の行の (POI・score・A ≥ τ・q に一致) と計数(店の行の score=A+0.5×min(4, 精度))。配列演算だけ。"""
-        from shibuya.engine.store_memory import STORE_SCORE_P_CAP, STORE_SCORE_W_P
+        from shibuya.mind.memory.store_memory import STORE_SCORE_P_CAP, STORE_SCORE_W_P
 
         rs = self.recall_stats
         st = self.store
@@ -515,7 +515,7 @@ class MemoryLayer:
         店の記憶 on(7c)のランは、店の評価の行(今の ``sm_*``)を器の想起の内側で同じ score の順に競わせる。逐次ループ
         宣言: 返した行の数ぶん(≤ k)。
         """
-        from shibuya.engine.memory_store import CLARITY_WORDS, GRAIN_WORDS, Cue, MemoryView, ShopPool, to_item
+        from shibuya.mind.memory.memory_store import CLARITY_WORDS, GRAIN_WORDS, Cue, MemoryView, ShopPool, to_item
 
         rs = self.recall_stats
         ms = self.memory_store
@@ -524,7 +524,7 @@ class MemoryLayer:
             return []
         q_cell, q_partner, q_obj, q_kind, q_result = self._query(agents, i, inviter)
         # 〔第 6 期 6-5〕上限なしの腕は器の行の幅が広がる=店の行は大きな番号から(器の行と重ならない)
-        from shibuya.engine.memory_store import UNCAPPED_SHOP_BASE
+        from shibuya.mind.memory.memory_store import UNCAPPED_SHOP_BASE
 
         shop_base = UNCAPPED_SHOP_BASE if ms.uncapped else self.n_rows
         # 〔6-5 MR2 問い 4〕意味の手がかりの文(会話中=相手の直前の発言・ほか=本人の直前の理由)
@@ -787,7 +787,7 @@ class MemoryLayer:
                        obj, result, imp, n)
         ms = self.memory_store
         if ms is not None:  # 1-6 M0 の腕: 同じ出来事を器へ(重みの素=重要度の base・器が初回 +1 と上限を掛ける)
-            from shibuya.engine.memory_store import ORIGIN_LEGACY, LegacyEvent, LoggedEvent
+            from shibuya.mind.memory.memory_store import ORIGIN_LEGACY, LegacyEvent, LoggedEvent
 
             base = importance_of(kind, result, np.zeros(a.size, dtype=bool))
             link = ms.body_events
@@ -837,8 +837,8 @@ class MemoryLayer:
                       cell: np.ndarray, t_ns: int) -> None:
         """相手のある出来事(会話・手伝い=関係の層の書き手と同じ選び)→ その人の行に 1 回触れる(MR6=注意が向いた 1 回・
         会話は番ごとに触れる=自然に強く残る)。新しい人は関係の種類「知人」。1 回の呼びで 1 体 1 件(呼び手の回の分け)。"""
-        from shibuya.engine.memory_m1 import PERSON_KIND
-        from shibuya.engine.memory_store import ORIGIN_LEGACY, LegacyEvent
+        from shibuya.mind.memory.memory_m1 import PERSON_KIND
+        from shibuya.mind.memory.memory_store import ORIGIN_LEGACY, LegacyEvent
         from shibuya.engine.relations import REL_KINDS
 
         sel = (np.isin(kind, (EVENT_KINDS["talk"], EVENT_KINDS["help"])) & (partner >= 0) & (partner < self.n)

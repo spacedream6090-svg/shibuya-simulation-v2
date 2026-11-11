@@ -171,7 +171,7 @@ def test_a_chosen_withdrawal_skips_the_rule_and_takes_the_call_as_cause():
 
 # ================================================================= 判断の口の層の印
 def test_decision_layer_hints_are_taken_once():
-    from shibuya.engine.decision import layer as DL
+    from shibuya.mind.judge.decision import layer as DL
     from shibuya.foundation.ports.decision import Choice
 
     lay = DL.DecisionLayer.__new__(DL.DecisionLayer)
@@ -191,8 +191,8 @@ def test_decision_layer_hints_are_taken_once():
 # ================================================================= 合成の世界の 1 日
 def test_port_answers_reach_the_actions_in_a_run(monkeypatch):
     from tests.economy.stage2 import test_stage2_runs as TR
-    from shibuya.engine.decision import layer as DL
-    from shibuya.engine.decision import ports as PT
+    from shibuya.mind.judge.decision import layer as DL
+    from shibuya.mind.judge.decision import ports as PT
     from shibuya.world.model.state import World
 
     monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)

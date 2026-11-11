@@ -20,9 +20,9 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.time_consts import NS_PER_SECOND
-from shibuya.engine import memory_m1 as M1
+from shibuya.mind.memory import memory_m1 as M1
 from shibuya.engine import state_ledger as SL
-from shibuya.engine.memory_store import LegacyEvent, MemoryStore
+from shibuya.mind.memory.memory_store import LegacyEvent, MemoryStore
 from shibuya.engine.run import run_day
 
 from tests.engine.memory._mr65 import KW, arms
@@ -87,7 +87,7 @@ def test_resume_refuses_another_embed_model_or_another_arm(tmp_path):
 
 # ---------------------------------------------------------------- L3
 def _people_store() -> MemoryStore:
-    import shibuya.engine.memory_store as MS
+    import shibuya.mind.memory.memory_store as MS
 
     ms = MS.MemoryStore(4, 4, step_seconds=60, minutes_per_step=1.0)
     ms.enable_arms(m1=M1.M1State(4, 16, tau=M1.tau_from_m0(-2.0), seed=1), uncapped=True)
@@ -97,7 +97,7 @@ def _people_store() -> MemoryStore:
 
 
 def test_people_readers_compute_each_strength_once(monkeypatch):
-    from shibuya.engine.relations_people import PeopleRelationLayer
+    from shibuya.mind.relations.people import PeopleRelationLayer
 
     ms = _people_store()
     layer = PeopleRelationLayer(4, 50, store=ms)
@@ -138,7 +138,7 @@ def test_params_tables_are_read_only_and_the_summary_is_a_plain_copy():
 
 # ---------------------------------------------------------------- CueState の守り(検収 低)
 def test_cue_state_guards():
-    from shibuya.engine.memory_embed import CueState, NgramEmbedder
+    from shibuya.mind.memory.memory_embed import CueState, NgramEmbedder
 
     cs = CueState(NgramEmbedder())
     for name, val in (("_heard", {}), ("_own", {}), ("_vec", {}), ("_qcache", {}), ("embedder", NgramEmbedder()),

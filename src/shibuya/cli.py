@@ -74,16 +74,16 @@ from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE, hash_free_ca
 from shibuya.engine.chooser import CHOOSER_NAMES, DEFAULT_CHOOSER
 from shibuya.engine.poi_target import MOVE_SEARCH_RADIUS_CELLS
 from shibuya.act.intent import INTENT_MAX_TICKS
-from shibuya.engine.familiarity import FAMILIARITY_K, FAMILIARITY_MODES
-from shibuya.engine.memory import MEMORY_MODES, MEMORY_N, RECALL_TAU
-from shibuya.engine.store_memory import (
+from shibuya.mind.memory.familiarity import FAMILIARITY_K, FAMILIARITY_MODES
+from shibuya.mind.memory.memory import MEMORY_MODES, MEMORY_N, RECALL_TAU
+from shibuya.mind.memory.store_memory import (
     DEFAULT_STORE_DECAY,
     STORE_DECAY_MODES,
     STORE_MEMORY_MODES,
     STORE_MEMORY_N,
 )
 from shibuya.engine.chooser import HABIT_P, RANK_TAU
-from shibuya.engine.classical import (
+from shibuya.mind.judge.classical import (
     ACTIVITY_REGIONS,
     DEFAULT_ACTIVITY_REGION,
     DEFAULT_POLICY,
@@ -487,7 +487,7 @@ def run(
         from shibuya.world.body import schedule as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)。〔移す段 4 の下ごしらえ〕定義した schedule を直に読む
         from shibuya.engine import calendar_shadow as _calendar_shadow  # 〔第 3 期 3-1〕暦 1a の影(既定 w17 と違えば腕)
         from shibuya.engine import calendar_self as _calendar_self  # 〔第 6 期 6-2〕カレンダー 1b(既定 w17 と違えば腕)
-        from shibuya.engine import memory_m1 as _memory_m1  # 〔第 6 期 6-5〕記憶の腕(結果を変える腕=既定と違えば腕)
+        from shibuya.mind.memory import memory_m1 as _memory_m1  # 〔第 6 期 6-5〕記憶の腕(結果を変える腕=既定と違えば腕)
         from shibuya.engine import regional_clock as _regional_clock  # 〔第 6 期 6-3〕時計の段 T2〜T4 の腕(既定と違えば腕)
         from shibuya.engine import speech_clock as _speech_clock
         from shibuya.engine import step_scope as _step_scope
@@ -1579,18 +1579,18 @@ def main(argv: list[str] | None = None) -> int:
 
         _events_log.set_enabled(str(args.events) == "on")
     if args.memory_store is not None:  # 第 1 期 1-6: 記憶の器の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine import memory_store as _memory_store
+        from shibuya.mind.memory import memory_store as _memory_store
 
         _memory_store.set_arm(str(args.memory_store))
     # 〔第 6 期 6-5〕記憶の腕(組み立てが読む。指定は環境変数より強い)
     for _mk, _mv in (("model", args.memory_model), ("cue", args.memory_cue), ("embed_model", args.memory_embed_model),
                      ("people", args.memory_people), ("grain", args.memory_grain)):
         if _mv is not None:
-            from shibuya.engine import memory_m1 as _memory_m1
+            from shibuya.mind.memory import memory_m1 as _memory_m1
 
             _memory_m1.set_arm(_mk, str(_mv))
     if args.decision_port is not None:  # 第 1 期 1-8 J0: 候補の口の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine.decision import layer as _decision_layer
+        from shibuya.mind.judge.decision import layer as _decision_layer
 
         _decision_layer.set_arm(str(args.decision_port))
     if args.speech_port is not None:  # 第 1 期 1-8b: 発話の口の腕(組み立てが読む。指定は環境変数より強い)

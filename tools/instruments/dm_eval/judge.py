@@ -293,7 +293,7 @@ class ClassicalScorer(Scorer):
 
     def __init__(self, *, day_kind: str = "weekday", region: str = "kanto", vocab_version: str = VOCAB_VERSION) -> None:
         """〔11-01〕``vocab_version`` は語を読む語彙の版(既定は 1-10 の材料の v1・消費の場面は v3)。"""
-        from shibuya.engine.classical import ACTIVITY_MAP_V0, SSB_ACTIVITY_CODES, ActivityPrior, load_activity_prior
+        from shibuya.mind.judge.classical import ACTIVITY_MAP_V0, SSB_ACTIVITY_CODES, ActivityPrior, load_activity_prior
 
         anchors, md5 = load_activity_prior()
         self.prior = ActivityPrior(anchors, day_kind, region)

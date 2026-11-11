@@ -50,7 +50,7 @@ markers = [
 ]
 filterwarnings = ["error::DeprecationWarning:shibuya.*"]
 
-# ---- 層契約(段 4 の段 act の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage act` が作る。手で直さない)----
+# ---- 層契約(段 4 の段 mind の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage mind` が作る。手で直さない)----
 [tool.importlinter]
 root_package = "shibuya"
 include_external_packages = false
@@ -97,7 +97,7 @@ name = "〔段 4 の途中の決まり〕1 層(§1-2 の順。下から上と、
 type = "layers"
 layers = [
   "shibuya.world.laws",
-  "shibuya.act",
+  "shibuya.mind | shibuya.act",
   "shibuya.world.body",
   "shibuya.world.model | shibuya.world.things | shibuya.economy",
   "shibuya.world.facts | shibuya.world.ledger",
@@ -105,25 +105,25 @@ layers = [
 ]
 ignore_imports = [
   "shibuya.engine.calendar2.layer -> shibuya.llm.mock",
-  "shibuya.engine.classical -> shibuya.llm.mock",
-  "shibuya.engine.contact.port -> shibuya.llm.mock",
-  "shibuya.engine.decision.layer -> shibuya.engine.commit",
-  "shibuya.engine.decision.layer -> shibuya.engine.tools.registry",
   "shibuya.engine.events.body -> shibuya.engine.tools.record",
-  "shibuya.engine.familiarity -> shibuya.engine.resolve",
-  "shibuya.engine.memory -> shibuya.engine.commit",
-  "shibuya.engine.memory -> shibuya.engine.resolve",
   "shibuya.engine.poi_target -> shibuya.engine.chooser",
   "shibuya.engine.relations -> shibuya.engine.resolve",
   "shibuya.engine.resolve -> shibuya.engine.change_detect",
   "shibuya.engine.resolve -> shibuya.engine.resume",
   "shibuya.engine.resolve -> shibuya.engine.state_hashes",
   "shibuya.engine.resolve -> shibuya.engine.state_ledger",
-  "shibuya.engine.speech.layer -> shibuya.engine.wom",
   "shibuya.engine.speech.layer -> shibuya.llm.mock",
-  "shibuya.engine.store_memory -> shibuya.engine.resolve",
-  "shibuya.engine.wom -> shibuya.engine.poi_target",
+  "shibuya.engine.speech.layer -> shibuya.mind.memory.wom",
   "shibuya.llm -> shibuya.llm.fleet",
+  "shibuya.mind.judge.classical -> shibuya.llm.mock",
+  "shibuya.mind.judge.decision.layer -> shibuya.engine.commit",
+  "shibuya.mind.judge.decision.layer -> shibuya.engine.tools.registry",
+  "shibuya.mind.memory.familiarity -> shibuya.engine.resolve",
+  "shibuya.mind.memory.memory -> shibuya.engine.commit",
+  "shibuya.mind.memory.memory -> shibuya.engine.resolve",
+  "shibuya.mind.memory.store_memory -> shibuya.engine.resolve",
+  "shibuya.mind.memory.wom -> shibuya.engine.poi_target",
+  "shibuya.mind.plan.contact_port -> shibuya.llm.mock",
   "shibuya.world.body.rules -> shibuya.engine.change_detect",
   "shibuya.world.model.geometry -> shibuya.engine.change_detect",
 ]
@@ -136,6 +136,7 @@ source_modules = [
 ]
 forbidden_modules = [
   "shibuya.world.laws",
+  "shibuya.mind",
   "shibuya.act",
   "shibuya.world.body",
   "shibuya.world.model",
@@ -144,6 +145,45 @@ forbidden_modules = [
   "shibuya.world.facts",
   "shibuya.world.ledger",
   "shibuya.build",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕3 mind は foundation(と mind)だけを読む"
+type = "forbidden"
+source_modules = [
+  "shibuya.mind",
+]
+forbidden_modules = [
+  "shibuya.world.laws",
+  "shibuya.act",
+  "shibuya.world.body",
+  "shibuya.world.model",
+  "shibuya.world.things",
+  "shibuya.economy",
+  "shibuya.world.facts",
+  "shibuya.world.ledger",
+  "shibuya.build",
+]
+ignore_imports = [
+  "shibuya.engine.change_detect -> shibuya.world.assets",
+  "shibuya.engine.change_detect -> shibuya.world.model.state",
+  "shibuya.engine.events.body -> shibuya.engine.tools.record",
+  "shibuya.engine.relations -> shibuya.engine.resolve",
+  "shibuya.engine.relations -> shibuya.world.model.proximity",
+  "shibuya.llm -> shibuya.llm.fleet",
+  "shibuya.mind.judge.classical -> shibuya.engine.calendar",
+  "shibuya.mind.judge.classical -> shibuya.llm.mock",
+  "shibuya.mind.judge.decision.layer -> shibuya.economy.stage2_bind",
+  "shibuya.mind.judge.decision.layer -> shibuya.engine.commit",
+  "shibuya.mind.judge.decision.layer -> shibuya.engine.tools.registry",
+  "shibuya.mind.memory.familiarity -> shibuya.engine.resolve",
+  "shibuya.mind.memory.memory -> shibuya.engine.commit",
+  "shibuya.mind.memory.memory -> shibuya.engine.resolve",
+  "shibuya.mind.memory.store_memory -> shibuya.engine.resolve",
+  "shibuya.mind.memory.wom -> shibuya.engine.poi_target",
+  "shibuya.mind.plan.contact_port -> shibuya.llm.mock",
+  "shibuya.perception.renderer -> shibuya.world.assets",
+  "shibuya.perception.renderer -> shibuya.world.model.state",
 ]
 
 [[tool.importlinter.contracts]]
@@ -167,6 +207,7 @@ source_modules = [
 ]
 forbidden_modules = [
   "shibuya.world.laws",
+  "shibuya.mind",
   "shibuya.act",
   "shibuya.world.body",
   "shibuya.world.model",
@@ -180,6 +221,7 @@ name = "〔段 4 の途中の決まり〕8 ランの側は build を読まない
 type = "forbidden"
 source_modules = [
   "shibuya.world.laws",
+  "shibuya.mind",
   "shibuya.act",
   "shibuya.world.body",
   "shibuya.world.model",

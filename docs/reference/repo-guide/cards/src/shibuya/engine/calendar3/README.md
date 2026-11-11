@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 5 本・その他 0 本(このディレクトリの直下)
+Python 4 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/engine/calendar3/__init__.py)
 
@@ -31,7 +31,7 @@ engine.calendar3.layer — カレンダー 3「雇い主・祝日」の持ち主
   - `labor_params`(関数): 規則の表の労働時間の行(human=人が取り締まる側=止めない)を読む。表が無い写し・施行の前は空(記録だけの形)。
   - `manifest_fields`(関数): manifest の ``calendar_3``(腕 arm のランだけ・ほかは空=欄を出さない)。
   - `sys_calendar_3`(関数): 系 calendar_3(刻みの中・腕 arm のランだけ立つ)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar2.book`・`shibuya.engine.calendar2.port`・`shibuya.engine.calendar3.knowledge`・`shibuya.engine.calendar3.port`・`shibuya.engine.calendar_self`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.world.facts.rules.table`・`shibuya.world.laws.opening`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar3.knowledge`・`shibuya.engine.calendar_self`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.mind.plan.calendar2_port`・`shibuya.mind.plan.calendar3_port`・`shibuya.mind.plan.promise_book`・`shibuya.world.facts.rules.table`・`shibuya.world.laws.opening`
 - 呼び手: `shibuya.engine.duties.layer`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.table`
 - 読む試験: `tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/calendar3/test_ca3_world.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/rules/test_rules_table_schema.py`・`tests/engine/time/test_t0_rng_key.py`
@@ -45,23 +45,6 @@ engine.calendar3.layer — カレンダー 3「雇い主・祝日」の持ち主
 - 書きの許可
   - 系 `calendar_3`(群 暦・時 `tick`・立つ条件 `calendar3`・関数 `sys_calendar_3`)
     - 書いてよい外の道筋: `BW:batching.*`・`CA2B:calendar2.book.*`・`CA2G:calendar2._turns`・`CA3*:calendar3.*`・`CT1*:contact.*`・`E:events.*`
-- 決定の ID: 10-12/§4-1
-
-## [port.py](../../../../../../../../src/shibuya/engine/calendar3/port.py)
-
-engine.calendar3.port — カレンダー 3 の本人の判断(候補の口 J0 の形)の仮のモデルと候補の語(第 6 期 6-2・雇い主・C3)。
-
-- 公開の関数とクラス
-  - `Calendar3Port`(クラス): カレンダー 3 の判断の仮のモデル(mock・判断モデルの代わり)。乱数の鍵はその刻みのその体の判断の通し番号。
-  - `call_id_of`(関数): 判断の呼びの id(テープの形 ``<刻み>:<体>:<−通し番号>``)。
-  - `cand`(関数): 候補 1 つ(源は語から・見せ方の文は省略で語そのもの・id は省略で語)。
-  - `parse_call_id`(関数): カレンダー 3 の判断の呼びの id → ``(刻み, 体, 通し番号)``(この形でなければ ``None``)。
-  - `purpose_of_serial`(関数)
-  - `serial_of`(関数): 判断の通し番号(``SERIAL_BASE``+その刻みのその体の k 回目 × 16+判断の種類)。上限を超えたら ``ValueError``。
-- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.rng`
-- 呼び手: `shibuya.engine.calendar3.layer`
-- 読む試験: `tests/engine/calendar3/_ca3.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/duties/test_du_units.py`・`tests/engine/time/test_v30a_key_sites.py`
-- 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
 - 決定の ID: 10-12/§4-1
 
 ## [roster.py](../../../../../../../../src/shibuya/engine/calendar3/roster.py)

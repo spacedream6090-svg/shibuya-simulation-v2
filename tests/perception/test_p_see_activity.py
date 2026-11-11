@@ -23,7 +23,7 @@ import numpy as np
 import pytest
 
 from shibuya.agents.state import Activity, ActivityKind, AgentKind, AgentState
-from shibuya.engine.familiarity import FamiliarityLayer
+from shibuya.mind.memory.familiarity import FamiliarityLayer
 from shibuya.perception import renderer as RD
 from shibuya.perception.attention import gate_stage1
 from shibuya.perception.renderer import P_SEE_ACTIVITY_KINDS, Renderer

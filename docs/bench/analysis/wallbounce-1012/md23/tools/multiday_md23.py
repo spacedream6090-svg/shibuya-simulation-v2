@@ -72,7 +72,7 @@ def set_arms(config: str) -> dict[str, str]:
     """腕を選ぶ(組み立てが読む切替口)。このプロセスの中だけ。"""
     _paths()
     from shibuya.economy import stage2_bind as ES2
-    from shibuya.engine import memory_store as MS
+    from shibuya.mind.memory import memory_store as MS
     from shibuya.world.model import proximity as PX
 
     arms = CONFIGS[config]
@@ -96,7 +96,7 @@ def _q(x: np.ndarray) -> dict[str, float]:
 # ====================================================================== 日の終わりの読み(状態は書かない)
 def relation_view(agents: Any, tick: int, minutes_per_tick: float) -> dict[str, Any] | None:
     """関係辺の表(``rel_*``)の日の終わりの量。関係 off のランは ``None``。"""
-    from shibuya.engine.memory import activation_rows
+    from shibuya.mind.memory.memory import activation_rows
     from shibuya.engine.relations import REL_D, REL_K, REL_KINDS, REL_TAU, tau_from_edges
 
     r = agents.registry

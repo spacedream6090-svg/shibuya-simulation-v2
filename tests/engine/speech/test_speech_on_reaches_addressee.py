@@ -347,7 +347,7 @@ def _classical(n: int = 4):
     import numpy as np
 
     from shibuya.agents.state import Activity, AgentKind, AgentState
-    from shibuya.engine import classical as CL
+    from shibuya.mind.judge import classical as CL
     from shibuya.world.model.state import World
 
     doc, md5 = CL.load_activity_prior()

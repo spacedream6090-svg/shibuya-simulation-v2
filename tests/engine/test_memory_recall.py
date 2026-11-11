@@ -26,8 +26,8 @@ from shibuya.agents.state import (
     ResultCode,
     WakeCondition,
 )
-from shibuya.engine import memory as M
-from shibuya.engine.familiarity import place_thing
+from shibuya.mind.memory import memory as M
+from shibuya.mind.memory.familiarity import place_thing
 from shibuya.engine.tape import (
     CALLS_FILENAME,
     CALLS_SCHEMA,
@@ -358,7 +358,7 @@ def test_memory_tau_is_passed_and_checked():
 
 def test_recall_has_no_loop_over_rows():
     """P4: 想起は行の走査を配列演算で行う(for は想起した ≤k 件だけ)。"""
-    tree = ast.parse((SRC / "engine/memory.py").read_text(encoding="utf-8"))
+    tree = ast.parse((SRC / "mind/memory/memory.py").read_text(encoding="utf-8"))
     fn = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "recall")
     loops = [s for s in ast.walk(fn) if isinstance(s, (ast.For, ast.While, ast.comprehension))]
     assert not any(isinstance(s, ast.While) for s in loops)

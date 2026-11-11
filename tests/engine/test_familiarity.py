@@ -21,7 +21,7 @@ import pytest
 
 from shibuya.agents.state import FAMILIARITY_FIELDS, AgentState
 from shibuya.engine import resolve as R
-from shibuya.engine.familiarity import (
+from shibuya.mind.memory.familiarity import (
     ACTIVATION_ABSENT,
     FAMILIARITY_K,
     FAMILIARITY_MODES,
