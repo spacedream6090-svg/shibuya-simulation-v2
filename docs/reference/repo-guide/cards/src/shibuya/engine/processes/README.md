@@ -22,7 +22,7 @@ engine.processes.civic — 公共サービス出動・報道/公式発信・大�
   - `PublicServiceDispatchProcess`(クラス): 公共サービス出動(救急・警察)。「倒れる」事象を受けて出動し、到着で解消する。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.absent_processes`・`shibuya.engine.rate_rules`・`shibuya.engine.resolve`・`shibuya.perception.attention`・`shibuya.world.assets`・`shibuya.world.processes.records`・`shibuya.world.state`
 - 呼び手: `shibuya.engine.processes.runner`
-- 読む試験: `tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_civic.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/processes/test_salient.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_salt_seed_split_10f.py`
+- 読む試験: `tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_civic.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/processes/test_salient.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/time/test_t0_time_consts.py`
 - 読む試験(道筋で): `tests/engine/systems/test_fix_guards.py`
 - 状態台帳の行
   - 持ち主 `runner.dispatch`(`PublicServiceDispatchProcess`)
@@ -50,7 +50,7 @@ engine.processes.crowd — 混雑場・流れ・屋内占有・待ち行列(D-R2
   - `seats_for_categories`(関数): POI カテゴリ列 → 席数(容量 c)。**全部 expedient**(16行表 行2)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.world.state`
 - 呼び手: `shibuya.engine.processes`・`shibuya.engine.processes.runner`・`shibuya.engine.systems.build`
-- 読む試験: `tests/engine/processes/test_crowd.py`・`tests/engine/test_area_source_c9c.py`・`tests/engine/test_defect_fixes_1103.py`
+- 読む試験: `tests/engine/processes/test_crowd.py`・`tests/engine/test_area_source_c9c.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_env_and_sections_10f.py`
 - 状態台帳の行
   - 持ち主 `runner.crowd`(`CrowdProcess`)
     - `O51` CrowdProcess queue_action(挙動 behavior・復元 required) 道筋 `runner.crowd.queue_action` 書ける系: close_final・day_close・day_head・phase_c・plan_boundary・presence・world
@@ -71,7 +71,7 @@ engine.processes.environment — 昼夜・天候・体感温度(D-R2-5 第1陣�
   - `sample_calendar_day`(関数): 10e(B6): 季節 × 平日/土休 × 天候型の層から、窓の中で実際に起きた日数の割合で再生日を引く。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.core.hashing`・`shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.body.model`・`shibuya.engine.body.rules`・`shibuya.engine.calendar`・`shibuya.engine.resolve`・`shibuya.engine.solar`・`shibuya.world.assets`・`shibuya.world.state`
 - 呼び手: `shibuya.engine.processes`・`shibuya.engine.processes.runner`
-- 読む試験: `tests/engine/body/test_body_same_values.py`・`tests/engine/experiment/_x33.py`・`tests/engine/multiday/test_md23_w9_window.py`・`tests/engine/processes/test_environment.py`・`tests/engine/test_activation_10e.py`・`tests/engine/test_activation_2_4.py`・`tests/engine/test_assets_10e_b0_b1.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_weather_calendar_10e.py`
+- 読む試験: `tests/engine/body/test_body_same_values.py`・`tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/multiday/test_md23_w9_window.py`・`tests/engine/processes/test_environment.py`・`tests/engine/test_activation_10e.py`・`tests/engine/test_activation_2_4.py`・`tests/engine/test_assets_10e_b0_b1.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_weather_calendar_10e.py`
 - 読む試験(道筋で): `tests/engine/body/test_body_guard.py`
 - 状態台帳の行
   - 持ち主 `runner.environment`(`EnvironmentProcess`)
@@ -91,7 +91,7 @@ engine.processes.goods_flow — 物の流れ(§7.2 初回実装の後半 + 前�
   - `WasteCollectionProcess`(クラス): 廃棄物収集(店舗ビン → bbox 外)+ C 類排出(売れ残り・世帯消費)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.absent_processes`・`shibuya.engine.events.log`・`shibuya.engine.rate_rules`・`shibuya.engine.resolve`・`shibuya.world.processes.records`・`shibuya.world.state`
 - 呼び手: `shibuya.engine.duties.layer`・`shibuya.engine.processes.runner`
-- 読む試験: `tests/engine/duties/test_du_runs.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_resume_10d.py`
+- 読む試験: `tests/engine/duties/test_du_runs.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_resume_10d.py`・`tests/engine/time/test_t0_time_consts.py`
 - 状態台帳の行
   - 持ち主 `runner.delivery_inbound`(`DeliveryInboundProcess`)
     - `O55` LastMile delivered・_cum/BusTaxi・Traffic(cell_hourly・cell_vehicles)・Infra(power_kwh)・Press・Opening・DeliveryInbound の計数(挙動 no・復元 derivable) 道筋 `runner.delivery_inbound.delay_minute` 書ける系: close_final・day_close・day_head・world
@@ -117,7 +117,7 @@ engine.processes.logistics — 宅配ラストマイル・バス/タクシー・
   - `RoadWorksProcess`(クラス): 道路工事・占用(夜間の PlanSpec)。
 - import している内部モジュール: `shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.absent_processes`・`shibuya.engine.rate_rules`・`shibuya.world.assets`・`shibuya.world.processes.records`・`shibuya.world.state`
 - 呼び手: `shibuya.engine.processes.runner`
-- 読む試験: `tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_logistics.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_salt_seed_split_10f.py`
+- 読む試験: `tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_logistics.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/time/test_t0_time_consts.py`
 - 読む試験(道筋で): `tests/engine/bridging/test_bridging_ledger.py`
 - 状態台帳の行
   - 持ち主 `runner.bus_taxi`(`BusTaxiProcess`)
@@ -141,7 +141,7 @@ engine.processes.opening — 営業時間 PlanSpec と役割行動「開閉店�
   - `rows_of_day`(関数): その日の行(曜日 0〜6・祝日 ``PH_ROW``)に当たる W7 の区間の真偽の列。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.core.time_consts`・`shibuya.core.types`・`shibuya.engine.calendar`・`shibuya.engine.resolve`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`・`shibuya.engine.rights.record`・`shibuya.world.assets`・`shibuya.world.processes.records`・`shibuya.world.state`
 - 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.calendar3.layer`・`shibuya.engine.processes`・`shibuya.engine.processes.runner`・`shibuya.engine.run`
-- 読む試験: `tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_opening.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/rights/test_rights_manifest.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_calendar_10e_e3.py`・`tests/engine/test_calendar_sites.py`
+- 読む試験: `tests/build_rail/test_w12_arrivals_2_3c.py`・`tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_opening.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/rights/test_rights_manifest.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_calendar_10e_e3.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/time/test_t0_time_consts.py`
 - 状態台帳の行
   - 持ち主 `runner.opening`(`OpeningProcess`)
     - `O73` 世界の過程と実行器の計数(挙動 diag・復元 discardable) 道筋 `runner.opening.n_events`・`runner.opening.n_fallback`・`runner.opening.n_role_actions`・`runner.opening.n_unauthorized` 書ける系: close_final・day_close・day_head・duties・phase_c・plan_boundary・presence・world
@@ -156,6 +156,7 @@ engine.processes.rail — 鉄道運行(ODPT 静的ダイヤ・D-R2-5 第1陣の 
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.core.rng`・`shibuya.engine.calendar`・`shibuya.engine.events.log`・`shibuya.engine.ledger_api`・`shibuya.engine.rate_rules`・`shibuya.engine.resolve`・`shibuya.world.assets`・`shibuya.world.processes.records`・`shibuya.world.state`
 - 呼び手: `shibuya.engine.processes`・`shibuya.engine.processes.runner`
 - 読む試験: `tests/economy/cp2/test_cp2_transfer_only_writer.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/engine/processes/test_rail.py`・`tests/engine/processes/test_rail_board_intent.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_presence_exit_walk.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 状態台帳の行
   - 持ち主 `runner.rail`(`RailProcess`)
     - `O50` RailProcess occupancy・peak_ratio・_return_queue・_inbound・_inbound_ready(挙動 behavior・復元 required) 道筋 `runner.rail._inbound`・`runner.rail._inbound_ready`・`runner.rail._return_queue`・`runner.rail.occupancy`・`runner.rail.peak_ratio` 書ける系: close_final・day_close・day_head・phase_c・plan_boundary・presence・world

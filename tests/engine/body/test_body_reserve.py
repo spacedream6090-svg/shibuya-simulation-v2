@@ -15,7 +15,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.engine import body as B
 from shibuya.engine.body import BodyModel
 from shibuya.engine.body import schedule as BS
 from shibuya.engine.run import run_day
@@ -30,7 +29,8 @@ def _arm_back(monkeypatch):
 
     monkeypatch.setenv(GAUGE_ENV, "1")
     yield
-    B.set_arm(B.DEFAULT_ARM)
+    # 〔段 4 の下ごしらえ・親の決定 3〕腕の口は定義したモジュール(schedule)を直に読む(包みの頭の再輸出に頼らない)
+    BS.set_arm(BS.DEFAULT_ARM)
 
 
 def _external(rr, rng: np.random.Generator, t: int, energy: bool, ac: bool) -> None:  # noqa: ANN001
@@ -212,11 +212,11 @@ CONFIGS = {
 
 
 def _run(arm: str, **kw):  # noqa: ANN003, ANN202
-    B.set_arm(arm)
+    BS.set_arm(arm)
     try:
         return run_day(**kw)
     finally:
-        B.set_arm(B.DEFAULT_ARM)
+        BS.set_arm(BS.DEFAULT_ARM)
 
 
 def _sig(res):  # noqa: ANN001, ANN202

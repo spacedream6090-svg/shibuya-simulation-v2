@@ -52,7 +52,7 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_speed_is_the_body_attribute`(関数)
   - `test_turn_weights_fixed_and_person_range_deterministic`(関数)
   - `test_unique_position_per_agent_per_step`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar_self`・`shibuya.engine.geometry`・`shibuya.engine.proximity`・`shibuya.engine.space.nav1`・`shibuya.perception.p_notice`・`shibuya.world.navmesh`・`tests/build_space/synth.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.activity`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar_self`・`shibuya.engine.chooser`・`shibuya.engine.classical`・`shibuya.engine.decision.layer`・`shibuya.engine.geometry`・`shibuya.engine.intent`・`shibuya.engine.proximity`・`shibuya.engine.space.nav1`・`shibuya.llm`・`shibuya.perception.p_notice`・`shibuya.world.navmesh`・`tests/_places.py`・`tests/build_space/synth.py`
 - 環境変数: `SHIBUYA_SPACE`
 - 決定の ID: 10-03/§8・R-63
 

@@ -100,7 +100,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_value_drift_from_the_table_is_caught_at_write`(関数): 検収 M1: 行の番号が同じでも、器の値(ここでは重要度)が表とずれたら書いた所で落ちる(負の対照)。
   - `test_view_has_words_and_content_but_no_strength_number`(関数)
   - `test_writes_outside_the_declaration_fail`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.time_consts`・`shibuya.core.write_permit`・`shibuya.engine.memory`・`shibuya.engine.memory_store`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.guard`・`shibuya.engine.systems.table`・`shibuya.engine.tape`・`tests/engine/memory/_m0.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.build`・`shibuya.core.time_consts`・`shibuya.core.write_permit`・`shibuya.economy.ledger`・`shibuya.engine.memory`・`shibuya.engine.memory_store`・`shibuya.engine.resolve`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.guard`・`shibuya.engine.systems.table`・`shibuya.engine.tape`・`shibuya.llm`・`shibuya.perception.renderer`・`shibuya.world.state`・`tests/_places.py`・`tests/engine/memory/_m0.py`
 
 ## [test_m0_writes_declared.py](../../../../../../../tests/engine/memory/test_m0_writes_declared.py)
 
@@ -219,7 +219,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_new_modules_respect_the_layer_contract`(関数)
   - `test_runtime_owners_of_the_arm_runs_are_fully_declared`(関数)
   - `test_shop_table_ports_are_called_only_from_the_uncapped_store`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`tests/engine/memory/_mr65.py`・`tests/engine/test_state_ledger_10b.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.memory_embed`・`shibuya.engine.memory_impression`・`shibuya.engine.memory_m1`・`shibuya.engine.memory_shops`・`shibuya.engine.memory_trace`・`shibuya.engine.relations_people`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.state_ledger_ast`・`shibuya.llm`・`shibuya.perception.renderer`・`tests/_places.py`・`tests/engine/memory/_mr65.py`・`tests/engine/test_state_ledger_10b.py`
 
 ## [test_mr65_review_fixes.py](../../../../../../../tests/engine/memory/test_mr65_review_fixes.py)
 
@@ -233,5 +233,5 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_params_tables_are_read_only_and_the_summary_is_a_plain_copy`(関数)
   - `test_people_readers_compute_each_strength_once`(関数)
   - `test_resume_refuses_another_embed_model_or_another_arm`(関数)
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.manifest_sections`・`shibuya.engine.memory_embed`・`shibuya.engine.memory_m1`・`shibuya.engine.memory_store`・`shibuya.engine.relations_people`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`tests/engine/memory/_mr65.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.core.time_consts`・`shibuya.engine.bridging.ledger_paths`・`shibuya.engine.manifest_sections`・`shibuya.engine.memory_embed`・`shibuya.engine.memory_m1`・`shibuya.engine.memory_store`・`shibuya.engine.relations_people`・`shibuya.engine.run`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.build`・`tests/_places.py`・`tests/engine/memory/_mr65.py`
 - 決定の ID: 10-12

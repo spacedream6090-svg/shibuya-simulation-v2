@@ -22,7 +22,8 @@ from shibuya.engine.systems import table as TB
 
 from tests.engine.calendar2._ca2 import KW, STEP_NS, TPD, ca2, groups_fixture
 
-SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya" / "engine" / "calendar2"
+#: 層のファイル(〔段 4 の下ごしらえ〕置き場をディレクトリの字面で持たず、モジュールの ``__file__`` から作る)。
+LAYER_PY = Path(LY.__file__)
 
 
 @pytest.fixture
@@ -230,7 +231,7 @@ def _cause_problems(src: str) -> list[str]:
 
 
 def test_ast_person_events_come_only_from_decisions():
-    assert _cause_problems((SRC / "layer.py").read_text(encoding="utf-8")) == []
+    assert _cause_problems(LAYER_PY.read_text(encoding="utf-8")) == []
 
 
 def test_ast_negative_control_catches_planted_rules():
@@ -288,7 +289,7 @@ def _time_problems(src: str) -> list[str]:
 
 
 def test_ast_engine_does_not_decide_times():
-    assert _time_problems((SRC / "layer.py").read_text(encoding="utf-8")) == []
+    assert _time_problems(LAYER_PY.read_text(encoding="utf-8")) == []
 
 
 def test_ast_negative_control_catches_a_backward_reminder():
@@ -309,7 +310,7 @@ class X:
 
 def test_ast_book_is_written_only_through_its_ports():
     """層は本人の予定の器の行を口(write・edit・observe・drop)だけで書く(行の欄への直の代入が無い)。"""
-    tree = ast.parse((SRC / "layer.py").read_text(encoding="utf-8"))
+    tree = ast.parse(LAYER_PY.read_text(encoding="utf-8"))
     bad = []
     for node in ast.walk(tree):
         if isinstance(node, (ast.Assign, ast.AugAssign)):

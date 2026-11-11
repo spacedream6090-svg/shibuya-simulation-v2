@@ -40,6 +40,7 @@ from pathlib import Path
 from typing import Iterable, Iterator
 
 from shibuya.core.paths import PACKAGE_ROOT
+from shibuya.engine.bridging.ledger_paths import ledger_path
 
 __all__ = [
     "FORMS", "FORM_CONF", "FORM_EXPEDIENTS", "FORM_DOCSTRING", "FORM_HEADING", "FORM_PROCESS", "FORM_FALLBACK",
@@ -85,9 +86,10 @@ class Declaration:
 
 
 def declared_in_of(path: str, form: str, text: str, nth: int = 1) -> str:
-    """宣言の同定の文字列(台帳の ``declared_in`` と同じ形)。"""
+    """宣言の同定の文字列(台帳の ``declared_in`` と同じ形)。道筋は台帳に書いてある道(〔移す段 4 の下ごしらえ〕移した
+    ファイルは ``engine.bridging.ledger_paths`` の表で今の道から引く=台帳を書き換えない。表が空なら今の道のまま)。"""
     key = text if form in _PLAIN_KEY_FORMS else hashlib.sha256(text.encode("utf-8")).hexdigest()[:8]
-    return f"{path}#{form}:{key}" + (f".{nth}" if nth > 1 else "")
+    return f"{ledger_path(path)}#{form}:{key}" + (f".{nth}" if nth > 1 else "")
 
 
 def _is_expedient_const(node: ast.AST) -> bool:

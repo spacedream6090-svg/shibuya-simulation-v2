@@ -519,13 +519,17 @@ def test_u4_member_checks_and_size_cap(monkeypatch):
 
 def test_u3_value_class_fields_match_the_class():
     """U3: dataclass でない値のクラスの欄の一覧が、クラスの属性(AST の ``self.x = …``)と同じ。"""
-    from shibuya.engine import state_ledger_ast as SA
+    import importlib
 
-    root = Path(__file__).resolve().parents[2] / "src" / "shibuya"
+    from shibuya.engine import state_ledger_ast as SA
+    from shibuya.engine.class_ids import class_path
+
+    assert SC.CLASS_FIELDS
     for name, fields in SC.CLASS_FIELDS.items():
-        mod, _, cls = name.rpartition(".")
-        rel = mod.removeprefix("shibuya.").replace(".", "/") + ".py"
-        assert set(SA.class_attrs(root, rel, cls)) == set(fields), name
+        # 表の鍵は凍結の名。読むファイルは今の置き場(凍結の名 → class_path → モジュールの __file__)
+        mod, _, cls = class_path(name).rpartition(".")
+        src = Path(importlib.import_module(mod).__file__)
+        assert set(SA.class_attrs(src.parent, src.name, cls)) == set(fields), name
     for name, form in SC.ALLOWED_CLASSES.items():
         if form == "object":
             assert SC.declared_fields(SC.allowed_class(name)), name

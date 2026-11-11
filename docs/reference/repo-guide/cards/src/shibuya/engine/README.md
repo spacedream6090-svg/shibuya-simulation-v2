@@ -11,7 +11,7 @@ Python 62 本・その他 0 本(このディレクトリの直下)
 engine: 時計/スケジューラ/繰り延べアービタ/resolve/二相コミット=世界状態への唯一の書き込み口。
 
 - import している内部モジュール: `shibuya.engine.arbiter`・`shibuya.engine.change_detect`・`shibuya.engine.clock`・`shibuya.engine.commit`・`shibuya.engine.scheduler`・`shibuya.engine.tape`
-- 読む試験(道筋で): `tests/tools/test_bytecheck.py`・`tests/tools/test_repo_guide.py`
+- 読む試験(道筋で): `tests/tools/test_bytecheck.py`・`tests/tools/test_pkgmove.py`
 
 ## [absent_processes.py](../../../../../../../src/shibuya/engine/absent_processes.py)
 
@@ -43,7 +43,7 @@ engine.activity — 行為と活動の二層の**活動層**(二層の実装 段
   - `payload_of`(関数): ``BridgeResult``/艦隊の ``Outcome`` → 活動(語彙 v3 の応答だけ・それ以外は ``None``)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.core.hashing`・`shibuya.core.time_consts`・`shibuya.engine.calendar`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.llm.contract`・`shibuya.perception.normalize`
 - 呼び手: `shibuya.engine.intent`・`shibuya.engine.run`・`shibuya.engine.systems.build`
-- 読む試験: `tests/engine/test_intent_hold.py`・`tests/engine/test_presence_exit_walk.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_two_layer_activity.py`
+- 読む試験: `tests/engine/space/test_nav1_units.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_presence_exit_walk.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/time/test_t0_time_consts.py`
 - 状態台帳の行
   - 持ち主 `act_layer`(`ActivityLayer`)
     - `O1` ActivityLayer text・until_kind(挙動 behavior・復元 required) 道筋 `act_layer.text`・`act_layer.until_kind` 書ける系: activity_intent・presence
@@ -206,7 +206,7 @@ engine.chooser — 選択器の口 ``Chooser.probs``(段 2a・D-114 (a)・2026-0
   - `make_chooser`(関数): 名前 → 選び手(``classical`` は p_h・τ を取る)。
 - import している内部モジュール: `shibuya.core.rng`
 - 呼び手: `shibuya.cli`・`shibuya.engine.classical`・`shibuya.engine.poi_target`・`shibuya.engine.run`・`shibuya.engine.store_choice`・`shibuya.engine.systems.build`
-- 読む試験: `tests/engine/test_classical_policy.py`・`tests/engine/test_intent_chooser.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/engine/test_store_choice.py`
+- 読む試験: `tests/engine/space/test_nav1_units.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_intent_chooser.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/engine/test_store_choice.py`
 - 状態台帳の行
   - 持ち主 `poi_resolver.chooser`(`ClassicalChooser`)
     - `O25` ClassicalChooser last_habit・stats(挙動 diag・復元 discardable) 道筋 `poi_resolver.chooser.last_habit`・`poi_resolver.chooser.stats` 書ける系: apply_responses
@@ -221,7 +221,7 @@ engine.class_ids — クラスの名の固定の表(移す段 1・返事その 7
   - `class_id`(関数): 型の凍結の名。表 → クラスの宣言(:data:`DECLARED_ATTR`)の順に引く。どちらにも無い ``shibuya`` の型は止める。
   - `class_path`(関数): 凍結の名 → 今の「モジュール.クラス名」(状態のファイルを読むときに import する先。表に無い名はそのまま)。
 - 呼び手: `shibuya.engine.resume`・`shibuya.engine.state_codec`・`shibuya.engine.state_hashes`・`shibuya.engine.systems.probe`
-- 読む試験: `tests/engine/state/test_class_ids.py`
+- 読む試験: `tests/engine/state/test_class_ids.py`・`tests/engine/test_state_format_10f.py`
 
 ## [classical.py](../../../../../../../src/shibuya/engine/classical.py)
 
@@ -241,7 +241,7 @@ engine.classical — System 1.5 の古典的選択モデル=方策 ``classical``
   - `ok_self`(関数): 体 ``aid`` 自身が食事中か(同じセルの食事中の人数から自分を引くため)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.core.paths`・`shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.calendar`・`shibuya.engine.chooser`・`shibuya.llm`・`shibuya.llm.contract`・`shibuya.llm.mock`・`shibuya.perception.templates`
 - 呼び手: `shibuya.cli`・`shibuya.engine.experiment.branch`・`shibuya.engine.experiment.switch`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`tools/instruments/dm_eval/judge.py`
-- 読む試験: `tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_calendar.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_classical_social.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_relations_8b.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_state_checks_10f.py`
+- 読む試験: `tests/engine/space/test_nav1_units.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_calendar.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_classical_social.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_relations_8b.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_state_checks_10f.py`
 - 状態台帳の行
   - 持ち主 `classical`(`ClassicalPolicy`)
     - `O20` ClassicalPolicy _prev(挙動 behavior・復元 required) 道筋 `classical._prev` 書ける系: decide
@@ -406,7 +406,7 @@ engine.energy — 体のエネルギー収支(5 段目 5a・D-118 K1〜K9・第2
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.agents.weekly`・`shibuya.core.paths`・`shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.calendar`
 - 呼び手: `shibuya.cli`・`shibuya.engine.body.rules`・`shibuya.engine.body.schedule`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.engine.systems.body`・`shibuya.engine.systems.build`
 - 読む試験: `tests/engine/body/body_fixtures.py`・`tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_meal_default_w17.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_sim_time_T.py`
-- 読む試験(道筋で): `tests/engine/state/test_names_frozen.py`
+- 読む試験(道筋で): `tests/engine/state/test_names_frozen.py`・`tests/tools/test_pkgmove.py`
 - 状態台帳の行
   - 持ち主 `energy.home_meals`(`HomeMeals`)
     - `O32` HomeMeals の予定 tick・agent・slot・_start・home_cell(挙動 no・復元 derivable) 道筋 `energy.home_meals._start`・`energy.home_meals.agent`・`energy.home_meals.home_cell`・`energy.home_meals.slot`・`energy.home_meals.tick` 書ける系: body・home_meal
@@ -465,7 +465,7 @@ engine.growth_decl — エンジン側の**状態成長宣言**(D-R2-6 の YAML 
   - `to_yaml`(関数): D-R2-6 の YAML 5 欄を文字列で返す(manifest / 検収パックへ貼る用)。
 - import している内部モジュール: `shibuya.core.growth`・`shibuya.core.time_consts`
 - 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.report`
-- 読む試験: `tests/engine/test_mock_day_w2.py`
+- 読む試験: `tests/engine/test_mock_day_w2.py`・`tests/engine/time/test_t0_time_consts.py`
 
 ## [intent.py](../../../../../../../src/shibuya/engine/intent.py)
 
@@ -476,7 +476,7 @@ engine.intent — **意図の保持**(段 2c・D-112 ①・D-114 案 A・第288)
   - `intent_summary`(関数): 計数 → manifest ``intent`` の形(アジェンダ §3-6)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.activity`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.llm.contract`
 - 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.systems.build`
-- 読む試験: `tests/engine/test_intent_hold.py`
+- 読む試験: `tests/engine/space/test_nav1_units.py`・`tests/engine/test_intent_hold.py`
 - 読む試験(道筋で): `tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`
 - 状態台帳の行
   - 持ち主 `intent_layer`(`IntentLayer`)
@@ -497,8 +497,8 @@ engine.ledger_api — 台帳の**依存逆転インターフェース**(Protocol
   - `MoneyLedger`(クラス): 金の台帳(U11)。実装は ``shibuya.economy.ledger.Ledger``。
   - `TransferStatus`(クラス): ``transfer`` の結果コード(**業務上の失敗は例外にしない**=行動契約書 §2.1 と同思想)。
 - 呼び手: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.tax_deposit`・`shibuya.engine.economy_stage2`・`shibuya.engine.processes.rail`・`shibuya.engine.resolve`・`shibuya.engine.run`
-- 読む試験: `tests/economy/cp2/head_ledger_136fdbb.py`・`tests/economy/cp2/test_cp2_flow_sum.py`・`tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/cp2/test_cp2_nine_ops_equivalence.py`・`tests/economy/cp2/test_cp2_write_window.py`・`tests/economy/cp2/test_cp2_writes_declared.py`・`tests/economy/stage2/test_stage2_account_and_conservation.py`・`tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/test_accounts.py`・`tests/economy/test_census.py`・`tests/economy/test_ledger.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_t3_redundant_equation.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_processes_run.py`・`tests/engine/test_resume_10d.py`
-- 読む試験(道筋で): `tests/economy/cp2/test_cp2_event_links.py`
+- 読む試験: `tests/economy/cp2/head_ledger_136fdbb.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/cp2/test_cp2_flow_sum.py`・`tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/cp2/test_cp2_nine_ops_equivalence.py`・`tests/economy/cp2/test_cp2_write_window.py`・`tests/economy/cp2/test_cp2_writes_declared.py`・`tests/economy/stage2/test_stage2_account_and_conservation.py`・`tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/test_accounts.py`・`tests/economy/test_census.py`・`tests/economy/test_ledger.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_t3_redundant_equation.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_processes_run.py`・`tests/engine/test_resume_10d.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 決定の ID: D-85
 
 ## [llm_bridge.py](../../../../../../../src/shibuya/engine/llm_bridge.py)
@@ -572,8 +572,7 @@ engine.memory_embed — 記憶 MR2 の意味の手がかり(埋め込み)の口(
   - `make_embedder`(関数): 腕のモデルの名 → 埋め込みの口(``ngram-test`` は試験用の代わり・Ruri は重みが無ければ :class:`EmbedUnavailable`)。
   - `model_identity`(関数): 〔検収 L1〕埋め込みのモデルの名 → 版の同定(設定の指紋と manifest の設定の節に入れる=再開で取り違えを止める)。
 - 呼び手: `shibuya.engine.memory`・`shibuya.engine.memory_m1`・`shibuya.engine.memory_store`
-- 読む試験: `tests/engine/memory/test_m2_cue.py`・`tests/engine/memory/test_mr65_review_fixes.py`
-- 読む試験(道筋で): `tests/engine/memory/test_mr65_guards.py`
+- 読む試験: `tests/engine/memory/test_m2_cue.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_mr65_review_fixes.py`
 - 状態台帳の行
   - 持ち主 `mem_layer.memory_store.cue`(`CueState`)
     - `M0C` CueState(意味の手がかり=手がかりの文と行の埋め込み・第 6 期 6-5)(挙動 behavior・復元 required・腕 memory-cue) 道筋 `mem_layer.memory_store.cue._heard`・`mem_layer.memory_store.cue._own`・`mem_layer.memory_store.cue._qcache`・`mem_layer.memory_store.cue._vec` 書ける系: decide・llm_receive・memory
@@ -588,7 +587,7 @@ engine.memory_impression — 記憶 M3 の器(印象の履歴と、本人が寝�
   - `ImpressionBook`(クラス): 印象の履歴と意味の記憶の器(M3)。書く口は :meth:`after_conversation`・:meth:`on_sleep`・:meth:`add_conclusion`。
   - `ImpressionEntry`(クラス): 履歴の 1 件(足すだけ)。``cause`` は LLM の呼び(原因つき)。
 - import している内部モジュール: `shibuya.engine.events.log`
-- 読む試験: `tests/engine/memory/test_m3_impression_and_trace.py`
+- 読む試験: `tests/engine/memory/test_m3_impression_and_trace.py`・`tests/engine/memory/test_mr65_guards.py`
 - 決定の ID: 10-12・10-12/§4-6
 
 ## [memory_m1.py](../../../../../../../src/shibuya/engine/memory_m1.py)
@@ -615,8 +614,7 @@ engine.memory_m1 — 記憶 MR 第 6 期 6-5 の GPU の前に作る分(強さ�
   - `touch_times`(関数): ``recent_ns[rows]`` の直近の時刻に ``t_ns`` を足す(新しい順に 1 つずらす・空きは :data:`NO_TIME`)。その場で書く。
 - import している内部モジュール: `shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.memory_embed`
 - 呼び手: `shibuya.cli`・`shibuya.engine.calendar2.recall`・`shibuya.engine.memory`・`shibuya.engine.memory_store`・`shibuya.engine.memory_trace`・`shibuya.engine.relations_people`・`shibuya.engine.systems.build`
-- 読む試験: `tests/engine/memory/_mr65.py`・`tests/engine/memory/test_m1_runs.py`・`tests/engine/memory/test_m1_strength.py`・`tests/engine/memory/test_m4_m5_people.py`・`tests/engine/memory/test_mr65_review_fixes.py`
-- 読む試験(道筋で): `tests/engine/memory/test_mr65_guards.py`
+- 読む試験: `tests/engine/memory/_mr65.py`・`tests/engine/memory/test_m1_runs.py`・`tests/engine/memory/test_m1_strength.py`・`tests/engine/memory/test_m4_m5_people.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_mr65_review_fixes.py`
 - 状態台帳の行
   - 持ち主 `mem_layer.memory_store.m1`(`M1State`)
     - `M0M` M1State(記憶の強さ M1 の直近の時刻と人ごとの忘れる速さの倍率・第 6 期 6-5)(挙動 behavior・復元 required・腕 memory-model) 道筋 `mem_layer.memory_store.m1._scale`・`mem_layer.memory_store.m1._t_ns` 書ける系: decide・llm_receive・memory
@@ -633,8 +631,7 @@ engine.memory_shops — 人も記憶の一つの腕の店の評価の行(第 6 �
   - `UncappedStoreMemory`(クラス): 人も記憶の一つの腕の店の評価の記憶(``StoreMemory`` の子=行の口だけ差し替える・行は :class:`ShopTable`)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.memory_store`・`shibuya.engine.store_memory`
 - 呼び手: `shibuya.engine.memory`
-- 読む試験: `tests/engine/memory/test_m4_m5_people.py`
-- 読む試験(道筋で): `tests/engine/memory/test_mr65_guards.py`
+- 読む試験: `tests/engine/memory/test_m4_m5_people.py`・`tests/engine/memory/test_mr65_guards.py`
 - 状態台帳の行
   - 持ち主 `mem_layer.memory_store.shops`(`ShopTable`)
     - `M0S` ShopTable(人も記憶の一つの腕の店の評価の行・第 6 期 6-5 検収 M4)(挙動 behavior・復元 required・腕 memory-people) 道筋 `mem_layer.memory_store.shops._first`・`mem_layer.memory_store.shops._last`・`mem_layer.memory_store.shops._n`・`mem_layer.memory_store.shops._poi`・`mem_layer.memory_store.shops._precision`・`mem_layer.memory_store.shops._source`・`mem_layer.memory_store.shops._valence` 書ける系: decide・llm_receive・memory
@@ -686,7 +683,7 @@ engine.memory_trace — 注意を向けずに見ていた人の浅い痕跡(第 
   - `shallow_trace`(関数): 出来事の記録から ``viewer`` が ``target`` を同じ場所の近い時刻で見ていた回を組み立てる(読むだけ)。
   - `trace_word`(関数): 聞き手に見せる言葉: 注意を向けた記憶=空文字(普通に描く)・浅い痕跡だけ=「見たような気もする」・何も無い=空文字。
 - import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.memory_m1`
-- 読む試験: `tests/engine/memory/test_m3_impression_and_trace.py`
+- 読む試験: `tests/engine/memory/test_m3_impression_and_trace.py`・`tests/engine/memory/test_mr65_guards.py`
 - 決定の ID: 10-12・10-12/§4-6
 
 ## [norm_meter.py](../../../../../../../src/shibuya/engine/norm_meter.py)
@@ -858,7 +855,7 @@ engine.relations_people — 人も記憶の一つ(第 6 期 6-5・腕 ``--memory
   - `PeopleRelationLayer`(クラス): 人も記憶の一つの腕の関係の読み口(器の人の行・関係の表を読まない)。``store`` は ``MemoryStore``(上限なし・M1)。
 - import している内部モジュール: `shibuya.engine.memory_m1`・`shibuya.engine.relations`・`shibuya.engine.tools.contacts`
 - 呼び手: `shibuya.engine.contact.book`・`shibuya.engine.memory`
-- 読む試験: `tests/engine/memory/test_m4_m5_people.py`・`tests/engine/memory/test_mr65_review_fixes.py`
+- 読む試験: `tests/engine/memory/test_m4_m5_people.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_mr65_review_fixes.py`
 - 状態台帳の行
   - 持ち主 `rel_layer` の別のクラス `PeopleRelationLayer`(行は `shibuya.engine.relations` のカードを見る)
 - 決定の ID: 10-12/§4-6
@@ -873,6 +870,7 @@ engine.removed_switches — 消した旧道の切替口の一覧と、渡され�
   - `stop_if_set`(関数): ``names`` の環境変数のどれかが置かれていれば(空でない値)止める(``ValueError``)。
 - 呼び手: `shibuya.cli`・`shibuya.engine.defect_fixes_1103`・`shibuya.engine.economy_rules`・`shibuya.engine.proximity`・`shibuya.engine.seat_release`・`shibuya.engine.systems.build`
 - 読む試験: `tests/engine/test_removed_switches_346.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
 - 決定の ID: 第 346
 
@@ -936,8 +934,8 @@ engine.resolve — **世界状態への唯一の書き込み口**(二相コミ�
   - `write_store_memory`(関数): **店の評価の記憶の行を書く**(D-120 7a・値と行の選び方は ``engine.memory`` が決める)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.core.time_consts`・`shibuya.engine.body.rules`・`shibuya.engine.change_detect`・`shibuya.engine.commit`・`shibuya.engine.economy_stage2`・`shibuya.engine.energy`・`shibuya.engine.geometry`・`shibuya.engine.ledger_api`・`shibuya.engine.resume`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.llm.contract`・`shibuya.world.state`
 - 呼び手: `shibuya.cli`・`shibuya.engine.activity`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar_self`・`shibuya.engine.duties.layer`・`shibuya.engine.familiarity`・`shibuya.engine.intent`・`shibuya.engine.memory`・`shibuya.engine.presence`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.crowd`・`shibuya.engine.processes.environment`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.opening`・`shibuya.engine.processes.rail`・`shibuya.engine.processes.runner`・`shibuya.engine.processes.salient`・`shibuya.engine.relations`・`shibuya.engine.run`・`shibuya.engine.store_memory`・`shibuya.engine.systems.act`・`shibuya.engine.systems.body`・`shibuya.engine.systems.build`・`shibuya.engine.systems.decide`・`shibuya.engine.systems.judge`・`shibuya.engine.systems.perceive`・`shibuya.engine.systems.static_check`・`shibuya.engine.systems.talk`・`tools/c6/ablation1_fixed_vs_ranking.py`・`tools/c7/attr_arms.py`・`tools/c7/occupancy_series.py`
-- 読む試験: `tests/bench/test_refr20b_tool.py`・`tests/c7/test_attr_arms.py`・`tests/engine/body/test_body_same_values.py`・`tests/engine/calendar/test_ca1b_runs.py`・`tests/engine/clock/test_tm3_step_scope.py`・`tests/engine/discard_probe.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/memory/test_m4_m5_people.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_civic.py`・`tests/engine/processes/test_crowd.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_opening.py`・`tests/engine/processes/test_rail.py`・`tests/engine/processes/test_rail_board_intent.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/proximity/test_rule.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/rights/test_no_permission_count.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/systems/test_systems_table.py`・`tests/engine/test_ablation23_switches.py`・`tests/engine/test_add_at_guard.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_familiarity.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_intent_chooser.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_parser_contract.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_presence_exit_walk.py`・`tests/engine/test_renderer_wiring.py`・`tests/engine/test_resolve.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_seat_release_2_4.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_two_phase.py`・`tests/engine/test_vocab_v2_eat.py`
-- 読む試験(道筋で): `tests/economy/cp2/test_cp2_write_window.py`・`tests/economy/stage2/test_stage2_writers.py`・`tests/engine/systems/test_fix_guards.py`・`tests/tools/test_repo_guide.py`
+- 読む試験: `tests/bench/test_refr20b_tool.py`・`tests/c6/test_t3_parallel_invariance.py`・`tests/c7/test_attr_arms.py`・`tests/economy/test_single_write_path.py`・`tests/engine/body/test_body_same_values.py`・`tests/engine/calendar/test_ca1b_runs.py`・`tests/engine/clock/test_tm3_step_scope.py`・`tests/engine/discard_probe.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_m4_m5_people.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_civic.py`・`tests/engine/processes/test_crowd.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_opening.py`・`tests/engine/processes/test_rail.py`・`tests/engine/processes/test_rail_board_intent.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/proximity/test_rule.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/rights/test_no_permission_count.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/systems/test_systems_table.py`・`tests/engine/test_ablation23_switches.py`・`tests/engine/test_add_at_guard.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_familiarity.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_intent_chooser.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_parser_contract.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_presence_exit_walk.py`・`tests/engine/test_renderer_wiring.py`・`tests/engine/test_resolve.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_seat_release_2_4.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_two_phase.py`・`tests/engine/test_vocab_v2_eat.py`・`tests/llm/test_fleet_contract.py`
+- 読む試験(道筋で): `tests/economy/cp2/test_cp2_write_window.py`・`tests/economy/stage2/test_stage2_writers.py`・`tests/engine/systems/test_fix_guards.py`・`tests/tools/test_pkgmove.py`
 - 書きの許可
   - `_advance_focus`: 直接の書き `agents.focus_target`・`agents.focus_ttl`
   - `_apply_alight`: 直接の書き `agents.activity`・`agents.node`・`agents.target_node`・`agents.transit_ref`・`agents.transit_state`
@@ -1063,6 +1061,7 @@ K19 の検査(10f・K25 (a)): ``core.rng`` の流れが 1 ブロック(4 語)を
   - `scan_sites`(関数): ``root``(= ``src/shibuya``)の下の ``stream()``・``philox()`` の呼び手(``core/rng.py`` と ``build/`` を除く)。
 - import している内部モジュール: `shibuya.core.rng`
 - 読む試験: `tests/engine/decision/test_j0_shuffle_invariance.py`・`tests/engine/proximity/test_rule.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_version_bump_10e.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 決定の ID: 第 330・第 346
 
 ## [run.py](../../../../../../../src/shibuya/engine/run.py)
@@ -1088,7 +1087,7 @@ engine.run — 1 シミュ日の mock ラン(予算行 **W2**)と CLI。
 - import している内部モジュール: `shibuya.agents.population`・`shibuya.agents.state`・`shibuya.core.growth`・`shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.core.types`・`shibuya.engine.activity`・`shibuya.engine.arbiter`・`shibuya.engine.batching`・`shibuya.engine.body.model`・`shibuya.engine.bridging.ledger`・`shibuya.engine.calendar`・`shibuya.engine.calendar2.layer`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar_self`・`shibuya.engine.calendar_shadow`・`shibuya.engine.chooser`・`shibuya.engine.classical`・`shibuya.engine.commit`・`shibuya.engine.contact.layer`・`shibuya.engine.decision.layer`・`shibuya.engine.duties.layer`・`shibuya.engine.energy`・`shibuya.engine.experiment.layer`・`shibuya.engine.familiarity`・`shibuya.engine.geometry`・`shibuya.engine.growth_decl`・`shibuya.engine.intent`・`shibuya.engine.ledger_api`・`shibuya.engine.llm_bridge`・`shibuya.engine.manifest_sections`・`shibuya.engine.memory`・`shibuya.engine.poi_target`・`shibuya.engine.presence`・`shibuya.engine.processes.opening`・`shibuya.engine.proximity`・`shibuya.engine.regional_clock`・`shibuya.engine.relations`・`shibuya.engine.resolve`・`shibuya.engine.rights.record`・`shibuya.engine.rules.table`・`shibuya.engine.run_kind`・`shibuya.engine.scheduler`・`shibuya.engine.space.nav1`・`shibuya.engine.speech.layer`・`shibuya.engine.speech_clock`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger`・`shibuya.engine.step_scope`・`shibuya.engine.store_memory`・`shibuya.engine.systems.conductor`・`shibuya.engine.tape`・`shibuya.engine.wom`・`shibuya.llm.contract`・`shibuya.llm.fleet`・`shibuya.llm.mock`・`shibuya.llm.undefined`・`shibuya.manifest.schema`・`shibuya.perception.channels`・`shibuya.perception.facts`・`shibuya.perception.renderer`・`shibuya.perception.templates`・`shibuya.world.assets`・`shibuya.world.state`
 - 呼び手: `shibuya.cli`・`shibuya.engine.systems.act`・`shibuya.engine.systems.body`・`shibuya.engine.systems.build`・`shibuya.engine.systems.decide`・`shibuya.engine.systems.judge`・`shibuya.engine.systems.llm_io`・`shibuya.engine.systems.observe`・`shibuya.engine.systems.perceive`・`shibuya.engine.systems.report`・`shibuya.engine.systems.run_end`・`shibuya.engine.systems.state_io`・`tools/c6/run_hash.py`・`tools/c7/occupancy_series.py`・`tools/instruments/anchor_gauge.py`
 - 読む試験: `tests/build_pop/test_pop_pipeline.py`・`tests/c6/test_l4_l6_budget.py`・`tests/c6/test_t5_order_bias.py`・`tests/c6/test_t9_diagnostics.py`・`tests/economy/cp2/test_cp2_flow_sum.py`・`tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/cp2/test_cp2_writes_declared.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/engine/batching/test_conductor_windows.py`・`tests/engine/body/test_body_manifest.py`・`tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_meal_default_w17.py`・`tests/engine/body/test_system1_placeholders.py`・`tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/bridging/test_manifest_rules_bridges.py`・`tests/engine/calendar/test_ca1b_runs.py`・`tests/engine/calendar/test_calendar_shadow.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/clock/test_tm3_step_scope.py`・`tests/engine/clock/test_tm4_regional_clock.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/decision/test_j0_cause_columns.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/decision/test_j0_other_ratio_field.py`・`tests/engine/decision/test_j0_shuffle_invariance.py`・`tests/engine/decision/test_j0_writes_declared.py`・`tests/engine/discard_probe.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/events/test_e_log_invariance.py`・`tests/engine/events/test_e_log_links_actual.py`・`tests/engine/events/test_e_log_schema.py`・`tests/engine/events/test_e_manifest_events.py`・`tests/engine/events/test_e_writes_declared.py`・`tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_m0_recall_equivalence.py`・`tests/engine/memory/test_m0_render_bytes.py`・`tests/engine/memory/test_m0_shown_recorded.py`・`tests/engine/memory/test_m0_writes_declared.py`・`tests/engine/memory/test_m1_runs.py`・`tests/engine/memory/test_m2_cue.py`・`tests/engine/memory/test_m4_m5_people.py`・`tests/engine/memory/test_mr65_grain_and_cli.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/multiday/test_md23_body_events.py`・`tests/engine/multiday/test_md23_resume.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/rights/test_rights_manifest.py`・`tests/engine/speech/_s8b.py`・`tests/engine/speech/test_speech_writes_declared.py`・`tests/engine/state/shaped_names.py`・`tests/engine/state/test_class_ids.py`・`tests/engine/systems/test_boxes.py`・`tests/engine/systems/test_guard_runs.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_ablation23_switches.py`・`tests/engine/test_activation_10e.py`・`tests/engine/test_area_source_c9c.py`・`tests/engine/test_assets_10e_b0_b1.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_calendar_10e_e3.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_census_out.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_classical_social.py`・`tests/engine/test_conversation.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_determinism_t1_t2_t4.py`・`tests/engine/test_eatery_place_food.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_env_and_sections_10f.py`・`tests/engine/test_familiarity.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_intent_chooser.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_intent_mode_open.py`・`tests/engine/test_l4_budget.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_memory_recall.py`・`tests/engine/test_memory_record.py`・`tests/engine/test_mock_day_w2.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_norm_meter.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_processes_run.py`・`tests/engine/test_relations.py`・`tests/engine/test_relations_tenure.py`・`tests/engine/test_renderer_wiring.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_seat_release_2_4.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_sleep_suppression_d56.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_state_format_10f.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_store_choice.py`・`tests/engine/test_store_memory.py`・`tests/engine/test_t3_manifest.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_undefined_action.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/test_vocab_v2_eat.py`・`tests/engine/test_wom.py`・`tests/engine/time/test_t0_tickctx_equivalence.py`・`tests/engine/time/test_t0_tm9_fields.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/engine/tools/test_c0_affordance_from_registry.py`・`tests/engine/tools/test_c0_contacts_in_relations.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`・`tests/engine/tools/test_c0_signboard_mark_invariance.py`・`tests/llm/test_mock_v3.py`・`tests/perception/facts/test_coef_removed_or_armed.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/perception/facts/test_percept_schema.py`・`tests/perception/test_ablation1.py`・`tests/perception/test_ablation6_signage.py`・`tests/perception/test_b6_invite.py`・`tests/perception/test_near_tiebreak.py`・`tests/perception/test_p_see_activity.py`・`tests/perception/test_signage_p_see_gate.py`・`tests/test_cli_l4_scale.py`
-- 読む試験(道筋で): `tests/engine/rules/test_rules_table_schema.py`・`tests/engine/test_two_phase.py`・`tests/tools/test_bytecheck.py`・`tests/tools/test_commit_check.py`
+- 読む試験(道筋で): `tests/engine/rules/test_rules_table_schema.py`・`tests/engine/test_two_phase.py`・`tests/tools/test_bytecheck.py`・`tests/tools/test_commit_check.py`・`tests/tools/test_pkgmove.py`
 - CLI の引数
   - `--ablate`: 止める過程(過程 id か AB-* の感度試験 id・複数可)
   - `--agents`
@@ -1160,7 +1159,7 @@ engine.scheduler — 起床イベントの1分tickバケット配列+tick内秒�
   - `scheduler`(関数): 規約順に並べた **agent_id の配列**(int64)を返す純関数。
 - import している内部モジュール: `shibuya.core.hashing`・`shibuya.core.time_consts`・`shibuya.core.types`・`shibuya.manifest.schema`
 - 呼び手: `shibuya.engine`・`shibuya.engine.arbiter`・`shibuya.engine.batching`・`shibuya.engine.body.schedule`・`shibuya.engine.run`・`shibuya.engine.systems.observe`
-- 読む試験: `tests/engine/batching/test_window_queue.py`・`tests/engine/state/test_class_ids.py`・`tests/engine/test_arbiter.py`・`tests/engine/test_mock_day_w2.py`・`tests/engine/test_scheduler.py`・`tests/engine/test_scheduler_p3.py`
+- 読む試験: `tests/engine/batching/test_window_queue.py`・`tests/engine/state/test_class_ids.py`・`tests/engine/test_arbiter.py`・`tests/engine/test_mock_day_w2.py`・`tests/engine/test_scheduler.py`・`tests/engine/test_scheduler_p3.py`・`tests/engine/time/test_t0_time_consts.py`
 - 読む試験(道筋で): `tests/engine/body/test_body_guard.py`
 
 ## [seat_release.py](../../../../../../../src/shibuya/engine/seat_release.py)
@@ -1223,6 +1222,7 @@ engine.speech_clock — 会話の時計(第 6 期 6-3 時計の段 T2・TM3・�
 - import している内部モジュール: `shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.owner_guard`・`shibuya.engine.speech.port`・`shibuya.llm.contract`
 - 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.conductor`
 - 読む試験: `tests/engine/clock/test_tm2_talk_clock.py`・`tests/engine/clock/test_tm4_regional_clock.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 状態台帳の行
   - 持ち主 `talk_clock`(`TalkClock`)
     - `TCC` TalkClock の会話の時計・予約した発言・計器(第 6 期 6-3 T2)(挙動 diag・復元 discardable・腕 talk-clock) 道筋 `talk_clock._tc_line`・`talk_clock._tc_meter`・`talk_clock._tc_pending` 書ける系: conversation・decide・llm_receive
@@ -1288,6 +1288,7 @@ behavior-hash と full-hash(10b・A2・A3)。表は ``engine.state_ledger`` だ�
   - `soa_rows`(関数)
 - 呼び手: `shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.run`・`shibuya.engine.state_hashes`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.probe`・`shibuya.engine.systems.state_io`・`tools/bytecheck/check.py`
 - 読む試験: `tests/economy/cp2/test_cp2_writes_declared.py`・`tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/calendar/test_calendar_shadow.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/discard_probe.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/events/test_e_writes_declared.py`・`tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/multiday/test_md23_body_events.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/speech/test_speech_arm_rows_resume.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_port_schema.py`・`tests/engine/systems/test_systems_table.py`・`tests/engine/test_env_and_sections_10f.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_state_format_10f.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/tools/test_c0_contacts_in_relations.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/tools/test_repo_guide.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 状態台帳の行
   - 持ち主を引けない行(道筋が `OWNER_CLASSES` に無い・道筋なし)
     - `O43` run_day の局所 pending(適用待ちの応答)(挙動 behavior・復元 required) 道筋 `run_day.pending` 書ける系: apply_responses・decide・drain・llm_receive
@@ -1325,7 +1326,6 @@ behavior-hash と full-hash(10b・A2・A3)。表は ``engine.state_ledger`` だ�
 - import している内部モジュール: `shibuya.engine.state_ledger`
 - 呼び手: `shibuya.engine.systems.allow`
 - 読む試験: `tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_state_format_10f.py`・`tests/engine/test_state_ledger_10b.py`
-- 読む試験(道筋で): `tests/tools/test_repo_guide.py`
 - 決定の ID: 第 304
 
 ## [step_scope.py](../../../../../../../src/shibuya/engine/step_scope.py)

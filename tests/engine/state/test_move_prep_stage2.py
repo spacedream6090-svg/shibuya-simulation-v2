@@ -26,7 +26,6 @@ from shibuya.engine import energy as EN
 from shibuya.engine import resolve as RV
 from shibuya.engine import resume as RS
 from shibuya.engine import rng_audit as RA
-from shibuya.engine import systems as SYSTEMS
 from shibuya.engine.bridging import ledger as BL
 from shibuya.engine.bridging import scan as BS
 from shibuya.engine.rules import table as RT
@@ -34,6 +33,7 @@ from shibuya.engine.systems import allow as AL
 from shibuya.engine.systems import static_check as SC
 from shibuya.manifest import world_catalog as WC
 from shibuya.world.processes import constitution as CO
+from tests import _places as PL
 
 PKG = Path(shibuya.__file__).resolve().parent
 ROOT = PKG.parents[1]
@@ -146,11 +146,16 @@ def test_index_refuses_a_table_name_split_across_files_and_merges_distinct_ones(
 
 def test_static_check_names_come_from_the_modules():
     assert SC.RESOLVE_MODULE == RV.__name__
-    assert SC._SYSTEMS_PREFIX == SYSTEMS.__name__ + "."
+    # 系の包みの名は、系の包みで定義したモジュール(allow)の包みから作る(〔段 4 の下ごしらえ・親の決定 3〕包みの頭を読まない)
+    assert SC._SYSTEMS_PREFIX == AL.__name__.rpartition(".")[0] + "."
     assert (SC._RESOLVE_PARENT, SC._RESOLVE_LEAF) == tuple(RV.__name__.rsplit(".", 1))
     text = Path(SC.__file__).read_text(encoding="utf-8")
     consts = {n.value for n in ast.walk(ast.parse(text)) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
-    assert not {c for c in consts if c.startswith("shibuya.engine")}, "道の文字列が残っている"
+    # 〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面の startswith("shibuya.engine")。名は、静的の検査が名を引くモジュール(resolve)の
+    # 元の包み(engine)にあったモジュールの今の名から作る(移す前の木では "shibuya.engine" と同じ範囲)
+    engine = PL.names_from(RV)
+    assert engine.heads and RV.__name__ in engine.leaves and SC.__name__ in engine.leaves
+    assert not {c for c in consts if c.startswith(engine.prefixes())}, "道の文字列が残っている"
 
 
 # ================================================================= 2-4
@@ -188,4 +193,5 @@ def test_world_catalog_package_name_comes_from_the_module():
     WC.verify_frozen(cat)
     text = Path(WC.__file__).read_text(encoding="utf-8")
     consts = {n.value for n in ast.walk(ast.parse(text)) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
-    assert "shibuya.manifest" not in consts
+    # 〔段 4 の下ごしらえ・親の裁定 L-7〕包みの名は字面で持たずモジュールの __name__ から(前は "shibuya.manifest")
+    assert WC.__name__.rpartition(".")[0] not in consts

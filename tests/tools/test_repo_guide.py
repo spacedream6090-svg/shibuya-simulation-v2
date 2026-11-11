@@ -262,28 +262,38 @@ def _write(root: Path, rel: str, text: str) -> None:
     p.write_bytes(text.encode("utf-8"))
 
 
+def _guide_paths(guide) -> dict[str, str]:
+    """道具が道で読むファイル(``guide_permits`` の定数)。〔段 4 の下ごしらえ〕見本の木は本物の src の置き場ではなく、道具が読む形で
+    作る: 道具が道で読む 5 本はその定数から、ほかは同じ根(``SRC``)の下に f 文字列で置く(前は本物の道と同じ字面で、移す道具が
+    一部だけを新しい置き場へ書き換えて、道具の定数・見本の台帳の ``DECL_FILES`` と食い違った)。"""
+    return {k: getattr(guide.P, k) for k in ("SRC", "LEDGER_FILE", "LEDGER_AST_FILE", "TABLE_FILE", "ALLOW_FILE",
+                                             "RESOLVE_FILE")}
+
+
 @pytest.fixture()
-def repo(tmp_path: Path) -> Path:
+def repo(tmp_path: Path, guide) -> Path:
     root = tmp_path / "synth"
+    GUIDE = _guide_paths(guide)
+    S = GUIDE["SRC"]
     files = {
-        "src/shibuya/__init__.py": '"""根。"""\n',
-        "src/shibuya/agents/state.py": 'r.declare("cell", 1)\nr.declare("money", 1)\n',
-        "src/shibuya/world/state.py": 'cells.declare("b4", 1)\n',
-        "src/shibuya/perception/state.py": "",
-        "src/shibuya/engine/__init__.py": "",
-        "src/shibuya/engine/state_ledger.py": LEDGER_SRC,
-        "src/shibuya/engine/state_ledger_ast.py": LEDGER_AST_SRC,
-        "src/shibuya/engine/resolve.py": RESOLVE_SRC,
-        "src/shibuya/engine/layer.py": LAYER_SRC,
-        "src/shibuya/engine/layer_alt.py": '"""別のクラス。"""\nclass AltLayer:\n    pass\n',
-        "src/shibuya/engine/uses_layer.py": "from shibuya.engine.layer import public_fn\n",
-        "src/shibuya/engine/rel_user.py": ("from . import layer\nfrom .uses_layer import public_fn\n"
-                                           "from ..agents import state\nfrom .systems import mover\n"),
-        "src/shibuya/engine/dyn_user.py": 'import importlib\nM = importlib.import_module("shibuya.engine.layer")\n',
-        "src/shibuya/engine/systems/__init__.py": "",
-        "src/shibuya/engine/systems/allow.py": ALLOW_SRC,
-        "src/shibuya/engine/systems/table.py": TABLE_SRC,
-        "src/shibuya/engine/systems/mover.py": '"""系の見本。"""\ndef sys_mover(b):\n    """動く。"""\n',
+        f"{S}/__init__.py": '"""根。"""\n',
+        f"{S}/agents/state.py": 'r.declare("cell", 1)\nr.declare("money", 1)\n',
+        f"{S}/world/state.py": 'cells.declare("b4", 1)\n',
+        f"{S}/perception/state.py": "",
+        f"{S}/engine/__init__.py": "",
+        GUIDE["LEDGER_FILE"]: LEDGER_SRC,
+        GUIDE["LEDGER_AST_FILE"]: LEDGER_AST_SRC,
+        GUIDE["RESOLVE_FILE"]: RESOLVE_SRC,
+        f"{S}/engine/layer.py": LAYER_SRC,
+        f"{S}/engine/layer_alt.py": '"""別のクラス。"""\nclass AltLayer:\n    pass\n',
+        f"{S}/engine/uses_layer.py": "from shibuya.engine.layer import public_fn\n",
+        f"{S}/engine/rel_user.py": ("from . import layer\nfrom .uses_layer import public_fn\n"
+                                    "from ..agents import state\nfrom .systems import mover\n"),
+        f"{S}/engine/dyn_user.py": 'import importlib\nM = importlib.import_module("shibuya.engine.layer")\n',
+        f"{S}/engine/systems/__init__.py": "",
+        GUIDE["ALLOW_FILE"]: ALLOW_SRC,
+        GUIDE["TABLE_FILE"]: TABLE_SRC,
+        f"{S}/engine/systems/mover.py": '"""系の見本。"""\ndef sys_mover(b):\n    """動く。"""\n',
         "tests/__init__.py": "",
         "tests/test_layer.py": "from shibuya.engine import layer\n",
         "tests/sub/conftest.py": 'import sys\nsys.path.insert(0, str(ROOT / "tools" / "pack"))\n',
@@ -350,6 +360,13 @@ def _block(card: str, name: str) -> str:
     head = f"## [{name}]("
     assert head in card, name
     return card.split(head, 1)[1].split("\n## [", 1)[0]
+
+
+def _guide_block(root: Path, rel: str) -> str:
+    """道具が道で読むファイル(``guide_permits`` の定数=リポの根からの道)の節。〔段 4 の下ごしらえ〕カードの置き場とファイルの名は
+    定数から作る(移した後は定数が新しい置き場を指す)。"""
+    d, _, name = rel.rpartition("/")
+    return _block(_card(root, d), name)
 
 
 def _snapshot(root: Path) -> dict[str, bytes]:
@@ -441,7 +458,7 @@ def test_decision_sort_key_breaks_ties_by_text(guide):
     assert sorted(["11-01/a1", "11-01/a01"], key=key) == sorted(["11-01/a01", "11-01/a1"], key=key)
 
 
-def test_ledger_rows_and_owner(repo: Path):
+def test_ledger_rows_and_owner(repo: Path, guide):
     _run(repo)
     b = _block(_card(repo, "src/shibuya/engine"), "layer.py")
     assert "持ち主 `layer`(`Layer`)" in b
@@ -461,22 +478,23 @@ def test_ledger_rows_and_owner(repo: Path):
     # 別のクラス・持ち主を引けない行
     alt = _block(_card(repo, "src/shibuya/engine"), "layer_alt.py")
     assert "持ち主 `layer` の別のクラス `AltLayer`(行は `shibuya.engine.layer` のカードを見る)" in alt
-    led = _block(_card(repo, "src/shibuya/engine"), "state_ledger.py")
+    led = _guide_block(repo, _guide_paths(guide)["LEDGER_FILE"])
     assert "持ち主を引けない行" in led and "`O3` 局所の値" in led and "`P` 道筋のない行" in led
 
 
-def test_write_permits_from_table(repo: Path):
+def test_write_permits_from_table(repo: Path, guide):
     _run(repo)
+    files = _guide_paths(guide)
     m = _block(_card(repo, "src/shibuya/engine/systems"), "mover.py")
     assert "系 `mover`(群 体・時 `tick`・立つ条件 `always`・LLM `send`・関数 `sys_mover`)" in m
     assert "呼んでよい resolve の口: `move`・`read_only`" in m
     assert "書いてよい SoA の列(閉包): `agents.cell`・`agents.money`" in m  # move → _helper の閉包
     assert "書いてよい外の道筋: `ARM1:layer.armed`・`O1:layer.*`" in m
     assert "書く scratch: `scr_a`" in m and "書く計数: `count_a`" in m
-    t = _block(_card(repo, "src/shibuya/engine/systems"), "table.py")
+    t = _guide_block(repo, files["TABLE_FILE"])
     assert "系 `build`(群 組み立て・時 `run_head`・関数 `_build_fn`)" in t
     assert "書いてよい SoA の列(閉包): `agents.money`・`cells.b4`" in t  # ALIAS_WRITES
-    r = _block(_card(repo, "src/shibuya/engine"), "resolve.py")
+    r = _guide_block(repo, files["RESOLVE_FILE"])
     assert "`move`: 直接の書き `agents.cell` 口として持つ系: mover" in r
     assert "`pay`: 直接の書き `agents.money`" in r  # 帳簿の口
     assert "`read_only`: 直接の書き (なし) 口として持つ系: mover" in r
@@ -545,7 +563,11 @@ def test_unresolved_bare_import_gets_a_mark(repo: Path):
 def test_subdirs_are_sorted(repo: Path):
     _run(repo)
     head = next(x for x in _card(repo, "src/shibuya").split("\n") if x.startswith("下のディレクトリ"))
-    assert re.findall(r"\[(\w+)\]", head) == ["agents", "engine", "perception", "world"]
+    # 〔段 4 の下ごしらえ〕見本の木の下のディレクトリは、道具が道で読むファイルの置き場(定数=移した後は新しい置き場)で変わる。
+    # 期待は見本の木のディレクトリそのもの(並べて全部)。移す前の木では前の字面 agents・engine・perception・world と同じ
+    want = sorted(d.name for d in (repo / "src" / "shibuya").iterdir() if d.is_dir())
+    assert {"agents", "engine", "perception", "world"} <= set(want)
+    assert re.findall(r"\[(\w+)\]", head) == want
 
 
 def test_link_shapes_in_text_are_escaped(repo: Path):
@@ -581,13 +603,16 @@ def test_unparsable_file_is_reported_not_guessed(repo: Path):
     assert "`tools/broken.py`: 構文を読めない" in (repo / CARDS / "README.md").read_text(encoding="utf-8")
 
 
-def test_missing_ledger_is_reported(repo: Path):
-    (repo / "src/shibuya/engine/state_ledger.py").unlink()
-    (repo / "src/shibuya/engine/systems/table.py").unlink()
+def test_missing_ledger_is_reported(repo: Path, guide):
+    GUIDE = _guide_paths(guide)
+    (repo / GUIDE["LEDGER_FILE"]).unlink()
+    (repo / GUIDE["TABLE_FILE"]).unlink()
     cp = _run(repo)
     assert cp.returncode == 0, cp.stderr
     text = (repo / CARDS / "README.md").read_text(encoding="utf-8")
-    assert "state_ledger.py が無い" in text and "table.py が無い" in text
+    # 〔段 4 の下ごしらえ〕期待の字面は道具の定数から作る(移した後は台帳のファイルの名が変わる)。移す前の木では前の字面
+    # 「state_ledger.py が無い」「table.py が無い」と同じ
+    assert f"{GUIDE['LEDGER_FILE']} が無い" in text and f"{GUIDE['TABLE_FILE']} が無い" in text
 
 
 # ---------------------------------------------------------------- 決定的
@@ -923,9 +948,17 @@ def _public_in_card(block: str) -> set[str]:
 
 def test_real_public_names_match_import(real_blocks):
     """公開の関数とクラス: カードと、実物を import した ``vars()`` を比べる(軽いモジュールの全部)。"""
+    from shibuya.core import time_consts as CORE
+    from shibuya.engine.systems import table as SYSTEMS
+
+    from tests import _places as PL
+
+    # 〔段 4 の下ごしらえ〕前は字面のディレクトリ src/shibuya/core/・src/shibuya/engine/systems/ の前方一致。元の置き場が
+    # その 2 つの包みのファイルを対応表で引く(段 4 で core は無くなり、systems は別の包みへ移る)
+    scope = {f"src/shibuya/{r}" for r in PL.rels_from(CORE, SYSTEMS)}
     checked = 0
     for rel in sorted(real_blocks):
-        if not rel.startswith(("src/shibuya/core/", "src/shibuya/engine/systems/")) or rel.endswith("__init__.py"):
+        if rel not in scope or rel.endswith("__init__.py"):
             continue
         name = rel.removeprefix("src/").removesuffix(".py").replace("/", ".")
         mod = importlib.import_module(name)

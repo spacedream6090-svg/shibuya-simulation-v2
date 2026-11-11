@@ -301,6 +301,9 @@ def test_gates_outside_table_symbols_are_defined_in_their_files(M):
     """表の外の門の一覧: 名と出典だけ・出典は「ファイル+記号」(行番号なし)・その記号の定義がファイルに実在する。"""
     import re
 
+    from tests import _places as PL
+
+    src_head = f"src/{PL.PKG.name}/"
     assert len(M.GATES_OUTSIDE_TABLE) >= 5
     for g in M.GATES_OUTSIDE_TABLE:
         assert set(g) == {"name", "source"}
@@ -309,6 +312,10 @@ def test_gates_outside_table_symbols_are_defined_in_their_files(M):
         assert refs
         for path, sym in refs:
             assert re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", sym), sym
+            # 〔段 4 の下ごしらえ〕出典の文(記録の道具の記録の文=移す道具は書き換えない)は元の置き場の道で書く。src の .py は
+            # 元の道から今の道を引いて読む(移す前の木では同じ道)
+            if path.startswith(src_head) and path.endswith(".py"):
+                path = src_head + PL.current_of(path[len(src_head):])
             text = (ROOT / path).read_text(encoding="utf-8")
             assert M.symbol_defined(text, sym), (path, sym)
     # 負の対照: 無い記号・使うだけで定義の無い名は通らない

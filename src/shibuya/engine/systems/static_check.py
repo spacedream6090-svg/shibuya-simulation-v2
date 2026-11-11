@@ -29,7 +29,7 @@ from typing import Any, Callable
 
 from shibuya.core.paths import module_dir
 from shibuya.engine import resolve as _RESOLVE
-from shibuya.engine import systems as _SYSTEMS
+from shibuya.engine.systems import allow as _SYSTEMS_MEMBER  # 〔移す段 4 の下ごしらえ〕包みの頭でなく中のモジュールを直に読む
 
 __all__ = ["SystemCode", "analyze", "analyze_spec"]
 
@@ -42,7 +42,7 @@ _MUTATORS = {"append", "extend", "update", "clear", "pop", "setdefault", "add", 
 #: 文字列を直さなくてよい。import は移す道具が直す)。
 RESOLVE_MODULE = _RESOLVE.__name__
 _RESOLVE_PARENT, _, _RESOLVE_LEAF = RESOLVE_MODULE.rpartition(".")
-_SYSTEMS_PREFIX = _SYSTEMS.__name__ + "."
+_SYSTEMS_PREFIX = _SYSTEMS_MEMBER.__name__.rpartition(".")[0] + "."
 
 
 @dataclass

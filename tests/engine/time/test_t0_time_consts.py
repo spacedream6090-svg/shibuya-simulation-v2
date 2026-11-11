@@ -56,19 +56,21 @@ def test_old_names_are_the_same_values():
 
 def test_module_level_aliases_elsewhere_are_the_same_value():
     """置き換えで再輸出にした各モジュールの ``MINUTES_PER_DAY`` ほか(読み手が名で引く)は同じ値。"""
-    import importlib
-
-    weekly, growth, activity, growth_decl, scheduler, civic, goods_flow, logistics, opening, actual_log = (
-        importlib.import_module(f"shibuya.{m}") for m in (
-            "agents.weekly", "core.growth", "engine.activity", "engine.growth_decl", "engine.scheduler",
-            "engine.processes.civic", "engine.processes.goods_flow", "engine.processes.logistics",
-            "engine.processes.opening", "world.processes.actual_log"))
+    # 〔段 4 の下ごしらえ〕モジュールは import の文で読む(移す道具が import の文を新しい置き場へ書き換える。
+    # 前は ``shibuya.`` の無い点の名の文字列から import していた=道具が触らない形)
+    from shibuya.agents import weekly
+    from shibuya.core import growth
+    from shibuya.engine import activity, growth_decl
+    from shibuya.engine.processes import civic, goods_flow, logistics, opening
+    # scheduler は包みの頭が同じ名の関数を再輸出している(``from shibuya.engine import scheduler`` は関数)=名を直に読む
+    from shibuya.engine.scheduler import HORIZON_TICKS
+    from shibuya.world.processes import actual_log
 
     for mod in (weekly, activity, civic, goods_flow, logistics, opening):
         assert mod.MINUTES_PER_DAY == TC.MINUTES_PER_DAY, mod.__name__
     assert growth.MINUTES_PER_SIM_DAY == TC.MINUTES_PER_DAY
     assert growth_decl.TICKS_PER_DAY == actual_log.TICKS_PER_DAY == TC.STEPS_PER_DAY
-    assert scheduler.HORIZON_TICKS == TC.STEPS_PER_DAY
+    assert HORIZON_TICKS == TC.STEPS_PER_DAY
 
 
 def test_seconds_to_steps_rounding_rule():

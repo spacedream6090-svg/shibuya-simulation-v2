@@ -37,6 +37,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
 
+from shibuya.engine.rights import ledger as _LEDGER
+
+#: 台帳の包みの名(〔段 4 の下ごしらえ・親の裁定 L-7〕字面で持たず、台帳のモジュールの ``__name__`` から作る。前は
+#: "shibuya.engine.rights"。段 4 で包みごと移る)。
+RIGHTS_PKG = _LEDGER.__name__.rpartition(".")[0]
 #: 列の名の頭(``ledger._COLS``)。
 COL_PREFIX = "_r_"
 #: ``_Store`` の列でない欄(差し替えを数える)。
@@ -316,7 +321,7 @@ def outside_touches(source: str, path: str) -> list[str]:
             elif node.attr in ("_write", "_grow", "_sources") and not (
                     isinstance(node.value, ast.Name) and node.value.id == "self"):
                 out.append(f"{path}:{line} 他の物の {ast.unparse(node)}")  # 自分の self._grow は別の物
-        elif isinstance(node, ast.ImportFrom) and (node.module or "").startswith("shibuya.engine.rights"):
+        elif isinstance(node, ast.ImportFrom) and (node.module or "").startswith(RIGHTS_PKG):
             for a in node.names:
                 if a.name in INTERNAL_NAMES:
                     out.append(f"{path}:{line} import {a.name}")

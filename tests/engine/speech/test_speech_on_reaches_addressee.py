@@ -375,7 +375,8 @@ def test_the_classical_policy_speaks_through_the_same_port():
     import numpy as np
 
     from shibuya.engine.speech import layer as SPL
-    from shibuya.llm import LLMRequest, parse_two_line
+    from shibuya.llm import LLMRequest
+    from shibuya.llm.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
 
     turn = int(WakeCondition.CONVERSATION_TURN)
     texts = {}

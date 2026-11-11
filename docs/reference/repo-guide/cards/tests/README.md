@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 18 本・その他 0 本(このディレクトリの直下)
+Python 21 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [agents](agents/README.md)・[bench](bench/README.md)・[bridging](bridging/README.md)・[build_audit](build_audit/README.md)・[build_field](build_field/README.md)・[build_geo](build_geo/README.md)・[build_lang](build_lang/README.md)・[build_pop](build_pop/README.md)・[build_rail](build_rail/README.md)・[build_sched](build_sched/README.md)・[build_space](build_space/README.md)・[build_vis](build_vis/README.md)・[c6](c6/README.md)・[c7](c7/README.md)・[c8](c8/README.md)・[core](core/README.md)・[economy](economy/README.md)・[engine](engine/README.md)・[fig](fig/README.md)・[fixtures](fixtures/README.md)・[llm](llm/README.md)・[perception](perception/README.md)・[tools](tools/README.md)・[vocab](vocab/README.md)・[w17](w17/README.md)・[world](world/README.md)
 
@@ -27,6 +27,44 @@ data が要る試験の印 ``requires_data(<id>, ...)`` の登録表(第333・3-
 - import している内部モジュール: `shibuya.build.run`・`shibuya.world.assets`
 - 読む試験: `tests/build_audit/test_audit_pipeline.py`・`tests/build_field/test_field_pipeline.py`・`tests/build_field/test_w10_road_names.py`・`tests/build_field/test_w10_ruler.py`・`tests/build_field/test_w12_keio_switch_2_4.py`・`tests/build_field/test_w12_pm_peak_switch.py`・`tests/build_field/test_w12_real_timetables.py`・`tests/build_geo/test_c9c_walkable_area.py`・`tests/build_geo/test_geo_pipeline.py`・`tests/build_pop/test_pop_pipeline.py`・`tests/build_rail/test_w12_arrivals_2_3c.py`・`tests/build_vis/test_vis_pipeline.py`・`tests/conftest.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_relations_tenure.py`・`tests/engine/test_version_bump_10e.py`・`tests/test_build_run_keep_stage.py`
 - 決定の ID: 第 333
+
+## [_head_copy_pin.py](../../../../../tests/_head_copy_pin.py)
+
+古い commit の写し(試験の材料)を固定する道具(試験の補助)。
+
+- 公開の関数とクラス
+  - `order_problems`(関数): 文の順の固定と違う所: 束の数・束ごとに、文を元の文の組の順に、組の名を使い切るまで割り当てられるか。
+  - `ref_problems`(関数)
+  - `refs`(関数): 意味の固定: 読み込んだ写し ``mod`` の、``shibuya`` を読む import の文が置いた名 → 指す物の元の置き場。
+  - `shibuya_imports`(関数): ``shibuya`` を読む import の文(関数の中も含む・相対の import は数えない)。
+  - `statement_names`(関数): 束ごとに、文ごとの置く名(文の中の順)。移す前の写しで作ったものが文の順の固定の表になる。
+  - `text_sha256`(関数): 字面の固定: 束を印の行に替えた全体の sha256(``lf`` なら先に CRLF を LF に揃える)。
+- import している内部モジュール: `tests/_places.py`
+- 読む試験: `tests/economy/cp2/head_copies.py`・`tests/perception/facts/scenes.py`
+
+## [_places.py](../../../../../tests/_places.py)
+
+元の置き場で範囲を決める道具(試験の補助・段 4=コードの区分の移動の下ごしらえ)。
+
+- 公開の関数とクラス
+  - `Names`(クラス): モジュールの名の集まり。頭(包み)は名の一致だけ、頭でないモジュールは中の名(``mod.名``)も含む。
+  - `PlacesMapError`(クラス): 対応表が今の木を説明しない(空・形が違う・古い)。試験を黙って通さず落とす(検収 M-2)。
+  - `current_of`(関数): 元の道 → 今の道(``.py`` だけ。移す前の木では同じ道。今の木に無い元の道は ``KeyError``)。src の宣言の文などが元の道で
+  - `files_from`(関数): :func:`rels_from` の今のファイル。
+  - `imported`(関数): import の文が読むモジュール: ``import a.b`` は ``a.b``。``from P import c`` は、``P.c`` が木のモジュール(子の
+  - `module_names`(関数): モジュールそのものの名(包みの代わりでなく 1 本ずつ)。
+  - `module_of`(関数): ``src/shibuya`` からの道 → モジュールの名(``__init__.py`` は包みの名)。
+  - `names_from`(関数): 元の置き場が ``mods`` の元のディレクトリにある、今のモジュールの名。
+  - `origin_dir`(関数): モジュールの元の置き場のディレクトリ(``src/shibuya`` からの相対・末尾に ``/``。根なら空)。
+  - `origin_module`(関数): 今のモジュールの名 → 元の置き場のモジュールの名(木に無い名=``shibuya`` の外など はそのまま)。
+  - `origin_of`(関数): 今の道 → 元の道。
+  - `origins`(関数): 今の木の全部の ``.py``(``src/shibuya`` からの道)→ 元の道(:func:`origins_from` で表を確かめてから)。
+  - `origins_from`(関数): 対応表の中身と包みの根 → 今の木の全部の ``.py``(``pkg`` からの道)→ 元の道。
+  - `rel_of`(関数): モジュールの今の道(``src/shibuya`` からの相対)。
+  - `rels_from`(関数): 元の置き場が ``mods`` の元のディレクトリ(``recursive`` なら下の包みも)にある、今のファイルの道(並べたもの)。
+  - `tree_modules`(関数): 今の木の全部のモジュールの名(包みの頭を含む)。
+  - `unknown`(関数): ``shibuya.`` で始まるのに、木のどのモジュールにも包みにも解けない名(:func:`imported` が返す名に使う)。
+- 読む試験: `tests/_head_copy_pin.py`・`tests/bench/test_refr20b_tool.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/c6/test_t3_parallel_invariance.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/test_single_write_path.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/processes/test_runner.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/test_add_at_guard.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_two_phase.py`・`tests/engine/time/test_t0_no_tick_word.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`・`tests/llm/test_fleet_contract.py`・`tests/test_places_guard.py`・`tests/tools/test_repo_guide.py`・`tests/world/processes/test_declarations_1101.py`
 
 ## [_time_gates.py](../../../../../tests/_time_gates.py)
 
@@ -234,6 +272,19 @@ manifest 機械化規則の追加検査(層2レビュー指摘・C0出口): MARL
   - `test_marlin_atomic_add_required_for_verification_modes`(関数)
   - `test_phases_are_fixed_sequence`(関数)
 - import している内部モジュール: `shibuya.manifest.schema`
+
+## [test_places_guard.py](../../../../../tests/test_places_guard.py)
+
+``tests/_places.py`` の対応表の確かめ(検収 M-2)と、解けない名の扱い(検収 L-1)。
+
+- 公開の関数とクラス
+  - `test_a_fake_tree_maps_moves_and_allows_only_empty_new_heads`(関数)
+  - `test_a_map_missing_one_row_stops`(関数): 1 行欠けた(古い)表: 今の木にある ``cli.py`` の行を抜くと、``cli.py`` が表に無いファイルとして止まる。
+  - `test_a_map_with_renamed_row_keys_stops`(関数)
+  - `test_an_empty_or_foreign_map_stops`(関数)
+  - `test_the_real_map_explains_the_current_tree`(関数)
+  - `test_unresolvable_shibuya_names_are_hits`(関数): 検収 L-1: 木のどのモジュールにも包みにも解けない ``shibuya.`` の名は、層の試験の違反(``Names.hits``)。
+- import している内部モジュール: `shibuya.cli`・`tests/_places.py`
 
 ## [test_rng_properties.py](../../../../../tests/test_rng_properties.py)
 

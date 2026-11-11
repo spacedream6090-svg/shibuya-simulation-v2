@@ -38,7 +38,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_body_layer_holds_copies_not_soa_views`(関数): 写し(引き直しの検出)は SoA の配列のビューを持たない(D ⑥ と同じ約束)。
   - `test_the_owner_refuses_rebinding_and_deleting`(関数)
   - `test_the_schedule_refuses_writes_outside_its_ports`(関数): 〔3-5 検収 L7〕予約の列の欄は書く口の外で付け替え・消去・配列の書きを断る(負の対照=書く口の中は書ける)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.body`・`shibuya.engine.systems.allow`・`tests/engine/ast_writers.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.body`・`shibuya.engine.body.model`・`shibuya.engine.body.schedule`・`shibuya.engine.systems.allow`・`tests/engine/ast_writers.py`
 
 ## [test_body_manifest.py](../../../../../../../tests/engine/body/test_body_manifest.py)
 
@@ -50,7 +50,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_manifest_fields_without_a_layer_are_null`(関数)
   - `test_the_arm_is_not_in_the_fingerprint_and_marks_the_run_kind`(関数)
   - `test_world_assets_reserve_equals_sweep_with_thermal_boundaries`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.body`・`shibuya.engine.body.model`・`shibuya.engine.manifest_sections`・`shibuya.engine.run`・`shibuya.engine.run_kind`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.body.model`・`shibuya.engine.body.schedule`・`shibuya.engine.manifest_sections`・`shibuya.engine.run`・`shibuya.engine.run_kind`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3
 
 ## [test_body_reserve.py](../../../../../../../tests/engine/body/test_body_reserve.py)

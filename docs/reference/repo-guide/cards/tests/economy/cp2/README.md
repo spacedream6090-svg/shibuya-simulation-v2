@@ -15,13 +15,14 @@ Python 12 本・その他 1 本(このディレクトリの直下)
 第 1 期 1-9: 載せ替えの前(HEAD ``136fdbb``)の ``economy/ledger.py`` と ``economy/goods.py`` の写しを読む道具(試験の補助)。
 
 - 公開の関数とクラス
-  - `blob_sha`(関数)
   - `diff`(関数): 2 つの状態の食い違う鍵(配列は形・型・中身)。
   - `goods_state`(関数): 物の台帳の状態(在庫の配列・納品ログの中身と位置・計数・締め)。
   - `head_goods_module`(関数)
   - `head_ledger_module`(関数)
   - `money_state`(関数): 金の台帳の状態(残高・流れ・締め・生ログの中身と位置・計数)。HEAD と今で同じ鍵。
+  - `pin_problems`(関数): 写し ``name`` と読み込んだ ``mod`` が固定と違う所(字面・文の順・意味)。
   - `shims`(関数): (HEAD の Ledger の子・HEAD の GoodsLedger の子・HEAD の財布の差し替えの子)。``cause`` を捨てるだけ。
+- import している内部モジュール: `tests/_head_copy_pin.py`
 - 読む試験: `tests/economy/cp2/test_cp2_nine_ops_equivalence.py`
 
 ## [head_goods_136fdbb.py](../../../../../../../tests/economy/cp2/head_goods_136fdbb.py)
@@ -84,7 +85,7 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `test_run_rows_and_events_are_one_to_one`(関数): ラン(世界資産 200 体・既定 v3・1 日): 金の生ログの目印のある行と出来事の記録の金の行が 1 対 1。
   - `test_step_width_sets_the_event_time`(関数)
   - `test_store_side_has_a_poi_where_and_llm_call_cause`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.core.time_consts`・`shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.engine.economy_stage2`・`shibuya.engine.events.links`・`shibuya.engine.events.log`・`shibuya.engine.events.vocab`・`shibuya.engine.rate_rules`
+- import している内部モジュール: `shibuya.cli`・`shibuya.core.time_consts`・`shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.engine.economy_stage2`・`shibuya.engine.events.links`・`shibuya.engine.events.log`・`shibuya.engine.events.vocab`・`shibuya.engine.ledger_api`・`shibuya.engine.rate_rules`・`shibuya.llm`・`tests/_places.py`
 - 決定の ID: 11-01
 
 ## [test_cp2_flow_sum.py](../../../../../../../tests/economy/cp2/test_cp2_flow_sum.py)
@@ -128,7 +129,7 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `test_m1_depreciation_via_the_scalar_port_and_the_one_entrance`(関数): 形 3(店 0 → 店 0・1 件の transfer): HEAD は OK(現金 ±0・取引 +1)。1-9 は FORBIDDEN_PAIR。
   - `test_overflowing_ring_is_identical_and_counted`(関数): 小さな輪で溢れさせても HEAD と同じ行が残り、溢れた行の数は計器にも出る(K17: 記録して続ける)。
   - `test_random_port_sequences_match_head`(関数)
-  - `test_the_copies_are_the_head_blobs`(関数)
+  - `test_the_copies_are_the_head_blobs`(関数): 写しが HEAD 136fdbb のバイトのまま(``tests/_head_copy_pin.py`` の字面・文の順・意味=段 4 で移す道具が import の文の
 - import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.economy_stage2`・`shibuya.engine.events.links`・`shibuya.engine.events.log`・`shibuya.engine.ledger_api`・`tests/economy/cp2/head_copies.py`
 
 ## [test_cp2_transfer_only_writer.py](../../../../../../../tests/economy/cp2/test_cp2_transfer_only_writer.py)

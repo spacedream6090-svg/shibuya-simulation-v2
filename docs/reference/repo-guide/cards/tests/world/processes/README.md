@@ -92,7 +92,7 @@ world.processes のテスト用ファクトリ(最小の合法な宣言を作る
   - `test_inputs_existing_five_filled_and_new_seven_fields_only`(関数)
   - `test_routing_absent_rows_all_have_a_declaration`(関数): routing §1 の行き先「無いと宣言」の 6 行は宣言がある(#102 納品は入力として)。
   - `test_statements_are_copied_from_routing_section_3`(関数): routing §3 に文案のある宣言は文案の写し(「」の中=鉤括弧の文と一致)。
-- import している内部モジュール: `shibuya.world.processes.absent`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.inputs`・`shibuya.world.processes.records`・`tests/world/processes/conftest.py`
+- import している内部モジュール: `shibuya.world.processes.absent`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.inputs`・`shibuya.world.processes.records`・`tests/_places.py`・`tests/world/processes/conftest.py`
 - 決定の ID: 11-01/§1・11-01/§2・11-01/§10-3・第 340
 
 ## [test_deletion_candidates.py](../../../../../../../tests/world/processes/test_deletion_candidates.py)

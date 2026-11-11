@@ -18,7 +18,9 @@ from hypothesis import strategies as st
 from shibuya.agents.state import Activity, AgentState, ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
+from shibuya.engine.systems import table as _SYSTEMS
 from shibuya.world.state import World
+from tests import _places as _PL
 
 SRC = Path("src/shibuya")
 SALT = b"salt-two-phase"
@@ -68,16 +70,25 @@ def test_frozen_state_rejects_direct_updates():
         w.pois.stock[0] = 0
 
 
-_HOT_PATHS = (
-    "engine/run.py",
-    "engine/resolve.py",
-    "engine/commit.py",
-    "engine/change_detect.py",
-    # 第 1 期 1-9: お金の基本操作(購入・運賃・補充の代金が毎刻み通る=口の約束 1-9 の受入の試験)
-    "economy/ops.py",
-    # 1-0: run_day を系に分けた先(弱めない=対象を広げる・草案 §3-3 の 16)
-    *sorted(str(p.relative_to(SRC)).replace("\\", "/") for p in (SRC / "engine" / "systems").glob("*.py")),
-)
+def _hot_paths() -> tuple[str, ...]:
+    """ホットパスのファイル(src/shibuya からの今の道)。〔再検収 M-3〕表を引くのは試験の中(モジュールの読み込みの時点で引くと、
+    表が古いときに試験の全体の収集が止まる)。"""
+    out = (
+        "engine/run.py",
+        "engine/resolve.py",
+        "engine/commit.py",
+        "engine/change_detect.py",
+        # 第 1 期 1-9: お金の基本操作(購入・運賃・補充の代金が毎刻み通る=口の約束 1-9 の受入の試験)
+        "economy/ops.py",
+        # 1-0: run_day を系に分けた先(弱めない=対象を広げる・草案 §3-3 の 16)
+        # 〔段 4 の下ごしらえ〕前は字面のディレクトリ engine/systems の直下。元の置き場が系の包みの直下のファイルを対応表で引く
+        # (段 4 で系の包みは 3 つの包みへ分かれる。道は src/shibuya からの今の道)
+        *_PL.rels_from(_SYSTEMS, recursive=False),
+    )
+    assert len(out) > 25
+    return out
+
+
 #: 個体数ぶんの Python ループ(P4 で禁止)を疑う書き方。
 _AGENT_LOOP_RE = re.compile(
     r"for\s+\w+\s+in\s+range\(\s*(?:n_agents|self\.n_agents|agents\.n|len\(agents\)|self\.n\b)"
@@ -87,7 +98,7 @@ _AGENT_LOOP_RE = re.compile(
 def test_no_python_loop_over_agents_in_engine_hot_paths():
     """P4: エンジンのホットパスに**個体数ぶんの逐次ループ**を書かない。"""
     offenders = []
-    for rel in _HOT_PATHS:
+    for rel in _hot_paths():
         text = (SRC / rel).read_text(encoding="utf-8")
         for m in _AGENT_LOOP_RE.finditer(text):
             line = text[: m.start()].count("\n") + 1
@@ -97,8 +108,12 @@ def test_no_python_loop_over_agents_in_engine_hot_paths():
 
 def test_every_hot_path_declares_its_sequential_loops():
     """P4「逐次ループの新設は宣言必須」= モジュール docstring に『逐次ループ宣言』がある。"""
-    for rel in _HOT_PATHS:
+    for rel in _hot_paths():
         text = (SRC / rel).read_text(encoding="utf-8")
+        # 〔段 4 の下ごしらえ〕段 4 で空にした包みの頭(0 バイト=親の決定 9・コードもループも無い)は宣言の対象の外。移す前の木の
+        # 対象に空のファイルは無いので、移す前の範囲は前と同じ
+        if not text and rel.endswith("__init__.py"):
+            continue
         assert "逐次ループ宣言" in text, rel
     # 新規ファイル全体でも同じ規律
     for rel in ("agents/state.py", "agents/schedule.py", "world/assets.py",

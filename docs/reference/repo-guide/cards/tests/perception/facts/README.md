@@ -42,7 +42,7 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `build`(関数): 合成世界+個体(同じセルに複数体・内受容と所持金と行為と直前の結果がばらける)。
   - `head_module`(関数)
   - `twin`(関数): 1-2 の描画 ``r`` の HEAD の双子(同じ物を指す・設定と口を写す)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.world.state`・`tests/_head_copy_pin.py`
 - 読む試験: `tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/perception/facts/test_coef_removed_or_armed.py`・`tests/perception/facts/test_percept_schema.py`・`tests/perception/facts/test_render_from_percept_bytes.py`
 
 ## [test_coef_removed_or_armed.py](../../../../../../../tests/perception/facts/test_coef_removed_or_armed.py)

@@ -15,13 +15,26 @@ from pathlib import Path
 
 import pytest
 
+from shibuya.engine.experiment import apply as AP
+from shibuya.engine.experiment import branch as BR
+from shibuya.engine.experiment import ensemble as EN
 from shibuya.engine.experiment import form as F
+from shibuya.engine.experiment import gate as GT
+from shibuya.engine.experiment import layer as LY
 from shibuya.engine.experiment.form import DECISIONS, ExperimentForm
 
+from tests import _places as PL
 from tests.engine.experiment._x33 import NS_DAY, NS_HOUR, form, form_dict
 
-SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya"
-EXP_DIR = SRC / "engine" / "experiment"
+def _exp_files() -> list[Path]:
+    """実験のコードのファイル(〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面のディレクトリ engine/experiment の直下の走査とファイルの
+    名の一覧。元の置き場が実験の包みの直下のファイルを対応表で引く=段 4 で包みが 3 つの包みへ分かれても同じファイル)。
+    〔再検収 M-3〕表を引くのは試験の中(モジュールの読み込みの時点で引くと、表が古いときに試験の全体の収集が止まる)。"""
+    return PL.files_from(F, recursive=False)
+
+
+#: 走査に入るはずの主なモジュール(走査が実験のコードを指していることの確かめ)。
+EXP_MAIN = (F, AP, LY, BR, EN, GT)
 
 
 # ================================================================= 欄
@@ -144,8 +157,8 @@ def names_in(text: str) -> list[str]:
 
 
 def test_no_place_or_business_names_in_the_experiment_code():
-    files = sorted(EXP_DIR.glob("*.py"))
-    assert {p.name for p in files} >= {"form.py", "apply.py", "layer.py", "branch.py", "ensemble.py", "gate.py"}
+    files = sorted(p.resolve() for p in _exp_files())
+    assert {Path(m.__file__).resolve() for m in EXP_MAIN} <= set(files)
     found = {p.name: names_in(p.read_text(encoding="utf-8")) for p in files}
     assert {k: v for k, v in found.items() if v} == {}
     # 文字列の値(AST)にも無い

@@ -48,7 +48,7 @@ Python 6 本・その他 1 本(このディレクトリの直下)
   - `test_permit_check_catches_reexported_names`(関数): 負の対照(再検収 R1・段 FIX2): 再輸出の名 ``_WP`` を通して許可を外す形が見つかる。
   - `test_permit_switches_are_called_only_from_known_places`(関数)
   - `test_systems_modules_do_not_bypass_the_box_setattr`(関数): 系のモジュール(箱の定義 ``boxes.py`` の外)は ``object.__setattr__`` を使わない(段 C を素通りしない)。
-- import している内部モジュール: `shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.allow`・`shibuya.engine.systems.static_check`・`shibuya.engine.systems.table`
+- import している内部モジュール: `shibuya.core.write_permit`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.allow`・`shibuya.engine.systems.boxes`・`shibuya.engine.systems.guard`・`shibuya.engine.systems.static_check`・`shibuya.engine.systems.table`・`tests/_places.py`
 
 ## [test_guard_runs.py](../../../../../../../tests/engine/systems/test_guard_runs.py)
 
@@ -90,7 +90,7 @@ Python 6 本・その他 1 本(このディレクトリの直下)
   - `test_switch_off_restores_the_old_full_thaw`(関数)
   - `test_systems_package_never_thaws`(関数)
   - `test_writable_thaws_only_permitted_columns`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.write_permit`・`shibuya.engine.resolve`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.allow`・`shibuya.perception.state`・`shibuya.world.state`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.core.write_permit`・`shibuya.engine.resolve`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.allow`・`shibuya.perception.state`・`shibuya.world.state`・`tests/_places.py`
 
 ## [test_systems_table.py](../../../../../../../tests/engine/systems/test_systems_table.py)
 

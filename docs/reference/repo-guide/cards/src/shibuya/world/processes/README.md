@@ -34,7 +34,7 @@ world.processes.actual_log — **追記専用 ActualLog**(固定幅 numpy レコ
   - `plan_compliance`(関数): PlanSpec の遵守率(``realizes`` 関係で結ばれた世界過程の記録から計算)。
 - import している内部モジュール: `shibuya.core.growth`・`shibuya.core.time_consts`・`shibuya.world.processes.records`・`shibuya.world.processes.relations`
 - 呼び手: `shibuya.engine.processes.runner`・`shibuya.world.processes`
-- 読む試験: `tests/engine/events/test_e_log_links_actual.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rail.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/rights/test_rights_events.py`・`tests/world/processes/test_actual_log.py`
+- 読む試験: `tests/engine/events/test_e_log_links_actual.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rail.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/time/test_t0_time_consts.py`・`tests/world/processes/test_actual_log.py`
 - 状態台帳の行
   - 持ち主 `runner.log`(`ActualLog`)
     - `O61` WorldProcessRunner log(ActualLog)(挙動 no・復元 discardable) 道筋 `runner.log` 書ける系: close_final・day_close・day_head・duties・world

@@ -114,7 +114,7 @@ C6-a 艦隊接続の契約テスト(層契約・純関数・性質)。HTTP サ�
   - `test_seed_is_a_function_of_call_id_and_run_seed`(関数)
   - `test_single_replica_has_no_alternate_and_is_counted`(関数): レプリカ 1 本では「別レプリカ 1 回」が退化する=診断行に残す。
   - `test_split_system_user`(関数)
-- import している内部モジュール: `shibuya.core.budget`・`shibuya.engine.llm_bridge`・`shibuya.llm.fleet`・`shibuya.manifest.schema`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.build`・`shibuya.core.budget`・`shibuya.economy.ledger`・`shibuya.engine.llm_bridge`・`shibuya.engine.resolve`・`shibuya.llm.fleet`・`shibuya.manifest.schema`・`shibuya.perception.renderer`・`shibuya.world.state`・`tests/_places.py`
 - 決定の ID: D-58
 
 ## [test_mock_v3.py](../../../../../../tests/llm/test_mock_v3.py)

@@ -12,12 +12,19 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from shibuya.engine.processes import runner as _RUNNER
 from shibuya.engine.processes.runner import PROCESS_ORDER, WorldProcessRunner
 from shibuya.world.processes.first_batch import build_registry
+from tests import _places as PL
 
 from .conftest import fake_timetable_assets, make_agents, make_world
 
-SRC = Path("src/shibuya/engine/processes")
+def _process_files() -> list[Path]:
+    """世界の過程のモジュール(〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面のディレクトリ src/shibuya/engine/processes の走査。
+    元の置き場が過程の包みのファイルを対応表で引く=段 4 で包みごと移っても同じファイル)。〔再検収 M-3〕表を引くのは試験の中。"""
+    files = PL.files_from(_RUNNER)
+    assert any(p.name == Path(_RUNNER.__file__).name for p in files)
+    return files
 
 
 def _runner(**kw):
@@ -80,7 +87,7 @@ def test_enabled_selects_only_the_named_processes():
 # ================================================================= 書き込み口(§3 原則3)
 def test_process_modules_never_open_a_write_window():
     """``.writable(`` / ``.thaw(`` を呼ぶのは resolve だけ(世界過程も例外にしない)。"""
-    for path in SRC.rglob("*.py"):
+    for path in _process_files():
         tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
@@ -89,13 +96,18 @@ def test_process_modules_never_open_a_write_window():
 
 def test_process_modules_do_not_import_build_or_economy():
     """層契約: engine → world/agents/perception/llm/core/manifest。build/economy は不可。"""
-    for path in SRC.rglob("*.py"):
+    import shibuya.build as BUILD
+    from shibuya.economy import ledger as ECONOMY
+
+    # 〔段 4 の下ごしらえ・親の裁定 L-7〕前は包みの名の字面 "shibuya.economy"・"shibuya.build"。元の置き場が economy と build の
+    # モジュールの今の名で見る(build は段 4 で動かないので頭の名は今も同じ)
+    banned = PL.names_from(ECONOMY, BUILD)
+    for path in _process_files():
         text = path.read_text(encoding="utf-8")
-        assert "shibuya.build" not in text.replace("``shibuya.build``", "")
+        assert BUILD.__name__ not in text.replace(f"``{BUILD.__name__}``", "")
         for node in ast.walk(ast.parse(text)):
             if isinstance(node, ast.ImportFrom) and node.module:
-                assert not node.module.startswith("shibuya.economy"), (path, node.module)
-                assert not node.module.startswith("shibuya.build"), (path, node.module)
+                assert not any(banned.hits(m) for m in PL.imported(node)), (path, node.module)
 
 
 # ================================================================= 実行

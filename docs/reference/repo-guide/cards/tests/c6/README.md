@@ -143,7 +143,7 @@ tests.c6 の共通フィクスチャ。
   - `test_t3_final_hash_is_identical_across_thread_counts`(関数)
   - `test_t3_in_process_set_num_threads_does_not_change_the_result`(関数)
   - `test_t3_on_the_real_world_at_5000_agents`(関数): 実データ 5,000 体 × 24 tick(§9.1 C6 のスモーク規模)。
-- import している内部モジュール: `tests/c6/conftest.py`
+- import している内部モジュール: `shibuya.engine.resolve`・`tests/_places.py`・`tests/c6/conftest.py`
 - 環境変数: `os.environ` をまるごと使う
 
 ## [test_t5_order_bias.py](../../../../../../tests/c6/test_t5_order_bias.py)

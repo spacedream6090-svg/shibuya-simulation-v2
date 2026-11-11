@@ -28,6 +28,7 @@ from shibuya.engine.memory import GIST_PER_AGENT, IMPORTANCE_MAX, MemoryLayer
 from shibuya.engine import memory_store as MS
 from shibuya.engine.systems import guard as G
 from shibuya.engine.systems.table import SPECS
+from tests import _places as PL
 
 SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya"
 
@@ -47,21 +48,38 @@ def test_store_is_one_module_beside_the_memory_table():
     assert Path(MS.__file__).resolve() == (SRC / "engine" / "memory_store.py").resolve()
     assert MS.__name__ == "shibuya.engine.memory_store"
     assert Path(M.__file__).name == "memory.py" and not hasattr(M, "__path__")  # 今の表のモジュールは package にしない
-    assert not (SRC / "engine" / "memory").exists()
+    # 表のモジュールと同じ名のディレクトリが無い(〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面のディレクトリ engine/memory)
+    assert not Path(M.__file__).with_suffix("").exists()
+
+
+def _layers() -> tuple[PL.Names, PL.Names]:
+    """(読んでよい層, 読んではいけない層)。元の置き場で決める(〔段 4 の下ごしらえ・親の裁定 L-7〕前は包みの名の字面:
+    読んでよい=engine・perception・llm・agents・world・core、いけない=economy・census・build。包みは、そこにあった(ある)
+    モジュールを 1 つずつ import して元の置き場から今の名を引く=移す前の木では前の字面と同じ範囲)。census は頭 1 本だけの
+    包みで段 4 の delete の段で消える(残るモジュールが無い)ので、:data:`CENSUS` の字面のまま。"""
+    import shibuya.build as BUILD
+    import shibuya.llm as LLM
+    from shibuya.agents import state as AGENTS
+    from shibuya.core import time_consts as CORE
+    from shibuya.economy import ledger as ECONOMY
+    from shibuya.engine import resolve as ENGINE
+    from shibuya.perception import renderer as PERCEPTION
+    from shibuya.world import state as WORLD
+
+    return PL.names_from(ENGINE, PERCEPTION, LLM, AGENTS, WORLD, CORE), PL.names_from(ECONOMY, BUILD)
+
+
+CENSUS = "shibuya.census"
 
 
 def test_store_imports_only_allowed_layers():
     """器は engine の層の契約(engine > perception|llm > world|agents > core)を守る(import-linter と同じ向き)。"""
-    tree = ast.parse((SRC / "engine" / "memory_store.py").read_text(encoding="utf-8"))
-    mods = set()
-    for n in ast.walk(tree):
-        if isinstance(n, ast.ImportFrom) and n.module:
-            mods.add(n.module)
-        elif isinstance(n, ast.Import):
-            mods |= {a.name for a in n.names}
-    inner = {m for m in mods if m.startswith("shibuya")}
-    assert inner and all(m.split(".")[1] in ("engine", "perception", "llm", "agents", "world", "core") for m in inner)
-    assert not any(m.startswith(("shibuya.economy", "shibuya.census", "shibuya.build")) for m in inner)
+    tree = ast.parse(Path(MS.__file__).read_text(encoding="utf-8"))
+    allowed, banned = _layers()
+    # 読むモジュール(``from P import 子のモジュール`` は子・それ以外は P)が、どれも読んでよい層にあり、いけない層に無い
+    inner = [m for n in ast.walk(tree) for m in PL.imported(n) if m.split(".")[0] == PL.PKG.name]
+    bad = [m for m in inner if not allowed.has(m) or banned.hits(m) or m.startswith(CENSUS)]
+    assert inner and bad == [], (bad, sorted(inner))
 
 
 # ================================================================= 欄

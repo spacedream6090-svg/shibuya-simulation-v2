@@ -60,7 +60,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_mock_port_ignores_the_presented_order`(関数)
   - `test_mock_port_picks_the_word_the_mock_writes`(関数)
   - `test_negative_control_shifting_the_mock_number_moves_the_final`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.decision.layer`・`shibuya.engine.decision.port`・`shibuya.engine.decision.ports`・`shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.llm`・`shibuya.llm.contract`・`shibuya.llm.mock`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.decision.layer`・`shibuya.engine.decision.port`・`shibuya.engine.decision.ports`・`shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.llm`・`shibuya.llm.contract`・`shibuya.llm.mock`・`shibuya.llm.parser`・`tests/engine/decision/_j0.py`
 
 ## [test_j0_other_ratio_field.py](../../../../../../../tests/engine/decision/test_j0_other_ratio_field.py)
 

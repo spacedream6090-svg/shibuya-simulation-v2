@@ -302,7 +302,7 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_registry_hash_is_exposed_and_stable`(関数)
   - `test_riders_are_conserved_from_the_start`(関数)
   - `test_step_accumulates_per_process_wall_time_and_counters`(関数)
-- import している内部モジュール: `shibuya.engine.processes.runner`・`shibuya.world.processes.first_batch`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.build`・`shibuya.economy.ledger`・`shibuya.engine.processes.runner`・`shibuya.world.processes.first_batch`・`tests/_places.py`・`tests/engine/processes/conftest.py`
 
 ## [test_salient.py](../../../../../../../tests/engine/processes/test_salient.py)
 

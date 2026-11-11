@@ -310,7 +310,7 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
   - `test_only_ledger_module_touches_the_balance_arrays`(関数): 残高配列に触れるのは economy/ledger.py と economy/ops.py だけ(= transfer 単一API)。
   - `test_only_the_owning_modules_open_the_write_window`(関数): ``_open``(書き込み窓)を economy の中で呼べるのは台帳自身だけ。
   - `test_runtime_guard_rejects_direct_writes`(関数): (a) 実行時の強制: 台帳の配列は既定で読み取り専用。
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.resolve`・`tests/_places.py`
 
 ## [test_t3_redundant_equation.py](../../../../../../tests/economy/test_t3_redundant_equation.py)
 

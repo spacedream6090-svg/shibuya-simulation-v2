@@ -19,6 +19,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `ledger_violations`(関数)
   - `ledger_writes`(関数): 台帳の置き場の中の書き(列の中身・差し替え・``_write``/``_grow`` の呼び出し)。
   - `outside_touches`(関数): 台帳の置き場の外から中身に触る所(``path:行 形``)。
+- import している内部モジュール: `shibuya.engine.rights.ledger`
 - 読む試験: `tests/engine/rights/test_rights_schema.py`
 
 ## [test_no_permission_count.py](../../../../../../../tests/engine/rights/test_no_permission_count.py)
@@ -63,7 +64,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_employment_rows_equal_the_bodies_with_an_org_id`(関数)
   - `test_no_population_means_no_employment_rows`(関数)
   - `test_the_four_contents_and_their_blanks`(関数)
-- import している内部モジュール: `shibuya.agents.population`・`shibuya.engine.bridging.ledger`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`・`shibuya.engine.systems.build`
+- import している内部モジュール: `shibuya.agents.population`・`shibuya.engine.bridging.ledger`・`shibuya.engine.bridging.ledger_paths`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`・`shibuya.engine.systems.build`・`tests/_places.py`
 - 決定の ID: 10-12/§4-5
 
 ## [test_rights_manifest.py](../../../../../../../tests/engine/rights/test_rights_manifest.py)

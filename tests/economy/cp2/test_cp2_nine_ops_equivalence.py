@@ -1,7 +1,7 @@
 """第 1 期 1-9(CP2 の段階 1): 帳簿の 9 口を基本操作 ``transfer`` に載せ替えても、同じ残高・同じ台帳の行(結果不変 ◎)。
 
 口の約束 1-9 の受入の試験 ``test_cp2_nine_ops_equivalence.py``。比べる相手は載せ替えの前(HEAD ``136fdbb``)の
-``economy/ledger.py``・``economy/goods.py`` の写し(``head_copies.py``・blob の名で同じことを確かめる)。
+``economy/ledger.py``・``economy/goods.py`` の写し(``head_copies.py``・字面・文の順・意味の固定で同じことを確かめる)。
 
 帳簿の 9 口(10b-prep §3-2 の E1〜E9): 金の口 E1 ``purchase_many``・E2 ``transfer_many``(と 1 件の ``transfer``)・
 E3 ``endow_households``・E4 ``endow_stores``(+ ``depreciate``)は ``ops.transfer`` を呼ぶ。物の口 E5 ``restock_many`` の
@@ -40,8 +40,12 @@ H, S, E, B, G, W = (int(Sector.HOUSEHOLD), int(Sector.STORE), int(Sector.EMPLOYE
 
 
 def test_the_copies_are_the_head_blobs():
-    for name, sha in CP.BLOBS.items():
-        assert CP.blob_sha(CP.HERE / name) == sha, name
+    """写しが HEAD 136fdbb のバイトのまま(``tests/_head_copy_pin.py`` の字面・文の順・意味=段 4 で移す道具が import の文の
+    モジュールの道を書き換えても同じ。元の全体の blob の名は ``head_copies.PINS`` の注)。"""
+    assert sorted(CP.PINS) == ["head_goods_136fdbb.py", "head_ledger_136fdbb.py"]
+    mods = {"head_ledger_136fdbb.py": CP.head_ledger_module(), "head_goods_136fdbb.py": CP.head_goods_module()}
+    for name in CP.PINS:
+        assert CP.pin_problems(name, mods[name]) == [], name
 
 
 # ---------------------------------------------------------------- 1. 乱数の呼び出しの列

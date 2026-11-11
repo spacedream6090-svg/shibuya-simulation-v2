@@ -185,12 +185,19 @@ def test_economy_and_the_ledger_api_do_not_import_engine_events():
     import ast
     from pathlib import Path
 
-    src = Path(__file__).resolve().parents[3] / "src" / "shibuya"
-    files = sorted((src / "economy").glob("*.py")) + [src / "engine" / "ledger_api.py"]
+    import shibuya.llm as LLM
+    from shibuya.engine import ledger_api as LAPI
+
+    from tests import _places as PL
+
+    # 〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面のディレクトリ economy の走査と包みの名 "shibuya.engine.events"・"shibuya.llm"。
+    # 範囲は元の置き場で決める: 走査は元の置き場が economy(直下)のファイルと ledger_api・読んではいけないのは元の置き場が
+    # engine/events と llm のモジュール(段 4 で economy の包みに入る engine・core のファイルは前と同じく走査しない=層の決まりは
+    # 段 4 の後に親が見直す)
+    files = PL.files_from(OPS, recursive=False) + [Path(LAPI.__file__)]
+    banned = PL.names_from(V, LLM)
     bad = []
     for f in files:
         for n in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
-            mods = ([n.module or ""] if isinstance(n, ast.ImportFrom)
-                    else [a.name for a in n.names] if isinstance(n, ast.Import) else [])
-            bad += [f"{f.name}:{m}" for m in mods if m.startswith(("shibuya.engine.events", "shibuya.llm"))]
-    assert bad == [], bad
+            bad += [f"{f.name}:{m}" for m in PL.imported(n) if banned.hits(m)]
+    assert len(files) > 5 and bad == [], bad

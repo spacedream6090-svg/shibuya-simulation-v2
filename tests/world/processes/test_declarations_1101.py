@@ -128,9 +128,16 @@ def test_inputs_existing_five_filled_and_new_seven_fields_only():
     assert all(d.carrier for d in INP.EXISTING if not d.world_process_id)
     assert "EXTERNAL_STORE_SALES_YEN=0" in INP.ROW_SALES.version
     assert INP.WEATHER.interpolation.startswith("無し") and "_heat_now" in INP.WEATHER.interpolation  # 中-2
+    from tests import _places as PL
+
+    src_head = f"src/{PL.PKG.name}/"
     for d in INP.INPUTS:
         for row in d.source_rows:
             path = row.split(" ", 1)[0].split("(", 1)[0]
+            # 〔段 4 の下ごしらえ〕宣言の文(src の中の記録の文=移す道具は書き換えない)は元の置き場の道で書く。src の .py は
+            # 元の道から今の道を引いて在ることを確かめる(移す前の木では同じ道)
+            if path.startswith(src_head) and path.endswith(".py"):
+                path = src_head + PL.current_of(path[len(src_head):])
             assert (ROOT / path).is_file(), (d.id, row)
 
 

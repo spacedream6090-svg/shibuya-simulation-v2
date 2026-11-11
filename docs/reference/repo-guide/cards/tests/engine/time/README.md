@@ -38,6 +38,7 @@ Python 8 本・その他 3 本(このディレクトリの直下)
   - `test_no_bare_word_in_comments_and_docstrings_of_core_and_systems`(関数)
   - `test_no_new_identifier_with_the_word`(関数)
   - `tree_identifiers`(関数)
+- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.systems.table`・`tests/_places.py`
 
 ## [test_t0_rng_key.py](../../../../../../../tests/engine/time/test_t0_rng_key.py)
 
@@ -78,7 +79,7 @@ Python 8 本・その他 3 本(このディレクトリの直下)
   - `test_seconds_to_steps_rounding_rule`(関数): 丸めの規則=床(その秒を含む刻み)。整数だけを受ける。
   - `test_time_consts_imports_only_the_standard_library`(関数): 層契約: 標準ライブラリだけ(core の最下層=誰からでも import できる)。
   - `test_values`(関数)
-- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.core.types`
+- import している内部モジュール: `shibuya.agents.weekly`・`shibuya.core.growth`・`shibuya.core.time_consts`・`shibuya.core.types`・`shibuya.engine.activity`・`shibuya.engine.growth_decl`・`shibuya.engine.processes.civic`・`shibuya.engine.processes.goods_flow`・`shibuya.engine.processes.logistics`・`shibuya.engine.processes.opening`・`shibuya.engine.scheduler`・`shibuya.world.processes.actual_log`
 
 ## [test_t0_tm9_fields.py](../../../../../../../tests/engine/time/test_t0_tm9_fields.py)
 

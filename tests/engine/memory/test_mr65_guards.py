@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pytest
 
+from shibuya.engine import memory_embed, memory_impression, memory_m1, memory_shops, memory_trace, relations_people
 from shibuya.engine import state_ledger as SL
 from shibuya.engine import state_ledger_ast as SA
 from shibuya.engine.run import run_day
@@ -28,7 +29,9 @@ ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "src" / "shibuya"
 M1_PORTS = {"place", "clear", "seed_rows", "grow"}
 CUE_PORTS = {"note_heard", "note_own", "embed_rows", "drop_rows", "remap"}
-MODULES = ("memory_m1", "memory_embed", "memory_impression", "memory_trace", "relations_people", "memory_shops")
+#: 新しいモジュール(〔段 4 の下ごしらえ〕前は ``engine`` の下のファイルの名の文字列=f 文字列で道を作っていた・移す道具が
+#: 触らない形。モジュールを import して ``__file__`` から読む)。
+MODULES = (memory_m1, memory_embed, memory_impression, memory_trace, relations_people, memory_shops)
 SHOP_PORTS = {"put", "grow", "note_evicted"}
 
 
@@ -147,12 +150,18 @@ def test_runtime_owners_of_the_arm_runs_are_fully_declared(monkeypatch, kw):
 
 
 def test_new_modules_respect_the_layer_contract():
+    import shibuya.cli as CLI
+    import shibuya.llm as LLM
+    from shibuya.perception import renderer as PERCEPTION
+
+    from tests import _places as PL
+
+    # 〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面の "shibuya.perception"・"shibuya.llm"・"shibuya.cli"。包みは元の置き場
+    # (perception・llm)にあったモジュールの今の名、cli はモジュールの __name__ から作る
+    banned = PL.names_from(PERCEPTION, LLM) | PL.module_names(CLI)
     for m in MODULES:
-        tree = ast.parse((SRC / "engine" / f"{m}.py").read_text(encoding="utf-8"))
+        tree = ast.parse(Path(m.__file__).read_text(encoding="utf-8"))
         imported = set()
         for n in ast.walk(tree):
-            if isinstance(n, ast.ImportFrom) and n.module:
-                imported.add(n.module)
-            elif isinstance(n, ast.Import):
-                imported |= {a.name for a in n.names}
-        assert not any(x.startswith(("shibuya.perception", "shibuya.llm", "shibuya.cli")) for x in imported), (m, imported)
+            imported.update(PL.imported(n))
+        assert not any(banned.hits(x) for x in imported), (m.__name__, imported)

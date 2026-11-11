@@ -615,7 +615,12 @@ def test_o75_split_flow_dir8_and_coherence_are_diag():
     beh = {p for _k, p in SL.behavior_items()}
     full = {p for _k, p in SL.full_items()}
     assert "runner.crowd.flow_dir8" not in beh and "runner.crowd.flow_dir8" in full
+    from shibuya.engine.processes import crowd as CROWD
+
+    # 〔段 4 の下ごしらえ〕外すのは群れの過程と状態台帳のファイル(前はファイルの名 crowd.py・state_ledger.py=段 4 で台帳は
+    # 名が変わる。どちらも src に 1 本だけなので、モジュールのファイルで外すのと同じ)
+    own = {Path(m.__file__).resolve() for m in (CROWD, SL)}
     hits = [p for p in (ROOT / "src" / "shibuya").rglob("*.py")
-            if p.name not in ("crowd.py", "state_ledger.py")
+            if p.resolve() not in own
             and ("flow_dir8" in p.read_text(encoding="utf-8") or ".coherence" in p.read_text(encoding="utf-8"))]
     assert hits == []

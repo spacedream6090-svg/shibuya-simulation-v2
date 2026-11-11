@@ -80,10 +80,14 @@ def test_t4_axis1_reading_a_no_attribute_in_a_behavior_place_fails(tmp_path, ext
     """T4 軸 1: 実物の src に「挙動の場所で no/diag の属性を読む」断片を 1 つ足すと落ちる。"""
     import shutil
 
+    from shibuya.engine.processes import opening as PROC
+
     root = tmp_path / "src" / "shibuya"
     shutil.copytree(SRC, root, ignore=shutil.ignore_patterns("build", "__pycache__"))
-    # O66 の act_layer.n_wander_bad(diag・計数)を、挙動の分岐(歩き先を選ぶ関数)で読む
-    p = root / "engine" / "processes" / "fake_behavior.py"
+    # O66 の act_layer.n_wander_bad(diag・計数)を、挙動の分岐(歩き先を選ぶ関数)で読む。置き場は世界の過程のモジュールの
+    # ディレクトリ(〔段 4 の下ごしらえ〕前は字面の engine/processes=段 4 で過程の包みが移るとディレクトリが消える)
+    fake_rel = (Path(PROC.__file__).resolve().parent.relative_to(SRC.resolve()) / "fake_behavior.py").as_posix()
+    p = root / fake_rel
     p.write_text(textwrap.dedent('''
         def choose_next(act_layer, agents):
             if act_layer.n_wander_bad > 3:
@@ -103,7 +107,7 @@ def test_t4_axis1_reading_a_no_attribute_in_a_behavior_place_fails(tmp_path, ext
     sc2 = SA.scan_external(root)
     assert any("fake_behavior.py" in str(s) for s in sc2.sites["n_wander_bad"])
     assert len(SA.check_external(sc2)) == 1  # 結果の組み立ての置き場(RESULT_FILES)の外の result.… は出口ではない
-    assert "engine/processes/fake_behavior.py" not in SA.RESULT_FILES
+    assert fake_rel not in SA.RESULT_FILES
 
 
 def test_t4_axis1_collision_needs_the_owner_receiver(tmp_path):
@@ -329,10 +333,14 @@ def test_k19_static_sites_are_frozen():
 
 
 def test_t5_static_fifth_word_caller_fails(tmp_path):
+    # 〔第 2 回〕植える import は rng のモジュールの名(RA.RNG_MODULE=__name__)から作る。字面の
+    # 「from shibuya.core import rng」は移す道具が書き換えない(包みの名だけの文字列=L-7)ので、
+    # 段 4 の後に植えた 2 本目の import が今の置き場を指さなくなり、R.stream の呼び手が数えられなくなる。
+    rng_pkg, _, rng_leaf = RA.RNG_MODULE.rpartition(".")
     root, files = _fake_tree(tmp_path, {
-        "engine/fake.py": '''
-            from shibuya.core.rng import stream
-            from shibuya.core import rng as R
+        "engine/fake.py": f'''
+            from {RA.RNG_MODULE} import stream
+            from {rng_pkg} import {rng_leaf} as R
 
             def five(seed, agent, tick):
                 return stream(seed, "test.fifth_word", agent, tick).random(5)

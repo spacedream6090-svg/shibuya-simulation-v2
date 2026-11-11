@@ -444,24 +444,36 @@ def test_persona_does_not_reference_llm_ports():
 def test_persona_build_does_not_import_or_call_llm(tmp_path):
     """組み立て(import と ``build_tables``)で ``shibuya.llm`` が読み込まれない・名の照合(``naming_check``=engine を遅れて
     import する)では読み込まれても呼ばれない(実行時の監視=別のプロセス)。"""
+    import os
     import pickle
     import subprocess
+
+    import shibuya.llm as LLM
+
+    from tests import _places as PL
 
     f = _facts()
     pk = tmp_path / "facts.pkl"
     pk.write_bytes(pickle.dumps(({k: np.array(v) for k, v in f.cols.items()},
                                  {k: np.array(v) for k, v in f.members.items()},
                                  {k: np.array(v) for k, v in f.places.items()})))
+    # 〔段 4 の下ごしらえ〕llm の範囲は元の置き場で決める(前は名の頭 shibuya.llm と道の shibuya/llm の字面=段 4 で llm の
+    # モジュールが別の包みへ移ると黙って範囲から外れる)。移す前の木では前の字面と同じモジュールとファイル
+    llm = PL.names_from(LLM)
+    llm_mods = sorted(llm.heads | llm.leaves)
+    llm_files = sorted(os.path.normcase(os.path.realpath(p)) for p in PL.files_from(LLM))
+    assert LLM.__name__ in llm_mods and len(llm_files) == len(llm_mods)
     code = (
-        "import sys, pickle\n"
+        "import os, sys, pickle\n"
+        "LLM_MODS = set(%r)\n" % llm_mods +
+        "LLM_FILES = set(%r)\n" % llm_files +
         "from shibuya.build.pop import w21_persona as P\n"
         "c, m, pl = pickle.loads(open(%r, 'rb').read())\n" % str(pk) +
         "tab = P.build_tables(P.PersonaFacts(c, m, pl))['long']\n"
-        "print('after_build', any(m == 'shibuya.llm' or m.startswith('shibuya.llm.') for m in sys.modules))\n"
+        "print('after_build', any(m in LLM_MODS for m in sys.modules))\n"
         "calls = []\n"
         "def prof(frame, event, arg):\n"
-        "    if event == 'call' and ('shibuya' + chr(92) + 'llm' in frame.f_code.co_filename\n"
-        "                            or 'shibuya/llm' in frame.f_code.co_filename):\n"
+        "    if event == 'call' and os.path.normcase(os.path.realpath(frame.f_code.co_filename)) in LLM_FILES:\n"
         "        calls.append(frame.f_code.co_name)\n"
         "import shibuya.engine.experiment.checks\n"  # 遅れて読まれる import を先に済ませる(import の実行は数えない)
         "print('llm_loaded_by_engine', 'shibuya.llm' in sys.modules)\n"
@@ -473,8 +485,11 @@ def test_persona_build_does_not_import_or_call_llm(tmp_path):
                          env={**__import__("os").environ, "PYTHONIOENCODING": "utf-8"})
     assert out.returncode == 0, out.stderr[-2000:]
     assert "after_build False" in out.stdout and "naming_found True llm_calls 0" in out.stdout, out.stdout
-    # 宣言: 名の照合の口は engine を import する=engine のパッケージ経由で shibuya.llm が読み込まれる(呼ばれない=上)
-    assert "llm_loaded_by_engine True" in out.stdout
+    # 宣言: 名の照合の口は engine を import する。移す前は engine のパッケージ経由で shibuya.llm も読み込まれる(呼ばれない=上)。
+    # 〔段 4 の下ごしらえ・親の裁定〕段 4 で包みの頭の再輸出を除くと、engine を読んでも llm の頭は読まれなくなる(結びつきが消える
+    # =良い向き)。読み込まれるかどうかは移す段の途中で変わるので、どちらでも通す。確かめたいこと=組み立ての後に読み込まれていない
+    # (after_build False)と、照合で llm の口が呼ばれない(llm_calls 0)は上で変えずに見る
+    assert "llm_loaded_by_engine True" in out.stdout or "llm_loaded_by_engine False" in out.stdout, out.stdout
 
 
 def test_override_port_reads_new_text_and_keeps_original():

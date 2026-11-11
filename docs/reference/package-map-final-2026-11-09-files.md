@@ -15,6 +15,7 @@
 
 - 行は 324 本(`.py` 323 本と JSON 1 本)。割るもの 24 本。消すもの 2 本。build は置き場を変えない 79 本。
 - 〔移す段 1・段 2 で足した〕第346 で足された `engine/removed_switches.py` の行 224a と、移す段で足したファイル `engine/class_ids.py`(143a)・`core/paths.py`(91a)の行を足した(行は 327 本)。上と本文 §2 の数には入れていない。
+- 〔移す段 3 の続きで足した〕つなぎの台帳の道の対応の表 `engine/bridging/ledger_paths.py`(125a)の行を足した(行は 328 本)。上と本文 §2 の数には入れていない。
 - 元の内訳: K 298 本・11-09 18 本・F 6 本・照らし合わせ 2 本。
 - 照らし合わせの区分の内訳: 同じ 265 本・(ii) 41 本・(iii) 16 本・(i) 2 本。
 - 包みごとの数は本文 §2 にあります。
@@ -149,6 +150,7 @@
 | 123 | `engine/body/system1.py` | world | `world/body/reactions.py` | いいえ | 体の側の意図しない反応の器(9-3c で意味の表は持たない) | K | 同じ |
 | 124 | `engine/bridging/__init__.py` | foundation | `foundation/decl/__init__.py`(空にする) | いいえ | 包みの頭。再輸出は消す(呼び手は新しい置き場を直に読む) | K | (ii) 頭 |
 | 125 | `engine/bridging/ledger.py` | foundation | `foundation/decl/bridging.py` | いいえ | つなぎの台帳の読み口。世界・社会の腕・runtime が読み、ほかを読まない | K | 同じ |
+| 125a | `engine/bridging/ledger_paths.py` | foundation | `foundation/decl/ledger_paths.py` | いいえ | 今の道 → つなぎの台帳に書いてある道の対応の表(移す段 3 の続きで足した・親の決定 1=案 (b)。移す道具が段ごとに書き足す)。何も読まない。読み手は宣言の走査と試験だけ。台帳の読み口と同じ `foundation/decl/` に置く | 移す段 3 | — |
 | 126 | `engine/bridging/scan.py` | validation | `validation/static/bridging_scan.py` | いいえ | expedient の宣言の検査(試験と道具だけ) | K | 同じ |
 | 127 | `engine/calendar.py` | world | `world/facts/calendar.py` 386・`foundation/types.py` 9 | 割る(§4-4) | 暦。刻みの換算だけ割る。`REPO_ROOT`・`resolve_repo_path` は移す段 2 で `core/paths.py`(移した後は `foundation/paths.py`)へ出す案(本文 §7-3) | K | (ii) |
 | 128 | `engine/calendar2/__init__.py` | interim_bundles | `interim_bundles/calendar2/__init__.py`(空にする) | いいえ | 包みの頭。再輸出は消す(呼び手は新しい置き場を直に読む)。問い 4 の決着=12 番目の一時の区分 interim_bundles(社会の区分には入れない) | 11-09 | (iii) 問い 4 |

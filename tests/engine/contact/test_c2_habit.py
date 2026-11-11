@@ -14,14 +14,21 @@ import pytest
 
 from shibuya.agents.state import Activity
 from shibuya.engine.contact import arm as A
+from shibuya.engine.contact import book as _BOOK
 from shibuya.engine.contact import habit as HB
+from shibuya.engine.contact import layer as _LAYER
 from shibuya.engine.contact import port as P
+from shibuya.engine.contact import tools as _TOOLS
 from shibuya.engine.contact.layer import W_IGNORE, W_LATER, W_READ, audit_causes
 
 from tests.engine.contact._c1 import STEP_NS, by_kind, choose
 from tests.engine.contact._c2 import Harness2, loud
 
-SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya" / "engine" / "contact"
+#: 読む連絡のファイル(〔段 4 の下ごしらえ〕置き場をディレクトリの字面で持たず、モジュールの ``__file__`` から作る。
+#: 段 4 で連絡の包みの一部だけが動く=保留の 4 本は残る)。
+LAYER_PY = Path(_LAYER.__file__)
+#: 時間の規則を持たないはずの側のモジュール(前は ``SRC / "habit.py"`` ほかのファイルの名の一覧)。
+NO_TIME_RULES = (HB, _BOOK, _TOOLS)
 
 
 # ================================================================= 表の単体
@@ -213,14 +220,14 @@ def _time_rules(src: str, names: set[str]) -> list[str]:
 
 
 def test_ast_no_engine_time_or_count_rules_in_c2():
-    src = (SRC / "layer.py").read_text(encoding="utf-8")
+    src = LAYER_PY.read_text(encoding="utf-8")
     found = {n.name for n in ast.walk(ast.parse(src)) if isinstance(n, ast.FunctionDef)}
     assert _C2_FUNCS <= found
     assert _time_rules(src, _C2_FUNCS) == []
-    for f in ("habit.py", "book.py", "tools.py"):
-        assert _time_rules((SRC / f).read_text(encoding="utf-8"),
-                           {n.name for n in ast.walk(ast.parse((SRC / f).read_text(encoding="utf-8")))
-                            if isinstance(n, ast.FunctionDef)}) == [], f
+    for m in NO_TIME_RULES:
+        text = Path(m.__file__).read_text(encoding="utf-8")
+        assert _time_rules(text, {n.name for n in ast.walk(ast.parse(text))
+                                  if isinstance(n, ast.FunctionDef)}) == [], m.__name__
 
 
 def test_ast_negative_control_catches_a_planted_rule():

@@ -24,11 +24,21 @@ from pathlib import Path
 from guide_facts import normalized_text
 
 SRC = "src/shibuya"
-LEDGER_FILE = f"{SRC}/engine/state_ledger.py"
-LEDGER_AST_FILE = f"{SRC}/engine/state_ledger_ast.py"
-TABLE_FILE = f"{SRC}/engine/systems/table.py"
-ALLOW_FILE = f"{SRC}/engine/systems/allow.py"
-RESOLVE_FILE = f"{SRC}/engine/resolve.py"
+
+
+def _src_file(module: str) -> str:
+    """モジュールの名(``shibuya.…``)→ リポの根からの道筋(``src/shibuya/….py``)。対象のコードは import しない。
+
+    〔移す段 4 の下ごしらえ〕道は f 文字列で持たない(移す道具 tools/pkgmove は f 文字列の部分を書き換えない)。モジュールの名は
+    ``shibuya.`` で始まる点の道なので、移す道具が許可の一覧で拾って新しい置き場の名へ書き換える。"""
+    return "src/" + module.replace(".", "/") + ".py"
+
+
+LEDGER_FILE = _src_file("shibuya.engine.state_ledger")
+LEDGER_AST_FILE = _src_file("shibuya.engine.state_ledger_ast")
+TABLE_FILE = _src_file("shibuya.engine.systems.table")
+ALLOW_FILE = _src_file("shibuya.engine.systems.allow")
+RESOLVE_FILE = _src_file("shibuya.engine.resolve")
 
 
 class Unread(Exception):

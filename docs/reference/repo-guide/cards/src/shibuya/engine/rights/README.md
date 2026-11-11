@@ -32,7 +32,7 @@ engine.rights.ledger — 権利台帳の器(第 1 期 1-5・CP4・CP3)。
   - `Rights`(クラス): 権利台帳(列ごとの配列)。書く口は ``grant`` と ``revoke`` の 2 つだけ。
 - import している内部モジュール: `shibuya.core.types`
 - 呼び手: `shibuya.engine.calendar3.roster`・`shibuya.engine.duties.knowledge`・`shibuya.engine.duties.layer`・`shibuya.engine.economy_stage2`・`shibuya.engine.processes.opening`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.record`
-- 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_pop/test_w21_stage4_7.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/engine/duties/_du.py`・`tests/engine/duties/test_du_units.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/rights/test_rights_manifest.py`・`tests/engine/rights/test_rights_schema.py`・`tests/engine/rights/test_rules42_rights.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_pop_w21_world.py`
+- 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_pop/test_w21_stage4_7.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/engine/duties/_du.py`・`tests/engine/duties/test_du_units.py`・`tests/engine/rights/rights_writers.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/rights/test_rights_manifest.py`・`tests/engine/rights/test_rights_schema.py`・`tests/engine/rights/test_rules42_rights.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_pop_w21_world.py`
 - 決定の ID: 10-12/§4-5・R-113・R-118
 
 ## [record.py](../../../../../../../../src/shibuya/engine/rights/record.py)

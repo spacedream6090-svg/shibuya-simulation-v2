@@ -184,6 +184,15 @@ def test_bridge_ids_use_the_stage_names_of_answer_6_2():
     # 発注の名(M4=思い浮かぶ/見覚え・M5=人も記憶)は why に書く
     assert "発注の M4" in rows["DOC-mr65-m1-recognition"]["why"]
     assert "発注の M5" in rows["DOC-mr65-m1-people-initial"]["why"]
+    from shibuya import cli as CLI
+    from shibuya.engine.bridging import ledger_paths as LP
+    from shibuya.engine.systems import build as SYS_BUILD
+
+    from tests import _places as PL
+
+    # 〔段 4 の下ごしらえ・親の決定 1〕台帳の道は台帳に書いてある道のまま=今の道へは ledger_paths で引く。今の道は組み立ての
+    # モジュールと cli のファイルから作る(前は字面の道=移す道具が書き換え、台帳の道と食い違った)
     seed_row = rows["DOC-mr65-m4-rate-variation"]
-    assert "母集団の seed" in seed_row["what"] and "src/shibuya/engine/systems/build.py" in seed_row["code_at"]
-    assert "src/shibuya/cli.py" not in seed_row["code_at"]
+    code_now = {LP.current_path(p) for p in seed_row["code_at"]}
+    assert "母集団の seed" in seed_row["what"] and f"src/{PL.PKG.name}/{PL.rel_of(SYS_BUILD)}" in code_now
+    assert f"src/{PL.PKG.name}/{PL.rel_of(CLI)}" not in code_now

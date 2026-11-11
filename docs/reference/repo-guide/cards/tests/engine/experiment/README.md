@@ -95,7 +95,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_unapplied_is_recorded_and_the_run_continues`(関数)
   - `test_vocabulary_has_the_two_words`(関数)
   - `test_weather_date_swap_and_reapply`(関数)
-- import している内部モジュール: `shibuya.engine.events.log`・`shibuya.engine.events.vocab`・`shibuya.engine.experiment.apply`・`shibuya.engine.experiment.branch`・`shibuya.engine.processes.opening`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.engine.events.log`・`shibuya.engine.events.vocab`・`shibuya.engine.experiment.apply`・`shibuya.engine.experiment.branch`・`shibuya.engine.experiment.gate`・`shibuya.engine.processes.environment`・`shibuya.engine.processes.opening`・`tests/engine/experiment/_x33.py`
 - 決定の ID: 10-12/§1-1
 
 ## [test_x33_branch.py](../../../../../../../tests/engine/experiment/test_x33_branch.py)
@@ -153,7 +153,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_no_place_or_business_names_in_the_experiment_code`(関数)
   - `test_preregistration_only_for_confirm_and_must_match`(関数)
   - `test_unknown_fields_are_errors`(関数)
-- import している内部モジュール: `shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.engine.experiment.apply`・`shibuya.engine.experiment.branch`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.gate`・`shibuya.engine.experiment.layer`・`tests/_places.py`・`tests/engine/experiment/_x33.py`
 - 決定の ID: 10-12/§4-5
 
 ## [test_x33_run.py](../../../../../../../tests/engine/experiment/test_x33_run.py)

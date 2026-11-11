@@ -483,7 +483,7 @@ def run(
         from shibuya.engine import rate_rules as _rate_rules  # 〔11-01 段 2 の 4〕率の形の規則(既定 off と違えば腕)
         from shibuya.engine import absent_processes as _absent_processes  # 〔11-02r §1 #7〕「無い」の過程(既定 stopped と違えば腕)
         from shibuya.engine import batching as _BATCH  # 〔第 3 期 3-2〕まとめの幅の腕(環境変数か --batch-width-s)
-        from shibuya.engine import body as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)
+        from shibuya.engine.body import schedule as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)。〔移す段 4 の下ごしらえ〕定義した schedule を直に読む
         from shibuya.engine import calendar_shadow as _calendar_shadow  # 〔第 3 期 3-1〕暦 1a の影(既定 w17 と違えば腕)
         from shibuya.engine import calendar_self as _calendar_self  # 〔第 6 期 6-2〕カレンダー 1b(既定 w17 と違えば腕)
         from shibuya.engine import memory_m1 as _memory_m1  # 〔第 6 期 6-5〕記憶の腕(結果を変える腕=既定と違えば腕)
@@ -1613,7 +1613,7 @@ def main(argv: list[str] | None = None) -> int:
 
         _absent_processes.set_arm(str(args.absent_processes))
     if args.body_schedule is not None:  # 〔第 3 期 3-5〕TM5 の体の予約の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine import body as _body
+        from shibuya.engine.body import schedule as _body  # 〔移す段 4 の下ごしらえ〕定義した schedule を直に読む
 
         _body.set_arm(str(args.body_schedule))
     if args.talk_clock is not None:  # 〔第 6 期 6-3 T2〕会話の時計の腕(組み立てが読む。指定は環境変数より強い)

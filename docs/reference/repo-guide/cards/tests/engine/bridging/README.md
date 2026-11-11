@@ -20,14 +20,16 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_build_stage_ids_are_the_c8_d44_row_ids`(関数): build の段の行の id(``W<n>#<i>``)は C8 の感度の台帳 D-44 の行と同じ項を指す(D-44 の切り詰めた文が頭に合う)。
   - `test_code_declarations_and_ledger_rows_are_one_to_one`(関数)
   - `test_counts_by_remove_at_add_up`(関数)
-  - `test_declared_places_exist`(関数)
+  - `test_declared_places_exist`(関数): 台帳の道(〔移す段 4 の下ごしらえ〕移したファイルは ``ledger_paths`` の表で今の道へ引く)にファイルがある。
   - `test_doc_rows_need_no_code_declaration`(関数)
   - `test_every_row_has_remove_at_declared_in_and_conf`(関数)
   - `test_from_dict_refuses_unknown_fields_and_duplicates`(関数)
   - `test_heading_rows_carry_the_heading_and_the_item_count`(関数): 第 4 形: 見出し 1 つで 1 行(親の判断 第334)。``what`` に見出しの文と今の項の数・id はファイルと見出しの文の
+  - `test_ledger_paths_table_is_one_to_one_and_points_to_files`(関数): 表の今の道は全部ファイルがあり、台帳の道は重ならない。台帳のコードの行の道は、表を通して全部今のファイルに届く。
   - `test_literal_declarations_are_copied_verbatim`(関数): 文字列の宣言は台帳の ``what`` にそのまま写す(f 文字列と式は構築したときの値=写しの外)。
   - `test_negative_a_changed_item_count_is_caught`(関数): 見出しの下の項が増えると、同定(見出しの文)は同じでも台帳の ``what`` の項数と合わなくなる(試験が落ちる)。
   - `test_negative_a_new_conf_expedient_fails`(関数)
+  - `test_negative_a_new_declaration_in_a_moved_file_is_missing_under_the_ledger_key`(関数): ファイルを動かしたふり(表に 1 行足す)でも、宣言の同定は台帳の道で作られ、台帳の行と同じ鍵になる。移したファイルに
   - `test_negative_a_new_docstring_paragraph_fails`(関数)
   - `test_negative_a_new_fallback_row_fails`(関数): 第 6 形: フォールバック台帳に行が増えると、台帳に行が無いので落ちる。
   - `test_negative_a_new_heading_fails`(関数)
@@ -42,7 +44,7 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_the_counts_by_form`(関数): 記録 r14/README.md の表と同じ数(形が増減したら記録も直す)。
   - `test_the_first_contents`(関数)
   - `test_the_ledger_sha_is_canonical`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.bridging.ledger`・`shibuya.engine.bridging.scan`・`shibuya.engine.rules.table`・`shibuya.engine.run`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.relations`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.bridging.ledger`・`shibuya.engine.bridging.ledger_paths`・`shibuya.engine.bridging.scan`・`shibuya.engine.rules.table`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.world.processes.first_batch`・`shibuya.world.processes.relations`
 - 決定の ID: 10-12/§1・10-13b/§4-2・D-44・第 334・第 336・第 337・第 342・第 346
 
 ## [test_manifest_rules_bridges.py](../../../../../../../tests/engine/bridging/test_manifest_rules_bridges.py)

@@ -57,8 +57,7 @@ engine.contact.book — 宛先(連絡先とグループ)の持ち主(第 6 期 6
   - `ContactBook`(クラス): 宛先の持ち主(関係の層・グループの一覧を読む+〔C2〕本人が交換した連絡先・作ったグループ・招待・調べた店の番号)。
 - import している内部モジュール: `shibuya.engine.contact.arm`・`shibuya.engine.relations_people`・`shibuya.engine.tools.contacts`・`shibuya.engine.tools.groups`
 - 呼び手: `shibuya.engine.contact.layer`
-- 読む試験: `tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_exchange.py`
-- 読む試験(道筋で): `tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c2_habit.py`
+- 読む試験: `tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_exchange.py`・`tests/engine/contact/test_c2_habit.py`
 - 状態台帳の行
   - 持ち主 `contact.book`(`ContactBook`)
     - `CT1B` ContactBook の本人の行動で動く帳(交換した連絡先・作ったグループ・招待・調べた店の番号・第 6 期 6-4 C2)(挙動 behavior・復元 required・腕 contact-c1) 道筋 `contact.book._exchanged`・`contact.book._invites`・`contact.book._made`・`contact.book._made_next`・`contact.book._member_of`・`contact.book._places` 書ける系: calendar_3・contact
@@ -74,8 +73,8 @@ engine.contact.calls — 電話の会話(第 6 期 6-4 C1・決定 10-12 §4-4 C
   - `CallSpeechPort`(クラス): 通話の発話の口(発話の口そのまま・道具=通話)。
 - import している内部モジュール: `shibuya.engine.contact.arm`・`shibuya.engine.conversation`・`shibuya.engine.speech.port`・`shibuya.perception.contact_view`
 - 呼び手: `shibuya.engine.contact.layer`
-- 読む試験: `tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c2_video.py`
-- 読む試験(道筋で): `tests/engine/contact/test_c1_fixes.py`
+- 読む試験: `tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c2_video.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 状態台帳の行
   - 持ち主 `contact.calls` の別のクラス `CallManager`(行は `shibuya.engine.conversation` のカードを見る)
   - 持ち主 `contact.speech` の別のクラス `CallSpeechPort`(行は `shibuya.engine.speech.port` のカードを見る)
@@ -91,8 +90,8 @@ engine.contact.chat_state — チャットの会話の状態(第 6 期 6-4 C1・
   - `pair_key`(関数): 1 対 1 のチャットの鍵(順に依らない)。
 - import している内部モジュール: `shibuya.engine.contact.arm`・`shibuya.engine.conversation`
 - 呼び手: `shibuya.engine.contact.layer`
-- 読む試験: `tests/engine/contact/test_c1_units.py`
-- 読む試験(道筋で): `tests/engine/contact/test_c1_fixes.py`
+- 読む試験: `tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_units.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 状態台帳の行
   - 持ち主 `contact.chats` の別のクラス `ChatBook`(行は `shibuya.engine.conversation` のカードを見る)
 - 決定の ID: 10-12/§4-2
@@ -106,8 +105,8 @@ engine.contact.deliver — 届く(エンジン)=メッセージ・電話・既�
   - `senders_of`(関数): 読んだ行 → 会話ごとの束 ``(鍵の種類 p/g, 相手かグループ, 最後の行の番号)``(出た順・重ねない)。
 - import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.batching`・`shibuya.engine.contact.arm`・`shibuya.perception.contact_view`
 - 呼び手: `shibuya.engine.contact.layer`
-- 読む試験: `tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_video.py`
-- 読む試験(道筋で): `tests/engine/contact/test_c1_fixes.py`
+- 読む試験: `tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_video.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 状態台帳の行
   - 持ち主 `contact.mail`(`Mailbox`)
     - `CT1I` Mailbox(届いた箱・新しく届いた数・網が預かる分・窓の境目の予約・着信と呼び出し・番号・第 6 期 6-4 C1)(挙動 behavior・復元 required・腕 contact-c1) 道筋 `contact.mail._calling`・`contact.mail._held`・`contact.mail._inbox`・`contact.mail._next`・`contact.mail._pending`・`contact.mail._ringing`・`contact.mail._unseen` 書ける系: calendar_3・contact
@@ -126,8 +125,7 @@ engine.contact.device — 道具の状態と通知の刺激の形(第 6 期 6-4 
   - `signal_ok`(関数): 電波が届くか(本段は全域で届く=つなぎ ``DOC-ct-c1-device-signal``)。
 - import している内部モジュール: `shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.contact.arm`・`shibuya.perception.templates`
 - 呼び手: `shibuya.engine.contact.layer`
-- 読む試験: `tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_video.py`
-- 読む試験(道筋で): `tests/engine/contact/test_c1_fixes.py`
+- 読む試験: `tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_video.py`
 - 状態台帳の行
   - 持ち主 `contact.dev`(`Devices`)
     - `CT1D` Devices(道具の状態=電源・電池・マナーモード・置き場・イヤホン・第 6 期 6-4 C1)(挙動 behavior・復元 required・腕 contact-c1) 道筋 `contact.dev._battery`・`contact.dev._ear`・`contact.dev._home`・`contact.dev._home_prev`・`contact.dev._low_known`・`contact.dev._manner`・`contact.dev._on`・`contact.dev._place`・`contact.dev._plugged` 書ける系: calendar_3・contact
@@ -202,6 +200,6 @@ engine.contact.tools — 連絡の道具の台帳の行(第 6 期 6-4 C1 の限�
   - `register_into`(関数): ランの道具の台帳に足す(腕 c1 の組み立てだけが呼ぶ)。もうある名は足さない(差し替えない)。足した行の数。
 - import している内部モジュール: `shibuya.engine.tools.registry`
 - 呼び手: `shibuya.engine.contact.layer`・`shibuya.engine.systems.build`
-- 読む試験: `tests/engine/contact/test_c2_runs.py`
-- 読む試験(道筋で): `tests/engine/contact/test_c2_habit.py`
+- 読む試験: `tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 決定の ID: 10-12/§4-4

@@ -1,0 +1,2566 @@
+# 移す段 3 の対応表(道具 tools/pkgmove/cli.py map が全ファイルの表から作る。手で書かない)。
+# 道筋は src/shibuya からの相対。kind: move=移す(empty_head=新しい頭を空に)・empty=同じ置き場で頭を空に・
+# split=割る(段 3・段 4 では割らない。split_to は表の割り先の記録だけ)・delete=消す頭・keep=置き場を変えない。
+# held がある行は保留(道具は動かさない)。
+schema = "shibuya.tools/pkgmove/map/1"
+source = "docs/reference/package-map-final-2026-11-09-files.md"
+source_sha256 = "1045e80690b33997adf9be4ea501eb7ce57523bafcac97aeab4e796aa9d99cb1"
+stages = ["foundation", "world", "economy", "act", "mind", "society", "interim_bundles", "runtime", "experiments", "validation", "delete"]
+
+[[row]]
+num = "1"
+old = "__init__.py"
+package = "根"
+kind = "keep"
+new = "__init__.py"
+
+[[row]]
+num = "2"
+old = "agents/__init__.py"
+package = "消す"
+kind = "delete"
+stage = "delete"
+
+[[row]]
+num = "3"
+old = "agents/population.py"
+package = "world"
+kind = "move"
+new = "world/facts/population_reader.py"
+stage = "world"
+
+[[row]]
+num = "4"
+old = "agents/schedule.py"
+package = "world"
+kind = "move"
+new = "world/facts/mock_schedule.py"
+stage = "world"
+
+[[row]]
+num = "5"
+old = "agents/state.py"
+package = "world"
+kind = "split"
+new = "world/model/agent_table.py"
+split_to = ["world/model/agent_table.py", "foundation/vocab/agent_codes.py"]
+
+[[row]]
+num = "6"
+old = "agents/weekly.py"
+package = "world"
+kind = "move"
+new = "world/facts/weekly_reader.py"
+stage = "world"
+
+[[row]]
+num = "7"
+old = "build/__init__.py"
+package = "build"
+kind = "keep"
+new = "build/__init__.py"
+
+[[row]]
+num = "8"
+old = "build/audit/__init__.py"
+package = "build"
+kind = "keep"
+new = "build/audit/__init__.py"
+
+[[row]]
+num = "9"
+old = "build/audit/run.py"
+package = "build"
+kind = "keep"
+new = "build/audit/run.py"
+
+[[row]]
+num = "10"
+old = "build/audit/w18_coverage.py"
+package = "build"
+kind = "keep"
+new = "build/audit/w18_coverage.py"
+
+[[row]]
+num = "11"
+old = "build/audit/w19_freeze.py"
+package = "build"
+kind = "keep"
+new = "build/audit/w19_freeze.py"
+
+[[row]]
+num = "12"
+old = "build/audit/w20_acceptance_pack.py"
+package = "build"
+kind = "keep"
+new = "build/audit/w20_acceptance_pack.py"
+
+[[row]]
+num = "13"
+old = "build/catalog_freeze.py"
+package = "build"
+kind = "keep"
+new = "build/catalog_freeze.py"
+
+[[row]]
+num = "14"
+old = "build/field/__init__.py"
+package = "build"
+kind = "keep"
+new = "build/field/__init__.py"
+
+[[row]]
+num = "15"
+old = "build/field/common.py"
+package = "build"
+kind = "keep"
+new = "build/field/common.py"
+
+[[row]]
+num = "16"
+old = "build/field/road_names.py"
+package = "build"
+kind = "keep"
+new = "build/field/road_names.py"
+
+[[row]]
+num = "17"
+old = "build/field/run.py"
+package = "build"
+kind = "keep"
+new = "build/field/run.py"
+
+[[row]]
+num = "18"
+old = "build/field/street_grid.py"
+package = "build"
+kind = "keep"
+new = "build/field/street_grid.py"
+
+[[row]]
+num = "19"
+old = "build/field/w10_noise.py"
+package = "build"
+kind = "keep"
+new = "build/field/w10_noise.py"
+
+[[row]]
+num = "20"
+old = "build/field/w10_ruler.py"
+package = "build"
+kind = "keep"
+new = "build/field/w10_ruler.py"
+
+[[row]]
+num = "21"
+old = "build/field/w12_external_nodes.py"
+package = "build"
+kind = "keep"
+new = "build/field/w12_external_nodes.py"
+
+[[row]]
+num = "22"
+old = "build/field/w12_rail_events.py"
+package = "build"
+kind = "keep"
+new = "build/field/w12_rail_events.py"
+
+[[row]]
+num = "23"
+old = "build/field/w12_real_timetables.py"
+package = "build"
+kind = "keep"
+new = "build/field/w12_real_timetables.py"
+
+[[row]]
+num = "24"
+old = "build/field/w13_weather.py"
+package = "build"
+kind = "keep"
+new = "build/field/w13_weather.py"
+
+[[row]]
+num = "25"
+old = "build/field/w7_planspec.py"
+package = "build"
+kind = "keep"
+new = "build/field/w7_planspec.py"
+
+[[row]]
+num = "26"
+old = "build/geo/__init__.py"
+package = "build"
+kind = "keep"
+new = "build/geo/__init__.py"
+
+[[row]]
+num = "27"
+old = "build/geo/common.py"
+package = "build"
+kind = "keep"
+new = "build/geo/common.py"
+
+[[row]]
+num = "28"
+old = "build/geo/poi_class.py"
+package = "build"
+kind = "keep"
+new = "build/geo/poi_class.py"
+
+[[row]]
+num = "29"
+old = "build/geo/run.py"
+package = "build"
+kind = "keep"
+new = "build/geo/run.py"
+
+[[row]]
+num = "30"
+old = "build/geo/w0_crs.py"
+package = "build"
+kind = "keep"
+new = "build/geo/w0_crs.py"
+
+[[row]]
+num = "31"
+old = "build/geo/w11_station_exits.py"
+package = "build"
+kind = "keep"
+new = "build/geo/w11_station_exits.py"
+
+[[row]]
+num = "32"
+old = "build/geo/w1_walk_graph.py"
+package = "build"
+kind = "keep"
+new = "build/geo/w1_walk_graph.py"
+
+[[row]]
+num = "33"
+old = "build/geo/w2_cells.py"
+package = "build"
+kind = "keep"
+new = "build/geo/w2_cells.py"
+
+[[row]]
+num = "34"
+old = "build/geo/w3_distances.py"
+package = "build"
+kind = "keep"
+new = "build/geo/w3_distances.py"
+
+[[row]]
+num = "35"
+old = "build/geo/w4_heights.py"
+package = "build"
+kind = "keep"
+new = "build/geo/w4_heights.py"
+
+[[row]]
+num = "36"
+old = "build/geo/w5_entrances.py"
+package = "build"
+kind = "keep"
+new = "build/geo/w5_entrances.py"
+
+[[row]]
+num = "37"
+old = "build/geo/w6_poi_org.py"
+package = "build"
+kind = "keep"
+new = "build/geo/w6_poi_org.py"
+
+[[row]]
+num = "38"
+old = "build/lang/__init__.py"
+package = "build"
+kind = "keep"
+new = "build/lang/__init__.py"
+
+[[row]]
+num = "39"
+old = "build/lang/common.py"
+package = "build"
+kind = "keep"
+new = "build/lang/common.py"
+
+[[row]]
+num = "40"
+old = "build/lang/run.py"
+package = "build"
+kind = "keep"
+new = "build/lang/run.py"
+
+[[row]]
+num = "41"
+old = "build/lang/w14_signage.py"
+package = "build"
+kind = "keep"
+new = "build/lang/w14_signage.py"
+
+[[row]]
+num = "42"
+old = "build/lang/w15_cell_static.py"
+package = "build"
+kind = "keep"
+new = "build/lang/w15_cell_static.py"
+
+[[row]]
+num = "43"
+old = "build/pop/__init__.py"
+package = "build"
+kind = "keep"
+new = "build/pop/__init__.py"
+
+[[row]]
+num = "44"
+old = "build/pop/attr_fns.py"
+package = "build"
+kind = "keep"
+new = "build/pop/attr_fns.py"
+
+[[row]]
+num = "45"
+old = "build/pop/fitting.py"
+package = "build"
+kind = "keep"
+new = "build/pop/fitting.py"
+
+[[row]]
+num = "46"
+old = "build/pop/pool.py"
+package = "build"
+kind = "keep"
+new = "build/pop/pool.py"
+
+[[row]]
+num = "47"
+old = "build/pop/run.py"
+package = "build"
+kind = "keep"
+new = "build/pop/run.py"
+
+[[row]]
+num = "48"
+old = "build/pop/shapefile.py"
+package = "build"
+kind = "keep"
+new = "build/pop/shapefile.py"
+
+[[row]]
+num = "49"
+old = "build/pop/w16_population.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w16_population.py"
+
+[[row]]
+num = "50"
+old = "build/pop/w21_apply.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_apply.py"
+
+[[row]]
+num = "51"
+old = "build/pop/w21_attrs.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_attrs.py"
+
+[[row]]
+num = "52"
+old = "build/pop/w21_build.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_build.py"
+
+[[row]]
+num = "53"
+old = "build/pop/w21_build_b.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_build_b.py"
+
+[[row]]
+num = "54"
+old = "build/pop/w21_build_c.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_build_c.py"
+
+[[row]]
+num = "55"
+old = "build/pop/w21_check.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_check.py"
+
+[[row]]
+num = "56"
+old = "build/pop/w21_checks.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_checks.py"
+
+[[row]]
+num = "57"
+old = "build/pop/w21_frame.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_frame.py"
+
+[[row]]
+num = "58"
+old = "build/pop/w21_households.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_households.py"
+
+[[row]]
+num = "59"
+old = "build/pop/w21_money.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_money.py"
+
+[[row]]
+num = "60"
+old = "build/pop/w21_org.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_org.py"
+
+[[row]]
+num = "61"
+old = "build/pop/w21_outside.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_outside.py"
+
+[[row]]
+num = "62"
+old = "build/pop/w21_persona.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_persona.py"
+
+[[row]]
+num = "63"
+old = "build/pop/w21_port10.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_port10.py"
+
+[[row]]
+num = "64"
+old = "build/pop/w21_prior.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_prior.py"
+
+[[row]]
+num = "65"
+old = "build/pop/w21_sources.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_sources.py"
+
+[[row]]
+num = "66"
+old = "build/pop/w21_tables.py"
+package = "build"
+kind = "keep"
+new = "build/pop/w21_tables.py"
+
+[[row]]
+num = "67"
+old = "build/run.py"
+package = "build"
+kind = "keep"
+new = "build/run.py"
+
+[[row]]
+num = "68"
+old = "build/sched/__init__.py"
+package = "build"
+kind = "keep"
+new = "build/sched/__init__.py"
+
+[[row]]
+num = "69"
+old = "build/sched/pool_facts.py"
+package = "build"
+kind = "keep"
+new = "build/sched/pool_facts.py"
+
+[[row]]
+num = "70"
+old = "build/sched/run.py"
+package = "build"
+kind = "keep"
+new = "build/sched/run.py"
+
+[[row]]
+num = "71"
+old = "build/sched/trial.py"
+package = "build"
+kind = "keep"
+new = "build/sched/trial.py"
+
+[[row]]
+num = "72"
+old = "build/sched/vocab.py"
+package = "build"
+kind = "keep"
+new = "build/sched/vocab.py"
+
+[[row]]
+num = "73"
+old = "build/sched/w17_schedule.py"
+package = "build"
+kind = "keep"
+new = "build/sched/w17_schedule.py"
+
+[[row]]
+num = "74"
+old = "build/sched/w20_calendar_1a.py"
+package = "build"
+kind = "keep"
+new = "build/sched/w20_calendar_1a.py"
+
+[[row]]
+num = "75"
+old = "build/sched/w20_w21_port.py"
+package = "build"
+kind = "keep"
+new = "build/sched/w20_w21_port.py"
+
+[[row]]
+num = "76"
+old = "build/space/__init__.py"
+package = "build"
+kind = "keep"
+new = "build/space/__init__.py"
+
+[[row]]
+num = "77"
+old = "build/space/mesh.py"
+package = "build"
+kind = "keep"
+new = "build/space/mesh.py"
+
+[[row]]
+num = "78"
+old = "build/space/navmesh1.py"
+package = "build"
+kind = "keep"
+new = "build/space/navmesh1.py"
+
+[[row]]
+num = "79"
+old = "build/space/raster.py"
+package = "build"
+kind = "keep"
+new = "build/space/raster.py"
+
+[[row]]
+num = "80"
+old = "build/space/sources.py"
+package = "build"
+kind = "keep"
+new = "build/space/sources.py"
+
+[[row]]
+num = "81"
+old = "build/vis/__init__.py"
+package = "build"
+kind = "keep"
+new = "build/vis/__init__.py"
+
+[[row]]
+num = "82"
+old = "build/vis/png.py"
+package = "build"
+kind = "keep"
+new = "build/vis/png.py"
+
+[[row]]
+num = "83"
+old = "build/vis/run.py"
+package = "build"
+kind = "keep"
+new = "build/vis/run.py"
+
+[[row]]
+num = "84"
+old = "build/vis/w8_visibility.py"
+package = "build"
+kind = "keep"
+new = "build/vis/w8_visibility.py"
+
+[[row]]
+num = "85"
+old = "build/vis/w9_shadow.py"
+package = "build"
+kind = "keep"
+new = "build/vis/w9_shadow.py"
+
+[[row]]
+num = "86"
+old = "census/__init__.py"
+package = "消す"
+kind = "delete"
+stage = "delete"
+
+[[row]]
+num = "87"
+old = "cli.py"
+package = "interfaces"
+kind = "split"
+new = "interfaces/cli/main.py"
+split_to = ["interfaces/cli/main.py", "interfaces/cli/wire_economy.py"]
+
+[[row]]
+num = "88"
+old = "core/__init__.py"
+package = "foundation"
+kind = "move"
+new = "foundation/__init__.py"
+stage = "foundation"
+empty_head = true
+
+[[row]]
+num = "89"
+old = "core/budget.py"
+package = "foundation"
+kind = "move"
+new = "foundation/budget.py"
+stage = "foundation"
+
+[[row]]
+num = "90"
+old = "core/growth.py"
+package = "foundation"
+kind = "move"
+new = "foundation/growth.py"
+stage = "foundation"
+
+[[row]]
+num = "91"
+old = "core/hashing.py"
+package = "foundation"
+kind = "move"
+new = "foundation/hashing.py"
+stage = "foundation"
+
+[[row]]
+num = "91a"
+old = "core/paths.py"
+package = "foundation"
+kind = "move"
+new = "foundation/paths.py"
+stage = "foundation"
+
+[[row]]
+num = "92"
+old = "core/rng.py"
+package = "foundation"
+kind = "move"
+new = "foundation/rng.py"
+stage = "foundation"
+
+[[row]]
+num = "93"
+old = "core/serialize.py"
+package = "foundation"
+kind = "move"
+new = "foundation/serialize.py"
+stage = "foundation"
+
+[[row]]
+num = "94"
+old = "core/soa.py"
+package = "foundation"
+kind = "move"
+new = "foundation/soa.py"
+stage = "foundation"
+
+[[row]]
+num = "95"
+old = "core/time_consts.py"
+package = "foundation"
+kind = "move"
+new = "foundation/time_consts.py"
+stage = "foundation"
+
+[[row]]
+num = "96"
+old = "core/types.py"
+package = "foundation"
+kind = "move"
+new = "foundation/types.py"
+stage = "foundation"
+
+[[row]]
+num = "97"
+old = "core/wage_formula.py"
+package = "economy"
+kind = "move"
+new = "economy/wage_formula.py"
+stage = "economy"
+
+[[row]]
+num = "98"
+old = "core/write_permit.py"
+package = "foundation"
+kind = "move"
+new = "foundation/write_permit.py"
+stage = "foundation"
+
+[[row]]
+num = "99"
+old = "economy/__init__.py"
+package = "economy"
+kind = "empty"
+new = "economy/__init__.py"
+stage = "economy"
+empty_head = true
+
+[[row]]
+num = "100"
+old = "economy/accounts.py"
+package = "economy"
+kind = "keep"
+new = "economy/accounts.py"
+
+[[row]]
+num = "101"
+old = "economy/anchors.py"
+package = "economy"
+kind = "keep"
+new = "economy/anchors.py"
+
+[[row]]
+num = "102"
+old = "economy/census.py"
+package = "economy"
+kind = "keep"
+new = "economy/census.py"
+
+[[row]]
+num = "103"
+old = "economy/checks.py"
+package = "economy"
+kind = "keep"
+new = "economy/checks.py"
+
+[[row]]
+num = "104"
+old = "economy/credit.py"
+package = "economy"
+kind = "keep"
+new = "economy/credit.py"
+
+[[row]]
+num = "105"
+old = "economy/entry_capital.py"
+package = "economy"
+kind = "keep"
+new = "economy/entry_capital.py"
+
+[[row]]
+num = "106"
+old = "economy/goods.py"
+package = "economy"
+kind = "keep"
+new = "economy/goods.py"
+
+[[row]]
+num = "107"
+old = "economy/ledger.py"
+package = "economy"
+kind = "keep"
+new = "economy/ledger.py"
+
+[[row]]
+num = "108"
+old = "economy/ops.py"
+package = "economy"
+kind = "keep"
+new = "economy/ops.py"
+
+[[row]]
+num = "109"
+old = "economy/pricing.py"
+package = "economy"
+kind = "keep"
+new = "economy/pricing.py"
+
+[[row]]
+num = "110"
+old = "economy/stage2.py"
+package = "economy"
+kind = "keep"
+new = "economy/stage2.py"
+
+[[row]]
+num = "111"
+old = "economy/tax_deposit.py"
+package = "economy"
+kind = "keep"
+new = "economy/tax_deposit.py"
+
+[[row]]
+num = "112"
+old = "economy/taxes.py"
+package = "economy"
+kind = "keep"
+new = "economy/taxes.py"
+
+[[row]]
+num = "113"
+old = "economy/wages.py"
+package = "economy"
+kind = "keep"
+new = "economy/wages.py"
+
+[[row]]
+num = "114"
+old = "engine/__init__.py"
+package = "runtime"
+kind = "move"
+new = "runtime/__init__.py"
+stage = "runtime"
+empty_head = true
+
+[[row]]
+num = "115"
+old = "engine/absent_processes.py"
+package = "world"
+kind = "move"
+new = "world/laws/switch_absent.py"
+stage = "world"
+
+[[row]]
+num = "116"
+old = "engine/activity.py"
+package = "act"
+kind = "move"
+new = "act/activity.py"
+stage = "act"
+
+[[row]]
+num = "117"
+old = "engine/arbiter.py"
+package = "runtime"
+kind = "split"
+new = "runtime/arbiter.py"
+split_to = ["runtime/arbiter.py", "mind/system1/wake.py"]
+
+[[row]]
+num = "118"
+old = "engine/batching.py"
+package = "foundation"
+kind = "move"
+new = "foundation/queues/batching.py"
+stage = "foundation"
+
+[[row]]
+num = "119"
+old = "engine/body/__init__.py"
+package = "world"
+kind = "move"
+new = "world/body/__init__.py"
+stage = "world"
+empty_head = true
+
+[[row]]
+num = "120"
+old = "engine/body/model.py"
+package = "world"
+kind = "move"
+new = "world/body/model.py"
+stage = "world"
+
+[[row]]
+num = "121"
+old = "engine/body/rules.py"
+package = "world"
+kind = "move"
+new = "world/body/rules.py"
+stage = "world"
+
+[[row]]
+num = "122"
+old = "engine/body/schedule.py"
+package = "world"
+kind = "move"
+new = "world/body/schedule.py"
+stage = "world"
+
+[[row]]
+num = "123"
+old = "engine/body/system1.py"
+package = "world"
+kind = "move"
+new = "world/body/reactions.py"
+stage = "world"
+
+[[row]]
+num = "124"
+old = "engine/bridging/__init__.py"
+package = "foundation"
+kind = "move"
+new = "foundation/decl/__init__.py"
+stage = "foundation"
+empty_head = true
+
+[[row]]
+num = "125"
+old = "engine/bridging/ledger.py"
+package = "foundation"
+kind = "move"
+new = "foundation/decl/bridging.py"
+stage = "foundation"
+
+[[row]]
+num = "125a"
+old = "engine/bridging/ledger_paths.py"
+package = "foundation"
+kind = "move"
+new = "foundation/decl/ledger_paths.py"
+stage = "foundation"
+
+[[row]]
+num = "126"
+old = "engine/bridging/scan.py"
+package = "validation"
+kind = "move"
+new = "validation/static/bridging_scan.py"
+stage = "validation"
+
+[[row]]
+num = "127"
+old = "engine/calendar.py"
+package = "world"
+kind = "split"
+new = "world/facts/calendar.py"
+split_to = ["world/facts/calendar.py", "foundation/types.py"]
+
+[[row]]
+num = "128"
+old = "engine/calendar2/__init__.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/calendar2/__init__.py"
+stage = "interim_bundles"
+empty_head = true
+
+[[row]]
+num = "129"
+old = "engine/calendar2/arm.py"
+package = "foundation"
+kind = "move"
+new = "foundation/arms/calendar2.py"
+stage = "foundation"
+
+[[row]]
+num = "130"
+old = "engine/calendar2/book.py"
+package = "mind"
+kind = "move"
+new = "mind/plan/promise_book.py"
+stage = "mind"
+
+[[row]]
+num = "131"
+old = "engine/calendar2/layer.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/calendar2/layer.py"
+stage = "interim_bundles"
+
+[[row]]
+num = "132"
+old = "engine/calendar2/port.py"
+package = "mind"
+kind = "move"
+new = "mind/plan/calendar2_port.py"
+stage = "mind"
+
+[[row]]
+num = "133"
+old = "engine/calendar2/recall.py"
+package = "mind"
+kind = "move"
+new = "mind/plan/head_recall.py"
+stage = "mind"
+
+[[row]]
+num = "134"
+old = "engine/calendar3/__init__.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/calendar3/__init__.py"
+stage = "interim_bundles"
+empty_head = true
+
+[[row]]
+num = "135"
+old = "engine/calendar3/arm.py"
+package = "foundation"
+kind = "move"
+new = "foundation/arms/calendar3.py"
+stage = "foundation"
+
+[[row]]
+num = "136"
+old = "engine/calendar3/knowledge.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/calendar3/knowledge.py"
+stage = "interim_bundles"
+
+[[row]]
+num = "137"
+old = "engine/calendar3/layer.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/calendar3/layer.py"
+stage = "interim_bundles"
+
+[[row]]
+num = "138"
+old = "engine/calendar3/port.py"
+package = "mind"
+kind = "move"
+new = "mind/plan/calendar3_port.py"
+stage = "mind"
+
+[[row]]
+num = "139"
+old = "engine/calendar3/roster.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/calendar3/roster.py"
+stage = "interim_bundles"
+
+[[row]]
+num = "140"
+old = "engine/calendar_self.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/calendar_self.py"
+stage = "interim_bundles"
+
+[[row]]
+num = "141"
+old = "engine/calendar_shadow.py"
+package = "society"
+kind = "split"
+new = "society/calendar_shadow.py"
+split_to = ["society/calendar_shadow.py", "world/facts/w20_calendar_reader.py"]
+
+[[row]]
+num = "142"
+old = "engine/change_detect.py"
+package = "mind"
+kind = "split"
+new = "mind/system1/change_detect.py"
+split_to = ["mind/system1/change_detect.py", "world/model/scene_hash.py", "foundation/vocab/agent_codes.py"]
+
+[[row]]
+num = "143"
+old = "engine/chooser.py"
+package = "mind"
+kind = "split"
+new = "mind/judge/chooser.py"
+split_to = ["mind/judge/chooser.py", "foundation/ports/choice.py"]
+
+[[row]]
+num = "143a"
+old = "engine/class_ids.py"
+package = "runtime"
+kind = "move"
+new = "runtime/state/class_ids.py"
+stage = "runtime"
+
+[[row]]
+num = "144"
+old = "engine/classical.py"
+package = "mind"
+kind = "move"
+new = "mind/judge/classical.py"
+stage = "mind"
+
+[[row]]
+num = "145"
+old = "engine/clock.py"
+package = "runtime"
+kind = "move"
+new = "runtime/clock.py"
+stage = "runtime"
+
+[[row]]
+num = "146"
+old = "engine/commit.py"
+package = "act"
+kind = "split"
+new = "act/intake/from_words.py"
+split_to = ["act/intake/from_words.py", "act/commit.py", "foundation/vocab/act_codes.py"]
+
+[[row]]
+num = "147"
+old = "engine/contact/__init__.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/contact/__init__.py"
+stage = "interim_bundles"
+empty_head = true
+
+[[row]]
+num = "148"
+old = "engine/contact/arm.py"
+package = "foundation"
+kind = "move"
+new = "foundation/arms/contact.py"
+stage = "foundation"
+
+[[row]]
+num = "149"
+old = "engine/contact/attention.py"
+package = "mind"
+kind = "move"
+new = "mind/plan/contact_attention.py"
+stage = "mind"
+
+[[row]]
+num = "150"
+old = "engine/contact/book.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/contact/book.py"
+stage = "interim_bundles"
+
+[[row]]
+num = "151"
+old = "engine/contact/calls.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/contact/calls.py"
+stage = "interim_bundles"
+held = "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1)"
+
+[[row]]
+num = "152"
+old = "engine/contact/chat_state.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/contact/chat_state.py"
+stage = "interim_bundles"
+held = "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1)"
+
+[[row]]
+num = "153"
+old = "engine/contact/deliver.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/contact/deliver.py"
+stage = "interim_bundles"
+held = "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1=今 society に置くか一時の区分に置くか)"
+
+[[row]]
+num = "154"
+old = "engine/contact/device.py"
+package = "world"
+kind = "move"
+new = "world/things/device.py"
+stage = "world"
+
+[[row]]
+num = "155"
+old = "engine/contact/habit.py"
+package = "mind"
+kind = "move"
+new = "mind/plan/contact_habit.py"
+stage = "mind"
+
+[[row]]
+num = "156"
+old = "engine/contact/layer.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/contact/layer.py"
+stage = "interim_bundles"
+
+[[row]]
+num = "157"
+old = "engine/contact/port.py"
+package = "mind"
+kind = "move"
+new = "mind/plan/contact_port.py"
+stage = "mind"
+
+[[row]]
+num = "158"
+old = "engine/contact/tools.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/contact/tools.py"
+stage = "interim_bundles"
+held = "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1)"
+
+[[row]]
+num = "159"
+old = "engine/conversation.py"
+package = "society"
+kind = "move"
+new = "society/conversation.py"
+stage = "society"
+
+[[row]]
+num = "160"
+old = "engine/decision/__init__.py"
+package = "mind"
+kind = "move"
+new = "mind/judge/decision/__init__.py"
+stage = "mind"
+empty_head = true
+
+[[row]]
+num = "161"
+old = "engine/decision/layer.py"
+package = "mind"
+kind = "move"
+new = "mind/judge/decision/layer.py"
+stage = "mind"
+
+[[row]]
+num = "162"
+old = "engine/decision/persona.py"
+package = "mind"
+kind = "move"
+new = "mind/judge/decision/persona.py"
+stage = "mind"
+
+[[row]]
+num = "163"
+old = "engine/decision/port.py"
+package = "foundation"
+kind = "move"
+new = "foundation/ports/decision.py"
+stage = "foundation"
+
+[[row]]
+num = "164"
+old = "engine/decision/ports.py"
+package = "mind"
+kind = "move"
+new = "mind/judge/decision/ports.py"
+stage = "mind"
+
+[[row]]
+num = "165"
+old = "engine/decision/sources.py"
+package = "mind"
+kind = "move"
+new = "mind/judge/decision/sources.py"
+stage = "mind"
+
+[[row]]
+num = "166"
+old = "engine/defect_fixes_1103.py"
+package = "runtime"
+kind = "move"
+new = "runtime/switch_defects.py"
+stage = "runtime"
+
+[[row]]
+num = "167"
+old = "engine/duties/__init__.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/duties/__init__.py"
+stage = "interim_bundles"
+empty_head = true
+
+[[row]]
+num = "168"
+old = "engine/duties/arm.py"
+package = "foundation"
+kind = "move"
+new = "foundation/arms/duties.py"
+stage = "foundation"
+
+[[row]]
+num = "169"
+old = "engine/duties/knowledge.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/duties/knowledge.py"
+stage = "interim_bundles"
+
+[[row]]
+num = "170"
+old = "engine/duties/layer.py"
+package = "interim_bundles"
+kind = "move"
+new = "interim_bundles/duties/layer.py"
+stage = "interim_bundles"
+
+[[row]]
+num = "171"
+old = "engine/duties/port.py"
+package = "mind"
+kind = "move"
+new = "mind/plan/duties_port.py"
+stage = "mind"
+
+[[row]]
+num = "172"
+old = "engine/economy_rules.py"
+package = "economy"
+kind = "move"
+new = "economy/rules_bind.py"
+stage = "economy"
+
+[[row]]
+num = "173"
+old = "engine/economy_stage2.py"
+package = "economy"
+kind = "move"
+new = "economy/stage2_bind.py"
+stage = "economy"
+
+[[row]]
+num = "174"
+old = "engine/energy.py"
+package = "world"
+kind = "move"
+new = "world/body/energy.py"
+stage = "world"
+
+[[row]]
+num = "175"
+old = "engine/events/__init__.py"
+package = "foundation"
+kind = "move"
+new = "foundation/journal/__init__.py"
+stage = "foundation"
+empty_head = true
+
+[[row]]
+num = "176"
+old = "engine/events/body.py"
+package = "mind"
+kind = "split"
+new = "mind/memory/body_events.py"
+split_to = ["mind/memory/body_events.py", "foundation/vocab/events.py"]
+
+[[row]]
+num = "177"
+old = "engine/events/links.py"
+package = "foundation"
+kind = "move"
+new = "foundation/journal/links.py"
+stage = "foundation"
+
+[[row]]
+num = "178"
+old = "engine/events/log.py"
+package = "foundation"
+kind = "move"
+new = "foundation/journal/log.py"
+stage = "foundation"
+
+[[row]]
+num = "179"
+old = "engine/events/vocab.py"
+package = "foundation"
+kind = "move"
+new = "foundation/vocab/events.py"
+stage = "foundation"
+
+[[row]]
+num = "180"
+old = "engine/experiment/__init__.py"
+package = "experiments"
+kind = "move"
+new = "experiments/__init__.py"
+stage = "experiments"
+empty_head = true
+
+[[row]]
+num = "181"
+old = "engine/experiment/apply.py"
+package = "experiments"
+kind = "move"
+new = "experiments/port/apply.py"
+stage = "experiments"
+
+[[row]]
+num = "182"
+old = "engine/experiment/branch.py"
+package = "experiments"
+kind = "move"
+new = "experiments/drive/branch.py"
+stage = "experiments"
+
+[[row]]
+num = "183"
+old = "engine/experiment/checks.py"
+package = "experiments"
+kind = "move"
+new = "experiments/port/checks.py"
+stage = "experiments"
+
+[[row]]
+num = "184"
+old = "engine/experiment/ensemble.py"
+package = "experiments"
+kind = "move"
+new = "experiments/port/ensemble.py"
+stage = "experiments"
+
+[[row]]
+num = "185"
+old = "engine/experiment/form.py"
+package = "experiments"
+kind = "move"
+new = "experiments/port/form.py"
+stage = "experiments"
+
+[[row]]
+num = "186"
+old = "engine/experiment/gate.py"
+package = "foundation"
+kind = "move"
+new = "foundation/ports/experiment_gate.py"
+stage = "foundation"
+
+[[row]]
+num = "187"
+old = "engine/experiment/layer.py"
+package = "experiments"
+kind = "move"
+new = "experiments/port/layer.py"
+stage = "experiments"
+
+[[row]]
+num = "188"
+old = "engine/experiment/switch.py"
+package = "experiments"
+kind = "move"
+new = "experiments/drive/switch.py"
+stage = "experiments"
+
+[[row]]
+num = "189"
+old = "engine/experiment/warmup.py"
+package = "experiments"
+kind = "move"
+new = "experiments/port/warmup.py"
+stage = "experiments"
+
+[[row]]
+num = "190"
+old = "engine/familiarity.py"
+package = "mind"
+kind = "move"
+new = "mind/memory/familiarity.py"
+stage = "mind"
+
+[[row]]
+num = "191"
+old = "engine/geometry.py"
+package = "world"
+kind = "move"
+new = "world/model/geometry.py"
+stage = "world"
+
+[[row]]
+num = "192"
+old = "engine/growth_decl.py"
+package = "runtime"
+kind = "move"
+new = "runtime/state/growth_decl.py"
+stage = "runtime"
+
+[[row]]
+num = "193"
+old = "engine/intent.py"
+package = "act"
+kind = "move"
+new = "act/intent.py"
+stage = "act"
+
+[[row]]
+num = "194"
+old = "engine/ledger_api.py"
+package = "foundation"
+kind = "move"
+new = "foundation/ports/ledger.py"
+stage = "foundation"
+
+[[row]]
+num = "195"
+old = "engine/llm_bridge.py"
+package = "runtime"
+kind = "split"
+new = "runtime/inference/bridge.py"
+split_to = ["runtime/inference/bridge.py", "foundation/ports/inference.py"]
+
+[[row]]
+num = "196"
+old = "engine/manifest_sections.py"
+package = "foundation"
+kind = "move"
+new = "foundation/manifest/sections.py"
+stage = "foundation"
+
+[[row]]
+num = "197"
+old = "engine/memory.py"
+package = "mind"
+kind = "move"
+new = "mind/memory/memory.py"
+stage = "mind"
+
+[[row]]
+num = "198"
+old = "engine/memory_embed.py"
+package = "mind"
+kind = "move"
+new = "mind/memory/memory_embed.py"
+stage = "mind"
+
+[[row]]
+num = "199"
+old = "engine/memory_impression.py"
+package = "mind"
+kind = "move"
+new = "mind/memory/memory_impression.py"
+stage = "mind"
+
+[[row]]
+num = "200"
+old = "engine/memory_m1.py"
+package = "mind"
+kind = "move"
+new = "mind/memory/memory_m1.py"
+stage = "mind"
+
+[[row]]
+num = "201"
+old = "engine/memory_shops.py"
+package = "mind"
+kind = "move"
+new = "mind/memory/memory_shops.py"
+stage = "mind"
+
+[[row]]
+num = "202"
+old = "engine/memory_store.py"
+package = "mind"
+kind = "move"
+new = "mind/memory/memory_store.py"
+stage = "mind"
+
+[[row]]
+num = "203"
+old = "engine/memory_trace.py"
+package = "mind"
+kind = "move"
+new = "mind/memory/memory_trace.py"
+stage = "mind"
+
+[[row]]
+num = "204"
+old = "engine/norm_meter.py"
+package = "society"
+kind = "move"
+new = "society/norm_meter.py"
+stage = "society"
+
+[[row]]
+num = "205"
+old = "engine/owner_guard.py"
+package = "runtime"
+kind = "move"
+new = "runtime/clocks/owner_guard.py"
+stage = "runtime"
+
+[[row]]
+num = "206"
+old = "engine/poi_target.py"
+package = "act"
+kind = "split"
+new = "act/target.py"
+split_to = ["act/target.py", "foundation/vocab/place_words.py"]
+
+[[row]]
+num = "207"
+old = "engine/presence.py"
+package = "world"
+kind = "split"
+new = "world/laws/presence.py"
+split_to = ["world/laws/presence.py", "world/laws/presence_plan.py"]
+
+[[row]]
+num = "208"
+old = "engine/processes/__init__.py"
+package = "world"
+kind = "move"
+new = "world/laws/__init__.py"
+stage = "world"
+empty_head = true
+
+[[row]]
+num = "209"
+old = "engine/processes/civic.py"
+package = "world"
+kind = "move"
+new = "world/laws/civic.py"
+stage = "world"
+
+[[row]]
+num = "210"
+old = "engine/processes/crowd.py"
+package = "world"
+kind = "move"
+new = "world/laws/crowd.py"
+stage = "world"
+
+[[row]]
+num = "211"
+old = "engine/processes/environment.py"
+package = "world"
+kind = "move"
+new = "world/laws/environment.py"
+stage = "world"
+
+[[row]]
+num = "212"
+old = "engine/processes/goods_flow.py"
+package = "world"
+kind = "move"
+new = "world/laws/goods_flow.py"
+stage = "world"
+
+[[row]]
+num = "213"
+old = "engine/processes/logistics.py"
+package = "world"
+kind = "move"
+new = "world/laws/logistics.py"
+stage = "world"
+
+[[row]]
+num = "214"
+old = "engine/processes/opening.py"
+package = "world"
+kind = "move"
+new = "world/laws/opening.py"
+stage = "world"
+
+[[row]]
+num = "215"
+old = "engine/processes/rail.py"
+package = "world"
+kind = "move"
+new = "world/laws/rail.py"
+stage = "world"
+
+[[row]]
+num = "216"
+old = "engine/processes/rail_events.py"
+package = "world"
+kind = "move"
+new = "world/laws/rail_events.py"
+stage = "world"
+
+[[row]]
+num = "217"
+old = "engine/processes/runner.py"
+package = "world"
+kind = "move"
+new = "world/laws/runner.py"
+stage = "world"
+
+[[row]]
+num = "218"
+old = "engine/processes/salient.py"
+package = "world"
+kind = "move"
+new = "world/laws/salient.py"
+stage = "world"
+
+[[row]]
+num = "219"
+old = "engine/processes/traffic.py"
+package = "world"
+kind = "move"
+new = "world/laws/traffic.py"
+stage = "world"
+
+[[row]]
+num = "220"
+old = "engine/proximity.py"
+package = "world"
+kind = "move"
+new = "world/model/proximity.py"
+stage = "world"
+
+[[row]]
+num = "221"
+old = "engine/rate_rules.py"
+package = "world"
+kind = "move"
+new = "world/laws/switch_rate.py"
+stage = "world"
+
+[[row]]
+num = "222"
+old = "engine/regional_clock.py"
+package = "runtime"
+kind = "move"
+new = "runtime/clocks/regional.py"
+stage = "runtime"
+
+[[row]]
+num = "223"
+old = "engine/relations.py"
+package = "mind"
+kind = "split"
+new = "mind/relations/layer.py"
+split_to = ["mind/relations/layer.py", "world/facts/initial_ties.py", "foundation/vocab/relations.py"]
+
+[[row]]
+num = "224"
+old = "engine/relations_people.py"
+package = "mind"
+kind = "move"
+new = "mind/relations/people.py"
+stage = "mind"
+
+[[row]]
+num = "224a"
+old = "engine/removed_switches.py"
+package = "foundation"
+kind = "move"
+new = "foundation/arms/removed.py"
+stage = "foundation"
+held = "行 224a 置き場は段 4 の前に親が確かめる(move-346 の記録 §7-2 の (3))"
+
+[[row]]
+num = "225"
+old = "engine/resolve.py"
+package = "act"
+kind = "split"
+new = "act/apply.py"
+split_to = ["act/apply.py", "act/ops/shop.py", "act/ops/rail.py", "act/ops/move.py", "act/ops/plan_writes.py", "mind/ops.py", "act/ops/law_writes.py", "act/ops/body_writes.py", "act/gate.py", "act/ops/talk.py", "runtime/state/restore.py", "act/ops/intent_writes.py", "act/ops/focus.py", "act/ops/init_writes.py", "foundation/write_guard.py", "act/ops/detect_writes.py", "foundation/vocab/act_codes.py", "foundation/vocab/agent_codes.py"]
+held = "問い 2 apply_detection の割り先(本文 §8-1 の 2=act に置く・2 つに割る・mind/ops.py に置く)"
+
+[[row]]
+num = "226"
+old = "engine/resume.py"
+package = "runtime"
+kind = "move"
+new = "runtime/state/resume.py"
+stage = "runtime"
+
+[[row]]
+num = "227"
+old = "engine/rights/__init__.py"
+package = "world"
+kind = "move"
+new = "world/facts/rights/__init__.py"
+stage = "world"
+empty_head = true
+
+[[row]]
+num = "228"
+old = "engine/rights/initial.py"
+package = "world"
+kind = "move"
+new = "world/facts/rights/initial.py"
+stage = "world"
+
+[[row]]
+num = "229"
+old = "engine/rights/ledger.py"
+package = "world"
+kind = "move"
+new = "world/facts/rights/ledger.py"
+stage = "world"
+
+[[row]]
+num = "230"
+old = "engine/rights/record.py"
+package = "world"
+kind = "move"
+new = "world/facts/rights/record.py"
+stage = "world"
+
+[[row]]
+num = "231"
+old = "engine/rng_audit.py"
+package = "validation"
+kind = "move"
+new = "validation/static/rng_audit.py"
+stage = "validation"
+
+[[row]]
+num = "232"
+old = "engine/rules/__init__.py"
+package = "world"
+kind = "move"
+new = "world/facts/rules/__init__.py"
+stage = "world"
+empty_head = true
+
+[[row]]
+num = "233"
+old = "engine/rules/table.py"
+package = "world"
+kind = "move"
+new = "world/facts/rules/table.py"
+stage = "world"
+
+[[row]]
+num = "234"
+old = "engine/run.py"
+package = "runtime"
+kind = "split"
+new = "runtime/result.py"
+split_to = ["runtime/result.py", "runtime/run.py", "interfaces/cli/run_args.py"]
+held = "問い 6 python -m shibuya.engine.run の入口(本文 §8-1 の 6=移すか消すかが決まっていない)"
+
+[[row]]
+num = "235"
+old = "engine/run_kind.py"
+package = "experiments"
+kind = "move"
+new = "experiments/port/run_kind.py"
+stage = "experiments"
+
+[[row]]
+num = "236"
+old = "engine/scheduler.py"
+package = "foundation"
+kind = "move"
+new = "foundation/queues/scheduler.py"
+stage = "foundation"
+
+[[row]]
+num = "237"
+old = "engine/seat_release.py"
+package = "world"
+kind = "move"
+new = "world/laws/switch_seat.py"
+stage = "world"
+
+[[row]]
+num = "238"
+old = "engine/solar.py"
+package = "world"
+kind = "move"
+new = "world/model/solar.py"
+stage = "world"
+
+[[row]]
+num = "239"
+old = "engine/space/__init__.py"
+package = "world"
+kind = "move"
+new = "world/model/space/__init__.py"
+stage = "world"
+empty_head = true
+
+[[row]]
+num = "240"
+old = "engine/space/nav1.py"
+package = "world"
+kind = "move"
+new = "world/model/space/nav1.py"
+stage = "world"
+
+[[row]]
+num = "241"
+old = "engine/spatial_index.py"
+package = "world"
+kind = "move"
+new = "world/model/spatial_index.py"
+stage = "world"
+
+[[row]]
+num = "242"
+old = "engine/speech/__init__.py"
+package = "society"
+kind = "move"
+new = "society/speech/__init__.py"
+stage = "society"
+empty_head = true
+
+[[row]]
+num = "243"
+old = "engine/speech/layer.py"
+package = "society"
+kind = "move"
+new = "society/speech/layer.py"
+stage = "society"
+
+[[row]]
+num = "244"
+old = "engine/speech/port.py"
+package = "society"
+kind = "move"
+new = "society/speech/port.py"
+stage = "society"
+
+[[row]]
+num = "245"
+old = "engine/speech_clock.py"
+package = "runtime"
+kind = "move"
+new = "runtime/clocks/speech.py"
+stage = "runtime"
+
+[[row]]
+num = "246"
+old = "engine/state_codec.py"
+package = "runtime"
+kind = "move"
+new = "runtime/state/codec.py"
+stage = "runtime"
+
+[[row]]
+num = "247"
+old = "engine/state_hashes.py"
+package = "runtime"
+kind = "move"
+new = "runtime/state/hashes.py"
+stage = "runtime"
+
+[[row]]
+num = "248"
+old = "engine/state_ledger.py"
+package = "runtime"
+kind = "move"
+new = "runtime/state/ledger.py"
+stage = "runtime"
+
+[[row]]
+num = "249"
+old = "engine/state_ledger_ast.py"
+package = "runtime"
+kind = "move"
+new = "runtime/state/ledger_ast.py"
+stage = "runtime"
+
+[[row]]
+num = "250"
+old = "engine/step_scope.py"
+package = "runtime"
+kind = "move"
+new = "runtime/clocks/step_scope.py"
+stage = "runtime"
+
+[[row]]
+num = "251"
+old = "engine/store_choice.py"
+package = "mind"
+kind = "move"
+new = "mind/judge/store_choice.py"
+stage = "mind"
+
+[[row]]
+num = "252"
+old = "engine/store_memory.py"
+package = "mind"
+kind = "move"
+new = "mind/memory/store_memory.py"
+stage = "mind"
+
+[[row]]
+num = "253"
+old = "engine/systems/__init__.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/__init__.py"
+stage = "runtime"
+empty_head = true
+
+[[row]]
+num = "254"
+old = "engine/systems/act.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/act.py"
+stage = "runtime"
+
+[[row]]
+num = "255"
+old = "engine/systems/allow.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/allow.py"
+stage = "runtime"
+
+[[row]]
+num = "256"
+old = "engine/systems/body.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/body.py"
+stage = "runtime"
+
+[[row]]
+num = "257"
+old = "engine/systems/boxes.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/boxes.py"
+stage = "runtime"
+
+[[row]]
+num = "258"
+old = "engine/systems/build.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/assemble.py"
+stage = "runtime"
+
+[[row]]
+num = "259"
+old = "engine/systems/conductor.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/conductor.py"
+stage = "runtime"
+
+[[row]]
+num = "260"
+old = "engine/systems/day.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/day.py"
+stage = "runtime"
+
+[[row]]
+num = "261"
+old = "engine/systems/decide.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/decide.py"
+stage = "runtime"
+
+[[row]]
+num = "262"
+old = "engine/systems/guard.py"
+package = "foundation"
+kind = "move"
+new = "foundation/write_guard.py"
+stage = "foundation"
+
+[[row]]
+num = "263"
+old = "engine/systems/judge.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/judge.py"
+stage = "runtime"
+
+[[row]]
+num = "264"
+old = "engine/systems/llm_io.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/llm_io.py"
+stage = "runtime"
+
+[[row]]
+num = "265"
+old = "engine/systems/observe.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/observe.py"
+stage = "runtime"
+
+[[row]]
+num = "266"
+old = "engine/systems/overrides.py"
+package = "validation"
+kind = "move"
+new = "validation/static/system_overrides.py"
+stage = "validation"
+
+[[row]]
+num = "267"
+old = "engine/systems/perceive.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/perceive.py"
+stage = "runtime"
+
+[[row]]
+num = "268"
+old = "engine/systems/probe.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/probe.py"
+stage = "runtime"
+
+[[row]]
+num = "269"
+old = "engine/systems/remember.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/remember.py"
+stage = "runtime"
+
+[[row]]
+num = "270"
+old = "engine/systems/report.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/report.py"
+stage = "runtime"
+
+[[row]]
+num = "271"
+old = "engine/systems/run_end.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/run_end.py"
+stage = "runtime"
+
+[[row]]
+num = "272"
+old = "engine/systems/spec.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/spec.py"
+stage = "runtime"
+
+[[row]]
+num = "273"
+old = "engine/systems/state_io.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/state_io.py"
+stage = "runtime"
+
+[[row]]
+num = "274"
+old = "engine/systems/static_check.py"
+package = "validation"
+kind = "move"
+new = "validation/static/system_static_check.py"
+stage = "validation"
+
+[[row]]
+num = "275"
+old = "engine/systems/table.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/table.py"
+stage = "runtime"
+
+[[row]]
+num = "276"
+old = "engine/systems/talk.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/talk.py"
+stage = "runtime"
+
+[[row]]
+num = "277"
+old = "engine/systems/world.py"
+package = "runtime"
+kind = "move"
+new = "runtime/systems/world.py"
+stage = "runtime"
+
+[[row]]
+num = "278"
+old = "engine/tape.py"
+package = "runtime"
+kind = "move"
+new = "runtime/inference/tape.py"
+stage = "runtime"
+
+[[row]]
+num = "279"
+old = "engine/tools/__init__.py"
+package = "society"
+kind = "move"
+new = "society/tools/__init__.py"
+stage = "society"
+empty_head = true
+
+[[row]]
+num = "280"
+old = "engine/tools/contacts.py"
+package = "foundation"
+kind = "move"
+new = "foundation/vocab/contact_flags.py"
+stage = "foundation"
+
+[[row]]
+num = "281"
+old = "engine/tools/groups.py"
+package = "society"
+kind = "move"
+new = "society/tools/groups.py"
+stage = "society"
+
+[[row]]
+num = "282"
+old = "engine/tools/places.py"
+package = "society"
+kind = "move"
+new = "society/tools/places.py"
+stage = "society"
+
+[[row]]
+num = "283"
+old = "engine/tools/record.py"
+package = "society"
+kind = "split"
+new = "society/tools/record.py"
+split_to = ["society/tools/record.py", "foundation/vocab/events.py"]
+
+[[row]]
+num = "284"
+old = "engine/tools/registry.py"
+package = "society"
+kind = "split"
+new = "society/tools/registry.py"
+split_to = ["society/tools/registry.py", "foundation/vocab/events.py"]
+
+[[row]]
+num = "285"
+old = "engine/wom.py"
+package = "mind"
+kind = "move"
+new = "mind/memory/wom.py"
+stage = "mind"
+
+[[row]]
+num = "286"
+old = "llm/__init__.py"
+package = "foundation"
+kind = "split"
+new = "foundation/ports/inference.py"
+split_to = ["foundation/ports/inference.py"]
+
+[[row]]
+num = "287"
+old = "llm/contract.py"
+package = "foundation"
+kind = "move"
+new = "foundation/vocab/actions.py"
+stage = "foundation"
+
+[[row]]
+num = "288"
+old = "llm/fleet.py"
+package = "runtime"
+kind = "split"
+new = "runtime/inference/fleet.py"
+split_to = ["runtime/inference/fleet.py", "foundation/ports/inference.py"]
+
+[[row]]
+num = "289"
+old = "llm/mock.py"
+package = "runtime"
+kind = "split"
+new = "runtime/inference/mock.py"
+split_to = ["runtime/inference/mock.py", "foundation/vocab/actions.py"]
+
+[[row]]
+num = "290"
+old = "llm/parser.py"
+package = "act"
+kind = "move"
+new = "act/intake/parser.py"
+stage = "act"
+
+[[row]]
+num = "291"
+old = "llm/undefined.py"
+package = "act"
+kind = "split"
+new = "act/intake/undefined.py"
+split_to = ["act/intake/undefined.py", "foundation/vocab/act_codes.py"]
+
+[[row]]
+num = "292"
+old = "manifest/__init__.py"
+package = "foundation"
+kind = "move"
+new = "foundation/manifest/__init__.py"
+stage = "foundation"
+empty_head = true
+
+[[row]]
+num = "293"
+old = "manifest/canonical.py"
+package = "foundation"
+kind = "move"
+new = "foundation/manifest/canonical.py"
+stage = "foundation"
+
+[[row]]
+num = "294"
+old = "manifest/frozen/world_catalog_v0_2.json"
+package = "world"
+kind = "move"
+new = "world/ledger/frozen/world_catalog_v0_2.json"
+stage = "world"
+
+[[row]]
+num = "295"
+old = "manifest/schema.py"
+package = "foundation"
+kind = "move"
+new = "foundation/manifest/schema.py"
+stage = "foundation"
+
+[[row]]
+num = "296"
+old = "manifest/world_catalog.py"
+package = "world"
+kind = "move"
+new = "world/ledger/world_catalog.py"
+stage = "world"
+
+[[row]]
+num = "297"
+old = "perception/__init__.py"
+package = "mind"
+kind = "move"
+new = "mind/percept/__init__.py"
+stage = "mind"
+empty_head = true
+
+[[row]]
+num = "298"
+old = "perception/attention.py"
+package = "foundation"
+kind = "split"
+new = "foundation/text/salience.py"
+split_to = ["foundation/text/salience.py", "mind/percept/attention.py"]
+
+[[row]]
+num = "299"
+old = "perception/channels.py"
+package = "foundation"
+kind = "move"
+new = "foundation/text/channels.py"
+stage = "foundation"
+
+[[row]]
+num = "300"
+old = "perception/contact_view.py"
+package = "foundation"
+kind = "move"
+new = "foundation/ports/percept_contact.py"
+stage = "foundation"
+
+[[row]]
+num = "301"
+old = "perception/facts.py"
+package = "foundation"
+kind = "move"
+new = "foundation/ports/percept.py"
+stage = "foundation"
+
+[[row]]
+num = "302"
+old = "perception/hashes.py"
+package = "foundation"
+kind = "move"
+new = "foundation/text/hashes.py"
+stage = "foundation"
+
+[[row]]
+num = "303"
+old = "perception/normalize.py"
+package = "foundation"
+kind = "move"
+new = "foundation/text/normalize.py"
+stage = "foundation"
+
+[[row]]
+num = "304"
+old = "perception/p_notice.py"
+package = "world"
+kind = "move"
+new = "world/model/notice_reach.py"
+stage = "world"
+
+[[row]]
+num = "305"
+old = "perception/renderer.py"
+package = "mind"
+kind = "split"
+new = "mind/percept/draw.py"
+split_to = ["mind/percept/draw.py", "world/model/percept_scene.py", "foundation/text/percept_words.py", "mind/percept/notice.py", "runtime/inference/bridge.py", "foundation/time_consts.py", "foundation/vocab/agent_codes.py"]
+
+[[row]]
+num = "306"
+old = "perception/state.py"
+package = "world"
+kind = "move"
+new = "world/model/percept_state.py"
+stage = "world"
+
+[[row]]
+num = "307"
+old = "perception/templates.py"
+package = "foundation"
+kind = "move"
+new = "foundation/text/templates.py"
+stage = "foundation"
+
+[[row]]
+num = "308"
+old = "world/__init__.py"
+package = "world"
+kind = "empty"
+new = "world/__init__.py"
+stage = "world"
+empty_head = true
+
+[[row]]
+num = "309"
+old = "world/assets.py"
+package = "world"
+kind = "split"
+new = "world/model/assets.py"
+split_to = ["world/model/assets.py", "foundation/vocab/place_words.py"]
+
+[[row]]
+num = "310"
+old = "world/graph.py"
+package = "world"
+kind = "move"
+new = "world/model/graph.py"
+stage = "world"
+
+[[row]]
+num = "311"
+old = "world/navmesh.py"
+package = "world"
+kind = "move"
+new = "world/model/navmesh.py"
+stage = "world"
+
+[[row]]
+num = "312"
+old = "world/navmesh_route.py"
+package = "world"
+kind = "move"
+new = "world/model/navmesh_route.py"
+stage = "world"
+
+[[row]]
+num = "313"
+old = "world/processes/__init__.py"
+package = "world"
+kind = "move"
+new = "world/ledger/__init__.py"
+stage = "world"
+empty_head = true
+
+[[row]]
+num = "314"
+old = "world/processes/absent.py"
+package = "world"
+kind = "move"
+new = "world/ledger/absent.py"
+stage = "world"
+
+[[row]]
+num = "315"
+old = "world/processes/actual_log.py"
+package = "world"
+kind = "move"
+new = "world/ledger/actual_log.py"
+stage = "world"
+
+[[row]]
+num = "316"
+old = "world/processes/circularity.py"
+package = "validation"
+kind = "move"
+new = "validation/static/circularity.py"
+stage = "validation"
+
+[[row]]
+num = "317"
+old = "world/processes/constitution.py"
+package = "world"
+kind = "move"
+new = "world/ledger/constitution.py"
+stage = "world"
+
+[[row]]
+num = "318"
+old = "world/processes/deletion_candidates.py"
+package = "validation"
+kind = "move"
+new = "validation/static/deletion_candidates.py"
+stage = "validation"
+
+[[row]]
+num = "319"
+old = "world/processes/first_batch.py"
+package = "world"
+kind = "move"
+new = "world/ledger/first_batch.py"
+stage = "world"
+
+[[row]]
+num = "320"
+old = "world/processes/inputs.py"
+package = "world"
+kind = "move"
+new = "world/ledger/inputs.py"
+stage = "world"
+
+[[row]]
+num = "321"
+old = "world/processes/records.py"
+package = "world"
+kind = "move"
+new = "world/ledger/records.py"
+stage = "world"
+
+[[row]]
+num = "322"
+old = "world/processes/registry.py"
+package = "world"
+kind = "move"
+new = "world/ledger/registry.py"
+stage = "world"
+
+[[row]]
+num = "323"
+old = "world/processes/relations.py"
+package = "world"
+kind = "move"
+new = "world/ledger/relations.py"
+stage = "world"
+
+[[row]]
+num = "324"
+old = "world/state.py"
+package = "world"
+kind = "move"
+new = "world/model/state.py"
+stage = "world"

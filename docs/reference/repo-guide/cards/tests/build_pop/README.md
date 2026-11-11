@@ -256,5 +256,5 @@ W21(第 4 期 4-1 段 1〜3)の材料の台帳と読み口の守り(read_guard)�
   - `test_w16_keep_table_actions`(関数)
   - `test_walk_minutes_share_one_function`(関数)
   - `test_words_and_money_formats`(関数)
-- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`・`shibuya.build.pop.w21_check`・`shibuya.build.pop.w21_checks`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_persona`・`shibuya.build.pop.w21_port10`・`shibuya.build.pop.w21_sources`・`shibuya.build.pop.w21_tables`・`shibuya.build.run`・`shibuya.build.sched.w20_w21_port`・`shibuya.engine.decision.port`・`shibuya.engine.geometry`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`・`tools/instruments/dm_eval/situations.py`
+- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_build_b`・`shibuya.build.pop.w21_build_c`・`shibuya.build.pop.w21_check`・`shibuya.build.pop.w21_checks`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_persona`・`shibuya.build.pop.w21_port10`・`shibuya.build.pop.w21_sources`・`shibuya.build.pop.w21_tables`・`shibuya.build.run`・`shibuya.build.sched.w20_w21_port`・`shibuya.engine.decision.port`・`shibuya.engine.geometry`・`shibuya.engine.rights.initial`・`shibuya.engine.rights.ledger`・`shibuya.llm`・`tests/_places.py`・`tools/instruments/dm_eval/situations.py`
 - 決定の ID: R-110

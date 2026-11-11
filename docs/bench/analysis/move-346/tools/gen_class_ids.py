@@ -13,8 +13,10 @@
   書けない=表に書けない。検収 M1)。``class_id`` は表の次にこの宣言を読む。
 - 値(凍結の名)は足すだけで変えない: 今の ``class_ids.py`` に載っている鍵は今の値を引き継ぎ、新しい鍵は値=鍵で足す。
   消えたクラスの行は落とす(落とした鍵は標準出力に出す)。段 1 では全部の値=鍵。
-- 書くもの: ``src/shibuya/engine/class_ids.py``(表と ``class_id``・``class_path``)と
-  ``tests/engine/state/class_ids_frozen.json``(凍結の名 → ``__qualname__`` の写像=検収 M3。宣言の分を含む)。
+- 書くもの: 表のファイル ``class_ids.py``(表と ``class_id``・``class_path``。``src/shibuya`` の下を探して 1 本だけなら
+  それを使う=段 4 で置き場が動いても追う〔段 4 の下ごしらえ・親の決定 5〕。今は ``src/shibuya/engine/class_ids.py``。
+  0 本か 2 本以上なら止める)と ``tests/engine/state/class_ids_frozen.json``(凍結の名 → ``__qualname__`` の写像=検収 M3。
+  宣言の分を含む)。
 - 確かめ: 関数の中でないクラスは、モジュールを import して ``__module__`` と ``__qualname__`` が鍵と同じか、宣言の値が
   AST と同じかを見る(違えば止める)。関数の中のクラスは import では引けないので AST の名だけ(数を標準出力に出す)。
 - 段 4 では移す道具がこの表の鍵だけを書き換える(値は変えない)。この道具は鍵=今の置き場で作り直す
@@ -33,7 +35,8 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[4]
 SRC = REPO / "src"
 PKG = SRC / "shibuya"
-OUT_PY = PKG / "engine" / "class_ids.py"
+#: 表のファイルの名(置き場は :func:`find_out_py` が ``src/shibuya`` の下を探して決める)。
+OUT_NAME = "class_ids.py"
 OUT_JSON = REPO / "tests" / "engine" / "state" / "class_ids_frozen.json"
 SKIP_TOP = ("build",)
 #: 自分の置き場で凍結の名を宣言するクラスの属性の名(``class_ids.DECLARED_ATTR`` と同じ)。
@@ -115,6 +118,15 @@ def class_path(frozen: str) -> str:
     """凍結の名 → 今の「モジュール.クラス名」(状態のファイルを読むときに import する先。表に無い名はそのまま)。"""
     return _PATH_OF.get(frozen, frozen)
 '''
+
+
+def find_out_py(pkg: Path = PKG) -> Path:
+    """表のファイル(``pkg`` の下の ``class_ids.py``)。1 本だけならそれ、0 本か 2 本以上なら止める(親の決定 5)。"""
+    found = sorted(pkg.rglob(OUT_NAME))
+    if len(found) != 1:
+        raise SystemExit(f"表のファイル {OUT_NAME} が src/shibuya の下に 1 本でない({len(found)} 本): "
+                         f"{[p.relative_to(pkg).as_posix() for p in found]}")
+    return found[0]
 
 
 def module_name(p: Path) -> str:
@@ -203,11 +215,11 @@ def verify_runtime(quals: dict[str, str], declared: dict[str, str]) -> tuple[int
     return checked, local
 
 
-def current_values() -> dict[str, str]:
+def current_values(out_py: Path) -> dict[str, str]:
     """今の ``class_ids.py`` の表(無ければ空)。"""
-    if not OUT_PY.is_file():
+    if not out_py.is_file():
         return {}
-    tree = ast.parse(OUT_PY.read_text(encoding="utf-8"))
+    tree = ast.parse(out_py.read_text(encoding="utf-8"))
     for n in tree.body:
         tgt = n.target if isinstance(n, ast.AnnAssign) else (n.targets[0] if isinstance(n, ast.Assign) else None)
         if isinstance(tgt, ast.Name) and tgt.id == "CLASS_IDS":
@@ -229,9 +241,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--check", action="store_true", help="書かずに、今のファイルが作り直しと同じかを見る")
     ap.add_argument("--no-import", action="store_true", help="import の確かめを飛ばす")
     a = ap.parse_args(argv)
+    out_py = find_out_py()
     quals, declared, n_files = collect()
     names = [n for n in quals if n not in declared]
-    old = current_values()
+    old = current_values(out_py)
     table = {k: old.get(k, k) for k in names}
     dropped = sorted(set(old) - set(names))
     frozen_to_qual: dict[str, str] = {}
@@ -247,15 +260,16 @@ def main(argv: list[str] | None = None) -> int:
     py, js = render(table, frozen_to_qual)
     print(f"クラス {len(quals)}(表 {len(table)}・置き場で宣言 {len(declared)})・クラスを持つファイル {n_files}・"
           f"新しい鍵 {len(set(names) - set(old))}・落とした鍵 {len(dropped)} {dropped}")
+    print(f"表のファイル: {out_py.relative_to(REPO).as_posix()}")
     if a.check:
-        same = (OUT_PY.is_file() and OUT_PY.read_text(encoding="utf-8") == py
+        same = (out_py.is_file() and out_py.read_text(encoding="utf-8") == py
                 and OUT_JSON.is_file() and OUT_JSON.read_text(encoding="utf-8") == js)
         print("同じ" if same else "違う(作り直しが要る)")
         return 0 if same else 1
-    OUT_PY.write_text(py, encoding="utf-8", newline="\n")
+    out_py.write_text(py, encoding="utf-8", newline="\n")
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(js, encoding="utf-8", newline="\n")
-    print(f"書いた: {OUT_PY.relative_to(REPO).as_posix()}・{OUT_JSON.relative_to(REPO).as_posix()}")
+    print(f"書いた: {out_py.relative_to(REPO).as_posix()}・{OUT_JSON.relative_to(REPO).as_posix()}")
     return 0
 
 

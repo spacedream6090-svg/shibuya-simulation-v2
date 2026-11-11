@@ -23,7 +23,7 @@ engine.experiment.apply — 申込書の改変を世界に入れる口 ``apply``
   - `targets_of`(関数): 対象の店の番号(昇順・空もある)。読むだけ(分岐の報告の実行の内訳が使う)。
 - import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.gate`
 - 呼び手: `shibuya.engine.experiment.layer`
-- 読む試験: `tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_x33_apply.py`
+- 読む試験: `tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_form.py`
 - 決定の ID: 10-12/§1-1
 
 ## [branch.py](../../../../../../../../src/shibuya/engine/experiment/branch.py)
@@ -47,7 +47,7 @@ engine.experiment.branch — 「T0 までテープを再生して T0 から今�
   - `run_branch`(関数): 基準のランの記録 ``base_dir`` から申込書 ``form`` の分岐を回し、4 つの確認をして ``branch_report.json`` を書く。
 - import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.classical`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.switch`・`shibuya.engine.manifest_sections`・`shibuya.engine.systems.probe`・`shibuya.engine.tape`・`shibuya.llm`・`shibuya.world.processes.records`
 - 呼び手: `shibuya.cli`・`shibuya.engine.experiment.switch`
-- 読む試験: `tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_branch.py`
+- 読む試験: `tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/experiment/test_x33_form.py`
 - 決定の ID: 10-12/§1-1・10-12/§4-5・R-71
 
 ## [checks.py](../../../../../../../../src/shibuya/engine/experiment/checks.py)
@@ -114,7 +114,7 @@ engine.experiment.gate — 実験が世界に入る口(第 1 期 1-3・CP12)。*
   - `admit`(関数): 実験の条件 ``cond_id`` を原因とする出来事を記録の時計の時刻で 1 行書き、id を返す(CP12 の唯一の口)。
 - import している内部モジュール: `shibuya.engine.events.log`・`shibuya.engine.events.vocab`
 - 呼び手: `shibuya.engine.events.log`・`shibuya.engine.experiment.apply`
-- 読む試験: `tests/engine/decision/test_j0_cause_columns.py`・`tests/engine/events/test_e_cause_three_kinds.py`・`tests/engine/state/test_class_ids.py`
+- 読む試験: `tests/engine/decision/test_j0_cause_columns.py`・`tests/engine/events/test_e_cause_three_kinds.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/state/test_class_ids.py`
 - 決定の ID: 10-12/§4-5・R-113
 
 ## [layer.py](../../../../../../../../src/shibuya/engine/experiment/layer.py)
@@ -134,7 +134,7 @@ engine.experiment.layer — 申込書をランに置く口(組み立て)・系 `
   - `sys_experiment`(関数): 系 ``experiment``(刻みの中の最初の系): 申込書の改変を効かせる口 ``apply`` を 1 回呼ぶ。
 - import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.experiment.apply`・`shibuya.engine.experiment.checks`・`shibuya.engine.experiment.ensemble`・`shibuya.engine.experiment.form`・`shibuya.engine.experiment.warmup`
 - 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.state_io`・`shibuya.engine.systems.table`
-- 読む試験: `tests/engine/experiment/test_cf33b_manifest.py`・`tests/engine/experiment/test_x33_run.py`
+- 読む試験: `tests/engine/experiment/test_cf33b_manifest.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/experiment/test_x33_run.py`
 - 状態台帳の行
   - 持ち主 `experiment`(`ExperimentLayer`)
     - `X` ExperimentLayer(申込書の改変の控え・4 つの確認の結果・第 3 期 3-3)(挙動 diag・復元 discardable) 道筋 `experiment.handle`・`experiment.xchecks` 書ける系: experiment

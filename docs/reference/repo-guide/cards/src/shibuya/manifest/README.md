@@ -12,6 +12,7 @@ manifest: run manifest(U8・13節)の型・正規化・自己ハッシュ。誰�
 
 - import している内部モジュール: `shibuya.manifest.canonical`・`shibuya.manifest.schema`
 - 読む試験: `tests/test_manifest_roundtrip.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 
 ## [canonical.py](../../../../../../../src/shibuya/manifest/canonical.py)
 

@@ -29,9 +29,13 @@ from shibuya.engine.experiment import gate as GATE
 
 SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya"
 TYPE = "Experiment"
-LOG_MODULE = "shibuya.engine.events.log"
+#: 型の定義の置き場のモジュールの名と、その包み・包みの中の名(〔段 4 の下ごしらえ・親の裁定 L-7〕字面で持たず、モジュールの
+#: ``__name__`` から作る。前は "shibuya.engine.events.log" と包みの名 "shibuya.engine.events" の字面)。
+LOG_MODULE = EV.__name__
+LOG_PKG, _, LOG_LEAF = LOG_MODULE.rpartition(".")
 #: 型の名を書いてよい置き場(``src/shibuya`` からの相対パス)。
-ALLOWED = {"engine/events/log.py", "engine/experiment/gate.py"}
+ALLOWED = {Path(m.__file__).resolve().relative_to(SRC.resolve()).as_posix() for m in (EV, GATE)}
+assert len(ALLOWED) == 2
 
 
 # ================================================================= 3 種類だけ
@@ -66,8 +70,8 @@ def test_a_fake_cause_is_rejected_by_the_event_and_the_log():
 def _log_aliases(tree: ast.AST) -> set[str]:
     out: set[str] = set()
     for n in ast.walk(tree):
-        if isinstance(n, ast.ImportFrom) and n.module == "shibuya.engine.events":
-            out |= {a.asname or a.name for a in n.names if a.name == "log"}
+        if isinstance(n, ast.ImportFrom) and n.module == LOG_PKG:
+            out |= {a.asname or a.name for a in n.names if a.name == LOG_LEAF}
         elif isinstance(n, ast.Import):
             out |= {a.asname for a in n.names if a.name == LOG_MODULE and a.asname}
     return out
@@ -94,7 +98,7 @@ def offenders(rel: str, tree: ast.AST) -> list[str]:
             for a in n.names:
                 if a.name == TYPE:
                     out.append(f"{rel}:{ln}: 型の名を import する")
-                if a.name == "*" and (n.module or "").startswith("shibuya.engine.events"):
+                if a.name == "*" and (n.module or "").startswith(LOG_PKG):
                     out.append(f"{rel}:{ln}: 記録の置き場から * を import する")
         elif isinstance(n, ast.Name) and n.id == TYPE:
             out.append(f"{rel}:{ln}: 型の名 {TYPE} を参照する")
@@ -135,16 +139,16 @@ def test_the_allowed_places_do_name_the_type():
 PLANTED = {
     "direct": f"from {LOG_MODULE} import Experiment\nExperiment('c')\n",
     "alias": f"from {LOG_MODULE} import Experiment as X\nX('c')\n",
-    "getattr": "from shibuya.engine.events import log as L\ngetattr(L, 'Experiment')('c')\n",
+    "getattr": f"from {LOG_PKG} import {LOG_LEAF} as L\ngetattr(L, 'Experiment')('c')\n",
     "module_attr": f"import {LOG_MODULE} as L\nL.Experiment('c')\n",
-    "package_attr": "from shibuya.engine.events import log\nlog.Experiment('c')\n",
+    "package_attr": f"from {LOG_PKG} import {LOG_LEAF}\n{LOG_LEAF}.Experiment('c')\n",
     "dotted": f"import {LOG_MODULE}\n{LOG_MODULE}.Experiment('c')\n",
-    "getattr_dynamic": "from shibuya.engine.events import log as L\nn = 'Exp' + 'eriment'\ngetattr(L, n)('c')\n",
-    "vars": "from shibuya.engine.events import log as L\nvars(L)['Exp' + 'eriment']('c')\n",
-    "module_dict": "from shibuya.engine.events import log as L\nk = 'x'\nL.__dict__[k]('c')\n",
-    "star": "from shibuya.engine.events.log import *\nExperiment('c')\n",
+    "getattr_dynamic": f"from {LOG_PKG} import {LOG_LEAF} as L\nn = 'Exp' + 'eriment'\ngetattr(L, n)('c')\n",
+    "vars": f"from {LOG_PKG} import {LOG_LEAF} as L\nvars(L)['Exp' + 'eriment']('c')\n",
+    "module_dict": f"from {LOG_PKG} import {LOG_LEAF} as L\nk = 'x'\nL.__dict__[k]('c')\n",
+    "star": f"from {LOG_MODULE} import *\nExperiment('c')\n",
     "importlib": f"import importlib\nm = importlib.import_module('{LOG_MODULE}')\nm.Experiment('c')\n",
-    "new_without_init": "from shibuya.engine.events import log as L\nobject.__new__(L.Experiment)\n",
+    "new_without_init": f"from {LOG_PKG} import {LOG_LEAF} as L\nobject.__new__(L.Experiment)\n",
 }
 
 

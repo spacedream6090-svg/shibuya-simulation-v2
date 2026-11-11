@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 20 本・その他 0 本(このディレクトリの直下)
+Python 21 本・その他 0 本(このディレクトリの直下)
 
 ## [test_absent_declarations.py](../../../../../../tests/tools/test_absent_declarations.py)
 
@@ -162,7 +162,7 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
   - `test_worktree_commit_marks_dirty_tracked_reads`(関数): 検収 M1(M17)・L9: 作業木の src なら HEAD・src の外のエンジンが読む追跡ファイルの変更も +dirty に数える。
   - `wave2`(関数)
   - `wired`(関数)
-- import している内部モジュール: `tools/bytecheck/check.py`・`tools/bytecheck/cli.py`・`tools/bytecheck/configs.py`・`tools/bytecheck/fields.py`・`tools/bytecheck/tree.py`
+- import している内部モジュール: `shibuya.core.paths`・`tools/bytecheck/check.py`・`tools/bytecheck/cli.py`・`tools/bytecheck/configs.py`・`tools/bytecheck/fields.py`・`tools/bytecheck/tree.py`
 - 環境変数: `SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CONTACT`・`SHIBUYA_FLEET_API_KEY`・名前を読めない所 5 か所・`os.environ` をまるごと使う
 - 決定の ID: 11-09/§2・第 346
 
@@ -482,6 +482,75 @@ tools/night5070(回答 10-25 §6-0): 夜の実験の起動・健全性の確認�
 - 環境変数: `SHIBUYA_FLEET_API_KEY`
 - 決定の ID: 10-25/§6-0・11-01・R-123・第 340
 
+## [test_pkgmove.py](../../../../../../tests/tools/test_pkgmove.py)
+
+tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-final §7-4 の段 3)の試験。data は要らない。
+
+- 公開の関数とクラス
+  - `applied`(関数)
+  - `apply_rows`(関数): 木の今の形で、段のうち当てる行(まだ当たっていない行)。
+  - `base_copy`(関数)
+  - `digest`(関数)
+  - `frozen_of`(関数)
+  - `make_copy`(関数): 一時のコピーの木(src/shibuya・tests・tools・凍結の JSON とつなぎの台帳・tests が読む docs の記録の道具)。
+  - `need_pending`(関数)
+  - `pending`(関数): リポの今の木で、まだ当てる行のある段(段 4 の順)。
+  - `plan_for`(関数)
+  - `pristine`(関数): どの段の行も当たっていない木か(全部の段に当てる行が残っている=段 3 の時点の木)。
+  - `run_cli`(関数)
+  - `staged`(関数): 次に当てる段(まだ当たっていない最初の段)の計画。全段が当たった木では飛ばす。
+  - `test_all_drops_keeps_comments_and_refuses_other_forms`(関数): 1 行 1 要素の行だけを除く(行の終わりの注は注の行として残す)。1 行に 2 つ以上の要素は除かずに注意(守りが止める)。
+  - `test_allow_toml_is_current_and_src_tables_exist`(関数): 許可の一覧 TOML は、どの段も当たっていない木でだけ作り直しと比べる。(b-src) の表は今の置き場に全部ある。
+  - `test_applied_tree_has_the_new_places_and_empty_heads`(関数)
+  - `test_apply_refuses_a_main_worktree_and_allows_others`(関数)
+  - `test_apply_twice_is_the_same`(関数)
+  - `test_bound_names_guard_catches_a_changed_binding`(関数): 〔突然変異 m14〕import の文が結ぶ名(別名を含む)が前後で違えば止める(直に呼ぶ・作った木)。頭から除いた再輸出の名だけは
+  - `test_cache_only_dirs_are_pruned_and_namespace_leftovers_are_caught`(関数): 〔検収 L-a〕``__pycache__`` だけを持つ古い包みのディレクトリは名前空間の包みとして import できる=import の確かめが落とす。
+  - `test_catalog_json_relpath_moves_with_the_json`(関数): (b-src) 〔親の決定 2〕構築の側が凍結の JSON を書く先は、JSON と一緒に動く(JSON がまだ動いていない木では動かす段まで
+  - `test_dry_run_writes_nothing`(関数)
+  - `test_every_rewritten_path_chain_points_to_a_file_in_the_applied_tree`(関数): 〔突然変異 m28〕``/`` の結合を書き換えた所は、全部、当てた木で在るファイルを指す(書き換えなければ古い道=当てた木に無い
+  - `test_frozen_guard_stops_when_a_frozen_value_is_already_different`(関数)
+  - `test_frozen_values_are_kept_by_the_staged_plan`(関数)
+  - `test_head_all_drops_only_the_dropped_reexport_names`(関数): 〔親の裁定 review3 の 2〕頭から除いた再輸出の名は、その頭の ``__all__`` からも除く。残る ``__all__`` は前の
+  - `test_head_reexports_of_modules_leaving_the_package_are_dropped`(関数): この段で空にしない頭の再輸出のうち、出どころが包みの外へ移るものの import の文を除く(循環の import を作らない)。
+  - `test_held_rows_are_refused`(関数)
+  - `test_import_check_catches_a_cycle_and_passes_a_clean_tree`(関数): 〔M-1〕全モジュールを 1 本ずつ最初から import する確かめ。わざと循環を作った小さな木で落ち、直した木で通る。読んだ
+  - `test_import_check_fails_when_it_reads_a_shibuya_outside_the_tree`(関数): 〔検収 n06〕木の ``src/shibuya`` に頭(``__init__.py``)が無いと、子は別の場所の ``shibuya``(editable の本体・無ければ
+  - `test_import_check_reimports_every_module_from_scratch`(関数): 〔検収 n05〕読む順でだけ循環が出る小さな木: ``a_pkg`` を先に読めば ``z_moved`` も読めるが、``z_moved`` を最初に読むと
+  - `test_imports_through_an_emptied_head_are_sent_to_the_defining_modules`(関数): 〔突然変異 m12〕空にする頭を通る import は、定義したモジュールへ向く(頭から読んでよいのは子のモジュールだけ)。
+  - `test_imports_through_an_emptied_head_are_sent_to_the_defining_modules_in_a_sample`(関数): 〔突然変異 m12〕作った見本の木で(本物の tests の字面に寄りかからない): 空にする頭 ``shibuya.pk`` の再輸出を通る import は
+  - `test_ledger_paths_table_follows_the_moves_and_the_ledger_is_kept`(関数): (d) 移したファイルごとに「今の道 → 台帳の道」を表に足す(台帳は書き換えない)。台帳のコードの行の道は全部、表を通して
+  - `test_main_worktree_check_fails_closed`(関数): 〔M-2〕git が失敗したら断る側・呼び手の GIT_DIR に左右されない・.git が 1 つも無いときだけ git の外。報告の置き場が本体の
+  - `test_map_toml_is_made_from_the_table_and_is_current`(関数)
+  - `test_mora_rule_and_other_untouched_path_shaped_strings_stay_in_the_rest_plan`(関数): 残る段を全部まとめた計画(全段が当たった木では行 0 の計画)でも: 腕 mora の manifest に出る文は書き換えない・つなぎの
+  - `test_negative_a_map_sending_two_modules_to_one_is_refused`(関数): 〔突然変異 m19〕2 つの行を同じ行き先へ送る対応表は、行き先の守りが断る(どの守りが止めたかまで見る)。
+  - `test_negative_an_emptied_head_with_a_definition_is_stopped`(関数): 〔突然変異 m18・検収 L-f〕空にする頭に定義(関数・クラス)があれば止める。import・docstring・``__all__`` のほかの文
+  - `test_negative_changing_the_names_bound_by_imports_is_stopped_in_a_plan`(関数): 計画の中でも、別名を落とす書き手を差し込むと結ぶ名の守りが止める。次に当てる段で動くモジュールを別名で読む試験の
+  - `test_negative_class_ids_guard_catches_values_and_coverage`(関数): 〔突然変異 m03・m20〕固定の表の値が凍結の写像と違う・表の鍵が src のクラスと合わない、を守りが見つける(直に呼ぶ)。
+  - `test_negative_head_all_guards_stop_a_writer_that_keeps_or_overdrops_names`(関数): 負の対照: ``__all__`` から除かない書き手を差し込むと「結ばれない名」で止まる。除いた名のほかの名まで除く書き手を
+  - `test_negative_key_guard_catches_a_swapped_pair_and_changed_values`(関数): 〔再検収 L-a〕鍵の守り(直に呼ぶ): 同じ ``__qualname__`` の組の値の入れ替え・値の書き換え・1 対 1 でない対応表を止める。
+  - `test_negative_naive_rewrite_of_a_class_name_in_a_test_is_stopped`(関数)
+  - `test_negative_naive_rewrite_of_rng_domain_names_is_stopped`(関数)
+  - `test_negative_names_guard_catches_version_ids_headers_and_rng_tables`(関数): 〔突然変異 m21〕版の ID・ハッシュの見出し・乱数の領域の名の表の鍵が凍結と違えば、欄の名つきで見つける(直に呼ぶ)。
+  - `test_negative_rewriting_a_docstring_in_an_allowlisted_symbol_is_stopped`(関数): 〔突然変異 m29・L-9〕許可の一覧の記号の中でも docstring は書き換えない。作った試験のファイルの許可の記号(docstring と
+  - `test_negative_shaped_74_guard_alone_catches_a_manifest_text`(関数): 〔突然変異 m04〕manifest に出る文の中の道の形(``engine/energy.py`` の見出しの項)を書き換える書き手を、その表の記号に
+  - `test_negative_swapping_a_same_qualname_pair_is_stopped_in_a_plan`(関数): 計画の中でも鍵の守りが止める(組の片方が動く foundation の段がまだ当たっていない木だけ)。
+  - `test_only_import_statements_and_allowlisted_string_lines_change`(関数)
+  - `test_outside_guard_compares_docstrings_inside_allowlisted_symbols`(関数): 〔L-9〕作った木で: 許可の記号の中の docstring が変われば止め、docstring でない文字列が変わるのは通す。
+  - `test_package_names_alone_are_not_rewritten_and_relative_imports_are_noted`(関数): 〔L-7〕包み(ディレクトリ)の名だけの点の文字列は、行き先が 1 つに決まらないので書き換えずに注意に出す(モジュールの名は
+  - `test_path_chains_over_several_constants_are_rewritten_in_a_sample`(関数): 〔突然変異 m28〕作った見本の木で: 2 つ以上の定数にまたがる ``/`` の結合を、道具の入口(許可の記号の中の文字列の書き換え)で
+  - `test_record_tools_get_only_their_import_statements_rewritten`(関数)
+  - `test_record_tools_list_matches_the_scan_of_tests`(関数): (a) の範囲に足す docs の記録の道具の一覧は、tests が道で読む docs の ``.py`` の走査と同じ。
+  - `test_skipping_interim_bundles_then_applying_it_keeps_the_guards`(関数): 〔親の決定 12〕interim_bundles を飛ばして後の段を当て、最後に interim_bundles を当てても守りが通り、残る段をまとめて
+  - `test_split_import_keeps_the_comments_of_its_names`(関数): 〔突然変異 m13・L-9〕行き先が 2 つに分かれる文を作り直すとき、名の行の注・名の前の注だけの行・頭の行の注を残す。
+  - `test_stacked_apply_prunes_old_package_dirs_and_returns_3_when_imports_fail`(関数): 〔検収 L-a・n07〕同じ木に段を重ねて当てる形: 前の import が作った ``__pycache__`` を全部のディレクトリに置いた木へ、次の
+  - `test_staged_plan_refuses_the_held_rows_and_leaves_them`(関数)
+  - `test_stages_in_order_give_the_same_tree_as_together`(関数): 残る最初の 2 段を順に当てた木と、2 つをまとめて当てた木が同じ(違ってよいのは import の文の並びと分け方だけ・前の段で
+  - `test_string_constants_outside_the_allowlist_do_not_change`(関数)
+  - `where`(関数): 今の道(``src/shibuya`` からの相対)のファイルの、リポの今の木の中の道筋(移した後なら新しい道)。
+- import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/classids.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/importcheck.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
+- 環境変数: `os.environ` をまるごと使う
+
 ## [test_realworld_fetch_jinryu.py](../../../../../../tests/tools/test_realworld_fetch_jinryu.py)
 
 第333(R-114): 渋谷区の人流の再取得で 2025 年以降の行が開封済みの層に混ざらない(合成の行だけ・実データは読まない)。
@@ -597,7 +666,7 @@ tools/repo_guide(段 3 ファイルのカード・11-05/§3-1 の 1)の試験。
   - `test_unparsable_file_is_reported_not_guessed`(関数)
   - `test_unresolved_bare_import_gets_a_mark`(関数)
   - `test_write_permits_from_table`(関数)
-- import している内部モジュール: `shibuya.engine.state_ledger`・`shibuya.engine.systems.allow`・`shibuya.engine.systems.spec`・`shibuya.engine.systems.table`
+- import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.state_ledger`・`shibuya.engine.systems.allow`・`shibuya.engine.systems.spec`・`shibuya.engine.systems.table`・`tests/_places.py`
 - 環境変数: `os.environ` をまるごと使う
 - 決定の ID: 10-12・10-12/D-9・10-13b・10-13b/K3・10-13b/K3 #5・10-25・10-25/§2-5・11-01・11-01/A1-2・11-01/a01・11-01/a1・11-01/§1・11-01/§1 #7・11-01/§1 #8・11-01/§1 #12・11-05/§3-1・R-9・R-9 #3・R-126・R-126 §1-4 #46・D-74・D-74 #4・第 170・第 275・第 275 #7・第 340・第 345・第 345 #2・第 1000
 

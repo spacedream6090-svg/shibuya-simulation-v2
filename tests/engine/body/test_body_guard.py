@@ -18,12 +18,18 @@ import numpy as np
 import pytest
 
 from shibuya.engine.body import BodyModel
+from shibuya.engine.body import model as _BM
+from shibuya.engine.body import schedule as _BS
 from shibuya.engine.systems import allow as AL
 
 from tests.engine.ast_writers import UNKNOWN, scan_writes
 
 SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya"
-MODEL, SCHED = "engine/body/model.py", "engine/body/schedule.py"
+#: 体の層のファイルと、その包みのディレクトリ(〔段 4 の下ごしらえ・親の裁定 L-7〕字面で持たず、モジュールの ``__file__``
+#: から作る。前は "engine/body/model.py"・"engine/body/schedule.py"・ディレクトリの "engine/body/"=段 4 で包みごと移る)。
+MODEL, SCHED = (Path(m.__file__).resolve().relative_to(SRC.resolve()).as_posix() for m in (_BM, _BS))
+BODY_DIR = MODEL.rpartition("/")[0] + "/"
+assert SCHED.startswith(BODY_DIR)
 #: 体の層の中身の欄(持ち主の 2 つ+予約の列の欄)。
 COLS = frozenset({"_reservations", "_body_meter", "intero", "intero_seq", "intero_at", "intero_snap", "intero_primed", "felt",
                   "felt_seq", "felt_at", "felt_col", "felt_table", "felt_next", "felt_serial"})
@@ -52,7 +58,7 @@ def _writes(rel: str, text: str) -> list[str]:
         return []
     bad = []
     for w in scan_writes(text, lambda n: n in COLS):
-        if w.name == UNKNOWN and not rel.startswith("engine/body/"):
+        if w.name == UNKNOWN and not rel.startswith(BODY_DIR):
             continue
         if f"{rel}:{w.func}" not in ALLOWED:
             bad.append(f"{rel}:{w.line} [{w.func}] {w.kind} {w.name} ({w.form})")
@@ -99,7 +105,7 @@ def _scan_ports(files: dict[str, str]) -> tuple[list[str], list[str], list[str]]
                 sched_bad.append(f"{rel}:{line} [{func}] {recv}.{port}")
             if port in ("step", "initial") and "body" in recv.lower():
                 body_calls.append(f"{rel}:{func}:{port}")
-            if port in MUTATORS and recv.split(".")[-1] in COLS and not rel.startswith("engine/body/"):
+            if port in MUTATORS and recv.split(".")[-1] in COLS and not rel.startswith(BODY_DIR):
                 writes.append(f"{rel}:{line} [{func}] method {recv}.{port}")
     return sched_bad, body_calls, writes
 

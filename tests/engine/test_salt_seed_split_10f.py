@@ -60,22 +60,29 @@ _RNG_FUNCS = ("stream", "philox", "derive_key", "philox_array")  # 〔第 2 期 
 _RNG_MODULES = ("shibuya.core.rng", "core.rng", "rng")
 
 
+#: 乱数のモジュールの名の部品(〔段 4 の下ごしらえ〕置き場を字面で持たず、モジュールの ``__name__`` から作る。
+#: 今は ``shibuya.core.rng`` → 葉 ``rng``・包みの葉 ``core``・根を除いた名 ``core.rng``。段 4 で置き場が動けば一緒に動く)。
+_RNG_LEAF = RNG.__name__.rpartition(".")[2]
+_RNG_PKG_LEAF = RNG.__name__.rpartition(".")[0].rpartition(".")[2]
+_RNG_TAIL = RNG.__name__.partition(".")[2]
+
+
 def _rng_aliases(tree: ast.AST) -> tuple[dict[str, str], set[str]]:
     """``from shibuya.core.rng import stream as _s`` の別名(名前 → 本来の名前)と、``import … rng as R`` の名前。"""
     names: dict[str, str] = {f: f for f in _RNG_FUNCS}
     mods: set[str] = set()
     for n in ast.walk(tree):
-        if isinstance(n, ast.ImportFrom) and (n.module or "").split(".")[-1] == "rng":
+        if isinstance(n, ast.ImportFrom) and (n.module or "").split(".")[-1] == _RNG_LEAF:
             for a in n.names:
                 if a.name in _RNG_FUNCS:
                     names[a.asname or a.name] = a.name
-        elif isinstance(n, ast.ImportFrom) and (n.module or "").endswith("core"):
+        elif isinstance(n, ast.ImportFrom) and (n.module or "").endswith(_RNG_PKG_LEAF):
             for a in n.names:
-                if a.name == "rng":
+                if a.name == _RNG_LEAF:
                     mods.add(a.asname or a.name)
         elif isinstance(n, ast.Import):
             for a in n.names:
-                if a.name.endswith("core.rng"):
+                if a.name.endswith(_RNG_TAIL):
                     mods.add(a.asname or a.name)
     return names, mods
 

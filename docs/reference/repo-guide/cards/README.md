@@ -25,7 +25,7 @@
 | [src/shibuya/economy](src/shibuya/economy/README.md) | 15 | 0 |
 | [src/shibuya/engine](src/shibuya/engine/README.md) | 62 | 0 |
 | [src/shibuya/engine/body](src/shibuya/engine/body/README.md) | 5 | 0 |
-| [src/shibuya/engine/bridging](src/shibuya/engine/bridging/README.md) | 3 | 0 |
+| [src/shibuya/engine/bridging](src/shibuya/engine/bridging/README.md) | 4 | 0 |
 | [src/shibuya/engine/calendar2](src/shibuya/engine/calendar2/README.md) | 6 | 0 |
 | [src/shibuya/engine/calendar3](src/shibuya/engine/calendar3/README.md) | 6 | 0 |
 | [src/shibuya/engine/contact](src/shibuya/engine/contact/README.md) | 12 | 0 |
@@ -46,7 +46,7 @@
 | [src/shibuya/perception](src/shibuya/perception/README.md) | 11 | 0 |
 | [src/shibuya/world](src/shibuya/world/README.md) | 6 | 0 |
 | [src/shibuya/world/processes](src/shibuya/world/processes/README.md) | 11 | 0 |
-| [tests](tests/README.md) | 18 | 0 |
+| [tests](tests/README.md) | 21 | 0 |
 | [tests/agents](tests/agents/README.md) | 3 | 0 |
 | [tests/bench](tests/bench/README.md) | 2 | 0 |
 | [tests/bridging](tests/bridging/README.md) | 3 | 0 |
@@ -97,7 +97,7 @@
 | [tests/llm](tests/llm/README.md) | 9 | 0 |
 | [tests/perception](tests/perception/README.md) | 19 | 0 |
 | [tests/perception/facts](tests/perception/facts/README.md) | 7 | 0 |
-| [tests/tools](tests/tools/README.md) | 20 | 0 |
+| [tests/tools](tests/tools/README.md) | 21 | 0 |
 | [tests/vocab](tests/vocab/README.md) | 5 | 0 |
 | [tests/w17](tests/w17/README.md) | 3 | 0 |
 | [tests/world](tests/world/README.md) | 2 | 0 |
@@ -122,6 +122,7 @@
 | [tools/instruments/leak_check/question_sets](tools/instruments/leak_check/question_sets/README.md) | 0 | 4 |
 | [tools/ledger](tools/ledger/README.md) | 3 | 0 |
 | [tools/night5070](tools/night5070/README.md) | 2 | 2 |
+| [tools/pkgmove](tools/pkgmove/README.md) | 12 | 3 |
 | [tools/quality_probe_v0](tools/quality_probe_v0/README.md) | 8 | 9 |
 | [tools/realworld_fetch](tools/realworld_fetch/README.md) | 15 | 0 |
 | [tools/repo_guide](tools/repo_guide/README.md) | 4 | 0 |
@@ -133,7 +134,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 264 ディレクトリ・2199 本
+- [docs の索引](docs.md): 276 ディレクトリ・2231 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

@@ -23,6 +23,7 @@ import pytest
 
 from shibuya.agents.state import REFRACTORY_MINUTES, WakeCondition
 from shibuya.engine.bridging import ledger as L
+from shibuya.engine.bridging import ledger_paths as LP
 from shibuya.engine.bridging import scan as S
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -75,10 +76,11 @@ def test_rule_ids_point_to_the_rules_table(ledger):
 
 
 def test_declared_places_exist(ledger):
+    """台帳の道(〔移す段 4 の下ごしらえ〕移したファイルは ``ledger_paths`` の表で今の道へ引く)にファイルがある。"""
     for r in ledger:
-        assert (ROOT / r.declared_path).is_file(), (r.id, r.declared_path)
+        assert (ROOT / LP.current_path(r.declared_path)).is_file(), (r.id, r.declared_path)
         for c in r.code_at:
-            assert (ROOT / c).is_file(), (r.id, c)
+            assert (ROOT / LP.current_path(c)).is_file(), (r.id, c)
 
 
 def test_the_first_contents(ledger):
@@ -206,7 +208,7 @@ def test_heading_rows_carry_the_heading_and_the_item_count(ledger, decls):
     by_key = {r.declared_in: r for r in ledger}
     for d in (d for d in decls if d.form == S.FORM_HEADING):
         r = by_key[d.declared_in]
-        rel = d.path.removeprefix("src/shibuya/")
+        rel = LP.ledger_path(d.path).removeprefix("src/shibuya/")  # 〔移す段 4〕id は台帳の道で作った(ファイルを動かしても変えない)
         key = d.declared_in.rsplit(":", 1)[-1]
         assert r.id == f"HD-{rel.removesuffix('.py').replace('/', '.')}-{key}", (r.id, d.path)
         assert f"「{d.text}」" in r.what and f"項 {d.items} 個" in r.what, r.id
@@ -356,8 +358,9 @@ def test_doc_rows_need_no_code_declaration(ledger, decls):
                       ("BR-MOCK-SCHEDULE-POPULATION", "src/shibuya/engine/run.py"),
                       ("BR-MOCK-ACTION-ANCHOR", "src/shibuya/llm/mock.py")):
         r = ledger.get(rid)
-        assert not r.declared_in_code and r.code_at == (path,)
-        assert "繋ぎ" in (ROOT / path).read_text(encoding="utf-8")
+        # 〔移す段 4〕台帳の道で比べ、今の道で読む(ファイルを動かしても台帳は書き換えない)
+        assert not r.declared_in_code and r.code_at == (LP.ledger_path(path),)
+        assert "繋ぎ" in (ROOT / LP.current_path(LP.ledger_path(path))).read_text(encoding="utf-8")
 
 
 def test_negative_removed_rows(ledger, decls):
@@ -463,6 +466,7 @@ def test_the_ledger_sha_is_canonical(tmp_path):
 def test_a_broken_ledger_stops_the_run_at_the_start(monkeypatch, tmp_path):
     """検収 L10: 壊れた台帳は組み立て(ランの始め)で落ちる=1 日回した後の日の締めまで待たない。"""
     from shibuya.engine.run import run_day
+    from shibuya.engine.systems import build as _ASSEMBLE  # 組み立て(移す段 4 で置き場と名が変わる=名は __file__ から)
 
     p = tmp_path / "broken.json"
     p.write_text('{"schema": "shibuya.bridging-ledger/1", "bridges": [{"id": "x"}]}', encoding="utf-8")
@@ -471,7 +475,7 @@ def test_a_broken_ledger_stops_the_run_at_the_start(monkeypatch, tmp_path):
     try:
         with pytest.raises(ValueError) as exc:
             run_day(n_agents=10, seed=1, n_cells=9, ticks=5, checkpoint_every=5, processes=False, renderer="stub")
-        assert any(Path(str(e.path)).name == "build.py" for e in exc.traceback)  # 組み立ての中で落ちた
+        assert any(Path(str(e.path)).name == Path(_ASSEMBLE.__file__).name for e in exc.traceback)  # 組み立ての中で落ちた
     finally:
         L.default_ledger.cache_clear()
 
@@ -480,3 +484,40 @@ def test_counts_by_remove_at_add_up(ledger):
     by = ledger.by_remove_at()
     assert sum(by.values()) == ledger.count()
     assert set(by) <= L.PLAN_STAGES
+
+
+# ================================================================= 移した後の台帳の道(移す段 4 の下ごしらえ・親の決定 1=案 (b))
+def test_ledger_paths_table_is_one_to_one_and_points_to_files(ledger):
+    """表の今の道は全部ファイルがあり、台帳の道は重ならない。台帳のコードの行の道は、表を通して全部今のファイルに届く。"""
+    olds = list(LP.LEDGER_PATHS.values())
+    assert len(olds) == len(set(olds))
+    for now in LP.LEDGER_PATHS:
+        assert (ROOT / now).is_file(), now
+    for r in ledger:
+        if r.declared_in_code and r.declared_path.startswith("src/"):
+            assert (ROOT / LP.current_path(r.declared_path)).is_file(), (r.id, r.declared_path)
+
+
+def test_negative_a_new_declaration_in_a_moved_file_is_missing_under_the_ledger_key(ledger, monkeypatch):
+    """ファイルを動かしたふり(表に 1 行足す)でも、宣言の同定は台帳の道で作られ、台帳の行と同じ鍵になる。移したファイルに
+    宣言を 1 つ足すと、台帳の道の鍵で「台帳に行が無い」に出る(``code_mismatch`` の意味が移した後も同じ)。"""
+    row = next(r for r in ledger.active() if r.declared_in_code and r.declared_path.startswith("src/shibuya/")
+               and "#heading:" in r.declared_in)
+    led = row.declared_path
+    now = LP.current_path(led)
+    text = (ROOT / now).read_text(encoding="utf-8")
+    fake_now = "src/shibuya/_moved_for_test/" + led.rsplit("/", 1)[1]
+    table = {k: v for k, v in LP.LEDGER_PATHS.items() if v != led}
+    table[fake_now] = led
+    monkeypatch.setattr(LP, "LEDGER_PATHS", dict(table))
+    assert LP.current_path(led) == fake_now and LP.ledger_path(fake_now) == led
+    keys = {d.declared_in for d in S.scan_source(text, fake_now)}
+    assert row.declared_in in keys
+    assert all(k.startswith(led + "#") for k in keys)
+    assert {r.declared_in for r in ledger.active() if r.declared_path == led and "#fallback:" not in r.declared_in} <= keys
+    extra = S.scan_source(text + FAKE_CONF, fake_now)
+    added = sorted({d.declared_in for d in extra} - keys)
+    assert len(added) == 1 and added[0].startswith(led + "#conf:")
+    others = [d.declared_in for d in S.scan_package() if d.path != now]
+    missing, orphan = L.code_mismatch(ledger, others + [d.declared_in for d in extra])
+    assert missing == added and orphan == []

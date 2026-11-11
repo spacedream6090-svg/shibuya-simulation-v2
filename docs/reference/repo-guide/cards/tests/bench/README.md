@@ -26,5 +26,5 @@ Python 2 本・その他 0 本(このディレクトリの直下)
   - `test_seed_spread`(関数)
   - `test_table_from_three_synthetic_manifests_is_deterministic`(関数)
   - `test_write_outputs_writes_json_and_markdown_without_absolute_paths`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.arbiter`・`shibuya.engine.resolve`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.arbiter`・`shibuya.engine.resolve`・`tests/_places.py`
 - 決定の ID: D-56・D-62・D-66

@@ -22,7 +22,8 @@ import pytest
 
 from shibuya.agents.state import AgentKind, AgentState, ResultCode
 from shibuya.engine.run import _inviter_of, run_day
-from shibuya.llm import LLMResponse, format_two_line, parse_two_line
+from shibuya.llm import LLMResponse, format_two_line
+from shibuya.llm.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
 from shibuya.perception import templates as T
 from shibuya.perception.renderer import INVITE_REASON, Renderer, person_word
 from shibuya.world.state import World

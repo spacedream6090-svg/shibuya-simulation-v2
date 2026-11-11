@@ -61,6 +61,9 @@ ENTRY_FILES: dict[str, dict[str, set[str]]] = {
 }
 #: CP12 の実験の条件の型の凍結の名(試験は src の外なので書いてよい)。
 EXP_ID = "shibuya.engine.events.log.Experiment"
+#: 同じ型の今の置き場(「モジュール.クラス名」)。凍結の名と分けて、型の ``__module__`` から作る(段 4 で置き場が動いても
+#: 凍結の名は変わらない=凍結の名を置き場として使わない)。
+EXP_PATH = f"{EV.Experiment.__module__}.{EV.Experiment.__qualname__}"
 
 
 # ================================================================= AST の集め方(道具と別に書く=2 つの実装の突き合わせ)
@@ -112,7 +115,7 @@ QUALS, DECLARED = src_classes()
 
 # ================================================================= 1 網羅
 def test_table_keys_and_declarations_are_exactly_the_classes_in_src():
-    assert DECLARED == {EXP_ID}, "置き場で宣言するクラスは CP12 の型だけのはず(増やすなら理由を記録に書く)"
+    assert DECLARED == {EXP_PATH}, "置き場で宣言するクラスは CP12 の型だけのはず(増やすなら理由を記録に書く)"
     missing = sorted(set(QUALS) - set(CLASS_IDS) - DECLARED)
     extra = sorted(set(CLASS_IDS) - set(QUALS))
     both = sorted(set(CLASS_IDS) & DECLARED)
@@ -125,7 +128,7 @@ def test_table_keys_and_declarations_are_exactly_the_classes_in_src():
 def test_frozen_json_maps_each_value_to_the_qualname_of_its_class():
     assert list(FROZEN) == sorted(FROZEN), "凍結の JSON は凍結の名の昇順"
     want = {v: QUALS[k] for k, v in CLASS_IDS.items()}
-    want[EV.Experiment.CLASS_ID] = QUALS[EXP_ID]
+    want[EV.Experiment.CLASS_ID] = QUALS[EXP_PATH]
     assert FROZEN == want
     for k, v in CLASS_IDS.items():  # 値の末尾が鍵のクラスの __qualname__(値どうしの入れ替えを落とす=検収 M3)
         assert v.endswith("." + QUALS[k]), (k, v)
@@ -133,7 +136,8 @@ def test_frozen_json_maps_each_value_to_the_qualname_of_its_class():
 
 def test_swapping_two_values_is_caught():
     """突然変異(``ActivityKind`` と ``AgentKind`` の値の入れ替え)を、名の集合でなく写像が落とす。"""
-    a, b = "shibuya.agents.state.ActivityKind", "shibuya.agents.state.AgentKind"
+    # 凍結の名から今の置き場(表の鍵)を引く(段 4・段 5 で置き場が動いても同じ 2 つの型)
+    a, b = class_path("shibuya.agents.state.ActivityKind"), class_path("shibuya.agents.state.AgentKind")
     ids = dict(CLASS_IDS)
     ids[a], ids[b] = ids[b], ids[a]
     assert set(ids.values()) == set(CLASS_IDS.values())  # 名の集合では同じ
@@ -214,8 +218,9 @@ def test_entry_functions_go_through_the_table():
 
 def test_allowed_class_refuses_a_path_that_points_to_another_class(monkeypatch):
     """検収 M6: 凍結の名の import 先(``_PATH_OF``)が別のクラスを指せば ``StateFormatError`` で止まる。"""
-    name = "shibuya.engine.arbiter.WakeCandidates"
-    other = "shibuya.engine.scheduler.DeferralQueue"
+    name = "shibuya.engine.arbiter.WakeCandidates"  # 凍結の名
+    other = class_path("shibuya.engine.scheduler.DeferralQueue")  # 別のクラスの今の置き場(凍結の名から引く)
+    assert other == f"{DeferralQueue.__module__}.{DeferralQueue.__qualname__}"
     paths = dict(CI._PATH_OF)
     paths[name] = other
     monkeypatch.setattr(CI, "_PATH_OF", MappingProxyType(paths))
@@ -272,11 +277,12 @@ def _unit_bytes() -> tuple:
 
 def test_pretend_move_keeps_hash_state_file_and_fingerprint_bytes(monkeypatch):
     before = _unit_bytes()
-    assert b"shibuya.engine.arbiter.WakeCandidates" in before[0]
+    assert b"shibuya.engine.arbiter.WakeCandidates" in before[0]  # 凍結の名がバイトに入る
+    place = class_path("shibuya.engine.arbiter.WakeCandidates")  # 動かしたふりの前の今の置き場
     with monkeypatch.context() as m:
         moved = _pretend_moved(m)
         assert class_id(WakeCandidates) == "shibuya.engine.arbiter.WakeCandidates"
-        assert class_path("shibuya.engine.arbiter.WakeCandidates") == moved["shibuya.engine.arbiter.WakeCandidates"]
+        assert class_path("shibuya.engine.arbiter.WakeCandidates") == moved[place]
         assert _unit_bytes() == before
     with monkeypatch.context() as m:  # 負の対照 1: 表を合わせない shibuya の置き場=表に無い型で止まる
         _pretend_moved(m, table=False)

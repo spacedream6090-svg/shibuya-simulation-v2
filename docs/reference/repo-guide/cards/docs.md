@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-264 ディレクトリ・2199 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+276 ディレクトリ・2231 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -108,9 +108,40 @@
 - [sub_e_presence_shape.md](../../../bench/analysis/notable-events-2026-09-24/sub_e_presence_shape.md): サブ E 調査報告: 在圏の形と holdout の外れ(2026-09-24)
 - [sub_f_consumption_economy.md](../../../bench/analysis/notable-events-2026-09-24/sub_f_consumption_economy.md): サブ F — 消費・食事・店・経済(購入と食事の成立・食後の休憩・売上の水準・店の分布・廃棄・faucet/sink・深夜・待ち行列・宿泊)
 
+## docs/bench/analysis/pkgmove-346(1 本)
+
+- [README.md](../../../bench/analysis/pkgmove-346/README.md): 移す段 3「移す道具」(コードの区分の移動・返事その 7 §4-2)
+
+## docs/bench/analysis/pkgmove-346/bytecheck(3 本)
+
+## docs/bench/analysis/pkgmove-346/dryrun(2 本)
+
+## docs/bench/analysis/pkgmove-346/round2(4 本)
+
+- [docs_tools_not_read_by_tests.md](../../../bench/analysis/pkgmove-346/round2/docs_tools_not_read_by_tests.md): 段 4 の後に動かなくなる docs の記録の道具(tests が読まないもの・親の決定 7)
+- [failing_tests_by_stage.md](../../../bench/analysis/pkgmove-346/round2/failing_tests_by_stage.md): 全段の木で落ちた試験(試験の役へ渡す一覧・道具の役 round2)
+
+## docs/bench/analysis/pkgmove-346/round2/bytecheck/act(3 本)
+
+## docs/bench/analysis/pkgmove-346/round2/bytecheck/all(3 本)
+
+## docs/bench/analysis/pkgmove-346/round2/bytecheck/all3(3 本)
+
+## docs/bench/analysis/pkgmove-346/round2/bytecheck/found3b(3 本)
+
+## docs/bench/analysis/pkgmove-346/round2/bytecheck/runtime(3 本)
+
+## docs/bench/analysis/pkgmove-346/round2/bytecheck/world(3 本)
+
+## docs/bench/analysis/pkgmove-346/round2/bytecheck/wt(3 本)
+
 ## docs/bench/analysis/pointcloud-2026-11(1 本)
 
 - [README.md](../../../bench/analysis/pointcloud-2026-11/README.md): 都の区部点群(航空レーザ 2023)の集計=床の高さ・坂・歩道の面(pointcloud-2026-11)
+
+## docs/bench/analysis/prep4-346(1 本)
+
+- [README.md](../../../bench/analysis/prep4-346/README.md): 段 4 の下ごしらえ: 試験の側(コードの区分の移動・返事その 7 §4-2)
 
 ## docs/bench/analysis/presence-docstring-1102(4 本)
 

@@ -12,11 +12,13 @@ import pytest
 
 from shibuya.engine.decision.port import DecisionContext
 from shibuya.engine.duties import arm as AD
+from shibuya.engine.duties import layer as LY
 from shibuya.engine.duties import port as PD
 from shibuya.engine.duties.knowledge import UNKNOWN, ShopRules, rules_line
 from shibuya.engine.rights import ledger as L
 
-SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya" / "engine" / "duties"
+#: 層のファイル(〔段 4 の下ごしらえ〕置き場をディレクトリの字面で持たず、モジュールの ``__file__`` から作る)。
+LAYER_PY = Path(LY.__file__)
 
 
 def _rules(rule_row: tuple[int, int] = (540, 1260)) -> ShopRules:
@@ -150,7 +152,7 @@ def _cause_problems(src: str) -> list[str]:
 
 
 def test_ast_person_events_come_only_from_decisions():
-    assert _cause_problems((SRC / "layer.py").read_text(encoding="utf-8")) == []
+    assert _cause_problems(LAYER_PY.read_text(encoding="utf-8")) == []
 
 
 def test_ast_negative_control_catches_planted_causes():
@@ -189,7 +191,7 @@ def _time_problems(src: str) -> list[str]:
 
 
 def test_ast_offer_conditions_have_no_time_literals():
-    assert _time_problems((SRC / "layer.py").read_text(encoding="utf-8")) == []
+    assert _time_problems(LAYER_PY.read_text(encoding="utf-8")) == []
 
 
 def test_ast_negative_control_catches_time_literals():

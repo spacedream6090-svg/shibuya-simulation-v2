@@ -17,10 +17,18 @@ import pytest
 
 from shibuya.engine import state_ledger_ast as A
 from shibuya.engine.systems import allow as AL
+from shibuya.core import write_permit as _WP_MOD
+from shibuya.engine.systems import guard as _G_MOD
 from shibuya.engine.systems import static_check as SC
 from shibuya.engine.systems.table import SPECS, SYSTEMS
 
 SRC = Path("src/shibuya")
+#: 許可の口のモジュールの名と、その包み・包みの中の名(〔段 4 の下ごしらえ〕字面で持たず、モジュールの ``__name__`` から
+#: 作る。段 4 で write_permit と guard は別の包みへ動き、guard は名も変わる)。
+WP_MODULE = _WP_MOD.__name__
+WP_PKG, _, WP_LEAF = WP_MODULE.rpartition(".")
+G_MODULE = _G_MOD.__name__
+G_PKG, _, G_LEAF = G_MODULE.rpartition(".")
 HERE = Path(__file__).resolve().parent
 
 # ================================================================= 3: 書きの許可を外す口
@@ -65,13 +73,13 @@ def permit_offenders(rel: str, tree: ast.AST) -> list[str]:
                 full = f"{n.module}.{a.name}"
                 if full in PERMIT_MODULES:
                     mod_alias.add(a.asname or a.name)
-                if n.module == "shibuya.core" and a.name == "write_permit":
+                if n.module == WP_PKG and a.name == WP_LEAF:
                     wp_alias.add(a.asname or a.name)
-                elif n.module == "shibuya.core.write_permit":
+                elif n.module == WP_MODULE:
                     wp_direct[a.asname or a.name] = a.name
-                elif n.module == "shibuya.engine.systems" and a.name == "guard":
+                elif n.module == G_PKG and a.name == G_LEAF:
                     g_alias.add(a.asname or a.name)
-                elif n.module == "shibuya.engine.systems.guard":
+                elif n.module == G_MODULE:
                     g_direct[a.asname or a.name] = a.name
                 if a.name == "_WP":  # 再輸出の名の輸入(段 FIX2・R1')
                     wp_alias.add(a.asname or a.name)
@@ -81,9 +89,9 @@ def permit_offenders(rel: str, tree: ast.AST) -> list[str]:
             for a in n.names:
                 if a.name in PERMIT_MODULES:
                     mod_alias.add(a.asname or a.name.split(".")[0])
-                if a.name == "shibuya.core.write_permit":
+                if a.name == WP_MODULE:
                     wp_alias.add(a.asname or a.name)
-                if a.name == "shibuya.engine.systems.guard":
+                if a.name == G_MODULE:
                     g_alias.add(a.asname or a.name)
     if (wp_alias or wp_direct) and rel not in WP_IMPORTERS:
         out.append(f"{rel}: write_permit を import してよい置き場の外")
@@ -146,10 +154,12 @@ def test_permit_switches_are_called_only_from_known_places():
 
 def test_permit_check_catches_planted_switches():
     """負の対照(検収 L2・L11): 系と層から許可を外す口を呼ぶ・大域を書き換えると見つかる。"""
+    # 差し込むコードの import の文は、今の口の置き場から組み立てる(〔段 4 の下ごしらえ〕前は字面で、移す道具が一部だけを
+    # 書き換えて検査の側と食い違った)
     planted = ast.parse(
-        "from shibuya.core import write_permit as WP\n"
-        "from shibuya.core.write_permit import set_enabled\n"
-        "from shibuya.engine.systems import guard as G\n"
+        f"from {WP_PKG} import {WP_LEAF} as WP\n"
+        f"from {WP_MODULE} import set_enabled\n"
+        f"from {G_PKG} import {G_LEAF} as G\n"
         "def sys_x(ctx, b):\n"
         "    with WP.scope(None):\n        pass\n"
         "    set_enabled(False)\n"
@@ -163,19 +173,19 @@ def test_permit_check_catches_planted_switches():
 
 
 @pytest.mark.parametrize("src,words", [
-    # 再検収 R1・R1' の 4 行(検収役の形)
-    ("from shibuya.engine.systems import guard as G\n"
+    # 再検収 R1・R1' の 4 行(検収役の形)。〔段 4 の下ごしらえ・親の裁定 L-7〕guard の包みと名は __name__ から組み立てる
+    (f"from {G_PKG} import {G_LEAF} as G\n"
      "def sys_x(ctx, b):\n    with G._WP.scope(None):\n        pass\n", ("_WP を読む", "G._WP.scope")),
     ("from shibuya.agents.state import _WP as X\n"
      "def sys_x(ctx, b):\n    X.set_enabled(False)\n", ("_WP を輸入", "set_enabled を呼んでよい")),
     ("import shibuya.agents.state as ST\n"
      "def sys_x(ctx, b):\n    with ST._WP.scope(None):\n        pass\n", ("_WP を読む", "ST._WP.scope")),
-    ("from shibuya.engine.systems import guard as G\n"
+    (f"from {G_PKG} import {G_LEAF} as G\n"
      "def sys_x(ctx, b, name):\n    setattr(G, name, None)\n", ("setattr(変数の名)",)),
     # 同じ型の変種
     ("import shibuya.agents.state\n"
      "def sys_x(ctx, b):\n    shibuya.agents.state._WP.set_enabled(False)\n", ("_WP を読む", "set_enabled")),
-    ("from shibuya.engine.systems import guard as G\n"
+    (f"from {G_PKG} import {G_LEAF} as G\n"
      "def sys_x(ctx, b):\n    wp = getattr(G, '_WP')\n", ("getattr で _WP",)),
 ])
 def test_permit_check_catches_reexported_names(src, words):
@@ -414,10 +424,17 @@ def bypass_setattr_sites(rel: str, tree: ast.AST) -> list[str]:
 
 def test_systems_modules_do_not_bypass_the_box_setattr():
     """系のモジュール(箱の定義 ``boxes.py`` の外)は ``object.__setattr__`` を使わない(段 C を素通りしない)。"""
-    root = SRC / "engine" / "systems"
+    from shibuya.engine.systems import boxes as BOXES
+
+    from tests import _places as PL
+
+    # 〔段 4 の下ごしらえ〕前は字面のディレクトリ engine/systems の直下(と名の boxes.py)。元の置き場が系の包みの直下の
+    # ファイルを対応表で引き、箱の定義はモジュールの __file__ で外す(段 4 で系の包みは 3 つの包みへ分かれる)
+    files = PL.files_from(BOXES, recursive=False)
+    assert len(files) > 20
     hits = []
-    for fp in sorted(root.glob("*.py")):
-        if fp.name == "boxes.py":
+    for fp in files:
+        if fp.resolve() == Path(BOXES.__file__).resolve():
             continue
         hits += bypass_setattr_sites(fp.name, ast.parse(fp.read_text(encoding="utf-8")))
     assert not hits, hits

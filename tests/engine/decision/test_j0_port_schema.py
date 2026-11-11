@@ -24,8 +24,10 @@ from shibuya.llm.contract import cross_action_words
 
 from tests.engine.decision._j0 import FakeBridge, FakePolicy, ctx_of, vocab_candidates
 
-ROOT = Path(__file__).resolve().parents[3]
-DECISION = ROOT / "src" / "shibuya" / "engine" / "decision"
+#: 読む実装のファイル(〔段 4 の下ごしらえ〕置き場を字面のディレクトリで持たず、モジュールの ``__file__`` から作る。
+#: 段 4 で ``port.py`` と ``ports.py`` は別の包みへ動く)。
+PORT_PY = Path(P.__file__)
+PORTS_PY = Path(PS.__file__)
 
 
 def test_sources_are_the_five_of_dm0_and_the_bridge_mark():
@@ -119,7 +121,7 @@ def test_three_implementations_share_one_entry():
     for cls in (PS.LlmPort, PS.MockPort, PS.ClassicalPort):
         assert issubclass(cls, P.DecisionPort) and cls.choose is P.DecisionPort.choose and cls.name in PS.PORT_NAMES
     # AST: 実装のファイルに choose の定義が無い(上書きしない)
-    tree = ast.parse((DECISION / "ports.py").read_text(encoding="utf-8"))
+    tree = ast.parse(PORTS_PY.read_text(encoding="utf-8"))
     assert not [n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "choose"]
 
 
@@ -202,7 +204,7 @@ def test_compose_short_and_long_share_the_common_head():
 
 def test_no_literal_example_numbers_in_the_prompt_parts():
     """DM4 の答え(数字はお金と時刻だけ)・R-97(例の数値を書かない): 提示と指示の文に数字の例を書かない。"""
-    src = (DECISION / "port.py").read_text(encoding="utf-8")
+    src = PORT_PY.read_text(encoding="utf-8")
     for name in ("_LONG_INSTRUCTION", "OTHER_TEXT"):
         line = next(ln for ln in src.splitlines() if ln.startswith(name))
         assert not any(ch.isdigit() for ch in line.split("=", 1)[1]), line

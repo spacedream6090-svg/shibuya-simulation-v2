@@ -60,7 +60,7 @@ Python 5 本・その他 2 本(このディレクトリの直下)
   - `test_roots_are_the_same_paths_as_before`(関数)
   - `test_static_check_names_come_from_the_modules`(関数)
   - `test_world_catalog_package_name_comes_from_the_module`(関数)
-- import している内部モジュール: `shibuya`・`shibuya.core.budget`・`shibuya.core.paths`・`shibuya.core.rng`・`shibuya.engine.bridging.ledger`・`shibuya.engine.bridging.scan`・`shibuya.engine.classical`・`shibuya.engine.energy`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.rng_audit`・`shibuya.engine.rules.table`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems`・`shibuya.engine.systems.allow`・`shibuya.engine.systems.static_check`・`shibuya.manifest.world_catalog`・`shibuya.world.processes.constitution`
+- import している内部モジュール: `shibuya`・`shibuya.core.budget`・`shibuya.core.paths`・`shibuya.core.rng`・`shibuya.engine.bridging.ledger`・`shibuya.engine.bridging.scan`・`shibuya.engine.classical`・`shibuya.engine.energy`・`shibuya.engine.resolve`・`shibuya.engine.resume`・`shibuya.engine.rng_audit`・`shibuya.engine.rules.table`・`shibuya.engine.state_ledger_ast`・`shibuya.engine.systems.allow`・`shibuya.engine.systems.static_check`・`shibuya.manifest.world_catalog`・`shibuya.world.processes.constitution`・`tests/_places.py`
 
 ## [test_names_frozen.py](../../../../../../../tests/engine/state/test_names_frozen.py)
 

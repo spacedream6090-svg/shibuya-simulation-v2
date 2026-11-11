@@ -63,7 +63,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_m5_calls_by_model_is_unchanged_without_the_arm`(関数)
   - `test_m5_look_is_a_main_candidate_and_counts`(関数): 腕 port: 暇なときの「スマホを見る」は主の判断の候補(選ぶと同じ刻みに画面を見る)・別の暇の判断はしない・段 B も通る。
   - `with_groups`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.contact.attention`・`shibuya.engine.contact.layer`・`shibuya.engine.contact.port`・`shibuya.engine.conversation`・`shibuya.engine.decision.layer`・`shibuya.engine.decision.port`・`shibuya.engine.decision.ports`・`shibuya.engine.events.log`・`shibuya.engine.run`・`shibuya.engine.systems.table`・`shibuya.engine.tools.groups`・`shibuya.engine.tools.record`・`tests/engine/contact/_c1.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.contact.attention`・`shibuya.engine.contact.book`・`shibuya.engine.contact.calls`・`shibuya.engine.contact.chat_state`・`shibuya.engine.contact.deliver`・`shibuya.engine.contact.device`・`shibuya.engine.contact.layer`・`shibuya.engine.contact.port`・`shibuya.engine.conversation`・`shibuya.engine.decision.layer`・`shibuya.engine.decision.port`・`shibuya.engine.decision.ports`・`shibuya.engine.events.log`・`shibuya.engine.run`・`shibuya.engine.systems.table`・`shibuya.engine.tools.groups`・`shibuya.engine.tools.record`・`tests/engine/contact/_c1.py`
 - 環境変数: `SHIBUYA_SYSTEMS_CHECK`
 
 ## [test_c1_flow.py](../../../../../../../tests/engine/contact/test_c1_flow.py)
@@ -197,7 +197,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_states_from_activity_and_place`(関数)
   - `test_surprise_goes_back`(関数): 驚き=その刻みに起床条件 (i) で起きた体(割り込みと同じ入口=系 contact が刻みの頭に置く ``_interrupted``)。
   - `test_tie_takes_the_first_word_in_order`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.contact.arm`・`shibuya.engine.contact.habit`・`shibuya.engine.contact.layer`・`shibuya.engine.contact.port`・`tests/engine/contact/_c1.py`・`tests/engine/contact/_c2.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.contact.arm`・`shibuya.engine.contact.book`・`shibuya.engine.contact.habit`・`shibuya.engine.contact.layer`・`shibuya.engine.contact.port`・`shibuya.engine.contact.tools`・`tests/engine/contact/_c1.py`・`tests/engine/contact/_c2.py`
 
 ## [test_c2_runs.py](../../../../../../../tests/engine/contact/test_c2_runs.py)
 

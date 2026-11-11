@@ -14,10 +14,11 @@ from pathlib import Path
 import pytest
 
 from shibuya import cli
-from shibuya.engine import body as B
 from shibuya.engine import manifest_sections as MS
 from shibuya.engine import run_kind as RK
 from shibuya.engine.body import model as BM
+# 〔段 4 の下ごしらえ・親の決定 3〕腕の口は定義したモジュール(schedule)を直に読む(包みの頭の再輸出に頼らない)
+from shibuya.engine.body import schedule as B
 from shibuya.engine.run import run_day
 
 WORLD_DIR = Path("data/world/v2")
@@ -62,7 +63,7 @@ def test_arm_switch_reads_env_and_cli(monkeypatch):
     with pytest.raises(ValueError):
         B.set_arm("lazy")
     B.set_arm("reserve")
-    assert B.arm() == "reserve" and B.BodyModel(3).arm == "reserve"
+    assert B.arm() == "reserve" and BM.BodyModel(3).arm == "reserve"
     B.set_arm("sweep")
     seen = {}
     monkeypatch.setattr(cli, "run", lambda **kw: (seen.update(arm=B.arm()), type("S", (), {

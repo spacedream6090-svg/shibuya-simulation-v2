@@ -20,7 +20,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "src" / "shibuya"
 ALLOW = Path(__file__).with_name("tick_word_allow.json")
-WORD_DIRS = (SRC / "core", SRC / "engine" / "systems")
+
+
+def _word_files() -> list[Path]:
+    """(a) の対象: 元の置き場が core と engine/systems のファイル。〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面のディレクトリ
+    ``SRC / "core"``・``SRC / "engine" / "systems"`` の走査(段 4 で core は無くなり、systems は別の包みへ移る)。"""
+    from shibuya.core import time_consts as CORE
+    from shibuya.engine.systems import table as SYSTEMS
+
+    from tests import _places as PL
+
+    return PL.files_from(CORE, SYSTEMS)
 
 TICK = re.compile(r"tick", re.I)
 QUOTED = re.compile(r"``[^`]*``|`[^`]*`")
@@ -115,11 +125,12 @@ def bare_word_lines(text: str) -> list[tuple[int, str]]:
 
 def test_no_bare_word_in_comments_and_docstrings_of_core_and_systems():
     bad = {}
-    for d in WORD_DIRS:
-        for p in sorted(d.rglob("*.py")):
-            hits = bare_word_lines(p.read_text(encoding="utf-8"))
-            if hits:
-                bad[p.relative_to(ROOT).as_posix()] = hits
+    files = _word_files()
+    assert len(files) > 20
+    for p in files:
+        hits = bare_word_lines(p.read_text(encoding="utf-8"))
+        if hits:
+            bad[p.relative_to(ROOT).as_posix()] = hits
     assert bad == {}, f"注釈と docstring の「tick」(「刻み」「計算のまとめ」にする・名の引用はバッククォートで): {bad}"
 
 

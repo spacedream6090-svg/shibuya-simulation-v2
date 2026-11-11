@@ -1,7 +1,7 @@
 """第 1 期 1-2 知覚の分離: 「状態 → Percept → 文」の描画が 1-2 の前の描画とバイト一致(口の約束 1-2 の約束 (1))。
 
-比べる相手は本体 HEAD ``136fdbb`` の ``renderer.py`` のバイトそのままの写し(``head_renderer_136fdbb.py``・sha256 は
-``scenes.HEAD_RENDERER_SHA256``)。同じ世界・個体・資産・設定・口を持つ「双子」を作り、同じ刻みの同じ前計算の材料
+比べる相手は本体 HEAD ``136fdbb`` の ``renderer.py`` のバイトそのままの写し(``head_renderer_136fdbb.py``・固定は
+``scenes`` の ``HEAD_RENDERER_TEXT_SHA256``・``HEAD_RENDERER_ORDER``・``HEAD_RENDERER_REFS``=``tests/_head_copy_pin.py``)。同じ世界・個体・資産・設定・口を持つ「双子」を作り、同じ刻みの同じ前計算の材料
 (``prepare_tick`` の引数)と同じ描画の引数で描かせて、本文・ブロック・指紋・トークン・切り詰め・想起の列・知人の列を比べる。
 
 (A) 合成の場面 13 種(固定枠・単一ランキング・看板の注視 p_see(1-2 で活動の乗数は消した=HEAD の双子は乗数の表が既定の

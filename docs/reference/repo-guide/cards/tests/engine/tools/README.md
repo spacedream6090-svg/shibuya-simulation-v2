@@ -88,7 +88,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_recorded_count_is_reproduced_with_the_same_rule`(関数)
   - `test_the_table_is_empty_and_answers_none`(関数)
   - `test_the_table_is_read_only_after_construction`(関数)
-- import している内部モジュール: `shibuya.engine.bridging.ledger`・`shibuya.engine.run`・`shibuya.engine.tools.places`・`shibuya.engine.tools.registry`
+- import している内部モジュール: `shibuya.engine.bridging.ledger`・`shibuya.engine.bridging.ledger_paths`・`shibuya.engine.run`・`shibuya.engine.tools.places`・`shibuya.engine.tools.registry`・`tests/_places.py`
 - 決定の ID: 10-13b/§3・11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・第 334
 
 ## [test_c0_signboard_mark_invariance.py](../../../../../../../tests/engine/tools/test_c0_signboard_mark_invariance.py)

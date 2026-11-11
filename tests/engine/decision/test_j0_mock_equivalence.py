@@ -23,7 +23,8 @@ from shibuya.engine.decision import port as P
 from shibuya.engine.decision import ports as PS
 from shibuya.engine.llm_bridge import LLMBridge
 from shibuya.engine.run import run_day
-from shibuya.llm import LLMRequest, parse_two_line
+from shibuya.llm import LLMRequest
+from shibuya.llm.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
 from shibuya.llm.contract import cross_action_words
 from shibuya.llm.mock import MockLLM
 

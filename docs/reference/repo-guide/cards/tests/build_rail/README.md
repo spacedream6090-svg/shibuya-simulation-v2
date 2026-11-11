@@ -35,4 +35,4 @@ W12 1.3.0 の渋谷の発着の表(第 2 期 2-3c・``build/field/w12_rail_event
   - `test_synthetic_arrivals_and_through_merge`(関数)
   - `test_unknown_station_or_type_stops`(関数)
   - `test_version_table_names_rules_and_declarations`(関数)
-- import している内部モジュール: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.common`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w12_rail_events`・`shibuya.build.field.w12_real_timetables`・`shibuya.engine.processes.rail_events`・`tests/_data_ids.py`
+- import している内部モジュール: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.common`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w12_rail_events`・`shibuya.build.field.w12_real_timetables`・`shibuya.engine.processes.opening`・`shibuya.engine.processes.rail_events`・`shibuya.engine.systems.table`・`tests/_data_ids.py`

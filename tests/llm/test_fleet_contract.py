@@ -40,20 +40,30 @@ from shibuya.llm.fleet import (
     split_system_user,
 )
 from shibuya.manifest.schema import Mode
+from tests import _places
 
 GOOD = "理由: 予定の時間になったから\n行動: 移動 対象: C-0001 ひと言: なし"
 BAD = "うーん、なんとも言えませんね。"
 
 FLEET_PY = Path(__file__).resolve().parents[2] / "src" / "shibuya" / "llm" / "fleet.py"
-FORBIDDEN_PREFIXES = (
-    "shibuya.engine",
-    "shibuya.perception",
-    "shibuya.world",
-    "shibuya.agents",
-    "shibuya.economy",
-    "shibuya.census",
-    "shibuya.build",
-)
+
+
+def _forbidden() -> tuple[_places.Names, tuple[str, ...]]:
+    """読んではいけない層: 元の置き場が engine・perception・world・agents・economy・build にあったモジュールの今の名と、
+    census の包みの名。
+
+    〔段 4 の下ごしらえ・親の裁定 L-7〕前は包みの名の字面 7 つ。包みは、そこにあった(ある)モジュールを 1 つずつ import して
+    元の置き場から今の名を引く(移す前の木では前の字面と同じ範囲)。census は頭 1 本だけの包みで段 4 の delete の段で消える
+    (残るモジュールが無い)ので字面のまま(移す道具は包みの名を書き換えない)。
+    """
+    import shibuya.build as BUILD
+    from shibuya.agents import state as AGENTS
+    from shibuya.economy import ledger as ECONOMY
+    from shibuya.engine import resolve as ENGINE
+    from shibuya.perception import renderer as PERCEPTION
+    from shibuya.world import state as WORLD
+
+    return _places.names_from(ENGINE, PERCEPTION, WORLD, AGENTS, ECONOMY, BUILD), ("shibuya.census",)
 
 
 # ------------------------------------------------------------------ 層契約
@@ -64,11 +74,10 @@ def test_fleet_module_imports_no_forbidden_layer():
     tree = ast.parse(FLEET_PY.read_text(encoding="utf-8"))
     seen: list[str] = []
     for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            seen.extend(a.name for a in node.names)
-        elif isinstance(node, ast.ImportFrom) and node.module:
-            seen.append(node.module)
-    bad = [m for m in seen if m.startswith(FORBIDDEN_PREFIXES)]
+        seen.extend(_places.imported(node))
+    names, literal = _forbidden()
+    assert names.heads and names.leaves
+    bad = [m for m in seen if names.hits(m) or m.startswith(literal)]
     assert bad == [], f"層契約違反の import: {bad}"
 
 

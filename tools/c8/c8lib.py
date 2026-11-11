@@ -104,6 +104,52 @@ CALLS_PER_SECOND: float = 50_000.0 / (29.0 * 60.0)
 #: 艦隊の GPU 枚数(予算宣言表 §5 実測: RTX A5000 ×7)。
 FLEET_GPUS: int = 7
 
+# ------------------------------------------------------------------ 元の置き場(コードの区分の移動・段 4)
+#: src の包みの根と、移す道具の対応表(今の道 → 新しい道)。
+SRC_PKG = REPO_ROOT / "src" / "shibuya"
+PLACES_MAP = REPO_ROOT / "tools" / "pkgmove" / "map.toml"
+PLACES_MAP_SCHEMA = "shibuya.tools/pkgmove/map/1"
+
+
+def src_origins() -> dict[str, str]:
+    """今の src の全部の ``.py``(``src/shibuya`` からの道)→ 元の道(移す前の置き場)。
+
+    〔コードの区分の移動 段 4〕走査の範囲とファイルの名を、移す前の置き場で決める(包みやディレクトリの字面で決めると、段 4 で
+    ファイルが別の包みへ移ったときに範囲が黙って変わる)。移す前の木では元の道=今の道。対応表を確かめてから使う(形の名・行が
+    空でない・今の木の ``.py`` は表の ``old`` か ``move`` の ``new`` に必ず在る。在らなくてよいのは 0 バイトの ``__init__.py`` だけ)。
+    外れたら ``RuntimeError``(表に行を足す手順: 全ファイルの表 docs/reference/package-map-final-2026-11-09-files.md に行を足し、
+    python tools/pkgmove/cli.py map で map.toml を作り直す)。``tests/_places.py`` の ``origins_from`` と同じ規則(tools は tests を
+    読まないので写した)。
+    """
+    import tomllib
+
+    doc = tomllib.loads(PLACES_MAP.read_text(encoding="utf-8"))
+    rows = doc.get("row")
+    if doc.get("schema") != PLACES_MAP_SCHEMA or not isinstance(rows, list) or not rows:
+        raise RuntimeError(f"対応表 {PLACES_MAP.relative_to(REPO_ROOT).as_posix()} の形の名か行が違う")
+    olds: set[str] = set()
+    moved: dict[str, str] = {}
+    for r in rows:
+        if not isinstance(r.get("old"), str) or not isinstance(r.get("kind"), str):
+            raise RuntimeError(f"対応表の行に old か kind が無い: {r!r}")
+        olds.add(r["old"])
+        if r["kind"] == "move" and str(r["old"]).endswith(".py"):
+            moved[str(r["new"])] = r["old"]
+    out: dict[str, str] = {}
+    unknown: list[str] = []
+    for p in sorted(SRC_PKG.rglob("*.py")):
+        if "__pycache__" in p.parts:
+            continue
+        rel = p.relative_to(SRC_PKG).as_posix()
+        if rel not in olds and rel not in moved and not (p.name == "__init__.py" and p.stat().st_size == 0):
+            unknown.append(rel)
+        old = moved.get(rel)
+        out[rel] = old if old is not None and not (SRC_PKG / old).is_file() else rel
+    if unknown:
+        raise RuntimeError(f"対応表に無いファイル {unknown[:10]}(全ファイルの表に行を足し、python tools/pkgmove/cli.py map で"
+                           " 表を作り直す)")
+    return out
+
 # ------------------------------------------------------------------ 入出力(c6lib の再利用)
 write_outputs = c6lib.write_outputs
 
@@ -212,23 +258,26 @@ def scan_engine_ablation_ids(root: str | Path | None = None) -> dict[str, str]:
         層は ``engine/processes/`` の下に居ないが ``--ablate AB-PLAN-EXECUTOR`` /
         帰無腕 ``--no-plan-executor`` で切れる=台帳の突合対象は同じ(分母 21 → 22)。
     """
-    base = Path(root) if root is not None else REPO_ROOT / "src" / "shibuya" / "engine" / "processes"
     pat = re.compile(r'ablation_id:\s*Final\[str\]\s*=\s*(?:ABLATION_IDS\[\d+\]|"(AB-[A-Z0-9-]+)")')
     out: dict[str, str] = {}
-    files = sorted(base.glob("*.py"))
-    if root is None:
-        # **D-66 計画実行層**は ``engine/presence.py``(過程ではなく層)に ``ablation_id`` を持つ
-        extra = REPO_ROOT / "src" / "shibuya" / "engine" / "presence.py"
-        if extra.exists():
-            files = files + [extra]
-    for f in files:
+    if root is not None:
+        files = [(f, f.name) for f in sorted(Path(root).glob("*.py"))]
+    else:
+        # 〔コードの区分の移動 段 4〕走査するのは**元の置き場**が ``engine/processes/`` の直下のファイル(段 4 で過程の包みが
+        # 移っても同じファイル)。返すモジュールの名も元のファイルの名(移す前の木では今と同じ)。
+        org = src_origins()
+        files = [(SRC_PKG / rel, Path(old).name) for rel, old in sorted(org.items(), key=lambda kv: kv[1])
+                 if old.rpartition("/")[0] == "engine/processes"]
+        # **D-66 計画実行層**は ``engine/presence.py``(過程ではなく層)に ``ablation_id`` を持つ(元の置き場で引く)
+        files += [(SRC_PKG / rel, Path(old).name) for rel, old in org.items() if old == "engine/presence.py"]
+    for f, name in files:
         text = f.read_text(encoding="utf-8")
         for m in pat.finditer(text):
             if m.group(1):
-                out[m.group(1)] = f.name
-        if "ABLATION_IDS" in text and f.name == "salient.py":
+                out[m.group(1)] = name
+        if "ABLATION_IDS" in text and name == "salient.py":
             for k in range(5):
-                out[f"AB-PNOTICE-A{k}"] = f.name
+                out[f"AB-PNOTICE-A{k}"] = name
     return out
 
 

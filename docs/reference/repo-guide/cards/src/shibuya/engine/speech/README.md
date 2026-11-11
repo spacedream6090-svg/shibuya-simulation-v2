@@ -38,7 +38,7 @@ engine.speech.port — 発話の口(第 1 期 1-8b・Q57 (d)・10-03 §6 ⑤・1
 - import している内部モジュール: `shibuya.core.time_consts`・`shibuya.core.types`・`shibuya.engine.conversation`・`shibuya.engine.events.log`・`shibuya.engine.events.vocab`
 - 呼び手: `shibuya.engine.contact.calls`・`shibuya.engine.contact.layer`・`shibuya.engine.speech.layer`・`shibuya.engine.speech_clock`
 - 読む試験: `tests/engine/clock/test_tm2_talk_clock.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/speech/test_s8_event_log_onoff.py`・`tests/engine/speech/test_speech_arm_rows_resume.py`・`tests/engine/speech/test_speech_empty_text_errors.py`・`tests/engine/speech/test_speech_modality_field_empty.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/speech/test_speech_port_schema.py`
-- 読む試験(道筋で): `tests/engine/speech/test_speech_writers_ast.py`
+- 読む試験(道筋で): `tests/engine/speech/test_speech_writers_ast.py`・`tests/tools/test_pkgmove.py`
 - 状態台帳の行
   - 持ち主 `contact.speech`(`SpeechPort`)
     - `CT1M` 連絡の道具の計器(層・チャット・通話・通話の発話の口の計数と分布・通話の切った判断の控え・第 6 期 6-4 C1)(挙動 diag・復元 discardable・腕 contact-c1) 道筋 `contact.speech._heard_taken`・`contact.speech._last_input`・`contact.speech._own_last`・`contact.speech.meter` 書ける系: calendar_3・contact

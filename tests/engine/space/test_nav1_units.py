@@ -182,16 +182,20 @@ def test_resume_replans_the_same_route(space, tmp_path):
 
 def test_engine_does_not_decide_for_the_person():
     """AST: nav1 は判断の層・LLM・選び手を読まない(速さは体の属性・経路は既定の重み=宣言)。"""
+    import shibuya.llm as LLM
+    from shibuya.engine import activity, chooser, classical, intent
+    from shibuya.engine.decision import layer as DLAYER
+
+    from tests import _places as PL
+
     tree = ast.parse(SRC.read_text(encoding="utf-8"))
     mods = set()
     for node in ast.walk(tree):
-        if isinstance(node, ast.ImportFrom) and node.module:
-            mods.add(node.module)
-        elif isinstance(node, ast.Import):
-            mods.update(a.name for a in node.names)
-    banned = ("shibuya.llm", "shibuya.engine.decision", "shibuya.engine.chooser", "shibuya.engine.intent",
-              "shibuya.engine.classical", "shibuya.engine.activity")
-    assert not [m for m in mods if m.startswith(banned)]
+        mods.update(PL.imported(node))
+    # 〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面の包みの名 "shibuya.llm"・"shibuya.engine.decision" と 4 本のモジュールの名。
+    # 包みは元の置き場(llm・engine/decision)にあったモジュールの今の名、モジュールは __name__ から作る
+    banned = PL.names_from(LLM, DLAYER) | PL.module_names(chooser, intent, classical, activity)
+    assert not [m for m in mods if banned.hits(m)], sorted(m for m in mods if banned.hits(m))
     assert any("既定の重み" in e and "本人の判断ではない" in e for e in N.NAV1_EXPEDIENTS)
 
 
@@ -269,7 +273,11 @@ def test_m5_hop_walk_steps_legacy_is_one_step_per_node_and_nav1_uses_the_speed()
     assert hop_walk_steps(steps, None, [0, 1, 2]).tolist() == [3, 0, 10]
     hop = np.array([0.5, 0.25, 0.4])  # 節 1 つの刻み(平均の辺長 ÷ 本人の m/刻み)
     assert hop_walk_steps(steps, hop, [0, 1, 2]).tolist() == pytest.approx([1.5, 0.0, 4.0])
-    src = (SRC.parents[1] / "calendar2" / "layer.py").read_text(encoding="utf-8")
+    from shibuya.engine.calendar2 import layer as C2_LAYER
+
+    # 〔段 4 の下ごしらえ〕読むファイルはモジュールの __file__ から(前は nav1.py の 2 つ上のディレクトリからの相対の道
+    # =段 4 で nav1 と calendar2 は別々の包みへ移る)
+    src = Path(C2_LAYER.__file__).read_text(encoding="utf-8")
     assert "hop_walk_steps(" in src
 
 

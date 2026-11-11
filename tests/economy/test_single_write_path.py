@@ -86,19 +86,24 @@ def test_economy_never_calls_the_world_write_window():
 
 def test_engine_does_not_import_economy():
     """依存逆転: engine は economy を import しない(import-linter の層契約の同型検査)。"""
+    from shibuya.economy import ledger as ECONOMY
+    from shibuya.engine import resolve as ENGINE
+
+    from tests import _places as PL
+
+    # 〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面のディレクトリ engine の走査と包みの名 "shibuya.economy"。範囲は元の置き場で
+    # 決める: 走査は元の置き場が engine(下の包みも)のファイル・読んではいけないのは元の置き場が economy のモジュール
+    # (段 4 で engine から economy の包みへ移る 2 本は前と同じく走査する側)
+    economy = PL.names_from(ECONOMY)
+    files = PL.files_from(ENGINE)
+    assert len(files) > 100
     offenders: list[str] = []
-    for path in sorted((SRC / "engine").rglob("*.py")):
+    for path in files:
         text = path.read_text(encoding="utf-8")
         tree = ast.parse(text)
         for node in ast.walk(tree):
-            if isinstance(node, ast.ImportFrom) and (node.module or "").startswith(
-                "shibuya.economy"
-            ):
+            if any(economy.hits(m) for m in PL.imported(node)):
                 offenders.append(str(path))
-            if isinstance(node, ast.Import):
-                for a in node.names:
-                    if a.name.startswith("shibuya.economy"):
-                        offenders.append(str(path))
     assert offenders == []
 
 

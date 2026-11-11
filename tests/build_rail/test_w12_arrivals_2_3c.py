@@ -321,6 +321,8 @@ def test_engine_reader_is_not_called_from_any_process():
     assert ERE.READ_RAIL_EVENTS is False
     src = REPO_ROOT / "src" / "shibuya"
     me = (src / "engine" / "processes" / "rail_events.py").resolve()
+    # 〔段 4 の下ごしらえ〕読む口のモジュールの名の末尾 2 つ(今は processes.rail_events)はモジュールの __name__ から作る
+    ere_tail = ".".join(ERE.__name__.split(".")[-2:])
     hits = []
     for p in sorted(src.rglob("*.py")):
         if p.resolve() == me:
@@ -331,14 +333,19 @@ def test_engine_reader_is_not_called_from_any_process():
                 hits.append((p.name, n.lineno))
             elif isinstance(n, ast.ImportFrom) and any(a.name == "rail_events" for a in n.names)                     and "build" not in (n.module or ""):
                 hits.append((p.name, n.lineno))
-            elif isinstance(n, ast.Import) and any(a.name.endswith("processes.rail_events") for a in n.names):
+            elif isinstance(n, ast.Import) and any(a.name.endswith(ere_tail) for a in n.names):
                 hits.append((p.name, n.lineno))
             elif isinstance(n, (ast.Name, ast.Attribute)) and getattr(n, "id", getattr(n, "attr", "")) in (
                     "load_rail_events", "READ_RAIL_EVENTS", "RailEventsAsset"):
                 hits.append((p.name, n.lineno))
     assert hits == [], hits
-    # engine/processes と engine/systems は名指しで確かめる(上の走査に含まれる)
-    assert (src / "engine" / "processes").is_dir() and (src / "engine" / "systems").is_dir()
+    # 過程と系のモジュールは名指しで確かめる(上の走査に含まれる)。〔段 4 の下ごしらえ〕前はディレクトリの字面
+    # engine/processes・engine/systems で確かめていた(段 4 で包みが移るとディレクトリが消える)=モジュールの __file__ から
+    from shibuya.engine.processes import opening as PROC
+    from shibuya.engine.systems import table as SYS
+
+    for m in (PROC, SYS):
+        assert Path(m.__file__).resolve().is_relative_to(src.resolve()), m.__name__
 
 
 # ---------------------------------------------------------------------- data の要る試験

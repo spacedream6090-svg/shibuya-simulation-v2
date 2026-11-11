@@ -48,8 +48,8 @@ engine.calendar2.layer — カレンダー 2「会話とメッセージから生
   - `sys_calendar_2`(関数): 系 calendar_2(刻みの中・腕 arm のランだけ立つ)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.core.rng`・`shibuya.core.time_consts`・`shibuya.engine.calendar2.arm`・`shibuya.engine.calendar2.book`・`shibuya.engine.calendar2.port`・`shibuya.engine.calendar2.recall`・`shibuya.engine.calendar_self`・`shibuya.engine.contact.attention`・`shibuya.engine.decision.port`・`shibuya.engine.events.log`・`shibuya.engine.events.vocab`・`shibuya.engine.processes.opening`・`shibuya.engine.resolve`・`shibuya.llm.mock`
 - 呼び手: `shibuya.engine.run`・`shibuya.engine.systems.build`・`shibuya.engine.systems.table`
-- 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar2/test_ca2_units.py`・`tests/engine/calendar2/test_ca2_world.py`・`tests/engine/time/test_v30a_key_sites.py`
-- 読む試験(道筋で): `tests/engine/space/test_nav1_units.py`・`tests/engine/time/test_t0_rng_key.py`
+- 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar2/test_ca2_units.py`・`tests/engine/calendar2/test_ca2_world.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/time/test_v30a_key_sites.py`
+- 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
 - 状態台帳の行
   - 持ち主 `calendar2`(`Calendar2Layer`)
     - `CA2G` Calendar2Layer が系の間と刻みの間に渡す値(会話の番の控え・仲裁で回した考えた体・第 6 期 6-2 カレンダー 2)(挙動 behavior・復元 required・腕 calendar-2) 道筋 `calendar2._think`・`calendar2._turns` 書ける系: calendar_2・calendar_3・contact・decide・llm_receive

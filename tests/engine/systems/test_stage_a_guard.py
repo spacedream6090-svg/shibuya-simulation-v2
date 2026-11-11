@@ -260,7 +260,12 @@ def test_d6_detector_catches_a_planted_alias(tmp_path):
 
 # ================================================================= D ④: 系は解除口を呼ばない(test_two_phase の延長)
 def test_systems_package_never_thaws():
-    for fp in (SRC / "engine" / "systems").rglob("*.py"):
+    from tests import _places as PL
+
+    # 〔段 4 の下ごしらえ〕前は字面のディレクトリ engine/systems の走査。元の置き場が系の包みのファイルを対応表で引く
+    files = PL.files_from(AL)
+    assert len(files) > 20
+    for fp in files:
         for node in ast.walk(ast.parse(fp.read_text(encoding="utf-8"))):
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
                 assert node.func.attr not in ("writable", "thaw", "_set_writeable", "setflags"), (fp, node.lineno)

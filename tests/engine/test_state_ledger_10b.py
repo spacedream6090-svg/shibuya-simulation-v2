@@ -235,8 +235,15 @@ def test_ast_check_passes_on_the_current_source(scanned):
     assert SA.check(scanned) == []
     # 走査は src/shibuya 全体(engine だけでは world/・perception/ の読み手を見落とす)
     assert scanned.files > 90
+    # 〔段 4 の下ごしらえ・親の裁定 L-7〕「engine の外」は元の置き場で見る(前は字面のディレクトリ "engine/"=段 4 で engine の
+    # ファイルがほかの包みへ移ると、engine の中の読み手でも外に見えてしまう)
+    from shibuya.engine import resolve as ENGINE
+
+    from tests import _places as PL
+
+    engine = set(PL.rels_from(ENGINE))
     for name in ("noise_stage", "open_from", "open_to"):
-        assert any(not s.path.startswith("engine/") for s in scanned.strict[name]), name
+        assert any(s.path not in engine for s in scanned.strict[name]), name
 
 
 def _flip(key: str, behavior: str) -> tuple[SL.LedgerRow, ...]:

@@ -1,0 +1,244 @@
+# 移す段 3 の許可の一覧(tests と tools)。道具 tools/pkgmove/cli.py allow が走査で作る(手で書かない)。
+# この (ファイル, 記号) の中の道の文字列・/ の結合・点の道・コードの文字列の import の文だけを書き換える。
+schema = "shibuya.tools/pkgmove/allow-tests-tools/1"
+note = "段 4 の全段(保留の行を除く)の対応で、tests と tools の文字列の定数に道の書き換えが起きる記号。触らなかったもの(日本語の文・凍結の名・f 文字列・字面に当てられないもの)は move の報告に出る。"
+
+[[site]]
+file = "tests/build_pop/test_w21_stage8_9.py"
+symbols = ["test_persona_build_does_not_import_or_call_llm"]
+
+[[site]]
+file = "tests/build_rail/test_w12_arrivals_2_3c.py"
+symbols = ["test_engine_reader_is_not_called_from_any_process"]
+
+[[site]]
+file = "tests/economy/cp2/test_cp2_transfer_only_writer.py"
+symbols = ["test_negative_attribute_chain"]
+
+[[site]]
+file = "tests/economy/cp2/test_cp2_write_window.py"
+symbols = ["test_negative_window_and_balance_write"]
+
+[[site]]
+file = "tests/economy/stage2/test_stage2_writers.py"
+symbols = ["NEW_MODULES"]
+
+[[site]]
+file = "tests/economy/test_rules42_runs.py"
+symbols = ["test_removed_rules_42_switch_env_stops"]
+
+[[site]]
+file = "tests/economy/test_rules42b_ledger.py"
+symbols = ["test_removed_rules_42b_switch_env_stops"]
+
+[[site]]
+file = "tests/economy/test_wage_occupation.py"
+symbols = ["test_build_and_runtime_share_one_function", "test_removed_wage_switch_env_and_cli_flag_stop"]
+
+[[site]]
+file = "tests/engine/batching/test_conductor_windows.py"
+symbols = ["test_a_bad_environment_width_fails_at_import"]
+
+[[site]]
+file = "tests/engine/body/test_body_guard.py"
+symbols = ["HEAD_CALLERS", "OTHER_OWNERS", "test_only_the_ports_write_the_body_layer"]
+
+[[site]]
+file = "tests/engine/body/test_body_rules_sources.py"
+symbols = ["test_declaration_tables_are_one_to_one_with_ledger_rows"]
+
+[[site]]
+file = "tests/engine/body/test_meal_default_w17.py"
+symbols = ["test_removed_switch_env_and_cli_flag_stop"]
+
+[[site]]
+file = "tests/engine/bridging/test_bridging_ledger.py"
+symbols = ["test_doc_rows_need_no_code_declaration", "test_negative_a_changed_item_count_is_caught"]
+
+[[site]]
+file = "tests/engine/calendar/test_ca1b_unit.py"
+symbols = ["test_manifest_section_ledger_rows_and_system_declarations"]
+
+[[site]]
+file = "tests/engine/calendar3/test_ca3_runs.py"
+symbols = ["test_roster_is_not_built_at_assembly"]
+
+[[site]]
+file = "tests/engine/clock/test_tm2_talk_clock.py"
+symbols = ["test_a_bad_environment_arm_fails_at_import", "test_think_time_is_not_added_to_the_gap"]
+
+[[site]]
+file = "tests/engine/events/test_e_writes_declared.py"
+symbols = ["test_paths_permit_is_assigned_only_in_the_guard"]
+
+[[site]]
+file = "tests/engine/experiment/test_x33_apply.py"
+symbols = ["test_admit_and_the_table_writers_are_called_only_from_apply", "test_the_calendar_is_written_through_its_one_mouth"]
+
+[[site]]
+file = "tests/engine/experiment/test_x33_run.py"
+symbols = ["test_ledger_row_x_enters_no_hash"]
+
+[[site]]
+file = "tests/engine/memory/test_m0_store_schema.py"
+symbols = ["test_ledger_rows_are_out_of_both_hashes_and_the_state_file", "test_store_is_one_module_beside_the_memory_table"]
+
+[[site]]
+file = "tests/engine/memory/test_mr65_grain_and_cli.py"
+symbols = ["CODE"]
+
+[[site]]
+file = "tests/engine/memory/test_mr65_guards.py"
+symbols = ["test_child_columns_are_assigned_only_inside_their_classes", "test_child_owner_ports_are_called_only_from_the_store", "test_ledger_rows_and_axes", "test_shop_table_ports_are_called_only_from_the_uncapped_store"]
+
+[[site]]
+file = "tests/engine/proximity/test_rule.py"
+symbols = ["test_d_switch_is_checked_and_the_cell_switch_is_removed"]
+
+[[site]]
+file = "tests/engine/rights/test_rights_schema.py"
+symbols = ["LEDGER_PY", "test_negative_outside_writes_are_caught"]
+
+[[site]]
+file = "tests/engine/rules/test_rules_table_schema.py"
+symbols = ["test_only_the_manifest_and_the_daily_record_import_the_table"]
+
+[[site]]
+file = "tests/engine/space/test_nav1_units.py"
+symbols = ["SRC"]
+
+[[site]]
+file = "tests/engine/speech/test_speech_port_schema.py"
+symbols = ["test_ledger_arm_rows_and_arm_items"]
+
+[[site]]
+file = "tests/engine/speech/test_speech_writers_ast.py"
+symbols = ["OTHER_OWNERS", "PORT", "test_negative_control_planted_writes_are_found"]
+
+[[site]]
+file = "tests/engine/state/test_class_ids.py"
+symbols = ["ENTRY_FILES", "test_entry_functions_go_through_the_table"]
+
+[[site]]
+file = "tests/engine/state/test_move_prep_stage2.py"
+symbols = ["test_only_core_paths_reads_dunder_file_on_the_run_side", "test_rng_audit_names_come_from_the_rng_module"]
+
+[[site]]
+file = "tests/engine/state/test_names_frozen.py"
+symbols = ["test_shaped_pattern_finds_both_forms_inside_japanese_text"]
+
+[[site]]
+file = "tests/engine/systems/test_boxes.py"
+symbols = ["test_run_day_signature_is_unchanged_and_build_unpacks_every_argument"]
+
+[[site]]
+file = "tests/engine/systems/test_fix_guards.py"
+symbols = ["D6_ALLOW", "GUARD_CALLS", "PERMIT_GLOBALS", "PERMIT_MODULES", "STATE_MODULES", "WP_ATTR_PLACES", "WP_CALLS", "WP_IMPORTERS", "_EXEMPT_D6"]
+
+[[site]]
+file = "tests/engine/systems/test_stage_a_guard.py"
+symbols = ["D6_ALLOW", "FLAG_WRITERS", "_EXEMPT_D6"]
+
+[[site]]
+file = "tests/engine/test_classical_policy.py"
+symbols = ["_PER_CALL", "test_per_call_paths_have_no_python_loops_over_agents"]
+
+[[site]]
+file = "tests/engine/test_defect_fixes_1103.py"
+symbols = ["test_removed_defect_fixes_switch_env_and_cli_flag_stop"]
+
+[[site]]
+file = "tests/engine/test_energy_balance.py"
+symbols = ["_PER_TICK", "test_per_tick_paths_have_no_python_loops"]
+
+[[site]]
+file = "tests/engine/test_memory_recall.py"
+symbols = ["test_recall_has_no_loop_over_rows"]
+
+[[site]]
+file = "tests/engine/test_memory_record.py"
+symbols = ["test_row_writers_are_array_ops"]
+
+[[site]]
+file = "tests/engine/test_renderer_wiring.py"
+symbols = ["recording"]
+
+[[site]]
+file = "tests/engine/test_resume_10d.py"
+symbols = ["_CHILD"]
+
+[[site]]
+file = "tests/engine/test_salt_seed_split_10f.py"
+symbols = ["_HASH_SITES", "_PASSTHROUGH_OK", "_RNG_MODULES", "test_static_scan_catches_aliases_and_keyword_domains"]
+
+[[site]]
+file = "tests/engine/test_seat_release_2_4.py"
+symbols = ["test_removed_seat_release_switch_env_and_cli_flag_stop"]
+
+[[site]]
+file = "tests/engine/test_state_checks_10f.py"
+symbols = ["test_u5_allow_entries_have_a_fixed_hit_count", "test_v3_allow_entries_pin_the_function_of_the_line"]
+
+[[site]]
+file = "tests/engine/test_state_ledger_10b.py"
+symbols = ["test_ast_false_positives_band_and_b4_hash_are_explicit", "test_coverage_fails_when_a_new_state_is_not_declared"]
+
+[[site]]
+file = "tests/engine/test_store_choice.py"
+symbols = ["test_recall_first_is_array_ops"]
+
+[[site]]
+file = "tests/engine/test_store_memory.py"
+symbols = ["test_store_readers_and_writer_rounds_are_array_ops"]
+
+[[site]]
+file = "tests/engine/test_two_phase.py"
+symbols = ["test_every_hot_path_declares_its_sequential_loops", "test_thaw_is_never_called_outside_the_state_modules"]
+
+[[site]]
+file = "tests/engine/test_wom.py"
+symbols = ["test_extraction_is_per_call_string_work"]
+
+[[site]]
+file = "tests/engine/time/test_t0_literal_count.py"
+symbols = ["test_time_consts_module_itself_has_no_hits"]
+
+[[site]]
+file = "tests/engine/time/test_t0_rng_key.py"
+symbols = ["PLAN_A_CALLERS"]
+
+[[site]]
+file = "tests/engine/time/test_t0_time_consts.py"
+symbols = ["test_time_consts_imports_only_the_standard_library"]
+
+[[site]]
+file = "tests/perception/facts/test_percept_is_scratch.py"
+symbols = ["_REPLAY_CHILD"]
+
+[[site]]
+file = "tests/perception/test_templates.py"
+symbols = ["test_action_vocab_matches_llm_contract"]
+
+[[site]]
+file = "tests/test_world_catalog_sha.py"
+symbols = ["PACKAGED_JSON", "test_manifest_does_not_import_build"]
+
+[[site]]
+file = "tests/tools/test_repo_guide.py"
+symbols = ["TABLE_SRC"]
+
+[[site]]
+file = "tools/bytecheck/tree.py"
+symbols = ["ROOT_READERS", "TRACKED_READS"]
+
+[[site]]
+file = "tools/instruments/batch_width_gauge.py"
+symbols = ["_CHILD"]
+
+[[site]]
+file = "tools/repo_guide/guide_permits.py"
+symbols = ["ALLOW_FILE", "LEDGER_AST_FILE", "LEDGER_FILE", "TABLE_FILE"]
+
+[[site]]
+file = "tools/repo_guide/guide_render.py"
+symbols = ["permit_lines_by_file"]

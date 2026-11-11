@@ -56,7 +56,13 @@ def test_the_blank_is_declared_in_the_bridging_ledger():
     # 〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7(W6 の POI の欄を足す段が計画に無い)
     assert row.remove_at == "7" and row.conf == "expedient" and row.status == "active"
     assert row.declared_in.startswith("docs/design/v2-foundation-contracts-2026-10-13.md")
-    assert "src/shibuya/engine/tools/places.py" in row.code_at
+    from shibuya.engine.bridging import ledger_paths as LP
+
+    from tests import _places as PLACES
+
+    # 〔段 4 の下ごしらえ・親の決定 1〕台帳の道は台帳に書いてある道のまま=今の道へは ledger_paths で引く。今の道は電話の表の
+    # モジュールのファイルから作る(前は字面の道=移す道具が書き換え、台帳の道と食い違った)
+    assert f"src/{PLACES.PKG.name}/{PLACES.rel_of(PL)}" in {LP.current_path(p) for p in row.code_at}
     assert default_registry().get(PHONE).bridge == PHONE_BRIDGE
 
 

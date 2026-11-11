@@ -238,7 +238,10 @@ def test_the_table_object_cannot_be_rewired():
 
 
 # ================================================================= 1-4 では読み手を作らない
-TARGET = "shibuya.engine.rules"
+#: 規則の表の包みの名と、包みのディレクトリ(src/shibuya からの道・末尾に /)。〔段 4 の下ごしらえ〕字面で持たず、表のモジュール
+#: の ``__name__``・``__file__`` から作る(段 4 で包みごと移る。前は "shibuya.engine.rules" と "engine/rules/")。
+TARGET = RT.__name__.rpartition(".")[0]
+RULES_PREFIX = Path(RT.__file__).resolve().parent.relative_to(SRC.resolve()).as_posix() + "/"
 
 
 def _imports_target(node: ast.AST, module_of_file: str) -> bool:
@@ -262,7 +265,7 @@ def _readers() -> set[str]:
     out = set()
     for p in SRC.rglob("*.py"):
         rel = p.relative_to(SRC).as_posix()
-        if rel.startswith("engine/rules/"):
+        if rel.startswith(RULES_PREFIX):
             continue
         parts = ["shibuya", *rel.removesuffix(".py").split("/")]
         if parts[-1] == "__init__":
@@ -284,15 +287,21 @@ def test_only_the_manifest_and_the_daily_record_import_the_table():
                           "economy/taxes.py", "engine/calendar3/layer.py"}
 
 
+#: 差し込むコードの材料(〔段 4 の下ごしらえ〕今の表の包みの置き場から組み立てる。前は字面で、移す道具が import の文だけを
+#: 書き換え、相対 import の基準のモジュールの名が残って食い違った): 親の包み・包みの名・表のモジュールの名。
+_PARENT, _, _LEAF = TARGET.rpartition(".")
+_TABLE = RT.__name__.rpartition(".")[2]
+
+
 @pytest.mark.parametrize("src,module", [
-    ("from shibuya.engine import rules\n", "shibuya.engine.x"),
-    ("from shibuya.engine.rules import table\n", "shibuya.engine.x"),
-    ("import shibuya.engine.rules.table as T\n", "shibuya.engine.x"),
-    ("from .rules import table\n", "shibuya.engine.x"),
-    ("from ..rules.table import Rules\n", "shibuya.engine.systems.x"),
-    ("from .. import rules\n", "shibuya.engine.systems.x"),
+    (f"from {_PARENT} import {_LEAF}\n", f"{_PARENT}.x"),
+    (f"from {TARGET} import {_TABLE}\n", f"{_PARENT}.x"),
+    (f"import {TARGET}.{_TABLE} as T\n", f"{_PARENT}.x"),
+    (f"from .{_LEAF} import {_TABLE}\n", f"{_PARENT}.x"),
+    (f"from ..{_LEAF}.{_TABLE} import Rules\n", f"{_PARENT}.systems.x"),
+    (f"from .. import {_LEAF}\n", f"{_PARENT}.systems.x"),
 ])
 def test_the_reader_check_sees_every_import_form(src, module):
     """検収 L8 の負の対照: 別名・相対の import も読み手として見つかる。"""
     assert any(_imports_target(n, module) for n in ast.walk(ast.parse(src)))
-    assert not any(_imports_target(n, module) for n in ast.walk(ast.parse("from shibuya.engine import run\n")))
+    assert not any(_imports_target(n, module) for n in ast.walk(ast.parse(f"from {_PARENT} import run\n")))

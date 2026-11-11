@@ -25,13 +25,14 @@ import pytest
 from shibuya.agents.state import AgentState
 from shibuya.engine import resolve as R
 from shibuya.world.state import World
+from tests import _places as PL
 
 SRC = Path("src/shibuya")
 #: ``ufunc.at`` の第1引数が「世界状態」だと判断する根(``self.`` 経由も見る)。
 STATE_ROOTS = ("world", "agents", "self.world", "self.agents",
                # 1-0 段 FIX(検収 L1): 系の箱の形(``b.soa.agents…``・``box.soa.world…``)も世界状態
                "b.soa", "box.soa")
-#: 台帳の私物(独自検査を持つ)と実行時に import されない工程は対象外。
+#: 台帳の私物(独自検査を持つ)と実行時に import されない工程は対象外(元の置き場のディレクトリ=:func:`_scanned_files`)。
 OUT_OF_SCOPE = ("economy/", "build/")
 
 
@@ -110,11 +111,14 @@ def _ufunc_at_targets(path: Path) -> list[str]:
 
 
 def _scanned_files() -> list[Path]:
-    return [
-        p
-        for p in SRC.rglob("*.py")
-        if not any(seg in p.as_posix() for seg in OUT_OF_SCOPE)
-    ]
+    """対象のファイル。〔段 4 の下ごしらえ・親の裁定 L-7〕対象外は元の置き場で決める(前は字面のディレクトリ
+    :data:`OUT_OF_SCOPE` を道の中に含むファイル。段 4 で engine と core から economy の包みへ移るファイルは前と同じく対象)。"""
+    import shibuya.build as BUILD
+    from shibuya.economy import ledger as ECONOMY
+
+    out = set(PL.rels_from(ECONOMY, BUILD))
+    assert {PL.origin_dir(m) for m in (ECONOMY, BUILD)} == set(OUT_OF_SCOPE)  # 元の置き場は前の字面と同じ
+    return [SRC / rel for rel in sorted(PL.origins()) if rel not in out]
 
 
 # ================================================================= 静的
@@ -209,6 +213,10 @@ def test_box_rooted_and_aliased_ufunc_at_outside_resolve_is_found(tmp_path):
 
 def test_systems_modules_have_no_state_ufunc_at():
     """系のモジュール(engine/systems)にも世界状態への ``ufunc.at`` は無い(書きは resolve の口だけ)。"""
-    files = sorted((SRC / "engine" / "systems").glob("*.py"))
-    assert files
+    from shibuya.engine.systems import table as SYSTEMS
+
+    # 〔段 4 の下ごしらえ〕前は字面のディレクトリ engine/systems の直下。元の置き場が系の包みの直下のファイルを対応表で引く
+    # (段 4 で系の包みは 3 つの包みへ分かれる)
+    files = PL.files_from(SYSTEMS, recursive=False)
+    assert len(files) > 20
     assert not [h for p in files for h in _ufunc_at_targets(p)]

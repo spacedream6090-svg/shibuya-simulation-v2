@@ -97,7 +97,14 @@ def test_blank_bridges_are_active_rows_of_the_ledger():
         r = led.get(rid)
         # 〔第 4 期 4-2・親の判断(問い 8)〕家賃と営業許可の空欄は外す段 7(段 10 の活性化の後に閉じる住まいは 4-2 のまま)
         assert r.status == "active" and r.remove_at in ("4-2", "7"), (key, rid)
+    from shibuya.engine.bridging import ledger_paths as LP
+
+    from tests import _places as PL
+
+    # 〔段 4 の下ごしらえ・親の決定 1〕台帳の道(code_at)は台帳に書いてある道のまま=今の道へは ledger_paths で引く。今の道は
+    # 初期化のモジュールのファイルから作る(前は字面の道=移す道具が書き換え、台帳の道と食い違った)
+    ri_path = f"src/{PL.PKG.name}/{PL.rel_of(RI)}"
     for rid in ("BR-RIGHTS-LICENCE-BLANK", "BR-RIGHTS-DWELLING-BLANK"):
-        assert led.get(rid).code_at == ("src/shibuya/engine/rights/initial.py",)
+        assert tuple(LP.current_path(p) for p in led.get(rid).code_at) == (ri_path,)
     with pytest.raises(TypeError):
         RI.BLANK_BRIDGES["licence"] = "x"  # type: ignore[index]

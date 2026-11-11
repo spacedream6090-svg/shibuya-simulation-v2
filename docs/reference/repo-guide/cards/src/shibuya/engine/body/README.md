@@ -9,8 +9,8 @@ Python 5 本・その他 0 本(このディレクトリの直下)
 engine.body — 本人の体と System 1 の層(第 3 期 3-5・③ 群=意図しない体と System 1 の反応)。
 
 - import している内部モジュール: `shibuya.engine.body.model`・`shibuya.engine.body.schedule`
-- 呼び手: `shibuya.cli`・`shibuya.engine.systems.build`
-- 読む試験: `tests/engine/body/test_body_guard.py`・`tests/engine/body/test_body_manifest.py`・`tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_body_same_values.py`
+- 呼び手: `shibuya.engine.systems.build`
+- 読む試験: `tests/engine/body/test_body_guard.py`・`tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_body_same_values.py`
 - 決定の ID: 10-12・10-12/§1-5
 
 ## [model.py](../../../../../../../../src/shibuya/engine/body/model.py)
@@ -23,8 +23,7 @@ engine.body.model — 本人の体の層 ``BodyModel``(状態台帳の外の状�
   - `manifest_fields`(関数): manifest の ``body``(持ち主・腕・規則の出典の表・器だけの 3 件=設定/予約と段の境目の計器=観測)。
 - import している内部モジュール: `shibuya.core.time_consts`・`shibuya.engine.body.rules`・`shibuya.engine.body.schedule`・`shibuya.engine.body.system1`
 - 呼び手: `shibuya.engine.body`・`shibuya.engine.processes.environment`・`shibuya.engine.processes.salient`・`shibuya.engine.run`
-- 読む試験: `tests/engine/body/test_body_manifest.py`・`tests/engine/body/test_body_reserve.py`
-- 読む試験(道筋で): `tests/engine/body/test_body_guard.py`
+- 読む試験: `tests/engine/body/test_body_guard.py`・`tests/engine/body/test_body_manifest.py`・`tests/engine/body/test_body_reserve.py`
 - 状態台帳の行
   - 持ち主 `body`(`BodyModel`)
     - `BD` BodyModel(本人の体の層の段の境目の計器と TM5 の予約の列・第 3 期 3-5)(挙動 diag・復元 discardable) 道筋 `body._body_meter`・`body._reservations` 書ける系: body・world
@@ -57,6 +56,7 @@ engine.body.rules — 本人の体の規則(③ 意図しない体と System 1�
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.core.time_consts`・`shibuya.engine.change_detect`・`shibuya.engine.energy`
 - 呼び手: `shibuya.engine.body.model`・`shibuya.engine.body.schedule`・`shibuya.engine.processes.environment`・`shibuya.engine.processes.salient`・`shibuya.engine.resolve`
 - 読む試験: `tests/engine/body/test_body_rules_sources.py`・`tests/engine/body/test_body_same_values.py`・`tests/engine/body/test_meal_default_w17.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 決定の ID: 10-12・10-12/§1-5・10-13b/§7・11-01・D-118・第 275
 
 ## [schedule.py](../../../../../../../../src/shibuya/engine/body/schedule.py)
@@ -71,9 +71,9 @@ engine.body.schedule — TM5「次に段階の境目を越える時刻を予約�
   - `next_intero_steps`(関数): 規則に通した直後(刻み ``now``)の値から、次に空腹か疲れが変わりうる最初の刻み(``int64``・無ければ :data:`NEVER`)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--body-schedule``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.body.rules`・`shibuya.engine.energy`・`shibuya.engine.scheduler`
-- 呼び手: `shibuya.engine.body`・`shibuya.engine.body.model`
-- 読む試験: `tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_body_rules_sources.py`
-- 読む試験(道筋で): `tests/engine/body/test_body_guard.py`・`tests/engine/systems/test_stage_a_guard.py`
+- 呼び手: `shibuya.cli`・`shibuya.engine.body`・`shibuya.engine.body.model`
+- 読む試験: `tests/engine/body/test_body_guard.py`・`tests/engine/body/test_body_manifest.py`・`tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_body_rules_sources.py`
+- 読む試験(道筋で): `tests/engine/systems/test_stage_a_guard.py`
 - 環境変数: `SHIBUYA_BODY_SCHEDULE`
 - 決定の ID: 10-12・10-12/§4-2
 
