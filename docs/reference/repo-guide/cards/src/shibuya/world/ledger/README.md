@@ -19,7 +19,7 @@ world.processes.absent — 「無いと宣言」する過程と判断の一覧(�
   - `by_routing_row`(関数): routing §1 の行の番号 → 宣言(「無い」の宣言=no_actor と no_port だけ)。
   - `by_world_process`(関数): ``world_process_id`` → 宣言(``kind`` が no_actor のものだけ=「無い」の過程)。
 - import している内部モジュール: `shibuya.world.ledger.records`
-- 呼び手: `shibuya.world.ledger.first_batch`・`shibuya.world.processes.circularity`・`tools/instruments/absent_declarations.py`
+- 呼び手: `shibuya.validation.static.circularity`・`shibuya.world.ledger.first_batch`・`tools/instruments/absent_declarations.py`
 - 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/world/processes/test_declarations_1101.py`
 - 決定の ID: 11-01/§2・11-01/§3・11-01/§10-1・11-01/§10-2・11-01/§10-3・11-02r/§1・11-02r/§1 #7・第 340
 
@@ -52,7 +52,7 @@ world.processes.constitution — **憲法5 の機械検査**(D-R2-4・決定2026
   - `parse_pattern_ledger_ids`(関数): パターン台帳の表(先頭列見出しが ``ID`` または ``行``)から行 id を読む。
   - `parse_perception_channel_ids`(関数): 知覚契約書 §3 チャネル仕様表の**チャネル列**を出現順で返す。
 - import している内部モジュール: `shibuya.foundation.paths`・`shibuya.world.ledger.records`
-- 呼び手: `shibuya.world.ledger.first_batch`・`shibuya.world.ledger.registry`・`shibuya.world.processes.circularity`・`shibuya.world.processes.deletion_candidates`
+- 呼び手: `shibuya.validation.static.circularity`・`shibuya.validation.static.deletion_candidates`・`shibuya.world.ledger.first_batch`・`shibuya.world.ledger.registry`
 - 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/world/processes/test_constitution.py`・`tests/world/processes/test_deletion_candidates.py`・`tests/world/processes/test_first_batch.py`
 - 環境変数: `SHIBUYA_PATTERN_LEDGER_MD`・`SHIBUYA_PERCEPTION_MD`・名前を読めない所 1 か所
 
@@ -64,7 +64,7 @@ world.processes.first_batch — **第1陣の宣言(データのみ・振る舞�
   - `build_registry`(関数): 第1陣(+前倒し分)を積んだ ``WorldRegistry`` を作る。
   - `growth_declarations`(関数): 宣言済み世界過程の成長宣言(名前 → 宣言)。``core.growth.check_growth`` に渡す。
 - import している内部モジュール: `shibuya.foundation.growth`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.constitution`・`shibuya.world.ledger.inputs`・`shibuya.world.ledger.records`・`shibuya.world.ledger.registry`・`shibuya.world.ledger.relations`
-- 呼び手: `shibuya.engine.bridging.scan`・`shibuya.world.laws.runner`
+- 呼び手: `shibuya.validation.static.bridging_scan`・`shibuya.world.laws.runner`
 - 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/processes/test_runner.py`・`tests/engine/test_processes_run.py`・`tests/world/processes/test_actual_log.py`・`tests/world/processes/test_declarations_1101.py`・`tests/world/processes/test_first_batch.py`
 - 決定の ID: 第 340
 
@@ -100,7 +100,7 @@ world.processes.records — 世界側台帳の**レコード型3つ**(D-R2-2・�
   - `Violability`(クラス): 軸4 違反可能性(§2・Grossi et al.)。
   - `WorldProcess`(クラス): §2 の ``WorldProcess`` 行。
 - import している内部モジュール: `shibuya.foundation.growth`
-- 呼び手: `shibuya.engine.duties.layer`・`shibuya.experiments.drive.branch`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.opening`・`shibuya.world.laws.rail`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.actual_log`・`shibuya.world.ledger.constitution`・`shibuya.world.ledger.first_batch`・`shibuya.world.ledger.inputs`・`shibuya.world.ledger.registry`・`shibuya.world.ledger.relations`・`shibuya.world.processes.circularity`
+- 呼び手: `shibuya.engine.duties.layer`・`shibuya.experiments.drive.branch`・`shibuya.validation.static.circularity`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.opening`・`shibuya.world.laws.rail`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.actual_log`・`shibuya.world.ledger.constitution`・`shibuya.world.ledger.first_batch`・`shibuya.world.ledger.inputs`・`shibuya.world.ledger.registry`・`shibuya.world.ledger.relations`
 - 読む試験: `tests/engine/duties/test_du_runs.py`・`tests/engine/events/test_e_log_links_actual.py`・`tests/world/processes/conftest.py`・`tests/world/processes/test_actual_log.py`・`tests/world/processes/test_constitution.py`・`tests/world/processes/test_declarations_1101.py`・`tests/world/processes/test_first_batch.py`・`tests/world/processes/test_records.py`・`tests/world/processes/test_registry.py`・`tests/world/processes/test_relations.py`
 - 決定の ID: 11-01・11-01/§1・11-01/§2・第 340
 
@@ -112,7 +112,7 @@ world.processes.registry — 世界側台帳(**名前空間・ID体系は1つ**�
   - `CoverageReport`(クラス): executor 別の内訳と、世界カタログ(分母57)の被覆。
   - `WorldRegistry`(クラス): 世界過程・計画仕様・細部・関係を1つの名前空間で保持する台帳。
 - import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.world.ledger.constitution`・`shibuya.world.ledger.records`・`shibuya.world.ledger.relations`・`shibuya.world.ledger.world_catalog`
-- 呼び手: `shibuya.engine.bridging.scan`・`shibuya.world.ledger.first_batch`
+- 呼び手: `shibuya.validation.static.bridging_scan`・`shibuya.world.ledger.first_batch`
 - 読む試験: `tests/world/processes/conftest.py`・`tests/world/processes/test_constitution.py`・`tests/world/processes/test_registry.py`
 
 ## [relations.py](../../../../../../../../src/shibuya/world/ledger/relations.py)

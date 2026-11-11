@@ -12,7 +12,7 @@ from __future__ import annotations
 import pytest
 
 from shibuya.foundation.decl import bridging as L
-from shibuya.engine.bridging import scan as S
+from shibuya.validation.static import bridging_scan as S
 from shibuya.world.body import rules as BR
 from shibuya.world.body import schedule as BS
 from shibuya.world.body import reactions as S1

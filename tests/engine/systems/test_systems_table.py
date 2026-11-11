@@ -19,7 +19,7 @@ import pytest
 from shibuya.runtime.state import ledger as SL
 from shibuya.runtime.systems import allow as AL
 from shibuya.runtime.systems import boxes as BX
-from shibuya.engine.systems import static_check as SC
+from shibuya.validation.static import system_static_check as SC
 from shibuya.runtime.systems.spec import TIMINGS
 from shibuya.runtime.systems.table import SPECS, SYSTEMS
 

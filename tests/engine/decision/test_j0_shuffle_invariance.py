@@ -76,7 +76,7 @@ def test_k19_runtime_audit_on_the_port_arm():
     """乱数の流れの検査(K19・実行時): 腕 port で並べ替えの流れ(decision.present)は重ならず、mock の鍵の作り直しは
     MockPort の設計として**腕 port の検査だけ**に渡す許可(``recreated_for(decision_port=True)``・検収 M2)。既定の腕の
     許可の表には無い=腕 port のランを既定の表で検査すると落ちる(負の対照)・既定の腕は作り直し 0。"""
-    from shibuya.engine import rng_audit as RA
+    from shibuya.validation.static import rng_audit as RA
     from shibuya.engine.run import run_day
 
     from tests.engine.decision._j0 import SMALL, decision_arm

@@ -109,7 +109,7 @@ world.processes のテスト用ファクトリ(最小の合法な宣言を作る
   - `test_first_seen_is_preserved`(関数)
   - `test_load_missing_file_is_empty`(関数)
   - `test_vanished_targets_are_merged`(関数)
-- import している内部モジュール: `shibuya.world.ledger.constitution`・`shibuya.world.processes.deletion_candidates`
+- import している内部モジュール: `shibuya.validation.static.deletion_candidates`・`shibuya.world.ledger.constitution`
 
 ## [test_first_batch.py](../../../../../../../tests/world/processes/test_first_batch.py)
 

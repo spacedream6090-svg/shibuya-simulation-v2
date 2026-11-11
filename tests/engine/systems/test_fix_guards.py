@@ -19,7 +19,7 @@ from shibuya.runtime.state import ledger_ast as A
 from shibuya.runtime.systems import allow as AL
 from shibuya.foundation import write_permit as _WP_MOD
 from shibuya.foundation import write_guard as _G_MOD
-from shibuya.engine.systems import static_check as SC
+from shibuya.validation.static import system_static_check as SC
 from shibuya.runtime.systems.table import SPECS, SYSTEMS
 
 SRC = Path("src/shibuya")

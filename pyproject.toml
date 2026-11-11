@@ -50,7 +50,7 @@ markers = [
 ]
 filterwarnings = ["error::DeprecationWarning:shibuya.*"]
 
-# ---- 層契約(段 4 の段 experiments の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage experiments` が作る。手で直さない)----
+# ---- 層契約(段 4 の段 validation の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage validation` が作る。手で直さない)----
 [tool.importlinter]
 root_package = "shibuya"
 include_external_packages = false
@@ -96,6 +96,7 @@ forbidden_modules = [
 name = "〔段 4 の途中の決まり〕1 層(§1-2 の順。下から上と、`|` の兄弟の間を読まない)"
 type = "layers"
 layers = [
+  "shibuya.validation.static",
   "shibuya.experiments.drive",
   "shibuya.runtime",
   "shibuya.world.laws",
@@ -137,6 +138,7 @@ source_modules = [
   "shibuya.foundation",
 ]
 forbidden_modules = [
+  "shibuya.validation.static",
   "shibuya.experiments.drive",
   "shibuya.runtime",
   "shibuya.world.laws",
@@ -160,6 +162,7 @@ source_modules = [
   "shibuya.mind",
 ]
 forbidden_modules = [
+  "shibuya.validation.static",
   "shibuya.experiments.drive",
   "shibuya.runtime",
   "shibuya.world.laws",
@@ -216,6 +219,7 @@ source_modules = [
   "shibuya.economy",
 ]
 forbidden_modules = [
+  "shibuya.validation.static",
   "shibuya.experiments.drive",
   "shibuya.runtime",
   "shibuya.world.laws",
@@ -251,6 +255,7 @@ ignore_imports = [
 name = "〔段 4 の途中の決まり〕8 ランの側は build を読まない"
 type = "forbidden"
 source_modules = [
+  "shibuya.validation.static",
   "shibuya.experiments.drive",
   "shibuya.runtime",
   "shibuya.world.laws",

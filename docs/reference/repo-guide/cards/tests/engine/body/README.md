@@ -78,7 +78,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_moved_items_left_the_old_headings`(関数)
   - `test_rules_cover_the_inventory_rows_with_conf_and_source`(関数)
   - `test_system1_rows_remove_at_the_spatial_stages`(関数)
-- import している内部モジュール: `shibuya.engine.bridging.scan`・`shibuya.foundation.decl.bridging`・`shibuya.world.body.reactions`・`shibuya.world.body.rules`・`shibuya.world.body.schedule`
+- import している内部モジュール: `shibuya.foundation.decl.bridging`・`shibuya.validation.static.bridging_scan`・`shibuya.world.body.reactions`・`shibuya.world.body.rules`・`shibuya.world.body.schedule`
 
 ## [test_body_same_values.py](../../../../../../../tests/engine/body/test_body_same_values.py)
 

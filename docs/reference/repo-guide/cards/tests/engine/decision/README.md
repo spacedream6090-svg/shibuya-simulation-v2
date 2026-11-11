@@ -104,7 +104,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_permutation_test_spreads_the_position`(関数): 並べ替えの試験: 同じ問いを巡回のずらし全部で出し、選ばれた位置の分布を見る(内容は 1 つ・位置は 13 か所に散る)。
   - `test_reordering_the_candidates_keeps_the_choice`(関数)
   - `test_the_present_key_follows_agent_step_and_count`(関数)
-- import している内部モジュール: `shibuya.engine.rng_audit`・`shibuya.engine.run`・`shibuya.foundation.ports.decision`・`shibuya.foundation.vocab.actions`・`shibuya.llm.mock`・`shibuya.mind.judge.decision.ports`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.ports.decision`・`shibuya.foundation.vocab.actions`・`shibuya.llm.mock`・`shibuya.mind.judge.decision.ports`・`shibuya.validation.static.rng_audit`・`tests/engine/decision/_j0.py`
 - 決定の ID: R-108
 
 ## [test_j0_writes_declared.py](../../../../../../../tests/engine/decision/test_j0_writes_declared.py)
@@ -115,4 +115,4 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_declared_writes_cover_the_port_changes`(関数)
   - `test_dropping_the_events_path_fails_where_the_decision_event_is_written`(関数)
   - `test_dropping_the_j0_path_is_caught_by_stage_b`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.systems.overrides`・`shibuya.foundation.write_permit`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.write_permit`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`・`tests/engine/decision/_j0.py`

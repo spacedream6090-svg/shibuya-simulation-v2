@@ -92,7 +92,7 @@ ROOT_READERS: Final[dict[str, str]] = {
     "shibuya/foundation/paths.py": "リポの根と包みの根の定義(移す段 2-2)。読むものは呼び手の行",
     "shibuya/economy/wages.py": "data/research_cache/pop41b/derived(DATA_READS)",
     "shibuya/foundation/decl/bridging.py": "docs/design/bridging-ledger.json(TRACKED_READS)",
-    "shibuya/engine/bridging/scan.py": "包みの根 PACKAGE_ROOT の下(src の中)を走査するだけ(移す段 2-2)",
+    "shibuya/validation/static/bridging_scan.py": "包みの根 PACKAGE_ROOT の下(src の中)を走査するだけ(移す段 2-2)",
     "shibuya/engine/calendar.py": "resolve_repo_path の呼び(定義は core/paths.py)・data/calendar/syukujitsu.csv(DATA_READS)",
     "shibuya/mind/judge/classical.py": "docs/bench/anchors/ssb2021_activity_prior_v0.json(TRACKED_READS)",
     "shibuya/economy/stage2_bind.py": "data/realworld/osm の 2 本・data/persona_pool_v2(DATA_READS)",
@@ -100,8 +100,8 @@ ROOT_READERS: Final[dict[str, str]] = {
     "shibuya/runtime/state/resume.py": "渡された相対の道筋の同定(path_identity)と .git の commit(写しの木はリポの外=空の値)",
     "shibuya/world/facts/rules/table.py": "docs/design/rules-table.json(TRACKED_READS)",
     "shibuya/runtime/systems/allow.py": "包みの根 PACKAGE_ROOT から RESOLVE_FILES(src の中)を読むだけ(移す段 2-2)",
-    "shibuya/engine/systems/static_check.py": "module_dir(__name__)=このモジュールのディレクトリ(呼び手は無い・移す段 2-2)",
-    "shibuya/world/processes/circularity.py": "docs/design/bridging-ledger.json・v2-pattern-ledger.md(TRACKED_READS)",
+    "shibuya/validation/static/system_static_check.py": "module_dir(__name__)=このモジュールのディレクトリ(呼び手は無い・移す段 2-2)",
+    "shibuya/validation/static/circularity.py": "docs/design/bridging-ledger.json・v2-pattern-ledger.md(TRACKED_READS)",
     "shibuya/world/ledger/constitution.py": "docs/design/v2-perception-contract.md・v2-pattern-ledger.md(TRACKED_READS)",
 }
 

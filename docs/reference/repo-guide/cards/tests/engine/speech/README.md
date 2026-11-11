@@ -162,7 +162,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_dropping_the_events_path_fails_where_the_utterance_is_written`(関数)
   - `test_dropping_the_s8_path_is_caught_by_stage_b`(関数)
   - `test_the_writing_systems_are_declared`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.systems.overrides`・`shibuya.foundation.write_permit`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`tests/engine/speech/_s8b.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.write_permit`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`・`tests/engine/speech/_s8b.py`
 
 ## [test_wom_from_utterance_roundtrip.py](../../../../../../../tests/engine/speech/test_wom_from_utterance_roundtrip.py)
 

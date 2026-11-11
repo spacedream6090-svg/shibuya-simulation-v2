@@ -22,7 +22,7 @@ from shibuya.foundation.decl import bridging as BR
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.vocab import events as V
 from shibuya.engine.run import run_day
-from shibuya.engine.systems import overrides as OV
+from shibuya.validation.static import system_overrides as OV
 from shibuya.engine.tools import record as TR
 from shibuya.engine.tools.registry import SIGNAGE_BRIDGE
 from shibuya.perception import renderer as RD

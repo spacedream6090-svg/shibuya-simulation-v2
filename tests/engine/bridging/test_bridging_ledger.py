@@ -24,7 +24,7 @@ import pytest
 from shibuya.agents.state import REFRACTORY_MINUTES, WakeCondition
 from shibuya.foundation.decl import bridging as L
 from shibuya.foundation.decl import ledger_paths as LP
-from shibuya.engine.bridging import scan as S
+from shibuya.validation.static import bridging_scan as S
 
 ROOT = Path(__file__).resolve().parents[3]
 C8 = (ROOT / "docs" / "bench" / "c8" / "sensitivity_v1.md").read_text(encoding="utf-8")

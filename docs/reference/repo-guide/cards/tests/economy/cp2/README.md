@@ -174,4 +174,4 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `test_declaring_systems`(関数)
   - `test_phase_c_without_the_events_declaration_fails_at_the_first_fare`(関数)
   - `test_undeclared_money_meter_write_shows_in_stage_b`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.run`・`shibuya.engine.systems.overrides`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.cli`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.run`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`・`shibuya.world.model.state`

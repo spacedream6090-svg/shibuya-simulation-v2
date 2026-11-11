@@ -34,5 +34,5 @@ engine.bridging.ledger_paths — 今の道 → つなぎの台帳に書いてあ
 - 公開の関数とクラス
   - `current_path`(関数): 台帳に書いてある道 → 今の道(表に無ければそのまま)。表の値が重なれば ``ValueError``。
   - `ledger_path`(関数): 今の道 → 台帳に書いてある道(表に無ければそのまま)。
-- 呼び手: `shibuya.engine.bridging.scan`
+- 呼び手: `shibuya.validation.static.bridging_scan`
 - 読む試験: `tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`

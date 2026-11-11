@@ -48,7 +48,7 @@ engine.systems.allow — 系の「書いてよい SoA の列」を resolve の�
   - `src_root`(関数): ``src/shibuya`` の場所(〔移す段 2-2〕包みの根は ``core.paths`` の 1 か所)。
   - `writes_for_ops`(関数): resolve の口の集合の静的な書き集合の閉包(``"agents.cell"`` の形)。=系の ``writes.soa``。
 - import している内部モジュール: `shibuya.foundation.paths`・`shibuya.runtime.state.ledger_ast`
-- 呼び手: `shibuya.engine.systems.static_check`・`shibuya.runtime.systems.spec`
+- 呼び手: `shibuya.runtime.systems.spec`・`shibuya.validation.static.system_static_check`
 - 読む試験: `tests/economy/cp2/test_cp2_transfer_only_writer.py`・`tests/economy/stage2/test_stage2_writers.py`・`tests/engine/body/test_body_guard.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/systems/test_systems_table.py`・`tests/tools/test_repo_guide.py`
 - 決定の ID: 第 330
 
@@ -397,7 +397,7 @@ engine.systems.state_io — 箱から状態台帳の持ち主・知覚 SoA・ハ
 engine.systems.table — 系の宣言の表 ``SYSTEMS``(呼ぶ順の 1 つの表)(第 1 期 1-0・草案 §2-2・§2-5)。
 
 - import している内部モジュール: `shibuya.engine.calendar2.layer`・`shibuya.engine.calendar3.layer`・`shibuya.engine.contact.layer`・`shibuya.engine.duties.layer`・`shibuya.experiments.port.layer`・`shibuya.runtime.systems.act`・`shibuya.runtime.systems.body`・`shibuya.runtime.systems.day`・`shibuya.runtime.systems.decide`・`shibuya.runtime.systems.judge`・`shibuya.runtime.systems.llm_io`・`shibuya.runtime.systems.observe`・`shibuya.runtime.systems.perceive`・`shibuya.runtime.systems.remember`・`shibuya.runtime.systems.report`・`shibuya.runtime.systems.run_end`・`shibuya.runtime.systems.spec`・`shibuya.runtime.systems.talk`・`shibuya.runtime.systems.world`
-- 呼び手: `shibuya.engine.systems.overrides`・`shibuya.runtime.systems.conductor`
+- 呼び手: `shibuya.runtime.systems.conductor`・`shibuya.validation.static.system_overrides`
 - 読む試験: `tests/build_rail/test_w12_arrivals_2_3c.py`・`tests/economy/cp2/test_cp2_writes_declared.py`・`tests/economy/stage2/test_stage2_writers.py`・`tests/engine/batching/test_conductor_windows.py`・`tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/calendar/test_calendar_shadow.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/clock/test_tm3_step_scope.py`・`tests/engine/clock/test_tm4_regional_clock.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/decision/test_j0_writes_declared.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/events/test_e_writes_declared.py`・`tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_m0_writes_declared.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/speech/test_speech_writes_declared.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_guard_runs.py`・`tests/engine/systems/test_systems_table.py`・`tests/engine/test_add_at_guard.py`・`tests/engine/test_two_phase.py`・`tests/engine/time/test_t0_no_tick_word.py`・`tests/engine/tools/test_c0_contacts_in_relations.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/tools/test_repo_guide.py`
 - 書きの許可
   - 系 `build`(群 組み立て・時 `run_head`・関数 `_build_fn`)

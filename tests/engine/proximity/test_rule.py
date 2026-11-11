@@ -140,7 +140,7 @@ def test_notice_draws_are_counter_streams_stateless_and_uniform():
 
 def test_notice_streams_pass_the_k19_overlap_check():
     """K19 の重なりの検査の控え(StreamRecorder)に載り、重なりも作り直しも無い。"""
-    from shibuya.engine import rng_audit as RA
+    from shibuya.validation.static import rng_audit as RA
 
     rule = P.ProximityRule(seed=5)
     with RA.StreamRecorder() as rec:

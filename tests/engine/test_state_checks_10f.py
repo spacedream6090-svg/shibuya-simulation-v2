@@ -20,7 +20,7 @@ from pathlib import Path
 import pytest
 
 from shibuya import cli
-from shibuya.engine import rng_audit as RA
+from shibuya.validation.static import rng_audit as RA
 from shibuya.runtime.state import ledger as SL
 from shibuya.runtime.state import ledger_ast as SA
 from shibuya.engine.run import run_day

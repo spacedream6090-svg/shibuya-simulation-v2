@@ -53,5 +53,5 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_stand_in_overlaps_are_declared`(関数): 〔11-02r §1 #6〕代打の条件 ⑤ の重なりも 2 段: 宣言の無いものは落とす・宣言つきは警告。宣言は全部当たる。
   - `test_suspect_rows_contributes`(関数)
   - `test_two_tiers_on_a_synthetic_example`(関数): 〔11-02r §1 #6〕合成の例: 宣言の無い重なりで落ち、宣言つきで警告だけ。例外(burned)はどちらにも入らない。
-- import している内部モジュール: `shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.constitution`・`shibuya.world.ledger.first_batch`・`shibuya.world.processes.circularity`
+- import している内部モジュール: `shibuya.validation.static.circularity`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.constitution`・`shibuya.world.ledger.first_batch`
 - 決定の ID: 11-01/§2・11-01/§3・11-02r・11-02r/§1・11-02r/§1 #6・11-02r/§1 #7・第 340・第 342

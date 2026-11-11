@@ -20,7 +20,7 @@ import warnings
 import pytest
 
 from shibuya.world.ledger import absent as AB
-from shibuya.world.processes import circularity as CI
+from shibuya.validation.static import circularity as CI
 from shibuya.world.ledger import constitution as C
 from shibuya.world.ledger import first_batch as FB
 

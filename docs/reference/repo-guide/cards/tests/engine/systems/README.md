@@ -48,7 +48,7 @@ Python 6 本・その他 1 本(このディレクトリの直下)
   - `test_permit_check_catches_reexported_names`(関数): 負の対照(再検収 R1・段 FIX2): 再輸出の名 ``_WP`` を通して許可を外す形が見つかる。
   - `test_permit_switches_are_called_only_from_known_places`(関数)
   - `test_systems_modules_do_not_bypass_the_box_setattr`(関数): 系のモジュール(箱の定義 ``boxes.py`` の外)は ``object.__setattr__`` を使わない(段 C を素通りしない)。
-- import している内部モジュール: `shibuya.engine.systems.static_check`・`shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.systems.allow`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.table`・`tests/_places.py`
+- import している内部モジュール: `shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.systems.allow`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_static_check`・`tests/_places.py`
 
 ## [test_guard_runs.py](../../../../../../../tests/engine/systems/test_guard_runs.py)
 
@@ -66,7 +66,7 @@ Python 6 本・その他 1 本(このディレクトリの直下)
   - `test_guard_on_and_off_give_the_same_final`(関数)
   - `test_scratch_in_place_write_by_a_non_writer_shows_in_B`(関数): 負の対照(検収 L4): 書き手でない phase_c が scratch.plan の中身をその場で書き換えると、段 B が phase_c に出す。
   - `test_strict_scratch_no_stale_reads`(関数): T4: tick の頭で scratch を番兵で埋めても読む前に書かれている(final も同じ)。
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.systems.overrides`・`shibuya.foundation.write_permit`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.write_permit`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`
 
 ## [test_stage_a_guard.py](../../../../../../../tests/engine/systems/test_stage_a_guard.py)
 
@@ -104,4 +104,4 @@ Python 6 本・その他 1 本(このディレクトリの直下)
   - `test_every_scratch_field_has_a_writer_and_a_reader`(関数)
   - `test_order_and_counts`(関数)
   - `test_scratch_is_written_before_it_is_read_in_tick_order`(関数)
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.engine.systems.static_check`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.allow`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.spec`・`shibuya.runtime.systems.table`
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.allow`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.spec`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_static_check`

@@ -25,12 +25,12 @@ from shibuya.mind.judge import classical as CL
 from shibuya.world.body import energy as EN
 from shibuya.engine import resolve as RV
 from shibuya.runtime.state import resume as RS
-from shibuya.engine import rng_audit as RA
+from shibuya.validation.static import rng_audit as RA
 from shibuya.foundation.decl import bridging as BL
-from shibuya.engine.bridging import scan as BS
+from shibuya.validation.static import bridging_scan as BS
 from shibuya.world.facts.rules import table as RT
 from shibuya.runtime.systems import allow as AL
-from shibuya.engine.systems import static_check as SC
+from shibuya.validation.static import system_static_check as SC
 from shibuya.world.ledger import world_catalog as WC
 from shibuya.world.ledger import constitution as CO
 from tests import _places as PL

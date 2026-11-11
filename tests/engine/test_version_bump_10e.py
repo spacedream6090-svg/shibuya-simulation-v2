@@ -182,7 +182,7 @@ def test_e4_u2_next_key_is_no_longer_a_shifted_copy(domain):
 def test_e4_u2_two_day_run_has_independent_day_streams():
     """U2: 2 日のラン(合成世界・counter)で、日の鍵の流れ(配送・工事)はどれも重ならない=日ごとの差を主張に使える。
     〔改訂(第330・RET)〕前は stateful(旧値の再現)では 1 日目の配送の流れが 0 日目と重なることも見た(stateful を消した)。"""
-    from shibuya.engine import rng_audit as RA
+    from shibuya.validation.static import rng_audit as RA
 
     kw = dict(n_agents=120, seed=2, n_cells=16, ticks=TPD, sim_days=2, checkpoint_every=360, budget=120.0)
     with RA.StreamRecorder() as rec:
@@ -195,7 +195,7 @@ def test_e4_u2_two_day_run_has_independent_day_streams():
 def test_e4_recorder_groups_by_seed_u8():
     """U8: 束ねる鍵に master seed を入れた=seed の違う同じ用途名・同じカウンタの流れを重なりと数えない。"""
     from shibuya.foundation.rng import stream
-    from shibuya.engine import rng_audit as RA
+    from shibuya.validation.static import rng_audit as RA
 
     with RA.StreamRecorder() as rec:
         for seed in (1, 2):

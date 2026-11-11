@@ -25,7 +25,7 @@ from shibuya.runtime.state import ledger as SL
 from shibuya.engine.run import run_day
 from shibuya.runtime.systems import conductor as CD
 from shibuya.foundation import write_guard as G
-from shibuya.engine.systems import overrides as OV
+from shibuya.validation.static import system_overrides as OV
 from shibuya.runtime.systems import probe as PR
 from shibuya.runtime.systems.table import SPECS, SYSTEMS
 

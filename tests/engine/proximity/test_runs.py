@@ -336,7 +336,7 @@ def test_world_resume_equals_straight_and_the_marks_matter(tmp_path):
 
 # ================================================================= 気づく抽選の流れの K19(ランの中)
 def test_notice_streams_in_a_run_pass_k19():
-    from shibuya.engine import rng_audit as RA
+    from shibuya.validation.static import rng_audit as RA
 
     with arm("distance"):
         with RA.StreamRecorder() as rec:

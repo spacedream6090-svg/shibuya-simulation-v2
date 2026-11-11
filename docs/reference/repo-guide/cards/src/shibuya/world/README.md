@@ -4,7 +4,7 @@
 
 Python 2 本・その他 0 本(このディレクトリの直下)
 
-下のディレクトリ: [body](body/README.md)・[facts](facts/README.md)・[laws](laws/README.md)・[ledger](ledger/README.md)・[model](model/README.md)・[processes](processes/README.md)・[things](things/README.md)
+下のディレクトリ: [body](body/README.md)・[facts](facts/README.md)・[laws](laws/README.md)・[ledger](ledger/README.md)・[model](model/README.md)・[things](things/README.md)
 
 ## [__init__.py](../../../../../../../src/shibuya/world/__init__.py)
 
