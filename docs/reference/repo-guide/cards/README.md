@@ -22,7 +22,6 @@
 | [src/shibuya/build/sched](src/shibuya/build/sched/README.md) | 8 | 0 |
 | [src/shibuya/build/space](src/shibuya/build/space/README.md) | 5 | 0 |
 | [src/shibuya/build/vis](src/shibuya/build/vis/README.md) | 5 | 0 |
-| [src/shibuya/census](src/shibuya/census/README.md) | 1 | 0 |
 | [src/shibuya/economy](src/shibuya/economy/README.md) | 18 | 0 |
 | [src/shibuya/engine](src/shibuya/engine/README.md) | 13 | 0 |
 | [src/shibuya/engine/events](src/shibuya/engine/events/README.md) | 2 | 0 |
@@ -163,7 +162,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 311 ディレクトリ・2348 本
+- [docs の索引](docs.md): 313 ディレクトリ・2353 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

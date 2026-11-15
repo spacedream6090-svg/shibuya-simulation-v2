@@ -50,7 +50,7 @@ markers = [
 ]
 filterwarnings = ["error::DeprecationWarning:shibuya.*"]
 
-# ---- 層契約(段 4 の段 interim_bundles の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage interim_bundles` が作る。手で直さない)----
+# ---- 層契約(段 4 の段 delete の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage delete` が作る。手で直さない)----
 [tool.importlinter]
 root_package = "shibuya"
 include_external_packages = false
@@ -59,7 +59,6 @@ include_external_packages = false
 name = "layers: census > economy > engine > (perception | llm) > (world | agents) > core > manifest"
 type = "layers"
 layers = [
-  "shibuya.census",
   "shibuya.engine",
   "shibuya.perception | shibuya.llm",
   "shibuya.agents",
@@ -75,7 +74,6 @@ forbidden_modules = [
   "shibuya.agents",
   "shibuya.perception",
   "shibuya.engine",
-  "shibuya.census",
 ]
 
 [[tool.importlinter.contracts]]
@@ -86,7 +84,6 @@ source_modules = [
   "shibuya.perception",
   "shibuya.llm",
   "shibuya.engine",
-  "shibuya.census",
 ]
 forbidden_modules = [
   "shibuya.build",
@@ -296,3 +293,37 @@ allowed_importers = [
   "shibuya.llm.fleet",
   "shibuya.llm.mock",
 ]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕§6-6 の 2 runtime の核は中身を読まない(直の辺だけ)"
+type = "forbidden"
+source_modules = [
+  "shibuya.runtime.clock",
+  "shibuya.runtime.clocks",
+  "shibuya.runtime.state",
+  "shibuya.runtime.inference.tape",
+  "shibuya.runtime.systems.conductor",
+  "shibuya.runtime.systems.spec",
+  "shibuya.runtime.systems.boxes",
+  "shibuya.runtime.systems.day",
+]
+forbidden_modules = [
+  "shibuya.world.laws",
+  "shibuya.world.body",
+  "shibuya.world.model",
+  "shibuya.world.things",
+  "shibuya.world.facts",
+  "shibuya.world.ledger",
+  "shibuya.mind",
+  "shibuya.act",
+  "shibuya.economy",
+  "shibuya.society",
+  "shibuya.interim_bundles",
+  "shibuya.experiments.drive",
+  "shibuya.experiments.port",
+]
+ignore_imports = [
+  "shibuya.runtime.clocks.speech -> shibuya.society.speech.port",
+  "shibuya.runtime.clocks.step_scope -> shibuya.engine.change_detect",
+]
+allow_indirect_imports = true

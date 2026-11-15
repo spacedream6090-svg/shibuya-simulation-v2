@@ -32,6 +32,7 @@
 | society_contact | 124b3bb | 4(表の行 4=move 4) | 13 | モジュール 356・落ちた 0 | 19/19 同じ・終了コード 0 | 6,818 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed | 10 kept(古い 3+新しい 7) |
 | interim_bundles | ff28372 | 9(表の行 13=move 13) | 44 | モジュール 357・落ちた 0 | 19/19 同じ・終了コード 0 | 6,819 passed・1 failed(前からの 1 本)・5 skipped・1 xfailed | 11 kept(古い 3+新しい 8) |
 | foundation_224a | 6774b85 | 1(表の行 1=move 1) | 8 | モジュール 357・落ちた 0 | 19/19 同じ・終了コード 0 | 6,815 passed・1 failed(前からの 1 本)・9 skipped・1 xfailed | 11 kept(古い 3+新しい 8) |
+| delete | d42fbba | 0(表の行 2=delete 2) | 0 | モジュール 356・落ちた 0 | 19/19 同じ・終了コード 0 | 6,803 passed・1 failed(前からの 1 本)・21 skipped・1 xfailed | 12 kept(古い 3+新しい 9) |
 
 ## foundation(2026-11-11)
 
@@ -134,7 +135,7 @@
 - 性能の参考(既定 w6_v3_default・5,000 体・seed 1・1 日・mock・同じ機械): 壁時計 基準 63.6 秒/後 55.1 秒(19 構成を 6 本並列+裏で範囲の試験を 4 並列。比べない参考値・最大メモリは測っていない)。
 - 範囲の試験: 6,787 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed(32 分 18 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木だけで落ちる)。道具の報告は [validation/pkgmove_validation_report.json](validation/pkgmove_validation_report.json)。
 
-## delete(止めた・2026-11-11)
+## 第346 に delete の段を止めた記録(2026-11-11。第347 に答えが届いて当てた=下の delete の節)
 
 - 対象は 2 行(`agents/__init__.py` の再輸出を消す・`census/__init__.py` を消す)。棚卸しの表([inventory-vessels-research-heads-2026-11-09.md](../../../reference/inventory-vessels-research-heads-2026-11-09.md))の確認 1 と同じ行で、「消すのは確かめの後」としている。
 - validation の commit(1a1b584)の上に当てて確かめた所まで: 当てた後の import の落ち 0・守り 8 つ「同じ」・import の決まり(`shibuya.census` を外した形)は lint-imports 10 kept。byte-check と範囲の試験は回していない。
@@ -172,3 +173,30 @@
 - byte-check: 基準 6774b85 の写しと作業木の src で 19 構成・37 欄すべて同じ・動いた 0・誤り 0(終了コード 0)。既定の final `c8d68704b7b0760d`・呼数 60,939。JSON は [foundation_224a/bytecheck/](foundation_224a/bytecheck/)。
 - 性能の参考(既定 w6_v3_default・5,000 体・seed 1・1 日・mock・同じ機械): 壁時計 基準 63.2 秒/後 54.8 秒(19 構成を 6 本並列+裏で範囲の試験を 4 並列。比べない参考値・最大メモリは測っていない)。
 - 範囲の試験: 6,815 passed・1 failed(前からの 1 本)・9 skipped・1 xfailed(36 分 5 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木だけで落ちる)。道具の報告は [foundation_224a/pkgmove_foundation_224a_report.json](foundation_224a/pkgmove_foundation_224a_report.json)。
+
+## delete(2026-11-16)
+
+- 当てた行 2(delete 2)。ファイルの移動 0・新しい頭 0・空にした頭 1・消えた古いディレクトリやファイル 1・保留で当てなかった行 0。
+- import の文: src 0・build 0・tests 0・tools 0・docs の記録の道具 0。道の文字列 0 か所()。
+- 頭から除いた再輸出: 無し。`class_ids.py` の鍵 0 本。つなぎの台帳の道の表に 0 行。pyproject の package-data の鍵: 変えていない。
+- 守り 8 つは全部「同じ」。当てた後の import の確かめ=モジュール 356・落ちた 0。
+- import の決まり(`contracts --stage delete --apply`): 古い決まり 3+新しい決まり 9=lint-imports 12 kept。ignore 45 行。まだ移っていない読み手で読んでよい側に足したもの: 決まり 5: `cli`・決まり 9: `cli`・`engine.arbiter`・`engine.llm_bridge`・`engine.run`・`llm.fleet`・`llm.mock`。どの決まりの元の側にも入らないモジュール: `cli`・`world.assets`。報告 [delete/contracts_delete.json](delete/contracts_delete.json)。
+- byte-check: 基準 d42fbba の写しと作業木の src で 19 構成・37 欄すべて同じ・動いた 0・誤り 0(終了コード 0)。既定の final `c8d68704b7b0760d`・呼数 60,939。JSON は [delete/bytecheck/](delete/bytecheck/)。
+- 性能の参考(既定 w6_v3_default・5,000 体・seed 1・1 日・mock・同じ機械): 壁時計 基準 62.5 秒/後 55.0 秒(19 構成を 6 本並列+裏で範囲の試験を 4 並列。比べない参考値・最大メモリは測っていない)。
+- 範囲の試験: 6,803 passed・1 failed(前からの 1 本)・21 skipped・1 xfailed(35 分 52 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木だけで落ちる)。道具の報告は [delete/pkgmove_delete_report.json](delete/pkgmove_delete_report.json)。
+
+## 例外(ignore)の本数(段ごと・第347・返事その 8 §1-12 の 3)
+
+import の決まりの例外(ignore)を、段ごとに数えた。「載せた」は pyproject に書いた例外で、重なりを除いた辺の数と、延べの行の数(1 本の辺が複数の決まりに載る)。「効いている」は、その例外を外すと決まりのどれかが落ちる本数(`python tools/pkgmove/cli.py contracts --stage <段> --tree <木> --check --probe`。木もキャッシュも書かない)。効いていない例外は、計画の 28 本のうち、今の木ではもう決まりに当たらない辺で、まとめて外しても全部の決まりが kept のまま。一覧は計画の「消える段」の注と一緒に残している。
+
+| 段 | 載せた(辺/行) | 効いている(辺/行) | 効いている分の消える段 |
+|---|---|---|---|
+| society_contact(4-10) | 29 / 43 | 17 / 27 | 段 5a 4・段 5b 2・段 6 7・段 7 1・残る 3 |
+| interim_bundles(4-11) | 29 / 43 | 17 / 27 | 同じ |
+| foundation_224a(4-12) | 29 / 43 | 17 / 27 | 同じ |
+| delete(4-13) | 31 / 45 | 18 / 28 | 段 5a 4・段 5b 2・段 6 7・段 7 1・割る段(`mora_count` を foundation へ下ろす)1・残る 3 |
+
+- 載せた 31 本の消える段の内訳: 段 5a 13・段 5b 2・段 6 8・段 7 2・割る段(`mora_count`)1・残る 4・注釈だけ 1。
+- delete の段で 2 本増えたのは、決まり 10(runtime の核は中身を読まない・直の辺だけ)の例外(`runtime.clocks.speech` → `society.speech.port` の `mora_count`・`runtime.clocks.step_scope` → `engine.change_detect`)。
+- world から validation までの段(第346)の「効いている」数は、その段の木が手元に無いので出していない(validation の段の木は 17 / 27 で、society_contact と同じ)。
+- 割る段(5a・5b・6・7)では、段ごとに「消えた本数」をこの表に足す。
