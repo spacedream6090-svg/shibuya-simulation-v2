@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from typing import Any, Final, Mapping
 
-from shibuya.engine import removed_switches as _RSW
+from shibuya.foundation.arms import removed as _RSW
 
 __all__ = ["MODE_WALK", "MODE_LEGACY", "DEFAULT_MODE", "ENV_REMOVED", "header_fields", "check_resume", "SCHEMA"]
 

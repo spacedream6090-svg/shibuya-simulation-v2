@@ -32,7 +32,7 @@ engine.defect_fixes_1103 — 棚卸し B で見つけた欠陥 4 件の直しの
   - `is_on`(関数): ``mode``(省略=ランの腕 on)が直した道か。
   - `manifest_fields`(関数): manifest の ``defect_fixes_1103``(設定=形の版・腕・4 件の宣言・直した印/観測=計器)。
   - `resolve`(関数): 引数の腕(``None``=ランの腕 ``on``)を名に直す(名の誤りは止める)。
-- import している内部モジュール: `shibuya.engine.removed_switches`
+- import している内部モジュール: `shibuya.foundation.arms.removed`
 - 呼び手: `shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.runtime.systems.state_io`
 - 読む試験: `tests/engine/test_defect_fixes_1103.py`
 - 環境変数: `SHIBUYA_DEFECT_FIXES_1103`

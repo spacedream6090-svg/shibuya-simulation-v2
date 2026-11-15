@@ -248,7 +248,7 @@ engine.seat_release — 在席の印を歩き出しで解く(第 2 期 2-4 V3・
 - 公開の関数とクラス
   - `check_resume`(関数): 再開のときに、保存したランの見出しの ``seat_release``(無ければ legacy=2-4 より前のラン)が walk かを確かめる(違えば止める)。
   - `header_fields`(関数): 状態のファイルの見出しの ``seat_release``(ランは常に ``{"mode": "walk"}``・walk の外の名は None)。
-- import している内部モジュール: `shibuya.engine.removed_switches`
+- import している内部モジュール: `shibuya.foundation.arms.removed`
 - 呼び手: `shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`
 - 読む試験: `tests/engine/test_seat_release_2_4.py`
 - 環境変数: `SHIBUYA_SEAT_RELEASE`

@@ -131,7 +131,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     """組み立て(R1): 腕の検査・世界と SoA と層の組み立て・状態の箱・再開の復元。返り値=``Box``。"""
     # 〔第346 旧道の切替口の削除・検収 H1〕消した切替口の環境変数は、切替口を持っていたモジュールを import しないランでも
     # ここ(ランの入口=刻みに入る前)で止める(黙って既定で回さない)
-    from shibuya.engine import removed_switches as _RSW
+    from shibuya.foundation.arms import removed as _RSW
 
     _RSW.check_environment()
     from shibuya.engine import run as _RUN

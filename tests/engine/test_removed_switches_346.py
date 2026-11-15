@@ -17,7 +17,7 @@ import sys
 import pytest
 
 from shibuya import cli
-from shibuya.engine import removed_switches as RSW
+from shibuya.foundation.arms import removed as RSW
 
 TAG = "stable-v2-before-switch-removal-346"
 RUN_DAY = ("from shibuya.engine.run import run_day\n"

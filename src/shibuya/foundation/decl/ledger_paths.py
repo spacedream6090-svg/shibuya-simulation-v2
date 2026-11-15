@@ -41,6 +41,7 @@ LEDGER_PATHS: Final[Mapping[str, str]] = MappingProxyType({
     "src/shibuya/foundation/arms/calendar3.py": "src/shibuya/engine/calendar3/arm.py",
     "src/shibuya/foundation/arms/contact.py": "src/shibuya/engine/contact/arm.py",
     "src/shibuya/foundation/arms/duties.py": "src/shibuya/engine/duties/arm.py",
+    "src/shibuya/foundation/arms/removed.py": "src/shibuya/engine/removed_switches.py",
     "src/shibuya/foundation/budget.py": "src/shibuya/core/budget.py",
     "src/shibuya/foundation/decl/bridging.py": "src/shibuya/engine/bridging/ledger.py",
     "src/shibuya/foundation/decl/ledger_paths.py": "src/shibuya/engine/bridging/ledger_paths.py",

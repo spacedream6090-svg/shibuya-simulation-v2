@@ -129,7 +129,7 @@ engine.proximity — 会話と近接を実距離で判定する(第 2 期 2-2・
   - `notice_p`(関数): R-62 の 2 点を通るロジスティック p(d)(距離[m] → 気づく確率)。
   - `rule_from`(関数): 組み立ての口(``seed``=動きの側の seed=気づく抽選の counter の流れの鍵・``poi_cell``=``world.pois.cell``・
   - `set_d`(関数): 会話の距離 d の感度の腕を選ぶ(CLI ``--proximity-d``・試験の切替口)。
-- import している内部モジュール: `shibuya.engine.removed_switches`・`shibuya.foundation.rng`・`shibuya.world.model.spatial_index`
+- import している内部モジュール: `shibuya.foundation.arms.removed`・`shibuya.foundation.rng`・`shibuya.world.model.spatial_index`
 - 呼び手: `shibuya.cli`・`shibuya.engine.commit`・`shibuya.engine.relations`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`
 - 読む試験: `tests/engine/proximity/test_rule.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/proximity/test_switch_sites.py`・`tests/engine/space/test_nav1_units.py`・`tests/perception/facts/test_render_from_percept_bytes.py`
 - 読む試験(道筋で): `tests/engine/test_state_ledger_10b.py`

@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 14 本・その他 0 本(このディレクトリの直下)
+Python 13 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [events](events/README.md)・[tools](tools/README.md)
 
@@ -231,20 +231,6 @@ engine.relations — **関係辺の表と導出**(C10 8a・第299)+**会話の�
     - `O18` RelationLayer _co_since・_co_day・_co_active(挙動 behavior・復元 required) 道筋 `rel_layer._co_active`・`rel_layer._co_day`・`rel_layer._co_since` 書ける系: memory・relations_wake
     - `O19` RelationLayer _invite_salt・chosen_count・origin_of・stats ほか(挙動 diag・復元 discardable) 道筋 `rel_layer._invite_salt`・`rel_layer.chosen_count`・`rel_layer.init_audit`・`rel_layer.origin_of`・`rel_layer.stats`・`rel_layer.wall` 書ける系: apply_responses・conversation・decide・memory・relations_wake
 - 決定の ID: 10-12/§4-4・R-36・R-62・D-31・D-93・第 299・第 300
-
-## [removed_switches.py](../../../../../../../src/shibuya/engine/removed_switches.py)
-
-engine.removed_switches — 消した旧道の切替口の一覧と、渡されたら止める口(第346 旧道の切替口の削除)。
-
-- 公開の関数とクラス
-  - `check_environment`(関数): 消した切替口の環境変数(:data:`REMOVED_ENV` の全部)のどれかが置かれていれば止める(ランの入口で呼ぶ)。
-  - `message`(関数): 止めるときの文(名・消した段・安定版のタグ)。
-  - `stop_if_set`(関数): ``names`` の環境変数のどれかが置かれていれば(空でない値)止める(``ValueError``)。
-- 呼び手: `shibuya.cli`・`shibuya.economy.rules_bind`・`shibuya.runtime.switch_defects`・`shibuya.runtime.systems.assemble`・`shibuya.world.laws.switch_seat`・`shibuya.world.model.proximity`
-- 読む試験: `tests/engine/test_removed_switches_346.py`
-- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
-- 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
-- 決定の ID: 第 346
 
 ## [resolve.py](../../../../../../../src/shibuya/engine/resolve.py)
 

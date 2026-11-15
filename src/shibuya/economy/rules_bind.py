@@ -39,8 +39,8 @@ from typing import Any, Final
 
 import numpy as np
 
-from shibuya.engine.removed_switches import REMOVED_SWITCH_TAG
-from shibuya.engine.removed_switches import stop_if_set as _stop_if_set
+from shibuya.foundation.arms.removed import REMOVED_SWITCH_TAG
+from shibuya.foundation.arms.removed import stop_if_set as _stop_if_set
 
 __all__ = [
     "ARM_ON", "ARM_OFF", "ENV_42_REMOVED", "RIGHTS_INITIAL_FILE", "PayrollInputs",

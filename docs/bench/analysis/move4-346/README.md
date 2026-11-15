@@ -31,6 +31,7 @@
 | validation | 454c55c | 6(表の行 6=move 6) | 24 | モジュール 355・落ちた 0 | 19/19 同じ・終了コード 0 | 6,787 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed | 10 kept(古い 3+新しい 7) |
 | society_contact | 124b3bb | 4(表の行 4=move 4) | 13 | モジュール 356・落ちた 0 | 19/19 同じ・終了コード 0 | 6,818 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed | 10 kept(古い 3+新しい 7) |
 | interim_bundles | ff28372 | 9(表の行 13=move 13) | 44 | モジュール 357・落ちた 0 | 19/19 同じ・終了コード 0 | 6,819 passed・1 failed(前からの 1 本)・5 skipped・1 xfailed | 11 kept(古い 3+新しい 8) |
+| foundation_224a | 6774b85 | 1(表の行 1=move 1) | 8 | モジュール 357・落ちた 0 | 19/19 同じ・終了コード 0 | 6,815 passed・1 failed(前からの 1 本)・9 skipped・1 xfailed | 11 kept(古い 3+新しい 8) |
 
 ## foundation(2026-11-11)
 
@@ -160,3 +161,14 @@
 - byte-check: 基準 ff28372 の写しと作業木の src で 19 構成・37 欄すべて同じ・動いた 0・誤り 0(終了コード 0)。既定の final `c8d68704b7b0760d`・呼数 60,939。JSON は [interim_bundles/bytecheck/](interim_bundles/bytecheck/)。
 - 性能の参考(既定 w6_v3_default・5,000 体・seed 1・1 日・mock・同じ機械): 壁時計 基準 63.1 秒/後 55.0 秒(19 構成を 6 本並列+裏で範囲の試験を 4 並列。比べない参考値・最大メモリは測っていない)。
 - 範囲の試験: 6,819 passed・1 failed(前からの 1 本)・5 skipped・1 xfailed(36 分 50 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木だけで落ちる)。道具の報告は [interim_bundles/pkgmove_interim_bundles_report.json](interim_bundles/pkgmove_interim_bundles_report.json)。
+
+## foundation_224a(2026-11-16)
+
+- 当てた行 1(move 1)。ファイルの移動 1・新しい頭 0・空にした頭 0・消えた古いディレクトリやファイル 0・保留で当てなかった行 0。
+- import の文: src 8・build 0・tests 1・tools 0・docs の記録の道具 0。道の文字列 0 か所()。
+- 頭から除いた再輸出: 無し。`class_ids.py` の鍵 0 本。つなぎの台帳の道の表に 1 行。pyproject の package-data の鍵: 変えていない。
+- 守り 8 つは全部「同じ」。当てた後の import の確かめ=モジュール 357・落ちた 0。
+- import の決まり(`contracts --stage foundation_224a --apply`): 古い決まり 3+新しい決まり 8=lint-imports 11 kept。ignore 43 行。まだ移っていない読み手で読んでよい側に足したもの: 決まり 5: `cli`・決まり 9: `cli`・`engine.arbiter`・`engine.llm_bridge`・`engine.run`・`llm.fleet`・`llm.mock`。どの決まりの元の側にも入らないモジュール: `cli`・`world.assets`。報告 [foundation_224a/contracts_foundation_224a.json](foundation_224a/contracts_foundation_224a.json)。
+- byte-check: 基準 6774b85 の写しと作業木の src で 19 構成・37 欄すべて同じ・動いた 0・誤り 0(終了コード 0)。既定の final `c8d68704b7b0760d`・呼数 60,939。JSON は [foundation_224a/bytecheck/](foundation_224a/bytecheck/)。
+- 性能の参考(既定 w6_v3_default・5,000 体・seed 1・1 日・mock・同じ機械): 壁時計 基準 63.2 秒/後 54.8 秒(19 構成を 6 本並列+裏で範囲の試験を 4 並列。比べない参考値・最大メモリは測っていない)。
+- 範囲の試験: 6,815 passed・1 failed(前からの 1 本)・9 skipped・1 xfailed(36 分 5 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木だけで落ちる)。道具の報告は [foundation_224a/pkgmove_foundation_224a_report.json](foundation_224a/pkgmove_foundation_224a_report.json)。

@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 5 本・その他 0 本(このディレクトリの直下)
+Python 6 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/foundation/arms/__init__.py)
 
@@ -73,3 +73,17 @@ engine.duties.arm — 店の仕事の腕(第 6 期 6-6 ② 第 1 部=開閉店�
 - 呼び手: `shibuya.cli`・`shibuya.interim_bundles.duties.layer`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/duties/_du.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/duties/test_du_units.py`
 - 環境変数: `SHIBUYA_DUTIES`・名前を読めない所 1 か所
+
+## [removed.py](../../../../../../../../src/shibuya/foundation/arms/removed.py)
+
+engine.removed_switches — 消した旧道の切替口の一覧と、渡されたら止める口(第346 旧道の切替口の削除)。
+
+- 公開の関数とクラス
+  - `check_environment`(関数): 消した切替口の環境変数(:data:`REMOVED_ENV` の全部)のどれかが置かれていれば止める(ランの入口で呼ぶ)。
+  - `message`(関数): 止めるときの文(名・消した段・安定版のタグ)。
+  - `stop_if_set`(関数): ``names`` の環境変数のどれかが置かれていれば(空でない値)止める(``ValueError``)。
+- 呼び手: `shibuya.cli`・`shibuya.economy.rules_bind`・`shibuya.runtime.switch_defects`・`shibuya.runtime.systems.assemble`・`shibuya.world.laws.switch_seat`・`shibuya.world.model.proximity`
+- 読む試験: `tests/engine/test_removed_switches_346.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
+- 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
+- 決定の ID: 第 346

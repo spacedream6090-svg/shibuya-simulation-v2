@@ -836,7 +836,7 @@ class _RemovedFlag(argparse.Action):
     (表に出さない旗=略記で ``--proximity`` が ``--proximity-d`` に読まれるのを防ぐ)。"""
 
     def __call__(self, parser, namespace, values, option_string=None):  # noqa: ANN001
-        from shibuya.engine import removed_switches as _RSW
+        from shibuya.foundation.arms import removed as _RSW
 
         parser.error(_RSW.message(str(option_string)))
 
@@ -1552,7 +1552,7 @@ def main(argv: list[str] | None = None) -> int:
     # --max-tokens / --fleet-wait-s(C6-a)
     add_fleet_args(ap)
     add_calendar_args(ap)  # 10a: --calendar-weekday / --start-date / --holiday-csv / --school-holidays・10c: --rng-scheme
-    from shibuya.engine import removed_switches as _RSW  # 〔第346・検収 L1〕消した旗は表に出さずに受けて止める
+    from shibuya.foundation.arms import removed as _RSW  # 〔第346・検収 L1〕消した旗は表に出さずに受けて止める
 
     for _flag in _RSW.REMOVED_CLI_FLAGS:
         ap.add_argument(_flag, nargs="?", action=_RemovedFlag, default=argparse.SUPPRESS, help=argparse.SUPPRESS)

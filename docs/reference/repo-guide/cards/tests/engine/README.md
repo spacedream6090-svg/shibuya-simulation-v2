@@ -1245,7 +1245,7 @@ C10 8b(会話の起点と相手選択+8a の直し)の検査。
   - `test_a_run_with_a_removed_switch_env_stops_before_the_ticks`(関数): 値によらず(既定の値でも)止まる。止まるのは組み立ての最初か、切替口を持っていたモジュールの読み込み=刻みの前。
   - `test_the_hidden_flags_are_not_in_the_help`(関数)
   - `test_the_list_and_the_message_are_in_one_place`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.removed_switches`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.arms.removed`
 - 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
 - 決定の ID: 第 346
 
