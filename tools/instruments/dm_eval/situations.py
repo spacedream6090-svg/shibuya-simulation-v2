@@ -51,6 +51,9 @@ expedient(器の宣言・未リサーチ)
     ``.md5``(``<md5>  <ファイル名>`` の行)で照らす。候補は場面が持つ(``candidates_for`` の 5 つの源の組み立ては使わない)。
     場面は自前(架空の店・丸い仮の値・実在の店名と施設名と人名を使わない=漏洩の検査と分ける)。設計は
     ``docs/bench/analysis/dm-eval-11-01/README.md``。
+    〔第 347〕呼びかけの場面(``scenes/appeal_v1.jsonl``・判断点の名は ``APPEAL_TYPES``=``load_scene_file(...,
+    point_names=APPEAL_TYPES)``)。行の欄 ``appeal`` を ``SceneSet.appeal`` に写す。設計は
+    ``docs/bench/analysis/dm-eval-appeal-347/README.md``。
 """
 
 from __future__ import annotations
@@ -528,10 +531,26 @@ CONSUMPTION_WORD_LABELS: Final[Mapping[str, str]] = MappingProxyType({
 CANDIDATE_FIELD_KEYS: Final[tuple[str, ...]] = ("item", "qty", "price_yen")
 _CANDIDATE_KEYS: Final[frozenset[str]] = frozenset(("id", "kind", "text", "source") + CANDIDATE_FIELD_KEYS)
 
+#: 〔第 347〕呼びかけの場面(返事その 8 §6-2・記録 2-61 ①・2-62)。同じ状況・同じ候補で呼びかけの文が「ある版」と「ない版」の
+#: 対(``appeal.pairs_of``)。行の欄 ``appeal`` に対の印(組・ある/ない・条件・「応じる」候補の id ほか)を持つ。
+APPEAL_SCENES: Final[Path] = SCENES_DIR / "appeal_v1.jsonl"
+#: 呼びかけの種類(行の ``point``)→ 見出し。
+APPEAL_TYPES: Final[Mapping[str, str]] = MappingProxyType({
+    "request": "頼み(Langer ら 1978 の形)",
+    "prohibition": "禁止の表示(Keizer ら 2008 の形)",
+    "shop_call": "店頭の呼びかけ(人の値なし=強さ 3 段)",
+})
+#: 呼びかけの場面で足した候補の語(``Candidate.kind``)。記録 2-47 の「軽い逸脱」(語彙 v3 の外)。
+APPEAL_WORDS: Final[tuple[str, ...]] = ("minor_deviance",)
+
 
 @dataclass(frozen=True)
 class SceneSet:
-    """場面のファイルの中身(読むだけ)。``candidates`` は状況の id → 候補(番号なし=提示で振る)。"""
+    """場面のファイルの中身(読むだけ)。``candidates`` は状況の id → 候補(番号なし=提示で振る)。
+
+    〔第 347〕``point_names`` はこの組の判断点の名(既定=消費の 4 判断点)。``appeal`` は行の欄 ``appeal``(呼びかけの場面
+    だけ・無ければ空)。
+    """
 
     name: str
     situations: tuple[Situation, ...]
@@ -539,9 +558,11 @@ class SceneSet:
     points: Mapping[str, str]
     fields: Mapping[str, Mapping[str, Mapping[str, Any]]]
     md5: Mapping[str, str]
+    point_names: Mapping[str, str] = DECISION_POINTS
+    appeal: Mapping[str, Mapping[str, Any]] = MappingProxyType({})
 
     def by_point(self) -> dict[str, int]:
-        out = {p: 0 for p in DECISION_POINTS}
+        out = {p: 0 for p in self.point_names}
         for p in self.points.values():
             out[p] = out.get(p, 0) + 1
         return out
@@ -577,8 +598,14 @@ def candidate_of_spec(spec: Mapping[str, Any]) -> Candidate:
     return Candidate(id=str(spec["id"]), kind=str(spec["kind"]), text=str(spec["text"]), source=str(spec["source"]))
 
 
-def load_scene_file(path: Path | str = CONSUMPTION_SCENES, *, verify_md5: bool = True) -> SceneSet:
-    """場面のファイル(jsonl+``.b0.json``+``.md5``)を読む。md5 が同梱の値と違えば ``ValueError``。"""
+def load_scene_file(path: Path | str = CONSUMPTION_SCENES, *, verify_md5: bool = True,
+                    point_names: Mapping[str, str] | None = None) -> SceneSet:
+    """場面のファイル(jsonl+``.b0.json``+``.md5``)を読む。md5 が同梱の値と違えば ``ValueError``。
+
+    〔第 347〕``point_names`` は許す判断点の名(既定 ``None``=消費の 4 判断点=今のまま。呼びかけの場面は ``APPEAL_TYPES``)。
+    行に欄 ``appeal`` があれば ``SceneSet.appeal`` に写す(中身の検査は ``appeal.pairs_of``)。
+    """
+    allowed = DECISION_POINTS if point_names is None else point_names
     p = Path(path)
     b0_path, md5_path = scene_sidecars(p)
     raw = _read_bytes(p)
@@ -593,6 +620,7 @@ def load_scene_file(path: Path | str = CONSUMPTION_SCENES, *, verify_md5: bool =
     cands: dict[str, tuple[Candidate, ...]] = {}
     points: dict[str, str] = {}
     fields: dict[str, dict[str, dict[str, Any]]] = {}
+    appeal: dict[str, Mapping[str, Any]] = {}
     for line in raw.decode("utf-8").split("\n"):  # 逐次ループ宣言: 場面の数
         if not line.strip():
             continue
@@ -601,8 +629,10 @@ def load_scene_file(path: Path | str = CONSUMPTION_SCENES, *, verify_md5: bool =
         if sit.sid in cands:
             raise ValueError(f"場面の id が重なっている: {sit.sid}")
         point = str(row.get("point", ""))
-        if point not in DECISION_POINTS:
-            raise ValueError(f"判断点 {point!r} は {tuple(DECISION_POINTS)} のどれか")
+        if point not in allowed:
+            raise ValueError(f"判断点 {point!r} は {tuple(allowed)} のどれか")
+        if "appeal" in row:
+            appeal[sit.sid] = MappingProxyType(dict(row["appeal"]))
         specs = list(row.get("candidates") or ())
         cs = tuple(candidate_of_spec(c) for c in specs)
         if len({c.id for c in cs}) != len(cs) or not cs:
@@ -613,4 +643,5 @@ def load_scene_file(path: Path | str = CONSUMPTION_SCENES, *, verify_md5: bool =
         fields[sit.sid] = {str(c["id"]): {k: c[k] for k in CANDIDATE_FIELD_KEYS if k in c} for c in specs}
     stem = p.name[:-len(".jsonl")] if p.name.endswith(".jsonl") else p.stem
     return SceneSet(name=stem, situations=tuple(sits), candidates=MappingProxyType(cands),
-                    points=MappingProxyType(points), fields=MappingProxyType(fields), md5=MappingProxyType(sums))
+                    points=MappingProxyType(points), fields=MappingProxyType(fields), md5=MappingProxyType(sums),
+                    point_names=MappingProxyType(dict(allowed)), appeal=MappingProxyType(appeal))

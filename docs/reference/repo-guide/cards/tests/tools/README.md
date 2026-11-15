@@ -214,10 +214,22 @@ tools/instruments/deletion_candidates_ci.py の試験(11-16 §1-3 の 5=削除�
 tools/instruments/dm_eval(第 6 期 6-1 判断モデルの評価の器・GPU の前の分)の試験。
 
 - 公開の関数とクラス
+  - `appeal_pairs`(関数)
+  - `appeal_result`(関数)
+  - `appeal_scenes`(関数)
   - `g_result`(関数)
   - `scenes`(関数)
   - `syn_result`(関数)
   - `test_agreement_is_zero_distance_against_itself`(関数)
+  - `test_appeal_columns_with_synthetic_scorers`(関数)
+  - `test_appeal_human_values_are_the_record_values`(関数)
+  - `test_appeal_measures_known_values`(関数)
+  - `test_appeal_pairs_differ_only_by_the_appeal_line`(関数)
+  - `test_appeal_pairs_reject_bad_rows`(関数)
+  - `test_appeal_scenes_md5_and_counts`(関数)
+  - `test_appeal_section_is_outside_the_golden_digest`(関数)
+  - `test_appeal_table_columns_and_blanks`(関数)
+  - `test_appeal_texts_arrive_unfiltered_and_without_numbers`(関数)
   - `test_backend_failures_are_recorded_per_scene_and_do_not_stop_the_run`(関数)
   - `test_backend_identifier_names_avoid_banned_words`(関数)
   - `test_backend_scorers_position_bias_content_vs_positional`(関数)
@@ -226,6 +238,7 @@ tools/instruments/dm_eval(第 6 期 6-1 判断モデルの評価の器・GPU の
   - `test_candidates_come_from_the_five_sources`(関数)
   - `test_change_rate_formula`(関数)
   - `test_classical_scorer_splits_same_kind_mass_and_ignores_order`(関数)
+  - `test_cli_main_appeal_matches_the_record`(関数)
   - `test_cli_main_both`(関数)
   - `test_cli_main_consumption`(関数)
   - `test_cli_main_without_tape_experience`(関数)
@@ -254,6 +267,7 @@ tools/instruments/dm_eval(第 6 期 6-1 判断モデルの評価の器・GPU の
   - `test_known_values_jsd_spearman_entropy`(関数)
   - `test_logprob_breakdown_low_mass_and_boundary`(関数)
   - `test_logprob_scorer_distribution_shape_and_determinism`(関数)
+  - `test_make_appeal_v1_reproduces_the_shipped_files`(関数)
   - `test_make_consumption_v1_reproduces_the_shipped_files`(関数)
   - `test_md5_mismatch_stops_reading`(関数)
   - `test_model_factories_without_network`(関数)
@@ -288,9 +302,9 @@ tools/instruments/dm_eval(第 6 期 6-1 判断モデルの評価の器・GPU の
   - `test_vllm_prompt_logprobs_first_token_and_generate`(関数)
   - `test_vllm_token_boundary_and_http_errors`(関数)
   - `test_write_outputs_refuses_overwrite`(関数)
-- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/backends/__init__.py`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/backends/hf.py`・`tools/instruments/dm_eval/backends/vllm.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`・`tools/instruments/read_guard.py`
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.perception.attention`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/appeal.py`・`tools/instruments/dm_eval/backends/__init__.py`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/backends/hf.py`・`tools/instruments/dm_eval/backends/vllm.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`・`tools/instruments/read_guard.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
-- 決定の ID: 11-01
+- 決定の ID: 11-01・R-149・第 347
 
 ## [test_event_cost_bench.py](../../../../../../tests/tools/test_event_cost_bench.py)
 

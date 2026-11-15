@@ -15,6 +15,9 @@
   回数)・日本語での破綻率(定義は ``backends.base`` の説明)・VRAM(欄だけ=GPU の後)・何をいくつの数の平均と
   (G) との数の一致率と差の平均。分布の広がり=既存の「迷い エントロピー(平均)」。位置の偏り(巡回・PBS)と 1 件の秒は
   既存の列。
+- 〔第 347〕呼びかけの場面の表にだけ、末尾に 3 列(``COLUMNS_APPEAL``=応じる確率の差・分布の差 JSD・1 位が変わった対の率
+  =全体の値)を足す(``build_rows(..., appeal=…)`` と ``columns=``)。ほかの場面の表の列は変えない。種類ごと・条件ごと・
+  人の値は別の表(``appeal.to_markdown``=``appeal_table.md``)。
 """
 
 from __future__ import annotations
@@ -67,6 +70,13 @@ COLUMNS_1101: Final[tuple[tuple[str, str], ...]] = (
 )
 COLUMNS: Final[tuple[tuple[str, str], ...]] = COLUMNS_V1 + COLUMNS_1101
 COLUMN_KEYS: Final[tuple[str, ...]] = tuple(k for k, _ in COLUMNS)
+#: 〔第 347〕呼びかけの場面の表にだけ足す列(末尾・全体の値=対の平均)。
+COLUMNS_APPEAL: Final[tuple[tuple[str, str], ...]] = (
+    ("appeal_comply_diff", "呼びかけ 応じる確率の差(あり − なし・対の平均)"),
+    ("appeal_jsd", "呼びかけ 分布の差 JSD(対の平均)"),
+    ("appeal_top1_change", "呼びかけ 1 位が変わった対の率"),
+)
+APPEAL_COLUMN_KEYS: Final[tuple[str, ...]] = tuple(k for k, _ in COLUMNS_APPEAL)
 ORDER_NOTE: Final[str] = "並びは当て口の宣言の順(対照 → 基準 → 候補)。順位は付けない(ユーザーが選ぶ=決定 10-12 §1-9・DM1)"
 
 #: 空の欄の 2 つの印(「GPU の後で埋める」と「該当なし(理由)」)。
@@ -81,9 +91,11 @@ BLANK_UNDEFINED: Final[str] = "該当なし(定義できない)"
 BLANK_NOT_MODEL: Final[str] = "該当なし(モデルの答えでない)"
 BLANK_NO_REF: Final[str] = "該当なし(基準の記録なし)"
 BLANK_NO_QTY: Final[str] = "該当なし(数の候補なし)"
+#: 〔第 347〕呼びかけの列で、採点できた対が無い(どの対も片方が採点から外れた)。
+BLANK_NO_PAIR: Final[str] = "該当なし(採点できた対が無い)"
 BLANK_LABELS: Final[tuple[str, ...]] = (BLANK_GPU, BLANK_SELF, BLANK_VALIDATION, BLANK_MATERIAL, BLANK_NOT_RETURNED,
                                         BLANK_NO_TEXT, BLANK_NO_GPU, BLANK_UNDEFINED, BLANK_NOT_MODEL, BLANK_NO_REF,
-                                        BLANK_NO_QTY)
+                                        BLANK_NO_QTY, BLANK_NO_PAIR)
 #: 自分との比べの欄(当て口 → 列)。
 _SELF_COLUMNS: Final[Mapping[str, tuple[str, ...]]] = {
     "classical": ("jsd_vs_classical", "spearman_vs_classical"),
@@ -118,6 +130,8 @@ def blank_reason(row: Mapping[str, Any], key: str, *, missing_refs: Sequence[str
         return BLANK_VALIDATION
     if key == "first_language":
         return BLANK_MATERIAL
+    if key in APPEAL_COLUMN_KEYS:  # 〔第 347〕呼びかけの列(口だけ=GPU の後・採点した当て口で値が無い=対が無い)
+        return BLANK_NO_PAIR if row.get("implemented") else BLANK_GPU
     if any(key in _REF_COLUMNS.get(r, ()) for r in missing_refs):
         return BLANK_NO_REF
     model = row.get("form") in MODEL_FORMS
@@ -156,15 +170,18 @@ def order_blind_note(tape_fixed: Mapping[str, Any] | None) -> str:
 
 
 def build_rows(scorers: Sequence[Mapping[str, Any]], *, arms: Sequence[str], lang: str = "ja",
-               tape_fixed: Mapping[str, Any] | None = None, compare: Mapping[str, Any] | None = None
-               ) -> list[dict[str, Any]]:
+               tape_fixed: Mapping[str, Any] | None = None, compare: Mapping[str, Any] | None = None,
+               appeal: Mapping[str, Mapping[str, Mapping[str, Any]]] | None = None) -> list[dict[str, Any]]:
     """当て口ごとの結果(``cli.evaluate`` の ``scorers`` の各要素)→ 表の行。
 
     〔11-01〕``compare``(``cli.evaluate`` の ``compare`` の節)から推論の形・決定論・破綻率・数の指標・失敗の数を読む
     (無ければ空)。推論の形 Noul の行の「その他の率」は明示の「その他」だけ(破綻を入れない=〔検収 低 5〕)。
+    〔第 347〕``appeal``(当て口 → 腕 → 呼びかけの 3 列=``appeal.summary_table``)を渡すと行の末尾に 3 列を足す(渡さなければ
+    今のまま)。
     """
     rows: list[dict[str, Any]] = []
     cmp_by = dict((compare or {}).get("scorers") or {})
+    keys = COLUMN_KEYS + (APPEAL_COLUMN_KEYS if appeal is not None else ())
     for sc in scorers:
         d = sc["describe"]
         cm = cmp_by.get(d["name"]) or {}
@@ -217,16 +234,24 @@ def build_rows(scorers: Sequence[Mapping[str, Any]], *, arms: Sequence[str], lan
                 "qty_mean": qty.get("qty_mean"), "qty_agree_vs_g": qty.get("agree_vs_g"),
                 "qty_absdiff_vs_g": qty.get("absdiff_vs_g"),
             }
-            assert tuple(row) == COLUMN_KEYS
+            if appeal is not None:
+                av = (appeal.get(d["name"]) or {}).get(arm) or {}
+                row.update({k: av.get(k) for k in APPEAL_COLUMN_KEYS})
+            assert tuple(row) == keys
             rows.append(row)
     return rows
 
 
-def blanks_of(rows: Sequence[Mapping[str, Any]], *, missing_refs: Sequence[str] = ()) -> list[dict[str, str]]:
-    """行ごとの空の欄 → 印(注の欄は除く)。"""
+def _keys_of(columns: Sequence[tuple[str, str]] | None) -> tuple[str, ...]:
+    return COLUMN_KEYS if columns is None else tuple(k for k, _h in columns)
+
+
+def blanks_of(rows: Sequence[Mapping[str, Any]], *, missing_refs: Sequence[str] = (),
+              columns: Sequence[tuple[str, str]] | None = None) -> list[dict[str, str]]:
+    """行ごとの空の欄 → 印(注の欄は除く)。``columns`` の既定は ``COLUMNS``(〔第 347〕呼びかけの場面は ``COLUMNS_APPEAL`` を足す)。"""
     out = []
     for r in rows:
-        out.append({k: str(blank_reason(r, k, missing_refs=missing_refs)) for k in COLUMN_KEYS
+        out.append({k: str(blank_reason(r, k, missing_refs=missing_refs)) for k in _keys_of(columns)
                     if k != "notes" and r.get(k) is None})
     return out
 
@@ -243,11 +268,13 @@ def _cell(row: Mapping[str, Any], key: str, missing_refs: Sequence[str] = ()) ->
 
 
 def to_markdown(rows: Sequence[Mapping[str, Any]], *, languages: Mapping[str, Any] | None = None,
-                footnotes: Sequence[str] = (), missing_refs: Sequence[str] = ()) -> str:
-    """表を Markdown に(空の欄は ``blank_reason`` の印)。"""
-    lines = ["| " + " | ".join(h for _k, h in COLUMNS) + " |", "|" + "---|" * len(COLUMNS)]
+                footnotes: Sequence[str] = (), missing_refs: Sequence[str] = (),
+                columns: Sequence[tuple[str, str]] | None = None) -> str:
+    """表を Markdown に(空の欄は ``blank_reason`` の印)。``columns`` の既定は ``COLUMNS``。"""
+    cols = COLUMNS if columns is None else tuple(columns)
+    lines = ["| " + " | ".join(h for _k, h in cols) + " |", "|" + "---|" * len(cols)]
     for r in rows:
-        lines.append("| " + " | ".join(_cell(r, k, missing_refs) for k in COLUMN_KEYS) + " |")
+        lines.append("| " + " | ".join(_cell(r, k, missing_refs) for k in _keys_of(cols)) + " |")
     lines.append("")
     lines.append(f"- {ORDER_NOTE}")
     lines.append(f"- 空の欄の印: 「{BLANK_GPU}」と「該当なし(理由)」の 2 種")
@@ -260,8 +287,10 @@ def to_markdown(rows: Sequence[Mapping[str, Any]], *, languages: Mapping[str, An
 
 
 def to_json(rows: Sequence[Mapping[str, Any]], *, languages: Mapping[str, Any] | None = None,
-            footnotes: Sequence[str] = (), missing_refs: Sequence[str] = ()) -> str:
-    doc = {"columns": [{"key": k, "header": h} for k, h in COLUMNS], "rows": list(rows),
-           "blank": blanks_of(rows, missing_refs=missing_refs),
+            footnotes: Sequence[str] = (), missing_refs: Sequence[str] = (),
+            columns: Sequence[tuple[str, str]] | None = None) -> str:
+    cols = COLUMNS if columns is None else tuple(columns)
+    doc = {"columns": [{"key": k, "header": h} for k, h in cols], "rows": list(rows),
+           "blank": blanks_of(rows, missing_refs=missing_refs, columns=cols),
            "order": ORDER_NOTE, "footnotes": list(footnotes), "languages": dict(languages or {})}
     return json.dumps(doc, ensure_ascii=False, indent=1) + "\n"

@@ -27,7 +27,7 @@ perception.attention — 注意ゲート 段0-段3(知覚契約書 §4)。「届
   - `tag_world_text`(関数): 世界内テキスト → (素性タグ+命令文除去+内容キャップ済みの本文, 除去記録)。
 - import している内部モジュール: `shibuya.foundation.rng`
 - 呼び手: `shibuya.build.lang.common`・`shibuya.mind.memory.familiarity`・`shibuya.perception.renderer`・`shibuya.world.laws.civic`・`shibuya.world.laws.salient`
-- 読む試験: `tests/build_lang/test_w14_signage.py`・`tests/engine/processes/test_salient.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/test_familiarity.py`・`tests/perception/facts/head_renderer_136fdbb.py`・`tests/perception/facts/test_coef_removed_or_armed.py`・`tests/perception/test_attention.py`・`tests/perception/test_p_see_activity.py`・`tests/perception/test_signage_p_see_gate.py`
+- 読む試験: `tests/build_lang/test_w14_signage.py`・`tests/engine/processes/test_salient.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/test_familiarity.py`・`tests/perception/facts/head_renderer_136fdbb.py`・`tests/perception/facts/test_coef_removed_or_armed.py`・`tests/perception/test_attention.py`・`tests/perception/test_p_see_activity.py`・`tests/perception/test_signage_p_see_gate.py`・`tests/tools/test_dm_eval.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 11-03
 

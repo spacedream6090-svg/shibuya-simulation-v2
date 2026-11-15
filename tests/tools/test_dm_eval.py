@@ -578,7 +578,7 @@ def _banned_identifiers(source: str) -> list[str]:
 
 def test_identifier_names_avoid_banned_words():
     bad = {p.name: _banned_identifiers(p.read_text(encoding="utf-8")) for p in sorted(PKG.glob("*.py"))}
-    assert len(bad) == 6 and all(v == [] for v in bad.values()), bad
+    assert len(bad) == 7 and all(v == [] for v in bad.values()), bad  # 〔第 347〕appeal.py を足した
 
 
 def test_identifier_check_catches_planted_names():
@@ -1576,3 +1576,395 @@ def test_cli_main_both(tmp_path, capsys):
     assert ev["n_situations"] == S.N_SITUATIONS and ev["compare"]["determinism_items"] == 20
     no_tape = json.loads((tmp_path / "b" / "evalset" / "result.json").read_text(encoding="utf-8"))["digest"]
     assert no_tape == out["evalset"]["digest"]
+
+
+# ====================================================================== 〔第 347〕呼びかけの場面(返事その 8 §6-2・記録 2-61 ①・2-62)
+import dataclasses  # noqa: E402
+from types import MappingProxyType  # noqa: E402
+
+from dm_eval import appeal as AP  # noqa: E402
+
+APPEAL_SCENES = S.APPEAL_SCENES
+APPEAL_FILES = ("appeal_v1.jsonl", "appeal_v1.b0.json", "appeal_v1.md5")
+#: 同梱の場面の md5(場面を作り直したらここと記録を更新する)。
+APPEAL_MD5 = {"appeal_v1.jsonl": "d04f0fa7f26b29e9b179e4d28b84543f",
+              "appeal_v1.b0.json": "6b376b67b39f0eb17605e46fed6bc4e2"}
+RECORD_347 = ROOT / "docs" / "bench" / "analysis" / "dm-eval-appeal-347" / "result.json"
+APPEAL_BY_TYPE = {"request": {"rows": 21, "pairs": 18, "settings": 3},
+                  "prohibition": {"rows": 16, "pairs": 8, "settings": 4},
+                  "shop_call": {"rows": 16, "pairs": 12, "settings": 4}}
+
+
+@pytest.fixture(scope="module")
+def appeal_scenes():
+    return S.load_scene_file(APPEAL_SCENES, point_names=S.APPEAL_TYPES)
+
+
+@pytest.fixture(scope="module")
+def appeal_pairs(appeal_scenes):
+    return AP.pairs_of(appeal_scenes)
+
+
+def _appeal_eval(scenes, pairs, factories, **kw):
+    return C.evaluate(scenes.situations, None, candidates=scenes.candidates, material="appeal", points=scenes.points,
+                      scorer_factories=factories, vocab_version=S.CONSUMPTION_VOCAB_VERSION, appeal=pairs,
+                      order_keys=AP.order_keys(scenes), point_names=S.APPEAL_TYPES, **kw)
+
+
+# ---------------------------------------------------------------------- 場面の読みと md5
+def test_appeal_scenes_md5_and_counts(appeal_scenes, appeal_pairs):
+    assert len(appeal_scenes.situations) == 53
+    assert appeal_scenes.by_point() == {"request": 21, "prohibition": 16, "shop_call": 16}
+    md5_file = S.read_md5_list(APPEAL_SCENES.with_name("appeal_v1.md5").read_bytes())
+    assert md5_file == dict(appeal_scenes.md5) == APPEAL_MD5
+    for name in md5_file:  # LF・UTF-8
+        raw = APPEAL_SCENES.with_name(name).read_bytes()
+        assert b"\r" not in raw and raw.decode("utf-8")
+    assert len(appeal_pairs) == 38
+    summ = AP.scenes_summary(appeal_pairs, appeal_scenes)
+    assert summ["by_type"] == APPEAL_BY_TYPE and summ["n_rows"] == 53 and summ["n_pairs"] == 38
+    want = {**{f"request/{s}/{r}": 3 for s in AP.SIZES for r in AP.REASONS},
+            "prohibition/orderly": 4, "prohibition/disorderly": 4, **{f"shop_call/{k}": 4 for k in AP.STRENGTHS}}
+    assert summ["by_condition"] == want and list(summ["by_condition"]) == list(want)
+    with pytest.raises(ValueError, match="判断点"):  # 既定(消費の 4 判断点)では読めない=既定は今のまま
+        S.load_scene_file(APPEAL_SCENES)
+    assert S.load_scene_file(SCENES).appeal == {} and S.load_scene_file(SCENES).point_names == S.DECISION_POINTS
+
+
+def test_make_appeal_v1_reproduces_the_shipped_files(tmp_path, capsys):
+    import importlib.util
+
+    path = PKG / "scenes" / "make_appeal_v1.py"
+    spec = importlib.util.spec_from_file_location("dm_eval_make_appeal_v1", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    files = mod.render_files()
+    assert files == mod.render_files() and set(files) == set(APPEAL_FILES)  # 決定的
+    for name, raw in files.items():  # 同梱の 3 本とバイトで同じ(jsonl が正・スクリプトは再現用)
+        assert raw == (PKG / "scenes" / name).read_bytes(), name
+    assert mod.main([str(tmp_path / "o")]) == 0 and mod.main([]) == 2
+    assert {p.name: p.read_bytes() for p in (tmp_path / "o").iterdir()} == files
+    src = path.read_text(encoding="utf-8")
+    assert _banned_identifiers(src) == [] and "C:\\" not in src and "/Users/" not in src and "\\Users\\" not in src
+    assert (mod.TAG_SIGNAGE, mod.TAG_NOTICE, mod.TAG_SPEECH) == AP.MARKERS  # 印は道具の対照と同じ文字列
+    assert (mod.SIZES, mod.REASONS, mod.ENVS, mod.STRENGTHS) == (AP.SIZES, AP.REASONS, AP.ENVS, AP.STRENGTHS)
+    assert mod.STRENGTH_WORDS == dict(AP.STRENGTH_WORDS) and (mod.DEVIANCE,) == S.APPEAL_WORDS
+    capsys.readouterr()
+
+
+# ---------------------------------------------------------------------- 対の作り(同じ状況・同じ候補・違いは呼びかけの 1 行)
+@pytest.mark.parametrize("arm", tuple(S.LENGTH_ARMS))
+def test_appeal_pairs_differ_only_by_the_appeal_line(appeal_scenes, appeal_pairs, arm):
+    by = {s.sid: s for s in appeal_scenes.situations}
+    keys = AP.order_keys(appeal_scenes)
+    for p in appeal_pairs:
+        w, n = by[p.with_sid], by[p.without_sid]
+        assert appeal_scenes.candidates[p.with_sid] == appeal_scenes.candidates[p.without_sid]
+        assert w.facts == n.facts and w.strata == n.strata and keys[p.with_sid] == keys[p.without_sid]
+        pw = S.orders(appeal_scenes.candidates[p.with_sid], keys[p.with_sid], n_orders=4, seed="t")
+        pn = S.orders(appeal_scenes.candidates[p.without_sid], keys[p.without_sid], n_orders=4, seed="t")
+        assert [[(c.id, c.number) for c in o] for o in pw] == [[(c.id, c.number) for c in o] for o in pn]  # 同じ提示
+        meta = appeal_scenes.appeal[p.with_sid]
+        for length in ("short", "long"):
+            lw = S.render(w, pw[0], length=length, arm=arm).text.split("\n")
+            ln = S.render(n, pn[0], length=length, arm=arm).text.split("\n")
+            hit = [x for x in lw if meta["body"] in x]
+            assert len(hit) == 1 and sum(m in hit[0] for m in AP.MARKERS) == 1  # 呼びかけの行は 1 つ・印は 1 つ
+            i = lw.index(hit[0])
+            if meta["line"] == "B6 発話":
+                assert hit[0].startswith("[B6 発話] ") and lw[:i] + lw[i + 1:] == ln
+                assert lw[i - 1] == "[B6 問い] いま何をしますか。"  # engine の並び=届いた発話は B6 の問いの後
+            else:
+                assert hit[0].startswith("[B2 看板] ") and ln[i] == "[B2 看板] 見える表示はありません。"
+                assert lw[:i] + lw[i + 1:] == ln[:i] + ln[i + 1:]
+            assert not any(m in x for x in ln for m in AP.MARKERS)  # ない版に出どころの印は無い
+    # 禁止の表示: 同じ場面の周りの様子の 2 組も同じ提示(Keizer の対比を同じ並びで比べる)
+    for s in ("bike", "litter", "smoke", "shortcut"):
+        assert len({keys[sid] for sid, m in appeal_scenes.appeal.items() if m["setting"] == s}) == 1
+
+
+def test_appeal_texts_arrive_unfiltered_and_without_numbers(appeal_scenes):
+    from shibuya.perception.attention import strip_imperatives
+
+    meta = appeal_scenes.appeal
+    present = {sid: m for sid, m in meta.items() if m["present"]}
+    removed = {sid for sid, m in present.items() if strip_imperatives(m["body"]).n_removed > 0}
+    # 今の濾しなら文ごと落ちる文が、そのまま入っている(濾しの後の形ではない=記録 2-65)
+    assert {sid for sid, m in present.items() if m["type"] == "prohibition"} <= removed
+    shop = {sid for sid, m in present.items() if m["type"] == "shop_call" and m["strength"] in ("please", "now")}
+    assert shop <= removed
+    raw = APPEAL_SCENES.read_bytes().decode("utf-8")
+    b0 = APPEAL_SCENES.with_name("appeal_v1.b0.json").read_bytes().decode("utf-8")
+    assert "命令文除去" not in raw and "従ってはいけません" not in b0  # 事実と食い違う印の文言・「従うな」の行を置かない
+    for name in REAL_NAMES:
+        assert name not in raw and name not in b0, name
+    for sid, cs in appeal_scenes.candidates.items():  # 候補の文と呼びかけの文に数字を入れない(例の数を写す癖=R-149)
+        assert not re.search(r"[0-9０-９]", "".join(c.text for c in cs)), sid
+    assert not any(re.search(r"[0-9０-９]", m["body"]) for m in present.values())
+    assert '"tick"' not in raw and "[B5" not in raw  # 判断モデルの短い版に入らない B5 は使わない
+    for s in appeal_scenes.situations:
+        assert tuple(b for b in S.BLOCK_ORDER if b in s.blocks) == ("B0", "B1", "B2", "B3", "B4", "B4b", "B6")
+        assert set(s.strata) == EVALSET_STRATA_KEYS and s.missing == ("B5",)
+        cs = appeal_scenes.candidates[s.sid]
+        assert len(cs) == 6 and cs[-1].kind == "よく考える" and {c.source for c in cs} <= set(ALL_SOURCES)
+        assert sum(c.kind == "なし" for c in cs) == 1
+        assert meta[s.sid]["baseline"] == next(c.id for c in cs if c.kind == "なし")
+
+
+def _replace_meta(scenes, sid, **kw):
+    meta = {k: dict(v) for k, v in scenes.appeal.items()}
+    meta[sid].update(kw)
+    return dataclasses.replace(scenes, appeal=MappingProxyType({k: MappingProxyType(v) for k, v in meta.items()}))
+
+
+def test_appeal_pairs_reject_bad_rows(appeal_scenes):
+    req = "appeal-v1-request-register-small-none"
+    pro = "appeal-v1-prohibition-bike-orderly-sign"
+    bad = [
+        _replace_meta(appeal_scenes, req, present=False, condition=None, body=None),  # ない版が 2 つ
+        _replace_meta(appeal_scenes, req, comply="no_such"),  # 応じる候補が候補に無い
+        _replace_meta(appeal_scenes, req, condition="small/real"),  # 条件の欄が食い違う
+        _replace_meta(appeal_scenes, req, violate="own"),  # 破る候補は禁止の表示の場面だけ
+        _replace_meta(appeal_scenes, req, comply="wait"),  # 応じる=何もしない
+        _replace_meta(appeal_scenes, pro, violate=None),  # 禁止の表示に破る候補が無い
+        _replace_meta(appeal_scenes, pro, env="messy"),
+        _replace_meta(appeal_scenes, "appeal-v1-shop_call-cake-now", level=1),
+        _replace_meta(appeal_scenes, req, color="red"),  # 知らない鍵
+        dataclasses.replace(appeal_scenes, appeal=MappingProxyType(
+            {k: v for k, v in appeal_scenes.appeal.items() if k != req})),  # 欄の無い行
+    ]
+    cands = dict(appeal_scenes.candidates)
+    cands[req] = tuple(dataclasses.replace(c, text=c.text + "。") if c.id == "talk" else c for c in cands[req])
+    bad.append(dataclasses.replace(appeal_scenes, candidates=MappingProxyType(cands)))  # 同じ場面で候補が違う
+    for sc in bad:
+        with pytest.raises(ValueError):
+            AP.pairs_of(sc)
+    with pytest.raises(ValueError):  # 呼びかけの対は material='appeal' のときだけ
+        C.evaluate(SYN, None, seed="t", appeal=())
+    with pytest.raises(ValueError):
+        C.evaluate(appeal_scenes.situations, None, candidates=appeal_scenes.candidates, material="appeal")
+
+
+# ---------------------------------------------------------------------- 列の計算(既知の値)
+def _pair(w, n, ptype, cond, *, setting="s1", size=None, reason=None, env=None, strength=None, violate=None):
+    return AP.Pair(with_sid=w, without_sid=n, type=ptype, setting=setting, family=setting + (env or ""),
+                   condition=cond, size=size, reason=reason, env=env, strength=strength,
+                   level=None if strength is None else AP.STRENGTHS.index(strength) + 1, comply="c",
+                   violate=violate, baseline="z")
+
+
+def test_appeal_measures_known_values():
+    rq = (_pair("w1", "n1", "request", "small/none", size="small", reason="none"),
+          _pair("w2", "n1", "request", "small/real", size="small", reason="real"),
+          _pair("w3", "n1", "request", "large/real", size="large", reason="real"))
+    d = {"n1": {"c": 0.2, "z": 0.8}, "w1": {"c": 0.4, "z": 0.6}, "w2": {"c": 0.9, "z": 0.1}}
+    m = AP.measures(d, rq)
+    assert m["n_pairs"] == 2 and m["n_pairs_skipped"] == 1  # w3 は採点から外れた
+    o = m["overall"]
+    assert o["comply_with_mean"] == pytest.approx(0.65) and o["comply_without_mean"] == pytest.approx(0.2)
+    assert o["comply_diff_mean"] == pytest.approx((0.2 + 0.7) / 2)
+    assert o["jsd_mean"] == pytest.approx((J.jsd(d["w1"], d["n1"]) + J.jsd(d["w2"], d["n1"])) / 2)
+    assert o["top1_change_rate"] == 0.5 and o["violate_diff_mean"] is None  # w1 は 1 位が z のまま
+    assert list(m["by_condition"]) == ["request/small/none", "request/small/real", "request/large/real"]
+    lr = m["by_condition"]["request/large/real"]
+    assert lr["n_pairs"] == 0 and lr["jsd_mean"] is None
+    ct = m["contrasts"]
+    assert ct["request/small/real_minus_none"] == {"value": pytest.approx(0.5), "n_settings": 1}
+    assert ct["request/small/placebic_minus_none"] == {"value": None, "n_settings": 0}
+    assert ct["request/real/small_minus_large"]["value"] is None  # 大きい頼みの値が無い
+    # 禁止の表示(周りの様子 2 組)
+    pr = (_pair("wo", "no", "prohibition", "orderly", env="orderly", violate="v"),
+          _pair("wd", "nd", "prohibition", "disorderly", env="disorderly", violate="v"))
+    d = {"no": {"c": 0.5, "v": 0.3, "z": 0.2}, "wo": {"c": 0.8, "v": 0.1, "z": 0.1},
+         "nd": {"c": 0.4, "v": 0.4, "z": 0.2}, "wd": {"c": 0.6, "v": 0.3, "z": 0.1}}
+    m = AP.measures(d, pr)
+    assert m["overall"]["violate_diff_mean"] == pytest.approx((-0.2 - 0.1) / 2)
+    ct = m["contrasts"]
+    assert ct["prohibition/sign/orderly_minus_disorderly"]["value"] == pytest.approx(0.2)
+    assert ct["prohibition/nosign/orderly_minus_disorderly"]["value"] == pytest.approx(0.1)
+    assert ct["prohibition/sign/violate_disorderly_minus_orderly"]["value"] == pytest.approx(0.2)
+    # 店頭の呼びかけ(強さ 3 段)
+    sh = tuple(_pair(f"w{k}", "n", "shop_call", k, strength=k) for k in AP.STRENGTHS)
+    d = {"n": {"c": 0.1, "z": 0.9}, "wplease": {"c": 0.2, "z": 0.8}, "wcommand": {"c": 0.5, "z": 0.5},
+         "wnow": {"c": 0.4, "z": 0.6}}
+    ct = AP.measures(d, sh)["contrasts"]
+    assert ct["shop_call/command_minus_please"]["value"] == pytest.approx(0.3)
+    assert ct["shop_call/now_minus_command"]["value"] == pytest.approx(-0.1)
+    assert ct["shop_call/strength_range"] == {"value": pytest.approx(0.3), "n_settings": 1}
+    # 並べ替えの平均
+    a, b = Candidate("a", "移動", "あ", "affordance"), Candidate("b", "なし", "い", "continue")
+    assert AP.mean_dist([((a, b), {"a": 1.0, "b": 0.0}), ((b, a), {"a": 0.0, "b": 1.0})]) == {"a": 0.5, "b": 0.5}
+
+
+class _Lean(J.Scorer):
+    """合成の当て口: 文に出どころの印があれば応じる候補に 0.6(「今すぐ」があれば 0.9)、無ければ 0.1。残りは等分。"""
+
+    name = "lean"
+    reads_text = True
+
+    def __init__(self, targets):
+        self.targets = MappingProxyType(dict(targets))
+        super().__init__()
+
+    def _score(self, situation, candidates, text):
+        comply, _base = self.targets[situation.sid]
+        p = 0.1
+        if any(m in text for m in AP.MARKERS):
+            p = 0.9 if "今すぐ" in text else 0.6
+        rest = [c.id for c in candidates if c.id != comply]
+        return {comply: p, **{r: (1.0 - p) / len(rest) for r in rest}}
+
+
+class _Deaf(_Lean):
+    """合成の当て口: 文を読むが呼びかけに寄らない(いつも 0.1)。"""
+
+    name = "deaf"
+
+    def _score(self, situation, candidates, text):
+        comply, _base = self.targets[situation.sid]
+        rest = [c.id for c in candidates if c.id != comply]
+        return {comply: 0.1, **{r: 0.9 / len(rest) for r in rest}}
+
+
+@pytest.fixture(scope="module")
+def appeal_result(appeal_scenes, appeal_pairs):
+    t = AP.targets_of(appeal_pairs)
+    fx = [lambda: J.MockScorer("dm61-mock"), lambda: J.ClassicalScorer(vocab_version=S.CONSUMPTION_VOCAB_VERSION),
+          J.KevScorer, lambda: _Lean(t), lambda: _Deaf(t),
+          lambda: BB.LogprobChoiceScorer(_FailSome(), "choice_number", name="fails")]
+    return _appeal_eval(appeal_scenes, appeal_pairs, fx, determinism_repeats=2)
+
+
+def test_appeal_columns_with_synthetic_scorers(appeal_result):
+    ap = appeal_result["appeal"]
+    assert ap["schema"] == AP.APPEAL_SCHEMA and appeal_result["material"] == "appeal"
+    lean = ap["scorers"]["lean"]["by_arm"]
+    want_pair = {"c": 0.6, **{f"r{i}": 0.08 for i in range(5)}}
+    want_none = {"c": 0.1, **{f"r{i}": 0.18 for i in range(5)}}
+    for arm in S.LENGTH_ARMS:  # 呼びかけの行は B2 と B6=どちらの腕にも入る
+        m = lean[arm]
+        assert m["n_pairs"] == 38 and m["n_pairs_skipped"] == 0
+        assert m["overall"]["comply_diff_mean"] == pytest.approx((34 * 0.5 + 4 * 0.8) / 38)
+        assert m["overall"]["top1_change_rate"] == 1.0
+        for k in ("request", "prohibition"):
+            assert m["by_type"][k]["comply_diff_mean"] == pytest.approx(0.5)
+            assert m["by_type"][k]["jsd_mean"] == pytest.approx(J.jsd(want_pair, want_none))
+        bc = m["by_condition"]
+        assert bc["shop_call/please"]["comply_diff_mean"] == pytest.approx(0.5)
+        assert bc["shop_call/command"]["comply_diff_mean"] == pytest.approx(0.5)
+        assert bc["shop_call/now"]["comply_diff_mean"] == pytest.approx(0.8)
+        assert bc["request/large/placebic"]["comply_with_mean"] == pytest.approx(0.6)
+        assert m["overall"]["violate_diff_mean"] == pytest.approx(0.08 - 0.18)  # 破る候補は「残り」の 1 つ
+        ct = m["contrasts"]
+        assert ct["shop_call/strength_range"] == {"value": pytest.approx(0.3), "n_settings": 4}
+        assert ct["shop_call/now_minus_command"]["value"] == pytest.approx(0.3)
+        assert ct["shop_call/command_minus_please"]["value"] == pytest.approx(0.0)
+        assert ct["request/small/placebic_minus_none"] == {"value": pytest.approx(0.0), "n_settings": 3}
+        assert ct["prohibition/sign/orderly_minus_disorderly"] == {"value": pytest.approx(0.0), "n_settings": 4}
+    for name in ("deaf", "classical"):  # 寄らない当て口・文を読まない古典(対の事実が同じ)=構成上 0
+        o = ap["scorers"][name]["by_arm"]["t300"]["overall"]
+        assert o["comply_diff_mean"] == 0.0 and o["jsd_mean"] == 0.0 and o["top1_change_rate"] == 0.0
+    ctl = ap["controls"]
+    fo, ig = ctl["appeal_follow"]["measures"]["overall"], ctl["appeal_ignore"]["measures"]["overall"]
+    assert (fo["comply_diff_mean"], fo["jsd_mean"], fo["top1_change_rate"]) == (1.0, 1.0, 1.0)  # 正の対照
+    assert (ig["comply_diff_mean"], ig["jsd_mean"], ig["top1_change_rate"]) == (0.0, 0.0, 0.0)  # 負の対照
+    assert ap["scorers"]["kev_9b"]["status"] == "GPU の後(S6)" and ap["scorers"]["kev_9b"]["by_arm"]["t300"] is None
+    fails = ap["scorers"]["fails"]["by_arm"]["t300"]  # 全部の場面で口の後ろが落ちた=対が無い
+    assert fails["n_pairs"] == 0 and fails["n_pairs_skipped"] == 38 and fails["overall"]["comply_diff_mean"] is None
+
+
+def test_appeal_section_is_outside_the_golden_digest(appeal_result):
+    res = appeal_result
+    assert res["appeal_digest"] == C._sha(res["appeal"])
+    plain = {k: v for k, v in res.items() if k not in ("appeal", "appeal_digest")}
+    assert C.digest_of(plain) == res["digest"] and res["schema"] == dm_eval.SCHEMA  # SCHEMA は据え置き
+    assert set(C._DIGEST_EXCLUDED) >= {"appeal", "appeal_digest", "compare", "table"}
+
+
+def test_appeal_table_columns_and_blanks(appeal_result):
+    rows = appeal_result["table"]["rows"]
+    cols = T.COLUMNS + T.COLUMNS_APPEAL
+    assert appeal_result["table"]["columns"] == [k for k, _h in cols]
+    assert all(tuple(r) == T.COLUMN_KEYS + T.APPEAL_COLUMN_KEYS for r in rows)  # 既存の列の後ろに 3 列
+    by = {(r["scorer"], r["arm"]): r for r in rows}
+    bl = {(r["scorer"], r["arm"]): b for r, b in zip(rows, T.blanks_of(rows, missing_refs=["tape"], columns=cols))}
+    assert by[("lean", "t300")]["appeal_comply_diff"] == pytest.approx((34 * 0.5 + 4 * 0.8) / 38)
+    assert by[("lean", "t1000")]["appeal_top1_change"] == 1.0
+    assert all(bl[("kev_9b", a)][k] == T.BLANK_GPU for a in S.LENGTH_ARMS for k in T.APPEAL_COLUMN_KEYS)
+    assert all(bl[("fails", "t300")][k] == T.BLANK_NO_PAIR for k in T.APPEAL_COLUMN_KEYS)
+    md = T.to_markdown(rows, columns=cols, missing_refs=["tape"])
+    assert md.splitlines()[0].endswith(" | ".join(h for _k, h in T.COLUMNS_APPEAL) + " |")
+    assert T.to_markdown(rows).splitlines()[0] == "| " + " | ".join(h for _k, h in T.COLUMNS) + " |"  # 既定の列は今のまま
+    assert any("appeal_table.md" in f for f in appeal_result["table"]["footnotes"])
+    # 種類・条件ごとの表(人の値の欄つき)
+    amd = AP.to_markdown(appeal_result["appeal"])
+    assert "R-149 の追補 1 で一次確認中" in amd and "0.93〜0.94" in amd and "約 0.42" in amd
+    doc = json.loads(AP.to_json(appeal_result["appeal"]))
+    br = doc["breakdown"]["rows"]
+    lean0 = next(r for r in br if r["scorer"] == "lean" and r["group"].startswith("request/small/none"))
+    assert lean0["human"] == "0.60" and lean0["comply_with"] == pytest.approx(0.6)
+    kev = [r for r, b in zip(br, doc["breakdown"]["blank"]) if r["scorer"] == "kev_9b"]
+    assert len(kev) == 2 and all(r["n_pairs"] is None for r in kev)
+    kb = [b for r, b in zip(br, doc["breakdown"]["blank"]) if r["scorer"] == "kev_9b"]
+    assert all(b["comply_diff"] == T.BLANK_GPU and b["human"] == AP.BLANK_NO_HUMAN for b in kb)
+    mock_rows = [r for r in br if r["scorer"] == "mock"]
+    assert {r["arm"] for r in mock_rows} == {"t300"}  # 文を読まない当て口は最初の腕だけ(注に書く)
+    pr = next((r, b) for r, b in zip(br, doc["breakdown"]["blank"])
+              if r["scorer"] == "lean" and r["group"].startswith("request("))
+    assert pr[0]["violate_diff"] is None and pr[1]["violate_diff"] == AP.BLANK_NOT_PROHIBITION
+    crow = next(r for r in doc["contrasts"]["rows"] if r["scorer"] == "lean"
+                and r["contrast"] == "request/large/real_minus_none" and r["arm"] == "t300")
+    assert crow["human"] == "約 +0.18" and crow["value"] == pytest.approx(0.0)
+    assert all(r["human"] is None for r in doc["contrasts"]["rows"] if r["contrast"].startswith("shop_call/"))
+
+
+def test_appeal_human_values_are_the_record_values():
+    hc, hx = AP.HUMAN_CONDITIONS, AP.HUMAN_CONTRASTS
+    lows = (hc["request/small/none"]["low"], hc["request/large/none"]["low"], hc["request/large/real"]["low"])
+    assert lows == (0.60, 0.24, 0.42)
+    assert (hc["request/small/placebic"]["low"], hc["request/small/placebic"]["high"]) == (0.93, 0.94)
+    assert hc["request/large/placebic"]["low"] is None and hc["request/large/placebic"]["blank"]
+    for k, v in hx.items():  # 対比の人の値=記録の値の引き算
+        if v["low"] is None:
+            continue
+        a = k.split("/")[1:]
+        if k.endswith("small_minus_large"):
+            lo = hc[f"request/small/{a[0]}"]["low"] - hc[f"request/large/{a[0]}"]["high"]
+            hi = hc[f"request/small/{a[0]}"]["high"] - hc[f"request/large/{a[0]}"]["low"]
+        else:
+            x, y = a[1].split("_minus_")
+            lo = hc[f"request/{a[0]}/{x}"]["low"] - hc[f"request/{a[0]}/{y}"]["high"]
+            hi = hc[f"request/{a[0]}/{x}"]["high"] - hc[f"request/{a[0]}/{y}"]["low"]
+        assert (v["low"], v["high"]) == (pytest.approx(lo), pytest.approx(hi)), k
+    assert all(v["status"] == AP.HUMAN_STATUS == "R-149 の追補 1 で一次確認中" for v in list(hc.values()) + list(hx.values()))
+    assert all("記録 2-54" in v["source"] for v in list(hc.values()) + list(hx.values()))
+    assert hx["prohibition/sign/orderly_minus_disorderly"]["low"] is None  # Keizer は値なし(向きの見込みだけ)
+
+
+# ---------------------------------------------------------------------- cli の口と記録
+def test_cli_main_appeal_matches_the_record(tmp_path, capsys):
+    assert C.main(["run", "--out-dir", str(tmp_path / "a"), "--scenes", "appeal", "--determinism-repeats", "3"]) == 0
+    out = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    names = {p.name for p in (tmp_path / "a").iterdir()}
+    assert names == {"result.json", "table.md", "table.json", "appeal_table.md", "appeal_table.json"}
+    doc = json.loads((tmp_path / "a" / "result.json").read_text(encoding="utf-8"))
+    assert doc["inputs"]["scenes"] == "tools/instruments/dm_eval/scenes/appeal_v1.jsonl"
+    assert doc["inputs"]["scenes_md5"] == APPEAL_MD5 and doc["inputs"]["n_pairs"] == 38
+    assert doc["inputs"]["by_point"] == {"request": 21, "prohibition": 16, "shop_call": 16}
+    assert doc["material"] == doc["scene_set"] == "appeal" and doc["schema"] == dm_eval.SCHEMA
+    assert doc["compare"]["by_point"] == doc["inputs"]["by_point"] and doc["params"]["vocab_version"] == "v3"
+    assert doc["digest"] == out["digest"] and doc["appeal_digest"] == out["appeal_digest"]
+    ap = doc["appeal"]
+    assert ap["scenes"]["by_type"] == APPEAL_BY_TYPE and "tape" not in ap["scorers"]
+    fo = ap["controls"]["appeal_follow"]["measures"]["overall"]
+    assert (fo["comply_diff_mean"], fo["jsd_mean"], fo["top1_change_rate"]) == (1.0, 1.0, 1.0)
+    cl = ap["scorers"]["classical"]["by_arm"]["t300"]["overall"]
+    assert (cl["comply_diff_mean"], cl["jsd_mean"], cl["top1_change_rate"]) == (0.0, 0.0, 0.0)
+    for name in ("result.json", "table.md", "appeal_table.md"):
+        raw = (tmp_path / "a" / name).read_bytes()
+        assert b"\r" not in raw and str(tmp_path).encode("utf-8") not in raw
+    rec = json.loads(RECORD_347.read_text(encoding="utf-8"))  # 記録の golden(CPU の当て口だけ・決定論 32 回)
+    assert rec["digest"] == doc["digest"] and rec["appeal_digest"] == doc["appeal_digest"]
+    assert rec["inputs"]["scenes_md5"] == doc["inputs"]["scenes_md5"] and rec["compare"]["determinism_repeats"] == 32
+    with pytest.raises(FileExistsError):
+        C.main(["run", "--out-dir", str(tmp_path / "a"), "--scenes", "appeal"])

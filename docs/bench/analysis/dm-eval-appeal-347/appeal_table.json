@@ -1,0 +1,2401 @@
+{
+ "schema": "shibuya.tools.dm_eval.appeal/1",
+ "breakdown": {
+  "columns": [
+   {
+    "key": "scorer",
+    "header": "当て口"
+   },
+   {
+    "key": "role",
+    "header": "役割"
+   },
+   {
+    "key": "arm",
+    "header": "長さの腕"
+   },
+   {
+    "key": "group",
+    "header": "組"
+   },
+   {
+    "key": "n_pairs",
+    "header": "対の数"
+   },
+   {
+    "key": "comply_with",
+    "header": "応じる確率(あり)"
+   },
+   {
+    "key": "comply_without",
+    "header": "応じる確率(なし)"
+   },
+   {
+    "key": "comply_diff",
+    "header": "応じる確率の差(あり − なし)"
+   },
+   {
+    "key": "jsd",
+    "header": "分布の差 JSD"
+   },
+   {
+    "key": "top1_change",
+    "header": "1 位が変わった対の率"
+   },
+   {
+    "key": "violate_diff",
+    "header": "破る確率の差(あり − なし)"
+   },
+   {
+    "key": "human",
+    "header": "人の値(応じた率・あり)"
+   },
+   {
+    "key": "human_source",
+    "header": "人の値の出どころ"
+   },
+   {
+    "key": "human_status",
+    "header": "人の値の状態"
+   },
+   {
+    "key": "notes",
+    "header": "注"
+   }
+  ],
+  "rows": [
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "全体",
+    "n_pairs": 38,
+    "comply_with": 0.14977044551839927,
+    "comply_without": 0.16246922805760242,
+    "comply_diff": -0.01269878253920314,
+    "jsd": 0.2806882704926718,
+    "top1_change": 0.868421052631579,
+    "violate_diff": 0.11349185382247025,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request(頼み(Langer ら 1978 の形))",
+    "n_pairs": 18,
+    "comply_with": 0.15007804822844115,
+    "comply_without": 0.2038078471108762,
+    "comply_diff": -0.05372979888243507,
+    "jsd": 0.2870167824611514,
+    "top1_change": 0.8333333333333334,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "prohibition(禁止の表示(Keizer ら 2008 の形))",
+    "n_pairs": 8,
+    "comply_with": 0.08939815002282919,
+    "comply_without": 0.1530461680954221,
+    "comply_diff": -0.06364801807259292,
+    "jsd": 0.22122950635412378,
+    "top1_change": 0.875,
+    "violate_diff": 0.11349185382247025,
+    "human": null,
+    "human_source": "人の値なし(記録 2-54 は周りの様子で変わるとだけ書く=対比の表)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "shop_call(店頭の呼びかけ(人の値なし=強さ 3 段))",
+    "n_pairs": 12,
+    "comply_with": 0.1895572384503831,
+    "comply_without": 0.10674333945247853,
+    "comply_diff": 0.0828138989979046,
+    "jsd": 0.31083467863231773,
+    "top1_change": 0.9166666666666666,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/small/none(小さい頼み・理由なし)",
+    "n_pairs": 3,
+    "comply_with": 0.17948571333469113,
+    "comply_without": 0.2038078471108762,
+    "comply_diff": -0.024322133776185098,
+    "jsd": 0.18461520006677734,
+    "top1_change": 0.6666666666666666,
+    "violate_diff": null,
+    "human": "0.60",
+    "human_source": "記録 2-54(Langer ら 1978)「5 枚 60%」",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/small/placebic(小さい頼み・形だけの理由)",
+    "n_pairs": 3,
+    "comply_with": 0.08602747745756045,
+    "comply_without": 0.2038078471108762,
+    "comply_diff": -0.11778036965331577,
+    "jsd": 0.2988908393786919,
+    "top1_change": 0.6666666666666666,
+    "violate_diff": null,
+    "human": "0.93〜0.94",
+    "human_source": "記録 2-54(Langer ら 1978)「理由付き 93〜94%」(形だけの理由と本当の理由を分けて書いていない)",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/small/real(小さい頼み・本当の理由)",
+    "n_pairs": 3,
+    "comply_with": 0.08571081315860528,
+    "comply_without": 0.2038078471108762,
+    "comply_diff": -0.11809703395227093,
+    "jsd": 0.3502072955514393,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": "0.93〜0.94",
+    "human_source": "記録 2-54(Langer ら 1978)「理由付き 93〜94%」(形だけの理由と本当の理由を分けて書いていない)",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/large/none(大きい頼み・理由なし)",
+    "n_pairs": 3,
+    "comply_with": 0.2201444720828132,
+    "comply_without": 0.2038078471108762,
+    "comply_diff": 0.016336624971937008,
+    "jsd": 0.27261697290092846,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": "0.24",
+    "human_source": "記録 2-54(Langer ら 1978)「20 枚 24%」",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/large/placebic(大きい頼み・形だけの理由)",
+    "n_pairs": 3,
+    "comply_with": 0.12795499054564555,
+    "comply_without": 0.2038078471108762,
+    "comply_diff": -0.07585285656523068,
+    "jsd": 0.26774426700136383,
+    "top1_change": 0.6666666666666666,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に値が無い(「20 枚 24%」が形だけの理由を含むかは記録から読めない)・R-149 の追補 1 で一次確認中",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/large/real(大きい頼み・本当の理由)",
+    "n_pairs": 3,
+    "comply_with": 0.20114482279133128,
+    "comply_without": 0.2038078471108762,
+    "comply_diff": -0.002663024319544937,
+    "jsd": 0.3480261198677077,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": "約 0.42",
+    "human_source": "記録 2-54(Langer ら 1978)「本当の理由で約 42%」",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "prohibition/orderly(掲示・周りが整っている)",
+    "n_pairs": 4,
+    "comply_with": 0.060312118387343766,
+    "comply_without": 0.169800127895179,
+    "comply_diff": -0.10948800950783527,
+    "jsd": 0.21503886062354288,
+    "top1_change": 1.0,
+    "violate_diff": 0.08484922073272508,
+    "human": null,
+    "human_source": "人の値なし(記録 2-54 は周りの様子で変わるとだけ書く=対比の表)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "prohibition/disorderly(掲示・周りが乱れている)",
+    "n_pairs": 4,
+    "comply_with": 0.11848418165831462,
+    "comply_without": 0.13629220829566518,
+    "comply_diff": -0.01780802663735057,
+    "jsd": 0.2274201520847047,
+    "top1_change": 0.75,
+    "violate_diff": 0.14213448691221542,
+    "human": null,
+    "human_source": "人の値なし(記録 2-54 は周りの様子で変わるとだけ書く=対比の表)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "shop_call/please(お願い)",
+    "n_pairs": 4,
+    "comply_with": 0.11431754795479589,
+    "comply_without": 0.10674333945247852,
+    "comply_diff": 0.007574208502317371,
+    "jsd": 0.36103507697664583,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "shop_call/command(命令)",
+    "n_pairs": 4,
+    "comply_with": 0.1731350380758783,
+    "comply_without": 0.10674333945247852,
+    "comply_diff": 0.06639169862339976,
+    "jsd": 0.22932519374208526,
+    "top1_change": 0.75,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "mock",
+    "role": "対照",
+    "arm": "t300",
+    "group": "shop_call/now(今すぐ)",
+    "n_pairs": 4,
+    "comply_with": 0.2812191293204752,
+    "comply_without": 0.10674333945247852,
+    "comply_diff": 0.1744757898679967,
+    "jsd": 0.34214376517822215,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "全体",
+    "n_pairs": 38,
+    "comply_with": 0.14924133480237406,
+    "comply_without": 0.14924133480237406,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": 0.0,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "request(頼み(Langer ら 1978 の形))",
+    "n_pairs": 18,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "prohibition(禁止の表示(Keizer ら 2008 の形))",
+    "n_pairs": 8,
+    "comply_with": 0.5853390656548308,
+    "comply_without": 0.5853390656548308,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": 0.0,
+    "human": null,
+    "human_source": "人の値なし(記録 2-54 は周りの様子で変わるとだけ書く=対比の表)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "shop_call(店頭の呼びかけ(人の値なし=強さ 3 段))",
+    "n_pairs": 12,
+    "comply_with": 0.08237151643763066,
+    "comply_without": 0.08237151643763066,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "request/small/none(小さい頼み・理由なし)",
+    "n_pairs": 3,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": "0.60",
+    "human_source": "記録 2-54(Langer ら 1978)「5 枚 60%」",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "request/small/placebic(小さい頼み・形だけの理由)",
+    "n_pairs": 3,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": "0.93〜0.94",
+    "human_source": "記録 2-54(Langer ら 1978)「理由付き 93〜94%」(形だけの理由と本当の理由を分けて書いていない)",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "request/small/real(小さい頼み・本当の理由)",
+    "n_pairs": 3,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": "0.93〜0.94",
+    "human_source": "記録 2-54(Langer ら 1978)「理由付き 93〜94%」(形だけの理由と本当の理由を分けて書いていない)",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "request/large/none(大きい頼み・理由なし)",
+    "n_pairs": 3,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": "0.24",
+    "human_source": "記録 2-54(Langer ら 1978)「20 枚 24%」",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "request/large/placebic(大きい頼み・形だけの理由)",
+    "n_pairs": 3,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に値が無い(「20 枚 24%」が形だけの理由を含むかは記録から読めない)・R-149 の追補 1 で一次確認中",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "request/large/real(大きい頼み・本当の理由)",
+    "n_pairs": 3,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": "約 0.42",
+    "human_source": "記録 2-54(Langer ら 1978)「本当の理由で約 42%」",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "prohibition/orderly(掲示・周りが整っている)",
+    "n_pairs": 4,
+    "comply_with": 0.5853390656548308,
+    "comply_without": 0.5853390656548308,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": 0.0,
+    "human": null,
+    "human_source": "人の値なし(記録 2-54 は周りの様子で変わるとだけ書く=対比の表)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "prohibition/disorderly(掲示・周りが乱れている)",
+    "n_pairs": 4,
+    "comply_with": 0.5853390656548308,
+    "comply_without": 0.5853390656548308,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": 0.0,
+    "human": null,
+    "human_source": "人の値なし(記録 2-54 は周りの様子で変わるとだけ書く=対比の表)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "shop_call/please(お願い)",
+    "n_pairs": 4,
+    "comply_with": 0.08237151643763066,
+    "comply_without": 0.08237151643763066,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "shop_call/command(命令)",
+    "n_pairs": 4,
+    "comply_with": 0.08237151643763066,
+    "comply_without": 0.08237151643763066,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "classical",
+    "role": "基準",
+    "arm": "t300",
+    "group": "shop_call/now(今すぐ)",
+    "n_pairs": 4,
+    "comply_with": 0.08237151643763066,
+    "comply_without": 0.08237151643763066,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "文を読まない=腕 t1000 も同じ"
+   },
+   {
+    "scorer": "g_first_token",
+    "role": "基準",
+    "arm": "t300",
+    "group": "全体",
+    "n_pairs": null,
+    "comply_with": null,
+    "comply_without": null,
+    "comply_diff": null,
+    "jsd": null,
+    "top1_change": null,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "口だけ=GPU の後(S6)"
+   },
+   {
+    "scorer": "g_first_token",
+    "role": "基準",
+    "arm": "t1000",
+    "group": "全体",
+    "n_pairs": null,
+    "comply_with": null,
+    "comply_without": null,
+    "comply_diff": null,
+    "jsd": null,
+    "top1_change": null,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "口だけ=GPU の後(S6)"
+   },
+   {
+    "scorer": "clef_flash",
+    "role": "候補",
+    "arm": "t300",
+    "group": "全体",
+    "n_pairs": null,
+    "comply_with": null,
+    "comply_without": null,
+    "comply_diff": null,
+    "jsd": null,
+    "top1_change": null,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "口だけ=GPU の後(S6)"
+   },
+   {
+    "scorer": "clef_flash",
+    "role": "候補",
+    "arm": "t1000",
+    "group": "全体",
+    "n_pairs": null,
+    "comply_with": null,
+    "comply_without": null,
+    "comply_diff": null,
+    "jsd": null,
+    "top1_change": null,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "口だけ=GPU の後(S6)"
+   },
+   {
+    "scorer": "clef",
+    "role": "候補",
+    "arm": "t300",
+    "group": "全体",
+    "n_pairs": null,
+    "comply_with": null,
+    "comply_without": null,
+    "comply_diff": null,
+    "jsd": null,
+    "top1_change": null,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "口だけ=GPU の後(S6)"
+   },
+   {
+    "scorer": "clef",
+    "role": "候補",
+    "arm": "t1000",
+    "group": "全体",
+    "n_pairs": null,
+    "comply_with": null,
+    "comply_without": null,
+    "comply_diff": null,
+    "jsd": null,
+    "top1_change": null,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "口だけ=GPU の後(S6)"
+   },
+   {
+    "scorer": "kev_9b",
+    "role": "候補",
+    "arm": "t300",
+    "group": "全体",
+    "n_pairs": null,
+    "comply_with": null,
+    "comply_without": null,
+    "comply_diff": null,
+    "jsd": null,
+    "top1_change": null,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "口だけ=GPU の後(S6)"
+   },
+   {
+    "scorer": "kev_9b",
+    "role": "候補",
+    "arm": "t1000",
+    "group": "全体",
+    "n_pairs": null,
+    "comply_with": null,
+    "comply_without": null,
+    "comply_diff": null,
+    "jsd": null,
+    "top1_change": null,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "口だけ=GPU の後(S6)"
+   },
+   {
+    "scorer": "sokudan_ja_310m",
+    "role": "候補",
+    "arm": "t300",
+    "group": "全体",
+    "n_pairs": null,
+    "comply_with": null,
+    "comply_without": null,
+    "comply_diff": null,
+    "jsd": null,
+    "top1_change": null,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "口だけ=GPU の後(S6)"
+   },
+   {
+    "scorer": "sokudan_ja_310m",
+    "role": "候補",
+    "arm": "t1000",
+    "group": "全体",
+    "n_pairs": null,
+    "comply_with": null,
+    "comply_without": null,
+    "comply_diff": null,
+    "jsd": null,
+    "top1_change": null,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "口だけ=GPU の後(S6)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "全体",
+    "n_pairs": 38,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": 0.0,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request(頼み(Langer ら 1978 の形))",
+    "n_pairs": 18,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "prohibition(禁止の表示(Keizer ら 2008 の形))",
+    "n_pairs": 8,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": 0.0,
+    "human": null,
+    "human_source": "人の値なし(記録 2-54 は周りの様子で変わるとだけ書く=対比の表)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "shop_call(店頭の呼びかけ(人の値なし=強さ 3 段))",
+    "n_pairs": 12,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/small/none(小さい頼み・理由なし)",
+    "n_pairs": 3,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": "0.60",
+    "human_source": "記録 2-54(Langer ら 1978)「5 枚 60%」",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/small/placebic(小さい頼み・形だけの理由)",
+    "n_pairs": 3,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": "0.93〜0.94",
+    "human_source": "記録 2-54(Langer ら 1978)「理由付き 93〜94%」(形だけの理由と本当の理由を分けて書いていない)",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/small/real(小さい頼み・本当の理由)",
+    "n_pairs": 3,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": "0.93〜0.94",
+    "human_source": "記録 2-54(Langer ら 1978)「理由付き 93〜94%」(形だけの理由と本当の理由を分けて書いていない)",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/large/none(大きい頼み・理由なし)",
+    "n_pairs": 3,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": "0.24",
+    "human_source": "記録 2-54(Langer ら 1978)「20 枚 24%」",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/large/placebic(大きい頼み・形だけの理由)",
+    "n_pairs": 3,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に値が無い(「20 枚 24%」が形だけの理由を含むかは記録から読めない)・R-149 の追補 1 で一次確認中",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/large/real(大きい頼み・本当の理由)",
+    "n_pairs": 3,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": "約 0.42",
+    "human_source": "記録 2-54(Langer ら 1978)「本当の理由で約 42%」",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "prohibition/orderly(掲示・周りが整っている)",
+    "n_pairs": 4,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": 0.0,
+    "human": null,
+    "human_source": "人の値なし(記録 2-54 は周りの様子で変わるとだけ書く=対比の表)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "prohibition/disorderly(掲示・周りが乱れている)",
+    "n_pairs": 4,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": 0.0,
+    "human": null,
+    "human_source": "人の値なし(記録 2-54 は周りの様子で変わるとだけ書く=対比の表)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "shop_call/please(お願い)",
+    "n_pairs": 4,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "shop_call/command(命令)",
+    "n_pairs": 4,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_follow",
+    "role": "対照",
+    "arm": "t300",
+    "group": "shop_call/now(今すぐ)",
+    "n_pairs": 4,
+    "comply_with": 1.0,
+    "comply_without": 0.0,
+    "comply_diff": 1.0,
+    "jsd": 1.0,
+    "top1_change": 1.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "全体",
+    "n_pairs": 38,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": 0.0,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request(頼み(Langer ら 1978 の形))",
+    "n_pairs": 18,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(種類と条件を混ぜた平均)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "prohibition(禁止の表示(Keizer ら 2008 の形))",
+    "n_pairs": 8,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": 0.0,
+    "human": null,
+    "human_source": "人の値なし(記録 2-54 は周りの様子で変わるとだけ書く=対比の表)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "shop_call(店頭の呼びかけ(人の値なし=強さ 3 段))",
+    "n_pairs": 12,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/small/none(小さい頼み・理由なし)",
+    "n_pairs": 3,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": "0.60",
+    "human_source": "記録 2-54(Langer ら 1978)「5 枚 60%」",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/small/placebic(小さい頼み・形だけの理由)",
+    "n_pairs": 3,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": "0.93〜0.94",
+    "human_source": "記録 2-54(Langer ら 1978)「理由付き 93〜94%」(形だけの理由と本当の理由を分けて書いていない)",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/small/real(小さい頼み・本当の理由)",
+    "n_pairs": 3,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": "0.93〜0.94",
+    "human_source": "記録 2-54(Langer ら 1978)「理由付き 93〜94%」(形だけの理由と本当の理由を分けて書いていない)",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/large/none(大きい頼み・理由なし)",
+    "n_pairs": 3,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": "0.24",
+    "human_source": "記録 2-54(Langer ら 1978)「20 枚 24%」",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/large/placebic(大きい頼み・形だけの理由)",
+    "n_pairs": 3,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に値が無い(「20 枚 24%」が形だけの理由を含むかは記録から読めない)・R-149 の追補 1 で一次確認中",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "request/large/real(大きい頼み・本当の理由)",
+    "n_pairs": 3,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": "約 0.42",
+    "human_source": "記録 2-54(Langer ら 1978)「本当の理由で約 42%」",
+    "human_status": "R-149 の追補 1 で一次確認中",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "prohibition/orderly(掲示・周りが整っている)",
+    "n_pairs": 4,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": 0.0,
+    "human": null,
+    "human_source": "人の値なし(記録 2-54 は周りの様子で変わるとだけ書く=対比の表)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "prohibition/disorderly(掲示・周りが乱れている)",
+    "n_pairs": 4,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": 0.0,
+    "human": null,
+    "human_source": "人の値なし(記録 2-54 は周りの様子で変わるとだけ書く=対比の表)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "shop_call/please(お願い)",
+    "n_pairs": 4,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "shop_call/command(命令)",
+    "n_pairs": 4,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "role": "対照",
+    "arm": "t300",
+    "group": "shop_call/now(今すぐ)",
+    "n_pairs": 4,
+    "comply_with": 0.0,
+    "comply_without": 0.0,
+    "comply_diff": 0.0,
+    "jsd": 0.0,
+    "top1_change": 0.0,
+    "violate_diff": null,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": "",
+    "notes": "列の計算の確かめ(モデルの測りではない)"
+   }
+  ],
+  "blank": [
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "n_pairs": "GPU の後で埋める",
+    "comply_with": "GPU の後で埋める",
+    "comply_without": "GPU の後で埋める",
+    "comply_diff": "GPU の後で埋める",
+    "jsd": "GPU の後で埋める",
+    "top1_change": "GPU の後で埋める",
+    "violate_diff": "GPU の後で埋める",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "n_pairs": "GPU の後で埋める",
+    "comply_with": "GPU の後で埋める",
+    "comply_without": "GPU の後で埋める",
+    "comply_diff": "GPU の後で埋める",
+    "jsd": "GPU の後で埋める",
+    "top1_change": "GPU の後で埋める",
+    "violate_diff": "GPU の後で埋める",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "n_pairs": "GPU の後で埋める",
+    "comply_with": "GPU の後で埋める",
+    "comply_without": "GPU の後で埋める",
+    "comply_diff": "GPU の後で埋める",
+    "jsd": "GPU の後で埋める",
+    "top1_change": "GPU の後で埋める",
+    "violate_diff": "GPU の後で埋める",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "n_pairs": "GPU の後で埋める",
+    "comply_with": "GPU の後で埋める",
+    "comply_without": "GPU の後で埋める",
+    "comply_diff": "GPU の後で埋める",
+    "jsd": "GPU の後で埋める",
+    "top1_change": "GPU の後で埋める",
+    "violate_diff": "GPU の後で埋める",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "n_pairs": "GPU の後で埋める",
+    "comply_with": "GPU の後で埋める",
+    "comply_without": "GPU の後で埋める",
+    "comply_diff": "GPU の後で埋める",
+    "jsd": "GPU の後で埋める",
+    "top1_change": "GPU の後で埋める",
+    "violate_diff": "GPU の後で埋める",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "n_pairs": "GPU の後で埋める",
+    "comply_with": "GPU の後で埋める",
+    "comply_without": "GPU の後で埋める",
+    "comply_diff": "GPU の後で埋める",
+    "jsd": "GPU の後で埋める",
+    "top1_change": "GPU の後で埋める",
+    "violate_diff": "GPU の後で埋める",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "n_pairs": "GPU の後で埋める",
+    "comply_with": "GPU の後で埋める",
+    "comply_without": "GPU の後で埋める",
+    "comply_diff": "GPU の後で埋める",
+    "jsd": "GPU の後で埋める",
+    "top1_change": "GPU の後で埋める",
+    "violate_diff": "GPU の後で埋める",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "n_pairs": "GPU の後で埋める",
+    "comply_with": "GPU の後で埋める",
+    "comply_without": "GPU の後で埋める",
+    "comply_diff": "GPU の後で埋める",
+    "jsd": "GPU の後で埋める",
+    "top1_change": "GPU の後で埋める",
+    "violate_diff": "GPU の後で埋める",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "n_pairs": "GPU の後で埋める",
+    "comply_with": "GPU の後で埋める",
+    "comply_without": "GPU の後で埋める",
+    "comply_diff": "GPU の後で埋める",
+    "jsd": "GPU の後で埋める",
+    "top1_change": "GPU の後で埋める",
+    "violate_diff": "GPU の後で埋める",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "n_pairs": "GPU の後で埋める",
+    "comply_with": "GPU の後で埋める",
+    "comply_without": "GPU の後で埋める",
+    "comply_diff": "GPU の後で埋める",
+    "jsd": "GPU の後で埋める",
+    "top1_change": "GPU の後で埋める",
+    "violate_diff": "GPU の後で埋める",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "violate_diff": "該当なし(禁止の表示の場面だけ)",
+    "human": "該当なし(人の値なし)"
+   }
+  ]
+ },
+ "contrasts": {
+  "columns": [
+   {
+    "key": "scorer",
+    "header": "当て口"
+   },
+   {
+    "key": "arm",
+    "header": "長さの腕"
+   },
+   {
+    "key": "contrast",
+    "header": "対比"
+   },
+   {
+    "key": "n_settings",
+    "header": "場面の数"
+   },
+   {
+    "key": "value",
+    "header": "値"
+   },
+   {
+    "key": "human",
+    "header": "人の値"
+   },
+   {
+    "key": "human_source",
+    "header": "人の値の出どころ"
+   },
+   {
+    "key": "human_status",
+    "header": "人の値の状態"
+   }
+  ],
+  "rows": [
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "request/small/placebic_minus_none",
+    "n_settings": 3,
+    "value": -0.09345823587713066,
+    "human": "+0.33〜+0.34",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "request/small/real_minus_none",
+    "n_settings": 3,
+    "value": -0.09377490017608585,
+    "human": "+0.33〜+0.34",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "request/small/real_minus_placebic",
+    "n_settings": 3,
+    "value": -0.00031666429895517895,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 は理由付きを 93〜94% とまとめて書く・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "request/large/placebic_minus_none",
+    "n_settings": 3,
+    "value": -0.09218948153716768,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に形だけの理由の値が無い・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "request/large/real_minus_none",
+    "n_settings": 3,
+    "value": -0.01899964929148194,
+    "human": "約 +0.18",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "request/large/real_minus_placebic",
+    "n_settings": 3,
+    "value": 0.07318983224568575,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に形だけの理由の値が無い・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "request/none/small_minus_large",
+    "n_settings": 3,
+    "value": -0.0406587587481221,
+    "human": "+0.36",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "request/placebic/small_minus_large",
+    "n_settings": 3,
+    "value": -0.04192751308808509,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に形だけの理由の値が無い・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "request/real/small_minus_large",
+    "n_settings": 3,
+    "value": -0.115434009632726,
+    "human": "約 +0.51〜+0.52",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "prohibition/sign/orderly_minus_disorderly",
+    "n_settings": 4,
+    "value": -0.05817206327097086,
+    "human": "向きの見込みだけ(+・未確認)",
+    "human_source": "記録 2-54(Keizer ら 2008)",
+    "human_status": "記録 2-54 は「禁止の看板の効き目は周りの様子で変わる」とだけ書く=値も符号も記録には無い。+(整った周りで従う率が高い)は見込み・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "prohibition/nosign/orderly_minus_disorderly",
+    "n_settings": 4,
+    "value": 0.033507919599513825,
+    "human": null,
+    "human_source": "人の値なし(研究に無い条件)",
+    "human_status": ""
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "prohibition/sign/violate_disorderly_minus_orderly",
+    "n_settings": 4,
+    "value": -0.008780874441908188,
+    "human": "向きの見込みだけ(+・未確認)",
+    "human_source": "記録 2-54(Keizer ら 2008)",
+    "human_status": "同上(+=乱れた周りで破る率が高い、は見込み)・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "shop_call/command_minus_please",
+    "n_settings": 4,
+    "value": 0.0588174901210824,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "shop_call/now_minus_command",
+    "n_settings": 4,
+    "value": 0.10808409124459692,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "shop_call/now_minus_please",
+    "n_settings": 4,
+    "value": 0.1669015813656793,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "mock",
+    "arm": "t300",
+    "contrast": "shop_call/strength_range",
+    "n_settings": 4,
+    "value": 0.19456012447461626,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "request/small/placebic_minus_none",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "+0.33〜+0.34",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "request/small/real_minus_none",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "+0.33〜+0.34",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "request/small/real_minus_placebic",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 は理由付きを 93〜94% とまとめて書く・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "request/large/placebic_minus_none",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に形だけの理由の値が無い・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "request/large/real_minus_none",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "約 +0.18",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "request/large/real_minus_placebic",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に形だけの理由の値が無い・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "request/none/small_minus_large",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "+0.36",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "request/placebic/small_minus_large",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に形だけの理由の値が無い・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "request/real/small_minus_large",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "約 +0.51〜+0.52",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "prohibition/sign/orderly_minus_disorderly",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": "向きの見込みだけ(+・未確認)",
+    "human_source": "記録 2-54(Keizer ら 2008)",
+    "human_status": "記録 2-54 は「禁止の看板の効き目は周りの様子で変わる」とだけ書く=値も符号も記録には無い。+(整った周りで従う率が高い)は見込み・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "prohibition/nosign/orderly_minus_disorderly",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(研究に無い条件)",
+    "human_status": ""
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "prohibition/sign/violate_disorderly_minus_orderly",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": "向きの見込みだけ(+・未確認)",
+    "human_source": "記録 2-54(Keizer ら 2008)",
+    "human_status": "同上(+=乱れた周りで破る率が高い、は見込み)・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "shop_call/command_minus_please",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "shop_call/now_minus_command",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "shop_call/now_minus_please",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "classical",
+    "arm": "t300",
+    "contrast": "shop_call/strength_range",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "request/small/placebic_minus_none",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "+0.33〜+0.34",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "request/small/real_minus_none",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "+0.33〜+0.34",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "request/small/real_minus_placebic",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 は理由付きを 93〜94% とまとめて書く・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "request/large/placebic_minus_none",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に形だけの理由の値が無い・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "request/large/real_minus_none",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "約 +0.18",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "request/large/real_minus_placebic",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に形だけの理由の値が無い・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "request/none/small_minus_large",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "+0.36",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "request/placebic/small_minus_large",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に形だけの理由の値が無い・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "request/real/small_minus_large",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "約 +0.51〜+0.52",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "prohibition/sign/orderly_minus_disorderly",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": "向きの見込みだけ(+・未確認)",
+    "human_source": "記録 2-54(Keizer ら 2008)",
+    "human_status": "記録 2-54 は「禁止の看板の効き目は周りの様子で変わる」とだけ書く=値も符号も記録には無い。+(整った周りで従う率が高い)は見込み・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "prohibition/nosign/orderly_minus_disorderly",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(研究に無い条件)",
+    "human_status": ""
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "prohibition/sign/violate_disorderly_minus_orderly",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": "向きの見込みだけ(+・未確認)",
+    "human_source": "記録 2-54(Keizer ら 2008)",
+    "human_status": "同上(+=乱れた周りで破る率が高い、は見込み)・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "shop_call/command_minus_please",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "shop_call/now_minus_command",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "shop_call/now_minus_please",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "appeal_follow",
+    "arm": "t300",
+    "contrast": "shop_call/strength_range",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "request/small/placebic_minus_none",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "+0.33〜+0.34",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "request/small/real_minus_none",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "+0.33〜+0.34",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "request/small/real_minus_placebic",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 は理由付きを 93〜94% とまとめて書く・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "request/large/placebic_minus_none",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に形だけの理由の値が無い・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "request/large/real_minus_none",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "約 +0.18",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "request/large/real_minus_placebic",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に形だけの理由の値が無い・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "request/none/small_minus_large",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "+0.36",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "request/placebic/small_minus_large",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": null,
+    "human_source": "記録 2-54(Langer ら 1978)",
+    "human_status": "記録 2-54 に形だけの理由の値が無い・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "request/real/small_minus_large",
+    "n_settings": 3,
+    "value": 0.0,
+    "human": "約 +0.51〜+0.52",
+    "human_source": "記録 2-54(Langer ら 1978)・記録 2-54 の値の引き算",
+    "human_status": "R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "prohibition/sign/orderly_minus_disorderly",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": "向きの見込みだけ(+・未確認)",
+    "human_source": "記録 2-54(Keizer ら 2008)",
+    "human_status": "記録 2-54 は「禁止の看板の効き目は周りの様子で変わる」とだけ書く=値も符号も記録には無い。+(整った周りで従う率が高い)は見込み・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "prohibition/nosign/orderly_minus_disorderly",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(研究に無い条件)",
+    "human_status": ""
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "prohibition/sign/violate_disorderly_minus_orderly",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": "向きの見込みだけ(+・未確認)",
+    "human_source": "記録 2-54(Keizer ら 2008)",
+    "human_status": "同上(+=乱れた周りで破る率が高い、は見込み)・R-149 の追補 1 で一次確認中"
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "shop_call/command_minus_please",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "shop_call/now_minus_command",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "shop_call/now_minus_please",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   },
+   {
+    "scorer": "appeal_ignore",
+    "arm": "t300",
+    "contrast": "shop_call/strength_range",
+    "n_settings": 4,
+    "value": 0.0,
+    "human": null,
+    "human_source": "人の値なし(強さの段で極端でないかを見る・極端の線は未定=親)",
+    "human_status": ""
+   }
+  ],
+  "blank": [
+   {},
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {},
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   },
+   {
+    "human": "該当なし(人の値なし)"
+   }
+  ]
+ },
+ "definitions": {
+  "distribution": "当て口の分布を並べ替え N 通りで候補の id ごとに平均した物。対の 2 つは同じ提示の並び",
+  "comply_diff": "P(応じる | 呼びかけあり) − P(応じる | なし)の対の平均",
+  "jsd": "あり・なしの分布の JSD(底 2・0〜1・judge.jsd)の対の平均",
+  "top1_change": "1 位の候補(同点は id の順)が、あり・なしで変わった対の割合",
+  "violate_diff": "禁止の表示の場面だけ。P(破る | あり) − P(破る | なし)の対の平均(全体の行も禁止の表示の対の平均)",
+  "human": "人の値は頼みありの応じた率だけ(呼びかけの無い条件は研究に無い=応じる確率(なし)の人の値は無い)",
+  "contrasts": "頼み=同じ場面の中の理由と大きさの差(ある版どうし)・禁止の表示=掲示ありの周りの様子の差(Keizer の形)・店頭の呼びかけ=強さの段の差と幅(場面ごとの最大 − 最小)。どれも場面の平均"
+ },
+ "limits": [
+  "場面は自前(架空の店と人・実在の店名と施設名と地名と人名を使わない)=人の研究と条件が違う(場面ごとの違いは記録の README)",
+  "人の値は記録 2-54 のものだけ(Langer ら 1978 の率・Keizer ら 2008 は向きの見込みだけ)=R-149 の追補 1 で一次確認中",
+  "人の値は人の割合、当て口の値は 1 回の判断の確率の平均=同じ量と読むのは住民が分布から引くと見なすとき",
+  "出どころの印は今の印から「命令文除去(済)」を外した形・前置きの印の説明の行も自前=返事その 8 §5 の案が決まったら作り直す",
+  "強さ 3 段の命令と今すぐは店の言葉としては不自然(記録 2-62 の段をそのまま当てた)",
+  "条件ごとの呼びかけの文は 1 通りだけ(言い回しの揺れを見ていない)・場面は種類ごとに 3〜4 だけ",
+  "同じ場面の行は同じ提示の並び(場面 11 通り)=PBS の帰無の床(行が独立の模擬)は狭めに出る・位置の偏りの列は参考",
+  "テープ(8B の記録)は無い=テープの列は「基準の記録なし」・8B との比べは (G) の口(GPU の後)",
+  "言語は日本語だけ・住人の第一言語の欄は空欄(§4-8)"
+ ]
+}

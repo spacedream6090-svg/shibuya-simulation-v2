@@ -24,6 +24,15 @@
     - モデルの口の失敗(``judge.ScoreFailed``)は場面ごとに捕まえて ``compare.scorers[名].failures`` に記録し、その場面を
       採点から外して続ける(全体は止めない)。
 
+〔第 347・返事その 8 §6-2・記録 2-61 ①・2-62〕呼びかけへの反応のずれ
+    - ``--scenes appeal``=呼びかけの場面(``scenes/appeal_v1.jsonl``・同じ状況で呼びかけの文がある版とない版の対)。既定
+      (evalset)と both(evalset+consumption)は今のまま。
+    - 結果の欄 ``appeal``(``appeal.section``=当て口 × 腕ごとの応じる確率の差・分布の差 JSD・1 位が変わった対の率・
+      種類ごと・条件ごと・対比・人の値・対照)と ``appeal_digest``。どちらも ``digest`` の外(SCHEMA は据え置き)。
+    - 表 ``table.md``・``table.json`` の末尾に 3 列(``table.COLUMNS_APPEAL``)・種類と条件ごとの表 ``appeal_table.md``・
+      ``appeal_table.json``(呼びかけの場面だけ)。
+    - 対の 2 つは同じ提示の並び(``evaluate(order_keys=…)``=場面の鍵で並べる・渡さなければ状況の id=今のまま)。
+
 関数 ``evaluate`` は data を読まない(状況と経験を渡す)=合成の状況で試験できる。
 """
 
@@ -42,6 +51,7 @@ if __package__ in (None, ""):  # pragma: no cover - スクリプトとして実�
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import dm_eval  # noqa: E402
+from dm_eval import appeal as A  # noqa: E402
 from dm_eval import bias as B  # noqa: E402
 from dm_eval import judge as J  # noqa: E402
 from dm_eval import situations as S  # noqa: E402
@@ -51,8 +61,10 @@ from shibuya.foundation.ports.decision import OTHER_ID, Candidate  # noqa: E402
 #: 決定的でない欄(digest から外す)。
 _VOLATILE_KEYS = frozenset({"wall_s_per_item", "wall_s", "timing"})
 _DIGEST_DECIMALS = 10
-#: digest から外す節(表=見せ方・比べの節=〔11-01〕で足した物=自分の digest を持つ)。
-_DIGEST_EXCLUDED = ("digest", "table", "compare", "compare_digest", "scene_set", "material")
+#: digest から外す節(表=見せ方・比べの節=〔11-01〕で足した物=自分の digest を持つ・〔第 347〕呼びかけの節も同じ)。
+_DIGEST_EXCLUDED = ("digest", "table", "compare", "compare_digest", "scene_set", "material", "appeal", "appeal_digest")
+#: 材料の名(``evaluate(material=…)``)。
+MATERIALS = ("evalset", "consumption", "appeal")
 #: 失敗の記録に残す件の上限(数は全部数える)。
 _FAILURE_ITEMS = 20
 #: 比べの節の形の版。
@@ -203,22 +215,30 @@ def evaluate(situations: Sequence[S.Situation], experience: Mapping[str, Sequenc
              determinism_repeats: int = J.DETERMINISM_REPEATS, determinism_limit: int | None = None,
              compare: bool = True, vocab_version: str = S.VOCAB_VERSION,
              fields: Mapping[str, Mapping[str, Mapping[str, Any]]] | None = None,
-             scene_set: str | None = None) -> dict[str, Any]:
+             scene_set: str | None = None, appeal: Sequence[A.Pair] | None = None,
+             order_keys: Mapping[str, str] | None = None, point_names: Mapping[str, str] | None = None,
+             appeal_summary: Mapping[str, Any] | None = None) -> dict[str, Any]:
     """状況(と本人の経験の代わり)→ 採点の結果(data は読まない)。
 
     〔11-01〕``candidates``(状況の id → 候補)を渡すと場面の候補を使う(消費の場面)。``scorer_factories`` は当て口を
-    作る関数の並び(既定=``default_factories``)。``material`` は ``evalset`` か ``consumption``。``compare=True`` で
-    比べの節(``digest`` の外)を作る。``fields``(状況の id → 候補の id → 品・数・値段)があれば数の指標を出す。
+    作る関数の並び(既定=``default_factories``)。``material`` は ``evalset``・``consumption``・``appeal``。``compare=True``
+    で比べの節(``digest`` の外)を作る。``fields``(状況の id → 候補の id → 品・数・値段)があれば数の指標を出す。
+    〔第 347〕``appeal``(``appeal.pairs_of`` の対)を渡すと呼びかけの節 ``appeal``(``digest`` の外)と表の末尾の 3 列を作る。
+    ``order_keys``(状況の id → 並びの鍵)は提示の並びの乱数の鍵(既定=状況の id=今のまま)。``point_names`` は判断点の名
+    (既定=消費の 4 判断点)。``appeal_summary`` は場面の組の数(``appeal.scenes_summary``)。
     """
-    if material not in ("evalset", "consumption"):
-        raise ValueError(f"material は evalset か consumption(いま {material!r})")
+    if material not in MATERIALS:
+        raise ValueError(f"material は {MATERIALS} のどれか(いま {material!r})")
+    if (material == "appeal") != (appeal is not None):
+        raise ValueError("呼びかけの対 appeal は material='appeal' のときだけ(そのときは要る)")
     t_all = time.perf_counter()
     exp = dict(experience or {})
     if candidates is None:
         cands = {s.sid: S.candidates_for(s, exp.get(s.sid, ())) for s in situations}
     else:
         cands = {s.sid: tuple(candidates[s.sid]) for s in situations}
-    ords = {s.sid: S.orders(cands[s.sid], s.sid, n_orders=n_orders, seed=seed) for s in situations}
+    okeys = dict(order_keys or {})
+    ords = {s.sid: S.orders(cands[s.sid], okeys.get(s.sid, s.sid), n_orders=n_orders, seed=seed) for s in situations}
     kinds = {sid: {**{c.id: c.kind for c in cs}, OTHER_ID: OTHER_ID} for sid, cs in cands.items()}
     lengths = S.iter_lengths(situations, {sid: o[0] for sid, o in ords.items()})
 
@@ -297,7 +317,9 @@ def evaluate(situations: Sequence[S.Situation], experience: Mapping[str, Sequenc
                 strict_out.append({"name": probe.name, "status": "失敗", **J.failure_record(e),
                                    "identical_repeat": None, "identical_reordered": None})
 
-    blank_sources = dict(S.BLANK_SOURCES) if material == "evalset" else dict(CONSUMPTION_BLANKS)
+    blank_sources = {"evalset": dict(S.BLANK_SOURCES), "consumption": dict(CONSUMPTION_BLANKS),
+                     "appeal": dict(A.BLANKS)}[material]
+    limits = {"evalset": LIMITS, "consumption": CONSUMPTION_LIMITS, "appeal": A.LIMITS}[material]
     cand_summary = S.describe_candidates(cands)
     cand_summary["blank_sources"] = blank_sources
     result: dict[str, Any] = {
@@ -323,7 +345,7 @@ def evaluate(situations: Sequence[S.Situation], experience: Mapping[str, Sequenc
         "human": dict(J.HUMAN_FIELDS),
         "speed_formula": J.GPU_HOURS_FORMULA,
         "calls_basis": dict(J.CALLS_PER_DAY_BASIS),
-        "limits": list(LIMITS if material == "evalset" else CONSUMPTION_LIMITS),
+        "limits": list(limits),
         "timing": {"wall_s": time.perf_counter() - t_all},
     }
 
@@ -349,7 +371,7 @@ def evaluate(situations: Sequence[S.Situation], experience: Mapping[str, Sequenc
                             "vram_status": "GPU の後(欄だけ)" if sc.uses_gpu else "GPU を使わない"}
         by_point = None
         if points is not None:
-            by_point = {p: 0 for p in S.DECISION_POINTS}
+            by_point = {p: 0 for p in (S.DECISION_POINTS if point_names is None else point_names)}
             for s in situations:
                 by_point[points[s.sid]] = by_point.get(points[s.sid], 0) + 1
         cmp = {"schema": COMPARE_SCHEMA, "material": material, "by_point": by_point,
@@ -367,15 +389,37 @@ def evaluate(situations: Sequence[S.Situation], experience: Mapping[str, Sequenc
         result["compare"] = cmp
         result["compare_digest"] = compare_digest_of(cmp)
 
+    summary = None
+    if appeal is not None:  # 〔第 347〕呼びかけの節(digest の外)
+        ctl: dict[str, tuple[Mapping[str, Any], Mapping[str, Any]]] = {}
+        for c in A.default_controls(appeal):
+            crecs_a, _ = B.score_orders(c, situations, ords, arm=arms[0])
+            ctl[c.name] = (c.describe(), crecs_a)
+        entries = [(sc.describe(), sc.reads_text,
+                    {arm: computed[sc.name][arm]["records"] for arm in arms} if sc.name in computed else None)
+                   for sc in scorers]
+        sec = A.section(entries, arms=arms, pairs=appeal, controls=ctl,
+                        summary=appeal_summary or {"n_rows": len(situations), "n_pairs": len(appeal)})
+        result["appeal"] = sec
+        result["appeal_digest"] = _sha(sec)
+        summary = A.summary_table(sec)
+
     result["scene_set"] = str(scene_set or material)
     result["material"] = material
-    rows = T.build_rows(out_scorers, arms=arms, tape_fixed=tape_fixed, compare=cmp)
+    rows = T.build_rows(out_scorers, arms=arms, tape_fixed=tape_fixed, compare=cmp, appeal=summary)
+    cols = table_columns(result)
     missing_refs = [r for r in ("tape", "classical") if r not in computed]
-    result["table"] = {"columns": list(T.COLUMN_KEYS), "rows": rows,
-                       "blank": T.blanks_of(rows, missing_refs=missing_refs), "order": T.ORDER_NOTE,
-                       "footnotes": table_footnotes(floor, tape_fixed, cmp), "missing_refs": missing_refs}
+    foot = table_footnotes(floor, tape_fixed, cmp) + (list(A.FOOTNOTES) if appeal is not None else [])
+    result["table"] = {"columns": [k for k, _h in cols], "rows": rows,
+                       "blank": T.blanks_of(rows, missing_refs=missing_refs, columns=cols), "order": T.ORDER_NOTE,
+                       "footnotes": foot, "missing_refs": missing_refs}
     result["digest"] = digest_of(result)
     return result
+
+
+def table_columns(result: Mapping[str, Any]) -> tuple[tuple[str, str], ...]:
+    """表の列(〔第 347〕呼びかけの節がある結果だけ末尾に 3 列)。"""
+    return T.COLUMNS + (T.COLUMNS_APPEAL if "appeal" in result else ())
 
 
 def _write(path: Path, text: str, overwrite: bool) -> None:
@@ -386,7 +430,8 @@ def _write(path: Path, text: str, overwrite: bool) -> None:
 
 def write_outputs(result: Mapping[str, Any], out_dir: Path, *, overwrite: bool = False,
                   inputs: Mapping[str, Any] | None = None) -> dict[str, str]:
-    """``result.json``・``table.md``・``table.json`` を書く(LF・UTF-8)。"""
+    """``result.json``・``table.md``・``table.json`` を書く(LF・UTF-8)。〔第 347〕呼びかけの節があれば
+    ``appeal_table.md``・``appeal_table.json`` も書く。"""
     out_dir.mkdir(parents=True, exist_ok=True)
     doc = dict(result)
     if inputs is not None:
@@ -394,11 +439,17 @@ def write_outputs(result: Mapping[str, Any], out_dir: Path, *, overwrite: bool =
     rows = result["table"]["rows"]
     miss = result["table"].get("missing_refs", ())
     langs = {"ja": f"{result['n_situations']} 件", "日本語の外": None}
+    cols = table_columns(result)
     files = {
         "result.json": json.dumps(doc, ensure_ascii=False, indent=1) + "\n",
-        "table.md": T.to_markdown(rows, languages=langs, footnotes=result["table"]["footnotes"], missing_refs=miss),
-        "table.json": T.to_json(rows, languages=langs, footnotes=result["table"]["footnotes"], missing_refs=miss),
+        "table.md": T.to_markdown(rows, languages=langs, footnotes=result["table"]["footnotes"], missing_refs=miss,
+                                  columns=cols),
+        "table.json": T.to_json(rows, languages=langs, footnotes=result["table"]["footnotes"], missing_refs=miss,
+                                columns=cols),
     }
+    if "appeal" in result:
+        files["appeal_table.md"] = A.to_markdown(result["appeal"])
+        files["appeal_table.json"] = A.to_json(result["appeal"])
     for name, text in files.items():
         _write(out_dir / name, text, overwrite)
     return {name: hashlib.md5(text.encode("utf-8")).hexdigest() for name, text in files.items()}
@@ -417,7 +468,7 @@ def model_factories(args: argparse.Namespace, *, material: str) -> tuple[tuple[C
     """
     base = list(default_factories(args.mock_seed))
     names = ["mock", "classical", "tape", G_PORT_NAME, "clef_flash", "clef", "kev_9b", "sokudan_ja_310m"]
-    if material == "consumption":
+    if material in ("consumption", "appeal"):  # 〔第 347〕呼びかけの場面も消費の場面と同じ(テープなし・語彙 v3)
         k = names.index("tape")
         del base[k], names[k]
         base[names.index("classical")] = lambda: J.ClassicalScorer(vocab_version=S.CONSUMPTION_VOCAB_VERSION)
@@ -469,6 +520,17 @@ def _run_material(a: argparse.Namespace, material: str, out_dir: Path, scene_set
                   "summary": f"data/evalset/evalset-1-10/{S.SUMMARY_NAME}", "summary_md5": S.SUMMARY_MD5,
                   "tapes": len({s.tape for s in sits}), "tape_experience": not a.no_tape_experience,
                   "tapes_md5": tapes_md5}
+    elif material == "appeal":  # 〔第 347〕呼びかけの場面
+        sc = S.load_scene_file(S.APPEAL_SCENES, point_names=S.APPEAL_TYPES)
+        pairs = A.pairs_of(sc)
+        summ = A.scenes_summary(pairs, sc)
+        res = evaluate(sc.situations, None, seed=a.seed, n_orders=a.n_orders, mock_seed=a.mock_seed,
+                       scorer_factories=factories, candidates=sc.candidates, material="appeal",
+                       points=sc.points, g_name=g_name, determinism_repeats=a.determinism_repeats,
+                       determinism_limit=det_limit, vocab_version=S.CONSUMPTION_VOCAB_VERSION, scene_set=scene_set,
+                       appeal=pairs, order_keys=A.order_keys(sc), point_names=S.APPEAL_TYPES, appeal_summary=summ)
+        inputs = {"scenes": f"tools/instruments/dm_eval/scenes/{S.APPEAL_SCENES.name}", "scenes_md5": dict(sc.md5),
+                  "n_scenes": len(sc.situations), "by_point": sc.by_point(), "n_pairs": len(pairs)}
     else:
         sc = S.load_scene_file(S.CONSUMPTION_SCENES)
         res = evaluate(sc.situations, None, seed=a.seed, n_orders=a.n_orders, mock_seed=a.mock_seed,
@@ -479,8 +541,11 @@ def _run_material(a: argparse.Namespace, material: str, out_dir: Path, scene_set
         inputs = {"scenes": f"tools/instruments/dm_eval/scenes/{S.CONSUMPTION_SCENES.name}", "scenes_md5": dict(sc.md5),
                   "n_scenes": len(sc.situations), "by_point": sc.by_point()}
     md5s = write_outputs(res, out_dir, overwrite=a.overwrite, inputs=inputs)
-    return {"digest": res["digest"], "compare_digest": res.get("compare_digest"), "files": md5s,
-            "wall_s": round(res["timing"]["wall_s"], 2)}
+    out = {"digest": res["digest"], "compare_digest": res.get("compare_digest"), "files": md5s,
+           "wall_s": round(res["timing"]["wall_s"], 2)}
+    if "appeal_digest" in res:
+        out["appeal_digest"] = res["appeal_digest"]
+    return out
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -491,8 +556,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="評価セットを 1 回通して記録を書く")
     r.add_argument("--out-dir", required=True)
-    r.add_argument("--scenes", choices=("evalset", "consumption", "both"), default="evalset",
-                   help="evalset=1-10 の 340 件(既定)・consumption=消費の場面・both=両方(out-dir の下に 2 つ)")
+    r.add_argument("--scenes", choices=("evalset", "consumption", "both", "appeal"), default="evalset",
+                   help="evalset=1-10 の 340 件(既定)・consumption=消費の場面・both=両方(out-dir の下に 2 つ)・"
+                        "appeal=呼びかけの場面(第 347・both には入らない)")
     r.add_argument("--seed", default=S.DEFAULT_SEED)
     r.add_argument("--n-orders", type=int, default=S.DEFAULT_N_ORDERS)
     r.add_argument("--mock-seed", default="dm61-mock")

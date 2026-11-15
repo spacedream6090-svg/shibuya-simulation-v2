@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 6 本・その他 0 本(このディレクトリの直下)
+Python 7 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [backends](backends/README.md)・[scenes](scenes/README.md)
 
@@ -10,10 +10,42 @@ Python 6 本・その他 0 本(このディレクトリの直下)
 
 dm_eval — 第 6 期 6-1 判断モデル(DM)の**評価の器**(GPU の前に作る分・読むだけ・エンジン不変)。
 
-- 呼び手: `tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/backends/hf.py`・`tools/instruments/dm_eval/backends/vllm.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`
+- 呼び手: `tools/instruments/dm_eval/appeal.py`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/backends/hf.py`・`tools/instruments/dm_eval/backends/vllm.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`
 - 読む試験: `tests/tools/test_dm_eval.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
-- 決定の ID: 11-01・R-108
+- 決定の ID: 11-01・R-108・第 347
+
+## [appeal.py](../../../../../../../tools/instruments/dm_eval/appeal.py)
+
+dm_eval.appeal — 「呼びかけへの反応のずれ」の列(第 347・返事その 8 §6-2・記録 2-61 ①・2-62・2-65)。
+
+- 公開の関数とクラス
+  - `AppealFollowControl`(クラス): 正の対照: 文に出どころの印(呼びかけの行)があれば「応じる」候補に確率 1、無ければ「何もしない」候補に確率 1。
+  - `AppealIgnoreControl`(クラス): 負の対照: いつも「何もしない」候補に確率 1(呼びかけを見ない)。
+  - `Pair`(クラス): 呼びかけの対(ある版の id・同じ組のない版の id と印)。
+  - `breakdown_rows`(関数): 種類・条件ごとの表の行(当て口の宣言の順 → 対照)。文を読まない当て口は最初の腕だけ(腕で変わらない)。
+  - `condition_keys`(関数): 条件の鍵の並び(種類 → 大きさ → 理由 / 周りの様子 / 強さの順・対にある物だけ)。
+  - `contrast_rows`(関数): 対比の表の行(採点した当て口と対照だけ)。
+  - `contrasts_of`(関数): 対比(場面の平均)。頼み=理由の差・大きさの差・禁止の表示=周りの様子の差・店頭の呼びかけ=強さの段の差と幅。
+  - `default_controls`(関数): 記録に載せる対照(正・負)。
+  - `dists_of`(関数): ``bias.score_orders`` の記録 → 状況の id → 並べ替えの平均の分布。
+  - `group_stats`(関数): 対の値の束 → 平均(対の数・応じる確率のあり/なし/差・JSD・1 位が変わった率・破る確率の差)。
+  - `group_word`(関数): 組の鍵 → 見出し(``all``・種類・``type/条件``)。
+  - `mean_dist`(関数): 並べ替え N 通りの分布(``bias.score_orders`` の 1 状況の記録)→ 候補の id ごとの平均(鍵の順)。
+  - `measures`(関数): 状況の id → 分布(並べ替えの平均)→ 全体・種類ごと・条件ごとの値と対比。片方が採点から外れた対は数えない。
+  - `order_keys`(関数): 状況の id → 提示の並びの鍵(同じ場面の行=同じ候補は同じ並び=対の 2 つと周りの様子の対比を同じ提示で比べる)。
+  - `pair_values`(関数): 1 つの対の値(応じる確率・差・JSD・1 位が変わったか・禁止の表示は破る確率)。
+  - `pairs_of`(関数): 場面の組 → 対(並びは場面のファイルの並び)。欄の形・組の作り(ない版 1 つ・ある版 1 つ以上)・同じ候補を検査する。
+  - `scenes_summary`(関数): 場面の組の数(行・対・場面=種類ごと・条件ごとの対の数)。中身の文は写さない。
+  - `section`(関数): 呼びかけの節。``entries`` は当て口ごとの(describe・文を読むか・腕 → 状況 → 並べ替えの記録 / 口だけは None)。
+  - `summary_table`(関数): 表の末尾の 3 列(当て口 → 腕 → 列)=全体の値。
+  - `targets_of`(関数): 状況の id → (応じる候補・何もしない候補)。
+  - `to_json`(関数): 呼びかけの表(JSON)。行の空の欄は印の文で ``blank`` に。
+  - `to_markdown`(関数): 呼びかけの表(種類・条件ごと → 対比 → 定義と限界)。
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`
+- 呼び手: `tools/instruments/dm_eval/cli.py`
+- 読む試験: `tests/tools/test_dm_eval.py`
+- 決定の ID: R-149・第 347
 
 ## [bias.py](../../../../../../../tools/instruments/dm_eval/bias.py)
 
@@ -42,9 +74,10 @@ dm_eval.cli — 評価の器を 1 回通して、記録の JSON と表を書く(
   - `main`(関数)
   - `model_factories`(関数): 引数 → (当て口を作る関数の並び・(G) の名)。重みと艦隊は作るときに触らない(呼ぶときだけ)。
   - `qty_measures`(関数): 〔11-01 検収 低 7〕何をいくつの数の指標(数の欄 ``qty`` が 2 通り以上ある場面=何をいくつだけ)。
+  - `table_columns`(関数): 表の列(〔第 347〕呼びかけの節がある結果だけ末尾に 3 列)。
   - `table_footnotes`(関数): 表の脚注(PBS の帰無の床=フロア併記・提示の並びを見ていない当て口の注・比べの列の読み方)。
-  - `write_outputs`(関数): ``result.json``・``table.md``・``table.json`` を書く(LF・UTF-8)。
-- import している内部モジュール: `shibuya.foundation.ports.decision`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/backends/hf.py`・`tools/instruments/dm_eval/backends/vllm.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`
+  - `write_outputs`(関数): ``result.json``・``table.md``・``table.json`` を書く(LF・UTF-8)。〔第 347〕呼びかけの節があれば
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/appeal.py`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/backends/hf.py`・`tools/instruments/dm_eval/backends/vllm.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`
 - 読む試験: `tests/tools/test_dm_eval.py`
 - CLI の引数
   - サブコマンド `run`
@@ -60,14 +93,14 @@ dm_eval.cli — 評価の器を 1 回通して、記録の JSON と表を書く(
   - `--no-tape-experience`: 本人の経験の代わり(テープの前の呼)を使わない
   - `--out-dir`
   - `--overwrite`
-  - `--scenes`: evalset=1-10 の 340 件(既定)・consumption=消費の場面・both=両方(out-dir の下に 2 つ)
+  - `--scenes`: evalset=1-10 の 340 件(既定)・consumption=消費の場面・both=両方(out-dir の下に 2 つ)・appeal=呼びかけの場面(第 347・both には入らない)
   - `--seed`
   - `--vllm-api-key-env`
   - `--vllm-form`
   - `--vllm-mode`: prompt_logprobs(既定)か echo(腕)
   - `--vllm-model`: (G) の基準=127.0.0.1 の艦隊のモデルの名(GPU の後)
   - `--vllm-port`
-- 決定の ID: 11-01・11-01/§11
+- 決定の ID: 11-01・11-01/§11・第 347
 
 ## [judge.py](../../../../../../../tools/instruments/dm_eval/judge.py)
 
@@ -102,7 +135,7 @@ dm_eval.judge — 候補の当て口 ``Scorer`` と採点の器(第 6 期 6-1・
   - `surprise_of`(関数): 驚きの語(DM5 の 6 語)→ 0〜5。前後の空白と句読点を除いて 6 語のどれかと同じときだけ(それ以外は None)。
   - `top1`(関数): 1 位の候補の id(同点は id の順=中身で決める)。
 - import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.mind.judge.classical`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/situations.py`
-- 呼び手: `tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/table.py`
+- 呼び手: `tools/instruments/dm_eval/appeal.py`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/table.py`
 - 読む試験: `tests/tools/test_dm_eval.py`
 - 決定の ID: 11-01・11-01/§11・R-83・R-94・R-94 §0 #2・R-108・R-125・第 323
 
@@ -140,10 +173,10 @@ dm_eval.situations — 状況の読み口(DM4)と候補の口(DM-0)(第 6 期 6-
   - `verify_tape_md5`(関数): 状況のあるテープの ``calls.parquet`` の md5 を 1-10 の ``summary.json`` の表(``md5_calls``)と照らす。
   - `word_of_output`(関数): テープの応答(2 行形)の行為の語(語彙 v1 の横断語だけ・それ以外は None)。
 - import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.mind.judge.decision.sources`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/read_guard.py`
-- 呼び手: `tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`
+- 呼び手: `tools/instruments/dm_eval/appeal.py`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/tools/test_dm_eval.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
-- 決定の ID: 11-01・11-01/§2・R-108
+- 決定の ID: 11-01・11-01/§2・R-108・第 347
 
 ## [table.py](../../../../../../../tools/instruments/dm_eval/table.py)
 
@@ -151,12 +184,12 @@ dm_eval.table — 表「人らしさ × 速さ × 1 シム日あたりの GPU �
 
 - 公開の関数とクラス
   - `blank_reason`(関数): 空の欄の印(値があれば ``None``・注の欄は空でよい=``""``)。``missing_refs`` は記録の無い基準の名。
-  - `blanks_of`(関数): 行ごとの空の欄 → 印(注の欄は除く)。
+  - `blanks_of`(関数): 行ごとの空の欄 → 印(注の欄は除く)。``columns`` の既定は ``COLUMNS``(〔第 347〕呼びかけの場面は ``COLUMNS_APPEAL`` を足す)。
   - `build_rows`(関数): 当て口ごとの結果(``cli.evaluate`` の ``scorers`` の各要素)→ 表の行。
   - `order_blind_note`(関数): 提示の並びを見ていない当て口の注(表だけを読んで位置の偏りが無いと読めないように)。
   - `to_json`(関数)
-  - `to_markdown`(関数): 表を Markdown に(空の欄は ``blank_reason`` の印)。
+  - `to_markdown`(関数): 表を Markdown に(空の欄は ``blank_reason`` の印)。``columns`` の既定は ``COLUMNS``。
 - import している内部モジュール: `tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/judge.py`
-- 呼び手: `tools/instruments/dm_eval/cli.py`
+- 呼び手: `tools/instruments/dm_eval/appeal.py`・`tools/instruments/dm_eval/cli.py`
 - 読む試験: `tests/tools/test_dm_eval.py`
-- 決定の ID: 10-12/§1-9・11-01
+- 決定の ID: 10-12/§1-9・11-01・第 347
