@@ -17,7 +17,7 @@ from shibuya.runtime.state import ledger as SL
 from shibuya.mind.plan import contact_habit as HB
 from shibuya.engine.contact import layer as LY
 from shibuya.mind.plan import contact_port as P
-from shibuya.engine.contact import tools as TL
+from shibuya.society.contact import tools as TL
 from shibuya.foundation.journal import log as EV
 from shibuya.engine.run import run_day
 from shibuya.engine.tools import record as TR

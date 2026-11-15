@@ -92,13 +92,13 @@ from shibuya.world.body.reactions import loud_sound_notice, noise_stage_at
 from shibuya.foundation.arms import contact as _ARM
 from shibuya.mind.plan import contact_attention as _AT
 from shibuya.world.things import device as _DV
-from shibuya.engine.contact import deliver as _DL
+from shibuya.society.contact import deliver as _DL
 from shibuya.mind.plan import contact_habit as _HB
 from shibuya.mind.plan import contact_port as _P
-from shibuya.engine.contact import tools as _TL
+from shibuya.society.contact import tools as _TL
 from shibuya.engine.contact.book import ContactBook
-from shibuya.engine.contact.calls import CallManager, CallSpeechPort
-from shibuya.engine.contact.chat_state import CHAT_SILENCE_STEPS, ChatBook, group_key, pair_key
+from shibuya.society.contact.calls import CallManager, CallSpeechPort
+from shibuya.society.contact.chat_state import CHAT_SILENCE_STEPS, ChatBook, group_key, pair_key
 from shibuya.society.conversation import ConvState
 from shibuya.foundation.ports.decision import SOURCE_AFFORDANCE, SOURCE_EXPERIENCE, Candidate, DecisionContext
 from shibuya.foundation.vocab import events as V

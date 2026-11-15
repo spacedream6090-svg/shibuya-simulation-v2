@@ -27,7 +27,7 @@
 | [src/shibuya/engine](src/shibuya/engine/README.md) | 15 | 0 |
 | [src/shibuya/engine/calendar2](src/shibuya/engine/calendar2/README.md) | 2 | 0 |
 | [src/shibuya/engine/calendar3](src/shibuya/engine/calendar3/README.md) | 4 | 0 |
-| [src/shibuya/engine/contact](src/shibuya/engine/contact/README.md) | 7 | 0 |
+| [src/shibuya/engine/contact](src/shibuya/engine/contact/README.md) | 3 | 0 |
 | [src/shibuya/engine/duties](src/shibuya/engine/duties/README.md) | 3 | 0 |
 | [src/shibuya/engine/events](src/shibuya/engine/events/README.md) | 2 | 0 |
 | [src/shibuya/engine/tools](src/shibuya/engine/tools/README.md) | 3 | 0 |
@@ -58,6 +58,7 @@
 | [src/shibuya/runtime/state](src/shibuya/runtime/state/README.md) | 8 | 0 |
 | [src/shibuya/runtime/systems](src/shibuya/runtime/systems/README.md) | 22 | 0 |
 | [src/shibuya/society](src/shibuya/society/README.md) | 3 | 0 |
+| [src/shibuya/society/contact](src/shibuya/society/contact/README.md) | 5 | 0 |
 | [src/shibuya/society/speech](src/shibuya/society/speech/README.md) | 3 | 0 |
 | [src/shibuya/society/tools](src/shibuya/society/tools/README.md) | 3 | 0 |
 | [src/shibuya/validation](src/shibuya/validation/README.md) | 1 | 0 |
@@ -161,7 +162,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 306 ディレクトリ・2336 本
+- [docs の索引](docs.md): 307 ディレクトリ・2338 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

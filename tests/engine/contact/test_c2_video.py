@@ -86,8 +86,8 @@ def test_percept_value_marks_the_face_without_changing_the_shape():
     assert CV.contact_lines(None, CV.DeviceView(**ring), lambda a: f"P-{a}") == ["[B6 着信] P-3からの電話が鳴っている。"]
     assert CV.contact_lines(None, CV.DeviceView(**ring, ringing_via=CV.VIA_VIDEO), lambda a: f"P-{a}") == \
         ["[B6 着信] P-3からのビデオ通話が鳴っている。"]  # 〔検収 L8〕着信の行で via を区別
-    from shibuya.engine.contact import calls as CL
-    from shibuya.engine.contact import deliver as DL
+    from shibuya.society.contact import calls as CL
+    from shibuya.society.contact import deliver as DL
     from shibuya.foundation.ports.percept import PERCEPT_SCHEMA
 
     assert PERCEPT_SCHEMA == "shibuya.perception/percept/2"  # Percept の形の版は触っていない(値は既存の欄 tool_state)

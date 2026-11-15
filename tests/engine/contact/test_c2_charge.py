@@ -11,7 +11,7 @@ import numpy as np
 
 from shibuya.foundation.time_consts import SECONDS_PER_HOUR, STEP_SECONDS
 from shibuya.foundation.decl import bridging as BR
-from shibuya.engine.contact import deliver as DL
+from shibuya.society.contact import deliver as DL
 from shibuya.world.things import device as DV
 from shibuya.mind.plan import contact_port as P
 from shibuya.engine.contact.layer import W_BATTERY, W_CHARGE, W_DELIVERED, W_UNPLUG, audit_causes

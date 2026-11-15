@@ -8,7 +8,7 @@ import pytest
 
 from shibuya.foundation.queues import batching as BA
 from shibuya.mind.plan import contact_attention as AT
-from shibuya.engine.contact import deliver as DL
+from shibuya.society.contact import deliver as DL
 from shibuya.world.things import device as DV
 from shibuya.mind.plan import contact_port as P
 from shibuya.engine.contact.layer import (

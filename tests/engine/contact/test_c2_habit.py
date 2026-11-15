@@ -18,7 +18,7 @@ from shibuya.engine.contact import book as _BOOK
 from shibuya.mind.plan import contact_habit as HB
 from shibuya.engine.contact import layer as _LAYER
 from shibuya.mind.plan import contact_port as P
-from shibuya.engine.contact import tools as _TOOLS
+from shibuya.society.contact import tools as _TOOLS
 from shibuya.engine.contact.layer import W_IGNORE, W_LATER, W_READ, audit_causes
 
 from tests.engine.contact._c1 import STEP_NS, by_kind, choose

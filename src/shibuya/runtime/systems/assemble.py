@@ -1490,7 +1490,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             phones=_tools_fx.phones,
         )
         # 〔C2〕メッセージ・ビデオ通話・充電器・店の番号を調べる・郵便・置き手紙の道具の行(腕 c1 のランの台帳だけ=既定は今のまま)
-        from shibuya.engine.contact.tools import register_into as _ct_register_tools
+        from shibuya.society.contact.tools import register_into as _ct_register_tools
 
         _ct_register_tools(_tools_fx.registry)
         if _fam_renderer is not None and hasattr(_fam_renderer, "contact_fn"):

@@ -29,6 +29,7 @@
 | runtime | 37508e6 | 35(表の行 37=move 37) | 145 | モジュール 354・落ちた 0 | 19/19 同じ・終了コード 0 | 6,787 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed | 10 kept(古い 3+新しい 7) |
 | experiments | b7ab0b9 | 9(表の行 10=move 10) | 39 | モジュール 356・落ちた 0 | 19/19 同じ・終了コード 0 | 6,787 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed | 10 kept(古い 3+新しい 7) |
 | validation | 454c55c | 6(表の行 6=move 6) | 24 | モジュール 355・落ちた 0 | 19/19 同じ・終了コード 0 | 6,787 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed | 10 kept(古い 3+新しい 7) |
+| society_contact | 124b3bb | 4(表の行 4=move 4) | 13 | モジュール 356・落ちた 0 | 19/19 同じ・終了コード 0 | 6,818 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed | 10 kept(古い 3+新しい 7) |
 
 ## foundation(2026-11-11)
 
@@ -136,3 +137,14 @@
 - 対象は 2 行(`agents/__init__.py` の再輸出を消す・`census/__init__.py` を消す)。棚卸しの表([inventory-vessels-research-heads-2026-11-09.md](../../../reference/inventory-vessels-research-heads-2026-11-09.md))の確認 1 と同じ行で、「消すのは確かめの後」としている。
 - validation の commit(1a1b584)の上に当てて確かめた所まで: 当てた後の import の落ち 0・守り 8 つ「同じ」・import の決まり(`shibuya.census` を外した形)は lint-imports 10 kept。byte-check と範囲の試験は回していない。
 - 変更は取り消した(commit していない)。ユーザーの答えの後に 1 段で当てる。試験の役の予行(git のある作業木)では、delete まで当てた木の範囲の試験は 6,786 passed・1 failed(前からの 1 本)だった([prep4-346 §13](../prep4-346/README.md))。
+
+## society_contact(2026-11-16)
+
+- 当てた行 4(move 4)。ファイルの移動 4・新しい頭 1・空にした頭 0・消えた古いディレクトリやファイル 0・保留で当てなかった行 0。
+- import の文: src 5・build 0・tests 12・tools 0・docs の記録の道具 0。道の文字列 2 か所(src の表 4)。
+- 頭から除いた再輸出: 無し。`class_ids.py` の鍵 4 本。つなぎの台帳の道の表に 4 行。pyproject の package-data の鍵: 変えていない。
+- 守り 8 つは全部「同じ」。当てた後の import の確かめ=モジュール 356・落ちた 0。
+- import の決まり(`contracts --stage society_contact --apply`): 古い決まり 3+新しい決まり 7=lint-imports 10 kept。ignore 43 行。まだ移っていない読み手で読んでよい側に足したもの: 決まり 5: `cli`。どの決まりの元の側にも入らないモジュール: `cli`・`world.assets`。報告 [society_contact/contracts_society_contact.json](society_contact/contracts_society_contact.json)。
+- byte-check: 基準 124b3bb の写しと作業木の src で 19 構成・37 欄すべて同じ・動いた 0・誤り 0(終了コード 0)。既定の final `c8d68704b7b0760d`・呼数 60,939。JSON は [society_contact/bytecheck/](society_contact/bytecheck/)。
+- 性能の参考(既定 w6_v3_default・5,000 体・seed 1・1 日・mock・同じ機械): 壁時計 基準 62.7 秒/後 54.9 秒(19 構成を 6 本並列+裏で範囲の試験を 4 並列。比べない参考値・最大メモリは測っていない)。
+- 範囲の試験: 6,818 passed・1 failed(前からの 1 本)・4 skipped・1 xfailed(36 分 28 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木だけで落ちる)。道具の報告は [society_contact/pkgmove_society_contact_report.json](society_contact/pkgmove_society_contact_report.json)。

@@ -1646,7 +1646,7 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "contact": ("engine/contact/layer.py", "ContactLayer"),
     "contact.dev": ("world/things/device.py", "Devices"),
     "contact.attn": ("mind/plan/contact_attention.py", "Attention"),
-    "contact.mail": ("engine/contact/deliver.py", "Mailbox"),
+    "contact.mail": ("society/contact/deliver.py", "Mailbox"),
     "contact.chats": ("society/conversation.py", "ConversationManager"),
     "contact.calls": ("society/conversation.py", "ConversationManager"),
     "contact.speech": ("society/speech/port.py", "SpeechPort"),
@@ -1677,9 +1677,9 @@ OWNER_ALT_CLASSES: Final[dict[str, tuple[tuple[str, str], ...]]] = {
     # 〔第 6 期 6-5・検収 M4〕人も記憶の一つの腕の店の評価の記憶=StoreMemory の子クラス(行の口だけ差し替える)
     "mem_layer.store": (("mind/memory/memory_shops.py", "UncappedStoreMemory"),),
     # 〔第 6 期 6-4 C1〕電話の会話と通話の発話の口=対面の会話と発話の口の子クラス(腕の名だけ足す)
-    "contact.calls": (("engine/contact/calls.py", "CallManager"),),
-    "contact.chats": (("engine/contact/chat_state.py", "ChatBook"),),
-    "contact.speech": (("engine/contact/calls.py", "CallSpeechPort"),),
+    "contact.calls": (("society/contact/calls.py", "CallManager"),),
+    "contact.chats": (("society/contact/chat_state.py", "ChatBook"),),
+    "contact.speech": (("society/contact/calls.py", "CallSpeechPort"),),
 }
 
 CACHE: Final[str] = "cache"

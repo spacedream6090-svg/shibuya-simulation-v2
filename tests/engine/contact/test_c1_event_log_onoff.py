@@ -16,7 +16,7 @@ import pytest
 
 from shibuya.engine.contact import layer as LY
 from shibuya.mind.plan import contact_port as P
-from shibuya.engine.contact.calls import CallSpeechPort
+from shibuya.society.contact.calls import CallSpeechPort
 from shibuya.engine.contact.layer import W_DELIVERED, W_READ, W_SENT
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.journal.log import EventLog, LlmCall

@@ -21,9 +21,9 @@ import pytest
 from shibuya.agents.state import Activity
 from shibuya.mind.plan import contact_attention as AT
 from shibuya.engine.contact import book as _BOOK
-from shibuya.engine.contact import calls as _CALLS
-from shibuya.engine.contact import chat_state as _CHAT
-from shibuya.engine.contact import deliver as _DELIVER
+from shibuya.society.contact import calls as _CALLS
+from shibuya.society.contact import chat_state as _CHAT
+from shibuya.society.contact import deliver as _DELIVER
 from shibuya.world.things import device as _DEVICE
 from shibuya.engine.contact import layer as LY
 from shibuya.mind.plan import contact_port as P

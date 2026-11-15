@@ -34,7 +34,7 @@ engine.speech.port — 発話の口(第 1 期 1-8b・Q57 (d)・10-03 §6 ⑤・1
   - `Utterance`(クラス): 発話 1 つ(口が出来事ログに書く前の形=``event_id`` は ``None``・口が付ける)。``mora`` は本文から数える。
   - `mora_count`(関数): 本文のモーラ数(TM3 の入力=発言の長さ=モーラ数 × 話す速さ)。
 - import している内部モジュール: `shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`・`shibuya.foundation.vocab.events`・`shibuya.society.conversation`
-- 呼び手: `shibuya.engine.contact.calls`・`shibuya.engine.contact.layer`・`shibuya.runtime.clocks.speech`・`shibuya.society.speech.layer`
+- 呼び手: `shibuya.engine.contact.layer`・`shibuya.runtime.clocks.speech`・`shibuya.society.contact.calls`・`shibuya.society.speech.layer`
 - 読む試験: `tests/engine/clock/test_tm2_talk_clock.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/speech/test_s8_event_log_onoff.py`・`tests/engine/speech/test_speech_arm_rows_resume.py`・`tests/engine/speech/test_speech_empty_text_errors.py`・`tests/engine/speech/test_speech_modality_field_empty.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/speech/test_speech_port_schema.py`
 - 読む試験(道筋で): `tests/engine/speech/test_speech_writers_ast.py`
 - 状態台帳の行

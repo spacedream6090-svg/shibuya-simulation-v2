@@ -88,6 +88,6 @@ perception.contact_view — 連絡の道具 C1 の知覚の事実の値(目と�
   - `DeviceView`(クラス): 道具の状態と通知(``Percept.tool_state`` の値=腕 c1 のランだけ)。返すのは現実の道具が知り得ることだけ(CT0 の 4)。
   - `contact_lines`(関数): B6 の末尾に足す行(通話 → 着信 → 通知 → 未読 → 割り込めなかった出来事の順)。
   - `people_hint_word`(関数): 人の気配の数 → 粗い語(周辺視=数えない)。
-- 呼び手: `shibuya.engine.contact.calls`・`shibuya.engine.contact.deliver`・`shibuya.engine.contact.layer`・`shibuya.mind.plan.contact_attention`・`shibuya.perception.renderer`
+- 呼び手: `shibuya.engine.contact.layer`・`shibuya.mind.plan.contact_attention`・`shibuya.perception.renderer`・`shibuya.society.contact.calls`・`shibuya.society.contact.deliver`
 - 読む試験: `tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c1_world.py`・`tests/engine/contact/test_c2_video.py`
 - 決定の ID: 10-12/§4-4
