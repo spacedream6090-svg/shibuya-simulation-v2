@@ -26,6 +26,7 @@
 | 整理 | コードの区分の移動 段 4-7=runtime へ 35 本(#146・第346・1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 160.9 秒/後 71.2 秒(6 本並列+裏で範囲の試験。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | b7ab0b9 | `stable-v2-before-move4-runtime`(37508e6) | `git checkout stable-v2-before-move4-runtime` |
 | 整理 | コードの区分の移動 段 4-8=experiments へ 9 本(#146・第346・1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 84.2 秒/後 79.5 秒(6 本並列+裏で範囲の試験。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | 454c55c | `stable-v2-before-move4-experiments`(b7ab0b9) | `git checkout stable-v2-before-move4-experiments` |
 | 整理 | コードの区分の移動 段 4-9=validation へ 6 本(#146・第346・1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 63.6 秒/後 55.1 秒(6 本並列+裏で範囲の試験。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | 1a1b584 | `stable-v2-before-move4-validation`(454c55c) | `git checkout stable-v2-before-move4-validation` |
+| 文書 | CLAUDE.md §3 の DT 定義の文に「外からの入力(天気・運行の乱れ・催し)」を足した(第347・2026-11-16・[返事その 8](../design/prompt-2026-11-16-reply8.md) §2・壁打ちの記録 2-56)。コードもランも変わらない(src に触れていない) | 第347 の受領の commit | なし(文書だけ) | 旧文は [改訂記録](../design/v2-requirements-revision-log.md) ㉑ |
 
 ## 版上げと整理の段の手順(byte-check)
 
