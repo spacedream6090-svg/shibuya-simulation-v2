@@ -558,6 +558,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_contracts_toml_matches_the_plan_tables`(関数): 元のファイルの層は計画 §1-2 の図、28 本は §6-4 の表と同じ(写しの誤りを止める)。決まりは 1〜8。
   - `test_done_stages_are_not_applied_again`(関数): 〔段 4 の残り〕済んだ段(当てる行の残らない段)をまとめて当て直す計画は、行 0・書き換え 0・移動 0(済んだ段を壊さない)。
   - `test_dry_run_writes_nothing`(関数)
+  - `test_effective_ignores_count_only_the_lines_that_stop_a_violation_in_a_sample`(関数): 〔検収 中-1・作った見本の包み〕効いている例外=外すとその契約が broken になる行。何も止めていない例外(層の外のモジュール
   - `test_every_rewritten_path_chain_points_to_a_file_in_the_applied_tree`(関数): 〔突然変異 m28〕``/`` の結合を書き換えた所は、全部、当てた木で在るファイルを指す(書き換えなければ古い道=当てた木に無い
   - `test_frozen_guard_stops_when_a_frozen_value_is_already_different`(関数)
   - `test_frozen_values_are_kept_by_the_staged_plan`(関数)
@@ -602,7 +603,8 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_record_tools_list_matches_the_scan_of_tests`(関数): (a) の範囲に足す docs の記録の道具の一覧は、tests が道で読む docs の ``.py`` の走査と同じ。
   - `test_rule_5_adds_only_late_readers_whose_final_place_may_read_in_a_sample`(関数): 〔検収 M-2・k10・k11〕決まり 5 の読んでよい側に足すのは、まだ移っていない読み手のうち、最終の置き場が読んでよい側
   - `test_section_6_6_rules_come_in_at_their_stages_in_a_sample`(関数): 〔段 4 の残り・作った見本の木〕§6-6 の決まりは入れる段から: 一時の区分の読み手の決まり(9)は interim_bundles の段から
-  - `test_skipping_interim_bundles_then_applying_it_keeps_the_guards`(関数): 〔親の決定 12〕interim_bundles を飛ばして後の段を当て、最後に interim_bundles を当てても守りが通り、残る段をまとめて
+  - `test_skipped_or_reversed_stages_are_refused_in_a_sample`(関数): 〔検収 中-2・作った見本の木〕段を飛ばす・逆の順の計画は断る(``Refused``=CLI の終了コード 2)。次の段から順にまとめる計画と、
+  - `test_skipping_the_next_stage_is_refused`(関数): 〔検収 中-2〕本物の木で、次に当てる段を飛ばす計画は断る(書かない実行でも・CLI は終了コード 2)。次の段から順に
   - `test_split_import_keeps_the_comments_of_its_names`(関数): 〔突然変異 m13・L-9〕行き先が 2 つに分かれる文を作り直すとき、名の行の注・名の前の注だけの行・頭の行の注を残す。
   - `test_stacked_apply_prunes_old_package_dirs_and_returns_3_when_imports_fail`(関数): 〔検収 L-a・n07〕同じ木に段を重ねて当てる形: 前の import が作った ``__pycache__`` を全部のディレクトリに置いた木へ、次の
   - `test_staged_plan_refuses_the_held_rows_and_leaves_them`(関数)

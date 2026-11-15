@@ -15,7 +15,9 @@
   runtime と interfaces だけ=interim_bundles の段から・runtime の核は中身を読まない=delete の段から)。§6-6 の表の辺は
   ``[[ignore_66]]``(28 本と同じ扱い=その段の木の今の名に引き直し、両側と辺が在る物だけを載せる)。
 - 報告に例外(ignore)の数を出す: 延べの行(``ignore_lines``)・重なりを除いた辺(``ignore_unique``)・重なりを除いた辺の
-  「消える段」ごとの数(``ignore_gone_at``)。
+  「消える段」ごとの数(``ignore_gone_at``)。〔検収 中-1〕載せる条件は「両側と辺が在る」だけなので、何も止めていない例外も
+  載る(一覧は計画の 28 本と「消える段」の注を保つために変えない)。``cli.py contracts --out``(か ``--probe``)は、効いている
+  例外(外すと契約が broken になる行と辺)の数を ``ignore_effective`` に足す(:func:`effective_ignores`)。
 """
 from __future__ import annotations
 
@@ -274,22 +276,54 @@ def build(spec: Spec, mapdoc: MapDoc, tree: Tree, stage: str) -> tuple[list[dict
     return contracts, rep
 
 
-def ignore_counts(contracts: list[dict], rep: dict) -> dict:
-    """例外(ignore)の数(返事その 8 §1-12 の 3): 延べの行・重なりを除いた辺・重なりを除いた辺の「消える段」ごとの数。
-    消える段は、辺を載せた元の行(計画 §6-4 の 28 本・§6-6 の表・表の外の辺)の注から引く(1 つの辺に違う注があれば ``・`` で
-    つなぐ)。"""
-    lines = [x for c in contracts for x in c.get("ignore_imports", [])]
-    uniq = sorted(set(lines))
+def _gone_by_edge(rep: dict) -> dict[str, set[str]]:
     gone: dict[str, set[str]] = {}
     for row in [*rep.get("ignores", []), *rep.get("ignores_66", []), *rep.get("extra_ignores", [])]:
         if row.get("skipped"):
             continue
         gone.setdefault(f"{row['importer']} -> {row['imported']}", set()).add(row.get("gone_at") or "(注なし)")
+    return gone
+
+
+def _count_gone(edges, gone: dict[str, set[str]]) -> dict[str, int]:
     by: dict[str, int] = {}
-    for e in uniq:
+    for e in edges:
         g = "・".join(sorted(gone.get(e, {"(注なし)"})))
         by[g] = by.get(g, 0) + 1
-    return {"ignore_lines": len(lines), "ignore_unique": len(uniq), "ignore_gone_at": dict(sorted(by.items()))}
+    return dict(sorted(by.items()))
+
+
+def ignore_counts(contracts: list[dict], rep: dict) -> dict:
+    """例外(ignore)の数(返事その 8 §1-12 の 3): 延べの行・重なりを除いた辺・重なりを除いた辺の「消える段」ごとの数。
+    消える段は、辺を載せた元の行(計画 §6-4 の 28 本・§6-6 の表・表の外の辺)の注から引く(1 つの辺に違う注があれば ``・`` で
+    つなぐ)。載せる条件は「両側が木に在り辺が在る」だけなので、何も止めていない例外も数に入る(効いている数は
+    :func:`effective_ignores`)。"""
+    lines = [x for c in contracts for x in c.get("ignore_imports", [])]
+    uniq = sorted(set(lines))
+    return {"ignore_lines": len(lines), "ignore_unique": len(uniq), "ignore_gone_at": _count_gone(uniq, _gone_by_edge(rep))}
+
+
+def effective_ignores(root: Path, spec: Spec, contracts: list[dict], rep: dict) -> dict:
+    """〔検収 中-1〕効いている例外の数: 例外の行を 1 本ずつ外すと、その契約が broken になる行(延べ)と、どれかの契約で効く辺
+    (重なりを除く)・消える段ごとの数。木を変えずに、子のプロセスでメモリの中で回す(:mod:`pkgmove.ignoreprobe`)。"""
+    import json
+    import os
+    import subprocess
+    import sys
+
+    payload = {"root_package": spec.root, "session": {"include_external_packages": False}, "contracts": contracts}
+    env = {k: v for k, v in os.environ.items() if k.upper() != "PYTHONPATH"}
+    env.update(PYTHONDONTWRITEBYTECODE="1", PYTHONIOENCODING="utf-8")
+    r = subprocess.run([sys.executable, str(Path(__file__).with_name("ignoreprobe.py")), str(root), "-"],
+                       input=json.dumps(payload, ensure_ascii=False).encode("utf-8"), capture_output=True, env=env)
+    if r.returncode != 0:
+        raise ContractsError("効いている例外の確かめが落ちた: " + r.stderr.decode("utf-8", "replace")[-800:])
+    out = json.loads(r.stdout.decode("utf-8"))
+    eff = sorted({d["edge"] for d in out["detail"] if d["effective"]})
+    return {"lines": out["effective_lines"], "unique": out["effective_unique"],
+            "gone_at": _count_gone(eff, _gone_by_edge(rep)), "not_effective": out["not_effective"],
+            "base_kept": out["base_kept"], "broken": out["broken"], "jointly_kept": out["jointly_kept"],
+            "detail": out["detail"]}
 
 
 def uncovered(contracts: list[dict], v: TreeView, root: str) -> list[str]:

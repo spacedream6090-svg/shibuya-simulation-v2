@@ -4,7 +4,7 @@
 # held がある行は保留(道具は動かさない)。stage は段 4 の小さな段(答えの後に移す行は、その包みと別の段の名)。
 schema = "shibuya.tools/pkgmove/map/1"
 source = "docs/reference/package-map-final-2026-11-09-files.md"
-source_sha256 = "b20f2bb4e1cf0fd7302b40fea8297798eb729f321807b91424b25c4a7192941d"
+source_sha256 = "7c702400ea4035f8c1118acd3e5840c05547c6687da67661db6d7014abbccc84"
 stages = ["foundation", "world", "economy", "act", "mind", "society", "runtime", "experiments", "validation", "society_contact", "interim_bundles", "foundation_224a", "delete"]
 
 [[row]]

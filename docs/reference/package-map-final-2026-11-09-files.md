@@ -16,7 +16,7 @@
 - 行は 324 本(`.py` 323 本と JSON 1 本)。割るもの 24 本。消すもの 2 本。build は置き場を変えない 79 本。
 - 〔移す段 1・段 2 で足した〕第346 で足された `engine/removed_switches.py` の行 224a と、移す段で足したファイル `engine/class_ids.py`(143a)・`core/paths.py`(91a)の行を足した(行は 327 本)。上と本文 §2 の数には入れていない。
 - 〔移す段 3 の続きで足した〕つなぎの台帳の道の対応の表 `engine/bridging/ledger_paths.py`(125a)の行を足した(行は 328 本)。上と本文 §2 の数には入れていない。
-- 〔段 4 の残り・11-16 の答え=[返事その 8](../design/prompt-2026-11-16-reply8.md) §1-6〕行 151〜153・158(連絡の器 4 本)の置き場を `society/contact/` に直した(元の列は 11-16)。行 224a・225・234 の保留の文を決着の文に替えた。上と本文 §2 の数(元の内訳・包みごとの数=society 11・interim_bundles 17)は直していない(今は society 15・interim_bundles 13)。
+- 〔段 4 の残り・11-16 の答え=[返事その 8](../design/prompt-2026-11-16-reply8.md) §1-6〕行 151〜153・158(連絡の器 4 本)の置き場を `society/contact/` に直した(元の列は 11-16)。行 224a・225・234 の保留の文を決着の文に替えた。上と本文 §2 の数(元の内訳・包みごとの数=society 11・interim_bundles 17)は直していない(今は society 15・interim_bundles 13)。今の元の内訳(328 行)は K 298・11-09 14・11-16 4・F 6・照らし合わせ 2・移す段 1 が 2(143a・224a)・移す段 2 が 1(91a)・移す段 3 が 1(125a)。
 - 元の内訳: K 298 本・11-09 18 本・F 6 本・照らし合わせ 2 本。
 - 照らし合わせの区分の内訳: 同じ 265 本・(ii) 41 本・(iii) 16 本・(i) 2 本。
 - 包みごとの数は本文 §2 にあります。
@@ -262,7 +262,7 @@
 | 231 | `engine/rng_audit.py` | validation | `validation/static/rng_audit.py` | いいえ | 乱数の検査(試験だけ)。K19 の検査=乱数の流れのブロックの重なり | K | 同じ |
 | 232 | `engine/rules/__init__.py` | world | `world/facts/rules/__init__.py`(空にする) | いいえ | 包みの頭。再輸出は消す(呼び手は新しい置き場を直に読む)。問い 7 の決着=world の事実の側 | K | (iii) 問い 7 |
 | 233 | `engine/rules/table.py` | world | `world/facts/rules/table.py` | いいえ | 現実の法と制度の値=事実。経済も読む。問い 7 の決着=world の事実の側 | K | (iii) 問い 7 |
-| 234 | `engine/run.py` | runtime | `runtime/result.py` 1227・`runtime/run.py` 987・`interfaces/cli/run_args.py` 193 | 割る(§4-15) | ランの結果と入口と CLI の補助。割る。〔11-16 の決着=返事その 8 §1-6 の 6〕`python -m shibuya.engine.run` の入口(`main`)は interfaces へ移す=割り先 `interfaces/cli/run_args.py`(割る段 5b。段 4 では動かさない) | K | 同じ |
+| 234 | `engine/run.py` | runtime | `runtime/result.py` 1227・`runtime/run.py` 987・`interfaces/cli/run_args.py` 193 | 割る(§4-15) | ランの結果と入口と CLI の補助。割る。〔11-16 の決着=返事その 8 §1-6 の 6〕`python -m shibuya.engine.run` の入口(`main`)は interfaces へ移す=割り先 `interfaces/cli/run_args.py`(割る段 5b。段 4 では動かさない)。答えの条件: 先に `tests/c7/test_accept_table.py` が封印の層の一覧に入っていないかを名前で確かめ、入っていれば開かずに旧い入口を 1 行の転送として残し、例外として記録する。親が名前で確かめた結果=封印の語の表 2 つのどちらにも当たらない・CLAUDE.md §7 の一覧にも無い → 割る段 5b で入口を interfaces へ移し、試験の文字列を直す | K | 同じ |
 | 235 | `engine/run_kind.py` | experiments | `experiments/port/run_kind.py` | いいえ | ランの種類の決まり。ランの種類(再現・反実仮想・腕・試験)を決めて manifest へ | K | 同じ |
 | 236 | `engine/scheduler.py` | foundation | `foundation/queues/scheduler.py` | いいえ | 汎用の予約の列。体の層と runtime が読む | K | (ii) |
 | 237 | `engine/seat_release.py` | world | `world/laws/switch_seat.py` | いいえ | 在席の解き方の切替口。在席の印を歩き出しで解く切替口(既定 walk) | K | 同じ |
@@ -463,7 +463,7 @@
 | `act/ops/rail.py` | 379 | なし | `_platform_table`、`_enter_board_queue`、`_apply_board`、`_serve_board_queue`、`_plan_exit_mask`、`_board_riders`、`_apply_alight`、`place_at_external`、`rail_arrive`、`rail_depart`、`sync_transit_activity` | `BOARD_WAIT_LIMIT_TICKS` |
 | `act/ops/move.py` | 322 | なし | `_is_nav`、`_nav_stop`、`_nav_step`、`_nav_positions`、`nav_place`、`_apply_engine_step`、`_settle_approach`、`_apply_move`、`_approach_dest_node`、`_cell_of_node` | `APPROACH_DONE_M` |
 | `act/ops/plan_writes.py` | 309 | なし | `set_plan_state`、`begin_planned_sleep`、`wake_from_plan`、`begin_exit_walk`、`begin_walk_to`、`clear_board_intent` | なし |
-| `mind/ops.py` | 208 | なし | `wake_condition_index`、`refractory_ticks`、`normalized_refractory_scale`、`set_refractory`、`clear_refractory`、`write_familiarity`、`write_memory`、`write_store_memory`、`write_relations` | なし |
+| `mind/ops.py` | 208 | なし | `wake_condition_index`、`refractory_ticks`、`normalized_refractory_scale`、`set_refractory`、`clear_refractory`、`write_familiarity`、`write_memory`、`write_store_memory`、`write_relations`、〔11-16 §1-6 の 2〕`apply_detection` の心の欄(内受容の段の列)を書く半分(段 6 で割る・関数の名は割る段で決める) | なし |
 | `act/ops/law_writes.py` | 197 | なし | `restock`、`discard_to_bin`、`consume`、`collect_waste`、`set_thermal`、`set_notice_state`、`set_open_flags`、`request_open_close` | なし |
 | `act/ops/body_writes.py` | 158 | なし | `advance_body`、`initialize_energy`、`_tick_minute`、`_energy_meal`、`_energy_snack`、`energy_out_of_area_meal`、`energy_home_meal` | なし |
 | `act/gate.py` | 154 | `ResolveOutcome` | `_ok`、`_fail`、`ResolveOutcome.add_result` | なし |
@@ -473,7 +473,7 @@
 | `act/ops/focus.py` | 94 | なし | `_focus_xy`、`_clear_focus`、`_set_focus`、`_advance_focus` | `FOCUS_TTL_TICKS`、`FOCUS_ACQUIRE_M`、`FOCUS_LOSE_M` |
 | `act/ops/init_writes.py` | 82 | なし | `initialize`、`set_initial_activity` | なし |
 | `foundation/write_guard.py` | 33 | なし | `_require_thawed` | なし |
-| `act/ops/detect_writes.py` | 10 | なし | `apply_detection` | なし |
+| `act/ops/detect_writes.py` | 10 | なし | `apply_detection`(〔11-16 §1-6 の 2〕段 6 で 2 つに割り、ここは世界の列 `cells.b4_hash` を書く半分) | なし |
 | `foundation/vocab/act_codes.py` | 3 | なし | なし | `TALK_OPEN_METERS`、`TALK_LEAVE_METERS`、`EXIT_WALK_FLAG` |
 | `foundation/vocab/agent_codes.py` | 2 | なし | なし | `_REFRACTORY_TICKS`、`_REFRACTORY_TICKS` |
 

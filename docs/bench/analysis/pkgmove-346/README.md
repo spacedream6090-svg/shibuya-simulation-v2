@@ -795,23 +795,27 @@ CI の ci-0 は `lint-imports` を毎回 push で回す。今の 5 つの決ま�
   中身の包みの単位 13。**直の辺だけを見る**(`allow_indirect_imports`。計画は核から中身を読む辺を直の辺で数えた)。§6-6 の表の辺は
   `[[ignore_66]]`(核 1 `runtime.clocks.speech -> society.speech.port`=mora_count・割る段で foundation の文の道具へ・核 2
   `runtime.clocks.step_scope -> engine.change_detect`=段 5a・核 3 は段 2 で消えた=載らない)。
-  - 間接の連なりも見る形(既定)では 1 つ壊れる: 核の `runtime.systems.conductor` が核の外の `assemble`・`probe`・`table`・`day` を読み、
-    `day` が `state_io` を読む連なりで中身へ届く。保つには核の外の runtime への辺 4 本(conductor → assemble・probe・table、day →
-    state_io)を例外にすることになるので、入れていない。
+  - 間接の連なりも見る形(既定)では 1 つ壊れる: 核の `runtime.systems.conductor` が核の外の `assemble`・`probe`・`table` を読み、
+    核の `runtime.systems.day` が核の外の `state_io` を読む連なりで中身へ届く(〔検収 低-2 で直した〕前は `day` を核の外と書いていた)。
+    保つには核の外の runtime への辺 4 本(conductor → assemble・probe・table、day → state_io)を例外にすることになるので、入れていない。
 - 報告と要約に例外の数(延べ `ignore_lines`・重なりを除いた `ignore_unique`・消える段ごとの `ignore_gone_at`)。表の外の辺 1 本に
   `gone_at = "段 5a"` を足した。
 - 段 4 の終わりでも入らない決まり: 決まり 4(`act.apply`・`act.ops` は resolve を割る段 6 の後)と、単位 interfaces(`cli.py` を割る段 5b の後)。
 
-**例外の数**(重なりを除いた辺 / 延べの行)
+**例外の数**(重なりを除いた辺 / 延べの行。〔検収 中-1〕「効いている」=その行を外すとその契約が broken になる行と、どれかの契約で
+効く辺。§13-5)
 
-| 段 | 重なりを除く | 延べ | 消える段ごと(重なりを除いた辺) |
-|---|---:|---:|---|
-| world・economy・act | 22 | 22 | 5a 10・5b 2・6 8・残る 2 |
-| mind 〜 validation・society_contact・interim_bundles・foundation_224a | 29 | 41(mind)・43 | 5a 12・5b 2・6 8・7 2・残る 4・注釈だけ 1 |
-| delete(段 4 の終わり) | 31 | 45 | 5a 13・5b 2・6 8・7 2・残る 4・注釈だけ 1・割る段(mora_count)1 |
+| 段 | 載せた 重なりを除く / 延べ | 消える段ごと(載せた・重なりを除く) | 効いている 重なりを除く / 延べ | 消える段ごと(効いている) |
+|---|---|---|---|---|
+| world・economy・act | 22 / 22 | 5a 10・5b 2・6 8・残る 2 | 未計測(木が無い) | — |
+| mind・society・runtime・experiments | 29 / 41(mind)・43 | 5a 12・5b 2・6 8・7 2・残る 4・注釈だけ 1 | 未計測(木が無い) | — |
+| validation | 29 / 43 | 同上 | **17 / 27** | 5a 4・5b 2・6 7・7 1・残る 3 |
+| society_contact・interim_bundles・foundation_224a | 29 / 43 | 同上 | 未計測(この役の手元に木が無い・§13-5) | — |
+| delete(段 4 の終わり) | 31 / 45 | 5a 13・5b 2・6 8・7 2・残る 4・注釈だけ 1・割る段(mora_count)1 | **18 / 28** | 5a 4・5b 2・6 7・7 1・残る 3・割る段(mora_count)1 |
 
-済んだ段の数は記録 move4-346 の `contracts_<段>.json` の節から数えた。割る段で消える見込み(段 4 の終わりの 31 本から): 5a で 13・
-5b で 2・6 で 8・7 で 2・mora_count の割る段で 1。残る 4 本(例外 T4・T5・T7・T8)と注釈だけ 1 本は段 8 の題。
+済んだ段の載せた数は記録 move4-346 の `contracts_<段>.json` の節から数えた。割る段で消える見込み(段 4 の終わりの載せた 31 本から):
+5a で 13・5b で 2・6 で 8・7 で 2・mora_count の割る段で 1。残る 4 本(例外 T4・T5・T7・T8)と注釈だけ 1 本は段 8 の題。効いている
+18 本では 5a 4・5b 2・6 7・7 1・mora 1・残る 3。
 
 ### 13-4 予行(linked の git の作業木・同じ木に 4 段を順に当てた)
 
@@ -833,3 +837,36 @@ CI の ci-0 は `lint-imports` を毎回 push で回す。今の 5 つの決ま�
 - 範囲の試験(4 段を当てた木・`tests/c7` を除く・`-m "not gpu and not slow" -n 4 --dist loadfile`): **6,776 passed・1 failed・20 skipped・1 xfailed**(37 分 19 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木の data のつなぎ)。飛ばした 20 本は `test_pkgmove.py` 19 本(当てる段が無い木・理由つき)と前からの Ruri の重み 1 本。「git が無い」「commit が無い」は 0。validation の記録(6,787 passed・4 skipped)との差は、足した試験 5 本と、全段を当てた木で `test_pkgmove.py` が飛ばす分。
 - 試験の直し: `test_negative_changing_the_names_bound_by_imports_is_stopped_in_a_plan` は「次に当てる段に動かすファイルがある」を前提にしていて、delete の段だけが残る木(foundation_224a の後)で StopIteration で落ちた。動かすファイルのある最初の段を選び、無ければ理由つきで飛ばす形に直した(段の順を変えて初めて出る木)。
 - 突然変異(移す前の木で 1 本ずつ・元に戻した): 段の名を包みの名に戻す・`from_stage` を見ない・重なりを除かない・`allow_indirect_imports` を落とす・決まり 9 にまだ移っていない読み手を足さない、の 5 本とも足した試験が落ちる。
+
+### 13-5 検収(条件つき受入・高 0・中 3・低 6)の後の直し(親の裁定 2026-11-16)
+
+直した場所は本体の作業木(段を当てている `stage/int` の木の道具は変えていない=親が写す)。
+
+| 指摘 | 直し | 試験 |
+|---|---|---|
+| 中-1 例外の数に何も止めていない例外が混ざる | 一覧は変えない(計画の 28 本と「消える段」の注を保つ)。`contracts --out`(か `--probe`)が、例外の行を 1 本ずつ外してその契約を回し、効いている行(延べ)と辺(重なりを除く)・消える段ごとの数・効いていない辺の一覧・まとめて外しても kept か、を報告の `ignore_effective` に出す(新しい `tools/pkgmove/ignoreprobe.py`=grimp と import-linter の契約のクラスを子のプロセスでメモリの中で回す。木もキャッシュも書かない) | `test_effective_ignores_count_only_the_lines_that_stop_a_violation_in_a_sample`(作った見本の包み) |
+| 中-2 段を飛ばす・逆の順を move が止めない | `move.check_order`: 当てる行の段が、木の段(`move.tree_stage`=`contracts.stage_of` と同じ見分け)の次の段から順でなければ断る(`Refused`=終了コード 2・「段の順が違う」)。木の段が分からない木(飛ばして当てた木)も断る。書かない実行でも断る。済んだ段の名(行 0)と、次の段から順の 2 段以上は通す | `test_skipped_or_reversed_stages_are_refused_in_a_sample`(見本の木で飛ばす・2 つ先まで・逆・飛ばした木)・`test_skipping_the_next_stage_is_refused`(本物の木・CLI の終了コード 2)。`test_pyproject_section_is_the_one_made_for_the_tree_stage` は本物の木の段が分からなければ落とす(前は飛ばした) |
+| 中-3 決まり 10 は直の辺だけ | 契約の名を「§6-6 の 2 runtime の核は中身を読まない(直の辺だけ)」にした(delete の段の節から)。間接の辺(conductor → assemble・probe・table → …・day → state_io → …)は見ないことと理由を `contracts.toml`・README に書いた。間接も見る形にするかは核の範囲の問い(親がユーザーへ) | 名の文の試験 |
+| 低-1 節が前の段と同じ段で見出しの段の名が古い | 今のまま(節の中身が同じなら pyproject を書かない)。README にその決まりを書いた | — |
+| 低-2 記録の `day` の書き方 | §13-3 を直した | — |
+| 低-3 行 234 に答えの条件が無い | 全ファイルの表の行 234 に答え §1-6 の 6 の条件と、親が名前で確かめた結果(封印の語の表 2 つのどちらにも当たらない・CLAUDE.md §7 の一覧にも無い → 割る段 5b で入口を interfaces へ移し試験の文字列を直す)を書いた | `map --check` |
+| 低-4 §4-14 に (b) の半分が無い | 付属の表 §4-14 の `act/ops/detect_writes.py` と `mind/ops.py` の行に、`apply_detection` を段 6 で 2 つに割った半分ずつ(世界の列 `cells.b4_hash`・心の欄=内受容の段の列)を書いた(行数は直していない) | `map --check` |
+| 低-5 元の今の内訳 | 表の §2 の注に今の内訳(K 298・11-09 14・11-16 4・F 6・照らし合わせ 2・移す段 1 が 2・2 が 1・3 が 1)を書いた。計画の本文 `package-map-final-2026-11-09.md` の §1-1・§6-6・§8-1 の注は、この役の範囲の外(親へ) | — |
+| 低-6 決まり 9 のまだ移っていない読み手の見本が cli 1 本だけ | 見本の木に、最終の置き場が runtime の割る行(`engine/run.py`)と mind の割る行(`engine/r.py`=一時の区分を読む)を足した。読んでよい側に入るのは前者だけ | `test_section_6_6_rules_come_in_at_their_stages_in_a_sample` |
+
+- 段の順の確かめを足したので、〔親の決定 12〕の「interim_bundles を飛ばして後の段を当て、最後に interim_bundles を当てても同じ」試験
+  (`test_skipping_interim_bundles_then_applying_it_keeps_the_guards`)は、今は断る側の形になった=`test_skipping_the_next_stage_is_refused`
+  に置き換えた(段の順は当てた順に決めた=§13-2)。
+- 効いている数を測った木: 本体の作業木(validation の段の木)と予行の木(delete の段の木・読むだけ)。society_contact・interim_bundles・
+  foundation_224a の段の木と world〜experiments の段の木は手元に無い(親が段を当てている木と、段ごとの木を作らない決まり)。段の木で
+  `python tools/pkgmove/cli.py contracts --stage <段> --tree <木> --check --probe` を回せば出る。どちらの木でも、効いていない行を全部
+  まとめて外しても全契約が kept(1 本ずつでは見えない例外は無い)。
+- 効いていない辺(validation で 12・delete で 13): 片側が割るファイルの古い置き場(`engine.change_detect`・`engine.calendar`・
+  `engine.tools.registry`・`llm.mock` ほか)=新しい決まりの単位の外の辺と、決まり 10 の核 2(`runtime.clocks.step_scope ->
+  engine.change_detect`=古い置き場は禁じる側の単位の外)。
+- 試験: `tests/tools/test_pkgmove.py` は 65 本 → 67 本(`test_skipping_interim_bundles_then_applying_it_keeps_the_guards` を置き換え、
+  見本の試験 2 本を足した)。本体の作業木(validation の段の木・`-n` なし)で **64 passed・3 skipped**(理由つき)。直した試験は
+  ほかに 2 本: `test_negative_an_emptied_head_with_a_definition_is_stopped`(頭のある段の前の段から順に当てる計画にした=段を飛ばすと
+  断るため)・package-data の見本(消す頭に中身を入れた=空の頭は「消す行が当たっている」と読み、ほかの行と食い違う木になるため)。
+- 突然変異(1 本ずつ・元に戻した): 段の順を見ない・木の段が分からなくても当てる・外しても kept の行も効いていると数える・決まり 10 の
+  名に直の辺だけを書かない、の 4 本とも足した試験が落ちる。

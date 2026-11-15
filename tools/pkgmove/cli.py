@@ -229,7 +229,8 @@ def main(argv: list[str] | None = None) -> int:
     sp.add_argument("--tree", required=True, help="段を当てた木の根")
     sp.add_argument("--check", action="store_true", help="木の pyproject の節が作り直しと同じかを見る(違えば 1)")
     sp.add_argument("--apply", action="store_true", help="木の pyproject の節を書き換える(本体の作業木は断る)")
-    sp.add_argument("--out", default="", help="報告の JSON を書く道(木の外)")
+    sp.add_argument("--out", default="", help="報告の JSON を書く道(木の外)。書くときは効いている例外の数も回す")
+    sp.add_argument("--probe", action="store_true", help="効いている例外の数を回す(--out が無くても)")
     a = ap.parse_args(argv)
     return {"map": cmd_map, "allow": cmd_allow, "move": cmd_move, "importcheck": cmd_importcheck,
             "contracts": cmd_contracts}[a.cmd](a)
@@ -276,9 +277,16 @@ def cmd_contracts(a: argparse.Namespace) -> int:
         return EXIT_REFUSE
     text = CT.render(spec, a.stage, contracts)
     same = CT.same_section(cur, text)
+    if a.out or a.probe:  # 〔検収 中-1〕効いている例外の数(木を変えずに子のプロセスで回す)
+        try:
+            rep["ignore_effective"] = CT.effective_ignores(root, spec, contracts, rep)
+        except CT.ContractsError as e:
+            print(f"断った: {e}", file=sys.stderr)
+            return EXIT_REFUSE
     summary = {"stage": a.stage, "contracts_old": rep["n_old"], "contracts_new": rep["n_new"],
                "ignore_lines": sum(len(c.get("ignore_imports", [])) for c in contracts),
                "ignore_unique": rep["ignore_unique"], "ignore_gone_at": rep["ignore_gone_at"],
+               "ignore_effective": {k: v for k, v in rep.get("ignore_effective", {}).items() if k != "detail"},
                "dropped_old": rep["dropped_old"], "not_expressed": rep["not_expressed"], "fallbacks": rep["fallbacks"],
                "uncovered": rep.get("uncovered", []),
                "same_as_tree": same}

@@ -698,21 +698,20 @@ def test_record_tools_get_only_their_import_statements_rewritten_in_a_sample():
     assert '"src/shibuya/qq/a.py"' in bad.after.files[rel] and "path" in {e.kind for e in bad.changed[rel]}
 
 
-def test_skipping_interim_bundles_then_applying_it_keeps_the_guards(base_copy):
-    """〔親の決定 12〕interim_bundles を飛ばして後の段を当て、最後に interim_bundles を当てても守りが通り、残る段をまとめて
-    当てた木と同じ(違ってよいのは import の文の並びと分け方だけ)。全段が当たった木では、どちらも行 0。"""
-    rest = tuple(s for s in (pending() or STAGES) if s != "interim_bundles")
-    first = plan_for(base_copy, rest)
-    last = MV.make_plan(first.after, MAPDOC, ("interim_bundles",), allow_tt=AL.load_tests_tools(ROOT),
-                        frozen=frozen_of(base_copy), ledger_text=(base_copy / MV.LEDGER_REL).read_text(encoding="utf-8"))
-    for pl in (first, last):
-        assert all(v.startswith("同じ") for v in pl.guards.values()), pl.guards
-    assert first.refused == [] and last.refused == []  # 〔11-16〕保留の行は無い(連絡の器 4 本は society_contact の段)
-    whole = plan_for(base_copy, pending() or STAGES)
-    a, b = last.after, whole.after
-    assert set(a.files) == set(b.files) and a.blobs == b.blobs
-    for q in sorted(p for p in a.files if a.files[p] != b.files[p]):
-        assert _normalized(a.files[q]) == _normalized(b.files[q]), q
+def test_skipping_the_next_stage_is_refused(base_copy):
+    """〔検収 中-2〕本物の木で、次に当てる段を飛ばす計画は断る(書かない実行でも・CLI は終了コード 2)。次の段から順に
+    まとめる計画と、済んだ段の名(行 0)は通る。当てる段が 2 つ残らない木では飛ばす(〔親の決定 12〕の「interim_bundles を飛ばして
+    後で当てる」形は、段の順を当てた順に決めたので、今は断る側)。"""
+    p = need_pending(2)
+    with pytest.raises(MV.Refused, match="段の順が違う"):
+        plan_for(base_copy, (p[1],))
+    r = run_cli("move", "--stage", p[1], "--tree", str(base_copy))
+    assert r.returncode == 2 and "段の順が違う" in r.stderr
+    both = plan_for(base_copy, p[:2])
+    assert {r.stage for r in both.rows_applied} == set(p[:2])
+    done = tuple(s for s in STAGES if s not in p)
+    if done:
+        assert plan_for(base_copy, (done[-1],)).rows_applied == []
 
 
 def test_done_stages_are_not_applied_again(base_copy):
@@ -747,7 +746,11 @@ def _late_sample() -> tuple[Tree, MV.MapDoc]:
                 stage="foundation_224a"),
             Row(num="10", old="census/__init__.py", package="消す", kind="delete", stage="delete"),
             Row(num="11", old="cli.py", package="interfaces", kind="split", new="interfaces/cli/main.py",
-                split_to=("interfaces/cli/main.py",))]
+                split_to=("interfaces/cli/main.py",)),
+            # 〔検収 低-6〕まだ移っていない読み手: 最終の置き場が runtime の割る行と、mind の割る行
+            Row(num="12", old="engine/run.py", package="runtime", kind="split", new="runtime/result.py",
+                split_to=("runtime/result.py", "interfaces/cli/run_args.py")),
+            Row(num="13", old="engine/r.py", package="mind", kind="split", new="mind/r.py", split_to=("mind/r.py",))]
     files = {"src/shibuya/__init__.py": "", "src/shibuya/core/__init__.py": "", "src/shibuya/core/a.py": "A = 1\n",
              "src/shibuya/engine/__init__.py": "", "src/shibuya/engine/clock.py": "",
              "src/shibuya/engine/assemble.py": "from shibuya.engine.contact import layer\n",
@@ -755,7 +758,9 @@ def _late_sample() -> tuple[Tree, MV.MapDoc]:
              "src/shibuya/engine/contact/__init__.py": "", "src/shibuya/engine/contact/c.py": "from shibuya.engine.s import A\n",
              "src/shibuya/engine/contact/layer.py": "from shibuya.engine.contact import c\nfrom shibuya.engine import removed\n",
              "src/shibuya/engine/removed.py": "R = 1\n", "src/shibuya/census/__init__.py": '"""census"""\n',
-             "src/shibuya/cli.py": "from shibuya.engine.contact.layer import c\n"}
+             "src/shibuya/cli.py": "from shibuya.engine.contact.layer import c\n",
+             "src/shibuya/engine/run.py": "from shibuya.engine.contact import layer\n",
+             "src/shibuya/engine/r.py": "from shibuya.engine.contact import layer\n"}
     return Tree(files=files), MV.MapDoc(rows=rows)
 
 
@@ -813,13 +818,76 @@ def test_section_6_6_rules_come_in_at_their_stages_in_a_sample():
     contracts, rep = seen["delete"]
     c9 = next(c for c in contracts if c["name"].startswith(name9))
     assert c9["type"] == "protected" and c9["protected_modules"] == ["shibuya.interim_bundles"]
-    assert c9["allowed_importers"] == ["shibuya.runtime", "shibuya.cli"]
+    # 読んでよい側=runtime と、最終の置き場が runtime・interfaces のまだ移っていない読み手だけ(最終が mind の engine.r は
+    # 一時の区分を読んでいても足さない=〔検収 低-6〕)
+    assert c9["allowed_importers"] == ["shibuya.runtime", "shibuya.cli", "shibuya.engine.run"]
     c10 = next(c for c in contracts if c["name"].startswith(name10))
     assert c10["source_modules"] == ["shibuya.runtime.clock"] and c10["allow_indirect_imports"] is True
     assert "shibuya.interim_bundles" in c10["forbidden_modules"] and "shibuya.society" in c10["forbidden_modules"]
     text = CT.render(spec, "delete", contracts)
     assert "allow_indirect_imports = true" in text
     assert CT.section_dict(text)["contracts"][-1]["allow_indirect_imports"] is True
+
+
+def test_skipped_or_reversed_stages_are_refused_in_a_sample():
+    """〔検収 中-2・作った見本の木〕段を飛ばす・逆の順の計画は断る(``Refused``=CLI の終了コード 2)。次の段から順にまとめる計画と、
+    済んだ段の名で当て直す計画(行 0)は通る。段を飛ばした木(段の行だけの対応表=断らない書き手で作った)は、木の段が分からない
+    =``tree_stage`` も ``contracts.stage_of`` も ``None`` で、次の段も断る。"""
+    from pkgmove import contracts as CT
+
+    spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
+    tree0, md = _late_sample()
+    order = [s for s in STAGES if any(r.stage == s for r in md.rows)]
+    with pytest.raises(MV.Refused, match="段の順が違う"):
+        MV.make_plan(tree0, md, (order[1],))
+    k = order.index("society_contact")
+    tree = tree0
+    for s in order[:k]:
+        tree = MV.make_plan(tree, md, (s,)).after
+    assert MV.tree_stage(tree, md) == order[k - 1] == CT.stage_of(tree, md, spec)
+    with pytest.raises(MV.Refused, match="段の順が違う"):  # society_contact を飛ばす
+        MV.make_plan(tree, md, ("interim_bundles",))
+    with pytest.raises(MV.Refused, match="段の順が違う"):  # 2 つ先の段まで飛ばしてまとめる
+        MV.make_plan(tree, md, ("society_contact", "foundation_224a"))
+    ok = MV.make_plan(tree, md, ("interim_bundles", "society_contact"))  # 次の段から順の 2 段(渡す並びは問わない)
+    assert MV.tree_stage(ok.after, md) == "interim_bundles" == CT.stage_of(ok.after, md, spec)
+    assert MV.make_plan(ok.after, md, ("society", "society_contact")).rows_applied == []  # 済んだ段の名=行 0
+    with pytest.raises(MV.Refused, match="段の順が違う"):  # foundation_224a より先に delete
+        MV.make_plan(ok.after, md, ("delete",))
+    only_ib = MV.MapDoc(rows=[r for r in md.rows if r.stage == "interim_bundles" or r.kind in ("split", "keep")])
+    skipped = MV.make_plan(tree, only_ib, ("interim_bundles",)).after
+    assert MV.tree_stage(skipped, md) is None and CT.stage_of(skipped, md, spec) is None
+    with pytest.raises(MV.Refused, match="木の段が段の順と合わない"):
+        MV.make_plan(skipped, md, ("society_contact",))
+    with pytest.raises(CT.ContractsError, match="食い違う"):
+        CT.build(spec, md, skipped, "interim_bundles")
+
+
+def test_effective_ignores_count_only_the_lines_that_stop_a_violation_in_a_sample(tmp_path):
+    """〔検収 中-1・作った見本の包み〕効いている例外=外すとその契約が broken になる行。何も止めていない例外(層の外のモジュール
+    からの辺)は数えない。延べと重なりを除いた数・消える段ごとの数・まとめて外しても kept か。木には何も書かない。"""
+    from pkgmove import contracts as CT
+
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/high.py": "H = 1\n",
+             "src/shibuya/low.py": "from shibuya.high import H\n", "src/shibuya/mid.py": "from shibuya import low\n"}
+    for rel, text in files.items():
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_text(text, encoding="utf-8", newline="")
+    before = sorted(p.relative_to(tmp_path).as_posix() for p in tmp_path.rglob("*"))
+    contracts = [{"name": "層", "type": "layers", "layers": ["shibuya.high", "shibuya.low"],
+                  "ignore_imports": ["shibuya.low -> shibuya.high", "shibuya.mid -> shibuya.low"]},
+                 {"name": "low は high を読まない", "type": "forbidden", "source_modules": ["shibuya.low"],
+                  "forbidden_modules": ["shibuya.high"], "ignore_imports": ["shibuya.low -> shibuya.high"]}]
+    rep = {"ignores": [{"importer": "shibuya.low", "imported": "shibuya.high", "gone_at": "段 6"},
+                       {"importer": "shibuya.mid", "imported": "shibuya.low", "gone_at": "段 5a"}]}
+    spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
+    eff = CT.effective_ignores(tmp_path, spec, contracts, rep)
+    assert (eff["base_kept"], eff["lines"], eff["unique"], eff["jointly_kept"]) == (True, 2, 1, True)
+    assert eff["not_effective"] == ["shibuya.mid -> shibuya.low"] and eff["gone_at"] == {"段 6": 1}
+    assert CT.ignore_counts(contracts, rep)["ignore_unique"] == 2  # 載せた数は 2(効いているのは 1)
+    assert sorted(p.relative_to(tmp_path).as_posix() for p in tmp_path.rglob("*")) == before  # 木に何も書かない
+    # 負の対照: 効いている例外を載せない契約は基準が broken
+    assert CT.effective_ignores(tmp_path, spec, [dict(contracts[1], ignore_imports=[])], rep)["base_kept"] is False
 
 
 def test_ignore_counts_count_lines_unique_edges_and_where_they_go():
@@ -1000,8 +1068,8 @@ def test_negative_an_emptied_head_with_a_definition_is_stopped(tmp_path):
     h = root / SRC_PREFIX / row.old
     h.write_text(h.read_text(encoding="utf-8") + "\n\ndef helper():\n    return 1\n\n\nLIMIT = 3\n",
                  encoding="utf-8", newline="")
-    with pytest.raises(MV.Stopped) as e:
-        plan_for(root, (stage,))
+    with pytest.raises(MV.Stopped) as e:  # 〔検収 中-2〕頭の段の前の段から順に当てる計画で(段を飛ばすと断る)
+        plan_for(root, pending()[: pending().index(stage) + 1])
     assert any("空にする頭に定義がある" in x and "helper" in x for x in e.value.errors)
     assert any("空にする頭に import・docstring・__all__ のほかの文がある" in x and "Assign@" in x for x in e.value.errors)
 
@@ -1366,8 +1434,10 @@ def test_pyproject_section_is_the_one_made_for_the_tree_stage():
     spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
     tree = _root_tree()
     stage = CT.stage_of(tree, MAPDOC, spec)
-    if stage is None:
-        pytest.skip("段の境目でない木(当たっている行が段の順と合わない)")
+    # 〔検収 中-2〕本物のリポの木は、段を順に当てて commit した木だけ=段が分からない(None)のは段を飛ばすか逆の順で当てた木
+    # なので落とす(前は飛ばしていた)。段の途中の木は commit しない(道具は段ごとに当てる)。見本の木の None は別の試験で見る
+    assert stage is not None, "木の段が段の順と合わない(段を飛ばしたか、逆の順で当てた木)"
+    assert MV.tree_stage(tree, MAPDOC) == stage
     _head, cur = CT.split_pyproject((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     if stage == "":
         contracts = CT.old_contracts(spec)
@@ -1538,7 +1608,8 @@ def test_contract_rules_are_the_plan_sentences():
     # §6-6 の 2 つ(返事その 8 §1-6 の 7・3): 名は計画の太字の文・中身は計画の文の名と同じ・入れる段
     sec66 = _plan_text().split("### 6-6", 1)[1].split("## 7.", 1)[0]
     s66 = {int(n): (b, rest) for n, b, rest in re.findall(r"^([12])\. \*\*(.+?)\*\*(.+)$", sec66, re.M)}
-    assert rules[9]["name"] == f"§6-6 の 1 {s66[1][0]}" and rules[10]["name"] == f"§6-6 の 2 {s66[2][0]}"
+    # 決まり 10 は直の辺だけを見る(検収 中-3)=名にそう書く
+    assert rules[9]["name"] == f"§6-6 の 1 {s66[1][0]}" and rules[10]["name"] == f"§6-6 の 2 {s66[2][0]}(直の辺だけ)"
     r9 = rules[9]
     assert (r9["type"], r9["protected"], r9["allowed"], r9["from_stage"]) == (
         "protected", ["interim_bundles"], ["runtime", "interfaces"], "interim_bundles")
@@ -1557,7 +1628,9 @@ def test_contract_rules_are_the_plan_sentences():
 
 
 def _pd_sample(root: Path) -> tuple[Tree, MV.MapDoc, str]:
-    files = {"src/shibuya/__init__.py": "", "src/shibuya/old/__init__.py": "", "src/shibuya/old/mod.py": "X = 1\n"}
+    # 消す頭は中身がある形(空の頭は「消す行が当たっている」と読む=段の順の確かめ〔検収 中-2〕で、ほかの行と食い違う木になる)
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/old/__init__.py": '"""old"""\n',
+             "src/shibuya/old/mod.py": "X = 1\n"}
     for rel, text in files.items():
         (root / rel).parent.mkdir(parents=True, exist_ok=True)
         (root / rel).write_text(text, encoding="utf-8", newline="")

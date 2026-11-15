@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 14 本・その他 4 本(このディレクトリの直下)
+Python 15 本・その他 4 本(このディレクトリの直下)
 
 その他のファイル: `README.md`・`allow_tests_tools.toml`・`contracts.toml`・`map.toml`
 
@@ -66,8 +66,9 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
   - `--import-jobs`: 書いた後の import の確かめの並べる数(既定 4)
   - `--jobs`
   - `--only`: 今の道筋(src/shibuya からの相対)で行を名指す(何回でも)
-  - `--out`: 報告の JSON を書く道(木の外)
+  - `--out`: 報告の JSON を書く道(木の外)。書くときは効いている例外の数も回す
   - `--out-dir`: 報告の JSON と差分を書く置き場(木の外)
+  - `--probe`: 効いている例外の数を回す(--out が無くても)
   - `--stage`: 段の名(contracts.toml の stage_order)
   - `--tree`: 段を当てた木の根
 - 環境変数: `os.environ` をまるごと使う
@@ -82,6 +83,7 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
   - `TreeView`(クラス): 木の今の形: モジュールの集合・今の名 → 最終の名・ほかの置き場から入ったファイル(古い名, 新しい名)。
   - `build`(関数): (契約の一覧=pyproject の [[tool.importlinter.contracts]] の形, 報告)。
   - `check_stage`(関数): 木の当たっている行が「段の順で ``stage`` まで」と同じか(保留の行を除く)。
+  - `effective_ignores`(関数): 〔検収 中-1〕効いている例外の数: 例外の行を 1 本ずつ外すと、その契約が broken になる行(延べ)と、どれかの契約で効く辺
   - `has_edge`(関数): 木で ``importer`` が ``imported`` を読む import の文が在るか(関数の中を含む・相対も解く)。
   - `ignore_counts`(関数): 例外(ignore)の数(返事その 8 §1-12 の 3): 延べの行・重なりを除いた辺・重なりを除いた辺の「消える段」ごとの数。
   - `load_spec`(関数)
@@ -96,6 +98,7 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
 - import している内部モジュール: `tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/table.py`
 - 呼び手: `tools/pkgmove/cli.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
+- 環境変数: `os.environ` をまるごと使う
 
 ## [guard.py](../../../../../../tools/pkgmove/guard.py)
 
@@ -118,6 +121,16 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
 - import している内部モジュール: `tools/pkgmove/classids.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/model.py`
 - 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/move.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
+
+## [ignoreprobe.py](../../../../../../tools/pkgmove/ignoreprobe.py)
+
+効いている例外(ignore)の確かめ(検収 中-1・親の裁定 2026-11-16)。木を変えずに、メモリの中で回す。
+
+- 公開の関数とクラス
+  - `main`(関数)
+  - `probe`(関数)
+- CLI の引数
+  - `sys.argv` を直接読む
 
 ## [importcheck.py](../../../../../../tools/pkgmove/importcheck.py)
 
@@ -199,6 +212,7 @@ import の文の書き換え(許可の一覧の (a))。
   - `Refused`(クラス): 断った(保留の行の名指し・道具の使い方)。終了コード 2。
   - `Stopped`(クラス): 守りが止めた(書かない)。終了コード 1。
   - `apply`(関数): 書き換えた後の木を ``root`` へ書く(書く・移す・消すのは計画にあるファイルだけ)。終わりに、``src/shibuya`` の下の
+  - `check_order`(関数): 〔検収 中-2〕当てる行の段が、木の段の次の段(行のある段で数える)から順に並ぶか。違えば :class:`Refused`(終了コード 2)。
   - `gone_packages`(関数): 対応表の頭の行(古い ``__init__.py``)のうち、木に頭がもう無い包みの名(移して無くなった包み)。import の確かめが、
   - `ledger_rows`(関数): つなぎの台帳の ``declared_in``(``src/shibuya/…``)のうち、移すファイルを指す行(書き換えない=報告だけ)。
   - `locate`(関数): 今の道(``src/shibuya`` からの相対)のファイルの、木の中の道筋(移した後なら新しい道)。
@@ -207,6 +221,7 @@ import の文の書き換え(許可の一覧の (a))。
   - `prune_cache_only_dirs`(関数): 〔検収 L-a〕``root/src/shibuya`` の下で、``__pycache__`` のほかに何も無いディレクトリ(移した後の古い包みの残り)を
   - `report`(関数)
   - `select_rows`(関数): (当てる候補の行, 保留で断る行)。``only`` で保留の行を名指せば :class:`Refused`。
+  - `tree_stage`(関数): 木の段(``contracts.stage_of`` と同じ見分けを段の順 :data:`STAGES` で): どの段の行も当たっていなければ ``""``・段の順で
   - `unified_diff`(関数)
 - import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/classids.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/model.py`・`tools/pkgmove/pkgdata.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
 - 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`

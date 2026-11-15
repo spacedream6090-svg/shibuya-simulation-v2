@@ -5,7 +5,8 @@
     1. 木を読む(``src/shibuya`` の全部と ``tests``・``tools`` の ``.py``)。道具そのもの(``tools/pkgmove/``)と道具の試験は
        書き換えない。
     2. 選んだ段の行(``move``・``empty``・``delete``)を、木の今の形で 3 つに分ける: これから当てる行・もう当たっている行
-       (古い道が無く新しい道がある=2 回目)・保留の行(当てない=断った行として報告)。
+       (古い道が無く新しい道がある=2 回目)・保留の行(当てない=断った行として報告)。〔検収 中-2〕当てる行の段が木の段の次の段から
+       順でなければ断る(:func:`check_order`)。
     3. import の文(全部の Python)・許可の一覧の記号の中の道の文字列・固定の表の鍵を書き換える。
     4. ファイルを新しい道へ移す。頭の行は新しい頭を空にし、古い頭は古いディレクトリにファイルが残るなら空にして残し、残らなければ
        消す。新しいディレクトリで頭の無いものには空の頭を足す。
@@ -158,6 +159,46 @@ def _raise(msg: str) -> str:
     raise Refused(msg)
 
 
+def _stage_rows(mapdoc: MapDoc) -> list[Row]:
+    rows = [r for r in mapdoc.rows if r.kind in ("move", "empty", "delete") and not r.held]
+    bad = sorted({r.stage for r in rows if r.stage not in STAGES})
+    if bad:
+        raise Refused(f"対応表に段の名が違う行がある: {bad}")
+    return rows
+
+
+def tree_stage(tree: Tree, mapdoc: MapDoc) -> str | None:
+    """木の段(``contracts.stage_of`` と同じ見分けを段の順 :data:`STAGES` で): どの段の行も当たっていなければ ``""``・段の順で
+    S までの行が当たっていれば S・どちらでもなければ ``None``(段を飛ばしたか、逆の順で当てた木)。保留の行は見ない。"""
+    rows = _stage_rows(mapdoc)
+    done = {r.old: _row_state(tree, r) == "already" for r in rows}
+    if not any(done.values()):
+        return ""
+    for k, s in enumerate(STAGES):
+        if all(done[r.old] == (STAGES.index(r.stage) <= k) for r in rows):
+            return s
+    return None
+
+
+def check_order(tree: Tree, mapdoc: MapDoc, rows: list[Row]) -> None:
+    """〔検収 中-2〕当てる行の段が、木の段の次の段(行のある段で数える)から順に並ぶか。違えば :class:`Refused`(終了コード 2)。
+    当てる行が無い計画(済んだ段の名で当て直す=行 0)は通す。"""
+    if not rows:
+        return
+    srows = _stage_rows(mapdoc)
+    order = [s for s in STAGES if any(r.stage == s for r in srows)]
+    cur = tree_stage(tree, mapdoc)
+    if cur is None:
+        raise Refused("木の段が段の順と合わない(段を飛ばしたか、逆の順で当てた木)=当てない")
+    pos = order.index(cur) if cur else -1
+    got = [s for s in order if any(r.stage == s for r in rows)]
+    want = order[pos + 1: pos + 1 + len(got)]
+    if got != want:
+        nxt = order[pos + 1] if pos + 1 < len(order) else "(無い)"
+        raise Refused(f"段の順が違う: 木の段は {cur or '(移す前)'}・次に当てる段は {nxt}・当てようとした段は {got}"
+                      f"(段を飛ばす・逆の順は当てない)")
+
+
 def make_ctx(tree: Tree, rows: list[Row], frozen: G.Frozen | None) -> tuple[Ctx, dict[str, str]]:
     """書き換えの材料と、移すファイルの道(``src/shibuya`` からの相対の古い → 新しい)。"""
     modmap: dict[str, str] = {}
@@ -186,6 +227,7 @@ def make_plan(tree: Tree, mapdoc: MapDoc, stages: Iterable[str], *, only: Iterab
     for r in cand:
         (rows if _row_state(tree, r) == "apply" else plan.rows_already).append(r)
     plan.rows_applied = rows
+    check_order(tree, mapdoc, rows)  # 〔検収 中-2〕段を飛ばす・逆の順は当てない(書かない実行でも断る)
     dests = Counter(r.new for r in rows if r.kind == "move")
     dup = sorted(d for d, n in dests.items() if n > 1)
     if dup:

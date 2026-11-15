@@ -101,10 +101,13 @@ from_stage = "interim_bundles"
 
 # 核の候補(計画 §6-6 の 2・【見立て】)を元の側に、中身の包み(world・mind・act・economy・society・interim_bundles・experiments)を
 # 禁じる側に。計画は核から中身を読む辺を直の辺(モジュールの対)で数えたので、直の辺だけを見る(allow_indirect_imports)。
+# 〔検収 中-3〕間接の辺は見ない=名に「直の辺だけ」と書く。核の conductor は核の外の assemble・probe・table を、核の day は核の外の
+# state_io を読み、その先で中身に届く(conductor → assemble → act.intent・day → state_io → engine.run → mind ほか)。間接も見る形に
+# するには核の外の runtime への辺 4 本を例外にすることになる=核の範囲の問い(親がユーザーに上げる)。
 [[rule]]
 id = 10
 type = "forbidden"
-name = "§6-6 の 2 runtime の核は中身を読まない"
+name = "§6-6 の 2 runtime の核は中身を読まない(直の辺だけ)"
 source_names = ["runtime.clock", "runtime.clocks", "runtime.state", "runtime.inference.tape", "runtime.systems.conductor",
                 "runtime.systems.spec", "runtime.systems.boxes", "runtime.systems.day"]
 forbidden = ["world.laws", "world.body", "world.model", "world.things", "world.facts", "world.ledger", "mind", "act", "economy",

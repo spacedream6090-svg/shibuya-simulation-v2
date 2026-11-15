@@ -21,7 +21,7 @@ python tools/pkgmove/cli.py move --stage foundation --out-dir <置き場>       
 python tools/pkgmove/cli.py move --stage all --out-dir <置き場>                             # 段 4 の全段をまとめて(書かない)
 python tools/pkgmove/cli.py move --stage foundation --apply --tree <木> --out-dir <置き場>  # 書く(書いた後に import の確かめ)
 python tools/pkgmove/cli.py importcheck --tree <木> [--out <JSON>]                         # import の確かめだけ
-python tools/pkgmove/cli.py contracts --stage <段> --tree <木> [--check|--apply] [--out <JSON>]  # 段の import の決まり(pyproject の節)
+python tools/pkgmove/cli.py contracts --stage <段> --tree <木> [--check|--apply] [--out <JSON>] [--probe]  # 段の import の決まり(pyproject の節)
 ```
 
 - `--stage`: 段 4 の小さな段の名(当てた順に `foundation`・`world`・`economy`・`act`・`mind`・`society`・`runtime`・
@@ -29,12 +29,15 @@ python tools/pkgmove/cli.py contracts --stage <段> --tree <木> [--check|--appl
   `all`。`--only <今の道>` で行を名指せる(何回でも)。`society_contact`(連絡の器 4 本 → `society/contact/`)と `foundation_224a`
   (行 224a → `foundation/arms/removed.py`)は、11-16 の答えの後に済んだ段の包みへ移す行だけの段(`table.LATE_STAGES`)。済んだ段の
   名で当て直しても、その行は選ばない。
+- **段の順**(検収 中-2): 当てる行の段は、木の今の段(`move.tree_stage`=`contracts.stage_of` と同じ見分け)の次の段から順で
+  なければ断る(終了コード 2・「段の順が違う」)。段を飛ばす・逆の順・木の段が分からない木(飛ばして当てた木)は、書かない実行でも
+  断る。済んだ段の名で当て直す計画(当てる行 0)は通す。次の段から順の 2 段以上をまとめて渡すのは通す(`--stage all` も)。
 - `--tree`: 木の根(既定は道具のリポ)。対応表と許可の一覧は道具のリポのものを読み、凍結の JSON とつなぎの台帳は木のものを読む。
 - `--out-dir`: `pkgmove_<段>_report.json`(報告)と `pkgmove_<段>.diff`(差分)、`--apply` なら `pkgmove_<段>_imports.json`
   (import の確かめ)を書く。木の外に置く。本体の作業木(か、その中)なら断る。
 - 終了コード: **0**=できた(書かない実行では報告と差分だけ)・**1**=守りが止めた(書いていない)か `--check` の食い違い・
   **2**=断った(保留の行の名指し・本体の作業木への `--apply` か報告の置き場・`--apply` に `--tree` が無い・対応表の行き先の
-  重なり・表と木の食い違い)・**3**=書いた後の import の確かめが落ちた(木は書いたまま)。
+  重なり・表と木の食い違い・段の順が違う)・**3**=書いた後の import の確かめが落ちた(木は書いたまま)。
 - 本体の作業木の見分け(断る側に倒す=検収 M-2): 木とその親に `.git` が 1 つも無いときだけ git の外=書ける。見つかった `.git` が
   ディレクトリなら本体=断る。ファイル(`git worktree add` の作業木)なら git に `--git-dir` と `--git-common-dir` を聞き、違えば
   ほかの作業木=書ける。git が失敗したら断る。呼び手の `GIT_DIR` などの環境変数は外して聞く。
@@ -167,3 +170,15 @@ python tools/pkgmove/cli.py contracts --stage <段> --tree <木> [--check|--appl
 段 4 の各段の木で CI の `lint-imports` が通るように、pyproject の `[tool.importlinter]` の節を段ごとに作る(親の決定=brief_contracts)。元は `contracts.toml`(計画 §1-2 の層・§6-4 の決まり 1〜8・今の 5 つ・28 本・計画の表の外の辺 1 本=親の仮採用)。作り方と段ごとの結果は記録 `docs/bench/analysis/pkgmove-346/README.md` の §10-12。`--apply` は本体の作業木を断り、木の当たっている行が段と食い違えば断る。
 
 〔段 4 の残り〕計画 §6-6 の 2 つを足した(返事その 8 §1-6 の 7・3): 決まり 9「一時の区分を読めるのは runtime と interfaces だけ」(protected・`interim_bundles` の段から)と決まり 10「runtime の核は中身を読まない」(forbidden・直の辺だけ=`allow_indirect_imports`・`delete` の段から。§6-6 の表の辺は `[[ignore_66]]`)。報告と要約に例外の数(延べ `ignore_lines`・重なりを除いた `ignore_unique`・消える段ごとの `ignore_gone_at`)を出す。記録は §13。
+
+- **効いている例外**(検収 中-1): 例外は「両側と辺が在る」だけで載せる(計画の 28 本と「消える段」の注を保つ)ので、何も止めて
+  いない例外も載る。`--out`(か `--probe`)を付けると、例外の行を 1 本ずつ外してその契約を回し、broken になる行(延べ)と辺
+  (重なりを除く)・消える段ごとの数を報告の `ignore_effective` に出す(`ignoreprobe.py`=grimp と import-linter の契約のクラスを
+  子のプロセスでメモリの中で回す。木は変えない)。
+- **決まり 10 は直の辺だけ**(検収 中-3・名に「(直の辺だけ)」): 核のモジュールが中身の包みを直に読む辺だけを見る。間接の辺は
+  見ない: 核の `runtime.systems.conductor` は核の外の `assemble`・`probe`・`table` を、核の `runtime.systems.day` は核の外の
+  `state_io` を読み、その先で act・economy・experiments.port・interim_bundles・mind に届く(例 conductor → assemble → act.intent・
+  day → state_io → engine.run → mind.judge.classical)。理由: 計画 §6-6 は核から中身を読む辺を直の辺で数えた。間接も見るには核の外の
+  runtime への辺 4 本を例外にすることになる=核の範囲の問い(親がユーザーに上げる)。
+- **節が前の段と同じなら pyproject を書かない**(検収 低-1): `contracts --apply` は節の中身(`same_section`)が同じなら書かない。
+  見出しの注の段の名は前の段のまま残る(society_contact の段=「段 validation」・foundation_224a の段=「段 interim_bundles」)。
