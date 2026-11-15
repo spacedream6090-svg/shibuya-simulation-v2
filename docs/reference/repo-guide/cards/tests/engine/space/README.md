@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 4 本・その他 0 本(このディレクトリの直下)
+Python 5 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../tests/engine/space/__init__.py)
 
@@ -26,6 +26,26 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_three_estimators_match_the_hand_calculation`(関数)
 - import している内部モジュール: `shibuya.cli`・`shibuya.engine.change_detect`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.space.nav1`・`shibuya.world.model.state`・`tests/build_space/synth.py`
 - 環境変数: `SHIBUYA_NAV1_DENSITY`・`SHIBUYA_SPACE`
+
+## [test_nav1_route_cache.py](../../../../../../../tests/engine/space/test_nav1_route_cache.py)
+
+S46: nav1 の道の線の控えが結果に作用しないことの試験(控えの有り無しで返る線が 1 バイトも違わない)。
+
+- 公開の関数とクラス
+  - `check_cache_is_inert`(関数): 控え有り=控え無し=逆順の直の計算(1 バイト)と、控えが溢れる場合の一致。返り値は計器の数(確かめに使う)。
+  - `direct_reversed`(関数): 控えを通らず ``NavPlanner.plan`` を直に、列の逆の順で呼ぶ(丸めは ``_shape`` と同じにする)。並びは列の順に戻す。
+  - `key32`(関数): 問い合わせ (x, y, 階, 行き先, 曲がる重み) → 控えの鍵と同じ形(出発点を float32 に丸める)。
+  - `make_sequence`(関数): 出発点ごとに行き先を ``per_origin`` 個と曲がる重みを引いた問い合わせ(引けない行き先も混ぜる)を ``repeat`` 回並べて
+  - `real_world`(関数)
+  - `route_bytes`(関数): 線の全欄 → 比べる値(配列は名・dtype・形・バイト/そのほかは名・型・repr)。None は None。
+  - `synth_world`(関数)
+  - `test_cache_on_and_off_give_byte_identical_lines_on_the_real_mesh`(関数)
+  - `test_cache_on_and_off_give_byte_identical_lines_on_the_synthetic_mesh`(関数)
+  - `test_cache_on_and_off_give_byte_identical_timed_routes_through_ensure_routes`(関数): ``ensure_routes`` の段: 体ごとに時間を載せた線(置き場の 7 欄)と返り値が、控えの有り無しで 1 バイト一致。
+  - `test_cache_overflow_drops_the_oldest_and_keeps_the_lines`(関数): 上限 3 の控えに 4 つの鍵を入れると最初の鍵が捨てられ、それを引き直した線は最初の線と 1 バイト一致。
+  - `via_shape`(関数): 問い合わせの列を ``_shape`` に順に当てた線の並び。``cap_watch`` なら控えの大きさが上限を超えないことも見る。
+  - `without_cache`(関数): ``space`` の控えを毎回空にする(``_shape`` を呼ぶ前に ``_shape_cache.clear()``・同じ道を通る)。
+- import している内部モジュール: `shibuya.world.assets`・`shibuya.world.model.navmesh`・`shibuya.world.model.space.nav1`・`tests/_data_ids.py`・`tests/build_space/synth.py`
 
 ## [test_nav1_units.py](../../../../../../../tests/engine/space/test_nav1_units.py)
 

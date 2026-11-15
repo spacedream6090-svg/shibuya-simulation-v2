@@ -20,7 +20,7 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `fake_assets`(関数): ``engine.space.nav1.NavSpace`` が読む資産の形(W1 と W2 の一部)。
   - `floors`(関数)
 - import している内部モジュール: `shibuya.build.space.navmesh1`・`shibuya.build.space.raster`
-- 読む試験: `tests/build_space/test_navmesh1_units.py`・`tests/engine/space/test_nav1_density.py`・`tests/engine/space/test_nav1_units.py`
+- 読む試験: `tests/build_space/test_navmesh1_units.py`・`tests/engine/space/test_nav1_density.py`・`tests/engine/space/test_nav1_route_cache.py`・`tests/engine/space/test_nav1_units.py`
 
 ## [test_navmesh1_units.py](../../../../../../tests/build_space/test_navmesh1_units.py)
 

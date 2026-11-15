@@ -1,0 +1,28 @@
+{
+ "name": "p5_synthetic_world_noproc",
+ "kw": {
+  "vocab_version": "v3",
+  "processes": false
+ },
+ "world": "synthetic(None)",
+ "agents": 200,
+ "ticks": 1440,
+ "replay_date": "",
+ "start_sim_datetime": "2026-07-13T00:00:00",
+ "weather_days": [],
+ "process_ids_n": 0,
+ "a48": {
+  "weather_calls_loaded": 0,
+  "weather_fallback_loaded": 0,
+  "weather_calls_synthetic": 228,
+  "weather_fallback_synthetic": 228,
+  "fallback_default_tuple": 0,
+  "fallback_keys": {
+   "synthetic|2026-07-13": 228
+  },
+  "time_view_path": {
+   "calendar_date": 2517
+  }
+ },
+ "wall_s": 4.4
+}

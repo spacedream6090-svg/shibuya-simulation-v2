@@ -1,0 +1,40 @@
+{
+ "name": "p4_synthetic_world_proc",
+ "kw": {
+  "vocab_version": "v3"
+ },
+ "world": "synthetic(None)",
+ "agents": 200,
+ "ticks": 1440,
+ "replay_date": "",
+ "start_sim_datetime": "2026-07-13T00:00:00",
+ "weather_days": [
+  {
+   "day": 0,
+   "calendar_date": "2026-07-13",
+   "replay_date": "",
+   "stratum": "",
+   "how": "",
+   "widened": "",
+   "shadow_date": "",
+   "shadow_fallback": false,
+   "sunrise_min": 275.0,
+   "sunset_min": 1139.0
+  }
+ ],
+ "process_ids_n": 19,
+ "a48": {
+  "weather_calls_loaded": 0,
+  "weather_fallback_loaded": 0,
+  "weather_calls_synthetic": 228,
+  "weather_fallback_synthetic": 228,
+  "fallback_default_tuple": 0,
+  "fallback_keys": {
+   "synthetic|2026-07-13": 228
+  },
+  "time_view_path": {
+   "calendar_date": 2678
+  }
+ },
+ "wall_s": 4.7
+}

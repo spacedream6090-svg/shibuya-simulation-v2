@@ -1,0 +1,39 @@
+{
+ "name": "p3_proc_outside_window",
+ "kw": {
+  "vocab_version": "v3",
+  "start_sim_datetime": "2026-09-14"
+ },
+ "world": "data/world/v2",
+ "agents": 200,
+ "ticks": 1440,
+ "replay_date": "2025-11-10",
+ "start_sim_datetime": "2026-09-14T00:00:00",
+ "weather_days": [
+  {
+   "day": 0,
+   "calendar_date": "2026-09-14",
+   "replay_date": "2025-11-10",
+   "stratum": "秋|平日|雨",
+   "how": "sampled",
+   "widened": "",
+   "shadow_date": "2026-07-28",
+   "shadow_fallback": true,
+   "sunrise_min": 322.0,
+   "sunset_min": 1072.0
+  }
+ ],
+ "process_ids_n": 19,
+ "a48": {
+  "weather_calls_loaded": 230,
+  "weather_fallback_loaded": 0,
+  "weather_calls_synthetic": 0,
+  "weather_fallback_synthetic": 0,
+  "fallback_default_tuple": 0,
+  "fallback_keys": {},
+  "time_view_path": {
+   "words_fn": 1778
+  }
+ },
+ "wall_s": 7.3
+}

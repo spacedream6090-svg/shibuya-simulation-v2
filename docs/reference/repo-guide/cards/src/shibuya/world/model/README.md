@@ -54,7 +54,7 @@ world.navmesh — 段 1 のナビメッシュ(多層の歩ける面)の資産と
   - `nearest_point`(関数): 階の中で (x, y) に最も近い歩ける点(ランの長方形を目の幅の 1/1000 だけ内へ寄せた中)。
   - `w1_turn_dijkstra`(関数): W1 の向きつきの辺(状態)の Dijkstra(重み=長さ+``climb_w``×上り+曲がる 1 回 ``turn_w``)。
 - 呼び手: `shibuya.build.space.navmesh1`・`shibuya.world.model.navmesh_route`・`shibuya.world.model.space.nav1`
-- 読む試験: `tests/build_space/test_navmesh1_units.py`・`tests/engine/space/test_nav1_density.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/space/test_nav1_world.py`
+- 読む試験: `tests/build_space/test_navmesh1_units.py`・`tests/engine/space/test_nav1_density.py`・`tests/engine/space/test_nav1_route_cache.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/space/test_nav1_world.py`
 - 読む試験(道筋で): `tests/engine/test_state_ledger_10b.py`
 - 決定の ID: R-59・R-61
 

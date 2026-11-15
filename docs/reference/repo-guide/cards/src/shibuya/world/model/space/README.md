@@ -42,7 +42,7 @@ engine.space.nav1 — 第 5 期 空間の段 1: ナビメッシュの上を衝�
   - `turn_weights`(関数): 体ごとの曲がる重み[m]\(fixed=50 m・person=32〜62 m の一様=母集団の seed と体の番号だけの決定論・ランの乱数列を引かない)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.navmesh_route`・`shibuya.world.model.state`
 - 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`
-- 読む試験: `tests/engine/space/test_nav1_density.py`・`tests/engine/space/test_nav1_units.py`
+- 読む試験: `tests/engine/space/test_nav1_density.py`・`tests/engine/space/test_nav1_route_cache.py`・`tests/engine/space/test_nav1_units.py`
 - CLI の引数
   - `--slope`: 坂の速さの式の腕(SR12 (d)・既定 wood=Wood 2023 舗装路・tobler=Tobler・環境変数 SHIBUYA_SLOPE と同じ)
   - `--space`: 第 5 期 空間の段 1 の移動の切替口。nav1=ナビメッシュの上を衝突なしで進む(既定・位置は (x, y, 階)・合成の世界では legacy で回して manifest の space.effective に書く・本番の世界で資産 nav1_* が無ければ止める・密度の推定は環境変数 SHIBUYA_NAV1_DENSITY=neighborhood(既定)/cell/unscaled)/legacy=前のセルの移動(旧値の再現だけ・次の版上げで消す)。環境変数 SHIBUYA_SPACE より強い
