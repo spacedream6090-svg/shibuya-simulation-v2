@@ -112,7 +112,7 @@
 | [tests/engine/proximity](tests/engine/proximity/README.md) | 6 | 0 |
 | [tests/engine/rights](tests/engine/rights/README.md) | 9 | 0 |
 | [tests/engine/rules](tests/engine/rules/README.md) | 3 | 0 |
-| [tests/engine/space](tests/engine/space/README.md) | 4 | 0 |
+| [tests/engine/space](tests/engine/space/README.md) | 5 | 0 |
 | [tests/engine/speech](tests/engine/speech/README.md) | 14 | 0 |
 | [tests/engine/state](tests/engine/state/README.md) | 5 | 2 |
 | [tests/engine/systems](tests/engine/systems/README.md) | 6 | 1 |
@@ -124,7 +124,7 @@
 | [tests/llm](tests/llm/README.md) | 9 | 0 |
 | [tests/perception](tests/perception/README.md) | 19 | 0 |
 | [tests/perception/facts](tests/perception/facts/README.md) | 7 | 0 |
-| [tests/tools](tests/tools/README.md) | 21 | 0 |
+| [tests/tools](tests/tools/README.md) | 24 | 0 |
 | [tests/vocab](tests/vocab/README.md) | 5 | 0 |
 | [tests/w17](tests/w17/README.md) | 3 | 0 |
 | [tests/world](tests/world/README.md) | 2 | 0 |
@@ -134,17 +134,17 @@
 | [tools/bench/event_cost](tools/bench/event_cost/README.md) | 1 | 0 |
 | [tools/bench_spikes](tools/bench_spikes/README.md) | 3 | 0 |
 | [tools/build_geo](tools/build_geo/README.md) | 1 | 0 |
-| [tools/bytecheck](tools/bytecheck/README.md) | 6 | 1 |
+| [tools/bytecheck](tools/bytecheck/README.md) | 7 | 1 |
 | [tools/c6](tools/c6/README.md) | 7 | 0 |
 | [tools/c7](tools/c7/README.md) | 11 | 1 |
 | [tools/c8](tools/c8/README.md) | 5 | 3 |
 | [tools/fig](tools/fig/README.md) | 12 | 0 |
 | [tools/gen](tools/gen/README.md) | 1 | 0 |
 | [tools/hunger](tools/hunger/README.md) | 2 | 0 |
-| [tools/instruments](tools/instruments/README.md) | 8 | 0 |
-| [tools/instruments/dm_eval](tools/instruments/dm_eval/README.md) | 6 | 0 |
+| [tools/instruments](tools/instruments/README.md) | 10 | 0 |
+| [tools/instruments/dm_eval](tools/instruments/dm_eval/README.md) | 7 | 0 |
 | [tools/instruments/dm_eval/backends](tools/instruments/dm_eval/backends/README.md) | 4 | 0 |
-| [tools/instruments/dm_eval/scenes](tools/instruments/dm_eval/scenes/README.md) | 1 | 3 |
+| [tools/instruments/dm_eval/scenes](tools/instruments/dm_eval/scenes/README.md) | 2 | 6 |
 | [tools/instruments/leak_check](tools/instruments/leak_check/README.md) | 6 | 0 |
 | [tools/instruments/leak_check/question_sets](tools/instruments/leak_check/question_sets/README.md) | 0 | 4 |
 | [tools/ledger](tools/ledger/README.md) | 3 | 0 |
@@ -161,7 +161,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 295 ディレクトリ・2281 本
+- [docs の索引](docs.md): 304 ディレクトリ・2331 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

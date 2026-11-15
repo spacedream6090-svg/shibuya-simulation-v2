@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-295 ディレクトリ・2281 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+304 ディレクトリ・2331 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -18,9 +18,29 @@
 
 - [README.md](../../../bench/analysis/a2-flags-1102/README.md): A2 の旗の初期化でのずれ: OSM の brand と経済センサスの法人の割合(11-02r §3 の 2・§5)
 
+## docs/bench/analysis/astsame-347(3 本)
+
+- [README.md](../../../bench/analysis/astsame-347/README.md): 文だけの直しの commit の確かめ(第347〜)
+
+## docs/bench/analysis/astsame-347/c6c8799-bytecheck(3 本)
+
 ## docs/bench/analysis/c10-relations-2026-09-28(24 本)
 
 - [README.md](../../../bench/analysis/c10-relations-2026-09-28/README.md): C10 版の台帳 — 関係辺・会話の起点(2026-09-28)
+
+## docs/bench/analysis/count-347(3 本)
+
+- [s46-path-cache.md](../../../bench/analysis/count-347/s46-path-cache.md): count-347 s46-path-cache — 道の線の控えが作用しないことの試験と、座標の丸め(float32)の計測(S46)
+- [talk-kinds-tape.md](../../../bench/analysis/count-347/talk-kinds-tape.md): count-347 talk-kinds-tape — 会話の後(M10)・種別ごとの事実(A07)・9 月の実 LLM のテープ(2-62)
+- [weather-noise.md](../../../bench/analysis/count-347/weather-noise.md): 数える役 A(weather-noise): 天気の補い(A48)・騒音の段の切り替え(A49)・ランの記録(2-56)
+
+## docs/bench/analysis/count-347/s46-path-cache(2 本)
+
+## docs/bench/analysis/count-347/talk-kinds-tape(10 本)
+
+## docs/bench/analysis/count-347/weather-noise(6 本)
+
+## docs/bench/analysis/count-347/weather-noise/probes(6 本)
 
 ## docs/bench/analysis/d113-defects-2026-09-26(8 本)
 
@@ -48,6 +68,12 @@
 ## docs/bench/analysis/dm-eval-11-01/consumption(3 本)
 
 - [table.md](../../../bench/analysis/dm-eval-11-01/consumption/table.md): (見出しなし)
+
+## docs/bench/analysis/dm-eval-appeal-347(6 本)
+
+- [README.md](../../../bench/analysis/dm-eval-appeal-347/README.md): dm_eval 呼びかけの場面 — 同じ場面で呼びかけの文がある・ないときの選び方の変化(第 347)
+- [appeal_table.md](../../../bench/analysis/dm-eval-appeal-347/appeal_table.md): 呼びかけへの反応のずれ(dm_eval・呼びかけの場面)
+- [table.md](../../../bench/analysis/dm-eval-appeal-347/table.md): (見出しなし)
 
 ## docs/bench/analysis/energy-classical-2026-09-28(12 本)
 
@@ -233,6 +259,10 @@
 ## docs/bench/analysis/s2e-1102/bytecheck(4 本)
 
 ## docs/bench/analysis/s2e-1102/tools(2 本)
+
+## docs/bench/analysis/sealed-tokens-347(2 本)
+
+- [README.md](../../../bench/analysis/sealed-tokens-347/README.md): 封印の語の表 2 つの比べ(第347・2026-11-16)
 
 ## docs/bench/analysis/small-fixes-2026-09-29(20 本)
 
@@ -1017,7 +1047,7 @@
 
 ## docs/bench/w17/v2_attempt1(2 本)
 
-## docs/design(118 本)
+## docs/design(119 本)
 
 - [decision-id-index.md](../../../design/decision-id-index.md): 決定の ID の索引(自動生成・手で編集しない)
 - [prompt-2026-11-01-5070.md](../../../design/prompt-2026-11-01-5070.md): 目的
@@ -1031,6 +1061,7 @@
 - [prompt-2026-11-05-reply6.md](../../../design/prompt-2026-11-05-reply6.md): 1. CLAUDE.md §2-2 の書き換え(ユーザー承認・ニュアンスを保つ)
 - [prompt-2026-11-09-reply7.md](../../../design/prompt-2026-11-09-reply7.md): 0. 届いた範囲の確認
 - [prompt-2026-11-16-reply8.md](../../../design/prompt-2026-11-16-reply8.md): 0. 届いた範囲の確認
+- [revision-draft-2026-11-16-resident-facing-text.md](../../../design/revision-draft-2026-11-16-resident-facing-text.md): 住民に見せる凍結の文の改版の案(返事その 8 §5)2026-11-16
 - [v2-a2-rights-flags-2026-11-02.md](../../../design/v2-a2-rights-flags-2026-11-02.md): A2 の旗 3 欄と OSM からの初期化(11-02r §3 の 7 (ア)・段 2 の入力の宣言の欄と同じ扱い)
 - [v2-action-activity-two-layer-draft.md](../../../design/v2-action-activity-two-layer-draft.md): 行為と活動の二層 — 出力形の設計ラウンド草案 v0(2026-09-27・第272)
 - [v2-action-contract.md](../../../design/v2-action-contract.md): v2行動契約書(R4・v1)
@@ -1135,7 +1166,7 @@
 - [v2_significance.md](../../../design/v2_significance.md): v2の意義 — 何がわかるのか・何ができるようになるのか・世界にどう影響しうるのか(ドラフト)
 - [v3-core-design-2026-11-03.md](../../../design/v3-core-design-2026-11-03.md): v3 事象駆動の核の設計書(壁打ちの答えを題ごとに写す)
 
-## docs/design/spec(14 本)
+## docs/design/spec(15 本)
 
 - [00-principles.md](../../../design/spec/00-principles.md): 仕様書 v0 第 0 章 設計の原則
 - [01-time-and-execution.md](../../../design/spec/01-time-and-execution.md): 仕様書 v0 第 1 章 時間と実行(runtime)
@@ -1151,6 +1182,7 @@
 - [README.md](../../../design/spec/README.md): 仕様書 v0(あるべき姿)の索引
 - [conflicts.md](../../../design/spec/conflicts.md): 仕様書 v0 食い違いの一覧
 - [gaps.md](../../../design/spec/gaps.md): 仕様書 v0 差の一覧(gaps)
+- [questions-346.md](../../../design/spec/questions-346.md): 仕様書の聞きたいこと 10 問(第 346 の報告から)
 
 ## docs/funding(1 本)
 
@@ -1247,7 +1279,7 @@
 - [devlog-compressed.md](../../v1/devlog-compressed.md): 開発ログ(圧縮アーカイブ)
 - [v1-inventory.md](../../v1/v1-inventory.md): v1シミュレーション 全機能棚卸し(2026-08-29・v2ゼロベース再設計の入力)
 
-## docs/research(221 本)
+## docs/research(228 本)
 
 - [INDEX.md](../../../research/INDEX.md): 答申の索引(docs/research/ 73 本)
 - [RESEARCH-STATE.md](../../../research/RESEARCH-STATE.md): リサーチの進行状況(次のエージェントが最初に読む 1 枚)
@@ -1282,6 +1314,7 @@
 - [v2-d68-remaining-research.md](../../../research/v2-d68-remaining-research.md): v2-d68-remaining-research — D-68 経路 3(記憶・習慣)の残 10 件を一次資料で埋める(答申・実装なし)
 - [v2-d71-vocab-growth-research.md](../../../research/v2-d71-vocab-growth-research.md): v2-d71-vocab-growth-research — 回して得た観測から行動語彙を育てる仕組み(D-71 段2〜4 の設計前リサーチ)
 - [v2-dashboard-verification-orchestration-research.md](../../../research/v2-dashboard-verification-orchestration-research.md): R14 忠実度計器盤・検収戦略・実験オーケストレーション — 事前リサーチ答申(正典化)
+- [v2-data-check-2026-11-16-crime-counts-and-hourly-traffic.md](../../../research/v2-data-check-2026-11-16-crime-counts-and-hourly-traffic.md): データの確かめ 2 件(名前と欄だけ): 警視庁の町丁別・罪種別の認知件数と、道路交通センサスの時間帯別交通量表
 - [v2-data-contract-research.md](../../../research/v2-data-contract-research.md): v2データ契約リサーチ答申(2026-08-30・Opusサブエージェント・全出典URL付き)
 - [v2-density-hearing-verification.md](../../../research/v2-density-hearing-verification.md): 知覚契約R3-7 改訂案 検証: 「可聴半径は人密度の関数か」
 - [v2-destination-choice-llm-research.md](../../../research/v2-destination-choice-llm-research.md): v2-destination-choice-llm-research — 行き先選択に LLM の思考を入れる(候補提示型・R-37 答申・実装なし)
@@ -1380,8 +1413,14 @@
 - [v2-r146-sleep-consolidation-person-vector.md](../../../research/v2-r146-sleep-consolidation-person-vector.md): R-146 睡眠での固定と本人のベクトル(文の記憶と熟考を本人のベクトルへ写す先例・ベクトルの形・vLLM での差し込み・誰をいつ更新するか・費用・5070 の試験)
 - [v2-r147-continual-learning-persistent-state.md](../../../research/v2-r147-continual-learning-persistent-state.md): R-147 継続学習と持続する内部状態(文の側で学ぶ流れと、重みや状態の側で学ぶ流れの比較・状態を持つ系列模型の日本語の能力と保存の口・Qwen3-8B のままでできる範囲)
 - [v2-r148-social-cognition-anchors.md](../../../research/v2-r148-social-cognition-anchors.md): R-148 社会的認知の錨(印象の形成の連続体の模型・ステレオタイプの内容の模型の日本での値・心の理論の計測・LLM の社会的な偏りの測り方)
+- [v2-r149-addendum-1-safety-tuning-and-response-to-appeals.md](../../../research/v2-r149-addendum-1-safety-tuning-and-response-to-appeals.md): R-149 の追補 その 1: 安全と好みの学習が住民をどれだけ縛るか(断る向きを消す・重みを混ぜる・候補と確率をまとめて出させる)と、呼びかけへの反応のずれ(人の従う率と LLM の率の比べ方)
+- [v2-r149-addendum-2-persona-drift-self-image-and-retest.md](../../../research/v2-r149-addendum-2-persona-drift-self-image-and-retest.md): R-149 の追補 その 2: 人物のずれを 3 つの時間の長さで測る先例と人の変わる速さ・場面と自己像・同じ場面への答え直しの一致
 - [v2-r149-llm-judge-model-biases-and-remedies.md](../../../research/v2-r149-llm-judge-model-biases-and-remedies.md): R-149 LLM と判断モデルの癖と手当て(数と時刻の偏りと例の写し・出力の形と時刻の付けすぎ・選択肢の並び・均質化の手当てと副作用・働きかけへの反応しすぎ・時刻で思い出す記憶の模型・Qwen3-8B と判断モデルの候補で測った値)
+- [v2-r150-addendum-human-distribution-reward-and-shibuya-data.md](../../../research/v2-r150-addendum-human-distribution-reward-and-shibuya-data.md): R-150 の追補: 報酬を「人の選択の分布への合い方」にした学習の先例・渋谷で学びに使えるデータの棚卸し・答えの型を覚えて意味を失う危険の確かめ方
 - [v2-r150-learning-from-human-behavior-data.md](../../../research/v2-r150-learning-from-human-behavior-data.md): R-150 人の行動のデータで学ばせる道(Centaur 型の判断モデルの候補・心の組み方を機械に探させる道・学ばせた住民と学ばせない住民の比べ方)
+- [v2-r152-model-candidates-inventory.md](../../../research/v2-r152-model-candidates-inventory.md): R-152 モデルの候補の棚卸し(住民の LLM の候補の一覧・選び直しの物差しの材料・判断モデルの第 1 世代の順の変わり方・1 つにするか並べるか混ぜるかの先例)
+- [v2-r153-attention-gate-and-person-information-relevance.md](../../../research/v2-r153-attention-gate-and-person-information-relevance.md): R-153 注意の門と、人と情報の関係度(個人化した注意の先例・人の注意の優先度の地図と重みの決め方・街の中の気づきの錨・埋め込みの近さで関係度を出す形の偏り・候補 A〜F の比較)
+- [v2-r154-persona-forms-and-primary-check.md](../../../research/v2-r154-persona-forms-and-primary-check.md): R-154 ペルソナ(添付 2 本の一次確認・人物の持ち方の 3 つの分け方の先例・人物のベクトルの大きさの比べ方・Anthology 型の生い立ちと TIPI-J と Nemotron-Personas-Japan の 22 欄)
 - [v2-r2-llm-social-sim-fulltext-check.md](../../../research/v2-r2-llm-social-sim-fulltext-check.md): R-2 — LLM 社会シミュレーション文献 12 件の本文実読(答申・2026-09-16)
 - [v2-r23-primary-check-batch1.md](../../../research/v2-r23-primary-check-batch1.md): R-23 第1批: 出典URLゼロの答申(D等級33本)の一次確認
 - [v2-r23-primary-check-batch2.md](../../../research/v2-r23-primary-check-batch2.md): R-23 第2批: 「背骨」を成す 4 答申の一次確認
