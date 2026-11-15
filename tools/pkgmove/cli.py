@@ -278,6 +278,7 @@ def cmd_contracts(a: argparse.Namespace) -> int:
     same = CT.same_section(cur, text)
     summary = {"stage": a.stage, "contracts_old": rep["n_old"], "contracts_new": rep["n_new"],
                "ignore_lines": sum(len(c.get("ignore_imports", [])) for c in contracts),
+               "ignore_unique": rep["ignore_unique"], "ignore_gone_at": rep["ignore_gone_at"],
                "dropped_old": rep["dropped_old"], "not_expressed": rep["not_expressed"], "fallbacks": rep["fallbacks"],
                "uncovered": rep.get("uncovered", []),
                "same_as_tree": same}

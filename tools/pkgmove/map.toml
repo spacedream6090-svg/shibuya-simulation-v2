@@ -1,11 +1,11 @@
 # 移す段 3 の対応表(道具 tools/pkgmove/cli.py map が全ファイルの表から作る。手で書かない)。
 # 道筋は src/shibuya からの相対。kind: move=移す(empty_head=新しい頭を空に)・empty=同じ置き場で頭を空に・
 # split=割る(段 3・段 4 では割らない。split_to は表の割り先の記録だけ)・delete=消す頭・keep=置き場を変えない。
-# held がある行は保留(道具は動かさない)。
+# held がある行は保留(道具は動かさない)。stage は段 4 の小さな段(答えの後に移す行は、その包みと別の段の名)。
 schema = "shibuya.tools/pkgmove/map/1"
 source = "docs/reference/package-map-final-2026-11-09-files.md"
-source_sha256 = "1045e80690b33997adf9be4ea501eb7ce57523bafcac97aeab4e796aa9d99cb1"
-stages = ["foundation", "world", "economy", "act", "mind", "society", "interim_bundles", "runtime", "experiments", "validation", "delete"]
+source_sha256 = "b20f2bb4e1cf0fd7302b40fea8297798eb729f321807b91424b25c4a7192941d"
+stages = ["foundation", "world", "economy", "act", "mind", "society", "runtime", "experiments", "validation", "society_contact", "interim_bundles", "foundation_224a", "delete"]
 
 [[row]]
 num = "1"
@@ -1146,29 +1146,26 @@ stage = "interim_bundles"
 [[row]]
 num = "151"
 old = "engine/contact/calls.py"
-package = "interim_bundles"
+package = "society"
 kind = "move"
-new = "interim_bundles/contact/calls.py"
-stage = "interim_bundles"
-held = "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1)"
+new = "society/contact/calls.py"
+stage = "society_contact"
 
 [[row]]
 num = "152"
 old = "engine/contact/chat_state.py"
-package = "interim_bundles"
+package = "society"
 kind = "move"
-new = "interim_bundles/contact/chat_state.py"
-stage = "interim_bundles"
-held = "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1)"
+new = "society/contact/chat_state.py"
+stage = "society_contact"
 
 [[row]]
 num = "153"
 old = "engine/contact/deliver.py"
-package = "interim_bundles"
+package = "society"
 kind = "move"
-new = "interim_bundles/contact/deliver.py"
-stage = "interim_bundles"
-held = "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1=今 society に置くか一時の区分に置くか)"
+new = "society/contact/deliver.py"
+stage = "society_contact"
 
 [[row]]
 num = "154"
@@ -1205,11 +1202,10 @@ stage = "mind"
 [[row]]
 num = "158"
 old = "engine/contact/tools.py"
-package = "interim_bundles"
+package = "society"
 kind = "move"
-new = "interim_bundles/contact/tools.py"
-stage = "interim_bundles"
-held = "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1)"
+new = "society/contact/tools.py"
+stage = "society_contact"
 
 [[row]]
 num = "159"
@@ -1750,8 +1746,7 @@ old = "engine/removed_switches.py"
 package = "foundation"
 kind = "move"
 new = "foundation/arms/removed.py"
-stage = "foundation"
-held = "行 224a 置き場は段 4 の前に親が確かめる(move-346 の記録 §7-2 の (3))"
+stage = "foundation_224a"
 
 [[row]]
 num = "225"
@@ -1760,7 +1755,6 @@ package = "act"
 kind = "split"
 new = "act/apply.py"
 split_to = ["act/apply.py", "act/ops/shop.py", "act/ops/rail.py", "act/ops/move.py", "act/ops/plan_writes.py", "mind/ops.py", "act/ops/law_writes.py", "act/ops/body_writes.py", "act/gate.py", "act/ops/talk.py", "runtime/state/restore.py", "act/ops/intent_writes.py", "act/ops/focus.py", "act/ops/init_writes.py", "foundation/write_guard.py", "act/ops/detect_writes.py", "foundation/vocab/act_codes.py", "foundation/vocab/agent_codes.py"]
-held = "問い 2 apply_detection の割り先(本文 §8-1 の 2=act に置く・2 つに割る・mind/ops.py に置く)"
 
 [[row]]
 num = "226"
@@ -1835,7 +1829,6 @@ package = "runtime"
 kind = "split"
 new = "runtime/result.py"
 split_to = ["runtime/result.py", "runtime/run.py", "interfaces/cli/run_args.py"]
-held = "問い 6 python -m shibuya.engine.run の入口(本文 §8-1 の 6=移すか消すかが決まっていない)"
 
 [[row]]
 num = "235"

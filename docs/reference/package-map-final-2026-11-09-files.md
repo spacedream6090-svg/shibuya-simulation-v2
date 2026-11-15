@@ -16,6 +16,7 @@
 - 行は 324 本(`.py` 323 本と JSON 1 本)。割るもの 24 本。消すもの 2 本。build は置き場を変えない 79 本。
 - 〔移す段 1・段 2 で足した〕第346 で足された `engine/removed_switches.py` の行 224a と、移す段で足したファイル `engine/class_ids.py`(143a)・`core/paths.py`(91a)の行を足した(行は 327 本)。上と本文 §2 の数には入れていない。
 - 〔移す段 3 の続きで足した〕つなぎの台帳の道の対応の表 `engine/bridging/ledger_paths.py`(125a)の行を足した(行は 328 本)。上と本文 §2 の数には入れていない。
+- 〔段 4 の残り・11-16 の答え=[返事その 8](../design/prompt-2026-11-16-reply8.md) §1-6〕行 151〜153・158(連絡の器 4 本)の置き場を `society/contact/` に直した(元の列は 11-16)。行 224a・225・234 の保留の文を決着の文に替えた。上と本文 §2 の数(元の内訳・包みごとの数=society 11・interim_bundles 17)は直していない(今は society 15・interim_bundles 13)。
 - 元の内訳: K 298 本・11-09 18 本・F 6 本・照らし合わせ 2 本。
 - 照らし合わせの区分の内訳: 同じ 265 本・(ii) 41 本・(iii) 16 本・(i) 2 本。
 - 包みごとの数は本文 §2 にあります。
@@ -177,14 +178,14 @@
 | 148 | `engine/contact/arm.py` | foundation | `foundation/arms/contact.py` | いいえ | 腕の切替口。何も読まない。CLI・心・社会の腕が読む | K | (ii) |
 | 149 | `engine/contact/attention.py` | mind | `mind/plan/contact_attention.py` | いいえ | 目と心の向き | K | 同じ |
 | 150 | `engine/contact/book.py` | interim_bundles | `interim_bundles/contact/book.py` | いいえ | 宛先の持ち主。宛先(連絡先とグループ)の持ち主。問い 4 の決着=12 番目の一時の区分 interim_bundles(社会の区分には入れない)。連絡帳は持ち物=到達点は world/things(今は心の関係の層を読むので、world に置くと world から mind への辺になる) | 11-09 | 同じ |
-| 151 | `engine/contact/calls.py` | interim_bundles | `interim_bundles/contact/calls.py` | いいえ | 電話の会話。問い 4 の決着=12 番目の一時の区分 interim_bundles(社会の区分には入れない)。運ぶ器(問い 3)。import は foundation と society だけ=今 society に置くかは本文 §8 の聞きたいこと 1 | 11-09 | 同じ |
-| 152 | `engine/contact/chat_state.py` | interim_bundles | `interim_bundles/contact/chat_state.py` | いいえ | チャットの会話の状態。問い 4 の決着=12 番目の一時の区分 interim_bundles(社会の区分には入れない)。運ぶ器(問い 3)。import は foundation と society だけ=今 society に置くかは本文 §8 の聞きたいこと 1 | 11-09 | 同じ |
-| 153 | `engine/contact/deliver.py` | interim_bundles | `interim_bundles/contact/deliver.py` | いいえ | メッセージを届ける器。メッセージ・電話・既読を届ける。問い 4 の決着=12 番目の一時の区分 interim_bundles(社会の区分には入れない)。運ぶ器(問い 3)。import は foundation と society だけ=今 society に置くかは本文 §8 の聞きたいこと 1 | 11-09 | 同じ |
+| 151 | `engine/contact/calls.py` | society | `society/contact/calls.py` | いいえ | 電話の会話。運ぶ器(問い 3)。import は foundation と society だけ。〔11-16 の決着=返事その 8 §1-6 の 1・記録 2-35〕今 society に置く(一時の区分を経由しない) | 11-16 | 同じ |
+| 152 | `engine/contact/chat_state.py` | society | `society/contact/chat_state.py` | いいえ | チャットの会話の状態。運ぶ器(問い 3)。import は foundation と society だけ。〔11-16 の決着=返事その 8 §1-6 の 1・記録 2-35〕今 society に置く(一時の区分を経由しない) | 11-16 | 同じ |
+| 153 | `engine/contact/deliver.py` | society | `society/contact/deliver.py` | いいえ | メッセージを届ける器。メッセージ・電話・既読を届ける。運ぶ器(問い 3)。import は foundation と society だけ。〔11-16 の決着=返事その 8 §1-6 の 1・記録 2-35〕今 society に置く(一時の区分を経由しない) | 11-16 | 同じ |
 | 154 | `engine/contact/device.py` | world | `world/things/device.py` | いいえ | 持ち物(電池・電源・マナーモード・かばん)=世界の状態(CT0) | F | (ii) |
 | 155 | `engine/contact/habit.py` | mind | `mind/plan/contact_habit.py` | いいえ | 連絡の習慣。CT4 の連絡の習慣 | K | 同じ |
 | 156 | `engine/contact/layer.py` | interim_bundles | `interim_bundles/contact/layer.py` | いいえ | 腕の持ち主と系(心・器・体の実行の束ね=v3 で割る)。問い 4 の決着=12 番目の一時の区分 interim_bundles(社会の区分には入れない) | 11-09 | 同じ |
 | 157 | `engine/contact/port.py` | mind | `mind/plan/contact_port.py` | いいえ | 連絡の本人の判断。連絡の本人の判断(J0 の形の仮のモデル) | K | 同じ |
-| 158 | `engine/contact/tools.py` | interim_bundles | `interim_bundles/contact/tools.py` | いいえ | 道具の台帳へ足す。連絡の道具を道具の台帳へ足す。問い 4 の決着=12 番目の一時の区分 interim_bundles(社会の区分には入れない)。運ぶ器(問い 3)。import は foundation と society だけ=今 society に置くかは本文 §8 の聞きたいこと 1 | 11-09 | 同じ |
+| 158 | `engine/contact/tools.py` | society | `society/contact/tools.py` | いいえ | 道具の台帳へ足す。連絡の道具を道具の台帳へ足す。運ぶ器(問い 3)。import は foundation と society だけ。〔11-16 の決着=返事その 8 §1-6 の 1・記録 2-35〕今 society に置く(一時の区分を経由しない) | 11-16 | 同じ |
 | 159 | `engine/conversation.py` | society | `society/conversation.py` | いいえ | 会話のセッションの器。会話プロトコルのセッション状態機械 | K | 同じ |
 | 160 | `engine/decision/__init__.py` | mind | `mind/judge/decision/__init__.py`(空にする) | いいえ | 包みの頭。再輸出は消す(呼び手は新しい置き場を直に読む) | K | (ii) |
 | 161 | `engine/decision/layer.py` | mind | `mind/judge/decision/layer.py` | いいえ | 候補の口の腕と層。候補の口 J0 の腕と層 | K | (ii) |
@@ -251,8 +252,8 @@
 | 222 | `engine/regional_clock.py` | runtime | `runtime/clocks/regional.py` | いいえ | 場所ごとの時計の腕。場所ごとの時計 T4 | K | 同じ |
 | 223 | `engine/relations.py` | mind | `mind/relations/layer.py` 746・`world/facts/initial_ties.py` 326・`foundation/vocab/relations.py` 42 | 割る(§4-13) | 客観の初期の辺と主観の辺が 1 つ。割る。問い 3 の決着=A(世界の事実・運ぶ器・本人の理解の 3 か所。世界の事実から本人の理解への写しは始めの 1 回) | K | (iii) 問い 3 |
 | 224 | `engine/relations_people.py` | mind | `mind/relations/people.py` | いいえ | 人も記憶の腕の関係の読み口=本人の理解 | K | 同じ |
-| 224a | `engine/removed_switches.py` | foundation | `foundation/arms/removed.py` | いいえ | 消した切替口の一覧と、渡されたら止める口(第346 で足した)。標準ライブラリだけを読む。読み手は世界の法則(`seat_release`・`proximity`)・経済の規則の口(`economy_rules`)・runtime(組み立て・欠陥の切替口)・CLI で、全部より下の foundation に置き、切替口 4 本と同じ `foundation/arms/` に並べる案(移す段 1 で足した行。置き場は段 4 の前に親が確かめる) | 移す段 1 | — |
-| 225 | `engine/resolve.py` | act | `act/apply.py` 454・`act/ops/shop.py` 454・`act/ops/rail.py` 379・`act/ops/move.py` 322・`act/ops/plan_writes.py` 309・`mind/ops.py` 208・`act/ops/law_writes.py` 197・`act/ops/body_writes.py` 158・`act/gate.py` 154・`act/ops/talk.py` 154・`runtime/state/restore.py` 136・`act/ops/intent_writes.py` 115・`act/ops/focus.py` 94・`act/ops/init_writes.py` 82・`foundation/write_guard.py` 33・`act/ops/detect_writes.py` 10・`foundation/vocab/act_codes.py` 3・`foundation/vocab/agent_codes.py` 2 | 割る(§4-14) | 書き手の全部。割る。`apply_detection` だけは世界の欄 `cells.b4_hash` を書くので、11-09 の書きの文(世界の欄を書く関数は act だけ)に合わせて `act/ops/detect_writes.py` へ(案 K は `mind/ops.py`) | K | 同じ |
+| 224a | `engine/removed_switches.py` | foundation | `foundation/arms/removed.py` | いいえ | 消した切替口の一覧と、渡されたら止める口(第346 で足した)。標準ライブラリだけを読む。読み手は世界の法則(`seat_release`・`proximity`)・経済の規則の口(`economy_rules`)・runtime(組み立て・欠陥の切替口)・CLI で、全部より下の foundation に置き、切替口 4 本と同じ `foundation/arms/` に並べる(移す段 1 で足した行。〔11-16〕親が置き場を確かめた=標準ライブラリだけを読む・`foundation/arms/` は既に在る。済んだ foundation の段とは別に 1 本で移す) | 移す段 1 | — |
+| 225 | `engine/resolve.py` | act | `act/apply.py` 454・`act/ops/shop.py` 454・`act/ops/rail.py` 379・`act/ops/move.py` 322・`act/ops/plan_writes.py` 309・`mind/ops.py` 208・`act/ops/law_writes.py` 197・`act/ops/body_writes.py` 158・`act/gate.py` 154・`act/ops/talk.py` 154・`runtime/state/restore.py` 136・`act/ops/intent_writes.py` 115・`act/ops/focus.py` 94・`act/ops/init_writes.py` 82・`foundation/write_guard.py` 33・`act/ops/detect_writes.py` 10・`foundation/vocab/act_codes.py` 3・`foundation/vocab/agent_codes.py` 2 | 割る(§4-14) | 書き手の全部。割る。`apply_detection` だけは世界の欄 `cells.b4_hash` を書くので、11-09 の書きの文(世界の欄を書く関数は act だけ)に合わせて `act/ops/detect_writes.py` へ(案 K は `mind/ops.py`)。〔11-16 の決着=返事その 8 §1-6 の 2〕移す段では (a) act に置く(割る行なので段 4 では動かさない)。割る段(段 6)で (b) `apply_detection` を 2 つの関数に割る=世界の列 `cells.b4_hash` は act(`act/ops/detect_writes.py`)・心の欄(内受容の段の列)は mind(`mind/ops.py`)。呼ぶ順を保ち byte-check で確かめる。(c) の例外の宣言は採らない | K | 同じ |
 | 226 | `engine/resume.py` | runtime | `runtime/state/resume.py` | いいえ | 再開と設定の指紋。日境界の再開と通しランの状態の書き出し・読み込み・設定の指紋 | K | 同じ |
 | 227 | `engine/rights/__init__.py` | world | `world/facts/rights/__init__.py`(空にする) | いいえ | 包みの頭。再輸出は消す(呼び手は新しい置き場を直に読む)。問い 7 の決着=world の事実の側 | K | (iii) 問い 7 |
 | 228 | `engine/rights/initial.py` | world | `world/facts/rights/initial.py` | いいえ | 権利台帳の最初の中身。問い 7 の決着=world の事実の側 | K | (iii) 問い 7 |
@@ -261,7 +262,7 @@
 | 231 | `engine/rng_audit.py` | validation | `validation/static/rng_audit.py` | いいえ | 乱数の検査(試験だけ)。K19 の検査=乱数の流れのブロックの重なり | K | 同じ |
 | 232 | `engine/rules/__init__.py` | world | `world/facts/rules/__init__.py`(空にする) | いいえ | 包みの頭。再輸出は消す(呼び手は新しい置き場を直に読む)。問い 7 の決着=world の事実の側 | K | (iii) 問い 7 |
 | 233 | `engine/rules/table.py` | world | `world/facts/rules/table.py` | いいえ | 現実の法と制度の値=事実。経済も読む。問い 7 の決着=world の事実の側 | K | (iii) 問い 7 |
-| 234 | `engine/run.py` | runtime | `runtime/result.py` 1227・`runtime/run.py` 987・`interfaces/cli/run_args.py` 193 | 割る(§4-15) | ランの結果と入口と CLI の補助。割る | K | 同じ |
+| 234 | `engine/run.py` | runtime | `runtime/result.py` 1227・`runtime/run.py` 987・`interfaces/cli/run_args.py` 193 | 割る(§4-15) | ランの結果と入口と CLI の補助。割る。〔11-16 の決着=返事その 8 §1-6 の 6〕`python -m shibuya.engine.run` の入口(`main`)は interfaces へ移す=割り先 `interfaces/cli/run_args.py`(割る段 5b。段 4 では動かさない) | K | 同じ |
 | 235 | `engine/run_kind.py` | experiments | `experiments/port/run_kind.py` | いいえ | ランの種類の決まり。ランの種類(再現・反実仮想・腕・試験)を決めて manifest へ | K | 同じ |
 | 236 | `engine/scheduler.py` | foundation | `foundation/queues/scheduler.py` | いいえ | 汎用の予約の列。体の層と runtime が読む | K | (ii) |
 | 237 | `engine/seat_release.py` | world | `world/laws/switch_seat.py` | いいえ | 在席の解き方の切替口。在席の印を歩き出しで解く切替口(既定 walk) | K | 同じ |

@@ -7,15 +7,16 @@
 #   新しい決まりの外=親の決定)。古い決まりは、名が無くなったか、名の意味が変わった(ほかの置き場からファイルが入った)名を
 #   外して残す(外した名は報告の dropped_old に出す=黙って弱めない)。28 本は、その段の木の今の名に引き直し、両側のモジュールが
 #   在る物だけを、当たる決まりの契約の ignore_imports に載せる。
-# - 計画 §6-6 の 2 つ(一時の区分を読めるのは runtime と interfaces だけ・runtime の核は中身を読まない)は入れない(親の決定=
-#   問い 7 の答え待ち・核の一覧が未確定)。
+# - 計画 §6-6 の 2 つ(一時の区分を読めるのは runtime と interfaces だけ・runtime の核は中身を読まない)は、返事その 8 §1-6 の
+#   7・3 の答えで足した(決まり 9・10)。from_stage の段から入れる(9=interim_bundles の段から・10=delete の段から=段 4 の終わり)。
 schema = "shibuya.tools/pkgmove/contracts/1"
 source = "docs/reference/package-map-final-2026-11-09.md"
 root_package = "shibuya"
 old_only_through = "foundation"
-#: 段の順(親の決定: interim_bundles は答えの後=最後)
-stage_order = ["foundation", "world", "economy", "act", "mind", "society", "runtime", "experiments", "validation", "delete",
-               "interim_bundles"]
+#: 段の順(当てた順=tools/pkgmove/table.py の STAGES と同じ)。interim_bundles は答えの後(親の決定 12)。答えの後の 4 段
+#: (返事その 8 §1-4・§1-6)は別々の commit: 連絡の器 4 本 → society(society_contact)・interim_bundles・行 224a(foundation_224a)・delete。
+stage_order = ["foundation", "world", "economy", "act", "mind", "society", "runtime", "experiments", "validation",
+               "society_contact", "interim_bundles", "foundation_224a", "delete"]
 
 #: §1-2 の層(上から。「|」は互いに読まない兄弟)。build は横に置く(ランの側から読まれない)。
 layers = [
@@ -88,6 +89,29 @@ name = "8 ランの側は build を読まない"
 source_all_except = ["build"]
 forbidden = ["build"]
 
+# ---- 計画 §6-6 の 2 つの決まり(返事その 8 §1-6 の 7=足す・§1-6 の 3=核の範囲は §6-6 の候補のとおり)。from_stage の段から入れる。
+# 番号 9・10 はこの元のファイルの中の番号(計画 §6-4 の 1〜8 の続きではない)。名の文は計画 §6-6 の文。
+[[rule]]
+id = 9
+type = "protected"
+name = "§6-6 の 1 一時の区分を読めるのは runtime と interfaces だけ"
+protected = ["interim_bundles"]
+allowed = ["runtime", "interfaces"]
+from_stage = "interim_bundles"
+
+# 核の候補(計画 §6-6 の 2・【見立て】)を元の側に、中身の包み(world・mind・act・economy・society・interim_bundles・experiments)を
+# 禁じる側に。計画は核から中身を読む辺を直の辺(モジュールの対)で数えたので、直の辺だけを見る(allow_indirect_imports)。
+[[rule]]
+id = 10
+type = "forbidden"
+name = "§6-6 の 2 runtime の核は中身を読まない"
+source_names = ["runtime.clock", "runtime.clocks", "runtime.state", "runtime.inference.tape", "runtime.systems.conductor",
+                "runtime.systems.spec", "runtime.systems.boxes", "runtime.systems.day"]
+forbidden = ["world.laws", "world.body", "world.model", "world.things", "world.facts", "world.ledger", "mind", "act", "economy",
+             "society", "interim_bundles", "experiments.drive", "experiments.port"]
+allow_indirect_imports = true
+from_stage = "delete"
+
 # ---- 今の 5 つの決まり(pyproject の今の節。名は shibuya. を除いた包み)
 [[old]]
 type = "layers"
@@ -125,6 +149,30 @@ importer = "llm"
 imported = "llm.fleet"
 rules = [1, 3]
 note = "llm の頭の再輸出・段 5a で消える・計画 §6-4 の 28 本の外・親の仮採用 2026-11-11"
+gone_at = "段 5a"
+
+# ---- 計画 §6-6 の 2 の表(核の候補が中身を読む辺・名は最終の置き場)。28 本と同じ扱い。gone_at は表の「割った後」の列と
+# 返事その 8 §1-6 の 3(mora_count は割る段で foundation の文の道具へ下ろす)。
+[[ignore_66]]
+num = "核 1"
+importer = "runtime.clocks.speech"
+imported = "society.speech.port"
+rules = [10]
+gone_at = "割る段(段は未定・mora_count を foundation の文の道具へ下ろす)"
+
+[[ignore_66]]
+num = "核 2"
+importer = "runtime.clocks.step_scope"
+imported = "mind.system1.change_detect"
+rules = [10]
+gone_at = "段 5a"
+
+[[ignore_66]]
+num = "核 3"
+importer = "runtime.state.resume"
+imported = "world.facts.calendar"
+rules = [10]
+gone_at = "段 2(core/paths.py へ出した)"
 
 # ---- 計画 §6-4 の表の 28 本(移すだけの状態で当たる辺・名は最終の置き場)。試験が計画の表と突き合わせる。
 [[ignore]]

@@ -556,18 +556,22 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_contracts_cli_refuses_a_main_worktree`(関数): ``contracts --apply`` も本体の作業木へは書かない(move --apply と同じ守り)。
   - `test_contracts_name_only_modules_in_the_tree_and_drop_changed_old_names`(関数): 〔作った見本の木・world の段〕作った節に、木に無い包みの名は入らない。古い決まりは、無くなった名(core・manifest ほか)と
   - `test_contracts_toml_matches_the_plan_tables`(関数): 元のファイルの層は計画 §1-2 の図、28 本は §6-4 の表と同じ(写しの誤りを止める)。決まりは 1〜8。
+  - `test_done_stages_are_not_applied_again`(関数): 〔段 4 の残り〕済んだ段(当てる行の残らない段)をまとめて当て直す計画は、行 0・書き換え 0・移動 0(済んだ段を壊さない)。
   - `test_dry_run_writes_nothing`(関数)
   - `test_every_rewritten_path_chain_points_to_a_file_in_the_applied_tree`(関数): 〔突然変異 m28〕``/`` の結合を書き換えた所は、全部、当てた木で在るファイルを指す(書き換えなければ古い道=当てた木に無い
   - `test_frozen_guard_stops_when_a_frozen_value_is_already_different`(関数)
   - `test_frozen_values_are_kept_by_the_staged_plan`(関数)
   - `test_head_all_drops_only_the_dropped_reexport_names`(関数): 〔親の裁定 review3 の 2〕頭から除いた再輸出の名は、その頭の ``__all__`` からも除く。残る ``__all__`` は前の
   - `test_head_reexports_of_modules_leaving_the_package_are_dropped`(関数): この段で空にしない頭の再輸出のうち、出どころが包みの外へ移るものの import の文を除く(循環の import を作らない)。
-  - `test_held_rows_are_refused`(関数)
+  - `test_held_rows_are_refused_in_a_sample`(関数): 〔11-16 の答えで table.HELD は空〕保留の仕組みは作った見本の対応表で確かめる: 名指しは断る・段を選べば保留の行を外して
+  - `test_ignore_counts_count_lines_unique_edges_and_where_they_go`(関数): 例外の数(返事その 8 §1-12 の 3): 延べの行・重なりを除いた辺・重なりを除いた辺の消える段ごとの数(載せなかった行は数えない)。
   - `test_import_check_catches_a_cycle_and_passes_a_clean_tree`(関数): 〔M-1〕全モジュールを 1 本ずつ最初から import する確かめ。わざと循環を作った小さな木で落ち、直した木で通る。読んだ
   - `test_import_check_fails_when_it_reads_a_shibuya_outside_the_tree`(関数): 〔検収 n06〕木の ``src/shibuya`` に頭(``__init__.py``)が無いと、子は別の場所の ``shibuya``(editable の本体・無ければ
   - `test_import_check_reimports_every_module_from_scratch`(関数): 〔検収 n05〕読む順でだけ循環が出る小さな木: ``a_pkg`` を先に読めば ``z_moved`` も読めるが、``z_moved`` を最初に読むと
   - `test_imports_through_an_emptied_head_are_sent_to_the_defining_modules`(関数): 〔突然変異 m12〕空にする頭を通る import は、定義したモジュールへ向く(頭から読んでよいのは子のモジュールだけ)。
   - `test_imports_through_an_emptied_head_are_sent_to_the_defining_modules_in_a_sample`(関数): 〔突然変異 m12〕作った見本の木で(本物の tests の字面に寄りかからない): 空にする頭 ``shibuya.pk`` の再輸出を通る import は
+  - `test_late_stage_rows_are_chosen_only_by_their_stage`(関数): 〔段 4 の残り〕本物の対応表で: 答えの後の段は、その行だけを選ぶ(保留で外す行は 0)。済んだ段の名(society・foundation)は
+  - `test_late_stages_move_only_their_rows_and_the_tree_stage_follows_in_a_sample`(関数): 〔段 4 の残り・作った見本の木〕段を当てた順に 1 段ずつ当てると: 各段で動くのはその段の行だけ・前の段を当て直すと行 0・
   - `test_ledger_paths_table_follows_the_moves_and_the_ledger_is_kept`(関数): (d) 移したファイルごとに「今の道 → 台帳の道」を表に足す(台帳は書き換えない)。台帳のコードの行の道は全部、表を通して
   - `test_main_worktree_check_fails_closed`(関数): 〔M-2〕git が失敗したら断る側・呼び手の GIT_DIR に左右されない・.git が 1 つも無いときだけ git の外。報告の置き場が本体の
   - `test_map_toml_is_made_from_the_table_and_is_current`(関数)
@@ -597,6 +601,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_record_tools_get_only_their_import_statements_rewritten_in_a_sample`(関数): 〔親の決定 7・作った見本の木〕記録の道具に当たるファイル(docs の ``.py``・許可の一覧の外)では、import の文だけが書き換わり、
   - `test_record_tools_list_matches_the_scan_of_tests`(関数): (a) の範囲に足す docs の記録の道具の一覧は、tests が道で読む docs の ``.py`` の走査と同じ。
   - `test_rule_5_adds_only_late_readers_whose_final_place_may_read_in_a_sample`(関数): 〔検収 M-2・k10・k11〕決まり 5 の読んでよい側に足すのは、まだ移っていない読み手のうち、最終の置き場が読んでよい側
+  - `test_section_6_6_rules_come_in_at_their_stages_in_a_sample`(関数): 〔段 4 の残り・作った見本の木〕§6-6 の決まりは入れる段から: 一時の区分の読み手の決まり(9)は interim_bundles の段から
   - `test_skipping_interim_bundles_then_applying_it_keeps_the_guards`(関数): 〔親の決定 12〕interim_bundles を飛ばして後の段を当て、最後に interim_bundles を当てても守りが通り、残る段をまとめて
   - `test_split_import_keeps_the_comments_of_its_names`(関数): 〔突然変異 m13・L-9〕行き先が 2 つに分かれる文を作り直すとき、名の行の注・名の前の注だけの行・頭の行の注を残す。
   - `test_stacked_apply_prunes_old_package_dirs_and_returns_3_when_imports_fail`(関数): 〔検収 L-a・n07〕同じ木に段を重ねて当てる形: 前の import が作った ``__pycache__`` を全部のディレクトリに置いた木へ、次の
@@ -606,6 +611,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `where`(関数): 今の道(``src/shibuya`` からの相対)のファイルの、リポの今の木の中の道筋(移した後なら新しい道)。
 - import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/classids.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/importcheck.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/pkgdata.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
 - 環境変数: `os.environ` をまるごと使う
+- 決定の ID: 11-16
 
 ## [test_realworld_fetch_jinryu.py](../../../../../../tests/tools/test_realworld_fetch_jinryu.py)
 

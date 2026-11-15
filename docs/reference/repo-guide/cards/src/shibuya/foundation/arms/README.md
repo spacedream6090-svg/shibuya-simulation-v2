@@ -8,6 +8,8 @@ Python 5 本・その他 0 本(このディレクトリの直下)
 
 (冒頭の説明なし)
 
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
+
 ## [calendar2.py](../../../../../../../../src/shibuya/foundation/arms/calendar2.py)
 
 engine.calendar2.arm — カレンダー 2 の腕(第 6 期 6-2・CA2 (c)(d)・CA3・CA4・CA6・CA7・CA8)。

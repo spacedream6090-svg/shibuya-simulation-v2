@@ -11,6 +11,11 @@
 - 計画 §6-4 の表の 28 本は、その段の木の今の名に引き直し(割るファイルはまだ古い置き場=今の名)、両側のモジュールが木に在る
   物だけを、当たる決まりの契約の ``ignore_imports`` に載せる。
 - 木の当たっている行が、渡した段と食い違えば断る(段の名の取り違えを防ぐ)。
+- 〔段 4 の残り・返事その 8 §1-6 の 7・3〕計画 §6-6 の 2 つの決まりは、``from_stage`` の段から入れる(一時の区分を読めるのは
+  runtime と interfaces だけ=interim_bundles の段から・runtime の核は中身を読まない=delete の段から)。§6-6 の表の辺は
+  ``[[ignore_66]]``(28 本と同じ扱い=その段の木の今の名に引き直し、両側と辺が在る物だけを載せる)。
+- 報告に例外(ignore)の数を出す: 延べの行(``ignore_lines``)・重なりを除いた辺(``ignore_unique``)・重なりを除いた辺の
+  「消える段」ごとの数(``ignore_gone_at``)。
 """
 from __future__ import annotations
 
@@ -42,6 +47,7 @@ class Spec:
     old: list[dict]
     ignores: list[dict]
     extras: list[dict] = field(default_factory=list)
+    ignores66: list[dict] = field(default_factory=list)
 
     @property
     def units(self) -> list[str]:
@@ -56,7 +62,8 @@ def load_spec(path: Path) -> Spec:
     d = tomllib.loads(Path(path).read_text(encoding="utf-8"))
     return Spec(root=d["root_package"], old_only_through=d["old_only_through"], stage_order=tuple(d["stage_order"]),
                 layers=list(d["layers"]), side=list(d.get("side", [])), rules=list(d["rule"]), old=list(d["old"]),
-                ignores=list(d["ignore"]), extras=list(d.get("extra_ignore", [])))
+                ignores=list(d["ignore"]), extras=list(d.get("extra_ignore", [])),
+                ignores66=list(d.get("ignore_66", [])))
 
 
 @dataclass
@@ -111,6 +118,12 @@ def check_stage(tree: Tree, mapdoc: MapDoc, spec: Spec, stage: str) -> list[str]
         if want != got:
             errs.append(f"行 {r.num} {r.old}(段 {r.stage}): {'当たっていない' if want else '当たっている'}")
     return errs
+
+
+def _name_ok(v: TreeView, root: str, p: str) -> bool:
+    """名(``shibuya.`` を除く)が木に在り最終の名か(モジュールなら最終の名・包みなら頭を除く中身が全部最終の名)。"""
+    name = f"{root}.{p}"
+    return (name in v.modules and v.is_final(name)) or (name in v.packages and _unit_ok(v, root, p)[0])
 
 
 def _unit_ok(v: TreeView, root: str, unit: str) -> tuple[bool, str]:
@@ -202,6 +215,7 @@ def build(spec: Spec, mapdoc: MapDoc, tree: Tree, stage: str) -> tuple[list[dict
     if old_only:
         rep["n_new"] = 0
         rep["uncovered"] = uncovered(contracts, v, root)
+        rep.update(ignore_counts(contracts, rep))
         return contracts, rep
     # ---- 新しい決まり
     ok: dict[str, bool] = {}
@@ -211,24 +225,26 @@ def build(spec: Spec, mapdoc: MapDoc, tree: Tree, stage: str) -> tuple[list[dict
         if not good:
             rep["not_expressed"].append({"rule": "単位", "name": u, "why": why})
     ign_by_rule: dict[int, list[str]] = {}
-    for g in spec.ignores:
-        a, b = _translate(v, mapdoc, f"{root}.{g['importer']}"), _translate(v, mapdoc, f"{root}.{g['imported']}")
-        row = {"num": g["num"], "importer": a, "imported": b, "gone_at": g["gone_at"], "rules": g["rules"]}
-        if a is None or b is None or a not in v.modules or b not in v.modules:
-            row["skipped"] = "片側のモジュールが木に無い"
-            rep["ignores"].append(row)
-            continue
-        if not has_edge(tree, v, a, b):
-            row["skipped"] = "辺が無い"
-            rep["ignores"].append(row)
-            continue
-        rep["ignores"].append(row)
-        for rid in g["rules"]:
-            ign_by_rule.setdefault(int(rid), []).append(f"{a} -> {b}")
+    rep["ignores_66"] = []
+    for key, table in (("ignores", spec.ignores), ("ignores_66", spec.ignores66)):  # 計画 §6-4 の 28 本と §6-6 の表
+        for g in table:
+            a, b = _translate(v, mapdoc, f"{root}.{g['importer']}"), _translate(v, mapdoc, f"{root}.{g['imported']}")
+            row = {"num": g["num"], "importer": a, "imported": b, "gone_at": g["gone_at"], "rules": g["rules"]}
+            if a is None or b is None or a not in v.modules or b not in v.modules:
+                row["skipped"] = "片側のモジュールが木に無い"
+                rep[key].append(row)
+                continue
+            if not has_edge(tree, v, a, b):
+                row["skipped"] = "辺が無い"
+                rep[key].append(row)
+                continue
+            rep[key].append(row)
+            for rid in g["rules"]:
+                ign_by_rule.setdefault(int(rid), []).append(f"{a} -> {b}")
     rep["extra_ignores"] = []
     for g in spec.extras:  # 計画の表の外の辺(名は今の木の名)
         a, b = f"{root}.{g['importer']}", f"{root}.{g['imported']}"
-        row = {"importer": a, "imported": b, "rules": g["rules"], "note": g["note"]}
+        row = {"importer": a, "imported": b, "rules": g["rules"], "note": g["note"], "gone_at": g.get("gone_at", "")}
         if a not in v.modules or b not in v.modules or not has_edge(tree, v, a, b):
             row["skipped"] = "片側のモジュールか辺が木に無い"
         else:
@@ -238,7 +254,12 @@ def build(spec: Spec, mapdoc: MapDoc, tree: Tree, stage: str) -> tuple[list[dict
     rep["fallbacks"] = sorted(set(v.fallbacks))
     units = spec.units
     n_new = 0
+    k = spec.stage_order.index(stage)
     for rule in spec.rules:
+        fs = rule.get("from_stage")
+        if fs and k < spec.stage_order.index(fs):  # 〔§6-6〕その段からの決まり
+            rep["not_expressed"].append({"rule": rule["id"], "name": rule["name"], "why": f"段 {fs} から入れる"})
+            continue
         c = _new_contract(spec, rule, ok, units, v, root, rep)
         if c is None:
             continue
@@ -249,7 +270,26 @@ def build(spec: Spec, mapdoc: MapDoc, tree: Tree, stage: str) -> tuple[list[dict
         n_new += 1
     rep["n_new"] = n_new
     rep["uncovered"] = uncovered(contracts, v, root)
+    rep.update(ignore_counts(contracts, rep))
     return contracts, rep
+
+
+def ignore_counts(contracts: list[dict], rep: dict) -> dict:
+    """例外(ignore)の数(返事その 8 §1-12 の 3): 延べの行・重なりを除いた辺・重なりを除いた辺の「消える段」ごとの数。
+    消える段は、辺を載せた元の行(計画 §6-4 の 28 本・§6-6 の表・表の外の辺)の注から引く(1 つの辺に違う注があれば ``・`` で
+    つなぐ)。"""
+    lines = [x for c in contracts for x in c.get("ignore_imports", [])]
+    uniq = sorted(set(lines))
+    gone: dict[str, set[str]] = {}
+    for row in [*rep.get("ignores", []), *rep.get("ignores_66", []), *rep.get("extra_ignores", [])]:
+        if row.get("skipped"):
+            continue
+        gone.setdefault(f"{row['importer']} -> {row['imported']}", set()).add(row.get("gone_at") or "(注なし)")
+    by: dict[str, int] = {}
+    for e in uniq:
+        g = "・".join(sorted(gone.get(e, {"(注なし)"})))
+        by[g] = by.get(g, 0) + 1
+    return {"ignore_lines": len(lines), "ignore_unique": len(uniq), "ignore_gone_at": dict(sorted(by.items()))}
 
 
 def uncovered(contracts: list[dict], v: TreeView, root: str) -> list[str]:
@@ -300,6 +340,11 @@ def _new_contract(spec: Spec, rule: dict, ok: dict[str, bool], units: list[str],
     if t == "forbidden":
         if "source_all_except" in rule:
             src = [u for u in units if ok[u] and u not in rule["source_all_except"]]
+        elif "source_names" in rule:  # 〔§6-6 の 2〕単位でないモジュールと包みの名(runtime の核)
+            src = [p for p in rule["source_names"] if _name_ok(v, root, p)]
+            miss = [p for p in rule["source_names"] if p not in src]
+            if miss:
+                say(f"元の側の名のうち木で言えないもの: {', '.join(miss)}")
         else:
             src = [u for u in rule["source"] if ok.get(u)]
         if "forbidden_all_except" in rule:
@@ -309,10 +354,12 @@ def _new_contract(spec: Spec, rule: dict, ok: dict[str, bool], units: list[str],
         if not src or not fb:
             say("元の側か禁じる側が木で言えない(まだ移っていない)")
             return None
-        return {"name": name, "type": "forbidden", "source_modules": q(src), "forbidden_modules": q(fb)}
+        c = {"name": name, "type": "forbidden", "source_modules": q(src), "forbidden_modules": q(fb)}
+        if rule.get("allow_indirect_imports"):  # 直の辺だけを見る(§6-6 の 2=計画は直の辺で数えた)
+            c["allow_indirect_imports"] = True
+        return c
     if t == "protected":
-        prot = [p for p in rule["protected"] if f"{root}.{p}" in v.modules and v.is_final(f"{root}.{p}")
-                or (f"{root}.{p}" in v.packages and _unit_ok(v, root, p)[0])]
+        prot = [p for p in rule["protected"] if _name_ok(v, root, p)]
         allowed = q([u for u in rule["allowed"] if ok.get(u)])
         if not prot:
             say("守る側のモジュールが木に無い(割る段の後)")
@@ -344,6 +391,8 @@ def render(spec: Spec, stage: str, contracts: list[dict]) -> str:
                 out.append(f"{key} = [")
                 out += [f"  {_q(x)}," for x in c[key]]
                 out.append("]")
+        if "allow_indirect_imports" in c:
+            out.append(f"allow_indirect_imports = {'true' if c['allow_indirect_imports'] else 'false'}")
     return "\n".join(out) + "\n"
 
 

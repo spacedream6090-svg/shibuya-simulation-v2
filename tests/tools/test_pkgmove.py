@@ -44,7 +44,7 @@ from pkgmove import ledgerpaths as LPT  # noqa: E402
 from pkgmove import move as MV  # noqa: E402
 from pkgmove import strings as ST  # noqa: E402
 from pkgmove.model import SRC_PREFIX, Ctx, Index, Tree, apply_edits, docstring_ids, mod_of, symbol_map  # noqa: E402
-from pkgmove.table import HELD, MAP_REL, STAGES, Row, build_map_text, load_map, parse_table  # noqa: E402
+from pkgmove.table import HELD, LATE_STAGES, MAP_REL, STAGES, Row, build_map_text, load_map, parse_table  # noqa: E402
 
 CLI_PY = ROOT / "tools" / "pkgmove" / "cli.py"
 FROZEN_FILES = ("tests/engine/state/names_frozen.json", "tests/engine/state/class_ids_frozen.json",
@@ -162,12 +162,21 @@ def test_map_toml_is_made_from_the_table_and_is_current():
     assert len(rows) == 328
     kinds = Counter(r.kind for r in rows)
     assert kinds == {"move": 206, "keep": 94, "split": 24, "delete": 2, "empty": 2}
-    assert {r.old: r.held for r in rows if r.held} == HELD
-    # 保留の一覧: 問い 1 の 4 本・問い 2(resolve)・問い 6(run)・行 224a
-    assert set(HELD) == {"engine/contact/deliver.py", "engine/contact/calls.py", "engine/contact/chat_state.py",
-                         "engine/contact/tools.py", "engine/resolve.py", "engine/run.py", "engine/removed_switches.py"}
+    # 保留の一覧は 11-16 の答え(返事その 8 §1-6)で全部決着した=空
+    assert {r.old: r.held for r in rows if r.held} == HELD == {}
     by = {r.old: r for r in rows}
-    assert by["engine/resolve.py"].kind == "split" and "act/ops/detect_writes.py" in by["engine/resolve.py"].split_to
+    # 答えの後に移す行は、済んだ段と別の段: 連絡の器 4 本 → society(§1-6 の 1)・行 224a → foundation/arms/removed.py
+    for f in ("calls", "chat_state", "deliver", "tools"):
+        r = by[f"engine/contact/{f}.py"]
+        assert (r.kind, r.package, r.new, r.stage) == ("move", "society", f"society/contact/{f}.py", "society_contact")
+    r = by["engine/removed_switches.py"]
+    assert (r.kind, r.package, r.new, r.stage) == ("move", "foundation", "foundation/arms/removed.py", "foundation_224a")
+    assert {r.old: r.stage for r in rows if r.old in LATE_STAGES} == LATE_STAGES
+    assert {r.stage for r in rows if r.stage} == set(STAGES)
+    # 割る行(段 4 では動かさない)の割り先: apply_detection の (b)=act の側と mind/ops.py(§1-6 の 2)・入口=interfaces(§1-6 の 6)
+    assert by["engine/resolve.py"].kind == "split"
+    assert {"act/ops/detect_writes.py", "mind/ops.py"} <= set(by["engine/resolve.py"].split_to)
+    assert by["engine/run.py"].kind == "split" and "interfaces/cli/run_args.py" in by["engine/run.py"].split_to
     assert by["core/__init__.py"].empty_head and by["core/__init__.py"].new == "foundation/__init__.py"
     assert by["world/__init__.py"].kind == "empty" and by["agents/__init__.py"].kind == "delete"
     assert (ROOT / MAP_REL).read_text(encoding="utf-8") == build_map_text(ROOT)
@@ -198,18 +207,38 @@ def test_dry_run_writes_nothing(tmp_path):
     assert digest(root) == before
 
 
-def test_held_rows_are_refused(base_copy):
-    for old in HELD:
-        with pytest.raises(MV.Refused):
+def test_held_rows_are_refused_in_a_sample():
+    """〔11-16 の答えで table.HELD は空〕保留の仕組みは作った見本の対応表で確かめる: 名指しは断る・段を選べば保留の行を外して
+    報告に出し、木の中では動かさない(保留でない行は動かす)。"""
+    rows = [Row(num="1", old="pk/a.py", package="x", kind="move", new="qq/a.py", stage="foundation", held="問いの答え待ち"),
+            Row(num="2", old="pk/b.py", package="x", kind="move", new="qq/b.py", stage="foundation")]
+    md = MV.MapDoc(rows=rows)
+    with pytest.raises(MV.Refused, match="保留の行は動かさない"):
+        MV.select_rows(md, (), only=["pk/a.py"])
+    cand, held = MV.select_rows(md, ("foundation",))
+    assert [r.old for r in cand] == ["pk/b.py"] and [r.old for r in held] == ["pk/a.py"]
+    tree = Tree(files={"src/shibuya/__init__.py": "", "src/shibuya/pk/__init__.py": "", "src/shibuya/pk/a.py": "A = 1\n",
+                       "src/shibuya/pk/b.py": "from shibuya.pk.a import A\n"})
+    plan = MV.make_plan(tree, md, ("foundation",))
+    assert [r.old for r in plan.refused] == ["pk/a.py"] and plan.after.files["src/shibuya/pk/a.py"] == "A = 1\n"
+    assert plan.after.files["src/shibuya/qq/b.py"] == "from shibuya.pk.a import A\n"
+    assert "src/shibuya/pk/b.py" not in plan.after.files
+
+
+def test_late_stage_rows_are_chosen_only_by_their_stage(base_copy):
+    """〔段 4 の残り〕本物の対応表で: 答えの後の段は、その行だけを選ぶ(保留で外す行は 0)。済んだ段の名(society・foundation)は
+    その行を選ばない(済んだ段を当て直さない)。割る行は保留が外れても名指しで動かさない(CLI は終了コード 2)。"""
+    for stage in sorted(set(LATE_STAGES.values())):
+        rows, held = MV.select_rows(MAPDOC, (stage,))
+        assert {r.old for r in rows} == {o for o, s in LATE_STAGES.items() if s == stage} and held == []
+    for stage in ("society", "foundation", "interim_bundles"):
+        rows, held = MV.select_rows(MAPDOC, (stage,))
+        assert not ({r.old for r in rows} & set(LATE_STAGES)) and held == []
+    for old in ("engine/resolve.py", "engine/run.py"):
+        with pytest.raises(MV.Refused, match="動かす行でない"):
             MV.select_rows(MAPDOC, (), only=[old])
-    r = run_cli("move", "--stage", "interim_bundles", "--only", "engine/contact/deliver.py", "--tree", str(base_copy))
-    assert r.returncode == 2 and "保留" in r.stderr
-    rows, held = MV.select_rows(MAPDOC, ("interim_bundles",))
-    assert {r.old for r in held} == {"engine/contact/deliver.py", "engine/contact/calls.py",
-                                     "engine/contact/chat_state.py", "engine/contact/tools.py"}
-    assert not ({r.old for r in rows} & set(HELD))
-    rows, held = MV.select_rows(MAPDOC, ("foundation",))
-    assert [r.old for r in held] == ["engine/removed_switches.py"]
+    r = run_cli("move", "--stage", "foundation", "--only", "engine/run.py", "--tree", str(base_copy))
+    assert r.returncode == 2 and "動かす行でない" in r.stderr
 
 
 def test_staged_plan_refuses_the_held_rows_and_leaves_them(staged):
@@ -678,13 +707,131 @@ def test_skipping_interim_bundles_then_applying_it_keeps_the_guards(base_copy):
                         frozen=frozen_of(base_copy), ledger_text=(base_copy / MV.LEDGER_REL).read_text(encoding="utf-8"))
     for pl in (first, last):
         assert all(v.startswith("同じ") for v in pl.guards.values()), pl.guards
-    assert {r.old for r in last.refused} == {"engine/contact/deliver.py", "engine/contact/calls.py",
-                                             "engine/contact/chat_state.py", "engine/contact/tools.py"}
+    assert first.refused == [] and last.refused == []  # 〔11-16〕保留の行は無い(連絡の器 4 本は society_contact の段)
     whole = plan_for(base_copy, pending() or STAGES)
     a, b = last.after, whole.after
     assert set(a.files) == set(b.files) and a.blobs == b.blobs
     for q in sorted(p for p in a.files if a.files[p] != b.files[p]):
         assert _normalized(a.files[q]) == _normalized(b.files[q]), q
+
+
+def test_done_stages_are_not_applied_again(base_copy):
+    """〔段 4 の残り〕済んだ段(当てる行の残らない段)をまとめて当て直す計画は、行 0・書き換え 0・移動 0(済んだ段を壊さない)。
+    まだどの段も当たっていない木では済んだ段が無い=飛ばす。"""
+    done = tuple(s for s in STAGES if s not in pending())
+    if not done:
+        pytest.skip("済んだ段が無い木(段 3 の時点の木)")
+    plan = plan_for(base_copy, done)
+    assert plan.rows_applied == [] and plan.changed == {} and plan.file_moves == {}
+    assert plan.created_heads == [] and plan.emptied_heads == [] and plan.deleted == []
+    rows, _ = MV.select_rows(MAPDOC, done)
+    assert len(plan.rows_already) == len(rows) > 0
+    assert all(v.startswith("同じ") for v in plan.guards.values()), plan.guards
+
+
+# 〔段 4 の残り〕答えの後の段の見本: 済んだ段の包み(society・foundation)へ後から移す行を別の段にした対応表
+def _late_sample() -> tuple[Tree, MV.MapDoc]:
+    rows = [Row(num="1", old="core/a.py", package="foundation", kind="move", new="foundation/a.py", stage="foundation"),
+            Row(num="2", old="engine/clock.py", package="runtime", kind="move", new="runtime/clock.py", stage="runtime"),
+            Row(num="3", old="engine/assemble.py", package="runtime", kind="move", new="runtime/systems/assemble.py",
+                stage="runtime"),
+            Row(num="4", old="engine/s.py", package="society", kind="move", new="society/s.py", stage="society"),
+            Row(num="5", old="engine/m.py", package="mind", kind="move", new="mind/m.py", stage="mind"),
+            Row(num="6", old="engine/contact/c.py", package="society", kind="move", new="society/contact/c.py",
+                stage="society_contact"),
+            Row(num="7", old="engine/contact/__init__.py", package="interim_bundles", kind="move",
+                new="interim_bundles/contact/__init__.py", stage="interim_bundles", empty_head=True),
+            Row(num="8", old="engine/contact/layer.py", package="interim_bundles", kind="move",
+                new="interim_bundles/contact/layer.py", stage="interim_bundles"),
+            Row(num="9", old="engine/removed.py", package="foundation", kind="move", new="foundation/arms/removed.py",
+                stage="foundation_224a"),
+            Row(num="10", old="census/__init__.py", package="消す", kind="delete", stage="delete"),
+            Row(num="11", old="cli.py", package="interfaces", kind="split", new="interfaces/cli/main.py",
+                split_to=("interfaces/cli/main.py",))]
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/core/__init__.py": "", "src/shibuya/core/a.py": "A = 1\n",
+             "src/shibuya/engine/__init__.py": "", "src/shibuya/engine/clock.py": "",
+             "src/shibuya/engine/assemble.py": "from shibuya.engine.contact import layer\n",
+             "src/shibuya/engine/s.py": "from shibuya.core.a import A\n", "src/shibuya/engine/m.py": "M = 1\n",
+             "src/shibuya/engine/contact/__init__.py": "", "src/shibuya/engine/contact/c.py": "from shibuya.engine.s import A\n",
+             "src/shibuya/engine/contact/layer.py": "from shibuya.engine.contact import c\nfrom shibuya.engine import removed\n",
+             "src/shibuya/engine/removed.py": "R = 1\n", "src/shibuya/census/__init__.py": '"""census"""\n',
+             "src/shibuya/cli.py": "from shibuya.engine.contact.layer import c\n"}
+    return Tree(files=files), MV.MapDoc(rows=rows)
+
+
+def test_late_stages_move_only_their_rows_and_the_tree_stage_follows_in_a_sample():
+    """〔段 4 の残り・作った見本の木〕段を当てた順に 1 段ずつ当てると: 各段で動くのはその段の行だけ・前の段を当て直すと行 0・
+    木の段(``contracts.stage_of``)はいま当てた段・import の文は新しい置き場を読む・全部をまとめて当てた木と同じ。"""
+    from pkgmove import contracts as CT
+
+    spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
+    tree0, md = _late_sample()
+    order = [s for s in STAGES if any(r.stage == s for r in md.rows)]
+    assert order[-4:] == ["society_contact", "interim_bundles", "foundation_224a", "delete"]
+    assert CT.stage_of(tree0, md, spec) == ""
+    tree, done = tree0, []
+    for s in order:
+        plan = MV.make_plan(tree, md, (s,))
+        assert sorted(r.num for r in plan.rows_applied) == sorted(r.num for r in md.rows if r.stage == s), s
+        for d in done:
+            assert MV.make_plan(plan.after, md, (d,)).rows_applied == [], (s, d)
+        tree = plan.after
+        done.append(s)
+        assert CT.stage_of(tree, md, spec) == s, s
+    f = tree.files
+    assert f["src/shibuya/interim_bundles/contact/layer.py"] == (
+        "from shibuya.society.contact import c\nfrom shibuya.foundation.arms import removed\n")
+    assert f["src/shibuya/society/contact/c.py"] == "from shibuya.society.s import A\n"
+    assert f["src/shibuya/runtime/systems/assemble.py"] == "from shibuya.interim_bundles.contact import layer\n"
+    assert f["src/shibuya/society/contact/__init__.py"] == "" and f["src/shibuya/foundation/arms/__init__.py"] == ""
+    assert "src/shibuya/engine/contact/__init__.py" not in f and "src/shibuya/census/__init__.py" not in f
+    together = MV.make_plan(tree0, md, tuple(order)).after
+    assert together.files == tree.files and together.blobs == tree.blobs
+
+
+def test_section_6_6_rules_come_in_at_their_stages_in_a_sample():
+    """〔段 4 の残り・作った見本の木〕§6-6 の決まりは入れる段から: 一時の区分の読み手の決まり(9)は interim_bundles の段から
+    (読んでよい側=runtime と、まだ移っていない読み手で最終の置き場が interfaces の cli)・runtime の核の決まり(10)は delete の
+    段から(直の辺だけを見る=節に allow_indirect_imports)。前の段では報告の not_expressed に段の名つきで出る。"""
+    from pkgmove import contracts as CT
+
+    spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
+    tree, md = _late_sample()
+    seen: dict[str, tuple[list[dict], dict]] = {}
+    for s in [s for s in STAGES if any(r.stage == s for r in md.rows)]:
+        tree = MV.make_plan(tree, md, (s,)).after
+        seen[s] = CT.build(spec, md, tree, s)
+    name9 = "〔段 4 の途中の決まり〕§6-6 の 1 "
+    name10 = "〔段 4 の途中の決まり〕§6-6 の 2 "
+    for s, (contracts, rep) in seen.items():
+        has9 = any(c["name"].startswith(name9) for c in contracts)
+        has10 = any(c["name"].startswith(name10) for c in contracts)
+        after_ib = STAGES.index(s) >= STAGES.index("interim_bundles")
+        assert has9 == after_ib and has10 == (s == "delete"), s
+        if not after_ib and STAGES.index(s) > STAGES.index(spec.old_only_through):
+            assert {"rule": 9, "name": spec.rules[8]["name"], "why": "段 interim_bundles から入れる"} in rep["not_expressed"]
+    contracts, rep = seen["delete"]
+    c9 = next(c for c in contracts if c["name"].startswith(name9))
+    assert c9["type"] == "protected" and c9["protected_modules"] == ["shibuya.interim_bundles"]
+    assert c9["allowed_importers"] == ["shibuya.runtime", "shibuya.cli"]
+    c10 = next(c for c in contracts if c["name"].startswith(name10))
+    assert c10["source_modules"] == ["shibuya.runtime.clock"] and c10["allow_indirect_imports"] is True
+    assert "shibuya.interim_bundles" in c10["forbidden_modules"] and "shibuya.society" in c10["forbidden_modules"]
+    text = CT.render(spec, "delete", contracts)
+    assert "allow_indirect_imports = true" in text
+    assert CT.section_dict(text)["contracts"][-1]["allow_indirect_imports"] is True
+
+
+def test_ignore_counts_count_lines_unique_edges_and_where_they_go():
+    """例外の数(返事その 8 §1-12 の 3): 延べの行・重なりを除いた辺・重なりを除いた辺の消える段ごとの数(載せなかった行は数えない)。"""
+    from pkgmove import contracts as CT
+
+    contracts = [{"ignore_imports": ["a -> b", "c -> d"]}, {"ignore_imports": ["a -> b"]}, {"name": "x"}]
+    rep = {"ignores": [{"importer": "a", "imported": "b", "gone_at": "段 6"},
+                       {"importer": "x", "imported": "y", "gone_at": "段 7", "skipped": "辺が無い"}],
+           "ignores_66": [{"importer": "c", "imported": "d", "gone_at": "段 5a"}], "extra_ignores": []}
+    assert CT.ignore_counts(contracts, rep) == {"ignore_lines": 3, "ignore_unique": 2,
+                                                 "ignore_gone_at": {"段 5a": 1, "段 6": 1}}
 
 
 # ------------------------------------------------------------------ 検収の指摘(M-1・M-2・M-3・突然変異・L-5・L-7・L-9)
@@ -774,11 +921,15 @@ def test_bound_names_guard_catches_a_changed_binding():
 
 def test_negative_changing_the_names_bound_by_imports_is_stopped_in_a_plan(tmp_path, monkeypatch):
     """計画の中でも、別名を落とす書き手を差し込むと結ぶ名の守りが止める。次に当てる段で動くモジュールを別名で読む試験の
-    ファイルを作った木で。"""
-    stage = need_pending()[0]
+    ファイルを作った木で(当てる段のうち、動かすファイルのある最初の段=delete の段だけが残る木では飛ばす)。"""
+    need_pending()
     root = make_copy(tmp_path / "t")
-    row = next(r for r in apply_rows(Tree.load(root), stage)
-               if r.kind == "move" and not r.is_head and r.old.endswith(".py"))
+    tree = Tree.load(root)
+    cand = [(s, r) for s in pending() for r in apply_rows(tree, s)
+            if r.kind == "move" and not r.is_head and r.old.endswith(".py")]
+    if not cand:
+        pytest.skip("当てる段に動かすファイルが無い木(delete の段だけが残る木)")
+    stage, row = cand[0]
     rel = "tests/zz_alias_case.py"
     (root / rel).write_text(f"import {mod_of(row.old)} as zz_alias\n", encoding="utf-8", newline="")
     plan = plan_for(root, (stage,))
@@ -1192,11 +1343,19 @@ def test_contracts_toml_matches_the_plan_tables():
     want = [(int(n), a, b, f, [int(x) for x in r.split("・")], g) for n, a, b, f, r, g in rows]
     got = [(g["num"], g["importer"], g["imported"], g["form"], list(g["rules"]), g["gone_at"]) for g in spec.ignores]
     assert len(want) == 28 and got == want
-    assert [r["id"] for r in spec.rules] == list(range(1, 9))
+    assert [r["id"] for r in spec.rules] == list(range(1, 11))  # §6-4 の 1〜8 と §6-6 の 2 つ(9・10)
     # 計画の表の外の辺は、親の仮採用(2026-11-11・判断 1=候補 A)の 1 本だけ(増やせば落ちる)
     assert [(e["importer"], e["imported"], list(e["rules"])) for e in spec.extras] == [("llm", "llm.fleet", [1, 3])]
     assert all(w in spec.extras[0]["note"] for w in ("段 5a で消える", "28 本の外", "親の仮採用"))
-    assert spec.stage_order[-1] == "interim_bundles" and set(spec.stage_order) == set(STAGES)
+    # §6-6 の 2 の表(核の候補 → 読む先)は計画の表と同じ(名は最終の置き場)。決まり 10 にだけ載せる
+    sec66 = t.split("### 6-6", 1)[1].split("## 7.", 1)[0]
+    rows66 = re.findall(r"^\| `(runtime/[\w/]+)\.py`[^|]* \| `([\w/]+)\.py`[^|]* \| `(\w+)` \| .*? \|$", sec66, re.M)
+    assert [(a.replace("/", "."), b.replace("/", ".")) for a, b, _n in rows66] == [
+        (g["importer"], g["imported"]) for g in spec.ignores66] and len(rows66) == 3
+    assert all(list(g["rules"]) == [10] for g in spec.ignores66)
+    # 段の順は当てた順(道具の STAGES と同じ)。答えの後の 4 段は validation の後・delete が最後
+    assert spec.stage_order == STAGES
+    assert STAGES[-4:] == ("society_contact", "interim_bundles", "foundation_224a", "delete")
 
 
 def test_pyproject_section_is_the_one_made_for_the_tree_stage():
@@ -1365,15 +1524,36 @@ def test_contract_rules_are_the_plan_sentences():
     spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
     sec = _plan_text().split("### 6-4", 1)[1].split("### 6-5", 1)[0]
     lines = {int(n): t for n, t in re.findall(r"^([1-8])\. (.+)$", sec, re.M)}
-    assert {r["id"]: r["name"] for r in spec.rules} == {n: f"{n} {t}" for n, t in lines.items()}
+    rules = {r["id"]: r for r in spec.rules}
+    assert {i: rules[i]["name"] for i in range(1, 9)} == {n: f"{n} {t}" for n, t in lines.items()}
     assert spec.rules[0]["type"] == "layers" and set(spec.rules[0]) == {"id", "type", "name"}
-    for r in spec.rules[1:]:
+    for i in range(2, 9):
+        r = rules[i]
         typ, body = _PLAN_RULES[r["id"]]
         assert r["type"] == typ, r["id"]
         assert {k: v for k, v in r.items() if k not in ("id", "name", "type")} == body, r["id"]
         for names in body.values():
             for x in names:
                 assert x in lines[r["id"]], (r["id"], x)
+    # §6-6 の 2 つ(返事その 8 §1-6 の 7・3): 名は計画の太字の文・中身は計画の文の名と同じ・入れる段
+    sec66 = _plan_text().split("### 6-6", 1)[1].split("## 7.", 1)[0]
+    s66 = {int(n): (b, rest) for n, b, rest in re.findall(r"^([12])\. \*\*(.+?)\*\*(.+)$", sec66, re.M)}
+    assert rules[9]["name"] == f"§6-6 の 1 {s66[1][0]}" and rules[10]["name"] == f"§6-6 の 2 {s66[2][0]}"
+    r9 = rules[9]
+    assert (r9["type"], r9["protected"], r9["allowed"], r9["from_stage"]) == (
+        "protected", ["interim_bundles"], ["runtime", "interfaces"], "interim_bundles")
+    assert "protected" in s66[1][1] and all(x in s66[1][0] for x in ("runtime", "interfaces"))
+    r10 = rules[10]
+    assert (r10["type"], r10["allow_indirect_imports"], r10["from_stage"]) == ("forbidden", True, "delete")
+    core = []
+    for span in re.findall(r"`(runtime/[^`]+)`", s66[2][1].split("【見立て】")[0]):
+        m = re.fullmatch(r"(runtime/[\w/]+)/\{([\w,]+)\}\.py", span)
+        core += [f"{m.group(1)}/{x}" for x in m.group(2).split(",")] if m else [span.removesuffix(".py").removesuffix("/*")]
+    assert r10["source_names"] == [x.replace("/", ".") for x in core]
+    content = re.search(r"中身の包み[((]([\w・]+)[))]", s66[2][1]).group(1).split("・")
+    assert sorted({x.split(".")[0] for x in r10["forbidden"]}) == sorted(content)
+    units = CT.load_spec(ROOT / CT.CONTRACTS_REL).units
+    assert sorted(r10["forbidden"]) == sorted(u for u in units if u.split(".")[0] in content)
 
 
 def _pd_sample(root: Path) -> tuple[Tree, MV.MapDoc, str]:

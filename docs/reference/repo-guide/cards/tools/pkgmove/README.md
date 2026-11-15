@@ -83,6 +83,7 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
   - `build`(関数): (契約の一覧=pyproject の [[tool.importlinter.contracts]] の形, 報告)。
   - `check_stage`(関数): 木の当たっている行が「段の順で ``stage`` まで」と同じか(保留の行を除く)。
   - `has_edge`(関数): 木で ``importer`` が ``imported`` を読む import の文が在るか(関数の中を含む・相対も解く)。
+  - `ignore_counts`(関数): 例外(ignore)の数(返事その 8 §1-12 の 3): 延べの行・重なりを除いた辺・重なりを除いた辺の「消える段」ごとの数。
   - `load_spec`(関数)
   - `old_contracts`(関数): 今の 5 つの決まり(移す前と old_only_through の段まで)の契約。
   - `render`(関数)
@@ -254,3 +255,4 @@ pyproject の ``[tool.setuptools.package-data]`` の鍵(親の裁定 2026-11-11�
   - `sha256_text`(関数)
 - 呼び手: `tools/pkgmove/allow.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/move.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
+- 決定の ID: 11-16

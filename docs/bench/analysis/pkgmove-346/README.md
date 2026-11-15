@@ -757,3 +757,79 @@ CI の ci-0 は `lint-imports` を毎回 push で回す。今の 5 つの決ま�
 | validation・delete・interim_bundles | 3・7 | 43 | 10 KEPT | 2 |
 
 **試験**: 写しの木 dev_contracts で `tests/tools/test_pkgmove.py tests/test_places_guard.py -n 4`が 68 passed・終了コード 0(test_pkgmove は 60 本)。
+
+## 13. 段 4 の残り(返事その 8 の答えの後・2026-11-16)
+
+> 発注: 親の brief_tool_stage4_rest。答え: [返事その 8](../../../design/prompt-2026-11-16-reply8.md) §1-3・§1-4・§1-6・§1-10・§1-12。
+> 道具を直した木は移す前の木(枝 `stage/int`)。予行は linked の git の作業木(本体の頭 `38b0142f` に道具の直しを写した木)。
+
+### 13-1 表と対応表の直し
+
+- 行 151〜153・158(連絡の器 4 本): 置き場を `society/contact/{calls,chat_state,deliver,tools}.py` に(§1-6 の 1・記録 2-35)。
+  新しい頭 `society/contact/__init__.py` は道具が空で足す。残る `engine/contact/__init__.py`・`book.py`・`layer.py` は `interim_bundles/contact/`。
+- 行 224a: 保留を外した(親が置き場を確かめた=`foundation/arms/removed.py`)。
+- 行 225(`engine/resolve.py`)・行 234(`engine/run.py`): 割る行(段 4 では動かさない)。保留を外し、表の「理由」に決着の文を足した。
+  `split_to` は前から (b) の割り先(`act/ops/detect_writes.py` と `mind/ops.py`)と入口の割り先(`interfaces/cli/run_args.py`=`main` が入る)を
+  持つ(試験で固定)。
+- `table.HELD` は空(仕組みは残す)。対応表は作り直した(328 行・move 206・保留 0)。表の §2 に直しの注を足した(本文 §2 の数は直していない)。
+
+### 13-2 段の分け方
+
+答えの後の行を、済んだ段と別の段の名にした(`table.LATE_STAGES`): `society_contact`(4 行)・`foundation_224a`(1 行)。段の順
+(`table.STAGES`=`contracts.toml` の `stage_order`)は当てた順: … `validation` → `society_contact` → `interim_bundles` → `foundation_224a` → `delete`。
+
+- 理由: import の決まりの道具は「木の当たっている行が段の順で S まで」で木の段を見分ける(`contracts.check_stage`)。行を society・
+  foundation の段のまま残すと、済んだ 9 段の木(行が当たっていない)と答えの後の木のどちらかで段の見分けが食い違う。済んだ行を飛ばす形
+  (`--stage society` の当て直し)は move では動くが、決まりの段の見分けを別に直す必要がある。段の名を足す方が直しが小さい
+  (move は段の名で行を選ぶだけ・決まりの道具は `stage_order` を足すだけ)。
+- 済んだ段の名で当て直しても、答えの後の行は選ばない(試験 `test_late_stage_rows_are_chosen_only_by_their_stage`)。済んだ 9 段を
+  まとめて当て直す計画は行 0・書き換え 0(試験 `test_done_stages_are_not_applied_again`。本体の頭の写しで回る)。
+
+### 13-3 import の決まり(`contracts.toml`・`contracts.py`)
+
+- 決まり 9「§6-6 の 1 一時の区分を読めるのは runtime と interfaces だけ」(protected・`interim_bundles` の段から)。読んでよい側は
+  runtime と、まだ移っていない読み手で最終の置き場が runtime か interfaces のもの(`cli`・`engine.run`・`engine.arbiter`・
+  `engine.llm_bridge`・`llm.fleet`・`llm.mock`)。今の外の読み手は `cli`(→ interfaces)・`engine.run`・`runtime.systems.assemble`・
+  `runtime.systems.table` の 4 モジュール 16 辺だけ(grimp で数えた)。
+- 決まり 10「§6-6 の 2 runtime の核は中身を読まない」(forbidden・`delete` の段から)。元の側は §6-6 の核の候補 8 つの名、禁じる側は
+  中身の包みの単位 13。**直の辺だけを見る**(`allow_indirect_imports`。計画は核から中身を読む辺を直の辺で数えた)。§6-6 の表の辺は
+  `[[ignore_66]]`(核 1 `runtime.clocks.speech -> society.speech.port`=mora_count・割る段で foundation の文の道具へ・核 2
+  `runtime.clocks.step_scope -> engine.change_detect`=段 5a・核 3 は段 2 で消えた=載らない)。
+  - 間接の連なりも見る形(既定)では 1 つ壊れる: 核の `runtime.systems.conductor` が核の外の `assemble`・`probe`・`table`・`day` を読み、
+    `day` が `state_io` を読む連なりで中身へ届く。保つには核の外の runtime への辺 4 本(conductor → assemble・probe・table、day →
+    state_io)を例外にすることになるので、入れていない。
+- 報告と要約に例外の数(延べ `ignore_lines`・重なりを除いた `ignore_unique`・消える段ごとの `ignore_gone_at`)。表の外の辺 1 本に
+  `gone_at = "段 5a"` を足した。
+- 段 4 の終わりでも入らない決まり: 決まり 4(`act.apply`・`act.ops` は resolve を割る段 6 の後)と、単位 interfaces(`cli.py` を割る段 5b の後)。
+
+**例外の数**(重なりを除いた辺 / 延べの行)
+
+| 段 | 重なりを除く | 延べ | 消える段ごと(重なりを除いた辺) |
+|---|---:|---:|---|
+| world・economy・act | 22 | 22 | 5a 10・5b 2・6 8・残る 2 |
+| mind 〜 validation・society_contact・interim_bundles・foundation_224a | 29 | 41(mind)・43 | 5a 12・5b 2・6 8・7 2・残る 4・注釈だけ 1 |
+| delete(段 4 の終わり) | 31 | 45 | 5a 13・5b 2・6 8・7 2・残る 4・注釈だけ 1・割る段(mora_count)1 |
+
+済んだ段の数は記録 move4-346 の `contracts_<段>.json` の節から数えた。割る段で消える見込み(段 4 の終わりの 31 本から): 5a で 13・
+5b で 2・6 で 8・7 で 2・mora_count の割る段で 1。残る 4 本(例外 T4・T5・T7・T8)と注釈だけ 1 本は段 8 の題。
+
+### 13-4 予行(linked の git の作業木・同じ木に 4 段を順に当てた)
+
+| 段 | 当てた行 | 移した | import の文 src/build/tests/tools/docs | 道の文字列 か所(文字列) | 鍵 | 台帳の道の表 | 新しい頭・空にした頭・消した頭 | 守り 8 | import の確かめ | 決まり(古い+新しい) | lint | 例外 重なりを除く/延べ |
+|---|---:|---:|---|---:|---:|---:|---|---|---|---|---|---|
+| society_contact | 4 | 4 | 5/0/12/0/0 | 2(4) | 4 | 4 | 1・0・0 | 同じ | 356・落ち 0 | 3+7(節は前と同じ) | 10 kept | 29/43 |
+| interim_bundles | 13 | 9 | 24/0/49/0/0 | 6(15) | 16 | 9 | 5・0・4 | 同じ | 357・落ち 0 | 3+8 | 11 kept | 29/43 |
+| foundation_224a | 1 | 1 | 8/0/1/0/0 | 0 | 0 | 1 | 0・0・0 | 同じ | 357・落ち 0 | 3+8(節は前と同じ) | 11 kept | 29/43 |
+| delete | 2 | 0 | 0 | 0 | 0 | 0 | 0・1・1 | 同じ | 356・落ち 0 | 3+9 | 12 kept | 31/45 |
+
+- どの段も `contracts --check`・`map --check` は「同じ」。interim_bundles の段は、連絡の器が出たので `engine/contact/__init__.py` を
+  空にせず消す(§10-1 の 5・1・3 → 5・0・4)。
+- society に置いた 4 本: 読む先は foundation と society(`engine.tools.registry`=最終 society)だけ・読み手は `engine.contact.layer`
+  (→ interim_bundles)と `runtime.systems.assemble` だけ(grimp)。決まり 1・7 は全段で KEPT。
+- 負の対照(1 本ずつ・元に戻した): `experiments.drive.switch` → `interim_bundles.contact.book` を足すと決まり 9 だけが BROKEN(層では
+  読んでよい側)。`runtime.clocks.regional` → `world.facts.population_reader` を足すと決まり 10 だけが BROKEN。
+- `tests/tools/test_pkgmove.py`(65 本): 移す前の木 64 passed・1 skipped。予行の木の各段の前: 4 段の前 62 passed・3 skipped/
+  society_contact の後 62・3/interim_bundles の後 61・4/foundation_224a の後 58・7(理由つき・下の直しの後)。
+- 範囲の試験(4 段を当てた木・`tests/c7` を除く・`-m "not gpu and not slow" -n 4 --dist loadfile`): **6,776 passed・1 failed・20 skipped・1 xfailed**(37 分 19 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木の data のつなぎ)。飛ばした 20 本は `test_pkgmove.py` 19 本(当てる段が無い木・理由つき)と前からの Ruri の重み 1 本。「git が無い」「commit が無い」は 0。validation の記録(6,787 passed・4 skipped)との差は、足した試験 5 本と、全段を当てた木で `test_pkgmove.py` が飛ばす分。
+- 試験の直し: `test_negative_changing_the_names_bound_by_imports_is_stopped_in_a_plan` は「次に当てる段に動かすファイルがある」を前提にしていて、delete の段だけが残る木(foundation_224a の後)で StopIteration で落ちた。動かすファイルのある最初の段を選び、無ければ理由つきで飛ばす形に直した(段の順を変えて初めて出る木)。
+- 突然変異(移す前の木で 1 本ずつ・元に戻した): 段の名を包みの名に戻す・`from_stage` を見ない・重なりを除かない・`allow_indirect_imports` を落とす・決まり 9 にまだ移っていない読み手を足さない、の 5 本とも足した試験が落ちる。

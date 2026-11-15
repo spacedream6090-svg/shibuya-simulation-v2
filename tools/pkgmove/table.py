@@ -8,8 +8,10 @@
     ``split`` 割るファイル(段 3・段 4 では割らない。表にある割り先の一覧を記録だけする)。
     ``delete`` 消す頭(``agents/__init__.py``・``census/__init__.py``)。
     ``keep``  置き場を変えないもの(build と根の頭)。
-- 段(``stage``): ``move``・``empty`` は包みの名、``delete`` は ``delete``。段 4 の小さな段の順は :data:`STAGES`。
-- 保留(:data:`HELD`): ユーザーか親の判断待ちの問いに関わる行。道具はこの行を動かすことを断る。
+- 段(``stage``): ``move``・``empty`` は包みの名(:data:`LATE_STAGES` の行はその段の名)、``delete`` は ``delete``。段 4 の
+  小さな段の順は :data:`STAGES`。
+- 保留(:data:`HELD`): ユーザーか親の判断待ちの問いに関わる行。道具はこの行を動かすことを断る。11-16 の答え(返事その 8 §1-6)で
+  全部決着したので、今は空(仕組みは残す)。
 """
 from __future__ import annotations
 
@@ -24,22 +26,27 @@ TABLE_REL: Final[str] = "docs/reference/package-map-final-2026-11-09-files.md"
 MAP_REL: Final[str] = "tools/pkgmove/map.toml"
 MAP_SCHEMA: Final[str] = "shibuya.tools/pkgmove/map/1"
 
-#: 段 4 の小さな段の順(計画 §7-4 の段 4 の行)。最後の ``delete`` は消す 2 本。
+#: 段 4 の小さな段の順(当てた順・``contracts.toml`` の ``stage_order`` と同じ)。計画 §7-4 の段 4 の行の順から、interim_bundles
+#: を答えの後へ回し(親の決定 12)、答えの後の行を 2 つの段(:data:`LATE_STAGES`)に分けた。最後の ``delete`` は消す 2 本。
 STAGES: Final[tuple[str, ...]] = (
-    "foundation", "world", "economy", "act", "mind", "society", "interim_bundles", "runtime", "experiments",
-    "validation", "delete",
+    "foundation", "world", "economy", "act", "mind", "society", "runtime", "experiments", "validation",
+    "society_contact", "interim_bundles", "foundation_224a", "delete",
 )
 
-#: 保留の行(今の道 → 理由)。**保留の一覧はここだけ**(README に写す)。道具はこの行を動かさない(名指しで動かそうとすれば断る)。
-HELD: Final[dict[str, str]] = {
-    "engine/contact/deliver.py": "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1=今 society に置くか一時の区分に置くか)",
-    "engine/contact/calls.py": "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1)",
-    "engine/contact/chat_state.py": "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1)",
-    "engine/contact/tools.py": "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1)",
-    "engine/resolve.py": "問い 2 apply_detection の割り先(本文 §8-1 の 2=act に置く・2 つに割る・mind/ops.py に置く)",
-    "engine/run.py": "問い 6 python -m shibuya.engine.run の入口(本文 §8-1 の 6=移すか消すかが決まっていない)",
-    "engine/removed_switches.py": "行 224a 置き場は段 4 の前に親が確かめる(move-346 の記録 §7-2 の (3))",
+#: 済んだ段の包みへ、答えの後に移す行(今の道 → 段の名)。済んだ段(society・foundation)を当て直さずに、別の段・別の commit で
+#: 当てるため(返事その 8 §1-6 の 1=連絡の器 4 本は今 society・行 224a は親が置き場を確かめた)。
+LATE_STAGES: Final[dict[str, str]] = {
+    "engine/contact/calls.py": "society_contact",
+    "engine/contact/chat_state.py": "society_contact",
+    "engine/contact/deliver.py": "society_contact",
+    "engine/contact/tools.py": "society_contact",
+    "engine/removed_switches.py": "foundation_224a",
 }
+
+#: 保留の行(今の道 → 理由)。**保留の一覧はここだけ**(README に写す)。道具はこの行を動かさない(名指しで動かそうとすれば断る)。
+#: 11-16 の答えで 7 行とも決着した(連絡の器 4 本=society・行 224a=``foundation/arms/removed.py``・``engine/resolve.py`` と
+#: ``engine/run.py``=割る行の割り先が決まった。割る行は段 4 では元々動かない)。決着の文は全ファイルの表の行の「理由」に書いた。
+HELD: Final[dict[str, str]] = {}
 
 _ROW_RE = re.compile(
     r"^\| (?P<num>\d+[a-z]?) \| `(?P<old>[^`]+)` \| (?P<pkg>[^|]+?) \| (?P<new>.+?) \| (?P<split>いいえ|割る[^|]*?) \| "
@@ -112,10 +119,14 @@ def parse_table(text: str) -> list[Row]:
             rows.append(Row(m["num"], old, pkg, kind, new=new, stage=pkg if kind == "empty" else "",
                             empty_head=empty, held=held))
             continue
-        rows.append(Row(m["num"], old, pkg, "move", new=new, stage=pkg, empty_head=empty, held=held))
+        rows.append(Row(m["num"], old, pkg, "move", new=new, stage=LATE_STAGES.get(old, pkg), empty_head=empty,
+                        held=held))
     missing = sorted(set(HELD) - seen)
     if missing:
         raise ValueError(f"保留の一覧の行が表に無い: {missing}")
+    late = {r.old for r in rows if r.kind == "move" and r.old in LATE_STAGES}
+    if late != set(LATE_STAGES):
+        raise ValueError(f"答えの後の段の行が表の move の行に無い: {sorted(set(LATE_STAGES) - late)}")
     return rows
 
 
@@ -149,7 +160,7 @@ def render_map(rows: list[Row], source_sha256: str) -> str:
         "# 移す段 3 の対応表(道具 tools/pkgmove/cli.py map が全ファイルの表から作る。手で書かない)。",
         "# 道筋は src/shibuya からの相対。kind: move=移す(empty_head=新しい頭を空に)・empty=同じ置き場で頭を空に・",
         "# split=割る(段 3・段 4 では割らない。split_to は表の割り先の記録だけ)・delete=消す頭・keep=置き場を変えない。",
-        "# held がある行は保留(道具は動かさない)。",
+        "# held がある行は保留(道具は動かさない)。stage は段 4 の小さな段(答えの後に移す行は、その包みと別の段の名)。",
         f"schema = {_q(MAP_SCHEMA)}",
         f"source = {_q(TABLE_REL)}",
         f"source_sha256 = {_q(source_sha256)}",

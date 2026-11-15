@@ -24,8 +24,11 @@ python tools/pkgmove/cli.py importcheck --tree <木> [--out <JSON>]             
 python tools/pkgmove/cli.py contracts --stage <段> --tree <木> [--check|--apply] [--out <JSON>]  # 段の import の決まり(pyproject の節)
 ```
 
-- `--stage`: 段 4 の小さな段の名(`foundation`・`world`・`economy`・`act`・`mind`・`society`・`interim_bundles`・`runtime`・
-  `experiments`・`validation`・`delete`)をコンマでつなぐか `all`。`--only <今の道>` で行を名指せる(何回でも)。
+- `--stage`: 段 4 の小さな段の名(当てた順に `foundation`・`world`・`economy`・`act`・`mind`・`society`・`runtime`・
+  `experiments`・`validation`・`society_contact`・`interim_bundles`・`foundation_224a`・`delete`=`table.STAGES`)をコンマでつなぐか
+  `all`。`--only <今の道>` で行を名指せる(何回でも)。`society_contact`(連絡の器 4 本 → `society/contact/`)と `foundation_224a`
+  (行 224a → `foundation/arms/removed.py`)は、11-16 の答えの後に済んだ段の包みへ移す行だけの段(`table.LATE_STAGES`)。済んだ段の
+  名で当て直しても、その行は選ばない。
 - `--tree`: 木の根(既定は道具のリポ)。対応表と許可の一覧は道具のリポのものを読み、凍結の JSON とつなぎの台帳は木のものを読む。
 - `--out-dir`: `pkgmove_<段>_report.json`(報告)と `pkgmove_<段>.diff`(差分)、`--apply` なら `pkgmove_<段>_imports.json`
   (import の確かめ)を書く。木の外に置く。本体の作業木(か、その中)なら断る。
@@ -94,14 +97,15 @@ python tools/pkgmove/cli.py contracts --stage <段> --tree <木> [--check|--appl
 ## 保留の一覧(道具は動かさない)
 
 保留の一覧は `table.py` の `HELD` の 1 か所だけ。名指しで動かそうとすれば断り(終了コード 2)、段を選んだときは動かさずに報告の
-`refused_held` に出す。
+`refused_held` に出す。**11-16 の答え([返事その 8](../../docs/design/prompt-2026-11-16-reply8.md) §1-6)で 7 行とも決着し、今は空**
+(仕組みは残す=試験は作った見本の対応表で確かめる)。決着の文は全ファイルの表の行の「理由」にある。
 
-| 今の道 | 理由 |
+| 今の道 | 決着 |
 |---|---|
-| `engine/contact/deliver.py`・`calls.py`・`chat_state.py`・`tools.py` | 問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1) |
-| `engine/resolve.py` | 問い 2 `apply_detection` の割り先(本文 §8-1 の 2。割る行なので段 3・段 4 では元々動かない) |
-| `engine/run.py` | 問い 6 `python -m shibuya.engine.run` の入口(本文 §8-1 の 6。割る行) |
-| `engine/removed_switches.py` | 行 224a 置き場は段 4 の前に親が確かめる |
+| `engine/contact/deliver.py`・`calls.py`・`chat_state.py`・`tools.py` | 今 society に置く(§1-6 の 1)=`society/contact/`・段 `society_contact` |
+| `engine/resolve.py` | 移す段では act に置く・割る段 6 で `apply_detection` を 2 つに割る(`act/ops/detect_writes.py` と `mind/ops.py`=§1-6 の 2)。割る行なので段 4 では動かさない |
+| `engine/run.py` | `python -m shibuya.engine.run` の入口は interfaces へ(割り先 `interfaces/cli/run_args.py`=§1-6 の 6)。割る行(段 5b) |
+| `engine/removed_switches.py` | 行 224a=親が置き場を確かめた(`foundation/arms/removed.py`)・段 `foundation_224a` |
 
 ## 守り(1 つでも当たれば書かずに止める・終了コード 1)
 
@@ -161,3 +165,5 @@ python tools/pkgmove/cli.py contracts --stage <段> --tree <木> [--check|--appl
 ## 段ごとの import の決まり(`contracts.py`・`contracts.toml`)
 
 段 4 の各段の木で CI の `lint-imports` が通るように、pyproject の `[tool.importlinter]` の節を段ごとに作る(親の決定=brief_contracts)。元は `contracts.toml`(計画 §1-2 の層・§6-4 の決まり 1〜8・今の 5 つ・28 本・計画の表の外の辺 1 本=親の仮採用)。作り方と段ごとの結果は記録 `docs/bench/analysis/pkgmove-346/README.md` の §10-12。`--apply` は本体の作業木を断り、木の当たっている行が段と食い違えば断る。
+
+〔段 4 の残り〕計画 §6-6 の 2 つを足した(返事その 8 §1-6 の 7・3): 決まり 9「一時の区分を読めるのは runtime と interfaces だけ」(protected・`interim_bundles` の段から)と決まり 10「runtime の核は中身を読まない」(forbidden・直の辺だけ=`allow_indirect_imports`・`delete` の段から。§6-6 の表の辺は `[[ignore_66]]`)。報告と要約に例外の数(延べ `ignore_lines`・重なりを除いた `ignore_unique`・消える段ごとの `ignore_gone_at`)を出す。記録は §13。

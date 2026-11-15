@@ -8,4 +8,4 @@ Python 1 本・その他 0 本(このディレクトリの直下)
 
 census: 診断行・センサス・被覆指標の読み取り専用集計。
 
-- 読む試験(道筋で): `tests/test_places_guard.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`・`tests/tools/test_pkgmove.py`
