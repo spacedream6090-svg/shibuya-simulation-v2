@@ -1,0 +1,369 @@
+{
+ "about": "M10 会話の後(返事その 8 §6-1 の 3)。構成 w6_v3_default・mock・5,000 体・seed 1・1 日",
+ "engine_counter_n_conversation_end_kept_activity": {
+  "MOVING": 80,
+  "SHOPPING": 66,
+  "WAITING": 45
+ },
+ "invite_revert_calls": {
+  "revert_calls": 1560,
+  "revert_ids": 4085
+ },
+ "kept_other_activity": {
+  "activity_text_same_as_pre": 34,
+  "conv_len_ticks": {
+   "max": 8,
+   "median": 6.0,
+   "p90": 8.0
+  },
+  "first_tick_after_end": {
+   "conditions": {
+    "CELL_BLOCK": 1,
+    "INTEROCEPTION": 13,
+    "PLAN_WORKING": 2
+   },
+   "no_candidate": 175,
+   "not_observed": 0,
+   "with_any_candidate": 16
+  },
+  "keep_activity_kind": {
+   "post_none": 7,
+   "post_other": 102,
+   "post_same": 54,
+   "pre_set": 163
+  },
+  "keep_board_line": {
+   "post_none": 0,
+   "post_other": 0,
+   "post_same": 0,
+   "pre_set": 0
+  },
+  "keep_intent_action": {
+   "post_none": 1,
+   "post_other": 0,
+   "post_same": 0,
+   "pre_set": 1
+  },
+  "keep_path_next_node": {
+   "post_none": 0,
+   "post_other": 0,
+   "post_same": 0,
+   "pre_set": 0
+  },
+  "keep_plan_flags_same": 191,
+  "keep_sleep_pending": {
+   "post_none": 0,
+   "post_other": 0,
+   "post_same": 0,
+   "pre_set": 0
+  },
+  "keep_target_node": {
+   "post_none": 0,
+   "post_other": 2,
+   "post_same": 1,
+   "pre_set": 3
+  },
+  "n": 191,
+  "next_decision": {
+   "action_applied_after_end_before_next": 72,
+   "activity_at_next": {
+    "IDLE": 114,
+    "MOVING": 12,
+    "SHOPPING": 17,
+    "WAITING": 34
+   },
+   "activity_text_same_as_pre": 32,
+   "b5_intent_line": 0,
+   "b5_intent_same_as_pre": 0,
+   "b5_self_activity": {
+    "IDLE": 114,
+    "MOVING": 12,
+    "SHOPPING": 17,
+    "WAITING": 34
+   },
+   "b6_inviter": 3,
+   "b6_last_action_word": {
+    "なし": 21,
+    "並ぶ": 15,
+    "乗車": 15,
+    "会話": 8,
+    "就寝": 13,
+    "手伝い": 9,
+    "断る": 14,
+    "移動": 14,
+    "購入": 15,
+    "退去": 19,
+    "通報": 14,
+    "食事": 20
+   },
+   "b6_result": {
+    "BAD_TARGET": 33,
+    "CLOSED": 8,
+    "LOST_ARBITRATION": 4,
+    "NOT_IN_EATERY": 1,
+    "NO_BED": 10,
+    "OK": 121
+   },
+   "b6_result_known": 177,
+   "condition": {
+    "ACTIVITY_EXPIRY": 51,
+    "CELL_BLOCK": 10,
+    "CONVERSATION_TURN": 3,
+    "INTEROCEPTION": 76,
+    "PLAN_GENERAL": 15,
+    "PLAN_TRANSIT": 13,
+    "PLAN_WORKING": 9
+   },
+   "dt_eq_1": 10,
+   "dt_le_15": 39,
+   "dt_le_5": 22,
+   "dt_le_60": 135,
+   "dt_ticks": {
+    "max": 595,
+    "median": 32.0,
+    "min": 1,
+    "p90": 124.0
+   },
+   "n_with_next": 177,
+   "n_without_next_by_run_end": 14,
+   "own_activity_text_in_b4b": 36,
+   "own_activity_text_live": 83,
+   "percept_drawn": 177,
+   "pre_activity_text_in_b4b": 3,
+   "target_node_same_as_pre": 150
+  },
+  "post_activity": {
+   "MOVING": 80,
+   "SHOPPING": 66,
+   "WAITING": 45
+  },
+  "post_activity_kind": {
+   "IN_PLACE": 71,
+   "IN_SHOP": 61,
+   "MOVE_TO": 39,
+   "NONE": 9,
+   "WANDER": 11
+  },
+  "post_activity_until_live": 182,
+  "post_until_kind": {
+   "ARRIVAL": 8,
+   "MINUTES": 107,
+   "NEXT_SCHEDULE": 76
+  },
+  "post_until_minus_end": {
+   "max": 480,
+   "median": 59.0,
+   "p90": 425.0
+  },
+  "pre_activity": {
+   "IDLE": 139,
+   "MOVING": 2,
+   "SHOPPING": 24,
+   "WAITING": 26
+  },
+  "pre_activity_kind": {
+   "IN_PLACE": 100,
+   "IN_SHOP": 50,
+   "MOVE_TO": 13,
+   "NONE": 28
+  },
+  "pre_text_displayable": 183,
+  "response_in_flight_at_end": 62,
+  "response_in_flight_conds": {
+   "CONVERSATION_TURN": 57,
+   "INTEROCEPTION": 4,
+   "PLAN_TRANSIT": 1
+  },
+  "text_same_as_pre_and_displayable": 34,
+  "unique_agents": 190
+ },
+ "participant_ends": 310,
+ "participant_unique_agents": 304,
+ "returned_to_idle": {
+  "activity_text_same_as_pre": 16,
+  "conv_len_ticks": {
+   "max": 8,
+   "median": 5.0,
+   "p90": 8.0
+  },
+  "first_tick_after_end": {
+   "conditions": {
+    "PLAN_WORKING": 1
+   },
+   "no_candidate": 118,
+   "not_observed": 0,
+   "with_any_candidate": 1
+  },
+  "keep_activity_kind": {
+   "post_none": 16,
+   "post_other": 35,
+   "post_same": 52,
+   "pre_set": 103
+  },
+  "keep_board_line": {
+   "post_none": 0,
+   "post_other": 0,
+   "post_same": 0,
+   "pre_set": 0
+  },
+  "keep_intent_action": {
+   "post_none": 0,
+   "post_other": 0,
+   "post_same": 0,
+   "pre_set": 0
+  },
+  "keep_path_next_node": {
+   "post_none": 0,
+   "post_other": 0,
+   "post_same": 0,
+   "pre_set": 0
+  },
+  "keep_plan_flags_same": 119,
+  "keep_sleep_pending": {
+   "post_none": 0,
+   "post_other": 0,
+   "post_same": 0,
+   "pre_set": 0
+  },
+  "keep_target_node": {
+   "post_none": 0,
+   "post_other": 0,
+   "post_same": 0,
+   "pre_set": 0
+  },
+  "n": 119,
+  "next_decision": {
+   "action_applied_after_end_before_next": 50,
+   "activity_at_next": {
+    "IDLE": 107,
+    "SHOPPING": 2,
+    "WAITING": 1
+   },
+   "activity_text_same_as_pre": 15,
+   "b5_intent_line": 0,
+   "b5_intent_same_as_pre": 0,
+   "b5_self_activity": {
+    "IDLE": 107,
+    "SHOPPING": 2,
+    "WAITING": 1
+   },
+   "b6_inviter": 2,
+   "b6_last_action_word": {
+    "なし": 1,
+    "並ぶ": 9,
+    "乗車": 1,
+    "会話": 13,
+    "就寝": 10,
+    "手伝い": 8,
+    "断る": 8,
+    "購入": 7,
+    "退去": 37,
+    "通報": 7,
+    "食事": 9
+   },
+   "b6_result": {
+    "BAD_TARGET": 26,
+    "CLOSED": 10,
+    "LOST_ARBITRATION": 1,
+    "NOT_IN_EATERY": 5,
+    "NO_BED": 10,
+    "OK": 58
+   },
+   "b6_result_known": 110,
+   "condition": {
+    "ACTIVITY_EXPIRY": 37,
+    "CELL_BLOCK": 1,
+    "CONVERSATION_TURN": 2,
+    "INTEROCEPTION": 46,
+    "PLAN_GENERAL": 10,
+    "PLAN_TRANSIT": 6,
+    "PLAN_WORKING": 8
+   },
+   "dt_eq_1": 1,
+   "dt_le_15": 20,
+   "dt_le_5": 10,
+   "dt_le_60": 90,
+   "dt_ticks": {
+    "max": 323,
+    "median": 31.0,
+    "min": 1,
+    "p90": 64.0
+   },
+   "n_with_next": 110,
+   "n_without_next_by_run_end": 9,
+   "own_activity_text_in_b4b": 27,
+   "own_activity_text_live": 54,
+   "percept_drawn": 110,
+   "pre_activity_text_in_b4b": 6,
+   "target_node_same_as_pre": 110
+  },
+  "post_activity": {
+   "IDLE": 119
+  },
+  "post_activity_kind": {
+   "IN_PLACE": 75,
+   "IN_SHOP": 25,
+   "MOVE_TO": 1,
+   "NONE": 18
+  },
+  "post_activity_until_live": 100,
+  "post_until_kind": {
+   "ARRIVAL": 1,
+   "MINUTES": 74,
+   "NEXT_SCHEDULE": 44
+  },
+  "post_until_minus_end": {
+   "max": 480,
+   "median": 52.0,
+   "p90": 242.0
+  },
+  "pre_activity": {
+   "IDLE": 85,
+   "SHOPPING": 13,
+   "WAITING": 21
+  },
+  "pre_activity_kind": {
+   "IN_PLACE": 61,
+   "IN_SHOP": 33,
+   "MOVE_TO": 9,
+   "NONE": 16
+  },
+  "pre_text_displayable": 113,
+  "response_in_flight_at_end": 52,
+  "response_in_flight_conds": {
+   "CONVERSATION_TURN": 51,
+   "INTEROCEPTION": 1
+  },
+  "text_same_as_pre_and_displayable": 16,
+  "unique_agents": 118
+ },
+ "run": {
+  "agents": 5000,
+  "kw": {
+   "activity": true,
+   "vocab_version": "v3"
+  },
+  "llm_calls": 60939,
+  "pythonhashseed": "0",
+  "seed": 1,
+  "ticks_seen_last": 1439,
+  "wall_s": 54.9,
+  "world": "data/world/v2"
+ },
+ "sessions_finished": {
+  "close_reason": {
+   "hard": 53,
+   "left_cell": 47,
+   "退去": 55
+  },
+  "len_ticks": {
+   "max": 6,
+   "median": 5.0,
+   "p90": 6.0
+  },
+  "n": 155,
+  "size": {
+   "2": 155
+  }
+ }
+}

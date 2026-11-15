@@ -1,0 +1,757 @@
+{
+ "n_distinct_response_columns": 52,
+ "same_response_column_groups": [],
+ "tapes": {
+  "server_retrieval/2026-09-16/c5/c8/c8_tapes/AB1-BUDGET-MODE__fixed_slots": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 712,
+    "行動|between_action_and_speech": 12
+   },
+   "response_column_sha256": "e1644330cd1274aaba205b10cfc2c7d2a9656c479c0ad7c440b94478e9764409",
+   "responses": 50000
+  },
+  "server_retrieval/2026-09-16/c5/c8/c8_tapes/AB1-BUDGET-MODE__single_ranking": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 742,
+    "行動|between_action_and_speech": 4
+   },
+   "response_column_sha256": "0feedb2782fefd41f9d226eeca5304c728e9c95f7b973c49a12cdaca2d20efa8",
+   "responses": 50000
+  },
+  "server_retrieval/2026-09-16/c5/c8/c8_tapes/AB6-AD-ZERO__signage_off": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 386,
+    "行動|between_action_and_speech": 4
+   },
+   "response_column_sha256": "4c48061b308ddbd616b9ebcd11a7d2878837c4f2a76024155462071f7c4c0dc4",
+   "responses": 50000
+  },
+  "server_retrieval/2026-09-16/c5/c8/c8_tapes/AB6-AD-ZERO__signage_on": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 712,
+    "行動|between_action_and_speech": 12
+   },
+   "response_column_sha256": "62ebe28df84596b9a4fc8998542ccdb3a1d4cccf1f3ea086bbcc7342740ced66",
+   "responses": 50000
+  },
+  "server_retrieval/2026-09-16/c5/c8_ab1s2/c8_tapes/AB1-BUDGET-MODE__fixed_slots": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 761,
+    "行動|between_action_and_speech": 9
+   },
+   "response_column_sha256": "a926d80ac90e223b728c015744d11c3bd8a056cd46d2f48b141ba002ced7aba8",
+   "responses": 50000
+  },
+  "server_retrieval/2026-09-16/c5/c8_ab1s2/c8_tapes/AB1-BUDGET-MODE__single_ranking": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 815,
+    "行動|between_action_and_speech": 5
+   },
+   "response_column_sha256": "7e09edc74c2396b589deb0dd5ac8285726c4d028289850dd706180b5fe72fba4",
+   "responses": 50000
+  },
+  "server_retrieval/2026-09-16/c5/c8_s2/c8_tapes/AB6-AD-ZERO__signage_off": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 428,
+    "理由|between_action_and_speech": 1,
+    "行動|between_action_and_speech": 18
+   },
+   "response_column_sha256": "8840e5a9998cb0f10d6fdc2f0d864def6916e09b0557c079376dbc380ec27f1e",
+   "responses": 50000
+  },
+  "server_retrieval/2026-09-16/c5/c8_s2/c8_tapes/AB6-AD-ZERO__signage_on": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 761,
+    "行動|between_action_and_speech": 9
+   },
+   "response_column_sha256": "d982955fb53a22b8e7e7ddebee4e7d2e8414afecc38866f1609785eb41bfa637",
+   "responses": 50000
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-day-1": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 669,
+    "行動|between_action_and_speech": 4
+   },
+   "response_column_sha256": "e955f2eadc03b70344a12249ee56104dabe5173e10839eb9c59d4c9c0a6fe4b7",
+   "responses": 50000
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-day-2": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 722,
+    "行動|between_action_and_speech": 9
+   },
+   "response_column_sha256": "5730fcde8440f6dc035025fd8fd7ce51c51d4e007a6df4f43de95672fc510c1e",
+   "responses": 50000
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-day-3": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 715,
+    "行動|between_action_and_speech": 9
+   },
+   "response_column_sha256": "00adf1419522acc70ce09fe3c83d13d1c13e4449dbcb5bb85652ad166012b35e",
+   "responses": 50000
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-smoke-1": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 2
+   },
+   "response_column_sha256": "dd3d4d514d2aa2db4d8587e5389e9004b30fa6f4645d0518baf381a7b212aba3",
+   "responses": 833
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-smoke-2": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 6
+   },
+   "response_column_sha256": "a238f1169172fcc97ed6596d9113a1ec5606f9c75401c2a027d299d80cbf8882",
+   "responses": 833
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-smoke-4": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 6
+   },
+   "response_column_sha256": "51dcf6e429ac7f5a198b8e966ee7248dd2605bddc6c555bbdcfb2931481a81ea",
+   "responses": 833
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-t6-a": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 6
+   },
+   "response_column_sha256": "81b41f2923e79cb372e61afe9f721636c89f22f85d4fe201c7244a08980c6315",
+   "responses": 833
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-t6-b": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 6
+   },
+   "response_column_sha256": "c40cb107fbec7bb6f4568ce996e7283b3a4537be886aae23c5d8a59ee3286dfd",
+   "responses": 833
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-t7-s1": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 6
+   },
+   "response_column_sha256": "7abf0ef352f6e2b0d6bbafab311dd731b15cc7828f1bb484c780ea67419654f2",
+   "responses": 833
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-t7-s2": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {},
+   "response_column_sha256": "c882a08ba2659d7d3afc614acb2522dcd105660085dda6a7bcdfdca33b3315b5",
+   "responses": 833
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c7-day-1": {
+   "unreadable": "ArrowInvalid"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c7-day-2": {
+   "bare_block_id_next_char": {
+    "other": {
+     "space": 2
+    },
+    "speech": {
+     "symbol": 1
+    },
+    "thought": {
+     "kana": 4
+    }
+   },
+   "repeated_label_region": {
+    "ひと言|speech_same_line": 2,
+    "対象|between_action_and_speech": 35582,
+    "理由|between_action_and_speech": 1,
+    "行動|between_action_and_speech": 424
+   },
+   "response_column_sha256": "745074e20176cc4185195b19568fff338619611aed2f1f5b66a3eaa088a2989f",
+   "responses": 2580480
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c7-day-3": {
+   "bare_block_id_next_char": {
+    "other": {
+     "end": 1,
+     "space": 2
+    },
+    "speech": {
+     "kana": 1,
+     "symbol": 1
+    },
+    "thought": {
+     "kana": 22,
+     "other_kanji": 9
+    }
+   },
+   "repeated_label_region": {
+    "ひと言|speech_same_line": 2,
+    "対象|between_action_and_speech": 51796,
+    "理由|between_action_and_speech": 2,
+    "行動|between_action_and_speech": 1787
+   },
+   "response_column_sha256": "edec028b964a7af2cc9b537874e16c994834c625f35b8dba36794004a532ad48",
+   "responses": 2791247
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c7-day-4": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {
+     "kana": 36,
+     "other_kanji": 13
+    }
+   },
+   "repeated_label_region": {
+    "ひと言|speech_same_line": 3,
+    "対象|between_action_and_speech": 52881,
+    "行動|between_action_and_speech": 1678
+   },
+   "response_column_sha256": "ce1abcbab87637051df18051151edb66bc468179eef9151a0c97d1f6f39d1da8",
+   "responses": 2691795
+  },
+  "server_retrieval/2026-09-17/tape/c7-day-4-s2": {
+   "bare_block_id_next_char": {
+    "other": {
+     "space": 2,
+     "symbol": 1
+    },
+    "speech": {
+     "kana": 1
+    },
+    "thought": {
+     "kana": 31,
+     "other_kanji": 7
+    }
+   },
+   "repeated_label_region": {
+    "ひと言|after_speech_line": 1,
+    "ひと言|speech_same_line": 6,
+    "対象|after_speech_line": 1,
+    "対象|between_action_and_speech": 52670,
+    "理由|between_action_and_speech": 1,
+    "行動|after_speech_line": 1,
+    "行動|between_action_and_speech": 1630
+   },
+   "response_column_sha256": "ea77025a02c652a2958e512f105a0e8d8df2a03ea7bf3239665fb9d03afb5496",
+   "responses": 2714421
+  },
+  "server_retrieval/2026-09-17/tape/c7-day-4-s3": {
+   "bare_block_id_next_char": {
+    "other": {
+     "symbol": 1
+    },
+    "speech": {},
+    "thought": {
+     "kana": 38,
+     "other_kanji": 12
+    }
+   },
+   "repeated_label_region": {
+    "ひと言|speech_same_line": 1,
+    "対象|between_action_and_speech": 51938,
+    "理由|between_action_and_speech": 3,
+    "行動|between_action_and_speech": 1604
+   },
+   "response_column_sha256": "b01bdb7ecb59d6ff9a63bbde5e6c82349a0fd8b0bc802dcf7b0f2fef87cdb9b5",
+   "responses": 2699697
+  },
+  "server_retrieval/2026-09-17/tape/c9b-smoke-s1": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 886,
+    "行動|between_action_and_speech": 4
+   },
+   "response_column_sha256": "d33b7cc531d58c8af24c7c04c996b3f8a1d326d986b97ea18426763324abc60b",
+   "responses": 35856
+  },
+  "tape/c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {
+     "kana": 1
+    }
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 356,
+    "行動|between_action_and_speech": 19
+   },
+   "response_column_sha256": "73ea1058e4739fbd7a90568ca6275728efd5fda1cff99693030cce8662be9c4e",
+   "responses": 36957
+  },
+  "tape/c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_14": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 422,
+    "行動|between_action_and_speech": 18
+   },
+   "response_column_sha256": "d9e1f8db475943327cd3500720df11854995aac283bf1073ce328cc7c751bd9a",
+   "responses": 36922
+  },
+  "tape/c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_30": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {
+     "other_kanji": 1
+    }
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 443,
+    "行動|between_action_and_speech": 12
+   },
+   "response_column_sha256": "f310c68fc3c9184a22b675d9a0ba0f342d2bf6c0cdaff52736a4d0ef176dcd89",
+   "responses": 36916
+  },
+  "tape/c8_ab6b_s1/AB6b-AD-NOTICE__p_see_1_00": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {
+     "kana": 1
+    }
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 632,
+    "行動|between_action_and_speech": 25
+   },
+   "response_column_sha256": "723f913a6d76c823324918643609c9b36ec827bdc9a488f9f2c7e3142da45e29",
+   "responses": 36906
+  },
+  "tape/c8_ab6b_s2/AB6b-AD-NOTICE__ad_zero": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {
+     "kana": 1
+    }
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 379,
+    "行動|between_action_and_speech": 11
+   },
+   "response_column_sha256": "44a3c859ce754982897c5d781fff72edb1952b75191573bc9825bdbaddc538c0",
+   "responses": 36993
+  },
+  "tape/c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_14": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {
+     "kana": 2
+    }
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 405,
+    "行動|between_action_and_speech": 26
+   },
+   "response_column_sha256": "5a74a9e7cf7064a89733e84de7aadc160c6630f19dcaf1f3d7553f0e6c65588d",
+   "responses": 37022
+  },
+  "tape/c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_30": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 436,
+    "行動|between_action_and_speech": 12
+   },
+   "response_column_sha256": "a2c7bcdb8ce620af15296e2d22908d439b346f1b6152560cb7953029baddb9b9",
+   "responses": 37196
+  },
+  "tape/c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 640,
+    "行動|between_action_and_speech": 8
+   },
+   "response_column_sha256": "9b8b008271027ff472a327fb57b9bdadfec29ce3cc8c739a7501a133f59d53f8",
+   "responses": 36889
+  },
+  "tape/c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero": {
+   "bare_block_id_next_char": {
+    "other": {
+     "end": 1
+    },
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 779,
+    "行動|between_action_and_speech": 26
+   },
+   "response_column_sha256": "e0a179e62b616b4456e51084268fffa4510f16f5f2f3edd98f9746cb38f68bda",
+   "responses": 74581
+  },
+  "tape/c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_14": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 822,
+    "行動|between_action_and_speech": 8
+   },
+   "response_column_sha256": "3b559f6982fb167f2853fba06b58f12326b27054c0a786b7fc62da05dd28a9f7",
+   "responses": 73635
+  },
+  "tape/c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_30": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {
+     "kana": 2
+    },
+    "thought": {
+     "kana": 2
+    }
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 953,
+    "行動|between_action_and_speech": 18
+   },
+   "response_column_sha256": "4c10b82dce3951f07c07e89727da1d9449273ad6a9c7b3c75ccd55a37c9b73e8",
+   "responses": 73753
+  },
+  "tape/c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_1_00": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 1429,
+    "行動|between_action_and_speech": 27
+   },
+   "response_column_sha256": "828f890a567508e0637e3d71eeec001bf81961c3fab6da6c293d1e3b8c7ed450",
+   "responses": 72800
+  },
+  "tape/c8_ab7_s1/AB7-OPEN-INTENT__open": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 45,
+    "行動|between_action_and_speech": 1
+   },
+   "response_column_sha256": "c3057ee42d8cd45f9e04ec23e08b04d39f50fc0d0fffb414899e175e6989ddb9",
+   "responses": 36868
+  },
+  "tape/c8_ab7_s1/AB7-OPEN-INTENT__vocab": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {
+     "kana": 1
+    }
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 632,
+    "行動|between_action_and_speech": 25
+   },
+   "response_column_sha256": "e7d1ab50c5fcbf00cf19c5a515fda83da02648663700e82f866b48b7afaaaab2",
+   "responses": 36906
+  },
+  "tape/c8_ab7_s2/AB7-OPEN-INTENT__open": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 56,
+    "行動|between_action_and_speech": 1
+   },
+   "response_column_sha256": "560eca7b69b5a4d083709f313bf4b680ea36ee70bcee43597dc0990accebee75",
+   "responses": 36707
+  },
+  "tape/c8_ab7_s2/AB7-OPEN-INTENT__vocab": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 640,
+    "行動|between_action_and_speech": 8
+   },
+   "response_column_sha256": "2365a1f4245d4172234a0c95953f42f6f8cd31ac5ede49f4c2d78c9a9ebef71b",
+   "responses": 36889
+  },
+  "tape/c8_ab7b_s1/AB7b-HINT-INTENT__hint": {
+   "bare_block_id_next_char": {
+    "other": {
+     "end": 1
+    },
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 164,
+    "行動|between_action_and_speech": 29
+   },
+   "response_column_sha256": "dedb396bbb13f97dc1e75f12a2be2df97fa645bff738b4c2addc903cb6faa3e6",
+   "responses": 36855
+  },
+  "tape/c8_ab7b_s1/AB7b-HINT-INTENT__vocab": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {
+     "kana": 1
+    }
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 632,
+    "行動|between_action_and_speech": 25
+   },
+   "response_column_sha256": "cabd2459d28d5b9c80b77211226dc138361b06409cd433d307f0c7e03349ccda",
+   "responses": 36906
+  },
+  "tape/c8_ab7c_s1/AB7c-VOCAB-V2__open_v2": {
+   "bare_block_id_next_char": {
+    "other": {
+     "space": 1
+    },
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 64,
+    "行動|between_action_and_speech": 1
+   },
+   "response_column_sha256": "f34aeb6f2878e3d6f2ccb1e74c8459556f20689cff708f813fd08962944625c6",
+   "responses": 37100
+  },
+  "tape/c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v1": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {
+     "kana": 1
+    }
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 632,
+    "行動|between_action_and_speech": 25
+   },
+   "response_column_sha256": "594398662e03c12ffdacae65ac86e1039714eb8b8ad9af0cd3f2bf319f333772",
+   "responses": 36906
+  },
+  "tape/c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 899,
+    "行動|between_action_and_speech": 1
+   },
+   "response_column_sha256": "f1ffc6319fd518947f150545b4af6259bbdc557ccb44b58815408fd77641d53e",
+   "responses": 37165
+  },
+  "tape/c8_ab7c_s2/AB7c-VOCAB-V2__open_v2": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "ひと言|after_speech_line": 1,
+    "対象|after_speech_line": 1,
+    "対象|between_action_and_speech": 73,
+    "行動|after_speech_line": 1,
+    "行動|between_action_and_speech": 1
+   },
+   "response_column_sha256": "1ec220e1e4da55c10d25627af16582cb0fd0728c2e8ea450ffdde137f70f663d",
+   "responses": 37125
+  },
+  "tape/c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v1": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 640,
+    "行動|between_action_and_speech": 8
+   },
+   "response_column_sha256": "a7a71d8d33b9f672ca6f5daf65da00b66996f3a8b0db41b9d3d3250dd33f21b3",
+   "responses": 36889
+  },
+  "tape/c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 889,
+    "行動|between_action_and_speech": 6
+   },
+   "response_column_sha256": "99a5e04c21451279b6ff6b178ad3d1cb4962a5d70fb70cc72dfeabd40c673c83",
+   "responses": 37371
+  },
+  "tape/c8_ab8_s1/AB8-L4-SCALE__l4_unlimited": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {}
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 1429,
+    "行動|between_action_and_speech": 27
+   },
+   "response_column_sha256": "106775fd00b92706d59f138a25535edf09e31cec4e0c6e2a544f8d2a51522045",
+   "responses": 72800
+  },
+  "tape/c8_ab8_s1/AB8-L4-SCALE__l4_x0.5": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {
+     "kana": 1
+    }
+   },
+   "repeated_label_region": {
+    "ひと言|speech_same_line": 1,
+    "対象|between_action_and_speech": 359,
+    "行動|between_action_and_speech": 7
+   },
+   "response_column_sha256": "4833dffd729c8ec3662086fb764df3204aa8f283a619b93f36456c63578b6966",
+   "responses": 19856
+  },
+  "tape/c8_ab8_s1/AB8-L4-SCALE__l4_x1": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {
+     "kana": 1
+    }
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 632,
+    "行動|between_action_and_speech": 25
+   },
+   "response_column_sha256": "61538e87c7d3332a152ec56df7b9f691bfae92a7ae9950490ab3c16a8c38d482",
+   "responses": 36906
+  },
+  "tape/c8_ab8_s1/AB8-L4-SCALE__l4_x2": {
+   "bare_block_id_next_char": {
+    "other": {},
+    "speech": {},
+    "thought": {
+     "kana": 1,
+     "other_kanji": 1
+    }
+   },
+   "repeated_label_region": {
+    "対象|between_action_and_speech": 1107,
+    "行動|between_action_and_speech": 25
+   },
+   "response_column_sha256": "a4d474f5b8994b8075848bdd0c3016bfd663bf6f15b3c78b43b5d727fc982f44",
+   "responses": 61196
+  }
+ }
+}
