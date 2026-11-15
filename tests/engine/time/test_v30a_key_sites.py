@@ -23,15 +23,15 @@ import pytest
 from shibuya.foundation import rng as RNG
 from shibuya.foundation import time_consts as TC
 from shibuya.engine import run as RUN
-from shibuya.engine.calendar2 import layer as L2
+from shibuya.interim_bundles.calendar2 import layer as L2
 from shibuya.mind.plan import calendar2_port as P2
-from shibuya.engine.calendar3 import layer as L3
+from shibuya.interim_bundles.calendar3 import layer as L3
 from shibuya.mind.plan import calendar3_port as P3
-from shibuya.engine.contact import layer as CL
+from shibuya.interim_bundles.contact import layer as CL
 from shibuya.mind.plan import contact_port as PC
 from shibuya.mind.judge.decision import layer as DLY
 from shibuya.foundation.ports.decision import SOURCE_AFFORDANCE, Candidate, DecisionContext, DecisionPort
-from shibuya.engine.duties import layer as LD
+from shibuya.interim_bundles.duties import layer as LD
 from shibuya.mind.plan import duties_port as PD
 from shibuya.runtime.systems import boxes as BX
 

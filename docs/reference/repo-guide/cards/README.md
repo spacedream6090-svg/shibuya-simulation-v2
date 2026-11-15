@@ -24,11 +24,7 @@
 | [src/shibuya/build/vis](src/shibuya/build/vis/README.md) | 5 | 0 |
 | [src/shibuya/census](src/shibuya/census/README.md) | 1 | 0 |
 | [src/shibuya/economy](src/shibuya/economy/README.md) | 18 | 0 |
-| [src/shibuya/engine](src/shibuya/engine/README.md) | 15 | 0 |
-| [src/shibuya/engine/calendar2](src/shibuya/engine/calendar2/README.md) | 2 | 0 |
-| [src/shibuya/engine/calendar3](src/shibuya/engine/calendar3/README.md) | 4 | 0 |
-| [src/shibuya/engine/contact](src/shibuya/engine/contact/README.md) | 3 | 0 |
-| [src/shibuya/engine/duties](src/shibuya/engine/duties/README.md) | 3 | 0 |
+| [src/shibuya/engine](src/shibuya/engine/README.md) | 14 | 0 |
 | [src/shibuya/engine/events](src/shibuya/engine/events/README.md) | 2 | 0 |
 | [src/shibuya/engine/tools](src/shibuya/engine/tools/README.md) | 3 | 0 |
 | [src/shibuya/experiments](src/shibuya/experiments/README.md) | 1 | 0 |
@@ -43,6 +39,11 @@
 | [src/shibuya/foundation/queues](src/shibuya/foundation/queues/README.md) | 3 | 0 |
 | [src/shibuya/foundation/text](src/shibuya/foundation/text/README.md) | 5 | 0 |
 | [src/shibuya/foundation/vocab](src/shibuya/foundation/vocab/README.md) | 4 | 0 |
+| [src/shibuya/interim_bundles](src/shibuya/interim_bundles/README.md) | 2 | 0 |
+| [src/shibuya/interim_bundles/calendar2](src/shibuya/interim_bundles/calendar2/README.md) | 2 | 0 |
+| [src/shibuya/interim_bundles/calendar3](src/shibuya/interim_bundles/calendar3/README.md) | 4 | 0 |
+| [src/shibuya/interim_bundles/contact](src/shibuya/interim_bundles/contact/README.md) | 3 | 0 |
+| [src/shibuya/interim_bundles/duties](src/shibuya/interim_bundles/duties/README.md) | 3 | 0 |
 | [src/shibuya/llm](src/shibuya/llm/README.md) | 4 | 0 |
 | [src/shibuya/mind](src/shibuya/mind/README.md) | 1 | 0 |
 | [src/shibuya/mind/judge](src/shibuya/mind/judge/README.md) | 3 | 0 |
@@ -162,7 +163,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 308 ディレクトリ・2341 本
+- [docs の索引](docs.md): 309 ディレクトリ・2343 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

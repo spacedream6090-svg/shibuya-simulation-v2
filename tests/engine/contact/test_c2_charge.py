@@ -14,7 +14,7 @@ from shibuya.foundation.decl import bridging as BR
 from shibuya.society.contact import deliver as DL
 from shibuya.world.things import device as DV
 from shibuya.mind.plan import contact_port as P
-from shibuya.engine.contact.layer import W_BATTERY, W_CHARGE, W_DELIVERED, W_UNPLUG, audit_causes
+from shibuya.interim_bundles.contact.layer import W_BATTERY, W_CHARGE, W_DELIVERED, W_UNPLUG, audit_causes
 
 from tests.engine.contact._c1 import STEP_NS, by_kind, choose
 from tests.engine.contact._c2 import Harness2, loud

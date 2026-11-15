@@ -20,7 +20,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `roster_fixture`(関数): 合成の世界(母集団が無い=W20 と雇用の行が無い)に、合成の雇い主の口の表とグループの一覧(家族 2 人・職場 10 人)を入れる。
   - `synthetic_roster`(関数)
   - `synthetic_table`(関数): 合成の W20 の週の表(奇数の体=週ごと・偶数の体=毎週固定・月〜金に勤務・場所の種類=建物)。
-- import している内部モジュール: `shibuya.engine.calendar3.roster`・`shibuya.engine.tools.record`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.arms.contact`・`shibuya.foundation.time_consts`・`shibuya.mind.plan.calendar3_port`・`shibuya.society.tools.groups`
+- import している内部モジュール: `shibuya.engine.tools.record`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.arms.contact`・`shibuya.foundation.time_consts`・`shibuya.interim_bundles.calendar3.roster`・`shibuya.mind.plan.calendar3_port`・`shibuya.society.tools.groups`
 - 読む試験: `tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/calendar3/test_ca3_world.py`・`tests/engine/time/test_v30a_key_sites.py`
 
 ## [test_ca3_runs.py](../../../../../../../tests/engine/calendar3/test_ca3_runs.py)
@@ -63,7 +63,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `test_workers_per_unit_match_the_roster_fixture`(関数)
   - `with_real_rights`(関数): 雇い主の口の表は差し替えない(権利台帳=合成の世界の開閉の過程の台帳から本物の道で作る)。W20 の週の表(世界の資産)と
   - `with_roster`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.calendar`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar3.roster`・`shibuya.engine.contact.layer`・`shibuya.engine.run`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.journal.log`・`shibuya.foundation.manifest.sections`・`shibuya.mind.plan.calendar3_port`・`shibuya.mind.plan.contact_port`・`shibuya.mind.plan.promise_book`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.table`・`tests/engine/calendar3/_ca3.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.calendar`・`shibuya.engine.run`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.journal.log`・`shibuya.foundation.manifest.sections`・`shibuya.interim_bundles.calendar3.layer`・`shibuya.interim_bundles.calendar3.roster`・`shibuya.interim_bundles.contact.layer`・`shibuya.mind.plan.calendar3_port`・`shibuya.mind.plan.contact_port`・`shibuya.mind.plan.promise_book`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.table`・`tests/engine/calendar3/_ca3.py`
 - 環境変数: `SHIBUYA_SYSTEMS_CHECK`
 
 ## [test_ca3_units.py](../../../../../../../tests/engine/calendar3/test_ca3_units.py)
@@ -82,7 +82,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `test_roster_store_unit_and_self_scheduling`(関数)
   - `test_roster_units_scheduler_and_weekly_workers_only`(関数)
   - `test_roster_without_table_or_population_is_empty`(関数)
-- import している内部モジュール: `shibuya.engine.calendar`・`shibuya.engine.calendar3.knowledge`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar3.roster`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.mind.plan.calendar2_port`・`shibuya.mind.plan.calendar3_port`・`shibuya.mind.plan.contact_port`・`shibuya.mind.plan.promise_book`・`shibuya.world.facts.rights.initial`・`tests/engine/calendar3/_ca3.py`
+- import している内部モジュール: `shibuya.engine.calendar`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.interim_bundles.calendar3.knowledge`・`shibuya.interim_bundles.calendar3.layer`・`shibuya.interim_bundles.calendar3.roster`・`shibuya.mind.plan.calendar2_port`・`shibuya.mind.plan.calendar3_port`・`shibuya.mind.plan.contact_port`・`shibuya.mind.plan.promise_book`・`shibuya.world.facts.rights.initial`・`tests/engine/calendar3/_ca3.py`
 
 ## [test_ca3_world.py](../../../../../../../tests/engine/calendar3/test_ca3_world.py)
 
@@ -90,4 +90,4 @@ Python 5 本・その他 0 本(このディレクトリの直下)
 
 - 公開の関数とクラス
   - `test_world_5000_sunday_composes_and_audits_are_clean`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.calendar3.layer`・`shibuya.engine.contact.layer`・`tests/engine/calendar3/_ca3.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.interim_bundles.calendar3.layer`・`shibuya.interim_bundles.contact.layer`・`tests/engine/calendar3/_ca3.py`

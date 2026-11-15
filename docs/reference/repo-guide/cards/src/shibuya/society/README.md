@@ -21,7 +21,7 @@ engine.conversation — 会話プロトコル(行動契約書 §3)のセッシ�
   - `PendingInvite`(クラス): **返事待ちの招待**(C6・09-09)。
   - `Session`(クラス): 1会話セッション。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.types`
-- 呼び手: `shibuya.engine.contact.layer`・`shibuya.runtime.systems.assemble`・`shibuya.society.contact.calls`・`shibuya.society.contact.chat_state`・`shibuya.society.speech.port`
+- 呼び手: `shibuya.interim_bundles.contact.layer`・`shibuya.runtime.systems.assemble`・`shibuya.society.contact.calls`・`shibuya.society.contact.chat_state`・`shibuya.society.speech.port`
 - 読む試験: `tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/proximity/test_switch_sites.py`・`tests/engine/speech/test_speech_empty_text_errors.py`・`tests/engine/speech/test_wom_from_utterance_roundtrip.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_conversation.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_relations.py`・`tests/engine/test_relations_8b.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_state_format_10f.py`・`tests/engine/test_version_bump_10e.py`
 - 読む試験(道筋で): `tests/economy/cp2/test_cp2_write_window.py`
 - 状態台帳の行

@@ -11,7 +11,7 @@ from shibuya.mind.plan import contact_attention as AT
 from shibuya.society.contact import deliver as DL
 from shibuya.world.things import device as DV
 from shibuya.mind.plan import contact_port as P
-from shibuya.engine.contact.layer import (
+from shibuya.interim_bundles.contact.layer import (
     W_ANSWER, W_CALL_END, W_DELIVERED, W_DIAL, W_HANG, W_LATER, W_READ, W_RING, W_SENT, audit_causes,
 )
 from shibuya.society.conversation import ConvState
@@ -236,7 +236,7 @@ def test_screen_end_records_minutes_and_sleep_closes_the_screen(monkeypatch):
 
 def test_negative_control_an_engine_rule_for_reading_is_caught(monkeypatch):
     """負の対照: 判断の口を通さずに読む(エンジンが時刻を決める)形に差し替えると、監査が食い違いを数える。"""
-    from shibuya.engine.contact import layer as LY
+    from shibuya.interim_bundles.contact import layer as LY
 
     real = LY.ContactLayer._decide
 

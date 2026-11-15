@@ -68,7 +68,7 @@ from shibuya.mind.plan import promise_book as _B
 from shibuya.mind.plan.calendar2_port import NOTIFY_LEAD_MIN
 from shibuya.foundation.arms import calendar3 as _ARM
 from shibuya.mind.plan import calendar3_port as _P
-from shibuya.engine.calendar3.knowledge import CommonCalendar, StoreRules, common_line
+from shibuya.interim_bundles.calendar3.knowledge import CommonCalendar, StoreRules, common_line
 from shibuya.foundation.ports.decision import Candidate, DecisionContext
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.log import Event, LlmCall, Process
@@ -466,7 +466,7 @@ class Calendar3Layer:
         leads = [_P.cand(_P.K_LEAD, f"始まりの {m} 分前", id=f"lead:{m}") for m in NOTIFY_LEAD_MIN]
         cl, cause = self._decide(T, t_ns, a, _P.P_NOTIFY, leads + [_P.cand(_P.K_NO_NOTIFY)])
         lead = int(cl.id.split(":", 1)[1]) if cl.kind == _P.K_LEAD else -1
-        from shibuya.engine.calendar_self import W20_PLACE_WORDS
+        from shibuya.interim_bundles.calendar_self import W20_PLACE_WORDS
 
         out: list[int] = []
         for d, s_min, e_min, cell, pk in days:  # 逐次: 勤務の日の数ぶん(≤ 7)

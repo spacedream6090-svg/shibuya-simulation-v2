@@ -134,7 +134,7 @@ from shibuya.society.speech import layer as _SPEECH
 from shibuya.world.model import proximity as _PROX
 from shibuya.world.model.space import nav1 as _NAV1
 from shibuya.engine import calendar_shadow as _CALENDAR_SHADOW
-from shibuya.engine import calendar_self as _CALENDAR_SELF
+from shibuya.interim_bundles import calendar_self as _CALENDAR_SELF
 from shibuya.experiments.port import layer as _EXPERIMENT
 from shibuya.foundation.queues import batching as _BATCHING
 from shibuya.runtime.clocks import regional as _REGIONAL_CLOCK  # 〔第 6 期 6-3 T4〕
@@ -544,7 +544,7 @@ def _calendar2_field(layer: Any) -> dict[str, Any]:
     """〔第 6 期 6-2 カレンダー 2〕manifest の ``calendar_2``(会話から生まれる予定の層のあるラン=腕 arm だけ・ほかは空)。"""
     if layer is None:
         return {}
-    from shibuya.engine.calendar2.layer import manifest_fields as _ca2_manifest
+    from shibuya.interim_bundles.calendar2.layer import manifest_fields as _ca2_manifest
 
     return _ca2_manifest(layer)
 
@@ -553,7 +553,7 @@ def _calendar3_field(layer: Any) -> dict[str, Any]:
     """〔第 6 期 6-2 カレンダー 3〕manifest の ``calendar_3``(雇い主・祝日の層のあるラン=腕 arm だけ・ほかは空)。"""
     if layer is None:
         return {}
-    from shibuya.engine.calendar3.layer import manifest_fields as _ca3_manifest
+    from shibuya.interim_bundles.calendar3.layer import manifest_fields as _ca3_manifest
 
     return _ca3_manifest(layer)
 
@@ -562,7 +562,7 @@ def _duties_field(layer: Any) -> dict[str, Any]:
     """〔第 6 期 6-6 ② 第 1 部〕manifest の ``duties``(店の仕事の層のあるラン=腕 --duties arm だけ・ほかは空)。"""
     if layer is None:
         return {}
-    from shibuya.engine.duties.layer import manifest_fields as _du_manifest
+    from shibuya.interim_bundles.duties.layer import manifest_fields as _du_manifest
 
     return _du_manifest(layer)
 
@@ -571,7 +571,7 @@ def _contact_c1_field(layer: Any) -> dict[str, Any]:
     """〔第 6 期 6-4 C1〕manifest の ``contact_c1``(連絡の道具の層のあるラン=腕 c1 だけ・ほかは空=欄を出さない)。"""
     if layer is None:
         return {}
-    from shibuya.engine.contact.layer import manifest_fields as _ct_manifest
+    from shibuya.interim_bundles.contact.layer import manifest_fields as _ct_manifest
 
     return {"contact_c1": _ct_manifest(layer)}
 

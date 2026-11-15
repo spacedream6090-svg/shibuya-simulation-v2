@@ -79,7 +79,7 @@ engine.body.system1 — 意図しない System 1 の反応の**器だけ**の 3 
   - `noise_stage_at`(関数): W10 の騒音の段の読みの口(``World.noise_stage_for_tick`` の値をセルで引く・読むだけ)。舞台の外の体は 0。
   - `speech_loudness`(関数): ロンバード効果の口: 周りの騒音の段 → 話す大きさ。**値は空**(None=仕組みがまだ無い・空間の段 3)。
 - import している内部モジュール: `shibuya.foundation.ports.percept`
-- 呼び手: `shibuya.engine.contact.layer`・`shibuya.world.body.model`
+- 呼び手: `shibuya.interim_bundles.contact.layer`・`shibuya.world.body.model`
 - 読む試験: `tests/engine/body/test_body_rules_sources.py`・`tests/engine/body/test_system1_placeholders.py`
 - 決定の ID: 10-12・10-12/§1-5
 

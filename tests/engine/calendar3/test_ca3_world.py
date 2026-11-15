@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.engine.calendar3 import layer as LY
-from shibuya.engine.contact import layer as CL
+from shibuya.interim_bundles.calendar3 import layer as LY
+from shibuya.interim_bundles.contact import layer as CL
 
 from tests.engine.calendar3._ca3 import STEP_NS, SUNDAY, ca3
 

@@ -17,7 +17,7 @@ from shibuya.foundation.manifest import sections as MS
 from shibuya.runtime.state import resume as RS
 from shibuya.runtime.state import ledger as SL
 from shibuya.foundation.arms import duties as AD
-from shibuya.engine.duties import layer as LY
+from shibuya.interim_bundles.duties import layer as LY
 from shibuya.mind.plan import duties_port as PD
 from shibuya.foundation.vocab import events as V
 from shibuya.engine.run import run_day

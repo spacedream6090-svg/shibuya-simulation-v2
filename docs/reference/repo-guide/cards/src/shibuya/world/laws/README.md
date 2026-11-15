@@ -88,7 +88,7 @@ engine.processes.goods_flow — 物の流れ(§7.2 初回実装の後半 + 前�
   - `StreetCleaningProcess`(クラス): 街路清掃(セル別のごみストックが密度で増え、シフトで掃かれる)。
   - `WasteCollectionProcess`(クラス): 廃棄物収集(店舗ビン → bbox 外)+ C 類排出(売れ残り・世帯消費)。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.foundation.journal.log`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.ledger.records`・`shibuya.world.model.state`
-- 呼び手: `shibuya.engine.duties.layer`・`shibuya.world.laws.runner`
+- 呼び手: `shibuya.interim_bundles.duties.layer`・`shibuya.world.laws.runner`
 - 読む試験: `tests/engine/duties/test_du_runs.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_resume_10d.py`・`tests/engine/time/test_t0_time_consts.py`
 - 状態台帳の行
   - 持ち主 `runner.delivery_inbound`(`DeliveryInboundProcess`)
@@ -138,7 +138,7 @@ engine.processes.opening — 営業時間 PlanSpec と役割行動「開閉店�
   - `build_open_matrix`(関数): W7 の区間 → ``(n_poi, 1440)`` の開閉行列(日跨ぎは同じ日へ巻き戻す)。
   - `rows_of_day`(関数): その日の行(曜日 0〜6・祝日 ``PH_ROW``)に当たる W7 の区間の真偽の列。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar`・`shibuya.engine.resolve`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`・`shibuya.world.assets`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.facts.rights.record`・`shibuya.world.ledger.records`・`shibuya.world.model.state`
-- 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.calendar3.layer`・`shibuya.engine.run`・`shibuya.world.laws.runner`
+- 呼び手: `shibuya.engine.run`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar3.layer`・`shibuya.world.laws.runner`
 - 読む試験: `tests/build_rail/test_w12_arrivals_2_3c.py`・`tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_opening.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/rights/test_rights_manifest.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_calendar_10e_e3.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/time/test_t0_time_consts.py`
 - 状態台帳の行
   - 持ち主 `runner.opening`(`OpeningProcess`)

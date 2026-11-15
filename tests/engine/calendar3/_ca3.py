@@ -13,7 +13,7 @@ from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PE
 from shibuya.foundation.arms import calendar2 as A2
 from shibuya.foundation.arms import calendar3 as A3
 from shibuya.mind.plan import calendar3_port as P3
-from shibuya.engine.calendar3 import roster as R3
+from shibuya.interim_bundles.calendar3 import roster as R3
 from shibuya.foundation.arms import contact as AC
 
 STEP_NS = STEP_SECONDS * NS_PER_SECOND

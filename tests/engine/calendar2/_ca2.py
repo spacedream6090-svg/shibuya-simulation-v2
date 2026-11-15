@@ -13,7 +13,7 @@ from shibuya.agents.state import AgentState
 from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
 from shibuya.foundation.arms import calendar2 as A
 from shibuya.mind.plan import calendar2_port as P
-from shibuya.engine.calendar2.layer import Calendar2Layer
+from shibuya.interim_bundles.calendar2.layer import Calendar2Layer
 from shibuya.foundation.arms import contact as AC
 from shibuya.foundation.journal.log import EventLog
 from shibuya.world.model.state import World

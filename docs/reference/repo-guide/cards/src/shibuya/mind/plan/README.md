@@ -20,7 +20,7 @@ engine.calendar2.port — カレンダー 2 の本人の判断(候補の口 J0 �
   - `purpose_of_serial`(関数)
   - `serial_of`(関数): 判断の通し番号(``SERIAL_BASE``+その刻みのその体の k 回目 × 16+判断の種類)。上限を超えたら ``ValueError``。
 - import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.rng`
-- 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.calendar3.layer`
+- 呼び手: `shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar3.layer`
 - 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar2/test_ca2_units.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
 - 決定の ID: 10-12/§4-1
@@ -37,7 +37,7 @@ engine.calendar3.port — カレンダー 3 の本人の判断(候補の口 J0 �
   - `purpose_of_serial`(関数)
   - `serial_of`(関数): 判断の通し番号(``SERIAL_BASE``+その刻みのその体の k 回目 × 16+判断の種類)。上限を超えたら ``ValueError``。
 - import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.rng`
-- 呼び手: `shibuya.engine.calendar3.layer`
+- 呼び手: `shibuya.interim_bundles.calendar3.layer`
 - 読む試験: `tests/engine/calendar3/_ca3.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/duties/test_du_units.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
 - 決定の ID: 10-12/§4-1
@@ -52,7 +52,7 @@ engine.contact.attention — 目と心の向き(第 6 期 6-4 C1・決定 10-12 
   - `gate_salient`(関数): その刻みの顕著行為ごとの「気づいた体」から、関心の的が周りでなく割り込めなかった体を外した写しを返す(〔検収 M1〕
   - `interrupted_of`(関数): 起きた理由が驚き駆動の入口(セルの B4 の変化)か。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.arms.contact`・`shibuya.foundation.ports.percept_contact`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.contact.layer`
+- 呼び手: `shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.contact.layer`
 - 読む試験: `tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_video.py`
 - 状態台帳の行
   - 持ち主 `contact.attn`(`Attention`)
@@ -68,7 +68,7 @@ engine.contact.habit — CT4 の習慣(本人の過去の連絡の判断から�
   - `HabitBook`(クラス): 体ごとの連絡の選びの回数(状態台帳の腕の行 ``CT1H``・持ち主の道筋 ``contact.habit``)。
   - `states_of`(関数): 体ごとの状態(勤務中・家・移動中・ほか)。``work_cell`` が ``None`` なら勤務中は無い。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.arms.contact`
-- 呼び手: `shibuya.engine.contact.layer`
+- 呼び手: `shibuya.interim_bundles.contact.layer`
 - 読む試験: `tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 状態台帳の行
   - 持ち主 `contact.habit`(`HabitBook`)
@@ -91,7 +91,7 @@ engine.contact.port — 連絡の本人の判断(候補の口 J0 の形)の仮�
   - `serial_of`(関数): 判断の通し番号(その刻みのその体の k 回目 × 16+判断の種類)。上限を超えたら ``ValueError``(番号がぶつからない)。
   - `step_of_call_id`(関数): 判断の呼びの id → 刻み(連絡の形でなければ ``None``)。負の対照の試験と監査が読む。
 - import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.llm.mock`
-- 呼び手: `shibuya.engine.contact.layer`
+- 呼び手: `shibuya.interim_bundles.contact.layer`
 - 読む試験: `tests/engine/calendar2/test_ca2_units.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/contact/_c1.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_exchange.py`・`tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/contact/test_c2_video.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
 - 決定の ID: 10-12/§4-4
@@ -108,7 +108,7 @@ engine.duties.port — 店の仕事の本人の判断(候補の口 J0 の形)の
   - `purpose_of_serial`(関数)
   - `serial_of`(関数): 判断の通し番号(``SERIAL_BASE``+その刻みのその体の k 回目 × 16+判断の種類)。上限を超えたら ``ValueError``。
 - import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.vocab.actions`
-- 呼び手: `shibuya.engine.duties.layer`
+- 呼び手: `shibuya.interim_bundles.duties.layer`
 - 読む試験: `tests/engine/duties/_du.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/duties/test_du_units.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
 - 決定の ID: 10-12/§1-5
@@ -120,7 +120,7 @@ engine.calendar2.recall — 頭の中の予定の思い出し(第 6 期 6-2 カ�
 - 公開の関数とクラス
   - `HeadRecall`(クラス): 頭の中の予定の思い出しの口(参照=状態を持たない。痕跡は行の ``trace`` に置く)。
 - import している内部モジュール: `shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_m1`
-- 呼び手: `shibuya.engine.calendar2.layer`
+- 呼び手: `shibuya.interim_bundles.calendar2.layer`
 - 決定の ID: 10-12/§4-6
 
 ## [promise_book.py](../../../../../../../../src/shibuya/mind/plan/promise_book.py)
@@ -131,7 +131,7 @@ engine.calendar2.book — 本人の予定の器(第 6 期 6-2 カレンダー 2�
   - `PromiseBook`(クラス): 本人の予定の器(状態台帳の腕の行 ``CA2B``)。行は持ち主ごと=二人の約束も各自が自分の行を持つ。
   - `broken`(関数): 壊れた予定(CA4 (d))なら理由・そうでなければ ``None``。
 - import している内部モジュール: `shibuya.foundation.arms.calendar2`
-- 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.calendar3.layer`
+- 呼び手: `shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar3.layer`
 - 読む試験: `tests/engine/calendar2/test_ca2_units.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`
 - 状態台帳の行
   - 持ち主 `calendar2.book`(`PromiseBook`)

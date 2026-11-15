@@ -14,7 +14,7 @@ engine.tools.groups — グループの一覧(第 1 期 1-7 C0・CT10・CT5 の�
 
 - 公開の関数とクラス
   - `GroupList`(クラス): グループの一覧(家族と職場)。書く口は無い(``from_population`` で作る)。
-- 呼び手: `shibuya.engine.contact.book`・`shibuya.engine.contact.layer`・`shibuya.engine.tools.record`
+- 呼び手: `shibuya.engine.tools.record`・`shibuya.interim_bundles.contact.book`・`shibuya.interim_bundles.contact.layer`
 - 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar3/_ca3.py`・`tests/engine/contact/_c1.py`・`tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/tools/test_c0_groups_from_w16.py`・`tests/engine/tools/test_c0_init_recall.py`
 - 決定の ID: 10-12/§4-4
 

@@ -1637,30 +1637,30 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     # 第 3 期 3-1: 暦 1a の影(状態台帳の行 CAL・腕 --calendar-shadow 1a のランだけ)
     "calendar_shadow": ("engine/calendar_shadow.py", "CalendarShadow"),
     # 第 6 期 6-2: カレンダー 1b(状態台帳の腕の行 C1B・C1BM・腕 --calendar 1b のランだけ)
-    "calendar_self": ("engine/calendar_self.py", "CalendarSelf"),
+    "calendar_self": ("interim_bundles/calendar_self.py", "CalendarSelf"),
     # 第 6 期 6-3: 時計の段 T2〜T4 の腕の持ち主(状態台帳の腕の行 TCR・TCC・T3M・T4W・腕のランだけ)
     "talk_clock": ("runtime/clocks/speech.py", "TalkClock"),
     "step_scope": ("runtime/clocks/step_scope.py", "StepScope"),
     "clock": ("runtime/clocks/regional.py", "RegionalClock"),
     # 〔第 6 期 6-4 C1〕連絡の道具(状態台帳の腕の行 CT1*・腕 --contact c1 のランだけ)と子の持ち主
-    "contact": ("engine/contact/layer.py", "ContactLayer"),
+    "contact": ("interim_bundles/contact/layer.py", "ContactLayer"),
     "contact.dev": ("world/things/device.py", "Devices"),
     "contact.attn": ("mind/plan/contact_attention.py", "Attention"),
     "contact.mail": ("society/contact/deliver.py", "Mailbox"),
     "contact.chats": ("society/conversation.py", "ConversationManager"),
     "contact.calls": ("society/conversation.py", "ConversationManager"),
     "contact.speech": ("society/speech/port.py", "SpeechPort"),
-    "contact.book": ("engine/contact/book.py", "ContactBook"),  # 〔C2〕本人の行動で動く帳(行 CT1B)
+    "contact.book": ("interim_bundles/contact/book.py", "ContactBook"),  # 〔C2〕本人の行動で動く帳(行 CT1B)
     "contact.habit": ("mind/plan/contact_habit.py", "HabitBook"),  # 〔C2〕習慣の表(行 CT1H)
     # 〔第 6 期 6-2 カレンダー 2〕会話から生まれる予定(状態台帳の腕の行 CA2*・腕 --calendar-2 arm のランだけ)と子の持ち主
-    "calendar2": ("engine/calendar2/layer.py", "Calendar2Layer"),
+    "calendar2": ("interim_bundles/calendar2/layer.py", "Calendar2Layer"),
     "calendar2.book": ("mind/plan/promise_book.py", "PromiseBook"),
     # 〔第 4 期 4-2〕店の預かり消費税(状態台帳の腕の行 TXD・税の部品が動くランだけ)
     "ledger.money.stage2.tax_deposit": ("economy/tax_deposit.py", "TaxDeposit"),
     # 〔第 6 期 6-2 カレンダー 3〕雇い主・祝日(状態台帳の腕の行 CA3*・腕 --calendar-3 arm のランだけ)
-    "calendar3": ("engine/calendar3/layer.py", "Calendar3Layer"),
+    "calendar3": ("interim_bundles/calendar3/layer.py", "Calendar3Layer"),
     # 〔第 6 期 6-6 ② 第 1 部〕店の仕事(状態台帳の腕の行 DU*・腕 --duties arm のランだけ)
-    "duties": ("engine/duties/layer.py", "DutiesLayer"),
+    "duties": ("interim_bundles/duties/layer.py", "DutiesLayer"),
 }
 
 #: (ii) キャッシュ・導出。中身は 3 通り: (a) 毎 tick(か事象のある tick)作り直す作業の値・印

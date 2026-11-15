@@ -12,9 +12,9 @@ import pytest
 
 from shibuya.foundation.ports.decision import DecisionContext
 from shibuya.foundation.arms import duties as AD
-from shibuya.engine.duties import layer as LY
+from shibuya.interim_bundles.duties import layer as LY
 from shibuya.mind.plan import duties_port as PD
-from shibuya.engine.duties.knowledge import UNKNOWN, ShopRules, rules_line
+from shibuya.interim_bundles.duties.knowledge import UNKNOWN, ShopRules, rules_line
 from shibuya.world.facts.rights import ledger as L
 
 #: 層のファイル(〔段 4 の下ごしらえ〕置き場をディレクトリの字面で持たず、モジュールの ``__file__`` から作る)。
@@ -83,7 +83,7 @@ def test_call_ids_do_not_collide_with_other_ports():
 
 def test_first_per_store_takes_the_first_eligible_row():
     """〔検収 M1〕雇用の行(店の順)のうち候補になれる行の、店ごとの最初の行(1 店 1 刻み 1 人)。"""
-    from shibuya.engine.duties.layer import first_per_store
+    from shibuya.interim_bundles.duties.layer import first_per_store
 
     stores = np.array([0, 0, 0, 2, 2, 5])
     agents = np.array([10, 11, 12, 20, 21, 50])

@@ -19,7 +19,7 @@ engine.calendar2.arm — カレンダー 2 の腕(第 6 期 6-2・CA2 (c)(d)・C
   - `config`(関数): 設定の指紋と manifest の設定の子に出す腕の組(腕 off は ``None``=指紋に何も足さない)。
   - `is_on`(関数)
   - `set_arm`(関数): 腕を選ぶ(CLI ``--calendar-2``・試験の切替口)。
-- 呼び手: `shibuya.cli`・`shibuya.engine.calendar2.layer`・`shibuya.mind.plan.promise_book`・`shibuya.runtime.systems.assemble`
+- 呼び手: `shibuya.cli`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.mind.plan.promise_book`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/_ca3.py`
 - 環境変数: `SHIBUYA_CALENDAR_2`
 
@@ -35,7 +35,7 @@ engine.calendar3.arm — カレンダー 3 の腕(第 6 期 6-2・雇い主・�
   - `set_trial`(関数)
   - `trial`(関数): 試験用の印の下の腕(``off``・``on``)。
   - `trial_on`(関数): 試験用の印が効くか(腕 arm で下の腕 on のときだけ)。
-- 呼び手: `shibuya.cli`・`shibuya.engine.calendar3.layer`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`
+- 呼び手: `shibuya.cli`・`shibuya.interim_bundles.calendar3.layer`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`
 - 読む試験: `tests/engine/calendar3/_ca3.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`
 - 環境変数: `SHIBUYA_CALENDAR_3`・`SHIBUYA_CALENDAR_3_TRIAL`・名前を読めない所 1 か所
 - 決定の ID: 10-12/§4-1
@@ -56,7 +56,7 @@ engine.contact.arm — 連絡の道具 C1 の腕(第 6 期 6-4)。
   - `set_send`(関数)
   - `set_unnoticed`(関数)
   - `unnoticed`(関数): 割り込めなかった出来事の載せ方の腕(``i``・``ii``・``iii``)。
-- 呼び手: `shibuya.cli`・`shibuya.engine.contact.book`・`shibuya.engine.contact.layer`・`shibuya.mind.plan.contact_attention`・`shibuya.mind.plan.contact_habit`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`・`shibuya.society.contact.calls`・`shibuya.society.contact.chat_state`・`shibuya.society.contact.deliver`・`shibuya.world.things.device`
+- 呼び手: `shibuya.cli`・`shibuya.interim_bundles.contact.book`・`shibuya.interim_bundles.contact.layer`・`shibuya.mind.plan.contact_attention`・`shibuya.mind.plan.contact_habit`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`・`shibuya.society.contact.calls`・`shibuya.society.contact.chat_state`・`shibuya.society.contact.deliver`・`shibuya.world.things.device`
 - 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar3/_ca3.py`・`tests/engine/contact/_c1.py`・`tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_habit.py`
 - 環境変数: `SHIBUYA_CONTACT`・`SHIBUYA_CONTACT_HABIT`・`SHIBUYA_CONTACT_SEND`・`SHIBUYA_CONTACT_UNNOTICED`・名前を読めない所 1 か所
 - 決定の ID: 10-12/§4-4
@@ -70,6 +70,6 @@ engine.duties.arm — 店の仕事の腕(第 6 期 6-6 ② 第 1 部=開閉店�
   - `config`(関数): 設定の指紋と manifest の設定の子に出す腕の組(腕 off は ``None``=指紋に何も足さない)。
   - `is_on`(関数)
   - `set_arm`(関数): 腕を選ぶ(CLI ``--duties``・試験の切替口)。
-- 呼び手: `shibuya.cli`・`shibuya.engine.duties.layer`・`shibuya.runtime.systems.assemble`
+- 呼び手: `shibuya.cli`・`shibuya.interim_bundles.duties.layer`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/duties/_du.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/duties/test_du_units.py`
 - 環境変数: `SHIBUYA_DUTIES`・名前を読めない所 1 か所

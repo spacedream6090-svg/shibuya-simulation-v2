@@ -18,7 +18,7 @@ engine.contact.calls — 電話の会話(第 6 期 6-4 C1・決定 10-12 §4-4 C
   - `CallManager`(クラス): 電話の会話(対面の会話の仕組みそのまま・場所が違うだけ)。
   - `CallSpeechPort`(クラス): 通話の発話の口(発話の口そのまま・道具=通話)。
 - import している内部モジュール: `shibuya.foundation.arms.contact`・`shibuya.foundation.ports.percept_contact`・`shibuya.society.conversation`・`shibuya.society.speech.port`
-- 呼び手: `shibuya.engine.contact.layer`
+- 呼び手: `shibuya.interim_bundles.contact.layer`
 - 読む試験: `tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c2_video.py`
 - 状態台帳の行
   - 持ち主 `contact.calls` の別のクラス `CallManager`(行は `shibuya.society.conversation` のカードを見る)
@@ -34,7 +34,7 @@ engine.contact.chat_state — チャットの会話の状態(第 6 期 6-4 C1・
   - `group_key`(関数): グループのチャットの鍵(グループの一覧の行の番号)。
   - `pair_key`(関数): 1 対 1 のチャットの鍵(順に依らない)。
 - import している内部モジュール: `shibuya.foundation.arms.contact`・`shibuya.society.conversation`
-- 呼び手: `shibuya.engine.contact.layer`
+- 呼び手: `shibuya.interim_bundles.contact.layer`
 - 読む試験: `tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_units.py`
 - 状態台帳の行
   - 持ち主 `contact.chats` の別のクラス `ChatBook`(行は `shibuya.society.conversation` のカードを見る)
@@ -48,7 +48,7 @@ engine.contact.deliver — 届く(エンジン)=メッセージ・電話・既�
   - `Mailbox`(クラス): 届いた・送った・予約のメッセージと着信(書く口はこのクラスのメソッドだけ)。
   - `senders_of`(関数): 読んだ行 → 会話ごとの束 ``(鍵の種類 p/g, 相手かグループ, 最後の行の番号)``(出た順・重ねない)。
 - import している内部モジュール: `shibuya.foundation.arms.contact`・`shibuya.foundation.ports.percept_contact`・`shibuya.foundation.queues.batching`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.engine.contact.layer`
+- 呼び手: `shibuya.interim_bundles.contact.layer`
 - 読む試験: `tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_video.py`
 - 状態台帳の行
   - 持ち主 `contact.mail`(`Mailbox`)
@@ -63,6 +63,6 @@ engine.contact.tools — 連絡の道具の台帳の行(第 6 期 6-4 C1 の限�
 - 公開の関数とクラス
   - `register_into`(関数): ランの道具の台帳に足す(腕 c1 の組み立てだけが呼ぶ)。もうある名は足さない(差し替えない)。足した行の数。
 - import している内部モジュール: `shibuya.engine.tools.registry`
-- 呼び手: `shibuya.engine.contact.layer`・`shibuya.runtime.systems.assemble`
+- 呼び手: `shibuya.interim_bundles.contact.layer`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`
 - 決定の ID: 10-12/§4-4

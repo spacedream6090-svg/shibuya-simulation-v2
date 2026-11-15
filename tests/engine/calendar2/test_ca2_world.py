@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.engine.calendar2 import layer as LY
+from shibuya.interim_bundles.calendar2 import layer as LY
 
 from tests.engine.calendar2._ca2 import STEP_NS, ca2
 

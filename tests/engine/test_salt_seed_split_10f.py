@@ -201,7 +201,7 @@ _HASH_SITES = {
     ("perception/renderer.py", "__init__"): "run_salt",  # near_salt を渡さないときの run_salt の写し(run_day は渡す)
     # 〔11-01 段 2 の 4〕("engine/presence.py", "attendance_draw")=出勤率の抽選は消した
     # 〔第 6 期 6-2〕腕 1b の体ごとの割り振り(動きの seed=salt・母集団の seed は使わない)
-    ("engine/calendar_self.py", "_key_draw"): "calendar_1b",
+    ("interim_bundles/calendar_self.py", "_key_draw"): "calendar_1b",
     ("llm/fleet.py", "seed_for"): "fleet.call_seed",
     ("foundation/rng.py", "derive_key"): "core.rng の鍵の導出そのもの",
     ("foundation/hashing.py", "xxh64"): "汎用のハッシュ(引数の名前が seed)",

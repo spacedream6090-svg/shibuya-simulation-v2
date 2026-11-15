@@ -19,7 +19,7 @@ engine.contact.device — 道具の状態と通知の刺激の形(第 6 期 6-4 
   - `power_sum_db`(関数): 2 つの音の電力の和[dB]\(``10 lg(10^(a/10) + 10^(b/10))``)。
   - `signal_ok`(関数): 電波が届くか(本段は全域で届く=つなぎ ``DOC-ct-c1-device-signal``)。
 - import している内部モジュール: `shibuya.foundation.arms.contact`・`shibuya.foundation.rng`・`shibuya.foundation.text.templates`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.engine.contact.layer`
+- 呼び手: `shibuya.interim_bundles.contact.layer`
 - 読む試験: `tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_video.py`
 - 状態台帳の行
   - 持ち主 `contact.dev`(`Devices`)

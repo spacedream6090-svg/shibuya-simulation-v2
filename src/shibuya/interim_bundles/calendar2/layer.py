@@ -639,7 +639,7 @@ class Calendar2Layer:
         node = int(self.agents.registry.node[a])
         dest = int(np.asarray(self.world.assets.cell_rep_node, dtype=np.int64)[cell])
         if node >= 0 and dest >= 0 and int(self.agents.registry.transit_state[a]) == 0:
-            from shibuya.engine.calendar_self import hop_walk_steps, route_steps
+            from shibuya.interim_bundles.calendar_self import hop_walk_steps, route_steps
 
             steps = int(route_steps(self.world, np.asarray([node]), np.asarray([dest]))[0])
             walk_ns = int(math.ceil(float(hop_walk_steps(np.asarray([steps]), self.hop_steps, [a])[0]))) * self.step_ns

@@ -15,10 +15,10 @@ from shibuya.engine.calendar import SimCalendar, load_holidays
 from shibuya.mind.plan import promise_book as B2
 from shibuya.mind.plan import calendar2_port as P2
 from shibuya.foundation.arms import calendar3 as A3
-from shibuya.engine.calendar3 import layer as L3
+from shibuya.interim_bundles.calendar3 import layer as L3
 from shibuya.mind.plan import calendar3_port as P3
-from shibuya.engine.calendar3 import roster as R3
-from shibuya.engine.calendar3.knowledge import CommonCalendar, StoreRules, common_line
+from shibuya.interim_bundles.calendar3 import roster as R3
+from shibuya.interim_bundles.calendar3.knowledge import CommonCalendar, StoreRules, common_line
 from shibuya.mind.plan import contact_port as PC
 from shibuya.foundation.journal.log import Event, LlmCall, Process
 

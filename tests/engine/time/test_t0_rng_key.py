@@ -51,10 +51,10 @@ PLAN_A_CALLERS: dict[str, dict[str, int]] = {
         "foundation/rng.py": 1,
         "runtime/systems/decide.py": 1,
         "mind/judge/decision/layer.py": 1,
-        "engine/contact/layer.py": 2,
-        "engine/calendar2/layer.py": 1,
-        "engine/calendar3/layer.py": 1,
-        "engine/duties/layer.py": 1,
+        "interim_bundles/contact/layer.py": 2,
+        "interim_bundles/calendar2/layer.py": 1,
+        "interim_bundles/calendar3/layer.py": 1,
+        "interim_bundles/duties/layer.py": 1,
     },
     "time_key_from_t_ns": {"foundation/ports/decision.py": 1},
     "time_key_at": {
@@ -63,7 +63,7 @@ PLAN_A_CALLERS: dict[str, dict[str, int]] = {
         "mind/plan/calendar2_port.py": 2,
         "mind/plan/calendar3_port.py": 2,
         "mind/plan/duties_port.py": 2,
-        "engine/contact/layer.py": 1,
+        "interim_bundles/contact/layer.py": 1,
     },
     # 刻みの番号から鍵を作る旧の口(``DecisionPort.step_key``)は src から呼ばない(試験と比べる側だけ)
     "step_key": {},

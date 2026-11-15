@@ -14,12 +14,12 @@ import pytest
 
 from shibuya.agents.state import Activity
 from shibuya.foundation.arms import contact as A
-from shibuya.engine.contact import book as _BOOK
+from shibuya.interim_bundles.contact import book as _BOOK
 from shibuya.mind.plan import contact_habit as HB
-from shibuya.engine.contact import layer as _LAYER
+from shibuya.interim_bundles.contact import layer as _LAYER
 from shibuya.mind.plan import contact_port as P
 from shibuya.society.contact import tools as _TOOLS
-from shibuya.engine.contact.layer import W_IGNORE, W_LATER, W_READ, audit_causes
+from shibuya.interim_bundles.contact.layer import W_IGNORE, W_LATER, W_READ, audit_causes
 
 from tests.engine.contact._c1 import STEP_NS, by_kind, choose
 from tests.engine.contact._c2 import Harness2, loud

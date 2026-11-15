@@ -284,7 +284,7 @@ def test_only_the_manifest_and_the_daily_record_import_the_table():
     〔第 6 期 6-2 カレンダー 3〕``engine/calendar3/layer.py``(労働時間の human の行を読むだけ=超えた数を記録=止めない・腕 arm の
     ランだけ=既定の挙動は不変)。"""
     assert _readers() == {"engine/run.py", "runtime/systems/state_io.py", "runtime/systems/assemble.py", "economy/anchors.py",
-                          "economy/taxes.py", "engine/calendar3/layer.py"}
+                          "economy/taxes.py", "interim_bundles/calendar3/layer.py"}
 
 
 #: 差し込むコードの材料(〔段 4 の下ごしらえ〕今の表の包みの置き場から組み立てる。前は字面で、移す道具が import の文だけを

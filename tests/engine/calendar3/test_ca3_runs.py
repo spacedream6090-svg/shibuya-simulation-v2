@@ -17,9 +17,9 @@ from shibuya.runtime.state import resume as RS
 from shibuya.runtime.state import ledger as SL
 from shibuya.mind.plan import promise_book as B2
 from shibuya.foundation.arms import calendar3 as A3
-from shibuya.engine.calendar3 import layer as LY
+from shibuya.interim_bundles.calendar3 import layer as LY
 from shibuya.mind.plan import calendar3_port as P3
-from shibuya.engine.contact import layer as CL
+from shibuya.interim_bundles.contact import layer as CL
 from shibuya.mind.plan import contact_port as PC
 from shibuya.engine.run import run_day
 from shibuya.runtime.systems import table as TB
@@ -481,7 +481,7 @@ def test_workers_per_unit_match_the_roster_fixture():
 def with_real_rights(monkeypatch):
     """雇い主の口の表は差し替えない(権利台帳=合成の世界の開閉の過程の台帳から本物の道で作る)。W20 の週の表(世界の資産)と
     グループの一覧だけを合成の値にする。"""
-    from shibuya.engine.calendar3 import roster as R3
+    from shibuya.interim_bundles.calendar3 import roster as R3
     from tests.engine.calendar3._ca3 import synthetic_table
 
     roster_fixture(monkeypatch)
@@ -490,7 +490,7 @@ def with_real_rights(monkeypatch):
     yield
 
 
-from shibuya.engine.calendar3.roster import roster_for_run as _REAL_ROSTER_FOR_RUN  # noqa: E402
+from shibuya.interim_bundles.calendar3.roster import roster_for_run as _REAL_ROSTER_FOR_RUN  # noqa: E402
 
 
 def _roster_view(lay):

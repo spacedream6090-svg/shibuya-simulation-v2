@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.engine.duties import layer as LY
+from shibuya.interim_bundles.duties import layer as LY
 
 from tests.engine.duties._du import STEP_NS, du
 

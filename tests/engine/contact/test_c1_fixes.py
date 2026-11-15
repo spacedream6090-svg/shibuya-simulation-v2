@@ -20,14 +20,14 @@ import pytest
 
 from shibuya.agents.state import Activity
 from shibuya.mind.plan import contact_attention as AT
-from shibuya.engine.contact import book as _BOOK
+from shibuya.interim_bundles.contact import book as _BOOK
 from shibuya.society.contact import calls as _CALLS
 from shibuya.society.contact import chat_state as _CHAT
 from shibuya.society.contact import deliver as _DELIVER
 from shibuya.world.things import device as _DEVICE
-from shibuya.engine.contact import layer as LY
+from shibuya.interim_bundles.contact import layer as LY
 from shibuya.mind.plan import contact_port as P
-from shibuya.engine.contact.layer import W_LOOK, W_READ, audit_causes
+from shibuya.interim_bundles.contact.layer import W_LOOK, W_READ, audit_causes
 from shibuya.society.conversation import ConvState
 from shibuya.mind.judge.decision import layer as DCL
 from shibuya.mind.judge.decision import ports as DPS

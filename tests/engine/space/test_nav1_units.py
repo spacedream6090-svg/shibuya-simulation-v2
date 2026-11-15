@@ -269,13 +269,13 @@ def test_q4_production_world_is_the_one_with_a_build_hash(tmp_path):
 
 
 def test_m5_hop_walk_steps_legacy_is_one_step_per_node_and_nav1_uses_the_speed():
-    from shibuya.engine.calendar_self import hop_walk_steps
+    from shibuya.interim_bundles.calendar_self import hop_walk_steps
 
     steps = np.array([3, 0, 10])
     assert hop_walk_steps(steps, None, [0, 1, 2]).tolist() == [3, 0, 10]
     hop = np.array([0.5, 0.25, 0.4])  # 節 1 つの刻み(平均の辺長 ÷ 本人の m/刻み)
     assert hop_walk_steps(steps, hop, [0, 1, 2]).tolist() == pytest.approx([1.5, 0.0, 4.0])
-    from shibuya.engine.calendar2 import layer as C2_LAYER
+    from shibuya.interim_bundles.calendar2 import layer as C2_LAYER
 
     # 〔段 4 の下ごしらえ〕読むファイルはモジュールの __file__ から(前は nav1.py の 2 つ上のディレクトリからの相対の道
     # =段 4 で nav1 と calendar2 は別々の包みへ移る)

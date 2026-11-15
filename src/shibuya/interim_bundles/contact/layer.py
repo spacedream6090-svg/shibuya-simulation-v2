@@ -96,7 +96,7 @@ from shibuya.society.contact import deliver as _DL
 from shibuya.mind.plan import contact_habit as _HB
 from shibuya.mind.plan import contact_port as _P
 from shibuya.society.contact import tools as _TL
-from shibuya.engine.contact.book import ContactBook
+from shibuya.interim_bundles.contact.book import ContactBook
 from shibuya.society.contact.calls import CallManager, CallSpeechPort
 from shibuya.society.contact.chat_state import CHAT_SILENCE_STEPS, ChatBook, group_key, pair_key
 from shibuya.society.conversation import ConvState

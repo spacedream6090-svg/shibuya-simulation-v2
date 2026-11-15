@@ -1,14 +1,14 @@
-# src/shibuya/engine/calendar2
+# src/shibuya/interim_bundles/calendar2
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
 Python 2 本・その他 0 本(このディレクトリの直下)
 
-## [__init__.py](../../../../../../../../src/shibuya/engine/calendar2/__init__.py)
+## [__init__.py](../../../../../../../../src/shibuya/interim_bundles/calendar2/__init__.py)
 
-engine.calendar2 — カレンダー 2「会話とメッセージから生まれる予定」(第 6 期 6-2・腕 ``--calendar-2 arm``・既定 off)。
+(冒頭の説明なし)
 
-## [layer.py](../../../../../../../../src/shibuya/engine/calendar2/layer.py)
+## [layer.py](../../../../../../../../src/shibuya/interim_bundles/calendar2/layer.py)
 
 engine.calendar2.layer — カレンダー 2「会話とメッセージから生まれる予定」の持ち主と系 ``calendar_2``(第 6 期 6-2・腕``--calendar-2 arm``・既定 off)。
 
@@ -18,7 +18,7 @@ engine.calendar2.layer — カレンダー 2「会話とメッセージから生
   - `issued_key`(関数)
   - `manifest_fields`(関数): manifest の ``calendar_2``(腕 arm のランだけ・ほかは空=欄を出さない)。
   - `sys_calendar_2`(関数): 系 calendar_2(刻みの中・腕 arm のランだけ立つ)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar_self`・`shibuya.engine.resolve`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.llm.mock`・`shibuya.mind.plan.calendar2_port`・`shibuya.mind.plan.contact_attention`・`shibuya.mind.plan.head_recall`・`shibuya.mind.plan.promise_book`・`shibuya.world.laws.opening`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.interim_bundles.calendar_self`・`shibuya.llm.mock`・`shibuya.mind.plan.calendar2_port`・`shibuya.mind.plan.contact_attention`・`shibuya.mind.plan.head_recall`・`shibuya.mind.plan.promise_book`・`shibuya.world.laws.opening`
 - 呼び手: `shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.table`
 - 読む試験: `tests/engine/calendar2/_ca2.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar2/test_ca2_units.py`・`tests/engine/calendar2/test_ca2_world.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`

@@ -486,7 +486,7 @@ def run(
         from shibuya.foundation.queues import batching as _BATCH  # 〔第 3 期 3-2〕まとめの幅の腕(環境変数か --batch-width-s)
         from shibuya.world.body import schedule as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)。〔移す段 4 の下ごしらえ〕定義した schedule を直に読む
         from shibuya.engine import calendar_shadow as _calendar_shadow  # 〔第 3 期 3-1〕暦 1a の影(既定 w17 と違えば腕)
-        from shibuya.engine import calendar_self as _calendar_self  # 〔第 6 期 6-2〕カレンダー 1b(既定 w17 と違えば腕)
+        from shibuya.interim_bundles import calendar_self as _calendar_self  # 〔第 6 期 6-2〕カレンダー 1b(既定 w17 と違えば腕)
         from shibuya.mind.memory import memory_m1 as _memory_m1  # 〔第 6 期 6-5〕記憶の腕(結果を変える腕=既定と違えば腕)
         from shibuya.runtime.clocks import regional as _regional_clock  # 〔第 6 期 6-3〕時計の段 T2〜T4 の腕(既定と違えば腕)
         from shibuya.runtime.clocks import speech as _speech_clock
@@ -1634,7 +1634,7 @@ def main(argv: list[str] | None = None) -> int:
 
         _calendar_shadow.set_arm(str(args.calendar_shadow))
     if args.calendar is not None:  # 〔第 6 期 6-2〕カレンダー 1b の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.engine import calendar_self as _calendar_self
+        from shibuya.interim_bundles import calendar_self as _calendar_self
 
         _calendar_self.set_arm(str(args.calendar))
     if args.contact is not None:  # 〔第 6 期 6-4 C1〕連絡の道具の腕(組み立てが読む。指定は環境変数より強い)

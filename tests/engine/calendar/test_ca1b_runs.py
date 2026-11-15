@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 
 from shibuya import cli
-from shibuya.engine import calendar_self as CS1
+from shibuya.interim_bundles import calendar_self as CS1
 from shibuya.engine import resolve as R
 from shibuya.engine.presence import EventType, PlanExecutor
 from shibuya.engine.run import run_day

@@ -1,0 +1,441 @@
+{
+ "stages": [
+  "interim_bundles"
+ ],
+ "rows_applied": 13,
+ "rows_applied_by_kind": {
+  "move": 13
+ },
+ "rows_already": [],
+ "refused_held": [],
+ "file_moves": 9,
+ "created_heads": [
+  "src/shibuya/interim_bundles/__init__.py",
+  "src/shibuya/interim_bundles/calendar2/__init__.py",
+  "src/shibuya/interim_bundles/calendar3/__init__.py",
+  "src/shibuya/interim_bundles/contact/__init__.py",
+  "src/shibuya/interim_bundles/duties/__init__.py"
+ ],
+ "emptied_heads": [],
+ "deleted": [
+  "src/shibuya/engine/calendar2/__init__.py",
+  "src/shibuya/engine/calendar3/__init__.py",
+  "src/shibuya/engine/contact/__init__.py",
+  "src/shibuya/engine/duties/__init__.py"
+ ],
+ "import_statements": {
+  "src": 24,
+  "build": 0,
+  "tests": 49,
+  "tools": 0,
+  "docs": 0
+ },
+ "import_files": {
+  "src": 9,
+  "build": 0,
+  "tests": 28,
+  "tools": 0
+ },
+ "import_via_head": {
+  "src": 0,
+  "build": 0,
+  "tests": 0,
+  "tools": 0
+ },
+ "import_split_statements": {
+  "src": 0,
+  "build": 0,
+  "tests": 0,
+  "tools": 0
+ },
+ "import_via_package": {
+  "src": 9,
+  "build": 0,
+  "tests": 30,
+  "tools": 0
+ },
+ "plan_estimate_stage4": {
+  "statements": {
+   "src": 855,
+   "build": 38,
+   "tests": 1378,
+   "tools": 52
+  },
+  "files": {
+   "src": 179,
+   "build": 30,
+   "tests": 349,
+   "tools": 28
+  },
+  "via_head": {
+   "src": 10,
+   "build": 14,
+   "tests": 40,
+   "tools": 3
+  }
+ },
+ "path_strings": {
+  "src_table": 7,
+  "slash": 8
+ },
+ "path_string_sites": 6,
+ "path_string_sites_by_file": [
+  "src/shibuya/runtime/state/ledger.py::OWNER_CLASSES",
+  "src/shibuya/runtime/state/ledger_ast.py::DIAG_EXITS",
+  "tests/engine/calendar/test_ca1b_unit.py::test_manifest_section_ledger_rows_and_system_declarations",
+  "tests/engine/rules/test_rules_table_schema.py::test_only_the_manifest_and_the_daily_record_import_the_table",
+  "tests/engine/test_salt_seed_split_10f.py::_HASH_SITES",
+  "tests/engine/time/test_t0_rng_key.py::PLAN_A_CALLERS"
+ ],
+ "dropped_reexports": {},
+ "dropped_all": {},
+ "package_data_keys": [],
+ "ledger_paths_added": 9,
+ "class_id_keys": 16,
+ "class_ids_resorted": true,
+ "changed_files": 44,
+ "untouched_count": {
+  "src:bare_dotted": 7,
+  "src:slash": 32
+ },
+ "untouched_broad_constants": {
+  "docs": 12,
+  "src": 213,
+  "build": 15,
+  "tests": 281,
+  "tools": 14
+ },
+ "skipped_in_allowlist": [],
+ "bridging_ledger": {
+  "rows_total": 794,
+  "rows_src": 398,
+  "rows_moving": 0,
+  "rows_moving_active": 0
+ },
+ "bridging_ledger_moving": [],
+ "guards": {
+  "names_frozen": "同じ",
+  "class_ids": "同じ",
+  "shaped_74": "同じ(74 種・前の出てくる数の和 452)",
+  "ledger_paths": "同じ(台帳の道は全部、表を通して今のファイルに届く)",
+  "outside_allowlist": "同じ",
+  "import_names": "同じ(import の文が結ぶ名)",
+  "head_all": "同じ(頭の __all__ は結ばれた名だけ・除いた名 0)",
+  "package_data": "同じ(鍵は木に在る包み・glob が当たる・書き換えた鍵 0)"
+ },
+ "warnings": [],
+ "untouched": [
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "POPULATION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.contact.device",
+   "line": 465,
+   "excerpt": "〔第 6 期 6-4 C1〕最初の道具の状態(マナーモード・かばん・イヤホン=engine.contact.device・腕 c1 のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.contact.port",
+   "line": 495,
+   "excerpt": "〔第 6 期 6-4 C1〕連絡の本人の判断の仮のモデルの選び(engine.contact.port・腕 c1 のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.contact.port",
+   "line": 497,
+   "excerpt": "〔第 6 期 6-4 C2〕習慣で答えられるときも判断の口へ戻すか(engine.contact.port・腕 c1 と SHIBUYA_CONTACT_HABIT=on のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.calendar2.port",
+   "line": 499,
+   "excerpt": "〔第 6 期 6-2 カレンダー 2〕予定の本人の判断の仮のモデルの選び(engine.calendar2.port・腕 arm のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.calendar3.port",
+   "line": 501,
+   "excerpt": "〔第 6 期 6-2 カレンダー 3〕雇い主と働く人の勤務の判断の仮のモデルの選び(engine.calendar3.port・腕 arm のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.duties.port",
+   "line": 503,
+   "excerpt": "〔第 6 期 6-6 ② 第 1 部〕店の仕事(開閉店・補充・廃棄)の本人の判断の仮のモデルの選び(engine.duties.port・腕 arm のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_SALTS",
+   "kind": "bare_dotted",
+   "token": "engine.calendar_self._key_draw",
+   "line": 512,
+   "excerpt": "blake3(calendar1b:用途:seed) と agent_id の splitmix: 置き場所・余裕・時計を見る位相(engine.calendar_self._key_draw)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar_self.py",
+   "line": 1083,
+   "excerpt": "engine/calendar_self.py(CalendarSelf.relay_day・step・_opportunities・_finish_go)・engine/systems/state_io.py(relay_tables)・"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar_self.py",
+   "line": 1095,
+   "excerpt": "engine/calendar_self.py(_summary・manifest・_check_continuity・_opportunities)・engine/run.py(manifest の calendar_1b)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1158,
+   "excerpt": "engine/contact/device.py(Devices.stimulus・drain・take_out・put_back)・engine/contact/layer.py(run_step・percept_hook)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1170,
+   "excerpt": "engine/contact/attention.py(Attention・coarsen・gate_salient)・engine/contact/layer.py(run_step・percept_hook)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1179,
+   "excerpt": "engine/contact/attention.py(look_at_screen・look_up)・engine/contact/layer.py(計器)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1189,
+   "excerpt": "engine/contact/deliver.py(Mailbox)・engine/contact/layer.py(_send_now・_ring_now・_read・_system1・bind_queue)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1202,
+   "excerpt": "engine/contact/deliver.py(read_all・prune・counts・receipts)・engine/contact/layer.py(_screen_decision)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1210,
+   "excerpt": "engine/conversation.py(ConversationManager.step・_close・_terminate・purge_terminal)・engine/contact/chat_state.py(ChatBook."
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1222,
+   "excerpt": "engine/conversation.py(ConversationManager)・engine/contact/calls.py(CallManager)・engine/contact/layer.py(_calls_turns・_r"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1234,
+   "excerpt": "engine/speech/port.py(SpeechPort.say・take_heard)・engine/contact/layer.py(_calls_turns)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1243,
+   "excerpt": "engine/contact/layer.py(_bump・_hist_add・manifest)・engine/contact/chat_state.py(counts)・engine/conversation.py(counters)・"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1268,
+   "excerpt": "engine/contact/layer.py(_salient_gate・salient_view・_person_decisions・take_main・_take_main_looks)・engine/systems/remember"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1285,
+   "excerpt": "engine/contact/layer.py(_issue・issued_keys・model_calls・audit_causes・_send_now・_unread_basis・_drop_read_marks・_calls_turn"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/book.py",
+   "line": 1302,
+   "excerpt": "engine/contact/book.py(add_contact・make_group・invite・answer_invite・leave・save_place・personal・groups_of)・engine/contact/l"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1302,
+   "excerpt": "engine/contact/book.py(add_contact・make_group・invite・answer_invite・leave・save_place・personal・groups_of)・engine/contact/l"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1312,
+   "excerpt": "engine/contact/habit.py(HabitBook.note・answer)・engine/contact/layer.py(_habit_or_decide)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar2/layer.py",
+   "line": 1322,
+   "excerpt": "engine/calendar2/book.py(PromiseBook.write・edit・observe・drop・own_rows)・engine/calendar2/layer.py"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar2/layer.py",
+   "line": 1330,
+   "excerpt": "engine/calendar2/layer.py(_propose・_respond・_hear・_settle_offers・_schedule_row・_opportunities・_look・_depart・_track・_outs"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar2/layer.py",
+   "line": 1342,
+   "excerpt": "engine/calendar2/layer.py(note_turn・run_step・_opportunities)・engine/systems/llm_io.py(utter)・engine/contact/layer.py(_ca"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1342,
+   "excerpt": "engine/calendar2/layer.py(note_turn・run_step・_opportunities)・engine/systems/llm_io.py(utter)・engine/contact/layer.py(_ca"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar2/layer.py",
+   "line": 1351,
+   "excerpt": "engine/calendar2/layer.py(_bump・_hist_add・manifest)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar2/layer.py",
+   "line": 1361,
+   "excerpt": "engine/calendar2/layer.py(_issue・issued_keys・model_calls・audit_causes)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar3/layer.py",
+   "line": 1383,
+   "excerpt": "engine/calendar3/layer.py(_begin_compose・_compose・_answer・_due_units・_act)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar3/layer.py",
+   "line": 1392,
+   "excerpt": "engine/calendar3/layer.py(note_sent・_send・_poll_calls・_deliver・_write_rows・_schedule_row・_agenda_step・_act・_prune・run_st"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar3/layer.py",
+   "line": 1405,
+   "excerpt": "engine/calendar3/layer.py(note_read・run_step・_opportunities)・engine/contact/layer.py(_read)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1405,
+   "excerpt": "engine/calendar3/layer.py(note_read・run_step・_opportunities)・engine/contact/layer.py(_read)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar3/layer.py",
+   "line": 1413,
+   "excerpt": "engine/calendar3/layer.py(_bump・_hist_add・_ask_rest・manifest)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar3/layer.py",
+   "line": 1422,
+   "excerpt": "engine/calendar3/layer.py(_issue・issued_keys・model_calls・audit_causes)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/duties/layer.py",
+   "line": 1432,
+   "excerpt": "engine/duties/layer.py(run_step・_set_shop・_discard・binned_mask)・engine/processes/goods_flow.py(WasteCollectionProcess._s"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/duties/layer.py",
+   "line": 1441,
+   "excerpt": "engine/duties/layer.py(note_role_word・run_step)・engine/llm_bridge.py(_after_render の role_sink)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/duties/layer.py",
+   "line": 1449,
+   "excerpt": "engine/duties/layer.py(_bump・_hist_add・_labor・run_step・note_bridge・manifest)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/duties/layer.py",
+   "line": 1461,
+   "excerpt": "engine/duties/layer.py(_issue・issued_keys・role_call_ids・model_calls・audit_causes)"
+  }
+ ]
+}

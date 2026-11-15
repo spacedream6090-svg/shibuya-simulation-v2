@@ -339,7 +339,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     if _CSH.is_on():
         # 〔第 3 期 3-1〕暦 1a の影の腕は on のときだけ設定の指紋に足す(既定は今の指紋・影は計器だけ=挙動は不変)
         _fp["calendar_shadow"] = _CSH.MODE_1A
-    from shibuya.engine import calendar_self as _CAL1B
+    from shibuya.interim_bundles import calendar_self as _CAL1B
 
     if _CAL1B.is_on():
         # 〔第 6 期 6-2〕カレンダー 1b の腕は結果を変える(勤務の出入りを本人へ)=1b のときだけ設定の指紋に足す(既定は今の指紋)
@@ -1477,7 +1477,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     # 向きの形にする口(Renderer.contact_fn)を挿す。窓の境目の種類は進行役が待ち行列を作った後に結ぶ(bind_queue) ----
     contact_layer = None
     if _ct_cfg is not None:
-        from shibuya.engine.contact.layer import ContactLayer as _ContactLayer
+        from shibuya.interim_bundles.contact.layer import ContactLayer as _ContactLayer
 
         contact_layer = _ContactLayer(
             n_agents=n_agents, seed=seed, population_seed=pop_seed, day_key0=int(day_index),
@@ -1504,7 +1504,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     # engine.systems.llm_io.utter が箱から引く ----
     calendar2_layer = None
     if _ca2_cfg is not None:
-        from shibuya.engine.calendar2.layer import Calendar2Layer as _Calendar2Layer
+        from shibuya.interim_bundles.calendar2.layer import Calendar2Layer as _Calendar2Layer
 
         calendar2_layer = _Calendar2Layer(
             n_agents=n_agents, seed=seed, population_seed=pop_seed, day_key0=int(day_index),
@@ -1520,8 +1520,8 @@ def build(_call_args: dict[str, Any]) -> Any:
     # 層を再利用する(二重に作らない) ----
     calendar3_layer = None
     if _ca3_cfg is not None:
-        from shibuya.engine.calendar3 import roster as _R3
-        from shibuya.engine.calendar3.layer import Calendar3Layer as _Calendar3Layer
+        from shibuya.interim_bundles.calendar3 import roster as _R3
+        from shibuya.interim_bundles.calendar3.layer import Calendar3Layer as _Calendar3Layer
 
         _ca3_w20 = _R3.w20_table_for_run(world_dir, pop)
         calendar3_layer = _Calendar3Layer(
@@ -1540,7 +1540,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     # 効かせる口を LLMBridge に挿す ----
     duties_layer = None
     if _du_cfg is not None:
-        from shibuya.engine.duties.layer import DutiesLayer as _DutiesLayer
+        from shibuya.interim_bundles.duties.layer import DutiesLayer as _DutiesLayer
 
         duties_layer = _DutiesLayer(
             n_agents=n_agents, seed=seed, day_key0=int(day_index), step_seconds=int(tick_seconds), steps_per_day=tpd,

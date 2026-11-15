@@ -18,7 +18,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.engine import calendar_self as CS1
+from shibuya.interim_bundles import calendar_self as CS1
 from shibuya.engine import calendar_shadow as CSH
 from shibuya.foundation.manifest import sections as MS
 from shibuya.runtime.state import ledger as SL
@@ -53,7 +53,7 @@ def test_manifest_section_ledger_rows_and_system_declarations():
     assert r.items == ("calendar_self.cal_store",)
     m = SL.row("C1BM")
     assert m.behavior == SL.DIAG and m.restore == SL.REQUIRED and m.arm == CS1.LEDGER_ARM_NAME
-    assert SL.OWNER_CLASSES["calendar_self"] == ("engine/calendar_self.py", "CalendarSelf")
+    assert SL.OWNER_CLASSES["calendar_self"] == ("interim_bundles/calendar_self.py", "CalendarSelf")
     assert CS1.CalendarSelf.LEDGER_ARM == CS1.LEDGER_ARM_NAME
     assert not any(k in ("C1B", "C1BM") for k, _p in SL.full_items())  # 腕の行=既定のハッシュに入らない
     assert SL.arm_items({"calendar_self": None}, behavior=True) == ()

@@ -13,7 +13,7 @@ from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PE
 from shibuya.foundation.queues import batching as BA
 from shibuya.foundation.arms import contact as A
 from shibuya.mind.plan import contact_port as P
-from shibuya.engine.contact.layer import ContactLayer
+from shibuya.interim_bundles.contact.layer import ContactLayer
 from shibuya.foundation.journal.log import EventLog
 from shibuya.society.tools.groups import GroupList
 from shibuya.world.model.state import World

@@ -46,7 +46,7 @@ engine.tools.contacts — 個人の連絡先の手段ごとの印(第 1 期 1-7 
 - 公開の関数とクラス
   - `flags_from_kinds`(関数): 辺の種別 → 初めの印(``uint8``・形は ``kind`` と同じ)。``partner`` を渡すと空の辺(-1)は 0。
   - `tally`(関数): manifest の ``tools.contact_flags``: 印を持つ辺の数・手段ごとの辺の数・種別ごとの印を持つ辺の数・バイト。
-- 呼び手: `shibuya.engine.contact.book`・`shibuya.engine.contact.layer`・`shibuya.engine.relations`・`shibuya.mind.relations.people`
+- 呼び手: `shibuya.engine.relations`・`shibuya.interim_bundles.contact.book`・`shibuya.interim_bundles.contact.layer`・`shibuya.mind.relations.people`
 - 読む試験: `tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_exchange.py`・`tests/engine/tools/test_c0_contacts_in_relations.py`
 - 決定の ID: 10-12/§4-4・R-85
 
@@ -59,6 +59,6 @@ engine.events.vocab — 出来事の記録の語彙表(第 1 期 1-3・CP12・5W
   - `family_of`(関数): 表の語の族(``"金:賃金"`` → ``"金"``)。
   - `word`(関数): 族と語 → 表の語(``"過程:rail"``)。表の外なら ``ValueError``。
 - import している内部モジュール: `shibuya.foundation.vocab.actions`
-- 呼び手: `shibuya.engine.calendar2.layer`・`shibuya.engine.calendar3.layer`・`shibuya.engine.calendar_self`・`shibuya.engine.contact.layer`・`shibuya.engine.duties.layer`・`shibuya.engine.events.body`・`shibuya.engine.tools.record`・`shibuya.experiments.port.form`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.experiment_gate`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.memory.memory_store`・`shibuya.runtime.systems.state_io`・`shibuya.society.speech.port`
+- 呼び手: `shibuya.engine.events.body`・`shibuya.engine.tools.record`・`shibuya.experiments.port.form`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.experiment_gate`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar3.layer`・`shibuya.interim_bundles.calendar_self`・`shibuya.interim_bundles.contact.layer`・`shibuya.interim_bundles.duties.layer`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.memory.memory_store`・`shibuya.runtime.systems.state_io`・`shibuya.society.speech.port`
 - 読む試験: `tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/stage2/test_stage2_account_and_conservation.py`・`tests/engine/contact/test_c2_video.py`・`tests/engine/decision/test_j0_cause_columns.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/events/test_e_log_schema.py`・`tests/engine/events/test_e_vocab_is_closed.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/multiday/test_md23_body_events.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/speech/test_speech_port_schema.py`・`tests/engine/tools/test_c0_signboard_mark_invariance.py`・`tests/engine/tools/test_c0_tool_registry.py`
 - 決定の ID: 10-12/§1-4・10-12/§1-5・10-12/§4-1・10-12/§4-4・10-12/§4-5・10-13b/§0-3・10-13b/§3

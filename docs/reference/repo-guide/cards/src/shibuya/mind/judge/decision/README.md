@@ -61,6 +61,6 @@ engine.decision.sources — 候補を 5 つの源から作る(第 1 期 1-8 J0�
   - `build_candidates`(関数): 5 つの源と語彙の残りから候補の列を作る(作る側は番号を振らない=``present`` が振る)。読むだけ。
   - `memory_kind_words`(関数): 記憶の種類 → 行為の語(``engine.memory.ACTION_KIND``=行動コード → 種類 の逆)。
 - import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.mind.memory.memory`
-- 呼び手: `shibuya.engine.calendar_self`・`shibuya.mind.judge.decision.layer`・`tools/instruments/dm_eval/situations.py`
+- 呼び手: `shibuya.interim_bundles.calendar_self`・`shibuya.mind.judge.decision.layer`・`tools/instruments/dm_eval/situations.py`
 - 読む試験: `tests/engine/decision/_j0.py`・`tests/engine/decision/test_j0_port_schema.py`・`tests/engine/tools/test_c0_affordance_from_registry.py`
 - 決定の ID: 10-12/§4-7

@@ -1,14 +1,14 @@
-# src/shibuya/engine/calendar3
+# src/shibuya/interim_bundles/calendar3
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
 Python 4 本・その他 0 本(このディレクトリの直下)
 
-## [__init__.py](../../../../../../../../src/shibuya/engine/calendar3/__init__.py)
+## [__init__.py](../../../../../../../../src/shibuya/interim_bundles/calendar3/__init__.py)
 
-engine.calendar3 — カレンダー 3「雇い主・祝日」(第 6 期 6-2・C3 職場の連絡と束ねる・腕 ``--calendar-3 arm``・既定 off)。
+(冒頭の説明なし)
 
-## [knowledge.py](../../../../../../../../src/shibuya/engine/calendar3/knowledge.py)
+## [knowledge.py](../../../../../../../../src/shibuya/interim_bundles/calendar3/knowledge.py)
 
 engine.calendar3.knowledge — 暦の常識(祝日の問い合わせの口と常識の文)と店の決まりの口(第 6 期 6-2 カレンダー 3)。
 
@@ -16,11 +16,11 @@ engine.calendar3.knowledge — 暦の常識(祝日の問い合わせの口と常
   - `CommonCalendar`(クラス): 暦の常識の問い合わせの口(全員が知る=CA11)。暦の口を読むだけ。
   - `StoreRules`(クラス): 店の決まりの口(組織の口が知らせる)。本段は**枠だけ**=休業日の知らせは空(つなぎ ``DOC-ca3-store-closed-days-frame``)。
   - `common_line`(関数): 常識の文の 1 行(判断の入力に足す形)。
-- 呼び手: `shibuya.engine.calendar3.layer`・`shibuya.engine.duties.knowledge`
+- 呼び手: `shibuya.interim_bundles.calendar3.layer`・`shibuya.interim_bundles.duties.knowledge`
 - 読む試験: `tests/engine/calendar3/test_ca3_units.py`
 - 決定の ID: 10-12/§4-1
 
-## [layer.py](../../../../../../../../src/shibuya/engine/calendar3/layer.py)
+## [layer.py](../../../../../../../../src/shibuya/interim_bundles/calendar3/layer.py)
 
 engine.calendar3.layer — カレンダー 3「雇い主・祝日」の持ち主と系 ``calendar_3``(第 6 期 6-2・C3 職場の連絡と束ねる・腕``--calendar-3 arm``・既定 off)。
 
@@ -31,8 +31,8 @@ engine.calendar3.layer — カレンダー 3「雇い主・祝日」の持ち主
   - `labor_params`(関数): 規則の表の労働時間の行(human=人が取り締まる側=止めない)を読む。表が無い写し・施行の前は空(記録だけの形)。
   - `manifest_fields`(関数): manifest の ``calendar_3``(腕 arm のランだけ・ほかは空=欄を出さない)。
   - `sys_calendar_3`(関数): 系 calendar_3(刻みの中・腕 arm のランだけ立つ)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar3.knowledge`・`shibuya.engine.calendar_self`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.mind.plan.calendar2_port`・`shibuya.mind.plan.calendar3_port`・`shibuya.mind.plan.promise_book`・`shibuya.world.facts.rules.table`・`shibuya.world.laws.opening`
-- 呼び手: `shibuya.engine.duties.layer`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.table`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.interim_bundles.calendar3.knowledge`・`shibuya.interim_bundles.calendar_self`・`shibuya.mind.plan.calendar2_port`・`shibuya.mind.plan.calendar3_port`・`shibuya.mind.plan.promise_book`・`shibuya.world.facts.rules.table`・`shibuya.world.laws.opening`
+- 呼び手: `shibuya.engine.run`・`shibuya.interim_bundles.duties.layer`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.table`
 - 読む試験: `tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/calendar3/test_ca3_world.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/rules/test_rules_table_schema.py`・`tests/engine/time/test_t0_rng_key.py`
 - 状態台帳の行
@@ -47,7 +47,7 @@ engine.calendar3.layer — カレンダー 3「雇い主・祝日」の持ち主
     - 書いてよい外の道筋: `BW:batching.*`・`CA2B:calendar2.book.*`・`CA2G:calendar2._turns`・`CA3*:calendar3.*`・`CT1*:contact.*`・`E:events.*`
 - 決定の ID: 10-12/§4-1
 
-## [roster.py](../../../../../../../../src/shibuya/engine/calendar3/roster.py)
+## [roster.py](../../../../../../../../src/shibuya/interim_bundles/calendar3/roster.py)
 
 engine.calendar3.roster — 雇い主の口のつなぎの形(第 6 期 6-2 カレンダー 3・CA1「雇い主がエージェントになるまでのつなぎ」)。
 

@@ -13,7 +13,7 @@ import pytest
 from shibuya.agents.state import Activity
 from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_HOUR
 from shibuya.mind.plan import promise_book as B
-from shibuya.engine.calendar2 import layer as LY
+from shibuya.interim_bundles.calendar2 import layer as LY
 from shibuya.mind.plan import calendar2_port as P
 from shibuya.mind.plan import contact_port as CP
 from shibuya.foundation.journal.log import Event, LlmCall, Process

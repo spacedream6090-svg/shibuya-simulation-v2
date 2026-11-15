@@ -15,7 +15,7 @@ from shibuya.foundation.manifest import sections as MS
 from shibuya.runtime.state import resume as RS
 from shibuya.runtime.state import ledger as SL
 from shibuya.mind.plan import contact_habit as HB
-from shibuya.engine.contact import layer as LY
+from shibuya.interim_bundles.contact import layer as LY
 from shibuya.mind.plan import contact_port as P
 from shibuya.society.contact import tools as TL
 from shibuya.foundation.journal import log as EV

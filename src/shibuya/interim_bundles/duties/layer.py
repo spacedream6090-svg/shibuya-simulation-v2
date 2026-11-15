@@ -61,11 +61,11 @@ from shibuya.agents.state import Activity
 from shibuya.foundation.rng import key_time_from_t_ns
 from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
 from shibuya.engine import resolve as R
-from shibuya.engine.calendar3.layer import labor_params
+from shibuya.interim_bundles.calendar3.layer import labor_params
 from shibuya.foundation.ports.decision import Candidate, DecisionContext
 from shibuya.foundation.arms import duties as _ARM
 from shibuya.mind.plan import duties_port as _P
-from shibuya.engine.duties.knowledge import UNKNOWN, ShopRules, origin_mark, rules_line
+from shibuya.interim_bundles.duties.knowledge import UNKNOWN, ShopRules, origin_mark, rules_line
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.log import Event, LlmCall
 from shibuya.world.laws.goods_flow import RESTOCK_STEP_MINUTES, WASTE_TO_BIN_MINUTE

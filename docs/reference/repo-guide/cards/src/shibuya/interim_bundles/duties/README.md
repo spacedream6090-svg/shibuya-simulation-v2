@@ -1,14 +1,14 @@
-# src/shibuya/engine/duties
+# src/shibuya/interim_bundles/duties
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
 Python 3 本・その他 0 本(このディレクトリの直下)
 
-## [__init__.py](../../../../../../../../src/shibuya/engine/duties/__init__.py)
+## [__init__.py](../../../../../../../../src/shibuya/interim_bundles/duties/__init__.py)
 
-engine.duties — 店の仕事を働く人の体へ(第 6 期 6-6 ② 第 1 部=開閉店・補充(品出し)・廃棄・腕 ``--duties arm``・既定 off)。
+(冒頭の説明なし)
 
-## [knowledge.py](../../../../../../../../src/shibuya/engine/duties/knowledge.py)
+## [knowledge.py](../../../../../../../../src/shibuya/interim_bundles/duties/knowledge.py)
 
 engine.duties.knowledge — 店の決まり(営業時間)の問い合わせの口(第 6 期 6-6 ② 第 1 部・決定 10-12 §1-4)。
 
@@ -16,12 +16,12 @@ engine.duties.knowledge — 店の決まり(営業時間)の問い合わせの�
   - `ShopRules`(クラス): 店の決まりの口(休業日の枠=親クラス+営業時間)。担当だけが自分の店の営業時間を引ける。
   - `origin_mark`(関数): 記録の ``origin`` に入れる出どころの印(``store_rules:<出どころ>``)。
   - `rules_line`(関数): 常識の文の 1 行(「店の決まり: 営業 10:00〜22:00。」の形・知らなければ空)。
-- import している内部モジュール: `shibuya.engine.calendar3.knowledge`・`shibuya.foundation.time_consts`・`shibuya.world.facts.rights.ledger`
-- 呼び手: `shibuya.engine.duties.layer`
+- import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.interim_bundles.calendar3.knowledge`・`shibuya.world.facts.rights.ledger`
+- 呼び手: `shibuya.interim_bundles.duties.layer`
 - 読む試験: `tests/engine/duties/test_du_units.py`
 - 決定の ID: 10-12/§1-4
 
-## [layer.py](../../../../../../../../src/shibuya/engine/duties/layer.py)
+## [layer.py](../../../../../../../../src/shibuya/interim_bundles/duties/layer.py)
 
 engine.duties.layer — 店の仕事を働く人の体へ(開閉店・補充(品出し)・廃棄)の持ち主と系 ``duties``(第 6 期 6-6 ② 第 1 部・腕 ``--duties arm``・既定 off)。
 
@@ -32,7 +32,7 @@ engine.duties.layer — 店の仕事を働く人の体へ(開閉店・補充(品
   - `issued_key`(関数)
   - `manifest_fields`(関数): manifest の ``duties``(腕 arm のランだけ・ほかは空=欄を出さない)。
   - `sys_duties`(関数): 系 duties(刻みの中・腕 arm のランだけ立つ)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar3.layer`・`shibuya.engine.duties.knowledge`・`shibuya.engine.resolve`・`shibuya.foundation.arms.duties`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.mind.plan.duties_port`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.goods_flow`・`shibuya.world.ledger.records`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.foundation.arms.duties`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.interim_bundles.calendar3.layer`・`shibuya.interim_bundles.duties.knowledge`・`shibuya.mind.plan.duties_port`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.goods_flow`・`shibuya.world.ledger.records`
 - 呼び手: `shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.table`
 - 読む試験: `tests/engine/duties/test_du_runs.py`・`tests/engine/duties/test_du_units.py`・`tests/engine/duties/test_du_world.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
