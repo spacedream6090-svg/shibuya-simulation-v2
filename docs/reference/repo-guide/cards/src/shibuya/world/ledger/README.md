@@ -53,7 +53,7 @@ world.processes.constitution — **憲法5 の機械検査**(D-R2-4・決定2026
   - `parse_perception_channel_ids`(関数): 知覚契約書 §3 チャネル仕様表の**チャネル列**を出現順で返す。
 - import している内部モジュール: `shibuya.foundation.paths`・`shibuya.world.ledger.records`
 - 呼び手: `shibuya.validation.static.circularity`・`shibuya.validation.static.deletion_candidates`・`shibuya.world.ledger.first_batch`・`shibuya.world.ledger.registry`
-- 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/world/processes/test_constitution.py`・`tests/world/processes/test_deletion_candidates.py`・`tests/world/processes/test_first_batch.py`
+- 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/tools/test_deletion_candidates_ci.py`・`tests/world/processes/test_constitution.py`・`tests/world/processes/test_deletion_candidates.py`・`tests/world/processes/test_first_batch.py`
 - 環境変数: `SHIBUYA_PATTERN_LEDGER_MD`・`SHIBUYA_PERCEPTION_MD`・名前を読めない所 1 か所
 
 ## [first_batch.py](../../../../../../../../src/shibuya/world/ledger/first_batch.py)
@@ -64,7 +64,7 @@ world.processes.first_batch — **第1陣の宣言(データのみ・振る舞�
   - `build_registry`(関数): 第1陣(+前倒し分)を積んだ ``WorldRegistry`` を作る。
   - `growth_declarations`(関数): 宣言済み世界過程の成長宣言(名前 → 宣言)。``core.growth.check_growth`` に渡す。
 - import している内部モジュール: `shibuya.foundation.growth`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.constitution`・`shibuya.world.ledger.inputs`・`shibuya.world.ledger.records`・`shibuya.world.ledger.registry`・`shibuya.world.ledger.relations`
-- 呼び手: `shibuya.validation.static.bridging_scan`・`shibuya.world.laws.runner`
+- 呼び手: `shibuya.validation.static.bridging_scan`・`shibuya.world.laws.runner`・`tools/instruments/deletion_candidates_ci.py`
 - 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/processes/test_runner.py`・`tests/engine/test_processes_run.py`・`tests/world/processes/test_actual_log.py`・`tests/world/processes/test_declarations_1101.py`・`tests/world/processes/test_first_batch.py`
 - 決定の ID: 第 340
 

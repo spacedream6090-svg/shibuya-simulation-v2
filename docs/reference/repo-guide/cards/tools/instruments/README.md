@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 8 本・その他 0 本(このディレクトリの直下)
+Python 10 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [dm_eval](dm_eval/README.md)・[leak_check](leak_check/README.md)
 
@@ -163,6 +163,22 @@ batch_width_gauge — 第 3 期 3-2 **TM4 の既定の幅の試験の道具**(�
 - 環境変数: `os.environ` をまるごと使う
 - 決定の ID: 10-12/§4-2
 
+## [deletion_candidates_ci.py](../../../../../../tools/instruments/deletion_candidates_ci.py)
+
+削除候補を CI の出力と成果物に出す(D-R2-4・仕様 WD-05・11-16 §1-3 の 5)。
+
+- 公開の関数とクラス
+  - `collect`(関数): 今のコードの宣言から、削除候補の一覧を作る。
+  - `main`(関数)
+  - `render`(関数): 数と名前の行(人が読む形)。
+  - `summary_markdown`(関数)
+- import している内部モジュール: `shibuya.validation.static.deletion_candidates`・`shibuya.world.ledger.first_batch`
+- 読む試験(道筋で): `tests/tools/test_deletion_candidates_ci.py`
+- CLI の引数
+  - `--out`: 台帳ファイル(docs/ の下は不可)
+- 環境変数: `GITHUB_STEP_SUMMARY`
+- 決定の ID: 11-16/§1-3
+
 ## [hm_gauge.py](../../../../../../tools/instruments/hm_gauge.py)
 
 hm_gauge — 第 3 期 3-3b **ヒストリーマッチング(HM)の直接判定の器**(器だけ・読むだけ・記録に JSON)。
@@ -198,6 +214,20 @@ read_guard — 計器の読み口を**許可の一覧(allow list)**で縛る(第
 - 読む試験: `tests/build_sched/test_w20_calendar_1a.py`・`tests/c7/conftest.py`・`tests/tools/test_dm_eval.py`・`tests/tools/test_leak_check.py`・`tests/tools/test_seal_split_337.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
 - 決定の ID: 10-13b/§1・R-115・第 337
+
+## [sealed_tokens_compare.py](../../../../../../tools/instruments/sealed_tokens_compare.py)
+
+封印の語の表 2 つを、語を出さずに個数だけで比べる(11-16 §1-6 の 5)。
+
+- 公開の関数とクラス
+  - `compare`(関数): 2 つの語の表を比べて、数だけの辞書を返す(語は入れない)。
+  - `main`(関数)
+  - `render`(関数)
+- import している内部モジュール: `shibuya.build.audit.w19_freeze`
+- 読む試験(道筋で): `tests/tools/test_sealed_tokens_compare.py`
+- CLI の引数
+  - `--json`: 数だけの記録の JSON の置き場
+- 決定の ID: 11-16/§1-6
 
 ## [skill_gauge.py](../../../../../../tools/instruments/skill_gauge.py)
 

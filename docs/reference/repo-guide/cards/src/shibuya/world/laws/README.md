@@ -170,6 +170,7 @@ engine.processes.rail_events — 渋谷の発着の表(W12 1.3.0)を読む口の
   - `load_rail_events`(関数): 資産の置き場から発着の表を読む。``enabled`` を省くと :data:`READ_RAIL_EVENTS`(既定 False=読まずに ``None``)。
 - import している内部モジュール: `shibuya.foundation.time_consts`
 - 読む試験: `tests/build_rail/test_w12_arrivals_2_3c.py`
+- 決定の ID: 11-16/§1-3
 
 ## [runner.py](../../../../../../../../src/shibuya/world/laws/runner.py)
 

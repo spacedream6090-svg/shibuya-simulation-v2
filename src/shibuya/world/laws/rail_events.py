@@ -4,7 +4,8 @@
 ``w12_rail_events.parquet`` に足した。エンジンの鉄道の過程(``engine.processes.rail``)は今も発車の表
 ``w12_timetables.parquet`` だけを読み、着く体も発車の便から降りる(つなぎの台帳 ``EX-build.field.w12_external_nodes-ea8dc0c1``・
 ``HD-engine.processes.rail-1af925f4``)。本モジュールはその表を**読むだけの器**で、どの過程からも呼ばれない
-(:data:`READ_RAIL_EVENTS` = False・呼ぶと決めるのは資産の活性化=版上げ 3 回目 4-3 の段)。
+(:data:`READ_RAIL_EVENTS` = False・鉄道の秒の段(仕様 WD-34・未決)まで結線しない=11-16 §1-3 の 4。
+前の文「呼ぶと決めるのは資産の活性化=版上げ 3 回目 4-3 の段」は、その版上げが済んでも結線されなかった古い予定)。
 
 読むのは列 ``event・call_kind・line・calendar・time_min・departure_row・merged_into_row・counted``(列の意味は構築側の
 docstring)。分は運行日の分を 1 日の分(0〜1439)に畳む(``world.assets`` の発車の表と同じ畳み方)。表が無い資産

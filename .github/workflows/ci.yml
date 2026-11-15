@@ -48,6 +48,16 @@ jobs:
       # (CI に data は無く、docs は commit ごとに変わる)。
       - name: Repo guide cards are fresh (src・tests・tools)
         run: python tools/repo_guide/build.py --check
+      # 〔第347・11-16 §1-3 の 5〕D-R2-4「届き先が消えた細部は削除候補として台帳に自動で載る」を機械で残す道。
+      # runs/ は git に入らないので、数と名前をこの段の出力と要約に出し、台帳ファイルを成果物に置く。
+      # 落とす条件にはしない(候補が何件あっても 0。道具そのものが壊れたときだけ落ちる)。
+      - name: 削除候補(D-R2-4・数と名前を出すだけ)
+        run: python tools/instruments/deletion_candidates_ci.py --out runs/deletion_candidates.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deletion-candidates
+          path: runs/deletion_candidates.json
+          if-no-files-found: ignore
 
   ci-1:
     name: ci-1 単体と結合(not gpu and not slow)

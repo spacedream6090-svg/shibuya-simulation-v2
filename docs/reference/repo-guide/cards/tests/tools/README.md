@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 21 本・その他 0 本(このディレクトリの直下)
+Python 24 本・その他 0 本(このディレクトリの直下)
 
 ## [test_absent_declarations.py](../../../../../../tests/tools/test_absent_declarations.py)
 
@@ -57,6 +57,24 @@ tools/instruments/anchor_gauge.py(第 2 期 2-0・較正側の錨の計器)の�
   - `test_mark_is_invalid_before_the_replacement_and_valid_after`(関数)
   - `test_markdown_carries_the_mark`(関数)
 - 決定の ID: 10-13b/§7
+
+## [test_astsame.py](../../../../../../tests/tools/test_astsame.py)
+
+tools/bytecheck/astsame.py の試験(11-16 §1-12 の 2=文だけの直しの commit を AST で確かめる)。
+
+- 公開の関数とクラス
+  - `test_added_statement_is_structure`(関数)
+  - `test_changed_message_string_is_strings`(関数)
+  - `test_changed_number_is_structure`(関数)
+  - `test_check_over_a_small_git_repo`(関数)
+  - `test_doc_readers_are_counted`(関数)
+  - `test_docstring_and_comment_only_is_same`(関数)
+  - `test_exit_code_order`(関数)
+  - `test_removed_docstring_is_same`(関数)
+  - `test_string_that_is_not_a_docstring_counts`(関数)
+  - `test_strings_are_hidden_unless_show`(関数)
+  - `test_syntax_error_is_structure`(関数)
+- 決定の ID: 11-16/§1-12
 
 ## [test_batch_width_gauge.py](../../../../../../tests/tools/test_batch_width_gauge.py)
 
@@ -178,6 +196,18 @@ tools/commit_check.py(第330): 一覧の改行の正規化とステージとの�
   - `test_normalize_handles_crlf_bom_blank_and_comment`(関数)
   - `test_read_expect_from_crlf_file`(関数)
 - 決定の ID: 第 329・第 330
+
+## [test_deletion_candidates_ci.py](../../../../../../tests/tools/test_deletion_candidates_ci.py)
+
+tools/instruments/deletion_candidates_ci.py の試験(11-16 §1-3 の 5=削除候補を CI の出力に出す・落とさない)。
+
+- 公開の関数とクラス
+  - `test_candidates_do_not_fail_ci_and_names_are_printed`(関数)
+  - `test_docs_path_is_refused`(関数)
+  - `test_runs_on_the_real_registry_and_exits_zero`(関数)
+  - `test_same_rows_are_not_added_twice`(関数)
+- import している内部モジュール: `shibuya.world.ledger.constitution`
+- 決定の ID: 11-16/§1-3
 
 ## [test_dm_eval.py](../../../../../../tests/tools/test_dm_eval.py)
 
@@ -709,6 +739,16 @@ tools/repo_guide(段 3 ファイルのカード・11-05/§3-1 の 1)の試験。
 - import している内部モジュール: `shibuya.build.pop.w21_sources`・`tools/instruments/anchor_split.py`・`tools/instruments/read_guard.py`・`tools/w17/diversity_yardstick.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
 - 決定の ID: 10-13b/§7・第 337
+
+## [test_sealed_tokens_compare.py](../../../../../../tests/tools/test_sealed_tokens_compare.py)
+
+tools/instruments/sealed_tokens_compare.py の試験(11-16 §1-6 の 5=語を出さずに個数だけで比べる)。
+
+- 公開の関数とクラス
+  - `test_compare_counts_only`(関数)
+  - `test_output_never_shows_a_token`(関数)
+  - `test_same_sets`(関数)
+- 決定の ID: 11-16/§1-6
 
 ## [test_skill_gauge.py](../../../../../../tests/tools/test_skill_gauge.py)
 

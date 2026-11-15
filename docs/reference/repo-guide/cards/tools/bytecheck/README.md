@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 6 本・その他 1 本(このディレクトリの直下)
+Python 7 本・その他 1 本(このディレクトリの直下)
 
 その他のファイル: `README.md`
 
@@ -11,6 +11,26 @@ Python 6 本・その他 1 本(このディレクトリの直下)
 bytecheck — 決定論の確かめ(byte-check)の道具。基準の commit と比べる側の src で同じ構成を回し、25 欄とテープ・manifest・run_meta.json・全 checkpoint を比べる。
 
 - 決定の ID: 第 346
+
+## [astsame.py](../../../../../../tools/bytecheck/astsame.py)
+
+bytecheck.astsame — 文だけの直しの commit を、byte-check を回さずに確かめる(11-16 §1-12 の 2)。
+
+- 公開の関数とクラス
+  - `changed_files`(関数): 基準と比べる側で変わったファイルの (状態, 道) の一覧(名前の変更は消した+足したに分ける)。
+  - `check`(関数)
+  - `compare_sources`(関数): 2 つのソースを比べて、``verdict``(same・strings・structure)と数を返す。
+  - `exit_code`(関数)
+  - `main`(関数)
+- 読む試験(道筋で): `tests/tools/test_astsame.py`
+- CLI の引数
+  - `--base`: 基準の commit
+  - `--head`: 比べる側の commit(省くと今の作業木)
+  - `--out`: 記録の JSON の置き場
+  - `--paths`: 比べる道(既定 src)
+  - `--repo`: リポの根(既定=今の場所)
+  - `--show`: 変わった文字列の中身も出す
+- 決定の ID: 11-16/§1-12
 
 ## [check.py](../../../../../../tools/bytecheck/check.py)
 

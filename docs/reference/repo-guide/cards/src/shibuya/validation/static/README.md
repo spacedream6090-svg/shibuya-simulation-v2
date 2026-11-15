@@ -55,6 +55,7 @@ world.processes.deletion_candidates — 「削除候補」台帳ファイルの�
   - `load_candidates`(関数): 台帳ファイルを読む(無ければ空タプル)。
   - `write_candidates`(関数): 台帳ファイルを丸ごと書き直す(並びは ``(subject_id, reason)`` 昇順=決定論)。
 - import している内部モジュール: `shibuya.world.ledger.constitution`
+- 呼び手: `tools/instruments/deletion_candidates_ci.py`
 - 読む試験: `tests/world/processes/test_deletion_candidates.py`
 
 ## [rng_audit.py](../../../../../../../../src/shibuya/validation/static/rng_audit.py)

@@ -1,0 +1,108 @@
+{
+  "base": "b1bd58e60fb0d73788ce7c5e86a1b579ad539c62",
+  "counts": {
+    "same": 7,
+    "strings": 3
+  },
+  "doc_readers": 0,
+  "files": [
+    {
+      "changed_strings": [
+        {
+          "len_new": 209,
+          "len_old": 159,
+          "line_new": 1031,
+          "line_old": 1031
+        }
+      ],
+      "doc_readers": 0,
+      "n_changed_strings": 1,
+      "path": "src/shibuya/cli.py",
+      "status": "M",
+      "verdict": "strings"
+    },
+    {
+      "doc_readers": 0,
+      "path": "src/shibuya/economy/stage2.py",
+      "status": "M",
+      "verdict": "same"
+    },
+    {
+      "doc_readers": 0,
+      "path": "src/shibuya/engine/arbiter.py",
+      "status": "M",
+      "verdict": "same"
+    },
+    {
+      "doc_readers": 0,
+      "path": "src/shibuya/engine/body/system1.py",
+      "status": "M",
+      "verdict": "same"
+    },
+    {
+      "changed_strings": [
+        {
+          "len_new": 26,
+          "len_old": 25,
+          "line_new": 173,
+          "line_old": 172
+        }
+      ],
+      "doc_readers": 0,
+      "n_changed_strings": 1,
+      "path": "src/shibuya/engine/calendar.py",
+      "status": "M",
+      "verdict": "strings"
+    },
+    {
+      "doc_readers": 0,
+      "path": "src/shibuya/engine/change_detect.py",
+      "status": "M",
+      "verdict": "same"
+    },
+    {
+      "changed_strings": [
+        {
+          "len_new": 19,
+          "len_old": 10,
+          "line_new": 279,
+          "line_old": 279
+        },
+        {
+          "len_new": 42,
+          "len_old": 38,
+          "line_new": 279,
+          "line_old": 279
+        }
+      ],
+      "doc_readers": 0,
+      "n_changed_strings": 2,
+      "path": "src/shibuya/engine/processes/civic.py",
+      "status": "M",
+      "verdict": "strings"
+    },
+    {
+      "doc_readers": 0,
+      "path": "src/shibuya/engine/proximity.py",
+      "status": "M",
+      "verdict": "same"
+    },
+    {
+      "doc_readers": 0,
+      "path": "src/shibuya/engine/regional_clock.py",
+      "status": "M",
+      "verdict": "same"
+    },
+    {
+      "doc_readers": 0,
+      "path": "src/shibuya/engine/resolve.py",
+      "status": "M",
+      "verdict": "same"
+    }
+  ],
+  "head": "c6c87994e16bcf32b6772028c30be8705368a189",
+  "paths": [
+    "src"
+  ],
+  "schema": "shibuya.tools/bytecheck/astsame/1"
+}
