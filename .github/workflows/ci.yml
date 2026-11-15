@@ -53,7 +53,9 @@ jobs:
     name: ci-1 単体と結合(not gpu and not slow)
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 90  # 〔第337〕45 → 90: ci-1 は 25〜38 分で揺れ、C1 の後の push の 2 回が 45 分の上限に当たって cancelled になった(同じ commit の pull_request 側は 25〜27 分で緑)=余裕を倍に(10-13b §0-4 CI-1 は常に緑)
+    # 〔第347・11-16 §1-5〕90 → 120: 第346 の間、単体と結合の段は 37〜79 分に揺れた(試験の段そのものが 45 分の回と 78 分の回がある・準備の段は同じ)。
+    # 遅い回の原因は実行機の側と見ているが未確認=下の「実行機の情報」の段で CPU の型と数を記録に出して比べる。
+    timeout-minutes: 120  # 〔第337〕45 → 90: ci-1 は 25〜38 分で揺れ、C1 の後の push の 2 回が 45 分の上限に当たって cancelled になった(同じ commit の pull_request 側は 25〜27 分で緑)=余裕を倍に(10-13b §0-4 CI-1 は常に緑)
     steps:
       - uses: actions/checkout@v4
         with:
@@ -66,6 +68,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]"
+      - name: 実行機の情報(遅い回の原因を比べるための記録・結果には使わない)
+        run: |
+          lscpu | grep -E 'Model name|^CPU\(s\)|MHz|L3' || true
+          nproc
+          free -g | head -2
       - name: Unit / integration tests (2 並列)
         run: pytest -q -m "not gpu and not slow" -n 2 --dist loadfile
 
