@@ -75,7 +75,6 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_flow_is_coherent_when_everyone_heads_the_same_way`(関数)
   - `test_flow_is_still_when_nobody_moves`(関数)
   - `test_flow_vocabulary_has_three_values_like_the_renderer`(関数): レンダラの ``FLOW_WORDS`` は 3 値。8 方位は併置(描画には出さない)。
-  - `test_mean_wait_is_finite_and_zero_without_a_queue`(関数)
   - `test_occupancy_is_released_after_the_dwell_limit`(関数)
   - `test_queue_balks_after_the_wait_threshold`(関数)
   - `test_queue_disbands_when_the_shop_closes`(関数)

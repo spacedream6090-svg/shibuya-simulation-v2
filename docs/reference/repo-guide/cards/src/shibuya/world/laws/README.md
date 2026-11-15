@@ -55,7 +55,7 @@ engine.processes.crowd — 混雑場・流れ・屋内占有・待ち行列(D-R2
     - `O73` 世界の過程と実行器の計数(挙動 diag・復元 discardable) 道筋 `runner.crowd.n_balked`・`runner.crowd.n_released`・`runner.crowd.peak_occupancy`・`runner.crowd.peak_queue` 書ける系: close_final・day_close・day_head・duties・phase_c・plan_boundary・presence・world
     - `O75` CrowdProcess occupancy・queue_len・flow(挙動 behavior・復元 unknown) 道筋 `runner.crowd.flow`・`runner.crowd.occupancy`・`runner.crowd.queue_len` 書ける系: close_final・day_close・day_head・phase_c・plan_boundary・presence・world
     - `O95` CrowdProcess flow_dir8・coherence(8 方位と向きのそろい)(挙動 diag・復元 unknown) 道筋 `runner.crowd.coherence`・`runner.crowd.flow_dir8` 書ける系: close_final・day_close・day_head・world
-- 決定の ID: R-8・D-113・第 263・第 268
+- 決定の ID: R-8・D-113・第 263・第 268・第 347
 
 ## [environment.py](../../../../../../../../src/shibuya/world/laws/environment.py)
 

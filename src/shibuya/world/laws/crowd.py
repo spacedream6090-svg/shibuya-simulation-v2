@@ -32,7 +32,7 @@ expedient(本モジュール分)
   完了させる(``resolve._serve_poi_queue``・切替口 ``--queue-service``)。それまでは誰も列を
   捌かず、並んだ体は 15 tick 後に必ず ``INTERRUPTED`` になっていた(第263 §5)。
 - 流れの 3 値化しきい値(``STILL_SHARE`` / ``COHERENT``)。
-- M/M/c の平均待ちは**近似式の指標値**であって行動は駆動しない(観測欄のみ)。
+- 〔第347 で消した〕M/M/c の平均待ちの指標(観測の欄だけ・呼ぶ所が無い=記録 2-60 の S50)。
 """
 
 from __future__ import annotations
@@ -297,15 +297,6 @@ class CrowdProcess:
         self.flow_dir8 = np.where(n_move > 0, sector, FLOW_NONE).astype(np.uint8)
 
     # ------------------------------------------------------------------ 観測材料
-    def mean_wait_ticks(self) -> np.ndarray:
-        """M/M/c の平均待ち時間の近似(**観測欄のみ**・行動は駆動しない・expedient)。
-
-        到着率 λ を「並んでいる人数 / 待ち上限」、サービス率 μ を「1/滞在上限」とみなし、
-        ``Wq ≈ Lq / λ``(Little の公式)を使う。λ=0 の店は 0。
-        """
-        lam = self.queue_len / float(WAIT_MAX_TICKS)
-        return np.where(lam > 0, self.queue_len / np.maximum(lam, 1e-9), 0.0)
-
     def queue_rows(self, k: int = 3) -> tuple[tuple[int, str, int], ...]:
         """待ち行列の上位 k(``(POI, 表示名, 人数)``)。B4b へ差し込むための材料。
 

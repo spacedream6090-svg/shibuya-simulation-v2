@@ -177,19 +177,13 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
 
 ## [test_pricing.py](../../../../../../tests/economy/test_pricing.py)
 
-行5 価格形成のエンジン側テスト(世界過程設計書 §4 行5 A案 + §8 H-1〜H-5)。
+行5 価格形成のエンジン側テスト(世界過程設計書 §4 行5 A案 + §8 H-2)。
 
 - 公開の関数とクラス
-  - `test_calvo_draw_is_deterministic_and_frequencies_match`(関数)
-  - `test_calvo_monthly_probabilities_are_by_sector`(関数): H-1: 小売 20-30%・飲食 5-10%・サービス 5%(一律 20% を改める)。
   - `test_clearing_is_the_minimum_of_demand_and_supply`(関数)
-  - `test_deviation_cost_is_booked_as_a_sink_to_the_government`(関数): H-5「逸脱比例コスト(sink登録)」= 店舗→政府の transfer として台帳に載る。
-  - `test_deviation_cost_is_proportional_to_the_gap_below_the_floor`(関数): H-5: 逸脱比例コストはフロアを下回ったぶんに比例(sink 登録)。
   - `test_floor_k_has_the_three_values_from_h2`(関数): H-2: k≈2.9(原価率35%・高級)/ 3.3(30%・平均)/ 5.0(20%・ドル箱)。
-  - `test_parse_failure_keeps_the_previous_r_and_is_counted`(関数): H-3: 出力拒否/パース失敗は**前期 r を維持**し計数する(診断行)。
-  - `test_propose_price_is_the_single_entry_point_for_the_llm_scalar`(関数): LLM の r → フロア・クリップ・逸脱コストまでを決定論で確定する入口。
-  - `test_r_is_clipped_to_the_declared_range`(関数): H-3: r∈[0.7, 1.5] にクリップ(構造的上限)。
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.checks`・`shibuya.economy.ledger`・`shibuya.economy.pricing`・`shibuya.foundation.rng`
+- import している内部モジュール: `shibuya.economy.pricing`
+- 決定の ID: 第 347
 
 ## [test_rules42_credit.py](../../../../../../tests/economy/test_rules42_credit.py)
 

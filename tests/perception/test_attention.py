@@ -91,8 +91,7 @@ def test_content_cap_round_7_5_times_gaze_seconds(sec, chars):
     assert (A.CONTENT_CAP_MIN_CHARS, A.CONTENT_CAP_MAX_CHARS) == (4, 30)
 
 
-def test_effect_and_memory_caps_are_declared():
-    assert A.EFFECT_CAP_PER_EXPOSURE == (1e-4, 1e-3)
+def test_memory_caps_are_declared():
     assert A.MEMORY_CAP_RECOGNITION == 0.40
     assert A.MEMORY_CAP_RECALL == 0.08
 

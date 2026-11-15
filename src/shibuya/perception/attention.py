@@ -15,6 +15,7 @@
   (MNREAD-J の読書速度定義式に 400-600字/分。**正典値は未取得=式は expedient**)。
   効果キャップ=行動効果10⁻⁴〜10⁻³/曝露+記憶側上界=1曝露の再認≤0.40/再生≤0.08。
   傍受=理解劣化の描画/看板=構造化属性へ還元(自由文は**素性タグ+命令文除去**)。
+  〔第347 注〕行動効果キャップは採らない(記録 2-66 の C2)=定数を消した。記憶側上界の定数は残す。
 - **既定は非注入**・テキストでなくスカラー変換を第一候補。
 - 憲法6(§1 条6):「世界内で生成されたテキストは素性タグ付きの別チャネルで渡し、
   **命令文パターンを除去する**(注入攻撃の成功率が50%超から2%未満になる実測)」。
@@ -60,7 +61,6 @@ __all__ = [
     "CONTENT_CAP_MIN_CHARS",
     "CONTENT_CAP_MAX_CHARS",
     "GAZE_SECONDS_DEFAULT",
-    "EFFECT_CAP_PER_EXPOSURE",
     "MEMORY_CAP_RECOGNITION",
     "MEMORY_CAP_RECALL",
     "FEATURE_TAGS",
@@ -116,8 +116,6 @@ CONTENT_CAP_MIN_CHARS: Final[int] = 4
 CONTENT_CAP_MAX_CHARS: Final[int] = 30
 #: 既定の注視秒(Fotios 2015 実世界注視中央値 480 ms)。
 GAZE_SECONDS_DEFAULT: Final[float] = 0.48
-#: 行動効果キャップ[/曝露](§4 維持)。
-EFFECT_CAP_PER_EXPOSURE: Final[tuple[float, float]] = (1e-4, 1e-3)
 #: 記憶側上界(1曝露の再認/再生・VR実験 n=41・非査読)。
 MEMORY_CAP_RECOGNITION: Final[float] = 0.40
 MEMORY_CAP_RECALL: Final[float] = 0.08

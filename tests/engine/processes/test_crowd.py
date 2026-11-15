@@ -162,13 +162,6 @@ def test_queue_rows_gives_the_b4b_material():
     assert f"行列: {rows[0][1]}に{rows[0][2]}人"
 
 
-def test_mean_wait_is_finite_and_zero_without_a_queue():
-    world, agents, crowd, _ = _setup()
-    crowd.step(0)
-    w = crowd.mean_wait_ticks()
-    assert np.all(np.isfinite(w)) and np.all(w == 0.0)
-
-
 # ================================================================= 列の捌き(D-113 ③・第268)
 def _empty():
     return C.IntentBatch.empty()

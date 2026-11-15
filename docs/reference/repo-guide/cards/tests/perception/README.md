@@ -73,9 +73,9 @@ attention: §4 注意ゲート 段1-段3(p_see・注意予算・内容キャッ�
   - `test_budget_counts_match_the_contract`(関数): §4「広告1件・顕著行為1-2・傍受上位1-2」。
   - `test_content_cap_round_7_5_times_gaze_seconds`(関数): §4「round(7.5×注視秒)・下限4字・上限30字」。
   - `test_deviance_raises_rank`(関数): 順位は逸脱度優先(Jovancevic-Misic & Hayhoe 2009)。
-  - `test_effect_and_memory_caps_are_declared`(関数)
   - `test_feature_tag_is_required_on_world_text`(関数): §1 条6「素性タグ必須」。
   - `test_gate_stage1_is_deterministic_and_calibrated`(関数)
+  - `test_memory_caps_are_declared`(関数)
   - `test_p_see_constants_match_the_contract`(関数): §4「大型ビジョン=0.70(音声有0.78/無音0.63)」・中小媒体 0.14-0.40(expedient)。
   - `test_saliency_is_log_sum_with_floor_not_a_linear_sum`(関数): 積形はフロア付き対数加算(0 の項があっても −inf にならない)。
   - `test_saliency_ties_break_by_id_ascending`(関数)
