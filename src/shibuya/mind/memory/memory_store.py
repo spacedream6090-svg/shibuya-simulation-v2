@@ -80,7 +80,7 @@ import numpy as np
 
 from shibuya.foundation.time_consts import NS_PER_SECOND, NS_PER_STEP
 from shibuya.mind.memory import memory_m1 as _M1
-from shibuya.engine.events import body as _BODY
+from shibuya.foundation.vocab import events as _BODY
 from shibuya.foundation.vocab import events as _VOCAB
 from shibuya.foundation.journal.log import NS_PER_DAY, RETENTION_DAYS, EventId
 from shibuya.mind.memory.familiarity import place_thing

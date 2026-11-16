@@ -212,32 +212,6 @@
     ]
    },
    {
-    "path": "engine/events/body.py",
-    "rows": [
-     {
-      "dest": "mind/memory/body_events.py",
-      "symbols": [
-       "BodyEventLink",
-       "BodyEventLink.__init__",
-       "BodyEventLink.__setattr__",
-       "BodyEventLink.__delattr__",
-       "BodyEventLink.enabled",
-       "BodyEventLink._event",
-       "BodyEventLink._what",
-       "BodyEventLink._cause",
-       "BodyEventLink.write",
-       "BodyEventLink.conversation_end"
-      ]
-     },
-     {
-      "dest": "foundation/vocab/events.py",
-      "symbols": [
-       "kind_of_what"
-      ]
-     }
-    ]
-   },
-   {
     "path": "engine/relations.py",
     "rows": [
      {

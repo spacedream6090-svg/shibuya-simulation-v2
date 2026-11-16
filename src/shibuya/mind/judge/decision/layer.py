@@ -232,7 +232,7 @@ class DecisionLayer:
         }
         if self.tools is not None:
             # 〔1-7 の結線〕道具の台帳から、この体が知っていて・要るものが満たされ・今の世界で使う段の道具の語(表は今は空)
-            from shibuya.engine.tools.registry import affordance_words as _tool_words
+            from shibuya.society.tools.registry import affordance_words as _tool_words
 
             for w in _tool_words(self.tools, a, getattr(p, "belongings", None) if p is not None else None):
                 ok[w] = True

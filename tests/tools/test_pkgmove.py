@@ -2236,3 +2236,32 @@ def test_split_reports_the_imports_and_comments_it_did_not_write():
     assert any("`# sys の前の注` — import の前" in x for x in un), un
     assert any("`# typing の注` — 作り直した import の中" in x for x in un), un
     assert SP.report(plan)["unwritten"] == un and set(plan.guards.values()) == {"同じ"}
+
+
+_CYC_OLD = ('"""old — 見本。"""\n\nfrom __future__ import annotations\n\nfrom typing import Final\n\n'
+            'from shibuya.lg.log import Proc\n\nA: Final[int] = 1\nC: Final[Proc] = Proc("x")\n')
+_CYC_LOG = ('"""log — 見本の型の置き場(頂上で割り先 vocab.base を読む)。"""\n\nfrom __future__ import annotations\n\n'
+            'from shibuya.vocab import base as V\n\n\nclass Proc:\n    def __init__(self, n: str) -> None:\n'
+            '        self.n = n\n')
+
+
+@pytest.mark.parametrize("dest_of_c,stops", [("vocab/base.py", True), ("nw/main.py", False)])
+def test_negative_split_stops_a_new_import_cycle_through_an_existing_destination(dest_of_c, stops):
+    """〔G2 の 5 本目の欠陥〕既に在る割り先(vocab/base.py)へ足す文が型を lg/log.py から読み、log が頂上で base を読むと、割った後に
+    base ↔ log の循環になる(読み込みで落ちる)。守り「import の循環」が書く前に止め、循環の新しい辺と読む文の場所を出す。循環に
+    ならない割り先(nw/main.py)なら通す。"""
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/pk/__init__.py": "", "src/shibuya/pk/old.py": _CYC_OLD,
+             "src/shibuya/lg/__init__.py": "", "src/shibuya/lg/log.py": _CYC_LOG,
+             "src/shibuya/vocab/__init__.py": "", "src/shibuya/vocab/base.py": _BASE_SAMPLE}
+    row = Row(num="1", old="pk/old.py", package="nw", kind="split", new="nw/main.py",
+              split_to=("nw/main.py", "vocab/base.py"), names=(("A", "nw/main.py"), ("C", dest_of_c)), names_complete=True)
+    md = MV.MapDoc(rows=[row])
+    if not stops:
+        plan = SP.make_split_plan(Tree(files=files), md, "pk/old.py", check_order=False)
+        assert plan.guards["import_cycles"] == "同じ" and set(plan.guards.values()) == {"同じ"}
+        return
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(Tree(files=files), md, "pk/old.py", check_order=False)
+    errs = [e for e in ei.value.errors if e.startswith("import の循環")]
+    assert errs and "shibuya.vocab.base -> shibuya.lg.log" in errs[0] and "src/shibuya/vocab/base.py:" in errs[0], ei.value.errors
+    assert len(ei.value.errors) == 1, ei.value.errors  # ほかの守りは「同じ」

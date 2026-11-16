@@ -5,7 +5,7 @@
 # held がある行は保留(道具は動かさない)。stage は段 4 の小さな段(答えの後に移す行は、その包みと別の段の名)。
 schema = "shibuya.tools/pkgmove/map/1"
 source = "docs/reference/package-map-final-2026-11-09-files.md"
-source_sha256 = "4d8fbcb38c0ec4b9b2e12f5fd24607a4eb8387b61a0c9f57c8c15e4dbcf99c57"
+source_sha256 = "cc8e8ea3af401408b0323e8df92f487606d4788b8b650157b88d6bfd1148e28d"
 stages = ["foundation", "world", "economy", "act", "mind", "society", "runtime", "experiments", "validation", "society_contact", "interim_bundles", "foundation_224a", "delete"]
 split_order = ["world/assets.py", "agents/state.py", "engine/calendar.py", "engine/tools/registry.py", "engine/tools/record.py", "engine/events/body.py", "llm/__init__.py", "llm/fleet.py", "llm/mock.py", "llm/undefined.py", "engine/llm_bridge.py", "engine/chooser.py", "engine/poi_target.py", "perception/attention.py", "engine/change_detect.py", "engine/arbiter.py", "engine/relations.py"]
 # split_deferred: 割る行のまま割る段の順から外した行(table.SPLIT_DEFERRED・理由はそこ)。
@@ -2873,7 +2873,7 @@ old = "engine/tools/record.py"
 package = "society"
 kind = "split"
 new = "society/tools/record.py"
-split_to = ["society/tools/record.py", "foundation/vocab/events.py"]
+split_to = ["society/tools/record.py", "foundation/vocab/events.py", "foundation/journal/log.py"]
 split_order = 5
 names_complete = true
 
@@ -2891,7 +2891,7 @@ names_complete = true
 "_ENABLED" = "society/tools/record.py"
 "SIGNBOARD_ORIGIN" = "foundation/vocab/events.py"
 "SIGNBOARD_WHAT" = "foundation/vocab/events.py"
-"SIGNBOARD_CAUSE" = "foundation/vocab/events.py"
+"SIGNBOARD_CAUSE" = "foundation/journal/log.py"
 
 [row.rewrites]
 "foundation/vocab/events.py" = "V"

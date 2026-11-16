@@ -32,20 +32,27 @@
 
 from __future__ import annotations
 
-from types import MappingProxyType
-from typing import Any, Final, Mapping, Sequence
-
+from typing import Any, Final, Sequence
 import numpy as np
-
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.log import Event, EventLog, LlmCall, Process
-from shibuya.engine.tools.record import SIGNBOARD_CAUSE, SIGNBOARD_ORIGIN, SIGNBOARD_WHAT
+from shibuya.foundation.journal.log import SIGNBOARD_CAUSE
+from shibuya.foundation.vocab.events import SIGNBOARD_ORIGIN
+from shibuya.foundation.vocab.events import (
+    KIND_ACT_WORD,
+    WHAT_NOTICE,
+    WHAT_SIGNAGE,
+    WHAT_TALK_END,
+    WHAT_TALK_OPEN,
+    _KIND_TALK,
+    _WHAT_OF_KIND,
+)
 
 __all__ = [
-    "SRC_ACT", "SRC_ARRIVE", "SRC_TALK_OPEN", "SRC_TURN", "SRC_NOTICE", "SRC_SIGNAGE", "SOURCES",
-    "KIND_ACT_WORD", "WHAT_TALK_OPEN", "WHAT_TALK_END", "WHAT_NOTICE", "WHAT_SIGNAGE", "ACT_FAMILY_WORDS",
-    "BodyEventLink", "kind_of_what",
+    "SRC_ACT", "SRC_ARRIVE", "SRC_TALK_OPEN", "SRC_TURN", "SRC_NOTICE", "SRC_SIGNAGE", "SOURCES", "ACT_FAMILY_WORDS",
+    "BodyEventLink",
 ]
+
 
 #: 記憶の書き手の出どころ(どの書き手の行か)。
 SRC_ACT: Final[int] = 0        # (a) 行為の成否(その刻みに結果が書かれた体)
@@ -55,42 +62,13 @@ SRC_TURN: Final[int] = 3       # 会話の番(発話ごとの会話の行)
 SRC_NOTICE: Final[int] = 4     # (c) 顕著行為への気づき
 SRC_SIGNAGE: Final[int] = 5    # (d) 強い看板の初見
 SOURCES: Final[tuple[str, ...]] = ("act", "arrive", "talk_open", "turn", "notice", "signage")
-
-#: 記憶の種類(``engine.memory.EVENT_KINDS`` の番号)→ 行為の語(語彙 v3=``vocab.ACT_WORDS``)。試験が両方の表と突き合わせる。
-KIND_ACT_WORD: Final[Mapping[int, str]] = MappingProxyType({
-    1: "購入", 2: "食事", 3: "並ぶ", 4: "移動", 5: "乗車", 6: "就寝", 7: "会話", 8: "通報", 9: "手伝い",
-})
-_KIND_NOTICE: Final[int] = 10
-_KIND_SIGNAGE: Final[int] = 11
-_KIND_TALK: Final[int] = 7
-WHAT_TALK_OPEN: Final[str] = V.word(V.FAMILY_ACT, V.CONVERSATION_WORDS[0])
-WHAT_TALK_END: Final[str] = V.word(V.FAMILY_ACT, V.CONVERSATION_WORDS[1])
-WHAT_NOTICE: Final[str] = V.word(V.FAMILY_PERCEPT, V.PERCEPT_WORDS[0])
-WHAT_SIGNAGE: Final[str] = SIGNBOARD_WHAT
 #: 行為の語の行(``how_much``=結果の番号)。
 ACT_FAMILY_WORDS: Final[frozenset[str]] = frozenset(V.word(V.FAMILY_ACT, w) for w in KIND_ACT_WORD.values())
-_WHAT_OF_KIND: Final[Mapping[int, str]] = MappingProxyType(
-    {k: V.word(V.FAMILY_ACT, w) for k, w in KIND_ACT_WORD.items()})
 _TALK_WORDS: Final[frozenset[str]] = frozenset({_WHAT_OF_KIND[_KIND_TALK], WHAT_TALK_OPEN, WHAT_TALK_END})
 #: 原因の名(既定の過程)。
 _P_RESOLVE: Final[Process] = Process("resolve")
 _P_CONV: Final[Process] = Process("conversation")
 _VIA_FACE: Final[str] = V.VIA_WORDS[0]
-
-
-def kind_of_what(what_code: int) -> int:
-    """出来事の語のコード → 記憶の種類(記憶の器の中身の写像の検査=``MemoryStore.remember``)。表の外は ``0``。"""
-    w = V.VOCAB[int(what_code)]
-    if w in (WHAT_TALK_OPEN, WHAT_TALK_END):
-        return _KIND_TALK
-    if w == WHAT_NOTICE:
-        return _KIND_NOTICE
-    if w == WHAT_SIGNAGE:
-        return _KIND_SIGNAGE
-    for k, ww in _WHAT_OF_KIND.items():
-        if ww == w:
-            return int(k)
-    return 0
 
 
 class BodyEventLink:

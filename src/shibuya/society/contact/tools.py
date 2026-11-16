@@ -22,7 +22,7 @@ from __future__ import annotations
 
 from typing import Any, Final
 
-from shibuya.engine.tools.registry import ORIGIN_NONE, PHONE_BRIDGE, Tool
+from shibuya.society.tools.registry import ORIGIN_NONE, PHONE_BRIDGE, Tool
 
 __all__ = [
     "MESSAGE", "VIDEO", "CHARGER", "LOOKUP", "POST", "NOTE", "CONTACT_TOOL_NAMES", "CONTACT_TOOLS", "register_into",

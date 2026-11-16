@@ -61,7 +61,7 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_route_steps_counts_nodes_on_the_walk_graph`(関数)
   - `test_tool_registry_has_clock_and_forecast`(関数)
   - `test_w20_place_words_are_the_build_side_copy`(関数)
-- import している内部モジュール: `shibuya.build.sched.w20_calendar_1a`・`shibuya.engine.calendar_shadow`・`shibuya.engine.tools.registry`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.ports.decision`・`shibuya.interim_bundles.calendar_self`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.table`
+- import している内部モジュール: `shibuya.build.sched.w20_calendar_1a`・`shibuya.engine.calendar_shadow`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.ports.decision`・`shibuya.interim_bundles.calendar_self`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.table`・`shibuya.society.tools.registry`
 - 決定の ID: R-111・R-111 §1-2 #1
 
 ## [test_calendar_shadow.py](../../../../../../../tests/engine/calendar/test_calendar_shadow.py)

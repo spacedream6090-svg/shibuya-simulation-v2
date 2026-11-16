@@ -302,3 +302,66 @@ G0 の検収の直しの後の木(本体の頭 `dcd25a6c` の上へ載せ直し�
 - 別の役の検収: 受入(高 0・中 0・低 3)。割った 3 本の頂上の文は、元と数・並び・字面が完全に同じ。import の文のほかに変わった行は、
   宣言された物だけ。
 - 飛んだ試験(skipped)は 21 本で、群の前と同じ。
+
+## 10. G2 の当て(本物の木・群の土台 `bf0ccbb`=G1 の commit・安定版のタグ `stable-v2-before-split5a-G2`)
+
+- 回し方は G1(§9)と同じ。狙いの試験に、置き場で範囲が決まる決まりの試験の束(`tests/engine/time`・`tests/engine/state`・`tests/engine/bridging`・`tests/engine/systems`・`tests/test_places_guard.py`)を入れた(§9-6)。親の範囲の試験と重なる間は `-n 2`。
+- 当てる前に、foundation/vocab/events.py へ足す文(注と docstring と識別子)を、核の決まりの試験の関数(素の tick・tick を含む識別子)で見た。当たる所は無い(events は、その決まりの範囲=元の置き場が core と engine/systems の外でもある)。
+- 1 本の byte-check が通るたびに、戻り点(`git diff --binary HEAD` と未追跡のファイルの写し)を作業の置き場に残した。
+
+### 10-1. 5 本目(record)の循環と、直したこと
+
+- **起きたこと**: 表 §4-16 のとおり `SIGNBOARD_CAUSE: Final[Process] = Process("perception")` を `foundation/vocab/events.py` へ割ると、道具は events に `from shibuya.foundation.journal.log import Process` を足す。`foundation/journal/log.py` は頂上で `from shibuya.foundation.vocab import events as V` を読むので、events → journal.log → events が循環した。`--apply` の後の import の確かめで 357 のうち 38 モジュールが落ちた(終了コード 3)。書かない実行の守り 11 個は「同じ」だった(既に在る割り先へ足す import が、その割り先を読むモジュールと循環する形を見る守りが無かった)。
+- **手順の誤り**: 同じコマンドの続きで `contracts --stage delete --apply` を走らせ、壊れた木で `pyproject.toml` を書いた(`--apply` の終了コードを見ていなかった)。以後、1 本ごとの手順は `&&` でつなぐ。
+- **戻した**: 親の手順で、道具の差分(4 本目の後 → 5 本目の後)を `git apply -R --check` → `git apply -R` で戻し、差分に載らない 0 バイトの頭 `engine/tools/__init__.py` を `git checkout` で戻し(単独のコマンド)、`pyproject.toml` は `contracts --apply` で 4 本目の後の節へ戻した。戻した後: `git status` の一覧が 4 本目の後と同じ・import の確かめ 357/落ちた 0・`python -m shibuya.cli --help` 0・lint 12 kept・4 本目の狙いの試験 1151 passed・20 skipped。
+- **親の裁定=案 A(仮採用・ユーザーの判断待ち)**: `SIGNBOARD_CAUSE` は `foundation/journal/log.py`(`Process` の定義と同じ所)の後ろへ。`SIGNBOARD_ORIGIN`・`SIGNBOARD_WHAT` は表のとおり events。最終の表の意図(`SIGNBOARD_*` を foundation へ下ろし例外 #12 を消す)を保ち、違いは foundation の中のファイル 1 つだけ。この循環は 11-05 の案の表(`docs/reference/package-map-claude-code-2026-11-05.md` の「割った後のモジュールの 7 組」の 1 行目)が先に見つけていた。全ファイルの表 §3 の行 283・§4-16 を直し、`map.toml` を道具で作り直した。
+  - 当てる前に確かめたこと: (1) `Process` は作る口の検査を持たない(口の検査 `_only_from_gate` は `Experiment` だけ・`_SEALED` は子の型を作るときだけ)。`Process("perception")` は record が今も読み込みの時に作っている。道具は文を log.py の後ろ(`Process` の定義と封の後ろ)へ足す。(2) log.py の名を固定する試験・表(`__all__` の確かめ・名の凍結・クラスの名の表・つなぎの台帳の道・核の決まりの語)に当たる所は無い(`__all__` には道具が 1 名足す)。(3) 新しい守りで循環は「同じ」・lint 12 kept(下)。
+- **足した守り**(検証で見つけた欠陥の直し): `split.py` の「import の循環」。読み込みの時に走る import(頂上と頂上の if・try・with の中。`TYPE_CHECKING` の下と関数の中は除く・親の包みの頭を含む)のグラフで、割る前に無かった循環ができたら書く前に止める(終了コード 2)。止めた文に循環のモジュールと新しい辺・読む文の場所を出す。新しい割り先は元のモジュールの名に引き戻して比べる。今の表のままの 5 本目を新しい守りが止めることを確かめた(`循環 ['shibuya.foundation.journal.log', 'shibuya.foundation.vocab.events'] の新しい辺: events -> journal.log(events.py:101 Process)`)。試験 `test_negative_split_stops_a_new_import_cycle_through_an_existing_destination`(循環する割り先は止め、循環しない割り先は通す。守りを外すと落ちる)。
+- 守りを足した後、5〜17 本の書かない実行を取り直した: import の循環に当たる本は 0(案 A の 5 本目を含む)。宣言の外の弱まりも 0。
+
+### 10-2. 本ごとの数
+
+| 本 | 割る行 | 書き換えた import の文(src・tests・tools・docs) | 分けた文 | 鍵 | 台帳の道 | 道の文字列 | 宣言した書き換え | 手で直した読み | 写さなかった | 守り | byte-check | 契約 | 例外 載せた・効いている(辺/行) |
+|---:|---|---|---:|---:|---:|---|---|---|---|---|---|---|---|
+| 4 | `engine/tools/registry.py` | 16(5・11・0・0) | 1 | 3 | 1 | tests の記号 1 | — | 2 | 無い | 11 個「同じ」(循環の守りを足す前) | 19/19 同じ・終了コード 0 | 3+9 → 3+9 | 31/45・21/32(#11 が効くようになった) |
+| 5 | `engine/tools/record.py`(案 A) | 14(3・11・0・0) | 2 | 2 | 1 | 無い | events で 2(`V.word`・`V.FAMILY_TOOL`) | 1+1(案 A で 1 増えた) | 無い | 12 個「同じ」 | 19/19 同じ・終了コード 0 | 3+9 → 3+9 | 30/43・20/30(#12 が消えた) |
+| 6 | `engine/events/body.py` | 4(2・2・0・0) | 0 | 1 | 1 | 無い | events で 12 | 1 | 無い | 12 個「同じ」 | 19/19 同じ・終了コード 0 | 3+9 → 3+9 | 30/43・20/30 |
+
+- 割り先: 4 本目 `society/tools/registry.py`(新)・`foundation/vocab/events.py`(在る・`SIGNBOARD`)/5 本目 `society/tools/record.py`(新)・events(在る・`SIGNBOARD_ORIGIN`・`SIGNBOARD_WHAT`)・`foundation/journal/log.py`(在る・`SIGNBOARD_CAUSE`)/6 本目 `mind/memory/body_events.py`(新)・events(在る・語と種類の 10 名)。events へ足した名の順は SIGNBOARD → SIGNBOARD_ORIGIN・SIGNBOARD_WHAT → WHAT_SIGNAGE ほか(計画 c7)。
+- 消えた頭: 5 本目で `engine/tools/`、6 本目で `engine/events/`。record の版の ID `shibuya.engine.tools/c0/1` と `_ENABLED`(読み込みの時に環境変数を読む)は主な割り先 `society/tools/record.py` に同じ値で入った。非公開の名(`_WHAT_OF_KIND`・`_KIND_TALK`)は名を変えずに events へ。
+- 効いている例外: 4 本目で 1 本増えたのは、もとから載っていた 28 本の #11 `mind.judge.decision.layer -> society.tools.registry`(決まり 1・3・消える段=残る)。割る前の読む先 `engine.tools.registry` は決まりの単位の外で、割った後の `society.tools.registry` は単位の中になった(G1 の #18 と同じ形)。5 本目で #12 `engine.events.body -> engine.tools.record` が消え(計画どおり)、計画 §5-3 の G2 の終わり 30/43・20/30 と同じになった。
+- 心の読みの一覧: 6 本目で `engine/events/body.py` が無くなったので、`tests/engine/state/mind_world_reads_frozen.json` の `scope.split` からその行を外した(記録 `self-update-347` の裁定 6 のとおり。割り先 `mind/memory/body_events.py` は `scope.dirs`=`mind/` の下に来る。body の心の読みは 1 行(`conversation_end` の `cell`)で、割る前から割り先の道で数えていたので、`key_counts` の合計 83 は変わらない=検収の低 2 で直した文。前の文は「心の読みが無い」と書いていた)。
+- 1 本ごとの戻り点: 4 本目の後 `restore_04`・5 本目の後 `restore_05`(作業の置き場)。
+
+### 10-3. 手で直した読み
+
+- 4 本目: `tests/engine/tools/test_c0_affordance_from_registry.py`(`TR.SIGNBOARD` を名の import に・`monkeypatch.setattr(TR, "TOOL_ACTION_WORDS", …)` の相手を、それを読む `affordance_words` の定義の置き場 `_TR_MOD` から引く形に=5 か所)・`tests/engine/tools/test_c0_tool_registry.py`(`TR.SIGNBOARD` を名の import に)。
+- 5 本目: `tests/engine/tools/test_c0_signboard_mark_invariance.py`(`TR.SIGNBOARD_ORIGIN`・`SIGNBOARD_WHAT`・`SIGNBOARD_CAUSE` を名の import に)・`tests/engine/multiday/test_md23_body_events.py`(案 A で `SIGNBOARD_CAUSE` だけ別の割り先へ行くので、`TR.SIGNBOARD_CAUSE` を名の import に=案 A で増えた 1 つ)。
+- 6 本目: `tests/engine/multiday/test_md23_body_events.py`(`B.` で読む events 行きの 6 名=`KIND_ACT_WORD`・`WHAT_NOTICE`・`WHAT_SIGNAGE`・`WHAT_TALK_END`・`WHAT_TALK_OPEN`・`kind_of_what` を名の import に)。
+
+### 10-4. 狙いの試験(`-n 2`・`-m "not slow"`。決まりの束を含む)
+
+| 本 | 結果 |
+|---:|---|
+| 4 | 1136 passed・20 skipped(戻した後にもう一度 1151 passed・20 skipped) |
+| 5 | 1268 passed・20 skipped(道具の試験 `tests/tools` の全部=slow を含む 724 passed・20 skipped を先に回した) |
+| 6 | 1390 passed・21 skipped |
+
+- 飛んだのは、`tests/tools/test_pkgmove.py` の段 4 の理由 20 本と、6 本目の束に入れた `tests/engine/memory/test_m2_cue.py` の 1 本(「Ruri の重みが置き場に無い」=前からの理由)。
+- `lint-imports` は 3 本とも 12 kept・0 broken。
+- byte-check の記録: `bytecheck_04_tools_registry/`・`bytecheck_05_tools_record/`・`bytecheck_06_events_body/`(基準 `bf0ccbb`=群の土台・その本まで当てた木と比べる。19 構成とも 37 欄がすべて同じ・final が同じ 19・終了コード 0。1 本 7 分ほど)。4 本目の byte-check は合図のファイルが親の byte-check で塞がっていたので、空くのを待ってから回した。
+
+### 10-5. 親の確かめと別の役の検収(第347)
+
+- **別の役の検収: 受入(高 0・中 0・低 3)**。今の道具と表で 4〜6 本目をメモリの中で当て直し、できた src が作業木と完全に同じことを確かめた
+  (違いは手で直した試験 4 本と道具のファイル 2 本だけ)。割り先と、既に在る 2 本へ足した 14 文は、元と数・並び・字面・前の注が同じ。
+  宣言した書き換え 14 か所は、AST の属性の位置だけを書き換えた形と一致。案 A に壊れる所は無い(log.py に import は足していない・増えるのは
+  `Process("perception")` を 1 つ作ることだけ・原因は値で比べる)。読み込みの時の import の循環は、群の前も後も前からの 1 組(parser・llm・
+  fleet・mock)だけ。差し替えの相手 `_TR_MOD` は空振りしない。
+- 検収の低: ① 循環の守りは強連結成分の単位で比べるので、割る前から在る循環の中で読み込みの順が変わって落ちる形は見ない(G3 の llm の 4 本は
+  今その循環の中に在る=書いた後の import の確かめが本当の守り。G3 の発注に書いた)② §10-2 の「心の読みが無い」の文(直した)③ 親の
+  byte-check の記録 `bytecheck_G2_parent/` は commit に載せる(G1 と同じ)。
+- **親の byte-check**(本体の頭 `9f4fa77`=版上げ Q13 の後へ載せ直した木・`--base 9f4fa77`): 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0
+  (既定の final `c8d68704b7b0760d`・呼数 60,939・全体の壁時計 433 秒)。記録 [bytecheck_G2_parent/](bytecheck_G2_parent/)。
+- 載せ直し: ぶつかったのはカード 2 枚だけ(作り直した)。src・tests・tools にぶつかりは無い。載せ直した後の `lint-imports` は 12 kept。
+- **範囲の全体の試験**(載せ直した木): 6,927 passed・1 failed・21 skipped・1 xfailed(39 分 8 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木でだけ落ちる)。新しい失敗は無い。飛んだ試験は 21 本で群の前と同じ。増えた 2 本は、循環の守りの試験。

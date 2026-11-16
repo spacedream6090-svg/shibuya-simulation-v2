@@ -40,19 +40,17 @@ from __future__ import annotations
 from dataclasses import dataclass, fields
 from types import MappingProxyType
 from typing import Any, Final, Iterable, Iterator, Mapping
-
 import numpy as np
+from shibuya.foundation.vocab.events import SIGNBOARD
 
 __all__ = [
-    "SIGNBOARD", "NOTICE", "PHONE", "CONTACTS", "GROUP", "TRANSIT", "MAP", "CLOCK", "FORECAST", "TOOL_NAMES",
-    "REQUIRE_KINDS", "OWNERS", "CONTENT_WRITERS", "CONTENT_ORIGINS", "ORIGIN_REAL", "ORIGIN_SYNTHETIC",
-    "ORIGIN_NONE", "KNOWN_KINDS", "KnownBy", "EVERYONE", "NOBODY", "Tool", "TOOL_FIELDS", "ToolRegistry",
-    "DEFAULT_TOOLS", "default_registry", "SIGNAGE_BRIDGE", "PHONE_BRIDGE", "NOTICE_BRIDGE", "TOOL_ACTION_WORDS",
-    "affordance_words", "FORECAST_BRIDGE",
+    "NOTICE", "PHONE", "CONTACTS", "GROUP", "TRANSIT", "MAP", "CLOCK", "FORECAST", "TOOL_NAMES", "REQUIRE_KINDS",
+    "OWNERS", "CONTENT_WRITERS", "CONTENT_ORIGINS", "ORIGIN_REAL", "ORIGIN_SYNTHETIC", "ORIGIN_NONE", "KNOWN_KINDS",
+    "KnownBy", "EVERYONE", "NOBODY", "Tool", "TOOL_FIELDS", "ToolRegistry", "DEFAULT_TOOLS", "default_registry",
+    "SIGNAGE_BRIDGE", "PHONE_BRIDGE", "NOTICE_BRIDGE", "TOOL_ACTION_WORDS", "affordance_words", "FORECAST_BRIDGE",
 ]
 
-# ---------------------------------------------------------------- 道具の名(台帳の鍵)
-SIGNBOARD: Final[str] = "看板"
+
 NOTICE: Final[str] = "掲示"
 PHONE: Final[str] = "電話"
 CONTACTS: Final[str] = "連絡先"

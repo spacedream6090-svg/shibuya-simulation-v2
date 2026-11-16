@@ -32,7 +32,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_table_is_empty_and_frozen`(関数)
   - `test_unknown_agents_get_nothing`(関数)
   - `test_unmet_requirements_hide_the_tool`(関数)
-- import している内部モジュール: `shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.engine.tools.record`・`shibuya.engine.tools.registry`・`shibuya.foundation.vocab.actions`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.sources`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.sources`・`shibuya.society.tools.record`・`shibuya.society.tools.registry`・`tests/engine/decision/_j0.py`
 
 ## [test_c0_contacts_in_relations.py](../../../../../../../tests/engine/tools/test_c0_contacts_in_relations.py)
 
@@ -75,7 +75,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
 
 - 公開の関数とクラス
   - `test_init_cannot_be_called_again`(関数)
-- import している内部モジュール: `shibuya.engine.tools.registry`・`shibuya.society.tools.groups`・`shibuya.society.tools.places`
+- import している内部モジュール: `shibuya.society.tools.groups`・`shibuya.society.tools.places`・`shibuya.society.tools.registry`
 
 ## [test_c0_phone_table_empty_and_declared.py](../../../../../../../tests/engine/tools/test_c0_phone_table_empty_and_declared.py)
 
@@ -88,7 +88,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_recorded_count_is_reproduced_with_the_same_rule`(関数)
   - `test_the_table_is_empty_and_answers_none`(関数)
   - `test_the_table_is_read_only_after_construction`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.tools.registry`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.decl.ledger_paths`・`shibuya.society.tools.places`・`tests/_places.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.decl.ledger_paths`・`shibuya.society.tools.places`・`shibuya.society.tools.registry`・`tests/_places.py`
 - 決定の ID: 10-13b/§3・11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・第 334
 
 ## [test_c0_signboard_mark_invariance.py](../../../../../../../tests/engine/tools/test_c0_signboard_mark_invariance.py)
@@ -104,7 +104,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_mark_is_tied_to_the_ledger_and_the_vocab`(関数)
   - `test_undeclared_write_from_decide_fails_at_run_time`(関数)
   - `test_world_run_arm_on_and_off_render_the_same_bytes`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.engine.tools.record`・`shibuya.engine.tools.registry`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.percept`・`shibuya.foundation.vocab.events`・`shibuya.foundation.write_permit`・`shibuya.perception.renderer`・`shibuya.validation.static.system_overrides`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.percept`・`shibuya.foundation.vocab.events`・`shibuya.foundation.write_permit`・`shibuya.perception.renderer`・`shibuya.society.tools.record`・`shibuya.society.tools.registry`・`shibuya.validation.static.system_overrides`
 - 環境変数: `SHIBUYA_TOOL_EVENTS`
 
 ## [test_c0_tool_registry.py](../../../../../../../tests/engine/tools/test_c0_tool_registry.py)
@@ -126,5 +126,5 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_registry_cannot_be_rewritten`(関数)
   - `test_tool_is_frozen_with_slots`(関数)
   - `test_tool_words_are_names_of_the_registry_and_appended_at_the_end`(関数)
-- import している内部モジュール: `shibuya.engine.tools.registry`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.vocab.events`
+- import している内部モジュール: `shibuya.foundation.decl.bridging`・`shibuya.foundation.vocab.events`・`shibuya.society.tools.registry`
 - 決定の ID: 10-12/§4-4・10-13b/§1

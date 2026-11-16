@@ -2,11 +2,21 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 11 本・その他 0 本(このディレクトリの直下)
+Python 12 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/mind/memory/__init__.py)
 
 (冒頭の説明なし)
+
+## [body_events.py](../../../../../../../../src/shibuya/mind/memory/body_events.py)
+
+engine.events.body — 体の出来事を出来事の記録(1-3)に書く口(第 2 期 2-3・腕 ``--memory-store events`` のランだけ)。
+
+- 公開の関数とクラス
+  - `BodyEventLink`(クラス): 体の出来事の口(記憶の器が持つ=``MemoryStore.body_events``・組み立てが腕のランだけ作る)。
+- import している内部モジュール: `shibuya.foundation.journal.log`・`shibuya.foundation.vocab.events`
+- 呼び手: `shibuya.runtime.systems.assemble`
+- 読む試験: `tests/engine/multiday/test_md23_body_events.py`
 
 ## [familiarity.py](../../../../../../../../src/shibuya/mind/memory/familiarity.py)
 
@@ -151,7 +161,7 @@ engine.memory_store — 記憶の器 M0(第 1 期 1-6・MR-0・MR11 (b)・MR16)�
   - `set_row_caps`(関数): 上限なしの腕の種類ごとの行の上限(``episode``・``person``・``shop``・``None``=既定の値に戻す)。試験と感度の腕の口
   - `set_rows0`(関数): 上限なしの腕の最初の行の幅(``None``=記憶の表と同じ)。試験と測りの切替口(組み立ての時に読む)。
   - `to_item`(関数): ``MemoryView`` → 今の描き方が読む ``RecallItem``(刻みの番号に戻す=今の表と同じ値)。
-- import している内部モジュール: `shibuya.engine.events.body`・`shibuya.foundation.journal.log`・`shibuya.foundation.text.normalize`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.events`・`shibuya.foundation.write_guard`・`shibuya.mind.memory.familiarity`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_embed`・`shibuya.mind.memory.memory_m1`・`shibuya.perception.renderer`
+- import している内部モジュール: `shibuya.foundation.journal.log`・`shibuya.foundation.text.normalize`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.events`・`shibuya.foundation.write_guard`・`shibuya.mind.memory.familiarity`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_embed`・`shibuya.mind.memory.memory_m1`・`shibuya.perception.renderer`
 - 呼び手: `shibuya.cli`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_shops`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/memory/_m0.py`・`tests/engine/memory/_mr65.py`・`tests/engine/memory/test_m0_render_bytes.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_m1_runs.py`・`tests/engine/memory/test_m2_cue.py`・`tests/engine/memory/test_m4_m5_people.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/multiday/_md.py`・`tests/engine/multiday/test_md23_body_events.py`
 - 読む試験(道筋で): `tests/engine/memory/test_mr65_guards.py`

@@ -15,12 +15,14 @@ import pytest
 
 from shibuya.foundation.decl import bridging as BR
 from shibuya.foundation.vocab import events as V
-from shibuya.engine.tools import registry as TR
-from shibuya.engine.tools.registry import EVERYONE, NOBODY, KnownBy, Tool, ToolRegistry
+from shibuya.society.tools import registry as TR
+# 〔割る段 5a の G2〕2 つ目の割り先 foundation.vocab.events へ行く名は名で読む(別名では割り先が 1 つに決まらない)
+from shibuya.foundation.vocab.events import SIGNBOARD
+from shibuya.society.tools.registry import EVERYONE, NOBODY, KnownBy, Tool, ToolRegistry
 
 ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "src" / "shibuya"
-REG_PATH = SRC / "engine" / "tools" / "registry.py"
+REG_PATH = SRC / "society" / "tools" / "registry.py"
 
 
 def _tool(**kw) -> Tool:
@@ -104,7 +106,7 @@ def test_default_registry_contents():
     assert {reg.get(n).stage for n in reg.registered_only()} == {"6-4", "6-2"}  # 中身は第 6 期 C1〜・時計と天気予報は 6-2
     assert reg.get(TR.FORECAST).bridge == TR.FORECAST_BRIDGE and reg.get(TR.FORECAST).content_origin == TR.ORIGIN_NONE
     assert reg.get(TR.CLOCK).content_writer == "機械" and reg.get(TR.CLOCK).requires == ()
-    sign = reg.get(TR.SIGNBOARD)
+    sign = reg.get(SIGNBOARD)
     assert (sign.content_origin, sign.bridge, sign.owner, sign.content_writer) == (
         TR.ORIGIN_SYNTHETIC, "BR-SIGNAGE-FICTION", "店", "他人")
     assert reg.get(TR.PHONE).bridge == "BR-PHONE-TABLE-BLANK"

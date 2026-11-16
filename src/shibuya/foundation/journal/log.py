@@ -64,6 +64,7 @@ __all__ = [
     "CANDIDATE_SOURCES",
     "EventLog", "ROW_BYTES", "CAUSE_ROW_BYTES", "INPUT_ID_BYTES", "RETENTION_DAYS", "NS_PER_DAY", "enabled",
     "set_enabled",
+    "SIGNBOARD_CAUSE",
 ]
 
 #: 出来事の id=``(t_ns, seq)``(``seq`` は同じ ``t_ns`` の中の通し)。並べると時刻順。
@@ -822,3 +823,7 @@ class EventLog:
             cap_budget_row="S1", mechanism=False, note=note,
             unit="行", bytes_per_unit=ROW_BYTES, growth_per_simday=rows,
         )
+
+
+#: 原因(知覚=System 1)。
+SIGNBOARD_CAUSE: Final[Process] = Process("perception")

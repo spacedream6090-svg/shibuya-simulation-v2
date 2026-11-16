@@ -20,7 +20,7 @@ from shibuya.mind.plan import contact_port as P
 from shibuya.society.contact import tools as TL
 from shibuya.foundation.journal import log as EV
 from shibuya.engine.run import run_day
-from shibuya.engine.tools import record as TR
+from shibuya.society.tools import record as TR
 from shibuya.society.tools.groups import GroupList
 
 from tests.engine.contact._c1 import KW, STEP_NS, by_kind, c1, choose

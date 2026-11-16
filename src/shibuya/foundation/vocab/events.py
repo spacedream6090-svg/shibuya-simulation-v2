@@ -109,6 +109,9 @@ __all__ = [
     "FAMILY_WORK", "WORK_WORDS", "CALENDAR3_PROCESSES", "FAMILY_DUTY", "DUTY_WORDS",
     "VOCAB", "VOCAB_CODES", "VOCAB_VERSION", "word", "code_of", "family_of",
     "VIA_WORDS", "VIA_NONE", "VIA_CODES", "WHERE_KINDS",
+    "SIGNBOARD",
+    "SIGNBOARD_ORIGIN", "SIGNBOARD_WHAT",
+    "KIND_ACT_WORD", "WHAT_TALK_OPEN", "WHAT_TALK_END", "WHAT_NOTICE", "WHAT_SIGNAGE", "kind_of_what",
 ]
 
 #: 表の版(語を足したら上げる)。
@@ -289,3 +292,43 @@ VIA_CODES: Final[Mapping[str, int]] = MappingProxyType({w: i for i, w in enumera
 
 #: ``where`` の種類(セル・歩行網のノード・POI)。
 WHERE_KINDS: Final[tuple[str, ...]] = ("cell", "node", "poi")
+
+
+# ---------------------------------------------------------------- 道具の名(台帳の鍵)
+SIGNBOARD: Final[str] = "看板"
+
+
+#: 看板の作り物の印(``Event.origin``)。
+SIGNBOARD_ORIGIN: Final[str] = "signboard:synthetic"
+#: 看板を読んだ出来事の語(族 ``道具``・語は台帳の道具の名)。
+SIGNBOARD_WHAT: Final[str] = word(FAMILY_TOOL, SIGNBOARD)
+
+
+#: 記憶の種類(``engine.memory.EVENT_KINDS`` の番号)→ 行為の語(語彙 v3=``vocab.ACT_WORDS``)。試験が両方の表と突き合わせる。
+KIND_ACT_WORD: Final[Mapping[int, str]] = MappingProxyType({
+    1: "購入", 2: "食事", 3: "並ぶ", 4: "移動", 5: "乗車", 6: "就寝", 7: "会話", 8: "通報", 9: "手伝い",
+})
+_KIND_NOTICE: Final[int] = 10
+_KIND_SIGNAGE: Final[int] = 11
+_KIND_TALK: Final[int] = 7
+WHAT_TALK_OPEN: Final[str] = word(FAMILY_ACT, CONVERSATION_WORDS[0])
+WHAT_TALK_END: Final[str] = word(FAMILY_ACT, CONVERSATION_WORDS[1])
+WHAT_NOTICE: Final[str] = word(FAMILY_PERCEPT, PERCEPT_WORDS[0])
+WHAT_SIGNAGE: Final[str] = SIGNBOARD_WHAT
+_WHAT_OF_KIND: Final[Mapping[int, str]] = MappingProxyType(
+    {k: word(FAMILY_ACT, w) for k, w in KIND_ACT_WORD.items()})
+
+
+def kind_of_what(what_code: int) -> int:
+    """出来事の語のコード → 記憶の種類(記憶の器の中身の写像の検査=``MemoryStore.remember``)。表の外は ``0``。"""
+    w = VOCAB[int(what_code)]
+    if w in (WHAT_TALK_OPEN, WHAT_TALK_END):
+        return _KIND_TALK
+    if w == WHAT_NOTICE:
+        return _KIND_NOTICE
+    if w == WHAT_SIGNAGE:
+        return _KIND_SIGNAGE
+    for k, ww in _WHAT_OF_KIND.items():
+        if ww == w:
+            return int(k)
+    return 0

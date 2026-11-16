@@ -62,7 +62,7 @@ engine.contact.tools — 連絡の道具の台帳の行(第 6 期 6-4 C1 の限�
 
 - 公開の関数とクラス
   - `register_into`(関数): ランの道具の台帳に足す(腕 c1 の組み立てだけが呼ぶ)。もうある名は足さない(差し替えない)。足した行の数。
-- import している内部モジュール: `shibuya.engine.tools.registry`
+- import している内部モジュール: `shibuya.society.tools.registry`
 - 呼び手: `shibuya.interim_bundles.contact.layer`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`
 - 決定の ID: 10-12/§4-4

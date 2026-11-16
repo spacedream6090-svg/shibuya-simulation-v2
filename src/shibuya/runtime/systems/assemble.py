@@ -1453,14 +1453,14 @@ def build(_call_args: dict[str, Any]) -> Any:
         ledger.attach_events(MoneyEventLink(events), step_seconds=int(tick_seconds))
     # ---- 第 1 期 1-7(道具の台帳 C0): 道具の一式(台帳・グループの一覧=W16・店の番号の表=空・看板の口=腕のときだけ)。
     # 組み立てで作り、ランの間は読むだけ(箱 Fixtures.tools=状態台帳の対象外)。既定のランでは誰も読まない ----
-    from shibuya.engine.tools import record as _TOOLS
+    from shibuya.society.tools import record as _TOOLS
 
     _tools_fx = _TOOLS.build_fixture(pop, n_agents, events)
     # ---- 第 2 期 2-3: 体の出来事の口(腕 --memory-store events かつ出来事の記録のあるランだけ)。記憶が書く体の出来事を記録へ書き、
     # 器の目印をその出来事にする(出どころ None)。1-7 の看板の口が立っていれば看板の初見はその行を目印にする ----
     _m0s = getattr(mem_layer, "memory_store", None) if mem_layer is not None else None
     if _m0s is not None and events.enabled:
-        from shibuya.engine.events.body import BodyEventLink
+        from shibuya.mind.memory.body_events import BodyEventLink
 
         _m0s.attach_events(BodyEventLink(events, signboard_reads=_tools_fx.signboard_link is not None))
 

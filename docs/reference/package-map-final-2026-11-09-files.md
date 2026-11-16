@@ -319,7 +319,7 @@
 | 280 | `engine/tools/contacts.py` | foundation | `foundation/vocab/contact_flags.py` | いいえ | 連絡先の手段の印の語彙。何も読まない | K | (ii) |
 | 281 | `engine/tools/groups.py` | society | `society/tools/groups.py` | いいえ | グループの一覧(客観の事実の器) | K | 同じ |
 | 282 | `engine/tools/places.py` | society | `society/tools/places.py` | いいえ | 店の番号の表。店の番号の場所の表 | K | 同じ |
-| 283 | `engine/tools/record.py` | society | `society/tools/record.py` 88・`foundation/vocab/events.py` 3 | 割る(§4-16) | 道具の記録。語の定数だけ割る | K | 同じ |
+| 283 | `engine/tools/record.py` | society | `society/tools/record.py` 88・`foundation/vocab/events.py` 2・`foundation/journal/log.py` 1 | 割る(§4-16) | 道具の記録。語の定数だけ割る。〔割る段 5a の G2・2026-11-16・親の仮採用〕`SIGNBOARD_CAUSE` は `foundation/journal/log.py`(`Process` の定義と同じ所)へ。events に置くと events と journal.log が循環する(§4-16 の注) | K | 同じ |
 | 284 | `engine/tools/registry.py` | society | `society/tools/registry.py` 271・`foundation/vocab/events.py` 1 | 割る(§4-17) | 道具の台帳。語の定数だけ割る | K | 同じ |
 | 285 | `engine/wom.py` | mind | `mind/memory/wom.py` | いいえ | 口コミの聞き取り。会話からの店の抽出=口コミの書き手 | K | 同じ |
 | 286 | `llm/__init__.py` | foundation | `foundation/ports/inference.py` 116 | 割る(§4-18) | 型は口へ。再輸出は消す | K | (ii) |
@@ -511,8 +511,10 @@
 | 割り先 | 行数 | クラス | 関数・メソッド | 定数 |
 |---|---:|---|---|---|
 | `society/tools/record.py` | 88 | `SignboardReadLink`、`ToolsFixture` | `arm_from_env`、`enabled`、`set_enabled`、`build_fixture`、`_signboard_reads`、`manifest_fields`、`SignboardReadLink.__init__`、`SignboardReadLink.__call__` | `MANIFEST_SCHEMA`、`ARM_ENV`、`_ENABLED` |
-| `foundation/vocab/events.py` | 3 | なし | なし | `SIGNBOARD_ORIGIN`、`SIGNBOARD_WHAT`、`SIGNBOARD_CAUSE` |
+| `foundation/vocab/events.py` | 2 | なし | なし | `SIGNBOARD_ORIGIN`、`SIGNBOARD_WHAT` |
+| `foundation/journal/log.py` | 1 | なし | なし | `SIGNBOARD_CAUSE` |
 
+- 〔割る段 5a の G2・2026-11-16・親の仮採用(ユーザーの判断待ち)〕`SIGNBOARD_CAUSE`(`Process("perception")`)は、前は `foundation/vocab/events.py` へ下ろす表だった。events に置くと型 `Process` を `foundation/journal/log.py` から読むことになり、log は頂上で events を読むので循環する(5 本目を当てた後の import の確かめで 38 モジュールが落ちた)。型のある所に定数を置く=`Process` の定義と同じ `foundation/journal/log.py` の後ろへ。`SIGNBOARD_*` を foundation へ下ろし例外 #12 を消す狙いは同じ(11-05 の案の表「割った後のモジュールの 7 組」の 1 行目が先に見つけていた循環)。
 - 〔割る段 5a・親の裁定 Q6〕宣言した書き換え: 割り先 `foundation/vocab/events.py` では別名 `V` を外す(`V.x` → `x`。`V` はその割り先のモジュール自身を指す別名。道具が当て、守りで AST の同値を確かめる)
 
 ### 4-17 `engine/tools/registry.py`

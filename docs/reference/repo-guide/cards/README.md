@@ -23,8 +23,6 @@
 | [src/shibuya/build/vis](src/shibuya/build/vis/README.md) | 5 | 0 |
 | [src/shibuya/economy](src/shibuya/economy/README.md) | 18 | 0 |
 | [src/shibuya/engine](src/shibuya/engine/README.md) | 12 | 0 |
-| [src/shibuya/engine/events](src/shibuya/engine/events/README.md) | 2 | 0 |
-| [src/shibuya/engine/tools](src/shibuya/engine/tools/README.md) | 3 | 0 |
 | [src/shibuya/experiments](src/shibuya/experiments/README.md) | 1 | 0 |
 | [src/shibuya/experiments/drive](src/shibuya/experiments/drive/README.md) | 3 | 0 |
 | [src/shibuya/experiments/port](src/shibuya/experiments/port/README.md) | 8 | 0 |
@@ -46,7 +44,7 @@
 | [src/shibuya/mind](src/shibuya/mind/README.md) | 1 | 0 |
 | [src/shibuya/mind/judge](src/shibuya/mind/judge/README.md) | 3 | 0 |
 | [src/shibuya/mind/judge/decision](src/shibuya/mind/judge/decision/README.md) | 5 | 0 |
-| [src/shibuya/mind/memory](src/shibuya/mind/memory/README.md) | 11 | 0 |
+| [src/shibuya/mind/memory](src/shibuya/mind/memory/README.md) | 12 | 0 |
 | [src/shibuya/mind/percept](src/shibuya/mind/percept/README.md) | 1 | 0 |
 | [src/shibuya/mind/plan](src/shibuya/mind/plan/README.md) | 9 | 0 |
 | [src/shibuya/mind/relations](src/shibuya/mind/relations/README.md) | 2 | 0 |
@@ -59,7 +57,7 @@
 | [src/shibuya/society](src/shibuya/society/README.md) | 3 | 0 |
 | [src/shibuya/society/contact](src/shibuya/society/contact/README.md) | 5 | 0 |
 | [src/shibuya/society/speech](src/shibuya/society/speech/README.md) | 3 | 0 |
-| [src/shibuya/society/tools](src/shibuya/society/tools/README.md) | 3 | 0 |
+| [src/shibuya/society/tools](src/shibuya/society/tools/README.md) | 5 | 0 |
 | [src/shibuya/validation](src/shibuya/validation/README.md) | 1 | 0 |
 | [src/shibuya/validation/static](src/shibuya/validation/static/README.md) | 7 | 0 |
 | [src/shibuya/world](src/shibuya/world/README.md) | 1 | 0 |
@@ -161,7 +159,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 335 ディレクトリ・2425 本
+- [docs の索引](docs.md): 339 ディレクトリ・2437 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

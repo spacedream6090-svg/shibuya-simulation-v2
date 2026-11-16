@@ -31,25 +31,20 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from typing import Any, Final, Mapping
-
 from shibuya.foundation.vocab import events as V
-from shibuya.foundation.journal.log import Event, EventLog, Process
+from shibuya.foundation.journal.log import Event, EventLog
 from shibuya.society.tools.groups import GroupList
 from shibuya.society.tools.places import PhoneTable
-from shibuya.engine.tools.registry import SIGNAGE_BRIDGE, SIGNBOARD, ToolRegistry, default_registry
+from shibuya.society.tools.registry import SIGNAGE_BRIDGE, ToolRegistry, default_registry
+from shibuya.foundation.journal.log import SIGNBOARD_CAUSE
+from shibuya.foundation.vocab.events import SIGNBOARD_ORIGIN, SIGNBOARD_WHAT
 
 __all__ = [
-    "SIGNBOARD_ORIGIN", "SIGNBOARD_WHAT", "SIGNBOARD_CAUSE", "MANIFEST_SCHEMA", "ARM_ENV", "arm_from_env", "enabled",
-    "set_enabled",
-    "SignboardReadLink", "ToolsFixture", "build_fixture", "manifest_fields",
+    "MANIFEST_SCHEMA", "ARM_ENV", "arm_from_env", "enabled", "set_enabled", "SignboardReadLink", "ToolsFixture",
+    "build_fixture", "manifest_fields",
 ]
 
-#: 看板の作り物の印(``Event.origin``)。
-SIGNBOARD_ORIGIN: Final[str] = "signboard:synthetic"
-#: 看板を読んだ出来事の語(族 ``道具``・語は台帳の道具の名)。
-SIGNBOARD_WHAT: Final[str] = V.word(V.FAMILY_TOOL, SIGNBOARD)
-#: 原因(知覚=System 1)。
-SIGNBOARD_CAUSE: Final[Process] = Process("perception")
+
 #: manifest の ``tools`` の形の版。
 MANIFEST_SCHEMA: Final[str] = "shibuya.engine.tools/c0/1"
 

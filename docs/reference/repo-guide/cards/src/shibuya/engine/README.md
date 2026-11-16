@@ -4,8 +4,6 @@
 
 Python 12 本・その他 0 本(このディレクトリの直下)
 
-下のディレクトリ: [events](events/README.md)・[tools](tools/README.md)
-
 ## [__init__.py](../../../../../../../src/shibuya/engine/__init__.py)
 
 (冒頭の説明なし)

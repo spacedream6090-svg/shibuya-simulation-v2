@@ -70,7 +70,7 @@ def test_w20_place_words_are_the_build_side_copy():
 
 
 def test_tool_registry_has_clock_and_forecast():
-    from shibuya.engine.tools import registry as TR
+    from shibuya.society.tools import registry as TR
 
     reg = TR.default_registry()
     assert reg.get(TR.CLOCK).stage == "6-2" and reg.get(TR.FORECAST).stage == "6-2"
@@ -304,7 +304,7 @@ def test_reminder_times_come_through_choose():
 
 def test_clock_tool_row_decides_minute_reading():
     """〔検収 L4〕時計の道具の行を読む(知っていれば分単位で読める)。"""
-    from shibuya.engine.tools import registry as TR
+    from shibuya.society.tools import registry as TR
 
     layer = _layer()
     assert layer._clock_known(0)  # 台帳が無ければ知っている扱い

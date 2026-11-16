@@ -86,6 +86,6 @@ class PhoneTable:
 
     def tally(self) -> dict[str, Any]:
         """manifest の ``tools.phone_table``。"""
-        from shibuya.engine.tools.registry import PHONE_BRIDGE
+        from shibuya.society.tools.registry import PHONE_BRIDGE
 
         return {"rows": len(self), "source": SOURCE, "bridge": PHONE_BRIDGE}

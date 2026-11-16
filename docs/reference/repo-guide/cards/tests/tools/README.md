@@ -600,6 +600,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_negative_split_class_key_guard_catches_a_swapped_pair`(関数)
   - `test_negative_split_compositions_that_cannot_be_expressed_are_refused`(関数)
   - `test_negative_split_guards_stop_a_broken_composition`(関数)
+  - `test_negative_split_stops_a_new_import_cycle_through_an_existing_destination`(関数): 〔G2 の 5 本目の欠陥〕既に在る割り先(vocab/base.py)へ足す文が型を lg/log.py から読み、log が頂上で base を読むと、割った後に
   - `test_negative_split_stops_when_import_rules_weaken_without_a_declaration`(関数): 〔検収 高-1〕割る前の木で言えた単位・決まりが、割った後に言えなくなったら(宣言の外)止める。宣言
   - `test_negative_swapping_a_same_qualname_pair_is_stopped_in_a_plan`(関数): 計画の中でも鍵の守りが止める(組の片方が動く foundation の段がまだ当たっていない木だけ)。
   - `test_negative_undeclared_or_unused_alias_rewrites_are_refused`(関数): 自分を別名で読む文は、宣言した書き換え(親の裁定 Q6)のときだけ書き換える。宣言が無ければ断り、当たらない宣言も断る。

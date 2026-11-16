@@ -11,7 +11,7 @@ import pytest
 
 from shibuya.society.tools.groups import GroupList
 from shibuya.society.tools.places import PhoneTable
-from shibuya.engine.tools.registry import default_registry
+from shibuya.society.tools.registry import default_registry
 
 
 def test_init_cannot_be_called_again():

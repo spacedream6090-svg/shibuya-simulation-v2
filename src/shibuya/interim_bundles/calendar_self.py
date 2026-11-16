@@ -1471,7 +1471,7 @@ class CalendarSelf:
         reg = self.tools
         if reg is None:
             return True
-        from shibuya.engine.tools.registry import CLOCK
+        from shibuya.society.tools.registry import CLOCK
 
         return CLOCK in reg and bool(reg.known(int(a), CLOCK))
 

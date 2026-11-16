@@ -43,6 +43,10 @@
     文が結ぶ名(割るファイルと割り先のほか)・頭の ``__all__``。
     import の決まり(検収 高-1・``contracts_spec`` を渡したとき=``cli.py split`` は常に): 割る前と後の木で ``contracts.toml``
     から作る節を比べ、言えなくなった単位・決まりと古い決まりから外れた名が、宣言(``[[split_weakens]]``)のほかに増えたら止める。
+    import の循環(G2 の 5 本目の欠陥の後): 読み込みの時に走る import(頂上と頂上の if・try・with の中。``TYPE_CHECKING`` の下と
+    関数の中は除く・親の包みの頭を含む)のグラフで、割る前に無かった循環ができたら止める(:func:`new_import_cycles`。新しい
+    割り先は元のモジュールの名に引き戻して比べる)。既に在る割り先へ足す import が、その割り先を読むモジュールと循環する形
+    (5 本目の ``foundation/vocab/events.py`` → ``foundation/journal/log.py``)を、書く前に見つける。
 
 逐次ループ宣言: なし(道具=木のファイルの数ぶんの走査を 1 回・ランの中では動かない)。
 """
@@ -1244,6 +1248,10 @@ def guards(plan: SplitPlan, mapdoc: MapDoc, frozen: G.Frozen | None, ledger_text
     e7 = G.check_head_all(after)
     plan.guards["head_all"] = "同じ" if not e7 else f"違う {len(e7)}"
     errs += e7
+    # 〔G2 の 5 本目の欠陥の後〕読み込みの時の import の新しい循環(既に在る割り先へ足す import が、その割り先を読むモジュールと循環する)
+    cyc = new_import_cycles(before, after, mod_of(plan.src_rel), [d for d, k in plan.dests.items() if k == "new"])
+    plan.guards["import_cycles"] = "同じ" if not cyc else f"違う {len(cyc)}"
+    errs += [f"import の循環: {c}" for c in cyc]
     if spec is not None:
         errs += _contract_guard(plan, mapdoc, spec)
     if errs:
@@ -1274,6 +1282,136 @@ def _contract_guard(plan: SplitPlan, mapdoc: MapDoc, spec) -> list[str]:
                 f"[[split_weakens]]): {w['undeclared'][:6]}"]
     plan.guards["contracts"] = f"宣言どおり {len(w['declared'])}" if w["declared"] else "同じ"
     return []
+
+
+# ------------------------------------------------------------------ 守り: 頂上の import の循環(G2 の 5 本目の欠陥の後に足した)
+def _is_type_checking(test: ast.expr) -> bool:
+    return (isinstance(test, ast.Name) and test.id == "TYPE_CHECKING") or (
+        isinstance(test, ast.Attribute) and test.attr == "TYPE_CHECKING")
+
+
+def _toplevel_imports(body: list[ast.stmt]) -> Iterable[ast.stmt]:
+    """読み込みの時に走る import の文(頂上と、頂上の if・try・with の中。``if TYPE_CHECKING:`` の下と関数・クラスの中は除く)。"""
+    for st in body:
+        if isinstance(st, (ast.Import, ast.ImportFrom)):
+            yield st
+        elif isinstance(st, ast.If):
+            if not _is_type_checking(st.test):
+                yield from _toplevel_imports(st.body)
+            yield from _toplevel_imports(st.orelse)
+        elif isinstance(st, ast.Try):
+            for part in (st.body, *[h.body for h in st.handlers], st.orelse, st.finalbody):
+                yield from _toplevel_imports(part)
+        elif isinstance(st, ast.With):
+            yield from _toplevel_imports(st.body)
+
+
+def import_graph(tree: Tree) -> dict[str, dict[str, list[str]]]:
+    """src のモジュール → 読み込みの時に読むモジュール(``shibuya`` の中・親の包みの頭を含む)→ 読む文の場所(道:行 名)。"""
+    from pkgmove.model import resolve_from
+
+    mods: dict[str, tuple[str, bool]] = {}
+    for p in tree.files:
+        if p.startswith(SRC_PREFIX) and p.endswith(".py"):
+            rel = p[len(SRC_PREFIX):]
+            mods[mod_of(rel)] = (p, rel.endswith("__init__.py"))
+    root = mod_of("__init__.py")
+    out: dict[str, dict[str, list[str]]] = {}
+    for m, (p, is_pkg) in mods.items():
+        try:
+            t = parse(tree.files[p])
+        except SyntaxError:
+            continue
+        pkg = m if is_pkg else m.rpartition(".")[0]
+        edges: dict[str, list[str]] = {}
+        for st in _toplevel_imports(t.body):
+            targets: list[tuple[str, str]] = []
+            if isinstance(st, ast.Import):
+                targets = [(a.name, a.name) for a in st.names]
+            else:
+                base = resolve_from(pkg, st) or ""
+                for a in st.names:
+                    sub = f"{base}.{a.name}"
+                    targets.append((sub if sub in mods else base, a.name))
+            for tgt, name in targets:
+                if not (tgt == root or tgt.startswith(root + ".")):
+                    continue
+                parts = tgt.split(".")
+                for i in range(1, len(parts) + 1):  # 親の包みの頭も読み込みの時に走る
+                    t_mod = ".".join(parts[:i])
+                    if t_mod in mods and t_mod != m:
+                        edges.setdefault(t_mod, []).append(f"{p}:{st.lineno} {name}")
+        out[m] = edges
+    return out
+
+
+def _sccs(graph: dict[str, dict[str, list[str]]]) -> list[set[str]]:
+    """強く連結した成分のうち、2 つ以上のモジュールを持つもの(Tarjan・逐次でなく再帰を使わない形)。"""
+    index: dict[str, int] = {}
+    low: dict[str, int] = {}
+    on: set[str] = set()
+    stack: list[str] = []
+    out: list[set[str]] = []
+    counter = 0
+    for start in sorted(graph):
+        if start in index:
+            continue
+        work = [(start, iter(sorted(graph.get(start, {}))))]
+        index[start] = low[start] = counter
+        counter += 1
+        stack.append(start)
+        on.add(start)
+        while work:
+            v, it = work[-1]
+            nxt = next(it, None)
+            if nxt is not None:
+                if nxt not in graph:
+                    continue
+                if nxt not in index:
+                    index[nxt] = low[nxt] = counter
+                    counter += 1
+                    stack.append(nxt)
+                    on.add(nxt)
+                    work.append((nxt, iter(sorted(graph.get(nxt, {})))))
+                elif nxt in on:
+                    low[v] = min(low[v], index[nxt])
+                continue
+            work.pop()
+            if work:
+                low[work[-1][0]] = min(low[work[-1][0]], low[v])
+            if low[v] == index[v]:
+                comp: set[str] = set()
+                while True:
+                    w = stack.pop()
+                    on.discard(w)
+                    comp.add(w)
+                    if w == v:
+                        break
+                if len(comp) > 1:
+                    out.append(comp)
+    return out
+
+
+def new_import_cycles(before: Tree, after: Tree, src_mod: str, new_dests: Iterable[str]) -> list[str]:
+    """〔G2 の 5 本目の欠陥〕割った後の木で、読み込みの時の import が作る循環のうち、割る前に無かったもの(循環の中の新しい辺と
+    読む文の場所)。新しい割り先(と元のモジュール)は元のモジュールの名に引き戻して、割る前の循環と比べる。"""
+    back = {mod_of(d): src_mod for d in new_dests}
+    g0, g1 = import_graph(before), import_graph(after)
+    comp_of: dict[str, int] = {}
+    for i, comp in enumerate(_sccs(g0)):
+        for m in comp:
+            comp_of[m] = i
+    edges0 = {(a, b) for a, es in g0.items() for b in es}
+    out: list[str] = []
+    for comp in _sccs(g1):
+        mapped = {back.get(m, m) for m in comp}
+        ids = {comp_of.get(m) for m in mapped}
+        if len(ids) == 1 and None not in ids:
+            continue  # 割る前からの循環(同じモジュールの組)
+        new = sorted(f"{a} -> {b}({', '.join(sorted(set(g1[a][b])))})" for a in comp for b in g1.get(a, {})
+                     if b in comp and (back.get(a, a), back.get(b, b)) not in edges0)
+        out.append(f"循環 {sorted(comp)} の新しい辺: {new}")
+    return out
 
 
 # ------------------------------------------------------------------ 報告・差分・書く

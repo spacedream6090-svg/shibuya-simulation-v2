@@ -35,7 +35,7 @@ from shibuya.foundation.ports.decision import DecisionContext
 from shibuya.foundation.journal.log import LlmCall
 from shibuya.engine.run import run_day
 from shibuya.runtime.systems import table as TB
-from shibuya.engine.tools import record as TR
+from shibuya.society.tools import record as TR
 from shibuya.society.tools.groups import GroupList
 
 from tests.engine.contact._c1 import KW, ROOT, STEP_NS, Harness, by_kind, c1, choose

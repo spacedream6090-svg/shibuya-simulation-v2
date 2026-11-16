@@ -102,7 +102,6 @@ layers = [
   "shibuya.foundation",
 ]
 ignore_imports = [
-  "shibuya.engine.events.body -> shibuya.engine.tools.record",
   "shibuya.engine.poi_target -> shibuya.engine.chooser",
   "shibuya.engine.relations -> shibuya.engine.resolve",
   "shibuya.engine.resolve -> shibuya.engine.change_detect",
@@ -113,7 +112,7 @@ ignore_imports = [
   "shibuya.llm -> shibuya.llm.fleet",
   "shibuya.mind.judge.classical -> shibuya.llm.mock",
   "shibuya.mind.judge.decision.layer -> shibuya.engine.commit",
-  "shibuya.mind.judge.decision.layer -> shibuya.engine.tools.registry",
+  "shibuya.mind.judge.decision.layer -> shibuya.society.tools.registry",
   "shibuya.mind.memory.familiarity -> shibuya.engine.resolve",
   "shibuya.mind.memory.memory -> shibuya.engine.commit",
   "shibuya.mind.memory.memory -> shibuya.engine.resolve",
@@ -177,14 +176,13 @@ forbidden_modules = [
 ignore_imports = [
   "shibuya.engine.change_detect -> shibuya.world.model.assets",
   "shibuya.engine.change_detect -> shibuya.world.model.state",
-  "shibuya.engine.events.body -> shibuya.engine.tools.record",
   "shibuya.engine.relations -> shibuya.engine.resolve",
   "shibuya.engine.relations -> shibuya.world.model.proximity",
   "shibuya.llm -> shibuya.llm.fleet",
   "shibuya.mind.judge.classical -> shibuya.llm.mock",
   "shibuya.mind.judge.decision.layer -> shibuya.economy.stage2_bind",
   "shibuya.mind.judge.decision.layer -> shibuya.engine.commit",
-  "shibuya.mind.judge.decision.layer -> shibuya.engine.tools.registry",
+  "shibuya.mind.judge.decision.layer -> shibuya.society.tools.registry",
   "shibuya.mind.memory.familiarity -> shibuya.engine.resolve",
   "shibuya.mind.memory.memory -> shibuya.engine.commit",
   "shibuya.mind.memory.memory -> shibuya.engine.resolve",
