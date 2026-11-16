@@ -1,0 +1,11 @@
+{
+  "base": "231d9fd02be4f48afd6ae86186707b0fc51972fa",
+  "counts": {},
+  "doc_readers": 0,
+  "files": [],
+  "head": "作業木",
+  "paths": [
+    "src"
+  ],
+  "schema": "shibuya.tools/bytecheck/astsame/1"
+}

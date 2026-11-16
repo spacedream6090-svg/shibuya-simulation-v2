@@ -94,6 +94,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_withdraw_needs_a_deposit_and_the_part`(関数)
   - `test_withdraw_rule_amount_and_cause`(関数)
 - import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.ledger`・`shibuya.world.laws.rail`
+- 読む試験: `tests/engine/test_ledger_wiring.py`
 
 ## [test_stage2_resume.py](../../../../../../../tests/economy/stage2/test_stage2_resume.py)
 

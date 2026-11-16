@@ -331,6 +331,10 @@ def test_e4_l1_tape_meta_carries_the_rng_layout_and_old_counter_tapes_stop(tmp_p
 
     kw = dict(n_agents=40, seed=3, n_cells=9, ticks=120, checkpoint_every=60, budget=40.0)
     rec = run_day(tape_path=tmp_path / "c", **kw)
+    # 〔第347・検収 L1〕助けが効いている(旧道の倒れる率 30,000 で倒れる行が立つ)ことを試験の中で確かめる。助けが無いと
+    # 倒れる 0 件・旧道の印 1(取り直した値: 40 体・120 刻みで倒れる 10 件)
+    assert rec.runner.salient.rate_rules == "legacy"
+    assert rec.process_counters["salient.collapse"] > 0 and rec.process_counters["salient.rate_rule_collapse_removed"] == 0
     meta = read_run_meta(tmp_path / "c")
     assert meta["rng_scheme"] == "counter" and meta["rng_layout"] == RNG_LAYOUT == "10e"
     assert run_day(mode="replay", replay=tmp_path / "c", llm=BoomLLM(), **kw).final_hash == rec.final_hash

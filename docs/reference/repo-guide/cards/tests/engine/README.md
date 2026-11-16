@@ -815,7 +815,7 @@ AB7 自由意図の腕の切替口 — エンジン側(``docs/design/v2-open-int
   - `test_wiring_does_not_change_the_state_hashes_when_goods_processes_are_off`(関数): 物の過程を切れば、台帳を注入しても checkpoint ハッシュは同じ(帳簿を足すだけ)。
   - `test_world_stock_is_a_mirror_of_the_shelf`(関数): ``world.pois.stock`` は棚(SKU 別)の写し。真値は物の台帳にある。
   - `wired`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.checks`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.growth`・`shibuya.foundation.ports.ledger`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.state`・`tests/_time_gates.py`・`tests/economy/_stage2_outside.py`・`tests/engine/time/__init__.py`・`tests/golden_env.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.checks`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2_bind`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.growth`・`shibuya.foundation.ports.ledger`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.state`・`tests/_time_gates.py`・`tests/economy/_stage2_outside.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/engine/time/__init__.py`・`tests/golden_env.py`
 - 決定の ID: 11-01・D-53・D-56・第 330・第 347
 
 ## [test_llm_mock.py](../../../../../../tests/engine/test_llm_mock.py)

@@ -59,11 +59,14 @@ def test_revenue_is_tax_exclusive_on_a_synthetic_run(monkeypatch):
     from shibuya import cli
     from shibuya.economy.accounts import AccountCode, Sector
 
+    monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)  # 部品をモジュールの既定に押さえる(ほかの試験の漏れに依らない)
     res = cli.run(n_agents=200, seed=2, world_dir=None, use_population=False, vocab_version="v3")
     led = res.ledger.money
-    if led.stage2 is None:
-        pytest.skip("合成の世界の組み立てでは段階 2 が挿さらない")
+    # 〔第347・検収 L2〕前は「段階 2 が挿さらなければ飛ばす」だった。切替口 off を消した後(②a)は、cli の台帳はいつも段階 2 の
+    # 口を持つ=挿さらないのは欠陥=飛ばさず落とす
+    assert led.stage2 is not None, "cli の台帳に段階 2 が挿さらなかった"
     flow = sum(np.asarray(x) for x in led.flow_daily) + np.asarray(led.flow)
     cons = int(flow[int(Sector.HOUSEHOLD), int(Sector.STORE), int(AccountCode.CONSUMPTION)])
     tax = led.stage2.register_tax()
+    assert tax > 0  # 税の部品が働いた(空振りしない)
     assert res.conserved and res.revenue_end == cons - tax

@@ -83,9 +83,10 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `test_overwritten_slots_do_not_keep_stale_ids`(関数): 輪の使い回し: 原因つきの行を原因なしの行で上書きすると目印も空に戻る(古い id を残さない)。
   - `test_restock_goods_row_shares_the_payment_event`(関数): 補充: 物の行の目印=代金の行(店舗 → 外界・域外仕入)の出来事。払えない行は物の行も代金の行も無い。
   - `test_run_rows_and_events_are_one_to_one`(関数): ラン(世界資産 200 体・既定 v3・1 日): 金の生ログの目印のある行と出来事の記録の金の行が 1 対 1。
+  - `test_run_rows_and_events_are_one_to_one_on_stage2`(関数): 〔第347・検収 M2〕上の試験と同じ 1 対 1 を、段階 2 on(今のランが通る道=cli の台帳に段階 2 が挿さる)で見る。
   - `test_step_width_sets_the_event_time`(関数)
   - `test_store_side_has_a_poi_where_and_llm_call_cause`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.llm`・`tests/_places.py`・`tests/economy/_stage2_outside.py`・`tests/engine/_legacy_world.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.economy.stage2_bind`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.llm`・`tests/_places.py`・`tests/economy/_stage2_outside.py`・`tests/engine/_legacy_world.py`
 - 決定の ID: 11-01・第 347
 
 ## [test_cp2_flow_sum.py](../../../../../../../tests/economy/cp2/test_cp2_flow_sum.py)

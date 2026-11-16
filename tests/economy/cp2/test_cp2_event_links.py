@@ -7,6 +7,7 @@ who=払い手, whom=受け手, cause))`` を書き、id を生ログの行に入
 - 単体: 1 対 1・欄の中身・刻みの幅・原因の無い行・記録 off・溢れた輪・補充の物の行と代金の行が同じ id。
 - ラン(data・世界資産 200 体・既定 v3): 運賃(原因=過程 rail)と補充の代金(原因=過程 shelf)の行が出来事と 1 対 1・
   計器の数(出来事の行・原因の無い行)と記録の分布(``金:持ち出し``・``金:域外仕入``)が合う・物の補充の行の目印=代金の行。
+  段階 2 の外(基準の口)で見る。〔第347・検収 M2〕同じ 1 対 1 を段階 2 on のラン(段階 2 の語と原因を含む)でも見る。
 """
 
 from __future__ import annotations
@@ -165,6 +166,67 @@ def test_run_rows_and_events_are_one_to_one(monkeypatch):
     assert by.get("金:持ち出し", 0) + by.get("金:域外仕入", 0) == led.meter.events
     assert daily["economy"]["event_rows"] == led.meter.events
     # 物の補充の行の目印=代金の行の出来事(同じ id)
+    gt, gs = g.delivery_event_ids()
+    restock = g.delivery_rows()[:, 4] == 0
+    assert restock.any() and (gs[restock] >= 0).all() and (gs[~restock] < 0).all()
+    assert set(zip(gt[restock].tolist(), gs[restock].tolist())) <= ids
+
+
+#: 〔第347・検収 M2〕段階 2 on のランで、金の語ごとに許す原因(下の試験の期待値)。取り直したラン: 世界資産 200 体・seed 1・
+#: 既定 v3・1 日・率の規則の旧道(助け)・段階 2 on(部品は全部・ATM は OSM の表)=金の出来事 503 行(消費支出 253・カード 121・
+#: 持ち出し 121・引き出し 7・域外仕入 1)。カード(IC の運賃=口座の脚・科目は預金純増)の原因も過程 rail になる。
+_STAGE2_CAUSES = {
+    "金:持ち出し": ("rail",), "金:カード": ("rail",), "金:域外仕入": ("shelf",),
+    "金:消費支出": ("llm",), "金:引き出し": ("llm", "atm"),
+}
+
+
+def _cause_name(c) -> str:  # noqa: ANN001
+    return "llm" if isinstance(c, LlmCall) else str(c.name)
+
+
+@pytest.mark.requires_data("world_v2:w17_schedule.parquet", "osm:poi_tags_overpass_20260928.json")
+def test_run_rows_and_events_are_one_to_one_on_stage2(monkeypatch):
+    """〔第347・検収 M2〕上の試験と同じ 1 対 1 を、段階 2 on(今のランが通る道=cli の台帳に段階 2 が挿さる)で見る。
+
+    上の試験は段階 2 の外(基準の口)で 1-9 の土台の金の行だけを見る。こちらは段階 2 の語(カード・引き出し)と原因(呼・ATM)を
+    含めて、目印のある行=出来事の金の行(1 対 1)・語と科目の対応(段階 2 の語は預金純増)・額・原因の規則・日次の記録の数・
+    補充の物の行の目印を見る。期待値は上の ``_STAGE2_CAUSES`` の注のランから取り直した。
+    """
+    from shibuya import cli
+    from shibuya.economy import stage2_bind as ES2
+
+    monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
+    monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)
+    from tests.engine._legacy_world import legacy_world_rules
+
+    legacy_world_rules(monkeypatch, absent=False)  # 補充の行を起こす(上の試験と同じ)
+    res = cli.run(n_agents=200, seed=1, world_dir="data/world/v2", vocab_version="v3")
+    led, g, log = res.ledger.money, res.ledger.goods, res.event_log
+    assert led.stage2 is not None  # 段階 2 on の道
+    rows = led.raw_rows()
+    t, s = led.raw_event_ids()
+    have = s >= 0
+    assert led.meter.overflow == 0 and rows.shape[0] == led.meter.rows
+    assert int(have.sum()) == led.meter.events > 0
+    assert int((~have).sum()) == led.meter.uncaused
+    money_events = [e for e in log.events() if V.family_of(e.what) == V.FAMILY_MONEY]
+    assert len(money_events) == led.meter.events
+    ids = set(zip(t[have].tolist(), s[have].tolist()))
+    assert len(ids) == int(have.sum()) and ids == {e.id for e in money_events}
+    for i in np.flatnonzero(have):
+        e = log.get((int(t[i]), int(s[i])))
+        code = int(rows[i, 6])
+        # 段階 2 の語(``MONEY_EXTRA_WHAT``)は科目 預金純増 の行に付く・ほかは科目の語そのもの
+        assert e.what == OPS.what_of(code) or int(OPS.MONEY_EXTRA_WHAT[e.what]) == code, (e.what, code)
+        assert e.how_much == int(rows[i, 5])
+        assert _cause_name(e.cause) in _STAGE2_CAUSES[e.what], (e.what, e.cause)
+    words = {e.what for e in money_events}
+    assert {"金:カード", "金:引き出し", "金:消費支出", "金:持ち出し"} <= words  # 段階 2 の語が立つ(空振りしない)
+    daily = res.run_manifest_fields()["daily"][0]
+    by = daily["events"]["by_what"]
+    assert sum(by.get(w, 0) for w in _STAGE2_CAUSES) == led.meter.events
+    assert daily["economy"]["event_rows"] == led.meter.events
     gt, gs = g.delivery_event_ids()
     restock = g.delivery_rows()[:, 4] == 0
     assert restock.any() and (gs[restock] >= 0).all() and (gs[~restock] < 0).all()

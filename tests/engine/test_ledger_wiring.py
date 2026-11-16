@@ -11,6 +11,9 @@
 「**物の過程を切れば**ハッシュは変わらない」に狭まる(``GOODS_PROCESS_IDS`` を ablate)。
 物の過程を入れると棚在庫が動くことは ``test_goods_processes_change_the_world`` が正の側から押さえる。
 世帯の現金が ``agents.money`` そのもの(写しでない)ことは変わらない。
+
+〔第347・検収 M2〕同じ確かめを台帳の 2 つの形(``KINDS``)で回す: 段階 2 の外(基準の口=前の切替口 off と同じ値)と
+段階 2 on(今のランが通る道)。段階 2 on で値が違う所(レジの税・部品が動かす世帯の現金)は、各試験の注に取り直した値を書いた。
 """
 
 from __future__ import annotations
@@ -27,6 +30,7 @@ from shibuya.agents.state import AgentState
 from shibuya.economy import census as CS
 from shibuya.economy import checks as CK
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
+from shibuya.economy import stage2_bind as ES2
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
 from shibuya.engine import commit as C
@@ -48,7 +52,13 @@ GOODS_PROCESS_IDS = (
 )
 
 
-def _bundle(world: World, n_agents: int) -> LedgerBundle:
+#: 〔第347・検収 M2〕台帳の 2 つの形。``outside``=段階 2 の外(基準の口=試験の中だけの束・前の切替口 off と同じ値)/
+#: ``stage2``=段階 2 on(今のランが通る道)。ランでは組み立てが段階 2 を挿す(素の ``Ledger``・部品は全部)。組み立てを通らない
+#: 試験では、試験の代役の組み立ての物で挿す(``_attach_stage2_by_hand``)。
+KINDS = ("outside", "stage2")
+
+
+def _bundle(world: World, n_agents: int, kind: str = "outside") -> LedgerBundle:
     """合成世界 + 個体数から台帳2本を作る(POI のカテゴリは索引で回す=expedient)。
 
     ``census`` も注入する(``cli.build_ledger_bundle`` と同じ形)。``RunResult.census_row``
@@ -57,9 +67,11 @@ def _bundle(world: World, n_agents: int) -> LedgerBundle:
     〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=本ファイル(台帳の配線=段階 2 の外の C4 の帳簿)は段階 2 の外で見る
     (段階 2 の帳簿・語・保存則は ``tests/economy/stage2``)。〔第347 止めた切替口の削除〕前はモジュールの autouse で切替口を off に
     した=台帳を段階 2 の口を持たない型(試験の中だけの束 ``tests/economy/_stage2_outside.py``)で作る(手順 0 で off と同じ値を
-    確かめた=記録 ``docs/bench/analysis/switch-removal-347/README.md``)。
+    確かめた=記録 ``docs/bench/analysis/switch-removal-347/README.md``)。〔第347・検収 M2〕``kind="stage2"`` は素の ``Ledger``
+    (段階 2 の口を持つ=今のランの道)。同じ確かめを両方の形で回す(段階 2 on で値が違う所は期待値を取り直した=各試験の注)。
     """
-    led = SO.outside(Ledger)(n_agents, world.n_poi)
+    assert kind in KINDS, kind
+    led = (SO.outside(Ledger) if kind == "outside" else Ledger)(n_agents, world.n_poi)
     cats = np.arange(world.n_poi) % 3
     goods = GoodsLedger.from_pois(
         cats, np.asarray(world.pois.stock), np.asarray(world.pois.price)
@@ -69,22 +81,58 @@ def _bundle(world: World, n_agents: int) -> LedgerBundle:
     )
 
 
-@pytest.fixture(scope="module")
-def wired():
+def _pin_stage2(mp: pytest.MonkeyPatch, parts: tuple[str, ...] | None = None) -> None:
+    """段階 2 の部品と ATM の表をモジュールの既定に押さえる(ほかの試験の漏れに依らない)。``parts`` で部品を選ぶ。"""
+    mp.setattr(ES2, "_PARTS", ES2.PARTS if parts is None else tuple(parts))
+    mp.setattr(ES2, "_ATM_OVERRIDE", None)
+
+
+def _attach_stage2_by_hand(bundle: LedgerBundle, n_agents: int) -> None:
+    """組み立てを通らない試験で段階 2 を挿す(部品は全部・体は全員 種別 0)。組み立ての物は試験の代役
+    (``tests/economy/stage2/test_stage2_money_rules.py::_plan`` と同じ形)。世帯と店の初期の財布より前に呼ぶ。"""
+    from tests.economy.stage2.test_stage2_money_rules import _plan
+
+    bundle.money.attach_stage2(_plan(kinds=np.zeros(n_agents, dtype=np.int64)))
+    assert bundle.money.stage2 is not None
+
+
+def _register_tax(led: Ledger) -> int:
+    """段階 2 on はレジの消費税を店の預かり金に積む(店の現金に残る・売上の写し ``revenue_end`` は税抜き)。段階 2 の外は 0。"""
+    return int(led.stage2.register_tax()) if led.stage2 is not None else 0
+
+
+@pytest.fixture(scope="module", params=KINDS)
+def wired(request):
     world = World.synthetic(n_cells=64, seed=2)
-    bundle = _bundle(world, 500)
-    res = run_day(n_agents=500, seed=2, world=world, ticks=1_440, checkpoint_every=360,
-                  ledger=bundle)
+    bundle = _bundle(world, 500, request.param)
+    with pytest.MonkeyPatch.context() as mp:
+        _pin_stage2(mp)
+        res = run_day(n_agents=500, seed=2, world=world, ticks=1_440, checkpoint_every=360,
+                      ledger=bundle)
+    # どちらの道を通ったか(段階 2 が挿さったか)を全部の試験の前に確かめる
+    assert (bundle.money.stage2 is not None) == (request.param == "stage2")
     return res, bundle
 
 
 # ---------------------------------------------------------------- 決定論(T2)
-def test_wiring_does_not_change_the_state_hashes_when_goods_processes_are_off():
-    """物の過程を切れば、台帳を注入しても checkpoint ハッシュは同じ(帳簿を足すだけ)。"""
+@pytest.mark.parametrize("kind", ["outside", "stage2_parts_none"])
+def test_wiring_does_not_change_the_state_hashes_when_goods_processes_are_off(kind):
+    """物の過程を切れば、台帳を注入しても checkpoint ハッシュは同じ(帳簿を足すだけ)。
+
+    〔第347・検収 M2〕段階 2 on の道では、部品が全部のとき引き出し・口座の支払い・レジの税で世帯の現金と購入が動く(取り直した
+    値: 500 体の 1 日で購入 168 対 169・世帯の現金 3,622,366 対 3,351,439)=「帳簿を足すだけ」は段階 2 on・部品 none
+    (初期の預金だけが入る=手順 0 で体の動きが off と同じと確かめた形)で見る。
+    """
     world = World.synthetic(n_cells=64, seed=2)
-    bundle = _bundle(world, 500)
+    bundle = _bundle(world, 500, "outside" if kind == "outside" else "stage2")
     kw = dict(ticks=1_440, checkpoint_every=360, processes_disabled=GOODS_PROCESS_IDS)
-    res = run_day(n_agents=500, seed=2, world=world, ledger=bundle, **kw)
+    with pytest.MonkeyPatch.context() as mp:
+        _pin_stage2(mp, parts=() if kind == "stage2_parts_none" else None)
+        res = run_day(n_agents=500, seed=2, world=world, ledger=bundle, **kw)
+    if kind == "stage2_parts_none":
+        assert bundle.money.stage2 is not None and bundle.money.stage2.s2_meter["run"]["endow"]["deposit_rows"] > 0
+    else:
+        assert bundle.money.stage2 is None
     plain = run_day(n_agents=500, seed=2, n_cells=64, **kw)
     # 10e(E1): 既定の final(behavior-hash)は台帳の外の状態の行(金と物の台帳)を含むので台帳の有無で違う。
     # 「帳簿を足すだけ」は SoA の全列の組み立て(10e より前の final=legacy_combined)で見る
@@ -105,14 +153,18 @@ def test_goods_processes_change_the_world(wired):
     )
 
 
-def test_two_wired_runs_are_identical():
+@pytest.mark.parametrize("kind", KINDS)
+def test_two_wired_runs_are_identical(kind):
     world_a = World.synthetic(n_cells=32, seed=5)
     world_b = World.synthetic(n_cells=32, seed=5)
-    a = run_day(n_agents=300, seed=5, world=world_a, ticks=1_440, ledger=_bundle(world_a, 300))
-    b = run_day(n_agents=300, seed=5, world=world_b, ticks=1_440, ledger=_bundle(world_b, 300))
+    with pytest.MonkeyPatch.context() as mp:
+        _pin_stage2(mp)
+        a = run_day(n_agents=300, seed=5, world=world_a, ticks=1_440, ledger=_bundle(world_a, 300, kind))
+        b = run_day(n_agents=300, seed=5, world=world_b, ticks=1_440, ledger=_bundle(world_b, 300, kind))
     assert a.final_hash == b.final_hash
     led_a = a.ledger.money  # type: ignore[attr-defined]
     led_b = b.ledger.money  # type: ignore[attr-defined]
+    assert (led_a.stage2 is not None) == (kind == "stage2")
     assert led_a.state_hash() == led_b.state_hash()
 
 
@@ -134,7 +186,11 @@ def test_conservation_over_all_sectors_including_row(wired):
     for f in led.flow_daily:
         imports += led.account_totals(f)["域外仕入"]
     imports += led.account_totals()["域外仕入"]  # 締めていない当日ぶん
-    assert int(led.balance(BalanceLine.CASH, Sector.STORE).sum()) == res.revenue_end - imports
+    # 〔第347・検収 M2〕段階 2 on はレジの税が店の現金に残り、売上の写しは税抜き=店の現金 = 売上 + 税 − 域外仕入
+    # (取り直した値: 500 体の 1 日で 店の現金 134,800 = 売上 122,616 + 税 12,184 − 域外仕入 0)
+    tax = _register_tax(led)
+    assert (tax > 0) == (led.stage2 is not None)
+    assert int(led.balance(BalanceLine.CASH, Sector.STORE).sum()) == res.revenue_end + tax - imports
     assert res.conserved
 
 
@@ -146,7 +202,8 @@ def test_purchases_are_booked_as_consumption(wired):
             int(Sector.HOUSEHOLD), int(Sector.STORE), int(AccountCode.CONSUMPTION)
         ]
     )
-    assert total == res.revenue_end > 0
+    # 〔第347・検収 M2〕段階 2 on の消費支出(世帯 → 店)は税込み=売上の写し(税抜き)+ レジの税
+    assert total == res.revenue_end + _register_tax(led) > 0
     assert led.n_transfers >= int(res.column("purchases").sum())
 
 
@@ -250,11 +307,17 @@ def test_world_stock_is_a_mirror_of_the_shelf(wired):
 
 
 # ---------------------------------------------------------------- 検算②を checkpoint ごとに
-def test_check_two_holds_at_every_checkpoint():
-    """検算②(主検算)は**毎期**成立する(§2.3)——手回しの tick ループで確認する。"""
+@pytest.mark.parametrize("kind", KINDS)
+def test_check_two_holds_at_every_checkpoint(kind):
+    """検算②(主検算)は**毎期**成立する(§2.3)——手回しの tick ループで確認する。
+
+    〔第347・検収 M2〕組み立てを通らない=段階 2 on の形は試験の代役の組み立ての物で挿す(``_attach_stage2_by_hand``)。
+    """
     world = World.synthetic(n_cells=16, seed=7)
     agents = AgentState(200)
-    bundle = _bundle(world, 200)
+    bundle = _bundle(world, 200, kind)
+    if kind == "stage2":
+        _attach_stage2_by_hand(bundle, 200)
     bundle.money.attach_household_cash(agents.registry.money)
     schedule = synthesize(200, 7, world.n_cells)
     R.initialize(agents, world, schedule, ledger=bundle)
@@ -292,13 +355,19 @@ def test_check_two_holds_at_every_checkpoint():
     assert np.array_equal(
         np.asarray(world.pois.stock, dtype=np.int64), bundle.goods.aggregate_stock()
     )
+    if kind == "stage2":  # 段階 2 が働いた(初期の預金・レジの税)=空振りしない
+        run = bundle.money.stage2.s2_meter["run"]
+        assert run["endow"]["deposit_rows"] > 0 and run["tax"]["amount"] > 0, run["tax"]
 
 
 # ---------------------------------------------------------------- 物の操作(§7.2)
-def test_restock_through_resolve_pays_and_updates_the_mirror():
+@pytest.mark.parametrize("kind", KINDS)
+def test_restock_through_resolve_pays_and_updates_the_mirror(kind):
     """補充は resolve 経由で ``world.pois.stock``(写し)を更新し、域外仕入を計上する。"""
     world = World.synthetic(n_cells=16, seed=11)
-    bundle = _bundle(world, 10)
+    bundle = _bundle(world, 10, kind)
+    if kind == "stage2":
+        _attach_stage2_by_hand(bundle, 10)
     world.freeze()
     bundle.money.endow_stores(np.full(world.n_poi, 100_000, dtype=np.int64), tick=0)
     before = int(world.pois.stock[3])
@@ -314,9 +383,12 @@ def test_restock_through_resolve_pays_and_updates_the_mirror():
     assert world.frozen  # 窓は閉じて戻る
 
 
-def test_collect_waste_through_resolve():
+@pytest.mark.parametrize("kind", KINDS)
+def test_collect_waste_through_resolve(kind):
     world = World.synthetic(n_cells=16, seed=12)
-    bundle = _bundle(world, 10)
+    bundle = _bundle(world, 10, kind)
+    if kind == "stage2":
+        _attach_stage2_by_hand(bundle, 10)
     world.freeze()
     bundle.goods.to_bin_many(np.array([0, 1]), np.array([3, 2]), tick=1)
     grams = R.collect_waste(world, bundle, None, tick=2)
@@ -325,11 +397,14 @@ def test_collect_waste_through_resolve():
     assert bundle.goods.sku_balanced()
 
 
-def test_consume_moves_holdings_into_the_sink():
+@pytest.mark.parametrize("kind", KINDS)
+def test_consume_moves_holdings_into_the_sink(kind):
     """消費は世帯の所持を減らし SKU 別 sink に落ちる(検算①は閉じたまま)。"""
     world = World.synthetic(n_cells=16, seed=14)
     agents = AgentState(5)
-    bundle = _bundle(world, 5)
+    bundle = _bundle(world, 5, kind)
+    if kind == "stage2":
+        _attach_stage2_by_hand(bundle, 5)
     bundle.money.attach_household_cash(agents.registry.money)
     goods = bundle.goods
     goods.sell_many(np.array([0, 0, 1]), tick=1)  # 世帯合計へ 3 個
@@ -354,14 +429,20 @@ def test_restock_requires_a_goods_ledger():
 
 # ---------------------------------------------------------------- W2(5,000体)
 @pytest.mark.slow
-def test_w2_five_thousand_agents_with_the_ledger_wired():
-    """W2: 台帳を結線しても 1 シミュ日の壁時計が予算内(報告値つき)。"""
+@pytest.mark.parametrize("kind", KINDS)
+def test_w2_five_thousand_agents_with_the_ledger_wired(kind, monkeypatch):
+    """W2: 台帳を結線しても 1 シミュ日の壁時計が予算内(報告値つき)。
+
+    〔第347・検収 M2〕``stage2``=段階 2 on(部品は全部)のラン。T2 の不変は段階 2 on・部品 none で見る(上の試験と同じ理由)。
+    """
+    _pin_stage2(monkeypatch)
     world = World.synthetic(n_cells=139, seed=1)
-    bundle = _bundle(world, 5_000)
+    bundle = _bundle(world, 5_000, kind)
     t0 = time.perf_counter()
     res = run_day(n_agents=5_000, seed=1, world=world, ticks=1_440, checkpoint_every=360,
                   ledger=bundle)
     wall = time.perf_counter() - t0
+    assert (bundle.money.stage2 is not None) == (kind == "stage2")
     plain = run_day(n_agents=5_000, seed=1, ticks=1_440, checkpoint_every=360, n_cells=139)
     print(
         f"\n[W2 台帳あり] {res.wall_seconds:.2f}s / 台帳なし {plain.wall_seconds:.2f}s "
@@ -370,11 +451,16 @@ def test_w2_five_thousand_agents_with_the_ledger_wired():
     print("  " + bundle.money.summary())
     print("  " + bundle.goods.summary())
     # T2: **物の過程を切れば**台帳はハッシュを変えない(C4 後半で条件つきになった)
+    if kind == "stage2":
+        _pin_stage2(monkeypatch, parts=())
+    w_goods = World.synthetic(n_cells=139, seed=1)
+    b_goods = _bundle(w_goods, 5_000, kind)
     plain_goods = run_day(
-        n_agents=5_000, seed=1, world=World.synthetic(n_cells=139, seed=1), ticks=1_440,
-        checkpoint_every=360, ledger=_bundle(World.synthetic(n_cells=139, seed=1), 5_000),
+        n_agents=5_000, seed=1, world=w_goods, ticks=1_440,
+        checkpoint_every=360, ledger=b_goods,
         processes_disabled=GOODS_PROCESS_IDS,
     )
+    assert (b_goods.money.stage2 is not None) == (kind == "stage2")
     plain_off = run_day(
         n_agents=5_000, seed=1, ticks=1_440, checkpoint_every=360, n_cells=139,
         processes_disabled=GOODS_PROCESS_IDS,

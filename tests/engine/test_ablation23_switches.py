@@ -248,6 +248,11 @@ def test_d50_scale_reaches_the_salient_process_through_run_day(monkeypatch):
     assert res.runner.salient.params.d50_m == 20.0
     assert res.process_counters["salient.d50_scale"] == 0.5
     assert res.run_manifest_fields()["p_notice_ablation"] == "A1"
+    # 〔第347・検収 L1〕助けが効いている(旧道の倒れる率 4,000 で倒れる行が立ち、気づく候補が出る)ことを試験の中で確かめる。
+    # 助けが無いと倒れる 0 件・旧道の印 1(取り直した値: 300 体・30 刻みで倒れる 1 件・気づく候補 12)
+    assert res.runner.salient.rate_rules == "legacy"
+    assert res.process_counters["salient.collapse"] > 0 and res.process_counters["salient.rate_rule_collapse_removed"] == 0
+    assert res.process_counters["salient.candidates"] > 0
 
 
 def test_run_day_checks_the_arm_even_without_processes():

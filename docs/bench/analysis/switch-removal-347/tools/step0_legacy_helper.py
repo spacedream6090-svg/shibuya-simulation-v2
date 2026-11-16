@@ -50,10 +50,12 @@ def main(cfg: str, variant: str, path: str) -> None:
         "final": res.final_hash, "calls": int(res.llm_calls),
         "cp": [(int(c.tick), c.combined, c.full_hash) for c in res.checkpoints],
         "salient_events": int(res.salient_events), "dispatches": int(res.dispatches), "noticed": int(res.noticed),
-        "process_counters": {k: v for k, v in sorted(dict(res.process_counters).items()) if "removed" not in k
-                             and "stopped" not in k},
+        # 〔第347・検収 M1〕前は名に removed・stopped を含む計数を外していた(=組み立ての腕を書く印で、差が出ると分かって
+        # いた欄を見ない形)。外すのをやめ、manifest の印の節も足して、差を表に出す
+        "process_counters": dict(sorted(dict(res.process_counters).items())),
         "rate_counts": m["rate_rules"]["counts"], "absent_counts": m["absent_processes"]["counts"],
         "rate_mode": m["rate_rules"]["mode"], "absent_mode": m["absent_processes"]["mode"],
+        "rate_removed": m["rate_rules"].get("removed"), "absent_stopped": m["absent_processes"].get("stopped"),
         "waste_sink": m.get("waste_sink"),
     }
     Path(path).write_text(json.dumps(out, ensure_ascii=False, indent=1, default=str), encoding="utf-8")

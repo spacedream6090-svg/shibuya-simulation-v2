@@ -429,13 +429,14 @@ def test_environment_seed_only_changes_weather_events_and_works(monkeypatch):
 # ---------------------------------------------------------------- T3: 回す役と CRN の健全性
 def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path):
     # 〔第347 止めた切替口の削除〕前の腕は倒れる率(``salient_rate_per_10k``=旧道でだけ効く試験の口・子のプロセスにも
-    # 環境変数 SHIBUYA_RATE_RULES=legacy)。切替口を消すと子のプロセスでは旧道を選べない=結果の動く別の腕(就寝の抑止を切る=
-    # 200 体・1 日・salt 1 と 2 のどちらも最初の checkpoint で食い違う=記録 switch-removal-347)に替えた。「manifest に載って
-    # いない腕を報告に出す」は下で、同じランの記録に載っていない腕の名を足して確かめる
-    arms = {"base": {}, "sleep": {"sleep_suppression": False}}
+    # 環境変数 SHIBUYA_RATE_RULES=legacy・最初の食い違いは salt 1 が刻み 76・salt 2 が 30)。切替口を消すと子のプロセスでは
+    # 旧道を選べない=時刻で効き始める別の腕に替えた: 納品の過程を切る(05〜08 時の納品が無い=最初の食い違いは salt 1 が
+    # 刻み 300・salt 2 が 301=どちらも T0 の前を比べ、粗い区間の 6 つ目=再開してからの細かい探しの道を通る・salt 2 は区間の
+    # 左端でない)。前の腕と同じく manifest の設定の節に載らない腕(報告に出る)。記録 switch-removal-347 §10
+    arms = {"base": {}, "deliv_off": {"processes_disabled": ["delivery_inbound"]}}
     out = tmp_path / "runs.json"
     r = subprocess.run([sys.executable, str(ROOT / "tools" / "c7" / "salt_runs.py"), "plan", "--arms", json.dumps(arms),
-                        "--base", "base", "--arm", "sleep", "--salts", "1,2", "--population-seed", "1", "--agents", "200",
+                        "--base", "base", "--arm", "deliv_off", "--salts", "1,2", "--population-seed", "1", "--agents", "200",
                         "--world", NO_WORLD, "--scratch", str(tmp_path), "--out", str(out), "--aa", "--first-diff",
                         "--jobs", "2"], cwd=str(ROOT), capture_output=True, text=True, encoding="utf-8")
     assert r.returncode == 0, r.stderr[-3000:]
@@ -447,10 +448,12 @@ def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path):
     for s in (1, 2):
         # 毎 tick で通しに回した 2 本を first_diff.py で比べた tick(独立の答え)
         dumps = []
-        for name in ("base", "sleep"):
+        for name in ("base", "deliv_off"):
             res = cli.run(n_agents=200, seed=s, population_seed=1, world_dir=NO_WORLD, checkpoint_every=1, **arms[name])
             dumps.append(fd.dump(res, tmp_path / f"straight_{name}_{s}.json"))
         want = fd.compare(dumps[0], [dumps[1]], from_T=0)["first_mismatch"]["tick"]
+        # 〔第347・検収 H1〕退化を止める: 刻み 0 で食い違う腕では T0 の前の一致が何も比べず真になり、回す役の再開の道を通らない
+        assert want > 0, (s, want)
         got = index["first_diff_fine"][str(s)]
         assert got["first_tick"] == want, (s, got, want)
         assert got["interval"][0] <= want <= got["interval"][1]
@@ -460,19 +463,33 @@ def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path):
         assert sc.pre_t0_match(a_doc, b_doc, want)["ok"] is True
         bad = sc.pre_t0_match(a_doc, b_doc, want + 60)
         assert bad["ok"] is False and bad["first_bad_tick"] == want
-    crn = sc.crn_health(index, payloads)
+    # 〔第347・検収 H1〕どれかの salt で細かい探しが粗い区間の 2 つ目以降から始まる=区間の頭まで回して状態を書き、再開して毎刻みで
+    # 回す道(``salt_runs._fine_first_diff`` の ``start > 0``)を通る
+    assert any(index["first_diff_fine"][str(s)]["interval"][0] > 0 for s in (1, 2)), index["first_diff_fine"]
+    # 納品の過程を切ると、manifest の設定の欄 ``ablations``・``process_ids`` が腕から導かれて変わる=期待の値を書いて宣言する
+    # (検収 S3-3 の口 ``derived_keys``=宣言と実際が違えば落ちる)
+    by = {(x["arm"], x["salt"]): payloads[x["checkpoints"]] for x in index["runs"] if not x.get("aa")}
+    base_ids = list(by[("base", 1)]["manifest"]["process_ids"])
+    assert "delivery_inbound" in base_ids
+
+    def _flat(v):  # noqa: ANN001, ANN202 — 平坦化の値の形(list は JSON の文字列)
+        return json.dumps(v, ensure_ascii=False, sort_keys=True)
+
+    derived = {
+        "ablations": {"base": _flat([]), "arm": _flat(["AB-DELIVERY-FREQ", "delivery_inbound"]),
+                      "reason": "processes_disabled の過程 id と、その過程の感度試験 id が切った一覧に出る"},
+        "process_ids": {"base": _flat(base_ids), "arm": _flat([x for x in base_ids if x != "delivery_inbound"]),
+                        "reason": "processes_disabled の過程が動く過程の一覧から外れる"},
+    }
+    crn = sc.crn_health(index, payloads, derived_keys=derived)
+    assert crn["input_match"]["arm_keys_derived_mismatch"] == []
     assert crn["input_match"]["ok"] is True and crn["input_match"]["population_fixed"] is True
     assert crn["aa"] and all(x["ok"] for x in crn["aa"])  # A/A が一致
     assert crn["ok"] is True and crn["status"] == "ok"
     assert index["environment_mode"] == "fixed" and crn["input_match"]["environment_fixed"] is True
-    # 就寝の抑止は manifest の設定の節に載る腕=どの対の設定の差にも出る(載っていない腕の一覧は空)
-    assert crn["input_match"]["arm_keys"] == ["sleep_suppression"] and crn["input_match"]["arm_keys_unseen"] == []
-    # manifest の設定の節に載っていない腕(前の腕 salient_rate_per_10k の形)は報告に出る(落とさない)=同じランの記録に、
-    # 載っていない腕の名を足して確かめる
-    by = {(x["arm"], x["salt"]): payloads[x["checkpoints"]] for x in index["runs"] if not x.get("aa")}
-    im = sc.input_match([by[("base", s)] for s in (1, 2)], [by[("sleep", s)] for s in (1, 2)],
-                        ["salient_rate_per_10k", "sleep_suppression"], environment_mode=index.get("environment_mode"))
-    assert im["arm_keys_unseen"] == ["salient_rate_per_10k"] and im["ok"] is True
+    # 納品の過程を切る腕は manifest の設定の節に載っていない腕=報告に出る(落とさない)。前の腕(salient_rate_per_10k)と同じ形
+    assert crn["input_match"]["arm_keys"] == ["processes_disabled"]
+    assert crn["input_match"]["arm_keys_unseen"] == ["processes_disabled"]
     spec = {"alpha": 0.05, "primary": {"id": "calls", "path": "manifest.llm_calls_total"}}
     rep = sc.report(index, payloads, spec)
     assert rep["analysis"]["metrics"]["calls"]["status"] == sc.DESCRIPTIVE  # 2 対
