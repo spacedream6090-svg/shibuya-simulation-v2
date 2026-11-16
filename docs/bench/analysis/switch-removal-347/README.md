@@ -761,7 +761,7 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
 | ②b | 率の規則と「無い」の過程の切替口 legacy を組で消した | §12 | `aa97ce1b` |
 | ③a | `--space legacy` を閉じ、旧のセルの移動を試験の中だけの口にした | §13 | `dcd25a6c` |
 | ③b | CLI の旗 `--hunger-model` を閉じた | §14 | `962c727c` |
-| 後片付け | 検収 その 2・その 3 の直し(中 M1=run_kind・低の試験と記録の整え) | §16 | |
+| 後片付け | 検収 その 2・その 3 の直し(中 M1=run_kind・低の試験と記録の整え) | §16 | `986773e` |
 
 旧値の再現は安定版のタグ `stable-v2-before-switch-removal-347`(5 本の口が全部在る最後の commit=②a の前)で回す。
 
@@ -813,7 +813,7 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
 |---|---|---|
 | linked の作業木・②a の変更 | ①・②a | 6,826 passed・1 failed(前からの 1 本)・21 skipped・1 xfailed(36 分 27 秒) |
 | 本体の木・`dcd25a6` | ①〜③a(検収の直しを含む) | 6,861 passed・0 failed・21 skipped・1 xfailed(35 分 53 秒) |
-| linked の作業木・後片付けの段の変更 | ①〜③b・後片付け | (回している途中。結果は台帳の commit でこの行に書く) |
+| linked の作業木・後片付けの段の変更(`986773e` と同じ中身) | ①〜③b・後片付け | 6,868 passed・1 failed(前からの 1 本)・21 skipped・1 xfailed(36 分 15 秒) |
 
 ### 15-6 前と答えが変わる頼み方(消した口そのものだけ)
 

@@ -394,6 +394,17 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #154 止めた切替口 3 本と Q7=旧道の切替口を消し、旧道は部品の口と試験の中だけの口に(1 バイト不変)(11-16 §1-1・§1-2・§6-3・第347・2026-11-16・実装役と検収役 Opus 5.5・親が段ごとに検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §1-1(b)・§1-2 Q7(d)・§6-3・§1-10。記録 [switch-removal-347](docs/bench/analysis/switch-removal-347/README.md)(§15=5 段のまとめ)。安定版のタグ `stable-v2-before-switch-removal-347`(73c2f5f=5 本の口が全部在る最後の commit)。
+- **段と commit**: ① 旧道を使う試験 27 ファイルの書き直し(73c2f5f・src は変えていない)→ ②a 経済の段階 2 の off(231d9fd)→ ① の検収の直し(17ad6eb・試験と記録だけ)→ ②b 率の規則と「無い」の過程(aa97ce1)→ ③a `--space`(dcd25a6)→ ③b `--hunger-model` の旗(962c727)→ 後片付け=検収の中 1 件と低の直し(986773e)。
+- **消した口**: 環境変数 4 本(`SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_RATE_RULES`・`SHIBUYA_ABSENT_PROCESSES`・`SHIBUYA_SPACE`)・CLI の旗 5 本(`--economy-stage2`・`--rate-rules`・`--absent-processes`・`--space`・`--hunger-model`)・腕の名(`arm`・`set_arm` ほか)・`run_day(space="legacy")`・試験の口 `run_day(salient_rate_per_10k=)`(None 以外は止める)。渡すと止まる(一覧と止める文は `foundation/arms/removed.py`・タグは名ごとに引く)。既定と同じ値を環境変数に置いた場合も止まる。
+- **残した口**: 部品の口(過程と実行器の引数 `rate_rules`・`absent_processes`・倒れる率)/試験の中だけの口 3 つ(段階 2 の外の束・率の規則と「無い」の過程の旧道の助け・space の印。どれも tests の下の助けが立てる)/既定をそろえる版上げ(Q13)まで残る引数 `hunger_model` とライブラリの既定/値を固定した manifest と見出しの鍵。
+- **答えのとおりにできなかった所(仮採用・確認待ち)**: 段階 2 を on にすると、部品を何も挿さなくても台帳の値が off と違う(5 構成・38 欄で測った)。指示の字面どおりの段階 2 on の道の試験を足し(台帳の配線 16 本・購入の行と出来事の 1 対 1)、前と同じ値を確かめる基準の口(外の束)も残した。外の束を残すかはユーザーの確認待ち(消すなら試験と助け 1 本だけ)。
+- **別の役の検収(3 回)**: ① 条件つき(高 1=乱数の種の分け方の試験で確かめる範囲が減っていた → 腕を替え、退化を止める確かめを足した。中 2)→ ②a と直し 受入 → ②b 受入・③a 条件つき(中 1=試験の中だけの口で回したランのランの種類が既定のランと見分けられない → 腕に数える形に直した)・③b 受入。
+- **変えていないもの(次の版上げで扱う)**: つなぎの台帳の 6 行・`world/ledger/absent.py` の文・`NAV1_EXPEDIENTS` の項。直すと `bridges_version`・`registry_hash`・manifest の `space.expedients` が動く。一覧は記録 §6。
+- **確かめ**: 各段 byte-check 19 構成 37 欄 19/19 同じ(既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)。範囲の試験=②a 6,826 passed(前からの 1 本だけが落ちる)・②b+③a 6,861 passed(本体の木・失敗 0)・③b+後片付け 6,868 passed(前からの 1 本だけが落ちる)・21 skipped・1 xfailed。lint-imports 12 kept。例外(ignore)の本数は変わらない(31 本・延べ 45 行)。
+
 ### #153 走査の道具の自己更新の規則の直しと、心の読みの一覧の試験(1 バイト不変)(11-16 §1-6 の 4・第347・2026-11-16・実装役 Opus 5.5・親が検収)
 
 - 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §1-6 の 4・計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §8-1 の 4 と §7-4。記録 [self-update-347](docs/bench/analysis/self-update-347/README.md)。commit e7a1c48(規則の直し)・55b8881(一覧の試験)=指示のとおり別の commit。
