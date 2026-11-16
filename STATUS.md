@@ -1,9 +1,9 @@
 # STATUS(索引)
 
 - **今(2026-11-16・第347)**: 整理の段([11-16](docs/design/prompt-2026-11-16-reply8.md)=返事その 8)。段 4 の残り 4 段が入り、割らないファイルの移動は済んだ(#152・どの段も byte-check 19 構成 37 欄すべて同じ)。削除の段 その 1(#151)・走査の規則の直しと心の読みの一覧の試験(#153)・仕様書と設計書への 2-45〜2-69 の書き込みと仕様書の 10 問(#150)・研究 6 本と改版の文の案(#149)・数える・確かめると dm_eval の列(#148)・道具 3 本と CI の上限 120 分(#147)も着地。既定の final は `c8d68704` のまま。
-- **次の 1 手(セッションが切れてもここから再開)**: 止めた切替口 3 本と Q7 は 5 段とも入った(#154・頭 `986773e`)。次は、版上げ A48(作業木 `work/weather-a48-347`・実装と検収が済み・最後の範囲の試験 → 性能の記録 → 安定版のタグ → commit)と、割る段 5a の道具の拡張 G0(作業木 `work/split5a-347`・再検収 → 範囲の試験 → commit)。その後は 5a の 17 本(1 本ごとに byte-check)→ 5b → 6 → 7。版上げ Q13 は計画まで、M10 の ① は返事待ち(細部 5 点)。改版は返事その 9 の後。判断待ちは PENDING §1-1 の〔第347〕の行。機械は第347 の間は止まっていない(木の写しと範囲の試験を束ねない運用を続ける)。
+- **次の 1 手(セッションが切れてもここから再開)**: 止めた切替口 3 本と Q7 は 5 段とも入った(#154・頭 `986773e`)。版上げ A48 も入った(#155・頭 `5bcd4ff`)。次は、割る段 5a の道具の拡張 G0(作業木 `work/split5a-347`・検収まで済み・範囲の試験 → commit)と、版上げ Q13(作業木 `work/q13-defaults-347`・既定だけを替えた木で落ちる試験を数える → 試験の直し → 版上げ)。その後は 5a の 17 本(1 本ごとに byte-check)→ 5b → 6 → 7。版上げ Q13 は計画まで、M10 の ① は返事待ち(細部 5 点)。改版は返事その 9 の後。判断待ちは PENDING §1-1 の〔第347〕の行。機械は第347 の間は止まっていない(木の写しと範囲の試験を束ねない運用を続ける)。
 - **判断待ち・実装待ち・研究の題**: [PENDING.md](PENDING.md)
-- **完了実装**: [IMPLEMENTED.md](IMPLEMENTED.md)(#1〜#154)
+- **完了実装**: [IMPLEMENTED.md](IMPLEMENTED.md)(#1〜#155)
 - **版上げの履歴とタグ・戻し方**: [docs/ops/version-history.md](docs/ops/version-history.md)
 - **今のコードと、あるべき姿**: [リポの案内](docs/reference/repo-guide/README.md)・[仕様書 v0](docs/design/spec/README.md)・[差の一覧](docs/design/spec/gaps.md)・[食い違い](docs/design/spec/conflicts.md)
 - **決定の原文**: 索引 [decision-id-index.md](docs/design/decision-id-index.md)・最新 [返事その 8](docs/design/prompt-2026-11-16-reply8.md)・v3 の設計書 [v3-core-design](docs/design/v3-core-design-2026-11-03.md)・理由の記録 [壁打ちの記録](docs/reference/wallbounce-record-2026-11-02_05.md)
