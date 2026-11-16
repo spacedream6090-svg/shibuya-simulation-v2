@@ -17,6 +17,7 @@
 - 〔移す段 1・段 2 で足した〕第346 で足された `engine/removed_switches.py` の行 224a と、移す段で足したファイル `engine/class_ids.py`(143a)・`core/paths.py`(91a)の行を足した(行は 327 本)。上と本文 §2 の数には入れていない。
 - 〔移す段 3 の続きで足した〕つなぎの台帳の道の対応の表 `engine/bridging/ledger_paths.py`(125a)の行を足した(行は 328 本)。上と本文 §2 の数には入れていない。
 - 〔段 4 の残り・11-16 の答え=[返事その 8](../design/prompt-2026-11-16-reply8.md) §1-6〕行 151〜153・158(連絡の器 4 本)の置き場を `society/contact/` に直した(元の列は 11-16)。行 224a・225・234 の保留の文を決着の文に替えた。上と本文 §2 の数(元の内訳・包みごとの数=society 11・interim_bundles 17)は直していない(今は society 15・interim_bundles 13)。今の元の内訳(328 行)は K 298・11-09 14・11-16 4・F 6・照らし合わせ 2・移す段 1 が 2(143a・224a)・移す段 2 が 1(91a)・移す段 3 が 1(125a)。
+- 〔割る段 5a の G0・親の裁定 Q1・Q12〕2 つ目以降の割り先 9 本と 18 本目(延ばした)の割り先 1 本の行(5a・117a・142a・143b・223a・223b・244a・291a・298a・309a=move の形・割るかの欄=「いいえ(`元` の割り先)」)を足し、行 244 を割る行に替えた(行は 338 本)。上と本文 §2 の数には入れていない。§4 は 5a の 17 本と延ばした 1 本(§4-25)の節で全部の名に開いた(Q9)
 - 元の内訳: K 298 本・11-09 18 本・F 6 本・照らし合わせ 2 本。
 - 照らし合わせの区分の内訳: 同じ 265 本・(ii) 41 本・(iii) 16 本・(i) 2 本。
 - 包みごとの数は本文 §2 にあります。
@@ -30,6 +31,7 @@
 | 3 | `agents/population.py` | world | `world/facts/population_reader.py` | いいえ | 母集団の読み口=構築した事実の読み手 | K | 同じ |
 | 4 | `agents/schedule.py` | world | `world/facts/mock_schedule.py` | いいえ | mock の週次日課(構築資産の代わりの合成) | K | 同じ |
 | 5 | `agents/state.py` | world | `world/model/agent_table.py` 447・`foundation/vocab/agent_codes.py` 234 | 割る(§4-1) | 語彙(列挙)と 35 万体の表が 1 つ。語彙は全層が読み、表は組み立てが渡す。問い 1 の決着=A(移すときに import の決まりと「心が読んでよい欄」の一覧)。到達点は心に渡すのは知覚だけ | K | (iii) 問い 1 |
+| 5a | `agents/agent_codes.py` | foundation | `foundation/vocab/agent_codes.py` | いいえ(`agents/state.py` の割り先) | 割る段 5a で `agents/state.py` を割った 2 つ目以降の割り先(§4-1)。親の裁定 Q1=move の形の行(old は移す前の置き場に在ったとしたらの道=元の置き場の範囲の守りを受ける道)。割る前は old も new も無い(道具は段の行に数えない)。`engine/change_detect.py`(§4-6)・`engine/resolve.py`(§4-14)・`perception/renderer.py`(§4-23)からも入る | 割る段 5a | — |
 | 6 | `agents/weekly.py` | world | `world/facts/weekly_reader.py` | いいえ | W17 週次表の読み口=構築した事実の読み手 | K | 同じ |
 | 7 | `build/__init__.py` | build | `build/__init__.py`(置き場を変えない) | いいえ | 構築の段(ランで読まれない)。オフラインの世界データ構築 W0〜W21 の包み(実行時に import されない) | K | 同じ |
 | 8 | `build/audit/__init__.py` | build | `build/audit/__init__.py`(置き場を変えない) | いいえ | 構築の段(ランで読まれない)。W18/W19/W20(被覆指標・凍結・検収パック)の段の一覧 | K | 同じ |
@@ -143,6 +145,7 @@
 | 115 | `engine/absent_processes.py` | world | `world/laws/switch_absent.py` | いいえ | 「無い」過程の切替口(3-2 で消す候補)。11-05 §3-2 の削除の対象(消えれば行も消す) | K | 同じ |
 | 116 | `engine/activity.py` | act | `act/activity.py` | いいえ | 持続する活動の実行。行為と活動の二層の活動層。問い 5 の決着=A(今は act・本人には知覚の欄で見せる)。到達点は意図と予定は心・実行の仕組みは act(9-2・9-5 で割る) | K | (iii) 問い 5 |
 | 117 | `engine/arbiter.py` | runtime | `runtime/arbiter.py` 457・`mind/system1/wake.py` 63 | 割る(§4-3) | 呼数の裁定。9-4 で消える。型だけ割る | K | 同じ |
+| 117a | `engine/wake.py` | mind | `mind/system1/wake.py` | いいえ(`engine/arbiter.py` の割り先) | 割る段 5a で `engine/arbiter.py` を割った 2 つ目以降の割り先(§4-3)。親の裁定 Q1=move の形の行(old は移す前の置き場に在ったとしたらの道=元の置き場の範囲の守りを受ける道)。割る前は old も new も無い(道具は段の行に数えない) | 割る段 5a | — |
 | 118 | `engine/batching.py` | foundation | `foundation/queues/batching.py` | いいえ | 計算のまとめの窓。連絡の配達と runtime が読む | K | (ii) |
 | 119 | `engine/body/__init__.py` | world | `world/body/__init__.py`(空にする) | いいえ | 包みの頭。再輸出は消す(呼び手は新しい置き場を直に読む) | K | 同じ |
 | 120 | `engine/body/model.py` | world | `world/body/model.py` | いいえ | 本人の体の層 | K | 同じ |
@@ -169,7 +172,9 @@
 | 140 | `engine/calendar_self.py` | interim_bundles | `interim_bundles/calendar_self.py` | いいえ | 腕。本人の判断と体の実行の束ね(v3 で割る)。問い 4 の決着=12 番目の一時の区分 interim_bundles(社会の区分には入れない) | 11-09 | (iii) 問い 4 |
 | 141 | `engine/calendar_shadow.py` | society | `society/calendar_shadow.py` 197・`world/facts/w20_calendar_reader.py` 115 | 割る(§4-5) | W20 の勤務と授業の週の表の読み口(束ねが出勤・通学に使う=世界の事実)と、暦 1a の影の計器が 1 つ。割る | 11-09 | (i) |
 | 142 | `engine/change_detect.py` | mind | `mind/system1/change_detect.py` 290・`world/model/scene_hash.py` 63・`foundation/vocab/agent_codes.py` 6 | 割る(§4-6) | System 1 と B4 の指紋が 1 つ。割る | K | 同じ |
+| 142a | `engine/scene_hash.py` | world | `world/model/scene_hash.py` | いいえ(`engine/change_detect.py` の割り先) | 割る段 5a で `engine/change_detect.py` を割った 2 つ目以降の割り先(§4-6)。親の裁定 Q1=move の形の行(old は移す前の置き場に在ったとしたらの道=元の置き場の範囲の守りを受ける道)。割る前は old も new も無い(道具は段の行に数えない) | 割る段 5a | — |
 | 143 | `engine/chooser.py` | mind | `mind/judge/chooser.py` 153・`foundation/ports/choice.py` 69 | 割る(§4-7) | 選び手の口と実装。口だけ割る | K | 同じ |
+| 143b | `engine/choice.py` | foundation | `foundation/ports/choice.py` | いいえ(`engine/chooser.py` の割り先) | 割る段 5a で `engine/chooser.py` を割った 2 つ目以降の割り先(§4-7)。親の裁定 Q1=move の形の行(old は移す前の置き場に在ったとしたらの道=元の置き場の範囲の守りを受ける道)。割る前は old も new も無い(道具は段の行に数えない) | 割る段 5a | — |
 | 143a | `engine/class_ids.py` | runtime | `runtime/state/class_ids.py` | いいえ | クラスの名の固定の表(移す段 1 で足した。置き場は本文 §7-1 のとおり)。何も読まない。読み手は状態のハッシュ・状態のファイル・再開・系ごとの指紋 | 移す段 1 | — |
 | 144 | `engine/classical.py` | mind | `mind/judge/classical.py` | いいえ | 古典の方策。System 1.5 の古典的選択モデル | K | 同じ |
 | 145 | `engine/clock.py` | runtime | `runtime/clock.py` | いいえ | 時計。シミュレーション時計 | K | 同じ |
@@ -251,6 +256,8 @@
 | 221 | `engine/rate_rules.py` | world | `world/laws/switch_rate.py` | いいえ | 率の規則の切替口(3-2 で消す候補)。11-05 §3-2 の削除の対象(消えれば行も消す) | K | 同じ |
 | 222 | `engine/regional_clock.py` | runtime | `runtime/clocks/regional.py` | いいえ | 場所ごとの時計の腕。場所ごとの時計 T4 | K | 同じ |
 | 223 | `engine/relations.py` | mind | `mind/relations/layer.py` 746・`world/facts/initial_ties.py` 326・`foundation/vocab/relations.py` 42 | 割る(§4-13) | 客観の初期の辺と主観の辺が 1 つ。割る。問い 3 の決着=A(世界の事実・運ぶ器・本人の理解の 3 か所。世界の事実から本人の理解への写しは始めの 1 回) | K | (iii) 問い 3 |
+| 223a | `engine/relations_vocab.py` | foundation | `foundation/vocab/relations.py` | いいえ(`engine/relations.py` の割り先) | 割る段 5a で `engine/relations.py` を割った 2 つ目以降の割り先(§4-13)。親の裁定 Q1=move の形の行(old は移す前の置き場に在ったとしたらの道=元の置き場の範囲の守りを受ける道)。割る前は old も new も無い(道具は段の行に数えない) | 割る段 5a | — |
+| 223b | `engine/initial_ties.py` | world | `world/facts/initial_ties.py` | いいえ(`engine/relations.py` の割り先) | 割る段 5a で `engine/relations.py` を割った 2 つ目以降の割り先(§4-13)。親の裁定 Q1=move の形の行(old は移す前の置き場に在ったとしたらの道=元の置き場の範囲の守りを受ける道)。割る前は old も new も無い(道具は段の行に数えない) | 割る段 5a | — |
 | 224 | `engine/relations_people.py` | mind | `mind/relations/people.py` | いいえ | 人も記憶の腕の関係の読み口=本人の理解 | K | 同じ |
 | 224a | `engine/removed_switches.py` | foundation | `foundation/arms/removed.py` | いいえ | 消した切替口の一覧と、渡されたら止める口(第346 で足した)。標準ライブラリだけを読む。読み手は世界の法則(`seat_release`・`proximity`)・経済の規則の口(`economy_rules`)・runtime(組み立て・欠陥の切替口)・CLI で、全部より下の foundation に置き、切替口 4 本と同じ `foundation/arms/` に並べる(移す段 1 で足した行。〔11-16〕親が置き場を確かめた=標準ライブラリだけを読む・`foundation/arms/` は既に在る。済んだ foundation の段とは別に 1 本で移す) | 移す段 1 | — |
 | 225 | `engine/resolve.py` | act | `act/apply.py` 454・`act/ops/shop.py` 454・`act/ops/rail.py` 379・`act/ops/move.py` 322・`act/ops/plan_writes.py` 309・`mind/ops.py` 208・`act/ops/law_writes.py` 197・`act/ops/body_writes.py` 158・`act/gate.py` 154・`act/ops/talk.py` 154・`runtime/state/restore.py` 136・`act/ops/intent_writes.py` 115・`act/ops/focus.py` 94・`act/ops/init_writes.py` 82・`foundation/write_guard.py` 33・`act/ops/detect_writes.py` 10・`foundation/vocab/act_codes.py` 3・`foundation/vocab/agent_codes.py` 2 | 割る(§4-14) | 書き手の全部。割る。`apply_detection` だけは世界の欄 `cells.b4_hash` を書くので、11-09 の書きの文(世界の欄を書く関数は act だけ)に合わせて `act/ops/detect_writes.py` へ(案 K は `mind/ops.py`)。〔11-16 の決着=返事その 8 §1-6 の 2〕移す段では (a) act に置く(割る行なので段 4 では動かさない)。割る段(段 6)で (b) `apply_detection` を 2 つの関数に割る=世界の列 `cells.b4_hash` は act(`act/ops/detect_writes.py`)・心の欄(内受容の段の列)は mind(`mind/ops.py`)。呼ぶ順を保ち byte-check で確かめる。(c) の例外の宣言は採らない | K | 同じ |
@@ -272,7 +279,8 @@
 | 241 | `engine/spatial_index.py` | world | `world/model/spatial_index.py` | いいえ | 近傍の索引 | K | 同じ |
 | 242 | `engine/speech/__init__.py` | society | `society/speech/__init__.py`(空にする) | いいえ | 包みの頭。再輸出は消す(呼び手は新しい置き場を直に読む) | K | 同じ |
 | 243 | `engine/speech/layer.py` | society | `society/speech/layer.py` | いいえ | 会話の番から発話を作る糸 | K | 同じ |
-| 244 | `engine/speech/port.py` | society | `society/speech/port.py` | いいえ | 発話の口と未読の列。発話の口 | K | 同じ |
+| 244 | `engine/speech/port.py` | society | `society/speech/port.py` 346・`foundation/text/mora.py` 25 | 割る(§4-25・延ばした) | 発話の口と未読の列。発話の口。〔割る段 5a・親の裁定 Q12〕`mora_count`(文の道具)を foundation へ下ろす(返事その 8 §1-6 の 3)。〔G0 の検収の後の親の答え 1〕5a の 18 本目から延ばした=台帳の道を書き換えられる版上げのときに下ろす。割る行のまま残し、割る段の順(`table.SPLIT_ORDER`)からは外した(`table.SPLIT_DEFERRED`) | K | 同じ |
+| 244a | `engine/speech/mora.py` | foundation | `foundation/text/mora.py` | いいえ(`engine/speech/port.py` の割り先) | `engine/speech/port.py` から `mora_count` を下ろす foundation の文の道具(§4-25・親の裁定 Q12。ファイルの名は実装役の仮採用)。親の裁定 Q1=move の形の行。〔G0 の検収の後の親の答え 1〕5a から延ばした(行 244 と同じ) | 延ばした(版上げ) | — |
 | 245 | `engine/speech_clock.py` | runtime | `runtime/clocks/speech.py` | いいえ | 会話の時計の腕。会話の時計 T2 | K | 同じ |
 | 246 | `engine/state_codec.py` | runtime | `runtime/state/codec.py` | いいえ | 状態のファイル。状態のファイルの直列化 npz+json | K | 同じ |
 | 247 | `engine/state_hashes.py` | runtime | `runtime/state/hashes.py` | いいえ | 2 つのハッシュ。behavior-hash と full-hash | K | (ii) |
@@ -320,6 +328,7 @@
 | 289 | `llm/mock.py` | runtime | `runtime/inference/mock.py` 263・`foundation/vocab/actions.py` 1 | 割る(§4-20) | mock のクライアント。定数だけ割る | K | 同じ |
 | 290 | `llm/parser.py` | act | `act/intake/parser.py` | いいえ | 本人の言葉を行為の型へ読む(器の入口) | K | (ii) |
 | 291 | `llm/undefined.py` | act | `act/intake/undefined.py` 636・`foundation/vocab/act_codes.py` 3 | 割る(§4-21) | 語彙の外の行為の受け口。語の表だけ割る | K | 同じ |
+| 291a | `llm/act_codes.py` | foundation | `foundation/vocab/act_codes.py` | いいえ(`llm/undefined.py` の割り先) | 割る段 5a で `llm/undefined.py` を割った 2 つ目以降の割り先(§4-21)。親の裁定 Q1=move の形の行(old は移す前の置き場に在ったとしたらの道=元の置き場の範囲の守りを受ける道)。割る前は old も new も無い(道具は段の行に数えない)。`engine/commit.py`(§4-8)・`engine/resolve.py`(§4-14)からも入る | 割る段 5a | — |
 | 292 | `manifest/__init__.py` | foundation | `foundation/manifest/__init__.py`(空にする) | いいえ | 包みの頭。再輸出は消す(呼び手は新しい置き場を直に読む) | K | 同じ |
 | 293 | `manifest/canonical.py` | foundation | `foundation/manifest/canonical.py` | いいえ | manifest の正規化 | K | 同じ |
 | 294 | `manifest/frozen/world_catalog_v0_2.json` | world | `world/ledger/frozen/world_catalog_v0_2.json` | いいえ | 世界カタログの凍結。読み口と一緒に動かす(pyproject の package-data も直す) | K | 同じ |
@@ -327,6 +336,7 @@
 | 296 | `manifest/world_catalog.py` | world | `world/ledger/world_catalog.py` | いいえ | 世界カタログの読み口。世界側台帳だけが読む。`importlib.resources` の包みの名 `shibuya.manifest` を JSON と一緒に直す | K | 同じ |
 | 297 | `perception/__init__.py` | mind | `mind/percept/__init__.py`(空にする) | いいえ | 包みの頭。再輸出は消す(呼び手は新しい置き場を直に読む)。古い頭は、古い包みに割るファイルが残る間は空のまま残し、最後の割りの段で消す | K | 同じ |
 | 298 | `perception/attention.py` | foundation | `foundation/text/salience.py` 182・`mind/percept/attention.py` 45 | 割る(§4-22) | 気づきのゲートと文の道具が 1 つ。割る | K | (i) |
+| 298a | `perception/attention_gate.py` | mind | `mind/percept/attention.py` | いいえ(`perception/attention.py` の割り先) | 割る段 5a で `perception/attention.py` を割った 2 つ目以降の割り先(§4-22)。親の裁定 Q1=move の形の行(old は移す前の置き場に在ったとしたらの道=元の置き場の範囲の守りを受ける道)。割る前は old も new も無い(道具は段の行に数えない) | 割る段 5a | — |
 | 299 | `perception/channels.py` | foundation | `foundation/text/channels.py` | いいえ | 文の予算とトークンの見積り=状態を持たない道具。build も読む | K | (ii) |
 | 300 | `perception/contact_view.py` | foundation | `foundation/ports/percept_contact.py` | いいえ | 連絡の知覚の事実の型(描き方の関数を含む)。何も読まない | K | (ii) |
 | 301 | `perception/facts.py` | foundation | `foundation/ports/percept.py` | いいえ | 知覚の口の型=世界と心の境目。標準ライブラリだけ | K | 同じ |
@@ -338,6 +348,7 @@
 | 307 | `perception/templates.py` | foundation | `foundation/text/templates.py` | いいえ | 凍結の文の雛形=何も読まない定数。心と runtime が読む | K | (ii) |
 | 308 | `world/__init__.py` | world | `world/__init__.py`(空にする) | いいえ | 包みの頭。再輸出は消す(呼び手は新しい置き場を直に読む) | K | 同じ |
 | 309 | `world/assets.py` | world | `world/model/assets.py` 1286・`foundation/vocab/place_words.py` 1 | 割る(§4-24) | 世界の資産の読み。語彙の定数だけ割る | K | 同じ |
+| 309a | `world/place_words.py` | foundation | `foundation/vocab/place_words.py` | いいえ(`world/assets.py` の割り先) | 割る段 5a で `world/assets.py` を割った 2 つ目以降の割り先(§4-24)。親の裁定 Q1=move の形の行(old は移す前の置き場に在ったとしたらの道=元の置き場の範囲の守りを受ける道)。割る前は old も new も無い(道具は段の行に数えない)。`engine/poi_target.py`(§4-11)からも入る | 割る段 5a | — |
 | 310 | `world/graph.py` | world | `world/model/graph.py` | いいえ | 世界の客観の状態と資産。歩行グラフと next-hop 経路 | K | 同じ |
 | 311 | `world/navmesh.py` | world | `world/model/navmesh.py` | いいえ | 世界の客観の状態と資産。ナビメッシュの資産と問い合わせ | K | 同じ |
 | 312 | `world/navmesh_route.py` | world | `world/model/navmesh_route.py` | いいえ | 世界の客観の状態と資産。ナビメッシュの上の経路(W1 の通り道→帯の A*→funnel) | K | 同じ |
@@ -365,7 +376,9 @@
 | 割り先 | 行数 | クラス | 関数・メソッド | 定数 |
 |---|---:|---|---|---|
 | `world/model/agent_table.py` | 447 | `AgentState` | `AgentState.__init__`、`AgentState.__getattr__`、`AgentState.__len__`、`AgentState.frozen`、`AgentState.freeze`、`AgentState.thaw`、`AgentState.writable`、`AgentState.state_hash`、`AgentState.bytes_total`、`AgentState.budget_report`、`AgentState.declared_bytes_per_agent` | `LAST_ACTION_NONE` |
-| `foundation/vocab/agent_codes.py` | 234 | `AgentKind`、`Activity`、`ResultCode`、`WakeCondition`、`ActivityKind`、`IntentKind` | `focus_code_for_person`、`focus_code_for_poi`、`focus_is_person`、`focus_is_poi`、`focus_poi_of` | `FOCUS_NONE`、`MOCK_KIND_COUNT`、`RESULT_TEXT`、`N_WAKE_CONDITIONS`、`N_WAKE_CONDITIONS_ALL`、`REFRACTORY_MINUTES`、`WAKE_CONDITION_CLASS`、`ACTIVITY_UNTIL_NONE`、`INTENT_NONE`、`FAMILIARITY_FIELDS`、`FAMILIARITY_EMPTY`、`MEMORY_FIELDS` ほか 7 個 |
+| `foundation/vocab/agent_codes.py` | 234 | `AgentKind`、`Activity`、`ResultCode`、`WakeCondition`、`ActivityKind`、`IntentKind` | `focus_code_for_person`、`focus_code_for_poi`、`focus_is_person`、`focus_is_poi`、`focus_poi_of` | `FOCUS_NONE`、`MOCK_KIND_COUNT`、`RESULT_TEXT`、`N_WAKE_CONDITIONS`、`N_WAKE_CONDITIONS_ALL`、`REFRACTORY_MINUTES`、`WAKE_CONDITION_CLASS`、`ACTIVITY_UNTIL_NONE`、`INTENT_NONE`、`FAMILIARITY_FIELDS`、`FAMILIARITY_EMPTY`、`MEMORY_FIELDS`、`ENERGY_FIELDS`、`INTENT_FIELDS`、`INTEROCEPTION_FIELDS`、`RELATION_FIELDS`、`REL_EMPTY`、`STORE_MEMORY_EMPTY`、`STORE_MEMORY_FIELDS` |
+
+- 〔割る段 5a の G0・親の裁定 Q9〕`foundation/vocab/agent_codes.py` の行で開いた名(表は「ほか 7 個」と省いていた。割り先は変えていない): `ENERGY_FIELDS`・`INTENT_FIELDS`・`INTEROCEPTION_FIELDS`・`RELATION_FIELDS`・`REL_EMPTY`・`STORE_MEMORY_EMPTY`・`STORE_MEMORY_FIELDS`
 
 ### 4-2 `cli.py`
 
@@ -385,8 +398,10 @@
 
 | 割り先 | 行数 | クラス | 関数・メソッド | 定数 |
 |---|---:|---|---|---|
-| `world/facts/calendar.py` | 386 | `CalendarWarning`、`HolidayTable`、`SimCalendar` | `_parse_ymd`、`resolve_repo_path`、`load_holidays`、`parse_start`、`parse_school_holidays`、`holidays_between`、`HolidayTable.covers`、`SimCalendar.__post_init__`、`SimCalendar.default`、`SimCalendar.with_start`、`SimCalendar.ticks_per_day`、`SimCalendar.day_of`、`SimCalendar.tick_of_day`、`SimCalendar.to_T`、`SimCalendar.datetime_of`、`SimCalendar.date_of_day`、`SimCalendar.weekday`、`SimCalendar.is_holiday`、`SimCalendar.holiday_name`、`SimCalendar.set_holiday`、`SimCalendar.is_rest_day`、`SimCalendar.table_weekday`、`SimCalendar.opening_row`、`SimCalendar.day_kind`、`SimCalendar.season`、`SimCalendar.is_business_day`、`SimCalendar.is_payday`、`SimCalendar._payday_target`、`SimCalendar.day_index_of`、`SimCalendar.day_key`、`SimCalendar.in_school_holiday`、`SimCalendar.start_problems`、`SimCalendar.check_start`、`SimCalendar.manifest_fields` | `DEFAULT_HOLIDAY_CSV`、`HOLIDAY_CSV_COLUMNS`、`DEFAULT_WORLD_START`、`WEEKDAY_MODE`、`WEATHER_SCHEME`、`OPENING_ROW_PH`、`SEASON_OF_MONTH`、`_DAY_KIND_OF_WEEKDAY`、`HOLIDAY_TABLE_WEEKDAY`、`_WARNED_MISSING`、`REPO_ROOT` |
+| `world/facts/calendar.py` | 386 | `CalendarWarning`、`HolidayTable`、`SimCalendar` | `_parse_ymd`、`load_holidays`、`parse_start`、`parse_school_holidays`、`holidays_between`、`HolidayTable.covers`、`SimCalendar.__post_init__`、`SimCalendar.default`、`SimCalendar.with_start`、`SimCalendar.ticks_per_day`、`SimCalendar.day_of`、`SimCalendar.tick_of_day`、`SimCalendar.to_T`、`SimCalendar.datetime_of`、`SimCalendar.date_of_day`、`SimCalendar.weekday`、`SimCalendar.is_holiday`、`SimCalendar.holiday_name`、`SimCalendar.set_holiday`、`SimCalendar.is_rest_day`、`SimCalendar.table_weekday`、`SimCalendar.opening_row`、`SimCalendar.day_kind`、`SimCalendar.season`、`SimCalendar.is_business_day`、`SimCalendar.is_payday`、`SimCalendar._payday_target`、`SimCalendar.day_index_of`、`SimCalendar.day_key`、`SimCalendar.in_school_holiday`、`SimCalendar.start_problems`、`SimCalendar.check_start`、`SimCalendar.manifest_fields` | `DEFAULT_HOLIDAY_CSV`、`HOLIDAY_CSV_COLUMNS`、`DEFAULT_WORLD_START`、`WEEKDAY_MODE`、`WEATHER_SCHEME`、`OPENING_ROW_PH`、`SEASON_OF_MONTH`、`_DAY_KIND_OF_WEEKDAY`、`HOLIDAY_TABLE_WEEKDAY`、`_WARNED_MISSING` |
 | `foundation/types.py` | 9 | なし | `ticks_per_day` | なし |
+
+- 〔割る段 5a の G0〕今は無い名を表から外した: `REPO_ROOT`(段 2 で `foundation/paths.py` へ出た)・`resolve_repo_path`(段 2 で `foundation/paths.py` へ出た)
 
 ### 4-5 `engine/calendar_shadow.py`
 
@@ -399,9 +414,11 @@
 
 | 割り先 | 行数 | クラス | 関数・メソッド | 定数 |
 |---|---:|---|---|---|
-| `mind/system1/change_detect.py` | 290 | `B5Crossing`、`DetectResult`、`ChangeDetector` | `_cell_wake_numpy`、`_make_cell_wake`、`DetectResult.b5_wake_agents`、`DetectResult.candidates`、`ChangeDetector.__init__`、`ChangeDetector._cell_changes`、`ChangeDetector._interoception`、`ChangeDetector._interoception_scoped`、`ChangeDetector.detect` | `INTERO_HYSTERESIS`、`B4_FIELD_COLUMNS`、`_CELL_WAKE` |
+| `mind/system1/change_detect.py` | 290 | `B5Crossing`、`DetectResult`、`ChangeDetector` | `_cell_wake_numpy`、`_make_cell_wake`、`DetectResult.b5_wake_agents`、`DetectResult.candidates`、`ChangeDetector.__init__`、`ChangeDetector._cell_changes`、`ChangeDetector._interoception`、`ChangeDetector._interoception_scoped`、`ChangeDetector.detect` | `INTERO_HYSTERESIS`、`B4_FIELD_COLUMNS`、`_CELL_WAKE`、`CELL_WAKE_USES_NUMBA` |
 | `world/model/scene_hash.py` | 63 | なし | `b4_block_raw`、`b4_block_hashes` | `DEFAULT_WALKABLE_AREA_M2` |
 | `foundation/vocab/agent_codes.py` | 6 | なし | なし | `INTERO_UP_EDGES`、`INTERO_VARS` |
+
+- 〔割る段 5a の G0〕`mind/system1/change_detect.py` に足した名: `CELL_WAKE_USES_NUMBA`(表に無かった名(親の裁定 Q8・計画に無い名=仮採用): `_CELL_WAKE` と同じ 1 文で結ぶ)
 
 ### 4-7 `engine/chooser.py`
 
@@ -424,6 +441,8 @@
 |---|---:|---|---|---|
 | `mind/memory/body_events.py` | 130 | `BodyEventLink` | `BodyEventLink.__init__`、`BodyEventLink.__setattr__`、`BodyEventLink.__delattr__`、`BodyEventLink.enabled`、`BodyEventLink._event`、`BodyEventLink._what`、`BodyEventLink._cause`、`BodyEventLink.write`、`BodyEventLink.conversation_end` | `SRC_ACT`、`SRC_ARRIVE`、`SRC_TALK_OPEN`、`SRC_TURN`、`SRC_NOTICE`、`SRC_SIGNAGE`、`SOURCES`、`ACT_FAMILY_WORDS`、`_TALK_WORDS`、`_P_RESOLVE`、`_P_CONV`、`_VIA_FACE` |
 | `foundation/vocab/events.py` | 25 | なし | `kind_of_what` | `KIND_ACT_WORD`、`_KIND_NOTICE`、`_KIND_SIGNAGE`、`_KIND_TALK`、`WHAT_TALK_OPEN`、`WHAT_TALK_END`、`WHAT_NOTICE`、`WHAT_SIGNAGE`、`_WHAT_OF_KIND` |
+
+- 〔割る段 5a・親の裁定 Q6〕宣言した書き換え: 割り先 `foundation/vocab/events.py` では別名 `V` を外す(`V.x` → `x`。`V` はその割り先のモジュール自身を指す別名。道具が当て、守りで AST の同値を確かめる)
 
 ### 4-10 `engine/llm_bridge.py`
 
@@ -452,7 +471,9 @@
 |---|---:|---|---|---|
 | `mind/relations/layer.py` | 746 | `RelationLayer` | `_rank_live`、`_layer_weights`、`RelationLayer.__init__`、`RelationLayer.__setattr__`、`RelationLayer.__delattr__`、`RelationLayer.contact_flags`、`RelationLayer.copresent_on`、`RelationLayer.acq_wake_on`、`RelationLayer.seed_initial`、`RelationLayer.on_episodes`、`RelationLayer._write_round`、`RelationLayer._reset_slots`、`RelationLayer._write_contacts`、`RelationLayer.contact_tally`、`RelationLayer.rebuild_contacts`、`RelationLayer._partner_rows`、`RelationLayer.activation`、`RelationLayer.strength`、`RelationLayer.edges`、`RelationLayer.acquaintances`、`RelationLayer.partners_in_cell`、`RelationLayer.weights_for_invite`、`RelationLayer.enable_invite`、`RelationLayer.choose_talk_partners`、`RelationLayer.pick_rest`、`RelationLayer.pop_origin`、`RelationLayer._same_cell_hits`、`RelationLayer._edges`、`RelationLayer._edge_view`、`RelationLayer.aware_of`、`RelationLayer.enable_copresent`、`RelationLayer.copresent_step`、`RelationLayer.enable_acquaintance_wake`、`RelationLayer.acquaintance_candidates`、`RelationLayer._acq_notice`、`RelationLayer._acq_finish`、`RelationLayer.stamp_acquaintance`、`RelationLayer.lifetime_days`、`RelationLayer.summary` | `REL_INVITE_LAYERS`、`REL_COPRESENT_MINUTES`、`REL_COPRESENT_METERS`、`REL_ACQ_PAIR_REFRACTORY_MIN`、`_ACQ`、`_TALK`、`_REST_SHARE`、`_HELP`、`_SIGN_LABEL`、`_CONTACT_GUARDED`、`_SIGN_OF_RESULT` |
 | `world/facts/initial_ties.py` | 326 | なし | `slot_cells`、`copresence`、`copresence_days`、`_last_copresence`、`_last_copresence_many`、`_pair_mix`、`_weekly64`、`check_rel_tenure_hash`、`_splitmix64`、`_tenure_unit`、`_tenure_weeks`、`initial_edges`、`tau_from_edges` | `REL_TENURE_HASHES`、`_TENURE_SALT_V2`、`REL_SLOT_MIN`、`HOUSEHOLD_MIN_DAYS_PER_WEEK`、`REL_DAYS_PER_WEEK`、`_SLOTS_PER_DAY`、`_SLOTS`、`_LAST_CHUNK` |
-| `foundation/vocab/relations.py` | 42 | `RelationEdges`、`InitialEdges` | `_activation` | `REL_K`、`REL_MODES`、`REL_KINDS`、`REL_KIND_NAMES`、`REL_D`、`REL_TAU_V1`、`REL_TAU_V2`、`REL_TAU_BY_TENURE_HASH`、`REL_TAU`、`REL_S`、`REL_TENURE_WEEKS`、`DEFAULT_REL_TENURE_HASH` ほか 5 個 |
+| `foundation/vocab/relations.py` | 42 | `RelationEdges`、`InitialEdges` | `_activation` | `REL_K`、`REL_MODES`、`REL_KINDS`、`REL_KIND_NAMES`、`REL_D`、`REL_TAU_V1`、`REL_TAU_V2`、`REL_TAU_BY_TENURE_HASH`、`REL_TAU`、`REL_S`、`REL_TENURE_WEEKS`、`DEFAULT_REL_TENURE_HASH`、`REL_INIT_DENSITIES`、`REL_ORIGINS`、`REL_ROW_BYTES_ACTUAL`、`REL_ROW_BYTES_DECLARED`、`REL_TIEBREAKS` |
+
+- 〔割る段 5a の G0・親の裁定 Q9〕`foundation/vocab/relations.py` の行で開いた名(表は「ほか 5 個」と省いていた。割り先は変えていない): `REL_INIT_DENSITIES`・`REL_ORIGINS`・`REL_ROW_BYTES_ACTUAL`・`REL_ROW_BYTES_DECLARED`・`REL_TIEBREAKS`
 
 ### 4-14 `engine/resolve.py`
 
@@ -492,12 +513,16 @@
 | `society/tools/record.py` | 88 | `SignboardReadLink`、`ToolsFixture` | `arm_from_env`、`enabled`、`set_enabled`、`build_fixture`、`_signboard_reads`、`manifest_fields`、`SignboardReadLink.__init__`、`SignboardReadLink.__call__` | `MANIFEST_SCHEMA`、`ARM_ENV`、`_ENABLED` |
 | `foundation/vocab/events.py` | 3 | なし | なし | `SIGNBOARD_ORIGIN`、`SIGNBOARD_WHAT`、`SIGNBOARD_CAUSE` |
 
+- 〔割る段 5a・親の裁定 Q6〕宣言した書き換え: 割り先 `foundation/vocab/events.py` では別名 `V` を外す(`V.x` → `x`。`V` はその割り先のモジュール自身を指す別名。道具が当て、守りで AST の同値を確かめる)
+
 ### 4-17 `engine/tools/registry.py`
 
 | 割り先 | 行数 | クラス | 関数・メソッド | 定数 |
 |---|---:|---|---|---|
-| `society/tools/registry.py` | 271 | `KnownBy`、`Tool`、`ToolRegistry` | `_is_int`、`_closed`、`affordance_words`、`default_registry`、`KnownBy.__post_init__`、`KnownBy.of`、`KnownBy.knows`、`KnownBy.describe`、`Tool.__post_init__`、`Tool.as_dict`、`ToolRegistry.__init__`、`ToolRegistry.__setattr__`、`ToolRegistry.__delattr__`、`ToolRegistry.register`、`ToolRegistry.get`、`ToolRegistry.known`、`ToolRegistry.rows`、`ToolRegistry.names`、`ToolRegistry.__len__`、`ToolRegistry.__iter__`、`ToolRegistry.__contains__`、`ToolRegistry.in_use`、`ToolRegistry.registered_only`、`ToolRegistry.usable` | `NOTICE`、`PHONE`、`CONTACTS`、`GROUP`、`TRANSIT`、`MAP`、`CLOCK`、`FORECAST`、`TOOL_NAMES`、`REQUIRE_KINDS`、`OWNERS`、`CONTENT_WRITERS` ほか 14 個 |
+| `society/tools/registry.py` | 271 | `KnownBy`、`Tool`、`ToolRegistry` | `_is_int`、`_closed`、`affordance_words`、`default_registry`、`KnownBy.__post_init__`、`KnownBy.of`、`KnownBy.knows`、`KnownBy.describe`、`Tool.__post_init__`、`Tool.as_dict`、`ToolRegistry.__init__`、`ToolRegistry.__setattr__`、`ToolRegistry.__delattr__`、`ToolRegistry.register`、`ToolRegistry.get`、`ToolRegistry.known`、`ToolRegistry.rows`、`ToolRegistry.names`、`ToolRegistry.__len__`、`ToolRegistry.__iter__`、`ToolRegistry.__contains__`、`ToolRegistry.in_use`、`ToolRegistry.registered_only`、`ToolRegistry.usable` | `NOTICE`、`PHONE`、`CONTACTS`、`GROUP`、`TRANSIT`、`MAP`、`CLOCK`、`FORECAST`、`TOOL_NAMES`、`REQUIRE_KINDS`、`OWNERS`、`CONTENT_WRITERS`、`CONTENT_ORIGINS`、`DEFAULT_TOOLS`、`EVERYONE`、`FORECAST_BRIDGE`、`KNOWN_KINDS`、`NOBODY`、`NOTICE_BRIDGE`、`ORIGIN_NONE`、`ORIGIN_REAL`、`ORIGIN_SYNTHETIC`、`PHONE_BRIDGE`、`SIGNAGE_BRIDGE`、`TOOL_ACTION_WORDS`、`TOOL_FIELDS` |
 | `foundation/vocab/events.py` | 1 | なし | なし | `SIGNBOARD` |
+
+- 〔割る段 5a の G0・親の裁定 Q9〕`society/tools/registry.py` の行で開いた名(表は「ほか 14 個」と省いていた。割り先は変えていない): `CONTENT_ORIGINS`・`DEFAULT_TOOLS`・`EVERYONE`・`FORECAST_BRIDGE`・`KNOWN_KINDS`・`NOBODY`・`NOTICE_BRIDGE`・`ORIGIN_NONE`・`ORIGIN_REAL`・`ORIGIN_SYNTHETIC`・`PHONE_BRIDGE`・`SIGNAGE_BRIDGE`・`TOOL_ACTION_WORDS`・`TOOL_FIELDS`
 
 ### 4-18 `llm/__init__.py`
 
@@ -516,22 +541,29 @@
 
 | 割り先 | 行数 | クラス | 関数・メソッド | 定数 |
 |---|---:|---|---|---|
-| `runtime/inference/mock.py` | 263 | `MockLLM`、`TapeLLM` | `MockLLM.__init__`、`MockLLM._stream`、`MockLLM._draws`、`MockLLM._render_v3`、`MockLLM._move_target`、`MockLLM._shop_target`、`MockLLM.render`、`MockLLM.action_draw`、`MockLLM.complete`、`MockLLM.acomplete`、`TapeLLM.__init__`、`TapeLLM.complete`、`TapeLLM.acomplete`、`TapeLLM.__getattr__` | `MOCK_RNG_DOMAIN`、`MOCK_REASONS`、`MOCK_COMMENTS`、`MOCK_FORMS`、`MOCK_ACTIVITIES_V3`、`MOCK_UNTILS_V3`、`MOCK_UNTILS_V3_MOVE`、`MOCK_WANDER_ONE_IN`、`_MOVE_WORD`、`MOCK_MOVE_TARGET_WORDS`、`_MOVE_TARGET_DOMAIN_SUFFIX`、`_VISIBLE_PREFIX` ほか 3 個 |
+| `runtime/inference/mock.py` | 263 | `MockLLM`、`TapeLLM` | `MockLLM.__init__`、`MockLLM._stream`、`MockLLM._draws`、`MockLLM._render_v3`、`MockLLM._move_target`、`MockLLM._shop_target`、`MockLLM.render`、`MockLLM.action_draw`、`MockLLM.complete`、`MockLLM.acomplete`、`TapeLLM.__init__`、`TapeLLM.complete`、`TapeLLM.acomplete`、`TapeLLM.__getattr__` | `MOCK_RNG_DOMAIN`、`MOCK_REASONS`、`MOCK_COMMENTS`、`MOCK_FORMS`、`MOCK_ACTIVITIES_V3`、`MOCK_UNTILS_V3`、`MOCK_UNTILS_V3_MOVE`、`MOCK_WANDER_ONE_IN`、`_MOVE_WORD`、`MOCK_MOVE_TARGET_WORDS`、`_MOVE_TARGET_DOMAIN_SUFFIX`、`_VISIBLE_PREFIX`、`MOCK_SHOP_WORDS`、`_PAREN_NAME`、`_SHOP_TARGET_DOMAIN_SUFFIX` |
 | `foundation/vocab/actions.py` | 1 | なし | なし | `MOCK_UTTERANCE` |
+
+- 〔割る段 5a の G0・親の裁定 Q9〕`runtime/inference/mock.py` の行で開いた名(表は「ほか 3 個」と省いていた。割り先は変えていない): `MOCK_SHOP_WORDS`・`_PAREN_NAME`・`_SHOP_TARGET_DOMAIN_SUFFIX`
 
 ### 4-21 `llm/undefined.py`
 
 | 割り先 | 行数 | クラス | 関数・メソッド | 定数 |
 |---|---:|---|---|---|
-| `act/intake/undefined.py` | 636 | `ProposalStatus`、`UndefinedActionRecord`、`Proposal`、`UndefinedOutcome`、`UndefinedActionRegistry` | `synonym_table`、`synonym_table_version`、`target_hints`、`target_surface_hint`、`fallback_actions`、`undefined_feedback`、`map_synonym`、`Proposal.needs_parent_review`、`UndefinedOutcome.mapped`、`UndefinedOutcome.action_from_dictionary`、`UndefinedActionRegistry.__init__`、`UndefinedActionRegistry.observe`、`UndefinedActionRegistry.distinct_agents`、`UndefinedActionRegistry._maybe_adjudicate`、`UndefinedActionRegistry.adjudicate`、`UndefinedActionRegistry.adopt`、`UndefinedActionRegistry.reject`、`UndefinedActionRegistry.counters`、`UndefinedActionRegistry.top_words` | `SYNONYM_TABLE_VERSION`、`_SYNONYMS_V0`、`SYNONYMS_C6`、`SYNONYMS`、`SYNONYMS_V3_DIFF`、`SYNONYMS_V3`、`SYNONYM_TABLE_VERSION_V3`、`SYNONYMS_V4_DIFF`、`SYNONYMS_V4`、`SYNONYM_TABLE_VERSION_V4`、`SYNONYMS_V5_DIFF`、`SYNONYMS_V5` ほか 14 個 |
+| `act/intake/undefined.py` | 636 | `ProposalStatus`、`UndefinedActionRecord`、`Proposal`、`UndefinedOutcome`、`UndefinedActionRegistry` | `synonym_table`、`synonym_table_version`、`target_hints`、`target_surface_hint`、`fallback_actions`、`undefined_feedback`、`map_synonym`、`Proposal.needs_parent_review`、`UndefinedOutcome.mapped`、`UndefinedOutcome.action_from_dictionary`、`UndefinedActionRegistry.__init__`、`UndefinedActionRegistry.observe`、`UndefinedActionRegistry.distinct_agents`、`UndefinedActionRegistry._maybe_adjudicate`、`UndefinedActionRegistry.adjudicate`、`UndefinedActionRegistry.adopt`、`UndefinedActionRegistry.reject`、`UndefinedActionRegistry.counters`、`UndefinedActionRegistry.top_words` | `SYNONYM_TABLE_VERSION`、`_SYNONYMS_V0`、`SYNONYMS_C6`、`SYNONYMS`、`SYNONYMS_V3_DIFF`、`SYNONYMS_V3`、`SYNONYM_TABLE_VERSION_V3`、`SYNONYMS_V4_DIFF`、`SYNONYMS_V4`、`SYNONYM_TABLE_VERSION_V4`、`SYNONYMS_V5_DIFF`、`SYNONYMS_V5`、`ADJUDICATION_TEMPLATE`、`DEFAULT_THRESHOLD_AGENTS`、`FALLBACK_ACTIONS`、`FALLBACK_ACTIONS_V3`、`REVIEW_KEYWORDS`、`SYNONYM_TABLE_VERSION_BY_VOCAB`、`SYNONYM_TABLE_VERSION_V5`、`TARGET_HINTS`、`TARGET_HINTS_V4`、`TARGET_HINTS_V5`、`TARGET_SURFACE_HINTS_V5`、`_FEEDBACK_TEMPLATE`、`_SYNONYMS_BY_VOCAB`、`_TARGET_HINTS_BY_VOCAB` |
 | `foundation/vocab/act_codes.py` | 3 | なし | なし | `TARGET_HINT_WORDS` |
+
+- 〔割る段 5a の G0・親の裁定 Q9〕`act/intake/undefined.py` の行で開いた名(表は「ほか 14 個」と省いていた。割り先は変えていない): `ADJUDICATION_TEMPLATE`・`DEFAULT_THRESHOLD_AGENTS`・`FALLBACK_ACTIONS`・`FALLBACK_ACTIONS_V3`・`REVIEW_KEYWORDS`・`SYNONYM_TABLE_VERSION_BY_VOCAB`・`SYNONYM_TABLE_VERSION_V5`・`TARGET_HINTS`・`TARGET_HINTS_V4`・`TARGET_HINTS_V5`・`TARGET_SURFACE_HINTS_V5`・`_FEEDBACK_TEMPLATE`・`_SYNONYMS_BY_VOCAB`・`_TARGET_HINTS_BY_VOCAB`
 
 ### 4-22 `perception/attention.py`
 
 | 割り先 | 行数 | クラス | 関数・メソッド | 定数 |
 |---|---:|---|---|---|
-| `foundation/text/salience.py` | 182 | `SalientItem`、`StripReport` | `rank_by_saliency`、`apply_budget`、`content_cap_chars`、`strip_imperatives`、`feature_tag`、`tag_world_text`、`StripReport.n_removed` | `BUDGET_ADS`、`BUDGET_SALIENT`、`BUDGET_OVERHEARD`、`SALIENCY_WEIGHTS`、`SALIENCY_FLOOR`、`CONTENT_CAP_CHARS_PER_SEC`、`CONTENT_CAP_MIN_CHARS`、`CONTENT_CAP_MAX_CHARS`、`GAZE_SECONDS_DEFAULT`、`EFFECT_CAP_PER_EXPOSURE`、`MEMORY_CAP_RECOGNITION`、`MEMORY_CAP_RECALL` ほか 3 個 |
+| `foundation/text/salience.py` | 182 | `SalientItem`、`StripReport` | `rank_by_saliency`、`apply_budget`、`content_cap_chars`、`strip_imperatives`、`feature_tag`、`tag_world_text`、`StripReport.n_removed` | `BUDGET_ADS`、`BUDGET_SALIENT`、`BUDGET_OVERHEARD`、`SALIENCY_WEIGHTS`、`SALIENCY_FLOOR`、`CONTENT_CAP_CHARS_PER_SEC`、`CONTENT_CAP_MIN_CHARS`、`CONTENT_CAP_MAX_CHARS`、`GAZE_SECONDS_DEFAULT`、`MEMORY_CAP_RECOGNITION`、`MEMORY_CAP_RECALL`、`FEATURE_TAGS`、`IMPERATIVE_PATTERNS`、`_SENTENCE_SPLIT` |
 | `mind/percept/attention.py` | 45 | なし | `p_see`、`gate_stage1` | `P_SEE_LARGE_VISION`、`P_SEE_LARGE_VISION_AUDIO`、`P_SEE_LARGE_VISION_SILENT`、`P_SEE_MEDIUM_RANGE`、`P_SEE_MEDIUM_DEFAULT` |
+
+- 〔割る段 5a の G0・親の裁定 Q9〕`foundation/text/salience.py` の行で開いた名(表は「ほか 3 個」と省いていた。割り先は変えていない): `FEATURE_TAGS`・`IMPERATIVE_PATTERNS`・`_SENTENCE_SPLIT`
+- 〔割る段 5a の G0〕今は無い名を表から外した: `EFFECT_CAP_PER_EXPOSURE`(第347 で消した(返事その 8 §6-3))
 
 ### 4-23 `perception/renderer.py`
 
@@ -549,6 +581,19 @@
 
 | 割り先 | 行数 | クラス | 関数・メソッド | 定数 |
 |---|---:|---|---|---|
-| `world/model/assets.py` | 1286 | `WorldAssets`、`ProcessAssets` | `file_sha256`、`array_sha256`、`check_area_source`、`load_walkable_area_m2`、`assets_available`、`_cell_key`、`load_assets`、`load_poi_own_cell_visibility`、`load_visible_pois_by_cell`、`_noise_stage_per_cell`、`hash_free_cat_code`、`_nearest_node_in_cell`、`_grid_next_hop`、`synthetic_assets`、`_hhmm_to_min`、`_nearest_street_point_per_cell`、`_street_features_path`、`_bus_stop_cells`、`load_process_assets`、`load_process_assets_or_synthetic`、`WorldAssets.has_noise_field`、`WorldAssets.noise_stage_for_hour`、`WorldAssets.poi_position`、`WorldAssets.n_nodes`、`WorldAssets.n_cells`、`WorldAssets.n_poi`、`WorldAssets.summary`、`ProcessAssets.has_weather`、`ProcessAssets.has_shadow`、`ProcessAssets.has_timetable`、`ProcessAssets.has_plan_spec`、`ProcessAssets.has_road`、`ProcessAssets.has_bus_stops`、`ProcessAssets.day_index_of`、`ProcessAssets.shadow_path`、`ProcessAssets.shadow_planes`、`ProcessAssets.synthetic` | `BAND_CODES`、`CELL_SIZE_M`、`GRID_ORIGIN_XY`、`_REQUIRED_FILES`、`SYNTHETIC_POI_PRICES`、`SYNTHETIC_POI_CAPACITY`、`DEFAULT_OPEN_FROM_TICK`、`DEFAULT_OPEN_TO_TICK`、`NOISE_DAY_HOURS`、`N_NOISE_STAGES`、`SHADOW_GLOB`、`AREA_SOURCES` ほか 15 個 |
+| `world/model/assets.py` | 1286 | `WorldAssets`、`ProcessAssets` | `file_sha256`、`array_sha256`、`check_area_source`、`load_walkable_area_m2`、`assets_available`、`_cell_key`、`load_assets`、`load_poi_own_cell_visibility`、`load_visible_pois_by_cell`、`_noise_stage_per_cell`、`hash_free_cat_code`、`_nearest_node_in_cell`、`_grid_next_hop`、`synthetic_assets`、`_hhmm_to_min`、`_nearest_street_point_per_cell`、`_street_features_path`、`_bus_stop_cells`、`load_process_assets`、`load_process_assets_or_synthetic`、`WorldAssets.has_noise_field`、`WorldAssets.noise_stage_for_hour`、`WorldAssets.poi_position`、`WorldAssets.n_nodes`、`WorldAssets.n_cells`、`WorldAssets.n_poi`、`WorldAssets.summary`、`ProcessAssets.has_weather`、`ProcessAssets.has_shadow`、`ProcessAssets.has_timetable`、`ProcessAssets.has_plan_spec`、`ProcessAssets.has_road`、`ProcessAssets.has_bus_stops`、`ProcessAssets.day_index_of`、`ProcessAssets.shadow_path`、`ProcessAssets.shadow_planes`、`ProcessAssets.synthetic` | `BAND_CODES`、`CELL_SIZE_M`、`GRID_ORIGIN_XY`、`_REQUIRED_FILES`、`SYNTHETIC_POI_PRICES`、`SYNTHETIC_POI_CAPACITY`、`DEFAULT_OPEN_FROM_TICK`、`DEFAULT_OPEN_TO_TICK`、`NOISE_DAY_HOURS`、`N_NOISE_STAGES`、`SHADOW_GLOB`、`AREA_SOURCES`、`CORRIDOR_MAX_DENSITY_PER_M2`、`DEFAULT_AREA_SOURCE`、`HEAT_STAGE_ORDER`、`HOME_STATION_TITLE`、`PLATFORM_DWELL_DENSITY_PER_M2`、`PLATFORM_QUEUE_DENSITY_PER_M2`、`PROCESS_FILES`、`RAILWAY_TO_LINE`、`SEAT_AREA_M2_BUILDING_NOTICE`、`SEAT_AREA_M2_FIRE_CODE`、`SHADOW_FRAMES_PER_DAY`、`SHADOW_MINUTES_PER_FRAME`、`STREET_FEATURES_FILE`、`WALKABLE_AREA_FILENAME`、`WORLD_CRS_FILE` |
 | `foundation/vocab/place_words.py` | 1 | なし | なし | `SYNTHETIC_POI_CATS` |
 
+- 〔割る段 5a の G0・親の裁定 Q9〕`world/model/assets.py` の行で開いた名(表は「ほか 15 個」と省いていた。割り先は変えていない): `CORRIDOR_MAX_DENSITY_PER_M2`・`DEFAULT_AREA_SOURCE`・`HEAT_STAGE_ORDER`・`HOME_STATION_TITLE`・`PLATFORM_DWELL_DENSITY_PER_M2`・`PLATFORM_QUEUE_DENSITY_PER_M2`・`PROCESS_FILES`・`RAILWAY_TO_LINE`・`SEAT_AREA_M2_BUILDING_NOTICE`・`SEAT_AREA_M2_FIRE_CODE`・`SHADOW_FRAMES_PER_DAY`・`SHADOW_MINUTES_PER_FRAME`・`STREET_FEATURES_FILE`・`WALKABLE_AREA_FILENAME`・`WORLD_CRS_FILE`
+
+
+### 4-25 `engine/speech/port.py`
+
+| 割り先 | 行数 | クラス | 関数・メソッド | 定数 |
+|---|---:|---|---|---|
+| `society/speech/port.py` | 346 | `Utterance`、`SpeechContext`、`SpeechPort` | `_is_int`、`Utterance.__post_init__`、`SpeechContext.__post_init__`、`SpeechPort.__init__`、`SpeechPort.__setattr__`、`SpeechPort.__delattr__`、`SpeechPort.say`、`SpeechPort._write`、`SpeechPort._next_mark`、`SpeechPort._forget_mark`、`SpeechPort.take_heard`、`SpeechPort._open`、`SpeechPort.report_shown`、`SpeechPort.event_ids`、`SpeechPort.take_input_ids`、`SpeechPort.note`、`SpeechPort.observed` | `SPEECH_SCHEMA`、`WHAT`、`VIA_FACE`、`HEARD_TTL_STEPS`、`HEARD_MAX_PER_ADDRESSEE`、`METER_KEYS` |
+| `foundation/text/mora.py` | 25 | なし | `mora_count` | `_SMALL_KANA` |
+
+- 〔割る段 5a の G0・親の裁定 Q12〕`mora_count`(モーラの数の近似=文の道具)と、それだけが読む `_SMALL_KANA` を foundation の文の道具へ下ろす。読み手は `runtime/clocks/speech.py`(核 1=決まり 10 の例外)・`SpeechPort`・試験。割り先のファイルの名 `foundation/text/mora.py` は実装役の仮採用。行数は実装役の数え(案 K の数ではない)。
+- 〔割る段 5a の G0〕止まる所: `mora_count` の docstring の `expedient:` の段落はつなぎの台帳の行 `BR-DOC-SPEECH-MORA-KANA` (`src/shibuya/engine/speech/port.py#docstring:…`)。同じ元の道の見出し `HD-engine.speech.port-6f282ea4` は主な割り先に残るので、台帳の道の対応の表(今の道 → 台帳の道=1 対 1)では 2 つの今の道を同じ台帳の道に向けられない(道具は断る)。
+- 〔G0 の検収の後の親の答え 1〕延ばした: 5a は 17 本で終える。台帳の道を書き換えられる版上げのときに一緒に下ろす。それまで決まり 10 の例外 1 本(核 1)は残る。この節と行 244・244a は割る行と割り先の行のまま残し、割る段の順からだけ外した(`table.SPLIT_DEFERRED`。道具は順に無い行を断る)。

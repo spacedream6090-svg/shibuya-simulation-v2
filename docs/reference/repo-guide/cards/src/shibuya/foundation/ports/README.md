@@ -8,6 +8,8 @@ Python 6 本・その他 0 本(このディレクトリの直下)
 
 (冒頭の説明なし)
 
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
+
 ## [decision.py](../../../../../../../../src/shibuya/foundation/ports/decision.py)
 
 engine.decision.port — 候補の口 J0 の型と、提示(順のシャッフルと番号)の仕組み(第 1 期 1-8・DM-0・DM4・DM5・DM13・C-2)。

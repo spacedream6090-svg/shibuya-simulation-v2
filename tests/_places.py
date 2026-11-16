@@ -70,6 +70,9 @@ def origins_from(map_text: str, pkg: Path) -> dict[str, str]:
     ``move`` の行には ``new`` がある。さらに **今の木の ``.py`` は、表の ``old`` か ``move`` の ``new`` のどちらかに必ず在る**
     (どちらにも無くてよいのは 0 バイトの ``__init__.py``=段 4 で足す空の頭だけ)。外れたら :class:`PlacesMapError`
     (空や古い表で範囲が黙って縮むのを止める)。
+
+    〔割る段 5a・親の裁定 Q1〕割る行の ``new``(主な割り先)も表に在るファイルと見て、元の道は割る行の ``old``(元のファイルが
+    0 バイトの頭として木に残る間は今の道のまま=元の道が重ならない)。2 つ目以降の割り先は move の形の行(``split_from``)の old。
     """
     try:
         doc = tomllib.loads(map_text)
@@ -82,6 +85,7 @@ def origins_from(map_text: str, pkg: Path) -> dict[str, str]:
         raise PlacesMapError("対応表に行が無い")
     olds: set[str] = set()
     moved: dict[str, str] = {}
+    split_main: dict[str, str] = {}
     for i, r in enumerate(rows):
         if not isinstance(r, dict) or not isinstance(r.get("old"), str) or not isinstance(r.get("kind"), str):
             raise PlacesMapError(f"対応表の {i} 行目に old か kind が無い: {r!r}")
@@ -91,16 +95,22 @@ def origins_from(map_text: str, pkg: Path) -> dict[str, str]:
                 raise PlacesMapError(f"対応表の {i} 行目(move)に new が無い: {r!r}")
             if r["old"].endswith(".py"):
                 moved[r["new"]] = r["old"]
+        elif r["kind"] == "split" and isinstance(r.get("new"), str) and r["old"].endswith(".py"):
+            split_main[r["new"]] = r["old"]  # 〔割る段 5a・親の裁定 Q1〕主な割り先の元の道=割る行の old
     out: dict[str, str] = {}
     unknown: list[str] = []
     for p in sorted(pkg.rglob("*.py")):
         if "__pycache__" in p.parts:
             continue
         rel = p.relative_to(pkg).as_posix()
-        if rel not in olds and rel not in moved and not (p.name == "__init__.py" and p.stat().st_size == 0):
+        if (rel not in olds and rel not in moved and rel not in split_main
+                and not (p.name == "__init__.py" and p.stat().st_size == 0)):
             unknown.append(rel)
         old = moved.get(rel)
         out[rel] = old if old is not None and not (pkg / old).is_file() else rel
+        sm = split_main.get(rel)
+        if old is None and sm is not None and not (pkg / sm).is_file():
+            out[rel] = sm  # 割った後の主な割り先(元のファイルが 0 バイトの頭として残る間は今の道のまま=元の道が重ならない)
     if unknown:
         raise PlacesMapError(f"対応表に無い(old にも move の new にも無い)ファイル {len(unknown)} 本: {unknown[:10]}"
                              f"(表が古いか空。{ADD_ROW_HELP})")
@@ -233,6 +243,31 @@ def origin_module(name: str) -> str:
     """今のモジュールの名 → 元の置き場のモジュールの名(木に無い名=``shibuya`` の外など はそのまま)。"""
     rel = _rel_by_module().get(name)
     return module_of(origin_of(rel)) if rel is not None else name
+
+
+def split_name_origins_from(map_text: str) -> dict[str, dict[str, str]]:
+    """〔割る段 5a・親の裁定 Q2〕対応表の割る行の名の表 → 割り先のモジュールの名 → {頂上の名 → 割る行の元のモジュールの名}。"""
+    doc = tomllib.loads(map_text)
+    out: dict[str, dict[str, str]] = {}
+    for r in doc.get("row", []):
+        if r.get("kind") != "split" or not str(r.get("old", "")).endswith(".py"):
+            continue
+        for name, dest in (r.get("names") or {}).items():
+            out.setdefault(module_of(dest), {})[name] = module_of(r["old"])
+    return out
+
+
+@cache
+def _split_name_origins() -> dict[str, dict[str, str]]:
+    return split_name_origins_from(MAP.read_text(encoding="utf-8"))
+
+
+def origin_module_of_name(module: str, name: str) -> str:
+    """〔割る段 5a・親の裁定 Q2〕名の元の置き場のモジュール: 割る行の割り先のモジュールに載る名は、割る行の元のモジュール
+    (割り先の 2 つ目以降のファイルへ行った名も元のファイルへ戻る)。ほかは :func:`origin_module`(ファイルの元の置き場)。
+    割る前の木では名は元のモジュールに在るので、:func:`origin_module` と同じ答え。"""
+    got = _split_name_origins().get(module, {}).get(name)
+    return got if got is not None else origin_module(module)
 
 
 def imported(node: ast.AST) -> list[str]:

@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 15 本・その他 4 本(このディレクトリの直下)
+Python 16 本・その他 4 本(このディレクトリの直下)
 
 その他のファイル: `README.md`・`allow_tests_tools.toml`・`contracts.toml`・`map.toml`
 
@@ -21,7 +21,7 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
   - `scan_record_tools`(関数): tests の Python(``files`` の ``tests/`` の下)が道で読む docs の ``.py``: 道 → 読む試験。拾う形は ``/`` の結合
   - `src_sites`(関数): (b-src) の行を、今の木の置き場で(``locate``=今の道 → 木の道筋。移した後の木でも引ける)。
 - import している内部モジュール: `tools/pkgmove/table.py`
-- 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/move.py`
+- 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/move.py`・`tools/pkgmove/split.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 
 ## [classids.py](../../../../../../tools/pkgmove/classids.py)
@@ -32,12 +32,15 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
   - `ClassIdError`(クラス): 鍵の守りが止めた。
   - `ClassIdResult`(クラス)
   - `check_keys`(関数): 鍵の守り: 全行で、新しい鍵が対応表で古い鍵に戻り、値が古い鍵の値と同じ。
+  - `check_split_keys`(関数): 〔割る段 5a〕鍵の守り(クラスの単位): 写像は 1 対 1・行の数と値の多重集合が同じ・全行で新しい鍵が逆写像で古い鍵に戻り、値が
   - `find_table`(関数)
   - `new_table`(関数): 鍵だけを書き換えた表(値はそのまま)。
   - `rewrite`(関数): ``class_ids.py`` の文字列の鍵を書き換えた文字列と結果(鍵の守りを通らなければ :class:`ClassIdError`)。
+  - `split_keymap`(関数): 〔割る段 5a〕割るモジュール ``src_mod`` のクラス(``__qualname__``)→ 新しい鍵の写像。割り先は頂上の名(``__qualname__``
+  - `split_table`(関数): 〔割る段 5a〕鍵だけを ``keymap``(古い鍵 → 新しい鍵)で書き換えた表(値はそのまま)。
   - `table_of`(関数)
 - import している内部モジュール: `tools/pkgmove/model.py`
-- 呼び手: `tools/pkgmove/guard.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/move.py`
+- 呼び手: `tools/pkgmove/guard.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/move.py`・`tools/pkgmove/split.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 
 ## [cli.py](../../../../../../tools/pkgmove/cli.py)
@@ -50,10 +53,11 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
   - `cmd_importcheck`(関数)
   - `cmd_map`(関数)
   - `cmd_move`(関数)
+  - `cmd_split`(関数): 〔割る段 5a〕割る行を当てる(``split.py``)。
   - `is_main_worktree`(関数): ``path`` が git の本体の作業木(か、その中)なら ``True``=書かない。
   - `main`(関数)
   - `scan_allow`(関数): tests と tools の走査: 段 4 の全段(保留を除く)で道の文字列の書き換えが起きる (ファイル, 記号)。
-- import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/importcheck.py`・`tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
+- import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/importcheck.py`・`tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/split.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 - CLI の引数
   - サブコマンド `allow`
@@ -61,15 +65,18 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
   - サブコマンド `importcheck`
   - サブコマンド `map`
   - サブコマンド `move`
+  - サブコマンド `split`
   - `--apply`: 木の pyproject の節を書き換える(本体の作業木は断る)
   - `--check`: 木の pyproject の節が作り直しと同じかを見る(違えば 1)
-  - `--import-jobs`: 書いた後の import の確かめの並べる数(既定 4)
+  - `--import-jobs`
   - `--jobs`
-  - `--only`: 今の道筋(src/shibuya からの相対)で行を名指す(何回でも)
+  - `--next`: 木の次の割る行(順の次の 1 本)
+  - `--only`: 割る行を今の道(表の old)で名指す(順が違えば断る)
   - `--out`: 報告の JSON を書く道(木の外)。書くときは効いている例外の数も回す
   - `--out-dir`: 報告の JSON と差分を書く置き場(木の外)
   - `--probe`: 効いている例外の数を回す(--out が無くても)
   - `--stage`: 段の名(contracts.toml の stage_order)
+  - `--through`: 書かない実行だけ: 次の本から、この行(か all)まで順にメモリの中で当てる
   - `--tree`: 段を当てた木の根
 - 環境変数: `os.environ` をまるごと使う
 
@@ -95,8 +102,9 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
   - `stage_of`(関数): 木の段: どの段の行も当たっていなければ ``""``・段の順で ``S`` までが当たっていれば ``S``・どちらでもなければ ``None``。
   - `uncovered`(関数): どの契約の元の側(層の名・``source_modules``)にも入らないランの側のモジュール(頭・根・build を除く)。そのモジュールから
   - `view`(関数)
-- import している内部モジュール: `tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/table.py`
-- 呼び手: `tools/pkgmove/cli.py`
+  - `weakened`(関数): 〔割る段 5a・検収 高-1〕割る行 ``split_old`` を当てる前と後の報告(:func:`build` の 2 つ目)を比べ、言えなくなった
+- import している内部モジュール: `tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/split.py`・`tools/pkgmove/table.py`
+- 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/split.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 - 環境変数: `os.environ` をまるごと使う
 
@@ -119,7 +127,7 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
   - `id_pattern`(関数)
   - `shaped_counts`(関数): 74 種がランの側の src の文字列の定数に出てくる数。数えないのは、固定の表の鍵と、値の全体が移すファイルの道そのもの
 - import している内部モジュール: `tools/pkgmove/classids.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/model.py`
-- 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/move.py`
+- 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/move.py`・`tools/pkgmove/split.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 
 ## [ignoreprobe.py](../../../../../../tools/pkgmove/ignoreprobe.py)
@@ -152,6 +160,7 @@ import の文の書き換え(許可の一覧の (a))。
 - 公開の関数とクラス
   - `ImportStats`(クラス)
   - `Target`(クラス): 書き換えた後の 1 つの名(モジュール・名・別名)。
+  - `alias_dests`(関数): 〔割る段 5a〕ファイル(かコードの文字列)で割るモジュールを結んだ別名 → 割り先のモジュール(``X.名``・``setattr(X, "名")``
   - `all_drops`(関数): 〔親の裁定 review3 の 2〕頭から除いた再輸出の名を、その頭の ``__all__`` からも除く(頭が自己整合であること)。
   - `head_all_node`(関数): 頂上の ``__all__ = [...]``(か ``(...)``)の値。無ければ ``None``。
   - `head_drops`(関数): この段で空にしない包みの頭の再輸出のうち、出どころのモジュールが包みの外へ移るものの import の文を除く
@@ -161,7 +170,7 @@ import の文の書き換え(許可の一覧の (a))。
   - `rewrite_code`(関数): 文字列の中の Python のコード(子のプロセスに渡す文など)の import の文の書き換え: (元の文, 新しい文) の並び。
   - `rewrite_file`(関数): 1 本のファイルの import の文の書き換え。
 - import している内部モジュール: `tools/pkgmove/model.py`
-- 呼び手: `tools/pkgmove/guard.py`・`tools/pkgmove/move.py`・`tools/pkgmove/strings.py`
+- 呼び手: `tools/pkgmove/guard.py`・`tools/pkgmove/move.py`・`tools/pkgmove/split.py`・`tools/pkgmove/strings.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 
 ## [ledgerpaths.py](../../../../../../tools/pkgmove/ledgerpaths.py)
@@ -175,7 +184,7 @@ import の文の書き換え(許可の一覧の (a))。
   - `table_of`(関数)
   - `updated`(関数): ``moves``(古い今の道 → 新しい今の道)を当てた表。
 - import している内部モジュール: `tools/pkgmove/classids.py`・`tools/pkgmove/model.py`
-- 呼び手: `tools/pkgmove/move.py`
+- 呼び手: `tools/pkgmove/move.py`・`tools/pkgmove/split.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 
 ## [model.py](../../../../../../tools/pkgmove/model.py)
@@ -200,7 +209,7 @@ import の文の書き換え(許可の一覧の (a))。
   - `resolve_from`(関数): ``from … import`` のモジュールの名(相対は ``pkg`` から解く)。
   - `symbol_map`(関数): 木の中の各ノード(``id``)→ 記号の名。頂上の関数とクラスはその名(メソッドは ``クラス.メソッド``・関数の中の
   - `symbols_of`(関数): :func:`symbol_map` の覚え書き(:func:`parse` の木に対して)。
-- 呼び手: `tools/pkgmove/classids.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/move.py`・`tools/pkgmove/pkgdata.py`・`tools/pkgmove/strings.py`
+- 呼び手: `tools/pkgmove/classids.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/move.py`・`tools/pkgmove/pkgdata.py`・`tools/pkgmove/split.py`・`tools/pkgmove/strings.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 
 ## [move.py](../../../../../../tools/pkgmove/move.py)
@@ -224,7 +233,7 @@ import の文の書き換え(許可の一覧の (a))。
   - `tree_stage`(関数): 木の段(``contracts.stage_of`` と同じ見分けを段の順 :data:`STAGES` で): どの段の行も当たっていなければ ``""``・段の順で
   - `unified_diff`(関数)
 - import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/classids.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/model.py`・`tools/pkgmove/pkgdata.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
-- 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`
+- 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/split.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 
 ## [pkgdata.py](../../../../../../tools/pkgmove/pkgdata.py)
@@ -239,6 +248,35 @@ pyproject の ``[tool.setuptools.package-data]`` の鍵(親の裁定 2026-11-11�
 - 呼び手: `tools/pkgmove/move.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 
+## [split.py](../../../../../../tools/pkgmove/split.py)
+
+割る段(段 5a〜)の道具: 割る行(``kind="split"``)を 1 本ずつ当てる(親の裁定 Q10=案 A)。
+
+- 公開の関数とクラス
+  - `SplitPlan`(クラス)
+  - `SplitRefused`(クラス): 断った(表せない・順が違う・使い方)。終了コード 2。
+  - `SplitStopped`(クラス): 守りが止めた(書かない)。終了コード 2(親の発注=守りが「同じ」でなければ当てない)。
+  - `Unit`(クラス)
+  - `apply`(関数): 計画の木を ``root`` へ書く(変わったファイルだけ・消すファイル)。``__pycache__`` だけのディレクトリを消す。
+  - `compose`(関数): 割り先ごとの新しい字面(既に在る割り先は書き足した後の全文・元のファイルが主な割り先なら書き直した全文)。
+  - `free_names`(関数): 単位の中で結ばれない名(=割り先のモジュールの頂上で結ぶ要る名)と、文字列の注釈の中の名。``keep`` は組み込みの名でも
+  - `guards`(関数)
+  - `is_done`(関数): 割る行が当たっているか: どの名も割り先のファイルの頂上に在り、元のファイルは無いか 0 バイトの頭(主な割り先へ移ったもの
+  - `make_split_plan`(関数): 割る行 ``old`` を当てた後の木と報告(守りを通らなければ :class:`SplitStopped`・表せなければ :class:`SplitRefused`)。
+  - `names_used`(関数): 文が読む名(読み・注釈の名・文字列の注釈の中の名。結ぶ名は含めない)。局所の名も含む(多めに数える)。
+  - `next_split`(関数)
+  - `report`(関数)
+  - `source_rel`(関数): 割る行の元のファイルの今の道(``src/shibuya`` からの相対)。段 4 で主な割り先へ移ったもの(18 本目)は主な割り先。
+  - `split_state`(関数): 済んだ割る行(順の頭から)。順の途中が抜けていれば ``None``(段を飛ばした木)。
+  - `template_docstring`(関数): 2 つ目以降の新しい割り先の docstring(決まった型。凍結の値・expedient の見出しを書かない)。
+  - `top_names`(関数): ファイルの頂上で結ぶ名(関数・クラス・代入の左辺。``__all__`` を除く)。
+  - `unbound_names`(関数): 頂上・関数・クラスの中で読むのに、どこでも結ばれない名(組み込みを除く。``keep`` の名は組み込みでも数える)。比べるための
+  - `unified_diff`(関数)
+  - `units_of`(関数): 頂上の文の単位(前の注と空行を付ける)。表せない形は :class:`SplitRefused`。
+- import している内部モジュール: `shibuya.validation.static.bridging_scan`・`tools/pkgmove/allow.py`・`tools/pkgmove/classids.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
+- 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`
+- 読む試験: `tests/tools/test_pkgmove.py`
+
 ## [strings.py](../../../../../../tools/pkgmove/strings.py)
 
 道の文字列の書き換え(許可の一覧の (b))と、触らなかった道の形の文字列の拾い。
@@ -251,9 +289,10 @@ pyproject の ``[tool.setuptools.package-data]`` の鍵(親の裁定 2026-11-11�
   - `literal_source`(関数): 字面へ書き換えを同じ順に当てた新しい字面(値が合わなければ ``None``)。
   - `rewrite_file_strings`(関数): 1 本のファイルの許可の一覧の記号の中の文字列の書き換え。``rule_of``: 記号 → 規則(``exact``・``paths``)。
   - `rewrite_value`(関数): 文字列の値の書き換え(``paths`` の規則): 新しい値・書き換え(値の位置)・触らなかったもの(種類・字面・理由)。
+  - `sibling_dest`(関数): 〔割る段 5a〕全体が割るファイルの道 ``rel`` の文字列 ``n`` の、同じ組の中の頂上の名が指す割り先(無ければ ``None``)。
   - `untouched_in_file`(関数): 許可の一覧の外の文字列の定数のうち、移すモジュールの道の形を含むもの(ファイル・記号・種類・字面)と、
 - import している内部モジュール: `tools/pkgmove/imports.py`・`tools/pkgmove/model.py`
-- 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/move.py`
+- 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/move.py`・`tools/pkgmove/split.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 
 ## [table.py](../../../../../../tools/pkgmove/table.py)
@@ -265,9 +304,10 @@ pyproject の ``[tool.setuptools.package-data]`` の鍵(親の裁定 2026-11-11�
   - `Row`(クラス): 表の 1 行(道筋は ``src/shibuya`` からの相対・``/`` 区切り)。
   - `build_map_text`(関数)
   - `load_map`(関数): 対応表 TOML を読む(保留の一覧が道具の一覧と同じかも確かめる)。
-  - `parse_table`(関数): 表の §3 の行を読む(行の数と道筋の重なりを確かめる)。
-  - `render_map`(関数): 対応表 TOML の文(行の順は表の順)。
+  - `parse_split_tables`(関数): §4 の節 → 今の道 → (名と割り先の並び, 名が揃っているか, 宣言した書き換え)。名が 2 つの割り先に載れば ``ValueError``。
+  - `parse_table`(関数): 表の §3 の行を読む(行の数と道筋の重なりを確かめる)。割る行には §4 の名の表を付ける。
+  - `render_map`(関数): 対応表 TOML の文(行の順は表の順)。割る行の名の表は ``[row.names]``(名 → 割り先)・宣言した書き換えは
   - `sha256_text`(関数)
-- 呼び手: `tools/pkgmove/allow.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/move.py`
+- 呼び手: `tools/pkgmove/allow.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/move.py`・`tools/pkgmove/split.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
-- 決定の ID: 11-16
+- 決定の ID: 11-16・第 347

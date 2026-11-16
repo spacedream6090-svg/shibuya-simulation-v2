@@ -120,7 +120,9 @@ def select_rows(mapdoc: MapDoc, stages: Iterable[str], only: Iterable[str] = ())
             raise Refused(f"保留の行は動かさない: {o}({r.held})")
         if r.kind not in ("move", "empty", "delete"):
             raise Refused(f"動かす行でない: {o}(kind={r.kind})")
-    rows = [r for r in mapdoc.rows if r.kind in ("move", "empty", "delete")
+        if r.split_from:
+            raise Refused(f"割る段の割り先の行は段 4 では動かさない: {o}(元 {r.split_from}=split.py が当てる)")
+    rows = [r for r in mapdoc.rows if r.kind in ("move", "empty", "delete") and not r.split_from
             and ((r.old in only) if only else (r.stage in st))]
     return [r for r in rows if not r.held], [r for r in rows if r.held]
 
@@ -160,7 +162,8 @@ def _raise(msg: str) -> str:
 
 
 def _stage_rows(mapdoc: MapDoc) -> list[Row]:
-    rows = [r for r in mapdoc.rows if r.kind in ("move", "empty", "delete") and not r.held]
+    # 〔割る段 5a〕割り先の 2 つ目以降の行(split_from)は段 4 の段の行でない(割る前は old も new も無い)
+    rows = [r for r in mapdoc.rows if r.kind in ("move", "empty", "delete") and not r.held and not r.split_from]
     bad = sorted({r.stage for r in rows if r.stage not in STAGES})
     if bad:
         raise Refused(f"対応表に段の名が違う行がある: {bad}")

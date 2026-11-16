@@ -401,3 +401,60 @@ imported = "mind.system1.change_detect"
 form = "頭"
 rules = [1]
 gone_at = "段 5a"
+
+# ---- 割る段 5a で出る辺(親の裁定 Q3〜Q5・第347 の報告 §2・記録 docs/bench/analysis/split5a-347 §4)。28 本の表と表の外の 1 本の表には足さない(親の裁定 Q3)。
+# 名は最終の置き場(28 本と同じく、その段の木の今の名に引き直す)。appears_with の割る行を当てた木から載せる(当てる前の木では
+# 載せない=その割る行の前の節は変わらない)。計画に無い例外=報告に 4 本を名指しで書く(返事その 8 §1-12 の 3)。
+[[ignore_split]]
+num = "割 1"
+importer = "mind.percept.draw"
+imported = "world.model.agent_table"
+rules = [3]
+appears_with = "agents/state.py"
+gone_at = "段 7(renderer を割ると数え直す)"
+note = "perception.renderer(段 7 まで古い置き場)が AgentState を注釈で読み、mind.memory.memory_store → perception.renderer → world.model.agent_table の連なりが決まり 3 に当たる"
+
+[[ignore_split]]
+num = "割 2"
+importer = "world.model.scene_hash"
+imported = "world.model.percept_scene"
+rules = [1]
+appears_with = "engine/change_detect.py"
+gone_at = "段 7"
+note = "DEFAULT_WALKABLE_AREA_M2 が段 7 まで古い renderer の WALKABLE_FRACTION_SYNTHETIC を読む(親の裁定 Q4)。renderer → mind.percept.attention の連なりで決まり 1 に当たる"
+
+[[ignore_split]]
+num = "割 3"
+importer = "mind.system1.change_detect"
+imported = "world.model.agent_table"
+rules = [3]
+appears_with = "engine/change_detect.py"
+gone_at = "注釈だけ"
+note = "AgentState の注釈だけ(親の裁定 Q5=段 8 で TYPE_CHECKING へ・契約の設定は変えない)"
+
+[[ignore_split]]
+num = "割 4"
+importer = "mind.system1.change_detect"
+imported = "world.model.scene_hash"
+rules = [3]
+appears_with = "engine/change_detect.py"
+gone_at = "残る"
+note = "b4_block_raw・b4_block_hashes(案 K の例外 T3・v3 で世界が「変わったセル」を口へ出す)"
+
+# ---- 割る段で弱まってよい決まり(検収 高-1・親の答え 2026-11-16)。割る行を当てた後の木で、当てる前より not_expressed・
+# dropped_old に増えた項のうち、ここで宣言したものだけを計画どおりと見る。宣言の無い増えは割る道具(split.py)が止める
+# (終了コード 2=黙って弱めない)。old_names_gone=古い決まりから外れてよい名(包みが木から無くなる)・contracts_gone=丸ごと
+# 外れてよい古い決まり(名は [[old]] の name)・not_expressed=言えなくなってよい「決まりの番号か単位|名」。
+[[split_weakens]]
+split = "agents/state.py"
+old_names_gone = ["agents"]
+contracts_gone = []
+not_expressed = []
+note = "agents の最後のファイルを割り、包み agents が木から無くなる(古い決まり 4 本から名 agents が外れる)"
+
+[[split_weakens]]
+split = "llm/undefined.py"
+old_names_gone = ["llm"]
+contracts_gone = ["llm は world/agents を import しない(mock LLM が成立する)"]
+not_expressed = []
+note = "llm の最後のファイルを割り、包み llm が木から無くなる(古い決まり 3 本から名 llm が外れ、llm の決まりが丸ごと消える=計画どおり古い 3 → 2)"

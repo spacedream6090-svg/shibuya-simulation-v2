@@ -250,7 +250,7 @@ def test_economy_and_the_ledger_api_do_not_import_engine_events():
     import ast
     from pathlib import Path
 
-    import shibuya.llm as LLM
+    from shibuya.act.intake import parser as LLM  # 〔割る段 5a の G0・親の裁定 Q13〕llm の範囲の手がかりは、元の置き場が llm/ に残るモジュール(割る段で包み llm が無くなる)
     from shibuya.foundation.ports import ledger as LAPI
 
     from tests import _places as PL

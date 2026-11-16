@@ -248,6 +248,7 @@ c8lib の純関数と**設計書の走査**(漏れ検出の分母)。
 - 公開の関数とクラス
   - `test_both_copies_give_the_same_answer_on_a_made_tree`(関数)
   - `test_both_copies_give_the_same_answer_on_the_current_tree`(関数)
+  - `test_both_copies_give_the_same_answer_with_split_rows`(関数): 〔割る段 5a・親の裁定 Q1〕割る行(主な割り先・元が 0 バイトの頭)と 2 つ目以降の割り先の行(split_from)でも同じ答え。
   - `test_both_copies_share_the_schema_and_the_help`(関数)
   - `test_both_copies_stop_on_a_file_without_a_row`(関数): 表に無いファイル(中身のある新しい頭・新しいファイル)はどちらも止まり、0 バイトの新しい頭はどちらも受ける。
   - `test_both_copies_stop_on_the_same_bad_maps`(関数)

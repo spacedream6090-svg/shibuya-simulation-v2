@@ -57,7 +57,7 @@ def _forbidden() -> tuple[_places.Names, tuple[str, ...]]:
     (残るモジュールが無い)ので字面のまま(移す道具は包みの名を書き換えない)。
     """
     import shibuya.build as BUILD
-    from shibuya.agents import state as AGENTS
+    from shibuya.world.facts import population_reader as AGENTS  # 〔割る段 5a の G0・親の裁定 Q13〕元の置き場が agents/ に残るモジュール
     from shibuya.economy import ledger as ECONOMY
     from shibuya.engine import resolve as ENGINE
     from shibuya.perception import renderer as PERCEPTION

@@ -142,7 +142,7 @@ channels: §3.2 チャネル別トークン上限表・根拠等級・有界化(
   - `test_truncation_reports_no_truncation_when_it_fits`(関数)
   - `test_truncation_respects_item_count_cap`(関数)
   - `test_unknown_channel_requires_explicit_limit`(関数)
-- import している内部モジュール: `shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`
+- import している内部モジュール: `shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.llm`
 
 ## [test_hashes_state.py](../../../../../../tests/perception/test_hashes_state.py)
 

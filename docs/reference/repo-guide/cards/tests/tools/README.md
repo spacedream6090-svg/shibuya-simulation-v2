@@ -553,6 +553,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_cache_only_dirs_are_pruned_and_namespace_leftovers_are_caught`(関数): 〔検収 L-a〕``__pycache__`` だけを持つ古い包みのディレクトリは名前空間の包みとして import できる=import の確かめが落とす。
   - `test_catalog_json_relpath_moves_with_the_json`(関数): (b-src) 〔親の決定 2〕構築の側が凍結の JSON を書く先は、JSON と一緒に動く(JSON がまだ動いていない木では動かす段まで
   - `test_contract_rules_are_the_plan_sentences`(関数): 〔検収 M-1・L-7〕決まり 1〜8 の名は計画 §6-4 の文そのまま(番号つき)。決まり 2〜8 の型と名の並びは、試験の中の表
+  - `test_contract_view_puts_the_main_destination_of_a_split_head_in_the_final_names`(関数): 〔検収 高-1〕頭を割る行(llm/__init__.py の形): 中身が割り先へ出た後(元の頭が 0 バイト)は、主な割り先が最終の名になり、
   - `test_contracts_cli_refuses_a_main_worktree`(関数): ``contracts --apply`` も本体の作業木へは書かない(move --apply と同じ守り)。
   - `test_contracts_name_only_modules_in_the_tree_and_drop_changed_old_names`(関数): 〔作った見本の木・world の段〕作った節に、木に無い包みの名は入らない。古い決まりは、無くなった名(core・manifest ほか)と
   - `test_contracts_toml_matches_the_plan_tables`(関数): 元のファイルの層は計画 §1-2 の図、28 本は §6-4 の表と同じ(写しの誤りを止める)。決まりは 1〜8。
@@ -566,6 +567,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_head_reexports_of_modules_leaving_the_package_are_dropped`(関数): この段で空にしない頭の再輸出のうち、出どころが包みの外へ移るものの import の文を除く(循環の import を作らない)。
   - `test_held_rows_are_refused_in_a_sample`(関数): 〔11-16 の答えで table.HELD は空〕保留の仕組みは作った見本の対応表で確かめる: 名指しは断る・段を選べば保留の行を外して
   - `test_ignore_counts_count_lines_unique_edges_and_where_they_go`(関数): 例外の数(返事その 8 §1-12 の 3): 延べの行・重なりを除いた辺・重なりを除いた辺の消える段ごとの数(載せなかった行は数えない)。
+  - `test_ignore_split_rows_come_in_with_their_split`(関数): 〔親の裁定 Q3〕割る段で出る辺 4 本は別の表 [[ignore_split]]\(28 本と表の外の 1 本の表は変えない)。appears_with の割る行を
   - `test_import_check_catches_a_cycle_and_passes_a_clean_tree`(関数): 〔M-1〕全モジュールを 1 本ずつ最初から import する確かめ。わざと循環を作った小さな木で落ち、直した木で通る。読んだ
   - `test_import_check_fails_when_it_reads_a_shibuya_outside_the_tree`(関数): 〔検収 n06〕木の ``src/shibuya`` に頭(``__init__.py``)が無いと、子は別の場所の ``shibuya``(editable の本体・無ければ
   - `test_import_check_reimports_every_module_from_scratch`(関数): 〔検収 n05〕読む順でだけ循環が出る小さな木: ``a_pkg`` を先に読めば ``z_moved`` も読めるが、``z_moved`` を最初に読むと
@@ -577,19 +579,30 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_main_worktree_check_fails_closed`(関数): 〔M-2〕git が失敗したら断る側・呼び手の GIT_DIR に左右されない・.git が 1 つも無いときだけ git の外。報告の置き場が本体の
   - `test_map_toml_is_made_from_the_table_and_is_current`(関数)
   - `test_mora_rule_and_other_untouched_path_shaped_strings_stay_in_the_rest_plan`(関数): 残る段を全部まとめた計画(全段が当たった木では行 0 の計画)でも: 腕 mora の manifest に出る文は書き換えない・つなぎの
+  - `test_negative_a_declaration_in_a_second_destination_is_stopped`(関数): 2 つ目以降の新しい割り先につなぎの台帳の宣言(expedient の段落)が入ると、台帳の道の表(1 対 1)で表せないので止める。
   - `test_negative_a_map_sending_two_modules_to_one_is_refused`(関数): 〔突然変異 m19〕2 つの行を同じ行き先へ送る対応表は、行き先の守りが断る(どの守りが止めたかまで見る)。
   - `test_negative_a_plan_that_does_not_rewrite_package_data_is_stopped`(関数): 負の対照: package-data の鍵を書き換えない書き手を差し込むと、JSON が移る段で守りが止める。
+  - `test_negative_a_reader_with_two_destinations_is_listed_for_hand_fixing`(関数): 属性で読み、割り先が 2 つ以上になる読みは書き換えずに「手で直す一覧」に出し、既定(strict)では断る。
+  - `test_negative_alias_rewrite_captured_by_a_local_name_is_refused`(関数): 〔検収 低-1〕宣言した書き換え ``V.x`` → ``x`` の ``x`` が、その場所の局所の名(引数)に捕まる形は断る。捕まらなければ通す。
   - `test_negative_an_emptied_head_with_a_definition_is_stopped`(関数): 〔突然変異 m18・検収 L-f〕空にする頭に定義(関数・クラス)があれば止める。import・docstring・``__all__`` のほかの文
   - `test_negative_changing_the_names_bound_by_imports_is_stopped_in_a_plan`(関数): 計画の中でも、別名を落とす書き手を差し込むと結ぶ名の守りが止める。次に当てる段で動くモジュールを別名で読む試験の
   - `test_negative_class_ids_guard_catches_values_and_coverage`(関数): 〔突然変異 m03・m20〕固定の表の値が凍結の写像と違う・表の鍵が src のクラスと合わない、を守りが見つける(直に呼ぶ)。
+  - `test_negative_guard_1_stops_a_reordered_destination`(関数): 〔検収 中-3〕同じ割り先の中で文の順を入れ替える変異(多重集合は同じ)は、① の順の確かめが止める。
   - `test_negative_head_all_guards_stop_a_writer_that_keeps_or_overdrops_names`(関数): 負の対照: ``__all__`` から除かない書き手を差し込むと「結ばれない名」で止まる。除いた名のほかの名まで除く書き手を
   - `test_negative_key_guard_catches_a_swapped_pair_and_changed_values`(関数): 〔再検収 L-a〕鍵の守り(直に呼ぶ): 同じ ``__qualname__`` の組の値の入れ替え・値の書き換え・1 対 1 でない対応表を止める。
   - `test_negative_naive_rewrite_of_a_class_name_in_a_test_is_stopped`(関数)
   - `test_negative_naive_rewrite_of_rng_domain_names_is_stopped`(関数)
   - `test_negative_names_guard_catches_version_ids_headers_and_rng_tables`(関数): 〔突然変異 m21〕版の ID・ハッシュの見出し・乱数の領域の名の表の鍵が凍結と違えば、欄の名つきで見つける(直に呼ぶ)。
+  - `test_negative_only_guard_2_stops_a_changed_module_docstring`(関数): 〔検収 中-4〕主な割り先のモジュールの docstring を変える変異は、② だけが止める(① は docstring を比べない)。
+  - `test_negative_relative_and_star_readers_of_the_split_module_are_listed_for_hand_fixing`(関数): 〔検収 中-2〕相対の import と星の import で割るモジュールを読む読み手は書き換えず、「手で直す一覧」に出す(strict は断る)。
   - `test_negative_rewriting_a_docstring_in_an_allowlisted_symbol_is_stopped`(関数): 〔突然変異 m29・L-9〕許可の一覧の記号の中でも docstring は書き換えない。作った試験のファイルの許可の記号(docstring と
   - `test_negative_shaped_74_guard_alone_catches_a_manifest_text`(関数): 〔突然変異 m04〕manifest に出る文の中の道の形(``engine/energy.py`` の見出しの項)を書き換える書き手を、その表の記号に
+  - `test_negative_split_class_key_guard_catches_a_swapped_pair`(関数)
+  - `test_negative_split_compositions_that_cannot_be_expressed_are_refused`(関数)
+  - `test_negative_split_guards_stop_a_broken_composition`(関数)
+  - `test_negative_split_stops_when_import_rules_weaken_without_a_declaration`(関数): 〔検収 高-1〕割る前の木で言えた単位・決まりが、割った後に言えなくなったら(宣言の外)止める。宣言
   - `test_negative_swapping_a_same_qualname_pair_is_stopped_in_a_plan`(関数): 計画の中でも鍵の守りが止める(組の片方が動く foundation の段がまだ当たっていない木だけ)。
+  - `test_negative_undeclared_or_unused_alias_rewrites_are_refused`(関数): 自分を別名で読む文は、宣言した書き換え(親の裁定 Q6)のときだけ書き換える。宣言が無ければ断り、当たらない宣言も断る。
   - `test_only_import_statements_and_allowlisted_string_lines_change`(関数)
   - `test_outside_guard_compares_docstrings_inside_allowlisted_symbols`(関数): 〔L-9〕作った木で: 許可の記号の中の docstring が変われば止め、docstring でない文字列が変わるのは通す。
   - `test_package_data_is_not_rewritten_when_the_file_changes_shape`(関数): 〔検収 L-5・k18〕glob に当たっていたファイルが、包みの道からの相対の形を変えて移ったら(``frozen/a.json`` →
@@ -605,13 +618,25 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_section_6_6_rules_come_in_at_their_stages_in_a_sample`(関数): 〔段 4 の残り・作った見本の木〕§6-6 の決まりは入れる段から: 一時の区分の読み手の決まり(9)は interim_bundles の段から
   - `test_skipped_or_reversed_stages_are_refused_in_a_sample`(関数): 〔検収 中-2・作った見本の木〕段を飛ばす・逆の順の計画は断る(``Refused``=CLI の終了コード 2)。次の段から順にまとめる計画と、
   - `test_skipping_the_next_stage_is_refused`(関数): 〔検収 中-2〕本物の木で、次に当てる段を飛ばす計画は断る(書かない実行でも・CLI は終了コード 2)。次の段から順に
+  - `test_split_5a_in_memory_keeps_the_import_rules_to_the_end`(関数): 〔検収 高-1〕本物の木で 5a の残りの本をメモリの中で順に当てる(書かない・手で直す読みは残す): どの本でも守りが「同じ」
+  - `test_split_apply_refuses_a_main_worktree`(関数): 〔検収 中-4〕``split --apply`` は git の本体の作業木を断り、何も書かない(木をまるごと写さない小さな見本の木)。
+  - `test_split_dry_run_of_the_next_row_writes_nothing_and_keeps_every_guard`(関数): 本物の木で次の本を書かずに当てる(--through=手で直す読みは残して報告): 何も書かず、守りが全部「同じ」。
   - `test_split_import_keeps_the_comments_of_its_names`(関数): 〔突然変異 m13・L-9〕行き先が 2 つに分かれる文を作り直すとき、名の行の注・名の前の注だけの行・頭の行の注を残す。
+  - `test_split_imports_a_name_that_shadows_a_builtin_and_guard_3_checks_it`(関数): 〔検収 中-1〕元が組み込みの名を覆う名(``def format``)を定義し、別の割り先の文がそれを読むなら、組み立ては import を作る。
+  - `test_split_in_place_keeps_the_main_file_and_moves_names_out`(関数): 主な割り先が元のファイルの今の置き場(段 4 で移した=延ばした 18 本目の形): 元のファイルを書き直し、出した名は割り先から読む。
+  - `test_split_order_is_kept_in_the_real_tree`(関数): 割る段の順(親の裁定 Q11): 次の本のほかは断る(段を飛ばさない)。
+  - `test_split_refuses_a_done_row_a_wrong_order_and_a_skipped_tree`(関数): 〔検収 中-4〕済んだ本の当て直し・順が違う本・順を飛ばした木(split_state が None)は、どれも断る(終了コード 2 の経路)。
+  - `test_split_reports_the_imports_and_comments_it_did_not_write`(関数): 〔検収 低-2〕どの割り先も使わない import・import の前の注・作り直した import の中の注は写さず、報告の ``unwritten`` に出す。
+  - `test_split_rewrites_a_relative_import_of_the_source_to_the_absolute_form`(関数): 〔検収 中-2〕元の相対の import は、絶対の形に作り直して写す(割り先は別の包み)。守りは全部「同じ」。
+  - `test_split_rows_in_the_real_map_match_the_source_files`(関数): 本物の対応表: 割る段 5a の 17 本と延ばした 1 本(18 本目だった ``engine/speech/port.py``=G0 の検収の後の親の答え 1)は名が
+  - `test_split_sample_composes_dests_and_rewrites_readers`(関数): 見本の木: 名を結ぶ文は表の割り先へ(元の字面と注のまま)・ほかの文(assert)は読む名の割り先へ・主な割り先は元の
+  - `test_split_weakened_reads_the_declarations`(関数): 〔検収 高-1〕古い決まりから外れた名・丸ごと外れた古い決まり・言えなくなった決まりを、宣言の内と外に分ける。
   - `test_stacked_apply_prunes_old_package_dirs_and_returns_3_when_imports_fail`(関数): 〔検収 L-a・n07〕同じ木に段を重ねて当てる形: 前の import が作った ``__pycache__`` を全部のディレクトリに置いた木へ、次の
   - `test_staged_plan_refuses_the_held_rows_and_leaves_them`(関数)
   - `test_stages_in_order_give_the_same_tree_as_together`(関数): 残る最初の 2 段を順に当てた木と、2 つをまとめて当てた木が同じ(違ってよいのは import の文の並びと分け方だけ・前の段で
   - `test_string_constants_outside_the_allowlist_do_not_change`(関数)
   - `where`(関数): 今の道(``src/shibuya`` からの相対)のファイルの、リポの今の木の中の道筋(移した後なら新しい道)。
-- import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/classids.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/importcheck.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/pkgdata.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
+- import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/classids.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/importcheck.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/pkgdata.py`・`tools/pkgmove/split.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
 - 環境変数: `os.environ` をまるごと使う
 - 決定の ID: 11-16
 

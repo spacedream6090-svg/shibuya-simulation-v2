@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-327 ディレクトリ・2403 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+328 ディレクトリ・2405 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -313,6 +313,10 @@
 - [review.md](../../../bench/analysis/spatial-2026-10/sp1b/review.md): 第 5 期 空間の段 5-1b「抽出のランの密度の推定=版上げ 4 回目」の検収(sp1b)
 
 ## docs/bench/analysis/spatial-2026-10/sp1b/tools(4 本)
+
+## docs/bench/analysis/split5a-347(2 本)
+
+- [README.md](../../../bench/analysis/split5a-347/README.md): 割る段 5a の記録(G0=src は変えない・道具の拡張と守り)
 
 ## docs/bench/analysis/store-memory-2026-09-28(17 本)
 

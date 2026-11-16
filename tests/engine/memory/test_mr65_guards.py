@@ -152,7 +152,7 @@ def test_runtime_owners_of_the_arm_runs_are_fully_declared(monkeypatch, kw):
 
 def test_new_modules_respect_the_layer_contract():
     import shibuya.cli as CLI
-    import shibuya.llm as LLM
+    from shibuya.act.intake import parser as LLM  # 〔割る段 5a の G0・親の裁定 Q13〕llm の範囲の手がかりは、元の置き場が llm/ に残るモジュール(割る段で包み llm が無くなる)
     from shibuya.perception import renderer as PERCEPTION
 
     from tests import _places as PL

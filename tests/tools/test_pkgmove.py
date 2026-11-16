@@ -42,6 +42,7 @@ from pkgmove import cli as CLI  # noqa: E402
 from pkgmove import guard as G  # noqa: E402
 from pkgmove import ledgerpaths as LPT  # noqa: E402
 from pkgmove import move as MV  # noqa: E402
+from pkgmove import split as SP  # noqa: E402
 from pkgmove import strings as ST  # noqa: E402
 from pkgmove.model import SRC_PREFIX, Ctx, Index, Tree, apply_edits, docstring_ids, mod_of, symbol_map  # noqa: E402
 from pkgmove.table import HELD, LATE_STAGES, MAP_REL, STAGES, Row, build_map_text, load_map, parse_table  # noqa: E402
@@ -159,9 +160,11 @@ def _first_stage_is(stage: str) -> bool:
 # ------------------------------------------------------------------ 対応表と許可の一覧
 def test_map_toml_is_made_from_the_table_and_is_current():
     rows = parse_table((ROOT / "docs/reference/package-map-final-2026-11-09-files.md").read_text(encoding="utf-8"))
-    assert len(rows) == 328
+    # 〔割る段 5a の G0〕2 つ目以降の割り先 9 本と 18 本目(延ばした)の割り先 1 本の行(move の形・split_from)を足し、行 244 を
+    # 割る行に替えた(18 本目は延ばしても割る行のまま=table.SPLIT_DEFERRED)
+    assert len(rows) == 338
     kinds = Counter(r.kind for r in rows)
-    assert kinds == {"move": 206, "keep": 94, "split": 24, "delete": 2, "empty": 2}
+    assert kinds == {"move": 215, "keep": 94, "split": 25, "delete": 2, "empty": 2}
     # 保留の一覧は 11-16 の答え(返事その 8 §1-6)で全部決着した=空
     assert {r.old: r.held for r in rows if r.held} == HELD == {}
     by = {r.old: r for r in rows}
@@ -1697,3 +1700,512 @@ def test_package_data_is_not_rewritten_when_the_file_changes_shape():
     out, keys, warns = PD.rewrite(text, before, after, {"src/shibuya/old/frozen/a.json": "src/shibuya/new/pk/data/a.json"})
     assert out == text and keys == [] and "行き先が 1 つに決まらない" in warns[0]
     assert PD.check(out, after) == ["package-data の鍵の包みが木に無い: shibuya.old"]
+
+
+# ------------------------------------------------------------------ 〔割る段 5a〕割る行を当てる道具(split.py・親の裁定 Q10=案 A)
+_OLD_SAMPLE = (
+    '"""old — 見本の元のファイル。"""\n'
+    "\n"
+    "from __future__ import annotations\n"
+    "\n"
+    "import os\n"
+    "from typing import Final\n"
+    "\n"
+    "from shibuya.vocab import base as V\n"
+    "\n"
+    '__all__ = ["A", "B", "f", "C"]\n'
+    "\n"
+    "#: A の注\n"
+    "A: Final[int] = 1\n"
+    'B: Final[str] = V.word("x")\n'
+    "\n"
+    "\n"
+    "def f(x: int) -> int:\n"
+    "    return x + A + len(os.sep)\n"
+    "\n"
+    "\n"
+    "class C:\n"
+    "    def g(self) -> str:\n"
+    "        return B\n"
+    "\n"
+    "\n"
+    "assert A == 1\n"
+)
+_BASE_SAMPLE = (
+    '"""base — 見本の既に在る割り先。"""\n'
+    "\n"
+    "from __future__ import annotations\n"
+    "\n"
+    "from typing import Final\n"
+    "\n"
+    "__all__ = [\n"
+    '    "word",\n'
+    "]\n"
+    "\n"
+    "\n"
+    "def word(s: str) -> str:\n"
+    "    return s\n"
+)
+_SAMPLE_ROW = dict(num="1", old="pk/old.py", package="nw", kind="split", new="nw/main.py",
+                   split_to=("nw/main.py", "vocab/base.py"),
+                   names=(("A", "vocab/base.py"), ("B", "vocab/base.py"), ("f", "nw/main.py"), ("C", "nw/main.py")),
+                   names_complete=True, rewrites=(("vocab/base.py", "V"),))
+
+
+def _split_sample(extra: dict[str, str] | None = None, **row_kw) -> tuple[Tree, MV.MapDoc]:
+    files = {
+        "src/shibuya/__init__.py": "",
+        "src/shibuya/pk/__init__.py": "",
+        "src/shibuya/pk/old.py": _OLD_SAMPLE,
+        "src/shibuya/pk/reader.py": "from shibuya.pk.old import A, f\nfrom shibuya.pk import old as OLD\n\nX = A + f(1) + OLD.A\n",
+        "src/shibuya/vocab/__init__.py": "",
+        "src/shibuya/vocab/base.py": _BASE_SAMPLE,
+        "tests/test_x.py": "from shibuya.pk.old import C\n",
+        **(extra or {}),
+    }
+    return Tree(files=files), MV.MapDoc(rows=[Row(**{**_SAMPLE_ROW, **row_kw})])
+
+
+def _then(mutate):
+    """割り先の組み立ての後に字面を変える(負の対照=道具の不具合を植える)。"""
+    def compose(tree, row, src_rel, ix, plan):
+        return mutate(SP.compose(tree, row, src_rel, ix, plan))
+    return compose
+
+
+def test_split_sample_composes_dests_and_rewrites_readers():
+    """見本の木: 名を結ぶ文は表の割り先へ(元の字面と注のまま)・ほかの文(assert)は読む名の割り先へ・主な割り先は元の
+    docstring・割り先が使う import だけ・兄弟の割り先からの import・__all__ は割り先ごと・既に在る割り先へは後ろへ足し、
+    宣言した別名(V.x)だけ書き換える・読み手の import は名の割り先へ文を分ける・別名で読む形は割り先が 1 つなら書き換える。
+    守りは全部「同じ」。"""
+    tree, md = _split_sample()
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    a = plan.after.files
+    assert "src/shibuya/pk/old.py" not in a and a["src/shibuya/nw/__init__.py"] == "" and a["src/shibuya/pk/__init__.py"] == ""
+    main = a["src/shibuya/nw/main.py"]
+    assert main.startswith('"""old — 見本の元のファイル。"""\n\nfrom __future__ import annotations\n')
+    assert "import os\n" in main and "from typing" not in main and "from shibuya.vocab.base import A, B\n" in main
+    assert '__all__ = [\n    "f", "C",\n]\n' in main and "def f(x: int) -> int:" in main and "class C:" in main
+    base = a["src/shibuya/vocab/base.py"]
+    assert base.startswith('"""base — 見本の既に在る割り先。"""\n') and "def word(s: str) -> str:\n    return s\n" in base
+    assert '    "word",\n    "A", "B",\n]\n' in base and "#: A の注\nA: Final[int] = 1\n" in base
+    assert 'B: Final[str] = word("x")\n' in base and "V." not in base and "assert A == 1\n" in base
+    assert a["src/shibuya/pk/reader.py"].splitlines()[:3] == [
+        "from shibuya.vocab.base import A", "from shibuya.nw.main import f", "from shibuya.vocab import base as OLD"]
+    assert a["tests/test_x.py"] == "from shibuya.nw.main import C\n"
+    assert plan.rewrites_applied == {"vocab/base.py": 1} and plan.dests == {"nw/main.py": "new", "vocab/base.py": "existing"}
+    assert plan.created_heads == ["src/shibuya/nw/__init__.py"] and plan.deleted == ["src/shibuya/pk/old.py"]
+    assert set(plan.guards) >= {"stmts", "constants", "bindings", "declarations", "outside_allowlist", "import_names",
+                                "head_all"} and set(plan.guards.values()) == {"同じ"}
+    for p in ("src/shibuya/nw/main.py", "src/shibuya/vocab/base.py", "src/shibuya/pk/reader.py"):
+        compile(a[p], p, "exec")
+
+
+@pytest.mark.parametrize("mutate,word", [
+    # 1 文を落とす(クラス C を写し忘れる)
+    (lambda out: {**out, "nw/main.py": out["nw/main.py"].split("\n\nclass C:")[0] + "\n"}, "① 文"),
+    # 1 文を 2 か所に置く(f を既に在る割り先にも写す)
+    (lambda out: {**out, "vocab/base.py": out["vocab/base.py"] + "\n\ndef f(x: int) -> int:\n    return x + A\n"}, "① 文"),
+    # 文字列の定数を変える(守りを通らない書き換え)
+    (lambda out: {**out, "vocab/base.py": out["vocab/base.py"].replace('word("x")', 'word("y")')}, "② 定数"),
+    # 要る import を落とす
+    (lambda out: {**out, "nw/main.py": out["nw/main.py"].replace("import os\n", "")}, "③ 名の結び"),
+])
+def test_negative_split_guards_stop_a_broken_composition(mutate, word):
+    tree, md = _split_sample()
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False, compose_fn=_then(mutate))
+    assert any(word in e for e in ei.value.errors), ei.value.errors
+
+
+def test_negative_undeclared_or_unused_alias_rewrites_are_refused():
+    """自分を別名で読む文は、宣言した書き換え(親の裁定 Q6)のときだけ書き換える。宣言が無ければ断り、当たらない宣言も断る。"""
+    tree, md = _split_sample(rewrites=())
+    with pytest.raises(SP.SplitRefused, match="宣言した書き換え"):
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    tree, md = _split_sample(rewrites=(("vocab/base.py", "V"), ("nw/main.py", "V")))
+    with pytest.raises(SP.SplitRefused, match="当たらない"):
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+
+
+def test_negative_a_reader_with_two_destinations_is_listed_for_hand_fixing():
+    """属性で読み、割り先が 2 つ以上になる読みは書き換えずに「手で直す一覧」に出し、既定(strict)では断る。"""
+    extra = {"src/shibuya/pk/r2.py": "from shibuya.pk import old as O\n\nY = O.A + O.f(1)\n"}
+    tree, md = _split_sample(extra)
+    with pytest.raises(SP.SplitRefused, match="手で直す"):
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False, strict=False)
+    assert len(plan.manual) == 1 and "src/shibuya/pk/r2.py" in plan.manual[0]
+    assert plan.after.files["src/shibuya/pk/r2.py"] == extra["src/shibuya/pk/r2.py"]
+
+
+def test_negative_a_declaration_in_a_second_destination_is_stopped():
+    """2 つ目以降の新しい割り先につなぎの台帳の宣言(expedient の段落)が入ると、台帳の道の表(1 対 1)で表せないので止める。"""
+    old = _OLD_SAMPLE + '\n\ndef h() -> int:\n    """仮の値を返す。\n\n    expedient: 見本の仮の値。\n    """\n    return 1\n'
+    tree, md = _split_sample({"src/shibuya/pk/old.py": old}, names=(*_SAMPLE_ROW["names"], ("h", "nw/extra.py")),
+                             split_to=("nw/main.py", "vocab/base.py", "nw/extra.py"))
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    assert any("④ 宣言" in e and "nw/extra.py" in e for e in ei.value.errors), ei.value.errors
+
+
+def test_negative_split_class_key_guard_catches_a_swapped_pair():
+    old = {"shibuya.pk.old.C": "shibuya.pk.old.C", "shibuya.pk.old.D": "shibuya.pk.old.D", "shibuya.x.E": "shibuya.x.E"}
+    fq = {"shibuya.pk.old.C": "C", "shibuya.pk.old.D": "D", "shibuya.x.E": "E"}
+    keymap = CI.split_keymap({"C": None, "D": None}, "shibuya.pk.old", {"C": "shibuya.nw.main", "D": "shibuya.vocab.base"})
+    good = CI.split_table(old, keymap, fq)
+    CI.check_split_keys(old, good, keymap, fq)
+    assert set(good) == {"shibuya.nw.main.C", "shibuya.vocab.base.D", "shibuya.x.E"} and sorted(good.values()) == sorted(old.values())
+    swapped = {"shibuya.nw.main.C": "shibuya.pk.old.D", "shibuya.vocab.base.D": "shibuya.pk.old.C", "shibuya.x.E": "shibuya.x.E"}
+    with pytest.raises(CI.ClassIdError, match="取り違え"):
+        CI.check_split_keys(old, swapped, keymap, fq)
+    with pytest.raises(CI.ClassIdError, match="1 対 1"):
+        CI.check_split_keys(old, good, {**keymap, "shibuya.x.E": "shibuya.nw.main.C"}, fq)
+
+
+def test_split_in_place_keeps_the_main_file_and_moves_names_out():
+    """主な割り先が元のファイルの今の置き場(段 4 で移した=延ばした 18 本目の形): 元のファイルを書き直し、出した名は割り先から読む。"""
+    port = ('"""port — 見本。"""\n\nfrom __future__ import annotations\n\n_K: frozenset[str] = frozenset("ab")\n\n\n'
+            "def m(s: str) -> int:\n    return sum(1 for c in s if c not in _K)\n\n\n"
+            "class P:\n    def n(self) -> int:\n        return m(\"abc\")\n")
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/sp/__init__.py": "", "src/shibuya/sp/port.py": port,
+             "src/shibuya/sp/use.py": "from shibuya.sp.port import P, m\n"}
+    row = Row(num="1", old="old/port.py", package="sp", kind="split", new="sp/port.py", split_to=("sp/port.py", "txt/mora.py"),
+              names=(("_K", "txt/mora.py"), ("m", "txt/mora.py"), ("P", "sp/port.py")), names_complete=True)
+    md = MV.MapDoc(rows=[row])
+    tree = Tree(files=files)
+    assert SP.source_rel(tree, row) == "sp/port.py" and not SP.is_done(tree, row)
+    plan = SP.make_split_plan(tree, md, "old/port.py", check_order=False)
+    a = plan.after.files
+    assert plan.in_place and "def m(" not in a["src/shibuya/sp/port.py"] and "class P:" in a["src/shibuya/sp/port.py"]
+    assert "from shibuya.txt.mora import m\n" in a["src/shibuya/sp/port.py"]
+    assert a["src/shibuya/txt/mora.py"].startswith('"""txt.mora — 割る段で ``old/port.py`` を割った割り先')
+    assert a["src/shibuya/sp/use.py"].splitlines() == ["from shibuya.sp.port import P", "from shibuya.txt.mora import m"]
+    assert set(plan.guards.values()) == {"同じ"} and SP.is_done(plan.after, row)
+
+
+def test_split_rows_in_the_real_map_match_the_source_files():
+    """本物の対応表: 割る段 5a の 17 本と延ばした 1 本(18 本目だった ``engine/speech/port.py``=G0 の検収の後の親の答え 1)は名が
+    揃い(§4 を開いた=親の裁定 Q9)、まだ割っていない本は表の名が元のファイルの頂上の名と同じ。延ばした行は割る行のまま、順に
+    載らず(split_order 0)、道具は名指しでも断る。2 つ目以降の割り先の行(split_from)は段 4 の段の行に数えず、名指しでも段 4 の
+    道具は断る。"""
+    from pkgmove.table import SPLIT_DEFERRED, SPLIT_ORDER
+
+    tree = _root_tree()
+    by = MAPDOC.by_old()
+    assert [r.old for r in MAPDOC.split_rows()] == list(SPLIT_ORDER) and len(SPLIT_ORDER) == 17
+    assert list(SPLIT_DEFERRED) == ["engine/speech/port.py"] and by["engine/speech/port.py"].kind == "split"
+    assert by["engine/speech/port.py"].split_order == 0 and "engine/speech/port.py" not in SPLIT_ORDER
+    with pytest.raises(SP.SplitRefused, match="割る段の順に無い行"):
+        SP.make_split_plan(tree, MAPDOC, "engine/speech/port.py")
+    for old in (*SPLIT_ORDER, *SPLIT_DEFERRED):
+        r = by[old]
+        assert r.names_complete and r.split_order == (SPLIT_ORDER.index(old) + 1 if old in SPLIT_ORDER else 0)
+        if SP.is_done(tree, r):
+            continue
+        src = SP.source_rel(tree, r)
+        assert src is not None, old
+        assert set(r.name_map) == SP.top_names(tree.files[SRC_PREFIX + src]), old
+    sf = [r for r in MAPDOC.rows if r.split_from]
+    assert len(sf) == 10 and all(r.kind == "move" and r.stage == "" and r.new in by[r.split_from].split_to for r in sf)
+    rows, _held = MV.select_rows(MAPDOC, STAGES)
+    assert not [r for r in rows if r.split_from]
+    with pytest.raises(MV.Refused, match="割る段の割り先の行"):
+        MV.select_rows(MAPDOC, (), only=[sf[0].old])
+    assert by["engine/events/body.py"].rewrites == (("foundation/vocab/events.py", "V"),)
+    assert by["engine/speech/port.py"].name_map["mora_count"] == "foundation/text/mora.py"
+
+
+def test_split_order_is_kept_in_the_real_tree():
+    """割る段の順(親の裁定 Q11): 次の本のほかは断る(段を飛ばさない)。"""
+    from pkgmove.table import SPLIT_ORDER
+
+    tree = _root_tree()
+    st = SP.split_state(tree, MAPDOC)
+    assert st is not None
+    if len(st) >= len(SPLIT_ORDER) - 1:
+        pytest.skip("割る段の終わりの木")
+    nxt = SP.next_split(tree, MAPDOC)
+    assert nxt == SPLIT_ORDER[len(st)]
+    later = SPLIT_ORDER[len(st) + 1]
+    with pytest.raises(SP.SplitRefused, match="順が違う"):
+        SP.make_split_plan(tree, MAPDOC, later)
+
+
+def test_split_dry_run_of_the_next_row_writes_nothing_and_keeps_every_guard(tmp_path):
+    """本物の木で次の本を書かずに当てる(--through=手で直す読みは残して報告): 何も書かず、守りが全部「同じ」。"""
+    tree = _root_tree()
+    nxt = SP.next_split(tree, MAPDOC)
+    if nxt is None:
+        pytest.skip("割る段は全部当たっている")
+    before = {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in ("tools/pkgmove/map.toml", "pyproject.toml")}
+    r = run_cli("split", "--through", nxt, "--out-dir", str(tmp_path))
+    assert r.returncode == 0, r.stderr[-3000:]
+    rows = json.loads((tmp_path / "split_through_summary.json").read_text(encoding="utf-8"))
+    assert [x["row"] for x in rows] == [nxt] and all(v == "同じ" or v.startswith("宣言どおり") for v in rows[0]["guards"].values())
+    assert "contracts" in rows[0]["guards"] and isinstance(rows[0]["unwritten"], list)  # 〔検収 高-1・低-2〕
+    assert "書いていない" in r.stdout
+    assert before == {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in before}
+
+
+def test_ignore_split_rows_come_in_with_their_split():
+    """〔親の裁定 Q3〕割る段で出る辺 4 本は別の表 [[ignore_split]](28 本と表の外の 1 本の表は変えない)。appears_with の割る行を
+    当てる前の木では載せない。"""
+    from pkgmove import contracts as CT
+    from pkgmove.table import SPLIT_ORDER
+
+    spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
+    got = [(g["importer"], g["imported"], list(g["rules"]), g["appears_with"]) for g in spec.ignores_split]
+    assert got == [("mind.percept.draw", "world.model.agent_table", [3], "agents/state.py"),
+                   ("world.model.scene_hash", "world.model.percept_scene", [1], "engine/change_detect.py"),
+                   ("mind.system1.change_detect", "world.model.agent_table", [3], "engine/change_detect.py"),
+                   ("mind.system1.change_detect", "world.model.scene_hash", [3], "engine/change_detect.py")]
+    assert all(g["appears_with"] in SPLIT_ORDER and g["gone_at"] for g in spec.ignores_split)
+    assert len(spec.ignores) == 28 and len(spec.extras) == 1
+    tree = _root_tree()
+    stage = CT.stage_of(tree, MAPDOC, spec)
+    if not stage:
+        pytest.skip("段 4 の前の木")
+    _c, rep = CT.build(spec, MAPDOC, tree, stage)
+    by = MAPDOC.by_old()
+    for row in rep["ignores_split"]:
+        if not SP.is_done(tree, by[row["appears_with"]]):
+            assert row.get("skipped") == "割る行がまだ当たっていない", row
+
+
+# ------------------------------------------------------------------ 〔割る段 5a・G0 の検収の直し〕止め・決まり・守りの負の対照
+_TWO_SAMPLE = '"""two — 見本の 2 本目の元のファイル。"""\n\nfrom __future__ import annotations\n\nT = 1\nU = 2\n'
+_TWO_ROW = dict(num="2", old="pk/two.py", package="nw", kind="split", new="nw/two.py", split_to=("nw/two.py", "vocab/base.py"),
+                names=(("T", "nw/two.py"), ("U", "vocab/base.py")), names_complete=True)
+
+
+def test_split_refuses_a_done_row_a_wrong_order_and_a_skipped_tree(monkeypatch):
+    """〔検収 中-4〕済んだ本の当て直し・順が違う本・順を飛ばした木(split_state が None)は、どれも断る(終了コード 2 の経路)。"""
+    monkeypatch.setattr(SP, "SPLIT_ORDER", ("pk/old.py", "pk/two.py"))
+    tree, _md = _split_sample({"src/shibuya/pk/two.py": _TWO_SAMPLE})
+    md = MV.MapDoc(rows=[Row(**_SAMPLE_ROW), Row(**_TWO_ROW)])
+    assert SP.split_state(tree, md) == [] and SP.next_split(tree, md) == "pk/old.py"
+    with pytest.raises(SP.SplitRefused, match="順が違う"):
+        SP.make_split_plan(tree, md, "pk/two.py")
+    done = SP.make_split_plan(tree, md, "pk/old.py").after
+    assert SP.split_state(done, md) == ["pk/old.py"] and SP.next_split(done, md) == "pk/two.py"
+    with pytest.raises(SP.SplitRefused, match="当たっている"):
+        SP.make_split_plan(done, md, "pk/old.py")
+    skipped = SP.make_split_plan(tree, md, "pk/two.py", check_order=False).after  # 1 本目を飛ばして 2 本目だけ当てた木
+    assert SP.split_state(skipped, md) is None
+    with pytest.raises(SP.SplitRefused, match="段を飛ばしたか"):
+        SP.make_split_plan(skipped, md, "pk/old.py")
+
+
+def test_split_apply_refuses_a_main_worktree(tmp_path):
+    """〔検収 中-4〕``split --apply`` は git の本体の作業木を断り、何も書かない(木をまるごと写さない小さな見本の木)。"""
+    main = tmp_path / "main"
+    (main / "src" / "shibuya").mkdir(parents=True)
+    (main / "src" / "shibuya" / "__init__.py").write_text("", encoding="utf-8")
+    _git(main, "init", "-q")
+    before = {k: v for k, v in digest(main).items() if not k.startswith(".git/")}
+    r = run_cli("split", "--next", "--apply", "--tree", str(main))
+    assert r.returncode == 2 and "本体の作業木" in r.stderr, r.stderr[-2000:]
+    r = run_cli("split", "--next", "--apply")
+    assert r.returncode == 2 and "--tree" in r.stderr
+    r = run_cli("split", "--apply", "--through", "all", "--tree", str(main))
+    assert r.returncode == 2 and "--through" in r.stderr
+    assert {k: v for k, v in digest(main).items() if not k.startswith(".git/")} == before
+
+
+def test_contract_view_puts_the_main_destination_of_a_split_head_in_the_final_names():
+    """〔検収 高-1〕頭を割る行(llm/__init__.py の形): 中身が割り先へ出た後(元の頭が 0 バイト)は、主な割り先が最終の名になり、
+    その単位(foundation)が言える。前は頭の行を全部飛ばし、単位と決まりが黙って言えなくなった。"""
+    from pkgmove import contracts as CT
+
+    rows = [Row(num="1", old="core/rng.py", package="foundation", kind="move", new="foundation/rng.py", stage="foundation"),
+            Row(num="2", old="llm/__init__.py", package="foundation", kind="split", new="foundation/ports/inference.py",
+                split_to=("foundation/ports/inference.py",)),
+            Row(num="3", old="llm/fleet.py", package="runtime", kind="move", new="runtime/fleet.py", stage="runtime")]
+    md = MV.MapDoc(rows=rows)
+    base = {"src/shibuya/__init__.py": "", "src/shibuya/foundation/__init__.py": "", "src/shibuya/foundation/rng.py": "",
+            "src/shibuya/llm/fleet.py": ""}
+    before = Tree(files={**base, "src/shibuya/llm/__init__.py": "X = 1\n"})
+    after = Tree(files={**base, "src/shibuya/llm/__init__.py": "", "src/shibuya/foundation/ports/__init__.py": "",
+                        "src/shibuya/foundation/ports/inference.py": "X = 1\n"})
+    vb, va = CT.view(before, md), CT.view(after, md)
+    assert "shibuya.foundation.ports.inference" not in vb.final_of
+    assert va.is_final("shibuya.foundation.ports.inference") and CT._unit_ok(va, "shibuya", "foundation") == (True, "")
+    assert ("shibuya.llm", "shibuya.foundation.ports.inference") in va.moved_in
+
+
+def test_negative_split_stops_when_import_rules_weaken_without_a_declaration(monkeypatch):
+    """〔検収 高-1〕割る前の木で言えた単位・決まりが、割った後に言えなくなったら(宣言の外)止める。宣言
+    (``[[split_weakens]]``)の分は通し、守りの値に「宣言どおり」と数を出す。"""
+    from pkgmove import contracts as CT
+
+    def fake_build(spec, mapdoc, tree, stage):
+        done = "src/shibuya/nw/main.py" in tree.files
+        return [], {"n_old": 2, "n_new": 9 - done, "dropped_old": [],
+                    "not_expressed": [{"rule": "単位", "name": "nw", "why": "見本"}] if done else []}
+
+    monkeypatch.setattr(CT, "stage_of", lambda tree, mapdoc, spec: "delete")
+    monkeypatch.setattr(CT, "build", fake_build)
+    spec = CT.Spec(root="shibuya", old_only_through="foundation", stage_order=("foundation", "delete"), layers=[], side=[],
+                   rules=[], old=[], ignores=[])
+    tree, md = _split_sample()
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False, contracts_spec=spec)
+    assert [e for e in ei.value.errors if e.startswith("決まり") and "単位|nw" in e], ei.value.errors
+    spec.split_weakens = [{"split": "pk/old.py", "not_expressed": ["単位|nw"]}]
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False, contracts_spec=spec)
+    assert plan.guards["contracts"] == "宣言どおり 1" and plan.contracts["contracts_after"] == {"old": 2, "new": 8}
+
+
+def test_split_weakened_reads_the_declarations():
+    """〔検収 高-1〕古い決まりから外れた名・丸ごと外れた古い決まり・言えなくなった決まりを、宣言の内と外に分ける。"""
+    from pkgmove import contracts as CT
+
+    spec = CT.Spec(root="shibuya", old_only_through="foundation", stage_order=("delete",), layers=[], side=[], rules=[],
+                   old=[], ignores=[], split_weakens=[{"split": "x.py", "old_names_gone": ["llm"], "contracts_gone": ["L"],
+                                                       "not_expressed": ["2|foundation は何も読まない"]}])
+    b = {"n_old": 3, "n_new": 9, "not_expressed": [], "dropped_old": [{"contract": "K", "name": "agents", "why": "木に無い"}]}
+    a = {"n_old": 2, "n_new": 9, "not_expressed": [{"rule": 1, "name": "層", "why": "w"}],
+         "dropped_old": [*b["dropped_old"], {"contract": "K", "name": "llm", "why": "木に無い"},
+                         {"contract": "L", "name": "(契約)", "why": "空"}, {"contract": "M", "name": "core", "why": "木に無い"}]}
+    w = CT.weakened(spec, "x.py", b, a)
+    assert w["declared"] == ["古い決まりから外れた: K の llm", "古い決まりから外れた: L の (契約)"]
+    assert w["undeclared"] == ["言えなくなった: 1|層", "古い決まりから外れた: M の core"]
+    assert w["unused"] == ["2|foundation は何も読まない"]
+    same = CT.weakened(spec, "y.py", b, b)
+    assert same["declared"] == [] == same["undeclared"] and same["unused"] == []
+
+
+@pytest.mark.slow
+def test_split_5a_in_memory_keeps_the_import_rules_to_the_end():
+    """〔検収 高-1〕本物の木で 5a の残りの本をメモリの中で順に当てる(書かない・手で直す読みは残す): どの本でも守りが「同じ」
+    (宣言どおりの弱まりは 2 本目の agents と 10 本目の llm だけ)で、5a の終わりに契約は 11(古い 2+新しい 9)、単位 foundation と
+    決まり 2 が言える。"""
+    from pkgmove import contracts as CT
+    from pkgmove.table import SPLIT_ORDER
+
+    spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
+    frozen = frozen_of(ROOT)
+    ledger = (ROOT / SP.LEDGER_REL).read_text(encoding="utf-8")
+    tree = _root_tree()
+    st = SP.split_state(tree, MAPDOC)
+    assert st is not None
+    weakened: dict[str, list[str]] = {}
+    for old in SPLIT_ORDER[len(st):]:
+        plan = SP.make_split_plan(tree, MAPDOC, old, frozen=frozen, ledger_text=ledger, strict=False, contracts_spec=spec)
+        bad = {k: v for k, v in plan.guards.items() if v != "同じ" and not v.startswith("宣言どおり")}
+        assert not bad and "contracts" in plan.guards, (old, bad)
+        if plan.guards["contracts"] != "同じ":
+            weakened[old] = plan.contracts["declared"]
+        tree = plan.after
+    assert set(weakened) <= {"agents/state.py", "llm/undefined.py"}, weakened
+    _c, rep = CT.build(spec, MAPDOC, tree, CT.stage_of(tree, MAPDOC, spec))
+    assert (rep["n_old"], rep["n_new"]) == (2, 9), rep["not_expressed"]
+    ne = {(str(x["rule"]), x["name"]) for x in rep["not_expressed"]}
+    assert ("単位", "foundation") not in ne and not [r for r, _n in ne if r == "2"], sorted(ne)
+
+
+def test_negative_alias_rewrite_captured_by_a_local_name_is_refused():
+    """〔検収 低-1〕宣言した書き換え ``V.x`` → ``x`` の ``x`` が、その場所の局所の名(引数)に捕まる形は断る。捕まらなければ通す。"""
+    def with_g(body: str):
+        old = _OLD_SAMPLE.replace('B: Final[str] = V.word("x")\n', 'B: Final[str] = V.word("x")\n\n\n' + body)
+        return _split_sample({"src/shibuya/pk/old.py": old}, names=(*_SAMPLE_ROW["names"], ("g", "vocab/base.py")))
+
+    tree, md = with_g("def g(word: str) -> str:\n    return V.word(word)\n")
+    with pytest.raises(SP.SplitRefused, match="局所の名に捕まる"):
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    tree, md = with_g("def g(s: str) -> str:\n    return V.word(s)\n")
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    assert "    return word(s)\n" in plan.after.files["src/shibuya/vocab/base.py"] and set(plan.guards.values()) == {"同じ"}
+
+
+def test_split_imports_a_name_that_shadows_a_builtin_and_guard_3_checks_it():
+    """〔検収 中-1〕元が組み込みの名を覆う名(``def format``)を定義し、別の割り先の文がそれを読むなら、組み立ては import を作る。
+    その import を落とす変異は ③ だけが止める(組み込みの format を読む形)。"""
+    old = _OLD_SAMPLE.replace("def f(x: int) -> int:\n    return x + A + len(os.sep)\n",
+                              "def format(x: int) -> int:\n    return x\n\n\ndef f(x: int) -> int:\n"
+                              "    return format(x) + A + len(os.sep)\n")
+    tree, md = _split_sample({"src/shibuya/pk/old.py": old}, names=(*_SAMPLE_ROW["names"], ("format", "vocab/base.py")))
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    assert "from shibuya.vocab.base import A, B, format\n" in plan.after.files["src/shibuya/nw/main.py"]
+    assert set(plan.guards.values()) == {"同じ"}
+    drop = _then(lambda out: {**out, "nw/main.py": out["nw/main.py"].replace(", format\n", "\n")})
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False, compose_fn=drop)
+    assert [e[:1] for e in ei.value.errors] == ["③"] and "format" in ei.value.errors[0], ei.value.errors
+
+
+@pytest.mark.parametrize("extra,word", [
+    # 〔中-1〕星の import のある元は断る
+    ({"src/shibuya/pk/old.py": _OLD_SAMPLE.replace("import os\n", "import os\nfrom os.path import *\n")}, "星の import"),
+    # 〔中-2〕既に在る割り先が同じ名を持つ(後ろに足すと上書きする)
+    ({"src/shibuya/vocab/base.py": _BASE_SAMPLE + "\n\nA = 0\n"}, "既に結んでいる"),
+    # 〔低-3〕元が from __future__ import annotations を持たず、既に在る割り先が持つ
+    ({"src/shibuya/pk/old.py": _OLD_SAMPLE.replace("from __future__ import annotations\n\n", "")}, "元は持たない"),
+])
+def test_negative_split_compositions_that_cannot_be_expressed_are_refused(extra, word):
+    tree, md = _split_sample(extra)
+    with pytest.raises(SP.SplitRefused, match=word):
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+
+
+def test_split_rewrites_a_relative_import_of_the_source_to_the_absolute_form():
+    """〔検収 中-2〕元の相対の import は、絶対の形に作り直して写す(割り先は別の包み)。守りは全部「同じ」。"""
+    old = _OLD_SAMPLE.replace("import os\n", "import os\n\nfrom .helper import H\n").replace(
+        "    return x + A + len(os.sep)\n", "    return x + A + len(os.sep) + H\n")
+    tree, md = _split_sample({"src/shibuya/pk/old.py": old, "src/shibuya/pk/helper.py": "H = 1\n"})
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    main = plan.after.files["src/shibuya/nw/main.py"]
+    assert "from shibuya.pk.helper import H\n" in main and "from .helper" not in main
+    assert any("相対 → 絶対" in x for x in plan.rebuilt_imports) and set(plan.guards.values()) == {"同じ"}
+
+
+@pytest.mark.parametrize("reader", [
+    "from .old import A\n\nX = A\n",  # 相対の import で割るモジュールを読む
+    "from . import old\n\nX = old.A\n",
+    "from shibuya.pk.old import *\n\nX = A\n",  # 星の import で割るモジュールを読む
+])
+def test_negative_relative_and_star_readers_of_the_split_module_are_listed_for_hand_fixing(reader):
+    """〔検収 中-2〕相対の import と星の import で割るモジュールを読む読み手は書き換えず、「手で直す一覧」に出す(strict は断る)。"""
+    tree, md = _split_sample({"src/shibuya/pk/r3.py": reader})
+    with pytest.raises(SP.SplitRefused, match="手で直す"):
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False, strict=False)
+    assert [m for m in plan.manual if "src/shibuya/pk/r3.py" in m] and plan.after.files["src/shibuya/pk/r3.py"] == reader
+
+
+def test_negative_guard_1_stops_a_reordered_destination():
+    """〔検収 中-3〕同じ割り先の中で文の順を入れ替える変異(多重集合は同じ)は、① の順の確かめが止める。"""
+    def swap(out):
+        m = out["nw/main.py"]
+        f_def = "def f(x: int) -> int:\n    return x + A + len(os.sep)\n"
+        c_def = "class C:\n    def g(self) -> str:\n        return B\n"
+        assert f_def + "\n\n" + c_def in m
+        return {**out, "nw/main.py": m.replace(f_def + "\n\n" + c_def, c_def + "\n\n" + f_def)}
+
+    tree, md = _split_sample()
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False, compose_fn=_then(swap))
+    assert [e for e in ei.value.errors if e.startswith("① 文") and "順" in e] and len(ei.value.errors) == 1, ei.value.errors
+
+
+def test_negative_only_guard_2_stops_a_changed_module_docstring():
+    """〔検収 中-4〕主な割り先のモジュールの docstring を変える変異は、② だけが止める(① は docstring を比べない)。"""
+    tree, md = _split_sample()
+    change = _then(lambda out: {**out, "nw/main.py": out["nw/main.py"].replace("見本の元のファイル。", "見本の元のファイル(変えた)。")})
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False, compose_fn=change)
+    assert [e[:1] for e in ei.value.errors] == ["②"], ei.value.errors
+
+
+def test_split_reports_the_imports_and_comments_it_did_not_write():
+    """〔検収 低-2〕どの割り先も使わない import・import の前の注・作り直した import の中の注は写さず、報告の ``unwritten`` に出す。"""
+    old = _OLD_SAMPLE.replace("import os\nfrom typing import Final\n",
+                              "import os\n# sys の前の注\nimport sys\nfrom typing import (  # typing の注\n    Final,\n)\n")
+    tree, md = _split_sample({"src/shibuya/pk/old.py": old})
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    un = plan.unwritten
+    assert any(x.startswith("import 行 7: `import sys`") and "どの割り先も使わない" in x for x in un), un
+    assert any("`# sys の前の注` — import の前" in x for x in un), un
+    assert any("`# typing の注` — 作り直した import の中" in x for x in un), un
+    assert SP.report(plan)["unwritten"] == un and set(plan.guards.values()) == {"同じ"}

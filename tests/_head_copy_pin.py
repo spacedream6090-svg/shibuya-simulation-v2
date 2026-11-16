@@ -158,16 +158,21 @@ def _short(name: str) -> str:
     return "ext:" + name
 
 
-def _describe(obj: object, stmt_module: str) -> str:
+def _describe(obj: object, stmt_module: str, name: str | None = None) -> str:
+    """〔割る段 5a・親の裁定 Q2〕関数とクラスは定義したモジュールと頂上の名で、値は文が読むモジュールと読む名で、名の元の
+    置き場を引く(``PL.origin_module_of_name``=割り先の 2 つ目以降のファイルへ行った名も元のモジュールへ戻る)。"""
     if inspect.ismodule(obj):
         return f"module {_short(PL.origin_module(obj.__name__))}"
     mod, qual = getattr(obj, "__module__", None), getattr(obj, "__qualname__", None)
     if isinstance(mod, str) and isinstance(qual, str) and (isinstance(obj, type) or callable(obj)):
-        return f"def {_short(PL.origin_module(mod))} {qual}"
+        return f"def {_short(PL.origin_module_of_name(mod, qual.split('.')[0]))} {qual}"
     # 集合は要素の repr を並べて書く(文字列の集合の並びはハッシュの種で変わる)
     r = (f"{type(obj).__name__}{sorted(map(repr, obj))!r}" if isinstance(obj, (set, frozenset)) else repr(obj))
     assert " at 0x" not in r, f"repr に番地が入る値は固定できない: {r[:80]}"
-    where = _short(PL.origin_module(stmt_module)) if stmt_module else "-"
+    if stmt_module and name:
+        where = _short(PL.origin_module_of_name(stmt_module, name))
+    else:
+        where = _short(PL.origin_module(stmt_module)) if stmt_module else "-"
     return f"value {where} {hashlib.sha256(r.encode('utf-8')).hexdigest()[:16]}"
 
 
@@ -186,9 +191,10 @@ def refs(mod: ModuleType, path: Path, *, lf: bool = False) -> dict[str, str]:
         if isinstance(n, ast.ImportFrom):
             rel = PL._rel_by_module().get(n.module or "")
             stmt_module = n.module if rel is not None and not rel.endswith("__init__.py") else ""
-        for name in _bound(n):
+        origs = [a.name for a in n.names] if isinstance(n, ast.ImportFrom) else [None] * len(n.names)
+        for name, orig in zip(_bound(n), origs):  # 〔割る段 5a〕値は読む名(``as`` の前)で元の置き場を引く
             assert name not in out, f"{path.name}: 名 {name} を 2 回置く"
-            out[name] = _describe(getattr(mod, name), stmt_module)
+            out[name] = _describe(getattr(mod, name), stmt_module, orig)
     return dict(sorted(out.items()))
 
 

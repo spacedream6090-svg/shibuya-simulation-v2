@@ -50,6 +50,10 @@ class Spec:
     ignores: list[dict]
     extras: list[dict] = field(default_factory=list)
     ignores66: list[dict] = field(default_factory=list)
+    #: 〔割る段 5a・親の裁定 Q3〕割る段で出る辺(``appears_with`` の割る行を当てた木から載せる)。
+    ignores_split: list[dict] = field(default_factory=list)
+    #: 〔割る段 5a・検収 高-1〕割る行を当てて弱まってよい決まり(計画どおりのもの)。:func:`weakened` が使う。
+    split_weakens: list[dict] = field(default_factory=list)
 
     @property
     def units(self) -> list[str]:
@@ -65,7 +69,39 @@ def load_spec(path: Path) -> Spec:
     return Spec(root=d["root_package"], old_only_through=d["old_only_through"], stage_order=tuple(d["stage_order"]),
                 layers=list(d["layers"]), side=list(d.get("side", [])), rules=list(d["rule"]), old=list(d["old"]),
                 ignores=list(d["ignore"]), extras=list(d.get("extra_ignore", [])),
-                ignores66=list(d.get("ignore_66", [])))
+                ignores66=list(d.get("ignore_66", [])), ignores_split=list(d.get("ignore_split", [])),
+                split_weakens=list(d.get("split_weakens", [])))
+
+
+def weakened(spec: Spec, split_old: str, before: dict, after: dict) -> dict:
+    """〔割る段 5a・検収 高-1〕割る行 ``split_old`` を当てる前と後の報告(:func:`build` の 2 つ目)を比べ、言えなくなった
+    単位・決まり(``not_expressed`` に増えた (決まり, 名))と、古い決まりから外れた名(``dropped_old`` に増えた (契約, 名))を出す。
+    ``[[split_weakens]]`` のその割る行の宣言(``old_names_gone``=古い決まりから外れてよい名・``contracts_gone``=丸ごと外れて
+    よい古い決まり・``not_expressed``=言えなくなってよい「決まり|名」)に当たるものは ``declared``、ほかは ``undeclared``
+    (割る道具が止める)。宣言のうち当たらなかったものは ``unused``(報告だけ)。"""
+    decl = [w for w in spec.split_weakens if w["split"] == split_old]
+    names_ok = {n for w in decl for n in w.get("old_names_gone", [])}
+    contracts_ok = {c for w in decl for c in w.get("contracts_gone", [])}
+    ne_ok = {x for w in decl for x in w.get("not_expressed", [])}
+    ne_b = {(str(x["rule"]), x["name"]) for x in before["not_expressed"]}
+    ne_a = {(str(x["rule"]), x["name"]) for x in after["not_expressed"]}
+    do_b = {(x["contract"], x["name"]) for x in before["dropped_old"]}
+    do_a = {(x["contract"], x["name"]) for x in after["dropped_old"]}
+    out: dict = {"declared": [], "undeclared": [], "unused": []}
+    used: set[str] = set()
+    for r, n in sorted(ne_a - ne_b):
+        key = f"{r}|{n}"
+        (out["declared"] if key in ne_ok else out["undeclared"]).append(f"言えなくなった: {key}")
+        used |= {key} & ne_ok
+    for c, n in sorted(do_a - do_b):
+        ok = (n == "(契約)" and c in contracts_ok) or (n != "(契約)" and n in names_ok)
+        (out["declared"] if ok else out["undeclared"]).append(f"古い決まりから外れた: {c} の {n}")
+        if ok:
+            used.add(c if n == "(契約)" else n)
+    out["unused"] = sorted((names_ok | contracts_ok | ne_ok) - used)
+    out["contracts_before"] = {"old": before["n_old"], "new": before["n_new"]}
+    out["contracts_after"] = {"old": after["n_old"], "new": after["n_new"]}
+    return out
 
 
 @dataclass
@@ -90,9 +126,17 @@ def view(tree: Tree, mapdoc: MapDoc) -> TreeView:
     final_of: dict[str, str] = {}
     moved_in: list[tuple[str, str]] = []
     for r in mapdoc.rows:
-        if not r.old.endswith(".py") or r.is_head or r.kind == "delete":
+        if not r.old.endswith(".py") or r.kind == "delete":
             continue
         new = r.new or r.old
+        if r.is_head:
+            # 〔割る段 5a・検収 高-1〕頭を割る行(llm/__init__.py): 中身が割り先へ出た後(元の頭が無いか 0 バイト)は、主な割り先が
+            # 最終の名。前は頭の行を全部飛ばし、主な割り先が最終の名にならず、その単位(foundation)と決まりが黙って言えなくなった
+            if (r.kind == "split" and new != r.old and tree.exists(SRC_PREFIX + new)
+                    and not tree.files.get(SRC_PREFIX + r.old)):
+                final_of[mod_of(new)] = mod_of(new)
+                moved_in.append((mod_of(r.old), mod_of(new)))
+            continue
         if tree.exists(SRC_PREFIX + new) and (new == r.old or not tree.exists(SRC_PREFIX + r.old)):
             final_of[mod_of(new)] = mod_of(new)
             if new != r.old:
@@ -109,7 +153,7 @@ def check_stage(tree: Tree, mapdoc: MapDoc, spec: Spec, stage: str) -> list[str]
     k = spec.stage_order.index(stage)
     errs: list[str] = []
     for r in mapdoc.rows:
-        if r.kind not in ("move", "empty", "delete") or r.held:
+        if r.kind not in ("move", "empty", "delete") or r.held or r.split_from:  # 〔割る段 5a〕割り先の行は段の行でない
             continue
         want = spec.stage_order.index(r.stage) <= k
         try:
@@ -253,6 +297,33 @@ def build(spec: Spec, mapdoc: MapDoc, tree: Tree, stage: str) -> tuple[list[dict
             for rid in g["rules"]:
                 ign_by_rule.setdefault(int(rid), []).append(f"{a} -> {b}")
         rep["extra_ignores"].append(row)
+    rep["ignores_split"] = []
+    if spec.ignores_split:  # 〔割る段 5a・親の裁定 Q3〕appears_with の割る行を当てた木から載せる
+        from pkgmove import split as SP
+
+        by = mapdoc.by_old()
+        for g in spec.ignores_split:
+            row = {"num": g["num"], "importer": None, "imported": None, "gone_at": g["gone_at"], "rules": g["rules"],
+                   "appears_with": g["appears_with"]}
+            sr = by.get(g["appears_with"])
+            if sr is None:  # 対応表にその割る行が無い(見本の表)=載せない
+                row["skipped"] = "対応表に割る行が無い"
+                rep["ignores_split"].append(row)
+                continue
+            if sr.kind != "split":
+                raise ContractsError(f"[[ignore_split]] の appears_with が割る行でない: {g['appears_with']}")
+            if not SP.is_done(tree, sr):
+                row["skipped"] = "割る行がまだ当たっていない"
+                rep["ignores_split"].append(row)
+                continue
+            a, b = _translate(v, mapdoc, f"{root}.{g['importer']}"), _translate(v, mapdoc, f"{root}.{g['imported']}")
+            row.update(importer=a, imported=b)
+            if a is None or b is None or a not in v.modules or b not in v.modules or not has_edge(tree, v, a, b):
+                row["skipped"] = "片側のモジュールか辺が木に無い"
+            else:
+                for rid in g["rules"]:
+                    ign_by_rule.setdefault(int(rid), []).append(f"{a} -> {b}")
+            rep["ignores_split"].append(row)
     rep["fallbacks"] = sorted(set(v.fallbacks))
     units = spec.units
     n_new = 0
@@ -278,7 +349,8 @@ def build(spec: Spec, mapdoc: MapDoc, tree: Tree, stage: str) -> tuple[list[dict
 
 def _gone_by_edge(rep: dict) -> dict[str, set[str]]:
     gone: dict[str, set[str]] = {}
-    for row in [*rep.get("ignores", []), *rep.get("ignores_66", []), *rep.get("extra_ignores", [])]:
+    for row in [*rep.get("ignores", []), *rep.get("ignores_66", []), *rep.get("extra_ignores", []),
+                *rep.get("ignores_split", [])]:
         if row.get("skipped"):
             continue
         gone.setdefault(f"{row['importer']} -> {row['imported']}", set()).add(row.get("gone_at") or "(注なし)")
@@ -469,7 +541,7 @@ def old_contracts(spec: Spec) -> list[dict]:
 def stage_of(tree: Tree, mapdoc: MapDoc, spec: Spec) -> str | None:
     """木の段: どの段の行も当たっていなければ ``""``・段の順で ``S`` までが当たっていれば ``S``・どちらでもなければ ``None``。"""
     if all(MV._row_state(tree, r) == "apply" for r in mapdoc.rows
-           if r.kind in ("move", "empty", "delete") and not r.held):
+           if r.kind in ("move", "empty", "delete") and not r.held and not r.split_from):
         return ""
     for s in spec.stage_order:
         if not check_stage(tree, mapdoc, spec, s):

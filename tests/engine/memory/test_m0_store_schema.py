@@ -58,8 +58,8 @@ def _layers() -> tuple[PL.Names, PL.Names]:
     モジュールを 1 つずつ import して元の置き場から今の名を引く=移す前の木では前の字面と同じ範囲)。census は頭 1 本だけの
     包みで段 4 の delete の段で消える(残るモジュールが無い)ので、:data:`CENSUS` の字面のまま。"""
     import shibuya.build as BUILD
-    import shibuya.llm as LLM
-    from shibuya.agents import state as AGENTS
+    from shibuya.act.intake import parser as LLM  # 〔割る段 5a の G0・親の裁定 Q13〕llm の範囲の手がかりは、元の置き場が llm/ に残るモジュール(割る段で包み llm が無くなる)
+    from shibuya.world.facts import population_reader as AGENTS  # 〔親の裁定 Q13〕元の置き場が agents/ に残るモジュール
     from shibuya.foundation import time_consts as CORE
     from shibuya.economy import ledger as ECONOMY
     from shibuya.engine import resolve as ENGINE

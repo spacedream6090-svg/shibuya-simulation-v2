@@ -9,6 +9,10 @@
   コードの中の ``P.Q.x`` の連なりは書き換えない(注意として報告する)。
 - 名の行き先が 1 つなら、モジュールの名と別名の部分だけを書き換える(改行・注・括弧はそのまま)。行き先が 2 つ以上に分かれる
   ときだけ文を作り直す(1 つの文を行き先ごとの文に分け、名の行の注は名に付けて残す)。
+- 〔割る段 5a〕割るモジュール(``Ctx.namemap``)から読む名は、名の単位の割り先へ向ける。割るモジュールが頂上の import で結んだ名
+  (再輸出)は元のモジュールへ向ける。割るモジュールを別名で読む形(``from P import m as X``・``import M as X``)は、ファイルの
+  中の ``X.名`` の割り先が 1 つのときだけ書き換える(``Ctx.alias_dests``)。書き換えられない所は注意の頭を :data:`MANUAL` にして
+  出す(割る道具が「手で直す一覧」に集めて断る)。
 """
 from __future__ import annotations
 
@@ -18,6 +22,8 @@ from dataclasses import dataclass, field
 
 from pkgmove.model import SRC_PREFIX, Ctx, Edit, Text, mod_of, resolve_from
 
+#: 割る段で道具が書き換えられない読み(手で直す)の注意の頭。
+MANUAL = "手で直す:"
 _FROM_RE = re.compile(r"from(\s+)([\w.]+)(\s+)import")
 _LINE_MAX = 120
 
@@ -59,6 +65,8 @@ def plan_from(ctx: Ctx, node: ast.ImportFrom) -> tuple[list[Target] | None, bool
     pkg = ix.is_package(P)
     for a in node.names:
         if a.name == "*":
+            if P in ctx.namemap:  # 〔割る段 5a・検収 中-2〕割るモジュールを星で読む=名ごとの割り先へ分けられない
+                warns.append(f"{MANUAL} from {P} import *(割るモジュールを星の import で読む)")
             if P in ctx.modmap:
                 out.append(Target(ctx.modmap[P], "*", None, a))
                 changed = True
@@ -72,6 +80,17 @@ def plan_from(ctx: Ctx, node: ast.ImportFrom) -> tuple[list[Target] | None, bool
             if ix.exists(sub):
                 if reexp is not None and f"{reexp[0]}.{reexp[1]}" != sub:
                     warns.append(f"{P} の {a.name} は子のモジュールと頭の再輸出の両方にある(子のモジュールとして扱った)")
+                if sub in ctx.namemap:  # 〔割る段 5a〕割るモジュールを別名で読む
+                    bound = a.asname or a.name
+                    dest = ctx.alias_dests.get(bound)
+                    if dest:
+                        parent, _, leaf = dest.rpartition(".")
+                        out.append(Target(parent, leaf, a.asname or (a.name if leaf != a.name else None), a))
+                        changed = True
+                    else:
+                        warns.append(f"{MANUAL} from {P} import {a.name}(別名 {bound} の読みの割り先が 1 つに決まらない)")
+                        out.append(Target(P, a.name, a.asname, a))
+                    continue
                 if sub in ctx.modmap:
                     if "@sub" not in warns:
                         warns.insert(0, "@sub")
@@ -91,13 +110,31 @@ def plan_from(ctx: Ctx, node: ast.ImportFrom) -> tuple[list[Target] | None, bool
                 if org is None:
                     org = reexp
                 D, on = org
-                if P in ctx.heads_changed or D in ctx.modmap or direct in ctx.modmap:
+                if P in ctx.heads_changed or D in ctx.modmap or direct in ctx.modmap or P in ctx.namemap \
+                        or D in ctx.namemap:
                     asname = a.asname or (a.name if on != a.name else None)
-                    out.append(Target(ctx.new_mod(D), on, asname, a))
+                    if D in ctx.namemap:  # 〔割る段 5a〕元のモジュールが割るモジュール=名の割り先へ
+                        tgt = ctx.namemap[D].get(on)
+                        if tgt is None:
+                            warns.append(f"{MANUAL} from {P} import {a.name}(元 {D}.{on} の割り先が表に無い)")
+                            out.append(Target(P, a.name, a.asname, a))
+                            continue
+                    else:
+                        tgt = ctx.new_mod(D)
+                    out.append(Target(tgt, on, asname, a))
                     changed = True
                     via_head = True
                     continue
                 out.append(Target(P, a.name, a.asname, a))
+                continue
+            if a.name in ix.info(P).defs and P in ctx.namemap:  # 〔割る段 5a〕割る頭で定義した名
+                tgt = ctx.namemap[P].get(a.name)
+                if tgt is None:
+                    warns.append(f"{MANUAL} from {P} import {a.name}(名の割り先が表に無い)")
+                    out.append(Target(P, a.name, a.asname, a))
+                else:
+                    out.append(Target(tgt, a.name, a.asname, a))
+                    changed = True
                 continue
             if a.name in ix.info(P).defs:
                 if P in ctx.heads_changed:
@@ -109,6 +146,23 @@ def plan_from(ctx: Ctx, node: ast.ImportFrom) -> tuple[list[Target] | None, bool
                 warns.append(f"from {P} import {a.name}: 名の出どころが見つからない(書き換えていない)")
             out.append(Target(P, a.name, a.asname, a))
             continue
+        if P in ctx.namemap:  # 〔割る段 5a〕割るモジュールの名 → 割り先
+            tgt = ctx.namemap[P].get(a.name) or ctx.split_reexports.get(P, {}).get(a.name)
+            if tgt is None:  # 割るモジュールが頂上の import で結んだ名(再輸出)で、どの割り先も持たない=元のモジュールへ
+                org = ix.origin(P, a.name)
+                if org is not None and org[0] != P:
+                    D, on = org
+                    tgt2 = ctx.namemap[D].get(on) if D in ctx.namemap else ctx.new_mod(D)
+                    if tgt2 is not None:
+                        out.append(Target(tgt2, on, a.asname or (a.name if on != a.name else None), a))
+                        changed = True
+                        continue
+                warns.append(f"{MANUAL} from {P} import {a.name}(名の割り先が表に無い)")
+                out.append(Target(P, a.name, a.asname, a))
+                continue
+            out.append(Target(tgt, a.name, a.asname, a))
+            changed = True
+            continue
         if P in ctx.modmap:
             out.append(Target(ctx.modmap[P], a.name, a.asname, a))
             changed = True
@@ -117,11 +171,63 @@ def plan_from(ctx: Ctx, node: ast.ImportFrom) -> tuple[list[Target] | None, bool
     return (out if changed else None), via_head, warns
 
 
+def alias_dests(ctx: Ctx, text: str, path: str) -> dict[str, str | None]:
+    """〔割る段 5a〕ファイル(かコードの文字列)で割るモジュールを結んだ別名 → 割り先のモジュール(``X.名``・``setattr(X, "名")``
+    などで読む名の割り先が 1 つだけ)か ``None``(2 つ以上・表に無い名・名で読まない使い方がある=手で直す)。名の割り先は名の
+    写像、無ければ再輸出の割り先。"""
+    if not ctx.namemap:
+        return {}
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return {}
+    own = mod_of(path[len(SRC_PREFIX):]) if path.startswith(SRC_PREFIX) else ""
+    pkg = own if path.endswith("/__init__.py") else own.rpartition(".")[0]
+    bound: dict[str, str] = {}
+    for n in ast.walk(tree):
+        if isinstance(n, ast.ImportFrom):
+            m = resolve_from(pkg, n) if n.level else n.module
+            for a in n.names:
+                if f"{m}.{a.name}" in ctx.namemap:
+                    bound[a.asname or a.name] = f"{m}.{a.name}"
+        elif isinstance(n, ast.Import):
+            for a in n.names:
+                if a.name in ctx.namemap and a.asname:
+                    bound[a.asname] = a.name
+    out: dict[str, str | None] = {}
+    for al, sm in bound.items():
+        attrs: set[str] = set()
+        seen: set[int] = set()
+        for n in ast.walk(tree):
+            if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) and n.value.id == al:
+                attrs.add(n.attr)
+                seen.add(id(n.value))
+            if (isinstance(n, ast.Call) and len(n.args) >= 2 and isinstance(n.args[0], ast.Name) and n.args[0].id == al
+                    and isinstance(n.args[1], ast.Constant) and isinstance(n.args[1].value, str)
+                    and ((isinstance(n.func, ast.Name) and n.func.id in ("setattr", "getattr", "hasattr", "delattr"))
+                         or (isinstance(n.func, ast.Attribute) and n.func.attr in ("setattr", "delattr", "object")))):
+                attrs.add(n.args[1].value)
+                seen.add(id(n.args[0]))
+        bare = [n for n in ast.walk(tree) if isinstance(n, ast.Name) and n.id == al and id(n) not in seen
+                and isinstance(n.ctx, ast.Load)]
+        ds = {ctx.namemap[sm].get(x) or ctx.split_reexports.get(sm, {}).get(x) for x in attrs}
+        out[al] = None if (bare or not attrs or None in ds or len(ds) != 1) else ds.pop()
+    return out
+
+
 def plan_import(ctx: Ctx, node: ast.Import) -> tuple[list[tuple[ast.alias, str]] | None, list[str]]:
     """``import …`` の書き換え(別名の名ごとに新しい名)。"""
     out: list[tuple[ast.alias, str]] = []
     warns: list[str] = []
     for a in node.names:
+        if a.name in ctx.namemap:  # 〔割る段 5a〕割るモジュールを import で読む
+            dest = ctx.alias_dests.get(a.asname) if a.asname else None
+            if dest:
+                out.append((a, dest))
+            else:
+                warns.append(f"{MANUAL} import {a.name}{' as ' + a.asname if a.asname else ''}"
+                             f"(属性で読む名の割り先が 1 つに決まらないか、別名が無い)")
+            continue
         if a.name in ctx.modmap:
             out.append((a, ctx.modmap[a.name]))
             if not a.asname:
@@ -212,6 +318,11 @@ def rewrite_file(ctx: Ctx, path: str, text: str, tree: ast.Module, symbols: dict
                     f"{target}.{a.name}" in ctx.modmap for a in node.names))):
                 stats.warnings.append(f"{path}:{node.lineno}: 相対の import(書き換えない=移すファイルか移すモジュールに"
                                       f"かかる。検収 L-5)")
+            if target is not None and (target in ctx.namemap or any(
+                    f"{target}.{a.name}" in ctx.namemap for a in node.names)):
+                # 〔割る段 5a・検収 中-2〕相対の import で割るモジュールを読む=書き換えない・手で直す一覧へ
+                stats.warnings.append(f"{path}:{node.lineno}: {MANUAL} 相対の import で割るモジュール {target} を読む"
+                                      f"(書き換えない)")
             continue
         if isinstance(node, ast.ImportFrom):
             targets, via, warns = plan_from(ctx, node)

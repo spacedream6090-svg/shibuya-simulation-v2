@@ -182,9 +182,11 @@ def test_resume_replans_the_same_route(space, tmp_path):
 
 def test_engine_does_not_decide_for_the_person():
     """AST: nav1 は判断の層・LLM・選び手を読まない(速さは体の属性・経路は既定の重み=宣言)。"""
-    import shibuya.llm as LLM
+    import sys
+
     from shibuya.act import activity, intent
-    from shibuya.engine import chooser
+    from shibuya.act.intake import parser as LLM  # 〔割る段 5a の G0・親の裁定 Q13〕llm の範囲の手がかりは、元の置き場が llm/ に残るモジュール(割る段で包み llm が無くなる)
+    from shibuya.engine.chooser import ChoiceContext, ClassicalChooser
     from shibuya.mind.judge import classical
     from shibuya.mind.judge.decision import layer as DLAYER
 
@@ -196,7 +198,9 @@ def test_engine_does_not_decide_for_the_person():
         mods.update(PL.imported(node))
     # 〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面の包みの名 "shibuya.llm"・"shibuya.engine.decision" と 4 本のモジュールの名。
     # 包みは元の置き場(llm・engine/decision)にあったモジュールの今の名、モジュールは __name__ から作る
-    banned = PL.names_from(LLM, DLAYER) | PL.module_names(chooser, intent, classical, activity)
+    # 〔割る段 5a の G0〕選び手は名の定義の置き場から引く(割ると選び手と選び手の口の 2 つのモジュールになる=両方を禁じる)
+    choosers = sorted({sys.modules[x.__module__] for x in (ChoiceContext, ClassicalChooser)}, key=lambda m: m.__name__)
+    banned = PL.names_from(LLM, DLAYER) | PL.module_names(*choosers, intent, classical, activity)
     assert not [m for m in mods if banned.hits(m)], sorted(m for m in mods if banned.hits(m))
     assert any("既定の重み" in e and "本人の判断ではない" in e for e in N.NAV1_EXPEDIENTS)
 

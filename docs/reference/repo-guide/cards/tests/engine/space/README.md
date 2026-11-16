@@ -83,7 +83,7 @@ S46: nav1 の道の線の控えが結果に作用しないことの試験(控え
   - `test_speed_is_the_body_attribute`(関数)
   - `test_turn_weights_fixed_and_person_range_deterministic`(関数)
   - `test_unique_position_per_agent_per_step`(関数)
-- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.intent`・`shibuya.agents.state`・`shibuya.engine.chooser`・`shibuya.foundation.arms.removed`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar_self`・`shibuya.llm`・`shibuya.mind.judge.classical`・`shibuya.mind.judge.decision.layer`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.notice_reach`・`shibuya.world.model.proximity`・`shibuya.world.model.space.nav1`・`tests/_places.py`・`tests/build_space/synth.py`
+- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.intake.parser`・`shibuya.act.intent`・`shibuya.agents.state`・`shibuya.engine.chooser`・`shibuya.foundation.arms.removed`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar_self`・`shibuya.mind.judge.classical`・`shibuya.mind.judge.decision.layer`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.notice_reach`・`shibuya.world.model.proximity`・`shibuya.world.model.space.nav1`・`tests/_places.py`・`tests/build_space/synth.py`
 - 環境変数: `SHIBUYA_SPACE`
 - 決定の ID: 10-03/§8・R-63・第 347
 

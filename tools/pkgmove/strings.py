@@ -13,6 +13,11 @@
         - ``/`` の結合 ``X / "engine" / "clock.py"``(2 つ以上の定数にまたがる道)
       日本語などの ASCII の外の字を含む文(コードとして読めるものを除く)は記録の文として触らない。f 文字列の部分も触らない。
 書き換えは文字列の値で作り、ソースの字面へ同じ順に当て、``ast.literal_eval`` で値が合うかを確かめる(合わなければ触らずに報告)。
+
+〔割る段 5a〕割るファイル(``PathRules.names``)の道は、既定で主な割り先(``relmap``)へ。ただし文字列の全体が割るファイルの道で、
+同じ組(タプル・リスト・呼び出しの引数)に割るファイルの頂上の名(``関数``・``クラス.メソッド`` の頭)の文字列があれば、その名の
+割り先へ(計画 c9=乱数の検査の ``(道, 関数, 用途名)`` など)。組の名が 2 つの割り先を指せば書き換えずに報告する。点の道は
+名の単位の写像(``Ctx.namemap``)で、名が無ければ主な割り先(``Ctx.split_main``)へ。
 """
 from __future__ import annotations
 
@@ -35,6 +40,8 @@ class PathRules:
     """移すファイルの道(``src/shibuya`` からの相対)。"""
 
     relmap: dict[str, str]
+    #: 〔割る段 5a〕割るファイルの道 → {頂上の名 → 割り先の道}(同じ組の名で割り先を選ぶ)。
+    names: dict[str, dict[str, str]] = field(default_factory=dict)
 
 
 @dataclass
@@ -60,6 +67,10 @@ def dotted_new(ctx: Ctx, tok: str) -> str:
         return tok
     rest = tok[len(L) + 1:].split(".") if len(tok) > len(L) else []
     tail = ("." + ".".join(rest)) if rest else ""
+    if L in ctx.namemap:  # 〔割る段 5a〕割るモジュール: 名の割り先へ・名が無ければ主な割り先へ
+        if rest and rest[0] in ctx.namemap[L]:
+            return ctx.namemap[L][rest[0]] + tail
+        return ctx.split_main.get(L, L) + tail
     if not ix.is_package(L):
         return ctx.modmap[L] + tail if L in ctx.modmap else tok
     if not rest:
@@ -122,8 +133,17 @@ def rewrite_value(ctx: Ctx, rules: PathRules, value: str) -> tuple[str, list[tup
                 is_code = True
                 t = Text(value)
                 st = IM.ImportStats()
-                for ed in IM.rewrite_file(ctx, "<code>", value, tree, {}, st):
-                    reps.append((ed.start, ed.end, ed.new, "code_import"))
+                saved = ctx.alias_dests
+                if ctx.namemap:  # 〔割る段 5a〕コードの文字列の中の別名は、その文字列の中の読みで割り先を引く
+                    ctx.alias_dests = IM.alias_dests(ctx, value, "<code>")
+                try:
+                    for ed in IM.rewrite_file(ctx, "<code>", value, tree, {}, st):
+                        reps.append((ed.start, ed.end, ed.new, "code_import"))
+                finally:
+                    ctx.alias_dests = saved
+                for w in st.warnings:
+                    if IM.MANUAL in w:
+                        skipped.append(("code_import", value[:80], w))
                 code_spans = sorted(t.span(n) for n in nodes)
     if not is_code and not value.isascii():
         tmp: list[tuple[str, str, str]] = []
@@ -147,6 +167,34 @@ def rewrite_value(ctx: Ctx, rules: PathRules, value: str) -> tuple[str, list[tup
         pos = e
     out.append(value[pos:])
     return "".join(out), reps, skipped
+
+
+def sibling_dest(par: dict[int, ast.AST], n: ast.Constant, rules: PathRules, rel: str) -> str | None:
+    """〔割る段 5a〕全体が割るファイルの道 ``rel`` の文字列 ``n`` の、同じ組の中の頂上の名が指す割り先(無ければ ``None``)。
+    組の中の名が 2 つの割り先を指せば ``ValueError``。"""
+    names = rules.names.get(rel)
+    p = par.get(id(n))
+    if not names or p is None:
+        return None
+    if isinstance(p, (ast.Tuple, ast.List)):
+        elts: list[ast.AST] = list(p.elts)
+    elif isinstance(p, ast.Call):
+        elts = [*p.args, *[k.value for k in p.keywords]]
+    else:
+        return None
+    found: set[str] = set()
+    stack = [e for e in elts if e is not n]
+    while stack:
+        e = stack.pop()
+        if isinstance(e, ast.Constant) and isinstance(e.value, str):
+            head = e.value.split(".")[0]
+            if head in names:
+                found.add(names[head])
+        elif isinstance(e, (ast.Tuple, ast.List)):
+            stack += list(e.elts)
+    if len(found) > 1:
+        raise ValueError(f"組の中の名が 2 つの割り先を指す: {rel} → {sorted(found)}")
+    return found.pop() if found else None
 
 
 def literal_source(text: Text, node: ast.Constant, old_value: str, new_value: str,
@@ -269,17 +317,27 @@ def rewrite_file_strings(ctx: Ctx, rules: PathRules, path: str, text: str, tree:
                 stats.skipped.append({"file": path, "symbol": sym, "kind": "fstring", "token": n.value[:80],
                                       "reason": "f 文字列の部分=書き換えない"})
             continue
+        whole = n.value[12:] if n.value.startswith("src/shibuya/") else n.value
+        sib = None
+        if whole in rules.names:  # 〔割る段 5a〕割るファイルの道=同じ組の名の割り先(無ければ主な割り先)
+            try:
+                sib = sibling_dest(par, n, rules, whole)
+            except ValueError as e:
+                stats.skipped.append({"file": path, "symbol": sym, "kind": "split_sibling", "token": n.value[:80],
+                                      "reason": f"{e}=書き換えない"})
+                continue
         if rule == "exact":
-            new_rel = rules.relmap.get(n.value)
+            new_rel = sib if sib is not None and n.value == whole else rules.relmap.get(n.value)
             if new_rel is None and n.value.startswith("src/shibuya/") and n.value[12:] in rules.relmap:
-                new_rel = "src/shibuya/" + rules.relmap[n.value[12:]]  # 〔親の決定 2〕リポの根からの道の形
+                new_rel = "src/shibuya/" + (sib or rules.relmap[n.value[12:]])  # 〔親の決定 2〕リポの根からの道の形
             if new_rel is None:
                 continue
             reps = [(0, len(n.value), new_rel, "src_table")]
             new_value = new_rel
             skipped: list[tuple[str, str, str]] = []
         else:
-            new_value, reps, skipped = rewrite_value(ctx, rules, n.value)
+            r2 = rules if sib is None else PathRules(relmap={**rules.relmap, whole: sib}, names=rules.names)
+            new_value, reps, skipped = rewrite_value(ctx, r2, n.value)
         for kind, tok, why in skipped:
             stats.skipped.append({"file": path, "symbol": sym, "kind": kind, "token": tok, "reason": why})
         if new_value == n.value:

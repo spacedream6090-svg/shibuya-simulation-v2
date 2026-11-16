@@ -101,3 +101,17 @@ def test_both_copies_stop_on_a_file_without_a_row(c8lib, tmp_path, tree):
         PL.origins_from(GOOD, tree)
     with pytest.raises(RuntimeError, match="new_pkg/__init__.py"):
         _c8(c8lib, tmp_path, GOOD, tree)
+
+
+def test_both_copies_give_the_same_answer_with_split_rows(c8lib, tmp_path):
+    """〔割る段 5a・親の裁定 Q1〕割る行(主な割り先・元が 0 バイトの頭)と 2 つ目以降の割り先の行(split_from)でも同じ答え。"""
+    text = (HEAD + '\n[[row]]\nold = "old/m.py"\nkind = "split"\nnew = "new/m.py"\n'
+            + '\n[[row]]\nold = "old/m_words.py"\nkind = "move"\nnew = "voc/w.py"\nsplit_from = "old/m.py"\n'
+            + '\n[[row]]\nold = "old/__init__.py"\nkind = "split"\nnew = "ports/h.py"\n')
+    pkg = tmp_path / "pkg"
+    for rel, body in {"old/__init__.py": "", "new/m.py": "B = 2\n", "voc/w.py": "A = 1\n", "ports/h.py": "H = 1\n"}.items():
+        (pkg / rel).parent.mkdir(parents=True, exist_ok=True)
+        (pkg / rel).write_text(body, encoding="utf-8")
+    want = {"old/__init__.py": "old/__init__.py", "new/m.py": "old/m.py", "voc/w.py": "old/m_words.py",
+            "ports/h.py": "ports/h.py"}  # 元が 0 バイトの頭として残る間は今の道のまま
+    assert PL.origins_from(text, pkg) == want == _c8(c8lib, tmp_path, text, pkg)

@@ -1,0 +1,227 @@
+# 割る段 5a の記録(G0=src は変えない・道具の拡張と守り)
+
+- 指示: 返事その 8 §8 の 5(段 5〜7=割る)。計画: [最終の表と移す段の計画](../../../reference/package-map-final-2026-11-09.md) §7-4 の段 5a の行。割り先の正: [全ファイルの表](../../../reference/package-map-final-2026-11-09-files.md) §3・§4。
+- 段 5a の実行の計画(下調べ)と、問い Q1〜Q15 への親の裁定は、親の作業の置き場にある(計画 plan_stage5a・裁定 rulings_stage5a)。計画の要旨は第347 の報告 [docs/ops/report-347-2026-11-16.md](../../../ops/report-347-2026-11-16.md) §2。下の §1 に裁定の表を写した。
+- G0 では src(`src/shibuya/`)を 1 字も変えていない。17 本を割るのは G1 から(1 本 1 commit・群 5 つ・親が 1 本ごとに byte-check)。18 本目だった `engine/speech/port.py` は延ばした(§1 の「G0 の検収の後の親の答え」1)。
+- G0 は別の役の検収で条件つきの受け入れ(高 1・中 4・低 6)になり、道具と試験と記録を直した(§1-2・§2・§3・§4)。src は直しでも変えていない。
+
+## 1. 親の裁定(Q1〜Q15)と、G0 での当て方
+
+| 問い | 裁定 | G0 で入れたもの |
+|---|---|---|
+| Q1 割り先の 2 つ目以降の新しいファイル 9 本の元の置き場 | 全ファイルの表 §3 に move の形の行(old=移す前の置き場に在ったとしたらの道)・主な割り先は割る行の old | §3 に行 5a・117a・142a・143b・223a・223b・291a・298a・309a(と 18 本目の 244a)。割るかの欄=「いいえ(`元` の割り先)」→ 対応表の `split_from`。`tests/_places.py`・`tools/c8/c8lib.py` は割る行の主な割り先の元の道=old と読む |
+| Q2 古い写しの固定の意味 | `_places` に名の単位の元の置き場を引く口・`_head_copy_pin` がそれを使う・固定の値は取り直さない | `PL.origin_module_of_name`・`PL.split_name_origins_from`。`_head_copy_pin._describe` は関数とクラスを頂上の名で、値を読む名で引く |
+| Q3 新しい例外 4 本 | `contracts.toml` の新しい表 `[[ignore_split]]` | 4 本(下の §4)。`appears_with` の割る行を当てた木から載せる(当てる前の木の節は変わらない) |
+| Q4 `DEFAULT_WALKABLE_AREA_M2` が段 7 まで古い renderer を読む | 例外(段 7 まで) | `[[ignore_split]]` の 割 2 |
+| Q5 注釈だけの辺(`AgentState`) | 例外・契約の設定は変えない | `[[ignore_split]]` の 割 3 |
+| Q6 自分の別名 `V.` で読む 7 文 | `V.x` → `x` に書き換え、守りで同値を確かめる | §4-9・§4-16 の注「宣言した書き換え」→ 対応表の `[row.rewrites]`。道具が当て、守り ① が元の側を同じ形に直して比べる |
+| Q7 非公開の名を外から読む 3 つ | 名を変えない | 道具は名を変えない |
+| Q8 表に無い `CELL_WAKE_USES_NUMBA` | `mind/system1/change_detect.py` | §4-6 に足して注を付けた(計画に無い名=仮採用) |
+| Q9 「ほか N 個」の 61 名 | その行の割り先・§4 を全部の名に開く | 5a の 18 節を開いた(開いた名に注)。今は無い名 3 つ(`REPO_ROOT`・`resolve_repo_path`・`EFFECT_CAP_PER_EXPOSURE`)は表から外して注 |
+| Q10 道具 | 案 A | `tools/pkgmove/split.py`・`cli.py split`(§2) |
+| Q11 commit の切り方 | 1 本 1 commit・群 5 つ | `table.SPLIT_ORDER`・`SPLIT_GROUPS`(G1〜G5。前の G6=18 本目は延ばした) |
+| Q12 `mora_count` | 18 本目に foundation の文の道具へ・先に表を直す | §3 の行 244 を割る行に替え、§4-25 を足した。守り ④ で止まる(§5 の 1)→ G0 の検収の後に延ばした(下の答え 1) |
+| Q13 範囲の手がかり | llm=`act.intake.parser`・agents=`world.facts.population_reader` | §6 の表 |
+| Q14 古い頭を消す時 | 最後のファイルを割った commit で | 道具が 0 バイトの頭しか残らないディレクトリの頭を消す |
+| Q15 llm の割り方 | `llm/__init__` を先に・0 バイトの頭を `llm/undefined` まで残す | 道具が元のファイル(頭)を、ほかのファイルが残る間は 0 バイトで残す |
+
+### 計画に無いことを決めた所(実装役の仮採用・戻し方=G0 の commit の前の木)
+
+1. 18 本目(延ばした)の割り先のファイルの名 `foundation/text/mora.py`(裁定は「foundation の文の道具」)。
+2. 2 つ目以降の割り先の行の old の名(移す前の置き場に在ったとしたらの道): `agents/agent_codes.py`・`engine/wake.py`・`engine/scene_hash.py`・`engine/choice.py`・`engine/relations_vocab.py`・`engine/initial_ties.py`・`llm/act_codes.py`・`perception/attention_gate.py`・`world/place_words.py`・`engine/speech/mora.py`。ディレクトリは、その割り先を作る本の元のディレクトリ。
+3. 既に在る割り先に `__all__` が無いとき(前の本が作った割り先=`foundation/vocab/place_words.py`)は、import の後ろに足す名だけの `__all__` を作る。
+4. 割るモジュールが import で結んだ名(再輸出・例 `agents/state.py` の `_WP`)を読む所は、その名を持ち続ける割り先(主な割り先を先に)へ向ける。どの割り先も持たなければ元のモジュールへ。
+5. 2 つ目以降の新しい割り先の docstring は決まった型(元のファイルと主な割り先を名指す・凍結の値と expedient の見出しを書かない)。
+6. 頂上のほかの文(assert)は、読む名の割り先へ(2 つ以上なら主な割り先・主な割り先が入らなければ断る)。
+7. 元が 0 バイトの頭として残る間(G3 の 7〜9 本目の `llm/__init__.py`)は、主な割り先(`foundation/ports/inference.py`)の元の置き場は今の道のまま(元の道が 2 本の今のファイルに重ならないように)。10 本目で頭を消すと元の道 `llm/__init__.py` になる。
+8. 道の文字列の許可の一覧は、その本の走査で作る(割るファイルの道か名を持つ文字列の記号だけ)。`allow_tests_tools.toml` は作り直さない(段 4 の後の木では作り直すと空=試験は当てていない木でだけ比べる)。除くもの=`tests/test_places_guard.py::NON_MOVE_ROWS`(表の old の固定)・`tests/build_pop/test_w21_stage8_9.py::test_persona_does_not_reference_llm_ports`(llm の字の検出器の植えた文)。docs の記録の道具は import だけ(親の決定 7)。
+9. 割る段の終了コード: 守りが止めたときも 2(親の発注「守りが同じでなければ当てない(終了コード 2)」)。段 4 の `move` は 1 のまま。
+10. `test_fleet_contract` の `agents.state` の手がかりも Q13 と同じに付け替えた。`test_nav1_units` の選び手は、名の定義の置き場(`ChoiceContext`・`ClassicalChooser` の `__module__`)から引く形にした(割ると 2 つのモジュールになる=両方を禁じる)。
+
+G0 の検収の後に足した仮採用(親の答え 4=検収の低の指摘を入れて受け入れ):
+
+11. どの割り先も使わない import(途中の再輸出を含む)と、import・`from __future__`・`__all__` の前と中の注は写さない。黙って落とさず、書かない実行の報告の `unwritten` に本ごとに出す(検収 低-2・§3-2 に 17 本の一覧の要約と副作用の確かめ)。
+12. `contracts.view()` は、頭を割る行(`llm/__init__.py`)の主な割り先を、中身が出た後(元の頭が無いか 0 バイト)に最終の名に載せる(検収 高-1。G0 では直していなかった)。割る前と後の import の決まりを比べ、宣言(`contracts.toml` の `[[split_weakens]]`=2 本目の `agents`・10 本目の `llm`)のほかに言えなくなった単位・決まりや古い決まりから外れた名が増えたら、道具が止める(終了コード 2)。
+13. 元の相対の import は絶対の形に作り直して写す(断らない。5a の 17 本には無い)。相対の import と星の import で割るモジュールを読む読み手は「手で直す一覧」(5a の読み手には 0 件)。
+14. 2 つ目以降の新しい割り先の決まった型の docstring は「割る段で ``元`` を割った割り先」(段の名を決め打ちしない=5b〜7 で使い回す・検収 低-6)。
+15. `cli.py split` は木の src に `__pycache__` を書かない(`sys.dont_write_bytecode`・検収 低-4)。
+
+### 1-2. G0 の検収の後の親の答え(2026-11-16)と、当て方
+
+| 答え | 中身 | 当て方 |
+|---|---|---|
+| 1 | 18 本目(`mora_count`)は延ばす(案 b)。台帳の道を書き換えられる版上げで一緒に下ろす。5a は 17 本で終える。決まり 10 の例外 1 本(核 1)はそれまで残る | 割る行のまま残し、割る段の順から外した: `table.SPLIT_ORDER` は 17 本・新しい `table.SPLIT_DEFERRED`(理由つき)・`map.toml` の頭に `split_deferred`・全ファイルの表の行 244 の割るかの欄=「割る(§4-25・延ばした)」・行 244a の段の欄=「延ばした(版上げ)」・§4-25 に注。元の move の行へ戻さなかった理由: 行 244 を move の行へ戻すと、割り先の行 244a(`split_from`)を表から消すか形を変えることになり、§4-25 の名の表も読む行を失う。割る行のまま順から外せば、`map --check`(表 → `map.toml`)・段の順の検査(順の行が割る行で名が揃う)・段 4 の段の検査(割る行は段の行に数えない=G0 と同じ)がどれもそのまま通り、版上げのときは順に 1 行足すだけで当てられる。道具は順に無い行を名指しでも断る(試験 `test_split_rows_in_the_real_map_match_the_source_files`) |
+| 2 | 手で直す読み 24 件は、その本の commit の中で、道具を当てる前に直す(直した後に書かない実行を回し、「手で直す一覧」が 0 になってから当てる) | §3-1 の一覧に、その本と、中身を見る試験 3 本(答え 6)を並べた |
+| 3 | G3 の 7〜9 本目の間、`foundation/ports/inference.py` の元の置き場が範囲の外に出る件は受け入れる(高-1 の直しで決まりが弱まらないことが条件) | 仮採用 7 のまま。高-1 の直しで 7〜9 本目も決まり 2 と単位 foundation が言える(§4) |
+| 4 | 計画に無い仮採用 10 個は、検収の低の指摘を入れて受け入れる | 仮採用 11〜15 を足した |
+| 5 | 自動の安全検査に止められた件の中身 | 報告に書いた(記録には書かない) |
+| 6 | 中身を見る試験 3 本(`test_relations`・`test_fleet_contract`・`test_two_phase`)は、その本の手で直す一覧に入れる | §3-1 |
+
+## 2. 道具(`tools/pkgmove/split.py`)
+
+使い方と当て方は [tools/pkgmove/README.md](../../../../tools/pkgmove/README.md) の「割る段 5a」の節。要点:
+
+- 名の単位の表: 全ファイルの表 §4 → `cli.py map` → `map.toml` の割る行の `[row.names]`・`[row.rewrites]`・`split_order`。17 本と延ばした 1 本とも、表の名と元のファイルの頂上の名が完全に一致する(試験 `test_split_rows_in_the_real_map_match_the_source_files`)。
+- 当て方: 頂上の文を単位(前の注と空行つき)で割り先へ元の順・元の字面のまま写す。import は割り先が使う名だけ(組み込みの名を覆う元の名も数える)・兄弟の割り先からの import を足す・`__all__` は割り先ごと・相対の import は絶対の形に作り直す。既に在る割り先へは後ろへ足す。宣言した書き換えだけを当てる。断る形: 星の import のある元・既に在る割り先と同じ名を足す・`from __future__` が元と既に在る割り先とで食い違う・宣言した書き換えの `x` が局所の名に捕まる。
+- 読み手: import の文は名の単位で割り先へ(1 文を割り先ごとに分ける)。別名で読み割り先が 2 つ以上になる読み・相対の import と星の import で割るモジュールを読む読みは「手で直す一覧」に出し、`--next`・`--only` では断る(`--through` の書かない実行では残して報告する)。
+- 報告: 本ごとに「写さなかった import と注」(`unwritten`)と、割る前と後の import の決まりの数と弱まり(`contracts`)を出す。
+- 固定の表の鍵(クラスの単位の写像と逆写像の守り)・台帳の道の表(主な割り先 → 元の道)・(道, 関数)の組の表(同じ組の名の割り先へ=計画 c9)。
+- 段の順: 済んだ割る行が順の頭から並び、当てる本が次の 1 本でなければ断る。
+
+### 守り(割る段)
+
+| 守り | 中身 | 止めた負の対照(試験) |
+|---|---|---|
+| ① 文 | 元の頂上の文(import・docstring・`__all__`・`from __future__` を除く)の AST の多重集合=割り先に足した文の多重集合(宣言した書き換えは元の側を同じ形に直して比べる)。割り先ごとに、足した文の並び=元の並びからその割り先の文だけを抜いた並び(既に在る割り先は在る文の並びが変わらず、後ろに足した分の並び) | 1 文を落とす・1 文を 2 か所に置く・同じ割り先の中で 2 文を入れ替える(① だけが止める) |
+| ② 定数 | 文字列とバイト列の定数の多重集合(モジュールの docstring を含む)=割り先の | 文字列の定数を変える・主な割り先のモジュールの docstring を変える(② だけが止める) |
+| ③ 名の結び | 割り先で結ばれない名が、元のファイルより増えない。元の頂上で結ぶ名(組み込みの名を覆う名を含む)を読む文は、割り先でも同じ物に結ばれる(頂上の定義なら名の割り先・import なら同じ出どころ) | 要る import を落とす・組み込みを覆う名(`def format`)の import を落とす(③ だけが止める) |
+| ④ 宣言 | つなぎの台帳の 6 形の宣言(台帳の道で比べる)が同じ。2 つ目以降の新しい割り先に宣言が入れば止める(台帳の道の表=1 対 1) | 2 つ目以降の割り先へ expedient の段落を入れる |
+| 鍵 | 固定の表の鍵=クラスの単位の写像が 1 対 1・逆写像で古い鍵に戻り値が同じ・値の多重集合が同じ | 2 つの鍵の値の取り違え・2 つのクラスを 1 つの鍵へ |
+| 宣言した書き換え | 宣言の無い自己の別名は断る・当たらない宣言も断る | 宣言を外す・当たらない宣言を足す |
+| 手で直す読み | 別名で読み割り先が 2 つ以上の読みは断る | 2 つの割り先の名を読む別名 |
+| 段 4 の守り | 名の凍結・固定の表(値と網羅)・道の形の 74 種・許可の一覧の外の定数・import の文が結ぶ名・頭の `__all__` | (段 4 の試験のまま) |
+| import の決まり(検収 高-1) | 割る前と後の木で `contracts.toml` から作る節を比べ、`not_expressed`(言えない単位・決まり)と `dropped_old`(古い決まりから外れた名)に増えた項が `[[split_weakens]]` の宣言のほかにあれば止める。値は「同じ」か「宣言どおり N」 | 宣言の外で単位が言えなくなる(見本で `contracts.build` を差し替え)・頭を割る行の主な割り先が最終の名になる(`contracts.view`)・本物の木で 17 本を順に当てる(`slow`) |
+| 順と止め(検収 中-4) | 済んだ本の当て直し・順が違う本・順を飛ばした木・本体の作業木への `--apply`・`--apply` に `--tree` が無い・`--through` と `--apply` | 見本の木で全部断る(終了コード 2) |
+| 組み立ての断り(検収 中-1・中-2・低-1・低-3) | 星の import のある元・既に在る割り先と同じ名・`from __future__` の食い違い・局所の名に捕まる書き換え | 見本の木で全部断る |
+
+## 3. 17 本の書かない実行(本物の木・メモリの中で順に当てた・手で直す読みは残した)
+
+G0 の検収の直しの後の木(本体の頭 `dcd25a6c` の上へ載せ直した木・src は段 4 の後のまま)で、`split.py` の書かない実行を順にメモリの
+中で当てた(`cli.py split --through all` と同じ。各本は前の本を当てた後の木に当てる・import の決まりの守りも回した)。手で直す読みは
+残して進めた(`--next` では断る)。数は直す前(G0)の書かない実行と全部同じだった(載せ直しで読み手の数は変わらなかった)。
+
+| 本 | 割る行 | 割り先(new=新しい・existing=既に在る) | 守り | 書き換えた import の文 | 分けた文 | 鍵 | 台帳の道 | 道の文字列の記号 | 消した・空にした・足した頭 | 手で直す | 契約(古い+新しい) | 写さなかった |
+|---:|---|---|---|---:|---:|---:|---:|---:|---|---:|---|---|
+| 1 | `world/assets.py` | `world/model/assets.py` new・`foundation/vocab/place_words.py` new | 全部「同じ」 | 53 | 1 | 2 | 1 | 2 | — | 1 | 3+9 → 3+9 | 注 5 |
+| 2 | `agents/state.py` | `world/model/agent_table.py` new・`foundation/vocab/agent_codes.py` new | 「同じ」・決まり=宣言どおり 4 | 196 | 67 | 7 | 1 | 8 | 消 `agents/__init__.py` | 1 | 3+9 → 3+9(古い 4 本から名 `agents` が外れる) | — |
+| 3 | `engine/calendar.py` | `world/facts/calendar.py` new・`foundation/types.py` existing | 全部「同じ」 | 35 | 0 | 3 | 1 | 2 | — | 1 | 3+9 → 3+9 | — |
+| 4 | `engine/tools/registry.py` | `society/tools/registry.py` new・`foundation/vocab/events.py` existing | 全部「同じ」 | 12 | 1 | 3 | 1 | 1 | — | 2 | 3+9 → 3+9 | — |
+| 5 | `engine/tools/record.py` | `society/tools/record.py` new・`foundation/vocab/events.py` existing | 全部「同じ」 | 11 | 0 | 2 | 1 | 0 | 消 `engine/tools/__init__.py` | 1 | 3+9 → 3+9 | — |
+| 6 | `engine/events/body.py` | `mind/memory/body_events.py` new・`foundation/vocab/events.py` existing | 全部「同じ」 | 2 | 0 | 1 | 1 | 0 | 消 `engine/events/__init__.py` | 1 | 3+9 → 3+9 | — |
+| 7 | `llm/__init__.py` | `foundation/ports/inference.py` new | 全部「同じ」 | 36 | 5 | 4 | 1 | 1 | 空 `llm/__init__.py` | 0 | 3+9 → 3+9 | import 3・注 12 |
+| 8 | `llm/fleet.py` | `runtime/inference/fleet.py` new・`foundation/ports/inference.py` existing | 全部「同じ」 | 25 | 4 | 15 | 1 | 2 | — | 0 | 3+9 → 3+9 | — |
+| 9 | `llm/mock.py` | `runtime/inference/mock.py` new・`foundation/vocab/actions.py` existing | 全部「同じ」 | 30 | 1 | 2 | 1 | 1 | — | 0 | 3+9 → 3+9 | — |
+| 10 | `llm/undefined.py` | `act/intake/undefined.py` new・`foundation/vocab/act_codes.py` new | 「同じ」・決まり=宣言どおり 5 | 26 | 1 | 5 | 1 | 0 | 消 `llm/__init__.py` | 0 | 3+9 → 2+9(古い 3 本から名 `llm` が外れ、llm の決まりが丸ごと消える) | 注 3 |
+| 11 | `engine/llm_bridge.py` | `runtime/inference/bridge.py` new・`foundation/ports/inference.py` existing | 全部「同じ」 | 28 | 0 | 7 | 1 | 0 | — | 0 | 2+9 → 2+9 | — |
+| 12 | `engine/chooser.py` | `mind/judge/chooser.py` new・`foundation/ports/choice.py` new | 全部「同じ」 | 16 | 3 | 4 | 1 | 1 | — | 1 | 2+9 → 2+9 | — |
+| 13 | `engine/poi_target.py` | `act/target.py` new・`foundation/vocab/place_words.py` existing | 全部「同じ」 | 13 | 1 | 1 | 1 | 0 | — | 1 | 2+9 → 2+9 | — |
+| 14 | `perception/attention.py` | `foundation/text/salience.py` new・`mind/percept/attention.py` new | 全部「同じ」 | 14 | 2 | 2 | 1 | 0 | — | 1 | 2+9 → 2+9 | — |
+| 15 | `engine/change_detect.py` | `mind/system1/change_detect.py` new・`world/model/scene_hash.py` new・`foundation/vocab/agent_codes.py` existing | 全部「同じ」 | 13 | 0 | 3 | 1 | 1 | 足 `mind/system1/__init__.py` | 4 | 2+9 → 2+9 | — |
+| 16 | `engine/arbiter.py` | `runtime/arbiter.py` new・`mind/system1/wake.py` new | 全部「同じ」 | 22 | 6 | 3 | 1 | 2 | — | 0 | 2+9 → 2+9 | — |
+| 17 | `engine/relations.py` | `mind/relations/layer.py` new・`world/facts/initial_ties.py` new・`foundation/vocab/relations.py` new | 全部「同じ」 | 14 | 3 | 3 | 1 | 4 | — | 10 | 2+9 → 2+9 | — |
+| (延) | `engine/speech/port.py` | — | 延ばした(順に無い=道具は断る) | — | — | — | — | — | — | — | — | — |
+
+- 守り=①文(多重集合と割り先ごとの順)・②定数・③名の結び(結ばれない名と、同じ物への結び)・④宣言・名の凍結・固定の表・道の形の 74 種・許可の一覧の外・import の文が結ぶ名・頭の `__all__`・import の決まり の 11 個。import の決まりの値は「同じ」か「宣言どおり N」(§4)。
+- 書き換えた import の文は src・build・tests・tools・docs の記録の道具の和(道具の数え方=書き換えた文の数)。分けた文=名が 2 つ以上の割り先へ分かれて 1 文を分けた数。
+- 1 本あたり 10〜20 秒(import の決まりを割る前と後の木で 2 回作る分を含む)。
+
+### 3-1. 手で直す読み(24 件)と中身を見る試験(親の答え 2・6=その本の commit の中で、道具を当てる前に直す)
+
+直した後に書かない実行を回し、「手で直す一覧」が 0 になってから当てる。
+
+- 1 本目 `world/assets.py`: `tests/engine/test_assets_10e_b0_b1.py:24`
+- 2 本目 `agents/state.py`: `docs/bench/analysis/c10-relations-2026-09-28/rel8b_measure.py:257`。中身を見る試験 `tests/engine/test_two_phase.py`(`.thaw` の呼び手の集合に `agents/state.py` の割り先)
+- 3 本目 `engine/calendar.py`: `tests/engine/test_calendar_10e_e3.py:23`
+- 4 本目 `engine/tools/registry.py`: `tests/engine/tools/test_c0_affordance_from_registry.py:24`・`tests/engine/tools/test_c0_tool_registry.py:18`
+- 5 本目 `engine/tools/record.py`: `tests/engine/tools/test_c0_signboard_mark_invariance.py:26`
+- 6 本目 `engine/events/body.py`: `tests/engine/multiday/test_md23_body_events.py:26`
+- 8 本目 `llm/fleet.py`: 中身を見る試験 `tests/llm/test_fleet_contract.py`(禁じる名を 2 つの割り先で見る)
+- 12 本目 `engine/chooser.py`: `tests/engine/test_classical_policy.py:20`
+- 13 本目 `engine/poi_target.py`: `tests/engine/test_intent_chooser.py:272`
+- 14 本目 `perception/attention.py`: `tests/perception/test_attention.py:8`
+- 15 本目 `engine/change_detect.py`: `tests/engine/clock/test_tm3_step_scope.py:25`・`tests/engine/space/test_nav1_density.py:213`・`tests/engine/test_change_detect_p6.py:21`・`tests/engine/test_renderer_wiring.py:22`
+- 17 本目 `engine/relations.py`: `docs/bench/analysis/c10-relations-2026-09-28/rel8b_measure.py:161`・`docs/bench/analysis/c10-relations-2026-09-28/rel8b_measure.py:205`・`docs/bench/analysis/c10-relations-2026-09-28/rel8b_measure.py:347`・`docs/bench/analysis/c10-relations-2026-09-28/rel8b_measure.py:517`・`docs/bench/analysis/c10-relations-2026-09-28/rel8b_measure.py:570`・`docs/bench/analysis/c10-relations-2026-09-28/rel8b_measure.py:650`・`tests/engine/test_relations.py:24`・`tests/engine/test_relations_8b.py:23`・`tests/engine/test_relations_tenure.py:25`・`tests/engine/tools/test_c0_contacts_in_relations.py:23`。中身を見る試験 `tests/engine/test_relations.py`(`copresence`・`slot_cells` は `world/facts/initial_ties.py`)
+
+### 3-2. 写さなかった import と注(検収 低-2・17 本の報告の `unwritten`)
+
+| 本 | 写さなかったもの |
+|---|---|
+| 1 `world/assets.py` | `__all__` の中の区切りの注 5 行(`# ---- 10e(B0・B1): 資産の指紋と旧資産の切替口 ----` ほか)。`__all__` を割り先ごとに作り直すため |
+| 7 `llm/__init__.py` | 途中の再輸出の import 3 文(`from shibuya.llm.mock import MockLLM, TapeLLM`・`from shibuya.llm.undefined import (…)`・`from shibuya.llm.fleet import (…)`。どの割り先も使わない)と、その前の注 4 行(循環を避けるための置き場の説明)・行末の `# noqa: E402` 3 つ・`__all__` の中の区切りの注 5 行 |
+| 10 `llm/undefined.py` | `__all__` の中の区切りの注 3 行(`# ---- 段0 辞書 v3 … ----` ほか) |
+| ほかの 14 本 | 無い |
+
+- 副作用の確かめ: 写さなかった import は 7 本目の再輸出の 3 文だけ。読む先の `llm/mock.py`・`llm/undefined.py`・`llm/fleet.py` の頂上の文を AST で見た(関数・クラス・import のほかの文): `re.compile`・自分の表から作る辞書と組・自分の表の assert・`dataclass` と `runtime_checkable` の飾りだけで、ほかのモジュールへの登録・環境変数の読み・乱数・入出力は無い。3 文は循環を避けるために後ろへ置いた再輸出(注の説明どおり)で、読み手は道具が名の割り先(元のモジュール)へ向ける(7 本目の手で直す読みは 0)。副作用のある import は無い=主な割り先へ残すものは無い。読み込みの順が変わる分は、親の byte-check(G3)で確かめる。
+- 注は区切りと説明だけ(コードの意味は持たない)。割り先に写さないことを仮採用 11 とした。
+
+## 4. import の決まり(`[[ignore_split]]`・`[[split_weakens]]`)
+
+### 4-1. 例外(計画に無い 4 本)
+
+| 番号 | 最終の名 | 決まり | 載る本 | 消える段 |
+|---|---|---|---|---|
+| 割 1 | `mind.percept.draw -> world.model.agent_table`(今の名は `perception.renderer`) | 3 | 2 本目 `agents/state.py` | 段 7 |
+| 割 2 | `world.model.scene_hash -> world.model.percept_scene`(今の名は `perception.renderer`) | 1 | 15 本目 `engine/change_detect.py` | 段 7 |
+| 割 3 | `mind.system1.change_detect -> world.model.agent_table`(注釈だけ) | 3 | 15 本目 | 注釈だけ(段 8) |
+| 割 4 | `mind.system1.change_detect -> world.model.scene_hash`(例外 T3) | 3 | 15 本目 | 残る |
+
+今の木(まだ割っていない)では 4 本とも載らない(`contracts --check` は前と同じ)。
+
+### 4-2. 契約の数の動きと、弱まってよい決まりの宣言(検収 高-1)
+
+- 直す前(G0): 契約の数(古い+新しい)は 3+9 → 7 本目で 3+8(単位 foundation が「最終の名でないモジュールがある(`shibuya.foundation.ports.inference`)」で言えなくなり、決まり 2「foundation は何も読まない」が消え、決まり 1 の層からも foundation が外れた。lint は kept のまま)→ 10 本目で 2+8 → 17 本目 2+8=10。計画(11)より 1 少ない。
+- 原因: `contracts.view()` が old が頭の行を割る行でも飛ばし、`llm/__init__.py` の主な割り先が最終の名に載らなかった。直し: 割る行の頭は、中身が出た後(元の頭が無いか 0 バイト)に主な割り先を最終の名に載せる。
+- 直した後: 3+9 → 9 本目まで 3+9 → 10 本目で 2+9 → 17 本目 2+9=11(計画どおり)。単位 foundation と決まり 2 は最後まで言える。
+- 黙って弱めない仕組み: 割る道具は割る前と後の木で節を作り、`not_expressed`(言えない単位・決まり)と `dropped_old`(古い決まりから外れた名)に増えた項を比べる。`contracts.toml` の `[[split_weakens]]` で宣言した分のほかに増えたら止める(終了コード 2)。宣言は 2 本: 2 本目 `agents/state.py`=古い決まりから名 `agents` が外れる(包み agents が無くなる・4 項)・10 本目 `llm/undefined.py`=名 `llm` が外れ、古い決まり「llm は world/agents を import しない」が丸ごと消える(5 項)。17 本の書かない実行で、宣言の外の増えは 0・当たらない宣言も 0。
+
+## 5. 止まる所・親の判断を待つ所
+
+1. **18 本目(`mora_count`)は延ばした**(G0 の検収の後の親の答え 1)。理由は守り ④ で止まること: `mora_count` の docstring の `expedient:` の段落はつなぎの台帳の行 `BR-DOC-SPEECH-MORA-KANA`(`src/shibuya/engine/speech/port.py#docstring:67c85df9`)で、同じ元の道の見出し `HD-engine.speech.port-6f282ea4` は主な割り先 `society/speech/port.py` に残る。台帳の道の対応の表(今の道 → 台帳の道)は 1 対 1 なので、2 つの今の道を同じ台帳の道に向けられない。台帳の JSON は変えない決まり。台帳の道を書き換えられる版上げのときに一緒に下ろす。それまで決まり 10 の例外 1 本(核 1)は残る。
+2. 手で直す読み(§3-1)は、その本の commit の中で、道具を当てる前に直す(親の答え 2)。
+
+## 6. 空回りする試験の直しと、範囲の手がかりの付け替え
+
+直す前と後で、同じ 10 本の試験(ノードを名指し)を今の木で回した: 前 10 passed・0 skipped → 後 10 passed・0 skipped。
+
+| 試験 | 前 | 後 |
+|---|---|---|
+| `tests/perception/test_channels.py::test_estimate_tokens_matches_the_llm_side_convention` | `pytest.importorskip("shibuya.llm")`(llm が無くなると黙って飛ぶ) | `from shibuya.llm import estimate_tokens`(移す道具が名の割り先へ向ける) |
+| `tests/engine/clock/test_tm2_talk_clock.py::test_think_time_is_not_added_to_the_gap` | `"shibuya.engine.llm_bridge" not in mods`(割ると何も確かめずに通る) | `LLMBridge.__module__` から作る(割った後は割り先の名)。〔検収 低-5〕割った後に禁じるのは橋のモジュールだけになる(型の口 `RenderedPrompt`・`Renderer` は `foundation.ports.inference` へ行き、時計が読んでも考える時間は二重に数えない=禁じない)。代わりに考える時間の名 4 つ(`LANE_SECONDS`・`LANE_THINK_TOKENS`・`ALPHA_THINK_SECONDS_PER_TOKEN`・`delta_think_ticks`)は、どこから読んでも禁じる形に足した |
+| `tests/engine/test_state_checks_10f.py::test_k19_static_sites_are_frozen` | `s.path != "llm/fleet.py"`(割ると空回り) | `FleetClient` の定義のファイルから道を作る(そのファイルに `client.stream` が在ることも確かめる) |
+| `tests/build_pop/test_w21_stage8_9.py::test_persona_build_does_not_import_or_call_llm` | `import shibuya.llm as LLM`(範囲の手がかり) | `act.intake.parser`(元の置き場 llm/・Q13) |
+| `tests/build_pop/test_w21_stage8_9.py::test_persona_does_not_reference_llm_ports`(検収 低-5) | 字面の "llm" の検出器だけ(G3 の後は新しい置き場 `runtime.inference.*`・`foundation.ports.inference` の読みを見ない) | 字面の検出器(植えた文は変えない)に加えて、元の置き場が llm/ のモジュール(実行時の試験と同じ範囲=`PL.names_from(act.intake.parser)`)を読む import も禁じる。負の対照=範囲のモジュールを今の名で植えると見つかる。G3 の 7〜9 本目の間の `foundation.ports.inference` は範囲の外(親の答え 3) |
+| `tests/economy/cp2/test_cp2_event_links.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/space/test_nav1_units.py` | `import shibuya.llm as LLM` | `act.intake.parser`(Q13) |
+| `tests/engine/memory/test_m0_store_schema.py`・`tests/llm/test_fleet_contract.py` | `from shibuya.agents import state as AGENTS` | `world.facts.population_reader`(元の置き場 agents/・Q13) |
+| `tests/engine/space/test_nav1_units.py::test_engine_does_not_decide_for_the_person` | `from shibuya.engine import chooser` → `module_names(chooser, …)` | `ChoiceContext`・`ClassicalChooser` の `__module__` の集合(割ると選び手と口の 2 つ=両方を禁じる) |
+
+## 7. 試験の結果(作業の木・2026-11-16・pytest は 1 本ずつ・`-n` なし)
+
+### 7-1. G0 の検収の直しの後(本体の頭 `dcd25a6c` の上へ載せ直した木)
+
+| 回したもの | 結果 |
+|---|---|
+| 載せ直しで混ざった 2 本(`tests/economy/cp2/test_cp2_event_links.py`・`tests/engine/space/test_nav1_units.py`)を最初に | 29 passed |
+| `tests/tools/test_pkgmove.py`(直しの試験を足した後・`slow` の 17 本の試験を含む) | 79 passed・20 skipped(飛んだ 20 本は段 4 の段が残っていない木の理由=前からの理由) |
+| 1 本の pytest: 置き場の守り(`test_places_guard`)・写しの一致(`test_places_rule_copies`)・`test_c8lib`・カード(`test_repo_guide`)・古い写しの固定(`test_render_from_percept_bytes`)・G0 で直した試験のファイル 7 本(`test_cp2_event_links`・`test_tm2_talk_clock`・`test_m0_store_schema`・`test_mr65_guards`・`test_nav1_units`・`test_fleet_contract`・`test_channels`)と 3 ノード(`test_k19_static_sites_are_frozen`・`test_persona_does_not_reference_llm_ports`・`test_persona_build_does_not_import_or_call_llm`)・中身を見る試験の残り 2 本(`test_relations`・`test_two_phase`) | 296 passed・0 skipped |
+| 古い写しの固定を使う残りの 2 本(`test_cp2_nine_ops_equivalence`・`test_percept_is_scratch`) | 51 passed・0 skipped |
+| 直しの突然変異(メモリの中・1 本ずつ): `contracts.view` を直す前に戻す・捕まりの確かめを外す・決まりの守りの宣言の外を空にする | 3 本とも足した試験が落ちた(変異を捕まえた) |
+| `lint-imports` | 12 kept・0 broken(今と同じ) |
+| `cli.py map --check`・`cli.py contracts --stage delete --tree . --check` | 同じ・同じ |
+| カード `tools/repo_guide/build.py --check` | 最新(`cards/data.md` は作り直した後に戻した) |
+| src の差 | 0 本(`git diff -- src` が空) |
+
+### 7-2. G0(載せ直しの前)
+
+| 回したもの | 結果 |
+|---|---|
+| `tests/tools/test_pkgmove.py`(割る段の試験を足した後) | 61 passed・20 skipped |
+| 置き場の守り・写しの一致・心の読み・古い写しの固定・カードの試験と、空回りの直しの 10 本(1 本の pytest) | 132 passed・0 skipped |
+| 古い写しの固定を使う残りの 2 本 | 51 passed・0 skipped |
+| 空回りの直しの 10 本の前後 | 前 10 passed・0 skipped → 後 10 passed・0 skipped |
+
+範囲の全体の試験と byte-check は回していない(親が回す)。`allow --check` は段 4 の後の木では前から「違う」(作り直すと空=試験は当てていない木でだけ比べる)。
+
+## 8. 親の確かめ(第347)
+
+- src の差: `tools/bytecheck/astsame.py --base HEAD`=変わったファイル 0 本([astsame_g0.json](astsame_g0.json)・土台 `cc0c658`)。byte-check は回して
+  いない(src を変えていない段)。
+- 範囲の全体の試験(`tests --ignore=tests/c7 -m "not gpu and not slow" -n 4 --dist loadfile`・linked の作業木・土台 `8c58d9f` の上): 6,902 passed・
+  1 failed・21 skipped・1 xfailed(36 分 18 秒)。落ちた 1 本は前からの
+  `tests/vocab/test_registry_from_tape.py::test_ab7_seed1_open_matches_the_parent_report`(linked の作業木でだけ落ちる)。
+- 本体の頭 `cc0c658`(版上げ A48 と台帳が入った)へ載せ直した後: 道具の試験と置き場の守り(`tests/tools/test_pkgmove.py`〔本物の木で 17 本を順に当てる
+  slow の試験を含む〕・`tests/test_places_guard.py`・`tests/c8/test_places_rule_copies.py`)=108 passed・20 skipped(飛んだ 20 本は、段 4 の段がもう残って
+  いない木という前からの理由)。`map --check`・`contracts --stage delete --check` は「同じ」。`lint-imports` 12 kept。
+- 別の役の検収: 1 回目 条件つき(高 1・中 4・低 6)→ 直した → 2 回目 受入(高 0・中 0・低 4)。
+- §3 の表の数(書き換える import の文の数など)は、版上げ A48 が本体に入る前の木で取った値。A48 は割る 17 本を変えていないが、読み手の数は
+  本ごとに当てるときの実測で記録し直す。
+- 例外(ignore)の本数は G0 では変わらない(31 本・延べ 45 行。まだ 1 本も割っていない)。

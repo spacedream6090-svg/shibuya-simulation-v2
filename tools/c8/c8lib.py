@@ -144,6 +144,7 @@ def src_origins(map_path: Path | None = None, pkg: Path | None = None) -> dict[s
         raise RuntimeError(f"対応表 {map_path.name} の形の名か行が違う")
     olds: set[str] = set()
     moved: dict[str, str] = {}
+    split_main: dict[str, str] = {}
     for r in rows:
         if not isinstance(r, dict) or not isinstance(r.get("old"), str) or not isinstance(r.get("kind"), str):
             raise RuntimeError(f"対応表の行に old か kind が無い: {r!r}")
@@ -153,16 +154,22 @@ def src_origins(map_path: Path | None = None, pkg: Path | None = None) -> dict[s
                 raise RuntimeError(f"対応表の行(move)に new が無い: {r!r}")
             if r["old"].endswith(".py"):
                 moved[r["new"]] = r["old"]
+        elif r["kind"] == "split" and isinstance(r.get("new"), str) and r["old"].endswith(".py"):
+            split_main[r["new"]] = r["old"]  # 〔割る段 5a・親の裁定 Q1〕主な割り先の元の道=割る行の old
     out: dict[str, str] = {}
     unknown: list[str] = []
     for p in sorted(pkg.rglob("*.py")):
         if "__pycache__" in p.parts:
             continue
         rel = p.relative_to(pkg).as_posix()
-        if rel not in olds and rel not in moved and not (p.name == "__init__.py" and p.stat().st_size == 0):
+        if (rel not in olds and rel not in moved and rel not in split_main
+                and not (p.name == "__init__.py" and p.stat().st_size == 0)):
             unknown.append(rel)
         old = moved.get(rel)
         out[rel] = old if old is not None and not (pkg / old).is_file() else rel
+        sm = split_main.get(rel)
+        if old is None and sm is not None and not (pkg / sm).is_file():
+            out[rel] = sm  # 割った後の主な割り先(元のファイルが 0 バイトの頭として残る間は今の道のまま=元の道が重ならない)
     if unknown:
         raise RuntimeError(f"対応表に無いファイル {unknown[:10]}({PLACES_ADD_ROW_HELP})")
     return out

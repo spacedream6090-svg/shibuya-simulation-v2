@@ -18,4 +18,4 @@ engine.events.body — 体の出来事を出来事の記録(1-3)に書く口(第
 - import している内部モジュール: `shibuya.engine.tools.record`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.events`
 - 呼び手: `shibuya.mind.memory.memory_store`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/multiday/test_md23_body_events.py`
-- 読む試験(道筋で): `tests/test_places_guard.py`
+- 読む試験(道筋で): `tests/test_places_guard.py`・`tests/tools/test_pkgmove.py`

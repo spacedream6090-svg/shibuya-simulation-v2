@@ -11,6 +11,17 @@ import の文が結ぶ名が変わる・``--check`` の食い違い)・2=断っ�
 使い方の誤り)・3=書いた後の import の確かめが落ちた(木は書いたまま=写しの木か git で戻せる作業木で回す)。
 
     python tools/pkgmove/cli.py importcheck --tree <木> [--out <JSON>]   # 全モジュールを 1 本ずつ最初から import
+
+〔割る段 5a〕割る行(split)を 1 本ずつ当てる(``split.py``・親の裁定 Q10=案 A):
+
+    python tools/pkgmove/cli.py split --next [--tree <木>] [--out-dir <置き場>]              # 次の 1 本(書かない)
+    python tools/pkgmove/cli.py split --only <今の道> [--tree <木>] [--out-dir <置き場>]     # 名指し(順が違えば断る)
+    python tools/pkgmove/cli.py split --next --apply --tree <木> [--out-dir <置き場>]         # 書く(本体の作業木は断る)
+    python tools/pkgmove/cli.py split --through <今の道>|all --out-dir <置き場>              # 書かない実行だけ: 次の本から順に
+                                                                                            # メモリの中で当てて本ごとの報告
+
+割る段の終了コード: 0=できた・2=断った(表せない・順が違う・手で直す読みが残る)か守りが止めた(親の発注=守りが「同じ」で
+なければ当てない)・3=書いた後の import の確かめが落ちた。
 """
 from __future__ import annotations
 
@@ -220,6 +231,15 @@ def main(argv: list[str] | None = None) -> int:
     sp.add_argument("--out-dir", default="", help="報告の JSON と差分を書く置き場(木の外)")
     sp.add_argument("--apply", action="store_true", help="木へ書く(本体の作業木は断る)。書いた後に import の確かめを回す")
     sp.add_argument("--import-jobs", type=int, default=4, help="書いた後の import の確かめの並べる数(既定 4)")
+    sp = sub.add_parser("split", help="〔割る段 5a〕割る行を 1 本ずつ当てる(既定は書かずに差分と報告だけ)")
+    g = sp.add_mutually_exclusive_group(required=True)
+    g.add_argument("--next", action="store_true", help="木の次の割る行(順の次の 1 本)")
+    g.add_argument("--only", default="", help="割る行を今の道(表の old)で名指す(順が違えば断る)")
+    g.add_argument("--through", default="", help="書かない実行だけ: 次の本から、この行(か all)まで順にメモリの中で当てる")
+    sp.add_argument("--tree", default="", help="木の根(既定は道具のリポ)。--apply のときは要る")
+    sp.add_argument("--out-dir", default="", help="報告の JSON と差分を書く置き場(木の外)")
+    sp.add_argument("--apply", action="store_true", help="木へ書く(本体の作業木は断る)。書いた後に import の確かめを回す")
+    sp.add_argument("--import-jobs", type=int, default=4)
     sp = sub.add_parser("importcheck", help="木の src/shibuya の全モジュールを 1 本ずつ新しく import できるか")
     sp.add_argument("--tree", required=True)
     sp.add_argument("--out", default="", help="結果の JSON を書く道(木の外)")
@@ -233,7 +253,120 @@ def main(argv: list[str] | None = None) -> int:
     sp.add_argument("--probe", action="store_true", help="効いている例外の数を回す(--out が無くても)")
     a = ap.parse_args(argv)
     return {"map": cmd_map, "allow": cmd_allow, "move": cmd_move, "importcheck": cmd_importcheck,
-            "contracts": cmd_contracts}[a.cmd](a)
+            "contracts": cmd_contracts, "split": cmd_split}[a.cmd](a)
+
+
+def cmd_split(a: argparse.Namespace) -> int:
+    """〔割る段 5a〕割る行を当てる(``split.py``)。"""
+    from pkgmove import contracts as CT
+    from pkgmove import split as SP
+    from pkgmove.table import SPLIT_ORDER
+
+    if a.apply and not a.tree:
+        print("--apply には --tree が要る(書く置き場を名指す)", file=sys.stderr)
+        return EXIT_REFUSE
+    if a.apply and a.through:
+        print("--through は書かない実行だけ(--apply は 1 本ずつ)", file=sys.stderr)
+        return EXIT_REFUSE
+    root = Path(a.tree).resolve() if a.tree else REPO
+    if a.apply and is_main_worktree(root):
+        print(f"本体の作業木(か、その中)へは書かない: {root}", file=sys.stderr)
+        return EXIT_REFUSE
+    if a.out_dir and is_main_worktree(Path(a.out_dir)):
+        print(f"報告の置き場が本体の作業木(か、その中)にある: {a.out_dir}(木の外か、ほかの作業木に置く)", file=sys.stderr)
+        return EXIT_REFUSE
+    if not (root / "src" / "shibuya").is_dir():
+        print(f"木に src/shibuya が無い: {root}", file=sys.stderr)
+        return EXIT_REFUSE
+    # 〔検収 低-4〕木の src の shibuya を読むので、木の src に __pycache__ を書かない(書かない実行は木を変えない)
+    sys.dont_write_bytecode = True
+    if str(root / "src") not in sys.path:
+        sys.path.insert(0, str(root / "src"))  # つなぎの宣言の走査(src の純な関数)を木の src から読む
+    mapdoc = load_map(REPO / MAP_REL)
+    tree = Tree.load(root, extra=AL.RECORD_TOOLS)
+    frozen = G.Frozen.load(lambda rel: (root / rel).read_text(encoding="utf-8"))
+    spec = CT.load_spec(REPO / CT.CONTRACTS_REL)  # 〔検収 高-1〕割る前と後の import の決まりを比べる
+    ledger = root / SP.LEDGER_REL
+    ledger_text = ledger.read_text(encoding="utf-8") if ledger.is_file() else None
+    od = Path(a.out_dir) if a.out_dir else None
+    if od is not None:
+        od.mkdir(parents=True, exist_ok=True)
+    try:
+        if a.through:
+            start = SP.next_split(tree, mapdoc)
+            if start is None:
+                print("割る段は全部当たっている")
+                return EXIT_OK
+            last = SPLIT_ORDER[-1] if a.through == "all" else a.through
+            if last not in SPLIT_ORDER or SPLIT_ORDER.index(last) < SPLIT_ORDER.index(start):
+                print(f"--through の行が順に無いか、次の本 {start} より前: {a.through}", file=sys.stderr)
+                return EXIT_REFUSE
+            rc = EXIT_OK
+            rows = []
+            for old in SPLIT_ORDER[SPLIT_ORDER.index(start): SPLIT_ORDER.index(last) + 1]:
+                try:
+                    plan = SP.make_split_plan(tree, mapdoc, old, frozen=frozen, ledger_text=ledger_text, strict=False,
+                                              contracts_spec=spec)
+                except (SP.SplitRefused, SP.SplitStopped) as e:
+                    errs = e.errors if isinstance(e, SP.SplitStopped) else [str(e)]
+                    rows.append({"row": old, "stopped": errs})
+                    print(f"{old}: 止めた: {errs[:5]}", file=sys.stderr)
+                    rc = EXIT_REFUSE
+                    break
+                rep = SP.report(plan)
+                rows.append({k: rep[k] for k in ("row", "split_order", "dests", "guards", "manual", "import_statements",
+                                                 "import_split_statements", "class_id_keys", "ledger_paths_added",
+                                                 "path_string_sites", "deleted", "created_heads", "emptied_heads",
+                                                 "unwritten", "contracts")})
+                if od is not None:
+                    tag = f"{plan.row.split_order:02d}"
+                    (od / f"split_{tag}_report.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1) + "\n",
+                                                               encoding="utf-8", newline="\n")
+                    (od / f"split_{tag}.diff").write_text(SP.unified_diff(plan), encoding="utf-8", newline="\n")
+                print(f"{old}: 守り {plan.guards}・手で直す {len(plan.manual)}")
+                tree = plan.after
+            if od is not None:
+                (od / "split_through_summary.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1) + "\n",
+                                                               encoding="utf-8", newline="\n")
+            print("書いていない(dry-run=メモリの中で順に当てた)")
+            return rc
+        old = a.only or SP.next_split(tree, mapdoc)
+        if old is None:
+            print("割る段は全部当たっている")
+            return EXIT_OK
+        plan = SP.make_split_plan(tree, mapdoc, old, frozen=frozen, ledger_text=ledger_text, strict=True,
+                                  contracts_spec=spec)
+    except SP.SplitRefused as e:
+        print(f"断った: {e}", file=sys.stderr)
+        return EXIT_REFUSE
+    except SP.SplitStopped as e:
+        print("守りが止めた(書いていない):", *e.errors, sep="\n  ", file=sys.stderr)
+        return EXIT_REFUSE
+    rep = SP.report(plan)
+    if od is not None:
+        tag = f"{plan.row.split_order:02d}"
+        (od / f"split_{tag}_report.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1) + "\n",
+                                                   encoding="utf-8", newline="\n")
+        (od / f"split_{tag}.diff").write_text(SP.unified_diff(plan), encoding="utf-8", newline="\n")
+    print(json.dumps({k: rep[k] for k in ("row", "split_order", "source", "dests", "names_by_dest", "import_statements",
+                                          "import_split_statements", "class_id_keys", "ledger_paths_added", "deleted",
+                                          "created_heads", "emptied_heads", "guards")}, ensure_ascii=False, indent=1))
+    if not a.apply:
+        print("書いていない(dry-run)。書くのは --apply --tree <置き場> のときだけ")
+        return EXIT_OK
+    pruned = SP.apply(plan, root)
+    print(f"書いた: {root.name}(ファイル {len(plan.changed) + len(plan.dests)}・消した {len(plan.deleted)})")
+    doc = IC.check(root, jobs=a.import_jobs, gone=MV.gone_packages(mapdoc, root))
+    doc["removed_cache_only_dirs"] = pruned
+    if od is not None:
+        (od / f"split_{plan.row.split_order:02d}_imports.json").write_text(
+            json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+    print(IC.summary(doc))
+    if not IC.ok(doc):
+        print("書いた後の import の確かめが落ちた(木は書いたまま):", *list(doc["bad"].items())[:10], sep="\n  ",
+              file=sys.stderr)
+        return EXIT_IMPORT
+    return EXIT_OK
 
 
 def cmd_importcheck(a: argparse.Namespace) -> int:

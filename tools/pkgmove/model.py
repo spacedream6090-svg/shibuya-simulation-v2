@@ -295,6 +295,15 @@ class Ctx:
     heads_changed: set[str]
     #: tests と tools の点の名のうち書き換えないもの(凍結のクラスの名など=凍結の値)。
     frozen_tokens: frozenset[str] = frozenset()
+    #: 〔割る段 5a〕割るモジュールの名 → {頂上の名 → 割り先のモジュールの名}(名の単位の写像)。
+    namemap: dict[str, dict[str, str]] = field(default_factory=dict)
+    #: 〔割る段 5a〕割るモジュールの名 → 主な割り先のモジュールの名(名の無い点の道の行き先)。
+    split_main: dict[str, str] = field(default_factory=dict)
+    #: 〔割る段 5a〕いま書き換えるファイルで、割るモジュールを結んだ別名 → 割り先のモジュール(属性で読む名の割り先が 1 つ
+    #: のとき)か ``None``(2 つ以上・名で読まない使い方がある=手で直す)。ファイルごとに入れ替える。
+    alias_dests: dict[str, str | None] = field(default_factory=dict)
+    #: 〔割る段 5a〕割るモジュールの名 → {頂上の import で結んだ名(再輸出)→ その名を持ち続ける割り先のモジュール}。
+    split_reexports: dict[str, dict[str, str]] = field(default_factory=dict)
 
     def new_mod(self, mod: str) -> str:
         return self.modmap.get(mod, mod)

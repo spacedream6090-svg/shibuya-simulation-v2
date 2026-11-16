@@ -86,16 +86,65 @@ def check_keys(old: dict[str, str], new: dict[str, str], modmap: dict[str, str],
             raise ClassIdError(f"鍵の取り違え: {nk} の値 {v} が古い鍵 {back} の値 {old[back]} と違う")
 
 
+def split_keymap(class_quals: dict[str, str], src_mod: str, dest_of_top: dict[str, str]) -> dict[str, str]:
+    """〔割る段 5a〕割るモジュール ``src_mod`` のクラス(``__qualname__``)→ 新しい鍵の写像。割り先は頂上の名(``__qualname__``
+    の頭)の割り先のモジュール(``dest_of_top``)。割り先が元と同じクラスは載せない。"""
+    out: dict[str, str] = {}
+    for q in class_quals:
+        dest = dest_of_top.get(q.split(".")[0])
+        if dest is None:
+            raise ClassIdError(f"クラス {src_mod}.{q} の頂上の名の割り先が無い")
+        if dest != src_mod:
+            out[f"{src_mod}.{q}"] = f"{dest}.{q}"
+    return out
+
+
+def split_table(old: dict[str, str], keymap: dict[str, str], frozen_qual: dict[str, str]) -> dict[str, str]:
+    """〔割る段 5a〕鍵だけを ``keymap``(古い鍵 → 新しい鍵)で書き換えた表(値はそのまま)。"""
+    out: dict[str, str] = {}
+    for k, v in old.items():
+        nk = keymap.get(k, k)
+        if nk in out:
+            raise ClassIdError(f"書き換えた鍵が重なる: {nk}")
+        out[nk] = v
+    return out
+
+
+def check_split_keys(old: dict[str, str], new: dict[str, str], keymap: dict[str, str],
+                     frozen_qual: dict[str, str]) -> None:
+    """〔割る段 5a〕鍵の守り(クラスの単位): 写像は 1 対 1・行の数と値の多重集合が同じ・全行で新しい鍵が逆写像で古い鍵に戻り、値が
+    古い鍵の値と同じ・書き換えた鍵の末尾は ``__qualname__``。"""
+    inv: dict[str, str] = {}
+    for o, n in keymap.items():
+        if n in inv:
+            raise ClassIdError(f"鍵の写像が 1 対 1 でない: {inv[n]} と {o} が {n} へ")
+        inv[n] = o
+    if len(new) != len(old):
+        raise ClassIdError(f"表の行の数が変わった: {len(old)} → {len(new)}")
+    if sorted(new.values()) != sorted(old.values()):
+        raise ClassIdError("表の値(凍結の名)が変わった")
+    for nk, v in new.items():
+        back = inv.get(nk, nk)
+        if back not in old:
+            raise ClassIdError(f"新しい鍵が逆写像で古い鍵に戻らない: {nk} → {back}")
+        if old[back] != v:
+            raise ClassIdError(f"鍵の取り違え: {nk} の値 {v} が古い鍵 {back} の値 {old[back]} と違う")
+        q = frozen_qual.get(v)
+        if nk != back and (q is None or not nk.endswith("." + q)):
+            raise ClassIdError(f"書き換えた鍵の末尾が __qualname__ と違う: {nk} ({q})")
+
+
 def rewrite(text: str, modmap: dict[str, str], frozen_qual: dict[str, str], *,
-            keyfn=None) -> tuple[str, ClassIdResult]:
+            keyfn=None, check=None) -> tuple[str, ClassIdResult]:
     """``class_ids.py`` の文字列の鍵を書き換えた文字列と結果(鍵の守りを通らなければ :class:`ClassIdError`)。
-    ``keyfn`` は試験の差し替えの口(鍵の表を作る関数=取り違えを入れた負の対照に使う)。"""
+    ``keyfn`` は鍵の表を作る関数(試験の差し替えの口=取り違えを入れた負の対照・割る段は :func:`split_table`)、``check`` は
+    鍵の守り(既定 :func:`check_keys`・割る段は :func:`check_split_keys`)。割る段では ``modmap`` に鍵の写像を渡す。"""
     tree = ast.parse(text)
     d = find_table(tree)
     t = Text(text)
     old = {ast.literal_eval(k): ast.literal_eval(v) for k, v in zip(d.keys, d.values)}  # type: ignore[arg-type]
     new = (keyfn or new_table)(old, modmap, frozen_qual)
-    check_keys(old, new, modmap, frozen_qual)
+    (check or check_keys)(old, new, modmap, frozen_qual)
     res = ClassIdResult()
     new_of_old = dict(zip(old.keys(), new.keys()))
     entries = list(zip(d.keys, d.values))

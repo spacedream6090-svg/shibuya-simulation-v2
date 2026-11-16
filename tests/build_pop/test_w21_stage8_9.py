@@ -439,6 +439,18 @@ def test_persona_does_not_reference_llm_ports():
                     "import importlib\nm = importlib.import_module('shibuya.llm.fleet')\n",
                     "m = __import__('shibuya.llm')\n", "def ask_llm():\n    pass\n"):
         assert _llm_refs(src + "\n" + planted), planted
+    # 〔割る段 5a の G0 の検収 低-5〕字面の "llm" の検出器は、割る段で llm の中身が別の名の置き場(推論の口・推論の実行)へ出ると
+    # その読みを見ない。元の置き場が llm/ のモジュール(実行時の試験と同じ範囲)を読む import も禁じる
+    from shibuya.act.intake import parser as LLM  # llm の範囲の手がかり(元の置き場が llm/ に残るモジュール)
+
+    from tests import _places as PL
+
+    llm = PL.names_from(LLM)
+    mods = {m for n in ast.walk(ast.parse(src)) for m in PL.imported(n)}
+    assert not [m for m in mods if llm.hits(m)], sorted(m for m in mods if llm.hits(m))
+    pkg, _, leaf = LLM.__name__.rpartition(".")
+    planted2 = f"from {pkg} import {leaf}\n"  # 負の対照: 範囲のモジュールを今の名で植える
+    assert [m for n in ast.walk(ast.parse(planted2)) for m in PL.imported(n) if llm.hits(m)], planted2
 
 
 def test_persona_build_does_not_import_or_call_llm(tmp_path):
@@ -448,7 +460,7 @@ def test_persona_build_does_not_import_or_call_llm(tmp_path):
     import pickle
     import subprocess
 
-    import shibuya.llm as LLM
+    from shibuya.act.intake import parser as LLM  # 〔割る段 5a の G0・親の裁定 Q13〕llm の範囲の手がかりは、元の置き場が llm/ に残るモジュール(割る段で包み llm が無くなる)
 
     from tests import _places as PL
 

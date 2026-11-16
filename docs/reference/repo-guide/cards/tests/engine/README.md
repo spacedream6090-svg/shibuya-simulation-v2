@@ -1547,7 +1547,7 @@ D-56 就寝抑止(ユーザー決定 (a)・2026-09-10)のテスト。
   - `test_u7_ipf_cache_with_a_multiplier_is_caught`(関数): U7: O90 ``classical._ipf_cache`` は乗数が全部 1 の classical では使われない(10d の記録・検収で捕まらなかった)。
   - `test_u7_pulled_in_today_is_outside_this_check`(関数): U7: O37 ``presence._pulled_in_today``(軸 1 diag)は、わざと discardable にして日の境目の直後(T=1441)に捨てても
   - `test_v3_allow_entries_pin_the_function_of_the_line`(関数): 10e(E2・10f 第 3 段の検収 V3): 許可した行を別の関数へ**移す**(数は同じ)と、関数の名前で落ちる。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.rng`・`shibuya.mind.judge.classical`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.validation.static.rng_audit`・`shibuya.world.laws.opening`・`tests/engine/_legacy_world.py`・`tests/engine/discard_probe.py`・`tests/engine/test_sim_time_T.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.rng`・`shibuya.llm.fleet`・`shibuya.mind.judge.classical`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.validation.static.rng_audit`・`shibuya.world.laws.opening`・`tests/engine/_legacy_world.py`・`tests/engine/discard_probe.py`・`tests/engine/test_sim_time_T.py`
 - 決定の ID: 11-01・11-03/§3・第 330・第 337・第 346・第 347
 
 ## [test_state_format_10f.py](../../../../../../tests/engine/test_state_format_10f.py)

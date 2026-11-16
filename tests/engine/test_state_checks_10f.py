@@ -328,8 +328,15 @@ def test_k19_static_sites_are_frozen():
     # 〔第 6 期 6-4 C2〕習慣で答えられるときに判断の口へ戻すか(habit_recheck_u=用途名 contact.habit)を足して 24 → 25
     # 〔第346 死んだ道の削除〕会話の応答率 0.8 の抽選(ConversationManager._accepts)を消して 26 → 25
     assert len(RA.SAFE_SITES) == 25 and len(RA.UNDETERMINED_SITES) == 17
-    # httpx の client.stream(llm/fleet.py)は乱数ではない=一覧に入らない
-    assert all(s.path != "llm/fleet.py" for s in sites)
+    # httpx の client.stream(艦隊のクライアント)は乱数ではない=一覧に入らない。〔割る段 5a の G0〕前は字面の
+    # "llm/fleet.py"=割る段で道が無くなると何も確かめずに通る。クラスの定義のファイルから作る
+    import inspect
+
+    from shibuya.llm.fleet import FleetClient
+
+    fleet_path = Path(inspect.getsourcefile(FleetClient)).resolve().relative_to(SRC.resolve()).as_posix()
+    assert (SRC / fleet_path).is_file() and "client.stream" in (SRC / fleet_path).read_text(encoding="utf-8")
+    assert all(s.path != fleet_path for s in sites)
 
 
 def test_t5_static_fifth_word_caller_fails(tmp_path):
