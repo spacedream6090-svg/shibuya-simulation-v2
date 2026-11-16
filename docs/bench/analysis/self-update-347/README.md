@@ -92,3 +92,24 @@ loose の +21 は、上の 18 行(読み 18)と §3-1 の 3 行の和。ほか�
 - 直した関数(`_is_self_update`・`_written_attrs`・`_writes_same`)を呼ぶのは `scan` だけで、`scan` と `check` を呼ぶのは試験だけ。`ledger_ast` のモジュールはランの道で読み込まれる(`runtime/systems/table.py` の `make(...)` → `spec.make` → `allow.writes_for_ops` → `allow.index`)が、そこで使うのは `_parents`・`declared_columns`・`_is_write` だけで、どれも変えていない。
 - byte-check(19 構成・37 欄): **すべて同じ(動いた 0・誤り 0・final が同じ 19)・終了コード 0**。基準は段 4-13 の commit `6064564`(`python tools/bytecheck/cli.py run --base 6064564 --src <作業木の src> --set all19 --jobs 6`)。既定の final は `c8d68704b7b0760d`・呼数 60,939 のまま。記録 [bytecheck/](bytecheck/)。段 4-10 の頭(`ff28372`)の上でも 1 回回し、同じ結果だった(その記録は、新しい頭での結果に置き換えた)。取り込みの土台(`07559de`)と `6064564` の間で、src は同じ。
 - 範囲の試験(① と ② を合わせた木・`pytest tests --ignore=tests/c7 -m "not gpu and not slow" -n 4 --dist loadfile`): 6,818 passed・21 skipped・1 xfailed・**1 failed**。落ちたのは前からの 1 本(`tests/vocab/test_registry_from_tape.py::test_ab7_seed1_open_matches_the_parent_report`=linked の作業木でだけ落ちる)。
+
+## 6. ② 心の読みの一覧を試験で固定した
+
+[返事その 7](../../../design/prompt-2026-11-09-reply7.md) §4-2 の 2・[心の読みの数え直し](../../../reference/mind-world-reads-2026-11-09.md) §9 と、11-16 の親の裁定(問い 3〜6・9)の形。
+
+- 試験: [`tests/engine/state/test_mind_world_reads.py`](../../../../tests/engine/state/test_mind_world_reads.py)。固定の表: [`tests/engine/state/mind_world_reads_frozen.json`](../../../../tests/engine/state/mind_world_reads_frozen.json)。data は要らない(走査の道具を読むだけで回す・1 回約 2 秒)。
+- 数えるもの: `ledger_ast.scan` の strict の読みのうち、心の区分のファイルが、持ち主が心でない列(案 K の分けで world・act・economy の `agents` の列と、`cells`・`pois`・知覚の列)を読む所。**83 か所・72 組**(①の後。前の 82 か所に店の値段の 1 か所が入った)。
+- 鍵: (移した後の道筋, 読みを囲む最上位の関数か `クラス.メソッド`, 列)。行の番号は入れない。別紙の json の鍵(割らないファイルは記号が空)と違い、全部のファイルで記号を書く(割るファイルを割って心の包みへ置いたときに鍵が変わらないため)。
+- 範囲: 表の `scope.dirs`(`mind/`)の下のファイルと、割るファイル 8 本(`scope.split`)のうち心の割り先へ行く関数。割り先は[全ファイルの表](../../../reference/package-map-final-2026-11-09-files.md) §4 から写した(記号の欄の項のうち 1 つの `` `…` `` だけのもの・注の中の名は除く=`apply_detection` は `act/ops/detect_writes.py` だけ)。表に写した記号は全部、今のファイルにある。引き方は、記号の完全一致 → クラスの名 → 最上位の文は最初の割り先。表の `scope.md_source` に写した時点の md の sha256。
+- 列の持ち主は表の `owners`(案 K の分け)。状態台帳には欄を足していない(裁定 4)。
+- 別物 8 か所(列と同じ名の別の物の欄)は一覧に残し、表の組に `other_object`(数と注)を付けた(`totals_other_object` = 8)。
+- 道の文字列は json にだけ置き、試験のコードに src の道を字面で持たない(`tests/_places.py` の決まり・移す道具の書き換えの外)。
+- 落ち方(組ごとの完全一致):
+  - 増えた・新しい組 → 「心のコードが世界の欄を新しく直接読む。知覚の口に替えるか、決定の後に理由を記録して表の count を上げる」。
+  - 減った・消えた組 → 「表の count を下げるか行を消す(減らす向きは決定なしで直してよい)」。
+  - 関数の名を変えた・移しただけ → 表の鍵を直す。
+  - 割るファイルの読みで、割り先の表に記号が無い → 割り先を決めて表に足す。
+  - 持ち主の表と宣言の `agents` の列が違う → 新しい列の持ち主を決めて表に足す。
+  - 今の数は `python -m tests.engine.state.test_mind_world_reads`(`PYTHONPATH=src`・リポの根で)が JSON で出す。
+- **割る段で表を作り直す**(裁定 6): 割る段(5a・5b・6・7)で割るファイルが無くなると `test_scope_is_current` が落ちる。そのとき、割り先の表 `scope.split` からそのファイルの行を外し(割り先のファイルは `scope.dirs` の下に来る)、`key_counts` の鍵が変わらないこと(合計 83 のまま)を確かめる。行を落とすか、ほかの扱いにするかは、割る段のときに決める。
+- 確かめ: 新しい試験 5 本が通る。負の対照(本体の木を変えて試験を回し、`git checkout --` でそのファイルだけを戻した): `mind/relations/people.py` に `r.hunger[0]` を読む関数を 1 つ足すと「増えた mind/relations/people.py [_negative_control_probe] hunger: 表 0 → 今 1」で落ちた。`r.cell` の読みを 1 つ消すと「減った mind/relations/people.py [PeopleRelationLayer.partners_in_cell] cell: 表 1 → 今 0」で落ちた。試験の中にも合成の木の負の対照がある。

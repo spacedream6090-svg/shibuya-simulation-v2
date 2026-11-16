@@ -124,7 +124,7 @@ behavior-hash と full-hash(10b・A2・A3)。表は ``engine.state_ledger`` だ�
   - `source_files`(関数): 走査の対象(``src/shibuya`` 全体・``build/`` を除く)。
 - import している内部モジュール: `shibuya.runtime.state.ledger`
 - 呼び手: `shibuya.runtime.systems.allow`
-- 読む試験: `tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_state_format_10f.py`・`tests/engine/test_state_ledger_10b.py`
+- 読む試験: `tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/state/test_mind_world_reads.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_state_format_10f.py`・`tests/engine/test_state_ledger_10b.py`
 - 決定の ID: 第 304・第 347
 
 ## [resume.py](../../../../../../../../src/shibuya/runtime/state/resume.py)

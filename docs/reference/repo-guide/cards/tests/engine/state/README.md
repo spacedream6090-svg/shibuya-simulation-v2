@@ -2,9 +2,9 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 5 本・その他 2 本(このディレクトリの直下)
+Python 6 本・その他 3 本(このディレクトリの直下)
 
-その他のファイル: `class_ids_frozen.json`・`names_frozen.json`
+その他のファイル: `class_ids_frozen.json`・`mind_world_reads_frozen.json`・`names_frozen.json`
 
 ## [__init__.py](../../../../../../../tests/engine/state/__init__.py)
 
@@ -43,6 +43,28 @@ Python 5 本・その他 2 本(このディレクトリの直下)
   - `test_table_keys_and_declarations_are_exactly_the_classes_in_src`(関数)
   - `test_unknown_shibuya_types_stop_and_others_keep_their_names`(関数)
 - import している内部モジュール: `shibuya.engine.arbiter`・`shibuya.engine.run`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.queues.scheduler`・`shibuya.foundation.types`・`shibuya.runtime.state.class_ids`・`shibuya.runtime.state.codec`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.probe`
+
+## [test_mind_world_reads.py](../../../../../../../tests/engine/state/test_mind_world_reads.py)
+
+心の読みの一覧の固定(返事その 7 §4-2 の 2・計画 docs/reference/mind-world-reads-2026-11-09.md §9・11-16 の裁定)。
+
+- 公開の関数とクラス
+  - `compare`(関数): 組ごとの違い(空なら同じ)。
+  - `defined_symbols`(関数): 最上位の関数・クラス・``クラス.メソッド`` の名。
+  - `frozen`(関数)
+  - `frozen_counts`(関数)
+  - `load_frozen`(関数)
+  - `main`(関数): 今の ``key_counts`` を JSON で出す(表を直すときの材料。表の注 ``other_object`` と ``owner`` は手で合わせる)。
+  - `mind_reads`(関数): 走査の結果 → (鍵 → 数, 割り先を引けない読みの場所)。
+  - `split_dest`(関数): 割るファイルの記号 → 割り先(記号の完全一致 → クラスの名 → 最上位の文は最初の割り先)。引けなければ None。
+  - `symbols_by_line`(関数): 行 → 囲む最上位の関数・クラス・``クラス.メソッド`` の名(最上位の文は空)。
+  - `test_mind_reads_match_the_frozen_table`(関数): 今の心の読みが、固定の表と組ごとに同じ(増えても減っても落ちる・落ちたら文の直し方に従う)。
+  - `test_negative_controls`(関数): 負の対照: 読みが 1 つ増えると「増えた」、1 つ減ると「減った」、割り先を引けない読みは unknown に出る。
+  - `test_other_object_notes_point_at_frozen_keys`(関数): 別物(列と同じ名の別の物の欄)の注は、表の組の数の内側にある。
+  - `test_owner_table_covers_the_declared_columns`(関数): 持ち主の表が宣言の列(``agents``)と同じ集合で、重ならない。
+  - `test_scope_is_current`(関数): 範囲の表が今の木を指している。割る段で割るファイルが無くなったら、ここで落ちる(割り先の表を作り直す)。
+- import している内部モジュール: `shibuya.runtime.state.ledger_ast`・`tests/_places.py`
+- 決定の ID: 11-16
 
 ## [test_move_prep_stage2.py](../../../../../../../tests/engine/state/test_move_prep_stage2.py)
 

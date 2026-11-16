@@ -115,7 +115,7 @@
 | [tests/engine/rules](tests/engine/rules/README.md) | 3 | 0 |
 | [tests/engine/space](tests/engine/space/README.md) | 5 | 0 |
 | [tests/engine/speech](tests/engine/speech/README.md) | 14 | 0 |
-| [tests/engine/state](tests/engine/state/README.md) | 5 | 2 |
+| [tests/engine/state](tests/engine/state/README.md) | 6 | 3 |
 | [tests/engine/systems](tests/engine/systems/README.md) | 6 | 1 |
 | [tests/engine/time](tests/engine/time/README.md) | 8 | 3 |
 | [tests/engine/tools](tests/engine/tools/README.md) | 9 | 0 |
@@ -162,7 +162,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 316 ディレクトリ・2359 本
+- [docs の索引](docs.md): 316 ディレクトリ・2360 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則
