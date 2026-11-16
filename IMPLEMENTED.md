@@ -394,6 +394,17 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #159 コードの区分の移動 段 5a の群 2=出来事の語 3 本を割った(1 バイト不変)+割る道具に循環の守り(11-16 §8 の 5・第347・2026-11-16・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §4(1 名だけ親の仮採用で変えた)。記録 [split5a-347](docs/bench/analysis/split5a-347/README.md) §10。commit 6af6cf1。次の群の土台の安定版のタグ `stable-v2-before-split5a-G3`(この commit)。直前の commit は 9f4fa77(版上げ Q13 の後)。
+- **割った 3 本**: `engine/tools/registry.py` → `society/tools/registry.py`/`engine/tools/record.py` → `society/tools/record.py`/`engine/events/body.py` → `mind/memory/body_events.py`。語(`SIGNBOARD`・`SIGNBOARD_ORIGIN`・`SIGNBOARD_WHAT` ほか 10 名)は `foundation/vocab/events.py` の後ろへ。古い包み `engine/tools/` と `engine/events/` は無くなった。
+- **表のとおりに割れなかった 1 名(親の仮採用=PENDING)**: 表は `SIGNBOARD_CAUSE` を `foundation/vocab/events.py` へ置くが、型 `Process`(`foundation/journal/log.py`)を使い、log.py は events.py を読むので import が循環する(11-05 の案の表が先に挙げていた組)。この 1 名だけ `foundation/journal/log.py` へ下ろした。表の狙い(例外を 1 本消す)は保てた。
+- **道具の直し**: 書かない実行の守りが、既に在る割り先へ足す import が作る循環を見ていなかった(当てた後の import の確かめで 357 本のうち 38 本が落ちて見つかった・commit の前)。`tools/pkgmove/split.py` に守り「import の循環」を足した(12 個目・書く前に終了コード 2 で止める・試験 2 本)。木は 1 つ前の本の後へ戻して当て直した。失敗の後に続きの操作が走った手順の誤りは、成功の条件でつなぐ形に直した。
+- **読み手**: import の文 16・14・4 を道具が書き換えた。固定の表の鍵 6・台帳の道の表 3 行も同じ実行で直した。凍結の値(クラスの名・名の凍結・つなぎの台帳・版の ID)は変えていない。手で直した読み 5 か所(試験 4 本)。
+- **import の決まり**: 契約は古い 3+新しい 9 のまま。例外は 1 本消えて(`engine.events.body -> engine.tools.record`)30 本・延べ 43 行。効いている例外は 20 本/30 行(計画どおり)。
+- **別の役の検収**: 受入(高 0・中 0・低 3)。今の道具と表で 3 本を当て直し、できた src が作業木と完全に同じ。案 A に壊れる所は無い。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(版上げ Q13 の後の本体へ載せ直した木・基準 9f4fa77・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま。実装役の 1 本ごとの 3 組も同じ=基準 bf0ccbb)。範囲の試験 6,927 passed・前からの 1 本だけが落ちる。lint-imports 12 kept。
+
 ### #158 版上げ(小)Q13=ランの入口の既定を CLI にそろえた(語彙 v3・空腹 energy・呼数 無制限。CLI の既定の結果は不変)(11-16 §1-2 Q13・Q7 (d)・§8 の 5・第347・2026-11-16・実装役と検収役 Opus 5.5・親が検収)
 
 - 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §1-2 の Q13・Q7 (d)・§8 の 5。記録 [library-defaults-q13-347](docs/bench/analysis/library-defaults-q13-347/README.md)。commit 9495521(① 試験に引数を明示・src は変えていない)・9626f65(② 版上げ)。安定版のタグ `stable-v2-before-library-defaults-q13`(25ca546)。
