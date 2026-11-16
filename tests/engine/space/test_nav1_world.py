@@ -67,6 +67,24 @@ def test_nav1_without_assets_runs_legacy_and_says_why(tmp_path):
     assert sp["effective"] == "legacy" and sp["reason"]
 
 
+def test_m1_a_run_on_the_test_only_port_is_an_arm_run_through_cli_run(tmp_path, monkeypatch):
+    """〔第347・検収 M1〕試験の中だけの口(印)で旧のセルの移動にしたランは、``cli.run`` のランの種類で腕に数える(前の頼み方
+    ``space="legacy"`` は ``run_arms`` に入って arm だった)。印を立てないランは前と同じ(ほかに腕の無い引数なら reproduction)。
+    ランの種類は試験の中では ``test`` になるので、pytest の印の環境変数を外して見る。合成の世界・2 刻み。"""
+    from shibuya.experiments.port import run_kind as RK
+
+    monkeypatch.delenv(RK.PYTEST_ENV, raising=False)
+    kw = dict(n_agents=30, seed=1, ticks=2, vocab_version="v3", world_dir=str(tmp_path / "none"))  # ほかに腕の無い引数
+    base = cli.run(**kw)
+    assert base.run_kind == RK.REPRODUCTION and base.run_manifest_fields()["space"]["requested"] == "nav1"
+    with pytest.MonkeyPatch.context() as mp:
+        legacy_space(mp)
+        res = cli.run(**kw)
+    assert res.run_kind == RK.ARM
+    assert res.run_manifest_fields()["space"]["requested"] == "legacy"
+    assert N.legacy_for_tests() is False  # 印は戻った
+
+
 @needs_stage
 def test_nav1_resume_equals_straight(tmp_path, nav1_stage):
     a = _run("nav1", state_out=tmp_path / "s", stop_at_tick=200)

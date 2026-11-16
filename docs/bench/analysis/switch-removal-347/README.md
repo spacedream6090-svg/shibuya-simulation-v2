@@ -7,9 +7,9 @@
 > commit)は親。
 
 段の並び(親の裁定): ① 試験の書き直し(切替口はまだ在る・src は変えない)→ ②a 経済の段階 2 の off → ②b 率の規則と「無い」の
-過程(組で)→ ③a `--space` → ③b `--hunger-model` の旗。**本書は 5 段のすべて(①〜③b)と ① の検収の直し**
+過程(組で)→ ③a `--space` → ③b `--hunger-model` の旗。**本書は 5 段のすべて(①〜③b)と ① の検収の直しと後片付けの段**
 (① は §0〜§8・②a は §9・検収の直しは §10・②b の作業の一覧は §11・②b は §12・③a は §13・③b は §14・5 段のまとめは §15・
-試験ごとの行は付録 A)。
+後片付けの段は §16・試験ごとの行は付録 A)。
 
 ## 0. 要点(① まで)
 
@@ -565,6 +565,15 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
   - 許す鍵の一覧に残る: `tools/c8/ablation_runner.py` の `ALLOWED_KWARGS` の `salient_rate_per_10k`(腕の表に使う腕は無い=渡せば
     組み立てで止まる)。
 
+### 12-6 親の確かめ(②b)
+
+- byte-check: 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0・final が同じ 19(基準 `ec2350b`=直前の commit・src は検収の直し `17ad6eb` と同じ。
+  既定 `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。全体の壁時計 421 秒)。組は [bytecheck_2b/](bytecheck_2b/)。
+- `tests/c7` は開かずに件数だけ数えた: 消した環境変数・旗・腕の名を使う所は 0。`salient_rate_per_10k` の 2 か所は、合成の
+  `input_match` に渡す文字列の鍵で、ランを回さない(止める対象でない)。
+- 範囲の全体の試験は、この段の commit の後に本体の木で回す(結果は次の段の節に書く)。
+- 例外(ignore)の本数は変わらない(割る段ではない=31 本・延べ 45 行)。`lint-imports` 12 kept。
+
 ## 13. ③a: 移動の旧道 `--space legacy` を閉じ、旧のセルの移動を試験の中だけの口にした(1 バイト不変の見込み・byte-check は親)
 
 土台は頭 `aa97ce1b`(②b の commit)。発注: 返事その 8 §1-2 Q7 (d)(試験の中だけの口=ランの口からは選べない)。親の裁定
@@ -580,9 +589,10 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
 | `src/shibuya/foundation/arms/removed.py` | — | 前の行 | `REMOVED_ENV` に `SHIBUYA_SPACE`・`REMOVED_CLI_FLAGS` に `--space`(タグ 347)。ランの入口の止めと表に出さない旗は一覧から自動で入る |
 | `tools/bytecheck/configs.py` | `SWITCH_ENV` の `SHIBUYA_SPACE` | — | `REMOVED_ENV` に足した |
 
-- 残した引数: `run_day(space=)`・`cli.run(space=)`(設定の指紋と `test_boxes.py` の引数の数を変えない)。`None`・`"nav1"` だけ
-  受け、`"legacy"` は組み立ての最初の検査で止まる(文に消した口・タグ・試験の中だけの口の名)。manifest の `space.requested` の鍵も
-  残す(ランでは常に nav1)。
+- 残した引数: `run_day(space=)`・`cli.run(space=)`(設定の指紋と `test_boxes.py` の引数の数を変えない)。`None`・空の文字列・
+  `"nav1"` を受けて nav1 にし、`"legacy"` と名の誤りは組み立ての最初の検査で止まる(文に消した口・タグ・試験の中だけの口の名)。
+  manifest の `space.requested` の鍵も残す(ランでは常に nav1)。〔検収 S-3〕前の版は「`None`・`"nav1"` だけ受け」と書いていた
+  (空の文字列も nav1 になる=試験も見ている)。
 - `engine.run` の CLI(`python -m shibuya.engine.run`)は消した旗の一覧を受けない(表に出さない旗の仕組みは `shibuya.cli` だけ)=
   `--space` は「知らない引数」で止まる(終わりの値 2・消した切替口の文でない)。
 - 1 バイト不変の見込みの理由: 19 構成は `space` を渡さず、組 `all19` の環境変数は空=前も今も頼んだ値は nav1。試験の中だけの口の印は
@@ -598,6 +608,20 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
   試験が終われば戻る。同じプロセスで `cli.run` を呼ぶ道具(md23 の `run_collect`)にも届く。子のプロセスには届かない。
 - 本番の形で資産の無い段の世界(`v2_stage_2-3`・`v2_stage_4-3`・`v2_pre_4-3`)も、この口なら止めずに回る(前の `space="legacy"`
   の頼み方と同じ道)。
+- 前の頼み方 `space="legacy"` のランとの違い(〔検収 M1〕実装役の前の言い分「manifest の `space.reason` の文だけが違う」は不正確
+  だった=訂正): 組み立ては `space_mode="legacy"` を選び、そこから先の道は前と同じ。違いは次の 3 つ。
+  1. manifest の `space.reason` の文(前は空・今は試験の中だけの口の文)。
+  2. `cli.run` を通るランの種類(run_kind): 前の `space="legacy"` は `run_arms` に入って arm だった。印で legacy にしたランは
+     `run_arms` が空になり得て、③a の commit(`dcd25a6c`)では reproduction=既定のランと見分けられなかった。**後片付けの段で直した**
+     (`cli.py` のランの種類の数えに `_NAV1.legacy_for_tests()` を足した=印を立てたランは arm・立てないランは前と同じ・既定では偽=
+     1 バイト不変。試験 `tests/engine/space/test_nav1_world.py::test_m1_a_run_on_the_test_only_port_is_an_arm_run_through_cli_run`)。
+  3. 状態のファイルの設定の指紋の `space`(前は `"legacy"`・今は None=見出しで、manifest ではない)。〔検収 S-1〕このため印は
+     設定の指紋にも見出しにも入らない: 印を立てて保存し、印なしで再開すると、腕の違いは見つからず黙って nav1 で続く。試験の中だけの
+     話で、今その形の試験は無い(直さない=記録だけ)。
+- 〔検収 S-2〕読み口 `legacy_for_tests` と文 `LEGACY_FOR_TESTS_REASON` は、③a では `nav1.__all__` に入れていた(公開の名)。試験の
+  中だけの口なので、後片付けの段で `__all__` から外した(星の import で nav1 を読む所は src・tests・tools に無い=grep)。組み立てと
+  試験は名で読むので動きは変わらない。`requested_space`・`ENV_REMOVED_SPACE` は組み立てと試験が読む公開の口として `__all__` に残す
+  (`switch_rate.ENV_REMOVED` と同じ扱い)。
 - 新しい印が試験の表に拾われるか: 状態の台帳(`runtime/state/ledger.py`)はモジュールの変数の行を持たない(`_SLOPE`・`_TURN`・
   `stage2_bind._ATM_OVERRIDE` も行が無い)=拾われない。心の読みの一覧(`tests/engine/state/test_mind_world_reads.py`)は心の包みの
   読みだけを見る(nav1 は世界の側)=拾われない。クラスの名の表(`class_ids`)は型だけ=足した型は無い。名の凍結
@@ -629,6 +653,8 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
 - 確かめ方: 19 構成の引数(`tools/bytecheck/configs.py::configs()`)を読んで、前の式(環境変数は空=組 `all19` と同じ)と今の式の
   値を構成ごとに比べた(ランは回していない・作業の機械のスクラッチの台本)。19 構成とも `space` の鍵を持たず、前も今も偽=
   食い違い 0。run_kind そのものの比べは親の byte-check(37 欄)。
+- 〔後片付けの段・検収 M1〕今の項は `arms_on() or legacy_for_tests()`(試験の中だけの口の印を腕に数える)。印は既定で偽で、ランの
+  口からは立たない=19 構成の値は上と同じ。
 
 ### 13-5 試験の結果
 
@@ -663,6 +689,14 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
 - `#118` の戻し方(`--world data/world/v2_pre_4-3` をランで回す=本番の形で nav1 の資産の無い退避の世界を旧のセルの移動で回す)は、
   CLI からはできなくなった(nav1 は資産が無いので止まり、`--space legacy` は消した)。旧値の再現は安定版のタグ
   `stable-v2-before-switch-removal-347` で回す。試験の中では `tests/engine/space/_legacy.py` の口で回る(13-3 の S2)。
+
+### 13-7 親の確かめ(③a)
+
+- byte-check: 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0・final が同じ 19(基準 `aa97ce1`=②b の commit。既定 `w6_v3_default` の
+  final `c8d68704b7b0760d`・呼数 60,939。全体の壁時計 422 秒)。組は [bytecheck_3a/](bytecheck_3a/)。ランの種類(run_kind)は 37 欄に
+  入っている=19 構成とも前と同じ。
+- 範囲の全体の試験は、②b と合わせて本体の木で回す(結果は次の段の節に書く)。
+- 例外(ignore)の本数は変わらない(割る段ではない=31 本・延べ 45 行)。`lint-imports` 12 kept。
 
 ## 14. ③b: CLI の旗 `--hunger-model` を閉じた(案 h2=旗だけ・1 バイト不変の見込み・byte-check は親)
 
@@ -726,7 +760,8 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
 | ① の検収の直し | T3 の腕・記録の文・段階 2 on の試験を足した | §10・§11 | `17ad6ebc` |
 | ②b | 率の規則と「無い」の過程の切替口 legacy を組で消した | §12 | `aa97ce1b` |
 | ③a | `--space legacy` を閉じ、旧のセルの移動を試験の中だけの口にした | §13 | `dcd25a6c` |
-| ③b | CLI の旗 `--hunger-model` を閉じた | §14 | |
+| ③b | CLI の旗 `--hunger-model` を閉じた | §14 | `962c727c` |
+| 後片付け | 検収 その 2・その 3 の直し(中 M1=run_kind・低の試験と記録の整え) | §16 | |
 
 旧値の再現は安定版のタグ `stable-v2-before-switch-removal-347`(5 本の口が全部在る最後の commit=②a の前)で回す。
 
@@ -751,6 +786,11 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
   1. 段階 2 の外の束 `tests/economy/_stage2_outside.py`(off と同じ値の台帳・§2-1)。
   2. 率の規則と「無い」の過程の旧道の助け `tests/engine/_legacy_world.py`(実行器と計画実行層の初期化に部品の口を挿す・§2-2)。
   3. 旧のセルの移動の印 `world/model/space/nav1.py` の `_LEGACY_FOR_TESTS` と助け `tests/engine/space/_legacy.py`(§13-2)。
+- ランの種類(〔検収 M1〕): 3 の印で回したランは、`cli.run` のランの種類で腕(arm)に数える(後片付けの段で直した=§13-2)。1 と 2 の
+  助けは `cli.run` から見えない(型の差し替えと初期化の包み)ので、**試験の中だけの口で回したランは、ランの種類に数えない**=manifest
+  の run_kind は既定のランと同じ(試験の中では `test`・環境変数 `PYTEST_CURRENT_TEST` を外せば reproduction)に出る。どれも試験の
+  中だけのランなので、本番の manifest には影響しない。〔訂正〕実装役は ③a で「印のランは前の `space="legacy"` のランと manifest の
+  `space.reason` だけが違う」と報告したが、run_kind と状態のファイルの設定の指紋の `space` も違った(§13-2)。
 - Q13 の版上げまで残る引数: `run_day(hunger_model=)`(既定 v1)・`cli.run(hunger_model=)`(既定 energy・v1 も受ける)。
 - 鍵を残して値を固定したもの: manifest の `economy.stage2.arm`(on)・`rate_rules`(off)・`absent_processes`(stopped)・
   `space.requested`(nav1)と状態のファイルの見出しの同じ鍵・箱の欄 `cfg.rate_rules`・`cfg.absent_processes`・`cfg.space`。
@@ -763,6 +803,89 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
 - 今の src で止まる記録の道具: §9-1(②a の分)・§12-5(②b の分)・§13-6(③a の分)・§8(本書の手順 0 の道具は切替口が在る木
   でだけ回る)。③b で止まる記録の道具は無い。
 - 直していない経緯の注と手で書く案内の文: §9-1・§12-5・§13-6・§14-1。
+
+### 15-5 範囲の全体の試験
+
+`tests --ignore=tests/c7 -m "not gpu and not slow" -n 4 --dist loadfile`。linked の作業木では、前からの
+`tests/vocab/test_registry_from_tape.py::test_ab7_seed1_open_matches_the_parent_report` の 1 本だけが落ちる(本体の木と CI では通る)。
+
+| 木と頭 | 入っている段 | 結果 |
+|---|---|---|
+| linked の作業木・②a の変更 | ①・②a | 6,826 passed・1 failed(前からの 1 本)・21 skipped・1 xfailed(36 分 27 秒) |
+| 本体の木・`dcd25a6` | ①〜③a(検収の直しを含む) | 6,861 passed・0 failed・21 skipped・1 xfailed(35 分 53 秒) |
+| linked の作業木・後片付けの段の変更 | ①〜③b・後片付け | (回している途中。結果は台帳の commit でこの行に書く) |
+
+### 15-6 前と答えが変わる頼み方(消した口そのものだけ)
+
+| 頼み方 | 前 | 今 |
+|---|---|---|
+| 消した環境変数を置く(`SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_RATE_RULES`・`SHIBUYA_ABSENT_PROCESSES`・`SHIBUYA_SPACE`)。**既定と同じ値(`on`・`off`・`stopped`・`nav1`)を置いた場合も** | 既定の値なら既定のラン・旧道の値なら旧道のラン | 値に依らず、ランの入口と読み込みで止まる(文に名と安定版のタグ) |
+| 消した旗を渡す(`--economy-stage2`・`--rate-rules`・`--absent-processes`・`--space`・`--hunger-model`。既定と同じ値も) | 腕を選べた | 値に依らず、表に出さない旗で受けて止まる(終わりの値 2) |
+| `run_day(salient_rate_per_10k=…)`・`cli.run(salient_rate_per_10k=…)`(None 以外) | 旧道のランだけ倒れる率が効いた | 組み立てで止まる(案 k1) |
+| `run_day(space="legacy")`・`cli.run(space="legacy")` | 旧のセルの移動(run_kind arm) | 組み立てで止まる(旧のセルの移動は試験の中だけの口) |
+| 見出しに `economy_stage2` の無い状態のファイルから、金の台帳のあるランで再開 | 切替口 off なら再開できた | いつも止まる |
+| 見出しに `rate_rules`・`absent_processes` の無い状態のファイルから再開 | 腕 legacy なら再開できた | いつも止まる(文に安定版のタグ) |
+| `--world data/world/v2_pre_4-3` をランで回す(`#118` の戻し方) | `--space legacy` で回せた | nav1 は資産が無いので止まる=CLI からは回せない(安定版のタグで回す) |
+
+- どれも旧値の再現は安定版のタグ `stable-v2-before-switch-removal-347` で回す。既定のランの結果は 5 段とも 1 バイトも変わらない
+  (byte-check 19 構成・37 欄)。
+- 根拠: 検収 その 2 の A-4(`SHIBUYA_ECONOMY_STAGE2=on` も止まる)・検収 その 3 の 2-4・3-4。
+
+## 16. 後片付けの段(検収 その 2・その 3 の直し)
+
+土台は頭 `962c727c`(③b の commit)。src の変更は `cli.py` のランの種類の数えの 1 行(と注)と、`nav1.py` の `__all__` の 1 か所
+だけ(既定では動かない=1 バイト不変の見込み・byte-check は親)。
+
+### 16-1 直した所
+
+| 指摘 | 直したこと | 足した・変えた試験 |
+|---|---|---|
+| 中 M1(③a・run_kind) | (b) `cli.run` のランの種類の数えに `_NAV1.legacy_for_tests()` を足した(印を立てたランは arm)。① の 2 つの助けは (a) 記録に書いた(§15-3)。実装役の前の言い分の訂正は §13-2・§15-3 | `tests/engine/space/test_nav1_world.py::test_m1_a_run_on_the_test_only_port_is_an_arm_run_through_cli_run`(新): 合成の世界・2 刻み・pytest の印の環境変数を外して、印なしは reproduction・印ありは arm・manifest の `space.requested` が nav1/legacy・終わった後に印が戻る |
+| A-7(残す部品の旗) | — | `tests/engine/test_removed_switches_346.py::test_the_parts_flag_takes_a_right_value_the_equals_form_and_an_abbreviation[3]`(新): `--economy-stage2-parts wages,tax`・`=wages,tax`・略記 `--economy-stage2-p` で部品が {wages, tax} になる(`cli.run` を差し替えて渡る前に見る=ランは回さない)。〔③b〕CLI のランの空腹のモデルが energy で渡ることも見る |
+| A-8(`check_resume` の文のタグ) | — | 経済: `tests/economy/stage2/test_stage2_default_2_4.py::test_resume_check_uses_the_effective_arm` の `match` を「…腕が親と違う.*--economy-stage2 off は消した.*stable-v2-before-switch-removal-347 で回す」に強めた。率の規則と「無い」の過程は ②b の `test_state_header_and_resume_check`(2 本)が既にタグを見ている(確かめた) |
+| F-4(別の試験のモジュールの非公開の `_plan`) | 共有の助け `tests/economy/stage2/_plans.py`(`stage2_plan`・`KINDS_4`・本物の `Stage2Plan` と違う所を docstring に)へ移した。`test_stage2_money_rules.py` は `_plan = _P.stage2_plan`(形は前と同じ)・`test_ledger_wiring.py` の `_attach_stage2_by_hand` は助けを読む | 変えた 2 ファイルが前と同じ本数で通った(10・31) |
+| F-7(① の L7) | 記録に書いた(16-2) | — |
+| B-1(引数なしの `is_legacy()` はいつも偽) | §12-3 の L4 の段落に「常に偽」と書いてあることを確かめた(足していない)。式は前のまま(src を変えない段) | — |
+| B-2(`ablation_runner` の `ALLOWED_KWARGS`) | 腕の表(`tools/c8/*.json` の 3 本)に `salient_rate_per_10k` を使う腕は 0(grep)。試験は `ALLOWED_KWARGS` の部分集合と特定の名(`signage_p_see`・`vocab_version`・`l4_scale`)だけを見る=外しても落ちる試験は無い → **鍵を外し**、注に理由(消した試験の口・案 k1・タグ)を書いた。渡せば道具の検査で「許されない kwargs」として先に止まる | `tests/c8/test_ablations_ab6b.py`・`ab7`・`ab7c`・`ab8`・`table`(78 本)が通った |
+| B-3(案 k1 の止めを `cli.run` の道でも) | — | `tests/engine/processes/test_rate_rules_1101.py::test_the_run_day_collapse_rate_port_is_removed` に `cli.run(salient_rate_per_10k=3000)` が同じ文で止まる確かめを足した |
+| S-1(印は設定の指紋に入らない) | 直さない(試験の中だけの話)。§13-2 に書いた | — |
+| S-2(`nav1.__all__`) | `legacy_for_tests`・`LEGACY_FOR_TESTS_REASON` を `__all__` から外した(§13-2) | — |
+| S-3(§13-1 の文) | 空の文字列も nav1 になると直した | — |
+| H-1(記録の形) | §15-1 に ③b の commit と本段の行・§12-6 と §13-7(親の確かめ)を §12・§13 の終わりへ移した(文はそのまま)・§15-5 の見出しを作った | — |
+| 4(答えが変わる頼み方) | §15-6 の表 | — |
+
+### 16-2 ① の検収の L7(記録だけ)
+
+E1 の外の束の試験(`test_cp2_event_links.py::test_run_rows_and_events_are_one_to_one`)は、段階 2 の外の束と率の規則の旧道の助けを
+**組み合わせて**回す。手順 0 は、外の束(off と 38 欄同じ)と助け(切替口と同じ)を**別々に**確かめたが、この組み合わせそのものは
+比べていない。害は無い: 試験に両方の正の確かめがある(補充の行がある=旧道が効いている・原因が鉄道か棚だけ=段階 2 の外)。① の
+検収の変異の試験(助けを効かなくする・外の束を効かなくする)でも、どちらでも落ちた。
+
+### 16-3 試験の結果
+
+- 1 本の pytest(`-m "not gpu and not slow"`・`-n 4 --dist loadfile`・作業の木・頭 `962c727c`+本段): `test_nav1_world.py` 9(前 8+1)・
+  `test_nav1_units.py` 19・`test_removed_switches_346.py` 51(前 48+3)・`test_stage2_default_2_4.py` 4・`test_stage2_money_rules.py` 10・
+  `test_ledger_wiring.py` 31・`test_rate_rules_1101.py` 21・`tests/c8/test_ablations_{ab6b,ab7,ab7c,ab8,table}.py` 78・
+  `tests/test_cli*.py` 5 本 56・`tests/test_places_guard.py` 16 で **295 passed・0 failed・0 skipped**(1 分 26 秒)。警告は前から出る
+  `WageTablesAbsentWarning` だけ。
+- `lint-imports`: 12 kept・0 broken。
+- カード `tools/repo_guide/build.py` で作り直した(`cards/data.md` は戻した)。`--check` は「最新」(151 本)。
+
+### 16-4 変えたファイル
+
+- src(2): `src/shibuya/cli.py`(ランの種類の数えの 1 行と注)・`src/shibuya/world/model/space/nav1.py`(`__all__` の 2 つの名を外した)。
+- tests(7): 新しい助け `tests/economy/stage2/_plans.py`・`tests/engine/space/test_nav1_world.py`・`tests/engine/test_removed_switches_346.py`・
+  `tests/economy/stage2/test_stage2_default_2_4.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/engine/test_ledger_wiring.py`・
+  `tests/engine/processes/test_rate_rules_1101.py`。
+- tools(1): `tools/c8/ablation_runner.py`(`ALLOWED_KWARGS` の 1 つの鍵と注)。
+- 記録: 本書・カード 8 本(作り直した=151 本)。
+
+### 16-5 親の確かめ(後片付けの段)
+
+- byte-check: 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0・final が同じ 19(基準 `962c727`=③b の commit。既定 `w6_v3_default` の
+  final `c8d68704b7b0760d`・呼数 60,939。全体の壁時計 444 秒)。組は [bytecheck_4/](bytecheck_4/)。
+- 範囲の全体の試験は §15-5 の 3 行目。
+- 検収役の 3 回目(②b・③a・③b)の指摘への直しは、この段で入れた。同じ役の読み直しは頼んでいない(中 1 件は親の裁定どおりの 1 行・低は試験と記録)。
 
 ## 付録 A. 試験ごとの行(検収 L9=§3・§4 でまとめた行を開いた)
 
@@ -830,23 +953,7 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
 
 - 「ランを回す 12 本」(①c の表)=上の `wired` の 9 本・状態ハッシュ不変・2 本のランの同一・W2。
 - 組み立てを通らない 4 本では、段階 2 の外の型も素の `Ledger` も段階 2 を挿さない(挿すのは組み立て `stage2_bind.attach` だけ)。
-  このため段階 2 on の場合は、試験の代役の組み立ての物(`tests/economy/stage2/test_stage2_money_rules.py::_plan` と同じ形・部品は
+  このため段階 2 on の場合は、試験の代役の組み立ての物(〔後片付けの段・検収 F-4〕共有の助け
+  `tests/economy/stage2/_plans.py::stage2_plan`=前は `tests/economy/stage2/test_stage2_money_rules.py::_plan` を読んでいた・部品は
   全部)で `attach_stage2` を呼んで挿した。補充・廃棄物・消費の 3 本は、段階 2 を挿しても同じ期待値で通った(この 3 つの操作は段階 2
   の部品の流れを通らない)。
-
-### 12-6 親の確かめ(②b)
-
-- byte-check: 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0・final が同じ 19(基準 `ec2350b`=直前の commit・src は検収の直し `17ad6eb` と同じ。
-  既定 `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。全体の壁時計 421 秒)。組は [bytecheck_2b/](bytecheck_2b/)。
-- `tests/c7` は開かずに件数だけ数えた: 消した環境変数・旗・腕の名を使う所は 0。`salient_rate_per_10k` の 2 か所は、合成の
-  `input_match` に渡す文字列の鍵で、ランを回さない(止める対象でない)。
-- 範囲の全体の試験は、この段の commit の後に本体の木で回す(結果は次の段の節に書く)。
-- 例外(ignore)の本数は変わらない(割る段ではない=31 本・延べ 45 行)。`lint-imports` 12 kept。
-
-### 13-7 親の確かめ(③a)
-
-- byte-check: 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0・final が同じ 19(基準 `aa97ce1`=②b の commit。既定 `w6_v3_default` の
-  final `c8d68704b7b0760d`・呼数 60,939。全体の壁時計 422 秒)。組は [bytecheck_3a/](bytecheck_3a/)。ランの種類(run_kind)は 37 欄に
-  入っている=19 構成とも前と同じ。
-- 範囲の全体の試験は、②b と合わせて本体の木で回す(結果は次の段の節に書く)。
-- 例外(ignore)の本数は変わらない(割る段ではない=31 本・延べ 45 行)。`lint-imports` 12 kept。

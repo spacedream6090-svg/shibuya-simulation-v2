@@ -62,7 +62,9 @@ ALLOWED_KWARGS: frozenset[str] = frozenset(
         "p_notice_ablation",     # 実装済(§3.1 A0-A4)
         "processes_disabled",    # 実装済(過程 id / AB-* id)
         "processes_enabled",     # 実装済
-        "salient_rate_per_10k",  # 実装済(顕著行為の発生率)
+        # 〔第347 止めた切替口の削除・検収 B-2〕"salient_rate_per_10k"(顕著行為の発生率)は外した: run_day の同じ名の試験の口は
+        # 消した(None 以外は組み立てで止まる=案 k1)。腕の表(tools/c8/*.json)に使う腕は無かった。旧値は安定版のタグ
+        # stable-v2-before-switch-removal-347 で回す
         "use_population",        # 実装済(下限対照)
         # ---- C8 切替口 ②③⑥(2026-09-09 実装済・サブ U・親検収) ----
         "p_notice_d50_scale",    # 実装済(② d50 倍率)

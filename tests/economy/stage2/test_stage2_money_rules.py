@@ -9,7 +9,6 @@
 
 from __future__ import annotations
 
-import datetime as dt
 import types
 
 import numpy as np
@@ -21,19 +20,13 @@ from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.ledger import Ledger
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.ports.ledger import TransferStatus
+from tests.economy.stage2 import _plans as _P
 
 H, S, E, B, G, W = (int(s) for s in Sector)
-KINDS = np.array([0, 1, 3, 7])  # 通勤者・来街者・居住者・訪日来街者
+KINDS = _P.KINDS_4  # 通勤者・来街者・居住者・訪日来街者
 
-
-def _plan(parts=S2.PARTS, kinds=KINDS):
-    cal_day = dt.date(2026, 8, 24)
-    return types.SimpleNamespace(
-        parts=tuple(parts), kinds=kinds, monthly_hours=None, hours_source="default", atms=None,
-        cause=lambda name: EV.Process(name), date_of_step=lambda step: cal_day, date_of=lambda day: cal_day,
-        is_payday=lambda day: False, close_step=lambda day: 1439, employment=lambda day: (np.zeros(0),) * 3,
-        record=lambda: {},
-    )
+#: 段階 2 の代役の組み立ての物(〔第347・検収 F-4〕共有の助け ``tests/economy/stage2/_plans.py`` へ移した=形は前と同じ)。
+_plan = _P.stage2_plan
 
 
 def _led(parts=S2.PARTS, wallets=(1_000, 1_000, 1_000, 1_000)) -> Ledger:

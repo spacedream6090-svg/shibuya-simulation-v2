@@ -93,7 +93,7 @@
 | [tests/core](tests/core/README.md) | 5 | 0 |
 | [tests/economy](tests/economy/README.md) | 19 | 0 |
 | [tests/economy/cp2](tests/economy/cp2/README.md) | 12 | 1 |
-| [tests/economy/stage2](tests/economy/stage2/README.md) | 14 | 0 |
+| [tests/economy/stage2](tests/economy/stage2/README.md) | 15 | 0 |
 | [tests/engine](tests/engine/README.md) | 84 | 0 |
 | [tests/engine/batching](tests/engine/batching/README.md) | 3 | 0 |
 | [tests/engine/body](tests/engine/body/README.md) | 9 | 0 |

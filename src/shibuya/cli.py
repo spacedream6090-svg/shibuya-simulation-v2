@@ -508,8 +508,9 @@ def run(
                               or _calendar3_arm.is_on()  # 〔6-2 カレンダー 3〕雇い主・祝日の腕(--calendar-3 arm)
                               or _duties_arm.is_on()  # 〔6-6 ② 第 1 部〕店の仕事の腕(--duties arm)
                               # 〔段 5-1b〕nav1 が既定になったので、坂・曲がる重み・密度の推定の腕も腕に数える。〔第347 止めた
-                              # 切替口の削除〕移動の切替口(--space legacy・SHIBUYA_SPACE)は消した=頼める移動は nav1 だけ
-                              or _NAV1.arms_on(),
+                              # 切替口の削除〕移動の切替口(--space legacy・SHIBUYA_SPACE)は消した=頼める移動は nav1 だけ。
+                              # 〔検収 M1〕試験の中だけの口で旧のセルの移動にしたランは腕に数える(前の space="legacy" と同じ・既定は偽)
+                              or _NAV1.arms_on() or _NAV1.legacy_for_tests(),
                               counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
         budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale

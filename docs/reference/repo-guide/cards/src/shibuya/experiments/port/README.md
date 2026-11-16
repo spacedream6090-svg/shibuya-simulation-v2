@@ -115,7 +115,7 @@ engine.run_kind — ランの種類(第 1 期 1-4・決定 10-12 §4-5 CP5-5「�
   - `in_test`(関数): pytest の試験の中か(``PYTEST_CURRENT_TEST`` が立っているか)。
   - `resolve`(関数): manifest に書く種類(``None``=決めていない=null のまま)。
 - 呼び手: `shibuya.cli`・`shibuya.engine.run`
-- 読む試験: `tests/engine/batching/test_conductor_windows.py`・`tests/engine/body/test_body_manifest.py`・`tests/engine/bridging/test_manifest_rules_bridges.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_mr65_grain_and_cli.py`・`tests/engine/speech/test_speech_cli.py`
+- 読む試験: `tests/engine/batching/test_conductor_windows.py`・`tests/engine/body/test_body_manifest.py`・`tests/engine/bridging/test_manifest_rules_bridges.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_mr65_grain_and_cli.py`・`tests/engine/space/test_nav1_world.py`・`tests/engine/speech/test_speech_cli.py`
 - 環境変数: `PYTEST_CURRENT_TEST`
 - 決定の ID: 10-12/§4-5
 

@@ -34,7 +34,9 @@ def test_stage2_is_always_on_and_the_off_switch_is_removed(monkeypatch):
 def test_resume_check_uses_the_effective_arm(monkeypatch):
     """金の台帳の無いラン(台帳なしの run_day)は腕 on でも段階 2 を挿さない=見出しに書かない=off と同じに扱う。"""
     ES2.check_resume(None, effective=False)  # 台帳なし=off どうし
-    with pytest.raises(ValueError, match="経済の段階 2 の腕"):
+    # 〔第347・検収 A-8〕止める文は、消した切替口と旧値の再現の安定版のタグも書く(前は文の前半だけを見ていた)
+    with pytest.raises(ValueError, match="経済の段階 2 の腕が親と違う.*--economy-stage2 off は消した.*"
+                                         "stable-v2-before-switch-removal-347 で回す"):
         ES2.check_resume(None)  # 台帳あり=親 off・今 on
     # 〔賃金の小さな版上げ〕腕 on の見出しは賃金の腕も持つ(見出しに無い=w17=版上げの前の状態)
     want = {"arm": "on", "parts": list(ES2.PARTS)}

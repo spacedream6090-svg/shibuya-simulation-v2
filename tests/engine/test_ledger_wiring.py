@@ -88,11 +88,12 @@ def _pin_stage2(mp: pytest.MonkeyPatch, parts: tuple[str, ...] | None = None) ->
 
 
 def _attach_stage2_by_hand(bundle: LedgerBundle, n_agents: int) -> None:
-    """組み立てを通らない試験で段階 2 を挿す(部品は全部・体は全員 種別 0)。組み立ての物は試験の代役
-    (``tests/economy/stage2/test_stage2_money_rules.py::_plan`` と同じ形)。世帯と店の初期の財布より前に呼ぶ。"""
-    from tests.economy.stage2.test_stage2_money_rules import _plan
+    """組み立てを通らない試験で段階 2 を挿す(部品は全部・体は全員 種別 0)。組み立ての物は試験の代役(共有の助け
+    ``tests/economy/stage2/_plans.py::stage2_plan``=〔第347・検収 F-4〕前は別の試験のモジュールの非公開の ``_plan`` を読んでいた。
+    本物の ``Stage2Plan`` と違う所は助けの docstring)。世帯と店の初期の財布より前に呼ぶ。"""
+    from tests.economy.stage2._plans import stage2_plan
 
-    bundle.money.attach_stage2(_plan(kinds=np.zeros(n_agents, dtype=np.int64)))
+    bundle.money.attach_stage2(stage2_plan(kinds=np.zeros(n_agents, dtype=np.int64)))
     assert bundle.money.stage2 is not None
 
 

@@ -31,7 +31,7 @@ ablation_runner.py — ablation **第1陣 6 本**(知覚契約書 §8)の腕定�
   - `--table`: 腕定義表 JSON(既定 tools/c8/ablations_v1.json)
   - `--tape-dir`: テープの置き場(既定=--out/c8_tapes)
   - `--temperature`
-- 決定の ID: D-26・D-58・D-59・D-66・D-71・D-99・第 200・第 245
+- 決定の ID: D-26・D-58・D-59・D-66・D-71・D-99・第 200・第 245・第 347
 
 ## [c8lib.py](../../../../../../tools/c8/c8lib.py)
 

@@ -82,9 +82,9 @@ __all__ = [
     "NAV1_EXPEDIENTS",
     "check_space",
     "requested_space",
-    "legacy_for_tests",
     "ENV_REMOVED_SPACE",
-    "LEGACY_FOR_TESTS_REASON",
+    # 〔第347・検収 S-2〕試験の中だけの口の読み口 legacy_for_tests と文 LEGACY_FOR_TESTS_REASON は公開の名にしない(組み立てと
+    # 試験だけが名で読む・星の import で読む所は無い)
     "check_slope_model",
     "check_turn_weight_mode",
     "slope_speed_factor",

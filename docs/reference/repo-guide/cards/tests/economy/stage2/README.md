@@ -2,11 +2,21 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 14 本・その他 0 本(このディレクトリの直下)
+Python 15 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../tests/economy/stage2/__init__.py)
 
 (冒頭の説明なし)
+
+## [_plans.py](../../../../../../../tests/economy/stage2/_plans.py)
+
+経済の段階 2 の試験の代役の組み立ての物(試験の中だけの共有の助け)。
+
+- 公開の関数とクラス
+  - `stage2_plan`(関数): 段階 2 の代役の組み立ての物(``Ledger.attach_stage2`` に渡す)。
+- import している内部モジュール: `shibuya.economy.stage2`・`shibuya.foundation.journal.log`
+- 読む試験: `tests/economy/stage2/test_stage2_money_rules.py`・`tests/engine/test_ledger_wiring.py`
+- 決定の ID: 第 347
 
 ## [test_stage2_account_and_conservation.py](../../../../../../../tests/economy/stage2/test_stage2_account_and_conservation.py)
 
@@ -93,8 +103,8 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_payroll_pays_into_the_account_with_exogenous_funding`(関数)
   - `test_withdraw_needs_a_deposit_and_the_part`(関数)
   - `test_withdraw_rule_amount_and_cause`(関数)
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.ledger`・`shibuya.world.laws.rail`
-- 読む試験: `tests/engine/test_ledger_wiring.py`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.ledger`・`shibuya.world.laws.rail`・`tests/economy/stage2/_plans.py`
+- 決定の ID: 第 347
 
 ## [test_stage2_resume.py](../../../../../../../tests/economy/stage2/test_stage2_resume.py)
 

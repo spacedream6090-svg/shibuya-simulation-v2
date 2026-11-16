@@ -815,7 +815,7 @@ AB7 自由意図の腕の切替口 — エンジン側(``docs/design/v2-open-int
   - `test_wiring_does_not_change_the_state_hashes_when_goods_processes_are_off`(関数): 物の過程を切れば、台帳を注入しても checkpoint ハッシュは同じ(帳簿を足すだけ)。
   - `test_world_stock_is_a_mirror_of_the_shelf`(関数): ``world.pois.stock`` は棚(SKU 別)の写し。真値は物の台帳にある。
   - `wired`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.checks`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2_bind`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.growth`・`shibuya.foundation.ports.ledger`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.state`・`tests/_time_gates.py`・`tests/economy/_stage2_outside.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/engine/time/__init__.py`・`tests/golden_env.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.checks`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2_bind`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.growth`・`shibuya.foundation.ports.ledger`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.state`・`tests/_time_gates.py`・`tests/economy/_stage2_outside.py`・`tests/economy/stage2/_plans.py`・`tests/engine/time/__init__.py`・`tests/golden_env.py`
 - 決定の ID: 11-01・D-53・D-56・第 330・第 347
 
 ## [test_llm_mock.py](../../../../../../tests/engine/test_llm_mock.py)
@@ -1260,8 +1260,9 @@ C10 8b(会話の起点と相手選択+8a の直し)の検査。
   - `test_the_hunger_words_flag_still_works_and_the_short_prefix_is_not_read_as_it`(関数): 〔第347 ③b〕旗 ``--hunger-model`` を消しても、残す腕の旗 ``--hunger-words`` は今のまま受ける(値の誤りはその旗の選択肢の
   - `test_the_list_and_the_message_are_in_one_place`(関数)
   - `test_the_parts_flag_still_works_and_is_not_read_as_the_removed_flag`(関数): 〔第347〕残す感度の腕 ``--economy-stage2-parts`` は今のまま受ける(名の誤りは部品の文で止まる=消した切替口の文でない)。
+  - `test_the_parts_flag_takes_a_right_value_the_equals_form_and_an_abbreviation`(関数): 〔第347・検収 A-7〕残す ``--economy-stage2-parts`` は、正しい値・``=`` つき・略記でも受けて部品を選ぶ(消した
   - `test_the_space_arm_flags_still_work_and_are_not_read_as_the_removed_flag`(関数): 〔第347 ③a〕移動の旗 ``--space`` を消しても、残す腕の旗 ``--slope``・``--turn-weight`` は今のまま受ける(値の誤りは
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.arms.removed`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`
+- import している内部モジュール: `shibuya.cli`・`shibuya.economy.stage2_bind`・`shibuya.foundation.arms.removed`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`
 - 環境変数: `SHIBUYA_ABSENT_PROCESSES`・`SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RATE_RULES`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`SHIBUYA_SPACE`・`os.environ` をまるごと使う
 - 決定の ID: 第 346・第 347
 

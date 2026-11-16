@@ -162,6 +162,31 @@ def test_the_parts_flag_still_works_and_is_not_read_as_the_removed_flag(capsys):
     assert "--economy-stage2-parts は" in err and "消した切替口" not in err, err[-800:]
 
 
+@pytest.mark.parametrize("argv", [["--economy-stage2-parts", "wages,tax"], ["--economy-stage2-parts=wages,tax"],
+                                  ["--economy-stage2-p", "wages,tax"]])
+def test_the_parts_flag_takes_a_right_value_the_equals_form_and_an_abbreviation(argv, monkeypatch):
+    """〔第347・検収 A-7〕残す ``--economy-stage2-parts`` は、正しい値・``=`` つき・略記でも受けて部品を選ぶ(消した
+    ``--economy-stage2`` に読まれない)。ランは回さない: ``cli.run`` を差し替えて、渡る前の部品と引数を見てから止める。
+    〔③b〕CLI のランの空腹のモデルは旗が無くても energy(``CLI_DEFAULT_HUNGER_MODEL``)で渡ることも見る。"""
+    from shibuya.economy import stage2_bind as ES2
+
+    monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)  # 試験の後に部品を戻す
+    seen: dict = {}
+
+    class _Stop(Exception):
+        pass
+
+    def _stub(**kw):  # noqa: ANN003, ANN202 — ランの代わり(部品と引数を写して止める)
+        seen["parts"], seen["kw"] = ES2.active_parts(), kw
+        raise _Stop
+
+    monkeypatch.setattr(cli, "run", _stub)
+    with pytest.raises(_Stop):
+        cli.main([*argv, "--agents", "5", "--ticks", "1"])
+    assert seen["parts"] == frozenset({"wages", "tax"})
+    assert seen["kw"]["hunger_model"] == cli.CLI_DEFAULT_HUNGER_MODEL == "energy"
+
+
 @pytest.mark.parametrize("flag", ["--slope", "--turn-weight"])
 def test_the_space_arm_flags_still_work_and_are_not_read_as_the_removed_flag(flag, capsys):
     """〔第347 ③a〕移動の旗 ``--space`` を消しても、残す腕の旗 ``--slope``・``--turn-weight`` は今のまま受ける(値の誤りは
