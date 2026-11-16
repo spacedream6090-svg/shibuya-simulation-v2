@@ -394,6 +394,63 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #153 走査の道具の自己更新の規則の直しと、心の読みの一覧の試験(1 バイト不変)(11-16 §1-6 の 4・第347・2026-11-16・実装役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §1-6 の 4・計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §8-1 の 4 と §7-4。記録 [self-update-347](docs/bench/analysis/self-update-347/README.md)。commit e7a1c48(規則の直し)・55b8881(一覧の試験)=指示のとおり別の commit。
+- **規則の直し**: `runtime/state/ledger_ast.py` の `_is_self_update` は列の名前だけを比べ、受け手を見ていなかった。右辺の別の受け手の読み(問いの件)と、左辺の添字の中の読みを、いつも自己更新として外していた。左辺が同じ受け手の同じ列を書くときだけ自己更新と見なす形に直した(docstring の言う規則と実装をそろえた)。
+- **検査の結果の変わり方**: strict 841 → 844・loose 1,154 → 1,175。新しく strict に入ったのは 3 行=`mind/judge/store_choice.py` の `world.pois.price`(店の値段・心の読みの一覧に +1)・`mind/memory/familiarity.py` の `fam_thing`・`mind/memory/memory.py` の `mem_kind`(後の 2 つは心の自分の列)。許可の表に足した行は無い。
+- **心の読みの一覧の試験**: `tests/engine/state/test_mind_world_reads.py` と固定の表 `mind_world_reads_frozen.json`(72 組・83 か所・組ごとの完全一致。増えても減っても落ちる)。割る段(5〜7)で表を作り直す。
+- **確かめ**: byte-check 19 構成 37 欄すべて同じ(基準 6064564・終了コード 0)。直した関数はランでは呼ばれない。範囲の試験 6,818 passed・前からの 1 本だけが落ちる。
+
+### #152 コードの区分の移動 段 4-10〜4-13=連絡の器 4 本 → society・一時の区分 interim_bundles・消した切替口の一覧 → foundation・消す 2 本(1 バイト不変)(11-16 §1-4・§1-6・第347・2026-11-16・道具の役と検収役 Opus 5.5・親が段ごとに当てて検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §1-3 の 1・§1-4・§1-6 の 1・2・3・6・7・§1-10。計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §7 の段 4。記録 [move4-346](docs/bench/analysis/move4-346/README.md)(段ごとの表と節)・[pkgmove-346 §13](docs/bench/analysis/pkgmove-346/README.md)。
+- **道具の直し**(124b3bb・ff28372): 保留の行を 0 にした(連絡の器 4 本は今 society に置く=記録 2-35/行 224a は foundation/arms/removed.py/`engine/resolve.py` と `engine/run.py` は割る段まで動かさず、決着の文を書いた)。答えの後の行に段の名を足した(society_contact・foundation_224a)。段を飛ばす・逆の順は move が断る。効いている例外の数を報告に出す。検収役=条件つき受入(高 0・中 3・低 6)で、指摘は直した。
+- **当てた 4 段**: 4-10 society_contact 4 本(8b39437)・4-11 interim_bundles 9 本(6774b85)・4-12 foundation_224a 1 本(d42fbba)・4-13 delete=`census/__init__.py` を消し、`agents/__init__.py` の再輸出を消した(6064564)。foundation〜validation の 171 本(#145・#146)と合わせて、割らないファイルの移動は済んだ。
+- **段ごとの確かめ(どの段も同じ形)**: 当てた後の import の落ち 0・守り 8 つ「同じ」/byte-check 19 構成 37 欄 19/19 同じ・終了コード 0(基準は直前の commit。既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)/範囲の試験は前からの 1 本だけが落ちる(passed は 6,818・6,819・6,815・6,803)/lint-imports は全部 kept(10・11・11・12)。
+- **import の決まり**: 決まり 9「一時の区分を読めるのは runtime と interfaces だけ」を interim_bundles の段から、決まり 10「runtime の核は中身を読まない(直の辺だけ)」を delete の段から入れた。delete の段で古い契約から `shibuya.census` が外れた。例外は重なりを除いて 31 本(延べ 45 行)で、そのうち効いているのは 18 本(延べ 28 行)。まだ入らない決まり=決まり 4(段 6 の後)・interfaces の単位(段 5b の後)。
+- **封印の一覧との照らし**: `tests/c7/test_accept_table.py` は封印の語の表 2 つのどちらにも名前で当たらず、CLAUDE.md §7 の封印の層の一覧にも無い。入口 `python -m shibuya.engine.run` は割る段 5b で interfaces へ移す。
+- **タグ**: 各段の前の commit に `stable-v2-before-move4-<段>`。
+
+### #151 削除の段 その 1=S50 の待ち時間の関数・使われていない効き目の上限の定数・pricing の結線しない関数(1 バイト不変)(11-16 §6-3・§1-3 の 2・第347・2026-11-16・実装役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §6-3・§1-3 の 2・§3 の表の A72 と S50 の行。決定の正は壁打ちの記録 2-60・2-66 の C2。記録 [delete-347](docs/bench/analysis/delete-347/README.md)。commit d27a07c。
+- **消したもの**: `world/laws/crowd.py` の `CrowdProcess.mean_wait_ticks`(呼ぶ所 0)/`perception/attention.py` の `EFFECT_CAP_PER_EXPOSURE`(読む所 0。行動の効き目に上限を掛ける役の定数はこの 1 つだけだった)/`economy/pricing.py` の Calvo の改定・r の適用・逸脱比例コスト・`propose_price` と、それらだけが使う定数(11 個)。消した物だけを試す試験 8 本と 1 行も消した。
+- **残したもの**: 係数 `K_VOLUME`・`K_AVERAGE`・`K_PREMIUM`/型 `PriceSector`・`PriceProposal`(クラスの名の固定の表に行がある)/呼び手の無い `StoreKind`・`K_BY_KIND`・`floor_price`・`clearing`・`MEMORY_CAP_*`・`BUDGET_ADS`・`BUDGET_OVERHEARD`(名指しの外=判断待ち)。つなぎの台帳と manifest に出る文字列は変えていない。
+- **確かめ**: byte-check 19 構成 37 欄すべて同じ(基準 6d454c5・終了コード 0)/範囲の試験 6,797 passed・前からの 1 本だけが落ちる/lint-imports 10 kept。
+- **タグ**: `stable-v2-before-delete-347`(0716cc5)。
+
+### #150 仕様書と設計書に 11-10〜11-16 の決定を書いた・仕様書の 10 問(11-16 §3・§4・§1-7・§1-8・第347・2026-11-16・文書の役 2 人と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §3・§4。決定の正は [壁打ちの記録](docs/reference/wallbounce-record-2026-11-02_05.md) 2-45〜2-69・U20〜U24(すべて仮決定)。commit f19e7a8・b2b01e1。
+- **仕様書**: 30 項目を足し(PR-33〜35・MD-63〜75・AC-34・35・SO-33・IF-26〜28・WD-54〜56・VL-48・EX-28〜31)、52 項目を直した。計 445 項目。差の一覧=差のある 334(無い 126・形が違う 148・腕だけ 37・器だけ 23)・未決 37・未確認 8・差なし 66。
+- **食い違いの一覧**: C-15・C-04・C-05・C-06・C-10 を仮決定に。「11/14 に決める」の印を「壁打ちの後に決める」に。決着 21・仮決定 15・未決 11・壁打ちの後に決める 6。
+- **仕様書の 10 問**: [questions-346.md](docs/design/spec/questions-346.md)(問いごとに 問い・関わる記録と仕様の文の引用・読みの候補・仕様書の役の推し)。壁打ちで決まるまで、仕様書は今の書き方のまま。
+- **ほか**: v3 の設計書(題 5・題 9 ほか・設計の文だけ)・用語集に 2 語(呼びかけへの反応のずれ・機械向けの記号の取り違え)・仕分けの表 2 本の決着の印・古い写しの注(v2-*.md 9 本)。
+- **検収**: 別の役の写し検査=条件つき受入(高 0・中 1・低 15)。指摘は直した。
+
+### #149 研究 6 本とデータの確かめ・改版の文の案(11-16 §7・§5・第347・2026-11-16・研究役と文の案の役 Opus 5.5・親が一次確認)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §7・§5。commit d47ec8d・c2e1388。どれも推薦は書かず、比較の表まで。親の一次確認は各答申の末尾の表。
+- **研究**: [R-152](docs/research/v2-r152-model-candidates-inventory.md) モデルの候補の棚卸し/[R-153](docs/research/v2-r153-attention-gate-and-person-information-relevance.md) 注意の門と人と情報の関係度/[R-154](docs/research/v2-r154-persona-forms-and-primary-check.md) ペルソナ(未発注だった R-F を広げた題。claude.ai の材料 2 本の数値の一次確認を含む)/R-149 の追補 [1](docs/research/v2-r149-addendum-1-safety-tuning-and-response-to-appeals.md)・[2](docs/research/v2-r149-addendum-2-persona-drift-self-image-and-retest.md)/[R-150 の追補](docs/research/v2-r150-addendum-human-distribution-reward-and-shibuya-data.md)/[データの確かめ 2 件](docs/research/v2-data-check-2026-11-16-crime-counts-and-hourly-traffic.md)。
+- **取り方の判断待ち**(PENDING §1-1): 発行元が robots で断っている雑誌の論文を著者の頁の PDF で読んだ 2 本・第三者のサイトの走査の写しで読んだ 1 本・雑誌の頁が 403 の論文について著者の公開コードを読んだ 1 本。決まるまで、その読みで確かめた値は新しい決定の根拠に使わない。
+- **改版の文の案**: [revision-draft-2026-11-16-resident-facing-text.md](docs/design/revision-draft-2026-11-16-resident-facing-text.md)(A07・A32・A72・憲法 6 行目・印の文言・腕・影響の見込み)。**まだ当てない**(返事その 9 の後)。
+
+### #148 数える・確かめる(A48・A49・M10・A07・9 月のテープ・ランの記録・S46)と、dm_eval の呼びかけの列(11-16 §6-1・§6-2・第347・2026-11-16・数える役と実装役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §6-1・§6-2。記録 [count-347](docs/bench/analysis/count-347/)(weather-noise.md・talk-kinds-tape.md・s46-path-cache.md)・[dm-eval-appeal-347](docs/bench/analysis/dm-eval-appeal-347/README.md)。commit d47ec8d・c2e1388・0716cc5。ランは変えていない(数えるための包みを入れても、19 構成の final と呼数は byte-check の記録と同じ)。
+- **数えた結果の場所**: A48 天気の最頻値の補い・A49 6 時と 22 時の騒音の段の切り替え・2-56 ランの記録に残るもの=weather-noise.md/M10 会話の後・A07 種別ごとの事実・9 月の実 LLM のテープ=talk-kinds-tape.md/S46 道の線の控えと丸め=s46-path-cache.md。
+- **足した試験**: `tests/engine/space/test_nav1_route_cache.py`(控えの有り無しで返る線が 1 バイト一致・4 本)。
+- **dm_eval**: `--scenes appeal`(場面 53 行・38 対・11 場面=頼み・禁止の表示・店頭の呼びかけ)と 3 列(応じる候補の確率の差・あり・なしの分布の JSD・1 位が変わった対の率)。既定の走らせ方と既存の golden は変わらない。今の値は mock と対照だけで、実 LLM と判断モデルの値は GPU の後。
+
+### #147 返事その 8 の受領・CLAUDE.md §3 の DT 定義・CI の上限 120 分・道具 3 本(11-16 §0〜§2・§1-5・§1-12・§1-6 の 5・§1-3 の 4 と 5・第347・2026-11-16・親)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md)。commit 1b186d3・38b0142・6d454c5。
+- **受領**: 原文と添付 4 本(壁打ちの記録の 11-16 版=2-45〜2-69・ペルソナ研究のまとめ 2 本・第 346 の受け入れの確かめ)を置き、決定の索引に 11-16 を足した。CLAUDE.md §3 の DT 定義の文で、未来の分布で揺らすものに「外からの入力(天気・運行の乱れ・催し)」を足した(記録 2-56・旧文は改訂記録 ㉑)。
+- **CI**: 単体と結合の段の上限を 90 → 120 分に。実行機の CPU の型を記録に出す段を足した。
+- **道具**: `tools/bytecheck/astsame.py`(文だけの直しの commit を、docstring と注を除いた AST で確かめる。記録 [astsame-347](docs/bench/analysis/astsame-347/README.md)。第346 の c6c8799 は値の文字列 3 本が変わっていたので、前後の byte-check を後から回した=19 構成すべて同じ)/`tools/instruments/sealed_tokens_compare.py`(封印の語の表 2 つを個数だけで比べる。結果=12 語と 3 語・共通 1=同じでない → まとめずに止めた。記録 [sealed-tokens-347](docs/bench/analysis/sealed-tokens-347/README.md))/`tools/instruments/deletion_candidates_ci.py`(削除候補を CI の出力と成果物に出す・落とす条件にしない・今は 0 件)。
+- **文だけの直し**: `world/laws/rail_events.py` の docstring(鉄道の秒の段まで結線しない)。
+
 ### #146 コードの区分の移動 段 4-2〜4-9=world・economy・act・mind・society・runtime・experiments・validation へ移した(1 バイト不変)(11-09 §4-2 の 4・第346・2026-11-11・親が段ごとに当てて検収・試験の役 Opus 5.5 が予行)
 
 - 正典: [返事その 7](docs/design/prompt-2026-11-09-reply7.md) §4-2 の 4・計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §7 の段 4。記録 [move4-346](docs/bench/analysis/move4-346/README.md)(段ごとの表と節・byte-check の JSON・道具と決まりの報告)。

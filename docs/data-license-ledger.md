@@ -2,6 +2,7 @@
 
 > 法務答申([v2-legal-licensing-deep-research.md](research/v2-legal-licensing-deep-research.md))の実装。**データ資産を追加するたびに1行追記**する。
 > 設計原則: ①data type単位の層分離(OSM/PLATEAU/ODPT/人流を物理分離・重複統合しない=Collective Database維持)②出力スキーマからOSM生値を排除(内部ID+集計のみ)。
+> 〔第347 注(2026-11-16・親が頁で確認)〕国土交通省の頁(`www.mlit.go.jp/link.html`)は今、「公共データ利用規約(第 1.0 版)」(PDL1.0)に準拠すると書いている。本台帳の国交省の行(5 行)にある「政府標準利用規約 第 2.0 版準拠」は取得の時点の書き方で、切り替わった日は頁に書かれていない。出典の書き方は変わらない(「○○調査」(国土交通省)(頁の URL)・加工したらその旨)。出どころ=[データの確かめ](research/v2-data-check-2026-11-16-crime-counts-and-hourly-traffic.md) §2-1。
 
 | ディレクトリ | 内容 | 出典 | ライセンス | 商用 | 備考 |
 |---|---|---|---|---|---|
