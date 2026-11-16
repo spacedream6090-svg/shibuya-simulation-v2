@@ -750,7 +750,9 @@ CUR_SYN = {
 
 
 @pytest.mark.parametrize("kw", [
-    {}, {"vocab_version": "v3"}, {"vocab_version": "v2", "geometry": "edge"}, ALL_ARMS, CLASSICAL_ARMS,
+    # 〔Q13 commit ①〕前のライブラリの既定(語彙 v1・空腹 v1)で録った行=引数を明示して残す(Q13-4 (a)。予算は _syn が渡す)
+    {"vocab_version": "v1", "hunger_model": "v1"}, {"vocab_version": "v3", "hunger_model": "v1"},
+    {"vocab_version": "v2", "geometry": "edge", "hunger_model": "v1"}, ALL_ARMS, CLASSICAL_ARMS,
 ], ids=["v1", "v3", "v2_edge_attention", "all_arms", "classical"])
 def test_t1_deleting_the_dead_columns_changes_nothing(request, tmp_path, kw):
     """T1(10e・E1): 死蔵 5 列を消した後の既定の final は behavior-hash そのもの。

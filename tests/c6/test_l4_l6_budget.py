@@ -28,7 +28,8 @@ def test_l4_and_l6_are_read_from_the_budget_table():
 
 def test_l4_cap_holds_for_a_5000_agent_day_on_the_synthetic_world(capsys):
     n, ticks = 5_000, 1_440
-    res = run_day(n_agents=n, seed=1, ticks=ticks, checkpoint_every=720, n_cells=139)
+    # 〔Q13 commit ①〕L4 の按分(倍率 1.0)を明示(前のライブラリの既定)
+    res = run_day(n_agents=n, seed=1, ticks=ticks, checkpoint_every=720, n_cells=139, l4_scale=1.0)
     cap = int(call_budget_per_tick(n) * ticks)
     with capsys.disabled():
         print(

@@ -229,7 +229,7 @@ def test_run_day_classical_arm_and_layers():
     assert cl.parse_error_rate == 0.0
     assert m["chooser_stats"]["name"] == "classical"
     with pytest.raises(ValueError):
-        run_day(policy="classical", n_agents=10, ticks=5)  # 語彙 v1
+        run_day(policy="classical", n_agents=10, ticks=5, vocab_version="v1")  # 語彙 v1(〔Q13 commit ①〕明示)
     with pytest.raises(ValueError):
         run_day(policy="classical", llm=object(), **{**kw, "ticks": 5})
     with pytest.raises(ValueError):

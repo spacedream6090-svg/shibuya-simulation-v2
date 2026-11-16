@@ -141,8 +141,9 @@ def test_activity_off_is_the_current_behaviour():
 
 
 def test_v1_ignores_the_activity_switch():
-    on = run_day(**SMALL)
-    off = run_day(activity="off", **SMALL)
+    # 〔Q13 commit ①〕語彙 v1 を明示(前のライブラリの既定)
+    on = run_day(vocab_version="v1", **SMALL)
+    off = run_day(activity="off", vocab_version="v1", **SMALL)
     assert on.final_hash == off.final_hash and on.llm_calls == off.llm_calls
     assert on.activity is False and "activity_until" not in on.agents.registry.arrays
 

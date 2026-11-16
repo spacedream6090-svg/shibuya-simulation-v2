@@ -181,7 +181,7 @@ def test_the_default_run_is_byte_identical():
 
 def test_v2_is_a_different_run_but_still_conserves():
     """v2 は**別の値**(mock の抽選語彙も 13 語になる)。保存則と在庫は破れない。"""
-    v1 = run_day(**SMALL)
+    v1 = run_day(vocab_version="v1", **SMALL)  # 〔Q13 commit ①〕語彙 v1 を明示(前のライブラリの既定)
     v2 = run_day(vocab_version="v2", **SMALL)
     assert v2.final_hash != v1.final_hash
     assert v2.conserved and v2.min_stock >= 0
@@ -196,7 +196,7 @@ def test_unknown_vocab_version_is_refused():
 # ------------------------------------------------------------------ ラン全体(段0 → 食事)
 def test_stage0_dictionary_v3_grounds_eating_into_the_new_word():
     """「食べる」は v1 では 購入、v2 では **食事** に着地する(段0 辞書 v3)。"""
-    v1 = run_day(llm=WordLLM("食べる"), **OPEN_HOURS)
+    v1 = run_day(llm=WordLLM("食べる"), vocab_version="v1", **OPEN_HOURS)  # 〔Q13 commit ①〕語彙 v1 を明示
     v2 = run_day(llm=WordLLM("食べる"), vocab_version="v2", **OPEN_HOURS)
     assert v1.action_usage.get("購入", 0) > 0 and ACTION_WORD_EAT not in v1.action_usage
     assert v2.action_usage.get(ACTION_WORD_EAT, 0) > 0 and "購入" not in v2.action_usage

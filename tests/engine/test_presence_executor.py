@@ -308,7 +308,7 @@ def test_null_arm_reproduces_the_recorded_checkpoint():
 
     def _run():
         return cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                       report_precondition=False)
+                       report_precondition=False, vocab_version="v1")  # 〔Q13 commit ①〕golden は語彙 v1(前の既定を明示)
 
     res = _run()
     if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ
@@ -357,12 +357,12 @@ def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
 
     kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), l4_scale=1.0, hunger_model="v1")  # 〔第 2 部〕退去の効果 off を外した
     if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
-        GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, **kw), _FINAL_CALLS)
+        GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, vocab_version="v1", **kw), _FINAL_CALLS)
         return
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_l4x1" not in g:
         pytest.skip(f"実 W17 の l4x1 golden が無い(md5 {w17_digest()})")
-    null = cli_run(plan_executor=False, report_precondition=False, **kw)
+    null = cli_run(plan_executor=False, report_precondition=False, vocab_version="v1", **kw)
     assert null.final_hash.startswith(g["null_arm_final_l4x1"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_l4x1"]
     v3 = cli_run(vocab_version="v3", **kw)
@@ -383,12 +383,12 @@ def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
 
     kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), hunger_model="v1")  # 〔第 2 部〕退去の効果 off を外した
     if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
-        GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, **kw), _FINAL_CALLS)
+        GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, vocab_version="v1", **kw), _FINAL_CALLS)
         return
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_hunger_v1" not in g:
         pytest.skip(f"実 W17 の hunger v1 golden が無い(md5 {w17_digest()})")
-    null = cli_run(plan_executor=False, report_precondition=False, **kw)
+    null = cli_run(plan_executor=False, report_precondition=False, vocab_version="v1", **kw)
     assert null.final_hash.startswith(g["null_arm_final_hunger_v1"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_hunger_v1"]
     assert null.run_manifest_fields()["hunger_model"] == "v1"

@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-328 ディレクトリ・2405 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+329 ディレクトリ・2407 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -107,6 +107,10 @@
 
 - [README.md](../../../bench/analysis/leak-check-11-01/README.md): 漏洩の検査の器(段 1 の 4・2026-11-01)
 - [review.md](../../../bench/analysis/leak-check-11-01/review.md): 漏洩の検査の器 検収の記録(独立の検収役・2026-11-01)
+
+## docs/bench/analysis/library-defaults-q13-347(2 本)
+
+- [README.md](../../../bench/analysis/library-defaults-q13-347/README.md): Q13(第347)ライブラリの既定を CLI にそろえる(library-defaults-q13-347)
 
 ## docs/bench/analysis/llm-calls-2026-09-24(5 本)
 

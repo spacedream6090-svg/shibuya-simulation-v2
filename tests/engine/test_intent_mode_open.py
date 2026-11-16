@@ -35,8 +35,9 @@ class WordLLM:
         )
 
 
-#: ``test_undefined_action.SMALL`` と同じ窓(D-56 の最初の計画境界を跨ぐ)。
-SMALL = dict(n_agents=300, seed=4, ticks=540, checkpoint_every=540, n_cells=16)
+#: ``test_undefined_action.SMALL`` と同じ窓(D-56 の最初の計画境界を跨ぐ)。〔Q13 commit ①・Q13-7〕open/hint の腕は語彙 v1
+#: だけ(v3 の B0 は vocab だけ)=語彙 v1 を明示(前のライブラリの既定)。
+SMALL = dict(n_agents=300, seed=4, ticks=540, checkpoint_every=540, n_cells=16, vocab_version="v1")
 
 
 # ------------------------------------------------------------------ (c) 段0 は両腕で効く

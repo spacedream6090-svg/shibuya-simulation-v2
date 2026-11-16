@@ -75,6 +75,7 @@ NO_SLEEP_ARM = dict(sleep_suppression=False)
 
 
 def run_mock(**kw):
+    kw.setdefault("vocab_version", "v1")  # 〔Q13 commit ①〕偽 vLLM と台本は語彙 v1 の 2 行形(前のライブラリの既定を明示)
     return run_day(
         n_agents=N_AGENTS, seed=1, world=make_world(), ticks=TICKS,
         renderer="stub", processes=False, population=False, world_dir=None,
@@ -86,6 +87,7 @@ def run_fleet(client: FleetClient, ticks: int = TICKS, **kw):
     """``fleet_wait_s`` を入れる理由: このテストのエンジンは 1 tick を 1 ms 未満で回すので、
     0 のままだと応答が全部ラン終端に届いてしまい「次 tick に届く」性質が観測できない
     (本番は 1 tick ≈ 37 秒の壁時計=予算行 W1)。"""
+    kw.setdefault("vocab_version", "v1")  # 〔Q13 commit ①〕偽 vLLM は語彙 v1 の 2 行形(前のライブラリの既定を明示)
     return run_day(
         n_agents=N_AGENTS, seed=1, world=make_world(), ticks=ticks, fleet=client,
         fleet_wait_s=kw.pop("fleet_wait_s", 10.0),
@@ -433,7 +435,7 @@ def test_conversations_need_awake_partners_so_night_only_runs_barely_open_any():
         r = run_day(
             n_agents=CONV_AGENTS, seed=1, world=_conv_world(), ticks=ticks,
             llm=ScriptedLLM(), renderer="stub", processes=False, population=False,
-            world_dir=None, **kw
+            world_dir=None, vocab_version="v1", **kw  # 〔Q13 commit ①〕台本は語彙 v1 の 2 行形(前の既定を明示)
         )
         opened = r.conversation_counters["sessions_opened"]
         return (opened / max(1, r.llm_calls), opened, r.llm_calls)

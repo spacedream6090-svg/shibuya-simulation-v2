@@ -40,7 +40,8 @@ def test_t9_the_four_columns_actually_carry_numbers():
     # ``SLEEPING`` なので、最初の計画境界(合成日課の起床 tick 300-480)を跨いでも、
     # 縮退(``degraded``= 下位2クラスが予算に押し出される)が立つほど個体変化・セル変化の
     # 候補が溜まるのは **720 tick 以降**(540 tick では 0・720 で 1,076・1,440 で 4,967)。
-    res = run_day(n_agents=5_000, seed=1, ticks=1_440, checkpoint_every=1_440, n_cells=139)
+    # 〔Q13 commit ①〕需要 > 予算の形=L4 の按分(倍率 1.0)を明示(前のライブラリの既定)
+    res = run_day(n_agents=5_000, seed=1, ticks=1_440, checkpoint_every=1_440, n_cells=139, l4_scale=1.0)
     day = res.diagnostics_day()
     assert day["deferred"] > 0, day
     assert day["degraded"] > 0, day

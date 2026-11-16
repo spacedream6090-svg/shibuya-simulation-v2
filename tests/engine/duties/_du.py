@@ -26,9 +26,10 @@ RULE_TO = 21 * MINUTES_PER_HOUR
 N = 80
 #: 担当の居る店・担当の居ない店(既定の世界)。
 ST, UN = 1, 0
-#: 合成の世界の小さなラン(活動層なし・記憶あり・関係なし)。
+#: 合成の世界の小さなラン(活動層なし・記憶あり・関係なし)。〔Q13 commit ①〕場面(担当が開店の時刻に店に居る)は空腹 v1 の
+#: 1 日で組んだ=空腹のモデルを明示する(前のライブラリの既定。energy では担当の着く時刻が開店の後になり、つなぎが開ける)。
 KW = dict(n_agents=N, seed=1, n_cells=1, ticks=TPD, budget=float(N), sleep_suppression=False, vocab_version="v3",
-          memory="on", relations="off", store_memory="off", activity="off", checkpoint_every=60)
+          memory="on", relations="off", store_memory="off", activity="off", checkpoint_every=60, hunger_model="v1")
 
 
 def plan_assets(n_poi: int, start: int = RULE_FROM, end: int = RULE_TO, *, per_poi: dict[int, tuple[int, int]] | None = None,

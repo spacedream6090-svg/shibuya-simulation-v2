@@ -181,9 +181,10 @@ def test_runs_under_the_stage_b_and_sentinel_checks(monkeypatch):
 
 # ---------------------------------------------------------------- (e) 検収 M1: 艦隊のテープの再生
 #: 検収役の形(偽 vLLM 2 台・受理枠 8・遅れ 0.02 秒・合成 120 体・40 刻み・語彙 v3・予算 30・4 刻みごとの checkpoint)。
-#: 描画は本物(``renderer`` を渡さない=Percept を作る道)。
+#: 描画は本物(``renderer`` を渡さない=Percept を作る道)。〔Q13 commit ①〕古い src(``BASE_COMMIT``)と今の src で同じランを
+#: 再生して比べるので、ライブラリの既定に頼らず空腹のモデルを明示する(前のライブラリの既定 v1)。
 FLEET_KW = dict(n_agents=120, seed=1, ticks=40, processes=False, population=False, world_dir=None,
-                checkpoint_every=4, sleep_suppression=False, vocab_version="v3", budget=30.0)
+                checkpoint_every=4, sleep_suppression=False, vocab_version="v3", budget=30.0, hunger_model="v1")
 FLEET_CELLS = 16
 #: 1-2 の前の src(この枝の土台)。再生の full-hash を比べる相手。〔rebase〕1-4・1-6・1-9 を取り込んだ本体 ``a3a8104``
 #: (1-2 の枝を作った時の土台は ``136fdbb``=記録 p12/README.md §15)。

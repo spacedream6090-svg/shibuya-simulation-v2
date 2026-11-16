@@ -308,6 +308,7 @@ def test_run_day_opens_conversation_sessions_when_resolve_creates_them():
     res = run_day(
         n_agents=400, seed=5, ticks=360, checkpoint_every=360, n_cells=2,
         budget=400.0, llm=_TalkLLM(),
+        vocab_version="v1",  # 〔Q13 commit ①〕台本は語彙 v1 の 2 行形(前のライブラリの既定を明示)
     )
     counters = res.conversation_counters
     assert counters["sessions_opened"] > 0, counters

@@ -20,7 +20,7 @@ SMALL = dict(
 def test_cli_run_passes_intent_mode_through_kwargs(mode):
     from shibuya import cli
 
-    res = cli.run(intent_mode=mode, **SMALL)
+    res = cli.run(intent_mode=mode, vocab_version="v1", **SMALL)  # 〔Q13 commit ①・Q13-7〕open/hint は語彙 v1 だけ=明示
     assert res.run_manifest_fields()["intent_mode"] == mode
     assert res.intent_mode == mode
 
