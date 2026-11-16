@@ -148,6 +148,7 @@ ablation ②「p_notice の d50 を 0.5×/2×」・③「近接入替の不応�
   - `test_systems_modules_have_no_state_ufunc_at`(関数): 系のモジュール(engine/systems)にも世界状態への ``ufunc.at`` は無い(書きは resolve の口だけ)。
   - `test_ufunc_at_on_world_or_agent_arrays_lives_only_in_resolve`(関数): ``np.add.at``(等)で世界状態を書けるのは resolve.py だけ。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.build`・`shibuya.economy.ledger`・`shibuya.engine.resolve`・`shibuya.runtime.systems.table`・`shibuya.world.model.state`・`tests/_places.py`
+- 決定の ID: 第 347
 
 ## [test_arbiter.py](../../../../../../tests/engine/test_arbiter.py)
 

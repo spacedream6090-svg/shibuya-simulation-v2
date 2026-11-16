@@ -67,6 +67,7 @@ Python 6 本・その他 1 本(このディレクトリの直下)
   - `test_scratch_in_place_write_by_a_non_writer_shows_in_B`(関数): 負の対照(検収 L4): 書き手でない phase_c が scratch.plan の中身をその場で書き換えると、段 B が phase_c に出す。
   - `test_strict_scratch_no_stale_reads`(関数): T4: tick の頭で scratch を番兵で埋めても読む前に書かれている(final も同じ)。
 - import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.write_permit`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`
+- 決定の ID: 第 347
 
 ## [test_stage_a_guard.py](../../../../../../../tests/engine/systems/test_stage_a_guard.py)
 
@@ -91,6 +92,7 @@ Python 6 本・その他 1 本(このディレクトリの直下)
   - `test_systems_package_never_thaws`(関数)
   - `test_writable_thaws_only_permitted_columns`(関数)
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.systems.allow`・`shibuya.world.model.percept_state`・`shibuya.world.model.state`・`tests/_places.py`
+- 決定の ID: 第 347
 
 ## [test_systems_table.py](../../../../../../../tests/engine/systems/test_systems_table.py)
 

@@ -121,12 +121,33 @@ def test_set_refractory_ufunc_at_is_blocked_outside_the_permit():
     assert int(a.registry.refractory_until[0, 1]) > 10
 
 
+def _ufunc_at_ignores_readonly() -> bool:
+    """numpy の ``ufunc.at`` が読み取り専用の旗を素通りする版か。
+
+    〔第347〕numpy 2.5.5 から、読み取り専用の配列への ``ufunc.at`` は numpy 自身が ValueError で止める
+    (CI が 2.5.5 を入れて、穴の実在を記録する試験 4 本が落ちた)。穴のある版と塞がった版の両方で通るように、
+    試験はこの見分けで枝を分ける。静的な検査(D⑦)と配列単位の守りは、穴のある版のために残す。
+    """
+    probe = np.zeros(1, dtype=np.int32)
+    probe.flags.writeable = False
+    try:
+        np.add.at(probe, [0], 1)
+    except ValueError:
+        return False
+    return True
+
+
 def test_numpy_ufunc_at_still_ignores_the_flag():
     """穴の実在(この振る舞いが変われば配列単位の検査は要らなくなる)。"""
     x = np.zeros(3, dtype=np.int32)
     x.flags.writeable = False
-    np.add.at(x, [0], 1)
-    assert x[0] == 1
+    if _ufunc_at_ignores_readonly():
+        np.add.at(x, [0], 1)
+        assert x[0] == 1
+    else:  # 〔第347〕numpy 2.5.5 から: numpy 自身が止める(穴は塞がった)
+        with pytest.raises(ValueError):
+            np.add.at(x, [0], 1)
+        assert x[0] == 0
 
 
 # ================================================================= D ⑦: ufunc.at の直前の検査が書く配列を引数に持つ

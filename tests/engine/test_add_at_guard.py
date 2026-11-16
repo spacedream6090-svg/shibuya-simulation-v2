@@ -153,14 +153,35 @@ def test_every_ufunc_at_in_resolve_is_preceded_by_the_frozen_check():
 
 
 # ================================================================= 動的
+def _ufunc_at_ignores_readonly() -> bool:
+    """numpy の ``ufunc.at`` が読み取り専用の旗を素通りする版か。
+
+    〔第347〕numpy 2.5.5 から、読み取り専用の配列への ``ufunc.at`` は numpy 自身が ValueError で止める
+    (CI が 2.5.5 を入れて、穴の実在を記録する試験 4 本が落ちた)。穴のある版と塞がった版の両方で通るように、
+    試験はこの見分けで枝を分ける。静的な検査(D⑦)と配列単位の守りは、穴のある版のために残す。
+    """
+    probe = np.zeros(1, dtype=np.int32)
+    probe.flags.writeable = False
+    try:
+        np.add.at(probe, [0], 1)
+    except ValueError:
+        return False
+    return True
+
+
 def test_numpy_ufunc_at_really_ignores_the_writeable_flag():
     """**穴の実在**を記録する(この振る舞いが変わったら静的検査を緩めてよい)。"""
     a = np.zeros(4, dtype=np.int32)
     a.flags.writeable = False
     with pytest.raises(ValueError):
         a[0] = 1  # 通常の代入は止まる
-    np.add.at(a, [0], 1)  # ufunc.at は**素通りする**
-    assert a[0] == 1
+    if _ufunc_at_ignores_readonly():
+        np.add.at(a, [0], 1)  # ufunc.at は**素通りする**
+        assert a[0] == 1
+    else:  # 〔第347〕numpy 2.5.5 から: numpy 自身が止める(穴は塞がった)
+        with pytest.raises(ValueError):
+            np.add.at(a, [0], 1)
+        assert a[0] == 0
 
 
 def test_frozen_flag_is_recorded_by_freeze_and_checked_by_resolve():

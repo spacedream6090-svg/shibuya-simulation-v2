@@ -141,6 +141,22 @@ def test_attached_agent_money_is_not_unfrozen_by_the_ledger():
     assert int(money.sum()) == 400
 
 
+def _ufunc_at_ignores_readonly() -> bool:
+    """numpy の ``ufunc.at`` が読み取り専用の旗を素通りする版か。
+
+    〔第347〕numpy 2.5.5 から、読み取り専用の配列への ``ufunc.at`` は numpy 自身が ValueError で止める
+    (CI が 2.5.5 を入れて、穴の実在を記録する試験 4 本が落ちた)。穴のある版と塞がった版の両方で通るように、
+    試験はこの見分けで枝を分ける。静的な検査(D⑦)と配列単位の守りは、穴のある版のために残す。
+    """
+    probe = np.zeros(1, dtype=np.int32)
+    probe.flags.writeable = False
+    try:
+        np.add.at(probe, [0], 1)
+    except ValueError:
+        return False
+    return True
+
+
 def test_numpy_add_at_ignores_the_readonly_flag():
     """発見の記録: ``np.add.at`` は読み取り専用配列に**書けてしまう**。
 
@@ -152,5 +168,10 @@ def test_numpy_add_at_ignores_the_readonly_flag():
     a.flags.writeable = False
     with pytest.raises(ValueError):
         a[0] = 1
-    np.add.at(a, np.array([0]), np.array([5], dtype=np.int32))
-    assert int(a[0]) == 5  # ← フラグが効いていない
+    if _ufunc_at_ignores_readonly():
+        np.add.at(a, np.array([0]), np.array([5], dtype=np.int32))
+        assert int(a[0]) == 5  # ← フラグが効いていない
+    else:  # 〔第347〕numpy 2.5.5 から: numpy 自身が止める(穴は塞がった)
+        with pytest.raises(ValueError):
+            np.add.at(a, np.array([0]), np.array([5], dtype=np.int32))
+        assert int(a[0]) == 0
