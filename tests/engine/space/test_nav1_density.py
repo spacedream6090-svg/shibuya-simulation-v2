@@ -188,9 +188,18 @@ KW = dict(n_agents=150, seed=1, ticks=240, vocab_version="v3", activity=True)
 def test_arm_reaches_the_run_and_does_not_move_legacy(monkeypatch):
     from shibuya import cli
 
+    from tests.engine.space._legacy import legacy_space
+
     monkeypatch.delenv("SHIBUYA_NAV1_DENSITY", raising=False)
-    monkeypatch.delenv("SHIBUYA_SPACE", raising=False)
-    base_legacy = cli.run(world_dir=str(STAGE), space="legacy", **KW)
+
+    def _legacy():  # 〔第347〕前は space="legacy"(切替口)=試験の中だけの口で旧のセルの移動にする
+        with pytest.MonkeyPatch.context() as mp:
+            legacy_space(mp)
+            res = cli.run(world_dir=str(STAGE), **KW)
+        assert res.run_manifest_fields()["space"]["effective"] == "legacy"
+        return res
+
+    base_legacy = _legacy()
     base = cli.run(world_dir=str(STAGE), **KW)
     m = base.run_manifest_fields()
     assert m["space"]["effective"] == "nav1" and m["space"]["navmesh"]["density_mode"] == "neighborhood"
@@ -198,7 +207,7 @@ def test_arm_reaches_the_run_and_does_not_move_legacy(monkeypatch):
     for mode in ("cell", "unscaled"):
         monkeypatch.setenv("SHIBUYA_NAV1_DENSITY", mode)
         # 旧値の再現(legacy)のランは腕で動かない
-        assert cli.run(world_dir=str(STAGE), space="legacy", **KW).final_hash == base_legacy.final_hash, mode
+        assert _legacy().final_hash == base_legacy.final_hash, mode
         res = cli.run(world_dir=str(STAGE), **KW)
         nm = res.run_manifest_fields()["space"]["navmesh"]
         assert nm["density_mode"] == mode and nm["density_neighborhood"] is None

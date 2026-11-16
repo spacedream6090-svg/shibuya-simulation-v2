@@ -83,8 +83,8 @@ engine.removed_switches — 消した旧道の切替口の一覧と、渡され�
   - `message`(関数): 止めるときの文(名・消した段・安定版のタグ)。第346 の行の文は前と同じ。
   - `stop_if_set`(関数): ``names`` の環境変数のどれかが置かれていれば(空でない値)止める(``ValueError``)。
   - `tag_of`(関数): 名(環境変数か CLI の旗)の旧値の再現の安定版のタグ。
-- 呼び手: `shibuya.cli`・`shibuya.economy.rules_bind`・`shibuya.economy.stage2_bind`・`shibuya.runtime.switch_defects`・`shibuya.runtime.systems.assemble`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.laws.switch_seat`・`shibuya.world.model.proximity`
-- 読む試験: `tests/economy/stage2/test_stage2_default_2_4.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_removed_switches_346.py`
+- 呼び手: `shibuya.cli`・`shibuya.economy.rules_bind`・`shibuya.economy.stage2_bind`・`shibuya.runtime.switch_defects`・`shibuya.runtime.systems.assemble`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.laws.switch_seat`・`shibuya.world.model.proximity`・`shibuya.world.model.space.nav1`
+- 読む試験: `tests/economy/stage2/test_stage2_default_2_4.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/test_removed_switches_346.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
-- 環境変数: `SHIBUYA_ABSENT_PROCESSES`・`SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RATE_RULES`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
+- 環境変数: `SHIBUYA_ABSENT_PROCESSES`・`SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RATE_RULES`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`SHIBUYA_SPACE`・`os.environ` をまるごと使う
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・第 346・第 347

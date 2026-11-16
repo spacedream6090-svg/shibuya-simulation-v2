@@ -476,11 +476,17 @@ def build(_call_args: dict[str, Any]) -> Any:
         raise ValueError(f"derive_rule は {PRESENCE_DERIVE_RULES} のどれか(いま {derive_rule!r})")
     # ---- C9 位置幾何の腕: 値の検査は**SoA を確保する前**にする(欄が 1 本変わるため) ----
     geometry = check_geometry(geometry)
-    # ---- 〔第 5 期 空間の段 1・5-1b〕移動の切替口 --space(既定 nav1=版上げ 4 回目・legacy は旧値の再現だけ・指定は環境変数 SHIBUYA_SPACE より強い)。資産(nav1_*)の無い
+    # ---- 〔第 5 期 空間の段 1・5-1b〕移動(既定 nav1=版上げ 4 回目)。資産(nav1_*)の無い
     # 合成の世界では legacy で回し、manifest の space.effective と reason に書く(つなぎ=engine.space.nav1.NAV1_EXPEDIENTS の 5)。
-    # 〔段 1 の検収 問い 4〕本番の世界(build_manifest.json の build_hash を持つ世界)で資産が無ければ止める(黙って legacy にしない) ----
-    space_mode = _NAV1.check_space(_NAV1.space_env_override(space))  # 名 space は後で資源の表に使う
-    space_reason = ""
+    # 〔段 1 の検収 問い 4〕本番の世界(build_manifest.json の build_hash を持つ世界)で資産が無ければ止める(黙って legacy にしない)。
+    # 〔第347 止めた切替口の削除〕切替口 --space legacy(環境変数 SHIBUYA_SPACE・run_day(space="legacy"))は消した=頼めるのは
+    # nav1 だけ(None も nav1)。旧のセルの移動は試験の中だけの口(案 s1=nav1 の非公開の印・試験の助けが立てる)----
+    if _NAV1.legacy_for_tests():
+        space_mode = "legacy"  # 名 space は後で資源の表に使う
+        space_reason = _NAV1.LEGACY_FOR_TESTS_REASON
+    else:
+        space_mode = _NAV1.requested_space(space)
+        space_reason = ""
     nav_on = False
     if space_mode == "nav1":
         if world_dir is None or str(getattr(world.assets, "source", "synthetic")) == "synthetic":
@@ -489,8 +495,8 @@ def build(_call_args: dict[str, Any]) -> Any:
             if _NAV1.is_production_world(world_dir):
                 raise FileNotFoundError(
                     "本番の世界(build_manifest.json の build_hash を持つ世界)に nav1_* の資産が無い=活性化の前か apply 忘れ。"
-                    "docs/bench/analysis/spatial-2026-10/sp1/tools/activate_sp1.py apply で資産を入れるか、旧値の移動で回すなら "
-                    "--space legacy(space='legacy')を渡す")
+                    "docs/bench/analysis/spatial-2026-10/sp1/tools/activate_sp1.py apply で資産を入れるか、旧値のセルの移動で回すなら"
+                    f"安定版のタグ {_RSW.tag_of(_NAV1.ENV_REMOVED_SPACE)} で回す(切替口 --space legacy は第347 で消した)")
             space_reason = "世界の置き場に nav1_* の資産が無い(build_hash を持たない世界)"
         else:
             nav_on = True

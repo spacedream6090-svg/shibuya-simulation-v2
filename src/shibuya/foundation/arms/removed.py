@@ -13,7 +13,8 @@ CLI の旗(:data:`REMOVED_CLI_FLAGS`)は ``shibuya.cli`` が表に出さない�
 別の旗に読まれないように=検収 L1)。
 
 〔第347 止めた切替口の削除〕旧値の再現の安定版のタグは消した段ごとに違う=名ごとに引く(:func:`tag_of`)。第346 で消した行は
-:data:`REMOVED_SWITCH_TAG`(文も前のまま)・第347 で消した行(経済の段階 2 の off・率の規則の旧道・「無い」の過程の旧道)は
+:data:`REMOVED_SWITCH_TAG`(文も前のまま)・第347 で消した行(経済の段階 2 の off・率の規則の旧道・「無い」の過程の旧道・
+移動の旧道 ``--space legacy``)は
 :data:`REMOVED_SWITCH_TAG_347`(記録 ``docs/bench/analysis/switch-removal-347/README.md``)。
 
 時間の方針: 本モジュールは時刻を持たない。逐次ループ宣言: なし(名の数ぶん)。
@@ -44,6 +45,8 @@ REMOVED_ENV: Final[Mapping[str, str]] = MappingProxyType({
     "SHIBUYA_RATE_RULES": ("率の形の規則 7 件(催しの注入・到着の分散・乗車の受け入れ確率・ポイ捨て・売れ残りの廃棄率・宅配・"
                            "倒れる率)を動かす 11-01 段 2 の 4 より前の値(world.laws.switch_rate・第347)"),
     "SHIBUYA_ABSENT_PROCESSES": "「無い」と宣言した過程 5 件を動かす 11-02r §1 #7 より前の値(world.laws.switch_absent・第347)",
+    "SHIBUYA_SPACE": ("段 5-1b(版上げ 4 回目)より前のセルの移動(world.model.space.nav1・第347・旧のセルの移動は試験の中だけの口に"
+                      "残る)"),
 })
 
 #: 消した CLI の旗 → 対応する環境変数(``shibuya.cli`` が表に出さない旗として受けて止める)。
@@ -55,6 +58,7 @@ REMOVED_CLI_FLAGS: Final[Mapping[str, str]] = MappingProxyType({
     "--economy-stage2": "SHIBUYA_ECONOMY_STAGE2",
     "--rate-rules": "SHIBUYA_RATE_RULES",
     "--absent-processes": "SHIBUYA_ABSENT_PROCESSES",
+    "--space": "SHIBUYA_SPACE",
 })
 
 _STEP_347: Final[tuple[str, str]] = ("第347 止めた切替口の削除", REMOVED_SWITCH_TAG_347)
@@ -66,6 +70,8 @@ _STEP_TAG: Final[Mapping[str, tuple[str, str]]] = MappingProxyType({
     "--rate-rules": _STEP_347,
     "SHIBUYA_ABSENT_PROCESSES": _STEP_347,
     "--absent-processes": _STEP_347,
+    "SHIBUYA_SPACE": _STEP_347,
+    "--space": _STEP_347,
 })
 _STEP_346: Final[str] = "第346 旧道の切替口の削除"
 

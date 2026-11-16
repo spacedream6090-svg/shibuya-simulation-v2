@@ -7,8 +7,8 @@
 > commit)は親。
 
 段の並び(親の裁定): ① 試験の書き直し(切替口はまだ在る・src は変えない)→ ②a 経済の段階 2 の off → ②b 率の規則と「無い」の
-過程(組で)→ ③a `--space` → ③b `--hunger-model` の旗。**本書は ①(手順 0・①a・①b・①c)と ②a と、① の検収の直しと ②b まで**
-(②a は §9・検収の直しは §10・②b の作業の一覧は §11・②b は §12・試験ごとの行は付録 A)。
+過程(組で)→ ③a `--space` → ③b `--hunger-model` の旗。**本書は ①(手順 0・①a・①b・①c)と ②a と、① の検収の直しと ②b と ③a まで**
+(②a は §9・検収の直しは §10・②b の作業の一覧は §11・②b は §12・③a は §13・試験ごとの行は付録 A)。
 
 ## 0. 要点(① まで)
 
@@ -564,6 +564,105 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
   - 許す鍵の一覧に残る: `tools/c8/ablation_runner.py` の `ALLOWED_KWARGS` の `salient_rate_per_10k`(腕の表に使う腕は無い=渡せば
     組み立てで止まる)。
 
+## 13. ③a: 移動の旧道 `--space legacy` を閉じ、旧のセルの移動を試験の中だけの口にした(1 バイト不変の見込み・byte-check は親)
+
+土台は頭 `aa97ce1b`(②b の commit)。発注: 返事その 8 §1-2 Q7 (d)(試験の中だけの口=ランの口からは選べない)。親の裁定
+(問い 6=台帳の行とコードの宣言を残す・問い 10=案 s1)のとおり。
+
+### 13-1 消した名・残した名・足した止め
+
+| 置き場 | 消した | 残した(理由) | 足した |
+|---|---|---|---|
+| `src/shibuya/world/model/space/nav1.py` | `space_env_override`(引数 → 環境変数 `SHIBUYA_SPACE` → 既定)・`add_space_args` の旗 `--space`・`space_from_args` の `--space` の読み | `SPACE_MODES`・`DEFAULT_SPACE`・`check_space`(manifest の値の名)・旗 `--slope`・`--turn-weight` と腕・`NAV1_EXPEDIENTS`(全項=コードの宣言・manifest の `space.expedients`)・合成の世界と build_hash の無い世界の戻り道(`BR-NAV1-E5`) | `ENV_REMOVED_SPACE`="SHIBUYA_SPACE" と読み込みの止め(`stop_if_set`)・`requested_space`(`None`・`"nav1"` は nav1・`"legacy"` は止める・名の誤りも止める・環境変数を読まない)・試験の中だけの口(13-2) |
+| `src/shibuya/runtime/systems/assemble.py` | 頼んだ値の `space_env_override(space)` | 本番の形の世界で資産が無ければ止める道・箱の欄 `cfg.space`・`space_effective`・`space_reason` | 試験の中だけの口の印を見て legacy を選ぶ分かれ・止める文を「安定版のタグ `stable-v2-before-switch-removal-347` で回す(切替口 `--space legacy` は第347 で消した)」に |
+| `src/shibuya/cli.py` | ランの種類の 2 項(`space_env_override(...) != DEFAULT_SPACE`・`(… == "nav1" and arms_on())`) | `_arm_norm` の `space`(既定の nav1 を明示で渡しても腕でない)・`cli.run(space=)` | nav1 の腕の項は `_NAV1.arms_on()` だけ(13-4) |
+| `src/shibuya/foundation/arms/removed.py` | — | 前の行 | `REMOVED_ENV` に `SHIBUYA_SPACE`・`REMOVED_CLI_FLAGS` に `--space`(タグ 347)。ランの入口の止めと表に出さない旗は一覧から自動で入る |
+| `tools/bytecheck/configs.py` | `SWITCH_ENV` の `SHIBUYA_SPACE` | — | `REMOVED_ENV` に足した |
+
+- 残した引数: `run_day(space=)`・`cli.run(space=)`(設定の指紋と `test_boxes.py` の引数の数を変えない)。`None`・`"nav1"` だけ
+  受け、`"legacy"` は組み立ての最初の検査で止まる(文に消した口・タグ・試験の中だけの口の名)。manifest の `space.requested` の鍵も
+  残す(ランでは常に nav1)。
+- `engine.run` の CLI(`python -m shibuya.engine.run`)は消した旗の一覧を受けない(表に出さない旗の仕組みは `shibuya.cli` だけ)=
+  `--space` は「知らない引数」で止まる(終わりの値 2・消した切替口の文でない)。
+- 1 バイト不変の見込みの理由: 19 構成は `space` を渡さず、組 `all19` の環境変数は空=前も今も頼んだ値は nav1。試験の中だけの口の印は
+  既定 False で、ランの口からは立たない。manifest の `space` の節(`requested`・`effective`・`reason`・`expedients`)は前と同じ値。
+  設定の指紋の鍵(`space`=None)と引数の数も変わらない。
+
+### 13-2 試験の中だけの口の形(案 s1)
+
+- src: `nav1.py` の非公開の印 `_LEGACY_FOR_TESTS: bool = False` と読み口 `legacy_for_tests()`・理由の文 `LEGACY_FOR_TESTS_REASON`。
+  組み立ては印が立っていれば `space_mode = "legacy"`・`space_reason = LEGACY_FOR_TESTS_REASON`(manifest の `space.requested` と
+  `effective` は legacy)。立っていなければ `requested_space(space)`。src に新しいファイルは足していない。
+- 試験の助け: `tests/engine/space/_legacy.py::legacy_space(mp)`(`mp.setattr(N, "_LEGACY_FOR_TESTS", True)`)。monkeypatch なので
+  試験が終われば戻る。同じプロセスで `cli.run` を呼ぶ道具(md23 の `run_collect`)にも届く。子のプロセスには届かない。
+- 本番の形で資産の無い段の世界(`v2_stage_2-3`・`v2_stage_4-3`・`v2_pre_4-3`)も、この口なら止めずに回る(前の `space="legacy"`
+  の頼み方と同じ道)。
+- 新しい印が試験の表に拾われるか: 状態の台帳(`runtime/state/ledger.py`)はモジュールの変数の行を持たない(`_SLOPE`・`_TURN`・
+  `stage2_bind._ATM_OVERRIDE` も行が無い)=拾われない。心の読みの一覧(`tests/engine/state/test_mind_world_reads.py`)は心の包みの
+  読みだけを見る(nav1 は世界の側)=拾われない。クラスの名の表(`class_ids`)は型だけ=足した型は無い。名の凍結
+  (`test_names_frozen.py`)は ID の形の文字列(`shibuya.…/`)と道の形の名を数える=足した文字列にその形は無い。どれも
+  13-5 の pytest で通った。識別子に open・tick の語は足していない(`test_t0_no_tick_word.py` も通った)。
+
+### 13-3 書き直した試験(前に確かめていたこと → 後に確かめること)
+
+| 試験 | 前 | 後 | 同じか・減ったか |
+|---|---|---|---|
+| `tests/engine/space/test_nav1_world.py` の fixture `legacy_stage`(使う試験: `::test_legacy_on_the_staged_world_is_legacy`・`::test_nav1_moves_the_final_and_records_the_meter`)(S1) | `space="legacy"` で、資産のある世界でもセルの移動(manifest の requested・effective が legacy・計器なし・nav1 の凍結の源なし)・nav1 の final は legacy と違う | 試験の中だけの口で同じラン。manifest の `reason` が試験の中だけの口の文であることも見る | 同じ+理由の文 |
+| 同 `::test_q4_production_world_without_assets_stops_and_legacy_runs`(S2) | 本番の形で資産が無ければ nav1 は止まる・`space="legacy"` なら回る | nav1 は止まる(文に安定版のタグ)・`space="legacy"` は消した口の文で止まる・試験の中だけの口なら回る(effective legacy) | 同じ+口が閉じたこと |
+| 同 `::test_l4_space_argument_beats_the_environment_in_a_run` → `::test_l4_the_space_env_stops_a_run_and_the_argument_takes_only_nav1`(S3) | 環境変数 legacy を置いても引数 nav1 が勝つ・引数なしは環境変数の legacy | 環境変数を置けば、引数 nav1 でも無しでも入口で止まる(文に名とタグ)・外せば nav1 と None はどちらも nav1 で同じ final | 「引数が環境変数より強い」は切替口そのもの=「消した」に替えた |
+| `tests/engine/space/test_nav1_units.py::test_l4_space_argument_beats_the_environment` → `::test_l4_the_requested_space_takes_only_nav1_and_ignores_the_environment`(S4) | `space_env_override` の順(引数 → 環境変数 → 既定)・`NavSpace` の `tick_seconds` は必須 | `space_env_override` が無い・`requested_space` は None・空・nav1 を nav1 に・legacy と名の誤りは止まる・環境変数を読まない・一覧とタグ・印は既定 False・`NavSpace` の確かめは前のまま | 切替口そのもの=「消した」に替えた |
+| `tests/engine/space/test_nav1_density.py::test_arm_reaches_the_run_and_does_not_move_legacy`(S5) | 密度の腕は `space="legacy"` のランを動かさない・nav1 のランに届く | legacy のランは試験の中だけの口で同じ確かめ(effective legacy も見る) | 同じ |
+| `tests/engine/multiday/test_md23_w9_window.py::test_stage_asset_has_the_window_and_the_fallback_is_used_only_outside`(S6) | 環境変数 `SHIBUYA_SPACE=legacy` で段の世界 `v2_stage_2-3` を 8 日回し、影の日付の窓を見る | 試験の中だけの口で同じラン(道具は同じプロセスで `cli.run` を呼ぶ) | 同じ |
+| `tests/engine/test_pop_w21_world.py::test_real_short_run_has_dwellings_w21_store_staff_and_outside_employers`(S7) | `space="legacy"` で段の世界 `v2_stage_4-3` を回し、権利の行を見る | 試験の中だけの口で同じラン(effective legacy も見る) | 同じ |
+| `tests/engine/test_removed_switches_346.py`(集合・タグの表・旗の場合)と `::test_the_space_arm_flags_still_work_and_are_not_read_as_the_removed_flag`(新) | 名 8 本・旗 6 本 | 名 9 本・旗 7 本(`SHIBUYA_SPACE`・`--space`・タグ 347)。旗の場合に `--space legacy・nav1`・略記 `--spa`(`--sp` は `--speech-port` と重なる)を足した。残す `--slope`・`--turn-weight` は値の誤りがその旗の文で止まる(消した切替口の文でない) | 同じ+足した名 |
+| 変えていない: `test_nav1_world.py::test_nav1_without_assets_runs_legacy_and_says_why`(合成の世界の戻り道)・`::test_nav1_resume_equals_straight`・`::test_nav1_golden_…`・`::test_default_is_nav1_on_the_staged_world`(`delenv("SHIBUYA_SPACE")` は残っても害が無い) | — | — | 同じ |
+
+確かめる範囲が減った所: 切替口そのものの確かめ(引数と環境変数の強さの順・環境変数で legacy を選ぶ)だけ。旧のセルの移動を
+回す試験は、試験の中だけの口で同じランを回す。
+
+### 13-4 ランの種類(19 構成の run_kind が変わらないこと)
+
+- 前の項: `space_env_override(kwargs.get("space")) != DEFAULT_SPACE or (space_env_override(…) == "nav1" and arms_on())`。今の項:
+  `arms_on()`。頼んだ値が nav1(引数なし・環境変数なし)なら、前の項は `False or arms_on()`=今の項と同じ。頼める値は今は nav1
+  だけ(legacy は組み立てで止まる)なので、回るランではいつも同じ値。
+- 確かめ方: 19 構成の引数(`tools/bytecheck/configs.py::configs()`)を読んで、前の式(環境変数は空=組 `all19` と同じ)と今の式の
+  値を構成ごとに比べた(ランは回していない・作業の機械のスクラッチの台本)。19 構成とも `space` の鍵を持たず、前も今も偽=
+  食い違い 0。run_kind そのものの比べは親の byte-check(37 欄)。
+
+### 13-5 試験の結果
+
+- 1 本の pytest(`-m "not gpu and not slow"`・`-n 4 --dist loadfile`・作業の木・頭 `aa97ce1b`+本段): 変えた試験の 6 ファイル
+  (`test_nav1_world.py` 8・`test_nav1_units.py` 19・`test_nav1_density.py` 10・`test_md23_w9_window.py` 3・`test_pop_w21_world.py` 13・
+  `test_removed_switches_346.py` 44=前 37+7)と、消した名・旗・口や変えた src を読む試験(`tests/tools/test_bytecheck.py` 123・
+  `tests/test_cli*.py` 5 本 56・`tests/engine/systems/test_boxes.py` 9=run_day の引数の数・`tests/engine/bridging/test_bridging_ledger.py`
+  40=`NAV1_EXPEDIENTS` と台帳の行の 1 対 1・`tests/bridging/test_decision_rows_1101.py` 6・`tests/engine/state/test_names_frozen.py` 13・
+  `test_class_ids.py` 12・`test_mind_world_reads.py` 5・`tests/engine/time/test_t0_no_tick_word.py` 6・`tests/test_places_guard.py` 16)で
+  **383 passed・0 failed・0 skipped**(1 分 47 秒)。段の世界のデータ(`v2_stage_5-1`・`v2_pre_4-3`・`v2_stage_2-3`・`v2_stage_4-3`)は
+  作業の木にあり、飛ばした試験は 0(S1・S2・S5・S6・S7 は試験の中だけの口で回った)。警告は前から出る W9 の影の `WeatherWarning` だけ。
+- `lint-imports`: 12 kept・0 broken(`world.model.space.nav1` が新しく `foundation.arms.removed` を読む)。
+- カード `tools/repo_guide/build.py` で作り直した(`cards/data.md` は戻した)。`--check` は「最新」(151 本)。
+- 回していない: slow の `test_nav1_golden_w6_v3_default_on_the_activated_world[cell・unscaled]`(変えていない)・byte-check と範囲の
+  全体の試験(親)。
+
+### 13-6 次の版上げで扱う行(本段では触らない)・直していない注・止まる記録の道具・`#118` の戻し方
+
+- 台帳の行とコードの宣言(親の裁定=残す・manifest の `space.expedients`・`bridges_count`・`bridges_version`・`declared_in` の sha を
+  動かさない): `BR-NAV1-LEGACY-SWITCH`(`NAV1_EXPEDIENTS` の「切替口 --space legacy(環境変数 SHIBUYA_SPACE=legacy)は…」の項)・
+  `DOC-nav1-arms-inert-edge-plateau`・`BR-NAV1-E5`(文の「外す段: 次の版上げ=legacy の切替口を消すとき」)。§6 の表の 3 行のまま。
+  台帳の試験(`test_bridging_ledger.py`)は落ちなかった(13-5)=行が指すコードの宣言の文は変えていない。
+- 直していない注: `agents/state.py:476`(「`--space legacy` の checkpoint は 1 バイトも…」=経緯の注)・`NAV1_EXPEDIENTS` の項の文
+  (上の台帳の行)。文書 `docs/reference/repo-guide/catalog/a-body-and-town.md`(56・264・312・320 行)・`day-flow.md`(187・297 行)
+  (手で書く案内=試験が読まない)。
+- 今の src で止まる記録の道具(試験が読まない=346 の前例。旧値は安定版のタグで回す):
+  - `docs/bench/analysis/spatial-2026-10/sp1/tools/runs_sp1.py`(いつも `--space` を渡す=nav1 でも止まる)。
+  - `docs/bench/analysis/spatial-2026-10/sp1b/tools/sp1b_measure.py`(`--space` を渡すと環境変数 `SHIBUYA_SPACE` を置く=止まる)・
+    `sp1b_2day.py`・`sp1b_events.py`(環境変数を引き継ぐ=置かれていれば止まる)。`collect_goldens.py` は環境変数を外すので回る。
+  - `docs/bench/analysis/wallbounce-1012/10e/byte_check_10e.py`(`SWITCH_ENV` に `SHIBUYA_SPACE`=値を記録するだけ・置かれて
+    いればランが止まる)。
+- `#118` の戻し方(`--world data/world/v2_pre_4-3` をランで回す=本番の形で nav1 の資産の無い退避の世界を旧のセルの移動で回す)は、
+  CLI からはできなくなった(nav1 は資産が無いので止まり、`--space legacy` は消した)。旧値の再現は安定版のタグ
+  `stable-v2-before-switch-removal-347` で回す。試験の中では `tests/engine/space/_legacy.py` の口で回る(13-3 の S2)。
+
 ## 付録 A. 試験ごとの行(検収 L9=§3・§4 でまとめた行を開いた)
 
 ### A-1 既定と同じ値に腕を押さえる行を消した 9 か所(§3-1)
@@ -641,4 +740,12 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
 - `tests/c7` は開かずに件数だけ数えた: 消した環境変数・旗・腕の名を使う所は 0。`salient_rate_per_10k` の 2 か所は、合成の
   `input_match` に渡す文字列の鍵で、ランを回さない(止める対象でない)。
 - 範囲の全体の試験は、この段の commit の後に本体の木で回す(結果は次の段の節に書く)。
+- 例外(ignore)の本数は変わらない(割る段ではない=31 本・延べ 45 行)。`lint-imports` 12 kept。
+
+### 13-7 親の確かめ(③a)
+
+- byte-check: 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0・final が同じ 19(基準 `aa97ce1`=②b の commit。既定 `w6_v3_default` の
+  final `c8d68704b7b0760d`・呼数 60,939。全体の壁時計 422 秒)。組は [bytecheck_3a/](bytecheck_3a/)。ランの種類(run_kind)は 37 欄に
+  入っている=19 構成とも前と同じ。
+- 範囲の全体の試験は、②b と合わせて本体の木で回す(結果は次の段の節に書く)。
 - 例外(ignore)の本数は変わらない(割る段ではない=31 本・延べ 45 行)。`lint-imports` 12 kept。

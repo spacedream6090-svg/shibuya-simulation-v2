@@ -7,7 +7,8 @@
 - 一覧と止める文は 1 か所(各モジュールの読み込みの止めも同じ文)。
 記録 ``docs/bench/analysis/delete-346/README.md``。〔第347 止めた切替口の削除〕経済の段階 2 の切替口 off
 (``SHIBUYA_ECONOMY_STAGE2``・``--economy-stage2``)と、率の規則と「無い」の過程の旧道(``SHIBUYA_RATE_RULES``・``--rate-rules``・
-``SHIBUYA_ABSENT_PROCESSES``・``--absent-processes``)を足した。安定版のタグは消した段ごとに違う(``tag_of``)=記録
+``SHIBUYA_ABSENT_PROCESSES``・``--absent-processes``)と、移動の旧道(``SHIBUYA_SPACE``・``--space``)を足した。安定版のタグは
+消した段ごとに違う(``tag_of``)=記録
 ``docs/bench/analysis/switch-removal-347/README.md``。
 """
 
@@ -57,18 +58,19 @@ def _system_frames(stderr: str) -> list[str]:
 #: 〔第347〕名 → 旧値の再現の安定版のタグ(第346 の行は前のタグのまま)。
 WANT_TAG = {"SHIBUYA_RULES_42B": TAG, "SHIBUYA_RULES_42": TAG, "SHIBUYA_SEAT_RELEASE": TAG, "SHIBUYA_PROXIMITY": TAG,
             "SHIBUYA_DEFECT_FIXES_1103": TAG, "SHIBUYA_ECONOMY_STAGE2": TAG_347,
-            "SHIBUYA_RATE_RULES": TAG_347, "SHIBUYA_ABSENT_PROCESSES": TAG_347,
+            "SHIBUYA_RATE_RULES": TAG_347, "SHIBUYA_ABSENT_PROCESSES": TAG_347, "SHIBUYA_SPACE": TAG_347,
             "--seat-release": TAG, "--proximity": TAG, "--defect-fixes-1103": TAG, "--economy-stage2": TAG_347,
-            "--rate-rules": TAG_347, "--absent-processes": TAG_347}
+            "--rate-rules": TAG_347, "--absent-processes": TAG_347, "--space": TAG_347}
 
 
 def test_the_list_and_the_message_are_in_one_place():
     assert RSW.REMOVED_SWITCH_TAG == TAG and RSW.REMOVED_SWITCH_TAG_347 == TAG_347
     assert set(RSW.REMOVED_ENV) == {"SHIBUYA_RULES_42B", "SHIBUYA_RULES_42", "SHIBUYA_SEAT_RELEASE", "SHIBUYA_PROXIMITY",
                                     "SHIBUYA_DEFECT_FIXES_1103", "SHIBUYA_ECONOMY_STAGE2",
-                                    "SHIBUYA_RATE_RULES", "SHIBUYA_ABSENT_PROCESSES"}  # 〔第347 ②b〕率の規則と「無い」の過程
+                                    "SHIBUYA_RATE_RULES", "SHIBUYA_ABSENT_PROCESSES",  # 〔第347 ②b〕率の規則と「無い」の過程
+                                    "SHIBUYA_SPACE"}  # 〔第347 ③a〕移動の旧道
     assert set(RSW.REMOVED_CLI_FLAGS) == {"--seat-release", "--proximity", "--defect-fixes-1103", "--economy-stage2",
-                                          "--rate-rules", "--absent-processes"}
+                                          "--rate-rules", "--absent-processes", "--space"}
     assert set(RSW.REMOVED_CLI_FLAGS.values()) <= set(RSW.REMOVED_ENV)
     assert {name: RSW.tag_of(name) for name in WANT_TAG} == WANT_TAG
     # 第346 の行の文は前のまま(段の名とタグ)
@@ -126,7 +128,10 @@ def test_the_frame_check_catches_a_stop_inside_the_ticks():
                                   # 〔第347 ②b〕率の規則と「無い」の過程(値に依らず・略記も。``--ab`` は ``--ablate`` と重なる)
                                   ["--rate-rules", "legacy"], ["--rate-rules", "off"], ["--rate-r", "legacy"],
                                   ["--absent-processes", "legacy"], ["--absent-processes", "stopped"],
-                                  ["--absent", "legacy"]])
+                                  ["--absent", "legacy"],
+                                  # 〔第347 ③a〕移動の旧道(値に依らず・略記も。``--sp`` は ``--speech-port`` と重なる。残す
+                                  # ``--slope``・``--turn-weight`` は ``test_the_space_arm_flags_still_work_…``)
+                                  ["--space", "legacy"], ["--space", "nav1"], ["--spa", "legacy"]])
 def test_a_removed_cli_flag_stops_even_when_abbreviated(argv, capsys):
     """〔検収 L1〕``--proximity 1.0`` が略記で ``--proximity-d`` の感度の腕として通らない。〔第347〕``--economy-stage2 off`` が
     ``--economy-stage2-parts`` の略記として通らない(部品の名の誤りでなく、消した切替口の文で止まる)。"""
@@ -145,6 +150,17 @@ def test_the_parts_flag_still_works_and_is_not_read_as_the_removed_flag(capsys):
     assert exc.value.code == 2
     err = capsys.readouterr().err
     assert "--economy-stage2-parts は" in err and "消した切替口" not in err, err[-800:]
+
+
+@pytest.mark.parametrize("flag", ["--slope", "--turn-weight"])
+def test_the_space_arm_flags_still_work_and_are_not_read_as_the_removed_flag(flag, capsys):
+    """〔第347 ③a〕移動の旗 ``--space`` を消しても、残す腕の旗 ``--slope``・``--turn-weight`` は今のまま受ける(値の誤りは
+    その旗の選択肢の文で止まる=消した切替口の文でない)。"""
+    with pytest.raises(SystemExit) as exc:
+        cli.main([flag, "bogus", "--agents", "5", "--ticks", "1"])
+    assert exc.value.code == 2
+    err = capsys.readouterr().err
+    assert flag in err and "bogus" in err and "消した切替口" not in err, err[-800:]
 
 
 def test_the_hidden_flags_are_not_in_the_help(capsys):

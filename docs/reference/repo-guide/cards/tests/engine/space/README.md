@@ -2,11 +2,21 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 5 本・その他 0 本(このディレクトリの直下)
+Python 6 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../tests/engine/space/__init__.py)
 
 (冒頭の説明なし)
+
+## [_legacy.py](../../../../../../../tests/engine/space/_legacy.py)
+
+〔第347 止めた切替口の削除・案 s1〕旧のセルの移動(``legacy``)を試験の中だけで選ぶ助け。
+
+- 公開の関数とクラス
+  - `legacy_space`(関数): 旧のセルの移動を選ぶ印を立てる(``mp`` が戻すまで)。
+- import している内部モジュール: `shibuya.world.model.space.nav1`
+- 読む試験: `tests/engine/multiday/test_md23_w9_window.py`・`tests/engine/space/test_nav1_density.py`・`tests/engine/space/test_nav1_world.py`・`tests/engine/test_pop_w21_world.py`
+- 決定の ID: 第 347
 
 ## [test_nav1_density.py](../../../../../../../tests/engine/space/test_nav1_density.py)
 
@@ -24,8 +34,9 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `test_scale_one_makes_cell_equal_unscaled`(関数)
   - `test_synth_neighbours_follow_the_surface`(関数)
   - `test_three_estimators_match_the_hand_calculation`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.change_detect`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.space.nav1`・`shibuya.world.model.state`・`tests/build_space/synth.py`
-- 環境変数: `SHIBUYA_NAV1_DENSITY`・`SHIBUYA_SPACE`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.change_detect`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.space.nav1`・`shibuya.world.model.state`・`tests/build_space/synth.py`・`tests/engine/space/_legacy.py`
+- 環境変数: `SHIBUYA_NAV1_DENSITY`
+- 決定の ID: 第 347
 
 ## [test_nav1_route_cache.py](../../../../../../../tests/engine/space/test_nav1_route_cache.py)
 
@@ -56,7 +67,7 @@ S46: nav1 の道の線の控えが結果に作用しないことの試験(控え
   - `test_crossing_floors_only_through_a_link`(関数)
   - `test_engine_does_not_decide_for_the_person`(関数): AST: nav1 は判断の層・LLM・選び手を読まない(速さは体の属性・経路は既定の重み=宣言)。
   - `test_l3_ramp_inside_is_on_the_line_and_within_the_speed_bound`(関数)
-  - `test_l4_space_argument_beats_the_environment`(関数)
+  - `test_l4_the_requested_space_takes_only_nav1_and_ignores_the_environment`(関数): 〔第347 止めた切替口の削除〕前(``test_l4_space_argument_beats_the_environment``)は ``space_env_override`` の順(引数 →
   - `test_link_capacity_and_first_come_first_served`(関数)
   - `test_link_times_sr11`(関数)
   - `test_long_link_is_not_faster_than_walking`(関数)
@@ -72,25 +83,25 @@ S46: nav1 の道の線の控えが結果に作用しないことの試験(控え
   - `test_speed_is_the_body_attribute`(関数)
   - `test_turn_weights_fixed_and_person_range_deterministic`(関数)
   - `test_unique_position_per_agent_per_step`(関数)
-- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.intent`・`shibuya.agents.state`・`shibuya.engine.chooser`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar_self`・`shibuya.llm`・`shibuya.mind.judge.classical`・`shibuya.mind.judge.decision.layer`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.notice_reach`・`shibuya.world.model.proximity`・`shibuya.world.model.space.nav1`・`tests/_places.py`・`tests/build_space/synth.py`
+- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.intent`・`shibuya.agents.state`・`shibuya.engine.chooser`・`shibuya.foundation.arms.removed`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar_self`・`shibuya.llm`・`shibuya.mind.judge.classical`・`shibuya.mind.judge.decision.layer`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.notice_reach`・`shibuya.world.model.proximity`・`shibuya.world.model.space.nav1`・`tests/_places.py`・`tests/build_space/synth.py`
 - 環境変数: `SHIBUYA_SPACE`
-- 決定の ID: 10-03/§8・R-63
+- 決定の ID: 10-03/§8・R-63・第 347
 
 ## [test_nav1_world.py](../../../../../../../tests/engine/space/test_nav1_world.py)
 
-段 1 の移動の切替口(本物の世界・組んだ資産 ``data/world/v2_stage_5-1``・データの無い所では飛ばす)。
+段 1 の移動(本物の世界・組んだ資産 ``data/world/v2_stage_5-1``・データの無い所では飛ばす)。
 
 - 公開の関数とクラス
-  - `legacy_stage`(関数)
+  - `legacy_stage`(関数): 〔第347〕前は ``_run("legacy")``(切替口)。試験の中だけの口で旧のセルの移動にする。
   - `nav1_stage`(関数)
   - `test_default_is_nav1_on_the_staged_world`(関数)
-  - `test_l4_space_argument_beats_the_environment_in_a_run`(関数)
+  - `test_l4_the_space_env_stops_a_run_and_the_argument_takes_only_nav1`(関数): 〔第347 止めた切替口の削除〕前(``test_l4_space_argument_beats_the_environment_in_a_run``)は「環境変数 legacy を置いても
   - `test_legacy_on_the_staged_world_is_legacy`(関数)
   - `test_nav1_golden_w6_v3_default_on_the_activated_world`(関数)
   - `test_nav1_moves_the_final_and_records_the_meter`(関数)
   - `test_nav1_resume_equals_straight`(関数)
   - `test_nav1_without_assets_runs_legacy_and_says_why`(関数)
-  - `test_q4_production_world_without_assets_stops_and_legacy_runs`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.world.model.navmesh`・`tests/golden_env.py`
+  - `test_q4_production_world_without_assets_stops_and_legacy_runs`(関数): 本番の形で資産が無ければ nav1 は止まる・旧のセルの移動なら回る。〔第347〕前は ``space="legacy"`` で回した(切替口)=
+- import している内部モジュール: `shibuya.cli`・`shibuya.world.model.navmesh`・`shibuya.world.model.space.nav1`・`tests/engine/space/_legacy.py`・`tests/golden_env.py`
 - 環境変数: `SHIBUYA_NAV1_DENSITY`・`SHIBUYA_SPACE`
-- 決定の ID: 11-01・11-03/§3
+- 決定の ID: 11-01・11-03/§3・第 347

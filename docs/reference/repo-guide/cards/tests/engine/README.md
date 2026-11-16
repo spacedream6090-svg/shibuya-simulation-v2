@@ -1050,7 +1050,8 @@ D-62「就寝は計画の実行」(ユーザー決定 (a)+(b)・2026-09-10)の�
   - `test_w16_shaped_population_has_no_swap_columns`(関数)
   - `test_wage_inputs_take_w21_words_and_given_wages`(関数)
   - `test_without_the_table_the_rows_are_the_same_as_before`(関数)
-- import している内部モジュール: `shibuya.build.pop.w21_build_c`・`shibuya.cli`・`shibuya.economy.stage2_bind`・`shibuya.foundation.ports.decision`・`shibuya.mind.judge.decision.persona`・`shibuya.runtime.systems.assemble`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`
+- import している内部モジュール: `shibuya.build.pop.w21_build_c`・`shibuya.cli`・`shibuya.economy.stage2_bind`・`shibuya.foundation.ports.decision`・`shibuya.mind.judge.decision.persona`・`shibuya.runtime.systems.assemble`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`tests/engine/space/_legacy.py`
+- 決定の ID: 第 347
 
 ## [test_presence_derive_v2.py](../../../../../../tests/engine/test_presence_derive_v2.py)
 
@@ -1258,8 +1259,9 @@ C10 8b(会話の起点と相手選択+8a の直し)の検査。
   - `test_the_hidden_flags_are_not_in_the_help`(関数)
   - `test_the_list_and_the_message_are_in_one_place`(関数)
   - `test_the_parts_flag_still_works_and_is_not_read_as_the_removed_flag`(関数): 〔第347〕残す感度の腕 ``--economy-stage2-parts`` は今のまま受ける(名の誤りは部品の文で止まる=消した切替口の文でない)。
+  - `test_the_space_arm_flags_still_work_and_are_not_read_as_the_removed_flag`(関数): 〔第347 ③a〕移動の旗 ``--space`` を消しても、残す腕の旗 ``--slope``・``--turn-weight`` は今のまま受ける(値の誤りは
 - import している内部モジュール: `shibuya.cli`・`shibuya.foundation.arms.removed`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`
-- 環境変数: `SHIBUYA_ABSENT_PROCESSES`・`SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RATE_RULES`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
+- 環境変数: `SHIBUYA_ABSENT_PROCESSES`・`SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RATE_RULES`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`SHIBUYA_SPACE`・`os.environ` をまるごと使う
 - 決定の ID: 第 346・第 347
 
 ## [test_renderer_wiring.py](../../../../../../tests/engine/test_renderer_wiring.py)

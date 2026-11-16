@@ -1,4 +1,4 @@
-"""engine.space.nav1 — 第 5 期 空間の段 1: ナビメッシュの上を衝突なしで進む移動(切替口 ``--space {legacy,nav1}``)。
+"""engine.space.nav1 — 第 5 期 空間の段 1: ナビメッシュの上を衝突なしで進む移動(〔第347〕切替口 ``--space legacy`` は消した)。
 
 正: 空間の設計の下書き ``docs/design/v2-spatial-design-round-draft.md`` §4 段 1/指示書 10-03 §8 3-1(位置は (x, y, 階)
 の連続値)・3-2 (c)(ナビメッシュの上を衝突なしで進む=つなぎ・既定の切り替えは 1 回)/指示書 10-06 SR11 (a)+(d)・
@@ -41,6 +41,7 @@ import numba as nb
 import numpy as np
 
 from shibuya.agents.state import Activity
+from shibuya.foundation.arms import removed as _RSW
 from shibuya.foundation.rng import derive_key
 from shibuya.foundation.time_consts import SECONDS_PER_MINUTE
 from shibuya.world.model.geometry import DESIRED_SPEED_MIN_MS, desired_speeds, kladek_speed_factor
@@ -80,6 +81,10 @@ __all__ = [
     "PIECE_MAX_M",
     "NAV1_EXPEDIENTS",
     "check_space",
+    "requested_space",
+    "legacy_for_tests",
+    "ENV_REMOVED_SPACE",
+    "LEGACY_FOR_TESTS_REASON",
     "check_slope_model",
     "check_turn_weight_mode",
     "slope_speed_factor",
@@ -91,8 +96,10 @@ __all__ = [
     "is_production_world",
 ]
 
-#: 切替口の値(``legacy``=前のセルの移動・``nav1``=ナビメッシュの移動)。〔段 5-1b・版上げ 4 回目〕既定は nav1(密度の推定は
-#: neighborhood=H1 を直した)。legacy は旧値の再現だけ(次の版上げで消す=台帳 BR-NAV1-LEGACY-SWITCH・next-bump)。
+#: 移動の値(``legacy``=前のセルの移動・``nav1``=ナビメッシュの移動)。〔段 5-1b・版上げ 4 回目〕既定は nav1(密度の推定は
+#: neighborhood=H1 を直した)。〔第347 止めた切替口の削除〕ランの口(``--space``・環境変数 ``SHIBUYA_SPACE``・
+#: ``run_day(space="legacy")``)から legacy は選べない。legacy に落ちるのは合成の世界と build_hash の無い世界の戻り道と、
+#: 試験の中だけの口(:func:`legacy_for_tests`)だけ(manifest の ``space.requested``・``space.effective`` の値として残す)。
 SPACE_MODES: Final[tuple[str, ...]] = ("legacy", "nav1")
 DEFAULT_SPACE: Final[str] = "nav1"
 #: 坂の速さの式(SR12 (d): Wood 2023 の舗装路を既定・Tobler を腕)。
@@ -1112,13 +1119,34 @@ _TURN: str = check_turn_weight_mode(os.environ.get("SHIBUYA_TURN_WEIGHT", DEFAUL
                                     or DEFAULT_TURN_WEIGHT_MODE)
 
 
-def space_env_override(value: str | None) -> str:
-    """頼んだ移動の値: 引数(``run_day(space=…)``・``--space``)があればそれ・無ければ環境変数 ``SHIBUYA_SPACE``・それも無ければ
-    既定(〔段 1 の検収 L4〕指定は環境変数より強い=坂と曲がる重みの腕と同じ)。"""
-    if value is not None and str(value) != "":
-        return str(value)
-    env = os.environ.get("SHIBUYA_SPACE", "").strip().lower()
-    return env if env else DEFAULT_SPACE
+#: 〔第347 止めた切替口の削除〕消した切替口の環境変数(与えると読み込みで止まる=ランの入口の組み立ての最初でも止まる)。
+ENV_REMOVED_SPACE: Final[str] = "SHIBUYA_SPACE"
+_RSW.stop_if_set(ENV_REMOVED_SPACE)  # 一覧と止める文は foundation.arms.removed
+
+#: 〔第347・案 s1〕試験の中だけの口: 旧のセルの移動(``legacy``)を選ぶ非公開の印。ランの口(CLI・環境変数・``run_day`` の
+#: 引数・設定の箱の欄)からは選べない。試験の助け(``tests/engine/space/_legacy.py``)が monkeypatch で立てる。既定 False。
+_LEGACY_FOR_TESTS: bool = False
+#: 試験の中だけの口で legacy にしたランの manifest の ``space.reason``。
+LEGACY_FOR_TESTS_REASON: Final[str] = "試験の中だけの口(旧のセルの移動・ランの口からは選べない)"
+
+
+def legacy_for_tests() -> bool:
+    """〔第347・案 s1〕試験の中だけの口の印が立っているか(組み立てが読む)。"""
+    return bool(_LEGACY_FOR_TESTS)
+
+
+def requested_space(value: str | None) -> str:
+    """頼んだ移動の値(``run_day(space=…)``・``cli.run(space=…)``): ``None``・``"nav1"`` は nav1。〔第347 止めた切替口の削除〕
+    ``"legacy"`` は止める(消した口)。環境変数は読まない(``SHIBUYA_SPACE`` は与えると止まる)。旧のセルの移動は試験の中だけの口
+    (:func:`legacy_for_tests`)。"""
+    if value is None or str(value) == "":
+        return DEFAULT_SPACE
+    text = check_space(str(value))
+    if text != DEFAULT_SPACE:
+        raise ValueError(f"space={text!r} は消した口(第347 止めた切替口の削除・旧値の再現は安定版のタグ "
+                         f"{_RSW.tag_of(ENV_REMOVED_SPACE)})=旧のセルの移動は試験の中だけの口(nav1 の _LEGACY_FOR_TESTS・"
+                         "tests/engine/space/_legacy.py)")
+    return text
 
 
 def slope_arm() -> str:
@@ -1153,12 +1181,8 @@ def arms_on() -> bool:
 
 
 def add_space_args(ap: Any) -> None:
-    """CLI の旗 ``--space``・``--slope``・``--turn-weight``。"""
-    ap.add_argument("--space", choices=SPACE_MODES, default=None,
-                    help="第 5 期 空間の段 1 の移動の切替口。nav1=ナビメッシュの上を衝突なしで進む(既定・位置は (x, y, 階)・"
-                         "合成の世界では legacy で回して manifest の space.effective に書く・本番の世界で資産 nav1_* が無ければ"
-                         "止める・密度の推定は環境変数 SHIBUYA_NAV1_DENSITY=neighborhood(既定)/cell/unscaled)/legacy=前のセルの"
-                         "移動(旧値の再現だけ・次の版上げで消す)。環境変数 SHIBUYA_SPACE より強い")
+    """CLI の旗 ``--slope``・``--turn-weight``。〔第347 止めた切替口の削除〕旗 ``--space`` は消した(``shibuya.cli`` は表に出さない
+    旗として受けて止める=``foundation.arms.removed`` の一覧)。"""
     ap.add_argument("--slope", choices=SLOPE_MODELS, default=None,
                     help="坂の速さの式の腕(SR12 (d)・既定 wood=Wood 2023 舗装路・tobler=Tobler・環境変数 SHIBUYA_SLOPE と同じ)")
     ap.add_argument("--turn-weight", choices=TURN_WEIGHT_MODES, default=None,
@@ -1167,13 +1191,13 @@ def add_space_args(ap: Any) -> None:
 
 
 def space_from_args(args: Any) -> str | None:
-    """CLI の値 → ``run_day(space=…)``。坂と曲がる重みの腕はここで選ぶ(組み立てが読む・指定は環境変数より強い)。"""
+    """CLI の値 → ``run_day(space=…)``。坂と曲がる重みの腕はここで選ぶ(組み立てが読む・指定は環境変数より強い)。
+    〔第347〕旗 ``--space`` は消した=頼んだ移動はいつも既定(``None``)。"""
     if getattr(args, "slope", None) is not None:
         set_slope_arm(str(args.slope))
     if getattr(args, "turn_weight", None) is not None:
         set_turn_arm(str(args.turn_weight))
-    v = getattr(args, "space", None)
-    return None if v is None else check_space(str(v))
+    return None
 
 
 def manifest_section(requested: str, effective: str, reason: str, layer: Any) -> dict[str, Any]:

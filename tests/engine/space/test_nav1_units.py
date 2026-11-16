@@ -249,12 +249,25 @@ def test_l3_ramp_inside_is_on_the_line_and_within_the_speed_bound():
         assert int(ofi[0]) == 1
 
 
-def test_l4_space_argument_beats_the_environment(monkeypatch):
-    monkeypatch.setenv("SHIBUYA_SPACE", "legacy")
-    assert N.space_env_override("nav1") == "nav1"
-    assert N.space_env_override(None) == "legacy"
-    monkeypatch.delenv("SHIBUYA_SPACE")
-    assert N.space_env_override(None) == N.DEFAULT_SPACE == "nav1"  # 〔段 5-1b・版上げ 4 回目〕既定は nav1(段 1 は legacy)
+def test_l4_the_requested_space_takes_only_nav1_and_ignores_the_environment(monkeypatch):
+    """〔第347 止めた切替口の削除〕前(``test_l4_space_argument_beats_the_environment``)は ``space_env_override`` の順(引数 →
+    環境変数 → 既定)。切替口を消した: ``space_env_override`` は無い・頼んだ値は ``None`` と ``"nav1"`` だけ受けて nav1・
+    ``"legacy"`` は止める(消した口・タグ・試験の中だけの口の名)・名の誤りも止める・環境変数は読まない(読み込みで止める名は
+    一覧にある)・試験の中だけの口の印は既定 False。"""
+    from shibuya.foundation.arms import removed as RSW
+
+    assert not hasattr(N, "space_env_override")
+    assert N.requested_space(None) == N.requested_space("") == N.requested_space("nav1") == N.DEFAULT_SPACE == "nav1"
+    with pytest.raises(ValueError, match="space='legacy' は消した口.*stable-v2-before-switch-removal-347.*試験の中だけの口"):
+        N.requested_space("legacy")
+    with pytest.raises(ValueError, match="space は"):
+        N.requested_space("bogus")
+    monkeypatch.setenv("SHIBUYA_SPACE", "legacy")  # 読み込みの後に置いても、頼んだ値の読みには入らない(入口の止めは別の試験)
+    assert N.requested_space(None) == "nav1"
+    assert N.ENV_REMOVED_SPACE == "SHIBUYA_SPACE" and N.ENV_REMOVED_SPACE in RSW.REMOVED_ENV
+    assert RSW.REMOVED_CLI_FLAGS["--space"] == N.ENV_REMOVED_SPACE
+    assert RSW.tag_of(N.ENV_REMOVED_SPACE) == RSW.REMOVED_SWITCH_TAG_347
+    assert N.legacy_for_tests() is False and N._LEGACY_FOR_TESTS is False
     import inspect
 
     assert inspect.signature(N.NavSpace.__init__).parameters["tick_seconds"].default is inspect.Parameter.empty
