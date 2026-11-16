@@ -7,13 +7,15 @@
 - 走査は ``src/shibuya`` 全体(``build/`` を除く。``engine/`` だけでは ``world/``・``perception/`` の読み手を
   見落とす=材料 §2-4)。
 - 属性 ``X.列名`` を書き(代入の左辺・``X.c[...] =``・``np.*.at(X.c, ...)``・``X.c.fill``・``out=X.c``)と読みに分ける。
-  ``X.c.dtype`` などの型の参照と、同じ列への代入の右辺の読み(自己更新)は読みから外す。
+  ``X.c.dtype`` などの型の参照と、同じ受け手の同じ列への代入の右辺の読み(自己更新)は読みから外す。
 - 文字列は ``field("c")``(``f = r.field`` の別名も)・``getattr(r, "c")``・``arrays["c"]`` の形を読みとする。
 - 名前の表を回す読み(``for v, sf in INTERO_VARS: r.field(sf)``)は、頂上の文字列の表を解決して表の中の全列の
   読みに数える。ループの対象が文字列の組の**直書き**(``for a, b in (("hunger", ...), ...)``)でも同じ。
   解決できない ``field(変数)`` の読みと、SoA らしい持ち主への ``getattr(持ち主, 変数)``(検収 2-5 (i))は
   ``unresolved`` に場所を出す。``X.arrays.get("c")``・``operator.attrgetter("c")`` の文字列も読みに数える。
-  自己更新は「左辺と同じ列の右辺の読み」だけを外す(組の代入は要素を対にして見る)。
+  自己更新は「左辺と同じ受け手(手前の式の文字列)の同じ列の右辺の読み」だけを外す(組の代入は要素を対にして見る)。
+  〔第347〕前は列の名前だけを比べていた(``self.price = np.asarray(world.pois.price)`` の店の値段の読みと、左辺の
+  添字の中の別の列の読みが外れていた)。
 - **strict** = 属性の手前の式が SoA を指していそうなもの(末尾が ``registry``・``r``・``agents``・``cells`` など)だけ。
   **loose** = 手前の式を問わない全部の読み(同じ名前の別物も入る)。
 
@@ -122,33 +124,58 @@ def _contains(tree: ast.AST, node: ast.AST) -> bool:
     return any(n is node for n in ast.walk(tree))
 
 
-def _attr_names(tree: ast.AST) -> set[str]:
-    return {n.attr for n in ast.walk(tree) if isinstance(n, ast.Attribute)}
+def _written_attrs(tg: ast.AST) -> list[ast.Attribute]:
+    """代入の左辺 ``tg`` が書く属性(``X.c``・``X.c[...]``・``X.c[...][...]``・組の要素)。添字の中の属性は入れない。"""
+    if isinstance(tg, ast.Attribute):
+        return [tg]
+    if isinstance(tg, ast.Subscript):
+        return _written_attrs(tg.value)
+    if isinstance(tg, (ast.Tuple, ast.List)):
+        return [a for e in tg.elts for a in _written_attrs(e)]
+    if isinstance(tg, ast.Starred):
+        return _written_attrs(tg.value)
+    return []
+
+
+def _writes_same(tg: ast.AST, node: ast.Attribute) -> bool:
+    """左辺 ``tg`` が ``node`` と同じ受け手(手前の式の文字列)の同じ列を書くか。``node`` が書かれる属性そのもの
+    (``X.c[a][b] = …`` の ``X.c``=内側の添字が読みの形なので ``_is_write`` が書きと見ない)でも真。"""
+    recv = ast.unparse(node.value)
+    return any(w is node or (w.attr == node.attr and ast.unparse(w.value) == recv) for w in _written_attrs(tg))
 
 
 def _is_self_update(node: ast.Attribute, st: ast.AST | None) -> bool:
-    """``node``(列 c の読み)が「左辺と同じ列 c の右辺の読み」=自己更新か(検収 2-5 (iv))。
+    """``node``(列 c の読み)が「左辺と同じ受け手の同じ列 c の読み」=自己更新か(検収 2-5 (iv))。
 
     文単位ではなく、組の代入は左辺と右辺の要素を対にして見る
     (``r.money[a], r.fail_streak[a] = r.money[a] - r.fail_streak[a], 0`` の ``fail_streak`` は自己更新ではない)。
-    左辺の中(添字)の読みは、その左辺が同じ列を書くときだけ自己更新。
+    左辺の中(添字)の読みは、その左辺が同じ受け手の同じ列を書くときだけ自己更新(``r.c[r.c > 3] = 0``)。
+    受け手は手前の式の文字列で比べる(別名 ``r`` と ``agents.registry`` は別の受け手=読みに数える側に倒す)。
+
+    〔第347・返事その 8 §1-6 の 4〕前は列の名前だけを比べ、受け手を見ていなかった。そのため
+    ``self.price = np.asarray(world.pois.price)`` の右辺の読み(穴 A)と、``a[r.fam_thing[ids] == 0] = x`` のような
+    左辺の添字の中の読み(穴 B=上の docstring の規則が実装されていなかった)を外していた。
+    記録 ``docs/bench/analysis/self-update-347/README.md``。
     """
-    c = node.attr
     if isinstance(st, (ast.AugAssign, ast.AnnAssign)):
-        return st.target is not None and c in _attr_names(st.target)
-    if not isinstance(st, ast.Assign):
+        tgs = [st.target]
+    elif isinstance(st, ast.Assign):
+        tgs = list(st.targets)
+    else:
         return False
-    for tg in st.targets:
-        if _contains(tg, node):
-            return c in _attr_names(tg)
+    for tg in tgs:
+        if _contains(tg, node):  # 左辺の中(添字)の読み
+            return _writes_same(tg, node)
+    if not isinstance(st, ast.Assign):  # 累算代入・注釈つき代入の右辺
+        return _writes_same(st.target, node)
     val = st.value
-    for tg in st.targets:
+    for tg in tgs:
         if (isinstance(tg, (ast.Tuple, ast.List)) and isinstance(val, (ast.Tuple, ast.List))
                 and len(tg.elts) == len(val.elts)):
             for te, ve in zip(tg.elts, val.elts):
-                if _contains(ve, node) and c in _attr_names(te):
+                if _contains(ve, node) and _writes_same(te, node):
                     return True
-        elif c in _attr_names(tg):
+        elif _writes_same(tg, node):
             return True
     return False
 

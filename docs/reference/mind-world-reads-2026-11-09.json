@@ -1658,7 +1658,8 @@
    "owner": "world",
    "base": "world.pois",
    "text": "self.price = np.asarray(world.pois.price, dtype=np.int64)",
-   "why": "左辺が self.price=道具の自己更新の規則に当たって外れる"
+   "why": "左辺が self.price=道具の自己更新の規則に当たって外れる",
+   "fixed_347": "第347 で道具の自己更新の規則を直した(左辺が同じ受け手の同じ列を書くときだけ自己更新)。この 1 か所は strict に入り、道具の数は 83 か所になった(記録 docs/bench/analysis/self-update-347/README.md)"
   }
  ],
  "interim_bundles_reference": {

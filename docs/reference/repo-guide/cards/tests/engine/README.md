@@ -1603,7 +1603,7 @@ D-56 就寝抑止(ユーザー決定 (a)・2026-09-10)のテスト。
   - `test_p2_end_of_day_differs_after_the_ledger_close`(関数)
   - `test_p2_end_of_day_hashes_are_reported_separately`(関数): 検収 2-2: 日の締めの後の 2 本を manifest の ``state_hashes_end_of_day`` に別に出す(台帳の無いランは
   - `test_p4_numpy_integers_take_the_same_bytes_as_python_ints`(関数): 検収 2-4: 速い道は Python の int と numpy の整数を同じに扱う。
-  - `test_p5_ast_blind_spots_are_caught`(関数): 検収 2-5 の表の 5 つの書き方をそのまま: どれも捕まる(読みとして数える/解決できない読み)。
+  - `test_p5_ast_blind_spots_are_caught`(関数): 検収 2-5 の表の 5 つの書き方と〔第347〕自己更新の規則の穴 A・B の形: どれも捕まる(読み/解決できない読み)。
   - `test_p5_true_self_updates_are_still_not_reads`(関数)
   - `test_p6_runtime_check_catches_an_undeclared_attribute`(関数)
   - `test_p6_runtime_owner_instances_are_fully_declared`(関数): 検収 2-6: 実行時のインスタンスの ``vars()`` を台帳+除外の一覧に突き合わせる(子クラス・入れ替わるクラスも)。
@@ -1624,7 +1624,7 @@ D-56 就寝抑止(ユーザー決定 (a)・2026-09-10)のテスト。
   - `test_two_day_run_reports_both_hashes_every_day`(関数)
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.hashing`・`shibuya.foundation.soa`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.systems.decide`・`shibuya.runtime.systems.llm_io`・`shibuya.runtime.systems.run_end`・`shibuya.runtime.systems.state_io`・`shibuya.world.model.percept_state`・`shibuya.world.model.state`・`tests/_places.py`・`tests/engine/test_tape_deferred.py`・`tests/golden_env.py`・`tests/llm/test_fleet.py`
 - 読む試験: `tests/engine/memory/test_mr65_guards.py`
-- 決定の ID: 10-06/§6・10-12・11-01・11-03/§3・第 321・第 330・第 346
+- 決定の ID: 10-06/§6・10-12・11-01・11-03/§3・第 321・第 330・第 346・第 347
 
 ## [test_store_choice.py](../../../../../../tests/engine/test_store_choice.py)
 

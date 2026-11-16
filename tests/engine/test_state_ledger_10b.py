@@ -1041,13 +1041,30 @@ def _scan_one(tmp_path, code: str, names=("rel_last",)):
     ("def f(reg):\n    return reg.arrays.get('rel_last')\n", "read"),
     ("import operator\n\ndef f(reg):\n    return operator.attrgetter('rel_last')(reg)\n", "read"),
     ("def f(reg, a):\n    reg.money[a], reg.rel_last[a] = reg.money[a] - reg.rel_last[a], 0\n", "read"),
-], ids=["getattr_name_table", "getattr_arg", "arrays_get", "attrgetter", "tuple_assign"])
+    # 〔第347〕自己更新の規則の直し(記録 docs/bench/analysis/self-update-347/README.md)。前は列の名前だけを比べて外していた。
+    # 穴 A: 右辺の読みで、左辺は同じ名前の列を別の受け手に書く(店の値段 ``self.price = np.asarray(world.pois.price)`` の形)
+    ("def f(self, world):\n    self.rel_last = np.asarray(world.pois.rel_last)\n", "strict"),
+    ("def f(reg, other, a):\n    other.rel_last[a] = reg.rel_last[a] + 1\n", "strict"),
+    ("def f(self, world):\n    self.rel_last, self.cell = world.pois.rel_last, world.pois.cell\n", "strict"),
+    # 穴 B: 左辺の添字の中の読みで、左辺は別の物を書く(``a[r.fam_thing[ids] == 0] = x`` の形)
+    ("def f(reg, out, a):\n    out[reg.rel_last[a]] = 1\n", "strict"),
+    ("def f(self, reg, a):\n    self.n[reg.rel_last[a]] += 1\n", "strict"),
+    # 左辺が名前だけ(前も後も読み)
+    ("def f(reg, a):\n    x: int = reg.rel_last[a]\n    return x\n", "strict"),
+    ("def f(reg, a):\n    x = y = reg.rel_last[a]\n    return x + y\n", "strict"),
+], ids=["getattr_name_table", "getattr_arg", "arrays_get", "attrgetter", "tuple_assign",
+        "a_pois_same_name_other_receiver", "a_same_column_other_receiver", "a_tuple_pair_other_receiver",
+        "b_index_of_other_target", "b_index_of_augassign_target", "annassign_name_target", "chained_name_targets"])
 def test_p5_ast_blind_spots_are_caught(tmp_path, code, expect):
-    """検収 2-5 の表の 5 つの書き方をそのまま: どれも捕まる(読みとして数える/解決できない読み)。"""
+    """検収 2-5 の表の 5 つの書き方と〔第347〕自己更新の規則の穴 A・B の形: どれも捕まる(読み/解決できない読み)。
+
+    ``strict`` は読みとして数え、手前の式が SoA らしい(``reg``・``world.pois``)ので strict にも入ること。"""
     res, out = _scan_one(tmp_path, code)
-    if expect == "read":
+    if expect in ("read", "strict"):
         assert res.loose["rel_last"], code
         assert any(v.startswith("agents.rel_last:") for v in out), out
+        if expect == "strict":
+            assert res.strict["rel_last"], code
     else:
         assert res.unresolved and any("解決できない動的な読み" in v for v in out), out
 
@@ -1057,7 +1074,12 @@ def test_p5_ast_blind_spots_are_caught(tmp_path, code, expect):
     "def f(reg, a):\n    reg.rel_last[a] += 1\n",
     "def f(reg, a):\n    reg.rel_last[a], reg.money[a] = reg.rel_last[a] + 1, 0\n",
     "def f(reg, a):\n    reg.rel_last[reg.rel_last > 3] = 0\n",
-], ids=["assign", "augassign", "tuple_pair_same_column", "slice_of_same_target"])
+    # 〔第347〕直した規則でも外れる本当の自己更新(同じ受け手の同じ列)
+    "def f(reg, a, b):\n    reg.rel_last[a][b] = reg.rel_last[a][b] + 1\n",
+    "def f(reg, a, b):\n    reg.rel_last[a] += reg.rel_last[b]\n",
+    "def f(reg):\n    reg.rel_last[:] = np.minimum(reg.rel_last, 3)\n",
+], ids=["assign", "augassign", "tuple_pair_same_column", "slice_of_same_target",
+        "nested_index_same_target", "augassign_rhs_same_column", "whole_column_rhs"])
 def test_p5_true_self_updates_are_still_not_reads(tmp_path, code):
     res, out = _scan_one(tmp_path, code)
     assert not res.loose["rel_last"] and out == [], (code, out)
