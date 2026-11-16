@@ -286,25 +286,18 @@ def build_ledger_bundle(
     wallets = household_wallets(
         world, n_agents, seed, world_dir, use_population=use_population
     )
-    # 第 2 期 2-1: 経済の段階 2 の腕(--economy-stage2 on)のランだけ、雇用主の口を W6 の組織の数にする(賃金=権利台帳の
-    # 雇用の行の組織 → 世帯)。腕の無いランは今のまま 1 口(値は不変)。
-    # 生ログの輪の係数も腕のランだけ段階 2 の値(K17 と同じ規則=実測の 1.5 倍以上・economy.stage2)。
-    # 〔第 2 期 2-4 V4〕既定は on=既定のランは雇用主の口が W6 の組織の数・輪の係数 16.0 行/体/日(予算の宣言 §3)。
-    # 切替口 off は 2-1 までのまま(1 口・6.5 行/体/日)。
-    if _ES2.arm() == _ES2.ARM_ON:
-        n_emp = LED.load_employers(world_dir).n if world_dir is not None else 1
-        rate = S2.STAGE2_TRANSFERS_PER_AGENT_PER_DAY
-        led = (
-            Ledger(n_agents, world.n_poi, n_emp, rows_per_agent_day=rate)
-            if wallets is None
-            else _HouseholdWalletLedger(n_agents, world.n_poi, wallets, n_emp, rows_per_agent_day=rate)
-        )
-    else:  # 腕の無いラン=今の呼び方のまま(1-9 の試験が HEAD の台帳の写しを差し込む口も同じ)
-        led = (
-            Ledger(n_agents, world.n_poi)
-            if wallets is None
-            else _HouseholdWalletLedger(n_agents, world.n_poi, wallets)
-        )
+    # 第 2 期 2-1: 経済の段階 2 のランは、雇用主の口を W6 の組織の数にする(賃金=権利台帳の雇用の行の組織 → 世帯)。
+    # 生ログの輪の係数も段階 2 の値(K17 と同じ規則=実測の 1.5 倍以上・economy.stage2)。
+    # 〔第 2 期 2-4 V4〕既定は on=雇用主の口が W6 の組織の数・輪の係数 16.0 行/体/日(予算の宣言 §3)。
+    # 〔第347 止めた切替口の削除〕切替口 off(2-1 までのまま=1 口・6.5 行/体/日)は消した=旧値の再現は安定版のタグ。
+    # 段階 2 の外の台帳(1-9 の試験が差し込む HEAD の台帳の写し・試験の中だけの束)は、この 2 つの型を差し替えて作る。
+    n_emp = LED.load_employers(world_dir).n if world_dir is not None else 1
+    rate = S2.STAGE2_TRANSFERS_PER_AGENT_PER_DAY
+    led = (
+        Ledger(n_agents, world.n_poi, n_emp, rows_per_agent_day=rate)
+        if wallets is None
+        else _HouseholdWalletLedger(n_agents, world.n_poi, wallets, n_emp, rows_per_agent_day=rate)
+    )
     cats = np.array([hash_free_cat_code(c) for c in world.assets.poi_cat], dtype=np.int64)
     goods = GoodsLedger.from_pois(
         cats, np.asarray(world.pois.stock), np.asarray(world.pois.price), n_agents=n_agents
@@ -502,7 +495,6 @@ def run(
         run_kind = _RK.decide(arms_on=bool(arms) or _speech_layer.arm() != _speech_layer.ARM_OFF
                               or _rate_rules.arm() != _rate_rules.DEFAULT_MODE  # 〔11-01〕既定は off
                               or _absent_processes.arm() != _absent_processes.DEFAULT_MODE  # 〔11-02r〕既定は stopped
-                              or _ES2.arm() != _ES2.DEFAULT_ARM  # 〔2-4 V4〕経済の段階 2 も(既定 on と違えば腕)
                               or not _BATCH.is_default()  # 〔第 3 期 3-2〕まとめの幅(既定 60 秒と違えば腕)
                               or _body.arm() != _body.DEFAULT_ARM  # 〔3-5〕体の予約の腕(既定は sweep)
                               or _calendar_shadow.arm() != _calendar_shadow.DEFAULT_MODE  # 〔3-1〕既定は w17
@@ -1410,19 +1402,12 @@ def main(argv: list[str] | None = None) -> int:
              "近接の判定=同じ層・距離 ≤ d の d。〔第346〕--proximity cell の切替口は消した)",
     )
     ap.add_argument(
-        "--economy-stage2",
-        choices=("off", "on"),
-        default=None,
-        help="第 2 期 2-1 経済の段階 2 の腕(〔2-4 V4〕既定 on・環境変数 SHIBUYA_ECONOMY_STAGE2 と同じ。指定すれば環境変数より"
-             "強い)。on で賃金(給料日)・引き出し(ATM)・支払いの方法(現金/口座)・レジの消費税・来街者の口座を動かす"
-             "(manifest の economy.stage2 に出る・設定の指紋には入らない)。off=2-1 までの既定=切替口(旧値の再現)",
-    )
-    ap.add_argument(
         "--economy-stage2-parts",
         type=str,
         default=None,
         help="第 2 期 2-1 経済の段階 2 の部品(カンマ区切り・既定=全部 wages,withdraw,payment,tax,visitors・環境変数 "
-             "SHIBUYA_ECONOMY_STAGE2_PARTS と同じ)。1 つずつ測るため",
+             "SHIBUYA_ECONOMY_STAGE2_PARTS と同じ)。1 つずつ測るため。段階 2(賃金・引き出し・支払いの方法・レジの消費税・"
+             "来街者の口座)はいつも挿す=〔第347〕2-1 までの値の切替口 --economy-stage2 off は消した",
     )
     ap.add_argument(
         "--batch-width-s",
@@ -1653,9 +1638,7 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.foundation.arms import duties as _duties_arm
 
         _duties_arm.set_arm(str(args.duties))
-    if args.economy_stage2 is not None:  # 第 2 期 2-1: 経済の段階 2 の腕(組み立てと台帳の組み立てが読む)
-        _ES2.set_arm(str(args.economy_stage2))
-    if args.economy_stage2_parts is not None:
+    if args.economy_stage2_parts is not None:  # 第 2 期 2-1: 経済の段階 2 の部品(組み立てが読む)
         try:
             _ES2.set_parts(str(args.economy_stage2_parts))
         except ValueError as exc:

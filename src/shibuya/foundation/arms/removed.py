@@ -12,6 +12,10 @@
 CLI の旗(:data:`REMOVED_CLI_FLAGS`)は ``shibuya.cli`` が表に出さない旗として受け、渡されたら引数の誤りで止める(略記で
 別の旗に読まれないように=検収 L1)。
 
+〔第347 止めた切替口の削除〕旧値の再現の安定版のタグは消した段ごとに違う=名ごとに引く(:func:`tag_of`)。第346 で消した行は
+:data:`REMOVED_SWITCH_TAG`(文も前のまま)・第347 で消した行は :data:`REMOVED_SWITCH_TAG_347`(記録
+``docs/bench/analysis/switch-removal-347/README.md``)。
+
 時間の方針: 本モジュールは時刻を持たない。逐次ループ宣言: なし(名の数ぶん)。
 """
 
@@ -21,10 +25,13 @@ import os
 from types import MappingProxyType
 from typing import Final, Mapping
 
-__all__ = ["REMOVED_SWITCH_TAG", "REMOVED_ENV", "REMOVED_CLI_FLAGS", "message", "stop_if_set", "check_environment"]
+__all__ = ["REMOVED_SWITCH_TAG", "REMOVED_SWITCH_TAG_347", "REMOVED_ENV", "REMOVED_CLI_FLAGS", "tag_of", "message",
+           "stop_if_set", "check_environment"]
 
-#: 旧道の切替口を消す前の安定版のタグ(旧値の再現はこのタグで回す)。
+#: 旧道の切替口を消す前の安定版のタグ(第346 で消した行=旧値の再現はこのタグで回す)。
 REMOVED_SWITCH_TAG: Final[str] = "stable-v2-before-switch-removal-346"
+#: 〔第347〕止めた切替口を消す前の安定版のタグ(第347 で消した行=5 本の口が全部在る最後の commit)。
+REMOVED_SWITCH_TAG_347: Final[str] = "stable-v2-before-switch-removal-347"
 
 #: 消した切替口の環境変数 → 何の旧道だったか(与えると止まる=黙って無視しない)。
 REMOVED_ENV: Final[Mapping[str, str]] = MappingProxyType({
@@ -33,6 +40,7 @@ REMOVED_ENV: Final[Mapping[str, str]] = MappingProxyType({
     "SHIBUYA_SEAT_RELEASE": "在席の印を歩き出しで解かない 2-4 より前の挙動(engine.seat_release)",
     "SHIBUYA_PROXIMITY": "近接を同じセルで判定する 2-2 までの値(engine.proximity)",
     "SHIBUYA_DEFECT_FIXES_1103": "棚卸し B の欠陥 4 件を直す前の値(engine.defect_fixes_1103)",
+    "SHIBUYA_ECONOMY_STAGE2": "経済の段階 2 を挿さない 2-1 までの値(economy.stage2_bind・第347)",
 })
 
 #: 消した CLI の旗 → 対応する環境変数(``shibuya.cli`` が表に出さない旗として受けて止める)。
@@ -40,12 +48,27 @@ REMOVED_CLI_FLAGS: Final[Mapping[str, str]] = MappingProxyType({
     "--seat-release": "SHIBUYA_SEAT_RELEASE",
     "--proximity": "SHIBUYA_PROXIMITY",
     "--defect-fixes-1103": "SHIBUYA_DEFECT_FIXES_1103",
+    # 〔第347〕``--economy-stage2-parts``(残す感度の腕)の頭=表に出さない旗で受けて止める(argparse は完全に一致する旗を先に取る)
+    "--economy-stage2": "SHIBUYA_ECONOMY_STAGE2",
 })
+
+#: 〔第347〕名(環境変数か CLI の旗)→ (消した段, 安定版のタグ)。ここに無い名は第346 の行(:data:`REMOVED_SWITCH_TAG`)。
+_STEP_TAG: Final[Mapping[str, tuple[str, str]]] = MappingProxyType({
+    "SHIBUYA_ECONOMY_STAGE2": ("第347 止めた切替口の削除", REMOVED_SWITCH_TAG_347),
+    "--economy-stage2": ("第347 止めた切替口の削除", REMOVED_SWITCH_TAG_347),
+})
+_STEP_346: Final[str] = "第346 旧道の切替口の削除"
+
+
+def tag_of(name: str) -> str:
+    """名(環境変数か CLI の旗)の旧値の再現の安定版のタグ。"""
+    return _STEP_TAG.get(name, (_STEP_346, REMOVED_SWITCH_TAG))[1]
 
 
 def message(name: str) -> str:
-    """止めるときの文(名・消した段・安定版のタグ)。"""
-    return (f"{name} は消した切替口(第346 旧道の切替口の削除・旧値の再現は安定版のタグ {REMOVED_SWITCH_TAG})"
+    """止めるときの文(名・消した段・安定版のタグ)。第346 の行の文は前と同じ。"""
+    step, tag = _STEP_TAG.get(name, (_STEP_346, REMOVED_SWITCH_TAG))
+    return (f"{name} は消した切替口({step}・旧値の再現は安定版のタグ {tag})"
             + ("=環境変数を外す" if name.startswith("SHIBUYA_") else "=旗を外す"))
 
 

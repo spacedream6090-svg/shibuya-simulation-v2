@@ -59,12 +59,13 @@ Python 14 本・その他 0 本(このディレクトリの直下)
 〔第 2 期 2-4 V4〕経済の段階 2 の既定 on・切替口 off・効いている腕で見る再開の検査・店の売上の写しは税抜き。
 
 - 公開の関数とクラス
-  - `test_default_arm_is_on_and_off_is_the_switch`(関数)
   - `test_resume_check_uses_the_effective_arm`(関数): 金の台帳の無いラン(台帳なしの run_day)は腕 on でも段階 2 を挿さない=見出しに書かない=off と同じに扱う。
   - `test_revenue_is_tax_exclusive_on_a_synthetic_run`(関数): 合成の世界(台帳つき)の 1 日: 店の売上の写しの合計=世帯 → 店の消費支出 − レジの税・保存則が通る。
+  - `test_stage2_is_always_on_and_the_off_switch_is_removed`(関数): 〔第347〕前(``test_default_arm_is_on_and_off_is_the_switch``)は「既定 on・切替口 off で部品が空」。切替口 off を消した:
   - `test_tax_of_and_the_last_purchase_rows`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`
-- 決定の ID: 第 346
+- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.foundation.arms.removed`
+- 環境変数: `SHIBUYA_ECONOMY_STAGE2`
+- 決定の ID: 第 346・第 347
 
 ## [test_stage2_guards.py](../../../../../../../tests/economy/stage2/test_stage2_guards.py)
 
@@ -118,7 +119,6 @@ Python 14 本・その他 0 本(このディレクトリの直下)
 第 2 期 2-1 経済の段階 2: 規則の表の読み手(最低賃金・消費税)・信用の器・ATM の表と営業時間・腕と部品・暦の給料日。
 
 - 公開の関数とクラス
-  - `test_arm_and_parts_switches`(関数)
   - `test_atm_table_from_osm_has_the_55_points`(関数)
   - `test_atm_table_open_cells_follow_the_weekday_and_minute`(関数)
   - `test_consumption_tax_rate_is_ten_percent_from_the_rules_table`(関数)
@@ -127,11 +127,12 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_monthly_wage_amounts_default_is_unchanged_and_takes_an_hourly_rate`(関数)
   - `test_opening_hours_parser`(関数)
   - `test_origin_constants_are_copies_of_the_build_geometry`(関数)
+  - `test_parts_switches`(関数): 〔第347〕前(``test_arm_and_parts_switches``)は腕の切り替え(off → on・名の検査)も見た。切替口 off を消した=腕の行を
   - `test_payday_follows_the_calendar_port`(関数)
   - `test_payroll_deductions_is_an_empty_container`(関数)
   - `test_rights_pairs_reads_employment_rows_in_row_order`(関数)
 - import している内部モジュール: `shibuya.build.geo.common`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.credit`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.engine.calendar`・`shibuya.world.facts.rights.ledger`・`shibuya.world.model.state`
-- 決定の ID: 第 337
+- 決定の ID: 第 337・第 347
 
 ## [test_stage2_runs.py](../../../../../../../tests/economy/stage2/test_stage2_runs.py)
 

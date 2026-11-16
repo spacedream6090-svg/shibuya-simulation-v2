@@ -246,7 +246,7 @@ engine.economy_rules — 第 4 期 4-2 の規則の表の中身を経済の段�
 
 ## [stage2.py](../../../../../../../src/shibuya/economy/stage2.py)
 
-economy.stage2 — 経済の段階 2(第 2 期 2-1・CP2 の段階 2・腕 ``--economy-stage2``・既定 off)。
+economy.stage2 — 経済の段階 2(第 2 期 2-1・CP2 の段階 2・〔2-4 V4〕既定 on・〔第347〕切替口 off は消した)。
 
 - 公開の関数とクラス
   - `MoneyStage2`(クラス): 経済の段階 2 の中身(``Ledger.attach_stage2`` が作る=状態台帳の行 EC・計器 ``s2_meter`` は行 EM)。
@@ -256,7 +256,7 @@ economy.stage2 — 経済の段階 2(第 2 期 2-1・CP2 の段階 2・腕 ``--e
 - 呼び手: `shibuya.cli`・`shibuya.economy.ledger`
 - 読む試験: `tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_default_2_4.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/test_min_wage_human_bridge.py`・`tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_wage_occupation.py`
 - 読む試験(道筋で): `tests/economy/stage2/test_stage2_writers.py`・`tests/test_places_guard.py`
-- 決定の ID: 10-12・10-12/§4-11・10-13b/§0-3・10-13b/§7・11-01/§5・R-107・第 346
+- 決定の ID: 10-12・10-12/§4-11・10-13b/§0-3・10-13b/§7・11-01/§5・R-107・第 346・第 347
 
 ## [stage2_bind.py](../../../../../../../src/shibuya/economy/stage2_bind.py)
 
@@ -267,30 +267,28 @@ engine.economy_stage2 — 経済の段階 2 の腕と engine の側の組み立�
   - `DataAbsentWarning`(クラス): 取得物(data/ の下)が無い写しで出す注記。〔第335・CI の直し〕data の無い CI でも経済の段階 2 は既定 on なので、
   - `Stage2Plan`(クラス): engine の側の段階 2 の組み立ての物(``Ledger.attach_stage2`` に渡す・``MoneyStage2.plan``)。
   - `WageInputs`(クラス): 賃金の関数(``economy.wages.occupation_wages``)に渡す体ごとの属性(engine の側が読む・額は economy が出す)。
-  - `active_parts`(関数): 腕が on のときの部品(off なら空)。
-  - `arm`(関数): いまの腕(``off``=既定・``on``)。組み立てのときに読む。
+  - `active_parts`(関数): 段階 2 を挿したランの部品(〔第347〕前は切替口 off なら空)。
   - `atm_open_cells`(関数): 刻み ``step`` に営業中の ATM のあるセル(``(n_cells,)`` bool・ATM の表が無ければ全部 False)。
-  - `attach`(関数): 腕が on なら段階 2 を組み立てて金の台帳に挿す(世帯の初期の財布の前=``resolve.initialize`` の前に呼ぶ)。
+  - `attach`(関数): 金の台帳が段階 2 の口を持てば、段階 2 を組み立てて挿す(世帯の初期の財布の前=``resolve.initialize`` の前に呼ぶ)。
   - `build_atm_table`(関数): OSM の取得物から引き出しの場所の表を作る(``amenity=atm``・``atm=yes``・``amenity=bank``=銀行の支店は全部)。
   - `check_resume`(関数): 〔検収 A5〕再開のときに、保存したランの腕と部品(見出しの ``economy_stage2``・無ければ off)と今の腕が同じかを
-  - `header_fields`(関数): 〔検収 A5〕状態のファイルの見出しの ``economy_stage2``(腕 off のランは書かない=None=今の見出しのまま)。
+  - `header_fields`(関数): 〔検収 A5〕状態のファイルの見出しの ``economy_stage2``(段階 2 の外のラン=plan の無いランは書かない=None=今の見出しの
   - `money_stage2`(関数): 台帳の束から economy の段階 2 の中身(``MoneyStage2``)を引く(腕の無いランは ``None``)。
   - `parse_opening_hours`(関数): OSM の ``opening_hours`` → 曜日 × 区間の ``(7, 2, 2)`` int16(``[曜日, 区間, (始め, 終わり)]`` の分・空は -1)。
   - `parse_parts`(関数): 部品の指定(``"wages,withdraw"``・並び・空=全部)→ 部品の並び(``PARTS`` の順)。
-  - `parts`(関数): いまの部品(腕が off でも指定は持つ=腕が on のときだけ効く)。
+  - `parts`(関数): いまの部品(段階 2 を挿したランでだけ効く)。
   - `persona_words`(関数): ペルソナの在庫の ``(pool_layer, pool_index)`` の行の語の欄(行の順=引数の並び・無い行は "")と読んだ行の数。
   - `population_total`(関数): W16 母集団の体の数(縮小ランの比の分母・Parquet の見出しだけを読む)。無ければ ``None``。
-  - `set_arm`(関数): 腕を選ぶ(CLI ``--economy-stage2``・試験の切替口)。
   - `set_atm_table`(関数): 試験の切替口(合成の世界の ATM の表を渡す)。``None`` で OSM から作る既定に戻す。
   - `set_parts`(関数): 部品を選ぶ(CLI ``--economy-stage2-parts``・試験の切替口)。
   - `wage_arm`(関数): 賃金の道(``occupation`` だけ)。
   - `wage_inputs`(関数): 賃金の関数の入力を組み立てる(母集団の体=ペルソナの職業と雇用の語+W16 の性と年齢・母集団の無いラン=語も性も年齢も
-- import している内部モジュール: `shibuya.economy.rules_bind`・`shibuya.foundation.journal.log`・`shibuya.foundation.paths`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.time_consts`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.ledger`
+- import している内部モジュール: `shibuya.economy.rules_bind`・`shibuya.foundation.arms.removed`・`shibuya.foundation.journal.log`・`shibuya.foundation.paths`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.time_consts`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.ledger`
 - 呼び手: `shibuya.cli`・`shibuya.economy.rules_bind`・`shibuya.engine.resolve`・`shibuya.mind.judge.decision.layer`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`
 - 読む試験: `tests/economy/stage2/test_stage2_atm_absent_warning.py`・`tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_default_2_4.py`・`tests/economy/stage2/test_stage2_guards.py`・`tests/economy/stage2/test_stage2_resume.py`・`tests/economy/stage2/test_stage2_resume_arm.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/stage2/test_stage2_world_two_day.py`・`tests/economy/stage2/test_wage_occupation_runs.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_wage_occupation.py`・`tests/engine/test_pop_w21_world.py`
 - 読む試験(道筋で): `tests/economy/stage2/test_stage2_writers.py`
 - 環境変数: `SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_ECONOMY_STAGE2_PARTS`・`SHIBUYA_WAGE`
-- 決定の ID: 10-13b/§7・第 335・第 346
+- 決定の ID: 10-13b/§7・第 335・第 346・第 347
 
 ## [tax_deposit.py](../../../../../../../src/shibuya/economy/tax_deposit.py)
 

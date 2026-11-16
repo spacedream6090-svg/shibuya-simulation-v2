@@ -1,6 +1,7 @@
 """〔第 2 期 2-4 V4〕経済の段階 2 の既定 on・切替口 off・効いている腕で見る再開の検査・店の売上の写しは税抜き。
 
-記録 ``docs/bench/analysis/wallbounce-1012/vb24/README.md`` の V4。
+記録 ``docs/bench/analysis/wallbounce-1012/vb24/README.md`` の V4。〔第347 止めた切替口の削除〕切替口 off は消した
+(記録 ``docs/bench/analysis/switch-removal-347/README.md`` の ②a)。
 """
 
 from __future__ import annotations
@@ -12,12 +13,22 @@ from shibuya.economy import stage2 as S2
 from shibuya.economy import stage2_bind as ES2
 
 
-def test_default_arm_is_on_and_off_is_the_switch(monkeypatch):
-    assert ES2.DEFAULT_ARM == ES2.ARM_ON
-    monkeypatch.setattr(ES2, "_ARM", ES2.DEFAULT_ARM)
-    assert ES2.arm() == "on" and ES2.active_parts() == frozenset(ES2.PARTS)
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
-    assert ES2.active_parts() == frozenset()
+def test_stage2_is_always_on_and_the_off_switch_is_removed(monkeypatch):
+    """〔第347〕前(``test_default_arm_is_on_and_off_is_the_switch``)は「既定 on・切替口 off で部品が空」。切替口 off を消した:
+    腕を選ぶ名が無い・部品はいつも効く・消した環境変数の名と安定版のタグは止める一覧にある(止まることは
+    ``tests/engine/test_removed_switches_346.py``)。"""
+    from shibuya.foundation.arms import removed as RSW
+
+    for name in ("ARMS", "DEFAULT_ARM", "_ARM", "arm", "set_arm"):
+        assert not hasattr(ES2, name), name
+        assert name not in ES2.__all__, name
+    monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
+    assert ES2.active_parts() == frozenset(ES2.PARTS)
+    monkeypatch.setattr(ES2, "_PARTS", ("wages",))
+    assert ES2.active_parts() == frozenset({"wages"})
+    assert ES2.ENV_REMOVED == "SHIBUYA_ECONOMY_STAGE2" and ES2.ENV_REMOVED in RSW.REMOVED_ENV
+    assert RSW.tag_of(ES2.ENV_REMOVED) == RSW.REMOVED_SWITCH_TAG_347 == "stable-v2-before-switch-removal-347"
+    assert (ES2.ARM_ON, ES2.ARM_OFF) == ("on", "off")  # 見出しの値と、見出しに無いときの読み(残す)
 
 
 def test_resume_check_uses_the_effective_arm(monkeypatch):

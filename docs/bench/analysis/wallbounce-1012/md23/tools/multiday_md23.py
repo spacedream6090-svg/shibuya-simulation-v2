@@ -71,7 +71,6 @@ def _paths() -> None:
 def set_arms(config: str) -> dict[str, str]:
     """腕を選ぶ(組み立てが読む切替口)。このプロセスの中だけ。"""
     _paths()
-    from shibuya.economy import stage2_bind as ES2
     from shibuya.mind.memory import memory_store as MS
     from shibuya.world.model import proximity as PX
 
@@ -79,10 +78,12 @@ def set_arms(config: str) -> dict[str, str]:
     # 〔第346 旧道の切替口の削除〕近接の切替口(set_arm)は消した=ランは常に distance(組 b・d の近接は既定と同じ)
     if arms.get("proximity", PX.DEFAULT_MODE) != PX.DEFAULT_MODE:
         raise ValueError(f"近接の切替口 cell は消した(組 {config}・安定版のタグ stable-v2-before-switch-removal-346 で回す)")
+    # 〔第347 止めた切替口の削除〕経済の段階 2 の切替口 off は消した=ランは常に on(組 c・d の段階 2 は既定と同じ)
+    if arms.get("economy_stage2", "on") != "on":
+        raise ValueError(f"経済の段階 2 の切替口 off は消した(組 {config}・安定版のタグ stable-v2-before-switch-removal-347 で回す)")
     # 〔第337〕書かれていない腕は各 module の既定の定数に戻す(2-4 より前の値 cell/off を直書きしていたため、
     # 試験の finally の set_arms("default") が本体の既定(distance/on)を上書きし、同じプロセスの後の golden が順番で落ちた)。
     MS.set_arm(arms.get("memory_store", MS.ARM_MEM))
-    ES2.set_arm(arms.get("economy_stage2", ES2.DEFAULT_ARM))
     return dict(arms)
 
 

@@ -1,11 +1,15 @@
 """engine.economy_stage2 — 経済の段階 2 の腕と engine の側の組み立て(第 2 期 2-1・CP2 の段階 2)。
 
-腕(切替口): ``--economy-stage2 {off,on}``(環境変数 ``SHIBUYA_ECONOMY_STAGE2``・:func:`set_arm`)。〔第 2 期 2-4 V4・
-版上げ 2 回目〕既定は ``on``(:data:`DEFAULT_ARM`)。``off``=2-1 までの既定(何も作らない=帳簿・台帳の行は 2-4 より前の
-まま)=**切替口**(旧値の再現)。部品(``--economy-stage2-parts``・環境変数 ``SHIBUYA_ECONOMY_STAGE2_PARTS``・既定=全部
-``wages,withdraw,payment,tax,visitors``)を 1 つずつ止められる。腕は組み立ての
+〔第 2 期 2-4 V4・版上げ 2 回目〕金の台帳が段階 2 の口(``Ledger.attach_stage2``)を持つランは、いつも段階 2 を挿す。
+〔第347 止めた切替口の削除〕2-1 までの値(何も作らない=帳簿・台帳の行は 2-4 より前のまま)を再現する切替口
+``--economy-stage2 off``(環境変数 ``SHIBUYA_ECONOMY_STAGE2``・``set_arm``)は消した: 環境変数を与えると読み込みで止まる・
+CLI の旗は引数の誤り(一覧と止める文は ``foundation.arms.removed``)。旧値の再現は安定版のタグ
+``stable-v2-before-switch-removal-347``。段階 2 の外の道は組み立ての構造として残る: 金の台帳の無いランと、段階 2 の口を
+持たない台帳(HEAD 136fdbb の写し・試験の中だけの束)では :func:`attach` が何もしない(再開の検査は ``effective=False``)。
+部品(``--economy-stage2-parts``・環境変数 ``SHIBUYA_ECONOMY_STAGE2_PARTS``・既定=全部
+``wages,withdraw,payment,tax,visitors``)を 1 つずつ止められる(感度の腕)。部品は組み立ての
 ときに読む(ランの途中で変えても、そのランは変わらない)。``run_day`` の引数でも設定の指紋でもない(出来事の記録・記憶の器・
-候補の口の腕と同じ扱い)。腕と部品は manifest の ``economy.stage2`` に出る。
+候補の口の腕と同じ扱い)。腕と部品は manifest の ``economy.stage2`` に出る(腕は ``on`` に固定)。
 
 engine の側の受け持ち(engine は economy を import できない=層の契約。お金の中身は ``economy.stage2.MoneyStage2``):
 
@@ -49,11 +53,12 @@ from typing import Any, Final, Iterable, Mapping
 
 import numpy as np
 
+from shibuya.foundation.arms import removed as _RSW
 from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
 
 __all__ = [
     "DataAbsentWarning",
-    "ARM_OFF", "ARM_ON", "ARMS", "DEFAULT_ARM", "PARTS", "arm", "set_arm", "parts", "set_parts", "parse_parts", "active_parts",
+    "ARM_OFF", "ARM_ON", "ENV_REMOVED", "PARTS", "parts", "set_parts", "parse_parts", "active_parts",
     "WITHDRAW_WORD", "PAYMENT_NOTE", "CAUSE_NAMES", "PAYDAY_DAY_OF_MONTH", "OSM_TAGS_RELPATH", "OSM_HOURS_RELPATH",
     "ORIGIN_LATLON", "M_PER_DEG_LAT", "M_PER_DEG_LON", "CELL_M", "AtmTable", "parse_opening_hours",
     "build_atm_table", "set_atm_table", "Stage2Plan", "attach", "money_stage2",
@@ -62,9 +67,10 @@ __all__ = [
     "PERSONA_LAYERS", "PERSONA_FIELDS", "WageInputs", "persona_words", "wage_inputs",
 ]
 
+#: 状態のファイルの見出しの ``economy_stage2.arm`` の値(``on``=段階 2 を挿したラン)と、見出しに無いときの読み(``off``=
+#: 段階 2 の外のラン=金の台帳の無いラン・段階 2 の口を持たない台帳)。〔第347〕切替口の腕の名ではない(切替口は消した)。
 ARM_OFF: Final[str] = "off"
 ARM_ON: Final[str] = "on"
-ARMS: Final[tuple[str, ...]] = (ARM_OFF, ARM_ON)
 #: 部品(``economy.stage2.PARTS`` と同じ並び=試験が突き合わせる)。
 PARTS: Final[tuple[str, ...]] = ("wages", "withdraw", "payment", "tax", "visitors")
 #: 腕 port の候補の語(源 affordance=営業中の ATM のセルで出す)。行為の語彙 12 語には足さない(副の判断)。
@@ -85,11 +91,10 @@ M_PER_DEG_LAT: Final[float] = 111132.9
 M_PER_DEG_LON: Final[float] = 111320.0 * math.cos(math.radians(ORIGIN_LATLON[0]))
 CELL_M: Final[float] = 100.0
 
-#: 〔第 2 期 2-4 V4〕既定の腕(版上げ 2 回目で on に)。``off`` は切替口(2-1 までの値の再現)。
-DEFAULT_ARM: Final[str] = ARM_ON
-_ARM: str = os.environ.get("SHIBUYA_ECONOMY_STAGE2", DEFAULT_ARM).strip().lower() or DEFAULT_ARM
-if _ARM not in ARMS:
-    raise ValueError(f"SHIBUYA_ECONOMY_STAGE2 は {ARMS} のどれか(いま {_ARM!r})")
+#: 〔第347 止めた切替口の削除〕消した切替口の環境変数(2-1 までの値=段階 2 を挿さない・与えると止まる=黙って無視しない)。
+#: 一覧と止める文は ``foundation.arms.removed``(ランの入口=組み立ての最初でも止める)。
+ENV_REMOVED: Final[str] = "SHIBUYA_ECONOMY_STAGE2"
+_RSW.stop_if_set(ENV_REMOVED)
 
 
 #: 〔賃金の小さな版上げ〕賃金の道=``occupation``(職業ごとの実データ)だけ。〔第 2 部〕旧値の腕 ``w17`` と切替口は消した
@@ -127,21 +132,8 @@ def parse_parts(spec: Any) -> tuple[str, ...]:
 _PARTS: tuple[str, ...] = parse_parts(os.environ.get("SHIBUYA_ECONOMY_STAGE2_PARTS") or None)
 
 
-def arm() -> str:
-    """いまの腕(``off``=既定・``on``)。組み立てのときに読む。"""
-    return _ARM
-
-
-def set_arm(name: str) -> None:
-    """腕を選ぶ(CLI ``--economy-stage2``・試験の切替口)。"""
-    global _ARM
-    if str(name) not in ARMS:
-        raise ValueError(f"--economy-stage2 は {ARMS} のどれか(いま {name!r})")
-    _ARM = str(name)
-
-
 def parts() -> tuple[str, ...]:
-    """いまの部品(腕が off でも指定は持つ=腕が on のときだけ効く)。"""
+    """いまの部品(段階 2 を挿したランでだけ効く)。"""
     return _PARTS
 
 
@@ -152,12 +144,13 @@ def set_parts(spec: Any) -> None:
 
 
 def active_parts() -> frozenset[str]:
-    """腕が on のときの部品(off なら空)。"""
-    return frozenset(_PARTS) if _ARM == ARM_ON else frozenset()
+    """段階 2 を挿したランの部品(〔第347〕前は切替口 off なら空)。"""
+    return frozenset(_PARTS)
 
 
 def header_fields(plan: Any) -> dict[str, Any] | None:
-    """〔検収 A5〕状態のファイルの見出しの ``economy_stage2``(腕 off のランは書かない=None=今の見出しのまま)。"""
+    """〔検収 A5〕状態のファイルの見出しの ``economy_stage2``(段階 2 の外のラン=plan の無いランは書かない=None=今の見出しの
+    まま)。"""
     if plan is None:
         return None
     out: dict[str, Any] = {"arm": ARM_ON, "parts": list(plan.parts)}
@@ -177,14 +170,16 @@ def check_resume(saved: Any, *, effective: bool = True) -> None:
     s = saved if isinstance(saved, Mapping) else {}
     s_arm = str(s.get("arm", ARM_OFF))
     s_parts = tuple(str(p) for p in s.get("parts", ()))
-    # 〔第 2 期 2-4 V4〕既定が on になった=金の台帳が無いラン(``run_day`` を台帳なしで直に呼ぶ試験の合成の世界)は腕 on でも
-    # 段階 2 を挿さない(``attach`` が None)=見出しに書かない=効いている腕は off。``effective`` は組み立てが渡す(台帳の有無)。
-    now_arm = _ARM if effective else ARM_OFF
+    # 〔第 2 期 2-4 V4〕既定が on になった=金の台帳が無いラン(``run_day`` を台帳なしで直に呼ぶ試験の合成の世界)は段階 2 を
+    # 挿さない(``attach`` が None)=見出しに書かない=効いている腕は off。``effective`` は組み立てが渡す(台帳が段階 2 の口を
+    # 持つか)。〔第347〕切替口 off は消した=金の台帳が段階 2 の口を持つランは on
+    now_arm = ARM_ON if effective else ARM_OFF
     now_parts = tuple(p for p in PARTS if p in active_parts()) if now_arm == ARM_ON else ()
     if s_arm != now_arm or (now_arm == ARM_ON and s_parts != now_parts):
         raise ValueError(f"再開の経済の段階 2 の腕が親と違う(親 arm={s_arm} parts={list(s_parts)}・今 arm={now_arm} "
-                         f"parts={list(now_parts)})=--economy-stage2・--economy-stage2-parts(環境変数 "
-                         "SHIBUYA_ECONOMY_STAGE2・SHIBUYA_ECONOMY_STAGE2_PARTS)を親にそろえる")
+                         f"parts={list(now_parts)})=--economy-stage2-parts(環境変数 SHIBUYA_ECONOMY_STAGE2_PARTS)を親に"
+                         "そろえる。段階 2 の外のラン(2-1 までの値の切替口 --economy-stage2 off は消した)の状態のファイルは "
+                         f"{_RSW.tag_of(ENV_REMOVED)} で回す")
     # 〔賃金の小さな版上げ〕賃金の道(見出しに無い=版上げの前の状態=w17 の道=〔第 2 部〕消した道=再開できない)
     s_wage = str(s.get("wage", "(見出しに無い=版上げの前)"))
     if now_arm == ARM_ON and s_wage != DEFAULT_WAGE:
@@ -770,13 +765,12 @@ def population_total(world_dir: Any) -> int | None:
 
 def attach(ledger_bundle: Any, *, schedule: Any, weekly: Any, calendar: Any, world: Any, n_agents: int,
            tick_seconds: int, pop: Any = None, world_dir: Any = None) -> Stage2Plan | None:
-    """腕が on なら段階 2 を組み立てて金の台帳に挿す(世帯の初期の財布の前=``resolve.initialize`` の前に呼ぶ)。
+    """金の台帳が段階 2 の口を持てば、段階 2 を組み立てて挿す(世帯の初期の財布の前=``resolve.initialize`` の前に呼ぶ)。
 
     Returns:
-        ``Stage2Plan``(腕が off・金の台帳が無いランは ``None``=何もしない)。
+        ``Stage2Plan``(金の台帳が無い・段階 2 の口を持たない台帳のランは ``None``=何もしない)。〔第347〕切替口 off(前は
+        ここで ``None``)は消した。
     """
-    if _ARM != ARM_ON:
-        return None
     money = getattr(ledger_bundle, "money", None) if ledger_bundle is not None else None
     if money is None or not hasattr(money, "attach_stage2"):
         return None

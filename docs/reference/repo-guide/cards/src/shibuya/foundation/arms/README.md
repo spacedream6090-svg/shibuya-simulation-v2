@@ -80,10 +80,11 @@ engine.removed_switches — 消した旧道の切替口の一覧と、渡され�
 
 - 公開の関数とクラス
   - `check_environment`(関数): 消した切替口の環境変数(:data:`REMOVED_ENV` の全部)のどれかが置かれていれば止める(ランの入口で呼ぶ)。
-  - `message`(関数): 止めるときの文(名・消した段・安定版のタグ)。
+  - `message`(関数): 止めるときの文(名・消した段・安定版のタグ)。第346 の行の文は前と同じ。
   - `stop_if_set`(関数): ``names`` の環境変数のどれかが置かれていれば(空でない値)止める(``ValueError``)。
-- 呼び手: `shibuya.cli`・`shibuya.economy.rules_bind`・`shibuya.runtime.switch_defects`・`shibuya.runtime.systems.assemble`・`shibuya.world.laws.switch_seat`・`shibuya.world.model.proximity`
-- 読む試験: `tests/engine/test_removed_switches_346.py`
+  - `tag_of`(関数): 名(環境変数か CLI の旗)の旧値の再現の安定版のタグ。
+- 呼び手: `shibuya.cli`・`shibuya.economy.rules_bind`・`shibuya.economy.stage2_bind`・`shibuya.runtime.switch_defects`・`shibuya.runtime.systems.assemble`・`shibuya.world.laws.switch_seat`・`shibuya.world.model.proximity`
+- 読む試験: `tests/economy/stage2/test_stage2_default_2_4.py`・`tests/engine/test_removed_switches_346.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
-- 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
-- 決定の ID: 第 346
+- 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
+- 決定の ID: 第 346・第 347

@@ -1,10 +1,11 @@
-"""economy.stage2 — 経済の段階 2(第 2 期 2-1・CP2 の段階 2・腕 ``--economy-stage2``・既定 off)。
+"""economy.stage2 — 経済の段階 2(第 2 期 2-1・CP2 の段階 2・〔2-4 V4〕既定 on・〔第347〕切替口 off は消した)。
 
 正: 決定 10-12 §4-11(EC1〜EC6・税・信用・v1 の手持ちのお金の問題と直し方・見張り)・計画 10-12 第 2 期 2-1・回答 10-13b §0-3
 (新しい問いは既定 off の腕で仮採用)・口の約束 1-9(基本操作 ``ops.transfer`` だけが残高を書く=本モジュールは帳簿の汎用の口
 ``Ledger.transfer_many`` を呼ぶだけ・新しい書き手は作らない)。
 
-腕は 1 つ(``engine.economy_stage2``・``--economy-stage2 {off,on}``・環境変数 ``SHIBUYA_ECONOMY_STAGE2``)。部品は 5 つ
+組み立ての口は ``economy.stage2_bind``(金の台帳が段階 2 の口を持つランはいつも挿す=〔第347〕2-1 までの値の切替口
+``--economy-stage2 off``・環境変数 ``SHIBUYA_ECONOMY_STAGE2`` は消した)。部品は 5 つ
 (``--economy-stage2-parts``・既定=全部)。部品ごとに 1 つずつ止められる(止めると当該の流れが 0):
 
 | 部品 | 流れ | 口 |

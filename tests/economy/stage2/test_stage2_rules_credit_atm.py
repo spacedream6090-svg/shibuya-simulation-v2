@@ -76,17 +76,14 @@ def test_credit_book_rows_and_auto_repayment_with_delinquency():
 
 
 # ================================================================= 腕と部品
-def test_arm_and_parts_switches(monkeypatch):
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
+def test_parts_switches(monkeypatch):
+    """〔第347〕前(``test_arm_and_parts_switches``)は腕の切り替え(off → on・名の検査)も見た。切替口 off を消した=腕の行を
+    消し、部品の切り替えと名の検査だけ残す(消したことは ``test_stage2_default_2_4.py``)。"""
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
-    assert ES2.arm() == "off" and ES2.active_parts() == frozenset()
-    ES2.set_arm("on")
     assert ES2.active_parts() == frozenset(ES2.PARTS)
     ES2.set_parts("tax,wages")
-    assert ES2.parts() == ("wages", "tax")
+    assert ES2.parts() == ("wages", "tax") and ES2.active_parts() == frozenset({"wages", "tax"})
     assert ES2.parse_parts("") == ES2.PARTS and ES2.parse_parts("all") == ES2.PARTS and ES2.parse_parts("none") == ()
-    with pytest.raises(ValueError):
-        ES2.set_arm("maybe")
     with pytest.raises(ValueError):
         ES2.set_parts("wages,bonus")
     assert ES2.PARTS == S2.PARTS

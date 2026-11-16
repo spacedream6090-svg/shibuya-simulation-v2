@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-318 ディレクトリ・2365 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+319 ディレクトリ・2369 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -318,9 +318,11 @@
 
 - [README.md](../../../bench/analysis/store-memory-2026-09-28/README.md): D-120 版の台帳 — 記憶・口コミにもとづく店選び(2026-09-28)
 
-## docs/bench/analysis/switch-removal-347(1 本)
+## docs/bench/analysis/switch-removal-347(2 本)
 
 - [README.md](../../../bench/analysis/switch-removal-347/README.md): 第347 止めた切替口 3 本の削除と、`--space legacy`・`--hunger-model v1` を試験の中だけの口に(switch-removal-347)
+
+## docs/bench/analysis/switch-removal-347/bytecheck_2a(3 本)
 
 ## docs/bench/analysis/switch-removal-347/tools(3 本)
 

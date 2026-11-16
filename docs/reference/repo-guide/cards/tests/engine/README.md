@@ -1252,13 +1252,14 @@ C10 8b(会話の起点と相手選択+8a の直し)の検査。
 第346 旧道の切替口の削除: 消した切替口はランの入口で止まる(検収 H1・L1)。
 
 - 公開の関数とクラス
-  - `test_a_removed_cli_flag_stops_even_when_abbreviated`(関数): 〔検収 L1〕``--proximity 1.0`` が略記で ``--proximity-d`` の感度の腕として通らない。
+  - `test_a_removed_cli_flag_stops_even_when_abbreviated`(関数): 〔検収 L1〕``--proximity 1.0`` が略記で ``--proximity-d`` の感度の腕として通らない。〔第347〕``--economy-stage2 off`` が
   - `test_a_run_with_a_removed_switch_env_stops_before_the_ticks`(関数): 値によらず(既定の値でも)止まる。止まるのは組み立ての最初か、切替口を持っていたモジュールの読み込み=刻みの前。
   - `test_the_frame_check_catches_a_stop_inside_the_ticks`(関数): 〔第347 見つけた欠陥の直し・負の対照〕刻みの中の系(本人の体の系が呼ぶ ``resolve.advance_body``)で止まったランは、
   - `test_the_hidden_flags_are_not_in_the_help`(関数)
   - `test_the_list_and_the_message_are_in_one_place`(関数)
+  - `test_the_parts_flag_still_works_and_is_not_read_as_the_removed_flag`(関数): 〔第347〕残す感度の腕 ``--economy-stage2-parts`` は今のまま受ける(名の誤りは部品の文で止まる=消した切替口の文でない)。
 - import している内部モジュール: `shibuya.cli`・`shibuya.foundation.arms.removed`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`
-- 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
+- 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
 - 決定の ID: 第 346・第 347
 
 ## [test_renderer_wiring.py](../../../../../../tests/engine/test_renderer_wiring.py)

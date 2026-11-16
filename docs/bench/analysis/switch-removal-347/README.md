@@ -7,7 +7,7 @@
 > commit)は親。
 
 段の並び(親の裁定): ① 試験の書き直し(切替口はまだ在る・src は変えない)→ ②a 経済の段階 2 の off → ②b 率の規則と「無い」の
-過程(組で)→ ③a `--space` → ③b `--hunger-model` の旗。**本書は ①(手順 0・①a・①b・①c)まで**。
+過程(組で)→ ③a `--space` → ③b `--hunger-model` の旗。**本書は ①(手順 0・①a・①b・①c)と ②a まで**(②a は §9)。
 
 ## 0. 要点(① まで)
 
@@ -243,3 +243,68 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
 - [tools/step0_legacy_helper.py](tools/step0_legacy_helper.py): 手順 0 の続き(切替口の腕と §2-2 の助けが同じランになるか)。
 - [tools/step0_compare.py](tools/step0_compare.py): 2 つの JSON の欄ごとの一致。
 - どれも切替口が在る木(②a・②b の前)でだけ回る。結果の JSON はリポに入れていない。
+
+## 9. ②a: 経済の段階 2 の切替口 off を消した(1 バイト不変の見込み・byte-check は親)
+
+土台は頭 `73c2f5fb`(① の commit・安定版のタグ `stable-v2-before-switch-removal-347`=5 本の口が全部在る最後の commit)。
+旧値の再現は `git checkout stable-v2-before-switch-removal-347`。
+
+### 9-1 消した名・残した名・足した止め
+
+| 置き場 | 消した | 残した(理由) | 足した |
+|---|---|---|---|
+| `src/shibuya/economy/stage2_bind.py` | 環境変数 `SHIBUYA_ECONOMY_STAGE2` の読み・`_ARM`・`arm`・`set_arm`・`DEFAULT_ARM`・`ARMS`(`__all__` から外した)・`active_parts` の off の分かれ(空を返す)・`attach` の早い戻り(off なら None)・`check_resume` の今の腕(`_ARM`)と文の旗の名 | `ARM_OFF`・`ARM_ON`(見出しの値と、見出しに無いときの読み)・見出しの鍵 `economy_stage2`(`header_fields`)・manifest の `economy.stage2.arm`="on"・部品の腕(`parts`・`set_parts`・`parse_parts`・`active_parts`・`SHIBUYA_ECONOMY_STAGE2_PARTS`)・`set_atm_table`・段階 2 の口を持たない台帳と金の台帳の無いランの道(`attach` が None・`check_resume(effective=False)`) | `ENV_REMOVED`="SHIBUYA_ECONOMY_STAGE2" と読み込みの止め(`stop_if_set`)・`check_resume` の文に安定版のタグ |
+| `src/shibuya/cli.py` | `build_ledger_bundle` の off の分かれ(雇用主の口 1・輪の係数 6.5)・ランの種類の腕の数えの 1 項(`_ES2.arm() != DEFAULT_ARM`)・旗 `--economy-stage2`・`set_arm` の呼び出し | on の分かれ(雇用主の口=W6 の組織の数・係数 16.0)・`--economy-stage2-parts` | `--economy-stage2-parts` の help に「切替口 off は消した」 |
+| `src/shibuya/foundation/arms/removed.py` | — | 第346 の行と文(前のまま) | `REMOVED_ENV` に `SHIBUYA_ECONOMY_STAGE2`・`REMOVED_CLI_FLAGS` に `--economy-stage2`(`--economy-stage2-parts` の頭=表に出さない旗で受けて止める)・安定版のタグを名ごとに引く `tag_of`・`REMOVED_SWITCH_TAG_347`。ランの入口の止め(`check_environment`)は一覧を見るので自動で入る |
+| `src/shibuya/economy/stage2.py` | — | — | docstring の頭と腕の段落(「既定 off」「`--economy-stage2 {off,on}`」の古い文)を直した |
+| `tools/bytecheck/configs.py` | `SWITCH_ENV` の `SHIBUYA_ECONOMY_STAGE2` | — | `REMOVED_ENV` に足した |
+| `docs/bench/analysis/wallbounce-1012/md23/tools/multiday_md23.py` | `set_arms` の `ES2.set_arm` | 組 c・d の `economy_stage2: on`(記録の鍵) | `on` 以外は「消した切替口・タグ」で止める |
+
+直していない注(経緯の注・`--economy-stage2 on` の言い方が残る): `runtime/systems/table.py:30`・`runtime/systems/boxes.py:473`・
+`runtime/state/ledger.py:890・895・911・922`(状態台帳の alloc の文=manifest に出ない)・`mind/judge/decision/layer.py:243`・
+`economy/accounts.py:278`・`economy/ops.py:45`・`economy/ledger.py:400`・`foundation/manifest/sections.py:194`。
+直していない記録の道具(試験が読まない=346 の前例): `docs/bench/analysis/s2-rules-1101/tools/measure_shortfall.py`・
+`wallbounce-1012/ec21/tools/stage2_two_day.py`・`wallbounce-1012/vb24/tools/resume_vb24.py`・本書の `tools/step0_parts_none.py`
+(今の src では止まる・旧値は安定版のタグで回す)。
+
+1 バイト不変の見込みの理由: 消した分かれは、どれも既定(on)では通らない分かれだった。19 構成は `cli.run` を直に呼ぶ
+(argparse を通らない)。組 `all19` の環境変数は空。土台の側(`73c2f5f`)も同じ 19 構成を環境変数なしで回す(土台の
+`stage2_bind` は `SHIBUYA_ECONOMY_STAGE2` が無ければ既定 on)。
+
+### 9-2 替えた試験(前に確かめていたこと → 後に確かめること)
+
+| 試験 | 前 | 後 | 同じか・減ったか |
+|---|---|---|---|
+| `tests/economy/stage2/test_stage2_default_2_4.py::test_default_arm_is_on_and_off_is_the_switch` → `::test_stage2_is_always_on_and_the_off_switch_is_removed` | 既定の腕が on・切替口 off で部品が空 | 腕を選ぶ名(`ARMS`・`DEFAULT_ARM`・`_ARM`・`arm`・`set_arm`)が無い・部品はいつも効く・消した環境変数の名とタグが止める一覧にある・`ARM_ON`/`ARM_OFF` は残る | 切替口そのものの確かめ=「消した」に替えた(off の道は消えた) |
+| `tests/economy/stage2/test_stage2_rules_credit_atm.py::test_arm_and_parts_switches` → `::test_parts_switches` | 腕の off → on と名の検査・部品の切り替えと名の検査 | 部品の切り替えと名の検査(腕の行を消した) | 部品は同じ。腕の名の検査は消えた(腕が無い) |
+| `tests/engine/test_removed_switches_346.py::test_the_list_and_the_message_are_in_one_place` | 一覧の集合(5 本・旗 3 本)・文にタグ(346) | 集合に経済の段階 2 の 1 本と旗 1 本を足した・名ごとのタグ(`tag_of`)・第346 の行の文は前のまま・第347 の行の文 | 同じ+足した名 |
+| 同 `::test_a_run_with_a_removed_switch_env_stops_before_the_ticks` | 消した 5 本 × 値 2 × 入口 2(子のプロセス) | 6 本(`SHIBUYA_ECONOMY_STAGE2` が自動で入る)・文のタグは名ごと | 同じ+足した名 |
+| 同 `::test_a_removed_cli_flag_stops_even_when_abbreviated` | 旗 3 本と略記 | `--economy-stage2 off`・`on`・`=off`・値なしを足した(部品の腕の略記として通らない) | 同じ+足した名 |
+| 同 `::test_the_parts_flag_still_works_and_is_not_read_as_the_removed_flag`(新) | — | 残す `--economy-stage2-parts` の名の誤りは部品の文で止まる(消した切替口の文でない) | 足した |
+| 同 `::test_the_hidden_flags_are_not_in_the_help` | 消した旗が help に出ない | `--economy-stage2` も一覧から自動で入る | 同じ+足した名 |
+
+確かめる範囲が減った所: 切替口そのものの確かめ(腕の名・off → on の切り替え・off で部品が空)だけ。切替口 off を使って
+基準を作っていた試験は ①c で段階 2 の外の束に移したので、確かめる値は減っていない(§4)。
+
+### 9-3 試験の結果
+
+- 1 本の pytest(`-m "not gpu and not slow"`・`-n 4 --dist loadfile`): `tests/economy/stage2`・`tests/economy/cp2`・
+  `tests/economy/test_wage_occupation.py`・`test_rules42b_ledger.py`・`test_rules42_runs.py`・`tests/engine/test_removed_switches_346.py`・
+  `tests/engine/test_ledger_wiring.py`・`tests/engine/multiday`(md23 の道具を読む)・`tests/tools/test_bytecheck.py`・`tests/test_cli*.py`
+  (5 本)・`tests/engine/bridging/test_manifest_rules_bridges.py`・`tests/engine/test_pop_w21_world.py`・`tests/engine/state/test_class_ids.py`・
+  `test_names_frozen.py`・`tests/test_places_guard.py` で **503 passed・0 failed・0 skipped**(3 分 6 秒)。警告は前から出る
+  `WageTablesAbsentWarning`(作業の木の data のつなぎ)と W9 の影の `WeatherWarning`。
+- `lint-imports`: 12 kept・0 broken。
+- カード `tools/repo_guide/build.py` で作り直した(`cards/data.md` は戻した)。`--check` は「最新」(151 本)。
+- byte-check の道具: 組 `all19`・`parent4` の環境変数は空。19 構成の引数に経済の腕は無い。`SHIBUYA_ECONOMY_STAGE2` は
+  `REMOVED_ENV` へ移した。土台 `73c2f5f` の側も同じ 19 構成を環境変数なしで回す(土台の `stage2_bind` は環境変数が無ければ
+  既定 on)。byte-check は親が回す。
+
+### 9-4 親の確かめ(②a)
+
+- byte-check: 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0・final が同じ 19(基準 `73c2f5f`=① の commit・比べる側=②a の src。
+  既定 `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。全体の壁時計 435 秒)。組は [bytecheck_2a/](bytecheck_2a/)。
+- 範囲の試験(`tests --ignore=tests/c7 -m "not gpu and not slow" -n 4 --dist loadfile`・linked の作業木): 6,826 passed・1 failed・
+  21 skipped・1 xfailed(36 分 27 秒)。落ちた 1 本は前からの `tests/vocab/test_registry_from_tape.py::test_ab7_seed1_open_matches_the_parent_report`
+  (linked の作業木でだけ落ちる=段 4 の記録と同じ)。
+- 例外(ignore)の本数は変わらない(割る段ではない=31 本・延べ 45 行)。`lint-imports` 12 kept。
