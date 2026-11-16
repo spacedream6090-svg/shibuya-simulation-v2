@@ -103,15 +103,16 @@ SWITCH_ENV: Final[tuple[str, ...]] = (
     "SHIBUYA_CALENDAR_2", "SHIBUYA_CALENDAR_3", "SHIBUYA_CALENDAR_3_TRIAL",
     "SHIBUYA_MEAL_DEFAULT", "SHIBUYA_WAGE", "SHIBUYA_DUTIES",
     "SHIBUYA_SPACE", "SHIBUYA_SLOPE", "SHIBUYA_TURN_WEIGHT", "SHIBUYA_NAV1_DENSITY",
-    "SHIBUYA_ABSENT_PROCESSES", "SHIBUYA_BODY_BOUNDARY_GAUGE", "SHIBUYA_RATE_RULES",
+    "SHIBUYA_BODY_BOUNDARY_GAUGE",
 )
 
 #: 〔第346 旧道の切替口の削除〕消した切替口の環境変数(src は名を持つ=与えると読み込みで止まる。:data:`SWITCH_ENV` から外した
 #: =値を残す欄が無い。置かれていれば名だけを ``env_hidden`` に残す)。記録 ``docs/bench/analysis/delete-346/README.md``。
-#: 〔第347 止めた切替口の削除〕``SHIBUYA_ECONOMY_STAGE2`` を足した(記録 ``docs/bench/analysis/switch-removal-347/README.md``)。
+#: 〔第347 止めた切替口の削除〕``SHIBUYA_ECONOMY_STAGE2``(②a)と ``SHIBUYA_RATE_RULES``・``SHIBUYA_ABSENT_PROCESSES``(②b=
+#: :data:`SWITCH_ENV` から移した)を足した(記録 ``docs/bench/analysis/switch-removal-347/README.md``)。
 REMOVED_ENV: Final[tuple[str, ...]] = (
     "SHIBUYA_RULES_42B", "SHIBUYA_RULES_42", "SHIBUYA_SEAT_RELEASE", "SHIBUYA_PROXIMITY", "SHIBUYA_DEFECT_FIXES_1103",
-    "SHIBUYA_ECONOMY_STAGE2",
+    "SHIBUYA_ECONOMY_STAGE2", "SHIBUYA_RATE_RULES", "SHIBUYA_ABSENT_PROCESSES",
 )
 
 #: 値を記録しない環境変数(道筋・鍵)。置かれていれば名だけを side の JSON の ``env_hidden`` に残す。

@@ -341,6 +341,8 @@ def write_census_files(ledger, goods, day: int, out_dir: str | Path) -> tuple[st
     p_daily = CS.write_daily_census([row], d / DAILY_CENSUS_FILENAME)
     from shibuya.world.laws import switch_rate as _RRC  # 〔11-01 段 2 の 4・検収 M1〕腕 off は店の廃棄の帯を非該当に
 
+    # 〔第347 止めた切替口の削除〕ランの腕はいつも既定 off(切替口 --rate-rules は消した)=ここは常に偽(帯は非該当)。旧道は部品の
+    # 口(試験の中だけ)で回すランだけで、その月次 MER は試験がそのランの実行器の腕から作る(記録 switch-removal-347 §11 の L4)
     mer = CS.monthly_mer(ledger, goods, month=0, days=1, waste_band_applies=_RRC.is_legacy())
     p_mer = CS.write_monthly_mer(mer, d / MONTHLY_MER_FILENAME)
     p_sectors = CS.write_monthly_mer_sectors(mer, d / MONTHLY_MER_SECTORS_FILENAME)
@@ -474,8 +476,7 @@ def run(
     if run_kind is None:  # 第 1 期 1-4(検収 M2): 腕は CLI の既定と比べて決める(記録だけ)
         arms = run_arms({**kwargs, "budget": budget, "l4_scale": scale, "use_population": use_population,
                          "store_capital_yen": store_capital_yen})
-        from shibuya.world.laws import switch_rate as _rate_rules  # 〔11-01 段 2 の 4〕率の形の規則(既定 off と違えば腕)
-        from shibuya.world.laws import switch_absent as _absent_processes  # 〔11-02r §1 #7〕「無い」の過程(既定 stopped と違えば腕)
+        # 〔第347 止めた切替口の削除〕率の規則と「無い」の過程の切替口(--rate-rules・--absent-processes)は消した=腕に数えない
         from shibuya.foundation.queues import batching as _BATCH  # 〔第 3 期 3-2〕まとめの幅の腕(環境変数か --batch-width-s)
         from shibuya.world.body import schedule as _body  # 〔第 3 期 3-5〕TM5 の予約の腕(既定 sweep と違えば腕=結果は同じはず)。〔移す段 4 の下ごしらえ〕定義した schedule を直に読む
         from shibuya.engine import calendar_shadow as _calendar_shadow  # 〔第 3 期 3-1〕暦 1a の影(既定 w17 と違えば腕)
@@ -493,8 +494,6 @@ def run(
         # 第 1 期 1-8b: 発話の口の腕(環境変数か --speech-port・run の引数ではない)は結果を変える=on は腕に数える
         # 〔第 3 期 3-3〕申込書を渡したランは反実仮想(試験 > 反実仮想 > 腕 > 再現)
         run_kind = _RK.decide(arms_on=bool(arms) or _speech_layer.arm() != _speech_layer.ARM_OFF
-                              or _rate_rules.arm() != _rate_rules.DEFAULT_MODE  # 〔11-01〕既定は off
-                              or _absent_processes.arm() != _absent_processes.DEFAULT_MODE  # 〔11-02r〕既定は stopped
                               or not _BATCH.is_default()  # 〔第 3 期 3-2〕まとめの幅(既定 60 秒と違えば腕)
                               or _body.arm() != _body.DEFAULT_ARM  # 〔3-5〕体の予約の腕(既定は sweep)
                               or _calendar_shadow.arm() != _calendar_shadow.DEFAULT_MODE  # 〔3-1〕既定は w17
@@ -964,25 +963,8 @@ def main(argv: list[str] | None = None) -> int:
         help="退出の実行形(設計書 §10-3)。immediate(既定=即時)/ walk_to_platform(9a=その体の路線の"
              "ホームへ歩いて受容関数を通して乗る)・board_intent は予約(NotImplementedError)",
     )
-    ap.add_argument(
-        "--rate-rules",
-        choices=("off", "legacy"),
-        default=None,
-        help="〔11-01 段 2 の 4〕率の形の規則の切替口(既定 off・環境変数 SHIBUYA_RATE_RULES と同じ。指定すれば環境変数より強い)。"
-             "off=率の形の規則を外した状態(催しの 200 人注入・E8 の到着の分散・乗車の受け入れ確率・ポイ捨て・売れ残りの廃棄率・"
-             "宅配・倒れる率が無い=宣言は engine.rate_rules)。legacy=版上げの前の値の再現のためだけの道(次の版上げで消す)。"
-             "出勤率のくじ(旧 --attendance-rate)はどちらにも無い=全員出勤。腕は設定の指紋に入れない(manifest の rate_rules に"
-             "出る・既定と違えばランの種類は arm)",
-    )
-    ap.add_argument(
-        "--absent-processes",
-        choices=("stopped", "legacy"),
-        default=None,
-        help="〔11-02r §1 #7〕「無い」と宣言した過程 5 件の切替口(既定 stopped・環境変数 SHIBUYA_ABSENT_PROCESSES と同じ。"
-             "指定すれば環境変数より強い)。stopped=ごみの収集・街路の清掃・道路工事・救急と警察の出動・電気と水の負荷を止めた"
-             "状態(宣言は world/processes/absent.py・切替は engine.absent_processes)。legacy=版上げの前の値の再現のためだけの道"
-             "(次の版上げで消す)。腕は設定の指紋に入れない(manifest の absent_processes に出る・既定と違えばランの種類は arm)",
-    )
+    # 〔第347 止めた切替口の削除〕旗 --rate-rules(率の形の規則の旧道)と --absent-processes(「無い」の過程の旧道)は消した=
+    # 表に出さない旗として受けて止める(foundation.arms.removed の一覧)。ランはいつも既定 off・stopped
     ap.add_argument(
         "--report-precondition",
         choices=("on", "off"),
@@ -1590,14 +1572,6 @@ def main(argv: list[str] | None = None) -> int:
         from shibuya.foundation.queues import batching as _batching
 
         _batching.set_arm(int(args.batch_width_s))
-    if args.rate_rules is not None:  # 〔11-01 段 2 の 4〕率の形の規則の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.world.laws import switch_rate as _rate_rules
-
-        _rate_rules.set_arm(str(args.rate_rules))
-    if args.absent_processes is not None:  # 〔11-02r §1 #7〕「無い」の過程の腕(組み立てが読む。指定は環境変数より強い)
-        from shibuya.world.laws import switch_absent as _absent_processes
-
-        _absent_processes.set_arm(str(args.absent_processes))
     if args.body_schedule is not None:  # 〔第 3 期 3-5〕TM5 の体の予約の腕(組み立てが読む。指定は環境変数より強い)
         from shibuya.world.body import schedule as _body  # 〔移す段 4 の下ごしらえ〕定義した schedule を直に読む
 

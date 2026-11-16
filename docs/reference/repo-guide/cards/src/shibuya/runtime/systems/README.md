@@ -62,7 +62,7 @@ engine.systems.build — 組み立て(R1・S0〜S8 と再開の復元)(第 1 期
 - 呼び手: `shibuya.runtime.systems.conductor`
 - 読む試験: `tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/clock/test_tm4_regional_clock.py`・`tests/engine/duties/_du.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_pop_w21_world.py`・`tests/engine/test_removed_switches_346.py`・`tests/engine/test_sim_time_T.py`
 - 読む試験(道筋で): `tests/engine/body/test_body_guard.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/rules/test_rules_table_schema.py`・`tests/engine/systems/test_boxes.py`・`tests/tools/test_pkgmove.py`
-- 決定の ID: 10-12・10-12/§1-6・10-13b/§7・11-01・11-02r/§1・11-02r/§1 #7・11-03・11-03/§3・D-31・D-58・D-59・D-62・D-66・D-71・D-107・D-112・D-120・第 214・第 308・第 309・第 330・第 346
+- 決定の ID: 10-12・10-12/§1-6・10-13b/§7・11-01・11-02r/§1・11-02r/§1 #7・11-03・11-03/§3・D-31・D-58・D-59・D-62・D-66・D-71・D-107・D-112・D-120・第 214・第 308・第 309・第 330・第 346・第 347
 
 ## [body.py](../../../../../../../../src/shibuya/runtime/systems/body.py)
 

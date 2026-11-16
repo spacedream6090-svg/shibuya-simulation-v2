@@ -2260,9 +2260,11 @@ def run_day(
             **``world_dir`` に ``w16_population.parquet`` があれば自動で読む**
             (``n_agents`` 体へ二層抽出)。``False`` で明示的に切る(合成個体のまま)。
             資産が無ければ静かに合成個体へ落ちる。
-        salient_rate_per_10k: 「倒れる」の発生率[件/10,000体/日](``None`` で既定
-            ``salient.COLLAPSE_PER_10K_PER_DAY``=3.0)。5,000 体・1 日では期待値 1.5 件なので
-            **引かない日がある**(P(0)=22%)。感度試験・結線テストで上げるための口。
+        salient_rate_per_10k: 〔第347 止めた切替口の削除〕「倒れる」の発生率[件/10,000体/日]を上げる試験の口は**消した**
+            (率の規則の旧道=消した切替口 ``--rate-rules legacy`` でだけ効いた)。引数は設定の指紋と 1-0 の引数の数を
+            変えないため残し、``None`` 以外は ``ValueError``(旧値の再現は安定版のタグ
+            ``stable-v2-before-switch-removal-347``)。倒れる率は部品の口(``WorldProcessRunner(salient_rate_per_10k=)``・
+            ``SalientProcess(rate_per_10k_per_day=)``=旧道 ``rate_rules="legacy"`` でだけ効く)で渡す。
         report_precondition: **D-113 ②(第267)** 通報の前提「当該事象を知覚済み」(直近 5 tick に
             自分のセルの B4 に顕著行為の行が出た)を検査する(既定 True)。``False`` は従来どおり
             通報が必ず成功する挙動(=帰無腕・第266 以前の checkpoint ``ba01bd0b`` を再現)。

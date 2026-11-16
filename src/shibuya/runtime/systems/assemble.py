@@ -511,6 +511,12 @@ def build(_call_args: dict[str, Any]) -> Any:
     # 変えないため残し、None 以外は止める。箱の欄(1-0 の割り当て)は「表は無い」の値のまま
     if p_see_activity is not None:
         raise ValueError("p_see_activity は第 1 期 1-2 で消した(看板の注視に活動の乗数を掛けない=決定 10-12 §1-6)")
+    # 〔第347 止めた切替口の削除・案 k1〕倒れる率の試験の口は、率の規則の旧道(消した切替口 --rate-rules legacy)でだけ効いた=
+    # 一緒に消した。引数は設定の指紋と 1-0 の引数の数を変えないため残し、None 以外は止める
+    if salient_rate_per_10k is not None:
+        raise ValueError(f"salient_rate_per_10k は消した試験の口(第347 止めた切替口の削除・旧値の再現は安定版のタグ "
+                         f"{_RSW.REMOVED_SWITCH_TAG_347})=倒れる率は部品の口(WorldProcessRunner(salient_rate_per_10k=…)・"
+                         "SalientProcess(rate_per_10k_per_day=…)=率の規則の旧道 rate_rules='legacy' でだけ効く)で渡す")
     p_see_activity_table = None
     p_see_activity_identity = True
     # ---- AB7 自由意図の腕: 値の検査は**レンダラを作る前**にする(manifest が嘘をつかない) ----
@@ -797,12 +803,14 @@ def build(_call_args: dict[str, Any]) -> Any:
     world.freeze()
 
     # ---- ⓪a 世界過程(C4 第1陣・世界過程設計書 §3 実装原則3=書き込みは resolve 経由) ----
-    from shibuya.world.laws import switch_rate as _RRB  # 〔11-01 段 2 の 3・4〕率の形の規則の腕(組み立てで 1 回読む)
+    from shibuya.world.laws import switch_rate as _RRB  # 〔11-01 段 2 の 3・4〕率の形の規則の腕
 
-    rate_rules_mode = _RRB.arm()
-    from shibuya.world.laws import switch_absent as _APB  # 〔11-02r §1 #7〕「無い」の過程の腕(組み立てで 1 回読む)
+    # 〔第347 止めた切替口の削除〕切替口(--rate-rules・--absent-processes)は消した=ランの腕はいつも既定(off・stopped)。
+    # 旧道は過程の部品の口(引数 rate_rules・absent_processes)にだけ残る
+    rate_rules_mode = _RRB.DEFAULT_MODE
+    from shibuya.world.laws import switch_absent as _APB  # 〔11-02r §1 #7〕「無い」の過程の腕
 
-    absent_mode = _APB.arm()
+    absent_mode = _APB.DEFAULT_MODE
     runner: WorldProcessRunner | None = None
     if processes:
         runner = WorldProcessRunner(

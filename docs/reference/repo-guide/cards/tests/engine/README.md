@@ -1259,7 +1259,7 @@ C10 8b(会話の起点と相手選択+8a の直し)の検査。
   - `test_the_list_and_the_message_are_in_one_place`(関数)
   - `test_the_parts_flag_still_works_and_is_not_read_as_the_removed_flag`(関数): 〔第347〕残す感度の腕 ``--economy-stage2-parts`` は今のまま受ける(名の誤りは部品の文で止まる=消した切替口の文でない)。
 - import している内部モジュール: `shibuya.cli`・`shibuya.foundation.arms.removed`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`
-- 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
+- 環境変数: `SHIBUYA_ABSENT_PROCESSES`・`SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RATE_RULES`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
 - 決定の ID: 第 346・第 347
 
 ## [test_renderer_wiring.py](../../../../../../tests/engine/test_renderer_wiring.py)

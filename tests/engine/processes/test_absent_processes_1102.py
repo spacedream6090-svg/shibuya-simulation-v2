@@ -3,6 +3,9 @@
 各過程について、既定(腕 stopped)では世界を変えない(件数 0)・切替口(腕 legacy)では前の版と同じに動くことを、過程を直に
 組んで確かめる。止めない判断(世帯の消費・倒れる事象そのもの・ポイ捨ての腕)はこの腕に依らないことも見る。ランの全体
 (manifest の節・実行器の受け渡し・CLI の口)は小さな合成世界の run_day で確かめる。記録 ``docs/bench/analysis/s2e-1102/README.md``。
+〔第347 止めた切替口の削除〕ランの切替口(``--absent-processes``・環境変数 ``SHIBUYA_ABSENT_PROCESSES``)は消した=旧道は過程の
+部品の口(引数 ``absent_processes``)だけ・ランの旧道は試験の中だけの助け(``tests/engine/_legacy_world.py``)。記録
+``docs/bench/analysis/switch-removal-347/README.md``。
 正しい不合格(11-02r #7「街路にごみが残る・倒れた人が運ばれない」)は過程の試験で数で見る。
 
 時間の方針(11-02r §2-2): 本試験は刻みの番号を決め打ちしない。時刻は世界の時刻(秒)で書き、過程に渡す刻みの番号は刻みの幅
@@ -52,21 +55,25 @@ def _log() -> ActualLog:
     return ActualLog("actual_log", retention_days=7, ticks_per_day=SECONDS_PER_DAY // STEP_S)
 
 
-@pytest.fixture
-def arm_restore():
-    prev = AP.arm()
-    yield
-    AP.set_arm(prev)
+# ================================================================= 切替口(〔第347〕消した)と部品の口
+def test_the_run_arm_is_stopped_and_the_switch_is_removed():
+    """〔第347 止めた切替口の削除〕前(``test_the_default_arm_is_stopped_and_names_are_checked``)は「既定 stopped・
+    ``resolve(None)`` は今の腕・腕の名の誤り(``set_arm("off")``)で止まる」。切替口を消した: 腕を選ぶ名(``arm``・``set_arm``・
+    ``_ARM``)が無い・``resolve(None)`` は既定 stopped・消した環境変数と旗の名とタグは止める一覧にある(止まることは
+    ``tests/engine/test_removed_switches_346.py``)。部品の口の名の検査・印・宣言との 1 対 1 は残す。"""
+    from shibuya.foundation.arms import removed as RSW
 
-
-# ================================================================= 切替口そのもの
-def test_the_default_arm_is_stopped_and_names_are_checked(arm_restore):
+    for name in ("arm", "set_arm", "_ARM"):
+        assert not hasattr(AP, name), name
+        assert name not in AP.__all__, name
     assert AP.DEFAULT_MODE == AP.MODE_STOPPED and AP.MODES == ("stopped", "legacy")
-    assert AP.resolve(None) == AP.arm()
-    with pytest.raises(ValueError):
-        AP.set_arm("off")
-    with pytest.raises(ValueError):
-        AP.resolve("bogus")
+    assert AP.resolve(None) == AP.DEFAULT_MODE and AP.is_legacy() is False and AP.is_legacy("legacy") is True
+    assert AP.ENV_REMOVED == "SHIBUYA_ABSENT_PROCESSES" and AP.ENV_REMOVED in RSW.REMOVED_ENV
+    assert RSW.REMOVED_CLI_FLAGS["--absent-processes"] == AP.ENV_REMOVED
+    assert RSW.tag_of(AP.ENV_REMOVED) == RSW.REMOVED_SWITCH_TAG_347 == "stable-v2-before-switch-removal-347"
+    for bad in ("off", "bogus"):  # 部品の口の名の検査(前は set_arm("off") で見た名の誤り)
+        with pytest.raises(ValueError):
+            AP.resolve(bad)
     assert AP.PROCESSES == ("waste_collection", "street_cleaning", "road_works", "dispatch", "infra")
     assert set(AP.STOPPED_PROCESSES) == set(AP.PROCESSES)
     assert AP.stopped_flags("stopped") == {f"absent_{p}_stopped": 1 for p in AP.PROCESSES}
@@ -81,16 +88,17 @@ def test_the_default_arm_is_stopped_and_names_are_checked(arm_restore):
         assert v["anchor_kept"] == "・".join(a.keeps_anchor), name
 
 
-def test_state_header_and_resume_check(arm_restore):
+def test_state_header_and_resume_check():
+    """〔第347 止めた切替口の削除〕前は切替口の腕を stopped と legacy に置いて再開の検査を見た(legacy の腕なら見出しに無い
+    ファイルからも再開できた)。切替口を消した: 今の腕はいつも既定 stopped=見出し stopped は通る・見出しに無い(legacy=版上げの
+    前のラン)と legacy は止まる・文に消した切替口と安定版のタグ。"""
     assert AP.header_fields("stopped") == {"mode": "stopped"} and AP.header_fields("legacy") is None
-    AP.set_arm("stopped")
     AP.check_resume({"mode": "stopped"})
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="「無い」の過程の腕が親と違う.*--absent-processes legacy.*消した.*"
+                                         "stable-v2-before-switch-removal-347"):
         AP.check_resume(None)  # 見出しに無い=版上げの前(legacy)のラン
-    AP.set_arm("legacy")
-    AP.check_resume(None)
-    with pytest.raises(ValueError):
-        AP.check_resume({"mode": "stopped"})
+    with pytest.raises(ValueError, match="「無い」の過程の腕が親と違う"):
+        AP.check_resume({"mode": "legacy"})
 
 
 # ================================================================= ごみ収集(#103)
@@ -286,27 +294,41 @@ def test_run_manifest_section(tiny_runs):
     assert leg["counts"]["infra_power_kwh_day"] > 0  # 旧道は電気と水の負荷を数える
 
 
-def test_resume_through_run_day_checks_the_arm(tmp_path, arm_restore):
-    """〔検収 低-6〕run_day を通す再開: 同じ腕なら通しのランと final が同じ・違う腕なら止める(ValueError)。"""
+def test_resume_through_run_day_checks_the_arm(tmp_path):
+    """〔検収 低-6〕run_day を通す再開: 同じ腕なら通しのランと final が同じ・違う腕なら止める(ValueError)。
+
+    〔第347 止めた切替口の削除〕前は切替口の腕を legacy に置いて同じファイルから再開した(違う腕で止まる)。切替口を消した=今の
+    腕はいつも stopped。違う腕のファイル=見出しに ``absent_processes`` の無いファイル(版上げの前=legacy のラン)を、保存の
+    間だけ見出しを書かない形で作り、そこからの再開が止まることを見る。"""
     from shibuya.engine.run import run_day
+    from shibuya.runtime.state import resume as RS
 
     kw = dict(n_agents=300, seed=1, n_cells=16, tick_seconds=STEP_S, ticks=_k(SECONDS_PER_DAY), checkpoint_every=60)
     stop = _k(12 * SECONDS_PER_HOUR)
-    AP.set_arm("stopped")
     straight = run_day(**kw)
     a = run_day(state_out=tmp_path / "state", stop_at_tick=stop, **kw)
     files = a.resume["state_files"]
     assert files and files[-1]["T"] == stop and not files[-1]["finished"]
     parent = tmp_path / "state" / files[-1]["file"]
+    assert RS.read_state(parent).header["absent_processes"] == {"mode": "stopped"}
     b = run_day(resume_from=parent, **kw)
     assert b.final_hash == straight.final_hash and b.resume["finished"]
-    AP.set_arm("legacy")
-    with pytest.raises(ValueError, match="「無い」の過程の腕が親と違う"):
-        run_day(resume_from=parent, **kw)
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(AP, "header_fields", lambda mode: None)  # 版上げの前の見出し(absent_processes の欄が無い)
+        c = run_day(state_out=tmp_path / "old", stop_at_tick=stop, **kw)
+    old = tmp_path / "old" / c.resume["state_files"][-1]["file"]
+    assert "absent_processes" not in RS.read_state(old).header
+    with pytest.raises(ValueError, match="「無い」の過程の腕が親と違う.*消した.*stable-v2-before-switch-removal-347"):
+        run_day(resume_from=old, **kw)
 
 
-def test_cli_rejects_a_wrong_arm_name():
+def test_cli_flag_is_removed(capsys):
+    """〔第347 止めた切替口の削除〕前(``test_cli_rejects_a_wrong_arm_name``)は ``--absent-processes off`` が名の誤りで止まるのを
+    見た。旗は消した=値に依らず、表に出さない旗で受けて消した切替口の文で止まる。"""
     from shibuya import cli
 
-    with pytest.raises(SystemExit):
-        cli.main(["--absent-processes", "off"])
+    for value in ("off", "legacy", "stopped"):
+        with pytest.raises(SystemExit) as exc:
+            cli.main(["--absent-processes", value])
+        assert exc.value.code == 2
+        assert "--absent-processes は消した切替口" in capsys.readouterr().err

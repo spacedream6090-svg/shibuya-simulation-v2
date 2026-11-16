@@ -16,12 +16,13 @@
 | ``collapse`` | 倒れる率 1 万体あたり 1 日 3.0 件のポアソン(#83) | 体の式ができるまで倒れる人は無い(W3 は錨に残す) |
 | ``calvo`` | 価格の改定確率(Calvo・#101) | 結線しない=価格は固定(``economy.pricing`` はエンジンから呼ばれていない) |
 
-腕(切替口): ``--rate-rules {off,legacy}``(環境変数 ``SHIBUYA_RATE_RULES``・:func:`set_arm`)。既定 ``off``=上の 8 件を外した
-状態(``calvo`` は前から結線していない)。``legacy``=版上げの前の値の再現のためだけの道(回答 10-13b §0-6=**次の版上げで消す**・
-旧値の再現は安定版のタグで行う)。出勤率のくじは ``legacy`` でも戻らない(くじの道ごと消した=旧の既定 1.0 は全員出勤なので旧値は
-同じ)。腕は組み立てのときに読む(``run_day`` の引数にしない=設定の指紋に入れない=``seat_release`` と同じ扱い)。腕の名と
-外した印と件数は manifest の ``rate_rules`` と、状態のファイルの見出しの ``rate_rules``(既定の off のランだけ書く=見出しに
-無い状態のファイルは legacy=版上げの前のラン)に出る(再開のときに今の腕と違えば止める)。
+腕: ランはいつも既定 ``off``=上の 8 件を外した状態(``calvo`` は前から結線していない)。〔第347 止めた切替口の削除〕切替口
+``--rate-rules {off,legacy}``(環境変数 ``SHIBUYA_RATE_RULES``)は消した(回答 10-13b §0-6・返事その 8 §1-1)。環境変数を与えると
+読み込みで止まり、ランの入口(組み立ての最初)でも止まる(一覧は ``foundation.arms.removed``)。旧値の再現は安定版のタグ
+``stable-v2-before-switch-removal-347``。``legacy``(版上げの前の値)は部品の口(過程の引数 ``rate_rules``)としてだけ残る=部品の
+単体試験の基準の口(ランの口からは選べない=返事その 8 §1-10)。出勤率のくじは ``legacy`` でも戻らない(くじの道ごと消した=旧の
+既定 1.0 は全員出勤なので旧値は同じ)。腕の名と外した印と件数は manifest の ``rate_rules`` と、状態のファイルの見出しの
+``rate_rules``(off のランだけ書く=見出しに無い状態のファイルは legacy=版上げの前のラン=再開できない)に出る。
 
 計器(指示書の 10): manifest の ``rate_rules.removed`` に規則ごとの ``rate_rule_<名>_removed``(1=外した・0=旧道で動いている)、
 ``rate_rules.counts`` に旧道の件数(off のランでは 0 のはず=外したことの確かめ)。件数の出どころは各過程の ``counters()``
@@ -33,19 +34,20 @@
 
 from __future__ import annotations
 
-import os
 from typing import Any, Final, Mapping
+
+from shibuya.foundation.arms import removed as _RSW
 
 __all__ = [
     "MODE_OFF", "MODE_LEGACY", "MODES", "DEFAULT_MODE", "SCHEMA", "RULES", "REMOVED_RULES", "ALWAYS_REMOVED",
-    "arm", "set_arm", "resolve", "is_legacy", "removed_flags", "manifest_fields", "header_fields", "check_resume",
+    "ENV_REMOVED", "resolve", "is_legacy", "removed_flags", "manifest_fields", "header_fields", "check_resume",
     "WASTE_BAND_NA",
 ]
 
 MODE_OFF: Final[str] = "off"
 MODE_LEGACY: Final[str] = "legacy"
 MODES: Final[tuple[str, ...]] = (MODE_OFF, MODE_LEGACY)
-#: 既定(11-01 段 2 の 4)。``legacy`` は切替口(版上げの前の値の再現・次の版上げで消す)。
+#: 既定(11-01 段 2 の 4)=ランの腕。``legacy`` は部品の口だけ(〔第347〕ランの切替口は消した)。
 DEFAULT_MODE: Final[str] = MODE_OFF
 #: manifest の ``rate_rules`` の値の形の版(欄の意味を変えたら上げる)。
 SCHEMA: Final[str] = "shibuya.rate_rules/1"
@@ -77,42 +79,30 @@ REMOVED_RULES: Final[Mapping[str, Mapping[str, str]]] = {
     "calvo": {"inventory": "#101", "declared": "価格は固定(価格の改定確率は結線しない)", "anchor_kept": "E7"},
 }
 
-_ARM: str = os.environ.get("SHIBUYA_RATE_RULES", DEFAULT_MODE).strip().lower() or DEFAULT_MODE
-if _ARM not in MODES:
-    raise ValueError(f"SHIBUYA_RATE_RULES は {MODES} のどれか(いま {_ARM!r})")
-
-
-def arm() -> str:
-    """いまの腕(``off``=既定・``legacy``=切替口)。組み立てのときに読む。"""
-    return _ARM
-
-
-def set_arm(name: str) -> None:
-    """腕を選ぶ(CLI ``--rate-rules``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。"""
-    global _ARM
-    if str(name) not in MODES:
-        raise ValueError(f"--rate-rules は {MODES} のどれか(いま {name!r})")
-    _ARM = str(name)
+#: 〔第347 止めた切替口の削除〕消した切替口の環境変数(与えると読み込みで止まる=ランの入口の組み立ての最初でも止まる)。
+ENV_REMOVED: Final[str] = "SHIBUYA_RATE_RULES"
+_RSW.stop_if_set(ENV_REMOVED)  # 一覧と止める文は foundation.arms.removed
 
 
 def resolve(mode: str | None) -> str:
-    """過程の引数の腕(``None``=今の腕)を名に直す(名の誤りは止める)。"""
-    m = _ARM if mode is None else str(mode)
+    """過程の引数の腕(``None``=既定 off。〔第347〕ランの切替口は消した)を名に直す(名の誤りは止める)。"""
+    m = DEFAULT_MODE if mode is None else str(mode)
     if m not in MODES:
         raise ValueError(f"rate_rules は {MODES} のどれか(いま {m!r})")
     return m
 
 
 def is_legacy(mode: str | None = None) -> bool:
-    """``mode``(省略=今の腕)が旧道(率の形の規則を動かす)か。"""
+    """``mode``(省略=既定 off)が旧道(率の形の規則を動かす)か。"""
     return resolve(mode) == MODE_LEGACY
 
 
 def removed_flags(mode: str | None = None) -> dict[str, int]:
     """規則ごとの ``rate_rule_<名>_removed``(1=外した・0=旧道)。腕だけで決まる印(設定)。
 
-    実際に動いた件数は :func:`manifest_fields` の ``counts``(観測)。試験の口 ``salient_rate_per_10k`` は旧道でだけ効く
-    (〔検収 L3〕腕 off では無視=印が 1 のとき ``counts.collapse_events`` は常に 0)。
+    実際に動いた件数は :func:`manifest_fields` の ``counts``(観測)。倒れる率の部品の口(実行器の ``salient_rate_per_10k``・
+    ``SalientProcess`` の ``rate_per_10k_per_day``)は旧道でだけ効く(〔検収 L3〕腕 off では無視=印が 1 のとき
+    ``counts.collapse_events`` は常に 0)。〔第347〕``run_day`` の同じ名の試験の口は None 以外で止める(消した)。
     """
     legacy = is_legacy(mode)
     return {f"rate_rule_{r}_removed": int(r in ALWAYS_REMOVED or not legacy) for r in RULES}
@@ -157,9 +147,10 @@ def header_fields(mode: str) -> dict[str, Any] | None:
 
 
 def check_resume(saved: Any) -> None:
-    """再開のときに、保存したランの腕(見出しの ``rate_rules``・無ければ legacy)と今の腕が同じかを確かめる(違えば止める)。"""
+    """再開のときに、保存したランの見出しの ``rate_rules``(無ければ legacy=版上げの前のラン)が既定の off かを確かめる
+    (違えば止める)。〔第347〕切替口を消したので、今の腕はいつも既定。"""
     s = saved if isinstance(saved, Mapping) else {}
     s_mode = str(s.get("mode", MODE_LEGACY))
-    if s_mode != _ARM:
-        raise ValueError(f"再開の率の規則の腕が親と違う(親 {s_mode}・今 {_ARM})=--rate-rules(環境変数 "
-                         "SHIBUYA_RATE_RULES)を親にそろえる")
+    if s_mode != DEFAULT_MODE:
+        raise ValueError(f"再開の率の規則の腕が親と違う(親 {s_mode}・今 {DEFAULT_MODE})=旧値の切替口 --rate-rules legacy"
+                         f"(環境変数 {ENV_REMOVED})は消した(安定版のタグ {_RSW.tag_of(ENV_REMOVED)} で回す)")

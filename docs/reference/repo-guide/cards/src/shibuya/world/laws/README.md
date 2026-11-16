@@ -210,36 +210,34 @@ engine.processes.salient — 顕著行為(人物③)と ``p_notice`` の結線�
 engine.absent_processes — 「無い」と宣言した世界過程 5 件を止める切替口(指示書 11-02 返事その 2 §1 #7・小さな版上げ 1 回分)。
 
 - 公開の関数とクラス
-  - `arm`(関数): いまの腕(``stopped``=既定・``legacy``=切替口)。組み立てのときに読む。
-  - `check_resume`(関数): 再開のときに、保存したランの腕(見出しの ``absent_processes``・無ければ legacy)と今の腕が同じかを確かめる(違えば止める)。
+  - `check_resume`(関数): 再開のときに、保存したランの見出しの ``absent_processes``(無ければ legacy=版上げの前のラン)が既定の stopped かを
   - `header_fields`(関数): 状態のファイルの見出しの ``absent_processes``(legacy のランは書かない=None=版上げの前の見出しのまま)。
-  - `is_legacy`(関数): ``mode``(省略=今の腕)が旧道(5 件の過程を動かす)か。
+  - `is_legacy`(関数): ``mode``(省略=既定 stopped)が旧道(5 件の過程を動かす)か。
   - `manifest_fields`(関数): manifest の ``absent_processes``(設定=形の版・腕・過程の宣言・止めた印/観測=旧道の件数)。
-  - `resolve`(関数): 過程の引数の腕(``None``=今の腕)を名に直す(名の誤りは止める)。
-  - `set_arm`(関数): 腕を選ぶ(CLI ``--absent-processes``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
+  - `resolve`(関数): 過程の引数の腕(``None``=既定 stopped。〔第347〕ランの切替口は消した)を名に直す(名の誤りは止める)。
   - `stopped_flags`(関数): 過程ごとの ``absent_<名>_stopped``(1=止めた・0=旧道)。腕だけで決まる印(設定)。
-- 呼び手: `shibuya.cli`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.runner`
+- import している内部モジュール: `shibuya.foundation.arms.removed`
+- 呼び手: `shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.runner`
 - 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/processes/test_absent_processes_1102.py`
 - 環境変数: `SHIBUYA_ABSENT_PROCESSES`
-- 決定の ID: 10-13b/§0-6・11-01/§2・11-02・11-02r・11-02r #7・11-02r/§1・11-02r/§1 #7・11-02r/§1 #8・11-02r/§2-2
+- 決定の ID: 10-13b/§0-6・11-01/§2・11-02・11-02r・11-02r #7・11-02r/§1・11-02r/§1 #7・11-02r/§1 #8・11-02r/§2-2・第 347
 
 ## [switch_rate.py](../../../../../../../../src/shibuya/world/laws/switch_rate.py)
 
 engine.rate_rules — 率の形の規則を外す切替口(指示書 11-01 段 2 の 3・4・回答 11-01 §2・§3・小さな版上げ 1 回分)。
 
 - 公開の関数とクラス
-  - `arm`(関数): いまの腕(``off``=既定・``legacy``=切替口)。組み立てのときに読む。
-  - `check_resume`(関数): 再開のときに、保存したランの腕(見出しの ``rate_rules``・無ければ legacy)と今の腕が同じかを確かめる(違えば止める)。
+  - `check_resume`(関数): 再開のときに、保存したランの見出しの ``rate_rules``(無ければ legacy=版上げの前のラン)が既定の off かを確かめる
   - `header_fields`(関数): 状態のファイルの見出しの ``rate_rules``(legacy のランは書かない=None=版上げの前の見出しのまま)。
-  - `is_legacy`(関数): ``mode``(省略=今の腕)が旧道(率の形の規則を動かす)か。
+  - `is_legacy`(関数): ``mode``(省略=既定 off)が旧道(率の形の規則を動かす)か。
   - `manifest_fields`(関数): manifest の ``rate_rules``(設定=形の版・腕・規則の宣言・外した印/観測=旧道の件数)。
   - `removed_flags`(関数): 規則ごとの ``rate_rule_<名>_removed``(1=外した・0=旧道)。腕だけで決まる印(設定)。
-  - `resolve`(関数): 過程の引数の腕(``None``=今の腕)を名に直す(名の誤りは止める)。
-  - `set_arm`(関数): 腕を選ぶ(CLI ``--rate-rules``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
+  - `resolve`(関数): 過程の引数の腕(``None``=既定 off。〔第347〕ランの切替口は消した)を名に直す(名の誤りは止める)。
+- import している内部モジュール: `shibuya.foundation.arms.removed`
 - 呼び手: `shibuya.cli`・`shibuya.engine.presence`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.rail`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`
 - 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_waste_sink_report.py`
 - 環境変数: `SHIBUYA_RATE_RULES`
-- 決定の ID: 10-13b/§0-6・11-01・11-01/§2
+- 決定の ID: 10-13b/§0-6・11-01・11-01/§2・第 347
 
 ## [switch_seat.py](../../../../../../../../src/shibuya/world/laws/switch_seat.py)
 

@@ -16,19 +16,20 @@
 売れ残りの廃棄率とポイ捨て(``engine.rate_rules`` の腕が決める)・倒れる事象そのもの(``rate_rules`` の ``collapse``)。
 納品(``delivery_inbound``)は止めない(E5 と気象の文と一緒に次の版上げ)。
 
-腕(切替口): ``--absent-processes {stopped,legacy}``(環境変数 ``SHIBUYA_ABSENT_PROCESSES``・:func:`set_arm`)。既定
-``stopped``=上の 5 件を止めた状態。``legacy``=版上げの前の値の再現のためだけの道(回答 10-13b §0-6=**次の版上げで消す**・
-旧値の再現は安定版のタグで行う)。腕は組み立てのときに 1 回読む(``run_day`` の引数にしない=設定の指紋に入れない=
-``rate_rules``・``seat_release`` と同じ扱い)。腕の名と止めた印と件数は manifest の ``absent_processes`` と、状態のファイルの
-見出しの ``absent_processes``(既定の stopped のランだけ書く=見出しに無い状態のファイルは legacy=版上げの前のラン)に出る
-(再開のときに今の腕と違えば止める)。
+腕: ランはいつも既定 ``stopped``=上の 5 件を止めた状態。〔第347 止めた切替口の削除〕切替口 ``--absent-processes
+{stopped,legacy}``(環境変数 ``SHIBUYA_ABSENT_PROCESSES``)は消した(回答 10-13b §0-6・返事その 8 §1-1)。環境変数を与えると
+読み込みで止まり、ランの入口(組み立ての最初)でも止まる(一覧は ``foundation.arms.removed``)。旧値の再現は安定版のタグ
+``stable-v2-before-switch-removal-347``。``legacy``(版上げの前の値)は部品の口(過程の引数 ``absent_processes``)としてだけ残る=
+部品の単体試験の基準の口(ランの口からは選べない=返事その 8 §1-10)。腕の名と止めた印と件数は manifest の ``absent_processes``
+と、状態のファイルの見出しの ``absent_processes``(stopped のランだけ書く=見出しに無い状態のファイルは legacy=版上げの前の
+ラン=再開できない)に出る。
 
 計器: manifest の ``absent_processes.stopped`` に過程ごとの ``absent_<名>_stopped``(1=止めた・0=旧道で動く)、
 ``absent_processes.counts`` に旧道の件数(stopped のランでは 0 のはず=止めたことの確かめ)。件数の出どころは各過程の
 ``counters()``(``waste.stops``・``waste.collected_g``・``street_cleaning.swept_cells``・``road_works.started``・
 ``dispatch.dispatched``・``infra.power_kwh_day``)。正しい不合格の計器(11-02r #7「街路にごみが残る・倒れた人が運ばれない」)
-として、街路に残るごみ ``street_cleaning.litter_now_g`` と倒れた数 ``salient.collapse`` も並べる(どちらも旧道の
-``--rate-rules legacy`` でだけ生じる=既定のランでは 0)。
+として、街路に残るごみ ``street_cleaning.litter_now_g`` と倒れた数 ``salient.collapse`` も並べる(どちらも率の規則の旧道=
+部品の口 ``rate_rules="legacy"`` でだけ生じる=既定のランでは 0。〔第347〕ランの切替口 ``--rate-rules legacy`` は消した)。
 
 時間の方針(11-02r §2-2): 本モジュールは時刻を持たない(腕の名だけ)。
 
@@ -37,18 +38,19 @@
 
 from __future__ import annotations
 
-import os
 from typing import Any, Final, Mapping
+
+from shibuya.foundation.arms import removed as _RSW
 
 __all__ = [
     "MODE_STOPPED", "MODE_LEGACY", "MODES", "DEFAULT_MODE", "SCHEMA", "PROCESSES", "STOPPED_PROCESSES",
-    "arm", "set_arm", "resolve", "is_legacy", "stopped_flags", "manifest_fields", "header_fields", "check_resume",
+    "ENV_REMOVED", "resolve", "is_legacy", "stopped_flags", "manifest_fields", "header_fields", "check_resume",
 ]
 
 MODE_STOPPED: Final[str] = "stopped"
 MODE_LEGACY: Final[str] = "legacy"
 MODES: Final[tuple[str, ...]] = (MODE_STOPPED, MODE_LEGACY)
-#: 既定(11-02r §1 #7)。``legacy`` は切替口(版上げの前の値の再現・次の版上げで消す)。
+#: 既定(11-02r §1 #7)=ランの腕。``legacy`` は部品の口だけ(〔第347〕ランの切替口は消した)。
 DEFAULT_MODE: Final[str] = MODE_STOPPED
 #: manifest の ``absent_processes`` の値の形の版(欄の意味を変えたら上げる)。
 SCHEMA: Final[str] = "shibuya.absent_processes/1"
@@ -76,34 +78,21 @@ STOPPED_PROCESSES: Final[Mapping[str, Mapping[str, str]]] = {
               "stopped": "人数 × 原単位の電気と水の負荷の集計", "kept": "", "anchor_kept": "W5"},
 }
 
-_ARM: str = os.environ.get("SHIBUYA_ABSENT_PROCESSES", DEFAULT_MODE).strip().lower() or DEFAULT_MODE
-if _ARM not in MODES:
-    raise ValueError(f"SHIBUYA_ABSENT_PROCESSES は {MODES} のどれか(いま {_ARM!r})")
-
-
-def arm() -> str:
-    """いまの腕(``stopped``=既定・``legacy``=切替口)。組み立てのときに読む。"""
-    return _ARM
-
-
-def set_arm(name: str) -> None:
-    """腕を選ぶ(CLI ``--absent-processes``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。"""
-    global _ARM
-    if str(name) not in MODES:
-        raise ValueError(f"--absent-processes は {MODES} のどれか(いま {name!r})")
-    _ARM = str(name)
+#: 〔第347 止めた切替口の削除〕消した切替口の環境変数(与えると読み込みで止まる=ランの入口の組み立ての最初でも止まる)。
+ENV_REMOVED: Final[str] = "SHIBUYA_ABSENT_PROCESSES"
+_RSW.stop_if_set(ENV_REMOVED)  # 一覧と止める文は foundation.arms.removed
 
 
 def resolve(mode: str | None) -> str:
-    """過程の引数の腕(``None``=今の腕)を名に直す(名の誤りは止める)。"""
-    m = _ARM if mode is None else str(mode)
+    """過程の引数の腕(``None``=既定 stopped。〔第347〕ランの切替口は消した)を名に直す(名の誤りは止める)。"""
+    m = DEFAULT_MODE if mode is None else str(mode)
     if m not in MODES:
         raise ValueError(f"absent_processes は {MODES} のどれか(いま {m!r})")
     return m
 
 
 def is_legacy(mode: str | None = None) -> bool:
-    """``mode``(省略=今の腕)が旧道(5 件の過程を動かす)か。"""
+    """``mode``(省略=既定 stopped)が旧道(5 件の過程を動かす)か。"""
     return resolve(mode) == MODE_LEGACY
 
 
@@ -115,7 +104,8 @@ def stopped_flags(mode: str | None = None) -> dict[str, int]:
 
 def _counts(runner: Any) -> dict[str, Any]:
     """旧道の件数。stopped のランでは、正しい不合格の 2 欄(``street_litter_now_g``・``collapse_events``)を除き 0。
-    この 2 欄は率の規則の旧道(``--rate-rules legacy``)と組むと 0 にならない(街路に残るごみ・倒れた数=止めた側で増える)。
+    この 2 欄は率の規則の旧道(部品の口 ``rate_rules="legacy"``)と組むと 0 にならない(街路に残るごみ・倒れた数=止めた側で
+    増える)。
     過程の無いランは ``None``。"""
     pc = runner.counters() if runner is not None else {}
 
@@ -152,9 +142,11 @@ def header_fields(mode: str) -> dict[str, Any] | None:
 
 
 def check_resume(saved: Any) -> None:
-    """再開のときに、保存したランの腕(見出しの ``absent_processes``・無ければ legacy)と今の腕が同じかを確かめる(違えば止める)。"""
+    """再開のときに、保存したランの見出しの ``absent_processes``(無ければ legacy=版上げの前のラン)が既定の stopped かを
+    確かめる(違えば止める)。〔第347〕切替口を消したので、今の腕はいつも既定。"""
     s = saved if isinstance(saved, Mapping) else {}
     s_mode = str(s.get("mode", MODE_LEGACY))
-    if s_mode != _ARM:
-        raise ValueError(f"再開の「無い」の過程の腕が親と違う(親 {s_mode}・今 {_ARM})=--absent-processes(環境変数 "
-                         "SHIBUYA_ABSENT_PROCESSES)を親にそろえる")
+    if s_mode != DEFAULT_MODE:
+        raise ValueError(f"再開の「無い」の過程の腕が親と違う(親 {s_mode}・今 {DEFAULT_MODE})=旧値の切替口 "
+                         f"--absent-processes legacy(環境変数 {ENV_REMOVED})は消した(安定版のタグ "
+                         f"{_RSW.tag_of(ENV_REMOVED)} で回す)")

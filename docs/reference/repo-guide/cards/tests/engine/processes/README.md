@@ -26,8 +26,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
 〔11-02r §1 #7〕「無い」と宣言した過程 5 件を止める切替口 ``engine.absent_processes`` の試験(過程ごとの正と負の対照)。
 
 - 公開の関数とクラス
-  - `arm_restore`(関数)
-  - `test_cli_rejects_a_wrong_arm_name`(関数)
+  - `test_cli_flag_is_removed`(関数): 〔第347 止めた切替口の削除〕前(``test_cli_rejects_a_wrong_arm_name``)は ``--absent-processes off`` が名の誤りで止まるのを
   - `test_collapse_still_happens_but_nobody_is_dispatched_when_stopped`(関数): 倒れる事象そのもの(rate_rules の collapse)はこの腕に依らない。止めた腕では出動も到着(警察の顕著行為)も無い。
   - `test_dispatch`(関数)
   - `test_infra`(関数)
@@ -37,12 +36,13 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_road_works_plan_is_the_same_in_both_arms`(関数)
   - `test_run_manifest_section`(関数)
   - `test_runner_hands_the_arm_to_the_five_processes`(関数): 実行器が 5 過程に部品の口を渡す(``None``=既定 stopped)。〔第347〕前は切替口の腕を stopped にしてから見た(既定と同じ)。
-  - `test_state_header_and_resume_check`(関数)
+  - `test_state_header_and_resume_check`(関数): 〔第347 止めた切替口の削除〕前は切替口の腕を stopped と legacy に置いて再開の検査を見た(legacy の腕なら見出しに無い
   - `test_street_cleaning_leaves_litter_when_stopped`(関数): ポイ捨ての旧道(rate_rules legacy)でごみを生じさせ、掃除の巡回の腕だけを変える。
-  - `test_the_default_arm_is_stopped_and_names_are_checked`(関数)
+  - `test_the_run_arm_is_stopped_and_the_switch_is_removed`(関数): 〔第347 止めた切替口の削除〕前(``test_the_default_arm_is_stopped_and_names_are_checked``)は「既定 stopped・
   - `test_waste_collection`(関数)
   - `tiny_runs`(関数): 〔第347 止めた切替口の削除〕legacy は切替口(``--absent-processes`` の腕)の代わりに、試験の中だけで実行器に部品の口
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.time_consts`・`shibuya.world.assets`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.actual_log`・`tests/engine/_legacy_world.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.arms.removed`・`shibuya.foundation.time_consts`・`shibuya.runtime.state.resume`・`shibuya.world.assets`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.actual_log`・`tests/engine/_legacy_world.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`
+- 環境変数: `SHIBUYA_ABSENT_PROCESSES`
 - 決定の ID: 11-02r・11-02r #7・11-02r/§1・11-02r/§1 #7・11-02r/§2-2・11-03/§3・第 347
 
 ## [test_civic.py](../../../../../../../tests/engine/processes/test_civic.py)
@@ -231,7 +231,6 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
 〔11-01 段 2 の 3・4〕率の形の規則を外す切替口 ``engine.rate_rules`` の試験(規則ごとの正と負の対照)。
 
 - 公開の関数とクラス
-  - `arm_restore`(関数)
   - `day_runs`(関数): 〔検収 L2〕世界資産(台帳つき)の 200 体で 1 日(1,440 刻み)=05:00 の売れ残り・05〜08 時の納品・08〜21 時の宅配・
   - `test_attendance_rate_is_gone_from_run_day_and_the_cli`(関数)
   - `test_calvo_is_not_wired_into_the_engine`(関数): ``economy.pricing`` の Calvo の口は src のどこからも呼ばれていない(結線しない=価格は固定)。
@@ -247,9 +246,11 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_off_keeps_only_the_two_hundred_percent_cap`(関数)
   - `test_parcels`(関数)
   - `test_run_manifest_counts_rise_in_legacy_and_are_zero_off`(関数): 〔検収 L2〕同じ 1 日のランで、旧道は催し・売れ残り・ポイ捨て・宅配の件数が立ち、off は全部 0(倒れる率は off で 0)。
-  - `test_state_header_and_resume_check`(関数)
-  - `test_the_default_arm_is_off_and_names_are_checked`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.presence`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.rail`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_rate`・`shibuya.world.ledger.actual_log`・`tests/engine/_legacy_world.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/test_presence_executor.py`
+  - `test_state_header_and_resume_check`(関数): 〔第347 止めた切替口の削除〕前は切替口の腕を off と legacy に置いて再開の検査を見た(legacy の腕なら見出しに無いファイル
+  - `test_the_run_arm_is_off_and_the_switch_is_removed`(関数): 〔第347 止めた切替口の削除〕前(``test_the_default_arm_is_off_and_names_are_checked``)は「既定 off・``resolve(None)`` は
+  - `test_the_run_day_collapse_rate_port_is_removed`(関数): 〔第347 止めた切替口の削除・案 k1〕倒れる率の試験の口 ``run_day(salient_rate_per_10k=…)`` は率の規則の旧道でだけ効いた=
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.presence`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.arms.removed`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.rail`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_rate`・`shibuya.world.ledger.actual_log`・`tests/engine/_legacy_world.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/test_presence_executor.py`
+- 環境変数: `SHIBUYA_RATE_RULES`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・第 347
 
 ## [test_rng_scheme_10c.py](../../../../../../../tests/engine/processes/test_rng_scheme_10c.py)

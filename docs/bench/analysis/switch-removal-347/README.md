@@ -7,8 +7,8 @@
 > commit)は親。
 
 段の並び(親の裁定): ① 試験の書き直し(切替口はまだ在る・src は変えない)→ ②a 経済の段階 2 の off → ②b 率の規則と「無い」の
-過程(組で)→ ③a `--space` → ③b `--hunger-model` の旗。**本書は ①(手順 0・①a・①b・①c)と ②a と、① の検収の直しまで**
-(②a は §9・検収の直しは §10・②b の作業の一覧は §11・試験ごとの行は付録 A)。
+過程(組で)→ ③a `--space` → ③b `--hunger-model` の旗。**本書は ①(手順 0・①a・①b・①c)と ②a と、① の検収の直しと ②b まで**
+(②a は §9・検収の直しは §10・②b の作業の一覧は §11・②b は §12・試験ごとの行は付録 A)。
 
 ## 0. 要点(① まで)
 
@@ -465,6 +465,105 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
 | 4-3 | 切替口のモジュールの定数を読む試験(27 本の外) | `tests/bridging/test_drives_from_vs_scoring.py::test_engine_stopped_flags`(237〜258 行) | §4-3 |
 | 4-3 | 切替口そのものの試験 | `test_rate_rules_1101.py` の 2 本と `--rate-rules on` の 1 行・`test_absent_processes_1102.py` の 3 本と CLI の 1 本 | 「消した」の試験に替える(§4-3) |
 
+②b でどう扱ったかは §12-3。
+
+## 12. ②b: 率の規則の旧道と「無い」の過程の旧道の切替口を組で消した(1 バイト不変の見込み・byte-check は親)
+
+土台は頭 `17ad6ebc`(① の検収の直しの commit)。旧値の再現は `git checkout stable-v2-before-switch-removal-347`(5 本の口が全部在る
+最後の commit=②a の前)。親の裁定(問い 5=案 k1・②b の台帳の 3 行は removed にしない・問い 8=`world/ledger/absent.py` の文に
+触らない)のとおり。
+
+### 12-1 消した名・残した名・足した止め
+
+| 置き場 | 消した | 残した(理由) | 足した |
+|---|---|---|---|
+| `src/shibuya/world/laws/switch_rate.py` | 環境変数 `SHIBUYA_RATE_RULES` の読み・`_ARM`・`arm`・`set_arm`(`__all__` から外した)・`resolve(None)` の「今の腕」・`check_resume` の今の腕(`_ARM`)と文の旗 | 部品の口とその道具(`MODE_OFF`・`MODE_LEGACY`・`MODES`・`DEFAULT_MODE`・`resolve`・`is_legacy`・`removed_flags`・`manifest_fields`・`header_fields`・`check_resume`)・定数(`SCHEMA`・`RULES`・`REMOVED_RULES`・`ALWAYS_REMOVED`・`WASTE_BAND_NA`)=過程の引数 `rate_rules` の基準の口(仮決定 Q6)と manifest・見出しの鍵(値は off に固定) | `ENV_REMOVED`="SHIBUYA_RATE_RULES" と読み込みの止め(`stop_if_set`)・`resolve(None)` は既定 off・`check_resume` は既定と比べ、文に消した切替口と安定版のタグ |
+| `src/shibuya/world/laws/switch_absent.py` | 同じ形(`SHIBUYA_ABSENT_PROCESSES`・`_ARM`・`arm`・`set_arm`) | 同じ形(`MODE_STOPPED`・`MODE_LEGACY`・`MODES`・`DEFAULT_MODE`・`resolve`・`is_legacy`・`stopped_flags`・`manifest_fields`・`header_fields`・`check_resume`・`SCHEMA`・`PROCESSES`・`STOPPED_PROCESSES`) | 同じ形(`ENV_REMOVED`="SHIBUYA_ABSENT_PROCESSES") |
+| `src/shibuya/cli.py` | 旗 `--rate-rules`・`--absent-processes`・`set_arm` の呼び出し 2 つ・ランの種類の腕の数えの 2 項 | `write_census_files` の `waste_band_applies=_RRC.is_legacy()`(下の L4) | 注 |
+| `src/shibuya/runtime/systems/assemble.py` | 組み立てが腕を読む `_RRB.arm()`・`_APB.arm()` | 再開の検査の呼び出し(`check_resume`)・過程と計画実行層と箱へ腕を渡す形(値はいつも既定) | `rate_rules_mode = _RRB.DEFAULT_MODE`・`absent_mode = _APB.DEFAULT_MODE`。試験の口 `salient_rate_per_10k` が None 以外なら止める(案 k1・文に消した口とタグと部品の口の名) |
+| `src/shibuya/engine/run.py` | — | 引数 `salient_rate_per_10k`(既定 None=設定の指紋と 1-0 の引数の数を変えない) | docstring を「消した口・None 以外は止める」に |
+| `src/shibuya/foundation/arms/removed.py` | — | 第346 と ②a の行と文(前のまま) | `REMOVED_ENV` に `SHIBUYA_RATE_RULES`・`SHIBUYA_ABSENT_PROCESSES`・`REMOVED_CLI_FLAGS` に `--rate-rules`・`--absent-processes`・`_STEP_TAG` に 4 つの名(タグ `stable-v2-before-switch-removal-347`)。ランの入口の止めと表に出さない旗は一覧を見るので自動で入る |
+| `tools/bytecheck/configs.py` | `SWITCH_ENV` の 2 本 | — | `REMOVED_ENV` に 2 本 |
+
+- 残した部品の口(仮決定 Q6): 過程の引数 `rate_rules`・`absent_processes`(`None`=既定)・`SalientProcess(rate_per_10k_per_day=)`・
+  `WorldProcessRunner(rate_rules=, absent_processes=, salient_rate_per_10k=)`・`PlanExecutor(rate_rules=)`・箱の欄 `cfg.rate_rules`・
+  `cfg.absent_processes`。§11 の L6 の一覧(試験の助けが頼っている src の形)は変えていない。
+- 1 バイト不変の見込みの理由: 消した分かれは、既定(off・stopped)では通らない分かれだけ。組み立てが読む腕は前も環境変数が無ければ
+  既定で、今は既定そのもの。19 構成は `cli.run` を直に呼び(argparse を通らない)、`salient_rate_per_10k` を渡さず、組 `all19` の
+  環境変数は空。manifest の `rate_rules`・`absent_processes` の節は組み立ての腕(既定)から作る=前と同じ値。設定の指紋の鍵も
+  引数の数も変わらない。
+
+### 12-2 替えた試験(前に確かめていたこと → 後に確かめること)
+
+| 試験 | 前 | 後 | 同じか・減ったか |
+|---|---|---|---|
+| `tests/engine/processes/test_rate_rules_1101.py::test_the_default_arm_is_off_and_names_are_checked` → `::test_the_run_arm_is_off_and_the_switch_is_removed` | 既定 off・`resolve(None)` は今の腕・`set_arm("on")` で止まる・印と規則の表 | 腕を選ぶ名(`arm`・`set_arm`・`_ARM`)が無い・`resolve(None)` は既定 off・消した環境変数と旗とタグが止める一覧にある・部品の口の名の検査(`resolve("on")`)・印と規則の表は前のまま | 切替口そのものの確かめ=「消した」に替えた。印と表は同じ |
+| 同 `::test_state_header_and_resume_check` | 腕 off で見出し off は通る・見出しに無いと止まる/腕 legacy で見出しに無いファイルは通る・見出し off は止まる | 見出し off は通る・見出しに無い(legacy)と legacy は止まる・文に消した切替口とタグ | legacy の腕からの再開は無くなった(切替口そのもの)。食い違いを止める確かめは同じ |
+| 同 `::test_attendance_rate_is_gone_from_run_day_and_the_cli` | `--rate-rules on` は名の誤りで止まる | `--rate-rules` は値(on・legacy・off)に依らず、表に出さない旗で消した切替口の文で止まる | 同じ(止まる)+文を見る |
+| 同 `::test_the_run_day_collapse_rate_port_is_removed`(新) | — | 案 k1: `run_day(salient_rate_per_10k=3000)` は文(消した口・タグ・部品の口の名)で止まる・引数の既定は None・None のランは回る | 足した |
+| 同 `::test_run_manifest_counts_rise_in_legacy_and_are_zero_off`(変えていない) | 検収 L5: 助けで回した旧道のランの manifest の mode=off を期待値に置いている | 本段は manifest の mode の出どころ(組み立ての腕=既定)を変えないので、そのまま通る | 同じ |
+| `tests/engine/processes/test_absent_processes_1102.py::test_the_default_arm_is_stopped_and_names_are_checked` → `::test_the_run_arm_is_stopped_and_the_switch_is_removed` | 既定 stopped・`resolve(None)` は今の腕・`set_arm("off")` で止まる・印・宣言との 1 対 1 | 率の規則と同じ形(名が無い・既定 stopped・一覧とタグ・部品の口の名の検査)・印・宣言との 1 対 1 は前のまま | 切替口そのもの=「消した」に替えた。印と宣言は同じ |
+| 同 `::test_state_header_and_resume_check` | 率の規則と同じ形 | 率の規則と同じ形 | 率の規則と同じ |
+| 同 `::test_resume_through_run_day_checks_the_arm` | 同じ腕の再開=通し・切替口の腕を legacy に置くと同じファイルからの再開が止まる | 同じ腕の再開=通し(見出しの `absent_processes` が stopped)・見出しに `absent_processes` の無いファイル(版上げの前=legacy のラン。保存の間だけ `header_fields` を None にして作る)からの再開は文(消した・タグ)で止まる | 同じ(食い違いを止める)。食い違いの作り方だけが違う |
+| 同 `::test_cli_rejects_a_wrong_arm_name` → `::test_cli_flag_is_removed` | `--absent-processes off` は名の誤りで止まる | 値(off・legacy・stopped)に依らず、消した切替口の文で止まる | 同じ(止まる)+文を見る |
+| 同 `::test_run_manifest_section`(変えていない) | 検収 L5: 助けで回したランの manifest の mode=stopped を期待値に置いている | そのまま通る(12-3) | 同じ |
+| `tests/engine/test_removed_switches_346.py`(集合・タグの表・旗の場合) | 消した名 6 本・旗 4 本 | 8 本・旗 6 本(`SHIBUYA_RATE_RULES`・`SHIBUYA_ABSENT_PROCESSES`・`--rate-rules`・`--absent-processes`・タグは 347)。旗の場合に `--rate-rules legacy・off`・略記 `--rate-r`・`--absent-processes legacy・stopped`・略記 `--absent` を足した。環境変数の場合(子のプロセス)は一覧から自動で 2 本 × 値 2 × 入口 2 が入る | 同じ+足した名 |
+
+確かめる範囲が減った所: 切替口そのものの確かめ(腕の名・legacy の腕からの再開・CLI の旗の値の名の検査)だけ。旧道を駆動に使う
+試験は ① で部品の口と試験の中だけの助けへ移したので、確かめる値は減っていない(§3・§4)。
+
+### 12-3 検収の L4・L5 と、§4-3 の続き
+
+- L4(`cli.write_census_files` の腕の出どころ): `switch_rate` のモジュールは残した(部品の口の定数と道具)ので `_RRC` は無くならない。
+  `_RRC.is_legacy()` は引数なし=`resolve(None)`=既定 off を読む=**常に偽**(cli のランの月次 MER の帯はいつも非該当)。cli の
+  ランの腕はいつも既定なので、これは「そのランの腕」と同じ値。試験 `test_waste_sink_report.py` の legacy の 2 本はそのランの実行器
+  の腕(助けで legacy)を渡して MER を作る。旧道は試験の中だけの助けのランにしかないので、食い違いは src の側では起きない。src の
+  式は変えず、注に「常に偽・旧道は試験がそのランの実行器の腕から作る」と書いた。`test_waste_sink_report.py` が `switch_rate` から
+  定数 `WASTE_BAND_NA` を読む形はそのまま(定数は残した)。
+- L5(manifest の mode を期待値に置いた 2 か所): 本段は manifest の mode の出どころ(組み立ての腕=`b.cfg.rate_rules`・
+  `b.cfg.absent_processes`=既定)を変えないので、2 か所とも変えずに通る(12-4)。
+- `tests/bridging/test_drives_from_vs_scoring.py::test_engine_stopped_flags`: 読む定数(`DEFAULT_MODE`・`MODE_OFF`・`RULES`・
+  `STOPPED_PROCESSES`・`MODE_STOPPED`・`PROCESSES`)は残したので、変えずに通る(12-4)。
+
+### 12-4 試験の結果
+
+- 1 本の pytest(`-m "not gpu and not slow"`・`-n 4 --dist loadfile`・作業の木・頭 `17ad6ebc`+本段): 変えた試験の 3 ファイル
+  (`test_rate_rules_1101.py` 21=前 20+1・`test_absent_processes_1102.py` 22・`test_removed_switches_346.py` 37=前 27+10)と、消した
+  名・旗・口を読む試験と変えた src の口を見る試験(`tests/bridging/test_drives_from_vs_scoring.py` 23・`tests/tools/test_bytecheck.py`
+  123・`tests/engine/test_waste_sink_report.py` 6・`tests/test_cli*.py` 5 本 56・`tests/engine/systems/test_boxes.py` 9=run_day の
+  引数の数・`tests/engine/bridging/test_bridging_ledger.py` 40・`tests/bridging/test_decision_rows_1101.py` 6=台帳の 3 行と
+  `BASE_ROWS_SHA`・`tests/engine/state/test_names_frozen.py` 13・`tests/test_places_guard.py` 16)で **372 passed・0 failed・
+  0 skipped**(1 分 18 秒)。警告は前から出る「既知の循環」の `UserWarning` だけ。
+- L5 の 2 か所(`test_run_manifest_counts_rise_in_legacy_and_are_zero_off`・`test_run_manifest_section`)と
+  `test_engine_stopped_flags` は、変えずに通った。台帳の行が指す切替口が無くなって落ちる試験は無かった。
+- `lint-imports`: 12 kept・0 broken(`world.laws.switch_rate`・`switch_absent` が新しく `foundation.arms.removed` を読む)。
+- カード `tools/repo_guide/build.py` で作り直した(`cards/data.md` は戻した)。`--check` は「最新」(151 本)。
+- 回していない: byte-check と範囲の全体の試験(親)。旧道を部品の口と助けで回す試験(①・①c で書き直したもの)は本段で変えて
+  いないので回していない(範囲の試験に入る)。`tests/c7` は開いていない(消した環境変数や旗を使うかは確かめていない)。
+
+### 12-5 次の版上げで扱う行(本段では触らない)と、直していない注・止まる記録の道具
+
+- つなぎの台帳の 3 行(親の裁定=removed にしない・`bridges_count`・`bridges_version` と `BASE_ROWS_SHA` を動かさない):
+  `DOC-s2rates-legacy-switch`・`DOC-s2e-absent-legacy-switch`・`DOC-s2rates-collapse-test-knob`。次の版上げで removed にする
+  (why の末尾に「〔第347〕閉じた: 切替口と試験の口を消した・部品の口は残る・旧値の再現は安定版のタグ `stable-v2-before-switch-removal-347`」)。
+  行が指す `code_at`(旧の道 `engine/rate_rules.py`・`engine/absent_processes.py`・`cli.py`・`engine/processes/salient.py`・
+  `engine/run.py`)のファイルは残っているので、台帳の試験は落ちない(12-4)。
+- `world/ledger/absent.py` の `_RATE_OFF`・`_ABSENT_OFF` の文(「旧道 `--rate-rules legacy` では…が動く(1 版だけ)」)と各行の
+  `stage="next-bump"`(§6 の行・`registry_hash` が動く)。
+- 直していない注(`--rate-rules legacy`・`--absent-processes legacy` の言い方が残る。docstring の見出しの項と宣言の文を動かさない
+  ため): `world/laws/salient.py:46-47`・`engine/presence.py:39・56・85・121・887・998`・`world/laws/civic.py:21・25・27`・
+  `world/laws/goods_flow.py:36・38・42・43`・`world/laws/logistics.py:13・21`・`world/laws/rail.py:68`。文書
+  `docs/reference/repo-guide/catalog/a-body-and-town.md`(71・72・106・178・728・955・1185 行)・`b-people.md`(792・796・828 行)と
+  `day-flow.md`(手で書く案内=試験が読まない)。
+- 今の src で止まる記録の道具(試験が読まない=346 の前例。旧値は安定版のタグで回す):
+  - 切替口の腕を置く: 本書の `tools/step0_legacy_helper.py`(`set_arm`・`run_day(salient_rate_per_10k=)`)・`tools/step0_parts_none.py`。
+  - 消した旗を渡すと止まる(渡さなければ回る): `docs/bench/analysis/s2-rates-1101/tools/compare_s2rates.py`・`perf_s2rates.py`
+    (`--rate-rules`)・`docs/bench/analysis/s2e-1102/tools/run_s2e.py`(`--absent-processes`・`--rate-rules`)。
+  - `salient_rate_per_10k` を渡す: `docs/bench/analysis/memory-stage1-2026-09-28/memory_measure.py`(2 構成)・
+    `small-fixes-2026-09-29/small_fixes_measure.py`・`wallbounce-1003/10c/count_dist_x1000.py`・`wallbounce-1003/10d/resume_check_10d.py`。
+  - 許す鍵の一覧に残る: `tools/c8/ablation_runner.py` の `ALLOWED_KWARGS` の `salient_rate_per_10k`(腕の表に使う腕は無い=渡せば
+    組み立てで止まる)。
+
 ## 付録 A. 試験ごとの行(検収 L9=§3・§4 でまとめた行を開いた)
 
 ### A-1 既定と同じ値に腕を押さえる行を消した 9 か所(§3-1)
@@ -534,3 +633,12 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
   このため段階 2 on の場合は、試験の代役の組み立ての物(`tests/economy/stage2/test_stage2_money_rules.py::_plan` と同じ形・部品は
   全部)で `attach_stage2` を呼んで挿した。補充・廃棄物・消費の 3 本は、段階 2 を挿しても同じ期待値で通った(この 3 つの操作は段階 2
   の部品の流れを通らない)。
+
+### 12-6 親の確かめ(②b)
+
+- byte-check: 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0・final が同じ 19(基準 `ec2350b`=直前の commit・src は検収の直し `17ad6eb` と同じ。
+  既定 `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。全体の壁時計 421 秒)。組は [bytecheck_2b/](bytecheck_2b/)。
+- `tests/c7` は開かずに件数だけ数えた: 消した環境変数・旗・腕の名を使う所は 0。`salient_rate_per_10k` の 2 か所は、合成の
+  `input_match` に渡す文字列の鍵で、ランを回さない(止める対象でない)。
+- 範囲の全体の試験は、この段の commit の後に本体の木で回す(結果は次の段の節に書く)。
+- 例外(ignore)の本数は変わらない(割る段ではない=31 本・延べ 45 行)。`lint-imports` 12 kept。

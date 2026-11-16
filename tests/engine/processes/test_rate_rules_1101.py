@@ -2,7 +2,9 @@
 
 各規則について、既定(腕 off)では旧道の件数が 0・切替口(腕 legacy)では旧の件数が出ることを、過程を直に組んで確かめる。
 ランの全体(manifest の節・状態の見出し・CLI の口)は小さな合成世界の run_day で確かめる。記録
-``docs/bench/analysis/s2-rates-1101/README.md``。
+``docs/bench/analysis/s2-rates-1101/README.md``。〔第347 止めた切替口の削除〕ランの切替口(``--rate-rules``・環境変数
+``SHIBUYA_RATE_RULES``・``run_day(salient_rate_per_10k=…)``)は消した=旧道は過程の部品の口(引数 ``rate_rules``)だけ・ランの
+旧道は試験の中だけの助け(``tests/engine/_legacy_world.py``)。記録 ``docs/bench/analysis/switch-removal-347/README.md``。
 """
 
 from __future__ import annotations
@@ -34,21 +36,25 @@ from .test_goods_flow import _setup as goods_setup
 ROOT = Path(__file__).resolve().parents[3]
 
 
-@pytest.fixture
-def arm_restore():
-    prev = RR.arm()
-    yield
-    RR.set_arm(prev)
+# ================================================================= 切替口(〔第347〕消した)と部品の口
+def test_the_run_arm_is_off_and_the_switch_is_removed():
+    """〔第347 止めた切替口の削除〕前(``test_the_default_arm_is_off_and_names_are_checked``)は「既定 off・``resolve(None)`` は
+    今の腕・腕の名の誤り(``set_arm("on")``)で止まる」。切替口を消した: 腕を選ぶ名(``arm``・``set_arm``・``_ARM``)が無い・
+    ``resolve(None)`` は既定 off・消した環境変数と旗の名とタグは止める一覧にある(止まることは
+    ``tests/engine/test_removed_switches_346.py``)。部品の口の名の検査・印・規則の表は残す。"""
+    from shibuya.foundation.arms import removed as RSW
 
-
-# ================================================================= 切替口そのもの
-def test_the_default_arm_is_off_and_names_are_checked(arm_restore):
+    for name in ("arm", "set_arm", "_ARM"):
+        assert not hasattr(RR, name), name
+        assert name not in RR.__all__, name
     assert RR.DEFAULT_MODE == RR.MODE_OFF and RR.MODES == ("off", "legacy")
-    assert RR.resolve(None) == RR.arm()
-    with pytest.raises(ValueError):
-        RR.set_arm("on")
-    with pytest.raises(ValueError):
-        RR.resolve("bogus")
+    assert RR.resolve(None) == RR.DEFAULT_MODE and RR.is_legacy() is False and RR.is_legacy("legacy") is True
+    assert RR.ENV_REMOVED == "SHIBUYA_RATE_RULES" and RR.ENV_REMOVED in RSW.REMOVED_ENV
+    assert RSW.REMOVED_CLI_FLAGS["--rate-rules"] == RR.ENV_REMOVED
+    assert RSW.tag_of(RR.ENV_REMOVED) == RSW.REMOVED_SWITCH_TAG_347 == "stable-v2-before-switch-removal-347"
+    for bad in ("on", "bogus"):  # 部品の口の名の検査(前は set_arm("on") で見た名の誤り)
+        with pytest.raises(ValueError):
+            RR.resolve(bad)
     off = RR.removed_flags("off")
     leg = RR.removed_flags("legacy")
     assert set(off) == {f"rate_rule_{r}_removed" for r in RR.RULES} and len(RR.RULES) == 9
@@ -58,16 +64,17 @@ def test_the_default_arm_is_off_and_names_are_checked(arm_restore):
     assert set(RR.REMOVED_RULES) == set(RR.RULES)
 
 
-def test_state_header_and_resume_check(arm_restore):
+def test_state_header_and_resume_check():
+    """〔第347 止めた切替口の削除〕前は切替口の腕を off と legacy に置いて再開の検査を見た(legacy の腕なら見出しに無いファイル
+    からも再開できた)。切替口を消した: 今の腕はいつも既定 off=見出し off は通る・見出しに無い(legacy=版上げの前のラン)と
+    legacy は止まる・文に消した切替口と安定版のタグ。"""
     assert RR.header_fields("off") == {"mode": "off"} and RR.header_fields("legacy") is None
-    RR.set_arm("off")
     RR.check_resume({"mode": "off"})
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="率の規則の腕が親と違う.*--rate-rules legacy.*消した.*"
+                                         "stable-v2-before-switch-removal-347"):
         RR.check_resume(None)  # 見出しに無い=版上げの前(legacy)のラン
-    RR.set_arm("legacy")
-    RR.check_resume(None)
-    with pytest.raises(ValueError):
-        RR.check_resume({"mode": "off"})
+    with pytest.raises(ValueError, match="率の規則の腕が親と違う"):
+        RR.check_resume({"mode": "legacy"})
 
 
 # ================================================================= #3 E8 到着の分散
@@ -333,12 +340,32 @@ def test_run_manifest_counts_rise_in_legacy_and_are_zero_off(day_runs):
     assert "large_event" in off_rn.log.process_ids
 
 
-def test_attendance_rate_is_gone_from_run_day_and_the_cli():
+def test_attendance_rate_is_gone_from_run_day_and_the_cli(capsys):
     with pytest.raises(TypeError):
         run_day(n_agents=10, seed=1, n_cells=9, ticks=2, attendance_rate=0.5)
     from shibuya import cli
 
     with pytest.raises(SystemExit):
         cli.main(["--attendance-rate", "0.5"])
-    with pytest.raises(SystemExit):
-        cli.main(["--rate-rules", "on"])
+    capsys.readouterr()
+    # 〔第347 止めた切替口の削除〕前は ``--rate-rules on`` が名の誤りで止まるのを見た。旗は消した=値に依らず、表に出さない旗で
+    # 受けて消した切替口の文で止まる
+    for value in ("on", "legacy", "off"):
+        with pytest.raises(SystemExit) as exc:
+            cli.main(["--rate-rules", value])
+        assert exc.value.code == 2
+        assert "--rate-rules は消した切替口" in capsys.readouterr().err
+
+
+def test_the_run_day_collapse_rate_port_is_removed():
+    """〔第347 止めた切替口の削除・案 k1〕倒れる率の試験の口 ``run_day(salient_rate_per_10k=…)`` は率の規則の旧道でだけ効いた=
+    一緒に消した。引数は設定の指紋と 1-0 の引数の数を変えないため残し、None 以外は刻みの前に止める(文に消した口・タグ・部品の
+    口の名)。None(既定)のランは今のまま。"""
+    import inspect
+
+    assert inspect.signature(run_day).parameters["salient_rate_per_10k"].default is None
+    with pytest.raises(ValueError, match="salient_rate_per_10k は消した試験の口.*stable-v2-before-switch-removal-347"
+                                         ".*WorldProcessRunner.*SalientProcess"):
+        run_day(n_agents=10, seed=1, n_cells=9, ticks=2, salient_rate_per_10k=3_000.0)
+    res = run_day(n_agents=10, seed=1, n_cells=9, ticks=2, salient_rate_per_10k=None)
+    assert res.runner.salient.rate_rules == RR.DEFAULT_MODE
