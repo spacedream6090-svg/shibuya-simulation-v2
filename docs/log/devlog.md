@@ -20,7 +20,8 @@
 - **続き(Q13 の段 0)**: 既定だけを替えた木の byte-check=18 構成同じ・w6_golden_null_arm だけ動いた。親の裁定を変えた=語彙の範囲はランの入口だけ・倍率の既定は「予算を渡したら 1.0」。見つけた欠陥 2 つ(艦隊の書式の判定・低い層の既定 v1 に頼る 8 か所)は直さずに判断待ちへ。
 - **続き(G0 が入った)**: 割る段 5a の G0=adbe8bb(移す道具に割る仕組みと守り 11 個・src の差 0 本・範囲 6,902 passed・道具の試験 108 passed)。タグ stable-v2-before-split5a-G1。IMPLEMENTED #156。5a の commit は群ごとに(1 本ごとの byte-check は実装役)。CI=8c58d9f 緑 71 分・5bcd4ff 緑 42 分・adbe8bb 緑 39 分。Q13 は既定を替えると落ちる試験 53 本(24 ファイル)。
 - **続き(5a の群 1 が入った・Q13 の ①)**: 群 1=bf0ccbb(world/assets・agents/state・engine/calendar を割った・byte-check 19 構成 37 欄すべて同じ・範囲 6,918 passed・新しい失敗 1 本=割って移った docstring の「tick」を直した・検収 受入)。タグ stable-v2-before-split5a-G2。IMPLEMENTED #157。Q13 の ①=9495521(試験 14 ファイルに引数を明示・src 不変・範囲 6,918 passed)。② は実装と検収(条件つき=語彙を渡さない道具 7 本)が済み、直しの途中。byte-check の語彙を渡さない 1 構成にも語彙 v1 を明示する(親の裁定の変更)。CI=3befc11 緑 54 分・9495521 緑 45 分。
-- **次**: 5a の群 2(出来事の語 3 本)→ 群 3〜5。Q13 の ② の直し → byte-check → 範囲の試験 → 性能 → commit。判断待ちは PENDING §1-1(店の仕事の腕と空腹 energy が増えた)。
+- **続き(Q13 の ② が入った・5a の群 2 の循環)**: 版上げ(小)Q13=9626f65・タグ stable-v2-before-library-defaults-q13(25ca546)。ランの入口の既定を CLI にそろえた(語彙 v3・空腹 energy・呼数 無制限)・空腹 v1 は試験の中だけの口。byte-check 19 構成 37 欄すべて同じ(作業木の道具で)・範囲 6,925 passed(前からの 1 本)・検収 2 回とも条件つき(中 1 ずつ)→ 直した。性能=CLI の既定は悪化なし・引数を渡さない run_day は別のランになり約 2.6 倍(呼数 23,501 → 62,251)。IMPLEMENTED #158。5a の群 2=1 本目 registry は当たった(byte-check 同じ)・2 本目 record で import の循環(表の割り先 events に置くと journal.log と循環)→ 親の仮採用=SIGNBOARD_CAUSE を foundation/journal/log.py へ・道具に循環の守りを足す。
+- **次**: 5a の群 2 の続き(record → body)→ 群 3〜5 → 5b。判断待ちは PENDING の〔第347〕の行(5a の表に無い決め事が 1 つ増えた)。
 
 ## 第346(2026-11-09〜10)返事その 7 の受領=原文と添付 4 本を置き索引に 11-09 を足した。CLAUDE.md の書き換え・段 2 の直し・byte-check の道具・旧道の削除・食い違いの決着・最終の全ファイルの表・研究 5 本
 
