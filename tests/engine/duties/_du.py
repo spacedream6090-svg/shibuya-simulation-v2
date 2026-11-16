@@ -36,7 +36,7 @@ def plan_assets(n_poi: int, start: int = RULE_FROM, end: int = RULE_TO, *, per_p
                 src: dict[int, str] | None = None):
     """店の決まり(W7 の形の営業時間の表)。曜日 0〜6 と祝日の行(7)に同じ区間。``per_poi`` で店ごとに替えられる。``src`` は
     〔検収 M3〕店ごとの出どころ(W7 の列 src の形=``ProcessAssets.plan_src_names``・``plan_poi_src``)。"""
-    from shibuya.world.assets import ProcessAssets
+    from shibuya.world.model.assets import ProcessAssets
 
     rows = []
     for p in range(int(n_poi)):

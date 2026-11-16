@@ -44,7 +44,7 @@ def M():
 # ---------------------------------------------------------------- 腕の作り方
 def test_eleven_flags_are_accepted_by_parse_refractory_scale(M):
     from shibuya import cli
-    from shibuya.agents.state import N_WAKE_CONDITIONS, REFRACTORY_MINUTES, WakeCondition
+    from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, REFRACTORY_MINUTES, WakeCondition
     from shibuya.engine import resolve as R
 
     conds = M.conditions()
@@ -90,7 +90,7 @@ def test_arm_names_and_plan(M):
 
 def test_factor_zero_means_no_suppression_in_the_arbiter(M):
     """既知の答え: 1 刻み前に条件 i で呼んだ体 i が、いま同じ条件 i で起きる。"""
-    from shibuya.agents.state import WAKE_CONDITION_CLASS
+    from shibuya.foundation.vocab.agent_codes import WAKE_CONDITION_CLASS
     from shibuya.engine import resolve as R
     from shibuya.engine.arbiter import WakeCandidates, arbitrate
 

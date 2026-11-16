@@ -23,7 +23,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState
+from shibuya.world.model.agent_table import AgentState
 from shibuya.engine.llm_bridge import StubRenderer
 from shibuya.engine.run import run_day
 from shibuya.foundation.text import normalize as N
@@ -31,7 +31,7 @@ from shibuya.foundation.text import templates as T
 from shibuya.perception import renderer as RD
 from shibuya.runtime.systems import assemble as ASM
 from shibuya.runtime.systems import state_io as SIO
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 from shibuya.world.laws.environment import sample_calendar_day
 from shibuya.world.model.state import World
 

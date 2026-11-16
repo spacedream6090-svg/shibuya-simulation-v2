@@ -15,11 +15,13 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import (
+from shibuya.foundation.vocab.agent_codes import (
     MEMORY_FIELDS,
     STORE_MEMORY_FIELDS,
-    AgentState,
     ResultCode,
+)
+from shibuya.world.model.agent_table import (
+    AgentState,
 )
 from shibuya.mind.memory import memory as M
 from shibuya.mind.memory import store_memory as SM

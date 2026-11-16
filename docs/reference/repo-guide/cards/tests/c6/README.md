@@ -80,7 +80,7 @@ tests.c6 の共通フィクスチャ。
   - `test_selection_can_be_restricted_to_other_kinds`(関数)
   - `test_selection_is_deterministic_and_disjoint`(関数)
   - `test_unknown_failure_word_is_not_forced_into_a_kind`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.text.templates`・`shibuya.llm`・`shibuya.runtime.inference.tape`
+- import している内部モジュール: `shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.llm`・`shibuya.runtime.inference.tape`
 
 ## [test_c6lib_stats.py](../../../../../../tests/c6/test_c6lib_stats.py)
 
@@ -157,7 +157,7 @@ tests.c6 の共通フィクスチャ。
   - `test_t5_order_bias_on_the_synthetic_world`(関数)
   - `test_t5_report_shape_is_the_three_declared_quantities`(関数)
   - `test_t5_reversed_population_shows_the_bias_is_composition_not_order`(関数): ``agent_id`` の写像を反転した対照。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.commit`・`shibuya.engine.run`・`shibuya.llm.mock`・`shibuya.world.facts.population_reader`・`shibuya.world.model.state`・`tests/c6/conftest.py`・`tools/c6/c6lib.py`
+- import している内部モジュール: `shibuya.engine.commit`・`shibuya.engine.run`・`shibuya.foundation.vocab.agent_codes`・`shibuya.llm.mock`・`shibuya.world.facts.population_reader`・`shibuya.world.model.state`・`tests/c6/conftest.py`・`tools/c6/c6lib.py`
 - 決定の ID: D-56・D-62・D-64・D-66
 
 ## [test_t9_diagnostics.py](../../../../../../tests/c6/test_t9_diagnostics.py)

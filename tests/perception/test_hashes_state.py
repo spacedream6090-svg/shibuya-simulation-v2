@@ -68,7 +68,7 @@ def test_m12_two_bytes_for_p_notice_state():
 def test_invocation_distance_is_not_double_declared_by_default():
     """既定では宣言しない(単体ベンチの逃げ道だけ)。〔10e(E1・Q9)〕``agents.state`` の死蔵の
     ``invocation_distance`` は消した(どちらの SoA にも既定では無い)。"""
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     assert "invocation_distance" not in dict(AgentState(2).registry.arrays)
     assert "invocation_distance" not in dict(PerceptionState(2).registry.arrays)

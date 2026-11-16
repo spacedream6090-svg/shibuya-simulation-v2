@@ -15,7 +15,8 @@ import pytest
 
 from tests import golden_env as GE
 
-from shibuya.agents.state import Activity, AgentKind, AgentState
+from shibuya.foundation.vocab.agent_codes import Activity, AgentKind
+from shibuya.world.model.agent_table import AgentState
 from shibuya.mind.judge import classical as CL
 from shibuya.world.model.state import World
 

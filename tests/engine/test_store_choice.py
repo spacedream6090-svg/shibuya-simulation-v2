@@ -17,7 +17,8 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState, IntentKind, ResultCode
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.vocab.agent_codes import IntentKind, ResultCode
 from shibuya.mind.memory import memory as M
 from shibuya.mind.memory import store_memory as SM
 from shibuya.engine.chooser import ClassicalChooser, NearestChooser

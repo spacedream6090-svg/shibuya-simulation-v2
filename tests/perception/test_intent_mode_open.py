@@ -19,7 +19,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentKind, AgentState
+from shibuya.foundation.vocab.agent_codes import AgentKind
+from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import Renderer
 from shibuya.world.model.state import World

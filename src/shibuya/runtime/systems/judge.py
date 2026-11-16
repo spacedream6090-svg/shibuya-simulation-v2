@@ -16,9 +16,9 @@ from typing import Any
 
 import numpy as np
 
-from shibuya.agents.state import Activity
-from shibuya.agents.state import FOCUS_NONE
-from shibuya.agents.state import WakeCondition
+from shibuya.foundation.vocab.agent_codes import Activity
+from shibuya.foundation.vocab.agent_codes import FOCUS_NONE
+from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.foundation.hashing import apply_key_array
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R

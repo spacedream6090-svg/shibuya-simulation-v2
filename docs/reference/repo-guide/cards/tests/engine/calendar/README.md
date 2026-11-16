@@ -87,5 +87,5 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_manifest_section_ledger_row_and_system_declarations`(関数)
   - `test_unit_relay_day_records_follow_the_table`(関数)
   - `w20_table`(関数): W16 の全員に作り物の材料で W20 の週の表を作る(エンジンの読み口の試験=表の中身の正しさは構築側の試験)。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.cli`・`shibuya.engine.calendar`・`shibuya.engine.calendar_shadow`・`shibuya.engine.run`・`shibuya.foundation.manifest.sections`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.table`・`tests/build_sched/test_w20_calendar_1a.py`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.cli`・`shibuya.engine.calendar_shadow`・`shibuya.engine.run`・`shibuya.foundation.manifest.sections`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.table`・`shibuya.world.facts.calendar`・`tests/build_sched/test_w20_calendar_1a.py`
 - 環境変数: `SHIBUYA_CALENDAR_W20`・`SHIBUYA_SYSTEMS_CHECK`・`os.environ` をまるごと使う

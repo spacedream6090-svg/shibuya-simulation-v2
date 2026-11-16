@@ -12,7 +12,7 @@ ablation1_fixed_vs_ranking.py — **ablation ①(義務)**「チャネル固定�
   - `main`(関数)
   - `probe_switch`(関数): 2 つの ``BudgetMode`` で同じ場面を描き、バイト差分の有無を返す(**純関数寄り**)。
   - `run_arm`(関数): 1 構成のスモーク(budget_mode=tag を run_day へ渡す・09-09 切替口実装後)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.foundation.text.channels`・`shibuya.perception.renderer`・`shibuya.runtime.inference.tape`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.state`・`tools/c6/c6lib.py`
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.text.channels`・`shibuya.perception.renderer`・`shibuya.runtime.inference.tape`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tools/c6/c6lib.py`
 - 読む試験: `tests/c6/test_c6lib_aggregate.py`・`tests/perception/test_ablation1.py`
 - CLI の引数
   - `--max-tokens`
@@ -163,7 +163,7 @@ t7_distribution.py — **T7 LLM 層 分布同値**(本番構成・温度 0.7)。
   - `distribution_report`(関数): 2 分布の JSD・χ²・帰無参照を 1 まとめに(**純関数**)。
   - `main`(関数)
   - `result_code_counts`(関数): 個体 SoA の ``last_result`` → ``ResultCode`` 名の度数。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.runtime.inference.tape`・`tools/c6/c6lib.py`
+- import している内部モジュール: `shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.inference.tape`・`tools/c6/c6lib.py`
 - 読む試験: `tests/c6/test_c6lib_aggregate.py`
 - CLI の引数
   - `--max-tokens`

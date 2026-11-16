@@ -41,7 +41,8 @@ from typing import Final, Mapping
 
 import numpy as np
 
-from shibuya.agents.state import Activity, AgentState
+from shibuya.foundation.vocab.agent_codes import Activity
+from shibuya.world.model.agent_table import AgentState
 from shibuya.engine import resolve as R
 from shibuya.world.model.state import World
 

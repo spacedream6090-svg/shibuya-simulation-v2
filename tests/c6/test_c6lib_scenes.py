@@ -11,7 +11,7 @@ import json
 
 import pytest
 
-from shibuya.agents.state import RESULT_TEXT, ResultCode
+from shibuya.foundation.vocab.agent_codes import RESULT_TEXT, ResultCode
 from shibuya.runtime.inference.tape import TapeRow, TapeWriter
 from shibuya.foundation.text import templates as T
 

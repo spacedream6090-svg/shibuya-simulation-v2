@@ -626,7 +626,7 @@ def test_w13_window_constant_and_inputs():
 
 def test_season_of_matches_the_engine_calendar():
     """build は engine を import しない。表の写しがエンジンの気象庁の区分と一致すること。"""
-    from shibuya.engine import calendar as ecal
+    from shibuya.world.facts import calendar as ecal
 
     assert dict(C.SEASON_OF_MONTH) == dict(ecal.SEASON_OF_MONTH)
     assert w13.season_of(dt.date(2026, 2, 28)) == "冬" and w13.season_of(dt.date(2025, 9, 1)) == "秋"

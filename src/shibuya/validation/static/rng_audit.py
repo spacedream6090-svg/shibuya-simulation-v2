@@ -247,7 +247,7 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     ("world/laws/rail.py", "RailProcess._assign_external", "engine.processes.rail"),
     ("world/laws/rail.py", "RailProcess._build_external_home", "engine.processes.rail"),
     ("world/laws/salient.py", "SalientProcess._collapse_events", "world.salient.counter"),
-    ("world/assets.py", "synthetic_assets", "world.synthetic"),
+    ("world/model/assets.py", "synthetic_assets", "world.synthetic"),
     # 引く語数が定数で 4 以内 7 か所(〔第330〕+1・RET −2)
     ("engine/chooser.py", "draw_index", "engine.chooser"),
     ("mind/judge/classical.py", "ClassicalPolicy.answer", "policy.classical"),  # 〔1-8 J0〕render の中身を answer へ移した

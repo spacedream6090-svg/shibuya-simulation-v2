@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.agents.state import Activity, AgentKind, ResultCode
+from shibuya.foundation.vocab.agent_codes import Activity, AgentKind, ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.world.laws.civic import (
@@ -19,7 +19,7 @@ from shibuya.world.laws.civic import (
     PressProcess,
     PublicServiceDispatchProcess,
 )
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 
 from .conftest import make_agents, make_world
 

@@ -54,7 +54,8 @@ from typing import Final, Sequence
 
 import numpy as np
 
-from shibuya.agents.state import Activity, AgentState, WakeCondition
+from shibuya.foundation.vocab.agent_codes import Activity, WakeCondition
+from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.rng import run_tick_key, stream
 from shibuya.world.laws import switch_rate as _RATE_RULES
 from shibuya.engine import resolve as R
@@ -317,7 +318,7 @@ class SalientProcess:
                 np.empty(0, dtype=np.int8),
                 np.empty(0, dtype=np.int64),
             )
-        from shibuya.agents.state import WAKE_CONDITION_CLASS
+        from shibuya.foundation.vocab.agent_codes import WAKE_CONDITION_CLASS
 
         cond = int(WakeCondition.CELL_BLOCK)
         return (

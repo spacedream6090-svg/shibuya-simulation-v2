@@ -61,7 +61,7 @@ from typing import Any, Final
 
 import numpy as np
 
-from shibuya.agents.state import AgentState
+from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.hashing import blake3_hex
 from shibuya.foundation.rng import stream
 from shibuya.engine import resolve as R
@@ -72,8 +72,8 @@ from shibuya.world.body.rules import (  # 〔第 3 期 3-5〕体の層へ移し�
     HEAT_STAGE_TO_THERMAL,
     SHADE_FACTOR,
 )
-from shibuya.engine.calendar import SEASON_OF_MONTH, WEATHER_SCHEME, SimCalendar
-from shibuya.world.assets import (
+from shibuya.world.facts.calendar import SEASON_OF_MONTH, WEATHER_SCHEME, SimCalendar
+from shibuya.world.model.assets import (
     HEAT_STAGE_ORDER,
     SHADOW_FRAMES_PER_DAY,
     SHADOW_MINUTES_PER_FRAME,

@@ -86,7 +86,7 @@ Python 15 本・その他 0 本(このディレクトリの直下)
   - `test_money_stage2_credit_and_ledger_flag_are_sealed`(関数)
   - `test_stage2_pairs_table_cannot_be_written`(関数)
   - `test_stage2_plan_is_sealed_except_runner_once`(関数)
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.credit`・`shibuya.economy.ledger`・`shibuya.economy.stage2_bind`・`shibuya.engine.calendar`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.credit`・`shibuya.economy.ledger`・`shibuya.economy.stage2_bind`・`shibuya.world.facts.calendar`
 
 ## [test_stage2_money_rules.py](../../../../../../../tests/economy/stage2/test_stage2_money_rules.py)
 
@@ -142,7 +142,7 @@ Python 15 本・その他 0 本(このディレクトリの直下)
   - `test_payday_follows_the_calendar_port`(関数)
   - `test_payroll_deductions_is_an_empty_container`(関数)
   - `test_rights_pairs_reads_employment_rows_in_row_order`(関数)
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.credit`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.engine.calendar`・`shibuya.world.facts.rights.ledger`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.credit`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.world.facts.calendar`・`shibuya.world.facts.rights.ledger`・`shibuya.world.model.state`
 - 決定の ID: 第 337・第 347
 
 ## [test_stage2_runs.py](../../../../../../../tests/economy/stage2/test_stage2_runs.py)

@@ -15,7 +15,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import STORE_MEMORY_FIELDS, AgentState, ResultCode
+from shibuya.foundation.vocab.agent_codes import STORE_MEMORY_FIELDS, ResultCode
+from shibuya.world.model.agent_table import AgentState
 from shibuya.mind.memory import memory as M
 from shibuya.mind.memory import store_memory as SM
 from shibuya.mind.memory import wom as W

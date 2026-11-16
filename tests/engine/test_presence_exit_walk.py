@@ -15,7 +15,8 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, AgentState, ResultCode, WakeCondition
+from shibuya.foundation.vocab.agent_codes import Activity, ResultCode, WakeCondition
+from shibuya.world.model.agent_table import AgentState
 from shibuya.engine import resolve as R
 from shibuya.engine.presence import EXIT_WALK_MAX_TICKS, PlanExecutor
 from shibuya.world.laws.rail import RailProcess

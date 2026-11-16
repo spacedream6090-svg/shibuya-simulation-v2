@@ -51,7 +51,7 @@ engine.contact.attention — 目と心の向き(第 6 期 6-4 C1・決定 10-12 
   - `coarsen`(関数): 知覚の事実 ``p`` を目と心の向きの形にした写し(``mind_dir``=:class:`AttentionView`・``tool_state``=道具の状態)。
   - `gate_salient`(関数): その刻みの顕著行為ごとの「気づいた体」から、関心の的が周りでなく割り込めなかった体を外した写しを返す(〔検収 M1〕
   - `interrupted_of`(関数): 起きた理由が驚き駆動の入口(セルの B4 の変化)か。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.arms.contact`・`shibuya.foundation.ports.percept_contact`・`shibuya.foundation.time_consts`
+- import している内部モジュール: `shibuya.foundation.arms.contact`・`shibuya.foundation.ports.percept_contact`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`
 - 呼び手: `shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.contact.layer`
 - 読む試験: `tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_video.py`
 - 状態台帳の行
@@ -67,7 +67,7 @@ engine.contact.habit — CT4 の習慣(本人の過去の連絡の判断から�
 - 公開の関数とクラス
   - `HabitBook`(クラス): 体ごとの連絡の選びの回数(状態台帳の腕の行 ``CT1H``・持ち主の道筋 ``contact.habit``)。
   - `states_of`(関数): 体ごとの状態(勤務中・家・移動中・ほか)。``work_cell`` が ``None`` なら勤務中は無い。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.arms.contact`
+- import している内部モジュール: `shibuya.foundation.arms.contact`・`shibuya.foundation.vocab.agent_codes`
 - 呼び手: `shibuya.interim_bundles.contact.layer`
 - 読む試験: `tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 状態台帳の行

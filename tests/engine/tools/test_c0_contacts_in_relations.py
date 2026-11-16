@@ -16,7 +16,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState, ResultCode
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.vocab.agent_codes import ResultCode
 from shibuya.foundation import write_permit as WP
 from shibuya.mind.memory import memory as M
 from shibuya.engine import relations as RL

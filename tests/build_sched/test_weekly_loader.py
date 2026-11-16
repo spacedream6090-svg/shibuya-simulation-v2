@@ -14,7 +14,7 @@ import numpy as np
 import pytest
 
 from shibuya.world.facts import weekly_reader as W
-from shibuya.agents.state import WakeCondition
+from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.build.sched import vocab as V
 from shibuya.build.sched import w17_schedule as W17
 

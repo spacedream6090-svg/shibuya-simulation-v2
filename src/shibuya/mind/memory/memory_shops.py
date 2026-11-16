@@ -25,7 +25,7 @@ from typing import Any, Final
 
 import numpy as np
 
-from shibuya.agents.state import STORE_MEMORY_EMPTY
+from shibuya.foundation.vocab.agent_codes import STORE_MEMORY_EMPTY
 from shibuya.mind.memory.memory_store import SHOP_PATH, _check_permit
 from shibuya.mind.memory.store_memory import STORE_MEMORY_ROW_BYTES_ACTUAL, StoreColumns, StoreMemory
 

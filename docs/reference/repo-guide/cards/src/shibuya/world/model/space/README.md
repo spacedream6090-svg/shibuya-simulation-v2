@@ -41,7 +41,7 @@ engine.space.nav1 — 第 5 期 空間の段 1: ナビメッシュの上を衝�
   - `summary_line`(関数)
   - `turn_arm`(関数): 曲がる重みの腕(``fixed``=既定 50 m・``person``=人ごとに 32〜62 m)。環境変数 ``SHIBUYA_TURN_WEIGHT``・``--turn-weight``。
   - `turn_weights`(関数): 体ごとの曲がる重み[m]\(fixed=50 m・person=32〜62 m の一様=母集団の seed と体の番号だけの決定論・ランの乱数列を引かない)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.arms.removed`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.navmesh_route`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.foundation.arms.removed`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.navmesh_route`・`shibuya.world.model.state`
 - 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/space/_legacy.py`・`tests/engine/space/test_nav1_density.py`・`tests/engine/space/test_nav1_route_cache.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/space/test_nav1_world.py`
 - CLI の引数

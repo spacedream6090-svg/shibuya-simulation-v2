@@ -27,11 +27,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState
+from shibuya.world.model.agent_table import AgentState
 from shibuya.world.model import solar as SOL
-from shibuya.engine.calendar import SEASON_OF_MONTH, SimCalendar, load_holidays
+from shibuya.world.facts.calendar import SEASON_OF_MONTH, SimCalendar, load_holidays
 from shibuya.world.laws import environment as ENV
-from shibuya.world.assets import HEAT_STAGE_ORDER, ProcessAssets
+from shibuya.world.model.assets import HEAT_STAGE_ORDER, ProcessAssets
 from shibuya.world.model.state import World
 
 REPO = Path(__file__).resolve().parents[2]
@@ -116,7 +116,7 @@ def test_b6_solar_formulas_equal_the_build_stage():
 @needs_world
 def test_b6_recomputed_heat_and_sun_equal_w13_when_the_dates_match():
     """実資産の 35 日すべて: 暦の日付=再生日なら、計算し直した WBGT・暑さ段・日の出・日の入りが W13 の値と同じ。"""
-    from shibuya.world.assets import load_process_assets
+    from shibuya.world.model.assets import load_process_assets
 
     world = World.load_or_synthetic(WORLD_DIR, seed=1)
     pa = load_process_assets(WORLD_DIR, world.assets)

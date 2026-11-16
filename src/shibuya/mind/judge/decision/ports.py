@@ -25,7 +25,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from shibuya.agents.state import WakeCondition
+from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.foundation.ports.decision import OTHER_ID, Candidate, DecisionContext, DecisionPort
 from shibuya.foundation.vocab.actions import NO_TARGET
 

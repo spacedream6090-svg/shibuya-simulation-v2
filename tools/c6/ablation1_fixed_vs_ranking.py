@@ -54,7 +54,7 @@ def probe_switch(n_agents: int = 64, n_cells: int = 25, seed: int = 1, n_scenes:
     レンダラだけを合成世界の上に組むので GPU も実資産も要らない。
     """
     from shibuya.world.facts.mock_schedule import synthesize
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
     from shibuya.engine import resolve as R
     from shibuya.foundation.text import channels as ch
     from shibuya.perception.renderer import Renderer

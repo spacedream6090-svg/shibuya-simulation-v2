@@ -102,7 +102,7 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
   - `stage_of`(関数): 木の段: どの段の行も当たっていなければ ``""``・段の順で ``S`` までが当たっていれば ``S``・どちらでもなければ ``None``。
   - `uncovered`(関数): どの契約の元の側(層の名・``source_modules``)にも入らないランの側のモジュール(頭・根・build を除く)。そのモジュールから
   - `view`(関数)
-  - `weakened`(関数): 〔割る段 5a・検収 高-1〕割る行 ``split_old`` を当てる前と後の報告(:func:`build` の 2 つ目)を比べ、言えなくなった
+  - `weakened`(関数): 〔割る段 5a・検収 高-1・再検収 低-1〕割る行 ``split_old`` を当てる前と後の報告(:func:`build` の 2 つ目)を比べ、決まりが
 - import している内部モジュール: `tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/split.py`・`tools/pkgmove/table.py`
 - 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/split.py`
 - 読む試験: `tests/tools/test_pkgmove.py`

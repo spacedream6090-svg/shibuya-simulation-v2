@@ -28,8 +28,8 @@ from typing import Any
 
 import numpy as np
 
-from shibuya.agents.state import N_WAKE_CONDITIONS_ALL
-from shibuya.agents.state import WakeCondition
+from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS_ALL
+from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.engine import resolve as R
 from shibuya.runtime.systems import llm_io as _LLM_IO
 from shibuya.llm.fleet import LLMCall

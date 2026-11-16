@@ -11,7 +11,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.engine.calendar import SimCalendar, load_holidays
+from shibuya.world.facts.calendar import SimCalendar, load_holidays
 from shibuya.mind.plan import promise_book as B2
 from shibuya.mind.plan import calendar2_port as P2
 from shibuya.foundation.arms import calendar3 as A3

@@ -20,7 +20,8 @@ import re
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentKind, AgentState, ResultCode
+from shibuya.foundation.vocab.agent_codes import AgentKind, ResultCode
+from shibuya.world.model.agent_table import AgentState
 from shibuya.engine.run import _inviter_of, run_day
 from shibuya.llm import LLMResponse
 from shibuya.foundation.vocab.actions import format_two_line
@@ -160,7 +161,7 @@ def test_only_the_pending_invitee_gets_an_inviter():
     会話ターン以外で起きた呼も承諾/拒否として消費される。条件で絞ると、その呼には
     招待文が載らないまま「拒否」と数えられる。
     """
-    from shibuya.agents.state import WakeCondition
+    from shibuya.foundation.vocab.agent_codes import WakeCondition
 
     conv = _FakeConv({7: 3})
     turn = int(WakeCondition.CONVERSATION_TURN)

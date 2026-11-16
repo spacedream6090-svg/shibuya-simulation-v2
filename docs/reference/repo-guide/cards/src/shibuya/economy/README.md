@@ -238,7 +238,7 @@ engine.economy_rules — 第 4 期 4-2 の規則の表の中身を経済の段�
 - 公開の関数とクラス
   - `PayrollInputs`(クラス): 給与の天引きの加入の判定の材料(体ごと・読むだけ)。
   - `payroll_inputs`(関数): 体ごとの加入の判定の材料を組み立てる(:class:`PayrollInputs`)。表の無い世界・母集団の無いランは材料なし。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.stage2_bind`・`shibuya.foundation.arms.removed`
+- import している内部モジュール: `shibuya.economy.stage2_bind`・`shibuya.foundation.arms.removed`・`shibuya.foundation.vocab.agent_codes`
 - 呼び手: `shibuya.economy.stage2_bind`
 - 読む試験: `tests/economy/test_rules42_ledger.py`・`tests/economy/test_rules42_payroll.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_rules42b_payroll.py`
 - 環境変数: `SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`

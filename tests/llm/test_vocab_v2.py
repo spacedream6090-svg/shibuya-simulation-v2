@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.agents.state import ResultCode
+from shibuya.foundation.vocab.agent_codes import ResultCode
 from shibuya.foundation.vocab.actions import (
     ACTION_CODES,
     ACTION_SPECS,

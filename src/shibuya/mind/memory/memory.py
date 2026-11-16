@@ -87,7 +87,7 @@ from typing import Any, Final, NamedTuple, Sequence
 
 import numpy as np
 
-from shibuya.agents.state import WAKE_CONDITION_CLASS, IntentKind, ResultCode, WakeCondition
+from shibuya.foundation.vocab.agent_codes import WAKE_CONDITION_CLASS, IntentKind, ResultCode, WakeCondition
 from shibuya.foundation.types import EventClass
 from shibuya.engine import resolve as R
 from shibuya.mind.memory.familiarity import place_thing

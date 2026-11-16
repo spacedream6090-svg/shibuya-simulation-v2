@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity
+from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.foundation.arms import contact as A
 from shibuya.interim_bundles.contact import book as _BOOK
 from shibuya.mind.plan import contact_habit as HB

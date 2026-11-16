@@ -46,7 +46,7 @@ def result_code_counts(agents: object) -> dict[str, int]:
     """個体 SoA の ``last_result`` → ``ResultCode`` 名の度数。"""
     import numpy as np
 
-    from shibuya.agents.state import ResultCode
+    from shibuya.foundation.vocab.agent_codes import ResultCode
 
     arr = np.asarray(getattr(agents, "registry").field("last_result")).ravel()
     names = {int(c): c.name for c in ResultCode}

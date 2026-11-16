@@ -22,7 +22,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, ActivityKind, AgentKind, AgentState
+from shibuya.foundation.vocab.agent_codes import Activity, ActivityKind, AgentKind
+from shibuya.world.model.agent_table import AgentState
 from shibuya.mind.memory.familiarity import FamiliarityLayer
 from shibuya.perception import renderer as RD
 from shibuya.perception.attention import gate_stage1

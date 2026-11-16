@@ -190,7 +190,7 @@ def test_no_rail_line_is_left_for_equal_interval_statically():
 
 
 def test_world_time_point_matches_the_calendar_default():
-    from shibuya.engine.calendar import DEFAULT_WORLD_START
+    from shibuya.world.facts.calendar import DEFAULT_WORLD_START
 
     assert RT.WORLD_TIME_POINT == DEFAULT_WORLD_START.date().isoformat()
     assert RT.VERSION_DECLARATIONS["銀座線"]["relation_to_world_time"] == "after"

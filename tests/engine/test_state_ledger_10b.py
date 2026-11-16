@@ -25,7 +25,7 @@ from tests import golden_env as GE
 import shibuya.engine.resolve as RES
 import shibuya.engine.run as RUN
 from shibuya.runtime.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
-from shibuya.agents.state import AgentState
+from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.hashing import blake3_hex
 from shibuya.foundation.soa import Registry
 from shibuya.runtime.state import hashes as SH
@@ -320,7 +320,7 @@ def test_ast_false_positives_band_and_b4_hash_are_explicit(scanned):
     描画の許可は消した(2 個=誤検出 1+試験の合成の規則の道)。"""
     # 〔第 5 期 空間の段 1〕ナビメッシュの資産の階の表の band(world/navmesh.py)の誤検出を 1 つ足した=3 個
     n_allow = {"agents.band": 3, "cells.b4_hash": 1}
-    for key, path in (("agents.band", "world/assets.py"), ("cells.b4_hash", "world/model/state.py")):
+    for key, path in (("agents.band", "world/model/assets.py"), ("cells.b4_hash", "world/model/state.py")):
         r = SL.row(key)
         assert r.behavior == SL.NO and len(r.ast_allow) == n_allow[key] and r.ast_allow[0].path == path
         hits = [s for s in scanned.loose[r.name] if SA._allowed(s, r.ast_allow)]

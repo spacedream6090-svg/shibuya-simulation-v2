@@ -153,7 +153,7 @@ def symbol_defined(text: str, symbol: str) -> bool:
 # ---------------------------------------------------------------- 腕
 def conditions() -> tuple[str, ...]:
     """不応期表の 11 行の条件名(``WakeCondition`` の値 0..10 の順・``ACTIVITY_EXPIRY`` は表の外=含まない)。"""
-    from shibuya.agents.state import N_WAKE_CONDITIONS, WakeCondition
+    from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, WakeCondition
 
     return tuple(WakeCondition(i).name for i in range(int(N_WAKE_CONDITIONS)))
 

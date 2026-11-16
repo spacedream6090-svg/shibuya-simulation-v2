@@ -14,7 +14,7 @@ from shibuya.world.laws.environment import (
     SHADE_FACTOR,
     EnvironmentProcess,
 )
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 
 from .conftest import fake_weather_assets, make_agents, make_world
 

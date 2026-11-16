@@ -40,7 +40,7 @@ from typing import Any, Final
 import numba as nb
 import numpy as np
 
-from shibuya.agents.state import Activity
+from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.foundation.arms import removed as _RSW
 from shibuya.foundation.rng import derive_key
 from shibuya.foundation.time_consts import SECONDS_PER_MINUTE

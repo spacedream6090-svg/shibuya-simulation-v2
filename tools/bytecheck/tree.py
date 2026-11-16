@@ -93,7 +93,7 @@ ROOT_READERS: Final[dict[str, str]] = {
     "shibuya/economy/wages.py": "data/research_cache/pop41b/derived(DATA_READS)",
     "shibuya/foundation/decl/bridging.py": "docs/design/bridging-ledger.json(TRACKED_READS)",
     "shibuya/validation/static/bridging_scan.py": "包みの根 PACKAGE_ROOT の下(src の中)を走査するだけ(移す段 2-2)",
-    "shibuya/engine/calendar.py": "resolve_repo_path の呼び(定義は core/paths.py)・data/calendar/syukujitsu.csv(DATA_READS)",
+    "shibuya/world/facts/calendar.py": "resolve_repo_path の呼び(定義は core/paths.py)・data/calendar/syukujitsu.csv(DATA_READS)",
     "shibuya/mind/judge/classical.py": "docs/bench/anchors/ssb2021_activity_prior_v0.json(TRACKED_READS)",
     "shibuya/economy/stage2_bind.py": "data/realworld/osm の 2 本・data/persona_pool_v2(DATA_READS)",
     "shibuya/world/body/energy.py": "docs/bench/anchors の 2 本(TRACKED_READS)",

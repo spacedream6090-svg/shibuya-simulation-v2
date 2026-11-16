@@ -11,7 +11,7 @@ import pytest
 
 from tests import _time_gates as TG
 
-from shibuya.agents.state import Activity, ResultCode
+from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
 from shibuya.runtime.state import growth_decl as GD
 from shibuya.engine.run import DIAG_RUN_COLUMNS, main, run_day
 from shibuya.foundation.queues.scheduler import DIAG_COLUMNS

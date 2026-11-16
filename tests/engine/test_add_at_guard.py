@@ -22,7 +22,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState
+from shibuya.world.model.agent_table import AgentState
 from shibuya.engine import resolve as R
 from shibuya.world.model.state import World
 from tests import _places as PL

@@ -44,7 +44,7 @@ def arm_1a():
 # ================================================================= 宣言と定数
 def test_constants_match_the_build_side_and_the_calendar():
     from shibuya.build.sched import w20_calendar_1a as W
-    from shibuya.engine.calendar import DEFAULT_WORLD_START
+    from shibuya.world.facts.calendar import DEFAULT_WORLD_START
 
     assert CS.FILE_NAME == W.OUTPUT_NAME and CS.HEADER_NAME == W.HEADER_NAME
     assert CS.WEEK0_MONDAY == date.fromisoformat(W.WEEK0_MONDAY) == DEFAULT_WORLD_START.date()

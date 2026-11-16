@@ -57,7 +57,7 @@ from typing import Any, Final, Iterable, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.agents.state import Activity
+from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.foundation.rng import key_time_from_t_ns
 from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
 from shibuya.engine import resolve as R

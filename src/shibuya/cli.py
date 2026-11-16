@@ -36,7 +36,7 @@ from typing import Any, Final, Mapping
 import numpy as np
 
 from shibuya.world.facts import population_reader as POP
-from shibuya.agents.state import WakeCondition
+from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.foundation.rng import stream
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
@@ -70,7 +70,7 @@ from shibuya.foundation.text.templates import (
     INTENT_MODES,
     VOCAB_VERSIONS,
 )
-from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE, hash_free_cat_code
+from shibuya.world.model.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE, hash_free_cat_code
 from shibuya.engine.chooser import CHOOSER_NAMES, DEFAULT_CHOOSER
 from shibuya.engine.poi_target import MOVE_SEARCH_RADIUS_CELLS
 from shibuya.act.intent import INTENT_MAX_TICKS

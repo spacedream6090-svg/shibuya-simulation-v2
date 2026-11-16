@@ -16,7 +16,7 @@ from shibuya.world.laws.logistics import (
     LastMileProcess,
     RoadWorksProcess,
 )
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 
 from .conftest import WORLD_DIR, make_world, real_data
 
@@ -78,7 +78,7 @@ def test_bus_arrives_on_an_equal_interval_plan():
 @real_data
 def test_bus_stops_come_from_osm_and_land_on_cells():
     """OSM の ``highway=bus_stop`` 127 点がセルへ写像される(座標欠落は幹線へ置く=expedient)。"""
-    from shibuya.world.assets import load_process_assets
+    from shibuya.world.model.assets import load_process_assets
     from shibuya.world.model.state import World
 
     world = World.load(WORLD_DIR)

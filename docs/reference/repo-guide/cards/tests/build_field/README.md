@@ -93,7 +93,7 @@ build.field の単体テスト(データ不要・CI で常に走る)。
   - `test_wbgt_and_heat_stage`(関数)
   - `test_weekday_kind_holiday`(関数)
   - `test_write_build_manifest_without_stages_run_is_full`(関数): 既定(stages_run=None)は「全段階を走らせた」= 従来どおり build_manifest.json。
-- import している内部モジュール: `shibuya.build.field.common`・`shibuya.build.field.street_grid`・`shibuya.build.field.w10_noise`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w13_weather`・`shibuya.build.field.w7_planspec`・`shibuya.build.geo.poi_class`・`shibuya.build.run`・`shibuya.engine.calendar`
+- import している内部モジュール: `shibuya.build.field.common`・`shibuya.build.field.street_grid`・`shibuya.build.field.w10_noise`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w13_weather`・`shibuya.build.field.w7_planspec`・`shibuya.build.geo.poi_class`・`shibuya.build.run`・`shibuya.world.facts.calendar`
 - 決定の ID: 10-12b・D-72・第 330
 
 ## [test_w10_road_names.py](../../../../../../tests/build_field/test_w10_road_names.py)
@@ -191,5 +191,5 @@ W12 の実ダイヤの読み口(第 2 期 2-3b・``build/field/w12_real_timetabl
   - `test_temporary_trains_need_the_diamond_mark`(関数)
   - `test_w19_input_families_and_asset_paths`(関数)
   - `test_world_time_point_matches_the_calendar_default`(関数)
-- import している内部モジュール: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.common`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w12_real_timetables`・`shibuya.engine.calendar`・`shibuya.foundation.time_consts`・`tests/_data_ids.py`
+- import している内部モジュール: `shibuya.build.audit.w19_freeze`・`shibuya.build.field.common`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w12_real_timetables`・`shibuya.foundation.time_consts`・`shibuya.world.facts.calendar`・`tests/_data_ids.py`
 - 決定の ID: 第 330

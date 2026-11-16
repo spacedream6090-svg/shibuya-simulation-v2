@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.agents.state import AgentKind, ResultCode
+from shibuya.foundation.vocab.agent_codes import AgentKind, ResultCode
 from shibuya.engine import resolve as R
 from shibuya.world.laws.opening import OpeningProcess, build_open_matrix
 
@@ -81,7 +81,7 @@ def test_role_action_is_used_when_the_staff_is_on_site():
 def test_inactive_without_a_plan_spec():
     world = make_world(4)
     agents, _ = make_agents(world, 8)
-    from shibuya.world.assets import ProcessAssets
+    from shibuya.world.model.assets import ProcessAssets
 
     proc = OpeningProcess(world, agents, ProcessAssets.synthetic())
     assert not proc.active

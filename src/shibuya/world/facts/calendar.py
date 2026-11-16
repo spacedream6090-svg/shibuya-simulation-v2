@@ -46,28 +46,16 @@ from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Final, Iterable, Mapping
-
 from shibuya.foundation.paths import resolve_repo_path  # 〔移す段 2-2〕根の道の口は core.paths(暦は使うだけ)
-from shibuya.foundation.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
-from shibuya.foundation.time_consts import SECONDS_PER_MINUTE
+from shibuya.foundation.types import DEFAULT_TICK_SECONDS
+from shibuya.foundation.types import ticks_per_day
 
 __all__ = [
-    "CalendarWarning",
-    "DEFAULT_HOLIDAY_CSV",
-    "DEFAULT_WORLD_START",
-    "OPENING_ROW_PH",
-    "WEATHER_SCHEME",
-    "WEEKDAY_MODE",
-    "HOLIDAY_CSV_COLUMNS",
-    "HolidayTable",
-    "SEASON_OF_MONTH",
-    "SimCalendar",
-    "holidays_between",
-    "load_holidays",
-    "parse_school_holidays",
-    "parse_start",
-    "ticks_per_day",
+    "CalendarWarning", "DEFAULT_HOLIDAY_CSV", "DEFAULT_WORLD_START", "OPENING_ROW_PH", "WEATHER_SCHEME",
+    "WEEKDAY_MODE", "HOLIDAY_CSV_COLUMNS", "HolidayTable", "SEASON_OF_MONTH", "SimCalendar", "holidays_between",
+    "load_holidays", "parse_school_holidays", "parse_start",
 ]
+
 
 #: 祝日 CSV の既定の場所(リポのルートからの相対・gitignore 下)。manifest の欄 ``holiday_csv``。
 DEFAULT_HOLIDAY_CSV: Final[str] = "data/calendar/syukujitsu.csv"
@@ -100,17 +88,6 @@ HOLIDAY_TABLE_WEEKDAY: Final[int] = 6
 
 class CalendarWarning(UserWarning):
     """暦の口の警告(祝日 CSV が無い)。"""
-
-
-def ticks_per_day(tick_seconds: int = DEFAULT_TICK_SECONDS) -> int:
-    """1 日の tick 数(``tick_seconds`` が 1 日を割り切らなければ ``ValueError``)。"""
-    ts = int(tick_seconds)
-    if ts <= 0:
-        raise ValueError("tick_seconds は正の整数")
-    seconds = MINUTES_PER_SIM_DAY * SECONDS_PER_MINUTE
-    if seconds % ts:
-        raise ValueError(f"tick_seconds={ts} は 1 日を割り切らない")
-    return seconds // ts
 
 
 # ------------------------------------------------------------------ 祝日の表

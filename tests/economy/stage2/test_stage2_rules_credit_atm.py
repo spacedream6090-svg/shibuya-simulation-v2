@@ -143,7 +143,7 @@ def test_atm_table_from_osm_has_the_55_points():
 
 # ================================================================= 暦の給料日(暦の口)と雇用の行
 def test_payday_follows_the_calendar_port():
-    from shibuya.engine.calendar import SimCalendar
+    from shibuya.world.facts.calendar import SimCalendar
 
     cal = SimCalendar(dt.datetime(2026, 8, 24))
     plan = ES2.Stage2Plan(parts=ES2.PARTS, kinds=np.zeros(1), monthly_hours=None, hours_source="default", atms=None,
@@ -168,7 +168,7 @@ def test_rights_pairs_reads_employment_rows_in_row_order():
     assert list(h) == [5] and list(o) == [9]
     h, o = r.pairs(EMPLOY, AGENT, STORE, 0)
     assert list(h) == [2, 5] and list(o) == [1, 0]
-    from shibuya.engine.calendar import SimCalendar  # Stage2Plan.employment は組織の行を先に・体ごとに最初の 1 行
+    from shibuya.world.facts.calendar import SimCalendar  # Stage2Plan.employment は組織の行を先に・体ごとに最初の 1 行
 
     p = ES2.Stage2Plan(parts=ES2.PARTS, kinds=np.zeros(8), monthly_hours=None, hours_source="default", atms=None,
                        calendar=SimCalendar(dt.datetime(2026, 8, 24)), tick_seconds=60, n_agents=8,

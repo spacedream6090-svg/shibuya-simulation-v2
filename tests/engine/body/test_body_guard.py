@@ -203,7 +203,7 @@ def test_callers_of_the_body_write_ports_are_not_more_than_head():
 
 def test_the_body_layer_holds_copies_not_soa_views():
     """写し(引き直しの検出)は SoA の配列のビューを持たない(D ⑥ と同じ約束)。"""
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     a = AgentState(6)
     bm = BodyModel(6, arm="reserve")
@@ -229,7 +229,7 @@ def test_sweep_allocates_no_per_agent_arrays_and_reserve_does():
 
 def test_the_schedule_refuses_writes_outside_its_ports():
     """〔3-5 検収 L7〕予約の列の欄は書く口の外で付け替え・消去・配列の書きを断る(負の対照=書く口の中は書ける)。"""
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     bm = BodyModel(5, arm="reserve")
     plan = bm._reservations  # noqa: SLF001 - 試験だけ読む

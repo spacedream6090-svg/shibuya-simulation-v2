@@ -164,7 +164,7 @@ W17 プロンプト生成: 決定論・fleet_gen 形式・seed=hash(agent)・種
   - `test_user_prompt_carries_the_facts`(関数)
   - `test_wake_conditions_match_perception_contract`(関数): ``ACTIVITY_TO_WAKE`` は知覚契約書 §6 の計画境界 4 行(``WakeCondition``)と一致。
   - `test_write_prompts_streams_jsonl`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`tests/build_sched/conftest.py`
+- import している内部モジュール: `shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`shibuya.foundation.vocab.agent_codes`・`tests/build_sched/conftest.py`
 
 ## [test_w17_repair.py](../../../../../../tests/build_sched/test_w17_repair.py)
 
@@ -265,4 +265,4 @@ W21 → W20 の ``Attributes`` の口(``build.sched.w20_w21_port``・第 4 期 4
   - `test_target_cell_at_uses_the_table_then_the_fallback`(関数)
   - `test_vocabulary_double_definition_agrees`(関数): ``build.sched.vocab`` と ``agents.weekly`` の語彙・写像が一致する。
   - `test_wake_conditions_are_plan_boundaries`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.weekly_reader`・`tests/build_sched/conftest.py`
+- import している内部モジュール: `shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.weekly_reader`・`tests/build_sched/conftest.py`

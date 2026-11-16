@@ -95,7 +95,8 @@ from typing import Any, Final
 
 import numpy as np
 
-from shibuya.agents.state import Activity, AgentState, ResultCode
+from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
+from shibuya.world.model.agent_table import AgentState
 from shibuya.world.facts.weekly_reader import (
     ACTIVITY_WORDS,
     MINUTES_PER_DAY,

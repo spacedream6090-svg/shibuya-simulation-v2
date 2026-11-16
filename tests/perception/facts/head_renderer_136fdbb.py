@@ -64,16 +64,18 @@ import re
 
 import numpy as np
 
-from shibuya.agents.state import (
+from shibuya.foundation.vocab.agent_codes import (
     INTENT_NONE,
     INTEROCEPTION_FIELDS,
     RESULT_TEXT,
     Activity,
     ActivityKind,
-    AgentState,
     IntentKind,
     ResultCode,
     WakeCondition,
+)
+from shibuya.world.model.agent_table import (
+    AgentState,
 )
 from shibuya.foundation.hashing import blake3_hex, blake3_u64, xxh64
 from shibuya.foundation.text import channels as ch
@@ -87,7 +89,7 @@ from shibuya.perception.attention import (
     rank_by_saliency,
     strip_imperatives,
 )
-from shibuya.world.assets import CELL_SIZE_M, WorldAssets, array_sha256, file_sha256
+from shibuya.world.model.assets import CELL_SIZE_M, WorldAssets, array_sha256, file_sha256
 from shibuya.world.model.state import LANDMARK_CATS, World
 from shibuya.foundation.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR
 

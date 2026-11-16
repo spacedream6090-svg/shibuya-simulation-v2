@@ -34,7 +34,7 @@ from typing import Final
 
 import numpy as np
 
-from shibuya.agents.state import MOCK_KIND_COUNT, Activity
+from shibuya.foundation.vocab.agent_codes import MOCK_KIND_COUNT, Activity
 from shibuya.foundation.rng import philox
 from shibuya.foundation.time_consts import MINUTES_PER_DAY
 

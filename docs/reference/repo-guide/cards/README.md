@@ -12,7 +12,6 @@
 | [src/shibuya](src/shibuya/README.md) | 2 | 0 |
 | [src/shibuya/act](src/shibuya/act/README.md) | 3 | 0 |
 | [src/shibuya/act/intake](src/shibuya/act/intake/README.md) | 2 | 0 |
-| [src/shibuya/agents](src/shibuya/agents/README.md) | 2 | 0 |
 | [src/shibuya/build](src/shibuya/build/README.md) | 3 | 0 |
 | [src/shibuya/build/audit](src/shibuya/build/audit/README.md) | 5 | 0 |
 | [src/shibuya/build/field](src/shibuya/build/field/README.md) | 12 | 0 |
@@ -23,7 +22,7 @@
 | [src/shibuya/build/space](src/shibuya/build/space/README.md) | 5 | 0 |
 | [src/shibuya/build/vis](src/shibuya/build/vis/README.md) | 5 | 0 |
 | [src/shibuya/economy](src/shibuya/economy/README.md) | 18 | 0 |
-| [src/shibuya/engine](src/shibuya/engine/README.md) | 13 | 0 |
+| [src/shibuya/engine](src/shibuya/engine/README.md) | 12 | 0 |
 | [src/shibuya/engine/events](src/shibuya/engine/events/README.md) | 2 | 0 |
 | [src/shibuya/engine/tools](src/shibuya/engine/tools/README.md) | 3 | 0 |
 | [src/shibuya/experiments](src/shibuya/experiments/README.md) | 1 | 0 |
@@ -37,7 +36,7 @@
 | [src/shibuya/foundation/ports](src/shibuya/foundation/ports/README.md) | 6 | 0 |
 | [src/shibuya/foundation/queues](src/shibuya/foundation/queues/README.md) | 3 | 0 |
 | [src/shibuya/foundation/text](src/shibuya/foundation/text/README.md) | 5 | 0 |
-| [src/shibuya/foundation/vocab](src/shibuya/foundation/vocab/README.md) | 4 | 0 |
+| [src/shibuya/foundation/vocab](src/shibuya/foundation/vocab/README.md) | 6 | 0 |
 | [src/shibuya/interim_bundles](src/shibuya/interim_bundles/README.md) | 2 | 0 |
 | [src/shibuya/interim_bundles/calendar2](src/shibuya/interim_bundles/calendar2/README.md) | 2 | 0 |
 | [src/shibuya/interim_bundles/calendar3](src/shibuya/interim_bundles/calendar3/README.md) | 4 | 0 |
@@ -63,15 +62,15 @@
 | [src/shibuya/society/tools](src/shibuya/society/tools/README.md) | 3 | 0 |
 | [src/shibuya/validation](src/shibuya/validation/README.md) | 1 | 0 |
 | [src/shibuya/validation/static](src/shibuya/validation/static/README.md) | 7 | 0 |
-| [src/shibuya/world](src/shibuya/world/README.md) | 2 | 0 |
+| [src/shibuya/world](src/shibuya/world/README.md) | 1 | 0 |
 | [src/shibuya/world/body](src/shibuya/world/body/README.md) | 6 | 0 |
-| [src/shibuya/world/facts](src/shibuya/world/facts/README.md) | 4 | 0 |
+| [src/shibuya/world/facts](src/shibuya/world/facts/README.md) | 5 | 0 |
 | [src/shibuya/world/facts/rights](src/shibuya/world/facts/rights/README.md) | 4 | 0 |
 | [src/shibuya/world/facts/rules](src/shibuya/world/facts/rules/README.md) | 2 | 0 |
 | [src/shibuya/world/laws](src/shibuya/world/laws/README.md) | 15 | 0 |
 | [src/shibuya/world/ledger](src/shibuya/world/ledger/README.md) | 10 | 0 |
 | [src/shibuya/world/ledger/frozen](src/shibuya/world/ledger/frozen/README.md) | 1 | 1 |
-| [src/shibuya/world/model](src/shibuya/world/model/README.md) | 11 | 0 |
+| [src/shibuya/world/model](src/shibuya/world/model/README.md) | 13 | 0 |
 | [src/shibuya/world/model/space](src/shibuya/world/model/space/README.md) | 2 | 0 |
 | [src/shibuya/world/things](src/shibuya/world/things/README.md) | 2 | 0 |
 | [tests](tests/README.md) | 21 | 0 |
@@ -162,7 +161,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 329 ディレクトリ・2407 本
+- [docs の索引](docs.md): 333 ディレクトリ・2419 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

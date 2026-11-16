@@ -36,7 +36,7 @@ import numpy as np
 from shibuya.foundation import write_permit as _WP
 from shibuya.foundation.hashing import blake3_hex
 from shibuya.foundation.soa import Registry
-from shibuya.world.assets import WorldAssets, load_assets, synthetic_assets
+from shibuya.world.model.assets import WorldAssets, load_assets, synthetic_assets
 from shibuya.world.model.graph import WalkGraph
 from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, STEPS_PER_DAY
 
@@ -194,7 +194,7 @@ class World:
     @classmethod
     def load_or_synthetic(cls, path, *, n_cells: int = 139, seed: int | str = 0) -> "World":
         """資産があれば読み、無ければ合成世界へ落ちる(CLI の既定動作)。"""
-        from shibuya.world.assets import assets_available
+        from shibuya.world.model.assets import assets_available
 
         if assets_available(path):
             return cls.load(path)
@@ -247,7 +247,7 @@ class World:
         if self._poi_visibility is None:
             src = Path(str(self.assets.source))
             if self.assets.source != "synthetic" and src.is_dir():
-                from shibuya.world.assets import load_poi_own_cell_visibility
+                from shibuya.world.model.assets import load_poi_own_cell_visibility
 
                 self._poi_visibility = load_poi_own_cell_visibility(src, self.assets.poi_cell)
             else:
@@ -262,7 +262,7 @@ class World:
         if self._visible_by_cell is None:
             src = Path(str(self.assets.source))
             if self.assets.source != "synthetic" and src.is_dir():
-                from shibuya.world.assets import load_visible_pois_by_cell
+                from shibuya.world.model.assets import load_visible_pois_by_cell
 
                 self._visible_by_cell = load_visible_pois_by_cell(src, self.n_cells)
             else:
@@ -320,7 +320,7 @@ class World:
         文字列判定)。以後はキャッシュを返す。tick にも個体数にも比例しない。
         """
         if self._eatery_mask is None:
-            from shibuya.world.assets import hash_free_cat_code
+            from shibuya.world.model.assets import hash_free_cat_code
 
             cats = tuple(self.assets.poi_cat)
             food = [hash_free_cat_code(c) == 1 for c in cats]

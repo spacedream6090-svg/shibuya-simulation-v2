@@ -138,7 +138,7 @@ def _real_population(n: int = N_AGENTS, seed: int = 1):
 
 
 def _kind_labels() -> dict[int, str]:
-    from shibuya.agents.state import AgentKind
+    from shibuya.foundation.vocab.agent_codes import AgentKind
 
     return {int(k): k.name for k in AgentKind}
 

@@ -163,7 +163,7 @@ C4B_PROCESS_IDS = (
 def _bundle_c4b(world: World, n_agents: int) -> LedgerBundle:
     """C4 後半の束: 店舗へ参入資本を入れて域外仕入を払えるようにする(expedient・報告対象)。"""
     from shibuya.economy import census as CS
-    from shibuya.world.assets import hash_free_cat_code
+    from shibuya.world.model.assets import hash_free_cat_code
 
     led = Ledger(n_agents, world.n_poi)
     cats = np.array([hash_free_cat_code(c) for c in world.assets.poi_cat], dtype=np.int64)

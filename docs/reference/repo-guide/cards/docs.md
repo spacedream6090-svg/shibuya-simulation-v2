@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-329 ディレクトリ・2407 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+333 ディレクトリ・2419 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -321,6 +321,14 @@
 ## docs/bench/analysis/split5a-347(2 本)
 
 - [README.md](../../../bench/analysis/split5a-347/README.md): 割る段 5a の記録(G0=src は変えない・道具の拡張と守り)
+
+## docs/bench/analysis/split5a-347/bytecheck_01_world_assets(3 本)
+
+## docs/bench/analysis/split5a-347/bytecheck_02_agents_state(3 本)
+
+## docs/bench/analysis/split5a-347/bytecheck_03_engine_calendar(3 本)
+
+## docs/bench/analysis/split5a-347/bytecheck_G1_parent(3 本)
 
 ## docs/bench/analysis/store-memory-2026-09-28(17 本)
 

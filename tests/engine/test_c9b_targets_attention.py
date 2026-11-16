@@ -26,12 +26,14 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import (
+from shibuya.foundation.vocab.agent_codes import (
     FOCUS_NONE,
     Activity,
-    AgentState,
     ResultCode,
     focus_code_for_poi,
+)
+from shibuya.world.model.agent_table import (
+    AgentState,
 )
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R

@@ -15,8 +15,8 @@ from typing import Any
 
 import numpy as np
 
-from shibuya.agents.state import WAKE_CONDITION_CLASS
-from shibuya.agents.state import WakeCondition
+from shibuya.foundation.vocab.agent_codes import WAKE_CONDITION_CLASS
+from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.engine import resolve as R
 from shibuya.world.body.energy import DEFAULT_MEAL_SLEEP_DEFER
 from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PER_MINUTE

@@ -2076,6 +2076,33 @@ def test_split_weakened_reads_the_declarations():
     assert same["declared"] == [] == same["undeclared"] and same["unused"] == []
 
 
+def test_split_weakened_sees_more_than_new_rule_names():
+    """〔再検収 低-1〕前から言えない決まりで言えない名が増える・どの決まりも見ないモジュールが増える・読んでよい側に足した読み手が
+    増える・載せた例外の行が増える(``[[ignore_split]]`` の外)も、宣言の外なら弱まりに数える。理由の文の言い回しが変わるだけ・
+    減る向き・割る段の表の例外は数えない。``other`` の宣言は報告の文そのもので当てる。"""
+    from pkgmove import contracts as CT
+
+    spec = CT.Spec(root="shibuya", old_only_through="foundation", stage_order=("delete",), layers=[], side=[], rules=[],
+                   old=[], ignores=[])
+    why = "元の側の名のうち木で言えないもの: "
+    b = {"n_old": 2, "n_new": 9, "dropped_old": [], "uncovered": ["shibuya.a"],
+         "not_expressed": [{"rule": 10, "name": "核", "why": why + "x"}, {"rule": "単位", "name": "u", "why": "ほか 3"}],
+         "late_allowed": [{"rule": 5, "modules": ["shibuya.r1"]}],
+         "ignores": [{"num": 1}, {"num": 2, "skipped": "辺が無い"}], "ignores_66": [], "extra_ignores": [],
+         "ignores_split": [{"num": "割 1", "skipped": "割る行がまだ当たっていない"}]}
+    a = {**b, "uncovered": ["shibuya.a", "shibuya.b"],
+         "not_expressed": [{"rule": 10, "name": "核", "why": why + "x, y"}, {"rule": "単位", "name": "u", "why": "ほか 2"}],
+         "late_allowed": [{"rule": 5, "modules": ["shibuya.r1", "shibuya.r2"]}],
+         "ignores": [{"num": 1}, {"num": 2}], "ignores_split": [{"num": "割 1"}]}
+    w = CT.weakened(spec, "x.py", b, a)
+    assert w["undeclared"] == ["言えない名が増えた: 10|核: y", "どの決まりも見なくなった: shibuya.b",
+                               "読んでよい側に足した読み手が増えた: 決まり 5 の shibuya.r2", "載せた例外が増えた: ignores#2"]
+    spec.split_weakens = [{"split": "x.py", "other": ["載せた例外が増えた: ignores#2"]}]
+    w = CT.weakened(spec, "x.py", b, a)
+    assert w["declared"] == ["載せた例外が増えた: ignores#2"] and len(w["undeclared"]) == 3 and w["unused"] == []
+    assert CT.weakened(spec, "x.py", a, b)["undeclared"] == []  # 減る向きは弱まりでない
+
+
 @pytest.mark.slow
 def test_split_5a_in_memory_keeps_the_import_rules_to_the_end():
     """〔検収 高-1〕本物の木で 5a の残りの本をメモリの中で順に当てる(書かない・手で直す読みは残す): どの本でも守りが「同じ」

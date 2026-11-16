@@ -19,14 +19,16 @@ import numpy as np
 import pytest
 
 from shibuya.world.facts.mock_schedule import synthesize
-from shibuya.agents.state import (
+from shibuya.foundation.vocab.agent_codes import (
     N_WAKE_CONDITIONS,
     WAKE_CONDITION_CLASS,
     Activity,
     ActivityKind,
-    AgentState,
     ResultCode,
     WakeCondition,
+)
+from shibuya.world.model.agent_table import (
+    AgentState,
 )
 from shibuya.foundation.types import EventClass
 from shibuya.engine import commit as C

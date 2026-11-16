@@ -12,7 +12,7 @@ from typing import Any
 
 import pytest
 
-from shibuya.agents.state import WakeCondition
+from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.mind.judge.decision import ports as PS
 from shibuya.foundation.vocab.actions import cross_action_words
 from shibuya.llm.mock import MockLLM

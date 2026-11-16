@@ -32,7 +32,7 @@ engine.energy — 体のエネルギー収支(5 段目 5a・D-118 K1〜K9・第2
   - `meal_start_distribution`(関数): 組み立ての口: 週次表(全員)から分布を作る(週次表が無ければ凍結の表)。
   - `minute_slot`(関数): その日の分 → 時間帯(朝 0 / 昼 1 / 夕 2 / その他 3)。
   - `w17_wake_minute`(関数): 体 ``agent`` がその日の ``minute`` に W17 の「就寝」の行の中に居れば、**起床の分**
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar`・`shibuya.foundation.paths`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.world.facts.weekly_reader`
+- import している内部モジュール: `shibuya.foundation.paths`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.facts.weekly_reader`
 - 呼び手: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.body`・`shibuya.world.body.rules`・`shibuya.world.body.schedule`
 - 読む試験: `tests/engine/body/body_fixtures.py`・`tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_meal_default_w17.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_sim_time_T.py`
 - 読む試験(道筋で): `tests/engine/state/test_names_frozen.py`・`tests/tools/test_pkgmove.py`
@@ -107,7 +107,7 @@ engine.body.rules — 本人の体の規則(③ 意図しない体と System 1�
   - `rule_steps`(関数): ``now`` が体の刻み(空腹+1・疲れ+1・就寝の回復)か・休みの回復の刻みか。
   - `stage_values`(関数): 内受容の値 → 段(``INTERO_UP_EDGES`` を何本越えたか・``int8``)。
   - `steps_to_hunger_edge`(関数): 今の食後の消費 ``since`` から、1 刻みに ``spent`` ずつ足して次の語の段の境目を越えるまでの刻みの数の見込み
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.change_detect`・`shibuya.foundation.time_consts`・`shibuya.world.body.energy`
+- import している内部モジュール: `shibuya.engine.change_detect`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.body.energy`
 - 呼び手: `shibuya.engine.resolve`・`shibuya.world.body.model`・`shibuya.world.body.schedule`・`shibuya.world.laws.environment`・`shibuya.world.laws.salient`
 - 読む試験: `tests/engine/body/test_body_rules_sources.py`・`tests/engine/body/test_body_same_values.py`・`tests/engine/body/test_meal_default_w17.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
@@ -124,7 +124,7 @@ engine.body.schedule — TM5「次に段階の境目を越える時刻を予約�
   - `next_felt_frames`(関数): 窓 ``frame`` の次に、列 ``cols`` の体感温度が変わる窓(``int64``・その日の中に無ければ :data:`NEVER`)。
   - `next_intero_steps`(関数): 規則に通した直後(刻み ``now``)の値から、次に空腹か疲れが変わりうる最初の刻み(``int64``・無ければ :data:`NEVER`)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--body-schedule``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.queues.scheduler`・`shibuya.world.body.energy`・`shibuya.world.body.rules`
+- import している内部モジュール: `shibuya.foundation.queues.scheduler`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.body.energy`・`shibuya.world.body.rules`
 - 呼び手: `shibuya.cli`・`shibuya.world.body.model`
 - 読む試験: `tests/engine/body/test_body_guard.py`・`tests/engine/body/test_body_manifest.py`・`tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_body_rules_sources.py`
 - 読む試験(道筋で): `tests/engine/systems/test_stage_a_guard.py`

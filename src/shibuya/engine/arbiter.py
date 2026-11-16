@@ -83,7 +83,7 @@ from typing import Final, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.agents.state import N_WAKE_CONDITIONS, REFRACTORY_MINUTES
+from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, REFRACTORY_MINUTES
 from shibuya.foundation.hashing import wake_tiebreak_array
 from shibuya.foundation.types import DEFERRAL_CLASSES, EventClass
 from shibuya.foundation.queues.scheduler import DIAG_COLUMNS, DeferralQueue

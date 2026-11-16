@@ -65,16 +65,18 @@ from typing import Any, Final, Mapping
 
 import numpy as np
 
-from shibuya.agents.state import (
+from shibuya.foundation.vocab.agent_codes import (
     FOCUS_NONE,
     INTENT_NONE,
     IntentKind,
     N_WAKE_CONDITIONS,
     REFRACTORY_MINUTES,
     Activity,
-    AgentState,
     ResultCode,
     WakeCondition,
+)
+from shibuya.world.model.agent_table import (
+    AgentState,
 )
 from shibuya.engine.change_detect import DetectResult
 from shibuya.world.body import rules as _BODY

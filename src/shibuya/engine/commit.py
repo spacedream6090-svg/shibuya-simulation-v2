@@ -38,7 +38,7 @@ import numpy as np
 
 from shibuya.foundation.hashing import wake_tiebreak_array
 
-from shibuya.agents.state import WakeCondition
+from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.foundation.hashing import priority_key_array
 from shibuya.foundation.types import DEFAULT_TICK_SECONDS, NS_PER_SECOND
 from shibuya.foundation.vocab.actions import ACTION_CODES as _CONTRACT_ACTION_CODES
@@ -623,7 +623,7 @@ def engine_continuations(agents, space: ResourceSpace, tick: int) -> IntentBatch
 
     δ_perc は 0(**自発**=予期クラス C0)。資源競合なし。
     """
-    from shibuya.agents.state import Activity  # 局所 import(層は engine>agents で合法)
+    from shibuya.foundation.vocab.agent_codes import Activity  # 局所 import(層は engine>agents で合法)
 
     moving = np.flatnonzero(
         (agents.registry.activity == int(Activity.MOVING)) & (agents.registry.target_node >= 0)
@@ -963,7 +963,7 @@ def intents_from_responses(
 
     # ---- 段 2c: セル外の対象を「意図+目的地つき移動」に変える ----
     if hold_on and (shop_intents or talk_intents or np.any(bed_far)):
-        from shibuya.agents.state import IntentKind  # 局所 import(層は engine>agents で合法)
+        from shibuya.foundation.vocab.agent_codes import IntentKind  # 局所 import(層は engine>agents で合法)
 
         poi_cell = np.asarray(world.pois.cell, dtype=np.int64)
         rows: list[int] = []

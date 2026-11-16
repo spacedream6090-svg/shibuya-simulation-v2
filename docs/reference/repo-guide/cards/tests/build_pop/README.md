@@ -57,7 +57,7 @@ build.pop の単体テスト: Shapefile 最小パーサ・点包含・床面積�
   - `test_two_stage_sampling_is_stratified_and_deterministic`(関数): (d) 統計層は (種別×年齢階級×性別) で比例配分・同 seed 同結果。
   - `test_two_stage_sampling_keeps_the_reserved_layer_whole`(関数): (d) 定員先取り層(``RESERVED_ROLES`` の役割+指令)は縮尺しない。
   - `test_unsupported_shape_type_raises`(関数): 対応範囲外(点)は黙って読まずに例外(範囲の狭さを機械で保証)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.build.pop.fitting`・`shibuya.build.pop.shapefile`・`shibuya.build.pop.w16_population`・`shibuya.world.facts.population_reader`
+- import している内部モジュール: `shibuya.build.pop.fitting`・`shibuya.build.pop.shapefile`・`shibuya.build.pop.w16_population`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.facts.population_reader`
 
 ## [test_w21_activate.py](../../../../../../tests/build_pop/test_w21_activate.py)
 

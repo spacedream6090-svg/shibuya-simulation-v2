@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.agents.state import WakeCondition
+from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.foundation.types import EventClass
 from shibuya.world.laws.civic import PressProcess, PublicServiceDispatchProcess
 from shibuya.world.laws.salient import (

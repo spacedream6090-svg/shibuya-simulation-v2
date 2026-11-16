@@ -211,7 +211,7 @@ def test_target_category_suffix_is_stripped_before_parsing():
 # 正典: docs/design/v2-two-layer-implementation-agenda.md §1-1〜§1-3。
 import inspect  # noqa: E402
 
-from shibuya.agents.state import ResultCode  # noqa: E402
+from shibuya.foundation.vocab.agent_codes import ResultCode  # noqa: E402
 from shibuya.foundation.vocab import actions as C  # noqa: E402
 
 #: アジェンダ §1-1 の表(テスト側に独立に書き写す=片方だけ直せば落ちる)。

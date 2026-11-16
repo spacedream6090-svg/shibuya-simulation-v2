@@ -64,7 +64,7 @@ from typing import Any, Callable, Final, Sequence
 
 import numpy as np
 
-from shibuya.agents.state import FAMILIARITY_EMPTY
+from shibuya.foundation.vocab.agent_codes import FAMILIARITY_EMPTY
 from shibuya.engine import resolve as R
 from shibuya.perception.attention import gate_stage1
 

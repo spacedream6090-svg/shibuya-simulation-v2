@@ -45,7 +45,7 @@ from typing import Any, Final, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.agents.state import WakeCondition
+from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.foundation.types import EventClass
 
 __all__ = [

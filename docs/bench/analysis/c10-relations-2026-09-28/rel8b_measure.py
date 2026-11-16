@@ -200,7 +200,7 @@ def cmd_tau(args: argparse.Namespace) -> int:
 
 # ------------------------------------------------------------------ audit-sample
 def cmd_audit_sample(args: argparse.Namespace) -> int:
-    from shibuya.agents.state import AgentKind
+    from shibuya.foundation.vocab.agent_codes import AgentKind
     from shibuya.world.facts.weekly_reader import load_weekly
     from shibuya.engine import relations as RL
 
@@ -254,10 +254,11 @@ def _final_wo(res: Any, rec: list[str]) -> str:
 
 
 def _patch_state_hash(rec: list[str]) -> None:
-    from shibuya.agents import state as S
+    from shibuya.world.model import agent_table as S
+    from shibuya.foundation.vocab.agent_codes import RELATION_FIELDS  # 〔割る段 5a の G1〕関係の列の名は名で読む(割ると AgentState と別の置き場)
 
     orig = S.AgentState.state_hash
-    ex = tuple(getattr(S, "RELATION_FIELDS", ()))
+    ex = tuple(RELATION_FIELDS)
 
     def patched(agent_state: Any) -> str:
         if getattr(agent_state, "relation_columns", False):
@@ -341,7 +342,7 @@ def _q(x: Any) -> dict[str, float]:
 
 def cmd_one(args: argparse.Namespace) -> int:
     from shibuya import cli
-    from shibuya.agents.state import AgentKind
+    from shibuya.foundation.vocab.agent_codes import AgentKind
     from shibuya.society import conversation as CV
     from shibuya.mind.memory import memory as MEM
     from shibuya.engine import relations as RL
@@ -512,7 +513,7 @@ def cmd_arms(args: argparse.Namespace) -> int:
 # ------------------------------------------------------------------ detect-cost
 def cmd_detect_cost(args: argparse.Namespace) -> int:
     from shibuya.world.facts.population_reader import load_population
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
     from shibuya.world.facts.weekly_reader import load_weekly
     from shibuya.engine import relations as RL
 

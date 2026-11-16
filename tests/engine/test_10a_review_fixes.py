@@ -21,7 +21,7 @@ import pytest
 from shibuya.engine import run as RUN
 from shibuya.runtime.systems import assemble as BLD  # 1-0: 層の組み立ての名前の差し替えの的
 from shibuya.foundation.paths import resolve_repo_path
-from shibuya.engine.calendar import CalendarWarning, SimCalendar, load_holidays
+from shibuya.world.facts.calendar import CalendarWarning, SimCalendar, load_holidays
 from shibuya.world.body.energy import HomeMeals
 from shibuya.engine.run import run_day
 from shibuya.runtime.inference.tape import RUN_META_FILENAME, read_run_meta
@@ -133,7 +133,7 @@ def test_the_tape_carries_the_response_delay_and_old_tapes_stop(tmp_path):
 def test_relative_holiday_csv_is_resolved_from_the_repo_root(tmp_path, monkeypatch):
     p = resolve_repo_path("data/calendar/syukujitsu.csv")
     assert p.is_absolute() and p.parts[-3:] == ("data", "calendar", "syukujitsu.csv")
-    assert (p.parent.parent.parent / "src" / "shibuya" / "engine" / "calendar.py").is_file()
+    assert (p.parent.parent.parent / "src" / "shibuya" / "world" / "facts" / "calendar.py").is_file()
     assert resolve_repo_path(tmp_path / "x.csv") == tmp_path / "x.csv"
     if p.is_file():                                            # 本物の CSV がある環境だけ
         monkeypatch.chdir(tmp_path)                            # 作業ディレクトリをリポの外へ

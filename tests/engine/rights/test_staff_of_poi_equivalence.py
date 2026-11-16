@@ -12,13 +12,14 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentKind, AgentState
+from shibuya.foundation.vocab.agent_codes import AgentKind
+from shibuya.world.model.agent_table import AgentState
 from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.engine import resolve as R
 from shibuya.world.laws.opening import OpeningProcess
 from shibuya.world.facts.rights import initial as RI
 from shibuya.world.facts.rights import ledger as L
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 from shibuya.world.model.state import World
 
 

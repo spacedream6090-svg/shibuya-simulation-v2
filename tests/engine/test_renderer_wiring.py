@@ -17,7 +17,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import LAST_ACTION_NONE, Activity, AgentState
+from shibuya.world.model.agent_table import LAST_ACTION_NONE, AgentState
+from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.engine import change_detect as CD
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R

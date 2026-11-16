@@ -10,7 +10,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from shibuya.agents.state import N_WAKE_CONDITIONS, WakeCondition
+from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, WakeCondition
 from shibuya.foundation.types import EventClass
 from shibuya.engine.arbiter import (
     DEGRADE_COST_FACTOR,

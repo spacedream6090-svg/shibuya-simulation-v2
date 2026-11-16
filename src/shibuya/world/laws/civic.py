@@ -33,13 +33,14 @@ from typing import Final
 
 import numpy as np
 
-from shibuya.agents.state import AgentKind, AgentState
+from shibuya.foundation.vocab.agent_codes import AgentKind
+from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.rng import run_tick_key, stream
 from shibuya.world.laws import switch_absent as _ABSENT
 from shibuya.world.laws import switch_rate as _RATE_RULES
 from shibuya.engine import resolve as R
 from shibuya.perception import attention as AT
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 from shibuya.world.ledger.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.model.state import World
 from shibuya.foundation.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_HOUR, SECONDS_PER_MINUTE

@@ -22,7 +22,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from shibuya.world.assets import WorldAssets
+from shibuya.world.model.assets import WorldAssets
 
 __all__ = ["WalkGraph"]
 

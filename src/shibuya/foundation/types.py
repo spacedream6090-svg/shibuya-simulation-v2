@@ -66,6 +66,7 @@ __all__ = [
     "max_tick",
     "INT64_MIN",
     "INT64_MAX",
+    "ticks_per_day",
 ]
 
 # ---- ID 型(NewType=静的型検査用の別名・実体は int) ----
@@ -211,3 +212,14 @@ def split_t_sim_ns(value: int, tick_seconds: int = DEFAULT_TICK_SECONDS) -> tupl
         raise ValueError("tick_seconds は正の整数")
     span = tick_seconds * NS_PER_SECOND
     return divmod(int(value), span)
+
+
+def ticks_per_day(tick_seconds: int = DEFAULT_TICK_SECONDS) -> int:
+    """1 日の刻みの数(``tick_seconds`` が 1 日を割り切らなければ ``ValueError``)。"""
+    ts = int(tick_seconds)
+    if ts <= 0:
+        raise ValueError("tick_seconds は正の整数")
+    seconds = MINUTES_PER_SIM_DAY * SECONDS_PER_MINUTE
+    if seconds % ts:
+        raise ValueError(f"tick_seconds={ts} は 1 日を割り切らない")
+    return seconds // ts

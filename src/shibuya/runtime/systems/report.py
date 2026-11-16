@@ -15,10 +15,10 @@ from typing import Any
 
 import numpy as np
 
-from shibuya.agents.state import N_WAKE_CONDITIONS_ALL, Activity, WakeCondition
+from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS_ALL, Activity, WakeCondition
 from shibuya.foundation.growth import check_growth
 from shibuya.runtime.state import growth_decl as GD
-from shibuya.engine.calendar import WEATHER_SCHEME
+from shibuya.world.facts.calendar import WEATHER_SCHEME
 from shibuya.foundation.rng import RNG_SCHEME
 from shibuya.engine.poi_target import move_resolution_summary, resolution_summary
 from shibuya.world.laws.salient import ablation_name as _pnotice_ablation_name

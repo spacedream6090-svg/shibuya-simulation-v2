@@ -2,7 +2,7 @@
 
 - 指示: 返事その 8 §8 の 5(段 5〜7=割る)。計画: [最終の表と移す段の計画](../../../reference/package-map-final-2026-11-09.md) §7-4 の段 5a の行。割り先の正: [全ファイルの表](../../../reference/package-map-final-2026-11-09-files.md) §3・§4。
 - 段 5a の実行の計画(下調べ)と、問い Q1〜Q15 への親の裁定は、親の作業の置き場にある(計画 plan_stage5a・裁定 rulings_stage5a)。計画の要旨は第347 の報告 [docs/ops/report-347-2026-11-16.md](../../../ops/report-347-2026-11-16.md) §2。下の §1 に裁定の表を写した。
-- G0 では src(`src/shibuya/`)を 1 字も変えていない。17 本を割るのは G1 から(1 本 1 commit・群 5 つ・親が 1 本ごとに byte-check)。18 本目だった `engine/speech/port.py` は延ばした(§1 の「G0 の検収の後の親の答え」1)。
+- G0 では src(`src/shibuya/`)を 1 字も変えていない。17 本を割るのは G1 から。〔G1 の発注で親の裁定 Q11 を変えた〕群ごとに 1 commit(群 5 つ)。実装役が 1 本ごとに byte-check(19 構成・群の土台の commit と、その本まで当てた木を比べる=積み重ね)を回して記録を本ごとに残し、親が群の終わりにもう一度 byte-check・範囲の全体の試験・別の役の検収をしてから commit する(§9)。18 本目だった `engine/speech/port.py` は延ばした(§1 の「G0 の検収の後の親の答え」1)。
 - G0 は別の役の検収で条件つきの受け入れ(高 1・中 4・低 6)になり、道具と試験と記録を直した(§1-2・§2・§3・§4)。src は直しでも変えていない。
 
 ## 1. 親の裁定(Q1〜Q15)と、G0 での当て方
@@ -19,7 +19,7 @@
 | Q8 表に無い `CELL_WAKE_USES_NUMBA` | `mind/system1/change_detect.py` | §4-6 に足して注を付けた(計画に無い名=仮採用) |
 | Q9 「ほか N 個」の 61 名 | その行の割り先・§4 を全部の名に開く | 5a の 18 節を開いた(開いた名に注)。今は無い名 3 つ(`REPO_ROOT`・`resolve_repo_path`・`EFFECT_CAP_PER_EXPOSURE`)は表から外して注 |
 | Q10 道具 | 案 A | `tools/pkgmove/split.py`・`cli.py split`(§2) |
-| Q11 commit の切り方 | 1 本 1 commit・群 5 つ | `table.SPLIT_ORDER`・`SPLIT_GROUPS`(G1〜G5。前の G6=18 本目は延ばした) |
+| Q11 commit の切り方 | 1 本 1 commit・群 5 つ → G1 の発注で群ごとに 1 commit に変えた(実装役が 1 本ごとに byte-check) | `table.SPLIT_ORDER`・`SPLIT_GROUPS`(G1〜G5。前の G6=18 本目は延ばした) |
 | Q12 `mora_count` | 18 本目に foundation の文の道具へ・先に表を直す | §3 の行 244 を割る行に替え、§4-25 を足した。守り ④ で止まる(§5 の 1)→ G0 の検収の後に延ばした(下の答え 1) |
 | Q13 範囲の手がかり | llm=`act.intake.parser`・agents=`world.facts.population_reader` | §6 の表 |
 | Q14 古い頭を消す時 | 最後のファイルを割った commit で | 道具が 0 バイトの頭しか残らないディレクトリの頭を消す |
@@ -225,3 +225,80 @@ G0 の検収の直しの後の木(本体の頭 `dcd25a6c` の上へ載せ直し�
 - §3 の表の数(書き換える import の文の数など)は、版上げ A48 が本体に入る前の木で取った値。A48 は割る 17 本を変えていないが、読み手の数は
   本ごとに当てるときの実測で記録し直す。
 - 例外(ignore)の本数は G0 では変わらない(31 本・延べ 45 行。まだ 1 本も割っていない)。
+
+## 9. G1 の当て(本物の木・群の土台 `adbe8bb`=G0 の commit・安定版のタグ `stable-v2-before-split5a-G1`)
+
+- 回し方(G1 の発注): 1 本ごとに、手で直す読みと中身を見る試験を先に直す → 書かない実行(守り 11 個・手で直す一覧 0)→ `cli.py split --next --apply --tree <作業木>`(その本だけ・全モジュールを 1 本ずつ読む import の確かめ)→ `cli.py contracts --stage delete --tree . --apply` → 狙いの試験(作業木で変わった試験のファイル・`tests/tools`・置き場の守り・写しの一致。`-n 4`・`-m "not slow"`)と `lint-imports` → byte-check 19 構成(`--base adbe8bb`=群の土台と、その本まで当てた木を比べる=積み重ね)→ この節。
+- 数は版上げ A48 の後の木で取り直した(§3 の表は A48 の前の値)。tests の文が §3 より増えた分: 1 本目 +2(A48 が足した `tests/perception/test_weather_a48.py` が `world.assets` を読む 1・手で直した別名 `WA` を道具が書き換えた 1)・2 本目 +1(同じ試験が `agents.state` を読む)・3 本目 +1(手で直した別名 `CAL`)。docs は 2 本目が +2(手で直した `rel8b_measure.py` の別名 `S` の文と、足した名の import の文=どちらも G0 では書き換えなかった)。
+- `cli.py allow`(段 4 の対応で `allow_tests_tools.toml` を作り直す道具)は回していない。段 4 の後の木で作り直すと中身が空になる(仮採用 8・§7)。割る段の道の文字列の許可は、本ごとの走査で作る。
+- 心の読みの一覧の `scope.split` に G1 の 3 本は載っていない(載るのは 5a の 6 本=arbiter・change_detect・chooser・events/body・relations・attention と、`engine/resolve.py`・`perception/renderer.py`)=直す所なし。古い頭: 2 本目で `agents/` が消えた(`agents/state.py` と `agents/__init__.py`)。
+
+### 9-1. 本ごとの数
+
+| 本 | 割る行 | 書き換えた import の文(src・tests・tools・docs) | 分けた文 | 鍵 | 台帳の道 | 道の文字列 | 手で直した読み | 写さなかった | 守り | byte-check | 契約 | 例外 載せた・効いている(辺/行) |
+|---:|---|---|---:|---:|---:|---|---|---|---|---|---|---|
+| 1 | `world/assets.py` | 55(23・32・0・0) | 1 | 2 | 1 | src の表 2・tests の記号 2 | 1(`tests/engine/test_assets_10e_b0_b1.py`) | `__all__` の中の注 5 | 全部「同じ」 | 19/19 同じ・終了コード 0 | 3+9 → 3+9 | 31/45・19/29 |
+| 2 | `agents/state.py` | 199(65・125・3・6) | 67 | 7 | 1 | src の表 2・tests の記号 8 | 1(`docs/bench/analysis/c10-relations-2026-09-28/rel8b_measure.py`) | 無い | 「同じ」・決まり=宣言どおり 4 | 19/19 同じ・終了コード 0 | 3+9 → 3+9(古い 4 本から名 `agents` が外れた) | 32/46・20/30(割 1 が載った) |
+| 3 | `engine/calendar.py` | 36(16・19・0・1) | 0 | 3 | 1 | tests の記号 1・tools の記号 1(`ROOT_READERS`) | 1(`tests/engine/test_calendar_10e_e3.py`) | 無い | 全部「同じ」 | 19/19 同じ・終了コード 0 | 3+9 → 3+9 | 31/45・20/30(28 本の #8 `mind.judge.classical -> engine.calendar` が消えた) |
+
+- 書き換えた import の文と道の文字列は、道具の報告(`split_NN_report.json`)の数。道の文字列の「src の表」は許可の一覧 (b-src) の表の書き換え(固定の表の値)、「記号」は tests と tools の走査で書き換えた記号。
+- byte-check の記録: `bytecheck_01_world_assets/`・`bytecheck_02_agents_state/`・`bytecheck_03_engine_calendar/`(このディレクトリの下。19 構成とも 37 欄=25 欄+第346 の 12 欄がすべて同じ・final が同じ 19・終了コード 0)。
+- 例外の数は `cli.py contracts --stage delete --tree . --probe`(効いている=外すと契約が broken になる行と辺)。群の土台は 31/45・18/28(G1 の検収役が本体の木で測った・計画 §5-3 の模擬と同じ)。1 本目で効いている例外が 1 本増えたのは、もとから載っていた 28 本の #18 `perception.renderer -> world.model.assets`(決まり 3・消える段=段 7)が効くようになった分: 割る前の読む先 `world.assets` は決まり 3 の禁じる側(単位 world.model)の外にあり、割った後は `world.model.assets` になって、`mind.memory.memory_store` → `perception.renderer` → `world.model.assets` の連なりが決まり 3 に当たる。この例外がその連なりを切る(#18 の注=段 7 で renderer を割るまで、のとおり)。
+
+### 9-2. 手で直した読みと、中身を見た試験
+
+- 1 本目 `tests/engine/test_assets_10e_b0_b1.py`: 別名 `WA` の素の使い方 2 か所(`monkeypatch` で `file_sha256` を差し替えるモジュールの並び・消した口の名の `hasattr`)を、名の定義の置き場(`WA.file_sha256.__module__`・`WA.load_assets.__module__`)から引く形にした。道具は `WA` を主な割り先 `world.model.assets` へ書き換えた。消した口の名は、割った後は主な割り先でだけ見る(2 つ目の割り先 `foundation.vocab.place_words` へ行くのは店の語の定数 `SYNTHETIC_POI_CATS` だけ)。
+- 2 本目 `docs/bench/analysis/c10-relations-2026-09-28/rel8b_measure.py`(記録の道具): `getattr(S, "RELATION_FIELDS", ())` を `from shibuya.agents.state import RELATION_FIELDS` に替えた(関係の列の名は agent_codes へ・`AgentState` は agent_table へ分かれる)。既定の値 `()` は `RELATION_FIELDS` が無かった古い木のための形で、今の木では同じ値。中身を見た試験 `tests/engine/test_two_phase.py`: `.thaw(` の呼び手は割った後も `world/model/agent_table.py`(`AgentState` の中)と `world/model/state.py` だけ(2 つ目の割り先 agent_codes に呼び手は無い)。逐次ループ宣言の一覧は道具が `world/model/agent_table.py` へ向け、主な割り先は元の docstring(宣言を含む)を持つ。
+- 3 本目 `tests/engine/test_calendar_10e_e3.py`: 別名 `CAL` の素の使い方 1 か所(消した切替口の名の `hasattr`)を、`SimCalendar.__module__` から引く形にした(2 つ目の割り先 `foundation.types` へ行くのは `ticks_per_day` だけ)。`tools/bytecheck/tree.py` の `ROOT_READERS` の鍵は、道具が道の文字列の走査で `shibuya/world/facts/calendar.py` へ書き換えた(手では直していない)。直した後に `tests/tools/test_bytecheck.py` を通してから byte-check を回した。
+
+### 9-3. 写さなかった import と注
+
+- 1 本目: `__all__` の中の区切りの注 5 行(§3-2 と同じ)。2 本目・3 本目: 無い。
+
+### 9-4. 再検収(review_g0_2)の低 4 件
+
+1. 決まりの守りの粒度: `contracts.weakened` に、前から言えない決まりで「言えない名の並び」(理由の文「…もの: a, b」)に増えた名・`uncovered` に増えたモジュール・`late_allowed` に増えた読み手・載せた例外の行の増え(28 本・§6-6・表の外の表。`[[ignore_split]]` はその本の宣言なので除く)を足した。宣言には `other`(報告の文そのもの)を足した。理由の文がほかの形(「最終の名でないモジュールがある(… ほか N)」など)のときは、言い回しの数が動くだけで、言える範囲は (決まり, 名) で比べている=中身の文字列は比べない。広げた守りで 2〜17 本を書かない実行で順に当て、宣言の外の増えと当たらない宣言はどちらも 0。試験 `test_split_weakened_sees_more_than_new_rule_names`。
+2. 既に在る割り先と同じ名の確かめは、その割り先が割る元からその名を import しているだけの形も断る=安全な側に倒している(割った後は自分を読む import になるので、その import を落とせば足りる形)。5a の既に在る割り先は割る元から import しないので当たらない。5b で当たったら直す。
+3. 記録の冒頭が指す第347 の報告 §2 は、親が「18 本目の `mora_count` は延ばします」に直した(同じ報告の §11 の表 17 も「延ばす」)。記録の参照の文(計画の要旨は §2)と食い違わない。
+4. `test_persona_does_not_reference_llm_ports` に足した元の置き場の確かめは import の文だけを見る(`importlib` の文字列で新しい置き場を読む形は、字面の "llm" の検出器が見る範囲の外)。足しただけで前より狭くはない。そのままにする。
+
+### 9-5. 狙いの試験(作業の木・1 本ごと・`-n 4`・`-m "not slow"`)
+
+| 本 | 回したもの | 結果 |
+|---:|---|---|
+| 1 | 作業木で変わった試験のファイル(G1 の分)・`tests/tools`・`tests/test_places_guard.py`・`tests/c8/test_places_rule_copies.py`・`tests/engine/processes` | 1275 passed・20 skipped |
+| 2 | 同じ形(変わった試験のファイルが増えた・`test_two_phase` を含む) | 2919 passed・20 skipped |
+| 3 | 同じ形(`tests/tools/test_bytecheck.py` を含む。byte-check の前に `test_bytecheck` を単独でも回した=123 passed) | 3118 passed・20 skipped |
+
+- 飛んだ 20 本は、どれも `tests/tools/test_pkgmove.py` の段 4 の理由(「当てる段が無い木」ほか=前からの理由)。
+- `lint-imports` は 3 本とも 12 kept・0 broken。byte-check は 1 本 7 分ほど(基準の側 210〜216 秒・比べる側 206 秒)。
+
+### 9-6. 割った後に、置き場で範囲が決まる決まりに合わせて直した所(宣言)
+
+- **3 本目 `engine/calendar.py` → `foundation/types.py` の `ticks_per_day` の docstring を 1 か所直した。** 前「1 日の tick 数(``tick_seconds`` が 1 日を割り切らなければ ``ValueError``)。」→ 後「1 日の刻みの数(``tick_seconds`` が 1 日を割り切らなければ ``ValueError``)。」。字面だけで、コードは変えていない。
+- 理由: 決まり「核と系の注釈と docstring に素の tick を書かない(刻み・計算のまとめにする・名の引用はバッククォートで)」(`tests/engine/time/test_t0_no_tick_word.py::test_no_bare_word_in_comments_and_docstrings_of_core_and_systems`)の範囲は置き場で決まる。元の置き場 `engine/calendar.py` は範囲の外で、割り先 `foundation/types.py` は範囲の中だった。G1 の狙いの試験はこの試験を含んでいなかったので、親の範囲の全体の試験で見つかった。
+- 道具の守り(① 文・② 定数)は元の文と割り先の文が同じことを確かめた後に、この 1 か所を手で直した=② の「元と割り先の定数が同じ」から外れるのは、この 1 つの文字列だけ(宣言)。済んだ割る行の判定(`split.is_done`=名が割り先の頂上に在り、元のファイルが無い)は docstring を見ないので、変わらない。
+- `__doc__` を読む所: src に無い(`grep "__doc__"` は 0 件)。docstring を読む道具(カードの `tools/repo_guide/build.py` ほか)は記録と案内だけ。カードは作り直した。
+- 親がこの直しの後に byte-check をもう一度回す(src を変えたため)。
+- G2 からは、1 本ごとの狙いの試験に「置き場で範囲が決まる決まりの試験」の束(`tests/engine/time`・`tests/engine/state`・`tests/engine/bridging`・`tests/engine/systems`・`tests/test_places_guard.py`。`tests/validation` は今は無い)を足す。割ると名が別の包みへ移り、今まで範囲の外だった文が範囲に入ることがあるため。
+
+### 9-7. 検収(review_g1)の低と、残すもの
+
+- 決まりどおり書き換えない docstring の例 2 か所(`engine/change_detect.py` の 260 行目・`perception/renderer.py` の 1129 行目の `>>> from shibuya.agents.state import AgentState`)は、無くなった包みを指すようになった。doctest は回していない(pyproject と CI に設定が無い)ので結果には効かない。段 8 の文の掃除で直す(renderer の docstring は宣言の見出しがあるファイルなので、今は触らない)。
+- 親の byte-check の記録 `bytecheck_G1_parent/` は親が commit に載せる(実装役は触らない)。
+
+### 9-8. 親の確かめ(群 1)
+
+- byte-check(3 本とも当てた木・基準 `adbe8bb`=群の土台): 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0・final が同じ 19(既定
+  `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939)。§9-6 の docstring の直しの後に回し直した値。組は
+  [bytecheck_G1_parent/](bytecheck_G1_parent/)。実装役が 1 本ごとに回した 3 組(`bytecheck_01`〜`03`)も、すべて同じ。
+- 範囲の全体の試験(`tests --ignore=tests/c7 -m "not gpu and not slow" -n 4 --dist loadfile`・linked の作業木・土台 `adbe8bb` の上): 6,918 passed・
+  2 failed・21 skipped・1 xfailed(37 分 41 秒)。落ちた 2 本は、前からの
+  `tests/vocab/test_registry_from_tape.py::test_ab7_seed1_open_matches_the_parent_report`(linked の作業木でだけ落ちる)と、
+  `tests/engine/time/test_t0_no_tick_word.py::test_no_bare_word_in_comments_and_docstrings_of_core_and_systems`(§9-6=割って
+  `foundation/types.py` へ移った docstring の語)。後者は §9-6 のとおり直し、その試験(6 passed)と決まりの試験の束(316 passed)を回し直した。
+- 本体の頭 `9495521`(版上げ Q13 の試験の直しと台帳が入った)へ載せ直した後: 両方の枝が変えた試験 8 ファイル(Q13 が引数を足し、
+  群 1 が import の文を書き換えた)と、決まりの試験を回し直した(結果は commit の文に書く)。
+- 別の役の検収: 受入(高 0・中 0・低 3)。割った 3 本の頂上の文は、元と数・並び・字面が完全に同じ。import の文のほかに変わった行は、
+  宣言された物だけ。
+- 飛んだ試験(skipped)は 21 本で、群の前と同じ。

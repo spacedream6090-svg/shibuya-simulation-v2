@@ -13,7 +13,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, AgentKind, AgentState
+from shibuya.foundation.vocab.agent_codes import Activity, AgentKind
+from shibuya.world.model.agent_table import AgentState
 from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
 from shibuya.world.body import energy as E
 from shibuya.engine import resolve as R

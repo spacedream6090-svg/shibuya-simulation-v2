@@ -17,7 +17,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `by_kind`(関数): 候補の語の好みの順で選ぶ規則(どれも無ければ最初の候補)。
   - `c1`(関数): 腕 c1(と下の腕)を一時的に選ぶ(組み立てが読む)。
   - `choose`(関数): 仮のモデルの選びを試験の規則に差し替える(``rule(ctx, presented) -> 候補の id``)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.queues.batching`・`shibuya.foundation.time_consts`・`shibuya.interim_bundles.contact.layer`・`shibuya.mind.plan.contact_port`・`shibuya.society.tools.groups`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.queues.batching`・`shibuya.foundation.time_consts`・`shibuya.interim_bundles.contact.layer`・`shibuya.mind.plan.contact_port`・`shibuya.society.tools.groups`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 - 読む試験: `tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c1_world.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_exchange.py`・`tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/contact/test_c2_video.py`
 
 ## [_c2.py](../../../../../../../tests/engine/contact/_c2.py)
@@ -28,7 +28,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `Harness2`(クラス): 連絡の層だけを回す合成の台(体 6・セル 9・家族 2 組と職場 1 つ・待ち行列つき)+家(``home_cell``)・勤め先・習慣の腕・
   - `habit_arm`(関数)
   - `loud`(関数): 全員の電話を手に持ち・音あり・イヤホンなし(気づく道を決める)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.queues.batching`・`shibuya.foundation.time_consts`・`shibuya.interim_bundles.contact.layer`・`shibuya.society.tools.groups`・`shibuya.world.model.state`・`shibuya.world.things.device`・`tests/engine/contact/_c1.py`
+- import している内部モジュール: `shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.queues.batching`・`shibuya.foundation.time_consts`・`shibuya.interim_bundles.contact.layer`・`shibuya.society.tools.groups`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`shibuya.world.things.device`・`tests/engine/contact/_c1.py`
 - 読む試験: `tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_exchange.py`・`tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/contact/test_c2_video.py`・`tests/engine/time/test_v30a_key_sites.py`
 
 ## [test_c1_event_log_onoff.py](../../../../../../../tests/engine/contact/test_c1_event_log_onoff.py)
@@ -63,7 +63,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_m5_calls_by_model_is_unchanged_without_the_arm`(関数)
   - `test_m5_look_is_a_main_candidate_and_counts`(関数): 腕 port: 暇なときの「スマホを見る」は主の判断の候補(選ぶと同じ刻みに画面を見る)・別の暇の判断はしない・段 B も通る。
   - `with_groups`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.run`・`shibuya.engine.tools.record`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.interim_bundles.contact.book`・`shibuya.interim_bundles.contact.layer`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.ports`・`shibuya.mind.plan.contact_attention`・`shibuya.mind.plan.contact_port`・`shibuya.runtime.systems.table`・`shibuya.society.contact.calls`・`shibuya.society.contact.chat_state`・`shibuya.society.contact.deliver`・`shibuya.society.conversation`・`shibuya.society.tools.groups`・`shibuya.world.things.device`・`tests/engine/contact/_c1.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.engine.tools.record`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interim_bundles.contact.book`・`shibuya.interim_bundles.contact.layer`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.ports`・`shibuya.mind.plan.contact_attention`・`shibuya.mind.plan.contact_port`・`shibuya.runtime.systems.table`・`shibuya.society.contact.calls`・`shibuya.society.contact.chat_state`・`shibuya.society.contact.deliver`・`shibuya.society.conversation`・`shibuya.society.tools.groups`・`shibuya.world.things.device`・`tests/engine/contact/_c1.py`
 - 環境変数: `SHIBUYA_SYSTEMS_CHECK`
 
 ## [test_c1_flow.py](../../../../../../../tests/engine/contact/test_c1_flow.py)
@@ -130,7 +130,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_screen_is_strong_and_an_off_device_gets_nothing`(関数)
   - `test_the_levels_are_a_shape_not_a_coefficient`(関数): 負の対照: 同じ状態からはいつも同じ段(確率を引かない)・段は SNR の閾値でだけ変わる。
   - `test_unnoticed_events_three_arms`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.percept`・`shibuya.foundation.ports.percept_contact`・`shibuya.foundation.vocab.contact_flags`・`shibuya.interim_bundles.contact.book`・`shibuya.interim_bundles.contact.layer`・`shibuya.mind.plan.contact_attention`・`shibuya.mind.plan.contact_port`・`shibuya.society.contact.chat_state`・`shibuya.society.contact.deliver`・`shibuya.society.conversation`・`shibuya.society.tools.groups`・`shibuya.world.things.device`・`tests/engine/contact/_c1.py`
+- import している内部モジュール: `shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.percept`・`shibuya.foundation.ports.percept_contact`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.contact_flags`・`shibuya.interim_bundles.contact.book`・`shibuya.interim_bundles.contact.layer`・`shibuya.mind.plan.contact_attention`・`shibuya.mind.plan.contact_port`・`shibuya.society.contact.chat_state`・`shibuya.society.contact.deliver`・`shibuya.society.conversation`・`shibuya.society.tools.groups`・`shibuya.world.things.device`・`tests/engine/contact/_c1.py`
 
 ## [test_c1_world.py](../../../../../../../tests/engine/contact/test_c1_world.py)
 
@@ -197,7 +197,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_states_from_activity_and_place`(関数)
   - `test_surprise_goes_back`(関数): 驚き=その刻みに起床条件 (i) で起きた体(割り込みと同じ入口=系 contact が刻みの頭に置く ``_interrupted``)。
   - `test_tie_takes_the_first_word_in_order`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.arms.contact`・`shibuya.interim_bundles.contact.book`・`shibuya.interim_bundles.contact.layer`・`shibuya.mind.plan.contact_habit`・`shibuya.mind.plan.contact_port`・`shibuya.society.contact.tools`・`tests/engine/contact/_c1.py`・`tests/engine/contact/_c2.py`
+- import している内部モジュール: `shibuya.foundation.arms.contact`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interim_bundles.contact.book`・`shibuya.interim_bundles.contact.layer`・`shibuya.mind.plan.contact_habit`・`shibuya.mind.plan.contact_port`・`shibuya.society.contact.tools`・`tests/engine/contact/_c1.py`・`tests/engine/contact/_c2.py`
 
 ## [test_c2_runs.py](../../../../../../../tests/engine/contact/test_c2_runs.py)
 

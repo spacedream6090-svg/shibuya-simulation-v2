@@ -18,13 +18,15 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.agents.state import (
+from shibuya.foundation.vocab.agent_codes import (
     MEMORY_FIELDS,
     RESULT_TEXT,
     AgentKind,
-    AgentState,
     ResultCode,
     WakeCondition,
+)
+from shibuya.world.model.agent_table import (
+    AgentState,
 )
 from shibuya.mind.memory import memory as M
 from shibuya.mind.memory.familiarity import place_thing

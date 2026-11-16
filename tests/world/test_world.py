@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.world import assets as A
+from shibuya.world.model import assets as A
 from shibuya.world.model.state import World
 
 ASSET_DIR = Path("data/world/v2")

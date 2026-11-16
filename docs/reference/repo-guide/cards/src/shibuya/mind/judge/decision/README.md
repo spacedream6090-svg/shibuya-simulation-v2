@@ -48,7 +48,7 @@ engine.decision.ports — 候補の口の 3 つの実装(同じ入口 ``Decision
   - `ClassicalPort`(クラス): 古典の方策 G の答えの行動の語を候補に写す実装。
   - `LlmPort`(クラス): 口の後ろに今の LLM の道(``bridge``=``engine.llm_bridge.LLMBridge``)を置く実装。
   - `MockPort`(クラス): 今の mock(``llm.mock.MockLLM``)と同じ鍵から同じ番号を選ぶ実装(判断モデルの代役)。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.ports.decision`・`shibuya.foundation.vocab.actions`
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`
 - 呼び手: `shibuya.runtime.systems.assemble`
 - 読む試験: `tests/economy/stage2/test_stage2_calls.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/decision/test_j0_other_ratio_field.py`・`tests/engine/decision/test_j0_port_schema.py`・`tests/engine/decision/test_j0_shuffle_invariance.py`・`tests/engine/speech/test_speech_choice_utterance.py`
 - 決定の ID: R-113

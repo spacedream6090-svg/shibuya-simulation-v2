@@ -16,7 +16,7 @@ from __future__ import annotations
 import time
 from typing import Any
 
-from shibuya.agents.state import WakeCondition
+from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.engine.llm_bridge import delta_think_ticks
 from shibuya.mind.memory.wom import hear as wom_hear
 from shibuya.llm.fleet import Deferred as FleetDeferred

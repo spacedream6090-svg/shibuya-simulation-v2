@@ -163,7 +163,7 @@ def test_remember_new_merge_and_pointer_to_the_last_occurrence():
 
 def test_remember_evicts_the_lowest_score_row_like_the_table():
     """満杯=score 最小の行(同点は番号の小さい方)を追い出す。今の ``MemoryLayer._write`` と行が同じ。"""
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     n_rows = 3
     agents = AgentState(1, memory_columns=True, memory_n=n_rows)
@@ -212,7 +212,7 @@ def test_strength_is_capped_like_the_fixed_table():
 
 def test_value_drift_from_the_table_is_caught_at_write(monkeypatch):
     """検収 M1: 行の番号が同じでも、器の値(ここでは重要度)が表とずれたら書いた所で落ちる(負の対照)。"""
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     def write_some(layer, agents):
         for step, kind, obj in ((0, 1, 5), (1, 2, 6), (2, 1, 5)):
@@ -337,7 +337,7 @@ def test_runtime_owner_coverage_with_the_store():
 
 # ================================================================= 作り直し(再開)
 def test_rebuild_from_the_table_gives_the_same_rows():
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     from tests.engine.memory._m0 import table_vs_store
 

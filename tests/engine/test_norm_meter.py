@@ -7,7 +7,8 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, AgentKind, AgentState, ResultCode
+from shibuya.foundation.vocab.agent_codes import Activity, AgentKind, ResultCode
+from shibuya.world.model.agent_table import AgentState
 from shibuya.society import norm_meter as NM
 from shibuya.world.model.state import World
 

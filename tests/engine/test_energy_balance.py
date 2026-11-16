@@ -15,7 +15,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import ENERGY_FIELDS, Activity, ActivityKind, AgentKind, AgentState
+from shibuya.foundation.vocab.agent_codes import ENERGY_FIELDS, Activity, ActivityKind, AgentKind
+from shibuya.world.model.agent_table import AgentState
 from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
 from shibuya.world.body import energy as E
 from shibuya.engine import resolve as R

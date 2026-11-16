@@ -121,7 +121,7 @@ def test_action_vocab_matches_llm_contract():
 
 def test_wake_reason_text_covers_all_wake_conditions():
     """§6 不応期表の 11 行(``agents.state.WakeCondition``)と 1 対 1。"""
-    from shibuya.agents.state import N_WAKE_CONDITIONS
+    from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS
 
     assert len(T.WAKE_REASON_TEXT) == N_WAKE_CONDITIONS == 11
     assert all(s.endswith("。") for s in T.WAKE_REASON_TEXT)
@@ -282,7 +282,8 @@ def test_renderer_v3_changes_only_the_b0_block():
     v3 の語彙へ読み替えた(``renderer.ACTIVITY_WORDS_V3``/``RESULT_OPTIONS_V3``)。"""
     import numpy as np
 
-    from shibuya.agents.state import AgentKind, AgentState
+    from shibuya.foundation.vocab.agent_codes import AgentKind
+    from shibuya.world.model.agent_table import AgentState
     from shibuya.perception.renderer import Renderer
     from shibuya.world.model.state import World
 

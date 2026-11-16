@@ -24,7 +24,7 @@ data が要る試験の印 ``requires_data(<id>, ...)`` の登録表(第333・3-
   - `present`(関数): id の data があるか(プロセスの中で 1 回だけ判定して覚える)。
   - `reason`(関数): 飛ばすときの一律の理由。
   - `skip_unless`(関数): 関数の途中で data の有無を見て飛ばす(理由は印と同じ)。
-- import している内部モジュール: `shibuya.build.run`・`shibuya.world.assets`
+- import している内部モジュール: `shibuya.build.run`・`shibuya.world.model.assets`
 - 読む試験: `tests/build_audit/test_audit_pipeline.py`・`tests/build_field/test_field_pipeline.py`・`tests/build_field/test_w10_road_names.py`・`tests/build_field/test_w10_ruler.py`・`tests/build_field/test_w12_keio_switch_2_4.py`・`tests/build_field/test_w12_pm_peak_switch.py`・`tests/build_field/test_w12_real_timetables.py`・`tests/build_geo/test_c9c_walkable_area.py`・`tests/build_geo/test_geo_pipeline.py`・`tests/build_pop/test_pop_pipeline.py`・`tests/build_rail/test_w12_arrivals_2_3c.py`・`tests/build_vis/test_vis_pipeline.py`・`tests/conftest.py`・`tests/engine/space/test_nav1_route_cache.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_relations_tenure.py`・`tests/engine/test_version_bump_10e.py`・`tests/test_build_run_keep_stage.py`
 - 決定の ID: 第 333
 

@@ -160,7 +160,7 @@ def relay_tables(b: Any, d: int) -> None:
     〔1-0〕HEAD の nonlocal 5 つ(b_*)は ``DayTables`` の欄(草案 §3-3 の 5)。
     〔A48・第347〕世界過程の無いランの天気の日の引き直しと、引いた再生日の 24 時の行の確かめ(``relay_weather``)。
     """
-    from shibuya.agents.state import WakeCondition
+    from shibuya.foundation.vocab.agent_codes import WakeCondition
 
     runner, presence = b.layers.runner, b.layers.presence
     act_layer, classical_policy, poi_resolver = b.layers.act_layer, b.layers.classical, b.layers.poi_resolver

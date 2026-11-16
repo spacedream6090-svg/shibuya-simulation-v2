@@ -252,7 +252,7 @@ def run_collect(config: str, *, days: int, agents: int, seed: int, world: str | 
         state_dir = Path(scratch) / f"state_md23_{config}"
         state_dir.mkdir(parents=True, exist_ok=True)
         kw["state_out"] = str(state_dir)
-    from shibuya.engine import calendar as CAL
+    from shibuya.world.facts import calendar as CAL
 
     waived: list[str] = []
     orig_cs = CAL.SimCalendar.check_start

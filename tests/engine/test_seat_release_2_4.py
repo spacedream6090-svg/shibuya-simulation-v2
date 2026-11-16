@@ -12,7 +12,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, AgentState
+from shibuya.foundation.vocab.agent_codes import Activity
+from shibuya.world.model.agent_table import AgentState
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.world.laws import switch_seat as SR

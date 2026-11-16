@@ -17,7 +17,8 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.state import RELATION_FIELDS, AgentState, ResultCode
+from shibuya.foundation.vocab.agent_codes import RELATION_FIELDS, ResultCode
+from shibuya.world.model.agent_table import AgentState
 from shibuya.world.facts.weekly_reader import WeeklySchedule
 from shibuya.mind.memory import memory as M
 from shibuya.engine import relations as RL
@@ -253,7 +254,7 @@ def test_readers_live_edges_strength_same_cell_and_invite_weights():
 
 # ================================================================= (g) 知人の結線
 def build_renderer(n: int = 8):
-    from shibuya.agents.state import AgentKind
+    from shibuya.foundation.vocab.agent_codes import AgentKind
     from shibuya.perception.renderer import Renderer
     from shibuya.world.model.state import World
 

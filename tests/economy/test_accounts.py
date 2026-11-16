@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.agents.state import AgentKind
+from shibuya.foundation.vocab.agent_codes import AgentKind
 from shibuya.economy.accounts import (
     ACCOUNT_NAMES,
     ACCOUNTS,

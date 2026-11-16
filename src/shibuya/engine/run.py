@@ -71,11 +71,13 @@ import numpy as np
 import dataclasses
 
 from shibuya.world.facts.population_reader import Population, load_population, sample_population
-from shibuya.agents.state import (
+from shibuya.foundation.vocab.agent_codes import (
     N_WAKE_CONDITIONS_ALL,
     Activity,
-    AgentState,
     WakeCondition,
+)
+from shibuya.world.model.agent_table import (
+    AgentState,
 )
 from shibuya.foundation.growth import GrowthReport
 from shibuya.foundation.rng import RNG_SCHEME
@@ -84,7 +86,7 @@ from shibuya.engine import commit as C
 from shibuya.runtime.state import growth_decl as GD
 from shibuya.engine import resolve as R
 from shibuya.act.activity import payload_of
-from shibuya.engine.calendar import (
+from shibuya.world.facts.calendar import (
     DEFAULT_HOLIDAY_CSV,
     WEATHER_SCHEME,
     WEEKDAY_MODE,
@@ -146,7 +148,7 @@ from shibuya.perception.renderer import (
     SIGNAGE_P_SEE_DEFAULT,
 )
 from shibuya.foundation.text.templates import INTENT_MODES, VOCAB_VERSIONS, check_vocab_version
-from shibuya.world.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE
+from shibuya.world.model.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE
 from shibuya.world.model.state import World
 from shibuya.foundation.time_consts import CLOCK_KIND, HOURS_PER_DAY, MINUTES_PER_DAY, SECONDS_PER_DAY, SECONDS_PER_MINUTE
 

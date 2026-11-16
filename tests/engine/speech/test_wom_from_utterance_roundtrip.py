@@ -17,7 +17,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState
+from shibuya.world.model.agent_table import AgentState
 from shibuya.mind.memory import memory as M
 from shibuya.mind.memory import store_memory as SM
 from shibuya.mind.memory import wom as W

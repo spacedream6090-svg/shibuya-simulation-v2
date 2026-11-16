@@ -134,7 +134,7 @@ def _empty(n: int, kinds: Any, age: Any, source: str) -> PayrollInputs:
 
 
 def _student(kinds: Any, n: int) -> np.ndarray:
-    from shibuya.agents.state import AgentKind
+    from shibuya.foundation.vocab.agent_codes import AgentKind
 
     k = np.zeros(n, dtype=np.int64)
     src = np.asarray(kinds, dtype=np.int64).ravel()[:n]

@@ -18,7 +18,8 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.agents.state import AgentKind, AgentState
+from shibuya.foundation.vocab.agent_codes import AgentKind
+from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.text import templates as T
 from shibuya.foundation.text.normalize import AgentDependentWordError
 from shibuya.perception.renderer import PerceptionAssets, Renderer, _load_frozen_text

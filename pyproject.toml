@@ -61,7 +61,6 @@ type = "layers"
 layers = [
   "shibuya.engine",
   "shibuya.perception | shibuya.llm",
-  "shibuya.agents",
 ]
 
 [[tool.importlinter.contracts]]
@@ -71,7 +70,6 @@ source_modules = [
   "shibuya.llm",
 ]
 forbidden_modules = [
-  "shibuya.agents",
   "shibuya.perception",
   "shibuya.engine",
 ]
@@ -80,7 +78,6 @@ forbidden_modules = [
 name = "build は実行時に import されない"
 type = "forbidden"
 source_modules = [
-  "shibuya.agents",
   "shibuya.perception",
   "shibuya.llm",
   "shibuya.engine",
@@ -178,13 +175,12 @@ forbidden_modules = [
   "shibuya.build",
 ]
 ignore_imports = [
-  "shibuya.engine.change_detect -> shibuya.world.assets",
+  "shibuya.engine.change_detect -> shibuya.world.model.assets",
   "shibuya.engine.change_detect -> shibuya.world.model.state",
   "shibuya.engine.events.body -> shibuya.engine.tools.record",
   "shibuya.engine.relations -> shibuya.engine.resolve",
   "shibuya.engine.relations -> shibuya.world.model.proximity",
   "shibuya.llm -> shibuya.llm.fleet",
-  "shibuya.mind.judge.classical -> shibuya.engine.calendar",
   "shibuya.mind.judge.classical -> shibuya.llm.mock",
   "shibuya.mind.judge.decision.layer -> shibuya.economy.stage2_bind",
   "shibuya.mind.judge.decision.layer -> shibuya.engine.commit",
@@ -195,7 +191,8 @@ ignore_imports = [
   "shibuya.mind.memory.store_memory -> shibuya.engine.resolve",
   "shibuya.mind.memory.wom -> shibuya.engine.poi_target",
   "shibuya.mind.plan.contact_port -> shibuya.llm.mock",
-  "shibuya.perception.renderer -> shibuya.world.assets",
+  "shibuya.perception.renderer -> shibuya.world.model.agent_table",
+  "shibuya.perception.renderer -> shibuya.world.model.assets",
   "shibuya.perception.renderer -> shibuya.world.model.state",
 ]
 

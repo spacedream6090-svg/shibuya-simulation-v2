@@ -17,7 +17,8 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState, ResultCode
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.vocab.agent_codes import ResultCode
 from shibuya.foundation.time_consts import NS_PER_STEP
 from shibuya.mind.memory import memory as M
 from shibuya.mind.memory import memory_store as MS
@@ -186,7 +187,7 @@ def test_remember_takes_only_ids_in_the_log():
 
 def test_rebuild_keeps_the_log_pointer_from_the_saved_seq():
     """再開: 作り直しは行 M0L(記録の seq)から目印と出どころを戻す(記録の行は再開のランに無くても目印は残る)。"""
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     agents = AgentState(2, memory_columns=True, memory_n=4)
     layer = M.MemoryLayer(2, 4)

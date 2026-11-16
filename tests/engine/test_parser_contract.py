@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.agents.state import ResultCode
+from shibuya.foundation.vocab.agent_codes import ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.foundation.vocab.actions import (

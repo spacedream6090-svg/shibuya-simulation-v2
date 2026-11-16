@@ -441,10 +441,12 @@ appears_with = "engine/change_detect.py"
 gone_at = "残る"
 note = "b4_block_raw・b4_block_hashes(案 K の例外 T3・v3 で世界が「変わったセル」を口へ出す)"
 
-# ---- 割る段で弱まってよい決まり(検収 高-1・親の答え 2026-11-16)。割る行を当てた後の木で、当てる前より not_expressed・
-# dropped_old に増えた項のうち、ここで宣言したものだけを計画どおりと見る。宣言の無い増えは割る道具(split.py)が止める
-# (終了コード 2=黙って弱めない)。old_names_gone=古い決まりから外れてよい名(包みが木から無くなる)・contracts_gone=丸ごと
-# 外れてよい古い決まり(名は [[old]] の name)・not_expressed=言えなくなってよい「決まりの番号か単位|名」。
+# ---- 割る段で弱まってよい決まり(検収 高-1・親の答え 2026-11-16・再検収 低-1)。割る行を当てた後の木で、当てる前より弱まった
+# 所(not_expressed・dropped_old に増えた項・言えない名の並びに増えた名・uncovered に増えたモジュール・late_allowed に増えた
+# 読み手・載せた例外の行の増え=[[ignore_split]] を除く。pkgmove.contracts.weakened)のうち、ここで宣言したものだけを計画どおり
+# と見る。宣言の無い増えは割る道具(split.py)が止める(終了コード 2=黙って弱めない)。old_names_gone=古い決まりから外れてよい
+# 名(包みが木から無くなる)・contracts_gone=丸ごと外れてよい古い決まり(名は [[old]] の name)・not_expressed=言えなくなって
+# よい「決まりの番号か単位|名」・other=ほかの項(報告の文そのもの・今は使っていない)。
 [[split_weakens]]
 split = "agents/state.py"
 old_names_gone = ["agents"]

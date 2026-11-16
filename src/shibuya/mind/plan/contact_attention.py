@@ -38,7 +38,7 @@ from typing import Any, Final
 
 import numpy as np
 
-from shibuya.agents.state import Activity, WakeCondition
+from shibuya.foundation.vocab.agent_codes import Activity, WakeCondition
 from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_MINUTE
 from shibuya.foundation.arms.contact import LEDGER_ARM
 from shibuya.foundation.ports.percept_contact import FOCUS_WORDS, GAZE_WORDS, AttentionView

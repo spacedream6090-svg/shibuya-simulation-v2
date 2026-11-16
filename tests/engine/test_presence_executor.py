@@ -13,7 +13,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, AgentState
+from shibuya.foundation.vocab.agent_codes import Activity
+from shibuya.world.model.agent_table import AgentState
 from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
 from shibuya.engine import resolve as R
 from shibuya.engine.presence import (
@@ -27,7 +28,7 @@ from shibuya.engine.presence import (
 )
 from shibuya.world.laws.rail import RailProcess
 from shibuya.engine.run import run_day
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 from shibuya.world.model.state import World
 from tests import golden_env as GE
 

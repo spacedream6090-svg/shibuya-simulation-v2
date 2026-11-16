@@ -29,7 +29,7 @@ from shibuya.world.laws.crowd import (
 )
 from shibuya.engine.run import run_day
 from shibuya.perception.renderer import PerceptionAssets
-from shibuya.world import assets as WA
+from shibuya.world.model import assets as WA
 from shibuya.world.model.state import World
 
 WORLD_DIR = Path(__file__).resolve().parents[2] / "data" / "world" / "v2"
@@ -153,7 +153,7 @@ def test_seat_area_override_changes_the_seat_count_only_when_given():
 
 def test_crowd_process_keeps_the_current_table_by_default():
     world = World.synthetic(n_cells=9, seed=1)
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     p = CrowdProcess(world, AgentState(4))
     assert p.seat_area_m2 == SEAT_AREA_M2

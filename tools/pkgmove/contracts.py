@@ -73,32 +73,76 @@ def load_spec(path: Path) -> Spec:
                 split_weakens=list(d.get("split_weakens", [])))
 
 
+def _why_names(why: str) -> set[str] | None:
+    """言えない理由が名の並び(「…もの: a, b」)なら、その名の集合。ほかの形なら ``None``。"""
+    head, sep, tail = why.partition("もの: ")
+    if not sep:
+        return None
+    return {x.strip() for x in tail.split(",") if x.strip()}
+
+
+def _loaded_ignores(rep: dict) -> set[str]:
+    """載せた例外の行(表の名と番号=今の名に引き直す前の行の名)。割る段の表(``[[ignore_split]]``)は除く(本ごとの宣言)。"""
+    out: set[str] = set()
+    for key in ("ignores", "ignores_66"):
+        out |= {f"{key}#{r['num']}" for r in rep.get(key, []) if "skipped" not in r}
+    out |= {f"extra_ignores#{r['importer']} -> {r['imported']}" for r in rep.get("extra_ignores", []) if "skipped" not in r}
+    return out
+
+
 def weakened(spec: Spec, split_old: str, before: dict, after: dict) -> dict:
-    """〔割る段 5a・検収 高-1〕割る行 ``split_old`` を当てる前と後の報告(:func:`build` の 2 つ目)を比べ、言えなくなった
-    単位・決まり(``not_expressed`` に増えた (決まり, 名))と、古い決まりから外れた名(``dropped_old`` に増えた (契約, 名))を出す。
+    """〔割る段 5a・検収 高-1・再検収 低-1〕割る行 ``split_old`` を当てる前と後の報告(:func:`build` の 2 つ目)を比べ、決まりが
+    弱まった所を出す。比べるもの:
+
+    - ``not_expressed`` に増えた (決まり, 名)=言えなくなった単位・決まり。前から言えない (決まり, 名) でも、理由が名の並び
+      (「元の側の名のうち木で言えないもの: …」)なら、並びに増えた名。
+    - ``dropped_old`` に増えた (契約, 名)=古い決まりから外れた名・丸ごと外れた古い決まり。
+    - ``uncovered`` に増えたモジュール=どの決まりの元の側にも入らなくなったモジュール。
+    - ``late_allowed`` に増えた (決まり, モジュール)=まだ移っていないので読んでよい側に足した読み手。
+    - 載せた例外の行の増え(28 本・§6-6・表の外の表。``[[ignore_split]]`` はその本の宣言なので除く)。
+
     ``[[split_weakens]]`` のその割る行の宣言(``old_names_gone``=古い決まりから外れてよい名・``contracts_gone``=丸ごと外れて
-    よい古い決まり・``not_expressed``=言えなくなってよい「決まり|名」)に当たるものは ``declared``、ほかは ``undeclared``
-    (割る道具が止める)。宣言のうち当たらなかったものは ``unused``(報告だけ)。"""
+    よい古い決まり・``not_expressed``=言えなくなってよい「決まり|名」・``other``=ほかの項の文字列そのもの)に当たるものは
+    ``declared``、ほかは ``undeclared``(割る道具が止める)。宣言のうち当たらなかったものは ``unused``(報告だけ)。"""
     decl = [w for w in spec.split_weakens if w["split"] == split_old]
     names_ok = {n for w in decl for n in w.get("old_names_gone", [])}
     contracts_ok = {c for w in decl for c in w.get("contracts_gone", [])}
     ne_ok = {x for w in decl for x in w.get("not_expressed", [])}
-    ne_b = {(str(x["rule"]), x["name"]) for x in before["not_expressed"]}
-    ne_a = {(str(x["rule"]), x["name"]) for x in after["not_expressed"]}
-    do_b = {(x["contract"], x["name"]) for x in before["dropped_old"]}
-    do_a = {(x["contract"], x["name"]) for x in after["dropped_old"]}
+    other_ok = {x for w in decl for x in w.get("other", [])}
     out: dict = {"declared": [], "undeclared": [], "unused": []}
     used: set[str] = set()
-    for r, n in sorted(ne_a - ne_b):
+
+    def put(text: str, key: str | None, ok: bool) -> None:
+        (out["declared"] if ok else out["undeclared"]).append(text)
+        if ok and key is not None:
+            used.add(key)
+
+    ne_b = {(str(x["rule"]), x["name"]): x["why"] for x in before["not_expressed"]}
+    ne_a = {(str(x["rule"]), x["name"]): x["why"] for x in after["not_expressed"]}
+    for (r, n), why in sorted(ne_a.items()):
         key = f"{r}|{n}"
-        (out["declared"] if key in ne_ok else out["undeclared"]).append(f"言えなくなった: {key}")
-        used |= {key} & ne_ok
-    for c, n in sorted(do_a - do_b):
+        if (r, n) not in ne_b:
+            put(f"言えなくなった: {key}", key, key in ne_ok)
+            continue
+        wb, wa = _why_names(ne_b[(r, n)]), _why_names(why)
+        if wb is not None and wa is not None and wa - wb:
+            text = f"言えない名が増えた: {key}: {', '.join(sorted(wa - wb))}"
+            put(text, text, text in other_ok)
+    do_b = {(x["contract"], x["name"]) for x in before["dropped_old"]}
+    for c, n in sorted({(x["contract"], x["name"]) for x in after["dropped_old"]} - do_b):
         ok = (n == "(契約)" and c in contracts_ok) or (n != "(契約)" and n in names_ok)
-        (out["declared"] if ok else out["undeclared"]).append(f"古い決まりから外れた: {c} の {n}")
-        if ok:
-            used.add(c if n == "(契約)" else n)
-    out["unused"] = sorted((names_ok | contracts_ok | ne_ok) - used)
+        put(f"古い決まりから外れた: {c} の {n}", c if n == "(契約)" else n, ok)
+    for m in sorted(set(after.get("uncovered", [])) - set(before.get("uncovered", []))):
+        text = f"どの決まりも見なくなった: {m}"
+        put(text, text, text in other_ok)
+    late_b = {(str(x["rule"]), m) for x in before.get("late_allowed", []) for m in x["modules"]}
+    for r, m in sorted({(str(x["rule"]), m) for x in after.get("late_allowed", []) for m in x["modules"]} - late_b):
+        text = f"読んでよい側に足した読み手が増えた: 決まり {r} の {m}"
+        put(text, text, text in other_ok)
+    for row in sorted(_loaded_ignores(after) - _loaded_ignores(before)):
+        text = f"載せた例外が増えた: {row}"
+        put(text, text, text in other_ok)
+    out["unused"] = sorted((names_ok | contracts_ok | ne_ok | other_ok) - used)
     out["contracts_before"] = {"old": before["n_old"], "new": before["n_new"]}
     out["contracts_after"] = {"old": after["n_old"], "new": after["n_new"]}
     return out

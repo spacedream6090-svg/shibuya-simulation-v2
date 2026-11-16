@@ -51,12 +51,13 @@ from typing import Final
 
 import numpy as np
 
-from shibuya.agents.state import WAKE_CONDITION_CLASS, AgentState, WakeCondition
+from shibuya.foundation.vocab.agent_codes import WAKE_CONDITION_CLASS, WakeCondition
+from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.text import hashes as PH
 from shibuya.foundation.text import normalize as PN
 from shibuya.foundation.text import templates as PT
 from shibuya.perception.renderer import WALKABLE_FRACTION_SYNTHETIC
-from shibuya.world.assets import CELL_SIZE_M
+from shibuya.world.model.assets import CELL_SIZE_M
 from shibuya.world.model.state import World
 
 __all__ = [

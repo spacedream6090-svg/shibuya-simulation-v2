@@ -18,7 +18,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import N_WAKE_CONDITIONS, Activity, WakeCondition
+from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, Activity, WakeCondition
 from shibuya.foundation.types import EventClass
 from shibuya.engine.arbiter import Arbiter, WakeCandidates, arbitrate
 from shibuya.engine.run import DIAG_RUN_COLUMNS, run_day
@@ -29,7 +29,7 @@ N = 8
 
 
 def _cands(agents, conds, *, exempt=None, since=0) -> WakeCandidates:
-    from shibuya.agents.state import WAKE_CONDITION_CLASS
+    from shibuya.foundation.vocab.agent_codes import WAKE_CONDITION_CLASS
 
     a = np.asarray(agents, dtype=np.int64)
     c = np.asarray(conds, dtype=np.int8)

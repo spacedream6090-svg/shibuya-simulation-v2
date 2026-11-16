@@ -20,8 +20,8 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.engine import calendar as CAL
-from shibuya.engine.calendar import CalendarWarning, SimCalendar, load_holidays, parse_school_holidays
+from shibuya.world.facts import calendar as CAL
+from shibuya.world.facts.calendar import CalendarWarning, SimCalendar, load_holidays, parse_school_holidays
 from shibuya.mind.judge.classical import day_kind_of
 
 REAL_CSV = Path(CAL.DEFAULT_HOLIDAY_CSV)

@@ -33,7 +33,7 @@ from typing import Any, Final, Mapping
 
 import numpy as np
 
-from shibuya.agents.state import Activity
+from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.foundation.arms.contact import LEDGER_ARM
 
 __all__ = [

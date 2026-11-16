@@ -75,7 +75,7 @@ from typing import Any, Final, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.agents.state import (
+from shibuya.foundation.vocab.agent_codes import (
     INTENT_NONE,
     Activity,
     IntentKind,

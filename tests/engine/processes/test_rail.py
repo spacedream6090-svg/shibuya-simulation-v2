@@ -6,7 +6,7 @@ import numpy as np
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.agents.state import Activity, ResultCode
+from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
 from shibuya.economy.accounts import AccountCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
@@ -23,7 +23,7 @@ from shibuya.world.laws.rail import (
     MAX_DWELL_TICKS,
     RailProcess,
 )
-from shibuya.world.assets import load_process_assets
+from shibuya.world.model.assets import load_process_assets
 
 from .conftest import WORLD_DIR, fake_timetable_assets, make_agents, make_world, real_data
 

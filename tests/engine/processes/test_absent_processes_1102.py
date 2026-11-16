@@ -30,7 +30,7 @@ from shibuya.world.laws.goods_flow import (
 from shibuya.world.laws.logistics import ROADWORK_WINDOW, RoadWorksProcess
 from shibuya.world.laws.runner import WorldProcessRunner
 from shibuya.world.laws.salient import SalientProcess
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 from shibuya.world.ledger.actual_log import ActualLog
 
 from .conftest import make_agents, make_world

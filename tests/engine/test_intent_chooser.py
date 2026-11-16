@@ -12,7 +12,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState, ResultCode
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.vocab.agent_codes import ResultCode
 from shibuya.engine import resolve as R
 from shibuya.engine.chooser import (
     CHOOSER_NAMES,
@@ -236,7 +237,7 @@ def test_buyable_cats_are_the_shop_like_cats_q12():
     assert not (BUYABLE_CATS & excluded)
     # 合成世界の 3 種(コンビニ/飲食/物販)は作りからして店=購入の候補(実資産の cat とは重ならない)
     from shibuya.engine.poi_target import SYNTHETIC_BUYABLE_CATS
-    from shibuya.world.assets import SYNTHETIC_POI_CATS
+    from shibuya.foundation.vocab.place_words import SYNTHETIC_POI_CATS
 
     assert SYNTHETIC_BUYABLE_CATS == set(SYNTHETIC_POI_CATS)
     assert not (SYNTHETIC_BUYABLE_CATS & (BUYABLE_CATS | excluded))

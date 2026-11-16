@@ -39,7 +39,7 @@ economy 層のテスト(U11 金の台帳・U-Goods 物の台帳・検算・セ�
   - `test_twelve_flow_accounts_plus_residual_hoard_and_deviation_cost`(関数): §2.2 の 12 科目 + 残差 + 退蔵(+ §8 H-5 の逸脱比例コスト)。
   - `test_unknown_code_is_impossible`(関数): 列挙にない科目は許可されない(=transfer 実行不能)。
   - `test_wallet_kind_matches_agent_kind`(関数): 層契約で economy から agents を import できないので**値の写し**が一致することを検査。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.foundation.ports.ledger`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.vocab.agent_codes`
 
 ## [test_anchors.py](../../../../../../tests/economy/test_anchors.py)
 
@@ -102,7 +102,7 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
   - `test_the_floor_binds_only_below_about_1900_agents`(関数): 最小カテゴリ(M 宿泊飲食)が下限に当たるのは約 1,883 体未満(境界を固定する)。
   - `test_total_equals_the_sum_of_the_parts`(関数)
   - `test_unknown_category_falls_back_to_the_declared_default`(関数)
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.entry_capital`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.arbiter`・`shibuya.world.assets`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.entry_capital`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.arbiter`・`shibuya.world.model.assets`
 - 決定の ID: D-13・D-16
 
 ## [test_goods.py](../../../../../../tests/economy/test_goods.py)

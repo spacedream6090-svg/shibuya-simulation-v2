@@ -16,7 +16,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import ResultCode
+from shibuya.foundation.vocab.agent_codes import ResultCode
 from shibuya.engine import resolve as R
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.vocab import events as V

@@ -340,7 +340,7 @@ def test_start_cell_falls_back_to_work_then_school():
 # 個体種別コード・年齢階級・定員先取り層は**両側に写して**持っている。写しがずれると
 # 母集団の列とランの解釈が静かに食い違うので、ここで釘付ける(層2レビュー 中-3)。
 def test_kind_codes_are_identical_across_the_layer_boundary():
-    from shibuya.agents.state import AgentKind
+    from shibuya.foundation.vocab.agent_codes import AgentKind
 
     for name, member in (
         ("KIND_COMMUTER", AgentKind.COMMUTER),
@@ -370,7 +370,7 @@ def test_age_edges_are_identical_across_the_layer_boundary():
 
 def test_reserved_kind_matches_the_dispatcher_code():
     from shibuya.world.facts import population_reader as PP
-    from shibuya.agents.state import AgentKind
+    from shibuya.foundation.vocab.agent_codes import AgentKind
 
     assert PP.RESERVED_KINDS == (int(AgentKind.DISPATCHER),)
     assert PP.DUTY_POOL_LAYER == 5  # プール層 L5(判定には使わないが名簿の出所)

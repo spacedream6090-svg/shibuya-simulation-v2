@@ -1419,7 +1419,7 @@ def render_memories(views: Sequence[MemoryView], *, clock: Callable[[int], datet
     付ける(「はっきり・そのまま」の項は M0 と同じバイト)。今の描画(``perception.renderer``)には結線していない=LLM に
     言葉を見せるのは描画の側の 1 か所(テンプレの版が動く=親の判断・記録 mr65/README.md)。
     """
-    from shibuya.agents.state import RESULT_TEXT
+    from shibuya.foundation.vocab.agent_codes import RESULT_TEXT
     from shibuya.foundation.text import normalize as _N
     from shibuya.perception.renderer import compose_memory_line, memory_item_text
 

@@ -50,10 +50,10 @@ from typing import Any, Final, Mapping
 
 import numpy as np
 
-from shibuya.agents.state import Activity, AgentKind, WakeCondition
+from shibuya.foundation.vocab.agent_codes import Activity, AgentKind, WakeCondition
 from shibuya.foundation.paths import REPO_ROOT
 from shibuya.foundation.rng import stream
-from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
+from shibuya.foundation.types import ticks_per_day as _ticks_per_day
 from shibuya.llm import LLMRequest, LLMResponse, estimate_tokens
 from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE, TARGET_WANDER, append_comment, format_two_line_v3
 from shibuya.llm.mock import MOCK_UTTERANCE

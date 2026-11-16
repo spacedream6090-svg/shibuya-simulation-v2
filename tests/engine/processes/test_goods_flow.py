@@ -9,7 +9,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentKind
+from shibuya.foundation.vocab.agent_codes import AgentKind
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
@@ -66,7 +66,7 @@ def _staffed(world, agents):
     """POI → 担当従業者(``OpeningProcess`` と同じ丸振り)。"""
     from shibuya.world.laws.opening import OpeningProcess
 
-    from shibuya.world.assets import ProcessAssets
+    from shibuya.world.model.assets import ProcessAssets
 
     return OpeningProcess(world, agents, ProcessAssets.synthetic()).staff_of_poi
 

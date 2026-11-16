@@ -18,7 +18,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity
+from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.mind.plan import contact_attention as AT
 from shibuya.interim_bundles.contact import book as _BOOK
 from shibuya.society.contact import calls as _CALLS

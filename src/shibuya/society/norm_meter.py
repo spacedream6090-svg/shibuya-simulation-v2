@@ -35,7 +35,8 @@ from typing import Any, Final, Mapping
 
 import numpy as np
 
-from shibuya.agents.state import Activity, AgentState, ResultCode
+from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
+from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [

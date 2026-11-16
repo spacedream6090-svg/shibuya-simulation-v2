@@ -322,7 +322,7 @@ def test_shop_table_ties_and_bounds():
 
 
 def test_people_arm_run_keeps_shops_in_the_store_table():
-    from shibuya.agents.state import STORE_MEMORY_EMPTY
+    from shibuya.foundation.vocab.agent_codes import STORE_MEMORY_EMPTY
 
     box = {}
     import shibuya.mind.memory.memory as MEM

@@ -586,7 +586,7 @@ def test_named_closed_memo_survives_a_resume(tmp_path, monkeypatch):
     1 句を出す条件 ``last_result_tick == 控えの tick`` を満たす)。通しと止めたランは控えを入れ、再開のランは入れない
     (保存から戻る)。
     """
-    from shibuya.agents.state import ResultCode
+    from shibuya.foundation.vocab.agent_codes import ResultCode
     from shibuya.engine import poi_target as PT
     from shibuya.engine import resolve as R
     from shibuya.perception import renderer as RD
@@ -715,7 +715,7 @@ def test_b3_weather_follows_the_replay_date_of_each_day():
     import dataclasses
     from datetime import datetime
 
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
     from shibuya.foundation.text import normalize as N
     from shibuya.perception import renderer as RD
     from shibuya.foundation.text import templates as T

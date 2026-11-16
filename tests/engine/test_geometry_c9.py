@@ -22,7 +22,8 @@ import pytest
 
 from tests import _time_gates as TG
 
-from shibuya.agents.state import Activity, AgentState, RESULT_TEXT, ResultCode
+from shibuya.foundation.vocab.agent_codes import Activity, RESULT_TEXT, ResultCode
+from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.budget import budget_by_id, load_budget_table
 from shibuya.engine import commit as C
 from shibuya.world.model import geometry as G
@@ -421,7 +422,7 @@ def test_p2_edge_geometry_under_300ms_at_400k_agents():
     from pathlib import Path
 
     from shibuya.perception.renderer import PerceptionAssets
-    from shibuya.world.assets import assets_available
+    from shibuya.world.model.assets import assets_available
 
     path = Path("data/world/v2")
     has_assets = assets_available(path)

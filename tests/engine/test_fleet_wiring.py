@@ -219,7 +219,8 @@ def test_timeout_defers_then_reinjects_and_is_finally_answered(fleet_servers):
 
 def test_deferred_calls_are_not_suppressed_by_the_refractory(fleet_servers):
     """不応期免除が効いていること: 繰り延べ件数がそのまま再投入件数になる。"""
-    from shibuya.agents.state import AgentState, WakeCondition
+    from shibuya.world.model.agent_table import AgentState
+    from shibuya.foundation.vocab.agent_codes import WakeCondition
     from shibuya.engine import resolve as R
 
     cond = int(WakeCondition.INTEROCEPTION)

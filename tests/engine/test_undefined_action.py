@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.agents.state import Activity, ResultCode
+from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine.llm_bridge import LLMBridge
 from shibuya.engine.run import run_day

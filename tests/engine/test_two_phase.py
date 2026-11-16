@@ -15,7 +15,8 @@ import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from shibuya.agents.state import Activity, AgentState, ResultCode
+from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
+from shibuya.world.model.agent_table import AgentState
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.runtime.systems import table as _SYSTEMS
@@ -47,7 +48,7 @@ def test_thaw_is_never_called_outside_the_state_modules():
     callers = sorted(
         str(p).replace("\\", "/") for p in SRC.rglob("*.py") if _calls_attr(p, "thaw")
     )
-    assert set(callers) <= {"src/shibuya/agents/state.py", "src/shibuya/world/model/state.py"}, callers
+    assert set(callers) <= {"src/shibuya/world/model/agent_table.py", "src/shibuya/world/model/state.py"}, callers
 
 
 def test_only_resolve_writes_to_the_world():
@@ -116,7 +117,7 @@ def test_every_hot_path_declares_its_sequential_loops():
             continue
         assert "逐次ループ宣言" in text, rel
     # 新規ファイル全体でも同じ規律
-    for rel in ("agents/state.py", "world/facts/mock_schedule.py", "world/assets.py",
+    for rel in ("world/model/agent_table.py", "world/facts/mock_schedule.py", "world/model/assets.py",
                 "world/model/graph.py", "world/model/state.py", "engine/arbiter.py"):
         assert "逐次ループ宣言" in (SRC / rel).read_text(encoding="utf-8"), rel
 

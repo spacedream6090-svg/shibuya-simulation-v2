@@ -32,7 +32,7 @@ from typing import Final
 
 import numpy as np
 
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 from shibuya.world.model.state import World
 from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR
 

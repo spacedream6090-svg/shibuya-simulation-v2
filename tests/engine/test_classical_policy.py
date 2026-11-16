@@ -15,7 +15,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, AgentKind, AgentState, WakeCondition
+from shibuya.foundation.vocab.agent_codes import Activity, AgentKind, WakeCondition
+from shibuya.world.model.agent_table import AgentState
 from shibuya.engine import chooser as CH
 from shibuya.mind.judge import classical as CL
 from shibuya.llm import LLMRequest

@@ -52,7 +52,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT / "src") not in sys.path:  # pragma: no cover - 実行時の経路
     sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from shibuya.agents.state import ResultCode  # noqa: E402
+from shibuya.foundation.vocab.agent_codes import ResultCode  # noqa: E402
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector  # noqa: E402
 from shibuya.foundation.vocab.actions import ALL_ACTION_WORDS  # noqa: E402
 from shibuya.llm.undefined import (  # noqa: E402

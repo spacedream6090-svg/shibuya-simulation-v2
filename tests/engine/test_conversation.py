@@ -11,7 +11,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import REFRACTORY_MINUTES, WakeCondition
+from shibuya.foundation.vocab.agent_codes import REFRACTORY_MINUTES, WakeCondition
 from shibuya.foundation.types import EventClass
 from shibuya.society.conversation import (
     BACKCHANNELS,

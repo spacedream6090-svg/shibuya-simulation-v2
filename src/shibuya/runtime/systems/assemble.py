@@ -27,10 +27,10 @@ from typing import Any
 import numpy as np
 
 from shibuya.world.facts.mock_schedule import synthesize
-from shibuya.agents.state import AgentState
-from shibuya.agents.state import FOCUS_NONE
-from shibuya.agents.state import N_WAKE_CONDITIONS_ALL
-from shibuya.agents.state import WakeCondition
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.vocab.agent_codes import FOCUS_NONE
+from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS_ALL
+from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.world.facts.weekly_reader import apply_to_mock_schedule
 from shibuya.world.facts.weekly_reader import load_weekly
 from shibuya.foundation.rng import RNG_SCHEME
@@ -41,13 +41,13 @@ from shibuya.runtime.state import resume as RS
 from shibuya.act.activity import ActivityLayer
 from shibuya.engine.arbiter import Arbiter
 from shibuya.engine.arbiter import call_budget_per_tick
-from shibuya.engine.calendar import DEFAULT_WORLD_START
-from shibuya.engine.calendar import SimCalendar
-from shibuya.engine.calendar import WEATHER_SCHEME
-from shibuya.engine.calendar import WEEKDAY_MODE
-from shibuya.engine.calendar import load_holidays
-from shibuya.engine.calendar import parse_school_holidays
-from shibuya.engine.calendar import parse_start
+from shibuya.world.facts.calendar import DEFAULT_WORLD_START
+from shibuya.world.facts.calendar import SimCalendar
+from shibuya.world.facts.calendar import WEATHER_SCHEME
+from shibuya.world.facts.calendar import WEEKDAY_MODE
+from shibuya.world.facts.calendar import load_holidays
+from shibuya.world.facts.calendar import parse_school_holidays
+from shibuya.world.facts.calendar import parse_start
 from shibuya.engine.change_detect import ChangeDetector
 from shibuya.engine.chooser import check_chooser
 from shibuya.engine.chooser import make_chooser
@@ -115,10 +115,10 @@ from shibuya.perception.renderer import check_signage_p_see
 from shibuya.foundation.text.templates import check_intent_mode
 from shibuya.foundation.text.templates import check_role_words
 from shibuya.foundation.text.templates import check_vocab_version
-from shibuya.world.assets import DEFAULT_AREA_SOURCE
-from shibuya.world.assets import check_area_source
-from shibuya.world.assets import load_process_assets_or_synthetic
-from shibuya.world.assets import load_walkable_area_m2
+from shibuya.world.model.assets import DEFAULT_AREA_SOURCE
+from shibuya.world.model.assets import check_area_source
+from shibuya.world.model.assets import load_process_assets_or_synthetic
+from shibuya.world.model.assets import load_walkable_area_m2
 from shibuya.world.model.state import World
 from shibuya.world.model.state import check_eatery_mode
 from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_MINUTE

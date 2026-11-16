@@ -37,52 +37,21 @@ import hashlib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Final, Mapping, Sequence
-
 import numpy as np
-
 from shibuya.foundation.rng import stream
 from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.vocab.place_words import SYNTHETIC_POI_CATS
 
 __all__ = [
-    # ---- 10e(B0・B1): 資産の指紋と旧資産の切替口 ----
-    "SHADOW_GLOB",
-    "array_sha256",
-    "file_sha256",
-    "BAND_CODES",
-    "CELL_SIZE_M",
-    "GRID_ORIGIN_XY",
-    "NOISE_DAY_HOURS",
-    "N_NOISE_STAGES",
-    "WorldAssets",
-    "assets_available",
-    "load_assets",
-    "synthetic_assets",
-    # ---- C4(世界過程 第1陣)の追加資産 ----
-    "PROCESS_FILES",
-    "SHADOW_FRAMES_PER_DAY",
-    "SHADOW_MINUTES_PER_FRAME",
-    "HEAT_STAGE_ORDER",
-    "RAILWAY_TO_LINE",
-    "HOME_STATION_TITLE",
-    "ProcessAssets",
-    "load_process_assets",
-    "load_process_assets_or_synthetic",
-    # ---- C9c-1 歩行可能面積の実測化(G8 (b)・2026-09-17 D-84 (c)) ----
-    "AREA_SOURCES",
-    "DEFAULT_AREA_SOURCE",
-    "WALKABLE_AREA_FILENAME",
-    "SEAT_AREA_M2_FIRE_CODE",
-    "SEAT_AREA_M2_BUILDING_NOTICE",
-    "PLATFORM_DWELL_DENSITY_PER_M2",
-    "PLATFORM_QUEUE_DENSITY_PER_M2",
-    "CORRIDOR_MAX_DENSITY_PER_M2",
-    "check_area_source",
-    "load_walkable_area_m2",
-    # ---- 段 2a(選択器の口): 同じセルの POI の見えやすさ(W8) ----
-    "load_poi_own_cell_visibility",
-    # ---- 段 2b(行き先を対象欄から): セルから見えている POI(W8・B2 の可視物) ----
-    "load_visible_pois_by_cell",
+    "SHADOW_GLOB", "array_sha256", "file_sha256", "BAND_CODES", "CELL_SIZE_M", "GRID_ORIGIN_XY", "NOISE_DAY_HOURS",
+    "N_NOISE_STAGES", "WorldAssets", "assets_available", "load_assets", "synthetic_assets", "PROCESS_FILES",
+    "SHADOW_FRAMES_PER_DAY", "SHADOW_MINUTES_PER_FRAME", "HEAT_STAGE_ORDER", "RAILWAY_TO_LINE", "HOME_STATION_TITLE",
+    "ProcessAssets", "load_process_assets", "load_process_assets_or_synthetic", "AREA_SOURCES",
+    "DEFAULT_AREA_SOURCE", "WALKABLE_AREA_FILENAME", "SEAT_AREA_M2_FIRE_CODE", "SEAT_AREA_M2_BUILDING_NOTICE",
+    "PLATFORM_DWELL_DENSITY_PER_M2", "PLATFORM_QUEUE_DENSITY_PER_M2", "CORRIDOR_MAX_DENSITY_PER_M2",
+    "check_area_source", "load_walkable_area_m2", "load_poi_own_cell_visibility", "load_visible_pois_by_cell",
 ]
+
 
 #: 層名 → コード(UG=-1 / GL=0 / DECK=1。W2 の 3 値)。
 BAND_CODES: Final[dict[str, int]] = {"UG": -1, "GL": 0, "DECK": 1}
@@ -99,9 +68,6 @@ _REQUIRED_FILES: Final[tuple[str, ...]] = (
     "w3_cell_dist.npy",
     "w6_poi.parquet",
 )
-
-#: 合成 POI のカテゴリと価格[円](expedient)。
-SYNTHETIC_POI_CATS: Final[tuple[str, ...]] = ("コンビニ", "飲食", "物販")
 SYNTHETIC_POI_PRICES: Final[tuple[int, ...]] = (300, 800, 1_500)
 #: 合成 POI の 1 tick あたり受け入れ数(資源の容量・expedient)。
 #: 〔11-03 棚卸し B §4-1〕実装はこう: 本番の世界の資産の読み口(W6 の POI)も同じ 4 を使う。宣言はこう: 合成 POI の値。

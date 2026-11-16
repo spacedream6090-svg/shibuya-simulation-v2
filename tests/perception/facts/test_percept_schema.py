@@ -17,7 +17,7 @@ from datetime import timedelta
 import numpy as np
 import pytest
 
-from shibuya.agents.state import INTEROCEPTION_FIELDS, IntentKind
+from shibuya.foundation.vocab.agent_codes import INTEROCEPTION_FIELDS, IntentKind
 from shibuya.foundation.ports import percept as F
 from shibuya.foundation.text import normalize as N
 from shibuya.perception import renderer as R

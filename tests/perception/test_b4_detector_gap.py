@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.agents.state import AgentState
+from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.text import hashes as H
 from shibuya.foundation.text import normalize as N
 from shibuya.foundation.text import templates as T

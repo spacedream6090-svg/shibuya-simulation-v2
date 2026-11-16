@@ -17,7 +17,7 @@ from shibuya.world.laws.traffic import (
     THROUGH_TRAFFIC_RATIO,
     TrafficProcess,
 )
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 
 from .conftest import WORLD_DIR, make_world, real_data
 

@@ -17,8 +17,8 @@ import numpy as np
 import pytest
 
 from shibuya.world.facts.mock_schedule import synthesize
-from shibuya.agents.state import AgentState
-from shibuya.engine.calendar import SimCalendar, load_holidays
+from shibuya.world.model.agent_table import AgentState
+from shibuya.world.facts.calendar import SimCalendar, load_holidays
 from shibuya.engine import presence as _PRESENCE
 from shibuya.world.laws import environment as ENV
 from shibuya.world.laws.runner import WorldProcessRunner
@@ -78,7 +78,7 @@ def test_runner_reads_the_real_calendar(table):
     r = _runner(calendar=cal)
     assert r.environment._weekday_kind() == "土休"                    # noqa: SLF001 - 祝日は土休
     # 〔第330・10e E3〕祝日は W7 の祝日の行(PH)。PH の規則の無い店(今の W7 は全部)は日曜の行=今と同じ開閉
-    from shibuya.engine.calendar import OPENING_ROW_PH
+    from shibuya.world.facts.calendar import OPENING_ROW_PH
     from shibuya.world.laws.opening import rows_of_day
     assert r.opening.day_index == OPENING_ROW_PH
     _pd = np.arange(8, dtype=np.int8)
@@ -161,7 +161,7 @@ def test_cli_main_accepts_the_switches():
 @pytest.mark.requires_data("world_v2")
 def test_rail_timetable_kind_comes_from_the_calendar(table):
     from shibuya.world.laws.rail import RailProcess
-    from shibuya.world.assets import load_process_assets_or_synthetic
+    from shibuya.world.model.assets import load_process_assets_or_synthetic
 
     world = World.load_or_synthetic(Path("data/world/v2"), n_cells=139, seed=1)
     pa = load_process_assets_or_synthetic("data/world/v2", world.assets)

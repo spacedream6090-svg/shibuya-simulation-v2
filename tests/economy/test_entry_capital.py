@@ -75,7 +75,7 @@ def test_census_values_are_the_raw_156_2021_figures():
 
 def test_price_band_matches_world_assets_hash_free_cat_code():
     """層契約で複製した ``price_band`` が world 側の正典と一致する(等価テスト)。"""
-    from shibuya.world.assets import hash_free_cat_code
+    from shibuya.world.model.assets import hash_free_cat_code
 
     for cat in (*REAL_POI_CATS, *SYNTHETIC_POI_CATS, "未知", "cafe", "restaurant"):
         assert EC.price_band(cat) == hash_free_cat_code(cat), cat

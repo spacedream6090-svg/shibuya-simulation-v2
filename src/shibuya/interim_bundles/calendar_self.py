@@ -80,7 +80,7 @@ from typing import Any, Final, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.agents.state import Activity
+from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.foundation.hashing import blake3_hex
 from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
 from shibuya.engine import calendar_shadow as _CS

@@ -30,7 +30,7 @@ import numpy as np
 from shibuya.foundation.rng import k19_counters, stream
 from shibuya.world.laws import switch_absent as _ABSENT
 from shibuya.world.laws import switch_rate as _RATE_RULES
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 from shibuya.world.ledger.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.model.state import World
 from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE

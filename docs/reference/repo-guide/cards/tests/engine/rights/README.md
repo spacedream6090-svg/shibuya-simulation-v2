@@ -49,7 +49,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_opening_process_records_a_revoked_staff_and_still_opens`(関数)
   - `test_the_word_and_the_cause_name`(関数)
   - `test_without_the_check_nothing_is_counted_and_the_code_is_the_same`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.llm_bridge`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.llm`・`shibuya.world.facts.rights.ledger`・`shibuya.world.facts.rights.record`・`shibuya.world.laws.opening`・`shibuya.world.ledger.actual_log`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.engine.llm_bridge`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.events`・`shibuya.llm`・`shibuya.world.facts.rights.ledger`・`shibuya.world.facts.rights.record`・`shibuya.world.laws.opening`・`shibuya.world.ledger.actual_log`・`tests/engine/processes/conftest.py`
 - 読む試験: `tests/engine/duties/test_du_runs.py`
 - 決定の ID: 10-12/§1-4
 
@@ -129,4 +129,4 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_same_assignment_on_synthetic_worlds`(関数)
   - `test_same_assignment_on_the_real_population`(関数): 実データ(5,000 体の抽出・seed 1)の種別と POI の数。SoA は母集団の種別を写した形(組み立てと同じ)。
   - `test_zero_pois`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.runtime.systems.assemble`・`shibuya.world.assets`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.opening`・`shibuya.world.model.state`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.systems.assemble`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.opening`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.state`・`tests/engine/processes/conftest.py`

@@ -40,7 +40,7 @@ from typing import Any, Final
 
 import numpy as np
 
-from shibuya.agents.state import STORE_MEMORY_EMPTY
+from shibuya.foundation.vocab.agent_codes import STORE_MEMORY_EMPTY
 from shibuya.engine.chooser import draw_index, hunger_stage_of
 from shibuya.mind.memory.store_memory import STORE_SOURCE_BIT, STORE_SOURCES
 from shibuya.foundation.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR

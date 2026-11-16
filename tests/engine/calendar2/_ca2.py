@@ -9,7 +9,7 @@ from typing import Any, Iterator
 
 import numpy as np
 
-from shibuya.agents.state import AgentState
+from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
 from shibuya.foundation.arms import calendar2 as A
 from shibuya.mind.plan import calendar2_port as P

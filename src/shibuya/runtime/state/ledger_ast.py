@@ -43,7 +43,7 @@ from typing import Iterable
 from shibuya.runtime.state import ledger as SL
 
 DECL_FILES: dict[str, str] = {
-    "agents": "agents/state.py",
+    "agents": "world/model/agent_table.py",
     "world": "world/model/state.py",
     "perception": "world/model/percept_state.py",
 }
@@ -58,7 +58,7 @@ META_ATTRS = frozenset({"dtype", "shape", "size", "ndim", "itemsize", "nbytes"})
 UNRESOLVED_ALLOW: tuple[SL.AstAllow, ...] = (
     SL.AstAllow("engine/run.py", "old = np.asarray(r.field(c.stage_field))",
                 "内受容の段の跨ぎの診断の数え(_count_intero_crossings)。読むのは段の 3 列(どれも behavior)"),
-    SL.AstAllow("agents/state.py", 'return self.__dict__["registry"].field(name)',
+    SL.AstAllow("world/model/agent_table.py", 'return self.__dict__["registry"].field(name)',
                 "AgentState.__getattr__ の転送。読み手は呼び手の側の属性の読みとして数える"),
     SL.AstAllow("world/model/percept_state.py", 'return self.__dict__["registry"].field(name)',
                 "PerceptionState.__getattr__ の転送。同上"),

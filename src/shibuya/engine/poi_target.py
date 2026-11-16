@@ -72,11 +72,12 @@ from typing import Any, Final, Sequence
 
 import numpy as np
 
-from shibuya.agents.state import IntentKind
+from shibuya.foundation.vocab.agent_codes import IntentKind
 from shibuya.engine.chooser import ChoiceContext, Chooser, draw_index, entropy_bits
 from shibuya.engine.commit import ACT_EAT as _EAT_CODE
 from shibuya.engine.commit import WANDER_BAD_TARGET
-from shibuya.world.assets import BAND_CODES, SYNTHETIC_POI_CATS
+from shibuya.world.model.assets import BAND_CODES
+from shibuya.foundation.vocab.place_words import SYNTHETIC_POI_CATS
 from shibuya.world.model.state import LANDMARK_CATS
 
 __all__ = [

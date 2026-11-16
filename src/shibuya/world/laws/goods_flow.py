@@ -49,7 +49,8 @@ from typing import Final
 
 import numpy as np
 
-from shibuya.agents.state import AgentKind, AgentState
+from shibuya.foundation.vocab.agent_codes import AgentKind
+from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.rng import k19_counters, stream
 from shibuya.world.laws import switch_absent as _ABSENT
 from shibuya.world.laws import switch_rate as _RATE_RULES

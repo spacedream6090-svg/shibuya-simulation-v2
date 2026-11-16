@@ -41,7 +41,7 @@ from typing import Any, Final, Mapping
 
 import numpy as np
 
-from shibuya.agents.state import AgentKind
+from shibuya.foundation.vocab.agent_codes import AgentKind
 from shibuya.world.facts.rights.ledger import AGENT, DWELLING, EMPLOY, LEASE, ORG, OWN, PARCEL, STORE, Right, Rights
 
 __all__ = [

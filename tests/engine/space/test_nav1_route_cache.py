@@ -259,7 +259,7 @@ REAL_IDS = ("world_v2", *(f"world_v2:{f}" for f in (NV.NAV1_META, *NV.NAV1_FILES
 
 @pytest.fixture(scope="module")
 def real_world():
-    from shibuya.world.assets import load_assets
+    from shibuya.world.model.assets import load_assets
 
     world = D.ROOTS["world_v2"]
     return world, load_assets(world), NV.load_navmesh(world)

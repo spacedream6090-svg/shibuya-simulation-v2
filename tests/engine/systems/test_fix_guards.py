@@ -32,7 +32,7 @@ G_PKG, _, G_LEAF = G_MODULE.rpartition(".")
 HERE = Path(__file__).resolve().parent
 
 # ================================================================= 3: 書きの許可を外す口
-STATE_MODULES = {"agents/state.py", "world/model/state.py", "world/model/percept_state.py"}
+STATE_MODULES = {"world/model/agent_table.py", "world/model/state.py", "world/model/percept_state.py"}
 #: write_permit の関数 → 呼んでよい置き場(試験と記録の道具は src の外=ここに出ない)。
 WP_CALLS = {"allows": STATE_MODULES, "scope": {"foundation/write_guard.py"}, "enabled": {"foundation/write_guard.py"},
             "set_enabled": set(), "current": set()}
@@ -43,7 +43,7 @@ GUARD_CALLS = {"system_scope": {"runtime/systems/conductor.py"}}
 #: 試験は src の外=ここに出ない。conductor は今は読まないが、指示書どおり置き場に入れておく。
 WP_ATTR_PLACES = WP_IMPORTERS | {"runtime/systems/conductor.py"}
 #: 許可を持つモジュール(別名に ``setattr(X, 変数, …)`` をすると許可の大域に届く)。
-PERMIT_MODULES = {"shibuya.foundation.write_permit", "shibuya.foundation.write_guard", "shibuya.agents.state",
+PERMIT_MODULES = {"shibuya.foundation.write_permit", "shibuya.foundation.write_guard", "shibuya.world.model.agent_table",
                   "shibuya.world.model.state", "shibuya.world.model.percept_state"}
 
 #: 書き換えてはいけない許可の大域(その置き場の外で代入しない)。
@@ -176,15 +176,15 @@ def test_permit_check_catches_planted_switches():
     # 再検収 R1・R1' の 4 行(検収役の形)。〔段 4 の下ごしらえ・親の裁定 L-7〕guard の包みと名は __name__ から組み立てる
     (f"from {G_PKG} import {G_LEAF} as G\n"
      "def sys_x(ctx, b):\n    with G._WP.scope(None):\n        pass\n", ("_WP を読む", "G._WP.scope")),
-    ("from shibuya.agents.state import _WP as X\n"
+    ("from shibuya.world.model.agent_table import _WP as X\n"
      "def sys_x(ctx, b):\n    X.set_enabled(False)\n", ("_WP を輸入", "set_enabled を呼んでよい")),
-    ("import shibuya.agents.state as ST\n"
+    ("import shibuya.world.model.agent_table as ST\n"
      "def sys_x(ctx, b):\n    with ST._WP.scope(None):\n        pass\n", ("_WP を読む", "ST._WP.scope")),
     (f"from {G_PKG} import {G_LEAF} as G\n"
      "def sys_x(ctx, b, name):\n    setattr(G, name, None)\n", ("setattr(変数の名)",)),
     # 同じ型の変種
     ("import shibuya.agents.state\n"
-     "def sys_x(ctx, b):\n    shibuya.agents.state._WP.set_enabled(False)\n", ("_WP を読む", "set_enabled")),
+     "def sys_x(ctx, b):\n    shibuya.world.model.agent_table._WP.set_enabled(False)\n", ("_WP を読む", "set_enabled")),
     (f"from {G_PKG} import {G_LEAF} as G\n"
      "def sys_x(ctx, b):\n    wp = getattr(G, '_WP')\n", ("getattr で _WP",)),
 ])
@@ -197,7 +197,7 @@ def test_permit_check_catches_reexported_names(src, words):
 
 # ================================================================= 5: D⑥ の別名の形を広げる
 _SOA_TAILS = {"registry", "agents", "cells", "pois", "pstate"}
-_EXEMPT_D6 = {"agents/state.py", "world/model/state.py", "world/model/percept_state.py", "engine/resolve.py", "foundation/soa.py"}
+_EXEMPT_D6 = {"world/model/agent_table.py", "world/model/state.py", "world/model/percept_state.py", "engine/resolve.py", "foundation/soa.py"}
 D6_ALLOW = {
     ("act/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",
     ("mind/judge/store_choice.py", "self.poi_cell"): "同上",

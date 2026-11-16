@@ -20,7 +20,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `fresh`(関数): 毎回作り直す世界と台帳(ランごとに新しい物が要る)。
   - `plan_assets`(関数): 店の決まり(W7 の形の営業時間の表)。曜日 0〜6 と祝日の行(7)に同じ区間。``per_poi`` で店ごとに替えられる。``src`` は
   - `world_fixture`(関数): 合成の世界・物の台帳・店の決まりを組み立ての口に入れる(``run_day(**kw, **extra)`` の ``extra`` を返す)。店の担当は今の
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.arms.duties`・`shibuya.foundation.time_consts`・`shibuya.mind.plan.duties_port`・`shibuya.runtime.systems.assemble`・`shibuya.world.assets`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.arms.duties`・`shibuya.foundation.time_consts`・`shibuya.mind.plan.duties_port`・`shibuya.runtime.systems.assemble`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.model.assets`・`shibuya.world.model.state`
 - 読む試験: `tests/engine/duties/test_du_runs.py`・`tests/engine/duties/test_du_world.py`・`tests/engine/time/test_v30a_key_sites.py`
 
 ## [test_du_runs.py](../../../../../../../tests/engine/duties/test_du_runs.py)

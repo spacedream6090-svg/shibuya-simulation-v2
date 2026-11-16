@@ -42,7 +42,7 @@ from typing import Any, Final, Mapping, NamedTuple, Sequence
 
 import numpy as np
 
-from shibuya.agents.state import (
+from shibuya.foundation.vocab.agent_codes import (
     ACTIVITY_UNTIL_NONE,
     WAKE_CONDITION_CLASS,
     Activity,
@@ -53,7 +53,7 @@ from shibuya.agents.state import (
 from shibuya.foundation.hashing import wander_key_array
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.calendar import ticks_per_day as _ticks_per_day
+from shibuya.foundation.types import ticks_per_day as _ticks_per_day
 from shibuya.foundation.vocab.actions import (
     NO_TARGET,
     UNTIL_DEFAULT_MINUTES,

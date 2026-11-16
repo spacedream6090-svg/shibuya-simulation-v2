@@ -311,7 +311,7 @@ def test_q3_b6_mark_text_for_nav1_and_no_b8():
 def test_m4a_surface_counts_leave_out_the_agents_inside_buildings(space):
     from types import SimpleNamespace
 
-    from shibuya.agents.state import Activity
+    from shibuya.foundation.vocab.agent_codes import Activity
 
     m = space.mesh
     ax, ay, af = space.anchor_of(np.array([0, 0, 0, 0, 0, 0]))

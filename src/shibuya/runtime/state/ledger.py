@@ -186,7 +186,7 @@ def _s(place: str, name: str, dtype: str, nbytes: str, alloc: str, behavior: str
 B, N_, D_ = BEHAVIOR, NO, DIAG
 R_, V_, X_, U_ = REQUIRED, DERIVABLE, DISCARDABLE, UNKNOWN
 
-_ALLOW_BAND = (AstAllow("world/assets.py", 'cells["band"]',
+_ALLOW_BAND = (AstAllow("world/model/assets.py", 'cells["band"]',
                         "資産の表(W2 の parquet)の列 band を読む行。SoA の agents.band ではない(材料 §2-4 の誤検出 1)"),
                # 〔第 5 期 空間の段 1〕ナビメッシュの資産の階の表(nav1_meta.json の floors の band)を読む行。SoA ではない
                AstAllow("world/model/navmesh.py", 'f["band"] for f in floors',

@@ -249,7 +249,7 @@ def test_two_days_sunday_to_monday_and_resume_is_the_straight_run(with_roster, t
 
 
 def test_resuming_with_the_arm_off_stops(with_roster, tmp_path, monkeypatch):
-    from shibuya.engine.calendar import SimCalendar
+    from shibuya.world.facts.calendar import SimCalendar
 
     kw = dict(KW, sim_days=2)
     with ca3():

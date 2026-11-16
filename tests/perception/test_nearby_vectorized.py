@@ -13,7 +13,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentKind, AgentState
+from shibuya.foundation.vocab.agent_codes import AgentKind
+from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.text import channels as ch
 from shibuya.foundation.ports.percept import SeenPerson
 from shibuya.perception.renderer import Renderer, person_word

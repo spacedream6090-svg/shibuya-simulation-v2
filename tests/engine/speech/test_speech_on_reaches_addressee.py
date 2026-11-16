@@ -21,7 +21,7 @@ from collections import defaultdict
 
 import pytest
 
-from shibuya.agents.state import WakeCondition
+from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.foundation.journal.log import EventLog, LlmCall
 from shibuya.society.speech import port as P
 from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE
@@ -214,7 +214,7 @@ def test_no_field_line_on_v1_and_nothing_without_the_hook():
 
 def test_speech_lines_are_dropped_when_the_individual_budget_is_exceeded(monkeypatch):
     """検収 低2: B5(意図の行・記憶の行を含む)は発話の行の無い B6 で先に組み、発話の行は残りに入るときだけ足す。"""
-    from shibuya.agents.state import IntentKind
+    from shibuya.foundation.vocab.agent_codes import IntentKind
 
     r, h = _renderers()
     with r.agents.writable():  # 体 0 に意図を持たせる(B5 に意図の行=発話の行より先に席を取る行)
@@ -346,7 +346,8 @@ def test_conversation_chains_carry_the_heard_ids_as_the_cause(pair):
 def _classical(n: int = 4):
     import numpy as np
 
-    from shibuya.agents.state import Activity, AgentKind, AgentState
+    from shibuya.foundation.vocab.agent_codes import Activity, AgentKind
+    from shibuya.world.model.agent_table import AgentState
     from shibuya.mind.judge import classical as CL
     from shibuya.world.model.state import World
 

@@ -39,7 +39,7 @@ llm.contract の**転記テスト**(行動契約書 §2.1/§2.2 の表が1行も
   - `test_v3_two_line_form_round_trips`(関数)
   - `test_v3_word_sets_follow_the_agenda_table`(関数)
   - `test_vocabulary_limit_of_the_contract_is_respected`(関数): §2「種別あたりの語彙上限24語」。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.vocab.actions`
+- import している内部モジュール: `shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
 - 決定の ID: D-89・D-92・D-116・第 223・第 271・第 274・第 275・第 275 #6・第 275 #7
 
@@ -279,5 +279,5 @@ llm.undefined のテスト(行動契約書 §7「未定義行動の受理」5段
   - `test_v1_objects_are_untouched`(関数): v1 の語彙・コード・契約表は**同一オブジェクト**(名前を足しただけ)。
   - `test_v2_appends_one_cross_cutting_word`(関数)
   - `test_v2_vocabulary_exceeds_the_declared_limit_by_one`(関数): §2「種別あたり 24 語」を **1 語超える**ことを機械で可視化する(封印は D-71 §3 J 待ち)。
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.agents.state`・`shibuya.foundation.vocab.actions`・`shibuya.llm.undefined`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.llm.undefined`
 - 決定の ID: D-71・第 274

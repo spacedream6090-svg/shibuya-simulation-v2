@@ -26,7 +26,7 @@ import pytest
 from tests import _time_gates as TG
 
 from shibuya.world.facts.mock_schedule import synthesize
-from shibuya.agents.state import AgentState
+from shibuya.world.model.agent_table import AgentState
 from shibuya.economy import census as CS
 from shibuya.economy import checks as CK
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector

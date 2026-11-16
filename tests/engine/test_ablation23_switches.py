@@ -28,7 +28,8 @@ import numpy as np
 import pytest
 
 from shibuya.world.facts.mock_schedule import synthesize
-from shibuya.agents.state import REFRACTORY_MINUTES, AgentState, WakeCondition
+from shibuya.foundation.vocab.agent_codes import REFRACTORY_MINUTES, WakeCondition
+from shibuya.world.model.agent_table import AgentState
 from shibuya.engine import resolve as R
 from shibuya.engine.arbiter import REFRACTORY_TICKS as ARBITER_MIRROR
 from shibuya.world.laws.salient import D50_BY_KIND, SalientProcess, ablation_name

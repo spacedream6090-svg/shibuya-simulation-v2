@@ -21,7 +21,7 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.agents.state import REFRACTORY_MINUTES, WakeCondition
+from shibuya.foundation.vocab.agent_codes import REFRACTORY_MINUTES, WakeCondition
 from shibuya.foundation.decl import bridging as L
 from shibuya.foundation.decl import ledger_paths as LP
 from shibuya.validation.static import bridging_scan as S

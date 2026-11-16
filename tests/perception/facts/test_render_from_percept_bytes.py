@@ -31,7 +31,7 @@ from typing import Any
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, ActivityKind, IntentKind, ResultCode, WakeCondition
+from shibuya.foundation.vocab.agent_codes import Activity, ActivityKind, IntentKind, ResultCode, WakeCondition
 from shibuya.mind.memory.memory import RecallItem
 from shibuya.perception import renderer as R
 from tests.perception.facts.scenes import build, head_module, twin

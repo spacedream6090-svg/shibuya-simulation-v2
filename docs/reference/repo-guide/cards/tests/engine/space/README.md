@@ -56,7 +56,7 @@ S46: nav1 の道の線の控えが結果に作用しないことの試験(控え
   - `test_cache_overflow_drops_the_oldest_and_keeps_the_lines`(関数): 上限 3 の控えに 4 つの鍵を入れると最初の鍵が捨てられ、それを引き直した線は最初の線と 1 バイト一致。
   - `via_shape`(関数): 問い合わせの列を ``_shape`` に順に当てた線の並び。``cap_watch`` なら控えの大きさが上限を超えないことも見る。
   - `without_cache`(関数): ``space`` の控えを毎回空にする(``_shape`` を呼ぶ前に ``_shape_cache.clear()``・同じ道を通る)。
-- import している内部モジュール: `shibuya.world.assets`・`shibuya.world.model.navmesh`・`shibuya.world.model.space.nav1`・`tests/_data_ids.py`・`tests/build_space/synth.py`
+- import している内部モジュール: `shibuya.world.model.assets`・`shibuya.world.model.navmesh`・`shibuya.world.model.space.nav1`・`tests/_data_ids.py`・`tests/build_space/synth.py`
 
 ## [test_nav1_units.py](../../../../../../../tests/engine/space/test_nav1_units.py)
 
@@ -83,7 +83,7 @@ S46: nav1 の道の線の控えが結果に作用しないことの試験(控え
   - `test_speed_is_the_body_attribute`(関数)
   - `test_turn_weights_fixed_and_person_range_deterministic`(関数)
   - `test_unique_position_per_agent_per_step`(関数)
-- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.intake.parser`・`shibuya.act.intent`・`shibuya.agents.state`・`shibuya.engine.chooser`・`shibuya.foundation.arms.removed`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar_self`・`shibuya.mind.judge.classical`・`shibuya.mind.judge.decision.layer`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.notice_reach`・`shibuya.world.model.proximity`・`shibuya.world.model.space.nav1`・`tests/_places.py`・`tests/build_space/synth.py`
+- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.intake.parser`・`shibuya.act.intent`・`shibuya.engine.chooser`・`shibuya.foundation.arms.removed`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar_self`・`shibuya.mind.judge.classical`・`shibuya.mind.judge.decision.layer`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.notice_reach`・`shibuya.world.model.proximity`・`shibuya.world.model.space.nav1`・`tests/_places.py`・`tests/build_space/synth.py`
 - 環境変数: `SHIBUYA_SPACE`
 - 決定の ID: 10-03/§8・R-63・第 347
 

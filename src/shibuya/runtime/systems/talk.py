@@ -20,9 +20,9 @@ from typing import Any
 
 import numpy as np
 
-from shibuya.agents.state import Activity
-from shibuya.agents.state import ResultCode
-from shibuya.agents.state import WakeCondition
+from shibuya.foundation.vocab.agent_codes import Activity
+from shibuya.foundation.vocab.agent_codes import ResultCode
+from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 

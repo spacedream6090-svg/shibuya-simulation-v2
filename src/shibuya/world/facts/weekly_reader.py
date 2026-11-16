@@ -29,7 +29,7 @@ from typing import Final
 
 import numpy as np
 
-from shibuya.agents.state import Activity, WakeCondition
+from shibuya.foundation.vocab.agent_codes import Activity, WakeCondition
 from shibuya.foundation.hashing import blake3_hex
 from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 

@@ -30,11 +30,11 @@ from typing import Any, Final, Iterable, Mapping
 
 import numpy as np
 
-from shibuya.agents.state import AgentState
+from shibuya.world.model.agent_table import AgentState
 from shibuya.world.laws import switch_absent as _ABSENT
 from shibuya.world.laws import switch_rate as _RATE_RULES
 from shibuya.engine import resolve as R
-from shibuya.engine.calendar import SimCalendar
+from shibuya.world.facts.calendar import SimCalendar
 from shibuya.world.laws.civic import (
     HotelProcess,
     InfraLoadProcess,
@@ -60,7 +60,7 @@ from shibuya.world.laws.rail import RailProcess
 from shibuya.world.laws.salient import ABLATION_IDS as PNOTICE_ABLATION_IDS
 from shibuya.world.laws.salient import SalientProcess
 from shibuya.world.laws.traffic import TrafficProcess
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 from shibuya.world.ledger.actual_log import ActualLog
 from shibuya.world.ledger.first_batch import build_registry
 from shibuya.world.model.state import World
