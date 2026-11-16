@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-319 ディレクトリ・2370 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+319 ディレクトリ・2371 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -1315,7 +1315,7 @@
 - [devlog-compressed.md](../../v1/devlog-compressed.md): 開発ログ(圧縮アーカイブ)
 - [v1-inventory.md](../../v1/v1-inventory.md): v1シミュレーション 全機能棚卸し(2026-08-29・v2ゼロベース再設計の入力)
 
-## docs/research(228 本)
+## docs/research(229 本)
 
 - [INDEX.md](../../../research/INDEX.md): 答申の索引(docs/research/ 73 本)
 - [RESEARCH-STATE.md](../../../research/RESEARCH-STATE.md): リサーチの進行状況(次のエージェントが最初に読む 1 枚)
@@ -1457,6 +1457,7 @@
 - [v2-r152-model-candidates-inventory.md](../../../research/v2-r152-model-candidates-inventory.md): R-152 モデルの候補の棚卸し(住民の LLM の候補の一覧・選び直しの物差しの材料・判断モデルの第 1 世代の順の変わり方・1 つにするか並べるか混ぜるかの先例)
 - [v2-r153-attention-gate-and-person-information-relevance.md](../../../research/v2-r153-attention-gate-and-person-information-relevance.md): R-153 注意の門と、人と情報の関係度(個人化した注意の先例・人の注意の優先度の地図と重みの決め方・街の中の気づきの錨・埋め込みの近さで関係度を出す形の偏り・候補 A〜F の比較)
 - [v2-r154-persona-forms-and-primary-check.md](../../../research/v2-r154-persona-forms-and-primary-check.md): R-154 ペルソナ(添付 2 本の一次確認・人物の持ち方の 3 つの分け方の先例・人物のベクトルの大きさの比べ方・Anthology 型の生い立ちと TIPI-J と Nemotron-Personas-Japan の 22 欄)
+- [v2-r155-primary-check-a48-m10-citations.md](../../../research/v2-r155-primary-check-a48-m10-citations.md): R-155 版上げ A48・M10 の ① の根拠の一次確認と、M10 の ① の決まっていない細部の材料(記録 2-55・2-59 が引く 5 本・会話の後に誰が考え直すか・何を覚えているか・どのくらい覚えているか)
 - [v2-r2-llm-social-sim-fulltext-check.md](../../../research/v2-r2-llm-social-sim-fulltext-check.md): R-2 — LLM 社会シミュレーション文献 12 件の本文実読(答申・2026-09-16)
 - [v2-r23-primary-check-batch1.md](../../../research/v2-r23-primary-check-batch1.md): R-23 第1批: 出典URLゼロの答申(D等級33本)の一次確認
 - [v2-r23-primary-check-batch2.md](../../../research/v2-r23-primary-check-batch2.md): R-23 第2批: 「背骨」を成す 4 答申の一次確認
