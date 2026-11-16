@@ -1906,6 +1906,8 @@ EXCLUDED: Final[tuple[Excluded, ...]] = (
        "weather_date_fn"),
     _x("renderer", REF, "10e B6: B3 の天候・日照・暑さの語とキャッシュの鍵を返す口(天気の規則 calendar で engine.run が"
        "差し込む・関数)", "weather_words_fn", "weather_words_key_fn"),
+    _x("renderer", REF, "〔A48・第347〕世界過程の無いランの天気だけの環境の過程(組み立てが置く・体感温度は書かない)。"
+       "状態は資産・暦・日番号・環境の seed から作り直せる(日の頭の張り直しが引き直す=再開でも同じ)", "weather_env"),
     _x("renderer", REF, "第 1 期 1-2: 暦の日の種類を返す口(組み立てが暦の SimCalendar.day_kind を渡す・関数・"
        "Percept.time_view の材料・描画の文は読まない)", "day_kind_fn"),
     _x("renderer", REF, "第 1 期 1-8b: 届いた発話を受け取る口と B6 に載せた発話を報告する口(組み立てが腕 on のランだけ "

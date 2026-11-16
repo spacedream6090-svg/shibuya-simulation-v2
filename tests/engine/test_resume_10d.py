@@ -741,6 +741,7 @@ def test_b3_weather_follows_the_replay_date_of_each_day():
     assert T.TEMPLATES["B3.weather"].format(weather="曇", daylight=T.DAYLIGHT_WORDS[1]) in first
     assert T.TEMPLATES["B3.weather"].format(weather="雨", daylight=T.DAYLIGHT_WORDS[1]) in second
     assert T.TEMPLATES["B3.heat"].format(heat=T.HEAT_STAGE_WORDS[0]) in second
-    # 口が無ければ暦の日付で引く(合成世界・既定の旧経路)
+    # 口が無ければ暦の日付で引く(合成世界・既定の旧経路)。〔A48・第347〕表に無い時は合成の世界だけ宣言した決まった天気
+    # (``declared_weather_by_hour``=晴)になる(実データの資産なら止まる=tests/perception/test_weather_a48.py)
     r.weather_date_fn = None
     assert "雨" not in b3(datetime(2026, 8, 4, 12, 0)) or ("2026-08-04", 12) in assets.weather_by_date_hour

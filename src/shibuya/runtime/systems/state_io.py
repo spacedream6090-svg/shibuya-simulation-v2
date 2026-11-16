@@ -27,7 +27,8 @@ from shibuya.runtime.state.hashes import component_digests
 from shibuya.runtime.state.hashes import full_hash as full_state_hash
 
 __all__ = ["hash_owners", "pst_now", "act_hash_now", "full_state_hash", "behavior_state_hash", "component_digests",
-           "eod_hashes", "money_now", "bodies_now", "w17_weekday", "relay_tables", "start_day", "ledger_close",
+           "eod_hashes", "money_now", "bodies_now", "w17_weekday", "relay_tables", "weather_source", "relay_weather",
+           "wire_weather", "start_day", "ledger_close",
            "day_record", "close_day_midrun", "save_state", "rebuild_derived", "mark_boundary",
            "EVENTS_OFF_RECORD", "BOUNDARY_WHO"]
 
@@ -157,6 +158,7 @@ def relay_tables(b: Any, d: int) -> None:
     鉄道の時刻表(T の座標で末尾に足す)・天気の実日・計画実行層の在圏ブロックとイベント(出勤率の欠席を
     日番号つきで引き直す)・計画境界の表(W17 は K9 のつなぎ)。体の状態は書かない(``start_day``)。
     〔1-0〕HEAD の nonlocal 5 つ(b_*)は ``DayTables`` の欄(草案 §3-3 の 5)。
+    〔A48・第347〕世界過程の無いランの天気の日の引き直しと、引いた再生日の 24 時の行の確かめ(``relay_weather``)。
     """
     from shibuya.agents.state import WakeCondition
 
@@ -168,6 +170,7 @@ def relay_tables(b: Any, d: int) -> None:
     d = int(d)
     if runner is not None:
         runner.relay_day(d, ticks_per_day=tpd)  # 時刻表・天気・営業時間の曜日の行・日ごとの乱数の表
+    relay_weather(b, d)  # 〔A48〕世界過程の無いランの天気の日・引いた再生日の 24 時の行の確かめ
     wd = w17_weekday(b, d)
     if weekly is not None and wd != int(calendar.table_weekday(d)) and d not in w17_substituted:
         w17_substituted.append(d)
@@ -203,6 +206,52 @@ def relay_tables(b: Any, d: int) -> None:
         )
     dt.b_agent, dt.b_cond, dt.b_tick, dt.b_cell = na, nc, nt, ncell
     dt.b_start = np.searchsorted(dt.b_tick, np.arange(ticks + 1), side="left")
+
+
+def weather_source(b: Any) -> Any:
+    """〔A48・第347〕B3 の天気の語の源=環境の過程(世界過程のあるランは世界過程の物・無いランは描画の ``weather_env``)。"""
+    runner = b.layers.runner
+    if runner is not None:
+        return runner.environment
+    return getattr(b.layers.renderer, "weather_env", None)
+
+
+def relay_weather(b: Any, d: int) -> None:
+    """〔A48・第347〕``d`` 日目の日の頭の天気: 世界過程の無いランは、描画が持つ天気だけの環境の過程に ``d`` 日目の再生日を
+    引き直させる(世界過程のあるランは ``runner.relay_day`` が引く=同じ規則・同じ環境の seed・日番号の鍵)。どのランも、
+    引いた再生日の 24 時の行が描画の W13 の表にそろうかを確かめる(欠けたら日付と時を書いて止める=黙って埋めない。
+    組み立てでは引きうる再生日の全部を確かめてある=ここで止まるのは資産が途中で変わったときだけ)。体の状態は書かない。
+    """
+    env = weather_source(b)
+    if env is None:
+        return
+    if b.layers.runner is None:
+        env.pick_day(int(d))
+    rend = b.layers.renderer
+    if rend is not None and env.replay_date:
+        rend.assets.require_weather_days((env.replay_date,))
+
+
+def wire_weather(rend: Any, env: Any) -> None:
+    """〔A48・第347〕描画 ``rend`` の B3 の天気の口を、環境の過程 ``env`` の「その日に引いた実日」に挿す(組み立てが呼ぶ)。
+
+    中身は 10d 検収 D1(天候を引く日=再生日)と 10e(B6)(天気の規則 calendar: 天候=再生日の W13 の行・日照=暦の日付の
+    日の出と日の入り・暑さ=体感温度と同じ暑さ段)の結線のまま。世界過程のあるランの物と、世界過程の無いランの天気だけの
+    環境の過程の物と、注入の描画で、同じ口を使う。天候の語の行が無ければ描画の資産が止める(``PerceptionAssets.weather``)。
+    """
+    from datetime import datetime
+
+    rend.weather_date_fn = lambda: (env.replay_date or None)
+    if env.assets.has_weather and hasattr(rend, "weather_words_fn"):
+
+        def _b3_words(when: datetime) -> tuple[str, str, str]:
+            rd = env.replay_date
+            wd = (datetime.strptime(rd, "%Y-%m-%d").replace(hour=int(when.hour)) if rd else when)
+            daylight, heat = env.b3_sun_heat(int(when.hour))
+            return rend.assets.weather(wd)[0], daylight, heat
+
+        rend.weather_words_fn = _b3_words
+        rend.weather_words_key_fn = lambda when: (env.replay_date, when.date().isoformat())
 
 
 def start_day(b: Any, d: int) -> None:

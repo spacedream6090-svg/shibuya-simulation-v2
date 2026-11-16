@@ -68,8 +68,8 @@ engine.processes.environment — 昼夜・天候・体感温度(D-R2-5 第1陣�
   - `nearest_shadow_date`(関数): 10e(B6): ``target`` にいちばん近い影の日(同じ近さなら前の日)。影が無ければ ``None``。
   - `sample_calendar_day`(関数): 10e(B6): 季節 × 平日/土休 × 天候型の層から、窓の中で実際に起きた日数の割合で再生日を引く。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar`・`shibuya.engine.resolve`・`shibuya.foundation.hashing`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.world.assets`・`shibuya.world.body.model`・`shibuya.world.body.rules`・`shibuya.world.model.solar`・`shibuya.world.model.state`
-- 呼び手: `shibuya.world.laws.runner`
-- 読む試験: `tests/engine/body/test_body_same_values.py`・`tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/multiday/test_md23_w9_window.py`・`tests/engine/processes/test_environment.py`・`tests/engine/test_activation_10e.py`・`tests/engine/test_activation_2_4.py`・`tests/engine/test_assets_10e_b0_b1.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_weather_calendar_10e.py`
+- 呼び手: `shibuya.runtime.systems.assemble`・`shibuya.world.laws.runner`
+- 読む試験: `tests/engine/body/test_body_same_values.py`・`tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/multiday/test_md23_w9_window.py`・`tests/engine/processes/test_environment.py`・`tests/engine/test_activation_10e.py`・`tests/engine/test_activation_2_4.py`・`tests/engine/test_assets_10e_b0_b1.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_weather_calendar_10e.py`・`tests/perception/test_weather_a48.py`
 - 読む試験(道筋で): `tests/engine/body/test_body_guard.py`
 - 状態台帳の行
   - 持ち主 `runner.environment`(`EnvironmentProcess`)

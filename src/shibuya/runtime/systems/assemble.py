@@ -4,8 +4,9 @@
 前までを、そのままの文で回して状態の箱(``Box``)を返す。前置きは run_day の引数 113 個を ``_call_args`` から結ぶ行だけ
 (``_call_args`` の写し方・設定の指紋 ``RS.fingerprint(_call_args)`` は HEAD と同じ=草案 §3-3 の 3)。
 HEAD の入れ子の関数のうち状態と日の口(``_hash_owners`` ほか 14)は ``engine.systems.state_io`` の箱を受け取る関数にした。
-描画と方策へ差し込む関数(``_classical_acq``・``_classical_partner``・``_session_partners``・``_b3_words``・無名関数 3 つ)は
-組み立ての中の入れ子の def のまま(捕まえる物の同一性を保つ=草案 §3-3 の 6)。
+描画と方策へ差し込む関数(``_classical_acq``・``_classical_partner``・``_session_partners``・無名関数)は
+組み立ての中の入れ子の def のまま(捕まえる物の同一性を保つ=草案 §3-3 の 6)。〔A48・第347〕B3 の天気の口(``_b3_words`` と
+天気の日・キャッシュの鍵の無名関数 2 つ)は ``state_io.wire_weather`` へ移した(中身と捕まえる物=環境の過程と描画は同じ)。
 
 試験の差し替えの的: 層の組み立ての名前(``FleetBridge``・``PerceptionRendererAdapter``・``WorldProcessRunner``・
 ``Arbiter``・``ConversationManager``)は**このモジュール**の名前(HEAD は ``engine.run``)。``engine.run`` で定義された
@@ -19,7 +20,6 @@ from __future__ import annotations
 import copy
 import dataclasses
 import time
-from datetime import datetime
 from datetime import timedelta
 from pathlib import Path
 from typing import Any
@@ -1142,25 +1142,72 @@ def build(_call_args: dict[str, Any]) -> Any:
             poi_resolver, runner, calendar, tick_seconds
         )
     # ---- 10d 検収 D1: B3 の天候は世界過程の「その日の再生の実日」で引く(体の暑さと同じ行・日付の語は暦) ----
+    # 〔A48・第347〕最頻値の補いを消した。① 天気の源=世界過程の環境の過程。世界過程の無いラン(``processes=False``)で実データの
+    # 描画なら、天気の日を引いて B3 の語を出すだけの環境の過程を立てる(同じ規則・同じ環境の seed・体感温度は書かない=下限対照の
+    # 体は動かさない・日の頭は ``state_io.relay_weather`` が引き直す)② 注入の描画(アダプタでない)にも同じ口を挿す
+    # ③ 実データの描画は、引きうる再生日の全部の 24 時の行がそろうかを組み立てで確かめて止める(資産の片方だけも止める)。
+    # 合成の世界は決まった天気を宣言して使う(``PerceptionAssets.declared_weather_by_hour``・manifest の ``weather.declared``)
+    _wx_r = _q25_renderer
+    if _wx_r is None and renderer is not None and not isinstance(renderer, str) and hasattr(renderer_obj, "weather_words_fn"):
+        _wx_r = renderer_obj
+    _wx_assets = getattr(_wx_r, "assets", None) if _wx_r is not None else None
+    _wx_real = _wx_assets is not None and hasattr(_wx_assets, "require_weather_days") and not _wx_assets.is_synthetic
+    _wx_env = runner.environment if runner is not None else None
+    if _wx_real and runner is None and _q25_renderer is not None:
+        _wx_pa = getattr(presence, "assets", None) if presence is not None else None
+        if _wx_pa is None:
+            _wx_pa = load_process_assets_or_synthetic(world_dir, world.assets)
+        if not _wx_pa.has_weather:
+            raise ValueError("天気の資産の片方だけ: 描画に W13 の時の表があるのに、環境の過程の W13 の日の表が無い"
+                             "(黙って埋めない=A48)")
+        from shibuya.world.laws.environment import EnvironmentProcess as _WxEnv
+
+        # 影の面は体感温度にしか使わない=天気だけの環境の過程には渡さない(影のファイルを開かない)
+        _wx_env = _WxEnv(
+            world, agents, dataclasses.replace(_wx_pa, shadow_dates=(), shadow_dir=""),
+            master_seed=env_seed, day_index=day_index, tick_seconds=tick_seconds,
+            calendar=calendar, perturbed=bool(weather_perturb),
+        )
+        _q25_renderer.weather_env = _wx_env
     if (
-        _q25_renderer is not None and hasattr(_q25_renderer, "weather_date_fn")
-        and runner is not None and runner.replay_date
+        _wx_r is not None and hasattr(_wx_r, "weather_date_fn")
+        and _wx_env is not None and _wx_env.replay_date
     ):
-        _env = runner.environment
-        _q25_renderer.weather_date_fn = lambda: (_env.replay_date or None)
         # ---- 10e(B6): 天気の規則 calendar では B3 の語を環境の過程と同じ規則で作る(天候=再生日の行・日照=暦の日付の
-        # 日の出と日の入り・暑さ=体感温度と同じ暑さ段)。天候の語はレンダラの W13 の表を再生日で引く(欠けた時の扱いも今と同じ)
-        if runner.assets.has_weather and hasattr(_q25_renderer, "weather_words_fn"):
-            _wr = _q25_renderer
-
-            def _b3_words(when: datetime) -> tuple[str, str, str]:
-                rd = _env.replay_date
-                wd = (datetime.strptime(rd, "%Y-%m-%d").replace(hour=int(when.hour)) if rd else when)
-                daylight, heat = _env.b3_sun_heat(int(when.hour))
-                return _wr.assets.weather(wd)[0], daylight, heat
-
-            _wr.weather_words_fn = _b3_words
-            _wr.weather_words_key_fn = lambda when: (_env.replay_date, when.date().isoformat())
+        # 日の出と日の入り・暑さ=体感温度と同じ暑さ段)。天候の語はレンダラの W13 の表を再生日で引く(行が無ければ止める)
+        _SIO.wire_weather(_wx_r, _wx_env)
+    if _wx_real:
+        if _wx_env is not None:
+            if not _wx_env.assets.has_weather:
+                raise ValueError("天気の資産の片方だけ: 描画に W13 の時の表があるのに、環境の過程の W13 の日の表が無い"
+                                 "(黙って埋めない=A48)")
+            _wx_assets.require_weather_days(_wx_env.assets.weather_dates)  # 再生日は W13 の日の表の中からだけ引く
+        else:
+            # 口の無い描画(注入の描画で世界過程の無いラン)は暦の日付で引く=ランの日の暦の日付を確かめる
+            _wx_assets.require_weather_days([calendar.date_of_day(_d).isoformat() for _d in range(sim_days)])
+    elif _wx_assets is not None and hasattr(_wx_assets, "require_weather_days"):
+        # 〔A48・検収 中-1〕逆向きの片方だけ: 描画の資産が合成(世界が合成か、world_dir が無いか、描画の資産のファイルの
+        # どれかが無い)なのに、世界が実データか、環境の過程に W13 の日の表がある=合成の世界の決まった天気で黙って埋めない
+        # (宣言の天気は合成の世界だけ)。〔再検収 低-A〕止める文は、描画の資産が合成になったわけと直し方を、当たった形ごとに書く
+        _wx_other = [_s for _s, _on in (
+            ("世界が実データ", world.assets.source != "synthetic"),
+            ("環境の過程に W13 の日の表がある", _wx_env is not None and _wx_env.assets.has_weather),
+        ) if _on]
+        if _wx_other:
+            if _wx_r is not _q25_renderer:
+                _wx_why, _wx_fix = "注入の描画の資産が合成", "注入の描画に実データの描画の資産を持たせる"
+            elif world.assets.source == "synthetic":
+                _wx_why = "世界が合成なので描画の資産も合成。描画のファイルの有無は見ていない"
+                _wx_fix = ("合成の世界で回すなら環境の過程に W13 の日の表を渡さない(world_dir を外すか世界過程を止める)。"
+                           "実データで回すなら実データの世界を渡す(world_dir に世界のファイルをそろえる)")
+            elif world_dir is None:
+                _wx_why, _wx_fix = "world_dir が無いので描画のファイルを読めない", "描画の資産のファイルがそろった world_dir を渡す"
+            else:
+                _wx_why = "world_dir に描画の資産のファイルが無い: " + "・".join(
+                    _f for _f in PerceptionAssets.REQUIRED_FILES if not (Path(world_dir) / _f).exists())
+                _wx_fix = "world_dir に描画の資産のファイルをそろえる"
+            raise ValueError("天気の資産の片方だけ: 描画の資産が合成(" + _wx_why + ")なのに、" + "・".join(_wx_other)
+                             + "。直し方: " + _wx_fix + "(合成の世界の決まった天気で黙って埋めない=A48)")
     # ---- 4 段目: 親しみの表(値を決める層・書き手は resolve.write_familiarity) ----
     _fam_renderer = getattr(perception, "renderer", None) if perception is not None else None
     _fam_has_renderer = _fam_renderer is not None and hasattr(_fam_renderer, "signage_exposures")

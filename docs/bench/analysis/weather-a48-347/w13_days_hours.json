@@ -1,0 +1,114 @@
+[
+ {
+  "dir": "v2",
+  "days": 365,
+  "first": "2025-09-01",
+  "last": "2026-08-31",
+  "missing_day_hours": 0,
+  "hourly_days_not_in_days": 0
+ },
+ {
+  "dir": "v2_pre20260928",
+  "days": 35,
+  "first": "2026-07-28",
+  "last": "2026-08-31",
+  "missing_day_hours": 0,
+  "hourly_days_not_in_days": 0
+ },
+ {
+  "dir": "v2_pre_10e_2026-10-12",
+  "days": 35,
+  "first": "2026-07-28",
+  "last": "2026-08-31",
+  "missing_day_hours": 0,
+  "hourly_days_not_in_days": 0
+ },
+ {
+  "dir": "v2_pre_4-3",
+  "days": 365,
+  "first": "2025-09-01",
+  "last": "2026-08-31",
+  "missing_day_hours": 0,
+  "hourly_days_not_in_days": 0
+ },
+ {
+  "dir": "v2_stage_2-3",
+  "days": 365,
+  "first": "2025-09-01",
+  "last": "2026-08-31",
+  "missing_day_hours": 0,
+  "hourly_days_not_in_days": 0
+ },
+ {
+  "dir": "v2_stage_2-3b",
+  "days": 365,
+  "first": "2025-09-01",
+  "last": "2026-08-31",
+  "missing_day_hours": 0,
+  "hourly_days_not_in_days": 0
+ },
+ {
+  "dir": "v2_stage_2-3c",
+  "days": 365,
+  "first": "2025-09-01",
+  "last": "2026-08-31",
+  "missing_day_hours": 0,
+  "hourly_days_not_in_days": 0
+ },
+ {
+  "dir": "v2_stage_2-4",
+  "days": 365,
+  "first": "2025-09-01",
+  "last": "2026-08-31",
+  "missing_day_hours": 0,
+  "hourly_days_not_in_days": 0
+ },
+ {
+  "dir": "v2_stage_3-1",
+  "days": 365,
+  "first": "2025-09-01",
+  "last": "2026-08-31",
+  "missing_day_hours": 0,
+  "hourly_days_not_in_days": 0
+ },
+ {
+  "dir": "v2_stage_4-1",
+  "days": 365,
+  "first": "2025-09-01",
+  "last": "2026-08-31",
+  "missing_day_hours": 0,
+  "hourly_days_not_in_days": 0
+ },
+ {
+  "dir": "v2_stage_4-1b",
+  "days": 365,
+  "first": "2025-09-01",
+  "last": "2026-08-31",
+  "missing_day_hours": 0,
+  "hourly_days_not_in_days": 0
+ },
+ {
+  "dir": "v2_stage_4-1c",
+  "days": 365,
+  "first": "2025-09-01",
+  "last": "2026-08-31",
+  "missing_day_hours": 0,
+  "hourly_days_not_in_days": 0
+ },
+ {
+  "dir": "v2_stage_4-3",
+  "days": 365,
+  "first": "2025-09-01",
+  "last": "2026-08-31",
+  "missing_day_hours": 0,
+  "hourly_days_not_in_days": 0
+ },
+ {
+  "dir": "v2_stage_5-1",
+  "days": 365,
+  "first": "2025-09-01",
+  "last": "2026-08-31",
+  "missing_day_hours": 0,
+  "hourly_days_not_in_days": 0
+ }
+]

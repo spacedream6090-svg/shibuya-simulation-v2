@@ -1,0 +1,13 @@
+{
+ "label": "base",
+ "mode": "default",
+ "final_hash16": "c8d68704b7b0760d",
+ "llm_calls": 60939,
+ "wall_s": 51.6,
+ "steps": 1440,
+ "ms_per_step": 35.8,
+ "peak_mb": 515.9,
+ "replay_date": "2026-07-13",
+ "weather_days": 1,
+ "weather_declared": false
+}

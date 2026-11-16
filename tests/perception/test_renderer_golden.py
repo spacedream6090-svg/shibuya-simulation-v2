@@ -436,7 +436,8 @@ def test_j2_real_assets_carry_names_noise_and_weather():
     assert set(np.unique(assets.noise_stage_day)) <= {0, 1, 2, 3}
     weather = assets.weather(datetime(2026, 7, 28, 12, 0))
     assert weather[0] in T.WEATHER_WORDS and weather[1] in T.DAYLIGHT_WORDS
-    # 表に無い日付でも決定論的に落ちる
-    assert assets.weather(datetime(2020, 1, 1, 12, 0)) == assets.weather(
-        datetime(2019, 5, 5, 12, 0)
-    )
+    # 〔A48・第347〕表に無い日付は止まる(前は「その時の最頻値」に落ちていた=補いは消した)。日付と時が文に出る
+    assert not assets.is_synthetic and assets.declared_weather_by_hour == {}
+    with pytest.raises(ValueError, match="2020-01-01 12 時"):
+        assets.weather(datetime(2020, 1, 1, 12, 0))
+    assert assets.missing_weather_hours("2026-07-28") == ()

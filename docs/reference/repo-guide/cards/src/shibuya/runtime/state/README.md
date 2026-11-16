@@ -96,7 +96,7 @@ behavior-hash と full-hash(10b・A2・A3)。表は ``engine.state_ledger`` だ�
     - `O96` run_day の局所 replay_inbox(再生の到着待ち)(挙動 no・復元 required) 道筋 `run_day.replay_inbox` 書ける系: decide・drain・llm_receive
     - `P` TickScratch.percepts(知覚の事実 Percept・第 1 期 1-2)(挙動 no・復元 discardable) 書ける系: (宣言なし)
     - `PX0` TickScratch.near_index(近傍の索引 SpatialIndex・第 2 期 2-2 段 11a)(挙動 no・復元 discardable) 書ける系: (宣言なし)
-- 決定の ID: 10-12/§4-4・10-12/§4-11・11-01・11-03・11-03/§3・第 330・第 346
+- 決定の ID: 10-12/§4-4・10-12/§4-11・11-01・11-03・11-03/§3・第 330・第 346・第 347
 
 ## [ledger_ast.py](../../../../../../../../src/shibuya/runtime/state/ledger_ast.py)
 

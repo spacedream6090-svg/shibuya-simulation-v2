@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-322 ディレクトリ・2380 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+327 ディレクトリ・2403 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -329,6 +329,8 @@
 ## docs/bench/analysis/switch-removal-347/bytecheck_3a(3 本)
 
 ## docs/bench/analysis/switch-removal-347/bytecheck_3b(3 本)
+
+## docs/bench/analysis/switch-removal-347/bytecheck_4(3 本)
 
 ## docs/bench/analysis/switch-removal-347/tools(3 本)
 
@@ -788,6 +790,16 @@
 - [review-2a.md](../../../bench/analysis/wave2-2026-09-30/review-2a.md): 第 2 波 §2A の検収(検収役 Opus 5.5・実装を見ていない立場・2026-09-30)
 - [review-2b.md](../../../bench/analysis/wave2-2026-09-30/review-2b.md): 検収 §2B 食事の束 3 項(別のサブ・実装を見ていない立場・2026-09-30)
 - [review-w10.md](../../../bench/analysis/wave2-2026-09-30/review-w10.md): §W10 の検収(W10 の Q6 物差し・ON+Q7 の資産)
+
+## docs/bench/analysis/weather-a48-347(5 本)
+
+- [README.md](../../../bench/analysis/weather-a48-347/README.md): A48(第347)天気の語の最頻値の補いを消した(weather-a48-347)
+
+## docs/bench/analysis/weather-a48-347/bytecheck(3 本)
+
+## docs/bench/analysis/weather-a48-347/counts(5 本)
+
+## docs/bench/analysis/weather-a48-347/perf(7 本)
 
 ## docs/bench/anchors(8 本)
 

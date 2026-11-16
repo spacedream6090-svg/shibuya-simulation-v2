@@ -121,6 +121,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "day.w17_substituted fx.calendar fx.schedule fx.weekly layers.act_layer "
                "layers.classical layers.ledger layers.poi_resolver layers.presence layers.runner "
                "runstats.day_heads soa.agents "
+               "layers.renderer "  # 〔A48・第347〕天気の日の引き直しと再生日の 24 時の確かめ(state_io.relay_weather)
                "layers.calendar_shadow "
                "layers.calendar_self",  # 〔第 6 期 6-2〕カレンダー 1b(日の頭に約束と機会を張る)
          origin=f"L0・run.py:3607-3609 @{_E}"),

@@ -1,0 +1,13 @@
+{
+ "label": "work",
+ "mode": "noproc",
+ "final_hash16": "29e4139c65fa9610",
+ "llm_calls": 23501,
+ "wall_s": 17.1,
+ "steps": 1440,
+ "ms_per_step": 11.9,
+ "peak_mb": 518.4,
+ "replay_date": "2026-07-13",
+ "weather_days": 1,
+ "weather_declared": false
+}

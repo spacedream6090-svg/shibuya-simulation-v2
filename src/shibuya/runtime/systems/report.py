@@ -174,6 +174,8 @@ def report(ctx: Any, b: Any) -> Any:
     frozen_sources_map.update(
         {f"world:{k}": v for k, v in (getattr(world.assets, "asset_sources", {}) or {}).items()}
     )
+    _wx_rend = getattr(perception, "renderer", None) if perception is not None else None
+    _wx_env = runner.environment if runner is not None else getattr(_wx_rend, "weather_env", None)
     if runner is not None:
         frozen_sources_map.update(
             {f"process:{k}": v for k, v in (getattr(runner.assets, "asset_sources", {}) or {}).items()}
@@ -181,12 +183,23 @@ def report(ctx: Any, b: Any) -> Any:
         frozen_sources_map.update(
             {f"process:{k}": v for k, v in (getattr(runner.environment, "shadow_sources", {}) or {}).items()}
         )
+    elif _wx_env is not None:
+        # 〔A48・検収 低-1〕世界過程の無いランの天気だけの環境の過程が読んだ W13 の 2 表(影は開かない=影の鍵は無い)
+        frozen_sources_map.update(
+            {f"process:{k}": v for k, v in (getattr(_wx_env.assets, "asset_sources", {}) or {}).items()
+             if str(k).startswith("w13_")}
+        )
+        result.replay_date = _wx_env.replay_date  # 世界過程のあるランの一番上の欄と同じ形(最後の日の再生日)
     result.frozen_sources = frozen_sources_map
     # 10e(B6): 天気の規則と日ごとの記録
+    # 〔A48・第347〕世界過程の無いランは描画が持つ天気だけの環境の過程の記録。合成の世界の描画は宣言した決まった天気を足す
     result.weather = (
-        runner.environment.weather_manifest() if runner is not None
+        _wx_env.weather_manifest() if _wx_env is not None
         else {"scheme": WEATHER_SCHEME, "perturbed": False, "days": [], "warnings": []}
     )
+    _wx_assets = getattr(_wx_rend, "assets", None)
+    if _wx_assets is not None and getattr(_wx_assets, "is_synthetic", False):
+        result.weather["declared"] = _wx_assets.declared_weather_manifest()
     result.renderer_name = (
         "perception.Renderer" if perception is not None else type(renderer_obj).__name__
     )

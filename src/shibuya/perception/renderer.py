@@ -41,7 +41,9 @@ expedient(本モジュール分)
   差し込み口を付けた(``prepare_tick(queues=…)``)。行列は POI 単位=**セル共有**なので
   規約⑧(B0-B4b に個体依存語を置かない)は保たれる。行列が無いセルは従来の固定文言のまま。
 - 流れ(B4)は既定 0(「一定です」)。方向データが無い。
-- 天候が W13 に無い日付は**その時刻の最頻値**へ落とす(決定論)。
+- 〔A48・第347〕天候の行が W13 に無い日付・時刻は**止める**(黙って埋めない=その時刻の最頻値の補いは消した)。
+  **合成の世界**(試験用)だけは決まった天気(晴・日照は時から・暑さ「やや暑い」)を宣言して使い、manifest の
+  ``weather.declared`` に出す(体の側の体感は 5 の固定=見せる暑さと 1 段ずれる。直していない)。
 - **W14/W15 の凍結静的文への切替**(C5): ``world_dir`` に ``w14_signage.parquet`` /
   ``w15_cell_static.parquet`` が在ればその文面を使い、無ければ従来の合成文へ落ちる
   (**テンプレ本体と ``template_sha256`` は不変**)。凍結文の置き場所は
@@ -127,6 +129,7 @@ __all__ = [
     "memory_item_text",
     "P_SEE_ACTIVITY_KINDS",
     "DEFAULT_START_DATETIME",
+    "SYNTHETIC_WEATHER_NOTE",
     "WALKABLE_FRACTION_SYNTHETIC",
     "STREET_POINT_AREA_M2",
     "INTERO_UP_EDGES",
@@ -159,6 +162,13 @@ __all__ = [
 
 #: 既定の世界内開始日時(W13 の最初の日=2026-07-28)。``clock_fn`` を渡さないときに使う。
 DEFAULT_START_DATETIME: Final[datetime] = datetime(2026, 7, 28, 0, 0)
+
+#: 〔A48・第347〕合成の世界(試験用)の決まった天気の宣言(manifest の ``weather.declared`` の ``note``)。値は
+#: :meth:`PerceptionAssets.synthetic` の表(A48 の前の表のまま)。体の側の体感の固定との 1 段のずれは直していない。
+SYNTHETIC_WEATHER_NOTE: Final[str] = (
+    "合成の世界(試験用)の決まった天気: 天候は晴・日照は時から(5〜18 時は日中・19 時からは日没後・4 時までは夜明け前)・"
+    "暑さは「やや暑い」。体の側の体感は 5 の固定(気象の資産が無い世界の値)で、見せる暑さと 1 段ずれる(直していない)。"
+)
 
 #: **看板(広告面)の注視ゲート**(知覚契約書 §4 段1 の p_see)の既定。``1.0``= 在圏セルの
 #: 看板行が必ず観測に入る=**現行のバイト**(D-59 (b) 以前の挙動)。1.0 未満にすると
@@ -637,8 +647,9 @@ class PerceptionAssets:
     poi_cat: tuple[str, ...]
     #: (日付文字列, 時) → (天候, 日照, 暑さ)
     weather_by_date_hour: Mapping[tuple[str, int], tuple[str, str, str]]
-    #: 時 → (天候, 日照, 暑さ)の最頻値(日付が表に無いときの決定論フォールバック)
-    weather_by_hour: Mapping[int, tuple[str, str, str]]
+    #: 〔A48・第347〕時 → (天候, 日照, 暑さ)=**合成の世界だけ**の宣言した決まった天気(:data:`SYNTHETIC_WEATHER_NOTE`)。
+    #: 実データの資産では空(前の「365 日のその時の最頻値」の補いの表 ``weather_by_hour`` は消した)。
+    declared_weather_by_hour: Mapping[int, tuple[str, str, str]]
     #: セル別の騒音段階(昼/夜・W10 街路点の最頻値)
     noise_stage_day: np.ndarray
     noise_stage_night: np.ndarray
@@ -670,15 +681,58 @@ class PerceptionAssets:
         """時刻 → セル別騒音段階(環境基準の昼 6-22 時 / 夜 22-6 時)。"""
         return self.noise_stage_day if 6 <= when.hour < 22 else self.noise_stage_night
 
+    @property
+    def is_synthetic(self) -> bool:
+        """〔A48〕合成の世界(試験用)の資産か(決まった天気を宣言して使う)。"""
+        return self.source == "synthetic"
+
     def weather(self, when: datetime) -> tuple[str, str, str]:
-        """世界内日時 → (天候, 日照, 暑さ)。"""
+        """世界内日時 → (天候, 日照, 暑さ)。
+
+        〔A48・第347〕W13 の表に ``(日付, 時)`` の行が無いとき、合成の世界は宣言した決まった天気
+        (``declared_weather_by_hour``)を返し、それ以外は日付と時を書いて止める(``ValueError``=黙って埋めない)。
+        前の「その時の最頻値」の補いは消した(旧値の再現は安定版のタグ)。〔検収 低-6〕合成の世界でも、宣言した表にその時が
+        無ければ止める(宣言していない定数で埋めない=宣言の表は 0〜23 時がそろうので今の道では当たらない)。
+        """
         key = (when.strftime("%Y-%m-%d"), int(when.hour))
         got = self.weather_by_date_hour.get(key)
         if got is not None:
             return got
-        return self.weather_by_hour.get(
-            int(when.hour), (T.WEATHER_WORDS[0], T.DAYLIGHT_WORDS[1], T.HEAT_STAGE_WORDS[0])
+        if self.is_synthetic:
+            got = self.declared_weather_by_hour.get(key[1])
+            if got is not None:
+                return got
+        raise ValueError(
+            f"天気の行が無い: {key[0]} {key[1]} 時(W13 の時の表・合成の世界は宣言の表・黙って埋めない=A48)"
         )
+
+    def missing_weather_hours(self, date: str) -> tuple[int, ...]:
+        """〔A48〕``date``(``YYYY-MM-DD``)のうち W13 の時の表に行の無い時(0〜23・昇順)。合成の世界は空(宣言の天気)。"""
+        if self.is_synthetic:
+            return ()
+        d = str(date)[:10]
+        return tuple(h for h in range(24) if (d, h) not in self.weather_by_date_hour)
+
+    def require_weather_days(self, dates: Sequence[str]) -> None:
+        """〔A48〕日付の列のどの日も 24 時の行がそろうかを確かめる(欠けたら日付と時を書いて止める=黙って埋めない)。
+
+        組み立て(引きうる再生日の全部)と日の頭(その日に引いた再生日)が呼ぶ。合成の世界は何もしない。
+        逐次ループ宣言: 日付の数 × 24 時(組み立てに 1 回=W13 で 365 × 24・日の頭に 1 日分)。
+        """
+        if self.is_synthetic:
+            return
+        missing = [(str(d)[:10], hs) for d in dates if (hs := self.missing_weather_hours(str(d)))]
+        if missing:
+            head = "・".join(f"{d} の {','.join(map(str, hs))} 時" for d, hs in missing[:5])
+            more = f" ほか {len(missing) - 5} 日" if len(missing) > 5 else ""
+            raise ValueError(f"天気の行が無い: {head}{more}(W13 の時の表・黙って埋めない=A48)")
+
+    def declared_weather_manifest(self) -> dict[str, object]:
+        """〔A48〕合成の世界の宣言した決まった天気(manifest の ``weather.declared``)。"""
+        return {
+            "note": SYNTHETIC_WEATHER_NOTE,
+            "by_hour": [list(self.declared_weather_by_hour[h]) for h in sorted(self.declared_weather_by_hour)],
+        }
 
     # ---------------------------------------------------------- 生成
     @classmethod
@@ -707,7 +761,8 @@ class PerceptionAssets:
             poi_name=names,
             poi_cat=tuple(a.poi_cat),
             weather_by_date_hour={},
-            weather_by_hour={
+            # 〔A48〕合成の世界の宣言した決まった天気(値は A48 の前の表のまま=SYNTHETIC_WEATHER_NOTE)
+            declared_weather_by_hour={
                 h: (
                     T.WEATHER_WORDS[0],
                     T.DAYLIGHT_WORDS[1] if 5 <= h < 19 else T.DAYLIGHT_WORDS[2 if h >= 19 else 0],
@@ -846,17 +901,13 @@ class PerceptionAssets:
             columns=["date", "hour", "weather", "daylight", "heat_stage"],
         ).to_pydict()
         by_dh: dict[tuple[str, int], tuple[str, str, str]] = {}
-        per_hour: dict[int, list[tuple[str, str, str]]] = {}
         for d, h, w, dl, hs in zip(
             w13["date"], w13["hour"], w13["weather"], w13["daylight"], w13["heat_stage"]
         ):
             key = (str(d)[:10], int(h))
             val = (str(w), str(dl), str(hs))
             by_dh[key] = val
-            per_hour.setdefault(int(h), []).append(val)
-        by_hour = {
-            h: max(sorted(set(v)), key=lambda x: (v.count(x), x)) for h, v in per_hour.items()
-        }
+        # 〔A48・第347〕その時の最頻値の補いの表は作らない(行が無ければ ``weather`` が止める)
 
         return cls(
             source=str(p),
@@ -868,7 +919,7 @@ class PerceptionAssets:
             poi_name=poi_name,
             poi_cat=poi_cat,
             weather_by_date_hour=by_dh,
-            weather_by_hour=by_hour,
+            declared_weather_by_hour={},
             noise_stage_day=ns_day,
             noise_stage_night=ns_night,
             poi_signage=poi_signage,
@@ -1263,6 +1314,10 @@ class Renderer:
         #: 天候=再生日の行・日照=暦の日付・暑さ=体感温度と同じ段)と、キャッシュの鍵(再生日・暦の日付)。``None``=今まで。
         self.weather_words_fn: Callable[[datetime], tuple[str, str, str]] | None = None
         self.weather_words_key_fn: Callable[[datetime], tuple] | None = None
+        #: 〔A48・第347〕世界過程の無いランで、組み立てが置く「天気の日を引いて B3 の語を出すだけの環境の過程」(体感温度は
+        #: 書かない)。日の頭の張り直しがその日の再生日を引き直し、manifest の ``weather`` もここから書く。``None``=置かない
+        #: (世界過程のあるランは世界過程の環境の過程を使う)。参照だけ(状態は資産・暦・日番号・環境の seed から作り直せる)。
+        self.weather_env: object | None = None
         #: 第 1 期 1-2: 暦の日の種類を返す口(``Percept.time_view.day_kind``・刻みに 1 回引く・描画の文は読まない)。
         self.day_kind_fn: Callable[[int], str] | None = day_kind_fn
         self.named_closed_notes = 0

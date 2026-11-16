@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 19 本・その他 0 本(このディレクトリの直下)
+Python 20 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [facts](facts/README.md)
 
@@ -319,6 +319,7 @@ renderer: golden テスト(§2.4 ⑧ バイト一致・決定論・予算・5分
   - `test_signage_is_feature_tagged_and_imperative_free`(関数): §1 条6: 世界内テキストは素性タグつき・命令文除去済み。
   - `test_watched_by_renders_the_fixed_empty_phrase`(関数)
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.hashing`・`shibuya.foundation.text.hashes`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.world.model.state`
+- 決定の ID: 第 347
 
 ## [test_signage_p_see_gate.py](../../../../../../tests/perception/test_signage_p_see_gate.py)
 
@@ -404,3 +405,26 @@ templates: 文面凍結(§1 条5)・ブロック表(§2.2)・段階語彙の釘�
   - `test_v2_changes_the_b0_and_shows_the_new_word`(関数)
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.perception.renderer`・`shibuya.world.model.state`
 - 決定の ID: D-71・第 274・第 304
+
+## [test_weather_a48.py](../../../../../../tests/perception/test_weather_a48.py)
+
+〔A48・第347〕天気の語の最頻値の補いを消した(返事その 8 §3・§8・壁打ちの記録 2-55・記録``docs/bench/analysis/weather-a48-347/README.md``)。
+
+- 公開の関数とクラス
+  - `made`(関数): ランの中で作られた描画(``Renderer``)の控え。
+  - `test_a_real_world_with_synthetic_perception_assets_stops`(関数): 何を確かめるか(検収 中-1・再検収 低-A): 世界が実データなのに描画の資産が合成だと、世界過程の無いランでも組み立てで止まる
+  - `test_a_run_without_processes_builds_the_weather_only_environment_without_data`(関数): 何を確かめるか(検収 低-3・低-1): data の無い機械でも、世界過程の無いランで天気だけの環境の過程が立ち、日の頭に 2 日目の
+  - `test_a_run_without_processes_draws_from_the_stratum_like_the_main_path_without_data`(関数): 何を確かめるか(再検収 低-B): data の無い機械でも、開始日が W13 の窓の外なら、世界過程の無いランの天気だけの環境の過程は
+  - `test_a_run_without_processes_draws_the_same_replay_day_as_the_main_path`(関数): 何を確かめるか: 世界過程の無い実データのランも、本筋と同じ規則・同じ環境の seed で再生日を引き(窓の外の開始日=層から
+  - `test_an_injected_renderer_gets_the_main_path_hooks_in_a_run`(関数): 何を確かめるか(検収 低-3): 世界過程のあるランで、注入の描画(アダプタでない)に本筋の口が実際に挿さる(天気の日=環境の
+  - `test_an_injected_renderer_is_checked_at_assembly`(関数): 何を確かめるか: 注入の描画(アダプタでない)も組み立ての確かめに入る。世界過程のあるランで過程に天気の日の表が無ければ
+  - `test_assets_on_one_side_only_stop_at_assembly`(関数): 何を確かめるか: 描画に実データの形の W13 の時の表があるのに、環境の過程の日の表が無い(合成の過程の資産)と、組み立てで
+  - `test_real_shaped_assets_stop_on_a_missing_row_and_the_synthetic_world_uses_the_declared_weather`(関数): 何を確かめるか: 実データの形の資産は (日付, 時) の行が無ければ日付と時を書いて止まる(補いに落ちない)。合成の世界は
+  - `test_relay_weather_picks_the_day_without_processes_and_checks_the_rows`(関数): 何を確かめるか: 日の頭の ``state_io.relay_weather`` は、世界過程の無いランでは描画の天気だけの環境の過程に日番号で
+  - `test_synthetic_runs_declare_the_fixed_weather_in_the_manifest`(関数): 何を確かめるか: 合成の世界のランは、世界過程のあり・なしのどちらでも manifest の ``weather.declared`` に宣言した
+  - `test_the_renderer_port_stops_too`(関数): 何を確かめるか: 描画の口(B3 の時刻の見方)でも、実データの形の資産の行が無ければ止まる(刻みの途中で黙って埋めない)。
+  - `test_the_reverse_one_side_stops_too`(関数): 何を確かめるか(検収 中-1・再検収 低-A): 描画の資産が合成なのに、環境の過程に W13 の日の表があると、組み立てで止まる
+  - `test_wire_weather_puts_only_the_day_hook_when_the_environment_has_no_weather_days`(関数): 何を確かめるか(検収 低-3): 環境の過程に W13 の日の表が無い(``has_weather`` が偽)と、日の口だけを挿し、語と鍵の口は
+  - `test_wire_weather_puts_the_main_path_hooks_on_any_renderer`(関数): 何を確かめるか: ``state_io.wire_weather`` は描画(注入の描画を含む)に本筋と同じ口を挿す=天気の日=環境の過程の再生日・
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`・`shibuya.world.assets`・`shibuya.world.laws.environment`・`shibuya.world.model.state`
+- 決定の ID: 第 347
