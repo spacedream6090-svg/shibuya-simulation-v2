@@ -257,12 +257,13 @@ def test_without_the_decision_the_shelf_is_not_restocked_by_the_engine_at_a_staf
 
 # ================================================================= 廃棄は閉店の作業
 def test_discard_is_a_closing_task_and_the_morning_bridge_skips_it(monkeypatch):
-    from shibuya.world.laws import switch_rate as RR
     from shibuya.engine import resolve as R
     from shibuya.world.laws import goods_flow as GF
+    from tests.engine._legacy_world import legacy_world_rules
 
-    # 〔11-01 段 2 の 4〕05:00 の売れ残りのつなぎは旧道(切替口)だけ=つなぎと担当の体の分け方を旧道で見る
-    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
+    # 〔11-01 段 2 の 4〕05:00 の売れ残りのつなぎは旧道だけ=つなぎと担当の体の分け方を旧道で見る。〔第347〕切替口
+    # --rate-rules legacy の代わりに、試験の中だけで実行器と計画実行層に部品の口(率の規則の旧道)を挿す
+    legacy_world_rules(monkeypatch, absent=False)
 
     calls = []
     real = R.discard_to_bin

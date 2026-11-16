@@ -16,6 +16,9 @@ import sys
 
 import pytest
 
+from shibuya.runtime.systems import assemble as _ASSEMBLE
+from shibuya.runtime.systems import conductor as _CONDUCTOR
+
 from shibuya import cli
 from shibuya.foundation.arms import removed as RSW
 
@@ -26,17 +29,23 @@ RUN_DAY = ("from shibuya.engine.run import run_day\n"
 CLI_MAIN = ("import sys\nfrom shibuya import cli\n"
             "rc = cli.main(['--agents', '20', '--seed', '1', '--world', '__no_such_dir__', '--cells', '9', '--ticks', '30'])\n"
             "print('RAN')\nsys.exit(rc)\n")
-#: 止まってよい系の置き場(進行役 conductor が最初に呼ぶ組み立て build の中=刻みの前)。ほかの系(刻みの中・日の終わり・
+#: 系の置き場(traceback の道の一部)。〔第347 見つけた欠陥の直し〕前は文字列 ``/engine/systems/`` と ``build.py`` を
+#: 書いていた=移す段 4(``engine/systems/build.py`` → ``runtime/systems/assemble.py``)の後は何も拾わず、下の「刻みの前で
+#: 止まった」の確かめが空振りしていた。モジュールの名から作る(置き場が動いても追う)。負の対照は
+#: ``test_the_frame_check_catches_a_stop_inside_the_ticks``。
+_SYSTEMS_DIR = "/" + _CONDUCTOR.__name__.rsplit(".", 1)[0].replace(".", "/") + "/"
+_ASSEMBLE_FILE = _ASSEMBLE.__name__.rsplit(".", 1)[1] + ".py"
+#: 止まってよい系の置き場(進行役 conductor が最初に呼ぶ組み立て assemble の中=刻みの前)。ほかの系(刻みの中・日の終わり・
 #: report)の中で落ちたら、刻みに入った後に止まった=入口で止まっていない。
-_BEFORE_TICKS = {"conductor.py", "build.py"}
+_BEFORE_TICKS = {_CONDUCTOR.__name__.rsplit(".", 1)[1] + ".py", _ASSEMBLE_FILE}
 
 
 def _system_frames(stderr: str) -> list[str]:
-    """traceback の ``engine/systems`` の下の置き場の名(呼ばれた順)。"""
+    """traceback の系の置き場(``runtime/systems``)の下のファイルの名(呼ばれた順)。"""
     out = []
     for line in stderr.splitlines():
         line = line.strip().replace("\\", "/")
-        if line.startswith('File "') and "/engine/systems/" in line:
+        if line.startswith('File "') and _SYSTEMS_DIR in line:
             out.append(line.split('"')[1].rsplit("/", 1)[-1])
     return out
 
@@ -68,7 +77,24 @@ def test_a_run_with_a_removed_switch_env_stops_before_the_ticks(name, entry):
         assert f"{name} は消した切替口" in r.stderr and TAG in r.stderr, r.stderr[-1500:]
         frames = _system_frames(r.stderr)
         assert set(frames) <= _BEFORE_TICKS, (frames, r.stderr[-1500:])  # 読み込みか組み立ての最初で止まった
-        assert not frames or frames[-1] == "build.py", frames
+        assert not frames or frames[-1] == _ASSEMBLE_FILE, frames
+
+
+def test_the_frame_check_catches_a_stop_inside_the_ticks():
+    """〔第347 見つけた欠陥の直し・負の対照〕刻みの中の系(本人の体の系が呼ぶ ``resolve.advance_body``)で止まったランは、
+    traceback の系の置き場に刻みの前の外の名が出る=上の「刻みの前で止まった」の確かめ(``set(frames) <= _BEFORE_TICKS``)が
+    落ちる。直す前の文字列(``/engine/systems/``)では何も拾わず、この形でも通っていた(記録 switch-removal-347)。"""
+    code = ("from shibuya.engine import resolve as R\n"
+            "def _stop(*a, **k):\n"
+            "    raise ValueError('刻みの中で止めた(負の対照)')\n"
+            "R.advance_body = _stop\n" + RUN_DAY)
+    r = subprocess.run([sys.executable, "-c", code], env={**os.environ, "PYTHONIOENCODING": "utf-8"},
+                       capture_output=True, text=True, encoding="utf-8", timeout=600)
+    assert r.returncode != 0 and "RAN" not in r.stdout and "刻みの中で止めた" in r.stderr, r.stderr[-1500:]
+    frames = _system_frames(r.stderr)
+    assert frames and frames[0] in _BEFORE_TICKS, frames  # 進行役から入った
+    assert not set(frames) <= _BEFORE_TICKS, frames  # 刻みの中の系の名が出る=入口の確かめが落ちる形
+    assert frames[-1] not in _BEFORE_TICKS, frames
 
 
 @pytest.mark.parametrize("argv", [["--proximity", "1.0"], ["--proximity", "cell"], ["--proximity"],

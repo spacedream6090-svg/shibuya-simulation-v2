@@ -35,6 +35,7 @@ from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.run import run_day
 from shibuya.world.model.state import World
 from tests import golden_env as GE
+from tests.economy import _stage2_outside as SO
 
 W2_REPORT_SECONDS = 60.0
 
@@ -52,8 +53,13 @@ def _bundle(world: World, n_agents: int) -> LedgerBundle:
 
     ``census`` も注入する(``cli.build_ledger_bundle`` と同じ形)。``RunResult.census_row``
     が締めた日の実数を持つことを押さえるのに要る。
+
+    〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=本ファイル(台帳の配線=段階 2 の外の C4 の帳簿)は段階 2 の外で見る
+    (段階 2 の帳簿・語・保存則は ``tests/economy/stage2``)。〔第347 止めた切替口の削除〕前はモジュールの autouse で切替口を off に
+    した=台帳を段階 2 の口を持たない型(試験の中だけの束 ``tests/economy/_stage2_outside.py``)で作る(手順 0 で off と同じ値を
+    確かめた=記録 ``docs/bench/analysis/switch-removal-347/README.md``)。
     """
-    led = Ledger(n_agents, world.n_poi)
+    led = SO.outside(Ledger)(n_agents, world.n_poi)
     cats = np.arange(world.n_poi) % 3
     goods = GoodsLedger.from_pois(
         cats, np.asarray(world.pois.stock), np.asarray(world.pois.price)
@@ -61,18 +67,6 @@ def _bundle(world: World, n_agents: int) -> LedgerBundle:
     return LedgerBundle(
         money=led, goods=goods, census=lambda d: CS.daily_census(led, goods, day=d)
     )
-
-
-@pytest.fixture(scope="module", autouse=True)
-def _stage2_off():
-    """〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=本ファイル(台帳の配線=段階 2 の外の C4 の帳簿)は切替口 off で見る
-    (段階 2 の帳簿・語・保存則は ``tests/economy/stage2``)。"""
-    from shibuya.economy import stage2_bind as ES2
-
-    mp = pytest.MonkeyPatch()
-    mp.setattr(ES2, "_ARM", ES2.ARM_OFF)
-    yield
-    mp.undo()
 
 
 @pytest.fixture(scope="module")

@@ -129,17 +129,20 @@ def test_restock_goods_row_shares_the_payment_event():
 def test_run_rows_and_events_are_one_to_one(monkeypatch):
     """ラン(世界資産 200 体・既定 v3・1 日): 金の生ログの目印のある行と出来事の記録の金の行が 1 対 1。
 
-    〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=この試験(1-9 の土台の金の行=持ち出しと域外仕入だけ)は切替口 off で
-    見る。段階 2 の語(賃金・引き出し・カード・税ほか)と原因の 1 対 1 は ``tests/economy/stage2`` が見る。
+    〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=この試験(1-9 の土台の金の行=持ち出しと域外仕入だけ)は段階 2 の外で
+    見る。段階 2 の語(賃金・引き出し・カード・税ほか)と原因の 1 対 1 は ``tests/economy/stage2`` が見る。〔第347〕切替口 off の
+    代わりに、試験の中だけの束(段階 2 の口を持たない台帳・off と同じ形=``tests/economy/_stage2_outside.py``)で回す。
     """
     from shibuya import cli
-    from shibuya.economy import stage2_bind as ES2
 
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
-    from shibuya.world.laws import switch_rate as RR
+    from tests.economy import _stage2_outside as SO
 
-    # 〔11-01 段 2 の 4〕売れ残りの廃棄率を外すと 200 体では棚が補充点を割らない(補充の行 0)=補充の行の目印を見るため旧道で
-    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
+    SO.use_outside_bundle(monkeypatch)
+    from tests.engine._legacy_world import legacy_world_rules
+
+    # 〔11-01 段 2 の 4〕売れ残りの廃棄率を外すと 200 体では棚が補充点を割らない(補充の行 0)=補充の行の目印を見るため旧道で。
+    # 〔第347〕切替口 --rate-rules legacy の代わりに、試験の中だけで実行器と計画実行層に部品の口(率の規則の旧道)を挿す
+    legacy_world_rules(monkeypatch, absent=False)
     res = cli.run(n_agents=200, seed=1, world_dir="data/world/v2", vocab_version="v3")
     led, g, log = res.ledger.money, res.ledger.goods, res.event_log
     rows = led.raw_rows()

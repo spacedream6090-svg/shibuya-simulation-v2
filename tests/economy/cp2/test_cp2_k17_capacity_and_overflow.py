@@ -201,13 +201,15 @@ def test_nineteen_configs_stay_under_the_coefficient(name):
 def test_5k_default_day_does_not_overflow(monkeypatch):
     """5,000 体の既定 v3 の 1 日: 実測の行/体/日は 6.5 未満=溢れ 0 件(HEAD の 3.0 では 3,978 行が落ちていた)。
 
-    〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=係数 6.5 は切替口 off のランの値=off で見る(既定 on の 16.0 は
-    ``test_nineteen_configs_stay_under_the_coefficient``)。
+    〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=係数 6.5 は段階 2 の外の台帳の値=段階 2 の外で見る(既定 on の 16.0 は
+    ``test_nineteen_configs_stay_under_the_coefficient``)。〔第347〕切替口 off の代わりに、試験の中だけの束(cli の台帳を off の
+    分かれと同じ形=雇用主の口 1・輪の係数は台帳の既定で作る=``tests/economy/_stage2_outside.py``)で回す。
     """
     from shibuya import cli
-    from shibuya.economy import stage2_bind as ES2
 
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
+    from tests.economy import _stage2_outside as SO
+
+    SO.use_outside_bundle(monkeypatch)
     res = cli.run(n_agents=5_000, seed=1, world_dir="data/world/v2", vocab_version="v3")
     eco = res.run_manifest_fields()["economy"]
     assert eco["raw_capacity"] == 32_500 and eco["raw_overflow"] == 0

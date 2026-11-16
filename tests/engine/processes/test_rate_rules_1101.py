@@ -294,17 +294,18 @@ def test_negative_calvo_wiring_is_caught_through_aliases(tmp_path):
 def day_runs():
     """〔検収 L2〕世界資産(台帳つき)の 200 体で 1 日(1,440 刻み)=05:00 の売れ残り・05〜08 時の納品・08〜21 時の宅配・
     18:00 と 21:00 の催しの窓を含む。腕 off と legacy を 1 本ずつ(合成の世界は鉄道が休み=域外の体が居ないので催しの注入が
-    起きない=世界資産で回す)。"""
-    from shibuya import cli
+    起きない=世界資産で回す)。
 
-    prev = RR.arm()
-    out = {}
-    try:
-        for mode in ("off", "legacy"):
-            RR.set_arm(mode)
-            out[mode] = cli.run(n_agents=200, seed=3, world_dir="data/world/v2", ticks=1_440, checkpoint_every=360)
-    finally:
-        RR.set_arm(prev)
+    〔第347 止めた切替口の削除〕legacy は切替口(``--rate-rules`` の腕)の代わりに、試験の中だけで実行器と計画実行層に部品の口
+    (率の規則の旧道)を挿して回す(``tests/engine/_legacy_world.py``=同じランになることを手順 0 で確かめた)。"""
+    from shibuya import cli
+    from tests.engine._legacy_world import legacy_world_rules
+
+    kw = dict(n_agents=200, seed=3, world_dir="data/world/v2", ticks=1_440, checkpoint_every=360)
+    out = {"off": cli.run(**kw)}
+    with pytest.MonkeyPatch.context() as mp:
+        legacy_world_rules(mp, absent=False)
+        out["legacy"] = cli.run(**kw)
     return out
 
 
@@ -318,7 +319,11 @@ def test_run_manifest_counts_rise_in_legacy_and_are_zero_off(day_runs):
     assert all(v == 1 for v in rr["removed"].values())
     assert {k: v for k, v in rr["counts"].items() if v not in (0, None)} == {}
     leg = day_runs["legacy"].run_manifest_fields()["rate_rules"]
-    assert leg["mode"] == "legacy" and leg["removed"]["rate_rule_parcels_removed"] == 0
+    # 〔第347〕旧道は実行器と計画実行層の部品の口で動く(過程の印が 0=旧道)。manifest の mode と removed の印は組み立ての腕
+    # (既定 off)を書く=試験の中だけの助けの注。件数(counts)は実行器と計画実行層の計数から数える=旧道の件数
+    leg_rn = day_runs["legacy"].runner
+    assert leg_rn.rate_rules == "legacy" and leg_rn.last_mile.counters()["rate_rule_parcels_removed"] == 0.0
+    assert leg["mode"] == "off"
     c = leg["counts"]
     assert c["event_injection_arrived"] > 0 and c["leftover_waste_bin_rows"] > 0
     assert c["parcels_delivered"] > 0 and c["litter_generated_g"] > 0 and c["collapse_rate_per_10k"] == 3

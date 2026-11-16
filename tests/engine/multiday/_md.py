@@ -7,7 +7,6 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Iterator
 
-from shibuya.economy import stage2_bind as ES2
 from shibuya.mind.memory import memory_store as MS
 from shibuya.mind.memory.memory_store import MemoryStore
 
@@ -21,16 +20,18 @@ KW = dict(n_agents=80, seed=1, n_cells=9, ticks=720, budget=80.0, sleep_suppress
 
 
 @contextmanager
-def arms(memory_store: str = "mem", economy_stage2: str = "off") -> Iterator[None]:
-    """腕を一時的に選ぶ(組み立てが読む)。〔第346〕近接は常に distance(切替口 cell は消した)。"""
-    prev = (MS.arm(), ES2.arm())
+def arms(memory_store: str = "mem") -> Iterator[None]:
+    """腕を一時的に選ぶ(組み立てが読む)。〔第346〕近接は常に distance(切替口 cell は消した)。
+
+    〔第347 止めた切替口の削除〕経済の段階 2 の腕(前の既定 off)の引数は外した: この共通の小さなランは金の台帳を渡さない=
+    段階 2 は腕に依らず挿さらない(``economy.stage2_bind.attach`` は台帳の無いランで何もしない)=結果は前と同じ。
+    """
+    prev = MS.arm()
     MS.set_arm(memory_store)
-    ES2.set_arm(economy_stage2)
     try:
         yield
     finally:
-        MS.set_arm(prev[0])
-        ES2.set_arm(prev[1])
+        MS.set_arm(prev)
 
 
 class Capture:

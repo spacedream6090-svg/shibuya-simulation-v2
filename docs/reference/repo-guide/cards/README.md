@@ -91,10 +91,10 @@
 | [tests/c7](tests/c7/README.md) | 13 | 0 |
 | [tests/c8](tests/c8/README.md) | 13 | 0 |
 | [tests/core](tests/core/README.md) | 5 | 0 |
-| [tests/economy](tests/economy/README.md) | 18 | 0 |
+| [tests/economy](tests/economy/README.md) | 19 | 0 |
 | [tests/economy/cp2](tests/economy/cp2/README.md) | 12 | 1 |
 | [tests/economy/stage2](tests/economy/stage2/README.md) | 14 | 0 |
-| [tests/engine](tests/engine/README.md) | 83 | 0 |
+| [tests/engine](tests/engine/README.md) | 84 | 0 |
 | [tests/engine/batching](tests/engine/batching/README.md) | 3 | 0 |
 | [tests/engine/body](tests/engine/body/README.md) | 9 | 0 |
 | [tests/engine/bridging](tests/engine/bridging/README.md) | 3 | 0 |
@@ -162,7 +162,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 316 ディレクトリ・2362 本
+- [docs の索引](docs.md): 318 ディレクトリ・2365 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

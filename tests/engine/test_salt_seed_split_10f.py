@@ -279,12 +279,14 @@ def _check_split(seen, seed, pop_seed, env_seed):
 
 
 def test_population_and_motion_streams_use_their_own_seed_synthetic(monkeypatch):
-    from shibuya.world.laws import switch_rate as RR
+    from tests.engine._legacy_world import legacy_world_rules
 
-    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
+    # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す。〔第347〕切替口 --rate-rules legacy と
+    # run_day(salient_rate_per_10k=…) の代わりに、試験の中だけで実行器に部品の口(率の規則の旧道・倒れる率)を挿す
+    legacy_world_rules(monkeypatch, absent=False, salient_rate=3000.0)
     seen = _record_keys(monkeypatch)
     cli.run(n_agents=60, seed=3, population_seed=7, environment_seed=11, world_dir=NO_WORLD, n_cells=30, ticks=240,
-            checkpoint_every=60, salient_rate_per_10k=3000.0)  # 〔第330・RET〕rng_scheme を消した(counter だけ)
+            checkpoint_every=60)  # 〔第330・RET〕rng_scheme を消した(counter だけ)
     used = _check_split(seen, 3, 7, 11)
     assert {"world.synthetic", "agent.schedule", "llm.mock"} <= used
 
@@ -425,17 +427,15 @@ def test_environment_seed_only_changes_weather_events_and_works(monkeypatch):
 
 
 # ---------------------------------------------------------------- T3: 回す役と CRN の健全性
-def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path, monkeypatch):
-    from shibuya.world.laws import switch_rate as RR
-
-    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
-    monkeypatch.setenv("SHIBUYA_RATE_RULES", RR.MODE_LEGACY)  # 子のプロセス(tools/c7/salt_runs.py)も旧道
-    # 10e(E4): 乱数 counter では率 100 だと 200 体・1 日で事象が 0 件の salt がある(腕が基準と同じランになる)ので
-    # 率を上げて、どの salt でも腕が食い違うようにした
-    arms = {"base": {}, "sal": {"salient_rate_per_10k": 1000.0}}
+def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path):
+    # 〔第347 止めた切替口の削除〕前の腕は倒れる率(``salient_rate_per_10k``=旧道でだけ効く試験の口・子のプロセスにも
+    # 環境変数 SHIBUYA_RATE_RULES=legacy)。切替口を消すと子のプロセスでは旧道を選べない=結果の動く別の腕(就寝の抑止を切る=
+    # 200 体・1 日・salt 1 と 2 のどちらも最初の checkpoint で食い違う=記録 switch-removal-347)に替えた。「manifest に載って
+    # いない腕を報告に出す」は下で、同じランの記録に載っていない腕の名を足して確かめる
+    arms = {"base": {}, "sleep": {"sleep_suppression": False}}
     out = tmp_path / "runs.json"
     r = subprocess.run([sys.executable, str(ROOT / "tools" / "c7" / "salt_runs.py"), "plan", "--arms", json.dumps(arms),
-                        "--base", "base", "--arm", "sal", "--salts", "1,2", "--population-seed", "1", "--agents", "200",
+                        "--base", "base", "--arm", "sleep", "--salts", "1,2", "--population-seed", "1", "--agents", "200",
                         "--world", NO_WORLD, "--scratch", str(tmp_path), "--out", str(out), "--aa", "--first-diff",
                         "--jobs", "2"], cwd=str(ROOT), capture_output=True, text=True, encoding="utf-8")
     assert r.returncode == 0, r.stderr[-3000:]
@@ -447,7 +447,7 @@ def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path, mon
     for s in (1, 2):
         # 毎 tick で通しに回した 2 本を first_diff.py で比べた tick(独立の答え)
         dumps = []
-        for name in ("base", "sal"):
+        for name in ("base", "sleep"):
             res = cli.run(n_agents=200, seed=s, population_seed=1, world_dir=NO_WORLD, checkpoint_every=1, **arms[name])
             dumps.append(fd.dump(res, tmp_path / f"straight_{name}_{s}.json"))
         want = fd.compare(dumps[0], [dumps[1]], from_T=0)["first_mismatch"]["tick"]
@@ -465,26 +465,30 @@ def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path, mon
     assert crn["aa"] and all(x["ok"] for x in crn["aa"])  # A/A が一致
     assert crn["ok"] is True and crn["status"] == "ok"
     assert index["environment_mode"] == "fixed" and crn["input_match"]["environment_fixed"] is True
-    # salient_rate_per_10k は manifest の設定の節に載っていない腕=報告に出る(落とさない)
-    assert crn["input_match"]["arm_keys_unseen"] == ["salient_rate_per_10k"]
+    # 就寝の抑止は manifest の設定の節に載る腕=どの対の設定の差にも出る(載っていない腕の一覧は空)
+    assert crn["input_match"]["arm_keys"] == ["sleep_suppression"] and crn["input_match"]["arm_keys_unseen"] == []
+    # manifest の設定の節に載っていない腕(前の腕 salient_rate_per_10k の形)は報告に出る(落とさない)=同じランの記録に、
+    # 載っていない腕の名を足して確かめる
+    by = {(x["arm"], x["salt"]): payloads[x["checkpoints"]] for x in index["runs"] if not x.get("aa")}
+    im = sc.input_match([by[("base", s)] for s in (1, 2)], [by[("sleep", s)] for s in (1, 2)],
+                        ["salient_rate_per_10k", "sleep_suppression"], environment_mode=index.get("environment_mode"))
+    assert im["arm_keys_unseen"] == ["salient_rate_per_10k"] and im["ok"] is True
     spec = {"alpha": 0.05, "primary": {"id": "calls", "path": "manifest.llm_calls_total"}}
     rep = sc.report(index, payloads, spec)
     assert rep["analysis"]["metrics"]["calls"]["status"] == sc.DESCRIPTIVE  # 2 対
 
 
-def test_runner_environment_modes(tmp_path, monkeypatch):
+def test_runner_environment_modes(tmp_path):
     """S1: 回す役の ``--environment-mode``。fixed は環境の seed が全部同じ(省略=母集団の seed)・salt は salt と同じ。"""
-    from shibuya.world.laws import switch_rate as RR
-
-    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
-    monkeypatch.setenv("SHIBUYA_RATE_RULES", RR.MODE_LEGACY)  # 子のプロセス(tools/c7/salt_runs.py)も旧道
-    arms = {"base": {}, "sal": {"salient_rate_per_10k": 100.0}}
+    # 〔第347 止めた切替口の削除〕前の腕は倒れる率(旧道でだけ効く試験の口・子のプロセスにも環境変数)=別の腕に替えた
+    # (この試験は環境の seed の決め方を見る=腕の中身に依らない)
+    arms = {"base": {}, "sleep": {"sleep_suppression": False}}
     idx = {}
     for mode in ("fixed", "salt"):
         d = tmp_path / mode
         out = tmp_path / f"runs_{mode}.json"
         r = subprocess.run([sys.executable, str(ROOT / "tools" / "c7" / "salt_runs.py"), "plan", "--arms", json.dumps(arms),
-                            "--base", "base", "--arm", "sal", "--salts", "2,3", "--population-seed", "1",
+                            "--base", "base", "--arm", "sleep", "--salts", "2,3", "--population-seed", "1",
                             "--environment-mode", mode, "--agents", "60", "--world", NO_WORLD, "--scratch", str(d),
                             "--out", str(out), "--jobs", "2"], cwd=str(ROOT), capture_output=True, text=True,
                            encoding="utf-8")
@@ -502,7 +506,7 @@ def test_runner_environment_modes(tmp_path, monkeypatch):
     assert crn["input_match"]["ok"] is True and crn["input_match"]["environment_fixed"] is False
     # 置き場が空でなければ止める(検収 S3-6)
     r = subprocess.run([sys.executable, str(ROOT / "tools" / "c7" / "salt_runs.py"), "plan", "--arms", json.dumps(arms),
-                        "--base", "base", "--arm", "sal", "--salts", "2", "--agents", "20", "--world", NO_WORLD,
+                        "--base", "base", "--arm", "sleep", "--salts", "2", "--agents", "20", "--world", NO_WORLD,
                         "--scratch", str(tmp_path / "fixed"), "--out", str(tmp_path / "again.json")],
                        cwd=str(ROOT), capture_output=True, text=True, encoding="utf-8",
                        env={**os.environ, "PYTHONIOENCODING": "utf-8"})

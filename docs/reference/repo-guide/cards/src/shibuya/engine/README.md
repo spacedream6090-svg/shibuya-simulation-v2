@@ -194,7 +194,7 @@ engine.presence — 計画実行層(Presence & Plan Executor・D-66 第1段)。
   - `PlanExecutor`(クラス): 計画実行層(D-66 第1段)。日次でイベント列を組み、tick ごとに resolve を叩く。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.resolve`・`shibuya.foundation.time_consts`・`shibuya.world.facts.weekly_reader`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.state`
 - 呼び手: `shibuya.engine.run`・`shibuya.interim_bundles.calendar_self`・`shibuya.runtime.systems.assemble`・`tools/instruments/anchor_gauge.py`
-- 読む試験: `tests/engine/calendar/test_ca1b_runs.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_calendar_10e_e3.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_presence_exit_walk.py`・`tests/engine/test_resume_10d.py`
+- 読む試験: `tests/engine/_legacy_world.py`・`tests/engine/calendar/test_ca1b_runs.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_calendar_10e_e3.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_presence_exit_walk.py`・`tests/engine/test_resume_10d.py`
 - 読む試験(道筋で): `tests/economy/cp2/test_cp2_transfer_only_writer.py`・`tests/engine/body/test_body_guard.py`・`tests/test_places_guard.py`
 - 状態台帳の行
   - 持ち主 `presence`(`PlanExecutor`)

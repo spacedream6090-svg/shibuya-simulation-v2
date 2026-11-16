@@ -2,13 +2,23 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 83 本・その他 0 本(このディレクトリの直下)
+Python 84 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [batching](batching/README.md)・[body](body/README.md)・[bridging](bridging/README.md)・[calendar](calendar/README.md)・[calendar2](calendar2/README.md)・[calendar3](calendar3/README.md)・[clock](clock/README.md)・[contact](contact/README.md)・[decision](decision/README.md)・[duties](duties/README.md)・[events](events/README.md)・[experiment](experiment/README.md)・[memory](memory/README.md)・[multiday](multiday/README.md)・[processes](processes/README.md)・[proximity](proximity/README.md)・[rights](rights/README.md)・[rules](rules/README.md)・[space](space/README.md)・[speech](speech/README.md)・[state](state/README.md)・[systems](systems/README.md)・[time](time/README.md)・[tools](tools/README.md)
 
 ## [__init__.py](../../../../../../tests/engine/__init__.py)
 
 engine 層のテスト(llm.mock の結線テストを含む)。
+
+## [_legacy_world.py](../../../../../../tests/engine/_legacy_world.py)
+
+試験の中だけの助け: 率の形の規則と「無い」と宣言した過程の旧道(部品の口)を、ランの組み立てに挿す(第347 止めた切替口の削除・記録 ``docs/bench/analysis/switch-removal-347/README.md``)。
+
+- 公開の関数とクラス
+  - `legacy_world_rules`(関数): ``mp``(``pytest.MonkeyPatch``)の間だけ、組み立てが作る実行器(と ``rate`` なら計画実行層)に旧道の部品の口を挿す。
+- import している内部モジュール: `shibuya.engine.presence`・`shibuya.world.laws.runner`
+- 読む試験: `tests/economy/cp2/test_cp2_event_links.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/test_ablation23_switches.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/test_waste_sink_report.py`
+- 決定の ID: 第 346・第 347
 
 ## [ast_writers.py](../../../../../../tests/engine/ast_writers.py)
 
@@ -104,8 +114,8 @@ ablation ②「p_notice の d50 を 0.5×/2×」・③「近接入替の不応�
   - `test_set_refractory_refuses_a_wrong_shaped_table`(関数)
   - `test_set_refractory_uses_the_run_table`(関数): ``set_refractory`` は渡された実効表でタイマーを張る(既定は §6 の表)。
   - `test_wake_candidates_follow_the_reach`(関数): 起床候補 (i) は ``noticed_agents`` そのもの=腕は起床数に出る。
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.arbiter`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.notice_reach`・`shibuya.world.model.state`
-- 決定の ID: 11-01・D-49・D-56
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.engine.arbiter`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.salient`・`shibuya.world.model.notice_reach`・`shibuya.world.model.state`・`tests/engine/_legacy_world.py`
+- 決定の ID: 11-01・D-49・D-56・第 347
 
 ## [test_activation_10e.py](../../../../../../tests/engine/test_activation_10e.py)
 
@@ -805,8 +815,8 @@ AB7 自由意図の腕の切替口 — エンジン側(``docs/design/v2-open-int
   - `test_wiring_does_not_change_the_state_hashes_when_goods_processes_are_off`(関数): 物の過程を切れば、台帳を注入しても checkpoint ハッシュは同じ(帳簿を足すだけ)。
   - `test_world_stock_is_a_mirror_of_the_shelf`(関数): ``world.pois.stock`` は棚(SKU 別)の写し。真値は物の台帳にある。
   - `wired`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.checks`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2_bind`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.growth`・`shibuya.foundation.ports.ledger`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.state`・`tests/_time_gates.py`・`tests/engine/time/__init__.py`・`tests/golden_env.py`
-- 決定の ID: 11-01・D-53・D-56・第 330
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.checks`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.commit`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.growth`・`shibuya.foundation.ports.ledger`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.state`・`tests/_time_gates.py`・`tests/economy/_stage2_outside.py`・`tests/engine/time/__init__.py`・`tests/golden_env.py`
+- 決定の ID: 11-01・D-53・D-56・第 330・第 347
 
 ## [test_llm_mock.py](../../../../../../tests/engine/test_llm_mock.py)
 
@@ -1244,11 +1254,12 @@ C10 8b(会話の起点と相手選択+8a の直し)の検査。
 - 公開の関数とクラス
   - `test_a_removed_cli_flag_stops_even_when_abbreviated`(関数): 〔検収 L1〕``--proximity 1.0`` が略記で ``--proximity-d`` の感度の腕として通らない。
   - `test_a_run_with_a_removed_switch_env_stops_before_the_ticks`(関数): 値によらず(既定の値でも)止まる。止まるのは組み立ての最初か、切替口を持っていたモジュールの読み込み=刻みの前。
+  - `test_the_frame_check_catches_a_stop_inside_the_ticks`(関数): 〔第347 見つけた欠陥の直し・負の対照〕刻みの中の系(本人の体の系が呼ぶ ``resolve.advance_body``)で止まったランは、
   - `test_the_hidden_flags_are_not_in_the_help`(関数)
   - `test_the_list_and_the_message_are_in_one_place`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.arms.removed`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.arms.removed`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`
 - 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_PROXIMITY`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`os.environ` をまるごと使う
-- 決定の ID: 第 346
+- 決定の ID: 第 346・第 347
 
 ## [test_renderer_wiring.py](../../../../../../tests/engine/test_renderer_wiring.py)
 
@@ -1360,9 +1371,9 @@ engine.resolve のテスト: 行動契約書 §2.1 の 12 語(前提・効果・
   - `test_world_arms_resume_equals_straight`(関数)
   - `test_world_resume_equals_straight_at_every_tick`(関数)
   - `world_straight`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.economy.ledger`・`shibuya.engine.poi_target`・`shibuya.engine.presence`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.rng`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.mind.judge.classical`・`shibuya.perception.renderer`・`shibuya.runtime.inference.tape`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.runner`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.state`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_sim_time_T.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.cli`・`shibuya.economy.ledger`・`shibuya.engine.poi_target`・`shibuya.engine.presence`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.rng`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.mind.judge.classical`・`shibuya.perception.renderer`・`shibuya.runtime.inference.tape`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.runner`・`shibuya.world.model.state`・`tests/engine/_legacy_world.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_sim_time_T.py`・`tests/llm/test_fleet.py`
 - 環境変数: `os.environ` をまるごと使う
-- 決定の ID: 10-03/§3-6・11-01・11-02r/§1・11-02r/§1 #7・D-102・第 330
+- 決定の ID: 10-03/§3-6・11-01・11-02r/§1・11-02r/§1 #7・D-102・第 330・第 347
 
 ## [test_salt_seed_split_10f.py](../../../../../../tests/engine/test_salt_seed_split_10f.py)
 
@@ -1384,10 +1395,10 @@ engine.resolve のテスト: 行動契約書 §2.1 の 12 語(前提・効果・
   - `test_seeded_hash_sites_are_classified`(関数)
   - `test_static_scan_catches_aliases_and_keyword_domains`(関数): 検収 S3-1 の 1・2: 別名の import と名前つきの ``domain=`` を拾う(わざと書いた断片で)。
   - `test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.rng`・`shibuya.llm.mock`・`shibuya.runtime.state.resume`・`shibuya.society.conversation`・`shibuya.world.laws.civic`・`shibuya.world.laws.environment`・`shibuya.world.laws.logistics`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.geometry`・`tools/c7/salt_compare.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.rng`・`shibuya.llm.mock`・`shibuya.runtime.state.resume`・`shibuya.society.conversation`・`shibuya.world.laws.civic`・`shibuya.world.laws.environment`・`shibuya.world.laws.logistics`・`shibuya.world.model.geometry`・`tests/engine/_legacy_world.py`・`tools/c7/salt_compare.py`
 - 読む試験: `tests/engine/memory/test_m1_runs.py`
-- 環境変数: `SHIBUYA_RATE_RULES`・`os.environ` をまるごと使う
-- 決定の ID: 11-01・第 330・第 346
+- 環境変数: `os.environ` をまるごと使う
+- 決定の ID: 11-01・第 330・第 346・第 347
 
 ## [test_scheduler.py](../../../../../../tests/engine/test_scheduler.py)
 
@@ -1531,8 +1542,8 @@ D-56 就寝抑止(ユーザー決定 (a)・2026-09-10)のテスト。
   - `test_u7_ipf_cache_with_a_multiplier_is_caught`(関数): U7: O90 ``classical._ipf_cache`` は乗数が全部 1 の classical では使われない(10d の記録・検収で捕まらなかった)。
   - `test_u7_pulled_in_today_is_outside_this_check`(関数): U7: O37 ``presence._pulled_in_today``(軸 1 diag)は、わざと discardable にして日の境目の直後(T=1441)に捨てても
   - `test_v3_allow_entries_pin_the_function_of_the_line`(関数): 10e(E2・10f 第 3 段の検収 V3): 許可した行を別の関数へ**移す**(数は同じ)と、関数の名前で落ちる。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.rng`・`shibuya.mind.judge.classical`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.validation.static.rng_audit`・`shibuya.world.laws.opening`・`shibuya.world.laws.switch_rate`・`tests/engine/discard_probe.py`・`tests/engine/test_sim_time_T.py`
-- 決定の ID: 11-01・11-03/§3・第 330・第 337・第 346
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.rng`・`shibuya.mind.judge.classical`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.validation.static.rng_audit`・`shibuya.world.laws.opening`・`tests/engine/_legacy_world.py`・`tests/engine/discard_probe.py`・`tests/engine/test_sim_time_T.py`
+- 決定の ID: 11-01・11-03/§3・第 330・第 337・第 346・第 347
 
 ## [test_state_format_10f.py](../../../../../../tests/engine/test_state_format_10f.py)
 
@@ -1856,8 +1867,8 @@ engine.llm_bridge の結線テスト(録画テープ・δ_think レーン・reco
   - `test_e5_t1_fleet_rows_carry_b5_b6_and_rebuild_the_prompt_hash`(関数): T1: 艦隊の経路(``FleetBridge``)の応答の行と繰り延べの行にも B5・B6 が入り、``prompt_hash`` を本文から作り直せる。
   - `test_e5_t3_recalled_identity_matches_the_memory_table`(関数): T3: 引いた記憶の同定 3 列を、想起した時点の記憶の表(``mem_tick``・``mem_kind``・``mem_object``・店の行は
   - `v4_tape`(関数): 世界資産 300 体・1 日・語彙 v3・記憶 on・関係 on(初期の関係辺がある=知人の印が出る)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.hashing`・`shibuya.foundation.rng`・`shibuya.mind.memory.memory`・`shibuya.runtime.inference.tape`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.state_io`・`shibuya.society.conversation`・`shibuya.validation.static.rng_audit`・`shibuya.world.facts.population_reader`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.state`・`tests/_data_ids.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
-- 決定の ID: 11-01・第 330
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.hashing`・`shibuya.foundation.rng`・`shibuya.mind.memory.memory`・`shibuya.runtime.inference.tape`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.state_io`・`shibuya.society.conversation`・`shibuya.validation.static.rng_audit`・`shibuya.world.facts.population_reader`・`shibuya.world.model.state`・`tests/_data_ids.py`・`tests/engine/_legacy_world.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
+- 決定の ID: 11-01・第 330・第 347
 
 ## [test_vocab_v2_eat.py](../../../../../../tests/engine/test_vocab_v2_eat.py)
 
@@ -1893,8 +1904,8 @@ engine.llm_bridge の結線テスト(録画テープ・δ_think レーン・reco
   - `test_real_world_store_band_is_0_911_t_per_day_for_any_agent_count`(関数): 実世界(2,337 POI・初期在庫 64): 0.911 t/日 ±30% = 0.64〜1.18(体数に依らない)。
   - `test_run_summary_uses_the_store_band_and_lists_three_sources`(関数): 〔11-01 段 2 の 4・検収 M1〕腕 off(既定)では店の帯は外した売れ残りの廃棄率の期待=判定は非該当(None)・値は残す。
   - `test_static_store_waste_is_floor_of_stock_times_rate_times_mass`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.anchors`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.world.assets`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.state`・`tools/c7/c7lib.py`
-- 決定の ID: 11-01・第 304・第 305
+- import している内部モジュール: `shibuya.cli`・`shibuya.economy.anchors`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.world.assets`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.state`・`tests/engine/_legacy_world.py`・`tools/c7/c7lib.py`
+- 決定の ID: 11-01・第 304・第 305・第 347
 
 ## [test_weather_calendar_10e.py](../../../../../../tests/engine/test_weather_calendar_10e.py)
 

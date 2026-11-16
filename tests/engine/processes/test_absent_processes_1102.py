@@ -241,8 +241,8 @@ def test_infra_peak_hour_is_minus_one_when_stopped(mode):
 
 # ================================================================= 実行器の受け渡しとランの全体
 @pytest.mark.parametrize("mode", ["stopped", "legacy", None])
-def test_runner_hands_the_arm_to_the_five_processes(mode, arm_restore):
-    AP.set_arm("stopped")
+def test_runner_hands_the_arm_to_the_five_processes(mode):
+    """実行器が 5 過程に部品の口を渡す(``None``=既定 stopped)。〔第347〕前は切替口の腕を stopped にしてから見た(既定と同じ)。"""
     world = make_world(9)
     agents, _ = make_agents(world, 10)
     rn = WorldProcessRunner(world=world, agents=agents, absent_processes=mode)
@@ -256,16 +256,16 @@ def test_runner_hands_the_arm_to_the_five_processes(mode, arm_restore):
 
 @pytest.fixture(scope="module")
 def tiny_runs():
+    """〔第347 止めた切替口の削除〕legacy は切替口(``--absent-processes`` の腕)の代わりに、試験の中だけで実行器に部品の口
+    (「無い」の過程の旧道)を挿して回す(``tests/engine/_legacy_world.py``)。"""
     from shibuya.engine.run import run_day
+    from tests.engine._legacy_world import legacy_world_rules
 
-    prev = AP.arm()
-    out = {}
-    try:
-        for mode in ("stopped", "legacy"):
-            AP.set_arm(mode)
-            out[mode] = run_day(n_agents=30, seed=2, n_cells=9, tick_seconds=STEP_S, ticks=_k(2 * SECONDS_PER_HOUR))
-    finally:
-        AP.set_arm(prev)
+    kw = dict(n_agents=30, seed=2, n_cells=9, tick_seconds=STEP_S, ticks=_k(2 * SECONDS_PER_HOUR))
+    out = {"stopped": run_day(**kw)}
+    with pytest.MonkeyPatch.context() as mp:
+        legacy_world_rules(mp, rate=False)
+        out["legacy"] = run_day(**kw)
     return out
 
 
@@ -277,7 +277,12 @@ def test_run_manifest_section(tiny_runs):
     assert all(v == 1 for v in ap["stopped"].values())
     assert {k: v for k, v in ap["counts"].items() if v not in (0, None)} == {}
     leg = tiny_runs["legacy"].run_manifest_fields()["absent_processes"]
-    assert leg["mode"] == "legacy" and all(v == 0 for v in leg["stopped"].values())
+    # 〔第347〕旧道は実行器の部品の口で動く(5 過程の印が 0=旧道)。manifest の mode と stopped の印は組み立ての腕(既定 stopped)
+    # を書く=試験の中だけの助けの注。件数(counts)は実行器の計数から数える=旧道の件数
+    leg_rn = tiny_runs["legacy"].runner
+    assert leg_rn.absent_processes == "legacy"
+    assert all(getattr(leg_rn, v["runner_key"]).absent_processes == "legacy" for v in AP.STOPPED_PROCESSES.values())
+    assert leg["mode"] == "stopped"
     assert leg["counts"]["infra_power_kwh_day"] > 0  # 旧道は電気と水の負荷を数える
 
 

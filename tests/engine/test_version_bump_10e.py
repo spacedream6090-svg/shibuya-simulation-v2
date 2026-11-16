@@ -318,17 +318,18 @@ def test_e4_l1_tape_meta_carries_the_rng_layout_and_old_counter_tapes_stop(tmp_p
     """L1: テープの脇の meta に鍵の配置の印(``rng_layout``)。10c〜10f の counter で録ったテープ(印が無い)は再生で
     明示的に止まる。〔改訂(第330・RET)〕前は「stateful のテープは印が無くても回る(meta の無い実テープと同じ扱い)」も
     見た=stateful を消したので、印が無いテープ・stateful のテープ・meta の無いテープはどれも止まる。"""
-    from shibuya.world.laws import switch_rate as RR
+    from tests.engine._legacy_world import legacy_world_rules
 
-    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
+    # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す。〔第347〕切替口 --rate-rules legacy と
+    # run_day(salient_rate_per_10k=…) の代わりに、試験の中だけで実行器に部品の口(率の規則の旧道・倒れる率)を挿す
+    legacy_world_rules(monkeypatch, absent=False, salient_rate=30000.0)
     import json
 
     from shibuya.engine.run import RNG_LAYOUT
     from shibuya.runtime.inference.tape import RUN_META_FILENAME, read_run_meta
     from tests.engine.test_tape_wiring import BoomLLM
 
-    kw = dict(n_agents=40, seed=3, n_cells=9, ticks=120, checkpoint_every=60, budget=40.0,
-              salient_rate_per_10k=30000.0)
+    kw = dict(n_agents=40, seed=3, n_cells=9, ticks=120, checkpoint_every=60, budget=40.0)
     rec = run_day(tape_path=tmp_path / "c", **kw)
     meta = read_run_meta(tmp_path / "c")
     assert meta["rng_scheme"] == "counter" and meta["rng_layout"] == RNG_LAYOUT == "10e"

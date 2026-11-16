@@ -355,7 +355,6 @@ def test_wage_path_header_and_resume_check(monkeypatch):
     """賃金の道は occupation だけ(〔第 2 部〕腕 w17 と切替口は消した)。見出しは賃金の道を持ち、見出しに無い(版上げの前)・
     違う道の再開は止まる。"""
     assert ES2.DEFAULT_WAGE == "occupation" and ES2.WAGE_ARMS == ("occupation",) and ES2.wage_arm() == "occupation"
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_ON)
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     plan_occ = types.SimpleNamespace(parts=ES2.PARTS, wage_model="occupation")
     assert ES2.header_fields(plan_occ) == {"arm": "on", "parts": list(ES2.PARTS), "wage": "occupation"}

@@ -36,14 +36,14 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_road_works`(関数)
   - `test_road_works_plan_is_the_same_in_both_arms`(関数)
   - `test_run_manifest_section`(関数)
-  - `test_runner_hands_the_arm_to_the_five_processes`(関数)
+  - `test_runner_hands_the_arm_to_the_five_processes`(関数): 実行器が 5 過程に部品の口を渡す(``None``=既定 stopped)。〔第347〕前は切替口の腕を stopped にしてから見た(既定と同じ)。
   - `test_state_header_and_resume_check`(関数)
   - `test_street_cleaning_leaves_litter_when_stopped`(関数): ポイ捨ての旧道(rate_rules legacy)でごみを生じさせ、掃除の巡回の腕だけを変える。
   - `test_the_default_arm_is_stopped_and_names_are_checked`(関数)
   - `test_waste_collection`(関数)
-  - `tiny_runs`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.time_consts`・`shibuya.world.assets`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.actual_log`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`
-- 決定の ID: 11-02r・11-02r #7・11-02r/§1・11-02r/§1 #7・11-02r/§2-2・11-03/§3
+  - `tiny_runs`(関数): 〔第347 止めた切替口の削除〕legacy は切替口(``--absent-processes`` の腕)の代わりに、試験の中だけで実行器に部品の口
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.time_consts`・`shibuya.world.assets`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.actual_log`・`tests/engine/_legacy_world.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`
+- 決定の ID: 11-02r・11-02r #7・11-02r/§1・11-02r/§1 #7・11-02r/§2-2・11-03/§3・第 347
 
 ## [test_civic.py](../../../../../../../tests/engine/processes/test_civic.py)
 
@@ -249,8 +249,8 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_run_manifest_counts_rise_in_legacy_and_are_zero_off`(関数): 〔検収 L2〕同じ 1 日のランで、旧道は催し・売れ残り・ポイ捨て・宅配の件数が立ち、off は全部 0(倒れる率は off で 0)。
   - `test_state_header_and_resume_check`(関数)
   - `test_the_default_arm_is_off_and_names_are_checked`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.presence`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.rail`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_rate`・`shibuya.world.ledger.actual_log`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/test_presence_executor.py`
-- 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.presence`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.rail`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_rate`・`shibuya.world.ledger.actual_log`・`tests/engine/_legacy_world.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/test_presence_executor.py`
+- 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・第 347
 
 ## [test_rng_scheme_10c.py](../../../../../../../tests/engine/processes/test_rng_scheme_10c.py)
 
@@ -279,9 +279,9 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_scheme_values_and_default_is_counter`(関数)
   - `test_the_tape_carries_the_scheme_and_the_replay_matches`(関数): 〔改訂(第330・RET)〕前は「counter で録って stateful で再生すると止まる」「stateful のテープ」も見た(消した)。
   - `test_two_day_counter_keys_carry_T`(関数): (v) 2 日目の顕著行為と出動の鍵が 1 日目と違う(T が鍵に入っている)。〔改訂(第330・RET)〕前は最後に
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.rng`・`shibuya.runtime.inference.tape`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`tests/engine/processes/conftest.py`・`tests/engine/test_tape_wiring.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.rng`・`shibuya.runtime.inference.tape`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.salient`・`tests/engine/_legacy_world.py`・`tests/engine/processes/conftest.py`・`tests/engine/test_tape_wiring.py`
 - 読む試験: `tests/engine/test_env_and_sections_10f.py`
-- 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・第 330
+- 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・第 330・第 347
 
 ## [test_runner.py](../../../../../../../tests/engine/processes/test_runner.py)
 
@@ -320,8 +320,8 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_event_seen_tick_marks_everyone_in_the_event_cell_d113_2`(関数): 事象のセルに居た全員(B4 に行が出た体)の ``event_seen_tick`` がその tick になる。
   - `test_event_seen_within_uses_an_inclusive_window`(関数)
   - `test_notice_state_is_two_bytes_per_agent_and_written_through_resolve`(関数)
-- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.types`・`shibuya.perception.attention`・`shibuya.world.laws.civic`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.notice_reach`・`tests/engine/processes/conftest.py`
-- 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・D-113・第 267
+- import している内部モジュール: `shibuya.agents.state`・`shibuya.foundation.types`・`shibuya.perception.attention`・`shibuya.world.laws.civic`・`shibuya.world.laws.salient`・`shibuya.world.model.notice_reach`・`tests/engine/processes/conftest.py`
+- 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・D-113・第 267・第 347
 
 ## [test_traffic.py](../../../../../../../tests/engine/processes/test_traffic.py)
 

@@ -41,6 +41,15 @@ def test_static_store_waste_is_floor_of_stock_times_rate_times_mass():
                                                    WASTE_TONNES_PER_DAY * (1 + WASTE_BAND_RATIO)))
 
 
+def _rules(mode: str, monkeypatch) -> None:
+    """〔第347 止めた切替口の削除〕前は切替口(``--rate-rules`` の腕)を ``mode`` にした。legacy は試験の中だけで実行器と計画
+    実行層に部品の口(率の規則の旧道)を挿す(``tests/engine/_legacy_world.py``)。off は既定のまま。"""
+    if mode == "legacy":
+        from tests.engine._legacy_world import legacy_world_rules
+
+        legacy_world_rules(monkeypatch, absent=False)
+
+
 @pytest.mark.parametrize("mode", ["off", "legacy"])
 def test_run_summary_uses_the_store_band_and_lists_three_sources(mode, monkeypatch):
     """〔11-01 段 2 の 4・検収 M1〕腕 off(既定)では店の帯は外した売れ残りの廃棄率の期待=判定は非該当(None)・値は残す。"""
@@ -48,7 +57,7 @@ def test_run_summary_uses_the_store_band_and_lists_three_sources(mode, monkeypat
 
     from shibuya.world.laws import switch_rate as RR
 
-    monkeypatch.setattr(RR, "_ARM", mode)
+    _rules(mode, monkeypatch)
     sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools" / "c7"))
     import c7lib
 
@@ -99,13 +108,13 @@ def test_monthly_census_uses_the_store_band_and_the_store_collected_mass(mode, m
 
     〔11-01 段 2 の 4・検収 M1〕呼び手が腕 off を渡す(``waste_band_applies=False``)と判定は非該当(None)・値は残す。"""
     from shibuya.economy import census as CS
-    from shibuya.world.laws import switch_rate as RR
 
-    monkeypatch.setattr(RR, "_ARM", mode)
+    _rules(mode, monkeypatch)
     res = cli.run(n_agents=200, seed=3, world_dir=None, n_cells=16, ticks=720, checkpoint_every=360)
     goods = res.ledger.goods
     e, lo, hi = goods.store_waste_band()
-    mer = CS.monthly_mer(res.ledger.money, goods, month=0, days=1, waste_band_applies=RR.is_legacy())
+    # 呼び手が渡す腕(前は切替口の腕 RR.is_legacy()=ランの実行器の腕と同じ)=ランの実行器の腕
+    mer = CS.monthly_mer(res.ledger.money, goods, month=0, days=1, waste_band_applies=res.runner.rate_rules == "legacy")
     assert ("waste_band_na" in mer) is (mode == "off")
     assert mer["waste_band"] == (lo, hi)
     assert mer["waste_store_tonnes_per_day"] == pytest.approx(res.waste_sink["breakdown_t"]["store_expired_stock"], abs=1e-6)

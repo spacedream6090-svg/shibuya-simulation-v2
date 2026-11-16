@@ -2,13 +2,24 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 18 本・その他 0 本(このディレクトリの直下)
+Python 19 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [cp2](cp2/README.md)・[stage2](stage2/README.md)
 
 ## [__init__.py](../../../../../../tests/economy/__init__.py)
 
 economy 層のテスト(U11 金の台帳・U-Goods 物の台帳・検算・センサス・価格形成)。
+
+## [_stage2_outside.py](../../../../../../tests/economy/_stage2_outside.py)
+
+試験の中だけの束: 経済の段階 2 の口(``attach_stage2``)を持たない台帳(第347 止めた切替口の削除・記録``docs/bench/analysis/switch-removal-347/README.md``)。
+
+- 公開の関数とクラス
+  - `outside`(関数): ``cls`` の子で ``attach_stage2`` を持たない型(``cls`` が持たなければ ``cls`` のまま)。
+  - `use_outside_bundle`(関数): ``mp``(``pytest.MonkeyPatch``)で ``shibuya.cli`` の台帳の型を差し替える(段階 2 の外の束)。
+- import している内部モジュール: `shibuya.cli`
+- 読む試験: `tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/cp2/test_cp2_nine_ops_equivalence.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/stage2/test_stage2_world_two_day.py`・`tests/engine/test_ledger_wiring.py`
+- 決定の ID: 第 347
 
 ## [test_accounts.py](../../../../../../tests/economy/test_accounts.py)
 

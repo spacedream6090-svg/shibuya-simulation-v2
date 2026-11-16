@@ -30,7 +30,6 @@ N = 300
 
 @pytest.fixture
 def law(monkeypatch):
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_ON)
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)
 

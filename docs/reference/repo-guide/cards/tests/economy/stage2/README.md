@@ -108,10 +108,10 @@ Python 14 本・その他 0 本(このディレクトリの直下)
 
 - 公開の関数とクラス
   - `arm`(関数)
-  - `test_arm_off_state_files_keep_the_header_and_refuse_an_on_resume`(関数)
   - `test_resume_stops_when_the_arm_or_parts_differ`(関数)
+  - `test_state_files_outside_stage2_keep_the_header_and_refuse_a_stage2_resume`(関数): 〔第347〕前は切替口 off のラン(``test_arm_off_state_files_keep_the_header_and_refuse_an_on_resume``)。段階 2 の外の台帳の
 - import している内部モジュール: `shibuya.economy.stage2_bind`・`shibuya.runtime.state.resume`・`shibuya.world.model.state`・`tests/economy/stage2/test_stage2_runs.py`
-- 決定の ID: 第 346
+- 決定の ID: 第 346・第 347
 
 ## [test_stage2_rules_credit_atm.py](../../../../../../../tests/economy/stage2/test_stage2_rules_credit_atm.py)
 
@@ -138,27 +138,28 @@ Python 14 本・その他 0 本(このディレクトリの直下)
 第 2 期 2-1 経済の段階 2: 合成の世界の 2 日のラン(暦の口で開始日を 2026-08-24(月)=給料日 25 日をまたぐ)。
 
 - 公開の関数とクラス
-  - `arm`(関数): 腕と部品と ATM の表を試験の中だけ切り替える(終わったら元に戻す)。
+  - `arm`(関数): 部品と ATM の表を試験の中だけ切り替える(終わったら元に戻す)。〔第347〕経済の段階 2 は既定 on のまま(前は切替口の
   - `on_run`(関数)
+  - `test_a_ledger_outside_stage2_changes_nothing`(関数): 〔第347〕前は切替口 off(``test_arm_off_changes_nothing_on_the_ledger``)。段階 2 の外の台帳で同じことを見る。
   - `test_all_parts_move_money_and_keep_the_books`(関数)
-  - `test_arm_off_changes_nothing_on_the_ledger`(関数)
   - `test_atms_live_in_the_fixtures`(関数)
   - `test_negative_a_closed_atm_gives_no_withdrawal`(関数): 負の対照: どの ATM も営業時間の外(全部の曜日 off)なら、財布が小さくても引き出せない。
-  - `test_off_parts_spec_without_the_arm_is_ignored`(関数)
+  - `test_parts_spec_outside_stage2_is_ignored`(関数): 〔第347〕前は切替口 off(``test_off_parts_spec_without_the_arm_is_ignored``)。段階 2 の外の台帳では部品の指定は効かない。
   - `test_port_arm_shows_the_candidates_and_keeps_the_mock_actions`(関数)
   - `test_turning_one_part_off_zeroes_its_flow`(関数)
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.engine.run`・`shibuya.foundation.ports.ledger`・`shibuya.mind.judge.decision.layer`・`shibuya.runtime.systems.boxes`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.engine.run`・`shibuya.foundation.ports.ledger`・`shibuya.mind.judge.decision.layer`・`shibuya.runtime.systems.boxes`・`shibuya.world.model.state`・`tests/economy/_stage2_outside.py`
 - 読む試験: `tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_resume_arm.py`
-- 決定の ID: 第 337
+- 決定の ID: 第 337・第 347
 
 ## [test_stage2_world_two_day.py](../../../../../../../tests/economy/stage2/test_stage2_world_two_day.py)
 
 第 2 期 2-1 経済の段階 2: 世界資産の 2 日のラン(5,000 体・seed 1・既定 v3・開始日 2026-08-24(月)=25 日の給料日をまたぐ)。
 
 - 公開の関数とクラス
+  - `test_world_two_days_outside_stage2`(関数): 〔第347〕前は切替口 off(``test_world_two_days_without_the_arm``)。段階 2 の外の台帳で同じことを見る。
   - `test_world_two_days_with_the_arm`(関数)
-  - `test_world_two_days_without_the_arm`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.stage2_bind`
+- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.stage2_bind`・`tests/economy/_stage2_outside.py`
+- 決定の ID: 第 347
 
 ## [test_stage2_writers.py](../../../../../../../tests/economy/stage2/test_stage2_writers.py)
 

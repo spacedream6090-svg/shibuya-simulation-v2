@@ -26,7 +26,6 @@ KW = dict(seed=1, world_dir="data/world/v2", sim_days=2, vocab_version="v3", sta
 
 
 def _arm(monkeypatch) -> None:
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_ON)
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)
 

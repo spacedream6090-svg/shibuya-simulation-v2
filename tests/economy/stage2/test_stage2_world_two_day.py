@@ -2,7 +2,9 @@
 
 ``slow``・data が要る。腕 on(部品は全部)で、W6 の組織の雇用の行から賃金が払われる・OSM の ATM で引き出しが起きる・
 運賃が IC(口座)で払われる・税が政府に入る・毎日 保存則の残差 0・``RunResult.conserved``。腕 off の同じランは段階 2 の欄が
-立たない(既定の結果不変は byte-check 19 構成の受け持ち=記録 ec21/README.md)。
+立たない(既定の結果不変は byte-check 19 構成の受け持ち=記録 ec21/README.md)。〔第347 止めた切替口の削除〕切替口 off の代わりに、
+段階 2 の外の台帳(試験の中だけの束 ``tests/economy/_stage2_outside.py``=cli の台帳を off の分かれと同じ形で作る・手順 0 で off と
+同じ値を確かめた=記録 ``docs/bench/analysis/switch-removal-347/README.md``)で回す。
 """
 
 from __future__ import annotations
@@ -11,16 +13,18 @@ import pytest
 
 from shibuya.economy.accounts import AccountCode, Sector
 from shibuya.economy import stage2_bind as ES2
+from tests.economy import _stage2_outside as SO
 
 pytestmark = [pytest.mark.slow,
               pytest.mark.requires_data("world_v2:w17_schedule.parquet", "osm:poi_tags_overpass_20260928.json",
                                         "calendar")]
 
 
-def _run(monkeypatch, arm: str):
+def _run(monkeypatch, outside: bool = False):
     from shibuya import cli
 
-    monkeypatch.setattr(ES2, "_ARM", arm)
+    if outside:  # 段階 2 の外の台帳(〔第347〕前は切替口 off)
+        SO.use_outside_bundle(monkeypatch)
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)
     return cli.run(n_agents=5_000, seed=1, world_dir="data/world/v2", sim_days=2, vocab_version="v3",
@@ -28,7 +32,7 @@ def _run(monkeypatch, arm: str):
 
 
 def test_world_two_days_with_the_arm(monkeypatch):
-    res = _run(monkeypatch, "on")
+    res = _run(monkeypatch)
     led = res.ledger.money
     man = res.run_manifest_fields()
     run = led.stage2.s2_meter["run"]
@@ -49,8 +53,9 @@ def test_world_two_days_with_the_arm(monkeypatch):
     assert man["economy"]["raw_overflow"] == 0
 
 
-def test_world_two_days_without_the_arm(monkeypatch):
-    res = _run(monkeypatch, "off")
+def test_world_two_days_outside_stage2(monkeypatch):
+    """〔第347〕前は切替口 off(``test_world_two_days_without_the_arm``)。段階 2 の外の台帳で同じことを見る。"""
+    res = _run(monkeypatch, outside=True)
     led = res.ledger.money
     assert led.stage2 is None and led.sizes[int(Sector.EMPLOYER)] == 1
     man = res.run_manifest_fields()

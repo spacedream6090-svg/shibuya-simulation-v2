@@ -22,7 +22,6 @@ def test_default_arm_is_on_and_off_is_the_switch(monkeypatch):
 
 def test_resume_check_uses_the_effective_arm(monkeypatch):
     """金の台帳の無いラン(台帳なしの run_day)は腕 on でも段階 2 を挿さない=見出しに書かない=off と同じに扱う。"""
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_ON)
     ES2.check_resume(None, effective=False)  # 台帳なし=off どうし
     with pytest.raises(ValueError, match="経済の段階 2 の腕"):
         ES2.check_resume(None)  # 台帳あり=親 off・今 on
@@ -49,7 +48,6 @@ def test_revenue_is_tax_exclusive_on_a_synthetic_run(monkeypatch):
     from shibuya import cli
     from shibuya.economy.accounts import AccountCode, Sector
 
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_ON)
     res = cli.run(n_agents=200, seed=2, world_dir=None, use_population=False, vocab_version="v3")
     led = res.ledger.money
     if led.stage2 is None:

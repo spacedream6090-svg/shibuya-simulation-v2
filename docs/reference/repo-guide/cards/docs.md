@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-316 ディレクトリ・2362 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+318 ディレクトリ・2365 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -317,6 +317,12 @@
 ## docs/bench/analysis/store-memory-2026-09-28(17 本)
 
 - [README.md](../../../bench/analysis/store-memory-2026-09-28/README.md): D-120 版の台帳 — 記憶・口コミにもとづく店選び(2026-09-28)
+
+## docs/bench/analysis/switch-removal-347(1 本)
+
+- [README.md](../../../bench/analysis/switch-removal-347/README.md): 第347 止めた切替口 3 本の削除と、`--space legacy`・`--hunger-model v1` を試験の中だけの口に(switch-removal-347)
+
+## docs/bench/analysis/switch-removal-347/tools(3 本)
 
 ## docs/bench/analysis/tenjin-2026-11/t0(1 本)
 
@@ -1223,7 +1229,7 @@
 - [pending-archive-2026-09-28.md](../../../log/pending-archive-2026-09-28.md): PENDING アーカイブ(2026-09-08〜09-27・第278 時点の全文)
 - [pending-archive-2026-10-25.md](../../../log/pending-archive-2026-10-25.md): PENDING の凍結(2026-10-25・第339)
 
-## docs/ops(26 本)
+## docs/ops(25 本)
 
 - [build-report-C0.md](../../../ops/build-report-C0.md): 工程 C0(骨格)受入報告(2026-09-08・ブランチ build/c0-c4)
 - [build-report-C1.md](../../../ops/build-report-C1.md): 工程 C1(世界データ構築)受入報告(2026-09-08・ブランチ build/c0-c4)
@@ -1246,7 +1252,6 @@
 - [layer2-review-checklist.md](../../../ops/layer2-review-checklist.md): 層2 独立検収チェックリスト(工程出口・別インスタンスのFableが実施)
 - [murata-lab-inquiry-draft-2026-10-12.md](../../../ops/murata-lab-inquiry-draft-2026-10-12.md): 大阪大学 村田研(合成人口データ)への問い合わせの下書き(2026-10-12・親起草・ユーザーが送る)
 - [night5070-runbook.md](../../../ops/night5070-runbook.md): 5070 の夜の実験の運用手順
-- [report-345-2026-11-05.md](../../../ops/report-345-2026-11-05.md): 第 345 の報告(2026-11-05)
 - [report-347-2026-11-16.md](../../../ops/report-347-2026-11-16.md): 第 347 の報告(返事その 8 への対応)2026-11-16
 - [u9-inquiry-draft-2026-09-30.md](../../../ops/u9-inquiry-draft-2026-09-30.md): U-9 渋谷区への照会文(送れる形・2026-10-03 更新。下書きは 2026-09-30)
 - [v2-server-lessons.md](../../../ops/v2-server-lessons.md): サーバーで回して初めて分かったこと — 実装に織り込む形(2026-09-22・第251)

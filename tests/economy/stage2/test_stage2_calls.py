@@ -195,10 +195,8 @@ def test_port_answers_reach_the_actions_in_a_run(monkeypatch):
     from shibuya.mind.judge.decision import ports as PT
     from shibuya.world.model.state import World
 
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)
-    ES2.set_arm("on")
     ES2.set_parts(ES2.PARTS)
     ES2.set_atm_table(TR._atm_everywhere(World.synthetic(n_cells=64, seed=2).n_cells))
     base, base_led = TR._run(sim_days=1)  # 腕 legacy: 呼の id だけが運ばれる(口の答えは無い)

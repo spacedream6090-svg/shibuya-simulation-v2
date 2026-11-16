@@ -234,12 +234,14 @@ def test_manifest_carries_the_first_wave_arms():
 
 
 def test_d50_scale_reaches_the_salient_process_through_run_day(monkeypatch):
-    from shibuya.world.laws import switch_rate as RR
+    from tests.engine._legacy_world import legacy_world_rules
 
-    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
+    # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す。〔第347〕切替口 --rate-rules legacy と
+    # run_day(salient_rate_per_10k=…) の代わりに、試験の中だけで実行器に部品の口(率の規則の旧道・倒れる率)を挿す
+    legacy_world_rules(monkeypatch, absent=False, salient_rate=4_000.0)
     res = run_day(
         n_agents=300, seed=3, ticks=30, checkpoint_every=30, n_cells=25,
-        processes=True, conversations=False, salient_rate_per_10k=4_000.0,
+        processes=True, conversations=False,
         p_notice_d50_scale=0.5, p_notice_ablation="A1",
     )
     assert res.runner.salient.d50_scale == 0.5

@@ -35,18 +35,27 @@ from shibuya.world.laws.civic import DISPATCH_MEDIAN_MIN, PublicServiceDispatchP
 from shibuya.world.laws.salient import COLLAPSE_PER_10K_PER_DAY, SalientProcess
 from shibuya.engine.run import run_day
 
+from tests.engine._legacy_world import legacy_world_rules
+
 from .conftest import make_agents, make_world
+
+
+#: 部品の口(過程の引数)の旧道。
+LEGACY = "legacy"
 
 
 @pytest.fixture(autouse=True)
 def _rate_rules_legacy(monkeypatch):
-    """〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)。
-    〔11-02r §1 #7〕出動の経路も旧道(``--absent-processes legacy``)でだけ動く=同じく旧道で回す。"""
-    from shibuya.world.laws import switch_absent as AP
-    from shibuya.world.laws import switch_rate as RR
+    """〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す。〔11-02r §1 #7〕出動の経路も旧道でだけ
+    動く=同じく旧道で回す。〔第347 止めた切替口の削除〕前は切替口(``--rate-rules``・``--absent-processes`` の腕)を legacy に
+    していた=ランは試験の中だけの助け(実行器の初期化に部品の口を挿す=``tests/engine/_legacy_world.py``)で、過程を直に作る
+    試験は部品の口(``rate_rules=LEGACY``・``absent_processes=LEGACY``)を明示して、同じ旧道を回す。"""
+    legacy_world_rules(monkeypatch)
 
-    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
-    monkeypatch.setattr(AP, "_ARM", AP.MODE_LEGACY)
+
+def _rate(monkeypatch, per_10k: float) -> None:
+    """ランの倒れる率(前は ``run_day(salient_rate_per_10k=…)``=旧道でだけ効く試験の口)を実行器の部品の口で渡す。"""
+    legacy_world_rules(monkeypatch, salient_rate=per_10k)
 
 
 TPD = 1_440
@@ -100,8 +109,8 @@ def test_counter_streams_have_their_own_names_and_word0_is_zero(monkeypatch):
     monkeypatch.setattr(CIV, "stream", spy(CIV.stream))
     world = make_world(9)
     agents, _ = make_agents(world, 200)
-    d = PublicServiceDispatchProcess(world, master_seed=1)
-    sp = SalientProcess(world, agents, master_seed=1, dispatch=d, rate_per_10k_per_day=RATE_X1000 * 20)
+    d = PublicServiceDispatchProcess(world, absent_processes=LEGACY, master_seed=1)
+    sp = SalientProcess(world, agents, rate_rules=LEGACY, master_seed=1, dispatch=d, rate_per_10k_per_day=RATE_X1000 * 20)
     for t in range(20):
         sp.step(t)
     ctr = [c for dom, c in seen if dom in (SAL.SALIENT_COUNTER_DOMAIN, CIV.DISPATCH_COUNTER_DOMAIN)]
@@ -114,7 +123,7 @@ def test_day_key0_enters_the_key():
     world = make_world(16)
 
     def delay(day_index: int, T: int) -> list[int]:
-        d = PublicServiceDispatchProcess(world, master_seed=5, day_index=day_index)
+        d = PublicServiceDispatchProcess(world, absent_processes=LEGACY, master_seed=5, day_index=day_index)
         return [d.request(T, 3, (0.0, 0.0)) - T for _ in range(6)]
 
     assert delay(0, 100) != delay(3, 100)
@@ -148,8 +157,8 @@ def test_counter_keeps_no_generator():
     Generator を持たない(``rng`` は常に None=状態台帳 O46・O47 の道筋は「無い」の印のまま)。"""
     world = make_world(9)
     agents, _ = make_agents(world, 20)
-    d = PublicServiceDispatchProcess(world, master_seed=1)
-    s = SalientProcess(world, agents, master_seed=1, dispatch=d)
+    d = PublicServiceDispatchProcess(world, absent_processes=LEGACY, master_seed=1)
+    s = SalientProcess(world, agents, rate_rules=LEGACY, master_seed=1, dispatch=d)
     assert d.rng is None and s.rng is None
     assert not hasattr(d, "relay_day") and not hasattr(s, "relay_day")
 
@@ -185,7 +194,7 @@ def test_cli_flag_is_shared_by_engine_run_and_cli():
 def test_counter_dispatches_in_one_cell_and_tick_draw_different_delays():
     """``test_civic.py`` の 400 件(同じ tick・16 セル × 25 件)を counter で。"""
     world = make_world(16)
-    d = PublicServiceDispatchProcess(world, master_seed=3)
+    d = PublicServiceDispatchProcess(world, absent_processes=LEGACY, master_seed=3)
     arrive: dict[int, list[int]] = {}
     for k in range(400):
         arrive.setdefault(k % 16, []).append(d.request(0, k % 16, (0.0, 0.0)))
@@ -206,8 +215,8 @@ def test_counter_dispatch_delay_depends_only_on_T_cell_k():
 
     〔改訂(第330・RET)〕前は後半で「stateful は前の出動で列が進む」を比べた(stateful を消した)。"""
     world = make_world(16)
-    a = PublicServiceDispatchProcess(world, master_seed=7)
-    b = PublicServiceDispatchProcess(world, master_seed=7)
+    a = PublicServiceDispatchProcess(world, absent_processes=LEGACY, master_seed=7)
+    b = PublicServiceDispatchProcess(world, absent_processes=LEGACY, master_seed=7)
     for t in range(1, 5):  # b だけ前の tick で 12 件出動
         for c in (3, 5, 3):
             b.request(t, c, (0.0, 0.0))
@@ -218,8 +227,8 @@ def test_counter_dispatch_delay_depends_only_on_T_cell_k():
 
 def test_counter_k_restarts_for_each_tick_and_cell():
     world = make_world(16)
-    d = PublicServiceDispatchProcess(world, master_seed=2)
-    e = PublicServiceDispatchProcess(world, master_seed=2)
+    d = PublicServiceDispatchProcess(world, absent_processes=LEGACY, master_seed=2)
+    e = PublicServiceDispatchProcess(world, absent_processes=LEGACY, master_seed=2)
     d.request(4, 1, (0.0, 0.0))
     d.request(4, 2, (0.0, 0.0))
     x = d.request(4, 1, (0.0, 0.0))  # (T=4, セル 1, k=1)
@@ -238,8 +247,8 @@ def test_counter_collapse_at_T_does_not_depend_on_earlier_ticks():
     """〔改訂(第330・RET)〕前は後半で「stateful は前の tick を回したかで変わる」を比べた(stateful を消した)。"""
     world = make_world(25)
     agents, _ = make_agents(world, 400)
-    fresh = SalientProcess(world, agents, master_seed=4, rate_per_10k_per_day=RATE_X1000 * 10)
-    walked = SalientProcess(world, agents, master_seed=4, rate_per_10k_per_day=RATE_X1000 * 10)
+    fresh = SalientProcess(world, agents, rate_rules=LEGACY, master_seed=4, rate_per_10k_per_day=RATE_X1000 * 10)
+    walked = SalientProcess(world, agents, rate_rules=LEGACY, master_seed=4, rate_per_10k_per_day=RATE_X1000 * 10)
     for t in range(30):
         walked.step(t)
     assert walked.n_collapse > 0
@@ -262,8 +271,8 @@ def test_counter_calls_the_dispatch_in_ascending_agent_id():
     xy.flags.writeable = True
     xy[:, 0] = np.arange(agents.n, dtype=xy.dtype)
     xy.flags.writeable = was
-    d = Spy(world, master_seed=1)
-    sp = SalientProcess(world, agents, master_seed=1, dispatch=d, rate_per_10k_per_day=RATE_X1000 * 20)
+    d = Spy(world, absent_processes=LEGACY, master_seed=1)
+    sp = SalientProcess(world, agents, rate_rules=LEGACY, master_seed=1, dispatch=d, rate_per_10k_per_day=RATE_X1000 * 20)
     multi = 0
     for t in range(60):
         before = len(calls)
@@ -284,8 +293,8 @@ def _per_tick_counts(seed: int) -> np.ndarray:
     """1 日の tick ごとの「倒れる」の件数(過程だけ・25 セル・1,000 体・体は動かない)。"""
     world = make_world(25, seed=seed)
     agents, _ = make_agents(world, N_X1000, seed=seed)
-    d = PublicServiceDispatchProcess(world, master_seed=seed)
-    sp = SalientProcess(world, agents, master_seed=seed, dispatch=d, rate_per_10k_per_day=RATE_X1000)
+    d = PublicServiceDispatchProcess(world, absent_processes=LEGACY, master_seed=seed)
+    sp = SalientProcess(world, agents, rate_rules=LEGACY, master_seed=seed, dispatch=d, rate_per_10k_per_day=RATE_X1000)
     out = np.zeros(TPD, dtype=np.int64)
     for t in range(TPD):
         before = sp.n_collapse
@@ -330,10 +339,11 @@ def test_poisson_z_catches_a_ten_percent_lower_rate():
 KW = dict(n_agents=60, n_cells=16, checkpoint_every=360, budget=60.0)
 
 
-def test_counter_run_twice_is_identical():
+def test_counter_run_twice_is_identical(monkeypatch):
     """〔改訂(第330・RET)〕前は最後に「stateful に変えると引きが変わる」を見た(stateful を消した)。"""
-    a = run_day(seed=3, ticks=TPD, salient_rate_per_10k=RATE_X1000, **KW)
-    b = run_day(seed=3, ticks=TPD, salient_rate_per_10k=RATE_X1000, **KW)
+    _rate(monkeypatch, RATE_X1000)
+    a = run_day(seed=3, ticks=TPD, **KW)
+    b = run_day(seed=3, ticks=TPD, **KW)
     assert a.final_hash == b.final_hash and a.llm_calls == b.llm_calls
     assert [c.combined for c in a.checkpoints] == [c.combined for c in b.checkpoints]
     assert (a.salient_events, a.dispatches, a.noticed) == (b.salient_events, b.dispatches, b.noticed)
@@ -353,7 +363,8 @@ def test_two_day_counter_keys_carry_T(monkeypatch):
 
     monkeypatch.setattr(SAL, "stream", spy(SAL.stream))
     monkeypatch.setattr(CIV, "stream", spy(CIV.stream))
-    res = run_day(seed=1, ticks=TPD, sim_days=2, salient_rate_per_10k=RATE_X1000, **KW)
+    _rate(monkeypatch, RATE_X1000)
+    res = run_day(seed=1, ticks=TPD, sim_days=2, **KW)
     sal = [c for d, c in seen if d == SAL.SALIENT_COUNTER_DOMAIN]
     dis = [c for d, c in seen if d == CIV.DISPATCH_COUNTER_DOMAIN]
     # 顕著行為は毎 tick 1 本(鍵の時刻 = T・日の鍵 0)
@@ -380,7 +391,8 @@ def _full_values(monkeypatch) -> dict[str, object]:
         return real(agents, world, pstate, pop, sched, owners, **kw)
 
     monkeypatch.setattr(SIO, "full_state_hash", spy)
-    run_day(seed=1, ticks=60, checkpoint_every=60, salient_rate_per_10k=RATE_X1000, **{
+    _rate(monkeypatch, RATE_X1000)
+    run_day(seed=1, ticks=60, checkpoint_every=60, **{
         k: v for k, v in KW.items() if k != "checkpoint_every"})
     monkeypatch.setattr(SIO, "full_state_hash", real)
     owners = got[-1]
@@ -403,21 +415,20 @@ def test_counter_adds_no_state_to_restore_and_drops_the_two_generators(monkeypat
 
 # ================================================================= 再生の突き合わせ(テープの脇の meta)
 def _rec(tmp_path, name: str, **kw):
-    return run_day(seed=3, ticks=120, tape_path=tmp_path / name, salient_rate_per_10k=RATE_X1000 * 10,
-                   **KW, **kw)
+    return run_day(seed=3, ticks=120, tape_path=tmp_path / name, **KW, **kw)
 
 
 def _rep(tmp_path, name: str, **kw):
     from tests.engine.test_tape_wiring import BoomLLM
 
-    return run_day(seed=3, ticks=120, mode="replay", replay=tmp_path / name, llm=BoomLLM(),
-                   salient_rate_per_10k=RATE_X1000 * 10, **KW, **kw)
+    return run_day(seed=3, ticks=120, mode="replay", replay=tmp_path / name, llm=BoomLLM(), **KW, **kw)
 
 
-def test_the_tape_carries_the_scheme_and_the_replay_matches(tmp_path):
+def test_the_tape_carries_the_scheme_and_the_replay_matches(tmp_path, monkeypatch):
     """〔改訂(第330・RET)〕前は「counter で録って stateful で再生すると止まる」「stateful のテープ」も見た(消した)。"""
     from shibuya.runtime.inference.tape import read_run_meta
 
+    _rate(monkeypatch, RATE_X1000 * 10)
     rec = _rec(tmp_path, "c")
     assert rec.dispatches > 0
     meta = read_run_meta(tmp_path / "c")
@@ -426,13 +437,14 @@ def test_the_tape_carries_the_scheme_and_the_replay_matches(tmp_path):
     assert rep.final_hash == rec.final_hash and rep.tape_miss_count == 0
 
 
-def test_a_tape_from_before_10e_is_not_replayed(tmp_path):
+def test_a_tape_from_before_10e_is_not_replayed(tmp_path, monkeypatch):
     """〔改訂(第330・RET)〕前は「記録の無いテープ(10c より前)は stateful とみなして警告 1 回で再生する」。stateful を
     消したので、記録の無いテープ・stateful のテープ・10c〜10f の counter のテープは止める(警告でなく例外)。"""
     import json
 
     from shibuya.runtime.inference.tape import RUN_META_FILENAME
 
+    _rate(monkeypatch, RATE_X1000 * 10)
     _rec(tmp_path, "t")
     meta = tmp_path / "t" / RUN_META_FILENAME
     base = json.loads(meta.read_text(encoding="utf-8"))

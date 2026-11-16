@@ -13,7 +13,8 @@ E3 ``endow_households``・E4 ``endow_stores``(+ ``depreciate``)は ``ops.transfe
    計数・state_hash・物の在庫と納品ログ)が同じ。
 2. 出来事の記録を挿して原因を渡しても、金と物の状態は同じ(記録は状態を変えない)。
 3. (slow・data)5,000 体 mock の 1 日(既定 v3)を HEAD の台帳と今の台帳で回し、final・呼数・残高・生ログ・物の台帳が同じ。
-   輪の係数を両方 6.5(溢れない)と両方 3.0(HEAD の既定=溢れる)の 2 通り。
+   輪の係数を両方 6.5(溢れない)と両方 3.0(HEAD の既定=溢れる)の 2 通り。段階 2 の外の台帳で回す(〔第347〕切替口 off の
+   代わりに試験の中だけの束 ``tests/economy/_stage2_outside.py``)。
 
 〔独立検収 M1・宣言つきの直し〕汎用の口(``transfer``・``transfer_many``)に科目「減価償却」を渡すと、HEAD は現金の脚で
 動かしていた(別の口なら現金が移る・同じ口なら差し引き 0 で取引の件数だけ増える=減価償却は「現金を動かさない」に反する
@@ -224,17 +225,18 @@ def _mock_day(monkeypatch, *, head: bool, rate: float):
     from shibuya import cli
     from shibuya.economy import ledger as LED
 
-    from shibuya.economy import stage2_bind as ES2
+    from tests.economy import _stage2_outside as SO
 
     HL, HG, HW = CP.shims()
-    # 〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=1-9 の台帳と HEAD の写しの同値は段階 2 の外=切替口 off で見る
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
+    # 〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=1-9 の台帳と HEAD の写しの同値は段階 2 の外で見る。〔第347 止めた切替口の
+    # 削除〕切替口 off の代わりに、試験の中だけの束(段階 2 の口を持たない台帳・切替口 off と同じ形=雇用主の口 1・輪の係数は台帳の
+    # 既定)で回す(手順 0 で off と 38 欄とも同じことを確かめた=記録 docs/bench/analysis/switch-removal-347/README.md)
     monkeypatch.setattr(LED, "TRANSFERS_PER_AGENT_PER_DAY", rate)
     monkeypatch.setattr(CP.head_ledger_module(), "TRANSFERS_PER_AGENT_PER_DAY", rate)
     if head:
-        monkeypatch.setattr(cli, "Ledger", HL)
-        monkeypatch.setattr(cli, "_HouseholdWalletLedger", HW)
-        monkeypatch.setattr(cli, "GoodsLedger", HG)
+        SO.use_outside_bundle(monkeypatch, ledger_cls=HL, wallet_cls=HW, goods_cls=HG)
+    else:
+        SO.use_outside_bundle(monkeypatch)
     res = cli.run(n_agents=5_000, seed=1, world_dir="data/world/v2", vocab_version="v3")
     monkeypatch.undo()
     led = res.ledger
@@ -247,7 +249,9 @@ def _mock_day(monkeypatch, *, head: bool, rate: float):
 def test_5k_mock_day_matches_head(monkeypatch, rate):
     res_h, led_h = _mock_day(monkeypatch, head=True, rate=rate)
     res_n, led_n = _mock_day(monkeypatch, head=False, rate=rate)
-    assert type(led_h.money).__module__ != type(led_n.money).__module__  # 本当に HEAD の台帳で回した
+    head_ledger = CP.head_ledger_module().Ledger
+    assert isinstance(led_h.money, head_ledger) and not isinstance(led_h.money, Ledger)  # 本当に HEAD の台帳で回した
+    assert isinstance(led_n.money, Ledger) and led_n.money.stage2 is None  # 今の台帳・段階 2 の外
     assert res_h.final_hash == res_n.final_hash
     assert res_h.llm_calls == res_n.llm_calls
     assert CP.diff(CP.money_state(led_h.money), CP.money_state(led_n.money)) == []

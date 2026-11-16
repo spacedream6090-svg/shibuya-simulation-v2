@@ -180,7 +180,7 @@ engine.processes.runner — 世界過程の実行器(台帳 → 実装の唯一�
   - `WorldProcessRunner`(クラス): 世界過程 第1陣(前半)の実行器。
 - import している内部モジュール: `shibuya.agents.state`・`shibuya.engine.calendar`・`shibuya.engine.resolve`・`shibuya.foundation.journal.links`・`shibuya.foundation.time_consts`・`shibuya.world.assets`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.record`・`shibuya.world.laws.civic`・`shibuya.world.laws.crowd`・`shibuya.world.laws.environment`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.opening`・`shibuya.world.laws.rail`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.laws.traffic`・`shibuya.world.ledger.actual_log`・`shibuya.world.ledger.first_batch`・`shibuya.world.model.state`
 - 呼び手: `shibuya.runtime.systems.assemble`
-- 読む試験: `tests/engine/events/test_e_log_links_actual.py`・`tests/engine/events/test_e_vocab_is_closed.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_runner.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_weather_calendar_10e.py`
+- 読む試験: `tests/engine/_legacy_world.py`・`tests/engine/events/test_e_log_links_actual.py`・`tests/engine/events/test_e_vocab_is_closed.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_runner.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_weather_calendar_10e.py`
 - 状態台帳の行
   - 持ち主 `runner`(`WorldProcessRunner`)
     - `O73` 世界の過程と実行器の計数(挙動 diag・復元 discardable) 道筋 `runner.n_steps`・`runner.phase_seconds` 書ける系: close_final・day_close・day_head・duties・phase_c・plan_boundary・presence・world
@@ -219,7 +219,7 @@ engine.absent_processes — 「無い」と宣言した世界過程 5 件を止�
   - `set_arm`(関数): 腕を選ぶ(CLI ``--absent-processes``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
   - `stopped_flags`(関数): 過程ごとの ``absent_<名>_stopped``(1=止めた・0=旧道)。腕だけで決まる印(設定)。
 - 呼び手: `shibuya.cli`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.runner`
-- 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/processes/test_salient.py`・`tests/engine/test_resume_10d.py`
+- 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/processes/test_absent_processes_1102.py`
 - 環境変数: `SHIBUYA_ABSENT_PROCESSES`
 - 決定の ID: 10-13b/§0-6・11-01/§2・11-02・11-02r・11-02r #7・11-02r/§1・11-02r/§1 #7・11-02r/§1 #8・11-02r/§2-2
 
@@ -237,7 +237,7 @@ engine.rate_rules — 率の形の規則を外す切替口(指示書 11-01 段 2
   - `resolve`(関数): 過程の引数の腕(``None``=今の腕)を名に直す(名の誤りは止める)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--rate-rules``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
 - 呼び手: `shibuya.cli`・`shibuya.engine.presence`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.rail`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`
-- 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/processes/test_salient.py`・`tests/engine/test_ablation23_switches.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/test_waste_sink_report.py`
+- 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_waste_sink_report.py`
 - 環境変数: `SHIBUYA_RATE_RULES`
 - 決定の ID: 10-13b/§0-6・11-01・11-01/§2
 

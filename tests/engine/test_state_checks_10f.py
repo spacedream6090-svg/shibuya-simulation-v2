@@ -364,29 +364,33 @@ def test_t5_static_fifth_word_caller_fails(tmp_path):
 
 # ================================================================= K25: K19 の検査(実行時)
 def _record(kw, runner=run_day, extra=None):
-    from shibuya.world.laws import switch_rate as RR
-
-    prev = RR.arm()
-    if "salient_rate_per_10k" in kw:  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
-        RR.set_arm(RR.MODE_LEGACY)
-    try:
-        with RA.StreamRecorder() as rec:
-            res = runner(**kw)
-            if extra is not None:
-                extra()
-    finally:
-        RR.set_arm(prev)
+    with RA.StreamRecorder() as rec:
+        res = runner(**kw)
+        if extra is not None:
+            extra()
     return rec.analyze(), res
 
 
 SYN1000 = dict(n_agents=200, seed=1, n_cells=25, ticks=TPD, sim_days=2, budget=100.0, checkpoint_every=360,
-               salient_rate_per_10k=3000.0, **ALL_ARMS)
+               **ALL_ARMS)
+#: 〔11-01 段 2 の 3・4・検収 L3〕倒れる率(×1000)は旧道でだけ効く=旧道で回す。〔第347 止めた切替口の削除〕前は
+#: ``run_day(salient_rate_per_10k=3000.0)`` と切替口 ``--rate-rules legacy`` の腕=試験の中だけで実行器に部品の口を挿す
+#: (``tests/engine/_legacy_world.py``・「無い」の過程は前と同じく既定=出動は止めたまま)。
+SYN1000_RATE = 3000.0
+
+
+def _syn1000_legacy(mp) -> None:
+    from tests.engine._legacy_world import legacy_world_rules
+
+    legacy_world_rules(mp, absent=False, salient_rate=SYN1000_RATE)
 
 
 @pytest.fixture(scope="module")
 def k19_runs():
     """合成世界・率 ×1000・2 日(counter)。〔改訂(第330・RET)〕前は stateful(旧値の再現の切替口)とも比べた(消した)。"""
-    return {"counter": _record(dict(SYN1000))}
+    with pytest.MonkeyPatch.context() as mp:
+        _syn1000_legacy(mp)
+        return {"counter": _record(dict(SYN1000))}
 
 
 def test_k19_runtime_overlaps_only_in_the_allow_list(k19_runs, monkeypatch):
@@ -400,10 +404,8 @@ def test_k19_runtime_overlaps_only_in_the_allow_list(k19_runs, monkeypatch):
     assert st["world.delivery_inbound"].keyed is False
     assert not ({"world.salient", "world.public_service_dispatch"} & set(st))  # 日の頭の Generator は作らない
     assert RA.K19_ALLOW == {} and not hasattr(RA, "STATEFUL_ONLY") and not hasattr(RA, "OVERLAP")
-    # 計器は結果を変えない(包まないランと同じ final)。〔11-01 段 2 の 3・4・検収 L3〕率を渡すランは旧道(_record と同じ腕)
-    from shibuya.world.laws import switch_rate as RR
-
-    monkeypatch.setattr(RR, "_ARM", RR.MODE_LEGACY)
+    # 計器は結果を変えない(包まないランと同じ final)。〔11-01 段 2 の 3・4・検収 L3〕率を渡すランは旧道(_record と同じ口)
+    _syn1000_legacy(monkeypatch)
     assert run_day(**dict(SYN1000)).final_hash == res.final_hash
 
 
