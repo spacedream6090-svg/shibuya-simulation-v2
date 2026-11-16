@@ -186,6 +186,18 @@ def test_runs_under_the_stage_b_and_sentinel_checks(monkeypatch):
 FLEET_KW = dict(n_agents=120, seed=1, ticks=40, processes=False, population=False, world_dir=None,
                 checkpoint_every=4, sleep_suppression=False, vocab_version="v3", budget=30.0, hunger_model="v1")
 FLEET_CELLS = 16
+
+
+@pytest.fixture(autouse=True)
+def _hunger_v1_for_this_file():
+    """〔Q13〕``FLEET_KW`` の空腹 v1 は試験の中だけの口=このファイルの試験の間だけ印を立てる(試験の ``monkeypatch`` とは別の
+    器=``_replay`` が ``monkeypatch.undo()`` しても残る)。子のプロセスにはコードの頭に ``CHILD_PRELUDE`` を足す。"""
+    from tests.engine.body._hunger_v1 import hunger_v1
+
+    mp = pytest.MonkeyPatch()
+    hunger_v1(mp)
+    yield
+    mp.undo()
 #: 1-2 の前の src(この枝の土台)。再生の full-hash を比べる相手。〔rebase〕1-4・1-6・1-9 を取り込んだ本体 ``a3a8104``
 #: (1-2 の枝を作った時の土台は ``136fdbb``=記録 p12/README.md §15)。
 BASE_COMMIT = "a3a8104"
@@ -410,7 +422,10 @@ def test_replay_full_hash_matches_the_head_copy(recorded_tape, tmp_path):
 
     # 〔段 4〕古い src は移す前の子のコードで、今の src は今の子のコード(移す道具が書き換えた import の文)で回す
     h = child(head / "src", before)
-    w = child(root / "src", _REPLAY_CHILD)
+    # 〔Q13〕今の src の子は空腹 v1 を試験の中だけの口で通す(印を立てる 2 行を頭に足す=子のコードの字面の比べは上のまま)
+    from tests.engine.body._hunger_v1 import CHILD_PRELUDE
+
+    w = child(root / "src", CHILD_PRELUDE + _REPLAY_CHILD)
     assert "head_src" in h["src"] and "head_src" not in w["src"]
     assert h["misses"] == w["misses"] == 0 and h["calls"] == w["calls"] == rec.llm_calls
     assert len(h["full"]) == FLEET_KW["ticks"] // FLEET_KW["checkpoint_every"]

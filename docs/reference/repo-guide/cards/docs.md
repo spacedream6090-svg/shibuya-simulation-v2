@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-333 ディレクトリ・2419 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+335 ディレクトリ・2425 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -111,6 +111,10 @@
 ## docs/bench/analysis/library-defaults-q13-347(2 本)
 
 - [README.md](../../../bench/analysis/library-defaults-q13-347/README.md): Q13(第347)ライブラリの既定を CLI にそろえる(library-defaults-q13-347)
+
+## docs/bench/analysis/library-defaults-q13-347/bytecheck(3 本)
+
+## docs/bench/analysis/library-defaults-q13-347/bytecheck_unpinned_base_9495521(3 本)
 
 ## docs/bench/analysis/llm-calls-2026-09-24(5 本)
 

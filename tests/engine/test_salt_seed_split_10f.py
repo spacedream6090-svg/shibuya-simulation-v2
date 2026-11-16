@@ -449,7 +449,10 @@ def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path):
         # 毎 tick で通しに回した 2 本を first_diff.py で比べた tick(独立の答え)
         dumps = []
         for name in ("base", "deliv_off"):
-            res = cli.run(n_agents=200, seed=s, population_seed=1, world_dir=NO_WORLD, checkpoint_every=1, **arms[name])
+            # 〔Q13 再検収 M-1〕回す役の子のランは、腕に語彙が無ければ語彙 v1(前と同じラン=``salt_runs`` の ``setdefault``)。
+            # 独立の答えの側も同じ語彙 v1 を明示する(渡さないとランの既定 v3 になり、別のランどうしの比べになる)
+            res = cli.run(n_agents=200, seed=s, population_seed=1, world_dir=NO_WORLD, checkpoint_every=1,
+                          vocab_version="v1", **arms[name])
             dumps.append(fd.dump(res, tmp_path / f"straight_{name}_{s}.json"))
         want = fd.compare(dumps[0], [dumps[1]], from_T=0)["first_mismatch"]["tick"]
         # 〔第347・検収 H1〕退化を止める: 刻み 0 で食い違う腕では T0 の前の一致が何も比べず真になり、回す役の再開の道を通らない
@@ -469,6 +472,8 @@ def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path):
     # 納品の過程を切ると、manifest の設定の欄 ``ablations``・``process_ids`` が腕から導かれて変わる=期待の値を書いて宣言する
     # (検収 S3-3 の口 ``derived_keys``=宣言と実際が違えば落ちる)
     by = {(x["arm"], x["salt"]): payloads[x["checkpoints"]] for x in index["runs"] if not x.get("aa")}
+    # 〔Q13 再検収 M-1〕回す役の子のランの語彙は v1(独立の答えの側と同じ語彙どうしを比べた)
+    assert {p["manifest"]["vocab_version"] for p in payloads.values()} == {"v1"}
     base_ids = list(by[("base", 1)]["manifest"]["process_ids"])
     assert "delivery_inbound" in base_ids
 

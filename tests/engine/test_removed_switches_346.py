@@ -83,8 +83,9 @@ def test_the_list_and_the_message_are_in_one_place():
                                                f"安定版のタグ {TAG_347})=旗を外す")
     # 〔第347 ③b〕旗だけの行の文は、残る口(run_day と cli.run の引数)を書く
     assert RSW.message("--hunger-model") == ("--hunger-model は消した切替口(第347 止めた切替口の削除・旧値の再現は"
-                                             f"安定版のタグ {TAG_347})=旗を外す。run_day と cli.run の引数 hunger_model は、"
-                                             "既定をそろえる版上げ(Q13)まで残る")
+                                             f"安定版のタグ {TAG_347})=旗を外す。run_day と cli.run の引数 hunger_model は"
+                                             "残る(既定は energy)。旧規則 v1 は Q13 の版上げで止めた=試験の中だけの口"
+                                             "(world.body.energy の _HUNGER_V1_FOR_TESTS)")
     RSW.check_environment({})
     RSW.check_environment({name: "" for name in RSW.REMOVED_ENV})  # 空の値は置いていない扱い
     for name in RSW.REMOVED_ENV:

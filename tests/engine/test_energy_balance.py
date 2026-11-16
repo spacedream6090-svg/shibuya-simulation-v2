@@ -468,15 +468,20 @@ def test_per_tick_paths_have_no_python_loops():
 
 
 # ================================================================= ラン(合成世界・小)
-def test_run_day_default_is_v1_and_energy_is_an_arm():
+def test_run_day_default_is_energy_and_v1_is_only_for_tests(monkeypatch):
+    """〔Q13・第347〕ライブラリの既定は energy(CLI と同じ)。旧規則 v1 はランの口からは止め、試験の中だけの口で通る。"""
     from shibuya.engine.run import run_day
+    from tests.engine.body._hunger_v1 import hunger_v1
 
     kw = dict(n_agents=60, seed=2, ticks=120)
     base = run_day(**kw)
-    v1 = run_day(hunger_model="v1", **kw)
     en = run_day(hunger_model="energy", **kw)
-    assert base.hunger_model == "v1" and base.energy == {}
-    assert base.final_hash == v1.final_hash
+    assert base.hunger_model == "energy" and base.final_hash == en.final_hash
+    with pytest.raises(ValueError, match="試験の中だけの口"):
+        run_day(hunger_model="v1", **kw)
+    hunger_v1(monkeypatch)
+    v1 = run_day(hunger_model="v1", **kw)
+    assert v1.hunger_model == "v1" and v1.energy == {}
     assert en.final_hash != v1.final_hash
     m = en.run_manifest_fields()
     assert m["hunger_model"] == "energy" and m["energy_rate"] == "eer"
@@ -505,12 +510,17 @@ def test_bmr_arm_runs_and_is_recorded():
     assert res.run_manifest_fields()["energy"]["rate"] == "bmr"
 
 
-def test_cli_default_hunger_model_is_energy():
+def test_cli_default_hunger_model_is_energy(monkeypatch):
     from shibuya import cli
+    from tests.engine.body._hunger_v1 import hunger_v1
 
     assert cli.CLI_DEFAULT_HUNGER_MODEL == "energy"
     res = cli.run(n_agents=40, seed=2, world_dir=None, ticks=60, use_population=False)
     assert res.hunger_model == "energy"
+    hunger_v1(monkeypatch)  # 〔Q13〕空腹 v1 は試験の中だけの口
     res1 = cli.run(n_agents=40, seed=2, world_dir=None, ticks=60, use_population=False,
                    hunger_model="v1")
     assert res1.hunger_model == "v1" and res1.final_hash != res.final_hash
+    # 〔Q13〕試験の中だけの口で回した空腹 v1 のランは、cli.run のランの種類で腕に数える(引数が CLI の既定 energy と違う)
+    assert cli.run_arms({"hunger_model": "v1", "use_population": True, "store_capital_yen": None,
+                         "l4_scale": 0.0}) == ("hunger_model",)

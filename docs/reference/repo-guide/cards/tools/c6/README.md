@@ -20,7 +20,7 @@ ablation1_fixed_vs_ranking.py — **ablation ①(義務)**「チャネル固定�
   - `--run-id`
   - `--tape-dir`: テープの置き場(既定=--out の下)
   - `--temperature`
-- 決定の ID: D-58
+- 決定の ID: D-58・第 347
 
 ## [c6lib.py](../../../../../../tools/c6/c6lib.py)
 
@@ -99,7 +99,7 @@ format_role_rates.py — **書式エラー率・役割語率・未定義率**(C6
   - `--run-id`
   - `--tape`: 録画テープのディレクトリ
   - `--temperature`: 受入条件は温度 0.7
-- 決定の ID: D-28・D-58
+- 決定の ID: D-28・D-58・第 347
 
 ## [metric_b_rerun.py](../../../../../../tools/c6/metric_b_rerun.py)
 
@@ -124,6 +124,7 @@ metric_b_rerun.py — **指標B の事前登録つき再測**(Phase 2 実デー�
   - `--scenes`: 既存の scenes.jsonl(空なら収集から)
   - `--tape`: 録画テープ(診断用。B5/B6 が無いので再呼は不可)
   - `--temperature`
+- 決定の ID: 第 347
 
 ## [run_hash.py](../../../../../../tools/c6/run_hash.py)
 
@@ -137,6 +138,7 @@ run_hash.py — 1 ランの checkpoint ハッシュだけを JSON で吐く(**T3
   - `--no-ledger`: 台帳なし(engine.run.run_day 直呼び)
   - `--threads`: numba.set_num_threads(N)(0=触らない)
 - 環境変数: `MKL_NUM_THREADS`・`NUMBA_NUM_THREADS`・`OMP_NUM_THREADS`
+- 決定の ID: 第 347
 
 ## [t6_bit_reproduce.py](../../../../../../tools/c6/t6_bit_reproduce.py)
 
@@ -153,6 +155,7 @@ t6_bit_reproduce.py — **T6 LLM 層 bit 再現**(検証ラン構成)。
   - `--run-id`: manifest の自己ハッシュ(cache_salt の第2要素)
   - `--tape-dir`: テープの置き場(既定=一時ディレクトリ)
   - `--temperature`: 検証ランは 0
+- 決定の ID: 第 347
 
 ## [t7_distribution.py](../../../../../../tools/c6/t7_distribution.py)
 
@@ -172,4 +175,4 @@ t7_distribution.py — **T7 LLM 層 分布同値**(本番構成・温度 0.7)。
   - `--seed-b`: 2 本目の master_seed
   - `--tape-dir`: テープの置き場(既定=--out の下)
   - `--temperature`: 本番構成は 0.7
-- 決定の ID: D-25
+- 決定の ID: D-25・第 347

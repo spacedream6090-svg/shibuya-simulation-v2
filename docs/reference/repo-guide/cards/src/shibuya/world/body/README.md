@@ -24,9 +24,10 @@ engine.energy — 体のエネルギー収支(5 段目 5a・D-118 K1〜K9・第2
   - `anchors_rel`(関数): manifest の ``energy.anchors`` の道筋。
   - `check_energy_rate`(関数)
   - `check_home_meal`(関数)
-  - `check_hunger_model`(関数)
+  - `check_hunger_model`(関数): 空腹のモデルの名を確かめる(組み立ての入口)。〔Q13・第347〕``"v1"`` は消した口=試験の中だけの口の印が無ければ止める。
   - `check_meal_default`(関数)
   - `check_meal_sleep_defer`(関数)
+  - `hunger_v1_for_tests`(関数): 〔Q13・第347〕空腹の旧規則 v1 を通す試験の中だけの口の印が立っているか(読むのは :func:`check_hunger_model` だけ=組み立ての
   - `load_anchors`(関数): 錨の追跡ファイルを読む → ``(辞書, md5)``。
   - `meal_default`(関数): 既定の食事時刻の出どころ(``w17`` だけ=〔第 2 部〕旧値の腕と切替口は消した)。
   - `meal_start_distribution`(関数): 組み立ての口: 週次表(全員)から分布を作る(週次表が無ければ凍結の表)。
@@ -34,7 +35,7 @@ engine.energy — 体のエネルギー収支(5 段目 5a・D-118 K1〜K9・第2
   - `w17_wake_minute`(関数): 体 ``agent`` がその日の ``minute`` に W17 の「就寝」の行の中に居れば、**起床の分**
 - import している内部モジュール: `shibuya.foundation.paths`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.facts.weekly_reader`
 - 呼び手: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.body`・`shibuya.world.body.rules`・`shibuya.world.body.schedule`
-- 読む試験: `tests/engine/body/body_fixtures.py`・`tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_meal_default_w17.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_sim_time_T.py`
+- 読む試験: `tests/engine/body/_hunger_v1.py`・`tests/engine/body/body_fixtures.py`・`tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_meal_default_w17.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_sim_time_T.py`
 - 読む試験(道筋で): `tests/engine/state/test_names_frozen.py`・`tests/tools/test_pkgmove.py`
 - 状態台帳の行
   - 持ち主 `energy.home_meals`(`HomeMeals`)
@@ -49,7 +50,7 @@ engine.energy — 体のエネルギー収支(5 段目 5a・D-118 K1〜K9・第2
     - `O27` EnergyLayer bmr(挙動 behavior・復元 derivable) 道筋 `energy.bmr` 書ける系: body・home_meal・phase_c
     - `O28` EnergyLayer meal_bits・n_meals・n_snacks・counts・intake_kcal・meal_start_*・stage_ticks*(挙動 diag・復元 discardable) 道筋 `energy.ate_default`・`energy.counts`・`energy.intake_kcal`・`energy.meal_bits`・`energy.meal_start_home`・`energy.meal_start_in`・`energy.meal_start_out`・`energy.n_meals`・`energy.n_snacks`・`energy.snack_start`・`energy.stage_ticks`・`energy.stage_ticks_awake_by_hour` 書ける系: body・energy_after・home_meal・phase_c
 - 環境変数: `SHIBUYA_MEAL_DEFAULT`
-- 決定の ID: 10-03/§7-1・10-13b/§7・D-111・D-118・第 291
+- 決定の ID: 10-03/§7-1・10-13b/§7・D-111・D-118・第 291・第 347
 
 ## [model.py](../../../../../../../../src/shibuya/world/body/model.py)
 

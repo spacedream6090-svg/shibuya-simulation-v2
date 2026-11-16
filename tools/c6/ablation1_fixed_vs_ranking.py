@@ -109,7 +109,8 @@ def run_arm(args, tag: str, endpoints: list[str], tape_root: Path) -> dict:
             world_dir=c6lib.world_dir_of(args),
             tape_path=tape_root / tag,
             fleet=client,
-            extra={"budget_mode": tag},  # 09-09 親: サブ R の切替口(fixed/ranking)を腕へ渡す
+            # 09-09 親: サブ R の切替口(fixed/ranking)を腕へ渡す。〔第347・Q13〕前と同じラン=語彙 v1 を明示(cli.run の既定は v3)
+            extra={"budget_mode": tag, "vocab_version": "v1"},
         )
     finally:
         if client is not None:
@@ -123,6 +124,7 @@ def run_arm(args, tag: str, endpoints: list[str], tape_root: Path) -> dict:
     return {
         "arm": tag,
         "route": route,
+        "vocab_version": str(res.vocab_version),
         "llm_calls": int(res.llm_calls),
         "action_counts": sc["action_counts"],
         "format_error_rate": sc["format_error_rate"],

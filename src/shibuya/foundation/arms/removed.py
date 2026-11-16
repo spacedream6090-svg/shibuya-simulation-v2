@@ -80,7 +80,8 @@ _STEP_TAG: Final[Mapping[str, tuple[str, str]]] = MappingProxyType({
 _STEP_346: Final[str] = "第346 旧道の切替口の削除"
 #: 〔第347 ③b〕名 → 止める文の末尾に足す注(消した口の外に残る口の案内)。ここに無い名は注なし(前の文のまま)。
 _NOTE: Final[Mapping[str, str]] = MappingProxyType({
-    "--hunger-model": "。run_day と cli.run の引数 hunger_model は、既定をそろえる版上げ(Q13)まで残る",
+    "--hunger-model": ("。run_day と cli.run の引数 hunger_model は残る(既定は energy)。旧規則 v1 は Q13 の版上げで止めた"
+                       "=試験の中だけの口(world.body.energy の _HUNGER_V1_FOR_TESTS)"),
 })
 
 

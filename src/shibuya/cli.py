@@ -49,17 +49,20 @@ from shibuya.economy.accounts import BalanceLine, Sector
 from shibuya.economy import stage2_bind as _ES2
 from shibuya.engine import resolve as R
 from shibuya.experiments.port import run_kind as _RK
-from shibuya.engine.arbiter import call_budget_per_tick
 from shibuya.world.model.geometry import DEFAULT_GEOMETRY, GEOMETRY_MODES
 from shibuya.world.model.space import nav1 as _NAV1
 from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.run import (
     MINUTES_PER_SIM_DAY,
+    RUN_DEFAULT_L4_SCALE,
+    RUN_DEFAULT_VOCAB_VERSION,
     RunResult,
     add_calendar_args,
     add_fleet_args,
     calendar_kwargs_from_args,
     fleet_from_args,
+    l4_budget,
+    resolve_l4_scale,
     resolve_population_seed,
     run_day,
 )
@@ -98,21 +101,20 @@ from shibuya.world.model.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
 from shibuya.foundation.time_consts import STEPS_PER_HOUR
 
 #: **CLI の既定の語彙版**(二層の段 3・第277=``--vocab-version`` を渡さないランは v3)。
-#: ライブラリの既定(``templates.DEFAULT_VOCAB_VERSION``/``run_day``/``cli.run``)は **v1 のまま**
-#: =ライブラリ経由の退化検査・golden は v1 の値で通る(切替口)。v1 の既定 checkpoint を
-#: CLI で再現するときは ``--vocab-version v1`` を明示する。
-CLI_DEFAULT_VOCAB_VERSION: Final[str] = "v3"
+#: 〔Q13・返事その 8 §1-2〕ライブラリの既定(``run_day``/``cli.run``/``RunResult``)と同じ 1 つの値
+#: (``engine.run.RUN_DEFAULT_VOCAB_VERSION``)。v1 の checkpoint を再現するときは ``--vocab-version v1`` を明示する。
+CLI_DEFAULT_VOCAB_VERSION: Final[str] = RUN_DEFAULT_VOCAB_VERSION
 #: **3 段目(D-99 (a′)・D-110・ユーザー決定 09-25)**: CLI と ``cli.run`` の呼数の既定=**無制限**
 #: (``0``=1 tick の上限を体数に置く=AB8/AB6c の ``l4_unlimited`` と同じ経路)。L4(10 呼/体/日)は
 #: 制御目標ではなく**監査線**(manifest ``llm_calls_per_agent_day``/``l4_exceeded``)。上限の
 #: スイッチ(``--l4-scale 1``=旧挙動・0.5/2=倍率)と従来の配り方(``arbiter.call_budget_per_tick``・
-#: ``POOL_CAP_TICKS``)は残す。
-CLI_DEFAULT_L4_SCALE: Final[float] = 0.0
+#: ``POOL_CAP_TICKS``)は残す。〔Q13〕ライブラリの既定と同じ 1 つの値(``engine.run.RUN_DEFAULT_L4_SCALE``)。
+CLI_DEFAULT_L4_SCALE: Final[float] = RUN_DEFAULT_L4_SCALE
 #: **5 段目 5a(D-118 K5 (a)・第291)**: CLI と ``cli.run`` の空腹のモデルの既定=**energy**
-#: (体のエネルギー収支)。``run_day`` のライブラリ既定は ``v1`` のまま(語彙・L4 と同じ分け方)。
-#: 旧 checkpoint は ``cli.run(hunger_model="v1")`` で再現する(テストで固定)。〔第347 止めた切替口の削除〕CLI の旗
-#: ``--hunger-model`` は消した(CLI のランはいつも energy・旗は表に出さない旗で受けて止める)。``run_day`` と ``cli.run`` の
-#: 引数 ``hunger_model`` は、既定をそろえる版上げ(Q13)まで残る。
+#: (体のエネルギー収支)。〔Q13〕``run_day`` の既定も同じ値(``world.body.energy.DEFAULT_HUNGER_MODEL``)。
+#: 〔第347 止めた切替口の削除〕CLI の旗 ``--hunger-model`` は消した(CLI のランはいつも energy・旗は表に出さない旗で受けて止める)。
+#: 〔Q13〕``run_day`` と ``cli.run`` の引数 ``hunger_model`` は残る。旧規則 ``"v1"`` はランの口からは止める=試験の中だけの口
+#: (``world.body.energy._HUNGER_V1_FOR_TESTS``)。旧 checkpoint の値は安定版のタグ ``stable-v2-before-library-defaults-q13``。
 CLI_DEFAULT_HUNGER_MODEL: Final[str] = DEFAULT_HUNGER_MODEL
 
 __all__ = [
@@ -448,7 +450,8 @@ def run(
     枠を直せない艦隊だけ従来どおり警告と注記。
 
     **5 段目 5a(D-118)**: ``hunger_model`` の既定(渡さないとき)は ``CLI_DEFAULT_HUNGER_MODEL``
-    (**energy**)。``hunger_model="v1"`` で旧規則(旧 checkpoint)を再現する(テストで固定)。
+    (**energy**)。〔Q13〕旧規則 ``hunger_model="v1"`` はランの口からは止める(試験の中だけの口・旧 checkpoint の値は安定版の
+    タグ ``stable-v2-before-library-defaults-q13``)。
 
     **第 1 期 1-4(CP5-5・検収 M2)**: ``run_kind`` はランの種類(``engine.run_kind.RUN_KINDS``)。省略すると
     ここで決める=試験の中は ``test``・CLI の既定(``arm_baseline``)と違う腕の引数が 1 つでもあれば ``arm``・ほかは
@@ -467,11 +470,9 @@ def run(
     run_kind = None if run_kind is None else _RK.check(run_kind)  # 第 1 期 1-4: 名の誤りはランの前に止める
     # 5 段目 5a: 空腹のモデルの既定は energy(``CLI_DEFAULT_HUNGER_MODEL``)
     kwargs.setdefault("hunger_model", CLI_DEFAULT_HUNGER_MODEL)
-    if l4_scale is None:
-        # 予算を直に渡した呼び出しは従来どおり倍率 1.0 と載せる(倍率より予算が優先)
-        scale = 1.0 if budget is not None else float(CLI_DEFAULT_L4_SCALE)
-    else:
-        scale = float(l4_scale)
+    # 予算を直に渡した呼び出しは従来どおり倍率 1.0 と載せる(倍率より予算が優先)。〔Q13 (a′)〕決め方は run_day と同じ 1 つ
+    # (``engine.run.resolve_l4_scale``)。cli.run は浮動小数にして渡す(前と同じ引数=設定の指紋は前のまま)
+    scale = float(resolve_l4_scale(l4_scale, budget))
     if scale < 0.0:
         raise ValueError("l4_scale は 0 以上(0=無制限)")
     if run_kind is None:  # 第 1 期 1-4(検収 M2): 腕は CLI の既定と比べて決める(記録だけ)
@@ -513,7 +514,9 @@ def run(
                               or _NAV1.arms_on() or _NAV1.legacy_for_tests(),
                               counterfactual=exp_form is not None)
     if budget is None and scale != 1.0:
-        budget = float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
+        # 〔Q13〕式は run_day の側の 1 か所(``engine.run.l4_budget``)。倍率 1.0 は budget=None のまま渡す(run_day が同じ式で
+        # 同じ値を作る=設定の指紋の budget は前のまま)
+        budget = l4_budget(n_agents, scale)
     applied = apply_fleet_queue_default(kwargs.get("fleet"), scale, n_agents)
     note = "" if applied is not None else fleet_queue_note(kwargs.get("fleet"), scale, n_agents)
     if note:
@@ -766,19 +769,19 @@ def _engine_run_day() -> Any:
 
 
 def arm_baseline() -> dict[str, Any]:
-    """腕の比べの元=CLI の既定の ``run_day`` の引数(``run_day`` の既定に、CLI と ``cli.run`` が違う既定を重ねた)。
+    """腕の比べの元=CLI の既定の ``run_day`` の引数(``run_day`` の既定に、``cli.run`` だけが持つ既定を重ねた)。
 
-    CLI の既定と ``run_day`` の既定が違う所は 3 つ(語彙の版 ``CLI_DEFAULT_VOCAB_VERSION``・空腹のモデル
-    ``CLI_DEFAULT_HUNGER_MODEL``・呼数の倍率 ``CLI_DEFAULT_L4_SCALE``)と ``cli.run`` の 2 つ(``use_population=True``・
-    ``store_capital_yen=None``)。``on``/``off`` と真偽・空の並びの書き方の違いは ``_arm_norm`` でそろえる(試験
-    ``test_manifest_rules_bridges.py`` が ``main`` の既定の引数とこの表が同じことを確かめる)。
+    〔Q13〕語彙の版・空腹のモデルは ``run_day`` の既定と CLI の既定が同じ 1 つの値になった。重ねるのは、呼数の倍率の
+    決めた値(``run_day`` の署名の既定は ``None``=``resolve_l4_scale`` が予算を渡さないランで ``CLI_DEFAULT_L4_SCALE`` に
+    決める・(a′))と ``cli.run`` の 2 つ(``use_population=True``・``store_capital_yen=None``)。``on``/``off`` と真偽・空の
+    並びの書き方の違いは ``_arm_norm`` でそろえる(試験 ``test_manifest_rules_bridges.py`` が ``main`` の既定の引数と
+    この表が同じことを確かめる)。
     """
     import inspect
 
     base = {k: p.default for k, p in inspect.signature(_engine_run_day()).parameters.items()
             if p.default is not inspect.Parameter.empty}
-    base.update(vocab_version=CLI_DEFAULT_VOCAB_VERSION, hunger_model=CLI_DEFAULT_HUNGER_MODEL,
-                l4_scale=float(CLI_DEFAULT_L4_SCALE), use_population=True, store_capital_yen=None)
+    base.update(l4_scale=float(CLI_DEFAULT_L4_SCALE), use_population=True, store_capital_yen=None)
     return base
 
 
@@ -811,7 +814,7 @@ def _arm_norm(key: str, v: Any) -> Any:
 
 def run_arms(passed: Mapping[str, Any]) -> tuple[str, ...]:
     """``cli.run`` に渡された引数のうち、CLI の既定と違う腕の名(昇順)。渡さなかった引数は ``run_day`` の既定で比べる
-    (``vocab_version`` を渡さない ``cli.run`` はライブラリの既定 v1=CLI の既定 v3 と違う=腕)。"""
+    (〔Q13〕``vocab_version`` を渡さない ``cli.run`` はライブラリの既定 v3=CLI の既定と同じ=腕でない)。"""
     import inspect
 
     base = arm_baseline()

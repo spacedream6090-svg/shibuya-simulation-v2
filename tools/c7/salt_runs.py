@@ -46,6 +46,8 @@ def cmd_one(args: argparse.Namespace) -> int:
     from shibuya import cli
 
     kw = dict(json.loads(args.kwargs or "{}"))
+    # 〔第347・Q13〕腕に語彙が無ければ前と同じラン=語彙 v1(cli.run の既定は v3 になった・腕に書いた値が勝つ)
+    kw.setdefault("vocab_version", "v1")
     for k in ("stop_at_tick", "state_out", "resume_from"):
         v = getattr(args, k)
         if v not in (None, ""):
@@ -59,6 +61,7 @@ def cmd_one(args: argparse.Namespace) -> int:
     Path(args.out).write_text(json.dumps(payload, ensure_ascii=False, default=str) + "\n",
                               encoding="utf-8", newline="\n")
     print(json.dumps({"out": Path(args.out).name, "final": res.final_hash[:16], "calls": int(res.llm_calls),
+                      "vocab_version": str(res.vocab_version),
                       "wall_s": round(wall, 2)}, ensure_ascii=False))
     return 0
 

@@ -551,7 +551,7 @@ def test_breakfast_window_edge_is_fixed(wake, want):
     assert oom.n_skipped_past_window == (1 if not want else 0)
 
 
-def test_template_fingerprint_follows_the_drawn_hunger_stage():
+def test_template_fingerprint_follows_the_drawn_hunger_stage(monkeypatch):
     """all の腕は描画に使った段の下限 0 で文面の指紋を計算する。既定(hungry)と v1 のランは凍結値のまま。"""
     frozen = T.template_sha256()
     assert T.template_sha256(hunger_draw_min_stage=None) == frozen
@@ -566,6 +566,9 @@ def test_template_fingerprint_follows_the_drawn_hunger_stage():
         return res.run_manifest_fields()["template_sha256"]
 
     assert manifest_sha("hungry", "energy") == frozen
+    from tests.engine.body._hunger_v1 import hunger_v1
+
+    hunger_v1(monkeypatch)  # 〔Q13〕空腹 v1 は試験の中だけの口
     assert manifest_sha("all", "v1") == frozen  # v1 のランは語を描かない
     assert manifest_sha("all", "energy") == all_sha
     # 描画の報告行も同じ指紋

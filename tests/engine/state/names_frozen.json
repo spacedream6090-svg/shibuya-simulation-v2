@@ -362,6 +362,7 @@
   "syn_default": {
    "manifest": [
     "agents.poi_ref",
+    "agents.weekly.WEEKLY_FILE",
     "core.rng.philox_array",
     "economy.raw_capacity",
     "economy.raw_link_bytes",
@@ -500,8 +501,11 @@
    ],
    "hash": [
     "shibuya.core.types.EventClass",
+    "shibuya.engine.activity.ActivityPayload",
     "shibuya.engine.arbiter.WakeCandidates",
     "shibuya.engine.scheduler.DeferralQueue",
+    "shibuya.llm.contract.Target",
+    "shibuya.llm.contract.TargetKind",
     "shibuya.perception.p_notice.Counters",
     "shibuya.perception.p_notice.EventBudget"
    ]

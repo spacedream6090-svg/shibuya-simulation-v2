@@ -102,8 +102,8 @@ from shibuya.engine.relations import (
     REL_TENURE_WEEKS,
 )
 from shibuya.mind.memory.store_memory import DEFAULT_STORE_DECAY, STORE_MEMORY_N
-from shibuya.world.body.energy import DEFAULT_ENERGY_RATE, DEFAULT_HOME_MEAL, DEFAULT_MEAL_SLEEP_DEFER
-from shibuya.engine.arbiter import L4_LINE_PER_AGENT_DAY
+from shibuya.world.body.energy import DEFAULT_ENERGY_RATE, DEFAULT_HOME_MEAL, DEFAULT_HUNGER_MODEL, DEFAULT_MEAL_SLEEP_DEFER
+from shibuya.engine.arbiter import L4_LINE_PER_AGENT_DAY, call_budget_per_tick
 from shibuya.engine.chooser import DEFAULT_CHOOSER, HABIT_P, RANK_TAU
 from shibuya.mind.judge.classical import (
     DEFAULT_ACTIVITY_REGION,
@@ -160,6 +160,10 @@ __all__ = [
     "RunResult",
     "run_salt_for",
     "run_day",
+    "RUN_DEFAULT_VOCAB_VERSION",
+    "RUN_DEFAULT_L4_SCALE",
+    "l4_budget",
+    "resolve_l4_scale",
     "add_fleet_args",
     "fleet_from_args",
     "main",
@@ -170,6 +174,37 @@ DELTA_THINK_TICKS: Final[int] = delta_think_ticks(DEFAULT_LANE, DEFAULT_TICK_SEC
 
 #: ``action_usage`` で ``ENGINE_STEP``(−1)に付ける名(行動語ではない=括弧つき)。
 ENGINE_STEP_LABEL: Final[str] = "(エンジン継続)"
+
+#: 〔Q13・返事その 8 §1-2〕ランの既定の語彙の版=CLI の既定(``run_day``・``RunResult``・``cli.CLI_DEFAULT_VOCAB_VERSION``
+#: がここから引く)。空腹のモデルの既定は ``world.body.energy.DEFAULT_HUNGER_MODEL``(energy)。
+RUN_DEFAULT_VOCAB_VERSION: Final[str] = "v3"
+#: 〔Q13〕ランの既定の呼数の倍率=CLI の既定(0=無制限・D-99 (a′)・D-110。``cli.CLI_DEFAULT_L4_SCALE`` がここから引く)。
+#: 予算を渡さず倍率も渡さないランの倍率(``resolve_l4_scale``)。
+RUN_DEFAULT_L4_SCALE: Final[float] = 0.0
+
+
+def resolve_l4_scale(l4_scale: float | None, budget: float | None) -> float:
+    """〔Q13 (a′)〕渡さなかった倍率(``None``)の決め方=``run_day`` と ``cli.run`` の 1 つの規則。
+
+    予算を直に渡したランは 1.0(倍率より予算が優先=manifest に「0=無制限」と書かない)/渡さないランは
+    ``RUN_DEFAULT_L4_SCALE``(0=無制限)。渡した倍率はそのまま返す(型も変えない=設定の指紋は前のまま)。
+    """
+    if l4_scale is None:
+        return 1.0 if budget is not None else float(RUN_DEFAULT_L4_SCALE)
+    return l4_scale
+
+
+def l4_budget(n_agents: int, l4_scale: float) -> float:
+    """〔Q13〕呼数の倍率 → 1 刻みの呼数上限(``budget`` を渡さない ``run_day`` と ``cli.run`` が使う 1 つの式)。
+
+    倍率 0 → 体数(**無制限**=アービタは合流後に体あたり高々 1 件に畳むので体数で足りる・``inf`` は置かない)/
+    倍率 > 0 → ``call_budget_per_tick(n_agents) × 倍率``(1.0=L4 按分=旧の既定)。負・NaN・無限大は止める(〔Q13 検収 L-2〕
+    予算が NaN・無限大のまま黙って回らない)。
+    """
+    scale = float(l4_scale)
+    if not 0.0 <= scale < float("inf"):  # NaN は比べると偽=ここで止まる
+        raise ValueError(f"l4_scale は 0 以上の有限の値(0=無制限・いま {l4_scale!r})")
+    return float(n_agents) if scale == 0.0 else call_budget_per_tick(n_agents) * scale
 
 #: 診断表の列(``DIAG_COLUMNS`` の 4 列 + 運用列)。
 #: 艦隊の順序制御グループ「時間帯」の刻み[tick](知覚契約書 §2.4 ⑨「時刻表記は5分丸め」)。
@@ -703,12 +738,12 @@ class RunResult:
     #: 知覚のトークン配分(知覚契約書 §3.2 の義務 ablation ①)。``fixed_slots`` / ``single_ranking``。
     budget_mode: str = BudgetMode.FIXED_SLOTS.value
     #: **L4 呼数予算の倍率**(PENDING D-99 (a)・腕 AB8-L4-SCALE)。``1.0``=予算宣言表 L4 の
-    #: とおり(400 万呼/日を体数按分=既定・現行のバイト)/``0.5``・``2.0``=半分・倍/
-    #: ``0.0``=**無制限**(1 tick の上限を体数に置く=起床候補は合流後に高々 1 件/体なので
-    #: 繰り延べが起きない)。``budget`` を直に渡したランでは倍率は 1.0 のまま。
-    l4_scale: float = 1.0
+    #: とおり(400 万呼/日を体数按分)/``0.5``・``2.0``=半分・倍/
+    #: ``0.0``=**無制限**(〔Q13〕既定=1 tick の上限を体数に置く=起床候補は合流後に高々 1 件/体なので
+    #: 繰り延べが起きない)。
+    l4_scale: float = RUN_DEFAULT_L4_SCALE
     #: このランで**実際に使った** 1 tick の呼数上限(``Arbiter.budget``)。既定のランでは
-    #: ``arbiter.call_budget_per_tick(n_agents)``(5,000 体で 34.72)。
+    #: 体数(〔Q13〕無制限。倍率 1.0 のランは ``arbiter.call_budget_per_tick(n_agents)``=5,000 体で 34.72)。
     budget_per_tick: float = 0.0
     #: 3 段目(D-99 (a′)・D-110): L4 の監査の注記(例: 艦隊×無制限で受理待ち枠が未指定=D-55)。
     l4_notes: list[str] = field(default_factory=list)
@@ -729,9 +764,9 @@ class RunResult:
     #: ``"hint"``=語彙を例として見せつつ自由文も許す(AB7b)。
     #: 仕様書 docs/design/v2-open-intent-arm-spec.md §2。
     intent_mode: str = INTENT_MODES[0]
-    #: **行動語彙の版**(D-71 §3 F・2026-09-17 ユーザー決定)。``"v1"``=現行 24 語(既定)/
-    #: ``"v2"``=24 語 + 横断語「食事」(飲食店オブジェクトの affordance)。
-    vocab_version: str = VOCAB_VERSIONS[0]
+    #: **行動語彙の版**(D-71 §3 F・2026-09-17 ユーザー決定)。``"v1"``=24 語/
+    #: ``"v2"``=24 語 + 横断語「食事」(飲食店オブジェクトの affordance)/``"v3"``=二層(〔Q13〕既定)。
+    vocab_version: str = RUN_DEFAULT_VOCAB_VERSION
     #: **D-113 ④(第269)** B0 の末尾に役割語 12 語の 1 行を足したか(既定 True)。False は
     #: 第268 以前の B0(テープ再生用・帰無腕)。
     role_words: bool = True
@@ -760,8 +795,8 @@ class RunResult:
     familiarity: bool = False
     familiarity_k: int = FAMILIARITY_K
     familiarity_summary: dict[str, Any] = field(default_factory=dict)
-    #: 5 段目 5a(D-118): 空腹のモデル(``v1``=旧規則 / ``energy``=エネルギー収支)・消費の式・要約。
-    hunger_model: str = "v1"
+    #: 5 段目 5a(D-118): 空腹のモデル(``v1``=旧規則 / ``energy``=エネルギー収支=〔Q13〕既定)・消費の式・要約。
+    hunger_model: str = DEFAULT_HUNGER_MODEL
     energy_rate: str = ""
     energy: dict[str, Any] = field(default_factory=dict)
     #: 第2波 §2B(食事の束・既定は旧): 項 1 就寝中の既定の食事・項 2 自宅の食事行・項 3 B5 の空腹の語。
@@ -2044,7 +2079,7 @@ def run_day(
     checkpoint_every: int = 360,
     day_index: int = 0,
     budget: float | None = None,
-    l4_scale: float = 1.0,
+    l4_scale: float | None = None,
     n_cells: int = 139,
     mode: str = "record",
     tape_path: str | Path | None = None,
@@ -2063,7 +2098,7 @@ def run_day(
     signage: bool = True,
     signage_p_see: float = SIGNAGE_P_SEE_DEFAULT,
     intent_mode: str = INTENT_MODES[0],
-    vocab_version: str = VOCAB_VERSIONS[0],
+    vocab_version: str = RUN_DEFAULT_VOCAB_VERSION,
     role_words: bool | str = True,
     group_norms: bool | str = True,
     budget_mode: str | BudgetMode = BudgetMode.FIXED_SLOTS,
@@ -2094,7 +2129,7 @@ def run_day(
     mock_out_of_cell_target_p: float = 0.0,
     familiarity: bool | str = False,
     familiarity_k: int = FAMILIARITY_K,
-    hunger_model: str = "v1",
+    hunger_model: str = DEFAULT_HUNGER_MODEL,
     energy_rate: str = DEFAULT_ENERGY_RATE,
     meal_sleep_defer: str = DEFAULT_MEAL_SLEEP_DEFER,
     home_meal: str = DEFAULT_HOME_MEAL,
@@ -2174,15 +2209,14 @@ def run_day(
             1 行 1 呼で落とす。**テープ形式は変えない**(テープは最終応答 1 行のまま)。
         checkpoint_every: checkpoint 間隔[tick]。
         day_index: 曜日(0=月曜)。
-        budget: 1 tick の呼数上限(None なら L4 按分)。
-        l4_scale: **manifest に載せるだけ**の同定欄(PENDING D-99 (a)・腕 AB8-L4-SCALE)。
-            倍率から ``budget`` を作るのは ``cli.run``(``l4_scale>0`` なら
-            ``call_budget_per_tick(n_agents)×倍率``・``0`` なら ``n_agents``=無制限)。
-            **3 段目(D-99 (a′)・D-110)**: CLI と ``cli.run`` の既定は **0=無制限**
-            (``cli.CLI_DEFAULT_L4_SCALE``)。本関数の既定(``budget=None``=L4 按分)は
-            ライブラリの切替口として残す(``--l4-scale 1`` と同じ=旧挙動)。L4 は監査線=
+        budget: 1 tick の呼数上限(None なら ``l4_scale`` から ``l4_budget`` で作る)。
+        l4_scale: 呼数の倍率(PENDING D-99 (a)・腕 AB8-L4-SCALE)。``budget`` を渡さないランは
+            ``l4_budget(n_agents, l4_scale)``(``l4_scale>0`` なら ``call_budget_per_tick(n_agents)×倍率``・
+            ``0`` なら ``n_agents``=無制限)を上限にする(``cli.run`` と同じ式)。
+            **〔Q13 (a′)〕渡さない(``None``)ときは ``resolve_l4_scale``**=予算を渡したランは 1.0(manifest に載せるだけ)・
+            渡さないランは 0=無制限(``RUN_DEFAULT_L4_SCALE``=``cli.CLI_DEFAULT_L4_SCALE``・D-99 (a′)・D-110)。
+            ``1.0`` で旧挙動(L4 按分)。``cli.run`` と同じ決め方。L4 は監査線=
             manifest の ``llm_calls_total``/``llm_calls_per_agent_day``/``l4_line``/``l4_exceeded``。
-            ここでは**計算に一切使わない**=既定 1.0 のランのバイトは 1 つも動かない。
         n_cells: 合成世界を作るときのセル数。
         mode: ``"record"``(``llm`` を呼ぶ)/ ``"replay"``(テープ完全一致・テープ外は計数)。
         tape_path: 録画テープの出力先(None なら記録しない)。
@@ -2250,7 +2284,7 @@ def run_day(
             ``True``/``"on"``(既定=第308 のまま)/ ``False``/``"off"`` で計器の 3 つの口を通さない(manifest
             ``group_norms`` は ``{"enabled": False}``)。計器は状態・乱数・テープに触れないので**どちらでも final は同じ**。
         vocab_version: **行動語彙の版**(D-71 §3 F・2026-09-17 ユーザー決定)。
-            ``"v1"``(既定)は現行の 24 語(横断 12 + 役割 12)で、**1 バイトも変わらない**。
+            〔Q13〕既定は ``"v3"``(``RUN_DEFAULT_VOCAB_VERSION``=CLI の既定)。``"v1"`` は 24 語(横断 12 + 役割 12)。
             ``"v2"`` は横断語「食事」(飲食店オブジェクトの affordance・コード 24)を足し、
             ① B0 の出力規約が 13 語提示になる ② 段0 辞書が v3 になる
             (``食べる``/``飲む`` → ``食事``)③ ``resolve`` に「食事」の分岐が増える。
@@ -2365,9 +2399,10 @@ def run_day(
         hunger_model: **5 段目 5a(D-118 K1〜K9)**。``"energy"`` で体のエネルギー収支
             (``AgentState(energy_columns=True)``・+16 B/体・``engine.energy``)=体重と EER を抽選し、
             毎 tick 活動の METs で消費・食事/軽食/飲料で摂取・``hunger`` は語の段の写し・B5 は語・
-            範囲外の食事は W17 の食事行か既定の時刻。``"v1"``(**ライブラリの既定**)は旧規則
-            (+1/30 分・購入/食事で −4)=**旧 checkpoint をそのまま再現**。CLI と ``cli.run`` の既定は
-            ``energy``(``cli.CLI_DEFAULT_HUNGER_MODEL``・K5 (a))。
+            範囲外の食事は W17 の食事行か既定の時刻。〔Q13〕既定は ``energy``(``world.body.energy.
+            DEFAULT_HUNGER_MODEL``=``cli.CLI_DEFAULT_HUNGER_MODEL``・K5 (a))。``"v1"`` は旧規則
+            (+1/30 分・購入/食事で −4)=ランの口からは止める(試験の中だけの口 ``world.body.energy._HUNGER_V1_FOR_TESTS``・
+            旧 checkpoint の値は安定版のタグ ``stable-v2-before-library-defaults-q13``)。
         energy_rate: 消費の式(``"eer"``=K1 (c)・既定 / ``"bmr"``=K1 (a) の感度腕)。``hunger_model=
             "energy"`` のときだけ効く。
         meal_sleep_defer: **第2波 §2B 項 1(Q34 (b))** ``"off"``(**既定**=旧)/ ``"on"``=範囲外の既定の食事時刻に
@@ -2481,6 +2516,8 @@ def run_day(
         ``RunResult``。
     """
     _call_args = dict(locals())  # 10d: 設定の指紋(先頭で引数だけを写す)
+    # 〔Q13 (a′)〕渡さなかった倍率(None)を決めた値で写しに置く(設定の指紋も決めた値=予算を渡したランは前のまま 1.0)
+    _call_args["l4_scale"] = resolve_l4_scale(l4_scale, budget)
     # 1-0 段 F: 組み立て・tick のループ・ランの終わりは engine.systems(状態の箱+系+進行役)。結果は HEAD と同じ。
     from shibuya.runtime.systems.conductor import conduct
 

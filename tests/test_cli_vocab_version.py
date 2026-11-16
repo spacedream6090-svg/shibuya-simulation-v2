@@ -26,21 +26,23 @@ def test_cli_run_passes_vocab_version_through_kwargs():
     assert res.vocab_version == "v2"
 
 
-def test_cli_run_defaults_to_v1():
+def test_cli_run_defaults_to_v3():
+    """〔Q13・第347〕``cli.run`` の既定は CLI と同じ v3(前はライブラリの既定 v1)。"""
     from shibuya import cli
 
     res = cli.run(**SMALL)
     fields = res.run_manifest_fields()
-    assert fields["vocab_version"] == DEFAULT_VOCAB_VERSION == "v1"
-    assert fields["synonym_table_version"] == "undefined-synonyms-v2"
+    assert fields["vocab_version"] == cli.CLI_DEFAULT_VOCAB_VERSION == "v3"
+    assert fields["synonym_table_version"] == "undefined-synonyms-v5"
     assert "action_usage" in fields
 
 
-def test_the_default_run_is_byte_identical_with_the_explicit_v1():
+def test_the_default_run_is_byte_identical_with_the_explicit_v3():
+    """〔Q13・第347〕既定のランは v3 の明示と同じ(前は v1 の明示と同じ)。"""
     from shibuya import cli
 
     base = cli.run(**SMALL)
-    explicit = cli.run(vocab_version="v1", **SMALL)
+    explicit = cli.run(vocab_version="v3", **SMALL)
     assert base.final_hash == explicit.final_hash
     assert cli.checkpoints_payload(base)["checkpoints"] == (
         cli.checkpoints_payload(explicit)["checkpoints"]
@@ -50,7 +52,7 @@ def test_the_default_run_is_byte_identical_with_the_explicit_v1():
 
 @pytest.mark.parametrize(
     "argv,expected",
-    # 第277(二層の段 3): **CLI の既定は v3**(ライブラリ ``run_day``/``cli.run`` の既定は v1 のまま)
+    # 第277(二層の段 3): **CLI の既定は v3**(〔Q13〕ライブラリ ``run_day``/``cli.run`` の既定も v3=同じ 1 つの値)
     [([], "v3"), (["--vocab-version", "v1"], "v1"), (["--vocab-version", "v2"], "v2"),
      (["--vocab-version", "v3"], "v3")],
 )
@@ -119,14 +121,21 @@ def test_cli_main_has_the_activity_flag(monkeypatch, argv, expected):
     assert seen["activity"] is expected
 
 
-def test_cli_default_is_v3_but_the_library_default_stays_v1():
-    """第277: CLI の既定だけが v3。ライブラリの既定(=退化検査・golden の切替口)は v1 のまま。"""
+def test_cli_and_run_default_vocab_are_one_value():
+    """〔Q13・第347〕ランの入口の既定(``run_day``・``cli.run``・``RunResult``)と CLI の既定は同じ 1 つの値 v3
+    (``engine.run.RUN_DEFAULT_VOCAB_VERSION``)。低い層の既定(``DEFAULT_VOCAB_VERSION`` の 2 か所)は v1 のまま(Q13 (s1)=
+    パーサの中で低い層の既定に頼る所はユーザーの判断待ち)。"""
+    import inspect
+
     from shibuya import cli
+    from shibuya.engine import run as RUN
     from shibuya.foundation.vocab.actions import DEFAULT_VOCAB_VERSION as LIB_DEFAULT
 
-    assert cli.CLI_DEFAULT_VOCAB_VERSION == "v3"
+    assert cli.CLI_DEFAULT_VOCAB_VERSION == RUN.RUN_DEFAULT_VOCAB_VERSION == "v3"
+    assert inspect.signature(RUN.run_day).parameters["vocab_version"].default == "v3"
+    assert RUN.RunResult.__dataclass_fields__["vocab_version"].default == "v3"
     assert LIB_DEFAULT == DEFAULT_VOCAB_VERSION == "v1"
-    assert cli.run(**SMALL).run_manifest_fields()["vocab_version"] == "v1"
+    assert cli.run(**SMALL).run_manifest_fields()["vocab_version"] == "v3"
 
 
 @pytest.mark.parametrize("mode", ["open", "hint"])

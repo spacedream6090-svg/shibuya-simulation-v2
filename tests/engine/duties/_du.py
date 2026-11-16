@@ -90,7 +90,10 @@ def world_fixture(monkeypatch: Any, *, n_cells: int = 1, unstaffed: int = UN,
 
 
 def fresh(monkeypatch: Any, **kw: Any) -> dict[str, Any]:
-    """毎回作り直す世界と台帳(ランごとに新しい物が要る)。"""
+    """毎回作り直す世界と台帳(ランごとに新しい物が要る)。〔Q13〕``KW`` の空腹 v1 は試験の中だけの口=印もここで立てる。"""
+    from tests.engine.body._hunger_v1 import hunger_v1
+
+    hunger_v1(monkeypatch)
     return world_fixture(monkeypatch, **kw)
 
 

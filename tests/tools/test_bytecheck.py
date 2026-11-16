@@ -103,11 +103,18 @@ def _env(**values: str):
 
 # ================================================================== 構成の表
 def test_all19_is_the_old_table(wave2):
+    """19 構成は前の道具の表と同じ並びと引数。〔第347・Q13-5 (b)〕違いは 1 つだけ: golden の帰無腕 ``w6_golden_null_arm`` に
+    ``vocab_version="v1"`` を明示した(前の表は語彙を渡さない=前の ``cli.run`` の語彙の既定 v1 で回った。Q13 で既定が v3 になった
+    ので、前と同じラン=語彙 v1 の帰無腕を byte-check が見る範囲に保つ)。"""
     old = wave2.configs()
     new = C.configs()
     assert len(new) == 19
     assert list(new) == list(old)  # 並びも同じ
-    assert new == old
+    assert "vocab_version" not in old["w6_golden_null_arm"]
+    assert new["w6_golden_null_arm"] == {**old["w6_golden_null_arm"], "vocab_version": "v1"}
+    assert {k: v for k, v in new.items() if k != "w6_golden_null_arm"} == {
+        k: v for k, v in old.items() if k != "w6_golden_null_arm"}
+    assert all("vocab_version" in v for v in new.values())  # どの構成も語彙を明示=ランの既定に頼らない
     assert list(C.set_configs("all19")) == list(old)
 
 

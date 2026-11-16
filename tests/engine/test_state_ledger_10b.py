@@ -754,13 +754,18 @@ CUR_SYN = {
     {"vocab_version": "v1", "hunger_model": "v1"}, {"vocab_version": "v3", "hunger_model": "v1"},
     {"vocab_version": "v2", "geometry": "edge", "hunger_model": "v1"}, ALL_ARMS, CLASSICAL_ARMS,
 ], ids=["v1", "v3", "v2_edge_attention", "all_arms", "classical"])
-def test_t1_deleting_the_dead_columns_changes_nothing(request, tmp_path, kw):
+def test_t1_deleting_the_dead_columns_changes_nothing(request, tmp_path, kw, monkeypatch):
     """T1(10e・E1): 死蔵 5 列を消した後の既定の final は behavior-hash そのもの。
 
     〔改訂(第330・RET)〕前は ``hash_scheme="full"``・``rng_scheme="stateful"`` で 10e の前の final と behavior-hash
     (``PRE10E_SYN``)を再現する形だった(切替口を消した=第330 ACT の commit で 5 構成とも通ったことを記録 §RET に書いた)。
     いまは今の既定の final(``CUR_SYN``)と、K15 の 2 列を消しても final が動かないこと(同じ値)を見る。
+    〔Q13〕空腹 v1 の 3 行は試験の中だけの口で通す(``tests/engine/body/_hunger_v1.py``)。
     """
+    from tests.engine.body._hunger_v1 import hunger_v1
+
+    if kw.get("hunger_model") == "v1":
+        hunger_v1(monkeypatch)
     cid = request.node.callspec.id
     new = _syn(kw)(tmp_path / "new")
     assert new.final_hash == new.checkpoints[-1].behavior_hash and new.final_hash[:16] == CUR_SYN[cid]

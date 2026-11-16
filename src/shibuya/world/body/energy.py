@@ -241,10 +241,16 @@ def anchors_rel() -> str:
     """manifest の ``energy.anchors`` の道筋。"""
     return "+".join(f"docs/bench/anchors/{q.name}" for q in anchors_paths())
 
-#: 空腹のモデル(``--hunger-model``)。``v1``=旧規則(+1/30 分・購入/食事で −4)。
+#: 空腹のモデル。``v1``=旧規則(+1/30 分・購入/食事で −4)。〔Q13・第347〕``v1`` は試験の中だけの口(:func:`check_hunger_model`)。
 HUNGER_MODELS: Final[tuple[str, ...]] = ("v1", "energy")
-#: **CLI の既定**(K5 (a))。``run_day`` のライブラリ既定は ``v1``(語彙・L4 と同じ分け方)。
+#: **ランの既定**(K5 (a))。〔Q13・返事その 8 §1-2〕``run_day``・``cli.run``・CLI が同じこの値(前の ``run_day`` の既定は ``v1``)。
 DEFAULT_HUNGER_MODEL: Final[str] = "energy"
+#: 〔Q13・第347・返事その 8 §1-2 Q7 (d)〕空腹の旧規則 ``v1`` を試験の中だけで通す非公開の印(既定 False=ランの口からは選べない)。
+#: 立てるのは試験の助け ``tests/engine/body/_hunger_v1.py`` だけ(``monkeypatch``。切替口 ③a の ``nav1._LEGACY_FOR_TESTS`` と
+#: 同じ形)。``__all__`` に入れない。
+_HUNGER_V1_FOR_TESTS: bool = False
+#: 旧の既定(空腹 v1)の値を再現する安定版のタグ(Q13 の版上げの直前の本体)。
+HUNGER_V1_TAG: Final[str] = "stable-v2-before-library-defaults-q13"
 #: 消費の式(``--energy-rate``)。``eer``=K1 (c)・``bmr``=K1 (a) の感度腕。
 ENERGY_RATES: Final[tuple[str, ...]] = ("eer", "bmr")
 DEFAULT_ENERGY_RATE: Final[str] = "eer"
@@ -300,10 +306,21 @@ _SEX_FEMALE: Final[int] = 1
 _SEX_UNKNOWN_ROW: Final[int] = 2
 
 
+def hunger_v1_for_tests() -> bool:
+    """〔Q13・第347〕空腹の旧規則 v1 を通す試験の中だけの口の印が立っているか(読むのは :func:`check_hunger_model` だけ=組み立ての
+    入口。``cli.run`` は読まない)。"""
+    return bool(_HUNGER_V1_FOR_TESTS)
+
+
 def check_hunger_model(value: str) -> str:
+    """空腹のモデルの名を確かめる(組み立ての入口)。〔Q13・第347〕``"v1"`` は消した口=試験の中だけの口の印が無ければ止める。"""
     v = str(value)
     if v not in HUNGER_MODELS:
         raise ValueError(f"hunger_model は {HUNGER_MODELS} のどれか(いま {value!r})")
+    if v == HUNGER_MODELS[0] and not hunger_v1_for_tests():
+        raise ValueError(f"hunger_model={v!r} は消した口(Q13 ライブラリの既定をそろえる版上げ・旧値の再現は安定版のタグ "
+                         f"{HUNGER_V1_TAG})=空腹の旧規則は試験の中だけの口(world.body.energy の _HUNGER_V1_FOR_TESTS・"
+                         "tests/engine/body/_hunger_v1.py)")
     return v
 
 

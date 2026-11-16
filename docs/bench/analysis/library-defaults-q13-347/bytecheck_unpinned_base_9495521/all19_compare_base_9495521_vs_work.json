@@ -1,0 +1,1475 @@
+{
+ "a": {
+  "tool": "tools/bytecheck/2",
+  "label": "base_9495521",
+  "set": "all19",
+  "kw": {},
+  "src": "写し",
+  "commit": "9495521fb094091011960cf64a1bb98839e29db7",
+  "world": "data/world/v2",
+  "agents": 5000,
+  "seed": 1,
+  "pythonhashseed": "0",
+  "env": {},
+  "env_hidden": [],
+  "extra_paths": [],
+  "drop_behavior_item": "",
+  "multiset_items": ""
+ },
+ "b": {
+  "tool": "tools/bytecheck/2",
+  "label": "work",
+  "set": "all19",
+  "kw": {},
+  "src": "写し",
+  "commit": "",
+  "world": "data/world/v2",
+  "agents": 5000,
+  "seed": 1,
+  "pythonhashseed": "0",
+  "env": {},
+  "env_hidden": [],
+  "extra_paths": [],
+  "drop_behavior_item": "",
+  "multiset_items": ""
+ },
+ "note": "tools/bytecheck run: 基準 9495521 の写し vs work・組 all19",
+ "keys": [
+  "final",
+  "calls",
+  "blocks_rows",
+  "blocks_sha",
+  "calls_rows",
+  "calls_column_names",
+  "calls_columns_sha",
+  "action_usage_total",
+  "action_usage_sha",
+  "calls_by_condition",
+  "salient_events",
+  "collapse",
+  "noticed",
+  "dispatches",
+  "arrived",
+  "mean_delay_min",
+  "meals",
+  "behavior_last",
+  "full_last",
+  "end_of_day",
+  "start_sim_datetime",
+  "replay_date",
+  "calendar_weekday",
+  "rng_scheme",
+  "frozen_sources",
+  "tape_files",
+  "tape_sha256",
+  "calls_schema",
+  "blocks_schema",
+  "manifest_sha",
+  "manifest_fields_sha",
+  "manifest_skipped",
+  "run_meta_sha",
+  "run_meta_fields_sha",
+  "run_meta_skipped",
+  "checkpoints",
+  "n_checkpoints"
+ ],
+ "keys_new": [
+  "tape_files",
+  "tape_sha256",
+  "calls_schema",
+  "blocks_schema",
+  "manifest_sha",
+  "manifest_fields_sha",
+  "manifest_skipped",
+  "run_meta_sha",
+  "run_meta_fields_sha",
+  "run_meta_skipped",
+  "checkpoints",
+  "n_checkpoints"
+ ],
+ "not_compared_fields": {
+  "manifest": {
+   "env_id": "環境の ID(environment の code=git の commit・dirty・差分の sha を含めて作る=写しの木は git の外で空の値・比べる側は作業木の HEAD)",
+   "environment.code": "git の commit・dirty・差分の sha256(両側で違って当然)",
+   "environment.env_id": "env_id と同じ値",
+   "resume.read_seconds": "壁時計の秒(状態を読んだ時間)",
+   "resume.restore_seconds": "壁時計の秒(状態を戻した時間)"
+  },
+  "run_meta": {
+   "env_id": "環境の ID(environment の code=git の commit・dirty・差分の sha を含めて作る=写しの木は git の外で空の値・比べる側は作業木の HEAD)",
+   "environment.code": "git の commit・dirty・差分の sha256(両側で違って当然)",
+   "environment.env_id": "env_id と同じ値"
+  },
+  "suffixes": [
+   "_nondeterministic"
+  ],
+  "suffix_exempt": {
+   "manifest_sections": "manifest の欄を節に分ける表(鍵は欄の道筋・値は節の名=壁時計でない。``manifest_sections.paths.relations.wall_seconds_nondeterministic`` などの行がある)"
+  },
+  "tape_fieldwise": [
+   "run_meta.json"
+  ]
+ },
+ "summary": {
+  "configs": 19,
+  "all_same": 18,
+  "same_partial": 0,
+  "moved": 1,
+  "errors": 0,
+  "final_same": 18,
+  "not_compared": {},
+  "conditions_not_compared": [],
+  "result": "動いた",
+  "exit_code": 1
+ },
+ "checks": {
+  "a": [],
+  "b": [],
+  "conditions": [],
+  "compare": [],
+  "run": []
+ },
+ "rows": {
+  "w6_v3_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v3_activity_off": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v1_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v1_derive_v2_1": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v2": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v1_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v2_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_v1_edge_plateau": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_old_v1_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_old_v1_derive_v2_1": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_old_v2": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_old_v1_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_old_v2_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_old_v1_edge_plateau": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "w6_golden_null_arm": {
+   "same": [
+    "calls_column_names",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "final": {
+     "a": "2875768fc19e02e8",
+     "b": "d24a12d86ff16a6b"
+    },
+    "calls": {
+     "a": 95645,
+     "b": 98083
+    },
+    "blocks_rows": {
+     "a": 3172,
+     "b": 6682
+    },
+    "blocks_sha": {
+     "a": "08700274a8bec786",
+     "b": "9489bdaf42710c18"
+    },
+    "calls_rows": {
+     "a": 95645,
+     "b": 98083
+    },
+    "calls_columns_sha": {
+     "a": {
+      "call_id": "c8e873a7d0a924ca",
+      "agent_id": "c33bc0572a5a171a",
+      "tick": "6df3384bc93cc29c",
+      "wake_class": "100f288e4e3711ec",
+      "prompt_hash": "23eb38c61b61b755",
+      "block_ids": "5f7b93a94c3f846c",
+      "params_hash": "75aaecb38d043a14",
+      "response": "cf86b8415621cece",
+      "tokens_in": "62fbba873d40fcd6",
+      "tokens_out": "94c0e7a39e3bbdce",
+      "deferred": "b236e3229330ca29",
+      "deferred_reason": "6d175be208737c57",
+      "observed_tick": "7d2a26ec90843a9e",
+      "recalled_rows": "0cad8c8ebf5ada2a",
+      "recalled_first_tick": "0cad8c8ebf5ada2a",
+      "recalled_kind": "0cad8c8ebf5ada2a",
+      "recalled_object": "0cad8c8ebf5ada2a",
+      "recalled_source": "0cad8c8ebf5ada2a",
+      "acquaintance_ids": "0cad8c8ebf5ada2a",
+      "b5_text": "9e98f4d671680dba",
+      "b6_block_id": "762692b9dba3dea6"
+     },
+     "b": {
+      "call_id": "e597df2e3091c46e",
+      "agent_id": "08489cbe5b665d7f",
+      "tick": "1058d6112b589ea0",
+      "wake_class": "03d9354483915763",
+      "prompt_hash": "6eab2aff8e778660",
+      "block_ids": "7318f7b0564cc92d",
+      "params_hash": "d88ac0548545d335",
+      "response": "4664e4dfb4d412b0",
+      "tokens_in": "d45f0d7d2b3633aa",
+      "tokens_out": "49681caa322e6244",
+      "deferred": "a6a11391a84cf561",
+      "deferred_reason": "dfa534ab96b26f2e",
+      "observed_tick": "d0f11b666e0f8585",
+      "recalled_rows": "e2289019389a2450",
+      "recalled_first_tick": "e2289019389a2450",
+      "recalled_kind": "e2289019389a2450",
+      "recalled_object": "e2289019389a2450",
+      "recalled_source": "e2289019389a2450",
+      "acquaintance_ids": "e2289019389a2450",
+      "b5_text": "48f06e97a71e44a1",
+      "b6_block_id": "b0762cb089132a36"
+     }
+    },
+    "action_usage_total": {
+     "a": 185394,
+     "b": 266401
+    },
+    "action_usage_sha": {
+     "a": "91dbfa30630e792e",
+     "b": "f8f31b9e70857607"
+    },
+    "calls_by_condition": {
+     "a": {
+      "CONVERSATION_TURN": 2798,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 5857,
+      "PLAN_GENERAL": 15132,
+      "PLAN_TRANSIT": 11998,
+      "INTEROCEPTION": 28285,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 31575,
+      "ACTIVITY_EXPIRY": 0
+     },
+     "b": {
+      "CONVERSATION_TURN": 2375,
+      "PLAN_SLEEPING": 0,
+      "PLAN_WORKING": 5857,
+      "PLAN_GENERAL": 15134,
+      "PLAN_TRANSIT": 11999,
+      "INTEROCEPTION": 16889,
+      "ACQUAINTANCE": 0,
+      "PROXIMITY_SWAP": 0,
+      "BEING_WATCHED": 0,
+      "OVERHEARD": 0,
+      "CELL_BLOCK": 4984,
+      "ACTIVITY_EXPIRY": 40845
+     }
+    },
+    "meals": {
+     "a": 0,
+     "b": 3325
+    },
+    "behavior_last": {
+     "a": "2875768fc19e02e843a6256f22fe007d6235ef5f3a6d146ff225d82b0370f4ea",
+     "b": "d24a12d86ff16a6b76239953d50293167f5e6a6668e936b6c53de8e878c98bc8"
+    },
+    "full_last": {
+     "a": "ac6b9bb3920947ad8acb78276d3061599579fa7e254c764cfbd795fad566a35e",
+     "b": "ba0cff018cb2d81cd864fb2cfa57156494989dccd83a6216f573b1e107e091bf"
+    },
+    "end_of_day": {
+     "a": {
+      "behavior_hash": "0c80541e0a217130e71af3df5fc90b4958c5304170d091c3371587b32f2b5fc6",
+      "full_hash": "e78c630a5835bc7938bec08db17f5ba665127582d54a9cda759373bcb44e4568",
+      "full_external_bytes": 2295304
+     },
+     "b": {
+      "behavior_hash": "d4ffdb4280910a55079299c071a155704c51882bd719f652a87590cd7e58bbeb",
+      "full_hash": "08365dd40f177edd791fdab24263ce333dca317fbc2896620133138eb0378a96",
+      "full_external_bytes": 3336588
+     }
+    },
+    "tape_sha256": {
+     "keys": {
+      "blocks.parquet": {
+       "a": "9e9021d2fd890dba3da08d5aa89a8e5b8555b8abc133892a752a68d64c868768",
+       "b": "1ae2eef149c9c33e12cd4af77fc67d739037c444e7a345c7624068e0b62407cb"
+      },
+      "calls.parquet": {
+       "a": "90760be3e607784746156750ac44b834daf59cca2d6a99e8c321b997fab76a85",
+       "b": "7288587cab04569fd49ff896fe5c518bf05461ca10e246df9c9eb05696ab39b2"
+      }
+     }
+    },
+    "manifest_sha": {
+     "a": "1c102ff93b3d4d517230ffde1b141ef4883bce39b5492feb50849098b7a7620e",
+     "b": "98ddd26766f363c1c1ccfdd655c52287b5aaf004c90adac4fde265b974adf9d1"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "state_hashes": {
+       "a": "d52331d73bd353a1",
+       "b": "af47a4cb14b9fc30"
+      },
+      "state_hashes_end_of_day": {
+       "a": "1c4b1b0c9ee57748",
+       "b": "6e16809e22ded063"
+      },
+      "daily": {
+       "a": "efc0cfa8bf8a5139",
+       "b": "b649dfa92ede178d"
+      },
+      "llm_calls_total": {
+       "a": "cdb5fce0cfb1c265",
+       "b": "809800d85db26ec3"
+      },
+      "llm_calls_per_agent_day": {
+       "a": "bfe881051540d637",
+       "b": "3764f4f0e41ed4a5"
+      },
+      "l4_conversation_share": {
+       "a": "b62f028eb1ea15bd",
+       "b": "c6713324b16c7901"
+      },
+      "vocab_version": {
+       "a": "161078e42e8fef3b",
+       "b": "1cdaedef147c6c17"
+      },
+      "activity": {
+       "a": "fcbcf165908dd18a",
+       "b": "b5bea41b6c623f7c"
+      },
+      "activity_kind_counts": {
+       "a": "44136fa355b3678a",
+       "b": "7ab64ce616baa230"
+      },
+      "target_resolution": {
+       "a": "8c03160493fee4a7",
+       "b": "e3cc57bfc9b1bb8e"
+      },
+      "move_resolution": {
+       "a": "b838eea7dbc7be7a",
+       "b": "0f129246d4968c37"
+      },
+      "intent": {
+       "a": "44136fa355b3678a",
+       "b": "ae5c7ae482722c37"
+      },
+      "energy": {
+       "a": "4e27cae43e66dd76",
+       "b": "9f89f204de78eff3"
+      },
+      "intero_crossings": {
+       "a": "d779ac87ed1dded6",
+       "b": "e7ad3f29c5ab1362"
+      },
+      "decision_layers": {
+       "a": "8f0f822c790edad0",
+       "b": "a8d780b36e4f82b5"
+      },
+      "calls_by_condition": {
+       "a": "0f9a1e48634e8726",
+       "b": "5ba60e6c2d76841e"
+      },
+      "synonym_table_version": {
+       "a": "0a6ba2cf1d71fa53",
+       "b": "103005289b226296"
+      },
+      "action_usage": {
+       "a": "4f0a69a58bc70f99",
+       "b": "ca26258b187ce510"
+      },
+      "leave_effects": {
+       "a": "5d43c379cac71f81",
+       "b": "55640f17ef26706b"
+      },
+      "near_tiebreak": {
+       "a": "a8878c9283cd24e5",
+       "b": "ee26a0f75343c04c"
+      },
+      "group_norms": {
+       "a": "f64ef06863b80af1",
+       "b": "0ba30403589cc1a1"
+      },
+      "waste_sink": {
+       "a": "c92b082d6a0df187",
+       "b": "bd5593e2a25db2e4"
+      },
+      "calls_by_model": {
+       "a": "f1d651f333740d25",
+       "b": "83842f2c9139dd85"
+      },
+      "economy": {
+       "a": "40fb2a0fcdd59627",
+       "b": "ae08e52af5885517"
+      },
+      "proximity": {
+       "a": "173ffbfc8ef4bb48",
+       "b": "85eee1a3bbd5068c"
+      },
+      "space": {
+       "a": "1eee19365132249d",
+       "b": "0b792a3564c9e48f"
+      },
+      "defect_fixes_1103": {
+       "a": "13a1aeabd107c882",
+       "b": "c9f70710dde88922"
+      }
+     }
+    },
+    "checkpoints": {
+     "len": [
+      4,
+      4
+     ],
+     "items": {
+      "0": {
+       "a": {
+        "activity_hash": "",
+        "agents_hash": "80d4e598d0464ae5a1d49bf7c0ee86d239cc70e3ba7e99d2d6f024e655775844",
+        "behavior_hash": "36a2040e512a84d67581d2087ff0aa85822a4521fba50855875c28209cdef6b4",
+        "full_hash": "e6907440f1d4cab6134d4639dea48d45257339bd3e7268d80f6569fd3f2c210a",
+        "population_hash": "3f2edac09fdd2cf7a8a86ecd0502cc6a4234ecf6ddb64cd532e3f720d18579e9",
+        "schedule_hash": "4d8583e5f761e5f05d791e64066bc776d6227dd0100002b74f8afb52d024fc60",
+        "tick": 359,
+        "world_hash": "d523ca4684d8d449f87a41cc84416469b49a136715574315cba3cf7eac938a96"
+       },
+       "b": {
+        "activity_hash": "3f1de669878207d273870645cf68295af50ef4e2d7f48adfda1ad0675390d918",
+        "agents_hash": "0de9e39bcb58f2c8230decc15c2e4c2975648cdc9c3fdc92e6712d3edb8657f8",
+        "behavior_hash": "5e50904ac386175ba51daf46730fc65fe0b2b1891be49599e96d85f8a46d9997",
+        "full_hash": "2aaca5b282aeaa1ffaae5b6019221dc6d1aa096e82d5d2760853d0053716f7e0",
+        "population_hash": "3f2edac09fdd2cf7a8a86ecd0502cc6a4234ecf6ddb64cd532e3f720d18579e9",
+        "schedule_hash": "4d8583e5f761e5f05d791e64066bc776d6227dd0100002b74f8afb52d024fc60",
+        "tick": 359,
+        "world_hash": "c9df41cc45748187f95980ef414409304b17dc32147c90033c6b4b2b3a5694d1"
+       }
+      },
+      "1": {
+       "a": {
+        "activity_hash": "",
+        "agents_hash": "9343a92b4e26d3e049e462501317889f46b119a6c19178102019dc525db7e9e1",
+        "behavior_hash": "3082aac2df4c05a0fe1d4fb803f008b207f9d97e1ff924ed5d2d0bd8e646e29b",
+        "full_hash": "5b7ebf30fe4e92739541d58eb8e387232f343a4a9b04c65dadc26d9911bf560e",
+        "population_hash": "3f2edac09fdd2cf7a8a86ecd0502cc6a4234ecf6ddb64cd532e3f720d18579e9",
+        "schedule_hash": "4d8583e5f761e5f05d791e64066bc776d6227dd0100002b74f8afb52d024fc60",
+        "tick": 719,
+        "world_hash": "254aeb51e69d57c61e904e0b8555149a521d3184677c25c8ea5e11e4f0bfe149"
+       },
+       "b": {
+        "activity_hash": "075ee6b47225df8d572b9755bd27b909c1235d818bdd435693d9d49915fda44e",
+        "agents_hash": "893c63fef9fd6a10ee54eacac737a1ebb2738b90176b9ef6bda6ef5b27b0453b",
+        "behavior_hash": "375445c0006ed632facd6e1d192901c50646108c56a6b52934cc243ed5dc2728",
+        "full_hash": "ef72f646eee86d285dc5de97f103f3c4b9e56609c711017341a7c13293bcdf71",
+        "population_hash": "3f2edac09fdd2cf7a8a86ecd0502cc6a4234ecf6ddb64cd532e3f720d18579e9",
+        "schedule_hash": "4d8583e5f761e5f05d791e64066bc776d6227dd0100002b74f8afb52d024fc60",
+        "tick": 719,
+        "world_hash": "ac38b277eef34c3f3c36ca9a79c70d822cc2ca70d15de174b5cdd1bda8b38177"
+       }
+      },
+      "2": {
+       "a": {
+        "activity_hash": "",
+        "agents_hash": "0ab131f0fb05c72d19a9354a09d0e6cc75f98b75da053113f98724a6d9de6881",
+        "behavior_hash": "4f53db8c851d7615352247c4cdce317129a55bb6e14d93d11cd2576d0a953f7e",
+        "full_hash": "c9473a268c8326740c6c7ff0fc4d380c860ec764620d0289dd0278b8e1406784",
+        "population_hash": "3f2edac09fdd2cf7a8a86ecd0502cc6a4234ecf6ddb64cd532e3f720d18579e9",
+        "schedule_hash": "4d8583e5f761e5f05d791e64066bc776d6227dd0100002b74f8afb52d024fc60",
+        "tick": 1079,
+        "world_hash": "a90e614b3137e247c41875a1f9a3e95731e3cbbd6de13ba8154b5d5eb1e7ca32"
+       },
+       "b": {
+        "activity_hash": "35850bd00a7ed82ce34ece6a49bcb3f73cb61196bd7a5c3ad325ed8fa2b8a654",
+        "agents_hash": "c230d280fb5470f54af49eca2c2e224275e69ee808f4a5fabac896a7457a5ea0",
+        "behavior_hash": "2d3f1d47af53b868920d99d7c474256162ee16d4c06441f4a657c3414d7b2ea1",
+        "full_hash": "a18bf4d39d5e14ff482fd9a36202b9311b419c1b2b68a7b528443aeec38b69d6",
+        "population_hash": "3f2edac09fdd2cf7a8a86ecd0502cc6a4234ecf6ddb64cd532e3f720d18579e9",
+        "schedule_hash": "4d8583e5f761e5f05d791e64066bc776d6227dd0100002b74f8afb52d024fc60",
+        "tick": 1079,
+        "world_hash": "f41aad3113b9e37c330004d17775239e2574a692057c80198e14f8131a319cdc"
+       }
+      },
+      "3": {
+       "a": {
+        "activity_hash": "",
+        "agents_hash": "1c7701d2c5a58d0d537258ac3d668d8323e494f6083202a29f39c569caa12405",
+        "behavior_hash": "2875768fc19e02e843a6256f22fe007d6235ef5f3a6d146ff225d82b0370f4ea",
+        "full_hash": "ac6b9bb3920947ad8acb78276d3061599579fa7e254c764cfbd795fad566a35e",
+        "population_hash": "3f2edac09fdd2cf7a8a86ecd0502cc6a4234ecf6ddb64cd532e3f720d18579e9",
+        "schedule_hash": "4d8583e5f761e5f05d791e64066bc776d6227dd0100002b74f8afb52d024fc60",
+        "tick": 1439,
+        "world_hash": "0c4f6737312cceef7a4debeb4dea821ba17f2f1ae8514465d1195a19ce30b1ad"
+       },
+       "b": {
+        "activity_hash": "7a465cb2b3bcfe57920a48dc13909cda71f50beb3f8a58b654c1f70bca2dd6c1",
+        "agents_hash": "c481302fe803164260f885dfafd9fe490088d98e8ce2892e32e0cd1efa1e4164",
+        "behavior_hash": "d24a12d86ff16a6b76239953d50293167f5e6a6668e936b6c53de8e878c98bc8",
+        "full_hash": "ba0cff018cb2d81cd864fb2cfa57156494989dccd83a6216f573b1e107e091bf",
+        "population_hash": "3f2edac09fdd2cf7a8a86ecd0502cc6a4234ecf6ddb64cd532e3f720d18579e9",
+        "schedule_hash": "4d8583e5f761e5f05d791e64066bc776d6227dd0100002b74f8afb52d024fc60",
+        "tick": 1439,
+        "world_hash": "93c4bdda44e8a06029770088095b01c44c47fd956db343cd09dc159d74715637"
+       }
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 2438,
+   "blocks_rows_delta": 3510,
+   "action_usage_delta": 81007,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "state_hashes": {
+     "a": "d52331d73bd353a1",
+     "b": "af47a4cb14b9fc30"
+    },
+    "state_hashes_end_of_day": {
+     "a": "1c4b1b0c9ee57748",
+     "b": "6e16809e22ded063"
+    },
+    "daily": {
+     "a": "efc0cfa8bf8a5139",
+     "b": "b649dfa92ede178d"
+    },
+    "llm_calls_total": {
+     "a": 95645,
+     "b": 98083
+    },
+    "llm_calls_per_agent_day": {
+     "a": 19.129,
+     "b": 19.6166
+    },
+    "l4_conversation_share": {
+     "a": 0.029254,
+     "b": 0.024214
+    },
+    "vocab_version": {
+     "a": "v1",
+     "b": "v3"
+    },
+    "activity": {
+     "a": false,
+     "b": true
+    },
+    "activity_kind_counts": {
+     "a": "44136fa355b3678a",
+     "b": "7ab64ce616baa230"
+    },
+    "target_resolution": {
+     "a": "8c03160493fee4a7",
+     "b": "e3cc57bfc9b1bb8e"
+    },
+    "move_resolution": {
+     "a": "b838eea7dbc7be7a",
+     "b": "0f129246d4968c37"
+    },
+    "intent": {
+     "a": "44136fa355b3678a",
+     "b": "ae5c7ae482722c37"
+    },
+    "energy": {
+     "a": "4e27cae43e66dd76",
+     "b": "9f89f204de78eff3"
+    },
+    "intero_crossings": {
+     "a": "d779ac87ed1dded6",
+     "b": "e7ad3f29c5ab1362"
+    },
+    "decision_layers": {
+     "a": "8f0f822c790edad0",
+     "b": "a8d780b36e4f82b5"
+    },
+    "calls_by_condition": {
+     "a": "0f9a1e48634e8726",
+     "b": "5ba60e6c2d76841e"
+    },
+    "synonym_table_version": {
+     "a": "undefined-synonyms-v2",
+     "b": "undefined-synonyms-v5"
+    },
+    "action_usage": {
+     "a": "4f0a69a58bc70f99",
+     "b": "ca26258b187ce510"
+    },
+    "leave_effects": {
+     "a": "5d43c379cac71f81",
+     "b": "55640f17ef26706b"
+    },
+    "near_tiebreak": {
+     "a": "a8878c9283cd24e5",
+     "b": "ee26a0f75343c04c"
+    },
+    "group_norms": {
+     "a": "f64ef06863b80af1",
+     "b": "0ba30403589cc1a1"
+    },
+    "waste_sink": {
+     "a": "c92b082d6a0df187",
+     "b": "bd5593e2a25db2e4"
+    },
+    "calls_by_model": {
+     "a": "f1d651f333740d25",
+     "b": "83842f2c9139dd85"
+    },
+    "economy": {
+     "a": "40fb2a0fcdd59627",
+     "b": "ae08e52af5885517"
+    },
+    "proximity": {
+     "a": "173ffbfc8ef4bb48",
+     "b": "85eee1a3bbd5068c"
+    },
+    "space": {
+     "a": "1eee19365132249d",
+     "b": "0b792a3564c9e48f"
+    },
+    "defect_fixes_1103": {
+     "a": "13a1aeabd107c882",
+     "b": "c9f70710dde88922"
+    }
+   }
+  },
+  "v3_mem_store": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "v3_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "v3_classical": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  },
+  "v3_classical_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_sha",
+    "manifest_fields_sha",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {},
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0
+  }
+ }
+}

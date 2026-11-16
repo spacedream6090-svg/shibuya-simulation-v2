@@ -127,7 +127,13 @@ def test_shaped_pattern_finds_both_forms_inside_japanese_text():
 @pytest.mark.parametrize("name", [
     pytest.param(n, marks=WORLD) if kind == "world" else n for n, (kind, _kw, _env) in SN.CONFIGS.items()])
 def test_run_outputs_contain_exactly_the_frozen_path_shaped_names(name):
-    """短いランの manifest・run_meta・テープの見出し・ハッシュから拾った道の形の部分が凍結と同じ(検収 M4)。"""
+    """短いランの manifest・run_meta・テープの見出し・ハッシュから拾った道の形の部分が凍結と同じ(検収 M4)。
+
+    〔第347・Q13〕ランの既定を CLI にそろえた版上げで、凍結の表に名を足した(足すだけ・減った名は無い):
+    ``syn_default`` の manifest に ``agents.weekly.WEEKLY_FILE``(既定の空腹のモデルが energy になり、食事の既定=W17 の名が載る)・
+    ``syn_all_arms_classical`` のハッシュに ``shibuya.engine.activity.ActivityPayload``・``shibuya.llm.contract.Target``・
+    ``shibuya.llm.contract.TargetKind``(既定の呼数が無制限になり、活動の層と対象の型が状態に入る)。記録
+    ``docs/bench/analysis/library-defaults-q13-347/README.md``。"""
     got = SN.run_config(name, repo=ROOT, src=Path(shibuya.__file__).resolve().parents[1])
     want = FROZEN["run_path_shaped"][name]
     for src in SN.SOURCES:

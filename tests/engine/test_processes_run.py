@@ -227,6 +227,7 @@ def test_c4_second_half_on_the_real_world(capsys):
     res = run_day(
         n_agents=5_000, seed=1, world=world, ticks=1_440, checkpoint_every=360,
         world_dir=WORLD_DIR, ledger=bundle,
+        l4_scale=1.0,  # 〔Q13・第347〕L4 の硬い上限を見る=呼数の按分(前のライブラリの既定)を明示
     )
     runner = res.runner  # type: ignore[attr-defined]
     with capsys.disabled():

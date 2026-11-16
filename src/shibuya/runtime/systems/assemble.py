@@ -40,7 +40,6 @@ from shibuya.world.model.space import nav1 as _NAV1
 from shibuya.runtime.state import resume as RS
 from shibuya.act.activity import ActivityLayer
 from shibuya.engine.arbiter import Arbiter
-from shibuya.engine.arbiter import call_budget_per_tick
 from shibuya.world.facts.calendar import DEFAULT_WORLD_START
 from shibuya.world.facts.calendar import SimCalendar
 from shibuya.world.facts.calendar import WEATHER_SCHEME
@@ -1046,8 +1045,9 @@ def build(_call_args: dict[str, Any]) -> Any:
     #: edge 幾何の診断(ラン通算)。node では 0 のまま。
     geometry_hops = 0
     geometry_jammed = 0
-    #: このランの 1 刻みの呼数上限(``None`` なら L4 按分)。manifest の ``budget_per_tick``。
-    effective_budget = float(budget) if budget is not None else call_budget_per_tick(n_agents)
+    #: このランの 1 刻みの呼数上限(``None`` なら倍率から=〔Q13〕``cli.run`` と同じ式 ``run.l4_budget``)。
+    #: manifest の ``budget_per_tick``。
+    effective_budget = float(budget) if budget is not None else _RUN.l4_budget(n_agents, l4_scale)
     arbiter = Arbiter(n_agents, salt, effective_budget)
     space = C.ResourceSpace(world.n_poi, n_agents, world.n_cells)
 

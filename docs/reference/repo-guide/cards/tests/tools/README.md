@@ -100,7 +100,7 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
   - `old10e`(関数)
   - `refs`(関数)
   - `stop_before_copy`(関数): 断るはずの run が先へ進んだら、写しの木もつなぎも作らずに落とす(壊れた道具でもリポや data に触れない)。
-  - `test_all19_is_the_old_table`(関数)
+  - `test_all19_is_the_old_table`(関数): 19 構成は前の道具の表と同じ並びと引数。〔第347・Q13-5 (b)〕違いは 1 つだけ: golden の帰無腕 ``w6_golden_null_arm`` に
   - `test_all19_matches_the_v30a_record`(関数)
   - `test_archive_paths`(関数)
   - `test_arrow_schema_sees_types_nullability_and_metadata`(関数)
@@ -182,7 +182,7 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
   - `wired`(関数)
 - import している内部モジュール: `shibuya.foundation.paths`・`tools/bytecheck/check.py`・`tools/bytecheck/cli.py`・`tools/bytecheck/configs.py`・`tools/bytecheck/fields.py`・`tools/bytecheck/tree.py`
 - 環境変数: `SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CONTACT`・`SHIBUYA_FLEET_API_KEY`・名前を読めない所 5 か所・`os.environ` をまるごと使う
-- 決定の ID: 11-09/§2・第 346
+- 決定の ID: 11-09/§2・第 346・第 347
 
 ## [test_commit_check.py](../../../../../../tests/tools/test_commit_check.py)
 

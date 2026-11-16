@@ -161,7 +161,7 @@ batch_width_gauge — 第 3 期 3-2 **TM4 の既定の幅の試験の道具**(�
   - `--widths`
   - `--world`
 - 環境変数: `os.environ` をまるごと使う
-- 決定の ID: 10-12/§4-2
+- 決定の ID: 10-12/§4-2・第 347
 
 ## [deletion_candidates_ci.py](../../../../../../tools/instruments/deletion_candidates_ci.py)
 

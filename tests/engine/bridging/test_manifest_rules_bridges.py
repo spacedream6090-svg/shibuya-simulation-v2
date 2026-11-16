@@ -174,7 +174,7 @@ def test_tool_configs_that_call_cli_run_are_arms():
     assert cli.run_arms(_cli_run_view({"vocab_version": "v3", "stop_at_tick": 100, "state_out": "x",
                                        "resume_from": "y", "sim_days": 2})) == ()
     assert cli.run_arms(_cli_run_view({"vocab_version": "v3", "memory": "on"})) == ("memory",)
-    assert cli.run_arms(_cli_run_view({})) == ("vocab_version",)  # ライブラリの既定 v1=CLI の既定 v3 と違う
+    assert cli.run_arms(_cli_run_view({})) == ()  # 〔Q13・第347〕ライブラリの既定=CLI の既定(v3)=腕でない(前は v1 で腕)
 
 
 def test_cli_main_and_cli_run_decide_the_kind(monkeypatch):

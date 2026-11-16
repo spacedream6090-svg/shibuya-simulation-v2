@@ -179,6 +179,7 @@ occupancy_series.py — C7 の**在圏時系列**(5エリア×24時)を作る。
   - `--sensitivity`: 境界 ±50m の感度を測る
   - `--ticks`
   - `--world`: 世界資産ディレクトリ
+- 決定の ID: 第 347
 
 ## [prereg_v13.py](../../../../../../tools/c7/prereg_v13.py)
 
@@ -323,6 +324,7 @@ salt の比較の**回す役**(10f 第 2 段・K21 (a))。読む役は ``salt_co
   - `--stop-at-tick`
   - `--world`
 - 環境変数: `os.environ` をまるごと使う
+- 決定の ID: 第 347
 
 ## [seed_ensemble.py](../../../../../../tools/c7/seed_ensemble.py)
 

@@ -98,4 +98,4 @@ Python 6 本・その他 3 本(このディレクトリの直下)
   - `test_shaped_pattern_finds_both_forms_inside_japanese_text`(関数)
   - `test_version_ids_are_the_frozen_multiset`(関数)
 - import している内部モジュール: `shibuya`・`tests/engine/state/shaped_names.py`
-- 決定の ID: D-118・第 346
+- 決定の ID: D-118・第 346・第 347

@@ -328,7 +328,7 @@ def test_null_arm_reproduces_the_recorded_checkpoint():
 def test_v3_default_reproduces_the_recorded_checkpoint():
     """第277(二層の段 3): 語彙 v3 の既定(CLI の既定・活動層 on・mock v3 形)の golden。
 
-    v1 の golden(上の null arm)はそのまま=ライブラリの既定は v1。v3 は**新しい行**。
+    v1 の golden(上の null arm)はそのまま(〔Q13〕ライブラリの既定は v3 になった=帰無腕は語彙 v1 を明示)。v3 は**新しい行**。
     """
     from shibuya.cli import run as cli_run
 
@@ -347,7 +347,7 @@ def test_v3_default_reproduces_the_recorded_checkpoint():
 
 
 @real_data
-def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
+def test_l4_scale_1_reproduces_the_stage_2c_checkpoints(monkeypatch):
     """3 段目(D-99 (a′)・D-110): 上限スイッチ ``l4_scale=1.0`` で旧挙動(L4 按分・持ち越し 2 tick)。
 
     〔改訂(第330・RET)〕前は段 2c の検収値そのもの(10e より前の final の定義・乱数・世界の資産・暦)を再現していた(ACT
@@ -355,7 +355,9 @@ def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
     (上限スイッチと従来の配り方 ``call_budget_per_tick``/``POOL_CAP_TICKS`` が効いている証拠)。
     """
     from shibuya.cli import run as cli_run
+    from tests.engine.body._hunger_v1 import hunger_v1
 
+    hunger_v1(monkeypatch)  # 〔Q13〕空腹 v1 は試験の中だけの口
     kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), l4_scale=1.0, hunger_model="v1")  # 〔第 2 部〕退去の効果 off を外した
     if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
         GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, vocab_version="v1", **kw), _FINAL_CALLS)
@@ -373,7 +375,7 @@ def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
 
 
 @real_data
-def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
+def test_hunger_model_v1_reproduces_the_stage_3_checkpoints(monkeypatch):
     """5 段目 5a(D-118 K5 (a)): 空腹の旧規則 ``hunger_model="v1"``。
 
     energy の 4 欄は ``energy_columns`` のランだけ確保する=v1 は SoA も挙動も energy の欄を持たない。
@@ -381,7 +383,9 @@ def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
     空腹 v1(+退去の効果 off)の**今の値**を固定する。
     """
     from shibuya.cli import run as cli_run
+    from tests.engine.body._hunger_v1 import hunger_v1
 
+    hunger_v1(monkeypatch)  # 〔Q13〕空腹 v1 は試験の中だけの口
     kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), hunger_model="v1")  # 〔第 2 部〕退去の効果 off を外した
     if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
         GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, vocab_version="v1", **kw), _FINAL_CALLS)

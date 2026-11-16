@@ -82,7 +82,9 @@ def test_agents_end_in_valid_states(small_run):
     assert np.all((a.activity >= 0) & (a.activity <= int(Activity.RIDING)))
     assert np.all((a.hunger <= 10) & (a.fatigue <= 10) & (a.thermal <= 10))
     assert np.all(a.money >= 0)
-    assert np.all(a.last_result <= int(ResultCode.BAD_TARGET))
+    # 〔Q13・第347〕上限は結果コードの最大(前は BAD_TARGET=17 で、後で足したコード 18〜21 を見落としていた=語彙 v3 の既定の
+    # ランで NOT_IN_EATERY=19 は正しい結果)
+    assert np.all(a.last_result <= max(int(c) for c in ResultCode))
 
 
 def test_state_stays_frozen_outside_resolve(small_run):
@@ -113,7 +115,8 @@ def test_cli_can_emit_the_growth_yaml(capsys):
 # ---------------------------------------------------------------- W2 本番(5,000体×1,440tick)
 @pytest.mark.slow
 def test_w2_five_thousand_agents_one_sim_day_under_ten_minutes():
-    res = run_day(n_agents=5_000, seed=1, ticks=1_440, checkpoint_every=360, n_cells=139)
+    # 〔Q13・第347〕L4 の制御目標(10 呼/体/日)を見る=呼数の按分(倍率 1.0=前のライブラリの既定)を明示
+    res = run_day(n_agents=5_000, seed=1, ticks=1_440, checkpoint_every=360, n_cells=139, l4_scale=1.0)
     print("\n" + res.summary())
     print("  位相[s]: " + ", ".join(f"{k}={v:.3f}" for k, v in res.phase_seconds.items()))
     calls_per_agent = res.llm_calls / res.n_agents

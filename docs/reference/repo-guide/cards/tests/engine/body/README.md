@@ -2,11 +2,21 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 9 本・その他 0 本(このディレクトリの直下)
+Python 10 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../tests/engine/body/__init__.py)
 
 (冒頭の説明なし)
+
+## [_hunger_v1.py](../../../../../../../tests/engine/body/_hunger_v1.py)
+
+〔Q13・第347〕空腹の旧規則 ``v1`` を試験の中だけで選ぶ助け(切替口 ③a の ``tests/engine/space/_legacy.py`` と同じ形)。
+
+- 公開の関数とクラス
+  - `hunger_v1`(関数): 空腹の旧規則 v1 を通す印を立てる(``mp`` が戻すまで)。
+- import している内部モジュール: `shibuya.world.body.energy`
+- 読む試験: `tests/engine/duties/_du.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_state_ledger_10b.py`・`tests/perception/facts/test_percept_is_scratch.py`
+- 決定の ID: 第 347
 
 ## [body_fixtures.py](../../../../../../../tests/engine/body/body_fixtures.py)
 

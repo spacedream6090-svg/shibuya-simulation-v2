@@ -65,4 +65,4 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_values_match_the_ledger_and_the_table`(関数)
   - `two_days`(関数)
 - import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.world.facts.rules.table`
-- 決定の ID: 11-01・11-02r・11-02r/§1・11-02r/§1 #7・11-03・11-03/§3
+- 決定の ID: 11-01・11-02r・11-02r/§1・11-02r/§1 #7・11-03・11-03/§3・第 347

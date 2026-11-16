@@ -169,15 +169,17 @@ def test_the_v1_apply_table_is_untouched():
 
 
 def test_the_default_run_is_byte_identical():
-    """既定(v1)の checkpoint・呼数・行動分布は、語彙 v2 を足しても 1 ビットも動かない。"""
+    """既定の checkpoint・呼数・行動分布は、その版の明示と 1 ビットも違わない。〔Q13・第347〕既定は v3(前は v1=CLI の既定に
+    そろえた)。v1 で「食事」が出ないことは ``test_v2_is_a_different_run_but_still_conserves`` の v1 のランが見る。"""
     base = run_day(**SMALL)
-    explicit = run_day(vocab_version="v1", **SMALL)
-    assert base.vocab_version == "v1"
+    explicit = run_day(vocab_version="v3", **SMALL)
+    assert base.vocab_version == "v3"
     assert base.final_hash == explicit.final_hash != ""
     assert base.llm_calls == explicit.llm_calls > 0
     assert base.action_usage == explicit.action_usage
-    assert base.meals == explicit.meals == 0
-    assert ACTION_WORD_EAT not in base.action_usage
+    assert base.meals == explicit.meals
+    v1 = run_day(vocab_version="v1", **SMALL)
+    assert v1.meals == 0 and ACTION_WORD_EAT not in v1.action_usage
 
 
 def test_v2_is_a_different_run_but_still_conserves():
@@ -225,13 +227,17 @@ def test_action_usage_reaches_the_run_manifest():
     assert sum(res.action_usage.values()) > 0
 
 
-def test_action_usage_of_the_default_run_carries_the_v1_version():
-    from shibuya.foundation.vocab.actions import ACTION_VOCAB_12
+def test_action_usage_of_the_default_run_carries_the_v3_version():
+    """〔Q13・第347〕既定のランの manifest は語彙 v3(前は v1)。v1 のランの鍵は前のまま(12 語 + エンジン継続)。"""
+    from shibuya.foundation.vocab.actions import ACTION_VOCAB_12, action_words
 
     res = run_day(**SMALL)
     fields = res.run_manifest_fields()
-    assert fields["vocab_version"] == "v1"
-    assert fields["synonym_table_version"] == "undefined-synonyms-v2"
-    # 既定のランに出る鍵は「12 語 + エンジン継続」だけ(役割語は待機へ落ちる・食事は無い)
-    assert set(fields["action_usage"]) <= {"(エンジン継続)", *ACTION_VOCAB_12}
+    assert fields["vocab_version"] == "v3"
+    assert fields["synonym_table_version"] == "undefined-synonyms-v5"
+    assert set(fields["action_usage"]) <= {"(エンジン継続)", *action_words("v3")}
     assert fields["action_usage"]
+    old = run_day(vocab_version="v1", **SMALL).run_manifest_fields()
+    assert old["vocab_version"] == "v1" and old["synonym_table_version"] == "undefined-synonyms-v2"
+    # v1 のランに出る鍵は「12 語 + エンジン継続」だけ(役割語は待機へ落ちる・食事は無い)
+    assert set(old["action_usage"]) <= {"(エンジン継続)", *ACTION_VOCAB_12} and old["action_usage"]

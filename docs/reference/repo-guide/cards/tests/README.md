@@ -207,35 +207,36 @@ CLI ``--l4-scale FACTOR``(L4 呼数予算の倍率・PENDING D-99 (a)・腕 AB8-
 
 - 公開の関数とクラス
   - `test_a_negative_factor_is_a_usage_error`(関数): 負の倍率は traceback ではなく usage で落とす(``--signage-p-see`` と同じ作法)。
+  - `test_a_non_finite_or_negative_factor_stops`(関数): 〔第347・Q13 検収 L-2〕予算を渡さないランの倍率が負・NaN・無限大なら止める(予算が NaN・無限大のまま黙って回らない。
   - `test_an_explicit_budget_wins_over_the_factor`(関数): ``budget`` を直に渡した呼び出しは倍率より優先(倍率は 1.0 のまま manifest に載る)。
   - `test_cli_main_has_the_l4_scale_flag`(関数)
   - `test_cli_run_rejects_a_negative_factor`(関数)
   - `test_fleet_x_unlimited_queue_capacity_defaults_to_the_agent_count`(関数): 第289 Q28(D-55): 艦隊 × 無制限 × 枠 未指定 → 枠の既定=体数(``FleetConfig`` を差し替え・manifest に載る)。
   - `test_fleet_x_unlimited_without_a_queue_capacity_is_noted_when_it_cannot_be_fixed`(関数): 艦隊 × 無制限で ``--fleet-queue-capacity`` が未指定かつ枠が体数未満なら注記の文(D-55)。
   - `test_the_default_is_unlimited_and_identical_with_the_explicit_0`(関数): 3 段目(D-99 (a′)・D-110): CLI と ``cli.run`` の既定は **0=無制限**(``CLI_DEFAULT_L4_SCALE``)。
-  - `test_the_explicit_1_0_is_the_old_l4_share`(関数): ``--l4-scale 1`` で旧挙動(L4 按分・持ち越し 2 tick)。ライブラリ ``run_day`` の既定と同じ。
+  - `test_the_explicit_1_0_is_the_old_l4_share`(関数): ``--l4-scale 1`` で旧挙動(L4 按分・持ち越し 2 tick)。ライブラリ ``run_day(l4_scale=1.0)`` と同じ。
   - `test_the_factor_multiplies_the_l4_share`(関数)
   - `test_the_manifest_always_carries_the_l4_audit_fields`(関数)
   - `test_zero_means_one_call_per_agent_per_tick`(関数): ``0`` = **無制限**。アービタは合流後に体あたり高々 1 件なので体数で足りる。
 - import している内部モジュール: `shibuya.cli`・`shibuya.engine.arbiter`・`shibuya.engine.run`・`shibuya.llm.fleet`
-- 決定の ID: D-55・D-99・D-110・第 277・第 289
+- 決定の ID: D-55・D-99・D-110・第 277・第 289・第 347
 
 ## [test_cli_vocab_version.py](../../../../../tests/test_cli_vocab_version.py)
 
 CLI ``--vocab-version {v1,v2}``(語彙成長 v0 の切替口・D-71 §3 F)。
 
 - 公開の関数とクラス
+  - `test_cli_and_run_default_vocab_are_one_value`(関数): 〔Q13・第347〕ランの入口の既定(``run_day``・``cli.run``・``RunResult``)と CLI の既定は同じ 1 つの値 v3
   - `test_cli_choices_come_from_the_templates_module`(関数): choices は ``templates.VOCAB_VERSIONS`` が正典(文字列を CLI 側に二重に持たない)。
-  - `test_cli_default_is_v3_but_the_library_default_stays_v1`(関数): 第277: CLI の既定だけが v3。ライブラリの既定(=退化検査・golden の切替口)は v1 のまま。
   - `test_cli_main_has_the_activity_flag`(関数): 二層の段 2: ``--activity {on,off}``(既定 on)が ``run(activity=...)`` へ届く。
   - `test_cli_main_has_the_vocab_version_flag`(関数)
-  - `test_cli_run_defaults_to_v1`(関数)
+  - `test_cli_run_defaults_to_v3`(関数): 〔Q13・第347〕``cli.run`` の既定は CLI と同じ v3(前はライブラリの既定 v1)。
   - `test_cli_run_passes_vocab_version_through_kwargs`(関数)
   - `test_intent_mode_and_vocab_version_are_orthogonal`(関数): 3 腕 × 2 版のどの組み合わせでも回り、manifest に両方が載る。
   - `test_open_and_hint_arms_need_an_explicit_v1_or_v2_on_the_cli`(関数): v3 の B0 は vocab 腕だけ=CLI の既定(v3)のまま open/hint を頼むと usage で落とす。
-  - `test_the_default_run_is_byte_identical_with_the_explicit_v1`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`
-- 決定の ID: D-71・第 274・第 276・第 277
+  - `test_the_default_run_is_byte_identical_with_the_explicit_v3`(関数): 〔Q13・第347〕既定のランは v3 の明示と同じ(前は v1 の明示と同じ)。
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`
+- 決定の ID: D-71・第 274・第 276・第 277・第 347
 
 ## [test_fixture_holiday_csv.py](../../../../../tests/test_fixture_holiday_csv.py)
 

@@ -118,6 +118,7 @@ def main(argv: list[str] | None = None) -> int:
                 world_dir=c6lib.world_dir_of(args),
                 tape_path=tape_root / tag,
                 fleet=client,
+                extra={"vocab_version": "v1"},  # 〔第347・Q13〕前と同じラン=語彙 v1 を明示(cli.run の既定は v3 になった)
             )
         finally:
             if client is not None:
@@ -127,6 +128,7 @@ def main(argv: list[str] | None = None) -> int:
                 "tag": tag,
                 "seed": seed,
                 "route": route,
+                "vocab_version": str(res.vocab_version),
                 "llm_calls": int(res.llm_calls),
                 "actions": action_counts_from_tape(tape_root / tag),
                 "result_codes": result_code_counts(res.agents),

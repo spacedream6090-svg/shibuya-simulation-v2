@@ -63,6 +63,21 @@ def test_cli_run_rejects_a_negative_factor():
         cli.run(l4_scale=-0.5, **SMALL)
 
 
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), -1.0])
+def test_a_non_finite_or_negative_factor_stops(bad):
+    """〔第347・Q13 検収 L-2〕予算を渡さないランの倍率が負・NaN・無限大なら止める(予算が NaN・無限大のまま黙って回らない。
+    文に値を書く)。``run_day`` も ``cli.run`` も同じ式 ``engine.run.l4_budget`` を通る。"""
+    from shibuya import cli
+    from shibuya.engine.run import l4_budget, run_day
+
+    with pytest.raises(ValueError, match=f"有限の値.*{bad!r}"):
+        l4_budget(8, bad)
+    with pytest.raises(ValueError, match="0 以上"):
+        run_day(n_agents=8, seed=1, ticks=2, renderer="stub", checkpoint_every=2, l4_scale=bad)
+    with pytest.raises(ValueError, match="0 以上"):
+        cli.run(l4_scale=bad, **SMALL)
+
+
 # ------------------------------------------------------- (t2) 変換規則
 @pytest.mark.parametrize("scale", [1.0, 0.5, 2.0])
 def test_the_factor_multiplies_the_l4_share(scale):
@@ -111,15 +126,22 @@ def test_the_default_is_unlimited_and_identical_with_the_explicit_0():
 
 
 def test_the_explicit_1_0_is_the_old_l4_share():
-    """``--l4-scale 1`` で旧挙動(L4 按分・持ち越し 2 tick)。ライブラリ ``run_day`` の既定と同じ。"""
+    """``--l4-scale 1`` で旧挙動(L4 按分・持ち越し 2 tick)。ライブラリ ``run_day(l4_scale=1.0)`` と同じ。
+
+    〔Q13・第347〕ライブラリ ``run_day`` の既定は CLI と同じ 0=無制限(前は按分)。予算を直に渡したランの倍率は 1.0((a′))。"""
     from shibuya import cli
     from shibuya.engine.run import run_day
 
     old = cli.run(l4_scale=1.0, **SMALL)
     assert old.budget_per_tick == call_budget_per_tick(SMALL["n_agents"])
     assert old.l4_scale == 1.0
-    lib = run_day(n_agents=8, seed=1, ticks=2, renderer="stub", checkpoint_every=2)
+    small = dict(n_agents=8, seed=1, ticks=2, renderer="stub", checkpoint_every=2)
+    lib = run_day(l4_scale=1.0, **small)
     assert lib.budget_per_tick == call_budget_per_tick(8) and lib.l4_scale == 1.0
+    dflt = run_day(**small)
+    assert dflt.budget_per_tick == 8.0 and dflt.l4_scale == 0.0
+    given = run_day(budget=3.0, **small)
+    assert given.budget_per_tick == 3.0 and given.l4_scale == 1.0
 
 
 # ------------------------------------------------------- (t4) L4 監査欄・艦隊の注記

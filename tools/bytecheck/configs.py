@@ -5,7 +5,8 @@
 ``docs/bench/analysis/w6-regen-2026-09-28/w6_regen_measure.py`` の ``ARMS``(現行 8・旧 6・golden の帰無腕 1)。
 比べる欄と切替口の一覧は ``docs/bench/analysis/wallbounce-1012/10e/byte_check_10e.py`` の ``COMPARE_KEYS``・
 ``SWITCH_ENV``。構成の組 ``parent4``・``arms`` は ``docs/bench/analysis/v3-2026-11/v30a/README.md`` §4・§7
-(親の 4 構成と腕 on の追加の確かめ)。試験 ``tests/tools/test_bytecheck.py`` が元の表と同じであることを確かめる。
+(親の 4 構成と腕 on の追加の確かめ)。試験 ``tests/tools/test_bytecheck.py`` が元の表と同じであることを確かめる(〔第347・Q13-5
+(b)〕golden の帰無腕に明示した語彙 v1 のほか)。
 """
 
 from __future__ import annotations
@@ -29,9 +30,14 @@ _W6_CURRENT: Final[dict[str, dict[str, Any]]] = {
 
 
 def _w6_arms() -> dict[str, dict[str, Any]]:
-    """W6 の 15 腕(現行 8・旧 6=``report_precondition=False``・golden の帰無腕 1)。"""
+    """W6 の 15 腕(現行 8・旧 6=``report_precondition=False``・golden の帰無腕 1)。
+
+    〔第347・Q13-5 (b)〕golden の帰無腕に ``vocab_version="v1"`` を明示した(元の表 ``w6_regen_measure.ARMS`` は語彙を渡さない=
+    前の ``cli.run`` の語彙の既定 v1 で回っていた。Q13 で既定が v3 になったので、前と同じラン=語彙 v1 の帰無腕を見る範囲を保つ。
+    golden の試験 ``test_null_arm_reproduces_the_recorded_checkpoint`` も語彙 v1 を明示している)。
+    """
     old = {f"old_{k}": {**v, "report_precondition": False} for k, v in _W6_CURRENT.items() if not k.startswith("v3_")}
-    golden = {"golden_null_arm": {"plan_executor": False, "report_precondition": False}}
+    golden = {"golden_null_arm": {"plan_executor": False, "report_precondition": False, "vocab_version": "v1"}}
     return {**_W6_CURRENT, **old, **golden}
 
 

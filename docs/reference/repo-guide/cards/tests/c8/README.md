@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 13 本・その他 0 本(このディレクトリの直下)
+Python 14 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../tests/c8/__init__.py)
 
@@ -43,7 +43,7 @@ tests.c8 の共通フィクスチャ。
   - `test_the_markdown_carries_the_gate_section`(関数): ``arm_markdown`` に ``signage_p_see`` の節が出る(看板の腕だけ)。
   - `test_the_open_question_declares_the_expedients`(関数): 0.30/0.14 の選び方と規約⑧ の但し書きを**親判断待ちとして残す**(黙って決めない)。
 - import している内部モジュール: `tests/c8/test_ablations_ab7.py`
-- 決定の ID: D-59・第 290
+- 決定の ID: D-59・第 290・第 347
 
 ## [test_ablations_ab7.py](../../../../../../tests/c8/test_ablations_ab7.py)
 
@@ -67,7 +67,7 @@ tests.c8 の共通フィクスチャ。
   - `test_the_existing_arms_are_byte_identical`(関数): **後から腕を足しても既存の腕の定義は 1 バイトも動かない**(golden は追加前の値)。
 - import している内部モジュール: `shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`tools/c8/c8lib.py`
 - 読む試験: `tests/c8/test_ablations_ab6b.py`・`tests/c8/test_ablations_ab8.py`
-- 決定の ID: D-59・第 290
+- 決定の ID: D-59・第 290・第 347
 
 ## [test_ablations_ab7c.py](../../../../../../tests/c8/test_ablations_ab7c.py)
 
@@ -110,7 +110,7 @@ tests.c8 の共通フィクスチャ。
   - `test_zero_defers_nothing`(関数): **無制限**=繰り延べが 0 件になり、呼数は上限つきのランを上回る。
   - `test_zero_means_the_agent_count`(関数)
 - import している内部モジュール: `shibuya.cli`・`shibuya.engine.arbiter`・`tests/c8/test_ablations_ab7.py`
-- 決定の ID: D-56・D-59・D-99・D-110・第 245・第 289・第 290
+- 決定の ID: D-56・D-59・D-99・D-110・第 245・第 289・第 290・第 347
 
 ## [test_ablations_l4_pin.py](../../../../../../tests/c8/test_ablations_l4_pin.py)
 
@@ -155,6 +155,17 @@ ablation 第1陣 6 本の**腕定義表**のスキーマと、設計書(知覚�
   - `test_totals_match_the_arms`(関数): 合計欄は腕の積み上げと一致すること(手書きの合計がずれない)。
   - `test_validate_table_detects_breakage`(関数)
 - 決定の ID: D-60・D-66・D-91・D-99・第 245・第 249
+
+## [test_ablations_vocab_pin.py](../../../../../../tests/c8/test_ablations_vocab_pin.py)
+
+第347(Q13): 語彙を渡さずに回した腕は ``vocab_version: "v1"`` を明示して旧構成で回る(第290 の ``l4_scale_pin`` と同じ形)。
+
+- 公開の関数とクラス
+  - `table`(関数)
+  - `test_a_pinned_open_intent_arm_reruns_with_the_old_vocab`(関数): 回し直しても旧構成(語彙 v1)で回る=open の腕は語彙 v3 の既定では止まる組だが、明示した v1 で回る。
+  - `test_every_run_states_its_vocab_version`(関数): ランの無い腕(AB4・AB5=未実装)を除き、全ランが ``vocab_version`` を明示している(既定に頼らない)。
+  - `test_the_arms_without_a_vocab_are_pinned_to_the_old_default`(関数)
+- 決定の ID: 第 290・第 347
 
 ## [test_c8lib.py](../../../../../../tests/c8/test_c8lib.py)
 
