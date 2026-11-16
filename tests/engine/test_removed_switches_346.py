@@ -7,8 +7,8 @@
 - 一覧と止める文は 1 か所(各モジュールの読み込みの止めも同じ文)。
 記録 ``docs/bench/analysis/delete-346/README.md``。〔第347 止めた切替口の削除〕経済の段階 2 の切替口 off
 (``SHIBUYA_ECONOMY_STAGE2``・``--economy-stage2``)と、率の規則と「無い」の過程の旧道(``SHIBUYA_RATE_RULES``・``--rate-rules``・
-``SHIBUYA_ABSENT_PROCESSES``・``--absent-processes``)と、移動の旧道(``SHIBUYA_SPACE``・``--space``)を足した。安定版のタグは
-消した段ごとに違う(``tag_of``)=記録
+``SHIBUYA_ABSENT_PROCESSES``・``--absent-processes``)と、移動の旧道(``SHIBUYA_SPACE``・``--space``)と、空腹のモデルの旗
+(``--hunger-model``=環境変数の無い旗だけの行)を足した。安定版のタグは消した段ごとに違う(``tag_of``)=記録
 ``docs/bench/analysis/switch-removal-347/README.md``。
 """
 
@@ -60,7 +60,7 @@ WANT_TAG = {"SHIBUYA_RULES_42B": TAG, "SHIBUYA_RULES_42": TAG, "SHIBUYA_SEAT_REL
             "SHIBUYA_DEFECT_FIXES_1103": TAG, "SHIBUYA_ECONOMY_STAGE2": TAG_347,
             "SHIBUYA_RATE_RULES": TAG_347, "SHIBUYA_ABSENT_PROCESSES": TAG_347, "SHIBUYA_SPACE": TAG_347,
             "--seat-release": TAG, "--proximity": TAG, "--defect-fixes-1103": TAG, "--economy-stage2": TAG_347,
-            "--rate-rules": TAG_347, "--absent-processes": TAG_347, "--space": TAG_347}
+            "--rate-rules": TAG_347, "--absent-processes": TAG_347, "--space": TAG_347, "--hunger-model": TAG_347}
 
 
 def test_the_list_and_the_message_are_in_one_place():
@@ -70,14 +70,21 @@ def test_the_list_and_the_message_are_in_one_place():
                                     "SHIBUYA_RATE_RULES", "SHIBUYA_ABSENT_PROCESSES",  # 〔第347 ②b〕率の規則と「無い」の過程
                                     "SHIBUYA_SPACE"}  # 〔第347 ③a〕移動の旧道
     assert set(RSW.REMOVED_CLI_FLAGS) == {"--seat-release", "--proximity", "--defect-fixes-1103", "--economy-stage2",
-                                          "--rate-rules", "--absent-processes", "--space"}
-    assert set(RSW.REMOVED_CLI_FLAGS.values()) <= set(RSW.REMOVED_ENV)
+                                          "--rate-rules", "--absent-processes", "--space",
+                                          "--hunger-model"}  # 〔第347 ③b〕空腹のモデルの旗(環境変数は無い)
+    # 旗の行の値は環境変数の一覧の名か、旗だけの行の None(〔第347 ③b〕--hunger-model)
+    assert {v for v in RSW.REMOVED_CLI_FLAGS.values() if v is not None} <= set(RSW.REMOVED_ENV)
+    assert [f for f, v in RSW.REMOVED_CLI_FLAGS.items() if v is None] == ["--hunger-model"]
     assert {name: RSW.tag_of(name) for name in WANT_TAG} == WANT_TAG
     # 第346 の行の文は前のまま(段の名とタグ)
     assert RSW.message("SHIBUYA_PROXIMITY") == ("SHIBUYA_PROXIMITY は消した切替口(第346 旧道の切替口の削除・旧値の再現は"
                                                 f"安定版のタグ {TAG})=環境変数を外す")
     assert RSW.message("--economy-stage2") == ("--economy-stage2 は消した切替口(第347 止めた切替口の削除・旧値の再現は"
                                                f"安定版のタグ {TAG_347})=旗を外す")
+    # 〔第347 ③b〕旗だけの行の文は、残る口(run_day と cli.run の引数)を書く
+    assert RSW.message("--hunger-model") == ("--hunger-model は消した切替口(第347 止めた切替口の削除・旧値の再現は"
+                                             f"安定版のタグ {TAG_347})=旗を外す。run_day と cli.run の引数 hunger_model は、"
+                                             "既定をそろえる版上げ(Q13)まで残る")
     RSW.check_environment({})
     RSW.check_environment({name: "" for name in RSW.REMOVED_ENV})  # 空の値は置いていない扱い
     for name in RSW.REMOVED_ENV:
@@ -131,7 +138,10 @@ def test_the_frame_check_catches_a_stop_inside_the_ticks():
                                   ["--absent", "legacy"],
                                   # 〔第347 ③a〕移動の旧道(値に依らず・略記も。``--sp`` は ``--speech-port`` と重なる。残す
                                   # ``--slope``・``--turn-weight`` は ``test_the_space_arm_flags_still_work_…``)
-                                  ["--space", "legacy"], ["--space", "nav1"], ["--spa", "legacy"]])
+                                  ["--space", "legacy"], ["--space", "nav1"], ["--spa", "legacy"],
+                                  # 〔第347 ③b〕空腹のモデルの旗(値に依らず・略記も。``--hunger`` は ``--hunger-words`` と
+                                  # 重なる=``test_the_hunger_words_flag_still_works_…``)
+                                  ["--hunger-model", "v1"], ["--hunger-model", "energy"], ["--hunger-m", "v1"]])
 def test_a_removed_cli_flag_stops_even_when_abbreviated(argv, capsys):
     """〔検収 L1〕``--proximity 1.0`` が略記で ``--proximity-d`` の感度の腕として通らない。〔第347〕``--economy-stage2 off`` が
     ``--economy-stage2-parts`` の略記として通らない(部品の名の誤りでなく、消した切替口の文で止まる)。"""
@@ -161,6 +171,22 @@ def test_the_space_arm_flags_still_work_and_are_not_read_as_the_removed_flag(fla
     assert exc.value.code == 2
     err = capsys.readouterr().err
     assert flag in err and "bogus" in err and "消した切替口" not in err, err[-800:]
+
+
+def test_the_hunger_words_flag_still_works_and_the_short_prefix_is_not_read_as_it(capsys):
+    """〔第347 ③b〕旗 ``--hunger-model`` を消しても、残す腕の旗 ``--hunger-words`` は今のまま受ける(値の誤りはその旗の選択肢の
+    文で止まる)。頭の重なる略記 ``--hunger`` は、消した旗と残す旗のどちらにも読まれず、あいまいな旗の誤りで止まる(黙って
+    ``--hunger-words`` の値に読まれない)。"""
+    with pytest.raises(SystemExit) as exc:
+        cli.main(["--hunger-words", "bogus", "--agents", "5", "--ticks", "1"])
+    assert exc.value.code == 2
+    err = capsys.readouterr().err
+    assert "--hunger-words" in err and "bogus" in err and "消した切替口" not in err, err[-800:]
+    with pytest.raises(SystemExit) as exc:
+        cli.main(["--hunger", "all", "--agents", "5", "--ticks", "1"])
+    assert exc.value.code == 2
+    err = capsys.readouterr().err
+    assert "--hunger-model" in err and "--hunger-words" in err and "消した切替口" not in err, err[-800:]
 
 
 def test_the_hidden_flags_are_not_in_the_help(capsys):

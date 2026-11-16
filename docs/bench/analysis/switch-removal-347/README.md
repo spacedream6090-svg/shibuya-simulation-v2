@@ -7,8 +7,9 @@
 > commit)は親。
 
 段の並び(親の裁定): ① 試験の書き直し(切替口はまだ在る・src は変えない)→ ②a 経済の段階 2 の off → ②b 率の規則と「無い」の
-過程(組で)→ ③a `--space` → ③b `--hunger-model` の旗。**本書は ①(手順 0・①a・①b・①c)と ②a と、① の検収の直しと ②b と ③a まで**
-(②a は §9・検収の直しは §10・②b の作業の一覧は §11・②b は §12・③a は §13・試験ごとの行は付録 A)。
+過程(組で)→ ③a `--space` → ③b `--hunger-model` の旗。**本書は 5 段のすべて(①〜③b)と ① の検収の直し**
+(① は §0〜§8・②a は §9・検収の直しは §10・②b の作業の一覧は §11・②b は §12・③a は §13・③b は §14・5 段のまとめは §15・
+試験ごとの行は付録 A)。
 
 ## 0. 要点(① まで)
 
@@ -662,6 +663,106 @@ behavior-hash・full-hash・試験の側の SoA の組み立て・呼数・購�
 - `#118` の戻し方(`--world data/world/v2_pre_4-3` をランで回す=本番の形で nav1 の資産の無い退避の世界を旧のセルの移動で回す)は、
   CLI からはできなくなった(nav1 は資産が無いので止まり、`--space legacy` は消した)。旧値の再現は安定版のタグ
   `stable-v2-before-switch-removal-347` で回す。試験の中では `tests/engine/space/_legacy.py` の口で回る(13-3 の S2)。
+
+## 14. ③b: CLI の旗 `--hunger-model` を閉じた(案 h2=旗だけ・1 バイト不変の見込み・byte-check は親)
+
+土台は頭 `dcd25a6c`(③a の commit)。親の裁定 11(案 h2=今回は CLI の旗だけ)のとおり。これが切替口の最後の段。
+
+### 14-1 消した旗・残した引数と既定・足した止め・直した文
+
+| 置き場 | 消した | 残した(Q13 の版上げへ) | 足した・直した |
+|---|---|---|---|
+| `src/shibuya/cli.py` | 旗 `--hunger-model`(と、それだけが使っていた `HUNGER_MODELS` の import) | `cli.run(hunger_model=…)`(v1 も受ける=旧 checkpoint の再現の試験が使う)・`CLI_DEFAULT_HUNGER_MODEL`(energy)・`arm_baseline` と run_kind の扱い | `main` の `run_kwargs` は `hunger_model=CLI_DEFAULT_HUNGER_MODEL`(前の旗の既定と同じ energy=設定の指紋は前と同じ)。注「旧 checkpoint は `--hunger-model v1` で再現」を「`cli.run(hunger_model="v1")` で再現・旗は消した・引数は Q13 まで残る」に直した。`--energy-rate`・`--meal-sleep-defer` の help の「`--hunger-model energy` のときだけ効く」を「空腹のモデル energy(CLI のランの空腹のモデル)で効く」に直した |
+| `src/shibuya/foundation/arms/removed.py` | — | 前の行と文 | `REMOVED_CLI_FLAGS` に `--hunger-model`(環境変数の無い旗だけの行=値 `None`・値の型を「文字列か None」に)・`_STEP_TAG` に 1 行(タグ 347)・名ごとの注 `_NOTE`(止める文の末尾に「run_day と cli.run の引数 hunger_model は、既定をそろえる版上げ(Q13)まで残る」)。前の行の文は変わらない(注の無い名は前のまま) |
+
+- 触っていない(Q13 の版上げへ): `run_day(hunger_model=)` の既定 v1・`RunResult.hunger_model` の既定・`cli.run(hunger_model="v1")`・
+  語彙と L4 のライブラリの既定。`run_day` と `cli.run` は今も v1 を拒まない。
+- 頭の重なり: 残す腕の旗 `--hunger-words` と頭が重なる。消した旗は表に出さない旗として受けるので、`--hunger-model`・略記
+  `--hunger-m` は消した切替口の文で止まる。`--hunger` はどちらの旗とも決まらず、あいまいな旗の誤りで止まる(黙って
+  `--hunger-words` の値に読まれない)。前も 2 つの旗が在ったので、`--hunger` の扱いは前と同じ。
+- `python -m shibuya.engine.run` の入口: `engine/run.py` の `main` は旗 `--hunger-model` を持たない(前から)=扱いは要らない。
+- 1 バイト不変の見込みの理由: 19 構成は `cli.run` を直に呼び(argparse を通らない)、`hunger_model` は `cli.run` の既定 energy の
+  まま。CLI のランも前の旗の既定と同じ energy を渡す。
+- 直していない注(経緯の注・試験が読まない): `agents/state.py:81・467`・`foundation/text/templates.py:120`・
+  `perception/renderer.py:1222`・`world/body/energy.py:244`。文書 `docs/reference/repo-guide/catalog/b-people.md`(74・184・192 行)・
+  `day-flow.md`(手で書く案内)。凍結した HEAD の写し `tests/perception/facts/head_renderer_136fdbb.py:1169` は触らない。
+- 旗を使う試験と記録の道具: 0 本(grep・計画 §2-4 のとおり)。help の文や `--hunger-model` の字面を見る試験も無かった。
+
+### 14-2 替えた試験(前に確かめていたこと → 後に確かめること)
+
+| 試験 | 前 | 後 | 同じか・減ったか |
+|---|---|---|---|
+| `tests/engine/test_removed_switches_346.py::test_the_list_and_the_message_are_in_one_place` | 旗 7 本・旗の値 ⊆ 環境変数の一覧・文 | 旗 8 本(`--hunger-model`)・値は環境変数の一覧の名か `None`(旗だけの行は `--hunger-model` だけ)・`--hunger-model` の文に Q13 の注・前の文は前のまま | 同じ+足した名 |
+| 同 `::test_a_removed_cli_flag_stops_even_when_abbreviated` | 旗と略記の場合 | `--hunger-model v1・energy`・略記 `--hunger-m` を足した | 同じ+足した名 |
+| 同 `::test_the_hunger_words_flag_still_works_and_the_short_prefix_is_not_read_as_it`(新) | — | 残す `--hunger-words` は値の誤りがその旗の文で止まる・`--hunger` はあいまいな旗の誤りで止まる(消した切替口の文でない・`--hunger-words` に読まれない) | 足した |
+| 同 `::test_the_hidden_flags_are_not_in_the_help` | 一覧の旗が help に出ない | `--hunger-model` も一覧から自動で入る | 同じ+足した名 |
+
+確かめる範囲が減った所: 無い(旗を使う試験が無かった)。
+
+### 14-3 試験の結果
+
+- 1 本の pytest(`-m "not gpu and not slow"`・`-n 4 --dist loadfile`・作業の木・頭 `dcd25a6c`+本段): `test_removed_switches_346.py` 48
+  (前 44+4)・`tests/test_cli*.py` 5 本 56・`tests/engine/test_energy_balance.py` 28(CLI の空腹のモデルの既定)・消した名の一覧を
+  読む `test_rate_rules_1101.py` 21・`test_absent_processes_1102.py` 22・`tests/engine/space/test_nav1_units.py` 19・
+  `tests/test_places_guard.py` 16 で **210 passed・0 failed・0 skipped**(46 秒)。
+- `lint-imports`: 12 kept・0 broken。
+- カード `tools/repo_guide/build.py` で作り直した(`cards/data.md` は戻した)。`--check` は「最新」(151 本)。
+
+### 14-4 親の確かめ(③b)
+
+- byte-check: 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0・final が同じ 19(基準 `dcd25a6`=③a の commit。既定 `w6_v3_default` の
+  final `c8d68704b7b0760d`・呼数 60,939。全体の壁時計 422 秒)。組は [bytecheck_3b/](bytecheck_3b/)。
+- 範囲の全体の試験(②b・③a・③b)の結果は §15-5 に書く(親が本体の木で回す)。
+- 例外(ignore)の本数は変わらない(割る段ではない=31 本・延べ 45 行)。`lint-imports` 12 kept。
+
+## 15. まとめ: 切替口の 5 段(①〜③b)
+
+### 15-1 段と commit
+
+| 段 | 何をしたか | 本書の節 | commit(親) |
+|---|---|---|---|
+| ① | 旧道を使う試験の書き直し(src は変えない)・①c 外の束で off の基準を書き直した | §1〜§8 | `73c2f5fb` |
+| ②a | 経済の段階 2 の切替口 off を消した | §9 | `231d9fd0` |
+| ① の検収の直し | T3 の腕・記録の文・段階 2 on の試験を足した | §10・§11 | `17ad6ebc` |
+| ②b | 率の規則と「無い」の過程の切替口 legacy を組で消した | §12 | `aa97ce1b` |
+| ③a | `--space legacy` を閉じ、旧のセルの移動を試験の中だけの口にした | §13 | `dcd25a6c` |
+| ③b | CLI の旗 `--hunger-model` を閉じた | §14 | |
+
+旧値の再現は安定版のタグ `stable-v2-before-switch-removal-347`(5 本の口が全部在る最後の commit=②a の前)で回す。
+
+### 15-2 消した口
+
+| 種類 | 名 | 段 |
+|---|---|---|
+| 環境変数(4) | `SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_RATE_RULES`・`SHIBUYA_ABSENT_PROCESSES`・`SHIBUYA_SPACE` | ②a・②b・②b・③a |
+| CLI の旗(5) | `--economy-stage2`・`--rate-rules`・`--absent-processes`・`--space`・`--hunger-model` | ②a・②b・②b・③a・③b |
+| `run_day` の値(引数は残して止める) | `salient_rate_per_10k`(None 以外=案 k1)・`space="legacy"`(`cli.run` も) | ②b・③a |
+| モジュールの腕の名 | `stage2_bind` の `_ARM`・`arm`・`set_arm`・`DEFAULT_ARM`・`ARMS`/`switch_rate` と `switch_absent` の `_ARM`・`arm`・`set_arm`/`nav1.space_env_override` | ②a・②b・③a |
+
+- 消した環境変数と旗は、与えるとランの入口(組み立ての最初)と持っていたモジュールの読み込みで止まり、旗は表に出さない旗で
+  受けて止まる(一覧は `foundation/arms/removed.py`・名ごとのタグは `tag_of`・試験は `tests/engine/test_removed_switches_346.py`)。
+
+### 15-3 残した口
+
+- 部品の口(仮決定 Q6=返事その 8 §1-10): 過程の引数 `rate_rules`・`absent_processes`・`SalientProcess(rate_per_10k_per_day=)`・
+  `WorldProcessRunner(rate_rules=, absent_processes=, salient_rate_per_10k=)`・`PlanExecutor(rate_rules=)`・段階 2 の口を持たない
+  台帳の構造の道(`stage2_bind.attach` が None・`check_resume(effective=False)`)・合成の世界と build_hash の無い世界の移動の戻り道。
+- 試験の中だけの口(3 つ・ランの口からは選べない):
+  1. 段階 2 の外の束 `tests/economy/_stage2_outside.py`(off と同じ値の台帳・§2-1)。
+  2. 率の規則と「無い」の過程の旧道の助け `tests/engine/_legacy_world.py`(実行器と計画実行層の初期化に部品の口を挿す・§2-2)。
+  3. 旧のセルの移動の印 `world/model/space/nav1.py` の `_LEGACY_FOR_TESTS` と助け `tests/engine/space/_legacy.py`(§13-2)。
+- Q13 の版上げまで残る引数: `run_day(hunger_model=)`(既定 v1)・`cli.run(hunger_model=)`(既定 energy・v1 も受ける)。
+- 鍵を残して値を固定したもの: manifest の `economy.stage2.arm`(on)・`rate_rules`(off)・`absent_processes`(stopped)・
+  `space.requested`(nav1)と状態のファイルの見出しの同じ鍵・箱の欄 `cfg.rate_rules`・`cfg.absent_processes`・`cfg.space`。
+
+### 15-4 次の版上げで扱う行・今の src で止まる記録の道具の一覧の場所
+
+- 次の版上げで扱う行(manifest・つなぎの台帳・世界の台帳のハッシュが動くので本書の段では触らない): §6 の表(台帳の
+  `DOC-s2rates-legacy-switch`・`DOC-s2e-absent-legacy-switch`・`DOC-s2rates-collapse-test-knob`・`BR-NAV1-LEGACY-SWITCH`・
+  `DOC-nav1-arms-inert-edge-plateau`・`BR-NAV1-E5`・`world/ledger/absent.py` の文・routing の DEC の 15 行)と §12-5・§13-6。
+- 今の src で止まる記録の道具: §9-1(②a の分)・§12-5(②b の分)・§13-6(③a の分)・§8(本書の手順 0 の道具は切替口が在る木
+  でだけ回る)。③b で止まる記録の道具は無い。
+- 直していない経緯の注と手で書く案内の文: §9-1・§12-5・§13-6・§14-1。
 
 ## 付録 A. 試験ごとの行(検収 L9=§3・§4 でまとめた行を開いた)
 

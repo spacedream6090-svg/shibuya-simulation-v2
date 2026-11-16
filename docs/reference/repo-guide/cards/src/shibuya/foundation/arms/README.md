@@ -80,7 +80,7 @@ engine.removed_switches — 消した旧道の切替口の一覧と、渡され�
 
 - 公開の関数とクラス
   - `check_environment`(関数): 消した切替口の環境変数(:data:`REMOVED_ENV` の全部)のどれかが置かれていれば止める(ランの入口で呼ぶ)。
-  - `message`(関数): 止めるときの文(名・消した段・安定版のタグ)。第346 の行の文は前と同じ。
+  - `message`(関数): 止めるときの文(名・消した段・安定版のタグ・〔第347 ③b〕名ごとの注)。第346 の行の文は前と同じ。
   - `stop_if_set`(関数): ``names`` の環境変数のどれかが置かれていれば(空でない値)止める(``ValueError``)。
   - `tag_of`(関数): 名(環境変数か CLI の旗)の旧値の再現の安定版のタグ。
 - 呼び手: `shibuya.cli`・`shibuya.economy.rules_bind`・`shibuya.economy.stage2_bind`・`shibuya.runtime.switch_defects`・`shibuya.runtime.systems.assemble`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.laws.switch_seat`・`shibuya.world.model.proximity`・`shibuya.world.model.space.nav1`

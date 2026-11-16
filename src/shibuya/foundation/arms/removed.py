@@ -14,7 +14,7 @@ CLI の旗(:data:`REMOVED_CLI_FLAGS`)は ``shibuya.cli`` が表に出さない�
 
 〔第347 止めた切替口の削除〕旧値の再現の安定版のタグは消した段ごとに違う=名ごとに引く(:func:`tag_of`)。第346 で消した行は
 :data:`REMOVED_SWITCH_TAG`(文も前のまま)・第347 で消した行(経済の段階 2 の off・率の規則の旧道・「無い」の過程の旧道・
-移動の旧道 ``--space legacy``)は
+移動の旧道 ``--space legacy``・空腹のモデルの旗 ``--hunger-model``)は
 :data:`REMOVED_SWITCH_TAG_347`(記録 ``docs/bench/analysis/switch-removal-347/README.md``)。
 
 時間の方針: 本モジュールは時刻を持たない。逐次ループ宣言: なし(名の数ぶん)。
@@ -49,8 +49,9 @@ REMOVED_ENV: Final[Mapping[str, str]] = MappingProxyType({
                       "残る)"),
 })
 
-#: 消した CLI の旗 → 対応する環境変数(``shibuya.cli`` が表に出さない旗として受けて止める)。
-REMOVED_CLI_FLAGS: Final[Mapping[str, str]] = MappingProxyType({
+#: 消した CLI の旗 → 対応する環境変数(``shibuya.cli`` が表に出さない旗として受けて止める)。〔第347 ③b〕環境変数の無い旗だけの
+#: 行は値を ``None`` にする(``--hunger-model``)。
+REMOVED_CLI_FLAGS: Final[Mapping[str, str | None]] = MappingProxyType({
     "--seat-release": "SHIBUYA_SEAT_RELEASE",
     "--proximity": "SHIBUYA_PROXIMITY",
     "--defect-fixes-1103": "SHIBUYA_DEFECT_FIXES_1103",
@@ -59,6 +60,8 @@ REMOVED_CLI_FLAGS: Final[Mapping[str, str]] = MappingProxyType({
     "--rate-rules": "SHIBUYA_RATE_RULES",
     "--absent-processes": "SHIBUYA_ABSENT_PROCESSES",
     "--space": "SHIBUYA_SPACE",
+    # 〔第347 ③b〕空腹のモデルの旗(環境変数は無い)。``--hunger-words``(残す腕)と頭が重なる=表に出さない旗で受けて止める
+    "--hunger-model": None,
 })
 
 _STEP_347: Final[tuple[str, str]] = ("第347 止めた切替口の削除", REMOVED_SWITCH_TAG_347)
@@ -72,8 +75,13 @@ _STEP_TAG: Final[Mapping[str, tuple[str, str]]] = MappingProxyType({
     "--absent-processes": _STEP_347,
     "SHIBUYA_SPACE": _STEP_347,
     "--space": _STEP_347,
+    "--hunger-model": _STEP_347,
 })
 _STEP_346: Final[str] = "第346 旧道の切替口の削除"
+#: 〔第347 ③b〕名 → 止める文の末尾に足す注(消した口の外に残る口の案内)。ここに無い名は注なし(前の文のまま)。
+_NOTE: Final[Mapping[str, str]] = MappingProxyType({
+    "--hunger-model": "。run_day と cli.run の引数 hunger_model は、既定をそろえる版上げ(Q13)まで残る",
+})
 
 
 def tag_of(name: str) -> str:
@@ -82,10 +90,10 @@ def tag_of(name: str) -> str:
 
 
 def message(name: str) -> str:
-    """止めるときの文(名・消した段・安定版のタグ)。第346 の行の文は前と同じ。"""
+    """止めるときの文(名・消した段・安定版のタグ・〔第347 ③b〕名ごとの注)。第346 の行の文は前と同じ。"""
     step, tag = _STEP_TAG.get(name, (_STEP_346, REMOVED_SWITCH_TAG))
     return (f"{name} は消した切替口({step}・旧値の再現は安定版のタグ {tag})"
-            + ("=環境変数を外す" if name.startswith("SHIBUYA_") else "=旗を外す"))
+            + ("=環境変数を外す" if name.startswith("SHIBUYA_") else "=旗を外す") + _NOTE.get(name, ""))
 
 
 def stop_if_set(*names: str, environ: Mapping[str, str] | None = None) -> None:

@@ -93,7 +93,6 @@ from shibuya.world.body.energy import (
     DEFAULT_ENERGY_RATE,
     DEFAULT_HUNGER_MODEL,
     ENERGY_RATES,
-    HUNGER_MODELS,
 )
 from shibuya.world.model.state import DEFAULT_EATERY_MODE, EATERY_MODES, World
 from shibuya.foundation.time_consts import STEPS_PER_HOUR
@@ -111,7 +110,9 @@ CLI_DEFAULT_VOCAB_VERSION: Final[str] = "v3"
 CLI_DEFAULT_L4_SCALE: Final[float] = 0.0
 #: **5 段目 5a(D-118 K5 (a)・第291)**: CLI と ``cli.run`` の空腹のモデルの既定=**energy**
 #: (体のエネルギー収支)。``run_day`` のライブラリ既定は ``v1`` のまま(語彙・L4 と同じ分け方)。
-#: 旧 checkpoint は ``--hunger-model v1``(``cli.run(hunger_model="v1")``)で再現する(テストで固定)。
+#: 旧 checkpoint は ``cli.run(hunger_model="v1")`` で再現する(テストで固定)。〔第347 止めた切替口の削除〕CLI の旗
+#: ``--hunger-model`` は消した(CLI のランはいつも energy・旗は表に出さない旗で受けて止める)。``run_day`` と ``cli.run`` の
+#: 引数 ``hunger_model`` は、既定をそろえる版上げ(Q13)まで残る。
 CLI_DEFAULT_HUNGER_MODEL: Final[str] = DEFAULT_HUNGER_MODEL
 
 __all__ = [
@@ -1177,19 +1178,13 @@ def main(argv: list[str] | None = None) -> int:
         default=DEFAULT_STORE_DECAY,
         help="店の評価の減衰の形(既定 actr=ACT-R d=0.5・ga=0.995/時・citysim=中立回帰 0.03/日=感度腕)",
     )
-    ap.add_argument(
-        "--hunger-model",
-        choices=HUNGER_MODELS,
-        default=CLI_DEFAULT_HUNGER_MODEL,
-        help="5 段目 5a(D-118): 空腹のモデル。energy=体のエネルギー収支(既定・体重と EER・活動の "
-             "METs で消費・食事/軽食/飲料で摂取・B5 は語)/v1=旧規則(+1/30 分・購入/食事で −4)"
-             "=旧 checkpoint の再現",
-    )
+    # 〔第347 止めた切替口の削除〕旗 --hunger-model は消した=表に出さない旗として受けて止める(foundation.arms.removed の
+    # 一覧)。CLI のランの空腹のモデルはいつも energy(CLI_DEFAULT_HUNGER_MODEL・5 段目 5a)
     ap.add_argument(
         "--energy-rate",
         choices=ENERGY_RATES,
         default=DEFAULT_ENERGY_RATE,
-        help="消費の式(--hunger-model energy のときだけ効く)。eer=EER/1440×METs/基準日の平均 METs"
+        help="消費の式(空腹のモデル energy=CLI のランの空腹のモデルで効く)。eer=EER/1440×METs/基準日の平均 METs"
              "(既定・K1 (c))/bmr=基礎代謝量×METs(感度腕・K1 (a))",
     )
     ap.add_argument(
@@ -1197,7 +1192,8 @@ def main(argv: list[str] | None = None) -> int:
         choices=("off", "on"),
         default="off",
         help="第2波 §2B 項 1(Q34 (b)): 範囲外の既定の食事時刻に W17 で就寝中の体。off=旧(そのまま食べる・既定)/"
-             "on=起床の時刻へ遅らせ、時間帯の窓の中なら食べる(過ぎていれば無し)。--hunger-model energy のときだけ効く",
+             "on=起床の時刻へ遅らせ、時間帯の窓の中なら食べる(過ぎていれば無し)。空腹のモデル energy(CLI のランの空腹の"
+             "モデル)で効く",
     )
     ap.add_argument(
         "--home-meal",
@@ -1675,7 +1671,7 @@ def main(argv: list[str] | None = None) -> int:
         store_memory_n=int(args.store_memory_n),
         store_sigma=args.store_sigma,
         store_decay=str(args.store_decay),
-        hunger_model=str(args.hunger_model),
+        hunger_model=CLI_DEFAULT_HUNGER_MODEL,  # 〔第347〕旗 --hunger-model は消した=いつも energy(設定の指紋は前と同じ)
         energy_rate=str(args.energy_rate),
         meal_sleep_defer=str(args.meal_sleep_defer),
         home_meal=str(args.home_meal),

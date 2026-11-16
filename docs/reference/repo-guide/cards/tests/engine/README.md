@@ -1257,6 +1257,7 @@ C10 8b(会話の起点と相手選択+8a の直し)の検査。
   - `test_a_run_with_a_removed_switch_env_stops_before_the_ticks`(関数): 値によらず(既定の値でも)止まる。止まるのは組み立ての最初か、切替口を持っていたモジュールの読み込み=刻みの前。
   - `test_the_frame_check_catches_a_stop_inside_the_ticks`(関数): 〔第347 見つけた欠陥の直し・負の対照〕刻みの中の系(本人の体の系が呼ぶ ``resolve.advance_body``)で止まったランは、
   - `test_the_hidden_flags_are_not_in_the_help`(関数)
+  - `test_the_hunger_words_flag_still_works_and_the_short_prefix_is_not_read_as_it`(関数): 〔第347 ③b〕旗 ``--hunger-model`` を消しても、残す腕の旗 ``--hunger-words`` は今のまま受ける(値の誤りはその旗の選択肢の
   - `test_the_list_and_the_message_are_in_one_place`(関数)
   - `test_the_parts_flag_still_works_and_is_not_read_as_the_removed_flag`(関数): 〔第347〕残す感度の腕 ``--economy-stage2-parts`` は今のまま受ける(名の誤りは部品の文で止まる=消した切替口の文でない)。
   - `test_the_space_arm_flags_still_work_and_are_not_read_as_the_removed_flag`(関数): 〔第347 ③a〕移動の旗 ``--space`` を消しても、残す腕の旗 ``--slope``・``--turn-weight`` は今のまま受ける(値の誤りは

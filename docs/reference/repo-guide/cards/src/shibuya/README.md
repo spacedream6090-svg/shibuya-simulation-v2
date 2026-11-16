@@ -68,7 +68,7 @@ shibuya.cli — 実行入口(層外の組立コード・C4 出口で追加)。
   - `--duties`: 第 6 期 6-6 ② 第 1 部 店の仕事の腕(既定 off=今の道・環境変数 SHIBUYA_DUTIES と同じ。指定すれば環境変数より強い)。arm=開閉店・補充(品出し)・売れ残りの廃棄を、担当(雇用の行)が店に居る店では本人の判断にする(店の決まり=営業時間は担当が知る・棚が減ったら気づく・閉めた店の売れ残りを捨てる・判断は仮のモデル)。担当が居ない店は今の conf 宣言つきのつなぎ。arm は結果を変えるので設定の指紋に入り、ランの種類は腕(manifest の duties に出る)
   - `--eatery`: 段 1b(D-96 nightlife (b)): 行動語「食事」が成立する飲食店の集合。food=現行(cat の価格帯「飲食」・既定・checkpoint はバイト不変)/place_food=W17 の場所語「飲食店」と同じ集合(food+nightlife のうち club/karaoke/sauna/net_cafe でないもの)。価格は動かさない
   - `--economy-stage2-parts`: 第 2 期 2-1 経済の段階 2 の部品(カンマ区切り・既定=全部 wages,withdraw,payment,tax,visitors・環境変数 SHIBUYA_ECONOMY_STAGE2_PARTS と同じ)。1 つずつ測るため。段階 2(賃金・引き出し・支払いの方法・レジの消費税・来街者の口座)はいつも挿す=〔第347〕2-1 までの値の切替口 --economy-stage2 off は消した
-  - `--energy-rate`: 消費の式(--hunger-model energy のときだけ効く)。eer=EER/1440×METs/基準日の平均 METs(既定・K1 (c))/bmr=基礎代謝量×METs(感度腕・K1 (a))
+  - `--energy-rate`: 消費の式(空腹のモデル energy=CLI のランの空腹のモデルで効く)。eer=EER/1440×METs/基準日の平均 METs(既定・K1 (c))/bmr=基礎代謝量×METs(感度腕・K1 (a))
   - `--environment-seed`: 10f 環境の seed(気象の再生実日・大きな催し・道路工事。省略=--seed と同じ=今と同じ)。天気は同じで動きだけ変える比較では固定する
   - `--events`: 第 1 期 1-3: 出来事の記録(既定 on)。off で記録しない(環境変数 SHIBUYA_EVENTS=off と同じ)。記録は結果を変えないので設定の指紋には入らない(manifest の日次の記録 events.on に出る)
   - `--exit-mode`: 退出の実行形(設計書 §10-3)。immediate(既定=即時)/ walk_to_platform(9a=その体の路線のホームへ歩いて受容関数を通して乗る)・board_intent は予約(NotImplementedError)
@@ -81,13 +81,12 @@ shibuya.cli — 実行入口(層外の組立コード・C4 出口で追加)。
   - `--geometry`: 位置幾何(C9 G1/G2・docs/design/v2-c9-geometry-agenda.md §4)。node=現行の 1 tick=1 ノード(既定・checkpoint はバイト不変)/edge=辺上の連続位置(edge_id・辺上距離・向き)+希望速度 Uniform(1.00,1.60) m/s+Kladek 式の密度減速。edge では密度段が人/m² の Fruin LOS 段になる
   - `--group-norms`: 第309(Q150): 群・規範の計器(D-107 (a)・読むだけ=final は変わらない)を回すか(既定 on)
   - `--home-meal`: 第2波 §2B 項 2(Q35 (a)): 範囲内の自宅の食事行。off=旧(食事は飲食店でしか成立しない・既定)/plan=行の開始に自宅に居て起きていれば予定の実行として食べる(金と物は動かさない・照合から外す)
-  - `--hunger-model`: 5 段目 5a(D-118): 空腹のモデル。energy=体のエネルギー収支(既定・体重と EER・活動の METs で消費・食事/軽食/飲料で摂取・B5 は語)/v1=旧規則(+1/30 分・購入/食事で −4)=旧 checkpoint の再現
   - `--hunger-words`: 第2波 §2B 項 3(Q31 (b)): B5 の空腹の語。hungry=空腹以上だけ描く(既定=旧)/all=満腹・ふつうも描く
   - `--intent-max-ticks`: 段 2c(意図の保持・D-112 ①): セル外の対象へ歩く意図の上限[tick]。超えたら TOO_FAR(既定 60・宣言・expedient・感度腕 30/120)
   - `--intent-mode`: 行動の出させ方(AB7 自由意図の腕・docs/design/v2-open-intent-arm-spec.md §2)。vocab=24 語のホワイトリストを B0 で見せる(既定・現行のバイト)/open=語彙を見せず『いま自分がしたいこと』を 10 字以内の動詞句で書かせ、接地はエンジン側(行動契約書 §7 段0〜1)に任せる/hint=語彙を例として見せたうえで、当てはまる語が無いときだけ 10 字以内の自由文を許す(AB7b・vocab と open の中間)
   - `--l4-scale`: 呼数の上限の倍率。**既定 0=無制限**(3 段目・D-99 (a′)・D-110=L4 は監査線・manifest に llm_calls_per_agent_day と l4_exceeded)。1.0=旧挙動(L4 400 万呼/日を体数按分・持ち越し 2 tick)・0.5/2.0=半分/倍。PENDING D-99 AB8 の腕
   - `--meal-gate`: 第2波 §2A 項 4(Q48): --policy classical の食事の門の確率の読み方。per_wake=起床ごと(既定=旧)/per_hour=1 時間あたりと読み前回の門からの経過分で換算(既定の切り替えは食事の束の版上げで確認)
-  - `--meal-sleep-defer`: 第2波 §2B 項 1(Q34 (b)): 範囲外の既定の食事時刻に W17 で就寝中の体。off=旧(そのまま食べる・既定)/on=起床の時刻へ遅らせ、時間帯の窓の中なら食べる(過ぎていれば無し)。--hunger-model energy のときだけ効く
+  - `--meal-sleep-defer`: 第2波 §2B 項 1(Q34 (b)): 範囲外の既定の食事時刻に W17 で就寝中の体。off=旧(そのまま食べる・既定)/on=起床の時刻へ遅らせ、時間帯の窓の中なら食べる(過ぎていれば無し)。空腹のモデル energy(CLI のランの空腹のモデル)で効く
   - `--memory`: 6 段目 6a/6b(記憶 第 1 段): 体×N 行の記憶の表を確保して、行動の成否・会話・気づき・強い看板(初見)を書き(6a)、各呼で k 件を想起して B5 の最後に「記憶」の 1 行を載せる(6b)。既定 off=表を確保しない=既定の checkpoint も描画バイトも不変
   - `--memory-cue`: 第 6 期 6-5 想起の手がかりの腕(既定 id=その場の手がかり=ID の一致・環境変数 SHIBUYA_MEMORY_CUE)。embed=意味の手がかり(埋め込み=--memory-embed-model・会話中は相手の直前の発言・ほかは本人の直前の理由)
   - `--memory-embed-model`: 第 6 期 6-5 埋め込みのモデル(既定 ruri-v3-30m・環境変数 SHIBUYA_MEMORY_EMBED_MODEL)。Ruri の重みは data/models/ruri/ に版を固定して置く(本段では未取得)。ngram-test は重みの要らない試験用の代わり(意味ではない)
