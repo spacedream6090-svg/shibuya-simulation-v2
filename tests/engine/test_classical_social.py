@@ -142,7 +142,7 @@ def test_busy_or_asleep_or_out_of_reach_acquaintances_are_skipped():
 # ================================================================= (c) ラン
 @pytest.mark.requires_data("world_v2")
 def test_run_golden_and_arms():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.runtime.run import run_day
 
     with pytest.raises(ValueError):

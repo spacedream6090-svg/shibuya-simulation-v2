@@ -17,8 +17,8 @@ from __future__ import annotations
 import pyarrow.parquet as pq
 
 # 〔割る段 5b の G3〕別名 cli を割り先ごとに分けた(cli=interfaces.cli.main・cli_wire=interfaces.cli.wire_economy の名)
-from shibuya import cli
-from shibuya import cli as cli_wire
+from shibuya.interfaces.cli import main as cli
+from shibuya.interfaces.cli import wire_economy as cli_wire
 from shibuya.economy import census as CS
 from shibuya.runtime.run import run_day
 from shibuya.world.model.state import World

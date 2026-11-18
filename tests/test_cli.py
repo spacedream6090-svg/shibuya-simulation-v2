@@ -8,8 +8,8 @@ import numpy as np
 import pytest
 
 # 〔割る段 5b の G3〕別名 cli を割り先ごとに分けた(cli=interfaces.cli.main・cli_wire=interfaces.cli.wire_economy の名)
-from shibuya import cli
-from shibuya import cli as cli_wire
+from shibuya.interfaces.cli import main as cli
+from shibuya.interfaces.cli import wire_economy as cli_wire
 from shibuya.economy import anchors as AN
 from shibuya.economy import entry_capital as EC
 from shibuya.economy.accounts import BalanceLine, Sector

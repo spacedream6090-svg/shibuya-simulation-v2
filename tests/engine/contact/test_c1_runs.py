@@ -119,7 +119,7 @@ def test_arm_rows_enter_the_hashes_only_when_the_owner_exists():
 
 
 def test_cli_run_kind_is_arm(monkeypatch):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.experiments.port import run_kind as RK
 
     monkeypatch.delenv(RK.PYTEST_ENV, raising=False)  # 試験の中は種類が test になる=外して腕の数え方を見る
@@ -134,7 +134,7 @@ def test_cli_run_kind_is_arm(monkeypatch):
 
 def test_cli_flag_sets_the_arm(monkeypatch):
     """CLI の ``--contact`` は環境変数より強い(組み立てが読む切替口を置く)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.foundation.arms import contact as A
 
     seen = {}

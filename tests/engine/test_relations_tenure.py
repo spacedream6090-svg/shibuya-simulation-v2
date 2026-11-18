@@ -164,7 +164,7 @@ def test_run_switch_is_removed_and_the_default_tau_is_v2():
     text = PL.split_source("cli.py")
     assert '"--rel-tenure-hash"' not in text and "rel_tenure_hash" not in text
     D.skip_unless("world_v2")  # 前の assert は data なしでも回す
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", relations="on", ticks=30)
     s = cli.run(**kw).run_manifest_fields()["relations"]
@@ -200,7 +200,7 @@ REL_ON_5000_GOLDEN = GE.row(REL_ON_5000_GOLDEN_BY_ENV)
 
 @pytest.mark.requires_data("world_v2")
 def test_relations_on_arm_golden_old_and_new():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=5000, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", relations="on")
     if REL_ON_5000_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(既定の v2)

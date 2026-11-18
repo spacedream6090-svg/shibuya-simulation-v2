@@ -106,7 +106,7 @@ def test_summary_declares_convention_not_norm_and_does_not_judge():
 
 def test_the_meter_only_reads_the_run_state():
     """計器を空にしたランと final・呼数が一致する=**読むだけ**(状態・乱数・テープに触れない)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=150, seed=2, world_dir=None, n_cells=16, ticks=240, checkpoint_every=120)
     with_meter = cli.run(**kw)
@@ -166,7 +166,7 @@ def test_instant_group_walk_counts_neighbours_across_grid_cells_and_ignores_stan
 
 def test_group_norms_switch_off_is_byte_identical():
     """第309 Q150: ``group_norms="off"`` は計器の口を通さない=final・呼数が既定(on)と同じ・manifest は enabled=False。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     from tests import _places as PL
 

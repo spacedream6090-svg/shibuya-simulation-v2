@@ -231,7 +231,7 @@ real_world = pytest.mark.requires_data("world_v2")
 
 @real_world
 def test_run_default_is_unchanged_and_store_choice_is_reported():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", policy="classical",
               chooser="classical", memory="on")

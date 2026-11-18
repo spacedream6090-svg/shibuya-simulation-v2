@@ -184,7 +184,7 @@ def test_cli_flag_is_shared_by_engine_run_and_cli():
         ap.parse_args(["--rng-scheme", "counter"])
     import inspect
 
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     src = inspect.getsource(cli.main)
     assert "add_calendar_args(ap)" in src and "calendar_kwargs_from_args(args)" in src

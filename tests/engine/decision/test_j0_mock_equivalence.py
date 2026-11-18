@@ -181,7 +181,7 @@ def test_legacy_arm_builds_no_layer_and_keeps_the_bridge_call(monkeypatch):
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_5000_agents_one_day_same_decision_sequence(monkeypatch, tmp_path):
     """5,000 体 mock の 1 日(世界資産・語彙 v3=byte-check の w6_v3_default と同じ構成): 判断の番号列が一致。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seqs = []
     for arm in ("legacy", "port"):

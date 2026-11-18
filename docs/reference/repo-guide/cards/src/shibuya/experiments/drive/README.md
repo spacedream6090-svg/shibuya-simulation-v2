@@ -28,7 +28,7 @@ engine.experiment.branch — 「T0 までテープを再生して T0 から今�
   - `probe_first_divergence`(関数): 2 本の系ごとの指紋の行(``(刻み, 系, ((欄, digest), …))``)の最初の食い違い(同じなら ``None``)。
   - `run_branch`(関数): 基準のランの記録 ``base_dir`` から申込書 ``form`` の分岐を回し、4 つの確認をして ``branch_report.json`` を書く。
 - import している内部モジュール: `shibuya.experiments.drive.switch`・`shibuya.experiments.port.ensemble`・`shibuya.experiments.port.form`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.ports.inference`・`shibuya.foundation.time_consts`・`shibuya.mind.judge.classical`・`shibuya.runtime.inference.tape`・`shibuya.runtime.systems.probe`・`shibuya.world.ledger.records`
-- 呼び手: `shibuya.cli`・`shibuya.experiments.drive.switch`
+- 呼び手: `shibuya.experiments.drive.switch`・`shibuya.interfaces.cli.main`
 - 読む試験: `tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/experiment/test_x33_form.py`
 - 決定の ID: 10-12/§1-1・10-12/§4-5・R-71
 

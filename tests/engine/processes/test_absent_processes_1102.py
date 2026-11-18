@@ -325,7 +325,7 @@ def test_resume_through_run_day_checks_the_arm(tmp_path):
 def test_cli_flag_is_removed(capsys):
     """〔第347 止めた切替口の削除〕前(``test_cli_rejects_a_wrong_arm_name``)は ``--absent-processes off`` が名の誤りで止まるのを
     見た。旗は消した=値に依らず、表に出さない旗で受けて消した切替口の文で止まる。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     for value in ("off", "legacy", "stopped"):
         with pytest.raises(SystemExit) as exc:

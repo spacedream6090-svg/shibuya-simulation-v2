@@ -29,7 +29,7 @@ ARMS = {
 
 
 def main(argv: list[str]) -> int:
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     name = argv[0]
     days = int(argv[argv.index("--days") + 1]) if "--days" in argv else 1

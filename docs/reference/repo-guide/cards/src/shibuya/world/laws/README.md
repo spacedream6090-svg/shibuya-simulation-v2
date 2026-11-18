@@ -265,7 +265,7 @@ engine.rate_rules — 率の形の規則を外す切替口(指示書 11-01 段 2
   - `removed_flags`(関数): 規則ごとの ``rate_rule_<名>_removed``(1=外した・0=旧道)。腕だけで決まる印(設定)。
   - `resolve`(関数): 過程の引数の腕(``None``=既定 off。〔第347〕ランの切替口は消した)を名に直す(名の誤りは止める)。
 - import している内部モジュール: `shibuya.foundation.arms.removed`
-- 呼び手: `shibuya.cli`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.presence`・`shibuya.world.laws.rail`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`
+- 呼び手: `shibuya.interfaces.cli.wire_economy`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.presence`・`shibuya.world.laws.rail`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`
 - 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_waste_sink_report.py`
 - 環境変数: `SHIBUYA_RATE_RULES`
 - 決定の ID: 10-13b/§0-6・11-01・11-01/§2・第 347

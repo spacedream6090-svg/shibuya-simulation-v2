@@ -1945,11 +1945,20 @@ def test_split_order_is_kept_in_the_real_tree():
 
 
 def test_split_dry_run_of_the_next_row_writes_nothing_and_keeps_every_guard(tmp_path):
-    """本物の木で次の本を書かずに当てる(--through=手で直す読みは残して報告): 何も書かず、守りが全部「同じ」。"""
+    """本物の木で次の本を書かずに当てる(--through=手で直す読みは残して報告): 何も書かず、守りが全部「同じ」。割る行が残り 0 の
+    木では、書かない実行の口(次の本の既定の形と ``--through all``)が何も書かないことだけを確かめる(親の裁定・5b の終わり)。"""
     tree = _root_tree()
     nxt = SP.next_split(tree, MAPDOC)
     if nxt is None:
-        pytest.skip("割る段は全部当たっている")
+        before = {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest()
+                  for p in ("tools/pkgmove/map.toml", "pyproject.toml")}
+        for name, args in (("next", ("--next",)), ("all", ("--through", "all"))):
+            od = tmp_path / name
+            r = run_cli("split", *args, "--out-dir", str(od))
+            assert r.returncode == 0 and "割る段は全部当たっている" in r.stdout, (args, r.stdout[-2000:], r.stderr[-2000:])
+            assert not od.exists() or [x for x in od.rglob("*") if x.is_file()] == [], args
+        assert before == {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in before}
+        return
     before = {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in ("tools/pkgmove/map.toml", "pyproject.toml")}
     r = run_cli("split", "--through", nxt, "--out-dir", str(tmp_path))
     assert r.returncode == 0, r.stderr[-3000:]

@@ -243,7 +243,7 @@ def run_collect(config: str, *, days: int, agents: int, seed: int, world: str | 
     """1 本回して日ごとの量の JSON を返す(同じプロセスで腕を選ぶ)。"""
     _paths()
     arms = set_arms(config)
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.runtime import run as RUN
 
     kw: dict[str, Any] = dict(BASE, n_agents=agents, seed=seed, sim_days=days, world_dir=world)
@@ -357,7 +357,7 @@ def cmd_resume(args: argparse.Namespace) -> int:
     """2 日の通しと、1 日目の終わり(日の境目)で保存 → 2 日目を再開の final・checkpoint を比べる(同じプロセスで腕を選ぶ)。"""
     _paths()
     arms = set_arms(args.config)
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     from shibuya.foundation.time_consts import STEPS_PER_DAY
 

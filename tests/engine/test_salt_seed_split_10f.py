@@ -22,7 +22,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.foundation import rng as RNG
 from shibuya.world.model import geometry as GEO
 from shibuya.runtime.state import resume as RS

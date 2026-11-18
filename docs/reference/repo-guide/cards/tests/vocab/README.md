@@ -39,7 +39,7 @@ tests.vocab の共通フィクスチャ。
   - `test_rank_is_the_coverage_of_agents_cells_hours`(関数): 順位は 体数×セル数×時間帯数(件数=行数ではない)。決定 A (c)。
   - `test_review_keyword_is_auto_rejected`(関数): 保存則・性能予算に触れる語(§7 段3)は自動不採用。
   - `test_two_runs_are_merged_by_sum_of_rows_and_union_of_coverage`(関数): seed 1/2 の合算: 行数は和・体は (由来, id) の併合・セル/時間帯は併合。
-- import している内部モジュール: `shibuya.act.intake.undefined`・`shibuya.cli`
+- import している内部モジュール: `shibuya.act.intake.undefined`・`shibuya.interfaces.cli.main`
 
 ## [test_registry_from_tape.py](../../../../../../tests/vocab/test_registry_from_tape.py)
 
@@ -51,7 +51,7 @@ tests.vocab の共通フィクスチャ。
   - `test_main_writes_a_relative_path_json`(関数)
   - `test_missing_tape_is_an_error_not_an_empty_ledger`(関数)
   - `test_relative_keeps_outside_paths_as_a_bare_name`(関数): リポジトリ外のパスは**名前だけ**にする(絶対パスを記録に残さない)。
-- import している内部モジュール: `shibuya.cli`・`tests/vocab/conftest.py`
+- import している内部モジュール: `shibuya.interfaces.cli.main`・`tests/vocab/conftest.py`
 
 ## [test_undefined_out.py](../../../../../../tests/vocab/test_undefined_out.py)
 
@@ -63,5 +63,5 @@ tests.vocab の共通フィクスチャ。
   - `test_payload_without_a_registry_is_empty_not_guessed`(関数): 台帳の無いラン(スタブ)は**空で返す**(推測で埋めない)。
   - `test_undefined_out_does_not_move_the_checkpoint_series`(関数): **既定経路のバイト不変**: ``--undefined-out`` を足しても checkpoint 列は同じ。
   - `test_undefined_out_writes_the_batch_input`(関数): 渡すと JSON が出る。版・記録リング・集計・カウンタが揃う。
-- import している内部モジュール: `shibuya.act.intake.undefined`・`shibuya.cli`
+- import している内部モジュール: `shibuya.act.intake.undefined`・`shibuya.interfaces.cli.main`
 - 決定の ID: D-71・第 277

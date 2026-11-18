@@ -86,7 +86,7 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `test_run_rows_and_events_are_one_to_one_on_stage2`(関数): 〔第347・検収 M2〕上の試験と同じ 1 対 1 を、段階 2 on(今のランが通る道=cli の台帳に段階 2 が挿さる)で見る。
   - `test_step_width_sets_the_event_time`(関数)
   - `test_store_side_has_a_poi_where_and_llm_call_cause`(関数)
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.economy.stage2_bind`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`tests/_places.py`・`tests/economy/_stage2_outside.py`・`tests/engine/_legacy_world.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.ops`・`shibuya.economy.stage2_bind`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.interfaces.cli.main`・`tests/_places.py`・`tests/economy/_stage2_outside.py`・`tests/engine/_legacy_world.py`
 - 決定の ID: 11-01・第 347
 
 ## [test_cp2_flow_sum.py](../../../../../../../tests/economy/cp2/test_cp2_flow_sum.py)
@@ -115,7 +115,7 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `test_overflow_in_a_run_is_recorded_and_the_run_finishes`(関数): 小さな輪(64 行)で意図的に溢れさせる: manifest と日次の記録に溢れの数・ランは最後まで・final は同じ。
   - `test_overflow_is_counted_and_the_ledger_goes_on`(関数): 輪(8 行)を溢れさせる: 古い行を上書きして続け、溢れた行の数を数える。残高と流れの表は全部の行を含む。
   - `test_the_coefficient_is_at_least_one_and_a_half_times_the_measurement`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.foundation.growth`・`shibuya.foundation.ports.ledger`・`shibuya.runtime.run`・`shibuya.world.model.state`・`tests/economy/_stage2_outside.py`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.foundation.growth`・`shibuya.foundation.ports.ledger`・`shibuya.interfaces.cli.main`・`shibuya.runtime.run`・`shibuya.world.model.state`・`tests/economy/_stage2_outside.py`
 - 決定の ID: 10-13b/§3・第 347
 
 ## [test_cp2_nine_ops_equivalence.py](../../../../../../../tests/economy/cp2/test_cp2_nine_ops_equivalence.py)
@@ -132,7 +132,7 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `test_random_port_sequences_match_head`(関数)
   - `test_the_copies_are_the_head_blobs`(関数): 写しが HEAD 136fdbb のバイトのまま(``tests/_head_copy_pin.py`` の字面・文の順・意味=段 4 で移す道具が import の文の
   - `test_the_outside_bundle_swaps_the_ledger_types_on_both_sides`(関数): 〔割る段 5b の G3・親の裁定〕``use_outside_bundle`` は台帳の型を、作る側(``build_ledger_bundle``=割った後は
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.ledger`・`tests/economy/_stage2_outside.py`・`tests/economy/cp2/head_copies.py`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.ledger`・`shibuya.interfaces.cli.main`・`shibuya.interfaces.cli.wire_economy`・`tests/economy/_stage2_outside.py`・`tests/economy/cp2/head_copies.py`
 - 決定の ID: 第 347
 
 ## [test_cp2_transfer_only_writer.py](../../../../../../../tests/economy/cp2/test_cp2_transfer_only_writer.py)
@@ -177,4 +177,4 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `test_declaring_systems`(関数)
   - `test_phase_c_without_the_events_declaration_fails_at_the_first_fare`(関数)
   - `test_undeclared_money_meter_write_shows_in_stage_b`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.write_permit`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.write_permit`・`shibuya.interfaces.cli.main`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`・`shibuya.world.model.state`

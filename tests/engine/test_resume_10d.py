@@ -33,7 +33,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.runtime.state import resume as RS
 from shibuya.runtime.state import ledger as SL
 from shibuya.runtime.run import run_day
@@ -195,7 +195,7 @@ def test_ledger_rows_moved_by_10d():
 # ================================================================= (iii) キャッシュを持ち越さない再開
 _CHILD = r"""
 import json, sys
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.runtime.state import resume as RS
 kw = json.loads(sys.argv[1])
 res = cli.run(resume_from=sys.argv[2], tape_path=sys.argv[3], **kw)

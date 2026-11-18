@@ -305,7 +305,7 @@ def day_runs():
 
     〔第347 止めた切替口の削除〕legacy は切替口(``--rate-rules`` の腕)の代わりに、試験の中だけで実行器と計画実行層に部品の口
     (率の規則の旧道)を挿して回す(``tests/engine/_legacy_world.py``=同じランになることを手順 0 で確かめた)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from tests.engine._legacy_world import legacy_world_rules
 
     kw = dict(n_agents=200, seed=3, world_dir="data/world/v2", ticks=1_440, checkpoint_every=360)
@@ -343,7 +343,7 @@ def test_run_manifest_counts_rise_in_legacy_and_are_zero_off(day_runs):
 def test_attendance_rate_is_gone_from_run_day_and_the_cli(capsys):
     with pytest.raises(TypeError):
         run_day(n_agents=10, seed=1, n_cells=9, ticks=2, attendance_rate=0.5)
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with pytest.raises(SystemExit):
         cli.main(["--attendance-rate", "0.5"])
@@ -370,7 +370,7 @@ def test_the_run_day_collapse_rate_port_is_removed():
     res = run_day(n_agents=10, seed=1, n_cells=9, ticks=2, salient_rate_per_10k=None)
     assert res.runner.salient.rate_rules == RR.DEFAULT_MODE
     # 〔第347・検収 B-3〕cli.run の道でも同じ所で止まる(cli.run は引数を run_day へ渡す)
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with pytest.raises(ValueError, match="salient_rate_per_10k は消した試験の口.*stable-v2-before-switch-removal-347"):
         cli.run(n_agents=10, seed=1, ticks=2, world_dir="data/world/__none__", salient_rate_per_10k=3_000.0)

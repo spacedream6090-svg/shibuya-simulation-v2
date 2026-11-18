@@ -76,7 +76,7 @@ engine.experiment.form — 反実仮想の申込書 ``ExperimentForm``(第 3 期
   - `canonical_json`(関数): 決定的な JSON(鍵の昇順・区切りの空白なし・ASCII の外もそのまま)。
   - `sha256_hex`(関数): ``canonical_json`` の UTF-8 の sha256(16 進 64 字)。
 - import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`
-- 呼び手: `shibuya.cli`・`shibuya.experiments.drive.branch`・`shibuya.experiments.port.apply`・`shibuya.experiments.port.checks`・`shibuya.experiments.port.ensemble`・`shibuya.experiments.port.layer`・`shibuya.experiments.port.warmup`
+- 呼び手: `shibuya.experiments.drive.branch`・`shibuya.experiments.port.apply`・`shibuya.experiments.port.checks`・`shibuya.experiments.port.ensemble`・`shibuya.experiments.port.layer`・`shibuya.experiments.port.warmup`・`shibuya.interfaces.cli.main`
 - 読む試験: `tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_cf33b_form_checks.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/experiment/test_x33_ensemble.py`・`tests/engine/experiment/test_x33_form.py`
 - 決定の ID: 10-12/§4-5
 
@@ -96,7 +96,7 @@ engine.experiment.layer — 申込書をランに置く口(組み立て)・系 `
   - `state_header`(関数): 状態のファイルの見出しに書く欄(申込書の無いランは ``None``=見出しは今のまま)。
   - `sys_experiment`(関数): 系 ``experiment``(刻みの中の最初の系): 申込書の改変を効かせる口 ``apply`` を 1 回呼ぶ。
 - import している内部モジュール: `shibuya.experiments.port.apply`・`shibuya.experiments.port.checks`・`shibuya.experiments.port.ensemble`・`shibuya.experiments.port.form`・`shibuya.experiments.port.warmup`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.cli`・`shibuya.runtime.result`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`・`shibuya.runtime.systems.table`
+- 呼び手: `shibuya.interfaces.cli.main`・`shibuya.runtime.result`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`・`shibuya.runtime.systems.table`
 - 読む試験: `tests/engine/experiment/test_cf33b_manifest.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/experiment/test_x33_run.py`
 - 状態台帳の行
   - 持ち主 `experiment`(`ExperimentLayer`)
@@ -114,7 +114,7 @@ engine.run_kind — ランの種類(第 1 期 1-4・決定 10-12 §4-5 CP5-5「�
   - `decide`(関数): ``cli.run`` の規則: 試験 > 反実仮想(〔3-3〕申込書を渡した)> 腕 > 再現 の順。``testing`` を省くと ``in_test()``。
   - `in_test`(関数): pytest の試験の中か(``PYTEST_CURRENT_TEST`` が立っているか)。
   - `resolve`(関数): manifest に書く種類(``None``=決めていない=null のまま)。
-- 呼び手: `shibuya.cli`・`shibuya.runtime.result`
+- 呼び手: `shibuya.interfaces.cli.main`・`shibuya.runtime.result`
 - 読む試験: `tests/engine/batching/test_conductor_windows.py`・`tests/engine/body/test_body_manifest.py`・`tests/engine/bridging/test_manifest_rules_bridges.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_mr65_grain_and_cli.py`・`tests/engine/space/test_nav1_world.py`・`tests/engine/speech/test_speech_cli.py`
 - 環境変数: `PYTEST_CURRENT_TEST`
 - 決定の ID: 10-12/§4-5

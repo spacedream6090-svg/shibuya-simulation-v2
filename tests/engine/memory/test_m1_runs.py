@@ -157,7 +157,7 @@ def test_m1_rate_seed_is_the_population_seed(monkeypatch):
     """〔検収 M1〕腕 m1 の人ごとの忘れる速さ(用途名 memory.forgetting_rate=母集団の側)は、そのランの母集団の seed から引く
     (10f S1・``_check_split``)。``cli.run(population_seed=7)`` の後に ``run_day(population_seed=9)`` を直に回しても 9
     (プロセスの大域の値が残らない=負の対照)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from tests.engine.test_salt_seed_split_10f import _check_split, _record_keys
 
     seen = _record_keys(monkeypatch)
@@ -200,7 +200,7 @@ def test_m1_needs_the_population_seed_at_assembly():
 def test_memory_off_with_memory_arms_is_refused(kw):
     """〔検収 L6〕記憶 off のランで 6-5 の腕を立てたら止める(check_arms と同じ形・ランの種類が「腕」になる抜け道を塞ぐ)。
     負の対照: 腕が既定なら記憶 off のランは通る。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     off = dict(KW, memory="off", relations="off", store_memory="off", ticks=60)
     with arms("events", **kw):

@@ -78,7 +78,7 @@ def test_b0_world_reader_records_the_file_and_cell_hashes(tmp_path):
 
 @needs_world
 def test_b0_manifest_lists_what_the_run_read_and_the_two_noise_readers_agree():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(world_dir=str(WORLD_DIR), **SMALL)
     fs = res.run_manifest_fields()["frozen_sources"]
@@ -104,7 +104,7 @@ def test_b0_manifest_lists_what_the_run_read_and_the_two_noise_readers_agree():
 
 @needs_world
 def test_b0_hashes_stay_out_of_the_final(monkeypatch):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.world.laws import environment as ENV
     from shibuya.perception import renderer as REN
 
@@ -126,7 +126,7 @@ def test_b1_switch_is_gone():
     import argparse
     import inspect
 
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.interfaces.cli.run_args import add_calendar_args
     from shibuya.runtime.run import run_day
     from shibuya.perception.renderer import PerceptionAssets

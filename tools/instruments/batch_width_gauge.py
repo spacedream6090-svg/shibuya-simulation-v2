@@ -208,7 +208,7 @@ def markdown(tab: Mapping[str, Any]) -> str:
 # ---------------------------------------------------------------- ラン(子プロセス)
 _CHILD = r"""
 import json, sys
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.foundation.time_consts import NS_PER_SECOND
 kw = json.loads(sys.argv[1])
 res = cli.run(**kw)

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 
 
 def test_help_renders_and_exits_zero(capsys):

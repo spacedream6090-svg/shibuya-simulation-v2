@@ -372,7 +372,7 @@ def record(arm: str, *, out_path: Path, n_agents: int = 5_000, seed: int = 1, wo
            use_recorder: bool = True) -> dict[str, Any]:
     """1 腕のラン → 体の journal(``anchor_journal_*.npz``)。``use_recorder=False`` は包まずに回す(不変の確かめ)。"""
     import attr_arms as A
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.world.laws import presence as P
     from shibuya.runtime import run as RUN
 

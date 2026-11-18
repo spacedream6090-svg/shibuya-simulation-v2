@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_DAY
 from shibuya.experiments.drive import branch as BR
 from shibuya.experiments.port.form import ExperimentForm

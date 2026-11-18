@@ -32,7 +32,7 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_negative_forced_exit_by_time_is_caught`(関数): 植えた写し: 計画実行層が管理する体の W17 の DEPART を実行する(時刻で強制的に退出)→ 検査が数える。
   - `test_negative_selecting_the_train_in_time_is_caught`(関数): 植えた写し: エンジンが約束に間に合う最も遅い便(E1)を選ぶ → 到着の便が「来た便」でないので検査が数える。
   - `w20`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.interim_bundles.calendar_self`・`shibuya.runtime.run`・`shibuya.runtime.state.resume`・`shibuya.world.laws.presence`
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.interfaces.cli.main`・`shibuya.interim_bundles.calendar_self`・`shibuya.runtime.run`・`shibuya.runtime.state.resume`・`shibuya.world.laws.presence`
 - 環境変数: `SHIBUYA_CALENDAR_W20`・`SHIBUYA_SYSTEMS_CHECK`
 - 決定の ID: 11-01
 
@@ -87,5 +87,5 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_manifest_section_ledger_row_and_system_declarations`(関数)
   - `test_unit_relay_day_records_follow_the_table`(関数)
   - `w20_table`(関数): W16 の全員に作り物の材料で W20 の週の表を作る(エンジンの読み口の試験=表の中身の正しさは構築側の試験)。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.cli`・`shibuya.foundation.manifest.sections`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.table`・`shibuya.society.calendar_shadow`・`shibuya.world.facts.calendar`・`shibuya.world.facts.w20_calendar_reader`・`tests/build_sched/test_w20_calendar_1a.py`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.foundation.manifest.sections`・`shibuya.interfaces.cli.main`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.table`・`shibuya.society.calendar_shadow`・`shibuya.world.facts.calendar`・`shibuya.world.facts.w20_calendar_reader`・`tests/build_sched/test_w20_calendar_1a.py`
 - 環境変数: `SHIBUYA_CALENDAR_W20`・`SHIBUYA_SYSTEMS_CHECK`・`os.environ` をまるごと使う

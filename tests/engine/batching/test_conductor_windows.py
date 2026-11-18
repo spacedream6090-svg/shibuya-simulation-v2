@@ -21,7 +21,7 @@ import sys
 
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
 from shibuya.foundation.queues import batching as BA
 from shibuya.runtime.state import resume as RS
@@ -196,7 +196,7 @@ def test_window_changes_are_attributed_to_the_window_mark_and_fingerprints_do_no
 
 # ================================================================= CLI
 _ARGS = ["--agents", "20", "--seed", "1", "--world", "__no_such_dir__", "--cells", "9", "--ticks", "30"]
-_CODE = "import sys; from shibuya import cli; sys.exit(cli.main(sys.argv[1:]))"
+_CODE = "import sys; from shibuya.interfaces.cli import main as cli; sys.exit(cli.main(sys.argv[1:]))"
 
 
 def _cli(tmp_path, name: str, env_w: str | None, cli_w: str | None) -> subprocess.CompletedProcess:

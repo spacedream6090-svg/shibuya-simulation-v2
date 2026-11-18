@@ -136,7 +136,7 @@ def test_synthetic_run_arm_on_and_off_render_the_same_bytes(monkeypatch):
 
 @pytest.mark.requires_data("world_v2", "world_v2:w14_signage.parquet")
 def test_world_run_arm_on_and_off_render_the_same_bytes(monkeypatch):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     off, seen_off, on, seen_on = _pair(monkeypatch, cli.run, WORLD_KW)
     n = _check_pair(off, seen_off, on, seen_on)

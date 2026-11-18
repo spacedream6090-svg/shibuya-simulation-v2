@@ -57,7 +57,7 @@ llm.undefined — 未定義行動の受理5段(行動契約書 §7・決定台�
   - `target_surface_hint`(関数): **「対象」欄**の表層 → 対象ヒント(語彙 v3 だけ・完全一致・NFKC)。それ以外は ``""``。
   - `undefined_feedback`(関数): 段1 の失敗フィードバック文面(**文面凍結**)。
 - import している内部モジュール: `shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`
-- 呼び手: `shibuya.act.intake.parser`・`shibuya.cli`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.result`・`tools/c6/c6lib.py`・`tools/fig/fig_ab7_actions.py`・`tools/fig/fig_ab7c_vocab.py`・`tools/fig/fig_d91_ride_chain.py`・`tools/vocab/adjudicate.py`・`tools/vocab/registry_from_tape.py`
+- 呼び手: `shibuya.act.intake.parser`・`shibuya.interfaces.cli.main`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.result`・`tools/c6/c6lib.py`・`tools/fig/fig_ab7_actions.py`・`tools/fig/fig_ab7c_vocab.py`・`tools/fig/fig_d91_ride_chain.py`・`tools/vocab/adjudicate.py`・`tools/vocab/registry_from_tape.py`
 - 読む試験: `tests/c6/test_c6lib_aggregate.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_intent_mode_open.py`・`tests/engine/test_undefined_action.py`・`tests/llm/test_fleet.py`・`tests/llm/test_fleet_contract.py`・`tests/llm/test_undefined.py`・`tests/llm/test_vocab_v2.py`・`tests/vocab/test_adjudicate.py`・`tests/vocab/test_undefined_out.py`
 - 状態台帳の行
   - 持ち主 `undefined`(`UndefinedActionRegistry`)

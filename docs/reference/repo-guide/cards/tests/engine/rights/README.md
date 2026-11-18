@@ -32,7 +32,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_negative_a_hit_is_marked_but_not_failed`(関数): ▲ の印の負の対照: 当たりが 1 つでもあれば警告(落とさない)・0 なら何も出ない。
   - `test_recorded_count_on_five_thousand_bodies`(関数): 道具で数えた 5,000 体の表(HEAD の側=止める検査・作業木の側=記録に替えた後)。0 でなければ ▲ の印。
   - `test_the_nineteen_configs`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.runtime.inference.bridge`
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.interfaces.cli.main`・`shibuya.runtime.inference.bridge`
 
 ## [test_rights_events.py](../../../../../../../tests/engine/rights/test_rights_events.py)
 

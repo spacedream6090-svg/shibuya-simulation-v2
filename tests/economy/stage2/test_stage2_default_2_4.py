@@ -58,7 +58,7 @@ def test_tax_of_and_the_last_purchase_rows():
 
 def test_revenue_is_tax_exclusive_on_a_synthetic_run(monkeypatch):
     """合成の世界(台帳つき)の 1 日: 店の売上の写しの合計=世帯 → 店の消費支出 − レジの税・保存則が通る。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.economy.accounts import AccountCode, Sector
 
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)  # 部品をモジュールの既定に押さえる(ほかの試験の漏れに依らない)

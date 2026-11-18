@@ -634,7 +634,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_split_5a_5b_in_memory_keeps_the_import_rules_to_the_end`(関数): 〔検収 高-1〕本物の木で割る段の残りの本(5a の 17 本と 5b の 5 本=22 本の順の、木で済んでいない本)をメモリの中で順に当てる
   - `test_split_alias_declaration_points_the_alias_to_the_declared_dest`(関数): 〔E5-a〕宣言の在る別名は、名の定義の割り先でなく宣言の割り先へ向く(読む名が割り先をまたいでも手で直す一覧に出ない)。
   - `test_split_apply_refuses_a_main_worktree`(関数): 〔検収 中-4〕``split --apply`` は git の本体の作業木を断り、何も書かない(木をまるごと写さない小さな見本の木)。
-  - `test_split_dry_run_of_the_next_row_writes_nothing_and_keeps_every_guard`(関数): 本物の木で次の本を書かずに当てる(--through=手で直す読みは残して報告): 何も書かず、守りが全部「同じ」。
+  - `test_split_dry_run_of_the_next_row_writes_nothing_and_keeps_every_guard`(関数): 本物の木で次の本を書かずに当てる(--through=手で直す読みは残して報告): 何も書かず、守りが全部「同じ」。割る行が残り 0 の
   - `test_split_entry_moves_the_main_block_and_the_m_strings`(関数): 〔E3・返事その 8 §1-6 の 6〕入口の割り先の宣言: ``if __name__`` は ``main`` と同じ入口の割り先へ。名の無い点の道は ``-m`` の
   - `test_split_forwarder_keeps_the_entry_file_in_the_fixed_form`(関数): 〔E2・親の裁定 Q6 の (a)・Q7〕入口の転送の行: 元のファイルを消さずに決まった型の転送で書き直す(``if __name__`` の中で割り先の
   - `test_split_groups_cover_the_split_order_in_order`(関数): 〔低-2〕群(親の裁定 Q11・``table.SPLIT_GROUPS``)を段の順・群の順につなぐと ``SPLIT_ORDER`` の 1〜22 本目と同じ(重なりも
@@ -832,7 +832,7 @@ tools/instruments/skill_gauge.py(第 3 期 3-3b・CP14 の技量スコアの隣�
   - `test_read_guard_on_the_input`(関数)
   - `test_scores_of_a_mock_ensemble`(関数)
   - `test_skill_next_to_raw_scores_and_fill_the_container`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.experiments.port.ensemble`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.experiments.port.ensemble`・`shibuya.interfaces.cli.main`・`tests/engine/experiment/_x33.py`
 
 ## [test_warmup_gauge.py](../../../../../../tests/tools/test_warmup_gauge.py)
 

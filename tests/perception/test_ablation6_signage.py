@@ -173,7 +173,7 @@ def test_run_day_signage_off_changes_the_prompt_but_not_the_mock_actions():
 
 
 def test_cli_run_passes_signage_through_kwargs():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(
         n_agents=32, seed=1, world_dir=None, n_cells=9, ticks=2, checkpoint_every=2,
@@ -184,7 +184,7 @@ def test_cli_run_passes_signage_through_kwargs():
 
 @pytest.mark.parametrize("argv,expected", [([], True), (["--no-signage"], False)])
 def test_cli_main_has_the_no_signage_flag(monkeypatch, argv, expected):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seen: dict = {}
 

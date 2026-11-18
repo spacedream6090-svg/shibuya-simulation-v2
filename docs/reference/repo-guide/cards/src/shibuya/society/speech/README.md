@@ -19,7 +19,7 @@ engine.speech.layer — 発話の口の腕と、会話の番の答えから発�
   - `set_arm`(関数): 腕を選ぶ(CLI ``--speech-port``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
   - `speak_turn`(関数): 会話の番の答え 1 つ → 発話(``Utterance``)→ 口。返り値=目印(発話が無ければ ``None``)。
 - import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.mind.memory.wom`・`shibuya.society.speech.port`
-- 呼び手: `shibuya.cli`・`shibuya.runtime.result`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.llm_io`
+- 呼び手: `shibuya.interfaces.cli.main`・`shibuya.runtime.result`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.llm_io`
 - 読む試験: `tests/engine/speech/_s8b.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_empty_text_errors.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/speech/test_speech_port_schema.py`・`tests/engine/speech/test_wom_from_utterance_roundtrip.py`
 - 読む試験(道筋で): `tests/engine/speech/test_speech_writers_ast.py`
 - 環境変数: `SHIBUYA_SPEECH_PORT`

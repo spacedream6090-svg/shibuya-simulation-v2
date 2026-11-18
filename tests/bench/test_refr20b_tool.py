@@ -43,7 +43,7 @@ def M():
 
 # ---------------------------------------------------------------- 腕の作り方
 def test_eleven_flags_are_accepted_by_parse_refractory_scale(M):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, REFRACTORY_MINUTES, WakeCondition
     from shibuya.engine import resolve as R
 

@@ -63,7 +63,7 @@ def world_fixture(monkeypatch: Any, *, n_cells: int = 1, unstaffed: int = UN,
     丸振りから、番号の偶奇が ``unstaffed``(1=奇数・0=偶数・−1=外さない)の店の担当を外す(担当の居ない店)。合成の SKU は
     店 0 の棚が廃棄率 0・店 1 の棚に廃棄率のある SKU(売れ残りの試験は店 1 に担当を置く)。``endow=False`` は再開に渡す台帳。
     ``w21c``=〔検収 M1〕差し替えの世界の初期の行の表の店の担当の組 ``[(体, 店), …]``(出どころ W21c・表の店は表の行の順)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import wire_economy as cli
     from shibuya.world.facts.rights import initial as RI
     from shibuya.runtime.systems import assemble as B
     from shibuya.world.model.state import World

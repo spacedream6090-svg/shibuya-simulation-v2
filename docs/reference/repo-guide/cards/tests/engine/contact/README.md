@@ -101,7 +101,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_resuming_with_the_arm_off_stops`(関数)
   - `test_the_contact_system_runs_only_on_the_arm`(関数)
   - `with_groups`(関数): 合成の世界(母集団が無い=グループの一覧が無い)に、体 2 人ずつの家族と 10 人ずつの職場を入れる(宛先を作る)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.arms.contact`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.interim_bundles.contact.layer`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.table`・`shibuya.society.tools.groups`・`shibuya.society.tools.record`・`tests/engine/contact/_c1.py`
+- import している内部モジュール: `shibuya.experiments.port.run_kind`・`shibuya.foundation.arms.contact`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.interfaces.cli.main`・`shibuya.interim_bundles.contact.layer`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.table`・`shibuya.society.tools.groups`・`shibuya.society.tools.record`・`tests/engine/contact/_c1.py`
 
 ## [test_c1_units.py](../../../../../../../tests/engine/contact/test_c1_units.py)
 
@@ -144,7 +144,7 @@ Python 14 本・その他 0 本(このディレクトリの直下)
   - `test_world_ring_arrives_at_the_window_boundary`(関数)
   - `test_world_unnoticed_three_arms_are_counted`(関数)
   - `world_runs`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.ports.percept_contact`・`shibuya.interim_bundles.contact.layer`・`tests/engine/contact/_c1.py`
+- import している内部モジュール: `shibuya.foundation.ports.percept_contact`・`shibuya.interfaces.cli.main`・`shibuya.interim_bundles.contact.layer`・`tests/engine/contact/_c1.py`
 
 ## [test_c2_charge.py](../../../../../../../tests/engine/contact/test_c2_charge.py)
 

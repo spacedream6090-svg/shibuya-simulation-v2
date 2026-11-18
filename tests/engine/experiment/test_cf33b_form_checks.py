@@ -14,7 +14,7 @@ import warnings
 
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.experiments.port import checks as CK
 from shibuya.experiments.port import form as F
 from shibuya.experiments.port.form import ExperimentForm, canonical_json

@@ -171,7 +171,7 @@ def test_act_holiday_opening_hours_come_from_holiday_content_or_the_sunday_row()
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")  # 〔第333 検収 L5〕W17 の行(計画実行層)も読む
 def test_e3_two_days_advance_on_the_calendar_and_the_weekday_rows_come_from_it(monkeypatch):
     """〔改訂(第330・RET)〕前は legacy(day_index)の 2 日のランと曜日の行を比べた(legacy を消した)。今は暦の値だけを見る。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.world.laws.presence import PlanExecutor
 
     seen: dict[str, list] = {"opening": [], "presence": []}

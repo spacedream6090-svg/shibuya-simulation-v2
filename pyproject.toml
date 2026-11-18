@@ -181,7 +181,6 @@ protected_modules = [
 allowed_importers = [
   "shibuya.economy",
   "shibuya.interfaces",
-  "shibuya.cli",
 ]
 
 [[tool.importlinter.contracts]]
@@ -260,7 +259,6 @@ protected_modules = [
 allowed_importers = [
   "shibuya.runtime",
   "shibuya.interfaces",
-  "shibuya.cli",
 ]
 
 [[tool.importlinter.contracts]]

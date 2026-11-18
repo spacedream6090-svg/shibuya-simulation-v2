@@ -499,7 +499,7 @@ G3(22 本目 `cli.py`)は 2 つの commit に分ける(5b の G0 → G1 と同�
 
 - 差し替えの「外すと落ちる」(割った後に確かめる): `test_resume_10d` の 1 行=`pytest.raises(ValueError, match="自動補充")` が落ちる見込み。`use_outside_bundle` の 5 行=main の側 2 行は足した試験・wire_economy の側 3 行は足した試験と助けを使う data の試験が落ちる見込み。`run` の差し替え 21 か所(読む関数は `main()` だけ=main だけ・道具の既定のまま)は形ごとに 1 回。
 - 記録に書く 1 行ずつ: `tools/instruments/batch_width_gauge.py` のコードの文字列は機械の書き換えのまま(割る前の木の src を渡す使い方では動かない=前から)・名の無い `"shibuya.cli"` の 2 か所(`test_night5070`・`tools/c8/ensemble.py`)は `-m` の入口として使う(属性を読む形でない=`ensemble.py` は `python -m shibuya.cli …` の命令の文字列・`test_night5070` は夜の台本に `tools/night5070/experiments.json` の `-m shibuya.cli` の字が在ることを確かめる)・`tests/c7` は道具が挙げた所 0。
-- 割る前の側の準備は済み: `python -m shibuya.cli --help`(`PYTHONUTF8=1`・43,348 バイト)と `--llm mock` の既定のラン 1 本(final `c8d68704b7b0760d`・LLM 呼 60,939)を scratchpad に取った。
+- 割る前の側の準備は済み: `python -m shibuya.cli --help`(`PYTHONUTF8=1`・43,348 バイト)と `--llm mock` の既定のラン 1 本(final `c8d68704b7b0760d`・LLM 呼 60,939)を scratchpad に取った。結果は §17。
 
 ### 16-7. 親の確かめと検収(第347・2026-11-18)
 
@@ -517,3 +517,169 @@ G3(22 本目 `cli.py`)は 2 つの commit に分ける(5b の G0 → G1 と同�
 | 直した試験 7 本の在るファイル・助けを使う試験・`tests/tools/test_pkgmove.py`(`-m "not gpu and not slow"`・`-n 2`) | 282 passed・21 skipped(飛ぶ 21 本は `test_pkgmove` の分)・落ちた試験 0 |
 | 書かない実行 `split --through cli.py` | 守り 13 個とも「同じ」・手で直す 0・別名の割り先の宣言 6(書いていない) |
 | `map --check`・`contracts --check --probe`・`lint-imports`・カード | 同じ・同じ(例外 20 辺・延べ 26 行)・11 kept・最新 |
+
+## 17. G3 の当て(群の土台 `e6d221c`=E5 の commit・安定版のタグ `stable-v2-before-split5b-G3-apply`・2026-11-18)
+
+### 17-1. 本の数
+
+| 本 | 割る行 | 書き換えた import の文(src・tests・tools・docs) | 分けた文 | 鍵 | 台帳の道 | 道の文字列 | 書き換えなかった鍵 | 手で直した読み | 別名の割り先の宣言 | 写さなかった | 守り | byte-check | 契約 | 例外 載せた・効いている(辺/行) |
+|---:|---|---|---:|---:|---:|---|---:|---|---:|---|---|---|---|---|
+| 22 | `cli.py` | 189(0・177・4・8) | 0 | 2 | 1 | src の表 4・コード 28(記号 14) | 26 | 0(6 件は E5 の commit で済み=§16) | 6(4 ファイル) | 0 | 13 個「同じ」 | 19/19 同じ(440 秒) | 2+9 | 20/26・20/26 |
+
+- 割り先: `interfaces/cli/main.py`(新・20 名と `if __name__ == "__main__":` の文 1)・`interfaces/cli/wire_economy.py`(新・10 名)。`shibuya/cli.py` は消さずに決まった型の転送で書き直した(裁定 Q6 の (a))。作った頭 0(`interfaces/cli/` は G2 で在る)。変わったファイル 126(書き換え 124+割り先 2)・消した 0。
+- 転送: 字面は `table.forwarder_text("cli.py", "interfaces/cli/main.py")` と 1 バイトも同じ・`split.forwarder_problems` は 0・守り「入口の転送」は「同じ」。頂上で名を結ばない(docstring と `if __name__ == "__main__":` の中の import と呼び出しだけ)。
+- 当てた後の import の確かめ: モジュール 372・落ちた 0・`python -m shibuya.cli --help`・`python -m shibuya.interfaces.cli.run_args --help` とも終了コード 0。
+- 契約: 古い読み手 `shibuya.cli` が「読んでよい側」から外れた(2 つの契約の `allowed_importers` から 1 行ずつ=`pyproject.toml` −2 行)。単位 interfaces は言えるまま。契約 2+9・例外 20 辺・延べ 26 行のまま(全部効く)・計画に無い契約と例外は要らなかった。`lint-imports` 11 kept。
+- 凍結と台帳: `CLASS_IDS` の鍵 2 つ(`_RemovedFlag` → main・`_HouseholdWalletLedger` → wire_economy)が変わり値は同じ・版の ID `shibuya.cli/checkpoints/2` は字面のまま(main)・`WALLET_DOMAIN` は wire_economy・台帳の道の表に `interfaces/cli/main.py` → `cli.py` を 1 行。src の道の表 4 か所(`ledger.py` の `ledger.money`・`ledger_ast.py` の `DiagExit` 2・`rng_audit.py` の `household_wallets`)は名の在る割り先へ。転送の今の道 `cli.py` と台帳の道の重なり: `tests/_places.py` の元の置き場は main の元の道を main 自身・wire_economy の元の道を `wire_economy.py`・転送を `cli.py` とし、`current_index` が重なり無しで作れる(G0 §9-3 の (a)・(b))。
+- docs の記録の道具(import だけ・親の決定 7): `wallbounce-1012/10e/byte_check_10e.py`・`wave2-2026-09-30/wave2_bytecheck.py`(各 1 行)・`c10-relations-2026-09-28/rel8b_measure.py`・`wallbounce-1012/md23/tools/multiday_md23.py`・`wallbounce-1012/refr20b/tools/measure_refractory.py`(各 2 行)=5 本・8 行。tools は 5 本(`c6/c6lib.py`・`c7/salt_runs.py`・`instruments/anchor_gauge.py`・`instruments/batch_width_gauge.py`(コードの文字列)・`vocab/registry_from_tape.py`)。
+- 範囲の外(E4): 書き換えたはずの所 0(`tests/tools/test_bytecheck.py` の `shibuya/cli.py` の字面は偽のエンジンを作る試験の材料=書き換えの対象でない)。
+- tests/c7: 道具が挙げた所 0(書き換えた tests の 109 本に c7 は無い)。
+- byte-check(基準 `e6d221c`・記録 `bytecheck_22`): 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0・440 秒(既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939=前と同じ)。入口の解決(`tools/bytecheck/check.py` の `resolve_run`): 記録の開いた src の一覧で、基準の側は `shibuya/cli.py` を読み `interfaces/cli/main.py` を読まない(261 本)=`shibuya.cli.run`、比べる側は `interfaces/cli/main.py`・`wire_economy.py` を読み転送 `shibuya/cli.py` を読まない(262 本)=`shibuya.interfaces.cli.main.run`。
+
+### 17-2. 使い方の表示と入口のラン(親の決め事 5)
+
+- `python -m shibuya.cli --help`(`PYTHONUTF8=1`)を割る前(土台の src)と後で取った: 43,348 バイトで **1 バイトも同じ**(`prog` は転送の名 `cli.py` のまま=計画 §3-4 の見込みどおり)。
+- `python -m shibuya.cli --llm mock`(既定のラン 1 本・5,000 体・1 日): 割る前(土台と同じ src)も後も final `c8d68704b7b0760d`・LLM 呼 60,939・保存則と診断の行も同じ。標準出力の違いは時間の行と、成長宣言の表の 6 行の並びだけだった。並びは台帳の `growth_parts`(`foundation/ports/ledger.py`)が鍵を `set` で回すため、文字列のハッシュの乱数で回ごとに変わる(割る段の違いではない)。`PYTHONHASHSEED=0` で前後を回し直すと、時間の行(壁時計・刻みあたり・内訳・過程別・movement)のほかは 1 バイトも同じ。
+
+### 17-3. 頂上で読み込みの時に走る文と、読み込みの閉包(G2 の検収 低-1 と同じ見方)
+
+- 割る前の `cli.py` の頂上で読み込みの時に走る文は 2 つ(`NON_ARM_RUN_KWARGS = frozenset(…)`=main・`if __name__ == "__main__":`=main)。環境変数・登録・確かめの文は無い。
+- 読み込みの閉包(環境変数なしで `import` した後の `sys.modules` の shibuya の分):
+
+| 読むもの | 閉包 | 土台の `import shibuya.cli`(161)から読み込まれなくなる | そのうち頂上に作用のある文を持つ |
+|---|---:|---:|---|
+| `import shibuya.interfaces.cli.main` | 162 | 0(`shibuya.cli` のほか。増えたのは main・wire_economy) | — |
+| `import shibuya.interfaces.cli.wire_economy` | 39 | 123 | 23(下) |
+| `import shibuya.cli`(転送・`-m` でない) | 2 | 159 | 23 を含む全部(名を結ばない=何も読み込まない) |
+
+  wire_economy だけを読むと読み込まれなくなる 23 本: 読み込みの時に環境変数を読んで、置かれているか値が違えば止める 14 本(`economy/stage2_bind`(消した切替口 2 つ)・`world/laws/switch_rate`・`world/model/proximity`・`world/model/space/nav1`(`stop_if_set`)・`foundation/queues/batching`・`interim_bundles/calendar_self`・`mind/judge/decision/layer`・`runtime/clocks/{regional,speech,step_scope}`・`society/calendar_shadow`・`society/speech/layer`・`world/body/{energy,schedule}`)・既定の値を読むだけ 1 本(`foundation/journal/log`)・定数の表の自己確かめ(`assert`)や読み込みの確かめ(`raise`)だけ 8 本(`act/intake/undefined`・`engine/resolve`・`foundation/text/templates`・`foundation/vocab/{actions,agent_codes,events}`・`society/speech/port`・`world/body/reactions`)。転送だけを読む形では、ほかに `economy/accounts`・`economy/goods`(`assert`)と `foundation/write_permit`(既定の値を読むだけ)も読み込まれない。
+
+- 環境変数を置いた前後の比べ(20 個=消した切替口の 9 個は値 `zz_invalid`・読み込みの時に値を確かめる 11 個は不正な値 `zz_invalid`。終了コード 1=止まる):
+
+| 環境変数 | 土台 `import shibuya.cli` | 土台 `-m shibuya.cli --help` | 後 `-m shibuya.cli --help` | 後 `import …cli.main` | 後 `import …cli.wire_economy` | 後 `import shibuya.cli`(転送) |
+|---|---|---|---|---|---|---|
+| 止まる 15 個(`SHIBUYA_ECONOMY_STAGE2`・`SPACE`・`PROXIMITY`・`RATE_RULES`・`WAGE`・`MEAL_DEFAULT`・`CALENDAR`・`CALENDAR_SHADOW`・`DECISION_PORT`・`CLOCK`・`TALK_CLOCK`・`STEP_SCOPE`・`SPEECH_PORT`・`BODY_SCHEDULE`・`BATCH_WIDTH_S`) | 止まる | 止まる | 止まる | 止まる | **止まらない** | **止まらない** |
+| 止まらない 5 個(`SHIBUYA_RULES_42`・`RULES_42B`・`DEFECT_FIXES_1103`・`SEAT_RELEASE`・`ABSENT_PROCESSES`=止める文のモジュールが入口の読み込みの閉包の外。消した切替口の 9 個は全部、ランの組み立ての最初の `check_environment`(`runtime/systems/assemble.py`)でも止まる) | 止まらない | 止まらない | 止まらない | 止まらない | 止まらない | 止まらない |
+
+- **止まらなくなる形 2 つ(直さずに報告)**: (1) `import shibuya.interfaces.cli.wire_economy` だけを読む形(src に読み手 0・tests で `cli_wire` を読む 5 本は同じファイルで main も読む)。(2) 転送 `shibuya.cli` を `-m` でなく import する形(決まった型=名を結ばないので何も読み込まない。`-m shibuya.cli` は前と同じに止まる)。正しい環境のランと byte-check には効かない(入口 `-m shibuya.cli`・`interfaces.cli.main` の import は前と同じ 15 個で止まる。ランの組み立ては最初に `check_environment` を呼び、11 個の値の確かめのモジュールはランが必ず読み込む)。
+
+### 17-4. 差し替えの「外すと落ちる」(親の決め事 3・E5 の検収 低-2・§16-6 の見込みの結果)
+
+確かめに使った書き換えは、1 行ずつ一時に書き換えて試験を回し、同じ道具の中でバイトを戻した。毎回 `git diff` と `git status --porcelain` の指紋が確かめの前と同じことを見た。
+
+| 差し替え(当てた後の行) | 外したとき | 結果 |
+|---|---|---|
+| `test_resume_10d` の `monkeypatch.setattr(cli, "build_ledger_bundle", endowed)`(cli=main) | 行を `pass` に | **落ちる**(`DID NOT RAISE ValueError`=`pytest.raises(…, match="自動補充")`)。対照: 同じ差し替えを定義の割り先 wire_economy へ向けても落ちる(=宣言が要る) |
+| `_stage2_outside` の `mp.setattr(cli, "Ledger", ledger)`(main) | 行を `pass` に | **落ちる**(足した試験 `test_the_outside_bundle_swaps_the_ledger_types_on_both_sides`) |
+| `_stage2_outside` の `mp.setattr(cli, "_HouseholdWalletLedger", wallet)`(main) | 行を `pass` に | **落ちる**(足した試験) |
+| `_stage2_outside` の `mp.setattr(cli_wire, "Ledger", ledger)`(wire_economy) | 行を `pass` に | **落ちる**(足した試験)。HEAD の写しの 5,000 体の日(`test_5k_mock_day_matches_head[6.5]`)は通る=母集団のあるランは財布つきの台帳を作り、`Ledger` を直に作らない |
+| `_stage2_outside` の `mp.setattr(cli_wire, "_HouseholdWalletLedger", wallet)`(wire_economy) | 行を `pass` に | **落ちる**(足した試験と `test_5k_mock_day_matches_head[6.5]` の両方) |
+| `_stage2_outside` の `mp.setattr(cli_wire, "GoodsLedger", goods_cls)`(wire_economy・型を渡す形だけ) | 行を `pass` に | **落ちる**(足した試験)。`test_5k_mock_day_matches_head[6.5]` は通る=物の台帳は HEAD の写しと今の型で状態が同じ |
+| `run` の差し替え 19 か所(どれも `monkeypatch.setattr(cli, "run", 代わり)`・cli=main・読む関数は `main()`=main だけ)。1 形 | `test_cli_intent_mode` の 1 行を `pass` に | **落ちる**(`KeyError: 'intent_mode'`=本物の `run` が回る) |
+
+- 外しても落ちない行は 0。ただし wire_economy の側の `Ledger`・`GoodsLedger` の 2 行を落とすのは足した試験だけ(助けを使う前からの試験は、母集団のあるランと物の台帳の同値を見るので、この 2 つの差し替えに頼らない)。
+- 割った後の木の差し替えの洗い(親の台本 `patch_targets` を割り先 2 つと転送に向けた写し): 26 か所=上の 25 か所と、`tests/tools/test_bytecheck.py` の `"shibuya.cli.run"` の字面 1(範囲の外 E4=入口の解決の試験の材料)。割り先どうしの間で空振りする形は 0。
+- 転送を黙って読む形: tests と tools では 0(転送を読む別名が残る所 0・道の文字列 `shibuya/cli.py` は見本の木と偽のエンジンを作る試験の材料と docstring だけ)。docs の記録(記録の道具 5 本のほか)には `from shibuya import cli` が残る古い台本が 116 本(属性で読む=大きな音で落ちる)と、`weather-a48-347/stop_paths_a48.py` が別名を関数へ素で渡す 1 本(〔検収の中-1〕広い `except` の中で読むので、落ちずに『止まった』と黙って記録する。`arms_check.py` も同じ形。直した=§17-10)。G0 で直した 15 本+3 は割り先を見ている(§17-6)。
+
+### 17-5. コードの文字列 14 か所
+
+| ファイル::記号 | 回る src | 道具の書き換え | 狙いの試験 |
+|---|---|---|---|
+| `tests/engine/batching/test_conductor_windows.py::_CODE` | 今の木(子は親の環境を受け継ぐ) | `from shibuya import cli` → main | `_cli` を使う試験 passed |
+| `tests/engine/calendar/test_calendar_shadow.py::_cli_sub` | 今の木(同) | 同 | `test_cli_flag_beats_the_environment` ほか passed |
+| `tests/engine/clock/test_tm3_step_scope.py::_CODE` | 今の木(同) | 同 | `test_cli_step_scope_beats_the_environment_and_is_an_arm` passed |
+| `tests/engine/clock/test_tm4_regional_clock.py::_CODE` | 今の木(同) | 同 | `test_cli_clock_regional` passed |
+| `tests/engine/decision/test_j0_cli.py::_arm` | 今の木(同) | 同 | `test_cli_decision_port_beats_the_environment` passed |
+| `tests/engine/memory/test_m0_cli.py::_columns` | 今の木(同) | 同 | `test_cli_memory_store_beats_the_environment` passed |
+| `tests/engine/memory/test_mr65_grain_and_cli.py::CODE` | 今の木(同) | 同 | `_arms` を使う試験 passed |
+| `tests/engine/proximity/test_runs.py::_cli` | 今の木(同) | 同 | `test_cli_runs_distance_and_the_removed_cell_switch_stops`・`test_cli_proximity_d_arm` passed |
+| `tests/engine/proximity/test_runs.py::test_cli_runs_distance_and_the_removed_cell_switch_stops` | 今の木(同) | 同 | 同 passed |
+| `tests/engine/speech/test_speech_cli.py::_arm` | 今の木(同) | 同 | `test_cli_speech_port_beats_the_environment` passed |
+| `tests/engine/test_env_and_sections_10f.py::_T1_CHILD` | 今の木(`cwd=ROOT`・環境を受け継ぐ) | 同 | `test_t1_two_processes_write_the_same_env_id_and_final_to_the_files` passed |
+| `tests/engine/test_removed_switches_346.py::CLI_MAIN` | 今の木(同) | 同 | `test_a_run_with_a_removed_switch_env_stops_before_the_ticks` passed |
+| `tests/engine/test_resume_10d.py::_CHILD` | 今の木(同) | 同 | `test_resume_in_a_fresh_process_with_empty_caches` passed |
+| `tools/instruments/batch_width_gauge.py::_CHILD` | `--src` の木(既定=道具のリポの src=今の木)。割る前の木の src を渡す使い方では動かない(前から=頂上でも `shibuya.foundation.…` を読む) | 同 | `tests/tools/test_batch_width_gauge.py` passed |
+
+- 古い commit・別の木の src で回る子のコードは 0(`test_state_format_10f._HEAD_CHILD` は `STRING_EXCLUDE` で書き換えない=G2 の F1)。書き換えは 14 か所(道具の数え方で 28)。当てる前に 1 か所ずつ「どの src で回るか」を見た(13 か所は子が親の環境を受け継ぐ・1 か所は `--src`)。
+- 名の無い `"shibuya.cli"` の 2 か所は書き換えない(転送の名): `tools/c8/ensemble.py`(`python -m shibuya.cli …` の命令の文字列)・`tests/tools/test_night5070.py`(夜の台本に `tools/night5070/experiments.json` の `-m shibuya.cli` の字が在ることを確かめる)。どちらも `-m` の入口として使う(属性を読む形でない)。
+
+### 17-6. 中身を見る試験・宣言の腐り
+
+- `tests/_places.py` の口: `split_files("cli.py")` は `interfaces/cli/main.py`・`interfaces/cli/wire_economy.py` の 2 本(転送を数に入れない)・`split_source("cli.py")` は 2 本をつないだ字面(79,675 字=main と wire_economy の字数の和+区切り 1)で転送の docstring を含まない・`split_module_names` は 2 つの葉。表の鍵の字面 26 か所は書き換えていない(`table_key_sites`)。
+- 宣言の腐り: 当てた後、`SPLIT_ALIAS_DESTS` の 6 つの別名は宣言の割り先を import している(E5 の試験 `test_alias_declarations_name_files_and_aliases_that_exist_in_the_tree` が当てた後の木で通る=§17-7)。
+
+### 17-7. 狙いの試験(作業の木・`-m "not slow"`)
+
+| 何を | 結果 |
+|---|---|
+| 変わった試験のファイル 107 本と、助けを使う `tests/economy/cp2`・`tests/economy/stage2`・`tests/engine/duties`(`-n 2`) | 1,652 本=1,651 passed・1 failed・skipped 0。落ちた 1 本は `tests/vocab/test_registry_from_tape.py::test_ab7_seed1_open_matches_the_parent_report`(`tools/vocab/registry_from_tape.py` の `_relative` が `path.resolve()` をリポの根からの相対にする=作業木の `data` はリンクなので resolve した道が作業木の外になり名だけを返す。作業木でだけ落ちる前からの 1 本=§15-4 の「1 failed」と同じ形。割る段の違いではない: 書き換わったのは import の 1 行だけで、`REPO_ROOT` は道具の置き場から引く) |
+| `tests/tools/test_pkgmove.py`(`-m "not slow"`・`-n` なし) | 133 本=111 passed・22 skipped(増えた 1 本は §17-8。〔再検収の低-1〕§17-10 の直しの後は 112 passed・21 skipped=その 1 本が passed に戻った) |
+| `tests/tools/test_pkgmove.py` の slow 1 本(`test_split_5a_5b_in_memory_keeps_the_import_rules_to_the_end`) | passed(当てる本 0・終わりの木の確かめ=22 本済み・転送・契約 2+9・単位 interfaces) |
+| 決まりの束(`tests/c8/test_c8lib.py` を先に=19 passed)・`tests/engine/time`・`state`・`bridging`・`systems`・`tests/test_places_guard.py`・`tests/tools` の残り 22 本(`test_bytecheck.py`・`test_batch_width_gauge.py` を含む・`-n 2`) | 958 passed |
+| E5 の試験(宣言の腐り・宣言の守り) | 上の `test_pkgmove` の中で passed(`test_alias_declarations_name_files_and_aliases_that_exist_in_the_tree` は当てた後の木で通る) |
+
+### 17-8. 5b の終わり
+
+- 22 本が全部済んだ木で `split --next`(と `--through all`)は「割る段は全部当たっている」。
+- `tests/tools/test_pkgmove.py` で飛ぶ試験は 21 → 22。増えた 1 本: `test_split_dry_run_of_the_next_row_writes_nothing_and_keeps_every_guard`(「割る段は全部当たっている」で飛ぶ)。確かめなくなった事: 本物の木で `cli.py split --through <次の本>`(書かない実行の口)が何も書かず(`map.toml`・`pyproject.toml` のバイトが同じ)、守りが全部「同じ」で、報告の要約を書くこと。**ほかで確かめている所**: 守りが全部「同じ」は見本の木の試験(`test_split_sample_composes_dests_and_rewrites_readers` ほか)と、メモリの中で当てる slow の 1 本。CLI の書かない実行の口が何も書かないことは、見本の木では確かめていない(`run_cli` は本物の木でしか回らない)=**確かめる範囲が 1 つ減る(直さずに報告)**。〔親の裁定〕直した=§17-10。段 6 で割る行が足されると、この試験はまた回る。
+- 飛ぶ試験の残り 21 本は前と同じ(段 4 の当て済みの木・移したファイルが残っていない木・本物の木の順の試験=割る段の終わり)。
+
+### 17-9. 計画・G0 の数と違った所・止まる所・段 6 に送ること
+
+- 計画・G0 の数との違い: 手で直す読みの 6 は E5 の commit で済み(当てる時 0)。宣言は 6 行・4 ファイル(§16)。書き換えた tests は 109 本(import の文 177)。
+- 止まった所: 無い(割り先どうしの間で空振りする差し替え 0・計画に無い契約と例外 0・古い src で回る子のコード 0)。
+- **親に見てほしい所(直さずに報告)**: (1) 読み込みの閉包で止まらなくなる形 2 つ(§17-3=wire_economy だけの import と、転送を `-m` でなく import する形)。(2) `test_pkgmove` の CLI の書かない実行の試験が飛ぶ側へ移り、確かめる範囲が 1 つ減る(§17-8)。(3) `use_outside_bundle` の wire_economy の側の `Ledger`・`GoodsLedger` の差し替えを落とすのは、E5 で足した試験だけ(§17-4)。
+- 前からの欠陥(割る段と関係ない・報告に載せる): 台帳の `growth_parts` が鍵を `set` で回すので、成長宣言の表の行の並びがハッシュの乱数で回ごとに変わる(§17-2・標準出力だけ)。`registry_from_tape` の相対の道は作業木のリンクの `data` で名だけになる(§17-7)。
+- 段 6 に送ること: 割る段の道具は 22 本が済んだ。段 6(`resolve.py` を 18 の割り先へ)では、差し替える名を読む関数の割り先と定義の割り先が違う形が増える見込み=E5 の宣言の口を使い、差し替えの届く先の守り(E5-b)を道具の拡張(S6-G0)で計画する。CLI の書かない実行の試験は割る行が足されると戻る。
+
+### 17-10. 検収の後の直し(検収=条件つき受入の中 1・低 1・親の裁定)
+
+- 直し 1(検収の中-1): docs の古い台本 2 本(`weather-a48-347/stop_paths_a48.py`・`wallbounce-1012/run-day-decomp/arms_check.py`)の import の行だけを手で直した(`from shibuya import cli` → `from shibuya.interfaces.cli import main as cli`=道具が記録の道具に当てる書き換えと同じ形・各 1 行)。なぜ: どちらも `try:` の中で `cli.run(...)` を呼び `except Exception` で誤りを結果に書く形で、割った後は転送に `run` が無い AttributeError が「止まった」「ok: False」として黙って記録される(土台では動いていた)。道具の書き換えの範囲(記録の道具)の外なので、手で直す一覧に出なかった。記録の道具の一覧(`RECORD_TOOLS`)には足していない。確かめ: 名 `cli`(import の別名と、`stop_paths_a48.py` の `_one` の引数)の属性の読みを AST で全部挙げると、2 本とも `run` だけ(`stop_paths_a48.py` の 21 行・`arms_check.py` の 39 行)で、`interfaces/cli/main.py` の頂上に在る。`stop_paths_a48.py` の素の `cli` は 40・44 行(`_one` へ渡す所)だけ。2 本とも `ast.parse` が通る・差分は import の 1 行ずつ(`git diff --stat` で 2 本・各 1 行)。台本そのものは回していない。検収役の数え方(docs の古い台本 116 本のうち、広い `except` の中で別名の属性を読むのはこの 2 本だけ・72 本は土台で既に無いモジュールを import していて前から動かない)は検収役の言い分のまま(数え直していない)。§17-1 の表の「手で直した読み」の 0 は道具の範囲の数のまま。
+- 直し 2(検収の低-2・実装役が上げた 2): `tests/tools/test_pkgmove.py` の `test_split_dry_run_of_the_next_row_writes_nothing_and_keeps_every_guard` を、割る行が残り 0 の木でも飛ばさない形にした(返事その 8 §1-1 の (b)「確かめる範囲を減らさない」)。残り 0 の木では、本物の木で書かない実行の口を 2 つの形(`split --next`・`split --through all`)で回し、終了コード 0・標準出力に「割る段は全部当たっている」・`--out-dir` に渡した置き場にファイルが 1 本も無い・`tools/pkgmove/map.toml` と `pyproject.toml` のバイトが前と同じ、を確かめる。割る行が残っている木の確かめは 1 字も変えていない(段 6 で行が足されたら元の道を通る)。docstring に 1 句。見本の木で CLI の書かない道を回す試験は足していない(段 6 の S6-G0 の道具の拡張)。確かめ: `tests/tools/test_pkgmove.py`(`-m "not slow"`・`-n` なし)133 本=112 passed・21 skipped(この 1 本が passed に戻った)。
+- 裁定 1(止まらなくなる import の形 2 つ=`wire_economy` だけの import と、転送を `-m` でなく import する形): そのまま(入口 `-m shibuya.cli` と main の import は前と同じに止まる・転送に確かめの文を足すと決まった型を崩す)。
+- 裁定 3(`use_outside_bundle` の wire_economy の側の `Ledger`・`GoodsLedger` の 2 行を落とすのは E5 で足した試験だけ): そのまま(割る前から薄かったという検収役の見立て。足した試験で初めて捕まるようになった)。
+- 直した後の確かめ: カードを作り直した(試験のファイルの直しの直後に続けて・`data.md` だけ単独で戻した・`--check` 最新)・`split --next` は「割る段は全部当たっている」・`map --check` 同じ・`contracts --check --probe` 同じ(例外 20 辺・延べ 26 行=全部効く・出力は当てた直後と同じ)・秘密の走査 CLEAN。src・`tools/pkgmove/`・`tools/bytecheck/` は変えていない。
+
+## 18. G3 の親の確かめと検収(第347・2026-11-18)
+
+### 18-1. 別の役の検収
+
+- 判定: **条件つき受入**(高 0・中 1・低 4)。src・試験・道具に欠陥は見つかっていない。検収役はファイルを 1 本も変えていない。
+- 道具の当て直し: 土台 `e6d221c` をメモリに読み、今の道具と表で 22 本目を当て直した。作業木との違いは 0 本(手で直した所は無い)。割り先 2 本の頂上の文は、字面・AST・前の注まで元と同じ。`tools/pkgmove`・`tools/bytecheck`・`tests/c7` の差は 0 本。docs の記録の道具 5 本は import の 8 行だけ。
+- 転送: `shibuya/cli.py` は決まった型と 1 バイトも違わず、名を結ばない。`import shibuya.cli` だけでは何も読み込まれない。`-m shibuya.cli --help` は検収役が前後の両方を取り、43,348 バイトで 1 バイトも同じ。
+- 転送を黙って読む形: src・tests・tools には 0。名の無い `"shibuya.cli"` の 2 か所は `-m` の入口として使う形。黙って読む形は docs の古い台本 2 本だけ(中-1)。
+- 差し替えの向け先: 25 か所(`run` 19・`build_ledger_bundle` 1・台帳の型 5 行)とも決まりどおり。親の表(§16-2)は土台の `cli.py` の読み手の行で正しい。助けを使う 4 本の試験は `run` だけを呼ぶ。足した試験は、助けの行を 1 つずつメモリの中で外した写しで 5 行とも落ち、外さない対照は通る(型を渡す形も試験の中で回る)。
+- 読み込みの時に走る文: 頂上で走るのは `NON_ARM_RUN_KWARGS` と `__main__` の節で、どちらも main へ行った。消した切替口の環境変数を置いた前後の比べは実装役の表(§17-3)と合う。
+- コードの文字列 14 か所: どれも今の木の src で回り、古い src で回る物は無い。代表 2 本を単独で回して passed。
+- 範囲の狭まり・空回り: 無い。`split_files("cli.py")` は main と wire_economy を返し(転送は入らない)、表の鍵の字面は書き換わっていない。`test_classical_policy` の行は残り、別名だけが main。
+- 入口そのもの: `--llm mock` の前後の出力はどちらも呼数 60,939・final `c8d68704b7b0760d`(`PYTHONHASHSEED=0` の 2 つは、時間の行を除いて同じことを検収役が比べた)。byte-check の記録の開いた src の一覧から、基準の側が転送の `cli.py`、比べる側が main と wire_economy を通ったことが分かる。
+- import の決まり(`contracts --check --probe`): 契約 2+9・例外 20 辺/26 行で全部効く。`shibuya.cli` は決まり 5・9 の読んでよい側から外れた(決まりが強まる側)。循環は 0(main と wire_economy の間にも無い)。
+- 凍結: `CLASS_IDS` は鍵 2 つだけが変わり値の集合は同じ。凍結の JSON とつなぎの台帳に差は無い。`shibuya.cli/checkpoints/2` は main に字面のまま・`WALLET_DOMAIN` は wire_economy に在る。`tests/c7` の差は 0 本。
+- 成長の表の並び(§17-2): `growth_parts` が `set` を回す作りは土台と同じ。順が入るのは `growth_measured` と標準出力の表だけで、final・呼数・manifest・ハッシュには入らない(検収役が使う所を辿った)。割ったことの違いではない(前からの欠陥として報告に載せる)。
+- 直しの差分(§17-10)の再検収: **受入**(高 0・中 0・低 2)。前の当て直しの台本を回し直すと、道具の出力と違うのは `test_pkgmove` の 1 本だけ(src・`tools/pkgmove`・`tools/bytecheck`・`tests/c7` に新しい差は無い)。直した 2 本は import の 1 行だけが変わり、docs を走査し直すと、転送を import する台本は残り 114 本で、黙って読む形は 0。足した枝は空回りしない(何かを書けば・文が出なければ・終了コードが 0 でなければ落ちる。単独で回して passed)。低-1(§17-7 の表の数が直す前のまま)は親が 1 句足した。低-2(直した 2 本は記録の道具の一覧の外)は §18-2 の中-1 に送り事項として書いた。
+
+### 18-2. 検収の中 1 件・低 4 件の扱い
+
+- 中-1(docs の古い台本 2 本が、割った後は誤りを飲み込んで「止まった」と黙って記録する): **直した**(§17-10 の直し 1= import の行だけ・各 1 行)。親が AST で確かめた(2 本とも、別名 `cli` の属性の読みは `run` だけで、`interfaces/cli/main.py` の頂上に在る)。台本は回していない。記録の道具の一覧には足さない(一覧は「tests が道で読む台本」の走査と同じでなければならない)。古い台本(検収役の数えで 116 本・うち 72 本は前から動かない)の扱いは報告の判断待ちに上げる。段 6・段 7 でも、当てる前に同じ走査(広い `except` の中で割るモジュールの別名の属性を読む形)を回す。〔再検収の低-2〕直した 2 本は記録の道具の一覧の外のままなので、これからの段で `run` が main からほかへ動くと、また黙って誤る形に戻る=その走査で、この 2 本も毎回見る(段 6 への送り事項)。
+- 低-1(**変わった所**=読み込みの時の止める文が走らない形が 2 つ): **親の仮採用=そのまま**(G2 の §15-2 の低-1 と同じ扱い)。**親が前後で動かして確かめた**(`SHIBUYA_RATE_RULES`・`SHIBUYA_CLOCK`・`SHIBUYA_ECONOMY_STAGE2` に不正な値): 土台の `import shibuya.cli`・`-m shibuya.cli --help` は終了コード 1。割った後の `-m shibuya.cli --help`・`import shibuya.interfaces.cli.main` は終了コード 1(前と同じに止まる)、`import shibuya.interfaces.cli.wire_economy`・`import shibuya.cli`(転送)は終了コード 0(止まらない)。転送は名を結ばないので、読み込んだだけでは何も使えない。`wire_economy` だけを読む読み手は src に無い(試験の助け 1 本だけ)。転送に確かめの文を足すと、決まった型(裁定 Q6 の (a))を崩すので足さない。
+- 低-2(本物の木で CLI の書かない道を確かめる試験が飛ぶ): **直した**(§17-10 の直し 2=残り 0 の木でも飛ばさず、書かない実行の口が何も書かないことを確かめる)。見本の木で CLI の書かない道(要約の JSON・守りの表示)を回す試験は、段 6 の S6-G0 の道具の拡張に入れる(CLI は本物の表を読む)。
+- 低-3(`interfaces/cli/main.py` の docstring の見出しが `shibuya.cli —` のまま): そのまま。割る段は文を変えない(1 バイト不変)。段 8 の文の掃除で直す。
+- 低-4(宣言の要る形を、割る前に確かめる口が無い): 段 6 の手順に入れる(別名の割り先の宣言を使った差し替えは、当てた後に「外すと落ちる」を1 行ずつ確かめて記録する)。今回は §17-4 で確かめた。
+
+### 18-3. 実装役が上げた 3 点の裁定
+
+- (1) 止まらなくなる import の形 2 つ: そのまま(§18-2 の低-1)。
+- (2) 飛ぶようになった道具の試験: 直す(§18-2 の低-2。返事その 8 §1-1 の (b)「確かめる範囲を減らさない」)。
+- (3) `use_outside_bundle` の wire_economy の側の `Ledger`・`GoodsLedger` の差し替えを落とすのは E5 で足した試験だけ: そのまま。検収役の見立て=割る前から薄かった(助けを使う 4 本は `run` だけを呼び、母集団のあるランは財布つきの台帳を作る。割る前の 1 行の時も、効き方は今の wire_economy の側の行と同じ)。足した試験で初めて捕まるようになった。`b0afefd` の時点でどの試験が落ちたかは回していない。
+
+### 18-4. 親が回した確かめ
+
+| 何を | 結果 |
+|---|---|
+| byte-check 19 構成(本体の道具・基準 `e6d221c`・22 本目を当てた後の木) | 37 欄すべて同じ 19・動いた 0・誤り 0・449 秒・既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。比べる側の開いた src に `interfaces/cli/main.py`・`wire_economy.py` が在り、転送 `shibuya/cli.py` は無い。記録 [bytecheck_G3_parent/](bytecheck_G3_parent/) |
+| byte-check の後に変わったファイル(時刻で洗った) | src・`tools/pkgmove/`・`tools/bytecheck/` は 0 本。変わったのは §17-10 の直しの 4 本(docs の台本 2・`tests/tools/test_pkgmove.py`・この記録)とカードだけ=byte-check は有効。src の指紋は 373 本(割る前の 371 本+割り先 2 本) |
+| 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`・当てた後の木) | 6,960 passed・1 failed(前からの 1 本=linked の作業木でだけ落ちる)・23 skipped・1 xfailed・40 分 28 秒(§17-10 の直しの前に集めた回)。前の 6,951 passed・22 skipped から、E5 の commit で足した試験 10 本で +10・本物の木の書かない実行の試験 1 本が飛ぶ側へ移って −1(飛ぶ試験は 22 → 23)。その 1 本は §17-10 の直しで passed に戻る(下の行)。範囲の全体は直しの後に回し直していない(直しは `tests/tools/test_pkgmove.py`・docs の台本 2 本・この記録・カードだけ) |
+| §17-10 の直しの後の `tests/tools` の束(`-m "not gpu and not slow"`・`-n 2`) | 754 passed・21 skipped・落ちた試験 0(飛ぶ 21 本は `test_pkgmove` の分=直す前の 22 本から、この 1 本が passed に戻った) |
+| `python -m shibuya.cli --help`(`PYTHONUTF8=1`)を割る前(本体の木= src は `e6d221c`)と後で取った | 43,348 バイトで 1 バイトも同じ。割った後の `shibuya.cli` の頂上の名は 0 |
+| 不正な環境変数を置いた前後の比べ(3 つ・§18-2 の低-1) | 入口と main の import は前と同じに止まる・`wire_economy` だけの import と転送の import は止まらなくなった |
+| 直した台本 2 本の AST(§18-2 の中-1) | 別名 `cli` の属性の読みは `run` だけ(`stop_paths_a48.py` の 21 行・`arms_check.py` の 39 行)・main の頂上に在る・`shibuya` の import はほかに変わっていない |

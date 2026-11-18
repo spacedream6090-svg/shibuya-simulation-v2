@@ -91,7 +91,7 @@ def test_undeclared_money_meter_write_shows_in_stage_b():
 
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_phase_c_without_the_events_declaration_fails_at_the_first_fare():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with OV.drop_path("phase_c", "E:events.*"):
         with pytest.raises(PermissionError, match="系 phase_c は出来事の記録"):

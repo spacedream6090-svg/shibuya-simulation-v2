@@ -86,7 +86,7 @@ def test_skill_next_to_raw_scores_and_fill_the_container(S):
 
 
 def test_scores_of_a_mock_ensemble(S, tmp_path):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=20, world_dir=None, n_cells=9, ticks=600, renderer="stub", vocab_version="v3",
               population_seed=1, environment_seed=1)

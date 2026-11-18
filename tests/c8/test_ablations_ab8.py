@@ -65,14 +65,14 @@ def _canonical_sha256(arm) -> str:
 # ------------------------------------------------------------ (t2) 変換規則
 @pytest.mark.parametrize("scale", [1.0, 0.5, 2.0])
 def test_the_factor_multiplies_the_l4_share(scale):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(l4_scale=scale, **MUTATION_RUN)
     assert res.budget_per_tick == pytest.approx(call_budget_per_tick(200) * scale)
 
 
 def test_zero_means_the_agent_count():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(l4_scale=0.0, **MUTATION_RUN)
     assert res.budget_per_tick == 200.0
@@ -82,7 +82,7 @@ def test_zero_means_the_agent_count():
 @pytest.fixture(scope="module")
 def mutation_runs():
     """既定 / 1.0 / 0.5 / 0 の 4 ラン(mock・極小)を 1 回だけ回して使い回す。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     out = {"default": cli.run(**MUTATION_RUN)}
     for key, scale in (("x1", 1.0), ("x0.5", 0.5), ("unlimited", 0.0)):

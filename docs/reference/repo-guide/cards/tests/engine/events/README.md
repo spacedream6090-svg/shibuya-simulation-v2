@@ -42,7 +42,7 @@ Python 8 本・その他 2 本(このディレクトリの直下)
   - `test_nineteen_configs_on_and_off_give_the_same_final`(関数)
   - `test_on_and_off_give_the_same_results`(関数)
   - `test_two_days_and_state_files_are_the_same`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.runtime.run`
+- import している内部モジュール: `shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.interfaces.cli.main`・`shibuya.runtime.run`
 
 ## [test_e_log_links_actual.py](../../../../../../../tests/engine/events/test_e_log_links_actual.py)
 
@@ -55,7 +55,7 @@ Python 8 本・その他 2 本(このディレクトリの直下)
   - `test_unit_eviction_keeps_the_links_on_their_rows`(関数)
   - `test_unit_no_sink_or_disabled_means_no_mark`(関数)
   - `test_unit_unknown_process_id_is_an_error`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.runtime.run`・`shibuya.world.laws.runner`・`shibuya.world.ledger.actual_log`・`shibuya.world.ledger.records`
+- import している内部モジュール: `shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.interfaces.cli.main`・`shibuya.runtime.run`・`shibuya.world.laws.runner`・`shibuya.world.ledger.actual_log`・`shibuya.world.ledger.records`
 
 ## [test_e_log_schema.py](../../../../../../../tests/engine/events/test_e_log_schema.py)
 

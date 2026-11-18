@@ -180,7 +180,7 @@ shibuya.cli(台帳つき実行入口)の検査。engine↛economy の層契約�
   - `test_wallet_ledger_substitutes_the_amounts_but_keeps_the_transfer_path`(関数): 注入の経路(外界 → 世帯・科目 CARRY_IN)は変えず、金額だけ差し替える。
   - `test_wallets_are_not_used_for_a_synthetic_world`(関数): 実データの母集団を合成小世界へ載せない(engine の判断と同じ)。
   - `test_wallets_come_from_the_anchor_table_and_are_deterministic`(関数): W16 母集団の種別 → ``anchors.initial_wallets``(対数正規)・同 seed 同結果。
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.entry_capital`・`shibuya.world.model.state`・`tools/c7/c7_accept.py`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.entry_capital`・`shibuya.interfaces.cli.main`・`shibuya.interfaces.cli.wire_economy`・`shibuya.world.model.state`・`tools/c7/c7_accept.py`
 - 決定の ID: D-13・第 304
 
 ## [test_cli_help.py](../../../../../tests/test_cli_help.py)
@@ -189,7 +189,7 @@ shibuya.cli(台帳つき実行入口)の検査。engine↛economy の層契約�
 
 - 公開の関数とクラス
   - `test_help_renders_and_exits_zero`(関数)
-- import している内部モジュール: `shibuya.cli`
+- import している内部モジュール: `shibuya.interfaces.cli.main`
 - 決定の ID: R-130・第 342
 
 ## [test_cli_intent_mode.py](../../../../../tests/test_cli_intent_mode.py)
@@ -201,7 +201,7 @@ CLI ``--intent-mode {vocab,open,hint}``(AB7 自由意図の腕の切替口・仕
   - `test_cli_main_has_the_intent_mode_flag`(関数)
   - `test_cli_run_defaults_to_vocab`(関数)
   - `test_cli_run_passes_intent_mode_through_kwargs`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.text.templates`
+- import している内部モジュール: `shibuya.foundation.text.templates`・`shibuya.interfaces.cli.main`
 - 決定の ID: 第 277
 
 ## [test_cli_l4_scale.py](../../../../../tests/test_cli_l4_scale.py)
@@ -221,7 +221,7 @@ CLI ``--l4-scale FACTOR``(L4 呼数予算の倍率・PENDING D-99 (a)・腕 AB8-
   - `test_the_factor_multiplies_the_l4_share`(関数)
   - `test_the_manifest_always_carries_the_l4_audit_fields`(関数)
   - `test_zero_means_one_call_per_agent_per_tick`(関数): ``0`` = **無制限**。アービタは合流後に体あたり高々 1 件なので体数で足りる。
-- import している内部モジュール: `shibuya.cli`・`shibuya.runtime.arbiter`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.run`
+- import している内部モジュール: `shibuya.interfaces.cli.main`・`shibuya.runtime.arbiter`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.run`
 - 決定の ID: D-55・D-99・D-110・第 277・第 289・第 347
 
 ## [test_cli_vocab_version.py](../../../../../tests/test_cli_vocab_version.py)
@@ -238,7 +238,7 @@ CLI ``--vocab-version {v1,v2}``(語彙成長 v0 の切替口・D-71 §3 F)。
   - `test_intent_mode_and_vocab_version_are_orthogonal`(関数): 3 腕 × 2 版のどの組み合わせでも回り、manifest に両方が載る。
   - `test_open_and_hint_arms_need_an_explicit_v1_or_v2_on_the_cli`(関数): v3 の B0 は vocab 腕だけ=CLI の既定(v3)のまま open/hint を頼むと usage で落とす。
   - `test_the_default_run_is_byte_identical_with_the_explicit_v3`(関数): 〔Q13・第347〕既定のランは v3 の明示と同じ(前は v1 の明示と同じ)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.runtime.result`・`shibuya.runtime.run`
+- import している内部モジュール: `shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.interfaces.cli.main`・`shibuya.runtime.result`・`shibuya.runtime.run`
 - 決定の ID: D-71・第 274・第 276・第 277・第 347
 
 ## [test_fixture_holiday_csv.py](../../../../../tests/test_fixture_holiday_csv.py)

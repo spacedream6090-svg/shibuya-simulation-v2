@@ -94,7 +94,7 @@ def collect_here(name: str) -> dict[str, list[str]]:
     with tempfile.TemporaryDirectory() as d:
         tape = Path(d) / "tape"
         if kind == "world":
-            from shibuya import cli
+            from shibuya.interfaces.cli import main as cli
 
             res = cli.run(seed=1, world_dir="data/world/v2", tape_path=str(tape), **kw)
         else:

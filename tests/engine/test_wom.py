@@ -249,7 +249,7 @@ real_world = pytest.mark.requires_data("world_v2")
 
 @real_world
 def test_default_has_no_wom_and_mock_extracts_nothing():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3")  # 会話の起きる規模(mock)・10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     off = cli.run(**kw)
@@ -271,7 +271,7 @@ def test_default_has_no_wom_and_mock_extracts_nothing():
 @real_world
 def test_a_reason_writing_llm_leaks_nothing_by_default():
     """第2波 §2A 項 1 (i): 理由欄に店名と評価語を書く LLM でも、既定(utterance)は抽出 0・伝聞の行 0。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.runtime.run import _default_mock
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", store_memory="on")
@@ -287,7 +287,7 @@ def test_a_reason_writing_llm_leaks_nothing_by_default():
 @real_world
 def test_a_talking_llm_writes_word_of_mouth_rows_for_listeners_only():
     """旧の源(``wom_source="reason-target"``)で第297 の挙動を再現する(第2波 §2A 項 1 (ii))。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.runtime.run import _default_mock
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on",

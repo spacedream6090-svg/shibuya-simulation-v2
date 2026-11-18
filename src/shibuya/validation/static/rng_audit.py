@@ -242,7 +242,7 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     ("world/body/energy.py", "MealStartDistribution.draw", "energy.meal_default"),
     # 1 語目が無いか定数(隣の流れが無い)7 か所
     ("world/facts/population_reader.py", "sample_population", "w16.sample.reserved"),
-    ("cli.py", "household_wallets", "wallet.initial"),
+    ("interfaces/cli/wire_economy.py", "household_wallets", "wallet.initial"),
     ("world/laws/civic.py", "PublicServiceDispatchProcess._counter_stream", "world.public_service_dispatch.counter"),
     ("world/laws/rail.py", "RailProcess._assign_external", "engine.processes.rail"),
     ("world/laws/rail.py", "RailProcess._build_external_home", "engine.processes.rail"),

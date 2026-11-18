@@ -9,7 +9,7 @@ import json
 
 import pytest
 
-from shibuya.cli import UNDEFINED_PAYLOAD_SCHEMA
+from shibuya.interfaces.cli.main import UNDEFINED_PAYLOAD_SCHEMA
 
 from .conftest import TAPE_S1, real_tape
 

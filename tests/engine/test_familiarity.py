@@ -203,7 +203,7 @@ def test_resolve_notes_only_the_successful_visits():
 
 
 def test_cli_passes_the_familiarity_flags(monkeypatch):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seen: dict = {}
 
@@ -225,7 +225,7 @@ def test_cli_passes_the_familiarity_flags(monkeypatch):
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_on_counts_contacts_and_does_not_change_behaviour_on_the_real_world(monkeypatch):
     from shibuya.world.model import agent_table as S
-    from shibuya.cli import run as cli_run
+    from shibuya.interfaces.cli.main import run as cli_run
 
     off = cli_run(n_agents=1_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     monkeypatch.setattr(

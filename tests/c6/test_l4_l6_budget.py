@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.runtime.arbiter import call_budget_per_tick
 from shibuya.runtime.run import run_day
 from shibuya.runtime.inference.fleet import FleetConfig, l4_calls_per_day, l6_in_flight_per_gpu

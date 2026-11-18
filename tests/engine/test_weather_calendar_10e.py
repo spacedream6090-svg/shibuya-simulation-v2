@@ -274,7 +274,7 @@ def test_b6_known_answer_calendar_on_the_replay_day_equals_legacy_but_the_label(
     〔改訂(第330・RET)〕前は「暦の日付=legacy の再生日のランは legacy と O56 の層の名前のほか全行が同じ」(既知の答え)を
     見た(ACT の commit で通った。legacy を消した)。いまは開始日 2026-07-13(雨・窓の中・影あり・月曜)を明示したランと開始日を
     渡さないランが全 checkpoint の全行で同じ(既定の開始日=明示と同じラン)ことを見る。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     a = cli.run(world_dir=str(WORLD_DIR), checkpoint_detail=True, start_sim_datetime="2026-07-13", **SMALL)
     b = cli.run(world_dir=str(WORLD_DIR), checkpoint_detail=True, **SMALL)
@@ -294,7 +294,7 @@ def test_b6_b3_words_body_heat_and_sun_follow_one_rule(monkeypatch):
     〔改訂(第330・ACT)〕前は「実資産の 35 日は 07-13 を持たない=窓の外で層から引く(警告も出る)」で再生日と暦の日付を
     分けていた。W13 の年間化(B5)と影 6 日(ACT)の後は 07-13 が窓の中で影もあるので、既定のランは実際の天気
     (再生日=暦の日付・警告なし)。再生日と暦の日付を分けるのは ``weather_perturb=True``(同じ層から引く)で行う。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.foundation.text import normalize as N
     from shibuya.perception import renderer as REN
 

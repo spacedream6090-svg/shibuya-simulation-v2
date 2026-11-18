@@ -140,7 +140,7 @@ def test_default_salt_is_the_run_salt_of_the_seed():
 
 
 def test_cli_has_no_near_tiebreak_flag():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.runtime import run as RUN
 
     from tests import _places as PL
@@ -186,7 +186,7 @@ CLASSICAL_1500_GOLDEN = GE.row(CLASSICAL_1500_GOLDEN_BY_ENV)
 def test_classical_checkpoint_with_the_default_hash_order():
     from pathlib import Path
 
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     world = Path("data/world/v2")
     # 〔改訂(第330・RET)〕前は 3 本とも 10e より前の値を切替口(hash full・rng stateful・旧資産・暦)で再現した=今の値に
@@ -269,7 +269,7 @@ def test_id_order_reproduces_the_previous_order():
 
 
 def test_cli_has_no_near_order_flag():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.runtime import run as RUN
 
     from tests import _places as PL

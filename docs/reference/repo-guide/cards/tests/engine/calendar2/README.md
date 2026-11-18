@@ -43,7 +43,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `test_system_declarations`(関数)
   - `test_two_days_and_resume_is_the_straight_run`(関数)
   - `with_groups`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.journal.log`・`shibuya.foundation.manifest.sections`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.table`・`tests/engine/calendar2/_ca2.py`
+- import している内部モジュール: `shibuya.experiments.port.run_kind`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.journal.log`・`shibuya.foundation.manifest.sections`・`shibuya.interfaces.cli.main`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.table`・`tests/engine/calendar2/_ca2.py`
 - 環境変数: `SHIBUYA_SYSTEMS_CHECK`
 
 ## [test_ca2_units.py](../../../../../../../tests/engine/calendar2/test_ca2_units.py)
@@ -84,4 +84,4 @@ Python 5 本・その他 0 本(このディレクトリの直下)
 
 - 公開の関数とクラス
   - `test_world_5000_one_day_records_meters_and_resume`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.interim_bundles.calendar2.layer`・`tests/engine/calendar2/_ca2.py`
+- import している内部モジュール: `shibuya.interfaces.cli.main`・`shibuya.interim_bundles.calendar2.layer`・`tests/engine/calendar2/_ca2.py`

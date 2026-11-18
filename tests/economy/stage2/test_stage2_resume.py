@@ -25,7 +25,7 @@ KW = dict(n_agents=300, seed=1, world_dir="data/world/v2", sim_days=2, vocab_ver
 
 @pytest.mark.parametrize("stop", [1_440, 2_190])
 def test_resume_equals_straight_with_the_arm(tmp_path, monkeypatch, stop):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)

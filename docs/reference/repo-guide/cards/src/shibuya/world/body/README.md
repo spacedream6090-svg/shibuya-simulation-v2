@@ -34,7 +34,7 @@ engine.energy — 体のエネルギー収支(5 段目 5a・D-118 K1〜K9・第2
   - `minute_slot`(関数): その日の分 → 時間帯(朝 0 / 昼 1 / 夕 2 / その他 3)。
   - `w17_wake_minute`(関数): 体 ``agent`` がその日の ``minute`` に W17 の「就寝」の行の中に居れば、**起床の分**
 - import している内部モジュール: `shibuya.foundation.paths`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.facts.weekly_reader`
-- 呼び手: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.body`・`shibuya.world.body.rules`・`shibuya.world.body.schedule`
+- 呼び手: `shibuya.engine.resolve`・`shibuya.interfaces.cli.main`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.body`・`shibuya.world.body.rules`・`shibuya.world.body.schedule`
 - 読む試験: `tests/engine/body/_hunger_v1.py`・`tests/engine/body/body_fixtures.py`・`tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_meal_default_w17.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_sim_time_T.py`
 - 読む試験(道筋で): `tests/engine/state/test_names_frozen.py`・`tests/tools/test_pkgmove.py`
 - 状態台帳の行
@@ -126,7 +126,7 @@ engine.body.schedule — TM5「次に段階の境目を越える時刻を予約�
   - `next_intero_steps`(関数): 規則に通した直後(刻み ``now``)の値から、次に空腹か疲れが変わりうる最初の刻み(``int64``・無ければ :data:`NEVER`)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--body-schedule``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
 - import している内部モジュール: `shibuya.foundation.queues.scheduler`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.body.energy`・`shibuya.world.body.rules`
-- 呼び手: `shibuya.cli`・`shibuya.world.body.model`
+- 呼び手: `shibuya.interfaces.cli.main`・`shibuya.world.body.model`
 - 読む試験: `tests/engine/body/test_body_guard.py`・`tests/engine/body/test_body_manifest.py`・`tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_body_rules_sources.py`
 - 読む試験(道筋で): `tests/engine/systems/test_stage_a_guard.py`
 - 環境変数: `SHIBUYA_BODY_SCHEDULE`

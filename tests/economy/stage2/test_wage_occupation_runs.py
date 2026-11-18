@@ -35,7 +35,7 @@ def two_arms():
     """〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の腕 w17 は消した=既定(occupation)の 1 本だけ(名は前のまま)。"""
     if WG.load_wage_tables() is None:
         pytest.skip("requires_data: 賃金の表の写し(research_cache/pop41b/derived)が無い")
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     mp = pytest.MonkeyPatch()
     try:
@@ -87,7 +87,7 @@ def test_median_matches_r107(two_arms):
 
 
 def test_resume_equals_straight(tmp_path, monkeypatch):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     if WG.load_wage_tables() is None:
         pytest.skip("requires_data: 賃金の表の写しが無い")

@@ -321,7 +321,7 @@ real_world = pytest.mark.requires_data("world_v2")
 
 @real_world
 def test_run_default_is_off_and_relations_on_keeps_behavior():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=2000, seed=1, world_dir=WORLD, vocab_version="v3", memory="on")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     mem = cli.run(**kw)

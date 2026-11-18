@@ -34,7 +34,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_scale_one_makes_cell_equal_unscaled`(関数)
   - `test_synth_neighbours_follow_the_surface`(関数)
   - `test_three_estimators_match_the_hand_calculation`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.mind.system1.change_detect`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.scene_hash`・`shibuya.world.model.space.nav1`・`shibuya.world.model.state`・`tests/build_space/synth.py`・`tests/engine/space/_legacy.py`
+- import している内部モジュール: `shibuya.interfaces.cli.main`・`shibuya.mind.system1.change_detect`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.scene_hash`・`shibuya.world.model.space.nav1`・`shibuya.world.model.state`・`tests/build_space/synth.py`・`tests/engine/space/_legacy.py`
 - 環境変数: `SHIBUYA_NAV1_DENSITY`
 - 決定の ID: 第 347
 
@@ -103,6 +103,6 @@ S46: nav1 の道の線の控えが結果に作用しないことの試験(控え
   - `test_nav1_resume_equals_straight`(関数)
   - `test_nav1_without_assets_runs_legacy_and_says_why`(関数)
   - `test_q4_production_world_without_assets_stops_and_legacy_runs`(関数): 本番の形で資産が無ければ nav1 は止まる・旧のセルの移動なら回る。〔第347〕前は ``space="legacy"`` で回した(切替口)=
-- import している内部モジュール: `shibuya.cli`・`shibuya.experiments.port.run_kind`・`shibuya.world.model.navmesh`・`shibuya.world.model.space.nav1`・`tests/engine/space/_legacy.py`・`tests/golden_env.py`
+- import している内部モジュール: `shibuya.experiments.port.run_kind`・`shibuya.interfaces.cli.main`・`shibuya.world.model.navmesh`・`shibuya.world.model.space.nav1`・`tests/engine/space/_legacy.py`・`tests/golden_env.py`
 - 環境変数: `SHIBUYA_NAV1_DENSITY`・`SHIBUYA_SPACE`
 - 決定の ID: 11-01・11-03/§3・第 347

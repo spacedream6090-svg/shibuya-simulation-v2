@@ -247,7 +247,7 @@ def test_persona_file_names_are_the_w21c_outputs():
 # ================================================================================ 実データ(組んだ資産)
 @pytest.mark.requires_data("world_stage_4-3")
 def test_real_short_run_has_dwellings_w21_store_staff_and_outside_employers(monkeypatch):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     from tests.engine.space._legacy import legacy_space
 

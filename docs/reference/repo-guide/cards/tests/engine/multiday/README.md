@@ -50,7 +50,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
 - 公開の関数とクラス
   - `test_synthetic_two_days_resume_at_the_day_boundary`(関数)
   - `test_world_two_days_resume_default_and_arm_d`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.time_consts`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`tests/engine/multiday/_md.py`
+- import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.interfaces.cli.main`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`tests/engine/multiday/_md.py`
 
 ## [test_md23_tool.py](../../../../../../../tests/engine/multiday/test_md23_tool.py)
 

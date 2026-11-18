@@ -553,7 +553,7 @@ def test_manifest_intent_and_the_layer_is_off_outside_v3_activity_candidates():
 
 @pytest.mark.requires_data("world_v2:w8_t1_cell.parquet")
 def test_mock_arm_sets_arrives_and_executes_intents_on_the_real_world():
-    from shibuya.cli import run as cli_run
+    from shibuya.interfaces.cli.main import run as cli_run
 
     res = cli_run(n_agents=1_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3",
                   mock_out_of_cell_target_p=0.5)

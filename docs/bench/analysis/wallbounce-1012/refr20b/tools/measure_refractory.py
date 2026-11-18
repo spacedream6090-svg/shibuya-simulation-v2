@@ -195,7 +195,7 @@ def cli_flags(arm: str) -> list[str]:
 
 def scale_dict(arm: str) -> dict[str, float]:
     """``cli.parse_refractory_scale`` を通した倍率の辞書(CLI と同じ読み口)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     return cli.parse_refractory_scale(scale_items(arm))
 
@@ -327,7 +327,7 @@ def row_from_manifest(man: Mapping[str, Any], obs: Mapping[str, Any], *, config:
 
 def cmd_one(args: argparse.Namespace) -> int:
     import shibuya
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = config_kw(args.config)
     kw.setdefault("policy", "mock")  # 方策 mock を明示(CLI の既定と同じ値)

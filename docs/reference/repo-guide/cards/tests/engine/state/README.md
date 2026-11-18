@@ -18,7 +18,7 @@ Python 6 本・その他 3 本(このディレクトリの直下)
   - `collect_here`(関数): このプロセスで構成 ``name`` を回して拾う(子のプロセスの中で呼ぶ=ハッシュの口を差し替える)。
   - `run_config`(関数): 子のプロセスで構成 ``name`` を回して拾った結果(``repo`` で回す=data の相対の道筋・``src`` を読む)。
   - `shaped`(関数): 文字列の中の道の形の部分(出てくる順)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.runtime.run`・`shibuya.runtime.state.hashes`
+- import している内部モジュール: `shibuya.interfaces.cli.main`・`shibuya.runtime.run`・`shibuya.runtime.state.hashes`
 - 読む試験: `tests/engine/state/test_names_frozen.py`
 - CLI の引数
   - `sys.argv` を直接読む

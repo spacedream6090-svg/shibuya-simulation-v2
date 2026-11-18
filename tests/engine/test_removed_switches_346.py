@@ -23,7 +23,7 @@ import pytest
 from shibuya.runtime.systems import assemble as _ASSEMBLE
 from shibuya.runtime.systems import conductor as _CONDUCTOR
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.foundation.arms import removed as RSW
 
 TAG = "stable-v2-before-switch-removal-346"
@@ -31,7 +31,7 @@ TAG_347 = "stable-v2-before-switch-removal-347"
 RUN_DAY = ("from shibuya.runtime.run import run_day\n"
            "run_day(n_agents=20, seed=1, n_cells=9, ticks=30, checkpoint_every=30, renderer='stub')\n"
            "print('RAN')\n")
-CLI_MAIN = ("import sys\nfrom shibuya import cli\n"
+CLI_MAIN = ("import sys\nfrom shibuya.interfaces.cli import main as cli\n"
             "rc = cli.main(['--agents', '20', '--seed', '1', '--world', '__no_such_dir__', '--cells', '9', '--ticks', '30'])\n"
             "print('RAN')\nsys.exit(rc)\n")
 #: 系の置き場(traceback の道の一部)。〔第347 見つけた欠陥の直し〕前は文字列 ``/engine/systems/`` と ``build.py`` を

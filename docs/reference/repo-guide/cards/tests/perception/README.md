@@ -39,7 +39,7 @@ ablation ①「チャネル固定枠 vs 同一総トークンの単一ランキ�
   - `test_tool_probe_reports_that_the_switch_is_effective`(関数)
   - `test_tool_runs_end_to_end_against_a_fake_vllm`(関数): 偽 vLLM 2 本に対して ``ablation1_fixed_vs_ranking.py`` を端から端まで回す。
   - `test_two_runs_give_the_same_bytes`(関数): 同入力 → 同バイト(2 回組み直して比較)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tools/c6/ablation1_fixed_vs_ranking.py`
+- import している内部モジュール: `shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tools/c6/ablation1_fixed_vs_ranking.py`
 - 決定の ID: D-56・第 304
 
 ## [test_ablation6_signage.py](../../../../../../tests/perception/test_ablation6_signage.py)
@@ -61,7 +61,7 @@ ablation ⑥「広告ゼロ」(知覚契約書 §8 第1陣 ⑥)の切替口。
   - `test_signage_off_renders_the_empty_line_in_both_modes`(関数): 看板行は「表示が無いセル」と**同じ描画**になる(テンプレは元からある空文言)。
   - `test_templates_and_sha_are_untouched`(関数): 凍結テンプレの payload に 1 文字も足していない(v1.1 delta は不要)。
   - `test_the_switch_is_not_a_no_op`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 - 決定の ID: D-56・第 304
 
 ## [test_attention.py](../../../../../../tests/perception/test_attention.py)
@@ -202,7 +202,7 @@ AB7 自由意図の腕の切替口 — 描画側(``docs/design/v2-open-intent-ar
   - `test_near_order_modes_and_default`(関数)
   - `test_strictly_nearer_people_always_stay_in`(関数): k 人目より近い人は撹拌に関係なく全員載る(同点の中からだけ選ぶ)。
   - `tied_crowd`(関数): 1 セルに n 体が**同じ座標**(同じノード)=全員が同点。
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/golden_env.py`・`tests/perception/test_nearby_vectorized.py`
+- import している内部モジュール: `shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/golden_env.py`・`tests/perception/test_nearby_vectorized.py`
 - 読む試験: `tests/engine/test_env_and_sections_10f.py`
 - 決定の ID: 11-01・11-03/§3・第 300・第 304・第 330・第 337・第 340
 
@@ -352,7 +352,7 @@ renderer: golden テスト(§2.4 ⑧ バイト一致・決定論・予算・5分
   - `test_zero_is_not_a_no_op`(関数)
   - `test_zero_matches_the_ad_zero_arm_bytes`(関数): ``p_see=0.0`` の B2 は ⑥(``signage_enabled=False``)の B2 とバイト一致。
   - `test_zero_removes_every_signage_line`(関数): ``p_see=0.0`` は全員・全 tick で看板行が空文言になる(=⑥ 広告ゼロと同じ描画)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 - 決定の ID: D-56・D-59・第 304
 
 ## [test_templates.py](../../../../../../tests/perception/test_templates.py)

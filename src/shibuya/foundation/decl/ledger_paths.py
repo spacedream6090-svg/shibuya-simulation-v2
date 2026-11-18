@@ -79,6 +79,7 @@ LEDGER_PATHS: Final[Mapping[str, str]] = MappingProxyType({
     "src/shibuya/foundation/vocab/events.py": "src/shibuya/engine/events/vocab.py",
     "src/shibuya/foundation/write_guard.py": "src/shibuya/engine/systems/guard.py",
     "src/shibuya/foundation/write_permit.py": "src/shibuya/core/write_permit.py",
+    "src/shibuya/interfaces/cli/main.py": "src/shibuya/cli.py",
     "src/shibuya/interim_bundles/calendar2/layer.py": "src/shibuya/engine/calendar2/layer.py",
     "src/shibuya/interim_bundles/calendar3/knowledge.py": "src/shibuya/engine/calendar3/knowledge.py",
     "src/shibuya/interim_bundles/calendar3/layer.py": "src/shibuya/engine/calendar3/layer.py",

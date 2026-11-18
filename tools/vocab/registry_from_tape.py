@@ -44,7 +44,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT / "src") not in sys.path:  # pragma: no cover - 実行時の経路
     sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from shibuya.cli import undefined_registry_payload  # noqa: E402
+from shibuya.interfaces.cli.main import undefined_registry_payload  # noqa: E402
 from shibuya.runtime.inference.tape import Tape  # noqa: E402
 from shibuya.act.intake.undefined import UndefinedActionRegistry
 from shibuya.act.intake.parser import parse_two_line  # noqa: E402

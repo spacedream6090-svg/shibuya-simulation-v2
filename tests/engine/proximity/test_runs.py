@@ -27,7 +27,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.foundation import write_permit as WP
 from shibuya.world.model import proximity as P
 from shibuya.engine import resolve as R
@@ -238,7 +238,7 @@ ARGS = ["--agents", "40", "--seed", "1", "--world", "__no_such_dir__", "--cells"
 def _cli(tmp_path, name: str, env: dict, extra: list[str]) -> dict:
     out = tmp_path / f"{name}.json"
     e = dict(os.environ, PYTHONIOENCODING="utf-8", **env)
-    code = "import sys; from shibuya import cli; sys.exit(cli.main(sys.argv[1:]))"
+    code = "import sys; from shibuya.interfaces.cli import main as cli; sys.exit(cli.main(sys.argv[1:]))"
     r = subprocess.run([sys.executable, "-c", code, *ARGS, "--checkpoints-out", str(out), *extra],
                        capture_output=True, text=True, encoding="utf-8", env=e, timeout=600)
     assert r.returncode == 0, r.stderr[-2000:]
@@ -252,7 +252,7 @@ def test_cli_runs_distance_and_the_removed_cell_switch_stops(tmp_path):
     with pytest.raises(SystemExit):
         cli.main(["--proximity", "cell"])
     e = dict(os.environ, PYTHONIOENCODING="utf-8", SHIBUYA_PROXIMITY="cell")
-    code = "import sys; from shibuya import cli; sys.exit(cli.main(sys.argv[1:]))"
+    code = "import sys; from shibuya.interfaces.cli import main as cli; sys.exit(cli.main(sys.argv[1:]))"
     r = subprocess.run([sys.executable, "-c", code, *ARGS], capture_output=True, text=True, encoding="utf-8", env=e,
                        timeout=600)
     assert r.returncode != 0 and "消した切替口" in r.stderr

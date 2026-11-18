@@ -317,7 +317,7 @@ def test_system_declarations():
 
 
 def test_cli_flag_and_run_kind(with_roster, monkeypatch):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.experiments.port import run_kind as RK
 
     monkeypatch.delenv(RK.PYTEST_ENV, raising=False)

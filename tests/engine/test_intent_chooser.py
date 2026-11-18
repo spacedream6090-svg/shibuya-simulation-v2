@@ -283,7 +283,7 @@ def test_poi_target_switch_is_removed_q13():
         assert not hasattr(pt, "POI_TARGET_MODES") and not hasattr(pt, "check_poi_target"), pt.__name__
     with pytest.raises(TypeError):
         run_day(n_agents=20, seed=1, ticks=10, renderer="stub", poi_target="legacy", checkpoint_every=10)
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with pytest.raises(SystemExit):
         cli.main(["--poi-target", "legacy"])

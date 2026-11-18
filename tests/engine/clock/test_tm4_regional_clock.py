@@ -22,7 +22,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.foundation.time_consts import CLOCK_KIND, NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
 from shibuya.foundation.manifest import sections as MS
 from shibuya.runtime.clocks import regional as RC
@@ -279,7 +279,7 @@ def test_regional_with_talk_clock_matches_global_on_world_assets():
 
 # ================================================================= CLI・TM4 の道具
 _ARGS = ["--agents", "20", "--seed", "1", "--world", "__no_such_dir__", "--cells", "9", "--ticks", "30"]
-_CODE = "import sys; from shibuya import cli; sys.exit(cli.main(sys.argv[1:]))"
+_CODE = "import sys; from shibuya.interfaces.cli import main as cli; sys.exit(cli.main(sys.argv[1:]))"
 
 
 def test_cli_clock_regional(tmp_path):

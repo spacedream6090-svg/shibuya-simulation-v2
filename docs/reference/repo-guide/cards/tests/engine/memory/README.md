@@ -49,7 +49,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_synthetic_every_recall_is_the_same`(関数): ``memory_n`` を小さくした 2 本は追い出しが何百回も起きる(検収 L10: 追い出しの同値をランで確かめる)。
   - `test_synthetic_two_days_resume_rebuilds_the_store`(関数): 腕 on の 2 日のラン: 日中(12:30)で止めて再開=器は戻した表から作り直す。再開の後は通しのランと同じ。
   - `test_world_5000_sampled_recalls_are_the_same`(関数): 世界資産 5,000 体・mock・1 日(byte-check の記憶の構成)で、刻みの 1/7 の全部の想起を突き合わせる。
-- import している内部モジュール: `shibuya.cli`・`shibuya.mind.memory.memory`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`tests/engine/memory/_m0.py`
+- import している内部モジュール: `shibuya.interfaces.cli.main`・`shibuya.mind.memory.memory`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`tests/engine/memory/_m0.py`
 
 ## [test_m0_render_bytes.py](../../../../../../../tests/engine/memory/test_m0_render_bytes.py)
 
@@ -127,7 +127,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_render_words_port_marks_vague_items`(関数)
   - `test_store_unit_touch_times_strength_and_words`(関数)
   - `test_write_needs_the_declared_m0m_path`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.time_consts`・`shibuya.foundation.write_guard`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_store`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`tests/engine/memory/_mr65.py`・`tests/engine/test_salt_seed_split_10f.py`
+- import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.foundation.write_guard`・`shibuya.interfaces.cli.main`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_store`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`tests/engine/memory/_mr65.py`・`tests/engine/test_salt_seed_split_10f.py`
 
 ## [test_m1_strength.py](../../../../../../../tests/engine/memory/test_m1_strength.py)
 
@@ -193,7 +193,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_shop_table_grows_to_the_cap_then_overwrites_the_lowest_a`(関数)
   - `test_shop_table_ties_and_bounds`(関数)
   - `test_world_5000_one_day_uncapped_grows_and_reads_people`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_shops`・`shibuya.mind.memory.memory_store`・`shibuya.mind.relations.layer`・`shibuya.mind.relations.people`・`shibuya.runtime.run`・`tests/engine/memory/_mr65.py`
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_shops`・`shibuya.mind.memory.memory_store`・`shibuya.mind.relations.layer`・`shibuya.mind.relations.people`・`shibuya.runtime.run`・`tests/engine/memory/_mr65.py`
 
 ## [test_mr65_grain_and_cli.py](../../../../../../../tests/engine/memory/test_mr65_grain_and_cli.py)
 
@@ -204,7 +204,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_cli_run_kind_counts_the_memory_arms`(関数)
   - `test_grain_day_refuses_to_resume`(関数)
   - `test_grain_day_writes_fewer_rows_and_keeps_the_recall`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.time_consts`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`tests/engine/memory/_mr65.py`・`tests/engine/multiday/_md.py`
+- import している内部モジュール: `shibuya.experiments.port.run_kind`・`shibuya.foundation.time_consts`・`shibuya.interfaces.cli.main`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`tests/engine/memory/_mr65.py`・`tests/engine/multiday/_md.py`
 - 環境変数: `SHIBUYA_MEMORY_GRAIN`・`SHIBUYA_MEMORY_MODEL`・`SHIBUYA_MEMORY_PEOPLE`・`os.environ` をまるごと使う
 
 ## [test_mr65_guards.py](../../../../../../../tests/engine/memory/test_mr65_guards.py)

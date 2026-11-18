@@ -320,7 +320,7 @@ real_world = pytest.mark.requires_data("world_v2")
 
 @real_world
 def test_run_8b_on_is_deterministic_and_reports_origins_and_l4_share():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=1500, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", relations="on",
               ticks=720)

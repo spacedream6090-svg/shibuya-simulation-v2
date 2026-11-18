@@ -100,7 +100,7 @@ def _wave2():
 @pytest.mark.slow
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_nineteen_configs_on_and_off_give_the_same_final():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     cfgs = _wave2().configs()
     assert len(cfgs) == 19

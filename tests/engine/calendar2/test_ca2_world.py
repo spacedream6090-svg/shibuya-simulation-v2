@@ -23,7 +23,7 @@ KW5 = dict(n_agents=5000, seed=1, world_dir=str(WORLD), vocab_version="v3")
 
 
 def test_world_5000_one_day_records_meters_and_resume(tmp_path):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with ca2():
         a = cli.run(state_out=str(tmp_path / "state"), stop_at_tick=720, checkpoint_every=60, **KW5)

@@ -10,7 +10,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.runtime.run import DIAG_DAY_ROWS, run_day
 from shibuya.runtime.result import DIAG_RUN_COLUMNS
 from shibuya.foundation.manifest.schema import CONSERVATION_CHECKS, DIAG_COLUMNS

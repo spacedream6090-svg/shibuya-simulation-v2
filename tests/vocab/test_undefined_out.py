@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.act.intake.undefined import UndefinedActionRegistry
 from shibuya.act.intake.undefined import SYNONYM_TABLE_VERSION
 

@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 # 〔割る段 5b の G1〕別名 CS を割り先ごとに分けた(CS=society.calendar_shadow・CR=world.facts.w20_calendar_reader の名)
 from shibuya.society import calendar_shadow as CS
 from shibuya.world.facts import w20_calendar_reader as CR
@@ -347,7 +347,7 @@ def _cli_sub(tmp_path, name: str, env_arm: str, extra: list[str]) -> subprocess.
     out = tmp_path / f"{name}.json"
     e = {k: v for k, v in os.environ.items() if k != "PYTEST_CURRENT_TEST"}
     e.update(PYTHONIOENCODING="utf-8", SHIBUYA_CALENDAR_SHADOW=env_arm)
-    code = "import sys; from shibuya import cli; sys.exit(cli.main(sys.argv[1:]))"
+    code = "import sys; from shibuya.interfaces.cli import main as cli; sys.exit(cli.main(sys.argv[1:]))"
     return subprocess.run([sys.executable, "-c", code, *NO_WORLD, "--checkpoints-out", str(out), *extra],
                           capture_output=True, text=True, encoding="utf-8", env=e, timeout=600)
 

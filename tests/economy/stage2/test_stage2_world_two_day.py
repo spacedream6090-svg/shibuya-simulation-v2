@@ -21,7 +21,7 @@ pytestmark = [pytest.mark.slow,
 
 
 def _run(monkeypatch, outside: bool = False):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     if outside:  # 段階 2 の外の台帳(〔第347〕前は切替口 off)
         SO.use_outside_bundle(monkeypatch)

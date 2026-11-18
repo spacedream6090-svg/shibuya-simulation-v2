@@ -18,8 +18,8 @@ from __future__ import annotations
 import pyarrow.parquet as pq
 
 # 〔割る段 5b の G3〕別名 cli を割り先ごとに分けた(cli=interfaces.cli.main・cli_wire=interfaces.cli.wire_economy の名)
-from shibuya import cli
-from shibuya import cli as cli_wire
+from shibuya.interfaces.cli import main as cli
+from shibuya.interfaces.cli import wire_economy as cli_wire
 from shibuya.economy.census import DAILY_COLUMNS, SECTOR_FLOW_COLUMNS, SECTORS
 
 #: 合成世界の極小ラン(``tests/test_cli_intent_mode.py`` と同じ書き方)。

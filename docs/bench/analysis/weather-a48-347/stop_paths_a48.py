@@ -27,7 +27,7 @@ def _one(cli, d: Path, processes: bool) -> dict:  # noqa: ANN001
 
 
 def main() -> int:
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.perception.renderer import PerceptionAssets
     from shibuya.world.model.space import nav1 as NAV1
 

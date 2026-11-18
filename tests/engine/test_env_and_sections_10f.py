@@ -288,7 +288,7 @@ def test_env_id_is_the_same_in_the_three_places(tmp_path):
 _T1_CHILD = r"""
 import json, sys
 from pathlib import Path
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.runtime.run import run_day
 out = Path(sys.argv[1])
 r = run_day(n_agents=20, n_cells=9, ticks=1440, sim_days=2, stop_at_tick=1440, seed=1, renderer="stub",
@@ -458,7 +458,7 @@ def test_golden_tables_are_keyed_by_platform_and_values_unchanged():
 
 # ================================================================= manifest の節(K22 (a)・検収 N1・N3)
 def _payload(res, run_id):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     return json.loads(json.dumps(cli.checkpoints_payload(res, run_id=run_id), default=str))
 
@@ -510,7 +510,7 @@ def test_mixed_dict_leaves_are_all_listed_synthetic():
 
 @world_assets
 def test_mixed_dict_leaves_are_all_listed_world():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     W = str(WORLD)
     for kw in (dict(vocab_version="v3", memory="on", relations="on", store_memory="on", familiarity="on",
@@ -524,7 +524,7 @@ def test_mixed_dict_leaves_are_all_listed_world():
 @world_assets
 def test_seed_exchangeability_passes_for_v3_seeds_and_fails_on_a_config_change():
     """既定 v3 の seed 1 と 2 は交換可能(観測の欄の差は数えるだけ)。設定の欄を変えると落ちる。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=300, world_dir=str(WORLD), vocab_version="v3", activity=True, ticks=240)
     d1 = _payload(cli.run(seed=1, **kw), "s1")
@@ -549,7 +549,7 @@ def test_relations_on_5000_seeds_are_exchangeable_and_config_leaves_do_not_move(
 
     交換可能で、設定の節の葉は全部一致する(10f の第 1 段の表では relations.init の 9 欄で落ちた)。
     """
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=5000, world_dir=str(WORLD), vocab_version="v3", memory="on", relations="on")
     d1 = _payload(cli.run(seed=1, **kw), "s1")

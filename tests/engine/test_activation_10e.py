@@ -25,13 +25,13 @@ KW = dict(n_agents=60, seed=3, ticks=480, checkpoint_every=240)
 
 
 def _rec(tmp_path, name: str, **kw):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     return cli.run(world_dir=str(WORLD_DIR), tape_path=tmp_path / name, **KW, **kw)
 
 
 def _rep(tmp_path, name: str, **kw):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from tests.engine.test_tape_wiring import BoomLLM
 
     return cli.run(world_dir=str(WORLD_DIR), mode="replay", replay=tmp_path / name, llm=BoomLLM(), **KW, **kw)

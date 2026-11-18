@@ -54,7 +54,7 @@ def test_world_two_days_resume_default_and_arm_d(tmp_path, config):
     md = tool()
     md.set_arms(config)
     try:
-        from shibuya import cli
+        from shibuya.interfaces.cli import main as cli
 
         kw = dict(md.BASE, n_agents=300, seed=1, sim_days=2, world_dir=str(WORLD))
         straight = cli.run(**kw)

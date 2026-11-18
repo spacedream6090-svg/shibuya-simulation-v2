@@ -287,7 +287,7 @@ def test_memory_declares_the_contact_writes_in_stage_b(monkeypatch):
 
 @world
 def test_world_run_family_and_work_flags_and_rel_columns_unchanged(monkeypatch):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     made = _capture(monkeypatch)
     res = cli.run(**WORLD_KW)
@@ -307,7 +307,7 @@ def test_world_run_family_and_work_flags_and_rel_columns_unchanged(monkeypatch):
 
 @world
 def test_resume_rebuilds_the_same_flags(monkeypatch, tmp_path):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     made = _capture(monkeypatch)
     straight = cli.run(**WORLD_KW)

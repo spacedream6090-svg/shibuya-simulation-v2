@@ -297,7 +297,7 @@ salt の比較の**回す役**(10f 第 2 段・K21 (a))。読む役は ``salt_co
   - `cmd_one`(関数): 1 本を回して checkpoints の JSON を書く(``shibuya.cli.run`` を呼ぶだけ)。
   - `cmd_plan`(関数)
   - `main`(関数)
-- import している内部モジュール: `shibuya.cli`・`tools/c7/salt_compare.py`
+- import している内部モジュール: `shibuya.interfaces.cli.main`・`tools/c7/salt_compare.py`
 - 読む試験(道筋で): `tests/engine/test_salt_seed_split_10f.py`
 - CLI の引数
   - サブコマンド `one`

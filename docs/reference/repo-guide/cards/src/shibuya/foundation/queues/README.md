@@ -22,7 +22,7 @@ engine.batching — 計算のまとめ(バッチ)の窓(第 3 期 3-2・時計�
   - `parse_width`(関数): 幅の値(秒の整数・文字列も可)を検査して返す。``WIDTHS_S`` の外は ``ValueError``。
   - `set_arm`(関数): 幅の腕を選ぶ(CLI ``--batch-width-s``・試験の切替口)。ランの始めに読む(ランの途中で変えてもそのランは変わらない)。
 - import している内部モジュール: `shibuya.foundation.queues.scheduler`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.cli`・`shibuya.interim_bundles.contact.layer`・`shibuya.runtime.result`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`・`shibuya.society.contact.deliver`
+- 呼び手: `shibuya.interfaces.cli.main`・`shibuya.interim_bundles.contact.layer`・`shibuya.runtime.result`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`・`shibuya.society.contact.deliver`
 - 読む試験: `tests/engine/batching/test_conductor_windows.py`・`tests/engine/batching/test_window_queue.py`・`tests/engine/clock/test_tm2_talk_clock.py`・`tests/engine/contact/_c1.py`・`tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_flow.py`
 - 状態台帳の行
   - 持ち主 `batching`(`WindowQueue`)

@@ -60,7 +60,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_mock_port_ignores_the_presented_order`(関数)
   - `test_mock_port_picks_the_word_the_mock_writes`(関数)
   - `test_negative_control_shifting_the_mock_number_moves_the_final`(関数)
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.cli`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.actions`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.ports`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.mock`・`shibuya.runtime.run`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.actions`・`shibuya.interfaces.cli.main`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.ports`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.mock`・`shibuya.runtime.run`・`tests/engine/decision/_j0.py`
 
 ## [test_j0_other_ratio_field.py](../../../../../../../tests/engine/decision/test_j0_other_ratio_field.py)
 

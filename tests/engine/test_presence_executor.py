@@ -311,7 +311,7 @@ def test_null_arm_reproduces_the_recorded_checkpoint():
     再現には切替口 ``report_precondition=False`` を渡す(旧 checkpoint は版を分けて残す=
     docs/bench/analysis/d113-defects-2026-09-26/README.md §0)。既定 on の値は同 §0 の表。
     """
-    from shibuya.cli import run as cli_run  # golden は台帳つきの標準入口で録られている
+    from shibuya.interfaces.cli.main import run as cli_run  # golden は台帳つきの標準入口で録られている
 
     def _run():
         return cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
@@ -336,7 +336,7 @@ def test_v3_default_reproduces_the_recorded_checkpoint():
 
     v1 の golden(上の null arm)はそのまま(〔Q13〕ライブラリの既定は v3 になった=帰無腕は語彙 v1 を明示)。v3 は**新しい行**。
     """
-    from shibuya.cli import run as cli_run
+    from shibuya.interfaces.cli.main import run as cli_run
 
     if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ
         GE.assert_aa(lambda: cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3"),
@@ -360,7 +360,7 @@ def test_l4_scale_1_reproduces_the_stage_2c_checkpoints(monkeypatch):
     の commit で通った)。旧値を再現する切替口を消したので、上限スイッチ(+空腹 v1・退去の効果 off)の**今の値**を固定する
     (上限スイッチと従来の配り方 ``call_budget_per_tick``/``POOL_CAP_TICKS`` が効いている証拠)。
     """
-    from shibuya.cli import run as cli_run
+    from shibuya.interfaces.cli.main import run as cli_run
     from tests.engine.body._hunger_v1 import hunger_v1
 
     hunger_v1(monkeypatch)  # 〔Q13〕空腹 v1 は試験の中だけの口
@@ -388,7 +388,7 @@ def test_hunger_model_v1_reproduces_the_stage_3_checkpoints(monkeypatch):
     〔改訂(第330・RET)〕前は 3 段目の既定値そのものを再現していた(ACT の commit で通った)。旧値の切替口を消したので、
     空腹 v1(+退去の効果 off)の**今の値**を固定する。
     """
-    from shibuya.cli import run as cli_run
+    from shibuya.interfaces.cli.main import run as cli_run
     from tests.engine.body._hunger_v1 import hunger_v1
 
     hunger_v1(monkeypatch)  # 〔Q13〕空腹 v1 は試験の中だけの口
@@ -412,7 +412,7 @@ def test_hunger_model_v1_reproduces_the_stage_3_checkpoints(monkeypatch):
 def test_leave_effect_switch_is_removed():
     """〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果の切替口 ``leave_effect=False``(第301 以前=9a の前)は消した=渡すと
     止まる(旧値の再現は安定版のタグ)。前は退去の効果 off の今の値を固定した(*_leave_off の行=消した)。"""
-    from shibuya.cli import run as cli_run
+    from shibuya.interfaces.cli.main import run as cli_run
 
     with pytest.raises(TypeError):
         cli_run(n_agents=10, ticks=2, leave_effect=False)

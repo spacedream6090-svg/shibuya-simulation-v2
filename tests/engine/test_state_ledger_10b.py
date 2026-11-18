@@ -776,7 +776,7 @@ def test_t1_deleting_the_dead_columns_changes_nothing(request, tmp_path, kw, mon
 def test_t5_and_t1_on_real_assets(monkeypatch, tmp_path):
     """実資産(W16+W17・計画実行層・エネルギー)300 体 1 日。〔改訂(第330・RET)〕前は plan_activity(K15)も揺らした
     (K15 で消した)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     def f(tape):
         return cli.run(n_agents=300, seed=1, world_dir=str(WORLD_DIR), tape_path=tape, vocab_version="v3")
@@ -935,7 +935,7 @@ def test_t7_hash_cost_within_the_declared_cap(kw):
     揺れる)ので、門を宣言の 3 倍(300 ms)にしていた。指示書 10-06 §6 の「つなぎ」で期限を付けることになり、
     10e で門を割合の形に替えた(3 倍の門は消した)。割合は分母も同じ束の中で揺れるので、揺れに強い。
     """
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), **kw)
     if kw == {"vocab_version": "v3"}:
@@ -1096,7 +1096,7 @@ def test_p5_true_self_updates_are_still_not_reads(tmp_path, code):
 @pytest.fixture(scope="module")
 def runtime_owners():
     """小さなラン(合成の全腕・古典、実資産 200 体の v3 既定と全腕+古典)の最後の checkpoint の owners。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     runs = {
         "syn_all": lambda: run_day(n_agents=60, seed=1, n_cells=CELLS, ticks=400, budget=60.0, **ALL_ARMS),
@@ -1154,7 +1154,7 @@ def test_p2_end_of_day_hashes_are_reported_separately():
 
 @real_data
 def test_p2_end_of_day_differs_after_the_ledger_close():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     r = cli.run(n_agents=200, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")
     r2 = cli.run(n_agents=200, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")

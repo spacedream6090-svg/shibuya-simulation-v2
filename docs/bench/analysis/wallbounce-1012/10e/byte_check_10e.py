@@ -83,7 +83,7 @@ def cmd_one(args: argparse.Namespace) -> int:
     import pyarrow.parquet as pq
 
     import shibuya
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     w2 = _wave2()
     kw = dict(w2.configs()[args.config])

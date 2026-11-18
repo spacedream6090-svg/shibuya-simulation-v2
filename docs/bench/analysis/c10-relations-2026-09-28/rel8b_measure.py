@@ -275,7 +275,7 @@ def _patch_state_hash(rec: list[str]) -> None:
 def cmd_bytecheck_one(args: argparse.Namespace) -> int:
     import pyarrow.parquet as pq
 
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     rec: list[str] = []
     _patch_state_hash(rec)
@@ -345,7 +345,7 @@ def _q(x: Any) -> dict[str, float]:
 
 
 def cmd_one(args: argparse.Namespace) -> int:
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.foundation.vocab.agent_codes import AgentKind
     from shibuya.society import conversation as CV
     from shibuya.mind.memory import memory as MEM

@@ -13,7 +13,7 @@ pytestmark = [pytest.mark.slow, pytest.mark.requires_data("world_v2:w2_cells.par
 
 
 def test_world_5000_one_day_with_the_duties_arm():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with du():
         r = cli.run(n_agents=5_000, seed=1, world_dir="data/world/v2", vocab_version="v3")

@@ -13,7 +13,7 @@ import json
 
 import pytest
 
-from shibuya.cli import undefined_registry_payload
+from shibuya.interfaces.cli.main import undefined_registry_payload
 from shibuya.act.intake.undefined import UndefinedActionRegistry
 from shibuya.act.intake.undefined import SYNONYMS
 

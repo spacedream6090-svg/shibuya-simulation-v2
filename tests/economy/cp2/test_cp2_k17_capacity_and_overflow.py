@@ -183,7 +183,7 @@ def test_nineteen_configs_stay_under_the_coefficient(name):
     300 体では店の参入資本の行(POI ごとに 1 行=2,337 行・体の数に依らない)が行/体/日を押し上げる(下限が受け持つ)ので、
     係数の確かめは体の行が支配する 5,000 体で行う(1 構成 約 40〜60 秒)。
     """
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     assert len(_config_names()) == 19
     kw = _wave2().configs()[name]
@@ -205,7 +205,7 @@ def test_5k_default_day_does_not_overflow(monkeypatch):
     ``test_nineteen_configs_stay_under_the_coefficient``)。〔第347〕切替口 off の代わりに、試験の中だけの束(cli の台帳を off の
     分かれと同じ形=雇用主の口 1・輪の係数は台帳の既定で作る=``tests/economy/_stage2_outside.py``)で回す。
     """
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     from tests.economy import _stage2_outside as SO
 

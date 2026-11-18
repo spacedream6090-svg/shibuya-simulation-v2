@@ -43,7 +43,7 @@ SEED_ARGS: tuple[str, ...] = ("seed", "population_seed", "environment_seed")
 
 def cmd_one(args: argparse.Namespace) -> int:
     """1 本を回して checkpoints の JSON を書く(``shibuya.cli.run`` を呼ぶだけ)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(json.loads(args.kwargs or "{}"))
     # 〔第347・Q13〕腕に語彙が無ければ前と同じラン=語彙 v1(cli.run の既定は v3 になった・腕に書いた値が勝つ)

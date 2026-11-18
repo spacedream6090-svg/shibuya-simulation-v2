@@ -60,7 +60,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_manifest_fields_without_a_layer_are_null`(関数)
   - `test_the_arm_is_not_in_the_fingerprint_and_marks_the_run_kind`(関数)
   - `test_world_assets_reserve_equals_sweep_with_thermal_boundaries`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.manifest.sections`・`shibuya.runtime.run`・`shibuya.world.body.model`・`shibuya.world.body.schedule`
+- import している内部モジュール: `shibuya.experiments.port.run_kind`・`shibuya.foundation.manifest.sections`・`shibuya.interfaces.cli.main`・`shibuya.runtime.run`・`shibuya.world.body.model`・`shibuya.world.body.schedule`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3
 
 ## [test_body_reserve.py](../../../../../../../tests/engine/body/test_body_reserve.py)
@@ -124,7 +124,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_two_day_run_resume_equals_straight`(関数)
   - `test_w17_default_times_move_with_the_seed`(関数): 〔検収 L3〕既定の時刻は seed で変わる(体ごとの引き)。〔第 2 部〕seed に依らない 1 つの値の旧値の腕は消した。
   - `test_world_two_day_resume_equals_straight`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.runtime.run`・`shibuya.world.body.energy`・`shibuya.world.body.rules`・`shibuya.world.facts.weekly_reader`
+- import している内部モジュール: `shibuya.interfaces.cli.main`・`shibuya.runtime.run`・`shibuya.world.body.energy`・`shibuya.world.body.rules`・`shibuya.world.facts.weekly_reader`
 - 環境変数: `SHIBUYA_MEAL_DEFAULT`・`os.environ` をまるごと使う
 - 決定の ID: 10-13b/§7
 

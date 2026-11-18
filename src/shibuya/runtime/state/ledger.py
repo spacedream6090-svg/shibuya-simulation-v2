@@ -1671,7 +1671,7 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
 #: ここに無いクラスが入っても落ちる。
 OWNER_ALT_CLASSES: Final[dict[str, tuple[tuple[str, str], ...]]] = {
     "poi_resolver.chooser": (("mind/judge/chooser.py", "NearestChooser"),),
-    "ledger.money": (("cli.py", "_HouseholdWalletLedger"),),
+    "ledger.money": (("interfaces/cli/wire_economy.py", "_HouseholdWalletLedger"),),
     # 〔第 6 期 6-5〕人も記憶の一つの腕(--memory-people memory)の関係の読み口=RelationLayer の子クラス
     "rel_layer": (("mind/relations/people.py", "PeopleRelationLayer"),),
     # 〔第 6 期 6-5・検収 M4〕人も記憶の一つの腕の店の評価の記憶=StoreMemory の子クラス(行の口だけ差し替える)

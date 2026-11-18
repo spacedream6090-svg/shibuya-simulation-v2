@@ -464,7 +464,7 @@ WORLD = "data/world/v2"
 
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_run_wiring_defaults_are_old_and_switches_reach_the_run():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.world.facts.weekly_reader import load_weekly
     from shibuya.runtime.run import _resolve_population
 
@@ -518,7 +518,7 @@ def test_run_wiring_defaults_are_old_and_switches_reach_the_run():
 
 
 def test_cli_has_the_three_switches_with_old_defaults():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     from tests import _places as PL
 

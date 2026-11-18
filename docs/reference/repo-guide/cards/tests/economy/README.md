@@ -17,7 +17,7 @@ economy 層のテスト(U11 金の台帳・U-Goods 物の台帳・検算・セ�
 - 公開の関数とクラス
   - `outside`(関数): ``cls`` の子で ``attach_stage2`` を持たない型(``cls`` が持たなければ ``cls`` のまま)。
   - `use_outside_bundle`(関数): ``mp``(``pytest.MonkeyPatch``)で ``shibuya.cli`` の台帳の型を差し替える(段階 2 の外の束)。
-- import している内部モジュール: `shibuya.cli`
+- import している内部モジュール: `shibuya.interfaces.cli.main`・`shibuya.interfaces.cli.wire_economy`
 - 読む試験: `tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/cp2/test_cp2_nine_ops_equivalence.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/stage2/test_stage2_world_two_day.py`・`tests/engine/test_ledger_wiring.py`
 - 決定の ID: 第 347
 
@@ -256,7 +256,7 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
   - `test_resume_equals_straight_with_the_deposit`(関数)
   - `test_resume_from_a_state_without_the_rules_key_is_refused`(関数): 〔第346〕見出しの ``economy_stage2`` に ``rules_42``(4-2 の前のラン)か ``rules_42b``(4-2 の値のラン)の無い状態の
   - `test_resume_refuses_a_header_without_rules_42`(関数): 見出しの ``rules_42`` が無い状態のファイル(4-2 の前のラン)からは再開できない(〔第346〕切替口は消した・天引きは状態を
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.rules_bind`・`shibuya.economy.stage2_bind`・`shibuya.foundation.ports.ledger`・`shibuya.runtime.run`・`shibuya.runtime.state.resume`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.rules_bind`・`shibuya.economy.stage2_bind`・`shibuya.foundation.ports.ledger`・`shibuya.interfaces.cli.main`・`shibuya.runtime.run`・`shibuya.runtime.state.resume`・`shibuya.world.model.state`
 - 環境変数: `SHIBUYA_RULES_42`・`os.environ` をまるごと使う
 - 決定の ID: 第 346
 
@@ -359,7 +359,7 @@ T3(SFC の冗長方程式)の毎期検算(D-85 (a)・ユーザー決定 2026-09-
   - `test_wage_inputs_without_population_and_with_a_fake_population`(関数)
   - `test_wage_path_does_not_read_w17_hours_ast_with_a_negative_control`(関数)
   - `test_wage_path_header_and_resume_check`(関数): 賃金の道は occupation だけ(〔第 2 部〕腕 w17 と切替口は消した)。見出しは賃金の道を持ち、見出しに無い(版上げの前)・
-- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_sources`・`shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.economy.wage_formula`・`shibuya.economy.wages`・`shibuya.foundation.journal.log`・`shibuya.world.facts.rights.initial`・`tests/_places.py`
+- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_sources`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.economy.wage_formula`・`shibuya.economy.wages`・`shibuya.foundation.journal.log`・`shibuya.interfaces.cli.main`・`shibuya.world.facts.rights.initial`・`tests/_places.py`
 - 読む試験: `tests/economy/test_min_wage_human_bridge.py`
 - 環境変数: `SHIBUYA_WAGE`・`os.environ` をまるごと使う
 - 決定の ID: 10-13b/§7・第 337・第 346

@@ -228,7 +228,7 @@ def test_leave_with_no_activity_expires_next_tick():
 # ================================================================= (c) ラン
 @real_data
 def test_run_walk_mode_accounts_for_every_exit_and_the_leave_switch_is_gone():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=1500, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")
     walk = cli.run(exit_mode="walk_to_platform", **kw)

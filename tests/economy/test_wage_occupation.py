@@ -374,7 +374,7 @@ def test_removed_wage_switch_env_and_cli_flag_stop():
     import subprocess
     import sys
 
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     env = {**os.environ, "SHIBUYA_WAGE": "w17", "PYTHONIOENCODING": "utf-8"}
     r = subprocess.run([sys.executable, "-c", "import shibuya.economy.stage2_bind"], env=env, capture_output=True,

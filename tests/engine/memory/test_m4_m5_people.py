@@ -172,7 +172,7 @@ def test_people_arm_refuses_to_resume(tmp_path):
 @pytest.mark.slow
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_world_5000_one_day_uncapped_grows_and_reads_people():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with arms("events", model="m1", people="memory", rows0=8):
         r = cli.run(n_agents=5000, seed=1, world_dir=str(WORLD), vocab_version="v3", memory="on", relations="on",

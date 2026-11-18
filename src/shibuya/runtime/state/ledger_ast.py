@@ -632,8 +632,8 @@ class DiagExit:
 DIAG_EXITS: tuple[DiagExit, ...] = (
     DiagExit("runtime/result.py", "RunResult.*", "ランの結果(RunResult)の要約・manifest の組み立て"),
     DiagExit("economy/census.py", "*", "日次・月次のセンサス(保存則の検査と報告)"),
-    DiagExit("cli.py", "checkpoints_payload", "checkpoints の JSON の組み立て(報告)"),
-    DiagExit("cli.py", "undefined_registry_payload", "未定義行動の台帳の書き出し(報告)"),
+    DiagExit("interfaces/cli/main.py", "checkpoints_payload", "checkpoints の JSON の組み立て(報告)"),
+    DiagExit("interfaces/cli/main.py", "undefined_registry_payload", "未定義行動の台帳の書き出し(報告)"),
     DiagExit("world/laws/runner.py", "WorldProcessRunner.counters", "世界過程の計数の要約(報告)"),
     DiagExit("world/laws/runner.py", "WorldProcessRunner.summary", "世界過程の要約(報告)"),
     DiagExit("world/laws/runner.py", "WorldProcessRunner.waste_sink_report", "廃棄の帯の報告(第304 Q135)"),

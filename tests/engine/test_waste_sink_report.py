@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.economy.anchors import WASTE_BAND_RATIO, WASTE_TONNES_PER_DAY
 from shibuya.economy.goods import GoodsLedger, SkuRegistry
 

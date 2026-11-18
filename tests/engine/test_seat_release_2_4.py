@@ -100,7 +100,7 @@ def test_removed_seat_release_switch_env_and_cli_flag_stop():
     import subprocess
     import sys
 
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     for name in ("arm", "set_arm", "is_walk", "MODES", "_ARM"):
         assert not hasattr(SR, name), name

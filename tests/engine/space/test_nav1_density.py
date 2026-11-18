@@ -186,7 +186,7 @@ KW = dict(n_agents=150, seed=1, ticks=240, vocab_version="v3", activity=True)
 
 @needs_stage
 def test_arm_reaches_the_run_and_does_not_move_legacy(monkeypatch):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     from tests.engine.space._legacy import legacy_space
 

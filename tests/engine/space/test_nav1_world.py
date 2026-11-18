@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.world.model.space import nav1 as N
 from shibuya.world.model.navmesh import navmesh_available
 from tests.engine.space._legacy import legacy_space

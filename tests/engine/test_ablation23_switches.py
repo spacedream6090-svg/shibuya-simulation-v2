@@ -271,7 +271,7 @@ def test_run_day_checks_the_arm_even_without_processes():
 
 
 def test_cli_run_passes_both_arms_through_kwargs():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(
         n_agents=64, seed=1, world_dir=None, n_cells=9, ticks=2, checkpoint_every=2,
@@ -284,7 +284,7 @@ def test_cli_run_passes_both_arms_through_kwargs():
 
 
 def test_cli_parse_refractory_scale():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     assert cli.parse_refractory_scale([]) == {}
     assert cli.parse_refractory_scale(["PROXIMITY_SWAP=0.5", "cell-block=2"]) == {
@@ -313,7 +313,7 @@ def test_cli_parse_refractory_scale():
     ],
 )
 def test_cli_main_flags(monkeypatch, argv, d50, scale):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seen: dict = {}
 
@@ -335,7 +335,7 @@ def test_cli_main_flags(monkeypatch, argv, d50, scale):
 )
 def test_cli_main_rejects_bad_arms(argv):
     """使い方の誤りは traceback ではなく usage(exit 2)で返す。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with pytest.raises(SystemExit) as got:
         cli.main(["--agents", "8", "--world", "__no_such_dir__", "--cells", "9", *argv])

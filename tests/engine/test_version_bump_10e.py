@@ -116,7 +116,7 @@ def test_e2_dicts_stay_bounded_over_days(purge_runs):
 @real_data
 def test_e2_o64_signage_exposures_are_empty_at_every_checkpoint():
     """O64 の ``renderer.signage_exposures`` は tick の中だけの口=checkpoint の時点では常に空(no のままでよい根拠)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.runtime.state import ledger as SL
 
     row = SL.row("O64")
@@ -264,7 +264,7 @@ def test_e5_key_has_the_day_through_T(tmp_path):
 def v4_tape(tmp_path_factory):
     """世界資産 300 体・1 日・語彙 v3・記憶 on・関係 on(初期の関係辺がある=知人の印が出る)。"""
     D.skip_unless("world_v2:w17_schedule.parquet")
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.runtime.inference import tape as TP
 
     d = tmp_path_factory.mktemp("e5")
@@ -377,7 +377,7 @@ def test_e4_l2_load_population_and_three_argument_samplers_follow_the_engine(mon
 
 def test_e4_l3_checkpoints_payload_is_version_2():
     """L3: CLI の checkpoints の JSON は版 2(``combined`` は既定で behavior-hash)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = run_day(n_agents=10, seed=1, n_cells=9, ticks=30, checkpoint_every=30)
     doc = cli.checkpoints_payload(res)

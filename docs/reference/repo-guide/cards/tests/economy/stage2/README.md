@@ -73,7 +73,7 @@ Python 15 本・その他 0 本(このディレクトリの直下)
   - `test_revenue_is_tax_exclusive_on_a_synthetic_run`(関数): 合成の世界(台帳つき)の 1 日: 店の売上の写しの合計=世帯 → 店の消費支出 − レジの税・保存則が通る。
   - `test_stage2_is_always_on_and_the_off_switch_is_removed`(関数): 〔第347〕前(``test_default_arm_is_on_and_off_is_the_switch``)は「既定 on・切替口 off で部品が空」。切替口 off を消した:
   - `test_tax_of_and_the_last_purchase_rows`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.foundation.arms.removed`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.foundation.arms.removed`・`shibuya.interfaces.cli.main`
 - 環境変数: `SHIBUYA_ECONOMY_STAGE2`
 - 決定の ID: 第 346・第 347
 
@@ -112,7 +112,7 @@ Python 15 本・その他 0 本(このディレクトリの直下)
 
 - 公開の関数とクラス
   - `test_resume_equals_straight_with_the_arm`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.stage2_bind`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.stage2_bind`・`shibuya.interfaces.cli.main`
 
 ## [test_stage2_resume_arm.py](../../../../../../../tests/economy/stage2/test_stage2_resume_arm.py)
 
@@ -170,7 +170,7 @@ Python 15 本・その他 0 本(このディレクトリの直下)
 - 公開の関数とクラス
   - `test_world_two_days_outside_stage2`(関数): 〔第347〕前は切替口 off(``test_world_two_days_without_the_arm``)。段階 2 の外の台帳で同じことを見る。
   - `test_world_two_days_with_the_arm`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.stage2_bind`・`tests/economy/_stage2_outside.py`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.stage2_bind`・`shibuya.interfaces.cli.main`・`tests/economy/_stage2_outside.py`
 - 決定の ID: 第 347
 
 ## [test_stage2_writers.py](../../../../../../../tests/economy/stage2/test_stage2_writers.py)
@@ -193,5 +193,5 @@ Python 15 本・その他 0 本(このディレクトリの直下)
   - `test_median_matches_r107`(関数)
   - `test_resume_equals_straight`(関数)
   - `two_arms`(関数): 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の腕 w17 は消した=既定(occupation)の 1 本だけ(名は前のまま)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.stage2_bind`・`shibuya.economy.wages`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.stage2_bind`・`shibuya.economy.wages`・`shibuya.interfaces.cli.main`
 - 決定の ID: R-107

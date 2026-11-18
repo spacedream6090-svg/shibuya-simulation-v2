@@ -223,7 +223,7 @@ def test_overflowing_ring_is_identical_and_counted():
 
 # ---------------------------------------------------------------- 3. 5,000 体 mock の 1 日(slow・data)
 def _mock_day(monkeypatch, *, head: bool, rate: float):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.economy import ledger as LED
 
     from tests.economy import _stage2_outside as SO
@@ -272,8 +272,8 @@ def test_the_outside_bundle_swaps_the_ledger_types_on_both_sides(monkeypatch):
     両方の ``Ledger``・``_HouseholdWalletLedger`` が同じ物で元の型と別の物・``GoodsLedger`` は型を渡したときだけ作る側がその型・
     抜けると元に戻る。割る前は 2 つの別名が同じ ``shibuya.cli``(別名の割り先は ``tools/pkgmove/split.py`` の
     ``SPLIT_ALIAS_DESTS`` の宣言)。"""
-    from shibuya import cli
-    from shibuya import cli as cli_wire
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.interfaces.cli import wire_economy as cli_wire
 
     from tests.economy import _stage2_outside as SO
 

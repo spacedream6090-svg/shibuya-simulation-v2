@@ -134,7 +134,7 @@ def test_run_rows_and_events_are_one_to_one(monkeypatch):
     見る。段階 2 の語(賃金・引き出し・カード・税ほか)と原因の 1 対 1 は ``tests/economy/stage2`` が見る。〔第347〕切替口 off の
     代わりに、試験の中だけの束(段階 2 の口を持たない台帳・off と同じ形=``tests/economy/_stage2_outside.py``)で回す。
     """
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     from tests.economy import _stage2_outside as SO
 
@@ -193,7 +193,7 @@ def test_run_rows_and_events_are_one_to_one_on_stage2(monkeypatch):
     含めて、目印のある行=出来事の金の行(1 対 1)・語と科目の対応(段階 2 の語は預金純増)・額・原因の規則・日次の記録の数・
     補充の物の行の目印を見る。期待値は上の ``_STAGE2_CAUSES`` の注のランから取り直した。
     """
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.economy import stage2_bind as ES2
 
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)

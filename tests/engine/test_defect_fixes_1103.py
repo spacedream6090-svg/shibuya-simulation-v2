@@ -76,7 +76,7 @@ def test_removed_defect_fixes_switch_env_and_cli_flag_stop():
     import subprocess
     import sys
 
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.runtime.systems import boxes as BX
     from shibuya.runtime.systems import talk as TK
 

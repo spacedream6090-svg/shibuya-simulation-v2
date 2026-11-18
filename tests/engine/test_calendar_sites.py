@@ -161,7 +161,7 @@ def test_cli_switches_and_defaults():
 
 
 def test_cli_main_accepts_the_switches():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     ap_args = ["--agents", "20", "--world", "no-such-world", "--cells", "9", "--ticks", "5",
                "--start-date", "2026-07-13"]  # 〔第330・RET〕--calendar-weekday・〔第 2 部〕--response-delay を消した

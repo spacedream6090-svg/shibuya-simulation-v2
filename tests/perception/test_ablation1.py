@@ -277,7 +277,7 @@ def test_run_day_defaults_to_fixed_slots():
 
 
 def test_cli_run_passes_the_arm_through_kwargs():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(
         n_agents=32, seed=1, world_dir=None, n_cells=9, ticks=2, checkpoint_every=2,
@@ -289,7 +289,7 @@ def test_cli_run_passes_the_arm_through_kwargs():
 @pytest.mark.parametrize("argv,expected", [([], "fixed"), (["--budget-mode", "ranking"], "ranking")])
 def test_cli_main_has_the_budget_mode_flag(monkeypatch, capsys, argv, expected):
     """``--budget-mode {fixed,ranking}``(既定 fixed)が ``run`` まで届く。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seen: dict = {}
 

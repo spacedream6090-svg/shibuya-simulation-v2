@@ -17,7 +17,7 @@ SMALL = dict(
 
 
 def test_cli_run_passes_vocab_version_through_kwargs():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(vocab_version="v2", **SMALL)
     assert res.run_manifest_fields()["vocab_version"] == "v2"
@@ -28,7 +28,7 @@ def test_cli_run_passes_vocab_version_through_kwargs():
 
 def test_cli_run_defaults_to_v3():
     """〔Q13・第347〕``cli.run`` の既定は CLI と同じ v3(前はライブラリの既定 v1)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(**SMALL)
     fields = res.run_manifest_fields()
@@ -39,7 +39,7 @@ def test_cli_run_defaults_to_v3():
 
 def test_the_default_run_is_byte_identical_with_the_explicit_v3():
     """〔Q13・第347〕既定のランは v3 の明示と同じ(前は v1 の明示と同じ)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     base = cli.run(**SMALL)
     explicit = cli.run(vocab_version="v3", **SMALL)
@@ -57,7 +57,7 @@ def test_the_default_run_is_byte_identical_with_the_explicit_v3():
      (["--vocab-version", "v3"], "v3")],
 )
 def test_cli_main_has_the_vocab_version_flag(monkeypatch, argv, expected):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seen: dict = {}
 
@@ -75,7 +75,7 @@ def test_cli_main_has_the_vocab_version_flag(monkeypatch, argv, expected):
 
 def test_cli_choices_come_from_the_templates_module(capsys):
     """choices は ``templates.VOCAB_VERSIONS`` が正典(文字列を CLI 側に二重に持たない)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with pytest.raises(SystemExit):
         cli.main(["--vocab-version", "v9"])  # 第274 で v3 は choices に入った
@@ -86,7 +86,7 @@ def test_cli_choices_come_from_the_templates_module(capsys):
 
 def test_intent_mode_and_vocab_version_are_orthogonal():
     """3 腕 × 2 版のどの組み合わせでも回り、manifest に両方が載る。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     # 第276(段 2): v3 のエンジン側が入った=全版を回す。**v3 は vocab 腕だけ**
     # (open/hint × v3 の B0 は未定義=``templates.b0_system`` が ValueError・段 1 の決め)。
@@ -106,7 +106,7 @@ def test_intent_mode_and_vocab_version_are_orthogonal():
                                            (["--activity", "off"], False)])
 def test_cli_main_has_the_activity_flag(monkeypatch, argv, expected):
     """二層の段 2: ``--activity {on,off}``(既定 on)が ``run(activity=...)`` へ届く。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seen: dict = {}
 
@@ -127,7 +127,7 @@ def test_cli_and_run_default_vocab_are_one_value():
     パーサの中で低い層の既定に頼る所はユーザーの判断待ち)。"""
     import inspect
 
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     # 〔割る段 5b の G2〕別名 RUN を割り先ごとに分けた(RUN=runtime.run・RES=runtime.result の名)
     from shibuya.runtime import run as RUN
     from shibuya.runtime import result as RES
@@ -143,7 +143,7 @@ def test_cli_and_run_default_vocab_are_one_value():
 @pytest.mark.parametrize("mode", ["open", "hint"])
 def test_open_and_hint_arms_need_an_explicit_v1_or_v2_on_the_cli(mode, monkeypatch, capsys):
     """v3 の B0 は vocab 腕だけ=CLI の既定(v3)のまま open/hint を頼むと usage で落とす。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     monkeypatch.setattr(cli, "run", lambda **kw: None)
     with pytest.raises(SystemExit):

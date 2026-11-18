@@ -71,8 +71,8 @@ def use_outside_bundle(mp: Any, *, ledger_cls: type | None = None, wallet_cls: t
     読む。別名 ``cli``・``cli_wire`` の割り先は ``tools/pkgmove/split.py`` の ``SPLIT_ALIAS_DESTS`` の宣言(割る前は 2 つとも
     ``shibuya.cli``=同じ物)。
     """
-    from shibuya import cli
-    from shibuya import cli as cli_wire
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.interfaces.cli import wire_economy as cli_wire
 
     ledger = _ledger_type(ledger_cls if ledger_cls is not None else cli_wire.Ledger)
     mp.setattr(cli, "Ledger", ledger)

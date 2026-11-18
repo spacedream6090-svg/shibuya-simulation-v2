@@ -325,7 +325,7 @@ def test_the_19_configs_are_the_byte_check_set():
 @pytest.mark.requires_data("world_v2")
 @pytest.mark.parametrize("config", CONFIG_NAMES)
 def test_19_configs_render_the_same_bytes_as_head(config, monkeypatch, tmp_path):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     from shibuya.world.model import proximity as P
 

@@ -19,7 +19,7 @@ from pathlib import Path
 
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.foundation.time_consts import STEPS_PER_DAY
 from shibuya.foundation.manifest import sections as MS
 from shibuya.experiments.port import run_kind as RK

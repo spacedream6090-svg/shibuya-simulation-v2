@@ -24,7 +24,7 @@ import pytest
 
 from tests import _time_gates as TG
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.runtime.state import resume as RS
 from shibuya.runtime.state import codec as SC
 from shibuya.runtime.state import ledger as SL

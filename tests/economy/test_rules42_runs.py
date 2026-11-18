@@ -98,7 +98,7 @@ def test_removed_rules_42_switch_env_stops():
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet", "osm:poi_tags_overpass_20260928.json", "calendar")
 @pytest.mark.parametrize("stop", [1_440, 2_190])
 def test_resume_equals_straight_with_the_deposit(tmp_path, law, stop):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=300, seed=1, world_dir="data/world/v2", sim_days=2, vocab_version="v3",
               start_sim_datetime="2026-08-24", checkpoint_every=360)

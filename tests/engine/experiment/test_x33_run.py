@@ -15,7 +15,7 @@ import json
 
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.foundation import write_permit as WP
 from shibuya.foundation.manifest import sections as MS
 from shibuya.experiments.port import run_kind as RK

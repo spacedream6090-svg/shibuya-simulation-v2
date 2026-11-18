@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.foundation.manifest import sections as MS
 from shibuya.experiments.port import run_kind as RK
 from shibuya.world.body import model as BM

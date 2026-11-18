@@ -15,7 +15,7 @@ import json
 
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.foundation.manifest import sections as MS
 from shibuya.experiments.port import ensemble as EN
 from shibuya.experiments.port import layer as XL

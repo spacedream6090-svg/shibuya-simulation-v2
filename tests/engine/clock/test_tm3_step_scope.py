@@ -19,7 +19,7 @@ import sys
 import numpy as np
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.time_consts import STEPS_PER_DAY
 from shibuya.mind.system1 import change_detect as CD
@@ -215,7 +215,7 @@ def test_changed_run_matches_all_on_world_assets():
 
 
 _ARGS = ["--agents", "20", "--seed", "1", "--world", "__no_such_dir__", "--cells", "9", "--ticks", "30"]
-_CODE = "import sys; from shibuya import cli; sys.exit(cli.main(sys.argv[1:]))"
+_CODE = "import sys; from shibuya.interfaces.cli import main as cli; sys.exit(cli.main(sys.argv[1:]))"
 
 
 def test_cli_step_scope_beats_the_environment_and_is_an_arm(tmp_path):

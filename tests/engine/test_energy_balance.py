@@ -511,7 +511,7 @@ def test_bmr_arm_runs_and_is_recorded():
 
 
 def test_cli_default_hunger_model_is_energy(monkeypatch):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from tests.engine.body._hunger_v1 import hunger_v1
 
     assert cli.CLI_DEFAULT_HUNGER_MODEL == "energy"

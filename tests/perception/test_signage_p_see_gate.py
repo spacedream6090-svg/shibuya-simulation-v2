@@ -349,7 +349,7 @@ def test_run_day_refuses_a_bad_probability():
 
 
 def test_cli_run_passes_the_gate_through_kwargs():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(
         n_agents=32, seed=1, world_dir=None, n_cells=9, ticks=2, checkpoint_every=2,
@@ -363,7 +363,7 @@ def test_cli_run_passes_the_gate_through_kwargs():
     [([], 1.0), (["--signage-p-see", "0.30"], 0.30), (["--signage-p-see", "0.14"], 0.14)],
 )
 def test_cli_main_has_the_flag(monkeypatch, argv, expected):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seen: dict = {}
 
@@ -379,7 +379,7 @@ def test_cli_main_has_the_flag(monkeypatch, argv, expected):
 
 
 def test_cli_main_rejects_a_bad_probability():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with pytest.raises(SystemExit):
         cli.main(["--agents", "8", "--world", "__no_such_dir__", "--cells", "9",

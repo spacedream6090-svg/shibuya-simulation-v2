@@ -1074,7 +1074,7 @@ def run_smoke(
     Returns:
         ``(RunResult, 使った経路の説明)``。
     """
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kwargs: dict[str, Any] = {
         "n_agents": int(n_agents),
