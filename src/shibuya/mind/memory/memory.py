@@ -172,7 +172,7 @@ _EMPTY: Final[int] = 0
 
 
 def _action_kind_table() -> dict[int, int]:
-    from shibuya.engine import commit as C
+    from shibuya.foundation.vocab import act_codes as C
 
     return {
         int(C.ACT_BUY): EVENT_KINDS["buy"],
@@ -1012,7 +1012,7 @@ class MemoryLayer:
             calls: 〔2-3〕この刻みに適用した意図の ``(体, 呼の id)`` の組(確定と落選・呼の id の無い行は ``None``)。器に
                 体の出来事の口のあるランだけ読む(行為の成否と会話の始まりの原因 ``LlmCall``)。
         """
-        from shibuya.engine import commit as C
+        from shibuya.foundation.vocab import act_codes as C
 
         t = int(tick)
         r = agents.registry

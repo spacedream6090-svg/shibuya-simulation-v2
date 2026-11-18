@@ -17,7 +17,10 @@ import pytest
 
 from shibuya.foundation.vocab.agent_codes import Activity, WakeCondition
 from shibuya.world.model.agent_table import AgentState
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.society.conversation import (
     PAIR_INVITE_REFRACTORY_TICKS,
@@ -41,7 +44,7 @@ def test_named_person_in_the_same_cell_wins_over_the_batch_fallback():
     cell = np.array([5, 5, 5], dtype=np.int64)
     all_cells = np.array([5, 5, 5, 5], dtype=np.int64)
     named = np.array([2, -1, 0], dtype=np.int64)
-    partner, source = C.talk_partners(a, cell, named, all_cells, 4)
+    partner, source = CW.talk_partners(a, cell, named, all_cells, 4)
     assert partner[0] == 2 and source[0] == 0  # 名指しが通る
     assert source[1] == 1  # 名指しなし → フォールバック
     assert partner[2] == 0 and source[2] == 0
@@ -52,7 +55,7 @@ def test_named_person_in_another_cell_falls_back_and_is_counted():
     cell = np.array([5, 5], dtype=np.int64)
     all_cells = np.array([5, 5, 9], dtype=np.int64)  # 個体2 は別セル
     named = np.array([2, 2], dtype=np.int64)
-    partner, source = C.talk_partners(a, cell, named, all_cells, 3)
+    partner, source = CW.talk_partners(a, cell, named, all_cells, 3)
     assert list(source) == [1, 1]  # 両方フォールバック
     assert partner[0] == 1 and partner[1] == 0  # 同バッチ最小 id 規則
 
@@ -62,7 +65,7 @@ def test_naming_yourself_or_out_of_range_falls_back():
     cell = np.array([5, 5], dtype=np.int64)
     all_cells = np.array([5, 5], dtype=np.int64)
     named = np.array([0, 99], dtype=np.int64)  # 自分自身 / 範囲外
-    partner, source = C.talk_partners(a, cell, named, all_cells, 2)
+    partner, source = CW.talk_partners(a, cell, named, all_cells, 2)
     assert list(source) == [1, 1]
 
 
@@ -70,7 +73,7 @@ def test_alone_in_the_cell_yields_no_partner_and_source_absent():
     a = np.array([7], dtype=np.int64)
     cell = np.array([3], dtype=np.int64)
     all_cells = np.array([3] * 8, dtype=np.int64)
-    partner, source = C.talk_partners(a, cell, np.array([-1]), all_cells, 8)
+    partner, source = CW.talk_partners(a, cell, np.array([-1]), all_cells, 8)
     assert partner[0] == -1 and source[0] == 2
 
 
@@ -82,10 +85,10 @@ def test_intents_from_responses_fills_the_stats(monkeypatch):
     R.initialize(ag, w, synthesize(6, 1, w.n_cells), day_index=0, ledger=None)
     space = C.ResourceSpace(w.n_poi, 6, w.n_cells)
     stats: dict[str, int] = {}
-    ib = C.intents_from_responses(
+    ib = CW.intents_from_responses(
         ag, w, space, 1,
         np.array([0, 1], dtype=np.int64), np.zeros(2, dtype=np.int64),
-        np.array([C.ACT_TALK, C.ACT_TALK], dtype=np.int64),
+        np.array([CV.ACT_TALK, CV.ACT_TALK], dtype=np.int64),
         target_person=np.array([3, -1], dtype=np.int64), stats=stats,
     )
     assert stats["talk_named"] == 1 and stats["talk_fallback"] == 1
@@ -318,7 +321,7 @@ def test_acceptance_is_consumed_before_phase_c_so_no_false_partner_busy():
     conv = make_manager()
     _invite(conv, ag, 1, 2, tick=10)
     before = int(ag.registry.last_result[2])
-    consumed = _settle(conv, ag, 11, [(2, C.ACT_TALK, 1)])
+    consumed = _settle(conv, ag, 11, [(2, CV.ACT_TALK, 1)])
     assert consumed == {2}  # B の行は intent から外れる(=``_apply_talk`` を通らない)
     assert conv.counters()["conv_accepted"] == 1
     assert int(ag.registry.activity[1]) == int(Activity.CONVERSING)
@@ -332,7 +335,7 @@ def test_acceptance_without_a_target_is_also_accepted():
     _, ag = _world_agents()
     conv = make_manager()
     _invite(conv, ag, 1, 2, tick=10)
-    assert _settle(conv, ag, 11, [(2, C.ACT_TALK, -1)]) == {2}  # 対象なしも承諾
+    assert _settle(conv, ag, 11, [(2, CV.ACT_TALK, -1)]) == {2}  # 対象なしも承諾
     assert conv.counters()["conv_accepted"] == 1
 
 
@@ -341,7 +344,7 @@ def test_naming_a_third_party_is_a_refusal_and_stays_an_intent():
     _, ag = _world_agents()
     conv = make_manager()
     _invite(conv, ag, 1, 2, tick=10)
-    consumed = _settle(conv, ag, 11, [(2, C.ACT_TALK, 5)])  # B は C=5 を名指す
+    consumed = _settle(conv, ag, 11, [(2, CV.ACT_TALK, 5)])  # B は C=5 を名指す
     assert consumed == set()  # **消費しない**= B の 会話 は C への新規招待として通る
     assert conv.counters()["conv_declined"] == 1 and conv.counters()["conv_accepted"] == 0
     assert int(ag.registry.activity[1]) == int(Activity.IDLE)  # 招待側 A は戻る
@@ -351,7 +354,7 @@ def test_answering_another_action_is_a_refusal():
     _, ag = _world_agents()
     conv = make_manager()
     _invite(conv, ag, 1, 2, tick=10)
-    assert _settle(conv, ag, 11, [(2, C.ACT_WAIT, -1)]) == set()
+    assert _settle(conv, ag, 11, [(2, CV.ACT_WAIT, -1)]) == set()
     assert conv.counters()["conv_declined"] == 1
     assert int(ag.registry.activity[1]) == int(Activity.IDLE)
 
@@ -362,14 +365,14 @@ def test_acceptance_from_another_cell_is_a_refusal():
     _invite(conv, ag, 1, 2, tick=10)
     with ag.writable():
         ag.registry.cell[2] = int(ag.registry.cell[1]) + 1  # B が別セルへ移った
-    assert _settle(conv, ag, 11, [(2, C.ACT_TALK, 1)]) == set()
+    assert _settle(conv, ag, 11, [(2, CV.ACT_TALK, 1)]) == set()
     assert conv.counters()["conv_declined"] == 1
 
 
 def test_settle_is_a_no_op_without_pending_invites():
     _, ag = _world_agents()
     conv = make_manager()
-    assert _settle(conv, ag, 5, [(2, C.ACT_TALK, 1)]) == set()
+    assert _settle(conv, ag, 5, [(2, CV.ACT_TALK, 1)]) == set()
     assert conv.counters()["conv_accepted"] == 0 and conv.counters()["conv_declined"] == 0
 
 
@@ -378,17 +381,17 @@ def test_intents_from_responses_uses_the_run_salt_for_the_fallback_order():
     w, ag = _world_agents(n=6)
     space = C.ResourceSpace(w.n_poi, 6, w.n_cells)
     a = np.arange(6, dtype=np.int64)
-    codes = np.full(6, C.ACT_TALK, dtype=np.int64)
+    codes = np.full(6, CV.ACT_TALK, dtype=np.int64)
     cond = np.zeros(6, dtype=np.int64)
     kw = dict(home_cell=None, work_cell=None, target_person=None)
-    plain = C.intents_from_responses(ag, w, space, 7, a, cond, codes, **kw)
-    salted = C.intents_from_responses(ag, w, space, 7, a, cond, codes, run_salt=b"s1", **kw)
-    other = C.intents_from_responses(ag, w, space, 7, a, cond, codes, run_salt=b"s2", **kw)
+    plain = CW.intents_from_responses(ag, w, space, 7, a, cond, codes, **kw)
+    salted = CW.intents_from_responses(ag, w, space, 7, a, cond, codes, run_salt=b"s1", **kw)
+    other = CW.intents_from_responses(ag, w, space, 7, a, cond, codes, run_salt=b"s2", **kw)
     # 塩なし = ID 順(最小 id が相手)。塩ありは撹拌後の並び。
     assert int(plain.target_id[1]) == 0
     assert list(salted.target_id) != list(plain.target_id) or list(other.target_id) != list(
         plain.target_id
     )
     assert list(salted.target_id) == list(
-        C.intents_from_responses(ag, w, space, 7, a, cond, codes, run_salt=b"s1", **kw).target_id
+        CW.intents_from_responses(ag, w, space, 7, a, cond, codes, run_salt=b"s1", **kw).target_id
     )  # 決定論

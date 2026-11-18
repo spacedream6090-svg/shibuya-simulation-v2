@@ -2,13 +2,33 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 3 本・その他 0 本(このディレクトリの直下)
+Python 4 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [contact](contact/README.md)・[speech](speech/README.md)・[tools](tools/README.md)
 
 ## [__init__.py](../../../../../../../src/shibuya/society/__init__.py)
 
 (冒頭の説明なし)
+
+## [calendar_shadow.py](../../../../../../../src/shibuya/society/calendar_shadow.py)
+
+engine.calendar_shadow — 暦 1a の影(第 3 期 3-1・決定 10-12 §4-1 CA2 (a)・CA8)。
+
+- 公開の関数とクラス
+  - `CalendarShadow`(クラス): 暦 1a の影(状態台帳の行 ``CAL``・軸 1 diag・軸 2 derivable・中身は hash_skip)。
+  - `arm`(関数): いまの腕(``w17``=既定・``1a``=影を W20 から作る)。組み立てのときに読む。
+  - `build`(関数): 組み立ての口: 腕 1a のランの影を作り、0 日目を張る(腕 w17 は ``None``)。
+  - `is_on`(関数)
+  - `manifest_fields`(関数): manifest の ``calendar_shadow``(腕 w17 のランは源だけ・ほかの子は null)。
+  - `set_arm`(関数): 腕を選ぶ(CLI ``--calendar-shadow``・試験の切替口)。組み立ての時に読む。
+- import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.world.facts.w20_calendar_reader`・`shibuya.world.facts.weekly_reader`
+- 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.interim_bundles.calendar_self`・`shibuya.runtime.systems.assemble`
+- 読む試験: `tests/engine/calendar/test_calendar_shadow.py`
+- 状態台帳の行
+  - 持ち主 `calendar_shadow`(`CalendarShadow`)
+    - `CAL` CalendarShadow(暦 1a の影=その日の勤務と授業の約束と日ごとの計器・第 3 期 3-1)(挙動 diag・復元 derivable) 道筋 `calendar_shadow.shadow_day_log`・`calendar_shadow.today` 書ける系: day_head
+- 環境変数: `SHIBUYA_CALENDAR_SHADOW`
+- 決定の ID: 10-12/§4-1
 
 ## [conversation.py](../../../../../../../src/shibuya/society/conversation.py)
 

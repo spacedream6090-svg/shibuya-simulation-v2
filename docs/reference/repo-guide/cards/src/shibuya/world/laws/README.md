@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 15 本・その他 0 本(このディレクトリの直下)
+Python 17 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/world/laws/__init__.py)
 
@@ -145,6 +145,37 @@ engine.processes.opening — 営業時間 PlanSpec と役割行動「開閉店�
     - `O73` 世界の過程と実行器の計数(挙動 diag・復元 discardable) 道筋 `runner.opening.n_events`・`runner.opening.n_fallback`・`runner.opening.n_role_actions`・`runner.opening.n_unauthorized` 書ける系: close_final・day_close・day_head・duties・phase_c・plan_boundary・presence・world
 - 決定の ID: 10-12/§1-1・第 330
 
+## [presence.py](../../../../../../../../src/shibuya/world/laws/presence.py)
+
+engine.presence — 計画実行層(Presence & Plan Executor・D-66 第1段)。
+
+- 公開の関数とクラス
+  - `EventType`(クラス): 日次イベントの種(設計書 §3 の表)。値は表の番号。
+  - `PlanExecutor`(クラス): 計画実行層(D-66 第1段)。日次でイベント列を組み、tick ごとに resolve を叩く。
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.facts.weekly_reader`・`shibuya.world.laws.presence_plan`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
+- 呼び手: `shibuya.engine.run`・`shibuya.interim_bundles.calendar_self`・`shibuya.runtime.systems.assemble`・`tools/instruments/anchor_gauge.py`
+- 読む試験: `tests/engine/_legacy_world.py`・`tests/engine/calendar/test_ca1b_runs.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_calendar_10e_e3.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_presence_exit_walk.py`・`tests/engine/test_resume_10d.py`
+- 読む試験(道筋で): `tests/economy/cp2/test_cp2_transfer_only_writer.py`・`tests/engine/body/test_body_guard.py`
+- 状態台帳の行
+  - 持ち主 `presence`(`PlanExecutor`)
+    - `O35` PlanExecutor 退出の歩行 _walk_since・_walk_line・_plan_rider・_rewalked・_rewalk_*(挙動 behavior・復元 required) 道筋 `presence._plan_rider`・`presence._rewalk_deadline`・`presence._rewalk_ids`・`presence._rewalk_line`・`presence._rewalked`・`presence._walk_line`・`presence._walk_since` 書ける系: close_final・day_close・day_head・decide・plan_boundary・presence・world
+    - `O36` PlanExecutor _defer_ids・_defer_deadline・_defer_line・_defer_walk・_extra・_skip_depart_at(挙動 behavior・復元 required) 道筋 `presence._defer_deadline`・`presence._defer_ids`・`presence._defer_line`・`presence._defer_walk`・`presence._extra`・`presence._skip_depart_at` 書ける系: close_final・day_close・day_head・plan_boundary・presence・world
+    - `O37` PlanExecutor _pulled_in_today(挙動 diag・復元 required) 道筋 `presence._pulled_in_today` 書ける系: close_final・day_close・day_head・plan_boundary・presence・world
+    - `O38` PlanExecutor ev_*・arrival_*・absent・blocks(挙動 no・復元 derivable) 道筋 `presence.absent`・`presence.arrival_cell`・`presence.arrival_tick`・`presence.arrival_train`・`presence.arrival_train_e1`・`presence.blocks`・`presence.ev_act`・`presence.ev_agent`・`presence.ev_arg`・`presence.ev_place`・`presence.ev_tick`・`presence.ev_type` 書ける系: close_final・day_close・day_head・plan_boundary・presence
+    - `O70` PlanExecutor の計数と時別の控え(挙動 diag・復元 discardable) 道筋 `presence.exit_cell_by_hour`・`presence.exit_stage_max_by_hour`・`presence.fallback_minutes`・`presence.in_area_by_hour`・`presence.lost_why`・`presence.match_in_den`・`presence.match_in_num`・`presence.match_out_den`・`presence.match_out_num`・`presence.n_arrivals`・`presence.n_arrive_skipped`・`presence.n_arrive_skipped_in_area`・`presence.n_arrive_skipped_pulled`・`presence.n_depart_dropped`・`presence.n_depart_skipped`・`presence.n_departed_by_llm`・`presence.n_departures`・`presence.n_exit_deferred`・`presence.n_exit_forced`・`presence.n_exit_gate_immediate`・`presence.n_exit_lost`・`presence.n_exit_lost_deferred`・`presence.n_exit_lost_final`・`presence.n_exit_no_platform`・`presence.n_exit_rewalk_forced`・`presence.n_exit_rewalk_gone`・`presence.n_exit_rewalk_queued`・`presence.n_exit_rewalk_started`・`presence.n_exit_too_far`・`presence.n_exit_walk_boarded`・`presence.n_exit_walk_departed`・`presence.n_exit_walk_gone`・`presence.n_exit_walk_restarted`・`presence.n_exit_walk_started`・`presence.n_exit_walk_waiting_at_start`・`presence.n_gate_arrivals`・`presence.n_home_out_slept_inside`・`presence.n_placed_at_start`・`presence.n_pulled_in`・`presence.n_pushed_out`・`presence.n_queue_balked`・`presence.n_rearmed`・`presence.n_returned_to_block`・`presence.n_shopping_interrupted`・`presence.n_spread_moved`・`presence.n_spread_overflow`・`presence.n_walk_calls`・`presence.n_walk_wakes_suppressed`・`presence.platform_cell_by_hour`・`presence.sample_hours`・`presence.sample_in_area`・`presence.sleep_counts`・`presence.wake_in_area_by_hour`・`presence.walk_minutes` 書ける系: close_final・day_close・day_head・decide・observe・plan_boundary・presence・wake_filter・world
+- 決定の ID: 11-01・11-01/§2・11-02・D-51・D-61・D-62・D-66・D-115・第 145・第 302・第 330
+
+## [presence_plan.py](../../../../../../../../src/shibuya/world/laws/presence_plan.py)
+
+world.laws.presence_plan — 割る段で ``engine/presence.py`` を割った割り先(全ファイルの表 §4・名の表は``tools/pkgmove/map.toml`` の割る行)。
+
+- 公開の関数とクラス
+  - `PlanBlocks`(クラス): **在圏ブロック**(その体がその日「舞台に居る」連続区間)の CSR。
+- import している内部モジュール: `shibuya.world.facts.weekly_reader`
+- 呼び手: `shibuya.engine.run`・`shibuya.interim_bundles.calendar_self`・`shibuya.runtime.systems.assemble`・`shibuya.world.laws.presence`・`tools/instruments/anchor_gauge.py`
+- 読む試験: `tests/engine/test_geometry_c9.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`
+- 決定の ID: 11-01・第 170
+
 ## [rail.py](../../../../../../../../src/shibuya/world/laws/rail.py)
 
 engine.processes.rail — 鉄道運行(ODPT 静的ダイヤ・D-R2-5 第1陣の 3 行目)。
@@ -234,7 +265,7 @@ engine.rate_rules — 率の形の規則を外す切替口(指示書 11-01 段 2
   - `removed_flags`(関数): 規則ごとの ``rate_rule_<名>_removed``(1=外した・0=旧道)。腕だけで決まる印(設定)。
   - `resolve`(関数): 過程の引数の腕(``None``=既定 off。〔第347〕ランの切替口は消した)を名に直す(名の誤りは止める)。
 - import している内部モジュール: `shibuya.foundation.arms.removed`
-- 呼び手: `shibuya.cli`・`shibuya.engine.presence`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.rail`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`
+- 呼び手: `shibuya.cli`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.presence`・`shibuya.world.laws.rail`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`
 - 読む試験: `tests/bridging/test_drives_from_vs_scoring.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_waste_sink_report.py`
 - 環境変数: `SHIBUYA_RATE_RULES`
 - 決定の ID: 10-13b/§0-6・11-01・11-01/§2・第 347

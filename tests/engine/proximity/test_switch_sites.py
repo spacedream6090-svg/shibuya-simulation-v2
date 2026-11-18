@@ -18,7 +18,7 @@ import pytest
 
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.vocab.agent_codes import ResultCode, WakeCondition
-from shibuya.engine import commit as C
+from shibuya.act.intake import from_words as C
 from shibuya.mind.memory import memory as M
 from shibuya.world.model import proximity as P
 from shibuya.society.conversation import ConversationManager

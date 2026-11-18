@@ -13,7 +13,10 @@ import pytest
 
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.vocab.agent_codes import ResultCode
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.mind.judge.chooser import NearestChooser
 from shibuya.act.target import (
@@ -79,7 +82,7 @@ def _move(w, cells, texts, radius=MOVE_SEARCH_RADIUS_CELLS):
     res = TargetResolver(world=w, chooser=NearestChooser(), seed=1, move_search_radius=radius)
     tg = [None if t is None else parse_target(t) for t in texts]
     out = res.resolve_move(_agents(cells), NOON, np.arange(len(cells)),
-                           np.full(len(cells), C.ACT_MOVE), tg, np.ones(len(cells), dtype=bool))
+                           np.full(len(cells), CV.ACT_MOVE), tg, np.ones(len(cells), dtype=bool))
     return out, res
 
 
@@ -158,11 +161,11 @@ def test_commit_uses_the_target_field_but_keeps_explicit_hints_and_wander():
     home = np.array([3, 3, 3, 3])
     work = np.array([2, 2, 2, 2])
     hint = np.zeros(4, dtype=np.int64)
-    hint[1] = C.TARGET_HINT_HOME
+    hint[1] = CV.TARGET_HINT_HOME
     move_dest = np.array([-1, -1, 1, -1])
-    batch = C.intents_from_responses(
+    batch = CW.intents_from_responses(
         ag, w, _space(w, 4), NOON, np.arange(4), np.zeros(4, dtype=np.int64),
-        np.full(4, C.ACT_MOVE), home_cell=home, work_cell=work, target_hint=hint,
+        np.full(4, CV.ACT_MOVE), home_cell=home, work_cell=work, target_hint=hint,
         move_dest=move_dest, targets=[parse_target("飲食店")] * 3 + [parse_target("なし")],
         poi_resolver=res,
     )

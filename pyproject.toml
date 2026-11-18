@@ -94,10 +94,8 @@ ignore_imports = [
   "shibuya.engine.resolve -> shibuya.runtime.state.hashes",
   "shibuya.engine.resolve -> shibuya.runtime.state.ledger",
   "shibuya.engine.resolve -> shibuya.runtime.state.resume",
-  "shibuya.mind.judge.decision.layer -> shibuya.engine.commit",
   "shibuya.mind.judge.decision.layer -> shibuya.society.tools.registry",
   "shibuya.mind.memory.familiarity -> shibuya.engine.resolve",
-  "shibuya.mind.memory.memory -> shibuya.engine.commit",
   "shibuya.mind.memory.memory -> shibuya.engine.resolve",
   "shibuya.mind.memory.store_memory -> shibuya.engine.resolve",
   "shibuya.mind.relations.layer -> shibuya.engine.resolve",
@@ -155,10 +153,8 @@ forbidden_modules = [
 ]
 ignore_imports = [
   "shibuya.mind.judge.decision.layer -> shibuya.economy.stage2_bind",
-  "shibuya.mind.judge.decision.layer -> shibuya.engine.commit",
   "shibuya.mind.judge.decision.layer -> shibuya.society.tools.registry",
   "shibuya.mind.memory.familiarity -> shibuya.engine.resolve",
-  "shibuya.mind.memory.memory -> shibuya.engine.commit",
   "shibuya.mind.memory.memory -> shibuya.engine.resolve",
   "shibuya.mind.memory.store_memory -> shibuya.engine.resolve",
   "shibuya.mind.relations.layer -> shibuya.engine.resolve",

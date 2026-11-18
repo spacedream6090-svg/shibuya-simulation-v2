@@ -18,7 +18,7 @@ import pytest
 from shibuya.foundation.vocab.agent_codes import Activity, ResultCode, WakeCondition
 from shibuya.world.model.agent_table import AgentState
 from shibuya.engine import resolve as R
-from shibuya.engine.presence import EXIT_WALK_MAX_TICKS, PlanExecutor
+from shibuya.world.laws.presence import EXIT_WALK_MAX_TICKS, PlanExecutor
 from shibuya.world.laws.rail import RailProcess
 
 from .test_presence_executor import (
@@ -204,7 +204,7 @@ def test_leave_releases_store_queue_and_marks_conversation():
 
 
 def test_leave_with_no_activity_expires_next_tick():
-    from shibuya.engine import commit as C
+    from shibuya.foundation.vocab import act_codes as C
     from shibuya.act.activity import ActivityLayer, ActivityPayload
     from shibuya.foundation.vocab.actions import NO_TARGET, UNTIL_DEFAULT_MINUTES, UntilKind
 

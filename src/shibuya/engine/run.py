@@ -82,7 +82,9 @@ from shibuya.world.model.agent_table import (
 from shibuya.foundation.growth import GrowthReport
 from shibuya.foundation.rng import RNG_SCHEME
 from shibuya.foundation.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act.intake import from_words as CW
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.runtime.state import growth_decl as GD
 from shibuya.engine import resolve as R
 from shibuya.act.activity import payload_of
@@ -119,8 +121,8 @@ from shibuya.world.model.geometry import (
 )
 from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.world.laws.opening import rows_of_day as _opening_rows_of_day
-from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
-from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
+from shibuya.world.laws.presence_plan import DERIVE_RULES as PRESENCE_DERIVE_RULES
+from shibuya.world.laws.presence import EXIT_MODES as PRESENCE_EXIT_MODES
 from shibuya.act.target import MOVE_SEARCH_RADIUS_CELLS
 from shibuya.runtime.inference.bridge import DEFAULT_LANE, delta_think_ticks
 from shibuya.foundation.queues.scheduler import DIAG_COLUMNS
@@ -135,7 +137,7 @@ from shibuya.mind.judge.decision import layer as _DECISION
 from shibuya.society.speech import layer as _SPEECH
 from shibuya.world.model import proximity as _PROX
 from shibuya.world.model.space import nav1 as _NAV1
-from shibuya.engine import calendar_shadow as _CALENDAR_SHADOW
+from shibuya.society import calendar_shadow as _CALENDAR_SHADOW
 from shibuya.interim_bundles import calendar_self as _CALENDAR_SELF
 from shibuya.experiments.port import layer as _EXPERIMENT
 from shibuya.foundation.queues import batching as _BATCHING
@@ -1944,8 +1946,8 @@ def _settle_pending_invites(
             and R.talk_within_reach(agents, np.int64(a), np.int64(b), by_distance=by_distance, rule=rule)
         )
         aimed_at_inviter = int(named[k]) in (a, -1)
-        ok = bool(codes[k] == C.ACT_TALK) and aimed_at_inviter and same_cell
-        if drop_unreachable and bool(codes[k] == C.ACT_TALK) and aimed_at_inviter and not same_cell:
+        ok = bool(codes[k] == CV.ACT_TALK) and aimed_at_inviter and same_cell
+        if drop_unreachable and bool(codes[k] == CV.ACT_TALK) and aimed_at_inviter and not same_cell:
             # 〔11-03 M16〕承諾したが届かない=不成立(断りではない)。招待側は下と同じく戻す
             conv.drop_pending(b, tick, "unreachable")
             if a >= 0 and not conv.is_busy(a):
@@ -2022,7 +2024,7 @@ def _pending_extra(res: Any) -> tuple[int, int, Any, Any]:
     **段 2a** の対象(``llm.contract.Target``・購入/食事/並ぶの候補の絞り込みが読む)。
     """
     return (
-        C.target_hint_code(getattr(res, "target_hint", "")),
+        CW.target_hint_code(getattr(res, "target_hint", "")),
         _target_poi(getattr(res, "target", None)),
         payload_of(res),
         getattr(res, "target", None),

@@ -27,7 +27,7 @@ from shibuya.world.laws.goods_flow import (
 from shibuya.world.laws.logistics import LastMileProcess
 from shibuya.world.laws.rail import RailProcess
 from shibuya.world.laws.salient import COLLAPSE_PER_10K_PER_DAY, SalientProcess
-from shibuya.engine.presence import PlanExecutor
+from shibuya.world.laws.presence import PlanExecutor
 from shibuya.engine.run import run_day
 
 from .conftest import fake_timetable_assets, make_agents, make_world

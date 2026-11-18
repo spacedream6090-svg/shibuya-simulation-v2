@@ -28,7 +28,10 @@ from shibuya.foundation.vocab.agent_codes import (
 from shibuya.world.model.agent_table import (
     AgentState,
 )
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.act.activity import ActivityLayer, ActivityPayload
 from shibuya.mind.judge.chooser import NearestChooser
@@ -82,7 +85,7 @@ def _tick(w, ag, act, il, space, t, llm_batch=None, applied=None):
     llm_batch = llm_batch if llm_batch is not None else C.IntentBatch.empty()
     arr, llm_batch = il.arrival_intents(ag, space, t, llm=llm_batch)
     intents = C.IntentBatch.concat(
-        [llm_batch, arr, C.engine_continuations(ag, space, t)]
+        [llm_batch, arr, CW.engine_continuations(ag, space, t)]
     ).one_per_agent()
     plan = C.arbitrate_resources(intents, t, SALT, space, w.pois.stock, w.pois.capacity)
     R.apply(plan.confirmed, plan.losers, ag, w, t, vocab_version="v3")
@@ -94,7 +97,7 @@ def _tick(w, ag, act, il, space, t, llm_batch=None, applied=None):
 
 
 def _respond(w, ag, space, res, il, t, agent, code, target, *, home=None):
-    return C.intents_from_responses(
+    return CW.intents_from_responses(
         ag, w, space, t, np.array([agent]), np.array([3]), np.array([code]),
         home_cell=home, targets=[None if target is None else parse_target(target)],
         poi_resolver=res, intent_hold=il, vocab_version="v3", run_salt=SALT,
@@ -125,12 +128,12 @@ def test_too_far_is_a_new_code_with_text_and_options():
 
 
 def test_intent_actions_and_the_renderer_words_match_the_contract():
-    assert set(INTENT_ACTIONS) == {C.ACT_BUY, C.ACT_EAT, C.ACT_QUEUE, C.ACT_TALK, C.ACT_SLEEP}
+    assert set(INTENT_ACTIONS) == {CV.ACT_BUY, CV.ACT_EAT, CV.ACT_QUEUE, CV.ACT_TALK, CV.ACT_SLEEP}
     for code, word in PR.INTENT_ACTION_WORDS.items():
         if word == "食事":
-            assert code == C.ACT_EAT
+            assert code == CV.ACT_EAT
         elif word == "並ぶ":
-            assert code == C.ACT_QUEUE
+            assert code == CV.ACT_QUEUE
         else:
             assert ACTION_CODES[word] == code
     assert INTENT_MAX_TICKS == 60 and INTENT_MAX_TICKS_ARMS == (30, 60, 120)
@@ -142,7 +145,7 @@ def test_resolver_named_out_of_cell_becomes_an_intent_only_when_visible_and_fit(
     res = TargetResolver(world=w, chooser=NearestChooser(), seed=1)
     ag = _agents0(w)
     io: dict[int, tuple[int, int]] = {}
-    out = res.resolve(ag, NOON, np.array([0]), np.array([C.ACT_EAT]),
+    out = res.resolve(ag, NOON, np.array([0]), np.array([CV.ACT_EAT]),
                       [parse_target("カフェ・ベローチェ")], is_eat=np.array([True]),
                       is_buy_like=np.array([False]), intent_out=io)
     assert out.tolist() == [-1] and io == {0: (4, int(IntentKind.POI_NAMED))}
@@ -150,7 +153,7 @@ def test_resolver_named_out_of_cell_becomes_an_intent_only_when_visible_and_fit(
     w2 = _world()
     res2 = TargetResolver(world=w2, chooser=NearestChooser(), seed=1)
     io2: dict[int, tuple[int, int]] = {}
-    res2.resolve(_agents0(w2), NOON, np.array([0]), np.array([C.ACT_EAT]),
+    res2.resolve(_agents0(w2), NOON, np.array([0]), np.array([CV.ACT_EAT]),
                  [parse_target("カフェ・ベローチェ")], is_eat=np.array([True]),
                  is_buy_like=np.array([False]), intent_out=io2)
     s = resolution_summary(res2.stats, res2.entropy_sum)
@@ -158,7 +161,7 @@ def test_resolver_named_out_of_cell_becomes_an_intent_only_when_visible_and_fit(
     assert s["iv_no_candidate"]["named_out_of_cell"] == 1
     # 意図に合わない(食事なのに物販店)名指しも意図にならない
     io3: dict[int, tuple[int, int]] = {}
-    res.resolve(ag, NOON, np.array([0]), np.array([C.ACT_EAT]), [parse_target("花屋C")],
+    res.resolve(ag, NOON, np.array([0]), np.array([CV.ACT_EAT]), [parse_target("花屋C")],
                 is_eat=np.array([True]), is_buy_like=np.array([False]), intent_out=io3)
     assert io3 == {} and res.stats["named_out_of_cell:not_fit"] == 1
 
@@ -167,7 +170,7 @@ def test_resolver_category_without_an_open_candidate_in_the_cell_searches_nearby
     w = _world()
     res = TargetResolver(world=w, chooser=NearestChooser(), seed=1)
     io: dict[int, tuple[int, int]] = {}
-    out = res.resolve(_agents0(w), NOON, np.array([0]), np.array([C.ACT_EAT]),
+    out = res.resolve(_agents0(w), NOON, np.array([0]), np.array([CV.ACT_EAT]),
                       [parse_target("飲食店")], is_eat=np.array([True]),
                       is_buy_like=np.array([False]), intent_out=io)
     # セル 0 に food なし → 近い順(セル 1 の food 2=150 m)
@@ -176,7 +179,7 @@ def test_resolver_category_without_an_open_candidate_in_the_cell_searches_nearby
     assert s["v_intent"] == {"named": 0, "category": 1, "category_none_nearby": 0}
     # 「なし」の対象は意図にしない(どこへ行くかを言っていない)
     io2: dict[int, tuple[int, int]] = {}
-    res.resolve(_agents0(w), NOON, np.array([0]), np.array([C.ACT_EAT]), [None],
+    res.resolve(_agents0(w), NOON, np.array([0]), np.array([CV.ACT_EAT]), [None],
                 is_eat=np.array([True]), is_buy_like=np.array([False]), intent_out=io2)
     assert io2 == {}
 
@@ -190,7 +193,7 @@ def test_named_visible_but_closed_returns_closed_now_without_walking_q21():
         w.pois.stock[7] = 0
     res = TargetResolver(world=w, chooser=NearestChooser(), seed=1)
     io: dict[int, tuple[int, int]] = {}
-    out = res.resolve(_agents0(w, 2), NOON, np.arange(2), np.array([C.ACT_EAT, C.ACT_BUY]),
+    out = res.resolve(_agents0(w, 2), NOON, np.arange(2), np.array([CV.ACT_EAT, CV.ACT_BUY]),
                       [parse_target("カフェ・ベローチェ"), parse_target("花屋C")],
                       is_eat=np.array([True, False]), is_buy_like=np.array([False, True]),
                       intent_out=io)
@@ -205,13 +208,13 @@ def test_bed_intent_is_exclusive_with_the_planned_sleep_q22():
     w, ag, act, il, space, res = _setup(n=2, cells=(0, 0))
     with ag.writable():
         ag.registry.sleep_pending[0] = 1
-    b = C.intents_from_responses(
-        ag, w, space, NOON, np.array([0, 1]), np.full(2, 3), np.full(2, C.ACT_SLEEP),
+    b = CW.intents_from_responses(
+        ag, w, space, NOON, np.array([0, 1]), np.full(2, 3), np.full(2, CV.ACT_SLEEP),
         home_cell=np.array([2, 2]), targets=[None, None], poi_resolver=res, intent_hold=il,
         vocab_version="v3",
     )
     # 計画就寝の意図が立っている体 0 は寝床の意図にしない(就寝のまま=NO_BED)・体 1 は自宅へ歩く
-    assert b.action_code.tolist() == [C.ACT_SLEEP, C.ACT_MOVE]
+    assert b.action_code.tolist() == [CV.ACT_SLEEP, CV.ACT_MOVE]
     assert list(il._proposals) == [1]
     assert il.counters()["bed_skipped_sleep_pending"] == 1
 
@@ -221,7 +224,7 @@ def test_resolver_without_intent_out_is_unchanged():
     a = TargetResolver(world=w, chooser=NearestChooser(), seed=1)
     b = TargetResolver(world=w, chooser=NearestChooser(), seed=1)
     tg = [parse_target("カフェ・ベローチェ"), parse_target("飲食店"), None]
-    args = (_agents0(w, 3), NOON, np.arange(3), np.full(3, C.ACT_EAT), tg)
+    args = (_agents0(w, 3), NOON, np.arange(3), np.full(3, CV.ACT_EAT), tg)
     kw = dict(is_eat=np.ones(3, dtype=bool), is_buy_like=np.zeros(3, dtype=bool))
     assert a.resolve(*args, **kw).tolist() == b.resolve(*args, **kw, intent_out=None).tolist()
     assert a.stats == b.stats
@@ -237,49 +240,49 @@ def _agents0(w, n=1):
 def test_commit_turns_out_of_cell_targets_into_moves_and_proposes_the_intent():
     w, ag, act, il, space, res = _setup(n=3, cells=(0, 0, 3), visible={0: [(4, 30)]})
     home = np.array([2, 0, 3])
-    batch = C.intents_from_responses(
+    batch = CW.intents_from_responses(
         ag, w, space, NOON, np.array([0, 1, 2]), np.full(3, 3),
-        np.array([C.ACT_EAT, C.ACT_TALK, C.ACT_SLEEP]),
+        np.array([CV.ACT_EAT, CV.ACT_TALK, CV.ACT_SLEEP]),
         home_cell=home, targets=[parse_target("カフェ・ベローチェ"), parse_target("P-2"), None],
         target_person=np.array([-1, 2, -1]),
         poi_resolver=res, intent_hold=il, vocab_version="v3", run_salt=SALT,
     )
     # 食事(名指し・見える店)→ セル 2・会話(相手 P-2 はセル 3)→ セル 3・就寝(自宅 3=今いるセル)→ そのまま
-    assert batch.action_code.tolist() == [C.ACT_MOVE, C.ACT_MOVE, C.ACT_SLEEP]
+    assert batch.action_code.tolist() == [CV.ACT_MOVE, CV.ACT_MOVE, CV.ACT_SLEEP]
     assert batch.target_id.tolist() == [2, 3, 3]
     assert batch.resource_id.tolist()[:2] == [-1, -1]
     assert il._proposals == {
-        0: (C.ACT_EAT, 4, int(IntentKind.POI_NAMED), 2),
-        1: (C.ACT_TALK, 2, int(IntentKind.PERSON), 3),
+        0: (CV.ACT_EAT, 4, int(IntentKind.POI_NAMED), 2),
+        1: (CV.ACT_TALK, 2, int(IntentKind.PERSON), 3),
     }
     # 就寝: 自宅が別セル → 自宅へ
     il2 = IntentLayer(3, w)
-    b2 = C.intents_from_responses(
-        ag, w, space, NOON, np.array([0]), np.array([3]), np.array([C.ACT_SLEEP]),
+    b2 = CW.intents_from_responses(
+        ag, w, space, NOON, np.array([0]), np.array([3]), np.array([CV.ACT_SLEEP]),
         home_cell=np.array([2, 0, 3]), targets=[None], poi_resolver=res, intent_hold=il2,
         vocab_version="v3",
     )
-    assert b2.action_code.tolist() == [C.ACT_MOVE] and b2.target_id.tolist() == [2]
-    assert il2._proposals == {0: (C.ACT_SLEEP, 2, int(IntentKind.BED), 2)}
+    assert b2.action_code.tolist() == [CV.ACT_MOVE] and b2.target_id.tolist() == [2]
+    assert il2._proposals == {0: (CV.ACT_SLEEP, 2, int(IntentKind.BED), 2)}
     # 意図の層が無ければ従来どおり(食事=候補 0・会話=フォールバック・就寝=自宅)
-    b3 = C.intents_from_responses(
+    b3 = CW.intents_from_responses(
         ag, w, space, NOON, np.array([0, 1]), np.full(2, 3),
-        np.array([C.ACT_EAT, C.ACT_TALK]), home_cell=home,
+        np.array([CV.ACT_EAT, CV.ACT_TALK]), home_cell=home,
         targets=[parse_target("カフェ・ベローチェ"), parse_target("P-2")],
         target_person=np.array([-1, 2]), poi_resolver=res, vocab_version="v3", run_salt=SALT,
     )
-    assert b3.action_code.tolist() == [C.ACT_EAT, C.ACT_TALK]
+    assert b3.action_code.tolist() == [CV.ACT_EAT, CV.ACT_TALK]
 
 
 # ------------------------------------------------------------------ 着いたら実行
 def test_intent_is_set_walks_arrives_and_executes_without_an_llm_call():
     w, ag, act, il, space, res = _setup(n=2, cells=(0, 0), visible={0: [(4, 30)]})
     t = NOON
-    batch = _respond(w, ag, space, res, il, t, 0, C.ACT_EAT, "カフェ・ベローチェ")
-    applied = ([0], [C.ACT_EAT], [_payload()])
+    batch = _respond(w, ag, space, res, il, t, 0, CV.ACT_EAT, "カフェ・ベローチェ")
+    applied = ([0], [CV.ACT_EAT], [_payload()])
     _tick(w, ag, act, il, space, t, batch, applied)
     r = ag.registry
-    assert int(r.intent_action[0]) == C.ACT_EAT and int(r.intent_target[0]) == 4
+    assert int(r.intent_action[0]) == CV.ACT_EAT and int(r.intent_target[0]) == 4
     assert int(r.intent_kind[0]) == int(IntentKind.POI_NAMED) and int(r.intent_since[0]) == t
     assert int(r.activity[0]) == int(Activity.MOVING)
     assert int(r.activity_kind[0]) == int(ActivityKind.MOVE_TO)
@@ -292,8 +295,8 @@ def test_intent_is_set_walks_arrives_and_executes_without_an_llm_call():
     assert 0 in a_.tolist() and 0 not in kept.tolist()
     # 次の tick に LLM を呼ばずエンジンが食事を実行する
     arr = _tick(w, ag, act, il, space, t + 2)
-    assert arr.agent_id.tolist() == [0] and arr.action_code.tolist() == [C.ACT_EAT]
-    assert int(r.last_action[0]) == C.ACT_EAT and int(r.last_result[0]) == int(ResultCode.OK)
+    assert arr.agent_id.tolist() == [0] and arr.action_code.tolist() == [CV.ACT_EAT]
+    assert int(r.last_action[0]) == CV.ACT_EAT and int(r.last_result[0]) == int(ResultCode.OK)
     assert int(r.intent_action[0]) == INTENT_NONE
     # 活動は LLM が言った活動(食事・30 分)に**実行の tick から**戻る
     assert int(r.activity_kind[0]) == int(ActivityKind.IN_SHOP)
@@ -308,8 +311,8 @@ def test_failure_on_arrival_writes_the_code_and_the_fail_immediate_rule_holds():
     # 立てたときは営業中・歩いている途中で閉店 → 着いて CLOSED・活動なし → 次 tick に満了
     w, ag, act, il, space, res = _setup(n=1, cells=(0,), visible={0: [(4, 30)]})
     t = NOON
-    batch = _respond(w, ag, space, res, il, t, 0, C.ACT_EAT, "カフェ・ベローチェ")
-    applied = ([0], [C.ACT_EAT], [_payload(text="なし")])
+    batch = _respond(w, ag, space, res, il, t, 0, CV.ACT_EAT, "カフェ・ベローチェ")
+    applied = ([0], [CV.ACT_EAT], [_payload(text="なし")])
     _tick(w, ag, act, il, space, t, batch, applied)
     _tick(w, ag, act, il, space, t + 1)
     with w.writable():
@@ -317,7 +320,7 @@ def test_failure_on_arrival_writes_the_code_and_the_fail_immediate_rule_holds():
         w.pois.open_now[4] = 0
     _tick(w, ag, act, il, space, t + 2)
     r = ag.registry
-    assert int(r.last_result[0]) == int(ResultCode.CLOSED) and int(r.last_action[0]) == C.ACT_EAT
+    assert int(r.last_result[0]) == int(ResultCode.CLOSED) and int(r.last_action[0]) == CV.ACT_EAT
     assert int(r.intent_action[0]) == INTENT_NONE
     assert int(r.activity_until[0]) == t + 3  # 失敗∧活動なし → 次 tick 満了(規則はそのまま)
     s = il.counters()
@@ -328,15 +331,15 @@ def test_too_far_stops_the_walk_and_writes_the_new_code():
     w, ag, act, il, space, res = _setup(n=1, cells=(0,))
     t = NOON
     # セル 3(2 ホップ)へ歩いている体に、立てたのがずっと前の意図を持たせる
-    b = C.IntentBatch(np.array([0]), np.array([C.ACT_MOVE], dtype=np.int8), np.array([3], np.int32),
+    b = C.IntentBatch(np.array([0]), np.array([CV.ACT_MOVE], dtype=np.int8), np.array([3], np.int32),
                       np.array([-1], np.int32), np.array([C.tick_start_ns(t)]))
     R.apply(b, C.IntentBatch.empty(), ag, w, t, vocab_version="v3")
-    R.set_intent(ag, np.array([0]), [C.ACT_BUY], [7], [int(IntentKind.POI_NAMED)],
+    R.set_intent(ag, np.array([0]), [CV.ACT_BUY], [7], [int(IntentKind.POI_NAMED)],
                  t - INTENT_MAX_TICKS - 1)
     il.after_apply(ag, t, act, None)
     r = ag.registry
     assert int(r.last_result[0]) == int(ResultCode.TOO_FAR)
-    assert int(r.last_action[0]) == C.ACT_BUY
+    assert int(r.last_action[0]) == CV.ACT_BUY
     assert int(r.activity[0]) == int(Activity.IDLE) and int(r.target_node[0]) == -1
     assert int(r.intent_action[0]) == INTENT_NONE
     assert int(r.activity_until[0]) == t + 1  # 次 tick に考え直す
@@ -346,13 +349,13 @@ def test_too_far_stops_the_walk_and_writes_the_new_code():
 def test_no_route_at_set_time_is_unreachable_with_the_intended_action_as_subject(monkeypatch):
     w, ag, act, il, space, res = _setup(n=1, cells=(0,), visible={0: [(4, 30)]})
     t = NOON
-    batch = _respond(w, ag, space, res, il, t, 0, C.ACT_EAT, "カフェ・ベローチェ")
+    batch = _respond(w, ag, space, res, il, t, 0, CV.ACT_EAT, "カフェ・ベローチェ")
     monkeypatch.setattr(type(w.graph), "route_next_node",
                         lambda self, node, dest: np.full(np.asarray(node).shape, -1))
-    _tick(w, ag, act, il, space, t, batch, ([0], [C.ACT_EAT], [_payload()]))
+    _tick(w, ag, act, il, space, t, batch, ([0], [CV.ACT_EAT], [_payload()]))
     r = ag.registry
     assert int(r.last_result[0]) == int(ResultCode.UNREACHABLE)
-    assert int(r.last_action[0]) == C.ACT_EAT and int(r.intent_action[0]) == INTENT_NONE
+    assert int(r.last_action[0]) == CV.ACT_EAT and int(r.intent_action[0]) == INTENT_NONE
     s = il.counters()
     assert s["set"] == 0 and s["set_failed"] == 1 and s["set_failed_by_result"] == {"unreachable": 1}
 
@@ -362,9 +365,9 @@ def test_plan_boundary_depart_and_sleep_drop_the_intent():
     w, ag, act, il, space, res = _setup(n=2, cells=(0, 0), visible={0: [(4, 30)]})
     t = NOON
     for a in (0, 1):
-        batch = _respond(w, ag, space, res, il, t, a, C.ACT_EAT, "カフェ・ベローチェ")
-        _tick(w, ag, act, il, space, t, batch, ([a], [C.ACT_EAT], [_payload()]))
-    assert ag.registry.intent_action.tolist() == [C.ACT_EAT, C.ACT_EAT]
+        batch = _respond(w, ag, space, res, il, t, a, CV.ACT_EAT, "カフェ・ベローチェ")
+        _tick(w, ag, act, il, space, t, batch, ([a], [CV.ACT_EAT], [_payload()]))
+    assert ag.registry.intent_action.tolist() == [CV.ACT_EAT, CV.ACT_EAT]
     R.rail_depart(ag, np.array([0]), np.array([0]))            # DEPART(域外へ)
     with ag.writable():
         ag.registry.sleep_pending[1] = 1                        # SLEEP(就寝の意図)
@@ -382,9 +385,9 @@ def _row(t, code, target=-1):
 def _walk_to_cell3(t):
     """セル 0 → セル 3(2 ホップ)の店(おむすび権米衛=POI 6)へ食事の意図で歩き出した体。"""
     w, ag, act, il, space, res = _setup(n=1, cells=(0,), visible={0: [(6, 10)]})
-    batch = _respond(w, ag, space, res, il, t, 0, C.ACT_EAT, "おむすび権米衛")
-    _tick(w, ag, act, il, space, t, batch, ([0], [C.ACT_EAT], [_payload()]))
-    assert int(ag.registry.intent_action[0]) == C.ACT_EAT
+    batch = _respond(w, ag, space, res, il, t, 0, CV.ACT_EAT, "おむすび権米衛")
+    _tick(w, ag, act, il, space, t, batch, ([0], [CV.ACT_EAT], [_payload()]))
+    assert int(ag.registry.intent_action[0]) == CV.ACT_EAT
     assert int(ag.registry.activity[0]) == int(Activity.MOVING)
     return w, ag, act, il, space, res
 
@@ -392,8 +395,8 @@ def _walk_to_cell3(t):
 def test_a_world_touching_response_supersedes_the_intent():
     t = NOON
     w, ag, act, il, space, res = _walk_to_cell3(t)
-    _tick(w, ag, act, il, space, t + 1, _row(t + 1, C.ACT_TALK),
-          ([0], [C.ACT_TALK], [_payload(text="話す")]))
+    _tick(w, ag, act, il, space, t + 1, _row(t + 1, CV.ACT_TALK),
+          ([0], [CV.ACT_TALK], [_payload(text="話す")]))
     assert int(ag.registry.intent_action[0]) == INTENT_NONE
     assert il.counters()["dropped"] == {"superseded": 1}
 
@@ -403,19 +406,19 @@ def test_none_and_wait_keep_the_intent_and_the_walk_q20():
     t = NOON
     w, ag, act, il, space, res = _walk_to_cell3(t)
     r = ag.registry
-    _tick(w, ag, act, il, space, t + 1, _row(t + 1, C.ACT_NONE),
-          ([0], [C.ACT_NONE], [_payload(text="休む")]))
-    assert int(r.intent_action[0]) == C.ACT_EAT
+    _tick(w, ag, act, il, space, t + 1, _row(t + 1, CV.ACT_NONE),
+          ([0], [CV.ACT_NONE], [_payload(text="休む")]))
+    assert int(r.intent_action[0]) == CV.ACT_EAT
     assert int(r.activity[0]) == int(Activity.MOVING)          # 歩みを止めない
     assert int(r.activity_kind[0]) == int(ActivityKind.MOVE_TO)  # 活動は目的地つき移動に戻す
     assert int(act.until_kind[0]) == int(UntilKind.ARRIVAL)
-    _tick(w, ag, act, il, space, t + 2, _row(t + 2, C.ACT_WAIT))
-    assert int(r.intent_action[0]) == C.ACT_EAT and int(r.activity[0]) == int(Activity.MOVING)
+    _tick(w, ag, act, il, space, t + 2, _row(t + 2, CV.ACT_WAIT))
+    assert int(r.intent_action[0]) == CV.ACT_EAT and int(r.activity[0]) == int(Activity.MOVING)
     for k in range(3, 8):
         _tick(w, ag, act, il, space, t + k)
         if int(r.intent_action[0]) == INTENT_NONE:
             break
-    assert int(r.last_action[0]) == C.ACT_EAT and int(r.last_result[0]) == int(ResultCode.OK)
+    assert int(r.last_action[0]) == CV.ACT_EAT and int(r.last_result[0]) == int(ResultCode.OK)
     s = il.counters()
     assert s["kept"]["none_or_wait"] == 2 and s["done"] == 1 and "superseded" not in s["dropped"]
 
@@ -423,10 +426,10 @@ def test_none_and_wait_keep_the_intent_and_the_walk_q20():
 def test_a_move_to_the_same_destination_keeps_and_a_different_one_supersedes_q20():
     t = NOON
     w, ag, act, il, space, res = _walk_to_cell3(t)
-    _tick(w, ag, act, il, space, t + 1, _row(t + 1, C.ACT_MOVE, 3))
-    assert int(ag.registry.intent_action[0]) == C.ACT_EAT
+    _tick(w, ag, act, il, space, t + 1, _row(t + 1, CV.ACT_MOVE, 3))
+    assert int(ag.registry.intent_action[0]) == CV.ACT_EAT
     assert il.counters()["kept"] == {"same_dest_move": 1}
-    _tick(w, ag, act, il, space, t + 2, _row(t + 2, C.ACT_MOVE, 1))
+    _tick(w, ag, act, il, space, t + 2, _row(t + 2, CV.ACT_MOVE, 1))
     assert int(ag.registry.intent_action[0]) == INTENT_NONE
     assert il.counters()["dropped"] == {"superseded": 1}
 
@@ -434,20 +437,20 @@ def test_a_move_to_the_same_destination_keeps_and_a_different_one_supersedes_q20
 def test_a_none_response_of_an_arrived_agent_is_dropped_and_the_intent_executes_q20():
     w, ag, act, il, space, res = _setup(n=1, cells=(0,), visible={0: [(4, 30)]})
     t = NOON
-    batch = _respond(w, ag, space, res, il, t, 0, C.ACT_EAT, "カフェ・ベローチェ")
-    _tick(w, ag, act, il, space, t, batch, ([0], [C.ACT_EAT], [_payload()]))
+    batch = _respond(w, ag, space, res, il, t, 0, CV.ACT_EAT, "カフェ・ベローチェ")
+    _tick(w, ag, act, il, space, t, batch, ([0], [CV.ACT_EAT], [_payload()]))
     _tick(w, ag, act, il, space, t + 1)
     assert int(ag.registry.cell[0]) == 2 and int(ag.registry.activity[0]) == int(Activity.IDLE)
-    arr = _tick(w, ag, act, il, space, t + 2, _row(t + 2, C.ACT_NONE),
-                ([0], [C.ACT_NONE], [_payload(text="休む")]))
-    assert arr.action_code.tolist() == [C.ACT_EAT]
-    assert int(ag.registry.last_action[0]) == C.ACT_EAT
+    arr = _tick(w, ag, act, il, space, t + 2, _row(t + 2, CV.ACT_NONE),
+                ([0], [CV.ACT_NONE], [_payload(text="休む")]))
+    assert arr.action_code.tolist() == [CV.ACT_EAT]
+    assert int(ag.registry.last_action[0]) == CV.ACT_EAT
     assert il.counters()["kept"] == {"due_response_dropped": 1, "none_or_wait": 1}
 
 
 def test_suppress_wakes_drops_cell_block_and_expiry_only_for_holders():
     w, ag, act, il, space, res = _setup(n=2, cells=(0, 0))
-    R.set_intent(ag, np.array([0]), [C.ACT_BUY], [7], [int(IntentKind.POI_NAMED)], NOON)
+    R.set_intent(ag, np.array([0]), [CV.ACT_BUY], [7], [int(IntentKind.POI_NAMED)], NOON)
     agent = np.array([0, 0, 0, 1, 1])
     cond = np.array([int(WakeCondition.CELL_BLOCK), int(WakeCondition.ACTIVITY_EXPIRY),
                      int(WakeCondition.INTEROCEPTION), int(WakeCondition.CELL_BLOCK),
@@ -468,7 +471,7 @@ def test_move_to_a_person_goes_to_that_persons_cell_q18():
     ag.registry.cell[:] = np.array([0, 3, -1, 0])
     res = TargetResolver(world=w, chooser=NearestChooser(), seed=1)
     tg = [parse_target(s) for s in ("P-1", "P-0", "P-2", "P-99")]
-    out = res.resolve_move(ag, NOON, np.array([0, 0, 3, 3]), np.full(4, C.ACT_MOVE), tg,
+    out = res.resolve_move(ag, NOON, np.array([0, 0, 3, 3]), np.full(4, CV.ACT_MOVE), tg,
                            np.ones(4, dtype=bool))
     # 体 0→P-1(セル 3)/ 体 0→自分(今いるセル)/ 体 3→P-2(域外)/ 体 3→存在しない人
     assert out.tolist() == [3, 0, MOVE_BAD_TARGET, MOVE_BAD_TARGET]
@@ -489,7 +492,7 @@ def test_b5_intent_line_only_for_holders_within_15_tokens():
     r = Renderer(w, a, seed=3, vocab_version="v3")
     r.prepare_tick(700)
     before = [r.render(i, tick=700, wake_reason=3) for i in (0, 1)]
-    R.set_intent(a, np.array([0]), [C.ACT_EAT], [4], [int(IntentKind.POI_NAMED)], 690)
+    R.set_intent(a, np.array([0]), [CV.ACT_EAT], [4], [int(IntentKind.POI_NAMED)], 690)
     after = [r.render(i, tick=700, wake_reason=3) for i in (0, 1)]
     b5 = after[0].blocks["B5"].decode("utf-8")
     line = next(x for x in b5.split("\n") if x.startswith("[B5 意図]"))

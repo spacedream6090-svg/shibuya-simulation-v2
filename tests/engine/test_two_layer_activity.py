@@ -31,7 +31,10 @@ from shibuya.world.model.agent_table import (
     AgentState,
 )
 from shibuya.foundation.types import EventClass
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.act.activity import (
     ActivityLayer,
@@ -167,7 +170,7 @@ def test_wander_destinations_are_within_the_radius_and_deterministic():
     d3 = layer.wander_destinations(ids, cells, 101)
     assert not np.array_equal(d1, d3)
     bad = layer.wander_destinations(np.array([0]), np.array([-1]), 100)
-    assert bad.tolist() == [C.WANDER_BAD_TARGET]
+    assert bad.tolist() == [CV.WANDER_BAD_TARGET]
 
 
 def test_wander_bad_target_fails_as_bad_target():
@@ -177,7 +180,7 @@ def test_wander_bad_target_fails_as_bad_target():
     a.freeze()
     out = R.ResolveOutcome(tick=5)
     with a.writable(), w.writable():
-        R._apply_move(a, w, np.array([0, 1]), np.array([C.WANDER_BAD_TARGET, 3]), 5, out, None)
+        R._apply_move(a, w, np.array([0, 1]), np.array([CV.WANDER_BAD_TARGET, 3]), 5, out, None)
     assert a.last_result[0] == int(ResultCode.BAD_TARGET)
     assert a.last_result[1] == int(ResultCode.OK)
 
@@ -295,7 +298,7 @@ def test_arrival_and_failure_settle_the_activity():
         a.last_result[2] = int(ResultCode.CLOSED)
         a.last_result_tick[2] = 10
     layer.after_resolve(
-        a, 10, [0, 1, 2], [C.ACT_MOVE, C.ACT_MOVE, C.ACT_BUY],
+        a, 10, [0, 1, 2], [CV.ACT_MOVE, CV.ACT_MOVE, CV.ACT_BUY],
         [_payload("なし", UntilKind.ARRIVAL, 0), _payload("なし", UntilKind.ARRIVAL, 0),
          _payload("なし", UntilKind.MINUTES, 30)],
     )
@@ -306,8 +309,8 @@ def test_arrival_and_failure_settle_the_activity():
 
 
 def test_activity_kind_mapping():
-    codes = np.array([C.ACT_MOVE, C.ACT_MOVE, C.ACT_BOARD, C.ACT_BUY, C.ACT_EAT, C.ACT_QUEUE,
-                      C.ACT_SLEEP, NONE_ACTION_CODE, C.ACT_TALK, UNDEFINED_ACTION])
+    codes = np.array([CV.ACT_MOVE, CV.ACT_MOVE, CV.ACT_BOARD, CV.ACT_BUY, CV.ACT_EAT, CV.ACT_QUEUE,
+                      CV.ACT_SLEEP, NONE_ACTION_CODE, CV.ACT_TALK, UNDEFINED_ACTION])
     wander = np.array([False, True] + [False] * 8)
     got = activity_kind_of(codes, wander).tolist()
     K = ActivityKind
@@ -321,7 +324,7 @@ def test_resting_bodies_recover_fatigue_every_ten_ticks():
     with a.writable():
         a.fatigue[:] = 5
         a.activity[:] = int(Activity.IDLE)
-    layer.after_resolve(a, 0, [0, 1, 2], [NONE_ACTION_CODE, C.ACT_BUY, C.ACT_MOVE],
+    layer.after_resolve(a, 0, [0, 1, 2], [NONE_ACTION_CODE, CV.ACT_BUY, CV.ACT_MOVE],
                         [_payload(value=60)] * 3)
     R.advance_body(a, 10)
     assert a.fatigue.tolist() == [4, 4, 5], "その場・在店は −1・移動の活動は回復しない"
@@ -352,7 +355,7 @@ def _one_tick(action_code: int, target_cat: str):
         a.registry.money[:] = 100_000
     tick = 700
     space = C.ResourceSpace(w.n_poi, a.n, w.n_cells)
-    batch = C.intents_from_responses(
+    batch = CW.intents_from_responses(
         a, w, space, tick, np.array([0]), np.zeros(1, dtype=np.int64),
         np.array([action_code]), vocab_version="v3",
     )
@@ -363,9 +366,9 @@ def _one_tick(action_code: int, target_cat: str):
 
 @pytest.mark.parametrize("cat,counter", [("eatery", "n_queue_to_eat"), ("other", "n_queue_to_buy")])
 def test_queue_delegates_to_eat_or_buy(cat, counter):
-    a, w, batch, out = _one_tick(C.ACT_QUEUE, cat)
+    a, w, batch, out = _one_tick(CV.ACT_QUEUE, cat)
     assert getattr(out, counter) == 1
-    assert out.per_action.get(C.ACT_QUEUE) == 1 and a.last_action[0] == C.ACT_QUEUE
+    assert out.per_action.get(CV.ACT_QUEUE) == 1 and a.last_action[0] == CV.ACT_QUEUE
 
 
 def test_undefined_falls_back_to_none_in_v3():
@@ -376,9 +379,9 @@ def test_undefined_falls_back_to_none_in_v3():
     a1 = AgentState(1)
     R.initialize(a1, w1, synthesize(1, 1, w1.n_cells))
     space = C.ResourceSpace(w1.n_poi, 1, w1.n_cells)
-    b1 = C.intents_from_responses(a1, w1, space, 5, np.array([0]), np.zeros(1, dtype=np.int64),
+    b1 = CW.intents_from_responses(a1, w1, space, 5, np.array([0]), np.zeros(1, dtype=np.int64),
                                   np.array([UNDEFINED_ACTION]))
-    assert b1.action_code.tolist() == [C.ACT_WAIT], "v1 は待機のまま"
+    assert b1.action_code.tolist() == [CV.ACT_WAIT], "v1 は待機のまま"
 
 
 def test_queue_without_a_poi_is_bad_target():

@@ -23,7 +23,9 @@ from shibuya.economy import ops as OPS
 from shibuya.economy import stage2 as S2
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.economy import stage2_bind as ES2
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.journal.links import MoneyEventLink
@@ -106,7 +108,7 @@ def _batch(ids, with_calls: bool) -> C.IntentBatch:
         import dataclasses
 
         b = dataclasses.replace(b, call_id=np.array([f"1:{i}:2" for i in ids], dtype=object),
-                                s2_flags=np.full(n, C.S2_MONEY_ACT, dtype=np.int8))
+                                s2_flags=np.full(n, CV.S2_MONEY_ACT, dtype=np.int8))
     return b
 
 
@@ -115,9 +117,9 @@ def test_intent_batch_carries_the_calls_and_fills_the_rest():
     assert plain.call_id is None and plain.s2_flags is None  # どこも持たない=今のまま
     mixed = C.IntentBatch.concat([_batch([5, 6], True), _batch([7], False)])
     assert list(mixed.call_id) == ["1:5:2", "1:6:2", None]
-    assert list(mixed.s2_flags) == [C.S2_MONEY_ACT, C.S2_MONEY_ACT, 0]
+    assert list(mixed.s2_flags) == [CV.S2_MONEY_ACT, CV.S2_MONEY_ACT, 0]
     t = mixed.take([2, 0])
-    assert list(t.call_id) == [None, "1:5:2"] and list(t.s2_flags) == [0, C.S2_MONEY_ACT]
+    assert list(t.call_id) == [None, "1:5:2"] and list(t.s2_flags) == [0, CV.S2_MONEY_ACT]
     one = C.IntentBatch.concat([_batch([5], True), _batch([5, 6], False)]).one_per_agent()
     assert len(one) == 2 and one.call_id is not None
     with pytest.raises(ValueError):
@@ -181,8 +183,8 @@ def test_decision_layer_hints_are_taken_once():
     lay._note_stage2(6, Choice(candidate_id="vocab:購入", number=1, kind="購入", payment="カード"))
     lay._note_stage2(7, Choice(candidate_id="vocab:食事", number=1, kind="食事", payment="現金"))
     lay._note_stage2(8, Choice(candidate_id="vocab:移動", number=1, kind="移動", payment="カード"))  # 購入・食事でない
-    assert lay.take_stage2_hint(5) == (C.S2_WITHDRAW,) and lay.take_stage2_hint(5) == ()
-    assert lay.take_stage2_hint(6) == (C.S2_PAY_ACCOUNT,) and lay.take_stage2_hint(7) == (C.S2_PAY_CASH,)
+    assert lay.take_stage2_hint(5) == (CV.S2_WITHDRAW,) and lay.take_stage2_hint(5) == ()
+    assert lay.take_stage2_hint(6) == (CV.S2_PAY_ACCOUNT,) and lay.take_stage2_hint(7) == (CV.S2_PAY_CASH,)
     assert lay.take_stage2_hint(8) == ()
     st = lay.meter["stage2"]
     assert st["withdraw_chosen"] == 1 and st["payment_answered"] == 2

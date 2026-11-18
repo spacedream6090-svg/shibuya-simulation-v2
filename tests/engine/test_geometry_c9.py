@@ -25,7 +25,9 @@ from tests import _time_gates as TG
 from shibuya.foundation.vocab.agent_codes import Activity, RESULT_TEXT, ResultCode
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.budget import budget_by_id, load_budget_table
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.world.model import geometry as G
 from shibuya.engine import resolve as R
 from shibuya.engine.run import run_day
@@ -92,7 +94,7 @@ def test_density_stage_edges_are_the_fruin_los_boundaries():
 
 def test_mix64_matches_the_presence_definition():
     """``geometry._mix64`` は ``presence``/``build.sched`` と**同じ式**(三重定義の機械検査)。"""
-    from shibuya.engine.presence import _mix64 as presence_mix64
+    from shibuya.world.laws.presence_plan import _mix64 as presence_mix64
 
     x = np.arange(64, dtype=np.uint64) * np.uint64(2_654_435_761)
     assert np.array_equal(G._mix64(x), presence_mix64(x))
@@ -254,7 +256,7 @@ def test_engine_step_writes_unreachable_end_to_end_in_edge_mode():
     g = G.EdgeGeometry(w.assets, seed=1, n_agents=4)
     batch = C.IntentBatch(
         agent_id=np.arange(4, dtype=np.int64),
-        action_code=np.full(4, C.ENGINE_STEP, dtype=np.int8),
+        action_code=np.full(4, CV.ENGINE_STEP, dtype=np.int8),
         target_id=np.full(4, dst, dtype=np.int32),
         resource_id=np.full(4, -1, dtype=np.int32),
         t_notice_ns=np.zeros(4, dtype=np.int64),

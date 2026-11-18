@@ -126,7 +126,7 @@ def resolver(chooser, sc):
 
 
 def test_resolver_uses_recall_first_only_with_classical_and_unnamed_targets():
-    from shibuya.engine import commit as Cm
+    from shibuya.foundation.vocab import act_codes as Cm
 
     w, a, lay, sc = setup()
     _fit, _o, _s, eat = masks(w)

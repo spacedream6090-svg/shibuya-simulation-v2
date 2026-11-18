@@ -5,7 +5,9 @@ from __future__ import annotations
 import numpy as np
 
 from shibuya.foundation.vocab.agent_codes import Activity, AgentKind, ResultCode
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.world.laws.civic import (
     DISPATCH_MEDIAN_MIN,
@@ -117,7 +119,7 @@ def test_hotel_bed_lets_a_visitor_sleep_away_from_home():
     ids = np.concatenate([guests, other])
     intents = C.IntentBatch(
         agent_id=ids,
-        action_code=np.full(ids.size, C.ACT_SLEEP, dtype=np.int8),
+        action_code=np.full(ids.size, CV.ACT_SLEEP, dtype=np.int8),
         target_id=np.full(ids.size, -1, dtype=np.int32),
         resource_id=np.full(ids.size, -1, dtype=np.int32),
         t_notice_ns=np.zeros(ids.size, dtype=np.int64),

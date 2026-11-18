@@ -30,7 +30,7 @@ def legacy_world_rules(mp: Any, *, rate: bool = True, absent: bool = True, salie
         absent: 「無い」と宣言した過程 5 件の旧道(``absent_processes="legacy"``)。
         salient_rate: 倒れる率[件/1 万体/日](``None``=部品の既定 3.0)。旧道の顕著行為の過程にだけ効く。
     """
-    from shibuya.engine import presence as PE
+    from shibuya.world.laws import presence as PE
     from shibuya.world.laws import runner as RN
 
     runner_init = RN.WorldProcessRunner.__init__

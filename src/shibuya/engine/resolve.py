@@ -89,7 +89,7 @@ from shibuya.world.body.rules import (  # 〔第 3 期 3-5〕体の層へ移し�
 from shibuya.world.body.energy import INTAKE_DRINK, INTAKE_SNACK, EnergyModel
 from shibuya.world.model.geometry import EdgeGeometry
 from shibuya.foundation.ports.ledger import LedgerBundle
-from shibuya.engine.commit import (
+from shibuya.foundation.vocab.act_codes import (
     ACT_ALIGHT,
     ACT_BOARD,
     ACT_BUY,
@@ -111,6 +111,8 @@ from shibuya.engine.commit import (
     S2_PAY_CASH,
     S2_WITHDRAW,
     WANDER_BAD_TARGET,
+)
+from shibuya.act.commit import (
     IntentBatch,
 )
 from shibuya.foundation.vocab.actions import DEFAULT_VOCAB_VERSION, check_vocab_version

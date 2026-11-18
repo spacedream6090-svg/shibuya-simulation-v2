@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 6 本・その他 0 本(このディレクトリの直下)
+Python 7 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [rights](rights/README.md)・[rules](rules/README.md)
 
@@ -72,6 +72,18 @@ agents.population — W16 母集団(``w16_population.parquet``)の読み込み�
 - 読む試験: `tests/build_pop/test_pop_pipeline.py`・`tests/build_pop/test_pop_units.py`・`tests/build_pop/test_w21_stage10_swap.py`・`tests/c6/test_t5_order_bias.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_pop_w21_world.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_relations_tenure.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/tools/test_c0_groups_from_w16.py`・`tests/llm/test_fleet_contract.py`
 - 読む試験(道筋で): `tests/engine/bridging/test_bridging_ledger.py`
 
+## [w20_calendar_reader.py](../../../../../../../../src/shibuya/world/facts/w20_calendar_reader.py)
+
+world.facts.w20_calendar_reader — 割る段で ``engine/calendar_shadow.py`` を割った割り先(全ファイルの表 §4・名の表は``tools/pkgmove/map.toml`` の割る行)。
+
+- 公開の関数とクラス
+  - `CalendarTable`(クラス): ランの体の並びに引き直した W20 の週の表(配列は ``(体, 週, 曜日)``)と版の記録。
+  - `load_table`(関数): W20 の週の表を読み、ランの体の並び(``agent_ids``=W16 の ``agent_id``)に引き直す。
+  - `resolve_path`(関数): W20 の週の表の道筋(環境変数 ``SHIBUYA_CALENDAR_W20`` があればそれ・無ければ ``<world_dir>/w20_calendar_1a.parquet``)。
+- 呼び手: `shibuya.interim_bundles.calendar3.roster`・`shibuya.interim_bundles.calendar_self`・`shibuya.society.calendar_shadow`・`tools/instruments/anchor_gauge.py`
+- 読む試験: `tests/build_sched/test_w20_calendar_1a.py`・`tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/calendar/test_calendar_shadow.py`
+- 環境変数: `SHIBUYA_CALENDAR_W20`
+
 ## [weekly_reader.py](../../../../../../../../src/shibuya/world/facts/weekly_reader.py)
 
 agents.weekly — W17 週次活動表(``w17_schedule.parquet``)の読み込みと計画境界の取り出し。
@@ -85,6 +97,6 @@ agents.weekly — W17 週次活動表(``w17_schedule.parquet``)の読み込み�
   - `load_weekly_file`(関数): **ファイル名を問わず**1 つの parquet から週次表を組む。
   - `weekly_available`(関数): ``<world_dir>/w17_schedule.parquet`` があるか。
 - import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`
-- 呼び手: `shibuya.engine.calendar_shadow`・`shibuya.engine.presence`・`shibuya.runtime.systems.assemble`・`shibuya.world.body.energy`・`tools/instruments/anchor_gauge.py`・`tools/w17/diversity_yardstick.py`
+- 呼び手: `shibuya.runtime.systems.assemble`・`shibuya.society.calendar_shadow`・`shibuya.world.body.energy`・`shibuya.world.laws.presence`・`shibuya.world.laws.presence_plan`・`tools/instruments/anchor_gauge.py`・`tools/w17/diversity_yardstick.py`
 - 読む試験: `tests/build_pop/test_w21_stage10_swap.py`・`tests/build_sched/test_trial.py`・`tests/build_sched/test_weekly_loader.py`・`tests/engine/body/test_meal_default_w17.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_relations.py`・`tests/engine/test_relations_8b.py`・`tests/engine/test_relations_tenure.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/time/test_t0_time_consts.py`・`tests/w17/test_diversity_yardstick.py`
 - 決定の ID: D-61・D-62・D-68

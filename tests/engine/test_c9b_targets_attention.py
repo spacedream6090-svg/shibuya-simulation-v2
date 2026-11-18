@@ -35,7 +35,10 @@ from shibuya.foundation.vocab.agent_codes import (
 from shibuya.world.model.agent_table import (
     AgentState,
 )
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.society.conversation import ConversationManager
 from shibuya.world.model.geometry import EdgeGeometry
@@ -159,10 +162,10 @@ def test_longest_match_still_wins_over_the_new_two_character_row():
 
 def test_hint_words_and_engine_codes_are_one_to_one():
     """ヒントの語(llm)と索引(engine)が 1 対 1(二重定義の機械検査)。"""
-    assert TARGET_HINT_WORDS[C.TARGET_HINT_NONE] == ""
-    assert TARGET_HINT_WORDS[C.TARGET_HINT_APPROACH] == "approach"
+    assert TARGET_HINT_WORDS[CV.TARGET_HINT_NONE] == ""
+    assert TARGET_HINT_WORDS[CV.TARGET_HINT_APPROACH] == "approach"
     assert set(target_hints("v2").values()) <= set(TARGET_HINT_WORDS)
-    assert C.target_hint_code("見たことのない印") == C.TARGET_HINT_NONE
+    assert CW.target_hint_code("見たことのない印") == CV.TARGET_HINT_NONE
 
 
 # ================================================================ (iii) 固有名 → POI
@@ -267,7 +270,7 @@ def test_approach_walks_to_the_node_nearest_the_target_and_arrives():
     focus[0] = 1  # 個体 0 が個体 1 に近づく
     dest_cell = int(world.assets.node_cell[target_node])
     out = R.apply(
-        _batch([0], C.ACT_MOVE, [dest_cell]), C.IntentBatch.empty(),
+        _batch([0], CV.ACT_MOVE, [dest_cell]), C.IntentBatch.empty(),
         agents, world, 0, geometry=geom, focus_request=focus,
     )
     assert out.n_approach == 1
@@ -275,7 +278,7 @@ def test_approach_walks_to_the_node_nearest_the_target_and_arrives():
     assert int(agents.registry.focus_target[0]) == 1
     # 歩き切るまでエンジン継続を回す
     for tick in range(1, 40):
-        cont = C.engine_continuations(agents, C.ResourceSpace(world.n_poi, agents.n, world.n_cells), tick)
+        cont = CW.engine_continuations(agents, C.ResourceSpace(world.n_poi, agents.n, world.n_cells), tick)
         if len(cont) == 0:
             break
         out = R.apply(cont, C.IntentBatch.empty(), agents, world, tick,
@@ -293,13 +296,13 @@ def test_approach_reports_target_gone_when_nobody_is_there_on_arrival():
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = 1
     dest_cell = int(world.assets.node_cell[target_node])
-    R.apply(_batch([0], C.ACT_MOVE, [dest_cell]), C.IntentBatch.empty(),
+    R.apply(_batch([0], CV.ACT_MOVE, [dest_cell]), C.IntentBatch.empty(),
             agents, world, 0, geometry=geom, focus_request=focus)
     _place(agents, world, 1, 8)  # 対象は別のノードへ行ってしまった
     out = None
     space = C.ResourceSpace(world.n_poi, agents.n, world.n_cells)
     for tick in range(1, 40):
-        cont = C.engine_continuations(agents, space, tick)
+        cont = CW.engine_continuations(agents, space, tick)
         if len(cont) == 0:
             break
         out = R.apply(cont, C.IntentBatch.empty(), agents, world, tick,
@@ -317,7 +320,7 @@ def test_approach_to_an_unreachable_target_fails_with_unreachable():
         agents.registry.cell[1] = -1
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = 1
-    out = R.apply(_batch([0], C.ACT_MOVE, [-1]), C.IntentBatch.empty(),
+    out = R.apply(_batch([0], CV.ACT_MOVE, [-1]), C.IntentBatch.empty(),
                   agents, world, 0, geometry=geom, focus_request=focus)
     assert out.per_result.get(int(ResultCode.UNREACHABLE), 0) == 1
     assert int(agents.registry.last_result[0]) == int(ResultCode.UNREACHABLE)
@@ -329,7 +332,7 @@ def test_approach_to_a_landmark_poi_uses_the_poi_node():
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = int(focus_code_for_poi(poi))
     dest_cell = int(world.assets.poi_cell[poi])
-    out = R.apply(_batch([0], C.ACT_MOVE, [dest_cell]), C.IntentBatch.empty(),
+    out = R.apply(_batch([0], CV.ACT_MOVE, [dest_cell]), C.IntentBatch.empty(),
                   agents, world, 0, geometry=geom, focus_request=focus)
     assert out.n_approach == 1
     want = int(world.assets.poi_node[poi])
@@ -343,7 +346,7 @@ def test_look_sets_the_focus_when_the_target_is_within_the_acquire_radius():
     _place(agents, world, 1, 0)  # 同じノード=距離 0
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = 1
-    out = R.apply(_batch([0], C.ACT_WAIT, [-1]), C.IntentBatch.empty(),
+    out = R.apply(_batch([0], CV.ACT_WAIT, [-1]), C.IntentBatch.empty(),
                   agents, world, 0, geometry=geom, focus_request=focus)
     assert out.n_focus == 1
     assert int(agents.registry.focus_target[0]) == 1
@@ -362,7 +365,7 @@ def test_look_beyond_the_acquire_radius_does_not_set_a_focus_but_still_succeeds(
     )) > R.FOCUS_ACQUIRE_M
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = 1
-    out = R.apply(_batch([0], C.ACT_WAIT, [-1]), C.IntentBatch.empty(),
+    out = R.apply(_batch([0], CV.ACT_WAIT, [-1]), C.IntentBatch.empty(),
                   agents, world, 0, geometry=geom, focus_request=focus)
     assert out.n_focus == 0
     assert int(agents.registry.focus_target[0]) == FOCUS_NONE
@@ -375,7 +378,7 @@ def test_focus_expires_after_its_max_age():
     _place(agents, world, 1, 0)
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = 1
-    R.apply(_batch([0], C.ACT_WAIT, [-1]), C.IntentBatch.empty(),
+    R.apply(_batch([0], CV.ACT_WAIT, [-1]), C.IntentBatch.empty(),
             agents, world, 0, geometry=geom, focus_request=focus)
     out = None
     for tick in range(1, R.FOCUS_TTL_TICKS + 2):
@@ -395,7 +398,7 @@ def test_focus_is_lost_beyond_the_lose_radius_which_is_wider_than_acquire():
     _place(agents, world, 1, 0)
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = 1
-    R.apply(_batch([0], C.ACT_WAIT, [-1]), C.IntentBatch.empty(),
+    R.apply(_batch([0], CV.ACT_WAIT, [-1]), C.IntentBatch.empty(),
             agents, world, 0, geometry=geom, focus_request=focus)
     assert int(agents.registry.focus_target[0]) == 1
     # ``apply`` は末尾で ``xy`` をノード/辺から貼り直すので、距離の検査は
@@ -478,7 +481,7 @@ def test_apply_talk_rejects_a_partner_beyond_the_open_distance():
     world, agents, geom = _edge_world(4)
     with agents.writable():
         agents.registry.xy[1] = np.asarray(agents.registry.xy[0]) + (5.0, 0.0)
-    out = R.apply(_batch([0], C.ACT_TALK, [1]), C.IntentBatch.empty(), agents, world, 0,
+    out = R.apply(_batch([0], CV.ACT_TALK, [1]), C.IntentBatch.empty(), agents, world, 0,
                   geometry=geom, talk_by_distance=True)
     assert out.n_conversations == 0 and out.n_talk_by_distance == 0
     assert int(agents.registry.last_result[0]) == int(ResultCode.PARTNER_GONE)
@@ -486,7 +489,7 @@ def test_apply_talk_rejects_a_partner_beyond_the_open_distance():
     world2, agents2, geom2 = _edge_world(4)
     with agents2.writable():
         agents2.registry.xy[1] = np.asarray(agents2.registry.xy[0]) + (5.0, 0.0)
-    out2 = R.apply(_batch([0], C.ACT_TALK, [1]), C.IntentBatch.empty(), agents2, world2, 0,
+    out2 = R.apply(_batch([0], CV.ACT_TALK, [1]), C.IntentBatch.empty(), agents2, world2, 0,
                    geometry=geom2)
     assert out2.n_conversations == 1 and out2.n_talk_by_distance == 0
 
@@ -560,10 +563,10 @@ def test_focus_upkeep_stays_inside_the_p2_budget():
 def _hint_intent(agents, world, hint, *, person=-1, poi=-1, home=7, work=3, school=5):
     """1 体ぶんの「移動」intent を対象ヒント付きで組む。"""
     n = agents.n
-    return C.intents_from_responses(
+    return CW.intents_from_responses(
         agents, world, C.ResourceSpace(world.n_poi, n, world.n_cells), 0,
         np.array([0], dtype=np.int64), np.zeros(1, dtype=np.int64),
-        np.array([C.ACT_MOVE], dtype=np.int64),
+        np.array([CV.ACT_MOVE], dtype=np.int64),
         home_cell=np.full(n, home, dtype=np.int64),
         work_cell=np.full(n, work, dtype=np.int64),
         school_cell=np.full(n, school, dtype=np.int64),
@@ -576,18 +579,18 @@ def _hint_intent(agents, world, hint, *, person=-1, poi=-1, home=7, work=3, scho
 def test_engine_resolves_home_work_school_hints_to_the_w16_cells():
     """「帰宅」「通勤」「通学」の行き先を**エンジンが**拠点セルに解決する(G5)。"""
     world, agents, _geom = _edge_world(4)
-    assert int(_hint_intent(agents, world, C.TARGET_HINT_HOME).target_id[0]) == 7
-    assert int(_hint_intent(agents, world, C.TARGET_HINT_WORK).target_id[0]) == 3
-    assert int(_hint_intent(agents, world, C.TARGET_HINT_SCHOOL).target_id[0]) == 5
+    assert int(_hint_intent(agents, world, CV.TARGET_HINT_HOME).target_id[0]) == 7
+    assert int(_hint_intent(agents, world, CV.TARGET_HINT_WORK).target_id[0]) == 3
+    assert int(_hint_intent(agents, world, CV.TARGET_HINT_SCHOOL).target_id[0]) == 5
     # 学校を持たない体(``-1``)はヒントが効かず現行の行き先のまま
     n = agents.n
-    got = C.intents_from_responses(
+    got = CW.intents_from_responses(
         agents, world, C.ResourceSpace(world.n_poi, n, world.n_cells), 0,
         np.array([0], dtype=np.int64), np.zeros(1, dtype=np.int64),
-        np.array([C.ACT_MOVE], dtype=np.int64),
+        np.array([CV.ACT_MOVE], dtype=np.int64),
         home_cell=np.full(n, 7, dtype=np.int64), work_cell=np.full(n, 3, dtype=np.int64),
         school_cell=np.full(n, -1, dtype=np.int64),
-        target_hint=np.array([C.TARGET_HINT_SCHOOL], dtype=np.int64),
+        target_hint=np.array([CV.TARGET_HINT_SCHOOL], dtype=np.int64),
     )
     assert int(got.target_id[0]) == 3  # いま自宅に居るので職場(現行の既定)
 
@@ -596,13 +599,13 @@ def test_no_hint_means_the_current_destination_rule():
     """ヒントを渡さなければ**1 バイトも変わらない**(職場/自宅の現行規則)。"""
     world, agents, _geom = _edge_world(4)
     n = agents.n
-    base = C.intents_from_responses(
+    base = CW.intents_from_responses(
         agents, world, C.ResourceSpace(world.n_poi, n, world.n_cells), 0,
         np.array([0], dtype=np.int64), np.zeros(1, dtype=np.int64),
-        np.array([C.ACT_MOVE], dtype=np.int64),
+        np.array([CV.ACT_MOVE], dtype=np.int64),
         home_cell=np.full(n, 7, dtype=np.int64), work_cell=np.full(n, 3, dtype=np.int64),
     )
-    none_hint = _hint_intent(agents, world, C.TARGET_HINT_NONE)
+    none_hint = _hint_intent(agents, world, CV.TARGET_HINT_NONE)
     assert int(base.target_id[0]) == int(none_hint.target_id[0]) == 3
 
 
@@ -610,23 +613,23 @@ def test_approach_hint_targets_the_cell_of_the_person_or_landmark():
     world, agents, _geom = _edge_world(4)
     _place(agents, world, 1, 4)
     want = int(world.assets.node_cell[4])
-    got = _hint_intent(agents, world, C.TARGET_HINT_APPROACH, person=1)
+    got = _hint_intent(agents, world, CV.TARGET_HINT_APPROACH, person=1)
     assert int(got.target_id[0]) == want
     poi = 3
-    got = _hint_intent(agents, world, C.TARGET_HINT_APPROACH, poi=poi)
+    got = _hint_intent(agents, world, CV.TARGET_HINT_APPROACH, poi=poi)
     assert int(got.target_id[0]) == int(world.assets.poi_cell[poi])
     # 対象が取れなければ -1 → ``_apply_move`` が ``UNREACHABLE``
-    assert int(_hint_intent(agents, world, C.TARGET_HINT_APPROACH).target_id[0]) == -1
+    assert int(_hint_intent(agents, world, CV.TARGET_HINT_APPROACH).target_id[0]) == -1
 
 
 def test_focus_codes_only_fire_for_approach_and_look():
     hints = np.array(
-        [C.TARGET_HINT_NONE, C.TARGET_HINT_HOME, C.TARGET_HINT_APPROACH, C.TARGET_HINT_LOOK],
+        [CV.TARGET_HINT_NONE, CV.TARGET_HINT_HOME, CV.TARGET_HINT_APPROACH, CV.TARGET_HINT_LOOK],
         dtype=np.int64,
     )
     person = np.array([2, 2, 2, -1], dtype=np.int64)
     poi = np.array([-1, -1, -1, 6], dtype=np.int64)
-    got = C.focus_codes(hints, person, poi, n_agents=8)
+    got = CW.focus_codes(hints, person, poi, n_agents=8)
     assert list(got) == [FOCUS_NONE, FOCUS_NONE, 2, int(focus_code_for_poi(6))]
 
 

@@ -17,7 +17,9 @@ from hypothesis import strategies as st
 
 from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
 from shibuya.world.model.agent_table import AgentState
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.runtime.systems import table as _SYSTEMS
 from shibuya.world.model.state import World
@@ -155,7 +157,7 @@ def _buy_intents(space, agents, poi_id, n, tick=600):
     ids = np.arange(n, dtype=np.int64)
     return C.IntentBatch(
         agent_id=ids,
-        action_code=np.full(n, C.ACT_BUY, dtype=np.int8),
+        action_code=np.full(n, CV.ACT_BUY, dtype=np.int8),
         target_id=np.full(n, poi_id, dtype=np.int32),
         resource_id=space.poi(np.full(n, poi_id)),
         t_notice_ns=np.full(n, C.tick_start_ns(tick), dtype=np.int64),
@@ -190,7 +192,7 @@ def test_free_intents_never_contend():
     ids = np.arange(6, dtype=np.int64)
     intents = C.IntentBatch(
         ids,
-        np.full(6, C.ACT_WAIT, dtype=np.int8),
+        np.full(6, CV.ACT_WAIT, dtype=np.int8),
         np.full(6, -1, dtype=np.int32),
         np.full(6, -1, dtype=np.int32),
         np.zeros(6, dtype=np.int64),
@@ -205,7 +207,7 @@ def test_conversation_partner_capacity_is_one():
     ids = np.array([1, 2, 3], dtype=np.int64)
     intents = C.IntentBatch(
         ids,
-        np.full(3, C.ACT_TALK, dtype=np.int8),
+        np.full(3, CV.ACT_TALK, dtype=np.int8),
         np.zeros(3, dtype=np.int32),
         space.partner(np.zeros(3)),
         np.zeros(3, dtype=np.int64),
@@ -223,7 +225,7 @@ def test_earlier_t_notice_wins_before_the_hash():
     n = 4
     intents = C.IntentBatch(
         np.arange(n, dtype=np.int64),
-        np.full(n, C.ACT_BUY, dtype=np.int8),
+        np.full(n, CV.ACT_BUY, dtype=np.int8),
         np.zeros(n, dtype=np.int32),
         space.poi(np.zeros(n)),
         C.tick_start_ns(600) + np.array([500, 100, 900, 300], dtype=np.int64),
@@ -249,14 +251,14 @@ def test_one_per_agent_keeps_the_llm_intent_over_the_engine_step():
     ids = np.array([3, 3, 5], dtype=np.int64)
     b = C.IntentBatch(
         ids,
-        np.array([C.ENGINE_STEP, C.ACT_BUY, C.ENGINE_STEP], dtype=np.int8),
+        np.array([CV.ENGINE_STEP, CV.ACT_BUY, CV.ENGINE_STEP], dtype=np.int8),
         np.array([1, 2, 3], dtype=np.int32),
         np.array([-1, 7, -1], dtype=np.int32),
         np.zeros(3, dtype=np.int64),
     )
     out = b.one_per_agent()
     assert out.agent_id.tolist() == [3, 5]
-    assert int(out.action_code[0]) == C.ACT_BUY
+    assert int(out.action_code[0]) == CV.ACT_BUY
 
 
 # ================================================================= T3(順序不変)
@@ -269,7 +271,7 @@ def _run_phase_abc(order: list[int], tick: int = 600) -> tuple[str, str]:
     intents = C.IntentBatch(
         agent_id=np.arange(n, dtype=np.int64),
         action_code=np.array(
-            [C.ACT_BUY, C.ACT_WAIT, C.ACT_REST, C.ACT_MOVE] * 3, dtype=np.int8
+            [CV.ACT_BUY, CV.ACT_WAIT, CV.ACT_REST, CV.ACT_MOVE] * 3, dtype=np.int8
         ),
         target_id=np.where(np.arange(n) % 4 == 3, (np.arange(n) % 4).astype(np.int32), poi),
         resource_id=np.where(np.arange(n) % 4 == 0, space.poi(poi), -1).astype(np.int32),

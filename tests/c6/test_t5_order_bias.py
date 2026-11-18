@@ -52,7 +52,7 @@ import collections
 import numpy as np
 import pytest
 
-from shibuya.engine.commit import pair_partners
+from shibuya.act.intake.from_words import pair_partners
 from shibuya.engine.run import run_day
 from shibuya.runtime.inference.mock import MockLLM
 from shibuya.world.model.state import World

@@ -17,13 +17,15 @@ from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.world.model.agent_table import AgentState
 from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
 from shibuya.engine import resolve as R
-from shibuya.engine.presence import (
+from shibuya.world.laws.presence import (
     ARRIVAL_SPREAD_MAX_TRAINS,
     RETURN_MIN_AWAY_MIN,
     FLAG_HAS_PLAN,
     FLAG_HOME_OUT,
-    PlanBlocks,
     PlanExecutor,
+)
+from shibuya.world.laws.presence_plan import (
+    PlanBlocks,
     _mix64,
 )
 from shibuya.world.laws.rail import RailProcess

@@ -13,7 +13,9 @@ from __future__ import annotations
 import time
 from typing import Any
 
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
 from shibuya.engine import resolve as R
 from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR
 
@@ -52,9 +54,9 @@ def sys_phase_a(ctx: Any, b: Any) -> None:
         arrival_intents = C.IntentBatch.empty()
     intents = C.IntentBatch.concat(
         [llm_intents, wander_intents, arrival_intents,
-         C.engine_continuations(agents, space, tick)]
+         CW.engine_continuations(agents, space, tick)]
         if act_layer is not None
-        else [llm_intents, C.engine_continuations(agents, space, tick)]
+        else [llm_intents, CW.engine_continuations(agents, space, tick)]
     ).one_per_agent()
     b.runstats.peak_intents = max(b.runstats.peak_intents, len(intents))
     phase["phase_a"] += time.perf_counter() - t0

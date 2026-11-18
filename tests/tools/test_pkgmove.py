@@ -2604,3 +2604,21 @@ def test_split_groups_cover_the_split_order_in_order():
     g = {k: SPLIT_ORDER[lo - 1: hi] for k, (lo, hi) in SPLIT_GROUPS["5b"].items()}
     assert g == {"G1": ("engine/commit.py", "engine/presence.py", "engine/calendar_shadow.py"), "G2": ("engine/run.py",),
                  "G3": ("cli.py",)}
+
+
+def test_split_lists_a_code_import_inside_an_f_string_for_hand_fixing(monkeypatch):
+    """〔G0 の再検収 低-1〕f 文字列の部分の中のコードが割るモジュールを読む形(``f"from shibuya.pk import old; old.f({n})"``)は
+    書き換えられないので「手で直す一覧」に出す(strict は断る)。負の対照: その枝(``code_import_hits`` を f 文字列の部分に使う所)を
+    外すと、同じ記号の道の文字列は書き換わるが、f 文字列の部分は一覧に出ずに残る。"""
+    reader = 'def build(n):\n    p = "src/shibuya/pk/old.py"\n    return p, f"from shibuya.pk import old; old.f({n})"\n'
+    tree, md = _split_sample({"tests/test_fstr.py": reader})
+    with pytest.raises(SP.SplitRefused, match="手で直す"):
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False, strict=False)
+    got = plan.after.files["tests/test_fstr.py"]
+    assert '"src/shibuya/nw/main.py"' in got and 'f"from shibuya.pk import old; old.f({n})"' in got
+    man = [m for m in plan.manual if "tests/test_fstr.py::build" in m]
+    assert len(man) == 1 and "f 文字列の部分の中のコード" in man[0], plan.manual
+    monkeypatch.setattr(ST, "code_import_hits", lambda ctx, value: [])
+    plan2 = SP.make_split_plan(tree, md, "pk/old.py", check_order=False, strict=False)
+    assert plan2.after.files["tests/test_fstr.py"] == got and not [m for m in plan2.manual if "test_fstr" in m]

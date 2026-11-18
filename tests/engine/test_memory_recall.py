@@ -105,7 +105,7 @@ def test_id_match_comes_first_and_the_rest_is_filled_by_score():
 
 
 def test_partner_object_place_and_last_result_are_query_keys():
-    from shibuya.engine import commit as C
+    from shibuya.foundation.vocab import act_codes as C
 
     a = table()
     lay = M.MemoryLayer(3, 16, minutes_per_tick=1.0)

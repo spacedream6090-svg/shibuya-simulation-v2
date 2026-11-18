@@ -33,7 +33,9 @@ from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy import stage2_bind as ES2
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.engine.run import run_day
@@ -333,7 +335,7 @@ def test_check_two_holds_at_every_checkpoint(kind):
         pois = rng.integers(0, world.n_poi, size=n)
         intents = C.IntentBatch(
             agent_id=ids,
-            action_code=np.full(n, C.ACT_BUY, dtype=np.int8),
+            action_code=np.full(n, CV.ACT_BUY, dtype=np.int8),
             target_id=pois.astype(np.int32),
             resource_id=space.poi(pois),
             t_notice_ns=np.full(n, C.tick_start_ns(tick), dtype=np.int64),

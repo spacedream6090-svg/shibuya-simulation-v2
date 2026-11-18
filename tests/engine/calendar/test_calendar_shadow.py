@@ -20,7 +20,9 @@ import numpy as np
 import pytest
 
 from shibuya import cli
-from shibuya.engine import calendar_shadow as CS
+# 〔割る段 5b の G1〕別名 CS を割り先ごとに分けた(CS=society.calendar_shadow・CR=world.facts.w20_calendar_reader の名)
+from shibuya.society import calendar_shadow as CS
+from shibuya.world.facts import w20_calendar_reader as CR
 from shibuya.foundation.manifest import sections as MS
 from shibuya.runtime.state import ledger as SL
 from shibuya.engine.run import run_day
@@ -46,11 +48,11 @@ def test_constants_match_the_build_side_and_the_calendar():
     from shibuya.build.sched import w20_calendar_1a as W
     from shibuya.world.facts.calendar import DEFAULT_WORLD_START
 
-    assert CS.FILE_NAME == W.OUTPUT_NAME and CS.HEADER_NAME == W.HEADER_NAME
-    assert CS.WEEK0_MONDAY == date.fromisoformat(W.WEEK0_MONDAY) == DEFAULT_WORLD_START.date()
-    assert CS.WEEK0_MONDAY.weekday() == 0
-    assert CS.COMMIT_WORK == W.COMMIT_WORK and CS.COMMIT_SCHOOL == W.COMMIT_SCHOOL
-    assert set(CS._COLS) <= set(W.TABLE_SCHEMA.names)
+    assert CR.FILE_NAME == W.OUTPUT_NAME and CR.HEADER_NAME == W.HEADER_NAME
+    assert CR.WEEK0_MONDAY == date.fromisoformat(W.WEEK0_MONDAY) == DEFAULT_WORLD_START.date()
+    assert CR.WEEK0_MONDAY.weekday() == 0
+    assert CR.COMMIT_WORK == W.COMMIT_WORK and CR.COMMIT_SCHOOL == W.COMMIT_SCHOOL
+    assert set(CR._COLS) <= set(W.TABLE_SCHEMA.names)
     assert CS.DEFAULT_MODE == CS.MODE_W17 and CS.MODES == ("w17", "1a")
     with pytest.raises(ValueError):
         CS.set_arm("w20")
@@ -65,7 +67,7 @@ def test_manifest_section_ledger_row_and_system_declarations():
     assert set(CS.manifest_fields(None)) == set(CS.MANIFEST_CONFIG) | set(CS.MANIFEST_OBSERVED)
     r = SL.row("CAL")
     assert r.behavior == SL.DIAG and r.restore == SL.DERIVABLE and set(r.hash_skip) == set(r.items) and not r.arm
-    assert SL.OWNER_CLASSES["calendar_shadow"] == ("engine/calendar_shadow.py", "CalendarShadow")
+    assert SL.OWNER_CLASSES["calendar_shadow"] == ("society/calendar_shadow.py", "CalendarShadow")
     assert not any(k == "CAL" for k, _p in SL.full_items())
     assert "CAL:calendar_shadow.*" in SPECS["day_head"].writes.paths
     assert "layers.calendar_shadow" in SPECS["day_head"].reads.box
@@ -100,17 +102,17 @@ class _Cal:
         return d in self.holidays
 
 
-def _table(n: int = 6, weeks: int = 1) -> CS.CalendarTable:
+def _table(n: int = 6, weeks: int = 1) -> CR.CalendarTable:
     shape = (n, weeks, 7)
     commit = np.zeros(shape, dtype=np.int64)
-    commit[:4, :, :5] = CS.COMMIT_WORK
-    commit[4, :, :5] = CS.COMMIT_SCHOOL
+    commit[:4, :, :5] = CR.COMMIT_WORK
+    commit[4, :, :5] = CR.COMMIT_SCHOOL
     start = np.full(shape, -1, dtype=np.int64)
     end = np.full(shape, -1, dtype=np.int64)
     dep = np.full(shape, -1, dtype=np.int64)
     ret = np.full(shape, -1, dtype=np.int64)
     lead = np.full(shape, -1, dtype=np.int64)
-    w = commit == CS.COMMIT_WORK
+    w = commit == CR.COMMIT_WORK
     dep[w] = np.repeat(np.array([420, 450, 480, 1290])[:, None], weeks * 5).reshape(4, weeks, 5).ravel()
     lead[w] = 30
     start[w] = dep[w] + 30
@@ -119,7 +121,7 @@ def _table(n: int = 6, weeks: int = 1) -> CS.CalendarTable:
     cols = {"commit": commit, "start_min": start, "end_min": end, "depart_min": dep, "return_min": ret,
             "lead_min": lead, "place_kind": np.where(commit > 0, 1, 0), "target_cell": np.where(commit > 0, 3, -1),
             "recurrence": np.where(commit > 0, 1, 0), "certainty": np.where(commit > 0, 1, 0)}
-    return CS.CalendarTable(n=n, n_weeks=weeks, cols=cols, found=np.ones(n, dtype=bool), version={"file": "x"},
+    return CR.CalendarTable(n=n, n_weeks=weeks, cols=cols, found=np.ones(n, dtype=bool), version={"file": "x"},
                             agent_id=np.arange(n))
 
 
@@ -175,7 +177,7 @@ def test_guards_refuse_direct_writes():
         with pytest.raises(ValueError):
             a[...] = 0
     src = np.zeros((2, 1, 7), dtype=np.int64)  # 渡した元の配列は書けるまま(写しを取る)
-    t2 = CS.CalendarTable(n=2, n_weeks=1, cols={**{c: src for c in CS._COLS}}, found=np.ones(2, dtype=bool),
+    t2 = CR.CalendarTable(n=2, n_weeks=1, cols={**{c: src for c in CR._COLS}}, found=np.ones(2, dtype=bool),
                           version={"file": "x"})
     assert src.flags.writeable and not t2.cols["commit"].flags.writeable
     layer.relay_day(1)  # 中の道の張り直しは通る・manifest は今の JSON の形(dict と list)
@@ -192,16 +194,16 @@ def test_load_table_restricts_to_the_run_agents(tmp_path):
 
     a = attrs(60)
     t = build(a)["columns"]
-    C.write_parquet(tmp_path, CS.FILE_NAME, t, schema=W.TABLE_SCHEMA)
+    C.write_parquet(tmp_path, CR.FILE_NAME, t, schema=W.TABLE_SCHEMA)
     want = np.array([1005, 1001, 99999, 1059])
-    tab = CS.load_table(tmp_path / CS.FILE_NAME, want)
+    tab = CR.load_table(tmp_path / CR.FILE_NAME, want)
     assert tab.found.tolist() == [True, True, False, True] and tab.n == 4 and tab.n_weeks == 1
     s = t["start_min"].reshape(60, 7)
     assert np.array_equal(tab.cols["start_min"][0, 0], s[5]) and np.array_equal(tab.cols["start_min"][3, 0], s[59])
     assert (tab.cols["commit"][2] == 0).all() and (tab.cols["start_min"][2] == -1).all()
     assert not tab.found.flags.writeable and not tab.cols["commit"].flags.writeable  # 〔検収 中 3〕
     with pytest.raises(FileNotFoundError):
-        CS.load_table(tmp_path / "none.parquet", want)
+        CR.load_table(tmp_path / "none.parquet", want)
 
 
 # ================================================================= 実データ(世界資産・腕 1a)
@@ -221,8 +223,8 @@ def w20_table(tmp_path_factory):
     m = materials()
     out = W.calendar_from_attributes(a, W.draw_employment_status(a, m, ANCHOR), m, ANCHOR)
     d = tmp_path_factory.mktemp("w20")
-    C.write_parquet(d, CS.FILE_NAME, out["columns"], schema=W.TABLE_SCHEMA)
-    return d / CS.FILE_NAME
+    C.write_parquet(d, CR.FILE_NAME, out["columns"], schema=W.TABLE_SCHEMA)
+    return d / CR.FILE_NAME
 
 
 KW = dict(n_agents=300, seed=1, world_dir=str(WORLD))
@@ -269,7 +271,7 @@ def test_1a_shadow_comes_from_the_w20_table(one_day_pair, w20_table):
     _base, shadow = one_day_pair
     layer = shadow.calendar_shadow_layer
     m = shadow.run_manifest_fields()["calendar_shadow"]
-    assert m["source"] == "1a" and m["weeks"] == 1 and m["w20"]["file"] == CS.FILE_NAME
+    assert m["source"] == "1a" and m["weeks"] == 1 and m["w20"]["file"] == CR.FILE_NAME
     rec = m["days"][0]
     assert rec["date"] == "2026-07-13" and rec["table_weekday"] == 0 and rec["agents"] == 300
     t = pq.read_table(w20_table).to_pydict()
@@ -277,8 +279,8 @@ def test_1a_shadow_comes_from_the_w20_table(one_day_pair, w20_table):
     wd = np.asarray(t["weekday"])
     sel = np.isin(aid, layer.table.agent_id) & (wd == 0)
     commit = np.asarray(t["commit"])[sel]
-    w = commit == CS.COMMIT_WORK
-    assert rec["shadows"] == {"work": int(w.sum()), "school": int((commit == CS.COMMIT_SCHOOL).sum())}
+    w = commit == CR.COMMIT_WORK
+    assert rec["shadows"] == {"work": int(w.sum()), "school": int((commit == CR.COMMIT_SCHOOL).sum())}
     for key, col in (("depart_hist15", "depart_min"), ("start_hist15", "start_min"), ("end_hist15", "end_min"),
                      ("return_hist15", "return_min")):
         v = np.asarray(t[col])[sel][w].astype(np.int64)
@@ -293,7 +295,7 @@ def test_1a_fingerprint_and_missing_table(arm_1a, tmp_path, monkeypatch):
     monkeypatch.delenv("SHIBUYA_CALENDAR_W20", raising=False)
     empty = tmp_path / "w"
     empty.mkdir()
-    monkeypatch.setenv("SHIBUYA_CALENDAR_W20", str(empty / CS.FILE_NAME))
+    monkeypatch.setenv("SHIBUYA_CALENDAR_W20", str(empty / CR.FILE_NAME))
     with pytest.raises(FileNotFoundError):
         cli.run(**KW, ticks=5)
 

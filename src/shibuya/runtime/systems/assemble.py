@@ -34,7 +34,7 @@ from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.world.facts.weekly_reader import apply_to_mock_schedule
 from shibuya.world.facts.weekly_reader import load_weekly
 from shibuya.foundation.rng import RNG_SCHEME
-from shibuya.engine import commit as C
+from shibuya.act import commit as C
 from shibuya.engine import resolve as R
 from shibuya.world.model.space import nav1 as _NAV1
 from shibuya.runtime.state import resume as RS
@@ -81,9 +81,9 @@ from shibuya.mind.memory.memory import MEMORY_MODES
 from shibuya.mind.memory.memory import MemoryLayer
 from shibuya.mind.memory.memory import STORE_RECALL_SCOPES
 from shibuya.act.target import TargetResolver
-from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
-from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
-from shibuya.engine.presence import PlanExecutor
+from shibuya.world.laws.presence_plan import DERIVE_RULES as PRESENCE_DERIVE_RULES
+from shibuya.world.laws.presence import EXIT_MODES as PRESENCE_EXIT_MODES
+from shibuya.world.laws.presence import PlanExecutor
 from shibuya.world.laws.crowd import SEAT_AREA_M2
 from shibuya.world.laws.runner import WorldProcessRunner
 from shibuya.world.laws.salient import check_d50_scale as _check_d50_scale
@@ -333,7 +333,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         # 第 6 期 6-5(検収 L1): 記憶の腕は結果を変える=既定と違う腕のときだけ設定の指紋に足す(腕の名・埋め込みのモデルの
         # 名と版・行の上限=再開で腕と埋め込みのモデルの取り違えを止める。既定のランの指紋は前のまま)
         _fp[_MR65.FP_KEY] = _mr65_cfg
-    from shibuya.engine import calendar_shadow as _CSH
+    from shibuya.society import calendar_shadow as _CSH
 
     if _CSH.is_on():
         # 〔第 3 期 3-1〕暦 1a の影の腕は on のときだけ設定の指紋に足す(既定は今の指紋・影は計器だけ=挙動は不変)

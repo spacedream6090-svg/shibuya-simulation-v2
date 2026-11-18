@@ -231,7 +231,7 @@ W17 段2: 整合修復の 7 規則・骸格フォールバック・raking(答申
   - `test_w19_lists_the_build_inputs_and_families`(関数): W19 の資産表と層の元に W20cal の構築側の入力が載る(検証側の名は載らない)。
   - `test_weekday_rates_are_table_74_6_and_table_19_is_only_a_gauge`(関数): 曜日の予定の率は第74-6表の地位・勤務形態の曜日の率そのもの(実現値=予定の下限・親の判断 第336 (1))・週の日数は
   - `test_weekly_rest_day_for_employees_from_the_rules_table`(関数): 〔検収 中 2・親の判断 第337〕労働基準法 9 条の労働者(無期・有期・臨時)の体は、その週に 7 日とも勤務を引いたら 1 日を
-- import している内部モジュール: `shibuya.build.audit.w19_freeze`・`shibuya.build.pop.w21_build`・`shibuya.build.sched.trial`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.engine.calendar_shadow`・`tools/instruments/read_guard.py`
+- import している内部モジュール: `shibuya.build.audit.w19_freeze`・`shibuya.build.pop.w21_build`・`shibuya.build.sched.trial`・`shibuya.build.sched.w20_calendar_1a`・`shibuya.world.facts.w20_calendar_reader`・`tools/instruments/read_guard.py`
 - 読む試験: `tests/build_sched/test_w20_w21_port.py`・`tests/engine/calendar/test_calendar_shadow.py`
 - 決定の ID: R-99・第 336・第 337
 

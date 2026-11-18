@@ -14,7 +14,9 @@ import pytest
 
 from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.world.model.agent_table import AgentState
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.world.laws import switch_seat as SR
 from shibuya.world.model.state import World
@@ -41,7 +43,7 @@ def _move(agent_ids, cells):
     n = len(agent_ids)
     return C.IntentBatch(
         agent_id=np.asarray(agent_ids, dtype=np.int64),
-        action_code=np.full(n, C.ACT_MOVE, dtype=np.int8),
+        action_code=np.full(n, CV.ACT_MOVE, dtype=np.int8),
         target_id=np.asarray(cells, dtype=np.int32),
         resource_id=np.full(n, -1, dtype=np.int32),
         t_notice_ns=np.zeros(n, dtype=np.int64),

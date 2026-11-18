@@ -185,7 +185,7 @@ def w20_table_for_run(world_dir: Any, pop: Any) -> Any:
     """
     if pop is None:
         return None
-    from shibuya.engine import calendar_shadow as _CS
+    from shibuya.world.facts import w20_calendar_reader as _CS
 
     path = _CS.resolve_path(world_dir)
     if path is None:

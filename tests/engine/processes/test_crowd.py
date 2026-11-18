@@ -8,7 +8,9 @@ from __future__ import annotations
 import numpy as np
 
 from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.world.laws.crowd import (
     DWELL_MAX_TICKS,
@@ -36,7 +38,7 @@ def _buy_intents(agent_ids, poi):
     a = np.asarray(agent_ids, dtype=np.int64)
     return C.IntentBatch(
         agent_id=a,
-        action_code=np.full(a.size, C.ACT_BUY, dtype=np.int8),
+        action_code=np.full(a.size, CV.ACT_BUY, dtype=np.int8),
         target_id=np.full(a.size, poi, dtype=np.int32),
         resource_id=np.full(a.size, -1, dtype=np.int32),
         t_notice_ns=np.zeros(a.size, dtype=np.int64),
@@ -71,7 +73,7 @@ def test_flow_is_coherent_when_everyone_heads_the_same_way():
     R.rail_arrive(agents, world, ids, np.zeros(ids.size, dtype=np.int64))
     move = C.IntentBatch(
         agent_id=ids,
-        action_code=np.full(ids.size, C.ACT_MOVE, dtype=np.int8),
+        action_code=np.full(ids.size, CV.ACT_MOVE, dtype=np.int8),
         target_id=np.full(ids.size, 8, dtype=np.int32),
         resource_id=np.full(ids.size, -1, dtype=np.int32),
         t_notice_ns=np.zeros(ids.size, dtype=np.int64),

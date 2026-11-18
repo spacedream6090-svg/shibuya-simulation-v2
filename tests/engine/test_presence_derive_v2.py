@@ -21,7 +21,7 @@ from shibuya.world.facts.weekly_reader import (
     PLACE_WORDS,
     WeeklySchedule,
 )
-from shibuya.engine.presence import (
+from shibuya.world.laws.presence_plan import (
     ANCHOR_PLACE_KINDS,
     DERIVE_RULE_DEFAULT,
     DERIVE_RULES,

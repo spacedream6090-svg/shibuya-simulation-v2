@@ -354,7 +354,7 @@ class DecisionLayer:
     def _note_stage2(self, agent_id: int, choice: Any) -> None:
         """〔2-1・検収 A1〕口の答えのうち段階 2 の分を印にして控える(お金を下ろす=``S2_WITHDRAW``・購入と食事の
         支払いの方法=``S2_PAY_CASH``/``S2_PAY_ACCOUNT``)。判断の系が ``take_stage2_hint`` で保留の組の末尾へ運ぶ。"""
-        from shibuya.engine import commit as _C
+        from shibuya.foundation.vocab import act_codes as _C
 
         m0 = self.meter["stage2"]
         flags = 0

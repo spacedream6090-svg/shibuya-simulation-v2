@@ -17,7 +17,9 @@ import pytest
 from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
 from shibuya.world.model.agent_table import AgentState
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
 from shibuya.engine import resolve as R
 from shibuya.engine.run import run_day
 from shibuya.foundation.ports.inference import LLMResponse
@@ -67,7 +69,7 @@ def _scene(n: int = 8, tick: int = 700, money: int = 10_000, hunger: int = 9):
 def _eat(w, a, tick, n):
     space = C.ResourceSpace(w.n_poi, a.n, w.n_cells)
     ids = np.arange(n, dtype=np.int64)
-    batch = C.intents_from_responses(
+    batch = CW.intents_from_responses(
         a, w, space, tick, ids, np.zeros(n, dtype=np.int64),
         np.full(n, EAT_ACTION_CODE, dtype=np.int64),
     )

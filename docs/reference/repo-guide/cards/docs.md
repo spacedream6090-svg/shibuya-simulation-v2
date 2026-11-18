@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-355 ディレクトリ・2484 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+359 ディレクトリ・2496 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -372,7 +372,15 @@
 
 - [README.md](../../../bench/analysis/split5b-347/README.md): 割る段 5b の記録(G0=src は変えない・道具の拡張と、割る前の試験の直し)
 
+## docs/bench/analysis/split5b-347/bytecheck_18(3 本)
+
+## docs/bench/analysis/split5b-347/bytecheck_19(3 本)
+
+## docs/bench/analysis/split5b-347/bytecheck_20(3 本)
+
 ## docs/bench/analysis/split5b-347/bytecheck_G0_parent(3 本)
+
+## docs/bench/analysis/split5b-347/bytecheck_G1_parent(3 本)
 
 ## docs/bench/analysis/split5b-347/bytecheck_g0_pre_split(3 本)
 

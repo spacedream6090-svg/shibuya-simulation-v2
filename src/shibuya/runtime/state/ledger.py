@@ -1589,7 +1589,7 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "energy.out_of_area": ("world/body/energy.py", "OutOfAreaMeals"),
     "energy.home_meals": ("world/body/energy.py", "HomeMeals"),
     "norm_meter": ("society/norm_meter.py", "GroupNormMeter"),
-    "presence": ("engine/presence.py", "PlanExecutor"),
+    "presence": ("world/laws/presence.py", "PlanExecutor"),
     "conv": ("society/conversation.py", "ConversationManager"),
     "arbiter": ("runtime/arbiter.py", "Arbiter"),
     "detector": ("mind/system1/change_detect.py", "ChangeDetector"),
@@ -1635,7 +1635,7 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     # 第 3 期 3-5: 本人の体の層(状態台帳の行 BD・どの腕でも置く)
     "body": ("world/body/model.py", "BodyModel"),
     # 第 3 期 3-1: 暦 1a の影(状態台帳の行 CAL・腕 --calendar-shadow 1a のランだけ)
-    "calendar_shadow": ("engine/calendar_shadow.py", "CalendarShadow"),
+    "calendar_shadow": ("society/calendar_shadow.py", "CalendarShadow"),
     # 第 6 期 6-2: カレンダー 1b(状態台帳の腕の行 C1B・C1BM・腕 --calendar 1b のランだけ)
     "calendar_self": ("interim_bundles/calendar_self.py", "CalendarSelf"),
     # 第 6 期 6-3: 時計の段 T2〜T4 の腕の持ち主(状態台帳の腕の行 TCR・TCC・T3M・T4W・腕のランだけ)

@@ -72,8 +72,8 @@ from typing import Any, Final, Sequence
 import numpy as np
 from shibuya.foundation.vocab.agent_codes import IntentKind
 from shibuya.foundation.ports.choice import ChoiceContext, Chooser, draw_index, entropy_bits
-from shibuya.engine.commit import ACT_EAT as _EAT_CODE
-from shibuya.engine.commit import WANDER_BAD_TARGET
+from shibuya.foundation.vocab.act_codes import ACT_EAT as _EAT_CODE
+from shibuya.foundation.vocab.act_codes import WANDER_BAD_TARGET
 from shibuya.world.model.assets import BAND_CODES
 from shibuya.world.model.state import LANDMARK_CATS
 from shibuya.foundation.vocab.place_words import BUYABLE_CATS, CATEGORY_WORDS, GENERIC_WORDS, SYNTHETIC_BUYABLE_CATS

@@ -14,7 +14,9 @@ from __future__ import annotations
 import pytest
 
 from shibuya.foundation.vocab.agent_codes import ResultCode
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act.intake import from_words as CW
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.foundation.vocab.actions import (
     ACTION_CODES,
@@ -41,9 +43,9 @@ def test_result_code_covers_the_never_fails_rule():
 
 
 def test_engine_action_codes_come_from_the_contract():
-    assert C.ACTION_CODES == dict(ACTION_CODES)
-    assert C.ACTION_WORDS == ACTION_VOCAB_12
-    assert C.UNDEFINED_ACTION == UNDEFINED_ACTION == -2
+    assert CV.ACTION_CODES == dict(ACTION_CODES)
+    assert CV.ACTION_WORDS == ACTION_VOCAB_12
+    assert CW.UNDEFINED_ACTION == UNDEFINED_ACTION == -2
 
 
 def test_resolve_has_one_branch_per_contract_word():
@@ -56,7 +58,7 @@ def test_resolve_has_one_branch_per_contract_word():
 @pytest.mark.parametrize("word", list(ACTION_VOCAB_12))
 def test_parse_action_round_trips_every_contract_word(word):
     text = format_two_line("理由の文", word, "なし", "なし")
-    assert C.parse_action(text) == ACTION_CODES[word]
+    assert CW.parse_action(text) == ACTION_CODES[word]
 
 
 @pytest.mark.parametrize("word", list(ROLE_ACTION_WORDS))
@@ -64,21 +66,21 @@ def test_role_words_are_parsed_but_are_not_engine_intents_yet(word):
     """役割語はパーサが読む(全員に見せる)が、``_APPLY`` に分岐が無いので未定義扱いに落とす。"""
     text = format_two_line("理由の文", word, "なし", "なし")
     assert parse_two_line(text).action == word
-    assert C.parse_action(text) == UNDEFINED_ACTION
+    assert CW.parse_action(text) == UNDEFINED_ACTION
 
 
 def test_parse_action_delegates_to_the_canonical_parser():
     """C2 の最小写像では読めなかった形(行内分割・箇条書き)も読める=委譲の証拠。"""
     packed = "理由: 用事 行動: 移動 対象: C-1 ひと言: なし"
-    assert C.parse_action(packed) == ACTION_CODES["移動"]
+    assert CW.parse_action(packed) == ACTION_CODES["移動"]
     bulleted = "- 理由: 眠い\n- 行動: 就寝 対象: C-2 ひと言: なし"
-    assert C.parse_action(bulleted) == ACTION_CODES["就寝"]
+    assert CW.parse_action(bulleted) == ACTION_CODES["就寝"]
 
 
 def test_parse_action_returns_undefined_for_non_contract_output():
-    assert C.parse_action("これは2行形ではない") == UNDEFINED_ACTION
-    assert C.parse_action("") == UNDEFINED_ACTION
-    assert C.parse_action("理由: あ\n行動: 買う 対象: パン ひと言: なし") == UNDEFINED_ACTION
+    assert CW.parse_action("これは2行形ではない") == UNDEFINED_ACTION
+    assert CW.parse_action("") == UNDEFINED_ACTION
+    assert CW.parse_action("理由: あ\n行動: 買う 対象: パン ひと言: なし") == UNDEFINED_ACTION
 
 
 def test_contract_tags_are_declared_for_every_row():

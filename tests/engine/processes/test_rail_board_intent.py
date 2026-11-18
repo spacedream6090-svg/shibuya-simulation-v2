@@ -19,7 +19,10 @@ from __future__ import annotations
 import numpy as np
 
 from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.world.laws.rail import RailProcess
 
@@ -63,7 +66,7 @@ def test_off_platform_board_walks_waits_and_boards_on_the_fixed_tick_sequence():
     _place(agents, world, ids, FAR_CELL)
 
     # t=90: 判断は 1 回。世界が最寄りホームへの移動を組む。
-    out = R.apply(_intents(ids, C.ACT_BOARD), EMPTY, agents, world, 90, rail=rail)
+    out = R.apply(_intents(ids, CV.ACT_BOARD), EMPTY, agents, world, 90, rail=rail)
     assert out.n_boarded == 0 and out.n_board_waiting == 0
     assert np.all(agents.activity[ids] == int(Activity.MOVING))
     assert np.all(agents.registry.board_line[ids] >= 0)
@@ -72,7 +75,7 @@ def test_off_platform_board_walks_waits_and_boards_on_the_fixed_tick_sequence():
     # t=91..94: エンジン継続で 1 tick 1 ノード。94 tick 目に到着して**待ち**へ入る。
     arrived_at = -1
     for t in range(91, 100):
-        out = R.apply(C.engine_continuations(agents, None, t), EMPTY, agents, world, t, rail=rail)
+        out = R.apply(CW.engine_continuations(agents, None, t), EMPTY, agents, world, t, rail=rail)
         if arrived_at < 0 and int(agents.registry.board_since[ids[0]]) >= 0:
             arrived_at = t
     assert arrived_at == 90 + HOPS_TO_PLATFORM
@@ -101,9 +104,9 @@ def test_the_walk_is_deterministic_for_the_same_situation():
         _place(agents, world, ids[2:], 4)
         for t in range(90, 105):
             batch = (
-                _intents(ids, C.ACT_BOARD)
+                _intents(ids, CV.ACT_BOARD)
                 if t == 90
-                else C.engine_continuations(agents, None, t)
+                else CW.engine_continuations(agents, None, t)
             )
             R.apply(batch, EMPTY, agents, world, t, rail=rail)
         return agents.state_hash()
@@ -118,8 +121,8 @@ def test_queue_is_served_fifo_and_capped_by_the_accept_quota():
     early = np.array([5, 3], dtype=np.int64)
     late = np.array([1, 2], dtype=np.int64)
     _place(agents, world, np.concatenate([early, late]), 0)
-    R.apply(_intents(early, C.ACT_BOARD), EMPTY, agents, world, 80, rail=rail)
-    R.apply(_intents(late, C.ACT_BOARD), EMPTY, agents, world, 90, rail=rail)
+    R.apply(_intents(early, CV.ACT_BOARD), EMPTY, agents, world, 80, rail=rail)
+    R.apply(_intents(late, CV.ACT_BOARD), EMPTY, agents, world, 90, rail=rail)
     assert np.all(agents.registry.board_since[early] == 80)
     assert np.all(agents.registry.board_since[late] == 90)
 
@@ -138,7 +141,7 @@ def test_the_rest_of_the_queue_boards_the_next_train():
     world, agents, rail = _rail(n_agents=10, departures=(100, 110))
     ids = np.array([1, 2, 3], dtype=np.int64)
     _place(agents, world, ids, 0)
-    R.apply(_intents(ids, C.ACT_BOARD), EMPTY, agents, world, 90, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), EMPTY, agents, world, 90, rail=rail)
     rail.capacity100[0] = 0.5  # 1 本目は 1 人しか乗れない
     R.apply(EMPTY, EMPTY, agents, world, 100, rail=rail)
     assert int(np.count_nonzero(agents.registry.transit_state[ids] == 1)) == 1
@@ -152,7 +155,7 @@ def test_waiting_is_cut_off_after_the_limit_and_returns_no_train():
     world, agents, rail = _rail(departures=(1_000,))
     ids = np.arange(2, dtype=np.int64)
     _place(agents, world, ids, 0)
-    R.apply(_intents(ids, C.ACT_BOARD), EMPTY, agents, world, 100, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), EMPTY, agents, world, 100, rail=rail)
     for t in range(101, 100 + R.BOARD_WAIT_LIMIT_TICKS):
         out = R.apply(EMPTY, EMPTY, agents, world, t, rail=rail)
         assert out.n_board_timeout == 0
@@ -179,7 +182,7 @@ def test_riders_are_conserved_and_no_one_is_left_riding():
             (r.transit_state == 0) & (r.board_line < 0) & (r.activity != int(Activity.MOVING))
         )
         batch = C.IntentBatch.concat(
-            [_intents(want, C.ACT_BOARD), C.engine_continuations(agents, None, t)]
+            [_intents(want, CV.ACT_BOARD), CW.engine_continuations(agents, None, t)]
         ).one_per_agent()
         R.apply(batch, EMPTY, agents, world, t, rail=rail)
         inb, riding, outside = rail.rider_census()
@@ -195,11 +198,11 @@ def test_another_action_drops_the_intent_but_wait_keeps_it():
     world, agents, rail = _rail(departures=(1_000,))
     ids = np.arange(2, dtype=np.int64)
     _place(agents, world, ids, 0)
-    R.apply(_intents(ids, C.ACT_BOARD), EMPTY, agents, world, 10, rail=rail)
-    R.apply(_intents(ids, C.ACT_WAIT), EMPTY, agents, world, 11, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), EMPTY, agents, world, 10, rail=rail)
+    R.apply(_intents(ids, CV.ACT_WAIT), EMPTY, agents, world, 11, rail=rail)
     assert np.all(agents.registry.board_line[ids] >= 0)  # 待機=ホームで待ち続ける
     assert np.all(agents.registry.board_since[ids] == 10)  # FIFO の鍵は動かない
-    R.apply(_intents(ids, C.ACT_REST), EMPTY, agents, world, 12, rail=rail)
+    R.apply(_intents(ids, CV.ACT_REST), EMPTY, agents, world, 12, rail=rail)
     assert np.all(agents.registry.board_line[ids] == -1)
     assert np.all(agents.registry.board_since[ids] == -1)
 
@@ -209,7 +212,7 @@ def test_an_intent_that_stopped_walking_is_swept():
     world, agents, rail = _rail(departures=(1_000,))
     ids = np.arange(2, dtype=np.int64)
     _place(agents, world, ids, FAR_CELL)
-    R.apply(_intents(ids, C.ACT_BOARD), EMPTY, agents, world, 10, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), EMPTY, agents, world, 10, rail=rail)
     assert np.all(agents.activity[ids] == int(Activity.MOVING))
     R.set_conversing(agents, ids[:1], ids[1:])
     R.apply(EMPTY, EMPTY, agents, world, 11, rail=rail)
@@ -221,7 +224,7 @@ def test_fare_short_drops_the_intent():
     world, agents, rail = _rail(departures=(100,))
     ids = np.arange(2, dtype=np.int64)
     _place(agents, world, ids, 0)
-    R.apply(_intents(ids, C.ACT_BOARD), EMPTY, agents, world, 50, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), EMPTY, agents, world, 50, rail=rail)
     rail.fare_yen = 10**9
     R.apply(EMPTY, EMPTY, agents, world, 100, rail=rail)
     assert np.all(agents.last_result[ids] == int(ResultCode.FARE_SHORT))
@@ -232,7 +235,7 @@ def test_fare_short_drops_the_intent():
 def test_board_without_rail_is_no_train_c2_compatible():
     world, agents, _ = _rail()
     ids = np.arange(2, dtype=np.int64)
-    R.apply(_intents(ids, C.ACT_BOARD), EMPTY, agents, world, 10)
+    R.apply(_intents(ids, CV.ACT_BOARD), EMPTY, agents, world, 10)
     assert np.all(agents.last_result[ids] == int(ResultCode.NO_TRAIN))
     assert np.all(agents.registry.board_line[ids] == -1)
 
@@ -241,8 +244,8 @@ def test_riding_agents_cannot_board_again():
     world, agents, rail = _rail(departures=(100, 200))
     ids = np.arange(2, dtype=np.int64)
     _place(agents, world, ids, 0)
-    R.apply(_intents(ids, C.ACT_BOARD), EMPTY, agents, world, 100, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), EMPTY, agents, world, 100, rail=rail)
     assert np.all(agents.registry.transit_state[ids] == 1)
-    R.apply(_intents(ids, C.ACT_BOARD), EMPTY, agents, world, 101, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), EMPTY, agents, world, 101, rail=rail)
     assert np.all(agents.last_result[ids] == int(ResultCode.NO_TRAIN))
     assert np.all(agents.registry.board_line[ids] == -1)

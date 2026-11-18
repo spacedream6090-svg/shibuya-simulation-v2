@@ -11,7 +11,7 @@ from __future__ import annotations
 import pytest
 
 from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
-from shibuya.engine import commit as C
+from shibuya.foundation.vocab import act_codes as C
 from shibuya.runtime.inference.bridge import LLMBridge
 from shibuya.engine.run import run_day
 from shibuya.runtime.inference.tape import Tape, TapeWriter

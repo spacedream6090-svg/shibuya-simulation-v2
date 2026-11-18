@@ -8,7 +8,9 @@ import pytest
 
 from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
 from shibuya.economy.accounts import AccountCode
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.world.laws.rail import (
     ACCEPT_FULL_RATIO,
@@ -197,7 +199,7 @@ def test_boarding_succeeds_on_the_platform_and_pays_the_fare():
     ids = np.arange(3, dtype=np.int64)
     _put_on_platform(agents, world, ids, 0)
     money0 = agents.money[ids].copy()
-    out = R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
+    out = R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
     assert out.n_boarded == 3
     assert np.all(agents.registry.transit_state[ids] == 1)
     assert np.all(agents.activity[ids] == int(Activity.RIDING))
@@ -211,7 +213,7 @@ def test_boarding_without_a_train_waits_on_the_platform():
     world, agents, rail = _rail(departures=(100,))
     ids = np.arange(2, dtype=np.int64)
     _put_on_platform(agents, world, ids, 0)
-    out = R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, 5, rail=rail)
+    out = R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, 5, rail=rail)
     assert np.all(agents.last_result[ids] == int(ResultCode.OK))
     assert np.all(agents.activity[ids] == int(Activity.WAITING))
     assert np.all(agents.registry.board_line[ids] >= 0)
@@ -226,7 +228,7 @@ def test_boarding_in_another_cell_walks_to_the_nearest_platform():
     dep = int(rail.dep_tick[0])
     ids = np.arange(2, dtype=np.int64)
     _put_on_platform(agents, world, ids, 3)  # ホームでないセル
-    R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
     assert np.all(agents.last_result[ids] == int(ResultCode.OK))
     assert np.all(agents.activity[ids] == int(Activity.MOVING))
     assert np.all(agents.target_node[ids] == world.assets.cell_rep_node[0])
@@ -241,7 +243,7 @@ def test_boarding_without_the_fare_returns_fare_short():
     ids = np.arange(2, dtype=np.int64)
     _put_on_platform(agents, world, ids, 0)
     rail.fare_yen = 10**9
-    R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
     assert np.all(agents.last_result[ids] == int(ResultCode.FARE_SHORT))
     assert np.all(agents.registry.transit_state[ids] == 0)
 
@@ -253,7 +255,7 @@ def test_boarding_over_the_congestion_cap_returns_train_full():
     _put_on_platform(agents, world, ids, 0)
     rail.capacity100[:] = 2.0
     rail.occupancy[0] = 4  # = 200% → 乗り残し
-    out = R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
+    out = R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
     assert out.n_boarded == 0
     assert np.all(agents.last_result[ids] == int(ResultCode.TRAIN_FULL))
 
@@ -264,9 +266,9 @@ def test_alight_succeeds_only_while_the_train_is_at_the_platform():
     dep = int(rail.dep_tick[0])
     ids = np.arange(2, dtype=np.int64)
     _put_on_platform(agents, world, ids, 0)
-    R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep - 1, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep - 1, rail=rail)
     assert np.all(agents.registry.transit_state[ids] == 1)
-    out = R.apply(_intents(ids, C.ACT_ALIGHT), C.IntentBatch.empty(), agents, world, dep, rail=rail)
+    out = R.apply(_intents(ids, CV.ACT_ALIGHT), C.IntentBatch.empty(), agents, world, dep, rail=rail)
     assert out.n_alighted == 2
     assert np.all(agents.registry.transit_state[ids] == 0)
     assert np.all(agents.cell[ids] == 0)
@@ -278,17 +280,17 @@ def test_alight_when_the_train_does_not_stop_returns_no_stop():
     dep = int(rail.dep_tick[0])
     ids = np.arange(2, dtype=np.int64)
     _put_on_platform(agents, world, ids, 0)
-    R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
-    R.apply(_intents(ids, C.ACT_ALIGHT), C.IntentBatch.empty(), agents, world, dep + 5, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
+    R.apply(_intents(ids, CV.ACT_ALIGHT), C.IntentBatch.empty(), agents, world, dep + 5, rail=rail)
     assert np.all(agents.last_result[ids] == int(ResultCode.NO_STOP))
 
 
 def test_alight_without_rail_is_no_stop_c2_compatible():
     world, agents, _ = _rail()
     ids = np.arange(2, dtype=np.int64)
-    R.apply(_intents(ids, C.ACT_ALIGHT), C.IntentBatch.empty(), agents, world, 10)
+    R.apply(_intents(ids, CV.ACT_ALIGHT), C.IntentBatch.empty(), agents, world, 10)
     assert np.all(agents.last_result[ids] == int(ResultCode.NO_STOP))
-    R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, 10)
+    R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, 10)
     assert np.all(agents.last_result[ids] == int(ResultCode.NO_TRAIN))
 
 
@@ -303,7 +305,7 @@ def test_riders_are_never_lost():
         if t == int(rail.dep_tick[0]):
             here = np.flatnonzero(agents.cell == 0)[:5]
             if here.size:
-                R.apply(_intents(here, C.ACT_BOARD), C.IntentBatch.empty(),
+                R.apply(_intents(here, CV.ACT_BOARD), C.IntentBatch.empty(),
                         agents, world, t, rail=rail)
         inb, riding, outside = rail.rider_census()
         assert inb + riding + outside == agents.n, (t, inb, riding, outside)
@@ -314,7 +316,7 @@ def test_departure_moves_riders_to_the_external_node():
     dep = int(rail.dep_tick[0])
     ids = np.arange(3, dtype=np.int64)
     _put_on_platform(agents, world, ids, 0)
-    R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
     rail.step(dep + 1)
     assert np.all(agents.registry.transit_state[ids] == 2)
     assert np.all(agents.cell[ids] == -1)

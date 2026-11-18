@@ -639,6 +639,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_split_in_place_keeps_the_main_file_and_moves_names_out`(関数): 主な割り先が元のファイルの今の置き場(段 4 で移した=延ばした 18 本目の形): 元のファイルを書き直し、出した名は割り先から読む。
   - `test_split_keeps_the_table_keys_of_the_places_helpers`(関数): 〔高-1〕``tests/_places.py`` の割る行の口(``split_files``・``split_source``・``split_module_names``・``_split_names``)の
   - `test_split_leaves_the_bytecheck_tool_and_its_test_alone`(関数): 〔E4・親の裁定 Q9 の (a)〕byte-check の道具(``tools/bytecheck/``)とその試験は割る道具の書き換えの範囲の外: 書き換えず、
+  - `test_split_lists_a_code_import_inside_an_f_string_for_hand_fixing`(関数): 〔G0 の再検収 低-1〕f 文字列の部分の中のコードが割るモジュールを読む形(``f"from shibuya.pk import old; old.f({n})"``)は
   - `test_split_order_is_kept_in_the_real_tree`(関数): 割る段の順(親の裁定 Q11): 次の本のほかは断る(段を飛ばさない)。
   - `test_split_refuses_a_done_row_a_wrong_order_and_a_skipped_tree`(関数): 〔検収 中-4〕済んだ本の当て直し・順が違う本・順を飛ばした木(split_state が None)は、どれも断る(終了コード 2 の経路)。
   - `test_split_reports_the_imports_and_comments_it_did_not_write`(関数): 〔検収 低-2〕どの割り先も使わない import・import の前の注・作り直した import の中の注は写さず、報告の ``unwritten`` に出す。

@@ -20,7 +20,10 @@ from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.foundation.vocab.agent_codes import FOCUS_NONE
 from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.foundation.hashing import apply_key_array
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.mind.system1.wake import WakeCandidates
 from shibuya.foundation.time_consts import HOURS_PER_DAY, STEPS_PER_HOUR
@@ -107,7 +110,7 @@ def sys_apply_responses(ctx: Any, b: Any) -> None:
                 dtype=np.int64,
                 count=order.size,
             )
-            n_undefined = int(np.count_nonzero(codes == C.UNDEFINED_ACTION))
+            n_undefined = int(np.count_nonzero(codes == CW.UNDEFINED_ACTION))
             b.runstats.n_undefined_total += n_undefined
             tgt_person = np.fromiter(
                 (due[int(i)][6] for i in order), dtype=np.int64, count=order.size
@@ -135,7 +138,7 @@ def sys_apply_responses(ctx: Any, b: Any) -> None:
                 wmask = np.fromiter(
                     (p is not None and p.wander for p in payloads),
                     dtype=bool, count=order.size,
-                ) & (codes == C.ACT_MOVE)
+                ) & (codes == CV.ACT_MOVE)
                 if wmask.any():
                     move_dest = np.full(order.size, -1, dtype=np.int64)
                     move_dest[wmask] = act_layer.wander_destinations(
@@ -167,7 +170,7 @@ def sys_apply_responses(ctx: Any, b: Any) -> None:
                 if consumed
                 else np.ones(order.size, dtype=bool)
             )
-            llm_intents = C.intents_from_responses(
+            llm_intents = CW.intents_from_responses(
                 agents, world, space, tick, agents_in_order[keep], cond[order][keep],
                 codes[keep],
                 home_cell=schedule.home_cell, work_cell=schedule.work_cell,
@@ -203,7 +206,7 @@ def sys_apply_responses(ctx: Any, b: Any) -> None:
                 focus_request[:] = int(FOCUS_NONE)
                 kept_agents = agents_in_order[keep]
                 if kept_agents.size:
-                    focus_request[kept_agents] = C.focus_codes(
+                    focus_request[kept_agents] = CW.focus_codes(
                         tgt_hint[keep], tgt_person[keep], tgt_poi[keep], int(agents.n)
                     )
         else:
@@ -250,8 +253,8 @@ def _with_stage2_calls(intents: Any, due: list, order: np.ndarray, codes: np.nda
     rows = [due[int(i)] for i in order]
     cid = np.array([r[12] if len(r) > 12 else None for r in rows], dtype=object)
     flg = np.fromiter((int(r[13]) if len(r) > 13 else 0 for r in rows), dtype=np.int64, count=len(rows))
-    money = np.isin(codes, (C.ACT_BUY, C.ACT_EAT, C.ACT_QUEUE))
-    flg = flg | np.where(money, C.S2_MONEY_ACT, 0)
+    money = np.isin(codes, (CV.ACT_BUY, CV.ACT_EAT, CV.ACT_QUEUE))
+    flg = flg | np.where(money, CV.S2_MONEY_ACT, 0)
     return dataclasses.replace(intents, call_id=cid[keep], s2_flags=flg[keep].astype(np.int8))
 
 

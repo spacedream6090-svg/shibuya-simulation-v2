@@ -51,7 +51,9 @@ from shibuya.foundation.vocab.agent_codes import (
     WakeCondition,
 )
 from shibuya.foundation.hashing import wander_key_array
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.foundation.types import ticks_per_day as _ticks_per_day
 from shibuya.foundation.vocab.actions import (
@@ -109,12 +111,12 @@ def activity_kind_of(code: np.ndarray, wander: np.ndarray) -> np.ndarray:
     c = np.asarray(code, dtype=np.int64)
     w = np.asarray(wander, dtype=bool)
     kind = np.full(c.size, int(ActivityKind.IN_PLACE), dtype=np.int64)
-    move = c == C.ACT_MOVE
+    move = c == CV.ACT_MOVE
     kind[move] = int(ActivityKind.MOVE_TO)
     kind[move & w] = int(ActivityKind.WANDER)
-    kind[c == C.ACT_BOARD] = int(ActivityKind.MOVE_TO)
-    kind[np.isin(c, (C.ACT_BUY, C.ACT_EAT, C.ACT_QUEUE))] = int(ActivityKind.IN_SHOP)
-    kind[c == C.ACT_SLEEP] = int(ActivityKind.NONE)
+    kind[c == CV.ACT_BOARD] = int(ActivityKind.MOVE_TO)
+    kind[np.isin(c, (CV.ACT_BUY, CV.ACT_EAT, CV.ACT_QUEUE))] = int(ActivityKind.IN_SHOP)
+    kind[c == CV.ACT_SLEEP] = int(ActivityKind.NONE)
     return kind
 
 
@@ -308,7 +310,7 @@ class ActivityLayer:
         until = np.where(now, int(tick) + 1, until)
         self.n_fail_immediate += int(np.count_nonzero(now))
         # 9a(D-112 ④): 退去=所属を解いて活動が終わる。活動欄が「なし」なら次の tick に満了(考え直す)
-        leave_now = (codes == C.ACT_LEAVE) & no_text & ~now
+        leave_now = (codes == CV.ACT_LEAVE) & no_text & ~now
         if bool(leave_now.any()):
             until = np.where(leave_now, int(tick) + 1, until)
             self.n_leave_expired += int(np.count_nonzero(leave_now))
@@ -411,7 +413,7 @@ class ActivityLayer:
         """「あたり」の行き先セル(半径 2 セル・run_salt の決定論)。域外は ``WANDER_BAD_TARGET``。"""
         a = np.asarray(agent_id, dtype=np.int64)
         c = np.asarray(cell, dtype=np.int64)
-        out = np.full(a.size, C.WANDER_BAD_TARGET, dtype=np.int64)
+        out = np.full(a.size, CV.WANDER_BAD_TARGET, dtype=np.int64)
         ok = (c >= 0) & (c < self._nbr_start.size - 1)
         if not bool(ok.any()):
             self.n_wander_bad += int(a.size)
@@ -449,7 +451,7 @@ class ActivityLayer:
         self.n_wander_steps += int(ids.size)
         return C.IntentBatch(
             agent_id=ids,
-            action_code=np.full(ids.size, C.ACT_MOVE, dtype=np.int8),
+            action_code=np.full(ids.size, CV.ACT_MOVE, dtype=np.int8),
             target_id=dest.astype(np.int32),
             resource_id=np.full(ids.size, -1, dtype=np.int32),
             t_notice_ns=np.full(ids.size, C.tick_start_ns(t), dtype=np.int64),

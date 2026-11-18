@@ -14,7 +14,7 @@ import pytest
 
 from shibuya.foundation.vocab.agent_codes import MEMORY_FIELDS, ResultCode
 from shibuya.world.model.agent_table import AgentState
-from shibuya.engine import commit as C
+from shibuya.foundation.vocab import act_codes as C
 from shibuya.mind.memory import memory as M
 from shibuya.mind.memory.familiarity import place_thing
 from tests import golden_env as GE

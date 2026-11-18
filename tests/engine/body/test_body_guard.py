@@ -127,7 +127,7 @@ def test_only_the_ports_write_the_body_layer():
 def test_negative_planted_writes_and_calls_are_found():
     """負の対照: 体の層の外から中身を書く・予約の列の書く口を呼ぶ・step を呼ぶ行を植えると見つかる。"""
     planted = {
-        "engine/presence.py": (
+        "world/laws/presence.py": (
             "def f(body, layers):\n"
             "    body._body_meter['steps'] = 0\n"
             "    layers.body._reservations.intero_plan(0, [], [])\n"
@@ -140,7 +140,7 @@ def test_negative_planted_writes_and_calls_are_found():
     assert any("presence.py:2" in w for w in writes) and any("model.py:3" in w for w in writes)
     assert any("method body._reservations.intero_snap.clear" in w for w in writes)
     assert any("intero_plan" in s for s in sched_bad)
-    assert "engine/presence.py:f:step" in body_calls
+    assert "world/laws/presence.py:f:step" in body_calls
 
 
 def test_the_owner_refuses_rebinding_and_deleting():

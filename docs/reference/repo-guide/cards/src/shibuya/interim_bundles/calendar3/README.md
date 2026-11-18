@@ -57,7 +57,7 @@ engine.calendar3.roster — 雇い主の口のつなぎの形(第 6 期 6-2 カ�
   - `empty_roster`(関数)
   - `roster_for_run`(関数): ランの雇い主の口の表(〔検収 H1〕最初の刻みの頭に呼ぶ=再開では状態を戻して権利台帳を作り直した後)。W20 の表が無い
   - `w20_table_for_run`(関数): 組み立ての口: ランの W20 の週の表(世界の資産=状態でない・母集団の無いラン=合成の世界は ``None``)。
-- import している内部モジュール: `shibuya.engine.calendar_shadow`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`
+- import している内部モジュール: `shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.facts.w20_calendar_reader`
 - 呼び手: `shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/calendar3/_ca3.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`
 - 決定の ID: 10-12/§4-1

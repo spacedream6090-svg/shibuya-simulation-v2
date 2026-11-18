@@ -249,7 +249,7 @@ def test_two_day_world_run_closes_money_goods_and_bodies_each_day(monkeypatch):
         return orig(self, day)
 
     monkeypatch.setattr(LedgerBundle, "end_of_day", spy)
-    from shibuya.engine.presence import PlanExecutor
+    from shibuya.world.laws.presence import PlanExecutor
 
     arrive_ticks: list[int] = []
     orig_step = PlanExecutor.step

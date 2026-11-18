@@ -82,7 +82,9 @@ from shibuya.foundation.vocab.agent_codes import (
     ResultCode,
     WakeCondition,
 )
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.act.activity import ActivityPayload
 from shibuya.foundation.vocab.actions import NO_TARGET, UNTIL_DEFAULT_MINUTES, UntilKind
@@ -100,11 +102,11 @@ INTENT_MAX_TICKS: Final[int] = 60
 #: 感度腕(``--intent-max-ticks``)。
 INTENT_MAX_TICKS_ARMS: Final[tuple[int, ...]] = (30, 60, 120)
 #: 意図にできる行為(購入/食事/並ぶ/会話/就寝)。
-INTENT_ACTIONS: Final[tuple[int, ...]] = (C.ACT_BUY, C.ACT_EAT, C.ACT_QUEUE, C.ACT_TALK, C.ACT_SLEEP)
+INTENT_ACTIONS: Final[tuple[int, ...]] = (CV.ACT_BUY, CV.ACT_EAT, CV.ACT_QUEUE, CV.ACT_TALK, CV.ACT_SLEEP)
 #: 行為コード → manifest の鍵(語彙 v3 の語)。
 _ACTION_KEY: Final[Mapping[int, str]] = {
-    C.ACT_BUY: "購入", C.ACT_EAT: "食事", C.ACT_QUEUE: "並ぶ", C.ACT_TALK: "会話",
-    C.ACT_SLEEP: "就寝",
+    CV.ACT_BUY: "購入", CV.ACT_EAT: "食事", CV.ACT_QUEUE: "並ぶ", CV.ACT_TALK: "会話",
+    CV.ACT_SLEEP: "就寝",
 }
 _KIND_KEY: Final[Mapping[int, str]] = {int(k): k.name.lower() for k in IntentKind}
 #: 着いた後に戻す活動が無い(応答に活動欄が無かった)体の既定(活動なし・既定 60 分)。
@@ -231,8 +233,8 @@ class IntentLayer:
                 kept = R.intent_kept_by(agents, self.world, la[idx], code,
                                         np.asarray(llm.target_id, dtype=np.int64)[idx])
                 self.stats["dropped:superseded"] += int(np.count_nonzero(~kept))
-                self.stats["kept:none_or_wait"] += int(np.count_nonzero(kept & (code != C.ACT_MOVE)))
-                self.stats["kept:same_dest_move"] += int(np.count_nonzero(kept & (code == C.ACT_MOVE)))
+                self.stats["kept:none_or_wait"] += int(np.count_nonzero(kept & (code != CV.ACT_MOVE)))
+                self.stats["kept:same_dest_move"] += int(np.count_nonzero(kept & (code == CV.ACT_MOVE)))
                 hold = hold[~np.isin(hold, la[idx[~kept]])]
                 kept_rows = idx[kept]
         if hold.size == 0:
@@ -391,7 +393,7 @@ class IntentLayer:
         started = (
             (np.asarray(r.last_result_tick)[ids] == t)
             & (np.asarray(r.last_result)[ids] == int(ResultCode.OK))
-            & (np.asarray(r.last_action)[ids] == int(C.ACT_MOVE))
+            & (np.asarray(r.last_action)[ids] == int(CV.ACT_MOVE))
             & np.isin(np.asarray(r.activity)[ids], (int(Activity.MOVING), int(Activity.IDLE)))
             & (np.asarray(r.transit_state)[ids] == 0)
         )

@@ -19,7 +19,7 @@ import numpy as np
 import pytest
 
 from shibuya.interim_bundles import calendar_self as CS1
-from shibuya.engine import calendar_shadow as CSH
+from shibuya.world.facts import w20_calendar_reader as CSH
 from shibuya.foundation.manifest import sections as MS
 from shibuya.runtime.state import ledger as SL
 from shibuya.foundation.ports.decision import (

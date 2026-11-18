@@ -83,7 +83,9 @@ import numpy as np
 from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.foundation.hashing import blake3_hex
 from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
-from shibuya.engine import calendar_shadow as _CS
+# 〔割る段 5b の G1〕別名 _CS を割り先ごとに分けた(_CS=society.calendar_shadow・_CR=world.facts.w20_calendar_reader の名)
+from shibuya.society import calendar_shadow as _CS
+from shibuya.world.facts import w20_calendar_reader as _CR
 from shibuya.engine import resolve as R
 from shibuya.foundation.ports.decision import (
     DELIBERATE_KIND,
@@ -655,7 +657,7 @@ class CalendarSelf:
         cal = self.calendar
         dt = cal.date_of_day(d)
         twd = int(cal.table_weekday(d))
-        wk_raw = (dt - _CS.WEEK0_MONDAY).days // _CS.N_DAYS
+        wk_raw = (dt - _CR.WEEK0_MONDAY).days // _CR.N_DAYS
         wk = wk_raw % max(int(self.table.n_weeks), 1)
         n = self.n
         mt = min(n, int(self.table.n))
@@ -674,7 +676,7 @@ class CalendarSelf:
         prev_end = s["end_T"].copy()
         # ---- 管理する体(時刻つきの勤務の約束・CA4)----
         commit = col["commit"]
-        work = commit == _CS.COMMIT_WORK
+        work = commit == _CR.COMMIT_WORK
         start = col["start_min"]
         end = col["end_min"]
         pk = col["place_kind"]
@@ -688,7 +690,7 @@ class CalendarSelf:
         ex = np.full(n, -1, dtype=np.int64)
         ex[~found] = EX_NOT_IN_TABLE
         ex[found & (commit == 0)] = EX_NO
-        ex[found & (commit == _CS.COMMIT_SCHOOL)] = EX_SCHOOL
+        ex[found & (commit == _CR.COMMIT_SCHOOL)] = EX_SCHOOL
         ex[(ex < 0) & broken] = EX_BROKEN
         ex[(ex < 0) & work & place_home] = EX_HOME
         ex[(ex < 0) & work & place_out & home_out] = EX_OUTSIDE
@@ -783,7 +785,7 @@ class CalendarSelf:
     def _w17_ref(self, managed: np.ndarray, start_min: np.ndarray, absent: np.ndarray, T0: int) -> dict[str, Any]:
         """参考: W17 の計画実行層なら最初の在圏ブロックの始まりと、その到着の便(E1=間に合う最も遅い便・散らす前)の時刻と、
         約束の始まりの差(家が域外の体・W17 の週次表から同じ読み口で引き直す=計画実行層の表の欄は読まない)。"""
-        from shibuya.engine.presence import PlanBlocks
+        from shibuya.world.laws.presence_plan import PlanBlocks
 
         pr = self.presence
         weekly = getattr(pr, "weekly", None)
@@ -1050,7 +1052,7 @@ class CalendarSelf:
             go_in = ids[outside]
             if go_in.size:
                 R.rail_arrive(self.agents, self.world, go_in, cells[outside])
-                from shibuya.engine.presence import FLAG_ARRIVED
+                from shibuya.world.laws.presence import FLAG_ARRIVED
 
                 R.set_plan_state(self.agents, go_in, flags_set=FLAG_ARRIVED)
                 s["flag_arrive"][go_in] = True
@@ -1705,7 +1707,7 @@ class CalendarSelf:
         except Exception:  # noqa: BLE001  台帳が読めない木(HEAD の写しなど)=件数は空欄
             have = {}
         return {
-            "schema": SCHEMA, "mode": self.source, "port": self.port.name, "w20": dict(_CS._thaw(self.table.version)),
+            "schema": SCHEMA, "mode": self.source, "port": self.port.name, "w20": dict(_CR._thaw(self.table.version)),
             "placements": list(PLACEMENTS), "look_interval_min": LOOK_INTERVAL_MIN, "margins_min": list(MARGINS_MIN),
             "recent_k": RECENT_K, "round_min": ROUND_MIN, "approx_round_min": APPROX_ROUND_MIN,
             "felt": {"wait_intercept": FELT_WAIT_INTERCEPT, "wait_slope": FELT_WAIT_SLOPE, "other_ratio": 1.0,
@@ -1735,10 +1737,10 @@ def build(world_dir: Any, pop: Any, *, calendar: Any, agents: Any, world: Any, p
         return None
     if pop is None or presence is None:
         raise ValueError("腕 --calendar 1b は母集団(W16)と計画実行層のあるランだけ(出入りを本人へ渡す相手が要る)")
-    path = _CS.resolve_path(world_dir)
+    path = _CR.resolve_path(world_dir)
     if path is None:
         raise FileNotFoundError("腕 --calendar 1b には世界資産の置き場(world_dir)か SHIBUYA_CALENDAR_W20 が要る")
-    table = _CS.load_table(path, np.asarray(pop.source_agent_id, dtype=np.int64))
+    table = _CR.load_table(path, np.asarray(pop.source_agent_id, dtype=np.int64))
     pkw = dict(seed=seed, day_key0=int(day_key0), step_seconds=int(step_seconds))
     port: DecisionPort = CommuteClassicalPort(**pkw) if classical is not None else CommuteMockPort(**pkw)
     layer = CalendarSelf(table, calendar=calendar, agents=agents, world=world, presence=presence, port=port,

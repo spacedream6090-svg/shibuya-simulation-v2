@@ -19,7 +19,7 @@ from collections import Counter
 import numpy as np
 import pytest
 
-from shibuya.engine import commit as C
+from shibuya.act.intake import from_words as C
 from shibuya.engine import run as RUN
 from shibuya.engine.run import run_day
 from shibuya.runtime.inference.tape import Tape

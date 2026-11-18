@@ -22,7 +22,9 @@ from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.mind.system1 import change_detect as CD
 # 〔割る段 5a の G5〕主でない割り先(foundation.vocab.agent_codes・world.model.scene_hash)へ行く名は名で読む(別名では割り先が 1 つに決まらない)
 from shibuya.world.model.scene_hash import b4_block_raw
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.runtime.inference.bridge import ACTION_WORD_BY_CODE, PerceptionRendererAdapter
 from shibuya.engine.run import run_day
@@ -223,11 +225,11 @@ def test_resolve_records_the_attempted_action_not_the_resulting_state():
     agents.freeze()
     world.freeze()
     R.apply(
-        _intents([0, 1], [C.ACT_BUY, C.ACT_REST], [0, -1]),
+        _intents([0, 1], [CV.ACT_BUY, CV.ACT_REST], [0, -1]),
         C.IntentBatch.empty(), agents, world, 700,
     )
-    assert int(agents.last_action[0]) == C.ACT_BUY  # 失敗しても「試みた行動」が残る
-    assert int(agents.last_action[1]) == C.ACT_REST
+    assert int(agents.last_action[0]) == CV.ACT_BUY  # 失敗しても「試みた行動」が残る
+    assert int(agents.last_action[1]) == CV.ACT_REST
     assert int(agents.last_action[2]) == LAST_ACTION_NONE  # 動いていない個体は触らない
     assert int(agents.activity[0]) != int(Activity.SHOPPING)  # 状態には残らない
 
@@ -241,9 +243,9 @@ def test_losers_also_get_their_attempted_action():
     agents.freeze()
     world.freeze()
     R.apply(
-        C.IntentBatch.empty(), _intents([1], [C.ACT_BUY], [0]), agents, world, 700
+        C.IntentBatch.empty(), _intents([1], [CV.ACT_BUY], [0]), agents, world, 700
     )
-    assert int(agents.last_action[1]) == C.ACT_BUY
+    assert int(agents.last_action[1]) == CV.ACT_BUY
     assert int(agents.last_action[0]) == LAST_ACTION_NONE
 
 
@@ -255,10 +257,10 @@ def test_engine_continuation_does_not_overwrite_the_attempted_action():
     agents.node[:] = 0
     agents.freeze()
     world.freeze()
-    R.apply(_intents([0], [C.ACT_MOVE], [8]), C.IntentBatch.empty(), agents, world, 10)
-    assert int(agents.last_action[0]) == C.ACT_MOVE
-    R.apply(_intents([0], [C.ENGINE_STEP], [8]), C.IntentBatch.empty(), agents, world, 11)
-    assert int(agents.last_action[0]) == C.ACT_MOVE
+    R.apply(_intents([0], [CV.ACT_MOVE], [8]), C.IntentBatch.empty(), agents, world, 10)
+    assert int(agents.last_action[0]) == CV.ACT_MOVE
+    R.apply(_intents([0], [CV.ENGINE_STEP], [8]), C.IntentBatch.empty(), agents, world, 11)
+    assert int(agents.last_action[0]) == CV.ACT_MOVE
 
 
 def test_b6_names_the_attempted_action_in_a_real_run(recording, capsys):

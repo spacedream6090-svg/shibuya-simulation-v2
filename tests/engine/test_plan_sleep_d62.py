@@ -23,7 +23,10 @@ import pytest
 from shibuya.world.facts import weekly_reader as W
 from shibuya.foundation.vocab.agent_codes import Activity, WakeCondition
 from shibuya.world.model.agent_table import AgentState
-from shibuya.engine import commit as C
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
+from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.engine.run import run_day
 from shibuya.world.model.state import World
@@ -111,7 +114,7 @@ def test_sleep_boundary_walks_home_and_sleeps_on_arrival():
     for t in range(11, 60):
         if int(a.registry.activity[0]) == int(Activity.SLEEPING):
             break
-        intents = C.engine_continuations(a, C.ResourceSpace(w.n_poi, a.n, w.n_cells), t)
+        intents = CW.engine_continuations(a, C.ResourceSpace(w.n_poi, a.n, w.n_cells), t)
         R.apply(intents, C.IntentBatch.empty(), a, w, t)
     assert int(a.registry.activity[0]) == int(Activity.SLEEPING)
     assert int(a.registry.sleep_pending[0]) == 0
@@ -145,7 +148,7 @@ def test_choosing_another_action_drops_the_sleep_intent():
     assert int(a.registry.sleep_pending[0]) == 1
     intents = C.IntentBatch(
         np.array([0], dtype=np.int64),
-        np.array([C.ACT_REST], dtype=np.int8),
+        np.array([CV.ACT_REST], dtype=np.int8),
         np.array([-1], dtype=np.int32),
         np.array([-1], dtype=np.int32),
         np.array([C.tick_start_ns(2)], dtype=np.int64),

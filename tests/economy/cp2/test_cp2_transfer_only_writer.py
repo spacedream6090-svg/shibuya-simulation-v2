@@ -151,7 +151,7 @@ def test_negative_alias():
 def test_negative_ufunc_at():
     """負の対照 2(np.add.at): writeable=False を無視して書ける形(numpy 2.5 実測)。"""
     bad = _bad("import numpy as np\ndef leak(agents):\n    np.add.at(agents.registry.money, [0], 1)\n",
-               "engine/presence.py")
+               "world/laws/presence.py")
     assert [(w.func, w.attr, w.form) for w in bad] == [("leak", "money", "ufunc.at")]
     bad = _bad("import numpy as np\ndef leak(world):\n    rev = world.pois.revenue\n    np.subtract.at(rev, [1], 2)\n")
     assert [(w.attr, w.form) for w in bad] == [("revenue", "ufunc.at")]

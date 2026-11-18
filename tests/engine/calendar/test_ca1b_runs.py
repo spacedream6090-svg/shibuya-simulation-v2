@@ -18,7 +18,7 @@ import pytest
 from shibuya import cli
 from shibuya.interim_bundles import calendar_self as CS1
 from shibuya.engine import resolve as R
-from shibuya.engine.presence import EventType, PlanExecutor
+from shibuya.world.laws.presence import EventType, PlanExecutor
 from shibuya.engine.run import run_day
 
 WORLD = Path("data/world/v2")

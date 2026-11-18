@@ -542,7 +542,7 @@ def test_real_5000_table_shape_and_golden(real5000):
 @real
 def test_real_5000_rows_equal_the_stage_asset_when_present(real5000):
     """組んだ資産(data/world/v2_stage_3-1)があれば、同じ 5,000 体の行が一致する(段=関数を全員にかけただけ)。"""
-    from shibuya.engine.calendar_shadow import STAGE_DIR
+    from shibuya.world.facts.w20_calendar_reader import STAGE_DIR
 
     p = REPO / STAGE_DIR / W.OUTPUT_NAME
     if not p.is_file():

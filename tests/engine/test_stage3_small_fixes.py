@@ -10,7 +10,7 @@ import numpy as np
 
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.vocab.agent_codes import IntentKind, ResultCode
-from shibuya.engine import commit as C
+from shibuya.foundation.vocab import act_codes as C
 from shibuya.engine import resolve as R
 from shibuya.mind.judge.chooser import NearestChooser
 from shibuya.act.target import TargetResolver

@@ -231,3 +231,75 @@
 ### 11-4. 親の手直しの後の確かめ
 
 - `tests/c8/test_places_rule_copies.py`・`tests/test_places_guard.py`・`tests/engine/test_two_phase.py`・`tests/engine/systems/test_fix_guards.py`(`-n` なし): 59 passed・0 skipped・落ち 0。
+
+## 12. G1 の当て(群の土台 `4af887b`=G0 の commit・安定版のタグ `stable-v2-before-split5b-G1`・2026-11-18)
+
+最初に G0 の再検収の低-1 として、f 文字列の部分の枝の負の対照を 1 本足した(`test_split_lists_a_code_import_inside_an_f_string_for_hand_fixing`=その枝を外すと一覧に出ずに残る。`tools/pkgmove/` は変えていない)。そのあと 1 本ずつ、手で直す読みを先に直し(書かない実行で手で直す 0 を見てから)、当て、契約を作り直し、試験と byte-check を回した。
+
+### 12-1. 本ごとの数
+
+| 本 | 割る行 | 書き換えた import の文(src・tests・tools・docs) | 分けた文 | 鍵 | 台帳の道 | 道の文字列 | 書き換えなかった鍵 | 手で直した読み | 写さなかった | 守り | byte-check | 契約 | 例外 載せた・効いている(辺/行) |
+|---:|---|---|---:|---:|---:|---|---:|---|---|---|---|---|---|
+| 18 | `engine/commit.py` | 79(19・60・0・0) | 1 | 3 | 1 | 0 | 6(`test_two_phase`) | 26(src 5・tests 21) | 無い(自分を読む import 1=`TARGET_HINT_WORDS`・再輸出 `UNDEFINED_ACTION` は割り先へ写さない) | 12 個「同じ」 | 19/19 同じ | 2+9 | 20/26・20/26(#9・#15 が消えた) |
+| 19 | `engine/presence.py` | 18(7・9・2・0) | 2 | 4 | 1 | src の表 2・斜線 3(植えた道 2 本) | 2 | 0 | 無い | 12 個「同じ」 | 19/19 同じ | 2+9 | 20/26・20/26 |
+| 20 | `engine/calendar_shadow.py` | 13(7・4・2・0) | 0 | 2 | 1 | src の表 1・斜線 1 | 0 | 2(src 1・tests 1) | 無い | 12 個「同じ」 | 19/19 同じ | 2+9 | 20/26・20/26 |
+
+- 割り先: 18 本目 `act/commit.py`(新・9 名)・`act/intake/from_words.py`(新・11 名)・`foundation/vocab/act_codes.py`(在る・34 名を後ろへ)/19 本目 `world/laws/presence.py`(新・15 名)・`world/laws/presence_plan.py`(新・15 名)/20 本目 `society/calendar_shadow.py`(新・21 名・`_ARM` の確かめの文 1)・`world/facts/w20_calendar_reader.py`(新・15 名)。作った頭 0・消えた頭 0(`engine/` は `resolve.py` が段 6 まで残る)。
+- 例外: 18 本目で計画のとおり #9(`mind.judge.decision.layer -> act.commit`)・#15(`mind.memory.memory -> act.commit`)が消えた(22 辺・延べ 30 行 → 20 辺・延べ 26 行。読む名が `act_codes`=foundation に在るため)。19・20 本目は変わらない。`lint-imports` は 3 本とも 11 kept。
+- 写さなかった import と注(`unwritten`): 3 本とも 0。
+- tests/c7: 3 本とも道具は 1 か所も挙げなかった。
+- byte-check(基準 `4af887b`・積み重ね・記録 `bytecheck_18`・`_19`・`_20`): 3 本とも 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0(既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939=前と同じ)。
+
+### 12-2. 手で直した読み(裁定 Q10=割り先ごとに別名を 1 つ・属性の読みのまま)
+
+- 作法(5a の 17 本目と同じ): 別名の import の文は元のモジュールを指したまま別名だけを割り先ごとに分け(割る前は同じモジュール=1 バイト不変)、道具が別名ごとに割り先へ書き換える。名の import には替えない(差し替えの効く先=呼ぶ時に引くモジュールの属性を保つ)。別名の import の文ごとに、その有効範囲で使う名の割り先の別名だけを置いた。
+- 18 本目(26 本): 別名 `C` を `C`=act.commit・`CW`=act.intake.from_words・`CV`=foundation.vocab.act_codes に分けた。再輸出の `UNDEFINED_ACTION` は、道具が割り先へ向けるのと同じ `from_words`(`CW`)で読む。src 5 本=`act/activity.py`(C 3・CV 9)・`act/intent.py`(C 9・CV 13)・`engine/run.py`(CW 1・CV 2)・`runtime/systems/act.py`(C 4・CW 2)・`runtime/systems/judge.py`(C 1・CV 5・CW 3)。tests 21 本=`test_stage2_calls`・`test_civic`・`test_crowd`・`test_rail`・`test_rail_board_intent`・`test_rail_return`・`test_c9b_targets_attention`・`test_conversation_invite`・`test_defect_fixes_1103`・`test_geometry_c9`・`test_intent_hold`・`test_ledger_wiring`・`test_move_destination`・`test_parser_contract`・`test_plan_sleep_d62`・`test_renderer_wiring`・`test_resolve`・`test_seat_release_2_4`・`test_two_layer_activity`・`test_two_phase`・`test_vocab_v2_eat`。G0 の木の数(26)と同じ。
+- 20 本目(2 本): `interim_bundles/calendar_self.py` の `_CS` を `_CS`=society.calendar_shadow(`_hist15`・`_stats`)・`_CR`=world.facts.w20_calendar_reader(`_thaw`・`load_table`・`resolve_path`・定数 4)に、`tests/engine/calendar/test_calendar_shadow.py` の `CS` を `CS`・`CR` に分けた。G0 の木の数(2)と同じ。
+- 19 本目: 手で直す読み 0(G0 の木の数と同じ)。
+
+### 12-3. 差し替えの空振りの確かめ(親の決め事 3)と、中身を見る試験
+
+- 18 本目: `tests/engine/test_response_delay.py` は `monkeypatch.setattr(C, "intents_from_responses", wrap)` で差し替え、`runtime/systems/judge.py` は呼ぶ時に `CW.intents_from_responses(...)` で引く。道具は試験の `C` を `act.intake.from_words` へ書き換えた(別名の読みの割り先が 1 つ)=差し替えの先と呼ぶ時に引く先が同じモジュール。差し替えの 1 行を外すと 2 本が落ちる(`+1 で反映されていない`・`Counter() == …`)ことを確かめ、戻して `git diff` が確かめの前と同じことを見た。
+- 19・20 本目: src の手直しに関わる差し替えの試験は無い(19 本目は src の手直しが 0・20 本目の `calendar_self` の `_CS`・`_CR` を差し替える試験は無い=`setattr` の走査で 0)。
+- 中身を見る試験: 18 本目で `test_two_phase` の `_hot_paths` が `act/commit.py`・`act/intake/from_words.py` を返し、ループを探す範囲に `foundation/vocab/act_codes.py`(と `agent_codes.py`)が加わる(鍵 6 は書き換わらない)。19 本目で `test_presence_executor`・`test_calendar_sites` の `split_files("engine/presence.py")` が `world/laws/presence.py`・`presence_plan.py` を返す(鍵 2 は書き換わらない)。道の文字列は 3 本とも、主な割り先へだけ書き換えて範囲が狭まった所は無い(19 本目の植えた道 2 本は鍵と期待を同じ道へ・`tools/c8/c8lib.py` の元の道の比べは `STRING_EXCLUDE` で残る=`tests/c8/test_c8lib.py` が通る)。
+
+### 12-4. 狙いの試験(作業の木・`-m "not slow"`・`-n 2`。木をまるごと写す試験と slow は 1 本ずつ)
+
+| 本 | その本で変わった試験のファイルと中身を見る試験 | `test_pkgmove`(slow を除く・`-n` なし) | 決まりの束(c8 を先に)+`tests/tools` の残り | slow |
+|---|---|---|---|---|
+| 18 | 30 本 545 passed | 122=102 passed・20 skipped(G0 の終わりの 121=101+20 に、f 文字列の負の対照 1 本が足された。slow の 1 本を入れると全部で 123 本) | 988 passed | 1 passed |
+| 19 | 11 本 220 passed | 122=102 passed・20 skipped | 988 passed | — |
+| 20 | `tests/engine/calendar`・`test_w20_calendar_1a`・`test_calendar_10e_e3` 77 passed | 122=102 passed・20 skipped | 988 passed | 1 passed |
+
+### 12-5. G1 の終わりの確かめ
+
+- `map --check` 同じ・`contracts --stage delete --check --probe` 作り直しと同じ(契約 2+9・例外 20 辺・延べ 26 行=全部効く・全部 kept)・`lint-imports` 11 kept・カードを作り直した(`data.md` だけ戻した・`--check` 最新)・秘密の走査 CLEAN(消したファイル 3 本を除く変えたファイルと新しいファイル)。astsame は使っていない(src が変わる段)。
+- G2(run)に送ること: G0 の §9-3 のとおり(手で直す 6=`runtime/systems/assemble.py` の `_RUN` と tests 5・差し替えの確かめ=`test_resume_10d` ほか・`prog` の変化・`tests/c7/test_accept_table.py::TIME_V` の機械の書き換え・入口 `-m shibuya.interfaces.cli.run_args --help`)。`engine/run.py` は 18 本目で別名 `C` を `CW`・`CV` に分けた後の形で割る(`CW`=from_words・`CV`=act_codes の import は、割った後は名の割り先 `runtime/run.py` に写る)。
+
+## 13. G1 の親の確かめと検収(第347・2026-11-18)
+
+### 13-1. 別の役の検収
+
+- 判定: **受入**(高 0・中 0・低 3)。検収役はファイルを 1 本も変えていない。
+- 道具の当て直し: 土台 `4af887b` をメモリに読み、今の道具と表で 18〜20 本目を当て直した。守りは 3 本とも 12 個「同じ」・手で直す一覧は 26・0・2。作業木と違うのは 29 本=手で直した 28 本(commit 26・calendar_shadow 2)と、負の対照を足した `test_pkgmove` だけ(記録の一覧と過不足なし)。実装役の報告に名の出ない src の 13 本(`act/target.py`・`cli.py`・`engine/resolve.py`・`foundation/decl/ledger_paths.py`・`foundation/vocab/act_codes.py`・`interim_bundles/calendar3/roster.py`・`mind/judge/decision/layer.py`・`mind/memory/memory.py`・`runtime/state/class_ids.py`・`ledger.py`・`ledger_ast.py`・`runtime/systems/assemble.py`・`talk.py`)は、道具の出力とバイトが同じ(import の書き換え・台帳の道・固定の表の鍵・決まりの名の引き直し)。割り先 7 本の頂上の文は、字面・AST・前の注が元と同じ。
+- src の手直し: 28 本とも名の import は前も後も 0(裁定 Q10 のとおり)。別名の読みはどれも表の名の割り先を指す(再輸出の `CW.UNDEFINED_ACTION` の 3 か所も同じ物)。新しい別名を元の別名へ戻すと 27 本は土台と AST が同じ・残る 1 本(`test_calendar_shadow`)の違いは道具が書き換えた OWNER の道の字面 1 つだけ。読み込みの時の循環は土台 0・作業木 0。
+- 差し替えの空振り: 無い。割り先 7 本のモジュールの属性を差し替えるのは `test_response_delay` の 1 か所だけ(ほかはクラスの属性)。差し替える先(`from_words.intents_from_responses`)と、`runtime/systems/judge.py` が呼ぶ時に引く先(`CW.intents_from_responses`)は同じモジュールの属性。
+- 範囲の狭まり・空回り: 無い。割った後の木で `split_files` は割り先の全部を返す(commit 3 本・presence 2 本・calendar_shadow 2 本)。`_hot_paths`・`_loop_scan_paths`・`test_presence_executor`・`test_calendar_sites` の 4 つを単独で回して passed。表の鍵の字面の書き換えは 0。
+- import の決まり(`contracts --check --probe`): 契約 2+9・例外 22 辺/30 行 → 20 辺/26 行(消えたのは #9・#15 だけ・残りは全部効く・計画に無い例外は無い)。
+- 凍結: `CLASS_IDS` の値の集合は同じ(変わった鍵 9 は今のクラスに解ける)・凍結の JSON とつなぎの台帳に差は無い。`tests/c7` は差分に道が 1 つも無い。
+
+### 13-2. 検収の低 3 件の扱い
+
+- 低-1(割り先に古い置き場の名の docstring・注が残る=`world/laws/presence.py`・`society/calendar_shadow.py` の見出し・`runtime/state/ledger.py` の basis・`act/intent.py`・`engine/resolve.py`・`runtime/inference/bridge.py`・`act/intake/undefined.py` の注): そのまま。割る段は文を変えない(1 バイト不変)。段 8 の文の掃除で直す。
+- 低-2(**変わった所**): 環境変数 `SHIBUYA_CALENDAR_SHADOW` に不正な値が入っているとき、読み込みの時の確かめ(`ValueError`)が走るのは `society/calendar_shadow.py` を読んだ時だけになった。割る前は `engine/calendar_shadow.py` の 1 本だったので、W20 の表の読み口の定数だけを読む道具(`tools/instruments/anchor_gauge.py`=ファイルの名と置き場の 2 つを読む)も不正な値で止まっていた。割った後は、読み口(`world/facts/w20_calendar_reader.py`)だけを読む道具は止まらない。ランは変わらない(`cli`・`engine/run.py`・`calendar_self.py`・`runtime/systems/assemble.py` が `society/calendar_shadow.py` を読むので、不正な値なら前と同じに止まる)。正しい値のランと byte-check には効かない。確かめの文を腕の持ち主(`set_arm` と同じ割り先)に置くのは表のとおり。読み口の側にも確かめを置くと world → society の辺ができる。**親の仮採用=そのまま**(ランの結果ではないが、変わる所として報告に載せる)。
+- 低-3(§12-4 の `test_pkgmove` の数): 1 本増えたわけを表に書き添えた(親)。
+
+### 13-3. 親が回した確かめ
+
+| 何を | 結果 |
+|---|---|
+| byte-check 19 構成(本体の道具=G0 の入った `check.py`・基準 `4af887b`・3 本を当てた後の木) | 37 欄すべて同じ 19・動いた 0・誤り 0・436 秒・既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。記録 [bytecheck_G1_parent/](bytecheck_G1_parent/) |
+| 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`) | 6,950 passed・1 failed(前からの 1 本=linked の作業木でだけ落ちる)・21 skipped・1 xfailed・39 分 31 秒 |
+| 別名の読みの突き合わせ(親の台本・src・tests・tools の 45 本 602 か所) | 別名の指す割り先の頂上に無い名 0・1 つの別名が 2 つの割り先を指す所 0 |
+| 差し替えの走査(親の台本・tests の `setattr`・`patch`・属性への代入) | 割り先のモジュールの属性の差し替えは `test_response_delay` の 1 か所だけ |
+| `pyproject.toml` の差 | 例外 4 行(2 辺 × 契約 2 つ)の削除だけ |

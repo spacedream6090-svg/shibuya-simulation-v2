@@ -23,7 +23,7 @@ import numpy as np
 from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.foundation.vocab.agent_codes import ResultCode
 from shibuya.foundation.vocab.agent_codes import WakeCondition
-from shibuya.engine import commit as C
+from shibuya.foundation.vocab import act_codes as C
 from shibuya.engine import resolve as R
 
 
