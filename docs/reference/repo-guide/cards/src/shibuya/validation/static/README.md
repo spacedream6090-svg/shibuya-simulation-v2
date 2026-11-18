@@ -8,6 +8,8 @@ Python 7 本・その他 0 本(このディレクトリの直下)
 
 (冒頭の説明なし)
 
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
+
 ## [bridging_scan.py](../../../../../../../../src/shibuya/validation/static/bridging_scan.py)
 
 engine.bridging.scan — コードの expedient の宣言を AST で数える(第 1 期 1-4・つなぎの台帳との 1 対 1)。
@@ -23,6 +25,7 @@ engine.bridging.scan — コードの expedient の宣言を AST で数える(�
 - import している内部モジュール: `shibuya.foundation.decl.ledger_paths`・`shibuya.foundation.paths`・`shibuya.world.ledger.first_batch`・`shibuya.world.ledger.registry`
 - 呼び手: `tools/pkgmove/split.py`
 - 読む試験: `tests/engine/body/test_body_rules_sources.py`・`tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/state/test_move_prep_stage2.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 決定の ID: 第 334
 
 ## [circularity.py](../../../../../../../../src/shibuya/validation/static/circularity.py)

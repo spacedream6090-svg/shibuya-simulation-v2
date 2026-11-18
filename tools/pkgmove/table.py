@@ -401,6 +401,20 @@ def build_map_text(repo: Path) -> str:
     return render_map(parse_table(text), sha256_text(text))
 
 
+def split_order_of(doc: MapDoc) -> tuple[str, ...]:
+    """〔割る段 6・E9〕対応表の割る行の ``split_order``(1 から)で並べた割る段の順(``cli.py split --map`` が使う=表と木を渡す口)。
+    番号が 1 から続かない(同じ番号が 2 つ・抜け)か、表の頭の ``split_order`` と食い違えば ``ValueError``。"""
+    rows = sorted((r.split_order, r.old) for r in doc.rows if r.kind == "split" and r.split_order > 0)
+    nums = [n for n, _o in rows]
+    if nums != list(range(1, len(nums) + 1)):
+        raise ValueError(f"対応表の割る行の split_order が 1 から続かない: {nums}")
+    order = tuple(o for _n, o in rows)
+    head = doc.meta.get("split_order")
+    if head is not None and tuple(head) != order:
+        raise ValueError(f"対応表の頭の split_order と割る行の split_order が食い違う(頭 {list(head)}・行 {list(order)})")
+    return order
+
+
 def load_map(path: Path) -> MapDoc:
     """対応表 TOML を読む(保留の一覧が道具の一覧と同じかも確かめる)。"""
     doc = tomllib.loads(path.read_text(encoding="utf-8"))

@@ -9,3 +9,5 @@ Python 1 本・その他 0 本(このディレクトリの直下)
 ## [__init__.py](../../../../../../../src/shibuya/validation/__init__.py)
 
 (冒頭の説明なし)
+
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`

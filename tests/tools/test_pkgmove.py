@@ -2482,6 +2482,9 @@ def test_split_leaves_the_bytecheck_tool_and_its_test_alone(monkeypatch):
     reader = 'from shibuya.pk.old import A\n\nP = "src/shibuya/pk/old.py"\n'
     extra = {"tools/bytecheck/x.py": reader, "tests/tools/test_bytecheck.py": reader, "tools/other.py": reader}
     tree, md = _split_sample(extra)
+    # 〔割る段 6・E8〕名の手がかりの無い道(割り先 2 つの行)は宣言が無ければ手で直す一覧へ出る=主な割り先へ向ける宣言を置く
+    # (範囲の外のファイルへの宣言は「範囲の外」で止まるので、範囲の中の 1 本だけ)
+    monkeypatch.setattr(SP, "SPLIT_PATH_DESTS", (SP.PathDest("pk/old.py", "tools/other.py", "P", "nw/main.py"),))
     plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
     a = plan.after.files
     assert a["tools/bytecheck/x.py"] == reader == a["tests/tools/test_bytecheck.py"]
@@ -2489,6 +2492,7 @@ def test_split_leaves_the_bytecheck_tool_and_its_test_alone(monkeypatch):
     assert sorted(x.split(":", 1)[0] for x in plan.excluded_sites) == ["tests/tools/test_bytecheck.py", "tools/bytecheck/x.py"]
     assert set(plan.guards.values()) == {"同じ"}
     monkeypatch.setattr(SP, "SPLIT_EXCLUDE_PATHS", ())
+    monkeypatch.setattr(SP, "SPLIT_PATH_DESTS", tuple(SP.PathDest("pk/old.py", f, "P", "nw/main.py") for f in extra))
     plan2 = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
     assert plan2.after.files["tools/bytecheck/x.py"] == plan2.after.files["tools/other.py"] != reader
     assert plan2.excluded_sites == []
@@ -2538,12 +2542,16 @@ def test_split_keeps_the_table_keys_of_the_places_helpers(monkeypatch):
     reader = ('from tests import _places as PL\n\nA = PL.split_files("pk/old.py")\nB = PL.split_source("pk/old.py", ("f",))\n'
               'C = "src/shibuya/pk/old.py"\n')
     tree, md = _split_sample({"tests/test_keys.py": reader})
+    # 〔割る段 6・E8〕名の手がかりの無い道(C・規則を外した後の A)は、宣言が無ければ手で直す一覧へ出る=主な割り先へ向ける宣言を置く
+    monkeypatch.setattr(SP, "SPLIT_PATH_DESTS", (SP.PathDest("pk/old.py", "tests/test_keys.py", "C", "nw/main.py"),))
     plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
     got = plan.after.files["tests/test_keys.py"]
     assert got == reader.replace('C = "src/shibuya/pk/old.py"', 'C = "src/shibuya/nw/main.py"')
     assert SP.report(plan)["table_key_sites"] == ["tests/test_keys.py::A: pk/old.py", "tests/test_keys.py::B: pk/old.py"]
     assert set(plan.guards.values()) == {"同じ"}
     monkeypatch.setattr(ST, "TABLE_KEY_CALLS", frozenset())
+    monkeypatch.setattr(SP, "SPLIT_PATH_DESTS", tuple(SP.PathDest("pk/old.py", "tests/test_keys.py", s, "nw/main.py")
+                                                      for s in ("A", "C")))
     plan2 = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
     got2 = plan2.after.files["tests/test_keys.py"]
     assert 'PL.split_files("nw/main.py")' in got2 and 'PL.split_source("nw/main.py", ("f",))' in got2
@@ -2625,6 +2633,8 @@ def test_split_lists_a_code_import_inside_an_f_string_for_hand_fixing(monkeypatc
     外すと、同じ記号の道の文字列は書き換わるが、f 文字列の部分は一覧に出ずに残る。"""
     reader = 'def build(n):\n    p = "src/shibuya/pk/old.py"\n    return p, f"from shibuya.pk import old; old.f({n})"\n'
     tree, md = _split_sample({"tests/test_fstr.py": reader})
+    # 〔割る段 6・E8〕名の手がかりの無い道 p は宣言で主な割り先へ(宣言が無ければ手で直す一覧に 2 つ目の行として出る)
+    monkeypatch.setattr(SP, "SPLIT_PATH_DESTS", (SP.PathDest("pk/old.py", "tests/test_fstr.py", "build", "nw/main.py"),))
     with pytest.raises(SP.SplitRefused, match="手で直す"):
         SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
     plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False, strict=False)
@@ -2810,3 +2820,792 @@ def test_alias_declarations_name_files_and_aliases_that_exist_in_the_tree():
     assert got and "(割る前 shibuya.engine.run か割り先 shibuya.interfaces.cli.run_args)" in got[0], got
     assert _stale_alias_dests([dataclasses.replace(real, alias="no_such_alias")]) == [
         f"{real.file}: 別名 no_such_alias が結ぶのは [](割る前 shibuya.cli か割り先 shibuya.interfaces.cli.main)"]
+
+
+# ------------------------------------------------------------------ 〔割る段 6 の S6-G0・E7〕台帳の道の前向きの表(親の裁定 Q1 の (ii))
+_LP_HEAD = ('"""ledger_paths — 見本の台帳の道の表。"""\n\nfrom __future__ import annotations\n\n'
+            "from types import MappingProxyType\nfrom typing import Final, Mapping\n\n")
+
+
+def _lp_text(main: dict[str, str], split: dict[str, str] | None = None) -> str:
+    """見本の ``ledger_paths.py``(``LEDGER_PATHS``・``split`` を渡せば ``LEDGER_PATHS_SPLIT`` も。鍵の昇順・1 行 1 組)。"""
+    def lit(d: dict[str, str]) -> str:
+        return "MappingProxyType({\n" + "".join(f'    "{k}": "{v}",\n' for k, v in sorted(d.items())) + "})\n"
+    out = _LP_HEAD + "LEDGER_PATHS: Final[Mapping[str, str]] = " + lit(main)
+    if split is not None:
+        out += "\nLEDGER_PATHS_SPLIT: Final[Mapping[str, str]] = " + lit(split)
+    return out
+
+
+def test_ledger_paths_forward_table_reads_writes_and_follows_moves():
+    """〔E7〕前向きの表(``LEDGER_PATHS_SPLIT``): 字面は ``LEDGER_PATHS`` と同じ形(鍵の昇順・1 行 1 組・空なら ``{`` の次の行が
+    ``}``)。前向きに引く順は 1 対 1 の表 → 前向きの表 → そのまま。前向きの表の値は 1 対 1 の表の値と重なってよい。移すとき、前向きの
+    表に載った鍵は前向きの表のまま付いて行く。表が無い木に行を足そうとすれば「前向きの表が無い」で止める。2 つの表の両方に同じ
+    今の道は置かない。前向きの表は中身が変わったときだけ書き直す。"""
+    a, b, c = "src/shibuya/a.py", "src/shibuya/b.py", "src/shibuya/c.py"
+    led = "src/shibuya/old.py"
+    empty = _lp_text({a: led}, {})
+    assert "LEDGER_PATHS_SPLIT: Final[Mapping[str, str]] = MappingProxyType({\n})\n" in empty
+    assert LPT.split_table_of(empty) == {} and LPT.split_table_of(_lp_text({a: led})) is None
+    # 前向きの表に足す(値は 1 対 1 の表の値と重なってよい)・1 対 1 の表は移した行だけ
+    t1, n1 = LPT.rewrite(empty, {}, {b: led})
+    assert t1 == _lp_text({a: led}, {b: led}) and n1 == 1
+    assert LPT.ledger_of(LPT.table_of(t1), LPT.split_table_of(t1), b) == led
+    assert LPT.ledger_of(LPT.table_of(t1), LPT.split_table_of(t1), a) == led
+    assert LPT.ledger_of(LPT.table_of(t1), LPT.split_table_of(t1), c) == c
+    # 移す: 前向きの表に載った鍵は前向きの表のまま付いて行く・1 対 1 の表の鍵は 1 対 1 の表のまま
+    d, e = "src/shibuya/d.py", "src/shibuya/e.py"
+    t2, n2 = LPT.rewrite(t1, {b: d, a: e})
+    assert t2 == _lp_text({e: led}, {d: led}) and n2 == 2
+    # 1 対 1 の表だけを移すときは前向きの表の字面を書き直さない
+    t3, _ = LPT.rewrite(t1, {a: e})
+    assert t3.split("LEDGER_PATHS_SPLIT")[1] == t1.split("LEDGER_PATHS_SPLIT")[1]
+    # 前向きの表が無い木=1 対 1 の表だけ(前と同じ字面)・行を足そうとすれば止める
+    old_style = _lp_text({a: led})
+    t4, _ = LPT.rewrite(old_style, {a: e})
+    assert t4 == _lp_text({e: led})
+    with pytest.raises(LPT.LedgerPathsError, match="前向きの表が無い"):
+        LPT.rewrite(old_style, {}, {b: led})
+    # 同じ今の道を 2 つの表に置かない・在る鍵へ足さない・1 対 1 の表の値は重ならない
+    with pytest.raises(LPT.LedgerPathsError, match="既に在る"):
+        LPT.rewrite(t1, {}, {a: led})
+    with pytest.raises(LPT.LedgerPathsError, match="両方に在る"):
+        LPT.rewrite(t1, {b: a})
+    with pytest.raises(LPT.LedgerPathsError, match="台帳の道が重なる"):
+        LPT.updated({a: led, c: led}, {})
+    assert LPT.updated({a: led, b: led}, {}, unique_values=False) == {a: led, b: led}
+
+
+def test_ledger_paths_check_sees_the_forward_table():
+    """〔E7〕``check``: 前向きの表の今の道は木に在る・同じ今の道が 2 つの表の両方に無い。台帳の行は 1 対 1 の表だけで逆に引く
+    (前向きの表の値は逆に引かない)。"""
+    a, b = "src/shibuya/a.py", "src/shibuya/b.py"
+    led = "src/shibuya/old.py"
+    tree = {a, b}
+    exists = tree.__contains__
+    ledger = json.dumps({"bridges": [{"id": "X", "declared_in": f"{led}#docstring:abc"}]})
+    assert LPT.check({a: led}, exists, ledger, split={b: led}) == []
+    assert LPT.check({a: led}, exists, ledger, split={"src/shibuya/gone.py": led}) == [
+        "前向きの表の今の道が木に無い: src/shibuya/gone.py"]
+    assert LPT.check({a: led}, exists, None, split={a: led}) == [f"同じ今の道が 2 つの表の両方に在る: ['{a}']"]
+    # 台帳の行は 1 対 1 の表で引く(前向きの表だけに載る道は逆に引かない=元の道のまま=木に無ければ届かない)
+    assert LPT.check({}, exists, ledger, split={b: led}) == [f"台帳の道が今のファイルに届かない: X {led} → {led}"]
+
+
+_LP_PATH = "src/shibuya/engine/bridging/ledger_paths.py"
+_DECL_H = '\n\ndef h() -> int:\n    """仮の値を返す。\n\n    expedient: 見本の仮の値。\n    """\n    return 1\n'
+_PLAIN_Z = "\n\nZ = 7\n"
+
+
+def _e7_sample(*, lp: str | None = "split", h_dest: str = "nw/extra.py", extra: dict[str, str] | None = None):
+    """見本の木: 元のファイルに宣言(``h`` の docstring の ``expedient:``)と宣言の無い名(``Z``)を足し、2 つ目以降の新しい割り先
+    ``nw/extra.py``(宣言あり)・``nw/plain.py``(宣言なし)へ割る。``lp``: ``"split"``=前向きの表のある台帳の道の表・``"main"``=
+    1 対 1 の表だけ・``None``=表のファイルが無い。"""
+    files: dict[str, str] = {"src/shibuya/pk/old.py": _OLD_SAMPLE + _DECL_H + _PLAIN_Z, **(extra or {})}
+    if lp is not None:
+        files.update({"src/shibuya/engine/__init__.py": "", "src/shibuya/engine/bridging/__init__.py": "",
+                      _LP_PATH: _lp_text({}, {} if lp == "split" else None)})
+    return _split_sample(files, names=(*_SAMPLE_ROW["names"], ("h", h_dest), ("Z", "nw/plain.py")),
+                         split_to=("nw/main.py", "vocab/base.py", "nw/extra.py", "nw/plain.py"))
+
+
+def test_split_writes_a_forward_ledger_row_for_a_second_destination_with_a_declaration():
+    """〔E7〕宣言の入る 2 つ目以降の新しい割り先(``nw/extra.py``)ごとに、前向きの表へ「割り先の今の道 → 元のファイルの台帳の道」を
+    1 行書き足す。宣言の入らない割り先(``nw/plain.py``)の行は書かない(裁定 Q1 の条件 ③)。主な割り先の行は今までどおり 1 対 1 の
+    表へ。守り ④ は台帳の道(1 対 1 の表 → 前向きの表 → そのまま)で数えて「同じ」。"""
+    tree, md = _e7_sample()
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    lp = plan.after.files[_LP_PATH]
+    assert lp == _lp_text({"src/shibuya/nw/main.py": "src/shibuya/pk/old.py"},
+                          {"src/shibuya/nw/extra.py": "src/shibuya/pk/old.py"})
+    assert plan.ledger_paths_added == 1 and plan.ledger_paths_split == ["src/shibuya/nw/extra.py → src/shibuya/pk/old.py"]
+    assert SP.report(plan)["ledger_paths_split"] == plan.ledger_paths_split
+    assert plan.dests["nw/plain.py"] == "new" and "src/shibuya/nw/plain.py" not in lp
+    assert set(plan.guards.values()) == {"同じ"} and plan.guards["declarations"] == "同じ"
+
+
+def test_split_writes_a_forward_ledger_row_when_the_main_destination_is_the_source_file():
+    """〔E7〕主な割り先が元のファイルの今の置き場の行(延ばした 18 本目の形): 1 対 1 の表は変えず、宣言の入る 2 つ目以降の割り先へ
+    元のファイルの台帳の道(1 対 1 の表で引いた道)を前向きの表に書き足す。"""
+    port = ('"""port — 見本。"""\n\nfrom __future__ import annotations\n\n_K: frozenset[str] = frozenset("ab")\n\n\n'
+            'def m(s: str) -> int:\n    """数える。\n\n    expedient: 見本の仮の数え方。\n    """\n'
+            "    return sum(1 for c in s if c not in _K)\n\n\nclass P:\n    def n(self) -> int:\n        return m(\"abc\")\n")
+    led = {"src/shibuya/sp/port.py": "src/shibuya/old/port.py"}
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/sp/__init__.py": "", "src/shibuya/sp/port.py": port,
+             "src/shibuya/sp/use.py": "from shibuya.sp.port import P, m\n", "src/shibuya/engine/__init__.py": "",
+             "src/shibuya/engine/bridging/__init__.py": "", _LP_PATH: _lp_text(led, {})}
+    row = Row(num="1", old="old/port.py", package="sp", kind="split", new="sp/port.py", split_to=("sp/port.py", "txt/mora.py"),
+              names=(("_K", "txt/mora.py"), ("m", "txt/mora.py"), ("P", "sp/port.py")), names_complete=True)
+    plan = SP.make_split_plan(Tree(files=files), MV.MapDoc(rows=[row]), "old/port.py", check_order=False)
+    assert plan.in_place and plan.ledger_paths_added == 0
+    assert plan.after.files[_LP_PATH] == _lp_text(led, {"src/shibuya/txt/mora.py": "src/shibuya/old/port.py"})
+    assert set(plan.guards.values()) == {"同じ"}
+
+
+def _drop_decl(out: dict[str, str]) -> dict[str, str]:
+    t = out["nw/extra.py"]
+    assert "\n\n    expedient: 見本の仮の値。\n    " in t
+    return {**out, "nw/extra.py": t.replace("\n\n    expedient: 見本の仮の値。\n    ", "\n    ")}
+
+
+@pytest.mark.parametrize("case,words", [
+    # 2 つ目以降の割り先の宣言を 1 つ消す(組み立ての後に字面を変える)=台帳の道で数える宣言が元より減る
+    ("drop_decl", ["④ 宣言: つなぎの台帳の宣言が元と割り先とで違う"]),
+    # 前向きの表の行を 1 つ落とす=宣言の入った割り先が前向きの表に無い・台帳の道で数えると元と違う
+    ("drop_row", ["④ 宣言: 2 つ目以降の割り先 nw/extra.py につなぎの台帳の宣言が入るが", "④ 宣言: つなぎの台帳の宣言が元と"]),
+    # 宣言の無い割り先の行を足す(条件 ③)
+    ("add_plain_row", ["④ 宣言: 宣言の無い 2 つ目以降の割り先 nw/plain.py の行が前向きの表に在る",
+                       "④ 台帳の道の表: 前向きの表の今の道 src/shibuya/nw/plain.py に宣言が無い"]),
+    # 既に在る割り先(別の台帳の道を持つ)へ宣言が入る=今までどおり止める
+    ("existing_dest", ["④ 宣言: 既に在る割り先 vocab/base.py につなぎの台帳の宣言が入る", "④ 宣言: つなぎの台帳の宣言が元と"]),
+])
+def test_negative_forward_ledger_rows_keep_guard_4_as_strict_as_before(monkeypatch, case, words):
+    """〔E7・裁定 Q1 の条件 ④〕比べの厳しさは前と同じ: 2 つ目以降の割り先の宣言を 1 つ消す・前向きの表の行を 1 つ落とす・宣言の
+    無い割り先の行を足す・既に在る割り先へ宣言が入る、のどれでも守り ④ が止める。"""
+    compose_fn = None
+    if case == "existing_dest":
+        tree, md = _e7_sample(h_dest="vocab/base.py")
+    else:
+        tree, md = _e7_sample()
+    if case == "drop_decl":
+        compose_fn = _then(_drop_decl)
+    elif case == "drop_row":
+        monkeypatch.setattr(SP, "ledger_split_rows", lambda plan, lp_text: {})
+    elif case == "add_plain_row":
+        real = SP.ledger_split_rows
+        monkeypatch.setattr(SP, "ledger_split_rows", lambda plan, lp_text: {
+            **real(plan, lp_text), "src/shibuya/nw/plain.py": "src/shibuya/pk/old.py"})
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False, compose_fn=compose_fn)
+    for w in words:
+        assert any(e.startswith(w) for e in ei.value.errors), (w, ei.value.errors)
+
+
+def test_negative_a_tree_without_the_forward_table_stops_when_a_row_is_needed():
+    """〔E7〕前向きの表が無い木(src の側の下ごしらえ S6-A の前)で、宣言の入る 2 つ目以降の割り先があれば「前向きの表が無い」で止める
+    (黙って通さない)。表のファイルが無い木は守り ④ が止める(前と同じ)。宣言の入る 2 つ目以降の割り先が無ければ、表が無くても
+    前と同じに 1 対 1 の表へ主な割り先の行を足して通る。"""
+    tree, md = _e7_sample(lp="main")
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    assert len(ei.value.errors) == 1 and "前向きの表が無い" in ei.value.errors[0], ei.value.errors
+    tree, md = _e7_sample(lp=None)
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    assert any(e.startswith("④ 宣言: 2 つ目以降の割り先 nw/extra.py") for e in ei.value.errors), ei.value.errors
+    tree, md = _e7_sample(lp="main", h_dest="nw/main.py")
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    assert plan.after.files[_LP_PATH] == _lp_text({"src/shibuya/nw/main.py": "src/shibuya/pk/old.py"})
+    assert plan.ledger_paths_split == [] and set(plan.guards.values()) == {"同じ"}
+
+
+# ------------------------------------------------------------------ 〔割る段 6 の S6-G0・E8〕道の文字列の割り先の宣言(親の裁定 Q8)
+_E8_FILE = "tests/test_e8.py"
+_E8_READER = ('ROOT = None\n'
+              'P = "src/shibuya/pk/old.py"\n'
+              'S = "see src/shibuya/pk/old.py:3"\n'
+              'CH = ROOT / "pk" / "old.py"\n'
+              'M = "shibuya.pk.old"\n'
+              'G = ("src/shibuya/pk/old.py", "f")\n'
+              'Q = "nothing here"\n')
+
+
+def _e8_plan(monkeypatch, decls, *, strict: bool = True, reader: str = _E8_READER, extra=None, **row_kw):
+    monkeypatch.setattr(SP, "SPLIT_PATH_DESTS", tuple(decls))
+    tree, md = _split_sample({_E8_FILE: reader, **(extra or {})}, **row_kw)
+    return SP.make_split_plan(tree, md, "pk/old.py", check_order=False, strict=strict)
+
+
+def test_split_path_declarations_point_nameless_paths_to_the_declared_dest(monkeypatch):
+    """〔E8〕名の手がかりの無い割るファイルの道(斜線の道の全体・文の中の斜線の道・``/`` の連鎖・名の無い点の道)は、その記号の宣言の
+    割り先へ。名の手がかりの在る道(同じ組の名)は前と同じく名の割り先へ(宣言は要らない)。使った宣言は報告の ``path_declared``。"""
+    decls = [SP.PathDest("pk/old.py", _E8_FILE, s, "vocab/base.py") for s in ("P", "S", "CH", "M")]
+    plan = _e8_plan(monkeypatch, decls)
+    got = plan.after.files[_E8_FILE]
+    assert got == ('ROOT = None\n'
+                   'P = "src/shibuya/vocab/base.py"\n'
+                   'S = "see src/shibuya/vocab/base.py:3"\n'
+                   'CH = ROOT / "vocab" / "base.py"\n'
+                   'M = "shibuya.vocab.base"\n'
+                   'G = ("src/shibuya/nw/main.py", "f")\n'
+                   'Q = "nothing here"\n'), got
+    assert plan.manual == [] and set(plan.guards.values()) == {"同じ"}
+    assert SP.report(plan)["path_declared"] == [f"{_E8_FILE}::{s} → vocab/base.py(道 1)" for s in ("P", "S", "CH", "M")]
+
+
+def test_negative_nameless_paths_without_a_declaration_are_listed_for_hand_fixing(monkeypatch):
+    """〔E8〕宣言も名の手がかりも無い割るファイルの道は、割り先が 2 つ以上の行では主な割り先へ黙って向けず「手で直す一覧」へ出す
+    (``strict`` は断る)。名の手がかりの在る道は前と同じに書き換える。割り先が 1 つの行は前と同じに主な割り先へ。宣言と組の名が
+    食い違えば手で直す一覧へ。"""
+    with pytest.raises(SP.SplitRefused, match="手で直す"):
+        _e8_plan(monkeypatch, [])
+    plan = _e8_plan(monkeypatch, [], strict=False)
+    man = sorted(m.split(": ", 1)[0] for m in plan.manual if _E8_FILE in m)
+    assert man == [f"{_E8_FILE}::{s}" for s in ("CH", "M", "P", "S")], plan.manual
+    assert plan.after.files[_E8_FILE] == _E8_READER.replace('G = ("src/shibuya/pk/old.py"', 'G = ("src/shibuya/nw/main.py"')
+    # 割り先が 1 つの行: 前と同じに主な割り先へ(手で直す一覧に出さない)
+    one = _e8_plan(monkeypatch, [], reader='P = "src/shibuya/pk/old.py"\n', split_to=("nw/main.py",), rewrites=(),
+                   names=tuple((n, "nw/main.py") for n, _d in _SAMPLE_ROW["names"]))
+    assert one.after.files[_E8_FILE] == 'P = "src/shibuya/nw/main.py"\n' and one.manual == []
+    # 宣言と組の名が食い違う=手で直す一覧(宣言は引いた=使われなかったとは言わない)
+    clash = _e8_plan(monkeypatch, [SP.PathDest("pk/old.py", _E8_FILE, "G", "vocab/base.py")], strict=False,
+                     reader='G = ("src/shibuya/pk/old.py", "f")\n')
+    assert [m for m in clash.manual if "食い違う" in m and f"{_E8_FILE}::G" in m], clash.manual
+    assert clash.after.files[_E8_FILE] == 'G = ("src/shibuya/pk/old.py", "f")\n'
+
+
+def test_split_path_declarations_apply_to_the_src_tables(monkeypatch):
+    """〔E8〕src の道の表(許可の一覧 (b-src)・規則 ``exact``)の、名の手がかりの無い割るファイルの道も宣言の割り先へ(段 6 の
+    ``_ALLOW_REVENUE`` の形=組の中の文字列が名でない)。宣言が無ければ手で直す一覧へ。"""
+    table = 'from __future__ import annotations\n\n_ALLOW_REVENUE = (("pk/old.py", "_req(world, world.x)"),)\n'
+    extra = {"src/shibuya/engine/__init__.py": "", "src/shibuya/engine/state_ledger.py": table}
+    assert ("engine/state_ledger.py", "_ALLOW_REVENUE") in {(f, s) for f, s, _w in AL.SRC_TABLES}
+    plan = _e8_plan(monkeypatch, [SP.PathDest("pk/old.py", "src/shibuya/engine/state_ledger.py", "_ALLOW_REVENUE",
+                                              "vocab/base.py")], reader="", extra=extra)
+    assert plan.after.files["src/shibuya/engine/state_ledger.py"] == table.replace('"pk/old.py"', '"vocab/base.py"')
+    assert set(plan.guards.values()) == {"同じ"}
+    plan = _e8_plan(monkeypatch, [], reader="", extra=extra, strict=False)
+    assert [m for m in plan.manual if "src/shibuya/engine/state_ledger.py::_ALLOW_REVENUE" in m], plan.manual
+    assert plan.after.files["src/shibuya/engine/state_ledger.py"] == table
+
+
+@pytest.mark.parametrize("decls,word", [
+    ([SP.PathDest("pk/old.py", "tests/no_such.py", "P", "vocab/base.py")], "ファイルが木に無い"),
+    ([SP.PathDest("pk/old.py", _E8_FILE, "NOPE", "vocab/base.py")], "記号がファイルに無い"),
+    ([SP.PathDest("pk/old.py", _E8_FILE, "P", "nw/other.py")], "この割る行の割り先でない"),
+    ([SP.PathDest("pk/old.py", "tools/bytecheck/x.py", "P", "vocab/base.py")], "範囲の外"),
+    ([SP.PathDest("pk/old.py", _E8_FILE, "P", "vocab/base.py")] * 2, "同じ記号に宣言が 2 つ"),
+    ([SP.PathDest("pk/old.py", _E8_FILE, "Q", "vocab/base.py")], "宣言が使われなかった"),
+])
+def test_negative_path_declaration_guards_each_stop(monkeypatch, decls, word):
+    """〔E8 の守り・E5-a と同じ考え〕宣言はその割る行でだけ使う・ファイルと記号が木に在る・宣言の割り先はその行の割り先・記号は
+    書き換えの範囲の中・同じ記号に 2 つ無い・使われなかった宣言は止める(書かない実行でも止める)。"""
+    extra = {"tools/bytecheck/x.py": 'P = "src/shibuya/pk/old.py"\n'}
+    with pytest.raises(SP.SplitStopped) as ei:
+        _e8_plan(monkeypatch, decls, strict=False, extra=extra)
+    assert all(e.startswith("道の文字列の割り先の宣言の守り: ") for e in ei.value.errors), ei.value.errors
+    assert any(word in e for e in ei.value.errors), ei.value.errors
+
+
+def test_path_declarations_of_other_rows_are_not_used(monkeypatch):
+    """〔E8〕宣言はその割る行でだけ使う: 別の割る行の宣言は、この行では引かない(使われなかったとも言わない)。"""
+    plan = _e8_plan(monkeypatch, [SP.PathDest("pk/other.py", _E8_FILE, "P", "vocab/base.py")], strict=False)
+    assert f"{_E8_FILE}::P" in "".join(plan.manual) and plan.path_declared == []
+
+
+def _stale_path_dests(decls) -> list[str]:  # noqa: ANN001
+    """``split.SPLIT_PATH_DESTS`` の宣言のうち、今の木にファイルが無いか、記号がそのファイルの記号(``symbol_map``)に無いもの。"""
+    out: list[str] = []
+    for d in decls:
+        p = ROOT / d.file
+        if not p.is_file():
+            out.append(f"{d.file}: ファイルが無い")
+            continue
+        if d.symbol not in set(symbol_map(ast.parse(p.read_text(encoding="utf-8"))).values()):
+            out.append(f"{d.file}::{d.symbol}: 記号が無い")
+    return out
+
+
+def test_path_declarations_name_files_and_symbols_that_exist_in_the_tree():
+    """〔E8〕宣言が黙って腐らないこと: 宣言のファイルが今の木に在り、記号がそのファイルの記号に在り、割る行が順に在る(今は空=
+    段 6 の 2 行は割る行が順に入る次の発注で載せる)。負の対照: 在りもしないファイル・記号。"""
+    assert _stale_path_dests(SP.SPLIT_PATH_DESTS) == []
+    assert {d.old for d in SP.SPLIT_PATH_DESTS} <= set(SP.SPLIT_ORDER)
+    fake = SP.PathDest("engine/resolve.py", "src/shibuya/runtime/state/ledger.py", "_NO_SUCH", "act/ops/shop.py")
+    assert _stale_path_dests([fake]) == ["src/shibuya/runtime/state/ledger.py::_NO_SUCH: 記号が無い"]
+    assert _stale_path_dests([dataclasses.replace(fake, file="src/shibuya/no_such.py")]) == [
+        "src/shibuya/no_such.py: ファイルが無い"]
+
+
+def test_string_exclude_has_the_fake_tree_sample_of_the_repo_guide_test():
+    """〔裁定 R2〕``tests/tools/test_repo_guide.py::LAYER_SRC`` は偽の木(合成の木)に書く見本のコード=割る道具は書き換えない。
+    見本の字面は合成の木の resolve を読み、本物の src のモジュールを import しない(合成の木の置き場へ書くだけ=AST で読む)。"""
+    assert ("tests/tools/test_repo_guide.py", "LAYER_SRC") in SP.STRING_EXCLUDE
+    text = (ROOT / "tests/tools/test_repo_guide.py").read_text(encoding="utf-8")
+    t = ast.parse(text)
+    layer = next(n.value.value for n in t.body if isinstance(n, ast.Assign)
+                 and any(isinstance(x, ast.Name) and x.id == "LAYER_SRC" for x in n.targets))
+    assert "from shibuya.engine import resolve as RV" in layer
+    uses = [n for n in ast.walk(t) if isinstance(n, ast.Name) and n.id == "LAYER_SRC" and isinstance(n.ctx, ast.Load)]
+    assert len(uses) == 1 and 'f"{S}/engine/layer.py": LAYER_SRC,' in text  # 合成の木の engine/layer.py に書くだけ
+
+
+# ------------------------------------------------------------------ 〔割る段 6 の S6-G0・E5-b〕差し替えの届く先の守り(親の裁定の追記)
+#: 見本の割るモジュール: helper は g(a)と h(b)が呼ぶ時に読む=届かせる割り先は a と b。N は b の頂上の表 TABLE と k の既定の引数が
+#: 読み込みの時にだけ読む=(a) に数えず、名を結ぶ割り先 a(src の読み手 use.py が呼ぶ時に別名の属性で読む=(b) も a)。
+_REACH_SRC = (
+    '"""mod — 見本(差し替えの届く先)。"""\n'
+    "\n"
+    "from __future__ import annotations\n"
+    "\n"
+    "\n"
+    "def helper(x: int) -> int:\n"
+    "    return x + 1\n"
+    "\n"
+    "\n"
+    "N = 5\n"
+    "\n"
+    "\n"
+    "def g(x: int) -> int:\n"
+    "    return helper(x)\n"
+    "\n"
+    "\n"
+    "def h(x: int) -> int:\n"
+    "    return helper(x) * 2\n"
+    "\n"
+    "\n"
+    "def k(x: int = N) -> int:\n"
+    "    return x\n"
+    "\n"
+    "\n"
+    'TABLE = {"k": N}\n'
+)
+_REACH_ROW = dict(num="7", old="pk/mod.py", package="pk2", kind="split", new="pk2/a.py", split_to=("pk2/a.py", "pk2/b.py"),
+                  names=(("helper", "pk2/a.py"), ("N", "pk2/a.py"), ("g", "pk2/a.py"), ("h", "pk2/b.py"), ("k", "pk2/b.py"),
+                         ("TABLE", "pk2/b.py")), names_complete=True)
+_REACH_FILE = "tests/test_reach.py"
+_REACH_HEAD = "from shibuya.pk import mod as A\nfrom shibuya.pk import mod as B\n\n\n"
+_REACH_BOTH = ('def test_both(monkeypatch):\n    monkeypatch.setattr(A, "helper", lambda x: x)\n'
+               '    monkeypatch.setattr(B, "helper", lambda x: x)\n    assert A.g(1) == 1 and B.h(1) == 2\n')
+_REACH_USE = "from shibuya.pk import mod as M\n\n\ndef u() -> int:\n    return M.N\n"
+
+
+def _reach(monkeypatch, body: str, *, decl_b: bool = True, strict: bool = True, head: str = _REACH_HEAD):
+    """見本の木で割る(別名 B は宣言で b へ=読む名が a と b にまたがる)。止まれば止めた文の一覧、通れば計画を返す。"""
+    monkeypatch.setattr(SP, "SPLIT_ALIAS_DESTS",
+                        (SP.AliasDest("pk/mod.py", _REACH_FILE, "B", "pk2/b.py"),) if decl_b else ())
+    monkeypatch.setattr(SP, "SPLIT_PATH_DESTS", ())
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/pk/__init__.py": "", "src/shibuya/pk/mod.py": _REACH_SRC,
+             "src/shibuya/use.py": _REACH_USE, _REACH_FILE: head + body}
+    try:
+        return SP.make_split_plan(Tree(files=files), MV.MapDoc(rows=[Row(**_REACH_ROW)]), "pk/mod.py", check_order=False,
+                                  strict=strict)
+    except SP.SplitStopped as e:
+        return e.errors
+
+
+def test_patch_reach_passes_when_patches_point_to_every_reading_destination(monkeypatch):
+    """〔E5-b〕読む関数が 2 つの割り先(g=a・h=b)に分かれた名 helper を、同じ関数の中で両方の割り先の別名で差し替える形は通る。
+    確かめた差し替えは報告の ``patch_checked``。読み込みの時にだけ読む文(既定の引数・頂上の表)は ``patch_load_time``。"""
+    plan = _reach(monkeypatch, _REACH_BOTH)
+    assert isinstance(plan, SP.SplitPlan), plan
+    assert plan.guards["patch_reach"] == "同じ" and set(plan.guards.values()) == {"同じ"}
+    assert plan.patch_checked == [f"{_REACH_FILE}::test_both helper → ['pk2/a.py', 'pk2/b.py'](差し替え 2)"]
+    assert plan.patch_unseen == [] and plan.patch_load_time == []  # helper は読み込みの時に読まない
+    # 属性への代入の形も同じ
+    plan = _reach(monkeypatch, _REACH_BOTH.replace('monkeypatch.setattr(A, "helper", lambda x: x)', "A.helper = abs")
+                  .replace('monkeypatch.setattr(B, "helper", lambda x: x)', "B.helper = abs"))
+    assert isinstance(plan, SP.SplitPlan) and plan.patch_checked == [
+        f"{_REACH_FILE}::test_both helper → ['pk2/a.py', 'pk2/b.py'](差し替え 2)"], plan
+
+
+_HEAD_A = "from shibuya.pk import mod as A\n\n\n"
+_HEAD_B = "from shibuya.pk import mod as B\n\n\n"
+
+
+@pytest.mark.parametrize("body,head,decl_b,words", [
+    # 片方の割り先だけ(b の h が読む helper に届かない)
+    ('def test_one(monkeypatch):\n    monkeypatch.setattr(A, "helper", abs)\n    assert A.g(1)\n', _HEAD_A, False,
+     ["test_one の名 helper", "届かない割り先 ['pk2/b.py']", "pk/mod.py:18 h→pk2/b.py"]),
+    # 属性への代入で片方だけ
+    ("def test_one():\n    A.helper = abs\n    assert A.g(1)\n", _HEAD_A, False, ["届かない割り先 ['pk2/b.py']"]),
+    # 集合の外の割り先へ向く(N を呼ぶ時に読む関数は無く、b の頂上の表は読み込みの時に読む=b への差し替えは空振り)
+    ('def test_n(monkeypatch):\n    monkeypatch.setattr(B, "N", 0)\n    assert B.TABLE\n', _HEAD_B, True,
+     ["test_n の名 N", "届かない割り先 ['pk2/a.py']", "集合の外の割り先 ['pk2/b.py']", "src/shibuya/use.py:5(別名の属性)"]),
+    # 文字列の的(名の割り先 a へ書き換わる=b の h に届かない)
+    ('def test_s(monkeypatch):\n    monkeypatch.setattr("shibuya.pk.mod.helper", abs)\n', "", False,
+     ["test_s の名 helper", "届かない割り先 ['pk2/b.py']"]),
+    # コードの文字列の中(子のプロセスの台本)
+    ('CODE = "from shibuya.pk import mod as A\\nA.helper = print\\nA.g(1)\\n"\n', "", False,
+     ["CODE(コードの文字列) の名 helper", "届かない割り先 ['pk2/b.py']"]),
+])
+def test_negative_patch_reach_stops_patches_that_miss_a_reader(monkeypatch, body, head, decl_b, words):
+    """〔E5-b〕割る前にその名を呼ぶ時に素の名で読んでいた関数の割り先の全部へ、同じ関数の中の差し替えが向いていなければ止める
+    (名・読む文の場所・届かない割り先を出す)。集合の外の割り先へ向く差し替え(誰も読まない=空振り)も止める。形ごとに 1 つずつ:
+    片方だけ・属性への代入・集合の外・文字列の的・コードの文字列の中。"""
+    errs = _reach(monkeypatch, body, head=head, decl_b=decl_b)
+    assert isinstance(errs, list) and errs and all(e.startswith("差し替えの届く先の守り: ") for e in errs), errs
+    for w in words:
+        assert any(w in e for e in errs), (w, errs)
+
+
+def test_patch_reach_lists_load_time_reads_and_passes_string_and_code_targets_that_reach(monkeypatch):
+    """〔E5-b〕名 N の差し替えを、名を結ぶ割り先 a(src の読み手が呼ぶ時に別名の属性で読む)へ向ける形は通り、読み込みの時にだけ
+    読む文(頂上の表 TABLE・k の既定の引数)は ``patch_load_time`` に出る。呼ぶ時に読む関数の無い名 g の文字列の的とコードの文字列の
+    中の差し替えは、名を結ぶ割り先 a へ向けば通る。"""
+    body = ('def test_n(monkeypatch):\n    monkeypatch.setattr(A, "N", 0)\n    monkeypatch.setattr("shibuya.pk.mod.g", abs)\n'
+            '    assert A.g(1)\n\n\nCODE = "from shibuya.pk import mod as A\\nA.g = print\\n"\n')
+    plan = _reach(monkeypatch, body, head="from shibuya.pk import mod as A\n\n\n", decl_b=False)
+    assert isinstance(plan, SP.SplitPlan), plan
+    assert sorted(plan.patch_checked) == [f"{_REACH_FILE}::CODE(コードの文字列) g → ['pk2/a.py'](差し替え 1)",
+                                          f"{_REACH_FILE}::test_n N → ['pk2/a.py'](差し替え 1)",
+                                          f"{_REACH_FILE}::test_n g → ['pk2/a.py'](差し替え 1)"], plan.patch_checked
+    load = plan.patch_load_time
+    assert any("名 N: pk/mod.py:" in x and "k(デコレータ・既定の引数・注釈=読み込みの時)" in x for x in load), load
+    assert any("名 N: pk/mod.py:" in x and "頂上の代入 TABLE(読み込みの時)" in x for x in load), load
+
+
+def test_patch_reach_lists_patches_it_cannot_see(monkeypatch):
+    """〔E5-b〕守りが見られなかった形は黙って通さず ``patch_unseen`` に出す(止めない): 名が字面の定数でない・的の文字列を組み立てる・
+    割った後も別名が元のモジュールを指す(手で直す一覧に残る別名=``strict`` はその一覧で断る)。"""
+    body = ('def test_dyn(monkeypatch, name="helper", n="g"):\n    monkeypatch.setattr(A, name, abs)\n'
+            '    monkeypatch.setattr(f"shibuya.pk.mod.{n}", abs)\n    assert A.g(1)\n\n\n' + _REACH_BOTH)
+    plan = _reach(monkeypatch, body, decl_b=False, strict=False)
+    assert isinstance(plan, SP.SplitPlan), plan
+    un = plan.patch_unseen
+    assert any("setattr: 名が字面の定数でない" in x for x in un), un
+    assert any("setattr: 的の文字列を組み立てる" in x for x in un), un
+    assert any("test_both の名 helper" in x and "手で直す一覧の別名" in x for x in un), un
+    assert plan.patch_checked == [] and plan.guards["patch_reach"] == "同じ"
+    assert [m for m in plan.manual if _REACH_FILE in m and "別名 B" in m], plan.manual
+    with pytest.raises(SP.SplitRefused, match="手で直す"):
+        _reach(monkeypatch, body, decl_b=False, strict=True)
+
+
+def test_negative_patch_reach_guard_is_what_stops(monkeypatch):
+    """〔E5-b の負の対照〕守りを外すと、片方だけの差し替えは止まらずに当たる(守りが止めていることの確かめ)。"""
+    body = 'def test_one(monkeypatch):\n    monkeypatch.setattr(A, "helper", abs)\n    assert A.g(1)\n'
+    assert isinstance(_reach(monkeypatch, body, decl_b=False, head=_HEAD_A), list)
+    monkeypatch.setattr(SP, "patch_reach", lambda plan: [])
+    plan = _reach(monkeypatch, body, decl_b=False, head=_HEAD_A)
+    assert isinstance(plan, SP.SplitPlan) and plan.guards["patch_reach"] == "同じ"
+
+
+# ------------------------------------------------------------------ 〔割る段 6 の S6-G0・検収の後の直し〕E5-b の中-1・低-1・低-3
+#: 主な割り先が元のファイルの行(延ばした 18 本目の形): 元 ``sp/port.py`` に ``_K`` と ``P`` が残り、``m`` は ``txt/mora.py`` へ出る。
+#: ``reader`` は呼ぶ時に ``_K`` を読む関数(``m``=外へ出る・``P.n``=元に残る)を選ぶ。
+def _port_src(k_reader: str) -> str:
+    m_body = "    return sum(1 for c in s if c not in _K)\n" if k_reader == "m" else "    return len(s)\n"
+    n_body = "        return len(_K)\n" if k_reader == "P" else "        return 3\n"
+    return ('"""port — 見本(元のファイルが主な割り先)。"""\n\nfrom __future__ import annotations\n\n'
+            '_K: frozenset[str] = frozenset("ab")\n\n\n'
+            f"def m(s: str) -> int:\n{m_body}\n\nclass P:\n    def n(self) -> int:\n{n_body}")
+
+
+_PORT_ROW = Row(num="1", old="old/port.py", package="sp", kind="split", new="sp/port.py",
+                split_to=("sp/port.py", "txt/mora.py"),
+                names=(("_K", "sp/port.py"), ("m", "txt/mora.py"), ("P", "sp/port.py")), names_complete=True)
+
+
+def _in_place_reach(monkeypatch, k_reader: str, body: str, *, strict: bool = True):
+    monkeypatch.setattr(SP, "SPLIT_ALIAS_DESTS", ())
+    monkeypatch.setattr(SP, "SPLIT_PATH_DESTS", ())
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/sp/__init__.py": "", "src/shibuya/sp/port.py": _port_src(k_reader),
+             "src/shibuya/sp/use.py": "from shibuya.sp.port import P\n",
+             "tests/test_ip.py": "from shibuya.sp import port as PO\n\n\n" + body}
+    try:
+        return SP.make_split_plan(Tree(files=files), MV.MapDoc(rows=[_PORT_ROW]), "old/port.py", check_order=False,
+                                  strict=strict)
+    except SP.SplitStopped as e:
+        return e.errors
+
+
+_PATCH_K = 'def test_k(monkeypatch):\n    monkeypatch.setattr(PO, "_K", frozenset())\n'
+
+
+def test_patch_reach_checks_the_source_module_as_the_main_destination_of_an_in_place_row(monkeypatch):
+    """〔検収の後の直し 1=中-1〕主な割り先が元のファイルの行では、元のモジュールを主な割り先として確かめる: 元に残る ``_K`` を
+    元のモジュールへ向けて差し替える形は、呼ぶ時に読む関数が外へ出た(``m``=``txt/mora.py``)なら止め、元に残った(``P.n``)なら通る。
+    元に残る名を誰も呼ぶ時に読まない(``P``)なら、名を結ぶ元のモジュールへ向けば通る。どれも別名は手で直す一覧に無い。"""
+    errs = _in_place_reach(monkeypatch, "m", _PATCH_K)
+    assert isinstance(errs, list), errs
+    assert any("test_k の名 _K" in e and "届かない割り先 ['txt/mora.py']" in e for e in errs), errs
+    assert any("集合の外の割り先 ['sp/port.py']" in e for e in errs), errs
+    plan = _in_place_reach(monkeypatch, "P", _PATCH_K)
+    assert isinstance(plan, SP.SplitPlan) and plan.in_place and plan.manual == [], plan
+    assert plan.patch_checked == ["tests/test_ip.py::test_k _K → ['sp/port.py'](差し替え 1)"] and plan.patch_unseen == []
+    plan = _in_place_reach(monkeypatch, "m", 'def test_p(monkeypatch):\n    monkeypatch.setattr(PO, "P", object)\n')
+    assert isinstance(plan, SP.SplitPlan) and plan.patch_checked == [
+        "tests/test_ip.py::test_p P → ['sp/port.py'](差し替え 1)"], plan
+
+
+def test_negative_without_fix_1_an_in_place_patch_that_misses_slips_through(monkeypatch):
+    """〔直し 1 の負の対照〕直しを外す(元のモジュールを割り先と見ない・手で直す一覧と突き合わせない=前の形)と、届かない差し替えが
+    「見られなかった」に回り、守りは「同じ」のまま計画ができる(手で直す一覧は空)。直しの在る形では止まる。"""
+    assert isinstance(_in_place_reach(monkeypatch, "m", _PATCH_K, strict=False), list)
+    real = SP._dest_modules
+    monkeypatch.setattr(SP, "_dest_modules", lambda plan: {k: v for k, v in real(plan).items()
+                                                            if k != mod_of(plan.src_rel)})
+    monkeypatch.setattr(SP, "_listed_manual", lambda manual, p, s: True)
+    plan = _in_place_reach(monkeypatch, "m", _PATCH_K, strict=False)
+    assert isinstance(plan, SP.SplitPlan) and plan.guards["patch_reach"] == "同じ" and plan.manual == []
+    assert [x for x in plan.patch_unseen if "test_k の名 _K" in x], plan.patch_unseen
+
+
+def test_patch_reach_stops_a_stale_target_that_is_not_in_the_hand_fix_list(monkeypatch):
+    """〔直し 1〕割り先でないモジュール(割った後に無い元のモジュール)を指したままの差し替えは、別名が手で直す一覧に在るときだけ
+    「見られなかった」。在らなければ止める(書き換えの外の記号に在る文字列の的=別名を通さない)。手で直す一覧の別名は「見られ
+    なかった」のまま(``test_patch_reach_lists_patches_it_cannot_see``)。"""
+    body = 'def test_s(monkeypatch):\n    monkeypatch.setattr("shibuya.pk.mod.g", abs)\n'
+    monkeypatch.setattr(SP, "STRING_EXCLUDE", SP.STRING_EXCLUDE | {(_REACH_FILE, "test_s")})
+    errs = _reach(monkeypatch, body, head="", decl_b=False)
+    assert isinstance(errs, list) and any("test_s の名 g" in e and "割り先でないモジュール ['shibuya.pk.mod']" in e
+                                          and "手で直す一覧に無い" in e for e in errs), errs
+
+
+def test_strict_split_refuses_a_plan_with_patches_it_cannot_see(monkeypatch):
+    """〔検収の後の直し 2=低-1・親の裁定〕厳しい当て(``strict``)は、見られなかった差し替えが 1 つでも在れば断る(手で直す一覧が
+    空でも)。``strict=False``(``--through`` の報告)は一覧に出すだけ。"""
+    body = 'def test_f(monkeypatch, n="g"):\n    monkeypatch.setattr(f"shibuya.pk.mod.{n}", abs)\n'
+    plan = _reach(monkeypatch, body, head="", decl_b=False, strict=False)
+    assert isinstance(plan, SP.SplitPlan) and plan.manual == [] and plan.guards["patch_reach"] == "同じ"
+    assert len(plan.patch_unseen) == 1 and "的の文字列を組み立てる" in plan.patch_unseen[0], plan.patch_unseen
+    with pytest.raises(SP.SplitRefused, match="見られなかった差し替えがあるので当てない") as ei:
+        _reach(monkeypatch, body, head="", decl_b=False, strict=True)
+    assert "tests/test_reach.py:" in str(ei.value)
+
+
+def test_excluded_files_report_nameless_paths(monkeypatch):
+    """〔検収の後の直し 3=低-3〕範囲の外のファイル(E4)の名の無い割るファイルの道は、書き換えず手で直す一覧にも入れないが、報告の
+    ``excluded_sites`` には在ることを出す(E8 の前は書き換えに数えて出た)。"""
+    tree, md = _split_sample({"tools/bytecheck/x.py": 'P = "src/shibuya/pk/old.py"\n'})
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    assert plan.excluded_sites == ["tools/bytecheck/x.py: 書き換え 0・手で直す 1(範囲の外=書き換えない)"], plan.excluded_sites
+    assert plan.manual == [] and plan.after.files["tools/bytecheck/x.py"] == 'P = "src/shibuya/pk/old.py"\n'
+
+
+# ------------------------------------------------------------------ 〔割る段 6 の S6-G0・E9〕CLI の書かない道を見本の木で確かめる
+def test_split_order_of_reads_the_split_rows_of_a_map():
+    """〔E9〕``table.split_order_of``: 割る行の ``split_order``(1 から)で並べた順。番号が続かない・頭の ``split_order`` と食い違えば断る。
+    本物の表では ``table.SPLIT_ORDER`` と同じ。"""
+    from pkgmove.table import SPLIT_ORDER, split_order_of
+
+    assert split_order_of(MAPDOC) == SPLIT_ORDER
+    one, two = Row(**{**_SAMPLE_ROW, "split_order": 1}), Row(**{**_TWO_ROW, "split_order": 2})
+    assert split_order_of(MV.MapDoc(rows=[two, one])) == ("pk/old.py", "pk/two.py")
+    with pytest.raises(ValueError, match="1 から続かない"):
+        split_order_of(MV.MapDoc(rows=[one, dataclasses.replace(two, split_order=3)]))
+    with pytest.raises(ValueError, match="1 から続かない"):
+        split_order_of(MV.MapDoc(rows=[one, dataclasses.replace(two, split_order=1)]))
+    with pytest.raises(ValueError, match="食い違う"):
+        split_order_of(MV.MapDoc(rows=[one, two], meta={"split_order": ["pk/two.py", "pk/old.py"]}))
+
+
+#: 見本の決まり: 段 s1 だけ(古い決まりの段=新しい決まりは作らない)。古い決まり 1 つが見本の木の全部の包みを元の側に持つ(割り先の
+#: 新しいモジュールも「どの決まりも見なくなった」にならない)。
+_CT_SAMPLE = ('root_package = "shibuya"\nold_only_through = "s1"\nstage_order = ["s1"]\nlayers = []\nrule = []\nignore = []\n\n'
+              '[[old]]\nname = "見本の決まり"\ntype = "forbidden"\n'
+              'source = ["pk", "nw", "vocab", "foundation", "validation", "engine", "rngtab"]\nforbidden = ["nothing"]\n')
+_LP_CLI = "src/shibuya/foundation/decl/ledger_paths.py"
+
+
+def _cli_sample_tree(root: Path, monkeypatch, split_rows: list[Row]) -> tuple[Path, Path]:
+    """CLI の見本の木を ``root`` に書き、見本の表(``map.toml`` の形)と決まり(``contracts.toml`` の形)の道を返す。
+
+    木: 見本の割るファイル(``pk/old.py``・``pk/two.py``)と読み手・既に在る割り先・台帳の道の表(1 対 1 の表と前向きの表)・
+    つなぎの宣言の走査(本物の ``bridging_scan.py`` と ``foundation/paths.py`` の写し=CLI は木の src から読む)・乱数の領域の表 3 つ・
+    固定の表・凍結の JSON(見本の木から作る)。表: 割る行 2 本(順 1・2)と、段 s1 で移し済みの行 1 本(台帳の道の表の置き場)。"""
+    from pkgmove import table as TBL
+
+    src = {
+        "src/shibuya/__init__.py": "", "src/shibuya/pk/__init__.py": "", "src/shibuya/pk/old.py": _OLD_SAMPLE,
+        "src/shibuya/pk/two.py": _TWO_SAMPLE,
+        "src/shibuya/pk/reader.py": "from shibuya.pk.old import A, f\nfrom shibuya.pk import old as OLD\n\nX = A + f(1) + OLD.A\n",
+        "src/shibuya/vocab/__init__.py": "", "src/shibuya/vocab/base.py": _BASE_SAMPLE,
+        "src/shibuya/rngtab.py": "POPULATION_RNG_DOMAINS = {}\nENVIRONMENT_RNG_DOMAINS = {}\nMOTION_RNG_DOMAINS = {}\n",
+        "src/shibuya/foundation/__init__.py": "", "src/shibuya/foundation/decl/__init__.py": "",
+        _LP_CLI: (_lp_text({_LP_CLI: "src/shibuya/engine/bridging/ledger_paths.py"}, {})
+                  + "\n\ndef ledger_path(path: str) -> str:\n    return LEDGER_PATHS.get(path, path)\n"),
+        "src/shibuya/foundation/paths.py": (ROOT / "src/shibuya/foundation/paths.py").read_text(encoding="utf-8"),
+        "src/shibuya/validation/__init__.py": "", "src/shibuya/validation/static/__init__.py": "",
+        "src/shibuya/validation/static/bridging_scan.py":
+            (ROOT / "src/shibuya/validation/static/bridging_scan.py").read_text(encoding="utf-8"),
+        "src/shibuya/engine/__init__.py": "",
+    }
+    classes = {f"{mod_of(p[len(SRC_PREFIX):])}.{q}": q for p, t in src.items() if p.endswith(".py")
+               for q, _n in G._class_defs(ast.parse(t))}
+    src["src/shibuya/engine/class_ids.py"] = "CLASS_IDS = {\n" + "".join(f'    "{k}": "{k}",\n' for k in sorted(classes)) + "}\n"
+    stub = G.Frozen(names={"rng_domains_path_shaped": {}, "other_path_shaped": {}}, class_qual={})
+    names = {**G.collect_names(Tree(files=src), stub), "run_path_shaped": {}}
+    files = {**src, "tests/test_x.py": "from shibuya.pk.old import C\n",
+             "tests/engine/state/names_frozen.json": json.dumps(names, ensure_ascii=False),
+             "tests/engine/state/class_ids_frozen.json": json.dumps({"names": {k: q for k, q in classes.items()}})}
+    for rel, text in files.items():
+        (root / rel).parent.mkdir(parents=True, exist_ok=True)
+        (root / rel).write_text(text, encoding="utf-8", newline="")
+    rows = [*split_rows, Row(num="L", old="engine/bridging/ledger_paths.py", package="foundation", kind="move",
+                             new="foundation/decl/ledger_paths.py", stage="s1")]
+    for k, v in (("SPLIT_ORDER", tuple(r.old for r in sorted(split_rows, key=lambda r: r.split_order))),
+                 ("SPLIT_DEFERRED", {}), ("SPLIT_FORWARDERS", {}), ("SPLIT_ENTRIES", {})):
+        monkeypatch.setattr(TBL, k, v)
+    mp, ct = root.parent / f"{root.name}_map.toml", root.parent / f"{root.name}_contracts.toml"
+    mp.write_text(TBL.render_map(rows, "見本"), encoding="utf-8", newline="")
+    ct.write_text(_CT_SAMPLE, encoding="utf-8", newline="")
+    monkeypatch.undo()
+    return mp, ct
+
+
+def _no_pycache(root: Path) -> bool:
+    return not [p for p in root.rglob("__pycache__")]
+
+
+def test_split_cli_dry_run_writes_nothing_in_a_sample_tree(tmp_path, monkeypatch):
+    """〔E9・追記=検収 低-2〕``cli.py split --through all`` を見本の木と見本の表・決まり(``--map``・``--contracts``)で回す: 終了 0・
+    見本の木のファイルが 1 本も変わらない(全部のバイトの指紋・``__pycache__`` も作らない)・要約の JSON に行ごとの守りが載る・
+    標準出力に「書いていない」。順は表の割る行の ``split_order`` から読む(割る行が残り 0 の本物の木に頼らない)。"""
+    root = tmp_path / "sample"
+    rows = [Row(**{**_SAMPLE_ROW, "split_order": 1}), Row(**{**_TWO_ROW, "split_order": 2})]
+    mp, ct = _cli_sample_tree(root, monkeypatch, rows)
+    before = digest(root)
+    od = tmp_path / "out"
+    r = run_cli("split", "--through", "all", "--tree", str(root), "--map", str(mp), "--contracts", str(ct),
+                "--out-dir", str(od))
+    assert r.returncode == 0, (r.stdout[-3000:], r.stderr[-3000:])
+    assert "書いていない" in r.stdout
+    assert digest(root) == before and _no_pycache(root)
+    rows_out = json.loads((od / "split_through_summary.json").read_text(encoding="utf-8"))
+    assert [x["row"] for x in rows_out] == ["pk/old.py", "pk/two.py"]
+    for x in rows_out:
+        assert {"stmts", "declarations", "names_frozen", "class_ids", "outside_allowlist", "patch_reach",
+                "contracts"} <= set(x["guards"]), x["guards"]
+        assert all(v == "同じ" or v.startswith("宣言どおり") for v in x["guards"].values()), x["guards"]
+    assert sorted(p.name for p in od.iterdir()) == ["split_01.diff", "split_01_report.json", "split_02.diff",
+                                                    "split_02_report.json", "split_through_summary.json"]
+    # 名指しの書かない実行(次の 1 本)も同じ口で回り、何も書かない
+    r = run_cli("split", "--next", "--tree", str(root), "--map", str(mp), "--contracts", str(ct))
+    assert r.returncode == 0 and "書いていない" in r.stdout and '"row": "pk/old.py"' in r.stdout, r.stderr[-3000:]
+    assert digest(root) == before and _no_pycache(root)
+
+
+def test_negative_split_cli_dry_run_returns_nonzero_when_a_guard_stops_in_a_sample_tree(tmp_path, monkeypatch):
+    """〔E9〕守りが止める見本では終了コードが 0 でない(どちらも木は 1 本も変わらない): 順の違う行の名指し(断る)と、割り先どうしが
+    互いの名を読む行(``--through`` の要約に止めた理由)。表の割る順が 1 から続かない表は読む前に断る。"""
+    root = tmp_path / "order"
+    rows = [Row(**{**_SAMPLE_ROW, "split_order": 1}), Row(**{**_TWO_ROW, "split_order": 2})]
+    mp, ct = _cli_sample_tree(root, monkeypatch, rows)
+    before = digest(root)
+    r = run_cli("split", "--only", "pk/two.py", "--tree", str(root), "--map", str(mp), "--contracts", str(ct))
+    assert r.returncode == 2 and "順が違う" in r.stderr, (r.stdout[-2000:], r.stderr[-2000:])
+    assert digest(root) == before
+    # 割り先どうしが互いの名を読む(f → vocab/base.py は A を、C → nw/main.py は B を読む)
+    root2 = tmp_path / "mutual"
+    mutual = Row(**{**_SAMPLE_ROW, "split_order": 1, "names": (("A", "nw/main.py"), ("B", "vocab/base.py"),
+                                                                ("f", "vocab/base.py"), ("C", "nw/main.py"))})
+    mp2, ct2 = _cli_sample_tree(root2, monkeypatch, [mutual])
+    before2 = digest(root2)
+    od = tmp_path / "out2"
+    r = run_cli("split", "--through", "all", "--tree", str(root2), "--map", str(mp2), "--contracts", str(ct2),
+                "--out-dir", str(od))
+    assert r.returncode == 2 and "互いの名を読む" in r.stderr, (r.stdout[-2000:], r.stderr[-2000:])
+    assert "書いていない" in r.stdout
+    summary = json.loads((od / "split_through_summary.json").read_text(encoding="utf-8"))
+    assert [x["row"] for x in summary] == ["pk/old.py"] and "互いの名を読む" in summary[0]["stopped"][0]
+    assert digest(root2) == before2 and _no_pycache(root2)
+    # 割る順が 1 から続かない表は断る
+    bad = mp.read_text(encoding="utf-8").replace("split_order = 2\n", "split_order = 3\n")
+    mp3 = tmp_path / "bad_map.toml"
+    mp3.write_text(bad, encoding="utf-8", newline="")
+    r = run_cli("split", "--through", "all", "--tree", str(root), "--map", str(mp3), "--contracts", str(ct))
+    assert r.returncode == 2 and "対応表を読めない" in r.stderr, r.stderr[-2000:]
+    assert digest(root) == before
+
+
+# ------------------------------------------------------------------ 〔割る段 6 の S6-G0・E5-b〕本物の履歴での確かめ(5b の G3 の土台)
+#: 5b の G3 の土台(E5-a の commit・22 本目 ``cli.py`` を当てる前の木)。
+_G3_BASE = "e6d221c"
+
+
+def _git_tree(rev: str) -> tuple[Tree, dict[str, str]] | None:
+    """``rev`` の木をメモリに読む(``Tree.load`` と同じ範囲=src/shibuya の全部・tests と tools の .py・docs の記録の道具)。凍結の
+    JSON とつなぎの台帳は 2 つ目の戻り値。``tests/c7`` は中身を読まない(名前の一覧から外す)。git か commit が無ければ ``None``。"""
+    git = shutil.which("git")
+    if git is None or not (ROOT / ".git").exists():
+        return None
+    if subprocess.run([git, "-C", str(ROOT), "cat-file", "-e", f"{rev}^{{commit}}"], capture_output=True).returncode != 0:
+        return None
+    ls = subprocess.run([git, "-C", str(ROOT), "ls-tree", "-r", "-z", rev, "--", "src/shibuya", "tests", "tools",
+                         *AL.RECORD_TOOLS, *FROZEN_FILES], capture_output=True, check=True).stdout
+    entries: list[tuple[str, str]] = []
+    for rec in ls.split(b"\0"):
+        if not rec:
+            continue
+        meta, path = rec.split(b"\t", 1)
+        _mode, typ, sha = meta.split(b" ")
+        p = path.decode("utf-8")
+        if typ != b"blob" or p.startswith("tests/c7/") or "__pycache__" in p.split("/"):
+            continue
+        if p in FROZEN_FILES or p.startswith("src/shibuya/") or p.endswith(".py"):
+            entries.append((p, sha.decode()))
+    out = subprocess.run([git, "-C", str(ROOT), "cat-file", "--batch"], input="".join(f"{s}\n" for _p, s in entries).encode(),
+                         capture_output=True, check=True).stdout
+    pos = 0
+    files: dict[str, str] = {}
+    blobs: dict[str, bytes] = {}
+    side: dict[str, str] = {}
+    for p, _sha in entries:
+        nl = out.index(b"\n", pos)
+        size = int(out[pos:nl].split(b" ")[2])
+        data = out[nl + 1: nl + 1 + size]
+        pos = nl + 1 + size + 1
+        if p in FROZEN_FILES:
+            side[p] = data.decode("utf-8")
+        elif p.endswith(".py"):
+            files[p] = data.decode("utf-8")
+        else:
+            blobs[p] = data
+    return Tree(files=files, blobs=blobs), side
+
+
+def _site_count(checked: list[str]) -> dict[str, int]:
+    out: Counter = Counter()
+    for x in checked:
+        name = x.split("::", 1)[1].split(" ")[1]
+        out[name] += int(x.rsplit("(差し替え ", 1)[1].rstrip(")"))
+    return dict(out)
+
+
+@pytest.mark.slow
+def test_patch_reach_replays_the_22nd_split_on_the_g3_base_in_history(monkeypatch):
+    """〔E5-b・本物の履歴〕5b の G3 の土台(``e6d221c``)をメモリに読み、22 本目(``cli.py``)を当て直す: (i) そのままなら守りは
+    通り、差し替え 25 か所(``run`` 19・``build_ledger_bundle`` 1・台帳の型 5 行)を確かめる (ii) 助け
+    ``tests/economy/_stage2_outside.py`` の main の側の 2 行を外すと止まる(台帳の型が main に届かない) (iii) 別名の割り先の宣言
+    (E5-a)を外すと、宣言の在った別名は手で直す一覧に入り(``strict`` は断る)、その差し替えは「見られなかった」に出る(黙って
+    通さない)。git が無いか commit が無い所(浅い写し)では飛ばす。"""
+    from pkgmove import contracts as CT
+
+    got = _git_tree(_G3_BASE)
+    if got is None:
+        pytest.skip(f"git か commit {_G3_BASE} が無い(git の外か浅い写し)")
+    tree, side = got
+    frozen = G.Frozen(names=json.loads(side["tests/engine/state/names_frozen.json"]),
+                      class_qual=json.loads(side["tests/engine/state/class_ids_frozen.json"])["names"])
+    ledger = side["docs/design/bridging-ledger.json"]
+    spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
+    assert SP.next_split(tree, MAPDOC) == "cli.py"
+    plan = SP.make_split_plan(tree, MAPDOC, "cli.py", frozen=frozen, ledger_text=ledger, strict=True, contracts_spec=spec)
+    assert plan.guards["patch_reach"] == "同じ" and all(v == "同じ" or v.startswith("宣言どおり")
+                                                        for v in plan.guards.values()), plan.guards
+    assert _site_count(plan.patch_checked) == {"run": 19, "build_ledger_bundle": 1, "Ledger": 2,
+                                               "_HouseholdWalletLedger": 2, "GoodsLedger": 1}, plan.patch_checked
+    helper = [x for x in plan.patch_checked if x.startswith("tests/economy/_stage2_outside.py::use_outside_bundle ")]
+    assert sorted(helper) == [
+        "tests/economy/_stage2_outside.py::use_outside_bundle GoodsLedger → ['interfaces/cli/wire_economy.py'](差し替え 1)",
+        "tests/economy/_stage2_outside.py::use_outside_bundle Ledger → ['interfaces/cli/main.py', "
+        "'interfaces/cli/wire_economy.py'](差し替え 2)",
+        "tests/economy/_stage2_outside.py::use_outside_bundle _HouseholdWalletLedger → ['interfaces/cli/main.py', "
+        "'interfaces/cli/wire_economy.py'](差し替え 2)"], helper
+    assert any("build_ledger_bundle → ['interfaces/cli/main.py']" in x for x in plan.patch_checked)
+    # (ii) 助けの main の側の 2 行を外す=台帳の型の差し替えが main(main() の isinstance)に届かない
+    helper_p = "tests/economy/_stage2_outside.py"
+    text = tree.files[helper_p]
+    cut = text
+    for line in ('    mp.setattr(cli, "Ledger", ledger)\n', '    mp.setattr(cli, "_HouseholdWalletLedger", wallet)\n'):
+        assert cut.count(line) == 1, line
+        cut = cut.replace(line, "")
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(Tree(files={**tree.files, helper_p: cut}, blobs=tree.blobs), MAPDOC, "cli.py", frozen=frozen,
+                           ledger_text=ledger, strict=True, contracts_spec=spec)
+    errs = [e for e in ei.value.errors if e.startswith("差し替えの届く先の守り: ")]
+    for name in ("Ledger", "_HouseholdWalletLedger"):
+        assert any(f"use_outside_bundle の名 {name}" in e and "届かない割り先 ['interfaces/cli/main.py']" in e
+                   for e in errs), (name, ei.value.errors)
+    # (iii) 別名の割り先の宣言を外す=宣言の在った別名は手で直す一覧へ・その差し替えは「見られなかった」へ
+    monkeypatch.setattr(SP, "SPLIT_ALIAS_DESTS", ())
+    with pytest.raises(SP.SplitRefused, match="手で直す"):
+        SP.make_split_plan(tree, MAPDOC, "cli.py", frozen=frozen, ledger_text=ledger, strict=True, contracts_spec=spec)
+    plan3 = SP.make_split_plan(tree, MAPDOC, "cli.py", frozen=frozen, ledger_text=ledger, strict=False,
+                               contracts_spec=spec)
+    assert any("tests/engine/test_resume_10d.py" in x and "build_ledger_bundle" in x and "手で直す一覧の別名" in x
+               for x in plan3.patch_unseen), plan3.patch_unseen
+    assert any(f"{helper_p}::use_outside_bundle の名 Ledger" in x for x in plan3.patch_unseen), plan3.patch_unseen
+    assert not [x for x in plan3.patch_checked if "build_ledger_bundle" in x or helper_p in x], plan3.patch_checked

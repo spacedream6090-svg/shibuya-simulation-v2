@@ -8,6 +8,8 @@ Python 3 本・その他 0 本(このディレクトリの直下)
 
 (冒頭の説明なし)
 
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
+
 ## [bridging.py](../../../../../../../../src/shibuya/foundation/decl/bridging.py)
 
 engine.bridging.ledger — つなぎの台帳(第 1 期 1-4・CA8・計器の最初)。
@@ -36,3 +38,4 @@ engine.bridging.ledger_paths — 今の道 → つなぎの台帳に書いてあ
   - `ledger_path`(関数): 今の道 → 台帳に書いてある道。``LEDGER_PATHS`` に在ればその値、無ければ ``LEDGER_PATHS_SPLIT`` に在ればその値、
 - 呼び手: `shibuya.validation.static.bridging_scan`
 - 読む試験: `tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`

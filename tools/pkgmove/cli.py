@@ -19,6 +19,8 @@ import の文が結ぶ名が変わる・``--check`` の食い違い)・2=断っ�
     python tools/pkgmove/cli.py split --next --apply --tree <木> [--out-dir <置き場>]         # 書く(本体の作業木は断る)
     python tools/pkgmove/cli.py split --through <今の道>|all --out-dir <置き場>              # 書かない実行だけ: 次の本から順に
                                                                                             # メモリの中で当てて本ごとの報告
+    python tools/pkgmove/cli.py split … --map <対応表> [--contracts <決まり>]               # 〔割る段 6・E9〕表と決まりを渡す
+                                                                                            # (順は表の割る行の split_order)
 
 割る段の終了コード: 0=できた・2=断った(表せない・順が違う・手で直す読みが残る)か守りが止めた(親の発注=守りが「同じ」で
 なければ当てない)・3=書いた後の import の確かめが落ちた。
@@ -240,6 +242,9 @@ def main(argv: list[str] | None = None) -> int:
     sp.add_argument("--out-dir", default="", help="報告の JSON と差分を書く置き場(木の外)")
     sp.add_argument("--apply", action="store_true", help="木へ書く(本体の作業木は断る)。書いた後に import の確かめを回す")
     sp.add_argument("--import-jobs", type=int, default=4)
+    sp.add_argument("--map", default="", help="〔割る段 6・E9〕対応表 TOML の道(既定は道具のリポの map.toml)。渡せば割る段の順も"
+                                             "この表の割る行の split_order から読む")
+    sp.add_argument("--contracts", default="", help="〔割る段 6・E9〕import の決まりの元 TOML の道(既定は道具のリポの contracts.toml)")
     sp = sub.add_parser("importcheck", help="木の src/shibuya の全モジュールを 1 本ずつ新しく import できるか")
     sp.add_argument("--tree", required=True)
     sp.add_argument("--out", default="", help="結果の JSON を書く道(木の外)")
@@ -260,7 +265,7 @@ def cmd_split(a: argparse.Namespace) -> int:
     """〔割る段 5a〕割る行を当てる(``split.py``)。"""
     from pkgmove import contracts as CT
     from pkgmove import split as SP
-    from pkgmove.table import SPLIT_ORDER
+    from pkgmove.table import SPLIT_ORDER, split_order_of
 
     if a.apply and not a.tree:
         print("--apply には --tree が要る(書く置き場を名指す)", file=sys.stderr)
@@ -282,10 +287,20 @@ def cmd_split(a: argparse.Namespace) -> int:
     sys.dont_write_bytecode = True
     if str(root / "src") not in sys.path:
         sys.path.insert(0, str(root / "src"))  # つなぎの宣言の走査(src の純な関数)を木の src から読む
-    mapdoc = load_map(REPO / MAP_REL)
+    order: tuple[str, ...] | None = None  # 既定は table.SPLIT_ORDER(〔割る段 6・E9〕--map を渡せば表の割る行の split_order)
+    if a.map:
+        try:
+            mapdoc = load_map(Path(a.map))
+            order = split_order_of(mapdoc)
+        except (OSError, ValueError) as e:
+            print(f"断った: 対応表を読めない: {e}", file=sys.stderr)
+            return EXIT_REFUSE
+    else:
+        mapdoc = load_map(REPO / MAP_REL)
+    seq = SPLIT_ORDER if order is None else order
     tree = Tree.load(root, extra=AL.RECORD_TOOLS)
     frozen = G.Frozen.load(lambda rel: (root / rel).read_text(encoding="utf-8"))
-    spec = CT.load_spec(REPO / CT.CONTRACTS_REL)  # 〔検収 高-1〕割る前と後の import の決まりを比べる
+    spec = CT.load_spec(Path(a.contracts) if a.contracts else REPO / CT.CONTRACTS_REL)  # 〔検収 高-1〕割る前と後の import の決まり
     ledger = root / SP.LEDGER_REL
     ledger_text = ledger.read_text(encoding="utf-8") if ledger.is_file() else None
     od = Path(a.out_dir) if a.out_dir else None
@@ -293,20 +308,20 @@ def cmd_split(a: argparse.Namespace) -> int:
         od.mkdir(parents=True, exist_ok=True)
     try:
         if a.through:
-            start = SP.next_split(tree, mapdoc)
+            start = SP.next_split(tree, mapdoc, order)
             if start is None:
                 print("割る段は全部当たっている")
                 return EXIT_OK
-            last = SPLIT_ORDER[-1] if a.through == "all" else a.through
-            if last not in SPLIT_ORDER or SPLIT_ORDER.index(last) < SPLIT_ORDER.index(start):
+            last = seq[-1] if a.through == "all" else a.through
+            if last not in seq or seq.index(last) < seq.index(start):
                 print(f"--through の行が順に無いか、次の本 {start} より前: {a.through}", file=sys.stderr)
                 return EXIT_REFUSE
             rc = EXIT_OK
             rows = []
-            for old in SPLIT_ORDER[SPLIT_ORDER.index(start): SPLIT_ORDER.index(last) + 1]:
+            for old in seq[seq.index(start): seq.index(last) + 1]:
                 try:
                     plan = SP.make_split_plan(tree, mapdoc, old, frozen=frozen, ledger_text=ledger_text, strict=False,
-                                              contracts_spec=spec)
+                                              contracts_spec=spec, order=order)
                 except (SP.SplitRefused, SP.SplitStopped) as e:
                     errs = e.errors if isinstance(e, SP.SplitStopped) else [str(e)]
                     rows.append({"row": old, "stopped": errs})
@@ -318,26 +333,31 @@ def cmd_split(a: argparse.Namespace) -> int:
                                                  "import_split_statements", "class_id_keys", "ledger_paths_added",
                                                  "path_string_sites", "deleted", "created_heads", "emptied_heads",
                                                  "unwritten", "contracts", "excluded_sites", "table_key_sites",
-                                                 "alias_declared")})
+                                                 "alias_declared", "ledger_paths_split", "path_declared", "patch_checked",
+                                                 "patch_unseen", "patch_load_time")})
                 if od is not None:
                     tag = f"{plan.row.split_order:02d}"
                     (od / f"split_{tag}_report.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1) + "\n",
                                                                encoding="utf-8", newline="\n")
                     (od / f"split_{tag}.diff").write_text(SP.unified_diff(plan), encoding="utf-8", newline="\n")
                 print(f"{old}: 守り {plan.guards}・手で直す {len(plan.manual)}"
-                      + (f"・別名の割り先の宣言 {len(plan.alias_declared)}" if plan.alias_declared else ""))
+                      + (f"・別名の割り先の宣言 {len(plan.alias_declared)}" if plan.alias_declared else "")
+                      + (f"・前向きの表 {len(plan.ledger_paths_split)}" if plan.ledger_paths_split else "")
+                      + (f"・道の文字列の割り先の宣言 {len(plan.path_declared)}" if plan.path_declared else "")
+                      + (f"・差し替えの確かめ {len(plan.patch_checked)}" if plan.patch_checked else "")
+                      + (f"・見られなかった差し替え {len(plan.patch_unseen)}" if plan.patch_unseen else ""))
                 tree = plan.after
             if od is not None:
                 (od / "split_through_summary.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1) + "\n",
                                                                encoding="utf-8", newline="\n")
             print("書いていない(dry-run=メモリの中で順に当てた)")
             return rc
-        old = a.only or SP.next_split(tree, mapdoc)
+        old = a.only or SP.next_split(tree, mapdoc, order)
         if old is None:
             print("割る段は全部当たっている")
             return EXIT_OK
         plan = SP.make_split_plan(tree, mapdoc, old, frozen=frozen, ledger_text=ledger_text, strict=True,
-                                  contracts_spec=spec)
+                                  contracts_spec=spec, order=order)
     except SP.SplitRefused as e:
         print(f"断った: {e}", file=sys.stderr)
         return EXIT_REFUSE
@@ -352,7 +372,8 @@ def cmd_split(a: argparse.Namespace) -> int:
         (od / f"split_{tag}.diff").write_text(SP.unified_diff(plan), encoding="utf-8", newline="\n")
     print(json.dumps({k: rep[k] for k in ("row", "split_order", "source", "dests", "names_by_dest", "import_statements",
                                           "import_split_statements", "class_id_keys", "ledger_paths_added", "deleted",
-                                          "created_heads", "emptied_heads", "guards", "alias_declared")},
+                                          "created_heads", "emptied_heads", "guards", "alias_declared",
+                                          "ledger_paths_split", "path_declared", "patch_checked", "patch_unseen")},
                      ensure_ascii=False, indent=1))
     if not a.apply:
         print("書いていない(dry-run)。書くのは --apply --tree <置き場> のときだけ")

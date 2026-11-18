@@ -28,16 +28,22 @@
 そのもの)なので書き換えない(:func:`is_table_key`)。高-2: 文字列の中のコード(子のプロセスの台本・シェルの文)の
 ``from <包み> import <割るモジュール>`` の形を拾い(:func:`code_import_hits`)、コードとして読めれば import の書き換え(別名の
 割り先が 1 つなら機械で・決まらなければ手で直す)へ、読めなければ「手で直す」へ出す。f 文字列の部分の中のものも「手で直す」。
+
+〔割る段 6・E8・親の裁定 Q8〕道の文字列の割り先の宣言(``PathRules.declared``=(ファイル, 記号) → 割り先・割る道具の
+``split.SPLIT_PATH_DESTS``)。割るファイルの道(斜線の道・``/`` の連鎖・名の無い点の道)の行き先は、宣言 → 同じ組の名 →(割り先が
+1 つの行なら)主な割り先、の順(:func:`split_path_dest`)。宣言も名の手がかりも無く、割り先が 2 つ以上の行
+(``PathRules.nameless_manual``)の道は、主な割り先へ黙って向けず「手で直す」。宣言と組の名が食い違えば「手で直す」。使った宣言は
+``StrStats.declared_used`` に数える(使われなかった宣言は割る道具が止める)。
 """
 from __future__ import annotations
 
 import ast
 import re
 from collections import Counter
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from pkgmove import imports as IM
-from pkgmove.model import Ctx, Edit, Text, docstrings_of
+from pkgmove.model import Ctx, Edit, Text, docstrings_of, mod_of
 
 SLASH_RE = re.compile(r"(?<![\w./\\-])((?:src/)?shibuya/)?((?:[A-Za-z_]\w*/)+[A-Za-z_]\w*\.(?:py|json))(?![\w/])")
 DOT_RE = re.compile(r"(?<![\w.])shibuya(?:\.[A-Za-z_]\w*)+")
@@ -52,6 +58,10 @@ class PathRules:
     relmap: dict[str, str]
     #: 〔割る段 5a〕割るファイルの道 → {頂上の名 → 割り先の道}(同じ組の名で割り先を選ぶ)。
     names: dict[str, dict[str, str]] = field(default_factory=dict)
+    #: 〔割る段 6・E8〕(ファイル, 記号) → 割り先の道(その記号の中の、名の手がかりの無い割るファイルの道の行き先)。
+    declared: dict[tuple[str, str], str] = field(default_factory=dict)
+    #: 〔割る段 6・E8〕宣言も名の手がかりも無い道を主な割り先へ向けず「手で直す」にする割るファイル(割り先が 2 つ以上の行)。
+    nameless_manual: frozenset[str] = frozenset()
 
 
 @dataclass
@@ -59,6 +69,38 @@ class StrStats:
     rewritten: Counter = field(default_factory=Counter)
     sites: Counter = field(default_factory=Counter)
     skipped: list[dict] = field(default_factory=list)
+    #: 〔割る段 6・E8〕使った道の文字列の割り先の宣言((ファイル, 記号) → 当てた道の数)。
+    declared_used: Counter = field(default_factory=Counter)
+
+
+#: 〔割る段 6・E8〕「手で直す」に出した割るファイルの道の種類(斜線の道の全体・文の中の斜線の道・``/`` の連鎖)。
+SPLIT_NAMELESS = "split_nameless"
+SLASH_NAMELESS = "slash_nameless"
+CHAIN_NAMELESS = "chain_nameless"
+
+
+def split_path_dest(rules: PathRules, path: str, sym: str, rel: str, sib: str | None = None
+                    ) -> tuple[str | None, str | None, bool]:
+    """〔割る段 6・E8〕割るファイル ``rel`` の道の行き先: (割り先の道か ``None``=書き換えない, 手で直す理由か ``None``, 宣言を
+    引いたか)。宣言(``(path, sym)``)→ 同じ組の名(``sib``)→ 割り先が 1 つの行なら主な割り先(``relmap``・元が主な割り先なら
+    ``None``=そのまま)、の順。宣言と組の名が食い違えば手で直す(宣言は引いた=使われなかったとは言わない)。宣言も名の
+    手がかりも無く、割り先が 2 つ以上の行なら手で直す。"""
+    decl = rules.declared.get((path, sym))
+    if decl is not None:
+        if sib is not None and sib != decl:
+            return None, (f"{IM.MANUAL} 割るファイルの道 {rel} の宣言の割り先 {decl} と、同じ組の名の割り先 {sib} が"
+                          f"食い違う"), True
+        return decl, None, True
+    if sib is not None:
+        return sib, None, False
+    if rel in rules.nameless_manual:
+        return None, _nameless_reason(rel), False
+    return rules.relmap.get(rel), None, False
+
+
+def _nameless_reason(rel: str) -> str:
+    return (f"{IM.MANUAL} 名の手がかりの無い割るファイルの道 {rel}(割り先が 2 つ以上・道の文字列の割り先の宣言"
+            f"(split.SPLIT_PATH_DESTS)が無い=主な割り先へ黙って向けない)")
 
 
 def _parents(tree: ast.AST) -> dict[int, ast.AST]:
@@ -154,26 +196,42 @@ def code_import_hits(ctx: Ctx, value: str) -> list[str]:
     return out
 
 
-def split_nameless(ctx: Ctx, tok: str, m_context: bool) -> tuple[str | None, tuple[str, str, str] | None]:
+def split_nameless(ctx: Ctx, tok: str, m_context: bool, declared: str | None = None
+                   ) -> tuple[str | None, tuple[str, str, str] | None]:
     """〔割る段 5b・E2・E3〕割るモジュールの名の無い点の道 ``tok`` の行き先: (新しい字面か ``None``, 触らなかった印か ``None``)。
     転送を残すモジュールは書き換えない・``-m`` の文脈なら入口の割り先・それ以外は主な割り先へ黙って向けず「手で直す」。
-    段 6 の E8(道の文字列の割り先の宣言)は、ここで宣言の表を先に引く形で足す。"""
+    〔割る段 6・E8〕``-m`` の入口でなく、その記号に道の文字列の割り先の宣言(``declared``=割り先のモジュールの名)があればそこへ。"""
     if tok in ctx.split_forwarders:
         return None, ("dotted_forwarder", tok, "入口の転送の名(転送が残り -m で動き続ける)=書き換えない")
     if m_context and tok in ctx.split_entry:
         return ctx.split_entry[tok], None
+    if declared is not None:
+        return declared, None
     why = "-m の文脈だが入口の割り先の宣言が無い" if m_context else "-m の文脈でない"
     return None, ("dotted_nameless", tok, f"{IM.MANUAL} 名の無い点の道 {tok}(割るモジュール・{why}=主な割り先へ黙って向けない)")
 
 
 def _plain_reps(ctx: Ctx, rules: PathRules, value: str, lo: int, hi: int,
-                skipped: list[tuple[str, str, str]], *, after_m: bool = False) -> list[tuple[int, int, str, str]]:
+                skipped: list[tuple[str, str, str]], *, after_m: bool = False, declared: str | None = None,
+                used: list[str] | None = None) -> list[tuple[int, int, str, str]]:
     """値の ``lo``〜``hi`` の斜線の道と点の道の書き換え: (始め, 終わり, 新しい字面, 種類)。``after_m``: 値の全体が ``-m`` の
-    次の要素(並びや呼び出しの引数で 1 つ前が ``"-m"``)。"""
+    次の要素(並びや呼び出しの引数で 1 つ前が ``"-m"``)。〔割る段 6・E8〕``declared`` はその記号の道の文字列の割り先の宣言(割り先の
+    道)。割るファイルの道(名の手がかりの無い形)は宣言へ・宣言が無く割り先が 2 つ以上の行なら「手で直す」。宣言を当てたら
+    ``used`` に足す。"""
     out: list[tuple[int, int, str, str]] = []
     seg = value[lo:hi]
     for m in SLASH_RE.finditer(seg):
         rel = m.group(2)
+        if rel in rules.names:  # 〔割る段 6・E8〕割るファイルの道(文の中の斜線の道=組の名の手がかりは無い)
+            if declared is not None:
+                out.append((lo + m.start(), lo + m.end(), (m.group(1) or "") + declared, "slash"))
+                if used is not None:
+                    used.append(rel)
+            elif rel in rules.nameless_manual:
+                skipped.append((SLASH_NAMELESS, m.group(0), _nameless_reason(rel)))
+            elif rel in rules.relmap:
+                out.append((lo + m.start(), lo + m.end(), (m.group(1) or "") + rules.relmap[rel], "slash"))
+            continue
         if rel in rules.relmap:
             out.append((lo + m.start(), lo + m.end(), (m.group(1) or "") + rules.relmap[rel], "slash"))
     for m in DOT_RE.finditer(seg):
@@ -190,11 +248,14 @@ def _plain_reps(ctx: Ctx, rules: PathRules, value: str, lo: int, hi: int,
                 continue
             s, e = lo + m.start(), lo + m.end()
             m_ctx = (after_m and s == 0 and e == len(value)) or bool(_M_BEFORE_RE.search(value[:s]))
-            new, sk = split_nameless(ctx, tok, m_ctx)
+            dmod = mod_of(declared) if declared is not None else None
+            new, sk = split_nameless(ctx, tok, m_ctx, dmod)
             if sk is not None:
                 skipped.append(sk)
             if new is not None:
                 out.append((s, e, new, "dotted_entry"))
+                if new == dmod and not (m_ctx and tok in ctx.split_entry) and used is not None:
+                    used.append(tok)  # 〔割る段 6・E8〕宣言の割り先へ向けた
             continue
         new = dotted_new(ctx, tok)
         if new == tok:
@@ -206,10 +267,12 @@ def _plain_reps(ctx: Ctx, rules: PathRules, value: str, lo: int, hi: int,
     return out
 
 
-def rewrite_value(ctx: Ctx, rules: PathRules, value: str, *, after_m: bool = False
+def rewrite_value(ctx: Ctx, rules: PathRules, value: str, *, after_m: bool = False, declared: str | None = None,
+                  used: list[str] | None = None
                   ) -> tuple[str, list[tuple[int, int, str, str]], list[tuple[str, str, str]]]:
     """文字列の値の書き換え(``paths`` の規則): 新しい値・書き換え(値の位置)・触らなかったもの(種類・字面・理由)。
-    ``after_m``: 値の全体が ``-m`` の次の要素(〔割る段 5b・E3〕)。"""
+    ``after_m``: 値の全体が ``-m`` の次の要素(〔割る段 5b・E3〕)。``declared``・``used``: 〔割る段 6・E8〕その記号の道の文字列の
+    割り先の宣言と、当てた道を足す並び(:func:`_plain_reps`)。"""
     skipped: list[tuple[str, str, str]] = []
     reps: list[tuple[int, int, str, str]] = []
     code_spans: list[tuple[int, int]] = []
@@ -246,14 +309,15 @@ def rewrite_value(ctx: Ctx, rules: PathRules, value: str, *, after_m: bool = Fal
         tmp: list[tuple[str, str, str]] = []
         for _s, _e, _n, kind in _plain_reps(ctx, rules, value, 0, len(value), tmp, after_m=after_m):
             skipped.append((kind, value[_s:_e], "ASCII の外の字を含む文(記録の文)=書き換えない"))
-        # 記録の文の中の名の無い点の道は手で直す一覧に入れない(5a と同じく記録の文は書き換えない)
-        skipped += [(k, tok, "ASCII の外の字を含む文(記録の文)=書き換えない") if k == "dotted_nameless" else (k, tok, why)
-                    for k, tok, why in tmp]
+        # 記録の文の中の名の無い点の道と、〔割る段 6・E8〕名の手がかりの無い割るファイルの斜線の道は手で直す一覧に入れない(5a と
+        # 同じく記録の文は書き換えない)
+        skipped += [(k, tok, "ASCII の外の字を含む文(記録の文)=書き換えない") if k in ("dotted_nameless", SLASH_NAMELESS)
+                    else (k, tok, why) for k, tok, why in tmp]
         return value, [], skipped
     cur = 0
     for s, e in [*code_spans, (len(value), len(value))]:
         if s > cur:
-            reps += _plain_reps(ctx, rules, value, cur, s, skipped, after_m=after_m)
+            reps += _plain_reps(ctx, rules, value, cur, s, skipped, after_m=after_m, declared=declared, used=used)
         cur = max(cur, e)
     reps.sort()
     out = []
@@ -381,7 +445,8 @@ def chain_edits(text: Text, tree: ast.Module, rules: PathRules, symbols: dict[in
             for i, c in enumerate(run):
                 comps += [(i, x) for x in c.value.split("/") if x]
             joined = "/".join(x for _, x in comps)
-            hit = next((r for r in rules.relmap if joined == r or joined.endswith("/" + r)), None)
+            cands = [*rules.relmap, *[r for r in rules.names if r not in rules.relmap]]  # 〔割る段 6・E8〕元が主な割り先の行も
+            hit = next((r for r in cands if joined == r or joined.endswith("/" + r)), None)
             if hit is None:
                 continue
             k = len(comps) - len(hit.split("/"))
@@ -402,8 +467,20 @@ def chain_edits(text: Text, tree: ast.Module, rules: PathRules, symbols: dict[in
                 stats.skipped.append({"file": path, "symbol": sym, "kind": "chain", "token": joined,
                                       "reason": "連なりが行をまたぐか注を含む=書き換えない"})
                 continue
+            if hit in rules.names:  # 〔割る段 6・E8〕割るファイルの連鎖(組の名の手がかりは無い)=宣言か、手で直すか、主な割り先
+                dest, why, by_decl = split_path_dest(rules, path, sym, hit)
+                if by_decl:
+                    stats.declared_used[(path, sym)] += 1
+                if why is not None:
+                    stats.skipped.append({"file": path, "symbol": sym, "kind": CHAIN_NAMELESS, "token": joined,
+                                          "reason": why})
+                    continue
+                if dest is None:
+                    continue
+            else:
+                dest = rules.relmap[hit]
             qch = seg[0] if seg[0] in "'\"" else '"'
-            new = " / ".join(f"{qch}{x}{qch}" for x in rules.relmap[hit].split("/"))
+            new = " / ".join(f"{qch}{x}{qch}" for x in dest.split("/"))
             out.append(Edit(s, e, new, "path", sym, f"chain {joined}"))
             stats.rewritten["chain"] += 1
             stats.sites[(path, sym)] += 1
@@ -442,6 +519,8 @@ def rewrite_file_strings(ctx: Ctx, rules: PathRules, path: str, text: str, tree:
             continue
         whole = n.value[12:] if n.value.startswith("src/shibuya/") else n.value
         sib = None
+        dest_whole: str | None = None
+        used: list[str] = []
         if whole in rules.names:  # 〔割る段 5a〕割るファイルの道=同じ組の名の割り先(無ければ主な割り先)
             try:
                 sib = sibling_dest(par, n, rules, whole)
@@ -449,21 +528,46 @@ def rewrite_file_strings(ctx: Ctx, rules: PathRules, path: str, text: str, tree:
                 stats.skipped.append({"file": path, "symbol": sym, "kind": "split_sibling", "token": n.value[:80],
                                       "reason": f"{e}=書き換えない"})
                 continue
+            # 〔割る段 6・E8〕宣言 → 組の名 → (割り先が 1 つの行なら)主な割り先。宣言も名の手がかりも無ければ手で直す
+            dest_whole, why, by_decl = split_path_dest(rules, path, sym, whole, sib)
+            if why is not None:
+                if by_decl:  # 宣言と組の名が食い違う=宣言は引いた(使われなかったとは言わない)・手で直す一覧へ
+                    stats.declared_used[(path, sym)] += 1
+                stats.skipped.append({"file": path, "symbol": sym, "kind": SPLIT_NAMELESS, "token": n.value[:80],
+                                      "reason": why})
+                continue
+            if by_decl:
+                used.append(whole)
         if rule == "exact":
-            new_rel = sib if sib is not None and n.value == whole else rules.relmap.get(n.value)
-            if new_rel is None and n.value.startswith("src/shibuya/") and n.value[12:] in rules.relmap:
-                new_rel = "src/shibuya/" + (sib or rules.relmap[n.value[12:]])  # 〔親の決定 2〕リポの根からの道の形
+            if whole in rules.names:
+                new_rel = None if dest_whole is None else (dest_whole if n.value == whole else "src/shibuya/" + dest_whole)
+            else:
+                new_rel = rules.relmap.get(n.value)
+                if new_rel is None and n.value.startswith("src/shibuya/") and n.value[12:] in rules.relmap:
+                    new_rel = "src/shibuya/" + rules.relmap[n.value[12:]]  # 〔親の決定 2〕リポの根からの道の形
+            if used:
+                stats.declared_used[(path, sym)] += len(used)
             if new_rel is None:
                 continue
             reps = [(0, len(n.value), new_rel, "src_table")]
             new_value = new_rel
             skipped: list[tuple[str, str, str]] = []
         else:
-            r2 = rules if sib is None else PathRules(relmap={**rules.relmap, whole: sib}, names=rules.names)
-            if ctx.namemap and _after_m(par, n):  # 〔割る段 5b・E3〕並びの 1 つ前が "-m"
-                new_value, reps, skipped = rewrite_value(ctx, r2, n.value, after_m=True)
+            if whole in rules.names:  # 全体が割るファイルの道=上で決めた行き先へ(宣言と手で直す判定は済み)
+                r2 = replace(rules, relmap={**rules.relmap, **({whole: dest_whole} if dest_whole is not None else {})},
+                             declared={}, nameless_manual=rules.nameless_manual - {whole})
+                decl = None
             else:
-                new_value, reps, skipped = rewrite_value(ctx, r2, n.value)
+                r2 = rules
+                decl = rules.declared.get((path, sym))
+            # 〔割る段 6・E8〕宣言の口は宣言のある記号でだけ渡す(無ければ前と同じ呼び方=試験の差し替えの口もそのまま)
+            kw: dict = {"declared": decl, "used": used} if decl is not None else {}
+            if ctx.namemap and _after_m(par, n):  # 〔割る段 5b・E3〕並びの 1 つ前が "-m"
+                new_value, reps, skipped = rewrite_value(ctx, r2, n.value, after_m=True, **kw)
+            else:
+                new_value, reps, skipped = rewrite_value(ctx, r2, n.value, **kw)
+            if used:
+                stats.declared_used[(path, sym)] += len(used)
         for kind, tok, why in skipped:
             stats.skipped.append({"file": path, "symbol": sym, "kind": kind, "token": tok, "reason": why})
         if new_value == n.value:

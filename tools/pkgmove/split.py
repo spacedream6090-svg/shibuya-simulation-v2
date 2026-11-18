@@ -65,6 +65,21 @@
     〔G3 の前・E5〕別名の割り先の宣言(:data:`SPLIT_ALIAS_DESTS`): 差し替える名を呼ぶ時に読む関数の割り先が、名の定義の割り先と
        違う別名は、宣言の割り先へ向ける(守りは :func:`_declared_alias_dests` と「宣言が使われなかった」)。
 
+〔割る段 6 の S6-G0〕道具の拡張(計画 §8・親の裁定 Q1・Q8・追記)
+    E7 台帳の道の前向きの表: 宣言の入る 2 つ目以降の新しい割り先ごとに、前向きの表 ``LEDGER_PATHS_SPLIT`` に「割り先の今の道 →
+       元のファイルの台帳の道」を書き足す(:func:`ledger_split_rows`・:func:`pkgmove.ledgerpaths.rewrite`)。守り ④ は、台帳の道
+       (1 対 1 の表 → 前向きの表 → そのまま)で数える宣言の多重集合が割る前と後で同じことに加え、2 つ目以降の新しい割り先は
+       「宣言がある ⇔ 前向きの表に行がある」・前向きの表の今の道は木に在り宣言を持つ・2 つの表の両方に載る今の道が無い、を見る。
+       既に在る割り先(別の台帳の道を持つ)へ宣言が入る形は止める。
+    E8 道の文字列の割り先の宣言(:data:`SPLIT_PATH_DESTS`): 名の手がかりの無い割るファイルの道を、宣言の割り先へ向ける。宣言も
+       名の手がかりも無い道(斜線の道・``/`` の連鎖・名の無い点の道)は、割り先が 2 つ以上の行では主な割り先へ黙って向けず
+       「手で直す一覧」へ(:func:`pkgmove.strings.split_path_dest`)。守りは :func:`_path_decl_errors` と「宣言が使われなかった」。
+    E5-b 差し替えの届く先(:func:`patch_reach`): 割るモジュールの別名を通す差し替えが、割った後、その名を呼ぶ時に素の名で読んで
+       いた関数の割り先の全部に向いているか。向かない割り先・集合の外へ向く差し替えは止める。読み込みの時にだけ読む文と、守りが
+       見られなかった差し替えは別の一覧(報告の ``patch_load_time``・``patch_unseen``)。〔検収の後の直し〕主な割り先が元のファイルの
+       行は元のモジュールを主な割り先として確かめる・割り先でないモジュールを指したままの差し替えは、別名が手で直す一覧に在るとき
+       だけ「見られなかった」(無ければ止める)・``strict`` の当ては「見られなかった」が 1 つでも在れば断る(親の裁定)。
+
 逐次ループ宣言: なし(道具=木のファイルの数ぶんの走査を 1 回・ランの中では動かない)。
 """
 from __future__ import annotations
@@ -84,8 +99,8 @@ from pkgmove import guard as G
 from pkgmove import imports as IM
 from pkgmove import ledgerpaths as LPT
 from pkgmove import strings as ST
-from pkgmove.model import (SRC_PREFIX, Ctx, Edit, Index, Text, Tree, apply_edits, area_of, is_self, mod_of, parse,
-                           resolve_from, symbols_of)
+from pkgmove.model import (SRC_PREFIX, Ctx, Edit, Index, Text, Tree, apply_edits, area_of, docstrings_of, is_self, mod_of,
+                           parse, resolve_from, symbols_of)
 from pkgmove.table import SPLIT_ENTRIES, SPLIT_FORWARDERS, SPLIT_ORDER, MapDoc, Row, forwarder_text
 
 #: 割る段で道の文字列を書き換えない (ファイル, 記号)(表の old を持つ固定の一覧=道の字面が値そのもの)。
@@ -99,6 +114,9 @@ STRING_EXCLUDE: frozenset[tuple[str, str]] = frozenset({
     # 〔割る段 5b の G2 の直し・親の裁定〕古い commit(``LEGACY_COMMIT``)の src の写しでだけ回す子のコード=古い置き場の名のまま。
     # 今の置き場へ書き換えると、古い src で ``No module named`` になる
     ("tests/engine/test_state_format_10f.py", "_HEAD_CHILD"),
+    # 〔割る段 6 の S6-G0・親の裁定 R2〕偽の木(tmp の合成の木)に書く見本のコード。字面の ``shibuya.engine.resolve`` は合成の木の
+    # 見本の resolve を指し、本物の src を読まない(同じ試験がカードの文の ``shibuya.engine.resolve`` を確かめる=字面をそろえて残す)
+    ("tests/tools/test_repo_guide.py", "LAYER_SRC"),
 })
 
 
@@ -134,6 +152,27 @@ SPLIT_ALIAS_DESTS: tuple[AliasDest, ...] = (
     AliasDest("cli.py", "tests/engine/test_classical_policy.py", "cli", "interfaces/cli/main.py",
               absent=("build_parser",)),
 )
+
+
+@dataclass(frozen=True)
+class PathDest:
+    """〔割る段 6・E8・親の裁定 Q8〕道の文字列の割り先の宣言の 1 行: 割る行 ``old`` を当てるとき、ファイル ``file`` の記号 ``symbol``
+    (:mod:`pkgmove.strings` が文字列の持ち主として出す名=頂上の関数・クラス・代入の左辺・メソッドは ``クラス.メソッド``。
+    :data:`STRING_EXCLUDE` と同じ見方)の中の、名の手がかりの無い割るファイルの道(斜線の道・``/`` の連鎖・名の無い点の道)を、
+    主な割り先でなく割り先 ``dest`` へ向ける。"""
+
+    old: str
+    file: str
+    symbol: str
+    dest: str
+
+
+#: 〔割る段 6・E8・親の裁定 Q8〕道の文字列の割り先の宣言(形は :data:`SPLIT_ALIAS_DESTS` にそろえる)。宣言はその割る行でだけ使う。
+#: 守り: 宣言のファイルと記号が木に在る・宣言の割り先がその行の割り先・記号が書き換えの範囲の中(:data:`STRING_EXCLUDE` と
+#: :data:`SPLIT_EXCLUDE_PATHS` の外)・同じ記号に宣言が 2 つ無い・使われなかった宣言は止める(:func:`_path_decl_errors`)。段 6 の
+#: 2 行(``runtime/state/ledger.py::_ALLOW_REVENUE`` → ``act/ops/shop.py``・``runtime/state/ledger_ast.py::ext_reason`` →
+#: ``runtime/state/restore.py``)は、割る行が順に入る次の発注で載せる(今は空)。
+SPLIT_PATH_DESTS: tuple[PathDest, ...] = ()
 #: 〔割る段 5b・E4・親の裁定 Q9 の (a)〕割る段で書き換えないファイル(道筋か、``/`` で終わるディレクトリ)。byte-check は基準の側
 #: (割る前の木)と比べる側(割った後の木)を道具のリポの同じコードで回すので、ランの入口は道具が自分で解く
 #: (``tools/bytecheck/check.py`` の ``resolve_run``)。偽のエンジン(``shibuya/cli.py`` を一時の木に作る試験)も書き換えない。
@@ -259,20 +298,23 @@ def is_done(tree: Tree, row: Row) -> bool:
     return not (row.old != row.new and tree.files.get(SRC_PREFIX + row.old))  # 元のファイルは無いか 0 バイトの頭
 
 
-def split_state(tree: Tree, mapdoc: MapDoc) -> list[str] | None:
-    """済んだ割る行(順の頭から)。順の途中が抜けていれば ``None``(段を飛ばした木)。"""
+def split_state(tree: Tree, mapdoc: MapDoc, order: tuple[str, ...] | None = None) -> list[str] | None:
+    """済んだ割る行(順の頭から)。順の途中が抜けていれば ``None``(段を飛ばした木)。``order`` は割る段の順(既定は
+    :data:`pkgmove.table.SPLIT_ORDER`。〔割る段 6・E9〕``cli.py split --map`` は表の ``split_order`` から読んだ順を渡す)。"""
+    order = SPLIT_ORDER if order is None else tuple(order)
     by = mapdoc.by_old()
-    done = [o for o in SPLIT_ORDER if o in by and is_done(tree, by[o])]
-    if done != list(SPLIT_ORDER[: len(done)]):
+    done = [o for o in order if o in by and is_done(tree, by[o])]
+    if done != list(order[: len(done)]):
         return None
     return done
 
 
-def next_split(tree: Tree, mapdoc: MapDoc) -> str | None:
-    st = split_state(tree, mapdoc)
+def next_split(tree: Tree, mapdoc: MapDoc, order: tuple[str, ...] | None = None) -> str | None:
+    order = SPLIT_ORDER if order is None else tuple(order)
+    st = split_state(tree, mapdoc, order)
     if st is None:
         raise SplitRefused("木の割る段が順と合わない(段を飛ばしたか、逆の順で当てた木)")
-    return SPLIT_ORDER[len(st)] if len(st) < len(SPLIT_ORDER) else None
+    return order[len(st)] if len(st) < len(order) else None
 
 
 # ------------------------------------------------------------------ 単位
@@ -533,6 +575,15 @@ class SplitPlan:
     excluded_sites: list[str] = field(default_factory=list)
     #: 〔割る段 5b・E5〕使った別名の割り先の宣言(:data:`SPLIT_ALIAS_DESTS`)。ファイル・別名 → 割り先・読む名の数・無くてよい名。
     alias_declared: list[str] = field(default_factory=list)
+    #: 〔割る段 6・E7〕前向きの表(``LEDGER_PATHS_SPLIT``)に足した行(割り先の今の道 → 台帳の道)。
+    ledger_paths_split: list[str] = field(default_factory=list)
+    #: 〔割る段 6・E8〕使った道の文字列の割り先の宣言(:data:`SPLIT_PATH_DESTS`)。ファイル::記号 → 割り先・当てた道の数。
+    path_declared: list[str] = field(default_factory=list)
+    #: 〔割る段 6・E5-b〕差し替えの届く先の守り(:func:`patch_reach`): 確かめた差し替え(ファイル::記号 名 → 割り先)・見られなかった
+    #: 差し替え・読み込みの時にだけ読む文(差し替えが効かない読み)。
+    patch_checked: list[str] = field(default_factory=list)
+    patch_unseen: list[str] = field(default_factory=list)
+    patch_load_time: list[str] = field(default_factory=list)
 
 
 def alias_modules(text: str, path: str) -> dict[str, set[str]]:
@@ -1056,11 +1107,13 @@ def _append_to_existing(text: str, d: str, imp_lines: list[str], d_all: list[str
 # ------------------------------------------------------------------ 計画の本体
 def make_split_plan(tree: Tree, mapdoc: MapDoc, old: str, *, frozen: G.Frozen | None = None,
                     ledger_text: str | None = None, strict: bool = True, check_order: bool = True,
-                    compose_fn=None, contracts_spec=None) -> SplitPlan:
+                    compose_fn=None, contracts_spec=None, order: tuple[str, ...] | None = None) -> SplitPlan:
     """割る行 ``old`` を当てた後の木と報告(守りを通らなければ :class:`SplitStopped`・表せなければ :class:`SplitRefused`)。
     ``strict`` が偽なら「手で直す」読みを残したまま計画を返す(書かない実行の報告用)。``compose_fn`` は試験の差し替えの口。
     ``contracts_spec``(``contracts.toml`` の :class:`pkgmove.contracts.Spec`)を渡すと、割る前と後の import の決まりを比べる守り
-    (〔検収 高-1〕)も回す(``cli.py split`` は常に渡す)。"""
+    (〔検収 高-1〕)も回す(``cli.py split`` は常に渡す)。``order`` は割る段の順(既定は :data:`pkgmove.table.SPLIT_ORDER`=
+    〔割る段 6・E9〕``cli.py split --map`` は表から読んだ順を渡す)。"""
+    order = SPLIT_ORDER if order is None else tuple(order)
     by = mapdoc.by_old()
     row = by.get(old)
     if row is None or row.kind != "split":
@@ -1068,9 +1121,9 @@ def make_split_plan(tree: Tree, mapdoc: MapDoc, old: str, *, frozen: G.Frozen | 
     if not row.names_complete:
         raise SplitRefused(f"割る行 {old} の名の表が揃っていない(全ファイルの表 §4)")
     if check_order:
-        if old not in SPLIT_ORDER:
+        if old not in order:
             raise SplitRefused(f"割る段の順に無い行: {old}")
-        nxt = next_split(tree, mapdoc)
+        nxt = next_split(tree, mapdoc, order)
         if is_done(tree, row):
             raise SplitRefused(f"当たっている(済んだ)割る行: {old}")
         if nxt != old:
@@ -1136,13 +1189,21 @@ def make_split_plan(tree: Tree, mapdoc: MapDoc, old: str, *, frozen: G.Frozen | 
               namemap=namemap, split_main={src_mod: mod_of(row.new)}, split_reexports={src_mod: reexp},
               split_entry={src_mod: mod_of(SPLIT_ENTRIES[row.old])} if row.old in SPLIT_ENTRIES else {},
               split_forwarders=frozenset({src_mod}) if fw is not None else frozenset())
-    rules = ST.PathRules(relmap={src_rel: row.new} if not plan.in_place else {}, names={src_rel: dict(row.names)})
+    # 〔割る段 6・E8〕道の文字列の割り先の宣言(この割る行の分)と、宣言も名の手がかりも無い道を手で直す一覧へ出す割るファイル
+    # (割り先が 2 つ以上の行)
+    pdecls = [d for d in SPLIT_PATH_DESTS if d.old == row.old]
+    rules = ST.PathRules(relmap={src_rel: row.new} if not plan.in_place else {}, names={src_rel: dict(row.names)},
+                         declared={(d.file, d.symbol): d.dest for d in pdecls},
+                         nameless_manual=frozenset({src_rel}) if len(plan.dests) >= 2 else frozenset())
     from pkgmove.move import locate
     src_tables = {}
     for f, sym, _why in AL.SRC_TABLES:
         src_tables.setdefault(locate(tree, mapdoc, f), {})[sym] = "exact"
     class_path = locate(tree, mapdoc, AL.CLASS_IDS_TABLE[0])
     lp_path = locate(tree, mapdoc, AL.LEDGER_PATHS_TABLE[0])
+    path_errs = _path_decl_errors(tree, pdecls, set(plan.dests))
+    if path_errs:
+        raise SplitStopped([f"道の文字列の割り先の宣言の守り: {e}" for e in path_errs])
     skip = {src_p, *[SRC_PREFIX + d for d in texts]}
     # 〔割る段 5b・E5〕この割る行の別名の割り先の宣言(使ったものを数え、使われなかった宣言と守りに当たった宣言で止める)
     decls = [d for d in SPLIT_ALIAS_DESTS if d.old == row.old]
@@ -1176,6 +1237,7 @@ def make_split_plan(tree: Tree, mapdoc: MapDoc, old: str, *, frozen: G.Frozen | 
         if stt.statements > n0 and not excluded:
             plan.import_files[area] += 1
         # 道の文字列(src は許可の一覧の表・tests と tools と docs の記録の道具は割るファイルを指す文字列)
+        probe = None
         if p in src_tables:
             edits += ST.rewrite_file_strings(ctx, rules, p, text, t, syms, src_tables[p], plan.str_stats)
         elif area in ("tests", "tools") and p not in [SRC_PREFIX + d for d in texts]:  # docs の記録の道具は import だけ(親の決定 7)
@@ -1183,6 +1245,10 @@ def make_split_plan(tree: Tree, mapdoc: MapDoc, old: str, *, frozen: G.Frozen | 
             edits += _scan_strings(ctx, rules, p, text, t, syms, probe, src_rel, src_mod)
         if excluded:
             n_man = sum(1 for w in stt.warnings if IM.MANUAL in w)
+            if probe is not None and probe is not plan:
+                # 〔検収の後の直し 3〕文字列の中の手で直す所(E8 の名の無い道・名の無い点の道ほか)も数える。E8 の前は名の無い道を
+                # 書き換えに数えたので報告に出た=範囲の外でも「在る」ことは報告に残す
+                n_man += sum(1 for x in probe.str_stats.skipped if IM.MANUAL in x.get("reason", ""))
             if edits or n_man:
                 plan.excluded_sites.append(f"{p}: 書き換え {len(edits)}・手で直す {n_man}(範囲の外=書き換えない)")
             continue
@@ -1197,6 +1263,13 @@ def make_split_plan(tree: Tree, mapdoc: MapDoc, old: str, *, frozen: G.Frozen | 
                               f"別名を結ぶ import が無い)")
     if alias_errs:
         raise SplitStopped([f"別名の割り先の宣言の守り: {e}" for e in alias_errs])
+    # 〔割る段 6・E8〕道の文字列の割り先の宣言: 使われなかった宣言は止める(ファイルや記号が範囲の外・名の手がかりの無い道が無い)
+    unused = [d for d in pdecls if not plan.str_stats.declared_used.get((d.file, d.symbol))]
+    if unused:
+        raise SplitStopped([f"道の文字列の割り先の宣言の守り: {d.file}::{d.symbol} → {d.dest}: 宣言が使われなかった(記号の中に"
+                            f"名の手がかりの無い割るファイルの道が無いか、書き換えの範囲の外)" for d in unused])
+    plan.path_declared = [f"{d.file}::{d.symbol} → {d.dest}(道 {plan.str_stats.declared_used[(d.file, d.symbol)]})"
+                          for d in pdecls]
     for area, stt in plan.import_stats.items():
         for w in stt.warnings:
             if IM.MANUAL in w:
@@ -1221,20 +1294,30 @@ def make_split_plan(tree: Tree, mapdoc: MapDoc, old: str, *, frozen: G.Frozen | 
         if new2 != plan.after.files[class_path]:
             plan.after.files[class_path] = new2
             plan.changed.setdefault(class_path, []).append(Edit(0, 0, "", "class_key", "CLASS_IDS", f"鍵 {cres.rewritten}"))
-    # つなぎの台帳の道の表(主な割り先 → 元の道)
-    if not plan.in_place and lp_path in plan.after.files:
+    # つなぎの台帳の道の表(主な割り先 → 元の道)。〔割る段 6・E7〕宣言の入る 2 つ目以降の新しい割り先 → 元の台帳の道を前向きの表へ
+    if lp_path in plan.after.files:
+        lp_text = plan.after.files[lp_path]
+        moves = {} if plan.in_place else {src_p: SRC_PREFIX + row.new}
         try:
-            new3, nadd = LPT.rewrite(plan.after.files[lp_path], {src_p: SRC_PREFIX + row.new})
-        except LPT.LedgerPathsError as e:
+            split_add = ledger_split_rows(plan, lp_text)
+            new3, _nadd = LPT.rewrite(lp_text, moves, split_add)
+        except (LPT.LedgerPathsError, CI.ClassIdError) as e:
             raise SplitStopped([f"台帳の道の対応の表: {e}"]) from e
-        plan.ledger_paths_added = nadd
-        if new3 != plan.after.files[lp_path]:
+        plan.ledger_paths_added = len(moves)
+        plan.ledger_paths_split = [f"{k} → {v}" for k, v in split_add.items()]
+        if new3 != lp_text:
             plan.after.files[lp_path] = new3
-            plan.changed.setdefault(lp_path, []).append(Edit(0, 0, "", "ledger_path", "LEDGER_PATHS", f"行 {nadd}"))
+            plan.changed.setdefault(lp_path, []).append(
+                Edit(0, 0, "", "ledger_path", LPT.MAIN_TABLE, f"行 {len(moves)}・前向きの表 {len(split_add)}"))
     if strict and plan.manual:
         raise SplitRefused("属性で読み割り先が 2 つ以上になる読み(手で直す一覧)があるので当てない: "
                            + "; ".join(plan.manual[:20]))
     guards(plan, mapdoc, frozen, ledger_text, class_path, lp_path, ix=ix, spec=contracts_spec)
+    # 〔検収の後の直し 2・親の裁定〕厳しい当てでは、差し替えの届く先の守りが見られなかった差し替えが 1 つでも在れば断る(手で直す一覧と
+    # 同じ扱い・宣言して通す口は作らない)。strict=False(--through の報告)は一覧に出すだけ
+    if strict and plan.patch_unseen:
+        raise SplitRefused("差し替えの届く先の守りが見られなかった差し替えがあるので当てない(見られる形に直す): "
+                           + "; ".join(plan.patch_unseen[:20]))
     return plan
 
 
@@ -1254,12 +1337,16 @@ def _scan_strings(ctx: Ctx, rules: ST.PathRules, p: str, text: str, t: ast.Modul
                 s = syms.get(id(n), "")
                 if (p, s) not in STRING_EXCLUDE:
                     hit_syms.add(s)
+    # / の結合(SRC / "engine" / "x.py")は単独の定数に道が入らない=記号ごとに見る。〔割る段 6・E8〕手で直す一覧に出る連鎖(宣言も名の
+    # 手がかりも無い道)の記号も拾う。前はほかの記号に当たりがあるファイルで連鎖の記号を見なかった(書き換えも一覧も無く残った)ので、
+    # 当たりの有無に依らず足す
+    probe = ST.StrStats()
+    edits0 = ST.chain_edits(Text(text), t, rules, syms, None, p, probe)
+    hit_syms |= {e.symbol for e in edits0 if (p, e.symbol) not in STRING_EXCLUDE}
+    hit_syms |= {s["symbol"] for s in probe.skipped
+                 if s.get("kind") == ST.CHAIN_NAMELESS and (p, s["symbol"]) not in STRING_EXCLUDE}
     if not hit_syms:
-        # / の結合(SRC / "engine" / "x.py")は単独の定数に道が入らない=記号ごとに見る
-        edits0 = ST.chain_edits(Text(text), t, rules, syms, None, p, ST.StrStats())
-        hit_syms = {e.symbol for e in edits0 if (p, e.symbol) not in STRING_EXCLUDE}
-        if not hit_syms:
-            return []
+        return []
     rule_of = {s: "paths" for s in hit_syms}
     edits = ST.rewrite_file_strings(ctx, rules, p, text, t, syms, rule_of, plan.str_stats)
     for e in edits:
@@ -1315,12 +1402,65 @@ def _scan_decls(text: str, path: str) -> list:
     return BS.scan_source(text, path)
 
 
-def _decl_keys(text: str, path: str, table: dict[str, str]) -> Counter:
+def _decl_keys(text: str, path: str, led) -> Counter:
+    """宣言の (台帳の道で作った ``declared_in``, 項の数) の多重集合。``led`` は今の道 → 台帳の道(〔割る段 6・E7〕1 対 1 の表 →
+    前向きの表 → そのまま)。"""
     out: Counter = Counter()
     for d in _scan_decls(text, path):
         suffix = d.declared_in.split("#", 1)[1]
-        out[(table.get(path, path) + "#" + suffix, d.items)] += 1
+        out[(led(path) + "#" + suffix, d.items)] += 1
     return out
+
+
+def _lp_tables(tree: Tree, lp_path: str) -> tuple[dict[str, str], dict[str, str] | None]:
+    """〔割る段 6・E7〕木の台帳の道の表(1 対 1 の表, 前向きの表か ``None``)。表のファイルが無ければ ``({}, None)``。"""
+    if lp_path not in tree.files:
+        return {}, None
+    text = tree.files[lp_path]
+    return LPT.table_of(text), LPT.split_table_of(text)
+
+
+def ledger_split_rows(plan: SplitPlan, lp_text: str) -> dict[str, str]:
+    """〔割る段 6・E7・親の裁定 Q1 の (ii)〕前向きの表に足す行: つなぎの台帳の宣言が 1 つ以上入る、2 つ目以降の新しい割り先の今の道
+    → 元のファイルの台帳の道(1 対 1 の表 → 前向きの表 → そのまま、で引く)。宣言の入らない割り先の行は書かない(条件 ③)。"""
+    main = LPT.table_of(lp_text)
+    split = LPT.split_table_of(lp_text)
+    led = LPT.ledger_of(main, split, SRC_PREFIX + plan.src_rel)
+    out: dict[str, str] = {}
+    for d, kind in plan.dests.items():
+        if d == plan.row.new or kind != "new":
+            continue
+        p = SRC_PREFIX + d
+        if _scan_decls(plan.after.files[p], p):
+            out[p] = led
+    return out
+
+
+def _path_decl_errors(tree: Tree, decls: list["PathDest"], dests: set[str]) -> list[str]:
+    """〔割る段 6・E8〕道の文字列の割り先の宣言の守り(当てる前): ファイルが木に在る・記号がそのファイルの記号に在る・宣言の割り先が
+    その割る行の割り先・記号が書き換えの範囲の中・同じ記号に宣言が 2 つ無い。使われなかった宣言は当てた後に止める。"""
+    errs: list[str] = []
+    seen: set[tuple[str, str]] = set()
+    for d in decls:
+        where = f"{d.file}::{d.symbol} → {d.dest}"
+        if (d.file, d.symbol) in seen:
+            errs.append(f"{where}: 同じ記号に宣言が 2 つある")
+        seen.add((d.file, d.symbol))
+        text = tree.files.get(d.file)
+        if text is None:
+            errs.append(f"{where}: ファイルが木に無い")
+            continue
+        try:
+            syms = set(symbols_of(text).values())
+        except SyntaxError:
+            syms = set()
+        if d.symbol not in syms:
+            errs.append(f"{where}: 記号がファイルに無い")
+        if d.dest not in dests:
+            errs.append(f"{where}: 宣言の割り先がこの割る行の割り先でない(割り先 {sorted(dests)})")
+        if (d.file, d.symbol) in STRING_EXCLUDE or is_split_excluded(d.file) or is_self(d.file):
+            errs.append(f"{where}: 記号が書き換えの範囲の外(STRING_EXCLUDE・SPLIT_EXCLUDE_PATHS・道具の自分)")
+    return errs
 
 
 def guards(plan: SplitPlan, mapdoc: MapDoc, frozen: G.Frozen | None, ledger_text: str | None, class_path: str,
@@ -1443,22 +1583,40 @@ def guards(plan: SplitPlan, mapdoc: MapDoc, frozen: G.Frozen | None, ledger_text
     if unbound_same:
         errs.append(f"③ 名の結び: 元の頂上で結ぶ名が、割り先で同じ物に結ばれない {unbound_same}")
     plan.guards["bindings"] = "同じ" if not bad and not unbound_same else "違う"
-    # ④ つなぎの宣言
-    lp_before = LPT.table_of(before.files[lp_path]) if lp_path in before.files else {}
-    lp_after = LPT.table_of(after.files[lp_path]) if lp_path in after.files else {}
-    k_before = _decl_keys(src_text, src_p, lp_before)
+    # ④ つなぎの宣言(〔割る段 6・E7〕台帳の道は 1 対 1 の表 → 前向きの表 → そのまま、で引く。比べの厳しさは前と同じ=台帳の道で
+    # 数える宣言の多重集合が同じ。2 つ目以降の新しい割り先は「宣言がある ⇔ 前向きの表に行がある」)
+    mb, sb = _lp_tables(before, lp_path)
+    ma, sa = _lp_tables(after, lp_path)
+    led_b = lambda q: LPT.ledger_of(mb, sb, q)  # noqa: E731
+    led_a = lambda q: LPT.ledger_of(ma, sa, q)  # noqa: E731
+    e_decl: list[str] = []
+    k_before = _decl_keys(src_text, src_p, led_b)
     k_after: Counter = Counter()
     for d in dests:
         p = SRC_PREFIX + d
-        if plan.dests[d] == "existing":
-            k_before += _decl_keys(before.files[p], p, lp_before)
-        k_after += _decl_keys(after.files[p], p, lp_after)
-        if d != row.new and plan.dests[d] == "new" and _decl_keys(after.files[p], p, lp_after):
-            errs.append(f"④ 宣言: 2 つ目以降の割り先 {d} につなぎの台帳の宣言が入る(台帳の道の表=1 対 1 で表せない)")
+        kb = _decl_keys(before.files[p], p, led_b) if plan.dests[d] == "existing" else Counter()
+        ka = _decl_keys(after.files[p], p, led_a)
+        k_before += kb
+        k_after += ka
+        second_new = d != row.new and plan.dests[d] == "new"
+        in_split = sa is not None and p in sa
+        if second_new and ka and not in_split:
+            e_decl.append(f"④ 宣言: 2 つ目以降の割り先 {d} につなぎの台帳の宣言が入るが、台帳の道の前向きの表({LPT.SPLIT_TABLE})に"
+                      f"行が無い(1 対 1 の表では表せない)")
+        if second_new and not ka and in_split:
+            e_decl.append(f"④ 宣言: 宣言の無い 2 つ目以降の割り先 {d} の行が前向きの表に在る(裁定 Q1 の条件 ③)")
+        if d != row.new and plan.dests[d] == "existing" and (ka - kb):
+            e_decl.append(f"④ 宣言: 既に在る割り先 {d} につなぎの台帳の宣言が入る(台帳の道が元のファイルと別=表せない)")
     if k_before != k_after:
-        errs.append(f"④ 宣言: つなぎの台帳の宣言が元と割り先とで違う(元だけ {sorted(k_before - k_after)[:3]}・"
-                    f"割り先だけ {sorted(k_after - k_before)[:3]})")
-    plan.guards["declarations"] = "同じ" if k_before == k_after and not any("④" in e for e in errs) else "違う"
+        e_decl.append(f"④ 宣言: つなぎの台帳の宣言が元と割り先とで違う(元だけ {sorted(k_before - k_after)[:3]}・"
+                  f"割り先だけ {sorted(k_after - k_before)[:3]})")
+    if lp_path in after.files:  # 表の守り: 今の道は木に在る・2 つの表の両方に無い・前向きの表の今の道は宣言を持つ・台帳の行が届く
+        exists = lambda q: q in after.files or q in after.blobs  # noqa: E731
+        e_decl += [f"④ 台帳の道の表: {x}" for x in LPT.check(ma, exists, ledger_text, split=sa)]
+        e_decl += [f"④ 台帳の道の表: 前向きの表の今の道 {k} に宣言が無い(裁定 Q1 の条件 ③)" for k in (sa or {})
+               if k in after.files and not _scan_decls(after.files[k], k)]
+    errs += e_decl
+    plan.guards["declarations"] = "同じ" if not e_decl else "違う"
     # 段 4 の守り
     if frozen is not None:
         pre = G.check_names(before, frozen) + G.check_class_ids(before, frozen, class_path)
@@ -1481,11 +1639,12 @@ def guards(plan: SplitPlan, mapdoc: MapDoc, frozen: G.Frozen | None, ledger_text
     skip_files = {src_p, *[SRC_PREFIX + d for d in dests], *plan.created_heads, *plan.deleted, *plan.emptied_heads}
     skip_files |= {p for p in before.files if is_self(p)}
     allowed = {(p, e.symbol) for p, es in plan.changed.items() for e in es if e.kind == "path"}
-    allowed |= {(class_path, AL.CLASS_IDS_TABLE[1]), (lp_path, AL.LEDGER_PATHS_TABLE[1])}
+    # 〔割る段 6・E7〕前向きの表(LEDGER_PATHS_SPLIT)も台帳の道の表と同じく許可の一覧の記号
+    table_sites = {(class_path, AL.CLASS_IDS_TABLE[1]), (lp_path, AL.LEDGER_PATHS_TABLE[1]), (lp_path, LPT.SPLIT_TABLE)}
+    allowed |= table_sites
     allowed |= {(p, s) for p, s in (x.split("::", 1) for x in plan.string_sites)}
     e4 = G.check_outside(before, after, {}, allowed, skip_files | {p for p in before.files if p not in after.files},
-                         frozen.id_tokens() if frozen is not None else set(),
-                         {(class_path, AL.CLASS_IDS_TABLE[1]), (lp_path, AL.LEDGER_PATHS_TABLE[1])})
+                         frozen.id_tokens() if frozen is not None else set(), table_sites)
     plan.guards["outside_allowlist"] = "同じ" if not e4 else f"違う {len(e4)}"
     errs += e4
     e6 = G.check_bound_names(before, after, {}, skip_files | {p for p in before.files if p not in after.files}, {})
@@ -1509,6 +1668,10 @@ def guards(plan: SplitPlan, mapdoc: MapDoc, frozen: G.Frozen | None, ledger_text
     cyc = new_import_cycles(before, after, mod_of(plan.src_rel), [d for d, k in plan.dests.items() if k == "new"])
     plan.guards["import_cycles"] = "同じ" if not cyc else f"違う {len(cyc)}"
     errs += [f"import の循環: {c}" for c in cyc]
+    # 〔割る段 6・E5-b〕差し替えの届く先(割る前にその名を呼ぶ時に読んでいた関数の割り先の全部へ向いているか)
+    e9 = patch_reach(plan)
+    plan.guards["patch_reach"] = "同じ" if not e9 else f"違う {len(e9)}"
+    errs += [f"差し替えの届く先の守り: {x}" for x in e9]
     if spec is not None:
         errs += _contract_guard(plan, mapdoc, spec)
     if errs:
@@ -1671,6 +1834,478 @@ def new_import_cycles(before: Tree, after: Tree, src_mod: str, new_dests: Iterab
     return out
 
 
+# ------------------------------------------------------------------ 守り: 差し替えの届く先(割る段 6・E5-b・親の裁定の追記)
+#: 差し替えの呼び出し: ``<何か>.setattr``・``.delattr``・``.object``(``monkeypatch``・``mock.patch.object``)と組み込みの
+#: ``setattr``・``delattr``。文字列の的は ``<何か>.setattr("pkg.mod.名", …)``・``.delattr("pkg.mod.名")``・``patch("pkg.mod.名")``。
+_PATCH_ATTRS = frozenset({"setattr", "delattr", "object"})
+_PATCH_FUNCS = frozenset({"setattr", "delattr"})
+_PATCH_STR = frozenset({"setattr", "delattr", "patch"})
+
+
+@dataclass(frozen=True)
+class _Patch:
+    """差し替え 1 か所: ファイル・関数(記号。コードの文字列の中は「記号(コードの文字列)」)・名・行・向くモジュール・形。"""
+
+    file: str
+    group: str
+    name: str
+    line: int
+    module: str
+    form: str
+    #: 〔検収の後の直し 1〕別名を通す差し替えなら、その有効範囲で別名を結ぶ import の行(手で直す一覧の行と突き合わせる)。
+    binds: tuple[int, ...] = ()
+
+
+def _dotted_name(e: ast.AST) -> str | None:
+    parts: list[str] = []
+    while isinstance(e, ast.Attribute):
+        parts.append(e.attr)
+        e = e.value
+    if not isinstance(e, ast.Name):
+        return None
+    parts.append(e.id)
+    return ".".join(reversed(parts))
+
+
+def _module_dict(e: ast.AST) -> bool:
+    """``vars(X)`` か ``X.__dict__``(モジュールの名の辞書を通す書き換え)。"""
+    return (isinstance(e, ast.Call) and isinstance(e.func, ast.Name) and e.func.id == "vars") or (
+        isinstance(e, ast.Attribute) and e.attr == "__dict__")
+
+
+def _module_bindings(tree: ast.AST, syms: dict[int, str], pkg: str,
+                     lines: dict[str, dict[str, set[int]]] | None = None) -> dict[str, dict[str, set[str]]]:
+    """記号 → 名 → import が結ぶモジュールの名の候補(``from P import m [as X]`` は ``P.m``・``import M as X`` は ``M``)。
+    モジュールかどうかは呼ぶ側が見張るモジュールの集合と比べて決める(名の import は見張るモジュールに当たらない)。``lines`` を
+    渡せば、記号 → 名 → その名を結ぶ import の文の行も入れる(〔検収の後の直し 1〕手で直す一覧と突き合わせる)。"""
+    out: dict[str, dict[str, set[str]]] = {}
+    for n in ast.walk(tree):
+        if isinstance(n, ast.ImportFrom):
+            m = resolve_from(pkg, n) if n.level else n.module
+            if not m:
+                continue
+            for a in n.names:
+                out.setdefault(syms.get(id(n), "<module>"), {}).setdefault(a.asname or a.name, set()).add(f"{m}.{a.name}")
+                if lines is not None:
+                    lines.setdefault(syms.get(id(n), "<module>"), {}).setdefault(a.asname or a.name, set()).add(n.lineno)
+        elif isinstance(n, ast.Import):
+            for a in n.names:
+                if a.asname:
+                    out.setdefault(syms.get(id(n), "<module>"), {}).setdefault(a.asname, set()).add(a.name)
+                    if lines is not None:
+                        lines.setdefault(syms.get(id(n), "<module>"), {}).setdefault(a.asname, set()).add(n.lineno)
+    return out
+
+
+def _collect_patches(text: str, path: str, watched: set[str], *, code_of: str | None = None,
+                     base_line: int = 0) -> tuple[list[_Patch], list[str]]:
+    """ファイル(``code_of`` を渡せば、その記号の中のコードの文字列)で、``watched`` のモジュールの属性を差し替える所と、見られなかった
+    所(動的な名・的を組み立てる形・別名が 2 つのモジュールに結ばれる形)。コードの文字列(子のプロセスへ渡す台本)の中も同じ形で見る。"""
+    try:
+        tree = ast.parse(text) if code_of is not None else parse(text)
+    except SyntaxError:
+        return [], []
+    syms = {} if code_of is not None else symbols_of(text)
+    docs = frozenset() if code_of is not None else docstrings_of(text)
+    own = mod_of(path[len(SRC_PREFIX):]) if path.startswith(SRC_PREFIX) and code_of is None else ""
+    pkg = own if path.endswith("/__init__.py") else own.rpartition(".")[0]
+    blines: dict[str, dict[str, set[int]]] = {}
+    binds = _module_bindings(tree, syms, pkg, blines)
+    sites: list[_Patch] = []
+    unseen: list[str] = []
+    tag = "(コードの文字列)" if code_of is not None else ""
+
+    def group(n: ast.AST) -> str:
+        return f"{code_of}(コードの文字列)" if code_of is not None else syms.get(id(n), "<module>")
+
+    def bound(name: str, n: ast.AST) -> set[str]:
+        return binds.get(group(n) if code_of is None else "<module>", {}).get(name) \
+            or binds.get("<module>", {}).get(name) or set()
+
+    def bound_lines(e: ast.AST, n: ast.AST) -> tuple[int, ...]:
+        """差し替える物 ``e`` が別名なら、その有効範囲で別名を結ぶ import の行(``bound`` と同じ引き方)。"""
+        if not isinstance(e, ast.Name):
+            return ()
+        key = group(n) if code_of is None else "<module>"
+        got = blines.get(key, {}).get(e.id) if binds.get(key, {}).get(e.id) else blines.get("<module>", {}).get(e.id)
+        return tuple(sorted(base_line + x for x in (got or ())))
+
+    def target(e: ast.AST, n: ast.AST) -> tuple[str | None, bool]:
+        """差し替える物 ``e`` が見張るモジュールなら (モジュール, 真)・見張るモジュールに触れるが決められなければ (None, 真)。"""
+        if isinstance(e, ast.Name):
+            mods = bound(e.id, n)
+            hit = mods & watched
+            if hit and len(mods) == 1:
+                return next(iter(hit)), True
+            return None, bool(hit)
+        dn = _dotted_name(e)
+        if dn is not None and dn in watched:
+            return dn, True
+        touch = any(isinstance(x, ast.Name) and bound(x.id, n) & watched for x in ast.walk(e)) or any(
+            isinstance(x, ast.Constant) and isinstance(x.value, str) and any(w in x.value for w in watched)
+            for x in ast.walk(e))
+        return None, touch
+
+    def where(n: ast.AST) -> str:
+        return f"{path}:{base_line + getattr(n, 'lineno', 0)}"
+
+    def add(n: ast.AST, mod: str, name: str, form: str, via: ast.AST | None = None) -> None:
+        sites.append(_Patch(path, group(n), name, base_line + n.lineno, mod, form + tag,
+                            bound_lines(via, n) if via is not None else ()))
+
+    def str_target(s: str) -> tuple[str, str] | None:
+        best = max((w for w in watched if s.startswith(w + ".")), key=len, default=None)
+        if best is None:
+            return None
+        rest = s[len(best) + 1:].split(".")[0]
+        return (best, rest) if rest else None
+
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Call):
+            f = n.func
+            fname = f.attr if isinstance(f, ast.Attribute) else (f.id if isinstance(f, ast.Name) else "")
+            is_patch = (isinstance(f, ast.Attribute) and fname in _PATCH_ATTRS) or (
+                isinstance(f, ast.Name) and fname in _PATCH_FUNCS)
+            if n.args and fname in _PATCH_STR and (is_patch or fname == "patch"):
+                a0 = n.args[0]
+                if isinstance(a0, ast.Constant) and isinstance(a0.value, str):
+                    hit = str_target(a0.value)
+                    if hit is not None:
+                        add(n, hit[0], hit[1], f"{fname}(文字列の的)")
+                    continue
+                if isinstance(a0, (ast.JoinedStr, ast.BinOp)) and target(a0, n)[1]:
+                    unseen.append(f"{where(n)} {fname}: 的の文字列を組み立てる(名を確かめられない)")
+                    continue
+            if is_patch and n.args:
+                mod, touch = target(n.args[0], n)
+                if mod is not None:
+                    a1 = n.args[1] if len(n.args) > 1 else None
+                    if isinstance(a1, ast.Constant) and isinstance(a1.value, str):
+                        add(n, mod, a1.value, f"{fname}(別名)", n.args[0])
+                    else:
+                        unseen.append(f"{where(n)} {fname}: 名が字面の定数でない(名を確かめられない)")
+                elif touch and not isinstance(n.args[0], ast.Attribute):  # 別名.物 への差し替えは物の書き換え(モジュールの差し替えでない)
+                    unseen.append(f"{where(n)} {fname}: 差し替える物を決められない(動的・別名が 2 つのモジュールに結ばれる)")
+        elif isinstance(n, (ast.Assign, ast.AugAssign, ast.AnnAssign, ast.Delete)):
+            tgs = n.targets if isinstance(n, (ast.Assign, ast.Delete)) else [n.target]
+            for tg in tgs:
+                for x in ast.walk(tg):
+                    if isinstance(x, ast.Attribute) and isinstance(x.ctx, (ast.Store, ast.Del)):
+                        mod, touch = target(x.value, n)
+                        if mod is not None:
+                            add(n, mod, x.attr, "del" if isinstance(n, ast.Delete) else "属性への代入", x.value)
+                        elif touch and not isinstance(x.value, ast.Attribute):  # 別名.物.属性 は物の書き換え(モジュールの差し替えでない)
+                            unseen.append(f"{where(n)} 属性への代入: 差し替える物を決められない")
+                    elif isinstance(x, ast.Subscript) and isinstance(x.ctx, (ast.Store, ast.Del)) and _module_dict(x.value) \
+                            and target(x.value, n)[1]:
+                        unseen.append(f"{where(n)} 辞書への代入(vars・__dict__): 名を確かめられない")
+        elif (code_of is None and isinstance(n, ast.Constant) and isinstance(n.value, str) and id(n) not in docs
+              and "import" in n.value and any(w in n.value or w.rpartition(".")[2] in n.value for w in watched)):
+            s2, u2 = _collect_patches(n.value, path, watched, code_of=syms.get(id(n), "<module>"),
+                                      base_line=n.lineno - 1)
+            sites += s2
+            unseen += u2
+    return sites, unseen
+
+
+def _fn_locals(fn: ast.AST) -> set[str]:
+    """関数(かラムダ)の有効範囲で結ぶ名(引数・代入・import・入れ子の定義の名ほか。``global`` の名を除く)。内包の変数は内包の局所。"""
+    a = fn.args  # type: ignore[attr-defined]
+    out = {x.arg for x in [*a.posonlyargs, *a.args, *a.kwonlyargs, a.vararg, a.kwarg] if x is not None}
+    body = fn.body if isinstance(fn.body, list) else [fn.body]  # type: ignore[attr-defined]
+    glob: set[str] = set()
+    stack: list[ast.AST] = list(body)
+    while stack:
+        n = stack.pop()
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            out.add(n.name)
+            continue
+        if isinstance(n, (ast.Lambda, ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)):
+            continue
+        if isinstance(n, ast.Global):
+            glob |= set(n.names)
+            continue
+        if isinstance(n, ast.Name) and isinstance(n.ctx, (ast.Store, ast.Del)):
+            out.add(n.id)
+        elif isinstance(n, ast.Import):
+            out |= {x.asname or x.name.split(".")[0] for x in n.names}
+        elif isinstance(n, ast.ImportFrom):
+            out |= {x.asname or x.name for x in n.names}
+        elif isinstance(n, ast.ExceptHandler) and n.name:
+            out.add(n.name)
+        elif isinstance(n, (ast.MatchAs, ast.MatchStar)) and n.name:
+            out.add(n.name)
+        elif isinstance(n, ast.Nonlocal):
+            out |= set(n.names)
+        stack.extend(ast.iter_child_nodes(n))
+    return out - glob
+
+
+def _global_reads(stmt: ast.stmt, fut: bool) -> list[tuple[str, int, bool, str]]:
+    """頂上の文 1 つの中で、モジュールの頂上の名を素の名で読む所: (名, 行, 呼ぶ時か, どこ)。関数・ラムダの本体は呼ぶ時、デコレータ・
+    既定の引数・(``from __future__ import annotations`` が無ければ)注釈・クラスの親と本体・頂上の文は読み込みの時。局所の名
+    (引数・代入・内包の変数)に覆われた読みは数えない。"""
+    out: list[tuple[str, int, bool, str]] = []
+
+    def visit(node: ast.AST, scopes: list[tuple[set[str], bool]], call: bool, w: str) -> None:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            a = node.args
+            lw = w if call else f"{w}(デコレータ・既定の引数・注釈=読み込みの時)"
+            outer = [*getattr(node, "decorator_list", []), *a.defaults, *[k for k in a.kw_defaults if k is not None]]
+            if not fut and not isinstance(node, ast.Lambda):
+                outer += [x.annotation for x in [*a.posonlyargs, *a.args, *a.kwonlyargs, a.vararg, a.kwarg]
+                          if x is not None and x.annotation is not None]
+                if node.returns is not None:
+                    outer.append(node.returns)
+            for d in outer:
+                visit(d, scopes, call, lw)
+            inner = [s for s in scopes if not s[1]] + [(_fn_locals(node), False)]
+            body = node.body if isinstance(node.body, list) else [node.body]
+            for b in body:
+                visit(b, inner, True, w)
+            return
+        if isinstance(node, ast.ClassDef):
+            for d in [*node.decorator_list, *node.bases, *[k.value for k in node.keywords]]:
+                visit(d, scopes, call, w if call else f"{w}(クラスの親・デコレータ=読み込みの時)")
+            cls_locals = set(_bound_in(node.body, top=False))
+            for b in node.body:
+                bw = f"{w}.{b.name}" if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef)) else (
+                    w if call else f"{w}(クラスの本体=読み込みの時)")
+                visit(b, [*scopes, (cls_locals, True)], call, bw)
+            return
+        if isinstance(node, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)):
+            gens = node.generators
+            visit(gens[0].iter, scopes, call, w)
+            tg = {x.id for g in gens for x in ast.walk(g.target) if isinstance(x, ast.Name)}
+            inner = [s for s in scopes if not s[1]] + [(tg, False)]
+            for ch in ast.iter_child_nodes(node):
+                if ch is gens[0]:
+                    for part in [ch.target, *ch.ifs]:
+                        visit(part, inner, call, w)
+                    continue
+                visit(ch, inner, call, w)
+            return
+        if isinstance(node, ast.AnnAssign):
+            if node.value is not None:
+                visit(node.value, scopes, call, w)
+            visit(node.target, scopes, call, w)
+            if not fut and not call:
+                visit(node.annotation, scopes, call, w)
+            return
+        if isinstance(node, ast.Name):
+            if isinstance(node.ctx, ast.Load) and not any(node.id in s for s, _c in scopes):
+                out.append((node.id, node.lineno, call, w))
+            return
+        for ch in ast.iter_child_nodes(node):
+            visit(ch, scopes, call, w)
+
+    if isinstance(stmt, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+        visit(stmt, [], False, stmt.name)
+    elif isinstance(stmt, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
+        tg = stmt.targets if isinstance(stmt, ast.Assign) else [stmt.target]
+        names = ",".join(n.id for x in tg for n in ast.walk(x) if isinstance(n, ast.Name))
+        visit(stmt, [], False, f"頂上の代入 {names}(読み込みの時)")
+    else:
+        visit(stmt, [], False, f"頂上の文 行 {stmt.lineno}(読み込みの時)")
+    return out
+
+
+def _call_time_ids(tree: ast.AST) -> set[int]:
+    """呼ぶ時に評価するノード(関数とラムダの本体の中)。デコレータ・既定の引数・クラスの本体・頂上の文は読み込みの時。"""
+    out: set[int] = set()
+
+    def visit(node: ast.AST) -> None:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            body = node.body if isinstance(node.body, list) else [node.body]
+            for b in body:
+                out.update(id(x) for x in ast.walk(b))
+            for ch in ast.iter_child_nodes(node):
+                if not any(ch is b for b in body):
+                    visit(ch)
+            return
+        for ch in ast.iter_child_nodes(node):
+            visit(ch)
+
+    visit(tree)
+    return out
+
+
+def _dest_modules(plan: SplitPlan) -> dict[str, str]:
+    """〔検収の後の直し 1〕割り先のモジュールの名 → 割り先の道。主な割り先が元のファイルの行では元のモジュールも主な割り先として入る。"""
+    return {mod_of(d): d for d in plan.dests}
+
+
+def _listed_manual(manual: list[str], p: str, s: _Patch) -> bool:
+    """〔検収の後の直し 1〕割る前の差し替え ``s`` の別名が、手で直す一覧に在るか(別名を結ぶ import の文の行の項・コードの文字列は
+    その記号の項)。文字列の的(別名を通さない)は在ると見ない。"""
+    if s.group.endswith("(コードの文字列)"):
+        sym = s.group[: -len("(コードの文字列)")]
+        return any(m.startswith(f"{p}::{sym}:") for m in manual)
+    return any(m.startswith(f"{p}:{ln}:") for ln in s.binds for m in manual)
+
+
+def patch_reach(plan: SplitPlan) -> list[str]:
+    """〔割る段 6・E5-b・親の裁定の追記〕差し替えの届く先の守り。止める文の一覧を返し、確かめた差し替え・見られなかった差し替え・
+    読み込みの時にだけ読む文を ``plan`` に入れる。
+
+    1. 割る前の読み手(src・tests〔c7 を除く〕・tools・docs の記録の道具。道具の自分と元のファイルを除く)から、割るモジュールの
+       別名を通す差し替え(``setattr``・``patch.object``・属性への代入・``del``・文字列の的・コードの文字列の中の同じ形)を集める。
+    2. 名ごとに届かせる割り先の集合: (a) 元のファイルの中で、その名を関数の本体で素の名で読む頂上の関数(メソッドはクラス)の
+       割り先 (b) src のほかのモジュールが呼ぶ時に別名の属性で読むなら、名を定義する割り先 (c) (a)(b) が空なら名を結ぶ割り先
+       (定義の割り先か、import で結ぶ名は再輸出の割り先)。
+    3. 割った後の字面で、同じ関数の中の差し替えが向くモジュールが 2 の集合と同じか。届かない割り先・集合の外の割り先があれば止める。
+    4. 読み込みの時にだけ読む文(デコレータ・既定の引数・クラスの親と本体・頂上の代入と表)は (a) に数えず ``patch_load_time`` に出す。
+    5. 見られなかった形(名が字面でない・的を組み立てる・範囲の外・割った後も別名が元のモジュールを指し、その別名が手で直す一覧
+       ``plan.manual`` に在る)は ``patch_unseen`` に出す(ここでは止めない。〔検収の後の直し 2・親の裁定〕``strict`` の当ては
+       :func:`make_split_plan` が ``patch_unseen`` が 1 つでも在れば断る)。
+    〔検収の後の直し 1〕主な割り先が元のファイルの行(元のモジュールが残る)では、元のモジュールを主な割り先として、ほかの割り先と同じに
+    確かめる。割り先でないモジュールを指したままの差し替えは、別名が手で直す一覧に在るときだけ「見られなかった」・無ければ止める。
+    """
+    row = plan.row
+    before, after = plan.before, plan.after
+    src_p = SRC_PREFIX + plan.src_rel
+    src_mod = mod_of(plan.src_rel)
+    leaf = src_mod.rpartition(".")[2]
+    dest_of_mod = {mod_of(d): d for d in plan.dests}
+    groups: dict[tuple[str, str], list[_Patch]] = {}
+    unseen: list[str] = []
+    for p in sorted(before.files):
+        if p == src_p or is_self(p) or p.startswith("tests/c7/"):
+            continue
+        text = before.files[p]
+        if leaf not in text and src_mod not in text:
+            continue
+        sites, uns = _collect_patches(text, p, {src_mod})
+        unseen += uns
+        for s in sites:
+            groups.setdefault((s.file, s.group), []).append(s)
+    plan.patch_checked, plan.patch_load_time = [], []
+    if not groups:
+        plan.patch_unseen = unseen
+        return []
+    names = sorted({s.name for ss in groups.values() for s in ss})
+    # 2 (a) 元のファイルの中の読み
+    src_text = before.files[src_p]
+    units = units_of(src_text, plan.src_rel)
+    nm = row.name_map
+    defined = {n: nm[n] for u in units if u.kind == "named" for n in u.names}
+    fut = any(isinstance(st, ast.ImportFrom) and st.module == "__future__" and any(a.name == "annotations" for a in st.names)
+              for st in parse(src_text).body)
+    inner: dict[str, set[tuple[str, str]]] = {}
+    load: dict[str, list[str]] = {}
+    for u in units:
+        if u.kind not in ("named", "other"):
+            continue
+        if u.kind == "named":
+            dest = defined[u.names[0]]
+        elif _is_main_guard(u.node) and plan.entry:
+            dest = plan.entry
+        else:
+            ds = {defined[n] for n in names_used(u.node) if n in defined}
+            dest = ds.pop() if len(ds) == 1 else row.new
+        for name, line, call, w in _global_reads(u.node, fut):
+            if name not in names:
+                continue
+            if call:
+                inner.setdefault(name, set()).add((dest, f"{plan.src_rel}:{line} {w}"))
+            else:
+                load.setdefault(name, []).append(f"{plan.src_rel}:{line} {w}")
+    # 2 (b) src のほかのモジュールの別名の属性の読み
+    outer: dict[str, list[str]] = {}
+    for p in sorted(before.files):
+        if not p.startswith(SRC_PREFIX) or p == src_p or is_self(p):
+            continue
+        text = before.files[p]
+        if leaf not in text and src_mod not in text:
+            continue
+        tree = parse(text)
+        syms = symbols_of(text)
+        own = mod_of(p[len(SRC_PREFIX):])
+        binds = _module_bindings(tree, syms, own if p.endswith("/__init__.py") else own.rpartition(".")[0])
+        ct = _call_time_ids(tree)
+        for n in ast.walk(tree):
+            got: tuple[ast.AST, str, int] | None = None
+            if isinstance(n, ast.Attribute) and isinstance(n.ctx, ast.Load) and isinstance(n.value, ast.Name):
+                got = (n.value, n.attr, n.lineno)
+            elif (isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in ("getattr", "hasattr")
+                  and len(n.args) >= 2 and isinstance(n.args[0], ast.Name) and isinstance(n.args[1], ast.Constant)
+                  and isinstance(n.args[1].value, str)):
+                got = (n.args[0], n.args[1].value, n.lineno)
+            if got is None or got[1] not in names:
+                continue
+            al = got[0].id  # type: ignore[attr-defined]
+            mods = binds.get(syms.get(id(n), "<module>"), {}).get(al) or binds.get("<module>", {}).get(al) or set()
+            if src_mod not in mods:
+                continue
+            if id(n) in ct:
+                outer.setdefault(got[1], []).append(f"{p}:{got[2]}")
+            else:
+                load.setdefault(got[1], []).append(f"{p}:{got[2]}(別名の属性・読み込みの時)")
+    reexp: dict[str, str] = {}
+    for dd in [row.new, *[x for x in plan.kept_bindings if x != row.new]]:
+        for b in sorted(plan.kept_bindings.get(dd, ())):
+            reexp.setdefault(b, dd)
+    need: dict[str, set[str]] = {}
+    why: dict[str, list[str]] = {}
+    for name in names:
+        nd = {d for d, _w in inner.get(name, ())}
+        why[name] = [f"{w}→{d}" for d, w in sorted(inner.get(name, ()), key=lambda x: x[1])]
+        if outer.get(name) and name in defined:
+            nd.add(defined[name])
+            why[name] += [f"{x}(別名の属性)→{defined[name]}" for x in outer[name][:3]]
+        if not nd:
+            b = defined.get(name) or reexp.get(name)
+            if b:
+                nd = {b}
+                why[name].append(f"(呼ぶ時に読む所が無い=名を結ぶ割り先)→{b}")
+        need[name] = nd
+    plan.patch_load_time = [f"名 {n}: {x}" for n in names for x in load.get(n, [])]
+    # 3 割った後の字面で、同じ関数の中の差し替えが向くモジュール
+    watched = {src_mod, *dest_of_mod}
+    after_sites: dict[str, list[_Patch]] = {}
+    errs: list[str] = []
+    for (p, g), ss in sorted(groups.items()):
+        lines_of = {n: sorted({s.line for s in ss if s.name == n}) for n in {s.name for s in ss}}
+        if is_split_excluded(p):
+            unseen += [f"{p}::{g} 名 {n}(行 {ls}): 書き換えの範囲の外(SPLIT_EXCLUDE_PATHS)" for n, ls in lines_of.items()]
+            continue
+        if p not in after_sites:
+            text_a = after.files.get(p)
+            after_sites[p] = _collect_patches(text_a, p, watched)[0] if text_a is not None else []
+        for name, lines in sorted(lines_of.items()):
+            nd = need[name]
+            here = f"{p}::{g} の名 {name}(差し替え 行 {lines})"
+            if not nd:
+                unseen.append(f"{here}: 名が元のファイルで結ばれていない(届かせる割り先が決まらない)")
+                continue
+            mods = {s.module for s in after_sites[p] if s.group == g and s.name == name}
+            # 〔検収の後の直し 1〕割り先でないモジュール(元のモジュールが残らない行の元・転送)を指したままの差し替え。主な割り先が元の
+            # ファイルの行は、元のモジュールが主な割り先=ほかの割り先と同じに確かめる(ここに来ない)
+            stale = sorted(mods - set(_dest_modules(plan)))
+            if stale:
+                if all(_listed_manual(plan.manual, p, s) for s in ss if s.name == name):
+                    unseen.append(f"{here}: 割った後も差し替えが元のモジュール {stale} を指す(手で直す一覧の別名)=届く先を"
+                                  f"見られない")
+                else:
+                    errs.append(f"{here}: 割った後も差し替えが割り先でないモジュール {stale} を指す(手で直す一覧に無い)=どの割り先"
+                                f"にも届かない(届かせる割り先 {sorted(nd)})")
+                continue
+            if not mods:
+                unseen.append(f"{here}: 割った後の字面で差し替えが見つからない")
+                continue
+            pointed = {_dest_modules(plan)[m] for m in mods}
+            missing, extra = sorted(nd - pointed), sorted(pointed - nd)
+            if missing:
+                errs.append(f"{here}: 届かない割り先 {missing}(呼ぶ時に読む所: {why[name][:4]})")
+            if extra:
+                errs.append(f"{here}: 集合の外の割り先 {extra} へ向く(その名を呼ぶ時に読む関数が無い=空振り・届かせる割り先 "
+                            f"{sorted(nd)})")
+            if not missing and not extra:
+                plan.patch_checked.append(f"{p}::{g} {name} → {sorted(pointed)}(差し替え {len(lines)})")
+    plan.patch_unseen = unseen
+    return errs
+
+
 # ------------------------------------------------------------------ 報告・差分・書く
 def report(plan: SplitPlan) -> dict:
     st = {a: s.statements for a, s in plan.import_stats.items()}
@@ -1696,6 +2331,10 @@ def report(plan: SplitPlan) -> dict:
                                    if s.get("kind") == "table_key"}),
         # 〔割る段 5b・E5〕使った別名の割り先の宣言
         "alias_declared": plan.alias_declared,
+        # 〔割る段 6・E7〕前向きの表に足した行・〔E8〕使った道の文字列の割り先の宣言
+        "ledger_paths_split": plan.ledger_paths_split, "path_declared": plan.path_declared,
+        # 〔割る段 6・E5-b〕差し替えの届く先: 確かめた差し替え・見られなかった差し替え・読み込みの時にだけ読む文
+        "patch_checked": plan.patch_checked, "patch_unseen": plan.patch_unseen, "patch_load_time": plan.patch_load_time,
     }
 
 

@@ -74,6 +74,7 @@ core.paths — リポの根と包みの根を 1 か所で求める(移す段 2-2
   - `resolve_repo_path`(関数): 相対パスはリポの根から、絶対パスはそのまま(検収後 P4: 作業ディレクトリに依らない)。
 - 呼び手: `shibuya.economy.stage2_bind`・`shibuya.economy.wages`・`shibuya.foundation.budget`・`shibuya.foundation.decl.bridging`・`shibuya.mind.judge.classical`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.allow`・`shibuya.validation.static.bridging_scan`・`shibuya.validation.static.system_static_check`・`shibuya.world.body.energy`・`shibuya.world.facts.calendar`・`shibuya.world.facts.rules.table`・`shibuya.world.ledger.constitution`
 - 読む試験: `tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_10a_review_fixes.py`・`tests/tools/test_bytecheck.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 
 ## [rng.py](../../../../../../../src/shibuya/foundation/rng.py)
 

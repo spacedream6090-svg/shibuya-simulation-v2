@@ -68,8 +68,10 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
   - サブコマンド `split`
   - `--apply`: 木の pyproject の節を書き換える(本体の作業木は断る)
   - `--check`: 木の pyproject の節が作り直しと同じかを見る(違えば 1)
+  - `--contracts`: 〔割る段 6・E9〕import の決まりの元 TOML の道(既定は道具のリポの contracts.toml)
   - `--import-jobs`
   - `--jobs`
+  - `--map`: 〔割る段 6・E9〕対応表 TOML の道(既定は道具のリポの map.toml)。渡せば割る段の順もこの表の割る行の split_order から読む
   - `--next`: 木の次の割る行(順の次の 1 本)
   - `--only`: 割る行を今の道(表の old)で名指す(順が違えば断る)
   - `--out`: 報告の JSON を書く道(木の外)。書くときは効いている例外の数も回す
@@ -181,10 +183,12 @@ import の文の書き換え(許可の一覧の (a))。
 
 - 公開の関数とクラス
   - `LedgerPathsError`(クラス): 表の守りが止めた。
-  - `check`(関数): 表の今の道は木にある・台帳の道が重ならない・台帳のコードの行の道は表を通して木にある。
-  - `rewrite`(関数): 表の字面を書き換えた文字列と、足した行の数。
+  - `check`(関数): 表の今の道は木にある・台帳の道が重ならない・台帳のコードの行の道は表を通して木にある。〔E7〕``split``(前向きの表)を
+  - `ledger_of`(関数): 〔E7〕今の道 → 台帳の道(``LEDGER_PATHS`` → ``LEDGER_PATHS_SPLIT`` → そのまま、の順で引く)。
+  - `rewrite`(関数): 表の字面を書き換えた文字列と、足した行の数(移した行と、〔E7〕前向きの表に足した行)。
+  - `split_table_of`(関数): 〔E7〕前向きの表(``LEDGER_PATHS_SPLIT``)。木に表が無ければ ``None``。
   - `table_of`(関数)
-  - `updated`(関数): ``moves``(古い今の道 → 新しい今の道)を当てた表。
+  - `updated`(関数): ``moves``(古い今の道 → 新しい今の道)を当てた表。``unique_values`` が偽(前向きの表)なら台帳の道の重なりを許す。
 - import している内部モジュール: `tools/pkgmove/classids.py`・`tools/pkgmove/model.py`
 - 呼び手: `tools/pkgmove/move.py`・`tools/pkgmove/split.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
@@ -256,6 +260,7 @@ pyproject の ``[tool.setuptools.package-data]`` の鍵(親の裁定 2026-11-11�
 
 - 公開の関数とクラス
   - `AliasDest`(クラス): 〔割る段 5b・E5〕別名の割り先の宣言の 1 行: 割る行 ``old`` を当てるとき、ファイル ``file`` で割るモジュールを結んだ別名
+  - `PathDest`(クラス): 〔割る段 6・E8・親の裁定 Q8〕道の文字列の割り先の宣言の 1 行: 割る行 ``old`` を当てるとき、ファイル ``file`` の記号 ``symbol``
   - `SplitPlan`(クラス)
   - `SplitRefused`(クラス): 断った(表せない・順が違う・使い方)。終了コード 2。
   - `SplitStopped`(クラス): 守りが止めた(書かない)。終了コード 2(親の発注=守りが「同じ」でなければ当てない)。
@@ -270,13 +275,15 @@ pyproject の ``[tool.setuptools.package-data]`` の鍵(親の裁定 2026-11-11�
   - `is_done`(関数): 割る行が当たっているか: どの名も割り先のファイルの頂上に在り、元のファイルは無いか 0 バイトの頭(主な割り先へ移ったもの
   - `is_forwarder`(関数): 〔割る段 5b・E2〕元のファイルが入口の転送(:data:`pkgmove.table.SPLIT_FORWARDERS` の行で、中身が決まった型そのもの)か。
   - `is_split_excluded`(関数)
+  - `ledger_split_rows`(関数): 〔割る段 6・E7・親の裁定 Q1 の (ii)〕前向きの表に足す行: つなぎの台帳の宣言が 1 つ以上入る、2 つ目以降の新しい割り先の今の道
   - `make_split_plan`(関数): 割る行 ``old`` を当てた後の木と報告(守りを通らなければ :class:`SplitStopped`・表せなければ :class:`SplitRefused`)。
   - `names_used`(関数): 文が読む名(読み・注釈の名・文字列の注釈の中の名。結ぶ名は含めない)。局所の名も含む(多めに数える)。
   - `new_import_cycles`(関数): 〔G2 の 5 本目の欠陥〕割った後の木で、読み込みの時の import が作る循環のうち、割る前に無かったもの(循環の中の新しい辺と
   - `next_split`(関数)
+  - `patch_reach`(関数): 〔割る段 6・E5-b・親の裁定の追記〕差し替えの届く先の守り。止める文の一覧を返し、確かめた差し替え・見られなかった差し替え・
   - `report`(関数)
   - `source_rel`(関数): 割る行の元のファイルの今の道(``src/shibuya`` からの相対)。段 4 で主な割り先へ移ったもの(18 本目)は主な割り先。
-  - `split_state`(関数): 済んだ割る行(順の頭から)。順の途中が抜けていれば ``None``(段を飛ばした木)。
+  - `split_state`(関数): 済んだ割る行(順の頭から)。順の途中が抜けていれば ``None``(段を飛ばした木)。``order`` は割る段の順(既定は
   - `template_docstring`(関数): 2 つ目以降の新しい割り先の docstring(決まった型。凍結の値・expedient の見出しを書かない)。
   - `top_names`(関数): ファイルの頂上で結ぶ名(関数・クラス・代入の左辺。``__all__`` を除く)。
   - `unbound_names`(関数): 頂上・関数・クラスの中で読むのに、どこでも結ばれない名(組み込みを除く。``keep`` の名は組み込みでも数える)。比べるための
@@ -302,6 +309,7 @@ pyproject の ``[tool.setuptools.package-data]`` の鍵(親の裁定 2026-11-11�
   - `rewrite_value`(関数): 文字列の値の書き換え(``paths`` の規則): 新しい値・書き換え(値の位置)・触らなかったもの(種類・字面・理由)。
   - `sibling_dest`(関数): 〔割る段 5a〕全体が割るファイルの道 ``rel`` の文字列 ``n`` の、同じ組の中の頂上の名が指す割り先(無ければ ``None``)。
   - `split_nameless`(関数): 〔割る段 5b・E2・E3〕割るモジュールの名の無い点の道 ``tok`` の行き先: (新しい字面か ``None``, 触らなかった印か ``None``)。
+  - `split_path_dest`(関数): 〔割る段 6・E8〕割るファイル ``rel`` の道の行き先: (割り先の道か ``None``=書き換えない, 手で直す理由か ``None``, 宣言を
   - `untouched_in_file`(関数): 許可の一覧の外の文字列の定数のうち、移すモジュールの道の形を含むもの(ファイル・記号・種類・字面)と、
 - import している内部モジュール: `tools/pkgmove/imports.py`・`tools/pkgmove/model.py`
 - 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/move.py`・`tools/pkgmove/split.py`
@@ -321,6 +329,7 @@ pyproject の ``[tool.setuptools.package-data]`` の鍵(親の裁定 2026-11-11�
   - `parse_table`(関数): 表の §3 の行を読む(行の数と道筋の重なりを確かめる)。割る行には §4 の名の表を付ける。
   - `render_map`(関数): 対応表 TOML の文(行の順は表の順)。割る行の名の表は ``[row.names]``(名 → 割り先)・宣言した書き換えは
   - `sha256_text`(関数)
+  - `split_order_of`(関数): 〔割る段 6・E9〕対応表の割る行の ``split_order``(1 から)で並べた割る段の順(``cli.py split --map`` が使う=表と木を渡す口)。
 - 呼び手: `tools/pkgmove/allow.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/move.py`・`tools/pkgmove/split.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
 - 決定の ID: 11-16・第 347

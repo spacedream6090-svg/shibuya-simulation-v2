@@ -1392,6 +1392,7 @@ engine.resolve のテスト: 行動契約書 §2.1 の 12 語(前提・効果・
   - `test_world_resume_equals_straight_at_every_tick`(関数)
   - `world_straight`(関数)
 - import している内部モジュール: `shibuya.act.target`・`shibuya.economy.ledger`・`shibuya.engine.resolve`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.rng`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.interfaces.cli.run_args`・`shibuya.mind.judge.classical`・`shibuya.perception.renderer`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.presence`・`shibuya.world.laws.runner`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/engine/_legacy_world.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_sim_time_T.py`・`tests/llm/test_fleet.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 環境変数: `os.environ` をまるごと使う
 - 決定の ID: 10-03/§3-6・11-01・11-02r/§1・11-02r/§1 #7・D-102・第 330・第 347
 

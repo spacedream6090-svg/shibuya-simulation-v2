@@ -19,6 +19,7 @@ economy 層のテスト(U11 金の台帳・U-Goods 物の台帳・検算・セ�
   - `use_outside_bundle`(関数): ``mp``(``pytest.MonkeyPatch``)で ``shibuya.cli`` の台帳の型を差し替える(段階 2 の外の束)。
 - import している内部モジュール: `shibuya.interfaces.cli.main`・`shibuya.interfaces.cli.wire_economy`
 - 読む試験: `tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/cp2/test_cp2_nine_ops_equivalence.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/stage2/test_stage2_world_two_day.py`・`tests/engine/test_ledger_wiring.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 決定の ID: 第 347
 
 ## [test_accounts.py](../../../../../../tests/economy/test_accounts.py)
