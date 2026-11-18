@@ -45,6 +45,7 @@
 | 整理 | コードの区分の移動 段 5a の群 3=`llm/__init__`・`llm/fleet`・`llm/mock`・`llm/undefined`・`engine/llm_bridge` を頂上の文の単位で割った(#160・第347・1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 64.8 秒/後 57.1 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | 7b4e8a6 | `stable-v2-before-split5a-G3`(6af6cf1) | `git checkout stable-v2-before-split5a-G3` |
 | 整理 | コードの区分の移動 段 5a の群 4・5=`engine/chooser`・`engine/poi_target`・`perception/attention`・`engine/change_detect`・`engine/arbiter`・`engine/relations` を頂上の文の単位で割った(#161・第347・1 バイト不変=byte-check 19 構成 37 欄すべて同じ・5a の 17 本が済んだ)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 66.3 秒/後 56.1 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | b801a53 | `stable-v2-before-split5a-G4`(7b4e8a6) | `git checkout stable-v2-before-split5a-G4` |
 | 整理 | コードの区分の移動 段 5b の群 1=`engine/commit`・`engine/presence`・`engine/calendar_shadow` を頂上の文の単位で割った(#163・第347・1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 59.7 秒/後 52.8 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | ce59591 | `stable-v2-before-split5b-G1`(4af887b) | `git checkout stable-v2-before-split5b-G1` |
+| 整理 | コードの区分の移動 段 5b の群 2=`engine/run` を頂上の文の単位で割り、`python -m shibuya.engine.run` の入口を `python -m shibuya.interfaces.cli.run_args` へ移した(#164・第347・1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 59.7 秒/後 52.7 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | b0afefd | `stable-v2-before-split5b-G2`(ce59591) | `git checkout stable-v2-before-split5b-G2` |
 
 ## 版上げと整理の段の手順(byte-check)
 

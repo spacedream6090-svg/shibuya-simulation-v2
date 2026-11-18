@@ -394,6 +394,16 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #164 コードの区分の移動 段 5b の群 2=`engine/run` を割り、`python -m shibuya.engine.run` の入口を interfaces へ移した(1 バイト不変)(11-16 §8 の 5・§1-6 の 6・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6 の 6。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §4-15。記録 [split5b-347](docs/bench/analysis/split5b-347/README.md) §14・§15。commit b0afefd。安定版のタグ `stable-v2-before-split5b-G3`(この commit)。戻し方= `git checkout stable-v2-before-split5b-G2`。
+- **割り先**: 21 本目 `engine/run.py` → `runtime/run.py`(39 名)・`runtime/result.py`(19 名)・`interfaces/cli/run_args.py`(5 名と `if __name__ == "__main__"` の文)。頭 2 つ(`interfaces/__init__.py`・`interfaces/cli/__init__.py`=0 バイト)。`engine/` に残るのは `resolve.py`。
+- **入口**: `python -m shibuya.engine.run` は動かない(`No module named`)。同じ入口は `python -m shibuya.interfaces.cli.run_args`。`--help` の違いは `prog`(`run.py` → `run_args.py`)と使い方の行の折り返しだけ。`tests/c7/test_accept_table.py` は道具が 1 行だけ書き換えた(記号 `TIME_V`・`-m` の文脈)。
+- **手で直した読み**: 6 本(src 1=`runtime/systems/assemble.py` の `_RUN` を `_RUN`・`_RES` に分けた・tests 5=別名を分けた 1 本と、読まない別名の import を外した 4 本)。道具が書き換えた import の文は 206。表を引く口の鍵 14 か所は書き換えていない。手で戻した試験 1 本(`test_state_format_10f` の `_HEAD_CHILD`=古い commit の src で回す子のコード。`split.STRING_EXCLUDE` に足した)。
+- **import の決まり**: 契約 11 のまま・例外 20 辺・延べ 26 行のまま(全部効く)。`interfaces` が層の並びと読んでよい側に入り、古い読み手 `shibuya.engine.run` が外れた。
+- **別の役の検収**: 受入(高 0・中 0・低 5)。土台に道具を当て直して作業木と突き合わせ、違いは記録の 8 本だけ。差し替えの空振り・範囲の狭まりは無い。低=消した切替口の環境変数で止まる場所が変わった(`runtime.run`・`runtime.result` の import だけでは止まらない・入口 2 つと `run_day` は前と同じ=親の仮採用でそのまま)/割る段の順を断る道の試験を見本の木で足した/読まない別名の import を外したのは親が受け入れた/除外の一覧の記号が木に在る試験を足した/古い置き場の名の注(段 8)。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(実装役 430 秒・親 431 秒・基準 ce59591・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)。範囲の試験 6,951 passed・1 failed(前からの 1 本)・22 skipped・1 xfailed。lint-imports 11 kept。`RESULT_FILES` は割り先 1 つ(`runtime/run.py`)=確かめの厳しい側(該当の文は前後とも 0)。
+
 ### #163 コードの区分の移動 段 5b の群 1=`engine/commit`・`engine/presence`・`engine/calendar_shadow` の 3 本を割った(1 バイト不変)(11-16 §8 の 5・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
 
 - 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §3・§4。記録 [split5b-347](docs/bench/analysis/split5b-347/README.md) §12・§13。commit ce59591。安定版のタグ `stable-v2-before-split5b-G2`(この commit)。戻し方= `git checkout stable-v2-before-split5b-G1`。
