@@ -394,7 +394,18 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
-### #165 コードの区分の移動 段 5b の群 3=`cli.py` を割り、`shibuya/cli.py` を入口の転送として残した(1 バイト不変・段 5b の 5 本が済んだ)(11-16 §8 の 5・§1-6 の 6・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
+### #166 コードの区分の移動 段 6 の S6-A=`apply_detection` を 2 つの関数に割った(下ごしらえ・1 バイト不変)(11-16 §8 の 5・§1-6 の 2・第347・2026-11-19・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6 の 2。記録 [split6-347](docs/bench/analysis/split6-347/README.md) §1・§2。commit 102bfe5。安定版のタグ `stable-v2-before-split6-G0`(この commit)。戻し方= `git checkout stable-v2-before-split6-A`。
+- **src**: `engine/resolve.py` の `apply_detection` → `write_b4_hash(world, result)`(世界の欄 `cells.b4_hash`)・`write_intero_stages(agents, result)`(心の欄=内受容の段)。`with` の中の文は元と AST が同じ。`runtime/systems/perceive.py` は同じ位置で 2 行(b4 → 段)・`table.py` の `resolve_ops`・`allow.py` の `ALIAS_WRITES` の鍵。名は親の仮採用(裁定 Q3)。
+- **静的な検査**: `validation/static/system_static_check.py` は resolve を import せず、`allow.RESOLVE_FILES` から作る名の集合 `RESOLVE_MODULES` で見る(割る前は 1 つの名=同じ範囲)。
+- **台帳の道の前向きの表**: `foundation/decl/ledger_paths.py` に `LEDGER_PATHS_SPLIT`(空)。`ledger_path()` は `LEDGER_PATHS` → `LEDGER_PATHS_SPLIT` → そのまま。`current_path()` と台帳の JSON は変えていない(裁定 Q1 の (ii))。
+- **試験**: `tests/engine/test_detection_writes_split.py`(32 本=割る前の形の写しと同じ結果・負の対照・AST の比べ。段 6 の後も残す)・`test_bridging_ledger.py` に 3 本。名を替えた試験 7 本(確かめは弱めていない)。`writes_soa_frozen.json` は同じ・`mind_world_reads_frozen.json` の合計は同じ。
+- **別の役の検収**: 受入(高 0・中 0・低 4)。低= 表に古い名が残る(S6-G0 で 2 つの名を割り先に書き分ける)/足した試験が S6-G1 の手で直す一覧に入る/場合が空でない確かめが種 1 だけ(S6-G0 で直す)/記録の置き場の途中の状態(そろった)。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(実装役 441 秒・親 438 秒・基準 bde381e・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)。範囲の試験 6,996 passed・1 failed(前からの 1 本)・22 skipped・1 xfailed。lint-imports 11 kept・例外 20 辺・延べ 26 行のまま。
+- **段 6 の数の取り直し**(読むだけ): 計画の前提は崩れない。差し替え 17 か所(宣言が要る所 0)・手で直す読み 54 文・`RESOLVE_FILES` は写す段で手で 15 本に。
+
+### #165 コードの区分の移動 段 5b の群 3=`cli.py` を割り、`shibuya/cli.py` を入口の転送として残した(1 バイト不変・段 5b の 5 本が済んだ)(11-16 §8 の 5・§1-6 の 6・第347・2026-11-18〜19・実装役と検収役 Opus 5.5・親が検収)
 
 - 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6 の 6。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §4-15。記録 [split5b-347](docs/bench/analysis/split5b-347/README.md) §16〜§18。commit は 2 つ= e6d221c(道具の拡張と割る前の試験の直し・src は変えていない)・a6469a2(当てた段)。安定版のタグ `stable-v2-before-split6-A`(当てた段の commit)。戻し方= `git checkout stable-v2-before-split5b-G3`。
 - **割り先**: 22 本目 `cli.py` → `interfaces/cli/main.py`(20 名と `if __name__ == "__main__"` の文)・`interfaces/cli/wire_economy.py`(10 名)。`shibuya/cli.py` は決まった型の転送(docstring と `__main__` の節の中の import と呼び出しだけ・名を結ばない)。
