@@ -55,7 +55,7 @@ def test_guard_on_and_off_give_the_same_final(base_final):
     ("world", "agents.thermal", "set_thermal"),
     ("decide", "agents.mem_last", "write_memory"),                # 会話ターンの発話 → 記憶
     ("relations_wake", "agents.rel_last", "write_relations"),     # 同席の書き手
-    ("detect", "agents.hunger_stage", "apply_detection"),         # field(変数) の書き(別名の表)
+    ("detect", "agents.hunger_stage", "write_intero_stages"),     # field(変数) の書き(別名の表)
     ("activity_intent", "agents.activity_kind", "set_activity"),
     ("plan_boundary", "agents.activity", "wake_from_plan"),
 ])

@@ -16,6 +16,7 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `decls`(関数)
   - `ledger`(関数)
   - `test_a_broken_ledger_stops_the_run_at_the_start`(関数): 検収 L10: 壊れた台帳は組み立て(ランの始め)で落ちる=1 日回した後の日の締めまで待たない。
+  - `test_a_forward_row_maps_to_the_ledger_path_and_current_path_is_unchanged`(関数): 前向きの表に行を 1 つ足すと(試験の中で一時に)、その道が台帳の道へ引ける。値は ``LEDGER_PATHS`` の値と重なってよい
   - `test_bad_rows_are_refused`(関数)
   - `test_build_stage_ids_are_the_c8_d44_row_ids`(関数): build の段の行の id(``W<n>#<i>``)は C8 の感度の台帳 D-44 の行と同じ項を指す(D-44 の切り詰めた文が頭に合う)。
   - `test_code_declarations_and_ledger_rows_are_one_to_one`(関数)
@@ -25,6 +26,7 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_every_row_has_remove_at_declared_in_and_conf`(関数)
   - `test_from_dict_refuses_unknown_fields_and_duplicates`(関数)
   - `test_heading_rows_carry_the_heading_and_the_item_count`(関数): 第 4 形: 見出し 1 つで 1 行(親の判断 第334)。``what`` に見出しの文と今の項の数・id はファイルと見出しの文の
+  - `test_ledger_path_is_the_same_while_the_forward_table_is_empty`(関数): 前向きの表 ``LEDGER_PATHS_SPLIT`` が空の間、``ledger_path()`` は全部の道で前(``LEDGER_PATHS.get(道, 道)``)と同じ。
   - `test_ledger_paths_table_is_one_to_one_and_points_to_files`(関数): 表の今の道は全部ファイルがあり、台帳の道は重ならない。台帳のコードの行の道は、表を通して全部今のファイルに届く。
   - `test_literal_declarations_are_copied_verbatim`(関数): 文字列の宣言は台帳の ``what`` にそのまま写す(f 文字列と式は構築したときの値=写しの外)。
   - `test_negative_a_changed_item_count_is_caught`(関数): 見出しの下の項が増えると、同定(見出しの文)は同じでも台帳の ``what`` の項数と合わなくなる(試験が落ちる)。
@@ -37,6 +39,7 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_negative_a_new_process_declaration_fails`(関数): 第 5 形: ``mechanism=False`` と ``repayment_due=`` の両方がある呼び出しだけ数える(成長の宣言は数えない)。
   - `test_negative_editing_a_declaration_or_dropping_a_row_fails`(関数)
   - `test_negative_removed_rows`(関数): 検収 L2: ``removed`` の行は数えず突き合わせない。まだコードにある宣言の行を removed にすると落ちる・宣言を消した
+  - `test_no_path_is_in_both_tables`(関数): 同じ今の道が 2 つの表の両方に在ってはならない(引く順で黙って片方が負ける)。負の対照: 一時に足すと見つかる。
   - `test_process_and_fallback_rows`(関数): 第 5 形(世界過程 16+PlanSpec 2)と第 6 形(フォールバック台帳 5 行)=検収 M1。外す段は返済期限から。
   - `test_refractory_eleven_and_the_wake_class_are_removed_at_t3`(関数): 回答 10-13b §4-2 の 2: 不応期 11 種と起床条件のクラスは T3 で外す(各 1 行)。
   - `test_rows_and_the_ledger_are_frozen`(関数)

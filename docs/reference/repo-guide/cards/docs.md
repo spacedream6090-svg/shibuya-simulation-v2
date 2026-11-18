@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-363 ディレクトリ・2508 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+366 ディレクトリ・2515 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -391,6 +391,14 @@
 ## docs/bench/analysis/split5b-347/bytecheck_G3_parent(3 本)
 
 ## docs/bench/analysis/split5b-347/bytecheck_g0_pre_split(3 本)
+
+## docs/bench/analysis/split6-347(1 本)
+
+- [README.md](../../../bench/analysis/split6-347/README.md): 割る段 6(`engine/resolve.py` を 18 の割り先へ)の記録(第347)
+
+## docs/bench/analysis/split6-347/bytecheck_A(3 本)
+
+## docs/bench/analysis/split6-347/bytecheck_A_parent(3 本)
 
 ## docs/bench/analysis/store-memory-2026-09-28(17 本)
 

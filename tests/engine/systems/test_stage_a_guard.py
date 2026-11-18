@@ -312,7 +312,7 @@ def test_alias_table_covers_ledger_money_writes():
         assert fn in callers, fn
         assert "agents.money" in AL.writes_for_ops({fn})
     assert not any("_apply_cash" in why for _w, why in AL.ALIAS_WRITES.values())
-    assert set(AL.ALIAS_WRITES["apply_detection"][0]) == {
+    assert set(AL.ALIAS_WRITES["write_intero_stages"][0]) == {
         "agents.fatigue_stage", "agents.hunger_stage", "agents.thermal_stage"}
 
 

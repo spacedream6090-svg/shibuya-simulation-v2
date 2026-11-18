@@ -97,5 +97,5 @@ engine.systems.static_check — 系の宣言と系のコードを AST で突き�
   - `analyze`(関数): 系の関数(か箱を受け取る補助)の本体を推移的に読む。
   - `analyze_spec`(関数)
   - `source_root`(関数): このモジュールのあるディレクトリ(〔移す段 2-2〕``core.paths.module_dir``)。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.paths`・`shibuya.runtime.systems.allow`
+- import している内部モジュール: `shibuya.foundation.paths`・`shibuya.runtime.systems.allow`
 - 読む試験: `tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_systems_table.py`

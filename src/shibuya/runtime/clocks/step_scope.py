@@ -163,8 +163,8 @@ class StepScope:
         return det
 
     def after_detection(self, agents: Any, det: Any) -> None:
-        """``resolve.apply_detection`` の後: 見た体の写しを今の値と段にし、段を跨いだ体を次の検出の印に残す
-        (印の外の体は値も段も写しと同じ=書き直さない)。"""
+        """``resolve.write_b4_hash``・``resolve.write_intero_stages`` の後: 見た体の写しを今の値と段にし、段を跨いだ体を
+        次の検出の印に残す(印の外の体は値も段も写しと同じ=書き直さない)。"""
         r = agents.registry
         h = _OG.hidden(self)
         parts = [c.agent_id for c in det.crossings if c.agent_id.size]

@@ -348,11 +348,12 @@ def test_advance_body_only_moves_on_its_period():
     assert int(a.hunger[0]) == min(10, h0 + 1)
 
 
-def test_apply_detection_writes_hashes_and_stages():
+def test_write_b4_hash_and_write_intero_stages_write_hashes_and_stages():
     w, a = _setup(n_agents=20, n_cells=8)
     det = ChangeDetector(a.n, w.n_cells)
     res = det.detect(w, a, 0)
-    R.apply_detection(a, w, res)
+    R.write_b4_hash(w, res)
+    R.write_intero_stages(a, res)
     assert int(np.count_nonzero(w.cells.b4_hash)) > 0
     assert a.frozen and w.frozen
 

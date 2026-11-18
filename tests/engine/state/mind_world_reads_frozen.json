@@ -193,7 +193,8 @@
        "write_familiarity",
        "write_memory",
        "write_store_memory",
-       "write_relations"
+       "write_relations",
+       "write_intero_stages"
       ]
      },
      {
@@ -289,7 +290,7 @@
      {
       "dest": "act/ops/detect_writes.py",
       "symbols": [
-       "apply_detection"
+       "write_b4_hash"
       ]
      },
      {

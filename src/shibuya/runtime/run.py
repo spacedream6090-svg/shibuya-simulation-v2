@@ -247,7 +247,7 @@ def check_replay_tape(mode: str = "record", replay: Any = None) -> None:
 def _count_intero_crossings(det: Any, agents: AgentState, acc: np.ndarray) -> None:
     """5 段目 5a(診断): この tick の内受容の跨ぎを 変数 × 上げ/下げ × 全体/起きて範囲内 で数える。
 
-    ``apply_detection`` の**前**に呼ぶ(前回段=``<var>_stage`` がまだ書き戻されていない)。
+    ``write_b4_hash``・``write_intero_stages`` の**前**に呼ぶ(前回段=``<var>_stage`` がまだ書き戻されていない)。
     読むだけ=挙動に効かない。逐次ループ宣言: 内受容 3 変数ぶん(体数に比例しない)。
     """
     r = agents.registry

@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 84 本・その他 0 本(このディレクトリの直下)
+Python 85 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [batching](batching/README.md)・[body](body/README.md)・[bridging](bridging/README.md)・[calendar](calendar/README.md)・[calendar2](calendar2/README.md)・[calendar3](calendar3/README.md)・[clock](clock/README.md)・[contact](contact/README.md)・[decision](decision/README.md)・[duties](duties/README.md)・[events](events/README.md)・[experiment](experiment/README.md)・[memory](memory/README.md)・[multiday](multiday/README.md)・[processes](processes/README.md)・[proximity](proximity/README.md)・[rights](rights/README.md)・[rules](rules/README.md)・[space](space/README.md)・[speech](speech/README.md)・[state](state/README.md)・[systems](systems/README.md)・[time](time/README.md)・[tools](tools/README.md)
 
@@ -505,6 +505,20 @@ C6 会話招待の設計準拠(09-09): 「対象」欄で名指し → 被招待
 - import している内部モジュール: `shibuya.act.commit`・`shibuya.act.intake.from_words`・`shibuya.engine.resolve`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.runtime.run`・`shibuya.runtime.state.resume`・`shibuya.runtime.switch_defects`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.talk`・`shibuya.society.conversation`・`shibuya.world.laws.crowd`・`shibuya.world.laws.rail`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/engine/processes/conftest.py`
 - 環境変数: `SHIBUYA_DEFECT_FIXES_1103`・`os.environ` をまるごと使う
 - 決定の ID: 11-03・11-03/§3・第 346
+
+## [test_detection_writes_split.py](../../../../../../tests/engine/test_detection_writes_split.py)
+
+割る段 6 の S6-A: 変化検出の書き戻し ``apply_detection`` を 2 つの関数(``write_b4_hash``=世界の欄 ``cells.b4_hash``・``write_intero_stages``=心の欄 ``<var>_stage``)に割っても、書いた列と凍結の旗が前と同じ(親の決め事 2 の ①②・段 6 の後も残す)。
+
+- 公開の関数とクラス
+  - `test_negative_one_of_the_two_alone_differs`(関数): 負の対照: 2 つのうち片方だけを当てると、前の形と違う(① の比べが効いている)。
+  - `test_repeated_detection_and_write_back_stay_equal`(関数): 検出と書き戻しを繰り返す(値を乱数で少し動かす)。印の体だけの版(``step_scope``)ありとなし。毎回、2 つの写しの
+  - `test_split_writes_equal_the_pre_split_form`(関数)
+  - `test_split_writes_equal_the_pre_split_form_on_unfrozen_copies`(関数): 凍結していない写し(``writable`` が旗に触らない枝)でも同じ。
+  - `test_the_detect_system_still_writes_the_four_columns`(関数): ③ の手がかり: 系 ``detect`` の書きの集合は 4 列のまま(凍結の表との比べは ``test_d2_writes_soa_matches_the_frozen_table``)。
+  - `test_the_first_detection_has_changed_cells_and_many_crossings`(関数): 場合が空回りしないこと: 最初の検出は変わったセルと跨ぎ(多い)の両方を持つ。
+  - `test_the_with_bodies_are_the_pre_split_statements`(関数): ② AST の比べ: 新しい 2 つの ``with`` の中の文=前の形の ``with`` の中の 2 つの文(字下げのほかは同じ)。``with`` の項は
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.write_guard`・`shibuya.mind.system1.change_detect`・`shibuya.runtime.clocks.step_scope`・`shibuya.runtime.systems.table`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 
 ## [test_determinism_t1_t2_t4.py](../../../../../../tests/engine/test_determinism_t1_t2_t4.py)
 
@@ -1298,7 +1312,6 @@ engine.resolve のテスト: 行動契約書 §2.1 の 12 語(前提・効果・
   - `test_actions_that_never_fail`(関数)
   - `test_advance_body_only_moves_on_its_period`(関数)
   - `test_all_twelve_words_parse`(関数)
-  - `test_apply_detection_writes_hashes_and_stages`(関数)
   - `test_boarding_and_alighting_fail_per_contract`(関数): 行動契約書 §2.1: 乗車の失敗=列車なし・降車の失敗=その駅には止まらない。
   - `test_buy_moves_money_to_revenue_and_decrements_stock`(関数)
   - `test_buy_outside_opening_hours_fails_closed`(関数)
@@ -1327,6 +1340,7 @@ engine.resolve のテスト: 行動契約書 §2.1 の 12 語(前提・効果・
   - `test_talk_without_a_partner_fails_bad_target`(関数)
   - `test_two_buyers_of_the_same_poi_both_decrement`(関数)
   - `test_undefined_action_falls_back_to_wait`(関数)
+  - `test_write_b4_hash_and_write_intero_stages_write_hashes_and_stages`(関数)
 - import している内部モジュール: `shibuya.act.commit`・`shibuya.act.intake.from_words`・`shibuya.engine.resolve`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.system1.change_detect`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 - 決定の ID: D-113・第 267・第 330
 

@@ -74,7 +74,8 @@ def sys_detect(ctx: Any, b: Any) -> None:
     else:  # 内受容の段の跨ぎは変化の印の体だけ(結果は全員を見る版と同じ)
         det = step_scope.detect(detector, world, agents, tick, field_rows=field_rows)
     _count_intero_crossings(det, agents, intero_cross)
-    R.apply_detection(agents, world, det)
+    R.write_b4_hash(world, det)
+    R.write_intero_stages(agents, det)
     if step_scope is not None:
         step_scope.after_detection(agents, det)
     d_agent, d_cond, d_class = det.candidates()

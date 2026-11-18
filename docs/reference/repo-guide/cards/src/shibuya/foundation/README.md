@@ -163,7 +163,7 @@ engine.systems.guard — 系を呼ぶ間だけ置く書きの許可(第 1 期 1-
   - `system_scope`(関数): 系 ``name`` を呼ぶ間だけ SoA・scratch・buffers・外の道筋(1-3)の許可を置く(出るときに前の値へ戻す)。
 - import している内部モジュール: `shibuya.foundation.write_permit`
 - 呼び手: `shibuya.foundation.journal.log`・`shibuya.mind.memory.memory_store`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.conductor`
-- 読む試験: `tests/engine/events/test_e_writes_declared.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_m1_runs.py`・`tests/engine/systems/test_boxes.py`・`tests/engine/systems/test_fix_guards.py`・`tests/perception/facts/test_percept_is_scratch.py`
+- 読む試験: `tests/engine/events/test_e_writes_declared.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_m1_runs.py`・`tests/engine/systems/test_boxes.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/test_detection_writes_split.py`・`tests/perception/facts/test_percept_is_scratch.py`
 
 ## [write_permit.py](../../../../../../../src/shibuya/foundation/write_permit.py)
 

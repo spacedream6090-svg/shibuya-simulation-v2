@@ -108,14 +108,16 @@ def _drive(a: AgentState, w: World, steps: int, rng, use_scope: bool, keep_cross
             v[k] = rng.integers(0, 11, size=k.size)
         if use_scope:
             res = sc.detect(det, w, a, t)
-            R.apply_detection(a, w, res)
+            R.write_b4_hash(w, res)
+            R.write_intero_stages(a, res)
             sc.after_detection(a, res)
             if not keep_crossed:
                 with SS._OG.writing(sc):  # 負の対照: 跨いだ体を印に残さない(持ち主の中を白箱で書き換える)
                     sc._ss_crossed = np.empty(0, dtype=np.int64)
         else:
             res = det.detect(w, a, t)
-            R.apply_detection(a, w, res)
+            R.write_b4_hash(w, res)
+            R.write_intero_stages(a, res)
         out.append([(c.agent_id.tolist(), c.new_stage.tolist()) for c in res.crossings])
     return out, sc
 
@@ -142,7 +144,8 @@ def test_marks_are_exactly_the_changed_columns_and_the_crossed():
     res = sc.detect(det, w, a, 0)
     from shibuya.engine import resolve as R
 
-    R.apply_detection(a, w, res)
+    R.write_b4_hash(w, res)
+    R.write_intero_stages(a, res)
     sc.after_detection(a, res)
     crossed = _crossing_set(res)
     a.registry.hunger[[3, 7]] = (a.registry.hunger[[3, 7]] + 1) % 11
@@ -246,7 +249,8 @@ def test_m2_step_scope_refuses_writes_from_outside():
     from shibuya.engine import resolve as R
 
     res = sc.detect(det, w, a, 0)
-    R.apply_detection(a, w, res)
+    R.write_b4_hash(w, res)
+    R.write_intero_stages(a, res)
     sc.after_detection(a, res)
     for name, value in (("_ss_copy", {}), ("_ss_crossed", np.arange(3)), ("_ss_meter", {}), ("n", 1), ("x", 1)):
         with pytest.raises(AttributeError):
@@ -263,6 +267,7 @@ def test_m2_step_scope_refuses_writes_from_outside():
         sc._ss_meter["steps"] = 99
     # 持ち主の書く口は書ける(2 回目の検出)
     res = sc.detect(det, w, a, 1)
-    R.apply_detection(a, w, res)
+    R.write_b4_hash(w, res)
+    R.write_intero_stages(a, res)
     sc.after_detection(a, res)
     assert sc._ss_meter["steps"] == 2

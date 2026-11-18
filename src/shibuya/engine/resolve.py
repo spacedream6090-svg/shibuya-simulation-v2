@@ -144,7 +144,8 @@ __all__ = [
     "set_plan_state",
     "begin_planned_sleep",
     "wake_from_plan",
-    "apply_detection",
+    "write_b4_hash",
+    "write_intero_stages",
     "apply",
     "set_refractory",
     "clear_refractory",
@@ -812,11 +813,16 @@ def wake_from_plan(agents: AgentState, agent_id) -> int:
 
 
 # ---------------------------------------------------------------- 変化検出の書き戻し
-def apply_detection(agents: AgentState, world: World, result: DetectResult) -> None:
-    """``change_detect`` が返した新しい B4 ハッシュと内受容段を書き込む。"""
-    with agents.writable(), world.writable():
+def write_b4_hash(world: World, result: DetectResult) -> None:
+    """``change_detect`` が返した新しい B4 ハッシュを書き込む(世界の欄 ``cells.b4_hash``)。"""
+    with world.writable():
         if result.changed_cells.size:
             world.cells.b4_hash[result.changed_cells] = result.changed_b4_hash
+
+
+def write_intero_stages(agents: AgentState, result: DetectResult) -> None:
+    """``change_detect`` が返した内受容段を書き込む(心の欄 ``fatigue_stage``・``hunger_stage``・``thermal_stage``)。"""
+    with agents.writable():
         for crossing in result.crossings:
             if crossing.agent_id.size:
                 agents.registry.field(crossing.stage_field)[crossing.agent_id] = (

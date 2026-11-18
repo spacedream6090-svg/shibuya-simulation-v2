@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import ast
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -103,7 +104,7 @@ def test_index_refuses_a_function_name_split_across_files(tmp_path, monkeypatch)
     (root / "engine").mkdir(parents=True)
     src = Path(RV.__file__).read_text(encoding="utf-8")
     (root / "engine" / "resolve.py").write_text(src, encoding="utf-8")
-    (root / "engine" / "resolve_part.py").write_text("def apply_detection():\n    pass\n", encoding="utf-8")
+    (root / "engine" / "resolve_part.py").write_text("def write_intero_stages():\n    pass\n", encoding="utf-8")
     monkeypatch.setattr(AL, "RESOLVE_FILES", ("engine/resolve.py", "engine/resolve_part.py"))
     AL.index.cache_clear()
     try:
@@ -145,10 +146,20 @@ def test_index_refuses_a_table_name_split_across_files_and_merges_distinct_ones(
 
 
 def test_static_check_names_come_from_the_modules():
-    assert SC.RESOLVE_MODULE == RV.__name__
+    # 〔割る段 6 の S6-A〕resolve のモジュールの名は、allow.RESOLVE_FILES から作る名の集合。割る前は 1 つ(=前と同じ範囲)
+    assert SC.RESOLVE_MODULES == frozenset(
+        shibuya.__name__ + "." + rel[:-3].replace("/", ".") for rel in AL.RESOLVE_FILES)
+    assert SC.RESOLVE_MODULES == frozenset({RV.__name__})
     # 系の包みの名は、系の包みで定義したモジュール(allow)の包みから作る(〔段 4 の下ごしらえ・親の決定 3〕包みの頭を読まない)
     assert SC._SYSTEMS_PREFIX == AL.__name__.rpartition(".")[0] + "."
-    assert (SC._RESOLVE_PARENT, SC._RESOLVE_LEAF) == tuple(RV.__name__.rsplit(".", 1))
+    # 〔割る段 6 の S6-A〕前は名の親と葉の字面(``_RESOLVE_PARENT``・``_RESOLVE_LEAF``)を比べた。今は集合で引く形を動かして確かめる:
+    # 親の包みから葉を読む・モジュールを別名で import・口の名を素の import・頂上の別名と口を拾い、ほかのモジュールは拾わない
+    parent, leaf = RV.__name__.rsplit(".", 1)
+    systems = AL.__name__.rpartition(".")[0]
+    fdef = ast.parse(f"def f():\n    from {parent} import {leaf} as X\n    import {RV.__name__} as Z\n"
+                     f"    from {RV.__name__} import apply as y\n    from {systems} import allow as W\n").body[0]
+    mods, funcs = SC._resolve_names(SimpleNamespace(R=RV, ap=RV.apply, A=AL), fdef)
+    assert mods == {"R", "X", "Z"} and funcs == {"ap": "apply", "y": "apply"}
     text = Path(SC.__file__).read_text(encoding="utf-8")
     consts = {n.value for n in ast.walk(ast.parse(text)) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
     # 〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面の startswith("shibuya.engine")。名は、静的の検査が名を引くモジュール(resolve)の

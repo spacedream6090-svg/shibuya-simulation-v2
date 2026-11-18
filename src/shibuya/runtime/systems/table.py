@@ -223,7 +223,7 @@ SYSTEMS: tuple[SystemSpec, ...] = (
                "layers.mem_layer",  # 第 2 期 2-3: 体の出来事の口のあるランか(意図に呼の id を付ける)
          origin=f"L6・run.py:3671-3785 @{_E}"),
     make("detect", "知覚", "tick", _PC.sys_detect,
-         resolve_ops="apply_detection",
+         resolve_ops="write_b4_hash write_intero_stages",
          paths="O45:detector.* O66:act_layer.* O6:intent_layer.* "
                "T3M:step_scope.*",  # 〔第 6 期 6-3 T3〕腕 changed の変化の印(内受容の値と段の写し・跨いだ体・計器)
          scratch_r="field_rows", scratch_w="det_agent det_cond det_class e_agent e_cond e_class",

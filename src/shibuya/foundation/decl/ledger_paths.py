@@ -8,6 +8,8 @@
 - 表 :data:`LEDGER_PATHS` は「今の道(リポの根からの道筋)→ 台帳の道」。**手で書かない**: 移す道具
   (``tools/pkgmove/``)が段ごとに書き足す(許可の一覧の (d))。段 4 の前は空=今の結果も試験も変わらない。
 - 戻し方(次の版上げ=``bridges_version`` が動いてよい段): 道具で台帳の道を今の道に書き換え、表を空にする。
+- 〔割る段 6 の S6-A・親の裁定 Q1 の (ii)〕前向きだけの表 :data:`LEDGER_PATHS_SPLIT`(割る段で 2 つ目以降の割り先になった
+  ファイルの今の道 → 台帳の道・N 対 1)。:func:`ledger_path` だけが引き、:func:`current_path`(逆向き)は引かない。
 - 本モジュールは何も import しない(読み手は宣言の走査と試験だけ=ランの中では読まない)。
 
 逐次ループ宣言: なし。
@@ -18,7 +20,7 @@ from __future__ import annotations
 from types import MappingProxyType
 from typing import Final, Mapping
 
-__all__ = ["LEDGER_PATHS", "ledger_path", "current_path"]
+__all__ = ["LEDGER_PATHS", "LEDGER_PATHS_SPLIT", "ledger_path", "current_path"]
 
 #: 今の道 → 台帳に書いてある道(リポの根からの道筋・``/`` 区切り)。移す道具が書き足す(鍵の昇順・1 行 1 組)。
 LEDGER_PATHS: Final[Mapping[str, str]] = MappingProxyType({
@@ -231,9 +233,19 @@ LEDGER_PATHS: Final[Mapping[str, str]] = MappingProxyType({
 })
 
 
+#: 〔割る段 6 の S6-A・親の裁定 Q1 の (ii)〕割る段で 2 つ目以降の割り先になったファイルの今の道 → 台帳に書いてある道(前向き
+#: だけ・N 対 1=値は ``LEDGER_PATHS`` の値と重なってよい)。手で書かない: 割る道具が書き足す(鍵の昇順・1 行 1 組)。
+#: :func:`ledger_path` だけが引き、:func:`current_path`(逆向き=主な割り先の 1 対 1)は引かない。空の間は今の結果と同じ。
+LEDGER_PATHS_SPLIT: Final[Mapping[str, str]] = MappingProxyType({
+})
+
+
 def ledger_path(path: str) -> str:
-    """今の道 → 台帳に書いてある道(表に無ければそのまま)。"""
-    return LEDGER_PATHS.get(path, path)
+    """今の道 → 台帳に書いてある道。``LEDGER_PATHS`` に在ればその値、無ければ ``LEDGER_PATHS_SPLIT`` に在ればその値、
+    どちらにも無ければそのまま。"""
+    if path in LEDGER_PATHS:
+        return LEDGER_PATHS[path]
+    return LEDGER_PATHS_SPLIT.get(path, path)
 
 
 def current_path(path: str) -> str:

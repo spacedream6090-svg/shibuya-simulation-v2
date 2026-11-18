@@ -17,7 +17,7 @@
 
 **書き込みはしない**: 検出器は世界にも個体にも書かない(運用設計書 §2.2 Phase C=
 ``engine.resolve`` が唯一の書き手)。新しい ``b4_hash`` と内受容段は結果に載せて返し、
-``resolve.apply_detection`` が書き込む。
+``resolve.write_b4_hash``・``resolve.write_intero_stages`` が書き込む。
 
 逐次ループ宣言(P4)
 1. ``b4_block_hashes``: **変化したセル数**ぶんの xxh64 ループ(上限=セル数 453/520。

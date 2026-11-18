@@ -169,11 +169,11 @@ HEAD_WRITERS = {
     "_energy_meal": ["agents.energy_balance", "agents.hunger", "agents.since_meal_kcal"],
     "_energy_snack": ["agents.energy_balance", "agents.hunger", "agents.since_meal_kcal"],
     "advance_body": ["agents.energy_balance", "agents.fatigue", "agents.hunger", "agents.since_meal_kcal"],
-    "apply_detection": ["agents.fatigue_stage", "agents.hunger_stage", "agents.thermal_stage"],
     "energy_home_meal": ["agents.hunger_stage"],
     "initialize": ["agents.fatigue", "agents.hunger", "agents.thermal"],
     "initialize_energy": ["agents.energy_balance", "agents.hunger", "agents.hunger_stage", "agents.since_meal_kcal"],
     "set_thermal": ["agents.thermal"],
+    "write_intero_stages": ["agents.fatigue_stage", "agents.hunger_stage", "agents.thermal_stage"],
 }
 BODY_COLS = frozenset(c for v in HEAD_WRITERS.values() for c in v) | {"agents.fatigue_stage", "agents.thermal_stage"}
 

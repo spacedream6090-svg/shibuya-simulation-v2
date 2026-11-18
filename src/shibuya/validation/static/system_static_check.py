@@ -28,7 +28,6 @@ from pathlib import Path
 from typing import Any, Callable
 
 from shibuya.foundation.paths import module_dir
-from shibuya.engine import resolve as _RESOLVE
 from shibuya.runtime.systems import allow as _SYSTEMS_MEMBER  # 〔移す段 4 の下ごしらえ〕包みの頭でなく中のモジュールを直に読む
 
 __all__ = ["SystemCode", "analyze", "analyze_spec"]
@@ -38,10 +37,13 @@ BOXES = ("cfg", "soa", "layers", "llm", "day", "buffers", "scratch", "runstats",
 TALLY_NAME = {"sleep_tally": "sleep_counts"}
 _MUTATORS = {"append", "extend", "update", "clear", "pop", "setdefault", "add", "discard", "insert", "remove",
              "popitem", "sort", "fill"}
-#: 〔移す段 2-3〕resolve のモジュールの名と、系の包みの名の頭は、モジュールの ``__name__`` から作る(段 4・段 6 で動かしても
-#: 文字列を直さなくてよい。import は移す道具が直す)。
-RESOLVE_MODULE = _RESOLVE.__name__
-_RESOLVE_PARENT, _, _RESOLVE_LEAF = RESOLVE_MODULE.rpartition(".")
+#: 〔移す段 2-3〕系の包みの名の頭は、モジュールの ``__name__`` から作る(段 4・段 6 で動かしても文字列を直さなくてよい)。
+#: 〔割る段 6 の S6-A〕resolve のモジュールの名は、書きの閉包を読むファイルの一覧(``allow.RESOLVE_FILES``)から作る名の集合
+#: (割った後は系のコードが割り先を別名で読む=1 つの名では D ① が呼び出しを見落とす)。割る前は 1 つ(``engine/resolve.py``
+#: の名)=前と同じ範囲。根の包みの名は系の包みのモジュールの名から取る(act の側は import しない)。
+_ROOT_PACKAGE = _SYSTEMS_MEMBER.__name__.partition(".")[0]
+RESOLVE_MODULES: frozenset[str] = frozenset(
+    _ROOT_PACKAGE + "." + rel[:-3].replace("/", ".") for rel in _SYSTEMS_MEMBER.RESOLVE_FILES)
 _SYSTEMS_PREFIX = _SYSTEMS_MEMBER.__name__.rpartition(".")[0] + "."
 
 
@@ -77,20 +79,20 @@ def _resolve_names(mod: Any, fdef: ast.FunctionDef) -> tuple[set[str], dict[str,
     import の両方。"""
     mods, funcs = set(), {}
     for k, v in vars(mod).items():
-        if inspect.ismodule(v) and v.__name__ == RESOLVE_MODULE:
+        if inspect.ismodule(v) and v.__name__ in RESOLVE_MODULES:
             mods.add(k)
-        elif callable(v) and getattr(v, "__module__", "") == RESOLVE_MODULE and hasattr(v, "__name__"):
+        elif callable(v) and getattr(v, "__module__", "") in RESOLVE_MODULES and hasattr(v, "__name__"):
             funcs[k] = v.__name__
     for n in ast.walk(fdef):
         if isinstance(n, ast.ImportFrom):
             for a in n.names:
-                if n.module == _RESOLVE_PARENT and a.name == _RESOLVE_LEAF:
+                if f"{n.module}.{a.name}" in RESOLVE_MODULES:
                     mods.add(a.asname or a.name)
-                elif n.module == RESOLVE_MODULE:
+                elif n.module in RESOLVE_MODULES:
                     funcs[a.asname or a.name] = a.name
         elif isinstance(n, ast.Import):
             for a in n.names:
-                if a.name == RESOLVE_MODULE and a.asname:
+                if a.name in RESOLVE_MODULES and a.asname:
                     mods.add(a.asname)
     return mods, funcs
 

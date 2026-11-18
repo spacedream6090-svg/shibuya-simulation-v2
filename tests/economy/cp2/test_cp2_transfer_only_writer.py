@@ -102,7 +102,7 @@ def test_only_the_ledger_ports_call_the_primitive():
 def test_the_apply_cash_alias_rows_are_gone():
     """``_apply_cash`` の別名の 4 行は消え、帳簿の口の呼び出しから AST で引く(閉包は前と同じ)。"""
     assert not any("_apply_cash" in why for _w, why in AL.ALIAS_WRITES.values())
-    assert set(AL.ALIAS_WRITES) == {"apply_detection"}
+    assert set(AL.ALIAS_WRITES) == {"write_intero_stages"}
     callers = {f for f, _ln, _p in AL.index().transfer_callers}
     # 〔2-1・検収 A7〕引き出しの口(withdraw_many)を呼ぶ _stage2_withdraw が足された(腕 on だけが呼ぶ)
     assert callers == {"_complete_buy", "_complete_eat", "_board_riders", "initialize", "_stage2_withdraw"}

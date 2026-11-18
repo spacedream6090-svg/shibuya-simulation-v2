@@ -49,8 +49,8 @@ RESOLVE_FILES: tuple[str, ...] = ("engine/resolve.py",)
 #: 〔第 1 期 1-9〕``_apply_cash`` の別名の 4 行(``_complete_buy``・``_complete_eat``・``_board_riders``・``initialize``)は
 #: 消した=お金の書きは ``economy.ops.transfer`` の中に閉じ、口の名から引く(``TRANSFER_PORTS_HOUSEHOLD``)。
 ALIAS_WRITES: dict[str, tuple[tuple[str, ...], str]] = {
-    "apply_detection": (("agents.fatigue_stage", "agents.hunger_stage", "agents.thermal_stage"),
-                        "registry.field(crossing.stage_field)[...] = の名前の変数で書く(AST で解けない)"),
+    "write_intero_stages": (("agents.fatigue_stage", "agents.hunger_stage", "agents.thermal_stage"),
+                            "registry.field(crossing.stage_field)[...] = の名前の変数で書く(AST で解けない)"),
 }
 
 #: 〔第 1 期 1-9〕基本操作 ``economy.ops.transfer`` が書く SoA の列(世帯の現金の行=``agents.money`` と同じ配列・

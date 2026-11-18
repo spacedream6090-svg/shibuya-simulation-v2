@@ -521,3 +521,45 @@ def test_negative_a_new_declaration_in_a_moved_file_is_missing_under_the_ledger_
     others = [d.declared_in for d in S.scan_package() if d.path != now]
     missing, orphan = L.code_mismatch(ledger, others + [d.declared_in for d in extra])
     assert missing == added and orphan == []
+
+
+# ================================================================= 前向きだけの表(割る段 6 の S6-A・親の裁定 Q1 の (ii)・決め事 7)
+def _all_paths(ledger) -> list[str]:  # noqa: ANN001
+    """比べる道の全部: 表の今の道と台帳の道・src の .py の全部・台帳のコードの行の道。"""
+    paths = set(LP.LEDGER_PATHS) | set(LP.LEDGER_PATHS.values())
+    paths |= {p.relative_to(ROOT).as_posix() for p in (ROOT / "src" / "shibuya").rglob("*.py")}
+    paths |= {r.declared_path for r in ledger if r.declared_in_code}
+    return sorted(paths)
+
+
+def test_ledger_path_is_the_same_while_the_forward_table_is_empty(ledger):
+    """前向きの表 ``LEDGER_PATHS_SPLIT`` が空の間、``ledger_path()`` は全部の道で前(``LEDGER_PATHS.get(道, 道)``)と同じ。"""
+    assert dict(LP.LEDGER_PATHS_SPLIT) == {}
+    paths = _all_paths(ledger)
+    assert len(paths) > len(LP.LEDGER_PATHS)
+    assert [LP.ledger_path(p) for p in paths] == [LP.LEDGER_PATHS.get(p, p) for p in paths]
+
+
+def test_a_forward_row_maps_to_the_ledger_path_and_current_path_is_unchanged(ledger, monkeypatch):
+    """前向きの表に行を 1 つ足すと(試験の中で一時に)、その道が台帳の道へ引ける。値は ``LEDGER_PATHS`` の値と重なってよい
+    (N 対 1)。``current_path()``(逆向き)は全部の道で変わらない=前向きの表を引かない。"""
+    paths = _all_paths(ledger)
+    before = {p: LP.current_path(p) for p in paths}
+    main_now, led = next(iter(LP.LEDGER_PATHS.items()))
+    second = "src/shibuya/_split_second_for_test.py"
+    monkeypatch.setattr(LP, "LEDGER_PATHS_SPLIT", {second: led})
+    assert LP.ledger_path(second) == led and LP.ledger_path(main_now) == led
+    assert {p: LP.current_path(p) for p in paths} == before
+    assert LP.current_path(led) == main_now and LP.current_path(second) == second
+
+
+def _keys_in_both() -> set[str]:
+    return set(LP.LEDGER_PATHS) & set(LP.LEDGER_PATHS_SPLIT)
+
+
+def test_no_path_is_in_both_tables(monkeypatch):
+    """同じ今の道が 2 つの表の両方に在ってはならない(引く順で黙って片方が負ける)。負の対照: 一時に足すと見つかる。"""
+    assert _keys_in_both() == set()
+    now, led = next(iter(LP.LEDGER_PATHS.items()))
+    monkeypatch.setattr(LP, "LEDGER_PATHS_SPLIT", {now: led})
+    assert _keys_in_both() == {now}

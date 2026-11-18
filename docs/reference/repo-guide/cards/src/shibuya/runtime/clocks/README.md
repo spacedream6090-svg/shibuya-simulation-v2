@@ -83,7 +83,7 @@ engine.step_scope — 何かあった体だけ(第 6 期 6-3 時計の段 T3・�
   - `set_arm`(関数): 腕を選ぶ(CLI ``--step-scope``・試験の切替口)。組み立ての時に読む。
 - import している内部モジュール: `shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.clocks.owner_guard`
 - 呼び手: `shibuya.interfaces.cli.main`・`shibuya.runtime.result`・`shibuya.runtime.systems.assemble`
-- 読む試験: `tests/engine/clock/test_tm3_step_scope.py`
+- 読む試験: `tests/engine/clock/test_tm3_step_scope.py`・`tests/engine/test_detection_writes_split.py`
 - 状態台帳の行
   - 持ち主 `step_scope`(`StepScope`)
     - `T3M` StepScope の変化の印(内受容の値と段の写し・前に跨いだ体・計器・第 6 期 6-3 T3)(挙動 diag・復元 discardable・腕 step-scope) 道筋 `step_scope._ss_copy`・`step_scope._ss_crossed`・`step_scope._ss_meter` 書ける系: detect
