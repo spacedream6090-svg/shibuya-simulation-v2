@@ -437,3 +437,116 @@ G0 の検収の直しの後の木(本体の頭 `dcd25a6c` の上へ載せ直し�
 - **範囲の全体の試験**(載せ直した木): 6,927 passed・1 failed・21 skipped・1 xfailed(40 分 26 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木でだけ落ちる)。新しい失敗は無い。飛んだ試験は 21 本で群の前と同じ。検収の低 1 で足した試験 1 本は、この回の後に足したので、単独で回して通した(層の確かめ 2 本 passed)。
 - 実装役は 11 本目の途中で週の利用の上限に当たり、2 日あとに続きから再開した(当ては済んでいた。状態を確かめてから試験と byte-check を
   回し直した)。
+
+## 12. G4 の当て(本物の木・群の土台 `7b4e8a6`=G3 の commit・安定版のタグ `stable-v2-before-split5a-G4`)
+
+- 回し方は G3(§11)と同じ。G4 と G5 は続けて当て、親が 6 本をまとめて確かめる(G4 の発注)。byte-check の基準は 6 本とも `7b4e8a6`(積み重ね)。
+- 当てる前の書かない実行(12〜17 本を G3 の後の木で取り直した): 守り 12 個がどの本も「同じ」・import の循環 0。手で直す読みは 12〜15 本と 17 本に在り、本ごとに当てる前に直した(下)。
+- 当てる前の戻り点: 12 本目は `restore_12_before`、13 本目以降は、その前の本の byte-check の後の戻り点(次の本の手で直す読みを含む=次の本の当てる前と同じ木)。import の確かめは 6 本とも落ちなかった。
+- 割り先の文は、核の語の決まり(素の tick)の範囲(元の置き場が core と engine/systems)の外(試験の関数で見た)。
+
+### 12-1. 本ごとの数
+
+| 本 | 割る行 | 書き換えた import の文(src・tests・build・docs) | 分けた文 | 鍵 | 台帳の道 | 道の文字列 | 手で直した読み | 写さなかった | 守り | byte-check | 契約 | 例外 載せた・効いている(辺/行) |
+|---:|---|---|---:|---:|---:|---|---|---|---|---|---|---|
+| 12 | `engine/chooser.py` | 18(9・9・0・0) | 3 | 4 | 1 | src の表 3・tests の記号 1 | 1 | 無い | 12 個「同じ」 | 19/19 同じ | 2+9 | 24/33・18/27(#5 が消えた) |
+| 13 | `engine/poi_target.py` | 14(5・9・0・0) | 1 | 1 | 1 | src の表 2 | 1 | 無い | 12 個「同じ」 | 19/19 同じ | 2+9 | 23/31・17/25(#17 が消えた) |
+| 14 | `perception/attention.py` | 16(4・11・1・0) | 2 | 2 | 1 | src の表 1 | 1 | 無い | 12 個「同じ」 | 19/19 同じ | 2+9 | 23/31・20/28 |
+
+- 割り先: 12 本目 `mind/judge/chooser.py`(新・10 名)と `foundation/ports/choice.py`(新・5 名)/13 本目 `act/target.py`(新・14 名)と `foundation/vocab/place_words.py`(在る・店の語 4 名=`SYNTHETIC_BUYABLE_CATS` は G1 で入った `SYNTHETIC_POI_CATS` の後ろ=定義の順 c7)/14 本目 `foundation/text/salience.py`(新・主な割り先・22 名=見出しの docstring はここ)と `mind/percept/attention.py`(新・7 名)。
+- 乱数の領域の名 `engine.chooser`・`perception.attention.p_see` は値が変わらない(名の凍結の守り「同じ」)。`rng_audit` の `SAFE_SITES` の `("engine/chooser.py", "draw_index")` は `foundation/ports/choice.py` へ、`UNDETERMINED_SITES` の `("perception/attention.py", "gate_stage1")` は `mind/percept/attention.py` へ(c9=名の割り先の道)。`OWNER_CLASSES`・`OWNER_ALT_CLASSES`・`EXT_AST_ALLOW` の鍵は主な割り先の道へ。
+- 心の読みの一覧の `scope.split`: 12 本目で chooser、14 本目で attention の行を外した。どちらも割り先に心の読みは 0 行(`key_counts` の合計 83 のまま)。
+- G4 の群の確かめ(14 本目の後): `lint-imports` 11 kept・`map --check` 同じ・`contracts --check` 同じ。契約 2+9・例外 23/31・効いている 20/28=計画 §5-3 の G4 の終わりと同じ。13 本目の後の効いている 17/25 は、模擬に行が無い(計画は 14 本目の後だけを数えた)。
+
+### 12-2. 手で直した読み
+
+- 12 本目 `tests/engine/test_classical_policy.py`: `CH.ChoiceContext`(割り先 `foundation/ports/choice.py`)を名の import に。
+- 13 本目 `tests/engine/test_intent_chooser.py`: 別名 `PT` の素の使い方(消した切替口の名の `hasattr`)を、`TargetResolver` の定義の置き場(割ると主な割り先 `act/target.py`)から引く形に。
+- 14 本目 `tests/perception/test_attention.py`: `A.p_see`・`A.gate_stage1`・`A.P_SEE_MEDIUM_RANGE`(割り先 `mind/percept/attention.py`)を名の import に。
+
+### 12-3. 狙いの試験(`-n 2`・`-m "not slow"`。決まりの束を含む)
+
+| 本 | 結果 |
+|---:|---|
+| 12 | 1168 passed・20 skipped |
+| 13 | 1206 passed・20 skipped |
+| 14 | 1705 passed・20 skipped |
+
+- byte-check の記録: `bytecheck_12_chooser/`・`bytecheck_13_poi_target/`・`bytecheck_14_attention/`(19 構成とも 37 欄がすべて同じ・final が同じ 19・終了コード 0。1 本 7 分ほど)。
+
+## 13. G5 の当て(群の土台 `7b4e8a6`・§12 から続けて)
+
+### 13-1. 本ごとの数
+
+| 本 | 割る行 | 書き換えた import の文(src・tests・docs) | 分けた文 | 鍵 | 台帳の道 | 道の文字列 | 手で直した読み | 写さなかった | 守り | byte-check | 契約 | 例外 載せた・効いている(辺/行) |
+|---:|---|---|---:|---:|---:|---|---|---|---|---|---|---|
+| 15 | `engine/change_detect.py` | 21(6・15・0) | 1 | 3 | 1 | src の表 1・tests の記号 1 | 4 | 無い | 12 個「同じ」 | 19/19 同じ | 2+9 | 22/30・22/30(割 2〜4 が載った・#23・#27・#28・核 2 が消えた) |
+| 16 | `engine/arbiter.py` | 20(3・16・1) | 6 | 3 | 1 | src の表 1・tests の記号 2 | 0 | 無い | 12 個「同じ」 | 19/19 同じ | 2+9 | 22/30・22/30 |
+| 17 | `engine/relations.py` | 37(10・13・14) | 3 | 3 | 1 | src の表 1・tests の記号 3 | 10 | 無い | 12 個「同じ」 | 19/19 同じ | 2+9 | 22/30・22/30 |
+
+- 割り先: 15 本目 `mind/system1/change_detect.py`(新・9 名・`CELL_WAKE_USES_NUMBA` を含む=親の仮採用)と `world/model/scene_hash.py`(新・3 名)と `foundation/vocab/agent_codes.py`(在る・2 名)。`mind/system1/__init__.py`(0 バイト)を足した/16 本目 `runtime/arbiter.py`(新・14 名)と `mind/system1/wake.py`(新・1 名)/17 本目 `mind/relations/layer.py`(新・14 名)と `world/facts/initial_ties.py`(新・21 名)と `foundation/vocab/relations.py`(新・20 名=`_activation` を名を変えずに=c2)。
+- 15 本目: 読み込みの時に走る `_CELL_WAKE = _make_cell_wake()` と numba の `@njit(cache=True)` はそのまま写した。byte-check の 1 構成目(`w6_v3_default`)の比べる側の壁時計は 53.0 秒で、14 本目の 53.0 秒と同じ=置き場が変わって numba の cache を作り直す時間は見えなかった。
+- 16 本目: 版上げ Q13 で増えた `engine/run.py` の `l4_budget` が読む `call_budget_per_tick`・`L4_LINE_PER_AGENT_DAY` は、道具が import を `runtime/arbiter.py` へ書き換えた。
+- 心の読みの一覧の `scope.split`: 15 本目で change_detect、16 本目で arbiter、17 本目で relations の行を外した。change_detect の心の読みは 8 行(数 14)、relations は 7 行(数 7)で、どちらも割り先の道 `mind/system1/change_detect.py`・`mind/relations/layer.py` で数えていた=範囲 `mind/` の下に入る(`key_counts` の合計 83 のまま)。arbiter は 0 行。残る `scope.split` は `engine/resolve.py`・`perception/renderer.py`(段 6・7)。
+
+### 13-2. 手で直した読みと、中身を見た試験
+
+- 15 本目: `tests/engine/clock/test_tm3_step_scope.py`(`CD.INTERO_VARS`)・`tests/engine/space/test_nav1_density.py`(関数の中の `CD.b4_block_raw`)・`tests/engine/test_change_detect_p6.py`(`CD.INTERO_UP_EDGES`・`INTERO_VARS`・`b4_block_hashes`・`b4_block_raw`)・`tests/engine/test_renderer_wiring.py`(`CD.b4_block_raw`)を名の import に(割り先 agent_codes と scene_hash の名)。
+- 17 本目: 別名 `RL` を割り先ごとの別名に分けた(`RL`=layer・`RT`=initial_ties・`RV`=vocab/relations。別名の import の文の有効範囲ごとに、使う名の割り先の別名だけを置く): `docs/bench/analysis/c10-relations-2026-09-28/rel8b_measure.py`(関数の中の 6 か所)・`tests/engine/test_relations.py`・`test_relations_8b.py`・`test_relations_tenure.py`・`tests/engine/tools/test_c0_contacts_in_relations.py`。
+- 17 本目の差し替えの相手: 5 本のうち `monkeypatch` を使うのは `test_c0_contacts_in_relations` で、相手はどれもクラスの属性(`RL.RelationLayer` の `_write_contacts`・`__init__`)=クラスは割った後も同じ物なので空振りしない。`test_relations` の `mp.setattr(AgentState, …)` も同じ。モジュールの名を差し替える所は無い。
+- 中身を見た試験 `tests/engine/test_relations.py::test_readers_and_writer_rounds_are_array_ops`: 見る関数のうち `copresence`・`slot_cells`・`_last_copresence_many` は `world/facts/initial_ties.py` へ、ほかは `mind/relations/layer.py` へ割れる=両方の割り先を見る形にし(割り先は名の定義の置き場から引く)、見る関数が全部見つかることも確かめる形にした(前の形のままだと、道具が道を主な割り先へ書き換えた後に 3 つが見られなくなる)。`test_relations_8b::test_8b_per_tick_paths_are_array_ops` の 7 名は全部 layer に在る(道具の道の書き換えで足りる・空回りしないことを確かめた)。
+
+### 13-3. 狙いの試験(`-n 2`・`-m "not slow"`。決まりの束を含む)
+
+| 本 | 結果 |
+|---:|---|
+| 15 | 1587 passed・20 skipped |
+| 16 | 1 回目 1738 passed・11 errors・21 skipped → 回し直し 1749 passed・21 skipped |
+| 17 | 1830 passed・22 skipped |
+
+- 16 本目の 1 回目の 11 errors は、どれも `tests/c8/test_places_rule_copies.py` の setup で「fixture `c8lib` が見つからない」。束の中で `tests/c8` のファイルが離れて並んだときの集め方の都合で、c8 の 3 本(`test_places_rule_copies`・`test_ablations_ab8`・`test_ablations_l4_pin`)だけを回すと 35 passed、c8 のファイルを先に並べて束を回し直すと全部通った(17 本目も同じ並べ方で回した)。
+- 飛んだのは `tests/tools/test_pkgmove.py` の段 4 の理由 20 本と、割る段が進んだための 2 本(`test_split_order_is_kept_in_the_real_tree`=「割る段の終わりの木」・`test_split_dry_run_of_the_next_row…`=「割る段は全部当たっている」)。
+- `lint-imports` は 6 本とも 11 kept・0 broken。
+- byte-check の記録: `bytecheck_15_change_detect/`・`bytecheck_16_arbiter/`・`bytecheck_17_relations/`(基準 `7b4e8a6`・19 構成とも 37 欄がすべて同じ・final が同じ 19・終了コード 0)。
+
+### 13-4. G5 の終わり(割る段 5a の終わり)の確かめ
+
+- `cli.py split --through all` は「割る段は全部当たっている」(済んだ本 17/17・次の本なし)。18 本目 `engine/speech/port.py`(`mora_count`)は延ばしたまま(`SPLIT_DEFERRED`)。
+- `lint-imports` 11 kept・0 broken、`map --check` 同じ、`contracts --stage delete --check` 同じ。契約 11(古い 2+新しい 9)・例外 載せた 22 辺/30 行・効いている 22/30=計画 §5-3 の 5a の終わりと同じ。
+- カード(`build.py` → `--check` 最新・`cards/data.md` は単独のコマンドで戻した)・秘密の走査 CLEAN。
+
+### 13-5. 親の確かめと別の役の検収(第347・G4 と G5 の 6 本をまとめて)
+
+- **別の役の検収: 条件つき受入(高 0・中 1・低 7)**。条件は中-1 の直し 1 つで、親が直した(下の 1)。今の道具と表で 6 本をメモリの中で
+  当て直し、できた src が作業木と全部同じことを確かめた(違いは手で直した tests 11 本と `rel8b_measure` だけ)。頂上の文は、道具とは別の
+  台本で割り先 14 本を比べても字面・AST・前の注が合った。全モジュールを 1 本ずつ最初から import して 363 本・落ちた 0。
+  - 15 本目: 計画に無い例外 3 本(割 2〜4)は、言い分どおりの辺だけ。mind が world を読む辺は、ほかに前から在る表の 2 本(#24・#22)を
+    名で引き直したものだけ。numba の部分は字面のまま同じ割り先に入り、読み込みの時に走るのは呼び口を作ることだけ。素の tick の語の決まりの
+    範囲に、割り先 14 本は入らない。
+  - 17 本目: 手で直した別名の読み 226 か所は、どれも表の名の割り先を指す。割り先 14 本のモジュールの名を差し替える所は 0(相手はクラスの
+    属性だけ)=空振りは無い。`_activation` の読み手は、src も試験も `foundation.vocab.relations` を読む。
+  - 固定の表の値の集合は同じ。乱数の領域の名は同じ値。`rng_audit` の `draw_index`・`gate_stage1` は、関数が本当に在る道を指す。心の読みは
+    72 行・数の合計 83 のまま。契約 2+9=11・例外 22/30・効いている 22/30。循環は 0 組・foundation から外への辺は 0。
+- 検収の指摘と、したこと:
+  1. **中-1** `tests/engine/test_two_phase.py` の `_hot_paths` が、割った分だけ黙って狭くなっていた(道具は字面の道を主な割り先へだけ
+     書き換える。毎刻み通る `b4_block_raw`・`b4_block_hashes` は 2 つ目の割り先 `world/model/scene_hash.py` へ移り、P4 の 2 つの確かめから
+     外れていた。15 本目の手で直す一覧に入っていなかった)→ **親が `world/model/scene_hash.py` を一覧に足した**(単独で 2 passed)。
+     `mind/system1/wake.py`(`WakeCandidates`・ループは無い)は足さない: 逐次ループの宣言は主な割り先 `runtime/arbiter.py` の docstring に
+     残り、そちらは今も見ている。
+  2. **低-1** `test_intent_chooser::test_poi_target_switch_is_removed_q13` が主な割り先 `act.target` だけを見ていた(割る前は元のファイルの
+     全部)→ **親が 2 つ目の割り先 `foundation.vocab.place_words` も見る形に直した**(単独で 1 passed)。
+  3. 低-2 16 本目の束で出た c8 の 11 errors(fixture `c8lib` が見つからない)は、割りが原因という材料は無い(conftest・設定・`sys.path` に
+     差は無く、単独では 11 passed)。原因そのものは確かめていない → 親の範囲の全体の試験で見る(下)。
+  4. 低-3 「注釈だけ」の 2 辺(`AgentState`・`World`)は、名を注釈の外で使わないという意味。import の文は頂上に在り、モジュールは読み込みの
+     時に読まれる(`TYPE_CHECKING` へ移すのは段 8=親の裁定 Q5)。
+  5. 低-4・低-5 字面のまま運んだ古い名の文(割り先の docstring の見出し・`ledger.py` の basis の文ほか)と、重なった import の文 → そのまま
+     (割る段は文を変えない。段 8 の文の掃除で直す)。
+  6. 低-6 古い分析の台本 3 本(`rel_measure.py`・`q111_measure.py`・`wave2/tenure_measure.py`)が `shibuya.engine.relations` を読む。道具が
+     書き換える記録の道具の一覧の外で、G1 の時点で既に読めなかった(`shibuya.agents` も読む)=今回の欠陥ではない → そのまま(報告に書く)。
+  7. 低-7 `contracts --probe` の fallbacks に 1 行増えている(`world.model.percept_scene → perception.renderer`=割 2 を最終の名で書いた
+     ため)。段 7 で renderer を割ると消える。
+- **親の byte-check**: 作業木を本体の頭 `ee23ee2`(台帳の commit)へ載せ直し、`--base ee23ee2` と作業木の src で 19 構成・37 欄 →
+  **19/19 同じ・動いた 0・誤り 0・final が同じ 19・終了コード 0**(449 秒。既定 `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939)。
+  記録 `bytecheck_G45_parent/`。
+- **親の範囲の全体の試験**(`tests --ignore=tests/c7 -m "not gpu and not slow" -n 4`): **6,926 passed・1 failed・23 skipped・1 xfailed**(40 分 55 秒)。落ちた 1 本は前からの `tests/vocab/test_registry_from_tape.py::test_ab7_seed1_open_matches_the_parent_report`(linked の作業木でだけ落ちる)。G3 の時(6,927 passed・21 skipped)との差は、割る段が全部済んで飛ぶようになった 2 本(§13-3)と、G3 の検収の後に足した試験 1 本の分。`tests/c8` は全部通り、16 本目の束で出た fixture の errors は出なかった(束の並びの都合という言い分と合う。原因そのものは確かめていない)。検収の直しの 2 ファイル(`test_two_phase.py`・`test_intent_chooser.py`)は、直した後に 2 ファイルを通しで回して 30 passed。
+- `lint-imports`(載せ直しの後)11 kept・0 broken。

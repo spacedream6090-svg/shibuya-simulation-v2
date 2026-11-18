@@ -15,8 +15,8 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.vocab.agent_codes import ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.chooser import NearestChooser
-from shibuya.engine.poi_target import (
+from shibuya.mind.judge.chooser import NearestChooser
+from shibuya.act.target import (
     MOVE_BAD_TARGET,
     MOVE_SEARCH_RADIUS_CELLS,
     TargetResolver,

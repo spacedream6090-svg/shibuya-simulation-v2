@@ -49,7 +49,7 @@ from typing import Any, Final, NamedTuple, Sequence
 
 import numpy as np
 
-from shibuya.engine.poi_target import BUYABLE_CATS, CATEGORY_WORDS, GENERIC_WORDS, SYNTHETIC_BUYABLE_CATS
+from shibuya.foundation.vocab.place_words import BUYABLE_CATS, CATEGORY_WORDS, GENERIC_WORDS, SYNTHETIC_BUYABLE_CATS
 from shibuya.mind.memory.store_memory import STORE_SOURCE_BIT
 
 __all__ = [

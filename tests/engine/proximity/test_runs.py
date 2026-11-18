@@ -307,7 +307,7 @@ WRES = dict(n_agents=1_000, seed=1, world_dir=WORLD, vocab_version="v3", memory=
 
 @world_assets
 def test_world_resume_equals_straight_and_the_marks_matter(tmp_path):
-    from shibuya.engine import relations as RL
+    from shibuya.mind.relations import layer as RL
 
     with arm("distance"):
         straight = cli.run(**WRES)

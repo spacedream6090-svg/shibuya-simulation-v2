@@ -32,7 +32,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `head_felt`(関数): HEAD の ``EnvironmentProcess.step`` の体感温度(``R.set_thermal`` の丸めまで)。
   - `head_stage`(関数)
   - `stub_energy`(関数)
-- import している内部モジュール: `shibuya.engine.change_detect`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.body.energy`
+- import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.body.energy`
 - 読む試験: `tests/engine/body/test_body_reserve.py`・`tests/engine/body/test_body_same_values.py`
 
 ## [test_body_guard.py](../../../../../../../tests/engine/body/test_body_guard.py)

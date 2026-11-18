@@ -81,7 +81,7 @@ engine.step_scope — 何かあった体だけ(第 6 期 6-3 時計の段 T3・�
   - `make`(関数): 組み立ての口: 腕 changed のときだけ印の持ち主を作る(既定 all は None=今の道)。
   - `manifest_fields`(関数): manifest の ``step_scope``(腕 changed のランだけ・既定の腕は None=節を出さない)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--step-scope``・試験の切替口)。組み立ての時に読む。
-- import している内部モジュール: `shibuya.engine.change_detect`・`shibuya.runtime.clocks.owner_guard`
+- import している内部モジュール: `shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.clocks.owner_guard`
 - 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/clock/test_tm3_step_scope.py`
 - 状態台帳の行

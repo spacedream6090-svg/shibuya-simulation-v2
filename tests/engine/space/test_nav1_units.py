@@ -186,7 +186,8 @@ def test_engine_does_not_decide_for_the_person():
 
     from shibuya.act import activity, intent
     from shibuya.act.intake import parser as LLM  # 〔割る段 5a の G0・親の裁定 Q13〕llm の範囲の手がかりは、元の置き場が llm/ に残るモジュール(割る段で包み llm が無くなる)
-    from shibuya.engine.chooser import ChoiceContext, ClassicalChooser
+    from shibuya.foundation.ports.choice import ChoiceContext
+    from shibuya.mind.judge.chooser import ClassicalChooser
     from shibuya.mind.judge import classical
     from shibuya.mind.judge.decision import layer as DLAYER
 

@@ -34,7 +34,7 @@ Python 6 本・その他 0 本(このディレクトリの直下)
   - `test_scale_one_makes_cell_equal_unscaled`(関数)
   - `test_synth_neighbours_follow_the_surface`(関数)
   - `test_three_estimators_match_the_hand_calculation`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.change_detect`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.space.nav1`・`shibuya.world.model.state`・`tests/build_space/synth.py`・`tests/engine/space/_legacy.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.mind.system1.change_detect`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.scene_hash`・`shibuya.world.model.space.nav1`・`shibuya.world.model.state`・`tests/build_space/synth.py`・`tests/engine/space/_legacy.py`
 - 環境変数: `SHIBUYA_NAV1_DENSITY`
 - 決定の ID: 第 347
 
@@ -83,7 +83,7 @@ S46: nav1 の道の線の控えが結果に作用しないことの試験(控え
   - `test_speed_is_the_body_attribute`(関数)
   - `test_turn_weights_fixed_and_person_range_deterministic`(関数)
   - `test_unique_position_per_agent_per_step`(関数)
-- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.intake.parser`・`shibuya.act.intent`・`shibuya.engine.chooser`・`shibuya.foundation.arms.removed`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar_self`・`shibuya.mind.judge.classical`・`shibuya.mind.judge.decision.layer`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.notice_reach`・`shibuya.world.model.proximity`・`shibuya.world.model.space.nav1`・`tests/_places.py`・`tests/build_space/synth.py`
+- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.intake.parser`・`shibuya.act.intent`・`shibuya.foundation.arms.removed`・`shibuya.foundation.ports.choice`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar_self`・`shibuya.mind.judge.chooser`・`shibuya.mind.judge.classical`・`shibuya.mind.judge.decision.layer`・`shibuya.world.model.geometry`・`shibuya.world.model.navmesh`・`shibuya.world.model.notice_reach`・`shibuya.world.model.proximity`・`shibuya.world.model.space.nav1`・`tests/_places.py`・`tests/build_space/synth.py`
 - 環境変数: `SHIBUYA_SPACE`
 - 決定の ID: 10-03/§8・R-63・第 347
 

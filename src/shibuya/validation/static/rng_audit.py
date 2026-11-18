@@ -249,7 +249,7 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     ("world/laws/salient.py", "SalientProcess._collapse_events", "world.salient.counter"),
     ("world/model/assets.py", "synthetic_assets", "world.synthetic"),
     # 引く語数が定数で 4 以内 7 か所(〔第330〕+1・RET −2)
-    ("engine/chooser.py", "draw_index", "engine.chooser"),
+    ("foundation/ports/choice.py", "draw_index", "engine.chooser"),
     ("mind/judge/classical.py", "ClassicalPolicy.answer", "policy.classical"),  # 〔1-8 J0〕render の中身を answer へ移した
     # 〔第330・10e B6〕天気の規則 calendar の再生日の抽選(鍵 1 語=層の名前と日番号のハッシュ・引く語数 2)
     ("world/laws/environment.py", "sample_calendar_day", "engine.processes.environment"),
@@ -315,7 +315,7 @@ UNDETERMINED_SITES: Final[dict[tuple[str, str, str], str]] = {
         "その体の判断の番号(k19)=実行時に重なり 0 を見る(第 6 期 6-6 ② 第 1 部)",
     ("runtime/inference/mock.py", "MockLLM._stream", "expr:self.domain"):
         "Generator を返し、呼び手(MockLLM の応答)が引く。1 語目は tick=実行時に見る",
-    ("perception/attention.py", "gate_stage1", "perception.attention.p_see"):
+    ("mind/percept/attention.py", "gate_stage1", "perception.attention.p_see"):
         "random(n) の n が式(呼び手はどれも 1 件=10c 検収)=実行時に見る",
     ("world/model/notice_reach.py", "notice_event", "perception.p_notice"):
         "random((2, 候補の数))。0 語目を空け事象の番号を 1 語目に(10e K19・10c 検収 P2 を直した)=実行時に重なり 0 を見る",

@@ -20,7 +20,7 @@ from tests.engine.ast_writers import UNKNOWN, Write, scan_writes
 
 COLS = frozenset({"contact_flags", "_contact_flags"})
 WRITER = "_write_contacts"
-REL = "engine/relations.py"
+REL = "mind/relations/layer.py"
 
 #: 種類ごとに許す所(関数の限定名)。
 ALLOWED_CONTENT = frozenset({"RelationLayer._write_contacts"})

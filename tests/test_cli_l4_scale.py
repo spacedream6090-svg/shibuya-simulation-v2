@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.engine.arbiter import call_budget_per_tick
+from shibuya.runtime.arbiter import call_budget_per_tick
 
 SMALL = dict(
     n_agents=32, seed=1, world_dir=None, n_cells=9, ticks=2, checkpoint_every=2,
@@ -147,7 +147,7 @@ def test_the_explicit_1_0_is_the_old_l4_share():
 # ------------------------------------------------------- (t4) L4 監査欄・艦隊の注記
 def test_the_manifest_always_carries_the_l4_audit_fields():
     from shibuya import cli
-    from shibuya.engine.arbiter import L4_LINE_PER_AGENT_DAY
+    from shibuya.runtime.arbiter import L4_LINE_PER_AGENT_DAY
 
     assert L4_LINE_PER_AGENT_DAY == 10.0
     for scale in (0.0, 1.0):

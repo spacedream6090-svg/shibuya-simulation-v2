@@ -21,8 +21,8 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.vocab.agent_codes import IntentKind, ResultCode
 from shibuya.mind.memory import memory as M
 from shibuya.mind.memory import store_memory as SM
-from shibuya.engine.chooser import ClassicalChooser, NearestChooser
-from shibuya.engine.poi_target import TargetResolver
+from shibuya.mind.judge.chooser import ClassicalChooser, NearestChooser
+from shibuya.act.target import TargetResolver
 from shibuya.mind.judge.store_choice import CHOICE_REASONS, StoreChoice, walk_m_per_tick
 from shibuya.foundation.text import templates as T
 from shibuya.foundation.text.channels import estimate_tokens

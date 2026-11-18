@@ -45,7 +45,7 @@ from typing import Any, Final, Mapping
 import numpy as np
 
 from shibuya.runtime.clocks import owner_guard as _OG
-from shibuya.engine.change_detect import INTERO_VARS
+from shibuya.foundation.vocab.agent_codes import INTERO_VARS
 
 __all__ = [
     "SCHEMA", "ENV", "FP_KEY", "ARM_ALL", "ARM_CHANGED", "ARMS", "DEFAULT_ARM", "arm", "set_arm", "is_default",

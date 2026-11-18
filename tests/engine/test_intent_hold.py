@@ -31,7 +31,7 @@ from shibuya.world.model.agent_table import (
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.act.activity import ActivityLayer, ActivityPayload
-from shibuya.engine.chooser import NearestChooser
+from shibuya.mind.judge.chooser import NearestChooser
 from shibuya.act.intent import (
     INTENT_ACTIONS,
     INTENT_MAX_TICKS,
@@ -39,7 +39,7 @@ from shibuya.act.intent import (
     IntentLayer,
     intent_summary,
 )
-from shibuya.engine.poi_target import MOVE_BAD_TARGET, TargetResolver, resolution_summary
+from shibuya.act.target import MOVE_BAD_TARGET, TargetResolver, resolution_summary
 from shibuya.engine.run import run_day
 from shibuya.foundation.ports.inference import LLMRequest
 from shibuya.foundation.vocab.actions import ACTION_CODES, UntilKind, parse_target

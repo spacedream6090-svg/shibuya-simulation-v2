@@ -377,7 +377,8 @@ class MemoryLayer:
     def enable_relations(self, k: int | None = None, *, tau: float | None = None,
                          d: float | None = None) -> Any:
         """関係辺(``engine.relations.RelationLayer``)を持たせる(C10 8a)。書き手は :meth:`record` に乗る。"""
-        from shibuya.engine.relations import REL_D, REL_K, REL_TAU, RelationLayer
+        from shibuya.foundation.vocab.relations import REL_D, REL_K, REL_TAU
+        from shibuya.mind.relations.layer import RelationLayer
 
         ms = self.memory_store
         if ms is not None and ms.uncapped:  # 〔第 6 期 6-5〕人も記憶の一つの腕: 関係の読み口を器の人の行から
@@ -839,7 +840,7 @@ class MemoryLayer:
         会話は番ごとに触れる=自然に強く残る)。新しい人は関係の種類「知人」。1 回の呼びで 1 体 1 件(呼び手の回の分け)。"""
         from shibuya.mind.memory.memory_m1 import PERSON_KIND
         from shibuya.mind.memory.memory_store import ORIGIN_LEGACY, LegacyEvent
-        from shibuya.engine.relations import REL_KINDS
+        from shibuya.foundation.vocab.relations import REL_KINDS
 
         sel = (np.isin(kind, (EVENT_KINDS["talk"], EVENT_KINDS["help"])) & (partner >= 0) & (partner < self.n)
                & (partner != a) & np.isin(result, _PEOPLE_RESULTS))

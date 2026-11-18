@@ -96,15 +96,15 @@ from shibuya.act.intent import INTENT_MAX_TICKS
 from shibuya.mind.memory.familiarity import FAMILIARITY_K
 from shibuya.mind.memory.memory import MEMORY_N, RECALL_TAU
 from shibuya.mind.memory.wom import DEFAULT_WOM_SOURCE
-from shibuya.engine.relations import (
+from shibuya.foundation.vocab.relations import (
     REL_D,
     REL_K,
     REL_TENURE_WEEKS,
 )
 from shibuya.mind.memory.store_memory import DEFAULT_STORE_DECAY, STORE_MEMORY_N
 from shibuya.world.body.energy import DEFAULT_ENERGY_RATE, DEFAULT_HOME_MEAL, DEFAULT_HUNGER_MODEL, DEFAULT_MEAL_SLEEP_DEFER
-from shibuya.engine.arbiter import L4_LINE_PER_AGENT_DAY, call_budget_per_tick
-from shibuya.engine.chooser import DEFAULT_CHOOSER, HABIT_P, RANK_TAU
+from shibuya.runtime.arbiter import L4_LINE_PER_AGENT_DAY, call_budget_per_tick
+from shibuya.mind.judge.chooser import DEFAULT_CHOOSER, HABIT_P, RANK_TAU
 from shibuya.mind.judge.classical import (
     DEFAULT_ACTIVITY_REGION,
     DEFAULT_CLASSICAL_SOCIAL,
@@ -121,7 +121,7 @@ from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.world.laws.opening import rows_of_day as _opening_rows_of_day
 from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
 from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
-from shibuya.engine.poi_target import MOVE_SEARCH_RADIUS_CELLS
+from shibuya.act.target import MOVE_SEARCH_RADIUS_CELLS
 from shibuya.runtime.inference.bridge import DEFAULT_LANE, delta_think_ticks
 from shibuya.foundation.queues.scheduler import DIAG_COLUMNS
 from shibuya.runtime.state.hashes import FINAL_DEFINITION

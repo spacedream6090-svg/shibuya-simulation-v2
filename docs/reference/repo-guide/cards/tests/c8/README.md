@@ -109,7 +109,7 @@ tests.c8 の共通フィクスチャ。
   - `test_the_uncapped_arm_reaches_run_day_too`(関数): ⑥c は ⑥b の 4 構成に ``l4_scale=0`` を重ねただけ(新しい口は作っていない)。
   - `test_zero_defers_nothing`(関数): **無制限**=繰り延べが 0 件になり、呼数は上限つきのランを上回る。
   - `test_zero_means_the_agent_count`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.arbiter`・`tests/c8/test_ablations_ab7.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.runtime.arbiter`・`tests/c8/test_ablations_ab7.py`
 - 決定の ID: D-56・D-59・D-99・D-110・第 245・第 289・第 290・第 347
 
 ## [test_ablations_l4_pin.py](../../../../../../tests/c8/test_ablations_l4_pin.py)
@@ -121,7 +121,7 @@ tests.c8 の共通フィクスチャ。
   - `test_a_pinned_arm_reruns_with_the_old_capped_budget`(関数): 回し直しても旧構成(上限あり=L4 按分)で回る=``budget_per_tick`` が按分値・倍率 1.0。
   - `test_every_run_states_its_l4_scale`(関数): ランの無い腕(AB4・AB5=未実装)を除き、全ランが ``l4_scale`` を明示している。
   - `test_the_capped_arms_are_pinned_to_the_old_budget`(関数)
-- import している内部モジュール: `shibuya.engine.arbiter`
+- import している内部モジュール: `shibuya.runtime.arbiter`
 - 決定の ID: D-99・D-110・第 289・第 290
 
 ## [test_ablations_table.py](../../../../../../tests/c8/test_ablations_table.py)

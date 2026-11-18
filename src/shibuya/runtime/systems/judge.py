@@ -22,7 +22,7 @@ from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.foundation.hashing import apply_key_array
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.arbiter import WakeCandidates
+from shibuya.mind.system1.wake import WakeCandidates
 from shibuya.foundation.time_consts import HOURS_PER_DAY, STEPS_PER_HOUR
 
 

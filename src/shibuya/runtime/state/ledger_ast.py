@@ -940,7 +940,7 @@ class ExtAllow:
 #: 場所ごとの許可(属性の名前・場所・当たる数)。10f の時点で規則に当たらなかった持ち主の外の読みを 1 つずつ見て理由を書いた。
 #: 当たる数を固定する(同じ文字列の行を挙動の場所に写すと数が増えて落ちる=第 3 段の検収 U5)。
 EXT_AST_ALLOW: tuple[ExtAllow, ...] = (
-    ExtAllow("last_habit", 1, SL.AstAllow("engine/poi_target.py", 'getattr(self.chooser, "last_habit", -1)',
+    ExtAllow("last_habit", 1, SL.AstAllow("act/target.py", 'getattr(self.chooser, "last_habit", -1)',
                                "店の決め手の名前(named/habit/visible)を StoreChoice.note に渡すだけ。決め手は O13 の"
                                "choice_reason と O68 の決め手別の数え(diag)にしか入らない"), funcs=('TargetResolver.resolve',)),
     ExtAllow("n_arrivals", 1, SL.AstAllow("runtime/systems/body.py", "_pres0 = int(presence.n_arrivals)",

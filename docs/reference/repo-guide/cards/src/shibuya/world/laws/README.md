@@ -18,7 +18,7 @@ engine.processes.civic — 公共サービス出動・報道/公式発信・大�
   - `LargeEventProcess`(クラス): 大規模イベント(会場の開催・旧道は外界からの来街増分を窓の間だけ入れる)。
   - `PressProcess`(クラス): 報道・公式発信(固定時刻の放送)。1 行を作る。届けるのは在席者のいるセルだけ(``salient._broadcast_events``)。
   - `PublicServiceDispatchProcess`(クラス): 公共サービス出動(救急・警察)。「倒れる」事象を受けて出動し、到着で解消する。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.attention`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.ledger.records`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.rng`・`shibuya.foundation.text.salience`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.ledger.records`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.state`
 - 呼び手: `shibuya.world.laws.runner`
 - 読む試験: `tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_civic.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/processes/test_salient.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/time/test_t0_time_consts.py`
 - 読む試験(道筋で): `tests/engine/systems/test_fix_guards.py`
@@ -196,7 +196,7 @@ engine.processes.salient — 顕著行為(人物③)と ``p_notice`` の結線�
   - `ablation_name`(関数): ``p_notice`` の ablation → ``"A0"``…``"A4"``(manifest の同定欄・§3.1)。
   - `build_salient_feed`(関数): ``SalientEvent`` の列 → ``Renderer.prepare_tick(salient_events=…)`` の形。
   - `check_d50_scale`(関数): ``d50_scale`` の検査(ablation ②)。正の有限値だけ許す。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.attention`・`shibuya.world.body.model`・`shibuya.world.body.rules`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.agent_table`・`shibuya.world.model.notice_reach`・`shibuya.world.model.percept_state`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.rng`・`shibuya.foundation.text.salience`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.body.model`・`shibuya.world.body.rules`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.agent_table`・`shibuya.world.model.notice_reach`・`shibuya.world.model.percept_state`・`shibuya.world.model.state`
 - 呼び手: `shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.world.laws.runner`
 - 読む試験: `tests/engine/body/test_body_same_values.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/processes/test_salient.py`・`tests/engine/test_ablation23_switches.py`
 - 状態台帳の行

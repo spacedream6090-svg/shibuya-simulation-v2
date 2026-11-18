@@ -39,7 +39,7 @@ from shibuya.foundation.rng import run_tick_key, stream
 from shibuya.world.laws import switch_absent as _ABSENT
 from shibuya.world.laws import switch_rate as _RATE_RULES
 from shibuya.engine import resolve as R
-from shibuya.perception import attention as AT
+from shibuya.foundation.text import salience as AT
 from shibuya.world.model.assets import ProcessAssets
 from shibuya.world.ledger.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.model.state import World

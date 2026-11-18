@@ -12,13 +12,15 @@ from hypothesis import strategies as st
 
 from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, WakeCondition
 from shibuya.foundation.types import EventClass
-from shibuya.engine.arbiter import (
+from shibuya.runtime.arbiter import (
     DEGRADE_COST_FACTOR,
     T_MAX_TICKS,
     Arbiter,
-    WakeCandidates,
     arbitrate,
     call_budget_per_tick,
+)
+from shibuya.mind.system1.wake import (
+    WakeCandidates,
 )
 from shibuya.foundation.queues.scheduler import DIAG_COLUMNS
 

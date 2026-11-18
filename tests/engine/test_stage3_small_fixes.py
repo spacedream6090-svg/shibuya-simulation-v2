@@ -12,8 +12,8 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.vocab.agent_codes import IntentKind, ResultCode
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.chooser import NearestChooser
-from shibuya.engine.poi_target import TargetResolver
+from shibuya.mind.judge.chooser import NearestChooser
+from shibuya.act.target import TargetResolver
 from shibuya.engine.run import _named_closed_lookup
 from shibuya.foundation.vocab.actions import UntilKind, parse_target
 from shibuya.foundation.text import channels as ch

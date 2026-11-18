@@ -459,7 +459,7 @@ class ClassicalPolicy:
         """
         if self._gate_hazard is None:
             return self._meal_p_word(aid, tick)
-        from shibuya.engine.chooser import hunger_stage_of
+        from shibuya.mind.judge.chooser import hunger_stage_of
 
         h = float(self._gate_hazard[aid])
         self._gate_hazard[aid] = 0.0
@@ -493,7 +493,7 @@ class ClassicalPolicy:
     def _meal_p_word(self, aid: int, tick: int, base: float | None = None) -> tuple[float, int]:
         """語 × カレンダー × 周囲(上限 1)。``per_wake`` ではこれがそのまま門の確率。``base`` を渡すと語の値の代わりに
         それを使う(``per_hour`` の ``1 − exp(−H)``)。"""
-        from shibuya.engine.chooser import hunger_stage_of
+        from shibuya.mind.judge.chooser import hunger_stage_of
 
         r = self.agents.registry
         stage = hunger_stage_of(int(r.hunger[aid]))

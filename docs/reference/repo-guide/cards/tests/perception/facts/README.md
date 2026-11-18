@@ -30,7 +30,7 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `near_tie_keys`(関数): 観る体 ``observer`` から見た相手 ``ids`` の撹拌鍵(u64・splitmix64 の仕上げ・配列演算)。
   - `near_tie_salt64`(関数): ``blake3(run_salt ‖ b"nt\x00")`` の先頭 8 バイト(u64)。1 ランに 1 回だけ作る。
   - `person_word`(関数): 個体 id → 観測に出る人 ID の表層(``P-17``)。
-- import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.hashes`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.attention`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.hashes`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.salience`・`shibuya.foundation.text.templates`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.percept.attention`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.state`
 - 読む試験(道筋で): `tests/perception/facts/scenes.py`
 - 決定の ID: D-59・D-60・D-71・D-111・D-113・D-117・D-118・D-121・第 269・第 300・第 304
 
@@ -55,7 +55,7 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `test_phone_flag_does_not_change_the_primary_detection`(関数)
   - `test_removed_values_are_not_in_src`(関数)
   - `test_signage_gate_is_one_p_for_every_activity`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.ports.percept`・`shibuya.perception.attention`・`shibuya.perception.renderer`・`shibuya.world.model.notice_reach`・`tests/perception/facts/scenes.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.ports.percept`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.world.model.notice_reach`・`tests/perception/facts/scenes.py`
 - 環境変数: `SHIBUYA_PERCEPT_COEFS`
 - 決定の ID: 10-12/§1-6
 

@@ -17,7 +17,9 @@ import pytest
 
 from shibuya.foundation.vocab.agent_codes import Activity, AgentKind, WakeCondition
 from shibuya.world.model.agent_table import AgentState
-from shibuya.engine import chooser as CH
+from shibuya.mind.judge import chooser as CH
+# 〔割る段 5a の G4〕主でない割り先(foundation.ports.choice)へ行く名は名で読む(別名では割り先が 1 つに決まらない)
+from shibuya.foundation.ports.choice import ChoiceContext
 from shibuya.mind.judge import classical as CL
 from shibuya.foundation.ports.inference import LLMRequest
 from shibuya.act.intake.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
@@ -89,7 +91,7 @@ def test_ipf_constants_return_the_population_marginal_to_the_prior():
 
 # ================================================================= 店選び(L3/L8)
 def _ctx(hunger, money=5000, price=(900, 900, 900), visits=(), food=True, vis=(9, 5, 1)):
-    return CH.ChoiceContext(0, 0, 0, 0, 24, "none", "", hunger,
+    return ChoiceContext(0, 0, 0, 0, 24, "none", "", hunger,
                             visibility=np.asarray(vis), distance_m=np.zeros(len(vis)),
                             price=np.asarray(price), money=money,
                             visits=np.asarray(visits, dtype=np.int64), food=food)
@@ -239,7 +241,7 @@ def test_run_day_classical_arm_and_layers():
 
 def test_default_run_does_not_touch_the_rich_context():
     """既定の選び手 nearest では価格・訪問回数を組まない(既定 checkpoint 不変の構造上の担保)。"""
-    from shibuya.engine.poi_target import TargetResolver
+    from shibuya.act.target import TargetResolver
 
     w = World.synthetic(n_cells=9, seed=1)
     res = TargetResolver(world=w, chooser=CH.make_chooser("nearest"), seed=1)
@@ -260,7 +262,7 @@ def test_cli_exposes_the_5b_flags():
 _PER_CALL = {
     "mind/judge/classical.py": ("render", "complete", "meal_probability", "activity_probs",
                             "_respond", "_next_plan_minutes", "_eating_by_cell", "ipf_constants"),
-    "engine/chooser.py": ("probs",),
+    "mind/judge/chooser.py": ("probs",),
 }
 
 

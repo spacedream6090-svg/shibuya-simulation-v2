@@ -587,7 +587,7 @@ def test_named_closed_memo_survives_a_resume(tmp_path, monkeypatch):
     (保存から戻る)。
     """
     from shibuya.foundation.vocab.agent_codes import ResultCode
-    from shibuya.engine import poi_target as PT
+    from shibuya.act import target as PT
     from shibuya.engine import resolve as R
     from shibuya.perception import renderer as RD
 

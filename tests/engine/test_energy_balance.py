@@ -20,7 +20,7 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
 from shibuya.world.body import energy as E
 from shibuya.engine import resolve as R
-from shibuya.engine.change_detect import ChangeDetector
+from shibuya.mind.system1.change_detect import ChangeDetector
 from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import Renderer
 from shibuya.world.model.state import World
@@ -237,7 +237,7 @@ def test_stage_edges_and_hunger_copy():
     np.testing.assert_array_equal(st, [0, 0, 1, 1, 2, 2, 3])
     np.testing.assert_array_equal(E.EnergyModel.hunger_copy(np.arange(4)), [1, 5, 8, 10])
     # 写しは INTERO_UP_EDGES=(4,7,9) の段 0〜3 にそのまま対応する
-    from shibuya.engine.change_detect import INTERO_UP_EDGES
+    from shibuya.foundation.vocab.agent_codes import INTERO_UP_EDGES
 
     for s, v in enumerate(E.HUNGER_STAGE_VALUES):
         assert sum(v >= e for e in INTERO_UP_EDGES) == s

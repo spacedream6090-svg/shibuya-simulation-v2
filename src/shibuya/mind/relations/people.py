@@ -32,7 +32,7 @@ from typing import Any
 
 import numpy as np
 
-from shibuya.engine.relations import (
+from shibuya.foundation.vocab.relations import (
     REL_D,
     REL_K,
     REL_KIND_NAMES,
@@ -42,6 +42,8 @@ from shibuya.engine.relations import (
     REL_S,
     InitialEdges,
     RelationEdges,
+)
+from shibuya.mind.relations.layer import (
     RelationLayer,
 )
 from shibuya.foundation.vocab import contact_flags as _CT

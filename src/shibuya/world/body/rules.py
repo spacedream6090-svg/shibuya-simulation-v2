@@ -34,7 +34,7 @@ import numpy as np
 
 from shibuya.foundation.vocab.agent_codes import Activity, ActivityKind
 from shibuya.foundation.time_consts import SECONDS_PER_DAY
-from shibuya.engine.change_detect import INTERO_UP_EDGES
+from shibuya.foundation.vocab.agent_codes import INTERO_UP_EDGES
 from shibuya.world.body.energy import HUNGER_RATIO_EDGES
 
 __all__ = [

@@ -42,7 +42,7 @@ Python 6 本・その他 3 本(このディレクトリの直下)
   - `test_swapping_two_values_is_caught`(関数): 突然変異(``ActivityKind`` と ``AgentKind`` の値の入れ替え)を、名の集合でなく写像が落とす。
   - `test_table_keys_and_declarations_are_exactly_the_classes_in_src`(関数)
   - `test_unknown_shibuya_types_stop_and_others_keep_their_names`(関数)
-- import している内部モジュール: `shibuya.engine.arbiter`・`shibuya.engine.run`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.queues.scheduler`・`shibuya.foundation.types`・`shibuya.runtime.state.class_ids`・`shibuya.runtime.state.codec`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.probe`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.queues.scheduler`・`shibuya.foundation.types`・`shibuya.mind.system1.wake`・`shibuya.runtime.state.class_ids`・`shibuya.runtime.state.codec`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.probe`
 
 ## [test_mind_world_reads.py](../../../../../../../tests/engine/state/test_mind_world_reads.py)
 

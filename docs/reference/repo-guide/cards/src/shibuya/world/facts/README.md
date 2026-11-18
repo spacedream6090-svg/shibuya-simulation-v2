@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 5 本・その他 0 本(このディレクトリの直下)
+Python 6 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [rights](rights/README.md)・[rules](rules/README.md)
 
@@ -26,6 +26,22 @@ engine.calendar — 暦の口(指示書 10-03 §3-1 A1・A1-1・A1-2・A1-3)。
 - 呼び手: `shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.world.laws.environment`・`shibuya.world.laws.opening`・`shibuya.world.laws.rail`・`shibuya.world.laws.runner`
 - 読む試験: `tests/build_field/test_field_units.py`・`tests/build_field/test_w12_real_timetables.py`・`tests/economy/stage2/test_stage2_guards.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/engine/calendar/test_calendar_shadow.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_calendar.py`・`tests/engine/test_calendar_10e_e3.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_weather_calendar_10e.py`
 - 決定の ID: 10-03/§3-1・第 330
+
+## [initial_ties.py](../../../../../../../../src/shibuya/world/facts/initial_ties.py)
+
+world.facts.initial_ties — 割る段で ``engine/relations.py`` を割った割り先(全ファイルの表 §4・名の表は``tools/pkgmove/map.toml`` の割る行)。
+
+- 公開の関数とクラス
+  - `check_rel_tenure_hash`(関数): 在職期間のハッシュの版を検める(関係の部品の単体の口・〔第 2 部〕ランの口の切替口 --rel-tenure-hash は消した)。
+  - `copresence`(関数): ``(g, 枠)`` のセル → ``(共在の分(g×g), 共在のブロック数(g×g))``(同じセル・同じ枠・行列積)。
+  - `copresence_days`(関数): ``(g, 7×96)`` のセル → ``(g, g)`` の「共在のあった曜日の数」(0〜7・同じセル・同じ枠が 1 枠でもある日)。
+  - `initial_edges`(関数): W16(世帯・組織・学校セル)+W17(共在)→ 初期辺(有向・体ごとに上位 k − 世帯)。
+  - `slot_cells`(関数): 体行の配列 → ``(体, 7×96)`` の「その 15 分に居るセル」(W17 の解決済みセル・無ければ −1)。
+  - `tau_from_edges`(関数): τ の逆算: 体ごとの k 番目に強い辺の A(k 本に満たない体は −∞)の中央値(=半分の体が k 本残る τ)。
+- import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.foundation.vocab.relations`
+- 呼び手: `shibuya.runtime.systems.assemble`
+- 読む試験: `tests/engine/test_relations.py`・`tests/engine/test_relations_8b.py`・`tests/engine/test_relations_tenure.py`
+- 決定の ID: 第 299・第 300
 
 ## [mock_schedule.py](../../../../../../../../src/shibuya/world/facts/mock_schedule.py)
 

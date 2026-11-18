@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.change_detect import ChangeDetector
+from shibuya.mind.system1.change_detect import ChangeDetector
 from shibuya.world.model.geometry import EdgeGeometry
 from shibuya.world.laws.crowd import (
     DEFAULT_SEAT_AREA_M2,
@@ -100,7 +100,7 @@ def test_the_same_denominator_reaches_detector_and_geometry():
     world.cells.density[:] = 100
     wide = ChangeDetector(4, world.n_cells, walkable_area_m2=assets.walkable_area_m2)
     tight = ChangeDetector(4, world.n_cells, walkable_area_m2=small)
-    from shibuya.engine.change_detect import b4_block_raw
+    from shibuya.world.model.scene_hash import b4_block_raw
 
     los_wide = b4_block_raw(world, 0, walkable_area_m2=wide.walkable_area_m2)[:, 0]
     los_tight = b4_block_raw(world, 0, walkable_area_m2=tight.walkable_area_m2)[:, 0]

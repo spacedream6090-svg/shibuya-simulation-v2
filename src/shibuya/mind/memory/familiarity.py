@@ -66,7 +66,7 @@ import numpy as np
 
 from shibuya.foundation.vocab.agent_codes import FAMILIARITY_EMPTY
 from shibuya.engine import resolve as R
-from shibuya.perception.attention import gate_stage1
+from shibuya.mind.percept.attention import gate_stage1
 
 __all__ = [
     "FAMILIARITY_K",

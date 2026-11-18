@@ -19,6 +19,7 @@ __all__ = [
     "FAMILIARITY_FIELDS", "FAMILIARITY_EMPTY", "ENERGY_FIELDS", "MEMORY_FIELDS", "STORE_MEMORY_FIELDS",
     "STORE_MEMORY_EMPTY", "RELATION_FIELDS", "REL_EMPTY", "REFRACTORY_MINUTES", "WAKE_CONDITION_CLASS",
     "RESULT_TEXT",
+    "INTERO_UP_EDGES", "INTERO_VARS",
 ]
 
 
@@ -288,3 +289,13 @@ INTENT_FIELDS: Final[tuple[str, ...]] = (
 
 #: 内受容 3 変数の並び(``<名前>_stage`` フィールドの順序)。
 INTEROCEPTION_FIELDS: Final[tuple[str, ...]] = ("hunger", "fatigue", "thermal")
+
+
+#: 内受容 3 変数の段の上げ側閾値(0-10 スケール・expedient)。
+INTERO_UP_EDGES: Final[tuple[int, ...]] = (4, 7, 9)
+#: 内受容 3 変数の (値フィールド名, 段フィールド名)。
+INTERO_VARS: Final[tuple[tuple[str, str], ...]] = (
+    ("hunger", "hunger_stage"),
+    ("fatigue", "fatigue_stage"),
+    ("thermal", "thermal_stage"),
+)

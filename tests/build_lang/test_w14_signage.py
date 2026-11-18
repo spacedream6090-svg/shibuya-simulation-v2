@@ -219,7 +219,7 @@ def test_whitespace_and_quotes_are_normalized(world_dir: Path, tmp_path: Path):
 
 def test_frozen_text_survives_strip_imperatives_bytewise(world_dir: Path, tmp_path: Path):
     """凍結文は描画側の命令文除去を通しても**バイトが動かない**(文面凍結宣言 §1 条5)。"""
-    from shibuya.perception.attention import strip_imperatives
+    from shibuya.foundation.text.salience import strip_imperatives
 
     resp = write_responses(tmp_path / "r.jsonl", duplicate_reps(GOOD))
     for v in W14.ingest(world_dir, resp).frozen:

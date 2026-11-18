@@ -39,7 +39,8 @@ from shibuya.act.activity import (
     activity_kind_of,
     displayable_activity,
 )
-from shibuya.engine.arbiter import Arbiter, WakeCandidates
+from shibuya.runtime.arbiter import Arbiter
+from shibuya.mind.system1.wake import WakeCandidates
 from shibuya.engine.run import Checkpoint, run_day
 from shibuya.foundation.hashing import blake3_hex
 from shibuya.foundation.ports.inference import LLMResponse

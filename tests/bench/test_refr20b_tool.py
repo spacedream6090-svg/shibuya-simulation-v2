@@ -92,7 +92,8 @@ def test_factor_zero_means_no_suppression_in_the_arbiter(M):
     """既知の答え: 1 刻み前に条件 i で呼んだ体 i が、いま同じ条件 i で起きる。"""
     from shibuya.foundation.vocab.agent_codes import WAKE_CONDITION_CLASS
     from shibuya.engine import resolve as R
-    from shibuya.engine.arbiter import WakeCandidates, arbitrate
+    from shibuya.mind.system1.wake import WakeCandidates
+    from shibuya.runtime.arbiter import arbitrate
 
     n = 11
     tick = 100

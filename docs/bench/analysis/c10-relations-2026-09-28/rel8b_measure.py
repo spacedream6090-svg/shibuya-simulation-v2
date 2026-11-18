@@ -158,7 +158,9 @@ def _curve(init: Any, n: int, A0: np.ndarray, taus: list[float]) -> dict[str, An
 
 def cmd_tau(args: argparse.Namespace) -> int:
     from shibuya.world.facts.weekly_reader import load_weekly
-    from shibuya.engine import relations as RL
+    # 〔割る段 5a の G5〕別名 RL を割り先ごとに分けた(RL=mind.relations.layer・RT=world.facts.initial_ties・RV=foundation.vocab.relations の名)
+    from shibuya.world.facts import initial_ties as RT
+    from shibuya.foundation.vocab import relations as RV
 
     wk = load_weekly(args.world)
     doc: dict[str, Any] = {"schema": "shibuya.bench/c10-relations/tau-8b/1", "rows": {}}
@@ -169,16 +171,16 @@ def cmd_tau(args: argparse.Namespace) -> int:
         pop = _population(args.world, n, 1, sample)
         w = wk.restrict_to(pop.source_agent_id)
         t0 = time.perf_counter()
-        init = RL.initial_edges(pop, w, pop.n, tau=None, tenure_weeks=tw)
+        init = RT.initial_edges(pop, w, pop.n, tau=None, tenure_weeks=tw)
         secs = time.perf_counter() - t0
-        A0 = RL._activation(init.n, init.first, 0, 1.0, RL.REL_D)
-        A1 = RL._activation(init.n, init.first, 1439, 1.0, RL.REL_D)
-        t_start = RL.tau_from_edges(init.u, A0, pop.n)
-        t_end = RL.tau_from_edges(init.u, A1, pop.n)
+        A0 = RV._activation(init.n, init.first, 0, 1.0, RV.REL_D)
+        A1 = RV._activation(init.n, init.first, 1439, 1.0, RV.REL_D)
+        t_start = RT.tau_from_edges(init.u, A0, pop.n)
+        t_end = RT.tau_from_edges(init.u, A1, pop.n)
         tau0 = t_start["tau"]
         grid = [tau0 + x for x in (-1.0, -0.5, -0.2, -0.1, -0.05, -0.02, 0.0, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0)] \
             if np.isfinite(tau0) else \
-            [RL.REL_TAU + x for x in (-1.0, -0.5, 0.0, 0.5, 1.0)]
+            [RV.REL_TAU + x for x in (-1.0, -0.5, 0.0, 0.5, 1.0)]
         per_all = np.bincount(init.u, minlength=pop.n)
         row = {"agents": int(pop.n), "tenure_weeks": tw, "sample": sample, "edges_before_tau": int(init.u.size),
                "init_seconds_nondeterministic": round(secs, 1),
@@ -187,12 +189,12 @@ def cmd_tau(args: argparse.Namespace) -> int:
                "A_quantiles_start": {q: round(float(np.percentile(A0, q)), 4) for q in (0, 10, 25, 50, 75, 90, 100)},
                "n_distinct": int(np.unique(init.n).size),
                "curve_at_start": _curve(init, pop.n, A0, grid),
-               "curve_at_declared_tau": _curve(init, pop.n, A0, [RL.REL_TAU]),
+               "curve_at_declared_tau": _curve(init, pop.n, A0, [RV.REL_TAU]),
                "edges_per_agent_hist_before_tau": {str(i): int(c) for i, c in enumerate(np.bincount(per_all))}}
         doc["rows"][label] = row
         print(label, round(float(tau0), 4), round(float(t_end["tau"]), 4), t_start["share_with_k_edges"],
               row["A_distinct_levels_4dp"], round(secs, 1), flush=True)
-    doc["declared_tau"] = RL.REL_TAU
+    doc["declared_tau"] = RV.REL_TAU
     Path(args.out).write_text(json.dumps(doc, ensure_ascii=False, indent=1, default=str) + "\n",
                               encoding="utf-8", newline="\n")
     return 0
@@ -202,17 +204,19 @@ def cmd_tau(args: argparse.Namespace) -> int:
 def cmd_audit_sample(args: argparse.Namespace) -> int:
     from shibuya.foundation.vocab.agent_codes import AgentKind
     from shibuya.world.facts.weekly_reader import load_weekly
-    from shibuya.engine import relations as RL
+    # 〔割る段 5a の G5〕別名 RL を割り先ごとに分けた(RL=mind.relations.layer・RT=world.facts.initial_ties・RV=foundation.vocab.relations の名)
+    from shibuya.world.facts import initial_ties as RT
+    from shibuya.foundation.vocab import relations as RV
 
     wk = load_weekly(args.world)
     names = {int(k): k.name for k in AgentKind}
-    inv = {v: k for k, v in RL.REL_KINDS.items()}
+    inv = {v: k for k, v in RV.REL_KINDS.items()}
     doc: dict[str, Any] = {"schema": "shibuya.bench/c10-relations/audit-sample-8b/1", "rows": {}}
     for label, n, sample in (("full_population", None, "default"), ("default_sample_5000", 5000, "default"),
                              ("stratified_sample_5000", 5000, "stratified")):
         pop = _population(args.world, n, 1, sample)
         w = wk.restrict_to(pop.source_agent_id)
-        init = RL.initial_edges(pop, w, pop.n)
+        init = RT.initial_edges(pop, w, pop.n)
         deg = np.bincount(init.u, minlength=pop.n)
         kinds = np.asarray(pop.kind)
         by_kind = {}
@@ -345,7 +349,9 @@ def cmd_one(args: argparse.Namespace) -> int:
     from shibuya.foundation.vocab.agent_codes import AgentKind
     from shibuya.society import conversation as CV
     from shibuya.mind.memory import memory as MEM
-    from shibuya.engine import relations as RL
+    # 〔割る段 5a の G5〕別名 RL を割り先ごとに分けた(RL=mind.relations.layer・RT=world.facts.initial_ties・RV=foundation.vocab.relations の名)
+    from shibuya.mind.relations import layer as RL
+    from shibuya.foundation.vocab import relations as RV
 
     sample, extra = ARMS[args.arm]
     use_sampler(sample)
@@ -459,7 +465,7 @@ def cmd_one(args: argparse.Namespace) -> int:
     per_agent = np.asarray([talk_min.get(i, 0) for i in range(n)], dtype=np.float64) * mpt
     dur_by_origin: dict[str, list[int]] = defaultdict(list)
     for o_t, c_t, _sz, org in closes:
-        dur_by_origin[RL.REL_ORIGINS[org] if 0 <= org < len(RL.REL_ORIGINS) else "untracked"].append(c_t - o_t)
+        dur_by_origin[RV.REL_ORIGINS[org] if 0 <= org < len(RV.REL_ORIGINS) else "untracked"].append(c_t - o_t)
     lay = got["layer"]
     chosen = lay.chosen_count if (lay is not None and lay.chosen_count is not None) else None
     print(json.dumps({
@@ -515,22 +521,25 @@ def cmd_detect_cost(args: argparse.Namespace) -> int:
     from shibuya.world.facts.population_reader import load_population
     from shibuya.world.model.agent_table import AgentState
     from shibuya.world.facts.weekly_reader import load_weekly
-    from shibuya.engine import relations as RL
+    # 〔割る段 5a の G5〕別名 RL を割り先ごとに分けた(RL=mind.relations.layer・RT=world.facts.initial_ties・RV=foundation.vocab.relations の名)
+    from shibuya.mind.relations import layer as RL
+    from shibuya.world.facts import initial_ties as RT
+    from shibuya.foundation.vocab import relations as RV
 
     pop = load_population(args.world, n=None, seed=1)
     w = load_weekly(args.world).restrict_to(pop.source_agent_id)
     n = int(pop.n)
     t0 = time.perf_counter()
-    init = RL.initial_edges(pop, w, n)
+    init = RT.initial_edges(pop, w, n)
     t_init = time.perf_counter() - t0
-    a = AgentState(n, memory_columns=True, memory_n=1, relation_columns=True, rel_k=RL.REL_K)
+    a = AgentState(n, memory_columns=True, memory_n=1, relation_columns=True, rel_k=RV.REL_K)
     rng = np.random.default_rng(1)
     home = np.asarray(pop.home_cell, dtype=np.int64)
     n_cells = int(max(home.max(), np.asarray(pop.work_cell).max())) + 1
     with a.writable():
         a.cell[:] = np.where(home >= 0, home, rng.integers(0, n_cells, n)).astype(np.int32)
         a.xy[:] = rng.uniform(0.0, 50.0, size=(n, 2)).astype(np.float32)
-    lay = RL.RelationLayer(n, RL.REL_K)
+    lay = RL.RelationLayer(n, RV.REL_K)
     lay.seed_initial(a, init)
     lay.enable_acquaintance_wake()
     lay.enable_copresent()
@@ -550,7 +559,7 @@ def cmd_detect_cost(args: argparse.Namespace) -> int:
         t1 = time.perf_counter()
         lay.copresent_step(a, tick)
         t_co.append(time.perf_counter() - t1)
-    doc = {"schema": "shibuya.bench/c10-relations/detect-cost-8b/1", "agents": n, "k": RL.REL_K,
+    doc = {"schema": "shibuya.bench/c10-relations/detect-cost-8b/1", "agents": n, "k": RV.REL_K,
            "edges": int(init.u.size), "init_seconds_nondeterministic": round(t_init, 1),
            "ticks": args.ticks, "move_share_per_tick": args.move_share,
            "acquaintance_ms_per_tick": _q(np.asarray(t_acq[1:]) * 1000.0),
@@ -568,7 +577,9 @@ def cmd_replay(args: argparse.Namespace) -> int:
     import pyarrow.parquet as pq
 
     from shibuya.world.facts.weekly_reader import load_weekly
-    from shibuya.engine import relations as RL
+    # 〔割る段 5a の G5〕別名 RL を割り先ごとに分けた(RL=mind.relations.layer・RT=world.facts.initial_ties・RV=foundation.vocab.relations の名)
+    from shibuya.world.facts import initial_ties as RT
+    from shibuya.foundation.vocab import relations as RV
     from shibuya.act.intake.parser import parse_two_line
     from shibuya.foundation.text import templates as T
 
@@ -582,9 +593,9 @@ def cmd_replay(args: argparse.Namespace) -> int:
         seed = 2 if run.endswith("_s2") else 1
         if seed not in nets:
             pop = _population(args.world, 5000, seed, "default")
-            init = RL.initial_edges(pop, wk.restrict_to(pop.source_agent_id), pop.n, tau=None)
-            A0 = RL._activation(init.n, init.first, 0, 1.0, RL.REL_D)
-            live = A0 >= RL.REL_TAU
+            init = RT.initial_edges(pop, wk.restrict_to(pop.source_agent_id), pop.n, tau=None)
+            A0 = RV._activation(init.n, init.first, 0, 1.0, RV.REL_D)
+            live = A0 >= RV.REL_TAU
             nets[seed] = ({(int(u), int(v)) for u, v in zip(init.u[live], init.v[live])},
                           {(int(u), int(v)) for u, v in zip(init.u, init.v)}, pop)
         live_e, all_e, pop = nets[seed]
@@ -648,23 +659,25 @@ def _life_minutes(n: float, tau: float, d: float = 0.5) -> float:
 def cmd_lifetimes(args: argparse.Namespace) -> int:
     from shibuya.world.facts.population_reader import load_population
     from shibuya.world.facts.weekly_reader import load_weekly
-    from shibuya.engine import relations as RL
+    # 〔割る段 5a の G5〕別名 RL を割り先ごとに分けた(RL=mind.relations.layer・RT=world.facts.initial_ties・RV=foundation.vocab.relations の名)
+    from shibuya.world.facts import initial_ties as RT
+    from shibuya.foundation.vocab import relations as RV
 
     pop = load_population(args.world, n=None, seed=1)
     w = load_weekly(args.world).restrict_to(pop.source_agent_id)
-    init = RL.initial_edges(pop, w, pop.n)
+    init = RT.initial_edges(pop, w, pop.n)
     L0 = -init.first.astype(np.float64)  # ラン開始時の L[分]
     n = init.n.astype(np.float64)
-    tau = RL.REL_TAU
+    tau = RV.REL_TAU
     with np.errstate(over="ignore"):
-        rem = (np.exp((np.log(n / (1.0 - RL.REL_D)) - tau) / RL.REL_D) - 1.0 - L0) / 1440.0
+        rem = (np.exp((np.log(n / (1.0 - RV.REL_D)) - tau) / RV.REL_D) - 1.0 - L0) / 1440.0
     med_n = float(np.median(n))
     i_med = int(np.argsort(n, kind="stable")[n.size // 2])
     fresh = {}
     for label, tv in (("8a_-1.1", -1.1), ("8b_0.704", 0.704), ("8bp", tau), ("8bp_tau-0.5", tau - 0.5),
                       ("8bp_tau+0.5", tau + 0.5)):
         fresh[label] = {f"n{k}_minutes": round(_life_minutes(k, tv), 1) for k in (1, 2, 3, 5)}
-    doc = {"schema": "shibuya.bench/c10-relations/lifetimes-8bp/1", "tau": tau, "d": RL.REL_D,
+    doc = {"schema": "shibuya.bench/c10-relations/lifetimes-8bp/1", "tau": tau, "d": RV.REL_D,
            "fresh_edges_minutes_until_below_tau": fresh,
            "initial_edges_full_population": {
                "edges": int(n.size), "n_quantiles": {q: float(np.percentile(n, q)) for q in (0, 10, 50, 90, 100)},

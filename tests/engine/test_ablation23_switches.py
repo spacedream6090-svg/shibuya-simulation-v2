@@ -31,7 +31,7 @@ from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.foundation.vocab.agent_codes import REFRACTORY_MINUTES, WakeCondition
 from shibuya.world.model.agent_table import AgentState
 from shibuya.engine import resolve as R
-from shibuya.engine.arbiter import REFRACTORY_TICKS as ARBITER_MIRROR
+from shibuya.runtime.arbiter import REFRACTORY_TICKS as ARBITER_MIRROR
 from shibuya.world.laws.salient import D50_BY_KIND, SalientProcess, ablation_name
 from shibuya.engine.run import run_day
 from shibuya.world.model import notice_reach as PN

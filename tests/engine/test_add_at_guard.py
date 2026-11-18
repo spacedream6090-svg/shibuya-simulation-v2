@@ -140,7 +140,7 @@ def test_resolve_actually_uses_ufunc_at_on_state():
 
 def test_arbiter_diagnostic_counters_are_not_flagged():
     """診断カウンタ(局所配列)への ``np.add.at`` は世界状態ではない=対象外。"""
-    assert _ufunc_at_targets(SRC / "engine" / "arbiter.py") == []
+    assert _ufunc_at_targets(SRC / "runtime" / "arbiter.py") == []
 
 
 def test_every_ufunc_at_in_resolve_is_preceded_by_the_frozen_check():

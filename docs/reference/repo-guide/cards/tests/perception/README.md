@@ -83,7 +83,7 @@ attention: §4 注意ゲート 段1-段3(p_see・注意予算・内容キャッ�
   - `test_strip_imperatives`(関数)
   - `test_strip_imperatives_keeps_declarative_facts`(関数)
   - `test_tag_world_text_applies_the_content_cap`(関数)
-- import している内部モジュール: `shibuya.perception.attention`
+- import している内部モジュール: `shibuya.foundation.text.salience`・`shibuya.mind.percept.attention`
 
 ## [test_b4_detector_gap.py](../../../../../../tests/perception/test_b4_detector_gap.py)
 
@@ -284,7 +284,7 @@ p_notice: §3.1 の 2 段ヒル型(TTPF+社会伝播)・検算表・ablation A0-
   - `test_run_day_refuses_a_multiplier_table`(関数)
   - `test_run_manifest_keeps_the_field_as_null`(関数)
   - `test_the_multiplier_table_and_the_arm_are_gone`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.memory.familiarity`・`shibuya.perception.attention`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.memory.familiarity`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 - 決定の ID: 10-12/§1-6・D-117・D-121・第 293
 
 ## [test_renderer_golden.py](../../../../../../tests/perception/test_renderer_golden.py)
@@ -352,7 +352,7 @@ renderer: golden テスト(§2.4 ⑧ バイト一致・決定論・予算・5分
   - `test_zero_is_not_a_no_op`(関数)
   - `test_zero_matches_the_ad_zero_arm_bytes`(関数): ``p_see=0.0`` の B2 は ⑥(``signage_enabled=False``)の B2 とバイト一致。
   - `test_zero_removes_every_signage_line`(関数): ``p_see=0.0`` は全員・全 tick で看板行が空文言になる(=⑥ 広告ゼロと同じ描画)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.attention`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 - 決定の ID: D-56・D-59・第 304
 
 ## [test_templates.py](../../../../../../tests/perception/test_templates.py)

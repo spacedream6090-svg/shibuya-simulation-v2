@@ -218,7 +218,7 @@ CLI ``--l4-scale FACTOR``(L4 呼数予算の倍率・PENDING D-99 (a)・腕 AB8-
   - `test_the_factor_multiplies_the_l4_share`(関数)
   - `test_the_manifest_always_carries_the_l4_audit_fields`(関数)
   - `test_zero_means_one_call_per_agent_per_tick`(関数): ``0`` = **無制限**。アービタは合流後に体あたり高々 1 件なので体数で足りる。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.arbiter`・`shibuya.engine.run`・`shibuya.runtime.inference.fleet`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.arbiter`・`shibuya.runtime.inference.fleet`
 - 決定の ID: D-55・D-99・D-110・第 277・第 289・第 347
 
 ## [test_cli_vocab_version.py](../../../../../tests/test_cli_vocab_version.py)

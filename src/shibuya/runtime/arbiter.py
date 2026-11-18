@@ -79,30 +79,21 @@ expedient(本モジュール分)
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Final, Mapping, Sequence
-
+from typing import Final, Mapping
 import numpy as np
-
 from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, REFRACTORY_MINUTES
 from shibuya.foundation.hashing import wake_tiebreak_array
 from shibuya.foundation.types import DEFERRAL_CLASSES, EventClass
 from shibuya.foundation.queues.scheduler import DIAG_COLUMNS, DeferralQueue
 from shibuya.foundation.time_consts import STEPS_PER_DAY
+from shibuya.mind.system1.wake import WakeCandidates
 
 __all__ = [
-    "T_MAX_TICKS",
-    "DEGRADE_COST_FACTOR",
-    "DEGRADE_CLASSES",
-    "POOL_CAP_TICKS",
-    "L4_CALLS_PER_DAY",
-    "L4_REFERENCE_AGENTS",
-    "L4_LINE_PER_AGENT_DAY",
-    "call_budget_per_tick",
-    "WakeCandidates",
-    "ArbiterDecision",
-    "arbitrate",
+    "T_MAX_TICKS", "DEGRADE_COST_FACTOR", "DEGRADE_CLASSES", "POOL_CAP_TICKS", "L4_CALLS_PER_DAY",
+    "L4_REFERENCE_AGENTS", "L4_LINE_PER_AGENT_DAY", "call_budget_per_tick", "ArbiterDecision", "arbitrate",
     "Arbiter",
 ]
+
 
 #: 昇格までの待ち tick(クラス別・expedient)。
 T_MAX_TICKS: Final[dict[int, int]] = {
@@ -152,72 +143,6 @@ def call_budget_per_tick(
     if n_agents < 0:
         raise ValueError("n_agents は 0 以上")
     return float(calls_per_day) / float(ticks_per_day) * (float(n_agents) / float(reference_agents))
-
-
-@dataclass(frozen=True)
-class WakeCandidates:
-    """1 tick 分の起床候補(全て同じ長さの配列)。
-
-    Attributes:
-        agent_id: int64。
-        condition: int8(``agents.state.WakeCondition``)。
-        class_rank: int64(``core.types.EventClass``)。
-        since_tick: int64(**最初に起床条件が立った tick**。待ち時間の基準)。
-        sleep_exempt: bool(**就寝中でも通す**印。D-56。既定=全 False)。
-            立てるのは呼の**源**であって条件ではない(顕著行為由来と変化検出由来は
-            どちらも ``CELL_BLOCK`` なので条件では区別できない)。
-    """
-
-    agent_id: np.ndarray
-    condition: np.ndarray
-    class_rank: np.ndarray
-    since_tick: np.ndarray
-    sleep_exempt: np.ndarray | None = None
-
-    def __post_init__(self) -> None:
-        n = self.agent_id.size
-        for name in ("condition", "class_rank", "since_tick"):
-            if getattr(self, name).size != n:
-                raise ValueError(f"WakeCandidates.{name} の長さが agent_id と違う")
-        if self.sleep_exempt is None:
-            object.__setattr__(self, "sleep_exempt", np.zeros(n, dtype=bool))
-        else:
-            ex = np.asarray(self.sleep_exempt, dtype=bool)
-            if ex.size != n:
-                raise ValueError("WakeCandidates.sleep_exempt の長さが agent_id と違う")
-            object.__setattr__(self, "sleep_exempt", ex)
-
-    def __len__(self) -> int:
-        return int(self.agent_id.size)
-
-    @classmethod
-    def empty(cls) -> "WakeCandidates":
-        return cls(
-            np.empty(0, dtype=np.int64),
-            np.empty(0, dtype=np.int8),
-            np.empty(0, dtype=np.int64),
-            np.empty(0, dtype=np.int64),
-            np.empty(0, dtype=bool),
-        )
-
-    @classmethod
-    def concat(cls, parts: Sequence["WakeCandidates"]) -> "WakeCandidates":
-        parts = [p for p in parts if len(p)]
-        if not parts:
-            return cls.empty()
-        return cls(
-            np.concatenate([p.agent_id for p in parts]),
-            np.concatenate([p.condition for p in parts]),
-            np.concatenate([p.class_rank for p in parts]),
-            np.concatenate([p.since_tick for p in parts]),
-            np.concatenate([p.sleep_exempt for p in parts]),
-        )
-
-    def take(self, idx: np.ndarray) -> "WakeCandidates":
-        return WakeCandidates(
-            self.agent_id[idx], self.condition[idx], self.class_rank[idx], self.since_tick[idx],
-            np.asarray(self.sleep_exempt)[idx],
-        )
 
 
 @dataclass(frozen=True)

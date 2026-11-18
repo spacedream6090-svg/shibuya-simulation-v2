@@ -20,7 +20,8 @@ import pytest
 
 from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, Activity, WakeCondition
 from shibuya.foundation.types import EventClass
-from shibuya.engine.arbiter import Arbiter, WakeCandidates, arbitrate
+from shibuya.runtime.arbiter import Arbiter, arbitrate
+from shibuya.mind.system1.wake import WakeCandidates
 from shibuya.engine.run import DIAG_RUN_COLUMNS, run_day
 from shibuya.world.model.state import World
 

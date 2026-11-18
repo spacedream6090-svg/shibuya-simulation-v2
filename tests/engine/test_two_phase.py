@@ -78,7 +78,10 @@ def _hot_paths() -> tuple[str, ...]:
         "engine/run.py",
         "engine/resolve.py",
         "engine/commit.py",
-        "engine/change_detect.py",
+        "mind/system1/change_detect.py",
+        # 〔割る段 5a の G5・検収の中-1〕change_detect を割った 2 つ目の割り先。毎刻み通るセルの B4 の関数(b4_block_raw・
+        # b4_block_hashes)はここへ移った=割る前と同じ範囲を見る(道具は字面の道を主な割り先へだけ書き換える)
+        "world/model/scene_hash.py",
         # 第 1 期 1-9: お金の基本操作(購入・運賃・補充の代金が毎刻み通る=口の約束 1-9 の受入の試験)
         "economy/ops.py",
         # 1-0: run_day を系に分けた先(弱めない=対象を広げる・草案 §3-3 の 16)
@@ -118,7 +121,7 @@ def test_every_hot_path_declares_its_sequential_loops():
         assert "逐次ループ宣言" in text, rel
     # 新規ファイル全体でも同じ規律
     for rel in ("world/model/agent_table.py", "world/facts/mock_schedule.py", "world/model/assets.py",
-                "world/model/graph.py", "world/model/state.py", "engine/arbiter.py"):
+                "world/model/graph.py", "world/model/state.py", "runtime/arbiter.py"):
         assert "逐次ループ宣言" in (SRC / rel).read_text(encoding="utf-8"), rel
 
 

@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 3 本・その他 0 本(このディレクトリの直下)
+Python 4 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [intake](intake/README.md)
 
@@ -48,3 +48,20 @@ engine.intent — **意図の保持**(段 2c・D-112 ①・D-114 案 A・第288)
     - `O5` IntentLayer _proposals・_executing・_kept_walk(挙動 no・復元 discardable) 道筋 `intent_layer._executing`・`intent_layer._kept_walk`・`intent_layer._proposals` 書ける系: activity_intent・apply_responses・phase_a・phase_c
     - `O6` IntentLayer stats・ticks_sum・ticks_n(挙動 diag・復元 discardable) 道筋 `intent_layer.stats`・`intent_layer.ticks_n`・`intent_layer.ticks_sum` 書ける系: activity_intent・apply_responses・detect・phase_a・phase_c
 - 決定の ID: D-51・D-62・D-112・D-114・D-122・第 288
+
+## [target.py](../../../../../../../src/shibuya/act/target.py)
+
+engine.poi_target — 購入/食事/並ぶの対象を**候補 → 選び手**で決める(段 2a・D-114 (a))。
+
+- 公開の関数とクラス
+  - `TargetResolver`(クラス): 対象欄の読み・候補の絞り込み・選び手の抽選(1 ランに 1 つ・世界は読むだけ)。
+  - `move_resolution_summary`(関数): 段 2b の計数 → manifest ``move_resolution`` の形。
+  - `resolution_summary`(関数): 計数 → manifest ``target_resolution`` の形((i)〜(iv)+エントロピーの平均)。
+- import している内部モジュール: `shibuya.engine.commit`・`shibuya.foundation.ports.choice`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.place_words`・`shibuya.world.model.assets`・`shibuya.world.model.state`
+- 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`
+- 読む試験: `tests/engine/test_classical_policy.py`・`tests/engine/test_intent_chooser.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/engine/test_store_choice.py`
+- 状態台帳の行
+  - 持ち主 `poi_resolver`(`TargetResolver`)
+    - `O26` TargetResolver _cat_mask_cache・stats・entropy_sum・named_closed・move_stats(挙動 diag・復元 discardable) 道筋 `poi_resolver._cat_mask_cache`・`poi_resolver.entropy_sum`・`poi_resolver.move_stats`・`poi_resolver.stats` 書ける系: apply_responses・phase_c
+    - `O94` TargetResolver named_closed(名指しの店の即時閉店の控え)(挙動 behavior・復元 required) 道筋 `poi_resolver.named_closed` 書ける系: apply_responses・phase_c
+- 決定の ID: D-112・D-114・D-120・第 270・第 286

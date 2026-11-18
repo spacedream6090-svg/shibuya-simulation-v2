@@ -61,7 +61,7 @@ from shibuya.world.laws import switch_rate as _RATE_RULES
 from shibuya.engine import resolve as R
 from shibuya.world.body.model import BodyModel as _BodyModel
 from shibuya.world.body.rules import COLLAPSE_PER_10K_PER_DAY  # 〔第 3 期 3-5〕体の層へ移した値(同じ名で写して出す)
-from shibuya.perception import attention as AT
+from shibuya.foundation.text import salience as AT
 from shibuya.world.model import notice_reach as PN
 from shibuya.world.model.percept_state import PerceptionState, heading_from_vector
 from shibuya.world.model.state import World

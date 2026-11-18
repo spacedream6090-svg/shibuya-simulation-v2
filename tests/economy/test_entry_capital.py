@@ -91,7 +91,7 @@ def test_cost_ratio_comes_from_the_goods_category_k():
 
 def test_full_scale_agents_matches_the_l4_budget_denominator():
     """母集団比の分母は L4 予算の按分分母と同じ 400,000(engine 側が正典)。"""
-    from shibuya.engine.arbiter import L4_REFERENCE_AGENTS
+    from shibuya.runtime.arbiter import L4_REFERENCE_AGENTS
 
     assert EC.FULL_SCALE_AGENTS == L4_REFERENCE_AGENTS
 

@@ -31,7 +31,7 @@ from dataclasses import dataclass, field
 
 import pytest
 
-from shibuya.engine.arbiter import call_budget_per_tick
+from shibuya.runtime.arbiter import call_budget_per_tick
 
 ARM_ID = "AB8-L4-SCALE"
 #: ⑥b を呼数制限なしで回し直す腕(第245 ユーザー指示)。

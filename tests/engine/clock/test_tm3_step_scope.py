@@ -22,7 +22,9 @@ import pytest
 from shibuya import cli
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.time_consts import STEPS_PER_DAY
-from shibuya.engine import change_detect as CD
+from shibuya.mind.system1 import change_detect as CD
+# 〔割る段 5a の G5〕主でない割り先(foundation.vocab.agent_codes・world.model.scene_hash)へ行く名は名で読む(別名では割り先が 1 つに決まらない)
+from shibuya.foundation.vocab.agent_codes import INTERO_VARS
 from shibuya.foundation.manifest import sections as MS
 from shibuya.runtime.state import resume as RS
 from shibuya.runtime.clocks import step_scope as SS
@@ -53,7 +55,7 @@ def _agents(n: int, seed: int) -> AgentState:
     rng = np.random.default_rng(seed)
     for f in ("hunger", "fatigue", "thermal"):
         a.registry.field(f)[:] = rng.integers(0, 11, size=n)
-    for _v, sf in CD.INTERO_VARS:
+    for _v, sf in INTERO_VARS:
         a.registry.field(sf)[:] = rng.integers(0, 4, size=n)  # 値と合わない段も混ぜる(多段の跨ぎを含む)
     return a
 

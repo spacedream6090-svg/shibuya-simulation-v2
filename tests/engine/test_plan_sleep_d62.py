@@ -201,7 +201,7 @@ def test_sleep_boundary_makes_no_call_and_wake_boundary_does(monkeypatch):
 
 def test_salient_wake_is_still_exempt_while_asleep():
     """D-56 の例外(顕著行為は寝ていても起こす)は D-62 の後も生きている。"""
-    from shibuya.engine.arbiter import arbitrate
+    from shibuya.runtime.arbiter import arbitrate
 
     from .test_sleep_suppression_d56 import SALT, _asleep, _cands
 

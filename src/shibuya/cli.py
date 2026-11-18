@@ -74,8 +74,8 @@ from shibuya.foundation.text.templates import (
     VOCAB_VERSIONS,
 )
 from shibuya.world.model.assets import AREA_SOURCES, DEFAULT_AREA_SOURCE, hash_free_cat_code
-from shibuya.engine.chooser import CHOOSER_NAMES, DEFAULT_CHOOSER
-from shibuya.engine.poi_target import MOVE_SEARCH_RADIUS_CELLS
+from shibuya.mind.judge.chooser import CHOOSER_NAMES, DEFAULT_CHOOSER
+from shibuya.act.target import MOVE_SEARCH_RADIUS_CELLS
 from shibuya.act.intent import INTENT_MAX_TICKS
 from shibuya.mind.memory.familiarity import FAMILIARITY_K, FAMILIARITY_MODES
 from shibuya.mind.memory.memory import MEMORY_MODES, MEMORY_N, RECALL_TAU
@@ -85,7 +85,7 @@ from shibuya.mind.memory.store_memory import (
     STORE_MEMORY_MODES,
     STORE_MEMORY_N,
 )
-from shibuya.engine.chooser import HABIT_P, RANK_TAU
+from shibuya.mind.judge.chooser import HABIT_P, RANK_TAU
 from shibuya.mind.judge.classical import (
     ACTIVITY_REGIONS,
     DEFAULT_ACTIVITY_REGION,

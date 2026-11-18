@@ -108,7 +108,7 @@ engine.body.rules — 本人の体の規則(③ 意図しない体と System 1�
   - `rule_steps`(関数): ``now`` が体の刻み(空腹+1・疲れ+1・就寝の回復)か・休みの回復の刻みか。
   - `stage_values`(関数): 内受容の値 → 段(``INTERO_UP_EDGES`` を何本越えたか・``int8``)。
   - `steps_to_hunger_edge`(関数): 今の食後の消費 ``since`` から、1 刻みに ``spent`` ずつ足して次の語の段の境目を越えるまでの刻みの数の見込み
-- import している内部モジュール: `shibuya.engine.change_detect`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.body.energy`
+- import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.body.energy`
 - 呼び手: `shibuya.engine.resolve`・`shibuya.world.body.model`・`shibuya.world.body.schedule`・`shibuya.world.laws.environment`・`shibuya.world.laws.salient`
 - 読む試験: `tests/engine/body/test_body_rules_sources.py`・`tests/engine/body/test_body_same_values.py`・`tests/engine/body/test_meal_default_w17.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`

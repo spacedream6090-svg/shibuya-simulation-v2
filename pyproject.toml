@@ -90,9 +90,7 @@ layers = [
   "shibuya.foundation",
 ]
 ignore_imports = [
-  "shibuya.engine.poi_target -> shibuya.engine.chooser",
-  "shibuya.engine.relations -> shibuya.engine.resolve",
-  "shibuya.engine.resolve -> shibuya.engine.change_detect",
+  "shibuya.engine.resolve -> shibuya.mind.system1.change_detect",
   "shibuya.engine.resolve -> shibuya.runtime.state.hashes",
   "shibuya.engine.resolve -> shibuya.runtime.state.ledger",
   "shibuya.engine.resolve -> shibuya.runtime.state.resume",
@@ -102,10 +100,9 @@ ignore_imports = [
   "shibuya.mind.memory.memory -> shibuya.engine.commit",
   "shibuya.mind.memory.memory -> shibuya.engine.resolve",
   "shibuya.mind.memory.store_memory -> shibuya.engine.resolve",
-  "shibuya.mind.memory.wom -> shibuya.engine.poi_target",
+  "shibuya.mind.relations.layer -> shibuya.engine.resolve",
   "shibuya.society.speech.layer -> shibuya.mind.memory.wom",
-  "shibuya.world.body.rules -> shibuya.engine.change_detect",
-  "shibuya.world.model.geometry -> shibuya.engine.change_detect",
+  "shibuya.world.model.scene_hash -> shibuya.perception.renderer",
 ]
 
 [[tool.importlinter.contracts]]
@@ -157,10 +154,6 @@ forbidden_modules = [
   "shibuya.build",
 ]
 ignore_imports = [
-  "shibuya.engine.change_detect -> shibuya.world.model.assets",
-  "shibuya.engine.change_detect -> shibuya.world.model.state",
-  "shibuya.engine.relations -> shibuya.engine.resolve",
-  "shibuya.engine.relations -> shibuya.world.model.proximity",
   "shibuya.mind.judge.decision.layer -> shibuya.economy.stage2_bind",
   "shibuya.mind.judge.decision.layer -> shibuya.engine.commit",
   "shibuya.mind.judge.decision.layer -> shibuya.society.tools.registry",
@@ -168,7 +161,11 @@ ignore_imports = [
   "shibuya.mind.memory.memory -> shibuya.engine.commit",
   "shibuya.mind.memory.memory -> shibuya.engine.resolve",
   "shibuya.mind.memory.store_memory -> shibuya.engine.resolve",
-  "shibuya.mind.memory.wom -> shibuya.engine.poi_target",
+  "shibuya.mind.relations.layer -> shibuya.engine.resolve",
+  "shibuya.mind.relations.layer -> shibuya.world.model.proximity",
+  "shibuya.mind.system1.change_detect -> shibuya.world.model.agent_table",
+  "shibuya.mind.system1.change_detect -> shibuya.world.model.scene_hash",
+  "shibuya.mind.system1.change_detect -> shibuya.world.model.state",
   "shibuya.perception.renderer -> shibuya.world.model.agent_table",
   "shibuya.perception.renderer -> shibuya.world.model.assets",
   "shibuya.perception.renderer -> shibuya.world.model.state",
@@ -261,7 +258,6 @@ protected_modules = [
 allowed_importers = [
   "shibuya.runtime",
   "shibuya.cli",
-  "shibuya.engine.arbiter",
   "shibuya.engine.run",
 ]
 
@@ -295,6 +291,5 @@ forbidden_modules = [
 ]
 ignore_imports = [
   "shibuya.runtime.clocks.speech -> shibuya.society.speech.port",
-  "shibuya.runtime.clocks.step_scope -> shibuya.engine.change_detect",
 ]
 allow_indirect_imports = true

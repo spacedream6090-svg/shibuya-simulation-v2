@@ -2,13 +2,27 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 7 本・その他 0 本(このディレクトリの直下)
+Python 8 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/foundation/ports/__init__.py)
 
 (冒頭の説明なし)
 
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
+
+## [choice.py](../../../../../../../../src/shibuya/foundation/ports/choice.py)
+
+foundation.ports.choice — 割る段で ``engine/chooser.py`` を割った割り先(全ファイルの表 §4・名の表は``tools/pkgmove/map.toml`` の割る行)。
+
+- 公開の関数とクラス
+  - `ChoiceContext`(クラス): 1 回の選択の文脈(選び手が読んでよいものだけ)。
+  - `Chooser`(クラス): 選択器の口。``probs`` は候補と同じ長さの確率(和 1・候補が空なら空)を返す。
+  - `draw_index`(関数): 確率 ``p`` から 1 つ引く(``core.rng.stream(seed, "engine.chooser", tick, agent_id)``)。
+  - `entropy_bits`(関数): 分布のエントロピー[bit]\(one-hot なら 0)。
+- import している内部モジュール: `shibuya.foundation.rng`
+- 呼び手: `shibuya.act.target`・`shibuya.mind.judge.chooser`・`shibuya.mind.judge.store_choice`
+- 読む試験: `tests/engine/space/test_nav1_units.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_intent_chooser.py`・`tests/engine/test_sim_time_T.py`
+- 決定の ID: D-118
 
 ## [decision.py](../../../../../../../../src/shibuya/foundation/ports/decision.py)
 

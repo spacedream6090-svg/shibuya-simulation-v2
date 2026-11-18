@@ -15,20 +15,24 @@ import pytest
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.vocab.agent_codes import ResultCode
 from shibuya.engine import resolve as R
-from shibuya.engine.chooser import (
+from shibuya.mind.judge.chooser import (
     CHOOSER_NAMES,
-    ChoiceContext,
-    Chooser,
     NearestChooser,
     check_chooser,
-    draw_index,
-    entropy_bits,
     make_chooser,
 )
-from shibuya.engine.poi_target import (
+from shibuya.foundation.ports.choice import (
+    ChoiceContext,
+    Chooser,
+    draw_index,
+    entropy_bits,
+)
+from shibuya.foundation.vocab.place_words import (
     BUYABLE_CATS,
     CATEGORY_WORDS,
     GENERIC_WORDS,
+)
+from shibuya.act.target import (
     KIND_CATEGORY,
     KIND_NAMED,
     KIND_NONE,
@@ -236,7 +240,7 @@ def test_buyable_cats_are_the_shop_like_cats_q12():
     excluded = {"office", "hotel", "school", "landmark", "hall", "education"}
     assert not (BUYABLE_CATS & excluded)
     # 合成世界の 3 種(コンビニ/飲食/物販)は作りからして店=購入の候補(実資産の cat とは重ならない)
-    from shibuya.engine.poi_target import SYNTHETIC_BUYABLE_CATS
+    from shibuya.foundation.vocab.place_words import SYNTHETIC_BUYABLE_CATS
     from shibuya.foundation.vocab.place_words import SYNTHETIC_POI_CATS
 
     assert SYNTHETIC_BUYABLE_CATS == set(SYNTHETIC_POI_CATS)
@@ -267,9 +271,16 @@ def test_poi_target_switch_is_removed_q13():
     """〔第 4 期 4-3 版上げ 3 回目の第 2 部〕親決定 Q13 の切替口 ``--poi-target legacy``(段 2a 前の現在セルの最小 id=旧
     checkpoint の再現)は消した=渡すと止まる(旧値の再現は安定版のタグ。前は legacy の今の値を 5,000 体で固定した=
     最後の値 v3 0932d666332e6084 / 36,742・帰無腕 e6f4670bcab0b4b6 / 41,031=差し替えの世界)。"""
-    import shibuya.engine.poi_target as PT
+    import sys
 
-    assert not hasattr(PT, "POI_TARGET_MODES") and not hasattr(PT, "check_poi_target")
+    # 〔割る段 5a の G4〕消した切替口の名は解き手の置き場で見る(TargetResolver の定義の置き場=割ると主な割り先 act.target。
+    # 別名の素の使い方は道具が割り先を決められない)。〔検収の低-1〕割る前は元のファイルの全部を見ていた=2 つ目の割り先
+    # (店の語が行った foundation.vocab.place_words)も見る
+    from shibuya.act.target import TargetResolver
+    from shibuya.foundation.vocab import place_words as _place_words
+
+    for pt in (sys.modules[TargetResolver.__module__], _place_words):
+        assert not hasattr(pt, "POI_TARGET_MODES") and not hasattr(pt, "check_poi_target"), pt.__name__
     with pytest.raises(TypeError):
         run_day(n_agents=20, seed=1, ticks=10, renderer="stub", poi_target="legacy", checkpoint_every=10)
     from shibuya import cli

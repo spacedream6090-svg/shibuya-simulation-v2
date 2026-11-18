@@ -92,10 +92,12 @@ from shibuya.foundation.text import channels as ch
 from shibuya.foundation.text import hashes as H
 from shibuya.foundation.text import normalize as N
 from shibuya.foundation.text import templates as T
-from shibuya.perception.attention import (
+from shibuya.mind.percept.attention import (
     P_SEE_MEDIUM_RANGE,
-    SalientItem,
     gate_stage1,
+)
+from shibuya.foundation.text.salience import (
+    SalientItem,
     rank_by_saliency,
     StripReport,
     strip_imperatives,

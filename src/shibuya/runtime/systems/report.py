@@ -20,7 +20,7 @@ from shibuya.foundation.growth import check_growth
 from shibuya.runtime.state import growth_decl as GD
 from shibuya.world.facts.calendar import WEATHER_SCHEME
 from shibuya.foundation.rng import RNG_SCHEME
-from shibuya.engine.poi_target import move_resolution_summary, resolution_summary
+from shibuya.act.target import move_resolution_summary, resolution_summary
 from shibuya.world.laws.salient import ablation_name as _pnotice_ablation_name
 from shibuya.foundation.text.channels import BudgetMode
 from shibuya.perception.renderer import P_SEE_ACTIVITY_KINDS

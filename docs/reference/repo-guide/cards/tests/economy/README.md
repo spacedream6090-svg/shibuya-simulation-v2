@@ -102,7 +102,7 @@ D-13 店舗参入資本の按分(economy.entry_capital)のテスト。
   - `test_the_floor_binds_only_below_about_1900_agents`(関数): 最小カテゴリ(M 宿泊飲食)が下限に当たるのは約 1,883 体未満(境界を固定する)。
   - `test_total_equals_the_sum_of_the_parts`(関数)
   - `test_unknown_category_falls_back_to_the_declared_default`(関数)
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.entry_capital`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.arbiter`・`shibuya.world.model.assets`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.entry_capital`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.runtime.arbiter`・`shibuya.world.model.assets`
 - 決定の ID: D-13・D-16
 
 ## [test_goods.py](../../../../../../tests/economy/test_goods.py)

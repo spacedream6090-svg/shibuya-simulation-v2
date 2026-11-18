@@ -77,7 +77,7 @@ def test_signage_gate_is_one_p_for_every_activity():
     r = R.Renderer(w, a, seed=5, signage_p_see=0.4)
     cell = next(c for c in range(w.n_cells) if r._signage_poi(c) >= 0)
     poi = r._signage_poi(cell)
-    from shibuya.perception.attention import gate_stage1
+    from shibuya.mind.percept.attention import gate_stage1
 
     got = [r._signage_seen(i, cell, 700) for i in range(a.n)]
     want = [bool(gate_stage1(1, 0.4, seed=5, domain_counters=(700, i, poi))[0]) for i in range(a.n)]

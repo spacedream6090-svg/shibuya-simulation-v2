@@ -1684,7 +1684,7 @@ def test_appeal_pairs_differ_only_by_the_appeal_line(appeal_scenes, appeal_pairs
 
 
 def test_appeal_texts_arrive_unfiltered_and_without_numbers(appeal_scenes):
-    from shibuya.perception.attention import strip_imperatives
+    from shibuya.foundation.text.salience import strip_imperatives
 
     meta = appeal_scenes.appeal
     present = {sid: m for sid, m in meta.items() if m["present"]}

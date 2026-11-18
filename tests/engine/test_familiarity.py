@@ -277,7 +277,7 @@ def test_the_render_and_the_entry_of_the_same_signage_count_once_per_tick():
 
 
 def test_the_entry_gate_draws_the_same_stream_as_the_renderer():
-    from shibuya.perception.attention import gate_stage1
+    from shibuya.mind.percept.attention import gate_stage1
 
     n = 40
     a = AgentState(n, familiarity_columns=True, familiarity_k=4)

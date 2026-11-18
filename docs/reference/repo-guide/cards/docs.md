@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-345 ディレクトリ・2455 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+352 ディレクトリ・2476 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -348,11 +348,25 @@
 
 ## docs/bench/analysis/split5a-347/bytecheck_11_llm_bridge(3 本)
 
+## docs/bench/analysis/split5a-347/bytecheck_12_chooser(3 本)
+
+## docs/bench/analysis/split5a-347/bytecheck_13_poi_target(3 本)
+
+## docs/bench/analysis/split5a-347/bytecheck_14_attention(3 本)
+
+## docs/bench/analysis/split5a-347/bytecheck_15_change_detect(3 本)
+
+## docs/bench/analysis/split5a-347/bytecheck_16_arbiter(3 本)
+
+## docs/bench/analysis/split5a-347/bytecheck_17_relations(3 本)
+
 ## docs/bench/analysis/split5a-347/bytecheck_G1_parent(3 本)
 
 ## docs/bench/analysis/split5a-347/bytecheck_G2_parent(3 本)
 
 ## docs/bench/analysis/split5a-347/bytecheck_G3_parent(3 本)
+
+## docs/bench/analysis/split5a-347/bytecheck_G45_parent(3 本)
 
 ## docs/bench/analysis/store-memory-2026-09-28(17 本)
 

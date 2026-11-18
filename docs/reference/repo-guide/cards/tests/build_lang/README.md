@@ -77,7 +77,7 @@ W14 看板(a)文面: プロンプト生成の決定論・取り込みゲート�
   - `test_run_with_responses_freezes_and_records_hashes`(関数)
   - `test_run_without_responses_writes_prompts_only`(関数)
   - `test_whitespace_and_quotes_are_normalized`(関数): 全角空白・引用符・句点まわりの空白は正規化して凍結する(通したものを凍結)。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.lang.common`・`shibuya.build.lang.w14_signage`・`shibuya.foundation.text.channels`・`shibuya.perception.attention`・`tests/build_lang/conftest.py`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.lang.common`・`shibuya.build.lang.w14_signage`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.salience`・`tests/build_lang/conftest.py`
 
 ## [test_w15_cell_static.py](../../../../../../tests/build_lang/test_w15_cell_static.py)
 

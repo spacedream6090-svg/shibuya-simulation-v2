@@ -40,7 +40,7 @@ from shibuya.runtime.state import class_ids as CI
 from shibuya.runtime.state import resume as RS
 from shibuya.runtime.state import codec as SC
 from shibuya.runtime.state import hashes as SH
-from shibuya.engine.arbiter import WakeCandidates
+from shibuya.mind.system1.wake import WakeCandidates
 from shibuya.runtime.state.class_ids import CLASS_IDS, class_id, class_path
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.ports import experiment_gate as GATE

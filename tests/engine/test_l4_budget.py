@@ -20,13 +20,15 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.types import EventClass
-from shibuya.engine.arbiter import (
+from shibuya.runtime.arbiter import (
     DEGRADE_COST_FACTOR,
     POOL_CAP_TICKS,
     Arbiter,
-    WakeCandidates,
     arbitrate,
     call_budget_per_tick,
+)
+from shibuya.mind.system1.wake import (
+    WakeCandidates,
 )
 from shibuya.engine.run import run_day
 from shibuya.world.model.state import World

@@ -22,7 +22,9 @@ from tests import _data_ids as D
 from tests import golden_env as GE
 
 from shibuya.world.facts.weekly_reader import WeeklySchedule
-from shibuya.engine import relations as RL
+# 〔割る段 5a の G5〕別名 RL を割り先ごとに分けた(RL=mind.relations.layer・RT=world.facts.initial_ties・RV=foundation.vocab.relations の名)
+from shibuya.world.facts import initial_ties as RT
+from shibuya.foundation.vocab import relations as RV
 
 SRC = Path("src/shibuya")
 WORLD = "data/world/v2"
@@ -53,19 +55,19 @@ def test_v1_is_the_old_formula_and_v2_is_symmetric():
     rng = np.random.default_rng(0)
     u = rng.integers(0, 400_000, 5_000)
     v = rng.integers(0, 400_000, 5_000)
-    old = (RL._pair_mix(np.minimum(u, v), np.maximum(u, v)) >> np.uint64(11)).astype(np.float64) / float(1 << 53)
-    assert np.array_equal(RL._tenure_unit(u, v, "v1"), old)                          # 旧の式そのもの
+    old = (RT._pair_mix(np.minimum(u, v), np.maximum(u, v)) >> np.uint64(11)).astype(np.float64) / float(1 << 53)
+    assert np.array_equal(RT._tenure_unit(u, v, "v1"), old)                          # 旧の式そのもの
     lt = u < v
-    tie = (RL._pair_mix(u, v) >> np.uint64(11)).astype(np.float64) / float(1 << 53)
-    assert np.array_equal(RL._tenure_unit(u, v, "v1")[lt], tie[lt])                 # 欠陥: 同点の順と同じ値
+    tie = (RT._pair_mix(u, v) >> np.uint64(11)).astype(np.float64) / float(1 << 53)
+    assert np.array_equal(RT._tenure_unit(u, v, "v1")[lt], tie[lt])                 # 欠陥: 同点の順と同じ値
     for ver in ("v1", "v2"):
-        assert np.array_equal(RL._tenure_weeks(u, v, 13.0, ver), RL._tenure_weeks(v, u, 13.0, ver))  # 向きなし
-        t = RL._tenure_weeks(u, v, 13.0, ver)
+        assert np.array_equal(RT._tenure_weeks(u, v, 13.0, ver), RT._tenure_weeks(v, u, 13.0, ver))  # 向きなし
+        t = RT._tenure_weeks(u, v, 13.0, ver)
         assert float(t.min()) >= 1.0 and float(t.max()) < 13.0
-    assert not np.array_equal(RL._tenure_unit(u, v, "v2"), RL._tenure_unit(u, v, "v1"))
-    assert RL._tenure_weeks(u[:3], v[:3], 13.0).tolist() == RL._tenure_weeks(u[:3], v[:3], 13.0, "v2").tolist()
+    assert not np.array_equal(RT._tenure_unit(u, v, "v2"), RT._tenure_unit(u, v, "v1"))
+    assert RT._tenure_weeks(u[:3], v[:3], 13.0).tolist() == RT._tenure_weeks(u[:3], v[:3], 13.0, "v2").tolist()
     with pytest.raises(ValueError):
-        RL._tenure_unit(u, v, "v3")
+        RT._tenure_unit(u, v, "v3")
 
 
 # ================================================================= (b) 合成の大組織(全員同点)
@@ -77,8 +79,8 @@ def test_all_tied_organisation_bias_is_gone_with_v2():
     p = SimpleNamespace(n=g, household_id=np.full(g, -1), org_id=np.full(g, 3), school_cell=np.full(g, -1))
     got = {}
     for ver in ("v1", "v2"):
-        init = RL.initial_edges(p, w, g, tau=None, tenure_hash=ver)
-        assert init.u.size == g * RL.REL_K and init.audit["tenure_hash"] == ver
+        init = RT.initial_edges(p, w, g, tau=None, tenure_hash=ver)
+        assert init.u.size == g * RV.REL_K and init.audit["tenure_hash"] == ver
         T = -init.first.astype(np.float64) / 10080.0
         lt = init.u < init.v  # 合成は元 id=行番号
         got[ver] = (float((T[lt] < 2).mean()), float((T[~lt] < 2).mean()), init)
@@ -94,18 +96,18 @@ def test_tenure_u_is_rank_independent_of_the_tie_hash():
     rng = np.random.default_rng(1)
     u = rng.integers(0, 400_000, 300_000)
     v = rng.integers(0, 400_000, 300_000)
-    tie = RL._pair_mix(u, v).astype(np.float64)
+    tie = RT._pair_mix(u, v).astype(np.float64)
     lt = u < v
-    assert _spearman(RL._tenure_unit(u, v, "v1")[lt], tie[lt]) == pytest.approx(1.0)
-    assert abs(_spearman(RL._tenure_unit(u, v, "v2"), tie)) < 0.01
-    assert abs(_spearman(RL._tenure_unit(u, v, "v2")[lt], tie[lt])) < 0.01
+    assert _spearman(RT._tenure_unit(u, v, "v1")[lt], tie[lt]) == pytest.approx(1.0)
+    assert abs(_spearman(RT._tenure_unit(u, v, "v2"), tie)) < 0.01
+    assert abs(_spearman(RT._tenure_unit(u, v, "v2")[lt], tie[lt])) < 0.01
     # 連番の組(大組織の元 id)でも一様
     a = np.repeat(np.arange(600), 600)
     b = np.tile(np.arange(600), 600)
     ok = a != b
-    unit = RL._tenure_unit(a[ok], b[ok], "v2")
+    unit = RT._tenure_unit(a[ok], b[ok], "v2")
     assert float((unit < 1 / 12).mean()) == pytest.approx(UNIFORM, abs=0.005)
-    assert abs(_spearman(unit, RL._pair_mix(a[ok], b[ok]).astype(np.float64))) < 0.01
+    assert abs(_spearman(unit, RT._pair_mix(a[ok], b[ok]).astype(np.float64))) < 0.01
 
 
 # ================================================================= (d) 全母集団
@@ -121,12 +123,12 @@ def test_full_population_initial_net_is_uniform_in_every_kind_and_direction():
     pop = load_population(WORLD, n=None, seed=1)
     w = load_weekly(WORLD).restrict_to(pop.source_agent_id)
     m = int(pop.n)
-    init = RL.initial_edges(pop, w, m, tau=None)                      # 既定 v2
+    init = RT.initial_edges(pop, w, m, tau=None)                      # 既定 v2
     assert init.audit["tenure_hash"] == "v2"
     src = np.asarray(pop.source_agent_id, dtype=np.int64)
     su, sv = src[init.u], src[init.v]
     T = -init.first.astype(np.float64) / 10080.0
-    T1 = RL._tenure_weeks(su, sv, RL.REL_TENURE_WEEKS, "v1")          # 同じ網で旧の在職期間
+    T1 = RT._tenure_weeks(su, sv, RV.REL_TENURE_WEEKS, "v1")          # 同じ網で旧の在職期間
     for k in (1, 2, 3):
         for msk in (su < sv, su > sv):
             s = (init.kind == k) & msk
@@ -135,10 +137,10 @@ def test_full_population_initial_net_is_uniform_in_every_kind_and_direction():
     for k in (2, 3):                                                   # 旧: 元 id_u < 元 id_v の職場/学校が偏る
         s = (init.kind == k) & (su < sv)
         assert float((T1[s] < 2).mean()) > 0.2
-    assert abs(_spearman(RL._tenure_unit(su, sv, "v2"), RL._pair_mix(su, sv).astype(np.float64))) < 0.01
-    assert np.array_equal(RL._tenure_weeks(su, sv, 13.0), RL._tenure_weeks(sv, su, 13.0))
-    A0 = RL._activation(init.n, init.first, 0, 1.0, RL.REL_D)
-    t = RL.tau_from_edges(init.u, A0, m)
+    assert abs(_spearman(RT._tenure_unit(su, sv, "v2"), RT._pair_mix(su, sv).astype(np.float64))) < 0.01
+    assert np.array_equal(RT._tenure_weeks(su, sv, 13.0), RT._tenure_weeks(sv, su, 13.0))
+    A0 = RV._activation(init.n, init.first, 0, 1.0, RV.REL_D)
+    t = RT.tau_from_edges(init.u, A0, m)
     # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に=345,858 体)では 15 本の辺を持つ体が半分に届かない
     # (40.66%=残す W16 の体の辺の中央 0 本・W21 の体 14 本)=8b′ の手順の中央値は −∞(再逆算できない)。既定の τ_rel
     # REL_TAU_V2(−2.322)は W16 の世界(390,067 体・15 本の体 54.52%)の再逆算の値のまま=親の判断を待つ問い(記録 pop43 §16)。
@@ -162,7 +164,7 @@ def test_run_switch_is_removed_and_the_default_tau_is_v2():
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", relations="on", ticks=30)
     s = cli.run(**kw).run_manifest_fields()["relations"]
-    assert s["tau"] == RL.REL_TAU_V2 and s["init"]["tenure_hash"] == "v2"
+    assert s["tau"] == RV.REL_TAU_V2 and s["init"]["tenure_hash"] == "v2"
     s = cli.run(rel_tau=-2.0, **kw).run_manifest_fields()["relations"]
     assert s["tau"] == -2.0                                            # 明示の τ が優先
 

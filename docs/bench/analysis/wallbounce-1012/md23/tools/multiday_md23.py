@@ -98,7 +98,8 @@ def _q(x: np.ndarray) -> dict[str, float]:
 def relation_view(agents: Any, tick: int, minutes_per_tick: float) -> dict[str, Any] | None:
     """関係辺の表(``rel_*``)の日の終わりの量。関係 off のランは ``None``。"""
     from shibuya.mind.memory.memory import activation_rows
-    from shibuya.engine.relations import REL_D, REL_K, REL_KINDS, REL_TAU, tau_from_edges
+    from shibuya.foundation.vocab.relations import REL_D, REL_K, REL_KINDS, REL_TAU
+    from shibuya.world.facts.initial_ties import tau_from_edges
 
     r = agents.registry
     if "rel_partner" not in r:

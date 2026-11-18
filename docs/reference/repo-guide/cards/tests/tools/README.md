@@ -302,7 +302,7 @@ tools/instruments/dm_eval(第 6 期 6-1 判断モデルの評価の器・GPU の
   - `test_vllm_prompt_logprobs_first_token_and_generate`(関数)
   - `test_vllm_token_boundary_and_http_errors`(関数)
   - `test_write_outputs_refuses_overwrite`(関数)
-- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.perception.attention`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/appeal.py`・`tools/instruments/dm_eval/backends/__init__.py`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/backends/hf.py`・`tools/instruments/dm_eval/backends/vllm.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`・`tools/instruments/read_guard.py`
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.text.salience`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/appeal.py`・`tools/instruments/dm_eval/backends/__init__.py`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/backends/hf.py`・`tools/instruments/dm_eval/backends/vllm.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`・`tools/instruments/read_guard.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
 - 決定の ID: 11-01・R-149・第 347
 

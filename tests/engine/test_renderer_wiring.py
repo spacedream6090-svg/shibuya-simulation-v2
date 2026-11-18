@@ -19,7 +19,9 @@ import pytest
 
 from shibuya.world.model.agent_table import LAST_ACTION_NONE, AgentState
 from shibuya.foundation.vocab.agent_codes import Activity
-from shibuya.engine import change_detect as CD
+from shibuya.mind.system1 import change_detect as CD
+# 〔割る段 5a の G5〕主でない割り先(foundation.vocab.agent_codes・world.model.scene_hash)へ行く名は名で読む(別名では割り先が 1 つに決まらない)
+from shibuya.world.model.scene_hash import b4_block_raw
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
 from shibuya.runtime.inference.bridge import ACTION_WORD_BY_CODE, PerceptionRendererAdapter
@@ -178,7 +180,7 @@ def test_the_detector_hashes_exactly_the_rows_the_renderer_renders():
         rows = r.b4_field_rows
         # 検出器が独立に world から作った欄と一致する(=同じ 1 本を見ている)
         assert np.array_equal(
-            rows, CD.b4_block_raw(world, tick, walkable_area_m2=assets.walkable_area_m2)
+            rows, b4_block_raw(world, tick, walkable_area_m2=assets.walkable_area_m2)
         )
         res = det.detect(world, agents, tick, field_rows=rows)
         body = [r._b4(c, r._tickc, []) for c in range(world.n_cells)]

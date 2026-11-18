@@ -1579,11 +1579,11 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "mem_layer.memory_store.cue": ("mind/memory/memory_embed.py", "CueState"),
     # 〔第 6 期 6-5・検収 M4〕人も記憶の一つの腕の店の評価の行(腕 --memory-people memory で店の記憶のあるラン)
     "mem_layer.memory_store.shops": ("mind/memory/memory_shops.py", "ShopTable"),
-    "poi_resolver": ("engine/poi_target.py", "TargetResolver"),
+    "poi_resolver": ("act/target.py", "TargetResolver"),
     "poi_resolver.store_choice": ("mind/judge/store_choice.py", "StoreChoice"),
-    "poi_resolver.chooser": ("engine/chooser.py", "ClassicalChooser"),
+    "poi_resolver.chooser": ("mind/judge/chooser.py", "ClassicalChooser"),
     "wom": ("mind/memory/wom.py", "WomExtractor"),
-    "rel_layer": ("engine/relations.py", "RelationLayer"),
+    "rel_layer": ("mind/relations/layer.py", "RelationLayer"),
     "classical": ("mind/judge/classical.py", "ClassicalPolicy"),
     "energy": ("world/body/energy.py", "EnergyLayer"),
     "energy.out_of_area": ("world/body/energy.py", "OutOfAreaMeals"),
@@ -1591,8 +1591,8 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "norm_meter": ("society/norm_meter.py", "GroupNormMeter"),
     "presence": ("engine/presence.py", "PlanExecutor"),
     "conv": ("society/conversation.py", "ConversationManager"),
-    "arbiter": ("engine/arbiter.py", "Arbiter"),
-    "detector": ("engine/change_detect.py", "ChangeDetector"),
+    "arbiter": ("runtime/arbiter.py", "Arbiter"),
+    "detector": ("mind/system1/change_detect.py", "ChangeDetector"),
     "runner": ("world/laws/runner.py", "WorldProcessRunner"),
     "runner.salient": ("world/laws/salient.py", "SalientProcess"),
     "runner.dispatch": ("world/laws/civic.py", "PublicServiceDispatchProcess"),
@@ -1670,7 +1670,7 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
 #: 実行時の網羅(``tests/engine/test_state_ledger_10b.py``)はインスタンスの ``vars()`` で見るので、
 #: ここに無いクラスが入っても落ちる。
 OWNER_ALT_CLASSES: Final[dict[str, tuple[tuple[str, str], ...]]] = {
-    "poi_resolver.chooser": (("engine/chooser.py", "NearestChooser"),),
+    "poi_resolver.chooser": (("mind/judge/chooser.py", "NearestChooser"),),
     "ledger.money": (("cli.py", "_HouseholdWalletLedger"),),
     # 〔第 6 期 6-5〕人も記憶の一つの腕(--memory-people memory)の関係の読み口=RelationLayer の子クラス
     "rel_layer": (("mind/relations/people.py", "PeopleRelationLayer"),),

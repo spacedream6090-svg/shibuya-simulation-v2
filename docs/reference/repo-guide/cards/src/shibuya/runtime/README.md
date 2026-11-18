@@ -2,13 +2,32 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 3 本・その他 0 本(このディレクトリの直下)
+Python 4 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [clocks](clocks/README.md)・[inference](inference/README.md)・[state](state/README.md)・[systems](systems/README.md)
 
 ## [__init__.py](../../../../../../../src/shibuya/runtime/__init__.py)
 
 (冒頭の説明なし)
+
+## [arbiter.py](../../../../../../../src/shibuya/runtime/arbiter.py)
+
+engine.arbiter — 繰り延べアービタ(知覚契約書 §6 の裁定規則)。
+
+- 公開の関数とクラス
+  - `Arbiter`(クラス): 毎tick の裁定+保留の持ち越し+診断計数の積み上げ(1 シミュ日ぶん)。
+  - `ArbiterDecision`(クラス): 1 tick 分の裁定結果(純関数 ``arbitrate`` の出力)。
+  - `arbitrate`(関数): 繰り延べアービタの**純関数**本体(入力の並び順に依存しない)。
+  - `call_budget_per_tick`(関数): 予算行 L4 を tick あたり・当該規模へ按分した呼数。
+- import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.queues.scheduler`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.system1.wake`
+- 呼び手: `shibuya.engine.run`・`shibuya.runtime.systems.assemble`
+- 読む試験: `tests/bench/test_refr20b_tool.py`・`tests/c6/test_l4_l6_budget.py`・`tests/c8/test_ablations_ab8.py`・`tests/c8/test_ablations_l4_pin.py`・`tests/economy/test_entry_capital.py`・`tests/engine/test_ablation23_switches.py`・`tests/engine/test_arbiter.py`・`tests/engine/test_l4_budget.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_processes_run.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_sleep_suppression_d56.py`・`tests/engine/test_two_layer_activity.py`・`tests/test_cli_l4_scale.py`
+- 読む試験(道筋で): `tests/engine/test_add_at_guard.py`・`tests/engine/test_two_phase.py`
+- 状態台帳の行
+  - 持ち主 `arbiter`(`Arbiter`)
+    - `O42` Arbiter _pending・_pool・queue・_last_tick(挙動 behavior・復元 required) 道筋 `arbiter._last_tick`・`arbiter._pending`・`arbiter._pool`・`arbiter.queue` 書ける系: arbiter
+    - `O71` Arbiter の計数(挙動 diag・復元 discardable) 道筋 `arbiter._diag_total`・`arbiter._merged_total`・`arbiter._outside_total`・`arbiter._sleep_total`・`arbiter.budget_unused`・`arbiter.n_calls_total` 書ける系: arbiter
+- 決定の ID: 09-25・D-56・D-66・D-99・D-110
 
 ## [clock.py](../../../../../../../src/shibuya/runtime/clock.py)
 

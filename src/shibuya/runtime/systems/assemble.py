@@ -39,7 +39,7 @@ from shibuya.engine import resolve as R
 from shibuya.world.model.space import nav1 as _NAV1
 from shibuya.runtime.state import resume as RS
 from shibuya.act.activity import ActivityLayer
-from shibuya.engine.arbiter import Arbiter
+from shibuya.runtime.arbiter import Arbiter
 from shibuya.world.facts.calendar import DEFAULT_WORLD_START
 from shibuya.world.facts.calendar import SimCalendar
 from shibuya.world.facts.calendar import WEATHER_SCHEME
@@ -47,9 +47,9 @@ from shibuya.world.facts.calendar import WEEKDAY_MODE
 from shibuya.world.facts.calendar import load_holidays
 from shibuya.world.facts.calendar import parse_school_holidays
 from shibuya.world.facts.calendar import parse_start
-from shibuya.engine.change_detect import ChangeDetector
-from shibuya.engine.chooser import check_chooser
-from shibuya.engine.chooser import make_chooser
+from shibuya.mind.system1.change_detect import ChangeDetector
+from shibuya.mind.judge.chooser import check_chooser
+from shibuya.mind.judge.chooser import make_chooser
 from shibuya.mind.judge.classical import ActivityPrior
 from shibuya.mind.judge.classical import ClassicalPolicy
 from shibuya.mind.judge.classical import check_activity_region
@@ -80,19 +80,19 @@ from shibuya.runtime.inference.bridge import StubRenderer
 from shibuya.mind.memory.memory import MEMORY_MODES
 from shibuya.mind.memory.memory import MemoryLayer
 from shibuya.mind.memory.memory import STORE_RECALL_SCOPES
-from shibuya.engine.poi_target import TargetResolver
+from shibuya.act.target import TargetResolver
 from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
 from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
 from shibuya.engine.presence import PlanExecutor
 from shibuya.world.laws.crowd import SEAT_AREA_M2
 from shibuya.world.laws.runner import WorldProcessRunner
 from shibuya.world.laws.salient import check_d50_scale as _check_d50_scale
-from shibuya.engine.relations import REL_INIT_DENSITIES
-from shibuya.engine.relations import REL_MODES
-from shibuya.engine.relations import REL_ORIGINS
-from shibuya.engine.relations import DEFAULT_REL_TENURE_HASH
-from shibuya.engine.relations import REL_TAU_BY_TENURE_HASH
-from shibuya.engine.relations import initial_edges as _rel_initial_edges
+from shibuya.foundation.vocab.relations import REL_INIT_DENSITIES
+from shibuya.foundation.vocab.relations import REL_MODES
+from shibuya.foundation.vocab.relations import REL_ORIGINS
+from shibuya.foundation.vocab.relations import DEFAULT_REL_TENURE_HASH
+from shibuya.foundation.vocab.relations import REL_TAU_BY_TENURE_HASH
+from shibuya.world.facts.initial_ties import initial_edges as _rel_initial_edges
 from shibuya.mind.judge.store_choice import StoreChoice
 from shibuya.mind.judge.store_choice import walk_m_per_tick as _walk_m_per_tick
 from shibuya.mind.memory.store_memory import STORE_MEMORY_MODES

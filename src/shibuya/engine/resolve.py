@@ -78,7 +78,7 @@ from shibuya.foundation.vocab.agent_codes import (
 from shibuya.world.model.agent_table import (
     AgentState,
 )
-from shibuya.engine.change_detect import DetectResult
+from shibuya.mind.system1.change_detect import DetectResult
 from shibuya.world.body import rules as _BODY
 from shibuya.world.body.rules import (  # 〔第 3 期 3-5〕体の層へ移した値(同じ名で写して出す)
     ACTIVITY_REST_FATIGUE_RELIEF,
@@ -1289,7 +1289,7 @@ def energy_home_meal(
     この食事そのものは内受容の起床(下げ跨ぎ)を作らない(予定の実行は驚きではない・起床を足さない・宣言)。
     件数を返す。
     """
-    from shibuya.engine.change_detect import INTERO_UP_EDGES
+    from shibuya.foundation.vocab.agent_codes import INTERO_UP_EDGES
 
     a = np.asarray(agent_id, dtype=np.int64)
     if a.size == 0:

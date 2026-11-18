@@ -321,7 +321,7 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_event_seen_tick_marks_everyone_in_the_event_cell_d113_2`(関数): 事象のセルに居た全員(B4 に行が出た体)の ``event_seen_tick`` がその tick になる。
   - `test_event_seen_within_uses_an_inclusive_window`(関数)
   - `test_notice_state_is_two_bytes_per_agent_and_written_through_resolve`(関数)
-- import している内部モジュール: `shibuya.foundation.types`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.attention`・`shibuya.world.laws.civic`・`shibuya.world.laws.salient`・`shibuya.world.model.notice_reach`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.foundation.text.salience`・`shibuya.foundation.types`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.laws.civic`・`shibuya.world.laws.salient`・`shibuya.world.model.notice_reach`・`tests/engine/processes/conftest.py`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・D-113・第 267・第 347
 
 ## [test_traffic.py](../../../../../../../tests/engine/processes/test_traffic.py)

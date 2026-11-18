@@ -241,7 +241,7 @@ def test_c4_second_half_on_the_real_world(capsys):
         )
 
     # L4(呼数の硬い上限)
-    from shibuya.engine.arbiter import call_budget_per_tick
+    from shibuya.runtime.arbiter import call_budget_per_tick
 
     assert res.llm_calls <= int(call_budget_per_tick(5_000) * 1_440)
 

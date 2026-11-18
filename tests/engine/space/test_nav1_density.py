@@ -219,13 +219,15 @@ def test_b4_density_stage_comes_from_the_nav_stage_only_when_asked():
     """変化検出の B4 の密度の段: los_stage を渡せばそれ(nav1)・渡さなければ density ÷ 歩ける面積(legacy)。"""
     from types import SimpleNamespace
 
-    from shibuya.engine import change_detect as CD
+    from shibuya.mind.system1 import change_detect as CD
+    # 〔割る段 5a の G5〕主でない割り先(foundation.vocab.agent_codes・world.model.scene_hash)へ行く名は名で読む(別名では割り先が 1 つに決まらない)
+    from shibuya.world.model.scene_hash import b4_block_raw
 
     dens = np.array([0.0, 50.0, 400.0])
     world = SimpleNamespace(n_cells=3, cells=SimpleNamespace(density=dens),
                             noise_stage_for_tick=lambda t: np.zeros(3, dtype=np.uint8))
-    legacy = CD.b4_block_raw(world, 0, walkable_area_m2=np.array([100.0, 100.0, 100.0]))
-    nav = CD.b4_block_raw(world, 0, walkable_area_m2=np.array([100.0, 100.0, 100.0]),
+    legacy = b4_block_raw(world, 0, walkable_area_m2=np.array([100.0, 100.0, 100.0]))
+    nav = b4_block_raw(world, 0, walkable_area_m2=np.array([100.0, 100.0, 100.0]),
                           los_stage=np.array([5, 0, 1], dtype=np.uint8))
     assert legacy[:, 0].tolist() == [0, 2, 5] and nav[:, 0].tolist() == [5, 0, 1]
     assert np.array_equal(legacy[:, 1:], nav[:, 1:])

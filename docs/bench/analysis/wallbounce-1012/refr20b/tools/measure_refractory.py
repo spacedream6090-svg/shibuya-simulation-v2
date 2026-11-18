@@ -590,7 +590,7 @@ def extrapolate(ratio_B: float, base_calls_sample: int, *, n_full: int, n_sample
 
 
 def build_extrapolation(table: Mapping[str, Any], ref: Mapping[str, Any]) -> dict[str, Any]:
-    from shibuya.engine.arbiter import L4_CALLS_PER_DAY, L4_REFERENCE_AGENTS
+    from shibuya.runtime.arbiter import L4_CALLS_PER_DAY, L4_REFERENCE_AGENTS
 
     out: dict[str, Any] = {"reference": dict(ref), "l4_calls_per_day": int(L4_CALLS_PER_DAY),
                            "l4_reference_agents": int(L4_REFERENCE_AGENTS), "by_config": {}}

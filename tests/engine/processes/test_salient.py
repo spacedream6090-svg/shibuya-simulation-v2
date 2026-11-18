@@ -18,7 +18,7 @@ from shibuya.world.laws.salient import (
     _as_ablation,
     _cross_neighbours,
 )
-from shibuya.perception import attention as AT
+from shibuya.foundation.text import salience as AT
 from shibuya.world.model import notice_reach as PN
 
 from .conftest import make_agents, make_world
