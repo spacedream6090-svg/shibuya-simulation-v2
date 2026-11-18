@@ -165,10 +165,11 @@ def test_map_toml_is_made_from_the_table_and_is_current():
     rows = parse_table((ROOT / "docs/reference/package-map-final-2026-11-09-files.md").read_text(encoding="utf-8"))
     # 〔割る段 5a の G0〕2 つ目以降の割り先 9 本と 18 本目(延ばした)の割り先 1 本の行(move の形・split_from)を足し、行 244 を
     # 割る行に替えた(18 本目は延ばしても割る行のまま=table.SPLIT_DEFERRED)。〔割る段 5b の G0〕2 つ目以降の割り先 6 本の行
-    # (87a・141a・146a・207a・234a・234b)を足した(親の裁定 Q5)
-    assert len(rows) == 344
+    # (87a・141a・146a・207a・234a・234b)を足した(親の裁定 Q5)。〔割る段 6 の S6-G0・裁定 Q5〕2 つ目以降の新しい割り先 14 本の行
+    # (225a〜225n)を足した
+    assert len(rows) == 358
     kinds = Counter(r.kind for r in rows)
-    assert kinds == {"move": 221, "keep": 94, "split": 25, "delete": 2, "empty": 2}
+    assert kinds == {"move": 235, "keep": 94, "split": 25, "delete": 2, "empty": 2}
     # 保留の一覧は 11-16 の答え(返事その 8 §1-6)で全部決着した=空
     assert {r.old: r.held for r in rows if r.held} == HELD == {}
     by = {r.old: r for r in rows}
@@ -183,6 +184,10 @@ def test_map_toml_is_made_from_the_table_and_is_current():
     # 割る行(段 4 では動かさない)の割り先: apply_detection の (b)=act の側と mind/ops.py(§1-6 の 2)・入口=interfaces(§1-6 の 6)
     assert by["engine/resolve.py"].kind == "split"
     assert {"act/ops/detect_writes.py", "mind/ops.py"} <= set(by["engine/resolve.py"].split_to)
+    # 〔割る段 6 の S6-G0・裁定 Q3〕S6-A で割った 2 つの関数を、それぞれの割り先に書き分けた(古い名 apply_detection は表に無い)
+    nm = by["engine/resolve.py"].name_map
+    assert (nm["write_b4_hash"], nm["write_intero_stages"]) == ("act/ops/detect_writes.py", "mind/ops.py")
+    assert "apply_detection" not in nm and by["engine/resolve.py"].names_complete
     assert by["engine/run.py"].kind == "split" and "interfaces/cli/run_args.py" in by["engine/run.py"].split_to
     # 〔割る段 5b の G0・親の裁定 Q4〕run と commit の主な割り先を入れ替えた・入口の転送と入口の割り先の宣言は main の割り先
     assert by["engine/run.py"].new == "runtime/run.py" and by["engine/commit.py"].new == "act/commit.py"
@@ -1899,13 +1904,15 @@ def test_split_rows_in_the_real_map_match_the_source_files():
     """本物の対応表: 割る段 5a の 17 本と延ばした 1 本(18 本目だった ``engine/speech/port.py``=G0 の検収の後の親の答え 1)は名が
     揃い(§4 を開いた=親の裁定 Q9)、まだ割っていない本は表の名が元のファイルの頂上の名と同じ。延ばした行は割る行のまま、順に
     載らず(split_order 0)、道具は名指しでも断る。2 つ目以降の割り先の行(split_from)は段 4 の段の行に数えず、名指しでも段 4 の
-    道具は断る。〔割る段 5b の G0〕順に 5b の 5 本を足した(22 本)・2 つ目以降の割り先の行は 16 本(5a 10・5b 6)。"""
+    道具は断る。〔割る段 5b の G0〕順に 5b の 5 本を足した(22 本)・2 つ目以降の割り先の行は 16 本(5a 10・5b 6)。〔割る段 6 の
+    S6-G0〕順に段 6 の 1 本(23 本目=engine/resolve.py)を足した・2 つ目以降の割り先の行は 30 本(段 6 の 14 を足した)。"""
     from pkgmove.table import SPLIT_DEFERRED, SPLIT_ORDER
 
     tree = _root_tree()
     by = MAPDOC.by_old()
-    assert [r.old for r in MAPDOC.split_rows()] == list(SPLIT_ORDER) and len(SPLIT_ORDER) == 22
-    assert SPLIT_ORDER[17:] == ("engine/commit.py", "engine/presence.py", "engine/calendar_shadow.py", "engine/run.py", "cli.py")
+    assert [r.old for r in MAPDOC.split_rows()] == list(SPLIT_ORDER) and len(SPLIT_ORDER) == 23
+    assert SPLIT_ORDER[17:] == ("engine/commit.py", "engine/presence.py", "engine/calendar_shadow.py", "engine/run.py", "cli.py",
+                                "engine/resolve.py")
     assert list(SPLIT_DEFERRED) == ["engine/speech/port.py"] and by["engine/speech/port.py"].kind == "split"
     assert by["engine/speech/port.py"].split_order == 0 and "engine/speech/port.py" not in SPLIT_ORDER
     with pytest.raises(SP.SplitRefused, match="割る段の順に無い行"):
@@ -1919,7 +1926,8 @@ def test_split_rows_in_the_real_map_match_the_source_files():
         assert src is not None, old
         assert set(r.name_map) == SP.top_names(tree.files[SRC_PREFIX + src]), old
     sf = [r for r in MAPDOC.rows if r.split_from]
-    assert len(sf) == 16 and all(r.kind == "move" and r.stage == "" and r.new in by[r.split_from].split_to for r in sf)
+    assert len(sf) == 30 and all(r.kind == "move" and r.stage == "" and r.new in by[r.split_from].split_to for r in sf)
+    assert len([r for r in sf if r.split_from == "engine/resolve.py"]) == 14
     rows, _held = MV.select_rows(MAPDOC, STAGES)
     assert not [r for r in rows if r.split_from]
     with pytest.raises(MV.Refused, match="割る段の割り先の行"):
@@ -1971,7 +1979,7 @@ def test_split_dry_run_of_the_next_row_writes_nothing_and_keeps_every_guard(tmp_
 
 def test_ignore_split_rows_come_in_with_their_split():
     """〔親の裁定 Q3〕割る段で出る辺 4 本は別の表 [[ignore_split]](28 本と表の外の 1 本の表は変えない)。appears_with の割る行を
-    当てる前の木では載せない。"""
+    当てる前の木では載せない。〔割る段 6 の S6-G0・裁定 Q6〕段 6 の 4 本(割 5〜8=型の注釈だけの辺)を足した。"""
     from pkgmove import contracts as CT
     from pkgmove.table import SPLIT_ORDER
 
@@ -1980,7 +1988,12 @@ def test_ignore_split_rows_come_in_with_their_split():
     assert got == [("mind.percept.draw", "world.model.agent_table", [3], "agents/state.py"),
                    ("world.model.scene_hash", "world.model.percept_scene", [1], "engine/change_detect.py"),
                    ("mind.system1.change_detect", "world.model.agent_table", [3], "engine/change_detect.py"),
-                   ("mind.system1.change_detect", "world.model.scene_hash", [3], "engine/change_detect.py")]
+                   ("mind.system1.change_detect", "world.model.scene_hash", [3], "engine/change_detect.py"),
+                   ("act.ops.detect_writes", "mind.system1.change_detect", [1], "engine/resolve.py"),
+                   ("mind.ops", "world.model.agent_table", [3], "engine/resolve.py"),
+                   ("runtime.state.restore", "world.model.agent_table", [10], "engine/resolve.py"),
+                   ("runtime.state.restore", "world.model.state", [10], "engine/resolve.py")]
+    assert [g["gone_at"] for g in spec.ignores_split if g["appears_with"] == "engine/resolve.py"] == ["注釈だけ"] * 4
     assert all(g["appears_with"] in SPLIT_ORDER and g["gone_at"] for g in spec.ignores_split)
     assert len(spec.ignores) == 28 and len(spec.extras) == 1
     tree = _root_tree()
@@ -2130,7 +2143,8 @@ def test_split_5a_5b_in_memory_keeps_the_import_rules_to_the_end():
     (書かない・手で直す読みは残す): どの本でも守りが「同じ」(宣言どおりの弱まりは 2 本目の agents と 10 本目の llm だけ)で、
     終わりに契約は 11(古い 2+新しい 9)、単位 foundation と決まり 2 が言える。〔割る段 5b の G0〕5b の 5 本の後は、単位
     interfaces が言え(run の本で入口の割り先 run_args が入る)、``shibuya.cli`` は入口の転送で済んだ本と見る(読んでよい側に
-    足した古い読み手は 0)。"""
+    足した古い読み手は 0)。〔割る段 6 の S6-G0〕23 本目(engine/resolve.py)まで: 宣言どおりの弱まりに段 6 の engine(包み engine が
+    木から無くなり古い層の決まりが丸ごと消える=[[split_weakens]])が足され、終わりの契約は 11(古い 1+新しい 10=決まり 4 が言える)。"""
     from pkgmove import contracts as CT
     from pkgmove.table import SPLIT_ORDER
 
@@ -2148,13 +2162,14 @@ def test_split_5a_5b_in_memory_keeps_the_import_rules_to_the_end():
         if plan.guards["contracts"] != "同じ":
             weakened[old] = plan.contracts["declared"]
         tree = plan.after
-    assert set(weakened) <= {"agents/state.py", "llm/undefined.py"}, weakened
+    assert set(weakened) <= {"agents/state.py", "llm/undefined.py", "engine/resolve.py"}, weakened
     assert SP.split_state(tree, MAPDOC) == list(SPLIT_ORDER) and SP.next_split(tree, MAPDOC) is None
     assert SP.is_forwarder(tree, MAPDOC.by_old()["cli.py"]) and "src/shibuya/engine/run.py" not in tree.files
+    assert "src/shibuya/engine/resolve.py" not in tree.files and "src/shibuya/engine/__init__.py" not in tree.files
     _c, rep = CT.build(spec, MAPDOC, tree, CT.stage_of(tree, MAPDOC, spec))
-    assert (rep["n_old"], rep["n_new"]) == (2, 9), rep["not_expressed"]
+    assert (rep["n_old"], rep["n_new"]) == (1, 10), rep["not_expressed"]
     ne = {(str(x["rule"]), x["name"]) for x in rep["not_expressed"]}
-    assert ("単位", "foundation") not in ne and not [r for r, _n in ne if r == "2"], sorted(ne)
+    assert ("単位", "foundation") not in ne and not [r for r, _n in ne if r in ("2", "4")], sorted(ne)
     assert ("単位", "interfaces") not in ne and not rep.get("late_allowed"), (sorted(ne), rep.get("late_allowed"))
 
 
@@ -2612,12 +2627,13 @@ def test_negative_forwarder_guard_branches_stop_one_by_one(monkeypatch):
 
 
 def test_split_groups_cover_the_split_order_in_order():
-    """〔低-2〕群(親の裁定 Q11・``table.SPLIT_GROUPS``)を段の順・群の順につなぐと ``SPLIT_ORDER`` の 1〜22 本目と同じ(重なりも
-    抜けも無い)。5b の群は G1=commit・presence・calendar_shadow・G2=run・G3=cli。"""
+    """〔低-2〕群(親の裁定 Q11・``table.SPLIT_GROUPS``)を段の順・群の順につなぐと ``SPLIT_ORDER`` の全部と同じ(重なりも抜けも
+    無い)。5b の群は G1=commit・presence・calendar_shadow・G2=run・G3=cli。〔割る段 6 の S6-G0・裁定 Q9〕段 6 の群は G1=resolve
+    (23 本目)。"""
     from pkgmove.table import SPLIT_GROUPS, SPLIT_ORDER
 
     seq: list[int] = []
-    for stage in ("5a", "5b"):
+    for stage in ("5a", "5b", "6"):
         for _g, (lo, hi) in SPLIT_GROUPS[stage].items():
             assert lo <= hi
             seq += list(range(lo, hi + 1))
@@ -2625,6 +2641,8 @@ def test_split_groups_cover_the_split_order_in_order():
     g = {k: SPLIT_ORDER[lo - 1: hi] for k, (lo, hi) in SPLIT_GROUPS["5b"].items()}
     assert g == {"G1": ("engine/commit.py", "engine/presence.py", "engine/calendar_shadow.py"), "G2": ("engine/run.py",),
                  "G3": ("cli.py",)}
+    assert len(SPLIT_ORDER) == 23 and {k: SPLIT_ORDER[lo - 1: hi] for k, (lo, hi) in SPLIT_GROUPS["6"].items()} == {
+        "G1": ("engine/resolve.py",)}
 
 
 def test_split_lists_a_code_import_inside_an_f_string_for_hand_fixing(monkeypatch):

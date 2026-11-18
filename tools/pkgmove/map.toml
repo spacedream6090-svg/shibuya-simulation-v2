@@ -5,9 +5,9 @@
 # held がある行は保留(道具は動かさない)。stage は段 4 の小さな段(答えの後に移す行は、その包みと別の段の名)。
 schema = "shibuya.tools/pkgmove/map/1"
 source = "docs/reference/package-map-final-2026-11-09-files.md"
-source_sha256 = "17eab14f439d6b240c3a9f1006c5565447faee1fb85df454825c73da3cbe0e96"
+source_sha256 = "241e41dd34edd7bcd68d6a8943562e6808db6d3ac67323c973dafb89c607ae44"
 stages = ["foundation", "world", "economy", "act", "mind", "society", "runtime", "experiments", "validation", "society_contact", "interim_bundles", "foundation_224a", "delete"]
-split_order = ["world/assets.py", "agents/state.py", "engine/calendar.py", "engine/tools/registry.py", "engine/tools/record.py", "engine/events/body.py", "llm/__init__.py", "llm/fleet.py", "llm/mock.py", "llm/undefined.py", "engine/llm_bridge.py", "engine/chooser.py", "engine/poi_target.py", "perception/attention.py", "engine/change_detect.py", "engine/arbiter.py", "engine/relations.py", "engine/commit.py", "engine/presence.py", "engine/calendar_shadow.py", "engine/run.py", "cli.py"]
+split_order = ["world/assets.py", "agents/state.py", "engine/calendar.py", "engine/tools/registry.py", "engine/tools/record.py", "engine/events/body.py", "llm/__init__.py", "llm/fleet.py", "llm/mock.py", "llm/undefined.py", "engine/llm_bridge.py", "engine/chooser.py", "engine/poi_target.py", "perception/attention.py", "engine/change_detect.py", "engine/arbiter.py", "engine/relations.py", "engine/commit.py", "engine/presence.py", "engine/calendar_shadow.py", "engine/run.py", "cli.py", "engine/resolve.py"]
 # split_deferred: 割る行のまま割る段の順から外した行(table.SPLIT_DEFERRED・理由はそこ)。
 split_deferred = ["engine/speech/port.py"]
 # split_forwarders: 割った後も決まった型の転送で残す元のファイル → main の割り先(table.SPLIT_FORWARDERS)。
@@ -2255,7 +2255,8 @@ package = "act"
 kind = "split"
 new = "act/apply.py"
 split_to = ["act/apply.py", "act/ops/shop.py", "act/ops/rail.py", "act/ops/move.py", "act/ops/plan_writes.py", "mind/ops.py", "act/ops/law_writes.py", "act/ops/body_writes.py", "act/gate.py", "act/ops/talk.py", "runtime/state/restore.py", "act/ops/intent_writes.py", "act/ops/focus.py", "act/ops/init_writes.py", "foundation/write_guard.py", "act/ops/detect_writes.py", "foundation/vocab/act_codes.py", "foundation/vocab/agent_codes.py"]
-names_complete = false
+split_order = 23
+names_complete = true
 
 [row.names]
 "apply" = "act/apply.py"
@@ -2269,13 +2270,13 @@ names_complete = false
 "REPORT_WINDOW_TICKS" = "act/apply.py"
 "_BOARD_KEEP_ACTIONS" = "act/apply.py"
 "_SLEEP_KEEP_ACTIONS" = "act/apply.py"
-"_UNADDRESSABLE" = "act/apply.py"
 "_APPLY" = "act/apply.py"
 "_APPLY_V2" = "act/apply.py"
 "_APPLY_V3" = "act/apply.py"
 "_APPLY_BY_VOCAB" = "act/apply.py"
 "_ACTION_ORDER_V1" = "act/apply.py"
 "_ACTION_ORDER_V3" = "act/apply.py"
+"_ACTION_ORDER_BY_VOCAB" = "act/apply.py"
 "_stage2_money" = "act/ops/shop.py"
 "_payable" = "act/ops/shop.py"
 "_stage2_note_calls" = "act/ops/shop.py"
@@ -2307,6 +2308,7 @@ names_complete = false
 "rail_arrive" = "act/ops/rail.py"
 "rail_depart" = "act/ops/rail.py"
 "sync_transit_activity" = "act/ops/rail.py"
+"_cell_of_node" = "act/ops/rail.py"
 "BOARD_WAIT_LIMIT_TICKS" = "act/ops/rail.py"
 "_is_nav" = "act/ops/move.py"
 "_nav_stop" = "act/ops/move.py"
@@ -2317,7 +2319,6 @@ names_complete = false
 "_settle_approach" = "act/ops/move.py"
 "_apply_move" = "act/ops/move.py"
 "_approach_dest_node" = "act/ops/move.py"
-"_cell_of_node" = "act/ops/move.py"
 "APPROACH_DONE_M" = "act/ops/move.py"
 "set_plan_state" = "act/ops/plan_writes.py"
 "begin_planned_sleep" = "act/ops/plan_writes.py"
@@ -2334,7 +2335,7 @@ names_complete = false
 "write_memory" = "mind/ops.py"
 "write_store_memory" = "mind/ops.py"
 "write_relations" = "mind/ops.py"
-"apply_detection" = "mind/ops.py"
+"write_intero_stages" = "mind/ops.py"
 "restock" = "act/ops/law_writes.py"
 "discard_to_bin" = "act/ops/law_writes.py"
 "consume" = "act/ops/law_writes.py"
@@ -2360,6 +2361,7 @@ names_complete = false
 "talk_within_reach" = "act/ops/talk.py"
 "_apply_talk" = "act/ops/talk.py"
 "_apply_leave" = "act/ops/talk.py"
+"_UNADDRESSABLE" = "act/ops/talk.py"
 "restore_soa" = "runtime/state/restore.py"
 "_restore_array_into" = "runtime/state/restore.py"
 "_restore_value" = "runtime/state/restore.py"
@@ -2383,10 +2385,123 @@ names_complete = false
 "initialize" = "act/ops/init_writes.py"
 "set_initial_activity" = "act/ops/init_writes.py"
 "_require_thawed" = "foundation/write_guard.py"
+"write_b4_hash" = "act/ops/detect_writes.py"
 "TALK_OPEN_METERS" = "foundation/vocab/act_codes.py"
 "TALK_LEAVE_METERS" = "foundation/vocab/act_codes.py"
 "EXIT_WALK_FLAG" = "foundation/vocab/act_codes.py"
 "_REFRACTORY_TICKS" = "foundation/vocab/agent_codes.py"
+
+[[row]]
+num = "225a"
+old = "engine/shop.py"
+package = "act"
+kind = "move"
+new = "act/ops/shop.py"
+split_from = "engine/resolve.py"
+
+[[row]]
+num = "225b"
+old = "engine/rail.py"
+package = "act"
+kind = "move"
+new = "act/ops/rail.py"
+split_from = "engine/resolve.py"
+
+[[row]]
+num = "225c"
+old = "engine/move.py"
+package = "act"
+kind = "move"
+new = "act/ops/move.py"
+split_from = "engine/resolve.py"
+
+[[row]]
+num = "225d"
+old = "engine/plan_writes.py"
+package = "act"
+kind = "move"
+new = "act/ops/plan_writes.py"
+split_from = "engine/resolve.py"
+
+[[row]]
+num = "225e"
+old = "engine/ops.py"
+package = "mind"
+kind = "move"
+new = "mind/ops.py"
+split_from = "engine/resolve.py"
+
+[[row]]
+num = "225f"
+old = "engine/law_writes.py"
+package = "act"
+kind = "move"
+new = "act/ops/law_writes.py"
+split_from = "engine/resolve.py"
+
+[[row]]
+num = "225g"
+old = "engine/body_writes.py"
+package = "act"
+kind = "move"
+new = "act/ops/body_writes.py"
+split_from = "engine/resolve.py"
+
+[[row]]
+num = "225h"
+old = "engine/gate.py"
+package = "act"
+kind = "move"
+new = "act/gate.py"
+split_from = "engine/resolve.py"
+
+[[row]]
+num = "225i"
+old = "engine/talk.py"
+package = "act"
+kind = "move"
+new = "act/ops/talk.py"
+split_from = "engine/resolve.py"
+
+[[row]]
+num = "225j"
+old = "engine/restore.py"
+package = "runtime"
+kind = "move"
+new = "runtime/state/restore.py"
+split_from = "engine/resolve.py"
+
+[[row]]
+num = "225k"
+old = "engine/intent_writes.py"
+package = "act"
+kind = "move"
+new = "act/ops/intent_writes.py"
+split_from = "engine/resolve.py"
+
+[[row]]
+num = "225l"
+old = "engine/focus.py"
+package = "act"
+kind = "move"
+new = "act/ops/focus.py"
+split_from = "engine/resolve.py"
+
+[[row]]
+num = "225m"
+old = "engine/init_writes.py"
+package = "act"
+kind = "move"
+new = "act/ops/init_writes.py"
+split_from = "engine/resolve.py"
+
+[[row]]
+num = "225n"
+old = "engine/detect_writes.py"
+package = "act"
+kind = "move"
+new = "act/ops/detect_writes.py"
+split_from = "engine/resolve.py"
 
 [[row]]
 num = "226"

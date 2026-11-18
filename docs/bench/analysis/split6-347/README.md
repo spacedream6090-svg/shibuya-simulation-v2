@@ -268,3 +268,122 @@ S6-G0 は 2 つに分けた: 道具の拡張(別の実装役・別の木)と、�
 | 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`・§3-10 の直しの前に集めた回) | 7,005 passed・1 failed(前からの 1 本=linked の作業木でだけ落ちる)・22 skipped・1 xfailed・40 分 00 秒。前の回(S6-A)の 6,996 から、足した試験 9 本(凍結の索引 6・前向きの表の条件 ③ 1・場合が空でない確かめの種 2)で +9 |
 | §3-10 の直しの後に、直した 5 本を回し直した(`-n 2`) | 直した 5 本と `test_detection_writes_split.py` で 144 passed・落ちた試験 0(5 本は 109 → 110=直し 1 の負の対照で +1。範囲の全体は直しの後に回し直していない) |
 | `git status --porcelain -- src` | 空(src は変えていない=byte-check は要らない) |
+
+## S6-G0 の表と順(土台 `c8bfcde`=割る前の試験の直しの commit・2026-11-19)
+
+`engine/resolve.py` を、割る道具の本物の表と順に入れた(23 本目の割る行)。src は変えていない。本物の木には書いていない(書かない実行だけ)。
+
+### 表と順-1. 変えたファイルと行(`git diff --numstat`・足した/消した)
+
+| ファイル | 行 | 何を |
+|---|---|---|
+| `docs/reference/package-map-final-2026-11-09-files.md` | 27 / 8 | §3 に 14 行(225a〜225n)・225 の行に注・§4-14 の直しと注 4 つ |
+| `tools/pkgmove/map.toml` | 121 / 6 | `cli.py map` で作り直した(手で書いていない) |
+| `tools/pkgmove/contracts.toml` | 47 / 0 | `[[ignore_split]]` 4 本(割 5〜8)と `[[split_weakens]]` 1 つ |
+| `tools/pkgmove/split.py` | 9 / 4 | `SPLIT_PATH_DESTS` に 2 行(裁定 Q8) |
+| `tools/pkgmove/table.py` | 4 / 1 | `SPLIT_ORDER` の 23 本目と `SPLIT_GROUPS["6"]`(裁定 Q9) |
+| `tests/tools/test_pkgmove.py` | 34 / 16 | 表と順の数を直した(試験は足していない) |
+| `tests/engine/test_two_phase.py` | 4 / 3 | `_loop_scan_paths` の 1 行(裁定 R1・§4-2 の中-2) |
+| `tests/engine/state/mind_world_reads_frozen.json` | 5 / 5 | `_cell_of_node` の行と `md_source` の sha256(検収の低-1) |
+
+### 表と順-2. 表の直し(§3・§4-14)
+
+| 所 | 前 | 後 | 裁定 |
+|---|---|---|---|
+| §3 225a〜225n(14 行・新) | 無し | 2 つ目以降の割り先の move の形の行(`engine/<名>.py` → 割り先。`mind/ops.py` は包み mind・`runtime/state/restore.py` は包み runtime・ほかは act)。割る前は old も new も無い | Q5(仮採用・5a の Q1 の作法) |
+| §3 225 の何故の欄 | — | 注: S6-A の 2 つの名と 14 行 | Q3 |
+| §4-14 `act/apply.py` の定数 | `_UNADDRESSABLE` あり・「ほか 1 個」 | `_UNADDRESSABLE` を外した・`_ACTION_ORDER_BY_VOCAB` を開いた | Q2・5a の Q9/5b の Q3 の見方 |
+| §4-14 `act/ops/talk.py` の定数 | なし | `_UNADDRESSABLE` | Q2 |
+| §4-14 `act/ops/move.py` → `act/ops/rail.py` | `_cell_of_node` は move | rail | Q2 |
+| §4-14 `mind/ops.py` | `apply_detection` の心の欄を書く半分(〔〕の外の字) | `write_intero_stages` | Q3 |
+| §4-14 `act/ops/detect_writes.py` | `apply_detection` | `write_b4_hash` | Q3 |
+| §4-14 `foundation/vocab/agent_codes.py` | `_REFRACTORY_TICKS` が 2 回 | 1 回 | 重なりの直し(5a の Q9 の見方) |
+
+- 行数の欄は元の見積りのまま(道具は行数の欄を読まない。5b の G0 と同じ扱いで、注に書いた)。
+- `map.toml`: 358 行(keep 94・delete 2・move 235・split 25・empty 2)。前は 344 行・move 221。resolve の行は `split_order = 23`・名が揃った(131 名)。前の表との名の違いは上の 5 つの名だけ。
+
+### 表と順-3. 順・群・宣言・決まりの表
+
+- `SPLIT_ORDER` は 23 本(末尾に `engine/resolve.py`)・`SPLIT_GROUPS["6"] = {"G1": (23, 23)}`。
+- `SPLIT_PATH_DESTS`(E8): `runtime/state/ledger.py::_ALLOW_REVENUE` → `act/ops/shop.py`(収入の書きの許可の字面が在るのは `_complete_buy`・`_complete_eat`)・`runtime/state/ledger_ast.py::ext_reason` → `runtime/state/restore.py`(`restore` で始まる関数=再開の復元)。
+- `contracts.toml` の割る段の例外 4 本(どれも `appears_with = "engine/resolve.py"`・`gone_at = "注釈だけ"`)。割った後の木(メモリの中)を AST で読んで、4 本とも読みは注釈だけだった(`from __future__ import annotations` あり・実行の時の読み 0・文字列の注釈 0)。
+
+| 割 | 辺 | 決まり | import の行と名 |
+|---|---|---|---|
+| 5 | `act.ops.detect_writes` → `mind.system1.change_detect` | 1 | 行 10 `DetectResult` |
+| 6 | `mind.ops` → `world.model.agent_table` | 3 | 行 13 `AgentState` |
+| 7 | `runtime.state.restore` → `world.model.agent_table` | 10 | 行 13 `AgentState` |
+| 8 | `runtime.state.restore` → `world.model.state` | 10 | 行 16 `World` |
+
+- `[[split_weakens]]`(resolve): 消える古い決まり 1 つ(`layers: census > economy > engine > …`=包み engine が消える)・言えなくなる新しい決まり 0。
+
+### 表と順-4. 試験(前 → 後)
+
+| 何を | 前(c8bfcde) | 後 |
+|---|---|---|
+| `test_pkgmove.py`(`-m "not slow"`・`-n` なし) | 150 passed・21 skipped | 150 passed・21 skipped(飛ぶ顔ぶれは同じ。次の割る行の書かない実行の試験は、今は resolve の行を通る) |
+| slow: 5a・5b の順の当て(23 本目まで) | — | passed 22 秒(決まりは古い 1・新しい 10・決まり 2 と 4 は言える) |
+| slow: 履歴の当て直し(E5-b) | — | passed 57 秒 |
+| `test_two_phase.py`(1 行を足す前と後) | 14 passed | 14 passed(同じノード。割る前の走査の範囲は前も後も 36 本で同じ=resolve は `engine/resolve.py` の 1 本) |
+| `tests/tools` の残り・`tests/test_places_guard.py`・`tests/engine/state`・`bridging`・`systems`・`test_energy_balance.py`(`-n 2`) | — | 929 passed・落ち 0・飛び 0 |
+| `map --check`・`contracts --stage delete --tree . --check --probe`・`lint-imports` | — | 同じ・同じ(古い 2+新しい 9・例外 26 行/20 辺・割 5〜8 は「割る行がまだ当たっていない」で載らない)・11 kept |
+
+- `split_files("engine/resolve.py", …)` の呼び手 3 か所(`test_resolve_index_frozen.py`・`test_energy_balance.py`・`test_two_phase.py`)は、表を直した後に落ちる所も縮む所も無い。
+- 凍結の JSON: `apply_detection` は S6-A で消えていた。残っていた古い形は `_cell_of_node` の置き場だけ(move → rail に移した)。`md_source` を今の表の sha256 に直し、注を足した。心の割り先は変わらないので数(`key_counts` と合計)は同じ。値の意味は変えていない。
+
+### 表と順-5. 本物の木の書かない実行(`cli.py split --through engine/resolve.py`)
+
+- 守り: 全部「同じ」(13 項・④ は前向きの表で)・決まりは「宣言どおり 4」・止めた守り 0。割り先 18。`deleted` は `engine/resolve.py` と `engine/__init__.py`(包み engine が消える)・作った頭は `act/ops/__init__.py`。
+- 前向きの表: 2 行(`act/ops/plan_writes.py`・`mind/ops.py` → `engine/resolve.py`)。台帳の道は 1 行を足す。E8 の宣言 2 つは各 1 か所で使われた。
+- 決まり: 前 古い 2・新しい 9・例外 26 行/20 辺 → 後 古い 1・新しい 10・例外 18 行/16 辺。消える例外 8 本(28 本の表の #1〜#4・#13・#14・#16・#21)・載る 4 本(割 5〜8)。宣言した弱まり 4・宣言の無い弱まり 0。取り直し §4・§5 の見込みと同じ。
+- E5-b: 確かめた 10 群・11 か所(`discard_probe`・`test_du_runs`・`test_m4_m5_people`・`proximity/test_runs` 2 名・`test_no_permission_count`・`test_meal_bundle_2b` 2 か所・`test_removed_switches_346` のコードの文字列・`test_state_checks_10f`・`test_state_ledger_10b`)。見られなかった 5 群・6 か所(`test_resume_10d` の `advance_body`・`initialize`・`test_sim_time_T` の `advance_body`・`tools/c7/attr_arms.py`・`tools/c7/occupancy_series.py` の `apply`)は、どれも手で直す一覧の別名を通る差し替え(別名を分ければ確かめられる)。読み込みの時だけの読み 0。
+
+### 表と順-6. 手で直す一覧(49 文・45 ファイル。前の 74 文から減った)の 4 つの分け(分けただけ・決めていない)
+
+- **(i) 別名を割り先ごとに分ければ消える import(46)**: `from shibuya.engine import resolve` の別名の読みの割り先が 1 つに決まらないもの。
+  - src 8(S6-G1 で直す): `interim_bundles/calendar_self.py:89`・`mind/relations/layer.py:83`・`runtime/systems/assemble.py:38`・`body.py:20`・`judge.py:27`・`perceive.py:18`・`talk.py:27`・`world/laws/presence.py:99`。
+  - tests 36: `engine/body/test_body_same_values.py:16`・`engine/clock/test_tm3_step_scope.py:99・145・249`・`engine/processes/` の `test_civic:11`・`test_crowd:14`・`test_opening:12`・`test_rail:14`・`test_rail_board_intent:26`・`test_rail_return:26`・`engine/proximity/test_rule.py:24`・`engine/rights/` の `test_rights_events:20`・`test_staff_of_poi_equivalence:18`・`engine/systems/test_stage_a_guard.py:18`・`engine/` 直下の `test_ablation23_switches:33`・`test_add_at_guard:26`・`test_c9b_targets_attention:42`・`test_conversation_invite:24`・`test_defect_fixes_1103:24`・`test_detection_writes_split:24`(S6-A で足した試験)・`test_familiarity:24`・`test_geometry_c9:32`・`test_intent_chooser:17`・`test_intent_hold:35`・`test_ledger_wiring:39`・`test_meal_gate_per_hour:189`・`test_move_destination:20`・`test_plan_sleep_d62:30`・`test_presence_exit_walk:20`・`test_resolve:16`・`test_resume_10d:288・593`・`test_sim_time_T:28`・`test_stage3_small_fixes:14`・`test_two_layer_activity:38`・`test_vocab_v2_eat:23`。
+  - tools 2: `tools/c7/attr_arms.py:264`・`tools/c7/occupancy_series.py:172`(別名 `module`。E5-b の見られなかった 2 群もここ)。
+- **(ii) E8 の宣言で向けられる道の文字列: 0**。src の 2 つ(`ledger.py`・`ledger_ast.py`)は上の宣言で向いた。ほかに名の手がかりの無い道は残っていない。
+- **(iii) 書き換えから外す候補(3)**:
+  - `tests/economy/cp2/test_cp2_write_window.py` の `test_negative_window_and_balance_write`・`test_negative_setattr_and_named_writes`: `"engine/resolve.py"` は、コードの断片に付ける「窓の外のファイル」の名札(`window_refs(code, path)`・`MW.scan_source(code, path)`)。負の対照の偽の道で、ファイルが在るかどうかは結果を変えない。案: `STRING_EXCLUDE` に 2 行(わけ=負の対照の名札)、または手で今在る道に替える。
+  - `tools/repo_guide/guide_permits.py::RESOLVE_FILE`(`shibuya.engine.resolve`): `allow.py` に `RESOLVE_FILES` が無い木(カードの試験の見本の木。`tests/tools/test_repo_guide.py` が見本の木のこの道に resolve の材料を置く)で読む 1 本(決め事 3)。本物の木は `RESOLVE_FILES` の全部を読む。案: 見本の木の材料として外す。ただし `guide_render.py` が、置き場の分からない関数のカードの既定にもこの道を使うので、(iv) と見るなら案は「既定を主な割り先 `act/apply.py` にする」(`tools/repo_guide` は今回の範囲の外)。
+- **(iv) そのほか: 0**(上の `RESOLVE_FILE` の読み方しだい)。
+
+### 表と順-7. 計画や取り直しと違った所
+
+- 手で直す一覧: 道具の拡張の時の今の木の書かない実行は 74 文 → 割る前の試験の直し(`c8bfcde`)と表の直しの後は 49 文。中身は、import の別名 52 → 46(tests 42 → 36。src 8・tools 2 は同じ)・道の文字列 21 → 2・名の無い点の道 1 → 1。減ったのは、割る前の試験の直しで消えた試験の字面の `"engine/resolve.py"` と別名の import。
+- 凍結の JSON の古い名は `apply_detection` ではなく `_cell_of_node` の置き場だった(裁定 Q2 で表を直したため)。
+- 表の行数の欄は直していない(上のとおり)。数の見込み(358/235・23 本・古い 1+新しい 10・消える 8/載る 4・18 行/16 辺・前向きの表 2 行)は全部、見込みどおり。
+- 範囲の全体の試験・byte-check・ランは回していない(src は変えていない)。`tests/c7` は開いていない・検索の範囲にも入れていない。カードは作り直していない。
+
+## S6-G0 の表と順: 親の確かめと検収(第347・2026-11-19)
+
+### 表と順(親)-1. 別の役の検収
+
+- 判定: **受入**(高 0・中 0・低 2)。検収役はファイルを 1 本も変えていない。
+- 表の名と割り先: 今の `resolve.py` の頂上の名 131 と、`map.toml` の resolve の行の名 131 がちょうど一致する。前の表から変わった名は 6 つだけ(`_UNADDRESSABLE` → talk・`_cell_of_node` → rail・`apply_detection` → `write_b4_hash`/`write_intero_stages`・`_ACTION_ORDER_BY_VOCAB` → apply)で、裁定に無い名は動いていない。割り先は 18。足した 14 行は、新しい 2 つ目以降の割り先とちょうど同じ(既に在る 3 本には行が無い)。
+- 循環: 割った後の割り先どうしに、互いに読む組は 0(守り `import_cycles` は「同じ」)。
+- 決まりの例外 4 本(割 5〜8): 割った後の字面を AST で読むと、4 本とも注釈だけの辺(`from __future__ import annotations` あり・実行の時の読み 0・`TYPE_CHECKING` 0・文字列の注釈 0)。今の木では載らない(「割る行がまだ当たっていない」)。検収役が決まりを自分で評価し(関数の中の import と間接の鎖まで)、割る前も割った後も破りは 0・4 本を 1 本ずつ外すとそれぞれ破りが出る=4 本とも効き、ほかに要る例外は無い。`[[split_weakens]]` は宣言どおり 4・宣言の外 0。契約は古い 2+新しい 9 → 古い 1+新しい 10・例外は 26 行/20 辺 → 18 行/16 辺・消える 8 本は #1〜#4・#13・#14・#16・#21。
+- 道の文字列の宣言 2 行: `act/ops/shop.py` には `_require_thawed(world, world.pois.revenue)` を持つ `_complete_buy`・`_complete_eat` が、`runtime/state/restore.py` には `restore_soa`・`restore_items` が在る(ほかの割り先に当たる関数は無い)。
+- 書かない実行(検収役がメモリの中で 1 回): 守り 13 項はどれも「同じ」・消えるのは `engine/resolve.py` と `engine/__init__.py`・作る頭は `act/ops/__init__.py`・前向きの表 2 行・手で直す一覧 49 文は実装役の一覧とファイル・行まで一致(分け漏れなし)。
+- `_loop_scan_paths`: 割る前は resolve の 1 本(範囲 36 本は同じ)・割った後は 18 本(`detect_writes` と既に在る 3 本を含む)。
+- `test_pkgmove` の数の直しは表と合う(358 行・move 235・2 つ目以降の行 30・順 23・群)。確かめを弱めた所は無い。凍結の JSON は `_cell_of_node` を act の行の間で移したのと sha の直しだけ(心の数は同じ)。
+
+### 表と順(親)-2. 検収の低 2 件と、書き換えから外す候補 3 件の裁定
+
+- 低-1(S6-G1 の手直しは、道具の「手で直す一覧」の外にも在る=`allow.py` の `RESOLVE_FILES` を 15 本へ・`money_writers_frozen.json` の 4 行の道・`mind_world_reads_frozen.json` の `scope.split` の resolve の項): S6-G1 の発注に入れる。
+- 低-2(カードの道具 `guide_render` は、置き場の分からない口の名を `RESOLVE_FILE` へ黙って置く。割った後の本物の木では使われない): そのまま(範囲の外)。
+- `tests/economy/cp2/test_cp2_write_window.py` の負の対照 2 本の `"engine/resolve.py"`(合成のコード片に付けた名札で、ファイルは読まない): **割る前に、どの割る段にも当たらない名札の字面へ手で直す**(検収役の見立てを採る。同じノードの前後を記録)。次の commit で。
+- `tools/repo_guide/guide_permits.py` の `RESOLVE_FILE`(`RESOLVE_FILES` の無い見本の木のための 1 本。`test_repo_guide` の見本の木がこの道に resolve の材料を置く): **道具の書き換えから外す**(`split.STRING_EXCLUDE`)。書き換えると `test_repo_guide` が落ちる。次の commit で。
+- 別名を「渡す・返す・しまう」形で使う所(試験 3 本・`tools/c7` の 2 本・src の `judge.py`)は、別名を分けても手で直す一覧に残る。扱いは次の commit で決める(別名の割り先の宣言に、素で使ってよい別名の印を足す案)。
+
+### 表と順(親)-3. 親が回した確かめ
+
+| 何を | 結果 |
+|---|---|
+| `tests/tools/test_pkgmove.py`(`-m "not slow"`・`-n` なし) | 150 passed・21 skipped・落ちた試験 0(数は前と同じ・飛ぶ 21 本も同じ) |
+| `tests/tools/test_pkgmove.py` の slow | 2 passed(本物の表と木で順に当てる試験は 23 本目まで・履歴の当て直し) |
+| `tests/tools` の残り・`tests/engine/test_two_phase.py`・`tests/engine/state`・`tests/test_places_guard.py`(`-n 2`) | 745 passed・落ちた試験 0(`test_pkgmove.py` を除く・`tests/engine/test_energy_balance.py` を含む) |
+| 本物の木の `map --check`・`contracts --check --probe` | 同じ・同じ(今の木では例外 20 辺・延べ 26 行のまま。割 5〜8 は割る行を当てた後に載る) |
+| `git status --porcelain -- src` | 空(src は変えていない=byte-check は要らない) |

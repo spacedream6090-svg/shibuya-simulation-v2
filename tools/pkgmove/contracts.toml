@@ -441,6 +441,46 @@ appears_with = "engine/change_detect.py"
 gone_at = "残る"
 note = "b4_block_raw・b4_block_hashes(案 K の例外 T3・v3 で世界が「変わったセル」を口へ出す)"
 
+# 〔割る段 6 の S6-G0・親の裁定 Q6〕段 6(engine/resolve.py を 18 の割り先へ)で出る辺 4 本。どれも型の注釈だけ(割り先は元の
+# from __future__ import annotations を写す=注釈は実行の時に読まない。S6-G0 で割った後の木の AST で確かめた=記録
+# docs/bench/analysis/split6-347 の「S6-G0 の表と順」)。段 8 で TYPE_CHECKING へ移す(5a の裁定 Q5 と同じ=割る段ではコードを写すだけ)。
+# 計画(本文 §6-5)の見込みは 1 本(割 5)=3 本多い(割 6〜8)。
+[[ignore_split]]
+num = "割 5"
+importer = "act.ops.detect_writes"
+imported = "mind.system1.change_detect"
+rules = [1]
+appears_with = "engine/resolve.py"
+gone_at = "注釈だけ"
+note = "write_b4_hash の引数の注釈 DetectResult だけ(親の裁定 Q6=段 8 で TYPE_CHECKING へ)"
+
+[[ignore_split]]
+num = "割 6"
+importer = "mind.ops"
+imported = "world.model.agent_table"
+rules = [3]
+appears_with = "engine/resolve.py"
+gone_at = "注釈だけ"
+note = "AgentState の注釈だけ(親の裁定 Q6=段 8 で TYPE_CHECKING へ)"
+
+[[ignore_split]]
+num = "割 7"
+importer = "runtime.state.restore"
+imported = "world.model.agent_table"
+rules = [10]
+appears_with = "engine/resolve.py"
+gone_at = "注釈だけ"
+note = "AgentState の注釈だけ(親の裁定 Q6=段 8 で TYPE_CHECKING へ)。決まり 10 の契約の例外"
+
+[[ignore_split]]
+num = "割 8"
+importer = "runtime.state.restore"
+imported = "world.model.state"
+rules = [10]
+appears_with = "engine/resolve.py"
+gone_at = "注釈だけ"
+note = "World の注釈だけ(親の裁定 Q6=段 8 で TYPE_CHECKING へ)。決まり 10 の契約の例外"
+
 # ---- 割る段で弱まってよい決まり(検収 高-1・親の答え 2026-11-16・再検収 低-1)。割る行を当てた後の木で、当てる前より弱まった
 # 所(not_expressed・dropped_old に増えた項・言えない名の並びに増えた名・uncovered に増えたモジュール・late_allowed に増えた
 # 読み手・載せた例外の行の増え=[[ignore_split]] を除く。pkgmove.contracts.weakened)のうち、ここで宣言したものだけを計画どおり
@@ -460,3 +500,10 @@ old_names_gone = ["llm"]
 contracts_gone = ["llm は world/agents を import しない(mock LLM が成立する)"]
 not_expressed = []
 note = "llm の最後のファイルを割り、包み llm が木から無くなる(古い決まり 3 本から名 llm が外れ、llm の決まりが丸ごと消える=計画どおり古い 3 → 2)"
+
+[[split_weakens]]
+split = "engine/resolve.py"
+old_names_gone = ["engine"]
+contracts_gone = ["layers: census > economy > engine > (perception | llm) > (world | agents) > core > manifest"]
+not_expressed = []
+note = "engine の最後のファイル(resolve.py)を割り、包み engine が木から無くなる(古い決まりから名 engine が外れ、古い層の決まりが丸ごと消える=古い 2 → 1。決まり 4 が言えるようになり新しい 9 → 10・親の裁定 Q6)"

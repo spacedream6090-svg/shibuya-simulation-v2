@@ -657,7 +657,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_split_dry_run_of_the_next_row_writes_nothing_and_keeps_every_guard`(関数): 本物の木で次の本を書かずに当てる(--through=手で直す読みは残して報告): 何も書かず、守りが全部「同じ」。割る行が残り 0 の
   - `test_split_entry_moves_the_main_block_and_the_m_strings`(関数): 〔E3・返事その 8 §1-6 の 6〕入口の割り先の宣言: ``if __name__`` は ``main`` と同じ入口の割り先へ。名の無い点の道は ``-m`` の
   - `test_split_forwarder_keeps_the_entry_file_in_the_fixed_form`(関数): 〔E2・親の裁定 Q6 の (a)・Q7〕入口の転送の行: 元のファイルを消さずに決まった型の転送で書き直す(``if __name__`` の中で割り先の
-  - `test_split_groups_cover_the_split_order_in_order`(関数): 〔低-2〕群(親の裁定 Q11・``table.SPLIT_GROUPS``)を段の順・群の順につなぐと ``SPLIT_ORDER`` の 1〜22 本目と同じ(重なりも
+  - `test_split_groups_cover_the_split_order_in_order`(関数): 〔低-2〕群(親の裁定 Q11・``table.SPLIT_GROUPS``)を段の順・群の順につなぐと ``SPLIT_ORDER`` の全部と同じ(重なりも抜けも
   - `test_split_import_keeps_the_comments_of_its_names`(関数): 〔突然変異 m13・L-9〕行き先が 2 つに分かれる文を作り直すとき、名の行の注・名の前の注だけの行・頭の行の注を残す。
   - `test_split_imports_a_name_that_shadows_a_builtin_and_guard_3_checks_it`(関数): 〔検収 中-1〕元が組み込みの名を覆う名(``def format``)を定義し、別の割り先の文がそれを読むなら、組み立ては import を作る。
   - `test_split_in_place_keeps_the_main_file_and_moves_names_out`(関数): 主な割り先が元のファイルの今の置き場(段 4 で移した=延ばした 18 本目の形): 元のファイルを書き直し、出した名は割り先から読む。

@@ -169,10 +169,15 @@ class PathDest:
 
 #: 〔割る段 6・E8・親の裁定 Q8〕道の文字列の割り先の宣言(形は :data:`SPLIT_ALIAS_DESTS` にそろえる)。宣言はその割る行でだけ使う。
 #: 守り: 宣言のファイルと記号が木に在る・宣言の割り先がその行の割り先・記号が書き換えの範囲の中(:data:`STRING_EXCLUDE` と
-#: :data:`SPLIT_EXCLUDE_PATHS` の外)・同じ記号に宣言が 2 つ無い・使われなかった宣言は止める(:func:`_path_decl_errors`)。段 6 の
-#: 2 行(``runtime/state/ledger.py::_ALLOW_REVENUE`` → ``act/ops/shop.py``・``runtime/state/ledger_ast.py::ext_reason`` →
-#: ``runtime/state/restore.py``)は、割る行が順に入る次の発注で載せる(今は空)。
-SPLIT_PATH_DESTS: tuple[PathDest, ...] = ()
+#: :data:`SPLIT_EXCLUDE_PATHS` の外)・同じ記号に宣言が 2 つ無い・使われなかった宣言は止める(:func:`_path_decl_errors`)。
+SPLIT_PATH_DESTS: tuple[PathDest, ...] = (
+    # 〔割る段 6 の S6-G0・裁定 Q8〕収入の書きの許可 ``AstAllow("engine/resolve.py", "_require_thawed(world, world.pois.revenue)")``
+    # の字面が在るのは ``_complete_buy``・``_complete_eat``=``act/ops/shop.py``(主な割り先 act/apply.py ではない)
+    PathDest("engine/resolve.py", "src/shibuya/runtime/state/ledger.py", "_ALLOW_REVENUE", "act/ops/shop.py"),
+    # 〔同〕``site.path == "engine/resolve.py" and site.func.startswith("restore")`` は再開の復元(``restore_soa``・``restore_items``)
+    # =``runtime/state/restore.py``(``startswith("restore")`` は変えない)
+    PathDest("engine/resolve.py", "src/shibuya/runtime/state/ledger_ast.py", "ext_reason", "runtime/state/restore.py"),
+)
 #: 〔割る段 5b・E4・親の裁定 Q9 の (a)〕割る段で書き換えないファイル(道筋か、``/`` で終わるディレクトリ)。byte-check は基準の側
 #: (割る前の木)と比べる側(割った後の木)を道具のリポの同じコードで回すので、ランの入口は道具が自分で解く
 #: (``tools/bytecheck/check.py`` の ``resolve_run``)。偽のエンジン(``shibuya/cli.py`` を一時の木に作る試験)も書き換えない。

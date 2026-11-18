@@ -153,7 +153,8 @@
        "place_at_external",
        "rail_arrive",
        "rail_depart",
-       "sync_transit_activity"
+       "sync_transit_activity",
+       "_cell_of_node"
       ]
      },
      {
@@ -167,8 +168,7 @@
        "_apply_engine_step",
        "_settle_approach",
        "_apply_move",
-       "_approach_dest_node",
-       "_cell_of_node"
+       "_approach_dest_node"
       ]
      },
      {
@@ -447,8 +447,8 @@
   ],
   "md_source": {
    "path": "docs/reference/package-map-final-2026-11-09-files.md",
-   "sha256": "7c702400ea4035f8c1118acd3e5840c05547c6687da67661db6d7014abbccc84",
-   "note": "割るファイルの割り先は全ファイルの表 §4 から写した(記号の欄の項のうち 1 つの `…` だけのもの・今のファイルに無い記号は除いた)。割る段で割るファイルが無くなったら作り直す。"
+   "sha256": "241e41dd34edd7bcd68d6a8943562e6808db6d3ac67323c973dafb89c607ae44",
+   "note": "割るファイルの割り先は全ファイルの表 §4 から写した(記号の欄の項のうち 1 つの `…` だけのもの・今のファイルに無い記号は除いた)。割る段で割るファイルが無くなったら作り直す。〔2026-11-19・割る段 6 の S6-G0 の表と順〕§4-14 の直し(裁定 Q2=_cell_of_node を act/ops/rail.py へ・裁定 Q3=write_b4_hash と write_intero_stages の書き分け)に合わせ、sha を直した表に合わせた(心の割り先は変わらない=数は同じ)"
   }
  },
  "key_counts": [

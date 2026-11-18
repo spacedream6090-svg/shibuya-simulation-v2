@@ -89,8 +89,8 @@ def _hot_paths() -> tuple[str, ...]:
         # 定数 INTERO_* が行った foundation/vocab/agent_codes.py はホットパスでない)
         *_PL.split_files("engine/run.py", ("run_day", "RunResult")),
         # 〔割る段 6 の S6-G0・親の裁定 R1〕resolve は、元の docstring(逐次ループ宣言)を持つ主な割り先=``apply`` を定義する
-        # ファイル(割る前は ``engine/resolve.py`` の 1 本)。ループを探す範囲(``_loop_scan_paths``)を割り先の全部へ広げる直しは、
-        # 対応表の名の表が S6-A の 2 つの名に直るのを待つ(今の表は ``apply_detection`` のまま=名の全部では割り先を引けない)
+        # ファイル(割る前は ``engine/resolve.py`` の 1 本)。ループを探す範囲(``_loop_scan_paths``)は割り先の全部へ広げた
+        # (〔S6-G0 の表と順〕対応表の名の表が S6-A の 2 つの名に直った後に足した)
         *_PL.split_files("engine/resolve.py", ("apply",)),
         *_PL.split_files("engine/commit.py", ("arbitrate_resources", "intents_from_responses")),
         *_PL.split_files("engine/change_detect.py", ("ChangeDetector", "b4_block_raw", "b4_block_hashes")),
@@ -118,7 +118,8 @@ def _loop_scan_paths() -> tuple[str, ...]:
     減らさない」に合わせ、ループを探す検査だけは割り先の全部を見る(割る前の木では前と同じファイル+``agent_codes``)。"""
     # 鍵は割る口の第 1 引数に字面で書く(割る道具はこの形の鍵を書き換えない=割った後も表を引く。並びの字面にすると道として
     # 書き換わる)
-    extra = [*_PL.split_files("engine/run.py"), *_PL.split_files("engine/commit.py"), *_PL.split_files("engine/change_detect.py")]
+    extra = [*_PL.split_files("engine/run.py"), *_PL.split_files("engine/commit.py"), *_PL.split_files("engine/change_detect.py"),
+             *_PL.split_files("engine/resolve.py")]  # 〔割る段 6 の S6-G0・裁定 R1〕resolve の割り先の全部(割る前は元の 1 本)
     return tuple(dict.fromkeys([*_hot_paths(), *extra]))
 
 
