@@ -61,7 +61,8 @@ def _forbidden() -> tuple[_places.Names, tuple[str, ...]]:
     import shibuya.build as BUILD
     from shibuya.world.facts import population_reader as AGENTS  # 〔割る段 5a の G0・親の裁定 Q13〕元の置き場が agents/ に残るモジュール
     from shibuya.economy import ledger as ECONOMY
-    from shibuya.engine import resolve as ENGINE
+    # 〔割る段 6 の S6-G0・親の裁定 Q10〕範囲の手がかりは、元の置き場が engine の、割らずに移したモジュール(割る段 6 で resolve を割ると包み engine が無くなる。付け替えの前と後で範囲は同じ)
+    from shibuya.act import intent as ENGINE
     from shibuya.perception import renderer as PERCEPTION
     from shibuya.world.model import state as WORLD
 

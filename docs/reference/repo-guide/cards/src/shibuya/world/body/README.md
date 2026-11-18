@@ -110,7 +110,7 @@ engine.body.rules — 本人の体の規則(③ 意図しない体と System 1�
   - `steps_to_hunger_edge`(関数): 今の食後の消費 ``since`` から、1 刻みに ``spent`` ずつ足して次の語の段の境目を越えるまでの刻みの数の見込み
 - import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.body.energy`
 - 呼び手: `shibuya.engine.resolve`・`shibuya.world.body.model`・`shibuya.world.body.schedule`・`shibuya.world.laws.environment`・`shibuya.world.laws.salient`
-- 読む試験: `tests/engine/body/test_body_rules_sources.py`・`tests/engine/body/test_body_same_values.py`・`tests/engine/body/test_meal_default_w17.py`
+- 読む試験: `tests/engine/body/test_body_rules_sources.py`・`tests/engine/body/test_body_same_values.py`・`tests/engine/body/test_meal_default_w17.py`・`tests/engine/test_resolve.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 決定の ID: 10-12・10-12/§1-5・10-13b/§7・11-01・D-118・第 275
 

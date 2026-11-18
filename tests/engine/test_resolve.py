@@ -15,6 +15,7 @@ from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.mind.system1.change_detect import ChangeDetector
+from shibuya.world.body import rules as BR  # 〔割る段 6 の S6-G0・親の裁定 Q7〕体の刻みの周期は体の層から読む
 from shibuya.world.model.state import World
 
 OPEN_TICK = 700  # 既定営業時間(10:00-22:00)の内側
@@ -344,7 +345,7 @@ def test_advance_body_only_moves_on_its_period():
     h0 = int(a.hunger[0])
     R.advance_body(a, tick=1)
     assert int(a.hunger[0]) == h0
-    R.advance_body(a, tick=R.BODY_TICK_PERIOD)
+    R.advance_body(a, tick=BR.BODY_TICK_PERIOD)
     assert int(a.hunger[0]) == min(10, h0 + 1)
 
 

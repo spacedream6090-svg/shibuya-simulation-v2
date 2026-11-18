@@ -8,7 +8,8 @@
 - ``engine/state_ledger_ast.py``: SoA の列の宣言のファイル(``DECL_FILES``)と書きの関数の名(``WRITE_FUNCS``)。
   SoA の行の持ち主 = 宣言のファイル(cells・pois は world の宣言)。
 - ``engine/systems/table.py``: 系の表 ``SYSTEMS`` の ``make(…)``。
-- ``engine/systems/allow.py`` と ``engine/resolve.py``: ``writes.soa`` の静的な閉包。``allow.index`` と ``writes_for_ops``
+- ``engine/systems/allow.py`` と、その ``RESOLVE_FILES`` の全部のファイル(割る段 6 の前は ``engine/resolve.py`` の 1 本):
+  ``writes.soa`` の静的な閉包。``allow.index`` と ``writes_for_ops``
   の規則を AST の上でなぞる(import しないので写しになる=試験 ``tests/tools/test_repo_guide.py`` が実物と比べる)。
 
 読めない所は ``Permits.problems`` に書き、推測で埋めない。
@@ -38,6 +39,8 @@ LEDGER_FILE = _src_file("shibuya.runtime.state.ledger")
 LEDGER_AST_FILE = _src_file("shibuya.runtime.state.ledger_ast")
 TABLE_FILE = _src_file("shibuya.runtime.systems.table")
 ALLOW_FILE = _src_file("shibuya.runtime.systems.allow")
+#: 〔割る段 6 の S6-G0・決め事 3〕``allow.py`` に ``RESOLVE_FILES`` が無い木(見本の木)で読む 1 本。本物の木は
+#: ``RESOLVE_FILES`` の全部を読む(:func:`_resolve_files`)。
 RESOLVE_FILE = _src_file("shibuya.engine.resolve")
 
 
@@ -185,6 +188,8 @@ class Permits:
     direct: dict[str, frozenset[str]] = field(default_factory=dict)
     op_systems: dict[str, list[str]] = field(default_factory=dict)
     problems: list[str] = field(default_factory=list)
+    #: 〔割る段 6 の S6-G0〕resolve の書き手の関数 → 置いたファイル(リポの根からの道筋)。カードの節を置くファイル。
+    func_files: dict[str, str] = field(default_factory=dict)
 
     def owner_of(self, item: str) -> str | None:
         parts = item.split(".")
@@ -352,31 +357,61 @@ def _declared_columns(root: Path, decl_files: dict[str, str]) -> set[str]:
     return names
 
 
+def _resolve_files(allow_tree: ast.Module, out: Permits) -> list[str]:
+    """〔割る段 6 の S6-G0・決め事 3〕書きの閉包を読むファイル(リポの根からの道筋)= ``allow.py`` の ``RESOLVE_FILES`` の全部
+    (``allow.index`` と同じ一覧=段 6 で resolve を割ると書き手の割り先の全部)。``allow.py`` に名が無い木は :data:`RESOLVE_FILE`
+    の 1 本。名が在るのに読めなければ問題に書いて 1 本で読む。"""
+    assigned = {t.id for n in allow_tree.body for t in (n.targets if isinstance(n, ast.Assign) else
+                                                         [n.target] if isinstance(n, ast.AnnAssign) else [])
+                if isinstance(t, ast.Name)}
+    if "RESOLVE_FILES" not in assigned:
+        return [RESOLVE_FILE]
+    rels = module_constants(allow_tree).get("RESOLVE_FILES")
+    if isinstance(rels, tuple) and rels and all(isinstance(r, str) for r in rels):
+        return [f"{SRC}/{r}" for r in rels]
+    out.problems.append(f"{ALLOW_FILE} の RESOLVE_FILES を読めない(1 本 {RESOLVE_FILE} で読む)")
+    return [RESOLVE_FILE]
+
+
 def _resolve_index(root: Path, out: Permits, decl_files: dict[str, str], write_funcs: frozenset):
-    """``allow.index`` と同じ規則の (直接の書き, 辺)。"""
-    tree = _parse(root, RESOLVE_FILE)
+    """``allow.index`` と同じ規則の (直接の書き, 辺, 関数 → 置いたファイル)。"""
     allow_tree = _parse(root, ALLOW_FILE)
-    if tree is None or allow_tree is None:
-        out.problems.append(f"{RESOLVE_FILE} か {ALLOW_FILE} が無い(書きの閉包を作らない)")
-        return {}, {}
+    files = _resolve_files(allow_tree, out) if allow_tree is not None else [RESOLVE_FILE]
+    trees = {rel: _parse(root, rel) for rel in files}
+    missing = [rel for rel, t in trees.items() if t is None]
+    if missing or allow_tree is None:
+        out.problems.append(f"{'・'.join(missing) or RESOLVE_FILE} か {ALLOW_FILE} が無い(書きの閉包を作らない)")
+        return {}, {}, {}
     allow_env = module_constants(allow_tree)
     alias_writes = allow_env.get("ALIAS_WRITES", {})
     ports = allow_env.get("TRANSFER_PORTS_HOUSEHOLD", {})
     transfer_writes = allow_env.get("TRANSFER_WRITES", ())
     if not (isinstance(alias_writes, dict) and isinstance(ports, dict) and isinstance(transfer_writes, tuple)):
         out.problems.append(f"{ALLOW_FILE} の表を読めない")
-        return {}, {}
-    par = _parents(tree)
-    funcs = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef)}
+        return {}, {}, {}
+    par: dict[ast.AST, ast.AST] = {}
+    funcs: dict[str, ast.FunctionDef] = {}
+    func_file: dict[str, str] = {}
+    for rel, tree in trees.items():
+        par.update(_parents(tree))
+        for n in tree.body:
+            if isinstance(n, ast.FunctionDef):
+                if n.name in funcs:
+                    out.problems.append(f"resolve の書き手の関数の名がファイルをまたいで重なる: {n.name}({rel})")
+                funcs[n.name] = n
+                func_file[n.name] = rel
     names = _declared_columns(root, decl_files)
     tables: dict[str, set[str]] = {}
-    for n in tree.body:
+    owner = dict(func_file)  # 関数と頂上の表の名 → 置いたファイル(``allow.index`` と同じく、ファイルをまたぐ重なりを見る)
+    for rel, n in ((rel, stmt) for rel, tree in trees.items() for stmt in tree.body):
         tgt = (n.targets[0] if isinstance(n, ast.Assign) and len(n.targets) == 1
                else (n.target if isinstance(n, ast.AnnAssign) else None))
         if isinstance(tgt, ast.Name) and getattr(n, "value", None) is not None:
             refs = {x.id for x in ast.walk(n.value) if isinstance(x, ast.Name) and (x.id in funcs or x.id in tables)}
             refs = set().union(*({r} if r in funcs else tables[r] for r in refs)) if refs else set()
             if refs:
+                if owner.setdefault(tgt.id, rel) != rel:  # 〔S6-G0 の検収 低-4〕表の名の重なりも問題に書く
+                    out.problems.append(f"resolve の頂上の表の名がファイルをまたいで重なる: {tgt.id}({rel})")
                 tables[tgt.id] = refs
     direct: dict[str, set[str]] = defaultdict(set)
     calls: dict[str, set[str]] = defaultdict(set)
@@ -412,7 +447,7 @@ def _resolve_index(root: Path, out: Permits, decl_files: dict[str, str], write_f
                 direct[fname] |= set(transfer_writes)
         if fname in alias_writes:
             direct[fname] |= set(alias_writes[fname][0])
-    return {k: frozenset(v) for k, v in direct.items()}, {k: frozenset(v) for k, v in calls.items()}
+    return {k: frozenset(v) for k, v in direct.items()}, {k: frozenset(v) for k, v in calls.items()}, func_file
 
 
 def _closure_writes(ops: tuple[str, ...], direct, calls) -> tuple[str, ...]:
@@ -522,7 +557,8 @@ def read_permits(root: Path) -> Permits:
         places = ("cells", "pois") if group == "world" else (group,)
         for p in places:
             out.soa_files[p] = f"{SRC}/{rel}"
-    direct, calls = _resolve_index(root, out, decl_files, write_funcs)
+    direct, calls, func_file = _resolve_index(root, out, decl_files, write_funcs)
     out.direct = direct
+    out.func_files = func_file
     _read_systems(root, out, direct, calls)
     return out

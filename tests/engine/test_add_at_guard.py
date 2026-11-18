@@ -24,6 +24,7 @@ import pytest
 
 from shibuya.world.model.agent_table import AgentState
 from shibuya.engine import resolve as R
+from shibuya.runtime.systems import allow as AL
 from shibuya.world.model.state import World
 from tests import _places as PL
 
@@ -122,19 +123,27 @@ def _scanned_files() -> list[Path]:
 
 
 # ================================================================= 静的
+def _writer_files() -> list[Path]:
+    """〔割る段 6 の S6-G0・親の裁定 R1〕書き手の範囲=``allow.RESOLVE_FILES``(割る前は ``engine/resolve.py`` の 1 本・割った後は
+    書き手の割り先の全部)。前は字面の 1 本(割る道具が主な割り先へだけ書き換え、ほかの割り先が黙って外れる)。"""
+    out = [SRC / rel for rel in AL.RESOLVE_FILES]
+    assert out and all(p.is_file() for p in out), out
+    return out
+
+
 def test_ufunc_at_on_world_or_agent_arrays_lives_only_in_resolve():
-    """``np.add.at``(等)で世界状態を書けるのは resolve.py だけ。"""
+    """``np.add.at``(等)で世界状態を書けるのは resolve の書き手のファイルだけ(空でない)。"""
     offenders = {
         p.as_posix(): _ufunc_at_targets(p)
         for p in _scanned_files()
         if _ufunc_at_targets(p)
     }
-    assert set(offenders) == {"src/shibuya/engine/resolve.py"}, offenders
+    assert offenders and set(offenders) <= {p.as_posix() for p in _writer_files()}, offenders
 
 
 def test_resolve_actually_uses_ufunc_at_on_state():
-    """検査が空振り(=検出ロジックの故障)でないことの陽性対照。"""
-    hits = _ufunc_at_targets(SRC / "engine" / "resolve.py")
+    """検査が空振り(=検出ロジックの故障)でないことの陽性対照(書き手のファイルの全部で 3 以上)。"""
+    hits = [h for p in _writer_files() for h in _ufunc_at_targets(p)]
     assert len(hits) >= 3, hits
 
 
@@ -144,12 +153,16 @@ def test_arbiter_diagnostic_counters_are_not_flagged():
 
 
 def test_every_ufunc_at_in_resolve_is_preceded_by_the_frozen_check():
-    """resolve の中でも、状態への ``ufunc.at`` の**直前**に ``_require_thawed`` がある。"""
-    text = (SRC / "engine" / "resolve.py").read_text(encoding="utf-8").splitlines()
-    for hit in _ufunc_at_targets(SRC / "engine" / "resolve.py"):
-        lineno = int(hit.split(":")[1])
-        window = "\n".join(text[max(0, lineno - 4) : lineno])
-        assert "_require_thawed" in window, hit
+    """resolve の中でも、状態への ``ufunc.at`` の**直前**に ``_require_thawed`` がある(書き手のファイルの全部・見た数が 3 以上)。"""
+    seen = 0
+    for p in _writer_files():
+        text = p.read_text(encoding="utf-8").splitlines()
+        for hit in _ufunc_at_targets(p):
+            lineno = int(hit.split(":")[1])
+            window = "\n".join(text[max(0, lineno - 4) : lineno])
+            assert "_require_thawed" in window, hit
+            seen += 1
+    assert seen >= 3, seen
 
 
 # ================================================================= 動的

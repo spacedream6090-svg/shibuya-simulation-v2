@@ -179,16 +179,14 @@ def permit_lines_by_file(p: Permits) -> dict[str, list[str]]:
     out: dict[str, list[str]] = {}
     for s in sorted(p.systems, key=lambda x: x.name):
         out.setdefault(s.fn_file or "src/shibuya/runtime/systems/table.py", []).extend(_system_lines(s))
-    resolve_lines: list[str] = []
+    # 〔割る段 6 の S6-G0・決め事 3〕resolve の書き手の関数の行は、その関数を置いたファイルの節へ(割る前は全部 resolve.py)
     for fname in sorted(set(p.direct) | set(p.op_systems)):
         writes = sorted(p.direct.get(fname, frozenset()))
         systems = p.op_systems.get(fname, [])
         line = f"  - `{fname}`: 直接の書き {_code_join(writes) if writes else '(なし)'}"
         if systems:
             line += " 口として持つ系: " + "・".join(systems)
-        resolve_lines.append(line)
-    if resolve_lines:
-        out.setdefault(RESOLVE_FILE, []).extend(resolve_lines)
+        out.setdefault(p.func_files.get(fname, RESOLVE_FILE), []).append(line)
     return out
 
 

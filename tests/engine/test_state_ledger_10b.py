@@ -238,7 +238,8 @@ def test_ast_check_passes_on_the_current_source(scanned):
     assert scanned.files > 90
     # 〔段 4 の下ごしらえ・親の裁定 L-7〕「engine の外」は元の置き場で見る(前は字面のディレクトリ "engine/"=段 4 で engine の
     # ファイルがほかの包みへ移ると、engine の中の読み手でも外に見えてしまう)
-    from shibuya.engine import resolve as ENGINE
+    # 〔割る段 6 の S6-G0・親の裁定 Q10〕範囲の手がかりは、元の置き場が engine の、割らずに移したモジュール(割る段 6 で resolve を割ると包み engine が無くなる。付け替えの前と後で範囲は同じ)
+    from shibuya.act import intent as ENGINE
 
     from tests import _places as PL
 

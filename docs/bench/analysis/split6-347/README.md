@@ -145,3 +145,126 @@ def write_intero_stages(agents: AgentState, result: DetectResult) -> None:
 | byte-check 19 構成(本体の道具・基準 `bde381e`・S6-A の木) | 37 欄すべて同じ 19・動いた 0・誤り 0・438 秒・既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。記録 [bytecheck_A_parent/](bytecheck_A_parent/)(実装役の記録は [bytecheck_A/](bytecheck_A/)=441 秒) |
 | 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`) | 6,996 passed・1 failed(前からの 1 本=linked の作業木でだけ落ちる)・22 skipped・1 xfailed・40 分 03 秒。前の回(5b の G3 の直しの前)の 6,960 passed・23 skipped から、S6-A で足した試験 35 本(32+3)で +35・G3 の直しで飛ぶ試験 1 本が passed に戻って +1(飛ぶ試験は 23 → 22) |
 | src の差分を読んだ | 2 つの関数は元の文を字面のまま(字下げのほか)・`perceive.py` は同じ位置で 2 行・`table.py` の `resolve_ops` は空白区切りで 2 つの名・`ALIAS_WRITES` の鍵は `write_intero_stages`・`_resolve_names` の比べ 5 か所は集合の形 |
+
+## 3. S6-G0 の割る前の試験の直し(土台 `8997e2d`=S6-A の台帳の commit・2026-11-19)
+
+S6-G0 は 2 つに分けた: 道具の拡張(別の実装役・別の木)と、この節の「割る前の試験の直し」。`engine/resolve.py` を割ると黙って空回りする・範囲が縮む・落ちる試験を、割る前の今のうちに、割っても同じ事を確かめる形に直した。src・`tools/pkgmove/`・`tools/bytecheck/`・`tests/tools/test_pkgmove.py`・全ファイルの表・`map.toml`・`contracts.toml`・`pyproject.toml` は変えていない(`git status --porcelain -- src` は空=byte-check は要らない)。
+
+### 3-1. 範囲の作り方(親の裁定 R1)
+
+- **ループを探す範囲**(毎刻みの関数・ホットパス)は `_PL.split_files("engine/resolve.py", 名)`=名を定義する今のファイル(割る前は元のファイル・割った後は名の割り先)。第 1 引数は字面で書く(割る道具は表の鍵を書き換えない)。
+- **書き手の範囲**(`writable()` の呼び手・`ufunc.at`・D ⑥ の除外・D ⑦・帳簿の口の呼び手)は `allow.RESOLVE_FILES`(割る前は `engine/resolve.py` の 1 本・割った後は書き手の 15 本=裁定 Q4)。
+- どちらも割る前は今と同じ範囲。「名が全部見つかる」「空でない」「陽性の対照」を足して、空回りを音にした。
+
+### 3-2. 直した試験(割った後に起きるはずだった事・直し・範囲・数)
+
+数は、直す前と後で同じノード(`-m "not gpu and not slow"`・`-n 2`・`-rA`)を回した数。直した 16 本と `tests/tools/test_repo_guide.py`: 前 368 passed → 後 377 passed(直したファイルごとに同じ数。増えた 9 は §3-5 の足した試験)。skipped・failed は前も後も 0。
+
+| 試験 | 割った後に起きるはずだった事 | 直し | 数(前 → 後) |
+|---|---|---|---|
+| `test_energy_balance.py::test_per_tick_paths_have_no_python_loops`(`_PER_TICK`) | 字面の `"engine/resolve.py"` が主な割り先へ書き換わり、3 つの関数が無い=何も調べずに通る(**黙って空回り**) | resolve の 3 つの名(`advance_body`・`_energy_meal`・`energy_out_of_area_meal`)は `_PL.split_files("engine/resolve.py", 名)` で定義のファイルを引く(`_per_tick_paths`)。**名が全部見つかること**を足した | 28 → 28 |
+| `test_two_phase.py::test_only_resolve_writes_to_the_world` | `writable()` の呼び手が書き手の割り先の数になり、1 本との比べが落ちる(音) | 呼び手 ⊆ `{RESOLVE_FILES のファイル}`・空でない | 14 → 14(ファイル全体) |
+| `test_two_phase.py::_hot_paths` | 字面が主な割り先 `act/apply.py` だけになり、ほかの割り先が外れる(**黙って縮む**) | `_PL.split_files("engine/resolve.py", ("apply",))`=元の docstring(逐次ループ宣言)を持つ主な割り先(割る前は同じ 1 本)。**ループを探す範囲(`_loop_scan_paths`)を割り先の全部へ広げる直しは、まだ入れていない**(§3-9) | 同上 |
+| `test_add_at_guard.py` の 3 本(`…lives_only_in_resolve`・`…actually_uses_ufunc_at_on_state`・`…preceded_by_the_frozen_check`) | 1 本との比べが落ちる/陽性の対照が 0 件で落ちる/**apply.py に `ufunc.at` が無く黙って通る** | 書き手の範囲 `_writer_files()`(`RESOLVE_FILES` の全部・在ること)。呼び手 ⊆ 書き手・空でない/陽性の対照は全部で 3 以上/直前の確かめは全部で見て、見た数が 3 以上 | 9 → 9 |
+| `test_stage_a_guard.py::test_every_state_ufunc_at_in_resolve_checks_the_written_array`(D ⑦) | 0 件で `checked >= 5` が落ちる(音) | `RESOLVE_FILES` の全部の関数で見る(関数が空でない) | 17 → 17(ファイル全体) |
+| `test_stage_a_guard.py`・`test_fix_guards.py` の `_EXEMPT_D6` | 書き手の割り先 14 本が D ⑥ の走査に入って落ちる(音) | 字面の `"engine/resolve.py"` を外し `\| set(AL.RESOLVE_FILES)` | 同上・16 → 16 |
+| `test_stage2_writers.py::_callers_in_resolve` | 1 本のファイルだけを見て、帳簿の口の呼び手が割り先に移ると落ちる(音) | `RESOLVE_FILES` の全部の関数で見る(空でない) | 4 → 4 |
+| `test_body_guard.py::test_only_the_ports_write_the_body_layer` | `"engine/resolve.py:advance_body:step"` ほかの字面が割り先の道と合わず落ちる(音) | 道が書き手のどれか(`RESOLVE_WRITERS`)なら `resolve` に正規化して比べる(`_as_resolve`) | 8 → 8 |
+| `test_body_guard.py::test_callers_of_the_body_write_ports_are_not_more_than_head` | 受け手の名 `R`・`resolve` の字面(割り先の別名に替わると見落とす) | 受け手は、そのファイルの import(頂上と関数の中)が書き手のモジュールに結ぶ名(`_resolve_aliases`・AST)。割る前は同じ `R`。〔検収の後の直し〕見る形が変わった(広げただけではない)ので、前の字面の名 `R`・`resolve` も足した(§3-10 の直し 2) | 同上 |
+| `test_move_prep_stage2.py` の 2-3 の 4 本 | `RESOLVE_FILES == ("engine/resolve.py",)` の字面・`RV.__file__`・偽の木の `engine/resolve.py`・`PL.names_from(RV)` が落ちる(音) | 一覧の全部のファイルが在り・重ならず、索引の関数=一覧の全部のファイルの頂上の関数(`apply` を含む)/偽の木は一覧の全部を同じ道で写す(`_fake_writers`・試験が一覧を差し替える前の値 `_REAL_WRITERS` で)・偽の名は一覧の関数から引く/static_check の試験は、resolve のモジュールの名を `apply` を定義するモジュールとして集合から引き、範囲の手がかりを `shibuya.act.intent` に(§3-3)。モジュールの頂上の `from shibuya.engine import resolve as RV` は使わなくなったので外した | 12 → 12 |
+
+### 3-3. 範囲の手がかりの付け替え(裁定 Q10)
+
+`from shibuya.engine import resolve as ENGINE` を `from shibuya.act import intent as ENGINE`(元の置き場が `engine/intent.py` の、割らずに移したモジュール)へ。付け替えの前と後で、手がかりから作る範囲(ファイル・名の集合)が同じことを 1 本ずつ確かめた(どちらも元の置き場のディレクトリは `engine/`)。
+
+| 試験 | 範囲の作り方 | 前と後 |
+|---|---|---|
+| `tests/c6/test_t3_parallel_invariance.py` | `PL.files_from(ENGINE)` | 同じ(185 本) |
+| `tests/economy/test_single_write_path.py` | `PL.files_from(ENGINE)` | 同じ(185 本) |
+| `tests/engine/memory/test_m0_store_schema.py` | `PL.names_from(ENGINE, PERCEPTION, LLM, AGENTS, WORLD, CORE)` | 同じ(頭 25・葉 218) |
+| `tests/engine/test_state_ledger_10b.py` | `PL.rels_from(ENGINE)` | 同じ(185 本) |
+| `tests/llm/test_fleet_contract.py` | `PL.names_from(ENGINE, PERCEPTION, WORLD, AGENTS, ECONOMY, BUILD)` | 同じ(頭 34・葉 284) |
+| `tests/engine/state/test_move_prep_stage2.py`(static_check の試験) | `PL.names_from(ENGINE)`(前は `names_from(RV)`) | 同じ(頭 17・葉 168) |
+
+### 3-4. 再輸出 4 名(裁定 Q7)
+
+- `tests/engine/body/test_body_same_values.py::test_moved_names_point_to_the_same_values`: resolve の再輸出(`BODY_TICK_PERIOD`・`SLEEP_FATIGUE_RELIEF`・`ACTIVITY_REST_PERIOD_TICKS`・`ACTIVITY_REST_FATIGUE_RELIEF`)は割る段で消える(10-13b §0-6=再輸出の口は残さない)ので、resolve の側の確かめ 2 つ(4 つの値が体の層と同じ・resolve の `__all__` に 4 名が在る)を外した。体の層 `world.body.rules` の値 `(30, 2, 10, 1)` は残した。`environment`・`salient` の写しの確かめと、resolve に残る行為の効果(`REST_FATIGUE_RELIEF`・`BUY_HUNGER_RELIEF`)の確かめは変えていない。〔検収の後の直し〕確かめる物が減ったのは、この 1 か所(裁定 Q7)のほかに、`test_move_prep_stage2` で書き手の一覧の字面の固定 3 つ(`RESOLVE_FILES == ("engine/resolve.py",)`・`RV.__file__` との一致・`RESOLVE_MODULES == {RV.__name__}`)を形の確かめに替えた所も(=頂上の関数を持たないファイルが一覧にまぎれても落ちなくなっていた・検収の中-1)。後者は §3-10 の直し 1 で埋めた。試験の数は 24 → 24(同じ関数の中の確かめが 2 つ減った)。src の `__all__` は変えていない(消えるのは G1)。
+- `tests/engine/test_resolve.py::test_advance_body_only_moves_on_its_period`: `R.BODY_TICK_PERIOD` を `world.body.rules` の `BR.BODY_TICK_PERIOD` から読む(確かめは同じ)。35 → 35。
+
+### 3-5. 足した試験と負の対照
+
+- `tests/engine/systems/test_resolve_index_frozen.py`(6 本)と `resolve_index_frozen.json`(S6-A の後の木で作った): `allow.index()` を正規化(関数の集合 101・関数ごとの直接の書き 73 行・辺 42 行=115 本・頂上の表 4・帳簿の口の (関数, 口) 5・別名の書きの (関数, 別名) 2。行の番号なし・ファイルの本数に依らない)して表と比べる。裁定 Q4 のため `_require_thawed` を関数の集合と辺から外す(外すのは `EXCLUDED` の 1 つだけと試験で固定。今は 17 本の関数がこの関数を呼ぶ辺を持ち、そのうち 12 本はこの辺だけ=外すと空になる「辺の無い関数」の行 12 行が正規化で落ちる)。外す関数が書かない・どの表にも載らないこと、外しても 36 系の書きの閉包(`writes_for_ops`)が同じことも確かめる。負の対照 3: 関数を 1 つ消す・書きを 1 つ足す・辺を 1 つ消すと表との違いに出る。今の正規化は `python -m tests.engine.systems.test_resolve_index_frozen` で出る。
+- `tests/engine/bridging/test_bridging_ledger.py::test_forward_rows_point_to_files_with_declarations`(裁定 Q1 の条件 ③): 前向きの表 `LEDGER_PATHS_SPLIT` に載った道のファイルには、つなぎの台帳の宣言が 1 つ以上在る(台帳の道で走査)。今は表が空なので、試験の中で一時に行を足して両方を確かめる: 宣言の在るファイル(AST の形の宣言を持ち、主な表に無いファイル)=通る・宣言の無いファイル=落ちる(その道が挙がる)。
+- S6-A の検収の低-3: `tests/engine/test_detection_writes_split.py::test_the_first_detection_has_changed_cells_and_many_crossings` を種 1・2・3 の全部で(1 本 → 3 本)。ほかは変えていない。(知らせ)この試験は 1 つの別名 `R` から割り先の違う 2 つの名を読むので、S6-G1 で手で直す一覧に入る。
+
+### 3-6. カードの道具(決め事 3)
+
+- `tools/repo_guide/guide_permits.py`: 書きの閉包を、`allow.py` の `RESOLVE_FILES` を AST で読んで、その全部のファイルから作る形に(`_resolve_files`・関数ごとに置いたファイル `Permits.func_files`)。`allow.py` に `RESOLVE_FILES` が無い木(見本の木)は前のとおり 1 本(`RESOLVE_FILE`)で読む。名が在るのに読めなければ問題に書く。`guide_render.py`: resolve の関数の行は、その関数を置いたファイルの節へ(割る前は全部 resolve.py=前と同じ)。
+- 直す前と後でカードが同じこと: 古い道具(土台の `tools/repo_guide/*.py`)と新しい道具で、同じ木の書きの許可の節(`permit_lines_by_file`・関数ごとの直接の書き・問題)を出して比べ、1 バイトも同じ(20 ファイル・228 行・問題 0)。カードを作り直した差分は、試験の直しと足した試験の分だけ(試験の docstring・「読む試験」と import の一覧・ファイルの数。16 枚)で、書きの許可の節(直接の書き・口・閉包)の行は 1 行も変わらない。`tests/tools/test_repo_guide.py`(変えていない)は 39 passed。
+
+### 3-7. 字面の `"engine/resolve.py"` を消した所と残した所
+
+- 消した(範囲を作る所): `test_energy_balance` の `_PER_TICK`・`test_two_phase`(呼び手の比べ・`_hot_paths`)・`test_add_at_guard`(3 本)・`test_stage_a_guard`(D ⑦・`_EXEMPT_D6`)・`test_fix_guards`(`_EXEMPT_D6`)・`test_stage2_writers`・`test_body_guard`(2 本)・`test_move_prep_stage2`(2-3 の 4 本)。範囲の手がかり 5 本の import。
+- 残した(わざと・ほかの段で直す): `_PL.split_files("engine/resolve.py", …)` の第 1 引数(表の鍵=割る道具は書き換えない)・`tests/economy/cp2/test_cp2_write_window.py:127・142`(偽の道=負の対照)・`test_stage_a_guard.py::FLAG_WRITERS` の `("engine/resolve.py", "_restore_array_into")`(割る道具が restore へ機械で書き換える=計画 §7-2)・`test_fix_guards.py:394-401` のコードの文字列の import(道具が機械で書き換える)・`tests/economy/cp2/money_writers_frozen.json:9-12` と `mind_world_reads_frozen.json:110`(G1 で手で直す)・`tests/test_places_guard.py::NON_MOVE_ROWS`(除外の一覧)・`tests/tools/test_pkgmove.py`・`tests/tools/test_repo_guide.py`(別の役の側・裁定 R2)・docstring と注の文(`test_body_guard.py:6`・`test_add_at_guard.py:11` の docstring の字面もここ=検収の低-3 の知らせ)。
+
+### 3-8. 確かめ
+
+| 何を | 結果 |
+|---|---|
+| 直した 16 本と `tests/tools/test_repo_guide.py`(直す前と後で同じノード・`-n 2`・`-rA`) | 前 368 passed → 後 377 passed・skipped 0・failed 0(直したファイルごとに同じ数・増えた 9 は足した試験) |
+| 束(`tests/engine/systems`・`state`・`body`・`bridging`・`tests/economy`・`tests/c6`・`tests/llm`・`tests/tools`・直したファイルのほかの置き場の 7 本・`-m "not gpu and not slow"`・`-n 2`) | 2,168 本=2,147 passed・21 skipped(`tests/tools/test_pkgmove.py` の前からの分=段 4 と割る段の済んだ木)・0 failed。data が要って飛んだ試験 0 |
+| `git status --porcelain -- src` | 空(src を変えていない=byte-check は要らない) |
+| `lint-imports`(作業の木の src) | 11 kept・0 broken |
+| `map --check`・`contracts --stage delete --tree . --check --probe` | 同じ・同じ(例外 20 辺・延べ 26 行=全部効く・出力は S6-A の後と同じ) |
+| カード | 作り直した(差分は §3-6 のとおり足した試験の分だけ・`data.md` は単独で戻した・`--check` 最新) |
+| 秘密の走査(変えたファイルを引数で) | CLEAN |
+| 束の pytest を回す間 | 合図のファイルを取った(前の数・後の数と束。終わったら単独で消した)。もう 1 人の実装役が合図を持つ間は待った |
+
+### 3-9. 計画と違った所・親に聞くこと・確かめていないこと
+
+- **まだ入れていない直し(親に聞く)**: `test_two_phase.py::_loop_scan_paths` に resolve の割り先の全部(`_PL.split_files("engine/resolve.py")`=名の全部)を足す直し。今の対応表(`tools/pkgmove/map.toml`)の resolve の名の表は S6-A の前の `apply_detection` のままで、`split_files` は名の全部を引くと `PlacesMapError`(「名 apply_detection を定義するファイルが元にも割り先にも無い」)で止まる。名の表を直すのは道具の側(全ファイルの表 §4-14 と `map.toml`=この発注では変えない)。割る前の範囲は今のままで同じ(`_hot_paths` の主な割り先が `engine/resolve.py`)だが、割った後は主な割り先 `act/apply.py` だけを走査する=表が直るまでに足す必要がある。案: (a) 道具の側で表が直った後に `extra` へ `*_PL.split_files("engine/resolve.py")` を足す(1 行・割る前も後も割り先の全部)/(b) 名を手で並べる(名の表と二重になるので推さない)。
+- 計画との違い: `test_move_prep_stage2.py` の偽の木の試験は、一覧を差し替えた後に偽の木を作るので、一覧の本物の値を先に取っておく形(`_REAL_WRITERS`)にした(初めの直しで偽の道を本物の src から写そうとして落ちたのを直した)。`test_body_guard.py` の受け手は、書き手のモジュールを指す別名を AST の import から引く形(計画のとおり)。
+- 確かめていないこと: 範囲の全体の試験・slow の試験・CI(親が回す)。割った後の木での振る舞い(G1 で確かめる)。カードの道具が割った後の 15 本を読む形は、見本の木の試験(変えない)では確かめていない(本物の木の一覧が 1 本の今は、古い道具と同じ出力)。
+
+### 3-10. 検収の後の直し(検収=条件つき受入の中 1・低 4 と、道具の検収の低 1・親の裁定)
+
+検収は「割る前の範囲は直した全部の試験で直す前と同じ・空の集合で通る形は無い・付け替えの 6 本は同じ範囲」。直したのは次の 5 つと記録。src・`tools/pkgmove/`・`tests/tools/test_pkgmove.py` は変えていない。直したファイル 5 本(`test_move_prep_stage2`・`test_body_guard`・`test_resolve_index_frozen`・`test_bridging_ledger`・`test_repo_guide`)を直す前と後で回した: 前 109 passed → 後 110 passed(`test_move_prep_stage2` に負の対照 1 本を足した分・ほかは同じ数)・skipped と failed は 0。
+
+- **直し 1(検収の中-1・書き手の一覧の中身)**: 前の版は一覧を字面で固定していた(3 つ)。今の形は「在る・重ならない・索引の関数=一覧の頂上の関数」だけで、頂上の関数を持たないファイルが一覧にまぎれても落ちなかった(まぎれると D ⑥ の除外・`writable()`・`ufunc.at` を書いてよい側が広がる)。`test_resolve_files_list_reads_the_resolve_module` に「一覧のどのファイルも、索引の関数を 1 つ以上頂上で定義する」を足した(本数に依らない=割った後もそのまま効く)。凍結した関数の集合(`resolve_index_frozen.json` の 101)と合わせて、一覧は「凍結した関数を定義するファイル」に固定される: 関数を持たないファイルはこの確かめで、索引に無い関数を持つファイルは索引の関数が増えて凍結の表で、足りないファイルは索引の関数が減って凍結の表で、同じ関数を 2 本が持てば索引が止めて、それぞれ落ちる。負の対照 `test_negative_a_stray_file_in_the_writer_list_is_seen`(メモリの中で一覧を差し替えて): `economy/tax_deposit.py`(クラスだけ)をまぎれさせる=この確かめが落ちる・`foundation/write_guard.py`(索引に無い関数 2 つ)をまぎれさせる=凍結の表との比べが落ちる。
+  - 割る前の間だけ「一覧は 1 本(`engine/resolve.py`)」を確かめる形は**入れていない**。わけ: 上の 2 つ(どのファイルも索引の関数を定義する+凍結した関数の集合)で一覧は本数に依らず決まり、割る前の今は凍結の表の 101 の関数が全部 `engine/resolve.py` に在る=一覧は 1 本と同じことを言う。条件つきの確かめ(割る行が当たったら外れる)は、割る段の状態に結んだ字面を試験に増やすだけになる。
+- **直し 2(検収の低-1・体の口の呼び手の数え方)**: `test_body_guard.py::test_callers_of_the_body_write_ports_are_not_more_than_head` の受け手を「書き手のモジュールに結ぶ import の名」と前の字面の名 `R`・`resolve` の和に(`_PREV_RECEIVERS`)。前の形が拾っていた「引数で受けたモジュール」と相対の import の呼び手を含む=前の版が拾う呼び手 ⊆ 今の版が拾う呼び手。4 つの口の名で絞るので拾いすぎない。今の木で数えた: 前の形 5・import の名だけの形 5・今の形 5(3 つとも同じ・`HEAD_CALLERS` と同じ)。
+- **直し 3(検収の低-2・外す関数の「書かない」)**: `test_resolve_index_frozen.py::test_only_require_thawed_is_excluded_and_it_writes_nothing` に、外す関数を定義する今のファイルを対応表から引き(`_PL.split_files("engine/resolve.py", ("_require_thawed",))`・見つからなければ止まる)、そのファイルだけを一時の書き手の一覧にした索引で、関数が在り書きと辺が無いことを確かめる形を足した(索引に在るかどうかに依らない=割った後に `foundation/write_guard.py` へ行っても効く)。割る前は `engine/resolve.py` の索引=前と同じ確かめ。
+- **直し 4(検収の低-4・カードの道具)**: `tools/repo_guide/guide_permits.py` は、頂上の表の名がファイルをまたいで重なれば問題の一覧に書く(関数の名の重なりと同じ扱い・`allow.index` と同じく関数と表の名を 1 つの持ち主の表で見る)。今の木(1 本)では、カードの書きの許可の節が土台の道具の出力と 1 バイトも同じ(問題 0)。見本の 2 本(書き捨ての台本)で、表の名が重なると 1 件・重ならないと 0 件を確かめた。`tests/tools/test_repo_guide.py` は変えていない(39 passed)。
+- **直し 5(道具の検収の低-2・前向きの表が空に頼る試験)**: `test_bridging_ledger.py` の S6-A で足した試験は `LEDGER_PATHS_SPLIT == {}` に頼っていた(段 6 で表に 2 行入ると落ちる)。表の中身が何行でも成り立つ形 `_check_both_directions` にした: 前向きの表に載っていない道は `ledger_path()` が前と同じ値・載っている道は前向きの表の値・`current_path()` は前向きの表を引かない(主な表の逆向きと同じ)。比べる道に前向きの表の道も入れた。試験の名を `test_ledger_path_follows_the_main_table_then_the_forward_table` に替えた(1 本のまま)。表が空の今は、全部の道で前と同じ=前の確かめと同じ強さ。行を一時に 1 つ足す試験(`test_a_forward_row_…`)でも同じ確かめを通す(行が在っても成り立つ)。
+- 入れなかった 1 行(`test_two_phase.py::_loop_scan_paths` に resolve の割り先の全部)は、親の裁定で次の「表と順」の commit で足す。そのとき名の表は、古い名 `apply_detection` を消すだけでなく `write_b4_hash`(→ `act/ops/detect_writes.py`)・`write_intero_stages`(→ `mind/ops.py`)を足す(足さないと `split_files` が `detect_writes.py` を返さず、1 行を足しても走査から外れる=検収役の注)。
+- 確かめ: 直したファイル 5 本(上の数)・カードを作り直した(差分は試験の docstring・関数の一覧・数・`data.md` は単独で戻した・`--check` 最新)・`git status --porcelain -- src` は空・秘密の走査 CLEAN。
+
+## 4. S6-G0 の割る前の試験の直しの、親の確かめと検収(第347・2026-11-19)
+
+### 4-1. 別の役の検収(実装を見ていない、新しい検収役)
+
+- 判定: **条件つき受入**(高 0・中 2・低 4)→ 直し(§3-10)→ 直しの差分の再検収 **受入**(高 0・中 0・低 2)。検収役はファイルを 1 本も変えていない。
+- 割る前の範囲: 土台の版の助けの関数をメモリの中で呼び、今の版と並べた。違いは 0(`_PER_TICK`・`_hot_paths`・`_loop_scan_paths`・呼び手・違反・D ⑦ の関数・`_EXEMPT_D6` 2 本・`_callers_in_resolve`・体の呼び手)。
+- 弱まり・空回り: 空の集合で通る形は無い(どこにも「空でない」か陽性の対照が在る)。欠陥をメモリの中で入れた試しでは、前に見つけた物を今も全部見つけ、今だけが見つける物も在る(`ufunc.at` が 0 件のとき・割った後の形の `_PER_TICK`)。`| set(RESOLVE_FILES)` は今 1 本で、前と同じ集合。
+- 割った後の見立て: `resolve.py` をメモリの中で表のとおりに分けた木でも、凍結の表との差は空・36 系の書きの閉包は全部同じ・割り先ごとの別名も拾う。
+- 範囲の手がかりの付け替え(6 本): 前と後で同じ範囲(`files_from`・`rels_from` は 185 本・`names_from` は 17/168・25/218・34/284)。
+- 外した確かめ: 裁定 Q7 の 2 つだけ(値 `(30, 2, 10, 1)` は今も守られている)。
+- 足した試験: `resolve_index_frozen.json` は今の索引と一致(関数 101・直接の書き 73 行・42 行/115 辺・表 4・帳簿の口 5・別名の書き 2)。負の対照は試験の 3 つと、検収役が足した 4 つが全部差に出る。前向きの表の条件 ③ と 3 つの種の確かめは空回りしない。
+- カードの道具: 土台の道具と今の道具は、書きの許可の節(20 ファイル・228 行・問題 0)が同じ。
+
+### 4-2. 検収の中 2 件・低 4 件と、再検収の低 2 件の扱い
+
+- 中-1(書き手の一覧 `RESOLVE_FILES` の中身を、どの試験も固定していない=字面の固定 3 つを形の確かめに替えて弱まっていた): **直した**(§3-10 の直し 1)。再検収: 関数を持たないファイル・頭だけの `__init__.py`・`async def` だけのファイルを足すと新しい確かめが落ち、索引に無い関数を持つファイルを足すと凍結の表が落ち、関数を写した別のファイルを足すと索引が止まる。割る前の一覧は `("engine/resolve.py",)` 以外になりえない。
+- 中-2(`_loop_scan_paths` を割り先の全部へ広げる 1 行を入れていない): **表と順の commit で足す**(今は、割る道具の表に S6-A の前の名が残っていて `split_files("engine/resolve.py")` が落ちる=検収役がメモリの中で呼んで確かめた)。名の表は、古い名を消すだけでなく `write_b4_hash`・`write_intero_stages` を足す(足さないと `detect_writes.py` が走査から外れる)。S6-G1 の前に必ず入れる。
+- 低-1(体の口の呼び手の見方が前の形を含まない)・低-2(割った後に空回りする「書かない」の確かめ)・低-3(記録)・低-4(カードの道具が表の名の重なりを問題に書かない): 直した(§3-10 の直し 2・3・6・4)。道具の拡張の検収の低-2(「前向きの表は空」の比べ)も直した(直し 5)。
+- 再検収の低-1(割った後に、`_require_thawed` だけを持つファイルが一覧にまぎれても気づかない。計画の割り先では起きない): 次の試験の側の commit(別名の分け)で、確かめに渡す集合から除く関数を引く 1 行を足す。
+- 再検収の低-2(直し 5 の試験は、1 本だけで見ると「前向きの表が空」の固定を手放した): §3-10 の「前の確かめと同じ強さ」は、束で見たときの話。宣言のあるファイルを別の台帳の道へ向ける行は宣言と台帳の比べが落とし、宣言の無いファイルを指す行は条件 ③ の試験が落とす(通るのは答えを変えない行だけ)。
+- 検収役の手順の注(2 つ・どちらも中身は開いていない): 検索を 1 回、作業木の根で回したため、開かない約束の文書の当たり 2 行が出力に出た/更新の時刻を比べる走査が `tests` の下の全部に入った(名前も中身も表示していない)。以後の発注には「検索と走査は根と `tests` の全体で回さない」と書く。
+
+### 4-3. 親が回した確かめ
+
+| 何を | 結果 |
+|---|---|
+| 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`・§3-10 の直しの前に集めた回) | 7,005 passed・1 failed(前からの 1 本=linked の作業木でだけ落ちる)・22 skipped・1 xfailed・40 分 00 秒。前の回(S6-A)の 6,996 から、足した試験 9 本(凍結の索引 6・前向きの表の条件 ③ 1・場合が空でない確かめの種 2)で +9 |
+| §3-10 の直しの後に、直した 5 本を回し直した(`-n 2`) | 直した 5 本と `test_detection_writes_split.py` で 144 passed・落ちた試験 0(5 本は 109 → 110=直し 1 の負の対照で +1。範囲の全体は直しの後に回し直していない) |
+| `git status --porcelain -- src` | 空(src は変えていない=byte-check は要らない) |

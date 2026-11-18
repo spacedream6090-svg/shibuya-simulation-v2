@@ -2,9 +2,9 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 6 本・その他 1 本(このディレクトリの直下)
+Python 7 本・その他 2 本(このディレクトリの直下)
 
-その他のファイル: `writes_soa_frozen.json`
+その他のファイル: `resolve_index_frozen.json`・`writes_soa_frozen.json`
 
 ## [__init__.py](../../../../../../../tests/engine/systems/__init__.py)
 
@@ -69,6 +69,22 @@ Python 6 本・その他 1 本(このディレクトリの直下)
 - import している内部モジュール: `shibuya.foundation.write_permit`・`shibuya.runtime.run`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`
 - 決定の ID: 第 347
 
+## [test_resolve_index_frozen.py](../../../../../../../tests/engine/systems/test_resolve_index_frozen.py)
+
+書きの許可の索引(``runtime.systems.allow.index``)の固定(割る段 6 の S6-G0・計画 §5-3・親の裁定 Q4)。
+
+- 公開の関数とクラス
+  - `diff`(関数): 欄ごとの違い(空なら同じ)。
+  - `frozen`(関数)
+  - `load_frozen`(関数)
+  - `normalize`(関数): 索引 → 比べる形(行の番号なし・``EXCLUDED`` を外す・空の行を落とす・並べた)。
+  - `test_negative_a_changed_index_is_seen`(関数): 負の対照: 関数を 1 つ消す・書きを 1 つ足す・辺を 1 つ消すと、表との違いに出る。
+  - `test_only_require_thawed_is_excluded_and_it_writes_nothing`(関数): 外すのは ``_require_thawed`` の 1 つだけ。外す関数は書かない(外しても書きの閉包は同じ)・どの表にも載らない。
+  - `test_the_closures_of_every_system_are_the_same_without_the_excluded_edges`(関数): ``EXCLUDED`` への辺を外しても、系ごとの書きの閉包(``writes_for_ops``)は同じ(外す関数は書かない)。
+  - `test_the_index_matches_the_frozen_table`(関数): 今の索引(正規化)=固定の表。割る前(``RESOLVE_FILES`` が 1 本)も割った後(15 本)も同じ。
+- import している内部モジュール: `shibuya.runtime.systems.allow`・`shibuya.runtime.systems.table`・`tests/_places.py`
+- 読む試験: `tests/engine/state/test_move_prep_stage2.py`
+
 ## [test_stage_a_guard.py](../../../../../../../tests/engine/systems/test_stage_a_guard.py)
 
 1-0 段 A: 系ごとの書きの許可(``core.write_permit``)・配列単位の ``_require_thawed``・静的な検査 D④⑤⑥⑦・閉包の道具。
@@ -80,7 +96,7 @@ Python 6 本・その他 1 本(このディレクトリの直下)
   - `test_d5_detector_catches_a_planted_flag_write`(関数): 負の対照(T2・D ⑤): 決まった場所の外で旗を立てる行をわざと書くと見つかる。
   - `test_d6_detector_catches_a_planted_alias`(関数): 負の対照(T2・D ⑥): 層の属性に SoA の列のビューを持たせる行をわざと書くと見つかる。
   - `test_direct_flag_writes_live_only_in_known_places`(関数)
-  - `test_every_state_ufunc_at_in_resolve_checks_the_written_array`(関数)
+  - `test_every_state_ufunc_at_in_resolve_checks_the_written_array`(関数): 〔割る段 6 の S6-G0・親の裁定 R1〕resolve の書き手のファイルの全部(``allow.RESOLVE_FILES``・割る前は 1 本)で見る。
   - `test_no_layer_holds_a_soa_array_or_view_as_an_attribute`(関数)
   - `test_no_permit_means_everything_thaws_as_before`(関数)
   - `test_numpy_ufunc_at_still_ignores_the_flag`(関数): 穴の実在(この振る舞いが変われば配列単位の検査は要らなくなる)。

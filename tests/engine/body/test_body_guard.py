@@ -114,13 +114,40 @@ def _src_files() -> dict[str, str]:
     return {_rel(p): p.read_text(encoding="utf-8") for p in sorted(SRC.rglob("*.py"))}
 
 
+#: 〔割る段 6 の S6-G0・親の裁定 R1〕resolve の書き手のファイル(``allow.RESOLVE_FILES``)と、そのモジュールの名。前は字面の
+#: ``engine/resolve.py`` と受け手の名 ``R``・``resolve``(割ると書き手の割り先へ分かれる・別名も変わりうる)。
+RESOLVE_WRITERS = frozenset(AL.RESOLVE_FILES)
+RESOLVE_MODULES = frozenset(SRC.name + "." + rel[:-3].replace("/", ".") for rel in AL.RESOLVE_FILES)
+
+
+def _as_resolve(site: str) -> str:
+    """``道:関数:口`` の道が resolve の書き手のどれかなら ``resolve`` に(割る前は 1 本=前と同じ区別)。"""
+    rel, _, rest = site.partition(":")
+    return ("resolve" if rel in RESOLVE_WRITERS else rel) + ":" + rest
+
+
+#: 前の版が受け手と見た名(字面)。
+_PREV_RECEIVERS = frozenset({"R", "resolve"})
+
+
+def _resolve_aliases(text: str) -> set[str]:
+    """ファイルの import(頂上と関数の中)が resolve の書き手のモジュールに結ぶ名。"""
+    out: set[str] = set()
+    for n in ast.walk(ast.parse(text)):
+        if isinstance(n, ast.ImportFrom) and n.module and n.level == 0:
+            out |= {a.asname or a.name for a in n.names if f"{n.module}.{a.name}" in RESOLVE_MODULES}
+        elif isinstance(n, ast.Import):
+            out |= {a.asname for a in n.names if a.name in RESOLVE_MODULES and a.asname}
+    return out
+
+
 def test_only_the_ports_write_the_body_layer():
     sched_bad, body_calls, writes = _scan_ports(_src_files())
     assert writes == [], writes
     assert sched_bad == [], sched_bad
-    assert sorted(set(body_calls)) == sorted({
-        "engine/resolve.py:advance_body:step", "engine/resolve.py:initialize:initial",
-        "engine/resolve.py:initialize_energy:initial", "world/laws/environment.py:EnvironmentProcess.step:step",
+    assert sorted({_as_resolve(s) for s in body_calls}) == sorted({
+        "resolve:advance_body:step", "resolve:initialize:initial",
+        "resolve:initialize_energy:initial", "world/laws/environment.py:EnvironmentProcess.step:step",
     }), body_calls
 
 
@@ -195,8 +222,11 @@ HEAD_CALLERS = sorted([
 def test_callers_of_the_body_write_ports_are_not_more_than_head():
     got = []
     for rel, text in _src_files().items():
+        # 〔S6-G0 の検収 低-1〕受け手は、書き手のモジュールに結ぶ import の名と、前の字面の名 ``R``・``resolve`` の両方(前の形が
+        # 拾った呼び手=引数で受けたモジュール・相対の import を含む ⊆ 今の形が拾う呼び手)。4 つの口の名で絞るので拾いすぎない
+        aliases = _resolve_aliases(text) | _PREV_RECEIVERS
         for _func, port, recv, _line in _calls(text):
-            if port in ("advance_body", "set_thermal", "initialize", "initialize_energy") and recv in ("R", "resolve"):
+            if port in ("advance_body", "set_thermal", "initialize", "initialize_energy") and recv in aliases:
                 got.append((rel, port))
     assert sorted(got) == HEAD_CALLERS  # 呼び手は減るか同じ(3-5 は同じ数)
 

@@ -56,7 +56,7 @@ engine.intent — **意図の保持**(段 2c・D-112 ①・D-114 案 A・第288)
   - `intent_summary`(関数): 計数 → manifest ``intent`` の形(アジェンダ §3-6)。
 - import している内部モジュール: `shibuya.act.activity`・`shibuya.act.commit`・`shibuya.engine.resolve`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`
 - 呼び手: `shibuya.interfaces.cli.main`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`
-- 読む試験: `tests/engine/space/test_nav1_units.py`・`tests/engine/test_intent_hold.py`
+- 読む試験: `tests/c6/test_t3_parallel_invariance.py`・`tests/economy/test_single_write_path.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_state_ledger_10b.py`・`tests/llm/test_fleet_contract.py`
 - 読む試験(道筋で): `tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`
 - 状態台帳の行
   - 持ち主 `intent_layer`(`IntentLayer`)

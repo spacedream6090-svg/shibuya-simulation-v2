@@ -199,7 +199,9 @@ def test_permit_check_catches_reexported_names(src, words):
 
 # ================================================================= 5: D⑥ の別名の形を広げる
 _SOA_TAILS = {"registry", "agents", "cells", "pois", "pstate"}
-_EXEMPT_D6 = {"world/model/agent_table.py", "world/model/state.py", "world/model/percept_state.py", "engine/resolve.py", "foundation/soa.py"}
+#: 〔割る段 6 の S6-G0・親の裁定 R1〕resolve の書き手のファイルは書き手の一覧から足す(割る前は前と同じ 1 本)。
+_EXEMPT_D6 = {"world/model/agent_table.py", "world/model/state.py", "world/model/percept_state.py",
+              "foundation/soa.py"} | set(AL.RESOLVE_FILES)
 D6_ALLOW = {
     ("act/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",
     ("mind/judge/store_choice.py", "self.poi_cell"): "同上",

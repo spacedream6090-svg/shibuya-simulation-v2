@@ -24,6 +24,7 @@ from shibuya.mind.system1.change_detect import ChangeDetector
 from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import Renderer
 from shibuya.world.model.state import World
+from tests import _places as _PL
 
 # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕錨は構築側の 1 本だけ(旧値の腕 validation と検証側の錨を読む口は消した=前は 2 本を
 # 合わせて読み、第 18-1 表の 1 つの既定の時刻で前の版の値を確かめた)。既定の時刻を全員 1 つの値にする試験は
@@ -449,21 +450,34 @@ def test_hunger_words_live_in_the_templates():
 _PER_TICK = {
     "world/body/energy.py": ("mets_of", "expenditure", "stage_of", "hunger_copy", "meal_share_of",
                          "meal_share_for_slot", "snack_share_of", "due", "after_tick", "note"),
-    "engine/resolve.py": ("advance_body", "_energy_meal", "energy_out_of_area_meal"),
 }
+#: 〔割る段 6 の S6-G0・親の裁定 R1〕resolve の毎刻み通る関数(名で関数の定義のファイルを引く=割った後は割り先へ。字面の道は
+#: 割る道具が主な割り先へだけ書き換えるので、2 つ目以降の割り先へ移った関数が黙って外れていた)。
+_PER_TICK_RESOLVE = ("advance_body", "_energy_meal", "energy_out_of_area_meal")
+
+
+def _per_tick_paths() -> dict[str, tuple[str, ...]]:
+    """調べるファイル → 名。resolve の名は、名を定義する今のファイルを対応表から引く(割る前は ``engine/resolve.py`` の 1 本)。"""
+    out = dict(_PER_TICK)
+    for rel in _PL.split_files("engine/resolve.py", _PER_TICK_RESOLVE):
+        out[rel] = out.get(rel, ()) + _PER_TICK_RESOLVE
+    return out
 
 
 def test_per_tick_paths_have_no_python_loops():
-    """P4: 毎 tick 通る関数に for/while を書かない(体数ぶんの逐次ループを新設しない)。"""
+    """P4: 毎 tick 通る関数に for/while を書かない(体数ぶんの逐次ループを新設しない)。名が全部見つかること(空回りしない)も。"""
     offenders = []
-    for rel, names in _PER_TICK.items():
+    found: set[str] = set()
+    for rel, names in _per_tick_paths().items():
         tree = ast.parse((SRC / rel).read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in names:
+                found.add(node.name)
                 for sub in ast.walk(node):
                     if isinstance(sub, (ast.For, ast.While)):
                         offenders.append(f"{rel}:{node.name}:{sub.lineno}")
     assert not offenders, offenders
+    assert found == {n for names in _per_tick_paths().values() for n in names}, "毎刻みの関数が見つからない(空回り)"
     assert "逐次ループ宣言" in (SRC / "world/body/energy.py").read_text(encoding="utf-8")
 
 

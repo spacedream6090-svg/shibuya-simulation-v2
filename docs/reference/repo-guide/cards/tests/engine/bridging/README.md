@@ -24,9 +24,10 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_declared_places_exist`(関数): 台帳の道(〔移す段 4 の下ごしらえ〕移したファイルは ``ledger_paths`` の表で今の道へ引く)にファイルがある。
   - `test_doc_rows_need_no_code_declaration`(関数)
   - `test_every_row_has_remove_at_declared_in_and_conf`(関数)
+  - `test_forward_rows_point_to_files_with_declarations`(関数): 〔割る段 6 の S6-G0・親の裁定 Q1 の条件 ③〕前向きの表に載った道のファイルには、つなぎの台帳の宣言が 1 つ以上在る(割る道具が
   - `test_from_dict_refuses_unknown_fields_and_duplicates`(関数)
   - `test_heading_rows_carry_the_heading_and_the_item_count`(関数): 第 4 形: 見出し 1 つで 1 行(親の判断 第334)。``what`` に見出しの文と今の項の数・id はファイルと見出しの文の
-  - `test_ledger_path_is_the_same_while_the_forward_table_is_empty`(関数): 前向きの表 ``LEDGER_PATHS_SPLIT`` が空の間、``ledger_path()`` は全部の道で前(``LEDGER_PATHS.get(道, 道)``)と同じ。
+  - `test_ledger_path_follows_the_main_table_then_the_forward_table`(関数): ``ledger_path()`` は主な表 → 前向きの表 → そのまま、``current_path()`` は主な表だけ(全部の道で)。前向きの表が空の今は、
   - `test_ledger_paths_table_is_one_to_one_and_points_to_files`(関数): 表の今の道は全部ファイルがあり、台帳の道は重ならない。台帳のコードの行の道は、表を通して全部今のファイルに届く。
   - `test_literal_declarations_are_copied_verbatim`(関数): 文字列の宣言は台帳の ``what`` にそのまま写す(f 文字列と式は構築したときの値=写しの外)。
   - `test_negative_a_changed_item_count_is_caught`(関数): 見出しの下の項が増えると、同定(見出しの文)は同じでも台帳の ``what`` の項数と合わなくなる(試験が落ちる)。

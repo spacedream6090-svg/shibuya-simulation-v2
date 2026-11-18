@@ -108,9 +108,10 @@ def _first(pair) -> CD.DetectResult:  # noqa: ANN001
     return CD.ChangeDetector(a.n, w.n_cells).detect(w, a, 0)
 
 
-def test_the_first_detection_has_changed_cells_and_many_crossings():
-    """場合が空回りしないこと: 最初の検出は変わったセルと跨ぎ(多い)の両方を持つ。"""
-    res = _first(_pair(1))
+@pytest.mark.parametrize("seed", [1, 2, 3])
+def test_the_first_detection_has_changed_cells_and_many_crossings(seed):
+    """場合が空回りしないこと: 最初の検出は変わったセルと跨ぎ(多い)の両方を持つ(比べる試験の種の全部で)。"""
+    res = _first(_pair(seed))
     assert res.changed_cells.size > 0
     assert sum(int(c.agent_id.size) for c in res.crossings) > 500
 

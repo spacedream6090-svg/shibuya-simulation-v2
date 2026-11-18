@@ -42,9 +42,12 @@ def test_new_modules_do_not_open_the_ledger_window_or_touch_the_balance_arrays()
 
 
 def _callers_in_resolve(names: tuple[str, ...]) -> set[str]:
-    tree = ast.parse((SRC / "engine" / "resolve.py").read_text(encoding="utf-8"))
+    """resolve の書き手のファイルの全部(``allow.RESOLVE_FILES``・割る前は 1 本=〔割る段 6 の S6-G0・親の裁定 R1〕)の関数。"""
     out: set[str] = set()
-    for fn in (n for n in tree.body if isinstance(n, ast.FunctionDef)):
+    fns = [n for rel in AL.RESOLVE_FILES for n in ast.parse((SRC / rel).read_text(encoding="utf-8")).body
+           if isinstance(n, ast.FunctionDef)]
+    assert fns
+    for fn in fns:
         for node in ast.walk(fn):
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr in names:
                 out.add(fn.name)

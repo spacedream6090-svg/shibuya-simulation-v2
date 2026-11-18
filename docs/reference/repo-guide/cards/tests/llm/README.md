@@ -115,7 +115,7 @@ C6-a 艦隊接続の契約テスト(層契約・純関数・性質)。HTTP サ�
   - `test_single_replica_has_no_alternate_and_is_counted`(関数): レプリカ 1 本では「別レプリカ 1 回」が退化する=診断行に残す。
   - `test_split_llm_parts_import_no_forbidden_layer`(関数): 〔割る段 5a の G3・検収の低 1〕古い決まり「``llm`` は engine/perception/world/agents を import しない」は、``llm/`` が
   - `test_split_system_user`(関数)
-- import している内部モジュール: `shibuya.act.intake.undefined`・`shibuya.build`・`shibuya.economy.ledger`・`shibuya.engine.resolve`・`shibuya.foundation.budget`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.ports.inference`・`shibuya.perception.renderer`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.inference.mock`・`shibuya.world.facts.population_reader`・`shibuya.world.model.state`・`tests/_places.py`
+- import している内部モジュール: `shibuya.act.intake.undefined`・`shibuya.act.intent`・`shibuya.build`・`shibuya.economy.ledger`・`shibuya.foundation.budget`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.ports.inference`・`shibuya.perception.renderer`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.inference.mock`・`shibuya.world.facts.population_reader`・`shibuya.world.model.state`・`tests/_places.py`
 - 決定の ID: D-58
 
 ## [test_mock_v3.py](../../../../../../tests/llm/test_mock_v3.py)

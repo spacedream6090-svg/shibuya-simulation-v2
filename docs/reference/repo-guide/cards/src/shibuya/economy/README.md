@@ -298,7 +298,7 @@ economy.tax_deposit — 店の預かり消費税(第 4 期 4-2・Q1=PENDING 仮-
   - `TaxDeposit`(クラス): 店ごとの預かり消費税(課税期間の年ごと)。書くのは :meth:`collect` と :meth:`remit_due` だけ。
 - import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.taxes`・`shibuya.foundation.ports.ledger`
 - 呼び手: `shibuya.economy.stage2`
-- 読む試験(道筋で): `tests/test_places_guard.py`
+- 読む試験(道筋で): `tests/engine/state/test_move_prep_stage2.py`・`tests/test_places_guard.py`
 - 状態台帳の行
   - 持ち主 `ledger.money.stage2.tax_deposit`(`TaxDeposit`)
     - `TXD` TaxDeposit(店の預かり消費税=課税期間の年 → 店ごとの預かり額・累計・第 4 期 4-2)(挙動 behavior・復元 required・腕 rules-42) 道筋 `ledger.money.stage2.tax_deposit.held`・`ledger.money.stage2.tax_deposit.totals` 書ける系: close_final・day_close・phase_c

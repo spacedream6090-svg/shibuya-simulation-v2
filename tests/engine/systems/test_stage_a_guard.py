@@ -160,9 +160,11 @@ def _at_sites(tree: ast.AST):
 
 
 def test_every_state_ufunc_at_in_resolve_checks_the_written_array():
-    path = SRC / "engine" / "resolve.py"
-    tree = ast.parse(path.read_text(encoding="utf-8"))
-    funcs = [n for n in tree.body if isinstance(n, ast.FunctionDef)]
+    """〔割る段 6 の S6-G0・親の裁定 R1〕resolve の書き手のファイルの全部(``allow.RESOLVE_FILES``・割る前は 1 本)で見る。"""
+    funcs = []
+    for rel in AL.RESOLVE_FILES:
+        funcs += [n for n in ast.parse((SRC / rel).read_text(encoding="utf-8")).body if isinstance(n, ast.FunctionDef)]
+    assert funcs
     checked = 0
     for fn in funcs:
         req = [n for n in ast.walk(fn) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
@@ -225,7 +227,9 @@ def test_direct_flag_writes_live_only_in_known_places():
 
 # ================================================================= D ⑥: SoA の配列・ビュー・別名を層の属性に持たせない
 _SOA_TAILS = {"registry", "agents", "cells", "pois", "pstate"}
-_EXEMPT_D6 = {"world/model/agent_table.py", "world/model/state.py", "world/model/percept_state.py", "engine/resolve.py", "foundation/soa.py"}
+#: 〔割る段 6 の S6-G0・親の裁定 R1〕resolve の書き手のファイルは書き手の一覧から足す(割る前は前と同じ 1 本)。
+_EXEMPT_D6 = {"world/model/agent_table.py", "world/model/state.py", "world/model/percept_state.py",
+              "foundation/soa.py"} | set(AL.RESOLVE_FILES)
 #: 許す属性(場所・代入の左辺・理由)。どれも凍結の後に作る読むだけの**写し**(int32 → int64 の dtype の変換=別の配列)。
 D6_ALLOW = {
     ("act/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",

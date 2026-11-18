@@ -21,6 +21,7 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.act import commit as C
 from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
+from shibuya.runtime.systems import allow as _AL
 from shibuya.runtime.systems import table as _SYSTEMS
 from shibuya.world.model.state import World
 from tests import _places as _PL
@@ -54,11 +55,14 @@ def test_thaw_is_never_called_outside_the_state_modules():
 
 
 def test_only_resolve_writes_to_the_world():
-    """``.writable(`` を**呼ぶ**のは engine/resolve.py だけ(=世界への書き込み口は1本)。"""
+    """``.writable(`` を**呼ぶ**のは resolve の書き手のファイルだけ(=世界への書き込み口は resolve)。〔割る段 6 の S6-G0〕前は
+    ``engine/resolve.py`` の 1 本と字面で比べた。今は書き手の一覧 ``allow.RESOLVE_FILES`` の部分集合で、空でない(割る前は同じ
+    1 本・割った後は書き手の割り先のどれか)。"""
     callers = sorted(
         str(p).replace("\\", "/") for p in SRC.rglob("*.py") if _calls_writable(p)
     )
-    assert callers == ["src/shibuya/engine/resolve.py"], callers
+    writers = {(SRC / rel).as_posix() for rel in _AL.RESOLVE_FILES}
+    assert callers and set(callers) <= writers, callers
 
 
 def test_frozen_state_rejects_direct_updates():
@@ -84,7 +88,10 @@ def _hot_paths() -> tuple[str, ...]:
         # 関数 b4_block_raw・b4_block_hashes(5a の G5 で親が手で足した world/model/scene_hash.py の行を同じ形に寄せた。語彙の
         # 定数 INTERO_* が行った foundation/vocab/agent_codes.py はホットパスでない)
         *_PL.split_files("engine/run.py", ("run_day", "RunResult")),
-        "engine/resolve.py",
+        # 〔割る段 6 の S6-G0・親の裁定 R1〕resolve は、元の docstring(逐次ループ宣言)を持つ主な割り先=``apply`` を定義する
+        # ファイル(割る前は ``engine/resolve.py`` の 1 本)。ループを探す範囲(``_loop_scan_paths``)を割り先の全部へ広げる直しは、
+        # 対応表の名の表が S6-A の 2 つの名に直るのを待つ(今の表は ``apply_detection`` のまま=名の全部では割り先を引けない)
+        *_PL.split_files("engine/resolve.py", ("apply",)),
         *_PL.split_files("engine/commit.py", ("arbitrate_resources", "intents_from_responses")),
         *_PL.split_files("engine/change_detect.py", ("ChangeDetector", "b4_block_raw", "b4_block_hashes")),
         # 第 1 期 1-9: お金の基本操作(購入・運賃・補充の代金が毎刻み通る=口の約束 1-9 の受入の試験)

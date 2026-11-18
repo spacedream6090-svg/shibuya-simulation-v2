@@ -1,0 +1,819 @@
+{
+ "schema": "shibuya.tests/resolve-index/1",
+ "excluded": [
+  "_require_thawed"
+ ],
+ "funcs": [
+  "_advance_focus",
+  "_apply_alight",
+  "_apply_board",
+  "_apply_buy",
+  "_apply_eat",
+  "_apply_engine_step",
+  "_apply_help",
+  "_apply_leave",
+  "_apply_move",
+  "_apply_queue",
+  "_apply_record_only",
+  "_apply_report",
+  "_apply_rest",
+  "_apply_sleep",
+  "_apply_talk",
+  "_apply_wait",
+  "_approach_dest_node",
+  "_board_riders",
+  "_cell_of_node",
+  "_clear_focus",
+  "_clear_intent_fields",
+  "_complete_buy",
+  "_complete_eat",
+  "_energy_meal",
+  "_energy_snack",
+  "_enter_board_queue",
+  "_fail",
+  "_focus_xy",
+  "_is_nav",
+  "_nav_positions",
+  "_nav_step",
+  "_nav_stop",
+  "_ok",
+  "_payable",
+  "_plan_exit_mask",
+  "_platform_table",
+  "_purchase_tax",
+  "_remember_queue_action",
+  "_restore_array_into",
+  "_restore_value",
+  "_serve_board_queue",
+  "_serve_poi_queue",
+  "_set_focus",
+  "_settle_approach",
+  "_stage2_money",
+  "_stage2_note_calls",
+  "_stage2_withdraw",
+  "_tick_minute",
+  "advance_body",
+  "apply",
+  "balk_queue",
+  "begin_exit_walk",
+  "begin_planned_sleep",
+  "begin_walk_to",
+  "clear_board_intent",
+  "clear_intent",
+  "clear_refractory",
+  "collect_waste",
+  "consume",
+  "discard_to_bin",
+  "end_conversation",
+  "energy_home_meal",
+  "energy_out_of_area_meal",
+  "fail_intent",
+  "initialize",
+  "initialize_energy",
+  "intent_kept_by",
+  "join_conversation",
+  "nav_place",
+  "normalized_refractory_scale",
+  "place_at_external",
+  "rail_arrive",
+  "rail_depart",
+  "refractory_ticks",
+  "relabel_intent_failure",
+  "release_indoor",
+  "request_open_close",
+  "restock",
+  "restore_items",
+  "restore_soa",
+  "revert_conversation",
+  "set_activity",
+  "set_activity_until",
+  "set_conversing",
+  "set_initial_activity",
+  "set_intent",
+  "set_notice_state",
+  "set_open_flags",
+  "set_plan_state",
+  "set_refractory",
+  "set_thermal",
+  "sync_transit_activity",
+  "talk_within_reach",
+  "wake_condition_index",
+  "wake_from_plan",
+  "write_b4_hash",
+  "write_familiarity",
+  "write_intero_stages",
+  "write_memory",
+  "write_relations",
+  "write_store_memory"
+ ],
+ "direct": {
+  "_advance_focus": [
+   "agents.focus_target",
+   "agents.focus_ttl"
+  ],
+  "_apply_alight": [
+   "agents.activity",
+   "agents.node",
+   "agents.target_node",
+   "agents.transit_ref",
+   "agents.transit_state"
+  ],
+  "_apply_board": [
+   "agents.activity",
+   "agents.board_line",
+   "agents.board_since",
+   "agents.queue_poi",
+   "agents.queue_since",
+   "agents.target_node"
+  ],
+  "_apply_buy": [
+   "agents.activity",
+   "agents.queue_poi",
+   "agents.queue_since"
+  ],
+  "_apply_eat": [
+   "agents.activity",
+   "agents.queue_poi",
+   "agents.queue_since"
+  ],
+  "_apply_engine_step": [
+   "agents.activity",
+   "agents.board_line",
+   "agents.board_since",
+   "agents.edge_id",
+   "agents.edge_s",
+   "agents.node",
+   "agents.path_next_node",
+   "agents.sleep_pending",
+   "agents.target_node"
+  ],
+  "_apply_leave": [
+   "agents.activity",
+   "agents.talk_partner"
+  ],
+  "_apply_move": [
+   "agents.activity",
+   "agents.poi_ref",
+   "agents.poi_since",
+   "agents.queue_poi",
+   "agents.queue_since",
+   "agents.target_node"
+  ],
+  "_apply_rest": [
+   "agents.activity",
+   "agents.fatigue"
+  ],
+  "_apply_sleep": [
+   "agents.activity",
+   "agents.target_node"
+  ],
+  "_apply_talk": [
+   "agents.activity",
+   "agents.talk_partner"
+  ],
+  "_apply_wait": [
+   "agents.activity"
+  ],
+  "_board_riders": [
+   "agents.activity",
+   "agents.board_line",
+   "agents.board_since",
+   "agents.money",
+   "agents.node",
+   "agents.poi_ref",
+   "agents.queue_poi",
+   "agents.target_node",
+   "agents.transit_ref",
+   "agents.transit_state"
+  ],
+  "_clear_focus": [
+   "agents.focus_target",
+   "agents.focus_ttl"
+  ],
+  "_clear_intent_fields": [
+   "agents.intent_action",
+   "agents.intent_kind",
+   "agents.intent_since",
+   "agents.intent_target"
+  ],
+  "_complete_buy": [
+   "agents.activity",
+   "agents.holdings",
+   "agents.hunger",
+   "agents.money",
+   "agents.poi_ref",
+   "agents.poi_since",
+   "agents.queue_poi",
+   "pois.revenue",
+   "pois.stock"
+  ],
+  "_complete_eat": [
+   "agents.activity",
+   "agents.hunger",
+   "agents.money",
+   "agents.poi_ref",
+   "agents.poi_since",
+   "agents.queue_poi",
+   "pois.revenue"
+  ],
+  "_energy_meal": [
+   "agents.energy_balance",
+   "agents.hunger",
+   "agents.since_meal_kcal"
+  ],
+  "_energy_snack": [
+   "agents.energy_balance",
+   "agents.hunger",
+   "agents.since_meal_kcal"
+  ],
+  "_enter_board_queue": [
+   "agents.activity",
+   "agents.board_line",
+   "agents.board_since",
+   "agents.target_node"
+  ],
+  "_fail": [
+   "agents.last_result",
+   "agents.last_result_tick"
+  ],
+  "_nav_positions": [
+   "agents.band",
+   "agents.cell",
+   "agents.nav_fi",
+   "agents.nav_node",
+   "agents.nav_t",
+   "agents.nav_tgt",
+   "agents.nav_wait",
+   "agents.xy"
+  ],
+  "_nav_step": [
+   "agents.nav_fi",
+   "agents.nav_node",
+   "agents.nav_of",
+   "agents.nav_ox",
+   "agents.nav_oy",
+   "agents.nav_t",
+   "agents.nav_tgt",
+   "agents.nav_wait",
+   "agents.node",
+   "agents.xy"
+  ],
+  "_nav_stop": [
+   "agents.nav_node",
+   "agents.nav_t",
+   "agents.nav_tgt",
+   "agents.nav_wait",
+   "agents.node",
+   "agents.xy"
+  ],
+  "_ok": [
+   "agents.last_result",
+   "agents.last_result_tick"
+  ],
+  "_serve_board_queue": [
+   "agents.activity",
+   "agents.board_line",
+   "agents.board_since"
+  ],
+  "_serve_poi_queue": [
+   "agents.activity",
+   "agents.queue_poi",
+   "agents.queue_since"
+  ],
+  "_set_focus": [
+   "agents.focus_target",
+   "agents.focus_ttl"
+  ],
+  "_settle_approach": [
+   "agents.focus_target",
+   "agents.focus_ttl"
+  ],
+  "_stage2_withdraw": [
+   "agents.money"
+  ],
+  "advance_body": [
+   "agents.energy_balance",
+   "agents.fatigue",
+   "agents.hunger",
+   "agents.since_meal_kcal"
+  ],
+  "apply": [
+   "agents.band",
+   "agents.board_line",
+   "agents.board_since",
+   "agents.cell",
+   "agents.edge_id",
+   "agents.edge_s",
+   "agents.last_action",
+   "agents.last_result",
+   "agents.last_result_tick",
+   "agents.node",
+   "agents.path_next_node",
+   "agents.sleep_pending",
+   "agents.xy",
+   "cells.density",
+   "cells.density_stage",
+   "cells.open_count"
+  ],
+  "balk_queue": [
+   "agents.activity",
+   "agents.last_result",
+   "agents.last_result_tick",
+   "agents.queue_poi",
+   "agents.queue_since"
+  ],
+  "begin_exit_walk": [
+   "agents.activity",
+   "agents.board_line",
+   "agents.board_since",
+   "agents.target_node"
+  ],
+  "begin_planned_sleep": [
+   "agents.activity",
+   "agents.board_line",
+   "agents.board_since",
+   "agents.sleep_pending",
+   "agents.target_node"
+  ],
+  "begin_walk_to": [
+   "agents.activity",
+   "agents.board_line",
+   "agents.board_since",
+   "agents.sleep_pending",
+   "agents.target_node"
+  ],
+  "clear_board_intent": [
+   "agents.board_line",
+   "agents.board_since"
+  ],
+  "clear_refractory": [
+   "agents.refractory_until"
+  ],
+  "consume": [
+   "agents.holdings"
+  ],
+  "discard_to_bin": [
+   "pois.stock"
+  ],
+  "end_conversation": [
+   "agents.activity",
+   "agents.talk_partner"
+  ],
+  "energy_home_meal": [
+   "agents.hunger_stage"
+  ],
+  "fail_intent": [
+   "agents.activity",
+   "agents.last_action",
+   "agents.last_result",
+   "agents.last_result_tick",
+   "agents.target_node"
+  ],
+  "initialize": [
+   "agents.activity",
+   "agents.age",
+   "agents.band",
+   "agents.cell",
+   "agents.fatigue",
+   "agents.hunger",
+   "agents.kind",
+   "agents.money",
+   "agents.node",
+   "agents.sex",
+   "agents.thermal",
+   "agents.xy",
+   "cells.density",
+   "cells.density_stage",
+   "cells.open_count"
+  ],
+  "initialize_energy": [
+   "agents.eer_kcal",
+   "agents.energy_balance",
+   "agents.hunger",
+   "agents.hunger_stage",
+   "agents.since_meal_kcal",
+   "agents.weight_kg"
+  ],
+  "join_conversation": [
+   "agents.activity",
+   "agents.last_result",
+   "agents.last_result_tick",
+   "agents.talk_partner"
+  ],
+  "nav_place": [
+   "cells.density",
+   "cells.density_stage"
+  ],
+  "place_at_external": [
+   "agents.activity",
+   "agents.board_line",
+   "agents.board_since",
+   "agents.cell",
+   "agents.node",
+   "agents.target_node",
+   "agents.transit_ref",
+   "agents.transit_state"
+  ],
+  "rail_arrive": [
+   "agents.activity",
+   "agents.band",
+   "agents.cell",
+   "agents.node",
+   "agents.target_node",
+   "agents.transit_ref",
+   "agents.transit_state",
+   "agents.xy"
+  ],
+  "rail_depart": [
+   "agents.activity",
+   "agents.cell",
+   "agents.node",
+   "agents.target_node",
+   "agents.transit_ref",
+   "agents.transit_state"
+  ],
+  "relabel_intent_failure": [
+   "agents.last_action"
+  ],
+  "release_indoor": [
+   "agents.activity",
+   "agents.poi_ref",
+   "agents.poi_since"
+  ],
+  "request_open_close": [
+   "agents.last_result",
+   "agents.last_result_tick",
+   "pois.open_now"
+  ],
+  "restock": [
+   "pois.stock"
+  ],
+  "revert_conversation": [
+   "agents.activity",
+   "agents.talk_partner"
+  ],
+  "set_activity": [
+   "agents.activity_kind",
+   "agents.activity_until"
+  ],
+  "set_activity_until": [
+   "agents.activity_until"
+  ],
+  "set_conversing": [
+   "agents.activity",
+   "agents.talk_partner"
+  ],
+  "set_initial_activity": [
+   "agents.activity"
+  ],
+  "set_intent": [
+   "agents.intent_action",
+   "agents.intent_kind",
+   "agents.intent_since",
+   "agents.intent_target"
+  ],
+  "set_notice_state": [
+   "perception.heading",
+   "perception.task_flag"
+  ],
+  "set_open_flags": [
+   "pois.open_now"
+  ],
+  "set_plan_state": [
+   "agents.plan_flags"
+  ],
+  "set_refractory": [
+   "agents.refractory_until"
+  ],
+  "set_thermal": [
+   "agents.thermal"
+  ],
+  "sync_transit_activity": [
+   "agents.activity"
+  ],
+  "wake_from_plan": [
+   "agents.activity",
+   "agents.sleep_pending"
+  ],
+  "write_b4_hash": [
+   "cells.b4_hash"
+  ],
+  "write_familiarity": [
+   "agents.fam_exposures",
+   "agents.fam_first",
+   "agents.fam_last",
+   "agents.fam_thing",
+   "agents.fam_visits"
+  ],
+  "write_intero_stages": [
+   "agents.fatigue_stage",
+   "agents.hunger_stage",
+   "agents.thermal_stage"
+  ],
+  "write_memory": [
+   "agents.mem_cell",
+   "agents.mem_importance",
+   "agents.mem_kind",
+   "agents.mem_last",
+   "agents.mem_n",
+   "agents.mem_object",
+   "agents.mem_partner",
+   "agents.mem_result",
+   "agents.mem_tick"
+  ],
+  "write_relations": [
+   "agents.rel_first",
+   "agents.rel_kind",
+   "agents.rel_last",
+   "agents.rel_n",
+   "agents.rel_partner",
+   "agents.rel_sign"
+  ],
+  "write_store_memory": [
+   "agents.sm_first",
+   "agents.sm_last",
+   "agents.sm_n",
+   "agents.sm_poi",
+   "agents.sm_precision",
+   "agents.sm_source",
+   "agents.sm_valence"
+  ]
+ },
+ "calls": {
+  "_advance_focus": [
+   "_focus_xy"
+  ],
+  "_apply_alight": [
+   "_fail",
+   "_ok"
+  ],
+  "_apply_board": [
+   "_cell_of_node",
+   "_enter_board_queue",
+   "_fail",
+   "_ok",
+   "_platform_table"
+  ],
+  "_apply_buy": [
+   "_complete_buy",
+   "_fail",
+   "_ok",
+   "_payable",
+   "_remember_queue_action"
+  ],
+  "_apply_eat": [
+   "_complete_eat",
+   "_fail",
+   "_ok",
+   "_payable",
+   "_remember_queue_action"
+  ],
+  "_apply_engine_step": [
+   "_enter_board_queue",
+   "_fail",
+   "_is_nav",
+   "_nav_step",
+   "_settle_approach"
+  ],
+  "_apply_help": [
+   "_fail"
+  ],
+  "_apply_leave": [
+   "_ok",
+   "balk_queue",
+   "release_indoor"
+  ],
+  "_apply_move": [
+   "_approach_dest_node",
+   "_clear_focus",
+   "_fail",
+   "_ok",
+   "_set_focus"
+  ],
+  "_apply_queue": [
+   "_apply_buy",
+   "_apply_eat",
+   "_fail"
+  ],
+  "_apply_record_only": [
+   "_ok"
+  ],
+  "_apply_report": [
+   "_fail",
+   "_ok"
+  ],
+  "_apply_rest": [
+   "_ok"
+  ],
+  "_apply_sleep": [
+   "_fail",
+   "_ok"
+  ],
+  "_apply_talk": [
+   "_fail",
+   "_ok",
+   "talk_within_reach"
+  ],
+  "_apply_wait": [
+   "_ok",
+   "_set_focus"
+  ],
+  "_approach_dest_node": [
+   "_is_nav"
+  ],
+  "_board_riders": [
+   "_fail",
+   "_ok",
+   "_plan_exit_mask"
+  ],
+  "_complete_buy": [
+   "_energy_snack",
+   "_fail",
+   "_ok",
+   "_purchase_tax"
+  ],
+  "_complete_eat": [
+   "_energy_meal",
+   "_fail",
+   "_ok",
+   "_purchase_tax"
+  ],
+  "_energy_meal": [
+   "_tick_minute"
+  ],
+  "_energy_snack": [
+   "_tick_minute"
+  ],
+  "_enter_board_queue": [
+   "_cell_of_node",
+   "_plan_exit_mask",
+   "_platform_table"
+  ],
+  "_payable": [
+   "_stage2_money"
+  ],
+  "_restore_value": [
+   "_restore_array_into"
+  ],
+  "_serve_board_queue": [
+   "_board_riders",
+   "_cell_of_node",
+   "_fail",
+   "_plan_exit_mask"
+  ],
+  "_serve_poi_queue": [
+   "_complete_buy",
+   "_complete_eat",
+   "_fail",
+   "_payable"
+  ],
+  "_set_focus": [
+   "_clear_focus",
+   "_focus_xy"
+  ],
+  "_settle_approach": [
+   "_fail",
+   "_focus_xy"
+  ],
+  "_stage2_note_calls": [
+   "_stage2_money"
+  ],
+  "_stage2_withdraw": [
+   "_stage2_money"
+  ],
+  "apply": [
+   "_advance_focus",
+   "_apply_alight",
+   "_apply_board",
+   "_apply_buy",
+   "_apply_eat",
+   "_apply_engine_step",
+   "_apply_help",
+   "_apply_leave",
+   "_apply_move",
+   "_apply_queue",
+   "_apply_record_only",
+   "_apply_report",
+   "_apply_rest",
+   "_apply_sleep",
+   "_apply_talk",
+   "_apply_wait",
+   "_clear_intent_fields",
+   "_is_nav",
+   "_nav_positions",
+   "_nav_stop",
+   "_serve_board_queue",
+   "_serve_poi_queue",
+   "_stage2_note_calls",
+   "_stage2_withdraw",
+   "intent_kept_by"
+  ],
+  "begin_exit_walk": [
+   "_cell_of_node",
+   "_platform_table"
+  ],
+  "clear_intent": [
+   "_clear_intent_fields"
+  ],
+  "energy_home_meal": [
+   "_energy_meal"
+  ],
+  "energy_out_of_area_meal": [
+   "_energy_meal"
+  ],
+  "fail_intent": [
+   "_clear_intent_fields"
+  ],
+  "nav_place": [
+   "_nav_positions"
+  ],
+  "normalized_refractory_scale": [
+   "wake_condition_index"
+  ],
+  "refractory_ticks": [
+   "wake_condition_index"
+  ],
+  "relabel_intent_failure": [
+   "_clear_intent_fields"
+  ],
+  "restore_items": [
+   "_restore_value"
+  ]
+ },
+ "tables": {
+  "_APPLY": [
+   "_apply_alight",
+   "_apply_board",
+   "_apply_buy",
+   "_apply_engine_step",
+   "_apply_help",
+   "_apply_leave",
+   "_apply_move",
+   "_apply_record_only",
+   "_apply_report",
+   "_apply_rest",
+   "_apply_sleep",
+   "_apply_talk",
+   "_apply_wait"
+  ],
+  "_APPLY_BY_VOCAB": [
+   "_apply_alight",
+   "_apply_board",
+   "_apply_buy",
+   "_apply_eat",
+   "_apply_engine_step",
+   "_apply_help",
+   "_apply_leave",
+   "_apply_move",
+   "_apply_queue",
+   "_apply_record_only",
+   "_apply_report",
+   "_apply_rest",
+   "_apply_sleep",
+   "_apply_talk",
+   "_apply_wait"
+  ],
+  "_APPLY_V2": [
+   "_apply_alight",
+   "_apply_board",
+   "_apply_buy",
+   "_apply_eat",
+   "_apply_engine_step",
+   "_apply_help",
+   "_apply_leave",
+   "_apply_move",
+   "_apply_record_only",
+   "_apply_report",
+   "_apply_rest",
+   "_apply_sleep",
+   "_apply_talk",
+   "_apply_wait"
+  ],
+  "_APPLY_V3": [
+   "_apply_board",
+   "_apply_buy",
+   "_apply_eat",
+   "_apply_engine_step",
+   "_apply_help",
+   "_apply_leave",
+   "_apply_move",
+   "_apply_queue",
+   "_apply_record_only",
+   "_apply_report",
+   "_apply_sleep",
+   "_apply_talk",
+   "_apply_wait"
+  ]
+ },
+ "transfer_callers": [
+  "_board_riders:pay_fares",
+  "_complete_buy:purchase_many",
+  "_complete_eat:purchase_many",
+  "_stage2_withdraw:withdraw_many",
+  "initialize:endow_households"
+ ],
+ "alias_writes": [
+  "consume:holdings",
+  "set_refractory:cur"
+ ]
+}

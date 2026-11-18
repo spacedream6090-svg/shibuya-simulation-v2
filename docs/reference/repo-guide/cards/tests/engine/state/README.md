@@ -74,15 +74,16 @@ Python 6 本・その他 3 本(このディレクトリの直下)
   - `test_find_upward_walks_from_the_start_directory`(関数)
   - `test_index_refuses_a_function_name_split_across_files`(関数)
   - `test_index_refuses_a_table_name_split_across_files_and_merges_distinct_ones`(関数): 〔検収 L2〕頂上の表の名(関数を指す代入)がファイルをまたいで重なれば止める。重ならなければ 2 本を 1 つの閉包にする。
+  - `test_negative_a_stray_file_in_the_writer_list_is_seen`(関数): 〔S6-G0 の検収 中-1〕負の対照(メモリの中で一覧を差し替える): 頂上の関数を持たないファイル(``economy/tax_deposit.py``=
   - `test_only_core_paths_reads_dunder_file_on_the_run_side`(関数)
   - `test_readers_resolve_the_same_files_as_before`(関数)
-  - `test_resolve_files_list_reads_the_resolve_module`(関数)
+  - `test_resolve_files_list_reads_the_resolve_module`(関数): 〔割る段 6 の S6-G0・親の裁定 R1〕前は字面の 1 本(``engine/resolve.py``)とモジュールの ``__file__`` を比べた。今は書き手の
   - `test_rng_aliases_follow_the_module_name`(関数): 置き場を替えたふり(名だけ替える)でも、3 つの import の形の呼び手を見つける。
   - `test_rng_audit_names_come_from_the_rng_module`(関数)
   - `test_roots_are_the_same_paths_as_before`(関数)
   - `test_static_check_names_come_from_the_modules`(関数)
   - `test_world_catalog_package_name_comes_from_the_module`(関数)
-- import している内部モジュール: `shibuya`・`shibuya.engine.resolve`・`shibuya.foundation.budget`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.paths`・`shibuya.foundation.rng`・`shibuya.mind.judge.classical`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.allow`・`shibuya.validation.static.bridging_scan`・`shibuya.validation.static.rng_audit`・`shibuya.validation.static.system_static_check`・`shibuya.world.body.energy`・`shibuya.world.facts.rules.table`・`shibuya.world.ledger.constitution`・`shibuya.world.ledger.world_catalog`・`tests/_places.py`
+- import している内部モジュール: `shibuya`・`shibuya.act.intent`・`shibuya.foundation.budget`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.paths`・`shibuya.foundation.rng`・`shibuya.mind.judge.classical`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.allow`・`shibuya.validation.static.bridging_scan`・`shibuya.validation.static.rng_audit`・`shibuya.validation.static.system_static_check`・`shibuya.world.body.energy`・`shibuya.world.facts.rules.table`・`shibuya.world.ledger.constitution`・`shibuya.world.ledger.world_catalog`・`tests/_places.py`・`tests/engine/systems/test_resolve_index_frozen.py`
 
 ## [test_names_frozen.py](../../../../../../../tests/engine/state/test_names_frozen.py)
 

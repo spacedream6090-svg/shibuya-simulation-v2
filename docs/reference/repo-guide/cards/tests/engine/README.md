@@ -150,14 +150,14 @@ ablation ②「p_notice の d50 を 0.5×/2×」・③「近接入替の不応�
 - 公開の関数とクラス
   - `test_arbiter_diagnostic_counters_are_not_flagged`(関数): 診断カウンタ(局所配列)への ``np.add.at`` は世界状態ではない=対象外。
   - `test_box_rooted_and_aliased_ufunc_at_outside_resolve_is_found`(関数): 負の対照(1-0 段 FIX・検収 L1): 系の箱の形・その別名・組の代入の別名の ``np.<ufunc>.at`` が見つかる。
-  - `test_every_ufunc_at_in_resolve_is_preceded_by_the_frozen_check`(関数): resolve の中でも、状態への ``ufunc.at`` の**直前**に ``_require_thawed`` がある。
+  - `test_every_ufunc_at_in_resolve_is_preceded_by_the_frozen_check`(関数): resolve の中でも、状態への ``ufunc.at`` の**直前**に ``_require_thawed`` がある(書き手のファイルの全部・見た数が 3 以上)。
   - `test_frozen_flag_is_recorded_by_freeze_and_checked_by_resolve`(関数)
   - `test_numpy_ufunc_at_really_ignores_the_writeable_flag`(関数): **穴の実在**を記録する(この振る舞いが変わったら静的検査を緩めてよい)。
-  - `test_resolve_actually_uses_ufunc_at_on_state`(関数): 検査が空振り(=検出ロジックの故障)でないことの陽性対照。
+  - `test_resolve_actually_uses_ufunc_at_on_state`(関数): 検査が空振り(=検出ロジックの故障)でないことの陽性対照(書き手のファイルの全部で 3 以上)。
   - `test_set_refractory_is_blocked_when_someone_forgets_the_window`(関数): ``set_refractory`` は ``np.maximum.at`` を撃つ前に ``frozen`` を見る。
   - `test_systems_modules_have_no_state_ufunc_at`(関数): 系のモジュール(engine/systems)にも世界状態への ``ufunc.at`` は無い(書きは resolve の口だけ)。
-  - `test_ufunc_at_on_world_or_agent_arrays_lives_only_in_resolve`(関数): ``np.add.at``(等)で世界状態を書けるのは resolve.py だけ。
-- import している内部モジュール: `shibuya.build`・`shibuya.economy.ledger`・`shibuya.engine.resolve`・`shibuya.runtime.systems.table`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`
+  - `test_ufunc_at_on_world_or_agent_arrays_lives_only_in_resolve`(関数): ``np.add.at``(等)で世界状態を書けるのは resolve の書き手のファイルだけ(空でない)。
+- import している内部モジュール: `shibuya.build`・`shibuya.economy.ledger`・`shibuya.engine.resolve`・`shibuya.runtime.systems.allow`・`shibuya.runtime.systems.table`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`
 - 決定の ID: 第 347
 
 ## [test_arbiter.py](../../../../../../tests/engine/test_arbiter.py)
@@ -516,7 +516,7 @@ C6 会話招待の設計準拠(09-09): 「対象」欄で名指し → 被招待
   - `test_split_writes_equal_the_pre_split_form`(関数)
   - `test_split_writes_equal_the_pre_split_form_on_unfrozen_copies`(関数): 凍結していない写し(``writable`` が旗に触らない枝)でも同じ。
   - `test_the_detect_system_still_writes_the_four_columns`(関数): ③ の手がかり: 系 ``detect`` の書きの集合は 4 列のまま(凍結の表との比べは ``test_d2_writes_soa_matches_the_frozen_table``)。
-  - `test_the_first_detection_has_changed_cells_and_many_crossings`(関数): 場合が空回りしないこと: 最初の検出は変わったセルと跨ぎ(多い)の両方を持つ。
+  - `test_the_first_detection_has_changed_cells_and_many_crossings`(関数): 場合が空回りしないこと: 最初の検出は変わったセルと跨ぎ(多い)の両方を持つ(比べる試験の種の全部で)。
   - `test_the_with_bodies_are_the_pre_split_statements`(関数): ② AST の比べ: 新しい 2 つの ``with`` の中の文=前の形の ``with`` の中の 2 つの文(字下げのほかは同じ)。``with`` の項は
 - import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.write_guard`・`shibuya.mind.system1.change_detect`・`shibuya.runtime.clocks.step_scope`・`shibuya.runtime.systems.table`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 
@@ -581,7 +581,7 @@ C6 会話招待の設計準拠(09-09): 「対象」欄で名指し → 被招待
   - `test_out_of_area_meal_resets_since_meal_and_adds_the_share`(関数)
   - `test_out_of_area_schedule_uses_meal_rows_then_default_times`(関数)
   - `test_out_of_area_schedule_without_weekly_is_three_default_times`(関数)
-  - `test_per_tick_paths_have_no_python_loops`(関数): P4: 毎 tick 通る関数に for/while を書かない(体数ぶんの逐次ループを新設しない)。
+  - `test_per_tick_paths_have_no_python_loops`(関数): P4: 毎 tick 通る関数に for/while を書かない(体数ぶんの逐次ループを新設しない)。名が全部見つかること(空回りしない)も。
   - `test_poi_intake_kind_is_food_or_convenience_for_snacks`(関数)
   - `test_reference_day_expenditure_equals_eer_within_0_1_percent`(関数): (g) 基準日の構成で 1,440 tick の消費の和は EER に 0.1% 以内で一致する(AVG_METS=1.379)。
   - `test_run_day_default_is_energy_and_v1_is_only_for_tests`(関数): 〔Q13・第347〕ライブラリの既定は energy(CLI と同じ)。旧規則 v1 はランの口からは止め、試験の中だけの口で通る。
@@ -589,7 +589,7 @@ C6 会話招待の設計準拠(09-09): 「対象」欄で名指し → 被招待
   - `test_stage_edges_and_hunger_copy`(関数)
   - `test_unknown_sex_uses_the_mean_of_the_two_tables`(関数)
   - `test_weight_is_clipped_to_three_sd_and_age_zero_uses_the_age_one_row`(関数)
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.system1.change_detect`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.body.energy`・`shibuya.world.facts.weekly_reader`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/engine/body/_hunger_v1.py`
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.system1.change_detect`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.body.energy`・`shibuya.world.facts.weekly_reader`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/engine/body/_hunger_v1.py`
 - 決定の ID: D-118・第 291・第 347
 
 ## [test_env_and_sections_10f.py](../../../../../../tests/engine/test_env_and_sections_10f.py)
@@ -1341,7 +1341,7 @@ engine.resolve のテスト: 行動契約書 §2.1 の 12 語(前提・効果・
   - `test_two_buyers_of_the_same_poi_both_decrement`(関数)
   - `test_undefined_action_falls_back_to_wait`(関数)
   - `test_write_b4_hash_and_write_intero_stages_write_hashes_and_stages`(関数)
-- import している内部モジュール: `shibuya.act.commit`・`shibuya.act.intake.from_words`・`shibuya.engine.resolve`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.system1.change_detect`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.act.commit`・`shibuya.act.intake.from_words`・`shibuya.engine.resolve`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.system1.change_detect`・`shibuya.world.body.rules`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 - 決定の ID: D-113・第 267・第 330
 
 ## [test_response_delay.py](../../../../../../tests/engine/test_response_delay.py)
@@ -1655,7 +1655,7 @@ D-56 就寝抑止(ユーザー決定 (a)・2026-09-10)のテスト。
   - `test_t7_hash_cost_within_the_declared_cap`(関数): T7(10e で門の形を確定・ユーザー決定 10-12=10f のアジェンダ §6-2): **門は checkpoint のハッシュの壁時計が
   - `test_to_state_is_canonical_and_strict`(関数)
   - `test_two_day_run_reports_both_hashes_every_day`(関数)
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.hashing`・`shibuya.foundation.soa`・`shibuya.interfaces.cli.main`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.systems.decide`・`shibuya.runtime.systems.llm_io`・`shibuya.runtime.systems.run_end`・`shibuya.runtime.systems.state_io`・`shibuya.world.model.agent_table`・`shibuya.world.model.percept_state`・`shibuya.world.model.state`・`tests/_places.py`・`tests/engine/body/_hunger_v1.py`・`tests/engine/test_tape_deferred.py`・`tests/golden_env.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.act.intent`・`shibuya.engine.resolve`・`shibuya.foundation.hashing`・`shibuya.foundation.soa`・`shibuya.interfaces.cli.main`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.systems.decide`・`shibuya.runtime.systems.llm_io`・`shibuya.runtime.systems.run_end`・`shibuya.runtime.systems.state_io`・`shibuya.world.model.agent_table`・`shibuya.world.model.percept_state`・`shibuya.world.model.state`・`tests/_places.py`・`tests/engine/body/_hunger_v1.py`・`tests/engine/test_tape_deferred.py`・`tests/golden_env.py`・`tests/llm/test_fleet.py`
 - 読む試験: `tests/engine/memory/test_mr65_guards.py`
 - 決定の ID: 10-06/§6・10-12・11-01・11-03/§3・第 321・第 330・第 346・第 347
 
@@ -1839,11 +1839,11 @@ engine.llm_bridge の結線テスト(録画テープ・δ_think レーン・reco
   - `test_losers_get_the_failure_code`(関数)
   - `test_no_python_loop_over_agents_in_engine_hot_paths`(関数): P4: エンジンのホットパスに**個体数ぶんの逐次ループ**を書かない(範囲は :func:`_loop_scan_paths`)。
   - `test_one_per_agent_keeps_the_llm_intent_over_the_engine_step`(関数)
-  - `test_only_resolve_writes_to_the_world`(関数): ``.writable(`` を**呼ぶ**のは engine/resolve.py だけ(=世界への書き込み口は1本)。
+  - `test_only_resolve_writes_to_the_world`(関数): ``.writable(`` を**呼ぶ**のは resolve の書き手のファイルだけ(=世界への書き込み口は resolve)。〔割る段 6 の S6-G0〕前は
   - `test_phase_c_outcome_is_independent_of_intent_order`(関数): T3 相当: Phase A の intent の並び順を変えても Phase C の結果は同一。
   - `test_stock_zero_means_nobody_wins`(関数)
   - `test_thaw_is_never_called_outside_the_state_modules`(関数): ``.thaw(`` は書き込みガードの解除口。呼び出しは agents/state.py・world/state.py の内部だけ
-- import している内部モジュール: `shibuya.act.commit`・`shibuya.engine.resolve`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.systems.table`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`
+- import している内部モジュール: `shibuya.act.commit`・`shibuya.engine.resolve`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.systems.allow`・`shibuya.runtime.systems.table`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`
 - 決定の ID: 第 330
 
 ## [test_undefined_action.py](../../../../../../tests/engine/test_undefined_action.py)

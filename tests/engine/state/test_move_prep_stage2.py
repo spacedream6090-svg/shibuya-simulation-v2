@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import ast
+import importlib
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -24,7 +25,6 @@ from shibuya.foundation import paths as P
 from shibuya.foundation import rng as RNG
 from shibuya.mind.judge import classical as CL
 from shibuya.world.body import energy as EN
-from shibuya.engine import resolve as RV
 from shibuya.runtime.state import resume as RS
 from shibuya.validation.static import rng_audit as RA
 from shibuya.foundation.decl import bridging as BL
@@ -92,20 +92,76 @@ def test_find_upward_walks_from_the_start_directory(tmp_path):
 
 # ================================================================= 2-3
 def test_resolve_files_list_reads_the_resolve_module():
-    assert AL.RESOLVE_FILES == ("engine/resolve.py",)
-    assert [(AL.src_root() / rel).resolve() for rel in AL.RESOLVE_FILES] == [Path(RV.__file__).resolve()]
-    idx = AL.index()
-    tree = ast.parse(Path(RV.__file__).read_text(encoding="utf-8"))
-    assert idx.funcs == frozenset(n.name for n in tree.body if isinstance(n, ast.FunctionDef))
+    """〔割る段 6 の S6-G0・親の裁定 R1〕前は字面の 1 本(``engine/resolve.py``)とモジュールの ``__file__`` を比べた。今は書き手の
+    一覧の全部のファイルが在り・重ならず、索引の関数の集合=一覧の全部のファイルの頂上の関数(割る前は 1 本=前と同じ比べ)。"""
+    files = [AL.src_root() / rel for rel in AL.RESOLVE_FILES]
+    assert files and len(set(AL.RESOLVE_FILES)) == len(AL.RESOLVE_FILES) and all(p.is_file() for p in files)
+    names = [n.name for p in files for n in ast.parse(p.read_text(encoding="utf-8")).body
+             if isinstance(n, ast.FunctionDef)]
+    assert len(names) == len(set(names))
+    assert AL.index().funcs == frozenset(names) and "apply" in names
+    # 〔S6-G0 の検収 中-1〕一覧のどのファイルも、索引の関数を 1 つ以上定義する(本数に依らない)。凍結した関数の集合
+    # (``tests/engine/systems/resolve_index_frozen.json``)と合わせて、一覧は「凍結した関数を定義するファイル」に固定される
+    # (関数を持たないファイルはここで、索引に無い関数を持つファイルは凍結の表で落ちる)
+    assert _writer_files_without_index_functions(AL.RESOLVE_FILES, AL.index().funcs) == []
+
+
+def _writer_files_without_index_functions(rels, funcs) -> list[str]:  # noqa: ANN001
+    """書き手の一覧のうち、索引の関数(``funcs``)を 1 つも頂上で定義しないファイル。"""
+    out = []
+    for rel in rels:
+        tree = ast.parse((AL.src_root() / rel).read_text(encoding="utf-8"))
+        if not {n.name for n in tree.body if isinstance(n, ast.FunctionDef)} & set(funcs):
+            out.append(rel)
+    return out
+
+
+def test_negative_a_stray_file_in_the_writer_list_is_seen(monkeypatch):
+    """〔S6-G0 の検収 中-1〕負の対照(メモリの中で一覧を差し替える): 頂上の関数を持たないファイル(``economy/tax_deposit.py``=
+    クラスだけ)をまぎれさせると、上の確かめが落ちる。索引に無い関数だけを持つファイル(``foundation/write_guard.py``)を
+    まぎれさせると、索引の関数が増えて凍結の表との比べが落ちる(一覧の外で作った索引の関数とは重ならない)。"""
+    from tests.engine.systems import test_resolve_index_frozen as RI
+
+    real = tuple(AL.RESOLVE_FILES)
+    frozen = RI.load_frozen()
+    real_funcs = AL.index().funcs
+    assert _writer_files_without_index_functions(("foundation/write_guard.py",), real_funcs) == [
+        "foundation/write_guard.py"]
+    for stray, word in (("economy/tax_deposit.py", "no_funcs"), ("foundation/write_guard.py", "frozen")):
+        monkeypatch.setattr(AL, "RESOLVE_FILES", (*real, stray))
+        AL.index.cache_clear()
+        try:
+            ix = AL.index()
+            missing = _writer_files_without_index_functions(AL.RESOLVE_FILES, ix.funcs)
+            diff = RI.diff(RI.normalize(ix), frozen)
+        finally:
+            monkeypatch.undo()
+            AL.index.cache_clear()
+        if word == "no_funcs":
+            assert missing == [stray], missing
+        else:
+            assert missing == [] and diff and any(x.startswith("funcs") for x in diff), diff
+
+
+#: 書き手の一覧(試験が一覧を差し替える前の値=偽の木へ写す本物のファイル)。
+_REAL_WRITERS: tuple[str, ...] = tuple(AL.RESOLVE_FILES)
+
+
+def _fake_writers(root: Path) -> tuple[str, ...]:
+    """書き手の一覧の全部のファイルを偽の木へ同じ道で写す(割る前は 1 本)。"""
+    for rel in _REAL_WRITERS:
+        (root / rel).parent.mkdir(parents=True, exist_ok=True)
+        (root / rel).write_text((AL.src_root() / rel).read_text(encoding="utf-8"), encoding="utf-8")
+    (root / "engine").mkdir(parents=True, exist_ok=True)
+    return _REAL_WRITERS
 
 
 def test_index_refuses_a_function_name_split_across_files(tmp_path, monkeypatch):
     root = tmp_path / "shibuya"
-    (root / "engine").mkdir(parents=True)
-    src = Path(RV.__file__).read_text(encoding="utf-8")
-    (root / "engine" / "resolve.py").write_text(src, encoding="utf-8")
-    (root / "engine" / "resolve_part.py").write_text("def write_intero_stages():\n    pass\n", encoding="utf-8")
-    monkeypatch.setattr(AL, "RESOLVE_FILES", ("engine/resolve.py", "engine/resolve_part.py"))
+    rels = _fake_writers(root)
+    name = sorted(AL.index().funcs)[0]  # 書き手のファイルに在る関数の名(偽の割り先に同じ名を置く)
+    (root / "engine" / "resolve_part.py").write_text(f"def {name}():\n    pass\n", encoding="utf-8")
+    monkeypatch.setattr(AL, "RESOLVE_FILES", (*rels, "engine/resolve_part.py"))
     AL.index.cache_clear()
     try:
         with pytest.raises(ValueError, match="関数の名がファイルをまたいで重なる"):
@@ -119,8 +175,7 @@ def _split_tree(tmp_path: Path, part: str) -> Path:
     from shibuya.runtime.state import ledger_ast as A
 
     root = tmp_path / "shibuya"
-    (root / "engine").mkdir(parents=True)
-    (root / "engine" / "resolve.py").write_text(Path(RV.__file__).read_text(encoding="utf-8"), encoding="utf-8")
+    _fake_writers(root)
     (root / "engine" / "resolve_part.py").write_text(part, encoding="utf-8")
     for rel in A.DECL_FILES.values():
         (root / rel).parent.mkdir(parents=True, exist_ok=True)
@@ -131,7 +186,7 @@ def _split_tree(tmp_path: Path, part: str) -> Path:
 def test_index_refuses_a_table_name_split_across_files_and_merges_distinct_ones(tmp_path, monkeypatch):
     """〔検収 L2〕頂上の表の名(関数を指す代入)がファイルをまたいで重なれば止める。重ならなければ 2 本を 1 つの閉包にする。"""
     ref = AL.index().tables["_APPLY"]
-    monkeypatch.setattr(AL, "RESOLVE_FILES", ("engine/resolve.py", "engine/resolve_part.py"))
+    monkeypatch.setattr(AL, "RESOLVE_FILES", (*_REAL_WRITERS, "engine/resolve_part.py"))
     AL.index.cache_clear()
     try:
         bad = _split_tree(tmp_path / "bad", "def _part_helper():\n    pass\n\n\n_APPLY = {1: _part_helper}\n")
@@ -149,7 +204,11 @@ def test_static_check_names_come_from_the_modules():
     # 〔割る段 6 の S6-A〕resolve のモジュールの名は、allow.RESOLVE_FILES から作る名の集合。割る前は 1 つ(=前と同じ範囲)
     assert SC.RESOLVE_MODULES == frozenset(
         shibuya.__name__ + "." + rel[:-3].replace("/", ".") for rel in AL.RESOLVE_FILES)
-    assert SC.RESOLVE_MODULES == frozenset({RV.__name__})
+    assert len(SC.RESOLVE_MODULES) == len(AL.RESOLVE_FILES) >= 1
+    # resolve の口 ``apply`` を定義するモジュール(割る前は resolve・割った後は主な割り先)
+    home = next(m for m in sorted(SC.RESOLVE_MODULES) if getattr(getattr(importlib.import_module(m), "apply", None),
+                                                                   "__module__", "") == m)
+    RV = importlib.import_module(home)
     # 系の包みの名は、系の包みで定義したモジュール(allow)の包みから作る(〔段 4 の下ごしらえ・親の決定 3〕包みの頭を読まない)
     assert SC._SYSTEMS_PREFIX == AL.__name__.rpartition(".")[0] + "."
     # 〔割る段 6 の S6-A〕前は名の親と葉の字面(``_RESOLVE_PARENT``・``_RESOLVE_LEAF``)を比べた。今は集合で引く形を動かして確かめる:
@@ -164,8 +223,12 @@ def test_static_check_names_come_from_the_modules():
     consts = {n.value for n in ast.walk(ast.parse(text)) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
     # 〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面の startswith("shibuya.engine")。名は、静的の検査が名を引くモジュール(resolve)の
     # 元の包み(engine)にあったモジュールの今の名から作る(移す前の木では "shibuya.engine" と同じ範囲)
-    engine = PL.names_from(RV)
-    assert engine.heads and RV.__name__ in engine.leaves and SC.__name__ in engine.leaves
+    # 〔割る段 6 の S6-G0・親の裁定 Q10〕範囲の手がかりは、元の置き場が engine の、割らずに移したモジュール(前は resolve=割る段 6
+    # で包み engine が無くなる。付け替えの前と後で範囲は同じ)。resolve の口を持つモジュールはその範囲に在る
+    from shibuya.act import intent as ENGINE
+
+    engine = PL.names_from(ENGINE)
+    assert engine.heads and home in engine.leaves and SC.__name__ in engine.leaves
     assert not {c for c in consts if c.startswith(engine.prefixes())}, "道の文字列が残っている"
 
 

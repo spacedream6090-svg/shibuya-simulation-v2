@@ -529,15 +529,28 @@ def _all_paths(ledger) -> list[str]:  # noqa: ANN001
     paths = set(LP.LEDGER_PATHS) | set(LP.LEDGER_PATHS.values())
     paths |= {p.relative_to(ROOT).as_posix() for p in (ROOT / "src" / "shibuya").rglob("*.py")}
     paths |= {r.declared_path for r in ledger if r.declared_in_code}
+    paths |= set(LP.LEDGER_PATHS_SPLIT) | set(LP.LEDGER_PATHS_SPLIT.values())
     return sorted(paths)
 
 
-def test_ledger_path_is_the_same_while_the_forward_table_is_empty(ledger):
-    """前向きの表 ``LEDGER_PATHS_SPLIT`` が空の間、``ledger_path()`` は全部の道で前(``LEDGER_PATHS.get(道, 道)``)と同じ。"""
-    assert dict(LP.LEDGER_PATHS_SPLIT) == {}
+def _check_both_directions(paths: list[str]) -> None:
+    """表の中身が何行でも成り立つ形(〔S6-G0 の道具の検収 低-2〕前は「前向きの表が空」に頼っていた=段 6 で行が入ると落ちる):
+    前向きの表に載っていない道は ``ledger_path()`` が前(``LEDGER_PATHS.get(道, 道)``)と同じ値・載っている道は前向きの表の値
+    (台帳の道)・``current_path()`` は前向きの表を引かない(主な表の逆向きと同じ)。"""
+    split = dict(LP.LEDGER_PATHS_SPLIT)
+    want = [split[p] if p in split and p not in LP.LEDGER_PATHS else LP.LEDGER_PATHS.get(p, p) for p in paths]
+    assert [LP.ledger_path(p) for p in paths] == want
+    assert all(LP.ledger_path(p) == v for p, v in split.items() if p not in LP.LEDGER_PATHS)
+    inv = {v: k for k, v in LP.LEDGER_PATHS.items()}
+    assert [LP.current_path(p) for p in paths] == [inv.get(p, p) for p in paths]
+
+
+def test_ledger_path_follows_the_main_table_then_the_forward_table(ledger):
+    """``ledger_path()`` は主な表 → 前向きの表 → そのまま、``current_path()`` は主な表だけ(全部の道で)。前向きの表が空の今は、
+    全部の道で前(``LEDGER_PATHS.get(道, 道)``)と同じ=前の確かめと同じ強さ。"""
     paths = _all_paths(ledger)
     assert len(paths) > len(LP.LEDGER_PATHS)
-    assert [LP.ledger_path(p) for p in paths] == [LP.LEDGER_PATHS.get(p, p) for p in paths]
+    _check_both_directions(paths)
 
 
 def test_a_forward_row_maps_to_the_ledger_path_and_current_path_is_unchanged(ledger, monkeypatch):
@@ -551,6 +564,7 @@ def test_a_forward_row_maps_to_the_ledger_path_and_current_path_is_unchanged(led
     assert LP.ledger_path(second) == led and LP.ledger_path(main_now) == led
     assert {p: LP.current_path(p) for p in paths} == before
     assert LP.current_path(led) == main_now and LP.current_path(second) == second
+    _check_both_directions([*paths, second])  # 前向きの表に行が在っても同じ確かめが成り立つ
 
 
 def _keys_in_both() -> set[str]:
@@ -563,3 +577,31 @@ def test_no_path_is_in_both_tables(monkeypatch):
     now, led = next(iter(LP.LEDGER_PATHS.items()))
     monkeypatch.setattr(LP, "LEDGER_PATHS_SPLIT", {now: led})
     assert _keys_in_both() == {now}
+
+
+def _forward_rows_without_declarations() -> list[str]:
+    """前向きの表に載った道のうち、そのファイルにつなぎの台帳の宣言が 1 つも無いもの(台帳の道で走査する)。"""
+    out: list[str] = []
+    for now, led in sorted(LP.LEDGER_PATHS_SPLIT.items()):
+        p = ROOT / now
+        if not p.is_file() or not S.scan_source(p.read_text(encoding="utf-8"), led):
+            out.append(now)
+    return out
+
+
+def test_forward_rows_point_to_files_with_declarations(monkeypatch):
+    """〔割る段 6 の S6-G0・親の裁定 Q1 の条件 ③〕前向きの表に載った道のファイルには、つなぎの台帳の宣言が 1 つ以上在る(割る道具が
+    宣言の入る 2 つ目以降の割り先だけを載せる)。今は表が空なので、試験の中で一時に行を足して両方の向きを確かめる: 宣言の在るファイル
+    =通る・宣言の無いファイル=落ちる。"""
+    assert _forward_rows_without_declarations() == []
+    decls = S.scan_package()
+    with_decl = sorted({d.path for d in decls if d.form != S.FORM_FALLBACK and d.path not in LP.LEDGER_PATHS})
+    have = {d.path for d in decls}
+    without = sorted(p.relative_to(ROOT).as_posix() for p in (ROOT / "src" / "shibuya").rglob("*.py")
+                     if p.relative_to(ROOT).as_posix() not in have and p.read_text(encoding="utf-8").strip())
+    assert with_decl and without
+    led = next(iter(LP.LEDGER_PATHS.values()))
+    monkeypatch.setattr(LP, "LEDGER_PATHS_SPLIT", {with_decl[0]: LP.ledger_path(with_decl[0])})
+    assert _forward_rows_without_declarations() == []
+    monkeypatch.setattr(LP, "LEDGER_PATHS_SPLIT", {without[0]: led})
+    assert _forward_rows_without_declarations() == [without[0]]
