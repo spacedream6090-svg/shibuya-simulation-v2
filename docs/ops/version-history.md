@@ -48,6 +48,7 @@
 | 整理 | コードの区分の移動 段 5b の群 2=`engine/run` を頂上の文の単位で割り、`python -m shibuya.engine.run` の入口を `python -m shibuya.interfaces.cli.run_args` へ移した(#164・第347・1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 59.7 秒/後 52.7 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | b0afefd | `stable-v2-before-split5b-G2`(ce59591) | `git checkout stable-v2-before-split5b-G2` |
 | 整理 | コードの区分の移動 段 5b の群 3=`cli.py` を頂上の文の単位で割り(`interfaces/cli/main.py`・`interfaces/cli/wire_economy.py`)、`shibuya/cli.py` を入口の転送として残した。先に、割る道具に別名の割り先の宣言を足した(#165・第347・1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 62.4 秒/後 54.4 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | e6d221c・a6469a2 | `stable-v2-before-split5b-G3`(b0afefd)・`stable-v2-before-split5b-G3-apply`(e6d221c) | `git checkout stable-v2-before-split5b-G3` |
 | 整理 | コードの区分の移動 段 6 の S6-A=`engine/resolve.py` の `apply_detection` を 2 つの関数(`write_b4_hash`・`write_intero_stages`)に割った。静的な検査は名の集合で見る形に・台帳の道の前向きの表を空で足した(#166・第347・1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 60.9 秒/後 54.5 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | 102bfe5 | `stable-v2-before-split6-A`(a6469a2) | `git checkout stable-v2-before-split6-A` |
+| 整理 | コードの区分の移動 段 6 の S6-G0 の前半=割る道具に拡張 4 つ(台帳の道の前向きの表・道の文字列の割り先の宣言・差し替えの届く先の守り・見本の木での書かない実行)を足し、`resolve` を割る前に試験を直した(#167・第347・src は変えていない=ランの結果に関わらない。byte-check は回していない) | d9d3fe0・c8bfcde | `stable-v2-before-split6-G0`(102bfe5) | `git checkout stable-v2-before-split6-G0` |
 
 ## 版上げと整理の段の手順(byte-check)
 

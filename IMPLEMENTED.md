@@ -394,6 +394,15 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #167 コードの区分の移動 段 6 の S6-G0 の前半=割る道具の拡張 4 つと、割る前の試験の直し(src は変えていない)(11-16 §8 の 5・§1-1 の (b)・第347・2026-11-19・実装役 2・検収役 2=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split6-347 の道具](docs/bench/analysis/split6-347/s6_g0_tools.md)・[split6-347](docs/bench/analysis/split6-347/README.md) §3・§4。commit は 2 つ= d9d3fe0(道具)・c8bfcde(試験)。src は 1 本も変えていない(byte-check は要らない)。戻し方= `git checkout stable-v2-before-split6-G0`。
+- **道具の拡張(`tools/pkgmove`)**: E7=つなぎの台帳の道の前向きの表(`LEDGER_PATHS_SPLIT` に、宣言の入る 2 つ目以降の割り先の行を書き足す・守り ④ は前と同じ厳しさ)/E8=道の文字列の割り先の宣言(`SPLIT_PATH_DESTS`・宣言の無い道は手で直す一覧へ)/E5-b=差し替えの届く先の守り(`patch_reach`・見られなかった差し替えは厳しい当てで断る)/E9=`cli.py split` の `--map`・`--contracts` と見本の木の試験。`test_pkgmove` は 112 → 150 passed・21 skipped・slow 2 passed。5b の G3 の土台に当て直すと、書いたファイル 127 本が 1 バイトも同じ。
+- **割る前の試験の直し**: 範囲の作り方=ループは `split_files`(割り先の全部)・書き手は `allow.RESOLVE_FILES`(裁定 R1)。直した 16 本は直す前後で同じ試験が同じ数。範囲の手がかりを `shibuya.act.intent` へ(6 本・範囲は同じ)。再輸出 4 名の確かめ 2 つを外した(裁定 Q7)。足した試験=`resolve_index_frozen.json` と試験(書きの許可の索引の凍結)・前向きの表の条件 ③・書き手の一覧の固定。カードの道具は `RESOLVE_FILES` の全部を読む。
+- **別の役の検収**: 道具=条件つき受入(高 0・中 1・低 6)→ 直し → 再検収 受入(低 3)。試験=条件つき受入(高 0・中 2・低 4)→ 直し → 再検収 受入(低 2)。
+- **確かめ**: 範囲の試験 7,005 passed・1 failed(前からの 1 本)・22 skipped・1 xfailed(試験の直しの木)。lint-imports 11 kept・例外 20 辺・延べ 26 行のまま。
+- **残り(S6-G0 の後半)**: 表と順(全ファイルの表に 14 行・割る順・決まりの表・宣言・書かない実行)と、試験と道具の別名の分け。ループを探す範囲を割り先の全部へ広げる 1 行は、表と順の commit で足す。
+
 ### #166 コードの区分の移動 段 6 の S6-A=`apply_detection` を 2 つの関数に割った(下ごしらえ・1 バイト不変)(11-16 §8 の 5・§1-6 の 2・第347・2026-11-19・実装役と検収役 Opus 5.5・親が検収)
 
 - 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6 の 2。記録 [split6-347](docs/bench/analysis/split6-347/README.md) §1・§2。commit 102bfe5。安定版のタグ `stable-v2-before-split6-G0`(この commit)。戻し方= `git checkout stable-v2-before-split6-A`。
