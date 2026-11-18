@@ -8,7 +8,9 @@ from shibuya.foundation.vocab.agent_codes import Activity, AgentKind, ResultCode
 # 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
 from shibuya.act import commit as C
 from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_RAIL=act/ops/rail。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_RAIL
 from shibuya.world.laws.civic import (
     DISPATCH_MEDIAN_MIN,
     EVENT_WINDOW,
@@ -162,7 +164,7 @@ def test_large_event_pulls_visitors_in_and_sends_them_back():
     agents, _ = make_agents(world, 40)
     ev = LargeEventProcess(world, agents, master_seed=2, visitor_delta=5, rate_rules="legacy")  # 〔11-01 段 2 の 4〕旧道(切替口)の規則を見る試験
     outside = np.arange(8, dtype=np.int64)
-    R.place_at_external(agents, outside, np.zeros(outside.size, dtype=np.int64))
+    R_RAIL.place_at_external(agents, outside, np.zeros(outside.size, dtype=np.int64))
     lo, hi = EVENT_WINDOW
     ev.step(lo)
     assert ev.n_in == 5

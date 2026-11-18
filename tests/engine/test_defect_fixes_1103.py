@@ -21,7 +21,11 @@ from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
 from shibuya.runtime import switch_defects as DF
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_RAIL=act/ops/rail・R_SHOP=act/ops/shop・R_TALK=act/ops/talk。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_RAIL
+from shibuya.engine import resolve as R_SHOP
+from shibuya.engine import resolve as R_TALK
 from shibuya.society.conversation import ConversationManager
 from shibuya.world.laws.crowd import CrowdProcess
 from shibuya.world.laws.rail import RailProcess
@@ -127,18 +131,18 @@ def _talk_agents():
 
 def test_end_conversation_keeps_the_activity_of_bodies_that_are_not_conversing():
     _, agents = _talk_agents()
-    kept = R.end_conversation(agents, np.arange(6, dtype=np.int64))
+    kept = R_TALK.end_conversation(agents, np.arange(6, dtype=np.int64))
     act = np.asarray(agents.activity).tolist()
     assert act == [int(Activity.IDLE), int(Activity.MOVING), int(Activity.RESTING), int(Activity.SHOPPING),
                    int(Activity.SLEEPING), int(Activity.IDLE)]
     assert np.all(np.asarray(agents.registry.talk_partner) == -1)
     assert kept == {"MOVING": 1, "RESTING": 1, "SHOPPING": 1, "SLEEPING": 1, "IDLE": 1}
-    assert R.end_conversation(agents, np.empty(0, dtype=np.int64)) == {}
+    assert R_TALK.end_conversation(agents, np.empty(0, dtype=np.int64)) == {}
 
 
 def test_revert_conversation_is_the_legacy_release():
     _, agents = _talk_agents()
-    R.revert_conversation(agents, np.arange(6, dtype=np.int64))
+    R_TALK.revert_conversation(agents, np.arange(6, dtype=np.int64))
     assert np.all(np.asarray(agents.activity) == int(Activity.IDLE))
     assert np.all(np.asarray(agents.registry.talk_partner) == -1)
 
@@ -182,7 +186,7 @@ def _queue_setup():
     poi = 0
     cell = int(world.pois.cell[poi])
     ids = np.arange(3, dtype=np.int64)
-    R.rail_arrive(agents, world, ids, np.full(ids.size, cell, dtype=np.int64))
+    R_RAIL.rail_arrive(agents, world, ids, np.full(ids.size, cell, dtype=np.int64))
     crowd.seats[poi] = 1
     crowd.step(T_SHOP)
     out = R.apply(_batch(ids, CV.ACT_BUY, np.full(ids.size, poi)), EMPTY, agents, world, T_SHOP, crowd=crowd)
@@ -217,7 +221,7 @@ def test_a_queued_body_that_walks_away_leaves_the_queue(fix):
     else:
         assert int(agents.registry.queue_poi[first]) == poi and out.n_queue_left_by_move == 0
     # 席が空く: 直した道では列に残った 2 人目が入る。旧道では歩き出した 1 人目が(離れた所で)入って在店になる
-    R.release_indoor(agents, np.array([seated]))
+    R_SHOP.release_indoor(agents, np.array([seated]))
     crowd.step(T_SHOP + 2)
     out = R.apply(CW.engine_continuations(agents, None, T_SHOP + 2), EMPTY, agents, world, T_SHOP + 2, crowd=crowd,
                   defect_fixes=fix)
@@ -234,8 +238,8 @@ def test_a_queued_body_that_is_moved_elsewhere_is_dropped_before_serving(fix):
     world, agents, crowd, poi, seated, waiting = _queue_setup()
     first = int(waiting[0])
     away = _other_cell(world, int(world.pois.cell[poi]))
-    R.rail_arrive(agents, world, np.array([first]), np.array([away]))
-    R.release_indoor(agents, np.array([seated]))
+    R_RAIL.rail_arrive(agents, world, np.array([first]), np.array([away]))
+    R_SHOP.release_indoor(agents, np.array([seated]))
     crowd.step(T_SHOP + 2)
     out = R.apply(EMPTY, EMPTY, agents, world, T_SHOP + 2, crowd=crowd, defect_fixes=fix)
     if fix:
@@ -257,7 +261,7 @@ def _rail_setup():
 def test_a_queued_body_that_walks_to_the_platform_leaves_the_queue(fix):
     world, agents, rail = _rail_setup()
     ids = np.array([0], dtype=np.int64)
-    R.rail_arrive(agents, world, ids, np.array([8]))  # ホーム(セル 0)から遠いセル
+    R_RAIL.rail_arrive(agents, world, ids, np.array([8]))  # ホーム(セル 0)から遠いセル
     with agents.writable():  # 並んでいる状態を直に作る(どの店かは問わない=乗車の側の掃除だけを見る)
         agents.registry.queue_poi[0] = 0
         agents.registry.queue_since[0] = 80
@@ -292,7 +296,7 @@ def test_the_queue_checks_payment_like_a_new_purchase(fix):
     with agents.writable():
         agents.registry.money[first] = 0  # 現金は無い(口座では払える)
     led = SimpleNamespace(money=_AccountMoney(), goods=None)
-    R.release_indoor(agents, np.array([seated]))
+    R_SHOP.release_indoor(agents, np.array([seated]))
     crowd.step(T_SHOP + 2)
     out = R.apply(EMPTY, EMPTY, agents, world, T_SHOP + 2, crowd=crowd, ledger=led, defect_fixes=fix)
     if fix:
@@ -328,7 +332,7 @@ def test_an_unreachable_acceptance_is_not_a_refusal(fix, named):
 
     agents, conv = _pending_setup()
     consumed = _settle_pending_invites(
-        conv, agents, 6, np.array([1]), np.array([CV.ACT_TALK]), np.array([named]), R, np,
+        conv, agents, 6, np.array([1]), np.array([CV.ACT_TALK]), np.array([named]), R_TALK, np,
         drop_unreachable=fix,
     )
     assert consumed == set() and not conv.pending_invites
@@ -348,7 +352,7 @@ def test_other_replies_are_still_refusals(fix):
     from shibuya.runtime.run import _settle_pending_invites
 
     agents, conv = _pending_setup()
-    _settle_pending_invites(conv, agents, 6, np.array([1]), np.array([CV.ACT_MOVE]), np.array([-1]), R, np,
+    _settle_pending_invites(conv, agents, 6, np.array([1]), np.array([CV.ACT_MOVE]), np.array([-1]), R_TALK, np,
                             drop_unreachable=fix)
     assert conv.n_declined == 1 and conv.n_pending_unreachable == 0 and conv.refused_recently(0, 1, 7)
 
@@ -440,7 +444,7 @@ def test_a_refusal_keeps_the_inviters_new_activity(keep):
     from shibuya.runtime.run import _settle_pending_invites
 
     agents, conv = _waiting_inviter(Activity.SHOPPING)
-    _settle_pending_invites(conv, agents, 6, np.array([1]), np.array([CV.ACT_MOVE]), np.array([-1]), R, np,
+    _settle_pending_invites(conv, agents, 6, np.array([1]), np.array([CV.ACT_MOVE]), np.array([-1]), R_TALK, np,
                             drop_unreachable=keep, keep_activity=keep)
     assert conv.n_declined == 1 and int(agents.registry.talk_partner[0]) == -1
     if keep:
@@ -486,7 +490,7 @@ def test_a_body_that_joined_a_session_in_the_same_call_is_not_released(fix):
     assert conv.register_pending(0, 1, tick=5, cell=cell, same_cell=True)  # A=0 → B=1
     assert conv.register_pending(2, 0, tick=5, cell=cell, same_cell=True)  # C=2 → A=0
     _settle_pending_invites(conv, agents, 6, np.array([1, 0]), np.array([CV.ACT_MOVE, CV.ACT_TALK]), np.array([-1, 2]),
-                            R, np, drop_unreachable=fix, keep_activity=fix)
+                            R_TALK, np, drop_unreachable=fix, keep_activity=fix)
     assert conv.n_declined == 1 and conv.n_accepted == 1 and conv.is_busy(0)
     if fix:
         assert int(agents.activity[0]) == int(Activity.CONVERSING) and int(agents.registry.talk_partner[0]) == 2
@@ -518,8 +522,8 @@ def test_an_invitee_that_moved_away_then_accepts_keeps_the_invite_ledger_balance
     world.freeze()
     conv = ConversationManager(master_seed=1, count_unreachable=fix)
     assert conv.register_pending(0, 1, tick=5, cell=int(agents.registry.cell[0]), same_cell=True)  # 同じセルで招待
-    R.rail_arrive(agents, world, np.array([1]), np.array([8]))  # 被招待が別のセルへ動いた
-    _settle_pending_invites(conv, agents, 6, np.array([1]), np.array([CV.ACT_TALK]), np.array([0]), R, np,
+    R_RAIL.rail_arrive(agents, world, np.array([1]), np.array([8]))  # 被招待が別のセルへ動いた
+    _settle_pending_invites(conv, agents, 6, np.array([1]), np.array([CV.ACT_TALK]), np.array([0]), R_TALK, np,
                             drop_unreachable=fix, keep_activity=fix)
     c = dict(conv.counters())
     assert c["conv_invites"] == 1 and _identity(c), c

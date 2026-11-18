@@ -14,7 +14,10 @@ import pytest
 
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.vocab.agent_codes import ResultCode
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_GATE=act/gate・R_SHOP=act/ops/shop。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_GATE
+from shibuya.engine import resolve as R_SHOP
 from shibuya.mind.judge.chooser import (
     CHOOSER_NAMES,
     NearestChooser,
@@ -207,10 +210,10 @@ def test_the_representative_targets_produce_the_split_result_codes():
     """候補 0 の代表(閉店/在庫切れ)と -1 が、resolve の既存の判定で理由どおりの結果コードになる。"""
     w = _world(CELLS, CATS, NAMES, open_from=[900] * 8, stock=[0] * 8)
     ag = _agents([0, 0, 3])
-    out = R.ResolveOutcome(tick=NOON)
-    R._apply_buy(ag, w, np.array([0]), np.array([3]), NOON, out, None)     # 閉店の代表
-    R._apply_eat(ag, w, np.array([1]), np.array([-1]), NOON, out, None)    # 飲食店なし
-    R._apply_buy(ag, w, np.array([2]), np.array([-1]), NOON, out, None)    # 対象なし
+    out = R_GATE.ResolveOutcome(tick=NOON)
+    R_SHOP._apply_buy(ag, w, np.array([0]), np.array([3]), NOON, out, None)     # 閉店の代表
+    R_SHOP._apply_eat(ag, w, np.array([1]), np.array([-1]), NOON, out, None)    # 飲食店なし
+    R_SHOP._apply_buy(ag, w, np.array([2]), np.array([-1]), NOON, out, None)    # 対象なし
     assert ag.registry.last_result[:3].tolist() == [
         int(ResultCode.CLOSED), int(ResultCode.NOT_IN_EATERY), int(ResultCode.BAD_TARGET)
     ]

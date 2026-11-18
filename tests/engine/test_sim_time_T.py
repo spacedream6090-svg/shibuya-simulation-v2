@@ -25,7 +25,9 @@ from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, ResultCode, 
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.hashing import apply_key_array
 from shibuya.foundation.types import EventClass
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/body_writes・R_MIND=mind/ops。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_MIND
 from shibuya.runtime.systems import assemble as BLD  # 1-0: 層の組み立ての名前の差し替えの的
 from shibuya.act.activity import UNTIL_MAX_MINUTES, ActivityLayer
 from shibuya.runtime.arbiter import Arbiter
@@ -102,7 +104,7 @@ def test_refractory_set_at_2350_expires_at_0010_next_day():
     table[cond] = 20                              # 20 分の不応期
     agents = AgentState(2)
     agents.freeze()
-    R.set_refractory(agents, np.array([0]), np.array([cond]), t_set, table)
+    R_MIND.set_refractory(agents, np.array([0]), np.array([cond]), t_set, table)
     assert int(agents.registry.refractory_until[0, cond]) == cal.to_T(1, 10)   # 2 日目 0:10
 
     def selected(T: int) -> bool:
@@ -184,7 +186,7 @@ def test_no_negative_elapsed_time_in_any_tick_column_every_tick(monkeypatch):
     monkeypatch.setattr(BLD, "WorldProcessRunner", runner_factory)
     monkeypatch.setattr(BLD.MemoryLayer, "enable_relations", enable)
 
-    refr_max = int(np.max(R.refractory_ticks()))
+    refr_max = int(np.max(R_MIND.refractory_ticks()))
     until_cap = int(np.ceil(UNTIL_MAX_MINUTES)) + 1
     orig_advance = R.advance_body
     checked = {"ticks": 0}

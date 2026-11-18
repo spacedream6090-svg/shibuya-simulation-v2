@@ -39,7 +39,13 @@ from shibuya.world.model.agent_table import (
 from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/focus・R_ACT_CODES=foundation/vocab/act_codes・R_APPLY=act/apply・
+# R_GATE=act/gate・R_TALK=act/ops/talk。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_ACT_CODES
+from shibuya.engine import resolve as R_APPLY
+from shibuya.engine import resolve as R_GATE
+from shibuya.engine import resolve as R_TALK
 from shibuya.society.conversation import ConversationManager
 from shibuya.world.model.geometry import EdgeGeometry
 from shibuya.runtime.run import run_day
@@ -269,7 +275,7 @@ def test_approach_walks_to_the_node_nearest_the_target_and_arrives():
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = 1  # 個体 0 が個体 1 に近づく
     dest_cell = int(world.assets.node_cell[target_node])
-    out = R.apply(
+    out = R_APPLY.apply(
         _batch([0], CV.ACT_MOVE, [dest_cell]), C.IntentBatch.empty(),
         agents, world, 0, geometry=geom, focus_request=focus,
     )
@@ -281,7 +287,7 @@ def test_approach_walks_to_the_node_nearest_the_target_and_arrives():
         cont = CW.engine_continuations(agents, C.ResourceSpace(world.n_poi, agents.n, world.n_cells), tick)
         if len(cont) == 0:
             break
-        out = R.apply(cont, C.IntentBatch.empty(), agents, world, tick,
+        out = R_APPLY.apply(cont, C.IntentBatch.empty(), agents, world, tick,
                       geometry=geom, focus_request=None)
     assert int(agents.registry.node[0]) == target_node
     assert out.n_approach_done == 1 and out.n_target_gone == 0
@@ -296,7 +302,7 @@ def test_approach_reports_target_gone_when_nobody_is_there_on_arrival():
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = 1
     dest_cell = int(world.assets.node_cell[target_node])
-    R.apply(_batch([0], CV.ACT_MOVE, [dest_cell]), C.IntentBatch.empty(),
+    R_APPLY.apply(_batch([0], CV.ACT_MOVE, [dest_cell]), C.IntentBatch.empty(),
             agents, world, 0, geometry=geom, focus_request=focus)
     _place(agents, world, 1, 8)  # 対象は別のノードへ行ってしまった
     out = None
@@ -305,7 +311,7 @@ def test_approach_reports_target_gone_when_nobody_is_there_on_arrival():
         cont = CW.engine_continuations(agents, space, tick)
         if len(cont) == 0:
             break
-        out = R.apply(cont, C.IntentBatch.empty(), agents, world, tick,
+        out = R_APPLY.apply(cont, C.IntentBatch.empty(), agents, world, tick,
                       geometry=geom, focus_request=None)
     assert out is not None and out.n_target_gone == 1 and out.n_approach_done == 0
     assert int(agents.registry.last_result[0]) == int(ResultCode.TARGET_GONE)
@@ -320,7 +326,7 @@ def test_approach_to_an_unreachable_target_fails_with_unreachable():
         agents.registry.cell[1] = -1
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = 1
-    out = R.apply(_batch([0], CV.ACT_MOVE, [-1]), C.IntentBatch.empty(),
+    out = R_APPLY.apply(_batch([0], CV.ACT_MOVE, [-1]), C.IntentBatch.empty(),
                   agents, world, 0, geometry=geom, focus_request=focus)
     assert out.per_result.get(int(ResultCode.UNREACHABLE), 0) == 1
     assert int(agents.registry.last_result[0]) == int(ResultCode.UNREACHABLE)
@@ -332,7 +338,7 @@ def test_approach_to_a_landmark_poi_uses_the_poi_node():
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = int(focus_code_for_poi(poi))
     dest_cell = int(world.assets.poi_cell[poi])
-    out = R.apply(_batch([0], CV.ACT_MOVE, [dest_cell]), C.IntentBatch.empty(),
+    out = R_APPLY.apply(_batch([0], CV.ACT_MOVE, [dest_cell]), C.IntentBatch.empty(),
                   agents, world, 0, geometry=geom, focus_request=focus)
     assert out.n_approach == 1
     want = int(world.assets.poi_node[poi])
@@ -346,7 +352,7 @@ def test_look_sets_the_focus_when_the_target_is_within_the_acquire_radius():
     _place(agents, world, 1, 0)  # 同じノード=距離 0
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = 1
-    out = R.apply(_batch([0], CV.ACT_WAIT, [-1]), C.IntentBatch.empty(),
+    out = R_APPLY.apply(_batch([0], CV.ACT_WAIT, [-1]), C.IntentBatch.empty(),
                   agents, world, 0, geometry=geom, focus_request=focus)
     assert out.n_focus == 1
     assert int(agents.registry.focus_target[0]) == 1
@@ -365,7 +371,7 @@ def test_look_beyond_the_acquire_radius_does_not_set_a_focus_but_still_succeeds(
     )) > R.FOCUS_ACQUIRE_M
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = 1
-    out = R.apply(_batch([0], CV.ACT_WAIT, [-1]), C.IntentBatch.empty(),
+    out = R_APPLY.apply(_batch([0], CV.ACT_WAIT, [-1]), C.IntentBatch.empty(),
                   agents, world, 0, geometry=geom, focus_request=focus)
     assert out.n_focus == 0
     assert int(agents.registry.focus_target[0]) == FOCUS_NONE
@@ -378,11 +384,11 @@ def test_focus_expires_after_its_max_age():
     _place(agents, world, 1, 0)
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = 1
-    R.apply(_batch([0], CV.ACT_WAIT, [-1]), C.IntentBatch.empty(),
+    R_APPLY.apply(_batch([0], CV.ACT_WAIT, [-1]), C.IntentBatch.empty(),
             agents, world, 0, geometry=geom, focus_request=focus)
     out = None
     for tick in range(1, R.FOCUS_TTL_TICKS + 2):
-        out = R.apply(C.IntentBatch.empty(), C.IntentBatch.empty(), agents, world, tick,
+        out = R_APPLY.apply(C.IntentBatch.empty(), C.IntentBatch.empty(), agents, world, tick,
                       geometry=geom, focus_request=None)
         if int(agents.registry.focus_target[0]) == FOCUS_NONE:
             break
@@ -398,13 +404,13 @@ def test_focus_is_lost_beyond_the_lose_radius_which_is_wider_than_acquire():
     _place(agents, world, 1, 0)
     focus = np.full(agents.n, FOCUS_NONE, dtype=np.int64)
     focus[0] = 1
-    R.apply(_batch([0], CV.ACT_WAIT, [-1]), C.IntentBatch.empty(),
+    R_APPLY.apply(_batch([0], CV.ACT_WAIT, [-1]), C.IntentBatch.empty(),
             agents, world, 0, geometry=geom, focus_request=focus)
     assert int(agents.registry.focus_target[0]) == 1
     # ``apply`` は末尾で ``xy`` をノード/辺から貼り直すので、距離の検査は
     # ``_advance_focus`` を**直接**叩く(貼り直しに消されない)。
     base = np.asarray(world.assets.node_xy[0], dtype=np.float32)
-    out = R.ResolveOutcome(tick=1)
+    out = R_GATE.ResolveOutcome(tick=1)
     with agents.writable():
         # 取得半径の外・喪失半径の内 → まだ焦点は残る
         agents.registry.xy[1] = base + np.float32(
@@ -412,7 +418,7 @@ def test_focus_is_lost_beyond_the_lose_radius_which_is_wider_than_acquire():
         )
         R._advance_focus(agents, world, out)
     assert int(agents.registry.focus_target[0]) == 1 and out.n_focus_lost == 0
-    out = R.ResolveOutcome(tick=2)
+    out = R_GATE.ResolveOutcome(tick=2)
     with agents.writable():
         # 喪失半径の外 → 落ちる
         agents.registry.xy[1] = base + np.float32([R.FOCUS_LOSE_M + 10.0, 0.0])
@@ -458,8 +464,8 @@ def test_renderer_puts_the_focus_person_first_in_b5():
 
 # ================================================================ (vi) 会話距離(G7)
 def test_talk_open_and_leave_distances_form_a_hysteresis():
-    assert R.TALK_OPEN_METERS == 2.0 and R.TALK_LEAVE_METERS == 3.0
-    assert R.TALK_LEAVE_METERS > R.TALK_OPEN_METERS
+    assert R_ACT_CODES.TALK_OPEN_METERS == 2.0 and R_ACT_CODES.TALK_LEAVE_METERS == 3.0
+    assert R_ACT_CODES.TALK_LEAVE_METERS > R_ACT_CODES.TALK_OPEN_METERS
 
 
 def test_talk_within_reach_needs_same_cell_and_two_meters():
@@ -470,18 +476,18 @@ def test_talk_within_reach_needs_same_cell_and_two_meters():
     with agents.writable():
         agents.registry.xy[1] = here + (1.0, 0.0)   # 1 m
         agents.registry.xy[2] = here + (2.5, 0.0)   # 2.5 m
-    assert list(R.talk_within_reach(agents, a, b, by_distance=False)) == [True, True]
-    assert list(R.talk_within_reach(agents, a, b, by_distance=True)) == [True, False]
+    assert list(R_TALK.talk_within_reach(agents, a, b, by_distance=False)) == [True, True]
+    assert list(R_TALK.talk_within_reach(agents, a, b, by_distance=True)) == [True, False]
     with agents.writable():
         agents.registry.cell[1] = 7  # セルが違えば距離が近くても届かない(層をまたがない)
-    assert list(R.talk_within_reach(agents, a, b, by_distance=True)) == [False, False]
+    assert list(R_TALK.talk_within_reach(agents, a, b, by_distance=True)) == [False, False]
 
 
 def test_apply_talk_rejects_a_partner_beyond_the_open_distance():
     world, agents, geom = _edge_world(4)
     with agents.writable():
         agents.registry.xy[1] = np.asarray(agents.registry.xy[0]) + (5.0, 0.0)
-    out = R.apply(_batch([0], CV.ACT_TALK, [1]), C.IntentBatch.empty(), agents, world, 0,
+    out = R_APPLY.apply(_batch([0], CV.ACT_TALK, [1]), C.IntentBatch.empty(), agents, world, 0,
                   geometry=geom, talk_by_distance=True)
     assert out.n_conversations == 0 and out.n_talk_by_distance == 0
     assert int(agents.registry.last_result[0]) == int(ResultCode.PARTNER_GONE)
@@ -489,7 +495,7 @@ def test_apply_talk_rejects_a_partner_beyond_the_open_distance():
     world2, agents2, geom2 = _edge_world(4)
     with agents2.writable():
         agents2.registry.xy[1] = np.asarray(agents2.registry.xy[0]) + (5.0, 0.0)
-    out2 = R.apply(_batch([0], CV.ACT_TALK, [1]), C.IntentBatch.empty(), agents2, world2, 0,
+    out2 = R_APPLY.apply(_batch([0], CV.ACT_TALK, [1]), C.IntentBatch.empty(), agents2, world2, 0,
                    geometry=geom2)
     assert out2.n_conversations == 1 and out2.n_talk_by_distance == 0
 
@@ -500,12 +506,12 @@ def test_conversation_closes_only_past_the_leave_distance():
     assert s is not None
     conv.step(1)  # INVITED → PARTICIPATING
     xy = np.zeros((4, 2), dtype=np.float64)
-    xy[1] = (R.TALK_OPEN_METERS + 0.5, 0.0)  # 成立距離より遠いが離脱距離の内
+    xy[1] = (R_ACT_CODES.TALK_OPEN_METERS + 0.5, 0.0)  # 成立距離より遠いが離脱距離の内
     conv.utterance(0, 2)
-    assert conv.step(2, xy=xy, leave_distance_m=R.TALK_LEAVE_METERS) == []
+    assert conv.step(2, xy=xy, leave_distance_m=R_ACT_CODES.TALK_LEAVE_METERS) == []
     assert conv.sessions[s.session_id].close_reason == ""
-    xy[1] = (R.TALK_LEAVE_METERS + 0.5, 0.0)
-    conv.step(3, xy=xy, leave_distance_m=R.TALK_LEAVE_METERS)
+    xy[1] = (R_ACT_CODES.TALK_LEAVE_METERS + 0.5, 0.0)
+    conv.step(3, xy=xy, leave_distance_m=R_ACT_CODES.TALK_LEAVE_METERS)
     assert conv.sessions[s.session_id].close_reason == "left_cell"
 
 
@@ -547,7 +553,7 @@ def test_focus_upkeep_stays_inside_the_p2_budget():
         r.xy[:] = world.assets.node_xy[r.node]
         r.focus_target[:] = rng.integers(0, n, n)
         r.focus_ttl[:] = R.FOCUS_TTL_TICKS
-    out = R.ResolveOutcome(tick=0)
+    out = R_GATE.ResolveOutcome(tick=0)
     best = float("inf")
     for _ in range(3):
         with agents.writable():

@@ -17,7 +17,9 @@ from shibuya.foundation.vocab.agent_codes import ResultCode
 from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/gate・R_MOVE=act/ops/move。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_MOVE
 from shibuya.mind.judge.chooser import NearestChooser
 from shibuya.act.target import (
     MOVE_BAD_TARGET,
@@ -178,7 +180,7 @@ def test_bad_target_and_unreachable_are_counted_separately():
     w = _world()
     ag = _agents([0, 0])
     out = R.ResolveOutcome(tick=NOON)
-    R._apply_move(ag, w, np.array([0, 1]), np.array([MOVE_BAD_TARGET, -1]), NOON, out, None)
+    R_MOVE._apply_move(ag, w, np.array([0, 1]), np.array([MOVE_BAD_TARGET, -1]), NOON, out, None)
     assert ag.registry.last_result[:2].tolist() == [int(ResultCode.BAD_TARGET),
                                                    int(ResultCode.UNREACHABLE)]
     assert out.n_move_bad_target == 1 and out.n_move_unreachable == 1

@@ -29,7 +29,9 @@ from shibuya.foundation.budget import budget_by_id, load_budget_table
 from shibuya.act import commit as C
 from shibuya.foundation.vocab import act_codes as CV
 from shibuya.world.model import geometry as G
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/gate・R_APPLY=act/apply。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_APPLY
 from shibuya.runtime.run import run_day
 from shibuya.world.model.state import DENSITY_STAGE_EDGES, DENSITY_STAGE_EDGES_PER_M2, World
 
@@ -262,7 +264,7 @@ def test_engine_step_writes_unreachable_end_to_end_in_edge_mode():
         t_notice_ns=np.zeros(4, dtype=np.int64),
     )
     empty = C.IntentBatch.empty()
-    out = R.apply(batch, empty, agents, w, 1, geometry=g)
+    out = R_APPLY.apply(batch, empty, agents, w, 1, geometry=g)
     assert out.per_result[int(ResultCode.UNREACHABLE)] == 4
     assert list(agents.registry.activity) == [int(Activity.IDLE)] * 4
 

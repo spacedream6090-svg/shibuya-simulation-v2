@@ -387,3 +387,148 @@ S6-G0 は 2 つに分けた: 道具の拡張(別の実装役・別の木)と、�
 | `tests/tools` の残り・`tests/engine/test_two_phase.py`・`tests/engine/state`・`tests/test_places_guard.py`(`-n 2`) | 745 passed・落ちた試験 0(`test_pkgmove.py` を除く・`tests/engine/test_energy_balance.py` を含む) |
 | 本物の木の `map --check`・`contracts --check --probe` | 同じ・同じ(今の木では例外 20 辺・延べ 26 行のまま。割 5〜8 は割る行を当てた後に載る) |
 | `git status --porcelain -- src` | 空(src は変えていない=byte-check は要らない) |
+
+## 5. S6-G0 の試験と tools の別名の分け(土台 `c8bfcde`・2026-11-19)
+
+割る道具の厳しい当て(`--apply` の道)は、手で直す一覧が 1 つでも残ると当てない。いちばん大きな部分は、1 つの別名(`from shibuya.engine import resolve as R`)から割り先の違う名を 2 つ以上読む import。5a・5b と同じ作法で、割る前の今のうちに、試験(`tests/`。c7 を除く)と tools の別名を割り先ごとに分けた(分けた別名は、今は全部 `shibuya.engine.resolve` を指す=挙動は同じ。属性の読みのまま。名の import にしない)。src の別名(8 本)は S6-G1(byte-check の commit)で直す。src・`tools/pkgmove/`・`tools/bytecheck/`・`tests/tools/test_pkgmove.py`・表・`map.toml`・`contracts.toml`・`pyproject.toml`・`test_two_phase.py` の `_loop_scan_paths` は変えていない。
+
+### 5-1. 別名の名と割り先(リポの全体で同じ割り先には同じ名)
+
+| 別名 | 割り先 | 別名 | 割り先 |
+|---|---|---|---|
+| `R_APPLY` | `act/apply.py` | `R_PLAN` | `act/ops/plan_writes.py` |
+| `R_GATE` | `act/gate.py` | `R_RAIL` | `act/ops/rail.py` |
+| `R_BODY` | `act/ops/body_writes.py` | `R_SHOP` | `act/ops/shop.py` |
+| `R_DETECT` | `act/ops/detect_writes.py` | `R_TALK` | `act/ops/talk.py` |
+| `R_FOCUS` | `act/ops/focus.py` | `R_MIND` | `mind/ops.py` |
+| `R_INIT` | `act/ops/init_writes.py` | `R_RESTORE` | `runtime/state/restore.py` |
+| `R_INTENT` | `act/ops/intent_writes.py` | `R_GUARD` | `foundation/write_guard.py` |
+| `R_LAW` | `act/ops/law_writes.py` | `R_ACT_CODES` | `foundation/vocab/act_codes.py` |
+| `R_MOVE` | `act/ops/move.py` | `R_AGENT_CODES` | `foundation/vocab/agent_codes.py` |
+
+- 元の別名 `R` は、そのファイルでいちばん多く読む割り先に残した(同じ数なら割り先の道の字の順で先)。名 → 割り先は、親の scratch の名 → 割り先の表(全ファイルの表 §4-14 から作った表に、裁定 Q2 の 2 名・S6-A の 2 名・`_ACTION_ORDER_BY_VOCAB` を当てたもの)。表に無い名(resolve が import で結んで再輸出する名=`ACT_BUY`・`ACT_EAT`)は、道具の再輸出の割り先(主な割り先が先=`act/apply.py`)。
+- import の文は、その有効範囲(頂上か関数の中)で読む割り先の別名だけを置いた(読まない別名は足さない)。文の上に注 1 行(長ければ「・」で折り返し)。
+
+### 5-2. 直したファイル(32 本・別名の数・読みの数)
+
+| ファイル | 別名の数 | 別名=割り先(読みの数) | 読みの数 |
+|---|---:|---|---:|
+| `tests/engine/body/test_body_same_values.py` | 2 | `R`=act/apply(1)・`R_SHOP`=act/ops/shop(1) | 2 |
+| `tests/engine/clock/test_tm3_step_scope.py` | 2 | `R`=act/ops/detect_writes(5)・`R_MIND`=mind/ops(5) | 10 |
+| `tests/engine/processes/test_civic.py` | 2 | `R`=act/apply(1)・`R_RAIL`=act/ops/rail(1) | 2 |
+| `tests/engine/processes/test_crowd.py` | 3 | `R`=act/apply(14)・`R_RAIL`=act/ops/rail(7)・`R_SHOP`=act/ops/shop(5) | 26 |
+| `tests/engine/processes/test_opening.py` | 2 | `R`=act/ops/rail(2)・`R_LAW`=act/ops/law_writes(1) | 3 |
+| `tests/engine/processes/test_rail.py` | 2 | `R`=act/apply(13)・`R_RAIL`=act/ops/rail(2) | 15 |
+| `tests/engine/processes/test_rail_board_intent.py` | 3 | `R`=act/apply(24)・`R_RAIL`=act/ops/rail(4)・`R_TALK`=act/ops/talk(1) | 29 |
+| `tests/engine/processes/test_rail_return.py` | 2 | `R`=act/ops/rail(6)・`R_APPLY`=act/apply(1) | 7 |
+| `tests/engine/proximity/test_rule.py` | 2 | `R`=act/ops/talk(6)・`R_ACT_CODES`=foundation/vocab/act_codes(3) | 9 |
+| `tests/engine/rights/test_rights_events.py` | 2 | `R`=act/ops/law_writes(1)・`R_RAIL`=act/ops/rail(1) | 2 |
+| `tests/engine/rights/test_staff_of_poi_equivalence.py` | 2 | `R`=act/ops/init_writes(1)・`R_RAIL`=act/ops/rail(1) | 2 |
+| `tests/engine/systems/test_stage_a_guard.py` | 2 | `R`=foundation/write_guard(2)・`R_MIND`=mind/ops(2) | 4 |
+| `tests/engine/test_ablation23_switches.py` | 2 | `R`=mind/ops(17)・`R_INIT`=act/ops/init_writes(1) | 18 |
+| `tests/engine/test_add_at_guard.py` | 2 | `R`=foundation/write_guard(3)・`R_MIND`=mind/ops(1) | 4 |
+| `tests/engine/test_c9b_targets_attention.py` | 5 | `R`=act/ops/focus(14)・`R_ACT_CODES`=foundation/vocab/act_codes(8)・`R_APPLY`=act/apply(13)・`R_GATE`=act/gate(3)・`R_TALK`=act/ops/talk(3) | 41 |
+| `tests/engine/test_conversation_invite.py` | 2 | `R`=act/ops/init_writes(3)・`R_TALK`=act/ops/talk(3) | 6(渡す別名は素の使い方=§5-4) |
+| `tests/engine/test_defect_fixes_1103.py` | 4 | `R`=act/apply(6)・`R_RAIL`=act/ops/rail(4)・`R_SHOP`=act/ops/shop(3)・`R_TALK`=act/ops/talk(3) | 16(渡す別名は素の使い方=§5-4) |
+| `tests/engine/test_detection_writes_split.py` | 2 | `R`=act/ops/detect_writes(4)・`R_MIND`=mind/ops(4) | 8 |
+| `tests/engine/test_familiarity.py` | 2 | `R`=act/gate(2)・`R_SHOP`=act/ops/shop(2) | 4 |
+| `tests/engine/test_geometry_c9.py` | 2 | `R`=act/gate(2)・`R_APPLY`=act/apply(1) | 3 |
+| `tests/engine/test_intent_chooser.py` | 3 | `R`=act/apply(12)・`R_GATE`=act/gate(1)・`R_SHOP`=act/ops/shop(3) | 16 |
+| `tests/engine/test_intent_hold.py` | 6 | `R`=act/ops/intent_writes(3)・`R_APPLY`=act/apply(2)・`R_GATE`=act/gate(1)・`R_INIT`=act/ops/init_writes(1)・`R_RAIL`=act/ops/rail(1)・`R_SHOP`=act/ops/shop(1) | 9 |
+| `tests/engine/test_ledger_wiring.py` | 3 | `R`=act/ops/law_writes(4)・`R_APPLY`=act/apply(1)・`R_INIT`=act/ops/init_writes(1) | 6 |
+| `tests/engine/test_move_destination.py` | 2 | `R`=act/gate(1)・`R_MOVE`=act/ops/move(1) | 2 |
+| `tests/engine/test_plan_sleep_d62.py` | 3 | `R`=act/ops/plan_writes(6)・`R_APPLY`=act/apply(2)・`R_INIT`=act/ops/init_writes(2) | 10 |
+| `tests/engine/test_presence_exit_walk.py` | 5 | `R`=act/gate(4)・`R_ACT_CODES`=foundation/vocab/act_codes(3)・`R_RAIL`=act/ops/rail(1)・`R_SHOP`=act/ops/shop(1)・`R_TALK`=act/ops/talk(1) | 10 |
+| `tests/engine/test_resolve.py` | 5 | `R`=act/apply(7)・`R_BODY`=act/ops/body_writes(2)・`R_DETECT`=act/ops/detect_writes(1)・`R_INIT`=act/ops/init_writes(1)・`R_MIND`=mind/ops(3) | 14 |
+| `tests/engine/test_resume_10d.py` | 2 | `R`=act/ops/body_writes(3)・`R_INIT`=act/ops/init_writes(2) | 5 |
+| `tests/engine/test_sim_time_T.py` | 2 | `R`=act/ops/body_writes(2)・`R_MIND`=mind/ops(2) | 4 |
+| `tests/engine/test_stage3_small_fixes.py` | 2 | `R`=act/gate(1)・`R_SHOP`=act/ops/shop(1) | 2 |
+| `tests/engine/test_two_layer_activity.py` | 7 | `R`=act/ops/init_writes(5)・`R_APPLY`=act/apply(1)・`R_BODY`=act/ops/body_writes(3)・`R_GATE`=act/gate(2)・`R_MIND`=mind/ops(1)・`R_MOVE`=act/ops/move(1)・`R_SHOP`=act/ops/shop(1) | 14 |
+| `tests/engine/test_vocab_v2_eat.py` | 3 | `R`=act/apply(11)・`R_INIT`=act/ops/init_writes(1)・`R_SHOP`=act/ops/shop(4) | 16 |
+
+- `test_intent_chooser.py` の `R`(`act/apply.py`)の読み 12 は、再輸出の名 `ACT_BUY`・`ACT_EAT`(上の表の数に入っていない)。
+- `test_resume_10d.py` は関数の中の import 2 つ: 1 つ目の関数は `initialize` だけを読むので別名を `R_INIT` だけにした・2 つ目は `R`(`advance_body`)のまま。
+
+### 5-3. 差し替えの向け先(取り直し §7 の 17 か所のうち試験と tools の物)
+
+| 名 | 差し替え | 差し替える先(取り直し §7) | 今の別名と、その割り先 |
+|---|---|---|---|
+| `advance_body` | `tests/engine/test_resume_10d.py:623・633`・`test_sim_time_T.py:221` | body_writes | `R`=body_writes(両方のファイル) |
+| `advance_body` | `discard_probe.py:180`・`test_state_checks_10f.py:439`・`test_state_ledger_10b.py:682`・`test_removed_switches_346.py:120`(コードの文字列) | body_writes | 別名が 1 つの割り先だけを読む=道具が機械で直す(この節では触っていない) |
+| `initialize` | `test_resume_10d.py:308` | init_writes | `R_INIT`=init_writes |
+| `energy_out_of_area_meal` | `test_meal_bundle_2b.py:488・492` | body_writes | 機械で直る(同上) |
+| `discard_to_bin`・`request_open_close`・`set_conversing`・`join_conversation`・`write_relations` | 取り直し §7 の各 1 か所 | law_writes・law_writes・talk・talk・mind/ops | 機械で直る(同上) |
+| `apply` | `tools/c7/attr_arms.py:281`・`occupancy_series.py:182` | act/apply | 直していない(§5-4) |
+
+書かない実行の E5-b(差し替えの届く先の守り)で、差し替え 17 か所のうち 15 か所(13 項)が「確かめた」=定義の割り先へ届く。前は 10 項(手で直す一覧の別名の 5 項が「見られなかった」)。残る「見られなかった」は tools/c7 の 2 か所だけ。
+
+### 5-4. 関数へ渡す形・返す形・tools/c7 の 2 本(素の使い方。返す形は検収の後に直した・残る 4 本は道具の側の宣言で通す=§5-7)
+
+道具は、別名を素で使う(関数へ渡す・返す・属性に入れる)別名を、読む名の割り先が 1 つでも手で直す一覧に出す。割る前の今、別名を分けても素の使い方は残るので、次の 5 本は一覧に残った(見立ての割り先には向けた)。うち `test_meal_gate_per_hour` は、検収の後に形を直して一覧から外した(§5-7 の直し 1)。
+
+- `tests/engine/test_conversation_invite.py:310`・`test_defect_fixes_1103.py:335・355・447・493・526`: 別名を `runtime/run.py::_settle_pending_invites(…, R, …)` へ渡す。中で読むのは talk の 4 名(`end_conversation`・`revert_conversation`・`set_conversing`・`talk_within_reach`=今の木で確かめた)=取り直し §6 の見立てどおり、渡す別名を `R_TALK` にした(そのファイルの talk の読みも `R_TALK`)。
+- `tests/engine/test_meal_gate_per_hour.py:189`: 関数 `_energy_policy` が別名を返す。呼び手が返った別名で読むのは全部 body_writes の名=別名 `R` は body_writes だけを読む(別名を分ける直しは要らなかった)。割る前に直せない形と見ていたが、検収の後に直せた(§5-7 の直し 1=助けは別名を返さず、呼び手が自分で別名を持つ)。
+- `tools/c7/attr_arms.py:264`・`tools/c7/occupancy_series.py:172`: `module.apply` を包む(読む名は `apply` だけ=act/apply)。手で直す一覧に出るわけは、別名を属性に入れる(`self._module = module`)・引数で受ける(`occupancy_series.attach(module=None)`)素の使い方。割る前に直す形は、割った後の置き場(`shibuya.act.apply`)を先に書くか、取り付けと取り外しの形を作り替えることになる=直していない。
+- この 5 本は、割る道具が素の使い方の別名を書き換えないので、S6-G1 で手で直す物(または道具の側の口)。親に聞いた結果、`_energy_policy` は割る前に直し、残る 4 本は道具の側の宣言で通す(§5-7)。
+
+### 5-5. 一緒に入れた小さな直し(再検収の低-1)
+
+`tests/engine/state/test_move_prep_stage2.py`: 「一覧のどのファイルも索引の関数を 1 つ以上定義する」の確かめに渡す関数の集合から、凍結の表で除く関数(`_require_thawed`=`RI.EXCLUDED`)を引いた(`AL.index().funcs - RI.EXCLUDED`)。割った後に、その関数だけを持つファイルが一覧にまぎれても気づく。負の対照に 1 つ足した: 除く関数だけを索引の関数として持つファイル(今の置き場を対応表から引く)は、引く形では「索引の関数を定義しない」に挙がり、引かない形では挙がらない。
+
+### 5-6. 確かめ
+
+| 何を | 結果 |
+|---|---|
+| 手で直す一覧(書かない実行=親の scratch の台本。割る道具を、段 6 の形にした表でメモリの中に当てる。道具の実装役の台本を写して、木を作業の木に替えた) | 前 49 項(45 ファイル)=src の import 8・tests の import 36(33 本)・tools/c7 の import 2・文字列 3 → 後 16 項(15 ファイル)=src の import 8(S6-G1)・tests の import 3(素の使い方=§5-4)・tools/c7 の import 2(§5-4)・文字列 3(`test_cp2_write_window` の偽の道 2・`guide_permits.py::RESOLVE_FILE`=裁定 T4 と道具の検収の低-6 の振り分け=表と順の発注の側)。守りは前も後も全部「同じ」(契約は「宣言どおり 4」)・止めた理由 0 |
+| E5-b(差し替えの届く先) | 前 確かめた 10 項・見られなかった 5 → 後 確かめた 13 項(差し替え 15 か所)・見られなかった 2(tools/c7 の 2=§5-4)・止めた 0 |
+| AST の確かめ(足した別名を元の `R` へ戻し、同じ有効範囲で重なった `from shibuya.engine import resolve as …` を 1 つにする) | 32 本とも土台 `c8bfcde` の版と AST が同じ |
+| 直したファイル(32 本と `test_move_prep_stage2`)の同じノード(`-n 2`・`-rA`) | 前 668 passed → 後 668 passed・skipped と failed は 0(ファイルごとに同じ数) |
+| 束(`tests/engine` の直下の試験と `body`・`clock`・`processes`・`proximity`・`rights`・`systems`・`state`・`-m "not gpu and not slow"`・`-n 2`・合図を取って) | 2,157 passed・0 skipped・0 failed |
+| `git status --porcelain -- src` | 空 |
+| カード | 作り直した(`data.md` は単独で戻した・`--check` 最新) |
+| 秘密の走査 | CLEAN |
+
+- 見立てと違った所: 無い(関数へ渡す形は talk の 4 名・返す形は body_writes だけ=取り直し §6 のとおり)。違ったのは数だけ: 取り直しの tests の手で直す 42 文のうち、前の commit(割る前の試験の直し)で範囲の手がかり 5 本・`test_move_prep_stage2`・`LAYER_SRC`(裁定 R2)が外れて 36 文(33 本)。
+- この節の台本(親の scratch に置いた。リポには入れていない): 別名を割り先ごとに分ける台本・足した別名を元の `R` へ戻して土台の版と AST を比べる台本・下調べ(別名ごとの読みと素の使い方を挙げる)の台本・道具の再輸出の割り先を引く台本・書かない実行の台本(道具の実装役の台本の写し。G1 の手直しの模擬は既定で回さない)。
+
+### 5-7. 検収の後の直し(検収=受入の低 3・再検収=受入の低 2・親の裁定)
+
+- 直し 1(低-1 の前半・親の裁定): `tests/engine/test_meal_gate_per_hour.py` の助け `_energy_policy` は別名を返さない形にした(返すのは `pol`・`lay` だけ)。呼び手 `test_a_meal_resets_the_hazard_but_a_snack_does_not` が、関数の中で自分の別名 `R` を import する。確かめる中身と、読む名(body_writes の 4 名=`_energy_snack`・`energy_home_meal`・`energy_out_of_area_meal`・`_energy_meal`)は変えていない。同じノード: 前 8 passed → 後 8 passed。
+- 直し 2(表と順の検収の見立て・親の裁定。負の対照 2 は再検収の後に直し A で選び直した): `tests/economy/cp2/test_cp2_write_window.py` の負の対照 2 本の名札を、割る行の resolve の道から替えた。名札は合成のコード片に付けるだけで、`ALLOWED`(`economy/ops.py` の `transfer`)と `DECLARED`(凍結の表の (置き場, 関数))との照合に使う。ファイルは読まない。負の対照 1(窓)は `NEG_LABEL_WINDOW = "synthetic/negative_control.py"`: `ALLOWED` との照合だけなので、どの名札でも意味は「transfer の外」で変わらない。この字面は、全ファイルの表の道の字面・`map.toml` の文字列(old・new・split_to・names ほか)・段 6 の名 → 割り先の表のどれとも重ならず、木に無い。頭の包み `synthetic/` も表と木に無い(元の字面で同じ確かめをすると全部に当たる=正の対照)。負の対照 2(書き)の名札は次の直し A。同じノード: 前 5 passed → 後 5 passed。
+- 直し A(再検収の低-1・親の裁定): 負の対照 2 も初めは `synthetic/…` にした。正しい実装での結果は名札によらないが、元の名札(凍結の表に書き手を持つ置き場)が持っていた「書き手の置き場の中でも、宣言に無い関数の書きは違反」の確かめが、この試験から落ちた。そこで負の対照 2 の名札を `NEG_LABEL_WRITER = "economy/ledger.py"`(`map.toml` の行 107=keep=割る道具も移す道具も書き換えない・凍結の表に書き手 4 関数)にして戻した。期待の一覧は同じ。負の対照: メモリの中で `MW.violations` を (ア) 宣言に書き手を持つ置き場なら関数を問わず通す・(イ) 置き場の宣言の列の和で見る、の 2 通りに壊すと、今の版の負の対照 2 は 2 つとも FAIL(`synthetic/…` の名札では 2 つとも気づかなかった。関数の名だけで見る壊れには、どの名札でも気づかない)。同じノード: 5 passed → 5 passed。書かない実行は 13 項のままで、この字面は手で直す一覧に出ない。
+- 残った 4 本(`test_conversation_invite`・`test_defect_fixes_1103` が `R_TALK` を `_settle_pending_invites` へ渡す形・`tools/c7` の 2 本が `module` をしまう形と引数で受ける形): 形は直さない。割る道具の別名の割り先の宣言に「素で使ってよい別名」の印を足して通す(道具の側の次の commit)。こちらの側は今のまま。
+- 低-2・低-3: §5-3 の行の番号を、別名を分けた後の木の番号に引き直した(`test_resume_10d.py` 623・633・308・`test_sim_time_T.py` 221。`test_state_ledger_10b.py` は土台でも 682=前の版の 681 は写しの誤り)。§5 で scratch の台本の置き場を名指ししていた所は、何をする台本かを書く形に替えた。
+- 書かない実行の回し直し: 手で直す一覧 16 項(15 ファイル)→ 13 項(13 ファイル)=src の import 8(S6-G1)・tests の import 2(`test_conversation_invite`・`test_defect_fixes_1103`)・tools/c7 の import 2・文字列 1(`guide_permits.py::RESOLVE_FILE`=道具の側で書き換えから外す)。消えたのは直し 1・2 の 3 項だけ。E5-b は前と同じ(確かめた 13 項・見られなかった 2=tools/c7)・守りは全部「同じ」(契約は「宣言どおり 4」)・止めた理由 0。カードは作り直した(engine のカードの「読む試験(道筋で)」から `test_cp2_write_window` が外れた=字面の resolve の道を消した結果。`--check` は最新)。
+- 検収役の見立て:
+  - `_energy_policy`: 呼び手 1 本が body_writes の 4 名だけを読む。呼び手が自分で別名を持てば、割った後の置き場を書かずに素の使い方が消える。
+  - `test_cp2_write_window` の名札(表と順の検収): 関数の名 `f`・`helper`・`leak` はどの道でも許可に無いので、名札を替えても結果は変わらない。再検収: 正しい実装での結果は同じだが、負の対照 2 の「置き場だけで見る形の壊れ」への感度は名札で変わる(束では `test_cp2_transfer_only_writer` の負の対照が気づく)=直し A。
+  - `test_conversation_invite`・`test_defect_fixes_1103`: 渡した先で読むのは talk の 4 名だけ。関数の約束がモジュールを受け取る形なので渡さない形にはできない=宣言が筋。
+  - `tools/c7/attr_arms.py`: 読む名は `apply` だけ。`detach` で import し直せば形も直せるが、`tests/c7` が `_module` を読むかは確かめていない(裁定は、c7 の試験を手元で回せないので形を変えずに宣言で通す)。
+  - `tools/c7/occupancy_series.py`: 読む名は `apply` だけ。引数 `module` が外との約束(差し込み口)なので素の使い方は消せない=宣言が筋。
+
+## 6. S6-G0 の試験と tools の別名の分けの、親の確かめと検収(第347・2026-11-19)
+
+### 6-1. 別の役の検収
+
+- 判定: **受入**(高 0・中 0・低 3)→ 続きの直し(§5-7)→ 再検収 **受入**(高 0・中 0・低 2)→ 低の直し(§5-7 の直し A・B)。検収役はファイルを 1 本も変えていない。
+- 挙動: 検収役が自分の台本で、足した別名を有効範囲つきで元へ戻し、重なった import を 1 つにすると、32 本とも土台 `c8bfcde` の版と AST が同じ(関数の中の import も同じ)。
+- 別名ごとの割り先: 直した 32 本と、resolve を import する試験と tools の 71 本で、1 つの束縛が 2 つ以上の割り先を読む所は 0・表に無い名を読む所も 0。別名の名はリポの全体でそろっている。
+- 差し替え: 洗い出した差し替えは取り直しの 17 か所と同じ顔ぶれで、どれも定義の割り先の別名へ向いている(9 つの名とも、resolve の中に素の名で読む関数は無い)。
+- 別名を渡す形・返す形: `_settle_pending_invites` が読むのは talk の 4 名だけ・`_energy_policy` の返り値を読む呼び手は 1 本で body_writes の 4 名だけ。
+
+### 6-2. 検収の低と、親の裁定
+
+- 残った素の使い方(別名を渡す・返す・しまう): `test_meal_gate_per_hour` は割る前に形を直した(§5-7 の直し 1)。`test_conversation_invite`・`test_defect_fixes_1103`(`R_TALK` を `_settle_pending_invites` へ渡す)と `tools/c7` の 2 本(`apply` を包む)は、**割る道具の宣言で通す**(別名の割り先の宣言に、素で使ってよい別名の印を足す=次の道具の commit)。`tools/c7` の形は直さない(その試験を手元で回せないため)。
+- `test_cp2_write_window` の負の対照の名札: 木に無い名札へ替えると、負の対照 2 が「書き手の置き場の中でも、宣言に無い関数の書きは違反」をこの 1 本では確かめなくなる(再検収の低-1。検収役が、確かめる関数をメモリの中で 2 通りに壊して見つけた)。**負の対照 2 の名札を、割る行でも移す行でもなく、凍結の表に書き手を持つ置き場 `economy/ledger.py` にした**(§5-7 の直し A。壊した 2 通りで今の版が落ちる)。負の対照 1(窓)の名札は木に無い字面のまま。
+- 別名の付け方(`R` を、そのファイルでいちばん多く読む割り先に残す・同数なら道の字の順): 受け入れる(正しさの面で困る所は無い。読みやすさのコストは段 8 の掃除の候補)。
+- `tools/pkgmove/allow_tests_tools.toml` の古い行(名札を替えて要らなくなった許可): 残す(割る道具は読まない=今の動きに影響しない)。段 8 で消す。
+
+### 6-3. 親が回した確かめ
+
+| 何を | 結果 |
+|---|---|
+| 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`・別名の分けの木・§5-7 の直しの前に集めた回) | 7,043 passed・2 failed・22 skipped・1 xfailed・39 分 36 秒。落ちた 2 本= 前からの 1 本(linked の作業木でだけ落ちる)と、`test_env_and_sections_10f.py::test_platform_id_ignores_commit_threads_and_dependency_versions`。後者は、実行環境の指紋(作業木の差分の sha を含む)が試験の始めと終わりで同じことを見る試験で、**親が範囲の試験の最中に、同じ作業木で §5-7 の直しを進めさせた**ために落ちた(木の差分が途中で変わった)。木が動かない状態で回し直すと通る(下の行)。前の回(7,005 passed・1 failed)から、道具の拡張の試験 38・前の commit の検収の後に足した負の対照 1 で +39(うち 1 本が上の落ちなので、passed は +38 の 7,043) |
+| 木が動かない状態での回し直し(§5-7 の直しの後・`-n 2`): 直した試験のファイル 35 本/`test_env_and_sections_10f.py` | 681 passed/20 passed・落ちた試験 0 |
+| 本体の頭(表と順の commit の後)へ載せ直した後の回し直し(直した試験のファイル 35 本と `test_two_phase.py`・`test_env_and_sections_10f.py`) | 715 passed・落ちた試験 0(35 本で 681・`test_two_phase.py` 14・`test_env_and_sections_10f.py` 20) |
+| 載せ直した木で、本物の表での書かない実行(`split --through engine/resolve.py`) | 守りは全部「同じ」(決まりは宣言どおり 4)・手で直す一覧は 13(src の import 8・tests の import 2・`tools/c7` 2・名の無い点の道 1)・差し替えの届く先は確かめた 13・見られなかった 2(`tools/c7`) |
+| `git status --porcelain -- src` | 空(src は変えていない=byte-check は要らない) |

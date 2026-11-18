@@ -23,7 +23,9 @@ from shibuya.world.facts.weekly_reader import (
 # 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
 from shibuya.act import commit as C
 from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/rail・R_APPLY=act/apply。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_APPLY
 from shibuya.world.laws.civic import EVENT_WINDOW, LargeEventProcess
 from shibuya.world.laws.rail import RailProcess
 
@@ -95,7 +97,7 @@ def _board(world, agents, rail, ids, tick: int) -> None:
     """ホームへ置いて乗車させる(``resolve`` の口を通す)。"""
     a = np.asarray(ids, dtype=np.int64)
     R.rail_arrive(agents, world, a, np.zeros(a.size, dtype=np.int64))
-    R.apply(_intents(a, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, tick, rail=rail)
+    R_APPLY.apply(_intents(a, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, tick, rail=rail)
 
 
 def _domestic(rail, k: int = 1) -> np.ndarray:

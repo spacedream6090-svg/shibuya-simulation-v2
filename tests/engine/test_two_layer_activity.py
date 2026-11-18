@@ -35,7 +35,15 @@ from shibuya.foundation.types import EventClass
 from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/init_writes・R_APPLY=act/apply・R_BODY=act/ops/body_writes・R_GATE=act/gate・
+# R_MIND=mind/ops・R_MOVE=act/ops/move・R_SHOP=act/ops/shop。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_APPLY
+from shibuya.engine import resolve as R_BODY
+from shibuya.engine import resolve as R_GATE
+from shibuya.engine import resolve as R_MIND
+from shibuya.engine import resolve as R_MOVE
+from shibuya.engine import resolve as R_SHOP
 from shibuya.act.activity import (
     ActivityLayer,
     ActivityPayload,
@@ -179,9 +187,9 @@ def test_wander_bad_target_fails_as_bad_target():
     a = AgentState(2)
     R.initialize(a, w, synthesize(2, 1, w.n_cells))
     a.freeze()
-    out = R.ResolveOutcome(tick=5)
+    out = R_GATE.ResolveOutcome(tick=5)
     with a.writable(), w.writable():
-        R._apply_move(a, w, np.array([0, 1]), np.array([CV.WANDER_BAD_TARGET, 3]), 5, out, None)
+        R_MOVE._apply_move(a, w, np.array([0, 1]), np.array([CV.WANDER_BAD_TARGET, 3]), 5, out, None)
     assert a.last_result[0] == int(ResultCode.BAD_TARGET)
     assert a.last_result[1] == int(ResultCode.OK)
 
@@ -327,14 +335,14 @@ def test_resting_bodies_recover_fatigue_every_ten_ticks():
         a.activity[:] = int(Activity.IDLE)
     layer.after_resolve(a, 0, [0, 1, 2], [NONE_ACTION_CODE, CV.ACT_BUY, CV.ACT_MOVE],
                         [_payload(value=60)] * 3)
-    R.advance_body(a, 10)
+    R_BODY.advance_body(a, 10)
     assert a.fatigue.tolist() == [4, 4, 5], "その場・在店は −1・移動の活動は回復しない"
-    R.advance_body(a, 70)
+    R_BODY.advance_body(a, 70)
     assert a.fatigue.tolist() == [4, 4, 5], "満了後は回復しない"
     v1 = AgentState(1)
     with v1.writable():
         v1.fatigue[:] = 5
-    R.advance_body(v1, 10)
+    R_BODY.advance_body(v1, 10)
     assert v1.fatigue.tolist() == [5], "活動層の無い体は従来どおり(30 tick 周期だけ)"
 
 
@@ -361,7 +369,7 @@ def _one_tick(action_code: int, target_cat: str):
         np.array([action_code]), vocab_version="v3",
     )
     plan = C.arbitrate_resources(batch, tick, SALT, space, w.pois.stock, w.pois.capacity)
-    out = R.apply(plan.confirmed, plan.losers, a, w, tick, vocab_version="v3")
+    out = R_APPLY.apply(plan.confirmed, plan.losers, a, w, tick, vocab_version="v3")
     return a, w, batch, out
 
 
@@ -389,9 +397,9 @@ def test_queue_without_a_poi_is_bad_target():
     w = World.synthetic(n_cells=16, seed=1)
     a = AgentState(1)
     R.initialize(a, w, synthesize(1, 1, w.n_cells))
-    out = R.ResolveOutcome(tick=5)
+    out = R_GATE.ResolveOutcome(tick=5)
     with a.writable(), w.writable():
-        R._apply_queue(a, w, np.array([0]), np.array([-1]), 5, out, None)
+        R_SHOP._apply_queue(a, w, np.array([0]), np.array([-1]), 5, out, None)
     assert a.last_result[0] == int(ResultCode.BAD_TARGET)
 
 
@@ -401,7 +409,7 @@ def test_expiry_condition_is_outside_the_refractory_table():
     assert WAKE_CONDITION_CLASS[int(WakeCondition.ACTIVITY_EXPIRY)] == EventClass.PLAN_BOUNDARY
     a = AgentState(3)
     a.freeze()
-    R.set_refractory(a, np.array([0, 1]), np.array([int(WakeCondition.ACTIVITY_EXPIRY),
+    R_MIND.set_refractory(a, np.array([0, 1]), np.array([int(WakeCondition.ACTIVITY_EXPIRY),
                                                     int(WakeCondition.CELL_BLOCK)]), 10)
     assert a.refractory_until.shape == (3, N_WAKE_CONDITIONS)
     assert a.refractory_until[1, int(WakeCondition.CELL_BLOCK)] == 40

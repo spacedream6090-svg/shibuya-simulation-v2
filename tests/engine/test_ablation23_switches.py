@@ -30,7 +30,9 @@ import pytest
 from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.foundation.vocab.agent_codes import REFRACTORY_MINUTES, WakeCondition
 from shibuya.world.model.agent_table import AgentState
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=mind/ops・R_INIT=act/ops/init_writes。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_INIT
 from shibuya.runtime.arbiter import REFRACTORY_TICKS as ARBITER_MIRROR
 from shibuya.world.laws.salient import D50_BY_KIND, SalientProcess, ablation_name
 from shibuya.runtime.run import run_day
@@ -45,7 +47,7 @@ def spread_scene(scale: float, ablation="A4", *, n: int = 120, ticks: int = 240)
     """1 セルに個体を **0-79 m の直線上に並べた**場面(距離が効く唯一の合成場面)。"""
     world = World.synthetic(n_cells=25, seed=1)
     agents = AgentState(n)
-    R.initialize(agents, world, synthesize(n, 1, world.n_cells))
+    R_INIT.initialize(agents, world, synthesize(n, 1, world.n_cells))
     with agents.writable():
         agents.registry.cell[:] = 12
         base = np.asarray(world.assets.node_xy)[int(agents.registry.node[0])]

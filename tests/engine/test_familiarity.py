@@ -21,7 +21,9 @@ import pytest
 
 from shibuya.foundation.vocab.agent_codes import FAMILIARITY_FIELDS
 from shibuya.world.model.agent_table import AgentState
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/gate・R_SHOP=act/ops/shop。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_SHOP
 from shibuya.mind.memory.familiarity import (
     ACTIVATION_ABSENT,
     FAMILIARITY_K,
@@ -193,10 +195,10 @@ def test_resolve_notes_only_the_successful_visits():
         w.pois.stock[7] = 5
         led = SimpleNamespace(money=_PickyMoney(ag, refuse={1}), goods=_FakeGoods(w.pois.stock))
         out = R.ResolveOutcome(tick=NOON, ledger=led, track_visits=True)
-        R._complete_buy(ag, w, np.array([0, 1, 2]), np.array([7, 7, 7]),
+        R_SHOP._complete_buy(ag, w, np.array([0, 1, 2]), np.array([7, 7, 7]),
                         np.array([800, 800, 800]), NOON, out)
         off = R.ResolveOutcome(tick=NOON, ledger=led)
-        R._complete_buy(ag, w, np.array([0]), np.array([7]), np.array([800]), NOON, off)
+        R_SHOP._complete_buy(ag, w, np.array([0]), np.array([7]), np.array([800]), NOON, off)
     assert np.concatenate(out.visit_agents).tolist() == [0, 2]
     assert np.concatenate(out.visit_pois).tolist() == [7, 7]
     assert off.visit_agents == []

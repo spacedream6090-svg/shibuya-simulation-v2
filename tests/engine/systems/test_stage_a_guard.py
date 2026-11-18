@@ -15,7 +15,9 @@ import pytest
 
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation import write_permit as WP
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=foundation/write_guard・R_MIND=mind/ops。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_MIND
 from shibuya.runtime.state import ledger_ast as A
 from shibuya.runtime.systems import allow as AL
 from shibuya.world.model.state import World
@@ -114,10 +116,10 @@ def test_set_refractory_ufunc_at_is_blocked_outside_the_permit():
     before = a.registry.refractory_until.copy()
     with WP.scope(frozenset({"agents.cell"})):
         with pytest.raises(ValueError):
-            R.set_refractory(a, np.array([0]), np.array([1]), 10)
+            R_MIND.set_refractory(a, np.array([0]), np.array([1]), 10)
     assert np.array_equal(a.registry.refractory_until, before)  # 書く前に止まった
     with WP.scope(frozenset({"agents.refractory_until"})):
-        R.set_refractory(a, np.array([0]), np.array([1]), 10)  # 正の対照
+        R_MIND.set_refractory(a, np.array([0]), np.array([1]), 10)  # 正の対照
     assert int(a.registry.refractory_until[0, 1]) > 10
 
 

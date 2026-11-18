@@ -285,10 +285,11 @@ def test_two_day_world_run_closes_money_goods_and_bodies_each_day(monkeypatch):
 @real_data
 def test_no_money_is_added_at_the_head_of_day_two_or_on_resume(monkeypatch, tmp_path):
     from shibuya.economy.ledger import Ledger
-    from shibuya.engine import resolve as R
+    # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R_INIT=act/ops/init_writes。割る前は全部 resolve)
+    from shibuya.engine import resolve as R_INIT
 
     counts = {"households": 0, "stores": 0, "initialize": 0}
-    oh, os_, oi = Ledger.endow_households, Ledger.endow_stores, R.initialize
+    oh, os_, oi = Ledger.endow_households, Ledger.endow_stores, R_INIT.initialize
 
     def eh(self, *a, **k):
         counts["households"] += 1
@@ -304,7 +305,7 @@ def test_no_money_is_added_at_the_head_of_day_two_or_on_resume(monkeypatch, tmp_
 
     monkeypatch.setattr(Ledger, "endow_households", eh)
     monkeypatch.setattr(Ledger, "endow_stores", es)
-    monkeypatch.setattr(R, "initialize", ini)
+    monkeypatch.setattr(R_INIT, "initialize", ini)
     kw = dict(WORLD_KW, checkpoint_every=360)
     res = cli.run(**kw)
     assert counts == {"households": 1, "stores": 1, "initialize": 1}  # 0 日目の頭の 1 回だけ

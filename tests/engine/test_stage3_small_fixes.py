@@ -11,7 +11,9 @@ import numpy as np
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.vocab.agent_codes import IntentKind, ResultCode
 from shibuya.foundation.vocab import act_codes as C
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/gate・R_SHOP=act/ops/shop。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_SHOP
 from shibuya.mind.judge.chooser import NearestChooser
 from shibuya.act.target import TargetResolver
 from shibuya.runtime.run import _named_closed_lookup
@@ -58,7 +60,7 @@ def test_n_purchases_counts_only_the_rows_the_ledger_passed():
         w.pois.stock[7] = 5
         led = SimpleNamespace(money=_PickyMoney(ag, refuse={1}), goods=_FakeGoods(w.pois.stock))
         out = R.ResolveOutcome(tick=NOON, ledger=led)
-        R._complete_buy(ag, w, np.array([0, 1, 2]), np.array([7, 7, 7]),
+        R_SHOP._complete_buy(ag, w, np.array([0, 1, 2]), np.array([7, 7, 7]),
                         np.array([800, 800, 800]), NOON, out)
     assert out.n_purchases == 2                 # 却下された体 1 は数えない(以前は 3)
     assert out.revenue_delta == 1_600

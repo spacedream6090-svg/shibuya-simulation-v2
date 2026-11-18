@@ -23,7 +23,9 @@ import numpy as np
 import pytest
 
 from shibuya.world.model.agent_table import AgentState
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=foundation/write_guard・R_MIND=mind/ops。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_MIND
 from shibuya.runtime.systems import allow as AL
 from shibuya.world.model.state import World
 from tests import _places as PL
@@ -219,7 +221,7 @@ def test_set_refractory_is_blocked_when_someone_forgets_the_window(monkeypatch):
     # writable() を無力化して「窓を開け忘れた」状況を作る(穴の再現)
     monkeypatch.setattr(AgentState, "writable", lambda self: _noop_ctx())
     with pytest.raises(ValueError):
-        R.set_refractory(agents, np.array([0]), np.array([5]), 10)
+        R_MIND.set_refractory(agents, np.array([0]), np.array([5]), 10)
 
 
 class _noop_ctx:

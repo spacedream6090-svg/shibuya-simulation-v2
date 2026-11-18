@@ -21,7 +21,9 @@ import numpy as np
 import pytest
 
 from shibuya.world.model import proximity as P
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/talk・R_ACT_CODES=foundation/vocab/act_codes。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_ACT_CODES
 
 
 def agents(xy, cell, band=None, unit=None):
@@ -96,8 +98,8 @@ def test_sensitivity_arms(d, want):
 
 
 def test_d_default_is_the_talk_open_constant():
-    assert P.D_DEFAULT == R.TALK_OPEN_METERS == 2.0
-    assert P.LEAVE_MARGIN_M == R.TALK_LEAVE_METERS - R.TALK_OPEN_METERS
+    assert P.D_DEFAULT == R_ACT_CODES.TALK_OPEN_METERS == 2.0
+    assert P.LEAVE_MARGIN_M == R_ACT_CODES.TALK_LEAVE_METERS - R_ACT_CODES.TALK_OPEN_METERS
 
 
 # ================================================================= 気づく確率(B4・R-62)

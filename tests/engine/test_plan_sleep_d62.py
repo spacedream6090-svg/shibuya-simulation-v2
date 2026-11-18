@@ -27,7 +27,10 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/plan_writes・R_APPLY=act/apply・R_INIT=act/ops/init_writes。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_APPLY
+from shibuya.engine import resolve as R_INIT
 from shibuya.runtime.run import run_day
 from shibuya.world.model.state import World
 
@@ -115,7 +118,7 @@ def test_sleep_boundary_walks_home_and_sleeps_on_arrival():
         if int(a.registry.activity[0]) == int(Activity.SLEEPING):
             break
         intents = CW.engine_continuations(a, C.ResourceSpace(w.n_poi, a.n, w.n_cells), t)
-        R.apply(intents, C.IntentBatch.empty(), a, w, t)
+        R_APPLY.apply(intents, C.IntentBatch.empty(), a, w, t)
     assert int(a.registry.activity[0]) == int(Activity.SLEEPING)
     assert int(a.registry.sleep_pending[0]) == 0
     assert int(a.registry.cell[0]) == int(home[0])
@@ -153,7 +156,7 @@ def test_choosing_another_action_drops_the_sleep_intent():
         np.array([-1], dtype=np.int32),
         np.array([C.tick_start_ns(2)], dtype=np.int64),
     )
-    R.apply(intents, C.IntentBatch.empty(), a, w, 2)
+    R_APPLY.apply(intents, C.IntentBatch.empty(), a, w, 2)
     assert int(a.registry.sleep_pending[0]) == 0
     assert int(a.registry.activity[0]) == int(Activity.RESTING)
 
@@ -253,13 +256,13 @@ def test_set_initial_activity_keeps_the_rail_preassignment():
         a.registry.activity[1] = int(Activity.WAITING)
         a.registry.transit_state[2] = 1
         a.registry.activity[2] = int(Activity.RIDING)
-    n = R.set_initial_activity(a, np.full(4, int(Activity.SLEEPING), dtype=np.int8))
+    n = R_INIT.set_initial_activity(a, np.full(4, int(Activity.SLEEPING), dtype=np.int8))
     assert n == 2
     assert int(a.registry.activity[0]) == int(Activity.SLEEPING)
     assert int(a.registry.activity[1]) == int(Activity.WAITING)
     assert int(a.registry.activity[2]) == int(Activity.RIDING)
     with pytest.raises(ValueError):
-        R.set_initial_activity(a, np.zeros(3, dtype=np.int8))
+        R_INIT.set_initial_activity(a, np.zeros(3, dtype=np.int8))
 
 
 def test_boundary_events_full_agrees_with_boundary_events():

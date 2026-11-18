@@ -15,7 +15,9 @@ import pytest
 from shibuya.foundation.vocab.agent_codes import AgentKind
 from shibuya.world.model.agent_table import AgentState
 from shibuya.world.facts.mock_schedule import synthesize
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/init_writes・R_RAIL=act/ops/rail。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_RAIL
 from shibuya.world.laws.opening import OpeningProcess
 from shibuya.world.facts.rights import initial as RI
 from shibuya.world.facts.rights import ledger as L
@@ -106,7 +108,7 @@ def test_open_close_asks_the_ledger_and_stays_the_same():
     proc = OpeningProcess(world, agents, fake_plan_assets([(0, 0, 600, 1_320)]), day_index=0)
     staff = int(proc.staff_of_poi[0])
     assert staff >= 0 and proc.rights.holds((L.AGENT, staff), L.EMPLOY, (L.STORE, 0), 0)
-    R.rail_arrive(agents, world, np.array([staff]), np.array([int(world.pois.cell[0])]))
+    R_RAIL.rail_arrive(agents, world, np.array([staff]), np.array([int(world.pois.cell[0])]))
     proc.step(600)
     assert proc.n_role_actions >= 1 and int(agents.last_result[staff]) == 0
     assert bool(world.open_mask(600)[0]) is True

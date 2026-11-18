@@ -11,7 +11,9 @@ from shibuya.economy.accounts import AccountCode
 # 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
 from shibuya.act import commit as C
 from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_RAIL=act/ops/rail。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_RAIL
 from shibuya.world.laws.rail import (
     ACCEPT_FULL_RATIO,
     ACCEPT_MAX_RATIO,
@@ -59,7 +61,7 @@ def _intents(agent_ids, code):
 
 def _put_on_platform(agents, world, ids, cell: int) -> None:
     """個体をホームのセルへ置く(``resolve`` の口を通す)。"""
-    R.rail_arrive(agents, world, np.asarray(ids, dtype=np.int64),
+    R_RAIL.rail_arrive(agents, world, np.asarray(ids, dtype=np.int64),
                   np.full(len(ids), cell, dtype=np.int64))
 
 
@@ -299,7 +301,7 @@ def test_riders_are_never_lost():
     world, agents, rail = _rail(n_agents=40, departures=(100, 200))
     ext = rail.external_home_agents()
     if ext.size:
-        R.place_at_external(agents, ext, rail.external_line[ext])
+        R_RAIL.place_at_external(agents, ext, rail.external_line[ext])
     for t in range(0, 400):
         rail.step(t)
         if t == int(rail.dep_tick[0]):

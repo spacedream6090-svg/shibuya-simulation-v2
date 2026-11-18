@@ -36,7 +36,10 @@ from shibuya.economy.ledger import Ledger
 # 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
 from shibuya.act import commit as C
 from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/law_writes・R_APPLY=act/apply・R_INIT=act/ops/init_writes。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_APPLY
+from shibuya.engine import resolve as R_INIT
 from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.runtime.run import run_day
 from shibuya.world.model.state import World
@@ -323,7 +326,7 @@ def test_check_two_holds_at_every_checkpoint(kind):
         _attach_stage2_by_hand(bundle, 200)
     bundle.money.attach_household_cash(agents.registry.money)
     schedule = synthesize(200, 7, world.n_cells)
-    R.initialize(agents, world, schedule, ledger=bundle)
+    R_INIT.initialize(agents, world, schedule, ledger=bundle)
     agents.freeze()
     world.freeze()
     space = C.ResourceSpace(world.n_poi, agents.n, world.n_cells)
@@ -343,7 +346,7 @@ def test_check_two_holds_at_every_checkpoint(kind):
         plan = C.arbitrate_resources(
             intents, tick, b"salt-ledger", space, world.pois.stock, world.pois.capacity
         )
-        R.apply(plan.confirmed, plan.losers, agents, world, tick, schedule=schedule,
+        R_APPLY.apply(plan.confirmed, plan.losers, agents, world, tick, schedule=schedule,
                 ledger=bundle)
         if tick % 20 == 0:
             checkpoints += 1

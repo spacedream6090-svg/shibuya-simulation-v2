@@ -21,7 +21,9 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/init_writes・R_TALK=act/ops/talk。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_TALK
 from shibuya.society.conversation import (
     PAIR_INVITE_REFRACTORY_TICKS,
     PENDING_INVITE_TTL_TICKS,
@@ -167,7 +169,7 @@ def test_set_conversing_marks_both_sides():
     from shibuya.world.facts.mock_schedule import synthesize
 
     R.initialize(ag, w, synthesize(4, 1, w.n_cells), day_index=0, ledger=None)
-    R.set_conversing(ag, np.array([0]), np.array([1]))
+    R_TALK.set_conversing(ag, np.array([0]), np.array([1]))
     r = ag.registry
     assert int(r.activity[0]) == int(Activity.CONVERSING)
     assert int(r.activity[1]) == int(Activity.CONVERSING)  # **被招待側も**(C4 の穴を閉じた)
@@ -305,13 +307,13 @@ def _settle(conv, ag, tick, rows):
     ids = np.array([r[0] for r in rows], dtype=np.int64)
     codes = np.array([r[1] for r in rows], dtype=np.int64)
     named = np.array([r[2] for r in rows], dtype=np.int64)
-    return _settle_pending_invites(conv, ag, tick, ids, codes, named, R, np)
+    return _settle_pending_invites(conv, ag, tick, ids, codes, named, R_TALK, np)
 
 
 def _invite(conv, ag, a: int, b: int, tick: int):
     """A が B を招待して返事待ちにする(A は招待側として CONVERSING で待つ)。"""
-    R.set_conversing(ag, np.array([a]), np.array([b]))
-    R.revert_conversation(ag, np.array([b]))  # 被招待側はまだ IDLE(招待側だけ待つ)
+    R_TALK.set_conversing(ag, np.array([a]), np.array([b]))
+    R_TALK.revert_conversation(ag, np.array([b]))  # 被招待側はまだ IDLE(招待側だけ待つ)
     assert conv.register_pending(a, b, tick=tick, cell=int(ag.registry.cell[a]), same_cell=True)
 
 

@@ -17,7 +17,13 @@ import pytest
 
 from shibuya.foundation.vocab.agent_codes import Activity, ResultCode, WakeCondition
 from shibuya.world.model.agent_table import AgentState
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/gate・R_ACT_CODES=foundation/vocab/act_codes・R_RAIL=act/ops/rail・
+# R_SHOP=act/ops/shop・R_TALK=act/ops/talk。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_ACT_CODES
+from shibuya.engine import resolve as R_RAIL
+from shibuya.engine import resolve as R_SHOP
+from shibuya.engine import resolve as R_TALK
 from shibuya.world.laws.presence import EXIT_WALK_MAX_TICKS, PlanExecutor
 from shibuya.world.laws.rail import RailProcess
 
@@ -78,7 +84,7 @@ def test_depart_walks_to_the_line_platform_instead_of_vanishing():
     assert int(r.poi_ref[0]) == -1 and layer.n_shopping_interrupted == 1   # 買物は解いてから歩く
     assert int(r.activity[1]) == int(Activity.WAITING) and int(r.board_since[1]) == 330   # ホームに居た=待ちへ
     assert layer.n_exit_walk_waiting_at_start == 1
-    assert (np.asarray(r.plan_flags)[[0, 1]] & R.EXIT_WALK_FLAG).all()
+    assert (np.asarray(r.plan_flags)[[0, 1]] & R_ACT_CODES.EXIT_WALK_FLAG).all()
     assert set(layer.walk_started_now.tolist()) == {0, 1}
     assert layer.plan_exit_mask(np.array([0, 1, 2])).tolist() == [True, True, False]
 
@@ -170,10 +176,10 @@ def test_wait_keeps_a_plan_exit_walker_moving():
     w, a = make_world_agents(2)
     with a.writable():
         a.registry.activity[:] = int(Activity.MOVING)
-        a.registry.plan_flags[0] = np.int8(R.EXIT_WALK_FLAG)
+        a.registry.plan_flags[0] = np.int8(R_ACT_CODES.EXIT_WALK_FLAG)
     out = R.ResolveOutcome(tick=5)
     with a.writable():
-        R._apply_wait(a, w, np.array([0, 1]), np.array([-1, -1]), 5, out, None)
+        R_SHOP._apply_wait(a, w, np.array([0, 1]), np.array([-1, -1]), 5, out, None)
     assert int(a.registry.activity[0]) == int(Activity.MOVING)
     assert int(a.registry.activity[1]) == int(Activity.WAITING)
 
@@ -190,7 +196,7 @@ def test_leave_releases_store_queue_and_marks_conversation():
         a.registry.talk_partner[2] = 3
     out = R.ResolveOutcome(tick=9)
     with a.writable():
-        R._apply_leave(a, w, np.array([0, 1, 2]), np.array([-1, -1, -1]), 9, out, None)
+        R_TALK._apply_leave(a, w, np.array([0, 1, 2]), np.array([-1, -1, -1]), 9, out, None)
     r = a.registry
     assert int(r.poi_ref[0]) == -1 and int(r.queue_poi[1]) == -1
     assert (np.asarray(r.activity)[[0, 1, 2]] == int(Activity.IDLE)).all() and int(r.talk_partner[2]) == -1
@@ -311,10 +317,10 @@ def test_plan_exit_riders_do_not_pay_the_fare():
     rail = RailProcess(w, a, pa, master_seed=1, day_index=0, plan_executor=True)
     with a.writable():
         a.registry.money[:] = 1_000
-        a.registry.plan_flags[0] = np.int8(R.EXIT_WALK_FLAG)
+        a.registry.plan_flags[0] = np.int8(R_ACT_CODES.EXIT_WALK_FLAG)
     out = R.ResolveOutcome(tick=5, rail=rail)
     with a.writable():
-        R._board_riders(a, w, [(0, np.array([0, 1]))], 5, out)
+        R_RAIL._board_riders(a, w, [(0, np.array([0, 1]))], 5, out)
     m = np.asarray(a.registry.money)
     assert int(m[0]) == 1_000 and int(m[1]) == 1_000 - int(rail.fare_yen)
     assert out.fare_paid == int(rail.fare_yen)

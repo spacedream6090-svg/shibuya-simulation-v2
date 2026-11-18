@@ -9,7 +9,9 @@ from __future__ import annotations
 import numpy as np
 
 from shibuya.foundation.vocab.agent_codes import AgentKind, ResultCode
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/rail・R_LAW=act/ops/law_writes。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_LAW
 from shibuya.world.laws.opening import OpeningProcess, build_open_matrix
 
 from .conftest import fake_plan_assets, make_agents, make_world
@@ -96,7 +98,7 @@ def test_open_close_without_permission_is_not_stopped():
     world, agents, proc = _process([(0, 0, 600, 1_320)], n_agents=20)
     outsider = int(np.flatnonzero(agents.registry.field("kind") != int(AgentKind.WORKER))[0])
     got = []
-    code = R.request_open_close(
+    code = R_LAW.request_open_close(
         agents, world, np.array([outsider]), np.array([0]), np.array([True]), 10,
         on_unauthorized=lambda a, p: got.append((a.tolist(), p.tolist())),
     )

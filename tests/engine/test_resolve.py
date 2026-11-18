@@ -13,7 +13,13 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_BODY=act/ops/body_writes・R_DETECT=act/ops/detect_writes・
+# R_INIT=act/ops/init_writes・R_MIND=mind/ops。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_BODY
+from shibuya.engine import resolve as R_DETECT
+from shibuya.engine import resolve as R_INIT
+from shibuya.engine import resolve as R_MIND
 from shibuya.mind.system1.change_detect import ChangeDetector
 from shibuya.world.body import rules as BR  # 〔割る段 6 の S6-G0・親の裁定 Q7〕体の刻みの周期は体の層から読む
 from shibuya.world.model.state import World
@@ -334,18 +340,18 @@ def test_density_is_recomputed_每tick():
 
 def test_set_refractory_uses_the_section6_table():
     w, a = _setup()
-    R.set_refractory(a, [0], [int(10)], tick=5)  # CELL_BLOCK=30 分
+    R_MIND.set_refractory(a, [0], [int(10)], tick=5)  # CELL_BLOCK=30 分
     assert int(a.refractory_until[0, 10]) == 35
-    R.set_refractory(a, [0], [int(0)], tick=5)  # 会話ターン=0
+    R_MIND.set_refractory(a, [0], [int(0)], tick=5)  # 会話ターン=0
     assert int(a.refractory_until[0, 0]) == 5
 
 
 def test_advance_body_only_moves_on_its_period():
     w, a = _setup()
     h0 = int(a.hunger[0])
-    R.advance_body(a, tick=1)
+    R_BODY.advance_body(a, tick=1)
     assert int(a.hunger[0]) == h0
-    R.advance_body(a, tick=BR.BODY_TICK_PERIOD)
+    R_BODY.advance_body(a, tick=BR.BODY_TICK_PERIOD)
     assert int(a.hunger[0]) == min(10, h0 + 1)
 
 
@@ -353,8 +359,8 @@ def test_write_b4_hash_and_write_intero_stages_write_hashes_and_stages():
     w, a = _setup(n_agents=20, n_cells=8)
     det = ChangeDetector(a.n, w.n_cells)
     res = det.detect(w, a, 0)
-    R.write_b4_hash(w, res)
-    R.write_intero_stages(a, res)
+    R_DETECT.write_b4_hash(w, res)
+    R_MIND.write_intero_stages(a, res)
     assert int(np.count_nonzero(w.cells.b4_hash)) > 0
     assert a.frozen and w.frozen
 
@@ -367,7 +373,7 @@ def test_initialize_places_agents_at_home():
         kind=np.zeros(32, dtype=np.int8),
         initial_money=np.full(32, 5_000),
     )
-    R.initialize(a, w, sched)
+    R_INIT.initialize(a, w, sched)
     assert a.cell.tolist() == (np.arange(32) % 16).tolist()
     assert int(a.money.sum()) == 32 * 5_000
     assert int(w.cells.density.sum()) == 32

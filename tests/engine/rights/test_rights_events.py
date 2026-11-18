@@ -17,7 +17,9 @@ import numpy as np
 import pytest
 
 from shibuya.foundation.vocab.agent_codes import ResultCode
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/law_writes・R_RAIL=act/ops/rail。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_RAIL
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.links import ActualLogLink
@@ -102,7 +104,7 @@ def test_the_opening_process_records_a_revoked_staff_and_still_opens():
     rid = next(i for i, r in enumerate(proc.rights)
                if r.kind == L.EMPLOY and r.object == (L.STORE, 0) and r.holder == (L.AGENT, staff))
     proc.rights.revoke(rid, 1, None)                       # 担当の雇用を終える(書く口の 2 つ目)
-    R.rail_arrive(agents, world, np.array([staff]), np.array([int(world.pois.cell[0])]))
+    R_RAIL.rail_arrive(agents, world, np.array([staff]), np.array([int(world.pois.cell[0])]))
     log.begin_step(0)
     proc.step(600)
     assert bool(world.open_mask(600)[0]) is True           # 止めない

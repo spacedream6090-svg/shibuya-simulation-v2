@@ -102,8 +102,11 @@ def test_resolve_files_list_reads_the_resolve_module():
     assert AL.index().funcs == frozenset(names) and "apply" in names
     # 〔S6-G0 の検収 中-1〕一覧のどのファイルも、索引の関数を 1 つ以上定義する(本数に依らない)。凍結した関数の集合
     # (``tests/engine/systems/resolve_index_frozen.json``)と合わせて、一覧は「凍結した関数を定義するファイル」に固定される
-    # (関数を持たないファイルはここで、索引に無い関数を持つファイルは凍結の表で落ちる)
-    assert _writer_files_without_index_functions(AL.RESOLVE_FILES, AL.index().funcs) == []
+    # (関数を持たないファイルはここで、索引に無い関数を持つファイルは凍結の表で落ちる)。〔再検収の低-1〕渡す関数の集合から、凍結の表で
+    # 除く関数(``_require_thawed``)を引く(割った後に、その関数だけを持つファイルが一覧にまぎれても気づく)
+    from tests.engine.systems import test_resolve_index_frozen as RI
+
+    assert _writer_files_without_index_functions(AL.RESOLVE_FILES, AL.index().funcs - RI.EXCLUDED) == []
 
 
 def _writer_files_without_index_functions(rels, funcs) -> list[str]:  # noqa: ANN001
@@ -132,7 +135,7 @@ def test_negative_a_stray_file_in_the_writer_list_is_seen(monkeypatch):
         AL.index.cache_clear()
         try:
             ix = AL.index()
-            missing = _writer_files_without_index_functions(AL.RESOLVE_FILES, ix.funcs)
+            missing = _writer_files_without_index_functions(AL.RESOLVE_FILES, ix.funcs - RI.EXCLUDED)
             diff = RI.diff(RI.normalize(ix), frozen)
         finally:
             monkeypatch.undo()
@@ -141,6 +144,10 @@ def test_negative_a_stray_file_in_the_writer_list_is_seen(monkeypatch):
             assert missing == [stray], missing
         else:
             assert missing == [] and diff and any(x.startswith("funcs") for x in diff), diff
+    # 〔再検収の低-1〕除く関数だけを索引の関数として持つファイルは「索引の関数を定義しない」と見る(引かない形では見逃す)
+    (home,) = PL.split_files("engine/resolve.py", ("_require_thawed",))
+    assert _writer_files_without_index_functions((home,), {"_require_thawed"} - RI.EXCLUDED) == [home]
+    assert _writer_files_without_index_functions((home,), {"_require_thawed"}) == []
 
 
 #: 書き手の一覧(試験が一覧を差し替える前の値=偽の木へ写す本物のファイル)。

@@ -32,7 +32,14 @@ from shibuya.world.model.agent_table import (
 from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/intent_writes・R_APPLY=act/apply・R_GATE=act/gate・R_INIT=act/ops/init_writes・
+# R_RAIL=act/ops/rail・R_SHOP=act/ops/shop。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_APPLY
+from shibuya.engine import resolve as R_GATE
+from shibuya.engine import resolve as R_INIT
+from shibuya.engine import resolve as R_RAIL
+from shibuya.engine import resolve as R_SHOP
 from shibuya.act.activity import ActivityLayer, ActivityPayload
 from shibuya.mind.judge.chooser import NearestChooser
 from shibuya.act.intent import (
@@ -62,7 +69,7 @@ def _setup(n=3, cells=(0, 0, 0), max_ticks=INTENT_MAX_TICKS, visible=None):
     w = _world(visible=visible)
     ag = AgentState(n, activity_columns=True)
     sched = synthesize(n, 1, w.n_cells)
-    R.initialize(ag, w, sched)
+    R_INIT.initialize(ag, w, sched)
     with ag.writable():
         ag.registry.cell[:] = np.asarray(cells)
         ag.registry.node[:] = w.assets.cell_rep_node[np.asarray(cells)]
@@ -88,7 +95,7 @@ def _tick(w, ag, act, il, space, t, llm_batch=None, applied=None):
         [llm_batch, arr, CW.engine_continuations(ag, space, t)]
     ).one_per_agent()
     plan = C.arbitrate_resources(intents, t, SALT, space, w.pois.stock, w.pois.capacity)
-    R.apply(plan.confirmed, plan.losers, ag, w, t, vocab_version="v3")
+    R_APPLY.apply(plan.confirmed, plan.losers, ag, w, t, vocab_version="v3")
     if applied is not None:
         act.after_resolve(ag, t, *applied)
     act.settle_events(ag, t)
@@ -333,7 +340,7 @@ def test_too_far_stops_the_walk_and_writes_the_new_code():
     # セル 3(2 ホップ)へ歩いている体に、立てたのがずっと前の意図を持たせる
     b = C.IntentBatch(np.array([0]), np.array([CV.ACT_MOVE], dtype=np.int8), np.array([3], np.int32),
                       np.array([-1], np.int32), np.array([C.tick_start_ns(t)]))
-    R.apply(b, C.IntentBatch.empty(), ag, w, t, vocab_version="v3")
+    R_APPLY.apply(b, C.IntentBatch.empty(), ag, w, t, vocab_version="v3")
     R.set_intent(ag, np.array([0]), [CV.ACT_BUY], [7], [int(IntentKind.POI_NAMED)],
                  t - INTENT_MAX_TICKS - 1)
     il.after_apply(ag, t, act, None)
@@ -368,7 +375,7 @@ def test_plan_boundary_depart_and_sleep_drop_the_intent():
         batch = _respond(w, ag, space, res, il, t, a, CV.ACT_EAT, "カフェ・ベローチェ")
         _tick(w, ag, act, il, space, t, batch, ([a], [CV.ACT_EAT], [_payload()]))
     assert ag.registry.intent_action.tolist() == [CV.ACT_EAT, CV.ACT_EAT]
-    R.rail_depart(ag, np.array([0]), np.array([0]))            # DEPART(域外へ)
+    R_RAIL.rail_depart(ag, np.array([0]), np.array([0]))            # DEPART(域外へ)
     with ag.writable():
         ag.registry.sleep_pending[1] = 1                        # SLEEP(就寝の意図)
     il.after_apply(ag, t + 1, act, None)
@@ -607,8 +614,8 @@ def test_buyers_beyond_the_shelf_fail_before_paying_so_money_is_conserved():
         w.pois.stock[7] = 1
         total0 = int(ag.registry.money.astype(np.int64).sum()) + int(w.pois.revenue.sum())
         led = SimpleNamespace(money=_FakeMoney(ag), goods=_FakeGoods(w.pois.stock))
-        out = R.ResolveOutcome(tick=NOON, ledger=led)
-        R._complete_buy(ag, w, np.array([0, 1]), np.array([7, 7]), np.array([800, 800]), NOON, out)
+        out = R_GATE.ResolveOutcome(tick=NOON, ledger=led)
+        R_SHOP._complete_buy(ag, w, np.array([0, 1]), np.array([7, 7]), np.array([800, 800]), NOON, out)
         total1 = int(ag.registry.money.astype(np.int64).sum()) + int(w.pois.revenue.sum())
     r = ag.registry
     assert int(r.last_result[0]) == int(ResultCode.OK)

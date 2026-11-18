@@ -20,7 +20,10 @@ from shibuya.world.model.agent_table import AgentState
 # 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
 from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_INIT=act/ops/init_writes・R_SHOP=act/ops/shop。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_INIT
+from shibuya.engine import resolve as R_SHOP
 from shibuya.runtime.run import run_day
 from shibuya.foundation.ports.inference import LLMResponse
 from shibuya.foundation.vocab.actions import format_two_line
@@ -55,7 +58,7 @@ def _scene(n: int = 8, tick: int = 700, money: int = 10_000, hunger: int = 9):
     """飲食店のセルに n 体を置いた 1 tick の場面。"""
     w = World.synthetic(n_cells=16, seed=1)
     a = AgentState(n)
-    R.initialize(a, w, synthesize(n, 1, w.n_cells))
+    R_INIT.initialize(a, w, synthesize(n, 1, w.n_cells))
     eatery = int(np.flatnonzero(w.eatery_mask)[0])
     cell = int(w.pois.cell[eatery])
     with a.writable():
@@ -109,7 +112,7 @@ def test_eating_relieves_hunger_and_keeps_the_agent_in_the_shop():
     _, out = _eat(w, a, tick, 8)
     ate = np.flatnonzero(a.registry.last_result == int(ResultCode.OK))
     assert ate.size == out.n_meals > 0
-    assert int(a.registry.hunger[ate[0]]) == 9 - R.EAT_HUNGER_RELIEF
+    assert int(a.registry.hunger[ate[0]]) == 9 - R_SHOP.EAT_HUNGER_RELIEF
     assert int(a.registry.activity[ate[0]]) == int(Activity.SHOPPING), "在店=その tick は動かない"
     assert int(a.registry.last_action[ate[0]]) == EAT_ACTION_CODE
 
@@ -117,7 +120,7 @@ def test_eating_relieves_hunger_and_keeps_the_agent_in_the_shop():
 def test_the_declared_dwell_is_expedient_and_reuses_the_existing_seat_machinery():
     """所要時間 20 分は**契約行の宣言値**(専用タイマーは未実装=在席の回転率に従う)。"""
     assert R.EAT_DWELL_MINUTES == 20
-    assert R.EAT_HUNGER_RELIEF == R.BUY_HUNGER_RELIEF, "新しい数を作らない(既存値の再利用)"
+    assert R_SHOP.EAT_HUNGER_RELIEF == R_SHOP.BUY_HUNGER_RELIEF, "新しい数を作らない(既存値の再利用)"
 
 
 # ------------------------------------------------------------------ (iii) 失敗コード
@@ -164,7 +167,7 @@ def test_the_eat_resource_is_the_shop_like_a_purchase():
 # ------------------------------------------------------------------ (i) 既定のバイト不変
 def test_the_v1_apply_table_is_untouched():
     assert len(R._APPLY) == 13 and EAT_ACTION_CODE not in R._APPLY
-    assert len(R._APPLY_V2) == 14 and R._APPLY_V2[EAT_ACTION_CODE] is R._apply_eat
+    assert len(R._APPLY_V2) == 14 and R._APPLY_V2[EAT_ACTION_CODE] is R_SHOP._apply_eat
     assert R._APPLY_BY_VOCAB["v1"] is R._APPLY
     assert R._ACTION_ORDER_BY_VOCAB["v2"][-1] == EAT_ACTION_CODE
     assert R._ACTION_ORDER_BY_VOCAB["v1"] == R._ACTION_ORDER_BY_VOCAB["v2"][:-1]

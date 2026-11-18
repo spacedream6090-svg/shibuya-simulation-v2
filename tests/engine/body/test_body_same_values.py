@@ -13,7 +13,9 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_SHOP=act/ops/shop。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_SHOP
 from shibuya.world.body.model import BodyModel
 from shibuya.world.body import rules as BR
 from shibuya.world.laws import environment as ENV
@@ -122,7 +124,7 @@ def test_moved_names_point_to_the_same_values():
     resolve の側の 2 つの確かめ(値が同じ・``__all__`` に在る)を外した。値は体の層 ``world.body.rules`` で確かめる。"""
     assert (BR.BODY_TICK_PERIOD, BR.SLEEP_FATIGUE_RELIEF, BR.ACTIVITY_REST_PERIOD_TICKS,
             BR.ACTIVITY_REST_FATIGUE_RELIEF) == (30, 2, 10, 1)
-    assert (R.REST_FATIGUE_RELIEF, R.BUY_HUNGER_RELIEF) == (3, 4)  # 行為の効果は resolve に残した
+    assert (R.REST_FATIGUE_RELIEF, R_SHOP.BUY_HUNGER_RELIEF) == (3, 4)  # 行為の効果は resolve に残した
     assert ENV.HEAT_STAGE_TO_THERMAL == (2, 4, 6, 8, 10) == BR.HEAT_STAGE_TO_THERMAL
     assert ENV.SHADE_FACTOR == 0.86 == BR.SHADE_FACTOR and ENV.FALLBACK_THERMAL == 5 == BR.FALLBACK_THERMAL
     assert SAL.COLLAPSE_PER_10K_PER_DAY == 3.0 == BR.COLLAPSE_PER_10K_PER_DAY

@@ -23,7 +23,10 @@ from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
 from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_RAIL=act/ops/rail・R_TALK=act/ops/talk。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_RAIL
+from shibuya.engine import resolve as R_TALK
 from shibuya.world.laws.rail import RailProcess
 
 from .conftest import fake_timetable_assets, make_agents, make_world
@@ -54,7 +57,7 @@ def _intents(agent_ids, code):
 
 
 def _place(agents, world, ids, cell: int) -> None:
-    R.rail_arrive(agents, world, np.asarray(ids, dtype=np.int64),
+    R_RAIL.rail_arrive(agents, world, np.asarray(ids, dtype=np.int64),
                   np.full(len(ids), cell, dtype=np.int64))
 
 
@@ -156,10 +159,10 @@ def test_waiting_is_cut_off_after_the_limit_and_returns_no_train():
     ids = np.arange(2, dtype=np.int64)
     _place(agents, world, ids, 0)
     R.apply(_intents(ids, CV.ACT_BOARD), EMPTY, agents, world, 100, rail=rail)
-    for t in range(101, 100 + R.BOARD_WAIT_LIMIT_TICKS):
+    for t in range(101, 100 + R_RAIL.BOARD_WAIT_LIMIT_TICKS):
         out = R.apply(EMPTY, EMPTY, agents, world, t, rail=rail)
         assert out.n_board_timeout == 0
-    out = R.apply(EMPTY, EMPTY, agents, world, 100 + R.BOARD_WAIT_LIMIT_TICKS, rail=rail)
+    out = R.apply(EMPTY, EMPTY, agents, world, 100 + R_RAIL.BOARD_WAIT_LIMIT_TICKS, rail=rail)
     assert out.n_board_timeout == 2 and rail.n_board_timeout == 2
     assert np.all(agents.registry.board_line[ids] == -1)
     assert np.all(agents.registry.board_since[ids] == -1)
@@ -173,7 +176,7 @@ def test_riders_are_conserved_and_no_one_is_left_riding():
     world, agents, rail = _rail(n_agents=40, departures=(100, 200))
     ext = rail.external_home_agents()
     if ext.size:
-        R.place_at_external(agents, ext, rail.external_line[ext])
+        R_RAIL.place_at_external(agents, ext, rail.external_line[ext])
     r = agents.registry
     for t in range(0, 400):
         rail.step(t)
@@ -214,7 +217,7 @@ def test_an_intent_that_stopped_walking_is_swept():
     _place(agents, world, ids, FAR_CELL)
     R.apply(_intents(ids, CV.ACT_BOARD), EMPTY, agents, world, 10, rail=rail)
     assert np.all(agents.activity[ids] == int(Activity.MOVING))
-    R.set_conversing(agents, ids[:1], ids[1:])
+    R_TALK.set_conversing(agents, ids[:1], ids[1:])
     R.apply(EMPTY, EMPTY, agents, world, 11, rail=rail)
     assert np.all(agents.registry.board_line[ids] == -1)
     assert rail.n_board_dropped == 2

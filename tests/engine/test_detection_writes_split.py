@@ -21,7 +21,9 @@ import inspect
 import numpy as np
 import pytest
 
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/detect_writes・R_MIND=mind/ops。割る前は全部 resolve)
 from shibuya.engine import resolve as R
+from shibuya.engine import resolve as R_MIND
 from shibuya.foundation import write_guard as WG
 from shibuya.foundation.vocab.agent_codes import INTERO_VARS
 from shibuya.mind.system1 import change_detect as CD
@@ -46,7 +48,7 @@ def _apply_detection_bde381e(agents, world, result):  # noqa: ANN001, ANN202
 def _split(agents, world, result) -> None:  # noqa: ANN001
     """新しい 2 つ(呼び手と同じ順=b4 → 段)。"""
     R.write_b4_hash(world, result)
-    R.write_intero_stages(agents, result)
+    R_MIND.write_intero_stages(agents, result)
 
 
 def _agents(n: int, seed: int) -> AgentState:
@@ -176,7 +178,7 @@ def test_negative_one_of_the_two_alone_differs(only):
         if only == "write_b4_hash":
             R.write_b4_hash(world, result)
         else:
-            R.write_intero_stages(agents, result)
+            R_MIND.write_intero_stages(agents, result)
 
     old, new = _both(pair, res, new=one)
     assert old != new
@@ -197,12 +199,12 @@ def test_the_with_bodies_are_the_pre_split_statements():
     前の 2 つ(``agents.writable()``・``world.writable()``)を 1 つずつ。引数の名と並び。"""
     old_body, old_items = _with_body(_apply_detection_bde381e)
     b4_body, b4_items = _with_body(R.write_b4_hash)
-    st_body, st_items = _with_body(R.write_intero_stages)
+    st_body, st_items = _with_body(R_MIND.write_intero_stages)
     assert [ast.dump(s) for s in b4_body + st_body] == [ast.dump(s) for s in old_body]
     assert len(old_body) == 2 and sorted(b4_items + st_items) == sorted(old_items)
     assert b4_items == [ast.dump(ast.parse("with world.writable(): pass").body[0].items[0])]
     assert list(inspect.signature(R.write_b4_hash).parameters) == ["world", "result"]
-    assert list(inspect.signature(R.write_intero_stages).parameters) == ["agents", "result"]
+    assert list(inspect.signature(R_MIND.write_intero_stages).parameters) == ["agents", "result"]
 
 
 def test_the_detect_system_still_writes_the_four_columns():
