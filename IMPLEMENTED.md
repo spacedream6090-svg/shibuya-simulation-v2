@@ -394,6 +394,16 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #162 コードの区分の移動 段 5b の G0=割る道具に入口の転送・入口の移し・byte-check の入口を足し、割る前の試験を直した(src は変えていない)(11-16 §8 の 5・§1-6 の 6・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6 の 6。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §3・§4。記録 [split5b-347](docs/bench/analysis/split5b-347/README.md)。commit 4af887b。安定版のタグ `stable-v2-before-split5b-G1`(この commit)。src は 1 字も変えていない(astsame で変わった .py 0 本)。
+- **道具(`tools/pkgmove`)**: 順に 18〜22 本目(commit → presence → calendar_shadow → run → cli)。入口の転送(`shibuya/cli.py` を消さずに決まった型で書き直す・名を結ばない・守り「入口の転送」)。入口の移し(`engine/run.py` の `if __name__` を `interfaces/cli/run_args.py` へ・名の無い点の道は `-m` の文脈なら入口へ、それ以外は主な割り先へ黙って向けずに手で直す一覧へ)。byte-check の入口(`tools/bytecheck/check.py` の `resolve_run`=割った後の入口のファイルが在ればその `run`・無ければ `shibuya.cli.run`)。表の鍵を渡す口の第 1 引数は書き換えない。コードの文字列の中の `from <包み> import <割るモジュール>` の形を見落とさない。
+- **表(親の仮採用)**: 全ファイルの表 §3 に 2 つ目以降の割り先の行 6 本(344 行)・主な割り先の入れ替え(run → `runtime/run.py`・commit → `act/commit.py`)・§4 の 5 本の節を全部の名に開いた。5 本とも表の名=頂上の名(54・30・36・63・30)。
+- **割る前に直した試験**: `tests/_places.py` に、名の定義のファイルを表から引く口(`split_files`・`split_source`・`split_module_names`)を足し、29 本を直した(割った後に空回りする形・範囲が黙って狭まる形。根の `cli.py` を字面で読む 15 本は計画に無かった)。`test_two_phase` の個体数ぶんのループを探す検査は、割り先の全部を見る形に広げた。5a の残り 1 か所(`test_fix_guards` の植えた import の行)を今の名にそろえた。
+- **書かない実行**: 5 本とも守りは全部「同じ」・手で直す読み 40(26・0・2・6・6)・宣言の外の弱まり 0・循環 0。例外は commit の本で 22 辺/30 行 → 20 辺/26 行の見込み。`tests/c7` で道具が書き換えるのは `test_accept_table.py` の 1 か所だけ。
+- **別の役の検収**: 条件つき受入(高 2・中 0・低 5)→ 道具を直して再検収は受入(高 0・中 0・低 3)。高=表の鍵の字面を道具が書き換えて壊す/コードの文字列の `from shibuya import cli` の形 14 か所を書き換えも一覧にも出さない。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(木の側の新しい道具で両側・基準 9363b36・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)。前の道具の記録と全欄を突き合わせ、違いは時間の 3 欄と置き場の診断の 3 欄だけ。範囲の試験 6,942 passed・1 failed(前からの 1 本)・21 skipped・1 xfailed(直しの前)。直しの後は道具の試験と決まりの束を回し直した(記録 §11)。lint-imports 11 kept。
+
 ### #161 コードの区分の移動 段 5a の群 4・5=選び手・店の語・注意・変化の検出・裁き手・関係の 6 本を割った(5a の 17 本が済んだ・1 バイト不変)(11-16 §8 の 5・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
 
 - 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §4。記録 [split5a-347](docs/bench/analysis/split5a-347/README.md) §12・§13。commit b801a53。安定版のタグ `stable-v2-before-split5a-G4`(7b4e8a6=群の土台)・次の段の土台 `stable-v2-before-split5b-G0`(この commit)。
