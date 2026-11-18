@@ -62,6 +62,8 @@
     〔G0 の直し 高-1〕``tests/_places.py`` の割る行の口(:data:`pkgmove.strings.TABLE_KEY_CALLS`)の第 1 引数=対応表の鍵は書き換えず、
        報告の ``table_key_sites`` に出す。〔高-2〕tests と tools の文字列を選ぶとき、コードの文字列の ``from <包み> import <割る
        モジュール>`` の形も拾う(:func:`pkgmove.strings.code_import_hits`)。機械で書き換えるか「手で直す一覧」に出す(黙って残さない)。
+    〔G3 の前・E5〕別名の割り先の宣言(:data:`SPLIT_ALIAS_DESTS`): 差し替える名を呼ぶ時に読む関数の割り先が、名の定義の割り先と
+       違う別名は、宣言の割り先へ向ける(守りは :func:`_declared_alias_dests` と「宣言が使われなかった」)。
 
 逐次ループ宣言: なし(道具=木のファイルの数ぶんの走査を 1 回・ランの中では動かない)。
 """
@@ -82,7 +84,8 @@ from pkgmove import guard as G
 from pkgmove import imports as IM
 from pkgmove import ledgerpaths as LPT
 from pkgmove import strings as ST
-from pkgmove.model import SRC_PREFIX, Ctx, Edit, Index, Text, Tree, apply_edits, area_of, is_self, mod_of, parse, symbols_of
+from pkgmove.model import (SRC_PREFIX, Ctx, Edit, Index, Text, Tree, apply_edits, area_of, is_self, mod_of, parse,
+                           resolve_from, symbols_of)
 from pkgmove.table import SPLIT_ENTRIES, SPLIT_FORWARDERS, SPLIT_ORDER, MapDoc, Row, forwarder_text
 
 #: 割る段で道の文字列を書き換えない (ファイル, 記号)(表の old を持つ固定の一覧=道の字面が値そのもの)。
@@ -97,6 +100,40 @@ STRING_EXCLUDE: frozenset[tuple[str, str]] = frozenset({
     # 今の置き場へ書き換えると、古い src で ``No module named`` になる
     ("tests/engine/test_state_format_10f.py", "_HEAD_CHILD"),
 })
+
+
+@dataclass(frozen=True)
+class AliasDest:
+    """〔割る段 5b・E5〕別名の割り先の宣言の 1 行: 割る行 ``old`` を当てるとき、ファイル ``file`` で割るモジュールを結んだ別名
+    ``alias`` を、名の定義の割り先でなく割り先 ``dest`` へ向ける。``absent`` はこの別名で読むが割り先に無いのが正しい名(常に偽の
+    ``hasattr`` で守られた読みなど)。"""
+
+    old: str
+    file: str
+    alias: str
+    dest: str
+    absent: tuple[str, ...] = ()
+
+
+#: 〔割る段 5b・E5・親の裁定(G3)〕別名の割り先の宣言。差し替え(``monkeypatch.setattr(別名, "名", …)``)は、その名を呼ぶ時に読む
+#: 関数の割り先のモジュールへ向ける必要がある。それが名の定義の割り先と違うとき(道具の既定=定義の割り先か再輸出の主な割り先)は
+#: ここに宣言する。読む関数が 2 つの割り先に分かれた名は、割り先ごとの別名で両方を差し替える。守り: 別名が割るモジュールを
+#: import していない・宣言の割り先がその行の割り先でない・別名で読む名が割り先の頂上で結ばれていない(``absent`` のほか)・名で
+#: 読まない使い方がある・宣言が使われなかった、のどれかで止める(:func:`_declared_alias_dests`)。
+SPLIT_ALIAS_DESTS: tuple[AliasDest, ...] = (
+    # build_ledger_bundle を呼ぶ時に読むのは run(main)=差し替えは run を呼ぶのと同じ main の別名で
+    AliasDest("cli.py", "tests/engine/test_resume_10d.py", "cli", "interfaces/cli/main.py"),
+    # 台帳の型を読むのは、作る側の build_ledger_bundle(wire_economy)と札を決める側の main()(main)の両方。GoodsLedger は作る側だけ
+    AliasDest("cli.py", "tests/economy/_stage2_outside.py", "cli", "interfaces/cli/main.py"),
+    AliasDest("cli.py", "tests/economy/_stage2_outside.py", "cli_wire", "interfaces/cli/wire_economy.py"),
+    # 上の助けの main の側の差し替えを確かめる試験(この助けを使うほかの試験は cli.main を呼ばない)
+    AliasDest("cli.py", "tests/economy/cp2/test_cp2_nine_ops_equivalence.py", "cli", "interfaces/cli/main.py"),
+    AliasDest("cli.py", "tests/economy/cp2/test_cp2_nine_ops_equivalence.py", "cli_wire",
+              "interfaces/cli/wire_economy.py"),
+    # 常に偽の hasattr で守られた読み(build_parser は cli に無い=確かめる事の無い行・段 8 の文の掃除の候補)。入口の main へ
+    AliasDest("cli.py", "tests/engine/test_classical_policy.py", "cli", "interfaces/cli/main.py",
+              absent=("build_parser",)),
+)
 #: 〔割る段 5b・E4・親の裁定 Q9 の (a)〕割る段で書き換えないファイル(道筋か、``/`` で終わるディレクトリ)。byte-check は基準の側
 #: (割る前の木)と比べる側(割った後の木)を道具のリポの同じコードで回すので、ランの入口は道具が自分で解く
 #: (``tools/bytecheck/check.py`` の ``resolve_run``)。偽のエンジン(``shibuya/cli.py`` を一時の木に作る試験)も書き換えない。
@@ -494,6 +531,70 @@ class SplitPlan:
     entry: str = ""
     #: 〔割る段 5b・E4〕書き換えの範囲から外したファイル(:data:`SPLIT_EXCLUDE_PATHS`)で、外さなければ書き換えた所(ファイル・数)。
     excluded_sites: list[str] = field(default_factory=list)
+    #: 〔割る段 5b・E5〕使った別名の割り先の宣言(:data:`SPLIT_ALIAS_DESTS`)。ファイル・別名 → 割り先・読む名の数・無くてよい名。
+    alias_declared: list[str] = field(default_factory=list)
+
+
+def alias_modules(text: str, path: str) -> dict[str, set[str]]:
+    """〔割る段 5b・E5〕ファイルの import が別名に結ぶモジュールの名(どの有効範囲でも・同じ別名を 2 つのモジュールに結べば 2 つ)。
+    ``from P import x as X`` は ``P.x``・``import M as X`` は ``M``(別名の無い ``import a.b`` は ``a``)。"""
+    own = mod_of(path[len(SRC_PREFIX):]) if path.startswith(SRC_PREFIX) else ""
+    pkg = own if path.endswith("/__init__.py") else own.rpartition(".")[0]
+    out: dict[str, set[str]] = {}
+    for n in ast.walk(parse(text)):
+        if isinstance(n, ast.ImportFrom):
+            m = resolve_from(pkg, n) if n.level else n.module
+            for a in n.names:
+                out.setdefault(a.asname or a.name, set()).add(f"{m}.{a.name}")
+        elif isinstance(n, ast.Import):
+            for a in n.names:
+                top = a.name.split(".")[0]
+                out.setdefault(a.asname or top, set()).add(a.name if a.asname else top)
+    return out
+
+
+def _declared_alias_dests(ctx: Ctx, p: str, text: str, decls: list[AliasDest], dests: set[str], src_mod: str,
+                          after: Tree) -> tuple[dict[str, str], list[str], list[str]]:
+    """〔割る段 5b・E5〕ファイル ``p`` の別名の割り先の宣言を確かめる。返すのは (別名 → 宣言の割り先のモジュール・止める文・使った
+    宣言の報告の行)。宣言の別名が木のファイルに無ければ何も返さない(呼ぶ側が「使われなかった」で止める)。"""
+    binds = alias_modules(text, p)
+    uses = IM.alias_uses(ctx, text, p)
+    over: dict[str, str] = {}
+    errs: list[str] = []
+    notes: list[str] = []
+    for d in decls:
+        where = f"{p}: 別名 {d.alias} → {d.dest}"
+        mods = binds.get(d.alias)
+        if not mods:
+            continue
+        bad: list[str] = []
+        if mods != {src_mod}:
+            bad.append(f"別名が割るモジュール {src_mod} を import していない(結ぶのは {sorted(mods)})")
+        if d.dest not in dests:
+            bad.append(f"宣言の割り先がこの割る行の割り先でない(割り先 {sorted(dests)})")
+        u = uses.get(d.alias)
+        attrs = set(u.attrs) if u is not None else set()
+        if u is not None and u.bare_lines:
+            bad.append(f"名で読まない使い方がある(行 {list(u.bare_lines)})=読む名を確かめられない")
+        dtext = after.files.get(SRC_PREFIX + d.dest)
+        top = set(_bound_in(parse(dtext).body, top=True)) if dtext is not None else set()
+        if d.dest in dests:
+            lack = sorted(attrs - top - set(d.absent))
+            if lack:
+                bad.append(f"別名で読む名 {lack} が割り先の頂上で結ばれていない(定義でも import でもない)")
+            stale = sorted(set(d.absent) - attrs)
+            if stale:
+                bad.append(f"無くてよいと挙げた名 {stale} をこの別名で読んでいない")
+            there = sorted(set(d.absent) & top)
+            if there:
+                bad.append(f"無くてよいと挙げた名 {there} が割り先の頂上に在る")
+        if bad:
+            errs += [f"{where}: {b}" for b in bad]
+            over[d.alias] = ""  # 使った(「使われなかった」と二重に言わない)が、向けない
+            continue
+        over[d.alias] = mod_of(d.dest)
+        notes.append(f"{where}(読む名 {len(attrs)}" + (f"・無くてよい名 {', '.join(d.absent)}" if d.absent else "") + ")")
+    return over, errs, notes
 
 
 def _import_bindings(st: ast.stmt) -> list[tuple[str, ast.alias]]:
@@ -1043,6 +1144,10 @@ def make_split_plan(tree: Tree, mapdoc: MapDoc, old: str, *, frozen: G.Frozen | 
     class_path = locate(tree, mapdoc, AL.CLASS_IDS_TABLE[0])
     lp_path = locate(tree, mapdoc, AL.LEDGER_PATHS_TABLE[0])
     skip = {src_p, *[SRC_PREFIX + d for d in texts]}
+    # 〔割る段 5b・E5〕この割る行の別名の割り先の宣言(使ったものを数え、使われなかった宣言と守りに当たった宣言で止める)
+    decls = [d for d in SPLIT_ALIAS_DESTS if d.old == row.old]
+    alias_errs: list[str] = []
+    alias_used: set[tuple[str, str]] = set()
     for p in sorted(plan.after.files):
         if is_self(p):
             continue
@@ -1060,6 +1165,13 @@ def make_split_plan(tree: Tree, mapdoc: MapDoc, old: str, *, frozen: G.Frozen | 
         stt = IM.ImportStats() if excluded else plan.import_stats.setdefault(area, IM.ImportStats())
         n0 = stt.statements
         ctx.alias_dests = IM.alias_dests(ctx, text, p)
+        mine = [d for d in decls if d.file == p]
+        if mine and not excluded:
+            over, errs, notes = _declared_alias_dests(ctx, p, text, mine, set(plan.dests), src_mod, plan.after)
+            alias_errs += errs
+            plan.alias_declared += notes
+            alias_used |= {(p, a) for a in over}
+            ctx.alias_dests.update({a: m for a, m in over.items() if m})
         edits = IM.rewrite_file(ctx, p, text, t, syms, stt)
         if stt.statements > n0 and not excluded:
             plan.import_files[area] += 1
@@ -1079,6 +1191,12 @@ def make_split_plan(tree: Tree, mapdoc: MapDoc, old: str, *, frozen: G.Frozen | 
             if new != text:
                 plan.after.files[p] = new
                 plan.changed[p] = edits
+    for d in decls:
+        if (d.file, d.alias) not in alias_used:
+            alias_errs.append(f"{d.file}: 別名 {d.alias} → {d.dest}: 宣言が使われなかった(ファイルが木に無いか範囲の外・"
+                              f"別名を結ぶ import が無い)")
+    if alias_errs:
+        raise SplitStopped([f"別名の割り先の宣言の守り: {e}" for e in alias_errs])
     for area, stt in plan.import_stats.items():
         for w in stt.warnings:
             if IM.MANUAL in w:
@@ -1576,6 +1694,8 @@ def report(plan: SplitPlan) -> dict:
         # 〔割る段 5b の G0 の直し 高-1〕書き換えなかった対応表の鍵(tests/_places の割る行の口の第 1 引数)
         "table_key_sites": sorted({f"{s['file']}::{s['symbol']}: {s['token']}" for s in plan.str_stats.skipped
                                    if s.get("kind") == "table_key"}),
+        # 〔割る段 5b・E5〕使った別名の割り先の宣言
+        "alias_declared": plan.alias_declared,
     }
 
 

@@ -545,6 +545,8 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `pristine`(関数): どの段の行も当たっていない木か(全部の段に当てる行が残っている=段 3 の時点の木)。
   - `run_cli`(関数)
   - `staged`(関数): 次に当てる段(まだ当たっていない最初の段)の計画。全段が当たった木では飛ばす。
+  - `test_alias_declaration_names_the_names_that_may_be_absent`(関数): 〔E5-a の 4〕割り先に無くてよい名(常に偽の ``hasattr`` で守られた読み): 宣言に名前で挙げれば通り、挙げなければ止まる
+  - `test_alias_declarations_name_files_and_aliases_that_exist_in_the_tree`(関数): 〔E5-a の 5・F2 と同じ考え方〕当てた後に宣言が黙って腐らないこと: 宣言のファイルが今の木に在り、その別名が割る前の
   - `test_all_drops_keeps_comments_and_refuses_other_forms`(関数): 1 行 1 要素の行だけを除く(行の終わりの注は注の行として残す)。1 行に 2 つ以上の要素は除かずに注意(守りが止める)。
   - `test_allow_toml_is_current_and_src_tables_exist`(関数): 許可の一覧 TOML は、どの段も当たっていない木でだけ作り直しと比べる。(b-src) の表は今の置き場に全部ある。
   - `test_applied_tree_has_the_new_places_and_empty_heads`(関数)
@@ -588,6 +590,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_negative_a_nameless_dotted_path_outside_m_is_listed_for_hand_fixing`(関数): 〔E3〕``-m`` の文脈でない名の無い点の道は、主な割り先へ黙って向けず「手で直す一覧」に出す(既定=strict は断る)。記録の文
   - `test_negative_a_plan_that_does_not_rewrite_package_data_is_stopped`(関数): 負の対照: package-data の鍵を書き換えない書き手を差し込むと、JSON が移る段で守りが止める。
   - `test_negative_a_reader_with_two_destinations_is_listed_for_hand_fixing`(関数): 属性で読み、割り先が 2 つ以上になる読みは書き換えずに「手で直す一覧」に出し、既定(strict)では断る。
+  - `test_negative_alias_declaration_guards_each_stop`(関数): 〔E5-a の守り〕宣言の守りは 1 つずつ止める(書かない・止めた文に場所と名): 別名が割るモジュールを import していない・宣言の
   - `test_negative_alias_rewrite_captured_by_a_local_name_is_refused`(関数): 〔検収 低-1〕宣言した書き換え ``V.x`` → ``x`` の ``x`` が、その場所の局所の名(引数)に捕まる形は断る。捕まらなければ通す。
   - `test_negative_an_emptied_head_with_a_definition_is_stopped`(関数): 〔突然変異 m18・検収 L-f〕空にする頭に定義(関数・クラス)があれば止める。import・docstring・``__all__`` のほかの文
   - `test_negative_an_entry_without_a_matching_declaration_is_refused`(関数)
@@ -629,6 +632,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_skipped_or_reversed_stages_are_refused_in_a_sample`(関数): 〔検収 中-2・作った見本の木〕段を飛ばす・逆の順の計画は断る(``Refused``=CLI の終了コード 2)。次の段から順にまとめる計画と、
   - `test_skipping_the_next_stage_is_refused`(関数): 〔検収 中-2〕本物の木で、次に当てる段を飛ばす計画は断る(書かない実行でも・CLI は終了コード 2)。次の段から順に
   - `test_split_5a_5b_in_memory_keeps_the_import_rules_to_the_end`(関数): 〔検収 高-1〕本物の木で割る段の残りの本(5a の 17 本と 5b の 5 本=22 本の順の、木で済んでいない本)をメモリの中で順に当てる
+  - `test_split_alias_declaration_points_the_alias_to_the_declared_dest`(関数): 〔E5-a〕宣言の在る別名は、名の定義の割り先でなく宣言の割り先へ向く(読む名が割り先をまたいでも手で直す一覧に出ない)。
   - `test_split_apply_refuses_a_main_worktree`(関数): 〔検収 中-4〕``split --apply`` は git の本体の作業木を断り、何も書かない(木をまるごと写さない小さな見本の木)。
   - `test_split_dry_run_of_the_next_row_writes_nothing_and_keeps_every_guard`(関数): 本物の木で次の本を書かずに当てる(--through=手で直す読みは残して報告): 何も書かず、守りが全部「同じ」。
   - `test_split_entry_moves_the_main_block_and_the_m_strings`(関数): 〔E3・返事その 8 §1-6 の 6〕入口の割り先の宣言: ``if __name__`` は ``main`` と同じ入口の割り先へ。名の無い点の道は ``-m`` の

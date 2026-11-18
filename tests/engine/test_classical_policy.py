@@ -251,6 +251,8 @@ def test_default_run_does_not_touch_the_rich_context():
 def test_cli_exposes_the_5b_flags():
     from shibuya import cli
 
+    # 〔割る段 5b の G3〕build_parser は cli に無い=常に偽(確かめる事の無い行・段 8 の文の掃除の候補)。別名 cli の割り先は入口の
+    # interfaces.cli.main(tools/pkgmove/split.py の SPLIT_ALIAS_DESTS の宣言・build_parser は「割り先に無くてよい名」)
     ap = cli.build_parser() if hasattr(cli, "build_parser") else None
     from tests import _places as PL
 

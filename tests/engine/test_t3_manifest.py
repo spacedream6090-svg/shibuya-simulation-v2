@@ -16,7 +16,9 @@ from __future__ import annotations
 
 import pyarrow.parquet as pq
 
+# 〔割る段 5b の G3〕別名 cli を割り先ごとに分けた(cli=interfaces.cli.main・cli_wire=interfaces.cli.wire_economy の名)
 from shibuya import cli
+from shibuya import cli as cli_wire
 from shibuya.economy import census as CS
 from shibuya.runtime.run import run_day
 from shibuya.world.model.state import World
@@ -57,7 +59,7 @@ def test_a_run_without_a_ledger_has_no_t3():
 def _month_break_run(tmp_path):
     """台帳に**空の 29 日**を畳んでから 1 日回す = その締めが月次センサスの日になる。"""
     world = World.synthetic(n_cells=9, seed=3)
-    bundle = cli.build_ledger_bundle(world, 64, seed=3, world_dir=None, use_population=False)
+    bundle = cli_wire.build_ledger_bundle(world, 64, seed=3, world_dir=None, use_population=False)
     for d in range(CS.MONTH_DAYS - 1):
         bundle.money.on_day_end(d)
         bundle.goods.on_day_end(d)
@@ -96,11 +98,11 @@ def test_the_month_break_run_puts_t3_in_the_monthly_mer(tmp_path):
 
     target = tmp_path / "census"
     assert len(res.census_paths) == 3
-    t = pq.read_table(target / cli.MONTHLY_MER_FILENAME)
+    t = pq.read_table(target / cli_wire.MONTHLY_MER_FILENAME)
     assert list(t.column_names) == [
         "month", "kind", "account", "amount", "money_supply", "residual", "hoard_amount",
     ]
-    d = pq.read_table(target / cli.DAILY_CENSUS_FILENAME)
+    d = pq.read_table(target / cli_wire.DAILY_CENSUS_FILENAME)
     assert list(d.column_names) == list(CS.DAILY_COLUMNS)
-    s = pq.read_table(target / cli.MONTHLY_MER_SECTORS_FILENAME)
+    s = pq.read_table(target / cli_wire.MONTHLY_MER_SECTORS_FILENAME)
     assert list(s.column_names) == list(CS.SECTOR_FLOW_COLUMNS)

@@ -17,7 +17,9 @@ from __future__ import annotations
 
 import pyarrow.parquet as pq
 
+# 〔割る段 5b の G3〕別名 cli を割り先ごとに分けた(cli=interfaces.cli.main・cli_wire=interfaces.cli.wire_economy の名)
 from shibuya import cli
+from shibuya import cli as cli_wire
 from shibuya.economy.census import DAILY_COLUMNS, SECTOR_FLOW_COLUMNS, SECTORS
 
 #: 合成世界の極小ラン(``tests/test_cli_intent_mode.py`` と同じ書き方)。
@@ -48,9 +50,9 @@ def test_explicit_none_is_the_same_as_the_default(tmp_path):
 def test_census_out_writes_the_three_files(tmp_path):
     target = tmp_path / "census"
     res = cli.run(census_out=str(target), **SMALL)
-    daily = target / cli.DAILY_CENSUS_FILENAME
-    mer = target / cli.MONTHLY_MER_FILENAME
-    sectors = target / cli.MONTHLY_MER_SECTORS_FILENAME
+    daily = target / cli_wire.DAILY_CENSUS_FILENAME
+    mer = target / cli_wire.MONTHLY_MER_FILENAME
+    sectors = target / cli_wire.MONTHLY_MER_SECTORS_FILENAME
     assert sorted(p.name for p in target.iterdir()) == sorted(
         [daily.name, mer.name, sectors.name]
     )

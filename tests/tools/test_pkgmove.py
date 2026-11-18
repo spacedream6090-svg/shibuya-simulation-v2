@@ -2321,6 +2321,7 @@ _CLI_READER = ('import sys\n\nfrom shibuya import cli\n\n'
 def _cli_sample(monkeypatch, cli_text: str = _CLI_SAMPLE) -> tuple[Tree, MV.MapDoc]:
     monkeypatch.setattr(SP, "SPLIT_FORWARDERS", {"cli.py": "ui/main.py"})
     monkeypatch.setattr(SP, "SPLIT_ENTRIES", {})
+    monkeypatch.setattr(SP, "SPLIT_ALIAS_DESTS", ())  # 〔E5〕本物の木の別名の宣言(同じ行 cli.py)を見本へ持ち込まない
     files = {"src/shibuya/__init__.py": "", "src/shibuya/cli.py": cli_text, "tests/test_cli_r.py": _CLI_READER}
     return Tree(files=files), MV.MapDoc(rows=[Row(**_CLI_ROW)])
 
@@ -2676,3 +2677,127 @@ def test_split_order_is_kept_in_a_sample_tree(monkeypatch):
         tree = SP.make_split_plan(tree, md, old).after
         done.append(old)
     assert SP.split_state(tree, md) == list(SP.SPLIT_ORDER) and SP.next_split(tree, md) is None
+
+
+# ------------------------------------------------------------------ 〔割る段 5b の G3 の前・E5-a〕別名の割り先の宣言
+#: 見本の読み手: 別名 cli で run(ui/main.py)を呼び、run が呼ぶ時に読む helper(定義は ui/wire.py)を同じ別名で差し替える。
+#: 別名 cli_wire は helper(ui/wire.py)だけを読む=道具の既定で向く。
+_ALIAS_READER = ('from shibuya import cli\nfrom shibuya import cli as cli_wire\n\n\n'
+                 'def test_run(monkeypatch):\n    monkeypatch.setattr(cli, "helper", lambda x: x)\n'
+                 '    assert cli.run(1) == 1 and cli_wire.helper(1) == 2\n')
+_ALIAS_FILE = "tests/test_alias_r.py"
+
+
+def _alias_sample(monkeypatch, decls, reader: str = _ALIAS_READER) -> tuple[Tree, MV.MapDoc]:
+    tree, md = _cli_sample(monkeypatch)
+    tree.files[_ALIAS_FILE] = reader
+    monkeypatch.setattr(SP, "SPLIT_ALIAS_DESTS", tuple(decls))
+    return tree, md
+
+
+def _alias_errors(monkeypatch, decls, reader: str = _ALIAS_READER) -> list[str]:
+    tree, md = _alias_sample(monkeypatch, decls, reader)
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(tree, md, "cli.py", check_order=False, strict=False)
+    errs = ei.value.errors
+    assert errs and all(e.startswith("別名の割り先の宣言の守り: ") for e in errs), errs
+    return errs
+
+
+def test_split_alias_declaration_points_the_alias_to_the_declared_dest(monkeypatch):
+    """〔E5-a〕宣言の在る別名は、名の定義の割り先でなく宣言の割り先へ向く(読む名が割り先をまたいでも手で直す一覧に出ない)。
+    宣言の無い別名は今までどおり(読む名の割り先が 1 つなら向き、2 つにまたがれば手で直す一覧へ・``strict`` なら断る)。報告の
+    ``alias_declared`` に使った宣言が出る。負の対照: 宣言を外すと、同じ読み手が手で直す一覧に出て当てられない。"""
+    decl = SP.AliasDest("cli.py", _ALIAS_FILE, "cli", "ui/main.py")
+    tree, md = _alias_sample(monkeypatch, [decl])
+    plan = SP.make_split_plan(tree, md, "cli.py", check_order=False)
+    r = plan.after.files[_ALIAS_FILE]
+    assert r.startswith("from shibuya.ui import main as cli\nfrom shibuya.ui import wire as cli_wire\n"), r
+    assert 'monkeypatch.setattr(cli, "helper", lambda x: x)' in r and "from shibuya.ui.wire import helper\n" in \
+        plan.after.files["src/shibuya/ui/main.py"]
+    assert plan.manual == [] and set(plan.guards.values()) == {"同じ"}
+    assert SP.report(plan)["alias_declared"] == [f"{_ALIAS_FILE}: 別名 cli → ui/main.py(読む名 2)"]
+    # 負の対照: 宣言が無い
+    tree, md = _alias_sample(monkeypatch, [])
+    plan2 = SP.make_split_plan(tree, md, "cli.py", check_order=False, strict=False)
+    assert [m for m in plan2.manual if _ALIAS_FILE in m and "別名 cli の読みの割り先が 1 つに決まらない" in m]
+    assert "from shibuya.ui import wire as cli_wire\n" in plan2.after.files[_ALIAS_FILE]  # 宣言の無い別名は道具の既定のまま
+    assert SP.report(plan2)["alias_declared"] == []
+    with pytest.raises(SP.SplitRefused, match="手で直す一覧"):
+        SP.make_split_plan(tree, md, "cli.py", check_order=False)
+
+
+@pytest.mark.parametrize("decl,reader,word", [
+    # 別名が割るモジュールを import していない(同じ名の別名を別のモジュールに結ぶ)
+    (SP.AliasDest("cli.py", _ALIAS_FILE, "cli", "ui/main.py"),
+     _ALIAS_READER.replace("from shibuya import cli\n", "import os as cli\n"), "割るモジュール shibuya.cli を import していない"),
+    # 宣言の割り先が、その割る行の割り先でない
+    (SP.AliasDest("cli.py", _ALIAS_FILE, "cli", "ui/other.py"), _ALIAS_READER, "この割る行の割り先でない"),
+    # 別名で読む名(run)が割り先(ui/wire.py)の頂上で結ばれていない
+    (SP.AliasDest("cli.py", _ALIAS_FILE, "cli", "ui/wire.py"), _ALIAS_READER,
+     "別名で読む名 ['run'] が割り先の頂上で結ばれていない"),
+    # 名で読まない使い方(別名を素で渡す)=読む名を確かめられない
+    (SP.AliasDest("cli.py", _ALIAS_FILE, "cli", "ui/main.py"), _ALIAS_READER + "\n\nMODS = [cli]\n", "名で読まない使い方がある"),
+    # 宣言が使われなかった(ファイルが木に無い・別名がファイルに無い)
+    (SP.AliasDest("cli.py", "tests/no_such_reader.py", "cli", "ui/main.py"), _ALIAS_READER, "宣言が使われなかった"),
+    (SP.AliasDest("cli.py", _ALIAS_FILE, "cli_nope", "ui/main.py"), _ALIAS_READER, "宣言が使われなかった"),
+])
+def test_negative_alias_declaration_guards_each_stop(monkeypatch, decl, reader, word):
+    """〔E5-a の守り〕宣言の守りは 1 つずつ止める(書かない・止めた文に場所と名): 別名が割るモジュールを import していない・宣言の
+    割り先がその行の割り先でない・別名で読む名が割り先の頂上で結ばれていない・名で読まない使い方がある・宣言が使われなかった。
+    書かない実行(``strict`` が偽)でも止める。"""
+    errs = _alias_errors(monkeypatch, [decl], reader)
+    assert any(word in e for e in errs), errs
+    assert all(decl.file in e for e in errs), errs
+
+
+def test_alias_declaration_names_the_names_that_may_be_absent(monkeypatch):
+    """〔E5-a の 4〕割り先に無くてよい名(常に偽の ``hasattr`` で守られた読み): 宣言に名前で挙げれば通り、挙げなければ止まる
+    (黙って通さない)。挙げた名を別名で読んでいない・挙げた名が割り先に在る、も止める(宣言が腐らない)。"""
+    reader = ('from shibuya import cli\n\n\ndef test_x():\n'
+              '    ap = cli.build_parser() if hasattr(cli, "build_parser") else None\n    assert cli.run(1) == 2\n'
+              '    del ap\n')
+    ok = SP.AliasDest("cli.py", _ALIAS_FILE, "cli", "ui/main.py", absent=("build_parser",))
+    tree, md = _alias_sample(monkeypatch, [ok], reader)
+    plan = SP.make_split_plan(tree, md, "cli.py", check_order=False)
+    assert plan.after.files[_ALIAS_FILE].startswith("from shibuya.ui import main as cli\n") and plan.manual == []
+    assert SP.report(plan)["alias_declared"] == [
+        f"{_ALIAS_FILE}: 別名 cli → ui/main.py(読む名 2・無くてよい名 build_parser)"]
+    errs = _alias_errors(monkeypatch, [SP.AliasDest("cli.py", _ALIAS_FILE, "cli", "ui/main.py")], reader)
+    assert any("['build_parser'] が割り先の頂上で結ばれていない" in e for e in errs), errs
+    errs = _alias_errors(monkeypatch, [dataclasses.replace(ok, absent=("build_parser", "no_such"))], reader)
+    assert any("無くてよいと挙げた名 ['no_such'] をこの別名で読んでいない" in e for e in errs), errs
+    errs = _alias_errors(monkeypatch, [dataclasses.replace(ok, absent=("build_parser", "run"))], reader)
+    assert any("無くてよいと挙げた名 ['run'] が割り先の頂上に在る" in e for e in errs), errs
+
+
+def _stale_alias_dests(decls) -> list[str]:  # noqa: ANN001
+    """``split.SPLIT_ALIAS_DESTS`` の宣言のうち、今の木にファイルが無いか、その別名を「割る前のモジュール」か「宣言の割り先」の
+    どちらでもないモジュールに結ぶ(または結ばない)もの。割る前と、割った後(道具が別名の import を宣言の割り先へ書き換えた後)の
+    どちらの木でも空になる。"""
+    out: list[str] = []
+    for d in decls:
+        p = ROOT / d.file
+        if not p.is_file():
+            out.append(f"{d.file}: ファイルが無い")
+            continue
+        mods = SP.alias_modules(p.read_text(encoding="utf-8"), d.file).get(d.alias, set())
+        ok = {mod_of(d.old), mod_of(d.dest)}
+        if not mods or not mods <= ok:
+            out.append(f"{d.file}: 別名 {d.alias} が結ぶのは {sorted(mods)}(割る前 {mod_of(d.old)} か割り先 {mod_of(d.dest)})")
+    return out
+
+
+def test_alias_declarations_name_files_and_aliases_that_exist_in_the_tree():
+    """〔E5-a の 5・F2 と同じ考え方〕当てた後に宣言が黙って腐らないこと: 宣言のファイルが今の木に在り、その別名が割る前の
+    モジュールか宣言の割り先を import している。負の対照: 在りもしないファイル・別のモジュールに結ぶ別名・在りもしない別名。"""
+    assert _stale_alias_dests(SP.SPLIT_ALIAS_DESTS) == []
+    assert {d.old for d in SP.SPLIT_ALIAS_DESTS} <= set(SP.SPLIT_ORDER)
+    real = SP.SPLIT_ALIAS_DESTS[0]
+    assert _stale_alias_dests([dataclasses.replace(real, file="tests/no_such_file.py")]) == [
+        "tests/no_such_file.py: ファイルが無い"]
+    # 別名が割る前のモジュールにも宣言の割り先にも結ばれていない(割る前と割った後のどちらの木でも当たる形)
+    got = _stale_alias_dests([dataclasses.replace(real, old="engine/run.py", dest="interfaces/cli/run_args.py")])
+    assert got and "(割る前 shibuya.engine.run か割り先 shibuya.interfaces.cli.run_args)" in got[0], got
+    assert _stale_alias_dests([dataclasses.replace(real, alias="no_such_alias")]) == [
+        f"{real.file}: 別名 no_such_alias が結ぶのは [](割る前 shibuya.cli か割り先 shibuya.interfaces.cli.main)"]

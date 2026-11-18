@@ -14,7 +14,8 @@ E3 ``endow_households``・E4 ``endow_stores``(+ ``depreciate``)は ``ops.transfe
 2. 出来事の記録を挿して原因を渡しても、金と物の状態は同じ(記録は状態を変えない)。
 3. (slow・data)5,000 体 mock の 1 日(既定 v3)を HEAD の台帳と今の台帳で回し、final・呼数・残高・生ログ・物の台帳が同じ。
    輪の係数を両方 6.5(溢れない)と両方 3.0(HEAD の既定=溢れる)の 2 通り。段階 2 の外の台帳で回す(〔第347〕切替口 off の
-   代わりに試験の中だけの束 ``tests/economy/_stage2_outside.py``)。
+   代わりに試験の中だけの束 ``tests/economy/_stage2_outside.py``)。その束の差し替えが、台帳の型を読む両方の側(作る側と札を
+   決める側)に届くことは data なしの試験 1 本で確かめる(〔割る段 5b の G3〕)。
 
 〔独立検収 M1・宣言つきの直し〕汎用の口(``transfer``・``transfer_many``)に科目「減価償却」を渡すと、HEAD は現金の脚で
 動かしていた(別の口なら現金が移る・同じ口なら差し引き 0 で取引の件数だけ増える=減価償却は「現金を動かさない」に反する
@@ -262,6 +263,32 @@ def test_5k_mock_day_matches_head(monkeypatch, rate):
         assert m.n_raw_dropped == 0 and m.meter.overflow == 0  # K17: 溢れ 0 件
     else:
         assert m.meter.overflow == m.n_raw_dropped > 0  # 旧い係数では溢れる(数えて続ける・値は HEAD と同じ)
+
+
+def test_the_outside_bundle_swaps_the_ledger_types_on_both_sides(monkeypatch):
+    """〔割る段 5b の G3・親の裁定〕``use_outside_bundle`` は台帳の型を、作る側(``build_ledger_bundle``=割った後は
+    ``interfaces.cli.wire_economy``)と表示の札を決める側(``main()`` の ``isinstance``=割った後は ``interfaces.cli.main``)の
+    両方で差し替える。この助けを使うほかの試験は ``cli.main`` を呼ばない=札の側の差し替えが外れても落ちないので、ここで確かめる:
+    両方の ``Ledger``・``_HouseholdWalletLedger`` が同じ物で元の型と別の物・``GoodsLedger`` は型を渡したときだけ作る側がその型・
+    抜けると元に戻る。割る前は 2 つの別名が同じ ``shibuya.cli``(別名の割り先は ``tools/pkgmove/split.py`` の
+    ``SPLIT_ALIAS_DESTS`` の宣言)。"""
+    from shibuya import cli
+    from shibuya import cli as cli_wire
+
+    from tests.economy import _stage2_outside as SO
+
+    ledger0, wallet0, goods0 = cli_wire.Ledger, cli_wire._HouseholdWalletLedger, cli_wire.GoodsLedger
+    HL, HG, HW = CP.shims()
+    for kw in ({}, {"ledger_cls": HL, "wallet_cls": HW, "goods_cls": HG}):
+        with monkeypatch.context() as mp:
+            SO.use_outside_bundle(mp, **kw)
+            assert cli.Ledger is cli_wire.Ledger and cli.Ledger is not ledger0
+            assert cli._HouseholdWalletLedger is cli_wire._HouseholdWalletLedger
+            assert cli._HouseholdWalletLedger is not wallet0
+            assert cli_wire.GoodsLedger is kw.get("goods_cls", goods0)
+        assert (cli.Ledger, cli_wire.Ledger) == (ledger0, ledger0)
+        assert (cli._HouseholdWalletLedger, cli_wire._HouseholdWalletLedger) == (wallet0, wallet0)
+        assert cli_wire.GoodsLedger is goods0
 
 
 # ---------------------------------------------------------------- 4. 検収 M1: 汎用の口の減価償却(宣言つきの直し)

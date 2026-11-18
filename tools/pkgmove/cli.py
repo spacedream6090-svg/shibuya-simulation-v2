@@ -317,13 +317,15 @@ def cmd_split(a: argparse.Namespace) -> int:
                 rows.append({k: rep[k] for k in ("row", "split_order", "dests", "guards", "manual", "import_statements",
                                                  "import_split_statements", "class_id_keys", "ledger_paths_added",
                                                  "path_string_sites", "deleted", "created_heads", "emptied_heads",
-                                                 "unwritten", "contracts", "excluded_sites", "table_key_sites")})
+                                                 "unwritten", "contracts", "excluded_sites", "table_key_sites",
+                                                 "alias_declared")})
                 if od is not None:
                     tag = f"{plan.row.split_order:02d}"
                     (od / f"split_{tag}_report.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1) + "\n",
                                                                encoding="utf-8", newline="\n")
                     (od / f"split_{tag}.diff").write_text(SP.unified_diff(plan), encoding="utf-8", newline="\n")
-                print(f"{old}: 守り {plan.guards}・手で直す {len(plan.manual)}")
+                print(f"{old}: 守り {plan.guards}・手で直す {len(plan.manual)}"
+                      + (f"・別名の割り先の宣言 {len(plan.alias_declared)}" if plan.alias_declared else ""))
                 tree = plan.after
             if od is not None:
                 (od / "split_through_summary.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1) + "\n",
@@ -350,7 +352,8 @@ def cmd_split(a: argparse.Namespace) -> int:
         (od / f"split_{tag}.diff").write_text(SP.unified_diff(plan), encoding="utf-8", newline="\n")
     print(json.dumps({k: rep[k] for k in ("row", "split_order", "source", "dests", "names_by_dest", "import_statements",
                                           "import_split_statements", "class_id_keys", "ledger_paths_added", "deleted",
-                                          "created_heads", "emptied_heads", "guards")}, ensure_ascii=False, indent=1))
+                                          "created_heads", "emptied_heads", "guards", "alias_declared")},
+                     ensure_ascii=False, indent=1))
     if not a.apply:
         print("書いていない(dry-run)。書くのは --apply --tree <置き場> のときだけ")
         return EXIT_OK

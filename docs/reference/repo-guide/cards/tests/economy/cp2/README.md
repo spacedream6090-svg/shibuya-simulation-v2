@@ -131,6 +131,7 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `test_overflowing_ring_is_identical_and_counted`(関数): 小さな輪で溢れさせても HEAD と同じ行が残り、溢れた行の数は計器にも出る(K17: 記録して続ける)。
   - `test_random_port_sequences_match_head`(関数)
   - `test_the_copies_are_the_head_blobs`(関数): 写しが HEAD 136fdbb のバイトのまま(``tests/_head_copy_pin.py`` の字面・文の順・意味=段 4 で移す道具が import の文の
+  - `test_the_outside_bundle_swaps_the_ledger_types_on_both_sides`(関数): 〔割る段 5b の G3・親の裁定〕``use_outside_bundle`` は台帳の型を、作る側(``build_ledger_bundle``=割った後は
 - import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.ledger`・`tests/economy/_stage2_outside.py`・`tests/economy/cp2/head_copies.py`
 - 決定の ID: 第 347
 

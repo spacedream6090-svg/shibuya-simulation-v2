@@ -437,3 +437,83 @@
 | 消した切替口の環境変数を置いた前後の比べ(§15-2 の低-1) | 入口 2 つと `run_args` の import は前と同じに止まる・`runtime.run`・`runtime.result` の import だけは止まらなくなった |
 | `--help` を Windows でファイルへ流す形(`PYTHONUTF8` なし) | 割る前も後も cp932 の誤りで終了コード 1(help の文に cp932 に無い字。割る段の違いではない=前からの欠陥として報告に載せる)。`PYTHONUTF8=1` では前後とも 0 |
 | 古い入口を呼ぶ所の洗い(`.github`・`tools/night5070`・`*.ps1`・`*.sh`・`*.toml`) | `-m shibuya.engine.run` を呼ぶ所は 0(残るのは古い記録の文と docstring だけ) |
+
+## 16. G3 の前の道具の拡張 E5 と、割る前の試験の直し(土台 `b0afefd`・2026-11-18)
+
+G3(22 本目 `cli.py`)は 2 つの commit に分ける(5b の G0 → G1 と同じ形)。この節は 1 つ目=道具の拡張 E5-a と割る前の試験の直しだけ。`--apply`・byte-check・範囲の全体は回していない(src は 1 バイトも変えていない=`git status --porcelain -- src` は空)。
+
+### 16-1. 止まった 2 回の経緯
+
+- 1 回目(当てる前): 割り先どうしの間の差し替えが 2 つ見つかった(`test_resume_10d` の `build_ledger_bundle`=使う `run` は main・定義は wire_economy/`_stage2_outside.use_outside_bundle` の台帳の型=作る側は wire_economy・札を決める側は main)。発注のとおり直さずに止めた。親の裁定=差し替えは、割る前にその名を読んでいた関数の全部に届くよう、その関数が呼ぶ時に名を引く割り先へ向ける(下の表)。
+- 2 回目(手で直す 6 件のうち 3 件を直した後): 裁定の形 3 つ(下の表の差し替える先・常に偽の `hasattr` の別名)は、道具の別名の割り先の決め方(読む名の定義の割り先か、再輸出の主な割り先)では 1 つに決まらず「手で直す一覧」から抜けられない=当てられない。発注の「発注の文と道具の当て方が食い違って見えたら聞く」で止めた。親の裁定=A(道具に宣言の表を足す)。B(当てた後に手で直す)・C(新しい書き方)は採らない。
+
+### 16-2. 裁定の表(割る前の `cli.py` の読み手・作業の木で確かめ直して同じ)
+
+| 名 | 読む所(割る前の行) | 読む関数の割り先 | 差し替える先 |
+|---|---|---|---|
+| `build_ledger_bundle` | 542(`run` の中)だけ | main | main だけ |
+| `Ledger` | 304(`build_ledger_bundle` の中)・1794(`main()` の中)。251 はクラスの定義の親(読み込みの時に決まる) | wire_economy・main | 両方 |
+| `_HouseholdWalletLedger` | 306(`build_ledger_bundle` の中)・1795(`main()` の中) | wire_economy・main | 両方 |
+| `GoodsLedger` | 309(`build_ledger_bundle` の中)だけ | wire_economy | wire_economy だけ |
+| `run`(ほかの差し替え 19 か所。〔検収の低-1 で親が直した〕合計 23=`run` 19・`build_ledger_bundle` 1・台帳の型 3) | `main()` の中(1714・1723)だけ | main | main だけ(道具の既定のまま) |
+
+### 16-3. E5-a 別名の割り先の宣言(`tools/pkgmove/split.py`)
+
+- `split.AliasDest`(割る行・ファイル・別名 → 割り先・割り先に無くてよい名 `absent`)と表 `split.SPLIT_ALIAS_DESTS`。宣言の在る別名は名の定義の割り先でなく宣言の割り先へ向く。宣言の無い別名は今までどおり。使った宣言は報告の `alias_declared` と `split --through` の行に出る。`imports.alias_dests` は別名の使い方を返す `imports.alias_uses` の上に作り直した(既定の決め方は同じ)。
+- 守り(1 つでも当たれば書かない・書かない実行でも止める): 別名が割るモジュールを import していない/宣言の割り先がその割る行の割り先でない/別名で読む名が割った後の割り先の頂上で結ばれていない(定義でも道具が足す import でもない・`absent` のほか)/名で読まない使い方がある/`absent` に挙げた名を別名で読んでいないか割り先の頂上に在る/宣言が使われなかった(ファイルが木に無い・範囲の外・別名を結ぶ import が無い)。このうち「名で読まない使い方がある」と「`absent` が合わない」の 2 つは、発注の 4 つに足した(読む名を確かめられない形と、腐った宣言を黙って通さないため)。
+- 拾う形: `X.名`(読み・代入・`del`)・`setattr`/`getattr`/`hasattr`/`delattr(X, "名", …)`・`<何か>.setattr`/`.delattr`/`.object(X, "名", …)`(`monkeypatch`・`mock.patch.object`)。拾わない形: 名が字面の定数でない形と `X` を素で使う形(どちらも「名で読まない使い方」で止める)・`mock.patch("shibuya.cli.名")` のような点の道の文字列(文字列の書き換えの側。今の木の src・tests・tools に `shibuya.cli.` で始まる文字列の差し替えは 0=凍結の表の鍵 2 つだけ)・コードの文字列の中の別名(宣言はファイルの別名だけ)。
+- 宣言(6 行・4 ファイル):
+
+| ファイル | 別名 | 割り先 | 無くてよい名 | 読む名(書かない実行の報告) |
+|---|---|---|---|---|
+| `tests/engine/test_resume_10d.py` | `cli` | `interfaces/cli/main.py` | — | 2(`run`・`build_ledger_bundle`) |
+| `tests/economy/_stage2_outside.py` | `cli` | `interfaces/cli/main.py` | — | 2(`Ledger`・`_HouseholdWalletLedger`) |
+| `tests/economy/_stage2_outside.py` | `cli_wire` | `interfaces/cli/wire_economy.py` | — | 3(`Ledger`・`_HouseholdWalletLedger`・`GoodsLedger`) |
+| `tests/economy/cp2/test_cp2_nine_ops_equivalence.py` | `cli` | `interfaces/cli/main.py` | — | 3(`run`・`Ledger`・`_HouseholdWalletLedger`) |
+| `tests/economy/cp2/test_cp2_nine_ops_equivalence.py` | `cli_wire` | `interfaces/cli/wire_economy.py` | — | 3(`Ledger`・`_HouseholdWalletLedger`・`GoodsLedger`) |
+| `tests/engine/test_classical_policy.py` | `cli` | `interfaces/cli/main.py` | `build_parser` | 1 |
+
+- 発注の見込み(4 行・3 ファイル)と違う所: 足した試験(§16-4)の別名 2 つも、割り先をまたぐ名(main の側で `_HouseholdWalletLedger`・wire_economy の側で `Ledger`)を読むので宣言が 2 行要った(+2 行・+1 ファイル)。
+
+### 16-4. 割る前の試験の直し(どれも割る前は別名が全部 `shibuya.cli`=挙動は同じ)
+
+- 別名を割り先ごとに分けた 3 本(1 回目の後・道具の既定で向く): `test_census_out`・`test_t3_manifest`・`test_cli`(`cli`=main・`cli_wire`=wire_economy・属性の読みのまま)。
+- `test_resume_10d`: 別名 `cli` のまま(宣言で main)。差し替えの行に注 2 行。
+- `_stage2_outside.use_outside_bundle`: 別名 `cli`(main)と `cli_wire`(wire_economy)。`Ledger`・`_HouseholdWalletLedger` は両方を同じ型で差し替え、`GoodsLedger` は wire_economy の側だけ。元の型は `cli_wire` から読む(差し替えの順は前と同じ=`Ledger` の後に財布の型を読む)。docstring に理由。
+- `test_classical_policy`: 行は残し、別名 `cli` のまま(宣言で main・`build_parser` は無くてよい名)。注 2 行=確かめる事の無い行(常に偽)・段 8 の文の掃除の候補。
+- 足した試験: `tests/economy/cp2/test_cp2_nine_ops_equivalence.py::test_the_outside_bundle_swaps_the_ledger_types_on_both_sides`(data なし)。省略の形と型を渡す形(HEAD の写し)の両方で、`use_outside_bundle` の後に main と wire_economy の `Ledger`・`_HouseholdWalletLedger` が同じ物で元の型と別の物・`GoodsLedger` は型を渡したときだけ wire_economy の側がその型・抜けると元に戻る。この助けを使うほかの試験 4 本は `cli.main` を呼ばないので、main の側の差し替えが外れても落ちない=この 1 本で確かめる(割った後の「外すと落ちる」の確かめは当てる発注の手順 6)。
+- 書かない実行の後の字面(道具の書き換え): 7 本とも `from shibuya.interfaces.cli import main as cli`(と `wire_economy as cli_wire`)。`test_resume_10d` のコードの文字列(子のプロセスの台本)の別名は既定の決め方で main。
+
+### 16-5. 試験と確かめ
+
+| 何を | 結果 |
+|---|---|
+| 書かない実行 `split --through cli.py`(作業の木・頭 `b0afefd`) | 守り 13 個とも「同じ」(転送・契約を含む)・手で直す 0・別名の割り先の宣言 6・契約 2 → 2・宣言の外の弱まり 0・循環 0・写さなかった 0 |
+| `tests/tools/test_pkgmove.py`(`-m "not slow"`・`-n` なし) | 133 本=112 passed・21 skipped(前の 103 passed に足した 9 本) |
+| 足した道具の試験(9 本) | `test_split_alias_declaration_points_the_alias_to_the_declared_dest`(宣言どおりに向く・宣言が無ければ手で直す一覧=負の対照)・`test_negative_alias_declaration_guards_each_stop`(6 通り=守りごと)・`test_alias_declaration_names_the_names_that_may_be_absent`(挙げれば通る・挙げなければ止まる・腐った `absent` 2 通り)・`test_alias_declarations_name_files_and_aliases_that_exist_in_the_tree`(宣言が腐らない・負の対照 3) |
+| 直した試験 7 本と、助けを使う試験(割る前の木・`-n 2`・`-m "not slow"`) | 145 passed・skipped 0(data あり)。直した 6 本(`test_census_out`・`test_t3_manifest`・`test_cli`・`test_resume_10d`・`test_classical_policy`・助けの `_stage2_outside` はその使い手で)と足した試験の在る `test_cp2_nine_ops_equivalence`、助けを使う `test_cp2_event_links`・`test_cp2_k17_capacity_and_overflow`(`test_stage2_world_two_day` は全部 slow で選ばれない)。助けを使う slow の試験(5,000 体 mock の 1 日)は回していない(足した試験が省略の形と型を渡す形の両方を見る) |
+| slow の 1 本(本物の木で残りの本=cli を順に当てる) | `test_split_5a_5b_in_memory_keeps_the_import_rules_to_the_end` 1 passed(宣言が効いて 22 本目まで当たる)。あわせて、今の木で 22 本目をメモリの中で `strict` に当てると手で直す 0・宣言の報告 6、宣言の別名 6 つは割る前 `shibuya.cli`・割った後 宣言の割り先を import する(6/6) |
+| `map --check`・`contracts --check --probe` | `map --check` 同じ・`contracts --check --probe` 同じ(例外 20 辺・延べ 26 行=全部効く・出力は G2 の直しの後と 1 バイトも同じ)。`git status --porcelain -- src` は空。カードを作り直した(3 枚=`tests/economy/cp2`・`tests/tools`・`tools/pkgmove`・`data.md` だけ戻した・`--check` 最新) |
+
+### 16-6. 当てる発注(G3 の 2 つ目)へ送ること
+
+- 差し替えの「外すと落ちる」(割った後に確かめる): `test_resume_10d` の 1 行=`pytest.raises(ValueError, match="自動補充")` が落ちる見込み。`use_outside_bundle` の 5 行=main の側 2 行は足した試験・wire_economy の側 3 行は足した試験と助けを使う data の試験が落ちる見込み。`run` の差し替え 21 か所(読む関数は `main()` だけ=main だけ・道具の既定のまま)は形ごとに 1 回。
+- 記録に書く 1 行ずつ: `tools/instruments/batch_width_gauge.py` のコードの文字列は機械の書き換えのまま(割る前の木の src を渡す使い方では動かない=前から)・名の無い `"shibuya.cli"` の 2 か所(`test_night5070`・`tools/c8/ensemble.py`)は `-m` の入口として使う(属性を読む形でない=`ensemble.py` は `python -m shibuya.cli …` の命令の文字列・`test_night5070` は夜の台本に `tools/night5070/experiments.json` の `-m shibuya.cli` の字が在ることを確かめる)・`tests/c7` は道具が挙げた所 0。
+- 割る前の側の準備は済み: `python -m shibuya.cli --help`(`PYTHONUTF8=1`・43,348 バイト)と `--llm mock` の既定のラン 1 本(final `c8d68704b7b0760d`・LLM 呼 60,939)を scratchpad に取った。
+
+### 16-7. 親の確かめと検収(第347・2026-11-18)
+
+- 別の役の検収: **受入**(高 0・中 0・低 2)。検収役はファイルを 1 本も変えていない。
+  - 親の裁定の表(§16-2)は、検収役が土台の `cli.py` を読んで作った表と行の番号まで同じ(読み落としなし)。土台で `shibuya.cli` の属性を差し替える所は、別名を解いて 23 か所(`run` 19・`build_ledger_bundle` 1・台帳の型 3)。決まりを当てた差し替えの先は作業木の形と同じ。src に `shibuya.cli` を読むモジュールは 0(定義の割り先を差し替えの先に足す必要は無い)。
+  - 道具の差分: 宣言はその割る行でだけ使われ、1〜21 本目では何もしない。`alias_dests` は組み直しただけで、割り先を決める条件は字面どおり同じ。守り 6 つ(発注の 4 つと実装役が足した 2 つ)は負の対照で 1 つずつ止まる。割り先に無い名は「無くてよい名」に挙げない限り止まる。拾わない形(点つきの文字列の的・コードの文字列の中の差し替え)は今の木に 0。
+  - 割る前の試験の直し: 5 本は別名を 1 つに戻すと土台と AST が同じ。`_stage2_outside` は台帳の 2 つの型を両方の別名で、`GoodsLedger` を wire の側だけで差し替え、元の型は wire の側から読む(型を渡す形でも約束が成り立つ)。足した試験は、割った後に main の側の行を外すと落ちる形(割る前に外して落ちないのは、2 つの別名が同じモジュールなので正しい)。
+  - 低-1(§16-2 の `run` の差し替えの数が 21=正しくは 19): 親が直した。低-2(`test_resume_10d` の差し替えと足した試験の「外すと落ちる」は、割った後でないと確かめられない): 当てる段(G3 の 2 つ目)で確かめ、§16-6 の「見込み」を結果に置き換える。
+- 親の裁定: 実装役が発注の外で足した守り 2 つ(別名が素の名で使われていれば止める・`absent` の名が読まれていないか割り先で結ばれていれば止める)は**受け入れる**(宣言の在る別名にだけ効き、ほかの形を止めない=検収役が確かめた)。宣言が 6 行・4 ファイルになったこと(足した試験の分の 2 行)も受け入れる。
+- 実装役の自己申告: grep の 1 つの範囲に `tests/c7` が入っていた(当たりは無く、中身は開いていない)。以後は範囲から外す。
+- 親が回した確かめ(作業の木・src は土台と同じ=`git status --porcelain -- src` は空・src の指紋は G2 の後と同じ 371 本):
+
+| 何を | 結果 |
+|---|---|
+| 直した試験 7 本の在るファイル・助けを使う試験・`tests/tools/test_pkgmove.py`(`-m "not gpu and not slow"`・`-n 2`) | 282 passed・21 skipped(飛ぶ 21 本は `test_pkgmove` の分)・落ちた試験 0 |
+| 書かない実行 `split --through cli.py` | 守り 13 個とも「同じ」・手で直す 0・別名の割り先の宣言 6(書いていない) |
+| `map --check`・`contracts --check --probe`・`lint-imports`・カード | 同じ・同じ(例外 20 辺・延べ 26 行)・11 kept・最新 |

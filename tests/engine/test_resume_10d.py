@@ -366,6 +366,8 @@ def test_resume_refuses_a_ledger_that_was_already_endowed(tmp_path, monkeypatch)
         k["endow"] = True
         return orig(*args, **k)
 
+    # 〔割る段 5b の G3〕build_ledger_bundle を呼ぶ時に読むのは cli.run(割った後は interfaces.cli.main)=差し替えは main の
+    # 別名で(別名 cli の割り先は tools/pkgmove/split.py の SPLIT_ALIAS_DESTS の宣言。定義の割り先 wire_economy へ向けると届かない)
     monkeypatch.setattr(cli, "build_ledger_bundle", endowed)
     with pytest.raises(ValueError, match="自動補充"):
         cli.run(resume_from=tmp_path / "s" / a.resume["state_files"][-1]["file"], **kw)

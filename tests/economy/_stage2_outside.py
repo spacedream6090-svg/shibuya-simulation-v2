@@ -64,11 +64,21 @@ def use_outside_bundle(mp: Any, *, ledger_cls: type | None = None, wallet_cls: t
     """``mp``(``pytest.MonkeyPatch``)で ``shibuya.cli`` の台帳の型を差し替える(段階 2 の外の束)。
 
     ``ledger_cls``・``wallet_cls``・``goods_cls`` を渡すとその型(例: HEAD の台帳の写し)の上に作る。省略は今の型。
+
+    〔割る段 5b の G3・親の裁定〕台帳の型を読むのは、作る側(``build_ledger_bundle``=割った後は ``interfaces.cli.wire_economy``)
+    と表示の札を決める側(``main()`` の ``isinstance``=割った後は ``interfaces.cli.main``)の両方。``Ledger``・
+    ``_HouseholdWalletLedger`` は両方を、``GoodsLedger``(作る側だけが読む)は作る側だけを差し替える。元の型は作る側の別名から
+    読む。別名 ``cli``・``cli_wire`` の割り先は ``tools/pkgmove/split.py`` の ``SPLIT_ALIAS_DESTS`` の宣言(割る前は 2 つとも
+    ``shibuya.cli``=同じ物)。
     """
     from shibuya import cli
+    from shibuya import cli as cli_wire
 
-    mp.setattr(cli, "Ledger", _ledger_type(ledger_cls if ledger_cls is not None else cli.Ledger))
-    mp.setattr(cli, "_HouseholdWalletLedger",
-               _wallet_type(wallet_cls if wallet_cls is not None else cli._HouseholdWalletLedger))
+    ledger = _ledger_type(ledger_cls if ledger_cls is not None else cli_wire.Ledger)
+    mp.setattr(cli, "Ledger", ledger)
+    mp.setattr(cli_wire, "Ledger", ledger)
+    wallet = _wallet_type(wallet_cls if wallet_cls is not None else cli_wire._HouseholdWalletLedger)
+    mp.setattr(cli, "_HouseholdWalletLedger", wallet)
+    mp.setattr(cli_wire, "_HouseholdWalletLedger", wallet)
     if goods_cls is not None:
-        mp.setattr(cli, "GoodsLedger", goods_cls)
+        mp.setattr(cli_wire, "GoodsLedger", goods_cls)

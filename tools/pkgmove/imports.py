@@ -12,7 +12,8 @@
 - 〔割る段 5a〕割るモジュール(``Ctx.namemap``)から読む名は、名の単位の割り先へ向ける。割るモジュールが頂上の import で結んだ名
   (再輸出)は元のモジュールへ向ける。割るモジュールを別名で読む形(``from P import m as X``・``import M as X``)は、ファイルの
   中の ``X.名`` の割り先が 1 つのときだけ書き換える(``Ctx.alias_dests``)。書き換えられない所は注意の頭を :data:`MANUAL` にして
-  出す(割る道具が「手で直す一覧」に集めて断る)。
+  出す(割る道具が「手で直す一覧」に集めて断る)。〔割る段 5b・E5〕別名の割り先を宣言したもの(``split.SPLIT_ALIAS_DESTS``)は、
+  割る道具が名の割り先でなく宣言の割り先を ``Ctx.alias_dests`` に入れる(使い方は :func:`alias_uses`)。
 """
 from __future__ import annotations
 
@@ -171,10 +172,32 @@ def plan_from(ctx: Ctx, node: ast.ImportFrom) -> tuple[list[Target] | None, bool
     return (out if changed else None), via_head, warns
 
 
+@dataclass(frozen=True)
+class AliasUse:
+    """〔割る段 5b・E5〕割るモジュールを結んだ別名の使い方: 結んだモジュール・名で読む名(``X.名``・``setattr(X, "名")`` など)・
+    名で読まない使い方(素の ``X``)の行。"""
+
+    module: str
+    attrs: frozenset[str]
+    bare_lines: tuple[int, ...]
+
+
 def alias_dests(ctx: Ctx, text: str, path: str) -> dict[str, str | None]:
     """〔割る段 5a〕ファイル(かコードの文字列)で割るモジュールを結んだ別名 → 割り先のモジュール(``X.名``・``setattr(X, "名")``
     などで読む名の割り先が 1 つだけ)か ``None``(2 つ以上・表に無い名・名で読まない使い方がある=手で直す)。名の割り先は名の
     写像、無ければ再輸出の割り先。"""
+    out: dict[str, str | None] = {}
+    for al, u in alias_uses(ctx, text, path).items():
+        ds = {ctx.namemap[u.module].get(x) or ctx.split_reexports.get(u.module, {}).get(x) for x in u.attrs}
+        out[al] = None if (u.bare_lines or not u.attrs or None in ds or len(ds) != 1) else ds.pop()
+    return out
+
+
+def alias_uses(ctx: Ctx, text: str, path: str) -> dict[str, AliasUse]:
+    """〔割る段 5b・E5〕ファイル(かコードの文字列)で割るモジュールを結んだ別名 → その使い方(:class:`AliasUse`)。拾う形:
+    ``X.名``(読み・代入・``del``)・``setattr``/``getattr``/``hasattr``/``delattr(X, "名", …)``・``<何か>.setattr``/
+    ``.delattr``/``.object(X, "名", …)``(``monkeypatch``・``mock.patch.object``)。名が字面の定数でない形と、``X`` を素で渡す・
+    読む形は名で読まない使い方(``bare_lines``)。"""
     if not ctx.namemap:
         return {}
     try:
@@ -194,7 +217,7 @@ def alias_dests(ctx: Ctx, text: str, path: str) -> dict[str, str | None]:
             for a in n.names:
                 if a.name in ctx.namemap and a.asname:
                     bound[a.asname] = a.name
-    out: dict[str, str | None] = {}
+    out: dict[str, AliasUse] = {}
     for al, sm in bound.items():
         attrs: set[str] = set()
         seen: set[int] = set()
@@ -210,8 +233,7 @@ def alias_dests(ctx: Ctx, text: str, path: str) -> dict[str, str | None]:
                 seen.add(id(n.args[0]))
         bare = [n for n in ast.walk(tree) if isinstance(n, ast.Name) and n.id == al and id(n) not in seen
                 and isinstance(n.ctx, ast.Load)]
-        ds = {ctx.namemap[sm].get(x) or ctx.split_reexports.get(sm, {}).get(x) for x in attrs}
-        out[al] = None if (bare or not attrs or None in ds or len(ds) != 1) else ds.pop()
+        out[al] = AliasUse(sm, frozenset(attrs), tuple(sorted({n.lineno for n in bare})))
     return out
 
 
