@@ -205,14 +205,24 @@ def test_timeout_defers_then_reinjects_and_is_finally_answered(fleet_servers):
             s.total_delay_s = 0.0
 
     t = threading.Thread(target=_heal, daemon=True)
+    import time as _clock
+
+    t0 = _clock.monotonic()
     t.start()
     res = run_fleet(client, ticks=90, fleet_wait_s=1.0)
+    run_wall_s = _clock.monotonic() - t0
+    healed_before_run_end = not t.is_alive()
     t.join(timeout=10.0)
 
     c = res.bridge_counters
-    assert c["fleet_deferred_timeout"] > 0  # 繰り延べが起きた
-    assert c["fleet_resent"] > 0  # 戻った呼が実際に再送された
-    assert c["fleet_ok"] > 0  # 回復後は普通に答えが返る
+    # 〔第347〕失敗したときに原因を追うための表示(確かめる内容は変えない)。この試験は本物の時計に頼り、CI で 1 回だけ
+    # ``fleet_ok == 0`` で落ちた(原因は未特定)。艦隊の数・ランの壁時計・ランが終わる前に偽サーバーが直ったかを出す
+    diag = {k: c[k] for k in sorted(c) if k.startswith("fleet_")}
+    diag.update(run_wall_s=round(run_wall_s, 2), healed_before_run_end=healed_before_run_end,
+                unanswered_at_end=res.fleet_unanswered_at_end)
+    assert c["fleet_deferred_timeout"] > 0, diag  # 繰り延べが起きた
+    assert c["fleet_resent"] > 0, diag  # 戻った呼が実際に再送された
+    assert c["fleet_ok"] > 0, diag  # 回復後は普通に答えが返る
     assert_no_call_is_dropped(res)  # 繰り延べ = 再投入 + 持ち越し(消えない)
     assert res.conserved
 

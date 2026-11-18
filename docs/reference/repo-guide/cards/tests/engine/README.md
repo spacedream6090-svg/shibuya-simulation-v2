@@ -667,7 +667,7 @@ C6-a 結線の検収テスト(``run_day(fleet=…)``・**プロセス内の偽 v
 - 読む試験: `tests/engine/test_response_delay.py`・`tests/engine/test_resume_10d.py`・`tests/engine/time/test_v30a_key_sites.py`
 - CLI の引数
   - `--seed`
-- 決定の ID: 11-03・11-03/§3・D-56・D-58・第 214
+- 決定の ID: 11-03・11-03/§3・D-56・D-58・第 214・第 347
 
 ## [test_geometry_c9.py](../../../../../../tests/engine/test_geometry_c9.py)
 
