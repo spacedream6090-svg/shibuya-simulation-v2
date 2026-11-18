@@ -17,7 +17,6 @@
 from __future__ import annotations
 
 import inspect
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -70,7 +69,11 @@ def test_run_day_refuses_a_multiplier_table():
 
 
 def test_cli_has_no_flag():
-    src = Path("src/shibuya/cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    src = PL.split_source("cli.py")
     assert "--p-see-activity" not in src
     assert "p_see_activity=args" not in src
 

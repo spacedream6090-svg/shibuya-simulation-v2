@@ -48,6 +48,21 @@
     割り先は元のモジュールの名に引き戻して比べる)。既に在る割り先へ足す import が、その割り先を読むモジュールと循環する形
     (5 本目の ``foundation/vocab/events.py`` → ``foundation/journal/log.py``)を、書く前に見つける。
 
+〔割る段 5b の G0〕入口の扱い(計画 §8 の E2〜E4・親の裁定 Q6・Q7・Q9)
+    E2 入口の転送(:data:`pkgmove.table.SPLIT_FORWARDERS`): 元のファイルを消さずに決まった型の転送
+       (:func:`pkgmove.table.forwarder_text`)で書き直す。済んだかの判定(:func:`is_done`)は転送が型どおりのときだけ真、元の
+       ファイルの判定(:func:`source_rel`)は転送を元と見ない。名の無い点の道(``"shibuya.cli"``)は書き換えない。守り
+       「入口の転送」: 型と同じ・頂上で名を結ばない・つなぎの宣言が無い・呼ぶ ``main`` が割り先に在る。
+    E3 入口の移し(:data:`pkgmove.table.SPLIT_ENTRIES`): ``if __name__ == "__main__":`` は宣言した割り先へ(宣言が無い入口と、
+       読む名の割り先と食い違う宣言は断る)。名の無い点の道は ``-m`` の文脈(文字列の中の ``-m <名>``・並びの 1 つ前の要素が
+       ``"-m"``)なら入口の割り先へ、それ以外は主な割り先へ黙って向けず「手で直す一覧」へ(:func:`pkgmove.strings.split_nameless`)。
+       文字列の中の手で直す所(コードの文字列の import を含む)も「手で直す一覧」に入れる。
+    E4 書き換えの範囲の外(:data:`SPLIT_EXCLUDE_PATHS`=byte-check の道具とその試験): 書き換えず、書き換えたはずの所を報告の
+       ``excluded_sites`` に出す。
+    〔G0 の直し 高-1〕``tests/_places.py`` の割る行の口(:data:`pkgmove.strings.TABLE_KEY_CALLS`)の第 1 引数=対応表の鍵は書き換えず、
+       報告の ``table_key_sites`` に出す。〔高-2〕tests と tools の文字列を選ぶとき、コードの文字列の ``from <包み> import <割る
+       モジュール>`` の形も拾う(:func:`pkgmove.strings.code_import_hits`)。機械で書き換えるか「手で直す一覧」に出す(黙って残さない)。
+
 逐次ループ宣言: なし(道具=木のファイルの数ぶんの走査を 1 回・ランの中では動かない)。
 """
 from __future__ import annotations
@@ -68,14 +83,26 @@ from pkgmove import imports as IM
 from pkgmove import ledgerpaths as LPT
 from pkgmove import strings as ST
 from pkgmove.model import SRC_PREFIX, Ctx, Edit, Index, Text, Tree, apply_edits, area_of, is_self, mod_of, parse, symbols_of
-from pkgmove.table import SPLIT_ORDER, MapDoc, Row
+from pkgmove.table import SPLIT_ENTRIES, SPLIT_FORWARDERS, SPLIT_ORDER, MapDoc, Row, forwarder_text
 
 #: 割る段で道の文字列を書き換えない (ファイル, 記号)(表の old を持つ固定の一覧=道の字面が値そのもの)。
 STRING_EXCLUDE: frozenset[tuple[str, str]] = frozenset({
     ("tests/test_places_guard.py", "NON_MOVE_ROWS"),
     # llm の字の検出器の試験の材料(植えた文の字面そのものを確かめる)
     ("tests/build_pop/test_w21_stage8_9.py", "test_persona_does_not_reference_llm_ports"),
+    # 〔割る段 5b の G0〕元の置き場の道(``src_origins()`` の値=割った後も元の道のまま)と比べる字面(``engine/presence.py``)。
+    # 今の道へ書き換えると比べる相手が無くなり、計画実行層の ablation_id(AB-PLAN-EXECUTOR)を黙って拾わなくなる
+    ("tools/c8/c8lib.py", "scan_engine_ablation_ids"),
 })
+#: 〔割る段 5b・E4・親の裁定 Q9 の (a)〕割る段で書き換えないファイル(道筋か、``/`` で終わるディレクトリ)。byte-check は基準の側
+#: (割る前の木)と比べる側(割った後の木)を道具のリポの同じコードで回すので、ランの入口は道具が自分で解く
+#: (``tools/bytecheck/check.py`` の ``resolve_run``)。偽のエンジン(``shibuya/cli.py`` を一時の木に作る試験)も書き換えない。
+#: 書き換えたはずの所は報告の ``excluded_sites`` に出す(黙って落とさない)。
+SPLIT_EXCLUDE_PATHS: tuple[str, ...] = ("tools/bytecheck/", "tests/tools/test_bytecheck.py")
+
+
+def is_split_excluded(path: str) -> bool:
+    return any(path == p or (p.endswith("/") and path.startswith(p)) for p in SPLIT_EXCLUDE_PATHS)
 _BUILTINS = frozenset(dir(builtins)) | {"__file__", "__name__", "__doc__", "__spec__", "__package__", "__builtins__",
                                          "__loader__", "__path__", "__annotations__", "__class__", "__dict__"}
 LEDGER_REL = "docs/design/bridging-ledger.json"
@@ -107,8 +134,63 @@ def top_names(text: str) -> set[str]:
     return out
 
 
+def is_forwarder(tree: Tree, row: Row) -> bool:
+    """〔割る段 5b・E2〕元のファイルが入口の転送(:data:`pkgmove.table.SPLIT_FORWARDERS` の行で、中身が決まった型そのもの)か。"""
+    fw = SPLIT_FORWARDERS.get(row.old)
+    return fw is not None and tree.files.get(SRC_PREFIX + row.old) == forwarder_text(row.old, fw)
+
+
+def forwarder_problems(text: str | None, old: str, dest: str) -> list[str]:
+    """〔割る段 5b・E2 の守り〕転送が決まった型か(字面が型と同じ・頂上で名を結ばない・import は ``if __name__ == "__main__":`` の
+    中の 1 つだけ・その中身は ``from <割り先> import main`` と ``raise SystemExit(main())`` だけ)。違う所の一覧(空なら型どおり)。"""
+    if text is None:
+        return ["転送のファイルが無い"]
+    out: list[str] = []
+    if text != forwarder_text(old, dest):
+        out.append("字面が決まった型と違う")
+    try:
+        t = parse(text)
+    except SyntaxError:
+        return [*out, "構文の誤り"]
+    body = list(t.body)
+    if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant) \
+            and isinstance(body[0].value.value, str):
+        body = body[1:]
+    else:
+        out.append("docstring が無い")
+    if top_names(text) or [s for s in body if isinstance(s, (ast.Import, ast.ImportFrom))]:
+        out.append("頂上で名を結ぶ(古い道の口になる)")
+    if len(body) != 1 or not _is_main_guard(body[0]) or body[0].orelse:
+        out.append("頂上の文が if __name__ == \"__main__\": の 1 つでない")
+        return out
+    inner = body[0].body
+    imp_ok = (len(inner) == 2 and isinstance(inner[0], ast.ImportFrom) and inner[0].level == 0
+              and inner[0].module == mod_of(dest) and [(a.name, a.asname) for a in inner[0].names] == [("main", None)])
+    call = inner[1] if len(inner) == 2 else None
+    raise_ok = (isinstance(call, ast.Raise) and isinstance(call.exc, ast.Call) and isinstance(call.exc.func, ast.Name)
+                and call.exc.func.id == "SystemExit" and len(call.exc.args) == 1 and isinstance(call.exc.args[0], ast.Call)
+                and isinstance(call.exc.args[0].func, ast.Name) and call.exc.args[0].func.id == "main"
+                and not call.exc.args[0].args and not call.exc.args[0].keywords)
+    if not (imp_ok and raise_ok):
+        out.append(f"if の中が「from {mod_of(dest)} import main」と「raise SystemExit(main())」だけでない")
+    return out
+
+
+def _is_main_guard(st: ast.stmt) -> bool:
+    """``if __name__ == "__main__":`` の文か。"""
+    if not isinstance(st, ast.If):
+        return False
+    t = st.test
+    return (isinstance(t, ast.Compare) and isinstance(t.left, ast.Name) and t.left.id == "__name__" and len(t.ops) == 1
+            and isinstance(t.ops[0], ast.Eq) and len(t.comparators) == 1 and isinstance(t.comparators[0], ast.Constant)
+            and t.comparators[0].value == "__main__")
+
+
 def source_rel(tree: Tree, row: Row) -> str | None:
-    """割る行の元のファイルの今の道(``src/shibuya`` からの相対)。段 4 で主な割り先へ移ったもの(18 本目)は主な割り先。"""
+    """割る行の元のファイルの今の道(``src/shibuya`` からの相対)。段 4 で主な割り先へ移ったもの(18 本目)は主な割り先。
+    〔割る段 5b・E2〕元のファイルが入口の転送になっていれば、元の中身はもう無い(``None``)。"""
+    if is_forwarder(tree, row):
+        return None
     if tree.files.get(SRC_PREFIX + row.old):  # 元のファイルに中身がある
         return row.old
     if row.new and SRC_PREFIX + row.new in tree.files and _in_place_pending(tree, row):
@@ -124,13 +206,16 @@ def _in_place_pending(tree: Tree, row: Row) -> bool:
 
 def is_done(tree: Tree, row: Row) -> bool:
     """割る行が当たっているか: どの名も割り先のファイルの頂上に在り、元のファイルは無いか 0 バイトの頭(主な割り先へ移ったもの
-    は、ほかの割り先へ行く名が元に残っていない)。"""
+    は、ほかの割り先へ行く名が元に残っていない)。〔割る段 5b・E2〕入口の転送の行は、元のファイルが決まった型の転送のとき
+    だけ済んだ(転送が無い・型と違うなら済んでいない)。"""
     if not row.names:
         return False
     for n, d in row.names:
         t = tree.files.get(SRC_PREFIX + d)
         if t is None or n not in top_names(t):
             return False
+    if row.old in SPLIT_FORWARDERS:
+        return is_forwarder(tree, row)
     return not (row.old != row.new and tree.files.get(SRC_PREFIX + row.old))  # 元のファイルは無いか 0 バイトの頭
 
 
@@ -400,6 +485,12 @@ class SplitPlan:
     unwritten: list[str] = field(default_factory=list)
     #: 〔検収 高-1〕割る前と後の import の決まり(:func:`pkgmove.contracts.weakened`)。決まりの元を渡したときだけ。
     contracts: dict = field(default_factory=dict)
+    #: 〔割る段 5b・E2〕入口の転送で書き直した元のファイル(リポの根からの道)。無ければ空。
+    forwarder: str = ""
+    #: 〔割る段 5b・E3〕``if __name__ == "__main__":`` の割り先(宣言した入口)。無ければ空。
+    entry: str = ""
+    #: 〔割る段 5b・E4〕書き換えの範囲から外したファイル(:data:`SPLIT_EXCLUDE_PATHS`)で、外さなければ書き換えた所(ファイル・数)。
+    excluded_sites: list[str] = field(default_factory=list)
 
 
 def _import_bindings(st: ast.stmt) -> list[tuple[str, ast.alias]]:
@@ -599,6 +690,20 @@ def compose(tree: Tree, row: Row, src_rel: str, ix: Index, plan: SplitPlan) -> d
         u.dest = ds.pop() if len(ds) == 1 else (main if (not ds or main in ds) else "")
         if not u.dest:
             raise SplitRefused(f"{src_rel}:{u.start}: 頂上のほかの文の割り先が 1 つに決まらない({sorted(ds)})")
+    # 〔割る段 5b・E2・E3〕入口(if __name__ == "__main__":)は宣言した割り先へ(読む名の割り先と同じでなければ断る)。宣言の無い
+    # 割る行に入口があれば断る(`-m <元>` の文字列の行き先が決まらない)
+    entry = SPLIT_ENTRIES.get(row.old) or SPLIT_FORWARDERS.get(row.old)
+    mains = [u for u in others if _is_main_guard(u.node)]
+    if entry is None and mains:
+        raise SplitRefused(f"{src_rel}:{mains[0].start}: 入口(if __name__ == \"__main__\":)があるが、入口の割り先の宣言"
+                           f"(table.SPLIT_ENTRIES・SPLIT_FORWARDERS)が無い")
+    if entry is not None:
+        if not mains:
+            raise SplitRefused(f"{src_rel}: 入口の宣言({entry})があるが、if __name__ == \"__main__\": が無い")
+        bad = [u.start for u in mains if u.dest != entry]
+        if bad:
+            raise SplitRefused(f"{src_rel}: 入口(行 {bad})の割り先が宣言した {entry} でない(行き先は読む名の割り先で決まる)")
+        plan.entry = entry
     # 結んだ名(元の import)
     bind: dict[str, tuple[ast.stmt, ast.alias, Unit]] = {}
     for u in imports:
@@ -877,7 +982,13 @@ def make_split_plan(tree: Tree, mapdoc: MapDoc, old: str, *, frozen: G.Frozen | 
         plan.after.files[SRC_PREFIX + d] = s
     # 元のファイル
     src_p = SRC_PREFIX + src_rel
-    if not plan.in_place:
+    fw = SPLIT_FORWARDERS.get(row.old)
+    if fw is not None:  # 〔割る段 5b・E2〕消さずに決まった型の転送で書き直す(親の裁定 Q6 の (a)・Q7)
+        if plan.in_place or src_rel != row.old:
+            raise SplitRefused(f"入口の転送の行 {row.old} の元のファイルが元の置き場に無い")
+        plan.after.files[src_p] = forwarder_text(row.old, fw)
+        plan.forwarder = src_p
+    elif not plan.in_place:
         if src_rel.endswith("__init__.py"):
             d0 = src_p.rsplit("/", 1)[0] + "/"
             if any(x.startswith(d0) and x != src_p for x in [*plan.after.files, *plan.after.blobs]):
@@ -918,7 +1029,9 @@ def make_split_plan(tree: Tree, mapdoc: MapDoc, old: str, *, frozen: G.Frozen | 
             reexp.setdefault(b, mod_of(dd))
     ctx = Ctx(index=ix, modmap={}, heads_changed=set(),
               frozen_tokens=frozenset(frozen.id_tokens()) if frozen is not None else frozenset(),
-              namemap=namemap, split_main={src_mod: mod_of(row.new)}, split_reexports={src_mod: reexp})
+              namemap=namemap, split_main={src_mod: mod_of(row.new)}, split_reexports={src_mod: reexp},
+              split_entry={src_mod: mod_of(SPLIT_ENTRIES[row.old])} if row.old in SPLIT_ENTRIES else {},
+              split_forwarders=frozenset({src_mod}) if fw is not None else frozenset())
     rules = ST.PathRules(relmap={src_rel: row.new} if not plan.in_place else {}, names={src_rel: dict(row.names)})
     from pkgmove.move import locate
     src_tables = {}
@@ -940,17 +1053,24 @@ def make_split_plan(tree: Tree, mapdoc: MapDoc, old: str, *, frozen: G.Frozen | 
             continue
         syms = symbols_of(text)
         area = area_of(p)
-        stt = plan.import_stats.setdefault(area, IM.ImportStats())
+        excluded = is_split_excluded(p)  # 〔割る段 5b・E4〕範囲の外: 書き換えを数えるだけ(当てない・統計と手で直す一覧に入れない)
+        stt = IM.ImportStats() if excluded else plan.import_stats.setdefault(area, IM.ImportStats())
         n0 = stt.statements
         ctx.alias_dests = IM.alias_dests(ctx, text, p)
         edits = IM.rewrite_file(ctx, p, text, t, syms, stt)
-        if stt.statements > n0:
+        if stt.statements > n0 and not excluded:
             plan.import_files[area] += 1
         # 道の文字列(src は許可の一覧の表・tests と tools と docs の記録の道具は割るファイルを指す文字列)
         if p in src_tables:
             edits += ST.rewrite_file_strings(ctx, rules, p, text, t, syms, src_tables[p], plan.str_stats)
         elif area in ("tests", "tools") and p not in [SRC_PREFIX + d for d in texts]:  # docs の記録の道具は import だけ(親の決定 7)
-            edits += _scan_strings(ctx, rules, p, text, t, syms, plan, src_rel, src_mod)
+            probe = SplitPlan(row=row, src_rel=src_rel, in_place=plan.in_place, before=tree, after=tree) if excluded else plan
+            edits += _scan_strings(ctx, rules, p, text, t, syms, probe, src_rel, src_mod)
+        if excluded:
+            n_man = sum(1 for w in stt.warnings if IM.MANUAL in w)
+            if edits or n_man:
+                plan.excluded_sites.append(f"{p}: 書き換え {len(edits)}・手で直す {n_man}(範囲の外=書き換えない)")
+            continue
         if edits:
             new = apply_edits(text, edits)
             if new != text:
@@ -962,6 +1082,10 @@ def make_split_plan(tree: Tree, mapdoc: MapDoc, old: str, *, frozen: G.Frozen | 
                 plan.manual.append(w)
             else:
                 plan.warnings.append(w)
+    # 〔割る段 5b・E3〕文字列の中の手で直す所(名の無い点の道・コードの文字列の import)も「手で直す一覧」へ(黙って落とさない)
+    for s in plan.str_stats.skipped:
+        if IM.MANUAL in s.get("reason", ""):
+            plan.manual.append(f"{s['file']}::{s['symbol']}: {s['reason']}")
     # 固定の表の鍵(クラスの単位)
     if frozen is not None:
         quals = {q: None for q, _n in G._class_defs(parse(tree.files[src_p]))}
@@ -1004,7 +1128,8 @@ def _scan_strings(ctx: Ctx, rules: ST.PathRules, p: str, text: str, t: ast.Modul
     ds = docstrings_of(text)
     for n in ast.walk(t):
         if isinstance(n, ast.Constant) and isinstance(n.value, str) and id(n) not in ds:
-            if pat_slash.search(n.value) or pat_dot.search(n.value):
+            # 〔割る段 5b の G0 の直し 高-2〕コードの文字列の ``from <包み> import <葉>`` の形も拾う(前は点の道と斜線の道だけ)
+            if pat_slash.search(n.value) or pat_dot.search(n.value) or ST.code_import_hits(ctx, n.value):
                 s = syms.get(id(n), "")
                 if (p, s) not in STRING_EXCLUDE:
                     hit_syms.add(s)
@@ -1248,6 +1373,17 @@ def guards(plan: SplitPlan, mapdoc: MapDoc, frozen: G.Frozen | None, ledger_text
     e7 = G.check_head_all(after)
     plan.guards["head_all"] = "同じ" if not e7 else f"違う {len(e7)}"
     errs += e7
+    # 〔割る段 5b・E2〕入口の転送: 決まった型そのもの(名を結ばない)・つなぎの宣言が無い・呼ぶ main が割り先の頂上に在る
+    fw = SPLIT_FORWARDERS.get(row.old)
+    if fw is not None:
+        a_fw = after.files.get(src_p)
+        e8 = forwarder_problems(a_fw, row.old, fw)
+        if a_fw is not None and not e8 and _scan_decls(a_fw, src_p):
+            e8.append("つなぎの台帳の宣言がある")
+        if "main" not in top_names(after.files.get(SRC_PREFIX + fw, "")):
+            e8.append(f"呼ぶ main が割り先 {fw} の頂上に無い")
+        plan.guards["forwarder"] = "同じ" if not e8 else f"違う {len(e8)}"
+        errs += [f"入口の転送 {src_p}: {x}" for x in e8]
     # 〔G2 の 5 本目の欠陥の後〕読み込みの時の import の新しい循環(既に在る割り先へ足す import が、その割り先を読むモジュールと循環する)
     cyc = new_import_cycles(before, after, mod_of(plan.src_rel), [d for d, k in plan.dests.items() if k == "new"])
     plan.guards["import_cycles"] = "同じ" if not cyc else f"違う {len(cyc)}"
@@ -1433,6 +1569,10 @@ def report(plan: SplitPlan) -> dict:
         "created_heads": plan.created_heads, "emptied_heads": plan.emptied_heads, "deleted": plan.deleted,
         "changed_files": len(plan.changed), "manual": plan.manual, "guards": plan.guards, "warnings": plan.warnings,
         "unwritten": plan.unwritten, "contracts": plan.contracts,
+        "forwarder": plan.forwarder, "entry": plan.entry, "excluded_sites": plan.excluded_sites,
+        # 〔割る段 5b の G0 の直し 高-1〕書き換えなかった対応表の鍵(tests/_places の割る行の口の第 1 引数)
+        "table_key_sites": sorted({f"{s['file']}::{s['symbol']}: {s['token']}" for s in plan.str_stats.skipped
+                                   if s.get("kind") == "table_key"}),
     }
 
 

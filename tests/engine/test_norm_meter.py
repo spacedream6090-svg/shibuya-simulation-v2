@@ -167,7 +167,8 @@ def test_instant_group_walk_counts_neighbours_across_grid_cells_and_ignores_stan
 def test_group_norms_switch_off_is_byte_identical():
     """第309 Q150: ``group_norms="off"`` は計器の口を通さない=final・呼数が既定(on)と同じ・manifest は enabled=False。"""
     from shibuya import cli
-    from shibuya.engine import run as RUN
+
+    from tests import _places as PL
 
     kw = dict(n_agents=150, seed=2, world_dir=None, n_cells=16, ticks=240, checkpoint_every=120)
     on = cli.run(**kw)
@@ -179,6 +180,8 @@ def test_group_norms_switch_off_is_byte_identical():
     assert "group_norms" not in off.phase_seconds and on.phase_seconds["group_norms"] >= 0.0
     with pytest.raises(ValueError):
         cli.run(group_norms="maybe", **kw)
-    src = open(cli.__file__, encoding="utf-8").read()
+    # 〔割る段 5b の G0〕cli と run の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py と engine/run.py の字面=前と同じ範囲)
+    src = PL.split_source("cli.py")
     assert '"--group-norms"' in src and "group_norms=str(args.group_norms)" in src
-    assert '"--group-norms"' in open(RUN.__file__, encoding="utf-8").read()
+    assert '"--group-norms"' in PL.split_source("engine/run.py")

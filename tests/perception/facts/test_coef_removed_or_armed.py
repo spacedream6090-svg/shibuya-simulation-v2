@@ -52,7 +52,11 @@ def test_names_are_gone():
     assert "p_see_activity" not in inspect.signature(R.Renderer).parameters
     for name in ("percept_coefs", "set_percept_coefs", "coefs_on", "PERCEPT_COEFS_ENV", "PERCEPT_COEFS_MODES"):
         assert not hasattr(F, name), name
-    cli_src = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    cli_src = PL.split_source("cli.py")
     assert "--p-see-activity" not in cli_src and "--percept-coefs" not in cli_src
     assert "SHIBUYA_PERCEPT_COEFS" not in "".join(p.read_text(encoding="utf-8") for p in SRC.rglob("*.py"))
 

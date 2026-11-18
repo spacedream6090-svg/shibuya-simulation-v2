@@ -5,11 +5,15 @@
 # held がある行は保留(道具は動かさない)。stage は段 4 の小さな段(答えの後に移す行は、その包みと別の段の名)。
 schema = "shibuya.tools/pkgmove/map/1"
 source = "docs/reference/package-map-final-2026-11-09-files.md"
-source_sha256 = "cc8e8ea3af401408b0323e8df92f487606d4788b8b650157b88d6bfd1148e28d"
+source_sha256 = "17eab14f439d6b240c3a9f1006c5565447faee1fb85df454825c73da3cbe0e96"
 stages = ["foundation", "world", "economy", "act", "mind", "society", "runtime", "experiments", "validation", "society_contact", "interim_bundles", "foundation_224a", "delete"]
-split_order = ["world/assets.py", "agents/state.py", "engine/calendar.py", "engine/tools/registry.py", "engine/tools/record.py", "engine/events/body.py", "llm/__init__.py", "llm/fleet.py", "llm/mock.py", "llm/undefined.py", "engine/llm_bridge.py", "engine/chooser.py", "engine/poi_target.py", "perception/attention.py", "engine/change_detect.py", "engine/arbiter.py", "engine/relations.py"]
+split_order = ["world/assets.py", "agents/state.py", "engine/calendar.py", "engine/tools/registry.py", "engine/tools/record.py", "engine/events/body.py", "llm/__init__.py", "llm/fleet.py", "llm/mock.py", "llm/undefined.py", "engine/llm_bridge.py", "engine/chooser.py", "engine/poi_target.py", "perception/attention.py", "engine/change_detect.py", "engine/arbiter.py", "engine/relations.py", "engine/commit.py", "engine/presence.py", "engine/calendar_shadow.py", "engine/run.py", "cli.py"]
 # split_deferred: 割る行のまま割る段の順から外した行(table.SPLIT_DEFERRED・理由はそこ)。
 split_deferred = ["engine/speech/port.py"]
+# split_forwarders: 割った後も決まった型の転送で残す元のファイル → main の割り先(table.SPLIT_FORWARDERS)。
+# split_entries: 割る行の main と if __name__ == "__main__" の割り先(table.SPLIT_ENTRIES)。道具はどちらも table.py から読む。
+split_forwarders = {"cli.py" = "interfaces/cli/main.py"}
+split_entries = {"engine/run.py" = "interfaces/cli/run_args.py"}
 
 [[row]]
 num = "1"
@@ -668,11 +672,12 @@ package = "interfaces"
 kind = "split"
 new = "interfaces/cli/main.py"
 split_to = ["interfaces/cli/main.py", "interfaces/cli/wire_economy.py"]
+split_order = 22
 names_complete = true
 
 [row.names]
+"_RemovedFlag" = "interfaces/cli/main.py"
 "parse_refractory_scale" = "interfaces/cli/main.py"
-"write_census_files" = "interfaces/cli/main.py"
 "fleet_queue_note" = "interfaces/cli/main.py"
 "apply_fleet_queue_default" = "interfaces/cli/main.py"
 "run" = "interfaces/cli/main.py"
@@ -689,9 +694,6 @@ names_complete = true
 "CLI_DEFAULT_L4_SCALE" = "interfaces/cli/main.py"
 "CLI_DEFAULT_HUNGER_MODEL" = "interfaces/cli/main.py"
 "STORE_ENTRY_CAPITAL_YEN" = "interfaces/cli/main.py"
-"DAILY_CENSUS_FILENAME" = "interfaces/cli/main.py"
-"MONTHLY_MER_FILENAME" = "interfaces/cli/main.py"
-"MONTHLY_MER_SECTORS_FILENAME" = "interfaces/cli/main.py"
 "UNDEFINED_PAYLOAD_SCHEMA" = "interfaces/cli/main.py"
 "NON_ARM_RUN_KWARGS" = "interfaces/cli/main.py"
 "_HouseholdWalletLedger" = "interfaces/cli/wire_economy.py"
@@ -699,7 +701,19 @@ names_complete = true
 "store_capital_report" = "interfaces/cli/wire_economy.py"
 "household_wallets" = "interfaces/cli/wire_economy.py"
 "build_ledger_bundle" = "interfaces/cli/wire_economy.py"
+"write_census_files" = "interfaces/cli/wire_economy.py"
 "WALLET_DOMAIN" = "interfaces/cli/wire_economy.py"
+"DAILY_CENSUS_FILENAME" = "interfaces/cli/wire_economy.py"
+"MONTHLY_MER_FILENAME" = "interfaces/cli/wire_economy.py"
+"MONTHLY_MER_SECTORS_FILENAME" = "interfaces/cli/wire_economy.py"
+
+[[row]]
+num = "87a"
+old = "wire_economy.py"
+package = "interfaces"
+kind = "move"
+new = "interfaces/cli/wire_economy.py"
+split_from = "cli.py"
 
 [[row]]
 num = "88"
@@ -1191,6 +1205,7 @@ package = "society"
 kind = "split"
 new = "society/calendar_shadow.py"
 split_to = ["society/calendar_shadow.py", "world/facts/w20_calendar_reader.py"]
+split_order = 20
 names_complete = true
 
 [row.names]
@@ -1230,6 +1245,14 @@ names_complete = true
 "COMMIT_WORK" = "world/facts/w20_calendar_reader.py"
 "COMMIT_SCHOOL" = "world/facts/w20_calendar_reader.py"
 "_COLS" = "world/facts/w20_calendar_reader.py"
+
+[[row]]
+num = "141a"
+old = "engine/w20_calendar_reader.py"
+package = "world"
+kind = "move"
+new = "world/facts/w20_calendar_reader.py"
+split_from = "engine/calendar_shadow.py"
 
 [[row]]
 num = "142"
@@ -1329,9 +1352,10 @@ num = "146"
 old = "engine/commit.py"
 package = "act"
 kind = "split"
-new = "act/intake/from_words.py"
-split_to = ["act/intake/from_words.py", "act/commit.py", "foundation/vocab/act_codes.py"]
-names_complete = false
+new = "act/commit.py"
+split_to = ["act/commit.py", "act/intake/from_words.py", "foundation/vocab/act_codes.py"]
+split_order = 18
+names_complete = true
 
 [row.names]
 "undefined_fallback_code" = "act/intake/from_words.py"
@@ -1366,6 +1390,36 @@ names_complete = false
 "ACT_REPORT" = "foundation/vocab/act_codes.py"
 "ACT_HELP" = "foundation/vocab/act_codes.py"
 "ACT_REFUSE" = "foundation/vocab/act_codes.py"
+"ACT_EAT" = "foundation/vocab/act_codes.py"
+"ACT_NONE" = "foundation/vocab/act_codes.py"
+"ACT_QUEUE" = "foundation/vocab/act_codes.py"
+"ACT_REST" = "foundation/vocab/act_codes.py"
+"ACT_SLEEP" = "foundation/vocab/act_codes.py"
+"DELTA_PERC_BASE_NS" = "foundation/vocab/act_codes.py"
+"ENGINE_STEP" = "foundation/vocab/act_codes.py"
+"EXPECTATION_K" = "foundation/vocab/act_codes.py"
+"S2_MONEY_ACT" = "foundation/vocab/act_codes.py"
+"S2_PAY_ACCOUNT" = "foundation/vocab/act_codes.py"
+"S2_PAY_CASH" = "foundation/vocab/act_codes.py"
+"S2_WITHDRAW" = "foundation/vocab/act_codes.py"
+"SLEEP_SLOTS_PER_CELL" = "foundation/vocab/act_codes.py"
+"TARGET_HINT_APPROACH" = "foundation/vocab/act_codes.py"
+"TARGET_HINT_CATEGORY" = "foundation/vocab/act_codes.py"
+"TARGET_HINT_CODES" = "foundation/vocab/act_codes.py"
+"TARGET_HINT_HOME" = "foundation/vocab/act_codes.py"
+"TARGET_HINT_LOOK" = "foundation/vocab/act_codes.py"
+"TARGET_HINT_NONE" = "foundation/vocab/act_codes.py"
+"TARGET_HINT_SCHOOL" = "foundation/vocab/act_codes.py"
+"TARGET_HINT_WORK" = "foundation/vocab/act_codes.py"
+"WANDER_BAD_TARGET" = "foundation/vocab/act_codes.py"
+
+[[row]]
+num = "146a"
+old = "engine/from_words.py"
+package = "act"
+kind = "move"
+new = "act/intake/from_words.py"
+split_from = "engine/commit.py"
 
 [[row]]
 num = "147"
@@ -1931,7 +1985,8 @@ package = "world"
 kind = "split"
 new = "world/laws/presence.py"
 split_to = ["world/laws/presence.py", "world/laws/presence_plan.py"]
-names_complete = false
+split_order = 19
+names_complete = true
 
 [row.names]
 "EventType" = "world/laws/presence.py"
@@ -1944,11 +1999,11 @@ names_complete = false
 "EXIT_WALK_MAX_TICKS" = "world/laws/presence.py"
 "SLEEP_ACTIVITY_CODE" = "world/laws/presence.py"
 "PLACE_KIND_LODGING" = "world/laws/presence.py"
-"DERIVE_RULES" = "world/laws/presence.py"
-"DERIVE_RULE_DEFAULT" = "world/laws/presence.py"
 "_TYPE_ORDER" = "world/laws/presence.py"
 "FLAG_HOME_OUT" = "world/laws/presence.py"
 "FLAG_HAS_PLAN" = "world/laws/presence.py"
+"FLAG_ARRIVED" = "world/laws/presence.py"
+"FLAG_EXIT_DEFERRED" = "world/laws/presence.py"
 "PlanBlocks" = "world/laws/presence_plan.py"
 "_mix64" = "world/laws/presence_plan.py"
 "_day_rows" = "world/laws/presence_plan.py"
@@ -1962,6 +2017,16 @@ names_complete = false
 "NON_STAY_ACTIVITY_CODES" = "world/laws/presence_plan.py"
 "EDGE_TRIM_ACTIVITY_CODES" = "world/laws/presence_plan.py"
 "_MAX_RIDE_RUN" = "world/laws/presence_plan.py"
+"DERIVE_RULES" = "world/laws/presence_plan.py"
+"DERIVE_RULE_DEFAULT" = "world/laws/presence_plan.py"
+
+[[row]]
+num = "207a"
+old = "engine/presence_plan.py"
+package = "world"
+kind = "move"
+new = "world/laws/presence_plan.py"
+split_from = "engine/presence.py"
 
 [[row]]
 num = "208"
@@ -2394,9 +2459,10 @@ num = "234"
 old = "engine/run.py"
 package = "runtime"
 kind = "split"
-new = "runtime/result.py"
-split_to = ["runtime/result.py", "runtime/run.py", "interfaces/cli/run_args.py"]
-names_complete = false
+new = "runtime/run.py"
+split_to = ["runtime/run.py", "runtime/result.py", "interfaces/cli/run_args.py"]
+split_order = 21
+names_complete = true
 
 [row.names]
 "Checkpoint" = "runtime/result.py"
@@ -2409,9 +2475,15 @@ names_complete = false
 "_duties_field" = "runtime/result.py"
 "_contact_c1_field" = "runtime/result.py"
 "_tm234_sections" = "runtime/result.py"
+"_synonym_table_version" = "runtime/result.py"
 "ENGINE_STEP_LABEL" = "runtime/result.py"
 "DECISION_LAYERS" = "runtime/result.py"
 "L4_CONVERSATION_SHARE_LINE" = "runtime/result.py"
+"DIAG_RUN_COLUMNS" = "runtime/result.py"
+"_ENTRANCES" = "runtime/result.py"
+"DEFAULT_RESPONSE_DELAY" = "runtime/result.py"
+"RUN_DEFAULT_VOCAB_VERSION" = "runtime/result.py"
+"RUN_DEFAULT_L4_SCALE" = "runtime/result.py"
 "_RunDayLocals" = "runtime/run.py"
 "_resolve_response_delay" = "runtime/run.py"
 "_replay_tape_dir" = "runtime/run.py"
@@ -2419,7 +2491,6 @@ names_complete = false
 "_count_intero_crossings" = "runtime/run.py"
 "_named_closed_lookup" = "runtime/run.py"
 "_default_mock" = "runtime/run.py"
-"_synonym_table_version" = "runtime/run.py"
 "resolve_sub_seed" = "runtime/run.py"
 "resolve_population_seed" = "runtime/run.py"
 "resolve_environment_seed" = "runtime/run.py"
@@ -2438,23 +2509,41 @@ names_complete = false
 "_split_due" = "runtime/run.py"
 "classical_acq_addressable" = "runtime/run.py"
 "run_day" = "runtime/run.py"
+"resolve_l4_scale" = "runtime/run.py"
+"l4_budget" = "runtime/run.py"
 "DELTA_THINK_TICKS" = "runtime/run.py"
 "TIME_BUCKET_TICKS" = "runtime/run.py"
-"DIAG_RUN_COLUMNS" = "runtime/run.py"
 "DIAG_DAY_ROWS" = "runtime/run.py"
-"_ENTRANCES" = "runtime/run.py"
 "_ENTRANCE_PLAN" = "runtime/run.py"
 "_ENTRANCE_EXPIRY" = "runtime/run.py"
 "_ENTRANCE_OF_CONDITION" = "runtime/run.py"
 "RESPONSE_DELAYS" = "runtime/run.py"
-"DEFAULT_RESPONSE_DELAY" = "runtime/run.py"
 "RNG_LAYOUT" = "runtime/run.py"
 "POPULATION_RNG_DOMAINS" = "runtime/run.py"
+"ENVIRONMENT_RNG_DOMAINS" = "runtime/run.py"
+"MOTION_RNG_DOMAINS" = "runtime/run.py"
+"MOTION_SALTS" = "runtime/run.py"
 "add_fleet_args" = "interfaces/cli/run_args.py"
 "add_calendar_args" = "interfaces/cli/run_args.py"
 "calendar_kwargs_from_args" = "interfaces/cli/run_args.py"
 "fleet_from_args" = "interfaces/cli/run_args.py"
 "main" = "interfaces/cli/run_args.py"
+
+[[row]]
+num = "234a"
+old = "engine/result.py"
+package = "runtime"
+kind = "move"
+new = "runtime/result.py"
+split_from = "engine/run.py"
+
+[[row]]
+num = "234b"
+old = "engine/run_args.py"
+package = "interfaces"
+kind = "move"
+new = "interfaces/cli/run_args.py"
+split_from = "engine/run.py"
 
 [[row]]
 num = "235"

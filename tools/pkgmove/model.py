@@ -304,6 +304,10 @@ class Ctx:
     alias_dests: dict[str, str | None] = field(default_factory=dict)
     #: 〔割る段 5a〕割るモジュールの名 → {頂上の import で結んだ名(再輸出)→ その名を持ち続ける割り先のモジュール}。
     split_reexports: dict[str, dict[str, str]] = field(default_factory=dict)
+    #: 〔割る段 5b・E3〕割るモジュールの名 → 入口の割り先のモジュールの名(``-m <元>`` の文脈の名の無い点の道の行き先)。
+    split_entry: dict[str, str] = field(default_factory=dict)
+    #: 〔割る段 5b・E2〕入口の転送を残す割るモジュールの名(名の無い点の道は書き換えない)。
+    split_forwarders: frozenset[str] = frozenset()
 
     def new_mod(self, mod: str) -> str:
         return self.modmap.get(mod, mod)

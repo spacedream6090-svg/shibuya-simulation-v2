@@ -317,7 +317,7 @@ def cmd_split(a: argparse.Namespace) -> int:
                 rows.append({k: rep[k] for k in ("row", "split_order", "dests", "guards", "manual", "import_statements",
                                                  "import_split_statements", "class_id_keys", "ledger_paths_added",
                                                  "path_string_sites", "deleted", "created_heads", "emptied_heads",
-                                                 "unwritten", "contracts")})
+                                                 "unwritten", "contracts", "excluded_sites", "table_key_sites")})
                 if od is not None:
                     tag = f"{plan.row.split_order:02d}"
                     (od / f"split_{tag}_report.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1) + "\n",

@@ -16,7 +16,7 @@ engine.class_ids — クラスの名の固定の表(移す段 1・返事その 7
   - `class_id`(関数): 型の凍結の名。表 → クラスの宣言(:data:`DECLARED_ATTR`)の順に引く。どちらにも無い ``shibuya`` の型は止める。
   - `class_path`(関数): 凍結の名 → 今の「モジュール.クラス名」(状態のファイルを読むときに import する先。表に無い名はそのまま)。
 - 呼び手: `shibuya.runtime.state.codec`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.probe`
-- 読む試験: `tests/engine/state/test_class_ids.py`・`tests/engine/test_state_format_10f.py`
+- 読む試験: `tests/engine/state/test_class_ids.py`・`tests/engine/systems/test_boxes.py`・`tests/engine/test_state_format_10f.py`
 
 ## [codec.py](../../../../../../../../src/shibuya/runtime/state/codec.py)
 

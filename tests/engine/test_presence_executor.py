@@ -272,7 +272,11 @@ def test_the_layer_draws_no_random_numbers():
     """①(§7): 層は ``core.rng`` を 1 語も引かない(T4 規模不変・帰無腕とのバイト一致)。"""
     import ast
 
-    src = Path("src/shibuya/engine/presence.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕presence の元の名を定義する今のファイルの全部で見る(割った後に主な割り先だけを見て 2 つ目の割り先
+    # presence_plan の _mix64 ほかが外れない。割る前は engine/presence.py=前と同じ範囲)
+    src = PL.split_source("engine/presence.py")
     tree = ast.parse(src)
     # docstring の言及は無視して、**実コード**に乱数源が無いことを見る
     for node in ast.walk(tree):

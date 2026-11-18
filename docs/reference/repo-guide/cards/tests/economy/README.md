@@ -359,7 +359,7 @@ T3(SFC の冗長方程式)の毎期検算(D-85 (a)・ユーザー決定 2026-09-
   - `test_wage_inputs_without_population_and_with_a_fake_population`(関数)
   - `test_wage_path_does_not_read_w17_hours_ast_with_a_negative_control`(関数)
   - `test_wage_path_header_and_resume_check`(関数): 賃金の道は occupation だけ(〔第 2 部〕腕 w17 と切替口は消した)。見出しは賃金の道を持ち、見出しに無い(版上げの前)・
-- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_sources`・`shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.economy.wage_formula`・`shibuya.economy.wages`・`shibuya.foundation.journal.log`・`shibuya.world.facts.rights.initial`
+- import している内部モジュール: `shibuya.build.pop.attr_fns`・`shibuya.build.pop.w21_money`・`shibuya.build.pop.w21_sources`・`shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.anchors`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.economy.wage_formula`・`shibuya.economy.wages`・`shibuya.foundation.journal.log`・`shibuya.world.facts.rights.initial`・`tests/_places.py`
 - 読む試験: `tests/economy/test_min_wage_human_bridge.py`
 - 環境変数: `SHIBUYA_WAGE`・`os.environ` をまるごと使う
 - 決定の ID: 10-13b/§7・第 337・第 346

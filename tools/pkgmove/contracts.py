@@ -28,7 +28,7 @@ from pathlib import Path
 
 from pkgmove import move as MV
 from pkgmove.model import SRC_PREFIX, Index, Tree, mod_of, resolve_from, rel_of_mod
-from pkgmove.table import MapDoc
+from pkgmove.table import SPLIT_FORWARDERS, MapDoc, forwarder_text
 
 CONTRACTS_REL = "tools/pkgmove/contracts.toml"
 SECTION_MARK = "# ---- 層契約"
@@ -180,6 +180,14 @@ def view(tree: Tree, mapdoc: MapDoc) -> TreeView:
                     and not tree.files.get(SRC_PREFIX + r.old)):
                 final_of[mod_of(new)] = mod_of(new)
                 moved_in.append((mod_of(r.old), mod_of(new)))
+            continue
+        if (r.kind == "split" and r.old in SPLIT_FORWARDERS and tree.exists(SRC_PREFIX + new)
+                and tree.files.get(SRC_PREFIX + r.old) == forwarder_text(r.old, SPLIT_FORWARDERS[r.old])):
+            # 〔割る段 5b・E2〕元のファイルが入口の転送になった行(cli.py): 主な割り先が最終の名。転送のモジュール自身は最終の名を
+            # 持たない(どの単位にも入らない根の入口=決まりの外のまま)。前は元のファイルが在ると主な割り先を最終の名と見ず、
+            # 単位 interfaces が黙って言えなくなった(計画 §4-2)
+            final_of[mod_of(new)] = mod_of(new)
+            moved_in.append((mod_of(r.old), mod_of(new)))
             continue
         if tree.exists(SRC_PREFIX + new) and (new == r.old or not tree.exists(SRC_PREFIX + r.old)):
             final_of[mod_of(new)] = mod_of(new)

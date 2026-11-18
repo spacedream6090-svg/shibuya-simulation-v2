@@ -46,5 +46,5 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_the_table_sha_is_deterministic_and_is_the_rules_version`(関数)
   - `test_the_values_are_the_r106_values`(関数)
   - `test_two_rows_with_the_same_id_and_asof_are_refused`(関数)
-- import している内部モジュール: `shibuya.world.facts.rules.table`
+- import している内部モジュール: `shibuya.world.facts.rules.table`・`tests/_places.py`
 - 決定の ID: 10-12/§1-12・11-01/§5・R-106・R-118・第 337

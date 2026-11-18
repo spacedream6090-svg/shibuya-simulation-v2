@@ -219,7 +219,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_new_modules_respect_the_layer_contract`(関数)
   - `test_runtime_owners_of_the_arm_runs_are_fully_declared`(関数)
   - `test_shop_table_ports_are_called_only_from_the_uncapped_store`(関数)
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.cli`・`shibuya.engine.run`・`shibuya.mind.memory.memory_embed`・`shibuya.mind.memory.memory_impression`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_shops`・`shibuya.mind.memory.memory_trace`・`shibuya.mind.relations.people`・`shibuya.perception.renderer`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`tests/_places.py`・`tests/engine/memory/_mr65.py`・`tests/engine/test_state_ledger_10b.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.engine.run`・`shibuya.mind.memory.memory_embed`・`shibuya.mind.memory.memory_impression`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_shops`・`shibuya.mind.memory.memory_trace`・`shibuya.mind.relations.people`・`shibuya.perception.renderer`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`tests/_places.py`・`tests/engine/memory/_mr65.py`・`tests/engine/test_state_ledger_10b.py`
 
 ## [test_mr65_review_fixes.py](../../../../../../../tests/engine/memory/test_mr65_review_fixes.py)
 
@@ -233,5 +233,5 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_params_tables_are_read_only_and_the_summary_is_a_plain_copy`(関数)
   - `test_people_readers_compute_each_strength_once`(関数)
   - `test_resume_refuses_another_embed_model_or_another_arm`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.decl.ledger_paths`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.mind.memory.memory_embed`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_store`・`shibuya.mind.relations.people`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.assemble`・`tests/_places.py`・`tests/engine/memory/_mr65.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.decl.ledger_paths`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.mind.memory.memory_embed`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_store`・`shibuya.mind.relations.people`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.assemble`・`tests/_places.py`・`tests/engine/memory/_mr65.py`
 - 決定の ID: 10-12

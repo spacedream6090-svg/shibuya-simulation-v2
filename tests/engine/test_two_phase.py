@@ -75,13 +75,16 @@ def _hot_paths() -> tuple[str, ...]:
     """ホットパスのファイル(src/shibuya からの今の道)。〔再検収 M-3〕表を引くのは試験の中(モジュールの読み込みの時点で引くと、
     表が古いときに試験の全体の収集が止まる)。"""
     out = (
-        "engine/run.py",
+        # 〔割る段 5b の G0・5a の G4・G5 の検収の中-1〕割る行のファイルは、ホットパスの名を定義する今のファイルを表から引く
+        # (道具は字面の道を主な割り先へだけ書き換える=割った後に 2 つ目以降の割り先へ移った名が黙って外れる)。割る前は元の
+        # ファイル 1 本=前と同じ範囲。run は run_day と RunResult・commit は arbitrate_resources と intents_from_responses
+        # (CLI の引数の口 run_args と語彙の定数 act_codes はホットパスでない)。change_detect は ChangeDetector とセルの B4 の
+        # 関数 b4_block_raw・b4_block_hashes(5a の G5 で親が手で足した world/model/scene_hash.py の行を同じ形に寄せた。語彙の
+        # 定数 INTERO_* が行った foundation/vocab/agent_codes.py はホットパスでない)
+        *_PL.split_files("engine/run.py", ("run_day", "RunResult")),
         "engine/resolve.py",
-        "engine/commit.py",
-        "mind/system1/change_detect.py",
-        # 〔割る段 5a の G5・検収の中-1〕change_detect を割った 2 つ目の割り先。毎刻み通るセルの B4 の関数(b4_block_raw・
-        # b4_block_hashes)はここへ移った=割る前と同じ範囲を見る(道具は字面の道を主な割り先へだけ書き換える)
-        "world/model/scene_hash.py",
+        *_PL.split_files("engine/commit.py", ("arbitrate_resources", "intents_from_responses")),
+        *_PL.split_files("engine/change_detect.py", ("ChangeDetector", "b4_block_raw", "b4_block_hashes")),
         # 第 1 期 1-9: お金の基本操作(購入・運賃・補充の代金が毎刻み通る=口の約束 1-9 の受入の試験)
         "economy/ops.py",
         # 1-0: run_day を系に分けた先(弱めない=対象を広げる・草案 §3-3 の 16)
@@ -99,10 +102,21 @@ _AGENT_LOOP_RE = re.compile(
 )
 
 
+def _loop_scan_paths() -> tuple[str, ...]:
+    """個体数ぶんのループを探す検査の範囲: ホットパスに、割る 3 行(run・commit・change_detect)の名の全部の割り先を足す。
+    〔割る段 5b の G0 の直し・親の直し〕``_hot_paths`` は名で引く形なので、割った後は引数の口(``interfaces/cli/run_args.py``)と
+    語彙の定数のファイル(``act_codes``・``agent_codes``)が外れる。毎刻み通るコードではないが、返事その 8 §1-1 (b)「確かめる範囲を
+    減らさない」に合わせ、ループを探す検査だけは割り先の全部を見る(割る前の木では前と同じファイル+``agent_codes``)。"""
+    # 鍵は割る口の第 1 引数に字面で書く(割る道具はこの形の鍵を書き換えない=割った後も表を引く。並びの字面にすると道として
+    # 書き換わる)
+    extra = [*_PL.split_files("engine/run.py"), *_PL.split_files("engine/commit.py"), *_PL.split_files("engine/change_detect.py")]
+    return tuple(dict.fromkeys([*_hot_paths(), *extra]))
+
+
 def test_no_python_loop_over_agents_in_engine_hot_paths():
-    """P4: エンジンのホットパスに**個体数ぶんの逐次ループ**を書かない。"""
+    """P4: エンジンのホットパスに**個体数ぶんの逐次ループ**を書かない(範囲は :func:`_loop_scan_paths`)。"""
     offenders = []
-    for rel in _hot_paths():
+    for rel in _loop_scan_paths():
         text = (SRC / rel).read_text(encoding="utf-8")
         for m in _AGENT_LOOP_RE.finditer(text):
             line = text[: m.start()].count("\n") + 1
@@ -111,7 +125,8 @@ def test_no_python_loop_over_agents_in_engine_hot_paths():
 
 
 def test_every_hot_path_declares_its_sequential_loops():
-    """P4「逐次ループの新設は宣言必須」= モジュール docstring に『逐次ループ宣言』がある。"""
+    """P4「逐次ループの新設は宣言必須」= モジュール docstring に『逐次ループ宣言』がある。〔割る段 5b の G0 の直し〕範囲は
+    ``_hot_paths``(名で引く形)のまま=引数の口と語彙の定数のファイルには宣言が無い(ループを探す検査だけ割り先の全部に広げた)。"""
     for rel in _hot_paths():
         text = (SRC / rel).read_text(encoding="utf-8")
         # 〔段 4 の下ごしらえ〕段 4 で空にした包みの頭(0 バイト=親の決定 9・コードもループも無い)は宣言の対象の外。移す前の木の

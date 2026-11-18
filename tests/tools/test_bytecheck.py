@@ -1094,6 +1094,37 @@ def test_fake_one_reports_a_src_other_than_expected(fake, tmp_path: Path):
     assert row["src_loaded_outside"] == []
 
 
+_RESOLVE = ("import json, sys\nsys.path.append(sys.argv[1])\nfrom bytecheck import check as K\nf = K.resolve_run()\n"
+            "print(json.dumps({'module': f.__module__, 'value': f(),\n"
+            "                  'loaded': sorted(m for m in sys.modules if m == 'shibuya' or m.startswith('shibuya.'))}))\n")
+
+
+def test_resolve_run_takes_the_split_entry_when_it_exists(tmp_path: Path):
+    """〔割る段 5b の G0・E4・親の裁定 Q9 の (a)〕ランの入口: ``shibuya/interfaces/cli/main.py`` が在ればその ``run``、無ければ
+    ``shibuya.cli.run``(割る前の木=基準の側)。割った後の ``shibuya.cli`` は入口の転送で ``run`` を持たない。在るかはファイルで
+    見る=割る前の木で無い包みを import しに行かず、割った後の木で転送を import しない(読むモジュールを増やさない)。"""
+    old = tmp_path / "old" / "src" / "shibuya"
+    old.mkdir(parents=True)
+    (old / "__init__.py").write_text("", encoding="utf-8")
+    (old / "cli.py").write_text("def run():\n    return 'old'\n", encoding="utf-8")
+    new = tmp_path / "new" / "src" / "shibuya"
+    (new / "interfaces" / "cli").mkdir(parents=True)
+    for p in (new / "__init__.py", new / "interfaces" / "__init__.py", new / "interfaces" / "cli" / "__init__.py"):
+        p.write_text("", encoding="utf-8")
+    (new / "interfaces" / "cli" / "main.py").write_text("def run():\n    return 'new'\n", encoding="utf-8")
+    (new / "cli.py").write_text('"""転送の見本。"""\n\nif __name__ == "__main__":\n    raise SystemExit(0)\n', encoding="utf-8")
+    got = {}
+    for tag, src in (("old", old.parent), ("new", new.parent)):
+        env = dict(os.environ, PYTHONPATH=str(src), PYTHONIOENCODING="utf-8", PYTHONDONTWRITEBYTECODE="1")
+        r = subprocess.run([sys.executable, "-c", _RESOLVE, str(_TOOLS)], capture_output=True, text=True, encoding="utf-8",
+                           env=env, cwd=str(tmp_path))
+        assert r.returncode == 0, r.stderr[-2000:]
+        got[tag] = json.loads(r.stdout.strip().splitlines()[-1])
+    assert got["old"] == {"module": "shibuya.cli", "value": "old", "loaded": ["shibuya", "shibuya.cli"]}
+    assert got["new"] == {"module": "shibuya.interfaces.cli.main", "value": "new",
+                          "loaded": ["shibuya", "shibuya.interfaces", "shibuya.interfaces.cli", "shibuya.interfaces.cli.main"]}
+
+
 # ================================================================== run の配線(side を差し替える)
 @pytest.fixture()
 def clean_env(monkeypatch):

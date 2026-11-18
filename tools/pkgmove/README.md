@@ -239,3 +239,37 @@ python tools/pkgmove/cli.py split --through <今の道>|all --out-dir <置き場
   組み込みを覆う名・星と相対の import・在る名の上書き・`from __future__` の食い違い・順の入れ替え・docstring だけの変異=② だけ・
   局所の名に捕まる書き換え・写さなかった import と注・本物の木で 17 本を順に当てる契約の数=`slow`)。
 - 契約: `contracts.toml` の `[[ignore_split]]`(割る段で出る辺 4 本・親の裁定 Q3)。`appears_with` の割る行を当てた木から載せる。
+
+## 〔割る段 5b〕入口の転送・入口の移し・byte-check の範囲(`split.py` の G0 の拡張)
+
+割る段 5b(大きな部品 5 本=`engine/commit.py`・`engine/presence.py`・`engine/calendar_shadow.py`・`engine/run.py`・`cli.py`)は、
+`table.SPLIT_ORDER` の 18〜22 本目(群は `table.SPLIT_GROUPS["5b"]`=G1 が commit → presence → calendar_shadow・G2 が run・
+G3 が cli)。親の裁定と記録は [docs/bench/analysis/split5b-347/README.md](../../docs/bench/analysis/split5b-347/README.md)。
+使い方は 5a と同じ(`split --next`・`--only`・`--apply --tree`・`--through`)。足したもの:
+
+- E2 入口の転送(`table.SPLIT_FORWARDERS`=`cli.py` → `interfaces/cli/main.py`・型は `table.forwarder_text`・親の裁定 Q6 の (a)・Q7):
+  割った後の元のファイルを消さず、`if __name__ == "__main__":` の中で割り先の `main` を import して `raise SystemExit(main())` する
+  だけの転送(docstring つき・頂上で名を結ばない)で書き直す。`is_done` は転送が型どおりのときだけ済んだと見る・`source_rel` は転送
+  を元のファイルと見ない・`contracts.view` は転送の行の主な割り先を最終の名と見る(単位 interfaces が言える)。名の無い点の道
+  `"shibuya.cli"` は書き換えない(転送が受ける=`-m shibuya.cli` は外との約束)。守り「入口の転送」: 型と同じ・頂上で名を結ばない
+  (AST で各部分を見る)・つなぎの宣言が無い・呼ぶ `main` が割り先の頂上に在る。
+- E3 入口の移し(`table.SPLIT_ENTRIES`=`engine/run.py` → `interfaces/cli/run_args.py`・返事その 8 §1-6 の 6): `if __name__ ==
+  "__main__":` は宣言した入口の割り先へ(読む名 `main` の割り先と食い違う宣言・宣言の無い入口は断る)。名の無い点の道(割るモジュール
+  の名だけの文字列)は、`-m` の文脈(文字列の中の `-m <名>`・並びや呼び出しの引数で 1 つ前の要素が `"-m"`)なら入口の割り先へ、
+  それ以外は主な割り先へ黙って向けず「手で直す一覧」へ(`strings.split_nameless`=段 6 の E8 はここに宣言の表を先に引く形で足す)。
+  文字列の中の手で直す所(コードの文字列の import を含む)も「手で直す一覧」に入れる。書いた後の確かめは、在る入口
+  (`importcheck.ENTRY_MODULES`=`shibuya.cli`・`shibuya.interfaces.cli.run_args`)ごとに `python -m <入口> --help` を回す。
+- E4 書き換えの範囲の外(`split.SPLIT_EXCLUDE_PATHS`=`tools/bytecheck/`・`tests/tools/test_bytecheck.py`・親の裁定 Q9 の (a)):
+  書き換えず、書き換えたはずの所を報告の `excluded_sites` に出す。byte-check のランの入口は `tools/bytecheck/check.py` の
+  `resolve_run` が解く(`interfaces/cli/main.py` が在ればその `run`・無ければ `shibuya.cli.run`)。
+- 〔G0 の直し・検収 高-1〕`tests/_places.py` の割る行の口(`split_files`・`split_source`・`split_module_names`・`_split_names`=
+  `strings.TABLE_KEY_CALLS`)の第 1 引数は対応表の鍵(元の道=値そのもの)なので書き換えない(呼び出しの形で見る)。書き換えなかった所は
+  報告の `table_key_sites` に出す。〔高-2〕tests と tools の文字列を選ぶとき、コードの文字列の `from <包み> import <割るモジュール>`
+  の形も拾う(`strings.code_import_hits`)。コードとして読めれば import の書き換え(別名の割り先が 1 つなら機械で)・決まらなければ
+  「手で直す一覧」、コードとして読めない文字列(シェルの文)と f 文字列の部分の中のものも「手で直す一覧」(黙って残さない)。
+- `split.STRING_EXCLUDE` に `tools/c8/c8lib.py` の `scan_engine_ablation_ids` を足した(元の置き場の道と比べる字面
+  `"engine/presence.py"`=今の道へ書き換えると比べる相手が無くなる)。
+- 試験: `tests/tools/test_pkgmove.py` の「割る段 5b の G0」の節(見本の木の転送・転送を変えた木・名を結ぶ転送の負の対照・転送の
+  形の各部分・転送の行の最終の名・入口の移しと `-m` の文字列・`-m` でない名の無い点の道=手で直す・食い違う宣言と宣言の無い入口・
+  byte-check の範囲の外と負の対照・入口ごとの `--help`)と、本物の木で残りの本(22 本の順)を順に当てる `slow`。
+  `tests/tools/test_bytecheck.py` の `test_resolve_run_takes_the_split_entry_when_it_exists`。

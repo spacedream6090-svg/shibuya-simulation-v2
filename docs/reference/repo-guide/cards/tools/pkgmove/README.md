@@ -259,10 +259,13 @@ pyproject の ``[tool.setuptools.package-data]`` の鍵(親の裁定 2026-11-11�
   - `Unit`(クラス)
   - `apply`(関数): 計画の木を ``root`` へ書く(変わったファイルだけ・消すファイル)。``__pycache__`` だけのディレクトリを消す。
   - `compose`(関数): 割り先ごとの新しい字面(既に在る割り先は書き足した後の全文・元のファイルが主な割り先なら書き直した全文)。
+  - `forwarder_problems`(関数): 〔割る段 5b・E2 の守り〕転送が決まった型か(字面が型と同じ・頂上で名を結ばない・import は ``if __name__ == "__main__":`` の
   - `free_names`(関数): 単位の中で結ばれない名(=割り先のモジュールの頂上で結ぶ要る名)と、文字列の注釈の中の名。``keep`` は組み込みの名でも
   - `guards`(関数)
   - `import_graph`(関数): src のモジュール → 読み込みの時に読むモジュール(``shibuya`` の中・親の包みの頭を含む)→ 読む文の場所(道:行 名)。
   - `is_done`(関数): 割る行が当たっているか: どの名も割り先のファイルの頂上に在り、元のファイルは無いか 0 バイトの頭(主な割り先へ移ったもの
+  - `is_forwarder`(関数): 〔割る段 5b・E2〕元のファイルが入口の転送(:data:`pkgmove.table.SPLIT_FORWARDERS` の行で、中身が決まった型そのもの)か。
+  - `is_split_excluded`(関数)
   - `make_split_plan`(関数): 割る行 ``old`` を当てた後の木と報告(守りを通らなければ :class:`SplitStopped`・表せなければ :class:`SplitRefused`)。
   - `names_used`(関数): 文が読む名(読み・注釈の名・文字列の注釈の中の名。結ぶ名は含めない)。局所の名も含む(多めに数える)。
   - `new_import_cycles`(関数): 〔G2 の 5 本目の欠陥〕割った後の木で、読み込みの時の import が作る循環のうち、割る前に無かったもの(循環の中の新しい辺と
@@ -287,11 +290,14 @@ pyproject の ``[tool.setuptools.package-data]`` の鍵(親の裁定 2026-11-11�
   - `PathRules`(クラス): 移すファイルの道(``src/shibuya`` からの相対)。
   - `StrStats`(クラス)
   - `chain_edits`(関数): ``X / "engine" / "clock.py"`` の連なりのうち、道が 2 つ以上の定数にまたがるもの。
+  - `code_import_hits`(関数): 〔割る段 5b の G0 の直し 高-2〕文字列の中のコードが割るモジュール(``Ctx.namemap``)を読む import(``from <包み> import
   - `dotted_new`(関数): 点の道の書き換え(変わらなければそのまま)。
+  - `is_table_key`(関数): 〔割る段 5b の G0 の直し 高-1〕文字列 ``n`` が :data:`TABLE_KEY_CALLS` の呼び出しの第 1 引数(か ``old=``)か。
   - `literal_source`(関数): 字面へ書き換えを同じ順に当てた新しい字面(値が合わなければ ``None``)。
   - `rewrite_file_strings`(関数): 1 本のファイルの許可の一覧の記号の中の文字列の書き換え。``rule_of``: 記号 → 規則(``exact``・``paths``)。
   - `rewrite_value`(関数): 文字列の値の書き換え(``paths`` の規則): 新しい値・書き換え(値の位置)・触らなかったもの(種類・字面・理由)。
   - `sibling_dest`(関数): 〔割る段 5a〕全体が割るファイルの道 ``rel`` の文字列 ``n`` の、同じ組の中の頂上の名が指す割り先(無ければ ``None``)。
+  - `split_nameless`(関数): 〔割る段 5b・E2・E3〕割るモジュールの名の無い点の道 ``tok`` の行き先: (新しい字面か ``None``, 触らなかった印か ``None``)。
   - `untouched_in_file`(関数): 許可の一覧の外の文字列の定数のうち、移すモジュールの道の形を含むもの(ファイル・記号・種類・字面)と、
 - import している内部モジュール: `tools/pkgmove/imports.py`・`tools/pkgmove/model.py`
 - 呼び手: `tools/pkgmove/cli.py`・`tools/pkgmove/move.py`・`tools/pkgmove/split.py`
@@ -305,6 +311,7 @@ pyproject の ``[tool.setuptools.package-data]`` の鍵(親の裁定 2026-11-11�
   - `MapDoc`(クラス): 対応表 TOML の中身。
   - `Row`(クラス): 表の 1 行(道筋は ``src/shibuya`` からの相対・``/`` 区切り)。
   - `build_map_text`(関数)
+  - `forwarder_text`(関数): 〔割る段 5b・E2・親の裁定 Q6 の (a)〕入口の転送の決まった型(:data:`SPLIT_FORWARDERS`)。頂上で名を結ばない(``import shibuya.cli``
   - `load_map`(関数): 対応表 TOML を読む(保留の一覧が道具の一覧と同じかも確かめる)。
   - `parse_split_tables`(関数): §4 の節 → 今の道 → (名と割り先の並び, 名が揃っているか, 宣言した書き換え)。名が 2 つの割り先に載れば ``ValueError``。
   - `parse_table`(関数): 表の §3 の行を読む(行の数と道筋の重なりを確かめる)。割る行には §4 の名の表を付ける。

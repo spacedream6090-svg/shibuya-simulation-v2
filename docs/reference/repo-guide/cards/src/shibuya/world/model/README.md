@@ -270,7 +270,6 @@ world.model.scene_hash — 割る段で ``engine/change_detect.py`` を割った
 - import している内部モジュール: `shibuya.foundation.text.hashes`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.world.model.assets`・`shibuya.world.model.state`
 - 呼び手: `shibuya.mind.system1.change_detect`・`shibuya.world.model.geometry`
 - 読む試験: `tests/engine/space/test_nav1_density.py`・`tests/engine/test_area_source_c9c.py`・`tests/engine/test_change_detect_p6.py`・`tests/engine/test_renderer_wiring.py`
-- 読む試験(道筋で): `tests/engine/test_two_phase.py`
 
 ## [solar.py](../../../../../../../../src/shibuya/world/model/solar.py)
 

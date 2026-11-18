@@ -157,7 +157,11 @@ def test_run_switch_is_removed_and_the_default_tau_is_v2():
 
     with pytest.raises(TypeError):
         run_day(n_agents=10, ticks=2, memory="on", relations="on", rel_tenure_hash="v1")
-    text = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    text = PL.split_source("cli.py")
     assert '"--rel-tenure-hash"' not in text and "rel_tenure_hash" not in text
     D.skip_unless("world_v2")  # 前の assert は data なしでも回す
     from shibuya import cli

@@ -65,10 +65,13 @@ data が要る試験の印 ``requires_data(<id>, ...)`` の登録表(第333・3-
   - `origins_from`(関数): 対応表の中身と包みの根 → 今の木の全部の ``.py``(``pkg`` からの道)→ 元の道。
   - `rel_of`(関数): モジュールの今の道(``src/shibuya`` からの相対)。
   - `rels_from`(関数): 元の置き場が ``mods`` の元のディレクトリ(``recursive`` なら下の包みも)にある、今のファイルの道(並べたもの)。
+  - `split_files`(関数): 〔割る段 5b の G0〕割る行 ``old``(全ファイルの表の今の道)の名(既定は表の全部)を頂上で定義する今のファイル(``src/shibuya``
+  - `split_module_names`(関数): :func:`split_files` のモジュールの名(:func:`module_names` と同じ形=1 本ずつ)。
   - `split_name_origins_from`(関数): 〔割る段 5a・親の裁定 Q2〕対応表の割る行の名の表 → 割り先のモジュールの名 → {頂上の名 → 割る行の元のモジュールの名}。
+  - `split_source`(関数): :func:`split_files` のファイルの中身をつないだ字面(割る前は元のファイルの中身そのもの)。
   - `tree_modules`(関数): 今の木の全部のモジュールの名(包みの頭を含む)。
   - `unknown`(関数): ``shibuya.`` で始まるのに、木のどのモジュールにも包みにも解けない名(:func:`imported` が返す名に使う)。
-- 読む試験: `tests/_head_copy_pin.py`・`tests/bench/test_refr20b_tool.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/c6/test_t3_parallel_invariance.py`・`tests/c8/test_places_rule_copies.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/test_single_write_path.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/processes/test_runner.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/state/test_mind_world_reads.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/test_add_at_guard.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_two_phase.py`・`tests/engine/time/test_t0_no_tick_word.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`・`tests/llm/test_fleet_contract.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/test_places_guard.py`・`tests/tools/test_repo_guide.py`・`tests/world/processes/test_declarations_1101.py`
+- 読む試験: `tests/_head_copy_pin.py`・`tests/bench/test_refr20b_tool.py`・`tests/build_pop/test_w21_stage8_9.py`・`tests/c6/test_t3_parallel_invariance.py`・`tests/c8/test_places_rule_copies.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/test_single_write_path.py`・`tests/economy/test_wage_occupation.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/processes/test_runner.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/rules/test_rules_table_schema.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/state/test_mind_world_reads.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/test_activation_10e.py`・`tests/engine/test_add_at_guard.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_classical_social.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_meal_gate_per_hour.py`・`tests/engine/test_memory_recall.py`・`tests/engine/test_memory_record.py`・`tests/engine/test_norm_meter.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_presence_exit_walk.py`・`tests/engine/test_relations.py`・`tests/engine/test_relations_8b.py`・`tests/engine/test_relations_tenure.py`・`tests/engine/test_seat_release_2_4.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_store_choice.py`・`tests/engine/test_store_memory.py`・`tests/engine/test_two_phase.py`・`tests/engine/test_wom.py`・`tests/engine/time/test_t0_no_tick_word.py`・`tests/engine/tools/test_c0_phone_table_empty_and_declared.py`・`tests/llm/test_fleet_contract.py`・`tests/perception/facts/test_coef_removed_or_armed.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/perception/test_near_tiebreak.py`・`tests/perception/test_p_see_activity.py`・`tests/test_places_guard.py`・`tests/tools/test_repo_guide.py`・`tests/world/processes/test_declarations_1101.py`
 
 ## [_time_gates.py](../../../../../tests/_time_gates.py)
 
@@ -285,7 +288,7 @@ manifest 機械化規則の追加検査(層2レビュー指摘・C0出口): MARL
 - 公開の関数とクラス
   - `non_move_rows`(関数): 表の move でない行の old と、move で old と new が同じ行の old。
   - `test_a_fake_tree_maps_moves_and_allows_only_empty_new_heads`(関数)
-  - `test_a_map_missing_one_row_stops`(関数): 1 行欠けた(古い)表: 今の木にある ``cli.py`` の行を抜くと、``cli.py`` が表に無いファイルとして止まる。
+  - `test_a_map_missing_one_row_stops`(関数): 1 行欠けた(古い)表: 今の木にある ``economy/ledger.py`` の行を抜くと、``economy/ledger.py`` が表に無いファイルとして止まる。
   - `test_a_map_with_renamed_row_keys_stops`(関数)
   - `test_a_non_move_row_for_a_new_file_is_caught_and_a_move_row_is_not`(関数): 負の対照: 新しい置き場のファイルを道が変わらない行(keep・split・delete・empty か、old と new が同じ move)で載せた表は
   - `test_an_empty_or_foreign_map_stops`(関数)
@@ -296,7 +299,7 @@ manifest 機械化規則の追加検査(層2レビュー指摘・C0出口): MARL
   - `test_split_rows_give_the_old_path_to_their_destinations`(関数): 割る前は元のファイルの元の道=今の道(割り先は木に無い)。割った後は、主な割り先の元の道=割る行の old・2 つ目以降の割り先=
   - `test_the_real_map_explains_the_current_tree`(関数)
   - `test_unresolvable_shibuya_names_are_hits`(関数): 検収 L-1: 木のどのモジュールにも包みにも解けない ``shibuya.`` の名は、層の試験の違反(``Names.hits``)。
-- import している内部モジュール: `shibuya.cli`・`tests/_places.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.economy.ledger`・`tests/_places.py`
 
 ## [test_rng_properties.py](../../../../../tests/test_rng_properties.py)
 

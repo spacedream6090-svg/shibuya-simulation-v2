@@ -18,6 +18,9 @@
   ``クラス.メソッド`` は数えない)を読む。「ほか N 個」が残る節は名が揃っていない(``names_complete`` が偽=割る道具は当てない)。
   §4 の注の行「宣言した書き換え: 割り先 `X` では別名 `V` を外す」は ``rewrites``(割り先 → 別名)。割る段 5a の順は
   :data:`SPLIT_ORDER`(``split_order`` は 1 から)。
+- 〔割る段 5b の G0〕順に 5b の 5 本を足した(:data:`SPLIT_ORDER` の 18〜22 本目・群は :data:`SPLIT_GROUPS`)。入口の転送
+  (:data:`SPLIT_FORWARDERS`・型は :func:`forwarder_text`=親の裁定 Q6 の (a))と入口の割り先(:data:`SPLIT_ENTRIES`)の宣言は
+  ここだけに置く(``map.toml`` には写しを書く。道具はここから読む)。
 """
 from __future__ import annotations
 
@@ -59,21 +62,59 @@ HELD: Final[dict[str, str]] = {}
 #: System 1 と関係)。〔G0 の検収の後の親の答え 1〕18 本目だった ``engine/speech/port.py``(``mora_count`` を foundation へ下ろす)は
 #: 延ばした: つなぎの台帳の道の表が 1 対 1 のままでは台帳の宣言を当てられないので、台帳の道を書き換えられる版上げのときに一緒に
 #: 下ろす。割る行(§4-25)のまま残し、この順からは外す(道具は順に無い行を断る)。
+#: 〔割る段 5b の G0・親の裁定 Q11〕5a の 17 本の後に 5b の 5 本(葉の 3 本 commit → presence → calendar_shadow・ラン・CLI)。
 SPLIT_ORDER: Final[tuple[str, ...]] = (
     "world/assets.py", "agents/state.py", "engine/calendar.py",
     "engine/tools/registry.py", "engine/tools/record.py", "engine/events/body.py",
     "llm/__init__.py", "llm/fleet.py", "llm/mock.py", "llm/undefined.py", "engine/llm_bridge.py",
     "engine/chooser.py", "engine/poi_target.py", "perception/attention.py",
     "engine/change_detect.py", "engine/arbiter.py", "engine/relations.py",
+    "engine/commit.py", "engine/presence.py", "engine/calendar_shadow.py",
+    "engine/run.py",
+    "cli.py",
 )
 #: 割る行のまま残し、割る段の順から外した行(今の道 → 理由)。順に載る行と同じく §4 の名が揃っていることを確かめる。
 SPLIT_DEFERRED: Final[dict[str, str]] = {
     "engine/speech/port.py": "台帳の道の表が 1 対 1 のまま=版上げで台帳の道を書き換えるときに下ろす(G0 の検収の後の親の答え 1)",
 }
-#: 群(親の裁定 Q11)。名 → SPLIT_ORDER の範囲(先頭から何本目まで・1 から)。
-SPLIT_GROUPS: Final[dict[str, tuple[int, int]]] = {
-    "G1": (1, 3), "G2": (4, 6), "G3": (7, 11), "G4": (12, 14), "G5": (15, 17),
+#: 群(親の裁定 Q11)。段(5a・5b)→ 名 → SPLIT_ORDER の範囲(先頭から何本目まで・1 から)。
+SPLIT_GROUPS: Final[dict[str, dict[str, tuple[int, int]]]] = {
+    "5a": {"G1": (1, 3), "G2": (4, 6), "G3": (7, 11), "G4": (12, 14), "G5": (15, 17)},
+    "5b": {"G1": (18, 20), "G2": (21, 21), "G3": (22, 22)},
 }
+#: 〔割る段 5b・E2・親の裁定 Q6・Q7〕入口の転送: 割った後も元のファイルを消さず、決まった型の転送(``split.forwarder_text``=
+#: ``if __name__ == "__main__":`` の中で割り先の ``main`` を import して ``raise SystemExit(main())``・docstring つき・名を結ばない)で
+#: 書き直す割る行(今の道 → ``main`` の割り先)。``python -m shibuya.cli`` を外との約束として残す(返事その 8 §1-6 の 6・案 K §2-11)。
+#: 名の無い点の道(``"shibuya.cli"``)は書き換えない(転送の名=動き続ける)。
+SPLIT_FORWARDERS: Final[dict[str, str]] = {
+    "cli.py": "interfaces/cli/main.py",
+}
+#: 〔割る段 5b・E3〕入口の割り先: 割る行の ``main`` と ``if __name__ == "__main__"`` の行き先(今の道 → 割り先)。``-m <元のモジュール>``
+#: の文脈の名の無い点の道はここへ向ける(返事その 8 §1-6 の 6=``python -m shibuya.engine.run`` は interfaces へ移す)。転送を残す行
+#: (:data:`SPLIT_FORWARDERS`)は載せない(``-m`` の名は転送が受ける)。
+SPLIT_ENTRIES: Final[dict[str, str]] = {
+    "engine/run.py": "interfaces/cli/run_args.py",
+}
+
+
+def _dotted(rel: str) -> str:
+    """``src/shibuya`` からの道 → モジュールの名(頭は包みの名)。"""
+    parts = rel[:-3].split("/")
+    if parts[-1] == "__init__":
+        parts = parts[:-1]
+    return ".".join(["shibuya", *parts])
+
+
+def forwarder_text(old: str, dest: str) -> str:
+    """〔割る段 5b・E2・親の裁定 Q6 の (a)〕入口の転送の決まった型(:data:`SPLIT_FORWARDERS`)。頂上で名を結ばない(``import shibuya.cli``
+    は何も持たない=古い道の口にならない)。``python -m`` で走るときだけ割り先の ``main`` を読んで呼ぶ。"""
+    m_old, m_new = _dotted(old), _dotted(dest)
+    return (f'"""{m_old} — ``python -m {m_old}`` の入口(外との約束)。中身は ``{m_new}``(割る段 5b)。"""\n'
+            "\n"
+            'if __name__ == "__main__":\n'
+            f"    from {m_new} import main\n"
+            "\n"
+            "    raise SystemExit(main())\n")
 
 _ROW_RE = re.compile(
     r"^\| (?P<num>\d+[a-z]?) \| `(?P<old>[^`]+)` \| (?P<pkg>[^|]+?) \| (?P<new>.+?) \| (?P<split>いいえ[^|]*?|割る[^|]*?) \| "
@@ -257,6 +298,16 @@ def parse_table(text: str) -> list[Row]:
         if r.split_from and (r.split_from not in by or by[r.split_from].kind != "split"
                              or r.new not in by[r.split_from].split_to):
             raise ValueError(f"行 {r.num}: 割り先の元 {r.split_from} が割る行でないか、割り先の一覧に {r.new} が無い")
+    # 〔割る段 5b・E2・E3〕入口の転送と入口の割り先は、順に載る割る行の、`main` の割り先(転送は主な割り先でもある)
+    both = set(SPLIT_FORWARDERS) & set(SPLIT_ENTRIES)
+    if both:
+        raise ValueError(f"入口の転送と入口の割り先の両方に載る: {sorted(both)}")
+    for o, d in (*SPLIT_FORWARDERS.items(), *SPLIT_ENTRIES.items()):
+        r = by.get(o)
+        if r is None or r.kind != "split" or o not in SPLIT_ORDER or r.name_map.get("main") != d:
+            raise ValueError(f"入口の宣言 {o} → {d}: 順に載る割る行でないか、`main` の割り先が {d} でない")
+        if o in SPLIT_FORWARDERS and r.new != d:
+            raise ValueError(f"入口の転送 {o} → {d}: 主な割り先 {r.new} と違う")
     return rows
 
 
@@ -284,6 +335,10 @@ def _arr(xs: Iterable[str]) -> str:
     return "[" + ", ".join(_q(x) for x in xs) + "]"
 
 
+def _inline(d: dict[str, str]) -> str:
+    return "{" + ", ".join(f"{_q(k)} = {_q(v)}" for k, v in d.items()) + "}"
+
+
 def render_map(rows: list[Row], source_sha256: str) -> str:
     """対応表 TOML の文(行の順は表の順)。割る行の名の表は ``[row.names]``(名 → 割り先)・宣言した書き換えは
     ``[row.rewrites]``(割り先 → 別名)。"""
@@ -300,6 +355,10 @@ def render_map(rows: list[Row], source_sha256: str) -> str:
         f"split_order = {_arr(SPLIT_ORDER)}",
         "# split_deferred: 割る行のまま割る段の順から外した行(table.SPLIT_DEFERRED・理由はそこ)。",
         f"split_deferred = {_arr(tuple(SPLIT_DEFERRED))}",
+        "# split_forwarders: 割った後も決まった型の転送で残す元のファイル → main の割り先(table.SPLIT_FORWARDERS)。",
+        "# split_entries: 割る行の main と if __name__ == \"__main__\" の割り先(table.SPLIT_ENTRIES)。道具はどちらも table.py から読む。",
+        f"split_forwarders = {_inline(SPLIT_FORWARDERS)}",
+        f"split_entries = {_inline(SPLIT_ENTRIES)}",
         "",
     ]
     body: list[str] = []

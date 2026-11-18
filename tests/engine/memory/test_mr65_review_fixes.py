@@ -184,7 +184,6 @@ def test_bridge_ids_use_the_stage_names_of_answer_6_2():
     # 発注の名(M4=思い浮かぶ/見覚え・M5=人も記憶)は why に書く
     assert "発注の M4" in rows["DOC-mr65-m1-recognition"]["why"]
     assert "発注の M5" in rows["DOC-mr65-m1-people-initial"]["why"]
-    from shibuya import cli as CLI
     from shibuya.foundation.decl import ledger_paths as LP
     from shibuya.runtime.systems import assemble as SYS_BUILD
 
@@ -195,4 +194,6 @@ def test_bridge_ids_use_the_stage_names_of_answer_6_2():
     seed_row = rows["DOC-mr65-m4-rate-variation"]
     code_now = {LP.current_path(p) for p in seed_row["code_at"]}
     assert "母集団の seed" in seed_row["what"] and f"src/{PL.PKG.name}/{PL.rel_of(SYS_BUILD)}" in code_now
-    assert f"src/{PL.PKG.name}/{PL.rel_of(CLI)}" not in code_now
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルのどれも台帳の道に無い(割った後に入口の転送の道だけを見て空回り
+    # しない。割る前は cli.py=前と同じ範囲)
+    assert not {f"src/{PL.PKG.name}/{r}" for r in PL.split_files("cli.py")} & code_now

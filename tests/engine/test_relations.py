@@ -351,7 +351,11 @@ def test_arm_checks_and_cli_flags():
                 dict(memory="on", conv_max_participants=4), dict(memory="on", relations="on", rel_d=1.5)):
         with pytest.raises(ValueError):
             run_day(n_agents=10, ticks=2, **bad)
-    text = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    text = PL.split_source("cli.py")
     for flag in ('"--relations"', '"--rel-k"', '"--rel-tau"', '"--rel-d"', '"--rel-init-density"',
                  '"--conv-max-participants"'):
         assert flag in text

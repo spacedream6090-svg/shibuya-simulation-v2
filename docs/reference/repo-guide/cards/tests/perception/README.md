@@ -202,7 +202,7 @@ AB7 自由意図の腕の切替口 — 描画側(``docs/design/v2-open-intent-ar
   - `test_near_order_modes_and_default`(関数)
   - `test_strictly_nearer_people_always_stay_in`(関数): k 人目より近い人は撹拌に関係なく全員載る(同点の中からだけ選ぶ)。
   - `tied_crowd`(関数): 1 セルに n 体が**同じ座標**(同じノード)=全員が同点。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/golden_env.py`・`tests/perception/test_nearby_vectorized.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/golden_env.py`・`tests/perception/test_nearby_vectorized.py`
 - 読む試験: `tests/engine/test_env_and_sections_10f.py`
 - 決定の ID: 11-01・11-03/§3・第 300・第 304・第 330・第 337・第 340
 
@@ -284,7 +284,7 @@ p_notice: §3.1 の 2 段ヒル型(TTPF+社会伝播)・検算表・ablation A0-
   - `test_run_day_refuses_a_multiplier_table`(関数)
   - `test_run_manifest_keeps_the_field_as_null`(関数)
   - `test_the_multiplier_table_and_the_arm_are_gone`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.memory.familiarity`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.memory.familiarity`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`
 - 決定の ID: 10-12/§1-6・D-117・D-121・第 293
 
 ## [test_renderer_golden.py](../../../../../../tests/perception/test_renderer_golden.py)

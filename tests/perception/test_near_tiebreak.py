@@ -143,10 +143,14 @@ def test_cli_has_no_near_tiebreak_flag():
     from shibuya import cli
     from shibuya.engine import run as RUN
 
+    from tests import _places as PL
+
     # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕ランの口の切替口 --near-tiebreak(id=旧挙動)は消した=CLI・run_day に無い
     # (知覚の部品 Renderer の引数は単体試験の基準の口として残す=この表の上の試験)
-    src = open(cli.__file__, encoding="utf-8").read()
-    assert '"--near-tiebreak"' not in src and '"--near-tiebreak"' not in open(RUN.__file__, encoding="utf-8").read()
+    # 〔割る段 5b の G0〕cli と run の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py と engine/run.py の字面=前と同じ範囲)
+    src = PL.split_source("cli.py")
+    assert '"--near-tiebreak"' not in src and '"--near-tiebreak"' not in PL.split_source("engine/run.py")
     with pytest.raises(TypeError):
         RUN.run_day(n_agents=10, ticks=2, near_tiebreak="id")
     with pytest.raises(SystemExit):
@@ -268,8 +272,12 @@ def test_cli_has_no_near_order_flag():
     from shibuya import cli
     from shibuya.engine import run as RUN
 
+    from tests import _places as PL
+
     # 〔第 2 部〕ランの口の切替口 --near-order(id=旧挙動)は消した=CLI・run_day に無い(Renderer の引数は単体試験の口)
-    src = open(cli.__file__, encoding="utf-8").read()
-    assert '"--near-order"' not in src and '"--near-order"' not in open(RUN.__file__, encoding="utf-8").read()
+    # 〔割る段 5b の G0〕cli と run の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py と engine/run.py の字面=前と同じ範囲)
+    src = PL.split_source("cli.py")
+    assert '"--near-order"' not in src and '"--near-order"' not in PL.split_source("engine/run.py")
     with pytest.raises(TypeError):
         RUN.run_day(n_agents=10, ticks=2, near_order="id")

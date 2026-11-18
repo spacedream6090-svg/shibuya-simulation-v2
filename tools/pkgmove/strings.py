@@ -18,6 +18,16 @@
 同じ組(タプル・リスト・呼び出しの引数)に割るファイルの頂上の名(``関数``・``クラス.メソッド`` の頭)の文字列があれば、その名の
 割り先へ(計画 c9=乱数の検査の ``(道, 関数, 用途名)`` など)。組の名が 2 つの割り先を指せば書き換えずに報告する。点の道は
 名の単位の写像(``Ctx.namemap``)で、名が無ければ主な割り先(``Ctx.split_main``)へ。
+
+〔割る段 5b・E2・E3〕割るモジュールの名だけの点の道(名の無い点の道=``"shibuya.engine.run"``)は、主な割り先へ黙って向けない
+(:func:`split_nameless`): 入口の転送を残すモジュール(``Ctx.split_forwarders``)は書き換えない・``-m`` の文脈(文字列の中の
+``-m <名>``・並びや呼び出しの引数で 1 つ前の要素が ``"-m"``)なら入口の割り先(``Ctx.split_entry``)へ・それ以外は書き換えずに
+「手で直す」(注意の頭 :data:`pkgmove.imports.MANUAL`)。
+
+〔割る段 5b の G0 の直し〕高-1: ``tests/_places.py`` の割る行の口(:data:`TABLE_KEY_CALLS`)の第 1 引数は対応表の鍵(元の道=値
+そのもの)なので書き換えない(:func:`is_table_key`)。高-2: 文字列の中のコード(子のプロセスの台本・シェルの文)の
+``from <包み> import <割るモジュール>`` の形を拾い(:func:`code_import_hits`)、コードとして読めれば import の書き換え(別名の
+割り先が 1 つなら機械で・決まらなければ手で直す)へ、読めなければ「手で直す」へ出す。f 文字列の部分の中のものも「手で直す」。
 """
 from __future__ import annotations
 
@@ -88,9 +98,78 @@ def dotted_new(ctx: Ctx, tok: str) -> str:
     return tok
 
 
+_M_BEFORE_RE = re.compile(r"(?:^|\s)-m\s*$")
+#: 〔割る段 5b の G0 の直し 高-1〕対応表の割る行の鍵(元の道)を第 1 引数に取る試験の補助(``tests/_places.py``)の口。鍵は表の値
+#: そのもの(割った後も元の道のまま=``STRING_EXCLUDE`` の固定の一覧と同じ見方)なので、割る道具は書き換えない。呼び出しの形で
+#: 見る(新しい試験の鍵も黙って漏れない)。
+TABLE_KEY_CALLS: frozenset[str] = frozenset({"split_files", "split_source", "split_module_names", "_split_names"})
+_FROM_IMPORT_RE = re.compile(r"\bfrom\s+([A-Za-z_][\w.]*)\s+import\s+\(?\s*([A-Za-z_][\w \t,]*)")
+_IMPORT_RE = re.compile(r"\bimport\s+([A-Za-z_][\w.]*)")
+
+
+def is_table_key(par: dict[int, ast.AST], n: ast.Constant) -> bool:
+    """〔割る段 5b の G0 の直し 高-1〕文字列 ``n`` が :data:`TABLE_KEY_CALLS` の呼び出しの第 1 引数(か ``old=``)か。"""
+    p = par.get(id(n))
+    if not isinstance(p, ast.Call):
+        return False
+    f = p.func
+    name = f.attr if isinstance(f, ast.Attribute) else (f.id if isinstance(f, ast.Name) else "")
+    if name not in TABLE_KEY_CALLS:
+        return False
+    return bool(p.args and p.args[0] is n) or any(k.arg == "old" and k.value is n for k in p.keywords)
+
+
+def code_import_hits(ctx: Ctx, value: str) -> list[str]:
+    """〔割る段 5b の G0 の直し 高-2〕文字列の中のコードが割るモジュール(``Ctx.namemap``)を読む import(``from <包み> import
+    <葉>``・``from <モジュール> import <名>``・``import <モジュール>``)。コードとして読めればその import の文で、読めなければ
+    字面の形で探す(子のプロセスに渡す台本・シェルの文の中のコード)。前は点の道と斜線の道の字面だけで文字列を選んだので、
+    ``"from shibuya import cli; …"`` の形を書き換えも「手で直す一覧」へも出さずに残した。"""
+    if not ctx.namemap or "import" not in value:
+        return []
+    mods = set(ctx.namemap)
+    out: list[str] = []
+
+    def hit_from(mod: str, names: list[str]) -> None:
+        if mod in mods:  # 割るモジュールから名を読む
+            out.append(f"from {mod} import {', '.join(names)}")
+            return
+        out.extend(f"from {mod} import {a}" for a in names if f"{mod}.{a}" in mods)  # 包みから割るモジュールを読む
+
+    try:
+        tree = ast.parse(value)
+    except SyntaxError:
+        tree = None
+    if tree is not None:
+        for x in ast.walk(tree):
+            if isinstance(x, ast.ImportFrom) and x.level == 0 and x.module:
+                hit_from(x.module, [a.name for a in x.names])
+            elif isinstance(x, ast.Import):
+                out += [f"import {a.name}" for a in x.names if a.name in mods or any(a.name.startswith(m + ".") for m in mods)]
+        return out
+    for m in _FROM_IMPORT_RE.finditer(value):
+        hit_from(m.group(1), [p.split()[0] for p in m.group(2).split(",") if p.split()])
+    for m in _IMPORT_RE.finditer(value):
+        if m.group(1) in mods or any(m.group(1).startswith(s + ".") for s in mods):
+            out.append(f"import {m.group(1)}")
+    return out
+
+
+def split_nameless(ctx: Ctx, tok: str, m_context: bool) -> tuple[str | None, tuple[str, str, str] | None]:
+    """〔割る段 5b・E2・E3〕割るモジュールの名の無い点の道 ``tok`` の行き先: (新しい字面か ``None``, 触らなかった印か ``None``)。
+    転送を残すモジュールは書き換えない・``-m`` の文脈なら入口の割り先・それ以外は主な割り先へ黙って向けず「手で直す」。
+    段 6 の E8(道の文字列の割り先の宣言)は、ここで宣言の表を先に引く形で足す。"""
+    if tok in ctx.split_forwarders:
+        return None, ("dotted_forwarder", tok, "入口の転送の名(転送が残り -m で動き続ける)=書き換えない")
+    if m_context and tok in ctx.split_entry:
+        return ctx.split_entry[tok], None
+    why = "-m の文脈だが入口の割り先の宣言が無い" if m_context else "-m の文脈でない"
+    return None, ("dotted_nameless", tok, f"{IM.MANUAL} 名の無い点の道 {tok}(割るモジュール・{why}=主な割り先へ黙って向けない)")
+
+
 def _plain_reps(ctx: Ctx, rules: PathRules, value: str, lo: int, hi: int,
-                skipped: list[tuple[str, str, str]]) -> list[tuple[int, int, str, str]]:
-    """値の ``lo``〜``hi`` の斜線の道と点の道の書き換え: (始め, 終わり, 新しい字面, 種類)。"""
+                skipped: list[tuple[str, str, str]], *, after_m: bool = False) -> list[tuple[int, int, str, str]]:
+    """値の ``lo``〜``hi`` の斜線の道と点の道の書き換え: (始め, 終わり, 新しい字面, 種類)。``after_m``: 値の全体が ``-m`` の
+    次の要素(並びや呼び出しの引数で 1 つ前が ``"-m"``)。"""
     out: list[tuple[int, int, str, str]] = []
     seg = value[lo:hi]
     for m in SLASH_RE.finditer(seg):
@@ -105,6 +184,18 @@ def _plain_reps(ctx: Ctx, rules: PathRules, value: str, lo: int, hi: int,
             # 〔検収 L-7〕包み(ディレクトリ)の名だけ: 中のファイルが 2 つ以上の包みへ分かれるので行き先が 1 つに決まらない
             skipped.append(("dotted_package", tok, "包みの名だけ=行き先が 1 つに決まらない(書き換えない=注意)"))
             continue
+        if tok in ctx.namemap and ctx.index.longest_module(tok) == tok:  # 〔割る段 5b・E2・E3〕名の無い点の道
+            if tok in ctx.frozen_tokens:
+                skipped.append(("dotted", tok, "凍結の名(クラスの凍結の名ほか)=書き換えない"))
+                continue
+            s, e = lo + m.start(), lo + m.end()
+            m_ctx = (after_m and s == 0 and e == len(value)) or bool(_M_BEFORE_RE.search(value[:s]))
+            new, sk = split_nameless(ctx, tok, m_ctx)
+            if sk is not None:
+                skipped.append(sk)
+            if new is not None:
+                out.append((s, e, new, "dotted_entry"))
+            continue
         new = dotted_new(ctx, tok)
         if new == tok:
             continue
@@ -115,9 +206,10 @@ def _plain_reps(ctx: Ctx, rules: PathRules, value: str, lo: int, hi: int,
     return out
 
 
-def rewrite_value(ctx: Ctx, rules: PathRules, value: str) -> tuple[str, list[tuple[int, int, str, str]],
-                                                                    list[tuple[str, str, str]]]:
-    """文字列の値の書き換え(``paths`` の規則): 新しい値・書き換え(値の位置)・触らなかったもの(種類・字面・理由)。"""
+def rewrite_value(ctx: Ctx, rules: PathRules, value: str, *, after_m: bool = False
+                  ) -> tuple[str, list[tuple[int, int, str, str]], list[tuple[str, str, str]]]:
+    """文字列の値の書き換え(``paths`` の規則): 新しい値・書き換え(値の位置)・触らなかったもの(種類・字面・理由)。
+    ``after_m``: 値の全体が ``-m`` の次の要素(〔割る段 5b・E3〕)。"""
     skipped: list[tuple[str, str, str]] = []
     reps: list[tuple[int, int, str, str]] = []
     code_spans: list[tuple[int, int]] = []
@@ -145,16 +237,23 @@ def rewrite_value(ctx: Ctx, rules: PathRules, value: str) -> tuple[str, list[tup
                     if IM.MANUAL in w:
                         skipped.append(("code_import", value[:80], w))
                 code_spans = sorted(t.span(n) for n in nodes)
+    if not is_code and ctx.namemap:  # 〔割る段 5b の G0 の直し 高-2〕コードとして読めない文字列の中の import(シェルの文ほか)
+        hits = code_import_hits(ctx, value)
+        if hits:
+            skipped.append(("code_import_text", value[:80], f"{IM.MANUAL} コードとして読めない文字列の中の import が割る"
+                                                           f"モジュールを読む({', '.join(hits)})=書き換えられない"))
     if not is_code and not value.isascii():
         tmp: list[tuple[str, str, str]] = []
-        for _s, _e, _n, kind in _plain_reps(ctx, rules, value, 0, len(value), tmp):
+        for _s, _e, _n, kind in _plain_reps(ctx, rules, value, 0, len(value), tmp, after_m=after_m):
             skipped.append((kind, value[_s:_e], "ASCII の外の字を含む文(記録の文)=書き換えない"))
-        skipped += tmp
+        # 記録の文の中の名の無い点の道は手で直す一覧に入れない(5a と同じく記録の文は書き換えない)
+        skipped += [(k, tok, "ASCII の外の字を含む文(記録の文)=書き換えない") if k == "dotted_nameless" else (k, tok, why)
+                    for k, tok, why in tmp]
         return value, [], skipped
     cur = 0
     for s, e in [*code_spans, (len(value), len(value))]:
         if s > cur:
-            reps += _plain_reps(ctx, rules, value, cur, s, skipped)
+            reps += _plain_reps(ctx, rules, value, cur, s, skipped, after_m=after_m)
         cur = max(cur, e)
     reps.sort()
     out = []
@@ -167,6 +266,20 @@ def rewrite_value(ctx: Ctx, rules: PathRules, value: str) -> tuple[str, list[tup
         pos = e
     out.append(value[pos:])
     return "".join(out), reps, skipped
+
+
+def _after_m(par: dict[int, ast.AST], n: ast.Constant) -> bool:
+    """〔割る段 5b・E3〕文字列 ``n`` が並び(リスト・タプル)か呼び出しの位置引数の要素で、1 つ前の要素が ``"-m"`` か。"""
+    p = par.get(id(n))
+    if isinstance(p, (ast.List, ast.Tuple)):
+        elts: list[ast.AST] = list(p.elts)
+    elif isinstance(p, ast.Call):
+        elts = list(p.args)
+    else:
+        return False
+    i = next((k for k, e in enumerate(elts) if e is n), -1)
+    prev = elts[i - 1] if i > 0 else None
+    return isinstance(prev, ast.Constant) and prev.value == "-m"
 
 
 def sibling_dest(par: dict[int, ast.AST], n: ast.Constant, rules: PathRules, rel: str) -> str | None:
@@ -313,9 +426,19 @@ def rewrite_file_strings(ctx: Ctx, rules: PathRules, path: str, text: str, tree:
         if rule is None:
             continue
         if isinstance(par.get(id(n)), ast.JoinedStr):
-            if rule == "paths" and (SLASH_RE.search(n.value) or DOT_RE.search(n.value)):
+            hits = code_import_hits(ctx, n.value) if rule == "paths" else []
+            if hits:  # 〔割る段 5b の G0 の直し 高-2〕f 文字列の中のコードが割るモジュールを読む=黙って残さない
+                stats.skipped.append({"file": path, "symbol": sym, "kind": "fstring_code_import", "token": n.value[:80],
+                                      "reason": f"{IM.MANUAL} f 文字列の部分の中のコードが割るモジュールを読む"
+                                                f"({', '.join(hits)})=書き換えられない"})
+            elif rule == "paths" and (SLASH_RE.search(n.value) or DOT_RE.search(n.value)):
                 stats.skipped.append({"file": path, "symbol": sym, "kind": "fstring", "token": n.value[:80],
                                       "reason": "f 文字列の部分=書き換えない"})
+            continue
+        if ctx.namemap and is_table_key(par, n):  # 〔割る段 5b の G0 の直し 高-1〕対応表の割る行の鍵=値そのもの
+            stats.skipped.append({"file": path, "symbol": sym, "kind": "table_key", "token": n.value[:80],
+                                  "reason": "対応表の割る行の鍵(元の道=値そのもの・tests/_places の割る行の口の第 1 引数)"
+                                            "=書き換えない"})
             continue
         whole = n.value[12:] if n.value.startswith("src/shibuya/") else n.value
         sib = None
@@ -337,7 +460,10 @@ def rewrite_file_strings(ctx: Ctx, rules: PathRules, path: str, text: str, tree:
             skipped: list[tuple[str, str, str]] = []
         else:
             r2 = rules if sib is None else PathRules(relmap={**rules.relmap, whole: sib}, names=rules.names)
-            new_value, reps, skipped = rewrite_value(ctx, r2, n.value)
+            if ctx.namemap and _after_m(par, n):  # 〔割る段 5b・E3〕並びの 1 つ前が "-m"
+                new_value, reps, skipped = rewrite_value(ctx, r2, n.value, after_m=True)
+            else:
+                new_value, reps, skipped = rewrite_value(ctx, r2, n.value)
         for kind, tok, why in skipped:
             stats.skipped.append({"file": path, "symbol": sym, "kind": kind, "token": tok, "reason": why})
         if new_value == n.value:

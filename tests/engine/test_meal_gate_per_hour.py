@@ -273,5 +273,9 @@ def test_default_is_per_wake_and_the_switch_is_on_the_cli():
     with pytest.raises(ValueError):
         run_day(meal_gate="hourly", **{**kw, "ticks": 2})
     assert CL.DEFAULT_MEAL_GATE == "per_wake" and CL.MEAL_GATES == ("per_wake", "per_hour")
-    src = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    src = PL.split_source("cli.py")
     assert '"--meal-gate"' in src and "meal_gate=str(args.meal_gate)" in src

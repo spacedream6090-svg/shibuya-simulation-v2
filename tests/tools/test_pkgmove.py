@@ -45,7 +45,10 @@ from pkgmove import move as MV  # noqa: E402
 from pkgmove import split as SP  # noqa: E402
 from pkgmove import strings as ST  # noqa: E402
 from pkgmove.model import SRC_PREFIX, Ctx, Index, Tree, apply_edits, docstring_ids, mod_of, symbol_map  # noqa: E402
-from pkgmove.table import HELD, LATE_STAGES, MAP_REL, STAGES, Row, build_map_text, load_map, parse_table  # noqa: E402
+from pkgmove.table import (  # noqa: E402
+    HELD, LATE_STAGES, MAP_REL, SPLIT_ENTRIES, SPLIT_FORWARDERS, STAGES, Row, build_map_text, forwarder_text, load_map,
+    parse_table,
+)
 
 CLI_PY = ROOT / "tools" / "pkgmove" / "cli.py"
 FROZEN_FILES = ("tests/engine/state/names_frozen.json", "tests/engine/state/class_ids_frozen.json",
@@ -161,10 +164,11 @@ def _first_stage_is(stage: str) -> bool:
 def test_map_toml_is_made_from_the_table_and_is_current():
     rows = parse_table((ROOT / "docs/reference/package-map-final-2026-11-09-files.md").read_text(encoding="utf-8"))
     # 〔割る段 5a の G0〕2 つ目以降の割り先 9 本と 18 本目(延ばした)の割り先 1 本の行(move の形・split_from)を足し、行 244 を
-    # 割る行に替えた(18 本目は延ばしても割る行のまま=table.SPLIT_DEFERRED)
-    assert len(rows) == 338
+    # 割る行に替えた(18 本目は延ばしても割る行のまま=table.SPLIT_DEFERRED)。〔割る段 5b の G0〕2 つ目以降の割り先 6 本の行
+    # (87a・141a・146a・207a・234a・234b)を足した(親の裁定 Q5)
+    assert len(rows) == 344
     kinds = Counter(r.kind for r in rows)
-    assert kinds == {"move": 215, "keep": 94, "split": 25, "delete": 2, "empty": 2}
+    assert kinds == {"move": 221, "keep": 94, "split": 25, "delete": 2, "empty": 2}
     # 保留の一覧は 11-16 の答え(返事その 8 §1-6)で全部決着した=空
     assert {r.old: r.held for r in rows if r.held} == HELD == {}
     by = {r.old: r for r in rows}
@@ -180,6 +184,10 @@ def test_map_toml_is_made_from_the_table_and_is_current():
     assert by["engine/resolve.py"].kind == "split"
     assert {"act/ops/detect_writes.py", "mind/ops.py"} <= set(by["engine/resolve.py"].split_to)
     assert by["engine/run.py"].kind == "split" and "interfaces/cli/run_args.py" in by["engine/run.py"].split_to
+    # 〔割る段 5b の G0・親の裁定 Q4〕run と commit の主な割り先を入れ替えた・入口の転送と入口の割り先の宣言は main の割り先
+    assert by["engine/run.py"].new == "runtime/run.py" and by["engine/commit.py"].new == "act/commit.py"
+    assert SPLIT_FORWARDERS == {"cli.py": by["cli.py"].new} == {"cli.py": by["cli.py"].name_map["main"]}
+    assert SPLIT_ENTRIES == {"engine/run.py": by["engine/run.py"].name_map["main"]} == {"engine/run.py": "interfaces/cli/run_args.py"}
     assert by["core/__init__.py"].empty_head and by["core/__init__.py"].new == "foundation/__init__.py"
     assert by["world/__init__.py"].kind == "empty" and by["agents/__init__.py"].kind == "delete"
     assert (ROOT / MAP_REL).read_text(encoding="utf-8") == build_map_text(ROOT)
@@ -1888,12 +1896,13 @@ def test_split_rows_in_the_real_map_match_the_source_files():
     """本物の対応表: 割る段 5a の 17 本と延ばした 1 本(18 本目だった ``engine/speech/port.py``=G0 の検収の後の親の答え 1)は名が
     揃い(§4 を開いた=親の裁定 Q9)、まだ割っていない本は表の名が元のファイルの頂上の名と同じ。延ばした行は割る行のまま、順に
     載らず(split_order 0)、道具は名指しでも断る。2 つ目以降の割り先の行(split_from)は段 4 の段の行に数えず、名指しでも段 4 の
-    道具は断る。"""
+    道具は断る。〔割る段 5b の G0〕順に 5b の 5 本を足した(22 本)・2 つ目以降の割り先の行は 16 本(5a 10・5b 6)。"""
     from pkgmove.table import SPLIT_DEFERRED, SPLIT_ORDER
 
     tree = _root_tree()
     by = MAPDOC.by_old()
-    assert [r.old for r in MAPDOC.split_rows()] == list(SPLIT_ORDER) and len(SPLIT_ORDER) == 17
+    assert [r.old for r in MAPDOC.split_rows()] == list(SPLIT_ORDER) and len(SPLIT_ORDER) == 22
+    assert SPLIT_ORDER[17:] == ("engine/commit.py", "engine/presence.py", "engine/calendar_shadow.py", "engine/run.py", "cli.py")
     assert list(SPLIT_DEFERRED) == ["engine/speech/port.py"] and by["engine/speech/port.py"].kind == "split"
     assert by["engine/speech/port.py"].split_order == 0 and "engine/speech/port.py" not in SPLIT_ORDER
     with pytest.raises(SP.SplitRefused, match="割る段の順に無い行"):
@@ -1907,7 +1916,7 @@ def test_split_rows_in_the_real_map_match_the_source_files():
         assert src is not None, old
         assert set(r.name_map) == SP.top_names(tree.files[SRC_PREFIX + src]), old
     sf = [r for r in MAPDOC.rows if r.split_from]
-    assert len(sf) == 10 and all(r.kind == "move" and r.stage == "" and r.new in by[r.split_from].split_to for r in sf)
+    assert len(sf) == 16 and all(r.kind == "move" and r.stage == "" and r.new in by[r.split_from].split_to for r in sf)
     rows, _held = MV.select_rows(MAPDOC, STAGES)
     assert not [r for r in rows if r.split_from]
     with pytest.raises(MV.Refused, match="割る段の割り先の行"):
@@ -2104,10 +2113,12 @@ def test_split_weakened_sees_more_than_new_rule_names():
 
 
 @pytest.mark.slow
-def test_split_5a_in_memory_keeps_the_import_rules_to_the_end():
-    """〔検収 高-1〕本物の木で 5a の残りの本をメモリの中で順に当てる(書かない・手で直す読みは残す): どの本でも守りが「同じ」
-    (宣言どおりの弱まりは 2 本目の agents と 10 本目の llm だけ)で、5a の終わりに契約は 11(古い 2+新しい 9)、単位 foundation と
-    決まり 2 が言える。"""
+def test_split_5a_5b_in_memory_keeps_the_import_rules_to_the_end():
+    """〔検収 高-1〕本物の木で割る段の残りの本(5a の 17 本と 5b の 5 本=22 本の順の、木で済んでいない本)をメモリの中で順に当てる
+    (書かない・手で直す読みは残す): どの本でも守りが「同じ」(宣言どおりの弱まりは 2 本目の agents と 10 本目の llm だけ)で、
+    終わりに契約は 11(古い 2+新しい 9)、単位 foundation と決まり 2 が言える。〔割る段 5b の G0〕5b の 5 本の後は、単位
+    interfaces が言え(run の本で入口の割り先 run_args が入る)、``shibuya.cli`` は入口の転送で済んだ本と見る(読んでよい側に
+    足した古い読み手は 0)。"""
     from pkgmove import contracts as CT
     from pkgmove.table import SPLIT_ORDER
 
@@ -2126,10 +2137,13 @@ def test_split_5a_in_memory_keeps_the_import_rules_to_the_end():
             weakened[old] = plan.contracts["declared"]
         tree = plan.after
     assert set(weakened) <= {"agents/state.py", "llm/undefined.py"}, weakened
+    assert SP.split_state(tree, MAPDOC) == list(SPLIT_ORDER) and SP.next_split(tree, MAPDOC) is None
+    assert SP.is_forwarder(tree, MAPDOC.by_old()["cli.py"]) and "src/shibuya/engine/run.py" not in tree.files
     _c, rep = CT.build(spec, MAPDOC, tree, CT.stage_of(tree, MAPDOC, spec))
     assert (rep["n_old"], rep["n_new"]) == (2, 9), rep["not_expressed"]
     ne = {(str(x["rule"]), x["name"]) for x in rep["not_expressed"]}
     assert ("単位", "foundation") not in ne and not [r for r, _n in ne if r == "2"], sorted(ne)
+    assert ("単位", "interfaces") not in ne and not rep.get("late_allowed"), (sorted(ne), rep.get("late_allowed"))
 
 
 def test_negative_alias_rewrite_captured_by_a_local_name_is_refused():
@@ -2265,3 +2279,328 @@ def test_negative_split_stops_a_new_import_cycle_through_an_existing_destination
     errs = [e for e in ei.value.errors if e.startswith("import の循環")]
     assert errs and "shibuya.vocab.base -> shibuya.lg.log" in errs[0] and "src/shibuya/vocab/base.py:" in errs[0], ei.value.errors
     assert len(ei.value.errors) == 1, ei.value.errors  # ほかの守りは「同じ」
+
+
+
+# ------------------------------------------------------------------ 〔割る段 5b の G0〕入口の転送(E2)・入口の移し(E3)・範囲の外(E4)
+_CLI_SAMPLE = (
+    '"""cli — 見本の入口。"""\n'
+    "\n"
+    "from __future__ import annotations\n"
+    "\n"
+    "import argparse\n"
+    "\n"
+    "\n"
+    "def helper(x: int) -> int:\n"
+    "    return x + 1\n"
+    "\n"
+    "\n"
+    "def run(n: int) -> int:\n"
+    "    return helper(n)\n"
+    "\n"
+    "\n"
+    "def main(argv: list[str] | None = None) -> int:\n"
+    "    ap = argparse.ArgumentParser()\n"
+    '    ap.add_argument("--n", type=int, default=1)\n'
+    "    return 0 if run(ap.parse_args(argv).n) else 1\n"
+    "\n"
+    "\n"
+    'if __name__ == "__main__":\n'
+    "    raise SystemExit(main())\n"
+)
+_CLI_ROW = dict(num="9", old="cli.py", package="ui", kind="split", new="ui/main.py", split_to=("ui/main.py", "ui/wire.py"),
+                names=(("helper", "ui/wire.py"), ("run", "ui/main.py"), ("main", "ui/main.py")), names_complete=True)
+_CLI_READER = ('import sys\n\nfrom shibuya import cli\n\n'
+               'CMD = [sys.executable, "-m", "shibuya.cli", "--n", "2"]\nNAME = "shibuya.cli"\n\n\n'
+               'def test_run():\n    assert cli.run(1) == 2\n')
+
+
+def _cli_sample(monkeypatch, cli_text: str = _CLI_SAMPLE) -> tuple[Tree, MV.MapDoc]:
+    monkeypatch.setattr(SP, "SPLIT_FORWARDERS", {"cli.py": "ui/main.py"})
+    monkeypatch.setattr(SP, "SPLIT_ENTRIES", {})
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/cli.py": cli_text, "tests/test_cli_r.py": _CLI_READER}
+    return Tree(files=files), MV.MapDoc(rows=[Row(**_CLI_ROW)])
+
+
+def test_split_forwarder_keeps_the_entry_file_in_the_fixed_form(monkeypatch):
+    """〔E2・親の裁定 Q6 の (a)・Q7〕入口の転送の行: 元のファイルを消さずに決まった型の転送で書き直す(``if __name__`` の中で割り先の
+    ``main`` を読んで呼ぶだけ・名を結ばない)。入口(``if __name__``)は ``main`` の割り先へ。済んだかの判定は転送が型どおりのとき
+    だけ真・元のファイルの判定は転送を元と見ない。名で読む読み手は割り先へ、名の無い ``"shibuya.cli"``(``-m`` の文脈も)は
+    書き換えない(転送の名)。守りは全部「同じ」(守り「入口の転送」を含む)。"""
+    tree, md = _cli_sample(monkeypatch)
+    row = md.rows[0]
+    assert SP.source_rel(tree, row) == "cli.py" and not SP.is_done(tree, row)
+    plan = SP.make_split_plan(tree, md, "cli.py", check_order=False)
+    a = plan.after.files
+    fw = forwarder_text("cli.py", "ui/main.py")
+    assert a["src/shibuya/cli.py"] == fw and plan.forwarder == "src/shibuya/cli.py" and plan.deleted == []
+    assert fw.startswith('"""shibuya.cli — ``python -m shibuya.cli`` の入口(外との約束)。中身は ``shibuya.ui.main``')
+    assert plan.entry == "ui/main.py" and 'if __name__ == "__main__":\n    raise SystemExit(main())\n' in a["src/shibuya/ui/main.py"]
+    assert "def helper(" in a["src/shibuya/ui/wire.py"] and "from shibuya.ui.wire import helper\n" in a["src/shibuya/ui/main.py"]
+    assert set(plan.guards.values()) == {"同じ"} and plan.guards["forwarder"] == "同じ"
+    assert SP.is_done(plan.after, row) and SP.source_rel(plan.after, row) is None
+    assert SP.forwarder_problems(fw, "cli.py", "ui/main.py") == []
+    ns: dict = {"__name__": "shibuya.cli"}
+    exec(compile(fw, "cli.py", "exec"), ns)  # import しても何も結ばない(古い道の口にならない)
+    assert [k for k in ns if not k.startswith("__")] == []
+    r = a["tests/test_cli_r.py"]
+    assert "from shibuya.ui import main as cli\n" in r and '"-m", "shibuya.cli"' in r and 'NAME = "shibuya.cli"' in r
+    assert [s["token"] for s in plan.str_stats.skipped if s["kind"] == "dotted_forwarder"] == ["shibuya.cli", "shibuya.cli"]
+    assert plan.manual == [] and SP.report(plan)["forwarder"] == "src/shibuya/cli.py"
+    # 転送の字面を変えた木は済んでいない(元のファイルの中身として扱う=順の次の本として当て直しを断る側)
+    changed = Tree(files={**plan.after.files, "src/shibuya/cli.py": fw + "X = 1\n"})
+    assert not SP.is_done(changed, row) and SP.source_rel(changed, row) == "cli.py"
+    assert SP.forwarder_problems(fw + "X = 1\n", "cli.py", "ui/main.py")
+
+
+def test_negative_split_forwarder_guard_stops_a_forwarder_that_binds_names(monkeypatch):
+    """〔E2 の守り〕転送が頂上で ``main`` を結ぶ形(古い道の口)は、型を差し替えても守り「入口の転送」が止める(字面の同じだけに
+    頼らない=AST の形で見る)。入口(``if __name__``)の無い元のファイルの転送の宣言は断る。"""
+    tree, md = _cli_sample(monkeypatch)
+    bad = ('"""shibuya.cli — 見本。"""\n\nfrom shibuya.ui.main import main\n\nif __name__ == "__main__":\n'
+           '    raise SystemExit(main())\n')
+    monkeypatch.setattr(SP, "forwarder_text", lambda old, dest: bad)
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(tree, md, "cli.py", check_order=False)
+    errs = [e for e in ei.value.errors if e.startswith("入口の転送")]
+    assert errs and any("頂上で名を結ぶ" in e for e in errs) and any("頂上の文が" in e for e in errs), ei.value.errors
+    monkeypatch.undo()
+    tree, md = _cli_sample(monkeypatch, _CLI_SAMPLE.split("\n\nif __name__")[0] + "\n")
+    with pytest.raises(SP.SplitRefused, match="入口の宣言"):
+        SP.make_split_plan(tree, md, "cli.py", check_order=False)
+
+
+def test_contract_view_puts_the_main_destination_of_a_forwarder_row_in_the_final_names(monkeypatch):
+    """〔E2・計画 §4-2〕入口の転送が残る行: 元のファイルが型どおりの転送なら主な割り先が最終の名(単位 interfaces が言える)。
+    転送のモジュール自身は最終の名を持たない。転送の字面が型と違えば、前と同じく元のファイルを古い置き場と見る。"""
+    from pkgmove import contracts as CT
+
+    monkeypatch.setattr(CT, "SPLIT_FORWARDERS", {"cli.py": "ui/main.py"})
+    md = MV.MapDoc(rows=[Row(**_CLI_ROW)])
+    base = {"src/shibuya/__init__.py": "", "src/shibuya/ui/__init__.py": ""}
+    before = Tree(files={**base, "src/shibuya/cli.py": _CLI_SAMPLE})
+    fw = forwarder_text("cli.py", "ui/main.py")
+    after = Tree(files={**base, "src/shibuya/cli.py": fw, "src/shibuya/ui/main.py": "def main():\n    return 0\n",
+                        "src/shibuya/ui/wire.py": "X = 1\n"})
+    vb, va = CT.view(before, md), CT.view(after, md)
+    assert vb.final_of["shibuya.cli"] == "shibuya.ui.main" and not vb.is_final("shibuya.ui.main")
+    assert va.is_final("shibuya.ui.main") and "shibuya.cli" not in va.final_of
+    assert ("shibuya.cli", "shibuya.ui.main") in va.moved_in
+    vt = CT.view(Tree(files={**after.files, "src/shibuya/cli.py": fw + "X = 1\n"}), md)
+    assert vt.final_of["shibuya.cli"] == "shibuya.ui.main" and not vt.is_final("shibuya.ui.main")
+
+
+_RUN_SAMPLE = (
+    '"""run — 見本のラン。"""\n'
+    "\n"
+    "from __future__ import annotations\n"
+    "\n"
+    "import argparse\n"
+    "\n"
+    "\n"
+    "def run_day(n: int) -> int:\n"
+    "    return n\n"
+    "\n"
+    "\n"
+    "def main(argv: list[str] | None = None) -> int:\n"
+    "    ap = argparse.ArgumentParser()\n"
+    '    ap.add_argument("--n", type=int, default=1)\n'
+    "    return run_day(ap.parse_args(argv).n) - 1\n"
+    "\n"
+    "\n"
+    'if __name__ == "__main__":  # pragma: no cover\n'
+    "    raise SystemExit(main())\n"
+)
+_RUN_ROW = dict(num="8", old="pk/run.py", package="rt", kind="split", new="rt/run.py", split_to=("rt/run.py", "ui/run_args.py"),
+                names=(("run_day", "rt/run.py"), ("main", "ui/run_args.py")), names_complete=True)
+_RUN_READER = ('import sys\n\n'
+               'CMD = [sys.executable, "-m", "shibuya.pk.run", "--n", "2"]\n'
+               'LINE = "python -m shibuya.pk.run --n 2"\n'
+               'FN = "shibuya.pk.run.run_day"\n')
+
+
+def _run_sample(monkeypatch, entries: dict[str, str] | None = None, extra: dict[str, str] | None = None):
+    monkeypatch.setattr(SP, "SPLIT_FORWARDERS", {})
+    monkeypatch.setattr(SP, "SPLIT_ENTRIES", {"pk/run.py": "ui/run_args.py"} if entries is None else entries)
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/pk/__init__.py": "", "src/shibuya/pk/run.py": _RUN_SAMPLE,
+             "tests/test_run_r.py": _RUN_READER, **(extra or {})}
+    return Tree(files=files), MV.MapDoc(rows=[Row(**_RUN_ROW)])
+
+
+def test_split_entry_moves_the_main_block_and_the_m_strings(monkeypatch):
+    """〔E3・返事その 8 §1-6 の 6〕入口の割り先の宣言: ``if __name__`` は ``main`` と同じ入口の割り先へ。名の無い点の道は ``-m`` の
+    文脈(並びの 1 つ前が ``"-m"``・文字列の中の ``-m <名>``)なら入口の割り先へ。名つきの点の道は名の割り先へ。"""
+    tree, md = _run_sample(monkeypatch)
+    plan = SP.make_split_plan(tree, md, "pk/run.py", check_order=False)
+    a = plan.after.files
+    assert plan.entry == "ui/run_args.py" and plan.deleted == ["src/shibuya/pk/run.py", "src/shibuya/pk/__init__.py"]
+    assert 'if __name__ == "__main__":  # pragma: no cover\n    raise SystemExit(main())\n' in a["src/shibuya/ui/run_args.py"]
+    assert "__main__" not in a["src/shibuya/rt/run.py"]
+    r = a["tests/test_run_r.py"]
+    assert '"-m", "shibuya.ui.run_args", "--n"' in r and 'LINE = "python -m shibuya.ui.run_args --n 2"' in r
+    assert 'FN = "shibuya.rt.run.run_day"' in r and plan.manual == [] and set(plan.guards.values()) == {"同じ"}
+
+
+def test_negative_a_nameless_dotted_path_outside_m_is_listed_for_hand_fixing(monkeypatch):
+    """〔E3〕``-m`` の文脈でない名の無い点の道は、主な割り先へ黙って向けず「手で直す一覧」に出す(既定=strict は断る)。記録の文
+    (ASCII の外の字を含む文)の中のものは前と同じく書き換えず、一覧にも出さない。"""
+    extra = {"tests/test_run_n.py": 'MOD = "shibuya.pk.run"\nDOC = "shibuya.pk.run を読む"\n'}
+    tree, md = _run_sample(monkeypatch, extra=extra)
+    with pytest.raises(SP.SplitRefused, match="手で直す"):
+        SP.make_split_plan(tree, md, "pk/run.py", check_order=False)
+    plan = SP.make_split_plan(tree, md, "pk/run.py", check_order=False, strict=False)
+    assert len(plan.manual) == 1 and "tests/test_run_n.py::MOD" in plan.manual[0] and "名の無い点の道" in plan.manual[0]
+    assert plan.after.files["tests/test_run_n.py"] == extra["tests/test_run_n.py"]
+
+
+@pytest.mark.parametrize("entries,word", [
+    ({"pk/run.py": "rt/run.py"}, "宣言した rt/run.py でない"),  # 入口が読む名(main)の割り先と食い違う宣言
+    ({}, "入口の割り先の宣言"),  # 入口があるのに宣言が無い(-m の文字列の行き先が決まらない)
+])
+def test_negative_an_entry_without_a_matching_declaration_is_refused(monkeypatch, entries, word):
+    tree, md = _run_sample(monkeypatch, entries=entries)
+    with pytest.raises(SP.SplitRefused, match=word):
+        SP.make_split_plan(tree, md, "pk/run.py", check_order=False)
+
+
+def test_split_leaves_the_bytecheck_tool_and_its_test_alone(monkeypatch):
+    """〔E4・親の裁定 Q9 の (a)〕byte-check の道具(``tools/bytecheck/``)とその試験は割る道具の書き換えの範囲の外: 書き換えず、
+    書き換えたはずの所を ``excluded_sites`` に出す。負の対照: 範囲の外の一覧を空にすると、同じ字面が書き換わる。"""
+    reader = 'from shibuya.pk.old import A\n\nP = "src/shibuya/pk/old.py"\n'
+    extra = {"tools/bytecheck/x.py": reader, "tests/tools/test_bytecheck.py": reader, "tools/other.py": reader}
+    tree, md = _split_sample(extra)
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    a = plan.after.files
+    assert a["tools/bytecheck/x.py"] == reader == a["tests/tools/test_bytecheck.py"]
+    assert a["tools/other.py"] == 'from shibuya.vocab.base import A\n\nP = "src/shibuya/nw/main.py"\n'
+    assert sorted(x.split(":", 1)[0] for x in plan.excluded_sites) == ["tests/tools/test_bytecheck.py", "tools/bytecheck/x.py"]
+    assert set(plan.guards.values()) == {"同じ"}
+    monkeypatch.setattr(SP, "SPLIT_EXCLUDE_PATHS", ())
+    plan2 = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    assert plan2.after.files["tools/bytecheck/x.py"] == plan2.after.files["tools/other.py"] != reader
+    assert plan2.excluded_sites == []
+
+
+def test_import_check_runs_every_entry_with_help(tmp_path):
+    """〔E3〕書いた後の確かめは、在る入口(``shibuya.cli``・``shibuya.interfaces.cli.run_args``)ごとに ``python -m <入口> --help``
+    を回す。転送の ``-m shibuya.cli`` は割り先の ``main`` を呼ぶ。入口が落ちれば確かめも落ちる。"""
+    from pkgmove import importcheck as IC
+
+    main = ('import argparse\n\n\ndef main(argv=None):\n    argparse.ArgumentParser().parse_args(argv)\n    return 0\n\n\n'
+            'if __name__ == "__main__":\n    raise SystemExit(main())\n')
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/interfaces/__init__.py": "",
+             "src/shibuya/interfaces/cli/__init__.py": "", "src/shibuya/interfaces/cli/main.py": main,
+             "src/shibuya/interfaces/cli/run_args.py": main,
+             "src/shibuya/cli.py": forwarder_text("cli.py", "interfaces/cli/main.py")}
+    doc = IC.check(_tiny_tree(tmp_path / "good", files), jobs=1)
+    assert IC.ok(doc) and sorted(doc["entries"]) == ["shibuya.cli", "shibuya.interfaces.cli.run_args"], doc
+    assert doc["cli_help_exit"] == 0 and "python -m shibuya.interfaces.cli.run_args --help 終了コード 0" in IC.summary(doc)
+    broken = main.replace("def main(argv=None):\n", "def main(argv=None):\n    raise RuntimeError('壊れた入口')\n")
+    doc = IC.check(_tiny_tree(tmp_path / "bad", {**files, "src/shibuya/interfaces/cli/run_args.py": broken}), jobs=1)
+    assert not IC.ok(doc) and doc["entries"]["shibuya.interfaces.cli.run_args"]["exit"] != 0 and doc["cli_help_exit"] == 0
+
+
+@pytest.mark.parametrize("mutate,word", [
+    (lambda t: t.replace("    from shibuya.ui.main import main\n", "    from shibuya.ui.wire import main\n"), "if の中が"),
+    (lambda t: t.replace("raise SystemExit(main())", "main()"), "if の中が"),
+    (lambda t: t.split("\n", 2)[2], "docstring が無い"),
+    (lambda t: t + "X = 1\n", "頂上で名を結ぶ"),
+])
+def test_negative_forwarder_problems_see_each_part_of_the_fixed_form(mutate, word):
+    """〔E2 の守り〕転送の形の確かめは、字面の同じ(型との比べ)のほかに、各部分(docstring・名を結ばない・if の中の import と呼び)を
+    AST で見る(型そのものを差し替えられても止まる)。"""
+    fw = forwarder_text("cli.py", "ui/main.py")
+    assert SP.forwarder_problems(fw, "cli.py", "ui/main.py") == []
+    got = SP.forwarder_problems(mutate(fw), "cli.py", "ui/main.py")
+    assert "字面が決まった型と違う" in got and any(word in x for x in got), got
+
+
+
+# ------------------------------------------------------------------ 〔割る段 5b の G0 の直し〕検収の高-1・高-2・低-1・低-2
+def test_split_keeps_the_table_keys_of_the_places_helpers(monkeypatch):
+    """〔高-1〕``tests/_places.py`` の割る行の口(``split_files``・``split_source``・``split_module_names``・``_split_names``)の
+    第 1 引数は対応表の割る行の鍵(元の道=値そのもの)なので書き換えない(割った後も表を引いて割り先へ付いていく)。書き換えなかった
+    所は報告の ``table_key_sites`` に出す。負の対照: 規則を外すと、鍵が 1 つの割り先だけを指す見本(名の指定なし・名 1 つ)が
+    主な割り先へ書き換わる(割った後に ``PlacesMapError`` で落ちる形)。ほかの道の文字列は前と同じく書き換える。"""
+    reader = ('from tests import _places as PL\n\nA = PL.split_files("pk/old.py")\nB = PL.split_source("pk/old.py", ("f",))\n'
+              'C = "src/shibuya/pk/old.py"\n')
+    tree, md = _split_sample({"tests/test_keys.py": reader})
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    got = plan.after.files["tests/test_keys.py"]
+    assert got == reader.replace('C = "src/shibuya/pk/old.py"', 'C = "src/shibuya/nw/main.py"')
+    assert SP.report(plan)["table_key_sites"] == ["tests/test_keys.py::A: pk/old.py", "tests/test_keys.py::B: pk/old.py"]
+    assert set(plan.guards.values()) == {"同じ"}
+    monkeypatch.setattr(ST, "TABLE_KEY_CALLS", frozenset())
+    plan2 = SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    got2 = plan2.after.files["tests/test_keys.py"]
+    assert 'PL.split_files("nw/main.py")' in got2 and 'PL.split_source("nw/main.py", ("f",))' in got2
+    assert SP.report(plan2)["table_key_sites"] == []
+
+
+@pytest.mark.parametrize("code,want", [
+    # 属性の読みが 1 つの割り先=機械で書き換える
+    ("import sys; from shibuya.pk import old; sys.exit(old.f(1))", "from shibuya.nw import main as old"),
+    # 別名つき(from <包み> import <割るモジュール> as X)
+    ("from shibuya.pk import old as X; X.f(1)", "from shibuya.nw import main as X"),
+    # 2 つの割り先に割れる読み=手で直す一覧
+    ("from shibuya.pk import old; print(old.A, old.f(1))", None),
+    # コードとして読めない文字列(シェルの文)の中の import=手で直す一覧
+    ('python -c "from shibuya.pk import old; old.f(1)"', None),
+])
+def test_split_sees_code_strings_that_import_the_split_module_from_its_package(monkeypatch, code, want):
+    """〔高-2〕コードの文字列(子のプロセスの台本ほか)の ``from <包み> import <割るモジュール>`` の形を、書き換えるか「手で直す
+    一覧」に出す(黙って残さない)。前は点の道と斜線の道の字面だけで文字列を選んだので、この形を見落とした。負の対照: 選ぶ口を
+    前の形(点の道と斜線の道だけ)に戻すと、どの見本も書き換えも一覧も無く残る。"""
+    reader = f"CODE = {code!r}\n"
+    tree, md = _split_sample({"tests/test_code_s.py": reader})
+    plan = SP.make_split_plan(tree, md, "pk/old.py", check_order=False, strict=False)
+    got = plan.after.files["tests/test_code_s.py"]
+    man = [m for m in plan.manual if "tests/test_code_s.py" in m]
+    if want is None:
+        assert got == reader and len(man) == 1, (got, plan.manual)
+        with pytest.raises(SP.SplitRefused, match="手で直す"):
+            SP.make_split_plan(tree, md, "pk/old.py", check_order=False)
+    else:
+        assert want in got and "from shibuya.pk import old" not in got and man == [], (got, plan.manual)
+        compile(got, "t.py", "exec")
+    monkeypatch.setattr(ST, "code_import_hits", lambda ctx, value: [])
+    plan2 = SP.make_split_plan(tree, md, "pk/old.py", check_order=False, strict=False)
+    assert plan2.after.files["tests/test_code_s.py"] == reader
+    assert not [m for m in plan2.manual if "tests/test_code_s.py" in m]
+
+
+def test_negative_forwarder_guard_branches_stop_one_by_one(monkeypatch):
+    """〔低-1〕守り「入口の転送」の 2 つの枝を、それぞれほかの枝に当たらない見本で落とす: (1) 型そのものにつなぎの台帳の宣言
+    (docstring の ``expedient:``)がある=字面と形は型どおり (2) 割る元に ``main`` が無く、転送が呼ぶ ``main`` が割り先の頂上に
+    無い=表の読み込みの確かめ(本物の表は ``main`` の割り先を確かめる)を通らない見本の行。"""
+    tree, md = _cli_sample(monkeypatch)
+    with_decl = forwarder_text("cli.py", "ui/main.py").replace(
+        "(割る段 5b)。\"\"\"", "(割る段 5b)。\n\nexpedient: 見本の仮の宣言。\n\"\"\"")
+    monkeypatch.setattr(SP, "forwarder_text", lambda old, dest: with_decl)
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(tree, md, "cli.py", check_order=False)
+    assert [e for e in ei.value.errors] == ["入口の転送 src/shibuya/cli.py: つなぎの台帳の宣言がある"], ei.value.errors
+    monkeypatch.undo()
+    no_main = (_CLI_SAMPLE.split("def main(")[0].rstrip("\n") + "\n\n\nif __name__ == \"__main__\":\n"
+               "    raise SystemExit(run(1))\n")
+    tree, md = _cli_sample(monkeypatch, no_main)
+    md = MV.MapDoc(rows=[Row(**{**_CLI_ROW, "names": (("helper", "ui/wire.py"), ("run", "ui/main.py"))})])
+    with pytest.raises(SP.SplitStopped) as ei:
+        SP.make_split_plan(tree, md, "cli.py", check_order=False)
+    assert ei.value.errors == ["入口の転送 src/shibuya/cli.py: 呼ぶ main が割り先 ui/main.py の頂上に無い"], ei.value.errors
+
+
+def test_split_groups_cover_the_split_order_in_order():
+    """〔低-2〕群(親の裁定 Q11・``table.SPLIT_GROUPS``)を段の順・群の順につなぐと ``SPLIT_ORDER`` の 1〜22 本目と同じ(重なりも
+    抜けも無い)。5b の群は G1=commit・presence・calendar_shadow・G2=run・G3=cli。"""
+    from pkgmove.table import SPLIT_GROUPS, SPLIT_ORDER
+
+    seq: list[int] = []
+    for stage in ("5a", "5b"):
+        for _g, (lo, hi) in SPLIT_GROUPS[stage].items():
+            assert lo <= hi
+            seq += list(range(lo, hi + 1))
+    assert seq == list(range(1, len(SPLIT_ORDER) + 1))
+    g = {k: SPLIT_ORDER[lo - 1: hi] for k, (lo, hi) in SPLIT_GROUPS["5b"].items()}
+    assert g == {"G1": ("engine/commit.py", "engine/presence.py", "engine/calendar_shadow.py"), "G2": ("engine/run.py",),
+                 "G3": ("cli.py",)}

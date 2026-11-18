@@ -15,7 +15,8 @@ import tomllib
 
 import pytest
 
-from shibuya import cli
+from shibuya.act.intake import parser as UNSPLIT  # 〔割る段 5b の G0〕割らないモジュールの例(前は cli=割る段 5b で割る)
+from shibuya.economy import ledger as KEEP_ROW  # 〔割る段 5b の G0〕道が変わらない行(keep)のモジュールの例(前は cli)
 from tests import _places as PL
 
 GOOD_HEAD = f'schema = "{PL.MAP_SCHEMA}"\n'
@@ -101,8 +102,10 @@ def test_a_map_with_renamed_row_keys_stops():
 
 
 def test_a_map_missing_one_row_stops():
-    """1 行欠けた(古い)表: 今の木にある ``cli.py`` の行を抜くと、``cli.py`` が表に無いファイルとして止まる。"""
-    rel = PL.rel_of(cli)
+    """1 行欠けた(古い)表: 今の木にある ``economy/ledger.py`` の行を抜くと、``economy/ledger.py`` が表に無いファイルとして止まる。
+    〔割る段 5b の G0〕前は ``cli.py`` の行(割る段 5b で割る=割った後は入口の転送と割り先に分かれる)。道が変わらない keep の
+    行に替えた(確かめる形は同じ)。"""
+    rel = PL.rel_of(KEEP_ROW)
     blocks = _real_map().split("\n[[row]]\n")
     keep = [b for b in blocks if f'\nold = "{rel}"\n' not in f"\n{b}\n"]
     assert len(keep) == len(blocks) - 1
@@ -179,10 +182,11 @@ def test_declared_path_now_reads_the_origin_first_then_the_tree(tmp_path):
 
 def test_unresolvable_shibuya_names_are_hits():
     """検収 L-1: 木のどのモジュールにも包みにも解けない ``shibuya.`` の名は、層の試験の違反(``Names.hits``)。"""
-    name = f"{PL.PKG.name}.{cli.__name__.rpartition('.')[2]}_zz_future"
-    assert PL.unknown(name) and not PL.unknown(cli.__name__) and not PL.unknown(PL.PKG.name)
+    # 〔割る段 5b の G0〕在るモジュールの例は keep の行の economy/ledger(前は cli=割る段 5b で割る)
+    name = f"{PL.PKG.name}.{KEEP_ROW.__name__.rpartition('.')[2]}_zz_future"
+    assert PL.unknown(name) and not PL.unknown(KEEP_ROW.__name__) and not PL.unknown(PL.PKG.name)
     empty = PL.Names(frozenset(), frozenset())
-    assert empty.hits(name) and not empty.hits(cli.__name__) and not empty.has(name)
+    assert empty.hits(name) and not empty.hits(KEEP_ROW.__name__) and not empty.has(name)
 
 
 # ------------------------------------------------------------------ 〔割る段 5a・親の裁定 Q1・Q2〕割る行と割り先の行
@@ -225,4 +229,5 @@ def test_names_in_split_destinations_point_back_to_their_split_row():
     assert PL.split_name_origins_from(SPLIT_MAP) == {"shibuya.voc.w": {"A": "shibuya.old.m"},
                                                       "shibuya.new.m": {"B": "shibuya.old.m"},
                                                       "shibuya.ports.h": {"H": "shibuya.old"}}
-    assert PL.origin_module_of_name(cli.__name__, "main") == PL.origin_module(cli.__name__)
+    # 〔割る段 5b の G0〕割らないモジュールの名の元の置き場は、ファイルの元の置き場と同じ(前は cli=割る段 5b で割る)
+    assert PL.origin_module_of_name(UNSPLIT.__name__, "parse_two_line") == PL.origin_module(UNSPLIT.__name__)

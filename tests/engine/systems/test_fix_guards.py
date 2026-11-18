@@ -183,7 +183,9 @@ def test_permit_check_catches_planted_switches():
     (f"from {G_PKG} import {G_LEAF} as G\n"
      "def sys_x(ctx, b, name):\n    setattr(G, name, None)\n", ("setattr(変数の名)",)),
     # 同じ型の変種
-    ("import shibuya.agents.state\n"
+    # 〔割る段 5b の G0・検収の高-2 の洗い直し〕import の行は、前は元の置き場の名 ``shibuya.agents.state`` のまま残っていた(移す道具が
+    # コードの文字列の import を書き換えず、下の行の点の道だけを書き換えた)。読むモジュールを下の行と同じ今の名にそろえた
+    ("import shibuya.world.model.agent_table\n"
      "def sys_x(ctx, b):\n    shibuya.world.model.agent_table._WP.set_enabled(False)\n", ("_WP を読む", "set_enabled")),
     (f"from {G_PKG} import {G_LEAF} as G\n"
      "def sys_x(ctx, b):\n    wp = getattr(G, '_WP')\n", ("getattr で _WP",)),

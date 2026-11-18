@@ -520,7 +520,11 @@ def test_run_wiring_defaults_are_old_and_switches_reach_the_run():
 def test_cli_has_the_three_switches_with_old_defaults():
     from shibuya import cli
 
-    src = (__import__("pathlib").Path("src/shibuya") / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    src = PL.split_source("cli.py")
     for flag, dest in (("--meal-sleep-defer", "meal_sleep_defer"), ("--home-meal", "home_meal"),
                        ("--hunger-words", "hunger_words")):
         assert f'"{flag}"' in src and f"{dest}=str(args.{dest})" in src

@@ -87,7 +87,11 @@ def test_owner_names_match_the_hash_owners():
     owners = SIO.hash_owners(b)
     assert tuple(owners) == BX.OWNER_NAMES
     assert owners["undefined"] == "U"
-    assert type(owners["run_day"]).__module__ == "shibuya.engine.run"  # 持ち主のクラスの置き場を変えない
+    from shibuya.runtime.state.class_ids import class_id
+
+    # 持ち主のクラスの凍結の名を変えない(ハッシュに入る名)。〔割る段 5b の G0・親の裁定 Q12〕前は今のモジュールの名
+    # ("shibuya.engine.run")と比べていた=割る段でクラスの置き場が変わっても凍結の名(class_id)で比べる
+    assert class_id(type(owners["run_day"])) == "shibuya.engine.run._RunDayLocals"
     assert type(owners["run_day"]).__qualname__ == "_RunDayLocals"
 
 

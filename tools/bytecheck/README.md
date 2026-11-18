@@ -137,6 +137,12 @@ v30a の記録(`docs/bench/analysis/v3-2026-11/v30a/bytecheck/`)のように新�
 写しの木とテープは `<work>` に残る。後始末は、つなぎが残っていないことを `cmd /c dir /AL /S <work>` で確かめてから、
 `<work>` だけを指す 1 つのコマンドで消す。
 
+ランの入口(各構成の 1 本=`check.cmd_one`)は `check.resolve_run` が解く: 読んだ `shibuya` の包みに
+`interfaces/cli/main.py` が在れば `shibuya.interfaces.cli.main.run`、無ければ `shibuya.cli.run`(割る段 5b の G0・親の裁定 Q9 の
+(a)。G3 で `cli.py` を割ると `shibuya.cli` は `run` を持たない入口の転送になる。基準の側=割る前の木と比べる側=割った後の木を
+同じ道具で回すため)。割る道具(`tools/pkgmove/split.py` の `SPLIT_EXCLUDE_PATHS`)は、このディレクトリと
+`tests/tools/test_bytecheck.py` を書き換えない。
+
 ## 写すファイルの一覧の決め方と、取りこぼしの防ぎ方
 
 エンジンは `src` の外の追跡ファイルをリポの根から読む(`Path(__file__).parents[k]`・`resolve_repo_path`・`_repo_root`・

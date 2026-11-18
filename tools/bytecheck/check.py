@@ -246,6 +246,21 @@ def _read_json(path: Path) -> dict[str, Any]:
     return dict(json.loads(path.read_text(encoding="utf-8"))) if path.is_file() else {}
 
 
+def resolve_run() -> Any:
+    """〔割る段 5b・E4・親の裁定 Q9 の (a)〕ランの入口: 読んだ ``shibuya`` の包みに ``interfaces/cli/main.py`` が在れば
+    ``shibuya.interfaces.cli.main.run``、無ければ ``shibuya.cli.run``。割る段 5b の G3 で ``cli.py`` を割ると ``shibuya.cli`` は
+    入口の転送(``run`` を持たない)になるので、基準の側(割る前の木)と比べる側(割った後の木)を同じ道具で回せるように、ここで
+    解く(割る道具はこのディレクトリを書き換えない)。在るかはファイルで見る(無い包みを import しに行かない=読むモジュールを
+    前と変えない)。"""
+    import importlib
+
+    import shibuya
+
+    pkg = Path(shibuya.__file__).resolve().parent
+    name = "shibuya.interfaces.cli.main" if (pkg / "interfaces" / "cli" / "main.py").is_file() else "shibuya.cli"
+    return importlib.import_module(name).run
+
+
 def cmd_one(*, config: str, tape: str, world: str, agents: int, seed: int, kw: str = "",
             drop_behavior_item: str = "", multiset_items: str = "", expect_src: str = "", scratch: str = "") -> int:
     """1 構成を回し、比べる欄を 1 行の JSON で標準出力に出す(``byte_check_10e.cmd_one`` の欄+開いたファイル+H1 の欄)。"""
@@ -253,8 +268,8 @@ def cmd_one(*, config: str, tape: str, world: str, agents: int, seed: int, kw: s
     import pyarrow.parquet as pq
 
     import shibuya
-    from shibuya import cli
 
+    run = resolve_run()
     kwd = dict(C.configs()[config])
     kwd.update(parse_kw(kw))
     if drop_behavior_item:  # 検収 R1 の照合: behavior-hash の項から道筋を外して回す(10e と同じ口)
@@ -275,7 +290,7 @@ def cmd_one(*, config: str, tape: str, world: str, agents: int, seed: int, kw: s
 
         SH.resolve_item = _sorted_item  # type: ignore[assignment]
     t0 = time.perf_counter()
-    res = cli.run(n_agents=agents, seed=seed, world_dir=world, tape_path=tape, **kwd)
+    res = run(n_agents=agents, seed=seed, world_dir=world, tape_path=tape, **kwd)
     wall = time.perf_counter() - t0
     tape_p = Path(tape)
     calls = pq.read_table(tape_p / "calls.parquet")

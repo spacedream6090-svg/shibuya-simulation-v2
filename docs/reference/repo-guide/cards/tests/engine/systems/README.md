@@ -24,7 +24,7 @@ Python 6 本・その他 1 本(このディレクトリの直下)
   - `test_scratch_write_outside_the_declaration_fails`(関数)
   - `test_strict_scratch_raises_on_read_before_write`(関数)
   - `test_tick_ctx`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.state_io`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.class_ids`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.state_io`
 - 決定の ID: 11-01
 
 ## [test_fix_guards.py](../../../../../../../tests/engine/systems/test_fix_guards.py)

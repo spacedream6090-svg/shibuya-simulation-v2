@@ -55,7 +55,7 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `test_phone_flag_does_not_change_the_primary_detection`(関数)
   - `test_removed_values_are_not_in_src`(関数)
   - `test_signage_gate_is_one_p_for_every_activity`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.ports.percept`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.world.model.notice_reach`・`tests/perception/facts/scenes.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.ports.percept`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.world.model.notice_reach`・`tests/_places.py`・`tests/perception/facts/scenes.py`
 - 環境変数: `SHIBUYA_PERCEPT_COEFS`
 - 決定の ID: 10-12/§1-6
 

@@ -151,7 +151,6 @@ def test_runtime_owners_of_the_arm_runs_are_fully_declared(monkeypatch, kw):
 
 
 def test_new_modules_respect_the_layer_contract():
-    import shibuya.cli as CLI
     from shibuya.act.intake import parser as LLM  # 〔割る段 5a の G0・親の裁定 Q13〕llm の範囲の手がかりは、元の置き場が llm/ に残るモジュール(割る段で包み llm が無くなる)
     from shibuya.perception import renderer as PERCEPTION
 
@@ -159,7 +158,9 @@ def test_new_modules_respect_the_layer_contract():
 
     # 〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面の "shibuya.perception"・"shibuya.llm"・"shibuya.cli"。包みは元の置き場
     # (perception・llm)にあったモジュールの今の名、cli はモジュールの __name__ から作る
-    banned = PL.names_from(PERCEPTION, LLM) | PL.module_names(CLI)
+    # 〔割る段 5b の G0〕cli は元の名を定義する今のモジュールの全部(割った後に入口の転送の名だけを禁じて interfaces の割り先を
+    # 見落とさない。割る前は shibuya.cli=前と同じ範囲)
+    banned = PL.names_from(PERCEPTION, LLM) | PL.split_module_names("cli.py")
     for m in MODULES:
         tree = ast.parse(Path(m.__file__).read_text(encoding="utf-8"))
         imported = set()

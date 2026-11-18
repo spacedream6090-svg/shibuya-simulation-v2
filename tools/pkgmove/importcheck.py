@@ -4,7 +4,9 @@
 - 子のプロセス(``jobs`` 本)に、モジュールの名を分けて渡す。子は 1 つ読むたびに ``shibuya`` のモジュールを
   ``sys.modules`` から外す=どのモジュールも「最初に読まれる」形で確かめる(循環の import は読む順で落ちたり落ちなかったり
   するので、全部を最初に読む)。
-- ``src/shibuya/cli.py`` があれば ``python -m shibuya.cli --help`` も回す。
+- ``src/shibuya/cli.py`` があれば ``python -m shibuya.cli --help`` も回す。〔割る段 5b・E3〕入口(:data:`ENTRY_MODULES`)ごとに、
+  ファイルが在れば ``python -m <入口> --help`` を回す(``shibuya.interfaces.cli.run_args`` は ``engine/run.py`` を割った後の
+  ``-m`` の入口=返事その 8 §1-6 の 6)。
 - ``PYTHONPATH`` は木の ``src`` だけ(venv の editable の道が本体を指していても、木の src を読む)。読んだ ``shibuya`` の
   ``__file__`` を結果に残し、木の ``src`` でなければ落ちたと数える(取り違えの防ぎ)。
 - 段 4 の各段の ``move --apply`` の後に必ず回す(``cli.py move --apply`` が自分で回す。単独では ``cli.py importcheck``)。
@@ -49,6 +51,14 @@ for m in json.loads(sys.argv[1]):
         out["<名前空間> " + m] = f"移して無くなった包みが import できる(名前空間の包み・{locs[:2]})"
 print(json.dumps(out, ensure_ascii=False))
 '''
+
+
+#: ``python -m <名> --help`` を回す入口(ファイルが在るものだけ)。最初の 1 つは結果の ``cli_help_exit`` にも出す(前からの欄)。
+ENTRY_MODULES: tuple[str, ...] = ("shibuya.cli", "shibuya.interfaces.cli.run_args")
+
+
+def _entry_file(src: Path, mod: str) -> Path:
+    return src.joinpath(*mod.split(".")).with_suffix(".py")
 
 
 def modules(src: Path) -> list[str]:
@@ -102,22 +112,25 @@ def check(root: Path, jobs: int = 4, gone: list[str] | tuple[str, ...] = ()) -> 
     shibuya_file = r0.stdout.strip()
     if os.path.normcase(os.path.realpath(shibuya_file)) != os.path.normcase(os.path.realpath(src / "shibuya" / "__init__.py")):
         bad["<shibuya>"] = f"木の src でない shibuya を読んだ: {shibuya_file or r0.stderr[-300:]}"
-    cli_exit = None
-    err = ""
-    if (src / "shibuya" / "cli.py").is_file():
-        r = subprocess.run([sys.executable, "-m", "shibuya.cli", "--help"], capture_output=True, text=True,
+    entries: dict[str, dict] = {}
+    for m in ENTRY_MODULES:
+        if not _entry_file(src, m).is_file():
+            continue
+        r = subprocess.run([sys.executable, "-m", m, "--help"], capture_output=True, text=True,
                            encoding="utf-8", errors="replace", env=_env(src), cwd=str(root))
-        cli_exit = r.returncode
-        err = r.stderr[-1500:] if r.returncode else ""
-    return {"n": len(mods), "bad": dict(sorted(bad.items())), "cli_help_exit": cli_exit, "cli_help_err": err,
-            "shibuya_file": shibuya_file, "gone": len(gone)}
+        entries[m] = {"exit": r.returncode, "err": r.stderr[-1500:] if r.returncode else ""}
+    first = entries.get(ENTRY_MODULES[0], {})
+    return {"n": len(mods), "bad": dict(sorted(bad.items())), "cli_help_exit": first.get("exit"),
+            "cli_help_err": first.get("err", ""), "entries": entries, "shibuya_file": shibuya_file, "gone": len(gone)}
 
 
 def ok(doc: dict) -> bool:
-    return not doc["bad"] and doc["cli_help_exit"] in (0, None)
+    return (not doc["bad"] and doc["cli_help_exit"] in (0, None)
+            and all(e["exit"] == 0 for e in doc.get("entries", {}).values()))
 
 
 def summary(doc: dict) -> str:
-    cli = "無し" if doc["cli_help_exit"] is None else f"終了コード {doc['cli_help_exit']}"
-    return (f"import の確かめ: モジュール {doc['n']}・落ちた {len(doc['bad'])}・python -m shibuya.cli --help {cli}・"
+    ent = doc.get("entries", {})
+    helps = "・".join(f"python -m {m} --help 終了コード {e['exit']}" for m, e in ent.items()) or "python -m の入口 無し"
+    return (f"import の確かめ: モジュール {doc['n']}・落ちた {len(doc['bad'])}・{helps}・"
             f"無くなった包み {doc.get('gone', 0)}・読んだ shibuya {doc.get('shibuya_file', '?')}")

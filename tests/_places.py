@@ -262,6 +262,66 @@ def _split_name_origins() -> dict[str, dict[str, str]]:
     return split_name_origins_from(MAP.read_text(encoding="utf-8"))
 
 
+@cache
+def _split_names(old: str) -> dict[str, str]:
+    """対応表の割る行 ``old`` の名の表(頂上の名 → 割り先)。割る行でなければ止める。"""
+    for r in tomllib.loads(MAP.read_text(encoding="utf-8")).get("row", []):
+        if r.get("old") == old:
+            if r.get("kind") != "split" or not r.get("names"):
+                raise PlacesMapError(f"割る行でないか名の表が無い: {old}")
+            return dict(r["names"])
+    raise PlacesMapError(f"対応表に行が無い: {old}")
+
+
+def _top_names(path: Path) -> frozenset[str]:
+    """ファイルの頂上で結ぶ名(関数・クラス・代入の左辺)。"""
+    out: set[str] = set()
+    for st in ast.parse(path.read_text(encoding="utf-8")).body:
+        if isinstance(st, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            out.add(st.name)
+        elif isinstance(st, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
+            for t in (st.targets if isinstance(st, ast.Assign) else [st.target]):
+                out |= {n.id for n in ast.walk(t) if isinstance(n, ast.Name)}
+    return frozenset(out)
+
+
+def split_files(old: str, names: tuple[str, ...] | list[str] | None = None) -> list[str]:
+    """〔割る段 5b の G0〕割る行 ``old``(全ファイルの表の今の道)の名(既定は表の全部)を頂上で定義する今のファイル(``src/shibuya``
+    からの道・並べたもの)。名の割り先は表(対応表の割る行の名の表)から引く: 割る前は元のファイル、割った後は名の割り先。入口の
+    転送(``shibuya/cli.py`` を割った後=名を定義しない)は入らない。
+
+    中身(字面)を見る試験が、割った後に主な割り先 1 本へ黙って狭まらないための引き口(5a の G4・G5 の検収の中-1=割り先の 2 つ目へ
+    移った名が P4 の確かめから外れた件)。割る前の木では ``[old]`` で、前の字面の確かめと同じ範囲。
+
+    〔G0 の再検収 低-3〕``old`` は呼び出しの第 1 引数に**字面で**書く(``split_source``・``split_module_names`` も同じ)。割る道具は
+    この形の第 1 引数だけを表の鍵と見て書き換えない。変数や並びに入れて渡すと、道の文字列として割り先へ書き換えられて鍵が壊れる。"""
+    nm = _split_names(old)
+    want = list(nm) if names is None else list(names)
+    miss = [n for n in want if n not in nm]
+    if miss:
+        raise PlacesMapError(f"割る行 {old} の名の表に無い名: {miss}")
+    out: set[str] = set()
+    for n in want:
+        for rel in (old, nm[n]):  # 割る前は元のファイル、割った後は名の割り先
+            p = PKG / rel
+            if p.is_file() and n in _top_names(p):
+                out.add(rel)
+                break
+        else:
+            raise PlacesMapError(f"名 {n} を定義するファイルが元にも割り先 {nm[n]} にも無い(割る行 {old})")
+    return sorted(out)
+
+
+def split_source(old: str, names: tuple[str, ...] | list[str] | None = None) -> str:
+    """:func:`split_files` のファイルの中身をつないだ字面(割る前は元のファイルの中身そのもの)。"""
+    return "\n".join((PKG / r).read_text(encoding="utf-8") for r in split_files(old, names))
+
+
+def split_module_names(old: str, names: tuple[str, ...] | list[str] | None = None) -> Names:
+    """:func:`split_files` のモジュールの名(:func:`module_names` と同じ形=1 本ずつ)。"""
+    return Names(frozenset(), frozenset(module_of(r) for r in split_files(old, names)))
+
+
 def origin_module_of_name(module: str, name: str) -> str:
     """〔割る段 5a・親の裁定 Q2〕名の元の置き場のモジュール: 割る行の割り先のモジュールに載る名は、割る行の元のモジュール
     (割り先の 2 つ目以降のファイルへ行った名も元のファイルへ戻る)。ほかは :func:`origin_module`(ファイルの元の置き場)。

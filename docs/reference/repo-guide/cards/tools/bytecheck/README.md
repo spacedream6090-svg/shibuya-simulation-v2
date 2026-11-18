@@ -49,6 +49,7 @@ bytecheck.check — 1 構成のラン(``one``)・片側の 19 構成(``side``)�
   - `opened_outside`(関数): ``root`` の下で開いたファイル(``skip_tops`` の最上位と ``skip_dirs`` の下を除く)の、``root`` からの posix の道筋。
   - `parse_kw`(関数): ``--kw`` の JSON を読む(JSON の辞書でなければ ``ValueError``=ランの前に止める・検収 L3)。
   - `resolve_names`(関数): 回す構成の並び(``only`` があればそれ・無ければ組の並び)。知らない名は ``KeyError``。
+  - `resolve_run`(関数): 〔割る段 5b・E4・親の裁定 Q9 の (a)〕ランの入口: 読んだ ``shibuya`` の包みに ``interfaces/cli/main.py`` が在れば
   - `run`(関数): 基準の commit と比べる側の src を 1 回で比べる。戻り値=0 同じ / 1 動いた欄がある / 2 誤り。
   - `side`(関数): 片側の構成を回して side の JSON を書く。戻り値=0(誤りなし)/ 2(ランの誤り・写しの木の不足・開いたファイルの問題)。
   - `side_checks`(関数): side の JSON の誤り(ランの誤り・読んだ src の違い・開いたファイルの問題)。古い記録で欄が無いものは見ない。
@@ -57,7 +58,7 @@ bytecheck.check — 1 構成のラン(``one``)・片側の 19 構成(``side``)�
   - `tree_label`(関数): 読む src の親の伏せ字(道具のリポなら ``<repo>``・写しの木なら ``<tree>``=検収 L8: 比べる側の誤りの文が ``<tree>`` に見えない)。
   - `verify_sides`(関数): run の確かめ(検収 M1): 基準の側が写しの src を読んだ・比べる側が渡した src を読んだ・両側の読んだ ``shibuya`` の
   - `worktree_commit`(関数): 比べる側が作業木の src なら、その HEAD の commit(src と、エンジンが読む追跡ファイル=``TRACKED_READS`` と
-- import している内部モジュール: `shibuya`・`shibuya.cli`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`tools/bytecheck/configs.py`・`tools/bytecheck/fields.py`・`tools/bytecheck/tree.py`
+- import している内部モジュール: `shibuya`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`tools/bytecheck/configs.py`・`tools/bytecheck/fields.py`・`tools/bytecheck/tree.py`
 - 呼び手: `tools/bytecheck/cli.py`
 - 読む試験: `tests/tools/test_bytecheck.py`
 - 環境変数: `SHIBUYA_FLEET_API_KEY`・`os.environ` をまるごと使う

@@ -69,7 +69,15 @@ def test_ret_a_tape_from_before_the_activation_is_not_replayed(tmp_path):
             _rep(tmp_path, "t")
     meta.write_text(json.dumps(base) + "\n", encoding="utf-8")
     assert _rep(tmp_path, "t").tape_miss_count == 0
-    assert not hasattr(RUN, "resolve_calendar_schemes") and not hasattr(RUN, "CalendarSchemeWarning")
+    import importlib
+
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕消した名は run の元の名を定義する今のモジュールの全部に無い(割った後に割り先の 1 つだけを見ない。
+    # 割る前は shibuya.engine.run=前と同じ範囲)
+    for rel in PL.split_files("engine/run.py"):
+        mod = importlib.import_module(PL.module_of(rel))
+        assert not hasattr(mod, "resolve_calendar_schemes") and not hasattr(mod, "CalendarSchemeWarning"), rel
 
 
 def test_act_weather_manifest_declares_the_two_expedients(tmp_path):

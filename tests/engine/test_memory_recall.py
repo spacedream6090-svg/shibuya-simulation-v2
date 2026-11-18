@@ -354,7 +354,11 @@ def test_memory_tau_is_passed_and_checked():
 
     with pytest.raises(ValueError):
         run_day(n_agents=10, ticks=2, memory="on", memory_tau=float("nan"))
-    text = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    text = PL.split_source("cli.py")
     assert '"--memory-tau"' in text and "memory_tau=float(args.memory_tau)" in text
 
 

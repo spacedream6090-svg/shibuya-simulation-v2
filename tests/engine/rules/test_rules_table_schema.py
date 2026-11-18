@@ -283,7 +283,11 @@ def test_only_the_manifest_and_the_daily_record_import_the_table():
     〔第 4 期 4-2〕``economy/taxes.py``(税・社会保険・消費税の端数と期限・信用の上限・割増=machine の行の読み手)。
     〔第 6 期 6-2 カレンダー 3〕``engine/calendar3/layer.py``(労働時間の human の行を読むだけ=超えた数を記録=止めない・腕 arm の
     ランだけ=既定の挙動は不変)。"""
-    assert _readers() == {"engine/run.py", "runtime/systems/state_io.py", "runtime/systems/assemble.py", "economy/anchors.py",
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕run の読み手は RunResult(manifest の欄)を定義する今のファイル(割る前は engine/run.py=前と同じ。
+    # 割った後は runtime/result.py=道具は字面の道を主な割り先 runtime/run.py へ書き換えるので表から引く)
+    assert _readers() == {*PL.split_files("engine/run.py", ("RunResult",)), "runtime/systems/state_io.py", "runtime/systems/assemble.py", "economy/anchors.py",
                           "economy/taxes.py", "interim_bundles/calendar3/layer.py"}
 
 

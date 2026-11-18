@@ -19,7 +19,6 @@ import pytest
 from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.world.model.agent_table import AgentState
 from shibuya.world.facts.calendar import SimCalendar, load_holidays
-from shibuya.engine import presence as _PRESENCE
 from shibuya.world.laws import environment as ENV
 from shibuya.world.laws.runner import WorldProcessRunner
 from shibuya.engine.run import (
@@ -125,7 +124,15 @@ def test_named_closed_next_day_comes_from_the_calendar(table):
 # ================================================================= ◐ #19 出勤率
 def test_the_attendance_draw_was_removed():
     """〔11-01 段 2 の 4〕出勤率のくじ(E6)は道ごと消した=全員出勤の宣言(``engine.rate_rules`` の attendance)。"""
-    assert not hasattr(_PRESENCE, "attendance_draw") and not hasattr(_PRESENCE, "ATTENDANCE_KINDS")
+    import importlib
+
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕消した名は presence の元の名を定義する今のモジュールの全部に無い(割った後に割り先の 1 つだけを見ない。
+    # 割る前は shibuya.engine.presence=前と同じ範囲)
+    for rel in PL.split_files("engine/presence.py"):
+        mod = importlib.import_module(PL.module_of(rel))
+        assert not hasattr(mod, "attendance_draw") and not hasattr(mod, "ATTENDANCE_KINDS"), rel
 
 
 # ================================================================= 切替口の引数
