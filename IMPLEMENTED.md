@@ -394,6 +394,15 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #160 コードの区分の移動 段 5a の群 3=推論の口 5 本を割った(1 バイト不変)(11-16 §8 の 5・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §4。記録 [split5a-347](docs/bench/analysis/split5a-347/README.md) §11。commit 7b4e8a6。安定版のタグ `stable-v2-before-split5a-G3`(6af6cf1=群の土台)・次の群の土台 `stable-v2-before-split5a-G4`(この commit)。
+- **割った 5 本**: `llm/__init__.py` → `foundation/ports/inference.py`(口の型 5 名。末尾の再輸出 3 文は持ち込まない)/`llm/fleet.py` → `runtime/inference/fleet.py` と `foundation/ports/inference.py`(型と口 17 名)/`llm/mock.py` → `runtime/inference/mock.py`(`MOCK_UTTERANCE` は `foundation/vocab/actions.py` へ)/`llm/undefined.py` → `act/intake/undefined.py`(`TARGET_HINT_WORDS` は `foundation/vocab/act_codes.py` へ)/`engine/llm_bridge.py` → `runtime/inference/bridge.py`(`RenderedPrompt`・`Renderer` は inference へ)。古い包み `llm/` は無くなった。
+- **読み手**: import の文 36・25・30・26・29 を道具が書き換えた。固定の表の鍵 33・台帳の道の表 5 行も同じ実行で直した。凍結の値(クラスの名・名の凍結・つなぎの台帳・乱数の領域の名・`shibuya.cache_salt`・版の ID)は変えていない。手で直した読み 0。中身を見る試験 1 本を、2 つの割り先を見る形に直した。
+- **import の決まり**: 契約 12 → 11(`llm` の古い決まり 1 つが宣言どおり消えた)。例外は 5 本消えて 25 本・延べ 34 行。効いている例外は 18 本/27 行(計画どおり)。前から在った読み込みの時の import の循環 1 組(parser・llm・llm.fleet・llm.mock)は 0 組になった。
+- **別の役の検収**: 受入(高 0・中 0・低 6)。今の道具と表で 5 本を当て直し、できた src が作業木と全部同じ。頭の再輸出が消えて読み込みの順が変わっても結果が変わらないこと(読み込みの時に走るのは飾りと表の計算と assert だけ)を確かめた。低への直し=消えた決まりの代わりに、mock と undefined を fleet と同じ範囲で AST から見る試験を 1 本足した。古くなった注と docstring は段 8 の文の掃除で直す。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(基準 46f4b69・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま。実装役の 1 本ごとの 5 組も同じ=基準 6af6cf1)。範囲の試験 6,927 passed・前からの 1 本だけが落ちる。lint-imports 11 kept。実装役は 5 本目の途中で週の利用の上限に当たり、約 1 日半あとに続きから再開した(状態を確かめてから試験と byte-check を回し直した)。
+
 ### #159 コードの区分の移動 段 5a の群 2=出来事の語 3 本を割った(1 バイト不変)+割る道具に循環の守り(11-16 §8 の 5・第347・2026-11-16・実装役と検収役 Opus 5.5・親が検収)
 
 - 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §4(1 名だけ親の仮採用で変えた)。記録 [split5a-347](docs/bench/analysis/split5a-347/README.md) §10。commit 6af6cf1。次の群の土台の安定版のタグ `stable-v2-before-split5a-G3`(この commit)。直前の commit は 9f4fa77(版上げ Q13 の後)。
