@@ -394,6 +394,15 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #163 コードの区分の移動 段 5b の群 1=`engine/commit`・`engine/presence`・`engine/calendar_shadow` の 3 本を割った(1 バイト不変)(11-16 §8 の 5・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §3・§4。記録 [split5b-347](docs/bench/analysis/split5b-347/README.md) §12・§13。commit ce59591。安定版のタグ `stable-v2-before-split5b-G2`(この commit)。戻し方= `git checkout stable-v2-before-split5b-G1`。
+- **割り先**: 18 本目 `engine/commit.py` → `act/commit.py`(9 名)・`act/intake/from_words.py`(11 名)・`foundation/vocab/act_codes.py`(在るファイルの後ろへ 34 名)/19 本目 `engine/presence.py` → `world/laws/presence.py`(15 名)・`world/laws/presence_plan.py`(15 名)/20 本目 `engine/calendar_shadow.py` → `society/calendar_shadow.py`(21 名と腕の確かめの文 1)・`world/facts/w20_calendar_reader.py`(15 名)。`engine/` に残るのは `resolve.py` と `run.py`。
+- **手で直した読み**: 28 本(18 本目=src 5・tests 21/20 本目=src 1・tests 1/19 本目 0)。割り先ごとに別名を 1 つ・属性の読みのまま(名の import に替えない=差し替えの効く先を保つ)。道具が書き換えた import の文は 79・18・13。表を引く口の鍵は書き換えていない。`tests/c7` は道具が 1 か所も挙げなかった。
+- **import の決まり**: 契約 11 のまま。例外は 22 辺・延べ 30 行 → 20 辺・延べ 26 行(`mind.judge.decision.layer`・`mind.memory.memory` → `engine.commit` の 2 辺が消えた)。載せた例外は全部効いている。
+- **別の役の検収**: 受入(高 0・中 0・低 3)。土台に道具を当て直して作業木と突き合わせ、違いは手で直した 28 本と足した試験 1 本だけ。差し替えの空振り・範囲の狭まりは無い。低=割り先に古い置き場の名の注が残る(段 8 で直す)/不正な `SHIBUYA_CALENDAR_SHADOW` で止まる確かめが暦の影の側だけになった(読み口だけを読む道具は止まらない・ランは変わらない=親の仮採用でそのまま)/記録の数の書き添え(済)。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(実装役が 1 本ごと・親が群の終わりに本体の道具で・基準 4af887b・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)。範囲の試験 6,950 passed・1 failed(前からの 1 本)・21 skipped・1 xfailed。lint-imports 11 kept。割る道具の試験に、f 文字列の部分を手で直す一覧へ出す枝の負の対照を 1 本足した(G0 の再検収の低)。
+
 ### #162 コードの区分の移動 段 5b の G0=割る道具に入口の転送・入口の移し・byte-check の入口を足し、割る前の試験を直した(src は変えていない)(11-16 §8 の 5・§1-6 の 6・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
 
 - 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6 の 6。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §3・§4。記録 [split5b-347](docs/bench/analysis/split5b-347/README.md)。commit 4af887b。安定版のタグ `stable-v2-before-split5b-G1`(この commit)。src は 1 字も変えていない(astsame で変わった .py 0 本)。

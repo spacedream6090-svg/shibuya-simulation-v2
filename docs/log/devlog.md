@@ -25,7 +25,8 @@
 - **続き(11-18・5a の群 3 が入った)**: 11-16 の夜、実装役が週の利用の上限に当たって止まった(群 3 の 5 本目の途中)。11-18 の朝、ユーザーの指示で再開。群 3=7b4e8a6(llm/__init__・llm/fleet・llm/mock・llm/undefined・engine/llm_bridge を割った・byte-check 19 構成 37 欄すべて同じ・範囲 6,927 passed・検収 受入・契約 12 → 11・例外 25/34・前から在った import の循環 1 組が 0 組に)。タグ stable-v2-before-split5a-G4。IMPLEMENTED #160。検収の低から試験 1 本(mock と undefined が古い包みを読まないこと)。CI=6af6cf1 緑 77 分・46f4b69 緑 82 分。
 - **続き(11-18・5a の群 4・5 が入った=5a が済んだ)**: 群 4・5=b801a53(chooser・poi_target・attention・change_detect・arbiter・relations を割った・byte-check 19 構成 37 欄すべて同じ・範囲 6,926 passed(落ちたのは前からの 1 本だけ)・検収 条件つき受入=中 1 件〔test_two_phase のホットパスの一覧が狭くなっていた〕を親が直した・契約 11・例外 22/30)。タグ stable-v2-before-split5b-G0。IMPLEMENTED #161。待ち時間に段 6・7 の計画を読むだけの役 2 本で作り、親が問い 30 個を裁定(報告 §11 の 22・23)。CI=7b4e8a6 緑 76 分・ee23ee2 緑 80 分。
 - **続き(11-18・5b の G0 が入った)**: G0=4af887b(割る道具に入口の転送・入口の移し・byte-check の入口・割る前の試験 29 本の直し・src は変えていない・byte-check 19 構成 37 欄すべて同じ〔新しい道具で両側〕・範囲 6,942 passed・1 failed(前からの 1 本)・21 skipped・1 xfailed・検収 条件つき受入=高 2 件〔表の鍵の書き換え・コードの文字列の import の見落とし〕を実装役が直し、再検収は受入)。タグ stable-v2-before-split5b-G1。IMPLEMENTED #162。CI=b801a53 緑 65 分・9363b36 緑 74 分。
-- **次**: 5b の群 1(commit・presence・calendar_shadow)→ 群 2(run)→ 群 3(cli)→ 段 6 → 段 7。判断待ちは PENDING の〔第347〕の行。
+- **続き(11-18・5b の群 1 が入った)**: 群 1=ce59591(`engine/commit`・`engine/presence`・`engine/calendar_shadow` の 3 本を割った・手で直した読み 28 本=割り先ごとの別名・属性の読みのまま・例外 22 辺/30 行 → 20 辺/26 行・byte-check 19 構成 37 欄すべて同じ〔実装役 1 本ごと+親〕・範囲 6,950 passed・1 failed(前からの 1 本)・21 skipped・1 xfailed・検収 受入=高 0・中 0・低 3)。変わった所 1 つ=不正な `SHIBUYA_CALENDAR_SHADOW` で止まる確かめが暦の影の側だけになった(ランは変わらない・親の仮採用でそのまま)。タグ stable-v2-before-split5b-G2。IMPLEMENTED #163。CI=4af887b 緑 78 分・ff0b2af(台帳だけ)赤 1 本=`test_fleet_wiring` の壁時計に頼る試験(同じコードの 4af887b は緑・揺れと見ている=推測・回し直していない)。
+- **次**: 5b の群 2(run)→ 群 3(cli)→ 段 6 → 段 7。判断待ちは PENDING の〔第347〕の行。
 
 ## 第346(2026-11-09〜10)返事その 7 の受領=原文と添付 4 本を置き索引に 11-09 を足した。CLAUDE.md の書き換え・段 2 の直し・byte-check の道具・旧道の削除・食い違いの決着・最終の全ファイルの表・研究 5 本
 
