@@ -394,6 +394,16 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #165 コードの区分の移動 段 5b の群 3=`cli.py` を割り、`shibuya/cli.py` を入口の転送として残した(1 バイト不変・段 5b の 5 本が済んだ)(11-16 §8 の 5・§1-6 の 6・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6 の 6。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §4-15。記録 [split5b-347](docs/bench/analysis/split5b-347/README.md) §16〜§18。commit は 2 つ= e6d221c(道具の拡張と割る前の試験の直し・src は変えていない)・a6469a2(当てた段)。安定版のタグ `stable-v2-before-split6-A`(当てた段の commit)。戻し方= `git checkout stable-v2-before-split5b-G3`。
+- **割り先**: 22 本目 `cli.py` → `interfaces/cli/main.py`(20 名と `if __name__ == "__main__"` の文)・`interfaces/cli/wire_economy.py`(10 名)。`shibuya/cli.py` は決まった型の転送(docstring と `__main__` の節の中の import と呼び出しだけ・名を結ばない)。
+- **入口**: `python -m shibuya.cli` は前と同じに動く(`--help` は 43,348 バイトで 1 バイトも同じ・既定の mock のランの final と呼数も同じ)。`from shibuya import cli` で名を読む形は動かない(道具が読み手を書き換えた= import の文 189・コードの文字列 14)。
+- **道具の拡張 E5-a**(e6d221c): `split.py` に別名の割り先の宣言の表 `SPLIT_ALIAS_DESTS`(6 行・試験 4 ファイル)と守り 6 つ。差し替えの向け先の決まり(割る前にその名を読んでいた関数の全部に届くように向ける)を道具が通せるようにした。割る前の試験 7 本を直し、試験を 1 本足した。
+- **import の決まり**: 契約 11 のまま・例外 20 辺・延べ 26 行のまま(全部効く)。古い読み手 `shibuya.cli` が 2 つの契約の読んでよい側から外れた。
+- **別の役の検収**: E5-a は受入(高 0・中 0・低 2)。当てた段は条件つき受入(高 0・中 1・低 4)。土台に道具を当て直して作業木と突き合わせ、違いは 0 本。差し替え 25 か所は決まりどおり・外しても落ちない行は 0。中-1= docs の古い台本 2 本が、誤りが起きても止まらず「止まった」と黙って書く形 → import の行を手で直した。低= 不正な環境変数で止まらない import の形 2 つ(`wire_economy` だけ・転送を `-m` なしで。入口と `main` は前と同じ=親の仮採用でそのまま)/割る行が残り 0 で飛ぶ道具の試験 1 本 → 飛ばさず、書かない実行が何も書かないことを確かめる形に直した/割り先に残る古い名の docstring(段 8)/宣言の効き目は当てた後に確かめる手順を段 6 へ。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(実装役 440 秒・親 449 秒・基準 e6d221c・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)。範囲の試験 6,960 passed・1 failed(前からの 1 本)・23 skipped・1 xfailed(検収の後の直しの前の回。飛んだ 1 本は直しで passed に戻り、道具の試験の束は 754 passed・21 skipped)。lint-imports 11 kept。`split` の書かない実行は「割る段は全部当たっている」(22 本)。
+
 ### #164 コードの区分の移動 段 5b の群 2=`engine/run` を割り、`python -m shibuya.engine.run` の入口を interfaces へ移した(1 バイト不変)(11-16 §8 の 5・§1-6 の 6・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
 
 - 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6 の 6。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §4-15。記録 [split5b-347](docs/bench/analysis/split5b-347/README.md) §14・§15。commit b0afefd。安定版のタグ `stable-v2-before-split5b-G3`(この commit)。戻し方= `git checkout stable-v2-before-split5b-G2`。
