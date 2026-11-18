@@ -884,4 +884,4 @@ def _is_strict_two_line(text: str) -> bool:
 # 〔移す段 4 の下ごしらえ〕語彙の外の語の読み替えの口は、モジュールの終わりで読む(関数の中でだけ使う)。頭で読むと、本モジュールを
 # 包み ``shibuya.llm`` の外へ移した後に「本モジュール → llm.undefined → 包みの頭 → llm.fleet → 本モジュール(定義の前)」の
 # 循環の import になる。終わりで読めば、循環しても名は定義の後(今の置き場では読む順が変わるだけ=結果は変わらない)。
-from shibuya.llm.undefined import map_synonym, target_surface_hint  # noqa: E402
+from shibuya.act.intake.undefined import map_synonym, target_surface_hint  # noqa: E402

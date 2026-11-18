@@ -136,7 +136,7 @@ class BranchClient:
 
     def complete(self, request: Any) -> Any:
         from shibuya.runtime.inference.tape import TapeMiss
-        from shibuya.llm import LLMResponse, estimate_tokens
+        from shibuya.foundation.ports.inference import LLMResponse, estimate_tokens
 
         m = self._meters
         if int(request.tick) < self.t0_step:

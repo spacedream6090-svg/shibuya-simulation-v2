@@ -11,7 +11,7 @@
 | [src](src/README.md) | 0 | 0 |
 | [src/shibuya](src/shibuya/README.md) | 2 | 0 |
 | [src/shibuya/act](src/shibuya/act/README.md) | 3 | 0 |
-| [src/shibuya/act/intake](src/shibuya/act/intake/README.md) | 2 | 0 |
+| [src/shibuya/act/intake](src/shibuya/act/intake/README.md) | 3 | 0 |
 | [src/shibuya/build](src/shibuya/build/README.md) | 3 | 0 |
 | [src/shibuya/build/audit](src/shibuya/build/audit/README.md) | 5 | 0 |
 | [src/shibuya/build/field](src/shibuya/build/field/README.md) | 12 | 0 |
@@ -22,7 +22,7 @@
 | [src/shibuya/build/space](src/shibuya/build/space/README.md) | 5 | 0 |
 | [src/shibuya/build/vis](src/shibuya/build/vis/README.md) | 5 | 0 |
 | [src/shibuya/economy](src/shibuya/economy/README.md) | 18 | 0 |
-| [src/shibuya/engine](src/shibuya/engine/README.md) | 12 | 0 |
+| [src/shibuya/engine](src/shibuya/engine/README.md) | 11 | 0 |
 | [src/shibuya/experiments](src/shibuya/experiments/README.md) | 1 | 0 |
 | [src/shibuya/experiments/drive](src/shibuya/experiments/drive/README.md) | 3 | 0 |
 | [src/shibuya/experiments/port](src/shibuya/experiments/port/README.md) | 8 | 0 |
@@ -31,16 +31,15 @@
 | [src/shibuya/foundation/decl](src/shibuya/foundation/decl/README.md) | 3 | 0 |
 | [src/shibuya/foundation/journal](src/shibuya/foundation/journal/README.md) | 3 | 0 |
 | [src/shibuya/foundation/manifest](src/shibuya/foundation/manifest/README.md) | 4 | 0 |
-| [src/shibuya/foundation/ports](src/shibuya/foundation/ports/README.md) | 6 | 0 |
+| [src/shibuya/foundation/ports](src/shibuya/foundation/ports/README.md) | 7 | 0 |
 | [src/shibuya/foundation/queues](src/shibuya/foundation/queues/README.md) | 3 | 0 |
 | [src/shibuya/foundation/text](src/shibuya/foundation/text/README.md) | 5 | 0 |
-| [src/shibuya/foundation/vocab](src/shibuya/foundation/vocab/README.md) | 6 | 0 |
+| [src/shibuya/foundation/vocab](src/shibuya/foundation/vocab/README.md) | 7 | 0 |
 | [src/shibuya/interim_bundles](src/shibuya/interim_bundles/README.md) | 2 | 0 |
 | [src/shibuya/interim_bundles/calendar2](src/shibuya/interim_bundles/calendar2/README.md) | 2 | 0 |
 | [src/shibuya/interim_bundles/calendar3](src/shibuya/interim_bundles/calendar3/README.md) | 4 | 0 |
 | [src/shibuya/interim_bundles/contact](src/shibuya/interim_bundles/contact/README.md) | 3 | 0 |
 | [src/shibuya/interim_bundles/duties](src/shibuya/interim_bundles/duties/README.md) | 3 | 0 |
-| [src/shibuya/llm](src/shibuya/llm/README.md) | 4 | 0 |
 | [src/shibuya/mind](src/shibuya/mind/README.md) | 1 | 0 |
 | [src/shibuya/mind/judge](src/shibuya/mind/judge/README.md) | 3 | 0 |
 | [src/shibuya/mind/judge/decision](src/shibuya/mind/judge/decision/README.md) | 5 | 0 |
@@ -51,7 +50,7 @@
 | [src/shibuya/perception](src/shibuya/perception/README.md) | 3 | 0 |
 | [src/shibuya/runtime](src/shibuya/runtime/README.md) | 3 | 0 |
 | [src/shibuya/runtime/clocks](src/shibuya/runtime/clocks/README.md) | 5 | 0 |
-| [src/shibuya/runtime/inference](src/shibuya/runtime/inference/README.md) | 2 | 0 |
+| [src/shibuya/runtime/inference](src/shibuya/runtime/inference/README.md) | 5 | 0 |
 | [src/shibuya/runtime/state](src/shibuya/runtime/state/README.md) | 8 | 0 |
 | [src/shibuya/runtime/systems](src/shibuya/runtime/systems/README.md) | 22 | 0 |
 | [src/shibuya/society](src/shibuya/society/README.md) | 3 | 0 |
@@ -159,7 +158,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 339 ディレクトリ・2437 本
+- [docs の索引](docs.md): 345 ディレクトリ・2455 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

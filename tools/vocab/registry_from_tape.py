@@ -46,7 +46,7 @@ if str(REPO_ROOT / "src") not in sys.path:  # pragma: no cover - 実行時の経
 
 from shibuya.cli import undefined_registry_payload  # noqa: E402
 from shibuya.runtime.inference.tape import Tape  # noqa: E402
-from shibuya.llm import UndefinedActionRegistry
+from shibuya.act.intake.undefined import UndefinedActionRegistry
 from shibuya.act.intake.parser import parse_two_line  # noqa: E402
 
 __all__ = [

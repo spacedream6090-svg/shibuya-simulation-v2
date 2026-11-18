@@ -333,11 +333,11 @@ def _replay(monkeypatch, tape, *, drop_percepts: bool = False):
 
 
 def test_replay_inbox_never_holds_a_percept(recorded_tape, monkeypatch, tmp_path):
-    from shibuya.engine.llm_bridge import BridgeResult
+    from shibuya.runtime.inference.bridge import BridgeResult
     from shibuya.engine.run import run_day
     from shibuya.runtime.state import resume as RS
     from shibuya.runtime.state.hashes import to_state
-    from shibuya.llm.fleet import FleetBridgeResult
+    from shibuya.runtime.inference.fleet import FleetBridgeResult
     from shibuya.world.model.state import World
 
     assert "percept" not in {f.name for f in dataclasses.fields(BridgeResult)}

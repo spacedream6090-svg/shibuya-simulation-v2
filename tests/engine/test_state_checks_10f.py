@@ -332,7 +332,7 @@ def test_k19_static_sites_are_frozen():
     # "llm/fleet.py"=割る段で道が無くなると何も確かめずに通る。クラスの定義のファイルから作る
     import inspect
 
-    from shibuya.llm.fleet import FleetClient
+    from shibuya.runtime.inference.fleet import FleetClient
 
     fleet_path = Path(inspect.getsourcefile(FleetClient)).resolve().relative_to(SRC.resolve()).as_posix()
     assert (SRC / fleet_path).is_file() and "client.stream" in (SRC / fleet_path).read_text(encoding="utf-8")

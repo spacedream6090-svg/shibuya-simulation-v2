@@ -78,7 +78,7 @@ from shibuya.mind.plan.head_recall import IMPORTANCE_HEAD, HeadRecall
 from shibuya.foundation.ports.decision import Candidate, DecisionContext
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.log import Event, LlmCall, Process
-from shibuya.llm.mock import MOCK_UTTERANCE
+from shibuya.foundation.vocab.actions import MOCK_UTTERANCE
 
 __all__ = [
     "SCHEMA", "CONFIG_KEYS", "OBSERVED_KEYS", "ARBITRATION", "EARLY_MIN", "W_OFFER", "W_ACCEPT", "W_TENTATIVE",

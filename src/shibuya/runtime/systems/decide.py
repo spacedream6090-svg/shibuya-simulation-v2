@@ -32,8 +32,8 @@ from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS_ALL
 from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.engine import resolve as R
 from shibuya.runtime.systems import llm_io as _LLM_IO
-from shibuya.llm.fleet import LLMCall
-from shibuya.llm.fleet import split_system_user
+from shibuya.foundation.ports.inference import LLMCall
+from shibuya.foundation.ports.inference import split_system_user
 from shibuya.foundation.rng import key_time_from_t_ns
 from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, STEPS_PER_HOUR
 

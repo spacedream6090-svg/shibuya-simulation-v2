@@ -38,7 +38,7 @@ from shibuya.society.speech.port import (
     Utterance,
 )
 from shibuya.foundation.vocab.actions import NO_TARGET, SPEECH_FIELD_LINE
-from shibuya.llm.mock import MOCK_UTTERANCE
+from shibuya.foundation.vocab.actions import MOCK_UTTERANCE
 
 __all__ = [
     "ARM_OFF", "ARM_ON", "ARMS", "arm", "set_arm", "REACH", "CONFIG_KEYS", "OBSERVED_KEYS", "manifest_fields",

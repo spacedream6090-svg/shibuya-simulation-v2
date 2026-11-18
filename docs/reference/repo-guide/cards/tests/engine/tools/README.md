@@ -32,7 +32,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_table_is_empty_and_frozen`(関数)
   - `test_unknown_agents_get_nothing`(関数)
   - `test_unmet_requirements_hide_the_tool`(関数)
-- import している内部モジュール: `shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.sources`・`shibuya.society.tools.record`・`shibuya.society.tools.registry`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.sources`・`shibuya.runtime.inference.bridge`・`shibuya.society.tools.record`・`shibuya.society.tools.registry`・`tests/engine/decision/_j0.py`
 
 ## [test_c0_contacts_in_relations.py](../../../../../../../tests/engine/tools/test_c0_contacts_in_relations.py)
 

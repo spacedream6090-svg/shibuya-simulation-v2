@@ -12,7 +12,8 @@ import json
 import httpx
 import pytest
 
-from shibuya.llm.fleet import FLEET_API_KEY_ENV, FleetClient, FleetConfig, LLMCall, Outcome, fleet_auth_headers
+from shibuya.runtime.inference.fleet import FLEET_API_KEY_ENV, FleetClient, FleetConfig, fleet_auth_headers
+from shibuya.foundation.ports.inference import LLMCall, Outcome
 
 GOOD = "理由: 予定の時間になったから\n行動: 移動 対象: C-0001 ひと言: なし"
 

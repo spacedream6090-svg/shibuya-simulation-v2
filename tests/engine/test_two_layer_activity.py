@@ -42,7 +42,7 @@ from shibuya.act.activity import (
 from shibuya.engine.arbiter import Arbiter, WakeCandidates
 from shibuya.engine.run import Checkpoint, run_day
 from shibuya.foundation.hashing import blake3_hex
-from shibuya.llm import LLMResponse
+from shibuya.foundation.ports.inference import LLMResponse
 from shibuya.foundation.vocab.actions import (
     NONE_ACTION_CODE,
     UNDEFINED_ACTION,
@@ -449,7 +449,7 @@ def test_renderer_v3_expiry_reason_and_failure_options():
 
 # ------------------------------------------------------------------ bridge(役割語・対象ヒント)
 def test_bridge_role_words_fall_back_to_none_and_hints_carry_in_v3():
-    from shibuya.engine.llm_bridge import LLMBridge
+    from shibuya.runtime.inference.bridge import LLMBridge
 
     class Fixed:
         def __init__(self, text):

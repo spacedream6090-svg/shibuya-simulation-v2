@@ -25,7 +25,7 @@ from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.foundation.journal.log import EventLog, LlmCall
 from shibuya.society.speech import port as P
 from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE
-from shibuya.llm.mock import MOCK_UTTERANCE
+from shibuya.foundation.vocab.actions import MOCK_UTTERANCE
 from shibuya.perception import renderer as R
 from shibuya.foundation.text import templates as T
 from tests.engine.speech._s8b import run_small, tape_rows
@@ -376,7 +376,7 @@ def test_the_classical_policy_speaks_through_the_same_port():
     import numpy as np
 
     from shibuya.society.speech import layer as SPL
-    from shibuya.llm import LLMRequest
+    from shibuya.foundation.ports.inference import LLMRequest
     from shibuya.act.intake.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
 
     turn = int(WakeCondition.CONVERSATION_TURN)

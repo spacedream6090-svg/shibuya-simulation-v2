@@ -29,17 +29,19 @@ import pytest
 from shibuya.foundation.hashing import sha256_cbor
 from shibuya.runtime.inference.tape import Replay, TapeRow, TapeWriter
 from shibuya.foundation.vocab.actions import ACTION_CODES
-from shibuya.llm import UndefinedActionRegistry
-from shibuya.llm.fleet import (
+from shibuya.act.intake.undefined import UndefinedActionRegistry
+from shibuya.foundation.ports.inference import (
     Deferred,
+    LLMCall,
+    Outcome,
+    route_primary,
+)
+from shibuya.runtime.inference.fleet import (
     FleetBridge,
     FleetBridgeResult,
     FleetClient,
     FleetConfig,
-    LLMCall,
-    Outcome,
     plan_batch,
-    route_primary,
 )
 from shibuya.foundation.manifest.schema import Mode
 
@@ -562,7 +564,7 @@ def test_bridge_passes_deferred_through_untouched(fleet2):
 
 def test_fleet_client_is_drop_in_for_existing_llm_bridge(fleet2, tmp_path: Path):
     """``FleetClient`` は ``llm.LLMClient`` 契約を満たす=既存 bridge にそのまま挿さる。"""
-    from shibuya.engine.llm_bridge import LLMBridge, StubRenderer
+    from shibuya.runtime.inference.bridge import LLMBridge, StubRenderer
 
     cfg = make_config(fleet2, stream=False)
     with FleetClient(cfg) as client:

@@ -12,13 +12,14 @@ import pytest
 
 from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
 from shibuya.engine import commit as C
-from shibuya.engine.llm_bridge import LLMBridge
+from shibuya.runtime.inference.bridge import LLMBridge
 from shibuya.engine.run import run_day
 from shibuya.runtime.inference.tape import Tape, TapeWriter
-from shibuya.llm import LLMResponse, MockLLM
+from shibuya.foundation.ports.inference import LLMResponse
+from shibuya.runtime.inference.mock import MockLLM
 from shibuya.foundation.vocab.actions import format_two_line
 from shibuya.foundation.vocab.actions import ACTION_CODES, UNDEFINED_ACTION
-from shibuya.llm.undefined import ProposalStatus, UndefinedActionRegistry
+from shibuya.act.intake.undefined import ProposalStatus, UndefinedActionRegistry
 
 
 class WordLLM:

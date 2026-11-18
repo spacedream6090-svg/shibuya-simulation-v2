@@ -65,7 +65,7 @@ from shibuya.foundation.ports.decision import (
     DecisionPort,
     present,
 )
-from shibuya.llm.mock import MOCK_UTTERANCE
+from shibuya.foundation.vocab.actions import MOCK_UTTERANCE
 
 __all__ = [
     "HABIT_DOMAIN", "P_CHARGE", "P_EXCHANGE", "P_GROUPS", "P_HABIT_NOTICE", "P_HABIT_REPLY", "K_CHARGE", "K_NO_CHARGE",

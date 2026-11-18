@@ -59,7 +59,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_b5_text_is_the_same_with_and_without_the_store`(関数)
   - `test_render_memories_edges`(関数)
   - `test_render_memories_equals_the_b5_memory_line`(関数)
-- import している内部モジュール: `shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.foundation.time_consts`・`shibuya.mind.memory.memory_store`・`tests/engine/memory/_m0.py`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.time_consts`・`shibuya.mind.memory.memory_store`・`shibuya.runtime.inference.bridge`・`tests/engine/memory/_m0.py`
 
 ## [test_m0_shown_recorded.py](../../../../../../../tests/engine/memory/test_m0_shown_recorded.py)
 

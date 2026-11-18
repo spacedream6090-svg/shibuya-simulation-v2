@@ -253,9 +253,9 @@ SAFE_SITES: Final[frozenset[tuple[str, str, str]]] = frozenset({
     ("mind/judge/classical.py", "ClassicalPolicy.answer", "policy.classical"),  # 〔1-8 J0〕render の中身を answer へ移した
     # 〔第330・10e B6〕天気の規則 calendar の再生日の抽選(鍵 1 語=層の名前と日番号のハッシュ・引く語数 2)
     ("world/laws/environment.py", "sample_calendar_day", "engine.processes.environment"),
-    ("llm/mock.py", "MockLLM._draws", "expr:self.domain"),
-    ("llm/mock.py", "MockLLM._move_target", "expr:self.domain + _MOVE_TARGET_DOMAIN_SUFFIX"),
-    ("llm/mock.py", "MockLLM._shop_target", "expr:self.domain + _SHOP_TARGET_DOMAIN_SUFFIX"),
+    ("runtime/inference/mock.py", "MockLLM._draws", "expr:self.domain"),
+    ("runtime/inference/mock.py", "MockLLM._move_target", "expr:self.domain + _MOVE_TARGET_DOMAIN_SUFFIX"),
+    ("runtime/inference/mock.py", "MockLLM._shop_target", "expr:self.domain + _SHOP_TARGET_DOMAIN_SUFFIX"),
     # 〔第 2 期 2-2 段 11a〕知人に気づく抽選(0 語目を空け 1〜3 語目に時刻の鍵・体・相手=k19_counters・1 語だけ引く)
     ("world/model/proximity.py", "ProximityRule.notice_u", "proximity.notice"),
     # 〔第 6 期 6-5〕忘れる速さの人ごとのばらつき(0 語目を空け 1 語目に体の番号=k19_counter_array・2 語だけ引く)
@@ -313,7 +313,7 @@ UNDETERMINED_SITES: Final[dict[tuple[str, str, str], str]] = {
     ("mind/plan/duties_port.py", "DutiesPort.choose", "duties.present"):
         "Generator を present に渡し、present が permutation(候補の数)を引く。0 語目を空け 1〜3 語目に刻みの鍵・体・その刻みの"
         "その体の判断の番号(k19)=実行時に重なり 0 を見る(第 6 期 6-6 ② 第 1 部)",
-    ("llm/mock.py", "MockLLM._stream", "expr:self.domain"):
+    ("runtime/inference/mock.py", "MockLLM._stream", "expr:self.domain"):
         "Generator を返し、呼び手(MockLLM の応答)が引く。1 語目は tick=実行時に見る",
     ("perception/attention.py", "gate_stage1", "perception.attention.p_see"):
         "random(n) の n が式(呼び手はどれも 1 件=10c 検収)=実行時に見る",

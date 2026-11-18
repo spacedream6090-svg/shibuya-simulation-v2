@@ -24,7 +24,7 @@ from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_DAY
 from shibuya.experiments.drive import branch as BR
 from shibuya.experiments.drive import switch as SW
 from shibuya.runtime.inference.tape import TapeRow, TapeWriter
-from shibuya.llm import LLMRequest, LLMResponse
+from shibuya.foundation.ports.inference import LLMRequest, LLMResponse
 
 from tests.engine.experiment._x33 import form
 
@@ -163,7 +163,7 @@ class _Other:
 
 
 def test_model_labels_and_determinism():
-    from shibuya.llm.mock import MockLLM
+    from shibuya.runtime.inference.mock import MockLLM
 
     assert SW.model_label(MockLLM(1)) == "mock" and SW.model_label(_Live()) == "stand_in"
     assert SW.is_deterministic("mock") and SW.is_deterministic("classical") and not SW.is_deterministic("llm")
@@ -308,7 +308,7 @@ def test_an_injected_port_can_declare_determinism(tmp_path):
     sw3 = SW.ReplaySwitch(_Live(), spec)
     assert sw3.deterministic is False and sw3.deterministic_by == "spec"
     # 真偽でない値・属性の無い口は宣言とみなさない(札で決める=mock は決定論)
-    from shibuya.llm.mock import MockLLM
+    from shibuya.runtime.inference.mock import MockLLM
 
     assert SW.declared_determinism(type("X", (), {"deterministic": 1})()) is None
     assert SW.declared_determinism(MockLLM(1)) is None and SW.declared_determinism(_Declared(None)) is True

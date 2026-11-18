@@ -17,9 +17,9 @@ import time
 from typing import Any
 
 from shibuya.foundation.vocab.agent_codes import WakeCondition
-from shibuya.engine.llm_bridge import delta_think_ticks
+from shibuya.runtime.inference.bridge import delta_think_ticks
 from shibuya.mind.memory.wom import hear as wom_hear
-from shibuya.llm.fleet import Deferred as FleetDeferred
+from shibuya.foundation.ports.inference import Deferred as FleetDeferred
 
 __all__ = ["utter", "receive_arrivals", "sys_llm_receive"]
 

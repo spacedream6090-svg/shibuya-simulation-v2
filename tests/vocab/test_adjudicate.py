@@ -14,8 +14,8 @@ import json
 import pytest
 
 from shibuya.cli import undefined_registry_payload
-from shibuya.llm import UndefinedActionRegistry
-from shibuya.llm.undefined import SYNONYMS
+from shibuya.act.intake.undefined import UndefinedActionRegistry
+from shibuya.act.intake.undefined import SYNONYMS
 
 
 # ---------------------------------------------------------------- 素材
@@ -286,7 +286,7 @@ def test_mock_adjudicator_is_deterministic_and_empty_by_design(adjudicate):
 
 def test_prompt_is_the_frozen_template_plus_json_spec(adjudicate):
     """起草プロンプトは ``ADJUDICATION_TEMPLATE`` の前半を再利用した固定文。"""
-    from shibuya.llm.undefined import ADJUDICATION_TEMPLATE
+    from shibuya.act.intake.undefined import ADJUDICATION_TEMPLATE
 
     head = ADJUDICATION_TEMPLATE.split("出力は次の5行に限ります")[0]
     assert adjudicate.DRAFT_PROMPT_TEMPLATE.startswith(head)
@@ -308,7 +308,7 @@ def test_policy_json_is_a_faithful_copy_of_the_dictionary(adjudicate):
     辞書の版が上がったときは**写しの更新が要る**(語彙政策 v0 §4-1 の 3 点セット)。
     その場合は「写しと現行辞書の差」を skip の理由に出す(黙って通さない・黙って赤にもしない)。
     """
-    from shibuya.llm.undefined import SYNONYM_TABLE_VERSION
+    from shibuya.act.intake.undefined import SYNONYM_TABLE_VERSION
 
     policy = adjudicate.load_policy()
     rows = policy["rows"]

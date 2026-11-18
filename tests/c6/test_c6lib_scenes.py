@@ -194,13 +194,13 @@ def test_selection_can_be_restricted_to_other_kinds(c6lib):
 # ---------------------------------------------------------------- 記録クライアント
 class _StubLLM:
     def complete(self, request):
-        from shibuya.llm import LLMResponse
+        from shibuya.foundation.ports.inference import LLMResponse
 
         return LLMResponse(text=f"理由: r{request.agent_id}\n行動: 待機 対象: なし ひと言: なし")
 
 
 def test_recording_llm_captures_full_prompts(c6lib, tmp_path):
-    from shibuya.llm import LLMRequest
+    from shibuya.foundation.ports.inference import LLMRequest
 
     rec = c6lib.RecordingLLM(_StubLLM())
     for i in range(3):

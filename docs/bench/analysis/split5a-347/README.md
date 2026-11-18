@@ -365,3 +365,75 @@ G0 の検収の直しの後の木(本体の頭 `dcd25a6c` の上へ載せ直し�
   (既定の final `c8d68704b7b0760d`・呼数 60,939・全体の壁時計 433 秒)。記録 [bytecheck_G2_parent/](bytecheck_G2_parent/)。
 - 載せ直し: ぶつかったのはカード 2 枚だけ(作り直した)。src・tests・tools にぶつかりは無い。載せ直した後の `lint-imports` は 12 kept。
 - **範囲の全体の試験**(載せ直した木): 6,927 passed・1 failed・21 skipped・1 xfailed(39 分 8 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木でだけ落ちる)。新しい失敗は無い。飛んだ試験は 21 本で群の前と同じ。増えた 2 本は、循環の守りの試験。
+
+## 11. G3 の当て(本物の木・群の土台 `6af6cf1`=G2 の commit・安定版のタグ `stable-v2-before-split5a-G3`)
+
+- 回し方は G2(§10)と同じ。加えて、1 本ごとに当てる前の戻り点を残した(G2 の検収の低 1=循環の守りは強連結成分の単位で比べるので、前から在る循環 parser・llm・fleet・mock の中で読み込みの順が変わって落ちる形は見ない。`--apply` の後の import の確かめで初めて分かる形が残る)。7 本目の前は `restore_07_before`、8〜11 本目の前は、その前の本の byte-check の後の戻り点 `restore_07`〜`restore_10` と同じ木。import の確かめは 5 本とも落ちなかった。
+- 当てる前の確かめ:
+  - 7〜17 本の書かない実行を G2 の後の木で取り直した: 7〜11 本は守り 12 個が「同じ」(10 本目の決まりは宣言どおり 5)・手で直す読み 0・import の循環 0。
+  - llm の 4 本・`engine/llm_bridge.py`・`act/intake/parser.py` の頂上の文: 呼び出しは `re.compile`・`dataclass`・自分の表からの辞書と組と assert だけ。ほかのモジュールへの登録・環境変数の読み・ファイルの読み書きは関数とメソッドの中だけ=読み込みの時の副作用は無い。7 本目で頭の再輸出 3 文が消えて読み込みの順が変わる分は、byte-check で同じと確かめた。
+  - 割り先の文(注と docstring と識別子)は、核の語の決まり(素の tick)の範囲(元の置き場が core と engine/systems)の外。識別子の決まりは名で引く表(置き場に依らない)。
+  - 空回りしうる試験(`test_channels` の `estimate_tokens`・`test_tm2_talk_clock`・`test_state_checks_10f` の `FleetClient` の置き場・`test_w21_stage8_9` の 2 本)と `test_fleet_contract` は、今の木で飛ばずに通った。
+- `cli.py allow` は回していない(§9 と同じ理由)。心の読みの一覧の `scope.split` に G3 の 5 本は無い。
+
+### 11-1. 本ごとの数
+
+| 本 | 割る行 | 書き換えた import の文(src・tests・tools・docs) | 分けた文 | 鍵 | 台帳の道 | 道の文字列 | 写さなかった | 守り | byte-check | 契約 | 例外 載せた・効いている(辺/行) |
+|---:|---|---|---:|---:|---:|---|---|---|---|---|---|
+| 7 | `llm/__init__.py` | 36(6・28・2・0) | 5 | 4 | 1 | tests の記号 1 | 途中の再輸出の import 3 文と注 12(§3-2 と同じ) | 12 個「同じ」 | 19/19 同じ | 3+9 | 29/41・18/27(表の外の `llm -> llm.fleet` が消えた) |
+| 8 | `llm/fleet.py` | 25(9・14・2・0) | 4 | 15 | 1 | src の表 1・tests の記号 2 | 無い | 12 個「同じ」 | 19/19 同じ | 3+9 | 29/41・18/27 |
+| 9 | `llm/mock.py` | 30(8・21・1・0) | 1 | 2 | 1 | src の表 4・tests の記号 1 | 無い | 12 個「同じ」 | 19/19 同じ | 3+9 | 25/34・18/27(#6・#7・#20・#26 が消えた) |
+| 10 | `llm/undefined.py` | 26(6・14・6・0) | 1 | 5 | 1 | src の表 1 | `__all__` の中の注 3 | 「同じ」・決まり=宣言どおり 5 | 19/19 同じ | 3+9 → 2+9(llm の古い決まりが宣言どおり消えた) | 25/34・18/27 |
+| 11 | `engine/llm_bridge.py` | 29(9・20・0・0) | 0 | 7 | 1 | src の表 2 | 無い | 12 個「同じ」 | 19/19 同じ | 2+9 | 25/34・18/27(計画 §5-3 の G3 の終わり=25/34・18/27・契約 11 と同じ) |
+
+- 割り先: 7 本目 `foundation/ports/inference.py`(新・5 名)/8 本目 `runtime/inference/fleet.py`(新・33 名)と inference(在る・型と口 17 名)/9 本目 `runtime/inference/mock.py`(新・17 名)と `foundation/vocab/actions.py`(在る・`MOCK_UTTERANCE`)/10 本目 `act/intake/undefined.py`(新・38 名)と `foundation/vocab/act_codes.py`(新・`TARGET_HINT_WORDS`)/11 本目 `runtime/inference/bridge.py`(新・14 名)と inference(在る・`RenderedPrompt`・`Renderer`)。inference に同じ名が 2 回入る形は無い(既に在る割り先と同じ名を断る確かめが「同じ」)。`LANE_THINK_TOKENS` は、fleet の複製が inference へ、llm_bridge の正典が bridge へ行き、1 つずつ残る(c10=割るだけ)。
+- 頭: 7 本目で `llm/__init__.py` を 0 バイトで残し、10 本目で `llm/` が無くなった(Q15 (a))。
+- 名の文字列と乱数の領域の名(`shibuya.cache_salt`・`llm.mock` と接尾 2 つ)・版の ID は変わらない(名の凍結の守りが「同じ」)。`rng_audit` の `SAFE_SITES`・`UNDETERMINED_SITES` の道は主な割り先の道へ(src の表の書き換え)。10 本目の頂上の assert は主な割り先 `act/intake/undefined.py` に置き、`TARGET_HINT_WORDS` を act_codes から読む(c8)。
+- 決まり 9 の `allowed_importers` の古い名(`engine.llm_bridge`・`llm.fleet`・`llm.mock`)は、割った後の節から消えた(計画 §5-4)。
+- 7 本目で道具が書き換えた tests の記号 1 は、`test_w21_stage8_9.py::test_persona_build_does_not_import_or_call_llm` の子のプロセスの印字の字面(`'shibuya.llm' in sys.modules` → 主な割り先の名)。試験はこの印字を「どちらでも通す」(読み込みの結びつきの記録だけ)。
+
+### 11-2. 中身を見た試験
+
+- 8 本目 `tests/llm/test_fleet_contract.py::test_fleet_module_imports_no_forbidden_layer`: 前は `llm/fleet.py` 1 本の import を見ていた。割った後は型と口が `foundation/ports/inference.py` へ、残りが `runtime/inference/fleet.py` へ分かれるので、両方の割り先を見る形にした(型の割り先は `LLMCall` の定義の置き場から引く。割る前は同じ 1 本のファイル)。道具は `FLEET_PY` の道を主な割り先へ書き換えた。
+
+### 11-3. 狙いの試験(`-n 2`・`-m "not slow"`。決まりの束を含む)
+
+| 本 | 結果 |
+|---:|---|
+| 7 | 1797 passed・20 skipped |
+| 8 | 1954 passed・1 failed・20 skipped |
+| 9 | 1964 passed・20 skipped |
+| 10 | 2073 passed・1 failed・20 skipped |
+| 11 | 2144 passed・20 skipped(再開の後に回し直した) |
+
+- 落ちた 1 本は 8 本目と 10 本目とも `tests/engine/test_fleet_wiring.py::test_timeout_defers_then_reinjects_and_is_finally_answered`(偽の艦隊の時間切れから回復するかを見る試験・`fleet_ok > 0` が 0)。親の範囲の試験と並んで重いときに落ち、ファイルだけを回すと 22 passed(8 本目の後と 10 本目の後の両方で確かめた)。9 本目の束では通った。時間に頼る試験で、割ったことによる落ち方ではないと見ている(推測)。
+- 飛んだ 20 本は、どれも `tests/tools/test_pkgmove.py` の段 4 の理由。`lint-imports` は 7〜9 本目 12 kept・10〜11 本目 11 kept(古い決まりが 1 つ消えた=計画どおり)・0 broken。
+- byte-check の記録: `bytecheck_07_llm_init/`・`bytecheck_08_llm_fleet/`・`bytecheck_09_llm_mock/`・`bytecheck_10_llm_undefined/`・`bytecheck_11_llm_bridge/`(基準 `6af6cf1`・19 構成とも 37 欄がすべて同じ・final が同じ 19・終了コード 0。1 本 7 分ほど)。
+- 11 本目の途中で利用の上限に当たり、作業が止まった(11-16 22:02 ごろ)。止まる前に `--apply`・`contracts --apply`・狙いの試験(最後まで走っていた=2143 passed・1 failed〔同じ時間切れの試験〕・20 skipped)は済んでいた。再開の時に、git status の一覧・import の確かめ(356/落ちた 0)・`lint-imports`・`contracts --check`・済んだ本の数(11)を確かめてから、狙いの試験を回し直した。
+
+### 11-4. 親の確かめと別の役の検収(第347)
+
+- **別の役の検収: 受入(高 0・中 0・低 6)**。今の道具と表で 5 本をメモリの中で当て直し、できた src が作業木と全部同じことを確かめた(違いは
+  手で直した `test_fleet_contract` 1 本だけ)。頂上の文は、道具とは別の台本で比べても字面・AST・前の注が合った。
+  - 頭の再輸出が消えたこと: 元の 5 本が読み込みの時に走らせるのは、飾りと、表の計算と assert だけ(登録・環境変数・global は無い)=読む順が
+    変わっても結果は変わらない。全モジュールを 1 本ずつ最初から import して 356 本・落ちた 0。再輸出の読み手は正しい割り先へ引き直されている。
+    空回りする `importorskip`・`sys.modules`・道の確かめは無い。
+  - 前から在った読み込みの時の import の循環 1 組(parser・llm・llm.fleet・llm.mock)は、**0 組になった**。foundation から外への辺は 0。
+  - `LANE_THINK_TOKENS` は、割る前と同じ側を読んでいる(fleet の複製とその読み手は inference へ・正典は bridge に在り、試験は今も
+    複製と正典を比べる)。割り先 7 本に同じ名の重なりは 0。
+  - 固定の表は鍵 33 行だけが変わり、値の集合は同じ。凍結の JSON 4 本に差は無い。契約は古い 2+新しい 9=11・例外 25/34・効いている 18/27。
+- 検収の低と、したこと:
+  1. 古い `llm` の決まりが消え、mock(runtime)・undefined(act)から engine・perception への向きを import-linter では止められなく
+     なった(宣言は済み・今の辺は 0)→ **試験を 1 本足した**(`tests/llm/test_fleet_contract.py::test_split_llm_parts_import_no_forbidden_layer`
+     =mock と undefined を、fleet と同じ範囲で AST から見る。古い包みが無くなる段まで)。
+  2. `test_w21_stage8_9` の印字の行は、前から何も確かめていない(G3 で弱めたのではない)→ そのまま(段 8 の文の掃除で見る)。
+  3. 字面のまま運んだ文が古い(inference の docstring・「正典は engine.llm_bridge」の注・undefined の「循環回避」の注・ledger.py の元の道と
+     行番号)→ そのまま(割る段は文を変えない。段 8 の文の掃除で直す)。
+  4. 割り先で、同じ所からの import の文が重なっている(見た目だけ)→ そのまま(段 8)。
+  5. `test_fleet_contract` の見るファイルは集合で作るので、型が fleet へ戻ると黙って 1 本になる → **`assert len(files) == 2` を足した**。
+  6. この群でカード 37 枚を作り直した(記録に書いていなかった)。
+- **親の byte-check**(本体の頭 `46f4b69` へ載せ直した木・`--base 46f4b69`): 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0(既定の final
+  `c8d68704b7b0760d`・呼数 60,939・全体の壁時計 448 秒)。記録 [bytecheck_G3_parent/](bytecheck_G3_parent/)。載せ直しでぶつかった所は無い。
+- **範囲の全体の試験**(載せ直した木): 6,927 passed・1 failed・21 skipped・1 xfailed(40 分 26 秒)。落ちた 1 本は前からの `test_ab7_seed1_open_matches_the_parent_report`(linked の作業木でだけ落ちる)。新しい失敗は無い。飛んだ試験は 21 本で群の前と同じ。検収の低 1 で足した試験 1 本は、この回の後に足したので、単独で回して通した(層の確かめ 2 本 passed)。
+- 実装役は 11 本目の途中で週の利用の上限に当たり、2 日あとに続きから再開した(当ては済んでいた。状態を確かめてから試験と byte-check を
+  回し直した)。

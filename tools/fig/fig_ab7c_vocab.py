@@ -87,7 +87,7 @@ def analyze_arm(tape_dir: str | Path, vocab_version: str) -> dict[str, Any]:
     """1 腕のテープ → 行動分布・時刻別分布。"""
     from shibuya.runtime.inference.tape import Tape
     from shibuya.act.intake.parser import parse_two_line
-    from shibuya.llm.undefined import map_synonym
+    from shibuya.act.intake.undefined import map_synonym
 
     rows = list(Tape(Path(tape_dir)).rows())
     live = [r for r in rows if not r.deferred]

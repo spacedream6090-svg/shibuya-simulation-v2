@@ -60,18 +60,7 @@ name = "layers: census > economy > engine > (perception | llm) > (world | agents
 type = "layers"
 layers = [
   "shibuya.engine",
-  "shibuya.perception | shibuya.llm",
-]
-
-[[tool.importlinter.contracts]]
-name = "llm は world/agents を import しない(mock LLM が成立する)"
-type = "forbidden"
-source_modules = [
-  "shibuya.llm",
-]
-forbidden_modules = [
   "shibuya.perception",
-  "shibuya.engine",
 ]
 
 [[tool.importlinter.contracts]]
@@ -79,7 +68,6 @@ name = "build は実行時に import されない"
 type = "forbidden"
 source_modules = [
   "shibuya.perception",
-  "shibuya.llm",
   "shibuya.engine",
 ]
 forbidden_modules = [
@@ -108,9 +96,6 @@ ignore_imports = [
   "shibuya.engine.resolve -> shibuya.runtime.state.hashes",
   "shibuya.engine.resolve -> shibuya.runtime.state.ledger",
   "shibuya.engine.resolve -> shibuya.runtime.state.resume",
-  "shibuya.interim_bundles.calendar2.layer -> shibuya.llm.mock",
-  "shibuya.llm -> shibuya.llm.fleet",
-  "shibuya.mind.judge.classical -> shibuya.llm.mock",
   "shibuya.mind.judge.decision.layer -> shibuya.engine.commit",
   "shibuya.mind.judge.decision.layer -> shibuya.society.tools.registry",
   "shibuya.mind.memory.familiarity -> shibuya.engine.resolve",
@@ -118,8 +103,6 @@ ignore_imports = [
   "shibuya.mind.memory.memory -> shibuya.engine.resolve",
   "shibuya.mind.memory.store_memory -> shibuya.engine.resolve",
   "shibuya.mind.memory.wom -> shibuya.engine.poi_target",
-  "shibuya.mind.plan.contact_port -> shibuya.llm.mock",
-  "shibuya.society.speech.layer -> shibuya.llm.mock",
   "shibuya.society.speech.layer -> shibuya.mind.memory.wom",
   "shibuya.world.body.rules -> shibuya.engine.change_detect",
   "shibuya.world.model.geometry -> shibuya.engine.change_detect",
@@ -178,8 +161,6 @@ ignore_imports = [
   "shibuya.engine.change_detect -> shibuya.world.model.state",
   "shibuya.engine.relations -> shibuya.engine.resolve",
   "shibuya.engine.relations -> shibuya.world.model.proximity",
-  "shibuya.llm -> shibuya.llm.fleet",
-  "shibuya.mind.judge.classical -> shibuya.llm.mock",
   "shibuya.mind.judge.decision.layer -> shibuya.economy.stage2_bind",
   "shibuya.mind.judge.decision.layer -> shibuya.engine.commit",
   "shibuya.mind.judge.decision.layer -> shibuya.society.tools.registry",
@@ -188,7 +169,6 @@ ignore_imports = [
   "shibuya.mind.memory.memory -> shibuya.engine.resolve",
   "shibuya.mind.memory.store_memory -> shibuya.engine.resolve",
   "shibuya.mind.memory.wom -> shibuya.engine.poi_target",
-  "shibuya.mind.plan.contact_port -> shibuya.llm.mock",
   "shibuya.perception.renderer -> shibuya.world.model.agent_table",
   "shibuya.perception.renderer -> shibuya.world.model.assets",
   "shibuya.perception.renderer -> shibuya.world.model.state",
@@ -244,7 +224,6 @@ forbidden_modules = [
   "shibuya.interim_bundles",
 ]
 ignore_imports = [
-  "shibuya.society.speech.layer -> shibuya.llm.mock",
   "shibuya.society.speech.layer -> shibuya.mind.memory.wom",
 ]
 
@@ -283,10 +262,7 @@ allowed_importers = [
   "shibuya.runtime",
   "shibuya.cli",
   "shibuya.engine.arbiter",
-  "shibuya.engine.llm_bridge",
   "shibuya.engine.run",
-  "shibuya.llm.fleet",
-  "shibuya.llm.mock",
 ]
 
 [[tool.importlinter.contracts]]

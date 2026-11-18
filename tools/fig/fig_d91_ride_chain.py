@@ -121,7 +121,7 @@ def read_arm(tape_dir: str | Path, vocab_version: str) -> list[dict[str, Any]]:
     """1 腕のテープ → 行の list(agent 昇順・tick 昇順・直前行動つき)。"""
     from shibuya.runtime.inference.tape import Tape
     from shibuya.act.intake.parser import parse_two_line
-    from shibuya.llm.undefined import map_synonym
+    from shibuya.act.intake.undefined import map_synonym
 
     tape = Tape(Path(tape_dir))
     kind_cache: dict[str, str] = {}

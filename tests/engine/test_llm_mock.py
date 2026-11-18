@@ -16,9 +16,11 @@ from shibuya.foundation.vocab.actions import (
     NO_TARGET,
     TWO_LINE_RE,
 )
-from shibuya.llm import (
+from shibuya.foundation.ports.inference import (
     LLMClient,
     LLMRequest,
+)
+from shibuya.runtime.inference.mock import (
     MockLLM,
     TapeLLM,
 )

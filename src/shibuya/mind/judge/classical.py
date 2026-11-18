@@ -54,9 +54,9 @@ from shibuya.foundation.vocab.agent_codes import Activity, AgentKind, WakeCondit
 from shibuya.foundation.paths import REPO_ROOT
 from shibuya.foundation.rng import stream
 from shibuya.foundation.types import ticks_per_day as _ticks_per_day
-from shibuya.llm import LLMRequest, LLMResponse, estimate_tokens
+from shibuya.foundation.ports.inference import LLMRequest, LLMResponse, estimate_tokens
 from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE, TARGET_WANDER, append_comment, format_two_line_v3
-from shibuya.llm.mock import MOCK_UTTERANCE
+from shibuya.foundation.vocab.actions import MOCK_UTTERANCE
 from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_MINUTE
 
 __all__ = [

@@ -15,7 +15,7 @@ import pytest
 from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.mind.judge.decision import ports as PS
 from shibuya.foundation.vocab.actions import cross_action_words
-from shibuya.llm.mock import MockLLM
+from shibuya.runtime.inference.mock import MockLLM
 from tests.engine.decision._j0 import FakePolicy, ctx_of, vocab_candidates
 
 TURN = int(WakeCondition.CONVERSATION_TURN)

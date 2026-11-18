@@ -22,7 +22,7 @@ from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.engine import change_detect as CD
 from shibuya.engine import commit as C
 from shibuya.engine import resolve as R
-from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE, PerceptionRendererAdapter
+from shibuya.runtime.inference.bridge import ACTION_WORD_BY_CODE, PerceptionRendererAdapter
 from shibuya.engine.run import run_day
 from shibuya.foundation.text import templates as PT
 from shibuya.perception.renderer import PerceptionAssets, Renderer as PerceptionRenderer

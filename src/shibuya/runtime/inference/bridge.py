@@ -83,8 +83,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Final, Mapping, Protocol, runtime_checkable
-
+from typing import Any, Callable, Final, Mapping
 from shibuya.runtime.inference.tape import (
     Replay,
     Tape,
@@ -99,11 +98,15 @@ from shibuya.foundation.vocab.actions import (
     UNDEFINED_ACTION,
     Target,
 )
-from shibuya.llm import (
+from shibuya.foundation.ports.inference import (
     LLMRequest,
-    TapeLLM,
-    UndefinedActionRegistry,
     estimate_tokens,
+)
+from shibuya.runtime.inference.mock import (
+    TapeLLM,
+)
+from shibuya.act.intake.undefined import (
+    UndefinedActionRegistry,
 )
 from shibuya.act.intake.parser import (
     ParseResult,
@@ -123,24 +126,14 @@ from shibuya.foundation.vocab.actions import (
     safe_action_word,
 )
 from shibuya.foundation.text import templates as PT
+from shibuya.foundation.ports.inference import RenderedPrompt, Renderer
 
 __all__ = [
-    "ALPHA_THINK_SECONDS_PER_TOKEN",
-    "LANE_SECONDS",
-    "LANE_THINK_TOKENS",
-    "DEFAULT_LANE",
-    "ACTION_WORD_BY_CODE",
-    "SHARED_BLOCK_IDS",
-    "delta_think_ticks",
-    "RenderedPrompt",
-    "Renderer",
-    "StubRenderer",
-    "PerceptionRendererAdapter",
-    "STUB_SHARED_BLOCK",
-    "BridgeResult",
-    "CallStart",
-    "LLMBridge",
+    "ALPHA_THINK_SECONDS_PER_TOKEN", "LANE_SECONDS", "LANE_THINK_TOKENS", "DEFAULT_LANE", "ACTION_WORD_BY_CODE",
+    "SHARED_BLOCK_IDS", "delta_think_ticks", "StubRenderer", "PerceptionRendererAdapter", "STUB_SHARED_BLOCK",
+    "BridgeResult", "CallStart", "LLMBridge",
 ]
+
 
 #: 行動コード → 行動語(``llm.contract.ACTION_CODES`` の逆写像)。B6「直前に試みた行動」用。
 #: **語彙 v2 の「食事」(24)も入れてある**: コード 24 は v1 のランには 1 件も現れないので
@@ -200,66 +193,6 @@ def delta_think_ticks(lane: str = DEFAULT_LANE, tick_seconds: int = 60) -> int:
     if tick_seconds <= 0:
         raise ValueError("tick_seconds は正の整数")
     return int(math.ceil(seconds / float(tick_seconds)))
-
-
-# ------------------------------------------------------------------ プロンプト生成
-@dataclass(frozen=True)
-class RenderedPrompt:
-    """レンダラの出力。
-
-    Attributes:
-        text: プロンプト本文(``prompt_hash`` はこの本文から取る)。
-        blocks: 共有ブロック ``(block_id, text)``(テープの intern 用)。
-        targets: mock 用の「対象」候補(実クライアントは本文で渡す)。
-        prompt_hash: レンダラ側の指紋(``perception.Rendered.prompt_hash`` = blake3)。
-            空文字なら bridge は ``LLMRequest.prompt_hash``(sha256_cbor)を使う。
-        group_tokens: 予算グループ → 推定トークン(診断行の素材・空なら測らない)。
-    """
-
-    text: str
-    blocks: tuple[tuple[str, str], ...] = ()
-    targets: tuple[str, ...] = ()
-    prompt_hash: str = ""
-    group_tokens: tuple[tuple[str, int], ...] = ()
-    #: 記憶 第 1 段 6b: B5「記憶」行に載せた記憶の行番号(テープ版 3 の列・記憶の無いラン=空)。
-    recalled_rows: tuple[int, ...] = ()
-    #: テープ版 4(10e・E5・A8): 引いた記憶の同定(``recalled_rows`` と同じ並び)。最初に書かれた時刻(通しの T)・
-    #: 種類(``memory.EVENT_KINDS``・店の行は ``STORE_ITEM_KIND``)・対象(``mem_object`` の符号化・店の行は POI)。
-    recalled_first_tick: tuple[int, ...] = ()
-    recalled_kind: tuple[int, ...] = ()
-    recalled_object: tuple[int, ...] = ()
-    #: テープ版 4: 「(知人)」の印を見せた相手の体 id(B5 の本文に出た順・重複なし)。
-    acquaintance_ids: tuple[int, ...] = ()
-    #: テープ版 4(K1): 本人ブロックの本文。B5 は列に直接・B6 はブロック表に intern(空=描画が無い経路)。
-    b5_text: str = ""
-    b6_text: str = ""
-    #: 第 1 期 1-2: 描いた知覚の事実(``perception.facts.Percept``・本物の描画だけ・スタブは None)。テープには書かない
-    #: (刻みの中の一時=``TickScratch.percepts`` と判断の入力へ渡す)。
-    percept: Any = None
-
-    @property
-    def block_ids(self) -> tuple[str, ...]:
-        return tuple(b for b, _ in self.blocks)
-
-
-@runtime_checkable
-class Renderer(Protocol):
-    """観測ブロック(B0-B6)→プロンプト本文の契約。本物は ``perception.renderer.Renderer``。"""
-
-    def render(
-        self,
-        *,
-        agent_id: int,
-        tick: int,
-        cell: int,
-        activity: int,
-        hunger: int,
-        wake_class: int,
-        condition: int,
-        last_action: int,
-        inviter: int = -1,
-    ) -> RenderedPrompt:  # pragma: no cover - 契約のみ
-        ...
 
 
 #: スタブの共有静的ブロック(B0 相当の place holder)。

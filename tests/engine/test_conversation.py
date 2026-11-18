@@ -293,7 +293,7 @@ class _TalkLLM:
         self.n_calls = 0
 
     def complete(self, request):
-        from shibuya.llm import LLMResponse
+        from shibuya.foundation.ports.inference import LLMResponse
         from shibuya.foundation.vocab.actions import format_two_line
 
         self.n_calls += 1

@@ -36,7 +36,7 @@ from shibuya.foundation.vocab.actions import (
     spec_of,
 )
 from shibuya.act.intake.parser import find_action_word, parse_two_line
-from shibuya.llm.undefined import (
+from shibuya.act.intake.undefined import (
     SYNONYM_TABLE_VERSION,
     SYNONYMS,
     SYNONYMS_V3,

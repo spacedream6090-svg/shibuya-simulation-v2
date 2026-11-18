@@ -37,7 +37,7 @@ def test_score_texts_counts_format_errors_and_actions(c6lib):
 
 def test_undefined_rate_excludes_words_the_stage0_dictionary_rescues(c6lib):
     """段0 辞書(``map_synonym``)で救えた語は未定義に数えず、写像先の契約語として数える。"""
-    from shibuya.llm.undefined import map_synonym
+    from shibuya.act.intake.undefined import map_synonym
 
     assert map_synonym("探索")[0] == "移動"  # 前提(サブ Q の段0 辞書拡張)
     s = c6lib.score_texts([GOOD, RESCUED, UNKNOWN])

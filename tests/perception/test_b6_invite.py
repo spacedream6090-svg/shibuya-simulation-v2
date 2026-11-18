@@ -23,7 +23,7 @@ import pytest
 from shibuya.foundation.vocab.agent_codes import AgentKind, ResultCode
 from shibuya.world.model.agent_table import AgentState
 from shibuya.engine.run import _inviter_of, run_day
-from shibuya.llm import LLMResponse
+from shibuya.foundation.ports.inference import LLMResponse
 from shibuya.foundation.vocab.actions import format_two_line
 from shibuya.act.intake.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
 from shibuya.foundation.text import templates as T

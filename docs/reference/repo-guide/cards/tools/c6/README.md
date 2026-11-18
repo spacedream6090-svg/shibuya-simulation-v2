@@ -67,7 +67,7 @@ c6lib — C6-b 検証ハーネスの純関数と共通部品(標準ライブラ�
   - `wilson_ci`(関数): 二項比率の Wilson 信頼区間(品質プローブv0 の ``wilson_ci`` と同定義)。
   - `world_dir_of`(関数)
   - `write_outputs`(関数): ``<out>/<stem>.json`` と ``<out>/<stem>.md`` を書く(改行は LF=Windows でも CRLF にしない・第307)。
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.cli`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.vocab.actions`・`shibuya.llm.fleet`・`shibuya.llm.undefined`・`shibuya.runtime.inference.tape`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.act.intake.undefined`・`shibuya.cli`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.vocab.actions`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.inference.tape`
 - 呼び手: `tools/c6/ablation1_fixed_vs_ranking.py`・`tools/c6/format_role_rates.py`・`tools/c6/metric_b_rerun.py`・`tools/c6/run_hash.py`・`tools/c6/t6_bit_reproduce.py`・`tools/c6/t7_distribution.py`・`tools/c7/c7lib.py`・`tools/c8/c8lib.py`・`tools/fig/fig_ab7_actions.py`・`tools/fig/fig_ab7c_vocab.py`・`tools/w17/diversity_yardstick.py`
 - 読む試験: `tests/c6/conftest.py`・`tests/c6/test_t5_order_bias.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
@@ -111,7 +111,7 @@ metric_b_rerun.py — **指標B の事前登録つき再測**(Phase 2 実デー�
   - `main`(関数)
   - `rerun_scenes`(関数): 1 モデルへ全場面を投げて応答本文を返す(逐次・24step スモーク規模の想定)。
   - `score_pass`(関数): 1 パスの採点(違反フラグ・行動分布・書式)。
-- import している内部モジュール: `shibuya.llm.mock`・`tools/c6/c6lib.py`
+- import している内部モジュール: `shibuya.runtime.inference.mock`・`tools/c6/c6lib.py`
 - 読む試験: `tests/c6/test_c6lib_aggregate.py`
 - CLI の引数
   - `--collect-only`: 収集と在庫表だけ出して終わる

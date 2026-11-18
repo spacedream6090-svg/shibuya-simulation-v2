@@ -48,7 +48,6 @@ from collections import Counter, deque
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Final, Iterable, Mapping, Sequence
-
 from shibuya.foundation.vocab.actions import (
     ACTION_SPECS,
     ACTION_WORD_NONE,
@@ -61,47 +60,19 @@ from shibuya.foundation.vocab.actions import (
     check_vocab_version,
     compat_word,
 )
+from shibuya.foundation.vocab.act_codes import TARGET_HINT_WORDS
 
 __all__ = [
-    "SYNONYM_TABLE_VERSION",
-    "SYNONYMS",
-    "SYNONYMS_C6",
-    # ---- 段0 辞書 v3(語彙 v2 用・D-71 §3 E)。v1 の表と版は 1 行も動かさない ----
-    "SYNONYMS_V3_DIFF",
-    "SYNONYMS_V3",
-    "SYNONYM_TABLE_VERSION_V3",
-    # ---- 段0 辞書 v4(C9b G5 対象ヒント)。v1 の表と版は 1 行も動かさない ----
-    "SYNONYMS_V4_DIFF",
-    "SYNONYMS_V4",
-    "SYNONYM_TABLE_VERSION_V4",
-    "TARGET_HINTS_V4",
-    "TARGET_HINT_WORDS",
-    "target_hints",
-    # ---- 段0 辞書 v5(語彙 v3=行為と活動の二層・D-116)。v1〜v4 の表と版は 1 行も動かさない ----
-    "SYNONYMS_V5_DIFF",
-    "SYNONYMS_V5",
-    "SYNONYM_TABLE_VERSION_V5",
-    "TARGET_SURFACE_HINTS_V5",
-    "TARGET_HINTS_V5",
-    "target_surface_hint",
-    "FALLBACK_ACTIONS_V3",
-    "fallback_actions",
-    "SYNONYM_TABLE_VERSION_BY_VOCAB",
-    "synonym_table_version",
-    "synonym_table",
-    "TARGET_HINTS",
-    "FALLBACK_ACTIONS",
-    "ADJUDICATION_TEMPLATE",
-    "REVIEW_KEYWORDS",
-    "DEFAULT_THRESHOLD_AGENTS",
-    "ProposalStatus",
-    "UndefinedActionRecord",
-    "Proposal",
-    "UndefinedOutcome",
-    "undefined_feedback",
-    "map_synonym",
+    "SYNONYM_TABLE_VERSION", "SYNONYMS", "SYNONYMS_C6", "SYNONYMS_V3_DIFF", "SYNONYMS_V3",
+    "SYNONYM_TABLE_VERSION_V3", "SYNONYMS_V4_DIFF", "SYNONYMS_V4", "SYNONYM_TABLE_VERSION_V4", "TARGET_HINTS_V4",
+    "target_hints", "SYNONYMS_V5_DIFF", "SYNONYMS_V5", "SYNONYM_TABLE_VERSION_V5", "TARGET_SURFACE_HINTS_V5",
+    "TARGET_HINTS_V5", "target_surface_hint", "FALLBACK_ACTIONS_V3", "fallback_actions",
+    "SYNONYM_TABLE_VERSION_BY_VOCAB", "synonym_table_version", "synonym_table", "TARGET_HINTS", "FALLBACK_ACTIONS",
+    "ADJUDICATION_TEMPLATE", "REVIEW_KEYWORDS", "DEFAULT_THRESHOLD_AGENTS", "ProposalStatus",
+    "UndefinedActionRecord", "Proposal", "UndefinedOutcome", "undefined_feedback", "map_synonym",
     "UndefinedActionRegistry",
 ]
+
 
 #: 辞書表の版(**expedient**・表を変えたら上げる。ランの manifest に載せる想定)。
 #: v1 = C6 初回スモークの語彙外行動語(探索・観察・調査・探す・調べる)を足した版。
@@ -409,14 +380,6 @@ TARGET_HINTS: Final[Mapping[str, str]] = {
     "帰宅": "home",
     "戻る": "home",
 }
-
-#: 対象ヒントの語(**この並びが正典**。エンジンは索引で運ぶ=``engine.commit.TARGET_HINT_*``)。
-#: ``""``=ヒントなし / ``home``/``work``/``school``=W16 の拠点セル(エンジンが解決する) /
-#: ``category``=「対象」欄の物カテゴリをそのまま使う / ``approach``=対象(人/物)に近づく /
-#: ``look``=対象(人/物)を注意の焦点にする。
-TARGET_HINT_WORDS: Final[tuple[str, ...]] = (
-    "", "home", "work", "school", "category", "approach", "look",
-)
 
 #: 語彙 v2 の対象ヒント(**G5・辞書 v4**)。v1 の ``TARGET_HINTS`` 3 行はそのまま残る。
 TARGET_HINTS_V4: Final[Mapping[str, str]] = {
@@ -772,7 +735,7 @@ class UndefinedActionRegistry:
         """段2: 裁定LLMに**1呼**で契約行を書かせ、段3 の判定まで済ませる。"""
         if self.adjudicator is None:
             return None
-        from shibuya.llm import LLMRequest  # 遅延 import(``__init__`` の定義順による循環回避)
+        from shibuya.foundation.ports.inference import LLMRequest  # 遅延 import(``__init__`` の定義順による循環回避)
 
         prompt = ADJUDICATION_TEMPLATE.format(
             word=word,

@@ -54,7 +54,7 @@ import pytest
 
 from shibuya.engine.commit import pair_partners
 from shibuya.engine.run import run_day
-from shibuya.llm.mock import MockLLM
+from shibuya.runtime.inference.mock import MockLLM
 from shibuya.world.model.state import World
 
 from .conftest import WORLD_DIR, real_data

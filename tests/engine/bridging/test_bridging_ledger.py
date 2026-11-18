@@ -356,7 +356,7 @@ def test_doc_rows_need_no_code_declaration(ledger, decls):
     # 検収 M1 (c): コードが「繋ぎ」と明記した 3 か所は文書の行(関わるコードの場所つき)
     for rid, path in (("BR-START-CELL-OUTSIDE-HOME", "src/shibuya/world/facts/population_reader.py"),
                       ("BR-MOCK-SCHEDULE-POPULATION", "src/shibuya/engine/run.py"),
-                      ("BR-MOCK-ACTION-ANCHOR", "src/shibuya/llm/mock.py")):
+                      ("BR-MOCK-ACTION-ANCHOR", "src/shibuya/runtime/inference/mock.py")):
         r = ledger.get(rid)
         # 〔移す段 4〕台帳の道で比べ、今の道で読む(ファイルを動かしても台帳は書き換えない)
         assert not r.declared_in_code and r.code_at == (LP.ledger_path(path),)

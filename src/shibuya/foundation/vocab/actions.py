@@ -113,6 +113,7 @@ __all__ = [
     "TARGET_PLACEHOLDERS_V3",
     "SPEECH_FIELD_LINE",
     "append_comment",
+    "MOCK_UTTERANCE",
 ]
 
 #: 行動契約書 §1「理由: <40字以内・1文>」。
@@ -1257,3 +1258,8 @@ def parse_until(text: str | None) -> Until:
     if "次の予定" in t:
         return Until(UntilKind.NEXT_SCHEDULE)
     return DEFAULT_UNTIL
+
+
+#: 〔第 1 期 1-8b〕会話の番の「ひと言」(語彙 v3・腕 ``--speech-port on`` で B6 が欄を求めたときだけ)。決まった文 1 つ
+#: (20 字以内・命令文でない・店名も評価語も含まない=口コミの抽出は 0)。古典の方策も同じ文。
+MOCK_UTTERANCE: Final[str] = "こんにちは"

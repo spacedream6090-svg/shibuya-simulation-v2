@@ -63,7 +63,7 @@ def _mark(name: str, hits: dict[str, int]) -> None:
 def test_live_count_is_zero_or_marked(name, monkeypatch):
     """19 構成の生きた数え(約 70 秒=``slow``・検収 L9)。既定 v3 の 1 構成だけは ``slow`` の外(軽い版)。"""
     from shibuya import cli
-    from shibuya.engine import llm_bridge as LB
+    from shibuya.runtime.inference import bridge as LB
     from shibuya.engine import resolve as R
 
     cnt: Counter[str] = Counter()

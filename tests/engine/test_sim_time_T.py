@@ -36,8 +36,8 @@ from shibuya.world.body.energy import EnergyModel, OutOfAreaMeals, load_anchors
 from shibuya.engine.relations import RelationLayer
 from shibuya.engine.run import run_day, run_salt_for
 from shibuya.runtime.inference.tape import Tape
-from shibuya.llm import LLMRequest
-from shibuya.llm.mock import MockLLM
+from shibuya.foundation.ports.inference import LLMRequest
+from shibuya.runtime.inference.mock import MockLLM
 from shibuya.world.model.state import World
 
 N = 100

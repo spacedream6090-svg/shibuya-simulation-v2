@@ -13,7 +13,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.engine.llm_bridge import (
+from shibuya.runtime.inference.bridge import (
     DEFAULT_LANE,
     LANE_SECONDS,
     LLMBridge,
@@ -22,8 +22,8 @@ from shibuya.engine.llm_bridge import (
 )
 from shibuya.engine.run import DIAG_DAY_ROWS, DIAG_RUN_COLUMNS, run_day
 from shibuya.runtime.inference.tape import BLOCKS_FILENAME, CALLS_FILENAME, Replay, Tape, TapeWriter
-from shibuya.llm import MockLLM
-from shibuya.llm.mock import MOCK_RNG_DOMAIN
+from shibuya.runtime.inference.mock import MockLLM
+from shibuya.runtime.inference.mock import MOCK_RNG_DOMAIN
 
 #: ticks は D-56(就寝抑止)以降、最初の計画境界(tick 300-480)を跨ぐ窓にする。
 SMALL = dict(n_agents=400, seed=1, ticks=540, checkpoint_every=60, n_cells=25)
@@ -243,7 +243,7 @@ def test_stub_renderer_path_still_records_and_replays(tmp_path):
 def test_the_two_prompt_hashes_are_both_deterministic_and_different():
     """``BridgeResult.prompt_hash``(レンダラ blake3)と ``tape_prompt_hash``(テープ鍵)。"""
     from shibuya.world.model.agent_table import AgentState
-    from shibuya.engine.llm_bridge import PerceptionRendererAdapter
+    from shibuya.runtime.inference.bridge import PerceptionRendererAdapter
     from shibuya.perception.renderer import Renderer as PerceptionRenderer
     from shibuya.world.model.state import World
 

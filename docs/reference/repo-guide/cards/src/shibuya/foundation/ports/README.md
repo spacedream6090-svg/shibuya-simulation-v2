@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 6 本・その他 0 本(このディレクトリの直下)
+Python 7 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/foundation/ports/__init__.py)
 
@@ -40,6 +40,33 @@ engine.experiment.gate — 実験が世界に入る口(第 1 期 1-3・CP12)。*
 - 呼び手: `shibuya.experiments.port.apply`・`shibuya.foundation.journal.log`
 - 読む試験: `tests/engine/decision/test_j0_cause_columns.py`・`tests/engine/events/test_e_cause_three_kinds.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_form.py`・`tests/engine/state/test_class_ids.py`
 - 決定の ID: 10-12/§4-5・R-113
+
+## [inference.py](../../../../../../../../src/shibuya/foundation/ports/inference.py)
+
+llm: 艦隊クライアント/パーサ/録画テープ。world/agents を import しない(mock LLMが成立する)。
+
+- 公開の関数とクラス
+  - `Deferred`(クラス): 答えが返らなかった 1 呼。**破棄しない**(呼び出し側が次 tick へ繰り延べる)。
+  - `FleetDeferredError`(クラス): 同期 1 呼経路(``FleetClient.complete``)で繰り延べになった。
+  - `LLMCall`(クラス): 艦隊へ投げる 1 呼(engine 側 ``RenderedPrompt`` + 起床情報を層契約越しに運ぶ器)。
+  - `LLMClient`(クラス): LLM クライアントの最小契約(同期)。非同期は実装側の任意 ``acomplete``。
+  - `LLMRequest`(クラス): 1回の LLM 呼び出し。
+  - `LLMResponse`(クラス): 1回の応答。
+  - `LLMResult`(クラス): 答えが返った 1 呼。
+  - `Outcome`(クラス): 1 呼の帰結(§7「全て診断行に計数」の分類)。
+  - `RenderedPrompt`(クラス): レンダラの出力。
+  - `Renderer`(クラス): 観測ブロック(B0-B6)→プロンプト本文の契約。本物は ``perception.renderer.Renderer``。
+  - `TapeLookup`(クラス): 録画テープの完全一致検索(``engine.tape.Replay`` がこの形を満たす)。
+  - `cache_salt_for`(関数): 実行モード別 ``cache_salt``(運用設計書 §1.2・実装計画書 §7)。
+  - `estimate_tokens`(関数): 粗いトークン数見積り(expedient: UTF-8 文字数 ÷ 2、最低 1)。
+  - `max_tokens_for`(関数): レーン → ``max_tokens``(U19 ③ インフラ保護)。
+  - `route_primary`(関数): レプリカ配分 ``xxhash(call_id) mod N``(実装計画書 §7・N=7 が既定艦隊)。
+  - `seed_for`(関数): 呼ごとのデコード seed(``xxh64(call_id, seed=run_seed)`` の下位 31 bit)。
+  - `split_system_user`(関数): 描画本文を ``(system, user)`` に割る(B0=system・残り=user)。
+- import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.manifest.schema`
+- 呼び手: `shibuya.act.intake.undefined`・`shibuya.engine.run`・`shibuya.experiments.drive.branch`・`shibuya.mind.judge.classical`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.inference.mock`・`shibuya.runtime.systems.decide`・`shibuya.runtime.systems.llm_io`・`shibuya.runtime.systems.run_end`・`tools/vocab/adjudicate.py`
+- 読む試験: `tests/c6/test_c6lib_scenes.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_conversation.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_intent_mode_open.py`・`tests/engine/test_llm_mock.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_undefined_action.py`・`tests/engine/test_vocab_v2_eat.py`・`tests/llm/test_fleet.py`・`tests/llm/test_fleet_auth.py`・`tests/llm/test_fleet_contract.py`・`tests/llm/test_mock_v3.py`・`tests/llm/test_undefined.py`・`tests/perception/test_b6_invite.py`・`tests/perception/test_channels.py`
+- 読む試験(道筋で): `tests/engine/test_salt_seed_split_10f.py`・`tests/tools/test_pkgmove.py`
 
 ## [ledger.py](../../../../../../../../src/shibuya/foundation/ports/ledger.py)
 

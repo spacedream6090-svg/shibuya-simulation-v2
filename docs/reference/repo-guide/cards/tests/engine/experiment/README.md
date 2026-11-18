@@ -72,7 +72,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_switch_with_the_classical_policy`(関数)
   - `test_switch_with_the_mock_is_deterministic`(関数)
   - `test_window_head_step`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.experiments.drive.branch`・`shibuya.experiments.drive.switch`・`shibuya.foundation.time_consts`・`shibuya.llm`・`shibuya.llm.mock`・`shibuya.runtime.inference.tape`・`tests/engine/experiment/_x33.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.experiments.drive.branch`・`shibuya.experiments.drive.switch`・`shibuya.foundation.ports.inference`・`shibuya.foundation.time_consts`・`shibuya.runtime.inference.mock`・`shibuya.runtime.inference.tape`・`tests/engine/experiment/_x33.py`
 
 ## [test_x33_apply.py](../../../../../../../tests/engine/experiment/test_x33_apply.py)
 

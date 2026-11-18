@@ -58,7 +58,7 @@ manifest.schema: U8 run manifest の型(13節)と機械化される規則。
   - `Scheduler`(クラス): スケジューラの版(§2の規則の版)。
   - `Settings`(クラス): 設定。``normalized_blake3`` = 正規化済み設定本文のハッシュ。
   - `SourceRef`(クラス): 予算書の参照(パス+コミット+ハッシュ)。
-- 呼び手: `shibuya.engine.run`・`shibuya.foundation.manifest.canonical`・`shibuya.foundation.queues.scheduler`・`shibuya.llm.fleet`・`tools/c6/c6lib.py`
+- 呼び手: `shibuya.engine.run`・`shibuya.foundation.manifest.canonical`・`shibuya.foundation.ports.inference`・`shibuya.foundation.queues.scheduler`・`shibuya.runtime.inference.fleet`・`tools/c6/c6lib.py`
 - 読む試験: `tests/c6/test_l4_l6_budget.py`・`tests/c6/test_t9_diagnostics.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_scheduler.py`・`tests/engine/test_tape_deferred.py`・`tests/llm/test_fleet.py`・`tests/llm/test_fleet_contract.py`・`tests/test_manifest_roundtrip.py`・`tests/test_manifest_rules_extra.py`
 
 ## [sections.py](../../../../../../../../src/shibuya/foundation/manifest/sections.py)

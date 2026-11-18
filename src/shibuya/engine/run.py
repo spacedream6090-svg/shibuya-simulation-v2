@@ -122,13 +122,13 @@ from shibuya.world.laws.opening import rows_of_day as _opening_rows_of_day
 from shibuya.engine.presence import DERIVE_RULES as PRESENCE_DERIVE_RULES
 from shibuya.engine.presence import EXIT_MODES as PRESENCE_EXIT_MODES
 from shibuya.engine.poi_target import MOVE_SEARCH_RADIUS_CELLS
-from shibuya.engine.llm_bridge import DEFAULT_LANE, delta_think_ticks
+from shibuya.runtime.inference.bridge import DEFAULT_LANE, delta_think_ticks
 from shibuya.foundation.queues.scheduler import DIAG_COLUMNS
 from shibuya.runtime.state.hashes import FINAL_DEFINITION
 from shibuya.runtime.inference.tape import Replay, read_run_meta
 from shibuya.foundation.vocab.actions import TargetKind
-from shibuya.llm.fleet import FleetClient
-from shibuya.llm.mock import MockLLM
+from shibuya.runtime.inference.fleet import FleetClient
+from shibuya.runtime.inference.mock import MockLLM
 from shibuya.foundation.text.channels import BudgetMode
 from shibuya.foundation.ports.percept import percept_manifest as _percept_manifest
 from shibuya.mind.judge.decision import layer as _DECISION
@@ -450,7 +450,7 @@ def _default_mock(
 
 def _synonym_table_version(vocab_version: str) -> str:
     """語彙版 → 段0 辞書の版文字列(``llm.undefined`` の表が正典)。"""
-    from shibuya.llm.undefined import synonym_table_version
+    from shibuya.act.intake.undefined import synonym_table_version
 
     return synonym_table_version(str(vocab_version))
 
@@ -464,7 +464,7 @@ def _action_usage(per_action: Mapping[int, int], vocab_version: str) -> dict[str
 
     逐次ループ宣言(P4): 行動語ぶん(v1=13 / v2=14)。個体数にも tick 数にも比例しない。
     """
-    from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE
+    from shibuya.runtime.inference.bridge import ACTION_WORD_BY_CODE
 
     out: dict[str, int] = {}
     order = R._ACTION_ORDER_BY_VOCAB[check_vocab_version(vocab_version)]
@@ -2532,7 +2532,7 @@ def add_fleet_args(ap: "argparse.ArgumentParser") -> None:
     運用設計書 §1.2)であって、``run_day(mode=...)`` の record/replay ではない。
     ``cache_salt`` の勘定分離(較正と holdout が prefix キャッシュを共有しない)に効く。
     """
-    from shibuya.llm.fleet import DEFAULT_T1_MAX_TOKENS, DEFAULT_TEMPERATURE
+    from shibuya.foundation.ports.inference import DEFAULT_T1_MAX_TOKENS, DEFAULT_TEMPERATURE
     from shibuya.foundation.manifest.schema import Mode as _Mode
 
     ap.add_argument("--llm", choices=("mock", "fleet"), default="mock",
@@ -2613,7 +2613,7 @@ def calendar_kwargs_from_args(args: Any) -> dict[str, Any]:
 
 def fleet_from_args(args: Any, ap: "argparse.ArgumentParser | None" = None) -> FleetClient | None:
     """``add_fleet_args`` の結果 → ``FleetClient``(``--llm mock`` なら ``None``)。"""
-    from shibuya.llm.fleet import FleetConfig
+    from shibuya.runtime.inference.fleet import FleetConfig
     from shibuya.foundation.manifest.schema import Mode as _Mode
 
     if getattr(args, "llm", "mock") != "fleet":
@@ -2624,7 +2624,7 @@ def fleet_from_args(args: Any, ap: "argparse.ArgumentParser | None" = None) -> F
         if ap is not None:
             ap.error(msg)
         raise SystemExit(msg)
-    from shibuya.llm.fleet import DEFAULT_T1_MAX_TOKENS, DEFAULT_TEMPERATURE
+    from shibuya.foundation.ports.inference import DEFAULT_T1_MAX_TOKENS, DEFAULT_TEMPERATURE
 
     return FleetClient(
         FleetConfig(

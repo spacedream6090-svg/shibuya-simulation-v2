@@ -11,7 +11,7 @@ from __future__ import annotations
 import pytest
 
 from shibuya.foundation.time_consts import NS_PER_STEP
-from shibuya.engine.llm_bridge import PerceptionRendererAdapter
+from shibuya.runtime.inference.bridge import PerceptionRendererAdapter
 from shibuya.mind.memory import memory_store as MS
 from shibuya.engine.run import run_day
 

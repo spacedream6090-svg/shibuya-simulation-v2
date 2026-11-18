@@ -57,7 +57,7 @@ tests.c6 の共通フィクスチャ。
   - `test_violation_flags_use_the_banned_action_table`(関数)
   - `test_world_dir_of_returns_none_for_a_missing_path`(関数)
   - `test_write_outputs_writes_both_files`(関数)
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.foundation.vocab.actions`・`shibuya.llm.undefined`・`tools/c6/ablation1_fixed_vs_ranking.py`・`tools/c6/format_role_rates.py`・`tools/c6/metric_b_rerun.py`・`tools/c6/t6_bit_reproduce.py`・`tools/c6/t7_distribution.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.act.intake.undefined`・`shibuya.foundation.vocab.actions`・`tools/c6/ablation1_fixed_vs_ranking.py`・`tools/c6/format_role_rates.py`・`tools/c6/metric_b_rerun.py`・`tools/c6/t6_bit_reproduce.py`・`tools/c6/t7_distribution.py`
 - 決定の ID: D-25・D-28
 
 ## [test_c6lib_scenes.py](../../../../../../tests/c6/test_c6lib_scenes.py)
@@ -80,7 +80,7 @@ tests.c6 の共通フィクスチャ。
   - `test_selection_can_be_restricted_to_other_kinds`(関数)
   - `test_selection_is_deterministic_and_disjoint`(関数)
   - `test_unknown_failure_word_is_not_forced_into_a_kind`(関数)
-- import している内部モジュール: `shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.llm`・`shibuya.runtime.inference.tape`
+- import している内部モジュール: `shibuya.foundation.ports.inference`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.inference.tape`
 
 ## [test_c6lib_stats.py](../../../../../../tests/c6/test_c6lib_stats.py)
 
@@ -130,7 +130,7 @@ tests.c6 の共通フィクスチャ。
   - `test_l4_cap_holds_for_a_5000_agent_day_on_the_synthetic_world`(関数)
   - `test_l4_cap_holds_on_the_real_world`(関数): 上限スイッチ ``l4_scale=1.0``(旧挙動)で按分上限と制御目標が守られる。
   - `test_l6_caps_are_derived_from_the_table_not_hard_coded`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.arbiter`・`shibuya.engine.run`・`shibuya.foundation.manifest.schema`・`shibuya.llm.fleet`・`tests/c6/_fake_vllm.py`・`tests/c6/conftest.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.arbiter`・`shibuya.engine.run`・`shibuya.foundation.manifest.schema`・`shibuya.runtime.inference.fleet`・`tests/c6/_fake_vllm.py`・`tests/c6/conftest.py`
 - 環境変数: `SHIBUYA_C6_FLEET_COUNTERS`
 - 決定の ID: D-55・D-56・D-99・D-110・第 289・第 337
 
@@ -157,7 +157,7 @@ tests.c6 の共通フィクスチャ。
   - `test_t5_order_bias_on_the_synthetic_world`(関数)
   - `test_t5_report_shape_is_the_three_declared_quantities`(関数)
   - `test_t5_reversed_population_shows_the_bias_is_composition_not_order`(関数): ``agent_id`` の写像を反転した対照。
-- import している内部モジュール: `shibuya.engine.commit`・`shibuya.engine.run`・`shibuya.foundation.vocab.agent_codes`・`shibuya.llm.mock`・`shibuya.world.facts.population_reader`・`shibuya.world.model.state`・`tests/c6/conftest.py`・`tools/c6/c6lib.py`
+- import している内部モジュール: `shibuya.engine.commit`・`shibuya.engine.run`・`shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.inference.mock`・`shibuya.world.facts.population_reader`・`shibuya.world.model.state`・`tests/c6/conftest.py`・`tools/c6/c6lib.py`
 - 決定の ID: D-56・D-62・D-64・D-66
 
 ## [test_t9_diagnostics.py](../../../../../../tests/c6/test_t9_diagnostics.py)

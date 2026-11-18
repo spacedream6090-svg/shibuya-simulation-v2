@@ -905,7 +905,7 @@ def score_texts(texts: Sequence[str], vocab_version: str = "v1") -> dict[str, An
     """
     from shibuya.foundation.vocab.actions import ROLE_ACTION_WORDS, is_role_action
     from shibuya.act.intake.parser import parse_two_line
-    from shibuya.llm.undefined import map_synonym
+    from shibuya.act.intake.undefined import map_synonym
 
     n = len(texts)
     actions: Counter[str] = Counter()
@@ -1111,7 +1111,7 @@ def build_fleet_client(
     stream: bool = True,
 ) -> Any:
     """``llm.fleet.FleetClient`` を組む(実サーバーに繋ぐのは呼び出し側の責任)。"""
-    from shibuya.llm.fleet import FleetClient, FleetConfig
+    from shibuya.runtime.inference.fleet import FleetClient, FleetConfig
     from shibuya.foundation.manifest.schema import Mode
 
     cfg = FleetConfig(

@@ -252,7 +252,7 @@ def test_duties_run_across_the_day_and_resume(spy, monkeypatch, tmp_path):
 
 def test_fleet_call_ids_and_time_bucket_are_the_old_ones(monkeypatch):
     """#1・#2: 艦隊の道で発射した呼び(偽の艦隊・合成の世界)の id と時間帯が旧の形(``f"{T}:{体}:{級}"``・``T // 5``)。"""
-    from shibuya.llm.fleet import FleetBridge
+    from shibuya.runtime.inference.fleet import FleetBridge
     from tests.engine.test_fleet_wiring import make_client, run_fleet
     from tests.llm.test_fleet import FakeVLLM
 

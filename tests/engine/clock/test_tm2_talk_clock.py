@@ -30,7 +30,7 @@ from shibuya.foundation.queues import batching as BA
 from shibuya.foundation.manifest import sections as MS
 from shibuya.runtime.state import resume as RS
 from shibuya.runtime.clocks import speech as TC
-from shibuya.engine.llm_bridge import LANE_SECONDS
+from shibuya.runtime.inference.bridge import LANE_SECONDS
 from shibuya.society.speech.port import mora_count
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -161,7 +161,7 @@ def test_think_time_is_not_added_to_the_gap():
     # 定義の置き場(``__module__``)から作る(移す道具が import の文を割り先へ向けるので、割った後は割り先の名になる)
     # 〔G0 の検収 低-5〕割った後に禁じるのは橋(考える時間と道の秒=LLMBridge の置き場)だけ。型の口(RenderedPrompt・Renderer)は
     # foundation の推論の口へ行き、時計が読んでも考える時間は二重に数えない=禁じない。代わりに考える時間の名は、どこから読んでも禁じる
-    from shibuya.engine.llm_bridge import LANE_SECONDS, LLMBridge
+    from shibuya.runtime.inference.bridge import LANE_SECONDS, LLMBridge
 
     bridge_mods = {LLMBridge.__module__}
     think_names = {"LANE_SECONDS", "LANE_THINK_TOKENS", "ALPHA_THINK_SECONDS_PER_TOKEN", "delta_think_ticks"}

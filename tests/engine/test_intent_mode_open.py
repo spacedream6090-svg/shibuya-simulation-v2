@@ -14,10 +14,10 @@ from __future__ import annotations
 import pytest
 
 from shibuya.engine.run import run_day
-from shibuya.llm import LLMResponse
+from shibuya.foundation.ports.inference import LLMResponse
 from shibuya.foundation.vocab.actions import format_two_line
 from shibuya.foundation.vocab.actions import ACTION_CODES, action_code_of
-from shibuya.llm.undefined import map_synonym
+from shibuya.act.intake.undefined import map_synonym
 from shibuya.foundation.text.templates import INTENT_MODES
 
 

@@ -37,7 +37,6 @@ from __future__ import annotations
 
 import re
 from typing import Any, Final
-
 from shibuya.foundation.rng import stream
 from shibuya.foundation.types import EventClass
 from shibuya.foundation.vocab.actions import (
@@ -45,28 +44,20 @@ from shibuya.foundation.vocab.actions import (
     NO_TARGET,
     format_two_line,
 )
-from shibuya.llm import (
+from shibuya.foundation.ports.inference import (
     LLMRequest,
     LLMResponse,
     TapeLookup,
     estimate_tokens,
 )
 from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE, TARGET_WANDER, append_comment, format_two_line_v3
+from shibuya.foundation.vocab.actions import MOCK_UTTERANCE
 
 __all__ = [
-    "MOCK_REASONS",
-    "MOCK_COMMENTS",
-    "MOCK_UTTERANCE",
-    "MOCK_RNG_DOMAIN",
-    "MOCK_FORMS",
-    "MOCK_ACTIVITIES_V3",
-    "MOCK_UNTILS_V3",
-    "MOCK_UNTILS_V3_MOVE",
-    "MOCK_WANDER_ONE_IN",
-    "MOCK_SHOP_WORDS",
-    "MockLLM",
-    "TapeLLM",
+    "MOCK_REASONS", "MOCK_COMMENTS", "MOCK_RNG_DOMAIN", "MOCK_FORMS", "MOCK_ACTIVITIES_V3", "MOCK_UNTILS_V3",
+    "MOCK_UNTILS_V3_MOVE", "MOCK_WANDER_ONE_IN", "MOCK_SHOP_WORDS", "MockLLM", "TapeLLM",
 ]
+
 
 #: ``core.rng`` のドメイン名(manifest の ``rng.domain_table_version`` で版管理される表の1項)。
 MOCK_RNG_DOMAIN: Final[str] = "llm.mock"
@@ -91,10 +82,6 @@ MOCK_COMMENTS: Final[tuple[str, ...]] = (
     "また後で",
     "ちょうどいい",
 )
-
-#: 〔第 1 期 1-8b〕会話の番の「ひと言」(語彙 v3・腕 ``--speech-port on`` で B6 が欄を求めたときだけ)。決まった文 1 つ
-#: (20 字以内・命令文でない・店名も評価語も含まない=口コミの抽出は 0)。古典の方策も同じ文。
-MOCK_UTTERANCE: Final[str] = "こんにちは"
 
 #: 出力形。``"v1"``=行動・対象・ひと言(語彙 v1/v2)/``"v3"``=行動・対象・活動・まで(語彙 v3)。
 MOCK_FORMS: Final[tuple[str, ...]] = ("v1", "v3")

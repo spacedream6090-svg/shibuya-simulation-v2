@@ -21,11 +21,11 @@ from shibuya.engine import resolve as R
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.links import ActualLogLink
-from shibuya.engine.llm_bridge import LLMBridge
+from shibuya.runtime.inference.bridge import LLMBridge
 from shibuya.world.laws.opening import OpeningProcess
 from shibuya.world.facts.rights import ledger as L
 from shibuya.world.facts.rights import record as RR
-from shibuya.llm import LLMResponse
+from shibuya.foundation.ports.inference import LLMResponse
 from shibuya.foundation.vocab.actions import format_two_line
 from shibuya.foundation.vocab.actions import ACTION_CODES
 from shibuya.world.ledger.actual_log import ActualLog

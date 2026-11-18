@@ -55,7 +55,7 @@ if str(REPO_ROOT / "src") not in sys.path:  # pragma: no cover - 実行時の経
 from shibuya.foundation.vocab.agent_codes import ResultCode  # noqa: E402
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector  # noqa: E402
 from shibuya.foundation.vocab.actions import ALL_ACTION_WORDS  # noqa: E402
-from shibuya.llm.undefined import (  # noqa: E402
+from shibuya.act.intake.undefined import (  # noqa: E402
     ADJUDICATION_TEMPLATE,
     DEFAULT_THRESHOLD_AGENTS,
     REVIEW_KEYWORDS,
@@ -256,7 +256,7 @@ class FleetAdjudicator:
     name = "fleet"
 
     def __init__(self, endpoints: Sequence[str], model: str = "", *, max_tokens: int = 768) -> None:
-        from shibuya.llm.fleet import FleetClient, FleetConfig
+        from shibuya.runtime.inference.fleet import FleetClient, FleetConfig
 
         eps = tuple(e.strip() for e in endpoints if e.strip())
         if not eps:
@@ -269,7 +269,7 @@ class FleetAdjudicator:
         self.model = model or getattr(self._client, "model", "") or ""
 
     def draft(self, prompt: str, *, word: str) -> str:
-        from shibuya.llm import LLMRequest
+        from shibuya.foundation.ports.inference import LLMRequest
 
         req = LLMRequest(
             agent_id=0,

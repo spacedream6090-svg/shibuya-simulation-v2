@@ -41,14 +41,16 @@ from shibuya.society.conversation import ConversationManager
 from shibuya.world.model.geometry import EdgeGeometry
 from shibuya.engine.run import run_day
 from shibuya.foundation.vocab.actions import TargetKind, parse_target, resolve_landmark
-from shibuya.llm.undefined import (
+from shibuya.act.intake.undefined import (
     SYNONYM_TABLE_VERSION,
     SYNONYMS,
-    TARGET_HINT_WORDS,
     map_synonym,
     synonym_table,
     synonym_table_version,
     target_hints,
+)
+from shibuya.foundation.vocab.act_codes import (
+    TARGET_HINT_WORDS,
 )
 from shibuya.world.model.state import LANDMARK_CATS, World
 

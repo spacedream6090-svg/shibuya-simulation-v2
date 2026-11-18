@@ -74,9 +74,9 @@ from shibuya.mind.memory.familiarity import FamiliarityLayer
 from shibuya.world.model.geometry import EdgeGeometry
 from shibuya.world.model.geometry import check_geometry
 from shibuya.act.intent import IntentLayer
-from shibuya.engine.llm_bridge import LLMBridge
-from shibuya.engine.llm_bridge import PerceptionRendererAdapter
-from shibuya.engine.llm_bridge import StubRenderer
+from shibuya.runtime.inference.bridge import LLMBridge
+from shibuya.runtime.inference.bridge import PerceptionRendererAdapter
+from shibuya.runtime.inference.bridge import StubRenderer
 from shibuya.mind.memory.memory import MEMORY_MODES
 from shibuya.mind.memory.memory import MemoryLayer
 from shibuya.mind.memory.memory import STORE_RECALL_SCOPES
@@ -105,7 +105,7 @@ from shibuya.runtime.inference.tape import TapeWriter
 from shibuya.runtime.inference.tape import read_run_meta
 from shibuya.mind.memory.wom import WomExtractor
 from shibuya.mind.memory.wom import check_wom_source
-from shibuya.llm.fleet import FleetBridge
+from shibuya.runtime.inference.fleet import FleetBridge
 from shibuya.foundation.text.channels import BudgetMode
 from shibuya.perception.renderer import PerceptionAssets
 from shibuya.perception.renderer import Renderer as PerceptionRenderer
@@ -1369,7 +1369,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     #: D-71 §3 J: 行動コード別の適用件数(``ResolveOutcome.per_action`` のラン合計)。
     per_action_total: dict[int, int] = {}
     # 第308 D-107 (a): 群・規範の計器(**読むだけ**=状態・乱数・テープに触れない)
-    from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE as _AWBC
+    from shibuya.runtime.inference.bridge import ACTION_WORD_BY_CODE as _AWBC
     from shibuya.society.norm_meter import GroupNormMeter, role_code_table
 
     norm_meter = (GroupNormMeter(agents, world, role_codes=role_code_table(vocab_version),
@@ -1472,9 +1472,9 @@ def build(_call_args: dict[str, Any]) -> Any:
     decision_layer = None
     if _DL.arm() == _DL.ARM_PORT:
         from shibuya.mind.judge.decision import ports as _DP
-        from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE as _WORDS
+        from shibuya.runtime.inference.bridge import ACTION_WORD_BY_CODE as _WORDS
         from shibuya.foundation.vocab.actions import cross_action_words, safe_action_word
-        from shibuya.llm.mock import MockLLM as _MockLLM
+        from shibuya.runtime.inference.mock import MockLLM as _MockLLM
 
         _pkw = dict(seed=seed, day_key0=int(day_index), step_seconds=int(tick_seconds))
         if classical_policy is not None:

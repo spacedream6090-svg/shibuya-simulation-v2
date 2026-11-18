@@ -23,7 +23,7 @@ from shibuya.engine import commit as C
 from shibuya.engine import run as RUN
 from shibuya.engine.run import run_day
 from shibuya.runtime.inference.tape import Tape
-from shibuya.llm.fleet import FleetBridge  # 1-0: run.py は FleetBridge を import しない(組み立ては engine.systems.build)
+from shibuya.runtime.inference.fleet import FleetBridge  # 1-0: run.py は FleetBridge を import しない(組み立ては engine.systems.build)
 
 from tests.engine.test_fleet_wiring import (
     CONV_AGENTS,

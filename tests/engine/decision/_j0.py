@@ -9,7 +9,7 @@ from typing import Any, Iterator
 from shibuya.mind.judge.decision import layer as DL
 from shibuya.foundation.ports.decision import DecisionContext
 from shibuya.mind.judge.decision.sources import build_candidates
-from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE
+from shibuya.runtime.inference.bridge import ACTION_WORD_BY_CODE
 from shibuya.foundation.vocab.actions import cross_action_words, safe_action_word
 
 

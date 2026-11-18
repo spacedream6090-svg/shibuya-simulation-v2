@@ -13,9 +13,9 @@ from __future__ import annotations
 import functools
 from typing import Any
 
-from shibuya.engine.llm_bridge import delta_think_ticks
+from shibuya.runtime.inference.bridge import delta_think_ticks
 from shibuya.runtime.systems import state_io as _STATE_IO
-from shibuya.llm.fleet import Deferred as FleetDeferred
+from shibuya.foundation.ports.inference import Deferred as FleetDeferred
 
 __all__ = ["sys_drain", "sys_close_final"]
 

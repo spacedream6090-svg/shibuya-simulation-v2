@@ -22,7 +22,7 @@ import pytest
 
 from shibuya.engine.run import run_day
 from shibuya.runtime.inference.tape import Replay
-from shibuya.llm.fleet import FleetClient, FleetConfig
+from shibuya.runtime.inference.fleet import FleetClient, FleetConfig
 from shibuya.foundation.manifest.schema import Mode
 from shibuya.world.model.state import World
 
@@ -342,7 +342,7 @@ def test_add_fleet_args_defaults_follow_the_canon():
     import argparse
 
     from shibuya.engine.run import add_fleet_args
-    from shibuya.llm.fleet import DEFAULT_T1_MAX_TOKENS, DEFAULT_TEMPERATURE
+    from shibuya.foundation.ports.inference import DEFAULT_T1_MAX_TOKENS, DEFAULT_TEMPERATURE
 
     ap = argparse.ArgumentParser()
     add_fleet_args(ap)
@@ -403,7 +403,7 @@ def test_mock_path_opens_conversations_in_the_same_world():
 
     class ScriptedLLM:
         def complete(self, request):
-            from shibuya.llm import LLMResponse
+            from shibuya.foundation.ports.inference import LLMResponse
 
             return LLMResponse(
                 text=TALK_PAIR % (int(request.agent_id) ^ 1), source="scripted"
@@ -428,7 +428,7 @@ def test_conversations_need_awake_partners_so_night_only_runs_barely_open_any():
 
     class ScriptedLLM:
         def complete(self, request):
-            from shibuya.llm import LLMResponse
+            from shibuya.foundation.ports.inference import LLMResponse
 
             return LLMResponse(text=TALK, source="scripted")
 

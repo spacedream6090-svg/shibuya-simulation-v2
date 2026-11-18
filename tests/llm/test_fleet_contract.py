@@ -19,22 +19,24 @@ from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
 from shibuya.foundation.budget import budget_by_id, load_budget_table
-from shibuya.llm.fleet import (
+from shibuya.runtime.inference.fleet import (
     DEFAULT_E2E_TIMEOUT_S,
     DEFAULT_TTFT_TIMEOUT_S,
-    LANE_THINK_TOKENS,
     LANE_TIER,
-    Deferred,
     FleetBridge,
     FleetClient,
     FleetConfig,
+    l4_calls_per_day,
+    l6_in_flight_per_gpu,
+    plan_batch,
+)
+from shibuya.foundation.ports.inference import (
+    LANE_THINK_TOKENS,
+    Deferred,
     LLMCall,
     Outcome,
     cache_salt_for,
-    l4_calls_per_day,
-    l6_in_flight_per_gpu,
     max_tokens_for,
-    plan_batch,
     route_primary,
     seed_for,
     split_system_user,
@@ -45,7 +47,7 @@ from tests import _places
 GOOD = "理由: 予定の時間になったから\n行動: 移動 対象: C-0001 ひと言: なし"
 BAD = "うーん、なんとも言えませんね。"
 
-FLEET_PY = Path(__file__).resolve().parents[2] / "src" / "shibuya" / "llm" / "fleet.py"
+FLEET_PY = Path(__file__).resolve().parents[2] / "src" / "shibuya" / "runtime" / "inference" / "fleet.py"
 
 
 def _forbidden() -> tuple[_places.Names, tuple[str, ...]]:
@@ -70,11 +72,41 @@ def _forbidden() -> tuple[_places.Names, tuple[str, ...]]:
 
 
 def test_fleet_module_imports_no_forbidden_layer():
-    """``llm`` は engine/perception/world/agents を import しない(AST での二重化)。"""
-    tree = ast.parse(FLEET_PY.read_text(encoding="utf-8"))
+    """``llm`` は engine/perception/world/agents を import しない(AST での二重化)。
+
+    〔割る段 5a の G3・8 本目〕元の ``llm/fleet.py`` は、型と口(17 名)が ``foundation/ports/inference.py`` へ、残りが
+    ``runtime/inference/fleet.py`` へ割れた=両方の割り先を見る(型の割り先は ``LLMCall`` の定義の置き場から引く)。"""
+    import inspect
+
+    files = sorted({FLEET_PY.resolve(), Path(inspect.getsourcefile(LLMCall)).resolve()})
+    assert len(files) == 2, files  # 〔検収の低 5〕型が fleet へ戻ると集合が黙って 1 本になる=気づけるように数を固定する
     seen: list[str] = []
-    for node in ast.walk(tree):
-        seen.extend(_places.imported(node))
+    for f in files:
+        for node in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+            seen.extend(_places.imported(node))
+    names, literal = _forbidden()
+    assert names.heads and names.leaves
+    bad = [m for m in seen if names.hits(m) or m.startswith(literal)]
+    assert bad == [], f"層契約違反の import: {bad}"
+
+
+def test_split_llm_parts_import_no_forbidden_layer():
+    """〔割る段 5a の G3・検収の低 1〕古い決まり「``llm`` は engine/perception/world/agents を import しない」は、``llm/`` が
+    無くなって import-linter の契約から消えた(宣言どおり)。割り先のうち fleet と口の型は上の試験が見る。ここでは残りの
+    割り先(mock・undefined)を、同じ範囲(``_forbidden``)で AST から見る(関数の中の import も見る)=古い決まりが守っていた
+    向きを、古い包みが無くなる段(段 6〜8)まで試験で守る。"""
+    import inspect
+
+    import shibuya.act.intake.undefined as UNDEFINED
+    import shibuya.runtime.inference.mock as MOCK
+
+    files = sorted({Path(inspect.getsourcefile(m)).resolve() for m in (MOCK, UNDEFINED)})
+    assert len(files) == 2, files
+    seen: list[str] = []
+    for f in files:
+        for node in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+            seen.extend(_places.imported(node))
+    assert seen, "import を 1 つも読めていない(空回り)"
     names, literal = _forbidden()
     assert names.heads and names.leaves
     bad = [m for m in seen if names.hits(m) or m.startswith(literal)]
@@ -83,7 +115,7 @@ def test_fleet_module_imports_no_forbidden_layer():
 
 def test_lane_think_tokens_matches_engine_canon():
     """``LANE_THINK_TOKENS`` は層契約のための複製=engine 側の正典と同値を機械で固定する。"""
-    from shibuya.engine.llm_bridge import LANE_SECONDS, LANE_THINK_TOKENS as CANON
+    from shibuya.runtime.inference.bridge import LANE_SECONDS, LANE_THINK_TOKENS as CANON
 
     assert dict(LANE_THINK_TOKENS) == dict(CANON)
     assert set(LANE_TIER) == set(LANE_SECONDS)  # レーンの集合も同じ
@@ -96,9 +128,9 @@ def test_bridge_result_fields_mirror_engine_bridge_result():
     """``FleetBridgeResult`` は ``engine.llm_bridge.BridgeResult`` の欄を包含する。"""
     from dataclasses import fields
 
-    from shibuya.engine.llm_bridge import BridgeResult
+    from shibuya.runtime.inference.bridge import BridgeResult
 
-    from shibuya.llm.fleet import FleetBridgeResult
+    from shibuya.runtime.inference.fleet import FleetBridgeResult
 
     engine_fields = {f.name for f in fields(BridgeResult)}
     fleet_fields = {f.name for f in fields(FleetBridgeResult)}

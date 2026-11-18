@@ -1615,11 +1615,11 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "runner.log": ("world/ledger/actual_log.py", "ActualLog"),
     "ledger.money": ("economy/ledger.py", "Ledger"),
     "ledger.goods": ("economy/goods.py", "GoodsLedger"),
-    "undefined": ("llm/undefined.py", "UndefinedActionRegistry"),
+    "undefined": ("act/intake/undefined.py", "UndefinedActionRegistry"),
     "renderer": ("perception/renderer.py", "Renderer"),
-    "bridge": ("engine/llm_bridge.py", "LLMBridge"),
+    "bridge": ("runtime/inference/bridge.py", "LLMBridge"),
     "bridge.tape": ("runtime/inference/tape.py", "TapeWriter"),
-    "fleet_bridge": ("llm/fleet.py", "FleetBridge"),
+    "fleet_bridge": ("runtime/inference/fleet.py", "FleetBridge"),
     # 第 1 期 1-3: 出来事の記録(状態台帳の行 E)
     "events": ("foundation/journal/log.py", "EventLog"),
     # 第 1 期 1-8 J0: 候補の口の層(状態台帳の行 J0・腕 --decision-port port のランだけ)

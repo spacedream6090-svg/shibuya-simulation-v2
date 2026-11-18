@@ -667,7 +667,7 @@ def undefined_registry_payload(
     逐次ループ宣言(P4): 記録リング長(``log_limit`` 既定 4,096)ぶんのループ 1 本。ラン後に
     1 回だけ呼ぶ(ランの毎 tick 経路には入らない)。
     """
-    from shibuya.llm.undefined import synonym_table_version
+    from shibuya.act.intake.undefined import synonym_table_version
 
     # 語彙版は**ランごと**の値(モジュール定数ではない)= 台帳が持つ版を正とする(第205・親修正)。
     _vv = str(getattr(registry, "vocab_version", DEFAULT_VOCAB_VERSION))

@@ -26,7 +26,7 @@ from shibuya.society.conversation import (
     ConversationManager,
 )
 from shibuya.engine.run import run_day
-from shibuya.llm import LLMResponse
+from shibuya.foundation.ports.inference import LLMResponse
 from shibuya.world.model.state import World
 
 TALK_TO = "理由: 知人を見かけたから\n行動: 会話 対象: P-{}　ひと言: こんにちは"

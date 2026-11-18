@@ -124,7 +124,7 @@ B4b「近景」への待ち行列の差し込み(C4 後半で付けた唯一の�
   - `test_rule8_and_b5_do_not_move_for_the_invitee`(関数): B6 は**個体ブロック**なので、被招待でも B0-B4b と B5 は 1 バイトも動かない。
   - `test_template_sha256_is_untouched`(関数): テンプレ本体(``TEMPLATES``/``WAKE_REASON_TEXT``)に行を足していない。
   - `test_the_invitee_is_told_who_spoke_to_them`(関数)
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.engine.run`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.llm`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.engine.run`・`shibuya.foundation.ports.inference`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 - 決定の ID: D-62・第 137
 
 ## [test_channels.py](../../../../../../tests/perception/test_channels.py)
@@ -142,7 +142,7 @@ channels: §3.2 チャネル別トークン上限表・根拠等級・有界化(
   - `test_truncation_reports_no_truncation_when_it_fits`(関数)
   - `test_truncation_respects_item_count_cap`(関数)
   - `test_unknown_channel_requires_explicit_limit`(関数)
-- import している内部モジュール: `shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.llm`
+- import している内部モジュール: `shibuya.foundation.ports.inference`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`
 
 ## [test_hashes_state.py](../../../../../../tests/perception/test_hashes_state.py)
 
@@ -426,5 +426,5 @@ templates: 文面凍結(§1 条5)・ブロック表(§2.2)・段階語彙の釘�
   - `test_the_reverse_one_side_stops_too`(関数): 何を確かめるか(検収 中-1・再検収 低-A): 描画の資産が合成なのに、環境の過程に W13 の日の表があると、組み立てで止まる
   - `test_wire_weather_puts_only_the_day_hook_when_the_environment_has_no_weather_days`(関数): 何を確かめるか(検収 低-3): 環境の過程に W13 の日の表が無い(``has_weather`` が偽)と、日の口だけを挿し、語と鍵の口は
   - `test_wire_weather_puts_the_main_path_hooks_on_any_renderer`(関数): 何を確かめるか: ``state_io.wire_weather`` は描画(注入の描画を含む)に本筋と同じ口を挿す=天気の日=環境の過程の再生日・
-- import している内部モジュール: `shibuya.engine.llm_bridge`・`shibuya.engine.run`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.environment`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.environment`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.state`
 - 決定の ID: 第 347

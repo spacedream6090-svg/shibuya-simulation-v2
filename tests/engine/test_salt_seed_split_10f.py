@@ -183,8 +183,8 @@ def test_static_scan_catches_aliases_and_keyword_domains():
 def test_dynamic_domains_match_the_defaults():
     """検収 S3-1 の 4: ``self.domain`` の手書きの対応を、実物の既定の値と突き合わせる。"""
     from shibuya.society.conversation import ConversationManager
-    from shibuya.llm import mock as MOCK
-    from shibuya.llm.mock import MockLLM
+    from shibuya.runtime.inference import mock as MOCK
+    from shibuya.runtime.inference.mock import MockLLM
 
     assert {MockLLM(master_seed=1).domain} == _DYNAMIC["self.domain"]
     assert not hasattr(ConversationManager(1), "domain")  # 〔第346〕抽選と一緒に用途名の引数も消した
@@ -202,7 +202,7 @@ _HASH_SITES = {
     # 〔11-01 段 2 の 4〕("engine/presence.py", "attendance_draw")=出勤率の抽選は消した
     # 〔第 6 期 6-2〕腕 1b の体ごとの割り振り(動きの seed=salt・母集団の seed は使わない)
     ("interim_bundles/calendar_self.py", "_key_draw"): "calendar_1b",
-    ("llm/fleet.py", "seed_for"): "fleet.call_seed",
+    ("foundation/ports/inference.py", "seed_for"): "fleet.call_seed",
     ("foundation/rng.py", "derive_key"): "core.rng の鍵の導出そのもの",
     ("foundation/hashing.py", "xxh64"): "汎用のハッシュ(引数の名前が seed)",
     ("foundation/hashing.py", "xxh64_array"): "汎用のハッシュ(引数の名前が seed)",

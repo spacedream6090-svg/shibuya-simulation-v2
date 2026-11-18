@@ -19,7 +19,7 @@ from shibuya.foundation.vocab.agent_codes import Activity, AgentKind, WakeCondit
 from shibuya.world.model.agent_table import AgentState
 from shibuya.engine import chooser as CH
 from shibuya.mind.judge import classical as CL
-from shibuya.llm import LLMRequest
+from shibuya.foundation.ports.inference import LLMRequest
 from shibuya.act.intake.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
 from shibuya.foundation.vocab.actions import format_two_line_v3
 from shibuya.world.model.state import World

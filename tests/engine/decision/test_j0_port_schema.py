@@ -104,7 +104,7 @@ def test_the_port_does_not_read_the_prediction(port_name):
 
 
 def _choose(port_name, ctx, cands):
-    from shibuya.llm.mock import MockLLM
+    from shibuya.runtime.inference.mock import MockLLM
 
     kw = dict(seed=1)
     if port_name == "mock":
@@ -159,7 +159,7 @@ def test_choose_returns_the_original_id_and_the_presented_number():
 
 
 def test_candidates_come_from_the_sources_and_keep_the_vocab():
-    from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE
+    from shibuya.runtime.inference.bridge import ACTION_WORD_BY_CODE
     from shibuya.foundation.vocab.actions import safe_action_word
 
     for v in ("v1", "v2", "v3"):

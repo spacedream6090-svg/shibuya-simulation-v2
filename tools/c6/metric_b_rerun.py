@@ -44,7 +44,7 @@ import c6lib  # noqa: E402
 
 def collect_scenes(args) -> tuple[list, Path, dict]:
     """mock ランを回して ``scenes.jsonl``(プロンプト全文)を作る。"""
-    from shibuya.llm.mock import MockLLM
+    from shibuya.runtime.inference.mock import MockLLM
 
     rec = c6lib.RecordingLLM(MockLLM(master_seed=args.seed))
     res, route = c6lib.run_smoke(

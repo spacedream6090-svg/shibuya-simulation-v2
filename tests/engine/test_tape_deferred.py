@@ -36,7 +36,8 @@ from shibuya.runtime.inference.tape import (
     TapeRow,
     TapeWriter,
 )
-from shibuya.llm.fleet import FleetClient, FleetConfig, Outcome
+from shibuya.runtime.inference.fleet import FleetClient, FleetConfig
+from shibuya.foundation.ports.inference import Outcome
 from shibuya.foundation.manifest.schema import Mode
 from shibuya.world.model.state import World
 from tests import golden_env as GE

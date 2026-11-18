@@ -402,7 +402,7 @@ def test_role_words_from_the_main_decision_take_effect_at_the_store(monkeypatch)
 
 
 def test_llm_bridge_hands_the_role_word_to_the_sink():
-    from shibuya.engine.llm_bridge import LLMBridge
+    from shibuya.runtime.inference.bridge import LLMBridge
     from shibuya.foundation.vocab.actions import ACTION_CODES
     from tests.engine.rights.test_rights_events import WordLLM
 

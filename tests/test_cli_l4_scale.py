@@ -189,7 +189,7 @@ def test_fleet_x_unlimited_queue_capacity_defaults_to_the_agent_count():
     from types import SimpleNamespace
 
     from shibuya import cli
-    from shibuya.llm.fleet import FleetConfig
+    from shibuya.runtime.inference.fleet import FleetConfig
 
     def client(cap_total: int, queue_capacity: int | None = None) -> SimpleNamespace:
         cfg = FleetConfig(endpoints=("http://127.0.0.1:1",), max_in_flight=cap_total, queue_capacity=queue_capacity)

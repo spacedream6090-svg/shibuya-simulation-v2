@@ -19,7 +19,7 @@ import pytest
 
 from shibuya.mind.judge.decision import layer as DL
 from shibuya.mind.judge.decision.sources import build_candidates
-from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE
+from shibuya.runtime.inference.bridge import ACTION_WORD_BY_CODE
 from shibuya.engine.run import run_day
 from shibuya.society.tools import record as REC
 from shibuya.society.tools import registry as TR
