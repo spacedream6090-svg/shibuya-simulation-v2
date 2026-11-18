@@ -25,7 +25,7 @@ from shibuya.foundation.manifest import sections as MS
 from shibuya.experiments.port import run_kind as RK
 from shibuya.foundation.decl import bridging as BR
 from shibuya.world.facts.rules import table as RT
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]

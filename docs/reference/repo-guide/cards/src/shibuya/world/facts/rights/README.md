@@ -45,6 +45,6 @@ engine.rights.record — 許可のない行動の記録と、役割語の権利�
   - `manifest_fields`(関数): manifest の ``rights``: 実行器の権利台帳の欄に、判断の口の役割語の数え(許可なし・判定しない)を足す。
   - `record_unauthorized`(関数): 起きた許可のない行為を体ごとに 1 行書く(``events`` が ``None`` なら書かない)。行の数を返す。
 - import している内部モジュール: `shibuya.foundation.journal.log`・`shibuya.foundation.types`・`shibuya.foundation.vocab.actions`・`shibuya.world.facts.rights.ledger`
-- 呼び手: `shibuya.engine.run`・`shibuya.world.laws.opening`・`shibuya.world.laws.runner`
+- 呼び手: `shibuya.runtime.result`・`shibuya.world.laws.opening`・`shibuya.world.laws.runner`
 - 読む試験: `tests/engine/rights/test_rights_events.py`
 - 決定の ID: 10-12/§1-4

@@ -466,7 +466,7 @@ WORLD = "data/world/v2"
 def test_run_wiring_defaults_are_old_and_switches_reach_the_run():
     from shibuya import cli
     from shibuya.world.facts.weekly_reader import load_weekly
-    from shibuya.engine.run import _resolve_population
+    from shibuya.runtime.run import _resolve_population
 
     kw = dict(n_agents=1500, seed=1, world_dir=WORLD, vocab_version="v3")
     base = cli.run(**kw)
@@ -564,7 +564,7 @@ def test_template_fingerprint_follows_the_drawn_hunger_stage(monkeypatch):
     assert all_sha != frozen
 
     def manifest_sha(words: str, model_: str) -> str:
-        from shibuya.engine.run import run_day
+        from shibuya.runtime.run import run_day
 
         res = run_day(n_agents=20, seed=1, ticks=3, hunger_model=model_, hunger_words=words)
         return res.run_manifest_fields()["template_sha256"]

@@ -20,7 +20,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.inference.tape import Replay
 from shibuya.runtime.inference.fleet import FleetClient, FleetConfig
 from shibuya.foundation.manifest.schema import Mode
@@ -313,7 +313,7 @@ def test_run_reports_dictionary_mapped_rate(fleet_servers):
 
 def test_cli_flags_put_temperature_and_max_tokens_on_the_wire(fleet_servers):
     """``--temperature 0.7 --max-tokens 96`` が payload と run manifest 欄に載る。"""
-    from shibuya.engine.run import add_fleet_args, fleet_from_args
+    from shibuya.interfaces.cli.run_args import add_fleet_args, fleet_from_args
     import argparse
 
     ap = argparse.ArgumentParser()
@@ -341,7 +341,7 @@ def test_add_fleet_args_defaults_follow_the_canon():
     """既定は温度 0.7(知覚契約書 §2.5/運用設計書 §1.3)・max_tokens 96(expedient)。"""
     import argparse
 
-    from shibuya.engine.run import add_fleet_args
+    from shibuya.interfaces.cli.run_args import add_fleet_args
     from shibuya.foundation.ports.inference import DEFAULT_T1_MAX_TOKENS, DEFAULT_TEMPERATURE
 
     ap = argparse.ArgumentParser()
@@ -559,7 +559,7 @@ def test_fleet_from_args_passes_queue_capacity_through():
     """CLI の ``--fleet-queue-capacity`` が FleetConfig.queue_capacity に届く。0/未指定は既定(×4)。"""
     import argparse
 
-    from shibuya.engine.run import fleet_from_args
+    from shibuya.interfaces.cli.run_args import fleet_from_args
 
     base = dict(llm="fleet", endpoints="http://127.0.0.1:1", model="m", mode="smoke", run_id="",
                 seed=1, temperature=0.7, max_tokens=96)

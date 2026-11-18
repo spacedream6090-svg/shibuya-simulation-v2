@@ -14,7 +14,7 @@ from collections import Counter
 
 import pytest
 
-from shibuya.engine.run import _default_mock
+from shibuya.runtime.run import _default_mock
 from shibuya.foundation.ports.inference import LLMRequest
 from shibuya.foundation.vocab.actions import cross_action_words
 from shibuya.runtime.inference.mock import (

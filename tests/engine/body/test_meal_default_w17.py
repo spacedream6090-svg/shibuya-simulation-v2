@@ -24,7 +24,7 @@ import pytest
 from shibuya import cli
 from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
 from shibuya.world.body import energy as E
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 WORLD_DIR = Path("data/world/v2")
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")

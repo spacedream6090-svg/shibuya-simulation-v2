@@ -21,7 +21,7 @@ engine.activity — 行為と活動の二層の**活動層**(二層の実装 段
   - `displayable_activity`(関数): B4b に出せる活動文か(なし・空・§2.4 ⑧ の個体依存語・⑥ の省略記法を含む文は出さない)。
   - `payload_of`(関数): ``BridgeResult``/艦隊の ``Outcome`` → 活動(語彙 v3 の応答だけ・それ以外は ``None``)。
 - import している内部モジュール: `shibuya.act.commit`・`shibuya.engine.resolve`・`shibuya.foundation.hashing`・`shibuya.foundation.text.normalize`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`
-- 呼び手: `shibuya.act.intent`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`
+- 呼び手: `shibuya.act.intent`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/space/test_nav1_units.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_presence_exit_walk.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/time/test_t0_time_consts.py`
 - 状態台帳の行
   - 持ち主 `act_layer`(`ActivityLayer`)
@@ -55,7 +55,7 @@ engine.intent — **意図の保持**(段 2c・D-112 ①・D-114 案 A・第288)
   - `IntentLayer`(クラス): 意図の保持(``engine.run`` が活動層と一緒に作る=語彙 v3・``--activity on``・``candidates``)。
   - `intent_summary`(関数): 計数 → manifest ``intent`` の形(アジェンダ §3-6)。
 - import している内部モジュール: `shibuya.act.activity`・`shibuya.act.commit`・`shibuya.engine.resolve`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`
-- 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`
+- 呼び手: `shibuya.cli`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/space/test_nav1_units.py`・`tests/engine/test_intent_hold.py`
 - 読む試験(道筋で): `tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`
 - 状態台帳の行
@@ -74,7 +74,7 @@ engine.poi_target — 購入/食事/並ぶの対象を**候補 → 選び手**�
   - `move_resolution_summary`(関数): 段 2b の計数 → manifest ``move_resolution`` の形。
   - `resolution_summary`(関数): 計数 → manifest ``target_resolution`` の形((i)〜(iv)+エントロピーの平均)。
 - import している内部モジュール: `shibuya.foundation.ports.choice`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.place_words`・`shibuya.world.model.assets`・`shibuya.world.model.state`
-- 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`
+- 呼び手: `shibuya.cli`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`
 - 読む試験: `tests/engine/test_classical_policy.py`・`tests/engine/test_intent_chooser.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/engine/test_store_choice.py`
 - 状態台帳の行
   - 持ち主 `poi_resolver`(`TargetResolver`)

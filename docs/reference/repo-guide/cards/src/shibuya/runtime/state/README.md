@@ -44,7 +44,7 @@ engine.growth_decl — エンジン側の**状態成長宣言**(D-R2-6 の YAML 
   - `declarations`(関数): エンジン側 5 構造体の成長宣言(名前 → 宣言)。
   - `to_yaml`(関数): D-R2-6 の YAML 5 欄を文字列で返す(manifest / 検収パックへ貼る用)。
 - import している内部モジュール: `shibuya.foundation.growth`・`shibuya.foundation.time_consts`
-- 呼び手: `shibuya.engine.run`・`shibuya.runtime.systems.report`
+- 呼び手: `shibuya.interfaces.cli.run_args`・`shibuya.runtime.systems.report`
 - 読む試験: `tests/engine/test_mock_day_w2.py`・`tests/engine/time/test_t0_time_consts.py`
 
 ## [hashes.py](../../../../../../../../src/shibuya/runtime/state/hashes.py)
@@ -60,7 +60,7 @@ behavior-hash と full-hash(10b・A2・A3)。表は ``engine.state_ledger`` だ�
   - `resolve_item`(関数): ``"runner.salient.rng"`` → 値。途中の持ち主が ``None`` なら ``_ABSENT``。
   - `to_state`(関数): 値を決定論のバイト列にする(外の状態の直列化の書き手)。``ordered`` は辞書の挿入順を保つ。
 - import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.runtime.state.class_ids`・`shibuya.runtime.state.ledger`
-- 呼び手: `shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.state_io`・`tools/bytecheck/check.py`
+- 呼び手: `shibuya.engine.resolve`・`shibuya.runtime.result`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.state_io`・`tools/bytecheck/check.py`
 - 読む試験: `tests/engine/discard_probe.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/speech/test_speech_arm_rows_resume.py`・`tests/engine/state/shaped_names.py`・`tests/engine/state/test_class_ids.py`・`tests/engine/test_state_format_10f.py`・`tests/engine/test_state_ledger_10b.py`・`tests/perception/facts/test_percept_is_scratch.py`
 - 決定の ID: 第 330
 
@@ -86,7 +86,7 @@ behavior-hash と full-hash(10b・A2・A3)。表は ``engine.state_ledger`` だ�
   - `row`(関数)
   - `rows`(関数): 台帳の行(``place`` を渡せばその置き場だけ)。
   - `soa_rows`(関数)
-- 呼び手: `shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.state_io`・`tools/bytecheck/check.py`
+- 呼び手: `shibuya.engine.resolve`・`shibuya.runtime.result`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.state_io`・`tools/bytecheck/check.py`
 - 読む試験: `tests/economy/cp2/test_cp2_writes_declared.py`・`tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/calendar/test_calendar_shadow.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/discard_probe.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/events/test_e_writes_declared.py`・`tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/multiday/test_md23_body_events.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/speech/test_speech_arm_rows_resume.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_port_schema.py`・`tests/engine/systems/test_systems_table.py`・`tests/engine/test_env_and_sections_10f.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_state_format_10f.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/tools/test_c0_contacts_in_relations.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/tools/test_repo_guide.py`
 - 状態台帳の行
   - 持ち主を引けない行(道筋が `OWNER_CLASSES` に無い・道筋なし)

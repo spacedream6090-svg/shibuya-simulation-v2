@@ -29,7 +29,7 @@ from shibuya.world.laws.presence_plan import (
     _mix64,
 )
 from shibuya.world.laws.rail import RailProcess
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.world.model.assets import ProcessAssets
 from shibuya.world.model.state import World
 from tests import golden_env as GE

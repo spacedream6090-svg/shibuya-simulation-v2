@@ -28,7 +28,7 @@ from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.world.model.state import World
 
 # ================================================================= 道具

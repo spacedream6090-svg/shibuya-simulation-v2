@@ -28,7 +28,7 @@ from shibuya.foundation.manifest import sections as MS
 from shibuya.runtime.clocks import regional as RC
 from shibuya.runtime.state import resume as RS
 from shibuya.runtime.clocks import speech as TC
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.systems import conductor as CO
 from shibuya.runtime.systems import probe as PR
 from shibuya.runtime.systems.table import SPECS

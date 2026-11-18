@@ -30,7 +30,7 @@ from shibuya.runtime.arbiter import (
 from shibuya.mind.system1.wake import (
     WakeCandidates,
 )
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.world.model.state import World
 
 WORLD_DIR = Path("data/world/v2")

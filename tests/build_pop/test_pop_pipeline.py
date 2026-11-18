@@ -204,7 +204,7 @@ def test_loader_reads_the_published_population():
 @pytest.mark.requires_data("world_v2:w16_population.parquet")
 def test_population_backed_run_conserves_money():
     """(f) 母集団を載せたランがエンジンを通る・保存則が保たれる・同 seed 同ハッシュ。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
     from shibuya.world.model.state import World
 
     world = World.load(WORLD_DIR)
@@ -227,7 +227,7 @@ def test_population_backed_run_conserves_money():
 @pytest.mark.requires_data("world_v2:w16_population.parquet")
 def test_population_backed_full_day_5000_agents():
     """(f) 5,000 体 × 1 シミュ日(mock LLM)・保存則不変(予算行 W2 ≤10 分)。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
     from shibuya.world.model.state import World
 
     t0 = time.perf_counter()

@@ -213,7 +213,7 @@ def test_decay_modes():
 # ================================================================= (g) ラン
 @pytest.fixture(scope="module")
 def runs():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     off = run_day(**kw)
@@ -259,7 +259,7 @@ def test_store_summary_in_the_manifest(runs):
 
 
 def test_store_memory_needs_memory_and_checks_its_knobs():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     with pytest.raises(ValueError):
         run_day(n_agents=10, ticks=2, store_memory="on")

@@ -18,12 +18,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine import run as RUN
 from shibuya.runtime.systems import assemble as BLD  # 1-0: 層の組み立ての名前の差し替えの的
 from shibuya.foundation.paths import resolve_repo_path
 from shibuya.world.facts.calendar import CalendarWarning, SimCalendar, load_holidays
 from shibuya.world.body.energy import HomeMeals
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.inference.tape import RUN_META_FILENAME, read_run_meta
 from shibuya.world.model.state import World
 

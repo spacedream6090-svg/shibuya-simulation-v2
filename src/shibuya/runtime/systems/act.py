@@ -22,7 +22,7 @@ from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR
 
 def sys_phase_a(ctx: Any, b: Any) -> None:
     """phase_a(HEAD run.py の同じ区間・文は変えない)。"""
-    from shibuya.engine import run as _RUN
+    from shibuya.runtime import run as _RUN
     act_layer = b.layers.act_layer
     agents = b.soa.agents
     intent_layer = b.layers.intent_layer

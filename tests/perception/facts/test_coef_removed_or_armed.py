@@ -90,7 +90,7 @@ def test_signage_gate_is_one_p_for_every_activity():
 
 # ---------------------------------------------------------------- (d)
 def test_manifest_fields():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(n_agents=60, seed=2, ticks=120, n_cells=9, vocab_version="v3")
     m = res.run_manifest_fields()

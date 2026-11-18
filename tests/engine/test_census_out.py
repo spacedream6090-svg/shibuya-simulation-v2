@@ -134,7 +134,7 @@ def test_the_checkpoint_does_not_move(tmp_path):
 
 # ------------------------------------------------------------------ 台帳が無いラン
 def test_run_day_without_a_ledger_writes_nothing(tmp_path):
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(n_agents=32, seed=1, ticks=4, checkpoint_every=4, n_cells=9,
                   processes=False, conversations=False, census_out=str(tmp_path / "c"))

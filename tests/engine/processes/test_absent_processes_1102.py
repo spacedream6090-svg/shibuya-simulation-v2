@@ -266,7 +266,7 @@ def test_runner_hands_the_arm_to_the_five_processes(mode):
 def tiny_runs():
     """〔第347 止めた切替口の削除〕legacy は切替口(``--absent-processes`` の腕)の代わりに、試験の中だけで実行器に部品の口
     (「無い」の過程の旧道)を挿して回す(``tests/engine/_legacy_world.py``)。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
     from tests.engine._legacy_world import legacy_world_rules
 
     kw = dict(n_agents=30, seed=2, n_cells=9, tick_seconds=STEP_S, ticks=_k(2 * SECONDS_PER_HOUR))
@@ -300,7 +300,7 @@ def test_resume_through_run_day_checks_the_arm(tmp_path):
     〔第347 止めた切替口の削除〕前は切替口の腕を legacy に置いて同じファイルから再開した(違う腕で止まる)。切替口を消した=今の
     腕はいつも stopped。違う腕のファイル=見出しに ``absent_processes`` の無いファイル(版上げの前=legacy のラン)を、保存の
     間だけ見出しを書かない形で作り、そこからの再開が止まることを見る。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
     from shibuya.runtime.state import resume as RS
 
     kw = dict(n_agents=300, seed=1, n_cells=16, tick_seconds=STEP_S, ticks=_k(SECONDS_PER_DAY), checkpoint_every=60)

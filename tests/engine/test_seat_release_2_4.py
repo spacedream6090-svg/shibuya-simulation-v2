@@ -120,7 +120,7 @@ def test_removed_seat_release_switch_env_and_cli_flag_stop():
 
 def test_run_manifest_reports_the_arm_and_the_count():
     """合成の世界のランの manifest の ``leave_effects`` に腕(walk に固定)と解いた数が出る・見出しにも walk。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(n_agents=60, seed=1, ticks=240, renderer="stub", vocab_version="v3", checkpoint_every=240)
     le = res.run_manifest_fields()["leave_effects"]
@@ -131,7 +131,7 @@ def test_resume_without_the_seat_header_is_refused(tmp_path):
     """腕は設定の指紋に入れない=状態のファイルの見出しの ``seat_release`` を見る。〔第346〕見出しに無い状態のファイル
     (2-4 より前のラン)は再開で止まる: 保存の間だけ見出しを書かない形にし、戻してから再開する(検収 M3)。"""
     from shibuya.runtime.state import resume as RS
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     kw = dict(n_agents=40, seed=1, n_cells=9, ticks=240, budget=40.0, vocab_version="v3")
     a = run_day(state_out=tmp_path / "st", stop_at_tick=120, **kw)  # 正の対照: 見出しのある保存は通る

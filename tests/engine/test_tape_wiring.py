@@ -20,7 +20,8 @@ from shibuya.runtime.inference.bridge import (
     StubRenderer,
     delta_think_ticks,
 )
-from shibuya.engine.run import DIAG_DAY_ROWS, DIAG_RUN_COLUMNS, run_day
+from shibuya.runtime.run import DIAG_DAY_ROWS, run_day
+from shibuya.runtime.result import DIAG_RUN_COLUMNS
 from shibuya.runtime.inference.tape import BLOCKS_FILENAME, CALLS_FILENAME, Replay, Tape, TapeWriter
 from shibuya.runtime.inference.mock import MockLLM
 from shibuya.runtime.inference.mock import MOCK_RNG_DOMAIN

@@ -40,7 +40,7 @@ from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, STEP
 
 def sys_decide(ctx: Any, b: Any) -> None:
     """decide(HEAD run.py の同じ区間・文は変えない)。"""
-    from shibuya.engine import run as _RUN
+    from shibuya.runtime import run as _RUN
     _call_layer = b.cfg.call_layer
     _utter = functools.partial(_LLM_IO.utter, b)
     agents = b.soa.agents

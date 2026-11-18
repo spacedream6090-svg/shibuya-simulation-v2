@@ -374,7 +374,7 @@ def record(arm: str, *, out_path: Path, n_agents: int = 5_000, seed: int = 1, wo
     import attr_arms as A
     from shibuya import cli
     from shibuya.world.laws import presence as P
-    from shibuya.engine import run as RUN
+    from shibuya.runtime import run as RUN
 
     import shibuya
 

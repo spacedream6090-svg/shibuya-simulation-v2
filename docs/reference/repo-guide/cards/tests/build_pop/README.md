@@ -27,7 +27,7 @@ W16 母集団合成の統合テスト(実データ必須・CI では skip)。
   - `test_population_backed_run_conserves_money`(関数): (f) 母集団を載せたランがエンジンを通る・保存則が保たれる・同 seed 同ハッシュ。
   - `test_public_anchors_are_the_source_of_the_targets`(関数): 目標体数が公的値から来ていること(在庫比ではない)。
   - `test_rebuild_is_byte_identical`(関数): D-W20 T1: 同じ入力からの再構築で出力とヘッダがバイト一致する。
-- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.w16_population`・`shibuya.engine.run`・`shibuya.world.facts.population_reader`・`shibuya.world.model.state`・`tests/_data_ids.py`・`tests/_time_gates.py`
+- import している内部モジュール: `shibuya.build.geo.common`・`shibuya.build.pop.w16_population`・`shibuya.runtime.run`・`shibuya.world.facts.population_reader`・`shibuya.world.model.state`・`tests/_data_ids.py`・`tests/_time_gates.py`
 
 ## [test_pop_units.py](../../../../../../tests/build_pop/test_pop_units.py)
 

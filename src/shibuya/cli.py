@@ -52,19 +52,23 @@ from shibuya.experiments.port import run_kind as _RK
 from shibuya.world.model.geometry import DEFAULT_GEOMETRY, GEOMETRY_MODES
 from shibuya.world.model.space import nav1 as _NAV1
 from shibuya.foundation.ports.ledger import LedgerBundle
-from shibuya.engine.run import (
+from shibuya.runtime.run import (
     MINUTES_PER_SIM_DAY,
-    RUN_DEFAULT_L4_SCALE,
-    RUN_DEFAULT_VOCAB_VERSION,
-    RunResult,
-    add_calendar_args,
-    add_fleet_args,
-    calendar_kwargs_from_args,
-    fleet_from_args,
     l4_budget,
     resolve_l4_scale,
     resolve_population_seed,
     run_day,
+)
+from shibuya.runtime.result import (
+    RUN_DEFAULT_L4_SCALE,
+    RUN_DEFAULT_VOCAB_VERSION,
+    RunResult,
+)
+from shibuya.interfaces.cli.run_args import (
+    add_calendar_args,
+    add_fleet_args,
+    calendar_kwargs_from_args,
+    fleet_from_args,
 )
 from shibuya.perception.renderer import SIGNAGE_P_SEE_DEFAULT
 from shibuya.foundation.text.templates import (
@@ -532,7 +536,7 @@ def run(
     )
     run_world_dir = wd if (wd is not None and wd.exists()) else None
     # 〔第330・RET〕再生するテープが 10e より前の録画なら、台帳を組む前に止める(run_day と同じ検査)
-    from shibuya.engine.run import check_replay_tape
+    from shibuya.runtime.run import check_replay_tape
 
     check_replay_tape(str(kwargs.get("mode", "record")), kwargs.get("replay"))
     bundle = build_ledger_bundle(
@@ -763,7 +767,7 @@ NON_ARM_RUN_KWARGS: Final[frozenset[str]] = frozenset({
 
 def _engine_run_day() -> Any:
     """``engine.run.run_day`` そのもの(このモジュールの名 ``run_day`` を差し替えた試験でも既定を正しく読む)。"""
-    from shibuya.engine import run as _ENGINE_RUN
+    from shibuya.runtime import run as _ENGINE_RUN
 
     return _ENGINE_RUN.run_day
 

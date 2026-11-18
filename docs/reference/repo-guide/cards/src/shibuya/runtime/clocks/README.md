@@ -35,7 +35,7 @@ engine.regional_clock — 場所ごとの時計(第 6 期 6-3 時計の段 T4・
   - `region_of_cells`(関数): セル → 区域の番号(int64・0 から)と作り方の名。重心を 500 m の格子で塊にする(格子の (x, y) の昇順に番号)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--clock``・試験の切替口)。ランの始めに読む。
 - import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.runtime.clocks.owner_guard`
-- 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.state_io`
+- 呼び手: `shibuya.cli`・`shibuya.runtime.result`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.state_io`
 - 読む試験: `tests/engine/clock/test_tm4_regional_clock.py`
 - 状態台帳の行
   - 持ち主 `clock`(`RegionalClock`)
@@ -61,7 +61,7 @@ engine.speech_clock — 会話の時計(第 6 期 6-3 時計の段 T2・TM3・�
   - `set_arm`(関数): 腕を選ぶ(CLI ``--talk-clock``・試験の切替口)。組み立ての時に読む(ランの途中で変えてもそのランは変わらない)。
   - `utterance_jitter`(関数): 発言ごとの揺れ(規則 3=平均 1 の対数正規・CV 0.42)。鍵=話し手・発言を作った時刻[ns]・会話の番号(TM7 (d))。
 - import している内部モジュール: `shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.runtime.clocks.owner_guard`・`shibuya.society.speech.port`
-- 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`
+- 呼び手: `shibuya.cli`・`shibuya.runtime.result`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`
 - 読む試験: `tests/engine/clock/test_tm2_talk_clock.py`・`tests/engine/clock/test_tm4_regional_clock.py`
 - 状態台帳の行
   - 持ち主 `talk_clock`(`TalkClock`)
@@ -82,7 +82,7 @@ engine.step_scope — 何かあった体だけ(第 6 期 6-3 時計の段 T3・�
   - `manifest_fields`(関数): manifest の ``step_scope``(腕 changed のランだけ・既定の腕は None=節を出さない)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--step-scope``・試験の切替口)。組み立ての時に読む。
 - import している内部モジュール: `shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.clocks.owner_guard`
-- 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.systems.assemble`
+- 呼び手: `shibuya.cli`・`shibuya.runtime.result`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/clock/test_tm3_step_scope.py`
 - 状態台帳の行
   - 持ち主 `step_scope`(`StepScope`)

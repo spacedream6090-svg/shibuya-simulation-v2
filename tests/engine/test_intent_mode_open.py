@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.foundation.ports.inference import LLMResponse
 from shibuya.foundation.vocab.actions import format_two_line
 from shibuya.foundation.vocab.actions import ACTION_CODES, action_code_of

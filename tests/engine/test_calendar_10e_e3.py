@@ -54,7 +54,8 @@ def test_e3_run_day_and_cli_defaults_are_unchanged():
     import argparse
     import inspect
 
-    from shibuya.engine.run import add_calendar_args, calendar_kwargs_from_args, run_day
+    from shibuya.interfaces.cli.run_args import add_calendar_args, calendar_kwargs_from_args
+    from shibuya.runtime.run import run_day
 
     sig = inspect.signature(run_day)
     assert "weather_scheme" not in sig.parameters and "calendar_weekday" not in sig.parameters

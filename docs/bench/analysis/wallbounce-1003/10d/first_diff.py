@@ -61,7 +61,7 @@ def dump(res: Any, path: str | Path, *, label: str = "", tape: str | Path | None
         t = res.column("tick").astype(np.int64)
         c = res.column("calls").astype(np.int64)
         doc["calls_by_tick"] = {str(int(a)): int(b) for a, b in zip(t.tolist(), c.tolist())}
-        from shibuya.engine.run import DIAG_RUN_COLUMNS
+        from shibuya.runtime.result import DIAG_RUN_COLUMNS
 
         doc["diag_columns"] = list(DIAG_RUN_COLUMNS)
         doc["diag_by_tick"] = {str(int(row[0])): [int(x) for x in row] for row in res.diagnostics.tolist()}

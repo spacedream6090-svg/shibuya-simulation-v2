@@ -26,7 +26,6 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.hashing import apply_key_array
 from shibuya.foundation.types import EventClass
 from shibuya.engine import resolve as R
-from shibuya.engine import run as RUN
 from shibuya.runtime.systems import assemble as BLD  # 1-0: 層の組み立ての名前の差し替えの的
 from shibuya.act.activity import UNTIL_MAX_MINUTES, ActivityLayer
 from shibuya.runtime.arbiter import Arbiter
@@ -35,7 +34,7 @@ from shibuya.world.facts.calendar import SimCalendar
 from shibuya.foundation.ports.choice import draw_index
 from shibuya.world.body.energy import EnergyModel, OutOfAreaMeals, load_anchors
 from shibuya.mind.relations.layer import RelationLayer
-from shibuya.engine.run import run_day, run_salt_for
+from shibuya.runtime.run import run_day, run_salt_for
 from shibuya.runtime.inference.tape import Tape
 from shibuya.foundation.ports.inference import LLMRequest
 from shibuya.runtime.inference.mock import MockLLM

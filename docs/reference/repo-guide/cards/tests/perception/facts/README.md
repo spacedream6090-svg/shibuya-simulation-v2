@@ -55,7 +55,7 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `test_phone_flag_does_not_change_the_primary_detection`(関数)
   - `test_removed_values_are_not_in_src`(関数)
   - `test_signage_gate_is_one_p_for_every_activity`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.ports.percept`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.world.model.notice_reach`・`tests/_places.py`・`tests/perception/facts/scenes.py`
+- import している内部モジュール: `shibuya.foundation.ports.percept`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.notice_reach`・`tests/_places.py`・`tests/perception/facts/scenes.py`
 - 環境変数: `SHIBUYA_PERCEPT_COEFS`
 - 決定の ID: 10-12/§1-6
 
@@ -76,7 +76,7 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `test_scratch_field_and_its_single_writer`(関数)
   - `test_stage_c_stops_a_write_from_another_system`(関数)
   - `test_stub_renderer_writes_an_empty_mapping`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.ports.percept`・`shibuya.foundation.write_guard`・`shibuya.perception.renderer`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.decide`・`shibuya.runtime.systems.table`・`shibuya.world.model.state`・`tests/_head_copy_pin.py`・`tests/_places.py`・`tests/engine/body/_hunger_v1.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.foundation.ports.percept`・`shibuya.foundation.write_guard`・`shibuya.perception.renderer`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.run`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.decide`・`shibuya.runtime.systems.table`・`shibuya.world.model.state`・`tests/_head_copy_pin.py`・`tests/_places.py`・`tests/engine/body/_hunger_v1.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
 - 環境変数: `SHIBUYA_SYSTEMS_CHECK`・`os.environ` をまるごと使う
 - 決定の ID: D-58・第 337
 
@@ -99,7 +99,7 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `test_rendered_percepts_have_the_empty_fields_empty`(関数)
   - `test_run_manifest_has_the_percept_section`(関数)
   - `test_seen_people_are_the_near_line_in_order`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.percept`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`tests/perception/facts/scenes.py`
+- import している内部モジュール: `shibuya.foundation.journal.log`・`shibuya.foundation.ports.percept`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`tests/perception/facts/scenes.py`
 - 決定の ID: 10-13b/§4-2・11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・第 340
 
 ## [test_render_from_percept_bytes.py](../../../../../../../tests/perception/facts/test_render_from_percept_bytes.py)

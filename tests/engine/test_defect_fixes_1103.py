@@ -102,7 +102,7 @@ def test_the_arm_is_not_a_run_day_argument():
     """腕は組み立てで 1 回読む(``run_day`` の引数にしない=設定の指紋に入れない)。"""
     import inspect
 
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     assert "defect_fixes_1103" not in inspect.signature(run_day).parameters
     assert "defect_fixes" not in inspect.signature(run_day).parameters
@@ -324,7 +324,7 @@ def _pending_setup():
 @pytest.mark.parametrize("fix", [True, False])
 @pytest.mark.parametrize("named", [0, -1])
 def test_an_unreachable_acceptance_is_not_a_refusal(fix, named):
-    from shibuya.engine.run import _settle_pending_invites
+    from shibuya.runtime.run import _settle_pending_invites
 
     agents, conv = _pending_setup()
     consumed = _settle_pending_invites(
@@ -345,7 +345,7 @@ def test_an_unreachable_acceptance_is_not_a_refusal(fix, named):
 @pytest.mark.parametrize("fix", [True, False])
 def test_other_replies_are_still_refusals(fix):
     """届かなくても「会話」でない返事は今のまま断り(直すのは承諾の返事だけ)。"""
-    from shibuya.engine.run import _settle_pending_invites
+    from shibuya.runtime.run import _settle_pending_invites
 
     agents, conv = _pending_setup()
     _settle_pending_invites(conv, agents, 6, np.array([1]), np.array([CV.ACT_MOVE]), np.array([-1]), R, np,
@@ -364,7 +364,7 @@ def test_drop_pending_counts_the_origin():
 # ================================================================= ランの全体(manifest の節・見出し・再開・CLI)
 @pytest.fixture(scope="module")
 def tiny_runs():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     return {"on": run_day(n_agents=60, seed=1, ticks=240, renderer="stub", vocab_version="v3", checkpoint_every=240)}
 
@@ -384,7 +384,7 @@ def test_resume_without_the_header_is_refused(tmp_path):
     """腕は設定の指紋に入れない=状態のファイルの見出しの ``defect_fixes_1103``(常に on)を見る。〔第346〕見出しに無い状態の
     ファイル(版上げの前のラン)は再開で止まる: 保存の間だけ見出しを書かない形にし、戻してから再開する(検収 M3)。"""
     from shibuya.runtime.state import resume as RS
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     kw = dict(n_agents=40, seed=1, n_cells=9, ticks=240, budget=40.0, vocab_version="v3")
     a = run_day(state_out=tmp_path / "st", stop_at_tick=120, **kw)  # 正の対照: 見出しのある保存は通る
@@ -437,7 +437,7 @@ def test_an_expired_invite_still_releases_a_waiting_conversing_inviter():
 @pytest.mark.parametrize("keep", [True, False])
 def test_a_refusal_keeps_the_inviters_new_activity(keep):
     """返事の解決(``_settle_pending_invites``)の末尾の戻し: 断られた招待側が SHOPPING なら既定では残す(旧道は IDLE)。"""
-    from shibuya.engine.run import _settle_pending_invites
+    from shibuya.runtime.run import _settle_pending_invites
 
     agents, conv = _waiting_inviter(Activity.SHOPPING)
     _settle_pending_invites(conv, agents, 6, np.array([1]), np.array([CV.ACT_MOVE]), np.array([-1]), R, np,
@@ -469,7 +469,7 @@ def test_a_body_choosing_a_talk_without_a_target_keeps_its_activity():
 def test_a_body_that_joined_a_session_in_the_same_call_is_not_released(fix):
     """〔低-2〕A が B に断られて戻す候補に積まれ、同じ呼び出しの後の行で C の招待を承諾してセッションに入った。直した道は
     書く直前に会話中の体を除く(A は C と会話中のまま)。旧道は A を IDLE・talk_partner −1 にしてセッションから引き剥がす。"""
-    from shibuya.engine.run import _settle_pending_invites
+    from shibuya.runtime.run import _settle_pending_invites
 
     world = World.synthetic(n_cells=9, seed=1)
     agents = AgentState(4)
@@ -504,7 +504,7 @@ def test_an_invitee_that_moved_away_then_accepts_keeps_the_invite_ledger_balance
     """〔中-1〕招待の後に被招待が別のセルへ動いてから承諾した。既定は不成立(``conv_pending_unreachable``=腕 on のランだけ
     ``counters`` に出る)・旧道は断り(鍵は出ない=旧道の出力は 1 字も変えない)。どちらも帳尻 招待 = 成立+断り+期限切れ+未決
     (+不成立)が合う。"""
-    from shibuya.engine.run import _settle_pending_invites
+    from shibuya.runtime.run import _settle_pending_invites
 
     world = World.synthetic(n_cells=9, seed=1)
     agents = AgentState(4)

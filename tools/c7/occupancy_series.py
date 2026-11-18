@@ -404,7 +404,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.journal:
         series = load_journal(args.journal, amap)
     elif args.record:
-        from shibuya.engine.run import run_day
+        from shibuya.runtime.run import run_day
         from shibuya.world.model.state import World
 
         world = World.load_or_synthetic(Path(args.world), n_cells=139, seed=args.seed)

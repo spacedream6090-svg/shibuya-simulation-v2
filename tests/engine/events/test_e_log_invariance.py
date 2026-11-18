@@ -17,7 +17,7 @@ import pytest
 
 from shibuya.foundation.time_consts import STEPS_PER_DAY
 from shibuya.foundation.journal import log as EV
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 ROOT = Path(__file__).resolve().parents[3]
 KW = dict(n_agents=80, seed=1, n_cells=9, ticks=720, budget=80.0, sleep_suppression=False, vocab_version="v3",

@@ -20,7 +20,7 @@ import pytest
 from shibuya.foundation import time_consts as TC
 from shibuya.foundation.manifest import sections as MS
 from shibuya.foundation.decl import bridging as BR
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 FROZEN = Path(__file__).with_name("manifest_keys_frozen.json")
 TM9 = ("calls_by_model", "clock_kind", "step_seconds", "bridges_count")
@@ -113,7 +113,7 @@ def test_resume_mid_day_counts_only_this_run(tmp_path, two_days):
 
 def test_tm9_fields_do_not_feed_the_final_hash(monkeypatch):
     """欄の値(時計の種類)を変えても final と呼数は同じ(TM9 の欄は記録だけ)。"""
-    from shibuya.engine import run as RUN
+    from shibuya.runtime import result as RUN
     from shibuya.runtime.systems import state_io as SIO
 
     base = _run(sim_days=1, ticks=300, checkpoint_every=100)

@@ -107,7 +107,7 @@ def test_near_first_reproduces_the_old_rule():
 def test_busy_or_asleep_or_out_of_reach_acquaintances_are_skipped():
     """検収後: 会話中・就寝中の知人(resolve._UNADDRESSABLE)と、会話の届かない知人(別のセル・edge 幾何なら 2 m 超)
     は候補から外す。会話中の知人(A が大きい)と空いている知人が居れば、空いている方を選ぶ。"""
-    from shibuya.engine.run import classical_acq_addressable
+    from shibuya.runtime.run import classical_acq_addressable
 
     pol = _bound()
     a = pol.agents
@@ -143,7 +143,7 @@ def test_busy_or_asleep_or_out_of_reach_acquaintances_are_skipped():
 @pytest.mark.requires_data("world_v2")
 def test_run_golden_and_arms():
     from shibuya import cli
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     with pytest.raises(ValueError):
         run_day(n_agents=10, ticks=2, vocab_version="v3", policy="classical", classical_social="all")

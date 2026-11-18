@@ -173,7 +173,7 @@ KW = dict(n_agents=60, seed=3, n_cells=9, ticks=720, budget=60.0, checkpoint_eve
 
 @pytest.mark.parametrize("word", ["開閉店", "発車"])
 def test_role_words_inside_the_decide_system(word, monkeypatch):
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(llm=WordLLM(word), **KW)
     m = res.run_manifest_fields()["rights"]["unauthorized"]
@@ -193,7 +193,7 @@ def test_role_words_inside_the_decide_system(word, monkeypatch):
 
 # ================================================================= 既定のランでは 0
 def test_a_default_run_records_nothing():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(n_agents=60, seed=3, n_cells=9, ticks=240, budget=60.0, vocab_version="v3", checkpoint_every=120)
     assert res.event_log.what_counts().get(WHAT, 0) == 0

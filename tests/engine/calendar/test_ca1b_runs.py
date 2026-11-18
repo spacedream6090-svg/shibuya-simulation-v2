@@ -19,7 +19,7 @@ from shibuya import cli
 from shibuya.interim_bundles import calendar_self as CS1
 from shibuya.engine import resolve as R
 from shibuya.world.laws.presence import EventType, PlanExecutor
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 WORLD = Path("data/world/v2")
 #: W20 の週の表。〔第 4 期 4-3 段 10〕世界資産が自分の表を持てばそれ(差し替えの世界=W21 の体の表・エンジンの既定の道筋

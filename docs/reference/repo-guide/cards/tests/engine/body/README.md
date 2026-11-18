@@ -60,7 +60,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_manifest_fields_without_a_layer_are_null`(関数)
   - `test_the_arm_is_not_in_the_fingerprint_and_marks_the_run_kind`(関数)
   - `test_world_assets_reserve_equals_sweep_with_thermal_boundaries`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.manifest.sections`・`shibuya.world.body.model`・`shibuya.world.body.schedule`
+- import している内部モジュール: `shibuya.cli`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.manifest.sections`・`shibuya.runtime.run`・`shibuya.world.body.model`・`shibuya.world.body.schedule`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3
 
 ## [test_body_reserve.py](../../../../../../../tests/engine/body/test_body_reserve.py)
@@ -76,7 +76,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_reserve_equals_sweep_with_outside_writers`(関数)
   - `test_resume_with_the_reserve_arm_equals_the_straight_run`(関数): 腕 sweep で日の途中と日の境目に保存した状態から腕 reserve で再開=通し(sweep)と同じ(予約の列は状態から引き直す)。
   - `test_run_day_reserve_equals_sweep`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.world.body.energy`・`shibuya.world.body.model`・`shibuya.world.body.schedule`・`tests/engine/body/body_fixtures.py`
+- import している内部モジュール: `shibuya.runtime.run`・`shibuya.world.body.energy`・`shibuya.world.body.model`・`shibuya.world.body.schedule`・`tests/engine/body/body_fixtures.py`
 
 ## [test_body_rules_sources.py](../../../../../../../tests/engine/body/test_body_rules_sources.py)
 
@@ -124,7 +124,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_two_day_run_resume_equals_straight`(関数)
   - `test_w17_default_times_move_with_the_seed`(関数): 〔検収 L3〕既定の時刻は seed で変わる(体ごとの引き)。〔第 2 部〕seed に依らない 1 つの値の旧値の腕は消した。
   - `test_world_two_day_resume_equals_straight`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.world.body.energy`・`shibuya.world.body.rules`・`shibuya.world.facts.weekly_reader`
+- import している内部モジュール: `shibuya.cli`・`shibuya.runtime.run`・`shibuya.world.body.energy`・`shibuya.world.body.rules`・`shibuya.world.facts.weekly_reader`
 - 環境変数: `SHIBUYA_MEAL_DEFAULT`・`os.environ` をまるごと使う
 - 決定の ID: 10-13b/§7
 
@@ -137,4 +137,4 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_noise_reading_port_reads_w10_only`(関数)
   - `test_percepts_of_a_run_keep_the_fields_empty`(関数): 合成の世界のランで描いた知覚の事実(系 decide が ``TickScratch.percepts`` に書く)の器の欄は None のまま。
   - `test_ports_return_empty_values`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.ports.percept`・`shibuya.runtime.systems.conductor`・`shibuya.world.body.reactions`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.foundation.ports.percept`・`shibuya.runtime.run`・`shibuya.runtime.systems.conductor`・`shibuya.world.body.reactions`・`shibuya.world.model.state`

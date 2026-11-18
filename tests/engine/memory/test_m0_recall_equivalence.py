@@ -20,7 +20,7 @@ from typing import Any, Callable
 import pytest
 
 from shibuya.mind.memory.memory import MemoryLayer
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.inference.tape import Tape
 
 from tests.engine.memory._m0 import KW, WORLD, run_with_arm, table_vs_store

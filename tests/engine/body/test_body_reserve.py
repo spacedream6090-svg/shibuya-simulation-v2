@@ -17,7 +17,7 @@ import pytest
 
 from shibuya.world.body.model import BodyModel
 from shibuya.world.body import schedule as BS
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 from tests.engine.body.body_fixtures import apply_update, copy_registry, fake_registry, stub_energy
 

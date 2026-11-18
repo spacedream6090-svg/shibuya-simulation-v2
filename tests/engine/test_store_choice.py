@@ -249,7 +249,7 @@ def test_run_default_is_unchanged_and_store_choice_is_reported():
 
 
 def test_arm_switches_are_checked():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     for bad in (dict(store_wom="maybe"), dict(store_signage="x"), dict(store_recall_scope="some")):
         with pytest.raises(ValueError):

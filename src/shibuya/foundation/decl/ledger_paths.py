@@ -127,6 +127,7 @@ LEDGER_PATHS: Final[Mapping[str, str]] = MappingProxyType({
     "src/shibuya/runtime/inference/fleet.py": "src/shibuya/llm/fleet.py",
     "src/shibuya/runtime/inference/mock.py": "src/shibuya/llm/mock.py",
     "src/shibuya/runtime/inference/tape.py": "src/shibuya/engine/tape.py",
+    "src/shibuya/runtime/run.py": "src/shibuya/engine/run.py",
     "src/shibuya/runtime/state/class_ids.py": "src/shibuya/engine/class_ids.py",
     "src/shibuya/runtime/state/codec.py": "src/shibuya/engine/state_codec.py",
     "src/shibuya/runtime/state/growth_decl.py": "src/shibuya/engine/growth_decl.py",

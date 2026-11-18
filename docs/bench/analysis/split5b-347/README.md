@@ -303,3 +303,137 @@
 | 別名の読みの突き合わせ(親の台本・src・tests・tools の 45 本 602 か所) | 別名の指す割り先の頂上に無い名 0・1 つの別名が 2 つの割り先を指す所 0 |
 | 差し替えの走査(親の台本・tests の `setattr`・`patch`・属性への代入) | 割り先のモジュールの属性の差し替えは `test_response_delay` の 1 か所だけ |
 | `pyproject.toml` の差 | 例外 4 行(2 辺 × 契約 2 つ)の削除だけ |
+
+
+## 14. G2 の当て(群の土台 `ce59591`=G1 の commit・安定版のタグ `stable-v2-before-split5b-G2`・2026-11-18)
+
+### 14-1. 本の数
+
+| 本 | 割る行 | 書き換えた import の文(src・tests・tools・docs) | 分けた文 | 鍵 | 台帳の道 | 道の文字列 | 書き換えなかった鍵 | 手で直した読み | 写さなかった | 守り | byte-check | 契約 | 例外 載せた・効いている(辺/行) |
+|---:|---|---|---:|---:|---:|---|---:|---|---|---|---|---|---|
+| 21 | `engine/run.py` | 206(17・183・3・3) | 10 | 3 | 1 | src の表 3・斜線 5・入口 1(`-m` の文脈)・コード 4(記号 10) | 14 | 6(src 1・tests 5) | `import warnings`(計画どおり)・G1 で足した注 1 行(下) | 12 個「同じ」 | 19/19 同じ(430 秒) | 2+9 | 20/26・20/26 |
+
+- 割り先: `runtime/run.py`(新・39 名)・`runtime/result.py`(新・19 名)・`interfaces/cli/run_args.py`(新・5 名と `if __name__ == "__main__"` の文 1)。作った頭 2(`interfaces/__init__.py`・`interfaces/cli/__init__.py`=0 バイト)。`engine/__init__.py` は `resolve.py` が段 6 まで残るので残る。
+- 写さなかった注: G1 の 18 本目で `engine/run.py` に足した注「別名 C を割り先ごとに分けた…」(import の前)。割った後は import の文を割り先ごとに作り直すので写らない(報告の `unwritten` に出た)。割り先の import は `from shibuya.act import commit as C`・`from shibuya.act.intake import from_words as CW`・`from shibuya.foundation.vocab import act_codes as CV` のうち、その割り先が使うものだけ。
+- 契約: `interfaces` の包みができ、単位 interfaces が言えるようになった(層の並びと「読んでよい側」に `shibuya.interfaces` が入った)。読んでよい側に足していた古い読み手 `shibuya.engine.run` は外れた(`shibuya.cli` は G3 まで残る)。契約の数は 2+9 のまま・例外は 20 辺・延べ 26 行のまま(全部効く)・計画に無い契約と例外は要らなかった。`lint-imports` 11 kept。
+- tests/c7: 道具が挙げたのは `tests/c7/test_accept_table.py` の 1 か所だけ(記号 `TIME_V`・29 行)。前 `TIME_V = """\tCommand being timed: "python -m shibuya.engine.run"`/後 `TIME_V = """\tCommand being timed: "python -m shibuya.interfaces.cli.run_args"`(`-m` の文脈=入口の割り先)。書き換えた後の `-m` の先は、当てた後の import の確かめで `--help` が終了コード 0 で動く入口であることを確かめた。ほかの行は読んでいない・回していない。
+- docs の記録の道具(import だけ・親の決定 7): `docs/bench/analysis/wallbounce-1003/10d/first_diff.py`・`wallbounce-1012/md23/tools/multiday_md23.py`・`c10-relations-2026-09-28/rel8b_measure.py` の 3 本・各 1 行。
+- 範囲の外(E4): `tests/tools/test_bytecheck.py` の 4 か所を書き換えずに残した(G0 の見込みと同じ)。
+- byte-check(基準 `ce59591`・記録 `bytecheck_21`): 19 構成・37 欄すべて同じ 19・動いた 0・誤り 0・430 秒(既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939=前と同じ)。
+
+### 14-2. 入口の移しと使い方の表示(親の決め事 4)
+
+- `main` と `if __name__ == "__main__":` は `interfaces/cli/run_args.py` へ行った。`engine/run.py` は消え、`python -m shibuya.engine.run` は `No module named shibuya.engine.run` で動かない(返事その 8 §1-6 の 6 の決定のとおり)。当てた後の import の確かめは `python -m shibuya.cli --help`・`python -m shibuya.interfaces.cli.run_args --help` とも終了コード 0。
+- `--help` の出力を割る前(`-m shibuya.engine.run`)と後(`-m shibuya.interfaces.cli.run_args`)で比べた: 説明と引数の一覧(88 行)は同じ。違うのは使い方の行の `prog` が `run.py` → `run_args.py` になり、名が長くなった分だけ使い方の行の折り返しが変わる所だけ(空白をつぶして `prog` を除くと同じ)。ランの結果ではない。
+
+### 14-3. 手で直した読み(裁定 Q10)
+
+- G0 の木の数(6)と同じ。`runtime/systems/assemble.py` の `_RUN` を `_RUN`=runtime.run(14 か所)・`_RES`=runtime.result(`RunResult`・`_ENTRANCES` の 2 か所)に分けた(属性の読みのまま=呼ぶ時にモジュールの属性として引く形を保つ)。`tests/test_cli_vocab_version.py` の `RUN` を `RUN`・`RES` に分けた。使わない別名 `RUN` の import(属性の読みも素の使い方も無い)を 4 本から外した: `tests/engine/discard_probe.py`・`test_10a_review_fixes.py`・`test_response_delay.py`・`test_sim_time_T.py`。
+- `runtime/systems/{act,body,decide,judge,llm_io,perceive,run_end}.py` の「呼ぶ時に引く」別名 `_RUN` は、読む名が全部 `runtime/run.py` に在るので道具が機械で `runtime.run` へ書き換えた(手直し不要)。
+
+### 14-4. 頂上で読み込みの時に走る文(G1 の検収 低-2 と同じ見方)
+
+| 行 | 文 | 割り先 | 割った後に走らなくなる読み手 |
+|---:|---|---|---|
+| 175 | `DELTA_THINK_TICKS = delta_think_ticks(…)`(値の計算) | `runtime/run.py` | 無い(純な計算・外への作用なし) |
+| 257 | `_ENTRANCE_OF_CONDITION = np.array(…)`(表の組み立て) | `runtime/run.py` | 無い(同上) |
+| 653 | `@dataclass class _RunDayLocals` | `runtime/run.py` | 無い |
+| 663 | `@dataclass class Checkpoint` | `runtime/result.py` | 無い |
+| 709 | `@dataclass class RunResult`(欄の既定の `np.zeros` ほか) | `runtime/result.py` | 無い |
+| 2734 | `if __name__ == "__main__": raise SystemExit(main())` | `interfaces/cli/run_args.py` | 無い(`-m` の入口=14-2) |
+
+- 環境変数の読み・登録・止める確かめの文は、`engine/run.py` の頂上に無い。
+- あわせて、読み込みの時に import するモジュールの閉包を比べた: `runtime/result.py` だけを読むと、前は `engine/run.py` を読めば読み込まれた 26 モジュールが読み込まれなくなり、そのうち `act.intake.undefined` の頂上に定数の表の自己確かめの `assert` が 4 つある。今の木で `runtime.result` を読み込みの時に読む src 2 本・tests 7 本は、どれもほかの道で `act.intake.undefined` を読み込む=走らなくなる読み手は 0(一覧は空)。`runtime/run.py` だけを読む読み手は 4 モジュールが減る(`growth_decl`・`presence`・`presence_plan`・`switch_rate`)。〔検収の低-1 で親が直した〕そのうち `world/laws/switch_rate.py` の頂上には、消した切替口の環境変数(`SHIBUYA_RATE_RULES`)が在れば止める文が在る(止まる所が変わる=§15-2 の低-1)。`interfaces/cli/run_args.py` は減らない。
+
+### 14-5. 差し替えの空振りの確かめ(親の決め事 3)
+
+- 割る前の走査(元のモジュールの属性を差し替える 7 か所)で、差し替える名を読む頂上の文が別の割り先へ行く形(割り先どうしの間の読みで空振りする形)は 0。割った後に親の台本 2 本を run の割り先で回した: 差し替え 6 か所とも、その名を「名の import」で持つ src は 0・別名の属性の読み 75 か所(20 本)で割り先の頂上に無い名は 0。
+- 差し替えごとの確かめ(書き換えは台本で 1 行だけ・回した後にバイトで戻し、`git diff` が確かめの前と同じことを見た):
+
+| 試験 | 差し替え(割った後の先) | 使う側(呼ぶ時に引く先) | 外すと | 落ちる物に替えると |
+|---|---|---|---|---|
+| `test_state_ledger_10b::test_pending_tuple_carries_fire_tick_and_call_id` | `_split_due`(`runtime.run`) | `runtime/systems/judge.py` の `_RUN._split_due`(`runtime.run`) | 落ちる(`assert due_seen`) | — |
+| `test_state_ledger_10b::test_t2_call_id_on_the_fleet_and_replay_paths` | `_call_ref`(`runtime.run`) | `runtime/systems/decide.py` の `_RUN._call_ref` | 落ちる(`set()`) | — |
+| 同(1220 行) | `_split_due`(`runtime.run`) | `judge.py` の `_RUN._split_due` | 落ちない(この試験の確かめは差し替えの中の assert だけ) | 落ちる(`RuntimeError`=差し替えが使う側に届く) |
+| `test_t0_tm9_fields::test_tm9_fields_do_not_feed_the_final_hash` | `CLOCK_KIND`(道具が `runtime.result` へ=`RunResult.run_manifest_fields` が読む割り先) | `RunResult.run_manifest_fields` の頂上の名 | 落ちる(`'steps' == 'other'`) | — |
+| `test_version_bump_10e::test_e4_l2_load_population_and_three_argument_samplers_follow_the_engine` | `sample_population`(`runtime.run`) | `runtime/run.py` の `_resolve_population` | 落ちない(元の抽出でも同じ数を返す=試験の狙いは「3 引数の差し替えも呼べる」) | 落ちる(`RuntimeError`) |
+
+- 試験の外の差し替え: `tools/instruments/anchor_gauge.py` の `RUN._resolve_population = _pop`(計器)は、別名 `RUN` が道具で `runtime.run` へ・使う側 `assemble.py` の `_RUN._resolve_population` も `runtime.run`=同じモジュール(走らせての確かめはしていない)。
+
+### 14-6. 中身を見る試験・凍結と台帳
+
+- `split_files("engine/run.py")` は割った後に `interfaces/cli/run_args.py`・`runtime/result.py`・`runtime/run.py` を返す(名の指定 `run_day`・`RunResult` で `result`・`run`/`RunResult` で `result`/`main` で `run_args`)。`_hot_paths` は `runtime/result.py`・`runtime/run.py` を、`_loop_scan_paths` はさらに `interfaces/cli/run_args.py` を見る。`test_activation_10e`・`test_norm_meter`・`test_near_tiebreak` は 3 本の全部を見る。表の鍵 14 か所は書き換わらない(`table_key_sites`)。
+- `test_boxes` は凍結の名 `shibuya.engine.run._RunDayLocals` の字面のまま(道具は凍結の名を書き換えない=報告の触らなかった文字列)で通る(裁定 Q12)。
+- 道の文字列で主な割り先へだけ書き換えて範囲が狭まった所は無い: `test_bridging_ledger`(台帳の行 BR-MOCK-SCHEDULE-POPULATION の道 → `runtime/run.py`=「繋ぎ」の字が在る・Q4)・`test_salt_seed_split_10f`(同じ組の名の割り先)・`test_state_checks_10f`・`test_state_ledger_10b`(古い字面の負の対照)・`test_commit_check`(道の形の負の対照)・コードの文字列 4 か所(`_T1_CHILD`・`RUN_DAY`・`_HEAD_CHILD`・`_REPLAY_CHILD`=名の割り先へ)。`tests/c8/test_sensitivity_ledger.py:525` の `"w99_x.parquet ← engine/run.py:1"` は記録の文(ASCII の外の字)で書き換えない(試験は通る)。
+- 凍結: クラスの名の固定の表は鍵 3 つだけを書き換え、値(凍結の名 `shibuya.engine.run.Checkpoint`・`RunResult`・`_RunDayLocals`)は変わらない。名の凍結・つなぎの台帳の JSON・乱数の領域の名・manifest に入る文字列は変わらない(守りの「名の凍結」「定数」が同じ・`git diff` で台帳の JSON と `names_frozen.json` は差分 0)。台帳の道の表は `src/shibuya/runtime/run.py` → `src/shibuya/engine/run.py` を 1 行足した。
+- `RESULT_FILES`(`runtime/state/ledger_ast.py`): 道具は src の表の道を主な割り先へ書き換え、`"engine/run.py"` は `"runtime/run.py"` になった(計画 §5-3 の見込みどおり)。`result.…` への代入の文は割る前の `engine/run.py` にも、割った後の 3 本にも 0 本=分類は同じ。発注の「変わっていないこと」は字面の意味なら違う(親に確かめたい所=§14-8)。`UNRESOLVED_ALLOW` の `("engine/run.py", "old = …")` は `runtime/run.py` へ(文字列の在る割り先=`_count_intero_crossings`・Q4)・`DIAG_EXITS` の `RunResult.*` は `runtime/result.py` へ。
+
+### 14-7. 狙いの試験(作業の木・`-m "not slow"`)
+
+| 何を | 結果 |
+|---|---|
+| その本で変わった試験のファイル 140 本+`tests/c8/test_sensitivity_ledger.py`(`-n 3`) | 2,108 本=2,106 passed・1 skipped(Ruri の重みが置き場に無い)・1 failed → 直して passed(下) |
+| `tests/tools/test_pkgmove.py`(`-n` なし) | 122=101 passed・21 skipped・1 failed → 直して passed(下)。飛ぶ試験が 1 本増えた=`test_split_order_is_kept_in_the_real_tree`(割る段の終わりの木=次の本と、その次の本の 2 本が要る試験。22 本のうち 21 本が済んだ)|
+| 決まりの束(c8 の写しの一致を先に・`tests/c8/test_c8lib.py`・`tests/engine/time`・`state`・`bridging`・`systems`・`tests/test_places_guard.py`)+`tests/tools` の残り(`-n 2`) | 988 passed |
+| `test_pkgmove` の slow(残りの 1 本=cli を順に当てる) | 1 passed |
+| 差し替えの試験 4 本(§14-5)・`test_state_format_10f::test_u1_resume_from_a_pkl_written_by_the_pickle_commit` | passed |
+
+- 落ちた 2 本と直し(どちらも試験だけ・src と道具は変えていない):
+  - `tests/engine/test_state_format_10f.py::test_u1_resume_from_a_pkl_written_by_the_pickle_commit`: 子のコード `_HEAD_CHILD` は古い commit(`LEGACY_COMMIT`)の src の写しでだけ回す(`assert "head_src" in shibuya.__file__`)。道具がコードの文字列の import を `runtime.run` へ書き換えたので、古い src で `No module named 'shibuya.runtime'`。元の字面 `from shibuya.engine.run import run_day` に戻し、注を付けた。古い src で回すもう 1 本(`tests/perception/facts/test_percept_is_scratch.py`)は、移す前の commit の子のコードを取り出して使う作り(段 4 で入れた)なので通る。古い src で回す試験は tests の中でこの 2 本だけ(`git archive` の走査)。
+  - `tests/tools/test_pkgmove.py::test_negative_names_guard_catches_version_ids_headers_and_rng_tables`(道具の試験): 乱数の領域の名の表の置き場を `engine/run.py` の字面で引いていた(割った後は無い)。表の名 `POPULATION_RNG_DOMAINS` を頂上で定義するファイルを引く形に直した(割る前は `engine/run.py`・割った後は `runtime/run.py`)。
+
+### 14-8. 計画・G0 の数と違った所・止まる所・G3 に送ること
+
+- 手で直す読み・例外・契約・写さなかった `import warnings`・c7 の 1 か所は計画と G0 の見込みのとおり。写さなかった注が 1 行増えた(G1 で足した注)。
+- 親に確かめたい所 1: 古い commit の src で回す子のコードの文字列(`test_state_format_10f._HEAD_CHILD`)を、割る道具が今の置き場へ書き換えないよう `split.STRING_EXCLUDE` に足すか(今回は試験の字面を戻しただけ=道具は変えていない。段 6 以降で `engine` の名を割る本でも同じ形が起きうる)。
+- 親に確かめたい所 2: `RESULT_FILES` の字面が `engine/run.py` → `runtime/run.py` に変わったこと(§14-6。裁定 Q12 の「そのまま」を「道具の既定の当て方のまま」と読んだ)。直していない。
+- 止まった所: 無い(割り先どうしの間の読みで空振りする差し替え 0・読み込みの時の文が走らなくなる読み手 0・計画に無い契約と例外 0)。
+- G3(cli)に送ること: G0 の §9-3 の G3 の項のとおり(手で直す 6・転送の後の `python -m shibuya.cli --help` と `--llm mock` の final と呼数・コードの文字列 14 か所の機械の書き換えの後に子のプロセスの台本が動くことを狙いの試験で確かめる・`tests/_places.py` と台帳の道の表の転送の扱い)。cli は run の名を `interfaces/cli/run_args.py`(`add_fleet_args` ほか)と `runtime/run.py`・`runtime/result.py` から読む形になった(この本で道具が書き換えた)。
+- G2 の終わりの確かめ: `map --check` 同じ・`contracts --check --probe` 作り直しと同じ(例外 20 辺・延べ 26 行=全部効く・全部 kept)・カードを作り直した(新しいカード 2=`interfaces`・`interfaces/cli`・`data.md` だけ戻した・`--check` 最新)・秘密の走査 CLEAN(消したファイル 1 本を除く)。astsame は使っていない。
+
+### 14-9. G2 の直し(検収=受入の低 3 つ・親の裁定・src と `tools/bytecheck/` は変えていない)
+
+- F1(親の裁定 1): `split.STRING_EXCLUDE` に `("tests/engine/test_state_format_10f.py", "_HEAD_CHILD")` を足した(注 2 行+1 行・`tools/pkgmove/README.md` に 2 行)。確かめ: 基準 `ce59591` の木をメモリに読んで 21 本目を当て直すと、`_HEAD_CHILD` は `from shibuya.engine.run import run_day` のまま(書き換わらない)。作業の木と当て直しの違いは 9 本=手で直した 6 本(`assemble.py`・`discard_probe.py`・`test_10a_review_fixes.py`・`test_response_delay.py`・`test_sim_time_T.py`・`test_cli_vocab_version.py`)・`test_state_format_10f.py`(足した注の 2 行だけ)・`test_pkgmove.py`・`tools/pkgmove/split.py`(F1 の除外の行=当て直しは基準の木の道具の写しで比べた側)。
+- F2(検収 低-4): `test_string_excludes_name_symbols_that_exist_in_the_tree`=`STRING_EXCLUDE` の (ファイル, 記号) の全部で、ファイルが在り、記号がそのファイルの記号(道具と同じ `symbol_map`)に在る。負の対照: 在りもしない記号・在りもしないファイルを足した一覧では「無い」と言う。
+- F3(検収 低-2): `test_split_order_is_kept_in_a_sample_tree`=`SPLIT_ORDER` を 3 行に差し替えた見本の木で、どの時点でも次の 1 本のほかは「順が違う」・済んだ本は「当たっている」で断る(本物の木の試験は残りの本が 2 本未満で飛ぶので、同じ確かめを見本で残す。本物の木の試験は消さず、飛ぶ条件も変えていない)。
+- 親の裁定 2・3(`RESULT_FILES` の字面・読まない別名の import を外したこと)は直しなし。§14-4 は親が直す(この節では触らない)。
+- `tests/tools/test_pkgmove.py`(`-m "not slow"`・`-n` なし): 124 本=103 passed・21 skipped(前の 101 passed に足した 2 本)。`map --check` 同じ・`contracts --check --probe` 同じ(例外 20 辺・延べ 26 行=全部効く)。`git status --porcelain -- src` は直しの前と同じ。
+
+## 15. G2 の親の確かめと検収(第347・2026-11-18)
+
+### 15-1. 別の役の検収
+
+- 判定: **受入**(高 0・中 0・低 5)。検収役はファイルを 1 本も変えていない。
+- 道具の当て直し: 土台 `ce59591` をメモリに読み、今の道具と表で 21 本目を当て直した。守りは 12 個「同じ」・手で直す一覧は 6。作業木と違うのは 8 本=手で直した 6 本・`test_state_format_10f`(`_HEAD_CHILD` を戻した分)・`test_pkgmove`(負の対照の直し)だけ(記録の一覧と過不足なし)。割り先 3 本の頂上の文(run 39・result 19・run_args 6)は、字面・AST・前の注が元と同じ。docs の記録の道具 3 本は import の行だけ。
+- src の手直し: `assemble.py` の `_RUN` は `_RUN`(runtime.run・14 名)と `_RES`(`RunResult`・`_ENTRANCES`)に分かれ、属性の読みのまま(名の import は増えていない)。割る前の `_RUN` の 16 名は表の割り先と合う。systems 7 本の「呼ぶ時に引く」`_RUN` は道具が runtime.run へ向け、読む名はどれもその頂上に在る。run の割り先を読む変わったファイル 158 本のうち 151 本は、別名を戻して import を除くと土台と AST が同じ・残る 7 本の違いは道具が書き換えた文字列だけ。
+- 差し替えの空振り: 無い。土台の差し替え 5 か所(`_split_due`・`_call_ref`・`sample_population`・`CLOCK_KIND`)は、試験が差し替える先と、使う側が呼ぶ時に引く先が同じモジュール。割り先どうしの間の読みで空振りする形は 0・割り先のモジュールへ属性を直に代入する所は 0。実装役の「外すと落ちる」の確かめは、その差し替えの 1 行を外す形で正しい。
+- 入口の移し: `run_args` の `main` と `if __name__` は元と同じ文。検収役が `--help` を両方取って比べ、違いは `prog`(`run.py` → `run_args.py`)と使い方の行の折り返しだけ。古い入口 `-m shibuya.engine.run` は `No module named`。名の無い点の道が黙って主な割り先へ向いた所は 0(`-m` の文脈は c7 の 1 か所だけ)。
+- 範囲の狭まり・空回り: 無い。`split_files("engine/run.py")` は割り先 3 本を返す・`_hot_paths` は run と result・`_loop_scan_paths` は run_args を足す。`test_boxes`(凍結の名)とつなぎの台帳の試験を単独で回して passed。表の鍵の字面は 7 か所とも元のまま。
+- import の決まり(`contracts --check --probe`): 契約 2+9・例外 20 辺/26 行で全部効く。`interfaces` は言えない単位から外れ、層と許す側に入った(決まりが強まる側)。計画に無い例外は無い・循環は 0。
+- 凍結: `CLASS_IDS` の値は同じ(変わった鍵 3 は今のクラスに解ける)・凍結の JSON とつなぎの台帳に差は無い。`tests/c7` の差分は `test_accept_table.py` の 1 行だけ(検収役は中身を開いていない)。
+- 直しの差分(§14-9 の F1〜F3)の再検収: **受入**(高 0・中 0・低 1)。今の道具で当て直すと `_HEAD_CHILD` は書き換わらず、作業木との違いは 9 本(手で直した 6 本・`test_state_format_10f` の注だけ・`test_pkgmove`・基準の側の道具との違いの `split.py`)。足した 2 本の試験は空回りしない(除外の記号は道具と同じ見方で引く・順の差し替えは道具が呼ぶ時に引く名に届く)。低-1(`test_state_format_10f` の注が「道具が書き換えたので戻した」のままだった)は、親が注の 2 行を直した(道具はこの記号を書き換えない、の文へ。コードの行は変えていない)。
+
+### 15-2. 検収の低 5 件の扱い
+
+- 低-1(**変わった所**・§14-4 の文の誤り): `runtime/run.py` だけを読むと、前は `engine/run.py` を読めば読み込まれた `world/laws/switch_rate.py` が読み込まれない。その頂上には、消した切替口の環境変数 `SHIBUYA_RATE_RULES` が在れば止める文が在る。**親が前後で動かして確かめた**(環境変数を置いて):割る前は `import shibuya.engine.run`・`-m shibuya.engine.run --help`・`-m shibuya.cli --help` が終了コード 1。割った後は `import shibuya.runtime.run`・`import shibuya.runtime.result` が終了コード 0(止まらない)、`import shibuya.interfaces.cli.run_args`・`-m shibuya.interfaces.cli.run_args --help`・`-m shibuya.cli --help` は終了コード 1(前と同じに止まる)。`run_day` は組み立て(`assemble.build`)で止まる=刻みの前に止まることは変わらない(検収役が `test_removed_switches_346` の該当の試験を単独で回して passed)。正しい環境のランと byte-check には効かない。**親の仮採用=そのまま**(G1 の §13-2 の低-2 と同じ扱い。ランの結果ではないが、変わる所として報告に載せる)。§14-4 の文は親が直した。
+- 低-2(割る段の順を断る道の試験が、これから 0 になる): 直した(§14-9 の F3=見本の木で、順の違う行を断ることを確かめる試験を 1 本足した)。本物の木の試験 `test_split_order_is_kept_in_the_real_tree` は残した(残りの本が 2 本未満なので飛ぶ)。
+- 低-3(読まない別名の import を 4 本から外した=計画と裁定に無い選択): **親の裁定=受け入れる**。読みが 0 の別名は割り先を選ぶ根拠が無い。検収役が、割る前の版で 4 本とも別名の読みが 0(名・属性・文字列)であること、外しても試験の時に読み込むモジュールが変わらないこと(`discard_probe` は唯一の読み手が頂上で runtime.run を読む)を確かめた。報告の親の決め事に足す。
+- 低-4(`STRING_EXCLUDE` は名で引くので、記号を改名すると黙って除外が外れる): 直した(§14-9 の F2=除外の記号が今の木に在ることを確かめる試験を 1 本足した)。
+- 低-5(割り先に古い置き場の名の docstring・注が残る=`runtime/run.py` の見出し・`runtime/state/ledger.py` の basis の文 7 か所・`runtime/systems/*` の docstring): そのまま。割る段は文を変えない(1 バイト不変)。段 8 の文の掃除で直す。
+
+### 15-3. 実装役が聞いた 2 点の裁定
+
+- `_HEAD_CHILD`(古い commit の src の写しでだけ回す子のコード)を `split.STRING_EXCLUDE` に足すか: **足す**(§14-9 の F1。道具の出力と木を同じにする=`tools/c8/c8lib.py` の行と同じ扱い)。検収役は、値が土台と 1 バイトも違わないこと・古い src で回す子のコードがほかに無いことを確かめた。
+- `RESULT_FILES`(`runtime/state/ledger_ast.py`)の字面が `engine/run.py` → `runtime/run.py` に変わったこと: **道具の書き換えを受け入れる**。裁定 Q12 の「そのまま」は「割り先を 2 つとも載せず 1 つのまま」の意味で、発注の文(字面が変わっていないこと)は親の書き誤り。`site.path` は今の道なので、字面が元のままだとどのファイルにも当たらない。置き場の外の `result.… = …` は指摘になるので、1 つだけ載せるのは確かめの厳しい側(これから `runtime/result.py`・`run_args.py` に該当の文を書くと指摘になる)。該当の文は、割る前の `engine/run.py` も割り先 3 本も 0(検収役が `scan_external` で数えた)。
+
+### 15-4. 親が回した確かめ
+
+| 何を | 結果 |
+|---|---|
+| byte-check 19 構成(本体の道具・基準 `ce59591`・21 本目を当てた後の木) | 37 欄すべて同じ 19・動いた 0・誤り 0・431 秒・既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。記録 [bytecheck_G2_parent/](bytecheck_G2_parent/) |
+| src の指紋(byte-check の後と、§14-9 の直しの後) | 同じ(371 本・直しは `tools/pkgmove/` と `tests/tools/test_pkgmove.py` だけ=byte-check は有効) |
+| 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`・§14-9 の直しの後) | 6,951 passed・1 failed(前からの 1 本=linked の作業木でだけ落ちる)・22 skipped・1 xfailed・39 分 11 秒。前の 6,950 から、足した試験 2 本で +2・本物の木の順の試験 1 本が飛ぶ側へ移って −1(飛ぶ試験は 21 → 22) |
+| 注を直した後の `tests/engine/test_state_format_10f.py` の全部と、除外の一覧の試験(範囲の試験の後・`-n 2`) | 42 passed |
+| 消した切替口の環境変数を置いた前後の比べ(§15-2 の低-1) | 入口 2 つと `run_args` の import は前と同じに止まる・`runtime.run`・`runtime.result` の import だけは止まらなくなった |
+| `--help` を Windows でファイルへ流す形(`PYTHONUTF8` なし) | 割る前も後も cp932 の誤りで終了コード 1(help の文に cp932 に無い字。割る段の違いではない=前からの欠陥として報告に載せる)。`PYTHONUTF8=1` では前後とも 0 |
+| 古い入口を呼ぶ所の洗い(`.github`・`tools/night5070`・`*.ps1`・`*.sh`・`*.toml`) | `-m shibuya.engine.run` を呼ぶ所は 0(残るのは古い記録の文と docstring だけ) |

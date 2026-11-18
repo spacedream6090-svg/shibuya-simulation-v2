@@ -23,7 +23,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.inference.tape import (
     CALLS_FILENAME,
     CALLS_SCHEMA,

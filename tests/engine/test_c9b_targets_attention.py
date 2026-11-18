@@ -42,7 +42,7 @@ from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.society.conversation import ConversationManager
 from shibuya.world.model.geometry import EdgeGeometry
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.foundation.vocab.actions import TargetKind, parse_target, resolve_landmark
 from shibuya.act.intake.undefined import (
     SYNONYM_TABLE_VERSION,

@@ -12,14 +12,14 @@ import pytest
 
 from tests import _data_ids as D
 
-import shibuya.engine.run as RUN
+import shibuya.runtime.run as RUN
 from shibuya.runtime.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
 from shibuya.society.conversation import (
     PAIR_INVITE_REFRACTORY_TICKS,
     SPEAKER_INVITE_REFRACTORY_TICKS,
     ConversationManager,
 )
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 WORLD_DIR = Path("data/world/v2")
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
@@ -147,7 +147,7 @@ def test_e4_default_rng_scheme_is_counter_and_stateful_is_the_old_switch():
     import argparse
 
     from shibuya.foundation import rng as R
-    from shibuya.engine.run import add_calendar_args, calendar_kwargs_from_args
+    from shibuya.interfaces.cli.run_args import add_calendar_args, calendar_kwargs_from_args
 
     assert R.RNG_SCHEME == "counter" and not hasattr(R, "RNG_SCHEMES") and not hasattr(R, "DEFAULT_RNG_SCHEME")
     ap = argparse.ArgumentParser()
@@ -325,7 +325,7 @@ def test_e4_l1_tape_meta_carries_the_rng_layout_and_old_counter_tapes_stop(tmp_p
     legacy_world_rules(monkeypatch, absent=False, salient_rate=30000.0)
     import json
 
-    from shibuya.engine.run import RNG_LAYOUT
+    from shibuya.runtime.run import RNG_LAYOUT
     from shibuya.runtime.inference.tape import RUN_META_FILENAME, read_run_meta
     from tests.engine.test_tape_wiring import BoomLLM
 
@@ -357,7 +357,7 @@ def test_e4_l2_load_population_and_three_argument_samplers_follow_the_engine(mon
     engine から呼べる。〔改訂(第330・RET)〕前は ``rng_scheme`` の 2 通り(counter・stateful)で見た(stateful を消した)。"""
     import numpy as np
 
-    import shibuya.engine.run as RUN
+    import shibuya.runtime.run as RUN
     from shibuya.world.facts import population_reader as POP
 
     full = POP.load_population(WORLD_DIR, n=None, seed=1)

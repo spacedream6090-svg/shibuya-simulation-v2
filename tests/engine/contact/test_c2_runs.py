@@ -19,7 +19,7 @@ from shibuya.interim_bundles.contact import layer as LY
 from shibuya.mind.plan import contact_port as P
 from shibuya.society.contact import tools as TL
 from shibuya.foundation.journal import log as EV
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.society.tools import record as TR
 from shibuya.society.tools.groups import GroupList
 

@@ -14,7 +14,7 @@ from shibuya.foundation.vocab import act_codes as C
 from shibuya.engine import resolve as R
 from shibuya.mind.judge.chooser import NearestChooser
 from shibuya.act.target import TargetResolver
-from shibuya.engine.run import _named_closed_lookup
+from shibuya.runtime.run import _named_closed_lookup
 from shibuya.foundation.vocab.actions import UntilKind, parse_target
 from shibuya.foundation.text import channels as ch
 from shibuya.perception import renderer as PR

@@ -12,7 +12,7 @@ import pyarrow.parquet as pq
 import pytest
 
 from shibuya.foundation.time_consts import NS_PER_STEP
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.inference.tape import (
     ARM_COLUMNS,
     CALLS_FILENAME,

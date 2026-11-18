@@ -33,7 +33,7 @@ from shibuya.mind.judge.decision import layer as DCL
 from shibuya.mind.judge.decision import ports as DPS
 from shibuya.foundation.ports.decision import DecisionContext
 from shibuya.foundation.journal.log import LlmCall
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.systems import table as TB
 from shibuya.society.tools import record as TR
 from shibuya.society.tools.groups import GroupList

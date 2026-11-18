@@ -42,7 +42,7 @@ Python 8 本・その他 2 本(このディレクトリの直下)
   - `test_nineteen_configs_on_and_off_give_the_same_final`(関数)
   - `test_on_and_off_give_the_same_results`(関数)
   - `test_two_days_and_state_files_are_the_same`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.runtime.run`
 
 ## [test_e_log_links_actual.py](../../../../../../../tests/engine/events/test_e_log_links_actual.py)
 
@@ -55,7 +55,7 @@ Python 8 本・その他 2 本(このディレクトリの直下)
   - `test_unit_eviction_keeps_the_links_on_their_rows`(関数)
   - `test_unit_no_sink_or_disabled_means_no_mark`(関数)
   - `test_unit_unknown_process_id_is_an_error`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.world.laws.runner`・`shibuya.world.ledger.actual_log`・`shibuya.world.ledger.records`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.runtime.run`・`shibuya.world.laws.runner`・`shibuya.world.ledger.actual_log`・`shibuya.world.ledger.records`
 
 ## [test_e_log_schema.py](../../../../../../../tests/engine/events/test_e_log_schema.py)
 
@@ -74,7 +74,7 @@ Python 8 本・その他 2 本(このディレクトリの直下)
   - `test_row_bytes_and_growth_declaration`(関数): 1 行のバイト(列の型の和)と D-R2-6 の 5 欄の宣言(1-3 の見込み=expedient・ランの成長の報告にはまだ載せない)。
   - `test_same_run_gives_the_same_ids`(関数)
   - `test_writer_cannot_set_the_id_or_write_into_the_past`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`
+- import している内部モジュール: `shibuya.foundation.journal.log`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.runtime.run`
 
 ## [test_e_manifest_events.py](../../../../../../../tests/engine/events/test_e_manifest_events.py)
 
@@ -85,7 +85,7 @@ Python 8 本・その他 2 本(このディレクトリの直下)
   - `test_daily_records_end_with_the_events_field`(関数)
   - `test_top_level_keys_are_unchanged`(関数)
   - `two_days`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.journal.log`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`
+- import している内部モジュール: `shibuya.foundation.journal.log`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.runtime.run`
 
 ## [test_e_vocab_is_closed.py](../../../../../../../tests/engine/events/test_e_vocab_is_closed.py)
 
@@ -113,4 +113,4 @@ Python 8 本・その他 2 本(このディレクトリの直下)
   - `test_paths_permit_is_assigned_only_in_the_guard`(関数)
   - `test_undeclared_write_fails_at_run_time`(関数)
   - `test_undeclared_write_shows_in_stage_b`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`
+- import している内部モジュール: `shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`

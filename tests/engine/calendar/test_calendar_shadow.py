@@ -25,7 +25,7 @@ from shibuya.society import calendar_shadow as CS
 from shibuya.world.facts import w20_calendar_reader as CR
 from shibuya.foundation.manifest import sections as MS
 from shibuya.runtime.state import ledger as SL
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.systems.table import SPECS
 
 WORLD = Path("data/world/v2")

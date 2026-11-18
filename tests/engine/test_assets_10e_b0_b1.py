@@ -127,7 +127,8 @@ def test_b1_switch_is_gone():
     import inspect
 
     from shibuya import cli
-    from shibuya.engine.run import add_calendar_args, run_day
+    from shibuya.interfaces.cli.run_args import add_calendar_args
+    from shibuya.runtime.run import run_day
     from shibuya.perception.renderer import PerceptionAssets
 
     # 〔割る段 5a の G1〕消した口の名は読み込みの口の置き場で見る(割ると主な割り先。2 つ目の割り先 foundation.vocab.place_words へ

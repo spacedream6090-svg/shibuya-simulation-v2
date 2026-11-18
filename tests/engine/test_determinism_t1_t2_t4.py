@@ -11,7 +11,7 @@ import pytest
 
 from shibuya.world.facts import mock_schedule as S
 from shibuya.foundation import serialize as SZ
-from shibuya.engine.run import run_day, run_salt_for
+from shibuya.runtime.run import run_day, run_salt_for
 from shibuya.world.model.state import World
 
 SMALL = dict(n_agents=400, ticks=180, checkpoint_every=60, n_cells=25)

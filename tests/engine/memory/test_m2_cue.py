@@ -20,7 +20,7 @@ import pytest
 from shibuya.foundation.time_consts import NS_PER_SECOND
 from shibuya.mind.memory import memory_embed as ME
 from shibuya.mind.memory.memory_store import Cue, LegacyEvent, MemoryStore
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.inference.tape import Tape
 
 from tests.engine.memory._mr65 import KW, arms, mr65

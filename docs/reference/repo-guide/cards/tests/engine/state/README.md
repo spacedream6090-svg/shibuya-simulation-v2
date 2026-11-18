@@ -18,7 +18,7 @@ Python 6 本・その他 3 本(このディレクトリの直下)
   - `collect_here`(関数): このプロセスで構成 ``name`` を回して拾う(子のプロセスの中で呼ぶ=ハッシュの口を差し替える)。
   - `run_config`(関数): 子のプロセスで構成 ``name`` を回して拾った結果(``repo`` で回す=data の相対の道筋・``src`` を読む)。
   - `shaped`(関数): 文字列の中の道の形の部分(出てくる順)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.runtime.state.hashes`
+- import している内部モジュール: `shibuya.cli`・`shibuya.runtime.run`・`shibuya.runtime.state.hashes`
 - 読む試験: `tests/engine/state/test_names_frozen.py`
 - CLI の引数
   - `sys.argv` を直接読む
@@ -42,7 +42,7 @@ Python 6 本・その他 3 本(このディレクトリの直下)
   - `test_swapping_two_values_is_caught`(関数): 突然変異(``ActivityKind`` と ``AgentKind`` の値の入れ替え)を、名の集合でなく写像が落とす。
   - `test_table_keys_and_declarations_are_exactly_the_classes_in_src`(関数)
   - `test_unknown_shibuya_types_stop_and_others_keep_their_names`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.queues.scheduler`・`shibuya.foundation.types`・`shibuya.mind.system1.wake`・`shibuya.runtime.state.class_ids`・`shibuya.runtime.state.codec`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.probe`
+- import している内部モジュール: `shibuya.foundation.journal.log`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.queues.scheduler`・`shibuya.foundation.types`・`shibuya.mind.system1.wake`・`shibuya.runtime.run`・`shibuya.runtime.state.class_ids`・`shibuya.runtime.state.codec`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.probe`
 
 ## [test_mind_world_reads.py](../../../../../../../tests/engine/state/test_mind_world_reads.py)
 

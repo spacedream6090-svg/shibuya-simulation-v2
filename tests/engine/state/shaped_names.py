@@ -98,7 +98,7 @@ def collect_here(name: str) -> dict[str, list[str]]:
 
             res = cli.run(seed=1, world_dir="data/world/v2", tape_path=str(tape), **kw)
         else:
-            from shibuya.engine.run import run_day
+            from shibuya.runtime.run import run_day
 
             res = run_day(seed=1, tape_path=tape, **kw)
         _strings(res.run_manifest_fields(), seen["manifest"])

@@ -63,7 +63,7 @@ def hash_owners(b: Any) -> dict[str, Any]:
     〔第 6 期 6-2 カレンダー 3〕その後に ``calendar3``(雇い主・祝日・状態台帳の腕の行 ``CA3*``・腕 arm のランだけ)。
     〔第 6 期 6-6 ② 第 1 部〕その後に ``duties``(店の仕事・状態台帳の腕の行 ``DU*``・腕 --duties arm のランだけ)。
     """
-    from shibuya.engine.run import _RunDayLocals
+    from shibuya.runtime.run import _RunDayLocals
 
     L, io = b.layers, b.llm
     return {
@@ -328,7 +328,7 @@ def day_record(b: Any, d: int) -> None:
     if ct is None and c2 is None and du is None:
         rec["calls_by_model"] = {"judge_model": 0, "llm": int(result.llm_calls) - llm_before}
     else:
-        from shibuya.engine.run import _calls_by_model
+        from shibuya.runtime.result import _calls_by_model
 
         prev = [r["calls_by_model"].get("contact", {}) for r in b.runstats.daily_records if "calls_by_model" in r]
         prev2 = [r["calls_by_model"].get("calendar_2", {}) for r in b.runstats.daily_records if "calls_by_model" in r]

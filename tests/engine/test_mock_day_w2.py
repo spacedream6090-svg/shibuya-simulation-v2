@@ -13,7 +13,9 @@ from tests import _time_gates as TG
 
 from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
 from shibuya.runtime.state import growth_decl as GD
-from shibuya.engine.run import DIAG_RUN_COLUMNS, main, run_day
+from shibuya.runtime.result import DIAG_RUN_COLUMNS
+from shibuya.interfaces.cli.run_args import main
+from shibuya.runtime.run import run_day
 from shibuya.foundation.queues.scheduler import DIAG_COLUMNS
 
 W2_LIMIT_SECONDS = 600.0

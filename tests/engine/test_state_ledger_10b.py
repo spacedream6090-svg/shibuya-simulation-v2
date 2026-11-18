@@ -23,7 +23,7 @@ import pytest
 from tests import golden_env as GE
 
 import shibuya.engine.resolve as RES
-import shibuya.engine.run as RUN
+import shibuya.runtime.run as RUN
 from shibuya.runtime.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.hashing import blake3_hex
@@ -31,7 +31,8 @@ from shibuya.foundation.soa import Registry
 from shibuya.runtime.state import hashes as SH
 from shibuya.runtime.state import ledger as SL
 from shibuya.runtime.state import ledger_ast as SA
-from shibuya.engine.run import Checkpoint, run_day
+from shibuya.runtime.result import Checkpoint
+from shibuya.runtime.run import run_day
 from shibuya.world.model.percept_state import PerceptionState
 from shibuya.world.model.state import World
 
@@ -304,7 +305,7 @@ def test_ast_check_fails_on_an_unresolved_dynamic_read(tmp_path):
 
 
 def test_ast_check_fails_on_a_stale_allow(scanned):
-    stale = SL.AstAllow("engine/run.py", "この文字列はどこにも無い", "試験")
+    stale = SL.AstAllow("runtime/run.py", "この文字列はどこにも無い", "試験")
     ledger = tuple(dataclasses.replace(r, ast_allow=r.ast_allow + (stale,)) if r.key == "agents.rel_last" else r
                    for r in SL.LEDGER)
     out = SA.check(scanned, ledger)

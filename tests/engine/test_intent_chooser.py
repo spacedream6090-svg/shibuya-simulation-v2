@@ -39,7 +39,7 @@ from shibuya.act.target import (
     TargetResolver,
     resolution_summary,
 )
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.foundation.vocab.actions import parse_target
 from shibuya.world.model.state import World
 

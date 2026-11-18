@@ -13,7 +13,7 @@ from types import MappingProxyType
 import pytest
 
 from shibuya.foundation.decl import bridging as BR
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.society.tools import places as PL
 from shibuya.society.tools.places import PhoneTable, osm_phone_of
 from shibuya.society.tools.registry import PHONE, PHONE_BRIDGE, default_registry

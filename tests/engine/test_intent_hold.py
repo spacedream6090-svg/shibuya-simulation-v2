@@ -43,7 +43,7 @@ from shibuya.act.intent import (
     intent_summary,
 )
 from shibuya.act.target import MOVE_BAD_TARGET, TargetResolver, resolution_summary
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.foundation.ports.inference import LLMRequest
 from shibuya.foundation.vocab.actions import ACTION_CODES, UntilKind, parse_target
 from shibuya.runtime.inference.mock import MockLLM

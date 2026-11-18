@@ -22,7 +22,7 @@ engine.calendar_shadow — 暦 1a の影(第 3 期 3-1・決定 10-12 §4-1 CA2 
   - `manifest_fields`(関数): manifest の ``calendar_shadow``(腕 w17 のランは源だけ・ほかの子は null)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--calendar-shadow``・試験の切替口)。組み立ての時に読む。
 - import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.world.facts.w20_calendar_reader`・`shibuya.world.facts.weekly_reader`
-- 呼び手: `shibuya.cli`・`shibuya.engine.run`・`shibuya.interim_bundles.calendar_self`・`shibuya.runtime.systems.assemble`
+- 呼び手: `shibuya.cli`・`shibuya.interim_bundles.calendar_self`・`shibuya.runtime.result`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/calendar/test_calendar_shadow.py`
 - 状態台帳の行
   - 持ち主 `calendar_shadow`(`CalendarShadow`)

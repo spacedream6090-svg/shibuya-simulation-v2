@@ -292,7 +292,7 @@ def test_a_v2_tape_reads_recalled_rows_as_empty(tmp_path):
 # ================================================================= (e)(f) ラン
 @pytest.fixture(scope="module")
 def runs(tmp_path_factory):
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     d = tmp_path_factory.mktemp("mem6b")
     kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
@@ -350,7 +350,7 @@ def test_k5_counts_revisits_after_a_failure_and_k2_counts_repeats():
 
 
 def test_memory_tau_is_passed_and_checked():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     with pytest.raises(ValueError):
         run_day(n_agents=10, ticks=2, memory="on", memory_tau=float("nan"))

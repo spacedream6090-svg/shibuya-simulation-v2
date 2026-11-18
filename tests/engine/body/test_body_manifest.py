@@ -19,7 +19,7 @@ from shibuya.experiments.port import run_kind as RK
 from shibuya.world.body import model as BM
 # 〔段 4 の下ごしらえ・親の決定 3〕腕の口は定義したモジュール(schedule)を直に読む(包みの頭の再輸出に頼らない)
 from shibuya.world.body import schedule as B
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 WORLD_DIR = Path("data/world/v2")
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")

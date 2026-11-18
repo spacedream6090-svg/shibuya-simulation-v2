@@ -28,7 +28,7 @@ from shibuya import cli
 from shibuya.runtime.state import resume as RS
 from shibuya.runtime.state import codec as SC
 from shibuya.runtime.state import ledger as SL
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 WORLD_DIR = Path("data/world/v2")
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
@@ -420,7 +420,7 @@ def test_u1_cli_flag_for_the_legacy_pickle_is_gone():
     """10e(E2): CLI の ``--resume-legacy-pickle`` を消した(``engine.run`` と ``shibuya.cli`` で同じ口)。"""
     import argparse
 
-    from shibuya.engine.run import add_calendar_args, calendar_kwargs_from_args
+    from shibuya.interfaces.cli.run_args import add_calendar_args, calendar_kwargs_from_args
 
     ap = argparse.ArgumentParser()
     add_calendar_args(ap)
@@ -430,6 +430,8 @@ def test_u1_cli_flag_for_the_legacy_pickle_is_gone():
     assert "resume_legacy_pickle" not in RS.FINGERPRINT_SKIP
 
 
+#: 〔割る段 5b の G2〕この子のコードは古い src(``LEGACY_COMMIT`` の写し)でだけ回す=古い置き場の名のまま(今の src には ``engine.run`` が
+#: 無い)。割る道具はこの記号を書き換えない(``tools/pkgmove/split.py`` の ``STRING_EXCLUDE``。記号の名を変えたら、その一覧も直す)
 _HEAD_CHILD = r"""
 import sys
 from shibuya.engine.run import run_day

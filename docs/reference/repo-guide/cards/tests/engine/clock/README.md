@@ -62,7 +62,7 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_scoped_interoception_equals_the_full_one_on_a_superset`(関数)
   - `test_stage_b_declared_writes_with_changed`(関数)
   - `test_two_days_and_resume_with_changed_match_the_straight_default`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.system1.change_detect`・`shibuya.runtime.clocks.step_scope`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.system1.change_detect`・`shibuya.runtime.clocks.step_scope`・`shibuya.runtime.run`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 - 環境変数: `os.environ` をまるごと使う
 
 ## [test_tm4_regional_clock.py](../../../../../../../tests/engine/clock/test_tm4_regional_clock.py)
@@ -90,5 +90,5 @@ Python 4 本・その他 0 本(このディレクトリの直下)
   - `test_two_days_and_resume_with_regional_match_the_straight_global`(関数)
   - `test_window_mark_passes_the_new_rows`(関数)
   - `test_world_assets_have_29_regions`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.runtime.clocks.regional`・`shibuya.runtime.clocks.speech`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.spec`・`shibuya.runtime.systems.table`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.runtime.clocks.regional`・`shibuya.runtime.clocks.speech`・`shibuya.runtime.run`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.spec`・`shibuya.runtime.systems.table`・`shibuya.world.model.state`
 - 環境変数: `os.environ` をまるごと使う

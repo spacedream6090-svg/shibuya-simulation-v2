@@ -131,7 +131,7 @@ def test_keys_are_deterministic_per_observer_and_salt():
 
 
 def test_default_salt_is_the_run_salt_of_the_seed():
-    from shibuya.engine.run import run_salt_for
+    from shibuya.runtime.run import run_salt_for
 
     r, _a = tied_crowd(seed=11)
     assert r._near_salt64 == near_tie_salt64(run_salt_for(11))
@@ -141,7 +141,7 @@ def test_default_salt_is_the_run_salt_of_the_seed():
 
 def test_cli_has_no_near_tiebreak_flag():
     from shibuya import cli
-    from shibuya.engine import run as RUN
+    from shibuya.runtime import run as RUN
 
     from tests import _places as PL
 
@@ -270,7 +270,7 @@ def test_id_order_reproduces_the_previous_order():
 
 def test_cli_has_no_near_order_flag():
     from shibuya import cli
-    from shibuya.engine import run as RUN
+    from shibuya.runtime import run as RUN
 
     from tests import _places as PL
 

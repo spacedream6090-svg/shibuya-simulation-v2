@@ -21,7 +21,7 @@ from shibuya.foundation import write_permit as WP
 from shibuya.foundation.decl import bridging as BR
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.vocab import events as V
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.validation.static import system_overrides as OV
 from shibuya.society.tools import record as TR
 # 〔割る段 5a の G2〕2 つ目以降の割り先(foundation.vocab.events・foundation.journal.log)へ行く名は名で読む(別名では割り先が 1 つに決まらない)

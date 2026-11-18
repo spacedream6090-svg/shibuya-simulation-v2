@@ -24,7 +24,7 @@ Python 6 本・その他 1 本(このディレクトリの直下)
   - `test_scratch_write_outside_the_declaration_fails`(関数)
   - `test_strict_scratch_raises_on_read_before_write`(関数)
   - `test_tick_ctx`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.class_ids`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.state_io`
+- import している内部モジュール: `shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.runtime.run`・`shibuya.runtime.state.class_ids`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.state_io`
 - 決定の ID: 11-01
 
 ## [test_fix_guards.py](../../../../../../../tests/engine/systems/test_fix_guards.py)
@@ -66,7 +66,7 @@ Python 6 本・その他 1 本(このディレクトリの直下)
   - `test_guard_on_and_off_give_the_same_final`(関数)
   - `test_scratch_in_place_write_by_a_non_writer_shows_in_B`(関数): 負の対照(検収 L4): 書き手でない phase_c が scratch.plan の中身をその場で書き換えると、段 B が phase_c に出す。
   - `test_strict_scratch_no_stale_reads`(関数): T4: tick の頭で scratch を番兵で埋めても読む前に書かれている(final も同じ)。
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.write_permit`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`
+- import している内部モジュール: `shibuya.foundation.write_permit`・`shibuya.runtime.run`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`
 - 決定の ID: 第 347
 
 ## [test_stage_a_guard.py](../../../../../../../tests/engine/systems/test_stage_a_guard.py)

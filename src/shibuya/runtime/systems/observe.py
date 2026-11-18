@@ -90,7 +90,7 @@ def observe(ctx: Any, b: Any) -> None:
 
 def checkpoint(ctx: Any, b: Any) -> None:
     """L23: checkpoint の 3 本のハッシュ(HEAD run.py:4452-4495)。"""
-    from shibuya.engine.run import Checkpoint
+    from shibuya.runtime.result import Checkpoint
 
     tick = ctx.T
     cfg, L, rs = b.cfg, b.layers, b.runstats

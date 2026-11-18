@@ -77,7 +77,7 @@ def test_k19_runtime_audit_on_the_port_arm():
     MockPort の設計として**腕 port の検査だけ**に渡す許可(``recreated_for(decision_port=True)``・検収 M2)。既定の腕の
     許可の表には無い=腕 port のランを既定の表で検査すると落ちる(負の対照)・既定の腕は作り直し 0。"""
     from shibuya.validation.static import rng_audit as RA
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     from tests.engine.decision._j0 import SMALL, decision_arm
 

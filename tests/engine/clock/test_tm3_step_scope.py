@@ -28,7 +28,7 @@ from shibuya.foundation.vocab.agent_codes import INTERO_VARS
 from shibuya.foundation.manifest import sections as MS
 from shibuya.runtime.state import resume as RS
 from shibuya.runtime.clocks import step_scope as SS
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.systems import conductor as CO
 from shibuya.runtime.systems import probe as PR
 from shibuya.runtime.systems.table import SPECS

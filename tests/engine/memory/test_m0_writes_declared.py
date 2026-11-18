@@ -10,7 +10,7 @@ from __future__ import annotations
 import pytest
 
 from shibuya.foundation import write_permit as WP
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.systems import conductor as CD
 from shibuya.validation.static import system_overrides as OV
 from shibuya.runtime.systems import probe as PR

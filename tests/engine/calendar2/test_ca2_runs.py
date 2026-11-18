@@ -17,7 +17,7 @@ from shibuya.runtime.state import resume as RS
 from shibuya.runtime.state import ledger as SL
 from shibuya.foundation.arms import calendar2 as A
 from shibuya.interim_bundles.calendar2 import layer as LY
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.systems import table as TB
 
 from tests.engine.calendar2._ca2 import KW, STEP_NS, TPD, ca2, groups_fixture

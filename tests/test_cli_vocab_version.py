@@ -128,12 +128,14 @@ def test_cli_and_run_default_vocab_are_one_value():
     import inspect
 
     from shibuya import cli
-    from shibuya.engine import run as RUN
+    # 〔割る段 5b の G2〕別名 RUN を割り先ごとに分けた(RUN=runtime.run・RES=runtime.result の名)
+    from shibuya.runtime import run as RUN
+    from shibuya.runtime import result as RES
     from shibuya.foundation.vocab.actions import DEFAULT_VOCAB_VERSION as LIB_DEFAULT
 
-    assert cli.CLI_DEFAULT_VOCAB_VERSION == RUN.RUN_DEFAULT_VOCAB_VERSION == "v3"
+    assert cli.CLI_DEFAULT_VOCAB_VERSION == RES.RUN_DEFAULT_VOCAB_VERSION == "v3"
     assert inspect.signature(RUN.run_day).parameters["vocab_version"].default == "v3"
-    assert RUN.RunResult.__dataclass_fields__["vocab_version"].default == "v3"
+    assert RES.RunResult.__dataclass_fields__["vocab_version"].default == "v3"
     assert LIB_DEFAULT == DEFAULT_VOCAB_VERSION == "v1"
     assert cli.run(**SMALL).run_manifest_fields()["vocab_version"] == "v3"
 

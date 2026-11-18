@@ -138,7 +138,7 @@ engine.processes.opening — 営業時間 PlanSpec と役割行動「開閉店�
   - `build_open_matrix`(関数): W7 の区間 → ``(n_poi, 1440)`` の開閉行列(日跨ぎは同じ日へ巻き戻す)。
   - `rows_of_day`(関数): その日の行(曜日 0〜6・祝日 ``PH_ROW``)に当たる W7 の区間の真偽の列。
 - import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.facts.calendar`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.facts.rights.record`・`shibuya.world.ledger.records`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.state`
-- 呼び手: `shibuya.engine.run`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar3.layer`・`shibuya.world.laws.runner`
+- 呼び手: `shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar3.layer`・`shibuya.runtime.run`・`shibuya.world.laws.runner`
 - 読む試験: `tests/build_rail/test_w12_arrivals_2_3c.py`・`tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_x33_apply.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/processes/test_opening.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/rights/test_rights_manifest.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_calendar_10e_e3.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/time/test_t0_time_consts.py`
 - 状態台帳の行
   - 持ち主 `runner.opening`(`OpeningProcess`)
@@ -153,7 +153,7 @@ engine.presence — 計画実行層(Presence & Plan Executor・D-66 第1段)。
   - `EventType`(クラス): 日次イベントの種(設計書 §3 の表)。値は表の番号。
   - `PlanExecutor`(クラス): 計画実行層(D-66 第1段)。日次でイベント列を組み、tick ごとに resolve を叩く。
 - import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.facts.weekly_reader`・`shibuya.world.laws.presence_plan`・`shibuya.world.laws.switch_rate`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
-- 呼び手: `shibuya.engine.run`・`shibuya.interim_bundles.calendar_self`・`shibuya.runtime.systems.assemble`・`tools/instruments/anchor_gauge.py`
+- 呼び手: `shibuya.interfaces.cli.run_args`・`shibuya.interim_bundles.calendar_self`・`shibuya.runtime.systems.assemble`・`tools/instruments/anchor_gauge.py`
 - 読む試験: `tests/engine/_legacy_world.py`・`tests/engine/calendar/test_ca1b_runs.py`・`tests/engine/processes/test_rate_rules_1101.py`・`tests/engine/test_calendar_10e_e3.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_presence_exit_walk.py`・`tests/engine/test_resume_10d.py`
 - 読む試験(道筋で): `tests/economy/cp2/test_cp2_transfer_only_writer.py`・`tests/engine/body/test_body_guard.py`
 - 状態台帳の行
@@ -172,7 +172,7 @@ world.laws.presence_plan — 割る段で ``engine/presence.py`` を割った割
 - 公開の関数とクラス
   - `PlanBlocks`(クラス): **在圏ブロック**(その体がその日「舞台に居る」連続区間)の CSR。
 - import している内部モジュール: `shibuya.world.facts.weekly_reader`
-- 呼び手: `shibuya.engine.run`・`shibuya.interim_bundles.calendar_self`・`shibuya.runtime.systems.assemble`・`shibuya.world.laws.presence`・`tools/instruments/anchor_gauge.py`
+- 呼び手: `shibuya.interfaces.cli.run_args`・`shibuya.interim_bundles.calendar_self`・`shibuya.runtime.systems.assemble`・`shibuya.world.laws.presence`・`tools/instruments/anchor_gauge.py`
 - 読む試験: `tests/engine/test_geometry_c9.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`
 - 決定の ID: 11-01・第 170
 

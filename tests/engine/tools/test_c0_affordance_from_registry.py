@@ -20,7 +20,7 @@ import pytest
 from shibuya.mind.judge.decision import layer as DL
 from shibuya.mind.judge.decision.sources import build_candidates
 from shibuya.runtime.inference.bridge import ACTION_WORD_BY_CODE
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.society.tools import record as REC
 from shibuya.society.tools import registry as TR
 # 〔割る段 5a の G2〕2 つ目の割り先 foundation.vocab.events へ行く名は名で読む(別名では割り先が 1 つに決まらない)

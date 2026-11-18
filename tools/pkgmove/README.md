@@ -268,7 +268,8 @@ G3 が cli)。親の裁定と記録は [docs/bench/analysis/split5b-347/README.m
   の形も拾う(`strings.code_import_hits`)。コードとして読めれば import の書き換え(別名の割り先が 1 つなら機械で)・決まらなければ
   「手で直す一覧」、コードとして読めない文字列(シェルの文)と f 文字列の部分の中のものも「手で直す一覧」(黙って残さない)。
 - `split.STRING_EXCLUDE` に `tools/c8/c8lib.py` の `scan_engine_ablation_ids` を足した(元の置き場の道と比べる字面
-  `"engine/presence.py"`=今の道へ書き換えると比べる相手が無くなる)。
+  `"engine/presence.py"`=今の道へ書き換えると比べる相手が無くなる)。〔G2 の直し〕`tests/engine/test_state_format_10f.py` の
+  `_HEAD_CHILD` も足した(古い commit の src の写しでだけ回す子のコード=古い置き場の名のまま・今の置き場へ書き換えると `No module named`)。
 - 試験: `tests/tools/test_pkgmove.py` の「割る段 5b の G0」の節(見本の木の転送・転送を変えた木・名を結ぶ転送の負の対照・転送の
   形の各部分・転送の行の最終の名・入口の移しと `-m` の文字列・`-m` でない名の無い点の道=手で直す・食い違う宣言と宣言の無い入口・
   byte-check の範囲の外と負の対照・入口ごとの `--help`)と、本物の木で残りの本(22 本の順)を順に当てる `slow`。

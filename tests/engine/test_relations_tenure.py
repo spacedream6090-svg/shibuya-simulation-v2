@@ -153,7 +153,7 @@ def test_full_population_initial_net_is_uniform_in_every_kind_and_direction():
 def test_run_switch_is_removed_and_the_default_tau_is_v2():
     """〔第 4 期 4-3 版上げ 3 回目の第 2 部〕ランの口の切替口 --rel-tenure-hash(v1=旧)は消した=渡すと止まる(関係の部品の
     在職期間のハッシュの版の引数は単体試験の口として残す=上の (a)〜(d))。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     with pytest.raises(TypeError):
         run_day(n_agents=10, ticks=2, memory="on", relations="on", rel_tenure_hash="v1")

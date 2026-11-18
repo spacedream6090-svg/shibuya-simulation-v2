@@ -26,7 +26,7 @@ from shibuya import cli
 from shibuya.foundation import rng as RNG
 from shibuya.world.model import geometry as GEO
 from shibuya.runtime.state import resume as RS
-from shibuya.engine import run as RUN
+from shibuya.runtime import run as RUN
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools" / "c7"))
@@ -197,7 +197,7 @@ def test_dynamic_domains_match_the_defaults():
 #: seed を引数に持つ関数の中のハッシュ(blake3・xxh64)の呼び出し(検収 S3-1 の 3)。用途名を持たない乱数はここに出る。
 #: 値は ``MOTION_SALTS`` の鍵か、乱数でない理由。新しい場所が出たら分類を決めてここに足す。
 _HASH_SITES = {
-    ("engine/run.py", "run_salt_for"): "run_salt",
+    ("runtime/run.py", "run_salt_for"): "run_salt",
     ("perception/renderer.py", "__init__"): "run_salt",  # near_salt を渡さないときの run_salt の写し(run_day は渡す)
     # 〔11-01 段 2 の 4〕("engine/presence.py", "attendance_draw")=出勤率の抽選は消した
     # 〔第 6 期 6-2〕腕 1b の体ごとの割り振り(動きの seed=salt・母集団の seed は使わない)

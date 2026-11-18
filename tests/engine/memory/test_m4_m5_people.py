@@ -30,7 +30,7 @@ from shibuya.mind.relations import layer as REL
 from shibuya.mind.relations import people as RP
 from shibuya.engine import resolve as R
 from shibuya.mind.memory.memory_store import LegacyEvent, MemoryStore
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 from tests.engine.memory._mr65 import KW, arms, mr65
 

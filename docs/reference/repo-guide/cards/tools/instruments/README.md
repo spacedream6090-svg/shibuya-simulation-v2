@@ -84,7 +84,7 @@ anchor_gauge — 第 2 期 2-0 **較正側の錨の計器**(記録を読むだ�
   - `work_targets`(関数)
   - `wquantiles`(関数)
   - `write_outputs`(関数)
-- import している内部モジュール: `shibuya`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.trial`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.time_consts`・`shibuya.world.facts.w20_calendar_reader`・`shibuya.world.facts.weekly_reader`・`shibuya.world.laws.presence`・`shibuya.world.laws.presence_plan`・`tools/c7/attr_arms.py`・`tools/c7/c7lib.py`・`tools/instruments/read_guard.py`
+- import している内部モジュール: `shibuya`・`shibuya.build.sched.pool_facts`・`shibuya.build.sched.trial`・`shibuya.build.sched.vocab`・`shibuya.build.sched.w17_schedule`・`shibuya.cli`・`shibuya.foundation.time_consts`・`shibuya.runtime.run`・`shibuya.world.facts.w20_calendar_reader`・`shibuya.world.facts.weekly_reader`・`shibuya.world.laws.presence`・`shibuya.world.laws.presence_plan`・`tools/c7/attr_arms.py`・`tools/c7/c7lib.py`・`tools/instruments/read_guard.py`
 - CLI の引数
   - サブコマンド `compare`
   - サブコマンド `gauge`

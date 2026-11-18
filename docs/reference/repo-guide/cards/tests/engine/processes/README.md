@@ -41,7 +41,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_the_run_arm_is_stopped_and_the_switch_is_removed`(関数): 〔第347 止めた切替口の削除〕前(``test_the_default_arm_is_stopped_and_names_are_checked``)は「既定 stopped・
   - `test_waste_collection`(関数)
   - `tiny_runs`(関数): 〔第347 止めた切替口の削除〕legacy は切替口(``--absent-processes`` の腕)の代わりに、試験の中だけで実行器に部品の口
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.arms.removed`・`shibuya.foundation.time_consts`・`shibuya.runtime.state.resume`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.actual_log`・`shibuya.world.model.assets`・`tests/engine/_legacy_world.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.foundation.arms.removed`・`shibuya.foundation.time_consts`・`shibuya.runtime.run`・`shibuya.runtime.state.resume`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.ledger.absent`・`shibuya.world.ledger.actual_log`・`shibuya.world.model.assets`・`tests/engine/_legacy_world.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`
 - 環境変数: `SHIBUYA_ABSENT_PROCESSES`
 - 決定の ID: 11-02r・11-02r #7・11-02r/§1・11-02r/§1 #7・11-02r/§2-2・11-03/§3・第 347
 
@@ -249,7 +249,7 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_state_header_and_resume_check`(関数): 〔第347 止めた切替口の削除〕前は切替口の腕を off と legacy に置いて再開の検査を見た(legacy の腕なら見出しに無いファイル
   - `test_the_run_arm_is_off_and_the_switch_is_removed`(関数): 〔第347 止めた切替口の削除〕前(``test_the_default_arm_is_off_and_names_are_checked``)は「既定 off・``resolve(None)`` は
   - `test_the_run_day_collapse_rate_port_is_removed`(関数): 〔第347 止めた切替口の削除・案 k1〕倒れる率の試験の口 ``run_day(salient_rate_per_10k=…)`` は率の規則の旧道でだけ効いた=
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.arms.removed`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.presence`・`shibuya.world.laws.rail`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_rate`・`shibuya.world.ledger.actual_log`・`tests/engine/_legacy_world.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/test_presence_executor.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.engine.resolve`・`shibuya.foundation.arms.removed`・`shibuya.runtime.run`・`shibuya.world.laws.civic`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.logistics`・`shibuya.world.laws.presence`・`shibuya.world.laws.rail`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_rate`・`shibuya.world.ledger.actual_log`・`tests/engine/_legacy_world.py`・`tests/engine/processes/conftest.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/test_presence_executor.py`
 - 環境変数: `SHIBUYA_RATE_RULES`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・第 347
 
@@ -280,7 +280,7 @@ D-61 域内居住者の帰りの便(2026-09-10・ユーザー決定 (a))のテ�
   - `test_scheme_values_and_default_is_counter`(関数)
   - `test_the_tape_carries_the_scheme_and_the_replay_matches`(関数): 〔改訂(第330・RET)〕前は「counter で録って stateful で再生すると止まる」「stateful のテープ」も見た(消した)。
   - `test_two_day_counter_keys_carry_T`(関数): (v) 2 日目の顕著行為と出動の鍵が 1 日目と違う(T が鍵に入っている)。〔改訂(第330・RET)〕前は最後に
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.rng`・`shibuya.runtime.inference.tape`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.salient`・`tests/engine/_legacy_world.py`・`tests/engine/processes/conftest.py`・`tests/engine/test_tape_wiring.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.rng`・`shibuya.interfaces.cli.run_args`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.civic`・`shibuya.world.laws.salient`・`tests/engine/_legacy_world.py`・`tests/engine/processes/conftest.py`・`tests/engine/test_tape_wiring.py`
 - 読む試験: `tests/engine/test_env_and_sections_10f.py`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・第 330・第 347
 

@@ -98,7 +98,7 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `test_a_resumed_ledger_sets_the_base_at_the_first_transfer`(関数): 日の途中から再開した台帳: 流れの表が戻った後の最初の transfer で起点を決める(戻した分は起点に入る)。
   - `test_runs_keep_the_check_and_match_the_raw_log`(関数)
   - `test_transfer_sum_equals_the_flow_sum_each_day`(関数)
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.checks`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.run`・`shibuya.foundation.ports.ledger`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.checks`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.foundation.ports.ledger`・`shibuya.runtime.run`・`shibuya.world.model.state`
 
 ## [test_cp2_k17_capacity_and_overflow.py](../../../../../../../tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py)
 
@@ -115,7 +115,7 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `test_overflow_in_a_run_is_recorded_and_the_run_finishes`(関数): 小さな輪(64 行)で意図的に溢れさせる: manifest と日次の記録に溢れの数・ランは最後まで・final は同じ。
   - `test_overflow_is_counted_and_the_ledger_goes_on`(関数): 輪(8 行)を溢れさせる: 古い行を上書きして続け、溢れた行の数を数える。残高と流れの表は全部の行を含む。
   - `test_the_coefficient_is_at_least_one_and_a_half_times_the_measurement`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.engine.run`・`shibuya.foundation.growth`・`shibuya.foundation.ports.ledger`・`shibuya.world.model.state`・`tests/economy/_stage2_outside.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.foundation.growth`・`shibuya.foundation.ports.ledger`・`shibuya.runtime.run`・`shibuya.world.model.state`・`tests/economy/_stage2_outside.py`
 - 決定の ID: 10-13b/§3・第 347
 
 ## [test_cp2_nine_ops_equivalence.py](../../../../../../../tests/economy/cp2/test_cp2_nine_ops_equivalence.py)
@@ -176,4 +176,4 @@ economy.ledger — 金の台帳(U11)。``transfer`` **単一API**と取引フロ
   - `test_declaring_systems`(関数)
   - `test_phase_c_without_the_events_declaration_fails_at_the_first_fare`(関数)
   - `test_undeclared_money_meter_write_shows_in_stage_b`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.engine.run`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.cli`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.write_permit`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`・`shibuya.world.model.state`

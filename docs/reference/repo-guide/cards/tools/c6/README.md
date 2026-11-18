@@ -132,7 +132,7 @@ run_hash.py — 1 ランの checkpoint ハッシュだけを JSON で吐く(**T3
 
 - 公開の関数とクラス
   - `main`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.world.model.state`・`tools/c6/c6lib.py`
+- import している内部モジュール: `shibuya.runtime.run`・`shibuya.world.model.state`・`tools/c6/c6lib.py`
 - CLI の引数
   - `--cells`: 合成世界のセル数
   - `--no-ledger`: 台帳なし(engine.run.run_day 直呼び)

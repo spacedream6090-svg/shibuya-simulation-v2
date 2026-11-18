@@ -303,7 +303,7 @@ class _TalkLLM:
 
 def test_run_day_opens_conversation_sessions_when_resolve_creates_them():
     """resolve が会話を成立させたら ``ConversationManager`` が受け取り、話者を起こす。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(
         n_agents=400, seed=5, ticks=360, checkpoint_every=360, n_cells=2,
@@ -321,7 +321,7 @@ def test_run_day_opens_conversation_sessions_when_resolve_creates_them():
 def test_run_day_leaves_no_conversing_agent_without_a_session():
     """層2指摘(C3): 不応答/却下の招待側が CONVERSING に取り残されない。
     被招待側は C4 まで IDLE のままなので、日末の CONVERSING 数 == 活動セッション数。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(n_agents=400, seed=11, ticks=360)
     c = res.conversation_counters

@@ -23,7 +23,7 @@ from shibuya import cli
 from shibuya.validation.static import rng_audit as RA
 from shibuya.runtime.state import ledger as SL
 from shibuya.runtime.state import ledger_ast as SA
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from tests.engine import discard_probe as DP
 from tests.engine.test_sim_time_T import ALL_ARMS
 
@@ -168,7 +168,7 @@ def test_v3_allow_entries_pin_the_function_of_the_line(tmp_path, ext_scan):
 
 
 def test_axis1_stale_allow_and_collision_entries_fail(ext_scan):
-    stale = SA.EXT_AST_ALLOW + (SA.ExtAllow("n_set", 1, SL.AstAllow("engine/run.py", "no such text", "古い")),)
+    stale = SA.EXT_AST_ALLOW + (SA.ExtAllow("n_set", 1, SL.AstAllow("runtime/run.py", "no such text", "古い")),)
     assert any("古い許可" in x for x in SA.check_external(ext_scan, allow=stale))
     coll = dict(SA.EXT_NAME_COLLISIONS, n_set="衝突は無い")
     assert any("衝突が無い" in x for x in SA.check_external(ext_scan, collisions_allow=coll))

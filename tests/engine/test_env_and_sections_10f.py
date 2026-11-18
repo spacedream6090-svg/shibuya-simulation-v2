@@ -23,7 +23,7 @@ from shibuya.foundation.hashing import blake3_hex
 from shibuya.foundation.manifest import sections as MS
 from shibuya.runtime.state import resume as RS
 from shibuya.runtime.state import ledger as SL
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.inference.tape import RUN_META_FILENAME, read_run_meta
 from tests import golden_env as GE
 
@@ -289,7 +289,7 @@ _T1_CHILD = r"""
 import json, sys
 from pathlib import Path
 from shibuya import cli
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 out = Path(sys.argv[1])
 r = run_day(n_agents=20, n_cells=9, ticks=1440, sim_days=2, stop_at_tick=1440, seed=1, renderer="stub",
             tape_path=str(out / "tape"), state_out=str(out / "st"))

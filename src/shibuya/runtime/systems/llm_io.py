@@ -85,7 +85,7 @@ def receive_arrivals(b: Any, tick: int, floor: int) -> int:
     届いた応答は ``max(t_apply, floor)`` で ``pending`` へ入る。①の直前で ``floor=tick``(=発射 +1 刻みの①で反映)。
     mock(``fleet_bridge is None`` かつ ``replay_inbox`` が空)は何もしない。
     """
-    from shibuya.engine import run as _RUN
+    from shibuya.runtime import run as _RUN
 
     _target_person, _pending_extra, _call_ref = _RUN._target_person, _RUN._pending_extra, _RUN._call_ref
     io = b.llm

@@ -39,7 +39,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_llm_call_still_validates`(関数)
   - `test_round_trip_of_the_three_kinds`(関数)
   - `test_same_cause_rows_are_merged`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.mind.judge.decision.layer`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.experiment_gate`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.events`・`shibuya.mind.judge.decision.layer`・`shibuya.runtime.run`・`tests/engine/decision/_j0.py`
 
 ## [test_j0_cli.py](../../../../../../../tests/engine/decision/test_j0_cli.py)
 
@@ -60,7 +60,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_mock_port_ignores_the_presented_order`(関数)
   - `test_mock_port_picks_the_word_the_mock_writes`(関数)
   - `test_negative_control_shifting_the_mock_number_moves_the_final`(関数)
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.actions`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.ports`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.mock`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.cli`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.actions`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.ports`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.mock`・`shibuya.runtime.run`・`tests/engine/decision/_j0.py`
 
 ## [test_j0_other_ratio_field.py](../../../../../../../tests/engine/decision/test_j0_other_ratio_field.py)
 
@@ -71,7 +71,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_default_other_share_is_unset_with_the_r108_basis`(関数)
   - `test_llm_port_puts_an_unmatched_answer_in_other`(関数)
   - `test_manifest_carries_the_ratio_field`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.ports.decision`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.ports`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.ports`・`shibuya.runtime.run`・`tests/engine/decision/_j0.py`
 - 決定の ID: R-108
 
 ## [test_j0_port_schema.py](../../../../../../../tests/engine/decision/test_j0_port_schema.py)
@@ -104,7 +104,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_permutation_test_spreads_the_position`(関数): 並べ替えの試験: 同じ問いを巡回のずらし全部で出し、選ばれた位置の分布を見る(内容は 1 つ・位置は 13 か所に散る)。
   - `test_reordering_the_candidates_keeps_the_choice`(関数)
   - `test_the_present_key_follows_agent_step_and_count`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.ports.decision`・`shibuya.foundation.vocab.actions`・`shibuya.mind.judge.decision.ports`・`shibuya.runtime.inference.mock`・`shibuya.validation.static.rng_audit`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.vocab.actions`・`shibuya.mind.judge.decision.ports`・`shibuya.runtime.inference.mock`・`shibuya.runtime.run`・`shibuya.validation.static.rng_audit`・`tests/engine/decision/_j0.py`
 - 決定の ID: R-108
 
 ## [test_j0_writes_declared.py](../../../../../../../tests/engine/decision/test_j0_writes_declared.py)
@@ -115,4 +115,4 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_declared_writes_cover_the_port_changes`(関数)
   - `test_dropping_the_events_path_fails_where_the_decision_event_is_written`(関数)
   - `test_dropping_the_j0_path_is_caught_by_stage_b`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.write_permit`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.foundation.write_permit`・`shibuya.runtime.run`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`・`tests/engine/decision/_j0.py`

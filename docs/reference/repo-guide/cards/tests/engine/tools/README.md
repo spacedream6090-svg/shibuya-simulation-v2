@@ -32,7 +32,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_table_is_empty_and_frozen`(関数)
   - `test_unknown_agents_get_nothing`(関数)
   - `test_unmet_requirements_hide_the_tool`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.sources`・`shibuya.runtime.inference.bridge`・`shibuya.society.tools.record`・`shibuya.society.tools.registry`・`tests/engine/decision/_j0.py`
+- import している内部モジュール: `shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.sources`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.run`・`shibuya.society.tools.record`・`shibuya.society.tools.registry`・`tests/engine/decision/_j0.py`
 
 ## [test_c0_contacts_in_relations.py](../../../../../../../tests/engine/tools/test_c0_contacts_in_relations.py)
 
@@ -54,7 +54,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_state_ledger_row_and_declaration`(関数)
   - `test_world_run_family_and_work_flags_and_rel_columns_unchanged`(関数)
   - `test_writing_contacts_does_not_change_the_existing_rel_columns`(関数): 初めの辺・新しい相手・押し出しの全部で、印を書く口を止めた層と ``rel_*`` が値まで同じ。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.vocab.relations`・`shibuya.foundation.write_permit`・`shibuya.mind.memory.memory`・`shibuya.mind.relations.layer`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`・`shibuya.world.model.agent_table`・`tests/engine/tools/contacts_writers.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.vocab.relations`・`shibuya.foundation.write_permit`・`shibuya.mind.memory.memory`・`shibuya.mind.relations.layer`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_overrides`・`shibuya.world.model.agent_table`・`tests/engine/tools/contacts_writers.py`
 
 ## [test_c0_groups_from_w16.py](../../../../../../../tests/engine/tools/test_c0_groups_from_w16.py)
 
@@ -88,7 +88,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_recorded_count_is_reproduced_with_the_same_rule`(関数)
   - `test_the_table_is_empty_and_answers_none`(関数)
   - `test_the_table_is_read_only_after_construction`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.decl.ledger_paths`・`shibuya.society.tools.places`・`shibuya.society.tools.registry`・`tests/_places.py`
+- import している内部モジュール: `shibuya.foundation.decl.bridging`・`shibuya.foundation.decl.ledger_paths`・`shibuya.runtime.run`・`shibuya.society.tools.places`・`shibuya.society.tools.registry`・`tests/_places.py`
 - 決定の ID: 10-13b/§3・11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・第 334
 
 ## [test_c0_signboard_mark_invariance.py](../../../../../../../tests/engine/tools/test_c0_signboard_mark_invariance.py)
@@ -104,7 +104,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_mark_is_tied_to_the_ledger_and_the_vocab`(関数)
   - `test_undeclared_write_from_decide_fails_at_run_time`(関数)
   - `test_world_run_arm_on_and_off_render_the_same_bytes`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.percept`・`shibuya.foundation.vocab.events`・`shibuya.foundation.write_permit`・`shibuya.perception.renderer`・`shibuya.society.tools.record`・`shibuya.society.tools.registry`・`shibuya.validation.static.system_overrides`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.percept`・`shibuya.foundation.vocab.events`・`shibuya.foundation.write_permit`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.society.tools.record`・`shibuya.society.tools.registry`・`shibuya.validation.static.system_overrides`
 - 環境変数: `SHIBUYA_TOOL_EVENTS`
 
 ## [test_c0_tool_registry.py](../../../../../../../tests/engine/tools/test_c0_tool_registry.py)

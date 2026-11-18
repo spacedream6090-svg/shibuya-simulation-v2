@@ -21,7 +21,7 @@ from shibuya.foundation.time_consts import NS_PER_SECOND, STEPS_PER_DAY
 from shibuya.mind.memory import memory_m1 as M1
 from shibuya.mind.memory import memory_store as MS
 from shibuya.mind.memory.memory_store import LegacyEvent, MemoryStore
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.foundation import write_guard as G
 from shibuya.runtime.inference.tape import Tape
 

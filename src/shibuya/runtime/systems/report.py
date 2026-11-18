@@ -31,7 +31,7 @@ __all__ = ["report"]
 
 def report(ctx: Any, b: Any) -> Any:
     """R3: ``RunResult`` の組み立て・成長の検査・在圏 journal の書き出し(HEAD run.py:4593-4965)。返り値=``RunResult``。"""
-    from shibuya.engine.run import DIAG_RUN_COLUMNS, _action_usage, decision_layers_summary
+    from shibuya.runtime.result import DIAG_RUN_COLUMNS, _action_usage, decision_layers_summary
 
     cfg, L, rs, fx = b.cfg, b.layers, b.runstats, b.fx
     agents, world = b.soa.agents, b.soa.world

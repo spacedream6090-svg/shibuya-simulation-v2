@@ -52,7 +52,7 @@ def sys_body(ctx: Any, b: Any) -> None:
 
 def sys_presence(ctx: Any, b: Any) -> None:
     """presence(HEAD run.py の同じ区間・文は変えない)。"""
-    from shibuya.engine import run as _RUN
+    from shibuya.runtime import run as _RUN
     act_layer = b.layers.act_layer
     agents = b.soa.agents
     layer_counts = b.runstats.layer_counts
@@ -82,7 +82,7 @@ def sys_presence(ctx: Any, b: Any) -> None:
 
 def sys_plan_boundary(ctx: Any, b: Any) -> None:
     """plan_boundary(HEAD run.py の同じ区間・文は変えない)。"""
-    from shibuya.engine import run as _RUN
+    from shibuya.runtime import run as _RUN
     agents = b.soa.agents
     layer_counts = b.runstats.layer_counts
     phase = b.runstats.phase

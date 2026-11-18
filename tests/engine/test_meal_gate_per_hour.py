@@ -254,7 +254,7 @@ def test_e_no_gate_pass_while_full_in_a_real_per_hour_run():
 
 # ================================================================= (d) ラン
 def test_default_is_per_wake_and_the_switch_is_on_the_cli():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3", policy="classical", chooser="classical",
               hunger_model="energy")

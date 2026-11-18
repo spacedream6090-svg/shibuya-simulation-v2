@@ -28,7 +28,7 @@ from shibuya.society.conversation import (
     SPEAKER_INVITE_REFRACTORY_TICKS,
     ConversationManager,
 )
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.foundation.ports.inference import LLMResponse
 from shibuya.world.model.state import World
 
@@ -300,7 +300,7 @@ def _world_agents(n: int = 8, n_cells: int = 1):
 
 def _settle(conv, ag, tick, rows):
     """``run._settle_pending_invites`` を (agent, code, named) の行で呼ぶ。"""
-    from shibuya.engine.run import _settle_pending_invites
+    from shibuya.runtime.run import _settle_pending_invites
 
     ids = np.array([r[0] for r in rows], dtype=np.int64)
     codes = np.array([r[1] for r in rows], dtype=np.int64)

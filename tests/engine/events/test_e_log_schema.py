@@ -17,7 +17,7 @@ import pytest
 from shibuya.foundation.time_consts import NS_PER_STEP, STEPS_PER_DAY
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.vocab import events as V
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 CONTRACT_FIELDS = ("id", "t_ns", "who", "what", "whom", "where", "how_much", "via", "received_ns", "read_ns",
                    "origin", "cause")

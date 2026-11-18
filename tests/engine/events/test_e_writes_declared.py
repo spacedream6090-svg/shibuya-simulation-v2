@@ -22,7 +22,7 @@ import pytest
 
 from shibuya.foundation import write_permit as WP
 from shibuya.runtime.state import ledger as SL
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.systems import conductor as CD
 from shibuya.foundation import write_guard as G
 from shibuya.validation.static import system_overrides as OV

@@ -272,7 +272,7 @@ def test_default_has_no_wom_and_mock_extracts_nothing():
 def test_a_reason_writing_llm_leaks_nothing_by_default():
     """第2波 §2A 項 1 (i): 理由欄に店名と評価語を書く LLM でも、既定(utterance)は抽出 0・伝聞の行 0。"""
     from shibuya import cli
-    from shibuya.engine.run import _default_mock
+    from shibuya.runtime.run import _default_mock
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", store_memory="on")
     on = cli.run(llm=_TalkingLLM(_default_mock(1, "v3"), "スターバックス"), **kw)
@@ -288,7 +288,7 @@ def test_a_reason_writing_llm_leaks_nothing_by_default():
 def test_a_talking_llm_writes_word_of_mouth_rows_for_listeners_only():
     """旧の源(``wom_source="reason-target"``)で第297 の挙動を再現する(第2波 §2A 項 1 (ii))。"""
     from shibuya import cli
-    from shibuya.engine.run import _default_mock
+    from shibuya.runtime.run import _default_mock
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on",
               wom_source="reason-target")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
@@ -324,7 +324,7 @@ def test_extraction_is_per_call_string_work():
 
 def test_wom_source_switch_is_checked_and_on_the_cli():
     """第2波 §2A 項 1: ``--wom-source {utterance,reason-target}``(既定 utterance)・誤りは ValueError。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     with pytest.raises(ValueError):
         run_day(n_agents=10, ticks=2, memory="on", store_memory="on", wom_source="reason")

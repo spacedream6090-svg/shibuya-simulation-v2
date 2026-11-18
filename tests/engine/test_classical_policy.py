@@ -216,7 +216,7 @@ def test_conversation_turn_replies_to_the_inviter():
 
 # ================================================================= ラン
 def test_run_day_classical_arm_and_layers():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     kw = dict(n_agents=60, seed=2, ticks=180, vocab_version="v3")
     mock = run_day(**kw)

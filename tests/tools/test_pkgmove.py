@@ -1048,8 +1048,11 @@ def test_negative_names_guard_catches_version_ids_headers_and_rng_tables(base_co
                             (f'"{dom}":', f'"{dom}x":', "rng_domains")):
         t = base.copy()
         hit = [p for p, s in t.files.items() if p.startswith(SRC_PREFIX) and old in s]
-        if field == "rng_domains":
-            hit = [MV.locate(t, MAPDOC, "engine/run.py")]  # 表の定義の置き場(鍵の字面 ``"<名>":``)
+        if field == "rng_domains":  # 表の定義の置き場(鍵の字面 ``"<名>":``)
+            # 〔割る段 5b の G2〕割る段で表の置き場が変わる(engine/run.py → runtime/run.py)=表の名を頂上で定義するファイルを引く
+            hit = [p for p, s in t.files.items() if p.startswith(SRC_PREFIX) and "POPULATION_RNG_DOMAINS" in s
+                   and "POPULATION_RNG_DOMAINS" in SP.top_names(s)]
+            assert len(hit) == 1, hit
         assert hit, old
         t.files[hit[0]] = t.files[hit[0]].replace(old, new, 1)
         errs = G.check_names(t, fz)
@@ -2622,3 +2625,54 @@ def test_split_lists_a_code_import_inside_an_f_string_for_hand_fixing(monkeypatc
     monkeypatch.setattr(ST, "code_import_hits", lambda ctx, value: [])
     plan2 = SP.make_split_plan(tree, md, "pk/old.py", check_order=False, strict=False)
     assert plan2.after.files["tests/test_fstr.py"] == got and not [m for m in plan2.manual if "test_fstr" in m]
+
+
+# ------------------------------------------------------------------ 〔割る段 5b の G2 の直し〕検収の低-4・低-2
+def _missing_string_excludes(entries) -> list[str]:  # noqa: ANN001
+    """``split.STRING_EXCLUDE`` の (ファイル, 記号) のうち、今の木にファイルが無いか、記号がそのファイルの記号(道具が文字列の
+    記号を引くのと同じ ``symbol_map``=頂上の代入・関数・クラス)に無いもの。"""
+    out: list[str] = []
+    for rel, sym in sorted(entries):
+        p = ROOT / rel
+        if not p.is_file():
+            out.append(f"{rel}: ファイルが無い")
+            continue
+        if sym not in set(symbol_map(ast.parse(p.read_text(encoding="utf-8"))).values()):
+            out.append(f"{rel}::{sym}: 記号が無い")
+    return out
+
+
+def test_string_excludes_name_symbols_that_exist_in_the_tree():
+    """〔G2 の検収 低-4〕``STRING_EXCLUDE`` の除外は (ファイル, 記号) の字面で当たる=記号を改名・移すと除外が黙って外れる。今の木で
+    全部のファイルが在り、記号がそのファイルで定義されていること。負の対照: 在りもしない記号を 1 つ足した一覧では「無い」と言う。"""
+    assert _missing_string_excludes(SP.STRING_EXCLUDE) == []
+    fake = ("tests/engine/test_state_format_10f.py", "_NO_SUCH_CHILD")
+    assert _missing_string_excludes({*SP.STRING_EXCLUDE, fake}) == [f"{fake[0]}::{fake[1]}: 記号が無い"]
+    assert _missing_string_excludes({("tests/no_such_file.py", "X")}) == ["tests/no_such_file.py: ファイルが無い"]
+
+
+_THREE_SAMPLE = '"""three — 見本の 3 本目の元のファイル。"""\n\nfrom __future__ import annotations\n\nV = 1\nW = 2\n'
+_THREE_ROW = dict(num="3", old="pk/three.py", package="nw", kind="split", new="nw/three.py",
+                  split_to=("nw/three.py", "vocab/base.py"), names=(("V", "nw/three.py"), ("W", "vocab/base.py")),
+                  names_complete=True)
+
+
+def test_split_order_is_kept_in_a_sample_tree(monkeypatch):
+    """〔G2 の検収 低-2〕割る段の順(``split_state``・``next_split``・``make_split_plan`` の順の確かめ)を見本の木で確かめる。本物の
+    木の ``test_split_order_is_kept_in_the_real_tree`` は残りの本が 2 本未満で飛ぶ(割る段の終わり)ので、同じ確かめをここで残す:
+    どの時点でも次の 1 本のほかは「順が違う」で断り、済んだ本は「当たっている」で断る。"""
+    monkeypatch.setattr(SP, "SPLIT_ORDER", ("pk/old.py", "pk/two.py", "pk/three.py"))
+    tree, _md = _split_sample({"src/shibuya/pk/two.py": _TWO_SAMPLE, "src/shibuya/pk/three.py": _THREE_SAMPLE})
+    md = MV.MapDoc(rows=[Row(**_SAMPLE_ROW), Row(**_TWO_ROW), Row(**_THREE_ROW)])
+    done: list[str] = []
+    for old in SP.SPLIT_ORDER:
+        assert SP.split_state(tree, md) == done and SP.next_split(tree, md) == old
+        for later in SP.SPLIT_ORDER[len(done) + 1:]:
+            with pytest.raises(SP.SplitRefused, match="順が違う"):
+                SP.make_split_plan(tree, md, later)
+        for prev in done:
+            with pytest.raises(SP.SplitRefused, match="当たっている"):
+                SP.make_split_plan(tree, md, prev)
+        tree = SP.make_split_plan(tree, md, old).after
+        done.append(old)
+    assert SP.split_state(tree, md) == list(SP.SPLIT_ORDER) and SP.next_split(tree, md) is None

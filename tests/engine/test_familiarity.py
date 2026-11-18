@@ -33,7 +33,7 @@ from shibuya.mind.memory.familiarity import (
     place_thing,
     thing_kind,
 )
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from tests import golden_env as GE
 
 WORLD_DIR = Path("data/world/v2")

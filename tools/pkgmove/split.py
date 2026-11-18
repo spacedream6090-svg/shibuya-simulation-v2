@@ -93,6 +93,9 @@ STRING_EXCLUDE: frozenset[tuple[str, str]] = frozenset({
     # 〔割る段 5b の G0〕元の置き場の道(``src_origins()`` の値=割った後も元の道のまま)と比べる字面(``engine/presence.py``)。
     # 今の道へ書き換えると比べる相手が無くなり、計画実行層の ablation_id(AB-PLAN-EXECUTOR)を黙って拾わなくなる
     ("tools/c8/c8lib.py", "scan_engine_ablation_ids"),
+    # 〔割る段 5b の G2 の直し・親の裁定〕古い commit(``LEGACY_COMMIT``)の src の写しでだけ回す子のコード=古い置き場の名のまま。
+    # 今の置き場へ書き換えると、古い src で ``No module named`` になる
+    ("tests/engine/test_state_format_10f.py", "_HEAD_CHILD"),
 })
 #: 〔割る段 5b・E4・親の裁定 Q9 の (a)〕割る段で書き換えないファイル(道筋か、``/`` で終わるディレクトリ)。byte-check は基準の側
 #: (割る前の木)と比べる側(割った後の木)を道具のリポの同じコードで回すので、ランの入口は道具が自分で解く

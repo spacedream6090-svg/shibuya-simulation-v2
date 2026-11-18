@@ -43,7 +43,7 @@ def main(argv: list[str] | None = None) -> int:
         except Exception:
             pass
 
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
     from shibuya.world.model.state import World
 
     world_dir = c6lib.world_dir_of(args)

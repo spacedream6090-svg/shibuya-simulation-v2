@@ -68,7 +68,7 @@ def test_a_non_finite_or_negative_factor_stops(bad):
     """〔第347・Q13 検収 L-2〕予算を渡さないランの倍率が負・NaN・無限大なら止める(予算が NaN・無限大のまま黙って回らない。
     文に値を書く)。``run_day`` も ``cli.run`` も同じ式 ``engine.run.l4_budget`` を通る。"""
     from shibuya import cli
-    from shibuya.engine.run import l4_budget, run_day
+    from shibuya.runtime.run import l4_budget, run_day
 
     with pytest.raises(ValueError, match=f"有限の値.*{bad!r}"):
         l4_budget(8, bad)
@@ -130,7 +130,7 @@ def test_the_explicit_1_0_is_the_old_l4_share():
 
     〔Q13・第347〕ライブラリ ``run_day`` の既定は CLI と同じ 0=無制限(前は按分)。予算を直に渡したランの倍率は 1.0((a′))。"""
     from shibuya import cli
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     old = cli.run(l4_scale=1.0, **SMALL)
     assert old.budget_per_tick == call_budget_per_tick(SMALL["n_agents"])

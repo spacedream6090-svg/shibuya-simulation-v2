@@ -21,7 +21,7 @@ from shibuya.foundation.manifest import sections as MS
 from shibuya.experiments.port import run_kind as RK
 from shibuya.runtime.state import ledger as SL
 from shibuya.experiments.port import layer as XL
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.systems import conductor as CD
 from shibuya.validation.static import system_overrides as OV
 from shibuya.runtime.systems import probe as PR

@@ -22,7 +22,7 @@
 | [src/shibuya/build/space](src/shibuya/build/space/README.md) | 5 | 0 |
 | [src/shibuya/build/vis](src/shibuya/build/vis/README.md) | 5 | 0 |
 | [src/shibuya/economy](src/shibuya/economy/README.md) | 18 | 0 |
-| [src/shibuya/engine](src/shibuya/engine/README.md) | 3 | 0 |
+| [src/shibuya/engine](src/shibuya/engine/README.md) | 2 | 0 |
 | [src/shibuya/experiments](src/shibuya/experiments/README.md) | 1 | 0 |
 | [src/shibuya/experiments/drive](src/shibuya/experiments/drive/README.md) | 3 | 0 |
 | [src/shibuya/experiments/port](src/shibuya/experiments/port/README.md) | 8 | 0 |
@@ -35,6 +35,8 @@
 | [src/shibuya/foundation/queues](src/shibuya/foundation/queues/README.md) | 3 | 0 |
 | [src/shibuya/foundation/text](src/shibuya/foundation/text/README.md) | 6 | 0 |
 | [src/shibuya/foundation/vocab](src/shibuya/foundation/vocab/README.md) | 8 | 0 |
+| [src/shibuya/interfaces](src/shibuya/interfaces/README.md) | 1 | 0 |
+| [src/shibuya/interfaces/cli](src/shibuya/interfaces/cli/README.md) | 2 | 0 |
 | [src/shibuya/interim_bundles](src/shibuya/interim_bundles/README.md) | 2 | 0 |
 | [src/shibuya/interim_bundles/calendar2](src/shibuya/interim_bundles/calendar2/README.md) | 2 | 0 |
 | [src/shibuya/interim_bundles/calendar3](src/shibuya/interim_bundles/calendar3/README.md) | 4 | 0 |
@@ -49,7 +51,7 @@
 | [src/shibuya/mind/relations](src/shibuya/mind/relations/README.md) | 3 | 0 |
 | [src/shibuya/mind/system1](src/shibuya/mind/system1/README.md) | 3 | 0 |
 | [src/shibuya/perception](src/shibuya/perception/README.md) | 2 | 0 |
-| [src/shibuya/runtime](src/shibuya/runtime/README.md) | 4 | 0 |
+| [src/shibuya/runtime](src/shibuya/runtime/README.md) | 6 | 0 |
 | [src/shibuya/runtime/clocks](src/shibuya/runtime/clocks/README.md) | 5 | 0 |
 | [src/shibuya/runtime/inference](src/shibuya/runtime/inference/README.md) | 5 | 0 |
 | [src/shibuya/runtime/state](src/shibuya/runtime/state/README.md) | 8 | 0 |
@@ -159,7 +161,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 359 ディレクトリ・2496 本
+- [docs の索引](docs.md): 361 ディレクトリ・2502 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

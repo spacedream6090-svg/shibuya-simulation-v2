@@ -18,7 +18,7 @@ import pyarrow.parquet as pq
 
 from shibuya import cli
 from shibuya.economy import census as CS
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.world.model.state import World
 
 #: 合成世界の極小ラン(``tests/engine/test_census_out.py`` と同じ書き方)。

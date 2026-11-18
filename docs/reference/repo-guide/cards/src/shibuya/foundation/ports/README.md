@@ -78,7 +78,7 @@ llm: 艦隊クライアント/パーサ/録画テープ。world/agents を impor
   - `seed_for`(関数): 呼ごとのデコード seed(``xxh64(call_id, seed=run_seed)`` の下位 31 bit)。
   - `split_system_user`(関数): 描画本文を ``(system, user)`` に割る(B0=system・残り=user)。
 - import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.manifest.schema`
-- 呼び手: `shibuya.act.intake.undefined`・`shibuya.engine.run`・`shibuya.experiments.drive.branch`・`shibuya.mind.judge.classical`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.inference.mock`・`shibuya.runtime.systems.decide`・`shibuya.runtime.systems.llm_io`・`shibuya.runtime.systems.run_end`・`tools/vocab/adjudicate.py`
+- 呼び手: `shibuya.act.intake.undefined`・`shibuya.experiments.drive.branch`・`shibuya.interfaces.cli.run_args`・`shibuya.mind.judge.classical`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.inference.mock`・`shibuya.runtime.systems.decide`・`shibuya.runtime.systems.llm_io`・`shibuya.runtime.systems.run_end`・`tools/vocab/adjudicate.py`
 - 読む試験: `tests/c6/test_c6lib_scenes.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/experiment/test_cf33b_switch.py`・`tests/engine/rights/test_rights_events.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_conversation.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_intent_mode_open.py`・`tests/engine/test_llm_mock.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_undefined_action.py`・`tests/engine/test_vocab_v2_eat.py`・`tests/llm/test_fleet.py`・`tests/llm/test_fleet_auth.py`・`tests/llm/test_fleet_contract.py`・`tests/llm/test_mock_v3.py`・`tests/llm/test_undefined.py`・`tests/perception/test_b6_invite.py`・`tests/perception/test_channels.py`
 - 読む試験(道筋で): `tests/engine/test_salt_seed_split_10f.py`・`tests/tools/test_pkgmove.py`
 
@@ -93,7 +93,7 @@ engine.ledger_api — 台帳の**依存逆転インターフェース**(Protocol
   - `LedgerBundle`(クラス): resolve / run へ注入する台帳の束(金・物)。どちらも ``None`` 可(C2 互換経路)。
   - `MoneyLedger`(クラス): 金の台帳(U11)。実装は ``shibuya.economy.ledger.Ledger``。
   - `TransferStatus`(クラス): ``transfer`` の結果コード(**業務上の失敗は例外にしない**=行動契約書 §2.1 と同思想)。
-- 呼び手: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.economy.tax_deposit`・`shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.world.laws.rail`
+- 呼び手: `shibuya.cli`・`shibuya.economy.accounts`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.economy.tax_deposit`・`shibuya.engine.resolve`・`shibuya.runtime.run`・`shibuya.world.laws.rail`
 - 読む試験: `tests/economy/cp2/head_ledger_136fdbb.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/economy/cp2/test_cp2_flow_sum.py`・`tests/economy/cp2/test_cp2_k17_capacity_and_overflow.py`・`tests/economy/cp2/test_cp2_nine_ops_equivalence.py`・`tests/economy/cp2/test_cp2_write_window.py`・`tests/economy/cp2/test_cp2_writes_declared.py`・`tests/economy/stage2/test_stage2_account_and_conservation.py`・`tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_money_rules.py`・`tests/economy/stage2/test_stage2_runs.py`・`tests/economy/test_accounts.py`・`tests/economy/test_census.py`・`tests/economy/test_ledger.py`・`tests/economy/test_rules42_runs.py`・`tests/economy/test_rules42b_ledger.py`・`tests/economy/test_t3_redundant_equation.py`・`tests/engine/processes/test_goods_flow.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_processes_run.py`・`tests/engine/test_resume_10d.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 決定の ID: D-85
@@ -118,7 +118,7 @@ perception.facts — 知覚の事実 ``Percept``(第 1 期 1-2 知覚の分離)�
   - `percept_fields`(関数): ``Percept`` の欄の名(宣言順)。
   - `percept_manifest`(関数): manifest の ``percept``(計器): 形の版・欄の数と名・空の欄の一覧。
   - `with_prediction`(関数): 本人の予想を並べた ``Percept`` の写し(1-8 の口が使う)。
-- 呼び手: `shibuya.engine.run`・`shibuya.perception.renderer`・`shibuya.world.body.reactions`
+- 呼び手: `shibuya.perception.renderer`・`shibuya.runtime.result`・`shibuya.world.body.reactions`
 - 読む試験: `tests/engine/body/test_system1_placeholders.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_video.py`・`tests/engine/decision/test_j0_port_schema.py`・`tests/engine/memory/test_m3_impression_and_trace.py`・`tests/engine/tools/test_c0_signboard_mark_invariance.py`・`tests/perception/facts/test_coef_removed_or_armed.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/perception/facts/test_percept_schema.py`・`tests/perception/test_nearby_vectorized.py`
 - 決定の ID: 10-03/§7・10-12/§1-6・10-12/§1-13・10-12/§4-4・10-13b/§4-2・R-113
 

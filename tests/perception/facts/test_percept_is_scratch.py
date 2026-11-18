@@ -75,7 +75,7 @@ KW = dict(n_agents=80, seed=3, ticks=480, n_cells=9, processes=False, vocab_vers
 
 
 def _run_with_watch(monkeypatch, **kw):
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     seen: dict = {"steps": [], "heads": 0, "box": None, "ctx": {}}
     orig = CD.run_system
@@ -156,7 +156,7 @@ def test_stub_renderer_writes_an_empty_mapping(monkeypatch):
 
 def test_percepts_are_not_in_the_final_or_the_state_files(monkeypatch, tmp_path):
     """Percept の有無は状態に入らない: 描いた Percept を捨てても(scratch に書かない形)final は同じ。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
     from shibuya.runtime.systems import decide as DC
 
     kw = {**KW, "checkpoint_every": 120}
@@ -171,7 +171,7 @@ def test_percepts_are_not_in_the_final_or_the_state_files(monkeypatch, tmp_path)
 
 # ---------------------------------------------------------------- (d)
 def test_runs_under_the_stage_b_and_sentinel_checks(monkeypatch):
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     monkeypatch.setenv("SHIBUYA_SYSTEMS_CHECK", "1")  # 段 B(全部の刻み)+番兵の scratch(T4)
     res = run_day(**KW)
@@ -205,7 +205,7 @@ BASE_COMMIT = "a3a8104"
 _REPLAY_CHILD = r"""
 import json, sys
 import shibuya
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.world.model.state import World
 
 class BoomLLM:
@@ -278,7 +278,7 @@ def _child_problems(before: str, now: str, tmp) -> list[str]:  # noqa: ANN001
 @pytest.fixture
 def recorded_tape(tmp_path):
     """偽 vLLM で録ったテープ(作業木の src)。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
     from shibuya.world.model.state import World
     from tests.engine.test_tape_deferred import make_client
     from tests.llm.test_fleet import FakeVLLM
@@ -299,7 +299,7 @@ def recorded_tape(tmp_path):
 
 def _replay(monkeypatch, tape, *, drop_percepts: bool = False):
     """作業木の src で再生し、刻みごとの到着待ち(``replay_inbox``)を見る。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
     from shibuya.runtime.state.hashes import to_state
     from shibuya.perception import renderer as R
     from shibuya.world.model.state import World
@@ -334,7 +334,7 @@ def _replay(monkeypatch, tape, *, drop_percepts: bool = False):
 
 def test_replay_inbox_never_holds_a_percept(recorded_tape, monkeypatch, tmp_path):
     from shibuya.runtime.inference.bridge import BridgeResult
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
     from shibuya.runtime.state import resume as RS
     from shibuya.runtime.state.hashes import to_state
     from shibuya.runtime.inference.fleet import FleetBridgeResult

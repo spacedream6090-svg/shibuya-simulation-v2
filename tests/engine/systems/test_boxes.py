@@ -138,7 +138,7 @@ def test_run_day_signature_is_unchanged_and_build_unpacks_every_argument():
     import ast
     import inspect
 
-    from shibuya.engine import run as RUN
+    from shibuya.runtime import run as RUN
 
     params = list(inspect.signature(RUN.run_day).parameters)
     assert len(params) == 113 - len(REMOVED_PARAMS) + len(ADDED_PARAMS) and not set(REMOVED_PARAMS) & set(params)

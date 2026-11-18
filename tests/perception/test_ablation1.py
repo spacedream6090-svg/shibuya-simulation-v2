@@ -23,7 +23,7 @@ import pytest
 
 from shibuya.foundation.vocab.agent_codes import AgentKind
 from shibuya.world.model.agent_table import AgentState
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.foundation.text import channels as ch
 from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import RANKING_PRIOR_SCORES, Renderer

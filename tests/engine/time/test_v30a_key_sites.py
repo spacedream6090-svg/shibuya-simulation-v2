@@ -22,7 +22,7 @@ import pytest
 
 from shibuya.foundation import rng as RNG
 from shibuya.foundation import time_consts as TC
-from shibuya.engine import run as RUN
+from shibuya.runtime import run as RUN
 from shibuya.interim_bundles.calendar2 import layer as L2
 from shibuya.mind.plan import calendar2_port as P2
 from shibuya.interim_bundles.calendar3 import layer as L3

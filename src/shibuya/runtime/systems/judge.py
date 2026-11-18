@@ -68,7 +68,7 @@ def sys_arbiter(ctx: Any, b: Any) -> None:
 
 def sys_apply_responses(ctx: Any, b: Any) -> None:
     """apply_responses(HEAD run.py の同じ区間・文は変えない)。"""
-    from shibuya.engine import run as _RUN
+    from shibuya.runtime import run as _RUN
     act_layer = b.layers.act_layer
     agents = b.soa.agents
     attention_on = b.cfg.attention_on

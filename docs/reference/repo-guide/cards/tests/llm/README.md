@@ -129,7 +129,7 @@ mock 方策の語彙 v3 化(二層の段 3・D-116・第277・アジェンダ §
   - `test_v3_draw_rules`(関数)
   - `test_v3_form_is_read_strictly_by_the_v3_parser`(関数)
   - `test_v3_is_deterministic_and_counter_based`(関数)
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.engine.run`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.actions`・`shibuya.runtime.inference.mock`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.actions`・`shibuya.runtime.inference.mock`・`shibuya.runtime.run`
 - 決定の ID: D-116・第 277
 
 ## [test_parser.py](../../../../../../tests/llm/test_parser.py)

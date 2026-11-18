@@ -24,7 +24,7 @@ from shibuya.mind.memory import memory as M
 from shibuya.mind.relations import layer as RL
 from shibuya.foundation.vocab import relations as RV
 from shibuya.runtime.state import ledger as SL
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.systems import conductor as CD
 from shibuya.validation.static import system_overrides as OV
 from shibuya.runtime.systems import probe as PR

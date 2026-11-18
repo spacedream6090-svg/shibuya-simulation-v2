@@ -25,7 +25,7 @@ from shibuya.act.target import (
     TargetResolver,
     move_resolution_summary,
 )
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.foundation.ports.inference import LLMRequest
 from shibuya.foundation.vocab.actions import parse_target
 from shibuya.runtime.inference.mock import MOCK_MOVE_TARGET_WORDS, MockLLM

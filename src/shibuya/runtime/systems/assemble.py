@@ -133,11 +133,13 @@ def build(_call_args: dict[str, Any]) -> Any:
     from shibuya.foundation.arms import removed as _RSW
 
     _RSW.check_environment()
-    from shibuya.engine import run as _RUN
+    # 〔割る段 5b の G2〕別名 _RUN を割り先ごとに分けた(_RUN=runtime.run・_RES=runtime.result の名)
+    from shibuya.runtime import run as _RUN
+    from shibuya.runtime import result as _RES
 
     RNG_LAYOUT = _RUN.RNG_LAYOUT
-    RunResult = _RUN.RunResult
-    _ENTRANCES = _RUN._ENTRANCES
+    RunResult = _RES.RunResult
+    _ENTRANCES = _RES._ENTRANCES
     _default_mock = _RUN._default_mock
     _named_closed_lookup = _RUN._named_closed_lookup
     _replay_tape_dir = _RUN._replay_tape_dir

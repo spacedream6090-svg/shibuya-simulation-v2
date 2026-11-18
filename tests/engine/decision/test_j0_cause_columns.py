@@ -24,7 +24,7 @@ from shibuya.foundation.time_consts import NS_PER_STEP, STEPS_PER_DAY
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.ports import experiment_gate as GATE
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 from tests.engine.decision._j0 import SMALL, decision_arm
 

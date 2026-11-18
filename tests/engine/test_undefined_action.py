@@ -13,7 +13,7 @@ import pytest
 from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
 from shibuya.foundation.vocab import act_codes as C
 from shibuya.runtime.inference.bridge import LLMBridge
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.inference.tape import Tape, TapeWriter
 from shibuya.foundation.ports.inference import LLMResponse
 from shibuya.runtime.inference.mock import MockLLM

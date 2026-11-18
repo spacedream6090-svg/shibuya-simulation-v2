@@ -25,7 +25,7 @@ import pytest
 
 import shibuya.world.laws.civic as CIV
 import shibuya.world.laws.salient as SAL
-import shibuya.engine.run as RUN
+import shibuya.interfaces.cli.run_args as RUN
 from shibuya.runtime.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
 from shibuya.foundation.rng import RNG_SCHEME, run_tick_key
 from shibuya.foundation.rng import stream as core_stream
@@ -33,7 +33,7 @@ from shibuya.runtime.state import hashes as SH
 from shibuya.runtime.state import ledger as SL
 from shibuya.world.laws.civic import DISPATCH_MEDIAN_MIN, PublicServiceDispatchProcess
 from shibuya.world.laws.salient import COLLAPSE_PER_10K_PER_DAY, SalientProcess
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 from tests.engine._legacy_world import legacy_world_rules
 

@@ -213,7 +213,7 @@ def test_manifest_instrument():
 
 
 def test_run_manifest_has_the_percept_section():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(n_agents=60, seed=2, ticks=90, n_cells=9, processes=False)
     m = res.run_manifest_fields()

@@ -21,7 +21,7 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
 from shibuya.engine import resolve as R
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.foundation.ports.inference import LLMResponse
 from shibuya.foundation.vocab.actions import format_two_line
 from shibuya.foundation.vocab.actions import ACTION_WORD_EAT, EAT_ACTION_CODE

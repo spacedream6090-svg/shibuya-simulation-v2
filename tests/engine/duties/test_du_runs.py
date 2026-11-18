@@ -20,7 +20,7 @@ from shibuya.foundation.arms import duties as AD
 from shibuya.interim_bundles.duties import layer as LY
 from shibuya.mind.plan import duties_port as PD
 from shibuya.foundation.vocab import events as V
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.systems import table as TB
 from shibuya.world.ledger.records import DEVIATION_CODES, DeviationVocab
 

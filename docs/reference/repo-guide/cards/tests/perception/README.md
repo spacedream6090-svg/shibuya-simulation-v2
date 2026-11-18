@@ -39,7 +39,7 @@ ablation ①「チャネル固定枠 vs 同一総トークンの単一ランキ�
   - `test_tool_probe_reports_that_the_switch_is_effective`(関数)
   - `test_tool_runs_end_to_end_against_a_fake_vllm`(関数): 偽 vLLM 2 本に対して ``ablation1_fixed_vs_ranking.py`` を端から端まで回す。
   - `test_two_runs_give_the_same_bytes`(関数): 同入力 → 同バイト(2 回組み直して比較)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tools/c6/ablation1_fixed_vs_ranking.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tools/c6/ablation1_fixed_vs_ranking.py`
 - 決定の ID: D-56・第 304
 
 ## [test_ablation6_signage.py](../../../../../../tests/perception/test_ablation6_signage.py)
@@ -61,7 +61,7 @@ ablation ⑥「広告ゼロ」(知覚契約書 §8 第1陣 ⑥)の切替口。
   - `test_signage_off_renders_the_empty_line_in_both_modes`(関数): 看板行は「表示が無いセル」と**同じ描画**になる(テンプレは元からある空文言)。
   - `test_templates_and_sha_are_untouched`(関数): 凍結テンプレの payload に 1 文字も足していない(v1.1 delta は不要)。
   - `test_the_switch_is_not_a_no_op`(関数)
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 - 決定の ID: D-56・第 304
 
 ## [test_attention.py](../../../../../../tests/perception/test_attention.py)
@@ -124,7 +124,7 @@ B4b「近景」への待ち行列の差し込み(C4 後半で付けた唯一の�
   - `test_rule8_and_b5_do_not_move_for_the_invitee`(関数): B6 は**個体ブロック**なので、被招待でも B0-B4b と B5 は 1 バイトも動かない。
   - `test_template_sha256_is_untouched`(関数): テンプレ本体(``TEMPLATES``/``WAKE_REASON_TEXT``)に行を足していない。
   - `test_the_invitee_is_told_who_spoke_to_them`(関数)
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.engine.run`・`shibuya.foundation.ports.inference`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.foundation.ports.inference`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 - 決定の ID: D-62・第 137
 
 ## [test_channels.py](../../../../../../tests/perception/test_channels.py)
@@ -202,7 +202,7 @@ AB7 自由意図の腕の切替口 — 描画側(``docs/design/v2-open-intent-ar
   - `test_near_order_modes_and_default`(関数)
   - `test_strictly_nearer_people_always_stay_in`(関数): k 人目より近い人は撹拌に関係なく全員載る(同点の中からだけ選ぶ)。
   - `tied_crowd`(関数): 1 セルに n 体が**同じ座標**(同じノード)=全員が同点。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/golden_env.py`・`tests/perception/test_nearby_vectorized.py`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/golden_env.py`・`tests/perception/test_nearby_vectorized.py`
 - 読む試験: `tests/engine/test_env_and_sections_10f.py`
 - 決定の ID: 11-01・11-03/§3・第 300・第 304・第 330・第 337・第 340
 
@@ -284,7 +284,7 @@ p_notice: §3.1 の 2 段ヒル型(TTPF+社会伝播)・検算表・ablation A0-
   - `test_run_day_refuses_a_multiplier_table`(関数)
   - `test_run_manifest_keeps_the_field_as_null`(関数)
   - `test_the_multiplier_table_and_the_arm_are_gone`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.memory.familiarity`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`
+- import している内部モジュール: `shibuya.foundation.vocab.agent_codes`・`shibuya.mind.memory.familiarity`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`
 - 決定の ID: 10-12/§1-6・D-117・D-121・第 293
 
 ## [test_renderer_golden.py](../../../../../../tests/perception/test_renderer_golden.py)
@@ -352,7 +352,7 @@ renderer: golden テスト(§2.4 ⑧ バイト一致・決定論・予算・5分
   - `test_zero_is_not_a_no_op`(関数)
   - `test_zero_matches_the_ad_zero_arm_bytes`(関数): ``p_see=0.0`` の B2 は ⑥(``signage_enabled=False``)の B2 とバイト一致。
   - `test_zero_removes_every_signage_line`(関数): ``p_see=0.0`` は全員・全 tick で看板行が空文言になる(=⑥ 広告ゼロと同じ描画)。
-- import している内部モジュール: `shibuya.cli`・`shibuya.engine.run`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.cli`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 - 決定の ID: D-56・D-59・第 304
 
 ## [test_templates.py](../../../../../../tests/perception/test_templates.py)
@@ -426,5 +426,5 @@ templates: 文面凍結(§1 条5)・ブロック表(§2.2)・段階語彙の釘�
   - `test_the_reverse_one_side_stops_too`(関数): 何を確かめるか(検収 中-1・再検収 低-A): 描画の資産が合成なのに、環境の過程に W13 の日の表があると、組み立てで止まる
   - `test_wire_weather_puts_only_the_day_hook_when_the_environment_has_no_weather_days`(関数): 何を確かめるか(検収 低-3): 環境の過程に W13 の日の表が無い(``has_weather`` が偽)と、日の口だけを挿し、語と鍵の口は
   - `test_wire_weather_puts_the_main_path_hooks_on_any_renderer`(関数): 何を確かめるか: ``state_io.wire_weather`` は描画(注入の描画を含む)に本筋と同じ口を挿す=天気の日=環境の過程の再生日・
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.environment`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.perception.renderer`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`・`shibuya.world.laws.environment`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.state`
 - 決定の ID: 第 347

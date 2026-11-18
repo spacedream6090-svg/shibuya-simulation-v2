@@ -22,7 +22,7 @@ from shibuya.mind.judge.decision import layer as DL
 from shibuya.foundation.ports import decision as P
 from shibuya.mind.judge.decision import ports as PS
 from shibuya.runtime.inference.bridge import LLMBridge
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.foundation.ports.inference import LLMRequest
 from shibuya.act.intake.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
 from shibuya.foundation.vocab.actions import cross_action_words

@@ -344,7 +344,7 @@ def test_run_default_is_off_and_relations_on_keeps_behavior():
 
 
 def test_arm_checks_and_cli_flags():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     for bad in (dict(relations="on"), dict(memory="on", relations="maybe"),
                 dict(memory="on", relations="on", rel_init_density=3.0),

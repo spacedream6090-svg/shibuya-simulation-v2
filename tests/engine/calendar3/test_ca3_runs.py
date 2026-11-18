@@ -21,7 +21,7 @@ from shibuya.interim_bundles.calendar3 import layer as LY
 from shibuya.mind.plan import calendar3_port as P3
 from shibuya.interim_bundles.contact import layer as CL
 from shibuya.mind.plan import contact_port as PC
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.systems import table as TB
 
 from tests.engine.calendar3._ca3 import (FRAME_LONG, HOLIDAY_SUNDAY, KW, MANAGER, STEP_NS, TPD, UNIT, by_pref, ca3,

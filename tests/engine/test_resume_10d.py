@@ -36,7 +36,7 @@ import pytest
 from shibuya import cli
 from shibuya.runtime.state import resume as RS
 from shibuya.runtime.state import ledger as SL
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.inference.tape import Tape
 
 from tests.engine.test_sim_time_T import ALL_ARMS
@@ -471,7 +471,7 @@ def test_cli_switches_for_sim_days_and_resume(tmp_path):
     """親の答え 7: ``--sim-days``・``--resume-from``(と書き出し先 ``--state-out``)を engine.run と cli で同じ綴りで。"""
     import argparse
 
-    from shibuya.engine.run import add_calendar_args, calendar_kwargs_from_args
+    from shibuya.interfaces.cli.run_args import add_calendar_args, calendar_kwargs_from_args
 
     ap = argparse.ArgumentParser()
     add_calendar_args(ap)

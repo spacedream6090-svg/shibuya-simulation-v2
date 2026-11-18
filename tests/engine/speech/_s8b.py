@@ -28,7 +28,7 @@ def speech_arm(name: str) -> Iterator[None]:
 
 
 def run_small(arm: str, tape: Path | None = None, **kw: Any) -> Any:
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     args = dict(SMALL)
     args.update(kw)

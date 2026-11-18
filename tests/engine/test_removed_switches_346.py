@@ -28,7 +28,7 @@ from shibuya.foundation.arms import removed as RSW
 
 TAG = "stable-v2-before-switch-removal-346"
 TAG_347 = "stable-v2-before-switch-removal-347"
-RUN_DAY = ("from shibuya.engine.run import run_day\n"
+RUN_DAY = ("from shibuya.runtime.run import run_day\n"
            "run_day(n_agents=20, seed=1, n_cells=9, ticks=30, checkpoint_every=30, renderer='stub')\n"
            "print('RAN')\n")
 CLI_MAIN = ("import sys\nfrom shibuya import cli\n"

@@ -22,7 +22,8 @@ from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, Activity, Wa
 from shibuya.foundation.types import EventClass
 from shibuya.runtime.arbiter import Arbiter, arbitrate
 from shibuya.mind.system1.wake import WakeCandidates
-from shibuya.engine.run import DIAG_RUN_COLUMNS, run_day
+from shibuya.runtime.result import DIAG_RUN_COLUMNS
+from shibuya.runtime.run import run_day
 from shibuya.world.model.state import World
 
 SALT = b"\x0d\x56\x0d\x56"

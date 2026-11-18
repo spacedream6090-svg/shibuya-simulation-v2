@@ -20,7 +20,7 @@ from shibuya.society.contact.calls import CallSpeechPort
 from shibuya.interim_bundles.contact.layer import W_DELIVERED, W_READ, W_SENT
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.journal.log import EventLog, LlmCall
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.society.speech.port import WHAT as W_SPEECH
 from shibuya.society.speech.port import SpeechContext, Utterance
 from shibuya.society.tools import record as TR

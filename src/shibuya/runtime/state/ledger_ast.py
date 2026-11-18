@@ -56,7 +56,7 @@ META_ATTRS = frozenset({"dtype", "shape", "size", "ndim", "itemsize", "nbytes"})
 
 #: 解決できない ``field(変数)`` の読みのうち許すもの(場所の文字列と根拠)。
 UNRESOLVED_ALLOW: tuple[SL.AstAllow, ...] = (
-    SL.AstAllow("engine/run.py", "old = np.asarray(r.field(c.stage_field))",
+    SL.AstAllow("runtime/run.py", "old = np.asarray(r.field(c.stage_field))",
                 "内受容の段の跨ぎの診断の数え(_count_intero_crossings)。読むのは段の 3 列(どれも behavior)"),
     SL.AstAllow("world/model/agent_table.py", 'return self.__dict__["registry"].field(name)',
                 "AgentState.__getattr__ の転送。読み手は呼び手の側の属性の読みとして数える"),
@@ -601,7 +601,7 @@ def runtime_uncovered(owners: "dict[str, object]") -> dict[str, list[str]]:
 
 #: 1-0: ランの結果(``result.…`` への代入の文)を組み立てる置き場(HEAD は ``engine/run.py`` だけ。run_day を系に分けた先を
 #: 足した=対象を広げる)。
-RESULT_FILES: tuple[str, ...] = ("engine/run.py", "runtime/systems/report.py", "runtime/systems/run_end.py")
+RESULT_FILES: tuple[str, ...] = ("runtime/run.py", "runtime/systems/report.py", "runtime/systems/run_end.py")
 
 #: 直列化・ハッシュ・保存と戻しの書き手(属性を読むが挙動を決めない)。
 GENERIC_FILES: tuple[str, ...] = (
@@ -630,7 +630,7 @@ class DiagExit:
 
 #: 診断の出口(ランの結果・要約・センサス・計器の数え・manifest)。
 DIAG_EXITS: tuple[DiagExit, ...] = (
-    DiagExit("engine/run.py", "RunResult.*", "ランの結果(RunResult)の要約・manifest の組み立て"),
+    DiagExit("runtime/result.py", "RunResult.*", "ランの結果(RunResult)の要約・manifest の組み立て"),
     DiagExit("economy/census.py", "*", "日次・月次のセンサス(保存則の検査と報告)"),
     DiagExit("cli.py", "checkpoints_payload", "checkpoints の JSON の組み立て(報告)"),
     DiagExit("cli.py", "undefined_registry_payload", "未定義行動の台帳の書き出し(報告)"),

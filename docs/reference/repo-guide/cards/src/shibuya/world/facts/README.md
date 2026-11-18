@@ -23,7 +23,7 @@ engine.calendar — 暦の口(指示書 10-03 §3-1 A1・A1-1・A1-2・A1-3)。
   - `parse_school_holidays`(関数): 学校の長期休みの区間の一覧(manifest の欄 ``school_holidays``)を ``(始, 終)`` の組に直す。
   - `parse_start`(関数): 開始日の欄(``--start-date``)→ ``datetime``。``None``/空は ``None``(既定の導き方)。
 - import している内部モジュール: `shibuya.foundation.paths`・`shibuya.foundation.types`
-- 呼び手: `shibuya.engine.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.world.laws.environment`・`shibuya.world.laws.opening`・`shibuya.world.laws.rail`・`shibuya.world.laws.runner`
+- 呼び手: `shibuya.interfaces.cli.run_args`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.world.laws.environment`・`shibuya.world.laws.opening`・`shibuya.world.laws.rail`・`shibuya.world.laws.runner`
 - 読む試験: `tests/build_field/test_field_units.py`・`tests/build_field/test_w12_real_timetables.py`・`tests/economy/stage2/test_stage2_guards.py`・`tests/economy/stage2/test_stage2_rules_credit_atm.py`・`tests/engine/calendar/test_calendar_shadow.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_units.py`・`tests/engine/experiment/_x33.py`・`tests/engine/experiment/test_x33_branch.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_calendar.py`・`tests/engine/test_calendar_10e_e3.py`・`tests/engine/test_calendar_sites.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_weather_calendar_10e.py`
 - 決定の ID: 10-03/§3-1・第 330
 
@@ -68,7 +68,7 @@ agents.population — W16 母集団(``w16_population.parquet``)の読み込み�
   - `population_available`(関数): ``<world_dir>/w16_population.parquet`` があるか。
   - `sample_population`(関数): 二層抽出(定員先取り層+統計層)。同 seed 同結果。
 - import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.rng`
-- 呼び手: `shibuya.cli`・`shibuya.economy.stage2_bind`・`shibuya.engine.run`・`tools/c7/attr_arms.py`・`tools/w17/diversity_yardstick.py`
+- 呼び手: `shibuya.cli`・`shibuya.economy.stage2_bind`・`shibuya.runtime.run`・`tools/c7/attr_arms.py`・`tools/w17/diversity_yardstick.py`
 - 読む試験: `tests/build_pop/test_pop_pipeline.py`・`tests/build_pop/test_pop_units.py`・`tests/build_pop/test_w21_stage10_swap.py`・`tests/c6/test_t5_order_bias.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_pop_w21_world.py`・`tests/engine/test_presence_derive_v2.py`・`tests/engine/test_presence_executor.py`・`tests/engine/test_relations_tenure.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/tools/test_c0_groups_from_w16.py`・`tests/llm/test_fleet_contract.py`
 - 読む試験(道筋で): `tests/engine/bridging/test_bridging_ledger.py`
 

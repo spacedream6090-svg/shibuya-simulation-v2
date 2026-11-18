@@ -17,7 +17,7 @@ import pytest
 from shibuya.foundation.time_consts import STEPS_PER_DAY
 from shibuya.foundation.manifest import sections as MS
 from shibuya.world.facts.rights import initial as RI
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 HERE = Path(__file__).resolve().parent
 TOP = json.loads((HERE.parent / "time" / "manifest_keys_frozen.json").read_text(encoding="utf-8"))["keys"]

@@ -44,7 +44,8 @@ from shibuya.act.activity import (
 )
 from shibuya.runtime.arbiter import Arbiter
 from shibuya.mind.system1.wake import WakeCandidates
-from shibuya.engine.run import Checkpoint, run_day
+from shibuya.runtime.result import Checkpoint
+from shibuya.runtime.run import run_day
 from shibuya.foundation.hashing import blake3_hex
 from shibuya.foundation.ports.inference import LLMResponse
 from shibuya.foundation.vocab.actions import (

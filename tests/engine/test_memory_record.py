@@ -215,7 +215,7 @@ def test_gists_are_capped_per_agent():
 
 # ================================================================= ラン
 def test_run_default_is_off_and_memory_on_keeps_mock_behavior(monkeypatch):
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     off = run_day(**kw)

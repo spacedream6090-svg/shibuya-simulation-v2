@@ -56,7 +56,7 @@ def sys_perceive_prepare(ctx: Any, b: Any) -> None:
 
 def sys_detect(ctx: Any, b: Any) -> None:
     """detect(HEAD run.py の同じ区間・文は変えない)。"""
-    from shibuya.engine import run as _RUN
+    from shibuya.runtime import run as _RUN
     act_layer = b.layers.act_layer
     agents = b.soa.agents
     detector = b.layers.detector

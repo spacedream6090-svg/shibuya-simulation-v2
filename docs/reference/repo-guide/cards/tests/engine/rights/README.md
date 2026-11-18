@@ -49,7 +49,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_opening_process_records_a_revoked_staff_and_still_opens`(関数)
   - `test_the_word_and_the_cause_name`(関数)
   - `test_without_the_check_nothing_is_counted_and_the_code_is_the_same`(関数)
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.engine.run`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.events`・`shibuya.runtime.inference.bridge`・`shibuya.world.facts.rights.ledger`・`shibuya.world.facts.rights.record`・`shibuya.world.laws.opening`・`shibuya.world.ledger.actual_log`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.events`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.run`・`shibuya.world.facts.rights.ledger`・`shibuya.world.facts.rights.record`・`shibuya.world.laws.opening`・`shibuya.world.ledger.actual_log`・`tests/engine/processes/conftest.py`
 - 読む試験: `tests/engine/duties/test_du_runs.py`
 - 決定の ID: 10-12/§1-4
 
@@ -78,7 +78,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_rights_is_the_last_key_and_observed`(関数)
   - `test_the_record_does_not_move_the_result`(関数): 権利台帳の中身を空にしても(担当の表は同じに読む)final と呼数は同じ=manifest の欄は記録だけ。
   - `test_values_come_from_the_ledger`(関数)
-- import している内部モジュール: `shibuya.engine.run`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.opening`
+- import している内部モジュール: `shibuya.foundation.manifest.sections`・`shibuya.foundation.time_consts`・`shibuya.runtime.run`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.opening`
 - 決定の ID: 11-01・11-02r/§1・11-02r/§1 #7・11-03/§3
 
 ## [test_rights_schema.py](../../../../../../../tests/engine/rights/test_rights_schema.py)

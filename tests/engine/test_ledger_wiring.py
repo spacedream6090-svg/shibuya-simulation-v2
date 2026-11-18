@@ -38,7 +38,7 @@ from shibuya.act import commit as C
 from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.foundation.ports.ledger import LedgerBundle
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.world.model.state import World
 from tests import golden_env as GE
 from tests.economy import _stage2_outside as SO

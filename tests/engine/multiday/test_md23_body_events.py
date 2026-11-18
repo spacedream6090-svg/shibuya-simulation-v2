@@ -35,7 +35,7 @@ from shibuya.foundation.vocab.events import (
 )
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.vocab import events as V
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.runtime.inference.tape import CALLS_SCHEMA, Tape
 from shibuya.foundation.vocab import events as TR
 # 〔割る段 5a の G2〕SIGNBOARD_CAUSE は foundation.journal.log へ行く(ほかの SIGNBOARD_* は events)=名で読む

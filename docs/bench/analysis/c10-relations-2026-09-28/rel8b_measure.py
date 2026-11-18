@@ -130,7 +130,7 @@ def use_sampler(kind: str) -> None:
     if kind != "stratified":
         return
     import shibuya.world.facts.population_reader as POP
-    import shibuya.engine.run as RUN
+    import shibuya.runtime.run as RUN
 
     POP.sample_population = stratified_sample  # type: ignore[assignment]
     RUN.sample_population = stratified_sample  # type: ignore[assignment]

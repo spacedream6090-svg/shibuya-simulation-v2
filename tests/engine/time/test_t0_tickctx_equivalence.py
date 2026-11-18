@@ -42,7 +42,7 @@ def test_other_widths_keep_the_relations(w):
 
 def test_the_conductor_passes_the_run_width(monkeypatch):
     """進行役(``conductor``)は ``RunConfig.tick_seconds`` を幅として渡す(合成の世界・20 体・30 刻み)。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     seen = []
     real = BX.TickCtx.of

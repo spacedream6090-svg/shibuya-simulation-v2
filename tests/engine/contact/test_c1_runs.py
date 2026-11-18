@@ -13,7 +13,7 @@ from shibuya.foundation.manifest import sections as MS
 from shibuya.runtime.state import resume as RS
 from shibuya.runtime.state import ledger as SL
 from shibuya.interim_bundles.contact import layer as LY
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.society.tools import record as TR
 from shibuya.society.tools.groups import GroupList
 

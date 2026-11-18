@@ -244,7 +244,7 @@ def run_collect(config: str, *, days: int, agents: int, seed: int, world: str | 
     _paths()
     arms = set_arms(config)
     from shibuya import cli
-    from shibuya.engine import run as RUN
+    from shibuya.runtime import run as RUN
 
     kw: dict[str, Any] = dict(BASE, n_agents=agents, seed=seed, sim_days=days, world_dir=world)
     kw.update(dict(extra or {}))

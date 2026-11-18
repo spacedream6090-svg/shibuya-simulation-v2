@@ -27,7 +27,7 @@ from shibuya.act import commit as C
 from shibuya.foundation.vocab import act_codes as CV
 from shibuya.engine import resolve as R
 from shibuya.runtime.inference.bridge import ACTION_WORD_BY_CODE, PerceptionRendererAdapter
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.foundation.text import templates as PT
 from shibuya.perception.renderer import PerceptionAssets, Renderer as PerceptionRenderer
 from shibuya.world.model.state import World

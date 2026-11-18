@@ -62,7 +62,7 @@ def test_the_multiplier_table_and_the_arm_are_gone():
 
 
 def test_run_day_refuses_a_multiplier_table():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     with pytest.raises(ValueError, match="1-2"):
         run_day(n_agents=20, seed=2, ticks=5, p_see_activity={"companion_talk": 1.39})
@@ -144,7 +144,7 @@ def test_familiarity_entry_uses_the_scalar_p():
 
 # ---------------------------------------------------------------- (e) ラン
 def test_run_manifest_keeps_the_field_as_null():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(n_agents=60, seed=2, ticks=120, vocab_version="v3", signage_p_see=0.3)
     m = res.run_manifest_fields()

@@ -30,7 +30,7 @@ from shibuya.act import commit as C
 from shibuya.foundation.vocab import act_codes as CV
 from shibuya.world.model import geometry as G
 from shibuya.engine import resolve as R
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.world.model.state import DENSITY_STAGE_EDGES, DENSITY_STAGE_EDGES_PER_M2, World
 
 #: 600 tick = 世界内 10:00 まで回す。**体が実際に歩き出すまで回さないと edge の腕が

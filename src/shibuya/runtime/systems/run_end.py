@@ -22,7 +22,7 @@ __all__ = ["sys_drain", "sys_close_final"]
 
 def sys_drain(ctx: Any, b: Any) -> None:
     """drain(HEAD run.py の同じ区間・文は変えない)。"""
-    from shibuya.engine import run as _RUN
+    from shibuya.runtime import run as _RUN
     _save_state = functools.partial(_STATE_IO.save_state, b)
     fleet_bridge = b.layers.fleet_bridge
     fleet_deferred = b.llm.fleet_deferred

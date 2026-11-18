@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-import shibuya.engine.run as RUN
+import shibuya.runtime.run as RUN
 from shibuya.runtime.inference.tape import RUN_META_FILENAME, read_run_meta
 
 REPO = Path(__file__).resolve().parents[2]

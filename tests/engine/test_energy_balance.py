@@ -470,7 +470,7 @@ def test_per_tick_paths_have_no_python_loops():
 # ================================================================= ラン(合成世界・小)
 def test_run_day_default_is_energy_and_v1_is_only_for_tests(monkeypatch):
     """〔Q13・第347〕ライブラリの既定は energy(CLI と同じ)。旧規則 v1 はランの口からは止め、試験の中だけの口で通る。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
     from tests.engine.body._hunger_v1 import hunger_v1
 
     kw = dict(n_agents=60, seed=2, ticks=120)
@@ -504,7 +504,7 @@ def test_run_day_default_is_energy_and_v1_is_only_for_tests(monkeypatch):
 
 
 def test_bmr_arm_runs_and_is_recorded():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(n_agents=40, seed=2, ticks=60, hunger_model="energy", energy_rate="bmr")
     assert res.run_manifest_fields()["energy"]["rate"] == "bmr"

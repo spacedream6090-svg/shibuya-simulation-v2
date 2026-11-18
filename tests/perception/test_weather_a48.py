@@ -25,7 +25,7 @@ import pytest
 
 from shibuya.world.model.agent_table import AgentState
 from shibuya.runtime.inference.bridge import StubRenderer
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from shibuya.foundation.text import normalize as N
 from shibuya.foundation.text import templates as T
 from shibuya.perception import renderer as RD

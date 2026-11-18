@@ -159,7 +159,7 @@ Python 15 本・その他 0 本(このディレクトリの直下)
   - `test_parts_spec_outside_stage2_is_ignored`(関数): 〔第347〕前は切替口 off(``test_off_parts_spec_without_the_arm_is_ignored``)。段階 2 の外の台帳では部品の指定は効かない。
   - `test_port_arm_shows_the_candidates_and_keeps_the_mock_actions`(関数)
   - `test_turning_one_part_off_zeroes_its_flow`(関数)
-- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.engine.run`・`shibuya.foundation.ports.ledger`・`shibuya.mind.judge.decision.layer`・`shibuya.runtime.systems.boxes`・`shibuya.world.model.state`・`tests/economy/_stage2_outside.py`
+- import している内部モジュール: `shibuya.economy.accounts`・`shibuya.economy.census`・`shibuya.economy.goods`・`shibuya.economy.ledger`・`shibuya.economy.stage2`・`shibuya.economy.stage2_bind`・`shibuya.foundation.ports.ledger`・`shibuya.mind.judge.decision.layer`・`shibuya.runtime.run`・`shibuya.runtime.systems.boxes`・`shibuya.world.model.state`・`tests/economy/_stage2_outside.py`
 - 読む試験: `tests/economy/stage2/test_stage2_calls.py`・`tests/economy/stage2/test_stage2_resume_arm.py`
 - 決定の ID: 第 337・第 347
 
