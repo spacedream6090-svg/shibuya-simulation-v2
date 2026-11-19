@@ -2,9 +2,9 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 5 本・その他 0 本(このディレクトリの直下)
+Python 7 本・その他 0 本(このディレクトリの直下)
 
-下のディレクトリ: [intake](intake/README.md)
+下のディレクトリ: [intake](intake/README.md)・[ops](ops/README.md)
 
 ## [__init__.py](../../../../../../../src/shibuya/act/__init__.py)
 
@@ -20,7 +20,7 @@ engine.activity — 行為と活動の二層の**活動層**(二層の実装 段
   - `activity_kind_of`(関数): 行動コード(と「あたり」の印)→ ``ActivityKind``(expedient・モジュール注記)。
   - `displayable_activity`(関数): B4b に出せる活動文か(なし・空・§2.4 ⑧ の個体依存語・⑥ の省略記法を含む文は出さない)。
   - `payload_of`(関数): ``BridgeResult``/艦隊の ``Outcome`` → 活動(語彙 v3 の応答だけ・それ以外は ``None``)。
-- import している内部モジュール: `shibuya.act.commit`・`shibuya.engine.resolve`・`shibuya.foundation.hashing`・`shibuya.foundation.text.normalize`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`
+- import している内部モジュール: `shibuya.act.commit`・`shibuya.act.ops.intent_writes`・`shibuya.foundation.hashing`・`shibuya.foundation.text.normalize`・`shibuya.foundation.time_consts`・`shibuya.foundation.types`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`
 - 呼び手: `shibuya.act.intent`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/space/test_nav1_units.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_presence_exit_walk.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/time/test_t0_time_consts.py`
 - 状態台帳の行
@@ -30,6 +30,21 @@ engine.activity — 行為と活動の二層の**活動層**(二層の実装 段
     - `O3` ActivityLayer _bt_agent・_bt_tick・_bt_start(挙動 no・復元 derivable) 道筋 `act_layer._bt_agent`・`act_layer._bt_start`・`act_layer._bt_tick` 書ける系: activity_intent
     - `O66` ActivityLayer の計数(挙動 diag・復元 discardable) 道筋 `act_layer.kind_counts`・`act_layer.n_arrival_expired`・`act_layer.n_cell_suppressed`・`act_layer.n_expiry_candidates`・`act_layer.n_fail_immediate`・`act_layer.n_intent_moves`・`act_layer.n_leave_expired`・`act_layer.n_partner_expired`・`act_layer.n_set`・`act_layer.n_wander_bad`・`act_layer.n_wander_steps` 書ける系: activity_intent・apply_responses・detect・phase_a・phase_c・presence
 - 決定の ID: D-62・D-112・D-116・第 275・第 276
+
+## [apply.py](../../../../../../../src/shibuya/act/apply.py)
+
+engine.resolve — **世界状態への唯一の書き込み口**(二相コミットの Phase C)。
+
+- 公開の関数とクラス
+  - `apply`(関数): Phase C: 確定した intent だけを世界へ適用する(**唯一の書き手**)。
+- import している内部モジュール: `shibuya.act.commit`・`shibuya.act.gate`・`shibuya.act.ops.focus`・`shibuya.act.ops.intent_writes`・`shibuya.act.ops.move`・`shibuya.act.ops.rail`・`shibuya.act.ops.shop`・`shibuya.act.ops.talk`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.model.agent_table`・`shibuya.world.model.geometry`・`shibuya.world.model.state`
+- 呼び手: `shibuya.runtime.result`・`shibuya.runtime.systems.act`・`tools/c7/attr_arms.py`・`tools/c7/occupancy_series.py`
+- 読む試験: `tests/c7/test_attr_arms.py`・`tests/engine/body/test_body_same_values.py`・`tests/engine/processes/test_civic.py`・`tests/engine/processes/test_crowd.py`・`tests/engine/processes/test_rail.py`・`tests/engine/processes/test_rail_board_intent.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_intent_chooser.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_parser_contract.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_renderer_wiring.py`・`tests/engine/test_resolve.py`・`tests/engine/test_seat_release_2_4.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_two_phase.py`・`tests/engine/test_vocab_v2_eat.py`
+- 書きの許可
+  - `_apply_rest`: 直接の書き `agents.activity`・`agents.fatigue`
+  - `_apply_sleep`: 直接の書き `agents.activity`・`agents.target_node`
+  - `apply`: 直接の書き `agents.band`・`agents.board_line`・`agents.board_since`・`agents.cell`・`agents.edge_id`・`agents.edge_s`・`agents.last_action`・`agents.last_result`・`agents.last_result_tick`・`agents.node`・`agents.path_next_node`・`agents.sleep_pending`・`agents.xy`・`cells.density`・`cells.density_stage`・`cells.open_count` 口として持つ系: phase_c
+- 決定の ID: 11-03・11-03/§2・11-03/§3・D-51・D-62・D-71・D-113・D-116・第 266・第 267・第 268・第 346
 
 ## [commit.py](../../../../../../../src/shibuya/act/commit.py)
 
@@ -43,9 +58,23 @@ engine.commit — 二相コミットの Phase A(intent 収集)と Phase B(資源
   - `delta_perc_ns`(関数): 起床条件 → δ_perc[ns]\(予期クラス別の定数・expedient)。
   - `tick_start_ns`(関数): tick 開始のナノ秒(δ_perc を足す基準)。
 - import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.types`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`
-- 呼び手: `shibuya.act.activity`・`shibuya.act.intake.from_words`・`shibuya.act.intent`・`shibuya.engine.resolve`・`shibuya.runtime.systems.act`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.judge`
+- 呼び手: `shibuya.act.activity`・`shibuya.act.apply`・`shibuya.act.intake.from_words`・`shibuya.act.intent`・`shibuya.act.ops.shop`・`shibuya.runtime.systems.act`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.judge`
 - 読む試験: `tests/economy/stage2/test_stage2_calls.py`・`tests/engine/processes/test_civic.py`・`tests/engine/processes/test_crowd.py`・`tests/engine/processes/test_rail.py`・`tests/engine/processes/test_rail_board_intent.py`・`tests/engine/processes/test_rail_return.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_ledger_wiring.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_renderer_wiring.py`・`tests/engine/test_resolve.py`・`tests/engine/test_seat_release_2_4.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_two_phase.py`・`tests/engine/test_vocab_v2_eat.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
+
+## [gate.py](../../../../../../../src/shibuya/act/gate.py)
+
+act.gate — 割る段で ``engine/resolve.py`` を割った割り先(全ファイルの表 §4・名の表は``tools/pkgmove/map.toml`` の割る行)。
+
+- 公開の関数とクラス
+  - `ResolveOutcome`(クラス): Phase C の結果(診断行の素材)。
+- import している内部モジュール: `shibuya.foundation.ports.ledger`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.model.agent_table`・`shibuya.world.model.geometry`
+- 呼び手: `shibuya.act.apply`・`shibuya.act.ops.move`・`shibuya.act.ops.rail`・`shibuya.act.ops.shop`・`shibuya.act.ops.talk`
+- 読む試験: `tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_familiarity.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_intent_chooser.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_presence_exit_walk.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/engine/test_two_layer_activity.py`
+- 書きの許可
+  - `_fail`: 直接の書き `agents.last_result`・`agents.last_result_tick`
+  - `_ok`: 直接の書き `agents.last_result`・`agents.last_result_tick`
+- 決定の ID: 11-03・11-03/§3・D-51・D-62・D-112・D-113・D-118・第 266・第 267・第 275・第 275 #2・第 288・第 346
 
 ## [intent.py](../../../../../../../src/shibuya/act/intent.py)
 
@@ -54,7 +83,7 @@ engine.intent — **意図の保持**(段 2c・D-112 ①・D-114 案 A・第288)
 - 公開の関数とクラス
   - `IntentLayer`(クラス): 意図の保持(``engine.run`` が活動層と一緒に作る=語彙 v3・``--activity on``・``candidates``)。
   - `intent_summary`(関数): 計数 → manifest ``intent`` の形(アジェンダ §3-6)。
-- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.commit`・`shibuya.engine.resolve`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`
+- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.commit`・`shibuya.act.ops.intent_writes`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`
 - 呼び手: `shibuya.interfaces.cli.main`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/c6/test_t3_parallel_invariance.py`・`tests/economy/test_single_write_path.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_state_ledger_10b.py`・`tests/llm/test_fleet_contract.py`
 - 読む試験(道筋で): `tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`

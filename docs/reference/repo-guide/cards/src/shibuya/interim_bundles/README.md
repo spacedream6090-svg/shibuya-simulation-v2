@@ -35,7 +35,7 @@ engine.calendar_self — カレンダー 1b「勤務の出入りを本人へ」(
   - `set_arm`(関数): 腕を選ぶ(CLI ``--calendar``・試験の切替口)。組み立ての時に読む(ランの途中で変えても、そのランは変わらない)。
   - `update_estimate`(関数): 直近の実感の値の平均で見積りを作り直す(記憶の仕組みまでのつなぎ)。幅=直近の最小と最大(2 回より少なければ最初の幅)。
   - `validate_commitments`(関数): 1 人の約束の列を確かめる(CA4 (d))。返り値=(壊れた行の印, 重なりの組の一覧)。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.hashing`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.events`・`shibuya.mind.judge.decision.sources`・`shibuya.society.calendar_shadow`・`shibuya.society.tools.registry`・`shibuya.world.facts.w20_calendar_reader`・`shibuya.world.laws.presence`・`shibuya.world.laws.presence_plan`
+- import している内部モジュール: `shibuya.act.ops.plan_writes`・`shibuya.act.ops.rail`・`shibuya.act.ops.shop`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.hashing`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.events`・`shibuya.mind.judge.decision.sources`・`shibuya.society.calendar_shadow`・`shibuya.society.tools.registry`・`shibuya.world.facts.w20_calendar_reader`・`shibuya.world.laws.presence`・`shibuya.world.laws.presence_plan`
 - 呼び手: `shibuya.interfaces.cli.main`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar3.layer`・`shibuya.runtime.result`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/calendar/test_ca1b_runs.py`・`tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/space/test_nav1_units.py`
 - 読む試験(道筋で): `tests/engine/test_salt_seed_split_10f.py`

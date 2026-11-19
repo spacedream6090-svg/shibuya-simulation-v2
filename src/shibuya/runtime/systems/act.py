@@ -16,7 +16,7 @@ from typing import Any
 # 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
 from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
-from shibuya.engine import resolve as R
+from shibuya.act import apply as R
 from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR
 
 

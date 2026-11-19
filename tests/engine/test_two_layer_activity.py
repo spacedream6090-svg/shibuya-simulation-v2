@@ -37,13 +37,13 @@ from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/init_writes・R_APPLY=act/apply・R_BODY=act/ops/body_writes・R_GATE=act/gate・
 # R_MIND=mind/ops・R_MOVE=act/ops/move・R_SHOP=act/ops/shop。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_APPLY
-from shibuya.engine import resolve as R_BODY
-from shibuya.engine import resolve as R_GATE
-from shibuya.engine import resolve as R_MIND
-from shibuya.engine import resolve as R_MOVE
-from shibuya.engine import resolve as R_SHOP
+from shibuya.act.ops import init_writes as R
+from shibuya.act import apply as R_APPLY
+from shibuya.act.ops import body_writes as R_BODY
+from shibuya.act import gate as R_GATE
+from shibuya.mind import ops as R_MIND
+from shibuya.act.ops import move as R_MOVE
+from shibuya.act.ops import shop as R_SHOP
 from shibuya.act.activity import (
     ActivityLayer,
     ActivityPayload,

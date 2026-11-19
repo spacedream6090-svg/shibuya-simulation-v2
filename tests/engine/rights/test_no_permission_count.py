@@ -64,7 +64,7 @@ def test_live_count_is_zero_or_marked(name, monkeypatch):
     """19 構成の生きた数え(約 70 秒=``slow``・検収 L9)。既定 v3 の 1 構成だけは ``slow`` の外(軽い版)。"""
     from shibuya.interfaces.cli import main as cli
     from shibuya.runtime.inference import bridge as LB
-    from shibuya.engine import resolve as R
+    from shibuya.act.ops import law_writes as R
 
     cnt: Counter[str] = Counter()
     orig_roc, orig_call = R.request_open_close, LB.LLMBridge.call

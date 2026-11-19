@@ -18,8 +18,8 @@ import numpy as np
 from shibuya.foundation.vocab.agent_codes import WAKE_CONDITION_CLASS
 from shibuya.foundation.vocab.agent_codes import WakeCondition
 # 〔割る段 6 の S6-G1〕別名 R を割り先ごとに分けた(R_BODY=act.ops.body_writes・R_PLAN=act.ops.plan_writes の名。割る前は全部 resolve)
-from shibuya.engine import resolve as R_BODY
-from shibuya.engine import resolve as R_PLAN
+from shibuya.act.ops import body_writes as R_BODY
+from shibuya.act.ops import plan_writes as R_PLAN
 from shibuya.world.body.energy import DEFAULT_MEAL_SLEEP_DEFER
 from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
 

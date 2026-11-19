@@ -22,6 +22,7 @@ __all__ = [
     "ACT_BUY", "ACT_WAIT", "ACT_TALK", "ACT_LEAVE", "ACT_REPORT", "ACT_HELP", "ACT_REFUSE", "ACT_REST", "ACT_SLEEP",
     "ACT_EAT", "ACT_QUEUE", "ACT_NONE", "WANDER_BAD_TARGET", "DELTA_PERC_BASE_NS", "EXPECTATION_K",
     "SLEEP_SLOTS_PER_CELL",
+    "TALK_OPEN_METERS", "TALK_LEAVE_METERS", "EXIT_WALK_FLAG",
 ]
 
 
@@ -100,3 +101,13 @@ S2_WITHDRAW: Final[int] = 1
 S2_PAY_CASH: Final[int] = 2
 S2_PAY_ACCOUNT: Final[int] = 4
 S2_MONEY_ACT: Final[int] = 8
+
+
+#: 会話が**成立**する距離[m](G7・§4 改訂「成立距離と離脱距離を分ける」)。
+TALK_OPEN_METERS: Final[float] = 2.0
+#: 会話が**離脱**になる距離[m](同上。同値だと境界の 2 人が毎 tick 作っては壊す=D-49 と同型)。
+TALK_LEAVE_METERS: Final[float] = 3.0
+
+
+#: 9a: ``plan_flags`` の「計画の退出で歩いている」ビット(``engine.presence`` が立てて落とす)。
+EXIT_WALK_FLAG: Final[int] = 1 << 4

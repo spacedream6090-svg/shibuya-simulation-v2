@@ -20,7 +20,7 @@ from shibuya.world.model.agent_table import AgentState
 # 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
 from shibuya.act import commit as C
 from shibuya.foundation.vocab import act_codes as CV
-from shibuya.engine import resolve as R
+from shibuya.act import apply as R
 from shibuya.runtime.systems import allow as _AL
 from shibuya.runtime.systems import table as _SYSTEMS
 from shibuya.world.model.state import World

@@ -22,8 +22,8 @@ import numpy as np
 import pytest
 
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/detect_writes・R_MIND=mind/ops。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_MIND
+from shibuya.act.ops import detect_writes as R
+from shibuya.mind import ops as R_MIND
 from shibuya.foundation import write_guard as WG
 from shibuya.foundation.vocab.agent_codes import INTERO_VARS
 from shibuya.mind.system1 import change_detect as CD

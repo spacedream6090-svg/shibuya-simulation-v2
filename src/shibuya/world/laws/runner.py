@@ -33,7 +33,7 @@ import numpy as np
 from shibuya.world.model.agent_table import AgentState
 from shibuya.world.laws import switch_absent as _ABSENT
 from shibuya.world.laws import switch_rate as _RATE_RULES
-from shibuya.engine import resolve as R
+from shibuya.act.ops import rail as R
 from shibuya.world.facts.calendar import SimCalendar
 from shibuya.world.laws.civic import (
     HotelProcess,

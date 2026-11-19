@@ -14,8 +14,8 @@ import numpy as np
 import pytest
 
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_SHOP=act/ops/shop。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_SHOP
+from shibuya.act import apply as R
+from shibuya.act.ops import shop as R_SHOP
 from shibuya.world.body.model import BodyModel
 from shibuya.world.body import rules as BR
 from shibuya.world.laws import environment as ENV

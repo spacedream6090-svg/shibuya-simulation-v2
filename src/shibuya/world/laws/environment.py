@@ -64,7 +64,7 @@ import numpy as np
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.hashing import blake3_hex
 from shibuya.foundation.rng import stream
-from shibuya.engine import resolve as R
+from shibuya.act.ops import law_writes as R
 from shibuya.world.model import solar as SOL
 from shibuya.world.body.model import BodyModel as _BodyModel
 from shibuya.world.body.rules import (  # 〔第 3 期 3-5〕体の層へ移した値(同じ名で写して出す)

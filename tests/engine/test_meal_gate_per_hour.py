@@ -204,7 +204,7 @@ def _energy_policy():
 def test_a_meal_resets_the_hazard_but_a_snack_does_not():
     """(a) 空腹で 60 分積んだ後に自宅の食事(予定の実行)→ H=0(次の門は 0 から)。飲食店・範囲外の食事も同じ
     ``resolve._energy_meal`` を通る(``since_meal=0`` の摂取)。(c) 軽食(``since_meal`` を減らすだけ)では H は戻らない。"""
-    from shibuya.engine import resolve as R
+    from shibuya.act.ops import body_writes as R
 
     pol, lay = _energy_policy()
     _run(pol, 60, hunger=8)

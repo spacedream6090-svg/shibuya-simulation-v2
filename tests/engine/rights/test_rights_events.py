@@ -18,8 +18,8 @@ import pytest
 
 from shibuya.foundation.vocab.agent_codes import ResultCode
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/law_writes・R_RAIL=act/ops/rail。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_RAIL
+from shibuya.act.ops import law_writes as R
+from shibuya.act.ops import rail as R_RAIL
 from shibuya.foundation.journal import log as EV
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.links import ActualLogLink

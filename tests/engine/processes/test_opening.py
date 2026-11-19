@@ -10,8 +10,8 @@ import numpy as np
 
 from shibuya.foundation.vocab.agent_codes import AgentKind, ResultCode
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/rail・R_LAW=act/ops/law_writes。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_LAW
+from shibuya.act.ops import rail as R
+from shibuya.act.ops import law_writes as R_LAW
 from shibuya.world.laws.opening import OpeningProcess, build_open_matrix
 
 from .conftest import fake_plan_assets, make_agents, make_world

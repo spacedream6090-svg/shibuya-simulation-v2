@@ -30,7 +30,7 @@ import numpy as np
 
 from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS_ALL
 from shibuya.foundation.vocab.agent_codes import WakeCondition
-from shibuya.engine import resolve as R
+from shibuya.mind import ops as R
 from shibuya.runtime.systems import llm_io as _LLM_IO
 from shibuya.foundation.ports.inference import LLMCall
 from shibuya.foundation.ports.inference import split_system_user

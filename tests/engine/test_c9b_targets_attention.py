@@ -41,11 +41,11 @@ from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/focus・R_ACT_CODES=foundation/vocab/act_codes・R_APPLY=act/apply・
 # R_GATE=act/gate・R_TALK=act/ops/talk。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_ACT_CODES
-from shibuya.engine import resolve as R_APPLY
-from shibuya.engine import resolve as R_GATE
-from shibuya.engine import resolve as R_TALK
+from shibuya.act.ops import focus as R
+from shibuya.foundation.vocab import act_codes as R_ACT_CODES
+from shibuya.act import apply as R_APPLY
+from shibuya.act import gate as R_GATE
+from shibuya.act.ops import talk as R_TALK
 from shibuya.society.conversation import ConversationManager
 from shibuya.world.model.geometry import EdgeGeometry
 from shibuya.runtime.run import run_day

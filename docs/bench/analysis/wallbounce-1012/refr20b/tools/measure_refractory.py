@@ -202,7 +202,7 @@ def scale_dict(arm: str) -> dict[str, float]:
 
 def effective_minutes(arm: str) -> list[int]:
     """腕の実効不応期表[分](``engine.resolve.refractory_ticks``・刻み 60 秒=分)。"""
-    from shibuya.engine import resolve as R
+    from shibuya.mind import ops as R
 
     sc = scale_dict(arm)
     return [int(x) for x in R.refractory_ticks(sc or None)]

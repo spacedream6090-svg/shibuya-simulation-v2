@@ -20,6 +20,7 @@ from contextlib import contextmanager
 from typing import Iterator
 
 from shibuya.foundation import write_permit as _WP
+import numpy as np
 
 __all__ = ["CURRENT", "SCRATCH_PERMIT", "BUFFERS_PERMIT", "PATHS_PERMIT", "system_scope", "events_write_allowed",
            "EVENTS_PATH"]
@@ -60,3 +61,38 @@ def events_write_allowed() -> bool:
     if p is None:
         return True
     return EVENTS_PATH in p or any(fnmatch.fnmatchcase(EVENTS_PATH, x) for x in p if "*" in x)
+
+
+def _require_thawed(*states: object) -> None:
+    """``ufunc.at`` を撃つ前の**穴埋めガード**(層2レビュー指摘・C3 結線で追加)。
+
+    NumPy の ``np.add.at`` / ``np.maximum.at`` は **``flags.writeable=False`` を見ない**
+    (`ufunc.at` は buffer protocol を経由せずに書く)。つまり ``freeze()`` だけでは
+    「resolve 以外からの一括加算」を止められない。そこで ``AgentState``/``World`` が持つ
+    ``_frozen`` フラグ(``frozen`` プロパティ)を**明示的に**検査する。
+
+    Raises:
+        ValueError: 凍結中の状態へ ``ufunc.at`` を撃とうとした(=書き込み窓の外)。
+
+    1-0 段 A(草案 §2-6 の A ②・K1): 系ごとの許可(``core.write_permit``)では解除口が許可の列だけを解くので、
+    状態の物の ``frozen`` だけでは宣言の外の列への ``ufunc.at`` を止められない。引数に**書く配列そのもの**も渡し、
+    配列ごとに ``flags.writeable`` を見る(``economy/ops.py`` の ``transfer``=旧 ``_apply_cash`` と同じ形)。配列は numpy の配列、
+    状態の物は ``frozen`` を持つ物として見分ける。
+
+    Note:
+        静的側の相方は ``tests/engine/test_add_at_guard.py``
+        (``world.``/``agents.`` 由来の配列への ``np.<ufunc>.at`` は resolve.py にしか書けない・直前の
+        ``_require_thawed`` が書く配列を引数に持つ)。
+    """
+    for s in states:
+        if isinstance(s, np.ndarray):
+            if not s.flags.writeable:
+                raise ValueError(
+                    "読み取り専用の列へ ufunc.at(np.add.at 等)を撃とうとした。"
+                    "この系の書く列の宣言の外(1-0 段 A・草案 §2-6)か、書き込み窓の外"
+                )
+        elif bool(getattr(s, "frozen", False)):
+            raise ValueError(
+                "凍結中の状態へ ufunc.at(np.add.at 等)を撃とうとした。"
+                "書き込みは resolve の writable() 窓の中だけ(運用設計書 §2.2)"
+            )

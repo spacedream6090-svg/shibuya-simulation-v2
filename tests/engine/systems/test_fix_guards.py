@@ -391,14 +391,14 @@ def test_d1_sees_plain_imports_and_other_aliases(tmp_path):
 
     p = tmp_path / "fake_d1.py"
     p.write_text(
-        "from shibuya.engine.resolve import revert_conversation\n"
-        "import shibuya.engine.resolve as RV\n"
-        "from shibuya.engine import resolve as R2\n"
+        "from shibuya.act.ops.talk import revert_conversation\n"
+        "import shibuya.act.ops.intent_writes as RV\n"
+        "from shibuya.act.ops import intent_writes as R2\n"
         "def sys_fake(ctx, b):\n"
         "    revert_conversation(b.soa.agents, [0])\n"
         "    RV.set_activity(b.soa.agents, [0], [0])\n"
         "    R2.clear_intent(b.soa.agents, [0])\n"
-        "    from shibuya.engine.resolve import set_intent as si\n"
+        "    from shibuya.act.ops.intent_writes import set_intent as si\n"
         "    si(b.soa.agents, [0])\n", encoding="utf-8")
     spec = importlib.util.spec_from_file_location("fake_d1", p)
     mod = importlib.util.module_from_spec(spec)

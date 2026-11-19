@@ -37,11 +37,11 @@ from shibuya.foundation.rng import RNG_SCHEME
 from shibuya.act import commit as C
 # 〔割る段 6 の S6-G1〕別名 R を割り先ごとに分けた(R_BODY=act.ops.body_writes・R_INIT=act.ops.init_writes・R_MIND=mind.ops・
 # R_MOVE=act.ops.move・R_RESTORE=runtime.state.restore の名。割る前は全部 resolve)
-from shibuya.engine import resolve as R_BODY
-from shibuya.engine import resolve as R_INIT
-from shibuya.engine import resolve as R_MIND
-from shibuya.engine import resolve as R_MOVE
-from shibuya.engine import resolve as R_RESTORE
+from shibuya.act.ops import body_writes as R_BODY
+from shibuya.act.ops import init_writes as R_INIT
+from shibuya.mind import ops as R_MIND
+from shibuya.act.ops import move as R_MOVE
+from shibuya.runtime.state import restore as R_RESTORE
 from shibuya.world.model.space import nav1 as _NAV1
 from shibuya.runtime.state import resume as RS
 from shibuya.act.activity import ActivityLayer

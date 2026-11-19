@@ -51,7 +51,7 @@ import numpy as np
 from shibuya.foundation.vocab.agent_codes import AgentKind
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.types import t_sim_ns
-from shibuya.engine import resolve as R
+from shibuya.act.ops import law_writes as R
 from shibuya.world.facts.calendar import OPENING_ROW_PH
 from shibuya.world.facts.rights import initial as _RI
 from shibuya.world.facts.rights import record as _RR

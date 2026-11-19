@@ -17,7 +17,7 @@ engine.change_detect — 起床条件 (i)(ii) の検出器(予算行 **P6**)。
   - `ChangeDetector`(クラス): B4 ハッシュと B5 閾値の変化検出器(scratch を持ち回して確保を避ける)。
   - `DetectResult`(クラス): 1 tick 分の検出結果(**世界には書かない**)。
 - import している内部モジュール: `shibuya.foundation.vocab.agent_codes`・`shibuya.world.model.agent_table`・`shibuya.world.model.scene_hash`・`shibuya.world.model.state`
-- 呼び手: `shibuya.engine.resolve`・`shibuya.runtime.systems.assemble`
+- 呼び手: `shibuya.act.ops.detect_writes`・`shibuya.mind.ops`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/clock/test_tm3_step_scope.py`・`tests/engine/space/test_nav1_density.py`・`tests/engine/test_area_source_c9c.py`・`tests/engine/test_change_detect_p6.py`・`tests/engine/test_detection_writes_split.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_renderer_wiring.py`・`tests/engine/test_resolve.py`
 - 状態台帳の行
   - 持ち主 `detector`(`ChangeDetector`)

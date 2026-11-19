@@ -628,3 +628,191 @@ S6-G0 は 2 つに分けた: 道具の拡張(別の実装役・別の木)と、�
 | byte-check 19 構成(本体の道具・基準 `e543f3b`・src の別名の分けの木) | 37 欄すべて同じ 19・動いた 0・誤り 0・440 秒・既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。記録 [bytecheck_G1a_parent/](bytecheck_G1a_parent/)(実装役の記録は [bytecheck_G1a/](bytecheck_G1a/)=434 秒) |
 | 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`。回している間、この作業木は誰にも編集させていない) | 7,044 passed・1 failed(前からの 1 本=linked の作業木でだけ落ちる)・22 skipped・1 xfailed・40 分 06 秒。前の回(別名の分け・7,043 passed・2 failed)から、親の段取りで落ちていた 1 本が通って +1(試験は足していない) |
 | src の差分を読んだ(3 本) | 別名は割り先ごとに 1 つ・属性の読みのまま・`judge.py` は talk の別名を渡す・`perceive.py` は `R_DETECT.write_b4_hash`・`R_MIND.write_intero_stages` |
+
+## 9. S6-G1 の写し(23 本目 `engine/resolve.py` を 18 の割り先へ・土台 `4a5bd30`・安定版のタグ `stable-v2-before-split6-G1`・2026-11-19)
+
+道具(`tools/pkgmove/cli.py split --next --apply --tree .`)で `engine/resolve.py` を 18 の割り先へ写し、読み手の import を書き換えた。包み `engine` は木から消えた。手で直したのは道具の一覧の外の 3 つ(裁定 Q4・取り直し §12)と、割った結果として落ちた試験 2 本(親の裁定)だけ。`tools/pkgmove/`・`tools/bytecheck/`・全ファイルの表・`map.toml`・`contracts.toml` は変えていない(`pyproject.toml` は `contracts --apply` が書いた)。
+
+### 9-1. 本の数
+
+| 本 | 割る行 | 書き換えた import の文(src・tests・tools・docs) | 分けた文 | 鍵 | 台帳の道 | 前向きの表 | 道の文字列 | 書き換えなかった鍵 | 手で直した読み | 別名の割り先の宣言 | 写さなかった | 守り | byte-check | 契約 | 例外 載せた・効いている(辺/行) |
+|---:|---|---|---:|---:|---:|---:|---|---:|---|---:|---|---|---|---|---|
+| 23 | `engine/resolve.py` | 166(43・119・3・1)=ファイル 88(28・56・3・1) | 0 | 1 | 1 | 2 行 | src の表 2(E8 の宣言)・コードの文字列 7・斜線の道 1 | 11 | 0(src の 8 本は §7・試験と tools は §5) | 印のある宣言 5(`judge.py`・試験 2・`tools/c7` 2) | 再輸出 4 名(裁定 Q7)・import 1 文と注 8 行(下) | 13 個「同じ」(決まりは宣言どおり 4) | 19/19 同じ(434 秒) | 1+10 | 16/18・16/18 |
+
+- 割り先と名の数(道具の数え): `act/apply.py` 18・`act/ops/shop.py` 20・`act/ops/rail.py` 13・`act/ops/move.py` 10・`act/ops/plan_writes.py` 6・`mind/ops.py` 10・`act/ops/law_writes.py` 8・`act/ops/body_writes.py` 7・`act/gate.py` 3・`act/ops/talk.py` 8・`runtime/state/restore.py` 4・`act/ops/intent_writes.py` 9・`act/ops/focus.py` 7・`act/ops/init_writes.py` 2・`foundation/write_guard.py` 1・`act/ops/detect_writes.py` 1・`foundation/vocab/act_codes.py` 3・`foundation/vocab/agent_codes.py` 2(表の名は `_REFRACTORY_TICKS` の 1 つ。道具の数えは、旗の代入の文の束縛も数えて 2)。新しく作った割り先 15・在るファイルへ足した割り先 3(write_guard と語彙の 2 本)・作った頭 `act/ops/__init__.py`・消したファイル `engine/resolve.py`・`engine/__init__.py`。道具が書いたファイル 112・消したファイル 2。
+- 当てる前の書かない実行(`split --next`)は、親と検収役が確かめた姿と全部同じだった: 手で直す一覧 0・見られなかった差し替え 0・差し替えの届く先は確かめた 13・宣言で確かめた 2(`tools/c7` の 2 本の `apply`)・使われた宣言は印のある別名の宣言 5 と道の文字列の宣言 2(`ledger.py::_ALLOW_REVENUE` → shop・`ledger_ast.py::ext_reason` → restore)・前向きの表に 2 行(`act/ops/plan_writes.py`・`mind/ops.py` → `engine/resolve.py`)。
+- 写さなかった物(道具の `unwritten`): 体の層へ移した値の import 1 文(`world.body.rules` の 4 名=再輸出・裁定 Q7)とその中の注 1 行、`__all__` の中の区切りの注 7 行(`__all__` は割り先ごとに作り直した)。割り先の docstring と注に残る古い名(`engine.resolve` など)は直していない(段 8 の文の掃除)。
+- 契約(`contracts --stage delete --tree . --apply`・`pyproject.toml` +19・−21 行): 古い層の決まり(`layers: census > economy > engine > …`)が消え、決まり 4 の契約(`act.apply`・`act.ops` を読めるのは act・world.laws・interim_bundles・runtime・interfaces だけ)が入った=古い 2+新しい 9 → 古い 1+新しい 10。例外は 12 行(8 辺)が消え、4 行(割 5〜8=`act.ops.detect_writes → mind.system1.change_detect`・`mind.ops → world.model.agent_table`・`runtime.state.restore → world.model.agent_table`・`runtime.state.restore → world.model.state`)が載った=26 行・20 辺 → 18 行・16 辺。効かない例外 0。計画に無い契約と例外は要らなかった。
+
+### 9-2. 当てた直後の import の確かめで止まった(発注の手順の順の誤り)と、回し直し
+
+- 当てた直後の道具の import の確かめ: モジュール 386 のうち 2 つが落ちた(終了コード 3)=`shibuya.runtime.systems.table` と `shibuya.validation.static.system_overrides`(`table` を import する)。どちらも `FileNotFoundError`(`engine/resolve.py` が無い)。`table.py` が import の時に系の表を作り(`spec.make` → `allow.writes_for_ops` → `allow.index()`)、`allow.py` の `RESOLVE_FILES` が割る前のファイル `engine/resolve.py` を指したままだった。`python -m shibuya.cli --help`・`python -m shibuya.interfaces.cli.run_args --help` は終了コード 0。
+- 取り直し §5 が「`RESOLVE_FILES` は道具が書き換えない・書き換えないと `allow.index` が無いファイルを読んで落ちる」と見込んでいたのに、発注の手順が import の確かめ(手順 2)を手直し(手順 3)の前に置いていた=親の書き誤り(親の裁定)。木は土台に戻さず、書いたままの木で手直し 1(§9-3)を先に当て、道具の同じ確かめ(`cli.py importcheck --tree .`)を回し直した: モジュール 386・落ちた 0・`--help` 2 つとも終了コード 0。2 つの確かめの出力は [importcheck_G1/](importcheck_G1/)(作業の木の絶対の道は伏せた)。
+
+### 9-3. 手で直した所と、直した試験
+
+道具の一覧の外の 3 つ(取り直し §12・表と順の検収の低-1):
+
+| 所 | 直し | 確かめ |
+|---|---|---|
+| `src/shibuya/runtime/systems/allow.py` の `RESOLVE_FILES` | 書き手の 15 本(字の順)。すぐ上の注を合わせた | 割り先 18 のうち、resolve から来た関数を頂上に持つのは 16 本=15 本と `foundation/write_guard.py`(来た関数は `_require_thawed` だけ=裁定 Q4 で除く 1 つ)。語彙の 2 本は resolve から来た関数 0。15 本は「18 から write_guard と語彙の 2 本を引いた物」とちょうど同じ |
+| `tests/economy/cp2/money_writers_frozen.json` の 4 行 | `path` だけ: `initialize` → `act/ops/init_writes.py`・`_board_riders` → `act/ops/rail.py`・`_complete_buy`・`_complete_eat` → `act/ops/shop.py` | ほかの欄(関数・列・種類・わけ)は 1 字も変えていない(読んで比べた) |
+| `tests/engine/state/mind_world_reads_frozen.json` の `scope.split` | resolve の項を外した(`perception/renderer.py` の項は残る) | ファイルは `json.dumps(indent=1)` の形のまま。`key_counts` は 83・`totals` は 83・72 のまま |
+
+割った結果として落ちた試験(親の裁定で直した・直す前と後で、そのファイルの同じノードが、この 1 本のほかは同じ):
+
+| 試験 | 行 | 前 | 後 | わけ | 元の数・中身を残した形 |
+|---|---|---|---|---|---|
+| `tests/engine/bridging/test_bridging_ledger.py::test_the_counts_by_form` | 169 | 見出しの宣言を持つ今のファイル 81 | 83 | resolve の見出しの宣言 4 つが 3 つの割り先へ分かれた(`act/apply.py` 6 項・`mind/ops.py` 0 項と 1 項・`act/ops/plan_writes.py` 2 項)。宣言の数(見出し 84)・項の数(367)・台帳は同じ | **台帳の道で数えた数 == 81** を足して固定した(助け `_heading_ledger_paths`=`ledger_path()` に通した道の集合)。負の対照の試験を 1 本足した(`test_negative_a_dropped_forward_row_changes_the_heading_ledger_count`=前向きの表のどちらの行を一時に落としても 82 になる)。ファイル: 43 passed・1 failed → 45 passed |
+| `tests/engine/test_state_checks_10f.py::test_t4_axis1_collision_needs_the_owner_receiver` | 119 | 写しの木の `engine/fake_collision.py` に偽のファイルを書く | `act/fake_collision.py` | 包み `engine` が木から消えて `FileNotFoundError`(数の固定ではない・道具は `/` の結合の `"engine"` を移すファイルの道とみなさないので一覧に出なかった) | 置き場の字面だけを替えた(注 1 行)。2 つの確かめ(衝突 1 件で `n_calls_total`・限界の行 `fake_collision.py:3`)は同じ。置き場を `act`・`act/ops`・`runtime`・`mind` にした写しの台本でも通る。ファイル: 23 passed・1 failed → 24 passed |
+
+- 同じ形の洗い(写した木や一時の木の中の `engine` の置き場に、ファイルを書く・読む・在ることを前提にする試験): `tests`(`c7` を除くディレクトリを名指し)と `tools`(`c7` を除く)を AST で洗った(`/` の連鎖の `"engine"`・`os.path.join`/`Path`/`joinpath` の `"engine"`・`engine/` を含む文字列)。641 ファイル・416 か所。ファイルを書く・読む形は 16 か所(6 ファイル)で、どれも一時の置き場に自分で `engine` を作ってから書く(`test_mr65_guards`・`test_rate_rules_1101`・`test_move_prep_stage2` の偽の木・`test_state_ledger_10b`・`test_bytecheck` の 2 か所)=束で通っている。束の外の当たりは、docstring・注・合成の場所の名札・元の道を鍵に使う表(`PL.split_files("engine/run.py", …)`・`tools/c8/c8lib.py` の元の置き場の引き)だけで、`engine` の置き場を前提にファイルを書く・読む所は 0。
+- 残した古い名(名札・ファイルを書かない): `tests/engine/test_state_checks_10f.py` の 348 行 `"engine/fake.py"`(合成の場所の名札)。
+
+### 9-4. 凍結の表と書きの許可の比べ
+
+| もの | 結果 |
+|---|---|
+| `tests/engine/systems/test_resolve_index_frozen.py`(書きの許可の索引の凍結) | passed。`resolve_index_frozen.json` は 1 字も変えていない(関数の集合・直接の書き・辺・表・帳簿の口・別名の書きが割る前と同じ) |
+| `writes_soa_frozen.json`(36 系の書きの集合・`test_systems_table`・`test_fix_guards`・`test_e_writes_declared`・`test_detection_writes_split`) | passed・JSON は 1 字も変えていない |
+| `tests/engine/state/test_move_prep_stage2.py`(書き手の一覧の固定) | passed |
+| `tests/engine/bridging/test_bridging_ledger.py`(前向きの表の 2 行・載った道のファイルに宣言が在る・台帳の JSON は 1 字も変わらない) | §9-3 の 1 本を直して 45 passed(足した負の対照 1 を含む) |
+| クラスの名の固定の表(`test_class_ids`)・名の凍結(`test_names_frozen`)・心の読みの表(`test_mind_world_reads`)・`tests/economy/cp2` | passed(クラスの名の鍵 1=`ResolveOutcome` → `act.gate`・値は凍結の名のまま) |
+
+### 9-5. 差し替えの「外すと落ちる」(親の決め事 4・5b の G3 と同じ)
+
+確かめに使った書き換えは、1 か所ずつ一時に書き換えて試験を回し、同じ台本の中でバイトを戻した(sha256 で確かめた)。毎回、別のコマンドで `git diff` と `git status --porcelain` の指紋が確かめの前と同じことを見た。書き換える前に、狙いの試験のノードを書き換えずに回して通ることを確かめた(落ちたのは前からの 1 本だけ=§9-10)。
+
+| # | 差し替え(当てた後の行・別名の割り先) | 外したとき(行を `pass` に) | 結果 |
+|---:|---|---|---|
+| 1 | `discard_probe.py:180` `advance_body`(body_writes) | `test_state_checks_10f::test_t4_axis2_required_made_discardable_fails` | **落ちる** |
+| 2 | `test_resume_10d.py:308` `initialize`(`R_INIT`=init_writes) | 同じ名の試験 | **落ちる**(`initialize` の数え 0 ≠ 1) |
+| 3 | `test_resume_10d.py:623` `advance_body`(body_writes) | `test_named_closed_memo_survives_a_resume` | **落ちる**(控え 0) |
+| 4 | `test_resume_10d.py:633` `advance_body` を元へ戻す行 | 同じ | 落ちない=**元へ戻す行**(差し替えではなく後片付け。再開のランは 600 から=控えを入れる tick 599 を通らない。外しても落ちないのが正しい) |
+| 5 | `test_sim_time_T.py:221` `advance_body` | `test_no_negative_elapsed_time_in_any_tick_column_every_tick` | **落ちる** |
+| 6 | `test_state_checks_10f.py:439` `advance_body` | `test_t5_runtime_fifth_word_caller_fails` | **落ちる**(`KeyError`) |
+| 7 | `test_state_ledger_10b.py:682` `advance_body`(`RES`) | `test_t5_weight_kg_is_read_only_at_initialization`・`test_t5_perturbing_no_columns_changes_nothing` の 2 形 | **落ちる**(3 本とも) |
+| 8 | `test_removed_switches_346.py:120` コードの文字列の `R.advance_body = _stop` | `test_the_frame_check_catches_a_stop_inside_the_ticks` | **落ちる**(123 行の assert) |
+| 9 | `test_meal_bundle_2b.py:488` `energy_out_of_area_meal = spy`(属性への代入) | `test_run_wiring_defaults_are_old_and_switches_reach_the_run` | **落ちる** |
+| 10 | `test_meal_bundle_2b.py:492` 元へ戻す行(`finally`) | 同じ | 落ちない=**元へ戻す行**(後片付け。外しても落ちないのが正しい) |
+| 11 | `duties/test_du_runs.py:275` `discard_to_bin`(law_writes) | `test_discard_is_a_closing_task_and_the_morning_bridge_skips_it` | **落ちる** |
+| 12 | `rights/test_no_permission_count.py:86` `request_open_close`(law_writes) | `test_live_count_is_zero_or_marked` | 落ちない(下) |
+| 13 | `proximity/test_runs.py:126` `set_conversing`(talk) | `test_sensitivity_arms_keep_every_conversation_within_their_d`(slow・2 形) | **落ちる**(`open` 0) |
+| 14 | `proximity/test_runs.py:127` `join_conversation`(talk) | 同じ | 落ちない(下) |
+| 15 | `memory/test_m4_m5_people.py:149` `write_relations`(mind/ops) | `test_people_arm_run_never_writes_the_relation_table` | **落ちる** |
+| 16 | 宣言で通した素の使い方: `src/shibuya/runtime/systems/judge.py:163` の渡す別名 `R_TALK` を `R_MIND` に | `tests/engine/test_conversation_invite.py`(not slow) | **落ちる**(`runtime/run.py:605` で `mind.ops` に `talk_within_reach` が無い) |
+| 17 | 同: `test_conversation_invite.py:310` の `R_TALK` を `R`(init_writes)に | 同じファイル | **落ちる**(5 本) |
+| 18 | 同: `test_defect_fixes_1103.py:335` の `R_TALK` を `R`(act/apply)に(同じ形 5 か所の 1 つ) | 同じファイル | **落ちる**(4 形) |
+
+- **割る前からの試験の弱さ**(割る段の違いではない・直していない): 12 と 14 は、試験が差し替えた物の呼ばれた数を合否に使っていない。12 の `roc` は数えて印(▲ の警告)を出すだけ・200 体の既定の構成では開閉の口を通らない(差し替えを `None` にしても落ちない)。14 の `join` は `join_bad == []` だけを見る・本物のランで一度も呼ばれない(`_recorded_run` の 1,500 体で join 0・5,000 体 d=2.5 で join 0)。土台 `4a5bd30` との差はどちらのファイルも import の 1 行だけで、数を見る行は割る前から無い=土台でも同じ行を外して落ちない【見立て=字面の比べ。world の data が要る試験なので土台の写しでは回していない】。
+- 届く先: 道具の守り(差し替えの届く先)が字面で、12 は law_writes・14 は talk と確かめた。12 は、店の仕事の腕 on の合成のラン(`test_du_runs` の day_run と同じ組み立て)で `act.ops.law_writes.request_open_close` を数える包みに差し替えると src から 2 回呼ばれ、置かない回は 0。14 は、同じ別名 `R_TALK` の属性で読む `set_conversing` の包みが通る(35 回・172 回)。
+- `tools/c7` の 2 本(`apply` を包む・宣言で確かめた 2): 手元では確かめられない(`tests/c7` は開かない・回さない=CI で回る)。
+
+### 9-6. 読み込みの閉包(5b の G2・G3 と同じ見方)
+
+- 割る前の `resolve.py` の頂上で読み込みの時に走る文: `assert` 5 と書き込みの旗の代入 1。割った後、`assert` 4 は `act/apply.py`(510・515・535・557 行)、`assert` 1 と旗の代入は `foundation/vocab/agent_codes.py`(305・306 行)の頂上に同じ文で在る。環境変数の読み・`stop_if_set`・登録は無い。
+- 閉包(環境変数なしで別のプロセスで import した後の `sys.modules` の shibuya の分):
+
+| 割り先 | 閉包 | 土台の `import shibuya.engine.resolve`(47)から読み込まれなくなる | そのうち頂上に作用のある文を持つ |
+|---|---:|---:|---|
+| `act/apply`・`act/ops/shop`・`act/ops/talk` | 49〜54 | 2 | — |
+| `act/ops/rail`・`move`・`plan_writes` | 42〜44 | 6 | `world.body.energy`(環境変数を読んで raise) |
+| `mind/ops`・`act/gate`・`act/ops/detect_writes` | 38〜39 | 8〜9 | `foundation.vocab.actions`(assert)・`world.body.energy` |
+| `act/ops/law_writes`・`intent_writes`・`runtime/state/restore` | 22〜25 | 23〜26 | `foundation.text.templates`(assert)・`world.body.energy`(・`foundation.vocab.actions`) |
+| `act/ops/body_writes`・`init_writes` | 20〜27 | 20〜27 | `foundation.text.templates`・`foundation.vocab.actions` |
+| `act/ops/focus`・`foundation/write_guard`・語彙 2 本 | 4〜9 | 38〜42 | `templates`・`actions`・`agent_codes`(assert)・`foundation.write_permit`(環境変数を読む)・`energy` |
+
+- 18 の割り先の閉包の和は、土台の閉包を全部含む(抜けるモジュール 0)。入口とランの組み立て: `interfaces.cli.main`(162 → 173)・`runtime.systems.assemble`(151 → 162)・`runtime.run`(138 → 149)・`interfaces.cli.run_args`(145 → 156)とも、名の付け替え(`engine`・`engine.resolve` → 新しい割り先 15 と `act.ops`)のほかは同じ集合。合成の世界の小さなラン 1 本が読み込むモジュールも、名の付け替えのほか同じ(土台 236 → 250・新しい 16 本を全部読む)。
+- 環境変数を置いた前後の比べ(`SHIBUYA_MEAL_DEFAULT=zz_invalid`=消した切替口。止める文は `world/body/energy.py` の頂上にだけ在り、ランの組み立ての `check_environment` の一覧には無い。終了コード 1=止まる):
+
+| 読むもの | 土台 | 後 |
+|---|---|---|
+| `import shibuya.engine.resolve`(土台)/ 割り先 `act/apply`・`act/ops/shop`・`act/ops/talk`・`act/ops/body_writes`・`act/ops/init_writes` を 1 本だけ import | 止まる | 止まる |
+| 割り先 `act/ops/rail`・`move`・`plan_writes`・`law_writes`・`intent_writes`・`focus`・`detect_writes`・`act/gate`・`mind/ops`・`runtime/state/restore`・`foundation/write_guard`・`foundation/vocab/act_codes`・`agent_codes` を 1 本だけ import(13 形) | (土台の `import …resolve` は止まる) | **止まらない** |
+| `python -m shibuya.cli --help` | 止まる | 止まる |
+| `import shibuya.runtime.systems.assemble` | 止まる | 止まる |
+
+- **止まらなくなる 13 形**(親の仮採用でそのまま=5b の G2・G3 と同じ扱い): 割り先を 1 本だけ import する形。入口(`-m shibuya.cli`)とランの組み立て(`assemble`)は前後とも止まり、ランは必ず `world.body.energy` を読み込む=正しい環境のランと byte-check には効かない。語彙の 2 本と write_guard は割る前から resolve を読まないファイル(1 本だけ読む読み手は前から止まらない)。`foundation.write_permit` の環境変数(`SHIBUYA_WRITE_GUARD`)の読みは、focus・語彙 2 本のどれかだけを読む形では後ろへずれる(読む時刻が変わるだけ・値は同じ)。
+
+### 9-7. 試験・決まり・byte-check
+
+| 何を | 結果 |
+|---|---|
+| 狙いの試験の束(`tests/engine` の直下と `systems`・`state`・`bridging`・`body`・`clock`・`proximity`・`rights`・`processes`・`memory`・`tests/economy`・`tests/tools`・`tests/test_places_guard.py`・道具が書き換えた試験でほかの置き場の 3 本=`tests/bench/test_refr20b_tool.py`・`tests/engine/calendar/test_ca1b_runs.py`・`tests/engine/duties/test_du_runs.py`・`-m "not gpu and not slow"`・`-n 2`・合図を取って) | 3,621 passed・22 skipped・1 failed(§9-3 の `test_state_checks_10f` の 1 本=直した後にファイルを回し直して 24 passed)。飛んだ試験の行は割る前の束(§7)と同じ 22(data が要って飛んだ 0) |
+| `tests/tools/test_pkgmove.py`(上の束の中) | 174 passed・21 skipped。飛ぶ試験は増えなかった(割る行が残り 0 の木でも書かない実行の試験が回る形=5b の §17-10 の直し 2) |
+| `lint-imports`(作業木の src) | 11 kept・0 broken(古い 1+新しい 10) |
+| `cli.py map --check` | 同じ |
+| `cli.py contracts --stage delete --tree . --check --probe` | 同じ・例外 18 行・16 辺・効かない例外 0 |
+| `cli.py split --next` | 「割る段は全部当たっている」(置き場にファイル 0) |
+| **byte-check 19 構成**(基準 `4a5bd30`・記録 [bytecheck_G1/](bytecheck_G1/)・合図を取って) | **37 欄すべて同じ 19・動いた 0・誤り 0・434 秒**(基準の側 220 秒・比べる側 213 秒)。既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939(基準と同じ)。byte-check の後に直したのは試験 1 本だけ(src と道具は変えていない=`git status` で確かめた) |
+| カード | 作り直した(`engine` のカードが消え `act/ops` のカードが増えた・`tests/c7` のカード 1 枚は道具が c7 の import を 1 行書き換えた結果=中身は見ていない)。`data.md` は単独で戻した・`--check` 最新 |
+
+### 9-8. `tests/c7`
+
+道具が書き換えたのは `tests/c7/test_attr_arms.py` の import の 1 行(+1・−1)だけ。道具は c7 の中で手で直す所を挙げなかった。中身は開いていない・回していない(CI で回る)。
+
+### 9-9. 宣言する書きの例外(裁定 Q11)
+
+- 再開の復元(`runtime/state/restore.py`=resolve から来た 4 名。`restore_soa`・`restore_items` ほか)は世界の欄を書く。CLAUDE.md §3 の「世界の欄を書く関数は行為の区分(act)だけが持つ」の例外として、ここに宣言する(書きの許可の一覧 `RESOLVE_FILES` には載る)。**宣言の正式な置き場(最終の表の例外の表か、要件の文書か)はユーザーの判断待ち**。
+
+### 9-10. 計画・取り直しと違った所・前からの欠陥・親に聞くこと・確かめていないこと
+
+- 計画・取り直しとの違い: 発注の手順の順(import の確かめ → 手直し)で import の確かめが 2 つ落ちた(§9-2=親の書き誤り・順を入れ替えて回し直した)。割った結果として落ちた試験が 2 本(§9-3=数の固定 1・偽のファイルの置き場 1)。道具の名の数えは agent_codes が 2(表は 1)。ほかは取り直し §4・§5・§7・§10 の見込みどおり(消える例外 8・載る例外 4・契約 1+10・包み `engine` が消える・差し替え 17 か所)。
+- 前からの欠陥(割る段とは別・直していない・原因は追っていない): `tests/engine/test_conversation_invite.py::test_named_target_drives_invites_end_to_end`(slow)が `assert c["conv_fallback_same_batch"] > 0` で落ちる。土台 `4a5bd30` の src と試験(と、試験が読む `docs` の 2 つと祝日の fixture)を作業の外の置き場へ書き出し、土台の src で回しても同じ assert で落ちた。
+- 確かめていないこと: 範囲の全体の試験(親が回す)・`tests/c7`・12 と 14 を土台で外して落ちないこと(見立て)。
+
+## 10. S6-G1 の写しの、親の確かめと検収(第347・2026-11-19)
+
+### 10-1. 別の役の検収(2 人に分けた=道具の出力と決まりの側・意味の側)
+
+どちらの検収役も、ファイルを 1 本も変えていない。
+
+- **道具の出力と決まりの側: 受入**(高 0・中 0・低 2=どちらも知らせ)。
+  - 当て直しと一致: 土台 `4a5bd30` をメモリに読み、今の道具と表で 23 本目を厳しい当てで当て直した。守り 13 項は全部「同じ」・手で直す 0・見られなかった差し替え 0。できた木と作業木で違う `.py` は 3 本だけ(`allow.py` の `RESOLVE_FILES`・`test_bridging_ledger.py`・`test_state_checks_10f.py`)で、どれも発注と親の裁定の中身どおり。`.py` の外で変わったのは、凍結の JSON 2 本・`pyproject.toml`・記録・カード・`tests/c7` の道 1 本だけ。割る道具・byte-check の道具・全ファイルの表・`map.toml`・`contracts.toml`・つなぎの台帳の JSON は差 0。
+  - 写しの字面: 元の頂上の文 137(import・docstring・`__all__` を除く)は、どれも 18 の割り先のどれか 1 つの頂上に、AST が同じ文でちょうど 1 回在る。頂上の名 131 は全部、表の割り先で定義される。既に在った割り先 3 本は足した行だけ(消した行 0)。
+  - `engine` の包み: 置き場は消えた。`shibuya.engine` を import する文・実行の時に名で読む文字列(`import_module`・差し替えの的・`-m` の引数)は 0。
+  - import の決まり: `contracts --check --probe` を検収役が回して「同じ」(古い 1+新しい 10・例外 18 行・16 辺・効かない 0)。消えた例外は 8 本・載ったのは割 5〜8 の 4 本。`pyproject.toml` の差分はこの結果と合う。
+  - 台帳と凍結の値: `LEDGER_PATHS` に 1 行・`LEDGER_PATHS_SPLIT` に 2 行。宣言の走査の同定の集合は割る前と同じ。凍結の JSON 4 本は差 0・クラスの名の鍵は 1 つだけ変わり値は同じ。
+  - byte-check の記録(実装役の分と親の分): 比べる側は `engine/resolve.py` を読まず、割り先 16 本を読んで走った。記録の src の sha 276 本は、今の木と同じ。
+- **意味の側: 受入**(高 0・中 0・低 2・手順の知らせ 1)。
+  - 差し替え: 試験と tools の差し替えを全部洗った。割り先のモジュールを差し替えるのは 17 か所で、どれも、差し替えるモジュールが、src がその名を呼ぶ時に引くモジュールと同じ(空振り 0)。素で渡す `R_TALK` は talk で、渡した先が読む 4 名は talk に全部在る。検収役も 2 か所(`write_relations`・`advance_body`)、差し替えの行をメモリの中で外して回し、元は通り、外すと落ちることを確かめた。
+  - 落ちない 4 か所(§9-5): 2 つは元へ戻す後片付けの行。残る 2 つ(`request_open_close`・`join_conversation`)は、試験のコードに、差し替えた包みの数えを合否に使う assert が無い(警告と `join_bad == []` だけ)。土台との差は import の 1 行だけなので、割る前から落ちない(字面で言える)。
+  - 読み込みの時に走る文と閉包: `assert` 5 と旗の代入は、割り先の頂上に同じ字面で在る。入口とランの組み立て 6 つの読み込みの集合は、`engine`・`engine.resolve` が割り先に替わったほかは同じ(抜け 0・増え 0)。消した切替口の環境変数を置くと、入口 4 つは前後とも同じ誤りで止まる。割り先を 1 本だけ読む形が止まらなくなることは、§9-6 の表と合う。
+  - 書きの許可の索引: 凍結の索引の試験 6 本は通り、JSON は変わっていない。`RESOLVE_FILES` の 15 本は、resolve の関数を持つ割り先 16 本から `write_guard` を除いた物とちょうど同じ。静的な検査の `RESOLVE_MODULES` は 15 で、36 系とも割る前と同じ(呼び出し・`resolve_ops`・`writes.soa`)。
+  - 試験の範囲: 割る前に直した試験の助けを、両方の木で呼んで比べた。毎刻みの関数 13・ループの走査の関数の集合 273・`ufunc.at` の当たり 5・帳簿の口の呼び手 2・体の口の呼び手 5 は同じ。空の集合で通る所・名が見つからずに飛ぶ所は 0=黙って縮んだ所は 0。
+  - 心の読みの表とお金の書き手の表: 手直しのほかは土台と 1 字も同じ。`mind/ops.py` は `mind/` の下なので走査に入り続ける。
+  - 決まり: act の外の書き手は `mind/ops`(心の欄だけ)と `restore`(§9-9 の宣言)で、どちらも割る前から在った書き。新しい書きは無い。
+  - 数の固定の直し(83 と 81): 検収役が自分で数えても合い、負の対照(82)も通る=確かめは弱まっていない。
+
+### 10-2. 検収の低と知らせ・親の答え
+
+- 道具の側の低-1(`RESOLVE_FILES` の 15 本のうち `runtime/state/restore.py` は、`allow.index` で数えると直接の書きを持つ関数が 0=復元は静的な読みの外の形で書く): 載せたままにする(裁定 Q4・Q11。外すと凍結の索引の関数の集合が割る前と変わる)。§9-3 の言い方(resolve から来た関数を頂上に持つ 16 本から `write_guard.py` を除いた 15 本)が正しい数え方。
+- 道具の側の低-2(`shibuya.engine` の字面が、docstring・注・schema の札・凍結の名・台帳の道の値に残る。使い方の案内として古いのは `interfaces/cli/run_args.py` の docstring の 1 か所): 段 8 の文の掃除で直す。実行の時に読む形は 0 なので、今は直さない。
+- 意味の側の低-1(割り先どうしが名の import で呼び合う): §10-3 に一覧を足した。今は何も起きない。
+- 意味の側の低-2(割る道具の `judge.py` の宣言の「わけ」が「差し替えは無い」と言うが、`proximity/test_runs.py` が `set_conversing` を差し替え、その読みは `judge.py` が渡す別名を通る): 届く先は talk で正しく、外すと落ちる(§9-5 の 13)。宣言の文は、割る道具の次の commit で正す(この commit では道具を変えない)。
+- 手順の知らせ(実装役): 合図のファイルを、指紋の確かめと同じ行で消したことが 1 回あった(消すコマンドは単独で、の決まりに当たる)。走査の一覧の写しを 1 回、リポの外の一時の置き場に書いた(中身は道の一覧だけ)。どちらも報告に載せ、次の発注文に 1 行足す。
+
+### 10-3. 割り先をまたぐ名の import(これから差し替えを足すときは、読む側のモジュールの属性を差し替える)
+
+割る前は、resolve の中の関数どうしが素の名で呼び合っていたので、`resolve.X` を差し替えれば、中の呼び手にも効いた。割った後は、割り先が相手の関数を名の import で持つので、定義の割り先を差し替えても、ほかの割り先の呼び手には届かない(呼び手のモジュールが持つ名を差し替える)。今の試験と tools が差し替える resolve 由来の名は 9 つで、どれも割る前に resolve の中で素の名で読む関数が無い(検収役が土台の AST で確かめた)=今は何も起きない。挙動は変わらない(byte-check)。
+
+| 読む側の割り先 | 定義の割り先 → 名の import で持つ関数 |
+|---|---|
+| `act/apply.py` | `act/gate.py` → `ResolveOutcome`・`_ok`・`_fail`/`act/ops/shop.py` → `_apply_buy`・`_apply_eat`・`_apply_queue`・`_apply_wait`・`_serve_poi_queue`・`_stage2_note_calls`・`_stage2_withdraw`/`act/ops/move.py` → `_apply_engine_step`・`_apply_move`・`_is_nav`・`_nav_positions`・`_nav_stop`/`act/ops/rail.py` → `_apply_alight`・`_apply_board`・`_serve_board_queue`/`act/ops/talk.py` → `_apply_leave`・`_apply_talk`/`act/ops/intent_writes.py` → `_clear_intent_fields`・`intent_kept_by`/`act/ops/focus.py` → `_advance_focus` |
+| `act/ops/move.py` | `act/gate.py` → `ResolveOutcome`・`_ok`・`_fail`/`act/ops/focus.py` → `_clear_focus`・`_focus_xy`・`_set_focus`/`act/ops/rail.py` → `_enter_board_queue` |
+| `act/ops/shop.py` | `act/gate.py` → `ResolveOutcome`・`_ok`・`_fail`/`act/ops/body_writes.py` → `_energy_meal`・`_energy_snack`/`act/ops/focus.py` → `_set_focus`/`foundation/write_guard.py` → `_require_thawed` |
+| `act/ops/talk.py` | `act/gate.py` → `_ok`・`_fail`/`act/ops/shop.py` → `balk_queue`・`release_indoor`/`foundation/write_guard.py` → `_require_thawed` |
+| `act/ops/rail.py` | `act/gate.py` → `ResolveOutcome`・`_ok`・`_fail` |
+| `act/ops/plan_writes.py` | `act/ops/rail.py` → `_cell_of_node`・`_platform_table` |
+| `act/ops/intent_writes.py`・`act/ops/law_writes.py`・`mind/ops.py` | `foundation/write_guard.py` → `_require_thawed` |
+
+- 数え(親が割った後の木の AST で数えた): 割り先どうしの名の import のうち、resolve から来た関数とクラスは延べ 50。このほかに、語彙の 2 本(`act_codes`・`agent_codes`)の値と列挙を名で持つ import が在る(値と列挙は差し替えの的にならない)。
+
+### 10-4. 親が回した確かめ
+
+| 何を | 結果 |
+|---|---|
+| byte-check 19 構成(本体の道具・基準 `4a5bd30`・割った後の木) | 37 欄すべて同じ 19・動いた 0・誤り 0・438 秒・既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。記録 [bytecheck_G1_parent/](bytecheck_G1_parent/)(実装役の記録は [bytecheck_G1/](bytecheck_G1/)=434 秒)。記録の「読み込んだ src」は、基準 262 本・比べる側 276 本。基準にだけ在るのは `engine/__init__.py`・`engine/resolve.py`。比べる側にだけ在るのは 新しい 16 本。sha が変わったのは 35 本 |
+| 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`。回している間、この作業木は誰にも編集させていない) | 7,069 passed・1 failed(前からの 1 本=linked の作業木でだけ落ちる)・22 skipped・1 xfailed・40 分 24 秒。前の回(下ごしらえ・7,044 passed)から +25=道具の宣言の試験 24 と、足した負の対照 1 |
+| 差分を読んだ(手直し 3 つ・試験 2 本) | `RESOLVE_FILES` は 15 本・お金の書き手の表は 4 行の道だけ・心の読みの表は resolve の項だけを外した・数の固定は 83 と 81 の 2 つと負の対照・偽のファイルの置き場は `act` |
+| 守る物に差が無いこと(`git status`) | `tools/pkgmove`・`tools/bytecheck`・`map.toml`・`contracts.toml`・つなぎの台帳の JSON・凍結の索引 2 本は変わっていない。`src/shibuya/engine` の置き場は無い |

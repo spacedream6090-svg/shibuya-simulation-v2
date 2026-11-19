@@ -22,8 +22,8 @@ from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/init_writes・R_TALK=act/ops/talk。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_TALK
+from shibuya.act.ops import init_writes as R
+from shibuya.act.ops import talk as R_TALK
 from shibuya.society.conversation import (
     PAIR_INVITE_REFRACTORY_TICKS,
     PENDING_INVITE_TTL_TICKS,

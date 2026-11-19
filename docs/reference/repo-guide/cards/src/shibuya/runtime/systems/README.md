@@ -16,7 +16,7 @@ engine.systems.act — 行為の解決の系(phase_a・phase_b・phase_c)(第 1 
   - `sys_phase_a`(関数): phase_a(HEAD run.py の同じ区間・文は変えない)。
   - `sys_phase_b`(関数): phase_b(HEAD run.py の同じ区間・文は変えない)。
   - `sys_phase_c`(関数): phase_c(HEAD run.py の同じ区間・文は変えない)。
-- import している内部モジュール: `shibuya.act.commit`・`shibuya.act.intake.from_words`・`shibuya.engine.resolve`・`shibuya.foundation.time_consts`・`shibuya.runtime.run`
+- import している内部モジュール: `shibuya.act.apply`・`shibuya.act.commit`・`shibuya.act.intake.from_words`・`shibuya.foundation.time_consts`・`shibuya.runtime.run`
 - 呼び手: `shibuya.runtime.systems.table`
 - 読む試験(道筋で): `tests/economy/cp2/test_cp2_transfer_only_writer.py`
 - 書きの許可
@@ -58,7 +58,7 @@ engine.systems.build — 組み立て(R1・S0〜S8 と再開の復元)(第 1 期
 
 - 公開の関数とクラス
   - `build`(関数): 組み立て(R1): 腕の検査・世界と SoA と層の組み立て・状態の箱・再開の復元。返り値=``Box``。
-- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.commit`・`shibuya.act.intent`・`shibuya.act.target`・`shibuya.economy.stage2_bind`・`shibuya.engine.resolve`・`shibuya.experiments.port.layer`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.arms.contact`・`shibuya.foundation.arms.duties`・`shibuya.foundation.arms.removed`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.queues.batching`・`shibuya.foundation.rng`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.relations`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar3.layer`・`shibuya.interim_bundles.calendar3.roster`・`shibuya.interim_bundles.calendar_self`・`shibuya.interim_bundles.contact.layer`・`shibuya.interim_bundles.duties.layer`・`shibuya.mind.judge.chooser`・`shibuya.mind.judge.classical`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.ports`・`shibuya.mind.judge.store_choice`・`shibuya.mind.memory.body_events`・`shibuya.mind.memory.familiarity`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_store`・`shibuya.mind.memory.store_memory`・`shibuya.mind.memory.wom`・`shibuya.mind.system1.change_detect`・`shibuya.perception.renderer`・`shibuya.runtime.arbiter`・`shibuya.runtime.clocks.regional`・`shibuya.runtime.clocks.speech`・`shibuya.runtime.clocks.step_scope`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.inference.mock`・`shibuya.runtime.inference.tape`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.state.resume`・`shibuya.runtime.switch_defects`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.state_io`・`shibuya.society.calendar_shadow`・`shibuya.society.contact.tools`・`shibuya.society.conversation`・`shibuya.society.norm_meter`・`shibuya.society.speech.layer`・`shibuya.society.tools.record`・`shibuya.world.body.energy`・`shibuya.world.body.model`・`shibuya.world.facts.calendar`・`shibuya.world.facts.initial_ties`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rules.table`・`shibuya.world.facts.weekly_reader`・`shibuya.world.laws.crowd`・`shibuya.world.laws.environment`・`shibuya.world.laws.presence`・`shibuya.world.laws.presence_plan`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.laws.switch_seat`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.geometry`・`shibuya.world.model.proximity`・`shibuya.world.model.space.nav1`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.commit`・`shibuya.act.intent`・`shibuya.act.ops.body_writes`・`shibuya.act.ops.init_writes`・`shibuya.act.ops.move`・`shibuya.act.target`・`shibuya.economy.stage2_bind`・`shibuya.experiments.port.layer`・`shibuya.foundation.arms.calendar2`・`shibuya.foundation.arms.calendar3`・`shibuya.foundation.arms.contact`・`shibuya.foundation.arms.duties`・`shibuya.foundation.arms.removed`・`shibuya.foundation.decl.bridging`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.queues.batching`・`shibuya.foundation.rng`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.relations`・`shibuya.interim_bundles.calendar2.layer`・`shibuya.interim_bundles.calendar3.layer`・`shibuya.interim_bundles.calendar3.roster`・`shibuya.interim_bundles.calendar_self`・`shibuya.interim_bundles.contact.layer`・`shibuya.interim_bundles.duties.layer`・`shibuya.mind.judge.chooser`・`shibuya.mind.judge.classical`・`shibuya.mind.judge.decision.layer`・`shibuya.mind.judge.decision.ports`・`shibuya.mind.judge.store_choice`・`shibuya.mind.memory.body_events`・`shibuya.mind.memory.familiarity`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_store`・`shibuya.mind.memory.store_memory`・`shibuya.mind.memory.wom`・`shibuya.mind.ops`・`shibuya.mind.system1.change_detect`・`shibuya.perception.renderer`・`shibuya.runtime.arbiter`・`shibuya.runtime.clocks.regional`・`shibuya.runtime.clocks.speech`・`shibuya.runtime.clocks.step_scope`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.inference.mock`・`shibuya.runtime.inference.tape`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.state.restore`・`shibuya.runtime.state.resume`・`shibuya.runtime.switch_defects`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.state_io`・`shibuya.society.calendar_shadow`・`shibuya.society.contact.tools`・`shibuya.society.conversation`・`shibuya.society.norm_meter`・`shibuya.society.speech.layer`・`shibuya.society.tools.record`・`shibuya.world.body.energy`・`shibuya.world.body.model`・`shibuya.world.facts.calendar`・`shibuya.world.facts.initial_ties`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rules.table`・`shibuya.world.facts.weekly_reader`・`shibuya.world.laws.crowd`・`shibuya.world.laws.environment`・`shibuya.world.laws.presence`・`shibuya.world.laws.presence_plan`・`shibuya.world.laws.runner`・`shibuya.world.laws.salient`・`shibuya.world.laws.switch_absent`・`shibuya.world.laws.switch_rate`・`shibuya.world.laws.switch_seat`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.geometry`・`shibuya.world.model.proximity`・`shibuya.world.model.space.nav1`・`shibuya.world.model.state`
 - 呼び手: `shibuya.runtime.systems.conductor`
 - 読む試験: `tests/engine/bridging/test_bridging_ledger.py`・`tests/engine/clock/test_tm4_regional_clock.py`・`tests/engine/duties/_du.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/rights/test_rights_from_w16.py`・`tests/engine/rights/test_staff_of_poi_equivalence.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_pop_w21_world.py`・`tests/engine/test_removed_switches_346.py`・`tests/engine/test_sim_time_T.py`・`tests/perception/test_weather_a48.py`
 - 読む試験(道筋で): `tests/engine/body/test_body_guard.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/rules/test_rules_table_schema.py`・`tests/engine/systems/test_boxes.py`・`tests/tools/test_pkgmove.py`
@@ -75,7 +75,7 @@ engine.systems.body — 体の系(body・presence・plan_boundary・home_meal・
   - `sys_home_meal`(関数): home_meal(HEAD run.py の同じ区間・文は変えない)。
   - `sys_plan_boundary`(関数): plan_boundary(HEAD run.py の同じ区間・文は変えない)。
   - `sys_presence`(関数): presence(HEAD run.py の同じ区間・文は変えない)。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.run`・`shibuya.world.body.energy`
+- import している内部モジュール: `shibuya.act.ops.body_writes`・`shibuya.act.ops.plan_writes`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.run`・`shibuya.world.body.energy`
 - 呼び手: `shibuya.runtime.systems.table`
 - 読む試験(道筋で): `tests/engine/body/test_body_guard.py`・`tests/engine/test_state_checks_10f.py`
 - 書きの許可
@@ -174,7 +174,7 @@ engine.systems.decide — 判断の系 decide(④ LLM の呼・会話ターン�
 
 - 公開の関数とクラス
   - `sys_decide`(関数): decide(HEAD run.py の同じ区間・文は変えない)。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.ports.inference`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.run`・`shibuya.runtime.systems.llm_io`
+- import している内部モジュール: `shibuya.foundation.ports.inference`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.ops`・`shibuya.runtime.run`・`shibuya.runtime.systems.llm_io`
 - 呼び手: `shibuya.runtime.systems.table`
 - 読む試験: `tests/engine/test_state_ledger_10b.py`・`tests/perception/facts/test_percept_is_scratch.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`
@@ -197,7 +197,7 @@ engine.systems.judge — 判断の系(apply_responses・wake_sources・wake_filt
   - `sys_wake_assemble`(関数): wake_assemble(HEAD run.py の同じ区間・文は変えない)。
   - `sys_wake_filter`(関数): wake_filter(HEAD run.py の同じ区間・文は変えない)。
   - `sys_wake_sources`(関数): wake_sources(HEAD run.py の同じ区間・文は変えない)。
-- import している内部モジュール: `shibuya.act.commit`・`shibuya.act.intake.from_words`・`shibuya.engine.resolve`・`shibuya.foundation.hashing`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.system1.wake`・`shibuya.runtime.run`
+- import している内部モジュール: `shibuya.act.commit`・`shibuya.act.intake.from_words`・`shibuya.act.ops.talk`・`shibuya.foundation.hashing`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.ops`・`shibuya.mind.system1.wake`・`shibuya.runtime.run`
 - 呼び手: `shibuya.runtime.systems.table`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 書きの許可
@@ -270,7 +270,7 @@ engine.systems.perceive — 知覚の系(perceive_prepare・detect)(第 1 期 1-
 - 公開の関数とクラス
   - `sys_detect`(関数): detect(HEAD run.py の同じ区間・文は変えない)。
   - `sys_perceive_prepare`(関数): perceive_prepare(HEAD run.py の同じ区間・文は変えない)。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.runtime.run`
+- import している内部モジュール: `shibuya.act.ops.detect_writes`・`shibuya.mind.ops`・`shibuya.runtime.run`
 - 呼び手: `shibuya.runtime.systems.table`
 - 書きの許可
   - 系 `detect`(群 知覚・時 `tick`・関数 `sys_detect`)
@@ -416,7 +416,7 @@ engine.systems.talk — 会話の系(relations_wake・conversation)(第 1 期 1-
 - 公開の関数とクラス
   - `sys_conversation`(関数): conversation(HEAD run.py の同じ区間・文は変えない)。
   - `sys_relations_wake`(関数): relations_wake(HEAD run.py の同じ区間・文は変えない)。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`
+- import している内部モジュール: `shibuya.act.ops.talk`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`
 - 呼び手: `shibuya.runtime.systems.table`
 - 読む試験: `tests/engine/test_defect_fixes_1103.py`
 - 書きの許可

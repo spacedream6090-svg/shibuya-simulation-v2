@@ -39,9 +39,26 @@ from shibuya.foundation.paths import PACKAGE_ROOT
 __all__ = ["ALIAS_WRITES", "TRANSFER_PORTS_HOUSEHOLD", "TRANSFER_WRITES", "RESOLVE_FILES", "ResolveIndex", "index",
            "closure", "writes_for_ops", "place_of", "src_root"]
 
-#: 〔移す段 2-3〕書きの閉包を読む resolve のファイルの一覧(包みの根からの posix の道筋)。段 2 では 1 本。段 6 で resolve を
-#: 割るときに、割り先の書き手のファイルを全部載せる(``index`` は関数の名がファイルをまたいで重ならないことを確かめる)。
-RESOLVE_FILES: tuple[str, ...] = ("engine/resolve.py",)
+#: 〔移す段 2-3〕書きの閉包を読む resolve のファイルの一覧(包みの根からの posix の道筋)。段 2 では 1 本。〔割る段 6 の S6-G1〕
+#: resolve を割ったので、割り先の書き手のファイル 15 本を載せる(裁定 Q4。書かない ``foundation/write_guard.py`` と語彙の
+#: 2 本は入れない)。``index`` は関数の名がファイルをまたいで重ならないことを確かめる。
+RESOLVE_FILES: tuple[str, ...] = (
+    "act/apply.py",
+    "act/gate.py",
+    "act/ops/body_writes.py",
+    "act/ops/detect_writes.py",
+    "act/ops/focus.py",
+    "act/ops/init_writes.py",
+    "act/ops/intent_writes.py",
+    "act/ops/law_writes.py",
+    "act/ops/move.py",
+    "act/ops/plan_writes.py",
+    "act/ops/rail.py",
+    "act/ops/shop.py",
+    "act/ops/talk.py",
+    "mind/ops.py",
+    "runtime/state/restore.py",
+)
 
 #: AST で見えない書き(手で書く別名の表・根拠つき)。関数の名 → (書く列, 根拠)。
 #: 〔第330・再検収の残る点 (1)〕``_board_riders`` と ``initialize`` の台帳越しの ``agents.money`` を足した

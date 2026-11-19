@@ -26,8 +26,8 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.hashing import apply_key_array
 from shibuya.foundation.types import EventClass
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/body_writes・R_MIND=mind/ops。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_MIND
+from shibuya.act.ops import body_writes as R
+from shibuya.mind import ops as R_MIND
 from shibuya.runtime.systems import assemble as BLD  # 1-0: 層の組み立ての名前の差し替えの的
 from shibuya.act.activity import UNTIL_MAX_MINUTES, ActivityLayer
 from shibuya.runtime.arbiter import Arbiter

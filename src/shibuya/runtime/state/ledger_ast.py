@@ -842,7 +842,7 @@ def _owner_recv(site: ExtSite, owners: Iterable[str]) -> bool:
 
 def ext_reason(site: ExtSite, scan: ExtScan) -> str | None:
     """規則で許す理由の種類(``generic``・``exit``・``result``・``collision``)。``None`` なら規則では許さない。"""
-    if site.path in GENERIC_FILES or (site.path == "engine/resolve.py" and site.func.startswith("restore")):
+    if site.path in GENERIC_FILES or (site.path == "runtime/state/restore.py" and site.func.startswith("restore")):
         return "generic"
     if any(d.hits(site.path, site.func) for d in DIAG_EXITS):
         return "exit"

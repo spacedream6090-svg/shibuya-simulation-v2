@@ -1,0 +1,18 @@
+{
+ "n": 386,
+ "bad": {},
+ "cli_help_exit": 0,
+ "cli_help_err": "",
+ "entries": {
+  "shibuya.cli": {
+   "exit": 0,
+   "err": ""
+  },
+  "shibuya.interfaces.cli.run_args": {
+   "exit": 0,
+   "err": ""
+  }
+ },
+ "shibuya_file": "<作業の木>/src/shibuya/__init__.py",
+ "gone": 23
+}

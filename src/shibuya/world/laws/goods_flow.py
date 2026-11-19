@@ -54,7 +54,7 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.rng import k19_counters, stream
 from shibuya.world.laws import switch_absent as _ABSENT
 from shibuya.world.laws import switch_rate as _RATE_RULES
-from shibuya.engine import resolve as R
+from shibuya.act.ops import law_writes as R
 from shibuya.foundation.journal.log import Process
 from shibuya.world.ledger.records import DEVIATION_CODES, DeviationVocab
 from shibuya.world.model.state import World

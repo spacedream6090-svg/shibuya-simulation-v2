@@ -67,7 +67,7 @@ def test_d3_detects_undeclared_reads_and_writes():
     """負の対照(T2・D ③): 宣言に無い箱の属性の参照・scratch の書き・resolve の口の呼び出しが見つかる。"""
 
     def sys_fake(ctx, b):  # noqa: ANN001, ANN202
-        from shibuya.engine import resolve as R
+        from shibuya.mind import ops as R
 
         x = b.layers.conv
         b.scratch.plan = x

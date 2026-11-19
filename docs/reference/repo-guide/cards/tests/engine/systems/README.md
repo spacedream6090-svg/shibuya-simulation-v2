@@ -107,7 +107,7 @@ Python 7 本・その他 2 本(このディレクトリの直下)
   - `test_switch_off_restores_the_old_full_thaw`(関数)
   - `test_systems_package_never_thaws`(関数)
   - `test_writable_thaws_only_permitted_columns`(関数)
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.write_permit`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.systems.allow`・`shibuya.world.model.agent_table`・`shibuya.world.model.percept_state`・`shibuya.world.model.state`・`tests/_places.py`
+- import している内部モジュール: `shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.mind.ops`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.systems.allow`・`shibuya.world.model.agent_table`・`shibuya.world.model.percept_state`・`shibuya.world.model.state`・`tests/_places.py`
 - 決定の ID: 第 347
 
 ## [test_systems_table.py](../../../../../../../tests/engine/systems/test_systems_table.py)
@@ -122,4 +122,4 @@ Python 7 本・その他 2 本(このディレクトリの直下)
   - `test_every_scratch_field_has_a_writer_and_a_reader`(関数)
   - `test_order_and_counts`(関数)
   - `test_scratch_is_written_before_it_is_read_in_tick_order`(関数)
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.allow`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.spec`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_static_check`
+- import している内部モジュール: `shibuya.mind.ops`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.allow`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.spec`・`shibuya.runtime.systems.table`・`shibuya.validation.static.system_static_check`

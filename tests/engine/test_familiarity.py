@@ -22,8 +22,8 @@ import pytest
 from shibuya.foundation.vocab.agent_codes import FAMILIARITY_FIELDS
 from shibuya.world.model.agent_table import AgentState
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/gate・R_SHOP=act/ops/shop。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_SHOP
+from shibuya.act import gate as R
+from shibuya.act.ops import shop as R_SHOP
 from shibuya.mind.memory.familiarity import (
     ACTIVATION_ABSENT,
     FAMILIARITY_K,

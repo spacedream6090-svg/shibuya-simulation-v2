@@ -19,7 +19,7 @@ from shibuya.foundation.vocab.agent_codes import ENERGY_FIELDS, Activity, Activi
 from shibuya.world.model.agent_table import AgentState
 from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
 from shibuya.world.body import energy as E
-from shibuya.engine import resolve as R
+from shibuya.act.ops import body_writes as R
 from shibuya.mind.system1.change_detect import ChangeDetector
 from shibuya.foundation.text import templates as T
 from shibuya.perception.renderer import Renderer

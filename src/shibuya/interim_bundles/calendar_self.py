@@ -88,10 +88,10 @@ from shibuya.society import calendar_shadow as _CS
 from shibuya.world.facts import w20_calendar_reader as _CR
 # 〔割る段 6 の S6-G1〕別名 R を割り先ごとに分けた(R_ACT_CODES=foundation.vocab.act_codes・R_PLAN=act.ops.plan_writes・R_RAIL=act.ops.rail・
 # R_SHOP=act.ops.shop の名。割る前は全部 resolve)
-from shibuya.engine import resolve as R_ACT_CODES
-from shibuya.engine import resolve as R_PLAN
-from shibuya.engine import resolve as R_RAIL
-from shibuya.engine import resolve as R_SHOP
+from shibuya.foundation.vocab import act_codes as R_ACT_CODES
+from shibuya.act.ops import plan_writes as R_PLAN
+from shibuya.act.ops import rail as R_RAIL
+from shibuya.act.ops import shop as R_SHOP
 from shibuya.foundation.ports.decision import (
     DELIBERATE_KIND,
     SOURCE_CONTINUE,

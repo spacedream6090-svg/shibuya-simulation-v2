@@ -19,11 +19,11 @@ from shibuya.foundation.vocab.agent_codes import Activity, ResultCode, WakeCondi
 from shibuya.world.model.agent_table import AgentState
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/gate・R_ACT_CODES=foundation/vocab/act_codes・R_RAIL=act/ops/rail・
 # R_SHOP=act/ops/shop・R_TALK=act/ops/talk。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_ACT_CODES
-from shibuya.engine import resolve as R_RAIL
-from shibuya.engine import resolve as R_SHOP
-from shibuya.engine import resolve as R_TALK
+from shibuya.act import gate as R
+from shibuya.foundation.vocab import act_codes as R_ACT_CODES
+from shibuya.act.ops import rail as R_RAIL
+from shibuya.act.ops import shop as R_SHOP
+from shibuya.act.ops import talk as R_TALK
 from shibuya.world.laws.presence import EXIT_WALK_MAX_TICKS, PlanExecutor
 from shibuya.world.laws.rail import RailProcess
 

@@ -32,7 +32,7 @@ engine.duties.layer — 店の仕事を働く人の体へ(開閉店・補充(品
   - `issued_key`(関数)
   - `manifest_fields`(関数): manifest の ``duties``(腕 arm のランだけ・ほかは空=欄を出さない)。
   - `sys_duties`(関数): 系 duties(刻みの中・腕 arm のランだけ立つ)。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.arms.duties`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.events`・`shibuya.interim_bundles.calendar3.layer`・`shibuya.interim_bundles.duties.knowledge`・`shibuya.mind.plan.duties_port`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.goods_flow`・`shibuya.world.ledger.records`
+- import している内部モジュール: `shibuya.act.ops.law_writes`・`shibuya.foundation.arms.duties`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.events`・`shibuya.interim_bundles.calendar3.layer`・`shibuya.interim_bundles.duties.knowledge`・`shibuya.mind.plan.duties_port`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.goods_flow`・`shibuya.world.ledger.records`
 - 呼び手: `shibuya.runtime.result`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.table`
 - 読む試験: `tests/engine/duties/test_du_runs.py`・`tests/engine/duties/test_du_units.py`・`tests/engine/duties/test_du_world.py`・`tests/engine/time/test_v30a_key_sites.py`
 - 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`

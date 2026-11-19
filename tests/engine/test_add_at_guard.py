@@ -24,8 +24,8 @@ import pytest
 
 from shibuya.world.model.agent_table import AgentState
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=foundation/write_guard・R_MIND=mind/ops。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_MIND
+from shibuya.foundation import write_guard as R
+from shibuya.mind import ops as R_MIND
 from shibuya.runtime.systems import allow as AL
 from shibuya.world.model.state import World
 from tests import _places as PL

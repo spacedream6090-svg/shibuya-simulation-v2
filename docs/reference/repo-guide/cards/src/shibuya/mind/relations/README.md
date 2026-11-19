@@ -14,7 +14,7 @@ engine.relations — **関係辺の表と導出**(C10 8a・第299)+**会話の�
 
 - 公開の関数とクラス
   - `RelationLayer`(クラス): 関係辺の書き手と読み口(``MemoryLayer`` が持つ・``--relations on`` のランだけ)。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.hashing`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.vocab.relations`・`shibuya.world.model.proximity`
+- import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.vocab.relations`・`shibuya.mind.ops`・`shibuya.world.model.proximity`
 - 呼び手: `shibuya.mind.memory.memory`・`shibuya.mind.relations.people`
 - 読む試験: `tests/engine/memory/test_m4_m5_people.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/test_relations.py`・`tests/engine/test_relations_8b.py`・`tests/engine/test_sim_time_T.py`・`tests/engine/tools/test_c0_contacts_in_relations.py`
 - 読む試験(道筋で): `tests/engine/tools/contacts_writers.py`

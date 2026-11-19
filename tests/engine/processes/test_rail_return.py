@@ -24,8 +24,8 @@ from shibuya.world.facts.weekly_reader import (
 from shibuya.act import commit as C
 from shibuya.foundation.vocab import act_codes as CV
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/rail・R_APPLY=act/apply。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_APPLY
+from shibuya.act.ops import rail as R
+from shibuya.act import apply as R_APPLY
 from shibuya.world.laws.civic import EVENT_WINDOW, LargeEventProcess
 from shibuya.world.laws.rail import RailProcess
 

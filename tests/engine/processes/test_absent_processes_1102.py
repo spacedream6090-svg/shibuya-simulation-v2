@@ -19,7 +19,7 @@ import pytest
 
 from shibuya.foundation.time_consts import SECONDS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
 from shibuya.world.laws import switch_absent as AP
-from shibuya.engine import resolve as R
+from shibuya.act.ops import law_writes as R
 from shibuya.world.laws.civic import InfraLoadProcess, PublicServiceDispatchProcess
 from shibuya.world.laws.goods_flow import (
     COLLECT_WINDOW,

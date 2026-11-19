@@ -28,7 +28,7 @@ from shibuya.foundation.time_consts import NS_PER_SECOND, STEPS_PER_DAY
 from shibuya.mind.memory import memory_m1 as M1
 from shibuya.mind.relations import layer as REL
 from shibuya.mind.relations import people as RP
-from shibuya.engine import resolve as R
+from shibuya.mind import ops as R
 from shibuya.mind.memory.memory_store import LegacyEvent, MemoryStore
 from shibuya.runtime.run import run_day
 

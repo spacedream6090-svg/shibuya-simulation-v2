@@ -22,7 +22,7 @@ import pytest
 
 from tests import golden_env as GE
 
-import shibuya.engine.resolve as RES
+import shibuya.act.ops.body_writes as RES
 import shibuya.runtime.run as RUN
 from shibuya.runtime.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
 from shibuya.world.model.agent_table import AgentState

@@ -114,7 +114,7 @@ def test_the_frame_check_catches_a_stop_inside_the_ticks():
     """〔第347 見つけた欠陥の直し・負の対照〕刻みの中の系(本人の体の系が呼ぶ ``resolve.advance_body``)で止まったランは、
     traceback の系の置き場に刻みの前の外の名が出る=上の「刻みの前で止まった」の確かめ(``set(frames) <= _BEFORE_TICKS``)が
     落ちる。直す前の文字列(``/engine/systems/``)では何も拾わず、この形でも通っていた(記録 switch-removal-347)。"""
-    code = ("from shibuya.engine import resolve as R\n"
+    code = ("from shibuya.act.ops import body_writes as R\n"
             "def _stop(*a, **k):\n"
             "    raise ValueError('刻みの中で止めた(負の対照)')\n"
             "R.advance_body = _stop\n" + RUN_DAY)

@@ -102,7 +102,7 @@ Python 10 本・その他 0 本(このディレクトリの直下)
   - `test_moved_names_point_to_the_same_values`(関数): 前の場所の名(``environment``・``salient``)は体の層の値を写して出す(読み手の import は変えない)。〔割る段 6 の S6-G0・
   - `test_negative_a_changed_rule_is_seen_by_the_ruler`(関数): 負の対照: 体の規則の値を 1 つ変えると HEAD の写しと食い違う(物差しが空回りしていない)。
   - `test_the_sweep_model_writes_the_same_as_the_pure_rule`(関数): ``BodyModel(arm="sweep").step`` は純関数の値をそのまま返す(計器を数えるだけ)。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.rng`・`shibuya.world.body.model`・`shibuya.world.body.rules`・`shibuya.world.laws.environment`・`shibuya.world.laws.salient`・`tests/engine/body/body_fixtures.py`
+- import している内部モジュール: `shibuya.act.apply`・`shibuya.act.ops.shop`・`shibuya.foundation.rng`・`shibuya.world.body.model`・`shibuya.world.body.rules`・`shibuya.world.laws.environment`・`shibuya.world.laws.salient`・`tests/engine/body/body_fixtures.py`
 - 決定の ID: 10-13b/§0-6
 
 ## [test_meal_default_w17.py](../../../../../../../tests/engine/body/test_meal_default_w17.py)

@@ -261,7 +261,7 @@ class AgentCellRecorder:
         self._module = None
 
     def attach(self) -> "AgentCellRecorder":
-        from shibuya.engine import resolve as module
+        from shibuya.act import apply as module
 
         self._module = module
         self._orig = module.apply

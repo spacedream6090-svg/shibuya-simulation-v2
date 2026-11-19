@@ -43,7 +43,7 @@ import numpy as np
 
 from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.world.model.agent_table import AgentState
-from shibuya.engine import resolve as R
+from shibuya.act.ops import shop as R
 from shibuya.world.model.state import World
 
 __all__ = [

@@ -22,8 +22,8 @@ import pytest
 
 from shibuya.world.model import proximity as P
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/talk・R_ACT_CODES=foundation/vocab/act_codes。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_ACT_CODES
+from shibuya.act.ops import talk as R
+from shibuya.foundation.vocab import act_codes as R_ACT_CODES
 
 
 def agents(xy, cell, band=None, unit=None):

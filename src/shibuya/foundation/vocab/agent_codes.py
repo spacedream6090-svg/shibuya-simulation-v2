@@ -299,3 +299,8 @@ INTERO_VARS: Final[tuple[tuple[str, str], ...]] = (
     ("fatigue", "fatigue_stage"),
     ("thermal", "thermal_stage"),
 )
+
+
+_REFRACTORY_TICKS: Final[np.ndarray] = np.asarray(REFRACTORY_MINUTES, dtype=np.int32)
+_REFRACTORY_TICKS.flags.writeable = False
+assert _REFRACTORY_TICKS.size == N_WAKE_CONDITIONS

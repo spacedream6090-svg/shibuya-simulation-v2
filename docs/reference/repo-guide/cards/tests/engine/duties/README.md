@@ -55,7 +55,7 @@ Python 5 本・その他 0 本(このディレクトリの直下)
   - `test_vocabulary_is_closed_and_appended`(関数)
   - `test_without_the_decision_the_shelf_is_not_restocked_by_the_engine_at_a_staffed_store`(関数)
   - `test_without_the_decision_the_staffed_store_stays_closed`(関数)
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.arms.duties`・`shibuya.foundation.journal.log`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.interfaces.cli.main`・`shibuya.interim_bundles.duties.layer`・`shibuya.mind.plan.duties_port`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.table`・`shibuya.world.laws.goods_flow`・`shibuya.world.ledger.records`・`tests/engine/_legacy_world.py`・`tests/engine/duties/_du.py`・`tests/engine/rights/test_rights_events.py`
+- import している内部モジュール: `shibuya.act.ops.law_writes`・`shibuya.experiments.port.run_kind`・`shibuya.foundation.arms.duties`・`shibuya.foundation.journal.log`・`shibuya.foundation.manifest.sections`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.events`・`shibuya.interfaces.cli.main`・`shibuya.interim_bundles.duties.layer`・`shibuya.mind.plan.duties_port`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.table`・`shibuya.world.laws.goods_flow`・`shibuya.world.ledger.records`・`tests/engine/_legacy_world.py`・`tests/engine/duties/_du.py`・`tests/engine/rights/test_rights_events.py`
 - 環境変数: `SHIBUYA_SYSTEMS_CHECK`
 - 決定の ID: 11-01・第 347
 

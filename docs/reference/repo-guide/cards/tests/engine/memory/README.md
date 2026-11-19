@@ -193,7 +193,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_shop_table_grows_to_the_cap_then_overwrites_the_lowest_a`(関数)
   - `test_shop_table_ties_and_bounds`(関数)
   - `test_world_5000_one_day_uncapped_grows_and_reads_people`(関数)
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_shops`・`shibuya.mind.memory.memory_store`・`shibuya.mind.relations.layer`・`shibuya.mind.relations.people`・`shibuya.runtime.run`・`tests/engine/memory/_mr65.py`
+- import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_shops`・`shibuya.mind.memory.memory_store`・`shibuya.mind.ops`・`shibuya.mind.relations.layer`・`shibuya.mind.relations.people`・`shibuya.runtime.run`・`tests/engine/memory/_mr65.py`
 
 ## [test_mr65_grain_and_cli.py](../../../../../../../tests/engine/memory/test_mr65_grain_and_cli.py)
 

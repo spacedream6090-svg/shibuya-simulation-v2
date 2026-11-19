@@ -81,8 +81,8 @@ import numpy as np
 from shibuya.foundation.vocab.agent_codes import REL_EMPTY, WAKE_CONDITION_CLASS, ResultCode, WakeCondition
 from shibuya.foundation.hashing import relation_invite_key_array
 # 〔割る段 6 の S6-G1〕別名 R を割り先ごとに分けた(R_ACT_CODES=foundation.vocab.act_codes・R_MIND=mind.ops の名。割る前は全部 resolve)
-from shibuya.engine import resolve as R_ACT_CODES
-from shibuya.engine import resolve as R_MIND
+from shibuya.foundation.vocab import act_codes as R_ACT_CODES
+from shibuya.mind import ops as R_MIND
 from shibuya.foundation.vocab import contact_flags as _CT
 from shibuya.foundation.time_consts import MINUTES_PER_DAY
 from shibuya.foundation.vocab.relations import (

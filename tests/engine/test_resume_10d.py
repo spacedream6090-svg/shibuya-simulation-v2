@@ -286,7 +286,7 @@ def test_two_day_world_run_closes_money_goods_and_bodies_each_day(monkeypatch):
 def test_no_money_is_added_at_the_head_of_day_two_or_on_resume(monkeypatch, tmp_path):
     from shibuya.economy.ledger import Ledger
     # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R_INIT=act/ops/init_writes。割る前は全部 resolve)
-    from shibuya.engine import resolve as R_INIT
+    from shibuya.act.ops import init_writes as R_INIT
 
     counts = {"households": 0, "stores": 0, "initialize": 0}
     oh, os_, oi = Ledger.endow_households, Ledger.endow_stores, R_INIT.initialize
@@ -591,7 +591,7 @@ def test_named_closed_memo_survives_a_resume(tmp_path, monkeypatch):
     """
     from shibuya.foundation.vocab.agent_codes import ResultCode
     from shibuya.act import target as PT
-    from shibuya.engine import resolve as R
+    from shibuya.act.ops import body_writes as R
     from shibuya.perception import renderer as RD
 
     resolvers: list = []

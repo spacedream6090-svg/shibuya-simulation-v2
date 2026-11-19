@@ -32,7 +32,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_negative_a_hit_is_marked_but_not_failed`(関数): ▲ の印の負の対照: 当たりが 1 つでもあれば警告(落とさない)・0 なら何も出ない。
   - `test_recorded_count_on_five_thousand_bodies`(関数): 道具で数えた 5,000 体の表(HEAD の側=止める検査・作業木の側=記録に替えた後)。0 でなければ ▲ の印。
   - `test_the_nineteen_configs`(関数)
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.interfaces.cli.main`・`shibuya.runtime.inference.bridge`
+- import している内部モジュール: `shibuya.act.ops.law_writes`・`shibuya.interfaces.cli.main`・`shibuya.runtime.inference.bridge`
 
 ## [test_rights_events.py](../../../../../../../tests/engine/rights/test_rights_events.py)
 
@@ -49,7 +49,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_opening_process_records_a_revoked_staff_and_still_opens`(関数)
   - `test_the_word_and_the_cause_name`(関数)
   - `test_without_the_check_nothing_is_counted_and_the_code_is_the_same`(関数)
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.events`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.run`・`shibuya.world.facts.rights.ledger`・`shibuya.world.facts.rights.record`・`shibuya.world.laws.opening`・`shibuya.world.ledger.actual_log`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.act.ops.law_writes`・`shibuya.act.ops.rail`・`shibuya.foundation.journal.links`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.events`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.run`・`shibuya.world.facts.rights.ledger`・`shibuya.world.facts.rights.record`・`shibuya.world.laws.opening`・`shibuya.world.ledger.actual_log`・`tests/engine/processes/conftest.py`
 - 読む試験: `tests/engine/duties/test_du_runs.py`
 - 決定の ID: 10-12/§1-4
 
@@ -129,4 +129,4 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_same_assignment_on_synthetic_worlds`(関数)
   - `test_same_assignment_on_the_real_population`(関数): 実データ(5,000 体の抽出・seed 1)の種別と POI の数。SoA は母集団の種別を写した形(組み立てと同じ)。
   - `test_zero_pois`(関数)
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.systems.assemble`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.opening`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.state`・`tests/engine/processes/conftest.py`
+- import している内部モジュール: `shibuya.act.ops.init_writes`・`shibuya.act.ops.rail`・`shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.systems.assemble`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.population_reader`・`shibuya.world.facts.rights.initial`・`shibuya.world.facts.rights.ledger`・`shibuya.world.laws.opening`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.state`・`tests/engine/processes/conftest.py`

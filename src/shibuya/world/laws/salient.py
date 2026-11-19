@@ -58,7 +58,7 @@ from shibuya.foundation.vocab.agent_codes import Activity, WakeCondition
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.rng import run_tick_key, stream
 from shibuya.world.laws import switch_rate as _RATE_RULES
-from shibuya.engine import resolve as R
+from shibuya.act.ops import law_writes as R
 from shibuya.world.body.model import BodyModel as _BodyModel
 from shibuya.world.body.rules import COLLAPSE_PER_10K_PER_DAY  # 〔第 3 期 3-5〕体の層へ移した値(同じ名で写して出す)
 from shibuya.foundation.text import salience as AT

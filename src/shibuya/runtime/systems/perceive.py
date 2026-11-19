@@ -16,8 +16,8 @@ from typing import Any
 import numpy as np
 
 # 〔割る段 6 の S6-G1〕別名 R を割り先ごとに分けた(R_DETECT=act.ops.detect_writes・R_MIND=mind.ops の名。割る前は全部 resolve)
-from shibuya.engine import resolve as R_DETECT
-from shibuya.engine import resolve as R_MIND
+from shibuya.act.ops import detect_writes as R_DETECT
+from shibuya.mind import ops as R_MIND
 
 
 def sys_perceive_prepare(ctx: Any, b: Any) -> None:

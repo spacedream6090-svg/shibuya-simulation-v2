@@ -116,7 +116,8 @@ def test_t4_axis1_collision_needs_the_owner_receiver(tmp_path):
 
     root = tmp_path / "src" / "shibuya"
     shutil.copytree(SRC, root, ignore=shutil.ignore_patterns("build", "__pycache__"))
-    p = root / "engine" / "fake_collision.py"
+    # 〔割る段 6 の S6-G1〕包み engine が木から消えたので、偽のファイルの置き場を act に替えた。走査の確かめる中身は同じ
+    p = root / "act" / "fake_collision.py"
     # n_calls は ArbiterDecision・MockLLM も持つ=受け手が decision なら衝突として許す・arbiter なら落とす
     p.write_text("def f(decision, arbiter):\n    a = decision.n_calls\n    return arbiter.n_calls_total + a\n",
                  encoding="utf-8")
@@ -426,7 +427,7 @@ def test_k19_empty_allow_list_reports_every_overlap(k19_runs):
 def test_t5_runtime_fifth_word_caller_fails(monkeypatch):
     """T5: 体ごとの流れ(1 語目=体)から 5 語引く呼び手を足すと、隣の体の流れと重なって落ちる。"""
     from shibuya.foundation.rng import stream
-    from shibuya.engine import resolve as R
+    from shibuya.act.ops import body_writes as R
 
     orig = R.advance_body
 

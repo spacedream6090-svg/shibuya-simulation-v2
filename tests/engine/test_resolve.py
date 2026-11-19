@@ -15,11 +15,11 @@ from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_BODY=act/ops/body_writes・R_DETECT=act/ops/detect_writes・
 # R_INIT=act/ops/init_writes・R_MIND=mind/ops。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_BODY
-from shibuya.engine import resolve as R_DETECT
-from shibuya.engine import resolve as R_INIT
-from shibuya.engine import resolve as R_MIND
+from shibuya.act import apply as R
+from shibuya.act.ops import body_writes as R_BODY
+from shibuya.act.ops import detect_writes as R_DETECT
+from shibuya.act.ops import init_writes as R_INIT
+from shibuya.mind import ops as R_MIND
 from shibuya.mind.system1.change_detect import ChangeDetector
 from shibuya.world.body import rules as BR  # 〔割る段 6 の S6-G0・親の裁定 Q7〕体の刻みの周期は体の層から読む
 from shibuya.world.model.state import World

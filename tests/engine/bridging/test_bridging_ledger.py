@@ -166,7 +166,27 @@ def test_the_counts_by_form(decls):
     # 〔第342〕presence.py の docstring を実装に合わせて書き直し E12・E13 を登録簿に足した(#134・95c4ced)=項 9 → 11・366 → 368
     # (記録 presence-docstring-1102/README.md・見出しは足していない)
     # 〔第346 死んだ道の削除〕conversation.py の項 7 → 6(応答確率 0.8 の項=抽選ごと消した)=368 → 367
-    assert len({d.path for d in heads}) == 81 and sum(d.items for d in heads) == 367
+    # 〔割る段 6 の S6-G1〕resolve の見出し 4 つが 3 つの割り先(act/apply・mind/ops・act/ops/plan_writes)へ分かれた=今のファイル
+    # の数は 81 → 83。台帳の道(ledger_path=前向きの表を通す)で数えると 81 のまま。項 367 と見出し 84 は同じ
+    assert len({d.path for d in heads}) == 83 and sum(d.items for d in heads) == 367
+    assert len(_heading_ledger_paths(heads)) == 81
+
+
+def _heading_ledger_paths(heads: list[S.Declaration]) -> set[str]:
+    """見出しの宣言を持つファイルを、台帳の道(:func:`LP.ledger_path`=主な表 → 前向きの表)で数えた集合。"""
+    return {LP.ledger_path(d.path) for d in heads}
+
+
+def test_negative_a_dropped_forward_row_changes_the_heading_ledger_count(decls, monkeypatch):
+    """〔割る段 6 の S6-G1〕負の対照: 前向きの表から行を 1 つ落とすと(試験の中で一時に)、台帳の道で数えた見出しのファイルの数が
+    81 → 82 になる=上の確かめは前向きの表の行の抜けに気づく。"""
+    heads = [d for d in decls if d.form == S.FORM_HEADING]
+    assert len(_heading_ledger_paths(heads)) == 81
+    rows = dict(LP.LEDGER_PATHS_SPLIT)
+    assert rows
+    for drop in sorted(rows):
+        monkeypatch.setattr(LP, "LEDGER_PATHS_SPLIT", {k: v for k, v in rows.items() if k != drop})
+        assert len(_heading_ledger_paths(heads)) == 82, drop
 
 
 def test_process_and_fallback_rows(ledger, decls):

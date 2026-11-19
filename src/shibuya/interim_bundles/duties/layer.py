@@ -60,7 +60,7 @@ import numpy as np
 from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.foundation.rng import key_time_from_t_ns
 from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS_PER_SECOND, SECONDS_PER_MINUTE
-from shibuya.engine import resolve as R
+from shibuya.act.ops import law_writes as R
 from shibuya.interim_bundles.calendar3.layer import labor_params
 from shibuya.foundation.ports.decision import Candidate, DecisionContext
 from shibuya.foundation.arms import duties as _ARM

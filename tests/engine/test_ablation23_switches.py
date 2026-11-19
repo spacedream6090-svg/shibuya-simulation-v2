@@ -31,8 +31,8 @@ from shibuya.world.facts.mock_schedule import synthesize
 from shibuya.foundation.vocab.agent_codes import REFRACTORY_MINUTES, WakeCondition
 from shibuya.world.model.agent_table import AgentState
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=mind/ops・R_INIT=act/ops/init_writes。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_INIT
+from shibuya.mind import ops as R
+from shibuya.act.ops import init_writes as R_INIT
 from shibuya.runtime.arbiter import REFRACTORY_TICKS as ARBITER_MIRROR
 from shibuya.world.laws.salient import D50_BY_KIND, SalientProcess, ablation_name
 from shibuya.runtime.run import run_day

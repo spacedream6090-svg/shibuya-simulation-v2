@@ -77,7 +77,7 @@ from shibuya.foundation.rng import RNG_SCHEME
 from shibuya.foundation.types import DEFAULT_TICK_SECONDS, MINUTES_PER_SIM_DAY
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
-from shibuya.engine import resolve as R
+from shibuya.act.ops import talk as R
 from shibuya.act.activity import payload_of
 from shibuya.world.facts.calendar import (
     DEFAULT_HOLIDAY_CSV,

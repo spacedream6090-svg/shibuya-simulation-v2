@@ -25,8 +25,8 @@ from shibuya.foundation.vocab.agent_codes import ResultCode
 from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.foundation.vocab import act_codes as C
 # 〔割る段 6 の S6-G1〕別名 R を割り先ごとに分けた(R_ACT_CODES=foundation.vocab.act_codes・R_TALK=act.ops.talk の名。割る前は全部 resolve)
-from shibuya.engine import resolve as R_ACT_CODES
-from shibuya.engine import resolve as R_TALK
+from shibuya.foundation.vocab import act_codes as R_ACT_CODES
+from shibuya.act.ops import talk as R_TALK
 
 
 def sys_relations_wake(ctx: Any, b: Any) -> None:

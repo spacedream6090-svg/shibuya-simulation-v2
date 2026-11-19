@@ -45,7 +45,7 @@ def M():
 def test_eleven_flags_are_accepted_by_parse_refractory_scale(M):
     from shibuya.interfaces.cli import main as cli
     from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, REFRACTORY_MINUTES, WakeCondition
-    from shibuya.engine import resolve as R
+    from shibuya.mind import ops as R
 
     conds = M.conditions()
     assert conds == tuple(WakeCondition(i).name for i in range(N_WAKE_CONDITIONS))
@@ -91,7 +91,7 @@ def test_arm_names_and_plan(M):
 def test_factor_zero_means_no_suppression_in_the_arbiter(M):
     """既知の答え: 1 刻み前に条件 i で呼んだ体 i が、いま同じ条件 i で起きる。"""
     from shibuya.foundation.vocab.agent_codes import WAKE_CONDITION_CLASS
-    from shibuya.engine import resolve as R
+    from shibuya.mind import ops as R
     from shibuya.mind.system1.wake import WakeCandidates
     from shibuya.runtime.arbiter import arbitrate
 

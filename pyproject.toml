@@ -56,19 +56,10 @@ root_package = "shibuya"
 include_external_packages = false
 
 [[tool.importlinter.contracts]]
-name = "layers: census > economy > engine > (perception | llm) > (world | agents) > core > manifest"
-type = "layers"
-layers = [
-  "shibuya.engine",
-  "shibuya.perception",
-]
-
-[[tool.importlinter.contracts]]
 name = "build は実行時に import されない"
 type = "forbidden"
 source_modules = [
   "shibuya.perception",
-  "shibuya.engine",
 ]
 forbidden_modules = [
   "shibuya.build",
@@ -91,15 +82,8 @@ layers = [
   "shibuya.foundation",
 ]
 ignore_imports = [
-  "shibuya.engine.resolve -> shibuya.mind.system1.change_detect",
-  "shibuya.engine.resolve -> shibuya.runtime.state.hashes",
-  "shibuya.engine.resolve -> shibuya.runtime.state.ledger",
-  "shibuya.engine.resolve -> shibuya.runtime.state.resume",
+  "shibuya.act.ops.detect_writes -> shibuya.mind.system1.change_detect",
   "shibuya.mind.judge.decision.layer -> shibuya.society.tools.registry",
-  "shibuya.mind.memory.familiarity -> shibuya.engine.resolve",
-  "shibuya.mind.memory.memory -> shibuya.engine.resolve",
-  "shibuya.mind.memory.store_memory -> shibuya.engine.resolve",
-  "shibuya.mind.relations.layer -> shibuya.engine.resolve",
   "shibuya.society.speech.layer -> shibuya.mind.memory.wom",
   "shibuya.world.model.scene_hash -> shibuya.perception.renderer",
 ]
@@ -157,10 +141,7 @@ forbidden_modules = [
 ignore_imports = [
   "shibuya.mind.judge.decision.layer -> shibuya.economy.stage2_bind",
   "shibuya.mind.judge.decision.layer -> shibuya.society.tools.registry",
-  "shibuya.mind.memory.familiarity -> shibuya.engine.resolve",
-  "shibuya.mind.memory.memory -> shibuya.engine.resolve",
-  "shibuya.mind.memory.store_memory -> shibuya.engine.resolve",
-  "shibuya.mind.relations.layer -> shibuya.engine.resolve",
+  "shibuya.mind.ops -> shibuya.world.model.agent_table",
   "shibuya.mind.relations.layer -> shibuya.world.model.proximity",
   "shibuya.mind.system1.change_detect -> shibuya.world.model.agent_table",
   "shibuya.mind.system1.change_detect -> shibuya.world.model.scene_hash",
@@ -168,6 +149,21 @@ ignore_imports = [
   "shibuya.perception.renderer -> shibuya.world.model.agent_table",
   "shibuya.perception.renderer -> shibuya.world.model.assets",
   "shibuya.perception.renderer -> shibuya.world.model.state",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕4 act の書く関数(`act.apply`・`act.ops`)を読めるのは act・world.laws・interim_bundles・runtime・interfaces だけ"
+type = "protected"
+protected_modules = [
+  "shibuya.act.apply",
+  "shibuya.act.ops",
+]
+allowed_importers = [
+  "shibuya.act",
+  "shibuya.world.laws",
+  "shibuya.interim_bundles",
+  "shibuya.runtime",
+  "shibuya.interfaces",
 ]
 
 [[tool.importlinter.contracts]]
@@ -291,5 +287,7 @@ forbidden_modules = [
 ]
 ignore_imports = [
   "shibuya.runtime.clocks.speech -> shibuya.society.speech.port",
+  "shibuya.runtime.state.restore -> shibuya.world.model.agent_table",
+  "shibuya.runtime.state.restore -> shibuya.world.model.state",
 ]
 allow_indirect_imports = true

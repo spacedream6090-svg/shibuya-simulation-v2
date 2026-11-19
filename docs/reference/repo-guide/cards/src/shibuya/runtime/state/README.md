@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 8 本・その他 0 本(このディレクトリの直下)
+Python 9 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/runtime/state/__init__.py)
 
@@ -60,7 +60,7 @@ behavior-hash と full-hash(10b・A2・A3)。表は ``engine.state_ledger`` だ�
   - `resolve_item`(関数): ``"runner.salient.rng"`` → 値。途中の持ち主が ``None`` なら ``_ABSENT``。
   - `to_state`(関数): 値を決定論のバイト列にする(外の状態の直列化の書き手)。``ordered`` は辞書の挿入順を保つ。
 - import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.runtime.state.class_ids`・`shibuya.runtime.state.ledger`
-- 呼び手: `shibuya.engine.resolve`・`shibuya.runtime.result`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.state_io`・`tools/bytecheck/check.py`
+- 呼び手: `shibuya.runtime.result`・`shibuya.runtime.state.restore`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.state_io`・`tools/bytecheck/check.py`
 - 読む試験: `tests/engine/discard_probe.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/speech/test_speech_arm_rows_resume.py`・`tests/engine/state/shaped_names.py`・`tests/engine/state/test_class_ids.py`・`tests/engine/test_state_format_10f.py`・`tests/engine/test_state_ledger_10b.py`・`tests/perception/facts/test_percept_is_scratch.py`
 - 決定の ID: 第 330
 
@@ -86,7 +86,7 @@ behavior-hash と full-hash(10b・A2・A3)。表は ``engine.state_ledger`` だ�
   - `row`(関数)
   - `rows`(関数): 台帳の行(``place`` を渡せばその置き場だけ)。
   - `soa_rows`(関数)
-- 呼び手: `shibuya.engine.resolve`・`shibuya.runtime.result`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.state_io`・`tools/bytecheck/check.py`
+- 呼び手: `shibuya.runtime.result`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.state.restore`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.probe`・`shibuya.runtime.systems.state_io`・`tools/bytecheck/check.py`
 - 読む試験: `tests/economy/cp2/test_cp2_writes_declared.py`・`tests/engine/calendar/test_ca1b_unit.py`・`tests/engine/calendar/test_calendar_shadow.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/discard_probe.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/events/test_e_writes_declared.py`・`tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/memory/test_mr65_review_fixes.py`・`tests/engine/multiday/test_md23_body_events.py`・`tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/speech/test_speech_arm_rows_resume.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/speech/test_speech_port_schema.py`・`tests/engine/systems/test_systems_table.py`・`tests/engine/test_env_and_sections_10f.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_state_format_10f.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/tools/test_c0_contacts_in_relations.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/tools/test_repo_guide.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 状態台帳の行
@@ -128,6 +128,20 @@ behavior-hash と full-hash(10b・A2・A3)。表は ``engine.state_ledger`` だ�
 - 読む試験: `tests/engine/experiment/test_x33_run.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/state/test_mind_world_reads.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/systems/test_fix_guards.py`・`tests/engine/systems/test_stage_a_guard.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_state_format_10f.py`・`tests/engine/test_state_ledger_10b.py`
 - 決定の ID: 第 304・第 347
 
+## [restore.py](../../../../../../../../src/shibuya/runtime/state/restore.py)
+
+runtime.state.restore — 割る段で ``engine/resolve.py`` を割った割り先(全ファイルの表 §4・名の表は``tools/pkgmove/map.toml`` の割る行)。
+
+- 公開の関数とクラス
+  - `restore_items`(関数): 10d: 保存した外の状態(``engine.resume.collect_items`` の形)を持ち主の属性へ戻す。返り値=戻した数。
+  - `restore_soa`(関数): 10d: 保存した SoA の列(``engine.resume.collect_soa`` の形)を戻す。返り値=戻した列の数。
+- import している内部モジュール: `shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
+- 呼び手: `shibuya.runtime.systems.assemble`
+- 読む試験(道筋で): `tests/engine/systems/test_stage_a_guard.py`
+- 書きの許可
+  - `restore_items`: 直接の書き (なし) 口として持つ系: build
+  - `restore_soa`: 直接の書き (なし) 口として持つ系: build
+
 ## [resume.py](../../../../../../../../src/shibuya/runtime/state/resume.py)
 
 日境界の再開と複数日の通しラン(10d・D-102 Q3・Q5・A10・A11)の状態の書き出しと読み込み。
@@ -152,7 +166,7 @@ behavior-hash と full-hash(10b・A2・A3)。表は ``engine.state_ledger`` だ�
   - `warn_if_other_environment`(関数): 記録の環境の欄(``platform_id`` を持つ辞書)が今の環境と違えば警告を 1 行出す。返り値=警告したか。
   - `write_state`(関数): 状態のまとまりを 1 ファイル(npz+json・圧縮)に書く(一時ファイル → ``os.replace``)。返り値=ファイルのバイト数。
 - import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.paths`・`shibuya.runtime.state.class_ids`・`shibuya.runtime.state.codec`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`
-- 呼び手: `shibuya.engine.resolve`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`
+- 呼び手: `shibuya.runtime.state.restore`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.state_io`
 - 読む試験: `tests/economy/stage2/test_stage2_resume_arm.py`・`tests/economy/test_rules42_runs.py`・`tests/engine/batching/test_conductor_windows.py`・`tests/engine/calendar/test_ca1b_runs.py`・`tests/engine/calendar/test_calendar_shadow.py`・`tests/engine/calendar2/test_ca2_runs.py`・`tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/clock/test_tm2_talk_clock.py`・`tests/engine/clock/test_tm3_step_scope.py`・`tests/engine/clock/test_tm4_regional_clock.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/duties/test_du_runs.py`・`tests/engine/processes/test_absent_processes_1102.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/speech/test_speech_arm_rows_resume.py`・`tests/engine/speech/test_speech_default_off_invariance.py`・`tests/engine/state/test_class_ids.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_env_and_sections_10f.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/test_seat_release_2_4.py`・`tests/engine/test_state_format_10f.py`・`tests/golden_env.py`・`tests/perception/facts/test_percept_is_scratch.py`
 - 環境変数: `NUMBA_NUM_THREADS`
 - 決定の ID: D-102・第 330

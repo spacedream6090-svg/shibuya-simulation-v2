@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 
 from shibuya.world.laws import switch_rate as RR
-from shibuya.engine import resolve as R
+from shibuya.act.ops import rail as R
 from shibuya.world.laws.civic import EVENT_WINDOW, LargeEventProcess
 from shibuya.world.laws.goods_flow import (
     LITTER_G_PER_PERSON_TICK,

@@ -13,7 +13,7 @@ from shibuya.foundation.vocab.agent_codes import AgentKind
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import resolve as R
+from shibuya.act.ops import law_writes as R
 from shibuya.foundation.ports.ledger import LedgerBundle
 from shibuya.world.laws.goods_flow import (
     CLEANING_WINDOWS,

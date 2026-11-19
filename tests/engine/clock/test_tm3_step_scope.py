@@ -97,8 +97,8 @@ def test_scoped_interoception_equals_the_full_one_on_a_superset(seed):
 def _drive(a: AgentState, w: World, steps: int, rng, use_scope: bool, keep_crossed: bool = True):
     """値を乱数で少し動かしながら検出 → 段の書き戻しを繰り返す(全員を見る版と印の版)。"""
     # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/detect_writes・R_MIND=mind/ops。割る前は全部 resolve)
-    from shibuya.engine import resolve as R
-    from shibuya.engine import resolve as R_MIND
+    from shibuya.act.ops import detect_writes as R
+    from shibuya.mind import ops as R_MIND
 
     det = CD.ChangeDetector(a.n, w.n_cells)
     sc = SS.StepScope(a.n)
@@ -145,8 +145,8 @@ def test_marks_are_exactly_the_changed_columns_and_the_crossed():
     assert sc.marks(a) is None  # 写しの無い最初は全員
     res = sc.detect(det, w, a, 0)
     # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/detect_writes・R_MIND=mind/ops。割る前は全部 resolve)
-    from shibuya.engine import resolve as R
-    from shibuya.engine import resolve as R_MIND
+    from shibuya.act.ops import detect_writes as R
+    from shibuya.mind import ops as R_MIND
 
     R.write_b4_hash(w, res)
     R_MIND.write_intero_stages(a, res)
@@ -251,8 +251,8 @@ def test_m2_step_scope_refuses_writes_from_outside():
     det = CD.ChangeDetector(a.n, w.n_cells)
     sc = SS.StepScope(a.n)
     # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/detect_writes・R_MIND=mind/ops。割る前は全部 resolve)
-    from shibuya.engine import resolve as R
-    from shibuya.engine import resolve as R_MIND
+    from shibuya.act.ops import detect_writes as R
+    from shibuya.mind import ops as R_MIND
 
     res = sc.detect(det, w, a, 0)
     R.write_b4_hash(w, res)

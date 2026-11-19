@@ -30,7 +30,7 @@ import pytest
 from shibuya.interfaces.cli import main as cli
 from shibuya.foundation import write_permit as WP
 from shibuya.world.model import proximity as P
-from shibuya.engine import resolve as R
+from shibuya.act.ops import talk as R
 from shibuya.runtime.run import run_day
 from shibuya.runtime.systems import conductor as CD
 from shibuya.runtime.systems import probe as PR

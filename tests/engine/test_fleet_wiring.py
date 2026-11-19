@@ -231,7 +231,7 @@ def test_deferred_calls_are_not_suppressed_by_the_refractory(fleet_servers):
     """不応期免除が効いていること: 繰り延べ件数がそのまま再投入件数になる。"""
     from shibuya.world.model.agent_table import AgentState
     from shibuya.foundation.vocab.agent_codes import WakeCondition
-    from shibuya.engine import resolve as R
+    from shibuya.mind import ops as R
 
     cond = int(WakeCondition.INTEROCEPTION)
     agents = AgentState(8)  # 構築直後は非凍結(run.py が freeze する規律)

@@ -257,7 +257,7 @@ def test_without_the_decision_the_shelf_is_not_restocked_by_the_engine_at_a_staf
 
 # ================================================================= 廃棄は閉店の作業
 def test_discard_is_a_closing_task_and_the_morning_bridge_skips_it(monkeypatch):
-    from shibuya.engine import resolve as R
+    from shibuya.act.ops import law_writes as R
     from shibuya.world.laws import goods_flow as GF
     from tests.engine._legacy_world import legacy_world_rules
 

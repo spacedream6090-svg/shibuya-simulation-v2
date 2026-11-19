@@ -31,6 +31,7 @@ Python 3 本・その他 0 本(このディレクトリの直下)
   - `test_ledger_paths_table_is_one_to_one_and_points_to_files`(関数): 表の今の道は全部ファイルがあり、台帳の道は重ならない。台帳のコードの行の道は、表を通して全部今のファイルに届く。
   - `test_literal_declarations_are_copied_verbatim`(関数): 文字列の宣言は台帳の ``what`` にそのまま写す(f 文字列と式は構築したときの値=写しの外)。
   - `test_negative_a_changed_item_count_is_caught`(関数): 見出しの下の項が増えると、同定(見出しの文)は同じでも台帳の ``what`` の項数と合わなくなる(試験が落ちる)。
+  - `test_negative_a_dropped_forward_row_changes_the_heading_ledger_count`(関数): 〔割る段 6 の S6-G1〕負の対照: 前向きの表から行を 1 つ落とすと(試験の中で一時に)、台帳の道で数えた見出しのファイルの数が
   - `test_negative_a_new_conf_expedient_fails`(関数)
   - `test_negative_a_new_declaration_in_a_moved_file_is_missing_under_the_ledger_key`(関数): ファイルを動かしたふり(表に 1 行足す)でも、宣言の同定は台帳の道で作られ、台帳の行と同じ鍵になる。移したファイルに
   - `test_negative_a_new_docstring_paragraph_fails`(関数)

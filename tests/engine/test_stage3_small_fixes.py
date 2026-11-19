@@ -12,8 +12,8 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.vocab.agent_codes import IntentKind, ResultCode
 from shibuya.foundation.vocab import act_codes as C
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/gate・R_SHOP=act/ops/shop。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_SHOP
+from shibuya.act import gate as R
+from shibuya.act.ops import shop as R_SHOP
 from shibuya.mind.judge.chooser import NearestChooser
 from shibuya.act.target import TargetResolver
 from shibuya.runtime.run import _named_closed_lookup

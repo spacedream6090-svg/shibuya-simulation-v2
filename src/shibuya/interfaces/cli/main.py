@@ -37,7 +37,7 @@ from shibuya.economy.ledger import Ledger
 from shibuya.economy import entry_capital as EC
 from shibuya.economy.accounts import BalanceLine, Sector
 from shibuya.economy import stage2_bind as _ES2
-from shibuya.engine import resolve as R
+from shibuya.mind import ops as R
 from shibuya.experiments.port import run_kind as _RK
 from shibuya.world.model.geometry import DEFAULT_GEOMETRY, GEOMETRY_MODES
 from shibuya.world.model.space import nav1 as _NAV1

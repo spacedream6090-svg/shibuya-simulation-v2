@@ -70,7 +70,7 @@ import numpy as np
 from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.foundation.rng import key_time_from_t_ns
 from shibuya.foundation.time_consts import HOURS_PER_DAY, NS_PER_SECOND, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
-from shibuya.engine import resolve as R
+from shibuya.act.ops import plan_writes as R
 from shibuya.foundation.arms import calendar2 as _ARM
 from shibuya.mind.plan import promise_book as _B
 from shibuya.mind.plan import calendar2_port as _P

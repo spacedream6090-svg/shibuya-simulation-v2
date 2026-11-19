@@ -17,7 +17,7 @@ from shibuya.foundation.vocab.agent_codes import ResultCode
 # 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
-from shibuya.engine import resolve as R
+from shibuya.act import apply as R
 from shibuya.foundation.vocab.actions import (
     ACTION_CODES,
     ACTION_SPECS,

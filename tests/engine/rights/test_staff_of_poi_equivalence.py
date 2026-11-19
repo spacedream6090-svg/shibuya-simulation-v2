@@ -16,8 +16,8 @@ from shibuya.foundation.vocab.agent_codes import AgentKind
 from shibuya.world.model.agent_table import AgentState
 from shibuya.world.facts.mock_schedule import synthesize
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/init_writes・R_RAIL=act/ops/rail。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_RAIL
+from shibuya.act.ops import init_writes as R
+from shibuya.act.ops import rail as R_RAIL
 from shibuya.world.laws.opening import OpeningProcess
 from shibuya.world.facts.rights import initial as RI
 from shibuya.world.facts.rights import ledger as L

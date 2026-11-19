@@ -16,8 +16,8 @@ import pytest
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation import write_permit as WP
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=foundation/write_guard・R_MIND=mind/ops。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_MIND
+from shibuya.foundation import write_guard as R
+from shibuya.mind import ops as R_MIND
 from shibuya.runtime.state import ledger_ast as A
 from shibuya.runtime.systems import allow as AL
 from shibuya.world.model.state import World
@@ -189,7 +189,7 @@ FLAG_WRITERS = {
     ("world/model/state.py", "thaw"), ("world/model/state.py", "freeze"),
     ("world/model/percept_state.py", "_set_writeable"),
     ("economy/goods.py", "*"), ("economy/ledger.py", "*"),
-    ("engine/resolve.py", "_restore_array_into"),
+    ("runtime/state/restore.py", "_restore_array_into"),
     # 〔第 3 期 3-5 検収 L7〕体の層の予約の列(BodySchedule)が自分の配列(SoA ではない)を書く口の中だけ書けるようにする
     ("world/body/schedule.py", "_enter_port_and_call"),
 }

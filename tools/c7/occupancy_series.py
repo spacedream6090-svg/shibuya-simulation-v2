@@ -169,7 +169,7 @@ class OccupancyRecorder:
     # -- 取り付け/取り外し --
     def attach(self, module: Any | None = None) -> "OccupancyRecorder":
         if module is None:
-            from shibuya.engine import resolve as module  # type: ignore
+            from shibuya.act import apply as module  # type: ignore
         self._module = module
         self._orig = module.apply
         rec = self

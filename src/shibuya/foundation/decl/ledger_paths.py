@@ -25,6 +25,7 @@ __all__ = ["LEDGER_PATHS", "LEDGER_PATHS_SPLIT", "ledger_path", "current_path"]
 #: 今の道 → 台帳に書いてある道(リポの根からの道筋・``/`` 区切り)。移す道具が書き足す(鍵の昇順・1 行 1 組)。
 LEDGER_PATHS: Final[Mapping[str, str]] = MappingProxyType({
     "src/shibuya/act/activity.py": "src/shibuya/engine/activity.py",
+    "src/shibuya/act/apply.py": "src/shibuya/engine/resolve.py",
     "src/shibuya/act/commit.py": "src/shibuya/engine/commit.py",
     "src/shibuya/act/intake/parser.py": "src/shibuya/llm/parser.py",
     "src/shibuya/act/intake/undefined.py": "src/shibuya/llm/undefined.py",
@@ -237,6 +238,8 @@ LEDGER_PATHS: Final[Mapping[str, str]] = MappingProxyType({
 #: だけ・N 対 1=値は ``LEDGER_PATHS`` の値と重なってよい)。手で書かない: 割る道具が書き足す(鍵の昇順・1 行 1 組)。
 #: :func:`ledger_path` だけが引き、:func:`current_path`(逆向き=主な割り先の 1 対 1)は引かない。空の間は今の結果と同じ。
 LEDGER_PATHS_SPLIT: Final[Mapping[str, str]] = MappingProxyType({
+    "src/shibuya/act/ops/plan_writes.py": "src/shibuya/engine/resolve.py",
+    "src/shibuya/mind/ops.py": "src/shibuya/engine/resolve.py",
 })
 
 

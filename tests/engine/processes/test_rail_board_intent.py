@@ -24,9 +24,9 @@ from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_RAIL=act/ops/rail・R_TALK=act/ops/talk。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_RAIL
-from shibuya.engine import resolve as R_TALK
+from shibuya.act import apply as R
+from shibuya.act.ops import rail as R_RAIL
+from shibuya.act.ops import talk as R_TALK
 from shibuya.world.laws.rail import RailProcess
 
 from .conftest import fake_timetable_assets, make_agents, make_world

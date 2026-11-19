@@ -29,7 +29,7 @@ engine.familiarity — **親しみの表**(4 段目・記憶の先行部品=M13 
   - `person_thing`(関数): 体 → 人の ``thing_id``(``1<<30 | id``・本段では書かない)。
   - `place_thing`(関数): セル → 場所の ``thing_id``(``−(cell+2)``=空行 −1 と衝突しない・cell ≥ 0)。
   - `thing_kind`(関数): ``thing_id`` → 種類(``"empty"`` / ``"poi"`` / ``"place"`` / ``"person"``)の文字列配列。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.percept.attention`
+- import している内部モジュール: `shibuya.foundation.vocab.agent_codes`・`shibuya.mind.ops`・`shibuya.mind.percept.attention`
 - 呼び手: `shibuya.interfaces.cli.main`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_store`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/test_familiarity.py`・`tests/engine/test_memory_recall.py`・`tests/engine/test_memory_record.py`・`tests/engine/test_store_memory.py`・`tests/perception/test_p_see_activity.py`
 - 状態台帳の行
@@ -47,7 +47,7 @@ engine.memory — 記憶 第 1 段の **記録**(6 段目 6a・D-95・記憶ア�
   - `RecallItem`(クラス): 想起した 1 行(描画の材料=``perception.renderer`` が文にする)。
   - `activation_rows`(関数): A = ln(n/(1−d)) − d·ln(L+1)(L=(tick − first)×分/tick・#56 と同じ近似)。n=0 の行は −inf。
   - `importance_of`(関数): 事象 → importance(固定表・配列演算)。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.types`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.relations`・`shibuya.mind.memory.familiarity`・`shibuya.mind.memory.memory_embed`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_shops`・`shibuya.mind.memory.memory_store`・`shibuya.mind.memory.store_memory`・`shibuya.mind.relations.layer`・`shibuya.mind.relations.people`
+- import している内部モジュール: `shibuya.foundation.types`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.relations`・`shibuya.mind.memory.familiarity`・`shibuya.mind.memory.memory_embed`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_shops`・`shibuya.mind.memory.memory_store`・`shibuya.mind.memory.store_memory`・`shibuya.mind.ops`・`shibuya.mind.relations.layer`・`shibuya.mind.relations.people`
 - 呼び手: `shibuya.interfaces.cli.main`・`shibuya.mind.judge.decision.sources`・`shibuya.mind.memory.memory_store`・`shibuya.mind.memory.store_memory`・`shibuya.mind.plan.head_recall`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/memory/test_m0_recall_equivalence.py`・`tests/engine/memory/test_m0_shown_recorded.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_m1_runs.py`・`tests/engine/memory/test_m1_strength.py`・`tests/engine/memory/test_m4_m5_people.py`・`tests/engine/multiday/test_md23_body_events.py`・`tests/engine/proximity/test_switch_sites.py`・`tests/engine/speech/test_wom_from_utterance_roundtrip.py`・`tests/engine/test_memory_recall.py`・`tests/engine/test_memory_record.py`・`tests/engine/test_relations.py`・`tests/engine/test_relations_8b.py`・`tests/engine/test_store_choice.py`・`tests/engine/test_store_memory.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/test_wom.py`・`tests/engine/tools/test_c0_contacts_in_relations.py`・`tests/perception/facts/test_render_from_percept_bytes.py`
 - 状態台帳の行
@@ -197,7 +197,7 @@ engine.store_memory — **店の評価の記憶**(D-120 7a・N1 (a)・N2 (i)(iii
   - `check_store_decay`(関数): 減衰の形を検査して返す(:data:`STORE_DECAY_MODES` のどれか)。
   - `check_store_sigma`(関数): 出どころ別の σ の表を検査して、全部の鍵を持つ辞書で返す(欠けた鍵は既定値)。
   - `valence_of_result`(関数): 結果コード → 向き(``OK`` +1・:data:`STORE_VALENCE_NEGATIVE` −1・それ以外 0)。
-- import している内部モジュール: `shibuya.engine.resolve`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.memory.memory`
+- import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.memory.memory`・`shibuya.mind.ops`
 - 呼び手: `shibuya.interfaces.cli.main`・`shibuya.mind.judge.store_choice`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_shops`・`shibuya.mind.memory.wom`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`
 - 読む試験: `tests/engine/speech/test_wom_from_utterance_roundtrip.py`・`tests/engine/test_store_choice.py`・`tests/engine/test_store_memory.py`・`tests/engine/test_wom.py`
 - 状態台帳の行

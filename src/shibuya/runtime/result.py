@@ -14,7 +14,7 @@ import numpy as np
 from shibuya.foundation.growth import GrowthReport
 from shibuya.foundation.rng import RNG_SCHEME
 from shibuya.foundation.types import DEFAULT_TICK_SECONDS
-from shibuya.engine import resolve as R
+from shibuya.act import apply as R
 from shibuya.act.intent import INTENT_MAX_TICKS
 from shibuya.mind.memory.familiarity import FAMILIARITY_K
 from shibuya.mind.memory.memory import MEMORY_N

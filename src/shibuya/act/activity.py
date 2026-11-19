@@ -54,7 +54,7 @@ from shibuya.foundation.hashing import wander_key_array
 # 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
 from shibuya.act import commit as C
 from shibuya.foundation.vocab import act_codes as CV
-from shibuya.engine import resolve as R
+from shibuya.act.ops import intent_writes as R
 from shibuya.foundation.types import ticks_per_day as _ticks_per_day
 from shibuya.foundation.vocab.actions import (
     NO_TARGET,

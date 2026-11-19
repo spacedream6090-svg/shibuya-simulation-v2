@@ -30,8 +30,8 @@ from shibuya.act import commit as C
 from shibuya.foundation.vocab import act_codes as CV
 from shibuya.world.model import geometry as G
 # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/gate・R_APPLY=act/apply。割る前は全部 resolve)
-from shibuya.engine import resolve as R
-from shibuya.engine import resolve as R_APPLY
+from shibuya.act import gate as R
+from shibuya.act import apply as R_APPLY
 from shibuya.runtime.run import run_day
 from shibuya.world.model.state import DENSITY_STAGE_EDGES, DENSITY_STAGE_EDGES_PER_M2, World
 

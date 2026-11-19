@@ -81,7 +81,7 @@ KDDI 写像の感度腕(在圏の形 9b・``tools/c7/attr_arms.py``)の検査(�
   - `test_kind_maps_differ_only_for_students`(関数)
   - `test_recorder_restores_resolve_apply`(関数)
   - `test_shape_metrics_do_not_judge_and_leave_h1_blank`(関数)
-- import している内部モジュール: `shibuya.engine.resolve`・`tools/c7/attr_arms.py`
+- import している内部モジュール: `shibuya.act.apply`・`tools/c7/attr_arms.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
 
 ## [test_holdout_compare.py](../../../../../../tests/c7/test_holdout_compare.py)
