@@ -394,6 +394,21 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #175 コードの区分の移動 段 7 の G-R2=renderer.py の中で、`Renderer` を 3 つのクラスに分けた(1 バイト不変・ファイルは割っていない)(11-16 §8 の 5・第347・2026-11-20・実装役 1・検収役 1=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split7-347](docs/bench/analysis/split7-347/README.md) §7・§8。commit= 9274355。安定版のタグ `stable-v2-before-split7-R2`(04031d1=直す前)。戻し方= `git checkout stable-v2-before-split7-R2`。
+- **形**: `PerceptScene`(世界の側・メソッド 24・`__init__` の 31 文)・`SignageNotice`(気づく側・メソッド 2)・`Renderer(PerceptScene, SignageNotice)`(枠・`__init__` の 37 文・`render`・描く側 35)。枠の `__init__` は世界の側を先に呼ぶ(`super()` は使わない)。メソッドの本文は 1 字も変えていない。renderer.py は 3,170 行 → 3,184 行。
+- **一緒に直した 3 つ**: `CLASS_IDS` と凍結の JSON に 2 行ずつ・`OWNER_ALT_CLASSES` に 1 行・心の読みの凍結の表(鍵 2 つ・範囲の記号 26・クラスの名 2 つ。合計 83・72 は同じ)。
+- **確かめ**: 照合の台本は 10 項目とも同じ(置き場 24・2・36・宣言どおりの違いは 2 つ)。byte-check 19 構成 37 欄 19/19 同じ(実装役 441 秒・親 445 秒・基準 dc496d7・既定の final `c8d68704b7b0760d`・呼数 60,939)。性能の悪化なし(構成ごとの比 0.85〜1.07)。副作用の順の固定の値は変えていない。差し替え 13 か所は落ちる 12/落ちない 1。範囲の試験 7,089 passed・1 failed(前からの 1 本)・22 skipped。
+- **別の役の検収**: 受入(高 0・中 0・低 4)。検収役は照合の台本に頼らず、自分の台本で確かめた。
+- **残り**: G-M(割る行を表と順に載せる)→ G-S(道具で割る)。
+
+### #174 コードの区分の移動 段 7 の G0(道具)と G-R1=形の変更の照合の台本と、`INTERO_UP_EDGES` の二重の定義を 1 つに(11-16 §8 の 5・第347・2026-11-20・実装役 2・検収役 2=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split7-347](docs/bench/analysis/split7-347/README.md) §3〜§6。commit は 2 つ= dc496d7(G-R1)・04031d1(道具・src は変えていない)。安定版のタグ `stable-v2-before-split7-R1`(1d4d7e9=G-R1 の前)。戻し方= `git checkout stable-v2-before-split7-R1`。
+- **G-R1**(dc496d7): renderer.py の `INTERO_UP_EDGES` の定義を消し、`foundation/vocab/agent_codes.py` から読む形に(+1・−2 行)。byte-check 19 構成 37 欄 19/19 同じ(実装役 439 秒・親 436 秒・基準 3c8e126)。範囲の試験 7,089 passed・1 failed(前からの 1 本)。検収 受入(高 0・中 0・低 3)。
+- **道具 `shapecheck`**(04031d1): `tools/pkgmove/shapecheck.py` と口 `cli.py shapecheck`。形を変える前と後の renderer.py を、10 項目(台本の前提・頂上の文・メソッド・`__init__` の文と頼り・枠の口・MRO で引ける名・書く属性・互いの読み・文字列の定数・注)で比べる。試験 55 本・植えた誤り 46 個は全部検出。検収 条件つき受入(中 3=挙動が変わるのに「同じ」と言う形 16 個のうち、本物で起こりうる 3 つ)→ 直し → 再検収 受入(低 6)。
+
 ### #173 コードの区分の移動 段 7 の G0(試験)=`renderer.py` を割る前の試験の直しと、副作用の順の試験(src は変えていない)(11-16 §8 の 5・第347・2026-11-19・計画の役 1・実装役 1・検収役 1=Opus 5.5・親が検収)
 
 - 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split7-347](docs/bench/analysis/split7-347/README.md) §1・§2。commit= 93a37cf。

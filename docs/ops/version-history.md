@@ -54,6 +54,8 @@
 | 整理 | コードの区分の移動 段 6 の本体=`engine/resolve.py` を道具で 18 の割り先へ割った(1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。`engine` の包みが消えた(#170・第347)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 60.3 秒/後 54.5 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | c79ae25 | `stable-v2-before-split6-G1`(4a5bd30) | `git checkout stable-v2-before-split6-G1` |
 | 整理 | コードの区分の移動 段 6 の M=延ばしていた `mora_count` の行を当てた(M0=道具と表と試験・src は変えていない/M1=道具で `foundation/text/mora.py` へ下ろした・1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。割る段は 24 本とも当たった(#171・第347)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 61.7 秒/後 54.2 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | 9f61eea・3c8e126 | `stable-v2-before-split6-M`(9f61eea) | `git checkout stable-v2-before-split6-M` |
 | 整理 | コードの区分の移動 段 7 の G0(試験)=`renderer.py` を割る前に、試験 14 本の形を直し、副作用の順の試験を足した(#173・第347・src は変えていない=byte-check は回していない) | 93a37cf | `stable-v2-before-split6-M`(9f61eea) | `git checkout stable-v2-before-split6-M` |
+| 整理 | コードの区分の移動 段 7 の G0(道具)と G-R1=形の変更の照合の台本を足した(src は変えていない)。renderer の `INTERO_UP_EDGES` の二重の定義を、語彙の側からの import に替えた(1 バイト不変=byte-check 19 構成 37 欄すべて同じ)(#174・第347)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 60.9 秒/後 54.1 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | dc496d7・04031d1 | `stable-v2-before-split7-R1`(1d4d7e9) | `git checkout stable-v2-before-split7-R1` |
+| 整理 | コードの区分の移動 段 7 の G-R2=renderer.py の中で、`Renderer` を 3 つのクラスに分けた(1 バイト不変=byte-check 19 構成 37 欄すべて同じ・ファイルは割っていない)(#175・第347)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 61.4 秒/後 54.9 秒(6 本並列。比べない参考値・最大メモリは測っていない)・19 構成の合計は基準 925 秒/後 912 秒・呼数 60,939 で同じ | 9274355 | `stable-v2-before-split7-R2`(04031d1) | `git checkout stable-v2-before-split7-R2` |
 
 ## 版上げと整理の段の手順(byte-check)
 
