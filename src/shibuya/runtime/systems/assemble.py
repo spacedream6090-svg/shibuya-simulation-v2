@@ -35,7 +35,13 @@ from shibuya.world.facts.weekly_reader import apply_to_mock_schedule
 from shibuya.world.facts.weekly_reader import load_weekly
 from shibuya.foundation.rng import RNG_SCHEME
 from shibuya.act import commit as C
-from shibuya.engine import resolve as R
+# 〔割る段 6 の S6-G1〕別名 R を割り先ごとに分けた(R_BODY=act.ops.body_writes・R_INIT=act.ops.init_writes・R_MIND=mind.ops・
+# R_MOVE=act.ops.move・R_RESTORE=runtime.state.restore の名。割る前は全部 resolve)
+from shibuya.engine import resolve as R_BODY
+from shibuya.engine import resolve as R_INIT
+from shibuya.engine import resolve as R_MIND
+from shibuya.engine import resolve as R_MOVE
+from shibuya.engine import resolve as R_RESTORE
 from shibuya.world.model.space import nav1 as _NAV1
 from shibuya.runtime.state import resume as RS
 from shibuya.act.activity import ActivityLayer
@@ -635,8 +641,8 @@ def build(_call_args: dict[str, Any]) -> Any:
     #: 語彙 v3 の対象ヒント(「対象: 自宅/職場/学校」→ 拠点セル)は活動層と独立に効かせる。
     v3_hints = vocab_version == "v3"
     # ---- ablation ③: **ランの実効不応期表**を 1 本組む(既定=§6 の表そのもの) ----
-    refractory_table = R.refractory_ticks(refractory_scale)
-    refractory_scale_norm = R.normalized_refractory_scale(refractory_scale)
+    refractory_table = R_MIND.refractory_ticks(refractory_scale)
+    refractory_scale_norm = R_MIND.normalized_refractory_scale(refractory_scale)
     world = world if world is not None else World.synthetic(n_cells=n_cells, seed=pop_seed)  # 10f: 母集団の側
     # 渡された World を使い回しても前のランの切替口が残らないよう、**毎ラン必ず書く**。
     world.set_eatery_mode(eatery)
@@ -771,7 +777,7 @@ def build(_call_args: dict[str, Any]) -> Any:
     body_layer = BodyModel(n_agents, step_seconds=tick_seconds,
                            arm=("reserve" if _SSC.arm() == _SSC.ARM_CHANGED else None))
     if not _resuming:  # 10d(A11・親の答え 2): 再開では日の頭の初期化を呼ばない(保存した状態を読む)
-        R.initialize(agents, world, schedule, day_index=day_index, ledger=ledger, body=body_layer)
+        R_INIT.initialize(agents, world, schedule, day_index=day_index, ledger=ledger, body=body_layer)
     # ---- 5 段目 5a: 体のエネルギー収支(値を決める層・書き手は resolve) ----
     energy_layer: EnergyLayer | None = None
     if energy_on:
@@ -805,7 +811,7 @@ def build(_call_args: dict[str, Any]) -> Any:
             ),
         )
         if not _resuming:  # 10d(A11): 空腹の初期値・体の定数は保存した状態から
-            R.initialize_energy(agents, energy_layer, pop_seed, body=body_layer)  # 10f: 体の定数は母集団の側・10e: 鍵の並べ方
+            R_BODY.initialize_energy(agents, energy_layer, pop_seed, body=body_layer)  # 10f: 体の定数は母集団の側・10e: 鍵の並べ方
     agents.freeze()
     world.freeze()
 
@@ -1040,7 +1046,7 @@ def build(_call_args: dict[str, Any]) -> Any:
                                 population_scale=(float(n_agents) / float(_pt)) if _pt else 1.0,
                                 density_mode=_NAV1.density_arm())  # 〔段 5-1b〕密度の推定の腕(SHIBUYA_NAV1_DENSITY)
         if not _resuming:  # 再開では保存した位置を読む(置き直さない)
-            R.nav_place(agents, world, geom)
+            R_MOVE.nav_place(agents, world, geom)
         # 〔段 5-1b〕変化検出の B4 の密度の段も同じ推定(位置の確定で書いた world.cells.density_stage)から=密度を 1 つに
         detector.los_from_stage = True
         frozen_sources_map.update({f"nav1:{k}": v for k, v in sorted(geom.mesh.sources.items())})
@@ -1064,7 +1070,7 @@ def build(_call_args: dict[str, Any]) -> Any:
         # ---- D-62 (b): 刻み 0 の activity を W17 の 0:00 時点の活動から立てる ----
         # ``initialize`` は全員 SLEEPING(週次表の無い世界の既定)。ここで立て直す。
         if plan_sleep and not _resuming:  # 10d(A11): 再開では初期の活動を立てない
-            R.set_initial_activity(agents, weekly.initial_activity(_wd0))
+            R_INIT.set_initial_activity(agents, weekly.initial_activity(_wd0))
     else:
         # 10a #12: mock 日課の平日/休日は暦の口の土休から
         b_agent, b_slot, b_tick = schedule.events_of_day(
@@ -1704,10 +1710,10 @@ def build(_call_args: dict[str, Any]) -> Any:
         # その日の頭はループの先頭で張る(通しのランと同じ位置)。
         for _d in range(1, (t_begin - 1) // tpd + 1):
             _SIO.relay_tables(box, _d)
-        R.restore_soa(agents, world, _SIO.pst_now(box), _bundle.soa)
+        R_RESTORE.restore_soa(agents, world, _SIO.pst_now(box), _bundle.soa)
         _SIO.rebuild_derived(box)  # 10d(親の答え 2): 起動時に SoA から作る表を、戻した SoA から作り直す
         RS.check_item_kinds(_SIO.hash_owners(box), _bundle.items)  # 10f(K23 (a)): 戻す前に今の値の型と突き合わせる
-        R.restore_items(_SIO.hash_owners(box), _bundle.items)
+        R_RESTORE.restore_items(_SIO.hash_owners(box), _bundle.items)
         if mem_layer is not None and mem_layer.memory_store is not None:
             mem_layer.rebuild_memory_store(agents)  # 1-6 M0: 器は戻した記憶の表と要旨から作り直す(台帳の行 M0)
         _full_r, _ = _SIO.full_state_hash(agents, world, _SIO.pst_now(box), schedule.population_hash, schedule_hash,

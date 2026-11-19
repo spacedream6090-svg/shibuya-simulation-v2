@@ -86,7 +86,12 @@ from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR, NS
 # 〔割る段 5b の G1〕別名 _CS を割り先ごとに分けた(_CS=society.calendar_shadow・_CR=world.facts.w20_calendar_reader の名)
 from shibuya.society import calendar_shadow as _CS
 from shibuya.world.facts import w20_calendar_reader as _CR
-from shibuya.engine import resolve as R
+# 〔割る段 6 の S6-G1〕別名 R を割り先ごとに分けた(R_ACT_CODES=foundation.vocab.act_codes・R_PLAN=act.ops.plan_writes・R_RAIL=act.ops.rail・
+# R_SHOP=act.ops.shop の名。割る前は全部 resolve)
+from shibuya.engine import resolve as R_ACT_CODES
+from shibuya.engine import resolve as R_PLAN
+from shibuya.engine import resolve as R_RAIL
+from shibuya.engine import resolve as R_SHOP
 from shibuya.foundation.ports.decision import (
     DELIBERATE_KIND,
     SOURCE_CONTINUE,
@@ -1051,10 +1056,10 @@ class CalendarSelf:
                     ch["selected_trains"] += 1
             go_in = ids[outside]
             if go_in.size:
-                R.rail_arrive(self.agents, self.world, go_in, cells[outside])
+                R_RAIL.rail_arrive(self.agents, self.world, go_in, cells[outside])
                 from shibuya.world.laws.presence import FLAG_ARRIVED
 
-                R.set_plan_state(self.agents, go_in, flags_set=FLAG_ARRIVED)
+                R_PLAN.set_plan_state(self.agents, go_in, flags_set=FLAG_ARRIVED)
                 s["flag_arrive"][go_in] = True
                 wait = self._minutes(np.maximum(T - ready[outside], 0))
                 g = tr[outside] == TRIP_GO
@@ -1080,7 +1085,7 @@ class CalendarSelf:
         ids = np.asarray(ids, dtype=np.int64)
         cells = np.asarray(cells, dtype=np.int64)
         self._release(ids, T)
-        walk_m, here_m, busy_m, fail_m = R.begin_walk_to(self.agents, self.world, ids, cells)
+        walk_m, here_m, busy_m, fail_m = R_PLAN.begin_walk_to(self.agents, self.world, ids, cells)
         w = ids[walk_m]
         if w.size:
             s["walk_kind"][w] = np.int8(kind)
@@ -1116,10 +1121,10 @@ class CalendarSelf:
         r = self.agents.registry
         shop = ids[np.asarray(r.poi_ref)[ids] >= 0]
         if shop.size:
-            R.release_indoor(self.agents, shop)
+            R_SHOP.release_indoor(self.agents, shop)
         q = ids[np.asarray(r.queue_poi)[ids] >= 0]
         if q.size:
-            R.balk_queue(self.agents, q, int(T))
+            R_SHOP.balk_queue(self.agents, q, int(T))
 
     def _start_leave(self, ids: np.ndarray, trip: int, T: int, started: list[np.ndarray]) -> None:
         """舞台を出る: 自分の路線のホームへ歩き、来た電車に乗る(``begin_exit_walk``)。路線が無い体は駅の口へ歩いて境界を越える。
@@ -1146,7 +1151,7 @@ class CalendarSelf:
         gate = ids[(line < 0) | (not rail_on)]
         if rl.size:
             self._release(rl, T)
-            walk_m, wait_m, fail_m = R.begin_exit_walk(self.agents, self.world, self.rail, rl, s["line"][rl], int(T))
+            walk_m, wait_m, fail_m = R_PLAN.begin_exit_walk(self.agents, self.world, self.rail, rl, s["line"][rl], int(T))
             ok = rl[walk_m | wait_m]
             if ok.size:
                 s["walk_kind"][ok] = WK_LEAVE_RAIL
@@ -1155,7 +1160,7 @@ class CalendarSelf:
                 s["walk_cell"][ok] = -1
                 s["walk_pending"][ok] = False
                 s["plat_T"][ok] = -1
-                R.set_plan_state(self.agents, ok, flags_set=R.EXIT_WALK_FLAG)
+                R_PLAN.set_plan_state(self.agents, ok, flags_set=R_ACT_CODES.EXIT_WALK_FLAG)
                 self._phase(ok, PH_GO_LEAVE if trip == TRIP_GO else PH_BACK_LEAVE)
                 started.append(rl[walk_m])
             gate = np.concatenate([gate, rl[fail_m]])  # 便もホームも無い路線=駅の口へ歩いて境界を越える
@@ -1216,11 +1221,11 @@ class CalendarSelf:
             s["plat_T"][fw] = np.asarray(r.board_since)[fw].astype(np.int64)
             left = ri[rst == 2]
             if left.size:
-                R.set_plan_state(self.agents, left, flags_clear=R.EXIT_WALK_FLAG)
+                R_PLAN.set_plan_state(self.agents, left, flags_clear=R_ACT_CODES.EXIT_WALK_FLAG)
                 self._left_area(left, T)
             lost = ri[(rst == 0) & (bl[rail] < 0)]
             if lost.size:
-                R.set_plan_state(self.agents, lost, flags_clear=R.EXIT_WALK_FLAG)
+                R_PLAN.set_plan_state(self.agents, lost, flags_clear=R_ACT_CODES.EXIT_WALK_FLAG)
                 self._interrupt(lost, T)
         # ---- 歩いて行き先へ(場所・家・境界)----
         walk = ~rail
@@ -1252,7 +1257,7 @@ class CalendarSelf:
             self._after_home(ids, T)
         elif kind == WK_LEAVE_GATE:
             # 境界を歩いて越える(非鉄道の方面=駅の口を境界の代わり=仮採用)。域外の置き場へ移す口は rail_depart と同じ書き方。
-            R.rail_depart(self.agents, ids, np.full(ids.size, -1, dtype=np.int64))
+            R_RAIL.rail_depart(self.agents, ids, np.full(ids.size, -1, dtype=np.int64))
             s["flag_cross"][ids] = True
             self._left_area(ids, T)
 

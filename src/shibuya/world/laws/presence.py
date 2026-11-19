@@ -96,7 +96,12 @@ from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
 from shibuya.world.model.agent_table import AgentState
 from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, MINUTES_PER_DAY, PLACE_WORDS
 from shibuya.world.laws import switch_rate as _RATE_RULES
-from shibuya.engine import resolve as R
+# 〔割る段 6 の S6-G1〕別名 R を割り先ごとに分けた(R_ACT_CODES=foundation.vocab.act_codes・R_PLAN=act.ops.plan_writes・R_RAIL=act.ops.rail・
+# R_SHOP=act.ops.shop の名。割る前は全部 resolve)
+from shibuya.engine import resolve as R_ACT_CODES
+from shibuya.engine import resolve as R_PLAN
+from shibuya.engine import resolve as R_RAIL
+from shibuya.engine import resolve as R_SHOP
 from shibuya.world.model.state import World
 from shibuya.foundation.time_consts import HOURS_PER_DAY, STEPS_PER_HOUR
 from shibuya.world.laws.presence_plan import DERIVE_RULES, DERIVE_RULE_DEFAULT, PlanBlocks, _day_rows
@@ -477,7 +482,7 @@ class PlanExecutor:
         has_plan[:m] = self.blocks.blocks_per_agent()[:m] > 0
         flags = np.asarray(r.plan_flags).astype(np.int64)
         flags = (flags & ~np.int64(FLAG_HAS_PLAN)) | np.where(has_plan, FLAG_HAS_PLAN, 0)
-        R.set_plan_state(self.agents, flags=flags)
+        R_PLAN.set_plan_state(self.agents, flags=flags)
 
     def initialize_caches(self) -> None:
         """10d: 再開のときの ``initialize`` の代わり(体を動かさず、``initialize`` が作る控えだけを作る)。"""
@@ -852,10 +857,10 @@ class PlanExecutor:
         has_plan[:m] = self.blocks.blocks_per_agent()[:m] > 0
         flags |= np.where(has_plan, FLAG_HAS_PLAN, 0)
         flags |= np.where(self.in_area_at_start, FLAG_ARRIVED, 0)
-        R.set_plan_state(self.agents, flags=flags)
+        R_PLAN.set_plan_state(self.agents, flags=flags)
         if out.size:
             ref = self.line_of_agent[out]
-            R.place_at_external(self.agents, out, ref)
+            R_RAIL.place_at_external(self.agents, out, ref)
         # **在圏 ⇒ セルがある**(I6・層2 指摘 2026-09-11): 域外居住(``home_cell < 0``)
         # なのに 0 時から在圏の体は ``resolve.initialize`` が ``cell = node = -1`` のまま
         # 置いている(ARRIVE も出ない=その日ずっと「どこにも居ない在圏」になる)。
@@ -869,10 +874,10 @@ class PlanExecutor:
             exits = self._exit_cells()
             if exits.size:
                 cells = exits[np.arange(ghost.size, dtype=np.int64) % exits.size]
-                R.rail_arrive(self.agents, self.world, ghost, cells)
-                R.set_plan_state(self.agents, ghost, flags_set=FLAG_ARRIVED)
+                R_RAIL.rail_arrive(self.agents, self.world, ghost, cells)
+                R_PLAN.set_plan_state(self.agents, ghost, flags_set=FLAG_ARRIVED)
             else:  # 降りる先が 1 つも無い世界=外へ置く(在圏でセル無しは作らない)
-                R.place_at_external(self.agents, ghost, self.line_of_agent[ghost])
+                R_RAIL.place_at_external(self.agents, ghost, self.line_of_agent[ghost])
         self.n_all_day_outside = int(
             np.count_nonzero(self.managed & ~has_plan)
         )
@@ -956,7 +961,7 @@ class PlanExecutor:
         elif ty == EventType.ARRIVE:
             self._do_arrive(ids, arg)
         elif ty == EventType.SLEEP:
-            got = R.begin_planned_sleep(
+            got = R_PLAN.begin_planned_sleep(
                 self.agents, self.world, ids, arg, tick, schedule=self._home_shim
             )
             for k, v in got.items():
@@ -972,7 +977,7 @@ class PlanExecutor:
                 )
             )
         elif ty == EventType.WAKE:
-            self.sleep_counts["woke"] = self.sleep_counts.get("woke", 0) + R.wake_from_plan(
+            self.sleep_counts["woke"] = self.sleep_counts.get("woke", 0) + R_PLAN.wake_from_plan(
                 self.agents, ids
             )
         # 〔第330・RET〕イベントの活動(``act``)は計画上の活動の欄 ``plan_activity`` を書くのに使っていた(K15 で欄を消した)。
@@ -1006,8 +1011,8 @@ class PlanExecutor:
         got = ids[ok]
         if got.size == 0:
             return
-        R.rail_arrive(self.agents, self.world, got, cells[ok])
-        R.set_plan_state(self.agents, got, flags_set=FLAG_ARRIVED)
+        R_RAIL.rail_arrive(self.agents, self.world, got, cells[ok])
+        R_PLAN.set_plan_state(self.agents, got, flags_set=FLAG_ARRIVED)
         self.n_arrivals += int(got.size)
 
     def _do_depart(self, ids: np.ndarray, lines: np.ndarray, tick: int) -> None:
@@ -1062,18 +1067,18 @@ class PlanExecutor:
         )
         self._defer_line = np.concatenate([self._defer_line, lines])
         self._defer_walk = np.concatenate([self._defer_walk, np.full(int(ids.size), bool(walk))])
-        R.set_plan_state(self.agents, ids, flags_set=FLAG_EXIT_DEFERRED)
+        R_PLAN.set_plan_state(self.agents, ids, flags_set=FLAG_EXIT_DEFERRED)
 
     def _release_affiliations(self, ids: np.ndarray, tick: int) -> None:
         """買物・待ち行列を解く(§4・``_depart_now`` と 9a の歩き出しで共有)。"""
         r = self.agents.registry
         shopping = ids[np.asarray(r.poi_ref)[ids] >= 0]
         if shopping.size:
-            R.release_indoor(self.agents, shopping)
+            R_SHOP.release_indoor(self.agents, shopping)
             self.n_shopping_interrupted += int(shopping.size)
         queued = ids[np.asarray(r.queue_poi)[ids] >= 0]
         if queued.size:
-            R.balk_queue(self.agents, queued, int(tick))
+            R_SHOP.balk_queue(self.agents, queued, int(tick))
             self.n_queue_balked += int(queued.size)
 
     def _depart_now(self, ids: np.ndarray, lines: np.ndarray, tick: int, *, count: bool = True) -> None:
@@ -1082,8 +1087,8 @@ class PlanExecutor:
         if ids.size == 0:
             return
         self._release_affiliations(ids, tick)
-        R.rail_depart(self.agents, ids, lines)
-        R.set_plan_state(self.agents, ids, flags_clear=FLAG_EXIT_DEFERRED)
+        R_RAIL.rail_depart(self.agents, ids, lines)
+        R_PLAN.set_plan_state(self.agents, ids, flags_clear=FLAG_EXIT_DEFERRED)
         if count:
             self.n_departures += int(ids.size)
 
@@ -1102,12 +1107,12 @@ class PlanExecutor:
         self._release_affiliations(ids, tick)
         gate = lines < 0
         if gate.any():
-            R.rail_depart(self.agents, ids[gate], lines[gate])
+            R_RAIL.rail_depart(self.agents, ids[gate], lines[gate])
             self.n_exit_gate_immediate += int(gate.sum())
         rid, rln = ids[~gate], lines[~gate]
-        walk_m, wait_m, fail_m = R.begin_exit_walk(self.agents, self.world, self.rail, rid, rln, int(tick))
+        walk_m, wait_m, fail_m = R_PLAN.begin_exit_walk(self.agents, self.world, self.rail, rid, rln, int(tick))
         if fail_m.any():
-            R.rail_depart(self.agents, rid[fail_m], rln[fail_m])
+            R_RAIL.rail_depart(self.agents, rid[fail_m], rln[fail_m])
             self.n_exit_no_platform += int(fail_m.sum())
         started_m = walk_m | wait_m
         started = rid[started_m]
@@ -1115,13 +1120,13 @@ class PlanExecutor:
             self.n_exit_walk_restarted += int(np.count_nonzero(self._walk_since[started] >= 0))
             self._walk_since[started] = int(tick)
             self._walk_line[started] = rln[started_m].astype(np.int32)
-            R.set_plan_state(self.agents, started, flags_set=R.EXIT_WALK_FLAG)
+            R_PLAN.set_plan_state(self.agents, started, flags_set=R_ACT_CODES.EXIT_WALK_FLAG)
             if rewalk:
                 self.n_exit_rewalk_started += int(started.size)
             else:
                 self.n_exit_walk_started += int(started.size)
                 self.n_exit_walk_waiting_at_start += int(wait_m.sum())
-        R.set_plan_state(self.agents, ids, flags_clear=FLAG_EXIT_DEFERRED)
+        R_PLAN.set_plan_state(self.agents, ids, flags_clear=FLAG_EXIT_DEFERRED)
         if not rewalk:
             self.n_departures += int(ids.size)
         self.walk_started_now = np.sort(started)
@@ -1177,7 +1182,7 @@ class PlanExecutor:
         boarded = st == 1
         stop = ~(st == 0) | (np.asarray(r.board_line)[ids] < 0) | ((int(tick) - since) >= self.walk_max_ticks)
         if stop.any():
-            R.set_plan_state(self.agents, ids[stop], flags_clear=R.EXIT_WALK_FLAG)
+            R_PLAN.set_plan_state(self.agents, ids[stop], flags_clear=R_ACT_CODES.EXIT_WALK_FLAG)
         if boarded.any():
             b = ids[boarded]
             self._plan_rider[b] = True
@@ -1194,7 +1199,7 @@ class PlanExecutor:
         line = self._walk_line[ids].astype(np.int64)
         if too_far.any():
             tf = ids[too_far]
-            R.clear_board_intent(self.agents, tf)
+            R_PLAN.clear_board_intent(self.agents, tf)
             self._depart_now(tf, line[too_far], tick, count=False)
             self.fallback_minutes.extend((int(tick) - since[too_far]).tolist())
             self.n_exit_too_far += int(tf.size)
@@ -1243,7 +1248,7 @@ class PlanExecutor:
         a = np.asarray(agent_ids, dtype=np.int64).ravel()
         if a.size == 0:
             return
-        R.set_plan_state(self.agents, a, flags_clear=R.EXIT_WALK_FLAG)
+        R_PLAN.set_plan_state(self.agents, a, flags_clear=R_ACT_CODES.EXIT_WALK_FLAG)
         walking = self._walk_since[a] >= 0  # 乗って発車するまでの間に層の掃除を挟まなかった体
         if walking.any():
             self.walk_minutes.extend((int(tick) - self._walk_since[a[walking]].astype(np.int64)).tolist())
@@ -1298,7 +1303,7 @@ class PlanExecutor:
         self.n_exit_forced += int(np.count_nonzero(expired & ~gone & (act == int(Activity.CONVERSING))))
         keep = ~ready & ~gone
         if int(np.count_nonzero(gone)):
-            R.set_plan_state(self.agents, ids[gone], flags_clear=FLAG_EXIT_DEFERRED)
+            R_PLAN.set_plan_state(self.agents, ids[gone], flags_clear=FLAG_EXIT_DEFERRED)
         self._defer_ids = ids[keep]
         self._defer_deadline = self._defer_deadline[keep]
         self._defer_line = self._defer_line[keep]
@@ -1334,7 +1339,7 @@ class PlanExecutor:
         a = np.asarray(agent_ids, dtype=np.int64).ravel()
         if a.size == 0:
             return
-        R.set_plan_state(self.agents, a, flags_set=FLAG_ARRIVED)
+        R_PLAN.set_plan_state(self.agents, a, flags_set=FLAG_ARRIVED)
         self._pulled_in_today[a] = True
         self.n_pulled_in += int(a.size)
 

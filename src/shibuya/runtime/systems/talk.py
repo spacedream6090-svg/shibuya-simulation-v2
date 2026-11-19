@@ -24,7 +24,9 @@ from shibuya.foundation.vocab.agent_codes import Activity
 from shibuya.foundation.vocab.agent_codes import ResultCode
 from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.foundation.vocab import act_codes as C
-from shibuya.engine import resolve as R
+# 〔割る段 6 の S6-G1〕別名 R を割り先ごとに分けた(R_ACT_CODES=foundation.vocab.act_codes・R_TALK=act.ops.talk の名。割る前は全部 resolve)
+from shibuya.engine import resolve as R_ACT_CODES
+from shibuya.engine import resolve as R_TALK
 
 
 def sys_relations_wake(ctx: Any, b: Any) -> None:
@@ -132,14 +134,14 @@ def sys_conversation(ctx: Any, b: Any) -> None:
                         and not conv.is_busy(inviter)
                     ):
                         s_join = conv.session_of(invitee)
-                        if s_join is not None and bool(R.talk_within_reach(
+                        if s_join is not None and bool(R_TALK.talk_within_reach(
                             agents, np.int64(inviter), np.int64(invitee), by_distance=attention_on,
                             rule=prox_rule,
                         )) and conv.join(s_join, inviter, tick):
-                            R.join_conversation(agents, np.array([inviter]), np.array([invitee]), tick)
+                            R_TALK.join_conversation(agents, np.array([inviter]), np.array([invitee]), tick)
                     continue  # resolve が失敗させた(相手が会話中/去った)
                 same_cell = bool(
-                    R.talk_within_reach(
+                    R_TALK.talk_within_reach(
                         agents,
                         np.int64(inviter),
                         np.int64(invitee),
@@ -174,7 +176,7 @@ def sys_conversation(ctx: Any, b: Any) -> None:
                         conv.n_accepted += 1
                         conv.note_origin(origin, "accepted")
                         opened.origin = int(origin)
-                        R.set_conversing(
+                        R_TALK.set_conversing(
                             agents,
                             np.array([inviter], dtype=np.int64),
                             np.array([invitee], dtype=np.int64),
@@ -209,13 +211,13 @@ def sys_conversation(ctx: Any, b: Any) -> None:
             for _cause in sorted({revert_cause[int(x)] for x in _rv.tolist()}):  # 逐次ループ宣言: 原因ぶん(≤ 4)
                 _ids = _rv[np.fromiter((revert_cause[int(x)] == _cause for x in _rv.tolist()), dtype=bool,
                                        count=_rv.size)]
-                conv.note_revert_kept(_cause, R.end_conversation(agents, _ids))
+                conv.note_revert_kept(_cause, R_TALK.end_conversation(agents, _ids))
         finished = conv.step(
             tick,
             cell=agents.registry.cell,
             # C9b G7: 離脱は**実距離 3 m**(成立 2 m より広い=ヒステリシス)。
             xy=agents.registry.xy if attention_on else None,
-            leave_distance_m=R.TALK_LEAVE_METERS if attention_on else None,
+            leave_distance_m=R_ACT_CODES.TALK_LEAVE_METERS if attention_on else None,
             # 第 2 期 2-2: 腕 distance の離脱=同じ層・距離 ≤ d+1 m、または同じ B5 の単位(既定 None=今のまま)
             near_fn=None if prox_rule is None else (lambda a_, b_: prox_rule.stay(agents, a_, b_)),
         )
@@ -236,6 +238,6 @@ def sys_conversation(ctx: Any, b: Any) -> None:
             # 〔11-03 M10〕CONVERSING の参加者だけ IDLE に戻す(会話の番で選んだ別の行為=歩く・寝る・在店などは変えない)。
             # 戻さなかった数を活動の名ごとに数える(計器 n_conversation_end_kept_activity=会話マネージャの診断)。
             # 〔第346〕旧道(参加者全員を IDLE)の分かれは消した
-            conv.note_end_kept(R.end_conversation(agents, done))
+            conv.note_end_kept(R_TALK.end_conversation(agents, done))
         conv.purge_terminal()
         conv.purge_expired(tick)  # 10e(E2): 期限の切れた不応期・拒否の控えを落とす(挙動は不変・有界化)

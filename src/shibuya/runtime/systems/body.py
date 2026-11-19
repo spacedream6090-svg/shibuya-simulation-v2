@@ -17,7 +17,9 @@ import numpy as np
 
 from shibuya.foundation.vocab.agent_codes import WAKE_CONDITION_CLASS
 from shibuya.foundation.vocab.agent_codes import WakeCondition
-from shibuya.engine import resolve as R
+# 〔割る段 6 の S6-G1〕別名 R を割り先ごとに分けた(R_BODY=act.ops.body_writes・R_PLAN=act.ops.plan_writes の名。割る前は全部 resolve)
+from shibuya.engine import resolve as R_BODY
+from shibuya.engine import resolve as R_PLAN
 from shibuya.world.body.energy import DEFAULT_MEAL_SLEEP_DEFER
 from shibuya.foundation.time_consts import HOURS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PER_MINUTE
 
@@ -33,7 +35,7 @@ def sys_body(ctx: Any, b: Any) -> None:
     energy_layer = b.layers.energy
     meal_sleep_defer = b.cfg.meal_sleep_defer
     tick = ctx.T
-    R.advance_body(agents, tick, energy_layer, b.layers.body)
+    R_BODY.advance_body(agents, tick, energy_layer, b.layers.body)
     if classical_policy is not None:  # 第2波 §2A 項 4: per_hour の門の「範囲内で起きていた分」(他の腕は no-op)
         classical_policy.accrue_awake()
     # ---- 5 段目 5a(K9 (a)): 範囲外の食事(W17 の食事行の開始・既定の時刻に域外に居る体) ----
@@ -41,13 +43,13 @@ def sys_body(ctx: Any, b: Any) -> None:
         if meal_sleep_defer == DEFAULT_MEAL_SLEEP_DEFER:
             _ea, _es, _ef = energy_layer.out_of_area.due(tick, agents.registry.transit_state)
             if _ea.size:
-                R.energy_out_of_area_meal(agents, energy_layer, _ea, _es, _ef, tick)
+                R_BODY.energy_out_of_area_meal(agents, energy_layer, _ea, _es, _ef, tick)
         else:  # 第2波 §2B 項 1: 起床時に遅らせた既定の食事を含む
             _ea, _es, _ef, _ed = energy_layer.out_of_area.due_with_deferred(
                 tick, agents.registry.transit_state
             )
             if _ea.size:
-                R.energy_out_of_area_meal(agents, energy_layer, _ea, _es, _ef, tick, deferred=_ed)
+                R_BODY.energy_out_of_area_meal(agents, energy_layer, _ea, _es, _ef, tick, deferred=_ed)
 
 
 def sys_presence(ctx: Any, b: Any) -> None:
@@ -118,7 +120,7 @@ def sys_plan_boundary(ctx: Any, b: Any) -> None:
                     p_cond = p_cond[~to_bed]
             else:
                 if to_bed.any():
-                    got = R.begin_planned_sleep(
+                    got = R_PLAN.begin_planned_sleep(
                         agents, world, p_agent[to_bed], b.day.b_cell[lo:hi][to_bed], tick,
                         schedule=schedule,
                     )
@@ -127,7 +129,7 @@ def sys_plan_boundary(ctx: Any, b: Any) -> None:
                     p_agent = p_agent[~to_bed]
                     p_cond = p_cond[~to_bed]
                 if p_agent.size:
-                    sleep_counts["woke"] = sleep_counts.get("woke", 0) + R.wake_from_plan(
+                    sleep_counts["woke"] = sleep_counts.get("woke", 0) + R_PLAN.wake_from_plan(
                         agents, p_agent
                     )
         p_class = np.fromiter(
@@ -153,7 +155,7 @@ def sys_home_meal(ctx: Any, b: Any) -> None:
         _hr = agents.registry
         _ha, _hs = energy_layer.home_meals.due(tick, _hr.transit_state, _hr.cell, _hr.activity)
         if _ha.size:
-            R.energy_home_meal(agents, energy_layer, _ha, _hs, tick)
+            R_BODY.energy_home_meal(agents, energy_layer, _ha, _hs, tick)
 
 
 def sys_energy_after(ctx: Any, b: Any) -> None:

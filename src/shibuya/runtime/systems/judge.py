@@ -24,7 +24,9 @@ from shibuya.foundation.hashing import apply_key_array
 from shibuya.act import commit as C
 from shibuya.act.intake import from_words as CW
 from shibuya.foundation.vocab import act_codes as CV
-from shibuya.engine import resolve as R
+# 〔割る段 6 の S6-G1〕別名 R を割り先ごとに分けた(R_MIND=mind.ops・R_TALK=act.ops.talk の名。割る前は全部 resolve)
+from shibuya.engine import resolve as R_MIND
+from shibuya.engine import resolve as R_TALK
 from shibuya.mind.system1.wake import WakeCandidates
 from shibuya.foundation.time_consts import HOURS_PER_DAY, STEPS_PER_HOUR
 
@@ -158,7 +160,7 @@ def sys_apply_responses(ctx: Any, b: Any) -> None:
             # B の「直前の結果」(B6)に**偽の失敗**が載る。承諾はここで消費し、
             # B の行を intent から外す(承諾は新しい招待ではない)。
             consumed = _settle_pending_invites(
-                conv, agents, tick, agents_in_order, codes, tgt_person, R, np,
+                conv, agents, tick, agents_in_order, codes, tgt_person, R_TALK, np,
                 attention_on, **({} if prox_rule is None else {"rule": prox_rule}),
                 drop_unreachable=True,  # 〔11-03 M16〕届かない返事は不成立(〔第346〕切替口 legacy は消した)
                 keep_activity=True,  # 〔11-03 M10 の続き〕招待側の戻しは CONVERSING だけ
@@ -310,7 +312,7 @@ def sys_wake_filter(ctx: Any, b: Any) -> None:
         f_since = np.fromiter((x[3] for x in fleet_deferred), dtype=np.int64,
                               count=len(fleet_deferred))
         # 「答えが来なかった」呼は起床の抑止対象ではない=張った不応期を戻す。
-        R.clear_refractory(agents, f_agent, f_cond)
+        R_MIND.clear_refractory(agents, f_agent, f_cond)
         b.runstats.n_fleet_reinjected += len(fleet_deferred)
         fleet_deferred.clear()
     else:

@@ -80,7 +80,9 @@ from typing import Any, Final
 import numpy as np
 from shibuya.foundation.vocab.agent_codes import REL_EMPTY, WAKE_CONDITION_CLASS, ResultCode, WakeCondition
 from shibuya.foundation.hashing import relation_invite_key_array
-from shibuya.engine import resolve as R
+# 〔割る段 6 の S6-G1〕別名 R を割り先ごとに分けた(R_ACT_CODES=foundation.vocab.act_codes・R_MIND=mind.ops の名。割る前は全部 resolve)
+from shibuya.engine import resolve as R_ACT_CODES
+from shibuya.engine import resolve as R_MIND
 from shibuya.foundation.vocab import contact_flags as _CT
 from shibuya.foundation.time_consts import MINUTES_PER_DAY
 from shibuya.foundation.vocab.relations import (
@@ -253,7 +255,7 @@ class RelationLayer:
         slot = np.empty(u.size, dtype=np.int64)
         slot[order] = np.arange(u.size) - np.repeat(starts, np.diff(np.append(starts, u.size)))
         ok = slot < self.k
-        R.write_relations(agents, u[ok], slot[ok], init.v[ok], init.kind[ok], np.zeros(int(ok.sum())),
+        R_MIND.write_relations(agents, u[ok], slot[ok], init.v[ok], init.kind[ok], np.zeros(int(ok.sum())),
                           init.first[ok], init.last[ok], init.n[ok])
         # 1-7 CT5: 家族(世帯の辺)と職場(職場の辺)は初めから連絡先の印あり(ほかの種別は 0)
         self._write_contacts(u[ok], slot[ok], _CT.flags_from_kinds(init.kind[ok]))
@@ -326,7 +328,7 @@ class RelationLayer:
         sg = np.clip(np.where(found, old_sign, 0) + sign, -127, 127)
         first = np.where(found, old_first, int(tick))
         n = np.where(found, np.minimum(old_n + 1, 65_535), 1)
-        R.write_relations(agents, a, slot, partner, kind, sg, first, np.full(a.size, int(tick)), n)
+        R_MIND.write_relations(agents, a, slot, partner, kind, sg, first, np.full(a.size, int(tick)), n)
         self.stats["merged"] += int(np.count_nonzero(found))
         self.stats["new_edges"] += int(np.count_nonzero(new))
         if bool(new.any()):
@@ -478,7 +480,7 @@ class RelationLayer:
             in_cell = live & (cell[pp] == ca[:, None]) & (ca[:, None] >= 0)
             xy = np.asarray(r.xy, dtype=np.float64)
             d2 = ((xy[pp] - xy[a][:, None, :]) ** 2).sum(axis=-1)
-            near = in_cell & (d2 <= float(R.TALK_OPEN_METERS) ** 2)
+            near = in_cell & (d2 <= float(R_ACT_CODES.TALK_OPEN_METERS) ** 2)
         has_near = near.any(axis=1)
         cand = np.where(has_near[:, None], near, in_cell)
         fb_is_edge = ((p == fb[:, None]) & in_cell).any(axis=1)
@@ -639,7 +641,7 @@ class RelationLayer:
         a, j, f = a[fire], j[fire], flat[fire]
         self._co_day[f] = day
         n = np.minimum(r.rel_n[a, j].astype(np.int64) + 1, 65_535)
-        R.write_relations(agents, a, j, r.rel_partner[a, j].astype(np.int64), r.rel_kind[a, j].astype(np.int64),
+        R_MIND.write_relations(agents, a, j, r.rel_partner[a, j].astype(np.int64), r.rel_kind[a, j].astype(np.int64),
                           r.rel_sign[a, j].astype(np.int64), r.rel_first[a, j].astype(np.int64),
                           np.full(a.size, int(tick)), n)
         self.stats["copresent_events"] += int(a.size)
