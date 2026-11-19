@@ -124,7 +124,7 @@
 | [tests/llm](tests/llm/README.md) | 9 | 0 |
 | [tests/perception](tests/perception/README.md) | 20 | 0 |
 | [tests/perception/facts](tests/perception/facts/README.md) | 8 | 1 |
-| [tests/tools](tests/tools/README.md) | 24 | 0 |
+| [tests/tools](tests/tools/README.md) | 25 | 0 |
 | [tests/vocab](tests/vocab/README.md) | 5 | 0 |
 | [tests/w17](tests/w17/README.md) | 3 | 0 |
 | [tests/world](tests/world/README.md) | 2 | 0 |
@@ -149,7 +149,7 @@
 | [tools/instruments/leak_check/question_sets](tools/instruments/leak_check/question_sets/README.md) | 0 | 4 |
 | [tools/ledger](tools/ledger/README.md) | 3 | 0 |
 | [tools/night5070](tools/night5070/README.md) | 2 | 2 |
-| [tools/pkgmove](tools/pkgmove/README.md) | 16 | 4 |
+| [tools/pkgmove](tools/pkgmove/README.md) | 17 | 4 |
 | [tools/quality_probe_v0](tools/quality_probe_v0/README.md) | 8 | 9 |
 | [tools/realworld_fetch](tools/realworld_fetch/README.md) | 15 | 0 |
 | [tools/repo_guide](tools/repo_guide/README.md) | 4 | 0 |

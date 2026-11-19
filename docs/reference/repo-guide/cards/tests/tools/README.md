@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 24 本・その他 0 本(このディレクトリの直下)
+Python 25 本・その他 0 本(このディレクトリの直下)
 
 ## [test_absent_declarations.py](../../../../../../tests/tools/test_absent_declarations.py)
 
@@ -699,6 +699,26 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
 - import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/classids.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/importcheck.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/pkgdata.py`・`tools/pkgmove/split.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
 - 環境変数: `os.environ` をまるごと使う
 - 決定の ID: 11-16
+
+## [test_pkgmove_shapecheck.py](../../../../../../tests/tools/test_pkgmove_shapecheck.py)
+
+〔割る段 7 の G0-道具・E1・親の決め事 2〕形の変更の照合の台本(``tools/pkgmove/shapecheck.py``・``cli.py shapecheck``)の試験。
+
+- 公開の関数とクラス
+  - `real`(関数)
+  - `run_cli`(関数)
+  - `test_a_correct_shape_change_passes_and_names_the_declared_differences`(関数): 正しい形の変更は ⓪〜⑨ とも「同じ」。メソッドの置き場の表が出る。宣言どおりの違い 2 つ(先に出る例外・属性の辞書の並び)は
+  - `test_allowed_additions_section_separators_heads_and_named_imports`(関数): 止めずに出す物: 節の区切りの注を重ねる(宣言どおりの違い 3 つ目・数つき)・基底の頭に新しい注(見張りの欄)・名指しで許した
+  - `test_an_unchanged_file_is_not_called_a_shape_change`(関数): 前=後(クラスが 1 つのまま)は「形の変更ではない」(ok でない・同じとは言わない)。前に基底が既に在る・枠が無い・文法の誤りは
+  - `test_cli_reads_the_before_from_a_git_blob`(関数): ``--before <commit>:<道>`` で木を写さずに前を読む(前=後の blob は形の変更ではない=終了コード 2)。``--plan-counts`` は
+  - `test_cli_shapecheck_exit_codes`(関数): ``cli.py shapecheck``: 同じ=0・違う=1・形の変更ではない=2・後が無い=2・文法の誤り=2・``--allow-import``・``--json``。
+  - `test_each_planted_mutation_is_caught`(関数): 植えた変異は 1 つずつ落ちる(照合が ok でない・名指しの項目が違う)。
+  - `test_plan_counts_refuses_a_table_that_does_not_match_the_source`(関数): ``plan_counts`` は、表から読んだ名がソースのメソッドに無い・世界の側か気づく側のメソッドが表から読めないときは止める
+  - `test_real_renderer_a1_shape_passes_and_planted_changes_fail`(関数): 計画の分け方で作った A1 の形(文を前の注ごと動かす)は ⓪〜⑨ とも「同じ」・宣言どおりの違い 2 つ(入れ替わり 21・位置の
+  - `test_real_renderer_counts_match_the_retake`(関数): G-R1 の後の renderer.py(形を変える前)から、計画の分け方の数を台本が数える: メソッド 63・__init__ の文 68=世界の側 31・
+  - `test_the_mutations_change_the_sample`(関数): 負の対照の負の対照: 変異の関数は見本の字面に当たる(空回りしない)=どれも後の字面を変える(前提の変異は前も変える)。
+- import している内部モジュール: `tools/pkgmove/shapecheck.py`
+- 環境変数: `CI`・`os.environ` をまるごと使う
 
 ## [test_realworld_fetch_jinryu.py](../../../../../../tests/tools/test_realworld_fetch_jinryu.py)
 

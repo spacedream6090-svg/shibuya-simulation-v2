@@ -24,6 +24,14 @@ import の文が結ぶ名が変わる・``--check`` の食い違い)・2=断っ�
 
 割る段の終了コード: 0=できた・2=断った(表せない・順が違う・手で直す読みが残る)か守りが止めた(親の発注=守りが「同じ」で
 なければ当てない)・3=書いた後の import の確かめが落ちた。
+
+〔割る段 7 の G0-道具・E1〕1 つのファイルの中でクラスを分けた前と後の照合(``shapecheck.py``・書かない):
+
+    python tools/pkgmove/cli.py shapecheck --before <道か commit:道> --after <道か commit:道> [--allow-import <文>] [--json <置き場>]
+    python tools/pkgmove/cli.py shapecheck --before <道か commit:道> --plan-counts [--table <道か commit:道>]   # 形を変える前の数
+
+照合の終了コード: 0=⓪〜⑨ の 10 項目とも同じ・1=違う項目が在る・2=使い方の誤り(文法の誤り・表の名がソースと合わないを含む)か
+「形の変更ではない(クラスが 1 つのまま)」。
 """
 from __future__ import annotations
 
@@ -256,9 +264,49 @@ def main(argv: list[str] | None = None) -> int:
     sp.add_argument("--apply", action="store_true", help="木の pyproject の節を書き換える(本体の作業木は断る)")
     sp.add_argument("--out", default="", help="報告の JSON を書く道(木の外)。書くときは効いている例外の数も回す")
     sp.add_argument("--probe", action="store_true", help="効いている例外の数を回す(--out が無くても)")
+    sp = sub.add_parser("shapecheck", help="〔割る段 7・E1〕1 つのファイルの中でクラスを分けた前と後を照合する(書かない)")
+    sp.add_argument("--before", required=True, help="前の字面: ファイルの道か git の blob(<commit>:<道>=木を写さない)")
+    sp.add_argument("--after", default="", help="後の字面: ファイルの道か <commit>:<道>(--plan-counts のときは要らない)")
+    sp.add_argument("--plan-counts", action="store_true",
+                    help="後を渡さず、前の 1 つのファイルから計画の分け方(全ファイルの表 §4)の数を出す")
+    sp.add_argument("--src-rel", default="perception/renderer.py", help="全ファイルの表 §4 の節(src/shibuya からの道)")
+    sp.add_argument("--table", default="", help="--plan-counts で読む全ファイルの表(道か <commit>:<道>・既定は道具のリポの表)")
+    sp.add_argument("--allow-import", action="append", default=[],
+                    help="〔検収の後の直し 中-2〕後に足してよい import の文(ast.unparse の字面・1 つずつ・既定は無し=足した import は 0)")
+    sp.add_argument("--json", default="", help="結果の JSON を書く道(木の外=作業木の中に書かない)")
     a = ap.parse_args(argv)
     return {"map": cmd_map, "allow": cmd_allow, "move": cmd_move, "importcheck": cmd_importcheck,
-            "contracts": cmd_contracts, "split": cmd_split}[a.cmd](a)
+            "contracts": cmd_contracts, "split": cmd_split, "shapecheck": cmd_shapecheck}[a.cmd](a)
+
+
+def cmd_shapecheck(a: argparse.Namespace) -> int:
+    """〔割る段 7 の G0-道具・E1・親の決め事 2〕形の変更の照合(``shapecheck.py``)。終了コード: 0=照合がすべて同じ・
+    1=違う項目が在る・2=使い方の誤り(文法の誤り・表の名がソースと合わないを含む)か「形の変更ではない(クラスが 1 つのまま)」
+    (同じとは言わない)。``--plan-counts`` は数を出すだけ(0)。"""
+    from pkgmove import shapecheck as SC
+
+    try:
+        before = SC.read_source(a.before, REPO)
+        if a.plan_counts:
+            table = SC.read_source(a.table, REPO) if a.table else (REPO / SC.TABLE_REL).read_text(encoding="utf-8")
+            sides = SC.table_method_sides(table, a.src_rel)
+            doc = SC.plan_counts(before, sides)
+            print(json.dumps(doc, ensure_ascii=False, indent=1))
+            rc = EXIT_OK
+        else:
+            if not a.after:
+                print("断った: --after が要る(--plan-counts のほか)", file=sys.stderr)
+                return EXIT_REFUSE
+            res = SC.check(before, SC.read_source(a.after, REPO), allow_imports=tuple(a.allow_import))
+            doc = res.as_dict()
+            print(SC.render_text(res))
+            rc = EXIT_OK if res.ok else (EXIT_REFUSE if res.kind != "形の変更" else EXIT_STOP)
+    except SC.ShapeError as e:
+        print(f"断った: {e}", file=sys.stderr)
+        return EXIT_REFUSE
+    if a.json:
+        Path(a.json).write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+    return rc
 
 
 def cmd_split(a: argparse.Namespace) -> int:

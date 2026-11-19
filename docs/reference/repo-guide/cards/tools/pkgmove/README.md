@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 16 本・その他 4 本(このディレクトリの直下)
+Python 17 本・その他 4 本(このディレクトリの直下)
 
 その他のファイル: `README.md`・`allow_tests_tools.toml`・`contracts.toml`・`map.toml`
 
@@ -53,31 +53,41 @@ pkgmove — コードの区分の移動の道具(移す段 3・返事その 7 §
   - `cmd_importcheck`(関数)
   - `cmd_map`(関数)
   - `cmd_move`(関数)
+  - `cmd_shapecheck`(関数): 〔割る段 7 の G0-道具・E1・親の決め事 2〕形の変更の照合(``shapecheck.py``)。終了コード: 0=照合がすべて同じ・
   - `cmd_split`(関数): 〔割る段 5a〕割る行を当てる(``split.py``)。
   - `is_main_worktree`(関数): ``path`` が git の本体の作業木(か、その中)なら ``True``=書かない。
   - `main`(関数)
   - `scan_allow`(関数): tests と tools の走査: 段 4 の全段(保留を除く)で道の文字列の書き換えが起きる (ファイル, 記号)。
-- import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/importcheck.py`・`tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/split.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
+- import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/importcheck.py`・`tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/shapecheck.py`・`tools/pkgmove/split.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove_shapecheck.py`
 - CLI の引数
   - サブコマンド `allow`
   - サブコマンド `contracts`
   - サブコマンド `importcheck`
   - サブコマンド `map`
   - サブコマンド `move`
+  - サブコマンド `shapecheck`
   - サブコマンド `split`
+  - `--after`: 後の字面: ファイルの道か <commit>:<道>(--plan-counts のときは要らない)
+  - `--allow-import`: 〔検収の後の直し 中-2〕後に足してよい import の文(ast.unparse の字面・1 つずつ・既定は無し=足した import は 0)
   - `--apply`: 木の pyproject の節を書き換える(本体の作業木は断る)
+  - `--before`: 前の字面: ファイルの道か git の blob(<commit>:<道>=木を写さない)
   - `--check`: 木の pyproject の節が作り直しと同じかを見る(違えば 1)
   - `--contracts`: 〔割る段 6・E9〕import の決まりの元 TOML の道(既定は道具のリポの contracts.toml)
   - `--import-jobs`
   - `--jobs`
+  - `--json`: 結果の JSON を書く道(木の外=作業木の中に書かない)
   - `--map`: 〔割る段 6・E9〕対応表 TOML の道(既定は道具のリポの map.toml)。渡せば割る段の順もこの表の割る行の split_order から読む
   - `--next`: 木の次の割る行(順の次の 1 本)
   - `--only`: 割る行を今の道(表の old)で名指す(順が違えば断る)
   - `--out`: 報告の JSON を書く道(木の外)。書くときは効いている例外の数も回す
   - `--out-dir`: 報告の JSON と差分を書く置き場(木の外)
+  - `--plan-counts`: 後を渡さず、前の 1 つのファイルから計画の分け方(全ファイルの表 §4)の数を出す
   - `--probe`: 効いている例外の数を回す(--out が無くても)
+  - `--src-rel`: 全ファイルの表 §4 の節(src/shibuya からの道)
   - `--stage`: 段の名(contracts.toml の stage_order)
+  - `--table`: --plan-counts で読む全ファイルの表(道か <commit>:<道>・既定は道具のリポの表)
   - `--through`: 書かない実行だけ: 次の本から、この行(か all)まで順にメモリの中で当てる
   - `--tree`: 段を当てた木の根
 - 環境変数: `os.environ` をまるごと使う
@@ -254,6 +264,22 @@ pyproject の ``[tool.setuptools.package-data]`` の鍵(親の裁定 2026-11-11�
 - import している内部モジュール: `tools/pkgmove/model.py`
 - 呼び手: `tools/pkgmove/move.py`
 - 読む試験: `tests/tools/test_pkgmove.py`
+
+## [shapecheck.py](../../../../../../tools/pkgmove/shapecheck.py)
+
+〔割る段 7 の G0-道具・E1・親の決め事 2〕形の変更の照合: 1 つのファイルの中で 1 つのクラスを 3 つ(枠と基底 2 つ)に分けた「前」と「後」を、字面と AST で比べ、挙動を変えていないことを確かめる(読むだけ・何も書かない)。
+
+- 公開の関数とクラス
+  - `Result`(クラス): 照合の結果。``checks`` は項目 → 違いの文(空=同じ)。
+  - `Shape`(クラス): 分け方のクラスの名: 枠・世界の側の基底(``__init__`` を持ち、枠が先に呼ぶ)・気づく側の基底(``__init__`` を持たない)。
+  - `ShapeError`(クラス): 読めない・使い方の誤り(文法の誤り・クラスが無い・前に基底が既に在る など)。
+  - `check`(関数): 前と後の字面を照合する(:class:`Result`)。文法の誤り・前に基底が在るなどは :class:`ShapeError`。``allow_imports`` は
+  - `plan_counts`(関数): 形を変える前の 1 つのファイルから、計画の分け方の数を出す: 世界の側と心の側の ``__init__`` の文・``__init__`` で書く属性・
+  - `read_source`(関数): ``spec`` がファイルの道ならその中身、``<commit>:<道>`` なら git の blob(``git -C repo show``)。木を写さずに前を読む口。
+  - `render_text`(関数): 人が読む文。
+  - `table_method_sides`(関数): 全ファイルの表 §4 の ``src_rel`` の節から、``<枠か基底>.<メソッド>`` の割り先を側(world・notice・frame)にして返す
+- 呼び手: `tools/pkgmove/cli.py`
+- 読む試験: `tests/tools/test_pkgmove_shapecheck.py`
 
 ## [split.py](../../../../../../tools/pkgmove/split.py)
 
