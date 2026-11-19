@@ -164,3 +164,67 @@
 | 固定の値を作る台本の `--check` | 同じ(sha256 `6a4b27c51e4a10ad260467a1c335c02b5bd4a810d07207208ba54911fd5d3015`) |
 | `git status --short -- src tools` | 空(src と道具は変えていない) |
 | 差分を読んだ(資産の指紋の試験の assert・落ちていた slow の試験の直し) | 発注と裁定のとおり |
+
+## 3. G-R1(土台 `3c8e126`・2026-11-19)
+
+裁定 Q6 の (c): `src/shibuya/perception/renderer.py` が自分で持っていた `INTERO_UP_EDGES` の定義を、`foundation/vocab/agent_codes.py` からの import に替えた(同じ文の定義が 5a の割る段で agent_codes に入っていた=二重の定義。割る道具は「在る名を足す」を断るので、割る前に 1 つにする)。変えたのは renderer.py の 1 本だけ。
+
+### 3-1. 直した所
+
+- 80 行: `from shibuya.foundation.vocab.agent_codes import (…)` の束に `    INTERO_UP_EDGES,` を足した(束の今の並び=字の順で `INTEROCEPTION_FIELDS` の次)。
+- 前の 327〜328 行: 定義の 2 行(注 1 行と `INTERO_UP_EDGES: Final[tuple[int, ...]] = (4, 7, 9)`)を消した。
+- `git diff --stat` は renderer.py の 1 本・+1・−2(3,171 行 → 3,170 行)。`__all__` の `"INTERO_UP_EDGES"`(140 行)は残した(G-S で道具が再輸出として外す)。モジュールの docstring の「二重定義」の項はつなぎの台帳の宣言の見出しなので触っていない(段 8 の文の掃除)=つなぎの台帳の試験は通る(下の束)。
+- 取り直しの木 `8a1e409` と土台 `3c8e126` の間で renderer.py に差が無いことを先に見た(`git diff` が空)。
+
+### 3-2. 直す前の確かめ
+
+| 何を | 直す前 | 直した後 |
+|---|---|---|
+| 定義の文の AST(renderer と agent_codes) | 同じ | renderer に定義は無い(import) |
+| 値 | 同じ `(4, 7, 9)` | 同じ |
+| 型 | 同じ(tuple) | 同じ |
+| 同じ物か(`is`) | **別の物**(2 つのモジュールがそれぞれ作った tuple) | **同じ物** |
+
+- 別の物であることに頼るコード(`INTERO_UP_EDGES` を書き換える所・`is` で比べる所・`id` を使う所)は、src・tests(c7 を除くディレクトリを名指し)・tools に無かった。読み手は値で使う(段の数え・先頭の閾値)だけ。renderer の名で読む読み手は今の木に無い(`tests/perception/facts/test_percept_schema.py` は G0 で agent_codes から読む形にした・`head_renderer_136fdbb.py` は自分で定義を持つ HEAD の写し)。
+
+### 3-3. 確かめ
+
+| 何を | 結果 |
+|---|---|
+| 副作用の順の固定の値(`make_perceive_order.py --check`) | 同じ(sha256 `6a4b27c51e4a10ad260467a1c335c02b5bd4a810d07207208ba54911fd5d3015`)。固定の値の JSON は変えていない |
+| 狙いの束(`tests/perception`・`tests/engine/bridging`・`tests/engine/state`・`tests/engine/memory`・`tests/tools/test_repo_guide.py`・`tests/test_places_guard.py`・`-m "not gpu and not slow"`・`-n 2`・合図を取って) | 690 passed・1 skipped(`test_m2_cue.py` の Ruri の重み=前から)・0 failed。副作用の順の試験・つなぎの台帳の試験を含む |
+| `lint-imports`(作業木の src を `PYTHONPATH` に) | 11 kept・0 broken |
+| `cli.py contracts --stage delete --tree . --check --probe` | 同じ・例外 17 行・15 辺・効かない例外 0(import の辺は増えない=renderer は前から agent_codes を読む) |
+| **byte-check 19 構成**(基準 `3c8e126`・比べる側は作業木の src・記録 [bytecheck_R1/](bytecheck_R1/)・合図を取って) | **37 欄すべて同じ 19・動いた 0・誤り 0・439 秒**(基準の側 225 秒・比べる側 213 秒)。既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939(基準と同じ) |
+| メモリの中で段 7 を当てる書かない実行(G0 で使った台本の写しを、直した後の木に向けて) | 止めた理由 0(「在る名を足す」の断りは出ない)・守りは全部「同じ」(決まりは宣言どおり 5)・手で直す一覧は `tests/engine/test_salt_seed_split_10f.py::_HASH_SITES` の 1 つだけのまま・見られなかった差し替え 0。台本は G-R2 の形(案 A1 の写し)を当てて回すので、その写しの import の束が今回の直しと同じ形(80 行に `INTERO_UP_EDGES,`・定義なし)であることも見た |
+| カード | 作り直した(変わったのは docs の索引の数だけ=byte-check の記録の 3 本の分・`data.md` は単独で戻した・`--check` 最新) |
+| 秘密の走査 | CLEAN(renderer.py・この記録・byte-check の記録・カード) |
+
+### 3-4. 確かめていないこと
+
+- 範囲の全体の試験(親が回す)。G-R2 の形(案 A1)への書き換えと、その後の byte-check(次の commit)。`tests/c7`(renderer の読み手は 0 本)。
+
+## 4. G-R1 の、親の確かめと検収(第347・2026-11-19)
+
+### 4-1. 別の役の検収
+
+- 判定: **受入**(高 0・中 0・低 3)。検収役はファイルを 1 本も変えていない。
+- 差分: src・tests・tools の差は `renderer.py` の 1 本だけ(+1・−2)。土台の 2 つの定義は、AST の dump が完全に同じ(値 `(4, 7, 9)`・型 tuple)。直した後は、`renderer` と `agent_codes` の `INTERO_UP_EDGES` が同じ物。消した注はコメントで、つなぎの台帳の宣言は含まない(宣言の走査の結果は前後で同じ)。docstring の「二重定義」の項は残っている(裁定 Q6=段 8 の文の掃除)。
+- 別の物であることに頼るコードは無い: src・tools・tests(c7 を除くディレクトリを名指し)で全部の出現を洗い、書き換え・`is`・`id`・`setattr`・`reload` は 0。renderer の側だけを差し替える試験も、語彙の側を差し替えて renderer に効くと思っている試験も無い。
+- 読み込みの順: 読むモジュールの集合は前後で同じ(足したのは、同じ import の束への名 1 つ)。`__all__` は前後で同じ。`from shibuya.perception.renderer import INTERO_UP_EDGES` と読む外の読み手は 0=G-S で再輸出が外れても落ちる所は無い。
+- byte-check の記録: 19 構成すべてで 37 欄が同じ。比べる側の `renderer.py` の sha は今の木と一致し、読み込んだ src 277 本のうち違うのは `renderer.py` だけ。
+
+### 4-2. 検収の低と、親の答え
+
+- 低-1(G-R1 から、`split_module_names("perception/renderer.py")` は `renderer` と `agent_codes` の 2 本を返す。表の割り先が `agent_codes` で、`renderer` はもう定義しないため。§1-1 と §1-6 の「割る前は 1 本」は、G-R1 の後は「2 本」): 害は無い(消した名は `agent_codes` にも無く、負の対照が期待する一覧も変わらない)。ここに書いて残す。G-M の後の葉の数にも `agent_codes` が入る。
+- 低-2(段 8 の文の掃除に足す字面): `renderer.py` の docstring の「層契約により import できない」(今の import と食い違う。裁定 Q6 で残すと決めた所)・`foundation/ports/percept.py` の ``renderer.INTERO_UP_EDGES`` の言及・`chooser.py` の 3 本目の写し `_INTERO_UP_EDGES`(範囲の外)。
+- 低-3(import の束の並び=定数を先に・定数の中は ASCII の順、は前からの並びと合っている。これを確かめる道具は CI に無い): そのまま。
+
+### 4-3. 親が回した確かめ
+
+| 何を | 結果 |
+|---|---|
+| byte-check 19 構成(本体の道具・基準 `3c8e126`・直した後の木) | 37 欄すべて同じ 19・動いた 0・誤り 0・436 秒・既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。記録 [bytecheck_R1_parent/](bytecheck_R1_parent/)(実装役の記録は [bytecheck_R1/](bytecheck_R1/)=439 秒)。読み込んだ src 277 本のうち、sha が変わったのは `perception/renderer.py` の 1 本 |
+| 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`。回している間、この作業木は誰にも編集させていない=始めと終わりで `git status` が同じ) | 7,089 passed・1 failed(前からの 1 本=linked の作業木でだけ落ちる)・22 skipped・1 xfailed・38 分 36 秒。G0-試験の回(7,083 passed)から +6=検収の後の直しで足した試験 |
+| 差分を読んだ(`renderer.py`) | import の束に 1 行・定義の 2 行(注と文)を消した・ほかは 1 字も変わっていない |
+| 性能の参考(byte-check の `w6_v3_default`・5,000 体・seed 1・1 日・mock の壁時計) | 基準 60.9 秒/後 54.1 秒(6 本並列。比べない参考値)。19 構成の合計は基準 945 秒/後 898 秒 |

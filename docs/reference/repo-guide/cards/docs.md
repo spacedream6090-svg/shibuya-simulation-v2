@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-376 ディレクトリ・2541 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+378 ディレクトリ・2547 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -420,6 +420,10 @@
 ## docs/bench/analysis/split7-347(1 本)
 
 - [README.md](../../../bench/analysis/split7-347/README.md): 割る段 7(`perception/renderer.py` を割る)の記録
+
+## docs/bench/analysis/split7-347/bytecheck_R1(3 本)
+
+## docs/bench/analysis/split7-347/bytecheck_R1_parent(3 本)
 
 ## docs/bench/analysis/split7-347/tools(1 本)
 

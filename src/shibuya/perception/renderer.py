@@ -77,6 +77,7 @@ import numpy as np
 from shibuya.foundation.vocab.agent_codes import (
     INTENT_NONE,
     INTEROCEPTION_FIELDS,
+    INTERO_UP_EDGES,
     RESULT_TEXT,
     Activity,
     ActivityKind,
@@ -324,8 +325,6 @@ def check_signage_p_see(value: float) -> float:
 WALKABLE_FRACTION_SYNTHETIC: Final[float] = 0.15
 #: W10 街路点 1 点が代表する面積[m²](2.5 m 格子)。
 STREET_POINT_AREA_M2: Final[float] = 6.25
-#: 内受容の閾値(``engine.change_detect.INTERO_UP_EDGES`` と同値・層契約により二重定義)。
-INTERO_UP_EDGES: Final[tuple[int, ...]] = (4, 7, 9)
 
 
 #: **第2波 §2B 項 3(Q31 (b))** B5 に描く空腹の語の段(``--hunger-words``)。``hungry``(**既定**=旧)=
