@@ -197,29 +197,81 @@ def test_timeout_defers_then_reinjects_and_is_finally_answered(fleet_servers):
     # 最初の 6 tick だけ遅延させ、その後は正常に返す(別スレッドで解除)
     import threading
 
+    import time as _clock
+
+    healed: dict = {}  # 表示だけに使う(偽サーバーを直した時刻と、その時までに偽サーバーへ届いた要求の数)
+
     def _heal() -> None:
         import time as _t
 
         _t.sleep(3.0)
         for s in fleet_servers:
             s.total_delay_s = 0.0
+        healed["at_s"] = round(_clock.monotonic() - t0, 2)
+        healed["server_requests"] = [s.n_requests for s in fleet_servers]
 
     t = threading.Thread(target=_heal, daemon=True)
-    import time as _clock
+
+    # 表示だけに使う見張り(ランが 8 秒・30 秒を超えて続いた回だけ、その時の艦隊の口の接続の置き場の状態を控える。
+    # 手元の健全な回は約 5 秒で終わるので、何も読まない)。httpx の private な属性を読むので、読めなければ誤りの名だけを控える
+    watch_stop = threading.Event()
+    pool_seen: list = []
+
+    def _conn_state(info: str) -> str:
+        """httpcore の接続の表示から、状態の名だけを取る(張っていない接続は ``CONNECTING`` などの 1 語)。"""
+        parts = [p.strip() for p in info.split(",")]
+        return parts[2] if len(parts) >= 3 else info
+
+    def _watch() -> None:
+        for at_s in (8.0, 30.0):
+            if watch_stop.wait(max(0.0, at_s - (_clock.monotonic() - t0))):
+                return
+            row: dict = {"at_s": round(_clock.monotonic() - t0, 2)}
+            try:
+                pools = [r.client._transport._pool for r in client._replicas]
+                row["pools"] = [repr(p) for p in pools]
+                states = []
+                for p in pools:
+                    n: dict = {}
+                    for x in p.connections:
+                        k = _conn_state(x.info())
+                        n[k] = n.get(k, 0) + 1
+                    states.append(dict(sorted(n.items())))
+                row["conn_states"] = states
+                row["in_flight"] = list(client.in_flight)
+                row["outstanding"] = client.outstanding
+                row["server_requests"] = [s.n_requests for s in fleet_servers]
+            except Exception as exc:  # noqa: BLE001 - 表示のための読み(失敗しても合否に関わらない)
+                row["error"] = f"{type(exc).__name__}: {exc}"
+            pool_seen.append(row)
+
+    w = threading.Thread(target=_watch, daemon=True)
 
     t0 = _clock.monotonic()
     t.start()
-    res = run_fleet(client, ticks=90, fleet_wait_s=1.0)
-    run_wall_s = _clock.monotonic() - t0
-    healed_before_run_end = not t.is_alive()
+    w.start()
+    try:
+        res = run_fleet(client, ticks=90, fleet_wait_s=1.0)
+    finally:
+        run_wall_s = _clock.monotonic() - t0
+        healed_before_run_end = not t.is_alive()
+        watch_stop.set()  # ランが例外で抜けても、見張りを止める
+    w.join(timeout=2.0)  # 見張りが控えている途中なら、表示を作る前に待つ
     t.join(timeout=10.0)
 
     c = res.bridge_counters
-    # 〔第347〕失敗したときに原因を追うための表示(確かめる内容は変えない)。この試験は本物の時計に頼り、CI で 1 回だけ
-    # ``fleet_ok == 0`` で落ちた(原因は未特定)。艦隊の数・ランの壁時計・ランが終わる前に偽サーバーが直ったかを出す
-    diag = {k: c[k] for k in sorted(c) if k.startswith("fleet_")}
-    diag.update(run_wall_s=round(run_wall_s, 2), healed_before_run_end=healed_before_run_end,
-                unanswered_at_end=res.fleet_unanswered_at_end)
+    # 〔第347〕失敗したときに原因を追うための表示(確かめる内容は変えない)。この試験は本物の時計に頼り、CI で 2 回
+    # ``fleet_ok == 0`` で落ちた。手元では、時間切れを縮めると同じ形になり、艦隊の口の接続の置き場(httpcore)が詰まっていた
+    # (記録 docs/bench/analysis/fleet-flake-347/)。CI の失敗が同じ仕組みかは、まだ確かめていない。艦隊の数・ランの壁時計・
+    # ランが終わる前に偽サーバーが直ったか・偽サーバーへ届いた要求の数(直した時までと、ランの終わりまで)・ランが長引いた
+    # ときの接続の置き場の状態を出す。pytest は dict の表示を途中で切るので、文字列にして渡す(2 回目に落ちたとき、dict の
+    # ままだったので数が読めなかった)
+    diag_d = {k: c[k] for k in sorted(c) if k.startswith("fleet_")}
+    diag_d.update(run_wall_s=round(run_wall_s, 2), healed_before_run_end=healed_before_run_end,
+                  unanswered_at_end=res.fleet_unanswered_at_end, healed_at_s=healed.get("at_s"),
+                  server_requests_at_heal=healed.get("server_requests"),
+                  server_requests_at_end=[s.n_requests for s in fleet_servers])
+    diag = "\n".join([f"{k}={v!r}" for k, v in diag_d.items()] + [f"pool_seen={row!r}" for row in pool_seen])
     assert c["fleet_deferred_timeout"] > 0, diag  # 繰り延べが起きた
     assert c["fleet_resent"] > 0, diag  # 戻った呼が実際に再送された
     assert c["fleet_ok"] > 0, diag  # 回復後は普通に答えが返る
