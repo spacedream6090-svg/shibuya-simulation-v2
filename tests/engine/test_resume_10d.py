@@ -592,7 +592,8 @@ def test_named_closed_memo_survives_a_resume(tmp_path, monkeypatch):
     from shibuya.foundation.vocab.agent_codes import ResultCode
     from shibuya.act import target as PT
     from shibuya.act.ops import body_writes as R
-    from shibuya.perception import renderer as RD
+    # 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
+    from shibuya.perception.renderer import Renderer
 
     resolvers: list = []
     orig_init = PT.TargetResolver.__init__
@@ -611,7 +612,7 @@ def test_named_closed_memo_survives_a_resume(tmp_path, monkeypatch):
         return orig_ab(agents, tick, *a, **k)
 
     notes: list = []
-    orig_note = RD.Renderer._named_closed_text
+    orig_note = Renderer._named_closed_text
 
     def note_spy(self, i):  # 読むだけ(返す値はそのまま)
         out = orig_note(self, i)
@@ -621,7 +622,7 @@ def test_named_closed_memo_survives_a_resume(tmp_path, monkeypatch):
 
     monkeypatch.setattr(PT.TargetResolver, "__init__", init)
     monkeypatch.setattr(R, "advance_body", advance_body)
-    monkeypatch.setattr(RD.Renderer, "_named_closed_text", note_spy)
+    monkeypatch.setattr(Renderer, "_named_closed_text", note_spy)
     kw = dict(n_agents=200, seed=1, n_cells=9, ticks=TPD, sim_days=2, checkpoint_every=1, vocab_version="v3",
               budget=200.0)
     straight = run_day(tape_path=tmp_path / "s", **kw)
@@ -720,23 +721,24 @@ def test_b3_weather_follows_the_replay_date_of_each_day():
 
     from shibuya.world.model.agent_table import AgentState
     from shibuya.foundation.text import normalize as N
-    from shibuya.perception import renderer as RD
+    # 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
+    from shibuya.perception.renderer import PerceptionAssets, Renderer, _TickCache
     from shibuya.foundation.text import templates as T
     from shibuya.world.model.state import World
 
     w = World.synthetic(n_cells=4, seed=1)
     a = AgentState(2)
     assets = dataclasses.replace(
-        RD.PerceptionAssets.synthetic(w),
+        PerceptionAssets.synthetic(w),
         weather_by_date_hour={("2026-07-28", 12): ("曇", T.DAYLIGHT_WORDS[1], T.HEAT_STAGE_WORDS[1]),
                               ("2026-07-29", 12): ("雨", T.DAYLIGHT_WORDS[1], T.HEAT_STAGE_WORDS[0])},
     )
-    r = RD.Renderer(w, a, assets)
+    r = Renderer(w, a, assets)
     day = {"d": "2026-07-28"}
     r.weather_date_fn = lambda: day["d"]
 
     def b3(when: datetime) -> str:
-        return r._b3(RD._TickCache(when=when, band5=N.time_band(when))).decode("utf-8")
+        return r._b3(_TickCache(when=when, band5=N.time_band(when))).decode("utf-8")
 
     first = b3(datetime(2026, 8, 3, 12, 0))     # 暦の日付は実日と別(日付の語は暦・天候は実日)
     day["d"] = "2026-07-29"

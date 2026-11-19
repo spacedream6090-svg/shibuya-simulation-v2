@@ -2,7 +2,9 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 7 本・その他 0 本(このディレクトリの直下)
+Python 8 本・その他 1 本(このディレクトリの直下)
+
+その他のファイル: `perceive_order_frozen.json`
 
 ## [__init__.py](../../../../../../../tests/perception/facts/__init__.py)
 
@@ -43,21 +45,41 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `head_module`(関数)
   - `twin`(関数): 1-2 の描画 ``r`` の HEAD の双子(同じ物を指す・設定と口を写す)。
 - import している内部モジュール: `shibuya.foundation.vocab.agent_codes`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_head_copy_pin.py`
-- 読む試験: `tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/perception/facts/test_coef_removed_or_armed.py`・`tests/perception/facts/test_percept_schema.py`・`tests/perception/facts/test_render_from_percept_bytes.py`
+- 読む試験: `tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/perception/facts/test_coef_removed_or_armed.py`・`tests/perception/facts/test_perceive_order.py`・`tests/perception/facts/test_percept_schema.py`・`tests/perception/facts/test_render_from_percept_bytes.py`
 
 ## [test_coef_removed_or_armed.py](../../../../../../../tests/perception/facts/test_coef_removed_or_armed.py)
 
 第 1 期 1-2 知覚の分離: 係数は消した(口の約束 1-2 の〔決定〕・決定 10-12 §1-6「係数で持たない」)。
 
 - 公開の関数とクラス
+  - `removed_renderer_names_left`(関数): 消した名が残っている所(``モジュール.名``)。〔割る段 7 の G0・親の決め事 9〕renderer の元の名を定義する今のモジュールの
   - `test_manifest_fields`(関数)
   - `test_names_are_gone`(関数)
+  - `test_negative_a_removed_name_left_in_one_module_is_caught`(関数): 〔割る段 7 の G0・親の決め事 9〕負の対照: 消したはずの名を、見るモジュールの 1 つ(``Renderer`` の定義の置き場)に一時に
   - `test_phone_flag_does_not_change_the_primary_detection`(関数)
   - `test_removed_values_are_not_in_src`(関数)
   - `test_signage_gate_is_one_p_for_every_activity`(関数)
 - import している内部モジュール: `shibuya.foundation.ports.percept`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.notice_reach`・`tests/_places.py`・`tests/perception/facts/scenes.py`
 - 環境変数: `SHIBUYA_PERCEPT_COEFS`
 - 決定の ID: 10-12/§1-6
+
+## [test_perceive_order.py](../../../../../../../tests/perception/facts/test_perceive_order.py)
+
+〔割る段 7 の G0・親の決め事 1・裁定 Q17〕``Renderer.perceive`` の副作用の順を、割る前の木で作った固定の値と完全一致で比べる。
+
+- 公開の関数とクラス
+  - `acq_cache_by_tick`(関数): 刻みの終わりの知人の控え(``_acq_cache``)の数(出来事に添えた変わった計数を前から積む)。
+  - `order_violations`(関数): 1 回の ``perceive`` の中で、口の呼びが :data:`RANK` の順でない所と、看板の抽選より前の露出の控え(空なら順のとおり)。
+  - `record`(関数): 構成 ``cfg`` を ``cls``(既定は ``Renderer``・負の対照は子クラス)で回した出来事の列と乱数の流れの列。
+  - `swapped_class`(関数): ``Renderer.perceive`` の 2 文を入れ替えた子クラス(メソッドの名で作る=割った後も、定義のモジュールで同じ形に作れる)。
+  - `test_each_perceive_keeps_the_order`(関数): (b) 1 回の ``perceive`` の中の口の呼びが今の順の部分列(docstring の 6 段を含む)・確かめが空回りしない。
+  - `test_negative_skipping_the_acquaintance_cache_is_caught`(関数): 〔検収の中-1〕負の対照: 知人の控えを使わない子クラスを ``near_table`` で回すと、(a) の完全一致が違い、上の控えの確かめが
+  - `test_negative_swapped_statements_are_caught`(関数): 負の対照: ``perceive`` の 2 文を入れ替えた子クラスを同じ構成で回すと、(a) の完全一致が違い、(b) の順の確かめが落ちる
+  - `test_the_events_match_the_frozen_values`(関数): (a) 出来事の列の全体と (c) 乱数の流れの列が、割る前の木で作った固定の値と完全一致。
+  - `test_the_frozen_values_are_for_this_setup`(関数)
+  - `test_the_table_path_fills_and_reuses_the_acquaintance_cache`(関数): 〔検収の中-1〕構成 ``near_table``(既定のランの道)で、知人の控え ``_acq_cache`` が実際に動く: 1 刻み目で 0 → 正の数、
+  - `test_the_two_near_paths_call_the_hooks_in_opposite_orders`(関数): 見つかったこと(直さずに固定する): セルの道は知人 → 会話の参加者、近接の腕の道は会話の参加者 → 知人 → 気づいた印。
+- import している内部モジュール: `shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.memory.memory`・`shibuya.perception.renderer`・`shibuya.validation.static.rng_audit`・`shibuya.world.model.proximity`・`tests/perception/facts/scenes.py`
 
 ## [test_percept_is_scratch.py](../../../../../../../tests/perception/facts/test_percept_is_scratch.py)
 

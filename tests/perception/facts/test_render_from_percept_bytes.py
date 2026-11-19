@@ -33,7 +33,8 @@ import pytest
 
 from shibuya.foundation.vocab.agent_codes import Activity, ActivityKind, IntentKind, ResultCode, WakeCondition
 from shibuya.mind.memory.memory import RecallItem
-from shibuya.perception import renderer as R
+# 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
+from shibuya.perception.renderer import Renderer
 from tests.perception.facts.scenes import build, head_module, twin
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -79,7 +80,7 @@ def _memories(i: int, t: int, c: int, inv: int) -> list[RecallItem]:
     ][: 1 + i % 3]
 
 
-def _setup_rich(r: R.Renderer, a: Any) -> None:
+def _setup_rich(r: Renderer, a: Any) -> None:
     r.memory_recall = _memories
     r.acquaintance_fn = lambda i, t: [(i + 1) % a.n, (i + 2) % a.n, -5, a.n + 3]
     r.session_partner_fn = lambda i: [(i + 3) % a.n] if i % 2 else []
@@ -95,19 +96,19 @@ def _setup_rich(r: R.Renderer, a: Any) -> None:
         a.last_result[0:40:5] = int(ResultCode.CLOSED)
 
 
-def _setup_v3(r: R.Renderer, a: Any) -> None:
+def _setup_v3(r: Renderer, a: Any) -> None:
     with a.writable():
         a.activity_kind[:] = np.arange(a.n) % 5
         a.activity[a.activity_kind == int(ActivityKind.IN_PLACE)] = int(Activity.CONVERSING)
 
 
-def _setup_focus(r: R.Renderer, a: Any) -> None:
+def _setup_focus(r: Renderer, a: Any) -> None:
     with a.writable():
         a.focus_target[:] = (np.arange(a.n) + 1) % a.n
         a.focus_target[::4] = -1
 
 
-def _setup_weather(r: R.Renderer, a: Any) -> None:
+def _setup_weather(r: Renderer, a: Any) -> None:
     r.weather_date_fn = lambda: "2026-07-29"
 
 
@@ -158,7 +159,7 @@ def _calls(i: int, t: int):
 def test_synthetic_scenes_render_the_same_bytes_as_head(name):
     rkw, akw, setup = SCENES[name]
     w, a = build(n_agents=120, n_cells=9, seed=11, **akw)
-    r = R.Renderer(w, a, seed=7, **rkw)
+    r = Renderer(w, a, seed=7, **rkw)
     if setup is not None:
         setup(r, a)
     h = twin(r)
@@ -185,7 +186,7 @@ def test_counters_match_head(name):
     """描画の計数(診断の行 O84)も 1-2 の前と同じ(draw を呼ばずに比べる)。"""
     rkw, akw, setup = SCENES[name]
     w, a = build(n_agents=120, n_cells=9, seed=12, **akw)
-    r = R.Renderer(w, a, seed=7, **rkw)
+    r = Renderer(w, a, seed=7, **rkw)
     if setup is not None:
         setup(r, a)
     h = twin(r)
@@ -208,10 +209,15 @@ def test_counters_match_head(name):
 def test_negative_control_one_byte_change_is_caught(monkeypatch):
     """負の対照: 描き方を 1 文字だけ変えると双子との比べで落ちる(比べが恒真でない)。"""
     w, a = build(n_agents=60, seed=15)
-    r = R.Renderer(w, a, seed=7)
+    r = Renderer(w, a, seed=7)
     h = twin(r)
-    orig = R.near_person_text
-    monkeypatch.setattr(R, "near_person_text", lambda sp: orig(sp).replace("P-", "Q-"))
+    # 〔割る段 7 の G0・親の裁定 P2〕near_person_text は、呼ぶ時に名を引く関数のモジュールの両方へ差し替える(描く側の _b5・
+    # _b5_ranked と、場面の側の _nearby_items。割る前は同じ 1 つのモジュール)。定義のモジュールへは届かせない
+    assert Renderer._b5_ranked.__module__ == Renderer._b5.__module__
+    mods = list(dict.fromkeys(sys.modules[f.__module__] for f in (Renderer._b5, Renderer._nearby_items)))
+    orig = mods[0].near_person_text
+    for m in mods:
+        monkeypatch.setattr(m, "near_person_text", lambda sp: orig(sp).replace("P-", "Q-"))
     r.prepare_tick(750)
     h.prepare_tick(750)
     bad = [same_rendered(r.render(i, tick=750), h.render(i, tick=750)) for i in range(a.n)]
@@ -225,7 +231,7 @@ def test_render_without_prepare_and_out_of_area_cells():
         a.cell[5] = -1
         a.cell[6] = w.n_cells + 4
     for mode in ("fixed", "ranking"):
-        r = R.Renderer(w, a, seed=3, budget_mode=mode)
+        r = Renderer(w, a, seed=3, budget_mode=mode)
         h = twin(r)
         for t in (100, 101, 900):
             for i in (0, 5, 6, 7):
@@ -238,7 +244,7 @@ def test_render_without_prepare_and_out_of_area_cells():
 def test_a_percept_from_another_step_is_refused():
     """刻みの外で残らない(1-2 の約束 (3)): 前の刻みの Percept は描かない。"""
     w, a = build(n_agents=20, seed=14)
-    r = R.Renderer(w, a, seed=3)
+    r = Renderer(w, a, seed=3)
     p = r.render(0, tick=600).percept
     assert r.draw(p) == r.render(0, tick=600).text
     r.prepare_tick(601)
@@ -268,7 +274,7 @@ def _shadow(monkeypatch: pytest.MonkeyPatch) -> dict:
     head_module()
     twins: dict[int, Any] = {}
     stats: dict[str, Any] = {"n": 0, "ticks": set(), "bad": [], "pairs": []}
-    orig_prep, orig_render = R.Renderer.prepare_tick, R.Renderer.render
+    orig_prep, orig_render = Renderer.prepare_tick, Renderer.render
 
     def prep(self, tick, **kw):  # noqa: ANN001
         orig_prep(self, tick, **kw)
@@ -304,8 +310,8 @@ def _shadow(monkeypatch: pytest.MonkeyPatch) -> dict:
         stats["ticks"].add(int(tick))
         return out
 
-    monkeypatch.setattr(R.Renderer, "prepare_tick", prep)
-    monkeypatch.setattr(R.Renderer, "render", render)
+    monkeypatch.setattr(Renderer, "prepare_tick", prep)
+    monkeypatch.setattr(Renderer, "render", render)
     return stats
 
 

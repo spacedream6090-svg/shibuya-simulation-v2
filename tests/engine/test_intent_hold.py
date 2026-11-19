@@ -54,8 +54,17 @@ from shibuya.runtime.run import run_day
 from shibuya.foundation.ports.inference import LLMRequest
 from shibuya.foundation.vocab.actions import ACTION_CODES, UntilKind, parse_target
 from shibuya.runtime.inference.mock import MockLLM
-from shibuya.perception import renderer as PR
-from shibuya.perception.renderer import Renderer
+# 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
+from shibuya.perception.renderer import (
+    INTENT_ACTION_WORDS,
+    INTENT_BED_WORD,
+    INTENT_LINE_MAX_TOKENS,
+    RESULT_OPTIONS,
+    RESULT_OPTIONS_V3,
+    Renderer,
+    intent_line,
+    person_word,
+)
 
 from tests.engine.test_move_destination import NOON, _world
 
@@ -130,13 +139,13 @@ def test_too_far_is_a_new_code_with_text_and_options():
     assert int(ResultCode.TOO_FAR) == 21 and int(ResultCode.TARGET_GONE) == 20
     assert RESULT_TEXT[ResultCode.TOO_FAR] == "遠すぎて時間切れ"
     assert RESULT_TEXT[ResultCode.TOO_FAR] != RESULT_TEXT[ResultCode.UNREACHABLE]
-    assert PR.RESULT_OPTIONS[ResultCode.TOO_FAR] == ("移動", "待機", "休憩")
-    assert PR.RESULT_OPTIONS_V3[ResultCode.TOO_FAR] == ("移動", "なし")
+    assert RESULT_OPTIONS[ResultCode.TOO_FAR] == ("移動", "待機", "休憩")
+    assert RESULT_OPTIONS_V3[ResultCode.TOO_FAR] == ("移動", "なし")
 
 
 def test_intent_actions_and_the_renderer_words_match_the_contract():
     assert set(INTENT_ACTIONS) == {CV.ACT_BUY, CV.ACT_EAT, CV.ACT_QUEUE, CV.ACT_TALK, CV.ACT_SLEEP}
-    for code, word in PR.INTENT_ACTION_WORDS.items():
+    for code, word in INTENT_ACTION_WORDS.items():
         if word == "食事":
             assert code == CV.ACT_EAT
         elif word == "並ぶ":
@@ -505,7 +514,7 @@ def test_b5_intent_line_only_for_holders_within_15_tokens():
     line = next(x for x in b5.split("\n") if x.startswith("[B5 意図]"))
     assert line.startswith("[B5 意図] いま食事のため") and line.endswith("へ向かっている。")
     name = str(r.assets.poi_name[4])  # 描画側の名(合成世界は cat+索引の合成名)
-    assert PR.intent_line("食事", name) == line and len(line) // 2 <= PR.INTENT_LINE_MAX_TOKENS
+    assert intent_line("食事", name) == line and len(line) // 2 <= INTENT_LINE_MAX_TOKENS
     rows = b5.split("\n")
     assert rows.index(line) == next(i for i, x in enumerate(rows) if x.startswith("[B5 直近]")) + 1
     # 意図の無い体の prompt は 1 バイトも変わらない・持つ体だけ動く
@@ -513,11 +522,11 @@ def test_b5_intent_line_only_for_holders_within_15_tokens():
     assert after[0].prompt_hash != before[0].prompt_hash
     assert r.intent_lines == 1
     # 会話・就寝の対象の語
-    assert PR.intent_line("会話", PR.person_word(17)) == "[B5 意図] いま会話のためP-17へ向かっている。"
-    assert PR.intent_line("就寝", PR.INTENT_BED_WORD) == "[B5 意図] いま就寝のため自宅へ向かっている。"
-    long = PR.intent_line("購入", "とても長い名前のお店の本店ビルディング")
-    assert len(long) // 2 <= PR.INTENT_LINE_MAX_TOKENS
-    assert PR.intent_line("購入", "ほかほか弁当") == "[B5 意図] いま購入のため目的の場所へ向かっている。"
+    assert intent_line("会話", person_word(17)) == "[B5 意図] いま会話のためP-17へ向かっている。"
+    assert intent_line("就寝", INTENT_BED_WORD) == "[B5 意図] いま就寝のため自宅へ向かっている。"
+    long = intent_line("購入", "とても長い名前のお店の本店ビルディング")
+    assert len(long) // 2 <= INTENT_LINE_MAX_TOKENS
+    assert intent_line("購入", "ほかほか弁当") == "[B5 意図] いま購入のため目的の場所へ向かっている。"
 
 
 # ------------------------------------------------------------------ mock の口

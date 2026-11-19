@@ -75,7 +75,7 @@ K19 の検査(10f・K25 (a)): ``core.rng`` の流れが 1 ブロック(4 語)を
   - `recreated_for`(関数): ``check_overlaps`` に渡す作り直しの許可(既定の腕=``K19_RECREATED`` だけ・腕 port のラン=口の分を足す)。
   - `scan_sites`(関数): ``root``(= ``src/shibuya``)の下の ``stream()``・``philox()`` の呼び手(``core/rng.py`` と ``build/`` を除く)。
 - import している内部モジュール: `shibuya.foundation.rng`
-- 読む試験: `tests/engine/decision/test_j0_shuffle_invariance.py`・`tests/engine/proximity/test_rule.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_version_bump_10e.py`
+- 読む試験: `tests/engine/decision/test_j0_shuffle_invariance.py`・`tests/engine/proximity/test_rule.py`・`tests/engine/proximity/test_runs.py`・`tests/engine/state/test_move_prep_stage2.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_version_bump_10e.py`・`tests/perception/facts/test_perceive_order.py`
 - 決定の ID: 第 330・第 346
 
 ## [system_overrides.py](../../../../../../../../src/shibuya/validation/static/system_overrides.py)

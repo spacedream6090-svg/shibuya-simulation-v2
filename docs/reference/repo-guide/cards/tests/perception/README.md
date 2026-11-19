@@ -276,11 +276,13 @@ p_notice: §3.1 の 2 段ヒル型(TTPF+社会伝播)・検算表・ablation A0-
 
 - 公開の関数とクラス
   - `crowd`(関数): 看板のあるセルへ全員を置いた合成場面。
+  - `removed_renderer_names_left`(関数): 消した名が残っている所(``モジュール.名``)。〔割る段 7 の G0・親の決め事 9〕renderer の元の名を定義する今のモジュールの
   - `test_activity_classes_follow_the_state`(関数)
   - `test_cli_has_no_flag`(関数)
   - `test_default_p_see_draws_nothing`(関数)
   - `test_familiarity_entry_uses_the_scalar_p`(関数)
   - `test_gate_equals_the_old_formula_and_ignores_the_activity`(関数): ゲートの結果は従来の式 gate_stage1(1, p_see, (tick, 体, 看板)) と同じ(活動の種別に依らない)。
+  - `test_negative_a_removed_name_left_in_one_module_is_caught`(関数): 〔割る段 7 の G0・親の決め事 9〕負の対照: 消したはずの名を、見るモジュールの 1 つ(看板の注視を引く ``_signage_seen`` の
   - `test_run_day_refuses_a_multiplier_table`(関数)
   - `test_run_manifest_keeps_the_field_as_null`(関数)
   - `test_the_multiplier_table_and_the_arm_are_gone`(関数)

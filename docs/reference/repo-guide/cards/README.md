@@ -123,7 +123,7 @@
 | [tests/fixtures/calendar](tests/fixtures/calendar/README.md) | 0 | 1 |
 | [tests/llm](tests/llm/README.md) | 9 | 0 |
 | [tests/perception](tests/perception/README.md) | 20 | 0 |
-| [tests/perception/facts](tests/perception/facts/README.md) | 7 | 0 |
+| [tests/perception/facts](tests/perception/facts/README.md) | 8 | 1 |
 | [tests/tools](tests/tools/README.md) | 24 | 0 |
 | [tests/vocab](tests/vocab/README.md) | 5 | 0 |
 | [tests/w17](tests/w17/README.md) | 3 | 0 |
@@ -161,7 +161,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 371 ディレクトリ・2530 本
+- [docs の索引](docs.md): 373 ディレクトリ・2532 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

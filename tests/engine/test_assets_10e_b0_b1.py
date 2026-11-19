@@ -106,16 +106,25 @@ def test_b0_manifest_lists_what_the_run_read_and_the_two_noise_readers_agree():
 def test_b0_hashes_stay_out_of_the_final(monkeypatch):
     from shibuya.interfaces.cli import main as cli
     from shibuya.world.laws import environment as ENV
-    from shibuya.perception import renderer as REN
+    from shibuya.perception.renderer import PerceptionAssets
 
     a = cli.run(world_dir=str(WORLD_DIR), **SMALL)
     fake = lambda path: "0" * 64  # noqa: E731
     # 〔割る段 5a の G1〕元の置き場の読み手は file_sha256 の定義の置き場(割ると主な割り先)。別名の素の使い方は道具が割り先を決められない
-    for mod in (sys.modules[WA.file_sha256.__module__], REN, ENV):
+    # 〔割る段 7 の G0〕renderer の側は、file_sha256 を呼ぶ時に名を引くモジュール(PerceptionAssets.load の定義の置き場=割ると場面の側)
+    for mod in (sys.modules[WA.file_sha256.__module__], sys.modules[PerceptionAssets.load.__module__], ENV):
         monkeypatch.setattr(mod, "file_sha256", fake)
     b = cli.run(world_dir=str(WORLD_DIR), **SMALL)
     fa, fb = a.run_manifest_fields()["frozen_sources"], b.run_manifest_fields()["frozen_sources"]
     assert fa != fb and set(fa) == set(fb)
+    # 〔割る段 7 の G0・検収の中-2〕renderer の側の差し替えが届いたこと: 知覚の資産の鍵(``perception:`` の頭=組み立てが付ける字面・
+    # 割っても変わらない)は 5 つ。ファイルの sha256 の 4 つは全部が差し替えた値(ほかの 2 つの差し替えだけでは変わらない鍵)、
+    # 集約した騒音の段の指紋 1 つ(``array_sha256``=file_sha256 を通らない)は変わらない
+    pk = sorted(k for k in fb if k.startswith("perception:"))
+    agg = "perception:noise_stage_cells"
+    files = [k for k in pk if k != agg]
+    assert len(pk) == 5 and agg in pk and len(files) == 4, pk
+    assert all(fb[k] == "0" * 64 != fa[k] for k in files) and fb[agg] == fa[agg], files
     assert a.final_hash == b.final_hash
     assert [c.combined for c in a.checkpoints] == [c.combined for c in b.checkpoints]
     assert a.llm_calls == b.llm_calls

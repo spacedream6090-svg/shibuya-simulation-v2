@@ -16,6 +16,7 @@
 
 from __future__ import annotations
 
+import importlib
 import inspect
 
 import numpy as np
@@ -24,10 +25,20 @@ import pytest
 from shibuya.foundation.vocab.agent_codes import Activity, ActivityKind, AgentKind
 from shibuya.world.model.agent_table import AgentState
 from shibuya.mind.memory.familiarity import FamiliarityLayer
-from shibuya.perception import renderer as RD
 from shibuya.mind.percept.attention import gate_stage1
 from shibuya.perception.renderer import P_SEE_ACTIVITY_KINDS, Renderer
 from shibuya.world.model.state import World
+
+
+def removed_renderer_names_left(names: tuple[str, ...]) -> list[str]:
+    """消した名が残っている所(``モジュール.名``)。〔割る段 7 の G0・親の決め事 9〕renderer の元の名を定義する今のモジュールの
+    全部で見る(割る前は renderer の 1 本・割った後は割り先。1 つの割り先だけを見て黙って通る形にしない)。表の鍵
+    ``"perception/renderer.py"`` は字面で書く(割る道具は表の鍵を書き換えない=割った後も同じ鍵で割り先を引く)。"""
+    from tests import _places as PL
+
+    mods = sorted(PL.split_module_names("perception/renderer.py").leaves)
+    assert mods, "見るモジュールが無い"
+    return [f"{m}.{n}" for m in mods for n in names if hasattr(importlib.import_module(m), n)]
 
 
 def crowd(n: int = 60, *, activity_columns: bool = False, seed: int = 13):
@@ -50,8 +61,7 @@ def crowd(n: int = 60, *, activity_columns: bool = False, seed: int = 13):
 
 # ---------------------------------------------------------------- (a) 乗数が無い
 def test_the_multiplier_table_and_the_arm_are_gone():
-    for name in ("P_SEE_BY_ACTIVITY", "check_p_see_activity"):
-        assert not hasattr(RD, name), name
+    assert removed_renderer_names_left(("P_SEE_BY_ACTIVITY", "check_p_see_activity")) == []
     assert "p_see_activity" not in inspect.signature(Renderer).parameters
     w, a, _ = crowd(4)
     r = Renderer(w, a)
@@ -59,6 +69,15 @@ def test_the_multiplier_table_and_the_arm_are_gone():
                  "signage_effective_p", "p_see_activity"):
         assert not hasattr(r, name), name
     assert "p_see_fn" not in inspect.signature(FamiliarityLayer).parameters
+
+
+def test_negative_a_removed_name_left_in_one_module_is_caught(monkeypatch):
+    """〔割る段 7 の G0・親の決め事 9〕負の対照: 消したはずの名を、見るモジュールの 1 つ(看板の注視を引く ``_signage_seen`` の
+    定義の置き場)に一時に置くと、上の確かめが見つける。"""
+    mod = importlib.import_module(Renderer._signage_seen.__module__)
+    monkeypatch.setattr(mod, "check_p_see_activity", lambda *a: None, raising=False)
+    assert removed_renderer_names_left(("P_SEE_BY_ACTIVITY", "check_p_see_activity")) == [
+        f"{mod.__name__}.check_p_see_activity"]
 
 
 def test_run_day_refuses_a_multiplier_table():

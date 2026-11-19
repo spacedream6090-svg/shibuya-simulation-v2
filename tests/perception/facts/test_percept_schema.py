@@ -17,10 +17,12 @@ from datetime import timedelta
 import numpy as np
 import pytest
 
-from shibuya.foundation.vocab.agent_codes import INTEROCEPTION_FIELDS, IntentKind
+# 〔割る段 7 の G0〕内受容の閾値 INTERO_UP_EDGES は agent_codes から名で読む(割ると renderer の再輸出が外れる)
+from shibuya.foundation.vocab.agent_codes import INTERO_UP_EDGES, INTEROCEPTION_FIELDS, IntentKind
 from shibuya.foundation.ports import percept as F
 from shibuya.foundation.text import normalize as N
-from shibuya.perception import renderer as R
+# 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
+from shibuya.perception.renderer import Renderer
 from shibuya.foundation.text import templates as T
 from tests.perception.facts.scenes import build
 
@@ -38,7 +40,7 @@ EMPTY = ("eye_dir", "mind_dir", "belongings", "tool_state", "watched_by", "heard
 
 def _render_some(n_ticks: int = 3):
     w, a = build(n_agents=80, seed=3)
-    r = R.Renderer(w, a, seed=5)
+    r = Renderer(w, a, seed=5)
     outs = []
     for t in (480, 750, 1140)[:n_ticks]:
         r.prepare_tick(t)
@@ -132,7 +134,7 @@ def test_facts_match_the_state():
         for nm in INTEROCEPTION_FIELDS:
             v = int(getattr(a, nm)[i])
             assert getattr(p.body, nm) == v
-            assert getattr(p.body, f"{nm}_stage") == sum(1 for e in R.INTERO_UP_EDGES if v >= e)
+            assert getattr(p.body, f"{nm}_stage") == sum(1 for e in INTERO_UP_EDGES if v >= e)
         for sp in p.seen_people:
             assert sp.action == int(a.activity[sp.id]) and int(a.cell[sp.id]) == p.cell
         when = r.clock_fn(p.step)
@@ -151,8 +153,8 @@ def test_facts_match_the_state():
 
 def test_day_kind_comes_from_the_calendar_hook_and_does_not_touch_bytes():
     w, a = build(n_agents=30, seed=4)
-    plain = R.Renderer(w, a, seed=1)
-    hooked = R.Renderer(w, a, seed=1, day_kind_fn=lambda T_: "saturday" if T_ >= 1_440 else "weekday")
+    plain = Renderer(w, a, seed=1)
+    hooked = Renderer(w, a, seed=1, day_kind_fn=lambda T_: "saturday" if T_ >= 1_440 else "weekday")
     for t in (700, 1_500):
         x, y = plain.render(0, tick=t), hooked.render(0, tick=t)
         assert x.text == y.text
@@ -162,7 +164,7 @@ def test_day_kind_comes_from_the_calendar_hook_and_does_not_touch_bytes():
 def test_intent_wake_and_memories_are_carried():
     w, a = build(n_agents=40, seed=6)
     a2 = a
-    r = R.Renderer(w, a2, seed=1)
+    r = Renderer(w, a2, seed=1)
     r.memory_recall = lambda i, t, c, inv: []  # 想起の口あり・0 件
     with a2.writable():
         a2.intent_action[0] = 3

@@ -100,7 +100,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_value_drift_from_the_table_is_caught_at_write`(関数): 検収 M1: 行の番号が同じでも、器の値(ここでは重要度)が表とずれたら書いた所で落ちる(負の対照)。
   - `test_view_has_words_and_content_but_no_strength_number`(関数)
   - `test_writes_outside_the_declaration_fail`(関数)
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.act.intent`・`shibuya.build`・`shibuya.economy.ledger`・`shibuya.foundation.time_consts`・`shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_store`・`shibuya.perception.renderer`・`shibuya.runtime.inference.tape`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.systems.table`・`shibuya.world.facts.population_reader`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/engine/memory/_m0.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.act.intent`・`shibuya.build`・`shibuya.economy.ledger`・`shibuya.foundation.text.templates`・`shibuya.foundation.time_consts`・`shibuya.foundation.write_guard`・`shibuya.foundation.write_permit`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.memory_store`・`shibuya.runtime.inference.tape`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`shibuya.runtime.systems.table`・`shibuya.world.facts.population_reader`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/engine/memory/_m0.py`
 
 ## [test_m0_writes_declared.py](../../../../../../../tests/engine/memory/test_m0_writes_declared.py)
 
@@ -219,7 +219,7 @@ Python 17 本・その他 0 本(このディレクトリの直下)
   - `test_new_modules_respect_the_layer_contract`(関数)
   - `test_runtime_owners_of_the_arm_runs_are_fully_declared`(関数)
   - `test_shop_table_ports_are_called_only_from_the_uncapped_store`(関数)
-- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.mind.memory.memory_embed`・`shibuya.mind.memory.memory_impression`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_shops`・`shibuya.mind.memory.memory_trace`・`shibuya.mind.relations.people`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`tests/_places.py`・`tests/engine/memory/_mr65.py`・`tests/engine/test_state_ledger_10b.py`
+- import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.foundation.text.templates`・`shibuya.mind.memory.memory_embed`・`shibuya.mind.memory.memory_impression`・`shibuya.mind.memory.memory_m1`・`shibuya.mind.memory.memory_shops`・`shibuya.mind.memory.memory_trace`・`shibuya.mind.relations.people`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.ledger_ast`・`tests/_places.py`・`tests/engine/memory/_mr65.py`・`tests/engine/test_state_ledger_10b.py`
 
 ## [test_mr65_review_fixes.py](../../../../../../../tests/engine/memory/test_mr65_review_fixes.py)
 

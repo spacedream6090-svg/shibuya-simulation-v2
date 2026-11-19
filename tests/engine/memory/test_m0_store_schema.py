@@ -64,7 +64,8 @@ def _layers() -> tuple[PL.Names, PL.Names]:
     from shibuya.economy import ledger as ECONOMY
     # 〔割る段 6 の S6-G0・親の裁定 Q10〕範囲の手がかりは、元の置き場が engine の、割らずに移したモジュール(割る段 6 で resolve を割ると包み engine が無くなる。付け替えの前と後で範囲は同じ)
     from shibuya.act import intent as ENGINE
-    from shibuya.perception import renderer as PERCEPTION
+    # 〔割る段 7 の G0・親の裁定 Q12〕範囲の手がかりは、元の置き場が perception の、割らずに移したモジュール(割る段 7 で renderer を割ると包み perception が無くなる。付け替えの前と後で範囲は同じ)
+    from shibuya.foundation.text import templates as PERCEPTION
     from shibuya.world.model import state as WORLD
 
     return PL.names_from(ENGINE, PERCEPTION, LLM, AGENTS, WORLD, CORE), PL.names_from(ECONOMY, BUILD)

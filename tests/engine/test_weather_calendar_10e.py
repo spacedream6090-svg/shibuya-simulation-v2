@@ -296,16 +296,17 @@ def test_b6_b3_words_body_heat_and_sun_follow_one_rule(monkeypatch):
     (再生日=暦の日付・警告なし)。再生日と暦の日付を分けるのは ``weather_perturb=True``(同じ層から引く)で行う。"""
     from shibuya.interfaces.cli import main as cli
     from shibuya.foundation.text import normalize as N
-    from shibuya.perception import renderer as REN
+    # 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
+    from shibuya.perception.renderer import Renderer, _TickCache
 
     made: list = []
-    _init = REN.Renderer.__init__
+    _init = Renderer.__init__
 
     def spy(self, *a, **k):
         _init(self, *a, **k)
         made.append(self)
 
-    monkeypatch.setattr(REN.Renderer, "__init__", spy)
+    monkeypatch.setattr(Renderer, "__init__", spy)
     # 既定(暦の規則・揺らさない): 07-13 は窓の中=その日の実際の天気・影も暦の日付の 07-13(警告なし)
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
@@ -338,7 +339,7 @@ def test_b6_b3_words_body_heat_and_sun_follow_one_rule(monkeypatch):
         assert daylight == SOL.daylight_phase(h * 60 + 30.0, sr, ss)               # (3) 日照=暦の日付
         stage, wbgt = env._heat_now(h * 60)                                        # (2) 体感温度と同じ暑さ段
         assert heat == (HEAT_STAGE_ORDER[stage] if np.isfinite(wbgt) else "")
-        tc = REN._TickCache(tick=h * 60, when=when, band5=N.time_band(when))
+        tc = _TickCache(tick=h * 60, when=when, band5=N.time_band(when))
         text = ren._b3(tc).decode("utf-8")
         assert weather in text and daylight in text and (heat in text)
     assert (env._sunrise, env._sunset) == SOL.sun_minutes(cal)                    # 体の昼夜も暦の日付

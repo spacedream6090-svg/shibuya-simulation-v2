@@ -63,9 +63,19 @@ from shibuya.foundation.vocab.actions import (
     compat_word,
     format_two_line_v3,
 )
-from shibuya.perception import renderer as PR
+# 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
+from shibuya.perception.renderer import (
+    ACTIVITY_EXPIRY_REASON,
+    ACTIVITY_LINE_MAX_TOKENS,
+    ACTIVITY_WORDS,
+    ACTIVITY_WORDS_V3,
+    DEFAULT_OPTIONS_V3,
+    RESULT_OPTIONS,
+    RESULT_OPTIONS_V3,
+    Renderer,
+    activity_line,
+)
 from shibuya.foundation.text import templates as T
-from shibuya.perception.renderer import Renderer
 from shibuya.world.model.state import World
 from tests import golden_env as GE
 
@@ -225,14 +235,14 @@ def test_b4b_activity_line_is_byte_identical_in_a_cell():
 
 
 def test_activity_line_budget_and_filters():
-    assert PR.activity_line([]) == ""
-    long = PR.activity_line([("とても長い活動の文章", 3), ("散歩", 2)])
+    assert activity_line([]) == ""
+    long = activity_line([("とても長い活動の文章", 3), ("散歩", 2)])
     assert T.TEMPLATES["B4b.near"] not in long
     from shibuya.foundation.text.channels import estimate_tokens
 
-    assert estimate_tokens(long) <= PR.ACTIVITY_LINE_MAX_TOKENS
-    assert PR.activity_line([("P-3を待つ", 2)]) == "", "個体依存語は出さない(規約⑧)"
-    assert PR.activity_line([("戦略を練る", 2)]) == "", "省略記法の語を含む文は出さない(⑥)"
+    assert estimate_tokens(long) <= ACTIVITY_LINE_MAX_TOKENS
+    assert activity_line([("P-3を待つ", 2)]) == "", "個体依存語は出さない(規約⑧)"
+    assert activity_line([("戦略を練る", 2)]) == "", "省略記法の語を含む文は出さない(⑥)"
     assert not displayable_activity("なし") and displayable_activity("散歩")
 
 
@@ -426,13 +436,13 @@ def test_expiry_condition_is_outside_the_refractory_table():
 
 # ------------------------------------------------------------------ 描画の v3 表
 def test_v3_option_and_word_tables_are_the_compat_reading():
-    for code, words in PR.RESULT_OPTIONS.items():
+    for code, words in RESULT_OPTIONS.items():
         want = tuple(dict.fromkeys(compat_word(w, "v1", "v3") for w in words))
-        assert PR.RESULT_OPTIONS_V3[code] == want
-    assert PR.DEFAULT_OPTIONS_V3 == tuple(
+        assert RESULT_OPTIONS_V3[code] == want
+    assert DEFAULT_OPTIONS_V3 == tuple(
         dict.fromkeys(compat_word(w, "v1", "v3") for w in T.DEFAULT_OPTIONS)
     )
-    assert PR.ACTIVITY_WORDS_V3 == tuple(compat_word(w, "v1", "v3") for w in PR.ACTIVITY_WORDS)
+    assert ACTIVITY_WORDS_V3 == tuple(compat_word(w, "v1", "v3") for w in ACTIVITY_WORDS)
     from shibuya.world.facts import weekly_reader as W
 
     assert W.ACTIVITY_TO_ACTION_V3 == {
@@ -453,7 +463,7 @@ def test_renderer_v3_expiry_reason_and_failure_options():
     r.prepare_tick(700)
     b6 = r.render(0, tick=700, wake_reason=int(WakeCondition.ACTIVITY_EXPIRY)).blocks["B6"]
     txt = b6.decode("utf-8")
-    assert PR.ACTIVITY_EXPIRY_REASON in txt
+    assert ACTIVITY_EXPIRY_REASON in txt
     assert "いま可能: 移動、なし" in txt and "待機" not in txt
     r1 = Renderer(w, a, seed=3)
     r1.prepare_tick(700)

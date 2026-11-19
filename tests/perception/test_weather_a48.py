@@ -28,7 +28,8 @@ from shibuya.runtime.inference.bridge import StubRenderer
 from shibuya.runtime.run import run_day
 from shibuya.foundation.text import normalize as N
 from shibuya.foundation.text import templates as T
-from shibuya.perception import renderer as RD
+# 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
+from shibuya.perception.renderer import PerceptionAssets, Renderer, SYNTHETIC_WEATHER_NOTE, _TickCache
 from shibuya.runtime.systems import assemble as ASM
 from shibuya.runtime.systems import state_io as SIO
 from shibuya.world.model.assets import ProcessAssets
@@ -47,12 +48,12 @@ SMALL_SYN = dict(n_agents=30, seed=1, n_cells=9, ticks=60, checkpoint_every=60)
 
 
 def _real_shaped(world: World, *, days=(DAY,), drop: tuple[tuple[str, int], ...] = (),
-                 words: dict[str, str] | None = None) -> RD.PerceptionAssets:
+                 words: dict[str, str] | None = None) -> PerceptionAssets:
     """合成の世界の形で、実データと同じ扱い(``source`` が合成でない)の知覚の資産。W13 の時の表は ``days`` の 24 時。
 
     ``words`` は日付 → 天候の語(無ければ ``ROW`` の語)。"""
     rows = {(d, h): ((words or {}).get(d, ROW[0]),) + ROW[1:] for d in days for h in range(24) if (d, h) not in drop}
-    return dataclasses.replace(RD.PerceptionAssets.synthetic(world), source="test-real",
+    return dataclasses.replace(PerceptionAssets.synthetic(world), source="test-real",
                                weather_by_date_hour=rows, declared_weather_by_hour={})
 
 
@@ -79,13 +80,13 @@ def _w13_process_assets(days=(DAY, DAY2), types: tuple[str, ...] | None = None) 
 def made(monkeypatch):
     """ランの中で作られた描画(``Renderer``)の控え。"""
     out: list = []
-    _init = RD.Renderer.__init__
+    _init = Renderer.__init__
 
     def spy(self, *a, **k):
         _init(self, *a, **k)
         out.append(self)
 
-    monkeypatch.setattr(RD.Renderer, "__init__", spy)
+    monkeypatch.setattr(Renderer, "__init__", spy)
     return out
 
 
@@ -105,7 +106,7 @@ def test_real_shaped_assets_stop_on_a_missing_row_and_the_synthetic_world_uses_t
     with pytest.raises(ValueError, match="2026-07-13 の 5 時"):
         real.require_weather_days([DAY])
     _real_shaped(w).require_weather_days([DAY])  # 24 時そろえば止まらない
-    syn = RD.PerceptionAssets.synthetic(w)
+    syn = PerceptionAssets.synthetic(w)
     assert syn.is_synthetic and syn.missing_weather_hours("2020-01-01") == ()
     syn.require_weather_days(["2020-01-01"])  # 合成の世界は確かめない(宣言の天気)
     for h in (3, 12, 20):
@@ -124,10 +125,10 @@ def test_real_shaped_assets_stop_on_a_missing_row_and_the_synthetic_world_uses_t
 def test_the_renderer_port_stops_too():
     """何を確かめるか: 描画の口(B3 の時刻の見方)でも、実データの形の資産の行が無ければ止まる(刻みの途中で黙って埋めない)。"""
     w = World.synthetic(n_cells=4, seed=1)
-    r = RD.Renderer(w, AgentState(2), _real_shaped(w, drop=((DAY, 12),)))
+    r = Renderer(w, AgentState(2), _real_shaped(w, drop=((DAY, 12),)))
 
     def b3(when: datetime) -> str:
-        return r._b3(RD._TickCache(when=when, band5=N.time_band(when))).decode("utf-8")
+        return r._b3(_TickCache(when=when, band5=N.time_band(when))).decode("utf-8")
 
     assert T.TEMPLATES["B3.weather"].format(weather=ROW[0], daylight=ROW[1]) in b3(datetime(2026, 7, 13, 11, 0))
     with pytest.raises(ValueError, match="2026-07-13 12 時"):
@@ -141,7 +142,7 @@ def test_synthetic_runs_declare_the_fixed_weather_in_the_manifest(processes):
     決まった天気(文と 24 時の表)を出す。世界過程の無いランの日ごとの記録は空のまま。"""
     res = run_day(processes=processes, **SMALL_SYN)
     wx = res.run_manifest_fields()["weather"]
-    assert wx["declared"]["note"] == RD.SYNTHETIC_WEATHER_NOTE
+    assert wx["declared"]["note"] == SYNTHETIC_WEATHER_NOTE
     # 宣言の表を語で書き下した値と比べる(晴・日照は 0〜4 時が夜明け前・5〜18 時が日中・19〜23 時が日没後・やや暑い)
     want = [[T.WEATHER_WORDS[0], T.DAYLIGHT_WORDS[0 if h < 5 else (1 if h < 19 else 2)], T.HEAT_STAGE_WORDS[1]]
             for h in range(24)]
@@ -155,7 +156,7 @@ def test_synthetic_runs_declare_the_fixed_weather_in_the_manifest(processes):
 def test_assets_on_one_side_only_stop_at_assembly(monkeypatch, processes):
     """何を確かめるか: 描画に実データの形の W13 の時の表があるのに、環境の過程の日の表が無い(合成の過程の資産)と、組み立てで
     止まる(世界過程のあり・なしの両方=天気だけの環境の過程を立てる前にも止まる)。"""
-    monkeypatch.setattr(RD.PerceptionAssets, "load_or_synthetic", classmethod(lambda cls, p, world: _real_shaped(world)))
+    monkeypatch.setattr(PerceptionAssets, "load_or_synthetic", classmethod(lambda cls, p, world: _real_shaped(world)))
     with pytest.raises(ValueError, match="片方だけ"):
         run_day(processes=processes, **SMALL_SYN)
 
@@ -174,7 +175,7 @@ def test_the_reverse_one_side_stops_too(monkeypatch):
     w = World.synthetic(n_cells=9, seed=1)
     with pytest.raises(ValueError, match=re.escape("描画の資産が合成(注入の描画の資産が合成)なのに、環境の過程に W13 の日の表が"
                                                    "ある。直し方: 注入の描画に実データの描画の資産を持たせる")):
-        run_day(renderer=_InjectedRenderer(RD.PerceptionAssets.synthetic(w)), **SMALL_SYN)
+        run_day(renderer=_InjectedRenderer(PerceptionAssets.synthetic(w)), **SMALL_SYN)
 
 
 def test_a_real_world_with_synthetic_perception_assets_stops(monkeypatch, tmp_path):
@@ -191,7 +192,7 @@ def test_a_real_world_with_synthetic_perception_assets_stops(monkeypatch, tmp_pa
                                                    "世界が実データ。直し方: 描画の資産のファイルがそろった world_dir を渡す")):
         run_day(world=world(), processes=False, **kw)
     with pytest.raises(ValueError, match=re.escape("描画の資産が合成(world_dir に描画の資産のファイルが無い: "
-                                                   + "・".join(RD.PerceptionAssets.REQUIRED_FILES)
+                                                   + "・".join(PerceptionAssets.REQUIRED_FILES)
                                                    + ")なのに、世界が実データ。直し方: world_dir に描画の資産のファイルを"
                                                    "そろえる")):
         run_day(world=world(), processes=False, world_dir=str(tmp_path), **kw)  # 空の置き場=描画の 7 ファイルが全部無い
@@ -205,7 +206,7 @@ def test_a_real_world_with_synthetic_perception_assets_stops(monkeypatch, tmp_pa
 class _InjectedRenderer(StubRenderer):
     """注入の描画(アダプタでない)の代わり: スタブの描画に B3 の天気の口と実データの形の資産を持たせた物。"""
 
-    def __init__(self, assets: RD.PerceptionAssets) -> None:
+    def __init__(self, assets: PerceptionAssets) -> None:
         super().__init__()
         self.assets = assets
         self.weather_date_fn = None
@@ -228,7 +229,7 @@ def test_wire_weather_puts_the_main_path_hooks_on_any_renderer():
     """何を確かめるか: ``state_io.wire_weather`` は描画(注入の描画を含む)に本筋と同じ口を挿す=天気の日=環境の過程の再生日・
     天候の語=再生日の W13 の行・日照と暑さ=環境の過程の語・キャッシュの鍵=(再生日, 暦の日付)。行が無ければ止まる。"""
     w = World.synthetic(n_cells=4, seed=1)
-    r = RD.Renderer(w, AgentState(2), _real_shaped(w, days=("2026-08-03",), drop=(("2026-08-03", 9),)))
+    r = Renderer(w, AgentState(2), _real_shaped(w, days=("2026-08-03",), drop=(("2026-08-03", 9),)))
     env = SimpleNamespace(replay_date="2026-08-03", assets=SimpleNamespace(has_weather=True),
                           b3_sun_heat=lambda h: (T.DAYLIGHT_WORDS[1], T.HEAT_STAGE_WORDS[3]))
     SIO.wire_weather(r, env)
@@ -244,7 +245,7 @@ def test_wire_weather_puts_only_the_day_hook_when_the_environment_has_no_weather
     """何を確かめるか(検収 低-3): 環境の過程に W13 の日の表が無い(``has_weather`` が偽)と、日の口だけを挿し、語と鍵の口は
     挿さない(前の結線と同じ分かれ)。"""
     w = World.synthetic(n_cells=4, seed=1)
-    r = RD.Renderer(w, AgentState(2), _real_shaped(w))
+    r = Renderer(w, AgentState(2), _real_shaped(w))
     SIO.wire_weather(r, SimpleNamespace(replay_date="", assets=SimpleNamespace(has_weather=False)))
     assert r.weather_date_fn is not None and r.weather_date_fn() is None
     assert r.weather_words_fn is None and r.weather_words_key_fn is None
@@ -268,7 +269,7 @@ def test_a_run_without_processes_builds_the_weather_only_environment_without_dat
     """何を確かめるか(検収 低-3・低-1): data の無い機械でも、世界過程の無いランで天気だけの環境の過程が立ち、日の頭に 2 日目の
     再生日を引き直し(暦の日付=窓の中=その日)、B3 の語がその日の行から出る。manifest の日ごとの記録(影は空)・一番上の
     ``replay_date``・``frozen_sources`` の W13 の 2 表(W13 でない表は写さない)がそろい、宣言は出ず、体感温度は書かない。"""
-    monkeypatch.setattr(RD.PerceptionAssets, "load_or_synthetic", classmethod(
+    monkeypatch.setattr(PerceptionAssets, "load_or_synthetic", classmethod(
         lambda cls, p, world: _real_shaped(world, days=(DAY, DAY2), words={DAY: "曇", DAY2: "雨"})))
     monkeypatch.setattr(ASM, "load_process_assets_or_synthetic", lambda path, assets: _w13_process_assets())
     res = run_day(n_agents=20, seed=1, n_cells=9, ticks=1_440, sim_days=2, checkpoint_every=1_440, processes=False)
@@ -292,7 +293,7 @@ def test_a_run_without_processes_draws_from_the_stratum_like_the_main_path_witho
     days, types = (DAY, DAY2, "2026-07-15"), ("曇", "雨", "晴")
     words = dict(zip(days, types))
     pa = _w13_process_assets(days, types)
-    monkeypatch.setattr(RD.PerceptionAssets, "load_or_synthetic", classmethod(
+    monkeypatch.setattr(PerceptionAssets, "load_or_synthetic", classmethod(
         lambda cls, p, world: _real_shaped(world, days=days, words=words)))
     monkeypatch.setattr(ASM, "load_process_assets_or_synthetic", lambda path, assets: pa)
     kw = dict(n_agents=20, seed=1, n_cells=9, ticks=60, checkpoint_every=60, start_sim_datetime="2026-07-27")  # 窓の外の月曜
