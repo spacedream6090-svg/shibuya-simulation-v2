@@ -17,7 +17,10 @@ from typing import Final, Iterator
 SRC_PREFIX: Final[str] = "src/shibuya/"
 PKG_NAME: Final[str] = "shibuya"
 #: 書き換えない木の道筋(道具そのものと道具の試験=古い道筋を表として持つ)。
-SELF_PATHS: Final[tuple[str, ...]] = ("tools/pkgmove/", "tests/tools/test_pkgmove.py")
+#: 〔割る段 7 の G-M・親の裁定 Q-GM1 の案 A〕照合の台本の試験(G0-道具で足した)も道具の自分の試験。道具だけを import し、
+#: ``shibuya`` の道は止めた commit(``dc496d7``)の blob の道とその commit の表の節の鍵だけ=割った後も古い道のままが正しい字面。
+SELF_PATHS: Final[tuple[str, ...]] = ("tools/pkgmove/", "tests/tools/test_pkgmove.py",
+                                      "tests/tools/test_pkgmove_shapecheck.py")
 _SKIP_DIRS: Final[frozenset[str]] = frozenset({"__pycache__", ".venv", ".git", ".pytest_cache", "node_modules"})
 _EOL_RE = re.compile(r"\r\n|\r|\n")
 

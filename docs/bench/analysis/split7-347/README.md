@@ -635,3 +635,179 @@ G0 と同じ台本(1 か所ずつ外して回し、同じ台本の中でバイ�
 | byte-check 19 構成(本体の道具・基準 `dc496d7`・直した後の木) | 37 欄すべて同じ 19・動いた 0・誤り 0・445 秒・既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。記録 [bytecheck_R2_parent/](bytecheck_R2_parent/)(実装役の記録は [bytecheck_R2/](bytecheck_R2/)=441 秒)。読み込んだ src 277 本のうち、sha が変わったのは `perception/renderer.py`・`runtime/state/class_ids.py`・`runtime/state/ledger.py` の 3 本。性能の参考(`run_wall_s`・6 本並列・比べない参考値): 19 構成の合計は基準 925 秒/後 912 秒・構成ごとの比は 0.85〜1.07(1 回の比べの揺れの内)・既定の構成は基準 61.4 秒/後 54.9 秒 |
 | 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`。回している間、この作業木は誰にも編集させていない=始めと終わりで `git status` が同じ) | 7,089 passed・1 failed(前からの 1 本=linked の作業木でだけ落ちる)・22 skipped・1 xfailed・37 分 23 秒(G-R1 の回と同じ数=試験は足していない) |
 | 差分を読んだ(一緒に直した 3 つ・基底を呼ぶ 1 文) | 発注と裁定のとおり・固定の値を変えた直しは 3 つだけ・副作用の順の固定の値は変えていない |
+
+## 9. G-M: 割る行を表と順に載せた(土台 `9274355`=G-R2 の後・src は変えていない・2026-11-20)
+
+割る段 7 の 4 つ目の commit。`perception/renderer.py` を割る行を、全ファイルの表・`map.toml`・`contracts.toml`・割る段の順の 25 本目に載せた。当てるのは次の G-S。裁定は Q1〜Q9・Q14・Q18・P1・P4。
+
+### 変えたファイル
+
+| ファイル | 変えた所 |
+|---|---|
+| `docs/reference/package-map-final-2026-11-09-files.md` | §3 の行 305: 主な割り先を `world/model/percept_scene.py` へ入れ替え、包みを world にした(Q5)。名の行かない割り先 3 つ(bridge・time_consts・agent_codes)を欄から外した(Q4・Q6・Q7)。行 305a〜305c(move の形=old は `perception/draw.py`・`perception/notice.py`・`perception/percept_words.py`)を足した。§4-23: 「ほか 10 個」を 10 名で書き、`SYNTHETIC_WEATHER_NOTE`・`DEFAULT_START_DATETIME`・`PerceptScene` を percept_scene の行へ、`SignageNotice` を notice の行へ移し、bridge・time_consts・agent_codes の行を外した。メソッドは G-R2 の後のクラスの名で書いた(`Renderer.render` は draw の行・A48 のメソッド 4 つは `PerceptionAssets` と一緒)。注は 8 つ(Q1・Q9/Q2・Q3/Q4/Q5/Q6/Q7/Q8/名の数)。§2 に 1 行。行 5a の理由に注を 1 つ足した(renderer からは入らなくなった=Q6) |
+| `tools/pkgmove/table.py` | `SPLIT_ORDER` の 25 本目に `perception/renderer.py`・`SPLIT_GROUPS["7"] = {"G1": (25, 25)}`・注 |
+| `tools/pkgmove/map.toml` | `cli.py map` で作り直した(手で書いていない) |
+| `tools/pkgmove/contracts.toml` | 割 1 の `gone_at` を「注釈だけ(段 8)」にした(Q14)。T1 を `[[ignore_split]]` の「割 9(T1)」で足した(`mind.percept.draw → world.model.percept_scene`・決まり 3・`appears_with = "perception/renderer.py"`・`gone_at = "残る"`)。割 2 の前に、G-S で外すわけを注で書いた。`[[split_weakens]]` に renderer の 1 行を足した(Q18) |
+| `tools/pkgmove/split.py` | `SPLIT_PATH_DESTS` に `PathDest("perception/renderer.py", "tests/engine/test_salt_seed_split_10f.py", "_HASH_SITES", "world/model/percept_scene.py")`(P4) |
+| `tests/tools/test_pkgmove.py` | 数の固定(行 361・move 238・`len(SPLIT_ORDER) == 25`・2 つ目以降の割り先の行 33・段 7 の群)。行 305 の主な割り先と名の確かめを足した。順に無い行を断る確かめは port と renderer の 2 本にした。`[[ignore_split]]` の期待の列に T1 を足し、割 1 と T1 の消える段を確かめる。`slow` の終わりの契約は古い 0+新しい 10 で、包み `perception` が消えることも見る |
+| `tests/test_places_guard.py` | 注だけ(`NON_MOVE_ROWS` は 123 のまま) |
+| `tests/engine/state/mind_world_reads_frozen.json` | `md_source.sha256` を直した表の sha に合わせ、注に 1 文足した(数と範囲は変えていない。`scope.split` の renderer の項は触っていない) |
+| `docs/reference/repo-guide/cards/src/shibuya/perception/README.md` | カードの作り直し(「読む試験(道筋で)」に `tests/tools/test_pkgmove.py` が入った=試験に renderer の道の字面を足したため) |
+| `tools/pkgmove/README.md` | 順の 25 本目の注・E8 の宣言の一覧・「割る段 7 の G-M」の節 |
+
+### 表の行と名の数
+
+- 表の行 358 → 361(move 235 → 238・split 25・keep 94・delete 2・empty 2)。2 つ目以降の割り先の行 30 → 33。
+- 行 305: 包み world・主な割り先 `world/model/percept_scene.py`・割り先 4・`split_order = 25`・`names_complete = true`。
+- §4-23 の名(頂上の名): percept_scene 22・draw 31・notice 2・percept_words 19=74。今の renderer.py の頂上の名 74 とちょうど同じ(抜け 0・余り 0)。
+- §4-23 のメソッド: 80(`Rendered` 3・`Renderer` 37・`PerceptionAssets` 13・`PerceptScene` 25・`SignageNotice` 2)。今のファイルのメソッドとちょうど同じで、どれもクラスの名と同じ行に載る。照合の台本の `table_method_sides` で直した表から読んだ側を、G-R2 の前の renderer.py(`dc496d7`)の `plan_counts` に通すと、直す前の表と同じ数になった(世界 24・気づく 2・枠 37・`__init__` 31/37)。
+
+### 割 2 の形(裁定 P1)
+
+- **宣言だけでは表せない。割 2 は今は残し、G-S の commit で `contracts.toml` と `tests/tools/test_pkgmove.py` の期待の列(`test_ignore_split_rows_come_in_with_their_split` の 2 行目)から外す**。G-S の記録には「道具の側の表を 1 か所変えた」と書く。
+- わけ: 道具(`contracts.build`)は `gone_at` を例外の数え(`ignore_gone_at`)の注にしか使わない。載せる条件は「両側のモジュールが木に在り、辺が在る」だけ。25 本目を当てた木でも辺 `world.model.scene_hash → world.model.percept_scene` は在る(`WALKABLE_FRACTION_SYNTHETIC` を読む)ので、割 2 は載り続ける。当てた後の木で scene_hash から読み込みの時に届く上の層のモジュールは 0(前は `perception.renderer`・`mind.percept.attention` ほか計 5)=効かない例外として載る。lint-imports は通る。
+- 割る前の木(G-M)では要る: scene_hash から `perception.renderer` → `mind.percept.attention` が届き、決まり 1 に当たる(`contracts --probe` で効く例外に数えた)。
+
+### 本物の木の書かない実行(`cli.py split --next`・`--through perception/renderer.py`・メモリの中の細目)
+
+- (この項から下の 3 項は、裁定 Q-GM1 の前=`SELF_PATHS` を足す前の結果。足した後は節の末尾の「裁定と、その後の続き」)
+- `split --next`(厳しい当て): **断った(終了コード 2)**。手で直す一覧が 3 つ残るため(下)。`--through perception/renderer.py`(厳しくない当て)は終了 0 で報告を出した。
+- 守り 13 項: `stmts`・`constants`・`bindings`・`declarations`・`names_frozen`・`class_ids`・`shaped_74`・`outside_allowlist`・`import_names`・`head_all`・`import_cycles`・`patch_reach` は「同じ」。`contracts` は「宣言どおり 5」(宣言の外 0・使われない宣言 0)。止めた理由 0。
+- **手で直す一覧は 3(0 でない)**: どれも `tests/tools/test_pkgmove_shapecheck.py`(G0-道具で足した照合の台本の試験)の、名の手がかりの無い割るファイルの道。`RENDERER = "src/shibuya/perception/renderer.py"` と、`test_real_renderer_counts_match_the_retake`・`test_real_renderer_a1_shape_passes_and_planted_changes_fail` の中の `table_method_sides(table, "perception/renderer.py")`。3 つとも、止めた commit(`dc496d7`)の blob の道と、その commit の表の §4 の節の鍵を指す。割った後も元の道のままが正しい(書き換えると `git show dc496d7:<新しい道>` が無い)。取り直しの木(`8a1e409`)には無かった試験なので、取り直しの見込み(0)に入っていなかった。根は、道具の自分の試験の一覧 `model.SELF_PATHS` にこの試験が無いこと。**親に聞く**(下の Q-GM1。その試験を `SELF_PATHS` に足すか、3 つを `split.STRING_EXCLUDE` に足すと、メモリの中ではどちらも手で直す一覧 0・厳しい当ても止めない)。
+- 試験の直しの後の最後の木でも、書かない実行をメモリの中で回し直した: 守り・手で直す 3・書き換えるファイル 54 は同じ(`tests/tools/test_pkgmove.py` は道具の自分=書き換えない)。
+- 見られなかった差し替え 0(E5-b の確かめた 0・読み込みの時だけ 0・宣言で確かめた 0)。
+- E8 の宣言は使われた: `tests/engine/test_salt_seed_split_10f.py::_HASH_SITES → world/model/percept_scene.py`(道 1)。
+- 3 つのクラスの置き場: `PerceptScene`・`PerceptionAssets`・`_TickCache` → `world/model/percept_scene.py`/`SignageNotice` → `mind/percept/notice.py`/`Rendered`・`Renderer(PerceptScene, SignageNotice)` → `mind/percept/draw.py`。draw は名の import で `from shibuya.world.model.percept_scene import PerceptScene, PerceptionAssets, _TickCache, _noise_stage, _prior_scores` と `from shibuya.mind.percept.notice import SignageNotice, check_signage_p_see` を持つ。読み込みの時の循環は前 0・後 0。
+- 割り先の大きさ(書かない実行の差分の新しいファイルの行): percept_scene 1,446・draw 1,531・percept_words 150・notice 94。
+- 書くファイル: 新しい 4 本・消す 2 本(`src/shibuya/perception/renderer.py` と 0 バイトの `src/shibuya/perception/__init__.py`=包み `perception` が木から消える)・書き換える 54 本(src 10・tests 43・tools 1)。import の文の書き換え: src 10 文・7 本/tests 51 文・42 本(2 つ以上の文に分ける 14)/tools 1 文・1 本/docs 0。`tests/c7` に当たる道 0(道具が読む木の `tests/c7` の道は 13 本=数だけ)。
+- 写さなかった import 1(`P_SEE_MEDIUM_RANGE`=どの割り先も使わない)・`__all__` の再輸出を外した 1(`INTERO_UP_EDGES`=G-R1 の import)。
+- クラスの名の表(`CLASS_IDS`): 鍵の書き換え 6(`Rendered`・`Renderer` → `shibuya.mind.percept.draw.*`/`SignageNotice` → `shibuya.mind.percept.notice.*`/`PerceptScene`・`PerceptionAssets`・`_TickCache` → `shibuya.world.model.percept_scene.*`)。**値は 6 つとも `shibuya.perception.renderer.<名>` のまま**(G-R2 で足した `PerceptScene`・`SignageNotice` の 2 行も)。守り class_ids は「同じ」。
+- 状態台帳の持ち主の表: `OWNER_CLASSES["renderer"]` → `("mind/percept/draw.py", "Renderer")`・`OWNER_ALT_CLASSES["renderer"]` → `(("world/model/percept_scene.py", "PerceptScene"), ("mind/percept/notice.py", "SignageNotice"))`(道の文字列の src の表 3)。
+- つなぎの台帳の道: 主な表 `LEDGER_PATHS` に 1 行(`"src/shibuya/world/model/percept_scene.py": "src/shibuya/perception/renderer.py"`)・前向きの表に足す行 0。
+- 書き換えない字面: 表の鍵 2(`test_coef_removed_or_armed.py`・`test_p_see_activity.py` の `removed_renderer_names_left` の `split_module_names("perception/renderer.py")`)・記録の文 4(`tests/c8/test_sensitivity_ledger.py`)。
+- 当てた後の import の決まり(段 delete の木で `contracts.build`): 契約は古い 1+新しい 10 → **古い 0+新しい 10**。例外は前も後も延べ 17 行・15 辺(割 2 を外した後は 16 行・14 辺)。消える例外の行 4(`scene_hash → perception.renderer`〔割 2〕・`perception.renderer → world.model.agent_table`〔割 1〕・`perception.renderer → world.model.assets`〔#18〕・`perception.renderer → world.model.state`〔#19〕)。載る例外の行 4(`scene_hash → percept_scene`〔割 2・効かない〕・`draw → agent_table`〔割 1・注釈だけ〕・`draw → percept_scene`〔割 9(T1)〕・`draw → state`〔#19・注釈だけ〕)。消える段の数は、前 {残る 5・段 7 3・注釈だけ 6・注釈だけ(段 8) 1} → 後 {残る 6・段 7 2・注釈だけ 6・注釈だけ(段 8) 1}。割 2 を外すと「段 7」は #19 の 1 だけになる(裁定 Q14 の「本数は合うが中身が違う」=#18 と割 2 が消え、#19 は注釈だけで残る)。言えない決まり 0・決まりの外は前後とも `shibuya.cli` だけ。
+- 試験の助けが見る葉(`tests/_places.split_module_names("perception/renderer.py")`): G-M の前(G-R1・G-R2 の後)は `perception.renderer` と `foundation.vocab.agent_codes` の 2 本だった(表の §4-23 に `INTERO_UP_EDGES` → agent_codes が残っていた)。**G-M の後は `perception.renderer` の 1 本**(表の名 74 が全部 renderer.py で定義される)。**G-S の後は 4 つの割り先の 4 本**で、agent_codes は入らない(`INTERO_UP_EDGES` が表の名から外れた。5 本ではない)。agent_codes が外れるのは、G-R1 で renderer の名でなくなった物を見なくなるだけ。消した名 `P_SEE_BY_ACTIVITY`・`check_p_see_activity` を探す範囲が、renderer の割り先にそろう。その 2 本の試験は G-M の木で通る(負の対照も)。
+
+### G-S で、道具の一覧の外で手で直す所(取り直し §16 の G-S の行を、今の木で確かめ直した)
+
+| # | 所 | 直し | わけ |
+|---:|---|---|---|
+| 1 | `tests/engine/state/mind_world_reads_frozen.json` の `scope.split` の renderer の項 | 消す(`scope.split` は `[]`) | 割った後は `test_scope_is_current` が「割るファイルが無い」で落ちる。割り先の draw・notice は範囲のディレクトリ `mind/` の下で数える(83・72 のまま=取り直しの数え) |
+| 2 | `tools/pkgmove/contracts.toml` の割 2 と、`tests/tools/test_pkgmove.py` の `test_ignore_split_rows_come_in_with_their_split` の期待の列の 2 行目 | 外す(裁定 P1) | 宣言だけでは表せない(上)。外さなくても lint-imports は通る(効かない例外として載る) |
+| 3 | `pyproject.toml` の `[tool.importlinter]` の節 | `cli.py contracts --stage delete --tree <木> --apply` で作り直す(古い 1 → 0・新しい 10・例外は割 2 を外した後 16 行・14 辺) | 割る道具は pyproject を書かない |
+| 4 | docs の台本 3 本(`docs/bench/analysis/wallbounce-1012/p12/tools/render_cost.py`・`docs/bench/analysis/weather-a48-347/count_weather_a48.py`・`docs/bench/analysis/weather-a48-347/stop_paths_a48.py`) | そのまま(親の決め事 10) | 道具の範囲の外。割った後は `from shibuya.perception …` で大きな音で落ちる(黙って誤らない) |
+| 5 | カード(`tools/repo_guide/build.py`) | 作り直す(`cards/data.md` は単独の `git checkout --` で戻してから `--check`) | ファイルの道が変わる |
+| 6 | `tests/tools/test_pkgmove_shapecheck.py` の 3 か所 | 親に聞く Q-GM1 の答え(`SELF_PATHS` か `STRING_EXCLUDE`)を、`--apply` の前に入れる | 厳しい当て(`--apply`)は、手で直す一覧が残る間は断る |
+
+- 読み込みの時に、割る前の道やファイルの一覧を読む src(段 6 の `RESOLVE_FILES` の形): **0**。src に残る renderer の道の文字列は、`runtime/state/class_ids.py` の鍵 6 と `runtime/state/ledger.py` の持ち主の表 3(どれも道具が書き換える)と、記録の文(`perception/renderer.py:行` の形・道具は書き換えない)だけ。
+- 割った結果として落ちる試験の見込み: 数の固定は G-M で直した。25 本目が当たった木では、`test_split_order_is_kept_in_the_real_tree` は今と同じく「割る段の終わりの木」で飛び、`test_split_dry_run_of_the_next_row_writes_nothing_and_keeps_every_guard` は「割る段は全部当たっている」の道に戻る。上の 1・2 のほかに、`perception` の置き場を前提にする写した木や一時の木の試験は無い(取り直し §9-2=書く・読む・在るを見る形 0)。
+
+### 確かめ(重いものは合図を取ってから 1 本ずつ・合図は単独の rm で返した)
+
+| 何を | 結果 |
+|---|---|
+| `tests/tools/test_pkgmove.py`(`-m "not slow"`・`-n` なし) | 174 passed・21 skipped(前と同じ数=飛ぶ試験は増えていない。25 本目がまだ当たっていない木なので、書かない実行の試験は renderer の道で回る) |
+| `tests/tools/test_pkgmove.py`(`slow`) | 2 passed(本物の表と木で、25 本目までメモリの中で順に当てる試験を含む) |
+| `tests/tools/test_pkgmove_shapecheck.py` | 55 passed |
+| `tests/tools` の残り(`-m "not slow and not gpu"`・`-n 2`) | 642 passed |
+| `tests/test_places_guard.py` | 18 passed |
+| `tests/engine/state`(`-m "not slow and not gpu"`・`-n 2`) | 43 passed |
+| `split_module_names` を使う 2 本と `_HASH_SITES` の試験(`tests/perception/test_p_see_activity.py`・`tests/perception/facts/test_coef_removed_or_armed.py`・`tests/engine/test_salt_seed_split_10f.py`) | 32 passed |
+| `cli.py map --check` | 同じ |
+| `cli.py contracts --stage delete --tree . --check --probe` | 同じ(pyproject は変わらない)。古い 1+新しい 10・例外 17 行・15 辺がどれも効く。割り先の一覧からの引きが 1 つ出る(割 1 の `mind.percept.draw` → `perception.renderer`。主な割り先が percept_scene になったため。載り方は前と同じ) |
+| `lint-imports`(`PYTHONPATH` を作業木の src に) | 11 kept・0 broken |
+| 既に割った 24 本の当て直し(群の土台 9 つ・前=`9274355` の道具・後=直した道具・メモリの中) | 24 本とも書いたファイルが 1 バイトも同じ・差分も同じ・報告の欄の違い 0 |
+| `git status --short -- src` | 空 |
+| カード | 作り直しで 1 枚変わった(上)→ `cards/data.md` を単独の `git checkout --` で戻す → `--check` 最新(150 枚) |
+
+### 親に聞くこと
+
+- **Q-GM1(G-S の前に要る)**: 手で直す一覧に残った `tests/tools/test_pkgmove_shapecheck.py` の 3 か所(`RENDERER`・`test_real_renderer_counts_match_the_retake`・`test_real_renderer_a1_shape_passes_and_planted_changes_fail`)をどうするか。根は G0-道具の見落とし: 道具の自分の試験を書き換えの範囲から外す一覧 `tools/pkgmove/model.py` の `SELF_PATHS`(今は `tools/pkgmove/` と `tests/tools/test_pkgmove.py`)に、足した照合の台本の試験を入れていなかった。案は 2 つで、どちらもメモリの中で、最後の木に当てて確かめた(手で直す一覧 0・厳しい当ても止めない・守りは同じ・書き換えるファイル 54 のまま・その試験のファイルは書き換えない)。
+  - 案 A(推し): `SELF_PATHS` に `tests/tools/test_pkgmove_shapecheck.py` を足す。その試験は `pkgmove.shapecheck` だけを import し、`shibuya` の道は止めた commit の blob と表の節の鍵だけ=道具の自分の試験(`test_pkgmove.py` と同じ扱い)。後の段で同じ形が出ても当たらない。
+  - 案 B: `split.STRING_EXCLUDE` に 3 組を足す(5b の G2 の `_HEAD_CHILD`=古い commit の写しでだけ回すコードと同じ種類)。範囲は狭いが、試験に同じ形の字面を足すたびに組が要る。
+  - 表と裁定に無い決めなので、どちらも足していない。
+- Q-GM2(小): 行 5a の理由の注(「renderer からも入る」が G-R1 で古くなった)を足した。発注の「割り先と名のほかは変えない」の外なら外す。
+- Q-GM3(小・参考): 割 2 を宣言だけで外す形は、`gone_at` では無い。表を変えれば在る(割 2 を今の木の名 `world.model.scene_hash → perception.renderer` で `[[extra_ignore]]` に書くと、`perception.renderer` が木から消えた時点で載らなくなる)。ただし表の外の 1 本の表の意味(計画の表の外の辺)と試験(`len(spec.extras) == 1`)を変えることになるので、取っていない。
+
+### 確かめていないこと
+
+- byte-check は回していない(src は変えていない=裁定 Q16 の astsame の側。`git status --short -- src` が空)。範囲の全体の試験も回していない。
+- G-S の後の木の lint-imports(grimp)は回していない。割 2 を外した後の 16 行・14 辺と決まりの当たりは、道具の `contracts.build` と読み込みのグラフの届き先で数えた。
+- 書かない実行は、道具の木の読み方のとおり `tests/c7` の道も木に入れた(中身は見ていない・書き換える道 0)。
+
+### 裁定と、その後の続き(第347・2026-11-20・親の仮採用=戻せる形)
+
+- 裁定: Q-GM1 は案 A(`SELF_PATHS` に照合の台本の試験を足す)。Q-GM2 は、行 5a の注が今の姿と合っていれば残す(検収で文を見る)。Q-GM3 は取らない(割 2 は裁定 P1 の (a) のとおり G-S で外し、G-S の記録に「道具の側の表を 1 か所変えた」と宣言する)。`split_module_names("perception/renderer.py")` が G-M の後 1 本・G-S の後 4 本になることは受け取られた。
+- 足した差分(G-M の commit に一緒に入れる):
+  - `tools/pkgmove/model.py`: `SELF_PATHS` に `tests/tools/test_pkgmove_shapecheck.py` を足した(注 2 行)。
+  - `tests/tools/test_pkgmove.py`: `test_self_paths_are_the_tool_and_its_own_tests_that_import_nothing_of_shibuya` を足した。一覧の中身を固定し、試験の 2 本が `shibuya` を import しないこと(関数の中を含む AST)を確かめる。数え方の負の対照つき。前は `SELF_PATHS` の中身を固定する試験が無かった。
+  - `tools/pkgmove/README.md`: G-M の節に 1 項。
+- 足す前の確かめ(AST・読むだけ): その試験の import は `__future__`・`ast`・`collections`・`os`・`pathlib`・`pkgmove`・`pytest`・`shutil`・`subprocess`・`sys` だけ。コードの文字列の中の import は `__future__`・`builtins`・`math`・`typing` だけ。`shibuya` を読む import は 0。表の old の道か `shibuya` の字を持つ文字列の定数は 6 で、内訳は次のとおり。割る段の道具が書き換えるべき字面は、止めた commit の物のほかに無い。
+  - `RENDERER`(止めた commit の blob の道)。
+  - 2 つの試験の中の `"perception/renderer.py"`(止めた commit の表の節の鍵)。
+  - 道具の自分の CLI の道 `ROOT / "tools" / "pkgmove" / "cli.py"` と、docstring の中の `cli.py` の 2 つ(どれも `tools/pkgmove/cli.py`=`shibuya` の物でない)。
+- 足した後の本物の木の書かない実行(`cli.py split --next`=厳しい当て): **終了 0(断らない)**。手で直す一覧 0・見られなかった差し替え 0・守り 12 項は「同じ」・決まりは「宣言どおり 5」・E8 の宣言は使われた(道 1)。書くファイルは足す前の書かない実行と同じ一覧:
+  - 新しい 4 本: `src/shibuya/world/model/percept_scene.py`・`src/shibuya/mind/percept/draw.py`・`src/shibuya/mind/percept/notice.py`・`src/shibuya/foundation/text/percept_words.py`。
+  - 消す 2 本: `src/shibuya/perception/renderer.py`・`src/shibuya/perception/__init__.py`(0 バイト)。
+  - 書き換える 54 本: src 10(`foundation/decl/ledger_paths.py`・`interfaces/cli/main.py`・`mind/memory/memory_store.py`・`runtime/result.py`・`runtime/run.py`・`runtime/state/class_ids.py`・`runtime/state/ledger.py`・`runtime/systems/assemble.py`・`runtime/systems/report.py`・`world/model/scene_hash.py`)・tools 1(`tools/c6/ablation1_fixed_vs_ranking.py`)・tests 43(`tests/perception` の 19 本・`tests/engine` の 23 本・`tests/build_lang/test_wiring.py`)。`tests/c7` に当たる道 0。照合の台本の試験と `test_pkgmove.py` は書き換えない。
+
+| 何を(足した後) | 結果 |
+|---|---|
+| `tests/tools/test_pkgmove.py`(`-m "not slow"`・`-n` なし) | 175 passed・21 skipped(足した試験 1 の分だけ増えた・飛ぶ試験は同じ) |
+| `tests/tools/test_pkgmove.py`(`slow`) | 2 passed |
+| `tests/tools/test_pkgmove_shapecheck.py` | 55 passed |
+| `tests/tools` の残り(`-m "not slow and not gpu"`・`-n 2`) | 642 passed |
+| 既に割った 24 本の当て直し(群 2 つ=段 6 の G1 と M・直した道具・メモリの中) | 前の当て直し(`9274355` の道具)と、書いたファイル・差分・報告の欄が全部同じ(当て直しの土台の木には照合の台本の試験がまだ無い=足した道は効かない) |
+| カード | 作り直しで、前の 1 枚(perception)に加えて `cards/tests/tools/README.md` が変わった(足した試験の行と、照合の台本の試験を道筋で読む試験に `test_pkgmove.py`)→ `cards/data.md` を単独の `git checkout --` で戻す → `--check` 最新(150 枚) |
+| 秘密の走査(変えたファイル 13 本) | CLEAN |
+| `git status --short -- src` | 空 |
+| `cli.py map --check` | 同じ |
+
+- 見つけたこと(今回の変更とは関係ない): `cli.py allow --check`(発注の確かめの外。`SELF_PATHS` を読む口なので回した)は「違う」。段 4 が全部当たった木では走査の対象の行が無く、作り直すと一覧が空になるが、置き場の `tools/pkgmove/allow_tests_tools.toml` は段 3 の時の一覧のまま。メモリの中で、`SELF_PATHS` を足す前と後のどちらで作っても同じ差(243 行)=足したことでは変わらない。直していない。
+
+## 10. G-M の、親の確かめと検収(第347・2026-11-20)
+
+### 10-1. 別の役の検収
+
+- 判定: **受入**(高 0・中 0・低 4)。検収役はファイルを 1 本も変えていない。
+- 範囲: 変わった 13 本は、どれも許した範囲の中(src の差 0)。心の読みの凍結の表の `md_source.sha256` は、直した全ファイルの表の sha と一致。
+- 表の名: 74(percept_scene 22・draw 31・notice 2・percept_words 19)は、今の renderer.py の頂上の名 74 とちょうど同じ(抜け・余り・2 回載る名 0)。メソッド 80 もファイルとちょうど同じで、どれも自分のクラスの行に載る。行 305(包み world・主な割り先 percept_scene)と行 305a〜c の形は、段 5b と段 6 の同じ形の行と同じ。裁定の注と、行 5a の注は、中身と合う。
+- 書かない実行(検収役が自分で・厳しい当て): 終了 0・手で直す一覧 0・見られなかった差し替え 0・守り 12 項「同じ」・決まり「宣言どおり 5」。差分をメモリの中で当てて確かめたこと: 元の頂上の文 74 が、4 つの割り先に AST と字面が同じで 1 回ずつ在る・名の import で読む 72 文と、別名で読む 8 文の名は、どれも割り先の頂上に在る・割り先どうしに逆向きの辺は無い(循環 0)・読み込みの時に `_prior_scores` を呼ぶ文は、その import の後に走る。
+- 差し替えの届く先: `near_person_text` を読む関数は、`_b5`・`_b5_ranked` が draw、`_nearby_items` が percept_scene=割った後は 2 つのモジュールが名で持つ(試験は、両方のモジュールを引いて差し替える形に G0 で直してある)。`file_sha256` は percept_scene。
+- 固定の表: `CLASS_IDS` は鍵だけ 6 つ書き換わり、値は 6 つとも変わらない(G-R2 で足した 2 行も)。台帳の道は主な表に 1 行。試験の `_HASH_SITES` の道は、宣言で `PerceptScene.__init__` の置き場を指す。
+- import の決まり(検収役が、前の木と後の木で道具の組み立てを回した): 前=古い 1+新しい 10・例外 17 行・15 辺/後=古い 0+新しい 10・例外 17 行・15 辺(T1 が載る・#18 が消える・#19 と割 1 は注釈だけで残る)。宣言の外 0・使われない宣言 0。**割 2 を宣言だけでは外せない、という見立ては正しい**(消える段の欄は数えの注にしか使われず、割った後も辺が在るので載り続ける。決まりには効かない)。G-S で外すと 16 行・14 辺。包み `perception` が消えて困る読み手は、src・tests(c7 を除く)・tools で 0。
+- `SELF_PATHS` に照合の台本の試験を足したこと: その試験が持つ `shibuya` の字面は 2 つだけ(止めた commit `dc496d7` の blob の道と、表の節の鍵)=割った後も古い道のままが正しい字面。黙って古い道を指し続ける字面は無い。
+- 当て直し: 新旧の道具で 23 本目(土台 `4a5bd30`)と 24 本目(土台 `9f61eea`)を検収役が当て直し、書いたファイル・消したファイル・差分・守り・報告は全部同じ。
+- `test_pkgmove`: 足した試験は 1 本・消した試験は 0・飛ぶ試験の数は同じ。数を替えた assert 7 つは、新しい数に替わっただけ(確かめは弱まっていない)。
+
+### 10-2. 検収の低と、親の答え
+
+- 低-1(`SELF_PATHS` の中身を固定する試験が、import しか見ない=道の字面を見ない): そのまま(今の 2 つの字面は検収役が確かめた)。段 8 で道具の自分の試験を触るときに、道の字面を見る形を足す。
+- 低-2(`tools/pkgmove/README.md` の照合の台本の例が、G-S の後は無い道を指す): 文だけの話=段 8 の文の掃除で直す。
+- 低-3(割 2 を今の木の名で別の表〔`[[extra_ignore]]`〕に書けば、宣言だけで消える。ただし、既に割った行の当て直しで「宣言の外」を出す見込みが在り、表の意味と試験も変わる): 取らない(親の裁定)。割 2 は、G-S の commit で `contracts.toml` と試験の期待の列から外す。
+- 低-4(`cli.py allow --check` が「違う」と出る=置き場の `allow_tests_tools.toml` が段 3 の時の一覧のまま。今回の変更と関係ない): 報告に載せ、段 8 の掃除で扱う。
+- 検収役の手順の誤り(自分で申告): 合図の確かめと重い台本を、1 つのコマンドにつないで書いた 1 回(約 25 秒。直前の単独の確かめでも合図は無かった)。
+- 実装役の手順の知らせ: 発注の外で `cli.py allow --check` を回した(道具が、メモリの中で `tests` の全体を読む。表示したのは差の最初の 40 行だけ)。
+- 親の発注文の誤り: 語の関数の割り先を `mind/percept/percept_words.py` と書いた(表は `foundation/text/percept_words.py`)。実装役は表のとおりに作った。次の発注文は直した。
+
+### 10-3. 親が回した確かめ
+
+| 何を | 結果 |
+|---|---|
+| `tests/tools/test_pkgmove.py`(not slow・`-n` なし) | 175 passed・21 skipped・failed 0 |
+| 同(slow・木をまるごと写す 2 本) | 2 passed |
+| `tests/tools` の残り・`tests/test_places_guard.py`・`tests/engine/state`・`tests/engine/bridging`・`tests/engine/test_salt_seed_split_10f.py`・表の鍵で割り先を引く試験 2 本(not slow・`-n 2`) | 846 passed・failed 0・skipped 0 |
+| 本物の木の書かない実行(`cli.py split --next`=厳しい当て) | 終了 0(断らない)・見られなかった差し替え 0・消すのは `perception/renderer.py` と `perception/__init__.py`・書いていない |
+| `cli.py map --check`・`cli.py contracts --stage delete --tree . --check --probe` | どちらも「同じ」 |
+| `lint-imports`(作業木の src) | 11 kept・0 broken(割る前なので、契約は今のまま) |
+| 全ファイルの表の sha と、心の読みの凍結の表の `md_source.sha256`(本体の頭へ載せ直した後) | 一致 |
+| `git status --short -- src` | 空(src は変えていない) |
+
+### 10-4. G-S(道具で割る)の順(検収役の知らせを受けて)
+
+1. `cli.py split --next --apply`。
+2. `tools/pkgmove/contracts.toml` の割 2 と、`tests/tools/test_pkgmove.py` の期待の列の 2 行目を、**同じ手で**外す(片方だけだと試験が落ちる)。
+3. 割 2 を外した**後で** `contracts --stage delete --apply`(先に回すと、`pyproject.toml` が 17 行で作られる。見込みは 16 行・14 辺)。
+4. 心の読みの凍結の表の `scope.split` の renderer の項を消す(`[]`)。
+5. カードを作り直す。docs の古い台本 3 本はそのまま。
+- 手直しの前に落ちる見込みの試験: 心の読みの表の範囲の試験・`pyproject.toml` の照合・カードの検査。数の固定は G-M で直したので、割った結果で落ちる見込みは無い。読み込みの時に割る前の道を読む src は 0。

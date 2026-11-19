@@ -657,6 +657,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_record_tools_list_matches_the_scan_of_tests`(関数): (a) の範囲に足す docs の記録の道具の一覧は、tests が道で読む docs の ``.py`` の走査と同じ。
   - `test_rule_5_adds_only_late_readers_whose_final_place_may_read_in_a_sample`(関数): 〔検収 M-2・k10・k11〕決まり 5 の読んでよい側に足すのは、まだ移っていない読み手のうち、最終の置き場が読んでよい側
   - `test_section_6_6_rules_come_in_at_their_stages_in_a_sample`(関数): 〔段 4 の残り・作った見本の木〕§6-6 の決まりは入れる段から: 一時の区分の読み手の決まり(9)は interim_bundles の段から
+  - `test_self_paths_are_the_tool_and_its_own_tests_that_import_nothing_of_shibuya`(関数): 〔割る段 7 の G-M・親の裁定 Q-GM1 の案 A〕道具が書き換えない道(``model.SELF_PATHS``)は、道具のディレクトリと道具の自分の
   - `test_skipped_or_reversed_stages_are_refused_in_a_sample`(関数): 〔検収 中-2・作った見本の木〕段を飛ばす・逆の順の計画は断る(``Refused``=CLI の終了コード 2)。次の段から順にまとめる計画と、
   - `test_skipping_the_next_stage_is_refused`(関数): 〔検収 中-2〕本物の木で、次に当てる段を飛ばす計画は断る(書かない実行でも・CLI は終了コード 2)。次の段から順に
   - `test_split_5a_5b_in_memory_keeps_the_import_rules_to_the_end`(関数): 〔検収 高-1〕本物の木で割る段の残りの本(5a の 17 本と 5b の 5 本=22 本の順の、木で済んでいない本)をメモリの中で順に当てる
@@ -718,6 +719,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_real_renderer_counts_match_the_retake`(関数): G-R1 の後の renderer.py(形を変える前)から、計画の分け方の数を台本が数える: メソッド 63・__init__ の文 68=世界の側 31・
   - `test_the_mutations_change_the_sample`(関数): 負の対照の負の対照: 変異の関数は見本の字面に当たる(空回りしない)=どれも後の字面を変える(前提の変異は前も変える)。
 - import している内部モジュール: `tools/pkgmove/shapecheck.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 環境変数: `CI`・`os.environ` をまるごと使う
 
 ## [test_realworld_fetch_jinryu.py](../../../../../../tests/tools/test_realworld_fetch_jinryu.py)

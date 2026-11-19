@@ -228,6 +228,9 @@ SPLIT_PATH_DESTS: tuple[PathDest, ...] = (
     # 〔割る段 6 の M0・親の裁定(仮採用)〕``PORT = "society/speech/port.py"`` は ``SpeechPort`` の書き手の置き場(割った後も元の
     # ファイル)=主な割り先へ向ける(字面は変わらない。後で元のファイルが動けば道具が見る)
     PathDest("engine/speech/port.py", "tests/engine/speech/test_speech_writers_ast.py", "PORT", "society/speech/port.py"),
+    # 〔割る段 7 の G-M・親の裁定 P4〕seed の近くのハッシュの場所の鍵 ``("perception/renderer.py", "__init__")`` は、blake3 で
+    # run_salt を写す ``__init__``=G-R2 の後は ``PerceptScene.__init__``(``Renderer.__init__`` は呼ばない)=世界の側の置き場
+    PathDest("perception/renderer.py", "tests/engine/test_salt_seed_split_10f.py", "_HASH_SITES", "world/model/percept_scene.py"),
 )
 #: 〔割る段 5b・E4・親の裁定 Q9 の (a)〕割る段で書き換えないファイル(道筋か、``/`` で終わるディレクトリ)。byte-check は基準の側
 #: (割る前の木)と比べる側(割った後の木)を道具のリポの同じコードで回すので、ランの入口は道具が自分で解く

@@ -166,10 +166,11 @@ def test_map_toml_is_made_from_the_table_and_is_current():
     # 〔割る段 5a の G0〕2 つ目以降の割り先 9 本と 18 本目(延ばした)の割り先 1 本の行(move の形・split_from)を足し、行 244 を
     # 割る行に替えた(18 本目は延ばしても割る行のまま=table.SPLIT_DEFERRED)。〔割る段 5b の G0〕2 つ目以降の割り先 6 本の行
     # (87a・141a・146a・207a・234a・234b)を足した(親の裁定 Q5)。〔割る段 6 の S6-G0・裁定 Q5〕2 つ目以降の新しい割り先 14 本の行
-    # (225a〜225n)を足した。〔割る段 6 の M0〕延ばした 18 本目を割る段の順の 24 本目に載せた(行の数は変わらない)
-    assert len(rows) == 358
+    # (225a〜225n)を足した。〔割る段 6 の M0〕延ばした 18 本目を割る段の順の 24 本目に載せた(行の数は変わらない)。〔割る段 7 の
+    # G-M・裁定 Q5〕2 つ目以降の割り先 3 本の行(305a〜305c)を足した
+    assert len(rows) == 361
     kinds = Counter(r.kind for r in rows)
-    assert kinds == {"move": 235, "keep": 94, "split": 25, "delete": 2, "empty": 2}
+    assert kinds == {"move": 238, "keep": 94, "split": 25, "delete": 2, "empty": 2}
     # 保留の一覧は 11-16 の答え(返事その 8 §1-6)で全部決着した=空
     assert {r.old: r.held for r in rows if r.held} == HELD == {}
     by = {r.old: r for r in rows}
@@ -1907,18 +1908,24 @@ def test_split_rows_in_the_real_map_match_the_source_files():
     道具は断る。〔割る段 5b の G0〕順に 5b の 5 本を足した(22 本)・2 つ目以降の割り先の行は 16 本(5a 10・5b 6)。〔割る段 6 の
     S6-G0〕順に段 6 の 1 本(23 本目=engine/resolve.py)を足した・2 つ目以降の割り先の行は 30 本(段 6 の 14 を足した)。〔割る段 6
     の M0・親の裁定 Q12・T2〕延ばした行を順の 24 本目に載せた(``SPLIT_DEFERRED`` は空)。順に無い行を名指しで断ることは、その行を
-    除いた順を渡して確かめる(延ばした行と同じ形)。"""
+    除いた順を渡して確かめる(延ばした行と同じ形)。〔割る段 7 の G-M〕順に段 7 の 1 本(25 本目=perception/renderer.py・主な
+    割り先は world/model/percept_scene.py=裁定 Q5)を足した・2 つ目以降の割り先の行は 33 本(段 7 の 3 を足した)。§4-23 の名は
+    G-R2 の後のクラス(``PerceptScene``・``SignageNotice``)を含めて頂上の名とちょうど同じ(下のループが確かめる)。"""
     from pkgmove.table import SPLIT_DEFERRED, SPLIT_ORDER
 
     tree = _root_tree()
     by = MAPDOC.by_old()
-    assert [r.old for r in MAPDOC.split_rows()] == list(SPLIT_ORDER) and len(SPLIT_ORDER) == 24
+    assert [r.old for r in MAPDOC.split_rows()] == list(SPLIT_ORDER) and len(SPLIT_ORDER) == 25
     assert SPLIT_ORDER[17:] == ("engine/commit.py", "engine/presence.py", "engine/calendar_shadow.py", "engine/run.py", "cli.py",
-                                "engine/resolve.py", "engine/speech/port.py")
+                                "engine/resolve.py", "engine/speech/port.py", "perception/renderer.py")
     assert SPLIT_DEFERRED == {} and by["engine/speech/port.py"].kind == "split"
     assert by["engine/speech/port.py"].split_order == 24 and MAPDOC.meta.get("split_deferred") == []
+    assert by["perception/renderer.py"].split_order == 25
     with pytest.raises(SP.SplitRefused, match="割る段の順に無い行"):
-        SP.make_split_plan(tree, MAPDOC, "engine/speech/port.py", order=SPLIT_ORDER[:-1])
+        SP.make_split_plan(tree, MAPDOC, "engine/speech/port.py",
+                           order=tuple(o for o in SPLIT_ORDER if o != "engine/speech/port.py"))
+    with pytest.raises(SP.SplitRefused, match="割る段の順に無い行"):
+        SP.make_split_plan(tree, MAPDOC, "perception/renderer.py", order=SPLIT_ORDER[:-1])
     for old in (*SPLIT_ORDER, *SPLIT_DEFERRED):
         r = by[old]
         assert r.names_complete and r.split_order == (SPLIT_ORDER.index(old) + 1 if old in SPLIT_ORDER else 0)
@@ -1928,8 +1935,17 @@ def test_split_rows_in_the_real_map_match_the_source_files():
         assert src is not None, old
         assert set(r.name_map) == SP.top_names(tree.files[SRC_PREFIX + src]), old
     sf = [r for r in MAPDOC.rows if r.split_from]
-    assert len(sf) == 30 and all(r.kind == "move" and r.stage == "" and r.new in by[r.split_from].split_to for r in sf)
+    assert len(sf) == 33 and all(r.kind == "move" and r.stage == "" and r.new in by[r.split_from].split_to for r in sf)
     assert len([r for r in sf if r.split_from == "engine/resolve.py"]) == 14
+    rr = by["perception/renderer.py"]
+    assert (rr.package, rr.new) == ("world", "world/model/percept_scene.py")
+    assert set(rr.split_to) == {"world/model/percept_scene.py", "mind/percept/draw.py", "foundation/text/percept_words.py",
+                                "mind/percept/notice.py"}
+    assert sorted(r.new for r in sf if r.split_from == "perception/renderer.py") == sorted(set(rr.split_to) - {rr.new})
+    assert ({n: rr.name_map[n] for n in ("PerceptScene", "SignageNotice", "Renderer", "DEFAULT_START_DATETIME")} ==
+            {"PerceptScene": "world/model/percept_scene.py", "SignageNotice": "mind/percept/notice.py",
+             "Renderer": "mind/percept/draw.py", "DEFAULT_START_DATETIME": "world/model/percept_scene.py"})
+    assert "INTERO_UP_EDGES" not in rr.name_map  # 〔裁定 Q6〕G-R1 で agent_codes からの import にした
     rows, _held = MV.select_rows(MAPDOC, STAGES)
     assert not [r for r in rows if r.split_from]
     with pytest.raises(MV.Refused, match="割る段の割り先の行"):
@@ -1981,7 +1997,9 @@ def test_split_dry_run_of_the_next_row_writes_nothing_and_keeps_every_guard(tmp_
 
 def test_ignore_split_rows_come_in_with_their_split():
     """〔親の裁定 Q3〕割る段で出る辺 4 本は別の表 [[ignore_split]](28 本と表の外の 1 本の表は変えない)。appears_with の割る行を
-    当てる前の木では載せない。〔割る段 6 の S6-G0・裁定 Q6〕段 6 の 4 本(割 5〜8=型の注釈だけの辺)を足した。"""
+    当てる前の木では載せない。〔割る段 6 の S6-G0・裁定 Q6〕段 6 の 4 本(割 5〜8=型の注釈だけの辺)を足した。〔割る段 7 の G-M・
+    裁定 Q14〕段 7 の 1 本(割 9=案 K の例外 T1・基底のクラスを実行の時に読む=残る)を足し、割 1 の消える段を「注釈だけ(段 8)」に
+    した。割 2 は 25 本目を当てる commit(G-S)で、この期待の列と contracts.toml から外す(裁定 P1)。"""
     from pkgmove import contracts as CT
     from pkgmove.table import SPLIT_ORDER
 
@@ -1994,8 +2012,11 @@ def test_ignore_split_rows_come_in_with_their_split():
                    ("act.ops.detect_writes", "mind.system1.change_detect", [1], "engine/resolve.py"),
                    ("mind.ops", "world.model.agent_table", [3], "engine/resolve.py"),
                    ("runtime.state.restore", "world.model.agent_table", [10], "engine/resolve.py"),
-                   ("runtime.state.restore", "world.model.state", [10], "engine/resolve.py")]
+                   ("runtime.state.restore", "world.model.state", [10], "engine/resolve.py"),
+                   ("mind.percept.draw", "world.model.percept_scene", [3], "perception/renderer.py")]
     assert [g["gone_at"] for g in spec.ignores_split if g["appears_with"] == "engine/resolve.py"] == ["注釈だけ"] * 4
+    assert {g["num"]: g["gone_at"] for g in spec.ignores_split if g["num"] in ("割 1", "割 9(T1)")} == {
+        "割 1": "注釈だけ(段 8)", "割 9(T1)": "残る"}
     assert all(g["appears_with"] in SPLIT_ORDER and g["gone_at"] for g in spec.ignores_split)
     assert len(spec.ignores) == 28 and len(spec.extras) == 1
     tree = _root_tree()
@@ -2147,7 +2168,9 @@ def test_split_5a_5b_in_memory_keeps_the_import_rules_to_the_end():
     interfaces が言え(run の本で入口の割り先 run_args が入る)、``shibuya.cli`` は入口の転送で済んだ本と見る(読んでよい側に
     足した古い読み手は 0)。〔割る段 6 の S6-G0〕23 本目(engine/resolve.py)まで: 宣言どおりの弱まりに段 6 の engine(包み engine が
     木から無くなり古い層の決まりが丸ごと消える=[[split_weakens]])が足され、終わりの契約は 11(古い 1+新しい 10=決まり 4 が言える)。
-    〔割る段 6 の M0〕24 本目(延ばしていた engine/speech/port.py)まで: 弱まりは足されない(決まり 10 の例外=核 1 が載らなくなる)。"""
+    〔割る段 6 の M0〕24 本目(延ばしていた engine/speech/port.py)まで: 弱まりは足されない(決まり 10 の例外=核 1 が載らなくなる)。
+    〔割る段 7 の G-M〕25 本目(perception/renderer.py)まで: 宣言どおりの弱まりに段 7 の perception(包み perception が木から
+    無くなり古い決まり「build は実行時に import されない」が丸ごと消える=裁定 Q18)が足され、終わりの契約は 10(古い 0+新しい 10)。"""
     from pkgmove import contracts as CT
     from pkgmove.table import SPLIT_ORDER
 
@@ -2165,12 +2188,13 @@ def test_split_5a_5b_in_memory_keeps_the_import_rules_to_the_end():
         if plan.guards["contracts"] != "同じ":
             weakened[old] = plan.contracts["declared"]
         tree = plan.after
-    assert set(weakened) <= {"agents/state.py", "llm/undefined.py", "engine/resolve.py"}, weakened
+    assert set(weakened) <= {"agents/state.py", "llm/undefined.py", "engine/resolve.py", "perception/renderer.py"}, weakened
     assert SP.split_state(tree, MAPDOC) == list(SPLIT_ORDER) and SP.next_split(tree, MAPDOC) is None
     assert SP.is_forwarder(tree, MAPDOC.by_old()["cli.py"]) and "src/shibuya/engine/run.py" not in tree.files
     assert "src/shibuya/engine/resolve.py" not in tree.files and "src/shibuya/engine/__init__.py" not in tree.files
+    assert "src/shibuya/perception/renderer.py" not in tree.files and "src/shibuya/perception/__init__.py" not in tree.files
     _c, rep = CT.build(spec, MAPDOC, tree, CT.stage_of(tree, MAPDOC, spec))
-    assert (rep["n_old"], rep["n_new"]) == (1, 10), rep["not_expressed"]
+    assert (rep["n_old"], rep["n_new"]) == (0, 10), rep["not_expressed"]
     ne = {(str(x["rule"]), x["name"]) for x in rep["not_expressed"]}
     assert ("単位", "foundation") not in ne and not [r for r, _n in ne if r in ("2", "4")], sorted(ne)
     assert ("単位", "interfaces") not in ne and not rep.get("late_allowed"), (sorted(ne), rep.get("late_allowed"))
@@ -2632,11 +2656,13 @@ def test_negative_forwarder_guard_branches_stop_one_by_one(monkeypatch):
 def test_split_groups_cover_the_split_order_in_order():
     """〔低-2〕群(親の裁定 Q11・``table.SPLIT_GROUPS``)を段の順・群の順につなぐと ``SPLIT_ORDER`` の全部と同じ(重なりも抜けも
     無い)。5b の群は G1=commit・presence・calendar_shadow・G2=run・G3=cli。〔割る段 6 の S6-G0・裁定 Q9〕段 6 の群は G1=resolve
-    (23 本目)。〔割る段 6 の M0〕段 6 の群 M=延ばしていた ``engine/speech/port.py``(24 本目)。"""
+    (23 本目)。〔割る段 6 の M0〕段 6 の群 M=延ばしていた ``engine/speech/port.py``(24 本目)。〔割る段 7 の G-M〕段 7 の群
+    G1=``perception/renderer.py``(25 本目)。"""
     from pkgmove.table import SPLIT_GROUPS, SPLIT_ORDER
 
+    assert list(SPLIT_GROUPS) == ["5a", "5b", "6", "7"]
     seq: list[int] = []
-    for stage in ("5a", "5b", "6"):
+    for stage in ("5a", "5b", "6", "7"):
         for _g, (lo, hi) in SPLIT_GROUPS[stage].items():
             assert lo <= hi
             seq += list(range(lo, hi + 1))
@@ -2644,8 +2670,9 @@ def test_split_groups_cover_the_split_order_in_order():
     g = {k: SPLIT_ORDER[lo - 1: hi] for k, (lo, hi) in SPLIT_GROUPS["5b"].items()}
     assert g == {"G1": ("engine/commit.py", "engine/presence.py", "engine/calendar_shadow.py"), "G2": ("engine/run.py",),
                  "G3": ("cli.py",)}
-    assert len(SPLIT_ORDER) == 24 and {k: SPLIT_ORDER[lo - 1: hi] for k, (lo, hi) in SPLIT_GROUPS["6"].items()} == {
+    assert len(SPLIT_ORDER) == 25 and {k: SPLIT_ORDER[lo - 1: hi] for k, (lo, hi) in SPLIT_GROUPS["6"].items()} == {
         "G1": ("engine/resolve.py",), "M": ("engine/speech/port.py",)}
+    assert {k: SPLIT_ORDER[lo - 1: hi] for k, (lo, hi) in SPLIT_GROUPS["7"].items()} == {"G1": ("perception/renderer.py",)}
 
 
 def test_split_lists_a_code_import_inside_an_f_string_for_hand_fixing(monkeypatch):
@@ -3149,6 +3176,32 @@ def test_string_exclude_has_the_fake_tree_sample_of_the_repo_guide_test():
     assert "from shibuya.engine import resolve as RV" in layer
     uses = [n for n in ast.walk(t) if isinstance(n, ast.Name) and n.id == "LAYER_SRC" and isinstance(n.ctx, ast.Load)]
     assert len(uses) == 1 and 'f"{S}/engine/layer.py": LAYER_SRC,' in text  # 合成の木の engine/layer.py に書くだけ
+
+
+def _shibuya_imports(text: str) -> list[str]:
+    """ファイルの AST の import の文(関数の中を含む)のうち、``shibuya`` を読むもの。"""
+    out: list[str] = []
+    for n in ast.walk(ast.parse(text)):
+        if isinstance(n, ast.Import):
+            out += [a.name for a in n.names if a.name.split(".")[0] == "shibuya"]
+        elif isinstance(n, ast.ImportFrom) and n.module and not n.level and n.module.split(".")[0] == "shibuya":
+            out.append(n.module)
+    return out
+
+
+def test_self_paths_are_the_tool_and_its_own_tests_that_import_nothing_of_shibuya():
+    """〔割る段 7 の G-M・親の裁定 Q-GM1 の案 A〕道具が書き換えない道(``model.SELF_PATHS``)は、道具のディレクトリと道具の自分の
+    試験 2 本だけ。試験の 2 本は ``shibuya`` の何も import しない(書き換えから外しても、直すべき import の文を見落とさない)。
+    負の対照: ``shibuya`` を読む import の文は関数の中でも見つける。"""
+    from pkgmove import model as MD
+
+    assert MD.SELF_PATHS == ("tools/pkgmove/", "tests/tools/test_pkgmove.py", "tests/tools/test_pkgmove_shapecheck.py")
+    for p in MD.SELF_PATHS:
+        if not p.endswith("/"):
+            assert MD.is_self(p) and _shibuya_imports((ROOT / p).read_text(encoding="utf-8")) == [], p
+    assert not MD.is_self("tests/tools/test_pkgmove_other.py") and MD.is_self("tools/pkgmove/split.py")
+    assert _shibuya_imports("import os\n\ndef f():\n    from shibuya.pk import old as R\n    import shibuya.nw.main\n") == [
+        "shibuya.pk", "shibuya.nw.main"]
 
 
 # ------------------------------------------------------------------ 〔割る段 6 の S6-G0・E5-b〕差し替えの届く先の守り(親の裁定の追記)

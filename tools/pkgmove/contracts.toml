@@ -412,9 +412,13 @@ importer = "mind.percept.draw"
 imported = "world.model.agent_table"
 rules = [3]
 appears_with = "agents/state.py"
-gone_at = "段 7(renderer を割ると数え直す)"
-note = "perception.renderer(段 7 まで古い置き場)が AgentState を注釈で読み、mind.memory.memory_store → perception.renderer → world.model.agent_table の連なりが決まり 3 に当たる"
+gone_at = "注釈だけ(段 8)"
+note = "perception.renderer(段 7 まで古い置き場)が AgentState を注釈で読み、mind.memory.memory_store → perception.renderer → world.model.agent_table の連なりが決まり 3 に当たる。〔割る段 7 の G-M・親の裁定 Q14〕renderer を割った後は draw の AgentState の注釈だけ(段 8 で TYPE_CHECKING へ)"
 
+# 〔割る段 7 の G-M・親の裁定 P1〕割 2 は、25 本目(perception/renderer.py)を当てる commit(G-S)で、この表と
+# tests/tools/test_pkgmove.py の期待の列から外す。割る前の木では辺 world.model.scene_hash → perception.renderer が
+# perception.renderer → mind.percept.attention の連なりで決まり 1 に当たる(要る)。割った後は scene_hash → percept_scene の辺が
+# 残るので道具は載せ続ける(gone_at は数えの注だけ=宣言だけでは「当てた後は要らない」を表せない)。
 [[ignore_split]]
 num = "割 2"
 importer = "world.model.scene_hash"
@@ -482,6 +486,17 @@ appears_with = "engine/resolve.py"
 gone_at = "注釈だけ"
 note = "World の注釈だけ(親の裁定 Q6=段 8 で TYPE_CHECKING へ)。決まり 10 の契約の例外"
 
+# 〔割る段 7 の G-M・親の裁定 Q1・Q14〕段 7(perception/renderer.py を 4 つの割り先へ)で出る辺 1 本=案 K の例外 T1(計画 本文
+# §6-4・§7-4 の見込みどおり)。draw の Renderer(PerceptScene, SignageNotice) が基底のクラスを実行の時に読む(注釈だけではない)。
+[[ignore_split]]
+num = "割 9(T1)"
+importer = "mind.percept.draw"
+imported = "world.model.percept_scene"
+rules = [3]
+appears_with = "perception/renderer.py"
+gone_at = "残る"
+note = "案 K の例外 T1: 基底のクラス PerceptScene(ほかに PerceptionAssets・_TickCache・_noise_stage・_prior_scores)を名で import する。親の裁定 Q1 の案 A1=v3 で A3(2 つの物に分ける)を決めるまで残る"
+
 # ---- 割る段で弱まってよい決まり(検収 高-1・親の答え 2026-11-16・再検収 低-1)。割る行を当てた後の木で、当てる前より弱まった
 # 所(not_expressed・dropped_old に増えた項・言えない名の並びに増えた名・uncovered に増えたモジュール・late_allowed に増えた
 # 読み手・載せた例外の行の増え=[[ignore_split]] を除く。pkgmove.contracts.weakened)のうち、ここで宣言したものだけを計画どおり
@@ -508,3 +523,10 @@ old_names_gone = ["engine"]
 contracts_gone = ["layers: census > economy > engine > (perception | llm) > (world | agents) > core > manifest"]
 not_expressed = []
 note = "engine の最後のファイル(resolve.py)を割り、包み engine が木から無くなる(古い決まりから名 engine が外れ、古い層の決まりが丸ごと消える=古い 2 → 1。決まり 4 が言えるようになり新しい 9 → 10・親の裁定 Q6)"
+
+[[split_weakens]]
+split = "perception/renderer.py"
+old_names_gone = ["perception"]
+contracts_gone = ["build は実行時に import されない"]
+not_expressed = []
+note = "perception の最後のファイル(renderer.py)を割り、包み perception が木から無くなる(古い決まり 4 本から名 perception が外れ、古い決まり「build は実行時に import されない」が丸ごと消える=古い 1 → 0・新しい 10 のまま・親の裁定 Q18)"

@@ -191,7 +191,8 @@ python tools/pkgmove/cli.py contracts --stage <段> --tree <木> [--check|--appl
 (群 G1〜G5 の 17 本)。18 本目だった `engine/speech/port.py`(`mora_count`)は延ばした(割る行のまま順から外した=
 `table.SPLIT_DEFERRED`・台帳の道を書き換えられる版上げで下ろす)。道具は順に無い行を断る。〔割る段 6 の M0・親の裁定 Q12・T2〕
 延ばした理由(台帳の道の表が 1 対 1)は E7 の前向きの表で無くなったので、順の 24 本目(段 6 の群 M)に載せた
-(`table.SPLIT_DEFERRED` は空・仕組みは残す)。
+(`table.SPLIT_DEFERRED` は空・仕組みは残す)。〔割る段 7 の G-M〕25 本目に `perception/renderer.py`(段 7 の群 G1・下の
+「割る段 7 の G-M」の節)。
 
 ```
 python tools/pkgmove/cli.py split --next [--tree <木>] [--out-dir <置き場>]           # 次の 1 本(書かない)
@@ -371,9 +372,10 @@ G3 が cli)。親の裁定と記録は [docs/bench/analysis/split5b-347/README.m
 
 - 1 行(`split.PathDest`)=割る行(元の道)・読むファイル・記号 → 割り先。記号は `strings.py` が文字列の持ち主として出す名(頂上の
   関数・クラス・代入の左辺・メソッドは `クラス.メソッド`=`STRING_EXCLUDE` と同じ見方)。宣言はその記号の中の、名の手がかりの無い
-  割るファイルの道(斜線の道の全体・文の中の斜線の道・`/` の連鎖・名の無い点の道)に効く。今は空(段 6 の 2 行
+  割るファイルの道(斜線の道の全体・文の中の斜線の道・`/` の連鎖・名の無い点の道)に効く。今は 4 行(段 6 の 2 行
   `runtime/state/ledger.py::_ALLOW_REVENUE` → `act/ops/shop.py`・`runtime/state/ledger_ast.py::ext_reason` →
-  `runtime/state/restore.py` は、割る行が順に入る次の発注で載せる)。
+  `runtime/state/restore.py`/段 6 の M0 の `tests/engine/speech/test_speech_writers_ast.py::PORT`/段 7 の G-M の
+  `tests/engine/test_salt_seed_split_10f.py::_HASH_SITES` → `world/model/percept_scene.py`)。
 - 行き先の順: 宣言 → 同じ組の名(5a の `sibling_dest`)→ 割り先が 1 つの行なら主な割り先。**宣言も名の手がかりも無い道は、割り先が
   2 つ以上の行では主な割り先へ黙って向けず「手で直す一覧」へ**(主な割り先が元のファイルの行も同じ)。宣言と組の名が食い違えば手で
   直す一覧へ。名の無い点の道は前と同じ(`-m` の入口・転送の名)に加えて、宣言があればその割り先のモジュールへ。記録の文(ASCII の
@@ -489,3 +491,26 @@ python tools/pkgmove/cli.py shapecheck --before src/shibuya/perception/renderer.
   renderer.py は G-R1 の後の commit `dc496d7` の blob に止めて、計画の数・前=後は形の変更ではない・計画の分け方で作った A1 の形
   (文を前の注ごと動かす)が ⓪〜⑨ とも通り、本文 1 字・`near_salt` の 2 文を 2 つの側に分ける・世界の側の口の引数を漏らすで落ちる・
   blob の読み。git が無い所では本物の分は飛ぶ=環境変数 `CI` が在れば飛ばさずに落とす)。
+
+## 〔割る段 7 の G-M〕`perception/renderer.py` の割る行(25 本目・段 7 の群 G1)
+
+親の裁定と記録は [docs/bench/analysis/split7-347/README.md](../../docs/bench/analysis/split7-347/README.md) の「G-M」の節。道具の
+コードは変えていない(表・順・宣言と、書き換えない道の一覧 `model.SELF_PATHS` だけ)。
+
+- 全ファイルの表: 行 305 の主な割り先を `world/model/percept_scene.py`(包み world)へ入れ替えた(裁定 Q5)。2 つ目以降の割り先
+  3 本は move の形の行 305a〜305c。§4-23 は G-R2 の後の名(`PerceptScene` → percept_scene・`SignageNotice` → notice・
+  `Renderer(PerceptScene, SignageNotice)` → draw)で書き、頂上の名 74 がちょうど揃う(`names_complete`)。
+- `contracts.toml`: 例外 T1(`mind.percept.draw → world.model.percept_scene`=基底のクラスを実行の時に読む)を `[[ignore_split]]`
+  の「割 9(T1)」で足した。割 1 の消える段は「注釈だけ(段 8)」。`[[split_weakens]]` に renderer の 1 行(古い決まりから名
+  `perception` が外れ、「build は実行時に import されない」が丸ごと消える=古い 1 → 0・新しい 10 のまま)。
+- 割 2(`world.model.scene_hash → world.model.percept_scene`)は、25 本目を当てる commit(G-S)で `contracts.toml` と
+  `tests/tools/test_pkgmove.py` の期待の列から外す(裁定 P1)。道具は `gone_at` を数えの注にしか使わず、両側と辺が在る例外は
+  載せる。当てた後も辺 `scene_hash → percept_scene` が在るので載り続ける(効かない)=宣言だけでは「当てた後は要らない」を
+  表せない。
+- E8: `tests/engine/test_salt_seed_split_10f.py` の `_HASH_SITES` の鍵 `("perception/renderer.py", "__init__")` を
+  `world/model/percept_scene.py` へ向ける宣言(裁定 P4。blake3 で run_salt を写す `__init__` は G-R2 の後 `PerceptScene.__init__`)。
+- 道具が書き換えない道(`model.SELF_PATHS`)に、照合の台本の試験 `tests/tools/test_pkgmove_shapecheck.py` を足した(親の裁定
+  Q-GM1 の案 A)。その試験は道具だけを import し、`shibuya` の道は止めた commit(`dc496d7`)の blob の道とその commit の表の節の
+  鍵だけ=割った後も古い道のままが正しい字面。足す前は、その 3 か所が名の手がかりの無い道として手で直す一覧に出て、厳しい当て
+  (`split --next`)が断っていた。試験 `test_self_paths_are_the_tool_and_its_own_tests_that_import_nothing_of_shibuya` が、
+  一覧の中身と、試験の 2 本が `shibuya` を import しないことを固定する。
