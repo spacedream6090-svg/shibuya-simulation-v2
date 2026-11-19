@@ -394,6 +394,18 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #170 コードの区分の移動 段 6 の本体=`engine/resolve.py` を道具で 18 の割り先へ割った(1 バイト不変・`engine` の包みが消えた)(11-16 §8 の 5・第347・2026-11-19・実装役 1・検収役 2=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6 の 2。記録 [split6-347](docs/bench/analysis/split6-347/README.md) §9・§10。commit= c79ae25。安定版のタグ `stable-v2-before-split6-G1`(4a5bd30=写す前)。戻し方= `git checkout stable-v2-before-split6-G1`。
+- **割り先(18)**: `act/apply.py`(18 名)・`act/gate.py`(3)・`act/ops/` の 11 本(shop 20・rail 13・move 10・intent_writes 9・law_writes 8・talk 8・body_writes 7・focus 7・plan_writes 6・init_writes 2・detect_writes 1)・`mind/ops.py`(10)・`runtime/state/restore.py`(4)・在るファイルへ足した 3 本(`foundation/write_guard.py` 1・`foundation/vocab/act_codes.py` 3・`agent_codes.py` 1)。新しいファイル 16・消えたファイル 2。
+- **道具が書いた物**: ファイル 112・import の文 166(src 43・tests 119・tools 3・docs 1)・クラスの名の鍵 1・台帳の道 1 と前向きの表 2 行・手で直す一覧 0・見られなかった差し替え 0・印のある宣言 5。
+- **手直し(発注の 3 つ)と、割った結果として落ちた試験 2 本**: `runtime/systems/allow.py` の `RESOLVE_FILES` を 15 本に・`money_writers_frozen.json` の 4 行の道・`mind_world_reads_frozen.json` の範囲/`test_bridging_ledger` の数の固定(今のファイル 83・台帳の道 81・負の対照 1 本)・`test_state_checks_10f` の偽のファイルの置き場を `act` に。
+- **import の決まり**: 契約は古い 1+新しい 10(lint-imports 11 kept)。例外 26 行・20 辺 → 18 行・16 辺(8 辺が消え、割 5〜8 の 4 辺が載った)。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(実装役 434 秒・親 438 秒・基準 4a5bd30・既定の final `c8d68704b7b0760d`・呼数 60,939)。凍結の表(`resolve_index_frozen.json`・`writes_soa_frozen.json`)は 1 字も変えずに通った。範囲の試験 7,069 passed・1 failed(前からの 1 本)・22 skipped・1 xfailed。
+- **別の役の検収(2 人)**: 道具の出力と決まりの側=受入(高 0・中 0・低 2)。意味の側=受入(高 0・中 0・低 2)。差し替え 17 か所は全部届く。
+- **残した物**: 割り先をまたぐ名の import の一覧(記録 §10-3)・外しても落ちない試験 2 本・割り先を 1 本だけ読むと止まらなくなる 13 形・再開の復元が世界の欄を書く例外の宣言(置き場は判断待ち)。
+- **残り**: `mora_count` の行(延ばしていた 18 本目)→ 段 7(`renderer.py`)。
+
 ### #169 コードの区分の移動 段 6 の写す前の下ごしらえ=src の別名の分け(1 バイト不変)と、道具の「素で使う別名の宣言」(11-16 §8 の 5・第347・2026-11-19・実装役 2・検収役 2=Opus 5.5・親が検収)
 
 - 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split6-347](docs/bench/analysis/split6-347/README.md) §7・§8・[split6-347 の道具](docs/bench/analysis/split6-347/s6_g0_tools.md) の「E5-c」。commit は 2 つ= 2c4a164(src の別名の分け)・4a5bd30(道具の宣言・src は変えていない)。安定版のタグ `stable-v2-before-split6-G1`(4a5bd30=写す前)。戻し方= `git checkout stable-v2-before-split6-G1a`。
