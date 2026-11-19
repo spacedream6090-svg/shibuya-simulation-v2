@@ -56,6 +56,8 @@
 | 整理 | コードの区分の移動 段 7 の G0(試験)=`renderer.py` を割る前に、試験 14 本の形を直し、副作用の順の試験を足した(#173・第347・src は変えていない=byte-check は回していない) | 93a37cf | `stable-v2-before-split6-M`(9f61eea) | `git checkout stable-v2-before-split6-M` |
 | 整理 | コードの区分の移動 段 7 の G0(道具)と G-R1=形の変更の照合の台本を足した(src は変えていない)。renderer の `INTERO_UP_EDGES` の二重の定義を、語彙の側からの import に替えた(1 バイト不変=byte-check 19 構成 37 欄すべて同じ)(#174・第347)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 60.9 秒/後 54.1 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | dc496d7・04031d1 | `stable-v2-before-split7-R1`(1d4d7e9) | `git checkout stable-v2-before-split7-R1` |
 | 整理 | コードの区分の移動 段 7 の G-R2=renderer.py の中で、`Renderer` を 3 つのクラスに分けた(1 バイト不変=byte-check 19 構成 37 欄すべて同じ・ファイルは割っていない)(#175・第347)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 61.4 秒/後 54.9 秒(6 本並列。比べない参考値・最大メモリは測っていない)・19 構成の合計は基準 925 秒/後 912 秒・呼数 60,939 で同じ | 9274355 | `stable-v2-before-split7-R2`(04031d1) | `git checkout stable-v2-before-split7-R2` |
+| 整理 | コードの区分の移動 段 7 の G-M=renderer.py を割る行を、表・対応表・決まりの表・割る段の順(25 本目)に載せた(#176・第347・src は変えていない=byte-check は回していない) | 1e33d19 | `stable-v2-before-split7-R2`(04031d1) | `git checkout stable-v2-before-split7-R2` |
+| 整理 | コードの区分の移動 段 7 の G-S=`perception/renderer.py` を道具で 4 つの割り先へ割った(1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。`perception` の包みが消え、割る段の 25 本が全部済んだ(#177・第347)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 59.4 秒/後 52.3 秒(6 本並列。比べない参考値・最大メモリは測っていない)・19 構成の合計は基準 903 秒/後 869 秒・呼数 60,939 で同じ | 54d8c68 | `stable-v2-before-split7-S`(1e33d19) | `git checkout stable-v2-before-split7-S` |
 
 ## 版上げと整理の段の手順(byte-check)
 
