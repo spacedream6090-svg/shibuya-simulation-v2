@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 7 本・その他 0 本(このディレクトリの直下)
+Python 8 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/foundation/text/__init__.py)
 
@@ -23,7 +23,7 @@ perception.channels — チャネル別トークン上限表(知覚契約書 §3
   - `pool_token_budget`(関数): §3.2「**同一総トークン**」= そのブロック群のチャネル上限の総和。
   - `take_within_pool`(関数): **順位順**に並んだ行列から、池の予算に収まる**先頭 n 件**を返す。
   - `truncate_lines`(関数): チャネル上限までの行を残す(**行の途中では絶対に切らない**)。
-- 呼び手: `shibuya.build.lang.common`・`shibuya.interfaces.cli.main`・`shibuya.perception.renderer`・`shibuya.runtime.inference.tape`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`tools/c6/ablation1_fixed_vs_ranking.py`
+- 呼び手: `shibuya.build.lang.common`・`shibuya.foundation.text.percept_words`・`shibuya.interfaces.cli.main`・`shibuya.mind.percept.draw`・`shibuya.runtime.inference.tape`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.report`・`shibuya.world.model.percept_scene`・`tools/c6/ablation1_fixed_vs_ranking.py`
 - 読む試験: `tests/build_lang/test_w14_signage.py`・`tests/build_lang/test_w15_cell_static.py`・`tests/build_lang/test_wiring.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/test_memory_recall.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/engine/test_store_choice.py`・`tests/engine/test_two_layer_activity.py`・`tests/perception/facts/head_renderer_136fdbb.py`・`tests/perception/test_ablation1.py`・`tests/perception/test_channels.py`・`tests/perception/test_nearby_vectorized.py`・`tests/perception/test_templates.py`
 - 決定の ID: 11-03・11-03/§2
 
@@ -41,7 +41,7 @@ perception.hashes — **ハッシュ三役**(知覚契約書 §2.2/§5)。
   - `prefix_key`(関数): ブロックハッシュの列 → prefix キャッシュ鍵(1 本の u64)。
   - `should_resend`(関数): dormant 再送抑止(三役の 3 本目)。
 - import している内部モジュール: `shibuya.foundation.hashing`
-- 呼び手: `shibuya.perception.renderer`・`shibuya.world.model.scene_hash`
+- 呼び手: `shibuya.mind.percept.draw`・`shibuya.world.model.percept_scene`・`shibuya.world.model.scene_hash`
 - 読む試験: `tests/perception/facts/head_renderer_136fdbb.py`・`tests/perception/facts/test_render_from_percept_bytes.py`・`tests/perception/test_b4_detector_gap.py`・`tests/perception/test_hashes_state.py`・`tests/perception/test_renderer_golden.py`
 - 読む試験(道筋で): `tests/engine/test_salt_seed_split_10f.py`
 
@@ -77,8 +77,23 @@ perception.normalize — バイト一致の正規化規約 9 項(知覚契約書
   - `sort_ids`(関数): 列挙は **ID 昇順**(§2.4 ②)。数値 ID は数として、文字列 ID はコードポイント順。
   - `time_band`(関数): 世界内日時 → 5 分帯の番号(0..287)。共有ブロックのキャッシュ鍵。
 - import している内部モジュール: `shibuya.foundation.time_consts`
-- 呼び手: `shibuya.act.activity`・`shibuya.build.lang.common`・`shibuya.mind.memory.memory_store`・`shibuya.perception.renderer`・`shibuya.world.model.scene_hash`
+- 呼び手: `shibuya.act.activity`・`shibuya.build.lang.common`・`shibuya.foundation.text.percept_words`・`shibuya.mind.memory.memory_store`・`shibuya.mind.percept.draw`・`shibuya.world.model.percept_scene`・`shibuya.world.model.scene_hash`
 - 読む試験: `tests/build_lang/test_wiring.py`・`tests/engine/test_memory_recall.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_weather_calendar_10e.py`・`tests/perception/facts/head_renderer_136fdbb.py`・`tests/perception/facts/test_percept_schema.py`・`tests/perception/test_b4_detector_gap.py`・`tests/perception/test_normalize.py`・`tests/perception/test_renderer_golden.py`・`tests/perception/test_weather_a48.py`
+
+## [percept_words.py](../../../../../../../../src/shibuya/foundation/text/percept_words.py)
+
+foundation.text.percept_words — 割る段で ``perception/renderer.py`` を割った割り先(全ファイルの表 §4・名の表は``tools/pkgmove/map.toml`` の割る行)。
+
+- 公開の関数とクラス
+  - `activity_line`(関数): 活動の (文, 人数) の列(人数降順→文字列順・上位 2)→ B4b の 1 行(無ければ ``""``)。
+  - `intent_line`(関数): 意図の 1 行(``INTENT_LINE_MAX_TOKENS`` に収まるよう対象の名を末尾から切り詰める)。
+  - `named_closed_note`(関数): Q25 の補足の 1 句(店名 + 閉店中 + あれば「HH:MM に開く」・≤ 15 tok)。
+  - `near_person_text`(関数): 見えた人(``facts.SeenPerson``)→ B5 近接行の項(``P-<id>(未知/知人)``・1-2 の前と同じ表層)。
+  - `person_word`(関数): 個体 id → 観測に出る人 ID の表層(``P-17``)。
+- import している内部モジュール: `shibuya.foundation.ports.percept`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`
+- 呼び手: `shibuya.mind.percept.draw`・`shibuya.world.model.percept_scene`
+- 読む試験: `tests/engine/test_intent_hold.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/engine/test_two_layer_activity.py`・`tests/perception/test_b6_invite.py`・`tests/perception/test_nearby_vectorized.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 
 ## [salience.py](../../../../../../../../src/shibuya/foundation/text/salience.py)
 
@@ -93,7 +108,7 @@ perception.attention — 注意ゲート 段0-段3(知覚契約書 §4)。「届
   - `rank_by_saliency`(関数): 顕著性=**視角×局所コントラスト(+動き・逸脱度)**の降順に並べ替える。
   - `strip_imperatives`(関数): 世界内テキストから**命令文を文単位で除去**する(§1 条6・§4 段3)。
   - `tag_world_text`(関数): 世界内テキスト → (素性タグ+命令文除去+内容キャップ済みの本文, 除去記録)。
-- 呼び手: `shibuya.build.lang.common`・`shibuya.perception.renderer`・`shibuya.world.laws.civic`・`shibuya.world.laws.salient`
+- 呼び手: `shibuya.build.lang.common`・`shibuya.mind.percept.draw`・`shibuya.mind.percept.notice`・`shibuya.world.laws.civic`・`shibuya.world.laws.salient`・`shibuya.world.model.percept_scene`
 - 読む試験: `tests/build_lang/test_w14_signage.py`・`tests/engine/processes/test_salient.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/perception/facts/head_renderer_136fdbb.py`・`tests/perception/test_attention.py`・`tests/tools/test_dm_eval.py`
 - 決定の ID: 第 347
 
@@ -111,6 +126,6 @@ perception.templates — **凍結された観測テンプレ v1**(知覚契約�
   - `role_words_line`(関数): 語彙版 → B0 の末尾に足す役割語の 1 行(v3 は 11 語)。
   - `template_sha256`(関数): テンプレ全体の版ハッシュ(§1 条5「ハッシュで版管理」)。
 - import している内部モジュール: `shibuya.foundation.hashing`
-- 呼び手: `shibuya.interfaces.cli.main`・`shibuya.mind.judge.classical`・`shibuya.perception.renderer`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`・`shibuya.world.model.scene_hash`・`shibuya.world.things.device`
+- 呼び手: `shibuya.foundation.text.percept_words`・`shibuya.interfaces.cli.main`・`shibuya.mind.judge.classical`・`shibuya.mind.percept.draw`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`・`shibuya.world.model.percept_scene`・`shibuya.world.model.scene_hash`・`shibuya.world.things.device`
 - 読む試験: `tests/build_lang/test_wiring.py`・`tests/c6/test_c6lib_scenes.py`・`tests/c8/test_ablations_ab7.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/processes/test_crowd.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/test_energy_balance.py`・`tests/engine/test_geometry_c9.py`・`tests/engine/test_intent_mode_open.py`・`tests/engine/test_meal_bundle_2b.py`・`tests/engine/test_memory_recall.py`・`tests/engine/test_relations.py`・`tests/engine/test_renderer_wiring.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_store_choice.py`・`tests/engine/test_two_layer_activity.py`・`tests/llm/test_fleet_contract.py`・`tests/perception/facts/head_renderer_136fdbb.py`・`tests/perception/facts/test_perceive_order.py`・`tests/perception/facts/test_percept_schema.py`・`tests/perception/test_ablation1.py`・`tests/perception/test_ablation6_signage.py`・`tests/perception/test_b4_detector_gap.py`・`tests/perception/test_b4b_queue_feed.py`・`tests/perception/test_b6_invite.py`・`tests/perception/test_channels.py`・`tests/perception/test_intent_mode_open.py`・`tests/perception/test_normalize.py`・`tests/perception/test_renderer_golden.py`・`tests/perception/test_signage_p_see_gate.py`・`tests/perception/test_templates.py`・`tests/perception/test_vocab_v2_templates.py`・`tests/perception/test_weather_a48.py`・`tests/test_cli_intent_mode.py`・`tests/test_cli_vocab_version.py`
 - 決定の ID: 11-03・11-03/§2・D-38・D-71・D-73・D-89・D-113・D-116・D-118・D-120・第 268・第 269・第 274・第 291・第 295・第 298・第 299

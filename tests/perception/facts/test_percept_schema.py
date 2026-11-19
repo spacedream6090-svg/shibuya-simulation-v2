@@ -22,7 +22,7 @@ from shibuya.foundation.vocab.agent_codes import INTERO_UP_EDGES, INTEROCEPTION_
 from shibuya.foundation.ports import percept as F
 from shibuya.foundation.text import normalize as N
 # 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
-from shibuya.perception.renderer import Renderer
+from shibuya.mind.percept.draw import Renderer
 from shibuya.foundation.text import templates as T
 from tests.perception.facts.scenes import build
 

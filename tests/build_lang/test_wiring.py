@@ -22,7 +22,8 @@ from shibuya.foundation.vocab.agent_codes import AgentKind
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.text import templates as T
 from shibuya.foundation.text.normalize import AgentDependentWordError
-from shibuya.perception.renderer import PerceptionAssets, Renderer, _load_frozen_text
+from shibuya.world.model.percept_scene import PerceptionAssets, _load_frozen_text
+from shibuya.mind.percept.draw import Renderer
 from shibuya.world.model.state import World
 
 #: 旧 v1.1 の凍結値 = 8f2959d0d3fbe75ee0ca5a634425447bb316baaa6b36af9c570fa34eeb5617ef(6b で v1.2 へ張り替え)

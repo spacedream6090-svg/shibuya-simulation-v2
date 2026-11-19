@@ -224,6 +224,7 @@ LEDGER_PATHS: Final[Mapping[str, str]] = MappingProxyType({
     "src/shibuya/world/model/navmesh.py": "src/shibuya/world/navmesh.py",
     "src/shibuya/world/model/navmesh_route.py": "src/shibuya/world/navmesh_route.py",
     "src/shibuya/world/model/notice_reach.py": "src/shibuya/perception/p_notice.py",
+    "src/shibuya/world/model/percept_scene.py": "src/shibuya/perception/renderer.py",
     "src/shibuya/world/model/percept_state.py": "src/shibuya/perception/state.py",
     "src/shibuya/world/model/proximity.py": "src/shibuya/engine/proximity.py",
     "src/shibuya/world/model/solar.py": "src/shibuya/engine/solar.py",

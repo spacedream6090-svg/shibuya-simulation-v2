@@ -19,8 +19,8 @@ from shibuya.act.target import TargetResolver
 from shibuya.runtime.run import _named_closed_lookup
 from shibuya.foundation.vocab.actions import UntilKind, parse_target
 from shibuya.foundation.text import channels as ch
-from shibuya.perception import renderer as PR
-from shibuya.perception.renderer import Renderer
+from shibuya.foundation.text import percept_words as PR
+from shibuya.mind.percept.draw import Renderer
 
 from tests.engine.test_intent_hold import (
     _FakeGoods,

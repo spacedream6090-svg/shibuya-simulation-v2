@@ -415,19 +415,9 @@ appears_with = "agents/state.py"
 gone_at = "注釈だけ(段 8)"
 note = "perception.renderer(段 7 まで古い置き場)が AgentState を注釈で読み、mind.memory.memory_store → perception.renderer → world.model.agent_table の連なりが決まり 3 に当たる。〔割る段 7 の G-M・親の裁定 Q14〕renderer を割った後は draw の AgentState の注釈だけ(段 8 で TYPE_CHECKING へ)"
 
-# 〔割る段 7 の G-M・親の裁定 P1〕割 2 は、25 本目(perception/renderer.py)を当てる commit(G-S)で、この表と
-# tests/tools/test_pkgmove.py の期待の列から外す。割る前の木では辺 world.model.scene_hash → perception.renderer が
-# perception.renderer → mind.percept.attention の連なりで決まり 1 に当たる(要る)。割った後は scene_hash → percept_scene の辺が
-# 残るので道具は載せ続ける(gone_at は数えの注だけ=宣言だけでは「当てた後は要らない」を表せない)。
-[[ignore_split]]
-num = "割 2"
-importer = "world.model.scene_hash"
-imported = "world.model.percept_scene"
-rules = [1]
-appears_with = "engine/change_detect.py"
-gone_at = "段 7"
-note = "DEFAULT_WALKABLE_AREA_M2 が段 7 まで古い renderer の WALKABLE_FRACTION_SYNTHETIC を読む(親の裁定 Q4)。renderer → mind.percept.attention の連なりで決まり 1 に当たる"
-
+# 〔割る段 7 の G-S・親の裁定 P1〕割 2(world.model.scene_hash → perception.renderer・決まり 1)は、25 本目
+# (perception/renderer.py)を当てた commit で、この表と tests/tools/test_pkgmove.py の期待の列から外した(割った後は要らない例外。
+# 宣言だけでは「当てた後は要らない」を表せないため)。
 [[ignore_split]]
 num = "割 3"
 importer = "mind.system1.change_detect"

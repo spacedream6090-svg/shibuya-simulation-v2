@@ -59,7 +59,7 @@ from shibuya.interfaces.cli.run_args import (
     calendar_kwargs_from_args,
     fleet_from_args,
 )
-from shibuya.perception.renderer import SIGNAGE_P_SEE_DEFAULT
+from shibuya.mind.percept.draw import SIGNAGE_P_SEE_DEFAULT
 from shibuya.foundation.text.templates import (
     DEFAULT_INTENT_MODE,
     DEFAULT_VOCAB_VERSION,

@@ -21,9 +21,11 @@ from shibuya.foundation.vocab.agent_codes import Activity, AgentKind, ResultCode
 from shibuya.world.model.agent_table import AgentState
 from shibuya.foundation.text import hashes as H
 from shibuya.foundation.text import templates as T
-from shibuya.perception.renderer import (
+from shibuya.world.model.percept_scene import (
     DEFAULT_START_DATETIME,
     PerceptionAssets,
+)
+from shibuya.mind.percept.draw import (
     Renderer,
 )
 from shibuya.world.model.state import World

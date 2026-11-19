@@ -59,7 +59,7 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `test_phone_flag_does_not_change_the_primary_detection`(関数)
   - `test_removed_values_are_not_in_src`(関数)
   - `test_signage_gate_is_one_p_for_every_activity`(関数)
-- import している内部モジュール: `shibuya.foundation.ports.percept`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.notice_reach`・`tests/_places.py`・`tests/perception/facts/scenes.py`
+- import している内部モジュール: `shibuya.foundation.ports.percept`・`shibuya.mind.percept.attention`・`shibuya.mind.percept.draw`・`shibuya.runtime.run`・`shibuya.world.model.notice_reach`・`tests/_places.py`・`tests/perception/facts/scenes.py`
 - 環境変数: `SHIBUYA_PERCEPT_COEFS`
 - 決定の ID: 10-12/§1-6
 
@@ -79,7 +79,7 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `test_the_frozen_values_are_for_this_setup`(関数)
   - `test_the_table_path_fills_and_reuses_the_acquaintance_cache`(関数): 〔検収の中-1〕構成 ``near_table``(既定のランの道)で、知人の控え ``_acq_cache`` が実際に動く: 1 刻み目で 0 → 正の数、
   - `test_the_two_near_paths_call_the_hooks_in_opposite_orders`(関数): 見つかったこと(直さずに固定する): セルの道は知人 → 会話の参加者、近接の腕の道は会話の参加者 → 知人 → 気づいた印。
-- import している内部モジュール: `shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.memory.memory`・`shibuya.perception.renderer`・`shibuya.validation.static.rng_audit`・`shibuya.world.model.proximity`・`tests/perception/facts/scenes.py`
+- import している内部モジュール: `shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.memory.memory`・`shibuya.mind.percept.draw`・`shibuya.validation.static.rng_audit`・`shibuya.world.model.proximity`・`tests/perception/facts/scenes.py`
 
 ## [test_percept_is_scratch.py](../../../../../../../tests/perception/facts/test_percept_is_scratch.py)
 
@@ -98,7 +98,7 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `test_scratch_field_and_its_single_writer`(関数)
   - `test_stage_c_stops_a_write_from_another_system`(関数)
   - `test_stub_renderer_writes_an_empty_mapping`(関数)
-- import している内部モジュール: `shibuya.foundation.ports.percept`・`shibuya.foundation.write_guard`・`shibuya.perception.renderer`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.run`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.decide`・`shibuya.runtime.systems.table`・`shibuya.world.model.state`・`tests/_head_copy_pin.py`・`tests/_places.py`・`tests/engine/body/_hunger_v1.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.foundation.ports.percept`・`shibuya.foundation.write_guard`・`shibuya.mind.percept.draw`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.run`・`shibuya.runtime.state.hashes`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.runtime.systems.boxes`・`shibuya.runtime.systems.conductor`・`shibuya.runtime.systems.decide`・`shibuya.runtime.systems.table`・`shibuya.world.model.state`・`tests/_head_copy_pin.py`・`tests/_places.py`・`tests/engine/body/_hunger_v1.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_tape_wiring.py`・`tests/llm/test_fleet.py`
 - 環境変数: `SHIBUYA_SYSTEMS_CHECK`・`os.environ` をまるごと使う
 - 決定の ID: D-58・第 337
 
@@ -121,7 +121,7 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `test_rendered_percepts_have_the_empty_fields_empty`(関数)
   - `test_run_manifest_has_the_percept_section`(関数)
   - `test_seen_people_are_the_near_line_in_order`(関数)
-- import している内部モジュール: `shibuya.foundation.journal.log`・`shibuya.foundation.ports.percept`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`tests/perception/facts/scenes.py`
+- import している内部モジュール: `shibuya.foundation.journal.log`・`shibuya.foundation.ports.percept`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.percept.draw`・`shibuya.runtime.run`・`tests/perception/facts/scenes.py`
 - 決定の ID: 10-13b/§4-2・11-01・11-02r/§1・11-02r/§1 #7・11-03/§3・第 340
 
 ## [test_render_from_percept_bytes.py](../../../../../../../tests/perception/facts/test_render_from_percept_bytes.py)
@@ -138,5 +138,5 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
   - `test_render_without_prepare_and_out_of_area_cells`(関数): ``prepare_tick`` を呼ばずに描く道(``render`` が自分で前計算する)と、セルの外の体も同じ。
   - `test_synthetic_scenes_render_the_same_bytes_as_head`(関数)
   - `test_the_19_configs_are_the_byte_check_set`(関数)
-- import している内部モジュール: `shibuya.foundation.text.hashes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.memory.memory`・`shibuya.perception.renderer`・`shibuya.world.model.proximity`・`tests/perception/facts/scenes.py`
+- import している内部モジュール: `shibuya.foundation.text.hashes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.memory.memory`・`shibuya.mind.percept.draw`・`shibuya.world.model.proximity`・`tests/perception/facts/scenes.py`
 - 決定の ID: 第 346

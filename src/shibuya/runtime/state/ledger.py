@@ -1616,7 +1616,7 @@ OWNER_CLASSES: Final[dict[str, tuple[str, str]]] = {
     "ledger.money": ("economy/ledger.py", "Ledger"),
     "ledger.goods": ("economy/goods.py", "GoodsLedger"),
     "undefined": ("act/intake/undefined.py", "UndefinedActionRegistry"),
-    "renderer": ("perception/renderer.py", "Renderer"),
+    "renderer": ("mind/percept/draw.py", "Renderer"),
     "bridge": ("runtime/inference/bridge.py", "LLMBridge"),
     "bridge.tape": ("runtime/inference/tape.py", "TapeWriter"),
     "fleet_bridge": ("runtime/inference/fleet.py", "FleetBridge"),
@@ -1680,7 +1680,7 @@ OWNER_ALT_CLASSES: Final[dict[str, tuple[tuple[str, str], ...]]] = {
     "contact.calls": (("society/contact/calls.py", "CallManager"),),
     "contact.chats": (("society/contact/chat_state.py", "ChatBook"),),
     "contact.speech": (("society/contact/calls.py", "CallSpeechPort"),),
-    "renderer": (("perception/renderer.py", "PerceptScene"), ("perception/renderer.py", "SignageNotice")),
+    "renderer": (("world/model/percept_scene.py", "PerceptScene"), ("mind/percept/notice.py", "SignageNotice")),
 }
 
 CACHE: Final[str] = "cache"

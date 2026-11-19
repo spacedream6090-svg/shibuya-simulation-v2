@@ -113,10 +113,10 @@ from shibuya.mind.memory.wom import WomExtractor
 from shibuya.mind.memory.wom import check_wom_source
 from shibuya.runtime.inference.fleet import FleetBridge
 from shibuya.foundation.text.channels import BudgetMode
-from shibuya.perception.renderer import PerceptionAssets
-from shibuya.perception.renderer import Renderer as PerceptionRenderer
-from shibuya.perception.renderer import check_hunger_words
-from shibuya.perception.renderer import check_signage_p_see
+from shibuya.world.model.percept_scene import PerceptionAssets
+from shibuya.mind.percept.draw import Renderer as PerceptionRenderer
+from shibuya.mind.percept.draw import check_hunger_words
+from shibuya.mind.percept.notice import check_signage_p_see
 from shibuya.foundation.text.templates import check_intent_mode
 from shibuya.foundation.text.templates import check_role_words
 from shibuya.foundation.text.templates import check_vocab_version

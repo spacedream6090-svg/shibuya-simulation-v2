@@ -284,7 +284,7 @@ def test_renderer_v3_changes_only_the_b0_block():
 
     from shibuya.foundation.vocab.agent_codes import AgentKind
     from shibuya.world.model.agent_table import AgentState
-    from shibuya.perception.renderer import Renderer
+    from shibuya.mind.percept.draw import Renderer
     from shibuya.world.model.state import World
 
     def render(ver: str):

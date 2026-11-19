@@ -15,10 +15,12 @@ import pytest
 
 from shibuya.foundation.vocab.agent_codes import AgentKind
 from shibuya.world.model.agent_table import AgentState
-from shibuya.perception.renderer import (
+from shibuya.mind.percept.draw import (
     DEFAULT_NEAR_TIEBREAK,
-    NEAR_TIEBREAKS,
     Renderer,
+)
+from shibuya.world.model.percept_scene import (
+    NEAR_TIEBREAKS,
     check_near_tiebreak,
     near_tie_keys,
     near_tie_salt64,
@@ -208,7 +210,8 @@ def _dist(items):
 
 
 def test_near_order_modes_and_default():
-    from shibuya.perception.renderer import DEFAULT_NEAR_ORDER, NEAR_ORDERS, check_near_order
+    from shibuya.mind.percept.draw import DEFAULT_NEAR_ORDER
+    from shibuya.world.model.percept_scene import NEAR_ORDERS, check_near_order
 
     assert NEAR_ORDERS == ("distance", "id") and DEFAULT_NEAR_ORDER == "distance"
     assert check_near_order("id") == "id"

@@ -301,7 +301,7 @@ def _replay(monkeypatch, tape, *, drop_percepts: bool = False):
     """作業木の src で再生し、刻みごとの到着待ち(``replay_inbox``)を見る。"""
     from shibuya.runtime.run import run_day
     from shibuya.runtime.state.hashes import to_state
-    from shibuya.perception import renderer as R
+    from shibuya.mind.percept import draw as R
     from shibuya.world.model.state import World
     from tests.engine.test_tape_wiring import BoomLLM
 

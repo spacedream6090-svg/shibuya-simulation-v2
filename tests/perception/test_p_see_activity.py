@@ -26,7 +26,7 @@ from shibuya.foundation.vocab.agent_codes import Activity, ActivityKind, AgentKi
 from shibuya.world.model.agent_table import AgentState
 from shibuya.mind.memory.familiarity import FamiliarityLayer
 from shibuya.mind.percept.attention import gate_stage1
-from shibuya.perception.renderer import P_SEE_ACTIVITY_KINDS, Renderer
+from shibuya.mind.percept.draw import P_SEE_ACTIVITY_KINDS, Renderer
 from shibuya.world.model.state import World
 
 

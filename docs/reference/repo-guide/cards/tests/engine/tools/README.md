@@ -104,7 +104,7 @@ Python 9 本・その他 0 本(このディレクトリの直下)
   - `test_the_mark_is_tied_to_the_ledger_and_the_vocab`(関数)
   - `test_undeclared_write_from_decide_fails_at_run_time`(関数)
   - `test_world_run_arm_on_and_off_render_the_same_bytes`(関数)
-- import している内部モジュール: `shibuya.foundation.decl.bridging`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.percept`・`shibuya.foundation.vocab.events`・`shibuya.foundation.write_permit`・`shibuya.interfaces.cli.main`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.society.tools.record`・`shibuya.society.tools.registry`・`shibuya.validation.static.system_overrides`
+- import している内部モジュール: `shibuya.foundation.decl.bridging`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.percept`・`shibuya.foundation.vocab.events`・`shibuya.foundation.write_permit`・`shibuya.interfaces.cli.main`・`shibuya.mind.percept.draw`・`shibuya.runtime.run`・`shibuya.society.tools.record`・`shibuya.society.tools.registry`・`shibuya.validation.static.system_overrides`
 - 環境変数: `SHIBUYA_TOOL_EVENTS`
 
 ## [test_c0_tool_registry.py](../../../../../../../tests/engine/tools/test_c0_tool_registry.py)

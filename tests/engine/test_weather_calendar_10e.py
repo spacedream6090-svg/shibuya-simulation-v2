@@ -297,7 +297,8 @@ def test_b6_b3_words_body_heat_and_sun_follow_one_rule(monkeypatch):
     from shibuya.interfaces.cli import main as cli
     from shibuya.foundation.text import normalize as N
     # 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
-    from shibuya.perception.renderer import Renderer, _TickCache
+    from shibuya.mind.percept.draw import Renderer
+    from shibuya.world.model.percept_scene import _TickCache
 
     made: list = []
     _init = Renderer.__init__

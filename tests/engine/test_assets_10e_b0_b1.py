@@ -106,7 +106,7 @@ def test_b0_manifest_lists_what_the_run_read_and_the_two_noise_readers_agree():
 def test_b0_hashes_stay_out_of_the_final(monkeypatch):
     from shibuya.interfaces.cli import main as cli
     from shibuya.world.laws import environment as ENV
-    from shibuya.perception.renderer import PerceptionAssets
+    from shibuya.world.model.percept_scene import PerceptionAssets
 
     a = cli.run(world_dir=str(WORLD_DIR), **SMALL)
     fake = lambda path: "0" * 64  # noqa: E731
@@ -138,7 +138,7 @@ def test_b1_switch_is_gone():
     from shibuya.interfaces.cli import main as cli
     from shibuya.interfaces.cli.run_args import add_calendar_args
     from shibuya.runtime.run import run_day
-    from shibuya.perception.renderer import PerceptionAssets
+    from shibuya.world.model.percept_scene import PerceptionAssets
 
     # 〔割る段 5a の G1〕消した口の名は読み込みの口の置き場で見る(割ると主な割り先。2 つ目の割り先 foundation.vocab.place_words へ
     # 行くのは店の語の定数 SYNTHETIC_POI_CATS だけ)

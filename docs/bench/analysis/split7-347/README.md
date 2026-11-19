@@ -811,3 +811,215 @@ G0 と同じ台本(1 か所ずつ外して回し、同じ台本の中でバイ�
 4. 心の読みの凍結の表の `scope.split` の renderer の項を消す(`[]`)。
 5. カードを作り直す。docs の古い台本 3 本はそのまま。
 - 手直しの前に落ちる見込みの試験: 心の読みの表の範囲の試験・`pyproject.toml` の照合・カードの検査。数の固定は G-M で直したので、割った結果で落ちる見込みは無い。読み込みの時に割る前の道を読む src は 0。
+
+## 11. G-S: 25 本目 `perception/renderer.py` を 4 つの割り先へ割った(土台 `1e33d19`・安定版のタグ `stable-v2-before-split7-S`・2026-11-20)
+
+道具(`tools/pkgmove/cli.py split --next --apply --tree .`)で `perception/renderer.py`(3,184 行)を 4 つの割り先へ写し、読み手の import を書き換えた。`perception/renderer.py` と 0 バイトの `perception/__init__.py` が消え、**包み `perception` は木から消えた**。手で直したのは、道具の一覧の外の 4 つ(G-M の記録の一覧のとおり・下の順)だけ。
+
+**道具の側の表を 1 か所変えた(宣言)**: `tools/pkgmove/contracts.toml` の `[[ignore_split]]` の割 2(`world.model.scene_hash → perception.renderer`・決まり 1)を外し、同じ手で `tests/tools/test_pkgmove.py::test_ignore_split_rows_come_in_with_their_split` の期待の列の 2 行目を外した(親の裁定 P1 の (a)。宣言だけでは「当てた後は要らない」を表せない=G-M の記録)。割 2 の前の注 4 行は、外したことを書いた 3 行の注に替えた。試験の docstring の「外す」を「外した」に替えた。ほかの `tools/pkgmove/`・`tools/bytecheck/`・全ファイルの表・`map.toml` は変えていない(`pyproject.toml` は `contracts --apply` が書いた)。
+
+### 本の数
+
+| 本 | 割る行 | 割り先(頂上の名) | 書き換えた import の文(src・tests・tools・docs) | 分けた文 | 書き換えたファイル | 消したファイル | 鍵 | 台帳の道 | 道の文字列 | 手で直す一覧 | 見られなかった差し替え | 守り | byte-check | 契約 | 例外(行・辺) |
+|---:|---|---|---|---:|---|---|---:|---:|---|---:|---:|---|---|---|---|
+| 25 | `perception/renderer.py` | `world/model/percept_scene.py` 22・`mind/percept/draw.py` 31・`mind/percept/notice.py` 2・`foundation/text/percept_words.py` 19(新しい 4 本) | 62(10・51・1・0) | 14(tests) | 54(src 10・tests 43・tools 1) | 2(`perception/renderer.py`・`perception/__init__.py`) | 6 | 1 | src の表 3・E8 の宣言 1(`_HASH_SITES` → percept_scene) | 0 | 0 | 12 項「同じ」・決まりは宣言どおり 5 | 19/19 同じ(422 秒) | 古い 0+新しい 10 | 16・14(効かない例外 0) |
+
+- 当てる前の書かない実行(`split --next`=厳しい当て)は、G-M の記録と同じ姿だった: 断らない(終了 0)・守り 12 項「同じ」・決まりは「宣言どおり 5」・手で直す一覧 0・見られなかった差し替え 0・E8 の宣言は使われた(道 1)・新しい 4 本・消す 2 本・書き換える 54 本。当てた時の報告の JSON は、この書かない実行の JSON と 1 字も同じ。道具は 58 本を書き、2 本を消した。
+- 当てた直後の道具の import の確かめ(`cli.py importcheck --tree .`): モジュール 389・落ちた 0・`python -m shibuya.cli --help`・`python -m shibuya.interfaces.cli.run_args --help` とも終了コード 0(手で回した `--help` も `PYTHONIOENCODING=utf-8` で 0。付けないと手元の端末の符号で `≥` が書けず 1 になる=割る段と関係ない)。読み込みの時に割る前の道を読む表の手直しは要らなかった(下の洗い=0)。
+- 割り先の大きさ: percept_scene 1,446 行・draw 1,531 行・percept_words 150 行・notice 94 行。
+
+### 当てる前に洗い直した物(手順 2)と、手直し
+
+| 何を | 結果 | 直し |
+|---|---|---|
+| 読み込みの時にファイルの一覧や道を読む src で、`perception/renderer.py` を名指しする物(段 6 の `RESOLVE_FILES` の形) | **0**。src に残る renderer の道の字面は、`runtime/state/class_ids.py` の鍵 6 と `runtime/state/ledger.py` の持ち主の表 2 行(道具が書き換えた)・`ledger.py` の根拠の文(`perception/renderer.py:行` の形の記録の文 7 か所=読み込みの時に開かない)だけ | 無し |
+| 写した木や一時の木の中の置き場 `perception` に、ファイルを書く・読む・在ることを前提にする試験(段 6 の `engine/fake_collision.py` の形) | **0**。`tests`(c7 を除くディレクトリを名指し)・`tools`(c7 を除く)・`src` の 1,031 本を AST で歩き、`/` の連鎖・`os.path.join`・`Path`・`joinpath` の `"perception"` は 0。`perception/` を含む文字列 56 のうち、書く・読む・在るを見る形は、`test_pkgmove.py::test_split_5a_5b_in_memory_keeps_the_import_rules_to_the_end` の「メモリの中の木に在らない」の確かめだけ(実のファイルを読まない) | 無し |
+| 数を固定する試験で renderer を名指しする物 | 表の鍵(`PL.split_module_names("perception/renderer.py")`・`tests/test_places_guard.py` の割る行の一覧・`test_pkgmove.py` の表の行の確かめ)と記録の文(`tests/c8/test_sensitivity_ledger.py` の 4)だけ。数は G-M で直してある | 無し |
+
+手直し(この順で):
+
+1. 割 2 を `contracts.toml` と `test_pkgmove.py` の期待の列から同じ手で外した(上の宣言)。
+2. その後で `cli.py contracts --stage delete --tree . --apply`: `pyproject.toml` の `[tool.importlinter]` を書いた(+3・−14 行)。古い決まり「build は実行時に import されない」(`source_modules = ["shibuya.perception"]`)が消えた=古い 0+新しい 10。例外は 17 行・15 辺 → **16 行・14 辺**: 消えた行 4(`scene_hash → perception.renderer`〔割 2〕・`perception.renderer → world.model.agent_table`〔割 1〕・`perception.renderer → world.model.assets`〔#18〕・`perception.renderer → world.model.state`〔#19〕)・載った行 3(`draw → agent_table`〔割 1・注釈だけ(段 8)〕・`draw → percept_scene`〔割 9(T1)・残る〕・`draw → state`〔#19・注釈だけ〕)。消える段の数は {残る 6・段 7 1・注釈だけ 6・注釈だけ(段 8) 1}。
+3. `tests/engine/state/mind_world_reads_frozen.json` の `scope.split` から renderer の項を消した(`[]`・802 行 → 658 行)。`key_counts`・`totals`(83・72)・`totals_other_object`(8)は 1 字も変えていない。書き方は `json.dumps(indent=1, ensure_ascii=False)`+改行のまま(直す前のファイルがこの形と同じことを先に確かめた)。
+4. カードを作り直した(`perception` のカードが消え、割り先と読み手のカードが変わった=20 枚変わり 1 枚消えた。`cards/data.md` は単独の `git checkout --` で戻した・`--check` 最新=149 枚)。記録と byte-check の記録を足した後にもう 1 回作り直した(下の確かめの表)。
+
+- docs の古い台本 3 本は直していない(親の決め事 10・判断待ち 26 の仮採用): `docs/bench/analysis/wallbounce-1012/p12/tools/render_cost.py`・`docs/bench/analysis/weather-a48-347/count_weather_a48.py`・`docs/bench/analysis/weather-a48-347/stop_paths_a48.py`。割った後は `from shibuya.perception …` で大きな音で落ちる(黙って誤らない)。
+- 直していない古い名(段 8 の文の掃除): 主な割り先 percept_scene のモジュールの docstring は元の renderer の docstring のまま(頭が「perception.renderer — …」)。ほかの 3 本の docstring は道具が作った「割る段で `perception/renderer.py` を割った割り先」の形。src の docstring と注に残る `perception.renderer` の言及・`ledger.py` の根拠の文 7 か所も直していない。
+
+### 割った結果として落ちた試験 1 本と、親の裁定の直し
+
+- 試験の束で `tests/engine/state/test_mind_world_reads.py::test_negative_controls` が落ちた(`IndexError`)。手直し 3 で `scope.split` が `[]` になり、負の対照の 3 つ目(割るファイルで、割り先の表に無い記号の読みは unknown に出る)が、凍結の表の最初の割る項(`frozen["scope"]["split"][0]`)を使えなくなったため。**G-M の見込み(手直しの前に落ちるのは範囲の試験 `test_scope_is_current` だけ)に入っていなかった**。段 6 では renderer の項が残っていたので表れず、段 7 が最後の割る段なのでここで初めて表れた。`scope.split` を読む所はこのファイルの 3 か所で、`[0]` で落ちるのはこの 1 か所だけ。発注の作法に当てはまらないので、直さずに止まって親に聞いた。
+- 親の裁定(案 A を強めた形・試験だけの直し・src は変えない): 3 つ目の負の対照は、凍結の表の写しに足した**合成の割る項でいつも確かめる**(`{"path": "pk/split_me.py", "rows": [{"dest": "<心のディレクトリ>split_me.py", "symbols": ["known"]}]}`・ファイルは pytest の `tmp_path` に書く)。表に無い記号の読みは unknown に出る・表に在る記号の読みは割り先で数える、の両方を assert する。空回りしない向きも assert する(合成の項を足さない表では割るファイルとみなさず、数えず unknown にも出ない/足した表から記号を外すと、表に在った記号の読みも unknown に出る)。凍結の表に本物の割る項が在るときは、前のとおり最初の項でも確かめる(割る段が全部済んだので、今はこの道は通らない=注に書いた)。わけ: 確かめを弱めない=`mind_reads` の割る項の道(これからの段で使う口)が試験で守られたままになる。飛ばす・消す案は取らない。
+- 直した後: このファイルは 4 passed・1 failed → **5 passed**(ほかの 4 ノードは前後とも passed)。`tests/engine/state` は 43 passed。試験の関数をそのまま呼んで確かめた(読むだけ・一時の置き場): 今の表で通る/凍結の表の写しに当てる前の表(`1e33d19`)の renderer の項を戻すと、本物の項の道も回って通る/`mind_reads` の割り先の引きを「いつも最初の割り先」に壊すと落ちる/割る項を見ない形に壊すと落ちる。
+- byte-check は回し直していない(試験だけの直し)。byte-check の比べる側の記録の `src_files`(読んだ src 279 本の digest)が、直した後の木のファイルと 279 本とも同じ=src は当てた時のまま(`git diff -- src` と `git status -- src` の指紋も、直す前と後で同じ)。
+
+### 確かめ
+
+#### 写しの字面
+
+- 元の renderer.py(`HEAD`)の頂上の文 74(import・モジュールの docstring・`__all__` を除く。クラス 6 を含む)は、4 つの割り先のどれか 1 つの頂上に、**AST も文の字面も同じで、ちょうど 1 回ずつ**在る(percept_scene 22・draw 31・notice 2・percept_words 19)。割り先にだけ在る頂上の文 0。
+- 前の注と空行まで含めて比べると違うのは 2 つで、どれも割り先の `__all__` の直後の最初の文の前の空行の数(1 → 2)だけ(`DEFAULT_START_DATETIME`・`SIGNAGE_P_SEE_DEFAULT`。注の字面は同じ)。
+- クラスの置き場: `PerceptScene`・`PerceptionAssets`・`_TickCache` は percept_scene/`Rendered`・`Renderer(PerceptScene, SignageNotice)` は draw/`SignageNotice` は notice。
+- 割り先どうしの名の import(頂上): draw は `from shibuya.world.model.percept_scene import PerceptScene, PerceptionAssets, _TickCache, _noise_stage, _prior_scores`・`from shibuya.mind.percept.notice import SignageNotice, check_signage_p_see` を持つ。読み込みの時の循環は 0。
+
+#### 割り先をまたぐ名の import(段 6 の教訓)と、差し替えの的
+
+| 読む割り先 | 定義の割り先 | 名 |
+|---|---|---|
+| `world/model/percept_scene.py` | `foundation/text/percept_words.py` | `NAMED_CLOSED_FALLBACK_NAME`・`activity_line`・`named_closed_note`・`near_person_text` |
+| `mind/percept/draw.py` | `foundation/text/percept_words.py` | `INTENT_FALLBACK_TARGET`・`_activity_word`・`_hunger_word`・`intent_line`・`near_person_text`・`person_word` |
+| `mind/percept/draw.py` | `world/model/percept_scene.py` | `PerceptScene`・`PerceptionAssets`・`_TickCache`・`_noise_stage`・`_prior_scores` |
+| `mind/percept/draw.py` | `mind/percept/notice.py` | `SignageNotice`・`check_signage_p_see` |
+
+- 試験と tools(c7 を除くディレクトリを名指し)で、この一覧の名を差し替える所は `near_person_text` の 1 つだけ(`tests/perception/facts/test_render_from_percept_bytes.py:220`)。その試験は、読む関数(draw の `_b5`・`_b5_ranked` と percept_scene の `_nearby_items`)のモジュールを `sys.modules` で引いて両方へ差し替える=**全部の読み手に届く**(定義の percept_words へは届かせない)。一覧のほかの名(関数 9・定数 2・クラス 4)を、モジュールの属性として差し替える所は無い(クラスの属性への差し替えは下の表)。
+- `near_person_text` を読む percept_scene の側は `_nearby_items`(`_nearby` の中身)だけで、src の描画の道からは呼ばれない(呼ぶのは試験と、試験の HEAD の双子)。そのため、場面の側の差し替えだけを外しても描画は変わらない(下の #7b)。
+
+#### 凍結の比べ
+
+| もの | 結果 |
+|---|---|
+| クラスの名の表(`CLASS_IDS`) | 鍵 6 つが書き換わった(`Rendered`・`Renderer` → `shibuya.mind.percept.draw.*`/`SignageNotice` → `shibuya.mind.percept.notice.*`/`PerceptScene`・`PerceptionAssets`・`_TickCache` → `shibuya.world.model.percept_scene.*`)。**値は 6 つとも `shibuya.perception.renderer.<名>` のまま**(G-R2 で足した 2 行も)。`class_ids_frozen.json` は 1 字も変わらない |
+| 状態台帳の持ち主の表 | `OWNER_CLASSES["renderer"]` → `("mind/percept/draw.py", "Renderer")`・`OWNER_ALT_CLASSES["renderer"]` → `(("world/model/percept_scene.py", "PerceptScene"), ("mind/percept/notice.py", "SignageNotice"))`(道具が書き換えた) |
+| `tests/engine/test_salt_seed_split_10f.py` の `_HASH_SITES` | 道が `("world/model/percept_scene.py", "__init__")` へ(E8 の宣言・道具が書き換えた) |
+| つなぎの台帳の道 | 主な表 `LEDGER_PATHS` に 1 行(`world/model/percept_scene.py` → `perception/renderer.py`)。台帳の JSON は 1 字も変わらない |
+| 名の凍結・乱数の検査の表・副作用の順の固定の値・凍結の JSON | 変えていない(`git status` に出ない) |
+
+- 上の表の試験は、束の中で通った: `tests/engine/state` の `test_class_ids`・`test_names_frozen`・`test_mind_world_reads`(直した後)・`test_move_prep_stage2`、`tests/engine/test_state_ledger_10b.py`(網羅と外の読み)・`tests/engine/test_salt_seed_split_10f.py`(`_HASH_SITES`)・`tests/engine/bridging/test_bridging_ledger.py`(`test_the_counts_by_form` の 83・81・367・84 のまま)。
+
+#### 副作用の順の試験
+
+- `make_perceive_order.py --check`: **同じ**(sha256 `6a4b27c51e4a10ad260467a1c335c02b5bd4a810d07207208ba54911fd5d3015`)。固定の値の JSON は変えていない。試験の import は道具が `from shibuya.mind.percept.draw import Renderer` に書き換えた(定義の置き場と同じ)。
+
+#### 差し替えの「外すと落ちる」(割った後の木・13 か所と、#7 を 2 回に分けた 2 回)
+
+G0・G-R2 と同じやり方(1 か所ずつ一時に外して狙いの試験を回し、同じ台本の中でバイトを戻して sha256 で確かめる・毎回あとに作業木の指紋を確かめる)。行は、割った後のファイルの字面で引いた(道具が import の行を分けたので 4 か所で行の番号が 1 つずれた)。外す前に、狙いのノード 12(13 形)を書き換えずに回して **13 passed・飛んだ 0**(#13 の `test_b0_hashes_stay_out_of_the_final` は data が要る試験で、飛ばずに回った)。確かめの最中は、この木をほかの作業で編集していない(始めと終わりで `git status` と `git diff` の sha256 が同じ)。
+
+| # | 所(割った後の行)・差し替える名 | 狙いの試験 | G-R2 の後 | G-S の後 |
+|---|---|---|---|---|
+| 1 | `tests/engine/proximity/test_runs.py:128` `_nearby_people_distance`(`Renderer` のクラスの属性・定義は percept_scene) | `test_b5_near_rows_are_within_radius_or_unit` | 落ちる | **落ちる**(`renders` 0 > 1000) |
+| 2 | `tests/engine/test_resume_10d.py:625` `_named_closed_text`(同) | `test_named_closed_memo_survives_a_resume` | 落ちる | **落ちる** |
+| 3 | `tests/engine/test_sim_time_T.py:365` `__init__` | `test_start_date_moves_the_prompt_clock` | 落ちる | **落ちる**(`IndexError`) |
+| 4 | `tests/engine/test_weather_calendar_10e.py:310` `__init__` | `test_b6_b3_words_body_heat_and_sun_follow_one_rule` | 落ちる | **落ちる**(`IndexError`) |
+| 5 | `tests/engine/tools/test_c0_signboard_mark_invariance.py:87` `render` | `test_synthetic_run_arm_on_and_off_render_the_same_bytes` | 落ちる | **落ちる** |
+| 6 | `tests/perception/facts/test_percept_is_scratch.py:327` `render` | `test_replay_full_hash_does_not_see_percepts` | 落ちない | 落ちない(前からの試験の弱さ・§1-3) |
+| 7 | `tests/perception/facts/test_render_from_percept_bytes.py:220` `near_person_text`(draw と percept_scene の両方への差し替えを、まとめて外す) | `test_negative_control_one_byte_change_is_caught` | 落ちる | **落ちる** |
+| 7a | 同 `:219` の差し替えのループを場面の側だけに狭める=**描く側(draw)の差し替えだけを外す** | 同じ | — | **落ちる** |
+| 7b | 同 `:219` の差し替えのループを描く側だけに狭める=**場面の側(percept_scene)の差し替えだけを外す** | 同じ | — | 落ちない(下) |
+| 8 | 同 `:313` `prepare_tick` | `test_19_configs_render_the_same_bytes_as_head[w6_v3_default]` | 落ちる | **落ちる**(`KeyError`) |
+| 9 | 同 `:314` `render` | 同じ | 落ちる | **落ちる**(計数が双子と違う) |
+| 10 | `tests/perception/test_nearby_vectorized.py:156` `_nearby_people` | `test_rendered_bytes_are_unchanged_in_both_modes`(2 形) | 落ちる | **落ちる**(呼ばれた数 0 ≠ 100・2 形とも) |
+| 11 | 同 `:185` `_nearby_people` | `test_negative_control_a_changed_reference_is_caught` | 落ちる | **落ちる** |
+| 12 | `tests/perception/test_weather_a48.py:90` `__init__` | `test_a_run_without_processes_builds_the_weather_only_environment_without_data` | 落ちる | **落ちる**(`IndexError`) |
+| 13 | `tests/engine/test_assets_10e_b0_b1.py:115` `file_sha256` の描画の資産の側(`PerceptionAssets.load` の置き場=percept_scene) | `test_b0_hashes_stay_out_of_the_final` | 落ちる | **落ちる**(4 つのファイルの鍵が 0 埋めにならない) |
+
+- 親の決め事 3 の 9 か所(#1・#3・#4・#5・#8・#9・#10・#11・#12)は全部落ちる。#2・#7・#13 も落ちる。#6 は G0 から同じ。
+- **#7b は落ちない=割る前からの試験の弱さ**(裁定 P2 のとおり直さない): percept_scene の側で `near_person_text` を読むのは `_nearby_items`(`_nearby` の中身)だけで、src の描画の道からは呼ばれない(呼ぶのは試験と HEAD の双子)。そのため場面の側の差し替えは描画のバイトに出ず、この試験では見えない。差し替えそのものは、試験が `sys.modules` で引いた percept_scene に置かれる(届く先は道具の守りと上の名の import の一覧で確かめた)。描く側だけを外すと落ちる(#7a)=描く側の差し替えは試験が見ている。
+- #13: 試験は data が要る試験で、外す前の回でも外した回でも飛ばずに回った(足した assert で落ちた=差し替えが percept_scene に届いて効く)。
+- `__init__` の差し替え(#3・#4・#12)は、3 本とも `Renderer.__init__`(draw)を包む形のまま。包まれる中で `PerceptScene.__init__`(percept_scene)を呼ぶ=控えるのは作り終えたインスタンスで、G-R2 と同じ。
+
+#### 試験の助けが見る葉
+
+- `PL.split_module_names("perception/renderer.py").leaves` は、割った後に **4 つの割り先の 4 本**(`foundation.text.percept_words`・`mind.percept.draw`・`mind.percept.notice`・`world.model.percept_scene`)。G-M の見込みどおり agent_codes は入らない。
+- 2 本の試験の助け `removed_renderer_names_left` は、今は空。負の対照: 消したはずの名(`P_SEE_BY_ACTIVITY`・`check_p_see_activity`)を、4 つの割り先のどれか 1 つにメモリの中で一時に置くと、2 本の助けとも、置いた所だけを見つける(**8 通りとも見つけた**)。試験の中の負の対照(notice と draw に置く 2 本)も束の中で通った。
+
+#### 読み込みの閉包
+
+- 道具の import のグラフ(頂上の import)で、当てる前の木(`HEAD` の src をメモリに読んだ)と当てた後の木を比べた。入口とランの組み立ては、名の付け替え(`perception`・`perception.renderer` → 4 つの割り先)のほか同じ集合: `interfaces.cli.main` 174 → 176・`interfaces.cli.run_args` 155 → 157・`runtime.systems.assemble` 162 → 164・`runtime.run` 150 → 152・`shibuya.cli` 175 → 177(どれも「後 − 写した前」0・「写した前 − 後」0)。
+- 当てた後の木で、入口を別のプロセスで import した `sys.modules` は、4 つの割り先を全部読み、`perception` を読まない。グラフの閉包と同じ(`run_args` は本物にだけ在るモジュール 2=関数の中の import・割る段と関係ない。`shibuya.cli` は転送だけ=本物の読み込みは 2)。
+- 割り先を 1 本だけ読む読み手: `world.model.scene_hash`(`WALKABLE_FRACTION_SYNTHETIC`)は percept_scene だけを読む=閉包から `mind.percept.attention` ほか 5 つ(`foundation.ports.percept_contact`・`mind`・`mind.percept`・`world.model.agent_table`)が外れた(割 2 が要らなくなったわけ)。前の renderer の閉包の中で頂上に作用を持つモジュール(`foundation.text.templates` と `foundation.vocab.agent_codes` の assert・`foundation.write_permit` の環境変数の読み)は、percept_scene と draw の閉包に全部入る。notice と percept_words を 1 本だけ読む読み手は、src に無い(読むのは draw・percept_scene・assemble だけで、どれも作用を持つモジュールを読む)。環境変数を読んで止める文は前の renderer の閉包に無い=**割り先を 1 本だけ読むと止まらなくなる形 0**(取り直しの見立てどおり)。
+
+#### 試験・決まり・byte-check
+
+| 何を | 結果 |
+|---|---|
+| 試験の束(`tests/perception`・`tests/engine` の直下と `state`・`bridging`・`memory`・`proximity`・`tools`・`speech`・`contact`・`clock`・`tests/llm`・`tests/tools`・`tests/test_places_guard.py`・道具が書き換えた試験でほかの置き場の 1 本=`tests/build_lang/test_wiring.py`・`-m "not gpu and not slow"`・`-n 2`・合図を取って) | 3,759 passed・22 skipped・**1 failed**(上の `test_negative_controls`=親の裁定で直した後、そのファイル 5 passed・`tests/engine/state` 43 passed)・47 分 14 秒。飛んだ 22 は前と同じ(Ruri の重み 1・`test_pkgmove` の木の段による 21=飛ぶ試験は増えていない・「割る段の終わりの木」の試験も前と同じく飛ぶ)。data が要って飛んだ 0 |
+| 道具が書き換えた tools の 1 本(`tools/c6/ablation1_fixed_vs_ranking.py`) | 書き換えた import の名が、割った後の木で全部引ける(回してはいない) |
+| `lint-imports`(その行のコマンドに `PYTHONPATH=…\src`) | **10 kept**・0 broken(389 ファイル・1,417 の依存) |
+| `cli.py map --check` | 同じ |
+| `cli.py contracts --stage delete --tree . --check --probe` | 同じ・古い 0+新しい 10・例外 16 行・14 辺・効かない例外 0・割り先の一覧からの引き 0・決まりの外は `shibuya.cli` だけ |
+| `cli.py split --next` | 「割る段は全部当たっている」 |
+| **byte-check 19 構成**(基準 `1e33d19`・記録 [bytecheck_S/](bytecheck_S/)・合図を取って) | **37 欄すべて同じ 19・動いた 0・誤り 0・final が同じ 19・422 秒**(基準の側 216 秒・比べる側 206 秒)。既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939(基準と同じ)。比べる側が読んだ src は 279 本(基準 277 本)で、基準にだけ在るのは `perception/__init__.py`・`perception/renderer.py`、後にだけ在るのは 4 つの割り先=**割り先の 4 本を読んで走り、`perception/renderer.py` を読んでいない**。両方で digest が違うのは、道具が書き換えた src の 9 本(`ledger_paths.py` はランで読まれない) |
+| カード | 作り直した(上の手直し 4 の後、記録と byte-check の記録を足した後にもう 1 回=docs の索引の数だけが変わった)。`data.md` は単独の `git checkout --` で戻した・`--check` 最新(149 枚) |
+| 秘密の走査(変えた・足したファイルを引数で) | CLEAN(`tests/c7` に当たる道 0) |
+| c8 の照合(親の決め事 5) | この束に入れていない(範囲の全体の試験で回る) |
+
+#### 性能(byte-check の `run_wall_s`・5,000 体・seed 1・1 日・mock・6 本並列)
+
+| 構成 | 基準(秒) | 後(秒) | 比 |
+|---|---|---|---|
+| `w6_v3_default` | 58.5 | 52.3 | 0.89 |
+| `w6_v3_activity_off` | 43.9 | 37.6 | 0.86 |
+| `w6_v1_default` | 41.6 | 35.2 | 0.85 |
+| `w6_v1_derive_v2_1` | 38.3 | 32.4 | 0.85 |
+| `w6_v2` | 42.5 | 36.7 | 0.86 |
+| `w6_v1_edge` | 41.3 | 35.7 | 0.86 |
+| `w6_v2_edge` | 36.7 | 36.5 | 1.00 |
+| `w6_v1_edge_plateau` | 35.1 | 35.3 | 1.01 |
+| `w6_old_v1_default` | 35.1 | 35.2 | 1.00 |
+| `w6_old_v1_derive_v2_1` | 31.7 | 32.1 | 1.01 |
+| `w6_old_v2` | 36.1 | 36.6 | 1.01 |
+| `w6_old_v1_edge` | 35.2 | 35.6 | 1.01 |
+| `w6_old_v2_edge` | 35.8 | 35.8 | 1.00 |
+| `w6_old_v1_edge_plateau` | 35.0 | 35.0 | 1.00 |
+| `w6_golden_null_arm` | 59.5 | 58.6 | 0.99 |
+| `v3_mem_store` | 65.7 | 64.3 | 0.98 |
+| `v3_mem_rel` | 64.2 | 62.9 | 0.98 |
+| `v3_classical` | 69.2 | 67.3 | 0.97 |
+| `v3_classical_mem_rel` | 95.7 | 93.7 | 0.98 |
+| 計 | 901 | 859 | 0.95 |
+
+- 1 回の比べでは ±15% ほどは揺れの内(取り直し §14)。後の側が遅くなった構成は無い(比 0.85〜1.01・計 0.95)。±15% の外に出た 2 構成(`w6_v1_derive_v2_1`・`w6_v1_default`=比 0.85 に丸まる)は、どれも後の側が速い向きで、基準の側の最初の 6 本の組(先に回る組)に入る(G-R1・G-R2 の回と同じ形)。悪化は無い。
+
+### 確かめていないこと
+
+- 範囲の全体の試験(親が回す)。c8 の照合(実データが要る試験=親の決め事 5)は、この束に入れていない(範囲の全体の試験で回る)。
+- `tests/c7`: 道具が読む木の `tests/c7` の道は数えたが、書き換えた道 0・中身は開いていない・回していない。
+- 割り先を 1 本だけ読む形の、環境変数を置いた本物の前後の比べ(前の木の写しを作らないため。グラフと作用の文の数えで受けた)。
+
+## 12. G-S の、親の確かめと検収(第347・2026-11-20)
+
+### 12-1. 別の役の検収(2 人に分けた=道具の出力と決まりの側・意味の側)
+
+どちらの検収役も、ファイルを 1 本も変えていない。
+
+- **道具の出力と決まりの側: 受入**(高 0・中 0・低 4)。
+  - 当て直しと一致: 土台 `1e33d19` に、今の道具で 25 本目をメモリの中で厳しく当て直した(書くファイル 58・消すファイル 2・守り 12 項「同じ」・決まり「宣言どおり 5」・手で直す一覧 0・見られなかった差し替え 0)。作業木と違う `.py` は 2 本だけ(`test_pkgmove.py`=割 2 の 1 行と docstring・`test_mind_world_reads.py`=親の裁定の直し)。`.py` でない差分も、許した物だけ(決まりの表の割 2・`pyproject.toml`・割るファイルの表を空に・記録・カード・byte-check の記録)。割る道具(決まりの表のほか)・byte-check の道具・全ファイルの表・`map.toml`・つなぎの台帳の JSON・副作用の順の固定の値・凍結の JSON は変わっていない。
+  - 写しの字面: 頂上の文 74 は、前の注まで含めて違う所 0 で、1 回ずつ在る。注はファイル全体で 280 = 280。`__all__` の和は、元の 36 から `INTERO_UP_EDGES` を除いた 35(重なり 0)。使っていない import 0・結ばれていない名 0。
+  - 包み `perception`: 置き場は無くなった。`shibuya.perception` を読む import は、src・tools・tests(c7 を除く)・記録の道具のどこにも残っていない。残るのは、直さないと決めた docs の台本 3 本と、段 8 で直す古い名だけ。
+  - import の決まり(検収役が `contracts --check --probe` を回した): 古い 0+新しい 10・例外 16 行・14 辺・効かない例外 0。`pyproject.toml` の差分は、この結果と合う。割 2 を外した道具で 24 本目を当て直すと、G-M の時の当て直しと 1 バイトも同じ。
+  - 台帳と凍結の値: 主な表に 1 行・前向きの表に 0 行・台帳の JSON は変わっていない。クラスの名の表は鍵 6 つだけ変わり、値は 6 つとも同じ。心の読みの表は、割るファイルの表が空で、範囲のディレクトリは `mind/` のまま(draw と notice はその下)。
+  - 割った結果として落ちた試験の直しは、裁定どおりで、確かめは弱まっていない。
+- **意味の側: 受入**(高 0・中 0・低 4)。
+  - 差し替え: AST で洗った 18 か所(表の 13・`PerceptionAssets.load_or_synthetic` の 3・割る段と関係ない 2)に、空振りは 0。`_b5`・`_b5_ranked` は draw・`_nearby_items` は percept_scene で、2 つの割り先が持つ `near_person_text` は同じ物=差し替えは両方へ届く。組み立てが作る `Renderer` と、試験が import する `Renderer` は、同じ `mind.percept.draw.Renderer`。
+  - **直した負の対照は、前より強い**: 検収役が、メモリの中で突然変異を 5 つ当て(割り先の引きがいつも最初を返す・いつも無いと返す・完全一致を引かない・割る項を見ない・unknown を捨てる)、どれも落ちることを確かめた。前の形が見ていたのは「表に無い記号 → unknown」だけだった。
+  - **`near_person_text` の場面の側だけを外しても落ちないのは、割る前からの試験の弱さ**(実装役の読みは正しい): src で `_nearby_items` を呼ぶのは `_nearby` だけで、その `_nearby` を呼ぶ所は src に無い(土台でも同じ)。呼ぶのは試験 3 本と、古い写しと、docs の台本だけ。検収役が実行でも確かめた(固定枠と単一ランキングで 120 回描いても、`_nearby_items` は 0 回)。差し替えは届いている(`_nearby_items` の出力は全部変わる)が、描画には出ない。
+  - 割り先をまたぐ名の import: 16 名(関数 10・定数 2・クラス 4)。2 つの割り先が写しとして持ち、試験が差し替えるのは `near_person_text` だけ。
+  - 読み込みの順と閉包: draw は percept_scene と notice を先に読む。入口の閉包は 4 つの割り先を読み、`shibuya.perception` を読まない。割り先を 1 本だけ読む読み手は 1 つで、作用を持つモジュールは前と同じく読み込まれる。
+  - 副作用の順の試験: 割った後の木で、固定の値と同じ(5 構成)。負の対照も効く。
+  - 試験の範囲: 決め事 9 の助けが見る葉は 4 つ(消した名を 4 つのどれに置いても見つける)。裁定 Q12 の 3 本の範囲は、割り先の分だけ広がった。心の読みの表は、本物の `mind/percept/draw.py`・`notice.py` を心の範囲として数え、鍵が同じなので 83・72 のまま。
+  - 決まり: percept_scene は foundation と world だけを読む。心のクラスが世界のクラスを継ぐ辺(T1)と、注釈だけの 2 辺は、例外の表に宣言されている。世界の欄を書く文は 0。docs の台本 3 本は、import で大きな音で落ちる(広い `except` は import を包んでいない)。
+
+### 12-2. 検収の低と、親の答え
+
+- 道具の側の低-1(割る行の残りが 0 になり、本物の木の守りの試験の一部が、もう回らない。本物の履歴で守りを回すのは、22 本目の土台の 1 本だけ): 段 8 で道具を変える前に、土台 `1e33d19` で 25 本目を厳しく当てる試験を 1 本足す(今は足さない=割る段は済んだ)。報告に載せる。
+- 道具の側の低-2(例外 #19 の消える段の欄が「段 7」のまま残る=裁定 Q14 どおり): 段 8 で、注釈だけの行と揃える。
+- 道具の側の低-3(G-M の検収で、割った結果として落ちる試験 1 本を見込めなかった=表の最初の項を引く所まで見ていなかった)・低-4(カードの数の言い方): 記録だけ。
+- 意味の側の低-1(直した負の対照の合成の項は、「クラスの名に戻る」と「頂上の文 → 最初の割り先」の 2 つの道を通らない。前の形も見ていなかった): そのまま(段 8 で、心の読みの表の試験を触るときに足す候補)。
+- 意味の側の低-2(差し替えの試験の注は「場面の側へも差し替える」と書くが、それは描画には出ない): 段 8 の文の掃除で一言足す。
+- 意味の側の低-3(**ランの出力の文字列に古い名が残る**=`report()` の `[perception.renderer]` と、`renderer_name` の `perception.Renderer`): 直すと出力のバイトが変わるので、割る段では触らない。版上げとして判断する(報告の判断待ちに上げる)。
+- 意味の側の低-4(割る段の順を本物の木で確かめる試験は、もう回らない): 道具の側の低-1 と同じ扱い。
+
+### 12-3. 見つかったこと(直していない・報告に載せる)
+
+- **`PerceptScene._nearby` と `_nearby_items` は、src のどこからも呼ばれない**(割る前から)。呼ぶのは試験と古い写しと docs の台本だけ。場面の側が `near_person_text` を名で持つのは、この 2 つのためだけ。消すかどうかは、段 8 の掃除で決める。
+- 段 8 に送る古い名: percept_scene のモジュールの docstring(元の renderer の docstring のまま。`INTERO_UP_EDGES` の「import できない」の項は、もう正しくない)・src の docstring と注に残る `perception.renderer` の言及(約 20 か所)・`ledger.py` の根拠の文・`chooser.py` の注と 3 本目の写し・tools の注と文(`walkable_area.py`・`ablation1`・`ablations_v1.json`・決まりの表の注)・注釈だけの辺を `TYPE_CHECKING` へ移す件。
+- 割った結果として落ちた試験 1 本(上の節「G-S」に書いた、心の読みの表の負の対照)は、G-M の見込みにも、その検収にも入っていなかった。段 8 の発注では、「表や一覧の最初の項・最後の項を引く試験」を、当てる前の洗いに足す。
+
+### 12-4. 親が回した確かめ
+
+| 何を | 結果 |
+|---|---|
+| byte-check 19 構成(本体の道具・基準 `1e33d19`・割った後の木) | 37 欄すべて同じ 19・動いた 0・誤り 0・425 秒・既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。記録 [bytecheck_S_parent/](bytecheck_S_parent/)(実装役の記録は [bytecheck_S/](bytecheck_S/)=422 秒)。読み込んだ src は、基準 277 本・比べる側 279 本。基準にだけ在るのは `perception/__init__.py`・`perception/renderer.py`。比べる側にだけ在るのは 割り先の 4 本。sha が変わったのは 9 本(import を書き換えた読み手) |
+| 性能の参考(byte-check の `run_wall_s`・6 本並列・比べない参考値) | 19 構成の合計は基準 903 秒/後 869 秒・構成ごとの比は 0.84〜1.02(1 回の比べの揺れの内)・既定の構成は基準 59.4 秒/後 52.3 秒。悪化なし |
+| 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`。回している間、この作業木は誰にも編集させていない=始めと終わりで `git status` が同じ) | 7,145 passed・1 failed(前からの 1 本=linked の作業木でだけ落ちる)・22 skipped・1 xfailed・38 分 55 秒。G-R2 の回(7,089 passed)から +56=照合の台本の試験 55 と、道具の自分の試験の一覧を固定する試験 1 |
+| 差分を読んだ(決まりの表の割 2・`pyproject.toml`・試験 2 本・凍結の表) | 発注と裁定のとおり。当てる commit が道具の側の表を変えたのは、割 2 の 1 か所だけ |

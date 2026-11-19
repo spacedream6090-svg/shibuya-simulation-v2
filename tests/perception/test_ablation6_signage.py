@@ -22,7 +22,7 @@ from shibuya.foundation.vocab.agent_codes import AgentKind
 from shibuya.world.model.agent_table import AgentState
 from shibuya.runtime.run import run_day
 from shibuya.foundation.text import templates as T
-from shibuya.perception.renderer import Renderer
+from shibuya.mind.percept.draw import Renderer
 from shibuya.world.model.state import World
 
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")

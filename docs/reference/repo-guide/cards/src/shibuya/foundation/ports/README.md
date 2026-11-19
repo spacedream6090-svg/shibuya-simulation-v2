@@ -118,7 +118,7 @@ perception.facts — 知覚の事実 ``Percept``(第 1 期 1-2 知覚の分離)�
   - `percept_fields`(関数): ``Percept`` の欄の名(宣言順)。
   - `percept_manifest`(関数): manifest の ``percept``(計器): 形の版・欄の数と名・空の欄の一覧。
   - `with_prediction`(関数): 本人の予想を並べた ``Percept`` の写し(1-8 の口が使う)。
-- 呼び手: `shibuya.perception.renderer`・`shibuya.runtime.result`・`shibuya.world.body.reactions`
+- 呼び手: `shibuya.foundation.text.percept_words`・`shibuya.mind.percept.draw`・`shibuya.runtime.result`・`shibuya.world.body.reactions`・`shibuya.world.model.percept_scene`
 - 読む試験: `tests/engine/body/test_system1_placeholders.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_video.py`・`tests/engine/decision/test_j0_port_schema.py`・`tests/engine/memory/test_m3_impression_and_trace.py`・`tests/engine/tools/test_c0_signboard_mark_invariance.py`・`tests/perception/facts/test_coef_removed_or_armed.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/perception/facts/test_percept_schema.py`・`tests/perception/test_nearby_vectorized.py`
 - 決定の ID: 10-03/§7・10-12/§1-6・10-12/§1-13・10-12/§4-4・10-13b/§4-2・R-113
 
@@ -131,6 +131,6 @@ perception.contact_view — 連絡の道具 C1 の知覚の事実の値(目と�
   - `DeviceView`(クラス): 道具の状態と通知(``Percept.tool_state`` の値=腕 c1 のランだけ)。返すのは現実の道具が知り得ることだけ(CT0 の 4)。
   - `contact_lines`(関数): B6 の末尾に足す行(通話 → 着信 → 通知 → 未読 → 割り込めなかった出来事の順)。
   - `people_hint_word`(関数): 人の気配の数 → 粗い語(周辺視=数えない)。
-- 呼び手: `shibuya.interim_bundles.contact.layer`・`shibuya.mind.plan.contact_attention`・`shibuya.perception.renderer`・`shibuya.society.contact.calls`・`shibuya.society.contact.deliver`
+- 呼び手: `shibuya.interim_bundles.contact.layer`・`shibuya.mind.percept.draw`・`shibuya.mind.plan.contact_attention`・`shibuya.society.contact.calls`・`shibuya.society.contact.deliver`
 - 読む試験: `tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c1_world.py`・`tests/engine/contact/test_c2_video.py`
 - 決定の ID: 10-12/§4-4

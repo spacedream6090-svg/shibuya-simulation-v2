@@ -20,7 +20,7 @@ from shibuya.world.body import energy as E
 from shibuya.act.ops import body_writes as R
 from shibuya.mind.system1.change_detect import ChangeDetector
 from shibuya.foundation.text import templates as T
-from shibuya.perception.renderer import HUNGER_WORDS_MODES, Renderer, check_hunger_words
+from shibuya.mind.percept.draw import HUNGER_WORDS_MODES, Renderer, check_hunger_words
 from shibuya.world.model.state import World
 
 # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕錨は構築側の 1 本だけ。項 1・項 2 の試験は既定の時刻が全員 1 つの値の分布

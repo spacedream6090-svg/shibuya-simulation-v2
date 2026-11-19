@@ -198,7 +198,7 @@ def test_dynamic_domains_match_the_defaults():
 #: 値は ``MOTION_SALTS`` の鍵か、乱数でない理由。新しい場所が出たら分類を決めてここに足す。
 _HASH_SITES = {
     ("runtime/run.py", "run_salt_for"): "run_salt",
-    ("perception/renderer.py", "__init__"): "run_salt",  # near_salt を渡さないときの run_salt の写し(run_day は渡す)
+    ("world/model/percept_scene.py", "__init__"): "run_salt",  # near_salt を渡さないときの run_salt の写し(run_day は渡す)
     # 〔11-01 段 2 の 4〕("engine/presence.py", "attendance_draw")=出勤率の抽選は消した
     # 〔第 6 期 6-2〕腕 1b の体ごとの割り振り(動きの seed=salt・母集団の seed は使わない)
     ("interim_bundles/calendar_self.py", "_key_draw"): "calendar_1b",

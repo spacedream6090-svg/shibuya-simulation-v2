@@ -26,7 +26,7 @@ from shibuya.act.target import TargetResolver
 from shibuya.mind.judge.store_choice import CHOICE_REASONS, StoreChoice, walk_m_per_tick
 from shibuya.foundation.text import templates as T
 from shibuya.foundation.text.channels import estimate_tokens
-from shibuya.perception.renderer import memory_item_text
+from shibuya.mind.percept.draw import memory_item_text
 from shibuya.world.model.state import World
 
 SRC = Path("src/shibuya")
@@ -216,7 +216,7 @@ def test_store_item_templates_and_cap():
                             place_ids=["c0", "c1"], result_text={})
     assert estimate_tokens(long) <= T.MEMORY_STORE_ITEM_MAX_TOKENS == 15
     assert T.TEMPLATE_VERSION in ("v1.3", "v1.4")  # v1.4=8a(店の項は同じ)
-    from shibuya.perception import renderer as Rn
+    from shibuya.mind.percept import draw as Rn
 
     assert Rn._STORE_ITEM_KIND == M.STORE_ITEM_KIND and Rn._STORE_SELF_BIT == SELF
 

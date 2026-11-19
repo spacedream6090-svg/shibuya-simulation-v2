@@ -27,7 +27,7 @@ import pytest
 from shibuya.foundation.ports import percept as F
 from shibuya.world.model import notice_reach as P
 # 〔割る段 7 の G0・親の決め事 9〕別名を名の import にした(消した名の確かめは removed_renderer_names_left で割り先の全部を見る)
-from shibuya.perception.renderer import Renderer
+from shibuya.mind.percept.draw import Renderer
 
 ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "src" / "shibuya"

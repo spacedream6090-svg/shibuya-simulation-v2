@@ -28,7 +28,7 @@ from shibuya.society.speech import port as P
 from shibuya.foundation.text import mora as P_MORA
 from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE
 from shibuya.foundation.vocab.actions import MOCK_UTTERANCE
-from shibuya.perception import renderer as R
+from shibuya.mind.percept import draw as R
 from shibuya.foundation.text import templates as T
 from tests.engine.speech._s8b import run_small, tape_rows
 from tests.perception.facts.scenes import build, twin

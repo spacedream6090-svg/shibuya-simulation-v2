@@ -33,9 +33,11 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.runtime.run import run_day
 from shibuya.foundation.text import templates as T
 from shibuya.mind.percept.attention import P_SEE_MEDIUM_RANGE, gate_stage1
-from shibuya.perception.renderer import (
+from shibuya.mind.percept.draw import (
     SIGNAGE_P_SEE_DEFAULT,
     Renderer,
+)
+from shibuya.mind.percept.notice import (
     check_signage_p_see,
 )
 from shibuya.world.model.state import World

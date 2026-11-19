@@ -428,7 +428,8 @@ def test_focus_is_lost_beyond_the_lose_radius_which_is_wider_than_acquire():
 
 def test_renderer_puts_the_focus_person_first_in_b5():
     """B5(個体ブロック)は焦点の人物を先頭に置く。**B2 は共有ブロックなので触らない**。"""
-    from shibuya.perception.renderer import PerceptionAssets, Renderer
+    from shibuya.world.model.percept_scene import PerceptionAssets
+    from shibuya.mind.percept.draw import Renderer
 
     world = World.synthetic(n_cells=9, seed=1)
     agents = AgentState(6, attention_columns=True)
@@ -641,7 +642,7 @@ def test_focus_codes_only_fire_for_approach_and_look():
 
 def test_landmark_cats_are_shared_between_world_and_renderer():
     """目印の集合は**世界側と知覚側で同じ 1 本**(二重定義を作らない)。"""
-    from shibuya.perception import renderer as PR
+    from shibuya.world.model import percept_scene as PR
 
     assert LANDMARK_CATS == ("landmark", "attraction")
     assert PR.LANDMARK_CATS is LANDMARK_CATS

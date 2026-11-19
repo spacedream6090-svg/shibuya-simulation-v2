@@ -23,7 +23,7 @@ from shibuya.foundation.rng import RNG_SCHEME
 from shibuya.act.target import move_resolution_summary, resolution_summary
 from shibuya.world.laws.salient import ablation_name as _pnotice_ablation_name
 from shibuya.foundation.text.channels import BudgetMode
-from shibuya.perception.renderer import P_SEE_ACTIVITY_KINDS
+from shibuya.mind.percept.draw import P_SEE_ACTIVITY_KINDS
 from shibuya.foundation.time_consts import SECONDS_PER_MINUTE
 
 __all__ = ["report"]

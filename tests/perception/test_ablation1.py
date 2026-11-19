@@ -26,7 +26,7 @@ from shibuya.world.model.agent_table import AgentState
 from shibuya.runtime.run import run_day
 from shibuya.foundation.text import channels as ch
 from shibuya.foundation.text import templates as T
-from shibuya.perception.renderer import RANKING_PRIOR_SCORES, Renderer
+from shibuya.mind.percept.draw import RANKING_PRIOR_SCORES, Renderer
 from shibuya.world.model.state import World
 
 REPO_ROOT = Path(__file__).resolve().parents[2]

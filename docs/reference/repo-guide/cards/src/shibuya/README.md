@@ -4,7 +4,7 @@
 
 Python 2 本・その他 0 本(このディレクトリの直下)
 
-下のディレクトリ: [act](act/README.md)・[build](build/README.md)・[economy](economy/README.md)・[experiments](experiments/README.md)・[foundation](foundation/README.md)・[interfaces](interfaces/README.md)・[interim_bundles](interim_bundles/README.md)・[mind](mind/README.md)・[perception](perception/README.md)・[runtime](runtime/README.md)・[society](society/README.md)・[validation](validation/README.md)・[world](world/README.md)
+下のディレクトリ: [act](act/README.md)・[build](build/README.md)・[economy](economy/README.md)・[experiments](experiments/README.md)・[foundation](foundation/README.md)・[interfaces](interfaces/README.md)・[interim_bundles](interim_bundles/README.md)・[mind](mind/README.md)・[runtime](runtime/README.md)・[society](society/README.md)・[validation](validation/README.md)・[world](world/README.md)
 
 ## [__init__.py](../../../../../../src/shibuya/__init__.py)
 

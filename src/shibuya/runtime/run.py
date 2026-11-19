@@ -115,7 +115,7 @@ from shibuya.foundation.vocab.actions import TargetKind
 from shibuya.runtime.inference.fleet import FleetClient
 from shibuya.runtime.inference.mock import MockLLM
 from shibuya.foundation.text.channels import BudgetMode
-from shibuya.perception.renderer import (
+from shibuya.mind.percept.draw import (
     DEFAULT_HUNGER_WORDS,
     SIGNAGE_P_SEE_DEFAULT,
 )

@@ -29,7 +29,8 @@ from shibuya.runtime.run import run_day
 from shibuya.foundation.text import normalize as N
 from shibuya.foundation.text import templates as T
 # 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
-from shibuya.perception.renderer import PerceptionAssets, Renderer, SYNTHETIC_WEATHER_NOTE, _TickCache
+from shibuya.world.model.percept_scene import PerceptionAssets, SYNTHETIC_WEATHER_NOTE, _TickCache
+from shibuya.mind.percept.draw import Renderer
 from shibuya.runtime.systems import assemble as ASM
 from shibuya.runtime.systems import state_io as SIO
 from shibuya.world.model.assets import ProcessAssets

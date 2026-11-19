@@ -27,7 +27,8 @@ from shibuya.foundation.ports.inference import LLMResponse
 from shibuya.foundation.vocab.actions import format_two_line
 from shibuya.act.intake.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
 from shibuya.foundation.text import templates as T
-from shibuya.perception.renderer import INVITE_REASON, Renderer, person_word
+from shibuya.mind.percept.draw import INVITE_REASON, Renderer
+from shibuya.foundation.text.percept_words import person_word
 from shibuya.world.model.state import World
 
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")

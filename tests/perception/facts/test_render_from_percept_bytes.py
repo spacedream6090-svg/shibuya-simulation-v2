@@ -34,7 +34,7 @@ import pytest
 from shibuya.foundation.vocab.agent_codes import Activity, ActivityKind, IntentKind, ResultCode, WakeCondition
 from shibuya.mind.memory.memory import RecallItem
 # 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
-from shibuya.perception.renderer import Renderer
+from shibuya.mind.percept.draw import Renderer
 from tests.perception.facts.scenes import build, head_module, twin
 
 ROOT = Path(__file__).resolve().parents[3]

@@ -35,7 +35,7 @@ from shibuya.runtime.run import run_day
 from shibuya.runtime.systems import conductor as CD
 from shibuya.runtime.systems import probe as PR
 from shibuya.runtime.systems.table import SPECS
-from shibuya.perception import renderer as RD
+from shibuya.mind.percept import draw as RD
 
 WORLD = "data/world/v2"
 world_assets = pytest.mark.requires_data("world_v2:w17_schedule.parquet")

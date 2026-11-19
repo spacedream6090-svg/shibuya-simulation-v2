@@ -28,7 +28,7 @@ from shibuya.world.laws.crowd import (
     seats_for_categories,
 )
 from shibuya.runtime.run import run_day
-from shibuya.perception.renderer import PerceptionAssets
+from shibuya.world.model.percept_scene import PerceptionAssets
 from shibuya.world.model import assets as WA
 from shibuya.world.model.state import World
 

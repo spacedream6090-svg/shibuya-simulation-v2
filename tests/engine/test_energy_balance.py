@@ -22,7 +22,7 @@ from shibuya.world.body import energy as E
 from shibuya.act.ops import body_writes as R
 from shibuya.mind.system1.change_detect import ChangeDetector
 from shibuya.foundation.text import templates as T
-from shibuya.perception.renderer import Renderer
+from shibuya.mind.percept.draw import Renderer
 from shibuya.world.model.state import World
 from tests import _places as _PL
 

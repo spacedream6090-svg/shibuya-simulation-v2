@@ -245,7 +245,7 @@ def test_the_two_prompt_hashes_are_both_deterministic_and_different():
     """``BridgeResult.prompt_hash``(レンダラ blake3)と ``tape_prompt_hash``(テープ鍵)。"""
     from shibuya.world.model.agent_table import AgentState
     from shibuya.runtime.inference.bridge import PerceptionRendererAdapter
-    from shibuya.perception.renderer import Renderer as PerceptionRenderer
+    from shibuya.mind.percept.draw import Renderer as PerceptionRenderer
     from shibuya.world.model.state import World
 
     w = World.synthetic(n_cells=9, seed=1)

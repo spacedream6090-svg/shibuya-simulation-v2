@@ -40,7 +40,7 @@ from shibuya.runtime.clocks import regional as _REGIONAL_CLOCK  # 〔第 6 期 6
 from shibuya.runtime.clocks import speech as _SPEECH_CLOCK  # 〔第 6 期 6-3 T2〕
 from shibuya.runtime.clocks import step_scope as _STEP_SCOPE  # 〔第 6 期 6-3 T3〕
 from shibuya.world.body import model as _BODY_MODEL
-from shibuya.perception.renderer import SIGNAGE_P_SEE_DEFAULT
+from shibuya.mind.percept.draw import SIGNAGE_P_SEE_DEFAULT
 from shibuya.foundation.text.templates import INTENT_MODES, check_vocab_version
 from shibuya.world.model.assets import DEFAULT_AREA_SOURCE
 from shibuya.foundation.time_consts import CLOCK_KIND, HOURS_PER_DAY, SECONDS_PER_DAY

@@ -390,7 +390,7 @@ def _p2_edge_bench(n_agents: int, world: World, ticks: int = 60, walkable=None):
 
 
 def _walkable_of(world: World):
-    from shibuya.perception.renderer import (
+    from shibuya.world.model.percept_scene import (
         CELL_SIZE_M,
         WALKABLE_FRACTION_SYNTHETIC,
     )
@@ -425,7 +425,7 @@ def test_p2_edge_geometry_under_300ms_at_400k_agents():
     """
     from pathlib import Path
 
-    from shibuya.perception.renderer import PerceptionAssets
+    from shibuya.world.model.percept_scene import PerceptionAssets
     from shibuya.world.model.assets import assets_available
 
     path = Path("data/world/v2")

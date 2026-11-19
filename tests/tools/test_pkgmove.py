@@ -1999,14 +1999,13 @@ def test_ignore_split_rows_come_in_with_their_split():
     """〔親の裁定 Q3〕割る段で出る辺 4 本は別の表 [[ignore_split]](28 本と表の外の 1 本の表は変えない)。appears_with の割る行を
     当てる前の木では載せない。〔割る段 6 の S6-G0・裁定 Q6〕段 6 の 4 本(割 5〜8=型の注釈だけの辺)を足した。〔割る段 7 の G-M・
     裁定 Q14〕段 7 の 1 本(割 9=案 K の例外 T1・基底のクラスを実行の時に読む=残る)を足し、割 1 の消える段を「注釈だけ(段 8)」に
-    した。割 2 は 25 本目を当てる commit(G-S)で、この期待の列と contracts.toml から外す(裁定 P1)。"""
+    した。割 2 は 25 本目を当てた commit(G-S)で、この期待の列と contracts.toml から外した(裁定 P1)。"""
     from pkgmove import contracts as CT
     from pkgmove.table import SPLIT_ORDER
 
     spec = CT.load_spec(ROOT / CT.CONTRACTS_REL)
     got = [(g["importer"], g["imported"], list(g["rules"]), g["appears_with"]) for g in spec.ignores_split]
     assert got == [("mind.percept.draw", "world.model.agent_table", [3], "agents/state.py"),
-                   ("world.model.scene_hash", "world.model.percept_scene", [1], "engine/change_detect.py"),
                    ("mind.system1.change_detect", "world.model.agent_table", [3], "engine/change_detect.py"),
                    ("mind.system1.change_detect", "world.model.scene_hash", [3], "engine/change_detect.py"),
                    ("act.ops.detect_writes", "mind.system1.change_detect", [1], "engine/resolve.py"),

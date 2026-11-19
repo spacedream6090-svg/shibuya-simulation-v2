@@ -1421,7 +1421,7 @@ def render_memories(views: Sequence[MemoryView], *, clock: Callable[[int], datet
     """
     from shibuya.foundation.vocab.agent_codes import RESULT_TEXT
     from shibuya.foundation.text import normalize as _N
-    from shibuya.perception.renderer import compose_memory_line, memory_item_text
+    from shibuya.mind.percept.draw import compose_memory_line, memory_item_text
 
     texts: list[str] = []
     for v in views:  # 想起の件数ぶん(≤ 3)

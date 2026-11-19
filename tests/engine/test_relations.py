@@ -257,7 +257,7 @@ def test_readers_live_edges_strength_same_cell_and_invite_weights():
 # ================================================================= (g) 知人の結線
 def build_renderer(n: int = 8):
     from shibuya.foundation.vocab.agent_codes import AgentKind
-    from shibuya.perception.renderer import Renderer
+    from shibuya.mind.percept.draw import Renderer
     from shibuya.world.model.state import World
 
     w = World.synthetic(n_cells=9, seed=1)

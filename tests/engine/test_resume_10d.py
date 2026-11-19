@@ -547,7 +547,7 @@ def test_b3_weather_and_the_environment_read_the_same_day_on_day_two(tmp_path):
     import pyarrow.parquet as pq
 
     from shibuya.foundation.text import templates as T
-    from shibuya.perception.renderer import PerceptionAssets
+    from shibuya.world.model.percept_scene import PerceptionAssets
 
     res = cli.run(checkpoint_every=360, tape_path=tmp_path / "tape", **WORLD_KW)
     env = res.runner.environment
@@ -593,7 +593,7 @@ def test_named_closed_memo_survives_a_resume(tmp_path, monkeypatch):
     from shibuya.act import target as PT
     from shibuya.act.ops import body_writes as R
     # 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
-    from shibuya.perception.renderer import Renderer
+    from shibuya.mind.percept.draw import Renderer
 
     resolvers: list = []
     orig_init = PT.TargetResolver.__init__
@@ -722,7 +722,8 @@ def test_b3_weather_follows_the_replay_date_of_each_day():
     from shibuya.world.model.agent_table import AgentState
     from shibuya.foundation.text import normalize as N
     # 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
-    from shibuya.perception.renderer import PerceptionAssets, Renderer, _TickCache
+    from shibuya.world.model.percept_scene import PerceptionAssets, _TickCache
+    from shibuya.mind.percept.draw import Renderer
     from shibuya.foundation.text import templates as T
     from shibuya.world.model.state import World
 

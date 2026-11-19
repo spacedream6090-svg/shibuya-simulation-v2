@@ -57,7 +57,7 @@ def probe_switch(n_agents: int = 64, n_cells: int = 25, seed: int = 1, n_scenes:
     from shibuya.world.model.agent_table import AgentState
     from shibuya.act.ops import init_writes as R
     from shibuya.foundation.text import channels as ch
-    from shibuya.perception.renderer import Renderer
+    from shibuya.mind.percept.draw import Renderer
     from shibuya.world.model.state import World
 
     def render_all(mode) -> list[str]:

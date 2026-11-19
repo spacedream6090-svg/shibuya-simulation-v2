@@ -203,7 +203,9 @@ def test_other_object_notes_point_at_frozen_keys(frozen):
 def test_negative_controls(tmp_path, frozen):
     """負の対照: 読みが 1 つ増えると「増えた」、1 つ減ると「減った」、割り先を引けない読みは unknown に出る。
 
-    合成の木の心のディレクトリに世界の列の読みを 1 つ置く・表の数を 1 つずらす・割るファイルに表に無い記号の読みを置く。"""
+    合成の木の心のディレクトリに世界の列の読みを 1 つ置く・表の数を 1 つずらす・割るファイルに表に無い記号の読みを置く
+    (〔割る段 7 の G-S・親の裁定〕割るファイルは、表の写しに足した合成の割る項でいつも確かめる。凍結の表に本物の割る項が在るときは、
+    その最初の項でも確かめる)。"""
     d = frozen["scope"]["dirs"][0]
     fp = tmp_path / d / "fake_reader.py"
     fp.parent.mkdir(parents=True)
@@ -218,13 +220,33 @@ def test_negative_controls(tmp_path, frozen):
     less[k] -= 1
     assert [x[:3] for x in compare(fz, +less)] == ["増えた"]
     assert [x[:3] for x in compare(+less, fz)] == ["減った"]
-    # 割るファイルで、割り先の表に無い記号の読み
-    e = frozen["scope"]["split"][0]
-    fs = tmp_path / e["path"]
+    # 割るファイルで、割り先の表に無い記号の読み。〔割る段 7 の G-S・親の裁定〕凍結の表に割る項が在るかに頼らず、表の写しに足した
+    # 合成の割る項でいつも確かめる(mind_reads の割る項の道を守る)。表に無い記号は unknown・表に在る記号は割り先で数える
+    syn = {"path": "pk/split_me.py", "rows": [{"dest": f"{d}split_me.py", "symbols": ["known"]}]}
+    doc = {**frozen, "scope": {**frozen["scope"], "split": [syn]}}
+    fs = tmp_path / syn["path"]
     fs.parent.mkdir(parents=True, exist_ok=True)
-    fs.write_text("def no_such_symbol_in_the_table(r, a):\n    return r.hunger[a]\n", encoding="utf-8")
-    _, unknown = mind_reads(SA.scan(tmp_path, files=[fs], names={"hunger"}), tmp_path, frozen)
-    assert unknown and "no_such_symbol_in_the_table" in unknown[0]
+    fs.write_text("def no_such_symbol_in_the_table(r, a):\n    return r.hunger[a]\n\n\ndef known(r, a):\n    return r.hunger[a]\n",
+                  encoding="utf-8")
+    res = SA.scan(tmp_path, files=[fs], names={"hunger"})
+    now, unknown = mind_reads(res, tmp_path, doc)
+    assert [u.split(" ", 1)[1] for u in unknown] == ["[no_such_symbol_in_the_table] hunger"], unknown
+    assert now == Counter({(f"{d}split_me.py", "known", "hunger"): 1})
+    # 空回りしていない向き: 合成の項を足さない表では割るファイルでない(数えない・unknown に出ない)/足した表から記号を外すと、
+    # 表に在った記号の読みも unknown に出る
+    assert mind_reads(res, tmp_path, frozen) == (Counter(), [])
+    bare = {**doc, "scope": {**doc["scope"], "split": [{**syn, "rows": [{**syn["rows"][0], "symbols": []}]}]}}
+    now_bare, unknown_bare = mind_reads(res, tmp_path, bare)
+    assert not now_bare and sorted(u.split(" ", 1)[1] for u in unknown_bare) == [
+        "[known] hunger", "[no_such_symbol_in_the_table] hunger"]
+    # 本物の割る項でも(在れば・前のとおり最初の項)。割る段が全部済んだので、今は合成の項だけで回る(この道は通らない)
+    for e in frozen["scope"]["split"][:1]:
+        rr = tmp_path / "real"
+        fr = rr / e["path"]
+        fr.parent.mkdir(parents=True, exist_ok=True)
+        fr.write_text("def no_such_symbol_in_the_table(r, a):\n    return r.hunger[a]\n", encoding="utf-8")
+        _, unknown = mind_reads(SA.scan(rr, files=[fr], names={"hunger"}), rr, frozen)
+        assert unknown and "no_such_symbol_in_the_table" in unknown[0]
 
 
 def main() -> int:

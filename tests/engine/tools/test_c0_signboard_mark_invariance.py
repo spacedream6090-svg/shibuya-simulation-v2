@@ -28,7 +28,7 @@ from shibuya.society.tools import record as TR
 from shibuya.foundation.journal.log import SIGNBOARD_CAUSE
 from shibuya.foundation.vocab.events import SIGNBOARD_ORIGIN, SIGNBOARD_WHAT
 from shibuya.society.tools.registry import SIGNAGE_BRIDGE
-from shibuya.perception import renderer as RD
+from shibuya.mind.percept import draw as RD
 from shibuya.foundation.ports.percept import SeenObject
 
 KW = dict(n_agents=60, seed=2, n_cells=9, ticks=240, budget=60.0, sleep_suppression=False, vocab_version="v3",

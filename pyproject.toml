@@ -56,16 +56,6 @@ root_package = "shibuya"
 include_external_packages = false
 
 [[tool.importlinter.contracts]]
-name = "build は実行時に import されない"
-type = "forbidden"
-source_modules = [
-  "shibuya.perception",
-]
-forbidden_modules = [
-  "shibuya.build",
-]
-
-[[tool.importlinter.contracts]]
 name = "〔段 4 の途中の決まり〕1 層(§1-2 の順。下から上と、`|` の兄弟の間を読まない)"
 type = "layers"
 layers = [
@@ -85,7 +75,6 @@ ignore_imports = [
   "shibuya.act.ops.detect_writes -> shibuya.mind.system1.change_detect",
   "shibuya.mind.judge.decision.layer -> shibuya.society.tools.registry",
   "shibuya.society.speech.layer -> shibuya.mind.memory.wom",
-  "shibuya.world.model.scene_hash -> shibuya.perception.renderer",
 ]
 
 [[tool.importlinter.contracts]]
@@ -142,13 +131,13 @@ ignore_imports = [
   "shibuya.mind.judge.decision.layer -> shibuya.economy.stage2_bind",
   "shibuya.mind.judge.decision.layer -> shibuya.society.tools.registry",
   "shibuya.mind.ops -> shibuya.world.model.agent_table",
+  "shibuya.mind.percept.draw -> shibuya.world.model.agent_table",
+  "shibuya.mind.percept.draw -> shibuya.world.model.percept_scene",
+  "shibuya.mind.percept.draw -> shibuya.world.model.state",
   "shibuya.mind.relations.layer -> shibuya.world.model.proximity",
   "shibuya.mind.system1.change_detect -> shibuya.world.model.agent_table",
   "shibuya.mind.system1.change_detect -> shibuya.world.model.scene_hash",
   "shibuya.mind.system1.change_detect -> shibuya.world.model.state",
-  "shibuya.perception.renderer -> shibuya.world.model.agent_table",
-  "shibuya.perception.renderer -> shibuya.world.model.assets",
-  "shibuya.perception.renderer -> shibuya.world.model.state",
 ]
 
 [[tool.importlinter.contracts]]

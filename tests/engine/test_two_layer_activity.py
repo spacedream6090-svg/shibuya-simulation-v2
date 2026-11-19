@@ -64,15 +64,17 @@ from shibuya.foundation.vocab.actions import (
     format_two_line_v3,
 )
 # 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
-from shibuya.perception.renderer import (
+from shibuya.mind.percept.draw import (
     ACTIVITY_EXPIRY_REASON,
-    ACTIVITY_LINE_MAX_TOKENS,
-    ACTIVITY_WORDS,
-    ACTIVITY_WORDS_V3,
     DEFAULT_OPTIONS_V3,
     RESULT_OPTIONS,
     RESULT_OPTIONS_V3,
     Renderer,
+)
+from shibuya.foundation.text.percept_words import (
+    ACTIVITY_LINE_MAX_TOKENS,
+    ACTIVITY_WORDS,
+    ACTIVITY_WORDS_V3,
     activity_line,
 )
 from shibuya.foundation.text import templates as T

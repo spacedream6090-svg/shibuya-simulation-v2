@@ -39,7 +39,7 @@ import pytest
 from shibuya.foundation.text import templates as T
 from shibuya.foundation.vocab.agent_codes import IntentKind, ResultCode, WakeCondition
 from shibuya.mind.memory.memory import RecallItem
-from shibuya.perception.renderer import Renderer
+from shibuya.mind.percept.draw import Renderer
 from shibuya.validation.static.rng_audit import StreamRecorder
 from shibuya.world.model.proximity import NearView, ProximityLayer, ProximityRule
 from tests.perception.facts.scenes import build

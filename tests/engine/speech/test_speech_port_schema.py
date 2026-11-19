@@ -23,7 +23,7 @@ from shibuya.society.speech import layer as SPL
 from shibuya.society.speech import port as P
 from shibuya.foundation.text import mora as P_MORA
 from shibuya.foundation.vocab import actions as C
-from shibuya.perception import renderer as R
+from shibuya.mind.percept import draw as R
 
 FIELDS = ("speaker", "t_ns", "text", "addressees", "via", "mora", "event_id", "modality")
 

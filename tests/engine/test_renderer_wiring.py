@@ -29,7 +29,8 @@ from shibuya.act import apply as R
 from shibuya.runtime.inference.bridge import ACTION_WORD_BY_CODE, PerceptionRendererAdapter
 from shibuya.runtime.run import run_day
 from shibuya.foundation.text import templates as PT
-from shibuya.perception.renderer import PerceptionAssets, Renderer as PerceptionRenderer
+from shibuya.world.model.percept_scene import PerceptionAssets
+from shibuya.mind.percept.draw import Renderer as PerceptionRenderer
 from shibuya.world.model.state import World
 
 WORLD_DIR = Path("data/world/v2")

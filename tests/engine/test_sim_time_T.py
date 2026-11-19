@@ -352,7 +352,7 @@ def test_real_calendar_run_needs_a_valid_start(tmp_path):
 
 def test_start_date_moves_the_prompt_clock(tmp_path):
     """開始日を渡すとプロンプトの日付(世界内日時)がその日になる。渡さないランは今の日付のまま。"""
-    from shibuya.perception.renderer import Renderer as PR
+    from shibuya.mind.percept.draw import Renderer as PR
 
     seen = []
     orig = PR.__init__

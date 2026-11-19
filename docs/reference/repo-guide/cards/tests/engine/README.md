@@ -203,7 +203,7 @@ C9c-1 ``--area-source {legacy,plateau}`` と席面積の感度腕の検収。
   - `test_seat_area_arm_reaches_the_manifest`(関数)
   - `test_seat_area_override_changes_the_seat_count_only_when_given`(関数)
   - `test_the_same_denominator_reaches_detector_and_geometry`(関数): ``walkable_area_m2`` を替えると LOS 段(起床条件 (i))と Kladek 減速が**同時に**動く。
-- import している内部モジュール: `shibuya.mind.system1.change_detect`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.laws.crowd`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.geometry`・`shibuya.world.model.scene_hash`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.mind.system1.change_detect`・`shibuya.runtime.run`・`shibuya.world.laws.crowd`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.geometry`・`shibuya.world.model.percept_scene`・`shibuya.world.model.scene_hash`・`shibuya.world.model.state`
 - 決定の ID: D-84
 
 ## [test_assets_10e_b0_b1.py](../../../../../../tests/engine/test_assets_10e_b0_b1.py)
@@ -215,7 +215,7 @@ C9c-1 ``--area-source {legacy,plateau}`` と席面積の感度腕の検収。
   - `test_b0_manifest_lists_what_the_run_read_and_the_two_noise_readers_agree`(関数)
   - `test_b0_world_reader_records_the_file_and_cell_hashes`(関数)
   - `test_b1_switch_is_gone`(関数)
-- import している内部モジュール: `shibuya.interfaces.cli.main`・`shibuya.interfaces.cli.run_args`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.laws.environment`・`shibuya.world.model.assets`
+- import している内部モジュール: `shibuya.interfaces.cli.main`・`shibuya.interfaces.cli.run_args`・`shibuya.runtime.run`・`shibuya.world.laws.environment`・`shibuya.world.model.assets`・`shibuya.world.model.percept_scene`
 - 決定の ID: 第 330
 
 ## [test_c9b_targets_attention.py](../../../../../../tests/engine/test_c9b_targets_attention.py)
@@ -257,7 +257,7 @@ C9b 対象と注意(G3/G4/G5/G6/G7)の検収。
   - `test_talk_open_and_leave_distances_form_a_hysteresis`(関数)
   - `test_talk_within_reach_needs_same_cell_and_two_meters`(関数)
   - `test_v1_dictionary_and_version_are_untouched`(関数): 語彙 v1 の段0 辞書・版・対象ヒント表は**同一オブジェクト**のまま。
-- import している内部モジュール: `shibuya.act.apply`・`shibuya.act.commit`・`shibuya.act.gate`・`shibuya.act.intake.from_words`・`shibuya.act.intake.undefined`・`shibuya.act.ops.focus`・`shibuya.act.ops.talk`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.society.conversation`・`shibuya.world.model.agent_table`・`shibuya.world.model.geometry`・`shibuya.world.model.state`・`tests/engine/time/__init__.py`
+- import している内部モジュール: `shibuya.act.apply`・`shibuya.act.commit`・`shibuya.act.gate`・`shibuya.act.intake.from_words`・`shibuya.act.intake.undefined`・`shibuya.act.ops.focus`・`shibuya.act.ops.talk`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.percept.draw`・`shibuya.runtime.run`・`shibuya.society.conversation`・`shibuya.world.model.agent_table`・`shibuya.world.model.geometry`・`shibuya.world.model.percept_scene`・`shibuya.world.model.state`・`tests/engine/time/__init__.py`
 - 決定の ID: 第 346
 
 ## [test_calendar.py](../../../../../../tests/engine/test_calendar.py)
@@ -591,7 +591,7 @@ C6 会話招待の設計準拠(09-09): 「対象」欄で名指し → 被招待
   - `test_stage_edges_and_hunger_copy`(関数)
   - `test_unknown_sex_uses_the_mean_of_the_two_tables`(関数)
   - `test_weight_is_clipped_to_three_sd_and_age_zero_uses_the_age_one_row`(関数)
-- import している内部モジュール: `shibuya.act.ops.body_writes`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.system1.change_detect`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.body.energy`・`shibuya.world.facts.weekly_reader`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/engine/body/_hunger_v1.py`
+- import している内部モジュール: `shibuya.act.ops.body_writes`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.percept.draw`・`shibuya.mind.system1.change_detect`・`shibuya.runtime.run`・`shibuya.world.body.energy`・`shibuya.world.facts.weekly_reader`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/engine/body/_hunger_v1.py`
 - 決定の ID: D-118・第 291・第 347
 
 ## [test_env_and_sections_10f.py](../../../../../../tests/engine/test_env_and_sections_10f.py)
@@ -643,7 +643,7 @@ C6 会話招待の設計準拠(09-09): 「対象」欄で名指し → 被招待
   - `test_the_renderer_publishes_the_same_signage_set_it_draws`(関数)
   - `test_the_table_is_k_rows_of_16_bytes_with_empty_rows`(関数)
   - `test_visit_signage_and_place_entries_merge_into_one_row_per_thing`(関数)
-- import している内部モジュール: `shibuya.act.gate`・`shibuya.act.ops.shop`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.memory.familiarity`・`shibuya.mind.percept.attention`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/engine/test_intent_hold.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/golden_env.py`
+- import している内部モジュール: `shibuya.act.gate`・`shibuya.act.ops.shop`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.memory.familiarity`・`shibuya.mind.percept.attention`・`shibuya.mind.percept.draw`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/engine/test_intent_hold.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_stage3_small_fixes.py`・`tests/golden_env.py`
 - 決定の ID: 第 290・第 330
 
 ## [test_fleet_wiring.py](../../../../../../tests/engine/test_fleet_wiring.py)
@@ -719,7 +719,7 @@ C9 位置幾何(``engine.geometry``)の検収。
   - `test_result_codes_for_c9_exist_and_are_appended_at_the_end`(関数): G11: ``UNREACHABLE``(既存)と ``TARGET_GONE``(新設・末尾追加)。
   - `test_target_gone_is_written_and_rendered_like_any_other_failure`(関数): ``_fail`` に載る=描画まで通る(**発生させる側は C9b の領分**=ここでは口だけ検査)。
   - `test_unreachable_is_raised_when_the_next_hop_table_has_no_path`(関数): 次ホップが引けない体は ``stuck``(``resolve`` が ``UNREACHABLE`` を書く)。
-- import している内部モジュール: `shibuya.act.apply`・`shibuya.act.commit`・`shibuya.act.gate`・`shibuya.foundation.budget`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.laws.presence_plan`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.geometry`・`shibuya.world.model.state`・`tests/_time_gates.py`・`tests/engine/time/__init__.py`
+- import している内部モジュール: `shibuya.act.apply`・`shibuya.act.commit`・`shibuya.act.gate`・`shibuya.foundation.budget`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.run`・`shibuya.world.laws.presence_plan`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.geometry`・`shibuya.world.model.percept_scene`・`shibuya.world.model.state`・`tests/_time_gates.py`・`tests/engine/time/__init__.py`
 - 決定の ID: 第 288
 
 ## [test_intent_chooser.py](../../../../../../tests/engine/test_intent_chooser.py)
@@ -776,7 +776,7 @@ C9 位置幾何(``engine.geometry``)の検収。
   - `test_suppress_wakes_drops_cell_block_and_expiry_only_for_holders`(関数)
   - `test_too_far_is_a_new_code_with_text_and_options`(関数)
   - `test_too_far_stops_the_walk_and_writes_the_new_code`(関数)
-- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.apply`・`shibuya.act.commit`・`shibuya.act.gate`・`shibuya.act.intake.from_words`・`shibuya.act.intent`・`shibuya.act.ops.init_writes`・`shibuya.act.ops.intent_writes`・`shibuya.act.ops.rail`・`shibuya.act.ops.shop`・`shibuya.act.target`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.judge.chooser`・`shibuya.perception.renderer`・`shibuya.runtime.inference.mock`・`shibuya.runtime.run`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.agent_table`・`tests/engine/test_move_destination.py`
+- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.apply`・`shibuya.act.commit`・`shibuya.act.gate`・`shibuya.act.intake.from_words`・`shibuya.act.intent`・`shibuya.act.ops.init_writes`・`shibuya.act.ops.intent_writes`・`shibuya.act.ops.rail`・`shibuya.act.ops.shop`・`shibuya.act.target`・`shibuya.foundation.ports.inference`・`shibuya.foundation.text.percept_words`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.judge.chooser`・`shibuya.mind.percept.draw`・`shibuya.runtime.inference.mock`・`shibuya.runtime.run`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.agent_table`・`tests/engine/test_move_destination.py`
 - 読む試験: `tests/engine/test_familiarity.py`・`tests/engine/test_stage3_small_fixes.py`
 - 決定の ID: D-112・D-114・第 288
 
@@ -879,7 +879,7 @@ llm.mock のテスト(2行形・決定論・テープ再生)。
   - `test_three_meal_day_still_closes_to_zero_with_deferred_breakfast`(関数): 範囲外の体は METs=基準日の平均 → 1 日の消費=EER。3 食(比の和 1.0)なら収支 0。遅らせても同じ。
   - `test_w17_wake_minute_reads_the_sleep_row_and_chains_consecutive_rows`(関数)
   - `weekly`(関数): ``(体, 開始分, 終了分, 活動, 場所)`` の行 → 月曜(day 0)だけの週次表。
-- import している内部モジュール: `shibuya.act.ops.body_writes`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.system1.change_detect`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.body.energy`・`shibuya.world.facts.weekly_reader`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/engine/body/_hunger_v1.py`
+- import している内部モジュール: `shibuya.act.ops.body_writes`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.percept.draw`・`shibuya.mind.system1.change_detect`・`shibuya.runtime.run`・`shibuya.world.body.energy`・`shibuya.world.facts.weekly_reader`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/engine/body/_hunger_v1.py`
 
 ## [test_meal_gate_per_hour.py](../../../../../../tests/engine/test_meal_gate_per_hour.py)
 
@@ -925,7 +925,7 @@ llm.mock のテスト(2行形・決定論・テープ再生)。
   - `test_tape_v3_writes_recalled_rows_and_keeps_the_v2_columns_in_place`(関数)
   - `test_tau_cuts_old_rows`(関数)
   - `test_the_channel_keeps_the_whole_line_within_60_tokens`(関数)
-- import している内部モジュール: `shibuya.foundation.text.channels`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.memory.familiarity`・`shibuya.mind.memory.memory`・`shibuya.perception.renderer`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/golden_env.py`
+- import している内部モジュール: `shibuya.foundation.text.channels`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.memory.familiarity`・`shibuya.mind.memory.memory`・`shibuya.mind.percept.draw`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/golden_env.py`
 - 決定の ID: 第 295・第 330
 
 ## [test_memory_record.py](../../../../../../tests/engine/test_memory_record.py)
@@ -1220,7 +1220,7 @@ C10 8a: **関係辺の表と導出**(R1 (a)・M12 (a)・D-93 (a)(b)(c)(d)・R6�
   - `test_three_person_join_and_counters`(関数)
   - `test_writer_signs_from_result_codes_and_merges`(関数)
   - `weekly`(関数): 体ごとの (開始分, 終了分, セル) の行(全部 曜日 0=実資産と同じ 1 日ぶんの表)。
-- import している内部モジュール: `shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.relations`・`shibuya.interfaces.cli.main`・`shibuya.mind.memory.memory`・`shibuya.mind.relations.layer`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.society.conversation`・`shibuya.world.facts.initial_ties`・`shibuya.world.facts.weekly_reader`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/golden_env.py`
+- import している内部モジュール: `shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.relations`・`shibuya.interfaces.cli.main`・`shibuya.mind.memory.memory`・`shibuya.mind.percept.draw`・`shibuya.mind.relations.layer`・`shibuya.runtime.run`・`shibuya.society.conversation`・`shibuya.world.facts.initial_ties`・`shibuya.world.facts.weekly_reader`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`・`tests/golden_env.py`
 - 決定の ID: D-93・第 299・第 300・第 330・第 333
 
 ## [test_relations_8b.py](../../../../../../tests/engine/test_relations_8b.py)
@@ -1303,7 +1303,7 @@ C3 結線(レンダラ → bridge → run)の受入テスト。
   - `test_synthetic_world_has_no_static_noise_field`(関数)
   - `test_the_detector_hashes_exactly_the_rows_the_renderer_renders`(関数): 起床条件 (i) の欄=レンダラの ``b4_field_rows``(engine 側からの同一性検査)。
   - `test_world_and_perception_agree_on_the_w10_noise_stage`(関数): world 側(``assets.noise_stage_*``)と知覚側(``PerceptionAssets``)の集約が一致する。
-- import している内部モジュール: `shibuya.act.apply`・`shibuya.act.commit`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.system1.change_detect`・`shibuya.perception.renderer`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.scene_hash`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.act.apply`・`shibuya.act.commit`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.percept.draw`・`shibuya.mind.system1.change_detect`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.percept_scene`・`shibuya.world.model.scene_hash`・`shibuya.world.model.state`
 - 決定の ID: D-56
 
 ## [test_resolve.py](../../../../../../tests/engine/test_resolve.py)
@@ -1393,7 +1393,7 @@ engine.resolve のテスト: 行動契約書 §2.1 の 12 語(前提・効果・
   - `test_world_arms_resume_equals_straight`(関数)
   - `test_world_resume_equals_straight_at_every_tick`(関数)
   - `world_straight`(関数)
-- import している内部モジュール: `shibuya.act.ops.body_writes`・`shibuya.act.ops.init_writes`・`shibuya.act.target`・`shibuya.economy.ledger`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.rng`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.interfaces.cli.run_args`・`shibuya.mind.judge.classical`・`shibuya.perception.renderer`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.presence`・`shibuya.world.laws.runner`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/engine/_legacy_world.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_sim_time_T.py`・`tests/llm/test_fleet.py`
+- import している内部モジュール: `shibuya.act.ops.body_writes`・`shibuya.act.ops.init_writes`・`shibuya.act.target`・`shibuya.economy.ledger`・`shibuya.foundation.ports.ledger`・`shibuya.foundation.rng`・`shibuya.foundation.text.normalize`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.interfaces.cli.run_args`・`shibuya.mind.judge.classical`・`shibuya.mind.percept.draw`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`shibuya.runtime.state.ledger`・`shibuya.runtime.state.resume`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.goods_flow`・`shibuya.world.laws.presence`・`shibuya.world.laws.runner`・`shibuya.world.model.agent_table`・`shibuya.world.model.percept_scene`・`shibuya.world.model.state`・`tests/engine/_legacy_world.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_sim_time_T.py`・`tests/llm/test_fleet.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 環境変数: `os.environ` をまるごと使う
 - 決定の ID: 10-03/§3-6・11-01・11-02r/§1・11-02r/§1 #7・D-102・第 330・第 347
@@ -1494,7 +1494,7 @@ P3 ゲート: イベント処理スループット **≥10万イベント/秒**(
   - `test_start_date_moves_the_prompt_clock`(関数): 開始日を渡すとプロンプトの日付(世界内日時)がその日になる。渡さないランは今の日付のまま。
   - `test_tape_and_call_keys_use_T`(関数)
   - `test_tick_columns_can_hold_30_days_of_T`(関数)
-- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.ops.body_writes`・`shibuya.foundation.hashing`・`shibuya.foundation.ports.choice`・`shibuya.foundation.ports.inference`・`shibuya.foundation.types`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.judge.classical`・`shibuya.mind.judge.store_choice`・`shibuya.mind.ops`・`shibuya.mind.relations.layer`・`shibuya.mind.system1.wake`・`shibuya.perception.renderer`・`shibuya.runtime.arbiter`・`shibuya.runtime.inference.mock`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`・`shibuya.world.body.energy`・`shibuya.world.facts.calendar`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.runner`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/engine/test_calendar.py`
+- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.ops.body_writes`・`shibuya.foundation.hashing`・`shibuya.foundation.ports.choice`・`shibuya.foundation.ports.inference`・`shibuya.foundation.types`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.judge.classical`・`shibuya.mind.judge.store_choice`・`shibuya.mind.ops`・`shibuya.mind.percept.draw`・`shibuya.mind.relations.layer`・`shibuya.mind.system1.wake`・`shibuya.runtime.arbiter`・`shibuya.runtime.inference.mock`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`・`shibuya.world.body.energy`・`shibuya.world.facts.calendar`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.runner`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/engine/test_calendar.py`
 - 読む試験: `tests/engine/test_resume_10d.py`・`tests/engine/test_state_checks_10f.py`
 - 決定の ID: 10-03/§3-1・第 330
 
@@ -1533,7 +1533,7 @@ D-56 就寝抑止(ユーザー決定 (a)・2026-09-10)のテスト。
   - `test_the_engine_lookup_reads_the_w7_opening_matrix_q25`(関数)
   - `test_the_latest_kept_response_activity_is_restored_after_arrival_q24`(関数)
   - `test_the_resolver_records_the_immediate_named_closure_q25`(関数)
-- import している内部モジュール: `shibuya.act.gate`・`shibuya.act.ops.shop`・`shibuya.act.target`・`shibuya.foundation.text.channels`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.judge.chooser`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`tests/engine/test_intent_hold.py`・`tests/engine/test_move_destination.py`
+- import している内部モジュール: `shibuya.act.gate`・`shibuya.act.ops.shop`・`shibuya.act.target`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.percept_words`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.judge.chooser`・`shibuya.mind.percept.draw`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`tests/engine/test_intent_hold.py`・`tests/engine/test_move_destination.py`
 - 読む試験: `tests/engine/test_familiarity.py`
 - 決定の ID: 第 289
 
@@ -1682,7 +1682,7 @@ D-120 7c: **想起優先の候補合成**(N6 (a))・**到達可能性**(N7 (a))�
   - `test_store_item_templates_and_cap`(関数)
   - `test_store_rows_compete_with_episodes_in_recall_and_dedupe_by_store`(関数)
   - `world`(関数)
-- import している内部モジュール: `shibuya.act.target`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.judge.chooser`・`shibuya.mind.judge.store_choice`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.store_memory`・`shibuya.perception.renderer`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`
+- import している内部モジュール: `shibuya.act.target`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.main`・`shibuya.mind.judge.chooser`・`shibuya.mind.judge.store_choice`・`shibuya.mind.memory.memory`・`shibuya.mind.memory.store_memory`・`shibuya.mind.percept.draw`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/_places.py`
 - 決定の ID: D-120・第 298・第 333
 
 ## [test_store_memory.py](../../../../../../tests/engine/test_store_memory.py)
@@ -1788,7 +1788,7 @@ engine.llm_bridge の結線テスト(録画テープ・δ_think レーン・reco
   - `test_the_default_renderer_is_the_real_one`(関数): ``run_day`` の既定は本物の ``perception.renderer.Renderer``(C3 結線)。
   - `test_the_five_diagnostic_rows_exist`(関数)
   - `test_the_two_prompt_hashes_are_both_deterministic_and_different`(関数): ``BridgeResult.prompt_hash``(レンダラ blake3)と ``tape_prompt_hash``(テープ鍵)。
-- import している内部モジュール: `shibuya.perception.renderer`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.mock`・`shibuya.runtime.inference.tape`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.mind.percept.draw`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.mock`・`shibuya.runtime.inference.tape`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 - 読む試験: `tests/engine/processes/test_rng_scheme_10c.py`・`tests/engine/test_10a_review_fixes.py`・`tests/engine/test_activation_10e.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_version_bump_10e.py`・`tests/perception/facts/test_percept_is_scratch.py`
 - 決定の ID: D-56
 
@@ -1823,7 +1823,7 @@ engine.llm_bridge の結線テスト(録画テープ・δ_think レーン・reco
   - `test_wander_bad_target_fails_as_bad_target`(関数)
   - `test_wander_destinations_are_within_the_radius_and_deterministic`(関数)
   - `test_wander_run_walks_near_and_keeps_walking`(関数)
-- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.apply`・`shibuya.act.commit`・`shibuya.act.gate`・`shibuya.act.intake.from_words`・`shibuya.act.ops.body_writes`・`shibuya.act.ops.init_writes`・`shibuya.act.ops.move`・`shibuya.act.ops.shop`・`shibuya.foundation.hashing`・`shibuya.foundation.ports.inference`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.templates`・`shibuya.foundation.types`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.ops`・`shibuya.mind.system1.wake`・`shibuya.perception.renderer`・`shibuya.runtime.arbiter`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.weekly_reader`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/golden_env.py`
+- import している内部モジュール: `shibuya.act.activity`・`shibuya.act.apply`・`shibuya.act.commit`・`shibuya.act.gate`・`shibuya.act.intake.from_words`・`shibuya.act.ops.body_writes`・`shibuya.act.ops.init_writes`・`shibuya.act.ops.move`・`shibuya.act.ops.shop`・`shibuya.foundation.hashing`・`shibuya.foundation.ports.inference`・`shibuya.foundation.text.channels`・`shibuya.foundation.text.percept_words`・`shibuya.foundation.text.templates`・`shibuya.foundation.types`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.ops`・`shibuya.mind.percept.draw`・`shibuya.mind.system1.wake`・`shibuya.runtime.arbiter`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.result`・`shibuya.runtime.run`・`shibuya.world.facts.mock_schedule`・`shibuya.world.facts.weekly_reader`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/golden_env.py`
 - 決定の ID: D-116・第 275・第 276・第 330
 
 ## [test_two_phase.py](../../../../../../tests/engine/test_two_phase.py)
@@ -1947,7 +1947,7 @@ engine.llm_bridge の結線テスト(録画テープ・δ_think レーン・reco
   - `test_b6_recomputed_heat_and_sun_equal_w13_when_the_dates_match`(関数): 実資産の 35 日すべて: 暦の日付=再生日なら、計算し直した WBGT・暑さ段・日の出・日の入りが W13 の値と同じ。
   - `test_b6_shadow_comes_from_the_calendar_date_or_the_nearest_with_a_warning`(関数)
   - `test_b6_solar_formulas_equal_the_build_stage`(関数)
-- import している内部モジュール: `shibuya.build.field.w13_weather`・`shibuya.build.geo.common`・`shibuya.foundation.text.normalize`・`shibuya.interfaces.cli.main`・`shibuya.perception.renderer`・`shibuya.world.facts.calendar`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.environment`・`shibuya.world.laws.runner`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.solar`・`shibuya.world.model.state`
+- import している内部モジュール: `shibuya.build.field.w13_weather`・`shibuya.build.geo.common`・`shibuya.foundation.text.normalize`・`shibuya.interfaces.cli.main`・`shibuya.mind.percept.draw`・`shibuya.world.facts.calendar`・`shibuya.world.facts.mock_schedule`・`shibuya.world.laws.environment`・`shibuya.world.laws.runner`・`shibuya.world.model.agent_table`・`shibuya.world.model.assets`・`shibuya.world.model.percept_scene`・`shibuya.world.model.solar`・`shibuya.world.model.state`
 - 決定の ID: 第 330
 
 ## [test_wom.py](../../../../../../tests/engine/test_wom.py)

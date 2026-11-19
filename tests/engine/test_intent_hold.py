@@ -55,13 +55,15 @@ from shibuya.foundation.ports.inference import LLMRequest
 from shibuya.foundation.vocab.actions import ACTION_CODES, UntilKind, parse_target
 from shibuya.runtime.inference.mock import MockLLM
 # 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
-from shibuya.perception.renderer import (
+from shibuya.mind.percept.draw import (
     INTENT_ACTION_WORDS,
     INTENT_BED_WORD,
-    INTENT_LINE_MAX_TOKENS,
     RESULT_OPTIONS,
     RESULT_OPTIONS_V3,
     Renderer,
+)
+from shibuya.foundation.text.percept_words import (
+    INTENT_LINE_MAX_TOKENS,
     intent_line,
     person_word,
 )
