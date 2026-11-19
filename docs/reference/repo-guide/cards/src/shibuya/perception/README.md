@@ -15,9 +15,11 @@ Python 2 本・その他 0 本(このディレクトリの直下)
 perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚契約書 §2)。
 
 - 公開の関数とクラス
+  - `PerceptScene`(クラス): 知覚の場面(世界の側=前計算・知覚の事実を作る)。
   - `PerceptionAssets`(クラス): 描画に要る静的資産(セル代表点からの可視物・名称・歩行可能面積・天候表)。
   - `Rendered`(クラス): 1 起床ぶんの描画結果。
   - `Renderer`(クラス): 観測レンダラ(1 起床=1 呼び出し)。
+  - `SignageNotice`(クラス): 看板に気づく側(注視の抽選と看板の文)。
   - `acquaintance_ids_in`(関数): 10e(E5・A8): B5 の本文に「(知人)」の印つきで出た相手の体 id(出た順・重複なし)=テープ版 4 の列。
   - `activity_line`(関数): 活動の (文, 人数) の列(人数降順→文字列順・上位 2)→ B4b の 1 行(無ければ ``""``)。
   - `check_hunger_words`(関数)
@@ -42,4 +44,6 @@ perception.renderer — 観測レコード → B0-B6 の決定論描画(知覚�
     - `O63` PerceptionRenderer のキャッシュ _b1_cache〜_b4_cache・_rank_cell_cache・_acq_cache・_tickc(挙動 no・復元 derivable) 道筋 `renderer._acq_cache`・`renderer._b1_cache`・`renderer._b2_cache`・`renderer._b3_cache`・`renderer._b4_cache`・`renderer._rank_cell_cache`・`renderer._tickc` 書ける系: decide・perceive_prepare・world
     - `O64` PerceptionRenderer の口 acquaintance_fn・memory_recall・session_partner_fn・named_closed_lookup・signage_exposures(挙動 no・復元 discardable) 道筋 `renderer.acquaintance_fn`・`renderer.memory_recall`・`renderer.named_closed_lookup`・`renderer.session_partner_fn`・`renderer.signage_exposures` 書ける系: decide・memory
     - `O84` PerceptionRenderer の計数(挙動 diag・復元 discardable) 道筋 `renderer.cache_hits`・`renderer.cache_misses`・`renderer.contact_lines`・`renderer.contact_lines_over_budget`・`renderer.contact_unnoticed_renders`・`renderer.intent_lines`・`renderer.intent_lines_over_budget`・`renderer.memory_items`・`renderer.memory_items_dropped_for_budget`・`renderer.memory_items_dropped_for_channel`・`renderer.memory_line_tokens`・`renderer.memory_lines`・`renderer.memory_lines_over_budget`・`renderer.named_closed_notes`・`renderer.near_order_ties`・`renderer.near_tie_breaks`・`renderer.near_tie_candidates`・`renderer.renders`・`renderer.signage_gate_draws`・`renderer.signage_gate_shown`・`renderer.speech_lines`・`renderer.speech_lines_over_budget`・`renderer.truncation_count` 書ける系: decide・perceive_prepare
+  - 持ち主 `renderer` の別のクラス `PerceptScene`(行は `shibuya.perception.renderer` のカードを見る)
+  - 持ち主 `renderer` の別のクラス `SignageNotice`(行は `shibuya.perception.renderer` のカードを見る)
 - 決定の ID: 10-12/§1-6・10-12/§1-13・11-03・D-59・D-60・D-71・D-111・D-113・D-117・D-118・第 269・第 300・第 304・第 347

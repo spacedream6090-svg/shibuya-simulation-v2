@@ -1122,126 +1122,22 @@ def check_near_tiebreak(mode: str) -> str:
     return str(mode)
 
 
-class Renderer:
-    """観測レンダラ(1 起床=1 呼び出し)。
+class PerceptScene:
+    """知覚の場面(世界の側=前計算・知覚の事実を作る)。"""
 
-    Example:
-        >>> from shibuya.world.state import World
-        >>> from shibuya.agents.state import AgentState
-        >>> w = World.synthetic(n_cells=9, seed=1)
-        >>> a = AgentState(4)
-        >>> a.cell[:] = 0
-        >>> r = Renderer(w, a, seed=7)
-        >>> out = r.render(0, tick=750, wake_reason=3)
-        >>> out.text.splitlines()[0].startswith("あなたは渋谷の街にいる")
-        True
-    """
-
-    def __init__(
-        self,
-        world: World,
-        agents: AgentState,
-        assets: PerceptionAssets | None = None,
-        clock_fn: Callable[[int], datetime] | None = None,
-        seed: int | str = 0,
-        *,
-        acquaintances: Mapping[int, Sequence[int]] | None = None,
-        watched_by: np.ndarray | None = None,
-        budget_mode: ch.BudgetMode | str = ch.BudgetMode.FIXED_SLOTS,
-        strict_group_budget: bool = True,
-        signage_enabled: bool = True,
-        signage_p_see: float = SIGNAGE_P_SEE_DEFAULT,
-        intent_mode: str = T.DEFAULT_INTENT_MODE,
-        vocab_version: str = T.DEFAULT_VOCAB_VERSION,
-        role_words: bool | str = False,
-        near_tiebreak: str = DEFAULT_NEAR_TIEBREAK,
-        near_salt: bytes | None = None,
-        near_order: str = DEFAULT_NEAR_ORDER,
-        hunger_words: str = DEFAULT_HUNGER_WORDS,
-        day_kind_fn: Callable[[int], str] | None = None,
-    ) -> None:
-        """
-        Args:
-            world: 世界状態(セル密度・騒音段・POI 営業)。
-            agents: 個体 SoA。
-            assets: 知覚側資産。None なら ``PerceptionAssets.synthetic(world)``。
-            clock_fn: tick → 世界内日時。None なら ``DEFAULT_START_DATETIME + tick 分``。
-            seed: 乱数のマスターシード(注意ゲートの抽選に使う)。
-            acquaintances: 個体 → 知人の agent_id(§3 人物④「知人は常に掲載」)。
-            watched_by: ``(n,)`` 被注視人数(T2 の転置。None なら 0)。
-            budget_mode: §3.2 の義務 ablation の切替(``ch.BudgetMode`` か
-                ``"fixed"``/``"ranking"``)。既定=固定枠(現行の描画)。
-            strict_group_budget: True でグループ予算超過を例外にする(既定)。
-            signage_enabled: 看板・広告面(B2.signage)を描くか。知覚契約書 §8 第1陣 **⑥
-                「広告ゼロ」**の切替口。``False`` で W14 凍結文も合成文も載せず、全セルで
-                ``B2.signage_empty``(=「見える表示はありません」)にする。既定 True=
-                現行の描画で**1 バイトも変わらない**。テンプレ本体は触らないので
-                ``template_sha256`` は不変・規約⑧(セルの情報しか使わない)も不変。
-            signage_p_see: **看板の注視ゲート**(知覚契約書 §4 段1 の視認確率 p_see・
-                D-59 (b) ユーザー決定 2026-09-17)。在圏セルの看板行を観測へ入れるかを
-                **体×看板×tick の決定論的ベルヌーイ**で決める。既定 1.0=常に入れる
-                =**現行のバイトで 1 バイトも変わらない**(抽選も引かない)。0.0 で
-                全員・全 tick 落ちる(=⑥ 広告ゼロと同じ描画)。抽選は
-                ``attention.gate_stage1``(``core.rng`` の Philox・ドメイン
-                ``perception.attention.p_see``・カウンタ ``(tick, agent_id, poi_id)``)
-                なので、同じ seed・同じ tick・同じ体・同じ看板は常に同じ結果
-                (テープから再現できる)。**看板の無いセルでは抽選を引かない**
-                (描画が変わらないため)。落ちた看板行は ``B2.signage_empty`` になり、
-                **空いた枠は他のチャネルへ回らない**(固定枠。枠の再配分は D-60 の別議論。
-                ただし ``budget_mode='ranking'`` は池を分け合う設計なので ⑥ と同じく
-                他チャネルが空きを取りうる)。
-                注: 1.0 未満では **§2.4 ⑧「同セル同時間帯の 2 体で B0-B4b バイト一致」が
-                成り立たない**(注視は体ごとの事象だから)。同一セルの B2 は
-                **看板あり/なしの 2 変種**に分かれる=共有 prefix の断片化は高々 2 倍。
-            intent_mode: **AB7 自由意図の腕**の切替口(``"vocab"`` | ``"open"`` | ``"hint"``)。
-                ``"open"`` で B0 の出力規約を ``templates.OUTPUT_SPEC_OPEN``(``行動:`` の
-                1 行だけが「いま自分がしたいことを10字以内の動詞句で」)に差し替える。
-                ``"hint"``(AB7b)は ``templates.OUTPUT_SPEC_HINT``= 語彙を例として見せた
-                まま「当てはまる語が無いときだけ 10 字以内の動詞句で」を許す中間の腕。
-                既定 ``"vocab"`` は現行の 24 語ホワイトリスト提示=**1 バイトも変わらない**。
-                テンプレ本体(``TEMPLATES``)は触らないので ``template_sha256`` も不変。
-                仕様書 ``docs/design/v2-open-intent-arm-spec.md`` §2。
-            vocab_version: **行動語彙の版**(D-71 §3 F・``"v1"`` | ``"v2"``)。``"v2"`` で
-                B0 の出力規約に 13 語目「食事」が載る(``templates.OUTPUT_SPEC_V2``)。
-                既定 ``"v1"`` は現行の 24 語提示=**1 バイトも変わらない**。``"open"`` 腕は
-                語彙を見せないので v1/v2 で B0 は同一(差は段0 辞書とエンジン側)。
-            near_tiebreak: B5 近接行の**距離の同点**の切り方(第300 Q107)。``"hash"``(既定)= 同点を
-                ``near_salt`` の決定論ハッシュ(観る体 × 相手)で撹拌 / ``"id"`` = 旧挙動(セル内の並び=
-                行番号の順)。**文面・並び(id 昇順)は変えない**=採る人だけ。同点が k 人目の境で起きない
-                描画は両方で同じ。
-            near_salt: 撹拌の salt(``engine.run`` は run_salt を渡す)。``None`` なら ``seed`` から
-                ``engine.run.run_salt_for`` と同じ式で作る。
-            near_order: B5 近接行の**並び**(第304 Q130)。``"distance"``(既定)= 距離の昇順・同点は
-                ``near_tiebreak`` の順 / ``"id"`` = 旧挙動(行番号の昇順)。焦点は両方で先頭。文面は変えない。
-            day_kind_fn: 第 1 期 1-2: 通しの刻みの番号 → 暦の日の種類(``Percept.time_view.day_kind``。組み立てが暦の
-                ``SimCalendar.day_kind`` を渡す)。``None`` なら日の種類は空(None)。描画の文は読まない=バイトは変わらない。
-        """
+    def __init__(self, world, agents, assets, clock_fn, seed, *, acquaintances, watched_by, signage_enabled,
+                 near_tiebreak, near_salt, near_order, day_kind_fn) -> None:
+        """世界の側の欄を置く。"""
         self.world = world
         self.agents = agents
         self.assets = assets if assets is not None else PerceptionAssets.synthetic(world)
         self.clock_fn = clock_fn or (lambda t: DEFAULT_START_DATETIME + timedelta(minutes=int(t)))
-        self.seed = seed
         self.acquaintances = dict(acquaintances or {})
         self.watched_by = watched_by
-        self.budget_mode = ch.BudgetMode.parse(budget_mode)
-        self.strict_group_budget = strict_group_budget
         self.signage_enabled = bool(signage_enabled)
-        self.signage_p_see = check_signage_p_see(signage_p_see)
         #: 記憶 第 1 段 6b: 想起の口 ``(体, tick, 起床条件, 招待者) → [RecallItem…]``(``engine.run`` が
         #: ``--memory on`` のランだけ差し込む)。``None``(既定)=記憶の行を描かない=1 バイトも変わらない。
         self.memory_recall: Callable[[int, int, int, int], Sequence[object]] | None = None
-        #: 6b の計数(記憶の行を載せた描画・想起の件数・行の tok・予算で削った/載せなかった)。
-        self.memory_lines = 0
-        self.memory_items = 0
-        self.memory_line_tokens: dict[int, int] = {}
-        self.memory_items_dropped_for_budget = 0
-        self.memory_items_dropped_for_channel = 0
-        self.memory_lines_over_budget = 0
-        self.intent_mode = T.check_intent_mode(intent_mode)
-        self.vocab_version = T.check_vocab_version(vocab_version)
-        #: D-113 ④(第269): B0 の末尾に役割語の 1 行を足すか。レンダラの既定は False(描画バイトの
-        #: 凍結を保つ)。**ランの既定は True**(``engine.run.run_day(role_words=True)``)。
-        self.role_words = T.check_role_words(role_words)
         #: 小さいもの①(第300 Q107): 近接行の距離の同点の切り方と、撹拌の salt(u64)。
         self.near_tiebreak = check_near_tiebreak(near_tiebreak)
         self.near_order = check_near_order(near_order)
@@ -1256,14 +1152,6 @@ class Renderer:
         self.near_tie_candidates = 0
 
         self._tickc = _TickCache()
-        # 既定(vocab × v1)は ``TEMPLATES["B0.system"]`` と同一文字列=描画バイト不変
-        # (AB7・語彙 v2)。
-        self._b0 = N.canonical_whitespace(
-            T.b0_system(self.intent_mode, self.vocab_version, self.role_words)
-        ).encode("utf-8")
-        self._b4b = N.canonical_whitespace(
-            T.TEMPLATES["B4b.near_empty"]
-        ).encode("utf-8")
         #: **注意の焦点**の欄(C9b G4)。``attention_columns`` のランだけ在る配列を 1 度だけ
         #: 掴む(``AgentState`` の配列は freeze/thaw で差し替わらない)。``None``= 焦点の無い
         #: ラン=**B5 の描画は 1 バイトも変わらない**。
@@ -1272,14 +1160,6 @@ class Renderer:
         self._focus_target: np.ndarray | None = (
             agents.focus_target if getattr(agents, "attention_columns", False) else None
         )
-        #: **5 段目 5a(D-118 K2)**: 空腹を**語**で描くか(``energy_columns`` のラン=
-        #: ``--hunger-model energy``)。``hunger`` はそのランでは語の段の写し(1/5/8/10)なので、
-        #: 数値の代わりに ``T.HUNGER_WORDS`` の語を ``T.HUNGER_WORD_DRAW_MIN_STAGE`` 以上だけ描く。
-        #: 欄の無いラン(v1)は従来の「空腹はNで閾値を超えています。」=**1 バイトも変わらない**。
-        self._hunger_words: bool = bool(getattr(agents, "energy_columns", False))
-        #: 第2波 §2B 項 3: 描く最小の段(``hungry``=None=旧の定数 / ``all``=0)。
-        self.hunger_words: str = check_hunger_words(hunger_words)
-        self._hunger_min_stage: int | None = 0 if self.hunger_words == "all" else None
         #: C10 8a: 関係辺の知人の口 ``(体, tick) → 相手の配列``(``--relations on`` のランだけ・既定 None=
         #: 構築時の ``acquaintances``=空=1 バイトも変わらない)。
         self.acquaintance_fn: Callable[[int, int], Sequence[int]] | None = None
@@ -1287,26 +1167,9 @@ class Renderer:
         self.session_partner_fn: Callable[[int], Sequence[int]] | None = None
         #: 個体 → (知人の集合, 知人の id 配列)。**構築時に固定**なので 1 度作れば使い回せる(C7)。
         self._acq_cache: dict[int, tuple[frozenset[int], np.ndarray]] = {}
-        self._b1_cache: dict[int, bytes] = {}
-        #: 鍵は ``(セル, 看板を見たか)``。既定(p_see 1.0)は第2要素が常に True=
-        #: セルだけで引くのと同じ(命中率も同じ)。
-        self._b2_cache: dict[tuple[int, bool], bytes] = {}
         #: 10d: 鍵は ``(世界内の日付, 5 分帯)``(5 分帯だけだと複数日のランで 0 日目の天候の行を 2 日目も使い回す)。
         #: 第 1 期 1-2: 値は描いた文ではなく(天候, 日照, 暑さ)の語(文は刻みの中だけ ``_TickCache.b3_text`` で引く)。
         self._b3_cache: dict[tuple, tuple[str, str, str]] = {}
-        self._b4_cache: dict[tuple[int, int], bytes] = {}
-        #: ablation ①(単一ランキング)のセル依存ブロック。B2 が B4 と同じ池を分けるので
-        #: 鍵は ``(セル, B4 欄ハッシュ)``(固定枠の ``_b2_cache`` はセルだけ)。
-        self._rank_cell_cache: dict[
-            tuple[int, int, bool], tuple[dict[str, bytes], tuple[ch.TruncationReport, ...]]
-        ] = {}
-        self.cache_hits = 0
-        self.cache_misses = 0
-        self.renders = 0
-        self.truncation_count = 0
-        #: 段 2c: 意図の 1 行を載せた回数 / 個体群の予算で載せなかった回数。
-        self.intent_lines = 0
-        self.intent_lines_over_budget = 0
         #: 段 2c Q25: 名指しの即時閉店の補足(体 → (POI, 失敗の tick, 開店の分))。``engine.run`` が
         #: 意図の層のあるランだけ差し込む(``None``=従来どおり=描画は 1 バイトも変わらない)。
         self.named_closed_lookup: Callable[[int], tuple[int, int, int] | None] | None = None
@@ -1327,29 +1190,13 @@ class Renderer:
         #: 4 段目(M17 露出): 看板行が載った (体, POI) の控え(``engine.run`` が tick ごとに取り出す)。
         #: ``None``=控えない(既定)。
         self.signage_exposures: list[tuple[int, int]] | None = None
-        #: 注視ゲートの抽選回数(看板のあるセルで p_see<1.0 のときだけ増える)。
-        self.signage_gate_draws = 0
-        #: そのうち**通った**(看板行を載せた)回数。既定のランでは 0/0。
-        self.signage_gate_shown = 0
         #: 〔第 1 期 1-8b 発話の口〕届いた発話を受け取る口 ``(体, 刻みの番号) → ((目印, 話し手, 本文), …)``(組み立てが腕 on の
         #: ランだけ ``SpeechPort.take_heard`` を差し込む=呼ぶと未読から外れる)。``None``(既定)=``Percept.heard_speech`` は
         #: None のまま=描画は 1 バイトも変わらない。
         self.heard_fn: Callable[[int, int], Sequence[tuple[tuple[int, int], int, str]]] | None = None
-        #: 〔1-8b 検収 低8〕B6 に実際に載せた発話を口へ報告する口 ``(体, 載せた目印, 本文が空(全部が命令文)の数, 予算で外した数)``
-        #: (組み立てが腕 on のランだけ ``SpeechPort.report_shown`` を差し込む・``None``=報告しない)。
-        self.heard_seen_fn: Callable[[int, tuple[tuple[int, int], ...], int, int], None] | None = None
-        #: 〔1-8b〕会話の番の呼び出しの B6 に出力の欄の指示(``SPEECH_FIELD_LINE``)を足すか(腕 on・語彙 v3 のランだけ真)。
-        self.speech_field = False
-        #: 〔1-8b〕B6 に足した発話の行(届いた発話と出力の欄の指示)の数 / 個体群の予算 300 を超えるので外した描画の数。
-        self.speech_lines = 0
-        self.speech_lines_over_budget = 0
         #: 〔第 6 期 6-4 C1〕連絡の道具の口 ``Percept → Percept``(組み立てが腕 c1 のランだけ ``ContactLayer.percept_hook`` を
         #: 差し込む=目と心の向き・道具の状態を知覚の事実に入れる)。``None``(既定)=描画は 1 バイトも変わらない。
         self.contact_fn: Callable[[Percept], Percept] | None = None
-        #: 〔6-4 C1〕B6 に足した連絡の行の数 / 個体群の予算で外した描画の数 / 割り込めなかった周りの出来事のあった描画の数。
-        self.contact_lines = 0
-        self.contact_lines_over_budget = 0
-        self.contact_unnoticed_renders = 0
 
     # ---------------------------------------------------------- 前計算(1 tick 1 回)
     def prepare_tick(
@@ -1465,47 +1312,6 @@ class Renderer:
         「(i) が鳴らないのに文面が変わる」取りこぼしが構造的に 0 になる(§2.2/§5 の三役)。
         """
         return self._tickc.b4_field_rows
-
-    # ---------------------------------------------------------- 本体
-    def render(
-        self,
-        agent_id: int,
-        tick: int,
-        wake_reason: int | str = 3,
-        last_result: int | None = None,
-        last_action: str | None = None,
-        inviter: int | None = None,
-    ) -> Rendered:
-        """1 個体・1 起床ぶんの観測を描画する(第 1 期 1-2: 状態 → ``Percept``=``perceive`` → 文=``render_percept``)。
-
-        Args:
-            agent_id: 起床した個体。
-            tick: 起床 tick。
-            wake_reason: ``agents.state.WakeCondition`` の値、または文言そのもの。
-            last_result: ``ResultCode``(None なら ``agents.last_result`` を読む)。
-            last_action: 直前に**試みた**行動語(None なら ``agents.activity`` で代用)。
-                C2 の SoA は「直前に試みた行動」を持たない(``activity`` は現在の状態)ので、
-                正確な文面には engine 側からの受け渡しが要る(親への hook 要求)。
-            inviter: **招待者の個体 id**(§6 起床(ii) 被招待。招待が無ければ None か負値)。
-                与えると B6 起床行が ``INVITE_REASON``(招待者を名指す文)に替わる。
-                ``wake_reason`` より優先する(被招待は起床理由そのものだから)。
-
-        Returns:
-            描画の結果(``Rendered.percept`` に描いた ``Percept``)。
-
-        Note:
-            逐次ループ宣言(P4)1: **1 起床につき 1 回**。個体数ぶんのループは持たない。
-        """
-        if self._tickc.tick != int(tick):
-            # 〔段 5-1b 検収 L4〕前計算の無い刻みの道は ``los_stage`` を渡さない=nav1 のランでここを通ると B4 の密度の段が前の式
-            # (density ÷ 歩ける面積)になる。今の回り方(毎刻み perceive_prepare が前計算する)では通らない(単体の描画と試験の道だけ)
-            self.prepare_tick(int(tick))
-        hits0, misses0 = self.cache_hits, self.cache_misses
-        p = self.perceive(
-            agent_id, tick, wake_reason=wake_reason, last_result=last_result, last_action=last_action,
-            inviter=inviter,
-        )
-        return self._render_percept(p, hits0, misses0)
 
     # ---------------------------------------------------------- 第 1 期 1-2: 状態 → 知覚の事実
     def perceive(
@@ -1690,221 +1496,6 @@ class Renderer:
             tc.time_views[key] = tv
         return tv
 
-    # ---------------------------------------------------------- 第 1 期 1-2: 知覚の事実 → 文(B0〜B6)
-    def render_percept(self, p: Percept) -> Rendered:
-        """知覚の事実 → B0〜B6(文の描き方)。``p`` は今の刻みの物だけ(刻みの外で残らない=違えば ``ValueError``)。
-
-        描く側が引くのは ``p`` と、テンプレ・知覚の静的資産(名・帯・凍結文・店の営業時間)・キャッシュ(セルと刻みで
-        決まる事実を描いた文)だけ。個体 SoA・世界の動く状態・層の口は読まない(B4b の文は ``prepare_tick`` が描いた物を
-        セルで引く=記録の残した直接読み)。
-        """
-        return self._render_percept(p, self.cache_hits, self.cache_misses)
-
-    def draw(self, p: Percept) -> str:
-        """``facts.PerceptDrawing`` の口: 知覚の事実 → 本文(B0〜B6 を LF でつないだ物=``Rendered.text``)。"""
-        return self.render_percept(p).text
-
-    def _render_percept(self, p: Percept, hits0: int, misses0: int) -> Rendered:
-        tc = self._tickc
-        if int(p.step) != int(tc.tick):
-            raise ValueError(
-                f"Percept は刻みの中だけの物(描く刻み {tc.tick}・Percept の刻み {p.step}): 刻みをまたいで描かない"
-            )
-        i = int(p.agent_id)
-        cell = int(p.cell)
-        seen = bool(p.signage_shown)
-        blocks: "OrderedDict[str, bytes]" = OrderedDict()
-        trunc: list[ch.TruncationReport] = []
-        ranking = self.budget_mode is ch.BudgetMode.SINGLE_RANKING
-        # ablation ①: セル依存(B2/B4/B4b)は**1 本の池**なので 3 ブロックを一緒に組む。
-        cellb = self._cell_blocks_ranked(p.scene, trunc, seen) if ranking else None
-        b6 = self._b6(p)
-        blocks["B0"] = self._b0
-        blocks["B1"] = self._b1(p.self_view.kind)
-        blocks["B2"] = cellb["B2"] if cellb is not None else self._b2(cell, trunc, seen)
-        blocks["B3"] = self._draw_b3(p.time_view)
-        blocks["B4"] = cellb["B4"] if cellb is not None else self._draw_b4(p.scene, trunc)
-        blocks["B4b"] = cellb["B4b"] if cellb is not None else tc.b4b.get(cell, self._b4b)
-        blocks["B5"] = (
-            self._b5_ranked(p, trunc, ch.estimate_tokens(b6.decode("utf-8")))
-            if ranking
-            else self._b5(p, trunc)
-        )
-        # 段 2c: 意図を持つ体だけ B5 に「いま <行為> のため <対象> へ向かっている」の 1 行
-        blocks["B5"] = self._with_intent_line(p, blocks["B5"], b6)
-        # 記憶 第 1 段 6b: 想起した記憶を B5 の**最後**に 1 行(on のランだけ・0 件なら出さない)
-        recalled: tuple[int, ...] = ()
-        recalled_meta: tuple[tuple[int, int, int], ...] = ()
-        if p.memories is not None:
-            blocks["B5"], recalled, recalled_meta = self._with_memory_line(p, blocks["B5"], b6)
-        if p.heard_speech or self.speech_field:  # 第 1 期 1-8b(腕 on のランだけ): 発話の行は B5 を組んだ後に足す
-            b6 = self._with_speech_lines(p, blocks["B5"], b6)
-        blocks["B6"] = b6
-        if self.contact_fn is not None:  # 〔第 6 期 6-4 C1〕腕 c1 のランだけ: 周辺視・割り込めなかった出来事・連絡の行
-            self._contact_blocks(p, blocks, trunc)
-
-        # §2.4 ⑧: B0-B4b に個体依存語が無いこと(機械検査)
-        shared_ids = [b for b in T.BLOCK_IDS if b not in ("B5", "B6")]
-        shared = b"\n".join(blocks[b] for b in shared_ids)
-        N.assert_no_agent_dependent_words(shared.decode("utf-8"))
-        # §2.4 ⑥: 列挙ブロックに省略記法が無いこと(層2指摘で描画経路に結線)。
-        # B2 は OSM 由来の固有名詞(「…等」を含む店名)が乗るため対象外=テンプレ側の列挙構造にのみ課す(expedient・登録簿)。
-        for b in ("B4", "B4b", "B5"):
-            N.assert_no_abbreviation(blocks[b].decode("utf-8"), b)
-
-        tokens = {b: ch.estimate_tokens(blocks[b].decode("utf-8")) for b in T.BLOCK_IDS}
-        groups: dict[str, int] = {"shared_static": 0, "cell": 0, "individual": 0}
-        for b, t in tokens.items():
-            groups[T.BLOCK_GROUP[b]] += t
-        if self.strict_group_budget:
-            for g, v in groups.items():
-                if v > T.GROUP_TOKEN_BUDGET[g]:
-                    raise ValueError(
-                        f"§2.2 予算超過: グループ {g} が {v} tok(上限 {T.GROUP_TOKEN_BUDGET[g]})"
-                    )
-
-        bh = {b: H.block_hash(blocks[b]) for b in T.BLOCK_IDS}
-        text = "\n".join(blocks[b].decode("utf-8") for b in T.BLOCK_IDS)
-        self.renders += 1
-        self.truncation_count += sum(1 for r in trunc if r.truncated)
-        return Rendered(
-            agent_id=i,
-            tick=int(p.step),
-            blocks=blocks,
-            text=text,
-            block_hashes=bh,
-            prefix_key=H.prefix_key([bh[b] for b in shared_ids], shared_ids),  # 共有 prefix(B0-B4b)のみ=§5
-            prompt_hash=blake3_hex(b"\n".join(blocks[b] for b in T.BLOCK_IDS)),
-            tokens_est=tokens,
-            group_tokens=groups,
-            truncations=tuple(trunc),
-            recalled_rows=recalled,
-            recalled_first_tick=tuple(m[0] for m in recalled_meta),
-            recalled_kind=tuple(m[1] for m in recalled_meta),
-            recalled_object=tuple(m[2] for m in recalled_meta),
-            acquaintance_ids=acquaintance_ids_in(blocks["B5"]),
-            cache_hits=self.cache_hits - hits0,
-            cache_misses=self.cache_misses - misses0,
-            percept=p,
-        )
-
-    # ---------------------------------------------------------- 各ブロック
-    def _b1(self, kind: int) -> bytes:
-        got = self._b1_cache.get(kind)
-        if got is not None:
-            self.cache_hits += 1
-            return got
-        self.cache_misses += 1
-        word = T.KIND_WORDS[kind] if 0 <= kind < len(T.KIND_WORDS) else T.KIND_WORDS[1]
-        out = N.canonical_whitespace(T.TEMPLATES["B1.kind"].format(kind=word)).encode("utf-8")
-        self._b1_cache[kind] = out
-        return out
-
-    def _b2(
-        self, cell: int, trunc: list[ch.TruncationReport], shown: bool = True
-    ) -> bytes:
-        """B2(地物)。``shown=False``= **この体のこの tick は看板を見なかった**
-        (D-59 (b) の注視ゲート)。既定 True=現行の描画。
-        """
-        got = self._b2_cache.get((cell, shown))
-        if got is not None:
-            self.cache_hits += 1
-            return got
-        self.cache_misses += 1
-        A = self.assets
-        lines: list[str] = []
-        if 0 <= cell < A.n_cells:
-            band = int(self.world.assets.cell_band[cell])
-            lines.append(
-                T.TEMPLATES["B2.place"].format(
-                    place_id=A.place_ids[cell], band=T.BAND_WORDS.get(band, "地上")
-                )
-            )
-            ground = T.GROUND_WORDS.get(band, T.GROUND_WORDS[0]) if bool(
-                A.has_street[cell]
-            ) else T.GROUND_NO_STREET
-            kept, rep = ch.truncate_lines([ground], "B2.ground")
-            trunc.append(rep)
-            if kept:
-                lines.append(T.TEMPLATES["B2.ground"].format(ground=kept[0]))
-            # 可視物: **W15 の凍結セル静的文が在ればそれ**・無ければ合成の可視物リスト。
-            # 凍結文は ``B2.visible`` の枠(§3.2・60 tok)を占める(生成側の上限は 45 tok=
-            # B2 予算 150 − 実資産での他行最大。枠を超えた文は切り詰めで落ち合成文へ戻る)。
-            # テンプレは変えない。
-            static = self._visible_static(cell)
-            used_static = False
-            if static:
-                kept, rep = ch.truncate_lines([static], "B2.visible")
-                trunc.append(rep)
-                if kept:
-                    lines.append(T.TEMPLATES["B2.visible"].format(items=kept[0]))
-                    used_static = True
-            if not used_static:
-                # 可視物 上位3(可視視点数の降順→ID 昇順は資産側で確定済み)
-                names = self._visible_names(cell)
-                kept, rep = ch.truncate_lines(names, "B2.visible")
-                trunc.append(rep)
-                lines.append(
-                    T.TEMPLATES["B2.visible"].format(items=N.LIST_SEPARATOR.join(kept))
-                    if kept
-                    else T.TEMPLATES["B2.visible_empty"]
-                )
-            # 看板(a)=店舗基本属性 1 件(素性タグは凍結テンプレ側・命令文除去を掛ける)
-            lines.append(self._signage(cell, shown))
-            # 地物・ランドマーク・出口
-            kept, rep = ch.truncate_lines(list(A.visible_landmark[cell]), "B2.landmark")
-            trunc.append(rep)
-            lines.append(
-                T.TEMPLATES["B2.landmark"].format(items=N.LIST_SEPARATOR.join(kept))
-                if kept
-                else T.TEMPLATES["B2.landmark_empty"]
-            )
-        else:
-            lines.append(T.TEMPLATES["B2.place"].format(place_id="なし", band="地上"))
-            lines.append(T.TEMPLATES["B2.visible_empty"])
-            lines.append(T.TEMPLATES["B2.signage_empty"])
-            lines.append(T.TEMPLATES["B2.landmark_empty"])
-        out = N.join_lines(lines).encode("utf-8")
-        self._b2_cache[(cell, shown)] = out
-        return out
-
-    def _signage(self, cell: int, shown: bool = True) -> str:
-        """看板(a): そのセルで最も可視の店舗 1 件の店頭表示。
-
-        **W14 で凍結された文面が在ればそれを使い**、無ければ従来の合成文(店名+営業時間)を
-        使う(切替は ``world_dir`` に ``w14_signage.parquet`` が在るかだけで決まる)。
-        凍結文にも命令文除去とチャネル枠の切り詰めを掛ける(憲法6・多重防御。W14 のゲートを
-        通っていれば no-op)。
-
-        §3.2 の「看板・広告面1件 25 tok」は**内容**(店名+属性)に掛ける。ブロックラベルと
-        凍結された素性タグは全描画に共通の固定オーバーヘッドなので、ブロック総額(B2 150)側で
-        見る(解決した曖昧点・親へ報告)。
-
-        Args:
-            shown: 注視ゲート(§4 段1・D-59 (b))を通ったか。``False`` は
-                ``B2.signage_empty``=「見える表示はありません」。**枠は他へ回さない**。
-        """
-        if not shown:
-            return T.TEMPLATES["B2.signage_empty"]
-        body = self._signage_body(cell)
-        if body is None:
-            return T.TEMPLATES["B2.signage_empty"]
-        kept, _ = ch.truncate_lines([body], "B2.signage")
-        if kept:
-            return T.TEMPLATES["B2.signage"].format(body=kept[0])
-        return T.TEMPLATES["B2.signage_empty"]
-
-    # ---------------------------------------------------------- 素材(固定枠と単一ランキングで共有)
-    def _visible_static(self, cell: int) -> str:
-        """W15 の凍結セル静的文(無ければ空文字)。"""
-        A = self.assets
-        return A.cell_static[cell] if cell < len(A.cell_static) else ""
-
-    def _visible_names(self, cell: int) -> list[str]:
-        """可視の店舗・施設(可視視点数の降順→ID 昇順は資産側で確定済み)。"""
-        A = self.assets
-        return [A.poi_name[j] + "の店頭" for j in A.visible_poi[cell]]
-
     def _signage_poi(self, cell: int) -> int:
         """看板(a)に使う **POI の index**(無ければ ``-1``)。
 
@@ -1921,30 +1512,6 @@ class Renderer:
             if int(j) < n_poi:
                 return int(j)
         return -1
-
-    def _signage_body(self, cell: int) -> str | None:
-        """看板(a)の**本文**(命令文除去済み・枠の切り詰め前)。
-
-        ablation ⑥(§8 第1陣「広告ゼロ」)は ``signage_enabled=False`` でここを ``None`` に
-        する。**固定枠と単一ランキングの両方**がこの 1 本を材料にしているので、腕は 1 箇所で
-        効く(固定枠 → ``_signage`` が ``B2.signage_empty``・ランキング → 候補が空列)。
-        D-59 (b) の注視ゲートも**同じ 1 本**の手前で切る(``_signage``/``_cell_candidates``)。
-
-        Returns:
-            見える表示が**無い**セルは ``None``、在るが命令文除去で本文が消えた場合は ``""``
-            (この 2 つは描画が違う=前者は「見える表示はありません」・後者は素性タグだけの行)。
-        """
-        j = self._signage_poi(cell)
-        if j < 0:
-            return None
-        A = self.assets
-        w = self.world
-        frozen = A.poi_signage[j] if j < len(A.poi_signage) else ""
-        if frozen:
-            return strip_imperatives(frozen).kept
-        frm = int(w.pois.open_from[j]) // MINUTES_PER_HOUR
-        to = int(w.pois.open_to[j]) // MINUTES_PER_HOUR
-        return strip_imperatives(f"{A.poi_name[j]}の表示。営業は{frm}時から{to}時。").kept
 
     def signage_poi_by_cell(self) -> np.ndarray:
         """セル → B2 の看板行に出す POI(``_signage_poi`` と同じ 1 件・無ければ −1)。
@@ -1992,68 +1559,6 @@ class Renderer:
             out[act == int(Activity.MOVING)] = 0
             out[act == int(Activity.SHOPPING)] = 2
         out[act == int(Activity.CONVERSING)] = 5
-        return out
-
-    def _signage_seen(self, agent_id: int, cell: int, tick: int) -> bool:
-        """**看板の注視ゲート**(知覚契約書 §4 段1・D-59 (b) ユーザー決定 2026-09-17)。
-
-        体×看板×tick の**決定論的ベルヌーイ**。乱数は ``attention.gate_stage1``
-        (``core.rng.stream`` の Philox4x64・ドメイン ``perception.attention.p_see``・
-        カウンタ ``(tick, agent_id, poi_id)``)なので、
-
-        - 同じ ``(seed, tick, agent_id, poi_id)`` は**常に同じ結果**(テープから再現できる)、
-        - 体を増やしても既存の体の列は動かない(カウンタベースの性質・運用設計書 §1.4 T4)、
-        - tick・体・看板のどれが違えば独立な抽選になる。
-
-        既定(``p_see=1.0``)と**看板の無いセル**では抽選を引かない(描画が変わらないため)。
-        帯の出典は §4 段1(中小媒体 ``P_SEE_MEDIUM_RANGE`` 0.14-0.40・大型ビジョン 0.63-0.78)。
-
-        逐次ループ宣言(P4): **1 起床につき 1 回**(``render`` の中の 1 回・個体数ぶんの
-        ループは持たない)。既定のランでは 0 回。
-
-        〔第 1 期 1-2〕5 段目 5c の活動の種別の乗数(実効 p_see=min(1, p_see × 乗数))と種別ごとの計数は消した
-        (決定 10-12 §1-6)。p_see は 1 つの値だけ(抽選の有無も乱数の列も乗数の表が全部 1.0 だった 1-2 の前と同じ)。
-        """
-        poi = self._signage_poi(cell)
-        p = float(self.signage_p_see)
-        if p >= 1.0:
-            return True
-        if poi < 0:
-            return True  # 見える看板が無いセル=ゲートの対象外(描画は同じ)
-        self.signage_gate_draws += 1
-        if p <= 0.0:
-            return False  # random() は [0,1) なので ``< 0.0`` は常に偽=短絡と同値
-        ok = bool(
-            gate_stage1(
-                1,
-                p,
-                seed=self.seed,
-                domain_counters=(int(tick), int(agent_id), int(poi)),
-            )[0]
-        )
-        if ok:
-            self.signage_gate_shown += 1
-        return ok
-
-    def _b3(self, tc: _TickCache) -> bytes:
-        """B3(時刻・天候・暑さ)。第 1 期 1-2: 刻み → ``TimeView``(``_time_view``)→ 文(``_draw_b3``)。"""
-        return self._draw_b3(self._time_view(tc))
-
-    def _draw_b3(self, tv: TimeView) -> bytes:
-        """``TimeView`` → B3 の文(時と分は 5 分に切り捨てた値の表記=``normalize.format_time`` と同じ)。
-
-        描いた文は刻みの中だけ ``TimeView`` の値で引く(同じ刻みの全員で 1 回だけ描く・鍵は描く入力そのもの)。
-        """
-        memo = self._tickc.b3_text
-        got = memo.get(tv)
-        if got is not None:
-            return got
-        out = N.join_lines([
-            T.TEMPLATES["B3.time"].format(hour=str(int(tv.hour)), minute=f"{int(tv.minute):02d}"),
-            T.TEMPLATES["B3.weather"].format(weather=tv.weather, daylight=tv.daylight),
-            T.TEMPLATES["B3.heat"].format(heat=tv.heat),
-        ]).encode("utf-8")
-        memo[tv] = out
         return out
 
     def _b4b_raw(
@@ -2114,253 +1619,6 @@ class Renderer:
             if ch.estimate_tokens(merged) <= budget:
                 out[int(c)] = merged.encode("utf-8")
         return out
-
-    def _b4(self, cell: int, tc: _TickCache, trunc: list[ch.TruncationReport]) -> bytes:
-        """B4(密度・騒音・顕著)。第 1 期 1-2: セル → ``SceneView``(``_scene``)→ 文(``_draw_b4``)。"""
-        return self._draw_b4(self._scene(cell, tc), trunc)
-
-    def _scene_is_shared(self, scene: SceneView) -> bool:
-        """〔第 6 期 6-4 C1〕場面がこの刻みのセルの共有の物(``_scene`` が作った物)か。目と心の向きの写し(腕 c1 の
-        ``coarsen`` が顕著行為を落とした場面)は共有でない=セルのキャッシュを読まず書かない(同じセルのほかの体の描画を汚さない)。
-        既定のランの場面はいつも共有の物=キャッシュの使い方は前と同じ。"""
-        return self._tickc.scenes.get(int(scene.cell)) is scene
-
-    def _draw_b4(self, scene: SceneView, trunc: list[ch.TruncationReport], cache: bool = True) -> bytes:
-        """``SceneView`` → B4 の文。キャッシュの鍵は ``(セル, B4 の欄の指紋)``(1-2 の前と同じ)。〔6-4 C1〕``cache=False`` か
-        共有でない場面(目と心の向きの写し)はキャッシュを読まず書かない。"""
-        cache = cache and self._scene_is_shared(scene)
-        if not scene.in_area:
-            return N.join_lines(
-                [
-                    T.TEMPLATES["B4.density"].format(
-                        stage=T.DENSITY_LOS_LETTERS[0], flow=T.FLOW_WORDS[0]
-                    ),
-                    T.TEMPLATES["B4.noise"].format(
-                        stage=T.NOISE_STAGE_VOCAB[0], band=T.NOISE_BAND_WORDS[0]
-                    ),
-                    T.TEMPLATES["B4.salient_empty"],
-                ]
-            ).encode("utf-8")
-        key = (int(scene.cell), int(scene.field_hash))
-        got = self._b4_cache.get(key) if cache else None
-        if got is not None:
-            self.cache_hits += 1
-            return got
-        self.cache_misses += 1
-        los = int(min(scene.crowd_stage, len(T.DENSITY_LOS_LETTERS) - 1))
-        ns = int(min(_noise_stage(scene), len(T.NOISE_STAGE_VOCAB) - 1))
-        lines = [
-            T.TEMPLATES["B4.density"].format(
-                stage=T.DENSITY_LOS_LETTERS[los], flow=T.FLOW_WORDS[int(scene.flow)]
-            ),
-            T.TEMPLATES["B4.noise"].format(
-                stage=T.NOISE_STAGE_VOCAB[ns], band=T.NOISE_BAND_WORDS[ns]
-            ),
-        ]
-        items = list(scene.salient)
-        kept, rep = ch.truncate_lines(items, "B4.salient")
-        trunc.append(rep)
-        lines.append(
-            T.TEMPLATES["B4.salient"].format(items=N.LIST_SEPARATOR.join(kept))
-            if kept
-            else T.TEMPLATES["B4.salient_empty"]
-        )
-        out = N.join_lines(lines).encode("utf-8")
-        if cache:
-            self._b4_cache[key] = out
-        return out
-
-    # ---------------------------------------------------------- 〔第 6 期 6-4 C1〕目と心の向き(腕 c1 のランだけ)
-    def _b2_peripheral(self, cell: int) -> bytes:
-        """画面を見ている体の B2(場所と路面は今のまま・見えるもの・看板・目印は見分けていない=周辺視の行)。"""
-        A = self.assets
-        lines: list[str] = []
-        if 0 <= cell < A.n_cells:
-            band = int(self.world.assets.cell_band[cell])
-            lines.append(T.TEMPLATES["B2.place"].format(place_id=A.place_ids[cell], band=T.BAND_WORDS.get(band, "地上")))
-            ground = T.GROUND_WORDS.get(band, T.GROUND_WORDS[0]) if bool(A.has_street[cell]) else T.GROUND_NO_STREET
-            lines.append(T.TEMPLATES["B2.ground"].format(ground=ground))
-        else:
-            lines.append(T.TEMPLATES["B2.place"].format(place_id="なし", band="地上"))
-        lines.append(CV.B2_PERIPHERAL_LINE)
-        return N.join_lines(lines).encode("utf-8")
-
-    def _contact_blocks(self, p: Percept, blocks: "OrderedDict[str, bytes]", trunc: list[ch.TruncationReport]) -> None:
-        """知覚の事実の目と心の向き(``mind_dir``)と道具の状態(``tool_state``)を描く。B2・B4・B5 の差し替えと B6 の末尾の行。"""
-        att = p.mind_dir if isinstance(p.mind_dir, CV.AttentionView) else None
-        dev = p.tool_state if isinstance(p.tool_state, CV.DeviceView) else None
-        if att is not None and att.peripheral:
-            blocks["B2"] = self._b2_peripheral(int(p.cell))
-            empty = T.TEMPLATES["B5.near_person_empty"]
-            b5 = blocks["B5"].decode("utf-8")
-            if empty in b5:
-                line = CV.B5_PERIPHERAL_NEAR_LINE.format(hint=CV.people_hint_word(att.people_hint))
-                blocks["B5"] = b5.replace(empty, line, 1).encode("utf-8")
-        if att is not None and att.unnoticed:
-            self.contact_unnoticed_renders += 1
-        lines = CV.contact_lines(att, dev, person_word)
-        if not lines:
-            return
-        b6 = blocks["B6"]
-        full = N.join_lines([*b6.decode("utf-8").split(N.LINE_SEPARATOR), *lines]).encode("utf-8")
-        if (ch.estimate_tokens(blocks["B5"].decode("utf-8")) + ch.estimate_tokens(full.decode("utf-8"))
-                > int(T.GROUP_TOKEN_BUDGET["individual"])):
-            self.contact_lines_over_budget += 1
-            return
-        self.contact_lines += len(lines)
-        blocks["B6"] = full
-
-    def _b5(self, p: Percept, trunc: list[ch.TruncationReport]) -> bytes:
-        """B5(固定枠)。第 1 期 1-2: ``Percept`` だけから描く(体の段・自分の状態・見えた人・被注視の人数)。"""
-        lines: list[str] = []
-        # 内受容(閾値割れ分のみ)
-        crossed = []
-        for name, label in zip(INTEROCEPTION_FIELDS, ("空腹", "体力", "体感温度")):
-            v = int(getattr(p.body, name))
-            if name == "hunger" and self._hunger_words:
-                word = _hunger_word(v, self._hunger_min_stage)
-                if word is not None:
-                    crossed.append(word)
-                continue
-            if v >= INTERO_UP_EDGES[0]:
-                crossed.append(f"{label}は{v}で閾値を超えています。")
-        kept, rep = ch.truncate_lines(crossed, "B5.intero")
-        trunc.append(rep)
-        lines.append(
-            T.TEMPLATES["B5.intero"].format(items="".join(kept))
-            if kept
-            else T.TEMPLATES["B5.intero_empty"]
-        )
-        # 自己状態・所持・直近行動
-        me = p.self_view
-        self_lines = [
-            T.TEMPLATES["B5.holding"].format(
-                money=f"{int(me.money):,}",
-                hands=T.HANDS_WORDS[1 if me.hands_full else 0],
-            ),
-            T.TEMPLATES["B5.recent"].format(
-                activity=_activity_word(int(me.activity), self.vocab_version == "v3")
-            ),
-        ]
-        kept, rep = ch.truncate_lines(self_lines, "B5.self", max_items=2)
-        lines += kept
-        trunc.append(rep)
-        # 近接人物 上位k(密度逓減 3/2/1)+知人は常に掲載
-        near = [near_person_text(sp) for sp in p.seen_people]
-        kept, rep = ch.truncate_lines(near, "B5.near_person", max_items=len(near) or None)
-        trunc.append(rep)
-        lines.append(
-            T.TEMPLATES["B5.near_person"].format(items=N.LIST_SEPARATOR.join(kept))
-            if kept
-            else T.TEMPLATES["B5.near_person_empty"]
-        )
-        # 被注視(T2 の転置。無ければ固定文言)
-        nw = int(p.watched_n)
-        lines.append(
-            T.TEMPLATES["B5.watched"].format(n=nw) if nw > 0 else T.TEMPLATES["B5.watched_empty"]
-        )
-        return N.join_lines(lines).encode("utf-8")
-
-    def _intent_text(self, p: Percept) -> str:
-        """意図を持つ体の 1 行(持たなければ ``""``)。第 1 期 1-2: ``Percept.intent`` から描く。"""
-        iv = p.intent
-        if iv is None:
-            return ""
-        word = INTENT_ACTION_WORDS.get(int(iv.action))
-        if word is None:
-            return ""
-        kind = int(iv.target_kind)
-        tgt = int(iv.target)
-        if kind in (int(IntentKind.POI_NAMED), int(IntentKind.POI_CATEGORY)):
-            names = self.assets.poi_name
-            target = str(names[tgt]) if 0 <= tgt < len(names) else INTENT_FALLBACK_TARGET
-        elif kind == int(IntentKind.PERSON):
-            target = person_word(tgt)
-        elif kind == int(IntentKind.BED):
-            target = INTENT_BED_WORD
-        else:
-            target = INTENT_FALLBACK_TARGET
-        return intent_line(word, target)
-
-    def _with_intent_line(self, p: Percept, b5: bytes, b6: bytes) -> bytes:
-        """B5 の「直近」の行の後に意図の行を差し込む(個体群の予算 300 を超えるなら差し込まない)。"""
-        line = self._intent_text(p)
-        if not line:
-            return b5
-        rows = b5.decode("utf-8").split(N.LINE_SEPARATOR)
-        at = next(
-            (k + 1 for k, r in enumerate(rows) if r.startswith("[B5 直近]")), len(rows)
-        )
-        rows.insert(at, line)
-        out = N.join_lines(rows).encode("utf-8")
-        total = ch.estimate_tokens(out.decode("utf-8")) + ch.estimate_tokens(b6.decode("utf-8"))
-        if total > int(T.GROUP_TOKEN_BUDGET["individual"]):
-            self.intent_lines_over_budget += 1
-            return b5
-        self.intent_lines += 1
-        return out
-
-    def _with_memory_line(
-        self, p: Percept, b5: bytes, b6: bytes
-    ) -> tuple[bytes, tuple[int, ...], tuple[tuple[int, int, int], ...]]:
-        """B5 の最後に「記憶」の 1 行(6b・M4)。返り値の 3 つ目は 10e(E5)の同定(最初の時刻・種類・対象)。チャネル 60 tok・
-        個体枠 300 を超えるなら末尾の項から削る。第 1 期 1-2: 想起した行は ``Percept.memories``(想起は ``perceive`` が呼ぶ)。"""
-        items = list(p.memories or ())
-        # 10e(E5・A8): テープ版 4 の同定(最初の時刻・種類・対象)。行番号と同じ並び・載せた分だけ返す
-        meta = tuple(
-            (int(getattr(it, "first_tick", -1)), int(getattr(it, "kind")), int(getattr(it, "obj"))) for it in items
-        )
-        if not items:
-            return b5, (), ()
-        when = self.clock_fn(int(p.step))
-        texts: list[str] = []
-        rows: list[int] = []
-        for it in items:  # 逐次ループ宣言: 想起の件数ぶん(≤ 3)
-            lt = int(getattr(it, "last_tick"))
-            h, m = N.format_time(self.clock_fn(lt) if lt >= 0 else when)
-            texts.append(memory_item_text(
-                it, hhmm=f"{h}:{m}", poi_names=self.assets.poi_name, place_ids=self.assets.place_ids,
-                result_text=RESULT_TEXT,
-            ))
-            rows.append(int(getattr(it, "row")))
-        line, n_keep = compose_memory_line(texts)
-        self.memory_items_dropped_for_channel += len(texts) - n_keep
-        b5_text = b5.decode("utf-8")
-        b6_tok = ch.estimate_tokens(b6.decode("utf-8"))
-        cap = int(T.GROUP_TOKEN_BUDGET["individual"])
-        out = b""
-        while n_keep:  # 逐次: 想起の件数ぶん(≤ 3・個体枠 300 を超えるなら末尾の項から削る)
-            out = N.join_lines([b5_text, line]).encode("utf-8")
-            if ch.estimate_tokens(out.decode("utf-8")) + b6_tok <= cap:
-                break
-            prev = n_keep
-            line, n_keep = compose_memory_line(texts[: n_keep - 1])
-            self.memory_items_dropped_for_budget += prev - n_keep
-        if not n_keep:
-            self.memory_lines_over_budget += 1
-            return b5, (), ()
-        kept = texts[:n_keep]
-        self.memory_lines += 1
-        self.memory_items += len(kept)
-        tok = ch.estimate_tokens(line)
-        self.memory_line_tokens[tok] = self.memory_line_tokens.get(tok, 0) + 1
-        return out, tuple(rows[: len(kept)]), meta[: len(kept)]
-
-    def memory_summary(self) -> dict:
-        """manifest ``memory_summary.render``: 記憶の行を載せた描画・項の件数・行の tok の分布。"""
-        toks = self.memory_line_tokens
-        n = sum(toks.values())
-        return {
-            "lines": int(self.memory_lines),
-            "items": int(self.memory_items),
-            "items_per_line": round(self.memory_items / n, 4) if n else 0.0,
-            "line_tokens": {str(k): int(v) for k, v in sorted(toks.items())},
-            "line_tokens_max": int(max(toks)) if toks else 0,
-            "line_tokens_mean": round(sum(k * v for k, v in toks.items()) / n, 3) if n else 0.0,
-            "items_dropped_for_channel": int(self.memory_items_dropped_for_channel),
-            "items_dropped_for_group_budget": int(self.memory_items_dropped_for_budget),
-            "lines_over_group_budget": int(self.memory_lines_over_budget),
-        }
 
     def _nearby(self, i: int, cell: int, tc: _TickCache) -> list[str]:
         """同一セル在席者から近接上位 k(密度逓減)+知人常掲を作る。"""
@@ -2612,6 +1870,796 @@ class Renderer:
             got = (names, arr)
             self._acq_cache[i] = got
         return got
+
+    def _named_closed_text(self, i: int) -> str:
+        """Q25: 名指しの店が見えるが閉店で歩かずに失敗した体だけの補足の 1 句(それ以外は ``""``)。
+
+        ``named_closed_lookup``(``engine.run`` が渡す・体 → ``(POI, 失敗の tick, 開店の分)``)が
+        返した tick が ``last_result_tick`` と一致するときだけ載せる(=その失敗の直後の起床だけ)。
+        """
+        look = self.named_closed_lookup
+        if look is None:
+            return ""
+        got = look(int(i))
+        if not got:
+            return ""
+        poi, t, opens = (int(x) for x in got)
+        if int(self.agents.last_result_tick[i]) != t:
+            return ""
+        names = self.assets.poi_name
+        name = str(names[poi]) if 0 <= poi < len(names) else NAMED_CLOSED_FALLBACK_NAME
+        self.named_closed_notes += 1
+        return named_closed_note(name, opens)
+
+    def _cheapest_price(self, cell: int) -> int:
+        if not (0 <= cell < self.world.n_cells):
+            return 0
+        m = self.world.pois.cell == cell
+        return int(self.world.pois.price[m].min()) if m.any() else 0
+
+    def _next_open_hour(self, cell: int) -> int | None:
+        if not (0 <= cell < self.world.n_cells):
+            return None
+        m = self.world.pois.cell == cell
+        if not m.any():
+            return None
+        return int(self.world.pois.open_from[m].min()) // MINUTES_PER_HOUR
+
+
+class SignageNotice:
+    """看板に気づく側(注視の抽選と看板の文)。"""
+
+    def _signage_body(self, cell: int) -> str | None:
+        """看板(a)の**本文**(命令文除去済み・枠の切り詰め前)。
+
+        ablation ⑥(§8 第1陣「広告ゼロ」)は ``signage_enabled=False`` でここを ``None`` に
+        する。**固定枠と単一ランキングの両方**がこの 1 本を材料にしているので、腕は 1 箇所で
+        効く(固定枠 → ``_signage`` が ``B2.signage_empty``・ランキング → 候補が空列)。
+        D-59 (b) の注視ゲートも**同じ 1 本**の手前で切る(``_signage``/``_cell_candidates``)。
+
+        Returns:
+            見える表示が**無い**セルは ``None``、在るが命令文除去で本文が消えた場合は ``""``
+            (この 2 つは描画が違う=前者は「見える表示はありません」・後者は素性タグだけの行)。
+        """
+        j = self._signage_poi(cell)
+        if j < 0:
+            return None
+        A = self.assets
+        w = self.world
+        frozen = A.poi_signage[j] if j < len(A.poi_signage) else ""
+        if frozen:
+            return strip_imperatives(frozen).kept
+        frm = int(w.pois.open_from[j]) // MINUTES_PER_HOUR
+        to = int(w.pois.open_to[j]) // MINUTES_PER_HOUR
+        return strip_imperatives(f"{A.poi_name[j]}の表示。営業は{frm}時から{to}時。").kept
+
+    def _signage_seen(self, agent_id: int, cell: int, tick: int) -> bool:
+        """**看板の注視ゲート**(知覚契約書 §4 段1・D-59 (b) ユーザー決定 2026-09-17)。
+
+        体×看板×tick の**決定論的ベルヌーイ**。乱数は ``attention.gate_stage1``
+        (``core.rng.stream`` の Philox4x64・ドメイン ``perception.attention.p_see``・
+        カウンタ ``(tick, agent_id, poi_id)``)なので、
+
+        - 同じ ``(seed, tick, agent_id, poi_id)`` は**常に同じ結果**(テープから再現できる)、
+        - 体を増やしても既存の体の列は動かない(カウンタベースの性質・運用設計書 §1.4 T4)、
+        - tick・体・看板のどれが違えば独立な抽選になる。
+
+        既定(``p_see=1.0``)と**看板の無いセル**では抽選を引かない(描画が変わらないため)。
+        帯の出典は §4 段1(中小媒体 ``P_SEE_MEDIUM_RANGE`` 0.14-0.40・大型ビジョン 0.63-0.78)。
+
+        逐次ループ宣言(P4): **1 起床につき 1 回**(``render`` の中の 1 回・個体数ぶんの
+        ループは持たない)。既定のランでは 0 回。
+
+        〔第 1 期 1-2〕5 段目 5c の活動の種別の乗数(実効 p_see=min(1, p_see × 乗数))と種別ごとの計数は消した
+        (決定 10-12 §1-6)。p_see は 1 つの値だけ(抽選の有無も乱数の列も乗数の表が全部 1.0 だった 1-2 の前と同じ)。
+        """
+        poi = self._signage_poi(cell)
+        p = float(self.signage_p_see)
+        if p >= 1.0:
+            return True
+        if poi < 0:
+            return True  # 見える看板が無いセル=ゲートの対象外(描画は同じ)
+        self.signage_gate_draws += 1
+        if p <= 0.0:
+            return False  # random() は [0,1) なので ``< 0.0`` は常に偽=短絡と同値
+        ok = bool(
+            gate_stage1(
+                1,
+                p,
+                seed=self.seed,
+                domain_counters=(int(tick), int(agent_id), int(poi)),
+            )[0]
+        )
+        if ok:
+            self.signage_gate_shown += 1
+        return ok
+
+
+class Renderer(PerceptScene, SignageNotice):
+    """観測レンダラ(1 起床=1 呼び出し)。
+
+    Example:
+        >>> from shibuya.world.state import World
+        >>> from shibuya.agents.state import AgentState
+        >>> w = World.synthetic(n_cells=9, seed=1)
+        >>> a = AgentState(4)
+        >>> a.cell[:] = 0
+        >>> r = Renderer(w, a, seed=7)
+        >>> out = r.render(0, tick=750, wake_reason=3)
+        >>> out.text.splitlines()[0].startswith("あなたは渋谷の街にいる")
+        True
+    """
+    def __init__(
+        self,
+        world: World,
+        agents: AgentState,
+        assets: PerceptionAssets | None = None,
+        clock_fn: Callable[[int], datetime] | None = None,
+        seed: int | str = 0,
+        *,
+        acquaintances: Mapping[int, Sequence[int]] | None = None,
+        watched_by: np.ndarray | None = None,
+        budget_mode: ch.BudgetMode | str = ch.BudgetMode.FIXED_SLOTS,
+        strict_group_budget: bool = True,
+        signage_enabled: bool = True,
+        signage_p_see: float = SIGNAGE_P_SEE_DEFAULT,
+        intent_mode: str = T.DEFAULT_INTENT_MODE,
+        vocab_version: str = T.DEFAULT_VOCAB_VERSION,
+        role_words: bool | str = False,
+        near_tiebreak: str = DEFAULT_NEAR_TIEBREAK,
+        near_salt: bytes | None = None,
+        near_order: str = DEFAULT_NEAR_ORDER,
+        hunger_words: str = DEFAULT_HUNGER_WORDS,
+        day_kind_fn: Callable[[int], str] | None = None,
+    ) -> None:
+        """
+        Args:
+            world: 世界状態(セル密度・騒音段・POI 営業)。
+            agents: 個体 SoA。
+            assets: 知覚側資産。None なら ``PerceptionAssets.synthetic(world)``。
+            clock_fn: tick → 世界内日時。None なら ``DEFAULT_START_DATETIME + tick 分``。
+            seed: 乱数のマスターシード(注意ゲートの抽選に使う)。
+            acquaintances: 個体 → 知人の agent_id(§3 人物④「知人は常に掲載」)。
+            watched_by: ``(n,)`` 被注視人数(T2 の転置。None なら 0)。
+            budget_mode: §3.2 の義務 ablation の切替(``ch.BudgetMode`` か
+                ``"fixed"``/``"ranking"``)。既定=固定枠(現行の描画)。
+            strict_group_budget: True でグループ予算超過を例外にする(既定)。
+            signage_enabled: 看板・広告面(B2.signage)を描くか。知覚契約書 §8 第1陣 **⑥
+                「広告ゼロ」**の切替口。``False`` で W14 凍結文も合成文も載せず、全セルで
+                ``B2.signage_empty``(=「見える表示はありません」)にする。既定 True=
+                現行の描画で**1 バイトも変わらない**。テンプレ本体は触らないので
+                ``template_sha256`` は不変・規約⑧(セルの情報しか使わない)も不変。
+            signage_p_see: **看板の注視ゲート**(知覚契約書 §4 段1 の視認確率 p_see・
+                D-59 (b) ユーザー決定 2026-09-17)。在圏セルの看板行を観測へ入れるかを
+                **体×看板×tick の決定論的ベルヌーイ**で決める。既定 1.0=常に入れる
+                =**現行のバイトで 1 バイトも変わらない**(抽選も引かない)。0.0 で
+                全員・全 tick 落ちる(=⑥ 広告ゼロと同じ描画)。抽選は
+                ``attention.gate_stage1``(``core.rng`` の Philox・ドメイン
+                ``perception.attention.p_see``・カウンタ ``(tick, agent_id, poi_id)``)
+                なので、同じ seed・同じ tick・同じ体・同じ看板は常に同じ結果
+                (テープから再現できる)。**看板の無いセルでは抽選を引かない**
+                (描画が変わらないため)。落ちた看板行は ``B2.signage_empty`` になり、
+                **空いた枠は他のチャネルへ回らない**(固定枠。枠の再配分は D-60 の別議論。
+                ただし ``budget_mode='ranking'`` は池を分け合う設計なので ⑥ と同じく
+                他チャネルが空きを取りうる)。
+                注: 1.0 未満では **§2.4 ⑧「同セル同時間帯の 2 体で B0-B4b バイト一致」が
+                成り立たない**(注視は体ごとの事象だから)。同一セルの B2 は
+                **看板あり/なしの 2 変種**に分かれる=共有 prefix の断片化は高々 2 倍。
+            intent_mode: **AB7 自由意図の腕**の切替口(``"vocab"`` | ``"open"`` | ``"hint"``)。
+                ``"open"`` で B0 の出力規約を ``templates.OUTPUT_SPEC_OPEN``(``行動:`` の
+                1 行だけが「いま自分がしたいことを10字以内の動詞句で」)に差し替える。
+                ``"hint"``(AB7b)は ``templates.OUTPUT_SPEC_HINT``= 語彙を例として見せた
+                まま「当てはまる語が無いときだけ 10 字以内の動詞句で」を許す中間の腕。
+                既定 ``"vocab"`` は現行の 24 語ホワイトリスト提示=**1 バイトも変わらない**。
+                テンプレ本体(``TEMPLATES``)は触らないので ``template_sha256`` も不変。
+                仕様書 ``docs/design/v2-open-intent-arm-spec.md`` §2。
+            vocab_version: **行動語彙の版**(D-71 §3 F・``"v1"`` | ``"v2"``)。``"v2"`` で
+                B0 の出力規約に 13 語目「食事」が載る(``templates.OUTPUT_SPEC_V2``)。
+                既定 ``"v1"`` は現行の 24 語提示=**1 バイトも変わらない**。``"open"`` 腕は
+                語彙を見せないので v1/v2 で B0 は同一(差は段0 辞書とエンジン側)。
+            near_tiebreak: B5 近接行の**距離の同点**の切り方(第300 Q107)。``"hash"``(既定)= 同点を
+                ``near_salt`` の決定論ハッシュ(観る体 × 相手)で撹拌 / ``"id"`` = 旧挙動(セル内の並び=
+                行番号の順)。**文面・並び(id 昇順)は変えない**=採る人だけ。同点が k 人目の境で起きない
+                描画は両方で同じ。
+            near_salt: 撹拌の salt(``engine.run`` は run_salt を渡す)。``None`` なら ``seed`` から
+                ``engine.run.run_salt_for`` と同じ式で作る。
+            near_order: B5 近接行の**並び**(第304 Q130)。``"distance"``(既定)= 距離の昇順・同点は
+                ``near_tiebreak`` の順 / ``"id"`` = 旧挙動(行番号の昇順)。焦点は両方で先頭。文面は変えない。
+            day_kind_fn: 第 1 期 1-2: 通しの刻みの番号 → 暦の日の種類(``Percept.time_view.day_kind``。組み立てが暦の
+                ``SimCalendar.day_kind`` を渡す)。``None`` なら日の種類は空(None)。描画の文は読まない=バイトは変わらない。
+        """
+        PerceptScene.__init__(self, world, agents, assets, clock_fn, seed, acquaintances=acquaintances,
+                              watched_by=watched_by, signage_enabled=signage_enabled, near_tiebreak=near_tiebreak,
+                              near_salt=near_salt, near_order=near_order, day_kind_fn=day_kind_fn)
+        self.seed = seed
+        self.budget_mode = ch.BudgetMode.parse(budget_mode)
+        self.strict_group_budget = strict_group_budget
+        self.signage_p_see = check_signage_p_see(signage_p_see)
+        #: 6b の計数(記憶の行を載せた描画・想起の件数・行の tok・予算で削った/載せなかった)。
+        self.memory_lines = 0
+        self.memory_items = 0
+        self.memory_line_tokens: dict[int, int] = {}
+        self.memory_items_dropped_for_budget = 0
+        self.memory_items_dropped_for_channel = 0
+        self.memory_lines_over_budget = 0
+        self.intent_mode = T.check_intent_mode(intent_mode)
+        self.vocab_version = T.check_vocab_version(vocab_version)
+        #: D-113 ④(第269): B0 の末尾に役割語の 1 行を足すか。レンダラの既定は False(描画バイトの
+        #: 凍結を保つ)。**ランの既定は True**(``engine.run.run_day(role_words=True)``)。
+        self.role_words = T.check_role_words(role_words)
+        # 既定(vocab × v1)は ``TEMPLATES["B0.system"]`` と同一文字列=描画バイト不変
+        # (AB7・語彙 v2)。
+        self._b0 = N.canonical_whitespace(
+            T.b0_system(self.intent_mode, self.vocab_version, self.role_words)
+        ).encode("utf-8")
+        self._b4b = N.canonical_whitespace(
+            T.TEMPLATES["B4b.near_empty"]
+        ).encode("utf-8")
+        #: **5 段目 5a(D-118 K2)**: 空腹を**語**で描くか(``energy_columns`` のラン=
+        #: ``--hunger-model energy``)。``hunger`` はそのランでは語の段の写し(1/5/8/10)なので、
+        #: 数値の代わりに ``T.HUNGER_WORDS`` の語を ``T.HUNGER_WORD_DRAW_MIN_STAGE`` 以上だけ描く。
+        #: 欄の無いラン(v1)は従来の「空腹はNで閾値を超えています。」=**1 バイトも変わらない**。
+        self._hunger_words: bool = bool(getattr(agents, "energy_columns", False))
+        #: 第2波 §2B 項 3: 描く最小の段(``hungry``=None=旧の定数 / ``all``=0)。
+        self.hunger_words: str = check_hunger_words(hunger_words)
+        self._hunger_min_stage: int | None = 0 if self.hunger_words == "all" else None
+        self._b1_cache: dict[int, bytes] = {}
+        #: 鍵は ``(セル, 看板を見たか)``。既定(p_see 1.0)は第2要素が常に True=
+        #: セルだけで引くのと同じ(命中率も同じ)。
+        self._b2_cache: dict[tuple[int, bool], bytes] = {}
+        self._b4_cache: dict[tuple[int, int], bytes] = {}
+        #: ablation ①(単一ランキング)のセル依存ブロック。B2 が B4 と同じ池を分けるので
+        #: 鍵は ``(セル, B4 欄ハッシュ)``(固定枠の ``_b2_cache`` はセルだけ)。
+        self._rank_cell_cache: dict[
+            tuple[int, int, bool], tuple[dict[str, bytes], tuple[ch.TruncationReport, ...]]
+        ] = {}
+        self.cache_hits = 0
+        self.cache_misses = 0
+        self.renders = 0
+        self.truncation_count = 0
+        #: 段 2c: 意図の 1 行を載せた回数 / 個体群の予算で載せなかった回数。
+        self.intent_lines = 0
+        self.intent_lines_over_budget = 0
+        #: 注視ゲートの抽選回数(看板のあるセルで p_see<1.0 のときだけ増える)。
+        self.signage_gate_draws = 0
+        #: そのうち**通った**(看板行を載せた)回数。既定のランでは 0/0。
+        self.signage_gate_shown = 0
+        #: 〔1-8b 検収 低8〕B6 に実際に載せた発話を口へ報告する口 ``(体, 載せた目印, 本文が空(全部が命令文)の数, 予算で外した数)``
+        #: (組み立てが腕 on のランだけ ``SpeechPort.report_shown`` を差し込む・``None``=報告しない)。
+        self.heard_seen_fn: Callable[[int, tuple[tuple[int, int], ...], int, int], None] | None = None
+        #: 〔1-8b〕会話の番の呼び出しの B6 に出力の欄の指示(``SPEECH_FIELD_LINE``)を足すか(腕 on・語彙 v3 のランだけ真)。
+        self.speech_field = False
+        #: 〔1-8b〕B6 に足した発話の行(届いた発話と出力の欄の指示)の数 / 個体群の予算 300 を超えるので外した描画の数。
+        self.speech_lines = 0
+        self.speech_lines_over_budget = 0
+        #: 〔6-4 C1〕B6 に足した連絡の行の数 / 個体群の予算で外した描画の数 / 割り込めなかった周りの出来事のあった描画の数。
+        self.contact_lines = 0
+        self.contact_lines_over_budget = 0
+        self.contact_unnoticed_renders = 0
+
+    # ---------------------------------------------------------- 本体
+    def render(
+        self,
+        agent_id: int,
+        tick: int,
+        wake_reason: int | str = 3,
+        last_result: int | None = None,
+        last_action: str | None = None,
+        inviter: int | None = None,
+    ) -> Rendered:
+        """1 個体・1 起床ぶんの観測を描画する(第 1 期 1-2: 状態 → ``Percept``=``perceive`` → 文=``render_percept``)。
+
+        Args:
+            agent_id: 起床した個体。
+            tick: 起床 tick。
+            wake_reason: ``agents.state.WakeCondition`` の値、または文言そのもの。
+            last_result: ``ResultCode``(None なら ``agents.last_result`` を読む)。
+            last_action: 直前に**試みた**行動語(None なら ``agents.activity`` で代用)。
+                C2 の SoA は「直前に試みた行動」を持たない(``activity`` は現在の状態)ので、
+                正確な文面には engine 側からの受け渡しが要る(親への hook 要求)。
+            inviter: **招待者の個体 id**(§6 起床(ii) 被招待。招待が無ければ None か負値)。
+                与えると B6 起床行が ``INVITE_REASON``(招待者を名指す文)に替わる。
+                ``wake_reason`` より優先する(被招待は起床理由そのものだから)。
+
+        Returns:
+            描画の結果(``Rendered.percept`` に描いた ``Percept``)。
+
+        Note:
+            逐次ループ宣言(P4)1: **1 起床につき 1 回**。個体数ぶんのループは持たない。
+        """
+        if self._tickc.tick != int(tick):
+            # 〔段 5-1b 検収 L4〕前計算の無い刻みの道は ``los_stage`` を渡さない=nav1 のランでここを通ると B4 の密度の段が前の式
+            # (density ÷ 歩ける面積)になる。今の回り方(毎刻み perceive_prepare が前計算する)では通らない(単体の描画と試験の道だけ)
+            self.prepare_tick(int(tick))
+        hits0, misses0 = self.cache_hits, self.cache_misses
+        p = self.perceive(
+            agent_id, tick, wake_reason=wake_reason, last_result=last_result, last_action=last_action,
+            inviter=inviter,
+        )
+        return self._render_percept(p, hits0, misses0)
+
+    # ---------------------------------------------------------- 第 1 期 1-2: 知覚の事実 → 文(B0〜B6)
+    def render_percept(self, p: Percept) -> Rendered:
+        """知覚の事実 → B0〜B6(文の描き方)。``p`` は今の刻みの物だけ(刻みの外で残らない=違えば ``ValueError``)。
+
+        描く側が引くのは ``p`` と、テンプレ・知覚の静的資産(名・帯・凍結文・店の営業時間)・キャッシュ(セルと刻みで
+        決まる事実を描いた文)だけ。個体 SoA・世界の動く状態・層の口は読まない(B4b の文は ``prepare_tick`` が描いた物を
+        セルで引く=記録の残した直接読み)。
+        """
+        return self._render_percept(p, self.cache_hits, self.cache_misses)
+
+    def draw(self, p: Percept) -> str:
+        """``facts.PerceptDrawing`` の口: 知覚の事実 → 本文(B0〜B6 を LF でつないだ物=``Rendered.text``)。"""
+        return self.render_percept(p).text
+
+    def _render_percept(self, p: Percept, hits0: int, misses0: int) -> Rendered:
+        tc = self._tickc
+        if int(p.step) != int(tc.tick):
+            raise ValueError(
+                f"Percept は刻みの中だけの物(描く刻み {tc.tick}・Percept の刻み {p.step}): 刻みをまたいで描かない"
+            )
+        i = int(p.agent_id)
+        cell = int(p.cell)
+        seen = bool(p.signage_shown)
+        blocks: "OrderedDict[str, bytes]" = OrderedDict()
+        trunc: list[ch.TruncationReport] = []
+        ranking = self.budget_mode is ch.BudgetMode.SINGLE_RANKING
+        # ablation ①: セル依存(B2/B4/B4b)は**1 本の池**なので 3 ブロックを一緒に組む。
+        cellb = self._cell_blocks_ranked(p.scene, trunc, seen) if ranking else None
+        b6 = self._b6(p)
+        blocks["B0"] = self._b0
+        blocks["B1"] = self._b1(p.self_view.kind)
+        blocks["B2"] = cellb["B2"] if cellb is not None else self._b2(cell, trunc, seen)
+        blocks["B3"] = self._draw_b3(p.time_view)
+        blocks["B4"] = cellb["B4"] if cellb is not None else self._draw_b4(p.scene, trunc)
+        blocks["B4b"] = cellb["B4b"] if cellb is not None else tc.b4b.get(cell, self._b4b)
+        blocks["B5"] = (
+            self._b5_ranked(p, trunc, ch.estimate_tokens(b6.decode("utf-8")))
+            if ranking
+            else self._b5(p, trunc)
+        )
+        # 段 2c: 意図を持つ体だけ B5 に「いま <行為> のため <対象> へ向かっている」の 1 行
+        blocks["B5"] = self._with_intent_line(p, blocks["B5"], b6)
+        # 記憶 第 1 段 6b: 想起した記憶を B5 の**最後**に 1 行(on のランだけ・0 件なら出さない)
+        recalled: tuple[int, ...] = ()
+        recalled_meta: tuple[tuple[int, int, int], ...] = ()
+        if p.memories is not None:
+            blocks["B5"], recalled, recalled_meta = self._with_memory_line(p, blocks["B5"], b6)
+        if p.heard_speech or self.speech_field:  # 第 1 期 1-8b(腕 on のランだけ): 発話の行は B5 を組んだ後に足す
+            b6 = self._with_speech_lines(p, blocks["B5"], b6)
+        blocks["B6"] = b6
+        if self.contact_fn is not None:  # 〔第 6 期 6-4 C1〕腕 c1 のランだけ: 周辺視・割り込めなかった出来事・連絡の行
+            self._contact_blocks(p, blocks, trunc)
+
+        # §2.4 ⑧: B0-B4b に個体依存語が無いこと(機械検査)
+        shared_ids = [b for b in T.BLOCK_IDS if b not in ("B5", "B6")]
+        shared = b"\n".join(blocks[b] for b in shared_ids)
+        N.assert_no_agent_dependent_words(shared.decode("utf-8"))
+        # §2.4 ⑥: 列挙ブロックに省略記法が無いこと(層2指摘で描画経路に結線)。
+        # B2 は OSM 由来の固有名詞(「…等」を含む店名)が乗るため対象外=テンプレ側の列挙構造にのみ課す(expedient・登録簿)。
+        for b in ("B4", "B4b", "B5"):
+            N.assert_no_abbreviation(blocks[b].decode("utf-8"), b)
+
+        tokens = {b: ch.estimate_tokens(blocks[b].decode("utf-8")) for b in T.BLOCK_IDS}
+        groups: dict[str, int] = {"shared_static": 0, "cell": 0, "individual": 0}
+        for b, t in tokens.items():
+            groups[T.BLOCK_GROUP[b]] += t
+        if self.strict_group_budget:
+            for g, v in groups.items():
+                if v > T.GROUP_TOKEN_BUDGET[g]:
+                    raise ValueError(
+                        f"§2.2 予算超過: グループ {g} が {v} tok(上限 {T.GROUP_TOKEN_BUDGET[g]})"
+                    )
+
+        bh = {b: H.block_hash(blocks[b]) for b in T.BLOCK_IDS}
+        text = "\n".join(blocks[b].decode("utf-8") for b in T.BLOCK_IDS)
+        self.renders += 1
+        self.truncation_count += sum(1 for r in trunc if r.truncated)
+        return Rendered(
+            agent_id=i,
+            tick=int(p.step),
+            blocks=blocks,
+            text=text,
+            block_hashes=bh,
+            prefix_key=H.prefix_key([bh[b] for b in shared_ids], shared_ids),  # 共有 prefix(B0-B4b)のみ=§5
+            prompt_hash=blake3_hex(b"\n".join(blocks[b] for b in T.BLOCK_IDS)),
+            tokens_est=tokens,
+            group_tokens=groups,
+            truncations=tuple(trunc),
+            recalled_rows=recalled,
+            recalled_first_tick=tuple(m[0] for m in recalled_meta),
+            recalled_kind=tuple(m[1] for m in recalled_meta),
+            recalled_object=tuple(m[2] for m in recalled_meta),
+            acquaintance_ids=acquaintance_ids_in(blocks["B5"]),
+            cache_hits=self.cache_hits - hits0,
+            cache_misses=self.cache_misses - misses0,
+            percept=p,
+        )
+
+    # ---------------------------------------------------------- 各ブロック
+    def _b1(self, kind: int) -> bytes:
+        got = self._b1_cache.get(kind)
+        if got is not None:
+            self.cache_hits += 1
+            return got
+        self.cache_misses += 1
+        word = T.KIND_WORDS[kind] if 0 <= kind < len(T.KIND_WORDS) else T.KIND_WORDS[1]
+        out = N.canonical_whitespace(T.TEMPLATES["B1.kind"].format(kind=word)).encode("utf-8")
+        self._b1_cache[kind] = out
+        return out
+
+    def _b2(
+        self, cell: int, trunc: list[ch.TruncationReport], shown: bool = True
+    ) -> bytes:
+        """B2(地物)。``shown=False``= **この体のこの tick は看板を見なかった**
+        (D-59 (b) の注視ゲート)。既定 True=現行の描画。
+        """
+        got = self._b2_cache.get((cell, shown))
+        if got is not None:
+            self.cache_hits += 1
+            return got
+        self.cache_misses += 1
+        A = self.assets
+        lines: list[str] = []
+        if 0 <= cell < A.n_cells:
+            band = int(self.world.assets.cell_band[cell])
+            lines.append(
+                T.TEMPLATES["B2.place"].format(
+                    place_id=A.place_ids[cell], band=T.BAND_WORDS.get(band, "地上")
+                )
+            )
+            ground = T.GROUND_WORDS.get(band, T.GROUND_WORDS[0]) if bool(
+                A.has_street[cell]
+            ) else T.GROUND_NO_STREET
+            kept, rep = ch.truncate_lines([ground], "B2.ground")
+            trunc.append(rep)
+            if kept:
+                lines.append(T.TEMPLATES["B2.ground"].format(ground=kept[0]))
+            # 可視物: **W15 の凍結セル静的文が在ればそれ**・無ければ合成の可視物リスト。
+            # 凍結文は ``B2.visible`` の枠(§3.2・60 tok)を占める(生成側の上限は 45 tok=
+            # B2 予算 150 − 実資産での他行最大。枠を超えた文は切り詰めで落ち合成文へ戻る)。
+            # テンプレは変えない。
+            static = self._visible_static(cell)
+            used_static = False
+            if static:
+                kept, rep = ch.truncate_lines([static], "B2.visible")
+                trunc.append(rep)
+                if kept:
+                    lines.append(T.TEMPLATES["B2.visible"].format(items=kept[0]))
+                    used_static = True
+            if not used_static:
+                # 可視物 上位3(可視視点数の降順→ID 昇順は資産側で確定済み)
+                names = self._visible_names(cell)
+                kept, rep = ch.truncate_lines(names, "B2.visible")
+                trunc.append(rep)
+                lines.append(
+                    T.TEMPLATES["B2.visible"].format(items=N.LIST_SEPARATOR.join(kept))
+                    if kept
+                    else T.TEMPLATES["B2.visible_empty"]
+                )
+            # 看板(a)=店舗基本属性 1 件(素性タグは凍結テンプレ側・命令文除去を掛ける)
+            lines.append(self._signage(cell, shown))
+            # 地物・ランドマーク・出口
+            kept, rep = ch.truncate_lines(list(A.visible_landmark[cell]), "B2.landmark")
+            trunc.append(rep)
+            lines.append(
+                T.TEMPLATES["B2.landmark"].format(items=N.LIST_SEPARATOR.join(kept))
+                if kept
+                else T.TEMPLATES["B2.landmark_empty"]
+            )
+        else:
+            lines.append(T.TEMPLATES["B2.place"].format(place_id="なし", band="地上"))
+            lines.append(T.TEMPLATES["B2.visible_empty"])
+            lines.append(T.TEMPLATES["B2.signage_empty"])
+            lines.append(T.TEMPLATES["B2.landmark_empty"])
+        out = N.join_lines(lines).encode("utf-8")
+        self._b2_cache[(cell, shown)] = out
+        return out
+
+    def _signage(self, cell: int, shown: bool = True) -> str:
+        """看板(a): そのセルで最も可視の店舗 1 件の店頭表示。
+
+        **W14 で凍結された文面が在ればそれを使い**、無ければ従来の合成文(店名+営業時間)を
+        使う(切替は ``world_dir`` に ``w14_signage.parquet`` が在るかだけで決まる)。
+        凍結文にも命令文除去とチャネル枠の切り詰めを掛ける(憲法6・多重防御。W14 のゲートを
+        通っていれば no-op)。
+
+        §3.2 の「看板・広告面1件 25 tok」は**内容**(店名+属性)に掛ける。ブロックラベルと
+        凍結された素性タグは全描画に共通の固定オーバーヘッドなので、ブロック総額(B2 150)側で
+        見る(解決した曖昧点・親へ報告)。
+
+        Args:
+            shown: 注視ゲート(§4 段1・D-59 (b))を通ったか。``False`` は
+                ``B2.signage_empty``=「見える表示はありません」。**枠は他へ回さない**。
+        """
+        if not shown:
+            return T.TEMPLATES["B2.signage_empty"]
+        body = self._signage_body(cell)
+        if body is None:
+            return T.TEMPLATES["B2.signage_empty"]
+        kept, _ = ch.truncate_lines([body], "B2.signage")
+        if kept:
+            return T.TEMPLATES["B2.signage"].format(body=kept[0])
+        return T.TEMPLATES["B2.signage_empty"]
+
+    # ---------------------------------------------------------- 素材(固定枠と単一ランキングで共有)
+    def _visible_static(self, cell: int) -> str:
+        """W15 の凍結セル静的文(無ければ空文字)。"""
+        A = self.assets
+        return A.cell_static[cell] if cell < len(A.cell_static) else ""
+
+    def _visible_names(self, cell: int) -> list[str]:
+        """可視の店舗・施設(可視視点数の降順→ID 昇順は資産側で確定済み)。"""
+        A = self.assets
+        return [A.poi_name[j] + "の店頭" for j in A.visible_poi[cell]]
+
+    def _b3(self, tc: _TickCache) -> bytes:
+        """B3(時刻・天候・暑さ)。第 1 期 1-2: 刻み → ``TimeView``(``_time_view``)→ 文(``_draw_b3``)。"""
+        return self._draw_b3(self._time_view(tc))
+
+    def _draw_b3(self, tv: TimeView) -> bytes:
+        """``TimeView`` → B3 の文(時と分は 5 分に切り捨てた値の表記=``normalize.format_time`` と同じ)。
+
+        描いた文は刻みの中だけ ``TimeView`` の値で引く(同じ刻みの全員で 1 回だけ描く・鍵は描く入力そのもの)。
+        """
+        memo = self._tickc.b3_text
+        got = memo.get(tv)
+        if got is not None:
+            return got
+        out = N.join_lines([
+            T.TEMPLATES["B3.time"].format(hour=str(int(tv.hour)), minute=f"{int(tv.minute):02d}"),
+            T.TEMPLATES["B3.weather"].format(weather=tv.weather, daylight=tv.daylight),
+            T.TEMPLATES["B3.heat"].format(heat=tv.heat),
+        ]).encode("utf-8")
+        memo[tv] = out
+        return out
+
+    def _b4(self, cell: int, tc: _TickCache, trunc: list[ch.TruncationReport]) -> bytes:
+        """B4(密度・騒音・顕著)。第 1 期 1-2: セル → ``SceneView``(``_scene``)→ 文(``_draw_b4``)。"""
+        return self._draw_b4(self._scene(cell, tc), trunc)
+
+    def _scene_is_shared(self, scene: SceneView) -> bool:
+        """〔第 6 期 6-4 C1〕場面がこの刻みのセルの共有の物(``_scene`` が作った物)か。目と心の向きの写し(腕 c1 の
+        ``coarsen`` が顕著行為を落とした場面)は共有でない=セルのキャッシュを読まず書かない(同じセルのほかの体の描画を汚さない)。
+        既定のランの場面はいつも共有の物=キャッシュの使い方は前と同じ。"""
+        return self._tickc.scenes.get(int(scene.cell)) is scene
+
+    def _draw_b4(self, scene: SceneView, trunc: list[ch.TruncationReport], cache: bool = True) -> bytes:
+        """``SceneView`` → B4 の文。キャッシュの鍵は ``(セル, B4 の欄の指紋)``(1-2 の前と同じ)。〔6-4 C1〕``cache=False`` か
+        共有でない場面(目と心の向きの写し)はキャッシュを読まず書かない。"""
+        cache = cache and self._scene_is_shared(scene)
+        if not scene.in_area:
+            return N.join_lines(
+                [
+                    T.TEMPLATES["B4.density"].format(
+                        stage=T.DENSITY_LOS_LETTERS[0], flow=T.FLOW_WORDS[0]
+                    ),
+                    T.TEMPLATES["B4.noise"].format(
+                        stage=T.NOISE_STAGE_VOCAB[0], band=T.NOISE_BAND_WORDS[0]
+                    ),
+                    T.TEMPLATES["B4.salient_empty"],
+                ]
+            ).encode("utf-8")
+        key = (int(scene.cell), int(scene.field_hash))
+        got = self._b4_cache.get(key) if cache else None
+        if got is not None:
+            self.cache_hits += 1
+            return got
+        self.cache_misses += 1
+        los = int(min(scene.crowd_stage, len(T.DENSITY_LOS_LETTERS) - 1))
+        ns = int(min(_noise_stage(scene), len(T.NOISE_STAGE_VOCAB) - 1))
+        lines = [
+            T.TEMPLATES["B4.density"].format(
+                stage=T.DENSITY_LOS_LETTERS[los], flow=T.FLOW_WORDS[int(scene.flow)]
+            ),
+            T.TEMPLATES["B4.noise"].format(
+                stage=T.NOISE_STAGE_VOCAB[ns], band=T.NOISE_BAND_WORDS[ns]
+            ),
+        ]
+        items = list(scene.salient)
+        kept, rep = ch.truncate_lines(items, "B4.salient")
+        trunc.append(rep)
+        lines.append(
+            T.TEMPLATES["B4.salient"].format(items=N.LIST_SEPARATOR.join(kept))
+            if kept
+            else T.TEMPLATES["B4.salient_empty"]
+        )
+        out = N.join_lines(lines).encode("utf-8")
+        if cache:
+            self._b4_cache[key] = out
+        return out
+
+    # ---------------------------------------------------------- 〔第 6 期 6-4 C1〕目と心の向き(腕 c1 のランだけ)
+    def _b2_peripheral(self, cell: int) -> bytes:
+        """画面を見ている体の B2(場所と路面は今のまま・見えるもの・看板・目印は見分けていない=周辺視の行)。"""
+        A = self.assets
+        lines: list[str] = []
+        if 0 <= cell < A.n_cells:
+            band = int(self.world.assets.cell_band[cell])
+            lines.append(T.TEMPLATES["B2.place"].format(place_id=A.place_ids[cell], band=T.BAND_WORDS.get(band, "地上")))
+            ground = T.GROUND_WORDS.get(band, T.GROUND_WORDS[0]) if bool(A.has_street[cell]) else T.GROUND_NO_STREET
+            lines.append(T.TEMPLATES["B2.ground"].format(ground=ground))
+        else:
+            lines.append(T.TEMPLATES["B2.place"].format(place_id="なし", band="地上"))
+        lines.append(CV.B2_PERIPHERAL_LINE)
+        return N.join_lines(lines).encode("utf-8")
+
+    def _contact_blocks(self, p: Percept, blocks: "OrderedDict[str, bytes]", trunc: list[ch.TruncationReport]) -> None:
+        """知覚の事実の目と心の向き(``mind_dir``)と道具の状態(``tool_state``)を描く。B2・B4・B5 の差し替えと B6 の末尾の行。"""
+        att = p.mind_dir if isinstance(p.mind_dir, CV.AttentionView) else None
+        dev = p.tool_state if isinstance(p.tool_state, CV.DeviceView) else None
+        if att is not None and att.peripheral:
+            blocks["B2"] = self._b2_peripheral(int(p.cell))
+            empty = T.TEMPLATES["B5.near_person_empty"]
+            b5 = blocks["B5"].decode("utf-8")
+            if empty in b5:
+                line = CV.B5_PERIPHERAL_NEAR_LINE.format(hint=CV.people_hint_word(att.people_hint))
+                blocks["B5"] = b5.replace(empty, line, 1).encode("utf-8")
+        if att is not None and att.unnoticed:
+            self.contact_unnoticed_renders += 1
+        lines = CV.contact_lines(att, dev, person_word)
+        if not lines:
+            return
+        b6 = blocks["B6"]
+        full = N.join_lines([*b6.decode("utf-8").split(N.LINE_SEPARATOR), *lines]).encode("utf-8")
+        if (ch.estimate_tokens(blocks["B5"].decode("utf-8")) + ch.estimate_tokens(full.decode("utf-8"))
+                > int(T.GROUP_TOKEN_BUDGET["individual"])):
+            self.contact_lines_over_budget += 1
+            return
+        self.contact_lines += len(lines)
+        blocks["B6"] = full
+
+    def _b5(self, p: Percept, trunc: list[ch.TruncationReport]) -> bytes:
+        """B5(固定枠)。第 1 期 1-2: ``Percept`` だけから描く(体の段・自分の状態・見えた人・被注視の人数)。"""
+        lines: list[str] = []
+        # 内受容(閾値割れ分のみ)
+        crossed = []
+        for name, label in zip(INTEROCEPTION_FIELDS, ("空腹", "体力", "体感温度")):
+            v = int(getattr(p.body, name))
+            if name == "hunger" and self._hunger_words:
+                word = _hunger_word(v, self._hunger_min_stage)
+                if word is not None:
+                    crossed.append(word)
+                continue
+            if v >= INTERO_UP_EDGES[0]:
+                crossed.append(f"{label}は{v}で閾値を超えています。")
+        kept, rep = ch.truncate_lines(crossed, "B5.intero")
+        trunc.append(rep)
+        lines.append(
+            T.TEMPLATES["B5.intero"].format(items="".join(kept))
+            if kept
+            else T.TEMPLATES["B5.intero_empty"]
+        )
+        # 自己状態・所持・直近行動
+        me = p.self_view
+        self_lines = [
+            T.TEMPLATES["B5.holding"].format(
+                money=f"{int(me.money):,}",
+                hands=T.HANDS_WORDS[1 if me.hands_full else 0],
+            ),
+            T.TEMPLATES["B5.recent"].format(
+                activity=_activity_word(int(me.activity), self.vocab_version == "v3")
+            ),
+        ]
+        kept, rep = ch.truncate_lines(self_lines, "B5.self", max_items=2)
+        lines += kept
+        trunc.append(rep)
+        # 近接人物 上位k(密度逓減 3/2/1)+知人は常に掲載
+        near = [near_person_text(sp) for sp in p.seen_people]
+        kept, rep = ch.truncate_lines(near, "B5.near_person", max_items=len(near) or None)
+        trunc.append(rep)
+        lines.append(
+            T.TEMPLATES["B5.near_person"].format(items=N.LIST_SEPARATOR.join(kept))
+            if kept
+            else T.TEMPLATES["B5.near_person_empty"]
+        )
+        # 被注視(T2 の転置。無ければ固定文言)
+        nw = int(p.watched_n)
+        lines.append(
+            T.TEMPLATES["B5.watched"].format(n=nw) if nw > 0 else T.TEMPLATES["B5.watched_empty"]
+        )
+        return N.join_lines(lines).encode("utf-8")
+
+    def _intent_text(self, p: Percept) -> str:
+        """意図を持つ体の 1 行(持たなければ ``""``)。第 1 期 1-2: ``Percept.intent`` から描く。"""
+        iv = p.intent
+        if iv is None:
+            return ""
+        word = INTENT_ACTION_WORDS.get(int(iv.action))
+        if word is None:
+            return ""
+        kind = int(iv.target_kind)
+        tgt = int(iv.target)
+        if kind in (int(IntentKind.POI_NAMED), int(IntentKind.POI_CATEGORY)):
+            names = self.assets.poi_name
+            target = str(names[tgt]) if 0 <= tgt < len(names) else INTENT_FALLBACK_TARGET
+        elif kind == int(IntentKind.PERSON):
+            target = person_word(tgt)
+        elif kind == int(IntentKind.BED):
+            target = INTENT_BED_WORD
+        else:
+            target = INTENT_FALLBACK_TARGET
+        return intent_line(word, target)
+
+    def _with_intent_line(self, p: Percept, b5: bytes, b6: bytes) -> bytes:
+        """B5 の「直近」の行の後に意図の行を差し込む(個体群の予算 300 を超えるなら差し込まない)。"""
+        line = self._intent_text(p)
+        if not line:
+            return b5
+        rows = b5.decode("utf-8").split(N.LINE_SEPARATOR)
+        at = next(
+            (k + 1 for k, r in enumerate(rows) if r.startswith("[B5 直近]")), len(rows)
+        )
+        rows.insert(at, line)
+        out = N.join_lines(rows).encode("utf-8")
+        total = ch.estimate_tokens(out.decode("utf-8")) + ch.estimate_tokens(b6.decode("utf-8"))
+        if total > int(T.GROUP_TOKEN_BUDGET["individual"]):
+            self.intent_lines_over_budget += 1
+            return b5
+        self.intent_lines += 1
+        return out
+
+    def _with_memory_line(
+        self, p: Percept, b5: bytes, b6: bytes
+    ) -> tuple[bytes, tuple[int, ...], tuple[tuple[int, int, int], ...]]:
+        """B5 の最後に「記憶」の 1 行(6b・M4)。返り値の 3 つ目は 10e(E5)の同定(最初の時刻・種類・対象)。チャネル 60 tok・
+        個体枠 300 を超えるなら末尾の項から削る。第 1 期 1-2: 想起した行は ``Percept.memories``(想起は ``perceive`` が呼ぶ)。"""
+        items = list(p.memories or ())
+        # 10e(E5・A8): テープ版 4 の同定(最初の時刻・種類・対象)。行番号と同じ並び・載せた分だけ返す
+        meta = tuple(
+            (int(getattr(it, "first_tick", -1)), int(getattr(it, "kind")), int(getattr(it, "obj"))) for it in items
+        )
+        if not items:
+            return b5, (), ()
+        when = self.clock_fn(int(p.step))
+        texts: list[str] = []
+        rows: list[int] = []
+        for it in items:  # 逐次ループ宣言: 想起の件数ぶん(≤ 3)
+            lt = int(getattr(it, "last_tick"))
+            h, m = N.format_time(self.clock_fn(lt) if lt >= 0 else when)
+            texts.append(memory_item_text(
+                it, hhmm=f"{h}:{m}", poi_names=self.assets.poi_name, place_ids=self.assets.place_ids,
+                result_text=RESULT_TEXT,
+            ))
+            rows.append(int(getattr(it, "row")))
+        line, n_keep = compose_memory_line(texts)
+        self.memory_items_dropped_for_channel += len(texts) - n_keep
+        b5_text = b5.decode("utf-8")
+        b6_tok = ch.estimate_tokens(b6.decode("utf-8"))
+        cap = int(T.GROUP_TOKEN_BUDGET["individual"])
+        out = b""
+        while n_keep:  # 逐次: 想起の件数ぶん(≤ 3・個体枠 300 を超えるなら末尾の項から削る)
+            out = N.join_lines([b5_text, line]).encode("utf-8")
+            if ch.estimate_tokens(out.decode("utf-8")) + b6_tok <= cap:
+                break
+            prev = n_keep
+            line, n_keep = compose_memory_line(texts[: n_keep - 1])
+            self.memory_items_dropped_for_budget += prev - n_keep
+        if not n_keep:
+            self.memory_lines_over_budget += 1
+            return b5, (), ()
+        kept = texts[:n_keep]
+        self.memory_lines += 1
+        self.memory_items += len(kept)
+        tok = ch.estimate_tokens(line)
+        self.memory_line_tokens[tok] = self.memory_line_tokens.get(tok, 0) + 1
+        return out, tuple(rows[: len(kept)]), meta[: len(kept)]
+
+    def memory_summary(self) -> dict:
+        """manifest ``memory_summary.render``: 記憶の行を載せた描画・項の件数・行の tok の分布。"""
+        toks = self.memory_line_tokens
+        n = sum(toks.values())
+        return {
+            "lines": int(self.memory_lines),
+            "items": int(self.memory_items),
+            "items_per_line": round(self.memory_items / n, 4) if n else 0.0,
+            "line_tokens": {str(k): int(v) for k, v in sorted(toks.items())},
+            "line_tokens_max": int(max(toks)) if toks else 0,
+            "line_tokens_mean": round(sum(k * v for k, v in toks.items()) / n, 3) if n else 0.0,
+            "items_dropped_for_channel": int(self.memory_items_dropped_for_channel),
+            "items_dropped_for_group_budget": int(self.memory_items_dropped_for_budget),
+            "lines_over_group_budget": int(self.memory_lines_over_budget),
+        }
 
     # ---------------------------------------------------------- ablation ①(単一ランキング)
     def _rank_items(
@@ -3045,40 +3093,6 @@ class Renderer:
         if code == int(ResultCode.FARE_SHORT):
             return f"(所持金{N.format_money(int(p.self_view.money))})"
         return ""
-
-    def _named_closed_text(self, i: int) -> str:
-        """Q25: 名指しの店が見えるが閉店で歩かずに失敗した体だけの補足の 1 句(それ以外は ``""``)。
-
-        ``named_closed_lookup``(``engine.run`` が渡す・体 → ``(POI, 失敗の tick, 開店の分)``)が
-        返した tick が ``last_result_tick`` と一致するときだけ載せる(=その失敗の直後の起床だけ)。
-        """
-        look = self.named_closed_lookup
-        if look is None:
-            return ""
-        got = look(int(i))
-        if not got:
-            return ""
-        poi, t, opens = (int(x) for x in got)
-        if int(self.agents.last_result_tick[i]) != t:
-            return ""
-        names = self.assets.poi_name
-        name = str(names[poi]) if 0 <= poi < len(names) else NAMED_CLOSED_FALLBACK_NAME
-        self.named_closed_notes += 1
-        return named_closed_note(name, opens)
-
-    def _cheapest_price(self, cell: int) -> int:
-        if not (0 <= cell < self.world.n_cells):
-            return 0
-        m = self.world.pois.cell == cell
-        return int(self.world.pois.price[m].min()) if m.any() else 0
-
-    def _next_open_hour(self, cell: int) -> int | None:
-        if not (0 <= cell < self.world.n_cells):
-            return None
-        m = self.world.pois.cell == cell
-        if not m.any():
-            return None
-        return int(self.world.pois.open_from[m].min()) // MINUTES_PER_HOUR
 
     # ---------------------------------------------------------- 監査
     @property

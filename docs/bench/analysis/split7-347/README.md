@@ -404,3 +404,234 @@ G-R2(renderer.py の中で `Renderer` を案 A1 の 3 つのクラスに分け�
 - 差し替えの「外すと落ちる」・性能・空行・外の物への副作用の順(副作用の順の試験で受ける)。
 - **再検収が見つけた、台本が数えない書き方**(どれも、今の renderer.py では当たる所が 0=検収役が台本と別に数えた。G-R2 は、文の多重集合とメソッドの字面の確かめがあるので、前に無い形を後に持ち込めない。段 8 でこの台本を使い回す前に塞ぐ候補): 局所の名の頼りでは、内包の中の `:=`・文の中の `import … as`・閉包の遅い結び付き。注では、1 つの文に付く注の塊の中の行の入れ替え・枠の `__init__` の上の注を世界の側の `__init__` の上へ動かす形。前提の数えでは、引数つきの `super(Renderer, self)`・マングリングの名が引数の名やキーワードにだけ在る形・`__init__` で property を読む形・`self` を入れ物や f 文字列で使う形・頂上の `for`/`with` の変数による結び直し。
 - 記録の文の細部(再検収の低): 上の小節の「検収役の 47 形とも違う」には、正しい形 2 つが含まれる(その見本は、台本の前提を崩す物を持つので、正しい形も ⓪ で止まる)。前提を崩さない見本では、正しい形は「同じ」になり、16 形は本来の項目で落ちる(検収役が植え直して確かめた)。
+
+## 7. G-R2(土台 `dc496d7`・2026-11-19)
+
+裁定 Q1〜Q4・Q9〜Q11: `src/shibuya/perception/renderer.py` の**中で**、クラス `Renderer`(メソッド 63)を案 A1 の 3 つのクラスに分けた。ファイルは割っていない(割るのは G-S)。メソッドの本文・注・import は 1 字も変えていない。形の照合の台本 `shapecheck` は道具の直しを待っているので、**手順 1(直す前の数)と手順 3(照合)はまだ回していない**。形は取り直しの台本(a1form の `check`)で仮に受けた(最後の受けではない)。
+
+### 直した所
+
+| クラス | 行 | メソッド | 中身 |
+|---|---|---|---|
+| `PerceptScene`(世界の側) | 1125〜1906 | 25(新しい `__init__` と、元の 24) | `__init__` は世界の側の 31 文。メソッドは `prepare_tick`・`b4_field_rows`・`perceive`・`_scene`・`_wake_view`・`_intent_view`・`_time_view`・`_signage_poi`・`signage_poi_by_cell`・`activity_class_of`・`activity_classes`・`_b4b_raw`・`_b4b_lines`・`_merge_activity_lines`・`_nearby`・`_nearby_items`・`_nearby_people`・`_nearby_people_distance`・`_near_sort`・`_near_take`・`_acquaintances_of`・`_named_closed_text`・`_cheapest_price`・`_next_open_hour` |
+| `SignageNotice`(気づく側) | 1909〜1975 | 2 | `_signage_body`・`_signage_seen`。`__init__` は持たない |
+| `Renderer(PerceptScene, SignageNotice)`(枠・描く側) | 1978〜3124 | 37(`__init__`・`render` と描く側の 35) | `__init__` は docstring の直後に `PerceptScene.__init__(self, world, agents, assets, clock_fn, seed, acquaintances=…, …, day_kind_fn=day_kind_fn)` を 1 文置き、その後に心の側の 37 文 |
+
+- 行の数は 3,170 → 3,184(+14= 新しい 2 つのクラスの頭・docstring・空行と `PerceptScene.__init__` の頭で 11・呼びの 3 行)。`git diff --stat` は renderer.py で +922・−908(メソッドの塊の並べ替え)。
+- 新しい 2 つのクラスは `check_near_tiebreak` の後・`class Renderer` の前に、`PerceptScene`・`SignageNotice` の順で置いた。docstring は短い 1 行(「知覚の場面(世界の側=前計算・知覚の事実を作る)。」「看板に気づく側(注視の抽選と看板の文)。」・`PerceptScene.__init__` は「世界の側の欄を置く。」)。つなぎの台帳の宣言の見出しは書いていない。新しい識別子に「tick」「open」の語は無い。
+- `PerceptScene.__init__` の引数の行と呼びの行は、計画 §4-5 の形で折り返した(折り返す前と後で AST は同じ)。引数に注釈と既定値は付けていない(呼ぶのは `Renderer.__init__` だけ・値は全部渡す)。
+- `Renderer` の docstring・`Renderer.__init__` の引数・注釈・既定値・docstring は元のまま(AST で同じ)。
+
+#### `__init__` の文の分け方(計画 §4-2 と、置いた側を文ごとに突き合わせた表= 手順 4 (h))
+
+「前の行」は `dc496d7` の行。計画の表の行の番号は古い(計画の後に +2・G-R1 で −1)ので、計画の行=前の行 −1 で引いた(計画の表の 61 行は、どれも 1 つ以上の文に当たった。範囲の行は 1233-1238 が 6 文・1249-1251 が 1 文・1349-1351 が 3 文)。68 文とも計画の側と同じ・置いた後の各の側の文の並びは元の並びのまま。
+
+| 前の行 | 計画の行 | 後の行 | 書く属性 | 計画の側 | 置いた側 | 突き合わせ |
+|---|---|---|---|---|---|---|
+| 1219 | 1218 | 1131 | world | 世界 | 世界 | 同じ |
+| 1220 | 1219 | 1132 | agents | 世界 | 世界 | 同じ |
+| 1221 | 1220 | 1133 | assets | 世界 | 世界 | 同じ |
+| 1222 | 1221 | 1134 | clock_fn | 世界 | 世界 | 同じ |
+| 1223 | 1222 | 2074 | seed | 心 | 心 | 同じ |
+| 1224 | 1223 | 1135 | acquaintances | 世界 | 世界 | 同じ |
+| 1225 | 1224 | 1136 | watched_by | 世界 | 世界 | 同じ |
+| 1226 | 1225 | 2075 | budget_mode | 心 | 心 | 同じ |
+| 1227 | 1226 | 2076 | strict_group_budget | 心 | 心 | 同じ |
+| 1228 | 1227 | 1137 | signage_enabled | 世界 | 世界 | 同じ |
+| 1229 | 1228 | 2077 | signage_p_see | 心 | 心 | 同じ |
+| 1232 | 1231 | 1140 | memory_recall | 世界 | 世界 | 同じ |
+| 1234 | 1233 | 2079 | memory_lines | 心 | 心 | 同じ |
+| 1235 | 1234 | 2080 | memory_items | 心 | 心 | 同じ |
+| 1236 | 1235 | 2081 | memory_line_tokens | 心 | 心 | 同じ |
+| 1237 | 1236 | 2082 | memory_items_dropped_for_budget | 心 | 心 | 同じ |
+| 1238 | 1237 | 2083 | memory_items_dropped_for_channel | 心 | 心 | 同じ |
+| 1239 | 1238 | 2084 | memory_lines_over_budget | 心 | 心 | 同じ |
+| 1240 | 1239 | 2085 | intent_mode | 心 | 心 | 同じ |
+| 1241 | 1240 | 2086 | vocab_version | 心 | 心 | 同じ |
+| 1244 | 1243 | 2089 | role_words | 心 | 心 | 同じ |
+| 1246 | 1245 | 1142 | near_tiebreak | 世界 | 世界 | 同じ |
+| 1247 | 1246 | 1143 | near_order | 世界 | 世界 | 同じ |
+| 1249 | 1248 | 1145 | near_order_ties | 世界 | 世界 | 同じ |
+| 1250 | 1249 | 1146 | (near_salt の既定=blake3) | 世界 | 世界 | 同じ |
+| 1253 | 1252 | 1149 | _near_salt64 | 世界 | 世界 | 同じ |
+| 1255 | 1254 | 1151 | near_tie_breaks | 世界 | 世界 | 同じ |
+| 1256 | 1255 | 1152 | near_tie_candidates | 世界 | 世界 | 同じ |
+| 1258 | 1257 | 1154 | _tickc | 世界 | 世界 | 同じ |
+| 1261 | 1260 | 2092 | _b0 | 心 | 心 | 同じ |
+| 1264 | 1263 | 2095 | _b4b | 心 | 心 | 同じ |
+| 1272 | 1271 | 1160 | _focus_target | 世界 | 世界 | 同じ |
+| 1279 | 1278 | 2102 | _hunger_words | 心 | 心 | 同じ |
+| 1281 | 1280 | 2104 | hunger_words | 心 | 心 | 同じ |
+| 1282 | 1281 | 2105 | _hunger_min_stage | 心 | 心 | 同じ |
+| 1285 | 1284 | 1165 | acquaintance_fn | 世界 | 世界 | 同じ |
+| 1287 | 1286 | 1167 | session_partner_fn | 世界 | 世界 | 同じ |
+| 1289 | 1288 | 1169 | _acq_cache | 世界 | 世界 | 同じ |
+| 1290 | 1289 | 2106 | _b1_cache | 心 | 心 | 同じ |
+| 1293 | 1292 | 2109 | _b2_cache | 心 | 心 | 同じ |
+| 1296 | 1295 | 1172 | _b3_cache | 世界 | 世界 | 同じ |
+| 1297 | 1296 | 2110 | _b4_cache | 心 | 心 | 同じ |
+| 1300 | 1299 | 2113 | _rank_cell_cache | 心 | 心 | 同じ |
+| 1303 | 1302 | 2116 | cache_hits | 心 | 心 | 同じ |
+| 1304 | 1303 | 2117 | cache_misses | 心 | 心 | 同じ |
+| 1305 | 1304 | 2118 | renders | 心 | 心 | 同じ |
+| 1306 | 1305 | 2119 | truncation_count | 心 | 心 | 同じ |
+| 1308 | 1307 | 2121 | intent_lines | 心 | 心 | 同じ |
+| 1309 | 1308 | 2122 | intent_lines_over_budget | 心 | 心 | 同じ |
+| 1312 | 1311 | 1175 | named_closed_lookup | 世界 | 世界 | 同じ |
+| 1315 | 1314 | 1178 | weather_date_fn | 世界 | 世界 | 同じ |
+| 1318 | 1317 | 1181 | weather_words_fn | 世界 | 世界 | 同じ |
+| 1319 | 1318 | 1182 | weather_words_key_fn | 世界 | 世界 | 同じ |
+| 1323 | 1322 | 1186 | weather_env | 世界 | 世界 | 同じ |
+| 1325 | 1324 | 1188 | day_kind_fn | 世界 | 世界 | 同じ |
+| 1326 | 1325 | 1189 | named_closed_notes | 世界 | 世界 | 同じ |
+| 1329 | 1328 | 1192 | signage_exposures | 世界 | 世界 | 同じ |
+| 1331 | 1330 | 2124 | signage_gate_draws | 心 | 心 | 同じ |
+| 1333 | 1332 | 2126 | signage_gate_shown | 心 | 心 | 同じ |
+| 1337 | 1336 | 1196 | heard_fn | 世界 | 世界 | 同じ |
+| 1340 | 1339 | 2129 | heard_seen_fn | 心 | 心 | 同じ |
+| 1342 | 1341 | 2131 | speech_field | 心 | 心 | 同じ |
+| 1344 | 1343 | 2133 | speech_lines | 心 | 心 | 同じ |
+| 1345 | 1344 | 2134 | speech_lines_over_budget | 心 | 心 | 同じ |
+| 1348 | 1347 | 1199 | contact_fn | 世界 | 世界 | 同じ |
+| 1350 | 1349 | 2136 | contact_lines | 心 | 心 | 同じ |
+| 1351 | 1350 | 2137 | contact_lines_over_budget | 心 | 心 | 同じ |
+| 1352 | 1351 | 2138 | contact_unnoticed_renders | 心 | 心 | 同じ |
+
+- 計: 世界の側 31 文・心の側 37 文(計画の「両方」8 文= `world`・`assets`・`clock_fn`・`_tickc`・`contact_fn` は世界の側、`seed`・`cache_hits`・`cache_misses` は心の側)。元の並びで 2 つの側が入れ替わる回数は 21。
+
+### 一緒に直した 3 つ
+
+1. `src/shibuya/runtime/state/class_ids.py` の `CLASS_IDS` に 2 行(`shibuya.perception.renderer.PerceptScene`・`shibuya.perception.renderer.SignageNotice`。鍵=値)と、凍結 `tests/engine/state/class_ids_frozen.json` に 2 行(値=`__qualname__`)。道具 `docs/bench/analysis/move-346/tools/gen_class_ids.py` で作った(先に `--check` で「違う・新しい鍵 2・落とした鍵 0」を見てから書いた。import で確かめた 482・関数の中のクラス 1)。既存の行は 1 字も変わっていない(差は 2 ファイルとも +2 行だけ)。**凍結の JSON の行が 2 つ増えた**(裁定 Q9。2 つのクラスはインスタンスの型にならない=作られる物は `Renderer` だけ)。
+2. `src/shibuya/runtime/state/ledger.py` の `OWNER_ALT_CLASSES` の末尾に `"renderer": (("perception/renderer.py", "PerceptScene"), ("perception/renderer.py", "SignageNotice")),` の 1 行(裁定 Q10)。
+3. `tests/engine/state/mind_world_reads_frozen.json`(裁定 Q11): `scope.split` の renderer の項で記号 26 を付け替えた(`Renderer.<世界の側 24>` → `PerceptScene.<同>`・`Renderer._signage_body`・`_signage_seen` → `SignageNotice.<同>`。付け替えの元は直した後の renderer.py の AST のクラスのメソッドの名)。クラスの名を 2 つ足した(`PerceptScene` は percept_scene の行の `_TickCache` の後・`SignageNotice` は notice の行の先頭= 各の行の、クラスの名の並びの所)。`key_counts` の鍵 2 つ(`mind/percept/notice.py` の `Renderer._signage_body` の `open_from`・`open_to`)を `SignageNotice._signage_body` へ。`totals` は 83・72 のまま・`totals_other_object` 8 のまま。書き方は `json.dumps(indent=1, ensure_ascii=False)`+改行(直す前のファイルがこの形と同じことを先に確かめた)。800 行 → 802 行。
+
+- 3 つのほかに、クラスが増えたことで落ちた試験・表は無かった(下の束で 0 failed)。
+
+### 形の確かめ(仮= 取り直しの台本 a1form の `check`)
+
+- 直す前の木から a1form の `build` が作る字面と、取り直しの `a1_renderer.py` は同じ字面。折り返した後の字面にも `check` が「全部同じ」(メソッドの AST と置き場・基底どうしの同じ名・`__init__` の文の多重集合・引数と docstring・2 つの側の互いの読み・属性の集合・MRO の名・頂上の文)。
+- **照合の台本 `shapecheck`(手順 1・3)は未**(道具の直しが入るのを待つ)。
+
+### 宣言どおりの違い 2 つの中身
+
+1. **`__init__` の中で例外を出しうる呼びの並び**(引数の誤りが 2 つ以上あるときに、どれが先に出るか):
+   - 前: `PerceptionAssets.synthetic` → `ch.BudgetMode.parse` → `check_signage_p_see` → `T.check_intent_mode` → `T.check_vocab_version` → `T.check_role_words` → `check_near_tiebreak` → `check_near_order` → (near_salt の既定: `blake3_hex`・`bytes.fromhex`)→ `near_tie_salt64` → `_TickCache` → (B0・B4b の文)→ `check_hunger_words`
+   - 後: 世界の側 `PerceptionAssets.synthetic` → `check_near_tiebreak` → `check_near_order` → (near_salt の既定)→ `near_tie_salt64` → `_TickCache` ‖ 心の側 `ch.BudgetMode.parse` → `check_signage_p_see` → `T.check_*` 3 つ → (B0・B4b の文)→ `check_hunger_words`
+   - 誤りが 1 つだけのときは同じ例外が出る。ランの値には入らない。
+2. **属性の辞書の並び**: 書く属性 67 は前後で同じ集合。初めて書く並びで位置が変わったのは 60(同じ位置は `world`・`agents`・`assets`・`clock_fn` と末尾の `contact_lines`・`contact_lines_over_budget`・`contact_unnoticed_renders` の 7)。後の並びは、世界の側の 30 属性(`world` … `contact_fn`)の後に、心の側の 37 属性(`seed` … `contact_unnoticed_renders`)。系の指紋(`plain`)は鍵を並べ直す。状態台帳の網羅は `vars()` を集合で見る。byte-check で受けた(下)。
+
+### 台本が見ない物の確かめ(手順 4)
+
+| 項 | 何を見たか | 結果 |
+|---|---|---|
+| (a) 局所の名の頼り | `near_salt` の既定を決める文(`if near_salt is None:`)と、それを読んで `_near_salt64` を書く文 | 2 文とも `PerceptScene.__init__` に在る(if が先)。心の側の文で `near_salt` を読む文は 0 |
+| | 世界の側の口の引数 | 12 個(位置 5= `world`・`agents`・`assets`・`clock_fn`・`seed`/名だけ 7= `acquaintances`・`watched_by`・`signage_enabled`・`near_tiebreak`・`near_salt`・`near_order`・`day_kind_fn`)。世界の側の文が読む元の引数の集合と 1 対 1(使わない引数 0)。呼びの位置の引数と名だけの引数は口と同じ並び・名=名 |
+| | 局所の名が 2 つの側をまたがないか | 世界の側が作る局所の名は `_text`・`near_salt` だけ・心の側は 0。互いの局所の名を読む所 0 |
+| | `near_salt` を渡さずに `Renderer` を作る試験 | `tests/perception/test_near_tiebreak.py::test_default_salt_is_the_run_salt_of_the_seed`(`run_salt_for(11)` と同じ salt)が束の中で通った |
+| (b) import | 頂上の import の並び・関数の中の import(関数の名ごと)・import で始まる行の多重集合 | 頂上 22 本の並びが同じ・頂上の if の中 0・全部 26 本の多重集合が同じ・関数の中 4 本は同じ関数に在る。足した・消した・並べ替えた import 0 |
+| (c) 注 | `tokenize` の注(COMMENT)の多重集合と、各の注が付く文(注の後の最初の文・行の途中の注はその行の文) | 前 280・後 280・前にだけ在る注 0・増えた注 0・付く文が変わった注 0。節の区切りの注(クラスの中の 9 本)は重ねていない(**重ねた数 0**)。世界の側へ移ったメソッドの先頭に区切りが付いていた 2 本(「前計算(1 tick 1 回)」「第 1 期 1-2: 状態 → 知覚の事実」)は `PerceptScene` に、ほかの 7 本は `Renderer` に残った。「素材(固定枠と単一ランキングで共有)」の節の下に在った世界の側のメソッドは、`PerceptScene` の中では「状態 → 知覚の事実」の節の続きに並ぶ(見出しは重ねていない)。新しい注は 0(基底の 2 つの頭は docstring だけ) |
+| (d) 置き場 | 頂上の並び・クラスの外の頂上の文の字面・デコレータ | `check_near_tiebreak` の後に `PerceptScene`・`SignageNotice`・`Renderer`。新しい 2 つを除いた頂上の並びは前と同じ・クラスの外の頂上の文 95 の字面は同じ。`PerceptScene.__init__` にデコレータ・`async` は無い・3 つのクラスにデコレータ無し・基底は `Renderer` だけ(`PerceptScene, SignageNotice`)・クラスの keywords 0 |
+| (e) super・`__class__`・マングリング・`__init__` の中の self | 3 つのクラスの AST | 引数の無い `super()` 0・`__class__` 0・`self.__x` の形 0(前の `Renderer` も 0)。`__init__` の中の self のメソッドの呼び・`hasattr`/`getattr`/`setattr(self, …)`・self をほかへ渡す形は、前の `Renderer.__init__`・後の 2 つの `__init__` とも 0(後の `Renderer.__init__` の `PerceptScene.__init__(self, …)` の 1 文を除く)。クラスの名で呼ぶ形(`X.m(...)`)はこの 1 文だけ= 基底の中に `PerceptScene.x(self)` の形は無い |
+| (f) 照合の台本の合格の条件 | — | 道具が入った後に回す(未) |
+| (g) 台本が見ない物 | 属性の辞書の並び= byte-check と束/`__qualname__` の変化= 心の読みの凍結の表の鍵(直した 3)/クラスが増えたこと= クラスの名の表と凍結の JSON・`OWNER_ALT_CLASSES`(直した 1・2)/差し替え= 下の表/性能= 下の表 | 下のとおり |
+| (h) 計画 §4-2 との突き合わせ | 文ごと | 上の表(68 文とも同じ) |
+
+### 差し替えの「外すと落ちる」(直した後の木・13 か所)
+
+G0 と同じ台本(1 か所ずつ外して回し、同じ台本の中でバイトを戻して sha256 で確かめる・毎回あとに作業木の指紋= `git diff` と `git status --porcelain` の sha256 を確かめる)。確かめの最中は、この木をほかの作業で編集していない(始めと終わりで `git status` と `git diff` の sha256 が同じ)。
+
+| # | 所・差し替える名 | 狙いの試験 | G0 の最後 | G-R2 の後 |
+|---|---|---|---|---|
+| 1 | `tests/engine/proximity/test_runs.py:128` `_nearby_people_distance`(世界の側へ移った) | `test_b5_near_rows_are_within_radius_or_unit` | 落ちる | **落ちる**(`renders` 0 > 1000) |
+| 2 | `tests/engine/test_resume_10d.py:625` `_named_closed_text`(世界の側へ移った) | `test_named_closed_memo_survives_a_resume` | 落ちる | **落ちる** |
+| 3 | `tests/engine/test_sim_time_T.py:365` `__init__` | `test_start_date_moves_the_prompt_clock` | 落ちる | **落ちる**(`IndexError`) |
+| 4 | `tests/engine/test_weather_calendar_10e.py:309` `__init__` | `test_b6_b3_words_body_heat_and_sun_follow_one_rule` | 落ちる | **落ちる**(`IndexError`) |
+| 5 | `tests/engine/tools/test_c0_signboard_mark_invariance.py:87` `render`(枠) | `test_synthetic_run_arm_on_and_off_render_the_same_bytes` | 落ちる | **落ちる** |
+| 6 | `tests/perception/facts/test_percept_is_scratch.py:327` `render` | `test_replay_full_hash_does_not_see_percepts` | 落ちない | 落ちない(G0 と同じ=前からの試験の弱さ・§1-3) |
+| 7 | `tests/perception/facts/test_render_from_percept_bytes.py:220` `near_person_text`(モジュール。今は 1 つのモジュール=1 回だけ) | `test_negative_control_one_byte_change_is_caught` | 落ちる | **落ちる** |
+| 8 | 同 `:313` `prepare_tick`(世界の側へ移った) | `test_19_configs_render_the_same_bytes_as_head[w6_v3_default]` | 落ちる | **落ちる**(`KeyError`) |
+| 9 | 同 `:314` `render`(枠) | 同じ | 落ちる | **落ちる**(計数が双子と違う) |
+| 10 | `tests/perception/test_nearby_vectorized.py:155` `_nearby_people`(世界の側へ移った) | `test_rendered_bytes_are_unchanged_in_both_modes`(2 形) | 落ちる | **落ちる**(呼ばれた数 0 ≠ 100・2 形とも) |
+| 11 | 同 `:184` `_nearby_people` | `test_negative_control_a_changed_reference_is_caught` | 落ちる | **落ちる** |
+| 12 | `tests/perception/test_weather_a48.py:89` `__init__` | `test_a_run_without_processes_builds_the_weather_only_environment_without_data` | 落ちる | **落ちる**(`IndexError`) |
+| 13 | `tests/engine/test_assets_10e_b0_b1.py:115` `file_sha256` の renderer の側 | `test_b0_hashes_stay_out_of_the_final` | 落ちる(§1-7 で足した assert) | **落ちる**(4 つのファイルの鍵が 0 埋めにならない) |
+
+- 発注の 9 か所(#1・#3・#4・#5・#8・#9・#10・#11・#12)は全部落ちる。#2 と #7 も落ちる。13 回とも、戻した後のバイトは sha256 で元と同じ・作業木の指紋も同じ。
+
+- `__init__` の差し替え(#3・#4・#12)は 3 本とも `Renderer.__init__` を包む形(`orig = Renderer.__init__` を呼んでから控える)。包まれるのは `Renderer.__init__`(その中で `PerceptScene.__init__` を呼ぶ)なので、控えるのは今も作り終えた 1 つのインスタンス= 試験が確かめたい物は同じ。外すと 3 本とも落ちる。
+- 世界の側へ移ったメソッドへの `Renderer` のクラスの属性の差し替え(#1 `_nearby_people_distance`・#2 `_named_closed_text`・#8 `prepare_tick`・#10・#11 `_nearby_people`)は、外すと落ちる= `Renderer` の辞書に置いた差し替えが `self.x(...)` から今も届く。
+- #6 と #13 は G0 の最後と同じ(#6 は落ちない= 前からの試験の弱さ・§1-3/#13 は §1-7 で足した assert で落ちる)。#7(`near_person_text`)を 2 つのモジュールで別々に外す確かめは G-S で。
+
+### 確かめ
+
+| 何を | 結果 |
+|---|---|
+| 副作用の順の固定の値(`make_perceive_order.py --check`) | 同じ(sha256 `6a4b27c51e4a10ad260467a1c335c02b5bd4a810d07207208ba54911fd5d3015`)。固定の値の JSON は変えていない。試験が頼る字面(`perceive` の中の 4 つの文の頭・`_snap` が読む属性の名・`_acq_cache`・`_acquaintances_of`)は、メソッドの本文を変えていないので同じ。`perceive` に `super()` は無い |
+| 試験の束(`tests/perception`・`tests/engine/state`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_salt_seed_split_10f.py`・`tests/engine/bridging`・`tests/engine/memory`・`tests/engine/proximity`・`tests/engine/tools`・`tests/tools`・`tests/test_places_guard.py`・`-m "not gpu and not slow"`・`-n 2`・合図を取って) | **1,702 passed・22 skipped・0 failed**(12 分 44 秒)。飛ばしたのは前からの 22 本= Ruri の重み 1(`test_m2_cue.py`)・`test_pkgmove.py` の木の段の状態による 21(「当てる段が無い木=段 4 の段を当てた後の木」など)。git が無いことによる飛ばしは 0。心の読みの固定の表・クラスの名の表・状態台帳の網羅と外の読み・`_HASH_SITES`・つなぎの台帳・カードの試験を含む。1 回目は `-q` が設定の `-q` と重なり要約の行が出なかったので、進みの印から数え(1,724=1,702+22・終了コード 0)、飛ばしたわけを見るために `-rs` でもう 1 回回した(同じ数) |
+| `lint-imports`(その行のコマンドに `PYTHONPATH=…\src`) | 11 kept・0 broken(387 ファイル・1,394 の依存) |
+| `cli.py contracts --stage delete --tree . --check --probe` | 同じ・例外 17 行・15 辺 |
+| クラスの名の表の道具 `gen_class_ids.py --check`(書いた後) | 同じ(新しい鍵 0・落とした鍵 0) |
+| **byte-check 19 構成**(基準 `dc496d7`・比べる側は作業木の src・記録 [bytecheck_R2/](bytecheck_R2/)・合図を取って) | **37 欄すべて同じ 19・動いた 0・誤り 0・final が同じ 19・441 秒**(基準の側 226 秒・比べる側 215 秒)。既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939(基準と同じ)。読み込んだ src は両側とも 275 本・木の外の読み 0 |
+| メモリの中で段 7 を当てる書かない実行(G-R1 で使った台本の写しを、直した後の木に向けて) | 止めた理由 0・守りは全部「同じ」(決まりは宣言どおり 5)・手で直す一覧は `tests/engine/test_salt_seed_split_10f.py::_HASH_SITES` の 1 つだけ・見られなかった差し替え 0・注意 0。台本は、G-R2 の形をメモリの中で当てる段を、木がその形か(3 つのクラスの頭・`CLASS_IDS` の 2 行・`OWNER_ALT_CLASSES` の 1 行・凍結の JSON の 2 行)を確かめる段に替えた(本物の renderer.py を読む)。出力の要約は G-R1 の回と 1 字も同じ。割り先の字面も、折り返した 2 か所(percept_scene の `__init__` の引数・draw の呼び)のほかは G-R1 の回と同じ |
+| カード | 作り直した(変わったのは `src/shibuya/perception` のカード= 2 つのクラスの行と、持ち主 `renderer` の別のクラス 2 つの行・docs の索引の数=記録の分。`data.md` は単独で戻した・`--check` 最新) |
+| 秘密の走査 | CLEAN(変えた・足したファイル) |
+
+### 性能(byte-check の `run_wall_s`・5,000 体・seed 1・1 日・mock・6 本並列)
+
+| 構成 | 基準(秒) | 後(秒) | 比 |
+|---|---|---|---|
+| `w6_v3_default` | 59.3 | 52.0 | 0.88 |
+| `w6_v3_activity_off` | 45.0 | 37.9 | 0.84 |
+| `w6_v1_default` | 42.6 | 35.5 | 0.83 |
+| `w6_v1_derive_v2_1` | 39.4 | 32.2 | 0.82 |
+| `w6_v2` | 44.0 | 36.5 | 0.83 |
+| `w6_v1_edge` | 42.6 | 35.5 | 0.83 |
+| `w6_v2_edge` | 37.6 | 36.3 | 0.97 |
+| `w6_v1_edge_plateau` | 36.1 | 35.1 | 0.97 |
+| `w6_old_v1_default` | 36.0 | 35.5 | 0.99 |
+| `w6_old_v1_derive_v2_1` | 32.4 | 31.8 | 0.98 |
+| `w6_old_v2` | 37.2 | 35.7 | 0.96 |
+| `w6_old_v1_edge` | 35.8 | 34.9 | 0.97 |
+| `w6_old_v2_edge` | 37.2 | 35.8 | 0.96 |
+| `w6_old_v1_edge_plateau` | 36.0 | 34.3 | 0.95 |
+| `w6_golden_null_arm` | 60.7 | 58.8 | 0.97 |
+| `v3_mem_store` | 66.5 | 64.8 | 0.98 |
+| `v3_mem_rel` | 64.4 | 63.7 | 0.99 |
+| `v3_classical` | 70.8 | 69.8 | 0.99 |
+| `v3_classical_mem_rel` | 102.5 | 103.5 | 1.01 |
+| 計 | 926 | 870 | 0.94 |
+
+- 1 回の比べでは ±15% ほどは揺れの内(取り直し §14)。後の側が遅くなった構成は無い(比 0.82〜1.01・計 0.94)。±15% の外に出た 5 構成(`w6_v1_derive_v2_1`・`w6_v2`・`w6_v1_edge`・`w6_v1_default`・`w6_v3_activity_off`)は、どれも**後の側が速い**向き。基準の側の最初の 6 本の組(先に回る組)が、どれも遅かった(G-R1 の回と同じ形=回る順の揺れと見る)。悪化は無い。
+
+### 確かめていないこと
+
+- 照合の台本 `shapecheck`(手順 1 の直す前の数・手順 3 の照合と (f) の合格の条件)。道具が入った後に回す。
+- 範囲の全体の試験(親が回す)。`tests/c7`(renderer の読み手は 0 本)。
+
+## 8. G-R2 の、親の確かめと検収(第347・2026-11-20)
+
+### 8-1. 別の役の検収
+
+- 判定: **受入**(高 0・中 0・低 4)。検収役は、照合の台本に頼らずに、自分の台本(メモリの中だけ)で確かめた。ファイルは 1 本も変えていない。
+- メソッドの本文: `__init__` を除く 62 は、どれもちょうど 1 つのクラスに在り、字面(本文の中の注と空行を含む)・AST・前に付く注と空行の塊が、すべて同じ。置き場は全ファイルの表 §4-23 と名ごとに一致(世界 24・気づく 2・枠 36)。各クラスの中の並びは元の部分列。クラスの外の頂上の文 95 は並びも字面も同じ。注は前後とも 280 で、多重集合が同じ。`super()`・`__class__`・`self.__x` は 0。クラスの名で呼ぶ形は、基底を呼ぶ 1 文だけ。
+- `__init__` の分け方: 世界の側 31・心の側 37 の多重集合が、土台の 68 と同じ。各の側は元の部分列。書く属性は世界 30・心 37 で、計画 §4-2 と一致し、重なり 0。世界の側は心の属性も局所の名も読まず、心の側は世界の属性を 1 つも読まない。局所の名は世界の側の 2 つだけ。引数 12 は、世界の側が読む元の引数と 1 対 1(既定の値なし・位置 5 と名 7 の取り違えなし)。土台の renderer.py をメモリの中で読み込んで実行でも比べ、属性 67 の集合と値は同じ・違うのは並びだけ・描画の文と計数も同じ。
+- 宣言の 2 つのほかに挙動の違いは無い: 引数の誤りが 1 つなら同じ例外・2 つなら世界の側が先(宣言どおり)。属性の辞書の並びは、ランの値に入らない(系の探りは鍵を並べ直す・ハッシュは並べ直してから・状態の符号化とハッシュの対象に `Renderer` は入らない・復元は名前で戻す・再開は型の名だけを残す・台帳の網羅は集合で比べる)。メソッドの `__qualname__` の変化が触れるのは、今回直した心の読みの表だけ。`Renderer` を判定する `isinstance` などは src に 0。
+- 差し替え: 基底に定義が在る 5 つの名を `Renderer` に差し替えると、5 つとも `Renderer` の辞書に置かれて `self.x` から引かれ、戻すと消える。`__init__` の包みは、作り終えたインスタンスを控え、戻すと元に戻る。検収役も 2 か所(基底の `_nearby_people`・`__init__`)で「外すと落ちる」を確かめた。
+- 一緒に直した 3 つ: クラスの名の表と凍結の JSON は +2 行ずつ(既存の行は不変)。`OWNER_ALT_CLASSES` の 1 行は、外すと状態台帳の 12 項が「クラスに無い」になる=要るし、効いている。心の読みの表は、付け替え 26+クラスの名 2・鍵 2・合計 83・72 のまま。落ちるはずの試験 5 本は全部通る。
+- 副作用の順の試験: 5 構成とも固定の値と一致。基底のメソッドを上書きする負の対照も、今も落ちる。
+
+### 8-2. 検収の低と、親の答え
+
+- 低-1(節の区切りの注が、付いているメソッドと一緒に動いたので、`PerceptScene` の中では、元は別の節の下に在ったメソッドが、ほかの節の続きに並ぶ。`SignageNotice` には節の見出しが無い): 見た目だけの話=段 8 の文の掃除の候補。
+- 低-2(`Renderer` の docstring と `def __init__` の間の空行が 1 行消えた・AST は同じ): そのまま(空行は照合の台本も比べない)。
+- 低-3(`PerceptScene.__init__` は注釈も既定の値も持たない=計画どおり。単独で作る形は v3 の話): そのまま。
+- 低-4(試験の `_HASH_SITES` の鍵は、同じファイルの 2 つの `__init__` を区別しない。今は害が無い): G-M の宣言で、世界の側の置き場へ向ける(裁定 P4)。
+
+### 8-3. 親が回した確かめ
+
+| 何を | 結果 |
+|---|---|
+| 照合の台本(`cli.py shapecheck`。検収の後に直した版・土台 `dc496d7` の blob と、直した後の renderer.py) | ⓪〜⑨ の 10 項目とも「同じ」(終了コード 0)。メソッドの置き場は世界 24・気づく 2・枠 36。宣言どおりの違いは 2 つだけ(2 つの側の入れ替わり 21 回・属性 67 のうち位置の違う 60。節の区切りの重ねは 0)。数は 63・68(31+37)・67・口の引数 12・基底どうしの同じ名 0。見張りの欄は空。`--plan-counts`(計画の分け方の数)と合う |
+| byte-check 19 構成(本体の道具・基準 `dc496d7`・直した後の木) | 37 欄すべて同じ 19・動いた 0・誤り 0・445 秒・既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。記録 [bytecheck_R2_parent/](bytecheck_R2_parent/)(実装役の記録は [bytecheck_R2/](bytecheck_R2/)=441 秒)。読み込んだ src 277 本のうち、sha が変わったのは `perception/renderer.py`・`runtime/state/class_ids.py`・`runtime/state/ledger.py` の 3 本。性能の参考(`run_wall_s`・6 本並列・比べない参考値): 19 構成の合計は基準 925 秒/後 912 秒・構成ごとの比は 0.85〜1.07(1 回の比べの揺れの内)・既定の構成は基準 61.4 秒/後 54.9 秒 |
+| 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`。回している間、この作業木は誰にも編集させていない=始めと終わりで `git status` が同じ) | 7,089 passed・1 failed(前からの 1 本=linked の作業木でだけ落ちる)・22 skipped・1 xfailed・37 分 23 秒(G-R1 の回と同じ数=試験は足していない) |
+| 差分を読んだ(一緒に直した 3 つ・基底を呼ぶ 1 文) | 発注と裁定のとおり・固定の値を変えた直しは 3 つだけ・副作用の順の固定の値は変えていない |

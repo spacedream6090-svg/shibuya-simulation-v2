@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-378 ディレクトリ・2547 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+380 ディレクトリ・2553 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -424,6 +424,10 @@
 ## docs/bench/analysis/split7-347/bytecheck_R1(3 本)
 
 ## docs/bench/analysis/split7-347/bytecheck_R1_parent(3 本)
+
+## docs/bench/analysis/split7-347/bytecheck_R2(3 本)
+
+## docs/bench/analysis/split7-347/bytecheck_R2_parent(3 本)
 
 ## docs/bench/analysis/split7-347/tools(1 本)
 

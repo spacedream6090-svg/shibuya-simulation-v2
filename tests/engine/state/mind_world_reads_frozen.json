@@ -167,6 +167,7 @@
       "symbols": [
        "PerceptionAssets",
        "_TickCache",
+       "PerceptScene",
        "_prior_scores",
        "_load_frozen_text",
        "_street_aggregate",
@@ -185,30 +186,30 @@
        "PerceptionAssets.available",
        "PerceptionAssets.load_or_synthetic",
        "PerceptionAssets.load",
-       "Renderer.prepare_tick",
-       "Renderer.b4_field_rows",
-       "Renderer.perceive",
-       "Renderer._scene",
-       "Renderer._wake_view",
-       "Renderer._intent_view",
-       "Renderer._time_view",
-       "Renderer._signage_poi",
-       "Renderer.signage_poi_by_cell",
-       "Renderer.activity_class_of",
-       "Renderer.activity_classes",
-       "Renderer._b4b_raw",
-       "Renderer._b4b_lines",
-       "Renderer._merge_activity_lines",
-       "Renderer._nearby",
-       "Renderer._nearby_items",
-       "Renderer._nearby_people",
-       "Renderer._nearby_people_distance",
-       "Renderer._near_sort",
-       "Renderer._near_take",
-       "Renderer._acquaintances_of",
-       "Renderer._named_closed_text",
-       "Renderer._cheapest_price",
-       "Renderer._next_open_hour"
+       "PerceptScene.prepare_tick",
+       "PerceptScene.b4_field_rows",
+       "PerceptScene.perceive",
+       "PerceptScene._scene",
+       "PerceptScene._wake_view",
+       "PerceptScene._intent_view",
+       "PerceptScene._time_view",
+       "PerceptScene._signage_poi",
+       "PerceptScene.signage_poi_by_cell",
+       "PerceptScene.activity_class_of",
+       "PerceptScene.activity_classes",
+       "PerceptScene._b4b_raw",
+       "PerceptScene._b4b_lines",
+       "PerceptScene._merge_activity_lines",
+       "PerceptScene._nearby",
+       "PerceptScene._nearby_items",
+       "PerceptScene._nearby_people",
+       "PerceptScene._nearby_people_distance",
+       "PerceptScene._near_sort",
+       "PerceptScene._near_take",
+       "PerceptScene._acquaintances_of",
+       "PerceptScene._named_closed_text",
+       "PerceptScene._cheapest_price",
+       "PerceptScene._next_open_hour"
       ]
      },
      {
@@ -226,9 +227,10 @@
      {
       "dest": "mind/percept/notice.py",
       "symbols": [
+       "SignageNotice",
        "check_signage_p_see",
-       "Renderer._signage_body",
-       "Renderer._signage_seen"
+       "SignageNotice._signage_body",
+       "SignageNotice._signage_seen"
       ]
      },
      {
@@ -667,14 +669,14 @@
   },
   {
    "path": "mind/percept/notice.py",
-   "symbol": "Renderer._signage_body",
+   "symbol": "SignageNotice._signage_body",
    "column": "open_from",
    "owner": "world",
    "count": 1
   },
   {
    "path": "mind/percept/notice.py",
-   "symbol": "Renderer._signage_body",
+   "symbol": "SignageNotice._signage_body",
    "column": "open_to",
    "owner": "world",
    "count": 1

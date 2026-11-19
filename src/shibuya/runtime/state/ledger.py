@@ -1680,6 +1680,7 @@ OWNER_ALT_CLASSES: Final[dict[str, tuple[tuple[str, str], ...]]] = {
     "contact.calls": (("society/contact/calls.py", "CallManager"),),
     "contact.chats": (("society/contact/chat_state.py", "ChatBook"),),
     "contact.speech": (("society/contact/calls.py", "CallSpeechPort"),),
+    "renderer": (("perception/renderer.py", "PerceptScene"), ("perception/renderer.py", "SignageNotice")),
 }
 
 CACHE: Final[str] = "cache"
