@@ -19,7 +19,9 @@ from shibuya.runtime.state import ledger as SL
 from shibuya.foundation.vocab import events as V
 from shibuya.foundation.journal.log import EventLog
 from shibuya.society.speech import layer as SPL
+# 〔割る段 6 の M0〕別名 P を割り先ごとに分けた(P=society/speech/port・P_MORA=foundation/text/mora の名。割る前は全部 port)
 from shibuya.society.speech import port as P
+from shibuya.society.speech import port as P_MORA
 from shibuya.foundation.vocab import actions as C
 from shibuya.perception import renderer as R
 
@@ -79,7 +81,7 @@ def test_via_is_the_1_3_vocabulary_and_three_participants_are_allowed():
     ("また後で", 5),  # 仮名 3 拍+漢字 1 字=2 拍(expedient の数え方)
 ])
 def test_mora_count_is_the_declared_kana_approximation(text, mora):
-    assert P.mora_count(text) == mora
+    assert P_MORA.mora_count(text) == mora
     assert _u(text=text).mora == mora
 
 

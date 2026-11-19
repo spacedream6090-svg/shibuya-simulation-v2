@@ -166,7 +166,7 @@ def test_map_toml_is_made_from_the_table_and_is_current():
     # 〔割る段 5a の G0〕2 つ目以降の割り先 9 本と 18 本目(延ばした)の割り先 1 本の行(move の形・split_from)を足し、行 244 を
     # 割る行に替えた(18 本目は延ばしても割る行のまま=table.SPLIT_DEFERRED)。〔割る段 5b の G0〕2 つ目以降の割り先 6 本の行
     # (87a・141a・146a・207a・234a・234b)を足した(親の裁定 Q5)。〔割る段 6 の S6-G0・裁定 Q5〕2 つ目以降の新しい割り先 14 本の行
-    # (225a〜225n)を足した
+    # (225a〜225n)を足した。〔割る段 6 の M0〕延ばした 18 本目を割る段の順の 24 本目に載せた(行の数は変わらない)
     assert len(rows) == 358
     kinds = Counter(r.kind for r in rows)
     assert kinds == {"move": 235, "keep": 94, "split": 25, "delete": 2, "empty": 2}
@@ -1905,18 +1905,20 @@ def test_split_rows_in_the_real_map_match_the_source_files():
     揃い(§4 を開いた=親の裁定 Q9)、まだ割っていない本は表の名が元のファイルの頂上の名と同じ。延ばした行は割る行のまま、順に
     載らず(split_order 0)、道具は名指しでも断る。2 つ目以降の割り先の行(split_from)は段 4 の段の行に数えず、名指しでも段 4 の
     道具は断る。〔割る段 5b の G0〕順に 5b の 5 本を足した(22 本)・2 つ目以降の割り先の行は 16 本(5a 10・5b 6)。〔割る段 6 の
-    S6-G0〕順に段 6 の 1 本(23 本目=engine/resolve.py)を足した・2 つ目以降の割り先の行は 30 本(段 6 の 14 を足した)。"""
+    S6-G0〕順に段 6 の 1 本(23 本目=engine/resolve.py)を足した・2 つ目以降の割り先の行は 30 本(段 6 の 14 を足した)。〔割る段 6
+    の M0・親の裁定 Q12・T2〕延ばした行を順の 24 本目に載せた(``SPLIT_DEFERRED`` は空)。順に無い行を名指しで断ることは、その行を
+    除いた順を渡して確かめる(延ばした行と同じ形)。"""
     from pkgmove.table import SPLIT_DEFERRED, SPLIT_ORDER
 
     tree = _root_tree()
     by = MAPDOC.by_old()
-    assert [r.old for r in MAPDOC.split_rows()] == list(SPLIT_ORDER) and len(SPLIT_ORDER) == 23
+    assert [r.old for r in MAPDOC.split_rows()] == list(SPLIT_ORDER) and len(SPLIT_ORDER) == 24
     assert SPLIT_ORDER[17:] == ("engine/commit.py", "engine/presence.py", "engine/calendar_shadow.py", "engine/run.py", "cli.py",
-                                "engine/resolve.py")
-    assert list(SPLIT_DEFERRED) == ["engine/speech/port.py"] and by["engine/speech/port.py"].kind == "split"
-    assert by["engine/speech/port.py"].split_order == 0 and "engine/speech/port.py" not in SPLIT_ORDER
+                                "engine/resolve.py", "engine/speech/port.py")
+    assert SPLIT_DEFERRED == {} and by["engine/speech/port.py"].kind == "split"
+    assert by["engine/speech/port.py"].split_order == 24 and MAPDOC.meta.get("split_deferred") == []
     with pytest.raises(SP.SplitRefused, match="割る段の順に無い行"):
-        SP.make_split_plan(tree, MAPDOC, "engine/speech/port.py")
+        SP.make_split_plan(tree, MAPDOC, "engine/speech/port.py", order=SPLIT_ORDER[:-1])
     for old in (*SPLIT_ORDER, *SPLIT_DEFERRED):
         r = by[old]
         assert r.names_complete and r.split_order == (SPLIT_ORDER.index(old) + 1 if old in SPLIT_ORDER else 0)
@@ -2144,7 +2146,8 @@ def test_split_5a_5b_in_memory_keeps_the_import_rules_to_the_end():
     終わりに契約は 11(古い 2+新しい 9)、単位 foundation と決まり 2 が言える。〔割る段 5b の G0〕5b の 5 本の後は、単位
     interfaces が言え(run の本で入口の割り先 run_args が入る)、``shibuya.cli`` は入口の転送で済んだ本と見る(読んでよい側に
     足した古い読み手は 0)。〔割る段 6 の S6-G0〕23 本目(engine/resolve.py)まで: 宣言どおりの弱まりに段 6 の engine(包み engine が
-    木から無くなり古い層の決まりが丸ごと消える=[[split_weakens]])が足され、終わりの契約は 11(古い 1+新しい 10=決まり 4 が言える)。"""
+    木から無くなり古い層の決まりが丸ごと消える=[[split_weakens]])が足され、終わりの契約は 11(古い 1+新しい 10=決まり 4 が言える)。
+    〔割る段 6 の M0〕24 本目(延ばしていた engine/speech/port.py)まで: 弱まりは足されない(決まり 10 の例外=核 1 が載らなくなる)。"""
     from pkgmove import contracts as CT
     from pkgmove.table import SPLIT_ORDER
 
@@ -2629,7 +2632,7 @@ def test_negative_forwarder_guard_branches_stop_one_by_one(monkeypatch):
 def test_split_groups_cover_the_split_order_in_order():
     """〔低-2〕群(親の裁定 Q11・``table.SPLIT_GROUPS``)を段の順・群の順につなぐと ``SPLIT_ORDER`` の全部と同じ(重なりも抜けも
     無い)。5b の群は G1=commit・presence・calendar_shadow・G2=run・G3=cli。〔割る段 6 の S6-G0・裁定 Q9〕段 6 の群は G1=resolve
-    (23 本目)。"""
+    (23 本目)。〔割る段 6 の M0〕段 6 の群 M=延ばしていた ``engine/speech/port.py``(24 本目)。"""
     from pkgmove.table import SPLIT_GROUPS, SPLIT_ORDER
 
     seq: list[int] = []
@@ -2641,8 +2644,8 @@ def test_split_groups_cover_the_split_order_in_order():
     g = {k: SPLIT_ORDER[lo - 1: hi] for k, (lo, hi) in SPLIT_GROUPS["5b"].items()}
     assert g == {"G1": ("engine/commit.py", "engine/presence.py", "engine/calendar_shadow.py"), "G2": ("engine/run.py",),
                  "G3": ("cli.py",)}
-    assert len(SPLIT_ORDER) == 23 and {k: SPLIT_ORDER[lo - 1: hi] for k, (lo, hi) in SPLIT_GROUPS["6"].items()} == {
-        "G1": ("engine/resolve.py",)}
+    assert len(SPLIT_ORDER) == 24 and {k: SPLIT_ORDER[lo - 1: hi] for k, (lo, hi) in SPLIT_GROUPS["6"].items()} == {
+        "G1": ("engine/resolve.py",), "M": ("engine/speech/port.py",)}
 
 
 def test_split_lists_a_code_import_inside_an_f_string_for_hand_fixing(monkeypatch):
@@ -3551,15 +3554,40 @@ def test_bare_alias_declaration_works_the_same_in_a_src_file(monkeypatch):
 #: 〔E5-c・宣言が腐らない・親の裁定(検収の低-1)〕印(``bare``)のある宣言の受け手: (ファイル, 別名) → (受け手のファイル, 受け手=
 #: 頂上の関数かクラス, 受け手の中でそのモジュールを持つ字面)。道具は、しまう・既定の引数で写した先の読みと差し替えを辿らない。
 #: 印のある宣言を足すときは、ここに受け手を足す(``tools/pkgmove/README.md`` の E5-c の決まり)。足さなければ下の試験が落ちる。
+#: 〔割る段 6 の M0・検収の低-2(意味の側)〕4 つ目の欄=外の差し替え: 受け手の外で、宣言の割り先のモジュールの名を差し替え、ランの
+#: 中でこの別名を通って受け手の読みに届く所(ファイル, 記号, 名)。宣言の ``patches`` は、受け手の中で書く名と外の差し替えの名を
+#: 合わせたもの。受け手の読む名を外で差し替える所が、同じ受け手のどの行にも無ければ落ちる。
 _SETTLE = ("src/shibuya/runtime/run.py", "_settle_pending_invites", ("R",))
-_BARE_RECEIVERS: dict[tuple[str, str], tuple[str, str, tuple[str, ...]]] = {
-    ("tests/engine/test_conversation_invite.py", "R_TALK"): _SETTLE,
-    ("tests/engine/test_defect_fixes_1103.py", "R_TALK"): _SETTLE,
-    ("src/shibuya/runtime/systems/judge.py", "R_TALK"): _SETTLE,
-    ("tools/c7/attr_arms.py", "module"): ("tools/c7/attr_arms.py", "AgentCellRecorder", ("module", "self._module")),
+#: ランの中で ``judge.py`` の別名 ``R_TALK`` を通って ``_settle_pending_invites`` に読まれる差し替え(試験のランの包み)。
+_RUN_PATCHES = (("tests/engine/proximity/test_runs.py", "_recorded_run", "set_conversing"),)
+_BARE_RECEIVERS: dict[tuple[str, str], tuple[str, str, tuple[str, ...], tuple[tuple[str, str, str], ...]]] = {
+    ("tests/engine/test_conversation_invite.py", "R_TALK"): (*_SETTLE, ()),
+    ("tests/engine/test_defect_fixes_1103.py", "R_TALK"): (*_SETTLE, ()),
+    ("src/shibuya/runtime/systems/judge.py", "R_TALK"): (*_SETTLE, _RUN_PATCHES),
+    ("tools/c7/attr_arms.py", "module"): ("tools/c7/attr_arms.py", "AgentCellRecorder", ("module", "self._module"), ()),
     ("tools/c7/occupancy_series.py", "module"): ("tools/c7/occupancy_series.py", "OccupancyRecorder",
-                                                 ("module", "self._module")),
+                                                 ("module", "self._module"), ()),
 }
+
+
+@lru_cache(maxsize=None)
+def _outside_patch_sites(dest_mod: str, names: frozenset[str]) -> frozenset[tuple[str, str, str]]:
+    """木の読み手(src・tools・``tests`` の c7 を除く全部)で、モジュール ``dest_mod`` の名 ``names`` を差し替える所(ファイル,
+    記号, 名)。拾う形は割る道具の E5-b と同じ(``split._collect_patches``)。"""
+    leaf = dest_mod.rpartition(".")[2]
+    bases = [ROOT / "src" / "shibuya", ROOT / "tools", *[p for p in (ROOT / "tests").iterdir() if p.name != "c7"]]
+    out: set[tuple[str, str, str]] = set()
+    for base in bases:
+        for f in ([base] if base.is_file() else sorted(base.rglob("*.py"))):
+            if f.suffix != ".py" or "__pycache__" in f.parts:
+                continue
+            text = f.read_text(encoding="utf-8")
+            if leaf not in text or not any(n in text for n in names):
+                continue
+            rel = f.relative_to(ROOT).as_posix()
+            sites, _unseen = SP._collect_patches(text, rel, {dest_mod})
+            out |= {(s.file, s.group, s.name) for s in sites if s.name in names}
+    return frozenset(out)
 
 
 def _receiver_names(text: str, owner: str, holders: set[str]) -> tuple[set[str], set[str]]:
@@ -3606,27 +3634,44 @@ def _bare_uses_outside(text: str, alias: str, owner: str) -> list[int]:
 
 
 def _bare_receiver_problems(decls, receivers) -> list[str]:  # noqa: ANN001
-    """印のある宣言と受け手の表の食い違い: 受け手の無い宣言・宣言の無い受け手・``reads``/``patches`` が受け手の字面から引いた名と
-    違う・``why`` に受け手の名が無い・受け手の外の素の使い方。"""
+    """印のある宣言と受け手の表の食い違い: 受け手の無い宣言・宣言の無い受け手・``reads`` が受け手の字面から引いた名と違う・
+    ``patches`` が受け手の中で書く名と外の差し替えの名を合わせたものと違う・外の差し替えが木に無い・``why`` に受け手の名が無い・
+    受け手の外の素の使い方・受け手の読む名を外で差し替える所が、同じ受け手のどの行にも無い。"""
     bare = {(d.file, d.alias): d for d in decls if d.bare}
     out = [f"{f}: 別名 {a}: 受け手が無い(_BARE_RECEIVERS に足す)" for f, a in sorted(set(bare) - set(receivers))]
     out += [f"{f}: 別名 {a}: 印のある宣言の無い受け手" for f, a in sorted(set(receivers) - set(bare))]
+    listed: dict[tuple[str, str, str], set[tuple[str, str, str]]] = {}  # (受け手のファイル, 受け手, 割り先) → 外の差し替え
+    reads_of: dict[tuple[str, str, str], set[str]] = {}
     for key in sorted(set(bare) & set(receivers)):
         d = bare[key]
-        rf, owner, holders = receivers[key]
+        rf, owner, holders, outside_patches = receivers[key]
         reads, writes = _receiver_names((ROOT / rf).read_text(encoding="utf-8"), owner, set(holders))
+        dest_mod = mod_of(d.dest)
         here = f"{d.file}: 別名 {d.alias}(受け手 {rf}::{owner})"
         if not reads:
             out.append(f"{here}: 受け手が無いか、モジュールの名を読まない")
         if set(d.reads) != reads:
             out.append(f"{here}: reads {sorted(d.reads)} が受け手の読み書きする名 {sorted(reads)} と違う")
-        if set(d.patches) != writes:
-            out.append(f"{here}: patches {sorted(d.patches)} が受け手の書く名 {sorted(writes)} と違う")
+        want = writes | {n for _f, _g, n in outside_patches}
+        if set(d.patches) != want:
+            out.append(f"{here}: patches {sorted(d.patches)} が受け手の書く名と外の差し替えの名 {sorted(want)} と違う")
+        there = _outside_patch_sites(dest_mod, frozenset(reads)) if reads else frozenset()
+        out += [f"{here}: 外の差し替え {s} が木に無い" for s in outside_patches if s not in there]
         if owner not in d.why:
             out.append(f"{here}: why に受け手の名が無い")
         outside = _bare_uses_outside((ROOT / d.file).read_text(encoding="utf-8"), d.alias, owner)
         if outside:
             out.append(f"{here}: 受け手の外の素の使い方(行 {outside})")
+        g = (rf, owner, dest_mod)
+        listed.setdefault(g, set()).update(outside_patches)
+        reads_of.setdefault(g, set()).update(reads)
+    for (rf, owner, dest_mod), names in sorted(reads_of.items()):
+        sites = _outside_patch_sites(dest_mod, frozenset(names)) if names else frozenset()
+        # 受け手の中の書き(同じ割り先の受け手どれかの中=その行の patches が持つ)は外の差し替えに数えない
+        owners = {(f2, o2) for (f2, o2, m2) in reads_of if m2 == dest_mod}
+        inside = {s for s in sites if any(s[0] == f2 and (s[1] == o2 or s[1].startswith(o2 + ".")) for f2, o2 in owners)}
+        for s in sorted(sites - inside - listed[(rf, owner, dest_mod)]):
+            out.append(f"受け手 {rf}::{owner}({dest_mod}): 読む名を外で差し替える {s} が、どの受け手の行の外の差し替えにも無い")
     return out
 
 
@@ -3641,6 +3686,10 @@ def test_bare_alias_declarations_name_what_the_receiving_functions_read():
     rf, owner, holders = _SETTLE
     settle = _receiver_names((ROOT / rf).read_text(encoding="utf-8"), owner, set(holders))
     assert settle == ({"talk_within_reach", "set_conversing", "end_conversation", "revert_conversation"}, set()), settle
+    # 〔M0・検収の低-2〕外の差し替え: 試験のランの包みが talk の set_conversing を差し替える(judge の別名を通って読まれる)
+    assert _outside_patch_sites("shibuya.act.ops.talk", frozenset(settle[0])) == frozenset(_RUN_PATCHES)
+    judge = next(d for d in bare if d.file == "src/shibuya/runtime/systems/judge.py")
+    assert judge.patches == ("set_conversing",) and "test_runs.py" in judge.why
 
 
 def test_negative_a_bare_declaration_without_its_receiver_fails_the_rot_check():
@@ -3651,14 +3700,30 @@ def test_negative_a_bare_declaration_without_its_receiver_fails_the_rot_check():
     assert _bare_receiver_problems((*SP.SPLIT_ALIAS_DESTS, extra), _BARE_RECEIVERS) == [
         "tests/engine/test_no_such_bare.py: 別名 R_TALK: 受け手が無い(_BARE_RECEIVERS に足す)"]
     others = tuple(d for d in SP.SPLIT_ALIAS_DESTS if d is not real)
-    assert _bare_receiver_problems(others, _BARE_RECEIVERS) == [
-        "src/shibuya/runtime/systems/judge.py: 別名 R_TALK: 印のある宣言の無い受け手"]
+    got = _bare_receiver_problems(others, _BARE_RECEIVERS)  # judge の行(外の差し替えを持つ行)も数えない
+    assert got[0] == "src/shibuya/runtime/systems/judge.py: 別名 R_TALK: 印のある宣言の無い受け手" and len(got) == 2, got
+    assert "'set_conversing') が、どの受け手の行の外の差し替えにも無い" in got[1], got
     short = dataclasses.replace(real, reads=real.reads[:3])
     got = _bare_receiver_problems((*others, short), _BARE_RECEIVERS)
     assert len(got) == 1 and "reads" in got[0] and "と違う" in got[0], got
-    wrong = {**_BARE_RECEIVERS, ("src/shibuya/runtime/systems/judge.py", "R_TALK"): (_SETTLE[0], "_inviter_of", ("R",))}
+    wrong = {**_BARE_RECEIVERS, ("src/shibuya/runtime/systems/judge.py", "R_TALK"): (_SETTLE[0], "_inviter_of", ("R",), ())}
     got = _bare_receiver_problems(SP.SPLIT_ALIAS_DESTS, wrong)
     assert any("受け手の外の素の使い方(行 [163])" in x for x in got) and any("受け手が無いか" in x for x in got), got
+    # 〔M0・検収の低-2〕外の差し替えを表から外すと、宣言の patches と食い違い、差し替える所がどの行にも無いと出る
+    no_run = {**_BARE_RECEIVERS, ("src/shibuya/runtime/systems/judge.py", "R_TALK"): (*_SETTLE, ())}
+    got = _bare_receiver_problems(SP.SPLIT_ALIAS_DESTS, no_run)
+    assert any("judge.py" in x and "patches ['set_conversing']" in x for x in got), got
+    assert any("('tests/engine/proximity/test_runs.py', '_recorded_run', 'set_conversing')" in x and "どの受け手の行" in x
+               for x in got), got
+    # 宣言の patches を外しても食い違う(外の差し替えは表に在る)
+    no_patch = tuple(dataclasses.replace(d, patches=()) if d is real else d for d in SP.SPLIT_ALIAS_DESTS)
+    got = _bare_receiver_problems(no_patch, _BARE_RECEIVERS)
+    assert len(got) == 1 and "patches []" in got[0], got
+    # 木に無い外の差し替えを書くと出る
+    ghost = {**_BARE_RECEIVERS, ("src/shibuya/runtime/systems/judge.py", "R_TALK"): (
+        *_SETTLE, (*_RUN_PATCHES, ("tests/engine/proximity/test_runs.py", "_recorded_run", "end_conversation")))}
+    got = _bare_receiver_problems(SP.SPLIT_ALIAS_DESTS, ghost)
+    assert any("'end_conversation') が木に無い" in x for x in got), got
 
 
 # ------------------------------------------------------------------ 〔割る段 6 の S6-G0・E9〕CLI の書かない道を見本の木で確かめる

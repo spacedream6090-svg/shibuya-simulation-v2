@@ -189,7 +189,9 @@ python tools/pkgmove/cli.py contracts --stage <段> --tree <木> [--check|--appl
 [docs/ops/report-347-2026-11-16.md](../../docs/ops/report-347-2026-11-16.md) §2、親の裁定と道具の記録は
 [docs/bench/analysis/split5a-347/README.md](../../docs/bench/analysis/split5a-347/README.md)。順は `table.SPLIT_ORDER`
 (群 G1〜G5 の 17 本)。18 本目だった `engine/speech/port.py`(`mora_count`)は延ばした(割る行のまま順から外した=
-`table.SPLIT_DEFERRED`・台帳の道を書き換えられる版上げで下ろす)。道具は順に無い行を断る。
+`table.SPLIT_DEFERRED`・台帳の道を書き換えられる版上げで下ろす)。道具は順に無い行を断る。〔割る段 6 の M0・親の裁定 Q12・T2〕
+延ばした理由(台帳の道の表が 1 対 1)は E7 の前向きの表で無くなったので、順の 24 本目(段 6 の群 M)に載せた
+(`table.SPLIT_DEFERRED` は空・仕組みは残す)。
 
 ```
 python tools/pkgmove/cli.py split --next [--tree <木>] [--out-dir <置き場>]           # 次の 1 本(書かない)
@@ -331,10 +333,16 @@ G3 が cli)。親の裁定と記録は [docs/bench/analysis/split5b-347/README.m
   渡すか受け手の中だけであることを確かめる。印のある宣言の集合と受け手の表は同じでなければ落ちる(受け手を足し忘れると落ちる=
   `test_negative_a_bare_declaration_without_its_receiver_fails_the_rot_check`)。道具に辿らせる拡張は今は入れない(段 7 で印の
   ある宣言が増えるなら、そのとき考える)。
+- 〔割る段 6 の M0・検収の低-2(意味の側)〕受け手の表の 4 つ目の欄=外の差し替え: 受け手の外で、宣言の割り先のモジュールの名を
+  差し替え、ランの中でその別名を通って受け手の読みに届く所(ファイル・記号・名)。宣言の `patches` は、受け手の中で書く名と外の
+  差し替えの名を合わせたもの。試験は、受け手の読む名を割り先のモジュールで差し替える所を木の読み手(src・tools・`tests` の c7 を
+  除く全部)から E5-b と同じ形で集め、同じ受け手のどの行にも書かれていない所が在れば落ちる。
 - 段 6 の宣言は 5 つ(`tests/engine/test_conversation_invite.py`・`tests/engine/test_defect_fixes_1103.py`・
   `src/shibuya/runtime/systems/judge.py` の `R_TALK` → `act/ops/talk.py`=受け手は `runtime/run.py` の `_settle_pending_invites`・
   `tools/c7/attr_arms.py`・`tools/c7/occupancy_series.py` の `module` → `act/apply.py`=受け手は各ファイルの記録のクラス)。
-  `judge.py` の宣言は、src の別名の分け(S6-G1 の下ごしらえ)の後に足した。
+  `judge.py` の宣言は、src の別名の分け(S6-G1 の下ごしらえ)の後に足した。`judge.py` の宣言の `patches` は `set_conversing`
+  (`tests/engine/proximity/test_runs.py` の `_recorded_run` が talk の `set_conversing` を差し替え、ランの中では `judge.py` が渡す
+  別名を通って `_settle_pending_invites` に読まれる)。23 本目は当たっているので、この宣言は履歴への当て直しでだけ使う。
 
 ## 〔割る段 6 の S6-G0〕道具の拡張 E7・E8・E5-b・E9(親の裁定 Q1・Q8・追記・R2)
 

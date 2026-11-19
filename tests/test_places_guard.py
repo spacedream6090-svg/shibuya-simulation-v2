@@ -28,7 +28,7 @@ GOOD_HEAD = f'schema = "{PL.MAP_SCHEMA}"\n'
 #: 置き場に在ったとしたらの道・new=今の道)で書く。移す前から在って動かない置き場(build・economy の直下など)に足すときだけ
 #: move でない行にし、この一覧にも足す(``PL.ADD_ROW_HELP``)。〔割る段 5a の G0・親の裁定 Q12〕行 244 の
 #: ``engine/speech/port.py`` を割る行に替えた(``mora_count`` を foundation へ下ろす。G0 の検収の後の親の答え 1 で 5a から延ばした
-#: が、割る行のまま=``table.SPLIT_DEFERRED``)=123 行(split 25)。
+#: が、割る行のまま。〔割る段 6 の M0〕割る段の順の 24 本目に載せた=``table.SPLIT_DEFERRED`` は空)=123 行(split 25)。
 NON_MOVE_ROWS: frozenset[str] = frozenset({
     "__init__.py", "cli.py",
     "agents/__init__.py", "agents/state.py",

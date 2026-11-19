@@ -59,11 +59,12 @@ HELD: Final[dict[str, str]] = {}
 
 #: 割る段 5a の順(表の old・親の裁定 Q11・Q12・Q15。計画の要旨は第347 の報告 §2 と記録 docs/bench/analysis/split5a-347)。
 #: 群 G1〜G5 の 17 本。下の層へ下ろすものが先(place_words・agent_codes・types → events の語の順 → 推論の口 → 選び手と店の語 →
-#: System 1 と関係)。〔G0 の検収の後の親の答え 1〕18 本目だった ``engine/speech/port.py``(``mora_count`` を foundation へ下ろす)は
-#: 延ばした: つなぎの台帳の道の表が 1 対 1 のままでは台帳の宣言を当てられないので、台帳の道を書き換えられる版上げのときに一緒に
-#: 下ろす。割る行(§4-25)のまま残し、この順からは外す(道具は順に無い行を断る)。
+#: System 1 と関係)。
 #: 〔割る段 5b の G0・親の裁定 Q11〕5a の 17 本の後に 5b の 5 本(葉の 3 本 commit → presence → calendar_shadow・ラン・CLI)。
 #: 〔割る段 6 の S6-G0・親の裁定 Q9〕5b の後に段 6 の 1 本(23 本目=``engine/resolve.py`` を 18 の割り先へ)。
+#: 〔割る段 6 の M0・親の裁定 Q12・T2〕5a の 18 本目から延ばしていた ``engine/speech/port.py``(``mora_count`` と ``_SMALL_KANA`` を
+#: ``foundation/text/mora.py`` へ下ろし、残りの名は元のファイルに残す)を 24 本目に載せた。延ばした理由(つなぎの台帳の道の表が
+#: 1 対 1 で、2 つの今の道を同じ台帳の道に向けられない)は、E7 の前向きの表(``LEDGER_PATHS_SPLIT``)で無くなった。
 SPLIT_ORDER: Final[tuple[str, ...]] = (
     "world/assets.py", "agents/state.py", "engine/calendar.py",
     "engine/tools/registry.py", "engine/tools/record.py", "engine/events/body.py",
@@ -74,16 +75,17 @@ SPLIT_ORDER: Final[tuple[str, ...]] = (
     "engine/run.py",
     "cli.py",
     "engine/resolve.py",
+    "engine/speech/port.py",
 )
 #: 割る行のまま残し、割る段の順から外した行(今の道 → 理由)。順に載る行と同じく §4 の名が揃っていることを確かめる。
-SPLIT_DEFERRED: Final[dict[str, str]] = {
-    "engine/speech/port.py": "台帳の道の表が 1 対 1 のまま=版上げで台帳の道を書き換えるときに下ろす(G0 の検収の後の親の答え 1)",
-}
+#: 〔割る段 6 の M0〕延ばしていた ``engine/speech/port.py`` を順の 24 本目へ移したので、今は空(仕組みは残す)。
+SPLIT_DEFERRED: Final[dict[str, str]] = {}
 #: 群(親の裁定 Q11・段 6 は裁定 Q9)。段(5a・5b・6)→ 名 → SPLIT_ORDER の範囲(先頭から何本目まで・1 から)。
+#: 〔割る段 6 の M0〕段 6 に群 M(24 本目=延ばしていた ``engine/speech/port.py``)。
 SPLIT_GROUPS: Final[dict[str, dict[str, tuple[int, int]]]] = {
     "5a": {"G1": (1, 3), "G2": (4, 6), "G3": (7, 11), "G4": (12, 14), "G5": (15, 17)},
     "5b": {"G1": (18, 20), "G2": (21, 21), "G3": (22, 22)},
-    "6": {"G1": (23, 23)},
+    "6": {"G1": (23, 23), "M": (24, 24)},
 }
 #: 〔割る段 5b・E2・親の裁定 Q6・Q7〕入口の転送: 割った後も元のファイルを消さず、決まった型の転送(``split.forwarder_text``=
 #: ``if __name__ == "__main__":`` の中で割り先の ``main`` を import して ``raise SystemExit(main())``・docstring つき・名を結ばない)で

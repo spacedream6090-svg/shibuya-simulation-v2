@@ -161,7 +161,8 @@ num = "核 1"
 importer = "runtime.clocks.speech"
 imported = "society.speech.port"
 rules = [10]
-gone_at = "割る段(段は未定・mora_count を foundation の文の道具へ下ろす)"
+# 〔割る段 6 の M0・親の裁定 Q12〕延ばしていた割る行を順の 24 本目(段 6 の群 M)に載せた
+gone_at = "段 6 の M(mora_count を foundation の文の道具へ下ろす)"
 
 [[ignore_66]]
 num = "核 2"

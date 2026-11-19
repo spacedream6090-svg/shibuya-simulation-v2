@@ -361,3 +361,123 @@ E8 で手で直す一覧に入った 21 文(17 記号): `test_cp2_write_window` 
 | `tests/tools` の束(`-m "not gpu and not slow"`・`-n 2`) | 642 passed・落ちた試験 0(`test_pkgmove.py` を除く) |
 | 本物の木の書かない実行(`split --through engine/resolve.py`) | 守りは全部「同じ」(決まりは宣言どおり 4)・**手で直す一覧 0・見られなかった差し替え 0**・差し替えの届く先は確かめた 13・宣言で確かめた 2(`tools/c7` の 2 本の `apply`)・印のある宣言 5 つと道の文字列の宣言 2 つが使われる・前向きの表に 2 行(`act/ops/plan_writes.py`・`mind/ops.py`)・消えるのは `engine/resolve.py` と `engine/__init__.py`・作る頭は `act/ops/__init__.py` |
 | `map --check`・`contracts --check --probe`・`git status --porcelain -- src` | 同じ・同じ(例外 20 辺・延べ 26 行)・空 |
+
+## M0: 延ばした 18 本目を順に載せる(土台 `c79ae25`=段 6 の本体の後・親の裁定 Q12・T2・2026-11-19)
+
+5a で延ばした `engine/speech/port.py`(今の道は `society/speech/port.py`。`mora_count` と `_SMALL_KANA` を `foundation/text/mora.py` へ出し、残りの名は元のファイルに残す割る行)を、割る段の順の 24 本目に載せた。延ばした理由(台帳の道の表が 1 対 1)は E7 の前向きの表で無くなった。道具と表と試験だけで、src は変えていない。当てるのは別の commit(M1)。
+
+### M0-1. 変えた所(`git diff --numstat`・足した/消した)
+
+| ファイル | 行 | 何を |
+|---|---|---|
+| `tools/pkgmove/table.py` | 9 / 7 | `SPLIT_ORDER` の 24 本目・`SPLIT_DEFERRED` を空に(仕組みは残す)・`SPLIT_GROUPS["6"]` に群 `M`(24〜24・親の既定の形のまま)・注 |
+| `tools/pkgmove/map.toml` | 4 / 3 | `cli.py map` で作り直した(358 行のまま・`split_order` 24 本・`split_deferred` 空・行 244 に `split_order = 24`) |
+| `tools/pkgmove/contracts.toml` | 2 / 1 | 核 1(`runtime.clocks.speech → society.speech.port`・決まり 10)の `gone_at` を「段 6 の M(…)」に |
+| `tools/pkgmove/split.py` | 6 / 1 | `judge.py` の宣言に `patches=("set_conversing",)`・わけの文(検収の低-2=意味の側) |
+| `tools/pkgmove/README.md` | 10 / 2 | 5a の節(延ばした行を載せた)・E5-c の節(受け手の表の外の差し替えの欄・`judge.py` の `patches`) |
+| 全ファイルの表 | 4 / 2 | 行 244 の割るかの欄(「延ばした」を外す)・行 244・244a の理由の注・行 244a の元の欄を「割る段 6」・§4-25 に注・頭の注に 1 行(割り先と名は変えていない) |
+| `tests/tools/test_pkgmove.py` | 90 / 25 | 数の固定(24 本・群 M)・延ばした行の試験・受け手の表の外の差し替え |
+| `tests/test_places_guard.py` | 1 / 1 | 注だけ(延ばした旨→24 本目に載せた) |
+| カード `tests/engine/proximity` | 1 / 0 | 道具で作り直した(受け手の試験が `test_runs.py` の道を持つ=「読む試験」に 1 行) |
+
+### M0-2. 本物の木の書かない実行(`split --through engine/speech/port.py`・当てる前の姿)
+
+- 守り: 全部「同じ」(13 項。決まりも「同じ」=弱まり 0)。止めた守り 0。`strict` の `split --next` は手で直す一覧で断る(下)。
+- 割り先: `society/speech/port.py`(元のファイル=主な割り先・名 10)・`foundation/text/mora.py`(新しいファイル・名 2)。消すファイルも作る頭も無い(`foundation/text/` の頭は在る)。
+- **手で直す一覧 3**:
+  - `tests/engine/speech/test_speech_on_reaches_addressee.py:26` と `tests/engine/speech/test_speech_port_schema.py:22` の別名 `P`(1 つの別名から、残る名と出る名の両方を読む)。
+  - `tests/engine/speech/test_speech_writers_ast.py::PORT`(名の手がかりの無い道 `"society/speech/port.py"`)。
+- **見られなかった差し替え 0**(この行の名を差し替える所は木に無い。確かめた 0・宣言で確かめた 0・読み込みの時だけ 0)。
+- E5-b が「元のファイルが残ったまま名の一部だけを外へ出す行」で効くことの確かめ(見本の試験をメモリの中の木に 1 本足した 4 つ): `mora_count` を呼ぶ時に読むのは元に残る `Utterance.__post_init__`(`society/speech/port.py:145`)=届かせる割り先は元のファイルだけ。
+  - 文字列の的 `"shibuya.society.speech.port.mora_count"`(名の割り先 mora へ書き換わる)→ 止まる(届かない `society/speech/port.py`・集合の外 `foundation/text/mora.py`)。
+  - 読む名が `mora_count` だけの別名(道具の既定で mora へ向く)→ 止まる(同じ 2 つ)。
+  - 別名を元のファイルへ宣言(E5-a)→ 通る(確かめた: `→ ['society/speech/port.py']`)。
+  - 宣言なしで残る名も読む別名 → 手で直す一覧に出る。差し替えは元のモジュールを指したまま=主な割り先なので「確かめた」(S6-G0 の検収の中-1 の直しの形)。
+- 台帳の道: 主な割り先の行 `"src/shibuya/society/speech/port.py": "src/shibuya/engine/speech/port.py"` は変わらない(足す行 0)。前向きの表に 1 行 `"src/shibuya/foundation/text/mora.py": "src/shibuya/engine/speech/port.py"`。つなぎの台帳の JSON は書かない。宣言の同定の集合は前後で同じ(元のファイルの宣言 2 → 元 1+割り先 1。割り先へ動くのは `mora_count` の docstring の宣言=台帳の行 `BR-DOC-SPEECH-MORA-KANA`)。守り ④ も「同じ」。
+- 道の文字列・コードの文字列・src の道の表(E8)でこの行に当たる物:
+  - 手で直す: `test_speech_writers_ast.py::PORT` 1 つ(上)。
+  - 名の手がかりで元のファイルに残る(書き換えない・道具は何も出さない): src の `runtime/state/ledger.py` の `OWNER_CLASSES` の 2 行と、試験 `test_speech_port_schema.py:178`(どれも `("society/speech/port.py", "SpeechPort")`)。
+  - 記録に出る文字列: `runtime/clocks/speech.py` の `manifest_fields` の `"mora_rule": "engine.speech.port.mora_count(仮名の数の近似・漢字 2 拍)"` は、ランの manifest の `talk_clock`(腕 mora のランだけ)に入る。字面は表の古い道(`engine.speech.port`)で今のモジュール(`society.speech.port`)ではないので、道具の書き換えに当たらない(src の文字列は許可の表の中だけを書き換える=この関数は表に無い)。書き換えないので byte-check は動かない。同じく古い道の字面の docstring(`runtime/clocks/speech.py`・`runtime/systems/boxes.py`・`society/contact/calls.py`)と `runtime/state/ledger.py` の `basis=` の文も当たらない。
+- 道具が書くファイル 5(src 4=`foundation/decl/ledger_paths.py`・`foundation/text/mora.py`(新)・`runtime/clocks/speech.py`・`society/speech/port.py`/tests 1=`tests/engine/clock/test_tm2_talk_clock.py`)。書き換える import の文は src 1(`runtime/clocks/speech.py`)・tests 1(`test_tm2_talk_clock.py`)・tools 0・docs 0、元のファイルに作り直す import 1(`society/speech/port.py` が `mora_count` を割り先から読む)。道具の数え(見た文)は src 4・tests 8。`tests/c7` に当たる道 0。
+- 当てた後の import の決まり: 契約は前後とも 11(古い 1+新しい 10)。例外は延べ 18 行/16 辺 → 17 行/15 辺(消えるのは核 1 だけ=`runtime.clocks.speech` が `foundation.text.mora` から読むようになり辺が無くなる)。載る例外 0・言えない決まり 0=`[[split_weakens]]` は要らない(宣言していない)。
+
+### M0-3. M1 の下ごしらえの案(手で直す一覧を 0 にする・決めるのは親)
+
+| ファイル | 別名 | 読む名 | 案 |
+|---|---|---|---|
+| `tests/engine/speech/test_speech_on_reaches_addressee.py:26` | `P` | 残る名 21(`SpeechPort` 9・`HEARD_MAX_PER_ADDRESSEE` 7・`HEARD_TTL_STEPS` 3・`SpeechContext` 1・`Utterance` 1)・出る名 1(`mora_count`=260 行) | `P` は残す。`from shibuya.society.speech import port as P_MORA` を足し、`P.mora_count(` を `P_MORA.mora_count(` に(段 6 の作法=割り先の葉の名を後ろに付ける・`R_TALK` と同じ形) |
+| `tests/engine/speech/test_speech_port_schema.py:22` | `P` | 残る名 19・出る名 1(`mora_count`=82 行) | 同じ(`P_MORA`) |
+| `tests/engine/speech/test_speech_writers_ast.py::PORT` | — | 道 `"society/speech/port.py"`=`SpeechPort` の書き手の置き場(割った後も元のファイル) | 案 1(推し): E8 の宣言 `PathDest("engine/speech/port.py", "tests/engine/speech/test_speech_writers_ast.py", "PORT", "society/speech/port.py")`(主な割り先へ向ける=字面は変わらない。後で元のファイルが動けば道具が見る)。案 2: `STRING_EXCLUDE` に足す(わけ=持ち主のファイルの道。後で動いても書き換えない) |
+
+- メモリの中で試した(リポのファイルは書いていない): 試験 2 本の別名を上のとおり分け、`PORT` に案 1 の宣言を足すと、`strict` の当てが通る(守りは全部「同じ」・手で直す一覧 0・見られなかった 0)。分けた別名は `P_MORA` → `from shibuya.foundation.text import mora as P_MORA` に、`PORT` は字面のまま(宣言の使われ方 道 1)。
+
+### M0-4. 検収の低-2(意味の側): `judge.py` の宣言の `patches`
+
+- `tests/engine/proximity/test_runs.py` の `_recorded_run` が talk の `set_conversing` を差し替え、ランの中ではその読みが `judge.py` の渡す `R_TALK` を通る(受け手 `_settle_pending_invites` が `R.set_conversing` を読む)。宣言に `patches=("set_conversing",)` を足し、わけの文を正した。木の中で talk の 4 名を差し替える所は、この 1 か所だけ。
+- 受け手の試験: `_BARE_RECEIVERS` に 4 つ目の欄(外の差し替え=受け手の外で割り先のモジュールの名を差し替え、ランの中でその別名を通って受け手に読まれる所)を足し、`judge.py` の行に `test_runs.py::_recorded_run` の `set_conversing` を書いた。宣言の `patches` は、受け手の中で書く名と外の差し替えの名を合わせたものと同じこと・外の差し替えが木に在ることを確かめる。受け手の読む名を割り先のモジュールで差し替える所を木の読み手(src・tools・`tests` の c7 を除く全部)から E5-b と同じ集め方で拾い、同じ受け手のどの行にも無ければ落ちる(同じ割り先の受け手の中の書きは数えない)。前の形はこの差し替えを見ていなかった。
+- 負の対照(前の負の対照の試験に足した): 表から外の差し替えを外す→「patches と違う」と「どの受け手の行にも無い」/宣言の `patches` を外す→「patches [] と違う」/木に無い外の差し替えを書く→「木に無い」。
+- 当て直し: 23 本目(土台 `4a5bd30`)を直す前と後の道具で当て直し、書いたファイル 112 本と差分は 1 バイトも同じ。違うのは報告の 2 欄だけ(`judge.py` の `alias_declared` に「差し替える名 set_conversing」・`patch_declared` に `judge.py` の `set_conversing → ['act/ops/talk.py']` の 1 行)。
+
+### M0-5. 試験と確かめ(重いものは合図を取ってから 1 本ずつ・合図は単独の rm で返した)
+
+| 何を | 結果 |
+|---|---|
+| `tests/tools/test_pkgmove.py`(`-m "not slow"`・`-n` なし) | 174 passed・21 skipped・落ちた試験 0(飛ぶ 21 本は前の回と同じ顔ぶれ=増えていない。次の割る行の書かない実行の試験は、割る行が残り 0 の枝から、24 本目を当てる枝に戻った。「割る段の終わりの木」で飛ぶ 1 本は残りが 1 本なので飛んだまま) |
+| slow | 2 passed(5a・5b の順の当ては今の木で 24 本目まで当てて守りが通る・終わりの契約 11=19 秒/履歴の当て直し 53 秒) |
+| `tests/tools` の残り+`tests/test_places_guard.py`(`-m "not slow and not gpu"`・`-n` なし) | 660 passed・落ちた試験 0・飛んだ試験 0 |
+| 既に割った 23 本の当て直し(群ごとの土台 8 つ=5a の G1・G2・G3・G4/G5・5b の G1・G2・G3・段 6 の G1、前=HEAD の道具の写しと後の道具) | 書いたファイルと差分は 23 本とも 1 バイトも同じ。報告の違いは 23 本目の 2 欄だけ(M0-4) |
+| `map --check`・`contracts --stage delete --tree . --check --probe`・`lint-imports` | 同じ・同じ(今の木=例外 18 行/16 辺)・11 kept |
+| カード(`tools/repo_guide/build.py` → `cards/data.md` を単独の `git checkout --` で戻す → `--check`) | 最新(150 本)。変わったカードは `tests/engine/proximity` の 1 枚 |
+| `git status --porcelain -- src`・秘密スキャン | 空・CLEAN |
+
+- 親に聞くこと: M0-3 の案(別名の名 `P_MORA`・`PORT` の扱い)。カードの道具は `tests` の全部を自分で読む(`tests/c7` を含む・実装役は開いていない)。受け手の試験は、回すたびに `tests`(c7 を除く)・src・tools の .py を読む(約 2 秒)。
+- 確かめていないこと: byte-check と範囲の全体の試験は回していない(src は変えていない)。M1(当てる)はしていない。
+
+### M0-6. 親の裁定と、M0 の commit に足した下ごしらえ(src は変えていない)
+
+- 親の裁定(仮採用・戻せる形): ① 別名の名は `P_MORA`(段 6 の `R_TALK` と同じ作法=同じ割り先には同じ名)。`PORT` は E8 の宣言(案 1)。② カードの道具が `tests` の全部を自分で読むのは前からの作り=そのまま。③ 受け手の試験が回すたびに src・tools・`tests`(c7 を除く)を読む形(約 2 秒)はそのまま。
+- (a) `split.SPLIT_PATH_DESTS` に `PathDest("engine/speech/port.py", "tests/engine/speech/test_speech_writers_ast.py", "PORT", "society/speech/port.py")` を足した(`split.py` 9 / 1 の内の 3 行)。書かない実行で宣言は使われた(道 1・字面は変わらない)。使われなければ道具が止める(前からの守り)。`test_pkgmove` の宣言の腐りの試験(ファイルと記号が木に在る・割る行が順に在る)は直さずに通る。
+- (b) 試験 2 本(`test_speech_on_reaches_addressee.py`・`test_speech_port_schema.py`。各 3 / 1)に、注 1 行と `from shibuya.society.speech import port as P_MORA` を足し、`mora_count` の読み 1 か所ずつを `P_MORA.mora_count(` に替えた(`P` は残す)。直す前と後で、2 本の 55 ノードがどれも passed で同じ(飛んだ試験 0)。足した別名を畳む(import の 1 文を外し `P_MORA` を `P` に戻す)と、AST は直す前と同じ。
+- (c) 直した後の本物の木の書かない実行(`split --next`=厳しい当て・書かない): 守りは全部「同じ」(決まりも「同じ」)・**手で直す一覧 0・見られなかった差し替え 0**・E8 の宣言は `PORT` が道 1 で使われた・前向きの表 1 行(`foundation/text/mora.py` → `src/shibuya/engine/speech/port.py`)・決まり 11(古い 1+新しい 10)。当てたら書くファイルは 7 本(src 4=`foundation/decl/ledger_paths.py`・`foundation/text/mora.py`(新)・`runtime/clocks/speech.py`・`society/speech/port.py`/tests 3=`tests/engine/clock/test_tm2_talk_clock.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/speech/test_speech_port_schema.py`)。前の 5 本の差分は M0-2 と 1 字も同じで、増えたのは試験 2 本の `P_MORA` の import の書き換え(→ `from shibuya.foundation.text import mora as P_MORA`)だけ。`tests/c7` に当たる道 0。
+- (d) 確かめ(重いものは合図を取ってから 1 本ずつ・合図は単独の rm で返した):
+
+| 何を | 結果 |
+|---|---|
+| `tests/tools/test_pkgmove.py`(`-m "not slow"`・`-n` なし) | 174 passed・21 skipped・落ちた試験 0(M0-5 と同じ) |
+| slow | 2 passed |
+| `tests/engine/speech`(`-m "not gpu"`) | 120 passed・落ちた試験 0・飛んだ試験 0 |
+| カード(build → `cards/data.md` を単独の `git checkout --` で戻す → `--check`) | 最新(150 本)。試験 2 本の直しで変わるカードは無い(変わったカードは M0-5 の `tests/engine/proximity` の 1 枚のまま) |
+| `git status --porcelain -- src`・秘密スキャン | 空・CLEAN |
+
+## M0: 親の確かめと検収(第347・2026-11-19)
+
+### M0(親)-1. 別の役の検収
+
+- 判定: **受入**(高 0・中 0・低 3)。検収役はファイルを 1 本も変えていない。
+- 範囲: src の差は 0。変わった 12 本は、どれも発注が許した範囲(道具の 5 本・全ファイルの表・試験 4 本・記録・カード 1 枚)。
+- 書かない実行(検収役がメモリの中で): 守り 13 項は全部「同じ」(決まりも「同じ」)・手で直す一覧 0・見られなかった差し替え 0。当てたら書くファイルは 7 本(src 4= `ledger_paths.py`・`mora.py`〔新〕・`clocks/speech.py`・`port.py`/tests 3)。`port.py` には、残る `Utterance.__post_init__` のために `from shibuya.foundation.text.mora import mora_count` が足される(society → foundation の向き・循環 0)。
+- 元のファイルが残る行での守り(E5-b・E8): 見本の試験で確かめた。文字列の的で差し替える形と、`mora_count` だけを読む別名で差し替える形は、どちらも止まる。残る名も読む別名は手で直す一覧に出て、厳しい当ては断る。届かない差し替えが黙って通る形は無い。`PORT` の宣言は使われ、外すと厳しい当てが断る。
+- 台帳: 主な表の行は変わらず、前向きの表に `mora.py` の 1 行が入る。つなぎの台帳の JSON は書かない。当てた後の見出しの数え(今のファイル 83・台帳の道 81・見出し 84・項 367)は変わらない。
+- 記録に出る文字列: `runtime/clocks/speech.py` の `"mora_rule": "engine.speech.port.mora_count(…)"` は、字面のまま残る(ランの manifest に入る値=書き換えると byte-check が動く)。ほかに、ランの出力に入る文字列の書き換えは無い。
+- import の決まり: 当てた後の木で、契約は 11 のまま・例外は 18 行/16 辺 → 17 行/15 辺(消えるのは核 1 だけ・新しく載る例外 0・弱まり 0)。
+- `judge.py` の宣言の直し: 受け手の試験は通る。木に差し替えを 1 つ足して崩すと落ちることを、検収役が自分で確かめた。23 本目を土台 `4a5bd30` に新旧の道具で当て直すと、書いたファイル 112 本と差分は 1 バイトも同じ(違うのは報告の 2 欄だけ)。22 本目も、新しい道具の出力が前の検収の出力と 1 バイトも同じ。
+- 試験 2 本の別名の分け: 足した別名を畳むと AST は前と同じ。`P_MORA` が読むのは `mora_count` だけ。
+
+### M0(親)-2. 検収の低と、親の答え
+
+- 低-1(**M1 で必ず落ちる試験が 1 本在る**): `tests/engine/bridging/test_bridging_ledger.py` の負の対照(`test_negative_a_dropped_forward_row_changes_the_heading_ledger_count`)は、前向きの表の**どの行を落としても**、見出しの宣言を持つファイルを台帳の道で数えた数が 81 → 82 になることを確かめる。M1 で入る `mora.py` の行は docstring の宣言しか持たないので、その行を落としても 81 のまま=落ちる。→ **M1 の発注に入れる**(落とす行を「見出しの宣言を持つファイルの行」と「持たない行」に分け、前の行は 82 になること・後の行は見出しの数えが81 のままで、宣言の台帳の道が元の道に解けなくなることを確かめる形)。`test_the_counts_by_form` の数は変わらない。
+- 低-2(全ファイルの表が変わったので、心の読みの凍結の表 `mind_world_reads_frozen.json` の `md_source.sha256` が古くなる): 親が、直した表の sha に合わせた(S6-G0 の表と順のときと同じ扱い。sha と注だけ・数と範囲は 1 字も変えていない・試験 5 本は通る)。
+- 低-3(`SPLIT_DEFERRED` が空になり、延ばした行の守り 2 つは、どのデータでも通らない道になった): そのままにする。名指しの断り(割る段の順に無い行を断る)は、順を 1 本短くして今も確かめている。仕組みを残すか消すかは、段 8 の掃除で決める。
+
+### M0(親)-3. 親が回した確かめ
+
+| 何を | 結果 |
+|---|---|
+| `tests/tools/test_pkgmove.py`(not slow・`-n` なし) | 174 passed・21 skipped・failed 0 |
+| 同(slow・木をまるごと写す 2 本) | 2 passed |
+| `tests/tools` の残り・`tests/test_places_guard.py`・`tests/engine/speech`・`tests/engine/proximity`(not slow・`-n 2`) | 845 passed・failed 0・skipped 0 |
+| 本物の木の書かない実行(`cli.py split --next`) | 守り 13 項とも「同じ」・見られなかった差し替え 0・書いていない |
+| `cli.py map --check`・`cli.py contracts --stage delete --tree . --check --probe` | どちらも「同じ」 |
+| `lint-imports`(作業木の src) | 11 kept・0 broken |
+| 差分を読んだ(表・順・群・核 1 の消える段・`judge.py` の宣言・`PORT` の宣言・試験 2 本) | 発注と裁定のとおり・src の差は 0 |
+| `tests/engine/state/test_mind_world_reads.py`(低-2 の sha を合わせた後) | 5 passed |

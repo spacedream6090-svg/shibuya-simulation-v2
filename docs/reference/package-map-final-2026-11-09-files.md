@@ -19,6 +19,7 @@
 - 〔段 4 の残り・11-16 の答え=[返事その 8](../design/prompt-2026-11-16-reply8.md) §1-6〕行 151〜153・158(連絡の器 4 本)の置き場を `society/contact/` に直した(元の列は 11-16)。行 224a・225・234 の保留の文を決着の文に替えた。上と本文 §2 の数(元の内訳・包みごとの数=society 11・interim_bundles 17)は直していない(今は society 15・interim_bundles 13)。今の元の内訳(328 行)は K 298・11-09 14・11-16 4・F 6・照らし合わせ 2・移す段 1 が 2(143a・224a)・移す段 2 が 1(91a)・移す段 3 が 1(125a)。
 - 〔割る段 5a の G0・親の裁定 Q1・Q12〕2 つ目以降の割り先 9 本と 18 本目(延ばした)の割り先 1 本の行(5a・117a・142a・143b・223a・223b・244a・291a・298a・309a=move の形・割るかの欄=「いいえ(`元` の割り先)」)を足し、行 244 を割る行に替えた(行は 338 本)。上と本文 §2 の数には入れていない。§4 は 5a の 17 本と延ばした 1 本(§4-25)の節で全部の名に開いた(Q9)
 - 〔割る段 5b の G0・2026-11-18・親の裁定 Q1〜Q5=仮採用〕2 つ目以降の割り先 6 本の行(87a・141a・146a・207a・234a・234b=move の形・割るかの欄=「いいえ(`元` の割り先)」)を足した(行は 344 本)。行 146・234 の主な割り先を入れ替えた(Q4)。§4 は 5b の 5 本(§4-2・§4-5・§4-8・§4-12・§4-15)の節で全部の名に開いた(Q1〜Q3)。上と本文 §2 の数には入れていない
+- 〔2026-11-19・割る段 6 の M0・親の裁定 Q12・T2〕5a で延ばした 1 本(行 244・244a・§4-25)を、割る段の順の 24 本目(段 6 の群 M)に載せた。
 - 元の内訳: K 298 本・11-09 18 本・F 6 本・照らし合わせ 2 本。
 - 照らし合わせの区分の内訳: 同じ 265 本・(ii) 41 本・(iii) 16 本・(i) 2 本。
 - 包みごとの数は本文 §2 にあります。
@@ -300,8 +301,8 @@
 | 241 | `engine/spatial_index.py` | world | `world/model/spatial_index.py` | いいえ | 近傍の索引 | K | 同じ |
 | 242 | `engine/speech/__init__.py` | society | `society/speech/__init__.py`(空にする) | いいえ | 包みの頭。再輸出は消す(呼び手は新しい置き場を直に読む) | K | 同じ |
 | 243 | `engine/speech/layer.py` | society | `society/speech/layer.py` | いいえ | 会話の番から発話を作る糸 | K | 同じ |
-| 244 | `engine/speech/port.py` | society | `society/speech/port.py` 346・`foundation/text/mora.py` 25 | 割る(§4-25・延ばした) | 発話の口と未読の列。発話の口。〔割る段 5a・親の裁定 Q12〕`mora_count`(文の道具)を foundation へ下ろす(返事その 8 §1-6 の 3)。〔G0 の検収の後の親の答え 1〕5a の 18 本目から延ばした=台帳の道を書き換えられる版上げのときに下ろす。割る行のまま残し、割る段の順(`table.SPLIT_ORDER`)からは外した(`table.SPLIT_DEFERRED`) | K | 同じ |
-| 244a | `engine/speech/mora.py` | foundation | `foundation/text/mora.py` | いいえ(`engine/speech/port.py` の割り先) | `engine/speech/port.py` から `mora_count` を下ろす foundation の文の道具(§4-25・親の裁定 Q12。ファイルの名は実装役の仮採用)。親の裁定 Q1=move の形の行。〔G0 の検収の後の親の答え 1〕5a から延ばした(行 244 と同じ) | 延ばした(版上げ) | — |
+| 244 | `engine/speech/port.py` | society | `society/speech/port.py` 346・`foundation/text/mora.py` 25 | 割る(§4-25) | 発話の口と未読の列。発話の口。〔割る段 5a・親の裁定 Q12〕`mora_count`(文の道具)を foundation へ下ろす(返事その 8 §1-6 の 3)。〔G0 の検収の後の親の答え 1〕5a の 18 本目から延ばした=台帳の道を書き換えられる版上げのときに下ろす。割る行のまま残し、割る段の順(`table.SPLIT_ORDER`)からは外した(`table.SPLIT_DEFERRED`)。〔2026-11-19・割る段 6 の M0・親の裁定 Q12・T2〕延ばした理由(台帳の道の表が 1 対 1)は E7 の前向きの表(`LEDGER_PATHS_SPLIT`)で無くなった。割る段の順の 24 本目(段 6 の群 M)に載せた(`table.SPLIT_DEFERRED` は空) | K | 同じ |
+| 244a | `engine/speech/mora.py` | foundation | `foundation/text/mora.py` | いいえ(`engine/speech/port.py` の割り先) | `engine/speech/port.py` から `mora_count` を下ろす foundation の文の道具(§4-25・親の裁定 Q12。ファイルの名は実装役の仮採用)。親の裁定 Q1=move の形の行。〔G0 の検収の後の親の答え 1〕5a から延ばした(行 244 と同じ)。〔2026-11-19・割る段 6 の M0・親の裁定 Q12・T2〕割る段の順の 24 本目に載せた(行 244 と同じ) | 割る段 6 | — |
 | 245 | `engine/speech_clock.py` | runtime | `runtime/clocks/speech.py` | いいえ | 会話の時計の腕。会話の時計 T2 | K | 同じ |
 | 246 | `engine/state_codec.py` | runtime | `runtime/state/codec.py` | いいえ | 状態のファイル。状態のファイルの直列化 npz+json | K | 同じ |
 | 247 | `engine/state_hashes.py` | runtime | `runtime/state/hashes.py` | いいえ | 2 つのハッシュ。behavior-hash と full-hash | K | (ii) |
@@ -642,3 +643,4 @@
 - 〔割る段 5a の G0・親の裁定 Q12〕`mora_count`(モーラの数の近似=文の道具)と、それだけが読む `_SMALL_KANA` を foundation の文の道具へ下ろす。読み手は `runtime/clocks/speech.py`(核 1=決まり 10 の例外)・`SpeechPort`・試験。割り先のファイルの名 `foundation/text/mora.py` は実装役の仮採用。行数は実装役の数え(案 K の数ではない)。
 - 〔割る段 5a の G0〕止まる所: `mora_count` の docstring の `expedient:` の段落はつなぎの台帳の行 `BR-DOC-SPEECH-MORA-KANA` (`src/shibuya/engine/speech/port.py#docstring:…`)。同じ元の道の見出し `HD-engine.speech.port-6f282ea4` は主な割り先に残るので、台帳の道の対応の表(今の道 → 台帳の道=1 対 1)では 2 つの今の道を同じ台帳の道に向けられない(道具は断る)。
 - 〔G0 の検収の後の親の答え 1〕延ばした: 5a は 17 本で終える。台帳の道を書き換えられる版上げのときに一緒に下ろす。それまで決まり 10 の例外 1 本(核 1)は残る。この節と行 244・244a は割る行と割り先の行のまま残し、割る段の順からだけ外した(`table.SPLIT_DEFERRED`。道具は順に無い行を断る)。
+- 〔2026-11-19・割る段 6 の M0・親の裁定 Q12・T2〕延ばした理由(台帳の道の表が 1 対 1)は E7 の前向きの表(`LEDGER_PATHS_SPLIT`=2 つ目以降の新しい割り先の今の道 → 元の台帳の道)で無くなった。割る段の順の 24 本目(段 6 の群 M)に載せた(`table.SPLIT_DEFERRED` は空)。割り先と名は変えていない。当てるのは別の commit(M1)。決まり 10 の例外 1 本(核 1)は、この割る行で消える。

@@ -23,7 +23,9 @@ import pytest
 
 from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.foundation.journal.log import EventLog, LlmCall
+# 〔割る段 6 の M0〕別名 P を割り先ごとに分けた(P=society/speech/port・P_MORA=foundation/text/mora の名。割る前は全部 port)
 from shibuya.society.speech import port as P
+from shibuya.society.speech import port as P_MORA
 from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE
 from shibuya.foundation.vocab.actions import MOCK_UTTERANCE
 from shibuya.perception import renderer as R
@@ -257,7 +259,7 @@ def test_said_equals_the_logged_rows_and_the_word_of_mouth(pair):
     # 届けた発話の行き先の保存則(届いた・全部が命令文・予算で外した・窓の外・溢れ・残り)
     assert (m["delivered"] + m["all_imperative"] + m["dropped_budget"] + m["expired"] + m["overflow"]
             + m["pending"]) == m["posted"]
-    assert all(isinstance(e.cause, LlmCall) and e.via == "対面" and e.how_much == P.mora_count(MOCK_UTTERANCE)
+    assert all(isinstance(e.cause, LlmCall) and e.via == "対面" and e.how_much == P_MORA.mora_count(MOCK_UTTERANCE)
                for e in evs)
     by_call = {r["call_id"]: r for r in rows}
     for e in evs:  # 原因の call_id はテープのその呼び出しの行(話し手・会話の番の答えに ひと言)

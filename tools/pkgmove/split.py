@@ -190,10 +190,15 @@ SPLIT_ALIAS_DESTS: tuple[AliasDest, ...] = (
                   "しまい、module.apply を包みに差し替える。detach が self._module.apply を元に戻す(読み書きするのは apply だけ)"),
     # 〔検収の後の続き・親の裁定〕src の別名の分け(S6-G1 の下ごしらえ)の後の judge.py。印のある宣言を足すときは、宣言が腐らない
     # 試験(test_pkgmove の _BARE_RECEIVERS)に受け手を足す(README の E5-c の決まり)
+    # 〔割る段 6 の M0・検収の低-2(意味の側)〕patches に set_conversing を足した。23 本目は当たっているので、この宣言は履歴への
+    # 当て直しでだけ使う
     AliasDest("engine/resolve.py", "src/shibuya/runtime/systems/judge.py", "R_TALK", "act/ops/talk.py", bare=True,
               reads=("talk_within_reach", "set_conversing", "end_conversation", "revert_conversation"),
+              patches=("set_conversing",),
               why="sys_apply_responses が runtime/run.py の _settle_pending_invites(引数 R)へ渡す(1 か所)。中で R から読むのは "
-                  "talk_within_reach・set_conversing・end_conversation・revert_conversation の 4 名(差し替えは無い)"),
+                  "talk_within_reach・set_conversing・end_conversation・revert_conversation の 4 名。tests/engine/proximity/"
+                  "test_runs.py の _recorded_run が talk の set_conversing を差し替え、ランの中ではその読みがこの別名を通る(受け手の "
+                  "_settle_pending_invites が R.set_conversing を読む=届く先は act/ops/talk.py)"),
 )
 
 
@@ -220,6 +225,9 @@ SPLIT_PATH_DESTS: tuple[PathDest, ...] = (
     # 〔同〕``site.path == "engine/resolve.py" and site.func.startswith("restore")`` は再開の復元(``restore_soa``・``restore_items``)
     # =``runtime/state/restore.py``(``startswith("restore")`` は変えない)
     PathDest("engine/resolve.py", "src/shibuya/runtime/state/ledger_ast.py", "ext_reason", "runtime/state/restore.py"),
+    # 〔割る段 6 の M0・親の裁定(仮採用)〕``PORT = "society/speech/port.py"`` は ``SpeechPort`` の書き手の置き場(割った後も元の
+    # ファイル)=主な割り先へ向ける(字面は変わらない。後で元のファイルが動けば道具が見る)
+    PathDest("engine/speech/port.py", "tests/engine/speech/test_speech_writers_ast.py", "PORT", "society/speech/port.py"),
 )
 #: 〔割る段 5b・E4・親の裁定 Q9 の (a)〕割る段で書き換えないファイル(道筋か、``/`` で終わるディレクトリ)。byte-check は基準の側
 #: (割る前の木)と比べる側(割った後の木)を道具のリポの同じコードで回すので、ランの入口は道具が自分で解く
