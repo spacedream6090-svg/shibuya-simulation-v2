@@ -3382,6 +3382,285 @@ def test_excluded_files_report_nameless_paths(monkeypatch):
     assert plan.manual == [] and plan.after.files["tools/bytecheck/x.py"] == 'P = "src/shibuya/pk/old.py"\n'
 
 
+# ------------------------------------------------------------------ 〔割る段 6 の S6-G0・E5-c〕素で使ってよい別名(親の裁定 T5)
+#: 見本の読み手(差し替えの届く先の見本 ``_REACH_SRC`` を割る): 別名 B を、b の名 h を読む助けへ渡す(素の使い方)。
+_BARE_PASS = 'def _call_h(m):\n    return m.h(1)\n\n\ndef test_pass():\n    assert _call_h(B) == 4 and B.k() == 5\n'
+_BARE_WHY = "_call_h(引数 m)へ渡す。中で m から読むのは h だけ"
+
+
+def _bare_decl(**kw):  # noqa: ANN202
+    base = dict(old="pk/mod.py", file=_REACH_FILE, alias="B", dest="pk2/b.py", bare=True, reads=("h",), why=_BARE_WHY)
+    return SP.AliasDest(**{**base, **kw})
+
+
+def _bare(monkeypatch, body: str, decls, *, strict: bool = True, head: str = _HEAD_B, extra: dict | None = None):
+    """見本の木で割る(宣言は ``decls``)。止まれば止めた文の一覧、通れば計画を返す。"""
+    monkeypatch.setattr(SP, "SPLIT_ALIAS_DESTS", tuple(decls))
+    monkeypatch.setattr(SP, "SPLIT_PATH_DESTS", ())
+    files = {"src/shibuya/__init__.py": "", "src/shibuya/pk/__init__.py": "", "src/shibuya/pk/mod.py": _REACH_SRC,
+             "src/shibuya/use.py": _REACH_USE, _REACH_FILE: head + body, **(extra or {})}
+    md = MV.MapDoc(rows=[Row(**_REACH_ROW)])
+    try:
+        return SP.make_split_plan(Tree(files=files), md, "pk/mod.py", check_order=False, strict=strict)
+    except SP.SplitStopped as e:
+        return e.errors
+
+
+def test_bare_alias_declaration_lets_a_passed_alias_through(monkeypatch):
+    """〔E5-c〕印 ``bare`` の宣言の在る別名は、素で渡しても宣言の割り先へ書き換わり、手で直す一覧に出ない(``strict`` でも当たる)。
+    報告の ``alias_declared`` に素の使い方の形の数と渡した先で読む名が出る。負の対照: 宣言が無いと、同じ読み手は手で直す一覧に
+    出て ``strict`` は断る(印の無い別名の素の使い方は今までどおり)。"""
+    plan = _bare(monkeypatch, _BARE_PASS, [_bare_decl()])
+    assert isinstance(plan, SP.SplitPlan), plan
+    assert plan.after.files[_REACH_FILE].startswith("from shibuya.pk2 import b as B\n"), plan.after.files[_REACH_FILE]
+    assert plan.manual == [] and set(plan.guards.values()) == {"同じ"} and plan.patch_declared == []
+    assert SP.report(plan)["alias_declared"] == [
+        f"{_REACH_FILE}: 別名 B → pk2/b.py(読む名 1・素の使い方 渡す 1・渡した先で読む名 h)"]
+    # 負の対照: 宣言が無い
+    plan2 = _bare(monkeypatch, _BARE_PASS, [], strict=False)
+    assert [m for m in plan2.manual if _REACH_FILE in m and "別名 B の読みの割り先が 1 つに決まらない" in m], plan2.manual
+    assert plan2.after.files[_REACH_FILE].startswith("from shibuya.pk import mod as B\n")
+    with pytest.raises(SP.SplitRefused, match="手で直す一覧"):
+        _bare(monkeypatch, _BARE_PASS, [])
+    # 負の対照: ほかの割る行の宣言は、この割る行では使わない(印の無い素の使い方と同じに手で直す一覧へ)
+    plan3 = _bare(monkeypatch, _BARE_PASS, [_bare_decl(old="pk/other.py")], strict=False)
+    assert isinstance(plan3, SP.SplitPlan) and plan3.alias_declared == [] and [
+        m for m in plan3.manual if _REACH_FILE in m and "別名 B" in m], plan3
+
+
+def test_bare_alias_declaration_accepts_each_allowed_form(monkeypatch):
+    """〔E5-c〕許す素の使い方の形(``imports.BARE_OK``)は 1 つずつ数える: 渡す(位置と名の引数)・返す・しまう(変数と属性)・
+    既定の引数・``is None``/``is not None`` で比べる。"""
+    body = ('class Box:\n    pass\n\n\ndef _ret():\n    return B\n\n\ndef _call_kw(*, m):\n    return m.h(1)\n\n\n'
+            'def test_forms(m=B):\n    kept = B\n    box = Box()\n    box.mod = B\n'
+            '    assert B is not None and m is kept\n    assert _ret().h(1) == 4 and isinstance(B, object)\n'
+            '    assert print(B, sep=" ") is None and _call_kw(m=B) == 4\n')
+    plan = _bare(monkeypatch, body, [_bare_decl()])
+    assert isinstance(plan, SP.SplitPlan), plan
+    assert plan.manual == [] and plan.after.files[_REACH_FILE].startswith("from shibuya.pk2 import b as B\n")
+    assert plan.alias_declared == [f"{_REACH_FILE}: 別名 B → pk2/b.py(読む名 0・素の使い方 渡す 3・返す 1・しまう 2・"
+                                   f"既定の引数 1・比べる 1・渡した先で読む名 h)"], plan.alias_declared
+
+
+@pytest.mark.parametrize("decl,body,word", [
+    # 印の腐り: 素の使い方が 1 つも無い(属性で読むだけ=印は要らない)
+    (_bare_decl(), "def test_x():\n    assert B.h(1) == 4\n", "素の使い方が 1 つも無い(印の腐り"),
+    # 宣言で表せない素の使い方: 入れ物に入れる・名を字面で書かない getattr へ渡す・== で比べる・呼ぶ
+    (_bare_decl(), _BARE_PASS + "\n\nMODS = [B]\n", "宣言で表せない素の使い方 ['行 12: そのほか(List)']"),
+    (_bare_decl(), _BARE_PASS + '\n\ndef test_dyn(n="h"):\n    assert getattr(B, n)(1) == 4\n',
+     "名を字面で書かない呼び出し getattr へ渡す"),
+    (_bare_decl(), _BARE_PASS + "\n\nSAME = B == 1\n", "そのほか(Compare)"),
+    (_bare_decl(), _BARE_PASS + "\n\ndef test_call():\n    B()\n", "そのほか(Call)"),
+    # reads・why が無い
+    (_bare_decl(reads=()), _BARE_PASS, "読む名(reads)が無い"),
+    (_bare_decl(why=""), _BARE_PASS, "わけ(why="),
+    # reads の名が宣言の割り先の頂上に無い(g は a)
+    (_bare_decl(reads=("h", "g")), _BARE_PASS, "素で渡した先・しまった先で読む名 ['g'] が割り先の頂上で結ばれていない"),
+    # 別名の属性の読みが宣言の割り先の外の名を含む(B.g は a)
+    (_bare_decl(), _BARE_PASS + "\n\ndef test_g():\n    assert B.g(1) == 2\n", "別名で読む名 ['g'] が割り先の頂上で結ばれていない"),
+    # 差し替える名が宣言の割り先の頂上に無い
+    (_bare_decl(patches=("g",)), _BARE_PASS, "差し替える名 ['g'] が割り先の頂上で結ばれていない"),
+    # 印が無いのに reads・patches を書いた(印の無い宣言の素の使い方は今までどおり止まる)
+    (_bare_decl(bare=False), _BARE_PASS, "素で使ってよい印(bare)が無いのに、reads・patches を書いている"),
+    (_bare_decl(bare=False, reads=(), why=""), _BARE_PASS, "名で読まない使い方がある"),
+    # 使われなかった宣言(ファイルが木に無い・別名がファイルに無い)
+    (_bare_decl(file="tests/no_such_reader.py"), _BARE_PASS, "宣言が使われなかった"),
+    (_bare_decl(alias="B_NOPE"), _BARE_PASS, "宣言が使われなかった"),
+])
+def test_negative_bare_alias_declaration_guards_each_stop(monkeypatch, decl, body, word):
+    """〔E5-c の守り〕印のある宣言の守りは 1 つずつ止める(書かない実行でも): 印の腐り・宣言で表せない素の使い方・reads か why が
+    無い・reads の名が割り先に無い・別名の属性の読みが割り先の外・差し替える名が割り先に無い・印の無い宣言の reads・使われなかった
+    宣言。"""
+    for strict in (True, False):
+        errs = _bare(monkeypatch, body, [decl], strict=strict)
+        assert isinstance(errs, list) and errs and all(e.startswith("別名の割り先の宣言の守り: ") for e in errs), errs
+        assert any(word in e for e in errs), (word, errs)
+        assert all(decl.file in e for e in errs), errs
+
+
+#: 素で使った先で差し替える読み手: 別名 B をしまい、しまった先を通して h を元に戻す(道具には見えない差し替え)。
+_BARE_STORE = ('class Rec:\n    def attach(self):\n        self._m = B\n        self._orig = B.h\n        B.h = abs\n\n'
+               '    def detach(self):\n        self._m.h = self._orig\n')
+
+
+def test_bare_alias_patches_are_checked_against_the_declared_destination(monkeypatch):
+    """〔E5-c〕宣言の差し替える名(``patches``)は、E5-b の届かせる割り先の集合が宣言の割り先だけなら通り、報告の ``patch_declared``
+    に出る(確かめた ``patch_checked``・見られなかった ``patch_unseen`` とは分ける)。字面で見える差し替え(``B.h = abs``)も数える。
+    字面に差し替えの無い名(素で使った先だけ)も確かめる。負の対照: 宣言が無いと、字面の差し替えは「見られなかった」に回り、
+    ``strict`` は断る。"""
+    plan = _bare(monkeypatch, _BARE_STORE, [_bare_decl(patches=("h",))])
+    assert isinstance(plan, SP.SplitPlan), plan
+    assert plan.patch_declared == [f"{_REACH_FILE}: 別名 B の名 h → ['pk2/b.py'](字面で見えた差し替え 1・素で使った先は宣言)"]
+    assert plan.patch_checked == [] and plan.patch_unseen == [] and plan.guards["patch_reach"] == "同じ"
+    assert SP.report(plan)["patch_declared"] == plan.patch_declared
+    assert "素の使い方 しまう 1" in plan.alias_declared[0] and "差し替える名 h" in plan.alias_declared[0], plan.alias_declared
+    plan = _bare(monkeypatch, _BARE_PASS, [_bare_decl(reads=("h", "k"), patches=("k",))])
+    assert isinstance(plan, SP.SplitPlan) and plan.patch_declared == [
+        f"{_REACH_FILE}: 別名 B の名 k → ['pk2/b.py'](字面で見えた差し替え 0・素で使った先は宣言)"], plan
+    # 負の対照: 宣言が無い
+    plan2 = _bare(monkeypatch, _BARE_STORE, [], strict=False)
+    assert isinstance(plan2, SP.SplitPlan) and plan2.patch_declared == []
+    assert any("Rec.attach の名 h" in x and "手で直す一覧の別名" in x for x in plan2.patch_unseen), plan2.patch_unseen
+    with pytest.raises(SP.SplitRefused):
+        _bare(monkeypatch, _BARE_STORE, [])
+
+
+@pytest.mark.parametrize("decl,body,words", [
+    # helper を呼ぶ時に読む関数は a(g)と b(h)=素で使った先の差し替えは b にしか向かない=a に届かない
+    (_bare_decl(reads=("h", "helper"), patches=("helper",)), _BARE_PASS,
+     ["差し替える名 helper", "届かない割り先 ['pk2/a.py']"]),
+    # N を呼ぶ時に読むのは src の use.py(別名の属性・名を定義する a)=宣言の割り先 b は集合の外(空振り)
+    (_bare_decl(reads=("h", "N"), patches=("N",)), _BARE_PASS,
+     ["差し替える名 N", "宣言の割り先が届かせる割り先の集合 ['pk2/a.py'] に無い(空振り"]),
+    # 字面で見える差し替えの名が、宣言の差し替える名に無い
+    (_bare_decl(), _BARE_STORE, ["Rec.attach の名 h", "宣言の差し替える名(patches)に無い"]),
+])
+def test_negative_bare_alias_patches_that_miss_stop(monkeypatch, decl, body, words):
+    """〔E5-c の守り〕差し替える名の届かせる割り先の集合に、宣言の割り先が無い(空振り)・ほかの割り先も在る(届かない)・字面で見える
+    差し替えの名が宣言に無い、は止める(差し替えの届く先の守り)。"""
+    errs = _bare(monkeypatch, body, [decl], strict=False)
+    assert isinstance(errs, list) and errs and all(e.startswith("差し替えの届く先の守り: ") for e in errs), errs
+    for w in words:
+        assert any(w in e for e in errs), (w, errs)
+
+
+def test_negative_without_the_declared_patch_check_a_missing_patch_slips_through(monkeypatch):
+    """〔E5-c の負の対照〕宣言の差し替える名の確かめは ``patch_reach`` が止めている(外すと、a に届かない helper の宣言が通る)。"""
+    decl = _bare_decl(reads=("h", "helper"), patches=("helper",))
+    assert isinstance(_bare(monkeypatch, _BARE_PASS, [decl]), list)
+    monkeypatch.setattr(SP, "patch_reach", lambda plan: [])
+    plan = _bare(monkeypatch, _BARE_PASS, [decl])
+    assert isinstance(plan, SP.SplitPlan) and plan.guards["patch_reach"] == "同じ" and plan.manual == []
+
+
+def test_bare_alias_declaration_works_the_same_in_a_src_file(monkeypatch):
+    """〔E5-c〕src のファイルの別名にも同じに効く(S6-G1 で載せる ``runtime/systems/judge.py`` の形=別名を関数へ渡す)。負の対照:
+    宣言が無いと手で直す一覧へ。"""
+    user = "src/shibuya/user2.py"
+    text = ('"""user2 — 見本(別名を渡す src の読み手)。"""\n\nfrom __future__ import annotations\n\n'
+            'from shibuya.pk import mod as B\n\n\ndef _call_h(m):\n    return m.h(1)\n\n\ndef run() -> int:\n'
+            '    return _call_h(B)\n')
+    plan = _bare(monkeypatch, "", [_bare_decl(file=user)], head="", extra={user: text})
+    assert isinstance(plan, SP.SplitPlan), plan
+    assert "\nfrom shibuya.pk2 import b as B\n" in plan.after.files[user] and plan.manual == []
+    assert plan.alias_declared == [f"{user}: 別名 B → pk2/b.py(読む名 0・素の使い方 渡す 1・渡した先で読む名 h)"]
+    plan2 = _bare(monkeypatch, "", [], head="", extra={user: text}, strict=False)
+    assert [m for m in plan2.manual if m.startswith(f"{user}:") and "別名 B" in m], plan2.manual
+
+
+#: 〔E5-c・宣言が腐らない・親の裁定(検収の低-1)〕印(``bare``)のある宣言の受け手: (ファイル, 別名) → (受け手のファイル, 受け手=
+#: 頂上の関数かクラス, 受け手の中でそのモジュールを持つ字面)。道具は、しまう・既定の引数で写した先の読みと差し替えを辿らない。
+#: 印のある宣言を足すときは、ここに受け手を足す(``tools/pkgmove/README.md`` の E5-c の決まり)。足さなければ下の試験が落ちる。
+_SETTLE = ("src/shibuya/runtime/run.py", "_settle_pending_invites", ("R",))
+_BARE_RECEIVERS: dict[tuple[str, str], tuple[str, str, tuple[str, ...]]] = {
+    ("tests/engine/test_conversation_invite.py", "R_TALK"): _SETTLE,
+    ("tests/engine/test_defect_fixes_1103.py", "R_TALK"): _SETTLE,
+    ("src/shibuya/runtime/systems/judge.py", "R_TALK"): _SETTLE,
+    ("tools/c7/attr_arms.py", "module"): ("tools/c7/attr_arms.py", "AgentCellRecorder", ("module", "self._module")),
+    ("tools/c7/occupancy_series.py", "module"): ("tools/c7/occupancy_series.py", "OccupancyRecorder",
+                                                 ("module", "self._module")),
+}
+
+
+def _receiver_names(text: str, owner: str, holders: set[str]) -> tuple[set[str], set[str]]:
+    """頂上の関数かクラス ``owner`` の中で、``holders`` の字面(引数・別名・``self._module``)の属性として読み書きする名と、そのうち
+    書く(代入・``del``・``setattr``/``delattr`` の字面の名)名。"""
+    reads: set[str] = set()
+    writes: set[str] = set()
+    for n in ast.parse(text).body:
+        if not (isinstance(n, (ast.FunctionDef, ast.ClassDef)) and n.name == owner):
+            continue
+        for x in ast.walk(n):
+            if isinstance(x, ast.Attribute) and ast.unparse(x.value) in holders:
+                reads.add(x.attr)
+                if isinstance(x.ctx, (ast.Store, ast.Del)):
+                    writes.add(x.attr)
+            if (isinstance(x, ast.Call) and len(x.args) >= 2 and ast.unparse(x.args[0]) in holders
+                    and isinstance(x.args[1], ast.Constant) and isinstance(x.args[1].value, str)):
+                fn = x.func.attr if isinstance(x.func, ast.Attribute) else getattr(x.func, "id", "")
+                if fn in ("setattr", "getattr", "hasattr", "delattr"):
+                    reads.add(x.args[1].value)
+                    if fn in ("setattr", "delattr"):
+                        writes.add(x.args[1].value)
+    return reads, writes
+
+
+def _bare_uses_outside(text: str, alias: str, owner: str) -> list[int]:
+    """宣言のファイルで、別名を属性で読まない使い方のうち、受け手の外のもの(受け手の関数を呼ぶ引数でもなく、受け手のクラスの
+    中でもない)の行。"""
+    tree = ast.parse(text)
+    parents = {id(c): p for p in ast.walk(tree) for c in ast.iter_child_nodes(p)}
+    inside = {id(x) for n in tree.body if isinstance(n, ast.ClassDef) and n.name == owner for x in ast.walk(n)}
+    out: list[int] = []
+    for x in ast.walk(tree):
+        if not (isinstance(x, ast.Name) and x.id == alias and isinstance(x.ctx, ast.Load)) or id(x) in inside:
+            continue
+        up = parents.get(id(x))
+        if isinstance(up, ast.Attribute) and up.value is x:
+            continue  # 属性で読む=道具が見る
+        call = parents.get(id(up)) if isinstance(up, ast.keyword) else up
+        if isinstance(call, ast.Call) and owner in (getattr(call.func, "id", None), getattr(call.func, "attr", None)):
+            continue
+        out.append(x.lineno)
+    return out
+
+
+def _bare_receiver_problems(decls, receivers) -> list[str]:  # noqa: ANN001
+    """印のある宣言と受け手の表の食い違い: 受け手の無い宣言・宣言の無い受け手・``reads``/``patches`` が受け手の字面から引いた名と
+    違う・``why`` に受け手の名が無い・受け手の外の素の使い方。"""
+    bare = {(d.file, d.alias): d for d in decls if d.bare}
+    out = [f"{f}: 別名 {a}: 受け手が無い(_BARE_RECEIVERS に足す)" for f, a in sorted(set(bare) - set(receivers))]
+    out += [f"{f}: 別名 {a}: 印のある宣言の無い受け手" for f, a in sorted(set(receivers) - set(bare))]
+    for key in sorted(set(bare) & set(receivers)):
+        d = bare[key]
+        rf, owner, holders = receivers[key]
+        reads, writes = _receiver_names((ROOT / rf).read_text(encoding="utf-8"), owner, set(holders))
+        here = f"{d.file}: 別名 {d.alias}(受け手 {rf}::{owner})"
+        if not reads:
+            out.append(f"{here}: 受け手が無いか、モジュールの名を読まない")
+        if set(d.reads) != reads:
+            out.append(f"{here}: reads {sorted(d.reads)} が受け手の読み書きする名 {sorted(reads)} と違う")
+        if set(d.patches) != writes:
+            out.append(f"{here}: patches {sorted(d.patches)} が受け手の書く名 {sorted(writes)} と違う")
+        if owner not in d.why:
+            out.append(f"{here}: why に受け手の名が無い")
+        outside = _bare_uses_outside((ROOT / d.file).read_text(encoding="utf-8"), d.alias, owner)
+        if outside:
+            out.append(f"{here}: 受け手の外の素の使い方(行 {outside})")
+    return out
+
+
+def test_bare_alias_declarations_name_what_the_receiving_functions_read():
+    """〔E5-c・宣言が腐らない〕本物の印のある宣言 5 つ: 印のある宣言の集合と受け手の表 ``_BARE_RECEIVERS`` が同じで、``reads``・
+    ``patches`` が受け手の字面から引いた名と同じ(``_settle_pending_invites`` が引数 ``R`` から読む 4 名・``tools/c7`` の 2 本の
+    クラスが ``module``・``self._module`` から読み書きする ``apply``)。素の使い方は受け手へ渡すか受け手の中だけ。受け手を書き換えて
+    読む名が増えた・印のある宣言を足して受け手を足さなかった、のどちらでも落ちる。"""
+    assert _bare_receiver_problems(SP.SPLIT_ALIAS_DESTS, _BARE_RECEIVERS) == []
+    bare = [d for d in SP.SPLIT_ALIAS_DESTS if d.bare]
+    assert len(bare) == len(_BARE_RECEIVERS) == 5 and all(d.reads and d.why and d.old == "engine/resolve.py" for d in bare)
+    rf, owner, holders = _SETTLE
+    settle = _receiver_names((ROOT / rf).read_text(encoding="utf-8"), owner, set(holders))
+    assert settle == ({"talk_within_reach", "set_conversing", "end_conversation", "revert_conversation"}, set()), settle
+
+
+def test_negative_a_bare_declaration_without_its_receiver_fails_the_rot_check():
+    """〔E5-c の決まりの負の対照〕メモリの中で印のある宣言を 1 行足し、受け手を足さないと食い違いが出る(試験が落ちる)。受け手の
+    無い表の行・``reads`` の欠け・受け手の外の素の使い方も出る。"""
+    real = next(d for d in SP.SPLIT_ALIAS_DESTS if d.bare and d.file == "src/shibuya/runtime/systems/judge.py")
+    extra = dataclasses.replace(real, file="tests/engine/test_no_such_bare.py")
+    assert _bare_receiver_problems((*SP.SPLIT_ALIAS_DESTS, extra), _BARE_RECEIVERS) == [
+        "tests/engine/test_no_such_bare.py: 別名 R_TALK: 受け手が無い(_BARE_RECEIVERS に足す)"]
+    others = tuple(d for d in SP.SPLIT_ALIAS_DESTS if d is not real)
+    assert _bare_receiver_problems(others, _BARE_RECEIVERS) == [
+        "src/shibuya/runtime/systems/judge.py: 別名 R_TALK: 印のある宣言の無い受け手"]
+    short = dataclasses.replace(real, reads=real.reads[:3])
+    got = _bare_receiver_problems((*others, short), _BARE_RECEIVERS)
+    assert len(got) == 1 and "reads" in got[0] and "と違う" in got[0], got
+    wrong = {**_BARE_RECEIVERS, ("src/shibuya/runtime/systems/judge.py", "R_TALK"): (_SETTLE[0], "_inviter_of", ("R",))}
+    got = _bare_receiver_problems(SP.SPLIT_ALIAS_DESTS, wrong)
+    assert any("受け手の外の素の使い方(行 [163])" in x for x in got) and any("受け手が無いか" in x for x in got), got
+
+
 # ------------------------------------------------------------------ 〔割る段 6 の S6-G0・E9〕CLI の書かない道を見本の木で確かめる
 def test_split_order_of_reads_the_split_rows_of_a_map():
     """〔E9〕``table.split_order_of``: 割る行の ``split_order``(1 から)で並べた順。番号が続かない・頭の ``split_order`` と食い違えば断る。

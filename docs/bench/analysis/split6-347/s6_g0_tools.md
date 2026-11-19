@@ -264,3 +264,100 @@ E8 で手で直す一覧に入った 21 文(17 記号): `test_cp2_write_window` 
 | `tests/tools/test_pkgmove.py` の slow | 2 passed(前からの 1 本と、足した履歴の当て直しの 1 本) |
 | `tests/tools` の束(`-m "not gpu and not slow"`・`-n 2`) | 642 passed・落ちた試験 0(`test_pkgmove.py` を除く) |
 | 本物の木の `split --next`・`map --check`・`contracts --check --probe` | 「割る段は全部当たっている」・同じ・同じ(例外 20 辺・延べ 26 行) |
+
+## E5-c 素で使う別名の宣言(土台 `e543f3b`・親の裁定 T5・2026-11-19)
+
+別名を属性で読まずに渡す・しまう形(素の使い方)は、別名を分けても消えない。割る道具はこの形を必ず手で直す一覧に出し、厳しい当ては断る。その形を宣言で通す拡張と、宣言 4 つ・除外 1 つを入れた。src・`tools/c7`・ほかの試験・表・`map.toml`・`contracts.toml` は変えていない。
+
+### E5c-1. 変えたファイル(`git diff --numstat`・足した/消した)
+
+| ファイル | 行 | 何を |
+|---|---|---|
+| `tools/pkgmove/split.py` | 110 / 10 | `AliasDest` の欄 4 つ・守り・`patch_reach` の宣言の確かめ・報告の `patch_declared`・宣言 4 つ・除外 1 つ |
+| `tools/pkgmove/imports.py` | 48 / 3 | 素の使い方の形(`BARE_OK`・`bare_form`・`AliasUse.bare_forms`) |
+| `tools/pkgmove/cli.py` | 4 / 2 | `split --through` の要約と行・`--next` の表示に `patch_declared` |
+| `tools/pkgmove/README.md` | 30 / 0 | E5-a の節の後に E5-c の節・`STRING_EXCLUDE` の行 |
+| `tests/tools/test_pkgmove.py` | 198 / 0 | 足した試験 23 本(下) |
+
+### E5c-2. 形と守り
+
+- 宣言の形: E5-a の `AliasDest` に欄を 4 つ足した。`bare`(素で使ってよい印)・`reads`(素で渡した先・しまった先で、そのモジュールの属性として読み書きする名)・`patches`(その別名を通す差し替えの名=字面で見える差し替えと、素で使った先の差し替えの全部)・`why`(渡した先・しまった先の関数と読む名)。印のある別名は宣言の割り先へ書き換え、手で直す一覧に出さない。印の無い別名の素の使い方は、今までどおり手で直す一覧へ出す。
+- 許す素の使い方(`imports.BARE_OK`): 渡す(位置か名の引数)・返す・しまう(代入の値そのもの)・既定の引数・比べる(`is None`・`is not None`)。名を字面で書かない呼び出し(`getattr`・`setattr`・`vars`・`dir`・`.object` など)へ渡す形・入れ物に入れる・呼ぶ・`==` で比べる形は止める。「比べる」は発注の 4 つの形の外にある。`tools/c7/occupancy_series.py` の `if module is None` のために足した(名を読まない形)。
+- 守り(別名の割り先の宣言の守り): 次のどれかで止める。印があるのに素の使い方が 1 つも無い(印の腐り)・許さない形・`reads` か `why` が無い・`reads` と `patches` の名が割り先の頂上で結ばれていない・印が無いのに `reads`・`patches` を書いた・使われなかった宣言(E5-a と同じ)。宣言はその割る行でだけ使う。別名の属性の読みは、E5-a と同じに割り先の頂上の名だけを許す。
+- 差し替え(差し替えの届く先の守り): `patches` の名ごとに、E5-b の届かせる割り先の集合を出す。宣言の割り先が集合に無ければ止める(空振り)。ほかの割り先も集合に在れば止める(届かない)。字面で見える差し替えが印のある別名を通るなら、名が `patches` に無ければ止める。確かめた差し替えは報告の `patch_declared` に出す(`patch_checked`・`patch_unseen` とは分ける)。
+
+### E5c-3. 宣言 4 つと根拠(渡した先・しまった先を読んで確かめた)
+
+| ファイル | 別名 → 割り先 | 素の使い方 | 読む名(`reads`) | 差し替える名(`patches`) | 根拠 |
+|---|---|---|---|---|---|
+| `tests/engine/test_conversation_invite.py` | `R_TALK` → `act/ops/talk.py` | 渡す 1 | `talk_within_reach`・`set_conversing`・`end_conversation`・`revert_conversation` | 無し | `runtime/run.py` の `_settle_pending_invites`(引数 `R`)が `R` から読む 4 名。`R` への差し替えは無い |
+| `tests/engine/test_defect_fixes_1103.py` | `R_TALK` → `act/ops/talk.py` | 渡す 5 | 同じ 4 名 | 無し | 同じ関数へ 5 か所で渡す |
+| `tools/c7/attr_arms.py` | `module` → `act/apply.py` | しまう 1 | `apply` | `apply` | `AgentCellRecorder.attach` が `self._module` にしまい、`module.apply` を包みに替える。`detach` が `self._module.apply` を元に戻す |
+| `tools/c7/occupancy_series.py` | `module` → `act/apply.py` | しまう 1・比べる 1 | `apply` | `apply` | `OccupancyRecorder.attach(module=None)` が引数で受けるか import し、同じく包んで戻す。ほかの属性は読まない |
+
+- 4 つとも発注文の表と同じだった。`apply` の届かせる割り先の集合は `act/apply.py` だけ。元のファイルの中で `apply` を呼ぶ時に読む関数は無く、src の読み手が呼ぶ時に別名の属性で読む(=定義の割り先)。
+- 除外 1 つ: `split.STRING_EXCLUDE` に `("tools/repo_guide/guide_permits.py", "RESOLVE_FILE")` を足した(親の裁定)。
+
+### E5c-4. 足した試験(23 本・見本の木は E5-b の `_REACH_SRC` を割る)
+
+- 通る形: 渡した別名が宣言の割り先へ書き換わる(`strict` でも当たる)/許す形を 1 つずつ数える(渡す 3・返す 1・しまう 2・既定の引数 1・比べる 1)/`patches` の名を、字面の差し替え 1 つの形と字面に無い形の両方で確かめ、`patch_declared` に出す/src のファイルの別名でも同じに効く(S6-G1 の `judge.py` の形)。
+- 負の対照(どれも止まる・書かない実行でも止まる): 印の腐り・入れ物に入れる・`getattr(B, 変数)` へ渡す・`==` で比べる・呼ぶ・`reads` が無い・`why` が無い・`reads` の名が割り先に無い・別名の属性が割り先の外・`patches` の名が割り先に無い・印が無いのに `reads`・印の無い宣言の素の使い方・使われなかった宣言 2 つ(14 場合)/差し替える名の届く先が宣言の割り先だけでない(届かない・空振り)・字面の差し替えの名が `patches` に無い(3 場合)/`patch_reach` を外すと、届かない宣言が通る(守りが止めていることの確かめ)/宣言が無いと同じ読み手は手で直す一覧に出て断られる・ほかの割る行の宣言は使わない。
+- 宣言が腐らない: 本物の印のある宣言 4 つの `reads` が、今の `_settle_pending_invites` が `R` から読む名と、`tools/c7` の 2 本のクラスが `module`・`self._module` から読み書きする名に一致する。
+
+### E5c-5. 数の前後と確かめ(重いものは合図を取ってから 1 本ずつ)
+
+| 何を | 前 | 後 |
+|---|---|---|
+| `tests/tools/test_pkgmove.py`(`-m "not slow"`・`-n` なし) | 150 passed・21 skipped | 173 passed・21 skipped(足した 23 本。飛ぶ 21 本は前と同じ) |
+| slow(5a・5b の順の当て/履歴の当て直し) | 2 passed | 2 passed(25 秒・59 秒) |
+| 履歴の当て直し(5b の G3 の土台 `e6d221c`・22 本目)を、前(HEAD の道具の写し)と後の道具で | — | 差分は 1 バイトも同じ。報告は鍵 `patch_declared`(空)が増えただけ。守り同じ・確かめた差し替え 25 か所・見られなかった 0 |
+| `map --check`・`contracts --stage delete --tree . --check --probe` | 同じ・同じ | 同じ・同じ(古い 2+新しい 9・例外 26 行) |
+| `git status --porcelain -- src`・秘密スキャン | — | 空・CLEAN |
+
+### E5c-6. 本物の木の書かない実行(`split --through engine/resolve.py`)
+
+- 守りは全部「同じ」で、決まりは「宣言どおり 4」。手で直す一覧は **8** で、src の import の別名 `R` だけが残った(`interim_bundles/calendar_self.py`・`mind/relations/layer.py`・`runtime/systems/assemble.py`・`body.py`・`judge.py`・`perceive.py`・`talk.py`・`world/laws/presence.py`)。親の取り直しの 13 から、宣言 4 つと除外 1 つで 5 減った。
+- 差し替え: 確かめた 13・**見られなかった 0**・宣言で確かめた 2(`tools/c7/attr_arms.py` と `tools/c7/occupancy_series.py` の別名 `module` の名 `apply` → `act/apply.py`・字面で見えた差し替えは各 1)。読み込みの時だけの読みは 0。
+- 別名の宣言 4 つは全部使われた。宣言の 4 本の import は `from shibuya.act.ops import talk as R_TALK` と `from shibuya.act import apply as module` に書き換わる。`guide_permits.py` は書き換えない。前向きの表 2 行・道の文字列の宣言 2・決まり 2+9 → 1+10・宣言した弱まり 4・宣言の無い弱まり 0 は前と同じ。
+
+### E5c-7. 親に聞くこと・確かめていないこと
+
+- 聞くこと: 許す形に「比べる(`is None`・`is not None`)」を足した。発注の 4 つの形の外だが、`occupancy_series.py` の `if module is None` は名を読まないので、止めると正しい形を止めることになる。この形でよいか。
+- 確かめていないこと: HEAD の道具で今の木の書かない実行を回し、後の道具の差分と突き合わせることはしていない(合図を別の役が持っていた)。違いは、手で直す一覧の数(親の取り直し 13 → 8)と報告で見た。素の使い方の形は名の字面で見る(`alias_uses` と同じで、有効範囲は見ない)。`tools/c7` の 2 本の試験(`tests/c7`)は回しておらず、開いてもいない。
+
+### E5c-8. 検収の後の続き(検収=受入〔高 0・中 0・低 3〕・土台 `2c4a164`=src の 8 本の別名の分けの後)
+
+- 親の裁定 2 つ: 許す素の使い方に「比べる(`is None`・`is not None`)」を足したこと= 受け入れる(同一性を見るだけで名を読まない。`==`・`not`・`or`・三項は止まる)。`cli.py` の報告の欄の表示= 受け入れる。
+- `judge.py` の宣言(1 行足した): `src/shibuya/runtime/systems/judge.py` の別名 `R_TALK` → `act/ops/talk.py`・印あり・`reads` は talk の 4 名(`talk_within_reach`・`set_conversing`・`end_conversation`・`revert_conversation`)・`patches` 無し。根拠: `R_TALK` は 29 行で import し、素の使い方は `sys_apply_responses` の 163 行で `_settle_pending_invites`(94 行で `runtime/run.py` の関数を写した名)へ渡す 1 つだけ。`R_TALK` の属性の読みは 0、差し替えの字面も 0。受け手が `R` から読む名は 4 名のまま。発注文と同じ。
+- 決まり(検収の低-1・親の裁定): 道具に辿らせる拡張は今は入れない。`tools/pkgmove/README.md` の E5-c の節に、道具が辿らない形(しまう・既定の引数で写した先の読みと差し替え・渡した先の中・`inspect.getmembers(B)`・`functools.partial(getattr, B)` のように「渡す」として通る形)と、決まり「印のある宣言を足すときは、宣言が腐らない試験の受け手の表に受け手を足す」を書いた。
+- 決まりを守らせる試験: 宣言が腐らない試験を、受け手の表 `_BARE_RECEIVERS`((ファイル, 別名) → (受け手のファイル, 受け手の関数かクラス, モジュールを持つ字面)・5 行)で作り直した。食い違いを出す `_bare_receiver_problems` が空であることを確かめる。見るのは次のとおり。印のある宣言の集合と受け手の表が同じ・`reads` が受け手の字面から引いた読み書きする名と同じ・`patches` が書く名と同じ・`why` に受け手の名が在る・宣言のファイルの素の使い方が受け手へ渡すか受け手の中だけ。前の試験は宣言の集合を字面で固めていたが、受け手は別名の名で選んでいた(`R_TALK` の宣言を足すと受け手の確かめは自動で付いた)。今は表の行が無ければ落ちる。
+- 負の対照(1 本・4 つの確かめ): メモリの中で印のある宣言を 1 行足し、受け手を足さないと「受け手が無い」が出る/宣言を外すと「印のある宣言の無い受け手」/`reads` を 1 つ欠くと「と違う」/受け手を別の関数(`_inviter_of`)にすると「受け手の外の素の使い方(行 [163])」と「受け手が無いか」。
+- 数の前後(合図を取って 1 本ずつ): `tests/tools/test_pkgmove.py`(not slow)は 173 passed・21 skipped → 174 passed・21 skipped(負の対照 1 本を足した。宣言が腐らない試験は作り直しで数は同じ)。slow は 2 passed(24 秒・58 秒=履歴の当て直しは前と同じに通る)。`map --check`・`contracts --probe` は同じ・同じ(古い 2+新しい 9・例外 26 行)。`git status --porcelain -- src` は空・秘密スキャンは CLEAN。
+- 書かない実行の取り直し(載せ直しの後の本物の木・`split --through engine/resolve.py`): 守りは全部「同じ」(決まりは宣言どおり 4)。**手で直す一覧は 0・見られなかった差し替えは 0**。確かめた差し替え 13・宣言で確かめた差し替え 2(`tools/c7` の 2 本の `module` の `apply` → `act/apply.py`)・読み込みの時だけの読み 0。別名の割り先の宣言は印のある 5 つが全部使われた(`judge.py` 渡す 1・`test_conversation_invite.py` 渡す 1・`test_defect_fixes_1103.py` 渡す 5・`attr_arms.py` しまう 1・`occupancy_series.py` しまう 1 と比べる 1)。`judge.py` の import は `from shibuya.mind import ops as R_MIND`・`from shibuya.act.ops import talk as R_TALK` に書き換わる。前向きの表 2 行(`act/ops/plan_writes.py`・`mind/ops.py`)・道の文字列の宣言 2・決まり 2+9 → 1+10・宣言した弱まり 4・宣言の無い弱まり 0。この出力が、次の commit(道具で写す)の「当てる前」の姿になる。
+
+## E5-c 素で使う別名の宣言: 親の確かめと検収(第347・2026-11-19)
+
+### E5-c(親)-1. 別の役の検収
+
+- 判定: **受入**(高 0・中 0・低 3)。続き(`judge.py` の宣言と決まり)の再検収: **受入**(高 0・中 0・低 2=どちらも知らせ)。judge の 3 条件(素の使い方はその関数へ渡す 1 つだけ・属性の読み 0・差し替え 0)と、受け手が talk の 4 名だけを読むことを、今の木で確かめた。作り直した試験は、宣言を足して受け手を足さない・宣言を外す・読む名を欠く・受け手を別の関数に替える、のどれでも落ちる。 検収役はファイルを 1 本も変えていない。
+- 宣言の無い別名の動き: 新しい道具と前の道具で、5b の G1・G2・G3 の土台に当て直した。書いたファイル(42・166・127 本)・手で直す一覧・守りは 1 バイトも同じ(違いは、報告の空の欄が 1 つ増えただけ)。印の無い宣言の素の使い方は今も止まる。宣言の無い別名を素で渡すと、今も手で直す一覧に出て、厳しい当ては断る。
+- 口の広さ: 止まる形= 属性の読みが割り先の外・渡した先で読む名が割り先に無い/空/わけが無い・差し替えの空振り/届かない/字面の差し替えの名が宣言に無い・印の腐り・使われない宣言・ほかの行の宣言・印無しで読む名を書いた宣言・`vars(別名)`。同じファイルの別の別名や、関数の中の同じ名の別名へ、宣言は漏れない。
+- 許す素の使い方の「比べる」: 演算子が全部 `is`/`is not` で、項がその別名か `None` だけの形だけを許す(同一性を見るだけ=名は読まない)。`==`・`not`・`if 別名:`・`or`・三項は止まる。
+- 宣言の根拠: `_settle_pending_invites` が受け取ったモジュールで読むのは talk の 4 名だけ(ほかへ渡す所も差し替えも無い)。`tools/c7` の 2 本は、モジュールをしまい、`apply` だけを読み書きする。`apply` の届く先は `act/apply.py` だけ。
+
+### E5-c(親)-2. 検収の低と、親の裁定
+
+- 低-1(口の広さ=「しまう」「既定の引数」で写した先の読みと差し替えを、道具は辿らない。宣言の外の名を写した先で差し替えると、音の立たない空振りになる): **道具に辿らせる拡張は今は入れない**。決まりを書いて試験で守らせる(印のある宣言を足すときは、宣言が腐らない試験に受け手を足す。試験は、受け手の字面から読む名・差し替える名を引いて、宣言と同じことを確かめる。印のある宣言の集合と、受け手を確かめる集合が同じことも固める)。段 7 で印のある宣言が増えるなら、辿る拡張を考える。
+- 低-2(素の使い方は別名の名の字面で数え、有効範囲を見ない=止まる側): そのまま。低-3(`cli.py` の報告の欄の表示=発注の見込みの外): 受け入れる。
+- 実装役が足した「`is None`・`is not None` で比べる」: 受け入れる(上の検収のとおり)。
+- `runtime/systems/judge.py` の宣言(別名 `R_TALK` → `act/ops/talk.py`・渡した先で読む名は talk の 4 名・差し替え無し): src の別名の分けが入った後に足した(検収役の見立てのとおり)。
+
+### E5-c(親)-3. 親が回した確かめ(src の別名の分けが入った後の木)
+
+| 何を | 結果 |
+|---|---|
+| `tests/tools/test_pkgmove.py`(`-m "not slow"`・`-n` なし) | 174 passed・21 skipped・落ちた試験 0(前は 150 passed・21 skipped=足した 24 場合。飛ぶ 21 本は前と同じ) |
+| `tests/tools/test_pkgmove.py` の slow | 2 passed |
+| `tests/tools` の束(`-m "not gpu and not slow"`・`-n 2`) | 642 passed・落ちた試験 0(`test_pkgmove.py` を除く) |
+| 本物の木の書かない実行(`split --through engine/resolve.py`) | 守りは全部「同じ」(決まりは宣言どおり 4)・**手で直す一覧 0・見られなかった差し替え 0**・差し替えの届く先は確かめた 13・宣言で確かめた 2(`tools/c7` の 2 本の `apply`)・印のある宣言 5 つと道の文字列の宣言 2 つが使われる・前向きの表に 2 行(`act/ops/plan_writes.py`・`mind/ops.py`)・消えるのは `engine/resolve.py` と `engine/__init__.py`・作る頭は `act/ops/__init__.py` |
+| `map --check`・`contracts --check --probe`・`git status --porcelain -- src` | 同じ・同じ(例外 20 辺・延べ 26 行)・空 |

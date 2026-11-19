@@ -30,7 +30,7 @@ attr_arms.py — **KDDI 写像の感度腕**(在圏の形 9b・D-115 ③・解�
 - import している内部モジュール: `shibuya.engine.resolve`・`shibuya.world.facts.population_reader`・`tools/c7/c7lib.py`・`tools/c7/occupancy_series.py`
 - 呼び手: `tools/instruments/anchor_gauge.py`
 - 読む試験: `tests/c7/test_attr_arms.py`
-- 読む試験(道筋で): `tests/tools/test_repo_guide.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`・`tests/tools/test_repo_guide.py`
 - CLI の引数
   - `--all-arms`: 写像 3 × 滞在 0/30 × 20 歳未満 off/on の格子
   - `--attr-map`
@@ -164,6 +164,7 @@ occupancy_series.py — C7 の**在圏時系列**(5エリア×24時)を作る。
 - import している内部モジュール: `shibuya.engine.resolve`・`shibuya.runtime.run`・`shibuya.world.model.state`・`tools/c7/c7lib.py`
 - 呼び手: `tools/c7/attr_arms.py`・`tools/c7/presence_yardstick.py`・`tools/c7/seed_ensemble.py`・`tools/fig/fig_presence_24h.py`・`tools/fig/fig_seed_pair.py`
 - 読む試験: `tests/c7/conftest.py`・`tests/c7/test_presence_yardstick.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - CLI の引数
   - `--agents`
   - `--area-map`: 既存の写像表 JSON(無ければ --world から作る)

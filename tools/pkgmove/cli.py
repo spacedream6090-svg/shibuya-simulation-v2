@@ -334,7 +334,7 @@ def cmd_split(a: argparse.Namespace) -> int:
                                                  "path_string_sites", "deleted", "created_heads", "emptied_heads",
                                                  "unwritten", "contracts", "excluded_sites", "table_key_sites",
                                                  "alias_declared", "ledger_paths_split", "path_declared", "patch_checked",
-                                                 "patch_unseen", "patch_load_time")})
+                                                 "patch_unseen", "patch_load_time", "patch_declared")})
                 if od is not None:
                     tag = f"{plan.row.split_order:02d}"
                     (od / f"split_{tag}_report.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1) + "\n",
@@ -345,6 +345,7 @@ def cmd_split(a: argparse.Namespace) -> int:
                       + (f"・前向きの表 {len(plan.ledger_paths_split)}" if plan.ledger_paths_split else "")
                       + (f"・道の文字列の割り先の宣言 {len(plan.path_declared)}" if plan.path_declared else "")
                       + (f"・差し替えの確かめ {len(plan.patch_checked)}" if plan.patch_checked else "")
+                      + (f"・宣言で確かめた差し替え {len(plan.patch_declared)}" if plan.patch_declared else "")
                       + (f"・見られなかった差し替え {len(plan.patch_unseen)}" if plan.patch_unseen else ""))
                 tree = plan.after
             if od is not None:
@@ -373,7 +374,8 @@ def cmd_split(a: argparse.Namespace) -> int:
     print(json.dumps({k: rep[k] for k in ("row", "split_order", "source", "dests", "names_by_dest", "import_statements",
                                           "import_split_statements", "class_id_keys", "ledger_paths_added", "deleted",
                                           "created_heads", "emptied_heads", "guards", "alias_declared",
-                                          "ledger_paths_split", "path_declared", "patch_checked", "patch_unseen")},
+                                          "ledger_paths_split", "path_declared", "patch_checked", "patch_unseen",
+                                          "patch_declared")},
                      ensure_ascii=False, indent=1))
     if not a.apply:
         print("書いていない(dry-run)。書くのは --apply --tree <置き場> のときだけ")

@@ -300,6 +300,42 @@ G3 が cli)。親の裁定と記録は [docs/bench/analysis/split5b-347/README.m
 - 差し替えが読む関数の割り先の全部に向いているかを道具が機械で確かめる守り(E5-b)は、段 6 の S6-G0 で入れた(下の節)。G3 では
   裁定の表・「外すと落ちる」の確かめ・検収で見た。
 
+### 〔割る段 6 の S6-G0〕E5-c 素で使ってよい別名(`AliasDest` の `bare`・親の裁定 T5)
+
+- なぜ要るか: 別名を属性で読まずに関数へ渡す・しまう形(素の使い方)は、別名を割り先ごとに分けても消えず、道具は必ず「手で直す
+  一覧」に出す(厳しい当ては断る)。渡した先の関数がモジュールを受け取る約束の所(`runtime/run.py` の `_settle_pending_invites`
+  の引数 `R`)や、モジュールをしまって `apply` を包む計器(`tools/c7` の 2 本)は、割る前に形を直す手が無い。
+- 何を宣言するか: E5-a の 1 行に `bare=True`(印)・`reads`(素で渡した先・しまった先で、そのモジュールの属性として読み書きする
+  名=親と検収役が渡した先の関数を読んで確かめた名)・`patches`(その別名を通す差し替えの名=字面で見える差し替えと、素で使った先の
+  差し替えの全部)・`why`(渡した先・しまった先の関数と読む名)を書く。印のある別名は、許す形の素の使い方があっても宣言の割り先へ
+  書き換わり、手で直す一覧に出ない。印の無い別名の素の使い方は今までどおり手で直す一覧へ。
+- 許す素の使い方(`imports.BARE_OK`・`imports.bare_form`): 渡す(位置か名の引数。名を字面で書かない `getattr`・`setattr`・
+  `vars`・`dir`・`.object` などへ渡すのは除く)・返す(`return`・`yield`)・しまう(代入の値そのもの=変数か属性へ)・既定の引数・
+  比べる(`is None`・`is not None`=名を読まない)。ほかの形(入れ物に入れる・呼ぶ・添字・`==` で比べる)は宣言で表せない=止める。
+- 守り(別名の割り先の宣言の守り=E5-a と同じ場所・同じ文の頭): 印があるのに素の使い方が 1 つも無い(印の腐り)・許さない形・
+  `reads` か `why` が無い・`reads` と `patches` の名が割り先の頂上で結ばれていない・印が無いのに `reads`・`patches` がある・
+  使われなかった宣言(E5-a と同じ)。別名の属性の読み(`X.名`)は E5-a と同じに割り先の頂上の名だけ。
+- 差し替え(差し替えの届く先の守り=E5-b の `patch_reach`): `patches` の名ごとに E5-b の「届かせる割り先の集合」を出し、宣言の
+  割り先が集合に無ければ止める(空振り)・集合にほかの割り先も在れば止める(素で使った先の差し替えは宣言の割り先にしか向かない=
+  ほかへ届かない)。字面で見える、印のある別名を通す差し替えは、名が `patches` に無ければ止める。確かめた差し替えは報告の
+  `patch_declared`(ファイル: 別名 の名 → 宣言の割り先・字面で見えた数)と `split --through` の行に出る(`patch_checked`・
+  `patch_unseen` とは分ける)。
+- 道具が辿らない形(`reads`・`patches` は人の確かめだけが根拠): しまう・既定の引数で写した先の読みと差し替え
+  (`m = B; m.g(…)`・`self.m = B; self.m.g = …`・`def f(m=B): m.g(…)`)と、渡した先の関数の中の読みと差し替え。名を字面で
+  書かずに読む関数へ「渡す」として通る形(`inspect.getmembers(B)`・`functools.partial(getattr, B)` など)も辿らない。宣言の外の名を
+  写した先で読めば実行で音が立つが、**差し替えは音の立たない空振りになる**。
+- **決まり(親の裁定・検収の低-1)**: 印(`bare`)のある宣言を足すときは、宣言が腐らない試験の受け手の表
+  (`tests/tools/test_pkgmove.py` の `_BARE_RECEIVERS`)に、その受け手(渡した先・しまった先の関数やクラスと、その中でモジュールを
+  持つ字面)を足す。試験(`test_bare_alias_declarations_name_what_the_receiving_functions_read`)は、受け手の字面から読み書きする
+  名・書く名を引いて宣言の `reads`・`patches` と同じことを、`why` に受け手の名が在ることを、宣言のファイルの素の使い方が受け手へ
+  渡すか受け手の中だけであることを確かめる。印のある宣言の集合と受け手の表は同じでなければ落ちる(受け手を足し忘れると落ちる=
+  `test_negative_a_bare_declaration_without_its_receiver_fails_the_rot_check`)。道具に辿らせる拡張は今は入れない(段 7 で印の
+  ある宣言が増えるなら、そのとき考える)。
+- 段 6 の宣言は 5 つ(`tests/engine/test_conversation_invite.py`・`tests/engine/test_defect_fixes_1103.py`・
+  `src/shibuya/runtime/systems/judge.py` の `R_TALK` → `act/ops/talk.py`=受け手は `runtime/run.py` の `_settle_pending_invites`・
+  `tools/c7/attr_arms.py`・`tools/c7/occupancy_series.py` の `module` → `act/apply.py`=受け手は各ファイルの記録のクラス)。
+  `judge.py` の宣言は、src の別名の分け(S6-G1 の下ごしらえ)の後に足した。
+
 ## 〔割る段 6 の S6-G0〕道具の拡張 E7・E8・E5-b・E9(親の裁定 Q1・Q8・追記・R2)
 
 段 6(`engine/resolve.py` を 18 の割り先へ)の前に入れた 4 つ。src は変えていない。記録は
@@ -340,6 +376,9 @@ G3 が cli)。親の裁定と記録は [docs/bench/analysis/split5b-347/README.m
 - あわせて直した見落とし: tests と tools の文字列を選ぶとき、`/` の連鎖の記号は、ほかの記号に当たりのあるファイルでも拾う(前は当たりの
   無いファイルでだけ連鎖を見たので、連鎖が書き換えも一覧も無く残る形があった)。
 - `split.STRING_EXCLUDE` に `tests/tools/test_repo_guide.py` の `LAYER_SRC`(偽の木の見本のコード=裁定 R2)を足した。
+  〔表と順の検収の後の裁定〕`tools/repo_guide/guide_permits.py` の `RESOLVE_FILE`(`allow.py` に `RESOLVE_FILES` の無い見本の木で
+  読む 1 本。`test_repo_guide` の見本の木がこの道に resolve の材料を置く=書き換えると試験が落ちる。割った後の本物の木では使わない)も
+  足した。
 
 ### E5-b 差し替えの届く先の守り(`split.patch_reach`・守り `patch_reach`)
 

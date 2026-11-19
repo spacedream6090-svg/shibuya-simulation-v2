@@ -13,7 +13,8 @@
   (再輸出)は元のモジュールへ向ける。割るモジュールを別名で読む形(``from P import m as X``・``import M as X``)は、ファイルの
   中の ``X.名`` の割り先が 1 つのときだけ書き換える(``Ctx.alias_dests``)。書き換えられない所は注意の頭を :data:`MANUAL` にして
   出す(割る道具が「手で直す一覧」に集めて断る)。〔割る段 5b・E5〕別名の割り先を宣言したもの(``split.SPLIT_ALIAS_DESTS``)は、
-  割る道具が名の割り先でなく宣言の割り先を ``Ctx.alias_dests`` に入れる(使い方は :func:`alias_uses`)。
+  割る道具が名の割り先でなく宣言の割り先を ``Ctx.alias_dests`` に入れる(使い方は :func:`alias_uses`)。〔割る段 6・E5-c〕素の
+  使い方の形(:func:`bare_form`・:data:`BARE_OK`)は、素で使ってよい印のある宣言を割る道具が確かめるのに使う。
 """
 from __future__ import annotations
 
@@ -175,11 +176,49 @@ def plan_from(ctx: Ctx, node: ast.ImportFrom) -> tuple[list[Target] | None, bool
 @dataclass(frozen=True)
 class AliasUse:
     """〔割る段 5b・E5〕割るモジュールを結んだ別名の使い方: 結んだモジュール・名で読む名(``X.名``・``setattr(X, "名")`` など)・
-    名で読まない使い方(素の ``X``)の行。"""
+    名で読まない使い方(素の ``X``)の行。〔割る段 6・E5-c〕``bare_forms`` は素の使い方の 1 つずつの (行, 形)(:func:`bare_form`)。"""
 
     module: str
     attrs: frozenset[str]
     bare_lines: tuple[int, ...]
+    bare_forms: tuple[tuple[int, str], ...] = ()
+
+
+#: 〔割る段 6・E5-c〕素で使ってよい別名(``split.AliasDest`` の ``bare``)に許す素の使い方の形。渡す=関数へ渡す(位置か名の引数)・
+#: 返す=``return``・``yield`` の値・しまう=代入の値そのもの(変数か属性へ)・既定の引数・比べる=``is None``・``is not None``
+#: (名を読まない)。ほかの形(入れ物に入れる・呼ぶ・添字・星で広げる・名を字面で書かない ``getattr`` などへ渡す)は、
+#: 宣言の ``reads`` で表せない=止める。
+BARE_OK = ("渡す", "返す", "しまう", "既定の引数", "比べる")
+#: 〔E5-c〕渡すと、別名の名を字面で書かずに読み書きできる呼び出し(素で渡す形は「渡す」に数えない)。
+_DYN_CALLS = frozenset({"getattr", "setattr", "hasattr", "delattr", "vars", "dir", "object", "reload", "__import__",
+                        "import_module"})
+
+
+def _call_name(f: ast.expr) -> str:
+    return f.attr if isinstance(f, ast.Attribute) else (f.id if isinstance(f, ast.Name) else "")
+
+
+def bare_form(node: ast.Name, parents: dict[int, ast.AST]) -> str:
+    """〔割る段 6・E5-c〕名で読まない使い方 1 つの形(:data:`BARE_OK` のどれか、でなければ「そのほか(…)」)。"""
+    up = parents.get(id(node))
+    if isinstance(up, ast.keyword):
+        call = parents.get(id(up))
+        if isinstance(call, ast.Call):
+            f = _call_name(call.func)
+            return f"そのほか(名を字面で書かない呼び出し {f} へ渡す)" if f in _DYN_CALLS else "渡す"
+    if isinstance(up, ast.Call) and any(a is node for a in up.args):
+        f = _call_name(up.func)
+        return f"そのほか(名を字面で書かない呼び出し {f} へ渡す)" if f in _DYN_CALLS else "渡す"
+    if isinstance(up, (ast.Return, ast.Yield, ast.YieldFrom)) and up.value is node:
+        return "返す"
+    if isinstance(up, (ast.Assign, ast.AnnAssign, ast.NamedExpr)) and up.value is node:
+        return "しまう"
+    if isinstance(up, ast.arguments) and any(d is node for d in [*up.defaults, *up.kw_defaults]):
+        return "既定の引数"
+    if (isinstance(up, ast.Compare) and all(isinstance(o, (ast.Is, ast.IsNot)) for o in up.ops)
+            and all(x is node or (isinstance(x, ast.Constant) and x.value is None) for x in [up.left, *up.comparators])):
+        return "比べる"
+    return f"そのほか({type(up).__name__ if up is not None else '?'})"
 
 
 def alias_dests(ctx: Ctx, text: str, path: str) -> dict[str, str | None]:
@@ -218,6 +257,7 @@ def alias_uses(ctx: Ctx, text: str, path: str) -> dict[str, AliasUse]:
                 if a.name in ctx.namemap and a.asname:
                     bound[a.asname] = a.name
     out: dict[str, AliasUse] = {}
+    parents: dict[int, ast.AST] | None = None
     for al, sm in bound.items():
         attrs: set[str] = set()
         seen: set[int] = set()
@@ -233,7 +273,12 @@ def alias_uses(ctx: Ctx, text: str, path: str) -> dict[str, AliasUse]:
                 seen.add(id(n.args[0]))
         bare = [n for n in ast.walk(tree) if isinstance(n, ast.Name) and n.id == al and id(n) not in seen
                 and isinstance(n.ctx, ast.Load)]
-        out[al] = AliasUse(sm, frozenset(attrs), tuple(sorted({n.lineno for n in bare})))
+        forms: tuple[tuple[int, str], ...] = ()
+        if bare:  # 〔割る段 6・E5-c〕素の使い方の形(親の節を 1 回だけ作る)
+            if parents is None:
+                parents = {id(c): p for p in ast.walk(tree) for c in ast.iter_child_nodes(p)}
+            forms = tuple(sorted((n.lineno, bare_form(n, parents)) for n in bare))
+        out[al] = AliasUse(sm, frozenset(attrs), tuple(sorted({n.lineno for n in bare})), forms)
     return out
 
 

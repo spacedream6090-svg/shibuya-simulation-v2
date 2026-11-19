@@ -199,6 +199,7 @@ engine.systems.judge — 判断の系(apply_responses・wake_sources・wake_filt
   - `sys_wake_sources`(関数): wake_sources(HEAD run.py の同じ区間・文は変えない)。
 - import している内部モジュール: `shibuya.act.commit`・`shibuya.act.intake.from_words`・`shibuya.engine.resolve`・`shibuya.foundation.hashing`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.mind.system1.wake`・`shibuya.runtime.run`
 - 呼び手: `shibuya.runtime.systems.table`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 書きの許可
   - 系 `apply_responses`(群 判断・時 `tick`・関数 `sys_apply_responses`)
     - 呼んでよい resolve の口: `end_conversation`・`set_conversing`・`talk_within_reach`

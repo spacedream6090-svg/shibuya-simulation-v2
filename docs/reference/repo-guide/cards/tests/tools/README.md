@@ -553,6 +553,11 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_apply_refuses_a_main_worktree_and_allows_others`(関数)
   - `test_apply_twice_is_the_same`(関数)
   - `test_apply_writes_the_package_data_key_and_nothing_else_of_pyproject_in_a_sample`(関数): 〔検収 M-2・k15〕作った見本の木へ ``apply`` すると、木の pyproject の package-data の鍵だけが新しい包みの名になり、ほかの
+  - `test_bare_alias_declaration_accepts_each_allowed_form`(関数): 〔E5-c〕許す素の使い方の形(``imports.BARE_OK``)は 1 つずつ数える: 渡す(位置と名の引数)・返す・しまう(変数と属性)・
+  - `test_bare_alias_declaration_lets_a_passed_alias_through`(関数): 〔E5-c〕印 ``bare`` の宣言の在る別名は、素で渡しても宣言の割り先へ書き換わり、手で直す一覧に出ない(``strict`` でも当たる)。
+  - `test_bare_alias_declaration_works_the_same_in_a_src_file`(関数): 〔E5-c〕src のファイルの別名にも同じに効く(S6-G1 で載せる ``runtime/systems/judge.py`` の形=別名を関数へ渡す)。負の対照:
+  - `test_bare_alias_declarations_name_what_the_receiving_functions_read`(関数): 〔E5-c・宣言が腐らない〕本物の印のある宣言 5 つ: 印のある宣言の集合と受け手の表 ``_BARE_RECEIVERS`` が同じで、``reads``・
+  - `test_bare_alias_patches_are_checked_against_the_declared_destination`(関数): 〔E5-c〕宣言の差し替える名(``patches``)は、E5-b の届かせる割り先の集合が宣言の割り先だけなら通り、報告の ``patch_declared``
   - `test_bound_names_guard_catches_a_changed_binding`(関数): 〔突然変異 m14〕import の文が結ぶ名(別名を含む)が前後で違えば止める(直に呼ぶ・作った木)。頭から除いた再輸出の名だけは
   - `test_cache_only_dirs_are_pruned_and_namespace_leftovers_are_caught`(関数): 〔検収 L-a〕``__pycache__`` だけを持つ古い包みのディレクトリは名前空間の包みとして import できる=import の確かめが落とす。
   - `test_catalog_json_relpath_moves_with_the_json`(関数): (b-src) 〔親の決定 2〕構築の側が凍結の JSON を書く先は、JSON と一緒に動く(JSON がまだ動いていない木では動かす段まで
@@ -588,6 +593,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_main_worktree_check_fails_closed`(関数): 〔M-2〕git が失敗したら断る側・呼び手の GIT_DIR に左右されない・.git が 1 つも無いときだけ git の外。報告の置き場が本体の
   - `test_map_toml_is_made_from_the_table_and_is_current`(関数)
   - `test_mora_rule_and_other_untouched_path_shaped_strings_stay_in_the_rest_plan`(関数): 残る段を全部まとめた計画(全段が当たった木では行 0 の計画)でも: 腕 mora の manifest に出る文は書き換えない・つなぎの
+  - `test_negative_a_bare_declaration_without_its_receiver_fails_the_rot_check`(関数): 〔E5-c の決まりの負の対照〕メモリの中で印のある宣言を 1 行足し、受け手を足さないと食い違いが出る(試験が落ちる)。受け手の
   - `test_negative_a_declaration_in_a_second_destination_is_stopped`(関数): 2 つ目以降の新しい割り先につなぎの台帳の宣言(expedient の段落)が入ると、台帳の道の表(1 対 1)で表せないので止める。
   - `test_negative_a_map_sending_two_modules_to_one_is_refused`(関数): 〔突然変異 m19〕2 つの行を同じ行き先へ送る対応表は、行き先の守りが断る(どの守りが止めたかまで見る)。
   - `test_negative_a_nameless_dotted_path_outside_m_is_listed_for_hand_fixing`(関数): 〔E3〕``-m`` の文脈でない名の無い点の道は、主な割り先へ黙って向けず「手で直す一覧」に出す(既定=strict は断る)。記録の文
@@ -598,6 +604,8 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_negative_alias_rewrite_captured_by_a_local_name_is_refused`(関数): 〔検収 低-1〕宣言した書き換え ``V.x`` → ``x`` の ``x`` が、その場所の局所の名(引数)に捕まる形は断る。捕まらなければ通す。
   - `test_negative_an_emptied_head_with_a_definition_is_stopped`(関数): 〔突然変異 m18・検収 L-f〕空にする頭に定義(関数・クラス)があれば止める。import・docstring・``__all__`` のほかの文
   - `test_negative_an_entry_without_a_matching_declaration_is_refused`(関数)
+  - `test_negative_bare_alias_declaration_guards_each_stop`(関数): 〔E5-c の守り〕印のある宣言の守りは 1 つずつ止める(書かない実行でも): 印の腐り・宣言で表せない素の使い方・reads か why が
+  - `test_negative_bare_alias_patches_that_miss_stop`(関数): 〔E5-c の守り〕差し替える名の届かせる割り先の集合に、宣言の割り先が無い(空振り)・ほかの割り先も在る(届かない)・字面で見える
   - `test_negative_changing_the_names_bound_by_imports_is_stopped_in_a_plan`(関数): 計画の中でも、別名を落とす書き手を差し込むと結ぶ名の守りが止める。次に当てる段で動くモジュールを別名で読む試験の
   - `test_negative_class_ids_guard_catches_values_and_coverage`(関数): 〔突然変異 m03・m20〕固定の表の値が凍結の写像と違う・表の鍵が src のクラスと合わない、を守りが見つける(直に呼ぶ)。
   - `test_negative_forward_ledger_rows_keep_guard_4_as_strict_as_before`(関数): 〔E7・裁定 Q1 の条件 ④〕比べの厳しさは前と同じ: 2 つ目以降の割り先の宣言を 1 つ消す・前向きの表の行を 1 つ落とす・宣言の
@@ -627,6 +635,7 @@ tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-
   - `test_negative_swapping_a_same_qualname_pair_is_stopped_in_a_plan`(関数): 計画の中でも鍵の守りが止める(組の片方が動く foundation の段がまだ当たっていない木だけ)。
   - `test_negative_undeclared_or_unused_alias_rewrites_are_refused`(関数): 自分を別名で読む文は、宣言した書き換え(親の裁定 Q6)のときだけ書き換える。宣言が無ければ断り、当たらない宣言も断る。
   - `test_negative_without_fix_1_an_in_place_patch_that_misses_slips_through`(関数): 〔直し 1 の負の対照〕直しを外す(元のモジュールを割り先と見ない・手で直す一覧と突き合わせない=前の形)と、届かない差し替えが
+  - `test_negative_without_the_declared_patch_check_a_missing_patch_slips_through`(関数): 〔E5-c の負の対照〕宣言の差し替える名の確かめは ``patch_reach`` が止めている(外すと、a に届かない helper の宣言が通る)。
   - `test_only_import_statements_and_allowlisted_string_lines_change`(関数)
   - `test_outside_guard_compares_docstrings_inside_allowlisted_symbols`(関数): 〔L-9〕作った木で: 許可の記号の中の docstring が変われば止め、docstring でない文字列が変わるのは通す。
   - `test_package_data_is_not_rewritten_when_the_file_changes_shape`(関数): 〔検収 L-5・k18〕glob に当たっていたファイルが、包みの道からの相対の形を変えて移ったら(``frozen/a.json`` →

@@ -79,6 +79,11 @@
        見られなかった差し替えは別の一覧(報告の ``patch_load_time``・``patch_unseen``)。〔検収の後の直し〕主な割り先が元のファイルの
        行は元のモジュールを主な割り先として確かめる・割り先でないモジュールを指したままの差し替えは、別名が手で直す一覧に在るとき
        だけ「見られなかった」(無ければ止める)・``strict`` の当ては「見られなかった」が 1 つでも在れば断る(親の裁定)。
+    E5-c 素で使ってよい別名(:class:`AliasDest` の ``bare``・親の裁定 T5): 別名を属性で読まずに渡す・返す・しまう・既定の引数に
+       する・``is None`` で比べる形を、宣言の割り先へ書き換えて通す。宣言の ``reads``(渡した先・しまった先で読む名)が割り先の頂上に
+       在ること・素の使い方が本当に在り形が許す形だけであること(:func:`_declared_alias_dests`)、``patches``(その別名を通す差し替えの
+       名)の届かせる割り先の集合が宣言の割り先だけであること(:func:`patch_reach`)を確かめる。確かめた差し替えは報告の
+       ``patch_declared``。印の無い別名の素の使い方は今までどおり手で直す一覧へ。
 
 逐次ループ宣言: なし(道具=木のファイルの数ぶんの走査を 1 回・ランの中では動かない)。
 """
@@ -117,6 +122,9 @@ STRING_EXCLUDE: frozenset[tuple[str, str]] = frozenset({
     # 〔割る段 6 の S6-G0・親の裁定 R2〕偽の木(tmp の合成の木)に書く見本のコード。字面の ``shibuya.engine.resolve`` は合成の木の
     # 見本の resolve を指し、本物の src を読まない(同じ試験がカードの文の ``shibuya.engine.resolve`` を確かめる=字面をそろえて残す)
     ("tests/tools/test_repo_guide.py", "LAYER_SRC"),
+    # 〔割る段 6 の S6-G0・親の裁定(表と順の検収の後)〕``allow.py`` に ``RESOLVE_FILES`` の無い見本の木で読む 1 本(決め事 3)。
+    # ``test_repo_guide`` の見本の木がこの道に resolve の材料を置く(書き換えると試験が落ちる)。割った後の本物の木では使われない
+    ("tools/repo_guide/guide_permits.py", "RESOLVE_FILE"),
 })
 
 
@@ -124,20 +132,32 @@ STRING_EXCLUDE: frozenset[tuple[str, str]] = frozenset({
 class AliasDest:
     """〔割る段 5b・E5〕別名の割り先の宣言の 1 行: 割る行 ``old`` を当てるとき、ファイル ``file`` で割るモジュールを結んだ別名
     ``alias`` を、名の定義の割り先でなく割り先 ``dest`` へ向ける。``absent`` はこの別名で読むが割り先に無いのが正しい名(常に偽の
-    ``hasattr`` で守られた読みなど)。"""
+    ``hasattr`` で守られた読みなど)。
+
+    〔割る段 6・E5-c・親の裁定 T5〕``bare`` は「素で使ってよい別名」の印: 別名を属性で読まずに渡す・返す・しまう・既定の引数にする・
+    ``is None`` で比べる(:data:`pkgmove.imports.BARE_OK`)形を許し、import を ``dest`` へ書き換える(手で直す一覧に出さない)。
+    印のある宣言には、``reads``(素で渡した先・しまった先で、そのモジュールの属性として読み書きする名=親と検収役が渡した先の関数を
+    読んで確かめた名)・``patches``(その別名を通す差し替えの名=字面で見える差し替えと、素で使った先の差し替えの全部)・``why``
+    (渡した先・しまった先の関数と読む名)を書く。"""
 
     old: str
     file: str
     alias: str
     dest: str
     absent: tuple[str, ...] = ()
+    bare: bool = False
+    reads: tuple[str, ...] = ()
+    patches: tuple[str, ...] = ()
+    why: str = ""
 
 
 #: 〔割る段 5b・E5・親の裁定(G3)〕別名の割り先の宣言。差し替え(``monkeypatch.setattr(別名, "名", …)``)は、その名を呼ぶ時に読む
 #: 関数の割り先のモジュールへ向ける必要がある。それが名の定義の割り先と違うとき(道具の既定=定義の割り先か再輸出の主な割り先)は
 #: ここに宣言する。読む関数が 2 つの割り先に分かれた名は、割り先ごとの別名で両方を差し替える。守り: 別名が割るモジュールを
 #: import していない・宣言の割り先がその行の割り先でない・別名で読む名が割り先の頂上で結ばれていない(``absent`` のほか)・名で
-#: 読まない使い方がある・宣言が使われなかった、のどれかで止める(:func:`_declared_alias_dests`)。
+#: 読まない使い方がある・宣言が使われなかった、のどれかで止める(:func:`_declared_alias_dests`)。〔割る段 6・E5-c〕印 ``bare`` の
+#: 宣言は、名で読まない使い方を許す代わりに、素の使い方が無い(印の腐り)・許さない形・``reads`` か ``why`` が無い・``reads`` と
+#: ``patches`` の名が割り先の頂上に無い・``patches`` の届かせる割り先が宣言の割り先だけでない(:func:`patch_reach`)で止める。
 SPLIT_ALIAS_DESTS: tuple[AliasDest, ...] = (
     # build_ledger_bundle を呼ぶ時に読むのは run(main)=差し替えは run を呼ぶのと同じ main の別名で
     AliasDest("cli.py", "tests/engine/test_resume_10d.py", "cli", "interfaces/cli/main.py"),
@@ -151,6 +171,29 @@ SPLIT_ALIAS_DESTS: tuple[AliasDest, ...] = (
     # 常に偽の hasattr で守られた読み(build_parser は cli に無い=確かめる事の無い行・段 8 の文の掃除の候補)。入口の main へ
     AliasDest("cli.py", "tests/engine/test_classical_policy.py", "cli", "interfaces/cli/main.py",
               absent=("build_parser",)),
+    # 〔割る段 6 の S6-G0・E5-c・親の裁定 T5〕素で使ってよい別名 4 つ(渡した先・しまった先の関数を読んで確かめた名)
+    AliasDest("engine/resolve.py", "tests/engine/test_conversation_invite.py", "R_TALK", "act/ops/talk.py", bare=True,
+              reads=("talk_within_reach", "set_conversing", "end_conversation", "revert_conversation"),
+              why="runtime/run.py の _settle_pending_invites(引数 R)へ渡す。中で R から読むのは talk_within_reach・"
+                  "set_conversing・end_conversation・revert_conversation の 4 名(差し替えは無い)"),
+    AliasDest("engine/resolve.py", "tests/engine/test_defect_fixes_1103.py", "R_TALK", "act/ops/talk.py", bare=True,
+              reads=("talk_within_reach", "set_conversing", "end_conversation", "revert_conversation"),
+              why="runtime/run.py の _settle_pending_invites(引数 R)へ渡す(5 か所)。中で R から読むのは talk_within_reach・"
+                  "set_conversing・end_conversation・revert_conversation の 4 名(差し替えは無い)"),
+    AliasDest("engine/resolve.py", "tools/c7/attr_arms.py", "module", "act/apply.py", bare=True,
+              reads=("apply",), patches=("apply",),
+              why="AgentCellRecorder.attach が self._module にしまい、module.apply を包みに差し替える。detach が "
+                  "self._module.apply を元に戻す(しまった先で読み書きするのは apply だけ)"),
+    AliasDest("engine/resolve.py", "tools/c7/occupancy_series.py", "module", "act/apply.py", bare=True,
+              reads=("apply",), patches=("apply",),
+              why="OccupancyRecorder.attach(module=None)が引数で受けるか import し(is None で比べる)、self._module に"
+                  "しまい、module.apply を包みに差し替える。detach が self._module.apply を元に戻す(読み書きするのは apply だけ)"),
+    # 〔検収の後の続き・親の裁定〕src の別名の分け(S6-G1 の下ごしらえ)の後の judge.py。印のある宣言を足すときは、宣言が腐らない
+    # 試験(test_pkgmove の _BARE_RECEIVERS)に受け手を足す(README の E5-c の決まり)
+    AliasDest("engine/resolve.py", "src/shibuya/runtime/systems/judge.py", "R_TALK", "act/ops/talk.py", bare=True,
+              reads=("talk_within_reach", "set_conversing", "end_conversation", "revert_conversation"),
+              why="sys_apply_responses が runtime/run.py の _settle_pending_invites(引数 R)へ渡す(1 か所)。中で R から読むのは "
+                  "talk_within_reach・set_conversing・end_conversation・revert_conversation の 4 名(差し替えは無い)"),
 )
 
 
@@ -589,6 +632,9 @@ class SplitPlan:
     patch_checked: list[str] = field(default_factory=list)
     patch_unseen: list[str] = field(default_factory=list)
     patch_load_time: list[str] = field(default_factory=list)
+    #: 〔割る段 6・E5-c〕素で使ってよい別名の宣言で確かめた差し替え(ファイル: 別名 の名 → 宣言の割り先・字面で見えた差し替えの数)。
+    #: 確かめた(``patch_checked``)・見られなかった(``patch_unseen``)とは分ける。
+    patch_declared: list[str] = field(default_factory=list)
 
 
 def alias_modules(text: str, path: str) -> dict[str, set[str]]:
@@ -630,8 +676,22 @@ def _declared_alias_dests(ctx: Ctx, p: str, text: str, decls: list[AliasDest], d
             bad.append(f"宣言の割り先がこの割る行の割り先でない(割り先 {sorted(dests)})")
         u = uses.get(d.alias)
         attrs = set(u.attrs) if u is not None else set()
-        if u is not None and u.bare_lines:
-            bad.append(f"名で読まない使い方がある(行 {list(u.bare_lines)})=読む名を確かめられない")
+        forms = list(u.bare_forms) if u is not None else []
+        if d.bare:  # 〔割る段 6・E5-c〕素で使ってよい別名: 素の使い方の形・渡した先で読む名・わけを確かめる
+            if u is None or not u.bare_lines:
+                bad.append("素で使ってよい印があるのに、素の使い方が 1 つも無い(印の腐り=印を外す)")
+            odd = [f"行 {ln}: {f}" for ln, f in forms if f not in IM.BARE_OK]
+            if odd:
+                bad.append(f"宣言で表せない素の使い方 {odd}(許すのは {'・'.join(IM.BARE_OK)})")
+            if not d.reads:
+                bad.append("素で渡した先・しまった先で読む名(reads)が無い")
+            if not d.why:
+                bad.append("わけ(why=渡した先・しまった先の関数と読む名)が無い")
+        else:
+            if u is not None and u.bare_lines:
+                bad.append(f"名で読まない使い方がある(行 {list(u.bare_lines)})=読む名を確かめられない")
+            if d.reads or d.patches:
+                bad.append("素で使ってよい印(bare)が無いのに、reads・patches を書いている")
         dtext = after.files.get(SRC_PREFIX + d.dest)
         top = set(_bound_in(parse(dtext).body, top=True)) if dtext is not None else set()
         if d.dest in dests:
@@ -644,12 +704,25 @@ def _declared_alias_dests(ctx: Ctx, p: str, text: str, decls: list[AliasDest], d
             there = sorted(set(d.absent) & top)
             if there:
                 bad.append(f"無くてよいと挙げた名 {there} が割り先の頂上に在る")
+            if d.bare:
+                lack_r = sorted(set(d.reads) - top)
+                if lack_r:
+                    bad.append(f"素で渡した先・しまった先で読む名 {lack_r} が割り先の頂上で結ばれていない(定義でも import でもない)")
+                lack_p = sorted(set(d.patches) - top)
+                if lack_p:
+                    bad.append(f"差し替える名 {lack_p} が割り先の頂上で結ばれていない(定義でも import でもない)")
         if bad:
             errs += [f"{where}: {b}" for b in bad]
             over[d.alias] = ""  # 使った(「使われなかった」と二重に言わない)が、向けない
             continue
         over[d.alias] = mod_of(d.dest)
-        notes.append(f"{where}(読む名 {len(attrs)}" + (f"・無くてよい名 {', '.join(d.absent)}" if d.absent else "") + ")")
+        tail = f"・無くてよい名 {', '.join(d.absent)}" if d.absent else ""
+        if d.bare:  # 〔E5-c〕素の使い方の形ごとの数・渡した先で読む名・差し替える名
+            used = "・".join(f"{f} {sum(1 for _ln, x in forms if x == f)}" for f in IM.BARE_OK
+                            if any(x == f for _ln, x in forms))
+            tail += (f"・素の使い方 {used}・渡した先で読む名 {', '.join(d.reads)}"
+                     + (f"・差し替える名 {', '.join(d.patches)}" if d.patches else ""))
+        notes.append(f"{where}(読む名 {len(attrs)}{tail})")
     return over, errs, notes
 
 
@@ -1859,6 +1932,8 @@ class _Patch:
     form: str
     #: 〔検収の後の直し 1〕別名を通す差し替えなら、その有効範囲で別名を結ぶ import の行(手で直す一覧の行と突き合わせる)。
     binds: tuple[int, ...] = ()
+    #: 〔割る段 6・E5-c〕別名を通す差し替えなら、その別名(素で使ってよい別名の宣言と突き合わせる)。
+    alias: str = ""
 
 
 def _dotted_name(e: ast.AST) -> str | None:
@@ -1956,7 +2031,8 @@ def _collect_patches(text: str, path: str, watched: set[str], *, code_of: str | 
 
     def add(n: ast.AST, mod: str, name: str, form: str, via: ast.AST | None = None) -> None:
         sites.append(_Patch(path, group(n), name, base_line + n.lineno, mod, form + tag,
-                            bound_lines(via, n) if via is not None else ()))
+                            bound_lines(via, n) if via is not None else (),
+                            via.id if isinstance(via, ast.Name) else ""))
 
     def str_target(s: str) -> tuple[str, str] | None:
         best = max((w for w in watched if s.startswith(w + ".")), key=len, default=None)
@@ -2184,11 +2260,13 @@ def patch_reach(plan: SplitPlan) -> list[str]:
         unseen += uns
         for s in sites:
             groups.setdefault((s.file, s.group), []).append(s)
-    plan.patch_checked, plan.patch_load_time = [], []
-    if not groups:
+    plan.patch_checked, plan.patch_load_time, plan.patch_declared = [], [], []
+    # 〔割る段 6・E5-c〕素で使ってよい別名の宣言(この割る行の分): 差し替える名は、字面で見えなくても届く先を確かめる
+    bare_decls = {(d.file, d.alias): d for d in SPLIT_ALIAS_DESTS if d.old == row.old and d.bare}
+    if not groups and not any(d.patches for d in bare_decls.values()):
         plan.patch_unseen = unseen
         return []
-    names = sorted({s.name for ss in groups.values() for s in ss})
+    names = sorted({s.name for ss in groups.values() for s in ss} | {n for d in bare_decls.values() for n in d.patches})
     # 2 (a) 元のファイルの中の読み
     src_text = before.files[src_p]
     units = units_of(src_text, plan.src_rel)
@@ -2269,6 +2347,7 @@ def patch_reach(plan: SplitPlan) -> list[str]:
     watched = {src_mod, *dest_of_mod}
     after_sites: dict[str, list[_Patch]] = {}
     errs: list[str] = []
+    seen_decl: Counter = Counter()  # 〔E5-c〕(ファイル, 別名, 名) → 字面で見えた差し替えの数(宣言の別名を通すもの)
     for (p, g), ss in sorted(groups.items()):
         lines_of = {n: sorted({s.line for s in ss if s.name == n}) for n in {s.name for s in ss}}
         if is_split_excluded(p):
@@ -2305,8 +2384,33 @@ def patch_reach(plan: SplitPlan) -> list[str]:
             if extra:
                 errs.append(f"{here}: 集合の外の割り先 {extra} へ向く(その名を呼ぶ時に読む関数が無い=空振り・届かせる割り先 "
                             f"{sorted(nd)})")
+            # 〔E5-c〕素で使ってよい別名を通す差し替えは、宣言の差し替える名(patches)に在ること。確かめは宣言の欄に出す
+            via = [bare_decls[(p, s.alias)] for s in ss if s.name == name and (p, s.alias) in bare_decls]
+            off = sorted({d.alias for d in via if name not in d.patches})
+            if off:
+                errs.append(f"{here}: 素で使ってよい別名 {off} を通す差し替えの名が、宣言の差し替える名(patches)に無い")
+                continue
             if not missing and not extra:
-                plan.patch_checked.append(f"{p}::{g} {name} → {sorted(pointed)}(差し替え {len(lines)})")
+                for d in via:
+                    seen_decl[(p, d.alias, name)] += 1
+                if len(via) < sum(1 for s in ss if s.name == name):  # 印の無い別名を通す差し替えも在る=確かめた欄にも出す
+                    plan.patch_checked.append(f"{p}::{g} {name} → {sorted(pointed)}(差し替え {len(lines)})")
+    # 〔E5-c〕素で使ってよい別名の差し替える名: 届かせる割り先の集合に宣言の割り先が入り、ほかの割り先が無いこと(素で使った先の
+    # 差し替えは、宣言の割り先のモジュールにしか向かない=集合のほかの割り先には届かない)
+    for (f, al), d in sorted(bare_decls.items()):
+        for name in d.patches:
+            nd = need.get(name, set())
+            here = f"{f}: 素で使ってよい別名 {al} の差し替える名 {name}(宣言の割り先 {d.dest})"
+            if not nd:
+                errs.append(f"{here}: 名が元のファイルで結ばれていない(届かせる割り先が決まらない)")
+            elif d.dest not in nd:
+                errs.append(f"{here}: 宣言の割り先が届かせる割り先の集合 {sorted(nd)} に無い(空振り・呼ぶ時に読む所: "
+                            f"{why[name][:4]})")
+            elif nd - {d.dest}:
+                errs.append(f"{here}: 届かない割り先 {sorted(nd - {d.dest})}(呼ぶ時に読む所: {why[name][:4]})")
+            else:
+                plan.patch_declared.append(f"{f}: 別名 {al} の名 {name} → ['{d.dest}'](字面で見えた差し替え "
+                                           f"{seen_decl[(f, al, name)]}・素で使った先は宣言)")
     plan.patch_unseen = unseen
     return errs
 
@@ -2340,6 +2444,8 @@ def report(plan: SplitPlan) -> dict:
         "ledger_paths_split": plan.ledger_paths_split, "path_declared": plan.path_declared,
         # 〔割る段 6・E5-b〕差し替えの届く先: 確かめた差し替え・見られなかった差し替え・読み込みの時にだけ読む文
         "patch_checked": plan.patch_checked, "patch_unseen": plan.patch_unseen, "patch_load_time": plan.patch_load_time,
+        # 〔割る段 6・E5-c〕素で使ってよい別名の宣言で確かめた差し替え
+        "patch_declared": plan.patch_declared,
     }
 
 
