@@ -52,6 +52,8 @@
 | 整理 | コードの区分の移動 段 6 の S6-G0 の後半=`engine/resolve.py` を割る行を表・順・決まりの表に載せ、試験の別名を割る前に割り先ごとに分けた(#168・第347・src は変えていない=ランの結果に関わらない。byte-check は回していない) | ae9e206・e543f3b | `stable-v2-before-split6-G0`(102bfe5) | `git checkout stable-v2-before-split6-G0` |
 | 整理 | コードの区分の移動 段 6 の写す前の下ごしらえ=src の 8 本の別名を割り先ごとに分けた(1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。割る道具に「素で使う別名の宣言」を足した(src は変えていない)(#169・第347)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 61.3 秒/後 54.5 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | 2c4a164・4a5bd30 | `stable-v2-before-split6-G1a`(d972b2a) | `git checkout stable-v2-before-split6-G1a` |
 | 整理 | コードの区分の移動 段 6 の本体=`engine/resolve.py` を道具で 18 の割り先へ割った(1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。`engine` の包みが消えた(#170・第347)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 60.3 秒/後 54.5 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | c79ae25 | `stable-v2-before-split6-G1`(4a5bd30) | `git checkout stable-v2-before-split6-G1` |
+| 整理 | コードの区分の移動 段 6 の M=延ばしていた `mora_count` の行を当てた(M0=道具と表と試験・src は変えていない/M1=道具で `foundation/text/mora.py` へ下ろした・1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。割る段は 24 本とも当たった(#171・第347)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 61.7 秒/後 54.2 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | 9f61eea・3c8e126 | `stable-v2-before-split6-M`(9f61eea) | `git checkout stable-v2-before-split6-M` |
+| 整理 | コードの区分の移動 段 7 の G0(試験)=`renderer.py` を割る前に、試験 14 本の形を直し、副作用の順の試験を足した(#173・第347・src は変えていない=byte-check は回していない) | 93a37cf | `stable-v2-before-split6-M`(9f61eea) | `git checkout stable-v2-before-split6-M` |
 
 ## 版上げと整理の段の手順(byte-check)
 
