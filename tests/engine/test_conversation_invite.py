@@ -217,7 +217,8 @@ def run_named(n_agents: int = 200, ticks: int = NAMED_TICKS, **kw):
 
 
 @pytest.mark.slow
-def test_named_target_drives_invites_end_to_end():
+@pytest.mark.parametrize("vocab", ["v1", None], ids=["v1", "default_v3"])
+def test_named_target_drives_invites_end_to_end(vocab):
     """A が「会話 対象: P-B」→ B が次 tick に被招待で起床 → B の返事で成否が決まる。
 
     ``NamingLLM`` は ``a ^ 1`` の対を名指すので、**名指しから出た招待**の返事は招待者を
@@ -225,8 +226,12 @@ def test_named_target_drives_invites_end_to_end():
     招待の返事は**第三者名指し**になり拒否される。合成世界ではフォールバック由来が多数を
     占めるため承諾は少ない=**承諾の意味論そのものは単体テスト**
     (``test_acceptance_is_consumed_before_phase_c_so_no_false_partner_busy`` ほか)で固定する。
+
+    〔Q13・第347〕ランの既定の語彙が v3 になったので、語彙の版で 2 形にした: ``v1``(試験が書かれた時の語彙)は
+    確かめを全部・既定(v3)はフォールバックのほかを全部。語彙 v3 では名指しの相手が別セルなら段 2c の意図
+    (その人のセルへ歩く)になり、フォールバックの道を通らない。
     """
-    res = run_named(llm=NamingLLM(200))
+    res = run_named(llm=NamingLLM(200), **({} if vocab is None else {"vocab_version": vocab}))
     c = res.conversation_counters
     assert c["conv_target_named"] > 0, c  # 対象スロットが実際に使われた
     assert c["conv_invites"] > 0
@@ -239,7 +244,9 @@ def test_named_target_drives_invites_end_to_end():
         == c["conv_invites"]
     ), c
     assert res.conserved
-    assert c["conv_fallback_same_batch"] > 0  # 別セルの名指しはフォールバックへ
+    if vocab == "v1":
+        assert c["conv_fallback_same_batch"] > 0  # 別セルの名指しはフォールバックへ
+    # 語彙 v3 ではフォールバックが 0 回(第347 の報告 §11 の 27)。0 であることは固定しない(抜けかもしれない挙動を凍らせない)
     # 成立したセッションは**両側**が CONVERSING。片側だけ CONVERSING でいてよいのは
     # 「返事待ちで待っている招待側」だけ(``conv_pending_open`` 件)。
     act = res.agents.registry.activity

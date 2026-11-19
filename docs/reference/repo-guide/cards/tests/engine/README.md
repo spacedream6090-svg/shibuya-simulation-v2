@@ -472,7 +472,7 @@ C6 会話招待の設計準拠(09-09): 「対象」欄で名指し → 被招待
   - `test_settle_is_a_no_op_without_pending_invites`(関数)
 - import している内部モジュール: `shibuya.act.commit`・`shibuya.act.intake.from_words`・`shibuya.act.ops.init_writes`・`shibuya.act.ops.talk`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.agent_codes`・`shibuya.runtime.run`・`shibuya.society.conversation`・`shibuya.world.facts.mock_schedule`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
-- 決定の ID: 11-03・D-56・第 330
+- 決定の ID: 11-03・D-56・第 330・第 347
 
 ## [test_defect_fixes_1103.py](../../../../../../tests/engine/test_defect_fixes_1103.py)
 
