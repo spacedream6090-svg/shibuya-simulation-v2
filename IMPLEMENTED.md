@@ -394,6 +394,15 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #169 コードの区分の移動 段 6 の写す前の下ごしらえ=src の別名の分け(1 バイト不変)と、道具の「素で使う別名の宣言」(11-16 §8 の 5・第347・2026-11-19・実装役 2・検収役 2=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split6-347](docs/bench/analysis/split6-347/README.md) §7・§8・[split6-347 の道具](docs/bench/analysis/split6-347/s6_g0_tools.md) の「E5-c」。commit は 2 つ= 2c4a164(src の別名の分け)・4a5bd30(道具の宣言・src は変えていない)。安定版のタグ `stable-v2-before-split6-G1`(4a5bd30=写す前)。戻し方= `git checkout stable-v2-before-split6-G1a`。
+- **src の別名の分け**(2c4a164): 8 本(`interim_bundles/calendar_self`・`mind/relations/layer`・`runtime/systems` の `assemble`・`body`・`judge`・`perceive`・`talk`・`world/laws/presence`)で、別名を割り先ごとに 1 つ(別名 23・属性の読み 69・元の別名 `R` は残さない)。足した別名を畳むと、8 本とも土台と AST が同じ。試験が差し替える名は、定義の割り先の別名の属性で読む。byte-check 19 構成 37 欄 19/19 同じ(実装役 434 秒・親 440 秒・基準 e543f3b)。範囲の試験 7,044 passed・1 failed(前からの 1 本)・22 skipped・1 xfailed。
+- **道具の宣言 E5-c**(4a5bd30): `AliasDest` に `bare`・`reads`・`patches`・`why`。許す素の使い方 5 つ(渡す・返す・しまう・既定の引数・`is None` で比べる)。宣言 5 つ(`judge.py`・試験 2 本の `R_TALK` → `act/ops/talk.py`/`tools/c7` の 2 本の `module` → `act/apply.py`)。`STRING_EXCLUDE` に `guide_permits.py` の `RESOLVE_FILE`。決まり=印のある宣言を足すときは、受け手を確かめる試験に足す。`test_pkgmove` は 150 → 174 passed・21 skipped・slow 2 passed。
+- **本物の木の書かない実行(写す前の姿)**: 守りは全部同じ(決まりは宣言どおり 4)・手で直す一覧 0・見られなかった差し替え 0・確かめた 13・宣言で確かめた 2・前向きの表 2 行・消えるのは `engine/resolve.py` と `engine/__init__.py`。
+- **別の役の検収**: src の別名=受入(高 0・中 0・低 1)。道具の宣言=受入(高 0・中 0・低 3)→ 続き(`judge.py` の宣言と決まり)→ 再検収 受入(低 2)。
+- **残り**: S6-G1 の写し(道具で `resolve` を 18 の割り先へ・`RESOLVE_FILES` を 15 本に・凍結の JSON 2 本・byte-check)→ `mora_count` → 段 7。
+
 ### #168 コードの区分の移動 段 6 の S6-G0 の後半=表と順と、試験の別名の分け(src は変えていない)(11-16 §8 の 5・第347・2026-11-19・実装役 2・検収役 2=Opus 5.5・親が検収)
 
 - 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split6-347](docs/bench/analysis/split6-347/README.md) の「S6-G0 の表と順」と §5・§6。commit は 2 つ= ae9e206(表と順)・e543f3b(別名)。src は 1 本も変えていない(byte-check は要らない)。戻し方= `git checkout stable-v2-before-split6-G0`。

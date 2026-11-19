@@ -50,6 +50,7 @@
 | 整理 | コードの区分の移動 段 6 の S6-A=`engine/resolve.py` の `apply_detection` を 2 つの関数(`write_b4_hash`・`write_intero_stages`)に割った。静的な検査は名の集合で見る形に・台帳の道の前向きの表を空で足した(#166・第347・1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 60.9 秒/後 54.5 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | 102bfe5 | `stable-v2-before-split6-A`(a6469a2) | `git checkout stable-v2-before-split6-A` |
 | 整理 | コードの区分の移動 段 6 の S6-G0 の前半=割る道具に拡張 4 つ(台帳の道の前向きの表・道の文字列の割り先の宣言・差し替えの届く先の守り・見本の木での書かない実行)を足し、`resolve` を割る前に試験を直した(#167・第347・src は変えていない=ランの結果に関わらない。byte-check は回していない) | d9d3fe0・c8bfcde | `stable-v2-before-split6-G0`(102bfe5) | `git checkout stable-v2-before-split6-G0` |
 | 整理 | コードの区分の移動 段 6 の S6-G0 の後半=`engine/resolve.py` を割る行を表・順・決まりの表に載せ、試験の別名を割る前に割り先ごとに分けた(#168・第347・src は変えていない=ランの結果に関わらない。byte-check は回していない) | ae9e206・e543f3b | `stable-v2-before-split6-G0`(102bfe5) | `git checkout stable-v2-before-split6-G0` |
+| 整理 | コードの区分の移動 段 6 の写す前の下ごしらえ=src の 8 本の別名を割り先ごとに分けた(1 バイト不変=byte-check 19 構成 37 欄すべて同じ)。割る道具に「素で使う別名の宣言」を足した(src は変えていない)(#169・第347)。性能の参考=w6_v3_default 5,000 体・seed 1・1 日・mock の壁時計 基準 61.3 秒/後 54.5 秒(6 本並列。比べない参考値・最大メモリは測っていない)・呼数 60,939 で同じ | 2c4a164・4a5bd30 | `stable-v2-before-split6-G1a`(d972b2a) | `git checkout stable-v2-before-split6-G1a` |
 
 ## 版上げと整理の段の手順(byte-check)
 
