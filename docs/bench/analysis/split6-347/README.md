@@ -816,3 +816,85 @@ S6-G0 は 2 つに分けた: 道具の拡張(別の実装役・別の木)と、�
 | 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`。回している間、この作業木は誰にも編集させていない) | 7,069 passed・1 failed(前からの 1 本=linked の作業木でだけ落ちる)・22 skipped・1 xfailed・40 分 24 秒。前の回(下ごしらえ・7,044 passed)から +25=道具の宣言の試験 24 と、足した負の対照 1 |
 | 差分を読んだ(手直し 3 つ・試験 2 本) | `RESOLVE_FILES` は 15 本・お金の書き手の表は 4 行の道だけ・心の読みの表は resolve の項だけを外した・数の固定は 83 と 81 の 2 つと負の対照・偽のファイルの置き場は `act` |
 | 守る物に差が無いこと(`git status`) | `tools/pkgmove`・`tools/bytecheck`・`map.toml`・`contracts.toml`・つなぎの台帳の JSON・凍結の索引 2 本は変わっていない。`src/shibuya/engine` の置き場は無い |
+
+## 11. M1: 24 本目(`mora_count`)を当てた(土台 `9f61eea`=M0・安定版のタグ `stable-v2-before-split6-M`・2026-11-19)
+
+道具(`tools/pkgmove/cli.py split --next --apply --tree .`)で、延ばしていた 24 本目(表の old は `engine/speech/port.py`・今の道は `society/speech/port.py`)の名 2 つ(`mora_count`・`_SMALL_KANA`)を `foundation/text/mora.py` へ写した。残りの名 10 は元のファイルに残る(主な割り先=元のファイル)。手で直したのは、道具の一覧の外の試験 1 本(親の裁定)と、道具が書く `pyproject.toml`(`contracts --apply`)だけ。`tools/pkgmove/`・`tools/bytecheck/`・全ファイルの表・`map.toml`・`contracts.toml` は変えていない。
+
+### 11-1. 本の数
+
+| 本 | 割る行 | 書き換えた import の文(src・tests・tools・docs) | 分けた文 | 鍵 | 台帳の道 | 前向きの表 | 道の文字列 | 書き換えなかった鍵 | 手で直した読み | 別名の割り先の宣言 | 写さなかった | 守り | byte-check | 契約 | 例外 載せた・効いている(辺/行) |
+|---:|---|---|---:|---:|---:|---:|---|---:|---|---:|---|---|---|---|---|
+| 24 | `engine/speech/port.py` | 道具の数え 16(4・12・0・0)=ファイル 12(4・8・0・0)。字面が変わったのは 4 文(src 1=`runtime/clocks/speech.py`・tests 3=`test_tm2_talk_clock.py` と M0 で分けた `P_MORA` の 2 本)と、元のファイルに作り直した 1 文 | 0 | 0 | 0 | 1 行 | E8 の宣言 1(`test_speech_writers_ast.py::PORT` → 主な割り先=字面は変わらない) | 0 | 0(試験 2 本の別名は M0 で分けた) | 0 | 0 | 13 個「同じ」(決まりも「同じ」=弱まり 0) | 19/19 同じ(434 秒)+腕 mora 1/1 同じ | 1+10 | 15/17・15/17 |
+
+- 割り先と名の数(道具の数え): `society/speech/port.py` 10(元のファイル)・`foundation/text/mora.py` 2(新しいファイル・42 行)。道具が書いたファイル 7(src 4=`foundation/decl/ledger_paths.py`・`foundation/text/mora.py`・`runtime/clocks/speech.py`・`society/speech/port.py`/tests 3)・消したファイル 0・作った頭 0。`tests/c7` に当たる道 0。
+- 当てる前の書かない実行(`split --next`)は、M0 の記録(`s6_g0_tools.md` の M0-6)と差分まで 1 字も同じだった(守り 13 項とも「同じ」・手で直す一覧 0・見られなかった差し替え 0・書くファイル 7)。
+- 当てた直後の道具の import の確かめ: モジュール 387・落ちた 0・`python -m shibuya.cli --help`・`python -m shibuya.interfaces.cli.run_args --help` とも終了コード 0(読み込みの時に読む表の手直しは要らなかった=下の §11-2)。
+- 契約(`contracts --stage delete --tree . --apply`・`pyproject.toml` −1 行): 例外 1 行(`shibuya.runtime.clocks.speech -> shibuya.society.speech.port`=核 1・決まり 10)が消えた=18 行・16 辺 → 17 行・15 辺。契約は 11 のまま(古い 1+新しい 10)・載った例外 0・効かない例外 0。
+
+### 11-2. 当てる前に洗った、道具の一覧の外で直す所
+
+| 何を | 当たった物 | 直し |
+|---|---|---|
+| 読み込みの時にファイルの一覧や道を読む src(段 6 の `RESOLVE_FILES` の形) | 無い。`runtime/state/ledger.py` の `OWNER_CLASSES` の 2 行と `runtime/state/class_ids.py` の 3 行は `SpeechPort` などの残る名を指す。`foundation/decl/ledger_paths.py` は道具が書く | 要らない |
+| 数を固定する試験 | `tests/engine/bridging/test_bridging_ledger.py` の 2 本。`test_the_counts_by_form` の数は変わらない(今のファイル 83・台帳の道 81・項 367・見出し 84・docstring 6=`mora_count` の docstring の宣言が mora.py へ動いても、見出しの宣言は元の port.py に残る)。負の対照 `test_negative_a_dropped_forward_row_changes_the_heading_ledger_count` は落ちる(M1 で入る `mora.py` の行は docstring の宣言しか持たない=落としても 81 のまま) | 発注の中(親の裁定・§11-3) |
+| 凍結の JSON・固定の表で `society/speech/port.py` と `mora_count` を名指しする物 | 心の読みの表(`mind_world_reads_frozen.json`)は範囲に port.py が無い(注の文だけ)。名の凍結・クラスの名の表・乱数の検査の表は守りが「同じ」・JSON は変わらない | 要らない |
+| 写した木や一時の木の中の置き場を前提にする試験 | 当たらない(`tests`(c7 を除く)と `tools` を名指しで洗った) | 要らない |
+
+### 11-3. 手で直した試験(親の裁定)
+
+| 試験 | 前 | 後 | わけ | 確かめを残した形 |
+|---|---|---|---|---|
+| `tests/engine/bridging/test_bridging_ledger.py::test_negative_a_dropped_forward_row_changes_the_heading_ledger_count` | 前向きの表のどの行を一時に落としても、見出しのファイルを台帳の道で数えた数が 81 → 82 | 落とす行を宣言の走査から 2 つに分ける(行の名を書かない): (i) 見出しの宣言を持つファイルの行(段 6 の 2 行)=82 になる。(ii) 見出しの宣言を持たないファイルの行(`mora.py`)=見出しの数えは 81 のまま、そのファイルの宣言の台帳の道が元の道(前向きの表の値)に解けなくなり、全部の形の宣言を台帳の道で数えた集合が変わる | `mora.py` の行は docstring の宣言だけを持つ | (i) の 2 行の確かめは前のまま。(i) も (ii) も 1 行以上在ることを assert する(行が増えても空回りしない)。`test_the_counts_by_form` は注を 1 行足しただけ(数は前のまま)。ファイル: 45 passed |
+
+### 11-4. 確かめ
+
+- 写しの字面: `mora_count`・`_SMALL_KANA` の頂上の文は、元(`9f61eea` の `society/speech/port.py`)と AST も字面も同じに `mora.py` に在り、元のファイルから消えた。`port.py` は `from shibuya.foundation.text.mora import mora_count` で読む(読むのは `Utterance.__post_init__`=119 行)。`mora.py` は shibuya を import しない(`unicodedata`・`typing` だけ=foundation ← society の向き・循環 0)。
+- つなぎの宣言: 同定の多重集合は前後で同じ(元のファイルの 2 → 元 1+`mora.py` 1)。`mora.py` の宣言は `BR-DOC-SPEECH-MORA-KANA` の docstring の宣言(台帳の道 `src/shibuya/engine/speech/port.py#docstring:67c85df9`)。つなぎの台帳の JSON は 1 字も変わっていない。前向きの表は 2 → 3 行(足したのは `foundation/text/mora.py` の 1 行)。
+- 記録に出る文字列: `runtime/clocks/speech.py` の `"mora_rule": "engine.speech.port.mora_count(仮名の数の近似・漢字 2 拍)"` は 1 字も変わっていない(このファイルの差は import の 1 行だけ)。
+- 読み込みの閉包: `mora.py` の頂上で読み込みの時に走る文は `__all__` と `_SMALL_KANA` の代入だけ(環境変数の読み・登録・止める文は無い)。入口とランの組み立て(`shibuya.cli`・`interfaces.cli.main`・`interfaces.cli.run_args`・`runtime.run`・`runtime.systems.assemble`)を読み込んだ後の shibuya のモジュールの集合は、土台 210 → 211=`shibuya.foundation.text.mora` が増えるほか同じ(土台は git の blob からメモリに読んで import した=写しは書いていない)。
+- 差し替え: `mora_count`・`_SMALL_KANA` を差し替える所は、当てた後の木(src・tools・`tests`〔c7 を除く〕)で 0。
+- 凍結の比べ: 名の凍結・クラスの名の表・乱数の検査の表・心の読みの表は、JSON を変えずに通った(下の束)。
+
+| 何を | 結果 |
+|---|---|
+| 束(`tests/engine/speech`・`clock`・`bridging`・`state`・`tests/tools`・`tests/test_places_guard.py`・`-m "not gpu and not slow"`・`-n 2`・合図を取って) | 1,123 passed・21 skipped・落ちた試験 0。飛んだ 21 本は `test_pkgmove` の前からの顔ぶれ(増えていない。「割る段の終わりの木」の試験は、残り 0 本の木で前と同じく飛ぶ 1 本だけ。次の割る行の書かない実行の試験は、割る行が残り 0 の枝で回る) |
+| `lint-imports`(作業木の src) | 11 kept・0 broken |
+| `cli.py map --check`・`contracts --stage delete --tree . --check --probe` | 同じ・同じ(例外 17 行・15 辺・効かない例外 0) |
+| `cli.py split --next` | 「割る段は全部当たっている」 |
+| **byte-check 19 構成**(基準 `9f61eea`・記録 [bytecheck_M1/](bytecheck_M1/)・合図を取って) | **37 欄すべて同じ 19・動いた 0・誤り 0・434 秒**(基準の側 219 秒・比べる側 214 秒)。既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939 |
+| **腕 mora**(会話の時計の拍の規則が効く構成は 19 構成に入っていない=`configs.py` に `talk_clock`・`speech_port` の腕が無い) | byte-check の同じ道具で、`w6_v3_default` の 1 構成を両側に `SHIBUYA_SPEECH_PORT=on`・`SHIBUYA_TALK_CLOCK=mora` を置いて回した(`--only w6_v3_default --inherit-env`・記録 [bytecheck_M1_mora/](bytecheck_M1_mora/)): **37 欄すべて同じ 1・動いた 0**・final `fc2246613b0e5695`・呼数 60,939・manifest の `talk_clock`・`speech_port` の欄は両側に在り同じ。同じ構成のランを 1 本、包みで数えると `mora_count` は 6,222 回呼ばれた(発話の口の `Utterance` 5,546・会話の時計 676)=この構成は `mora_count` を通る |
+| カード(build → `cards/data.md` を単独の `git checkout --` で戻す → `--check`) | 最新(150 本)。変わったカードは 6 枚(`foundation/text` に mora.py・`society/speech`・`runtime/clocks`・`tests/engine/clock`・`tests/engine/speech`・目次) |
+| `git status`(守る物) | `tools/pkgmove`・`tools/bytecheck`・全ファイルの表・`map.toml`・`contracts.toml`・つなぎの台帳の JSON・凍結の JSON は変わっていない |
+
+### 11-5. 確かめていないこと
+
+- 範囲の全体の試験(親が回す)。`tests/c7`(道具が当たる道 0・開いていない・回していない)。
+- byte-check の腕 mora は 1 構成(既定の腕 v3)だけ。会話の時計の腕 table(既定)は 19 構成で確かめた。
+
+## 12. M1 の、親の確かめと検収(第347・2026-11-19)
+
+### 12-1. 別の役の検収
+
+- 判定: **受入**(高 0・中 0・低 2=どちらも知らせ)。検収役はファイルを 1 本も変えていない。
+- 当て直しと一致: 土台 `9f61eea` をメモリに読み、今の道具で 24 本目を厳しい当てで当て直した。守り 13 項は全部「同じ」・手で直す 0・見られなかった差し替え 0・道具が書いた `.py` は 7 本。作業木と違う `.py` は、`test_bridging_ledger.py`(親の裁定の直し)だけ。ほかの変更は `pyproject.toml`(核 1 の 1 行)・記録・カード・byte-check の記録。割る道具・表・`map.toml`・`contracts.toml`・つなぎの台帳の JSON・凍結の JSON は差 0。
+- 写しの字面: `mora.py` には 2 つの名が、元と同じ字面で在る。前の注と docstring の宣言(`BR-DOC-SPEECH-MORA-KANA`)も一緒に動いた。`port.py` の差は、`unicodedata` の import を消す・mora の import を足す・`__all__` から `mora_count` を外す・2 つの名を消す、だけ。`mora.py` は shibuya を import しない(循環 0)。
+- 読み手: `runtime/clocks/speech.py` と会話の時計の試験は `foundation.text.mora` から名で読む。試験 2 本の `P_MORA` は mora・`P` は port のまま。port から 2 つの名を読む所は 0。ランの manifest に入る文字列 `mora_rule` は 1 字も変わっていない。
+- 負の対照の試験の直し: 落とす行の 2 つの組は、宣言の走査から決まる(行の名を試験に書いていない)。見出しの宣言を持つファイルの 2 行は、落とすと 82(前の確かめのまま)。`mora.py` の行をメモリの中で落とすと、宣言の同定と台帳の道の集合が変わり、台帳との 1 対 1 の試験も落ちる。どちらかの組が 0 行になると、試験の assert で落ちる。
+- import の決まり: 契約は古い 1+新しい 10・例外 17 行/15 辺・効かない 0。`pyproject.toml` の差は核 1 の 1 行だけ。foundation が上の層を読む辺は増えていない。
+- byte-check の記録: 比べる側は `foundation/text/mora.py` を読んで走り、基準の側は読んでいない。腕 mora の記録は、両側の環境変数が同じで、final が既定と違う値(腕が効いている)。腕 mora のランは、会話の時計と `Utterance.__post_init__` の 2 か所で `mora_count` を通る。
+
+### 12-2. 検収の低と、親の答え
+
+- 低-1(外から `from shibuya.society.speech.port import mora_count` と読むと、今も黙って動く。`port.py` が、残る `Utterance.__post_init__` のために mora から import しているので、名が結ばれたまま。`__all__` からは外れた。今の木に、port から読む所は 0): そのままにする。段 8 の掃除で、「port から読む所が 0」を確かめる試験を足すかを決める。
+- 低-2(腕 mora の byte-check は 1 構成だけ=既定の語彙 v3): そのままにする(§11-5 に書いてある)。腕 mora は 19 構成に入っていない。構成に足すかは、byte-check の道具の話として報告に上げる。
+- 実装役の問い(腕 mora の byte-check のために、2 つ目の作業の置き場と記録の置き場 `bytecheck_M1_mora/` を使った): 受け入れる(発注の「`mora_count` を通るランを 1 本、前後で回す」を、同じ道具で回した形)。
+
+### 12-3. 親が回した確かめ
+
+| 何を | 結果 |
+|---|---|
+| byte-check 19 構成(本体の道具・基準 `9f61eea`・当てた後の木) | 37 欄すべて同じ 19・動いた 0・誤り 0・442 秒・既定の `w6_v3_default` の final `c8d68704b7b0760d`・呼数 60,939。記録 [bytecheck_M1_parent/](bytecheck_M1_parent/)(実装役の記録は [bytecheck_M1/](bytecheck_M1/)=434 秒・腕 mora の 1 構成は [bytecheck_M1_mora/](bytecheck_M1_mora/))。読み込んだ src は、基準 276 本・比べる側 277 本(増えたのは `foundation/text/mora.py`)。sha が変わったのは `runtime/clocks/speech.py` と `society/speech/port.py` の 2 本 |
+| 範囲の全体の試験(`tests` から `tests/c7` を除く・`-m "not gpu and not slow"`・`-n 4`。回している間、この作業木は誰にも編集させていない=始めと終わりで `git status` が同じ) | 7,069 passed・1 failed(前からの 1 本=linked の作業木でだけ落ちる)・22 skipped・1 xfailed・40 分 13 秒 |
+| 差分を読んだ(src の 4 本・`pyproject.toml`) | 名 2 つが `mora.py` へ・読み手 2 本の import・前向きの表に 1 行・核 1 の 1 行が消えた |
+| 性能の参考(byte-check の `w6_v3_default`・5,000 体・seed 1・1 日・mock の壁時計) | 基準 61.7 秒/後 54.2 秒(6 本並列。比べない参考値) |

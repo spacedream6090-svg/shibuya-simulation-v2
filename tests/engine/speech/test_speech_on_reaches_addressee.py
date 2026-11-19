@@ -25,7 +25,7 @@ from shibuya.foundation.vocab.agent_codes import WakeCondition
 from shibuya.foundation.journal.log import EventLog, LlmCall
 # 〔割る段 6 の M0〕別名 P を割り先ごとに分けた(P=society/speech/port・P_MORA=foundation/text/mora の名。割る前は全部 port)
 from shibuya.society.speech import port as P
-from shibuya.society.speech import port as P_MORA
+from shibuya.foundation.text import mora as P_MORA
 from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE
 from shibuya.foundation.vocab.actions import MOCK_UTTERANCE
 from shibuya.perception import renderer as R

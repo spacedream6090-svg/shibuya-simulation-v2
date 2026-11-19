@@ -239,6 +239,7 @@ LEDGER_PATHS: Final[Mapping[str, str]] = MappingProxyType({
 #: :func:`ledger_path` だけが引き、:func:`current_path`(逆向き=主な割り先の 1 対 1)は引かない。空の間は今の結果と同じ。
 LEDGER_PATHS_SPLIT: Final[Mapping[str, str]] = MappingProxyType({
     "src/shibuya/act/ops/plan_writes.py": "src/shibuya/engine/resolve.py",
+    "src/shibuya/foundation/text/mora.py": "src/shibuya/engine/speech/port.py",
     "src/shibuya/mind/ops.py": "src/shibuya/engine/resolve.py",
 })
 

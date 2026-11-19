@@ -60,7 +60,7 @@ engine.speech_clock — 会話の時計(第 6 期 6-3 時計の段 T2・TM3・�
   - `person_mora_len_s`(関数): 体 ``agent`` のモーラの長さ[秒]\(規則 2=切った対数正規・母集団の seed と体の番号の Philox・状態を持たない)。
   - `set_arm`(関数): 腕を選ぶ(CLI ``--talk-clock``・試験の切替口)。組み立ての時に読む(ランの途中で変えてもそのランは変わらない)。
   - `utterance_jitter`(関数): 発言ごとの揺れ(規則 3=平均 1 の対数正規・CV 0.42)。鍵=話し手・発言を作った時刻[ns]・会話の番号(TM7 (d))。
-- import している内部モジュール: `shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.runtime.clocks.owner_guard`・`shibuya.society.speech.port`
+- import している内部モジュール: `shibuya.foundation.rng`・`shibuya.foundation.text.mora`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`shibuya.runtime.clocks.owner_guard`
 - 呼び手: `shibuya.interfaces.cli.main`・`shibuya.runtime.result`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.conductor`
 - 読む試験: `tests/engine/clock/test_tm2_talk_clock.py`・`tests/engine/clock/test_tm4_regional_clock.py`
 - 状態台帳の行

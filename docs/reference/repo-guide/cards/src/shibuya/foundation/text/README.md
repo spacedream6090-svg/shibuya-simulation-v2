@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 6 本・その他 0 本(このディレクトリの直下)
+Python 7 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../../../src/shibuya/foundation/text/__init__.py)
 
@@ -44,6 +44,16 @@ perception.hashes — **ハッシュ三役**(知覚契約書 §2.2/§5)。
 - 呼び手: `shibuya.perception.renderer`・`shibuya.world.model.scene_hash`
 - 読む試験: `tests/perception/facts/head_renderer_136fdbb.py`・`tests/perception/facts/test_render_from_percept_bytes.py`・`tests/perception/test_b4_detector_gap.py`・`tests/perception/test_hashes_state.py`・`tests/perception/test_renderer_golden.py`
 - 読む試験(道筋で): `tests/engine/test_salt_seed_split_10f.py`
+
+## [mora.py](../../../../../../../../src/shibuya/foundation/text/mora.py)
+
+foundation.text.mora — 割る段で ``engine/speech/port.py`` を割った割り先(全ファイルの表 §4・名の表は``tools/pkgmove/map.toml`` の割る行)。
+
+- 公開の関数とクラス
+  - `mora_count`(関数): 本文のモーラ数(TM3 の入力=発言の長さ=モーラ数 × 話す速さ)。
+- 呼び手: `shibuya.runtime.clocks.speech`・`shibuya.society.speech.port`
+- 読む試験: `tests/engine/clock/test_tm2_talk_clock.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/speech/test_speech_port_schema.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 
 ## [normalize.py](../../../../../../../../src/shibuya/foundation/text/normalize.py)
 

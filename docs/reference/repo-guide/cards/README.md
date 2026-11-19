@@ -33,7 +33,7 @@
 | [src/shibuya/foundation/manifest](src/shibuya/foundation/manifest/README.md) | 4 | 0 |
 | [src/shibuya/foundation/ports](src/shibuya/foundation/ports/README.md) | 8 | 0 |
 | [src/shibuya/foundation/queues](src/shibuya/foundation/queues/README.md) | 3 | 0 |
-| [src/shibuya/foundation/text](src/shibuya/foundation/text/README.md) | 6 | 0 |
+| [src/shibuya/foundation/text](src/shibuya/foundation/text/README.md) | 7 | 0 |
 | [src/shibuya/foundation/vocab](src/shibuya/foundation/vocab/README.md) | 8 | 0 |
 | [src/shibuya/interfaces](src/shibuya/interfaces/README.md) | 1 | 0 |
 | [src/shibuya/interfaces/cli](src/shibuya/interfaces/cli/README.md) | 4 | 0 |
@@ -161,7 +161,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 373 ディレクトリ・2532 本
+- [docs の索引](docs.md): 376 ディレクトリ・2541 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

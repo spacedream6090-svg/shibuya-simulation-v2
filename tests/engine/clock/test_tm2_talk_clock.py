@@ -31,7 +31,7 @@ from shibuya.foundation.manifest import sections as MS
 from shibuya.runtime.state import resume as RS
 from shibuya.runtime.clocks import speech as TC
 from shibuya.runtime.inference.bridge import LANE_SECONDS
-from shibuya.society.speech.port import mora_count
+from shibuya.foundation.text.mora import mora_count
 
 ROOT = Path(__file__).resolve().parents[3]
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")

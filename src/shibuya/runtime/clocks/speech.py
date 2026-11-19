@@ -65,7 +65,7 @@ import numpy as np
 from shibuya.foundation.rng import k19_counters, stream
 from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS
 from shibuya.runtime.clocks import owner_guard as _OG
-from shibuya.society.speech.port import mora_count
+from shibuya.foundation.text.mora import mora_count
 from shibuya.foundation.vocab.actions import NO_TARGET
 
 __all__ = [

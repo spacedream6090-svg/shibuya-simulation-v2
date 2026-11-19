@@ -168,6 +168,8 @@ def test_the_counts_by_form(decls):
     # 〔第346 死んだ道の削除〕conversation.py の項 7 → 6(応答確率 0.8 の項=抽選ごと消した)=368 → 367
     # 〔割る段 6 の S6-G1〕resolve の見出し 4 つが 3 つの割り先(act/apply・mind/ops・act/ops/plan_writes)へ分かれた=今のファイル
     # の数は 81 → 83。台帳の道(ledger_path=前向きの表を通す)で数えると 81 のまま。項 367 と見出し 84 は同じ
+    # 〔割る段 6 の M1〕mora_count の docstring の宣言(段落 1)が foundation/text/mora.py へ動いた(前向きの表の 3 行目)。見出しは
+    # 元の society/speech/port.py に残るので、数は全部同じ(今のファイル 83・台帳の道 81・項 367・見出し 84・docstring 6)
     assert len({d.path for d in heads}) == 83 and sum(d.items for d in heads) == 367
     assert len(_heading_ledger_paths(heads)) == 81
 
@@ -177,16 +179,37 @@ def _heading_ledger_paths(heads: list[S.Declaration]) -> set[str]:
     return {LP.ledger_path(d.path) for d in heads}
 
 
+def _ledger_keys(decls: list[S.Declaration]) -> set[tuple[str, str, str]]:
+    """全部の形の宣言を、台帳の道(:func:`LP.ledger_path`)で作った (台帳の道, ``#`` の後, 形) の集合。"""
+    return {(LP.ledger_path(d.path), d.declared_in.split("#", 1)[1], d.form) for d in decls}
+
+
 def test_negative_a_dropped_forward_row_changes_the_heading_ledger_count(decls, monkeypatch):
     """〔割る段 6 の S6-G1〕負の対照: 前向きの表から行を 1 つ落とすと(試験の中で一時に)、台帳の道で数えた見出しのファイルの数が
-    81 → 82 になる=上の確かめは前向きの表の行の抜けに気づく。"""
+    81 → 82 になる=上の確かめは前向きの表の行の抜けに気づく。
+    〔割る段 6 の M1・親の裁定〕落とす行を、宣言の走査から 2 つに分けて確かめる(行の名を書かない=行が増えても空回りしない):
+    (i) 見出しの宣言を持つファイルの行=落とすと 81 → 82(段 6 の 2 行・前の確かめのまま)。(ii) 見出しの宣言を持たないファイルの
+    行(M1 の ``foundation/text/mora.py``=docstring の宣言だけ)=落としても見出しの数えは 81 のままで、代わりに、そのファイルの
+    宣言の台帳の道が元の道(前向きの表の値)に解けなくなり、全部の形の宣言を台帳の道で数えた集合が変わる。(i) も (ii) も 1 行以上。"""
     heads = [d for d in decls if d.form == S.FORM_HEADING]
     assert len(_heading_ledger_paths(heads)) == 81
     rows = dict(LP.LEDGER_PATHS_SPLIT)
     assert rows
-    for drop in sorted(rows):
+    head_files = {d.path for d in heads}
+    with_head = sorted(k for k in rows if k in head_files)
+    without_head = sorted(k for k in rows if k not in head_files)
+    assert with_head and without_head, (with_head, without_head)
+    keys = _ledger_keys(decls)
+    for drop in with_head:  # (i)
         monkeypatch.setattr(LP, "LEDGER_PATHS_SPLIT", {k: v for k, v in rows.items() if k != drop})
         assert len(_heading_ledger_paths(heads)) == 82, drop
+    for drop in without_head:  # (ii)
+        mine = [d for d in decls if d.path == drop]
+        assert mine, drop  # 前向きの表の行のファイルには宣言が在る(条件 ③)
+        monkeypatch.setattr(LP, "LEDGER_PATHS_SPLIT", {k: v for k, v in rows.items() if k != drop})
+        assert len(_heading_ledger_paths(heads)) == 81, drop
+        assert all(LP.ledger_path(d.path) != rows[drop] for d in mine), drop
+        assert _ledger_keys(decls) != keys, drop
 
 
 def test_process_and_fallback_rows(ledger, decls):

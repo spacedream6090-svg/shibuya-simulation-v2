@@ -286,7 +286,6 @@ forbidden_modules = [
   "shibuya.experiments.port",
 ]
 ignore_imports = [
-  "shibuya.runtime.clocks.speech -> shibuya.society.speech.port",
   "shibuya.runtime.state.restore -> shibuya.world.model.agent_table",
   "shibuya.runtime.state.restore -> shibuya.world.model.state",
 ]
