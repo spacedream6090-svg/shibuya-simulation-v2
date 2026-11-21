@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-385 ディレクトリ・2571 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+386 ディレクトリ・2573 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -301,6 +301,10 @@
 ## docs/bench/analysis/sealed-tokens-347(2 本)
 
 - [README.md](../../../bench/analysis/sealed-tokens-347/README.md): 封印の語の表 2 つの比べ(第347・2026-11-16)
+
+## docs/bench/analysis/sealed-tokens-348(2 本)
+
+- [README.md](../../../bench/analysis/sealed-tokens-348/README.md): 封印の語の表をまとめた語での空回し(第348・2026-11-21)
 
 ## docs/bench/analysis/self-update-347(2 本)
 

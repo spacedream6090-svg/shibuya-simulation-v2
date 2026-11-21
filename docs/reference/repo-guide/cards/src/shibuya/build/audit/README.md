@@ -55,7 +55,7 @@ W19 manifest 凍結(§1 W19・D-W20・運用設計書 §1.2「データ資産」
   - `seal_layer`(関数): holdout 層 → (member_hash, メンバー表)。ファイルの中身は**開かず** sha256 だけ取る。
   - `w21_material_paths`(関数): 置き場の W21 の manifest の材料(``sources`` の元のファイルと写し)→ {data 根からの相対: manifest の md5}。
 - import している内部モジュール: `shibuya.build.field.w10_noise`・`shibuya.build.field.w12_external_nodes`・`shibuya.build.field.w12_real_timetables`・`shibuya.build.field.w13_weather`・`shibuya.build.field.w7_planspec`・`shibuya.build.geo.common`・`shibuya.build.geo.w0_crs`・`shibuya.build.geo.w11_station_exits`・`shibuya.build.geo.w1_walk_graph`・`shibuya.build.geo.w4_heights`・`shibuya.build.geo.w5_entrances`・`shibuya.build.geo.w6_poi_org`・`shibuya.build.pop.w16_population`・`shibuya.build.sched.w20_calendar_1a`
-- 呼び手: `shibuya.build.audit.run`・`shibuya.build.pop.w21_sources`・`tools/instruments/sealed_tokens_compare.py`
+- 呼び手: `shibuya.build.audit.run`・`shibuya.build.pop.w21_sources`・`tools/instruments/sealed_tokens_compare.py`・`tools/instruments/sealed_tokens_dryrun.py`
 - 読む試験: `tests/build_audit/test_audit_units.py`・`tests/build_audit/test_w19_layer_sources.py`・`tests/build_field/test_w12_keio_switch_2_4.py`・`tests/build_field/test_w12_real_timetables.py`・`tests/build_pop/test_w21_sources.py`・`tests/build_rail/test_w12_arrivals_2_3c.py`・`tests/build_sched/test_w20_calendar_1a.py`
 - 読む試験(道筋で): `tests/test_places_guard.py`
 - 決定の ID: 10-13b/§1・第 330・第 333

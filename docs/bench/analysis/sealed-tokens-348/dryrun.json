@@ -1,0 +1,44 @@
+{
+  "build_scan": {
+    "n_files_hit_current": 0,
+    "n_files_hit_merged": 3,
+    "n_new_files": 3,
+    "n_new_pairs": 11,
+    "n_pairs_current": 0,
+    "n_pairs_merged": 11
+  },
+  "data_present": true,
+  "mergeable": false,
+  "n_holdout": 3,
+  "n_merged": 14,
+  "n_new_build_scan": 11,
+  "n_new_read_guard": 0,
+  "n_sealed": 12,
+  "read_guard": {
+    "data_gauge": {
+      "n_hit_current": 62317,
+      "n_hit_merged": 62317,
+      "n_new": 0,
+      "n_paths": 108448
+    },
+    "data_sealed": {
+      "n_hit_current": 62274,
+      "n_hit_merged": 62274,
+      "n_new": 0,
+      "n_paths": 108448
+    },
+    "tracked_gauge": {
+      "n_hit_current": 15,
+      "n_hit_merged": 15,
+      "n_new": 0,
+      "n_paths": 3847
+    },
+    "tracked_sealed": {
+      "n_hit_current": 12,
+      "n_hit_merged": 12,
+      "n_new": 0,
+      "n_paths": 3847
+    }
+  },
+  "schema": "shibuya.tools/instruments/sealed_tokens_dryrun/1"
+}

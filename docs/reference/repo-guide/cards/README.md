@@ -123,7 +123,7 @@
 | [tests/llm](tests/llm/README.md) | 9 | 0 |
 | [tests/perception](tests/perception/README.md) | 20 | 0 |
 | [tests/perception/facts](tests/perception/facts/README.md) | 8 | 1 |
-| [tests/tools](tests/tools/README.md) | 25 | 0 |
+| [tests/tools](tests/tools/README.md) | 26 | 0 |
 | [tests/vocab](tests/vocab/README.md) | 5 | 0 |
 | [tests/w17](tests/w17/README.md) | 3 | 0 |
 | [tests/world](tests/world/README.md) | 2 | 0 |
@@ -140,7 +140,7 @@
 | [tools/fig](tools/fig/README.md) | 12 | 0 |
 | [tools/gen](tools/gen/README.md) | 1 | 0 |
 | [tools/hunger](tools/hunger/README.md) | 2 | 0 |
-| [tools/instruments](tools/instruments/README.md) | 10 | 0 |
+| [tools/instruments](tools/instruments/README.md) | 11 | 0 |
 | [tools/instruments/dm_eval](tools/instruments/dm_eval/README.md) | 7 | 0 |
 | [tools/instruments/dm_eval/backends](tools/instruments/dm_eval/backends/README.md) | 4 | 0 |
 | [tools/instruments/dm_eval/scenes](tools/instruments/dm_eval/scenes/README.md) | 2 | 6 |
@@ -160,7 +160,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 385 ディレクトリ・2571 本
+- [docs の索引](docs.md): 386 ディレクトリ・2573 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

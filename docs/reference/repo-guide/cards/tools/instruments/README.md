@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 10 本・その他 0 本(このディレクトリの直下)
+Python 11 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [dm_eval](dm_eval/README.md)・[leak_check](leak_check/README.md)
 
@@ -228,6 +228,24 @@ read_guard — 計器の読み口を**許可の一覧(allow list)**で縛る(第
 - CLI の引数
   - `--json`: 数だけの記録の JSON の置き場
 - 決定の ID: 11-16/§1-6
+
+## [sealed_tokens_dryrun.py](../../../../../../tools/instruments/sealed_tokens_dryrun.py)
+
+封印の語の表 2 つを 1 つにまとめた語で、2 つの守りを空回しし、新しく当たる数だけを数える(11-20 §1 の 3・§5-5)。
+
+- 公開の関数とクラス
+  - `build_scan_new`(関数): 構築の封の守りを、表だけを差し替えて呼ぶ。今の表との差(新しく当たるファイルの数と、ファイルと語の組の数)。
+  - `count_new_path_hits`(関数): 道筋の母数で、今の表・まとめた語のそれぞれで当たる数と、新しく当たる数。
+  - `dryrun`(関数)
+  - `main`(関数)
+  - `merged`(関数): 2 つの表をまとめた語(並びは a の後に、a に無い b)。大文字と小文字の違いは別の語として残す。
+  - `path_hit`(関数): 読みの守りと同じ当たり方(小文字にそろえた道筋に、小文字にそろえた語が入っているか)。ファイルには触らない。
+  - `render`(関数)
+- import している内部モジュール: `shibuya.build.audit.w19_freeze`
+- 読む試験(道筋で): `tests/tools/test_sealed_tokens_dryrun.py`
+- CLI の引数
+  - `--json`: 記録の JSON の置き場(数だけを書く)
+- 決定の ID: 11-20/§1
 
 ## [skill_gauge.py](../../../../../../tools/instruments/skill_gauge.py)
 

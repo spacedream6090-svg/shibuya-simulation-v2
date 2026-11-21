@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 25 本・その他 0 本(このディレクトリの直下)
+Python 26 本・その他 0 本(このディレクトリの直下)
 
 ## [test_absent_declarations.py](../../../../../../tests/tools/test_absent_declarations.py)
 
@@ -879,6 +879,18 @@ tools/instruments/sealed_tokens_compare.py の試験(11-16 §1-6 の 5=語を出
   - `test_output_never_shows_a_token`(関数)
   - `test_same_sets`(関数)
 - 決定の ID: 11-16/§1-6
+
+## [test_sealed_tokens_dryrun.py](../../../../../../tests/tools/test_sealed_tokens_dryrun.py)
+
+封印の語の表をまとめた語で 2 つの守りを空回しする道具(``tools/instruments/sealed_tokens_dryrun.py``)の試験。
+
+- 公開の関数とクラス
+  - `test_build_scan_new_swaps_only_the_table_and_restores_it`(関数)
+  - `test_count_new_path_hits_counts_only_newly_hit_paths`(関数)
+  - `test_merged_keeps_order_and_drops_repeats`(関数)
+  - `test_output_never_shows_a_token`(関数)
+  - `test_path_hit_is_case_blind_and_slash_blind`(関数)
+- 決定の ID: 11-20/§1
 
 ## [test_skill_gauge.py](../../../../../../tests/tools/test_skill_gauge.py)
 
